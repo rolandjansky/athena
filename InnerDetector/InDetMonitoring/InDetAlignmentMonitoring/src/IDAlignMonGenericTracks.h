@@ -22,6 +22,10 @@
 #include "TH3F.h"
 #include "TH2F.h"
 #include "TFile.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 #include <map>
 
 class VxContainer;
@@ -185,6 +189,8 @@ protected:
   TH1F* m_d0;
   TH1F* m_d0_pvcorr;
   TH1F* m_d0_bscorr;
+  TH1F* m_trk_d0_wrtPV;
+  TH1F* m_trk_z0_wrtPV;
   TH1F* m_pT;
   TH1F* m_pTRes;
   TH1F* m_pTResOverP;
@@ -390,8 +396,10 @@ protected:
   bool fillVertexInformation() const;
   const Trk::Track*        getTrkTrack(const Trk::VxTrackAtVertex*)const;
   const Trk::VxCandidate*  findAssociatedVertex(const Trk::Track *) const;
+  const xAOD::Vertex*      findAssociatedVertexTP(const xAOD::TrackParticle *) const;
 
   mutable std::map<const Trk::Track*, const Trk::VxCandidate* > m_trackVertexMap;
+  mutable std::map<const xAOD::TrackParticle*, const xAOD::Vertex* > m_trackVertexMapTP;
   
   const AtlasDetectorID*                m_idHelper;
   const PixelID*                        m_pixelID;
@@ -407,7 +415,7 @@ protected:
   std::string  m_tracksName; // holds the name of the track coll to be used
   std::string m_triggerChainName;
   float m_barrelEta;
-  const VxContainer* m_vertices;
+  const xAOD::VertexContainer* m_vertices;
   bool m_doHitQuality;
   bool m_extendedPlots;
   float m_d0Range;

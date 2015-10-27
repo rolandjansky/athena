@@ -263,9 +263,10 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
   std::cout << " -- ModuleAlignDraw -- Drawing alignment corrections maps for type " << DetType << " layer: " << Layer << std::endl; 
   // Now let's print all the histograms and save it in a file
   TCanvas* cAlignCorrectionsMap[Ndofs];
+
   for (int dof=0; dof < Ndofs; dof++) {
     hName.Clear();
-    hName.Append("cAlignCorrMap");
+    hName.Append("cAlignCorrMap_");
     hName.Append(dofName[dof].Data());
 
     cAlignCorrectionsMap[dof] = new TCanvas (hName.Data(), hAlignCorrectionsMap[dof]->GetTitle(), 900, 650);
@@ -285,15 +286,48 @@ void ModuleAlignDraw(char nname[80]=NULL,Int_t DetType= 1, Int_t Layer= 0, float
     hTitle.Append("_map.png");
     
     cAlignCorrectionsMap[dof]->Print(hTitle.Data());
+  }
 
-    hTitle.ReplaceAll("_map.png","_prof.png");
+  // test compute Tz and eta of the center of each IBL module
+  std::vector<float> ringID, ringEta;
+  for (int ring = -10; ring <=9; ring++) {
+    float thisZ =  ComputeTz(PIX, 0, (double) ring);
+    float thistheta = atan(33.45/thisZ); if (thistheta <0) thistheta += 3.14159265;
+    float thiseta = -log(tan(thistheta/2));
+    std::cout << " ring :" << ring << "  thisZ = " << thisZ << "  theta " << thistheta << "  eta " << thiseta << std::endl;
+    ringID.push_back((float)ring);
+    ringEta.push_back((float)thiseta);
+  }
+  
+  //
+  // draw the profiles 
+  //
+  TCanvas* cAlignCorrectionsProf[Ndofs];
+  for (int dof=0; dof < Ndofs; dof++) {
+    hName.Clear();
+    hName.Append("cAlignCorrProf_");
+    hName.Append(dofName[dof].Data());
+
+    cAlignCorrectionsProf[dof] = new TCanvas (hName.Data(), hAlignCorrectionsMap[dof]->GetTitle(), 900, 650);
     hAlignCorrStaveProfile[dof]->Draw();
-    cAlignCorrectionsMap[dof]->Print(hTitle.Data());
+
+    hTitle.Clear();
+    if (DetType == PIX && Layer==0) hTitle.Append("IBL_");
+    if (DetType == PIX && Layer >0) hTitle.Append("PIX_Layer_");
+    if (DetType == SCT) hTitle.Append("SCT_Layer_");
+    if (!(DetType == PIX && Layer==0)) hTitle += Layer;
+    if (DetType == TRT) {
+      hTitle.Clear();
+      hTitle.Append("TRT_Barrel_");
+    }
+    hTitle.Append(dofName[dof].Data());
+    hTitle.Append("_prof.png");
     
+
+    cAlignCorrectionsProf[dof]->Print(hTitle.Data());    
     
   }
 
-  
 
 
   return;

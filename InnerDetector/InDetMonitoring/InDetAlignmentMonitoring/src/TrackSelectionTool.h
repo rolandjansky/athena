@@ -13,7 +13,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "DataModel/DataVector.h"
-
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include <vector>
 
 namespace Trk{
@@ -45,7 +49,9 @@ namespace InDetAlignMon{
 
     //if this method is used the decision on which trackcollection
     //is made by the calling method
-    DataVector<Trk::Track>* selectTracks(const std::string&);
+    DataVector<Trk::Track>* selectTracksNew(const std::string&);
+    DataVector<Trk::Track>* selectTracks(const std::string &);
+    DataVector<xAOD::TrackParticle>* selectTracksParticle(const std::string &);
 
     //if this method the decision on which trackcollection
     //is made from the configuration of the TrackSlectionTool (in jobOptions)
