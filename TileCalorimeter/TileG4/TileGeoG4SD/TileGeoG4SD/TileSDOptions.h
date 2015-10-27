@@ -25,6 +25,7 @@ struct TileSDOptions {
    , doTileRow ( false )
    , doTOFCorrection ( true )
    , doCalibHitParticleID ( false )
+   , verboseLevel(0)
    , rDBAccessSvcName ( "RDBAccessSvc" )
    , geoModelSvcName ( "GeoModelSvc" )
   { deltaTHit = { 0.5 , -75.25 , 75.25 , 5. }; }
