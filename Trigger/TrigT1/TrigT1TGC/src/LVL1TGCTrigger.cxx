@@ -153,7 +153,7 @@ namespace LVL1TGCTrigger {
  
     if (g_USE_INNER) {
       std::string vmode="MONITOR";
-      if (g_INNER_VETO) vmode="TRIGGER";
+      if (g_INNER_VETO) vmode="SURPRESS";
       m_log << MSG::INFO  << "LVL1TGCTrigger: CoincidenceMatrix for EI/FI will be used "
 	    << "[ " << vmode << " mode ]" << endreq;
     }
@@ -1322,18 +1322,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
       bool isHipt  = rawdata->type()==TgcRawData::TYPE_HIPT;
       bool isInner = (rawdata->sector() & 4) != 0;
 
-      // variables for non-registered data of EI/FI mask2=1 hits
-      bool isTracklet = rawdata->type() == TgcRawData::TYPE_TRACKLET;
-      TgcRawData::SlbType slbtype = rawdata->slbType();
-
-      if(isTracklet && (slbtype == TgcRawData::SLB_TYPE_INNER_WIRE ||
-                        slbtype == TgcRawData::SLB_TYPE_INNER_STRIP)) {
-
-        m_log << MSG::DEBUG << "Inner coincidence words without BW hits"
-                            << " for subDetectorId=" << rawdata->subDetectorId()
-                            << " for rodId=" << rawdata->rodId() << endreq;
-
-      } else if (isHipt && isInner) {
+      if (isHipt && isInner) {
         m_log << MSG::DEBUG << "Inner coincidence words without BW hits" 
 	      << " for subDetectorId=" << rawdata->subDetectorId()
 	      << " for rodId=" << rawdata->rodId()

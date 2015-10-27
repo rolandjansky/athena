@@ -123,7 +123,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   log << MSG::INFO 
       << " TGC Big Wheel CW version of " << m_verName << " is selected " << endreq;
   for(int i=0; i<N_PT_THRESH; i++) {
-    log << MSG::VERBOSE 
+    log << MSG::INFO 
 	<< "TGC Pt_Thr: " << std::setw(2) << i+1
 	<< "  pt(used)="  << std::setw(3) << maxpt[i] 
       	<< endreq;
