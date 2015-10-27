@@ -1,0 +1,41 @@
+package CalibrationDataInterface
+
+author Frank Filthaut <F.Filthaut@science.ru.nl>
+
+public
+
+use AtlasPolicy       AtlasPolicy-* 
+use AthenaBaseComps   AthenaBaseComps-*   Control
+use GaudiInterface    GaudiInterface-*    External
+
+use JetTagCalibration JetTagCalibration-* PhysicsAnalysis/JetTagging
+#use JetTagInfo        JetTagInfo-*        PhysicsAnalysis/JetTagging
+#use JetEvent          JetEvent-*          Reconstruction/Jet
+
+use AtlasROOT         AtlasROOT-*         External
+
+#library CalibrationDataInterfaceLib "../Root/*.cxx ../src/*.cxx"
+library CalibrationDataInterfaceLib "../Root/*.cxx"
+apply_pattern named_installed_library library=CalibrationDataInterfaceLib
+
+apply_pattern declare_joboptions files="*.py"
+#apply_pattern dual_usage_library files="*.cxx"
+
+
+#library CalibrationDataInterface *.cxx components/*.cxx
+#macro_append CalibrationDataInterface_dependencies " CalibrationDataInterfaceLib"
+#apply_pattern component_library
+
+
+# this is to get CINT dictionaries generated
+apply_pattern have_root_headers root_headers="CalibrationDataContainer.h CalibrationDataVariables.h CalibrationDataInterfaceBase.h CalibrationDataInterfaceROOT.h CalibrationDataEigenVariations.h CalibrationDataBackend.h CalibrationDataUtilities.h ../Root/LinkDef.h" headers_lib=CalibrationDataInterfaceLib
+# apply_pattern have_root_headers root_headers="CalibrationDataContainer.h CalibrationDataVariables.h ../Root/LinkDef.h" headers_lib=CalibrationDataInterfaceLib
+
+private
+
+apply_tag ROOTMathLibs
+
+# the following lines are used to retain debugging symbols for this package
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
