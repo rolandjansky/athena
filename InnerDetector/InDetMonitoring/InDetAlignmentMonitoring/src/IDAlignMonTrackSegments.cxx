@@ -22,8 +22,7 @@
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"
 #include "TrackSelectionTool.h"
 #include <iostream>
-using std::cout;
-using std::endl;
+
 
 struct IDAlignMonTrackSegments::UpperLowerHistograms{
 
@@ -293,38 +292,38 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
       
       //========= z0
       m_delta_z0->dTp[charge] = MakeHist("delta_z0"+histNames[charge]
-					 ,"z_{0}^{Low} - z_{0}^{Upper}"+chargeNames[charge]+"; #Delta z_{0} [mm]"
-					 ,100,-1,1);
+					 ,"z_{0}^{Upper} - z_{0}^{Low}"+chargeNames[charge]+"; #Delta z_{0} [mm]"
+					 ,100,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->dTp[charge]);  
 
       m_delta_z0->dTpPull[charge] = MakeHist("delta_z0_Pull"+histNames[charge]
-					     ,"z_{0}^{Low} - z_{0}^{Upper} / #sigma_{z_{0}}"+chargeNames[charge]+"; #Delta z_{0} pull"
-					     ,100,-1,1);
+					     ,"z_{0}^{Upper} - z_{0}^{Low} / #sigma_{z_{0}}"+chargeNames[charge]+"; #Delta z_{0} pull"
+					     ,100,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->dTpPull[charge]);  
 
       m_delta_z0->VsD0[charge] = MakeHist("delta_z0VsD0"+histNames[charge]
-					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs d_{0}^{Upper}"+chargeNames[charge]+"; z_{0}^{Upper} [mm]; #Delta z_{0} [mm]"
-					  ,8,-1*m_d0Range,m_d0Range,50,-1,1);
+					  ,"z_{0}^{Upper} - z_{0}^{low} Vs d_{0}^{Upper}"+chargeNames[charge]+"; z_{0}^{Upper} [mm]; #Delta z_{0} [mm]"
+					  ,8,-1*m_d0Range,m_d0Range,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsD0[charge]);  
 
       m_delta_z0->VsPhi0[charge] = MakeHist("delta_z0VsPhi0"+histNames[charge]
-					    ,"z_{0}^{Low} - z_{0}^{Upper} Vs #phi_{0}^{Upper}"+chargeNames[charge]
-					    ,8,-3.14,m_upperPhi,50,-1,1);
+					    ,"z_{0}^{Upper} - z_{0}^{Low} Vs #phi_{0}^{Upper}"+chargeNames[charge]
+					    ,8,-3.14,m_upperPhi,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsPhi0[charge]);  
       
       m_delta_z0->VsPt[charge] = MakeHist("delta_z0VsPt"+histNames[charge]
-					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]
-					  ,10,0,100,50,-3,3);
+					  ,"z_{0}^{Upper} - z_{0}^{Low} Vs p_{T}^{Upper}"+chargeNames[charge]
+					  ,10,0,100,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsPt[charge]);  
 
       m_delta_z0->VsEta[charge] = MakeHist("delta_z0VsEta"+histNames[charge]
-					   ,"z_{0}^{Low} - z_{0}^{Upper} Vs #eta^{Upper}"+chargeNames[charge]
-					   ,50,-2.1,2.1,50,-1,1);
+					   ,"z_{0}^{Upper} - z_{0}^{Low} Vs #eta^{Upper}"+chargeNames[charge]
+					   ,50,-2.1,2.1,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsEta[charge]);  
       
       m_delta_z0->VsZ0[charge] = MakeHist("delta_z0VsZ0"+histNames[charge]
-					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs z_{0}^{Upper}"+chargeNames[charge]
-					  ,50,-1000,1000,50,-1,1);
+					  ,"z_{0}^{Upper} - z_{0}^{Low} Vs z_{0}^{Upper}"+chargeNames[charge]
+					  ,50,-800,800,50,-0.6,0.6);
       RegisterHisto(al_mon,m_delta_z0->VsZ0[charge]);  
       
       //====== phi0 ========
@@ -366,37 +365,37 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
 
       //======= eta0 =======
       m_delta_eta0->dTp[charge] = MakeHist("delta_eta0"+histNames[charge]
-					   ,"#eta_{0}^{Low} - #eta_{0}^{Upper}"+chargeNames[charge]
-					   ,100, -0.02, 0.02);
+					   ,"#eta_{0}^{Upper} - #eta_{0}^{Low}"+chargeNames[charge]
+					   ,100, -0.005, 0.005);
       RegisterHisto(al_mon,m_delta_eta0->dTp[charge]);  
       
       m_delta_eta0->dTpPull[charge] = MakeHist("delta_eta0_Pull"+histNames[charge]
-					     ,"eta_{0}^{Low} - eta_{0}^{Upper} / #sigma_{eta_{0}}"+chargeNames[charge]
+					     ,"eta_{0}^{Upper} - eta_{0}^{Low} / #sigma_{eta_{0}}"+chargeNames[charge]
 					     ,100,-4,4);
       RegisterHisto(al_mon,m_delta_eta0->dTpPull[charge]);  
 
       m_delta_eta0->VsD0[charge] = MakeHist("delta_eta0VsD0"+histNames[charge]
-					    ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs D0^{Upper}"+chargeNames[charge]
+					    ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs D0^{Upper}"+chargeNames[charge]
 					    ,8,-1*m_d0Range,m_d0Range,50,-0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsD0[charge]);  
 
       m_delta_eta0->VsPhi0[charge] = MakeHist("delta_eta0VsPhi0"+histNames[charge]
-					      ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs Phi0^{Upper}"+chargeNames[charge]
+					      ,"#eta_{0}^{Upper} - #eta_{0}^{low} Vs Phi0^{Upper}"+chargeNames[charge]
 					      ,8,-3.14,m_upperPhi,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPhi0[charge]);  
 
       m_delta_eta0->VsPt[charge] = MakeHist("delta_eta0VsPt"+histNames[charge]
-					    ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]
+					    ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs p_{T}^{Upper}"+chargeNames[charge]
 					    ,10,0,100,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPt[charge]);  
 
       m_delta_eta0->VsEta[charge] = MakeHist("delta_eta0VsEta"+histNames[charge]
-					     ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs #eta_{0}^{Upper}"+chargeNames[charge]
+					     ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs #eta_{0}^{Upper}"+chargeNames[charge]
 					     ,50,-2.1,2.1,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsEta[charge]);  
 
       m_delta_eta0->VsZ0[charge] = MakeHist("delta_eta0VsZ0"+histNames[charge]
-					    ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs Z0^{Upper}"+chargeNames[charge]
+					    ,"#eta_{0}^{Upper} - #eta_{0}^{Low} Vs Z0^{Upper}"+chargeNames[charge]
 					    ,50,-1000,1000,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsZ0[charge]);  
 
@@ -544,7 +543,7 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_debug_eta0);  
     
     //========== Pt
-    m_delta_pt = TH1F_LW::create("delta_pt","P_{T}^{Low} - P_{T}^{Upper}",300,-3.0,3.0);
+    m_delta_pt = TH1F_LW::create("delta_pt","P_{T}^{Low} - P_{T}^{Upper}",100,-3.0,3.0);
     RegisterHisto(al_mon,m_delta_pt);        
     m_reldelta_pt = TH1F_LW::create("reldelta_pt","P_{T}^{upper} - P_{T}^{lower}/P_{T}^{lower}",100,-1.0,1.0);
     RegisterHisto(al_mon,m_reldelta_pt);  
@@ -585,13 +584,14 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   
   m_events++;
   //Get the track collections
-  const TrackCollection* tracksUpper(0);
-  const TrackCollection* tracksLower(0);
+  const DataVector<Trk::Track>* tracksUpper(0);
+  const DataVector<Trk::Track>* tracksLower(0);
 
-  if (false) {
-    std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- upper= "<< m_upperTracksName << "   lower: "<< m_lowerTracksName << " START " 
-	      << std::endl;
-  }
+  //if (false) {
+  //  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- START -- upper track collection = "<< m_upperTracksName << std::endl
+  //	      << "                                                                 lower track collection = "<< m_lowerTracksName 
+  //	      << std::endl;
+  //}
 
   if(m_useCTBSplitTracks){
     
@@ -630,33 +630,49 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     }
     
     //Split the tracks.
-    const TrackCollection* tracksIn; 
+    const DataVector<Trk::Track>* tracksIn; 
     StatusCode sc = evtStore()->retrieve(tracksIn, m_inputTracksName);
     if (sc.isFailure()) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endreq;
-      if (false) std::cout << " -- SALVA -- No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << std::endl;
+      
     }else{
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endreq;
-      if (false) std::cout << " -- SALVA -- Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << std::endl;
+      
     }
+    //if (false) {
+    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- going to split tracks for track collection: " << m_inputTracksName 
+    //		<< " with size: " <<  tracksIn->size()                                                                 
+    //		<< std::endl;
+    //}
     //This records the upper and lower track collections to storeGate 
     m_trackSplitter->splitTracks(tracksIn);
-    
+    //if (false) {
+    //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- track collection: " << m_inputTracksName 
+    //		<< " (size: " <<  tracksIn->size() <<" ) splitting completed "                                                                 
+    //		<< std::endl;
+    //}
     //Get the Upper Tracks
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
-      std::cout << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << std::endl;
+      
     }
 
     //Get the Lower Tracks
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
-      //if (false) std::cout << " -- SALVA -- TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endl;
+      
     }
 
   }
+
+  //if (false) {
+  //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- retrieve upper and lower track segments that satisfy the track selection " << std::endl
+  //	      << "                                                     upper track collection = "<< m_upperTracksName << "   size: " << tracksUpper->size() << std::endl
+  //	      << "                                                     lower track collection = "<< m_lowerTracksName << "   size: " << tracksLower->size() 
+  //	      << std::endl;
+  //}
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksUpper->size() <<" Upper Tracks." << endreq;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksLower->size() <<" Lower Tracks from Track from StoreGate" << endreq;
@@ -668,8 +684,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   //looping over the upper barrel tracks
   int nTracksUpper = 0;
   
-  TrackCollection::const_iterator trackItrUpper  = tracksUpper->begin();
-  TrackCollection::const_iterator trackItrUpperE = tracksUpper->end();
+  DataVector<Trk::Track>::const_iterator trackItrUpper  = tracksUpper->begin();
+  DataVector<Trk::Track>::const_iterator trackItrUpperE = tracksUpper->end();
   for (; trackItrUpper != trackItrUpperE; ++trackItrUpper) { 
     const Trk::Track* trackUpper = *trackItrUpper;
     if(trackUpper == NULL){
@@ -1002,7 +1018,12 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   
   delete tracksLower;
   delete tracksUpper;
-    
+  //if (true) {
+  //std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- COMPLETED -- "<< m_upperTracksName << " size: " << tracksUpper->size() 
+  //	      << "    "<< m_lowerTracksName << " size: " << tracksLower->size() 
+  //	      << std::endl;
+  //}
+  
   return StatusCode::SUCCESS;
 }
 
