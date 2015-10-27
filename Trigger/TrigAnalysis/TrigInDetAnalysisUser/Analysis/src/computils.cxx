@@ -84,6 +84,16 @@ bool fcontains( const std::string& s, const std::string& p) {
 }
 
 
+double plotable( TH1* h ) { 
+  double n = 0;
+  for ( int i=h->GetNbinsX()+1 ; --i ; ) { 
+    n += h->GetBinContent(i);
+  } 
+  return n;
+}
+
+
+
 bool exists( const std::string& filename ) { 
   struct stat sb;
   if ( stat( filename.c_str(), &sb)==0 ) return true; // && S_ISREG(sb.st_mode ))
