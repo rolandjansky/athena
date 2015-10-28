@@ -5,6 +5,7 @@
 #include "MuGirlStau/StauRPC.h"
 #include "MuGirlStau/StauCalibration.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 
 //================ Constructor =================================================
 
@@ -24,7 +25,6 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
     m_pMuonMgr = pStauTool->muonMgr();
     m_addMuToF = pStauTool->addMuToF();
 
-    double bugFix = (m_pStau->rpcBugFix() ? 2 * 3.125 : 0.); //reduce half or 1.5 ticks from the time, depend on the rpc bug
     double timeShift = m_pStau->rpcTimeShift();
 
     m_rpcHitsByStations = new StauRpcHitsLists();
@@ -40,8 +40,13 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
     for (auto pRioList : rpcHitsInSegments)
     {
         auto pRpcHits = new StauRpcHitsList();
-        for (auto pRpcRIO : *pRioList)
+        for (auto pRIO : *pRioList)
         {
+            const Muon::RpcClusterOnTrack* pRpcRIO = dynamic_cast<const Muon::RpcClusterOnTrack*>(pRIO);
+            if( !pRpcRIO ) {
+                LOG_DEBUG << "Cannot dynamic_cast ROT to const Muon::RpcClusterOnTrack* - continuing" << endreq; 
+                continue; 
+            }
             auto pPrepData = pRpcRIO->prepRawData();
             auto pRpcPrepData = dynamic_cast<const Muon::RpcPrepData*>(pPrepData);
             if (pRpcPrepData == NULL){ 
@@ -55,11 +60,11 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
             double error = RPCRESOLUTION; // default time resolution
             double distance = fabs(pos.perp()) / 1000; //[m]
             double muonToF = distance / SPEEDOFLIGHT;
-            double measuredTime = pRpcPrepData->time() + 1.5 * 3.125 - timeShift;
+            double measuredTime = pRpcRIO->time();
+            double propTime = pRpcPrepData->time() - measuredTime;
             LOG_DEBUG << "RPC hit - distance: " << distance
                       << ", pRpcPrepData->time(): " << pRpcPrepData->time()
                       << ", timeShift: " << timeShift
-                      << ", bugFix: " << bugFix
                       << " -> measuredTime: " << measuredTime
                       << endreq;
             if (m_pStau->doCalibration())
@@ -72,7 +77,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
                 if (m_pStau->isData())
                 {
                     shift = itCalib->second.timeShift; //shift
-                    measuredTime += timeShift - 1.5 * 3.125 - shift;
+                    measuredTime -=  shift;
                 }
                 else
                 { //smear
@@ -91,15 +96,7 @@ MuGirlNS::StauRPC::StauRPC(StauTool* pStauTool, MsgStream& log,
             // moved up        const RpcIdHelper* pIdHelper = m_pMuonMgr->rpcIdHelper();// new RpcIdHelper();
             // moved up       bool b_isEta = !pIdHelper->measuresPhi(pRpcRIO->identify());
 
-            auto pROElement = m_pMuonMgr->getRpcReadoutElement(pRpcRIO->identify());
-            double d_propagation = 0;
-            if (b_isEta)
-                d_propagation = pROElement->distanceToEtaReadout(pos, pRpcRIO->identify());
-            else
-                d_propagation = pROElement->distanceToPhiReadout(pos, pRpcRIO->identify());
-
-            double propTime = (fabs(d_propagation) / 1000) * RPCINVSIGVEL;
-
+            //auto pROElement = m_pMuonMgr->getRpcReadoutElement(pRpcRIO->identify());
             pRpcHit->id = pRpcRIO->identify();
             pRpcHit->distance = distance;
             pRpcHit->propagationTime = propTime;
