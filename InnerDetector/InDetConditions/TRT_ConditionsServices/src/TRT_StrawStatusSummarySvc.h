@@ -155,7 +155,6 @@ class TRT_StrawStatusSummarySvc: public AthService,
 
 	// COPIED FROM TRT LOCAL OCCUPANCY TOOL NOT OPTIMAL!!!
   int findArrayTotalIndex(const int det, const int lay);
-  int findArrayLocalIndex(const int det, const int lay);
   int findArrayLocalWheelIndex(const int det, const int lay);
   int findArrayLocalStrawIndex(const int det, const int lay, const int strawlay);
 

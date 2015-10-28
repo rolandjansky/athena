@@ -42,6 +42,10 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   declareProperty("StreamTool",m_streamer);
   declareProperty("calibTextFile",par_caltextfile);
   declareProperty("DetectorStore",m_detstore);
+  declareProperty("RtFolderName",par_rtcontainerkey);
+  declareProperty("T0FolderName",par_t0containerkey);
+  //declareProperty("ErrorSlopeFolderName",par_slopecontainerkey);
+  declareProperty("ErrorFolderName",par_errcontainerkey);
   ++s_numberOfInstances;
 }
 
