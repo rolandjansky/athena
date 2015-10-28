@@ -17,317 +17,299 @@
 #include <iostream>
 namespace InDetDD {
 
-  const int FIRST_HIGHER_LEVEL = 2;
+    const int FIRST_HIGHER_LEVEL = 2;
 
-  SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
-    : SiDetectorManager(detStore, "SCT"),
-    m_idHelper(0)
-//        m_isLogical(false) // Change to true to change the definition of local module corrections
-  {
-    //  
-    // Initialized the Identifier helper.
-    //
-    StatusCode sc = detStore->retrieve(m_idHelper, "SCT_ID");  
-    if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not retrieve SCT id helper" << endreq;
-    }
-    // Initialize the collections.
-    if (m_idHelper) {
-      m_elementCollection.resize(m_idHelper->wafer_hash_max());
-      m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
-      m_moduleAlignableTransforms.resize(m_idHelper->wafer_hash_max()/2);
-    } 
-  }
-
-
-
-  SCT_DetectorManager::~SCT_DetectorManager()
-  {
-    // Clean up
-    SiDetectorElementCollection::iterator iter;
-    for (iter = m_elementCollection.begin(); iter != m_elementCollection.end(); ++iter){
-      delete *iter;
+    SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
+        : SiDetectorManager(detStore, "SCT"),
+        m_idHelper(0)
+    {
+        //  
+        // Initialized the Identifier helper.
+        //
+        StatusCode sc = detStore->retrieve(m_idHelper, "SCT_ID");    
+        if (sc.isFailure() ) {
+            msg(MSG::ERROR) << "Could not retrieve SCT id helper" << endreq;
+        }
+        // Initialize the collections.
+        if (m_idHelper) {
+            m_elementCollection.resize(m_idHelper->wafer_hash_max());
+            m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
+            m_moduleAlignableTransforms.resize(m_idHelper->wafer_hash_max()/2);
+        } 
     }
 
-    for (size_t i=0; i < m_volume.size(); i++) {
-      m_volume[i]->unref();
+
+    SCT_DetectorManager::~SCT_DetectorManager()
+    {
+        // Clean up
+        SiDetectorElementCollection::iterator iter;
+        for (iter = m_elementCollection.begin(); iter != m_elementCollection.end(); ++iter){
+            delete *iter;
+        }
+
+        for (size_t i=0; i < m_volume.size(); i++) {
+            m_volume[i]->unref();
+        }
+
+        for (size_t j=0; j < m_higherAlignableTransforms.size(); j++){
+            AlignableTransformMap::iterator iterMap;    
+            for (iterMap = m_higherAlignableTransforms[j].begin(); 
+            iterMap != m_higherAlignableTransforms[j].end();
+            ++iterMap) {
+                delete iterMap->second;
+            }
+        }
+
+        for (size_t k=0; k < m_alignableTransforms.size(); k++){
+            delete m_alignableTransforms[k];
+        }
+
+        for (size_t l=0; l < m_moduleAlignableTransforms.size(); l++){
+            delete m_moduleAlignableTransforms[l];
+        }
     }
 
-    for (size_t j=0; j < m_higherAlignableTransforms.size(); j++){
-      AlignableTransformMap::iterator iterMap;  
-      for (iterMap = m_higherAlignableTransforms[j].begin(); 
-      iterMap != m_higherAlignableTransforms[j].end();
-      ++iterMap) {
-        delete iterMap->second;
-      }
+    unsigned int SCT_DetectorManager::getNumTreeTops() const
+    {
+        return m_volume.size(); 
     }
 
-    for (size_t k=0; k < m_alignableTransforms.size(); k++){
-      delete m_alignableTransforms[k];
+    PVConstLink SCT_DetectorManager::getTreeTop(unsigned int i) const
+    {
+        return m_volume[i];
     }
 
-    for (size_t l=0; l < m_moduleAlignableTransforms.size(); l++){
-      delete m_moduleAlignableTransforms[l];
+    void SCT_DetectorManager::addTreeTop(PVLink vol){
+        vol->ref();
+        m_volume.push_back(vol);
     }
-  }
-
-  unsigned int SCT_DetectorManager::getNumTreeTops() const
-  {
-    return m_volume.size(); 
-  }
-
-  PVConstLink SCT_DetectorManager::getTreeTop(unsigned int i) const
-  {
-    return m_volume[i];
-  }
-
-  void SCT_DetectorManager::addTreeTop(PVLink vol){
-    vol->ref();
-    m_volume.push_back(vol);
-  }
 
 
-  SiDetectorElement* SCT_DetectorManager::getDetectorElement(const Identifier & id) const
-  {  
-    // NB the id helpers implementation for getting a hash is not optimal.
-    // Essentially does a binary search.
-    // Make sure it is a wafer Id
-    Identifier waferId =  m_idHelper->wafer_id(id);
-    IdentifierHash idHash = m_idHelper->wafer_hash(waferId);
-    if (idHash.is_valid()) {
-      return m_elementCollection[idHash];
-    } else {
-      return 0;
+    SiDetectorElement* SCT_DetectorManager::getDetectorElement(const Identifier & id) const
+    {  
+        // NB the id helpers implementation for getting a hash is not optimal.
+        // Essentially does a binary search.
+        // Make sure it is a wafer Id
+        Identifier waferId =  m_idHelper->wafer_id(id);
+        IdentifierHash idHash = m_idHelper->wafer_hash(waferId);
+        if (idHash.is_valid()) {
+            return m_elementCollection[idHash];
+        } else {
+            return 0;
+        }
     }
-  }
 
-  SiDetectorElement* SCT_DetectorManager::getDetectorElement(const IdentifierHash & idHash) const
-  {
-    return m_elementCollection[idHash];
-  }
+    SiDetectorElement* SCT_DetectorManager::getDetectorElement(const IdentifierHash & idHash) const
+    {
+        return m_elementCollection[idHash];
+    }
 
-  SiDetectorElement* SCT_DetectorManager::getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side) const
-  {
-    return getDetectorElement(m_idHelper->wafer_id(barrel_endcap, layer_wheel, phi_module, eta_module, side));
-  }
-
-
-  const SiDetectorElementCollection* SCT_DetectorManager::getDetectorElementCollection() const
-  { 
-    return &m_elementCollection;
-  }
-
-  SiDetectorElementCollection::const_iterator SCT_DetectorManager::getDetectorElementBegin() const
-  {
-    return m_elementCollection.begin();
-  }
-
-  SiDetectorElementCollection::const_iterator SCT_DetectorManager::getDetectorElementEnd() const
-  {
-    return m_elementCollection.end();
-  }
+    SiDetectorElement* SCT_DetectorManager::getDetectorElement(int barrel_endcap, int layer_wheel, int phi_module, int eta_module, int side) const
+    {
+        return getDetectorElement(m_idHelper->wafer_id(barrel_endcap, layer_wheel, phi_module, eta_module, side));
+    }
 
 
-  void SCT_DetectorManager::addDetectorElement(SiDetectorElement * element)
-  {
-    IdentifierHash idHash = element->identifyHash();
-    if (idHash >=  m_elementCollection.size())
-      throw std::runtime_error("SCT_DetectorManager: Error adding detector element.");
-    m_elementCollection[idHash] = element;
-  }
+    const SiDetectorElementCollection* SCT_DetectorManager::getDetectorElementCollection() const
+    { 
+        return &m_elementCollection;
+    }
 
-  void SCT_DetectorManager::initNeighbours()
-  {
-    SiDetectorElementCollection::iterator iter;
+    SiDetectorElementCollection::const_iterator SCT_DetectorManager::getDetectorElementBegin() const
+    {
+        return m_elementCollection.begin();
+    }
 
-    // Loop over all elements and set the neighbours
-    for (iter = m_elementCollection.begin(); iter != m_elementCollection.end(); ++iter){
+    SiDetectorElementCollection::const_iterator SCT_DetectorManager::getDetectorElementEnd() const
+    {
+        return m_elementCollection.end();
+    }
 
-      SiDetectorElement * element = *iter;
-      if (element) {
 
+    void SCT_DetectorManager::addDetectorElement(SiDetectorElement * element)
+    {
         IdentifierHash idHash = element->identifyHash();
-        IdentifierHash idHashOther;
-
-        int result;
-        // If no neighbour, result != 0 in which case we leave neighbour as null
-        result = m_idHelper->get_next_in_eta(idHash, idHashOther);
-        if (result==0) element->setNextInEta(m_elementCollection[idHashOther]);
-
-        result = m_idHelper->get_prev_in_eta(idHash, idHashOther);
-        if (result==0) element->setPrevInEta(m_elementCollection[idHashOther]);
-
-        result = m_idHelper->get_next_in_phi(idHash, idHashOther);
-        if (result==0) element->setNextInPhi(m_elementCollection[idHashOther]);
-
-        result = m_idHelper->get_prev_in_phi(idHash, idHashOther);
-        if (result==0) element->setPrevInPhi(m_elementCollection[idHashOther]);
-
-        result = m_idHelper->get_other_side(idHash, idHashOther);
-        if (result==0) element->setOtherSide(m_elementCollection[idHashOther]);
-      }
-    }
-  }
-
-
-  const SCT_ID* SCT_DetectorManager::getIdHelper() const
-  {
-    return m_idHelper;
-  }
-
-
-  bool SCT_DetectorManager::setAlignableTransformDelta(int level, 
-                             const Identifier & id, 
-                             const Amg::Transform3D & delta,
-                             FrameType frame) const
-  {
-
-    if (level == 0) { // 0 - At the element level
-
-      // We retrieve it via a hashId.
-      IdentifierHash idHash = m_idHelper->wafer_hash(id);
-      if (!idHash.is_valid()) return false;
-
-      if (frame == InDetDD::global) { // global shift
-        // Its a global transform
-        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash], delta);
-
-      } else if (frame == InDetDD::local) { // local shift
-
-        const SiDetectorElement * element =  m_elementCollection[idHash];
-        if (!element) return false;
-
-
-        // Its a local transform
-        //See header file for definition of m_isLogical          
-        //if( m_isLogical ){
-        //    //Ensure cache is up to date and use the alignment corrected local to global transform
-        //    element->updateCache();
-        //return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
-        //} else 
-        //Use default local to global transform
-        return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
-
-      } else {   
-        // other not supported
-        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
-        return false;
-      }
-
-    } else if (level == 1) { // module level
-
-      // We retrieve it via a hashId.
-      IdentifierHash idHash = m_idHelper->wafer_hash(id);
-      if (!idHash.is_valid()) return false;
-
-      int idModuleHash = idHash / 2;
-
-      if (idHash%2) {
-        msg(MSG::WARNING) << "Side 1 wafer id used for module id" << endreq;
-        return false;
-      }
-
-      if (frame == InDetDD::global) { // global shift
-        // Its a global transform
-        return setAlignableTransformGlobalDelta(m_moduleAlignableTransforms[idModuleHash], delta);
-      } else if (frame == InDetDD::local) { // local shift
-        const SiDetectorElement * element =  m_elementCollection[idHash];
-        if (!element) return false;
-        // Its a local transform
-        // Its a local transform
-        //See header file for definition of m_isLogical          
-        //if( m_isLogical ){
-        //    //Ensure cache is up to date and use the alignment corrected local to global transform
-        //    element->updateCache();
-        //return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash], element->moduleTransform(), delta);
-        //} else 
-        //Use default local to global transform
-        return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta);
-
-      } else {
-        // other not supported
-        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
-        return false;
-      }
-
-    } else { // higher level
-
-      if (frame != InDetDD::global) {
-        msg(MSG::WARNING) << "Non global shift at higher levels is not supported." << endreq;
-        return false;
-      }
-
-      int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
-      if (index  >=  static_cast<int>(m_higherAlignableTransforms.size())) return false;
-
-      // We retrieve it from a map. 
-      AlignableTransformMap::const_iterator iter;    
-      iter = m_higherAlignableTransforms[index].find(id);
-      if (iter == m_higherAlignableTransforms[index].end()) return false;      
-
-      // Its a global transform
-      return setAlignableTransformGlobalDelta(iter->second, delta);
+        if (idHash >=  m_elementCollection.size())
+            throw std::runtime_error("SCT_DetectorManager: Error adding detector element.");
+        m_elementCollection[idHash] = element;
     }
 
-  }
+    void SCT_DetectorManager::initNeighbours()
+    {
+        SiDetectorElementCollection::iterator iter;
 
-  void SCT_DetectorManager::addAlignableTransform (int level, 
-                           const Identifier & id, 
-                           GeoAlignableTransform *transform,
-                           const GeoVPhysVol * child)
-  {
-    if (m_idHelper) {
+        // Loop over all elements and set the neighbours
+        for (iter = m_elementCollection.begin(); iter != m_elementCollection.end(); ++iter){
 
-      const GeoVFullPhysVol * childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
-      if (!childFPV) { 
-        msg(MSG::ERROR) << "Child of alignable transform is not a full physical volume" 
-          << endreq;
-      } else {
-        addAlignableTransform (level, id, transform, childFPV);
-      }
+            SiDetectorElement * element = *iter;
+            if (element) {
+
+                IdentifierHash idHash = element->identifyHash();
+                IdentifierHash idHashOther;
+
+                int result;
+                // If no neighbour, result != 0 in which case we leave neighbour as null
+                result = m_idHelper->get_next_in_eta(idHash, idHashOther);
+                if (result==0) element->setNextInEta(m_elementCollection[idHashOther]);
+
+                result = m_idHelper->get_prev_in_eta(idHash, idHashOther);
+                if (result==0) element->setPrevInEta(m_elementCollection[idHashOther]);
+
+                result = m_idHelper->get_next_in_phi(idHash, idHashOther);
+                if (result==0) element->setNextInPhi(m_elementCollection[idHashOther]);
+
+                result = m_idHelper->get_prev_in_phi(idHash, idHashOther);
+                if (result==0) element->setPrevInPhi(m_elementCollection[idHashOther]);
+
+                result = m_idHelper->get_other_side(idHash, idHashOther);
+                if (result==0) element->setOtherSide(m_elementCollection[idHashOther]);
+            }
+        }
     }
-  }
 
-  void SCT_DetectorManager::addAlignableTransform (int level, 
-                           const Identifier & id, 
-                           GeoAlignableTransform *transform,
-                           const GeoVFullPhysVol * child)
-  { 
-    if (m_idHelper) {
-      if (level == 0) { 
-        // Element
-        IdentifierHash idHash = m_idHelper->wafer_hash(id);
-        if (idHash.is_valid()) {
-          m_alignableTransforms[idHash]= new ExtendedAlignableTransform(transform, child);
-        } 
-      } else if (level == 1) {
-        // Module
-        IdentifierHash idHash = m_idHelper->wafer_hash(id);
-        if (idHash.is_valid()) {
-          m_moduleAlignableTransforms[idHash/2]=new ExtendedAlignableTransform(transform, child);
-        } 
 
-      } else {
-
-        // Higher levels are saved in a map. NB level=0,1 is treated above.   
-        int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
-        if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1); 
-        m_higherAlignableTransforms[index][id] = new ExtendedAlignableTransform(transform, child);
-      }  
+    const SCT_ID* SCT_DetectorManager::getIdHelper() const
+    {
+        return m_idHelper;
     }
-  }
-
-  bool
-    SCT_DetectorManager::identifierBelongs(const Identifier & id) const
-  {
-    return getIdHelper()->is_sct(id);
-  }
 
 
-  const SCT_ModuleSideDesign* SCT_DetectorManager::getSCT_Design(int i) const
-  {
-    return dynamic_cast<const SCT_ModuleSideDesign *>(getDesign(i));
-  }
+    bool SCT_DetectorManager::setAlignableTransformDelta(int level, 
+                                                         const Identifier & id, 
+                                                         const Amg::Transform3D & delta,
+                                                         FrameType frame) const
+    {
+
+        if (level == 0) { // 0 - At the element level
+
+            // We retrieve it via a hashId.
+            IdentifierHash idHash = m_idHelper->wafer_hash(id);
+            if (!idHash.is_valid()) return false;
+
+            if (frame == InDetDD::global) { // global shift
+                // Its a global transform
+                return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash], delta);
+
+            } else if (frame == InDetDD::local) { // local shift
+
+                const SiDetectorElement * element =  m_elementCollection[idHash];
+                if (!element) return false;
+
+                // Its a local transform
+                return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
+
+            } else {   
+                // other not supported
+                msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
+                return false;
+            }
+
+        } else if (level == 1) { // module level
+
+            // We retrieve it via a hashId.
+            IdentifierHash idHash = m_idHelper->wafer_hash(id);
+            if (!idHash.is_valid()) return false;
+
+            int idModuleHash = idHash / 2;
+
+            if (idHash%2) {
+                msg(MSG::WARNING) << "Side 1 wafer id used for module id" << endreq;
+                return false;
+            }
+
+            if (frame == InDetDD::global) { // global shift
+                // Its a global transform
+                return setAlignableTransformGlobalDelta(m_moduleAlignableTransforms[idModuleHash], delta);
+            } else if (frame == InDetDD::local) { // local shift
+                const SiDetectorElement * element =  m_elementCollection[idHash];
+                if (!element) return false;
+                // Its a local transform
+                return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta);
+
+            } else {
+                // other not supported
+                msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
+                return false;
+            }
+
+        } else { // higher level
+
+            if (frame != InDetDD::global) {
+                msg(MSG::WARNING) << "Non global shift at higher levels is not supported." << endreq;
+                return false;
+            }
+
+            int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
+            if (index  >=  static_cast<int>(m_higherAlignableTransforms.size())) return false;
+
+            // We retrieve it from a map. 
+            AlignableTransformMap::const_iterator iter;    
+            iter = m_higherAlignableTransforms[index].find(id);
+            if (iter == m_higherAlignableTransforms[index].end()) return false;          
+
+            // Its a global transform
+            return setAlignableTransformGlobalDelta(iter->second, delta);
+        }
+
+    }
+
+    void SCT_DetectorManager::addAlignableTransform (int level, 
+                                                     const Identifier & id, 
+                                                     GeoAlignableTransform *transform,
+                                                     const GeoVPhysVol * child)
+    {
+        if (m_idHelper) {
+
+            const GeoVFullPhysVol * childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
+            if (!childFPV) { 
+                msg(MSG::ERROR) << "Child of alignable transform is not a full physical volume" 
+                    << endreq;
+            } else {
+                addAlignableTransform (level, id, transform, childFPV);
+            }
+        }
+    }
+
+    void SCT_DetectorManager::addAlignableTransform (int level, 
+                                                     const Identifier & id, 
+                                                     GeoAlignableTransform *transform,
+                                                     const GeoVFullPhysVol * child)
+    { 
+        if (m_idHelper) {
+            if (level == 0) { 
+                // Element
+                IdentifierHash idHash = m_idHelper->wafer_hash(id);
+                if (idHash.is_valid()) {
+                    m_alignableTransforms[idHash]= new ExtendedAlignableTransform(transform, child);
+                } 
+            } else if (level == 1) {
+                // Module
+                IdentifierHash idHash = m_idHelper->wafer_hash(id);
+                if (idHash.is_valid()) {
+                    m_moduleAlignableTransforms[idHash/2]=new ExtendedAlignableTransform(transform, child);
+                } 
+
+            } else {
+
+                // Higher levels are saved in a map. NB level=0,1 is treated above.     
+                int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
+                if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1); 
+                m_higherAlignableTransforms[index][id] = new ExtendedAlignableTransform(transform, child);
+            }  
+        }
+    }
+
+    bool
+        SCT_DetectorManager::identifierBelongs(const Identifier & id) const
+    {
+        return getIdHelper()->is_sct(id);
+    }
+
+
+    const SCT_ModuleSideDesign* SCT_DetectorManager::getSCT_Design(int i) const
+    {
+        return dynamic_cast<const SCT_ModuleSideDesign *>(getDesign(i));
+    }
 
 
 
