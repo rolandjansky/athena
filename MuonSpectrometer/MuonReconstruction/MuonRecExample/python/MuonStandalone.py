@@ -124,7 +124,7 @@ class MuonStandalone(ConfiguredMuonRec):
 
             self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
-                                                                                        DoSummary=muonStandaloneFlags.printSummary(),
+                                                                                        DoSummary=False,
                                                                                         Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
                                                                                                                                segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
                                                                                                                                                                 "CscSegmentUtilTool",

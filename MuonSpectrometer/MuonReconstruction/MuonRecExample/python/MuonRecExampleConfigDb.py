@@ -28,6 +28,11 @@ addTool( "MuonRecExample.MuonRecTools.MuonClusterOnTrackCreator", "MuonClusterOn
 
 addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreator", "MdtDriftCircleOnTrackCreator" )
 addTool( "MuonRecExample.MuonRecTools.MdtTubeHitOnTrackCreator", "MdtTubeHitOnTrackCreator" )
+addTool( "MuGirlNS::StauBetaTofTool","StauBetaTofTool")
+addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorStau","MdtDriftCircleOnTrackCreatorStau")
+
+addTool( "Muon::MuonPRDSelectionTool","MuonPRDSelectionTool")
+addTool( "Muon::MuonPRDSelectionTool","MuonPRDSelectionToolStau",MdtDriftCircleOnTrackCreator="MdtDriftCircleOnTrackCreatorStau")
 
 addTool( "MuonRecExample.MuonRecTools.AdjustableT0Tool", "AdjustableT0Tool" )
 
@@ -68,8 +73,6 @@ addTool("MuonRecExample.MuonRecTools.MuonEDMPrinterTool", "MuonEDMPrinterTool")
 
 addTool("MuonRecExample.MuonRecTools.MuonKalmanTrackFitter","MuonKalmanTrackFitter")
 
-#addTool("MuonRecExample.MuonRecTools.MuonHolesOnTrackTool","MuonHolesOnTrackTool")
-
 # TODO: this should be cleaned up: all clients should use one and the same MuonTrackSummaryTool instance name
 # currently both names are used (with and without the "Tool" ending
 addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelper","MuonTrackSummaryHelper")
@@ -78,10 +81,6 @@ addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryHelper","MuonTrackSummaryHe
 addTool("MuonRecExample.MuonRecTools.MuonTrackSummaryTool","MuonTrackSummaryTool")
 
 addTool("MuonRecExample.MuonRecTools.MuonParticleCreatorTool","MuonParticleCreatorTool")
-
-#addTool("MuonRecExample.MuonRecTools.ConfiguredMboyCollectMatterTool","MboyCollectMatterTool")
-
-#addTool("MuonRecExample.MuonRecTools.MuonDynamicLayerCreator","MuonDynamicLayerCreator")
 
 addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2TrackFitter" )
 addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2SLTrackFitter", StraightLine=True )
@@ -94,8 +93,10 @@ addTool( "MuonRecExample.MuonRecTools.MuonPhiHitSelector", "MuonPhiHitSelector" 
 addTool( "MuonRecExample.MuonRecTools.MdtSegmentT0Fitter", "MdtSegmentT0Fitter" )
 
 addTool( "MuonRecExample.MuonRecTools.MdtMathSegmentFinder", "MdtMathSegmentFinder" )
+addTool( "MuonRecExample.MuonRecTools.MdtMathT0FitSegmentFinder", "MdtMathT0FitSegmentFinder" )
 
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
+addTool( "MuonRecExample.MuonRecTools.DCMathT0FitSegmentMaker", "DCMathT0FitSegmentMaker" )
 
 addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonClusterSegmentFinderTool" )
 
@@ -104,8 +105,6 @@ addTool( "MuonRecExample.MuonRecTools.MuonLayerHoughTool","MuonLayerHoughTool" )
 addTool( "Muon::MuonTruthSummaryTool","MuonTruthSummaryTool")
 
 addTool( "Muon::MuonClusterizationTool","MuonClusterizationTool" )
-
-#addService( "MuonRecExample.MuonRecTools.MboySvcConfig","MboySvc" )
 
 # Set some Muon Properties in the global ResidualPullCalculator
 # Those values should be in the C++ defaults really
@@ -143,10 +142,8 @@ addTool("MuonRecExample.MooreTools.MCTBExtrapolator","MCTBExtrapolatorBlendedMat
 addTool("MuonRecExample.MooreTools.MCTBFitter",  "MCTBFitter")
 addTool("MuonRecExample.MooreTools.MCTBSLFitter","MCTBSLFitter")
 
-addTool("MuonRecExample.MooreTools.MCTBFitter",   "MCTBFitterMaterialFromTrack",
-        GetMaterialFromTrack=True) #, MboyMat=False, ExtrapolatorMaterial=False)
-addTool("MuonRecExample.MooreTools.MCTBSLFitter", "MCTBSLFitterMaterialFromTrack",
-        GetMaterialFromTrack=True) #, MboyMat=False, ExtrapolatorMaterial=False)
+addTool("MuonRecExample.MooreTools.MCTBFitter",   "MCTBFitterMaterialFromTrack", GetMaterialFromTrack=True)
+addTool("MuonRecExample.MooreTools.MCTBSLFitter", "MCTBSLFitterMaterialFromTrack", GetMaterialFromTrack=True)
 
 addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5 )
 
