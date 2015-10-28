@@ -44,6 +44,7 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 				     const IInterface* parent)
   :  AthAlgTool(type, name, parent),
     m_TRTCalDbSvc("TRT_CalDbSvc",name),
+    m_TRTCalDbSvc2("",name),
     m_IncidentSvc("IncidentSvc",name),
     m_drifttimeperbin(3.125 * CLHEP::ns),
     m_error(0.17),
@@ -56,13 +57,15 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
     m_dummy(false),
     m_err_fudge(1.0),
     m_allow_digi_version_override(false),
+    m_isoverlay(false),
     m_forced_digiversion(11),
     m_override_simcal(false),
     m_force_universal_errors(false),
     m_uni_error(0.136),
     m_inputfile(""),
     m_key(""),
-    m_trt_mgr_location("TRT")
+    m_trt_mgr_location("TRT"),
+    m_extra_mc_shift(0.0)
 
 {
   declareInterface<ITRT_DriftFunctionTool>(this);
@@ -73,14 +76,17 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
   declareProperty("ForcedDigiVersion",m_forced_digiversion);
   declareProperty("AllowDataMCOverride",m_allow_data_mc_override);
   declareProperty("ForceData",m_forcedata);
+  declareProperty("IsOverlay",m_isoverlay=false);
   declareProperty("OverrideSimulationCalibration",m_override_simcal);
   declareProperty("ForceUniversalErrors",m_force_universal_errors);
   declareProperty("UniversalError",m_uni_error);
   declareProperty("DummyMode",m_dummy);
   declareProperty("ErrorFudgeFactor",m_err_fudge);
   declareProperty("TRTCalDbTool", m_TRTCalDbSvc);
+  declareProperty("TRTCalDbTool2", m_TRTCalDbSvc2);
   declareProperty("DriftFunctionFile", m_inputfile);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
+  declareProperty("MCTuningShift",m_extra_mc_shift);
 
   // make sure all arrays are initialized - use DC3version2 as default
   for (int i=0; i<3; i++) m_t0_barrel[i] = 15.625;
@@ -350,7 +356,7 @@ double TRT_DriftFunctionTool::driftRadius(double drifttime) const
 //
 // Drift radius in mm for valid drift time (rawtime-t0) in data; --------------
 // zero otherwise; truncated to at most 2mm.
-double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double& t0, bool& isOK) const
+double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word) const
 {
   isOK = true;
   const double crawtime=rawtime - m_t0_shift; // const cast
@@ -364,9 +370,24 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
   //case of real data or forced database lookup for mc
   if(m_isdata)
     {
-      double radius = 0.; 
-      radius = m_TRTCalDbSvc->driftRadius(crawtime,ft0,cid,isOK);
-      t0=ft0 + m_t0_shift;
+      double radius = 0.;
+      if (!m_isoverlay){ //standard case
+         radius = m_TRTCalDbSvc->driftRadius(crawtime,ft0,cid,isOK);
+         t0=ft0 + m_t0_shift;
+      }
+      else{ //overlay case
+         radius = m_TRTCalDbSvc->driftRadius(rawtime,ft0,cid,isOK);// no m_t0_shift in rawtime, and use data TRTCalDbSvc
+         t0=ft0;
+         bool mcdigit = word & (1<<31);
+         if (mcdigit ){
+            //check if it's a MC digit, and if so apply other calibration
+            ATH_MSG_INFO ("Overlay TRTCalDbSvc  gave  radius: "<<radius<<", t0: "<<t0);
+            radius = m_TRTCalDbSvc2->driftRadius(crawtime,ft0,cid,isOK);//t0_shift in crawtime, and use MC TRTCalDbSvc(2)
+            t0=ft0 + m_t0_shift;
+	    ATH_MSG_INFO ("Overlay TRTCalDbSvc2 gives radius: "<<radius<<", t0: "<<t0);
+         }
+      }
+
       double drifttime = rawtime-t0;
       if( !isValidTime(drifttime) ) isOK=false;
 
@@ -423,12 +444,19 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
 
 //
 // Error of drift radius in mm -----------------------------------------------
-double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id) const
+double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id, unsigned int word) const
 {
   if( m_dummy ) return 4./sqrt(12.);
   if(m_force_universal_errors && m_uni_error!=0) return m_uni_error;
   bool found=true;
   double error = m_TRTCalDbSvc->driftError(drifttime,id,found);
+  bool mcdigit = word & (1<<31);
+  if (m_isoverlay && mcdigit ){
+     //check if it's a MC digit, and if so apply other calibration
+     ATH_MSG_INFO ("Overlay TRTCalDbSvc gave error: "<<error<<", found="<<found);
+     error = m_TRTCalDbSvc2->driftError(drifttime,id,found);
+     ATH_MSG_INFO ("Overlay TRTCalDbSvc2 gives error: "<<error<<", found="<<found);
+  }
   if(found) {
     return error;
   } else {  //interpolate
@@ -476,15 +504,22 @@ void TRT_DriftFunctionTool::setupRtRelationData()
   //Setting up for data
   ATH_MSG_DEBUG(" Setting up for data ");
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Using TRTCalDbSvc "<<endreq;
+  msg(MSG::INFO) <<" Using TRTCalDbSvc "<<endreq;
   if ( m_TRTCalDbSvc.retrieve().isFailure() ) {
     msg(MSG::FATAL) << m_TRTCalDbSvc.propertyName() <<
       ": Failed to retrieve service " << m_TRTCalDbSvc.type() << endreq;
-    return;
-    
+    return;  
   } else {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << m_TRTCalDbSvc.propertyName() <<
       ": Retrieved service " << m_TRTCalDbSvc.type() << endreq;
+  }
+  if (m_isoverlay){
+    msg(MSG::INFO) <<" Using TRTCalDbSvc2 for overlay ! "<<endreq;
+    if ( m_TRTCalDbSvc2.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << m_TRTCalDbSvc2.propertyName() <<
+       ": Failed to retrieve service " << m_TRTCalDbSvc2.type() << endreq;
+      return;
+    } 
   }
 
   //temporary: we need some way to automatically link digi version with db tag
@@ -492,7 +527,7 @@ void TRT_DriftFunctionTool::setupRtRelationData()
   //drifttime spectrum better in the allowed time-window with digi version 12 in release 14.
 
   int type = m_forced_digiversion;
-  if(m_ismc){
+  if(m_ismc || m_isoverlay){
    
     if(!m_allow_digi_version_override) {
       type = m_manager->digitizationVersion();
@@ -504,7 +539,7 @@ void TRT_DriftFunctionTool::setupRtRelationData()
 
 
     if(type>10) {
-      m_t0_shift=-8.;
+      m_t0_shift= -8. -  m_extra_mc_shift;
       msg(MSG::INFO) << " Digitization version " << type << " - T0 for barrel is shifted by "
                      << m_t0_shift << endreq;
     }

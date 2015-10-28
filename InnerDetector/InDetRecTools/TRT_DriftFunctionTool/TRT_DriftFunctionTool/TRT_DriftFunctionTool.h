@@ -69,7 +69,7 @@ public:
   /** Returns drift radius in mm and t0 in ns
    *  The radius is truncated so it belongs to [0,2]mm.
    *  isOK is false if there is no t0 or the drifttime is non-valid */
-  double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK) const;
+  double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word=0) const;
 
   /** Returns drift radius for MC.
    *  the inpout time in ns has t0 subtracted */
@@ -79,7 +79,7 @@ public:
   double approxDriftTime(double driftradius) const;
 
   /** Time-dependent error of drift radius in mm */
-  double errorOfDriftRadius(double drifttime, Identifier id) const;  
+  double errorOfDriftRadius(double drifttime, Identifier id, unsigned int word=0) const;  
 
   /** Returns time over threshold correction to the drift time (ns) */
   double driftTimeToTCorrection(double tot, Identifier id) const;
@@ -101,6 +101,7 @@ private:
   
   /** Tool to fetch data from database */
   ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc;
+  ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc2;
 
   /** Service to report incidents (begin run, begin event) */
   ServiceHandle< IIncidentSvc > m_IncidentSvc;
@@ -129,6 +130,7 @@ private:
   double m_err_fudge;                  //!< fudge_factor for error scaling
 
   bool  m_allow_digi_version_override; //!< flag for using constants for 
+  bool  m_isoverlay;                   //!< flag for overlay
   int m_forced_digiversion;            //!< this digi version
 
   bool m_override_simcal;              //!< flag for reading constants from
@@ -143,6 +145,7 @@ private:
   double m_t0_shift;                   //!< digiversion dependent t0 shift
   float m_tot_corrections[2][20];      //!< ToT corrections for 20 ToT bins in barrel and endcap
   double m_ht_corrections[2];  	       //!< HT corrections for barrel and endcap
+  double m_extra_mc_shift;             //!< to be used in mc tunning
 };
 
 inline bool TRT_DriftFunctionTool::isValidTime(double drifttime) const
