@@ -36,7 +36,9 @@ protected:
         TH1F_LW* m_hPvN;
         TH1F_LW* m_hPvNPriVtx;
         TH1F_LW* m_hPvNPileupVtx;
-
+    
+        TH2F_LW* m_hPvNaveMu;
+    
         TH1F_LW* m_hPvX;
         TH1F_LW* m_hPvY;
         TH1F_LW* m_hPvZ;
