@@ -29,13 +29,19 @@ use TrkPrepRawData TrkPrepRawData-* Tracking/TrkEvent
 
 use TrkExInterfaces TrkExInterfaces-* Tracking/TrkExtrapolation
 
+use MuonReadoutGeometry MuonReadoutGeometry-* MuonSpectrometer/MuonDetDescr
 use MuonSegmentTaggerToolInterfaces MuonSegmentTaggerToolInterfaces-* Reconstruction/MuonIdentification/MuonSegmentTaggers
 use MuonSegmentMakerToolInterfaces  MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 
 use MuonLayerEvent  MuonLayerEvent-*  MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRIO_OnTrack MuonRIO_OnTrack-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonPrepRawData MuonPrepRawData-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonCompetingRIOsOnTrack MuonCompetingRIOsOnTrack-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonLayerHough MuonLayerHough-* MuonSpectrometer/MuonReconstruction/MuonRecUtils
 use MuonClusterization *        MuonSpectrometer/MuonReconstruction/MuonDataPrep
 use MuonRecValidationNtuples MuonRecValidationNtuples-* MuonSpectrometer/MuonValidation/MuonRecValidation
+use MuonCombinedEvent   MuonCombinedEvent-*     Reconstruction/MuonIdentification
+use MuGirlStau          MuGirlStau-*            Reconstruction/MuonIdentification
 
 use AtlasHepMC                  AtlasHepMC-*                    External
 use AtlasROOT                   AtlasROOT-*                     External

@@ -26,8 +26,6 @@
 #include <vector>
 #include <set>
 
-class StoreGate;
-class StoreGateSvc;
 class MsgStream;
 class TFile;
 class TruthTrajectory;
@@ -60,7 +58,7 @@ public:
   };
 
   struct TrackData{
-    TrackData() : truthTrack(0),motherPdg(-1),productionVertex(0),momentumAtProduction(0),truthTrajectory(0),trackPars(0),trackSummary(0) {}
+    TrackData() : truthTrack(0),motherPdg(-1),chi2Ndof(0.),productionVertex(0),momentumAtProduction(0),truthTrajectory(0),trackPars(0),trackSummary(0) {}
 
     ~TrackData() {
       delete trackPars;
@@ -73,6 +71,7 @@ public:
 
     TrackData( const TrackData& data ){
       motherPdg = data.motherPdg;
+      chi2Ndof = data.chi2Ndof;
       trackPars = data.trackPars ? new Trk::Perigee(*data.trackPars) : 0; 
       trackSummary = data.trackSummary ? new Trk::TrackSummary(*data.trackSummary) : 0; 
       truthTrack = data.truthTrack ? new TrackRecord(*data.truthTrack) : 0; 
@@ -83,6 +82,7 @@ public:
 
     TrackRecord*       truthTrack;
     int motherPdg;
+    double chi2Ndof;
     Amg::Vector3D*  productionVertex;
     Amg::Vector3D*  momentumAtProduction;
     TruthTrajectory*   truthTrajectory;
@@ -266,7 +266,8 @@ private:
   bool isSecondary( const Muon::IMuonTrackTruthTool::TruthTreeEntry& entry ) const;
   bool isSecondary( const TruthTrajectory& truthTrajectory ) const;
 
-  StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
+  bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
+
   std::string         m_trackLocation;            //!< Location of the track output location
   std::string         m_segmentCombiLocation;     //!< Location of the segment combination collections
   const xAOD::EventInfo*    m_eventInfo;                //!< pointer to the event info
@@ -359,6 +360,9 @@ private:
 
   /** output file*/
   std::ofstream  m_fileOutput;  
+
+  IntegerArrayProperty m_pdgsToBeConsidered;
+  std::set<int> m_selectedPdgs; // set storing particle PDG's considered for matching
 
 };
   

@@ -25,15 +25,11 @@
 
 MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_storeGate(NULL),
   m_eventInfo(0),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_helper("Muon::MuonEDHelperTool/MuonEDMHelperTool"),
   m_truthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool"),
-//  m_trackHistTool("Muon::MuonTrackHistTool/MuonTrackHistTool"),
-//  m_trackTruthHistTool("Muon::MuonTrackTruthHistTool/MuonTrackTruthHistTool"),
-//  m_hitHistTool("Muon::MuonHitHistTool/MuonHitHistTool"),
   m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
   m_log(0),
   m_debug(false),
@@ -89,6 +85,7 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   declareProperty("MinSTGCEtaHits",m_minsTgcEtaHits = 1 );
   declareProperty("MinSTGCPhiHits",m_minsTgcPhiHits = 1 );
   declareProperty("MinMMEtaHits",m_minMMEtaHits = 3 );
+  declareProperty("ConsideredPDGs", m_pdgsToBeConsidered );
 
 }
 
@@ -103,57 +100,26 @@ StatusCode MuonTrackPerformanceAlg::initialize()
   m_debug = m_log->level() <= MSG::DEBUG;
   m_verbose = m_log->level() <= MSG::VERBOSE;
 
-  *m_log << MSG::VERBOSE << " MuonTrackPerformanceAlg::Initializing " << endreq;
+  ATH_CHECK(m_idHelperTool.retrieve());
+  ATH_CHECK(m_printer.retrieve());
+  ATH_CHECK(m_helper.retrieve());
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    *m_log << MSG::FATAL << " StoreGate service not found " << endreq;
-    return StatusCode::FAILURE;
-  }
+  if( m_doTruth ) ATH_CHECK(m_truthTool.retrieve());
+  
+  ATH_CHECK(m_summaryHelperTool.retrieve());
 
-  sc = m_idHelperTool.retrieve();
-  if (sc.isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_idHelperTool << endreq;
+  // add muons 
+  if( m_pdgsToBeConsidered.value().empty() ){
+    m_selectedPdgs.insert(13);
+    m_selectedPdgs.insert(-13);
   }else{
-    *m_log<<MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
-    return sc;
+    // add pdgs
+    for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
+    msg(MSG::DEBUG) << " PDG codes used for matching";
+    for( auto val : m_selectedPdgs ) msg(MSG::DEBUG) << " " << val;
+    msg(MSG::DEBUG) << endreq;
   }
 
-  sc = m_printer.retrieve();
-  if (sc.isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_printer << endreq;
-  }else{
-    *m_log<<MSG::FATAL<<"Could not get " << m_printer <<endreq; 
-    return sc;
-  }
-
-  sc = m_helper.retrieve();
-  if (sc.isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_helper << endreq;
-  }else{
-    *m_log<<MSG::FATAL<<"Could not get " << m_helper <<endreq; 
-    return sc;
-  }
-
-  if( m_doTruth ) {
-    sc = m_truthTool.retrieve();
-    if (sc.isSuccess()){
-      *m_log<<MSG::INFO << "Retrieved " << m_truthTool << endreq;
-    }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_truthTool <<endreq; 
-      return sc;
-    }
-      
-  }
-
-  if (m_summaryHelperTool.retrieve().isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_summaryHelperTool << endreq;
-  }else{
-    *m_log<<MSG::FATAL<<"Could not get " << m_summaryHelperTool <<endreq;
-    return sc;
-  }
-     
-  *m_log << MSG::VERBOSE << "End of Initializing" << endreq;  
   return StatusCode::SUCCESS; 
 }
 
@@ -174,7 +140,7 @@ StatusCode MuonTrackPerformanceAlg::execute()
 bool MuonTrackPerformanceAlg::handleSegmentCombinations() {
 
   const MuonSegmentCombinationCollection* combiCol;
-  StatusCode sc = m_storeGate->retrieve(combiCol,m_segmentCombiLocation);
+  StatusCode sc = evtStore()->retrieve(combiCol,m_segmentCombiLocation);
   if (sc.isFailure() ) {
     *m_log << MSG::WARNING << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endreq;
     return StatusCode::RECOVERABLE;
@@ -276,7 +242,7 @@ bool MuonTrackPerformanceAlg::handleSegmentCombi( const Muon::MuonSegmentCombina
 
 bool MuonTrackPerformanceAlg::handleTracks() {
   const TrackCollection* trackCollection = 0;
-  StatusCode sc = m_storeGate->retrieve(trackCollection,m_trackLocation);
+  StatusCode sc = evtStore()->retrieve(trackCollection,m_trackLocation);
   if (sc.isFailure() || !trackCollection ) {
     *m_log << MSG::WARNING << " Could not find tracks at " << m_trackLocation <<endreq;
     return false;
@@ -307,7 +273,7 @@ bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::T
   }else{
     if( trackRecord->GetMomentum().mag() < m_momentumCutSim ) return false; 
   }
-  if( abs(trackRecord->GetPDGCode()) != 13 ) return false;
+  if( !selectPdg(trackRecord->GetPDGCode()) ) return false;
   if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.5 ) return false;
   return entry.mdtHits.size() + entry.cscHits.size() > 4;
 }
@@ -400,6 +366,10 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
   EventData eventData;
   eventData.eventNumber = eventNumber();
   eventData.eventPosition = m_nevents;
+
+  if( m_doTrackDebug >= 5 || m_debug ){
+    *m_log << MSG::INFO << " Event " << eventData.eventNumber << " truth tracks " << ntruthTracks << std::endl;
+  }
 
   // first loop over truth tracks that were found by reco
   std::map<const TrackRecord*,Muon::IMuonTrackTruthTool::MatchResult>::iterator mit = bestMatched.begin();
@@ -628,14 +598,9 @@ StatusCode MuonTrackPerformanceAlg::finalize()
 }
 
 void MuonTrackPerformanceAlg::getEventInfo() {
-    
-  StatusCode sc = m_storeGate->retrieve(m_eventInfo);
-  if ( sc.isFailure() ) {
+  if ( evtStore()->retrieve(m_eventInfo).isFailure() ) {
     *m_log << MSG::ERROR << "Could not find eventInfo " << endreq;
-  }else{
-    if( m_verbose ) *m_log << MSG::DEBUG << "retrieved eventInfo" << endreq;
   }
-
 }
 
 int MuonTrackPerformanceAlg::eventNumber() const {
@@ -770,6 +735,7 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
        << " phi " << trackRecord.GetMomentum().phi() << " theta " << trackRecord.GetMomentum().theta() 
        << std::setw(6) << " q*mom " << (int)trackRecord.GetMomentum().mag()*charge 
        << " pt " << std::setw(5) << (int)trackRecord.GetMomentum().perp();
+  if( abs(trackRecord.GetPDGCode()) != 13 ) sout << " pdg " << trackRecord.GetPDGCode();
 
   if( trackTruth.truthTrajectory ) {
     const HepMC::GenParticle* mother = getMother( *trackTruth.truthTrajectory );
@@ -777,11 +743,11 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
       sout << " mother " << mother->pdg_id();
 
 
-      if( mother->end_vertex() ) sout << " vertex: r  " << mother->end_vertex()->point3d().perp() 
-				      << " z " << mother->end_vertex()->point3d().z();
+      // if( mother->end_vertex() ) sout << " vertex: r  " << mother->end_vertex()->point3d().perp() 
+      //   			      << " z " << mother->end_vertex()->point3d().z();
 
-      const HepMC::GenParticle* original = getInitialState(*trackTruth.truthTrajectory);
-      if( original ) sout << "  p:  " << original->momentum().rho();
+      // const HepMC::GenParticle* original = getInitialState(*trackTruth.truthTrajectory);
+      // if( original ) sout << "  p:  " << original->momentum().rho();
     }
   }
 
@@ -1199,21 +1165,23 @@ std::string MuonTrackPerformanceAlg::print( const MuonTrackPerformanceAlg::Track
 				       trackData.truthTrack->GetMomentum().y(),
 				       trackData.truthTrack->GetMomentum().z()),
 			 charge,Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
-    sout << "Truth: " << m_printer->print(perigee) << " barcode " << trackData.truthTrack->GetBarCode();
-    if( trackData.motherPdg != -1 ) sout << " mother " << trackData.motherPdg;
-
+    sout << "Truth: " << m_printer->print(perigee);// << " barcode " << trackData.truthTrack->GetBarCode();
+    if( abs(trackData.truthTrack->GetPDGCode()) == 13 ){
+      if( trackData.motherPdg != -1 ) sout << " mother " << trackData.motherPdg;
+    }else{
+      sout << " pdg " << trackData.truthTrack->GetPDGCode();
+    }
     if( trackData.momentumAtProduction ) sout << " production p:  " << trackData.momentumAtProduction->mag();
     
-    if( trackData.productionVertex ) sout << " production vertex: r  " << trackData.productionVertex->perp() 
-					  << " z " << trackData.productionVertex->z();
+    // if( trackData.productionVertex ) sout << " production vertex: r  " << trackData.productionVertex->perp() 
+    //     				  << " z " << trackData.productionVertex->z();
     sout << std::endl;
   }
   
   if( trackData.trackPars ){
-    sout << "Track: " << m_printer->print(*trackData.trackPars) << std::endl;
+    sout << "Track: " << m_printer->print(*trackData.trackPars) << " chi2/ndof " << trackData.chi2Ndof << std::endl;
     if( trackData.trackSummary && trackData.trackSummary->muonTrackSummary() )
       sout << m_printer->print(*trackData.trackSummary->muonTrackSummary()) << std::endl;
-    else sout << std::endl;
   }
 
   if( !trackData.missingChambers.empty() ){
@@ -1288,6 +1256,9 @@ std::string MuonTrackPerformanceAlg::print( const MuonTrackPerformanceAlg::Track
 
 void MuonTrackPerformanceAlg::addTrackToTrackData( const Trk::Track& track, MuonTrackPerformanceAlg::TrackData& trackData ) const {
   trackData.trackPars = track.perigeeParameters() ? new Trk::Perigee(*track.perigeeParameters()) : 0;
+  trackData.chi2Ndof = 0.;
+  if( track.fitQuality() &&  track.fitQuality()->numberDoF() ) trackData.chi2Ndof = track.fitQuality()->chiSquared() / track.fitQuality()->numberDoF();
+    
   trackData.trackSummary = track.trackSummary() ? new Trk::TrackSummary(*track.trackSummary()) : 0;
   if( trackData.trackSummary && !trackData.trackSummary->muonTrackSummary() ){
     m_summaryHelperTool->addDetailedTrackSummary(track,*trackData.trackSummary);
