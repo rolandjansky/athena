@@ -1780,8 +1780,8 @@
                                     tct_getESDTAGcomparison_diffroot.py
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
+                                <queue>long</queue>
+                                <batchWallTime>720</batchWallTime>
                                 <test>
                                     <modulename>RttLibraryTools</modulename>
                                     <testname>FileGrepper</testname>
