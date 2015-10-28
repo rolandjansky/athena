@@ -45,6 +45,7 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   //declareProperty("MuonLocationList",   m_muonLocationList);
   declareProperty("writeToFile",        m_writeToFile = false);
   declareProperty("FileName",           m_fileName = "MuonPerformanceAlg.txt" );
+  declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
 
 
 }
@@ -73,7 +74,15 @@ StatusCode MuonPerformanceAlg::initialize()
 
   ATH_CHECK(m_printer.retrieve()); 
   
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
+
+  // add muons 
+  if( m_pdgsToBeConsidered.value().empty() ){
+    m_selectedPdgs.insert(13);
+    m_selectedPdgs.insert(-13);
+  }else{
+    // add pdgs
+    for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -151,7 +160,7 @@ bool MuonPerformanceAlg::passID(const xAOD::TrackParticle* tp, bool debug) const
 StatusCode MuonPerformanceAlg::execute()
 {
 
-  StatusCode sc = m_storeGate->retrieve(m_eventInfo);
+  ATH_CHECK(evtStore()->retrieve(m_eventInfo));
 
   m_runNumber = m_eventInfo->runNumber();
   m_eventNumber = m_eventInfo->eventNumber();
@@ -475,7 +484,7 @@ StatusCode MuonPerformanceAlg::execute()
         if(truthLink.isValid()) {
 //          if( (*truthLink)->auxdata<int>("truthType") == 6 || (*truthLink)->auxdata<int>("truthType") == 7 ) {
 //            if( (*truthLink)->auxdata<int>("truthOrigin") > 0 && (*truthLink)->auxdata<int>("truthOrigin") <= 17 ) {
-              if(abs((*truthLink)->pdgId())==13) fake = false; 
+          if( selectPdg( (*truthLink)->pdgId()) ) fake = false; 
 //            }
 //          }
         }

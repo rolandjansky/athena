@@ -72,6 +72,10 @@ class MuonPerformanceAlg : public AthAlgorithm {
 
   void print(std::string txt, const xAOD::TruthParticle* muon);
   void print(std::string txt, const xAOD::Muon* muon);
+
+  IntegerArrayProperty m_pdgsToBeConsidered;
+  std::set<int> m_selectedPdgs; // set storing particle PDG's considered for matching
+  bool selectPdg( int pdg ) const { return m_selectedPdgs.count(pdg); }
  
 };
 
