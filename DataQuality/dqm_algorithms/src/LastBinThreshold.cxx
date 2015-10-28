@@ -24,14 +24,14 @@ dqm_algorithms::LastBinThreshold instance("LastBinThreshold"); // global instanc
 }
 
 dqm_algorithms::LastBinThreshold::LastBinThreshold(const std::string &name): 
-	m_name(name)
-	, m_nBinsToWatch(0)
+	m_nBinsToWatch(0)
 	, m_nBinsToExceed(0)
 	, m_greaterThan(false)
 	, m_valueThresholds(false)
 	, m_getEntries(0)
 	, m_grn(0.)
 	, m_red(0.)
+        , m_name(name)
 {
     dqm_core::AlgorithmManager::instance().registerAlgorithm(m_name, this);
 }
