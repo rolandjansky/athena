@@ -375,10 +375,9 @@ StatusCode Pythia8_i::callGenerator(){
        returnCode = this->callGenerator();
      }else{
        m_nMerged += eventWeight;
+       ++m_internal_event_number;
      }
   
-  ++m_internal_event_number;
-
   return returnCode;
 }
 
