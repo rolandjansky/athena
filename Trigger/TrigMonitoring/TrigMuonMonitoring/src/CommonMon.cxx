@@ -141,21 +141,6 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
 
     addHistogram( new TH1F("Number_Of_Events",        "Number_Of_Event; LB ; Events Per 2LBs",  400, 1., 801.), histdirrate );
     hist( "Number_Of_Events", histdirrate ) -> Sumw2(); 
-    addHistogram( new TH1F("mu24_imedium_Trigger_numbers_breakdown",        "Event; breakdown; event breakdown",  14, 0.5, 14.5), histdirrate );
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(1,"Total events");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(2,"Triggered");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(3,"EF_passedRaw");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(4,"EF_passThrough");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(5,"EF_prescaled");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(6,"EF_resurrected");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(7,"L2_passedRaw");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(8,"L2_passThrough");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(9,"L2_prescaled");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(10,"L2_resurrected");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(11,"L1_isPassedAfterPrescale");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(12,"L1_isPassedBeforePrescale");
-    hist("mu24_imedium_Trigger_numbers_breakdown", histdirrate)->GetXaxis()->SetBinLabel(13,"L1_isPassedAfterVeto");
-
 
     //pt > 4GeV
     addHistogram( new TH1F("Number_Of_Moore_MS_Muons_4GeV_Cut", "Number_Of_Moore_MS_Muon_4GeV_Cut; LB ; Moore MS Muons",  400, 1., 801.), histdirrate );
@@ -236,6 +221,12 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
       addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
       hist( name, histdirrate ) -> Sumw2(); 
 
+      name     = it->second + "_Triggers_Rate" ;
+      nameaxis = name + "; LB ; Trigger Rate [Hz]" ;
+
+      addHistogram( new TH1F( name.c_str(), nameaxis.c_str(), 400, 1., 801.),histdirrate );
+      hist( name, histdirrate ) -> Sumw2(); 
+
       name     = it->second + "_Triggers_Per_Event" ;
       nameaxis = name + "; LB ; Triggers per Event" ;
 
@@ -260,6 +251,19 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     std::string name     = "L1_MUB_L1_MUE_match_muon_RoIs";
     std::string nameaxis = name + "; category(1-4 good) ; Events" ;
     addHistogram(new TH1F(name.c_str(), nameaxis.c_str(), 8, 0.5, 8.5), histdirrate);
+
+    // 2D eta-phi histograms for L1RoI 
+    name     = "L1RoI_etaphi";
+    nameaxis = name + "; #eta; #phi";
+    int eta_nbins = 54;
+    float eta_range = 2.7;
+    int phi_bins = 64;
+    float phi_range = CLHEP::pi;
+
+    addHistogram( new TH2F( name.c_str(), nameaxis.c_str(),
+      		      eta_nbins, -eta_range, eta_range, phi_bins, -phi_range, phi_range), histdirdist2d);
+    hist2(name, histdirdist2d)->Sumw2();
+
 
     ATH_MSG_INFO("finished booking Common histograms for newRun");
 
@@ -1482,6 +1486,8 @@ StatusCode HLTMuonMonTool::fillCommonDQA()
       std::string name     = "Number_Of_"+ it->second + "_Passed_Events" ;
       hist( name, histdirrate )->Fill( m_lumiblock );
 
+      name     = it->second + "_Triggers_Rate" ;
+      hist( name, histdirrate )->Fill( m_lumiblock, 1/120. );
       
     }
     //cosmic
@@ -1631,7 +1637,8 @@ StatusCode HLTMuonMonTool::fillChainDQA()
   // getting ES vector moved to CommonDQA
 
   for (int i=0; i < (int)m_allESchain.size() ; i++ ){
-    if ( isPassedES( m_esvect, m_allESchain[i] ) ) hist("Number_Of_ES_Triggers", histdir)->Fill(i);
+    //if ( isPassedES( m_esvect, m_allESchain[i] ) ) hist("Number_Of_ES_Triggers", histdir)->Fill(i);
+    if ( getTDT()->isPassed(m_allESchain[i]) ) hist("Number_Of_ES_Triggers", histdir)->Fill(i);
   }
 
   
@@ -1890,7 +1897,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_MSonly(const std::string& chainName, con
        << m_RecMuonSA_hasCB[i_rec] << " pt " << m_RecMuonSA_pt[i_rec]); */
     if (!m_RecMuonSA_isGoodCB[i_rec]) {
       ATH_MSG_DEBUG("HLTMuonMon: fillChainDQA_MSonly: not a good combined muon" << i_rec);
-      //continue;  //for LS1, remove requirements on Hits and impact parameter, attention
+      continue;  //for LS1, remove requirements on Hits and impact parameter, attention
     }
     
     float rec_eta = m_RecMuonSA_eta[i_rec];
@@ -3020,15 +3027,6 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	}
 
 	//
-//*        std::vector< Feature<CombinedMuonFeature> > combMf = combsHLT[id_min_l2].get<CombinedMuonFeature>("",TrigDefs::alsoDeactivateTEs);
-//*        if( combMf.size() == 1 ) {
-//*          combMf_active = combMf[0].te()->getActiveState();
-//*          ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
-//*        }
-//*        if( combMf_active ) {
-//*	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
-//*	  float combMf_eta = combMf[0].cptr()->eta();
-//*	  float combMf_phi = combMf[0].cptr()->phi();
 
       std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = combsHLT[id_min_l2].get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
 
@@ -3176,7 +3174,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	}
 
       }
-      // if (ES_lower_passed) {
+      // if (ES_lower_passed) {}
       // ES trigger-aware
       for (int i = 0; i <= m_maxESbr; i++) {
         if(!CB_mon_ESbr[i])continue; 
@@ -3219,10 +3217,10 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 		const xAOD::TrackParticle *ef_cb_trk;
 		ef_cb_trk = (*iCont)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
 		
-		ef_cb_pt = (*iCont)->pt();
+		ef_cb_pt = (*iCont)->pt()/ CLHEP::GeV;
 		ef_cb_eta = (*iCont)->eta();
 		ef_cb_phi = (*iCont)->phi();
-		ef_cb_mtype = (*iCont)->type();
+		ef_cb_mtype = (*iCont)->muonType();
 		if( ef_cb_trk){
 		  if( ef_cb_trk->pt() == 0.){
 		    ef_cb_pt  = -1.;
@@ -3233,7 +3231,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 		    ef_cb_pt  = fabs(ef_cb_trk->pt()) / CLHEP::GeV;
 		    ef_cb_eta = ef_cb_trk->eta();
 		    ef_cb_phi = ef_cb_trk->phi(); // YY
-		    ef_cb_mtype = (*iCont)->type();
+		    ef_cb_mtype = (*iCont)->muonType();
 		  }
 		  ATH_MSG_DEBUG("CB eta/pt=" << ef_cb_eta << " / " << ef_cb_pt/CLHEP::GeV );
 		  ATH_MSG_DEBUG("CB track found for last_step " << last_step);
@@ -3249,7 +3247,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 
       //CB pt/eta checks
       if( ef_active ){
-	//if( pt_cut ){
+	//if( pt_cut ){}
 	if (EF_lower_passed) {
 	  ATH_MSG_DEBUG("last step " << last_step );
 	  
@@ -4329,7 +4327,8 @@ StatusCode HLTMuonMonTool::fillRecMuon()
 	  uint8_t nSCTcomb = 0;
 	  comb->summaryValue(nSCTcomb, xAOD::numberOfSCTHits);
 	  if (vtx != 0) {
-	    if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
+	    // if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) { } // Run 1 requirement
+	    if ((*muonItr)->quality()<= xAOD::Muon::Medium && (*muonItr)->passesIDCuts() && ((*muonItr)->author()==xAOD::Muon::Author::MuidCo || (*muonItr)->author()==xAOD::Muon::Author::STACO)) {
 	      isGoodCB = true;
 	    }
 	    ATH_MSG_DEBUG("HLTMuonMon: SA: good " << isGoodCB << " nPix " << nPixcomb << " nSCT " << nSCTcomb
@@ -4380,7 +4379,8 @@ StatusCode HLTMuonMonTool::fillRecMuon()
       comb->summaryValue(nSCTcomb, xAOD::numberOfSCTHits);
 
       if (vtx != 0) {
-	if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) {
+	//if (nPixcomb >= 1 && nSCTcomb >= 6 && abs(z0comb - (vtx->position()).z()) < 5. && abs(d0comb) < 1.5) { } // Run 1 requirement
+	if ((*muonItr)->quality()<= xAOD::Muon::Medium && (*muonItr)->passesIDCuts()  && ((*muonItr)->author()==xAOD::Muon::Author::MuidCo || (*muonItr)->author()==xAOD::Muon::Author::STACO)) {
 	  isGoodCB = true;
 	}
 	ATH_MSG_DEBUG("HLTMuonMon: CB: good " << isGoodCB << " nPix " << nPixcomb << " nSCT " << nSCTcomb
@@ -4707,11 +4707,14 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
   //  if (m_bunchTool->isFilled(bcid) && !(m_bunchTool->isUnpaired(bcid))) {
   
   if (m_bunchTool->isFilled(bcid)) {
+    std::string name = "L1RoI_etaphi";
 
     int nBarrelRoi = 0;
     int nEndcapRoi = 0;
     int nForwardRoi = 0;
     for ( ; muItr != muEnd; ++muItr) {
+      hist2(name, histdirdist2d)->Fill((*muItr)->eta(), (*muItr)->phi());
+
       if (!(*muItr)->isVetoed()) { // YY for removing MuCTPI overlap-removed RoIs
 	if (xAOD::MuonRoI::Barrel == (*muItr)->getSource()) {
 	  nBarrelRoi++;
@@ -4737,7 +4740,7 @@ StatusCode HLTMuonMonTool::fillL1MuRoI()
 
     int nEC_F_Roi = nEndcapRoi + nForwardRoi;
   
-    std::string name     = "L1_MUB_L1_MUE_match_muon_RoIs";
+    name     = "L1_MUB_L1_MUE_match_muon_RoIs";
 
     if (mub && nBarrelRoi > 0) {
       hist(name, histdirrate)->Fill(3.);

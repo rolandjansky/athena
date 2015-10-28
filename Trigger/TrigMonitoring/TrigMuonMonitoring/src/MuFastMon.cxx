@@ -416,7 +416,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     bool isL1hitThere               = false;
     bool isL1emuOkForTriggerPlane   = false;
 
-    int nRPC = (*itMfd)->padHitOnlineId().size();
+    int nRPC = (*itMfd)->rpcHitLayer().size();
 
     int nTGCMidRho = (*itMfd)->tgcMidRhoN();
     int nTGCMidPhi = (*itMfd)->tgcMidPhiN();
@@ -427,12 +427,11 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
     float TGCMidPhiChi2 = (*itMfd)->tgcMidPhiChi2();
 
     if( systemID==0 ) { // RPC
-      float rpc1_z = (*itMfd)->rpc1z();
-      float rpc2_z = (*itMfd)->rpc2z();
+      float rpcFitMidSlope = (*itMfd)->rpcFitMidSlope();
       if( nRPC!=0 ) isL1hitThere = true;
-      if( fabs(rpc1_z) > ZERO_LIMIT && fabs(rpc2_z) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
+      if( fabs(rpcFitMidSlope) > ZERO_LIMIT ) isL1emuOkForTriggerPlane = true;
       ATH_MSG_DEBUG("RPC nHits=" << nRPC);  
-      ATH_MSG_DEBUG("RPC 1/2 Z=" << rpc1_z << " / " << rpc2_z);
+      ATH_MSG_DEBUG("RPC Fit Middle Slope=" << rpcFitMidSlope);
     }
     else { // TGC
       if( nTGCMidRho!=0 && nTGCMidPhi!=0 ) isL1hitThere = true;

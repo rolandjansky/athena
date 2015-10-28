@@ -738,7 +738,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    hist2(("muZTP_EtaPhi_L1_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
 	  //L2
-	  if(isTriggered_L2 && isMSonlychain && passedSAchainL2[probe]) { //muFast
+	  if(isTriggered_L2 && isMSonlychain && passedSAchainL2[probe] && passedchainL1[probe]) { //muFast
 	    hist(("muZTP_Pt_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -759,7 +759,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    hist2(("muZTP_EtaPhi_L2_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
 	  //	  if(isTriggered_L2 && !isMSonlychain && !ismuIsochain && passedCBchainL2[probe])  //muComb
-	  if(isTriggered_L2 && !isMSonlychain && passedCBchainL2[probe]) { //muComb
+	  if(isTriggered_L2 && !isMSonlychain && passedCBchainL2[probe] && passedchainL1[probe]) { //muComb
 	    hist(("muZTP_Pt_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_L2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -800,7 +800,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	  //   hist2(("muZTP_EtaPhi_L2_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  // }
 	  //EF
-	  if(isTriggered_EF && isMSonlychain && passedSAchainEF[probe]){
+	  if(isTriggered_EF && isMSonlychain && passedSAchainEF[probe] && passedchainL1[probe]){
 	    hist(("muZTP_Pt_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -820,7 +820,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    if( !isEndcap ) hist(("muZTP_Phi_B_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probephi);
 	    hist2(("muZTP_EtaPhi_EF_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
-	  if(isTriggered_EF && !isMSonlychain && passedCBchainEF[probe]) {
+	  if(isTriggered_EF && !isMSonlychain && passedCBchainEF[probe] && passedchainL1[probe]) {
 	    hist(("muZTP_Pt_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -840,7 +840,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    if( !isEndcap ) hist(("muZTP_Phi_B_EFfired_" + itmap->second).c_str(), histdirmuztp)->Fill(probephi);
 	    hist2(("muZTP_EtaPhi_EF_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
-	  if(isTriggered_EF && !isMSonlychain && isefIsochain && passedisochainEF[probe]) {
+	  if(isTriggered_EF && !isMSonlychain && isefIsochain && passedisochainEF[probe] && passedchainL1[probe]) {
 	    hist(("muZTP_Pt_EFIsofired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_EFIsofired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_EFIsofired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -861,7 +861,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    hist2(("muZTP_EtaPhi_EFIso_" + itmap->second).c_str(), histdirmuztp)->Fill(probeeta, probephi);
 	  }
 	  //EF && L2 - include the isolation if needed
-	  if(isTriggered_EF && isMSonlychain && passedSAchainEF[probe] && passedSAchainL2[probe]){
+	  if(isTriggered_EF && isMSonlychain && passedSAchainEF[probe] && passedSAchainL2[probe] && passedchainL1[probe]){
 	    hist(("muZTP_Pt_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    hist(("muZTP_Pt_4bins_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	    if( isEndcap ) hist(("muZTP_Pt_EC_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
@@ -881,7 +881,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    if( !isEndcap ) hist(("muZTP_Phi_B_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probephi);
 	  }
 	  //	  if(isTriggered_EF && !isMSonlychain && !ismuIsochain && passedCBchainEF[probe] && passedCBchainL2[probe])  // !ismuIsochain
-	  if(isTriggered_EF && !isMSonlychain && passedCBchainEF[probe] && passedCBchainL2[probe]) { // !ismuIsochain
+	  if(isTriggered_EF && !isMSonlychain && passedCBchainEF[probe] && passedCBchainL2[probe] && passedchainL1[probe]) { // !ismuIsochain
 	    if( (!isefIsochain || passedisochainEF[probe]) ) {
 	      hist(("muZTP_Pt_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
 	      hist(("muZTP_Pt_4bins_EFL2fired_" + itmap->second).c_str(), histdirmuztp)->Fill(probept);
