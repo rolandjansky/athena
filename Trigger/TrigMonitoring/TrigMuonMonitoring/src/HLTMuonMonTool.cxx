@@ -499,14 +499,16 @@ StatusCode HLTMuonMonTool::init()
   // m_MSchain.push_back("EF_mu40_MSonly_barrel_medium");  // YY for 2e33
   // m_MSchain.push_back("EF_mu50_MSonly_barrel_tight");  // v4
   for(unsigned int ich = 0; ich < m_chainsMSonly.size(); ich++){
-    m_MSchain.push_back("HLT_" + m_chainsMSonly[ich]);
+    m_MSchain.push_back(m_chainsMSonly[ich]);
   }
+  m_MSchain.push_back("HLT_mu20_msonly");  // v5 2015
+  
 
   m_hptName = "_hpt";
 
-  m_EFAlgName[0] = "_MuonEFCB";
-  m_EFAlgName[1] = "_MuGirlCB";
-  m_EFAlgName[2] = "_MuGirlTag";
+  m_EFAlgName[0] = "_Combined";
+  m_EFAlgName[1] = "_MuonStandAlone";
+  m_EFAlgName[2] = "_SegmentTagged";
   m_EFAlgName[3] = "_allEFMuons";
 
   // 2d phi bins initialisation
