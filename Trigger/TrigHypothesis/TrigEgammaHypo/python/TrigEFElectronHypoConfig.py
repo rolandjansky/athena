@@ -170,13 +170,7 @@ class TrigEFElectronHypo_e_WTP (TrigEFElectronHypoBase):
         from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
         self.AthenaElectronLHIDSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
         self.IsEMrequiredBits =  SelectionDefElectron.Electron_trk
-        if('1' in IDinfo):
-            if( float(threshold) < 20 ):
-                self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
-            else:
-                self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronHypoToolName[IDinfo]
-        else:
-            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
+        self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName["loose"]
 
 #-----------------------------------------------------------------------
 # --- eXX Particle ID selection CaloCuts only
