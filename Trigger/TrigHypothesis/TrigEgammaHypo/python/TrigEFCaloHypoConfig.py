@@ -12,6 +12,14 @@ from AthenaCommon.SystemOfUnits import GeV
 # Include EGammaPIDdefs for loose,medium,tight definitions
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton 
+from egammaTools.egammaToolsFactories import EMFourMomBuilder, EMShowerBuilder 
+TrigEMShowerBuilderTool = EMShowerBuilder(
+                name = "TrigEgammaShowerBuilder",
+                CellsName = "",
+                Print = True,
+                )
+TrigEMFourMomBuilder = EMFourMomBuilder()
+
 class TrigEFCaloHypoBase (TrigEFCaloHypo):
     __slots__ = []
     def __init__(self, name):
@@ -28,6 +36,8 @@ class TrigEFCaloHypoBase (TrigEFCaloHypo):
         from AthenaCommon.AppMgr import ToolSvc
         from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
         ToolSvc += LuminosityToolOnline()
+        self.ShowerBuilderTool=TrigEMShowerBuilderTool
+        self.FourMomBuilderTool=TrigEMFourMomBuilder
         #-----------------------------------------------------------
 
 class TrigEFCaloHypo_All (TrigEFCaloHypoBase):       

@@ -32,8 +32,6 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloUtils/CaloCellDetPos.h"
-#include "egammaInterfaces/IEMShowerBuilder.h"
-#include "egammaInterfaces/IEMFourMomBuilder.h"
 class TrigCaloQuality;
 class IegammaMVATool;
 /**
@@ -64,13 +62,12 @@ class TrigEFCaloCalibFex : public HLT::FexAlgo  {
   bool m_acceptAll;
   bool m_applyMVACalib;
   std::string m_egType;
+  std::string m_persKey; // Cluster container key
   xAOD::CaloClusterContainer* m_pCaloClusterContainer; //!<  pointer to CaloClusterContainer 
-  xAOD::PhotonContainer* m_egContainer;
+  
   CaloCellDetPos *m_caloCellDetPos;
   /** Handle to the MVA calibration Tool **/
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  
-  ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
-  ToolHandle<IEMShowerBuilder> m_showerBuilder;
 
   // Timers
   TrigTimer* m_totalTimer;

@@ -48,6 +48,7 @@ use     xAODEgammaCnv               xAODEgammaCnv-*                 Event/xAOD
 use     TrigMissingEtEvent TrigMissingEtEvent-* Trigger/TrigEvent
 use     TrigNavigation     TrigNavigation-*     Trigger/TrigEvent
 use	TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
+use     Particle                Particle-*              Reconstruction
 
 # for GSF alg
 use NavFourMom                 NavFourMom-*            Event
@@ -68,7 +69,6 @@ use     xAODTrigCalo            xAODTrigCalo-*          Event/xAOD
 use     xAODTracking     	xAODTracking-*     	Event/xAOD
 use     xAODTrigEgamma          xAODTrigEgamma-*        Event/xAOD
 use     AtlasCLHEP              AtlasCLHEP-*            External
-use     Particle                Particle-*              Reconstruction
 
 library TrigEgammaHypo *.cxx components/*.cxx
 
