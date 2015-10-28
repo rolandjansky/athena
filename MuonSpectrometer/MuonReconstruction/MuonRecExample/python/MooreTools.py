@@ -108,7 +108,8 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
             kwargs.setdefault( "HoughPatternFinder", "MuonHoughPatternFinderTool" )
 
         kwargs.setdefault( "MdtSegmentMaker", "MuonPatternSegmentMaker" )
-        kwargs.setdefault( "DoSegmentCombinationCleaning", True )
+        kwargs.setdefault( "DoSegmentCombinations", False )
+        kwargs.setdefault( "DoSegmentCombinationCleaning", False )
         kwargs.setdefault( "DoCscSegments", muonRecFlags.doCSCs() )
         kwargs.setdefault( "DoMdtSegments", muonRecFlags.doMDTs() )
         if muonRecFlags.doCSCs():

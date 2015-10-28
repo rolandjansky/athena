@@ -12,7 +12,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-from MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude
+from MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
 
 from MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
@@ -93,14 +93,19 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("IsMC", False)
     else:
         kwargs.setdefault("IsMC", True)
-                        
-    from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
-    return Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
+                  
+    return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
 
-
+    
 def MdtTubeHitOnTrackCreator(name="MdtTubeHitOnTrackCreator",**kwargs):
     kwargs["CreateTubeHit"] = True
+    return MdtDriftCircleOnTrackCreator(name,**kwargs)
+
+def MdtDriftCircleOnTrackCreatorStau(name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
+    kwargs.setdefault("MuonTofTool", getPublicTool("StauBetaTofTool") )
+    kwargs.setdefault("TimingMode", 3 )
+    kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_t0fit') )
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 
@@ -333,22 +338,26 @@ def MdtMathSegmentFinder(name="MdtMathSegmentFinder",extraFlags=None,**kwargs):
     doSegmentT0Fit = getattr(extraFlags,"doSegmentT0Fit",muonRecFlags.doSegmentT0Fit())
     enableCurvedSegmentFinding = getattr(extraFlags,"enableCurvedSegmentFinding", muonStandaloneFlags.enableCurvedSegmentFinding())
 
-    if beamType == 'singlebeam' or beamType == 'cosmics' or globalflags.DataSource() == 'data':
+    if doSegmentT0Fit:
+        kwargs.setdefault("AssociationRoadWidth", 3.)
+        kwargs.setdefault("MDTAssocationPullcut", 3.)
+        kwargs.setdefault("RecoverMdtOutliers", False)
+        kwargs.setdefault("DCFitProvider", "MdtSegmentT0Fitter" )
 
-        if doSegmentT0Fit:
-            kwargs.setdefault("AssociationRoadWidth", 3.)
-            kwargs.setdefault("MDTAssocationPullcut", 3.)
-            kwargs.setdefault("RecoverMdtOutliers", False)
-            kwargs.setdefault("DCFitProvider", "MdtSegmentT0Fitter" )
-        else:
-            kwargs.setdefault("AssociationRoadWidth", 2.)
-            kwargs.setdefault("MDTAssocationPullcut", 4.)
-            kwargs.setdefault("RecoverMdtOutliers", True )
+    if beamType == 'singlebeam' or beamType == 'cosmics' or globalflags.DataSource() == 'data':
+        kwargs.setdefault("AssociationRoadWidth", 2.)
+        kwargs.setdefault("MDTAssocationPullcut", 4.)
+        kwargs.setdefault("RecoverMdtOutliers", True )
 
     if enableCurvedSegmentFinding:
         kwargs.setdefault("DoCurvedSegmentFinder",True)
 
     return CfgMgr.Muon__MdtMathSegmentFinder(name,**kwargs)
+
+def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,**kwargs):
+    if extraFlags is None: extraFlags = ExtraFlags()    
+    extraFlags.setFlagDefault('doSegmentT0Fit',True)
+    return MdtMathSegmentFinder(name,extraFlags,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
     
@@ -360,30 +369,28 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     updateSegmentSecondCoordinate = getattr(extraFlags,"updateSegmentSecondCoordinate", muonStandaloneFlags.updateSegmentSecondCoordinate())
     enableCurvedSegmentFinding = getattr(extraFlags,"enableCurvedSegmentFinding", muonStandaloneFlags.enableCurvedSegmentFinding())
         
-    kwargs.setdefault("MdtSegmentFinder", "MdtMathSegmentFinder")
     kwargs.setdefault("RefitSegment", True)
     kwargs.setdefault("AssumePointingPhi", beamType != 'cosmics')
     kwargs.setdefault("OutputFittedT0", True)
     kwargs.setdefault("DCFitProvider", "MdtSegmentT0Fitter")
     #kwargs.setdefault("CurvedErrorScaling", False)
+    kwargs.setdefault("UsePreciseError", True)
 
     if (beamType == 'singlebeam' or beamType == 'cosmics'): 
         kwargs.setdefault("SinAngleCut", 0.9)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
         kwargs.setdefault("CurvedErrorScaling", False)
-        kwargs.setdefault("UsePreciseError", True)
-        kwargs.setdefault("PreciseErrorScale", 2.)
     elif globalflags.DataSource() == 'data': # collisions real data or simulation first data
-        kwargs.setdefault("SinAngleCut", 0.4)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
-        kwargs.setdefault("UsePreciseError", True)
-        kwargs.setdefault("PreciseErrorScale", 2.)
 
     if doSegmentT0Fit:
         kwargs.setdefault("MdtCreatorT0", "MdtDriftCircleOnTrackCreatorAdjustableT0")
         kwargs.setdefault("TofTool", "AdjustableT0Tool")
+        kwargs.setdefault("MdtSegmentFinder", "MdtMathT0FitSegmentFinder" )
+    else:
+        kwargs.setdefault("MdtSegmentFinder", "MdtMathSegmentFinder")
 
     if updateSegmentSecondCoordinate:
         kwargs.setdefault("UpdatePhiUsingPhiHits",True)
@@ -395,15 +402,19 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 
     return CfgMgr.Muon__DCMathSegmentMaker(name,**kwargs)
 
+
+def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwargs):
+    if extraFlags is None: extraFlags = ExtraFlags()    
+    extraFlags.setFlagDefault('doSegmentT0Fit',True)
+    return DCMathSegmentMaker(name,extraFlags,**kwargs)
+
+
+
 # end of factory function DCMathSegmentMaker
 
 def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
     kwargs.setdefault("DoTruth", rec.doTruth() )
     return CfgMgr.Muon__MuonLayerHoughTool(name,**kwargs)
-
-  
-    
-#from TrkEventCnvTools import TrkEventCnvToolsConfig
 
 
 
