@@ -21,11 +21,14 @@
 namespace iFatras {
   PlanarClusterOnTrackTool::PlanarClusterOnTrackTool
   (const std::string& t,const std::string& n,const IInterface* p) :
-    ::AthAlgTool(t,n,p)
+    ::AthAlgTool(t,n,p),
+    m_useDefinedParameters(false)
   {
     declareInterface<IRIO_OnTrackCreator>(this);
+    declareProperty("UseDefinedParameters",     m_useDefinedParameters);
   }
   
+
   ///////////////////////////////////////////////////////////////////
   // Destructor  
   ///////////////////////////////////////////////////////////////////
@@ -79,19 +82,48 @@ namespace iFatras {
       ATH_MSG_WARNING ("Cannot access detector element. Aborting cluster correction...");
       return 0;
     }
-  
+
+    bool isPixel = element->isPixel();
+    bool isDisc = (element->surface().type() == Trk::Surface::Disc);
+
     IdentifierHash iH = element->identifyHash();
   
     // PlanarCluster global and local position
     //
     Amg::Vector3D   glob(plc->globalPosition());
     Amg::Vector2D locpos = plc->localPosition();    
-    Trk::LocalParameters locpar = Trk::LocalParameters(locpos);
+    Trk::LocalParameters locpar;
 
     // Covariance matrix
     //
     Amg::MatrixX oldLocalCov = plc->localCovariance();
-    Amg::MatrixX* loce = new Amg::MatrixX(oldLocalCov);
+    Amg::MatrixX* loce = 0;
+
+    if(!isPixel) { // SCT case
+      // TODO! At the time being the KalmanFitter doesn't understand yet the DefinedParameters
+      // The code is already here when this will be the case
+      if ( m_useDefinedParameters ) {
+	if (isDisc) { // Disc surface with trapezoidal shape
+	  Trk::DefinedParameter par(locpos[Trk::locPhi], Trk::locPhi);
+	  locpar = Trk::LocalParameters(par);
+	  Amg::MatrixX mat(1,1);
+	  mat(0,0) = oldLocalCov(Trk::locPhi, Trk::locPhi);
+	  loce = new Amg::MatrixX(mat);
+	} else { // Planar surface with trapezoidal shape
+	  Trk::DefinedParameter par(locpos[Trk::locX], Trk::locX);
+	  locpar = Trk::LocalParameters(par);
+	  Amg::MatrixX mat(1,1);
+	  mat(0,0) = oldLocalCov(Trk::locX, Trk::locX);
+	  loce = new Amg::MatrixX(mat);
+	}
+      } else {
+	locpar = Trk::LocalParameters(locpos);
+	loce = new Amg::MatrixX(oldLocalCov);
+      }
+    } else { // Pixel case
+      locpar = Trk::LocalParameters(locpos);
+      loce = new Amg::MatrixX(oldLocalCov);
+    }
       
     ATH_MSG_DEBUG ("PlanarCluster: Global Position --> "  << glob);  
     ATH_MSG_DEBUG ("PlanarCluster: Local Position --> "   << locpos);  

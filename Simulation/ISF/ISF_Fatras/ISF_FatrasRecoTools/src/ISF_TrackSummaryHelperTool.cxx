@@ -83,9 +83,16 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
   bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
   bool  ispatterntrack =  (track.info().trackFitter()==Trk::TrackInfo::Unknown);
   
+  if (msgLvl(MSG::DEBUG)) msg() << "Starting analyse()" << endreq;
+
   if ( m_usePixel && m_pixelId->is_pixel(id) ) {
+
+    if (msgLvl(MSG::DEBUG)) msg() << "Pixel hit found" << endreq;
     
     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
+      
+      if (msgLvl(MSG::DEBUG)) msg() << "Pixel outlier info storing" << endreq;
+
       information[Trk::numberOfPixelOutliers]++;
       if (m_pixelId->is_blayer(id)){
 	information[Trk::numberOfBLayerOutliers]++;
@@ -97,16 +104,21 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 	information[Trk::numberOfNextToInnermostPixelLayerOutliers]++;
       }
     } else {
+      
+      if (msgLvl(MSG::DEBUG)) msg() << "Pixel info storing" << endreq;
+
       information[Trk::numberOfPixelHits]++;
-      if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
+      if ((m_pixelId->is_blayer(id))) information[Trk::numberOfBLayerHits]++; // found b layer hit
       if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
       if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
       
       if ( ( m_pixelId->is_barrel(id) ) ) {
+	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endreq;
 	int offset = m_pixelId->layer_disk(id); 
 	if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
 	hitPattern.set(offset); // assumes numbered consecutively
       } else {
+	if (msgLvl(MSG::DEBUG)) msg() << "Endcap hit" << endreq;
 	int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc
 	offset    += m_pixelId->layer_disk(id);
 	if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
@@ -134,18 +146,29 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       }
     }
   } else if (m_useSCT && m_sctId->is_sct(id) ) {
-
+    
+    if (msgLvl(MSG::DEBUG)) msg() << "SCT hit found" << endreq;
+    
     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+      if (msgLvl(MSG::DEBUG)) msg() << "SCT outlier info storing" << endreq;
       information[Trk::numberOfSCTOutliers]++;
     } else {
-      
+      if (msgLvl(MSG::DEBUG)) msg() << "SCT info storing" << endreq;
       information[Trk::numberOfSCTHits]++;
       if ( (m_sctId->is_barrel(id) ) ) {
+	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endreq;
 	int offset = static_cast<int>(Trk::sctBarrel0);
-	hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
+	hitPattern.set( offset ) ;
+	if (msgLvl(MSG::DEBUG)) msg() << "offset = " << offset << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "m_sctId->layer_disk(id) = " << m_sctId->layer_disk(id) << endreq;
+	//hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
       } else {
+	if (msgLvl(MSG::DEBUG)) msg() << "Endcap hit" << endreq;
 	int offset = static_cast<int>(Trk::sctEndCap0); //get int value of first sct endcap disc
-	hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
+	hitPattern.set( offset ) ;
+	if (msgLvl(MSG::DEBUG)) msg() << "offset = " << offset << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "m_sctId->layer_disk(id) = " << m_sctId->layer_disk(id) << endreq;
+	//hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
       }
 
       if (m_doSharedHits) {
