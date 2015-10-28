@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "DetDescrConditions/AlignableTransformContainer.h"
+#include "DetDescrConditions/AlignableTransform.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
@@ -299,6 +302,149 @@ namespace InDetDD {
     {
         return dynamic_cast<const PixelModuleDesign *>(getDesign(i));
     }
+
+
+
+  // The implementation of the new IBLDist DB; 
+  // Specific for IBL -> maybe make it different function in future to be more general 
+  bool PixelDetectorManager::processSpecialAlignment(const std::string & key) const
+  {
+
+    bool alignmentChange = false;
+
+    if(msgLvl(MSG::INFO))
+      msg(MSG::INFO) << "Processing IBLDist alignment container." << endreq;
+
+    float ibldist[14] = {}; 
+    float iblbaseline[14] = {}; 
+    const CondAttrListCollection* atrlistcol=0;
+    if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
+      // loop over objects in collection
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+	
+	const coral::AttributeList& atrlist=citr->second;
+	ibldist[atrlist["stave"].data<int>()] = atrlist["mag"].data<float>();
+	iblbaseline[atrlist["stave"].data<int>()] = atrlist["base"].data<float>();
+
+	msg(MSG::VERBOSE) << "IBLDist DB -- channel: " << citr->first
+			  << " ,stave: " << atrlist["stave"].data<int>() 
+			  << " ,mag: " << atrlist["mag"].data<float>()
+			  << " ,base: " << atrlist["base"].data<float>() << endreq;
+      }
+    }
+    else {
+      if (msgLvl(MSG::INFO))
+	msg(MSG::INFO) << "Cannot find IBLDist Container for key "
+		       << key << " - no IBL bowing alignment " << endreq;
+      return alignmentChange;                                                                     
+    }
+
+    /**
+      Matthias D. (Oct. 2016): 
+      The idea of this first implementation is to get the AlignTransforms for IBL modules from their folder;
+      Calculate from the new DB entries the Tx displacement for this module;
+      Make a simple transfrom in local frame;
+      Add the Tx to the aligntransform;
+      Apply this new transform with the setAlignableTransformDelta() function;
+      This is non-optimal as it simply overrides the previous Delta (these are included in total Delta);
+      Possibly we could extend this in future to add tweak() functionality to GeoAlignableTransform?
+    **/
+
+    const AlignableTransformContainer* container;
+    if (StatusCode::SUCCESS!=m_detStore->retrieve(container, "/Indet/Align")) {        
+      msg(MSG::ERROR) << "Cannot find AlignableTransformContainer for key " 
+		      << key << " - no misalignment" << endreq;
+      // This should not occur in normal situations so we force job to abort.
+      throw std::runtime_error("Unable to apply Inner Detector alignments");
+    }
+    // Check if container is empty - this can occur if it is an invalid IOV.
+    if (container->empty()) {
+      msg(MSG::ERROR) << "AlignableTransformContainer for key " 
+                      << key << " is empty. Probably due to out of range IOV" << endreq;
+      // This should not occur in normal situations so we force job to abort.
+      throw std::runtime_error("Unable to apply Inner Detector alignments.");
+    }
+    // loop over all the AlignableTransform objects in the collection
+    for (DataVector<AlignableTransform>::const_iterator pat=container->begin();
+	 pat!=container->end();++pat) {
+      if ((*pat)->tag()!="/Indet/Align/PIXB1") {  // hard-coded to IBL for now
+	msg(MSG::VERBOSE) << "IBLDist; ignoring collections " << (*pat)->tag() << endreq;
+      }
+      else{
+	const AlignableTransform* transformCollection = *pat;
+	for (AlignableTransform::AlignTransMem_citr trans_iter = transformCollection->begin(); 
+	     trans_iter != transformCollection->end(); 
+	     ++trans_iter) {
+	  if (msgLvl(MSG::DEBUG)) {
+	    msg(MSG::DEBUG) << "IBLDist alignment for identifier " 
+			   << getIdHelper()->show_to_string(trans_iter->identify())   << endreq;
+	  }
+	
+	  IdentifierHash idHash = getIdHelper()->wafer_hash(trans_iter->identify());
+	  SiDetectorElement * sielem = m_elementCollection[idHash];
+	  //This should work as Bowing is in L3 frame, i.e. local module frame                               
+	  double z = sielem->center()[2];
+	  const double  y0y0  = 366.5*366.5;
+	                             
+	  double bowx = ibldist[getIdHelper()->phi_module(trans_iter->identify())] * ( z*z - y0y0 ) / y0y0;
+	  double basex= iblbaseline[getIdHelper()->phi_module(trans_iter->identify())];
+	  // This is in the module frame, as bowing corrections are directly L3                              
+  
+	  msg(MSG::DEBUG) << "Total IBL-module Tx shift (baseline+bowing): " << basex+bowx << endreq;
+	  if ( (basex+bowx)==0 ) continue; // make sure we ignore NULL corrections
+
+	  Amg::Transform3D shift = Amg::Translation3D(basex+bowx,0,0) * Amg::RotationMatrix3D::Identity();
+
+	  const AlignableTransform* cpat = *pat;
+	  AlignableTransform *pat_update=const_cast<AlignableTransform*>(cpat);
+	  AlignableTransform::AlignTransMem_citr this_trans=pat_update->findIdent(trans_iter->identify());
+	  HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(shift)*this_trans->transform();
+
+	  /** Verbose level debug section for transforms **/
+	  if (msgLvl(MSG::VERBOSE)) {
+	    msg(MSG::VERBOSE) << "Bowing Transformation only:" << endreq;
+	    printTransform(shift);
+	    msg(MSG::VERBOSE) << "Original alignable Transformation from StoreGate:" << endreq;
+	    printTransform(Amg::CLHEPTransformToEigen(this_trans->transform()));
+	    msg(MSG::VERBOSE) << "Final mModified Transformation:" << endreq;
+	    printTransform(Amg::CLHEPTransformToEigen(newtrans));
+	  }
+	  /** End of verbose level debug section **/
+	  
+	  // Set the new transform; Will replace existing one with updated transform
+	  bool status = setAlignableTransformDelta(0, 
+						   trans_iter->identify(),
+						   Amg::CLHEPTransformToEigen(newtrans),
+						   InDetDD::local);
+ 
+	  if (!status) {
+	    if (msgLvl(MSG::DEBUG)) {
+	      msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."  
+			      << getIdHelper()->show_to_string(trans_iter->identify())  
+			      << " at level 0 for IBLDist bowing deformation " << endreq;
+	    }
+	  }
+
+	  alignmentChange = (alignmentChange || status);
+	}
+      }
+    }
+  
+
+    return alignmentChange;
+  }
+
+
+  // Helpful function for debugging of transforms
+  void PixelDetectorManager::printTransform(const Amg::Transform3D & tr) const
+  {
+    msg(MSG::DEBUG) <<" - translation: "<<tr.translation().x()<<"  "<<tr.translation().y()<<"  "<<tr.translation().z() << endreq;
+    msg(MSG::DEBUG) <<" - rotation:"<< endreq;
+    msg(MSG::DEBUG) <<"      "<<tr(0,0)<<"  "<<tr(0,1)<<"  "<<tr(0,2)<< endreq;
+    msg(MSG::DEBUG) <<"      "<<tr(1,0)<<"  "<<tr(1,1)<<"  "<<tr(1,2)<< endreq;
+    msg(MSG::DEBUG) <<"      "<<tr(2,0)<<"  "<<tr(2,1)<<"  "<<tr(2,2)<< endreq;
+    return;
+  }
 
 
 } // namespace InDetDD

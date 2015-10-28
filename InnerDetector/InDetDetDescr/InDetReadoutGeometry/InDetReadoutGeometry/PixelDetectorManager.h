@@ -123,6 +123,10 @@ namespace InDetDD {
     
       /** Access to module design, Casts to PixelModuleDesign */
       virtual const PixelModuleDesign * getPixelDesign(int i) const;
+
+      /** Process new IBLDist DB folder **/
+      bool processSpecialAlignment(const std::string &) const;
+
     
      private:  
     
@@ -149,7 +153,10 @@ namespace InDetDD {
       std::vector< AlignableTransformMap >                          m_higherAlignableTransforms;
       std::vector< ExtendedAlignableTransform *>                    m_alignableTransforms; 
       const PixelID*                                                m_idHelper;
-      
+
+      // Helpful function for debugging of transforms
+      void printTransform(const Amg::Transform3D & tr) const;
+
     };
 
 } // namespace InDetDD

@@ -52,13 +52,13 @@ namespace InDetDD
 
     void InDetDetectorManager::addChannel(const std::string & key, int level, FrameType frame)
     {
-        if (msgLvl(MSG::DEBUG)) {
+      //if (msgLvl(MSG::DEBUG)) {
             std::string frameStr = "other";
             if (frame == InDetDD::global) frameStr = "global";
             if (frame == InDetDD::local) frameStr  = "local";
-            msg(MSG::DEBUG) << "Registering alignment channel with key " << key << ", level " << level 
+            msg(MSG::INFO) << "Registering alignment channel with key " << key << ", level " << level 
                 << ", with frame " << frameStr << "." <<endreq;
-        }
+	    //}
         m_keys[key] = LevelInfo(level, frame); 
     }
 
@@ -83,7 +83,7 @@ namespace InDetDD
         return iter->second;
     }
 
-
+  
     StatusCode InDetDetectorManager::align( IOVSVC_CALLBACK_ARGS_P(I,keys) ) const
     {
         (void) I; // avoid warning about unused parameter 
@@ -171,7 +171,6 @@ namespace InDetDD
 
         return StatusCode::SUCCESS;
     }
-
 
 
     bool InDetDetectorManager::processAlignmentContainer(const std::string & key) const
