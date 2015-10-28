@@ -514,8 +514,8 @@ class L2BMuMuFex_noId (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_noid
+        online = TrigL2BMuMuFexOnlineMonitoring_noid()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -543,8 +543,8 @@ class L2BMuMuFex_noId_Z (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_noid
+        online = TrigL2BMuMuFexOnlineMonitoring_noid()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -571,8 +571,8 @@ class L2BMuMuFex_Jpsi_passL2 (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_passL2
+        online = TrigL2BMuMuFexOnlineMonitoring_passL2()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -599,8 +599,8 @@ class L2BMuMuFex_Upsi_passL2 (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_passL2
+        online = TrigL2BMuMuFexOnlineMonitoring_passL2()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -627,8 +627,8 @@ class L2BMuMuFex_B_passL2 (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_passL2
+        online = TrigL2BMuMuFexOnlineMonitoring_passL2()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -655,8 +655,8 @@ class L2BMuMuFex_DiMu_passL2 (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_passL2
+        online = TrigL2BMuMuFexOnlineMonitoring_passL2()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -684,8 +684,8 @@ class L2BMuMuFex_DiMu_noOS_passL2 (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_passL2
+        online = TrigL2BMuMuFexOnlineMonitoring_passL2()
 
         self.AthenaMonTools = [ validation, online, time ]
 
@@ -713,8 +713,8 @@ class L2BMuMuFex_noId_passL2 (TrigL2BMuMuFex):
         time = TrigTimeHistToolConfig("Time")
         from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexValidationMonitoring
         validation = TrigL2BMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring
-        online = TrigL2BMuMuFexOnlineMonitoring()
+        from TrigBphysHypo.TrigL2BMuMuFexMonitoring import TrigL2BMuMuFexOnlineMonitoring_passL2
+        online = TrigL2BMuMuFexOnlineMonitoring_passL2()
 
         self.AthenaMonTools = [ validation, online, time ]
 
