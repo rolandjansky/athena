@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EnergySumRoIAuxInfo_v1.cxx 680153 2015-07-03 13:47:51Z krasznaa $
+// $Id: EnergySumRoIAuxInfo_v1.cxx 680159 2015-07-03 14:02:33Z krasznaa $
 
 // Local includes
 #include "xAODTrigger/versions/EnergySumRoIAuxInfo_v1.h"

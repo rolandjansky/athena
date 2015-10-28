@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.h 613820 2014-08-28 13:36:36Z krasznaa $
+// $Id: ByteStreamAuxContainer_v1.h 645967 2015-02-11 12:29:36Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 613820 $
-   /// $Date: 2014-08-28 15:36:36 +0200 (Thu, 28 Aug 2014) $
+   /// $Revision: 645967 $
+   /// $Date: 2015-02-11 13:29:36 +0100 (Wed, 11 Feb 2015) $
    ///
    class ByteStreamAuxContainer_v1
      : public SG::IAuxStore
@@ -110,6 +110,16 @@ namespace xAOD {
       /// Function resetting the internal (cached) state of the object
       void reset();
 
+      /// @name Functions managing the instance name of the container
+      /// @{
+
+      /// Get the name of the container instance
+      const char* name() const;
+      /// Set the name of the container instance
+      void setName( const char* name );
+
+      /// @}
+
    protected:
       /// Register one of the user defined persistent variables internally
       template< typename T >
@@ -176,6 +186,9 @@ namespace xAOD {
       mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
 
       /// @}
+
+      /// Name of the container in memory. Set externally.
+      std::string m_name;
 
    }; // class ByteStreamAuxContainer_v1
 

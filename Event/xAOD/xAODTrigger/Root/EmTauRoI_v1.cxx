@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTauRoI_v1.cxx 625821 2014-11-03 17:03:16Z krasznaa $
+// $Id: EmTauRoI_v1.cxx 652708 2015-03-09 15:46:47Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -40,9 +40,9 @@ namespace xAOD {
       const uint32_t roi = roiWord();
       if( ( roi & 0xc0000000 ) == 0 ) {
          return CPRoIWord;
-      } else if( ( roi & 0xf0000000 ) == 0xa ) {
+      } else if( ( roi & 0xf0000000 ) == 0xa0000000 ) {
          return EMRoIWord;
-      } else if( ( roi & 0xf0000000 ) == 0xb ) {
+      } else if( ( roi & 0xf0000000 ) == 0xb0000000 ) {
          return TauRoIWord;
       }
 

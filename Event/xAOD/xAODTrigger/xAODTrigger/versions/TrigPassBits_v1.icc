@@ -1,0 +1,132 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: TrigPassBits_v1.icc 704009 2015-10-28 08:32:05Z krasznaa $
+#ifndef XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_ICC
+#define XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_ICC
+
+// System include(s):
+#include <stdexcept>
+
+// xAOD include(s):
+#include "AthContainers/normalizedTypeinfoName.h"
+#include "xAODCore/CLASS_DEF.h"
+
+namespace xAOD {
+
+   /// This function is used to initialise or reset the object, to describe
+   /// a target container. It sets up all the internal variables of the object
+   /// so that subsequent maskPassing/isPassing calls would succeed.
+   ///
+   /// @param container Pointer to the container that this object should
+   ///                  describe
+   /// @param containerKey A unique key describing the target container.
+   ///                     (The sub-type index from the trigger navigation.)
+   ///
+   template< class CONT >
+   void TrigPassBits_v1::reset( const CONT* container, uint32_t containerKey ) {
+
+      // Set all internal variables:
+      m_container = static_cast< const void* >( container );
+      setSize( container->size() );
+      if( container->size() == 0 ) {
+         setPassBits( std::vector< uint32_t >() );
+      } else {
+         setPassBits( std::vector< uint32_t >( ( ( container->size() - 1 ) /
+                                                 32 ) + 1 ) );
+      }
+      setContainerKey( containerKey );
+      setContainerClid( ClassID_traits< CONT >::ID() );
+
+      return;
+   }
+
+   /// Tried to use const references in the arguments, but then the function
+   /// overload broke. So instead of providing template and non-template
+   /// functions with slightly different names, decided to use pointers in
+   /// the interface instead.
+   ///
+   /// @param obj       The object whose state should be set
+   /// @param container The container that the object is part of
+   /// @param passed    The "passing state" of the specified object
+   ///
+   template< class OBJ, class CONT >
+   void TrigPassBits_v1::markPassing( const OBJ* obj, const CONT* container,
+                                      bool passed ) {
+
+      // Check that we received the correct container:
+      if( m_container && ( m_container != container ) ) {
+         throw std::runtime_error( "Function called with a wrong container" );
+      }
+
+      // Find the element in the container:
+      auto itr = std::find( container->begin(), container->end(), obj );
+      if( itr == container->end() ) {
+         throw std::runtime_error( "Specified object is not part of the "
+                                   "specified container" );
+      }
+
+      // Call the non-templated function to set the bit:
+      markPassing( itr - container->begin(), passed );
+
+      return;
+   }
+
+   /// The same comment applied as for the <code>markPassing</code> function.
+   /// In order to avoid clashes with the non-template function, I had to use
+   /// pointer arguments for the function.
+   ///
+   /// @param obj       The objects whose state we should check
+   /// @param container The container that the object is part of
+   /// @returns The "passing state" of the object
+   ///
+   template< class OBJ, class CONT >
+   bool TrigPassBits_v1::isPassing( const OBJ* obj,
+                                    const CONT* container ) const {
+
+      // Check that we received the correct container:
+      if( m_container && ( m_container != container ) ) {
+         throw std::runtime_error( "Function called with a wrong container" );
+      }
+
+      // Find the element in the container:
+      auto itr = std::find( container->begin(), container->end(), obj );
+      if( itr == container->end() ) {
+         throw std::runtime_error( "Specified object is not part of the "
+                                   "specified container" );
+      }
+
+      // Call the non-templated function to check the status of the bit:
+      return isPassing( itr - container->begin() );
+   }
+
+   /// This function is an analogue of the HLT::makeTrigPassBits function,
+   /// written for the original TrigPassBits type. It behaves much the
+   /// same way, it just makes it clear in its interface that the user
+   /// is supposed to take ownership of the received object.
+   ///
+   /// @param container Pointer to the container that this object should
+   ///                  describe
+   /// @param containerKey A unique key describing the target container.
+   ///                     (The sub-type index from the trigger navigation.)
+   ///
+   template< class CONT >
+   std::unique_ptr< TrigPassBits_v1 >
+   makeTrigPassBits( const CONT* container, uint32_t containerKey ) {
+
+      // Create the new object:
+      std::unique_ptr< TrigPassBits_v1 > result( new TrigPassBits_v1() );
+      // Give it a private auxiliary store:
+      result->makePrivateStore();
+      // Set it up:
+      result->reset( container, containerKey );
+      // And now return it:
+      return result;
+   }
+
+} // namespace xAOD
+
+#endif // XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_ICC
