@@ -54,6 +54,7 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   declareProperty("Services",m_services=true);
   declareProperty("ServicesOnLadder",m_servicesOnLadder=true); ///JBdV
   declareProperty("Alignable", m_alignable=true);
+  declareProperty("TweakIBLDist", m_tweakIBLDist=true);
   declareProperty("DC1Geometry",m_dc1Geometry=false); 
   declareProperty("InitialLayout",m_initialLayout=false);
   declareProperty("DevVersion", m_devVersion=false);
@@ -378,24 +379,54 @@ StatusCode
 PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
 {
 
+  StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
+    //standard alignment folder must be present!
     std::string folderName = "/Indet/Align";
     if (detStore->contains<AlignableTransformContainer>(folderName)) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
       const DataHandle<AlignableTransformContainer> atc;
-      return detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-    } else {
+      StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+      if(sctmp.isFailure()) {
+	 msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+      } else {
+	sc =  StatusCode::SUCCESS;
+      }
+    }
+    else {
       msg(MSG::ERROR) << "Unable to register callback on AlignableTransformContainer with folder " 
 		      << folderName << ", Alignment disabled!" << endreq;
       return StatusCode::FAILURE;
     }
+    
+    if (m_tweakIBLDist) {
+      //IBLDist alignment should be made optional; Will not be available prior to period G in Run2
+      std::string ibl_folderName = "/Indet/IBLDist";
+      if (detStore->contains<CondAttrListCollection>(ibl_folderName)) {
+	msg(MSG::DEBUG) << "Registering callback on IBLDist with folder " << ibl_folderName << endreq;
+	const DataHandle<CondAttrListCollection> calc;
+	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, ibl_folderName);
+	// We don't expect this to fail as we have already checked that the detstore contains the object.
+	if (ibltmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on IBLDist with folder " << ibl_folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      } else {
+	// We don't return false, as it might be possible that we run an old configuration without new DB;
+	// Return a clear warning msg for now.
+	msg(MSG::WARNING) << "Unable to register callback on IBLDist with folder " << ibl_folderName <<endreq;
+	msg(MSG::WARNING) << "This might be OK, if no LB-IOV IBL-bowing DB is provided for this run " <<endreq;
+      }
+    }// end of tweakIBLDist
+
   } else {
     msg(MSG::INFO) << "Alignment disabled. No callback registered" << endreq;
     // We return failure otherwise it will try and register
     // a GeoModelSvc callback associated with this callback.
-
-    return StatusCode::FAILURE;
   }
+  return sc;
+
 }
   
 StatusCode 

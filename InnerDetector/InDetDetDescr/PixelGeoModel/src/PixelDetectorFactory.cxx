@@ -170,6 +170,9 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
     m_detectorManager->addChannel("/Indet/Align/PIXEC1", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEC2", 0, InDetDD::local);
     m_detectorManager->addChannel("/Indet/Align/PIXEC3", 0, InDetDD::local);
+
+    // This is the new LB-IOV sensitive IBL bowing DB
+    m_detectorManager->addSpecialFolder("/Indet/IBLDist");
   }
 
   // Check that there are no missing elements.
