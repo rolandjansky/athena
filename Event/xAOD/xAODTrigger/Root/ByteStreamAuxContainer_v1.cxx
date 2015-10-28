@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ByteStreamAuxContainer_v1.cxx 611308 2014-08-11 16:51:49Z ssnyder $
+// $Id: ByteStreamAuxContainer_v1.cxx 658394 2015-04-01 12:48:35Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -23,7 +23,8 @@ namespace xAOD {
         m_int(), m_float(), m_vecInt(), m_vecFloat(),
         m_staticVecs(), m_dynamicVecs(),
         m_locked( false ),
-        m_tick( 0 ) {
+        m_tick( 0 ),
+        m_name( "UNKNOWN" ) {
 
    }
 
@@ -37,7 +38,8 @@ namespace xAOD {
         // But the internal pointers are not:
         m_staticVecs(),
         m_dynamicVecs(), m_locked( false ),
-        m_tick( 1 ) {
+        m_tick( 1 ),
+        m_name( parent.m_name ) {
 
    }
 
@@ -71,9 +73,16 @@ namespace xAOD {
         m_auxids        = rhs.m_auxids;
         ++m_tick;
 
-        // But then, reset the internal pointers:
-        m_staticVecs.clear();
+        // The static variables should be left alone. Those should still
+        // point to the correct places in memory. But the dynamic variables
+        // need to be cleared out. Those will be re-created when/if needed.
+        for( auto* ptr : m_dynamicVecs ) {
+           delete ptr;
+        }
         m_dynamicVecs.clear();
+
+        // Copy the container's name:
+        m_name = rhs.m_name;
       }
 
       return *this;
@@ -106,6 +115,109 @@ namespace xAOD {
 
       // Return the full list of IDs:
       return getWritableAuxIDs();
+   }
+
+   /// Get a pointer to a given array, as a decoration.
+   void* ByteStreamAuxContainer_v1::getDecoration (auxid_t auxid,
+                                                   size_t size,
+                                                   size_t capacity)
+   {
+      guard_t guard (m_mutex);
+
+      // Does this variable already exist?
+      void* ret = 0;
+      if( ( auxid < m_staticVecs.size() ) && ( m_staticVecs[ auxid ] ) ) {
+        ret = m_staticVecs[ auxid ]->toPtr();
+      }
+      // If it's a dynamic one:
+      else if( ( auxid < m_dynamicVecs.size() ) &&
+               ( m_dynamicVecs[ auxid ] ) ) {
+        ret = m_dynamicVecs[ auxid ]->toPtr();
+      }
+
+      if (!ret)
+        ret = getData1 (auxid, 0, 0, true, true);
+
+      if (ret) {
+        // Raise exception if locked and not a decoration.
+        if (m_locked) {
+          if ( ! (auxid < m_isDecoration.size() && m_isDecoration[auxid]) )
+            throw SG::ExcStoreLocked (auxid);
+        }
+        return ret;
+      }
+
+      // Make a new variable.
+      ret = getData1 (auxid, size, capacity, false, true);
+
+      // If locked, mark as a decoration.
+      if (m_locked) {
+        if (m_isDecoration.size() <= auxid)
+          m_isDecoration.resize (auxid+1);
+        m_isDecoration[auxid] = true;
+      }
+
+      return ret;
+   }
+
+
+   void ByteStreamAuxContainer_v1::lock()
+   {
+       guard_t guard (m_mutex);
+       m_locked = true;
+   }
+
+   void ByteStreamAuxContainer_v1::clearDecorations()
+   {
+     guard_t guard (m_mutex);
+
+     const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+
+     size_t sz = m_isDecoration.size();
+     for (auxid_t auxid = 0; auxid < sz; auxid++) {
+       if (m_isDecoration[auxid]) {
+         if (m_dynamicVecs[auxid]) {
+           delete m_dynamicVecs[auxid];
+           m_dynamicVecs[auxid] = 0;
+           m_auxids.erase( auxid );
+           ++m_tick;
+
+           const std::string name = r.getName( auxid );
+           const std::type_info* ti = r.getType( auxid );
+           if (ti == &typeid(int))
+             m_int.erase (name);
+           else if (ti == &typeid(float))
+             m_float.erase (name);
+           else if (ti == &typeid(std::vector<int>))
+             m_vecInt.erase (name);
+           else if (ti == &typeid(std::vector<float>))
+             m_vecFloat.erase (name);
+         }
+       }
+     }
+     m_isDecoration.clear();
+   }
+
+
+   size_t ByteStreamAuxContainer_v1::size() const
+   {
+     guard_t guard (m_mutex);
+     auxid_set_t::const_iterator i = m_auxids.begin();
+     auxid_set_t::const_iterator end = m_auxids.end();
+     for (; i != end; ++i) {
+       if (*i < m_staticVecs.size() && m_staticVecs[*i]) {
+         size_t sz = m_staticVecs[*i]->size();
+         if (sz > 0)
+           return sz;
+       }
+       if (*i < m_dynamicVecs.size() && m_dynamicVecs[*i]) {
+         size_t sz = m_dynamicVecs[*i]->size();
+         if (sz > 0)
+           return sz;
+       }
+     }
+
+     return 0;
    }
 
    void* ByteStreamAuxContainer_v1::getData( auxid_t auxid, size_t size,
@@ -235,6 +347,17 @@ namespace xAOD {
       return;
    }
 
+   const char* ByteStreamAuxContainer_v1::name() const {
+
+      return m_name.c_str();
+   }
+
+   void ByteStreamAuxContainer_v1::setName( const char* name ) {
+
+      m_name = name;
+      return;
+   }
+
    /// Look for variable auxid in pers.
    /// If not found, create it if capacity != 0.
    template< typename T >
@@ -341,109 +464,5 @@ namespace xAOD {
 
       return 0;
    }
-
-   /// Get a pointer to a given array, as a decoration.
-   void* ByteStreamAuxContainer_v1::getDecoration (auxid_t auxid,
-                                                   size_t size,
-                                                   size_t capacity)
-   {
-      guard_t guard (m_mutex);
-
-      // Does this variable already exist?
-      void* ret = 0;
-      if( ( auxid < m_staticVecs.size() ) && ( m_staticVecs[ auxid ] ) ) {
-        ret = m_staticVecs[ auxid ]->toPtr();
-      }
-      // If it's a dynamic one:
-      else if( ( auxid < m_dynamicVecs.size() ) &&
-               ( m_dynamicVecs[ auxid ] ) ) {
-        ret = m_dynamicVecs[ auxid ]->toPtr();
-      }
-
-      if (!ret)
-        ret = getData1 (auxid, 0, 0, true, true);
-
-      if (ret) {
-        // Raise exception if locked and not a decoration.
-        if (m_locked) {
-          if ( ! (auxid < m_isDecoration.size() && m_isDecoration[auxid]) )
-            throw SG::ExcStoreLocked (auxid);
-        }
-        return ret;
-      }
-
-      // Make a new variable.
-      ret = getData1 (auxid, size, capacity, false, true);
-
-      // If locked, mark as a decoration.
-      if (m_locked) {
-        if (m_isDecoration.size() <= auxid)
-          m_isDecoration.resize (auxid+1);
-        m_isDecoration[auxid] = true;
-      }
-
-      return ret;
-   }
-
-
-   void ByteStreamAuxContainer_v1::lock()
-   {
-       guard_t guard (m_mutex);
-       m_locked = true;
-   }
-
-   void ByteStreamAuxContainer_v1::clearDecorations()
-   {
-     guard_t guard (m_mutex);
-
-     const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-
-     size_t sz = m_isDecoration.size();
-     for (auxid_t auxid = 0; auxid < sz; auxid++) {
-       if (m_isDecoration[auxid]) {
-         if (m_dynamicVecs[auxid]) {
-           delete m_dynamicVecs[auxid];
-           m_dynamicVecs[auxid] = 0;
-           m_auxids.erase( auxid );
-           ++m_tick;
-
-           const std::string name = r.getName( auxid );
-           const std::type_info* ti = r.getType( auxid );
-           if (ti == &typeid(int))
-             m_int.erase (name);
-           else if (ti == &typeid(float))
-             m_float.erase (name);
-           else if (ti == &typeid(std::vector<int>))
-             m_vecInt.erase (name);
-           else if (ti == &typeid(std::vector<float>))
-             m_vecFloat.erase (name);
-         }
-       }
-     }
-     m_isDecoration.clear();
-   }
-
-
-   size_t ByteStreamAuxContainer_v1::size() const
-   {
-     guard_t guard (m_mutex);
-     auxid_set_t::const_iterator i = m_auxids.begin();
-     auxid_set_t::const_iterator end = m_auxids.end();
-     for (; i != end; ++i) {
-       if (*i < m_staticVecs.size() && m_staticVecs[*i]) {
-         size_t sz = m_staticVecs[*i]->size();
-         if (sz > 0)
-           return sz;
-       }
-       if (*i < m_dynamicVecs.size() && m_dynamicVecs[*i]) {
-         size_t sz = m_dynamicVecs[*i]->size();
-         if (sz > 0)
-           return sz;
-       }
-     }
-
-     return 0;
-   }
-
 
 } // namespace xAOD

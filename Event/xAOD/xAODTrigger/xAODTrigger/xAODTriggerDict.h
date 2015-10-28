@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTriggerDict.h 635056 2014-12-10 15:35:39Z watsona $
+// $Id: xAODTriggerDict.h 702738 2015-10-23 16:00:51Z krasznaa $
 #ifndef XAODTRIGGER_XAODTRIGGERDICT_H
 #define XAODTRIGGER_XAODTRIGGERDICT_H
 
@@ -65,6 +65,10 @@
 #include "xAODTrigger/versions/BunchConfContainer_v1.h"
 #include "xAODTrigger/versions/BunchConfAuxContainer_v1.h"
 
+#include "xAODTrigger/versions/TrigPassBits_v1.h"
+#include "xAODTrigger/versions/TrigPassBitsContainer_v1.h"
+#include "xAODTrigger/versions/TrigPassBitsAuxContainer_v1.h"
+
 namespace{
   struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGGER {
 
@@ -119,6 +123,13 @@ namespace{
     xAOD::TrigCompositeContainer_v1 comp_c1;
 
     xAOD::BunchConfContainer_v1 c5;
+
+    xAOD::TrigPassBitsContainer_v1 pb_c1;
+    DataLink< xAOD::TrigPassBitsContainer_v1 > pb_l1;
+    ElementLink< xAOD::TrigPassBitsContainer_v1 > pb_l2;
+    std::vector< DataLink< xAOD::TrigPassBitsContainer_v1 > > pb_l3;
+    std::vector< ElementLink< xAOD::TrigPassBitsContainer_v1 > > pb_l4;
+
   };
 }
 
