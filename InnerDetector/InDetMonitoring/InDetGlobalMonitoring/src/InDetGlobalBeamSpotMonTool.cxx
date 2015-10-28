@@ -112,7 +112,7 @@ StatusCode InDetGlobalBeamSpotMonTool::bookHistogramsRecurrent() {
   if( newRun ) {
 
     // Histograms for track-based beam spot monitoring
-    m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (mm)",100,-3.5,3.5,100,-10,10);
+    m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (#mum)",100,-3.5,3.5,100,-1000,1000);
 
     m_hTrPt         = makeAndRegisterTH1F(al_beamspot_expert,"trkPt","Track Pt;P_{t} (GeV)",100,0,20);
     m_hTrNPt        = makeAndRegisterTH1F(al_beamspot_expert,"trkNPt","Number of Tracks per event (after Pt cut);Number of tracks",100,0,1000);
@@ -229,7 +229,7 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     }
 
     nTracks++;
-    m_hTrDPhi->Fill(phi0,d0);
+    m_hTrDPhi->Fill(phi0,d0*1e3);
 
     // Currently we do the direct calculation of d0corr. We could
     // also use an extrapolator to calculate d0 wrt a
