@@ -505,6 +505,62 @@ class EFBMuMuXFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram ( 'BcMuMuDs_n', type = 'TH1F',
                                               title = 'EFBMuMuXFex - number of B_{c} candidates in event ; n(B_{c}) ; # Events',
                                               xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_K1', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - p_{T} of first K in B_{c} ; p_{T} [GeV] ; # Candidates',
+        #                                      xbins = 100, xmin = 0., xmax = 100. ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Eta_K1, BcMuMuDs_Phi_K1', type = 'TH2F',
+        #                                      title = 'EFBMuMuXFex - Eta vs. phi of first K in B_{c} ; #eta ; #phi ; # Candidates',
+        #                                      xbins = 60, xmin = -3.0, xmax = 3.0,
+        #                                      ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_K2', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - p_{T} of second K in B_{c} ; p_{T} [GeV] ; # Candidates',
+        #                                      xbins = 100, xmin = 0., xmax = 100. ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Eta_K2, BcMuMuDs_Phi_K2', type = 'TH2F',
+        #                                      title = 'EFBMuMuXFex - Eta vs. phi of second K in B_{c} ; #eta ; #phi ; # Candidates',
+        #                                      xbins = 60, xmin = -3.0, xmax = 3.0,
+        #                                      ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_pi', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - p_{T} of #pi in B_{c} ; p_{T} [GeV] ; # Candidates',
+        #                                      xbins = 100, xmin = 0., xmax = 100. ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Eta_pi, BcMuMuDs_Phi_pi', type = 'TH2F',
+        #                                      title = 'EFBMuMuXFex - Eta vs. phi of #pi in B_{c} ; #eta ; #phi ; # Candidates',
+        #                                      xbins = 60, xmin = -3.0, xmax = 3.0,
+        #                                      ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_PhiDs', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - InvMass of #phi in B_{c} ; InvMass [GeV] ; # Candidates',
+        #                                      xbins = 200, xmin = 0.9, xmax = 1.3 ) ]
+        ##self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Ds, BcMuMuDs_VtxMass_Ds', type = 'TH2F',
+        #                                      #title = 'EFBMuMuXFex - InvMass vs. VtxMass of D_{s} in B_{c} ; InvMass [GeV] ; VtxMass [GeV] ; # Candidates',
+        #                                      #xbins = 60, xmin = 1.4, xmax = 2.6,
+        #                                      #ybins = 60, ymin = 1.4, ymax = 2.6 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Ds', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - InvMass of D_{s} in B_{c} ; InvMass [GeV] ; # Candidates',
+        #                                      xbins = 60, xmin = 1.4, xmax = 2.6 ) ]
+        ##self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Bc, BcMuMuDs_VtxMass_Bc', type = 'TH2F',
+        #                                      #title = 'EFBMuMuXFex - InvMass vs. VtxMass of B_{c} ; InvMass [GeV] ; VtxMass [GeV] ; # Candidates',
+        #                                      #xbins = 120, xmin = 1.5, xmax = 7.5,
+        #                                      #ybins = 120, ymin = 1.5, ymax = 7.5 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Bc', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - InvMass of B_{c} ; InvMass [GeV] ; # Candidates',
+        #                                      xbins = 120, xmin = 1.5, xmax = 7.5 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Chi2_Ds', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - D_{s} vertex chi2 in B_{c}; #chi^{2} ; # Candidates',
+        #                                      xbins = 300, xmin = 0., xmax = 300. ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_Chi2_Bc', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - B_{c} vertex chi2 ; #chi^{2} ; # Candidates',
+        #                                      xbins = 300, xmin = 0., xmax = 300. ) ]
+
+
+class EFBMuMuXFexOnlineMonitoring_allModes(EFBMuMuXFexOnlineMonitoring):
+    def __init__ (self, name="EFBMuMuXFexOnlineMonitoring_allModes"):
+        super(EFBMuMuXFexOnlineMonitoring_allModes, self).__init__(name)
+        self.defineTarget("Online")
+        # All general, B+, Bd, Bs, Lb histograms already there, and BcMuMuDs_n
+        
+        # Bc
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_n', type = 'TH1F',
+        #                                      title = 'EFBMuMuXFex - number of B_{c} candidates in event ; n(B_{c}) ; # Events',
+        #                                      xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
         self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_K1', type = 'TH1F',
                                               title = 'EFBMuMuXFex - p_{T} of first K in B_{c} ; p_{T} [GeV] ; # Candidates',
                                               xbins = 100, xmin = 0., xmax = 100. ) ]
@@ -549,3 +605,258 @@ class EFBMuMuXFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram ( 'BcMuMuDs_Chi2_Bc', type = 'TH1F',
                                               title = 'EFBMuMuXFex - B_{c} vertex chi2 ; #chi^{2} ; # Candidates',
                                               xbins = 300, xmin = 0., xmax = 300. ) ]
+
+
+class EFBMuMuXFexOnlineMonitoring_BcMuMuDs(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="EFBMuMuXFexOnlineMonitoring_BcMuMuDs"):
+        super(EFBMuMuXFexOnlineMonitoring_BcMuMuDs, self).__init__(name)
+        self.defineTarget("Online")
+        # General
+        self.Histograms  = [ defineHistogram ( 'Errors', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Algorithm errors ; ; # Events / Candidates',
+                                              xbins = ERROR_number , xmin = -0.5, xmax = ERROR_number - 0.5,
+                                              labels = ERROR_labels ) ]
+        self.Histograms += [ defineHistogram ( 'nTriedCombinations', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Number of track combinations tried ; # combinations ; # Events',
+                                              xbins = 1000, xmin = 0., xmax = 100000. ) ]
+        #self.Histograms += [ defineHistogram ( 'Acceptance', type = 'TH1F',
+                                              #title = 'L2BMuMuXFex - Reached steps - acceptance ; ; # Events / Candidates',
+                                              #xbins = ACCEPTANCE_number , xmin = -0.5, xmax = ACCEPTANCE_number - 0.5,
+                                              #labels = ACCEPTANCE_labels ) ]
+        # RoIs
+        self.Histograms += [ defineHistogram ( 'RoI_RoI1Eta, RoI_RoI1Phi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - ROI1 direction ; #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'RoI_RoI2Eta, RoI_RoI2Phi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - ROI2 direction ; #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'RoI_dEtaRoI, RoI_dPhiRoI', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - ROIs direction difference ; d#eta ; d#phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        # Muons
+        self.Histograms += [ defineHistogram ( 'DiMu_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of muons in RoIs; n(#mu) ; # Events',
+                                              xbins = 10, xmin = -0.5, xmax = 10-0.5 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu1', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Positive muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu2', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Negative muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_pTsumMuMu', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - sum of two muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu1, DiMu_Phi_Mu1', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of muon1 tracks (no vertexing); #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu2, DiMu_Phi_Mu2', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of muon2 tracks (no vertexing); #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_dEtaMuMu, DiMu_dPhiMuMu', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - dEta vs. dPhi between muon tracks (no vertexing); d#eta ; d#phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_InvMassMuMu, DiMu_VtxMassMuMu', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - InvMass vs. VtxMass of muon pair ; InvMass [GeV] ; VtxMass [GeV] ; # Events',
+                                              xbins = 80, xmin = 0., xmax = 20.,
+                                              ybins = 80, ymin = 0., ymax = 20. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_InvMassMuMu', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - InvMass of muon pair ; InvMass [GeV] ; # Events',
+                                              xbins = 100, xmin = 0., xmax = 10. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Chi2MuMu', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - dimuon vertex chi2 ; #chi^{2} ; # Candidates',
+                                              xbins = 300, xmin = 0., xmax = 300. ) ]
+        # Tracks
+        self.Histograms += [ defineHistogram ( 'Tracks_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of tracks in event ; n(trks) ; # Events',
+                                              xbins = 200, xmin = -0.5, xmax = 200-0.5 ) ]
+        self.Histograms += [ defineHistogram ( 'Tracks_Eta, Tracks_Phi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of all tracks ; #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'Tracks_Pt', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - p_{T} of all tracks; p_{T} [GeV] ; # Events',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        # B+
+        self.Histograms += [ defineHistogram ( 'BMuMuK_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B^{+} candidates in event ; n(B^{+}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Bd
+        self.Histograms += [ defineHistogram ( 'BdMuMuKs_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B_{d} candidates in event ; n(B_{d}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Bs
+        self.Histograms += [ defineHistogram ( 'BsMuMuPhi_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B_{s} candidates in event ; n(B_{s}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Lb
+        self.Histograms += [ defineHistogram ( 'LbMuMuLambda_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of #Lambda_{b} candidates in event ; n(#Lambda_{b}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Bc
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B_{c} candidates in event ; n(B_{c}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_K1', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - p_{T} of first K in B_{c} ; p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Eta_K1, BcMuMuDs_Phi_K1', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of first K in B_{c} ; #eta ; #phi ; # Candidates',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_K2', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - p_{T} of second K in B_{c} ; p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Eta_K2, BcMuMuDs_Phi_K2', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of second K in B_{c} ; #eta ; #phi ; # Candidates',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Pt_pi', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - p_{T} of #pi in B_{c} ; p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Eta_pi, BcMuMuDs_Phi_pi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of #pi in B_{c} ; #eta ; #phi ; # Candidates',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_PhiDs', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - InvMass of #phi in B_{c} ; InvMass [GeV] ; # Candidates',
+                                              xbins = 200, xmin = 0.9, xmax = 1.3 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Ds, BcMuMuDs_VtxMass_Ds', type = 'TH2F',
+                                              #title = 'EFBMuMuXFex - InvMass vs. VtxMass of D_{s} in B_{c} ; InvMass [GeV] ; VtxMass [GeV] ; # Candidates',
+                                              #xbins = 60, xmin = 1.4, xmax = 2.6,
+                                              #ybins = 60, ymin = 1.4, ymax = 2.6 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Ds', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - InvMass of D_{s} in B_{c} ; InvMass [GeV] ; # Candidates',
+                                              xbins = 60, xmin = 1.4, xmax = 2.6 ) ]
+        #self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Bc, BcMuMuDs_VtxMass_Bc', type = 'TH2F',
+                                              #title = 'EFBMuMuXFex - InvMass vs. VtxMass of B_{c} ; InvMass [GeV] ; VtxMass [GeV] ; # Candidates',
+                                              #xbins = 120, xmin = 1.5, xmax = 7.5,
+                                              #ybins = 120, ymin = 1.5, ymax = 7.5 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_InvMass_Bc', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - InvMass of B_{c} ; InvMass [GeV] ; # Candidates',
+                                              xbins = 120, xmin = 1.5, xmax = 7.5 ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Chi2_Ds', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - D_{s} vertex chi2 in B_{c}; #chi^{2} ; # Candidates',
+                                              xbins = 300, xmin = 0., xmax = 300. ) ]
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_Chi2_Bc', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - B_{c} vertex chi2 ; #chi^{2} ; # Candidates',
+                                              xbins = 300, xmin = 0., xmax = 300. ) ]
+
+
+class EFBMuMuXFexOnlineMonitoring_BpMuMuKp(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="EFBMuMuXFexOnlineMonitoring_BpMuMuKp"):
+        super(EFBMuMuXFexOnlineMonitoring_BpMuMuKp, self).__init__(name)
+        self.defineTarget("Online")
+        # General
+        self.Histograms  = [ defineHistogram ( 'Errors', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Algorithm errors ; ; # Events / Candidates',
+                                              xbins = ERROR_number , xmin = -0.5, xmax = ERROR_number - 0.5,
+                                              labels = ERROR_labels ) ]
+        self.Histograms += [ defineHistogram ( 'nTriedCombinations', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Number of track combinations tried ; # combinations ; # Events',
+                                              xbins = 1000, xmin = 0., xmax = 100000. ) ]
+        #self.Histograms += [ defineHistogram ( 'Acceptance', type = 'TH1F',
+                                              #title = 'L2BMuMuXFex - Reached steps - acceptance ; ; # Events / Candidates',
+                                              #xbins = ACCEPTANCE_number , xmin = -0.5, xmax = ACCEPTANCE_number - 0.5,
+                                              #labels = ACCEPTANCE_labels ) ]
+        # RoIs
+        self.Histograms += [ defineHistogram ( 'RoI_RoI1Eta, RoI_RoI1Phi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - ROI1 direction ; #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'RoI_RoI2Eta, RoI_RoI2Phi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - ROI2 direction ; #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'RoI_dEtaRoI, RoI_dPhiRoI', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - ROIs direction difference ; d#eta ; d#phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        # Muons
+        self.Histograms += [ defineHistogram ( 'DiMu_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of muons in RoIs; n(#mu) ; # Events',
+                                              xbins = 10, xmin = -0.5, xmax = 10-0.5 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu1', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Positive muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Pt_Mu2', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - Negative muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_pTsumMuMu', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - sum of two muons p_{T} (no vertexing); p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu1, DiMu_Phi_Mu1', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of muon1 tracks (no vertexing); #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Eta_Mu2, DiMu_Phi_Mu2', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of muon2 tracks (no vertexing); #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_dEtaMuMu, DiMu_dPhiMuMu', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - dEta vs. dPhi between muon tracks (no vertexing); d#eta ; d#phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_InvMassMuMu, DiMu_VtxMassMuMu', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - InvMass vs. VtxMass of muon pair ; InvMass [GeV] ; VtxMass [GeV] ; # Events',
+                                              xbins = 80, xmin = 0., xmax = 20.,
+                                              ybins = 80, ymin = 0., ymax = 20. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_InvMassMuMu', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - InvMass of muon pair ; InvMass [GeV] ; # Events',
+                                              xbins = 100, xmin = 0., xmax = 10. ) ]
+        self.Histograms += [ defineHistogram ( 'DiMu_Chi2MuMu', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - dimuon vertex chi2 ; #chi^{2} ; # Candidates',
+                                              xbins = 300, xmin = 0., xmax = 300. ) ]
+        # Tracks
+        self.Histograms += [ defineHistogram ( 'Tracks_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of tracks in event ; n(trks) ; # Events',
+                                              xbins = 200, xmin = -0.5, xmax = 200-0.5 ) ]
+        self.Histograms += [ defineHistogram ( 'Tracks_Eta, Tracks_Phi', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of all tracks ; #eta ; #phi ; # Events',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        self.Histograms += [ defineHistogram ( 'Tracks_Pt', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - p_{T} of all tracks; p_{T} [GeV] ; # Events',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        # B+
+        self.Histograms += [ defineHistogram ( 'BMuMuK_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B^{+} candidates in event ; n(B^{+}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        self.Histograms += [ defineHistogram ( 'BMuMuK_Pt_K', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - p_{T} of K in B^{+} ; p_{T} [GeV] ; # Candidates',
+                                              xbins = 100, xmin = 0., xmax = 100. ) ]
+        self.Histograms += [ defineHistogram ( 'BMuMuK_Eta_K, BMuMuK_Phi_K', type = 'TH2F',
+                                              title = 'EFBMuMuXFex - Eta vs. phi of K in B^{+} ; #eta ; #phi ; # Candidates',
+                                              xbins = 60, xmin = -3.0, xmax = 3.0,
+                                              ybins = 64, ymin = -3.2, ymax = 3.2 ) ]
+        #self.Histograms += [ defineHistogram ( 'BMuMuK_InvMass_B, BMuMuK_VtxMass_B', type = 'TH2F',
+                                              #title = 'EFBMuMuXFex - InvMass vs. VtxMass of B^{+} ; InvMass [GeV] ; VtxMass [GeV] ; # Candidates',
+                                              #xbins = 60, xmin = 4., xmax = 7.,
+                                              #ybins = 60, ymin = 4., ymax = 7. ) ]
+        self.Histograms += [ defineHistogram ( 'BMuMuK_InvMass_B', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - InvMass of B^{+} ; InvMass [GeV] ; # Candidates',
+                                              xbins = 60, xmin = 4., xmax = 7. ) ]
+        self.Histograms += [ defineHistogram ( 'BMuMuK_Chi2_B', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - B^{+} vertex chi2 ; #chi^{2} ; # Candidates',
+                                              xbins = 300, xmin = 0., xmax = 300. ) ]
+        # Bd
+        self.Histograms += [ defineHistogram ( 'BdMuMuKs_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B_{d} candidates in event ; n(B_{d}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Bs
+        self.Histograms += [ defineHistogram ( 'BsMuMuPhi_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B_{s} candidates in event ; n(B_{s}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Lb
+        self.Histograms += [ defineHistogram ( 'LbMuMuLambda_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of #Lambda_{b} candidates in event ; n(#Lambda_{b}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]
+        # Bc
+        self.Histograms += [ defineHistogram ( 'BcMuMuDs_n', type = 'TH1F',
+                                              title = 'EFBMuMuXFex - number of B_{c} candidates in event ; n(B_{c}) ; # Events',
+                                              xbins = 30, xmin = -0.5, xmax = 30-0.5 ) ]

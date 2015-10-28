@@ -422,7 +422,7 @@ void TrigEFMultiMuFex::buildTriMu(const std::vector<const xAOD::Muon*> &muons, x
                 if (m_bphysHelperTool->vertexFit(xaodobj,trksEL,masses).isFailure()) {
                     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit in buildTriMu"  << endreq;
                 }
-                
+                m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{tp1,tp2,tp3});
                 
             } // muit3
         } // muit2

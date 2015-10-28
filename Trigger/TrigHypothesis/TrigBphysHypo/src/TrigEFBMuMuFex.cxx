@@ -642,6 +642,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
     if (m_bphysHelperTool->buildDiMu({tpel0,tpel1}, result, xAOD::TrigBphys::BMUMU, xAOD::TrigBphys::EF).isFailure() || !result) {
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Problem with Fit code" << endreq;
     }
+    m_bphysHelperTool->setBeamlineDisplacement(result,{tp0,tp1});
     
     if (result) {
         mon_Acceptance.push_back( ACCEPT_Dimuon_Built );

@@ -745,8 +745,9 @@ void TrigEFTrkMassFex::buildMuTrkPairs(const TrigRoiDescriptor * roi,
             // got to here - add object to container
             xAOD::TrigBphys* xaodObj = new xAOD::TrigBphys();
             physcontainer.push_back( xaodObj );
-            xaodObj->initialise(roi->roiId(), roi->eta(), roi->phi(),
+            xaodObj->initialise(roi->roiId(), 0.,0.,0.,
                                 xAOD::TrigBphys::JPSIMUMU, Mass, xAOD::TrigBphys::EF );
+            m_bphysHelperTool->fillTrigObjectKinematics(xaodObj,{mutrk,trk});
             
             // #FIXME- is it really JPSIMUMU flag?
             

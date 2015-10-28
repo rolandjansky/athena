@@ -28,6 +28,7 @@
 
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -295,11 +296,12 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     
     double rap      = fourMom.Rapidity();
     double phi      = fourMom.Phi();
+    double pt       = fourMom.Pt();
     
     result = new xAOD::TrigBphys;
     result->makePrivateStore();
     
-    result->initialise(0, rap, phi, ptype, massMuMu, plevel );
+    result->initialise(0, rap, phi, pt,ptype, massMuMu, plevel );
     bool doFit(true); // set false if problematic TP
     
     // check the TrackParticles for a covariance matrix
@@ -339,6 +341,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         } // if
         
         result->setFitmass     (invariantMass);
+        result->setFitmassError(invariantMassError);
         result->setFitchi2     (vx->chiSquared());
         result->setFitndof     (vx->numberDoF());
         result->setFitx        (vx->x());
@@ -508,6 +511,95 @@ double TrigBphysHelperUtilsTool::invariantMassIP(const std::vector<const xAOD::I
     if (m2 < 0) return 0.;
     else        return sqrt(m2);
 } // invariantMass
+
+
+void TrigBphysHelperUtilsTool::fillTrigObjectKinematics(xAOD::TrigBphys* bphys,
+                                                        const std::vector<const xAOD::TrackParticle*>& ptls)
+ {
+     if (!bphys) {
+         if ( msg().level() <= MSG::WARNING ) {
+             msg()  << MSG::WARNING << "Null pointer of trigger object provided." << endreq;
+         }
+         return;
+     }
+     
+     //     if (ptls.size() != masses.size()) {
+     //         if ( msg().level() <= MSG::WARNING ) {
+     //             msg()  << MSG::WARNING << "Nptls != nMasses; no information will be populated." << endreq;
+     //         }
+     //         return;
+     //     } // if invalid prequesits
+     
+     
+     
+     xAOD::TrackParticle::FourMom_t fourMom;
+     
+     for (const auto& ptl : ptls) {
+         fourMom += ptl->p4();
+     }// add fourVectors
+     
+     
+     double rap      = fourMom.Rapidity();
+     double phi      = fourMom.Phi();
+     double pt       = fourMom.Pt();
+     
+     bphys->setEta (rap);
+     bphys->setPhi (phi);
+     bphys->setPt  (pt);
+     
+ } // fillTrigObjectKinematics
+
+
+void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
+                             const std::vector<const xAOD::TrackParticle*> &ptls) {
+    
+    if (!bphys) {
+        if ( msg().level() <= MSG::WARNING ) {
+            msg()  << MSG::WARNING << "Null pointer of trigger object provided." << endreq;
+        }
+        return;
+    }
+    
+    IBeamCondSvc* m_iBeamCondSvc;
+    Amg::Vector3D m_beamSpot(0.,0.,0.);
+    if ( service("BeamCondSvc", m_iBeamCondSvc).isFailure() || m_iBeamCondSvc == 0)
+    {
+        msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endreq;
+    }else {
+        m_beamSpot = m_iBeamCondSvc->beamPos();
+        int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();
+        //* Check if beam spot is from online algorithms *//
+        int m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);
+        if(msg().level() <= MSG::DEBUG) msg() << MSG::DEBUG << "  m_beamSpotBitMap= "<< m_beamSpotBitMap<<" m_beamSpotStatus= "<<m_beamSpotStatus<<endreq;
+    }
+    
+    static const double CONST = 1000./299.792; // unit conversion for lifetime
+
+    
+    double Dx     = bphys->fitx() - m_beamSpot.x();
+    double Dy     = bphys->fity() - m_beamSpot.y();
+    double BsMass = bphys->mass();
+    
+    double sumPx(0.), sumPy(0.), sumPt(0.);
+    for (const auto& ptl: ptls) {
+        sumPx += ptl->p4().Px(); // FIXME - is there a more optimal way
+        sumPy += ptl->p4().Py();
+    }
+    sumPt = sqrt(sumPx*sumPx + sumPy*sumPy);
+    double BsLxy(-9999.);
+    double BsTau(-9999.);
+    if (sumPt != 0.0) {
+       BsLxy = (sumPx*Dx+sumPy*Dy)/sumPt;
+       BsTau = BsLxy * BsMass/sumPt * CONST;
+    }
+    double BsLxyError(-1.);
+    double BsTauError(-1.);
+    
+    bphys->setLxy     (BsLxy);
+    bphys->setLxyError(BsLxyError);
+    bphys->setTau     (BsTau);
+    bphys->setTauError(BsTauError);
+} // setBeamlineDisplacement
 
 
 
