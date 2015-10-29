@@ -60,9 +60,15 @@ namespace
   //////////////////////////////////////////////////////////////////////////////
   string to_string(const ptree& p)
   {
+#if BOOST_VERSION >= 105600
+    using T = ptree::key_type;
+#else
+    using T = char;  
+#endif
+
     std::ostringstream oss;
     xml_parser::write_xml(oss, p,
-        xml_parser::xml_writer_make_settings(' ', 2));
+        xml_parser::xml_writer_make_settings<T>(' ', 2));
     return oss.str();
   }
 }

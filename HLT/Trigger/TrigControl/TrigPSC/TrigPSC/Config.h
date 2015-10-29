@@ -20,7 +20,7 @@
 
 namespace TrigConf
 {
-  class TrigDBConnectionConfig;
+  struct TrigDBConnectionConfig;
 }
 
 namespace psc {

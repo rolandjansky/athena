@@ -78,20 +78,20 @@ namespace
   string log_level_as_num_str(const std::string& loglevel)
   {
     constexpr auto size = 7ul;
-    constexpr array<const char*, size> lvl_keys = {"VERBOSE",
-                                                   "DEBUG",
-                                                   "INFO",
-                                                   "WARNING",
-                                                   "ERROR",
-                                                   "FATAL",
-                                                   "ALWAYS"};
-    constexpr array<int, size> lvl_values = {MSG::VERBOSE,
-                                             MSG::DEBUG,
-                                             MSG::INFO,
-                                             MSG::WARNING,
-                                             MSG::ERROR,
-                                             MSG::FATAL,
-                                             MSG::ALWAYS};
+    constexpr array<const char*, size> lvl_keys = {{"VERBOSE",
+                                                    "DEBUG",
+                                                    "INFO",
+                                                    "WARNING",
+                                                    "ERROR",
+                                                    "FATAL",
+                                                    "ALWAYS"}};
+    constexpr array<int, size> lvl_values = {{MSG::VERBOSE,
+                                              MSG::DEBUG,
+                                              MSG::INFO,
+                                              MSG::WARNING,
+                                              MSG::ERROR,
+                                              MSG::FATAL,
+                                              MSG::ALWAYS}};
     for(auto i = 0u; i < size; ++i)
       if(loglevel.find(lvl_keys[i]) != string::npos) // key is a substr of level
         return std::to_string(lvl_values[i]); // the first level that is found
