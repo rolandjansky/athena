@@ -20,7 +20,6 @@ int ReadSmaps(pid_t mother_pid, unsigned long values[4], bool verbose){
 	  std::cerr << "MemoryMonitor: unable to open pstree pipe!" << std::endl;
         return 1;
       }
-	
       char buffer[256];
       std::string result = "";
       while(!feof(pipe)) {
@@ -76,38 +75,20 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
      unsigned long values[4] = {0,0,0,0};
      unsigned long maxValues[4] = {0,0,0,0};
      unsigned long avgValues[4] = {0,0,0,0};
-     int iteration = 0;
+     int iteration = 1;
      time_t lastIteration = time(0) - interval;
      time_t currentTime;
 
-     // Open iteration output file     
-     std::ofstream file;  
+     std::ofstream file;
      file.open(filename);
      file << "Time\t\t\t\tVMEM\tPSS\tRSS\tSwap" << std::endl;
 
-     const char json[] = "{\"Max\": {\"maxVMEM\": 0, \"maxPSS\": 0,\"maxRSS\": 0, \"maxSwap\": 0}, \"Avg\": { \"avgVMEM\": 0,\"avgPSS\": 0, \"avgRSS\": 0, \"avgSwap\": 0}}";
-     Document d;
-     d.Parse(json);
-     std::ofstream file2; // for realtime json dict
-     StringBuffer buffer;
-     Writer<StringBuffer> writer(buffer);
-
-     std::stringstream tmpFile;
-     tmpFile << jsonSummary << "_tmp" ;
-     std::stringstream newFile;
-     newFile << jsonSummary << "_snapshot";
-
-     int tmp = 0;
-     Value& v1 = d["Max"];
-     Value& v2 = d["Avg"];
-     Value::MemberIterator i1;
-     Value::MemberIterator i2;
-
+     
      // Monitoring loop until process exits
      while(kill(mpid, 0) == 0 && sigusr1 == false){
-
-        if (time(0) - lastIteration > interval){         
- 
+        
+        if (time(0) - lastIteration > interval){
+          
           iteration = iteration + 1;
           ReadSmaps( mpid, values);
 
@@ -120,43 +101,38 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
              if (values[i] > maxValues[i])
                maxValues[i] = values[i];
              values[i] = 0;
-             lastIteration = time(0);}
+             lastIteration = time(0);}}
+        
+        std::unique_lock<std::mutex> lock(cv_m); 
+        cv.wait_for(lock, std::chrono::seconds(1));     
+     }
+    file.close();
 
-          // Reset buffer
-          buffer.Clear();
-          writer.Reset(buffer);
+    // Generate JSON output  
+    const char json[] = "{\"Max\": {\"maxVMEM\": 0, \"maxPSS\": 0,\"maxRSS\": 0, \"maxSwap\": 0}, \"Avg\": { \"avgVMEM\": 0,\"avgPSS\": 0, \"avgRSS\": 0, \"avgSwap\": 0}}";
+    Document d; 
+    d.Parse(json);
 
-          // Create JSON realtime summary
-          for (std::pair<Value::MemberIterator, Value::MemberIterator> i= std::make_pair(v1.MemberBegin(), v2.MemberBegin()); i.first != v1.MemberEnd() && i.second != v2.MemberEnd(); ++i.first, ++i.second){
-             i.first->value.SetUint(maxValues[tmp]);
-             i.second->value.SetUint(avgValues[tmp]/iteration);
-             tmp += 1;}
-          tmp = 0;
+    int tmp = 0;
+    Value& v1 = d["Max"];
+    Value& v2 = d["Avg"];
+    Value::MemberIterator i1;
+    Value::MemberIterator i2;
 
-          // Write JSON realtime summary to a temporary file (to avoid race conditions with pilot trying to read from file at the same time)
-          d.Accept(writer);
-          file2.open(tmpFile.str());
-          file2 << buffer.GetString() << std::endl;
-          file2.close();
-       }
-  
-       // Move temporary file to new file
-       rename(tmpFile.str().c_str(), newFile.str().c_str());
-       
-       std::unique_lock<std::mutex> lock(cv_m); 
-       cv.wait_for(lock, std::chrono::seconds(1));     
-   }
-   file.close();
+    for (std::pair<Value::MemberIterator, Value::MemberIterator> i= std::make_pair(v1.MemberBegin(), v2.MemberBegin()); i.first != v1.MemberEnd() && i.second != v2.MemberEnd(); ++i.first, ++i.second){  
+      i.first->value.SetUint(maxValues[tmp]);
+      i.second->value.SetUint(avgValues[tmp]/iteration);
+      tmp += 1;}
 
-   // Cleanup
-   remove(newFile.str().c_str());
+    // Write JSON summary file
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    d.Accept(writer);
+    file.open(jsonSummary);
+    file << buffer.GetString() << std::endl;
+    file.close();
 
-   // Write final JSON summary file
-   file.open(jsonSummary);
-   file << buffer.GetString() << std::endl;
-   file.close();
-
-   return 0;
+    return 0;
  }
 
 int main(int argc, char *argv[]){
