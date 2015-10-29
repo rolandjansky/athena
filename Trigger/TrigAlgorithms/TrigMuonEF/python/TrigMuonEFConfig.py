@@ -32,6 +32,7 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 from egammaRec.Factories import ToolFactory, AlgFactory, getPropertyValue
 
 from egammaCaloTools.egammaCaloToolsFactories import CaloFillRectangularCluster
+from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
 
 from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
@@ -57,12 +58,9 @@ from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInCo
 CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
                                      CaloClusterLocation = "CaloCalTopoClusters")
 
-from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
-TrigCaloFillRectangularCluster = ToolFactory( Cccc.CaloFillRectangularCluster,
-          name = "trigMuon_CaloFillRectangularCluster",
-          eta_size = 5,
-          phi_size = 7,
-          cells_name = "")
+
+
+
 
 
 if not hasattr(ServiceMgr,"TrackingVolumesSvc"):
@@ -156,7 +154,7 @@ def TMEF_iPatFitter(name='TMEF_iPatFitter',**kwargs):
 def TMEF_iPatSLFitter(name='TMEF_iPatSLFitter',**kwargs):
     from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
     kwargs.setdefault("LineFit", True)
-    #kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
+    kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
     # call the other factory function
     return TMEF_iPatFitter(name,**kwargs)
 
@@ -194,7 +192,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     kwargs.setdefault("CleanStandalone", True)
     kwargs.setdefault("BadFitChi2", 2.5)
     kwargs.setdefault("LargeMomentumError", 0.5)
-    #kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
+    kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
     kwargs.setdefault("LowMomentum", 10.*GeV)
     kwargs.setdefault("MinEnergy", 0.3*GeV)
     kwargs.setdefault("PerigeeAtSpectrometerEntrance", True)
@@ -384,10 +382,9 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
                                                                 WriteIntermediateResults = False,
-                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),DoSegmentCombinations=True )
+                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonHoughPatternFinderTool") )
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
-        CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
         # use seeded decoding
@@ -395,7 +392,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
             self.useMdtSeededDecoding = True
             self.useRpcSeededDecoding = True
             self.useTgcSeededDecoding = True
-            self.useCscSeededDecoding = False
+            self.useCscSeededDecoding = True
             
             # use ROB based seeded decoding instead of PRD based
             self.useMdtRobDecoding = True
@@ -450,28 +447,42 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
 
         self.RequireCombinedMuon = True
         self.applyPileupCorrection = False
+        self.useTopoClusters = True
 
-        CaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloTopoClusterIsolationTool",
-                                            doEnergyDensityCorrection = self.applyPileupCorrection,
-                                            saveOnlyRequestedCorrections = True,
-                                            IsoLeakCorrectionTool          = IsoCorrectionTool,
-                                            ClustersInConeTool              = CaloClustersInConeTool,
-                                            CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
-                                            UseEMScale = True,
-                                            OutputLevel = 2)
+        CaloCellIsoTool = ToolFactory(xAOD__CaloIsolationTool, name = "CaloCellIsolationTool",
+                                               postInit                        = [],
+                                               CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
+                                               ClustersInConeTool              = CaloClustersInConeTool,
+                                               PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
+                                               IsoLeakCorrectionTool           = IsoCorrectionTool,
+                                               EMCaloNums                      = [SUBCALO.LAREM],
+                                               HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                               UseEMScale                      = True,
+                                               OutputLevel                     = 3)
 
-        self.CaloTopoClusterIsolationTool = CaloTopoIsolationTool()
+        self.CaloCellIsolationTool = CaloCellIsoTool()
 
-        from TrigMuonEF.TrigMuonEFMonitoring import TrigMuonEFCaloIsolationValidationMonitoring
+        CaloTopoClusterIsoTool = ToolFactory(xAOD__CaloIsolationTool, name = "CaloTopoClusterIsolationTool",
+                                               postInit                        = [],
+                                               CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
+                                               ClustersInConeTool              = CaloClustersInConeTool,
+                                               PFlowObjectsInConeTool          = PFlowObjectsInConeTool,
+                                               IsoLeakCorrectionTool           = IsoCorrectionTool,
+                                               EMCaloNums                      = [SUBCALO.LAREM],
+                                               HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                               UseEMScale                      = True,
+                                               OutputLevel                     = 3)
+
+        self.CaloTopoClusterIsolationTool = CaloTopoClusterIsoTool()
+
 
         # histograms
         self.HistoPathBase = ""
-        validation_caloiso = TrigMuonEFCaloIsolationValidationMonitoring()
+        #validation_caloiso = TrigMuonEFCaloIsolationValidationMonitoring()
         #online_caloiso     = TrigMuonEFCaloIsolationOnlineMonitoring()
-        #monitoring_caloiso = TrigMuonEFCaloIsolationMonitoring()
+        #monitoringCaloIso = TrigMuonEFCaloIsolationMonitoring()
 
-        self.AthenaMonTools = [validation_caloiso]
-
+        self.AthenaMonTools = [] #monitoringCaloIso
 
 class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
     __slots__ = ()
@@ -483,8 +494,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
         TMEF_IsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_IsolationTool',
                                                  deltaZCut = 6.0*mm, 
                                                  removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=False) 
+                                                 useAnnulus=False) 
 
         # Isolation tool
         self.IsolationTool = TMEF_IsolationTool
@@ -496,44 +506,6 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
 
         # Only run algo on combined muons
         self.requireCombinedMuon = True
-
-        # Use offline isolation variables
-        self.useVarIso = False
-
-        # histograms
-        self.histoPathBase = ""
-        validation_trkiso = TrigMuonEFTrackIsolationValidationMonitoring()
-        online_trkiso     = TrigMuonEFTrackIsolationOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation_trkiso, online_trkiso ]
-
-
-class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
-    __slots__ = ()
-
-    def __init__( self, name="TrigMuonEFTrackIsolationVarConfig" ):
-        super( TrigMuonEFTrackIsolationVarConfig, self ).__init__( name )
-
-        # configure the isolation tool
-        TMEF_VarIsolationTool = TrigMuonEFTrackIsolationTool(name = 'TMEF_VarIsolationTool',
-                                                 deltaZCut = 6.0*mm, 
-                                                 removeSelf=True,
-                                                 useAnnulus=False,
-						 useVarIso=True) 
-
-        # Isolation tool
-        self.IsolationTool = TMEF_VarIsolationTool
-
-        # ID tracks
-        #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
-        #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
-        self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
-
-        # Only run algo on combined muons
-        self.requireCombinedMuon = True
-
-        # Use offline isolation variables
-        self.useVarIso = True
 
         # histograms
         self.histoPathBase = ""
@@ -554,8 +526,7 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
                                                  deltaZCut = 6.0*mm, 
                                                  removeSelf=True,
                                                  useAnnulus=True,
-                                                 annulusSize=0.1,
-						 useVarIso=False) 
+                                                 annulusSize=0.1) 
 
         # Isolation tool
         self.IsolationTool = TMEF_AnnulusIsolationTool
@@ -566,9 +537,6 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
 
         # Only run algo on combined muons
         self.requireCombinedMuon = True
-
-        # Use offline isolation variables
-        self.useVarIso = False
 
         # histograms
         self.histoPathBase = ""
@@ -593,68 +561,23 @@ def InDetTrkRoiMaker_Muon(name="InDetTrkRoiMaker_Muon",**kwargs):
 class TrigMuonEFRoiAggregatorConfig (TrigMuonEFRoiAggregator):
     __slots__ = ()
 
-    def __init__( self, name="TrigMuonEFRoiAggregator", **kwargs):
+    def __init__( self, name="TrigMuonEFRoiAggregator" ):
         super( TrigMuonEFRoiAggregator, self ).__init__( name )
-
-        kwargs.setdefault("CopyTracks", False)
-        self.CopyTracks = True
 
 
 class TrigMuonEFFSRoiMakerConfig(TrigMuonEFFSRoiMaker):
     __slots__ = ()
 
-    def __init__( self, name="TrigMuonEFFSRoiMaker", **kwargs):
+    def __init__( self, name="TrigMuonEFFSRoiMaker" ):
         super( TrigMuonEFFSRoiMakerConfig, self ).__init__( name )
 
         self.MuonPtCut = 0.0
         self.OutputContName = "MuonEFInfo"
-        
-        montool     = TrigMuonEFFSRoiMakerMonitoring()
-        
-        self.AthenaMonTools = [ montool ]
-
-class TrigMuonEFFSRoiMakerCaloTagConfig(TrigMuonEFFSRoiMaker):
-    __slots__ = ()
-
-    def __init__( self, name="TrigMuonEFFSRoiMakerCaloTag", **kwargs):
-        super( TrigMuonEFFSRoiMakerCaloTagConfig, self ).__init__( name )
-
-        self.MuonPtCut = 0.0
-        self.OutputContName = "MuonEFInfo"
-        self.InvertRoI =  True
-        self.UseFSRoI =  False
-
-        kwargs.setdefault("RoISizeEta", 3.0)
-        kwargs.setdefault("RoISizePhi", 1.5)
-        kwargs.setdefault("RoILabel", "forID")
-
-        self.RoISizeEta = kwargs["RoISizeEta"]
-        self.RoISizePhi = kwargs["RoISizePhi"]
-        
-        self.RoILabel   = kwargs["RoILabel"]
 
         montool     = TrigMuonEFFSRoiMakerMonitoring()
         
         self.AthenaMonTools = [ montool ]
 
-class TrigMuonEFFSRoiMakerUnseededConfig(TrigMuonEFFSRoiMaker):
-    __slots__ = ()
+        pass
 
-    def __init__( self, name="TrigMuonEFFSRoiMakerUnseeded", **kwargs):
-        super( TrigMuonEFFSRoiMakerUnseededConfig, self ).__init__( name )
-
-        self.MuonPtCut = 0.0
-        self.OutputContName = "MuonEFInfo"
-        self.CreateCrackRoI = True
-
-        kwargs.setdefault("RoISizeEta", 0.2)
-        kwargs.setdefault("RoISizePhi", 3.15)
-        kwargs.setdefault("RoILabel", "forID")
-
-        self.RoISizeEta = kwargs["RoISizeEta"]
-        self.RoISizePhi = kwargs["RoISizePhi"]
-        self.RoILabel   = kwargs["RoILabel"]
-
-        montool     = TrigMuonEFFSRoiMakerMonitoring()
-        
-        self.AthenaMonTools = [ montool ]
+                             

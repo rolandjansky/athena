@@ -14,9 +14,6 @@
 #include "xAODMuon/MuonAuxContainer.h"
 #include "xAODMuon/Muon.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticle.h"
-
 /**
  * Constructor - set up the algorithm
  */
@@ -25,7 +22,6 @@ TrigMuonEFRoiAggregator::TrigMuonEFRoiAggregator(const std::string & name, ISvcL
 {
   declareMonitoredVariable("nRoiIn", m_nRoiIn, IMonitoredAlgo::AutoClear);
   declareMonitoredVariable("nTrkIn", m_nTrkIn, IMonitoredAlgo::AutoClear);
-  declareProperty("CopyTracks", m_copyTracks=false);
   m_PtLo=0;
   m_PtHi=0;
 }
@@ -75,11 +71,7 @@ HLT::ErrorCode TrigMuonEFRoiAggregator::hltExecute(std::vector< std::vector<HLT:
   xAOD::MuonContainer* outMuons = new xAOD::MuonContainer();
   xAOD::MuonAuxContainer muonAux;
   outMuons->setStore( &muonAux );
-
-  xAOD::TrackParticleContainer* outTP = new xAOD::TrackParticleContainer();
-  xAOD::TrackParticleAuxContainer tpAux;
-  outTP->setStore( &tpAux );
-
+  
   m_nRoiIn = inputTEs.size();
   m_nTrkIn = 0;
 
@@ -93,41 +85,23 @@ HLT::ErrorCode TrigMuonEFRoiAggregator::hltExecute(std::vector< std::vector<HLT:
 
     // Get xAOD Muon container linked to input TE
     const xAOD::MuonContainer* inputMuonCont=0;
-    const xAOD::TrackParticleContainer* inputTPCont=0;
     if(getFeature(inputTE, inputMuonCont)!=HLT::OK || !inputMuonCont) {
       ATH_MSG_DEBUG("no MuonContainer Feature found in TE " << inputTE->getId() );
       return HLT::MISSING_FEATURE;
     }
-    
-    if (m_copyTracks && getFeature(inputTE, inputTPCont, "MuonEFInfo_CaloTagTrackParticles") != HLT::OK) {
-      ATH_MSG_DEBUG("no MuonContainer Feature found in TE " << inputTE->getId() );
-      return HLT::MISSING_FEATURE;
-    }
 
-     
+    ATH_MSG_DEBUG( "MuonContainer found with size " << inputMuonCont->size() );
 
     // loop on the muons within the RoI
-      ATH_MSG_DEBUG( "MuonContainer found with size " << inputMuonCont->size() );
-      for(auto muon : *inputMuonCont) {
-        ATH_MSG_DEBUG( "Looking at next muon, primaryTrackPartile = " << muon->primaryTrackParticle());
-        ++m_nTrkIn;
-        // deep copy the muon
-        xAOD::Muon* muoncopy = new xAOD::Muon();
-        outMuons->push_back( muoncopy );
-        *muoncopy = *muon;
-      } // loop over muons within the RoI
+    for(auto muon : *inputMuonCont) {
+      ATH_MSG_DEBUG( "Looking at next muon, primaryTrackPartile = " << muon->primaryTrackParticle());
+      ++m_nTrkIn;
+      // deep copy the muon
+      xAOD::Muon* muoncopy = new xAOD::Muon();
+      outMuons->push_back( muoncopy );
+      *muoncopy = *muon;
 
-      ATH_MSG_DEBUG("CopyTracks:" << m_copyTracks << " TPCont: " << inputTPCont);
-
-      if (m_copyTracks && inputTPCont) {
-	ATH_MSG_DEBUG( "TrackParticleContainer found with size " << inputTPCont->size() );
-	for (auto tp : * inputTPCont) {
-	  ATH_MSG_DEBUG( "Looking at next TP" );
-	  xAOD::TrackParticle* tpcopy = new xAOD::TrackParticle();
-	  outTP->push_back( tpcopy );
-	  *tpcopy = *tp;
-	}
-      }
+    } // loop over muons within the RoI
     
   } //loop over inputTEs
 
@@ -149,21 +123,6 @@ HLT::ErrorCode TrigMuonEFRoiAggregator::hltExecute(std::vector< std::vector<HLT:
     outputTE->setActiveState(false);
     delete outMuons;
     outMuons = 0;
-  }
-
-  if ( m_copyTracks){
-    if( outTP->size() > 0 ) {
-      outputTE->setActiveState(true);
-      HLT::ErrorCode hltStatus = attachFeature(outputTE, outTP, "MuonEFInfo_CaloTagTrackParticles");
-      if ( hltStatus != HLT::OK ) {
-	std::string label;
-	TrigConf::HLTTriggerElement::getLabel( outputTE->getId(), label );
-	ATH_MSG_WARNING( "Failed to attach output track particles to output TE \"" << label << "\" ID=" << outputTE->getId() );
-	delete outTP;
-	return hltStatus;
-      }
-      ATH_MSG_DEBUG( "Attached track particle container with size: " << outTP->size() );
-    } 
   }
 
   // fill monitor variables "by hand" because this is an allTE algo

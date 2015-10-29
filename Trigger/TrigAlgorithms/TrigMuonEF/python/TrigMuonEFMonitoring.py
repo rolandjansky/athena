@@ -359,16 +359,6 @@ class TrigMuonEFTrackIsolationValidationMonitoring(TrigGenericMonitoringToolConf
         self.Histograms += [ defineHistogram('EF_trks_idtrkdr', type='TH1F', title="dr to ID trks; dr to ID trks",
                                              xbins=60, xmin=0.0, xmax=3.0) ]
         
-class TrigMuonEFCaloIsolationValidationMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="TrigMuonEFCaloIsolationValidationMonitoring"):
-        super(TrigMuonEFCaloIsolationValidationMonitoring, self).__init__(name)
-        self.defineTarget("Validation")
-        self.Histograms += [ defineHistogram('EF_etiso_cone2', type='TH1F', title="Calo Isolation cone 0.2; MuonEF Calo Isolation cone 0.2 [GeV]",
-                                             xbins=40, xmin=-10, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_etiso_cone2_core', type='TH1F', title="Calo Isolation cone 0.2 core; MuonEF Calo Isolation cone 0.2 [GeV] core",
-                                             xbins=40, xmin=-10, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_etiso_cone2_nocorr', type='TH1F', title="Calo Isolation cone 0.2 nocorr; MuonEF Calo Isolation cone 0.2 [GeV] nocorr",
-                                             xbins=40, xmin=-10, xmax=30) ]
 
 
 class TrigMuonEFStandaloneToolMonitoring(TrigGenericMonitoringToolConfig):

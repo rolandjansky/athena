@@ -45,8 +45,6 @@ class TrigMuonEFRoiAggregator : public HLT::AllTEAlgo {
   double m_PtLo;
   /** Min Pt for muon 2 */
   double m_PtHi;
-  /** Option to also copy trackparticles */
-  bool m_copyTracks;
 
   //
   // Monitoring variables
