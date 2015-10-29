@@ -62,10 +62,11 @@ namespace L1Topo {
   //! reverse helper function to return the sign and offset bits given a relative bunch crossing number
   std::pair<uint32_t,uint32_t> signAndOffsetBCN(const int bcn);
 
+  //! Helper for printing
+  std::ostream& operator<<(std::ostream&, const Header&);
+
 } // namespace L1Topo
 
-//! Helper for printing
-std::ostream& operator<<(std::ostream&, const L1Topo::Header&);
 
 
 #endif // L1TOPORDO_HEADER_H

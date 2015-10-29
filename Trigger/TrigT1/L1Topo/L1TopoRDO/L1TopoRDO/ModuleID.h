@@ -55,9 +55,9 @@ protected:
     uint16_t m_id;
   };
 
-} // namespace L1Topo
+  //! print helpers
+  std::ostream& operator<<(std::ostream& os, const ModuleID& );
 
-//! print helpers
-std::ostream& operator<<(std::ostream& os, const L1Topo::ModuleID& );
+} // namespace L1Topo
 
 #endif // L1TOPORDO_MODULEID_H

@@ -118,13 +118,23 @@ namespace L1Topo{
     return s.str();
   }
 
+
+  // this is out of date and should not be used
   unsigned int triggerBitIndex(uint32_t moduleId, L1Topo::L1TopoTOB c){
     uint32_t module = (moduleId >>4) & 0x1;
     uint32_t index = 64*module + 32*c.fpga() + 16*c.clock() + 8*c.index();
     return index;
   }
 
-  // convenience wrapper for use with L1TopoResult - creates dependency loop with TrigT1Result
+  // this reflects the actual CTP mapping and the CTP simulation with which L1Topo output is compared
+  unsigned int triggerBitIndexNew(uint32_t moduleId, L1Topo::L1TopoTOB c, unsigned int bitIdx){
+    uint32_t module = (moduleId >>4) & 0x1;
+    uint32_t index = 64*module + 32*c.fpga() + c.clock() + 2*(8*c.index() + bitIdx);
+    //std::cout << "L1Topo::triggerBitIndexNew DEBUG index=" << index << " for module=" << module << " fpga=" << c.fpga() << " clock=" << c.clock() << " index=" << c.index() << " bitIdx=" << bitIdx << std::endl;
+    return index;
+  }
+
+  // convenience wrapper for use with L1TopoResult - can't be included here as is creates dependency loop with TrigT1Result
   /*
   std::pair< std::bitset<128>,std::bitset<128> > getDecisionAndOverflowBits(const std::vector<L1TopoResult>& res){
     L1TopoRDOCollection col;
@@ -149,15 +159,14 @@ namespace L1Topo{
       for(auto & word: data){
 	if (L1Topo::blockType(word) == L1Topo::BlockTypes::L1TOPO_TOB){
 	  L1Topo::L1TopoTOB c(word);
-	  // find position of 8 bits from this block in overall decision bits
-	  const unsigned int index = L1Topo::triggerBitIndex((*pRDO)->getSourceID(),c);
 	  const uint32_t triggerByte = c.trigger_bits();
 	  const uint32_t overflowByte = c.overflow_bits();
 	  // Take one bit at a time and set it in the bitset
 	  //std::cout << "L1Topo::getDecisionAndOverflowBits: " << c;
 	  for (unsigned int i=0; i<8; ++i){
-	    decision[index+i]=( triggerByte >>i)&1;
-	    overflow[index+i]=(overflowByte >>i)&1;
+            const unsigned int index = L1Topo::triggerBitIndexNew((*pRDO)->getSourceID(),c,i);
+	    decision[index]=( triggerByte >>i)&1;
+	    overflow[index]=(overflowByte >>i)&1;
 	  }
 	  //std::cout << " index " << index << " updated decision " << decision << std::endl;
 	  //std::cout << " index " << index << " updated overflow " << overflow << std::endl;

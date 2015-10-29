@@ -45,9 +45,9 @@ namespace L1Topo {
     uint32_t m_word;
   };
 
-} // namespace L1Topo
+  //! Helper for printing
+  std::ostream& operator<<(std::ostream&, const Fibre&);
 
-//! Helper for printing
-std::ostream& operator<<(std::ostream&, const L1Topo::Fibre&);
+} // namespace L1Topo
 
 #endif // L1TOPORDO_FIBRE_H

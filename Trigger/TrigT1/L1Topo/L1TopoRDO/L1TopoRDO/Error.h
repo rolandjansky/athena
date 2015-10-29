@@ -21,12 +21,13 @@ namespace L1Topo {
     {Error::SLINK_STATUS_ERROR,"S-Link Status Error"}
   };
 
+  //! Helper to print errors as text rather than numbers. 
+  std::ostream& operator<<(std::ostream&, const Error);
+  
+  //! Helper to print vectors of errors
+  std::ostream& operator<<(std::ostream&, const std::vector<Error>&);
+
 } // namespace L1Topo
 
-//! Helper to print errors as text rather than numbers. 
-std::ostream& operator<<(std::ostream&, const L1Topo::Error);
-
-//! Helper to print vectors of errors
-std::ostream& operator<<(std::ostream&, const std::vector<L1Topo::Error>&);
 
 #endif // L1TOPORDO_ERROR_H

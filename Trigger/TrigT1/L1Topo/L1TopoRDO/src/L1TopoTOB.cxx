@@ -65,6 +65,7 @@ namespace L1Topo {
   }
 
   // CTP index can be unpacked into 3 bits: index, clock and fpga
+  // 
   uint32_t L1TopoTOB::index() const{
     return m_ctp_signal & 0x1;
   }
@@ -72,31 +73,18 @@ namespace L1Topo {
     return (m_ctp_signal >> 1) & 0x1;
   }
   uint32_t L1TopoTOB::fpga() const{
-    return (m_ctp_signal >> 2) & 0x1;
+    return (m_ctp_signal >> 3) & 0x1;
+  }
+
+  std::ostream& operator<<(std::ostream& os, const L1TopoTOB& c) {
+    os << "     L1Topo TOB: "
+       << " ctp_signal 0x" << std::hex << c.ctp_signal() << std::dec
+       << " ( index " << c.index() << " clock " << c.clock() << " fpga " << c.fpga() << " )"
+       << " overflow bits 0b" << std::bitset<8>(c.overflow_bits())
+       << " trigger bits 0b" << std::bitset<8>(c.trigger_bits())
+       << std::dec << "\n";
+    return os;
   }
 
 } // namespace L1Topo
-
-std::ostream& operator<<(std::ostream& os, const L1Topo::L1TopoTOB& c) {
-  os << "     L1Topo TOB: "
-     << " ctp_signal 0x" << std::hex << c.ctp_signal() << std::dec
-     << " ( index " << c.index() << " clock " << c.clock() << " fpga " << c.fpga() << " )"
-     << " overflow bits 0b" << std::bitset<8>(c.overflow_bits())
-     << " trigger bits 0b" << std::bitset<8>(c.trigger_bits())
-     << std::dec << "\n";
-  return os;
-}
-
-bool operator==(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
-  return (lhs.word()==rhs.word());
-}
-bool operator!=(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
-  return (lhs.word()!=rhs.word());
-}
-bool operator<(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
-  return (lhs.word()<rhs.word());
-}
-bool operator>(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
-  return (lhs.word()>rhs.word());
-}
   
