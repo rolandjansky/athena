@@ -43,7 +43,8 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
 			  bool DC2CompatibleBarrelCoordinates,                 //
 			  int overridedigversion,                              //
 			  bool alignable,                                      //
-			  bool doXenonArgonMixture);                           //
+			  bool doArgon,                                        //
+        bool doKrypton);                                     //
   //                                                                           //
   // Destructor:                                                               //
   ~TRTDetectorFactory_Full();                                                  //
@@ -62,8 +63,6 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   }
 
 
- GeoMaterial* m_materialArCO2;//Ruslan: Temporary material impl for Argon
-
  private:  
 
   //---------------------------Illegal operations:---------------------------------//
@@ -73,13 +72,23 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   //                                                                               //
   //-------------------------------------------------------------------------------//
 
+  // Gas mixture enumerator
+  enum ActiveGasMixture
+    {
+    GM_XENON,
+    GM_KRYPTON,
+    GM_ARGON
+    };
+
+  ActiveGasMixture DecideGasMixture(int strawStatusHT);
+
   // private helper methods:
   const GeoShape * makeModule ( double length, CLHEP::Hep2Vector corner1 ,  CLHEP::Hep2Vector corner2, CLHEP::Hep2Vector corner3,
 				CLHEP::Hep2Vector corner4, HepGeom::Transform3D & absolutePosition, double shrinkDist=0 ) const;
   //GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false ) const;
-  GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false, bool isArgon = false ) const;
+  GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false, ActiveGasMixture gasMixture = GM_XENON) const;
   //GeoFullPhysVol  *makeStrawPlane( size_t w ) const;
-  GeoFullPhysVol  *makeStrawPlane( size_t w , bool isArgon = false) const;
+  GeoFullPhysVol  *makeStrawPlane( size_t w , ActiveGasMixture gasMixture = GM_XENON) const;
 
   // private member data:
   InDetDD::TRT_DetectorManager * m_detectorManager;
@@ -92,7 +101,8 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   bool m_alignable;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added for Argon
   bool m_strawsvcavailable;
-  bool m_doXenonArgonMixture;
+  bool m_doArgon;
+  bool m_doKrypton;
 };
 
 #endif // TRTDetectorFactory_Full_h
