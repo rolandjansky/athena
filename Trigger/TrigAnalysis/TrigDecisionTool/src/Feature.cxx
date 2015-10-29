@@ -17,11 +17,11 @@ namespace FeatureAccessImpl {
   // returns TrigPassBits object appropriate for given object 
   // if there is none returns 0 pointer
   // not this is not templated function, can be changed anytime needed
-  const TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& /*label*/, HLT::NavigationCore* navigation ) {
+  const xAOD::TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& /*label*/, HLT::NavigationCore* navigation ) {
     if (!sz)
       return 0;
 
-    const TrigPassBits* bits(0);
+    const xAOD::TrigPassBits* bits(0);
 
     if ( navigation->getFeature(te, bits, "passbits" ) ){
       // We have to apply (vague) verification if there are any bits and that they match the feature container
