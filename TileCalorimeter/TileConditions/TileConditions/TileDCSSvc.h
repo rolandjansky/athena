@@ -117,9 +117,9 @@ class TileDCSSvc: virtual public AthService {
   ToolHandle<TileCondToolEmscale>  m_tileToolEmscale; //!< main Tile Calibration tool
 
   //DataHandle for callback
-  const DataHandle<CondAttrListCollection> DCSData_HV;             
-  const DataHandle<CondAttrListCollection> DCSData_HVSET;
-  const DataHandle<CondAttrListCollection> DCSData_STATES;
+  const DataHandle<CondAttrListCollection> m_DCSData_HV;             
+  const DataHandle<CondAttrListCollection> m_DCSData_HVSET;
+  const DataHandle<CondAttrListCollection> m_DCSData_STATES;
 
   std::vector<int> m_pModulesHV; 
   std::vector<int> m_pModulesHVSET;
@@ -131,9 +131,9 @@ class TileDCSSvc: virtual public AthService {
   float m_HVSET[256][68];
   TileDCSStatus m_STATUS[256][48];
 
-  int channel2pmt[2][68];
-  int pmt2channel[2][68];
-  bool channel_used[4][48]; // 0=LB, 1=EB, 2=EB without D4, 3=EB with special C10
+  int m_channel2pmt[2][68];
+  int m_pmt2channel[2][68];
+  bool m_channel_used[4][48]; // 0=LB, 1=EB, 2=EB without D4, 3=EB with special C10
 
   int read_config(std::string filename, std::string substr,
                   std::vector<int> & m_pModules);

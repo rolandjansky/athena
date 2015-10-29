@@ -142,19 +142,19 @@ TileInfo::~TileInfo()
   if (m_channel_context) delete m_channel_context;
   if (m_drawer_context) delete m_drawer_context;
 
-  int sizepart=DecoCovaria.size();
+  int sizepart=m_decoCovaria.size();
   for (int i=0; i<sizepart; ++i){
-    int sizemodu=(DecoCovaria[i]).size();
+    int sizemodu=(m_decoCovaria[i]).size();
     for (int j=0; j<sizemodu; ++j){
-      int sizegain=(DecoCovaria[i][j]).size();
+      int sizegain=(m_decoCovaria[i][j]).size();
       for (int k=0; k<sizegain; ++k){
-        if (DecoCovaria[i][j][k]) delete (TMatrixD*)(DecoCovaria[i][j][k]);
+        if (m_decoCovaria[i][j][k]) delete (TMatrixD*)(m_decoCovaria[i][j][k]);
       }
-      DecoCovaria[i][j].clear();
+      m_decoCovaria[i][j].clear();
     }
-    DecoCovaria[i].clear();
+    m_decoCovaria[i].clear();
   }
-  DecoCovaria.clear();
+  m_decoCovaria.clear();
 
 }
 
@@ -478,7 +478,7 @@ TileInfo::DecoCovariance(int ros, int drawer, int hilo) const {
 
   int gain = (hilo) ? 0 : 1;
 
-  return DecoCovaria[part][drawer][gain];
+  return m_decoCovaria[part][drawer][gain];
 }
 
 
@@ -491,7 +491,7 @@ void TileInfo::ttl1Shape(const int nsamp, const int itrig, const double phase,st
 
     //ttl1shape.resize(nsamp, 0.); // assume that resize already done in calling function
     for (int i=0; i<nsamp; ++i) {
-      int j = m_TTL1Time0Bin + (i-itrig)*m_TTL1BinsPerX+(int)(phase*(m_TTL1BinsPerX/25.0));
+      int j = m_TTL1Time0Bin + (i-itrig)*m_TTL1BinsPerX+(int)(phase*(m_TTL1BinsPerX*(1./25.0)));
       if(j<0) j = 0;
       if(j>=m_TTL1NBins) j = m_TTL1NBins-1;
       ttl1shape[i] = m_TTL1FullShape[j];
@@ -522,7 +522,7 @@ void TileInfo::ttl1Shape(const int nsamp, const int itrig, const double phase,st
 void TileInfo::muRcvShape(const int nsamp, const int itrig, const double phase,std::vector<double> &murcvshape) const {
 
     for (int i=0; i<nsamp; ++i) {
-      int j = m_MuRcvTime0Bin + (i-itrig)*m_MuRcvBinsPerX+(int)(phase*(m_MuRcvBinsPerX/25.0));
+      int j = m_MuRcvTime0Bin + (i-itrig)*m_MuRcvBinsPerX+(int)(phase*(m_MuRcvBinsPerX*(1./25.0)));
       if(j<0) j = 0;
       if(j>=m_MuRcvNBins) j = m_MuRcvNBins-1;
       murcvshape[i] = m_MuRcvFullShape[j];

@@ -29,8 +29,6 @@
 
 #define MAX_ADCS 13248
 
-using namespace std;
-
 class CaloDetDescrManager;
 class IdContext;
 
@@ -65,7 +63,7 @@ class TileCondToolOfc: public AthAlgTool, public ITileCondToolOfc {
   private:
 
     typedef std::map<int, TileOfcWeightsStruct*> ADCPhaseCache;
-    ADCPhaseCache* ofc_phase_cache[MAX_ADCS * 2];
+    ADCPhaseCache* m_ofc_phase_cache[MAX_ADCS * 2];
 
     ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;
     ToolHandle<TileCondToolAutoCr> m_tileToolAutoCr;

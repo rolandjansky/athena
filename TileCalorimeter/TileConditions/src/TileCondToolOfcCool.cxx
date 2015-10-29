@@ -27,11 +27,11 @@ TileCondToolOfcCool::TileCondToolOfcCool(const std::string& type, const std::str
     : AthAlgTool(type, name, parent)
     , m_pryOfcCool("TileCondProxyCool_TileCalibDrawerOfc_/TileCondProxyDefault_OfcCool", this)
     , m_weights(0)
-    , NPhases(0)
-    , NFields(0)
-    , Phamin(0)
-    , Phamax(0)
-    , NSamples(0)
+    , m_NPhases(0)
+    , m_NFields(0)
+    , m_Phamin(0)
+    , m_Phamax(0)
+    , m_NSamples(0)
 {
   declareInterface<TileCondToolOfcCool>(this);
   declareInterface<ITileCondToolOfc>(this);
@@ -82,20 +82,20 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
 
   if (first) {
     first = false;
-    NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-    NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+    m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
+    m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
+    m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 
     ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
-                   << " NPhases " << NPhases
-                   << " NFields " << NFields );
+                   << " NPhases " << m_NPhases
+                   << " NFields " << m_NFields );
 
   }
 
   m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, m_weights->w_a, m_weights->w_b
                                                    , m_weights->w_c, m_weights->g, m_weights->dg);
 
-  m_weights->n_samples = NSamples;
+  m_weights->n_samples = m_NSamples;
 
   return m_weights;
 }
@@ -114,19 +114,19 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
 
   if (first) {
     first = false;
-    NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
-    NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
-    NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
+    m_NPhases = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNPhases();
+    m_NFields = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNFields();
+    m_NSamples = m_pryOfcCool->getCalibDrawer(drawerIdx)->getNSamples();
 
     ATH_MSG_DEBUG( "OFC Blob Type " << m_pryOfcCool->getCalibDrawer(drawerIdx)->getType()
-                  << " NPhases " << NPhases
-                  << " NFields " << NFields );
+                  << " NPhases " << m_NPhases
+                  << " NFields " << m_NFields );
 
   }
 
   m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, a, b, c, g, dg);
 
-  return NSamples;
+  return m_NSamples;
 }
 
 //
