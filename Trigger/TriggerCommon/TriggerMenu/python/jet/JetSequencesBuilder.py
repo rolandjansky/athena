@@ -74,12 +74,14 @@ class JetSequencesBuilder(object):
         self.router = {'fs': self.make_fs,  # full scan
                        'cmfs': self.make_cmfs,  # cell maker full scan
                        'jr': self.make_jr_clusters,  # jet rec
+                       'hijr': self.make_hijr,  # hi jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'ps': self.make_ps,  # partial scan Roi maker
                        'cm': self.make_cm,  # cell and cluster maker
                        'tt': self.make_tt,  # construct trigger tower objects
+                       'hicm': self.make_hicm,  # hi cluster maker
                        # jets from trigger towers:
                        'jt': self.make_jr_triggertowers,
                        'jhd': self.make_jhd, # jet hypo diagnostics
@@ -125,6 +127,7 @@ class JetSequencesBuilder(object):
         seq_order = {
             ('tc', 'FS'): ['fs', 'cmfs', 'jr'],
             ('tc', 'PS'): ['ps', 'cm', 'jr'],
+            ('ion', 'FS'): ['fs','hicm','hijr'],
             ('TT', 'FS'): ['tt', 'jt']}.get((data_type, scan_type), [])
 
         if not seq_order:
@@ -221,6 +224,34 @@ class JetSequencesBuilder(object):
         [algs.extend(f()) for f in (self.alg_factory.cellMaker_superPS_topo,
                                     self.alg_factory.topoClusterMaker)]
         return AlgList(alg_list=algs, alias=alias)
+    
+    #HI
+    def make_hicm(self):
+        cluster_params = self.chain_config.menu_data.cluster_params
+        alias = 'cluster_%s' % cluster_params.cluster_label
+
+        algs = []
+        [algs.extend(f()) for f in (self.alg_factory.cellMaker_fullcalo_topo,
+                                    self.alg_factory.hiCombinedTowerMaker,
+                                    self.alg_factory.hiClusterMaker,
+                                    self.alg_factory.hiEventShapeMaker,
+                                   )]
+
+        return AlgList(algs, alias=alias)
+
+
+    #HI
+    def make_hijr(self): #@@@
+        """Make hijetrec sequence"""
+
+        menu_data = self.chain_config.menu_data
+        fex_params = menu_data.fex_params
+        cluster_params = menu_data.cluster_params
+
+        alias = 'hijetrec_%s' % fex_params.fex_label
+
+        return AlgList(self.alg_factory.hijetrec_hic(), alias)
+
     
     def make_jr_triggertowers(self):
         """Make jetrec sequence suing trigger towers as input"""

@@ -234,6 +234,28 @@ class AlgFactory(object):
         }
 
         return [Alg(factory, (), kwds)]
+    
+    #HI
+    def hijetrec_hic(self):
+        """Instantiate a python object for TrigHLTHIJetRec that will
+       	use xAOD::CaloCluster s as input."""
+
+        merge_param_str = str(self.fex_params.merge_param).zfill(2)
+
+        factory = 'TrigHLTHIJetRecFromHICluster'
+        # add factory to instance label to facliltate log file searches
+        name = '"%s_%s"' %(factory, self.fex_params.fex_label)
+
+        kwds = {
+            'name': name,  # instance label
+            'merge_param': "'%s'" % merge_param_str,
+            'jet_calib': "'%s'" % self.fex_params.jet_calib,
+            'cluster_calib': self.cluster_calib,
+            'output_collection_label': "'%s'" % (
+            self.fex_params.fex_label)
+        }
+
+        return [Alg(factory, (), kwds)]        
 
     # def jr_hypo_single(self):
     #    """
@@ -282,7 +304,7 @@ class AlgFactory(object):
         hypo parameters: ET, eta min, eta max
 
         recoAlg:   'a4', 'a10', 'a10r'
-        dataType:  'TT', 'tc', 'cc'
+        dataType:  'TT', 'tc', 'cc', 'ion'
         calib:     'had', 'lcw', 'em'
         jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
         scan:      'FS','PS'
@@ -485,6 +507,34 @@ class AlgFactory(object):
                    (instance_name,),
                    {'doMoments': True,
                     'doLC': self.cluster_params.do_lc})]
+    #HI
+    def hiEventShapeMaker(self):
+
+        class_name = 'TrigHIEventShapeMaker_hijet'
+        instance_name = '"%s"' % class_name
+        return [Alg(class_name,
+                   (instance_name,),
+                   {})]
+
+
+    #HI
+    def hiCombinedTowerMaker(self):
+
+        class_name = 'TrigCaloTowerMaker_hijet'
+        instance_name = '"%s_%s"' % (class_name,
+                                     self.cluster_params.cluster_label)
+        return [Alg(class_name,
+                   (instance_name,),{})]
+
+
+    #HI
+    def hiClusterMaker(self):
+
+        class_name = 'TrigHIClusterMaker_hijet'
+        instance_name = '"%s_%s"' % (class_name,
+                                     self.cluster_params.cluster_label)
+        return [Alg(class_name,
+                   (instance_name,),{})]                
         
     def roiDiagnostics(self):
         factory = 'TrigHLTRoIDiagnostics'

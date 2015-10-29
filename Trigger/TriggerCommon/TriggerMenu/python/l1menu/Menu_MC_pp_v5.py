@@ -84,8 +84,10 @@ def defineMenu():
         # 24 x 1-bit thresholds
         
         # 8 x TE
-        'TE0', 'TE5', 'TE10', 'TE15', 'TE20', 'TE30', 'TE40', 'TE50',
-        
+        #'TE3', 'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40',
+        #'TE5', 'TE30', 'TE40', 'TE45', 'TE50', 'TE55', 'TE60', 'TE65',
+        'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
+
         # 8 x XE
         'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
         
@@ -104,8 +106,9 @@ def defineMenu():
         #'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
 
         # 8 x restricted eta range
-        'TE0.0ETA24', 'TE5.0ETA24', 'TE10.0ETA24', 'TE20.0ETA24',
-        'TE30.0ETA24', 'TE40.0ETA24', 'TE50.0ETA24', 'TE2000.0ETA24', 
+        #'TE3.0ETA24', 'TE5.0ETA24','TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24',
+        #'TE5.0ETA24', 'TE30.0ETA24','TE40.0ETA24', 'TE45.0ETA24', 'TE50.0ETA24', 'TE55.0ETA24', 'TE60.0ETA24', 'TE65.0ETA24',
+        'TE5.0ETA24', 'TE10.0ETA24','TE20.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24', 'TE50.0ETA24', 'TE60.0ETA24', 'TE70.0ETA24',
 
         #------------------------
         # SLOT 9 / CON 0 (MUCTPi)
@@ -424,9 +427,13 @@ def defineMenu():
         'L1_EM10_XS20', 'L1_EM15_XS30',
         
         # TE
-        "L1_TE0", "L1_TE5", "L1_TE15", 
-        "L1_TE10", "L1_TE20", "L1_TE30", "L1_TE40", "L1_TE50",
-        "L1_TE0.0ETA24", "L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE20.0ETA24", "L1_TE30.0ETA24", 
+        #"L1_TE3",        "L1_TE5",        "L1_TE10",        "L1_TE15",        "L1_TE20",        "L1_TE25",        "L1_TE30",        "L1_TE40",
+        #"L1_TE5",        "L1_TE30",        "L1_TE40",        "L1_TE45",        "L1_TE50",        "L1_TE55",        "L1_TE60",        "L1_TE65",
+        "L1_TE5",        "L1_TE10",        "L1_TE20",        "L1_TE30",        "L1_TE40",        "L1_TE50",        "L1_TE60",        "L1_TE70",
+
+        #"L1_TE3.0ETA24", "L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE15.0ETA24", "L1_TE20.0ETA24", "L1_TE25.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", 
+        #"L1_TE5.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", "L1_TE45.0ETA24", "L1_TE50.0ETA24", "L1_TE55.0ETA24", "L1_TE60.0ETA24", "L1_TE65.0ETA24", 
+        "L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE20.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", "L1_TE50.0ETA24", "L1_TE60.0ETA24", "L1_TE70.0ETA24", 
 
         # MBTS
         "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
@@ -460,6 +467,10 @@ def defineMenu():
         'L1_LUCID', 'L1_LUCID_EMPTY', 'L1_LUCID_UNPAIRED_ISO', 
         'L1_LUCID_A_C_EMPTY', 'L1_LUCID_A_C_UNPAIRED_ISO', 'L1_LUCID_A_C_UNPAIRED_NONISO',
         #'L1_LUCID_COMM_EMPTY', 'L1_LUCID_COMM_UNPAIRED_ISO', 
+
+        # ZDC
+        'L1_ZDC_A', 'L1_ZDC_C',
+        'L1_ZDC_AND', # FTHR
 
         # VDM
         'L1_BGRP9', #"L1_BGRP7",
@@ -664,11 +675,11 @@ def defineMenu():
 
         'L1_EM3_ALFA_EINE',
         'L1_J12_ALFA_ANY','L1_J12_ALFA_ANY_UNPAIRED_ISO',
-        'L1_TE0_ALFA_ANY','L1_TE0_ALFA_ANY_UNPAIRED_ISO','L1_TE0_ALFA_EINE',
+        'L1_TE5_ALFA_ANY','L1_TE5_ALFA_ANY_UNPAIRED_ISO','L1_TE5_ALFA_EINE',
         'L1_TRT_ALFA_ANY','L1_TRT_ALFA_ANY_UNPAIRED_ISO',
         'L1_TRT_ALFA_EINE',
         'L1_LHCF_ALFA_ANY_A','L1_LHCF_ALFA_ANY_C','L1_LHCF_ALFA_ANY_A_UNPAIRED_ISO','L1_LHCF_ALFA_ANY_C_UNPAIRED_ISO',
-        'L1_BGRP1_ALFA_BGT','L1_BGRP4_ALFA_BGT','L1_BGRP10_ALFA_BGT',
+        'L1_ALFA_BGT','L1_ALFA_BGT_UNPAIRED_ISO','L1_ALFA_BGT_BGRP10',
         'L1_ALFA_SHOWSYST5',
         'L1_ALFA_SYST9' ,'L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
         'L1_ALFA_SYST17','L1_ALFA_SYST18',
@@ -846,7 +857,7 @@ def defineMenu():
         'L1_TE20' : 374,
         'L1_TE30' : 157,
         'L1_TE40' : 158,
-        'L1_TE50' : 159,
+        'L1_TE70' : 159,
         'L1_TE30.0ETA24' : 160,
         'L1_MBTS_1' : 226,
         'L1_MBTS_2' : 227,
@@ -1092,16 +1103,24 @@ def defineMenu():
         "L1_MU6_3MU4"  :403,
         "L1_2MU6_3MU4" :404,
         "L1_BGRP9"     :405,
-        'L1_TE0'       :406,
+        'L1_TE50'       :406,
         'L1_TE5'       :407,
-        'L1_TE15'      :408,
-        'L1_TE0.0ETA24':409,
+        'L1_TE60'      :408,
+        'L1_TE50.0ETA24':409,
         'L1_TE5.0ETA24':410, 
         'L1_EM20VH_FIRSTEMPTY':411, 
         'L1_EM22VHI_FIRSTEMPTY':412, 
         'L1_MU20_FIRSTEMPTY':413, 
         'L1_J100_FIRSTEMPTY':414, 
         'L1_J100.31ETA49_FIRSTEMPTY':415, 
+        'L1_TE60.0ETA24':416, 
+        'L1_TE70.0ETA24':417, 
+        'L1_TE40.0ETA24':418, 
+
+        # 3 x ZDC
+        'L1_ZDC_A':419,
+        'L1_ZDC_C':420,
+        'L1_ZDC_AND':421, 
         
         'L1_ALFA_ELAST1'  : 424,
         'L1_ALFA_ELAST2'  : 425,
@@ -1140,9 +1159,9 @@ def defineMenu():
         'L1_ALFA_ANY_C_EMPTY' : 458,
         'L1_J12_ALFA_ANY' : 459,
         'L1_J12_ALFA_ANY_UNPAIRED_ISO' : 460,
-        'L1_TE0_ALFA_ANY' : 461,
-        'L1_TE0_ALFA_ANY_UNPAIRED_ISO' : 462,
-        'L1_TE0_ALFA_EINE' : 463,
+        'L1_TE5_ALFA_ANY' : 461,
+        'L1_TE5_ALFA_ANY_UNPAIRED_ISO' : 462,
+        'L1_TE5_ALFA_EINE' : 463,
         'L1_TRT_ALFA_ANY' : 464,
         'L1_TRT_ALFA_ANY_UNPAIRED_ISO' : 465,
         'L1_TRT_ALFA_EINE' :   466,
@@ -1150,9 +1169,9 @@ def defineMenu():
         'L1_LHCF_ALFA_ANY_C' : 468,
         'L1_LHCF_ALFA_ANY_A_UNPAIRED_ISO' : 469,
         'L1_LHCF_ALFA_ANY_C_UNPAIRED_ISO' : 470,
-        'L1_BGRP1_ALFA_BGT' : 471,
-        'L1_BGRP4_ALFA_BGT' : 472,
-        'L1_BGRP10_ALFA_BGT' : 473,
+        'L1_ALFA_BGT' : 471,
+        'L1_ALFA_BGT_UNPAIRED_ISO' : 472,
+        'L1_ALFA_BGT_BGRP10' : 473,
         'L1_ALFA_SHOWSYST5' : 474,
         'L1_ALFA_SYST9'  : 475,
         'L1_ALFA_SYST10' : 476,

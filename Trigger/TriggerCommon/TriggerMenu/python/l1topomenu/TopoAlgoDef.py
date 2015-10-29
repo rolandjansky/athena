@@ -984,14 +984,14 @@ class TopoAlgoDef:
 
         # LAR  0<eta<1.4 and 9/16pi<phi<11/16pi for FE crate IO6 
         for x in [     
-            {"minEta": 0, "maxEta": 14, "minPhi": 17, "maxPhi": 22, "otype" : "EM", "ocut" : 50, "inputwidth": HW.OutputWidthSortEM},
+            {"minEta": 4, "maxEta": 19, "minPhi": 18, "maxPhi": 22, "otype" : "EM", "ocut" : 75, "inputwidth": HW.OutputWidthSortEM},
             {"minEta": 0, "maxEta": 14, "minPhi": 17, "maxPhi": 22, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET}, 
             ]:
 
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "LAR-%s%ss1"  % ( otype, str(ocut))
+            toponame = "LAR-%s%ss1"  % ( otype, str(ocut) if not otype=="EM" else "50" )
             
             log.info("Define %s" % toponame)
             

@@ -21,6 +21,7 @@ from SequenceTree import SequenceLinear
 from ChainConfigMaker import ChainConfigMaker
 from AlgFactory import AlgFactory
 
+
 try:
     from AthenaCommon.Logging import logging
     logger = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
@@ -84,7 +85,7 @@ def _check_values(chain_parts):
             raise RuntimeError(msg)
 
     dataTypes = [p['dataType'] for p in chain_parts]
-    bad = [r for r in dataTypes if r not in ('TT', 'tc')]
+    bad = [r for r in dataTypes if r not in ('TT', 'tc', 'ion')]
 
     if bad:
         msg = '%s unknown dataType(s): %s' % (err_hdr, ' '.join(bad))
@@ -172,9 +173,11 @@ def _make_chaindef(from_central, instantiator):
                          lower_chain_name=chain_config.seed)
 
     # add sequence and signature (check point) information to it
+    
+
     sig_ind = 0
     for s in sequences:
-
+        
         sig_ind += 1
         chain_def.addSequence(listOfAlgorithmInstances=s.alg_list,
                               te_in=s.te_in,

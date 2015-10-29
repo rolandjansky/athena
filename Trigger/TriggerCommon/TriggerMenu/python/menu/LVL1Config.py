@@ -534,12 +534,14 @@ class LVL1MenuItems:
 # LVL1 Threshold classes
 # Maximum values for calo thresholds to disable that threshold
 #
-ClusterOff   = 255
-IsolationOff = 63
-JetOff       = 1023
-EtSumOff     = 32767
-EtMissOff    = 2895
-JetEtOff     = 13286
+from TriggerMenu.l1.Limits import CaloLimits
+ClusterOff   = CaloLimits.ClusterOff
+IsolationOff = CaloLimits.IsolationOff
+JetOff       = CaloLimits.JetOff
+EtSumOff     = CaloLimits.EtSumOff
+EtMissOff    = CaloLimits.EtMissOff
+JetEtOff     = CaloLimits.JetEtOff
+
 # InternalTriggers
 bgrp0 = LVL1MenuItem.Lvl1InternalTrigger('BGRP0')
 bgrp1 = LVL1MenuItem.Lvl1InternalTrigger('BGRP1')
