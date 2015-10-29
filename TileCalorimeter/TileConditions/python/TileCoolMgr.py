@@ -4,6 +4,7 @@
 #author: nils.gollub@cern.ch
 #modifications: lukas.pribyl@cern.ch
 
+import string
 
 class TileCoolMgr:
     
@@ -60,6 +61,7 @@ class TileCoolMgr:
         elif self.isSplitMC(condId):
             if self.isMC(): return self.getFolderTwo(condId)
             else:           return self.getFolder(condId)
+        elif self.isSqlite(condId): return self.getFolder(condId)
         else: 
             self.__log.error("Cannot find out key for  \'%s\'!" % condId)
             return None
@@ -201,6 +203,10 @@ class TileCoolMgr:
         return self.__athenaCommonFlags.isOnline()
 
 
+    def isSourceAvailable(self, source):
+        return source in  self.__idDict
+
+
 #--------------------------------------------------------------------------------------------------------
 #=== create object of the user 
 #--------------------------------------------------------------------------------------------------------
@@ -231,12 +237,25 @@ tileCoolMgr.addSource('onlNoise1gOfni', '/TILE/ONL01/NOISE/OFNI', defConnStr, ""
 #--- status
 tileCoolMgr.addSource('onlStatAdc', '/TILE/ONL01/STATUS/ADC', defConnStr, "", '/TILE/ONL01/STATUS/ADC', 'SplitMC')
 
-#--- OFCs
-tileCoolMgr.addSource('onlOfcPhy',      '/TILE/ONL01/FILTER/OF2/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
-tileCoolMgr.addSource('onlOfcCisPl100', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcCisPl5p2', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcLas',      '/TILE/ONL01/FILTER/OF2/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/LAS', 'SplitMC')
+#--- OFCs OF2
+#tileCoolMgr.addSource('onlOfcOf2Phy',      '/TILE/ONL01/FILTER/OF2/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
+tileCoolMgr.addSource('onlOfcOf2CisPl100', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
+tileCoolMgr.addSource('onlOfcOf2CisPl5p2', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
+tileCoolMgr.addSource('onlOfcOf2Las',      '/TILE/ONL01/FILTER/OF2/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/LAS', 'SplitMC')
 
+#--- OFCs OF1
+tileCoolMgr.addSource('onlOfcOf1Phy',      '/TILE/ONL01/FILTER/OF1/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')
+tileCoolMgr.addSource('onlOfcOf1CisPl100', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
+tileCoolMgr.addSource('onlOfcOf1CisPl5p2', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
+tileCoolMgr.addSource('onlOfcOf1Las',      '/TILE/ONL01/FILTER/OF1/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/LAS', 'SplitMC')
+
+def GetTileOfcCoolSource(ofcType, runType = 'PHY'):
+    return 'onlOfc' + string.capwords(ofcType,'/').replace('/','') + runType.lower().capitalize()
+
+def AddTileOfcCoolSource(ofcType, runType = 'PHY'):
+    ofcSource = GetTileOfcCoolSource(ofcType, runType)
+    ofcFolder = '/TILE/ONL01/FILTER/' + ofcType.upper() + '/' + runType.upper();
+    tileCoolMgr.addSource(ofcSource, ofcFolder, defConnStr, "", ofcFolder, 'SplitMC')
 
 from IOVDbSvc.CondDB import conddb
 if conddb.GetInstance() == 'CONDBR2':

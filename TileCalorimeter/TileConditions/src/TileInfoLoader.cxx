@@ -18,6 +18,7 @@
 //*****************************************************************************
 
 // Gaudi includes
+#include <sstream>  // TEMP workaround for gcc5 build.  Need to remove this hack.
 #define private public
 #include "StoreGate/StoreGateSvc.h" // to be able to remove TileInfo from DetectorStore
 #undef private
@@ -206,13 +207,13 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   //==========================================================
   declareProperty("LoadOptFilterWeights"       ,m_loadOptFilterWeights          = false);
   declareProperty("OFPhysicsNSamples"          ,m_OFWeights->m_NSamples_Phys    = 7);
-  declareProperty("filenameNoiseCISSuffix"     ,m_OFWeights->NoiseCISSuffix     = "510082_CIS");
-  declareProperty("filenameNoisePhysicsSuffix" ,m_OFWeights->NoisePhysicsSuffix = "520020_Phys");
-  declareProperty("filenameDeltaCISSuffix"     ,m_OFWeights->DeltaCISSuffix     = "of2_Delta_CIS_7Samples");
-  declareProperty("filenameDeltaPhysicsSuffix" ,m_OFWeights->DeltaPhysicsSuffix = "of2_Delta_Phys_7Samples");
+  declareProperty("filenameNoiseCISSuffix"     ,m_OFWeights->m_noiseCISSuffix     = "510082_CIS");
+  declareProperty("filenameNoisePhysicsSuffix" ,m_OFWeights->m_noisePhysicsSuffix = "520020_Phys");
+  declareProperty("filenameDeltaCISSuffix"     ,m_OFWeights->m_deltaCISSuffix     = "of2_Delta_CIS_7Samples");
+  declareProperty("filenameDeltaPhysicsSuffix" ,m_OFWeights->m_deltaPhysicsSuffix = "of2_Delta_Phys_7Samples");
   declareProperty("LoadOptFilterCorrelation"   ,m_loadOptFilterCorrelation      = false);
-  declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->NoiseCorrSuffix    = "520020_Phys");
-  declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->DeltaCorrSuffix    = "Delta_Phys_9Samples");
+  declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->m_noiseCorrSuffix    = "520020_Phys");
+  declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->m_deltaCorrSuffix    = "Delta_Phys_9Samples");
   declareProperty("DeltaConf"                  ,m_OFWeights->m_DeltaConf        = true);
 }
 
@@ -394,8 +395,8 @@ StatusCode TileInfoLoader::geoInit(IOVSVC_CALLBACK_ARGS) {
 
   // This retrieval of TileBadChanTool is needed to avoid crash in trigger-related jobs,
   // when TileByteStream wants to use bad channel tool at start of run
-  ToolHandle<ITileBadChanTool> m_tileBadChanTool("TileBadChanTool");
-  CHECK( m_tileBadChanTool.retrieve() );
+  ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanTool");
+  CHECK( tileBadChanTool.retrieve() );
 
   // Listen for end of run
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
@@ -785,12 +786,12 @@ void TileInfoLoader::buildCovMatrix() {
   for (int part = 0; part < 4; ++part) {
     // Create DecoCovaria[part]
 //    ATH_MSG_INFO( "begin DecoCovaria.push_back" );
-    m_info->DecoCovaria.push_back(std::vector<std::vector<TMatrixD*> >());
+    m_info->m_decoCovaria.push_back(std::vector<std::vector<TMatrixD*> >());
 //    ATH_MSG_INFO( "DecoCovaria.push_back done" );
     for (int modu = 0; modu < 64; ++modu) {
       // Create DecoCovaria[part][modu]
 //      ATH_MSG_INFO( "  begin DecoCovaria[part].push_back" );
-      m_info->DecoCovaria[part].push_back(std::vector<TMatrixD*>());
+      m_info->m_decoCovaria[part].push_back(std::vector<TMatrixD*>());
 //      ATH_MSG_INFO( "  DecoCovaria[part].push_back done" );
 
       for (int gain = 0; gain < 2; ++gain) {
@@ -868,7 +869,7 @@ void TileInfoLoader::buildCovMatrix() {
 
             cov_file.close();
             // Fill DecoCovaria[part][modu][gain]
-            m_info->DecoCovaria[part][modu].push_back(pDecoCova);
+            m_info->m_decoCovaria[part][modu].push_back(pDecoCova);
 
           }
         }

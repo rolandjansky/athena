@@ -520,7 +520,7 @@ class TileInfo : public DataObject {
   // Three dimensional vector of the
   // decomposed covariance matrices (partition x module x gain)
   //
-  std::vector <std::vector <std::vector <TMatrixD *> > > DecoCovaria;
+  std::vector <std::vector <std::vector <TMatrixD *> > > m_decoCovaria;
   
 };
 

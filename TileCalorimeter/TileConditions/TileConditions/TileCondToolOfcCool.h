@@ -45,7 +45,7 @@ class TileCondToolOfcCool: public AthAlgTool, public ITileCondToolOfc {
 
     void getOfcParams(unsigned int drawerIdx, int &NPhases, int &NFields, int &Phamin, int &Phamax, int &NSamples);
 
-    int getNSamples(void) {return NSamples; };
+    int getNSamples(void) {return m_NSamples; };
 
   private:
 
@@ -56,11 +56,11 @@ class TileCondToolOfcCool: public AthAlgTool, public ITileCondToolOfc {
 
     TileOfcWeightsStruct* m_weights;
 
-    int NPhases;
-    int NFields;
-    int Phamin;
-    int Phamax;
-    int NSamples;
+    int m_NPhases;
+    int m_NFields;
+    int m_Phamin;
+    int m_Phamax;
+    int m_NSamples;
 
 };
 

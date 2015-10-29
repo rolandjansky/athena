@@ -291,9 +291,10 @@ StatusCode TileBadChanTool::recache(IOVSVC_CALLBACK_ARGS_K(keys)) {
 	// Trips probabilities are cached like floats: number / denominator.
 
 	for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-	  float denominator = (float) tripsCalibDrawer->getData(ros, 0, TileCalibUtils::MAX_DRAWER);
+	  const float denominator = (float) tripsCalibDrawer->getData(ros, 0, TileCalibUtils::MAX_DRAWER);
+          const float inv_denominator = 1. / denominator;
 	  for (unsigned int mod = 0; mod < TileCalibUtils::MAX_DRAWER; ++mod) {
-	    m_tripsProbs[ros - 1][mod] = ((float) tripsCalibDrawer->getData(ros, 0, mod)) / denominator;
+	    m_tripsProbs[ros - 1][mod] = ((float) tripsCalibDrawer->getData(ros, 0, mod)) * inv_denominator;
 	  }
 	}
 

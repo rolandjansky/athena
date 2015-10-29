@@ -3,6 +3,8 @@
 #file: TileCondToolConf.py
 #author: nils.gollub@cern.ch
 
+import string
+
 from TileConditions.TileCondProxyConf  import *
 from AthenaCommon.Constants import INFO
 
@@ -568,36 +570,28 @@ def getTileCellNoiseTool(source = 'FILE', name = 'TileCellNoiseTool', **kwargs):
 
 #
 #____________________________________________________________________________
-def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', name = 'TileCondToolOfcCool', **kwargs):
+def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', name = 'TileCondToolOfcCool', **kwargs):
 
-    if not source  in validSources : raise(Exception("Invalid source: %s" %source ))
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
+    if not source  in validSources : raise(Exception("Invalid source: %s" % source ))
+    if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
     from TileConditions.TileConditionsConf import TileCondToolOfcCool
 
     #do some check for global flag here: if source='' and flag set, adopt flag
 
     tool = None
     if source == 'COOL':
-        #=== create tool
-        if runType == 'PHY':
-            tool = TileCondToolOfcCool(name,
-                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcPhy','TileCondProxyCool_OfcPhy'),
-                                          )
-        if runType == 'LAS':
-            tool = TileCondToolOfcCool(name,
-                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcLas','TileCondProxyCool_OfcLas'),
-                                          )
-        if runType == 'CISPULSE100':
-            tool = TileCondToolOfcCool(name,
-                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcCisPl100','TileCondProxyCool_OfcCisPl100'),
-                                          )
-        if runType == 'CISPULSE5P2':
-            tool = TileCondToolOfcCool(name,
-                                          ProxyOfcCool = getTileCondProxy('COOL','Ofc','onlOfcCisPl5p2','TileCondProxyCool_OfcCisPl5p2'),
-                                          )
+        from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
+        
+        proxySource = GetTileOfcCoolSource(ofcType, runType)
+        if not tileCoolMgr.isSourceAvailable(proxySource):
+            AddTileOfcCoolSource(ofcType, runType)
+            
+        proxyName = 'TileCondProxyCool_' + proxySource
+
+        tool = TileCondToolOfcCool(name, ProxyOfcCool = getTileCondProxy('COOL', 'Ofc', proxySource, proxyName))
 
     else:
-        raise(Exception("Invalid source %s"%source))
+        raise(Exception("Invalid source %s" % source))
 
         
     #=== set the arguments passed and return tool
