@@ -35,14 +35,14 @@ SharedReaderTool::~SharedReaderTool()
 
 StatusCode SharedReaderTool::initialize()
 {
-  msg(MSG::DEBUG) << "In initialize" << endreq;
+  ATH_MSG_DEBUG("In initialize");
 
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess()) return sc;
 
   sc = serviceLocator()->service(m_evtSelName,m_evtShare);
   if(sc.isFailure() || m_evtShare==0) {
-    msg(MSG::ERROR) << "Error retrieving IEventShare" << endreq;
+    ATH_MSG_ERROR("Error retrieving IEventShare");
     return StatusCode::FAILURE;
   }
 
@@ -56,15 +56,15 @@ StatusCode SharedReaderTool::finalize()
 
 int SharedReaderTool::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
-  msg(MSG::DEBUG) << "In makePool " << getpid() << endreq;
+  ATH_MSG_DEBUG("In makePool " << getpid());
 
   if(maxevt < -1) {
-    msg(MSG::ERROR) << "Invalid number of events requested: " << maxevt << endreq;
+    ATH_MSG_ERROR("Invalid number of events requested: " << maxevt);
     return -1;
   }
 
   if(topdir.empty()) {
-    msg(MSG::ERROR) << "Empty name for the top directory!" << endreq;
+    ATH_MSG_ERROR("Empty name for the top directory!");
     return -1;
   }
 
@@ -73,7 +73,7 @@ int SharedReaderTool::makePool(int maxevt, int nprocs, const std::string& topdir
 
   // Create the process group with only one process and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(1);
-  msg(MSG::INFO) << "Shared Reader process created" << endreq;
+  ATH_MSG_INFO("Shared Reader process created");
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP))
     return -1;
 
@@ -82,14 +82,14 @@ int SharedReaderTool::makePool(int maxevt, int nprocs, const std::string& topdir
 
 StatusCode SharedReaderTool::exec()
 {
-  msg(MSG::DEBUG) << "In exec " << getpid() << endreq;
+  ATH_MSG_DEBUG("In exec " << getpid());
 
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC))
     return StatusCode::FAILURE;
 
   // Set exit flag on reader
   if(m_processGroup->map_async(0,0)){
-    msg(MSG::ERROR) << "Unable to set exit to the reader" << endreq;
+    ATH_MSG_ERROR("Unable to set exit to the reader");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -126,7 +126,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
   reader_rundir /= boost::filesystem::path(m_subprocDirPrefix);
 
   if(mkdir(reader_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    msg(MSG::ERROR) << "Unable to make reader run directory: " << reader_rundir.string() << ". " << strerror(errno) << endreq;
+    ATH_MSG_ERROR("Unable to make reader run directory: " << reader_rundir.string() << ". " << strerror(errno));
     return outwork;
   }
 
@@ -134,13 +134,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
   if(redirectLog(reader_rundir.string()))
     return outwork;
 
-  msg(MSG::INFO) << "Logs redirected in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
+  ATH_MSG_INFO("Logs redirected in the AthenaMP ByteStream reader PID=" << getpid());
      
   // Update Io Registry   
   if(updateIoReg(reader_rundir.string()))
     return outwork;
 
-  msg(MSG::INFO) << "Io registry updated in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
+  ATH_MSG_INFO("Io registry updated in the AthenaMP ByteStream reader PID=" << getpid());
 
   // _______________________ Handle saved PFC (if any) ______________________
   boost::filesystem::path abs_reader_rundir = boost::filesystem::absolute(reader_rundir);
@@ -151,41 +151,41 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
   if(reopenFds())
     return outwork;
 
-  msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
+  ATH_MSG_INFO("File descriptors re-opened in the AthenaMP ByteStream reader PID=" << getpid());
 
   // IEventShare ...
   if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
-    msg(MSG::ERROR) << "Failed to make the event selector a share server" << endreq;
+    ATH_MSG_ERROR("Failed to make the event selector a share server");
     return outwork;
   }
   else {
-    msg(MSG::DEBUG) << "Successfully made the event selector a share server" << endreq;
+    ATH_MSG_DEBUG("Successfully made the event selector a share server");
   }
 
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
-    msg(MSG::ERROR) << "Failed to reinitialize I/O" << endreq;
+    ATH_MSG_ERROR("Failed to reinitialize I/O");
     return outwork;
   } else {
-    msg(MSG::DEBUG) << "Successfully reinitialized I/O" << endreq;
+    ATH_MSG_DEBUG("Successfully reinitialized I/O");
   }
 
   // Start the event selector 
   IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
   if(!evtSelSvc) {
-    msg(MSG::ERROR) << "Failed to dyncast event selector to IService" << endreq;
+    ATH_MSG_ERROR("Failed to dyncast event selector to IService");
     return outwork;
   }
   if(!evtSelSvc->start().isSuccess()) {
-    msg(MSG::ERROR) << "Failed to restart the event selector" << endreq;
+    ATH_MSG_ERROR("Failed to restart the event selector");
     return outwork;
   } else {
-    msg(MSG::DEBUG) << "Successfully restarted the event selector" << endreq;
+    ATH_MSG_DEBUG("Successfully restarted the event selector");
   }
 
   // Reader dir: chdir 
   if(chdir(reader_rundir.string().c_str())==-1) {
-    msg(MSG::ERROR) << "Failed to chdir to " << reader_rundir.string() << endreq;
+    ATH_MSG_ERROR("Failed to chdir to " << reader_rundir.string());
     return outwork;
   }
 
@@ -196,7 +196,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
     m_shmemSegment = new boost::interprocess::mapped_region(shmemSegment,boost::interprocess::read_write);
   }
   catch(yampl::ErrnoException& ex) {
-    msg(MSG::ERROR) << "Exception caught when trying to acquire shared memory segment: " << ex.what() << endreq;
+    ATH_MSG_ERROR("Exception caught when trying to acquire shared memory segment: " << ex.what());
     return outwork;
   }
 
@@ -207,7 +207,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
 {
-  msg(MSG::INFO) << "Exec function in the AthenaMP Shared Reader PID=" << getpid() << endreq;
+  ATH_MSG_INFO("Exec function in the AthenaMP Shared Reader PID=" << getpid());
 
   int eventsRead(0);
   int* shmemCountedEvts = (int*)m_shmemSegment->get_address();
@@ -219,26 +219,26 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
     ctFinal = *shmemCountFinal;
     evtCounted = *shmemCountedEvts;
   }
-  msg(MSG::DEBUG) << "SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO") << endreq;
+  ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
 
   bool all_ok=true;
-  msg(MSG::DEBUG) << "SharedReaderTool::exec_func entering loop " << endreq;
+  ATH_MSG_DEBUG("SharedReaderTool::exec_func entering loop ");
   while(eventsRead<evtCounted) {
-    msg(MSG::DEBUG) << "SharedReaderTool::exec_func loop " << endreq;
+    ATH_MSG_DEBUG("SharedReaderTool::exec_func loop ");
     if(m_evtShare->readEvent(evtCounted-eventsRead).isFailure()) {
-      msg(MSG::ERROR) << "Failed to read " << evtCounted-eventsRead << " events" << endreq;
+      ATH_MSG_ERROR("Failed to read " << evtCounted-eventsRead << " events");
       all_ok=false;
     }
     else {
 
-      msg(MSG::DEBUG) << "readEvent succeeded" << endreq;
+      ATH_MSG_DEBUG("readEvent succeeded");
       if(ctFinal)
 	break;
 
       eventsRead=evtCounted;
       ctFinal = *shmemCountFinal;
       evtCounted = *shmemCountedEvts;
-      msg(MSG::DEBUG) << "SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO") << endreq;
+      ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
 
       while(eventsRead==evtCounted 
 	    && !ctFinal) {
@@ -246,17 +246,17 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
 	ctFinal = *shmemCountFinal;
 	evtCounted = *shmemCountedEvts;
       }
-      msg(MSG::DEBUG) << "SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO") << endreq;
+      ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
     }
   }
 
   if(m_appMgr->stop().isFailure()) {
-    msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
+    ATH_MSG_ERROR("Unable to stop AppMgr"); 
     all_ok=false;
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endreq;
+      ATH_MSG_ERROR("Unable to finalize AppMgr");
       all_ok=false;
     }
   }
