@@ -130,11 +130,11 @@ void test8()
   assert(c2.index()==1);
   assert(c2.clock()==0);
   assert(c2.fpga()==0);
-  L1Topo::L1TopoTOB c3(0x84000000); 
+  L1Topo::L1TopoTOB c3(0x88000000); 
   assert(c3.index()==0);
   assert(c3.clock()==0);
   assert(c3.fpga()==1);
-  L1Topo::L1TopoTOB c4(0x87000000); 
+  L1Topo::L1TopoTOB c4(0x8b000000); 
   assert(c4.index()==1);
   assert(c4.clock()==1);
   assert(c4.fpga()==1);
@@ -149,10 +149,10 @@ void test9()
 	0x81000201,
 	0x82000330, 
 	0x83000402, 
-	0x84000510, 
-	0x850006f6, 
-	0x860007b0, 
-	0x87000800
+	0x88000510, 
+	0x890006f6, 
+	0x8a0007b0, 
+	0x8b000800
 	});
   L1TopoRDO rdo1;
   std::vector<uint32_t> data2({
@@ -160,10 +160,10 @@ void test9()
 	0x810020ab,
 	0x82003002, 
 	0x83004028, 
-	0x84005000, 
-	0x85006083, 
-	0x86007045, 
-	0x87008079
+	0x88005000, 
+	0x89006083, 
+	0x8a007045, 
+	0x8b008079
 	});
   L1TopoRDO rdo2;
   rdo1.setDataWords(data1);
@@ -173,11 +173,11 @@ void test9()
   std::cout << rdo1 << rdo2;
   // construct reference value - complicated by 128 bit length
   std::pair< std::bitset<128>, std::bitset<128> > test, ref;
-  uint64_t ref1=0x00b0f61002300100;
-  uint64_t ref2=0x794583002802abd1;
+  uint64_t ref1=0x55148b0000090a00;
+  uint64_t ref2=0x6a8720224cc55109;
   ref.first  = std::bitset<128>(ref1) | (std::bitset<128>(ref2) << 64);
-  uint64_t ref3=0x0807060504030201;
-  uint64_t ref4=0x8070605040302010;
+  uint64_t ref3=0x0094003b0024000b;
+  uint64_t ref4=0x94003b0024000b00;
   ref.second = std::bitset<128>(ref3) | (std::bitset<128>(ref4) << 64);
   // compute bitset using helper function and compare to expected result
   L1TopoRDOCollection colRDOs;

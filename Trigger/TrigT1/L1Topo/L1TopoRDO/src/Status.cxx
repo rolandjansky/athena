@@ -41,10 +41,10 @@ namespace L1Topo {
   uint32_t Status::crc() const{
     return m_crc;
   }
+  std::ostream& operator<<(std::ostream& os, const Status& s) {
+    os << "     Status: overflow " << s.overflow() << " crc mismatch " << s.crc();
+    return os;
+  }
     
 } // namespace L1Topo
 
-std::ostream& operator<<(std::ostream& os, const L1Topo::Status& s) {
-  os << "     Status: overflow " << s.overflow() << " crc mismatch " << s.crc();
-  return os;
-}

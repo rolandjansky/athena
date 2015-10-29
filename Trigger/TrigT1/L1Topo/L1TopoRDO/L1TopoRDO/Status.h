@@ -41,10 +41,10 @@ namespace L1Topo {
     //! The raw data representation
     uint32_t m_word;
   };
+  std::ostream& operator<<(std::ostream&, const Status&);
   
 } // namespace L1Topo
 
 //! Helper for printing
-std::ostream& operator<<(std::ostream&, const L1Topo::Status&);
 
 #endif // L1TOPORDO_FIBRE_H

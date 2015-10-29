@@ -54,15 +54,16 @@ namespace L1Topo {
     m_link = m_id & 0xf;
   }
 
+  std::ostream& operator<<(std::ostream& os, const ModuleID& m) {
+    os << "ModuleID: " << " " << formatHex4(m.id()) << " 0b" << std::bitset<8>(m.id()) << " link " << m.link() << " " << " module " << m.module();
+    if (m.isDAQ()){
+      os << " DAQ";
+    } 
+    else if (m.isROI()){
+      os << " ROI";
+    }
+    return os;
+  }
+
 } // namespace L1Topo
 
-std::ostream& operator<<(std::ostream& os, const L1Topo::ModuleID& m) {
-  os << "ModuleID: " << " " << L1Topo::formatHex4(m.id()) << " 0b" << std::bitset<8>(m.id()) << " link " << m.link() << " " << " module " << m.module();
-  if (m.isDAQ()){
-    os << " DAQ";
-  } 
-  else if (m.isROI()){
-    os << " ROI";
-  }
-  return os;
-}

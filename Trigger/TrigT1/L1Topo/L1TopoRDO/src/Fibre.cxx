@@ -52,15 +52,16 @@ namespace L1Topo {
   const std::vector<uint32_t>& Fibre::count() const{
     return m_count;
   }
+
+  std::ostream& operator<<(std::ostream& os, const Fibre& f) {
+  
+    os << "     Fibre status,sizes: ";
+    for (unsigned int i=0; i<5 && i<f.status().size() && i<f.count().size(); ++i){
+      os << "(" << f.status().at(i) << "," << f.count().at(i) << ") ";
+    }
+    return os;
+  }
+
     
 } // namespace L1Topo
-
-std::ostream& operator<<(std::ostream& os, const L1Topo::Fibre& f) {
-
-  os << "     Fibre status,sizes: ";
-  for (unsigned int i=0; i<5 && i<f.status().size() && i<f.count().size(); ++i){
-    os << "(" << f.status().at(i) << "," << f.count().at(i) << ") ";
-  }
-  return os;
-}
 

@@ -86,18 +86,18 @@ namespace L1Topo {
     return std::pair<uint32_t,uint32_t>(sign,offset);
   }
 
-} // namespace L1Topo
+  std::ostream& operator<<(std::ostream& os, const Header& h) {
+    os << "     Block header:" 
+       << " version " << h.version() 
+       << std::hex
+       << " active_fibres 0x" << h.active_fibres()
+       << " payload_crc 0x" << h.payload_crc()
+       << std::dec
+       << " fpga " << h.fpga()
+       << " relative bcn " << h.bcn()
+       << " last_block " << h.last_block();
+    return os;
+  }
 
-std::ostream& operator<<(std::ostream& os, const L1Topo::Header& h) {
-  os << "     Block header:" 
-     << " version " << h.version() 
-     << std::hex
-     << " active_fibres 0x" << h.active_fibres()
-     << " payload_crc 0x" << h.payload_crc()
-     << std::dec
-     << " fpga " << h.fpga()
-     << " relative bcn " << h.bcn()
-     << " last_block " << h.last_block();
-  return os;
-}
+} // namespace L1Topo
 
