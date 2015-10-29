@@ -22,10 +22,6 @@ class HLTTauTrackRoiUpdater : public HLT::FexAlgo
 
   float m_z0HalfWidth;
   std::string m_InputTrackColl;
-
-  int m_nHitPix;      //<! at least n hits in pixels on lead track
-  int m_nSiHoles;     //<! maximum number of Si holes on lead track
-
-
+  
 };
 #endif

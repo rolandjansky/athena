@@ -18,7 +18,6 @@
 #include "TrigTauHypo/HLTTauTrackRoiUpdater.h"
 #include "TrigTauHypo/HLTTauCaloRoiUpdater.h"
 #include "TrigTauHypo/HLTVertexPreSelHypo.h"
-#include "TrigTauHypo/HLTVertexCombo.h"
 
 DECLARE_ALGORITHM_FACTORY( T2CaloTauHypo )
 DECLARE_ALGORITHM_FACTORY( T2IDTauHypo )
@@ -39,7 +38,6 @@ DECLARE_ALGORITHM_FACTORY( HLTTauGenericHypo )
 DECLARE_ALGORITHM_FACTORY( HLTTauTrackRoiUpdater )
 DECLARE_ALGORITHM_FACTORY( HLTTauCaloRoiUpdater )
 DECLARE_ALGORITHM_FACTORY( HLTVertexPreSelHypo )
-DECLARE_ALGORITHM_FACTORY( HLTVertexCombo )
 
 DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( T2CaloTauHypo );
@@ -60,6 +58,5 @@ DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( HLTTauGenericHypo );
   DECLARE_ALGORITHM( HLTTauTrackRoiUpdater );
   DECLARE_ALGORITHM( HLTTauCaloRoiUpdater );
-  DECLARE_ALGORITHM( HLTVertexPreSelHypo );
-  DECLARE_ALGORITHM( HLTVertexCombo );
+    DECLARE_ALGORITHM( HLTVertexPreSelHypo );
 }
