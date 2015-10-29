@@ -50,6 +50,19 @@ class HLTTrackTauHypoBase(HLTTrackPreSelHypo):
         setHLTTrackPreselMonTools(self)
         #setTauMonTools(self)
 
+class HLTTrackTauHypo_rejectNoTracks(HLTTrackTauHypoBase):
+    __slots__ = []
+    def __init__(self, name="HLTTrackTauHypo_rejectNoTracks"):
+        super(HLTTrackTauHypo_rejectNoTracks, self).__init__(name)
+        self.rejectNoTracks = True
+        self.TracksInCoreCut = 999
+        self.TracksInIsoCut = 999
+        self.DeltaRLeadTrkRoI = 0.0
+        self.TrackVariableOuter = 0.0
+        self.TrackVariableCore = 0.0
+        #setHLTTrackPreselMonTools(self)
+        #setTauMonTools(self)
+
 class HLTTrackTauHypo (HLTTrackTauHypoBase):
     __slots__ = []
     def __init__(self, name = "HLTTrackTauHypo", var = [], val = []):
