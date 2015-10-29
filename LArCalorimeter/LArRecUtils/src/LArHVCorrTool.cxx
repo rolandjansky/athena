@@ -191,7 +191,7 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
       }
     }
     else {
-      ATH_MSG_INFO("No real voltage change, no update necessary");
+      ATH_MSG_DEBUG("No real voltage change, no update necessary");
       return StatusCode::SUCCESS;
     }
   }//end if updateIfChanges
