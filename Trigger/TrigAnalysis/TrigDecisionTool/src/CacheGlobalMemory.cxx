@@ -35,10 +35,12 @@
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TDTUtilities.h"
 
+#include "xAODTrigger/TrigDecision.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 
 
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
+#include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigDecisionTool/DecisionUnpackerEventInfo.h"
 
 Trig::CacheGlobalMemory::CacheGlobalMemory() 
@@ -337,13 +339,21 @@ bool Trig::CacheGlobalMemory::assert_decision() {
        store()->retrieve(trigDec,"TrigDecision").ignore();
        is_l1result_configured = trigDec->getL1Result().isConfigured();
     }
+
+    bool contains_xAOD_decision = store()->contains<xAOD::TrigDecision>("xTrigDecision");
     
     //if(contains_decision){
     if( is_l1result_configured ){
       ATH_MSG_INFO("SG contains AOD decision, use DecisionUnpackerAthena");
       DecisionUnpackerAthena* unpacker = new DecisionUnpackerAthena(store(), "TrigDecision");
       setUnpacker(unpacker);
-    } else {
+    }
+    else if ( contains_xAOD_decision ){
+      ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
+      DecisionUnpackerStandalone* unpacker = new DecisionUnpackerStandalone(store(), "xTrigDecision", "TrigNavigation");
+      setUnpacker(unpacker);      
+    }
+    else {
       ATH_MSG_INFO("SG contains NO(!) L1Result in the AOD TrigDecision, assuming also no HLTResult. Read from EventInfo");
       DecisionUnpackerEventInfo* unpacker = new DecisionUnpackerEventInfo(store(), "");
       setUnpacker(unpacker);

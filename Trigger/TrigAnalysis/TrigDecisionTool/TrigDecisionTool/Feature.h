@@ -33,9 +33,11 @@
 #include "TrigDecisionTool/ClassTraits.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassFlags.h"
 #include "AnalysisTriggerEvent/Muon_ROI.h"
+
+#include "xAODTrigger/TrigPassBits.h"
+
 #include "AnalysisTriggerEvent/EmTau_ROI.h"
 #include "AnalysisTriggerEvent/Jet_ROI.h"
 #include "AnalysisTriggerEvent/JetET_ROI.h"
@@ -205,7 +207,7 @@ namespace Trig {
 
 namespace FeatureAccessImpl {
   // function declaration (see cxx for the deifinition) wanted to have this freedom in case of patches needed
-  const TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& label, HLT::NavigationCore* navigation );
+  const xAOD::TrigPassBits* getBits(size_t sz, const HLT::TriggerElement* te, const std::string& label, HLT::NavigationCore* navigation );
 
   const TrigPassFlags* getFlags(size_t sz, const HLT::TriggerElement* te, const std::string& label, HLT::NavigationCore* navigation );
   
@@ -239,7 +241,7 @@ namespace FeatureAccessImpl {
   boost::enable_if_c<isDataVector<T>::value, T>::type*
   use_or_construct(const T* source, const HLT::TriggerElement* te, const std::string& label, unsigned int condition, HLT::NavigationCore* navigation ) {
 
-    const TrigPassBits* bits(0);
+    const xAOD::TrigPassBits* bits(0);
     if ( condition == TrigDefs::Physics ) {// only passing objects
       bits = getBits(source->size(), te, label , navigation);
     }
@@ -251,7 +253,7 @@ namespace FeatureAccessImpl {
 
       
       BOOST_FOREACH(const typename T::base_value_type *obj, *source) {	
-        if ( HLT::isPassing(bits, obj, source)  ) // if bits are missing or obj is realy marked as passing
+        if ( bits->isPassing(obj, source)  ) // if bits are missing or obj is realy marked as passing
           destination->push_back(const_cast<typename T::value_type>(obj));
       }
       return destination;
@@ -260,9 +262,6 @@ namespace FeatureAccessImpl {
     return source;
   }
   
-  
-
-
   // 
   template<class T, class CONT, bool flatten, class LINK> struct insert_and_flatten;
 
@@ -294,14 +293,14 @@ namespace FeatureAccessImpl {
 
       //std::cout << "insert_and_flatten<true> " << label << " of container of size " << source->size() <<  std::endl;
       
-      const TrigPassBits* bits(0);
+      const xAOD::TrigPassBits* bits(0);
       if ( condition == TrigDefs::Physics ) {// only passing objects
         //std::cout << "asking for bits for " << label << std::endl;
         bits =getBits(source->size(), te, label , navigation);
       }
       
       BOOST_FOREACH(const T* obj, *source) {	
-        if ( bits==0 || HLT::isPassing(bits, obj, source)  ) {// if bits are missing or obj is realy marked as passing
+        if ( bits==0 || bits->isPassing(obj, source)  ) {// if bits are missing or obj is realy marked as passing
           //std::cout << "Pushing back new feature with obj " << obj << std::endl;
 	   destination.push_back(Trig::Feature<T>(obj, te, label,false,ElementLink<typename LINK::value_type>(obj,*source)));
         }
