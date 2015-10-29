@@ -1,9 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# import pdb
-# pdb.set_trace()
-
-from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence,TrigInDetSequenceBase
 
 from AthenaCommon.Logging import logging 
@@ -14,16 +10,15 @@ class TrigInDetFTKSequence(TrigInDetSequence):
   def __init__(self,
                signatureName="Electron",
                signature="electron", 
-               #sequenceType="",
+               sequenceType="",
                sequenceFlavour=[""]):
 
     TrigInDetSequenceBase.__init__(self)
     self.__signatureName__ = signatureName
     self.__signature__     = signature
-    self.__sequenceType__  = "FTK"
+    self.__sequenceType__  = sequenceType
     self.__sequenceFlavour__  = sequenceFlavour
     self.__step__ = [signature]
-
 
     if self.__sequenceFlavour__ =="2step":
       if self.__signature__ == "tau":
@@ -36,7 +31,7 @@ class TrigInDetFTKSequence(TrigInDetSequence):
 
     fullseq = list()
 
-    log.info("TrigInDetFTKSequence  sigName=%s seqFlav=%s sig=%s" % (signatureName, sequenceFlavour, signature))
+    log.info("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
 
     dataprep = [
       ("PixelClustering", "PixelClustering_IDTrig"),
@@ -55,32 +50,47 @@ class TrigInDetFTKSequence(TrigInDetSequence):
     cnvname = "InDetTrigTrackingxAODCnv_%s_"+suffix;
 
       
+    if "2step" in sequenceFlavour:
+      ftfname = "TrigFastTrackFinder_"+suffix;  ftf2name = "TrigFastTrackFinder_"+suffix; 
+      cnvname = "InDetTrigTrackingxAODCnv_%sCore_"+suffix;  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_"+suffix;  
+      roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
+      if self.__signature__=="bjet":
+        ftfname = "TrigFastTrackFinder_"+suffix; ftf2name = ftfname; 
+        cnvname = "InDetTrigTrackingxAODCnv_%sPrmVtx_"+suffix;  cnv2name = "InDetTrigTrackingxAODCnv_%s_"+suffix;
+        roiupdater = "IDTrigRoiUpdater_%sVtx_IDTrig"; roi2updater="";
+      elif self.__signature__=="muon":
+        ftfname = "TrigFastTrackFinder_"+suffix; ftf2name = ftfname;
+        cnvname = "InDetTrigTrackingxAODCnv_%s_"+suffix; cnv2name = "InDetTrigTrackingxAODCnv_%sIso_"+suffix; 
+        roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
+        
+
 
     algos = list()
 
+    if True:    #not (sequenceFlavour == "FTF" and self.__signature__=="beamSpot"):
+      algos += [("IDTrigRoiUpdater", roiupdater)]
 
-    #the first step can be FTK only vertexing
-    if "FTKVtx" in sequenceFlavour:
-      algos += [("TrigFTK_VxPrimary","")]
-
-      fullseq.append(algos)
-
-
-    #always run FTF
-    algos = [("IDTrigRoiUpdater", roiupdater)]
     algos += [("TrigFastTrackFinder",ftfname),
               ("InDetTrigTrackingxAODCnv",cnvname),
               ]
+    if "2step" in sequenceFlavour and self.__signature__=="bjet":
+      algos += [("TrigVxPrimary",""),
+                ("InDetTrigVertexxAODCnv","")]
+
     fullseq.append(algos)
 
 
+    if  "2step" in sequenceFlavour:
+      algos = [("IDTrigRoiUpdater", roi2updater)]
+      algos += dataprep
+      algos += [("TrigFastTrackFinder",ftf2name),
+                ("InDetTrigTrackingxAODCnv",cnv2name),
+                ]
+      fullseq.append(algos)
 
-    if "PT" in sequenceFlavour:
-      algos = list()
 
-      if "dev" in sequenceFlavour:
-        algos += dataprep
-
+    if "FTF" not in  sequenceFlavour:
+      algos = dataprep
       algos += [("TrigAmbiguitySolver",""),
                 ("TRTDriftCircleMaker",""),
                 ("InDetTrigPRD_MultiTruthMaker",""), 
@@ -88,13 +98,23 @@ class TrigInDetFTKSequence(TrigInDetSequence):
                 ("TrigExtProcessor",""),
                 ("InDetTrigTrackSlimmer",""),
                 ("InDetTrigTrackingxAODCnv",""),
-                #("InDetTrigDetailedTrackTruthMaker",""),
+                ("InDetTrigDetailedTrackTruthMaker",""),
+                #("TrigVxPrimary",""),
+                #("InDetTrigParticleCreation",""),
+                #("InDetTrigTrackParticleTruthMaker",""),
+                #("InDetTrigVertexxAODCnv","")
                 ]
+
+    if self.__signature__ != "bjet":
+      algos += [("TrigVxPrimary",""),
+                ("InDetTrigVertexxAODCnv","")]
       fullseq.append(algos)
 
    
 
     log.info("Full sequence has %d items" % len(fullseq) )
+    #print fullseq
+    #log.info("generate python now")
 
     for i in fullseq:
       #print i
