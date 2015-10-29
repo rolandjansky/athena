@@ -18,6 +18,7 @@ def setupMenu():
 
     HardProbesStream="HardProbes"
     MinBiasStream="MinBias"
+    UPCStream="UPC"
 
     # INPUT FORMAT FOR CHAINS:
     # ['chainName', 'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep]
@@ -28,25 +29,44 @@ def setupMenu():
     
     TriggerFlags.MuonSlice.signatures = [
 	#ID tracking performance
-        ['mu4_idperf',          'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu4_idperf_L1MU0',    'L1_MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+        ['mu4_idperf',          'L1_MU4', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu6_idperf_L1MU0',    'L1_MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu6_idperf',          'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
-	['mu10_idperf',         'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	#['mu8_idperf',          'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1], #no configuration
+	['mu10_idperf',         'L1_MU6', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 
 	#RoI muons
-	['mu4',                 'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu4_L1MU0',           'L1_MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu4',                 'L1_MU4', [], [HardProbesStream,  'express'], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu6_L1MU0',           'L1_MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu6',                 'L1_MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
-	['mu10',                'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
-	['mu14',                'L1_MU11', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu8',                 'L1_MU6', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu10',                'L1_MU6', [], [HardProbesStream,  'express'], ['RATE:SingleMuon','BW:Muon'], -1],
+	['mu14',                'L1_MU11', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
+
+	#msonly
+	['mu15_msonly',            'L1_MU11',           [], [HardProbesStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
+	['mu20_msonly',            'L1_MU15',           [], [HardProbesStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
 	#di-muons RoI based
 	['2mu4',                 'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['2mu6',                 'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	['2mu4_msonly',          'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+        ['2mu6_msonly',          'L1_2MU4', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+
+	['2mu4_L1MU0',                 'L1_2MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+        ['2mu6_L1MU0',                 'L1_2MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+        ['2mu4_msonly_L1MU0',          'L1_2MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+        ['2mu6_msonly_L1MU0',          'L1_2MU0', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 
 	#Full scan
-        ['mu4_mu4noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu4","mu4noL1"]]],
+	['mu4_mu2noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu4","mu2noL1"]]],
+        ['mu4_mu4noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream, 'express'], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu4","mu4noL1"]]],
         ['mu6_mu4noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:MultiMuon','BW:Muon'], -1, ['serial',-1,["mu6","mu4noL1"]]],
         
         #Full-scan supporting
+	['mu2noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
         ['mu4noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
         ['mu6noL1',         'L1_MU4', ['L1_MU4',''], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1, ],
 
@@ -64,8 +84,62 @@ def setupMenu():
 	['j0_perf_L1RD0_FILLED',     'L1_RD0_FILLED',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
 
 	#physics
-	['j15_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],   
-	['j20_L1ZDC_A_C',         'L1_ZDC_A_C',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	#R=0.4 jets
+	['j20_ion_L1TE20',         'L1_TE20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j25_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j30_ion_L1TE20',         'L1_TE20',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],   
+	['j40_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j30_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],   
+	['j40_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j60_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j75_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j100_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j150_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_ion_L1J10',         'L1_J10',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j60_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j75_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j100_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j150_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	
+	#R=0.3 jets
+	['j20_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j25_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j30_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],   
+	['j40_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_a3_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j30_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream, 'express'], ['RATE:SingleJet', 'BW:Jets'], -1],   
+	['j40_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j60_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j75_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j100_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j150_a3_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j60_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j75_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j100_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j150_a3_ion_L1J10',         'L1_J10',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+
+	#forward jets ATR-12623
+	['j25_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j25_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j30_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j30_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j40_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j40_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+	['j50_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j50_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+
+	['j25_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j25_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j30_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j30_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j40_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j40_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j50_a3_320eta490_ion_L1TE20',         'L1_TE20',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        ['j50_a3_320eta490_ion_L1TE50',         'L1_TE50',[], [HardProbesStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ]
 
     TriggerFlags.BjetSlice.signatures = [
@@ -78,64 +152,101 @@ def setupMenu():
         ]
 
     TriggerFlags.EgammaSlice.signatures = [
+
+	['e10_etcut',                  'L1_EM7', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e12_etcut',                  'L1_EM8', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_etcut',                  'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-       	['g15_etcut',                  'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g20_etcut',                  'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g12_etcut',                  'L1_EM10', [], [HardProbesStream], ['RATE:SinglPhoton', 'BW:Egamma'], -1],
+       	['g15_etcut',                  'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g18_etcut',                  'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g20_etcut',                  'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
 	#Run 1 PID
-	['e15_loose1',                 'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['e15_medium1',                'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_loose',                  'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e15_medium',                 'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_lhloose',                'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_lhmedium',               'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-
+	
 	#heavy ion instances	
-        ['e15_etcut_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g15_etcut_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g20_etcut_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e10_etcut_ion',              'L1_EM7', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e12_etcut_ion',              'L1_EM8', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g12_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+        ['g15_etcut_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g18_etcut_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g20_etcut_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
-	['e15_loose1_ion',             'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['e15_medium1_ion',            'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['e15_loose_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_loose_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e15_medium_ion',             'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e15_lhloose_ion',            'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e15_lhmedium_ion',           'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
  
 	#backup for e15
+        ['e18_loose_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e18_medium_ion',             'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e18_lhloose_ion',            'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e18_lhmedium_ion',           'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
+	#backup for e15
 	['e20_etcut_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1], 
-	['e20_loose_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['e20_loose1_ion',             'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['e20_loose_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e20_lhloose_ion',            'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e20_etcut',                  'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e20_loose',                  'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['e20_loose1',                 'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e20_lhloose',                'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-
+	#idperf
+	['e15_loose_ion_idperf',       'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
+	['e15_medium_ion_idperf',       'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
 	#di-electrons , timeouts ATR-10226
-	#['2e10_loose_ion',              'L1_2EM5', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	#['2e10_loose1_ion',             'L1_2EM5', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['2e10_loose_ion',               'L1_2EM7', [], [HardProbesStream, 'express'], ['RATE:MultiElectron', 'BW:Egamma'], -1],
 	#['2e10_lhloose_ion',            'L1_2EM5', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 
-	['g15_loose',                  'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g15_medium',                 'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['g20_loose',                  'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g20_medium',                 'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g15_loose',                  'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g15_medium',                 'L1_EM10', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g20_loose',                  'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+        ['g20_medium',                 'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
-	['g15_loose_ion',              'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g15_medium_ion',             'L1_EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g20_loose_ion',              'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-        ['g20_medium_ion',             'L1_EM12', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g15_loose_ion',              'L1_EM10', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+        ['g15_medium_ion',             'L1_EM10', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+        ['g20_loose_ion',              'L1_EM12', [], [HardProbesStream, 'express'], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+        ['g20_medium_ion',             'L1_EM12', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
 
 	#di-photon triggers
-	['2g15_loose',                  'L1_2EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
-	['2g15_loose_ion',              'L1_2EM10', [], [HardProbesStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['2g15_loose',                  'L1_2EM10', [], [HardProbesStream], ['RATE:MultiPhoton', 'BW:Egamma'], -1],
+	['2g15_loose_ion',              'L1_2EM10', [], [HardProbesStream], ['RATE:MultiPhoton', 'BW:Egamma'], -1],
+
+	# Monopole triggers ATR-12467
+        ['g0_hiptrt_L1EM14',                    'L1_EM14', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+	['g0_hiptrt_L1EM16',                    'L1_EM16', [], [HardProbesStream], ['RATE:SinglePhoton', 'BW:Egamma'], -1],
+
         ]
 
     TriggerFlags.BphysicsSlice.signatures = [
+	['2mu4_bDimu',                    'L1_2MU4', [], [HardProbesStream], ['RATE:Bphysics','BW:Bphys'], -1], 
+        ['2mu4_bDimu_novtx_noos',         'L1_2MU4', [], [HardProbesStream], ['RATE:Bphysics','BW:Bphys'], -1],
+	['mu4_mu4_idperf_bJpsimumu_noid',  'L1_2MU4', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring','BW:Bphys', 'BW:ID'], -1],
+	['mu13_mu13_idperf_Zmumu',     'L1_2MU6', [], [HardProbesStream, 'express'], ['RATE:IDMonitoring','BW:Bphys', 'BW:ID'], -1],
         ]
 
     TriggerFlags.CombinedSlice.signatures = [
+	['mu4_j20_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_a3_ion'] ]],
+        ['mu4_j20_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_ion'] ]],
+
+	['mu4_j25_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_a3_ion'] ]],
+        ['mu4_j25_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_ion'] ]],
+
+	['mu4_j30_a3_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_a3_ion'] ]],
+	['mu4_j30_ion_dr05', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_ion'] ]],
+
+	#supporting triggers
+	['mu4_j20_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_a3_ion'] ]],
+	['mu4_j20_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j20_ion'] ]],
+
+        ['mu4_j25_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_a3_ion'] ]],
+        ['mu4_j25_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j25_ion'] ]],
+    
+        ['mu4_j30_a3_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_a3_ion'] ]],
+        ['mu4_j30_ion', 'L1_MU4',     ['L1_MU4', ''], [HardProbesStream], ['RATE:MuonBjet', 'BW:Bjet'], -1,['serial',-1,['mu4', 'j30_ion'] ]],
         ]
    
     TriggerFlags.HeavyIonSlice.signatures = [
@@ -155,14 +266,30 @@ def setupMenu():
 
 	#ultra-central triggers
 	#physics
-        ['hi_fcalet3000_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-	['hi_fcalet3306_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-	['hi_fcalet3391_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
-	['hi_fcalet3516_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_th1_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream, 'express'],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	['hi_th2_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+	['hi_th3_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+
+	['hi_th1_ucc_L1TE12000',    'L1_TE12000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_th2_ucc_L1TE12000',    'L1_TE12000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_th3_ucc_L1TE12000',    'L1_TE12000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+
+	['hi_th1_ucc_L1TE14000',    'L1_TE14000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_th2_ucc_L1TE14000',    'L1_TE14000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_th3_ucc_L1TE14000',    'L1_TE14000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+
 	#performance/calibration
 	['hi_perf_ucc_L1TE10000',    'L1_TE10000',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
 	['hi_perf_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
         ['hi_perf_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_perfzdc_ucc_L1ZDC_A_C',    'L1_ZDC_A_C',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+        ['hi_perfzdc_ucc_L1All',    '',   [], [MinBiasStream],["BW:UltraCentral", "RATE:UltraCentral"], 1],
+
+	#ultra-peripheral
+        ['hi_loose_upc_L1ZDC_A_C_VTE50',     'L1_ZDC_A_C_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['hi_medium_upc_L1ZDC_A_C_VTE50',    'L1_ZDC_A_C_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+	['hi_tight_upc_L1ZDC_A_C_VTE50',     'L1_ZDC_A_C_VTE50',   [], [UPCStream],["BW:UPC", "RATE:UPC"], 1],
+
         ]
     
     TriggerFlags.MinBiasSlice.signatures = [
@@ -176,6 +303,7 @@ def setupMenu():
         ['mb_sp',  'L1_RD0_FILLED', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_sptrk_ion_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_idperf_ion_L1MBTS_1', 'L1_MBTS_1', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_idperf_ion_L1MBTS_1_1', 'L1_MBTS_1_1', [], [MinBiasStream, 'express'],["BW:MinBias", "RATE:MinBias"], 1],
         
 	['mb_sptrk_ion_L1ZDC_A_C_VTE50_OVERLAY',  'L1_ZDC_A_C_VTE50_OVERLAY', [], ['MinBiasOverlay'],["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 
@@ -184,9 +312,24 @@ def setupMenu():
         ['mb_lg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_hg_zdcperf_L1All',  '', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_hg_zdcperf_L1ZDC_A_C',  'L1_ZDC_A_C', [], [MinBiasStream],["BW:MinBias", "RATE:MinBias"], 1],
+
+	#UPC ATR-10574
+	['mb_sptrk_vetombts2in_L1MU0_VTE50',                 'L1_MU0_VTE50',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_vetombts2in_L1ZDC_A_C_VTE50',             'L1_ZDC_A_C_VTE50',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+
+	#photoproduction ATR-12470
+	['mb_sptrk_vetombts2in_L1ZDC_XOR_TE5_VTE200',        'L1_ZDC_XOR_TE5_VTE200',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+	['mb_sptrk_vetombts2in_L1ZDC_XOR_TRT_VTE200',        'L1_ZDC_XOR_TRT_VTE200',   [], [UPCStream], ["BW:UPC", "RATE:UPC"], -1],
+
         ]
 
     TriggerFlags.CalibSlice.signatures   = [
+
+	['idcalib_trk9_central_L1J10_VTE100',    'L1_J10_VTE100', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+        ['idcalib_trk9_fwd_L1J10_VTE100',        'L1_J10_VTE100', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+	['idcalib_trk9_central_L1J10_VTE200',    'L1_J10_VTE200', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+        ['idcalib_trk9_fwd_L1J10_VTE200',        'L1_J10_VTE200', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
+
         ['idcalib_trk9_central',    'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
         ['idcalib_trk9_fwd',        'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
         ['idcalib_trk16_central',   'L1_TAU', [], ['IDTracks'], [ 'RATE:IDTracks','BW:Detector'], -1],
@@ -198,6 +341,22 @@ def setupMenu():
         ['lumipeb_L1RD0_FILLED',         'L1_RD0_FILLED', [], ['PixelBeam'], ["RATE:Calibration", "RATE:PixelBeamCalibration", "BW:Detector"], -1],
         ['lumipeb_L1RD0_UNPAIRED_ISO',    'L1_RD0_UNPAIRED_ISO',    [], ['PixelBeam'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_L1RD0_ABORTGAPNOTCALIB',    'L1_RD0_ABORTGAPNOTCALIB',    [], ['PixelBeam'], ["RATE:Calibration", "BW:Detector"], -1],
+
+        # triggers for VdM scan
+        ['lumipeb_vdm_L1MBTS_2_BGRP9',          'L1_MBTS_2_BGRP9',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_2_BGRP11',         'L1_MBTS_2_BGRP11',         [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_2_UNPAIRED_ISO',   'L1_MBTS_2_UNPAIRED_ISO',   [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1_BGRP9',        'L1_MBTS_1_1_BGRP9',        [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1_BGRP11',       'L1_MBTS_1_1_BGRP11',       [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1_UNPAIRED_ISO', 'L1_MBTS_1_1_UNPAIRED_ISO', [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1ZDC_A_C_BGRP9',         'L1_ZDC_A_C_BGRP9',         [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1ZDC_A_C_BGRP11',        'L1_ZDC_A_C_BGRP11',        [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1ZDC_A_C_UNPAIRED_ISO',  'L1_ZDC_A_C_UNPAIRED_ISO',  [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1RD0_BGRP9',             'L1_RD0_BGRP9',             [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_2',                'L1_MBTS_2',                [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1MBTS_1_1',              'L1_MBTS_1_1',              [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1ZDC_A_C',               'L1_ZDC_A_C',               [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+
         
         # Monitoritems for saturated towers
         ['satu20em_l1satmon_L1J100_FIRSTEMPTY',  'L1_J100_FIRSTEMPTY',     [], ['L1Calo'], ['RATE:Calibration', 'BW:Detector'],-1],
@@ -219,19 +378,19 @@ def setupMenu():
         ['larnoiseburst_L1J75_XE40',            'L1_J75_XE40',       [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1], 
 
         # larpeb
-        ['g3_loose_larpeb',                      'L1_EM3',     [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g12_loose_larpeb',                      'L1_EM10VH',     [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g8_loose_larpeb',                      'L1_EM5',     [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g12_loose_larpeb',                     'L1_EM10',     [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g20_loose_larpeb_L1EM15',              'L1_EM15', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g40_loose_larpeb',                     'L1_EM20VHI', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g60_loose_larpeb',                     'L1_EM20VHI', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g80_loose_larpeb',                     'L1_EM20VHI', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g40_loose_larpeb',                     'L1_EM20', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g60_loose_larpeb',                     'L1_EM20', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g80_loose_larpeb',                     'L1_EM20', [], ['LArCells'], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['conej40_larpebj',  'L1_J12',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['conej165_larpebj', 'L1_J75',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['conej75_320eta490_larpebj',  'L1_J30.31ETA49',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1],
         ['conej140_320eta490_larpebj', 'L1_J75.31ETA49',     [], ['LArCells'], ['RATE:Calibration', 'BW:Detector'],-1],
         
         # larcalib
-        ['larcalib_L1EM3_EMPTY',    'L1_EM3_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larcalib_L1EM5_EMPTY',    'L1_EM5_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1EM7_EMPTY',    'L1_EM7_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1TAU8_EMPTY',   'L1_TAU8_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1J12_EMPTY',    'L1_J12_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
@@ -251,7 +410,7 @@ def setupMenu():
         ['id_cosmicid_L1MU11_EMPTY',        'L1_MU11_EMPTY', [], ['HLT_IDCosmic', 'express'], ['RATE:CosmicSlice', 'RATE:Cosmic_Tracking', 'BW:Detector'], -1],
 
         # CosmicCalo
-        ['larps_L1EM3_EMPTY',  'L1_EM3_EMPTY', [], ['CosmicCalo'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
+        ['larps_L1EM5_EMPTY',  'L1_EM5_EMPTY', [], ['CosmicCalo'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
         ['larps_L1EM7_EMPTY',  'L1_EM7_EMPTY', [], ['CosmicCalo'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
         ['larps_L1J12_EMPTY',  'L1_J12_EMPTY', [], ['CosmicCalo'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
         ['larps_L1J30_EMPTY',  'L1_J30_EMPTY', [], ['CosmicCalo'], ['RATE:CosmicSlice', 'RATE:Cosmic_LArCalibration', 'BW:Detector'], -1],
@@ -272,9 +431,9 @@ def setupMenu():
         ]
     TriggerFlags.StreamingSlice.signatures = [
 	#TE full calo
-	['noalg_mb_L1TE5',      'L1_TE5', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE5',      'L1_TE5', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE20',      'L1_TE20', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-        ['noalg_mb_L1TE50',      'L1_TE50', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+        ['noalg_mb_L1TE50',      'L1_TE50', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE100',      'L1_TE100', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE200',      'L1_TE200', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 	['noalg_mb_L1TE10000',      'L1_TE10000', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
@@ -282,21 +441,42 @@ def setupMenu():
 	['noalg_mb_L1TE14000',      'L1_TE14000', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 
 	#TE restricted calo
-        ['noalg_mb_L1TE3.0ETA24',      'L1_TE3.0ETA24', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-	['noalg_mb_L1TE5.0ETA24',      'L1_TE5.0ETA24', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-	['noalg_mb_L1TE10.0ETA24',      'L1_TE10.0ETA24', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-	['noalg_mb_L1TE20.0ETA24',      'L1_TE20.0ETA24', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-	['noalg_mb_L1TE30.0ETA24',      'L1_TE30.0ETA24', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+        ['noalg_mb_L1TE500.0ETA49',      'L1_TE500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE1500.0ETA49',      'L1_TE1500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE3000.0ETA49',      'L1_TE3000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE3500.0ETA49',      'L1_TE3500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE5000.0ETA49',      'L1_TE5000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE6500.0ETA49',      'L1_TE6500.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE8000.0ETA49',      'L1_TE8000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1TE9000.0ETA49',      'L1_TE9000.0ETA49', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
 
 	#min bias
         ['noalg_mb_L1MBTS_2',    'L1_MBTS_2', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-        ['noalg_mb_L1MBTS_1_1',  'L1_MBTS_1_1', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+        ['noalg_mb_L1MBTS_1_1',  'L1_MBTS_1_1', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
         ['noalg_mb_L1MBTS_2_2',  'L1_MBTS_2_2', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
-	['noalg_mb_L1ZDC_A_C',   'L1_ZDC_A_C', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1ZDC_A_C',   'L1_ZDC_A_C', [], [MinBiasStream, 'express'], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1ZDC_A',     'L1_ZDC_A', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1ZDC_C',     'L1_ZDC_C', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+	['noalg_mb_L1ZDC_AND',   'L1_ZDC_AND', [], [MinBiasStream], ["BW:MinBias", "RATE:MinBias"], 1],
+
+	#UPC+photoproduction
+	['noalg_L1ZDC_A_C_VTE50',   'L1_ZDC_A_C_VTE50', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
+	['noalg_L1ZDC_XOR',         'L1_ZDC_XOR', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
+	['noalg_L1ZDC_XOR_TE5_VTE200',   'L1_ZDC_XOR_TE5_VTE200', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
+	['noalg_L1ZDC_XOR_TRT_VTE200',   'L1_ZDC_XOR_TRT_VTE200', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
 
 	#beam spot
 	['noalg_L1J10_VTE100',   'L1_J10_VTE100', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
 	['noalg_L1J10_VTE200',   'L1_J10_VTE200', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
+	['noalg_L1MU0_VTE50',   'L1_MU0_VTE50', [], [UPCStream], ["BW:UPC", "RATE:UPC"], 1],
+
+	#muon
+	['noalg_L1MU4',    'L1_MU4', [],   [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],
+	['noalg_L1MU6',    'L1_MU6', [],  [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],	
+	['noalg_L1MU11',   'L1_MU4', [],  [HardProbesStream, 'express'], ["BW:SingleMuon", "RATE:Muon"], 1],
+	['noalg_L1MU15',   'L1_MU15', [], [HardProbesStream], ["BW:SingleMuon", "RATE:Muon"], 1],
+	['noalg_L1MU20',   'L1_MU20', [], [HardProbesStream], ["BW:SingleMuon", "RATE:Muon"], 1],
+
 
 	#jets
 	['noalg_L1J5',   'L1_J5', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
@@ -308,9 +488,32 @@ def setupMenu():
 	['noalg_L1J75',   'L1_J75', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
 	['noalg_L1J175',   'L1_J175', [], [HardProbesStream], ["BW:Jets", "RATE:Jets"], 1],
 
-	#data overlay
+	#egamma
+	['noalg_L1EM7',    'L1_EM7',  [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
+        ['noalg_L1EM8',    'L1_EM8',  [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
+	['noalg_L1EM10',   'L1_EM10', [], [HardProbesStream, 'express'], ["BW:SingleElectron", "RATE:Egamma"], 1],
+	['noalg_L1EM12',   'L1_EM12', [], [HardProbesStream, 'express'], ["BW:SingleElectron", "RATE:Egamma"], 1],
+        ['noalg_L1EM14',   'L1_EM14', [], [HardProbesStream, 'express'], ["BW:SingleElectron", "RATE:Egamma"], 1],
+	['noalg_L1EM16',   'L1_EM16', [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
+	['noalg_L1EM18',   'L1_EM18', [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
+	['noalg_L1EM20',   'L1_EM20', [], [HardProbesStream], ["BW:SingleElectron", "RATE:Egamma"], 1],
+
+	#data min-bias overlay
 	['noalg_L1ZDC_A_C_OVERLAY',   'L1_ZDC_A_C_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
 	['noalg_L1TE50_OVERLAY',   'L1_TE50_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+	
+	#TE restricted calo in |eta|<4.9   
+        ['noalg_mb_L1TE500.0ETA49_OVERLAY',       'L1_TE500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE1500.0ETA49_OVERLAY',      'L1_TE1500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE3000.0ETA49_OVERLAY',      'L1_TE3000.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE3500.0ETA49_OVERLAY',      'L1_TE3500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE5000.0ETA49_OVERLAY',      'L1_TE5000.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE6500.0ETA49_OVERLAY',      'L1_TE6500.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE8000.0ETA49_OVERLAY',      'L1_TE8000.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+        ['noalg_mb_L1TE9000.0ETA49_OVERLAY',      'L1_TE9000.0ETA49_OVERLAY', [], ['MinBiasOverlay'], ["BW:MinBiasOverlay", "RATE:MinBiasOverlay"], 1],
+
+	#data zero bias overlay
+	['noalg_zb_L1ZB',   'L1_ZB', [], ['ZeroBias'], ["BW:ZeroBias", "RATE:ZeroBias"], 1],
 
         ['noalg_L1TGC_BURST',   'L1_TGC_BURST', [], ['TgcNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
 
@@ -320,7 +523,7 @@ def setupMenu():
         ['noalg_idmon_L1RD0_UNPAIRED_ISO',   'L1_RD0_UNPAIRED_ISO', [], ['IDMonitoring'], ["RATE:Monitoring", "BW:Detector"], -1],
 
         # Cosmic calo streamer
-        ['noalg_cosmiccalo_L1EM3_EMPTY',         'L1_EM3_EMPTY',        [], ['CosmicCalo'], ["BW:MinBias", "RATE:Cosmic_Calo"], -1],
+        ['noalg_cosmiccalo_L1EM5_EMPTY',         'L1_EM5_EMPTY',        [], ['CosmicCalo'], ["BW:MinBias", "RATE:Cosmic_Calo"], -1],
         ['noalg_cosmiccalo_L1RD1_EMPTY',         'L1_RD1_EMPTY',        [], ['CosmicCalo', 'express'], ["RATE:Calibration", "BW:Detector"], -1],
         ['noalg_cosmiccalo_L1J3031ETA49_EMPTY',  'L1_J30.31ETA49_EMPTY',[], ['CosmicCalo'], ["BW:Jets", "RATE:Cosmic_Calo"], -1],
         ['noalg_cosmiccalo_L1J12_EMPTY',         'L1_J12_EMPTY',        [], ['CosmicCalo', 'express'], ["BW:Jets", "RATE:Cosmic_Calo"], -1],
@@ -332,6 +535,14 @@ def setupMenu():
         #DCM level monitoring test chain
         ['noalg_dcmmon_L1RD0_EMPTY',   'L1_RD0_EMPTY',        [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1],
         
+	#standby
+	['noalg_standby_L1RD0_FILLED', 'L1_RD0_FILLED', [], ['Standby'], ["RATE:MinBias", "BW:MinBias"], -1],
+        ['noalg_standby_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['Standby'], ["RATE:CoMinBias", "BW:MinBias"], -1],
+	['noalg_L1Standby',              'L1_Standby',          [], ['Standby'],    ["RATE:SeededStreamers", "BW:Other"], -1],
+
+        ['noalg_L1Topo',                           'L1_Topo',             [], ['L1Calo'],     ["RATE:SeededStreamers", "BW:Other"], -1], 
+        ['noalg_larcells_L1LAR-EM',                'L1_LAR-EM',           [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1],
+        ['noalg_larcells_L1LAR-J',                 'L1_LAR-J',            [], ['LArCells'],     ["RATE:SeededStreamers", "BW:Other"], -1],
         ]
 
     TriggerFlags.BeamspotSlice.signatures = [
@@ -342,6 +553,11 @@ def setupMenu():
 	['beamspot_activeTE_trkfast_peb_L1J10_VTE200',           'L1_J10_VTE200', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
         ['beamspot_allTE_trkfast_pebTRT_L1J10_VTE200',           'L1_J10_VTE200', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
         ['beamspot_trkFS_trkfast_L1J10_VTE200',                  'L1_J10_VTE200', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+
+	['beamspot_activeTE_trkfast_peb_L1TE5_VTE200',           'L1_TE5_VTE200', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_pebTRT_L1TE5_VTE200',           'L1_TE5_VTE200', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_trkFS_trkfast_L1TE5_VTE200',                  'L1_TE5_VTE200', [], ["BeamSpot"], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+
 	]
 
     TriggerFlags.MonitorSlice.signatures = [

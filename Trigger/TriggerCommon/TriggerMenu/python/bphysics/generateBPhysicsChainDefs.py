@@ -341,6 +341,24 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_Jpsi_passL2()
         EFFex  = EFBMuMuFex_Jpsi()
         EFHypo = EFBMuMuHypo_Jpsi() 
+    elif ('bDimu' in topoAlgs) & ('noEFbph' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_passEF
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_passEF
+        L2Fex  = L2BMuMuFex_DiMu() 
+        L2Hypo = L2BMuMuHypo_DiMu()
+        EFFex  = EFBMuMuFex_passEF()
+        EFHypo = EFBMuMuHypo_passEF() 
+    elif ('bJpsimumu' in topoAlgs) & ('noEFbph' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_passEF
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_passEF
+        L2Fex  = L2BMuMuFex_Jpsi()
+        L2Hypo = L2BMuMuHypo_Jpsi()
+        EFFex  = EFBMuMuFex_passEF()
+        EFHypo = EFBMuMuHypo_passEF() 
     else:
         logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
@@ -533,6 +551,13 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
         L2Fex  = L2BMuMuFex_1()
         L2Hypo = L2BMuMuHypo_1()
+        
+    # noL2 option to skip dimuon selection at L2
+    if 'noL2' in topoAlgs:
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_passL2
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
+        L2Fex  = L2BMuMuFex_DiMu_passL2()
+        L2Hypo = L2BMuMuHypo_DiMu_passL2()
 
     if 'bBmumuxv3' in topoAlgs:
         L2TEcount = 0; L2outTEs = []

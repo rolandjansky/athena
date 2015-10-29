@@ -192,10 +192,13 @@ def main():
         generateL1Menu(menu="DC14", useTopoMenu="Physics_pp_v5")
         return 0
 
-    if sys.argv[1].lower().startswith("hi"):
+    if sys.argv[1].lower().startswith("hiphy"):
         generateL1Menu(menu="Physics_HI_v3")
         return 0
 
+    if sys.argv[1].lower().startswith("himc"):
+        generateL1Menu(menu="MC_HI_v3")
+        return 0
 
 if __name__=="__main__":
     sys.exit( main() )

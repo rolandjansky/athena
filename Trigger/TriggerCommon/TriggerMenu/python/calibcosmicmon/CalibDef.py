@@ -192,18 +192,23 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
    # TrkCalibChains
    ###########################################################################
    def setupTrkCalibChains(self):
-      self.AlgoName = self.hypo+'_'+self.location
+      #self.AlgoName = self.hypo+'_'+self.location
+      self.AlgoName = self.chainName
       self.AlgList = []
       self.signatureCounterOffset = 14
 
       from TrigDetCalib.TrigDetCalibConfig import *
       trkAlgDict = {
-         'trk9_central'  : CheckForTracks_Trk9_Central('CheckForTracks_Trk9_Central'),
-         'trk16_central' : CheckForTracks_Trk16_Central('CheckForTracks_Trk16_Central'),
-         'trk29_central' : CheckForTracks_Trk29_Central('CheckForTracks_Trk29_Central'),
-         'trk9_fwd'      : CheckForTracks_Trk9_Fwd('CheckForTracks_Trk9_Fwd'),
-         'trk16_fwd'     : CheckForTracks_Trk16_Fwd('CheckForTracks_Trk16_Fwd'),
-         'trk29_fwd'     : CheckForTracks_Trk29_Fwd('CheckForTracks_Trk29_Fwd'),
+         'idcalib_trk9_central'  : CheckForTracks_Trk9_Central('CheckForTracks_Trk9_Central'),
+         'idcalib_trk16_central' : CheckForTracks_Trk16_Central('CheckForTracks_Trk16_Central'),
+         'idcalib_trk29_central' : CheckForTracks_Trk29_Central('CheckForTracks_Trk29_Central'),
+         'idcalib_trk9_fwd'      : CheckForTracks_Trk9_Fwd('CheckForTracks_Trk9_Fwd'),
+         'idcalib_trk16_fwd'     : CheckForTracks_Trk16_Fwd('CheckForTracks_Trk16_Fwd'),
+         'idcalib_trk29_fwd'     : CheckForTracks_Trk29_Fwd('CheckForTracks_Trk29_Fwd'),
+         'idcalib_trk9_central_L1J10_VTE100'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_1'),
+         'idcalib_trk9_fwd_L1J10_VTE100'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_1'),
+         'idcalib_trk9_central_L1J10_VTE200'  : CheckForTracks_Trk9_Central_Beamspot('CheckForTracks_Trk9_Central_Beamspot_2'),
+         'idcalib_trk9_fwd_L1J10_VTE200'  : CheckForTracks_Trk9_Fwd_Beamspot('CheckForTracks_Trk9_Fwd_Beamspot_2'),
          }
       for name, alg in trkAlgDict.items():
          if self.AlgoName == name:

@@ -65,11 +65,48 @@ def getL1BackgroundSeed(menul1items):
             
     return l1background_seeds
 
+##############################
+def getL1_ALFA_Diff_Phys_Seeds(menul1items):        
+    # comma separated list fo l1 seeds
+    l1_seeds = 'L1_ALFA_SDIFF5,L1_ALFA_SDIFF6,L1_ALFA_SDIFF7,L1_ALFA_SDIFF8,L1_MBTS_1_A_ALFA_C,L1_MBTS_1_C_ALFA_A,L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO,L1_MBTS_2_A_ALFA_C,L1_MBTS_2_C_ALFA_A,L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO,L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO,L1_LUCID_A_ALFA_C,L1_LUCID_C_ALFA_A,L1_LUCID_A_ALFA_C_UNPAIRED_ISO,L1_LUCID_C_ALFA_A_UNPAIRED_ISO,L1_EM3_ALFA_ANY,L1_EM3_ALFA_ANY_UNPAIRED_ISO,L1_TE5_ALFA_ANY,L1_TE5_ALFA_ANY_UNPAIRED_ISO'
+     
+    # check if all the l1 background seeds given are in the current L1 menu
+    l1items = l1_seeds.split(',')
+    for item in l1items:
+        if item not in menul1items:
+            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            
+    return l1_seeds
+
+##############################
+def getL1_ALFA_CDiff_Phys_Seeds (menul1items):        
+    # comma separated list fo l1 seeds
+    l1_seeds = 'L1_EM3_ALFA_EINE,L1_TE5_ALFA_EINE'
+     
+    # check if all the l1 background seeds given are in the current L1 menu
+    l1items = l1_seeds.split(',')
+    for item in l1items:
+        if item not in menul1items:
+            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            
+    return l1_seeds
+##############################
+def getL1_ALFA_Jet_Phys_Seeds (menul1items):        
+    # comma separated list fo l1 seeds
+    l1_seeds = 'L1_J12_ALFA_ANY,L1_J12_ALFA_ANY_UNPAIRED_ISO'
+     
+    # check if all the l1 background seeds given are in the current L1 menu
+    l1items = l1_seeds.split(',')
+    for item in l1items:
+        if item not in menul1items:
+            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            
+    return l1_seeds
 
 
 ##############################
 def getL1StandbySeed(l1items):        
-    standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "ALFA" not in x  and "RD" not in x])
+    standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "ALFA" not in x  and "RD" not in x and "BCM" not in x and "BGRP12" not in x])
     return standby_seeds
 ##############################
 def getL1TopoSeed(l1items):
@@ -179,7 +216,7 @@ def getL1_ALFA_Phys_Any(l1seed):
 ##############################
 def getL1ALFA_Calib(l1seed):
 
-    L1ALFA_Calib_seeds = 'L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib,L1_BGRP1_ALFA_BGT,L1_BGRP4_ALFA_BGT,L1_BGRP10_ALFA_BGT,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L,L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
+    L1ALFA_Calib_seeds = 'L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib,L1_ALFA_BGT,L1_ALFA_BGT_UNPAIRED_ISO,L1_ALFA_BGT_BGRP10,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L,L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
 
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1ALFA_Calib_seeds.split(',')
@@ -256,6 +293,12 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     L1Seed = ''
     if (l1seedname == 'L1_Bkg'):
         L1Seed = getL1BackgroundSeed(l1items)
+    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
+        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
+    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
+        L1Seed = getL1_ALFA_CDiff_Phys_Seeds(l1items)
+    elif (l1seedname == 'L1_ALFA_Jet_Phys' ):
+        L1Seed = getL1_ALFA_Jet_Phys_Seeds(l1items)
 
     elif (l1seedname in ['L1_PhysicsLow_noPS', 'L1_PhysicsHigh_noPS', 'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS']):
         L1Seed =  getEBnoL1PSSeed(l1items, l1seedname)

@@ -14,6 +14,8 @@ logPhotonDef = logging.getLogger("TriggerMenu.egamma.PhotonDef")
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.TriggerPythonConfig import *
 from TriggerMenu.menu.HltConfig import *
+from TriggerMenu.egamma.EgammaCleanMonitoring import *
+from TriggerMenu.menu.CleanMonitoring import *
 
 ##################
 #
@@ -140,7 +142,7 @@ class L2EFChain_g(L2EFChainDef):
         theTrigCaloTowerMaker_eGamma       = TrigCaloTowerMaker_eGamma()
         theTrigCaloClusterMaker_slw        = TrigCaloClusterMaker_slw()
 
-
+        disableMon = not KeepMonitoring(self.chainName,EgammaChainsToKeepMonitoring)
 
         from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon
         theTrigEFCaloCalibFex = TrigEFCaloCalibFex_Photon()
@@ -192,6 +194,7 @@ class L2EFChain_g(L2EFChainDef):
             theTrigEgammaFex = TrigEgammaRec_NoIDEF_eGamma()
 
         ########### Sequences ###########
+        if ( disableMon ) : theL2CaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theL2CaloHypo.AthenaMonTools)
         
         if 'ringer' in self.chainPart['addInfo']:
             self.L2sequenceList += [[self.L2InputTE, 
@@ -214,10 +217,16 @@ class L2EFChain_g(L2EFChainDef):
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
                                  'EF_g_step1']]
         
+        #if ( disableMon ) : theTrigEFCaloCalibFex.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEFCaloCalibFex.AthenaMonTools)
+        if ( disableMon ) : theTrigEFCaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEFCaloHypo.AthenaMonTools)
+
         self.EFsequenceList += [[['EF_g_step1'], 
                                  [theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
                                  'EF_g_step2']]
         
+        #if ( disableMon ) : theTrigEgammaFex.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEgammaFex.AthenaMonTools)
+        if ( disableMon ) : theEFPhotonHypo.AthenaMonTools=DisableMonitoringButValAndTime(theEFPhotonHypo.AthenaMonTools)
+
         self.EFsequenceList += [[['EF_g_step2'], 
                                  [theTrigEgammaFex, theEFPhotonHypo],
                                  'EF_g_step3']]
@@ -309,18 +318,18 @@ class L2EFChain_g(L2EFChainDef):
             theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g"+str(threshold)+"_NoCut_heavyIon",threshold)
         elif self.chainPart['IDinfo']:
             from TrigEgammaHypo.TrigEFPhotonHypoConfig import EFPhotonHypo_g_ID_CaloOnly
-            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g7
-            from TrigEgammaHypo.TrigL2PhotonHypoConfig import *
-            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_g_ID
+            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_g_nocut
+            from TrigEgammaHypo.TrigL2PhotonHypoConfig import L2PhotonHypo_g_EtCut
+            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             # L2 Calo
             if 'ringer' in self.chainPart['addInfo']:
                 theL2CaloHypo           = TrigRingerNeuralHypoConfig("TrigRingerNeuralHypo_g"+str(threshold)  )
             else:
-                theL2CaloHypo = L2CaloHypo_g7()
+                theL2CaloHypo = L2CaloHypo_g_nocut()
             #theL2PhotonHypo = eval("L2PhotonHypo_"+algoSuffix)
-            theL2PhotonHypo  = L2PhotonHypo_g_ID("L2PhotonHypo_g"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
+            theL2PhotonHypo  = L2PhotonHypo_g_EtCut("L2PhotonHypo_g"+str(threshold)+"_EtCut",threshold )
             # EF Calo
-            theTrigEFCaloHypo = TrigEFCaloHypo_g_ID("TrigEFCaloHypo_g"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo);
+            theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_g"+str(threshold)+"_EtCut_heavyIon",threshold);
             theEFPhotonHypo  = EFPhotonHypo_g_ID_CaloOnly("EFPhotonHypo_g"+str(threshold)+"_"+str(IDinfo)+"_heavyIon",threshold,IDinfo)
         else:
             log.error('Chain %s could not be assembled' % (self.chainPartName))
@@ -491,6 +500,8 @@ class L2EFChain_g(L2EFChainDef):
         from TrigTRTHighTHitCounter.TrigTRTHighTHitCounterConf import TrigTRTHTHCounter,TrigTRTHTHhypo
         theL2CaloHypo      = L2CaloHypo_g_nocut()
         theEFPhotonHypo  = EFPhotonHypo_g_NoCut("TrigEFPhotonHypo_g_hiptrt_NoCut",0)
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [theTRTDataPrep] = TrigInDetSequence("Electron","electron","TRTdata").getSequence()
         theTrigTRTHTHCounter = TrigTRTHTHCounter()
         theTrigTRTHTHhypo = TrigTRTHTHhypo()
             
@@ -501,16 +512,12 @@ class L2EFChain_g(L2EFChainDef):
 
 
         ########### Sequences ###########
-        
+      
         self.L2sequenceList += [[self.L2InputTE, 
-                                 [theT2CaloEgamma_eGamma, theL2CaloHypo], 
-                                 'L2_g_step1']]
+                                  theTRTDataPrep+[theTrigTRTHTHCounter, theTrigTRTHTHhypo],
+                                  'L2_g_step1']]
 
-        self.L2sequenceList += [[['L2_g_step1'], 
-                                  [theTrigTRTHTHCounter, theTrigTRTHTHhypo],
-                                  'L2_g_step2']]
-
-        self.EFsequenceList += [[['L2_g_step2'], 
+        self.EFsequenceList += [[['L2_g_step1'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
                                  'EF_g_step1']]
         
@@ -527,15 +534,13 @@ class L2EFChain_g(L2EFChainDef):
         ########### Signatures ###########
 
         self.L2signatureList += [ [['L2_g_step1']*self.mult] ]
-        self.L2signatureList += [ [['L2_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
         ########### TE renaming ###########
 
         self.TErenamingDict = {
-            'L2_g_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_calo'),
-            'L2_g_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
+            'L2_g_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
             'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
 #            'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),

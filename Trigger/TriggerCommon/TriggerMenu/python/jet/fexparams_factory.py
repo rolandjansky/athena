@@ -61,7 +61,7 @@ class _JetFexParams(object):
                 str(merge_param))
             raise RuntimeError(m)
 
-        if not merge_param in (2, 4, 10):
+        if not merge_param in (2, 3, 4, 10):
             m = '%s._check_args: unsupported merge_param %d' % (
                 self.__class__.__name__,
                 merge_param)
