@@ -28,19 +28,6 @@
 #include <stdexcept>
 #include <cmath> // For pow
 
-#include "unistd.h"
-#include <signal.h>
-
-namespace SharedEvtQueueConsumer_d {
-  bool sig_done = false;
-  void pauseForDebug(int /*sig*/) {
-    // std::cout << "Continuing after receiving signal " 
-    // 	    << sig << std::endl;
-    sig_done = true;
-  }
-}
-
-
 SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
 					       , const std::string& name
 					       , const IInterface* parent)
@@ -241,22 +228,7 @@ void SharedEvtQueueConsumer::subProcessLogs(std::vector<std::string>& filenames)
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::bootstrap_func()
 {
-
-  if (m_debug) {
-    ATH_MSG_INFO("Bootstrap worker PID " << getpid() << " - waiting for SIGUSR1");
-    sigset_t mask, oldmask;
-    
-    signal(SIGUSR1, SharedEvtQueueConsumer_d::pauseForDebug);
-    
-    sigemptyset (&mask);
-    sigaddset (&mask, SIGUSR1);
-    
-    sigprocmask (SIG_BLOCK, &mask, &oldmask);
-    while (!SharedEvtQueueConsumer_d::sig_done)
-      sigsuspend (&oldmask);
-    sigprocmask (SIG_UNBLOCK, &mask, NULL);
-  }
-
+  if(m_debug) waitForSignal();
 
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
@@ -296,11 +268,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
     return outwork;
   }
 
-  // ________________________ Redirect logs ________________________
-  if(redirectLog(worker_rundir.string()))
-    return outwork;
+  // __________ Redirect logs unless we want to attach debugger ____________
+  if(!m_debug) {
+    if(redirectLog(worker_rundir.string()))
+      return outwork;
 
-  msg(MSG::INFO) << "Logs redirected in the AthenaMP event worker PID=" << getpid() << endreq;
+    msg(MSG::INFO) << "Logs redirected in the AthenaMP event worker PID=" << getpid() << endreq;
+  }
 
   // ________________________ Update Io Registry ____________________________
   if(updateIoReg(worker_rundir.string()))

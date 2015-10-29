@@ -20,6 +20,16 @@
 
 #include <iterator>
 
+#include "unistd.h"
+#include <signal.h>
+
+namespace AthenaMPToolBase_d {
+  bool sig_done = false;
+  void pauseForDebug(int /*sig*/) {
+    sig_done = true;
+  }
+}
+
 AthenaMPToolBase::AthenaMPToolBase(const std::string& type
 				   , const std::string& name
 				   , const IInterface* parent)
@@ -45,16 +55,16 @@ AthenaMPToolBase::~AthenaMPToolBase()
 
 StatusCode AthenaMPToolBase::initialize()
 {
-  msg(MSG::DEBUG) << "In initialize" << endreq;
+  ATH_MSG_DEBUG("In initialize");
   StatusCode sc = m_evtProcessor.retrieve();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Error retrieving wrapped Event Loop Manager" <<  endreq;
+    ATH_MSG_ERROR("Error retrieving wrapped Event Loop Manager");
     return sc;
   }
 
   sc = m_appMgr.retrieve();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Error retrieving ApplicationMgr" <<  endreq;
+    ATH_MSG_ERROR("Error retrieving ApplicationMgr");
     return sc;
   }
 
@@ -64,18 +74,18 @@ StatusCode AthenaMPToolBase::initialize()
     m_evtSelName = prpMgr->getProperty("EvtSel").toString();
     sc = serviceLocator()->service(m_evtSelName,m_evtSelector);
     if(sc.isFailure() || m_evtSelector==0) {
-      msg(MSG::ERROR) << "Error retrieving EventSelector" << endreq;
+      ATH_MSG_ERROR("Error retrieving EventSelector");
       return StatusCode::FAILURE;
     }
   }
   else {
-    msg(MSG::ERROR) << "IProperty interface not found in ApplicationMgr" << endreq;
+    ATH_MSG_ERROR("IProperty interface not found in ApplicationMgr");
     return StatusCode::FAILURE;
   }
 
   sc = m_fileMgr.retrieve();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Error retrieving FileMgr" <<  endreq;
+    ATH_MSG_ERROR("Error retrieving FileMgr");
     return sc;
   }
 
@@ -84,7 +94,7 @@ StatusCode AthenaMPToolBase::initialize()
     m_fileMgrLog = prpMgr1->getProperty("LogFile").toString();
   }
   else {
-    msg(MSG::ERROR) << "IProperty interface not found in FileMgr" << endreq;
+    ATH_MSG_ERROR("IProperty interface not found in FileMgr");
     return StatusCode::FAILURE;
   }
 
@@ -106,10 +116,10 @@ StatusCode AthenaMPToolBase::wait_once(pid_t& pid)
   }
   else {
     if(pid<0) { // Wait failed on the group
-      msg(MSG::ERROR) << "Wait failed on the Process Group!" << endreq;
+      ATH_MSG_ERROR("Wait failed on the Process Group!");
     }
     else {
-      msg(MSG::WARNING) << "Abnormal termination of the process PID=" << pid << endreq; 
+      ATH_MSG_WARNING("Abnormal termination of the process PID=" << pid); 
     }
     return StatusCode::FAILURE;
   }
@@ -117,10 +127,10 @@ StatusCode AthenaMPToolBase::wait_once(pid_t& pid)
 
 void AthenaMPToolBase::reportSubprocessStatuses()
 {
-  msg(MSG::INFO) << "Statuses of sub-processes" << endreq;
+  ATH_MSG_INFO("Statuses of sub-processes");
   const std::vector<AthenaInterprocess::ProcessStatus>& statuses = m_processGroup->getStatuses();
   for(size_t i=0; i<statuses.size(); ++i)
-    msg(MSG::INFO) << "*** Process PID=" << statuses[i].pid << ". Status " << ((statuses[i].exitcode)?"FAILURE":"SUCCESS") << endreq;
+    ATH_MSG_INFO("*** Process PID=" << statuses[i].pid << ". Status " << ((statuses[i].exitcode)?"FAILURE":"SUCCESS"));
 }
 
 AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
@@ -128,7 +138,7 @@ AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
   AthenaMP::AllWorkerOutputs_ptr jobOutputs(new AthenaMP::AllWorkerOutputs());
 
   if(m_fileMgrLog.empty()) {
-    msg(MSG::WARNING) << name() << " cannot make output report because FileMgr has not been configured to write log file!" << endreq;
+    ATH_MSG_WARNING(name() << " cannot make output report because FileMgr has not been configured to write log file!");
   }
   else {
     // Collect output files made by the workers
@@ -142,11 +152,11 @@ AthenaMP::AllWorkerOutputs_ptr AthenaMPToolBase::generateOutputReport()
       boost::filesystem::path logFile(logFilePath);
       logFile /= boost::filesystem::path(m_fileMgrLog);
       if(!(boost::filesystem::exists(logFile)&&boost::filesystem::is_regular_file(logFile))) {
-        msg(MSG::WARNING) << logFile.string() << " either does not exist or is not a regular file. Skipping" << endreq;
+        ATH_MSG_WARNING(logFile.string() << " either does not exist or is not a regular file. Skipping");
         continue;
       }
 
-      msg(MSG::DEBUG) << "FileMgr log file (" << i << ") " << logFile << endreq;
+      ATH_MSG_DEBUG("FileMgr log file (" << i << ") " << logFile);
 
       std::ifstream inpStream(logFile.string().c_str());
       std::set<std::string> reportedFiles; // Don't report the same file twice
@@ -238,13 +248,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> AthenaMPToolBase::operator()(
       }
     default:
       {
-	msg(MSG::ERROR) << "Unexpected value for the function flag" << endreq;
+	ATH_MSG_ERROR("Unexpected value for the function flag");
         all_ok = false;
       }
     }
   }
   else {
-    msg(MSG::ERROR) << "Unexpected parameter size" << endreq;
+    ATH_MSG_ERROR("Unexpected parameter size");
     all_ok = false;
   }
 
@@ -265,9 +275,9 @@ int AthenaMPToolBase::mapAsyncFlag(Func_Flag flag, pid_t pid)
   params.size = sizeof(flag);
   if(m_processGroup->map_async(this,&params,pid)){
     if(pid)
-      msg(MSG::ERROR) << "Unable to map the flag on subprocess pid=" << pid << endreq;
+      ATH_MSG_ERROR("Unable to map the flag on subprocess pid=" << pid);
     else
-      msg(MSG::ERROR) << "Unable to map the flag on all subprocesses in the group" << endreq;
+      ATH_MSG_ERROR("Unable to map the flag on all subprocesses in the group");
     return -1;
   }
   return 0;
@@ -280,18 +290,18 @@ int AthenaMPToolBase::redirectLog(const std::string& rundir)
 
   int newout = open(std::string(rundir+"/AthenaMP.log").c_str(),O_CREAT | O_RDWR, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
   if(newout==-1) {
-    msg(MSG::ERROR) << "Unable to open log file in the run directory. " << strerror(errno) << endreq;
+    ATH_MSG_ERROR("Unable to open log file in the run directory. " << strerror(errno));
     return -1;
   }
   dup2result1 = dup2(newout, STDOUT_FILENO);
   dup2result2 = dup2(newout, STDERR_FILENO);
   TEMP_FAILURE_RETRY(close(newout));
   if(dup2result1==-1) {
-    msg(MSG::ERROR) << "Unable to redirect standard output. " << strerror(errno) << endreq;
+    ATH_MSG_ERROR("Unable to redirect standard output. " << strerror(errno));
     return -1;
   }
   if(dup2result2==-1) {
-    msg(MSG::ERROR) << "Unable to redirect standard error. " << strerror(errno) << endreq;
+    ATH_MSG_ERROR("Unable to redirect standard error. " << strerror(errno));
     return -1;
   }
 
@@ -301,19 +311,19 @@ int AthenaMPToolBase::redirectLog(const std::string& rundir)
 int AthenaMPToolBase::updateIoReg(const std::string& rundir)
 {
   if (!m_ioMgr.retrieve().isSuccess()) {
-    msg(MSG::ERROR) << "Error retrieving IoComponentMgr" << endreq;
+    ATH_MSG_ERROR("Error retrieving IoComponentMgr");
     return -1;
   } else {
-    msg(MSG::DEBUG) << "Successfully retrieved IoComponentMgr" << endreq;
+    ATH_MSG_DEBUG("Successfully retrieved IoComponentMgr");
   }
 
   // update the IoRegistry for the new workdir - make sure we use absolute path
   boost::filesystem::path abs_rundir = boost::filesystem::absolute(rundir);
   if(!m_ioMgr->io_update_all(abs_rundir.string()).isSuccess()) {
-    msg(MSG::ERROR) << "Error updating IoRegistry" << endreq;
+    ATH_MSG_ERROR("Error updating IoRegistry");
     return -1;
   } else {
-    msg(MSG::DEBUG) << "Successfully updated IoRegistry" << endreq;
+    ATH_MSG_DEBUG("Successfully updated IoRegistry");
   }
 
   return 0;
@@ -331,13 +341,13 @@ int AthenaMPToolBase::reopenFds()
   std::vector<const Io::FileAttr*>::const_iterator itFile;
   unsigned filenum = m_fileMgr->getFiles(filemgrFiles); // Get attributes for open files only. We don't care about closed ones at this point
   if(filenum!=filemgrFiles.size())
-    msg(MSG::WARNING) << "getFiles returned " << filenum << " while vector size is " << filemgrFiles.size() << endreq;
+    ATH_MSG_WARNING("getFiles returned " << filenum << " while vector size is " << filemgrFiles.size());
   
   for(itFile=filemgrFiles.begin();itFile!=filemgrFiles.end();++itFile) {
-    msg(MSG::DEBUG) << "* " << **itFile << endreq;
+    ATH_MSG_DEBUG("* " << **itFile);
     const std::string& filename = (**itFile).name();
     Io::Fd fd = (**itFile).fd();
-    msg(MSG::DEBUG) << "FLAGS: " << (**itFile).flags() << endreq;
+    ATH_MSG_DEBUG("FLAGS: " << (**itFile).flags());
     
     if(reopenFd(fd,filename))
       return -1;
@@ -350,10 +360,10 @@ int AthenaMPToolBase::reopenFds()
   for(;it!=itEnd;++it) {
     AthenaInterprocess::FdsRegistryEntry regEntry = *it;
     if(fdLog.find(regEntry.fd)!=fdLog.end()) {
-      msg(MSG::DEBUG) << "The file from FdsRegistry " << regEntry.name << " was registered with FileMgr. Skip reopening" << endreq;
+      ATH_MSG_DEBUG("The file from FdsRegistry " << regEntry.name << " was registered with FileMgr. Skip reopening");
     }
     else {
-      msg(MSG::WARNING) << "The file " << regEntry.name << " has not been registered with the FileMgr!" << endreq;
+      ATH_MSG_WARNING("The file " << regEntry.name << " has not been registered with the FileMgr!");
       
       if(reopenFd(regEntry.fd,regEntry.name))
         return -1;
@@ -371,22 +381,37 @@ int AthenaMPToolBase::handleSavedPfc(const boost::filesystem::path& dest_path)
   return 0;
 }
 
+void AthenaMPToolBase::waitForSignal()
+{
+  ATH_MSG_INFO("Bootstrap worker PID " << getpid() << " - waiting for SIGUSR1");
+  sigset_t mask, oldmask;
+  
+  signal(SIGUSR1, AthenaMPToolBase_d::pauseForDebug);
+  
+  sigemptyset (&mask);
+  sigaddset (&mask, SIGUSR1);
+  
+  sigprocmask (SIG_BLOCK, &mask, &oldmask);
+  while (!AthenaMPToolBase_d::sig_done)
+    sigsuspend (&oldmask);
+  sigprocmask (SIG_UNBLOCK, &mask, NULL);
+}
+
 int AthenaMPToolBase::reopenFd(int fd, const std::string& name)
 {
-  msg(MSG::DEBUG) << "Attempting to reopen descriptor for " << name << endreq;
+  ATH_MSG_DEBUG("Attempting to reopen descriptor for " << name);
   int old_openflags = fcntl(fd,F_GETFL,0);
-  msg(MSG::DEBUG) << "The File Access Mode is ";
   switch(old_openflags & O_ACCMODE) {
   case O_RDONLY: {
-    msg(MSG::DEBUG) << "RDONLY" << endreq;
+    ATH_MSG_DEBUG("The File Access Mode is RDONLY");
     break;
   }
   case O_WRONLY: {
-    msg(MSG::DEBUG) << "WRONLY" << endreq;
+    ATH_MSG_DEBUG("The File Access Mode is WRONLY");
     break;
   }
   case O_RDWR: {
-    msg(MSG::DEBUG) << "RDWR" << endreq;
+    ATH_MSG_DEBUG("The File Access Mode is RDWR");
     break;
   }
   }
@@ -395,32 +420,32 @@ int AthenaMPToolBase::reopenFd(int fd, const std::string& name)
   off_t oldpos = lseek(fd,0,SEEK_CUR);
   if(oldpos==-1) {
     if(errno==ESPIPE) {
-      msg(MSG::WARNING) << "Dealing with PIPE. Skipping ... (FIXME!)" << endreq;
+      ATH_MSG_WARNING("Dealing with PIPE. Skipping ... (FIXME!)");
     }
     else {
-      msg(MSG::ERROR) << "When re-opening file descriptors lseek failed on " << name << ". " << strerror(errno) << endreq;
+      ATH_MSG_ERROR("When re-opening file descriptors lseek failed on " << name << ". " << strerror(errno));
       return -1;
     }
   }
   else {
     Io::Fd newfd = open(name.c_str(),old_openflags);
     if(newfd==-1) {
-      msg(MSG::ERROR) << "When re-opening file descriptors unable to open " << name << " for reading. " << strerror(errno) << endreq;
+      ATH_MSG_ERROR("When re-opening file descriptors unable to open " << name << " for reading. " << strerror(errno));
       return -1;
     }
     if(lseek(newfd,oldpos,SEEK_SET)==-1){
-      msg(MSG::ERROR) << "When re-opening file descriptors lseek failed on the newly opened " << name << ". " << strerror(errno) << endreq;
+      ATH_MSG_ERROR("When re-opening file descriptors lseek failed on the newly opened " << name << ". " << strerror(errno));
       TEMP_FAILURE_RETRY(close(newfd));
       return -1;
     }
     TEMP_FAILURE_RETRY(close(fd));
     if(dup2(newfd,fd)==-1) {
-      msg(MSG::ERROR) << "When re-opening file descriptors unable to duplicate descriptor for " << name << ". " << strerror(errno) << endreq;
+      ATH_MSG_ERROR("When re-opening file descriptors unable to duplicate descriptor for " << name << ". " << strerror(errno));
       TEMP_FAILURE_RETRY(close(newfd));
       return -1;
     }
     if(fcntl(fd,F_SETFD,old_descflags)==-1) {
-      msg(MSG::ERROR) << "When re-opening file descriptors unable to set descriptor flags for " << name << ". " << strerror(errno) << endreq;
+      ATH_MSG_ERROR("When re-opening file descriptors unable to set descriptor flags for " << name << ". " << strerror(errno));
       TEMP_FAILURE_RETRY(close(newfd));
       return -1;
     }
