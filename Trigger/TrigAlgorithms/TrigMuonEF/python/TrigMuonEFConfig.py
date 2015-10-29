@@ -265,6 +265,7 @@ def TMEF_TrkToTrackParticleConvTool(name="TMEF_TrkToTrackParticleConvTool",**kwa
 def TMEF_MuonCombinedTool(name="TMEF_MuonCombinedTool",**kwargs):
     #protectedInclude ("MuidExample/MuonIdentification_jobOptions.py")
     kwargs.setdefault("MuonCombinedTagTools", [ "TMEF_MuonCombinedFitTagTool" ] )                                                
+   # kwargs.setdefault("PtBalancePreSelection", 0.75)
     return CfgMgr.MuonCombined__MuonCombinedTool(name,**kwargs)
 
 def TMEF_MuidMuonRecovery(name='TMEF_MuidMuonRecovery',**kwargs):
@@ -419,7 +420,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxCscHits      = 0
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
-        self.doCache = False
+        self.doCache = True
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"                

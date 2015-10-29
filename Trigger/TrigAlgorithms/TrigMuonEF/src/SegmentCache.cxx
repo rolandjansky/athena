@@ -49,6 +49,6 @@ void SegmentCache::SetSpectrometerTrackCollection( const TrackCollection* msTrac
   m_msTracks = msTracks;
 }
 
-void SegmentCache::SetExtrapolatedTrackCollection( const TrackCollection* saTracks ) {
+void SegmentCache::SetExtrapolatedTrackCollection( TrackCollection* saTracks ) {
   m_saTracks = saTracks;
 }
