@@ -48,6 +48,7 @@ class EFTauMVHypo : public HLT::HypoAlgo {
   /** min numTrack cut **/
   int m_numTrackMin;
   int m_numTrackMax;
+  int m_numWideTrackMax;
 
   double m_EtCalibMin;
 
@@ -59,6 +60,7 @@ class EFTauMVHypo : public HLT::HypoAlgo {
 
   /** variables used for cuts in hypo algorithm */   
   int m_numTrack;
+  int m_numWideTrack;
 
   double m_LLHScore;
   double m_BDTScore;

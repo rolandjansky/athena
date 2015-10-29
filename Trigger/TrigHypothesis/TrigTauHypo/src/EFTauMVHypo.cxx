@@ -41,6 +41,7 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
 // however we assume if one parameter is set from outside then they all set ok.
   declareProperty("NTrackMin", m_numTrackMin = -999);
   declareProperty("NTrackMax", m_numTrackMax = 0);
+  declareProperty("NWideTrackMax", m_numWideTrackMax = 999);
   declareProperty("EtCalibMin",m_EtCalibMin  = -10000.);
   declareProperty("Level",     m_level       = -1);
   declareProperty("Method",    m_method      = 0);
@@ -74,6 +75,7 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: EFTauMVHypo will cut on "<<endreq;
   msg() << MSG::INFO << " REGTEST: param NTrackMin " << m_numTrackMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param NTrackMax " << m_numTrackMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param NTrackMax " << m_numWideTrackMax <<endreq;
   msg() << MSG::INFO << " REGTEST: param EtCalib " << m_EtCalibMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param Level " << m_level <<endreq;
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endreq;
@@ -159,6 +161,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
   
   m_cutCounter = 0;
   m_numTrack = -100;
+  m_numWideTrack = -100;
   m_LLHScore = -1111.;
   m_BDTScore = -1111.;  
   
@@ -230,12 +233,16 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     m_cutCounter++;
     
     m_numTrack = (*tauIt)->nTracks();
-    
-    if( msgLvl() <= MSG::DEBUG )
+    m_numWideTrack = (*tauIt)->nWideTracks();
+
+    if( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endreq;	
-    
+      msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<m_numWideTrack <<endreq;
+    }    
+
     if (!( (m_numTrack >= m_numTrackMin) && (m_numTrack <= m_numTrackMax)))  continue;
-    
+    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+   
     m_cutCounter++;
     
     if(m_method == 1 || m_method == 0)
