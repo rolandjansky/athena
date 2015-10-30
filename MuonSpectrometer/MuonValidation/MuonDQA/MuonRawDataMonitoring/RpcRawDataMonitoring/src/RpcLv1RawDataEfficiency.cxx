@@ -66,7 +66,42 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   msg(MSG::INFO) << "In initializing 'RpcLv1RawDataEfficiency'" << endreq;
   msg(MSG::INFO) << "Package version = "<< PACKAGE_VERSION << endreq;
   
-  StatusCode sc;
+  StatusCode sc; 
+  
+   m_eventStore  = 0 ;
+   m_activeStore  = 0 ;
+   m_rpcIdHelper  = 0 ;
+   sectorLogicContainer  = 0 ;
+   m_muonMgr  = 0 ;
+   i_sectorid  = 0 ;
+   b_isInput  = 0 ;
+   i_ptid  = 0 ;
+   m_trigtype  = 0 ;
+   m_event  = 0 ;
+   m_lumiblock  = 0 ;
+   m_BCID  = 0 ;
+   rpclv1_MinDeltaRTrackTrigger [0] = 0 ;
+   rpclv1_MinDeltaRTrackTrigger [1] = 0 ;
+   rpclv1_TrackPt[0] = 0 ;
+   rpclv1_TrackPt[1] = 0 ;
+   rpclv1_sectorhits_A[0]  = 0 ;
+   rpclv1_sectorhits_C[0]  = 0 ;  	
+   rpclv1_sectorhits_all[0]= 0 ;
+   rpclv1_sectorhits_A[1]  = 0 ;
+   rpclv1_sectorhits_C[1]  = 0 ;  	
+   rpclv1_sectorhits_all[1]= 0 ;
+   rpclv1_sectorhits_A[2]  = 0 ;
+   rpclv1_sectorhits_C[2]  = 0 ;  	
+   rpclv1_sectorhits_all[2]= 0 ;
+   rpclv1_sectorhits_A[3]  = 0 ;
+   rpclv1_sectorhits_C[3]  = 0 ;  	
+   rpclv1_sectorhits_all[3]= 0 ;
+   rpclv1_sectorhits_A[4]  = 0 ;
+   rpclv1_sectorhits_C[4]  = 0 ;  	
+   rpclv1_sectorhits_all[4]= 0 ;
+   rpclv1_sectorhits_A[5]  = 0 ;
+   rpclv1_sectorhits_C[5]  = 0 ;  	
+   rpclv1_sectorhits_all[5]= 0 ;
   
   // Store Gate store
   sc = serviceLocator()->service("StoreGateSvc", m_eventStore);

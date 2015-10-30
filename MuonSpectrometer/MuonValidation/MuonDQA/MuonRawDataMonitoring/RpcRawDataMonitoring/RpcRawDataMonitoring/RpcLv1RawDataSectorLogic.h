@@ -181,13 +181,10 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   int m_in_sectorid;
 
   const RpcSectorLogicContainer* sectorLogicContainer;
-
-  int N_pad, N_bin_profile  ;
+ 
   std::string cm_ch_label   ;
   std::string pad_ch_label  ;
-  
-  // logical OR
-  int NSECTOR;
+   
   
 };
 
