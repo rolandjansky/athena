@@ -6,6 +6,7 @@
 #define MUON_MUONINSIDEOUTRECOTOOL_H
 
 #include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
+#include "MuonLayerEvent/MuonLayerRecoData.h"
 
 #include <vector>
 
@@ -14,7 +15,7 @@
 
 
 namespace Muon {
-
+  class MuonCandidate;
   class MuonIdHelperTool;
   class MuonEDMPrinterTool;
   class IMuonSystemExtensionTool;
@@ -31,8 +32,11 @@ namespace Rec {
 }
 
 namespace Trk {
+  class Track;
   class ITrackAmbiguityProcessorTool;
 }
+
+static const InterfaceID IID_MuonInsideOutRecoTool("MuonCombined::MuonInsideOutRecoTool",1,0);
 
 namespace MuonCombined { 
 
@@ -45,12 +49,24 @@ namespace MuonCombined {
     StatusCode initialize();
     StatusCode finalize();
 
+    /** @brief access to tool interface */
+    static const InterfaceID& interfaceID() { return IID_MuonInsideOutRecoTool; }
+
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
     void extend( const InDetCandidateCollection& inDetCandidates ) const;
+
+    /** find the best candidate for a given set of segments */
+    std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > 
+    findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const;
 
   private:
     /** handle a single candidate */
     void handleCandidate( const InDetCandidate& inDetCandidate ) const;
+
+    /** add muon candidate to indet candidate */
+    void addTag( const InDetCandidate& indetCandidate, const Muon::MuonCandidate& candidate, 
+                 std::unique_ptr<const Trk::Track>& selectedTrack ) const;
+
 
     /** tool handles */
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
