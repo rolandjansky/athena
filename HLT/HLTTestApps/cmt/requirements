@@ -13,6 +13,9 @@ use AtlasPython           AtlasPython-*            External
 use GaudiInterface        GaudiInterface-*         External
 use HLTtdaq               HLTtdaq-*                HLT/HLTExternal
 use HLTtdaqcommon         HLTtdaqcommon-*          HLT/HLTExternal
+use TrigT1Result          TrigT1Result-*           Trigger/TrigT1
+use StoreGate             StoreGate-*              Control
+use CTPfragment           v*
 
 # Remove to avoid compiler warning
 macro_remove_regexp AtlasCxxPolicy_pp_cppflags "'-DPACKAGE_VERSION=.*'"
@@ -49,6 +52,4 @@ macro_append install_pyhlttestappspython_libs1_dependencies " pyhlttestapps "
 # TDAQ problem libboost-*-mt.so libraries (indirectly through libpyeformat_util
 # and should be in peace with it.
 #
-macro_append pyhlttestapps_shlibflags " $(HLTtdaq_linkopts) $(HLTtdaqcommon_linkopts) -lGaudiKernel -lhltinterface -lpyeformat_util -ldynlibs -lowl -lipc"
-
-
+macro_append pyhlttestapps_shlibflags " $(HLTtdaq_linkopts) $(HLTtdaqcommon_linkopts) -lGaudiKernel -lStoreGate -lTrigT1Result -lCTPfragment -lhltinterface -lpyeformat_util -ldynlibs -lowl -lipc"

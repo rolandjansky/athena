@@ -144,8 +144,7 @@ namespace
   //////////////////////////////////////////////////////////////////////////////
   bool in(const ptree& p, const string& path)
   {
-    // this returns an optional, which is automatically converted to bool
-    return p.get_child_optional(path);
+    return static_cast<bool>(p.get_child_optional(path));
   }
 }
 

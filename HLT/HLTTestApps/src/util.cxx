@@ -17,7 +17,14 @@
 #include "owl/time.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/StoreGate.h"
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigT1Result/CTP_RDO.h"
+#include "TrigT1Result/MuCTPI_RDO.h"
+#include "CTPfragment/CTPdataformatVersion.h"
 #include "Event.h" // datacollector implementation
+#include "L1_ROBs.h" // L1 RoIB ROB identifiers
 #include <Python.h>
 #include <cstdlib>
 #include <set>
@@ -158,6 +165,276 @@ namespace
 
     return ret;
   }
+
+  /*
+   * check if L1 simulation was run and get the new L1 trigger info words and the
+   * updated L1 ROBs
+   */
+  bool check_rerun_L1(const eformat::read::FullEventFragment& src_event, 
+		      std::vector<uint32_t>& l1_info,
+		      std::map<uint32_t,uint32_t* >& l1_robs)
+  {
+    bool ret(0);
+    // get the l1 trigger info from the original event
+    unsigned int number_of_words_tav = src_event.nlvl1_trigger_info()/3;
+    const uint32_t* buffer;
+    src_event.lvl1_trigger_info(buffer);
+    std::vector<uint32_t> original_l1_info(buffer, buffer+src_event.nlvl1_trigger_info());
+    std::vector<uint32_t> original_l1_info_TBP(buffer,buffer+number_of_words_tav);
+    std::vector<uint32_t> original_l1_info_TAV(buffer+2*number_of_words_tav, buffer+src_event.nlvl1_trigger_info());
+
+    // get the l1 trigger info from the RoIB result (remade if L1 is rerun)
+    const DataHandle<ROIB::RoIBResult> dobj;
+    StoreGate::instance().retrieve(dobj,"RoIBResult");
+    if (!dobj.isValid()) { 
+      return ret; // if there is no RoIB object there is nothing to do
+    }
+
+    // check if the CTPResult from RoIB is different from event header (use only the TAV words)
+    if (number_of_words_tav != dobj->cTPResult().TAV().size()) { // e.g. run 1 data are used to simulate run 2
+      ret = 1;
+    } else { // input data and simulation are for the same run period
+      for (unsigned int index = 0; index < dobj->cTPResult().TAV().size(); ++index) {
+        if (dobj->cTPResult().TBP()[index].roIWord() != original_l1_info_TBP[index]) {ret = 1;}
+        if (dobj->cTPResult().TAV()[index].roIWord() != original_l1_info_TAV[index]) {ret = 1;}
+      }
+    } 
+
+    // the L1 was not re-made, return immediately
+    if (!ret) return ret;
+
+    //-------------------------+
+    //  L1 decision was remade |
+    //-------------------------+
+
+    // get all original L1 ROBs
+    std::map<uint32_t, std::vector<const uint32_t*> > original_RoIB_Robs, original_DAQ_Robs; 
+    std::vector<eformat::read::ROBFragment> src_robs;
+    src_event.robs(src_robs);
+    for(const auto& rob : src_robs) {
+      auto sid = rob.source_id();
+      auto sdid = eformat::helper::SourceIdentifier{sid}.subdetector_id();
+      switch (sdid) {
+      case eformat::TDAQ_CALO_CLUSTER_PROC_DAQ:  // = 0x72
+	original_DAQ_Robs[sdid].push_back(rob.start());
+	break;
+      case eformat::TDAQ_CALO_CLUSTER_PROC_ROI:  // = 0x73,
+	if (find(begin(L1R_ROBS),end(L1R_ROBS),sid) != end(L1R_ROBS))
+	  original_RoIB_Robs[sdid].push_back(rob.start());
+	break;
+      case eformat::TDAQ_CALO_JET_PROC_DAQ: // = 0x74,
+	original_DAQ_Robs[sdid].push_back(rob.start());
+	break;
+      case eformat::TDAQ_CALO_JET_PROC_ROI: // = 0x75,
+	if (find(begin(L1R_ROBS),end(L1R_ROBS),sid) != end(L1R_ROBS))
+	  original_RoIB_Robs[sdid].push_back(rob.start());
+	break;
+      case eformat::TDAQ_MUON_CTP_INTERFACE: // = 0x76,
+	if (find(begin(L1R_ROBS),end(L1R_ROBS),sid) != end(L1R_ROBS))
+	  original_RoIB_Robs[sdid].push_back(rob.start());
+	else
+	  original_DAQ_Robs[sdid].push_back(rob.start());
+	break;
+      case eformat::TDAQ_CTP: // = 0x77
+	if (find(begin(L1R_ROBS),end(L1R_ROBS),sid) != end(L1R_ROBS))
+	  original_RoIB_Robs[sdid].push_back(rob.start());
+	else
+	  original_DAQ_Robs[sdid].push_back(rob.start());
+	break;
+      case eformat::TDAQ_CALO_TOPO_PROC: // = 0x91,
+	if (find(begin(L1R_ROBS),end(L1R_ROBS),sid) != end(L1R_ROBS))
+	  original_RoIB_Robs[sdid].push_back(rob.start());
+	else
+	  original_DAQ_Robs[sdid].push_back(rob.start());
+	break;
+
+      default:
+	break;
+      }
+    }
+
+    // Remake the new L1 trigger info words for the event header
+    l1_info.resize(3*dobj->cTPResult().TAV().size(),0);
+    for (unsigned i = 0; i < dobj->cTPResult().TAV().size(); ++i) {
+      if ( i < dobj->cTPResult().TBP().size() ) l1_info[i] = dobj->cTPResult().TBP()[i].roIWord() ;
+      if ( i < dobj->cTPResult().TAP().size() ) l1_info[i+dobj->cTPResult().TAV().size()] = dobj->cTPResult().TAP()[i].roIWord() ;
+      if ( i < dobj->cTPResult().TAV().size() ) l1_info[i+2*dobj->cTPResult().TAV().size()] = dobj->cTPResult().TAV()[i].roIWord() ;
+    }
+
+    // remake the L1 ROB payload data from the RoIB result
+    /** CTP ROD */
+    // Default CTP minor version word
+    uint16_t minorVersion = 0x0004; // default minor CTP version
+    if (dobj->cTPResult().TAV().size() == 8) { minorVersion = 0x0003; } // CTP version for Run 1
+    // DAQ
+    // get the l1 CTP_RDO which was remade
+    const DataHandle<CTP_RDO> dobj_ctp_rdo;
+    StoreGate::instance().retrieve(dobj_ctp_rdo,"CTP_RDO_Rerun");
+    if (dobj_ctp_rdo.isValid()) {
+      // calculate CTP minor version word
+      CTPdataformatVersion ctpVersion(dobj_ctp_rdo->getCTPVersionNumber());
+      // Set L1Apos to center of readout window
+      uint16_t l1a = ( dobj_ctp_rdo->getNumberOfBunches() - 1u ) / 2u;
+      l1a <<= ctpVersion.getL1APositionShift();
+      uint16_t addWords = dobj_ctp_rdo->getNumberOfAdditionalWords();
+      addWords <<= ctpVersion.getProgrammableExtraWordsShift();
+      uint16_t ctpVer = dobj_ctp_rdo->getCTPVersionNumber();
+      ctpVer <<= ctpVersion.getCTPFormatVersionShift();
+      minorVersion = addWords + l1a + ctpVer;
+      // payload data
+      std::vector<uint32_t> ctpDAQRod;
+      ctpDAQRod.reserve(dobj_ctp_rdo->getDataWords().size());
+      for(const auto& j: dobj_ctp_rdo->getDataWords()) ctpDAQRod.push_back( j );
+
+      if ( (original_DAQ_Robs.find(eformat::TDAQ_CTP) != original_DAQ_Robs.end()) &&
+	   (original_DAQ_Robs[eformat::TDAQ_CTP].size() == 1)) {
+	  eformat::write::ROBFragment ctpDAQRob(original_DAQ_Robs[eformat::TDAQ_CTP][0]);
+	  ctpDAQRob.rod_minor_version( minorVersion );
+	  ctpDAQRob.rod_data(ctpDAQRod.size(),ctpDAQRod.data());
+	  l1_robs[ ctpDAQRob.source_id() ] = new uint32_t[ctpDAQRob.size_word()];
+	  auto copied = eformat::write::copy(*ctpDAQRob.bind(), l1_robs[ ctpDAQRob.source_id() ], ctpDAQRob.size_word());
+	  if(copied == 0 || copied != ctpDAQRob.size_word()) {
+	    boost::format msg("Copy failed for DAQ CTP Rob: words copied: %s words expected %s");
+	    msg % copied, ctpDAQRob.size_word();
+	  }
+      }
+    }
+
+    // RoIB
+    std::vector<uint32_t> ctpRod;
+    ctpRod.reserve(dobj->cTPResult().roIVec().size());
+    for(const auto& j: dobj->cTPResult().roIVec()) ctpRod.push_back( j.roIWord() );
+
+    if ( (original_RoIB_Robs.find(eformat::TDAQ_CTP) != original_RoIB_Robs.end()) &&
+	 (original_RoIB_Robs[eformat::TDAQ_CTP].size() == 1)) {
+	eformat::write::ROBFragment ctpRob(original_RoIB_Robs[eformat::TDAQ_CTP][0]);
+	ctpRob.rod_data(ctpRod.size(),ctpRod.data());
+	ctpRob.rod_minor_version(minorVersion); // reuse minor version of DAQ CTP ROB or default version
+	l1_robs[ ctpRob.source_id() ] = new uint32_t[ctpRob.size_word()];
+	auto copied = eformat::write::copy(*ctpRob.bind(), l1_robs[ ctpRob.source_id() ], ctpRob.size_word());
+	if(copied == 0 || copied != ctpRob.size_word()) {
+	  boost::format msg("Copy failed for RoIB CTP Rob: words copied: %s words expected %s");
+	  msg % copied, ctpRob.size_word() ;
+	}
+    }
+
+    /** Muon ROD */
+    // DAQ
+    // get the l1 MuCTP_RDO which was remade
+    const DataHandle<MuCTPI_RDO> dobj_muctpi_rdo;
+    StoreGate::instance().retrieve(dobj_muctpi_rdo,"MUCTPI_RDO+");
+    if (dobj_muctpi_rdo.isValid()) {
+      // payload data
+      std::vector<uint32_t> muCTPIDAQRod;
+      muCTPIDAQRod.reserve(dobj_muctpi_rdo->getAllCandidateMultiplicities().size() + dobj_muctpi_rdo->dataWord().size());
+      for(const auto& j: dobj_muctpi_rdo->getAllCandidateMultiplicities()) muCTPIDAQRod.push_back( j );
+      for(const auto& j: dobj_muctpi_rdo->dataWord()) muCTPIDAQRod.push_back( j );
+
+      if ( (original_DAQ_Robs.find(eformat::TDAQ_MUON_CTP_INTERFACE) != original_DAQ_Robs.end()) &&
+	   (original_DAQ_Robs[eformat::TDAQ_MUON_CTP_INTERFACE].size() == 1)) {
+	  eformat::write::ROBFragment muCTPIDAQRob(original_DAQ_Robs[eformat::TDAQ_MUON_CTP_INTERFACE][0]);
+	  muCTPIDAQRob.rod_data(muCTPIDAQRod.size(),muCTPIDAQRod.data());
+	  l1_robs[ muCTPIDAQRob.source_id() ] = new uint32_t[muCTPIDAQRob.size_word()];
+	  auto copied = eformat::write::copy(*muCTPIDAQRob.bind(), l1_robs[ muCTPIDAQRob.source_id() ], muCTPIDAQRob.size_word());
+	  if(copied == 0 || copied != muCTPIDAQRob.size_word()) {
+	    boost::format msg("Copy failed for DAQ muCTPI Rob: words copied: %s words expected %s");
+	    msg % copied, muCTPIDAQRob.size_word();
+	  }
+      }
+    } 
+    // RoIB
+    std::vector<uint32_t> muCTPIRod;
+    muCTPIRod.reserve(dobj->muCTPIResult().roIVec().size());
+    for(const auto& j: dobj->muCTPIResult().roIVec()) muCTPIRod.push_back( j.roIWord() );
+
+    if ( (original_RoIB_Robs.find(eformat::TDAQ_MUON_CTP_INTERFACE) != original_RoIB_Robs.end()) &&
+	 (original_RoIB_Robs[eformat::TDAQ_MUON_CTP_INTERFACE].size() == 1)) {
+	eformat::write::ROBFragment muCTPIRob(original_RoIB_Robs[eformat::TDAQ_MUON_CTP_INTERFACE][0]);
+	muCTPIRob.rod_data(muCTPIRod.size(),muCTPIRod.data());
+	l1_robs[ muCTPIRob.source_id() ] = new uint32_t[muCTPIRob.size_word()];
+	auto copied = eformat::write::copy(*muCTPIRob.bind(), l1_robs[ muCTPIRob.source_id() ], muCTPIRob.size_word());
+	if(copied == 0 || copied != muCTPIRob.size_word()) {
+	  boost::format msg("Copy failed for RoIB muCTPI Rob: words copied: %s words expected %s");
+	  msg % copied, muCTPIRob.size_word() ;
+	}
+    }
+
+    /** Jet/Energy ROD */
+    // RoIB
+    for( unsigned int slink = 0; slink < dobj->jetEnergyResult().size(); ++slink ) {
+      std::vector<uint32_t> jetEnergyRod;
+      jetEnergyRod.reserve(dobj->jetEnergyResult()[slink].roIVec().size());
+      for(const auto& j: dobj->jetEnergyResult()[slink].roIVec()) jetEnergyRod.push_back( j.roIWord() );
+
+      if ( (original_RoIB_Robs.find(eformat::TDAQ_CALO_JET_PROC_ROI) != original_RoIB_Robs.end()) &&
+	   (original_RoIB_Robs[eformat::TDAQ_CALO_JET_PROC_ROI].size() == dobj->jetEnergyResult().size())) {
+	eformat::write::ROBFragment jetEnergyRob(original_RoIB_Robs[eformat::TDAQ_CALO_JET_PROC_ROI][slink]);
+	jetEnergyRob.rod_data(jetEnergyRod.size(),jetEnergyRod.data());
+	l1_robs[ jetEnergyRob.source_id() ] = new uint32_t[jetEnergyRob.size_word()];
+	auto copied = eformat::write::copy(*jetEnergyRob.bind(), l1_robs[ jetEnergyRob.source_id() ], jetEnergyRob.size_word());
+	if(copied == 0 || copied != jetEnergyRob.size_word()) {
+	  boost::format msg("Copy failed for RoIB JET/Energy Rob: words copied: %s words expected %s");
+	  msg % copied, jetEnergyRob.size_word() ;
+	}
+      }
+    }
+
+    /* EMTau RODs */
+    // RoIB
+    for( unsigned int slink = 0; slink < dobj->eMTauResult().size(); ++slink ) {
+      std::vector<uint32_t> eMTauRod;
+      eMTauRod.reserve(dobj->eMTauResult()[slink].roIVec().size());
+      for(const auto& j: dobj->eMTauResult()[slink].roIVec()) eMTauRod.push_back( j.roIWord() );
+
+      if ( (original_RoIB_Robs.find(eformat::TDAQ_CALO_CLUSTER_PROC_ROI) != original_RoIB_Robs.end()) &&
+	   (original_RoIB_Robs[eformat::TDAQ_CALO_CLUSTER_PROC_ROI].size() == dobj->eMTauResult().size())) {
+	eformat::write::ROBFragment eMTauRob(original_RoIB_Robs[eformat::TDAQ_CALO_CLUSTER_PROC_ROI][slink]);
+	eMTauRob.rod_data(eMTauRod.size(),eMTauRod.data());
+	l1_robs[ eMTauRob.source_id() ] = new uint32_t[eMTauRob.size_word()];
+	auto copied = eformat::write::copy(*eMTauRob.bind(), l1_robs[ eMTauRob.source_id() ], eMTauRob.size_word());
+	if(copied == 0 || copied != eMTauRob.size_word()) {
+	  boost::format msg("Copy failed for RoIB EM/Tau Rob: words copied: %s words expected %s");
+	  msg % copied, eMTauRob.size_word() ;
+	}
+      }
+    }
+
+    /** L1Topo ROD */
+    // RoIB
+    for( unsigned int slink = 0; slink < dobj->l1TopoResult().size(); ++slink ) {
+      std::vector<uint32_t> l1TopoRod;
+      l1TopoRod.reserve(dobj->l1TopoResult()[slink].rdo().getDataWords().size());
+      for(const auto& j: dobj->l1TopoResult()[slink].rdo().getDataWords()) l1TopoRod.push_back( j );
+
+      if ( (original_RoIB_Robs.find(eformat::TDAQ_CALO_TOPO_PROC) != original_RoIB_Robs.end()) &&
+	   (original_RoIB_Robs[eformat::TDAQ_CALO_TOPO_PROC].size() == dobj->l1TopoResult().size())) {
+	eformat::write::ROBFragment l1TopoRob(original_RoIB_Robs[eformat::TDAQ_CALO_TOPO_PROC][slink]);
+	l1TopoRob.rod_data(l1TopoRod.size(),l1TopoRod.data());
+	l1_robs[ l1TopoRob.source_id() ] = new uint32_t[l1TopoRob.size_word()];
+	auto copied = eformat::write::copy(*l1TopoRob.bind(), l1_robs[ l1TopoRob.source_id() ], l1TopoRob.size_word());
+	if(copied == 0 || copied != l1TopoRob.size_word()) {
+	  boost::format msg("Copy failed for RoIB L1 Topo Rob: words copied: %s words expected %s");
+	  msg % copied, l1TopoRob.size_word() ;
+	}
+      }
+    }
+    // in case the result size = 0 produce empty ROBs
+    if ((dobj->l1TopoResult().size() == 0) && (original_RoIB_Robs.find(eformat::TDAQ_CALO_TOPO_PROC) != original_RoIB_Robs.end())) {
+      for( unsigned int slink = 0; slink < original_RoIB_Robs[eformat::TDAQ_CALO_TOPO_PROC].size(); ++slink ) {
+	std::vector<uint32_t> l1TopoRod;
+	eformat::write::ROBFragment l1TopoRob(original_RoIB_Robs[eformat::TDAQ_CALO_TOPO_PROC][slink]);
+	l1TopoRob.rod_data(l1TopoRod.size(),l1TopoRod.data());
+	l1_robs[ l1TopoRob.source_id() ] = new uint32_t[l1TopoRob.size_word()];
+	auto copied = eformat::write::copy(*l1TopoRob.bind(), l1_robs[ l1TopoRob.source_id() ], l1TopoRob.size_word());
+	if(copied == 0 || copied != l1TopoRob.size_word()) {
+	  boost::format msg("Copy failed for RoIB (empty) L1 Topo Rob: words copied: %s words expected %s");
+	  msg % copied, l1TopoRob.size_word() ;
+	}
+      }
+    }
+
+    return ret;
+  }
 }
 
 ProcessProxy::ProcessProxy(hltinterface::HLTInterface& interface,
@@ -237,7 +514,17 @@ eformat::helper::u32list ProcessProxy::operator()()
   retval.copy_header(m_event.start());
   retval.lvl2_trigger_info(0, nullptr); // drop l2 trigger bits
   
-  //set the trigger info if needed
+  //set the L1 trigger info if needed
+  uint32_t* new_l1_info = 0;
+  std::vector<uint32_t> remade_l1_info;
+  std::map<uint32_t, uint32_t* > remade_l1_robs;
+  if(check_rerun_L1(m_event,remade_l1_info,remade_l1_robs)) {
+    new_l1_info = new uint32_t[remade_l1_info.size()];
+    for(unsigned i = 0; i < remade_l1_info.size(); ++i) new_l1_info[i] = remade_l1_info[i];
+    retval.lvl1_trigger_info(remade_l1_info.size(), new_l1_info); 
+  }
+
+  //set the HLT trigger info if needed
   uint32_t* hlt_info = 0;
   if(m_hltr.trigger_info.size()) 
   {
@@ -266,7 +553,12 @@ eformat::helper::u32list ProcessProxy::operator()()
   for(std::vector<const uint32_t*>::const_iterator it = to_pack.begin(); it != to_pack.end(); ++it)
     try
     {
-      rob.push_back(*it);
+      eformat::read::ROBFragment old(*it) ;
+      if (remade_l1_robs.find(old.source_id()) == remade_l1_robs.end()) { // no remade l1 rob available
+	rob.push_back(*it);
+      } else { // take the remade L1 ROB
+	rob.push_back(remade_l1_robs[old.source_id()]);
+      }
     }
     catch(const eformat::Issue&)
     {
@@ -291,6 +583,8 @@ eformat::helper::u32list ProcessProxy::operator()()
     delete[] m_hltr.fragment_pointer;
     delete[] hlt_info;
     delete[] stream_tag;
+    delete[] new_l1_info;
+    for (const auto& rob: remade_l1_robs) delete[] rob.second;
     throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
   }
   
@@ -298,7 +592,9 @@ eformat::helper::u32list ProcessProxy::operator()()
   delete[] m_hltr.fragment_pointer;
   delete[] hlt_info;
   delete[] stream_tag;
-  
+  delete[] new_l1_info;  
+  for (const auto& rob: remade_l1_robs) delete[] rob.second;
+
   return eformat::helper::u32list(final_event, 0, final_size);
 }
 
@@ -408,7 +704,13 @@ void HLTTestApps::ipc_init()
 using namespace boost::property_tree;
 namespace
 {
-  auto wsettings = xml_parser::xml_writer_make_settings(' ', 2);
+#if BOOST_VERSION >= 105600
+  using T = ptree::key_type;
+#else
+  using T = char;  
+#endif
+
+  auto wsettings = xml_parser::xml_writer_make_settings<T>(' ', 2);
 }
 
 string HLTTestApps::to_string(const ptree& p)
@@ -422,3 +724,4 @@ void HLTTestApps::print_ptree(const ptree& p)
 {
   xml_parser::write_xml(std::cout, p, wsettings);
 }
+
