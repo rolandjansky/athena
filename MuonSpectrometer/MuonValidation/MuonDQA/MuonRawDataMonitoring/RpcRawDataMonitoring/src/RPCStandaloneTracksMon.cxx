@@ -304,7 +304,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 //       const xAOD::VertexContainer*	       MSVertices   = evtStore()->retrieve< const xAOD::VertexContainer >           (m_msVertexCollection);
 //       const xAOD::TrackParticleContainer*   METracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_muonExtrapTracksName );
 //       const xAOD::TrackParticleContainer*   IDTracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >     ( m_innerTracksName );
- 
+  
       
       
       const Muon::RpcPrepDataContainer* rpc_container;
@@ -314,16 +314,17 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	return sc;
       }
 
+  
+
+       const DataHandle<xAOD::EventInfo> eventInfo;
+       const DataHandle<xAOD::EventInfo> eventInfoEnd;
+       ATH_CHECK( m_eventStore->retrieve(eventInfo, eventInfoEnd) );
+       if (eventInfo == eventInfoEnd)
+       {
+        ATH_MSG_ERROR( "No event info objects" );
+        return StatusCode::FAILURE;
+       }
       
-      const DataHandle<xAOD::EventInfo> eventInfo;
-      StatusCode sc = m_eventStore->retrieve( eventInfo );
-      if (sc.isFailure()) {
-	  ATH_MSG_DEBUG ( "no event info" );
-	  return StatusCode::SUCCESS;
-       }
-       else { 
-         ATH_MSG_DEBUG ( "yes event info" ); 
-       }
       
       //int RunNumber = eventInfo->runNumber();
       //long int EventNumber = eventInfo->eventNumber();
@@ -1129,7 +1130,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    int sign = 1 ;
 		    if(metrack->eta()<0)sign=-1;
 	   
-		    std::cout <<thresholdpad.at(i_etaphiPAD) << " PAD " << etaminpad.at(i_etaphiPAD) << " "<< etamaxpad.at(i_etaphiPAD) <<" phi " << phiminpad.at(i_etaphiPAD) << " "<< phimaxpad.at(i_etaphiPAD) <<std::endl;	
+		    //std::cout <<thresholdpad.at(i_etaphiPAD) << " PAD " << etaminpad.at(i_etaphiPAD) << " "<< etamaxpad.at(i_etaphiPAD) <<" phi " << phiminpad.at(i_etaphiPAD) << " "<< phimaxpad.at(i_etaphiPAD) <<std::endl;	
 		    if( ( metrack->eta()-etaminpad.at(i_etaphiPAD))*sign> -m_MuonDeltaRMatching ){
 		    if( (-metrack->eta()+etamaxpad.at(i_etaphiPAD))*sign> -m_MuonDeltaRMatching ){
 		    if(   metrack->phi()-phiminpad.at(i_etaphiPAD)      > -m_MuonDeltaRMatching ){
