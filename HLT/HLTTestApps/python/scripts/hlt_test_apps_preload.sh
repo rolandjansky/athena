@@ -7,7 +7,7 @@ export TCMALLOC_LIB="libtcmalloc_minimal.so"
 
 for a in ${@}
 do
-    if [[ "$a" = "--leak-check"* ]] || [ "$a" = "-Q" ] ; then
+    if [ "$a" = "--leak-check-execute" ]; then
         LEAKCHECK=true
     elif [ "$a" = "--tcmalloc" ]; then
         USETCMALLOC=true
