@@ -31,6 +31,7 @@ def addDirList(dir,path,hists):
             if not h.InheritsFrom('TH1'): continue
             if opts.labeled==True and not hasLabels(h): continue
             if opts.misslabel==True and not missingLabels(h): continue
+            if opts.empty==True and h.GetEntries()>0: continue
             b = filledBins(h) if opts.filled else h.GetSize()
             hists[path+name]=(cname,b)
         
@@ -86,6 +87,9 @@ def main():
 
    parser.add_option('-m', '--misslabel', action='store_true',      
                      help='Only show labeled histograms with at least one unlabeled bin')
+
+   parser.add_option('-e', '--empty', action='store_true',      
+                     help='Only show histograms with zero entries')
    
    global opts
    (opts, args) = parser.parse_args()

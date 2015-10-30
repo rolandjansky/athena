@@ -10,7 +10,7 @@
  * $Id: TMultiFileLooper.cxx,v 1.1 2008-07-28 11:02:00 fwinkl Exp $
  */
 
-#include "TMultiFileLooper.h"
+#include "TrigValTools/TMultiFileLooper.h"
 #include "TString.h"
 
 #include <iostream>

@@ -10,7 +10,7 @@
  * $Id: TRoot2Html.cxx,v 1.1 2008-07-28 11:02:00 fwinkl Exp $
  */
 
-#include "TRoot2Html.h"
+#include "TrigValTools/TRoot2Html.h"
 
 #include <iostream>
 #include <sstream>
