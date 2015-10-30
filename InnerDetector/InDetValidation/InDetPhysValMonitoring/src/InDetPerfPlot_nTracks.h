@@ -13,12 +13,12 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 
 ///Class to hold various counters used in RTT code
-class InDetPerfPlot_nTracks:public PlotBase{
+class InDetPerfPlot_nTracks:public InDetPlotBase{
 public:
-	InDetPerfPlot_nTracks(PlotBase * pParent, const std::string & dirName);
+	InDetPerfPlot_nTracks(InDetPlotBase * pParent, const std::string & dirName);
 	enum CounterCategory {ALL, SELECTED, TRUTH, TRUTH_MATCHED, N_COUNTERS};
 	void fill(const unsigned int freq, const CounterCategory  counter);
 	
