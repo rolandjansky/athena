@@ -4,229 +4,366 @@
 
 /**
  * @file InDetPerfPlot_res.cxx
- * @author shaun roe
+ * @author Max Baugh
 **/
 
 #include "InDetPerfPlot_res.h"
-#include <utility>
-#include "TFitResult.h"
-#include <iostream>
+#include "xAODTracking/TrackingPrimitives.h"
+#include <vector>
 
+using namespace TMath;
 
-//anonymous namespace for utility functions at file scope
-namespace {
-	template<typename T> bool
-	inRange(const T & variable,const T & lowerLimit, const T & upperLimit){
-		return (variable >= lowerLimit) and (variable <= upperLimit);
-	}
-	
-	 template <typename T> bool
-       coerceToRange(T & variable,const T & lowerLimit, const T & upperLimit){
-                bool coerced(false);
-                if (variable < lowerLimit){ variable = lowerLimit; coerced=true;}
-                if (variable > upperLimit){ variable = upperLimit; coerced=true;}
-                return coerced;
-       }
-	
-	// Utility routine used by projectStandardProfileY: fill one bin from a 1D slice.
-	void SetProfileBin (int i, TH1* h1, TH1* pm, TH1* pw, const char* fitfun=0, double cut_tail=3.0){
-	  if (h1->GetXaxis()->TestBit(TAxis::kAxisRange)) {
-		// remove range if set previously
-		h1->GetXaxis()->SetRange();
-		h1->ResetStats();
-	  }
-	  double x=0.0, xe=0.0, e=0.0, ee=0.0;
-	  if (h1->GetEntries() != 0.0) {
-		x=  h1->GetMean();      e=  h1->GetRMS();
-		xe= h1->GetMeanError(); ee= h1->GetRMSError();
-		if (fitfun) {
-		  TFitResultPtr r= h1->Fit (fitfun, "QS0");
-		  if (r.Get() && r->Status()%1000==0) {
-			x=  r->Parameter(1); e=  r->Parameter(2);
-			xe= r->ParError (1); ee= r->ParError (2);
-		  }
-		} else if (cut_tail!=0.0) {
-		  double rmin, rmax;
-		  if (cut_tail<0.0) { rmin=   cut_tail*e; rmax=  -cut_tail*e; }
-		  else              { rmin= x-cut_tail*e; rmax= x+cut_tail*e; }
-		  // Work round ROOT 5.34.04 change that would include the under/overflow bins
-		  // if the new range extends beyond the histogram edges.
-		  if (rmin < h1->GetBinLowEdge(1))              rmin= h1->GetBinLowEdge(1);
-		  if (rmax > h1->GetBinCenter(h1->GetNbinsX())) rmax= h1->GetBinCenter(h1->GetNbinsX());
-		  h1->SetAxisRange (rmin, rmax);
-		  x=  h1->GetMean();      e=  h1->GetRMS();
-		  xe= h1->GetMeanError(); ee= h1->GetRMSError();
-		}
-	  }
-	  if (pm) {
-		pm->SetBinContent (i, x);
-		pm->SetBinError   (i, xe);
-	  }
-	  if (pw) {
-		pw->SetBinContent (i, e);
-		pw->SetBinError   (i, ee);
-	  }
-	}
-	
-	void projectStandardProfileY (const std::vector<TH1*>& hvec, TH1* profMean, TH1* profWidth=0, int fold=0, const char* fitfun=0, double cut_tail=3.0)
-	{
-	  TH1 *hx= profMean ? profMean : profWidth;
-	  if (!hx) return;
-	  int nvec= hvec.size();
-	  if (fold>nvec) fold= nvec;
-	  int nb= fold>0 ? fold : nvec;
-	  double xlo= hx->GetXaxis()->GetXmin(), xhi= hx->GetXaxis()->GetXmax();
-	  if (profMean)  profMean ->SetBins (nb, xlo, xhi);
-	  if (profWidth) profWidth->SetBins (nb, xlo, xhi);
-	  double nent= 0.0;
-	  for (int i=0; i<nb; i++) {
-		int j1=i, j2=-1;
-		if (fold>0) {
-		  j1= fold+i;
-		  if (j1<nvec && hvec[j1]) j2= fold-i-1;
-		  else                     j1= fold-i-1;
-		}
-		if (!(j1>=0 && hvec[j1])) continue;
-		TH1* h1= dynamic_cast<TH1*>(hvec[j1]->Clone(Form("%s_mod",hvec[j1]->GetName())));
-		if (!h1) continue;
-		if (  j2>=0 && hvec[j2]) h1->Add (hvec[j2]);
-		SetProfileBin (i+1, h1, profMean, profWidth, fitfun, cut_tail);
-		nent += h1->GetEntries();
-		delete h1;
-	  }
-	  // restore #entries, which was modified by SetBinContent in SetProfileBin
-	  if (profMean)  profMean ->SetEntries(nent);
-	  if (profWidth) profWidth->SetEntries(nent);
-	}
-	
-	
-}
+using std::string;
+using std::endl;
+using std::sqrt;
+using std::pair;
+using std::make_pair;
 
-
-InDetPerfPlot_res::InDetPerfPlot_res(PlotBase* pParent, const std::string & sDir)
-   :PlotBase(pParent, sDir), 
+InDetPerfPlot_res::InDetPerfPlot_res(InDetPlotBase* pParent, const std::string & sDir)  :InDetPlotBase(pParent, sDir), 
    m_trackEtaBins(20),
-   m_resPlots(NPARAMS, std::vector<TH1*>(m_trackEtaBins)),
-   m_paramNames{"d0","z0", "phi", "theta","z0st","qOverP"},
-   m_projectionNames{"mean", "res"}
+   m_etaMin(-2.5),
+   m_etaMax(2.5),
+   m_PtBins(20),
+   m_PtMin(400),
+   m_PtMax(10000),
+   log_mode("ON"),
+   m_meanbasePlots(NPARAMS),
+   m_meanPlots(NPARAMS),
+   m_mean_vs_ptbasePlots(NPARAMS),
+   m_mean_vs_ptPlots(NPARAMS),
+   m_resoPlots(NPARAMS),
+   m_resptPlots(NPARAMS),
+   m_pullPlots(NPARAMS),
+   m_pullbasePlots(NPARAMS),
+   m_pullwidthPlots(NPARAMS),
+   m_paramNames{{"d0",1.0}, {"z0",1.5},{"phi",0.03}, {"theta",0.1},{"z0*sin(theta)",1.5},{"qOverP",0.4}}
    {
 //
 }
 
 
-void 
-InDetPerfPlot_res::initializePlots() {
-	//never prepend the directory path to the histo variable names
-  // why? prevents ROOT memory issues
-	const bool prependDirectory(false);
-	//Initialize the projections which are the final result:
+void InDetPerfPlot_res::initializePlots() {
+  const bool PrependDirectory(false); //What is this?  Why is it here?
+  //The original Pull script has 200 bins instead of only 20, is that important?
+  //Should the pull_widerange plots be kept as well?  Or are they superfluous?
+  typedef std::pair<float, float> Limits_t;
+  Limits_t allLimits = Limits_t(-5.0, 5.0);
+  int nPullBins(200); //number of bins specifically for the pull plots
+  int m_yBins(20);  //number of y bins for the TH2 plots
 
-	const float lowerEtaLimit(-2.5),upperEtaLimit(2.5);
-	for (unsigned int param(0);param!=NPARAMS;++param){
-		std::string hName0 = formProjectionName(MEAN, param);
-		std::string hTitle0 = formProjectionTitle(MEAN, param);
-		std::string hName1 = formProjectionName(RES, param);
-		std::string hTitle1 = formProjectionTitle(RES, param);
-		TH1 * pmeanHisto = Book1D(hName0,hTitle0,m_trackEtaBins, lowerEtaLimit, upperEtaLimit, prependDirectory);
-		TH1 * presHisto = Book1D(hName1,hTitle1,m_trackEtaBins, lowerEtaLimit, upperEtaLimit, prependDirectory);
-		m_projectedPlots.push_back(std::make_pair(pmeanHisto,presHisto));
-	}
-	//Initialize the data source histograms which will be used: 
-    //number of bins for each parameter
-    //upper and lower histogram limits, from existing RTT code
-	typedef std::pair<float, float> Limits_t;
-	unsigned int nBins[NPARAMS]={2000,200,3000, 2000, 200, 200};
-	Limits_t limits[NPARAMS];
-	limits[D0] = Limits_t(-1.0,1.0);
-	limits[Z0] = Limits_t(-1.5,1.5);
-	limits[PHI] = Limits_t(-0.03,0.03);
-	limits[THETA] = Limits_t(-0.1,0.1);
-	limits[Z0SIN_THETA] = Limits_t(-1.5,1.5);
-	limits[QOVER_PT] = Limits_t(-0.4,0.4);
-	//
-	for (unsigned int i(0);i!=m_trackEtaBins;++i) {
-		for (unsigned int var(0);var!=NPARAMS;++var){
-			std::string hName = formName(var,i);
-			TH1 * psourceHisto = Book1D(hName,hName,nBins[var], limits[var].first, limits[var].second, prependDirectory);
-			//we already initialised the vector in the initialiser list, so don't push_back
-    		m_resPlots[var][i]=psourceHisto;
-    	}
+  double m_Pt_logmin = Log10(m_PtMin);
+  double m_Pt_logmax = Log10(m_PtMax);
+
+  for (unsigned int var(0); var != NPARAMS; ++var){
+    std::string mName = formName(var, "measure");
+    std::string mTitle = formTitle(var, "measure");
+    std::string rName = formName(var,"reseta");
+    std::string rTitle = formTitle(var, "reseta");    
+    std::string mptName = formName(var, "meas_pt");
+    std::string mptTitle = formTitle(var, "meas_pt");
+    std::string rptName = formName(var, "respt");
+    std::string rptTitle = formTitle(var, "respt");
+    std::string pName = formName(var, "pull");
+    std::string pTitle = formTitle(var, "pull");
+    std::string pbName = formName(var, "pullbase");
+    std::string pbTitle = formTitle(var, "pullbase");
+    std::string pwName = formName(var, "width");
+    std::string pwTitle = formTitle(var, "width");
+    
+    TH2 * meanbaseHisto = Book2D(mName, mTitle, m_trackEtaBins, m_etaMin, m_etaMax, m_yBins, -m_paramNames.at(var).second, m_paramNames.at(var).second);
+    m_meanbasePlots[var] = meanbaseHisto;
+
+    TProfile * meanHisto = BookTProfile(mName, mTitle, m_trackEtaBins, m_etaMin, m_etaMax, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
+    m_meanPlots[var] = meanHisto;
+
+    TProfile * rHisto = BookTProfile(rName, rTitle, m_trackEtaBins, m_etaMin, m_etaMax, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
+    m_resoPlots[var] = rHisto;
+
+    if(log_mode == "ON"){
+      TH2 * meanPtbaseHisto = Book2D(mptName, mptTitle, m_PtBins, m_Pt_logmin, m_Pt_logmax, m_yBins, -m_paramNames.at(var).second, m_paramNames.at(var).second);
+      TProfile * meanPt = BookTProfile(mptName, mptTitle, m_PtBins, m_Pt_logmin, m_Pt_logmax, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
+      TProfile * rptHisto = BookTProfile(rptName, rptTitle, m_PtBins, m_Pt_logmin, m_Pt_logmax, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
+      m_mean_vs_ptbasePlots[var] = meanPtbaseHisto;
+      m_mean_vs_ptPlots[var] = meanPt;
+      m_resptPlots[var] = rptHisto;
+    }else if(log_mode == "OFF"){
+      TH2 * meanPtbaseHisto = Book2D(mptName, mptTitle, m_PtBins, m_PtMin, m_PtMax, m_yBins, -m_paramNames.at(var).second, m_paramNames.at(var).second);
+      TProfile * meanPt = BookTProfile(mptName, mptTitle, m_PtBins, m_PtMin, m_PtMax, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
+      TProfile * rptHisto = BookTProfile(rptName, rptTitle, m_PtBins, m_PtMin, m_PtMax, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
+      m_mean_vs_ptPlots[var] = meanPt;
+      m_mean_vs_ptbasePlots[var] = meanPtbaseHisto;
+      m_resptPlots[var] = rptHisto;
     }
+  
+    TH1 * pHisto = Book1D(pName, pTitle, nPullBins, allLimits.first, allLimits.second, PrependDirectory);
+    m_pullPlots[var] = pHisto;
+    
+    TH2 * pbHisto = Book2D(pbName, pbTitle, m_trackEtaBins, m_etaMin, m_etaMax, m_yBins, allLimits.first, allLimits.second);
+    //TProfile * pbHisto = BookTProfile(pbName, pbTitle, m_trackEtaBins, m_etaMin, m_etaMax, allLimits.first, allLimits.second, PrependDirectory);
+    m_pullbasePlots[var] = pbHisto;
+    
+    TProfile * pwHisto = BookTProfile(pwName, pwTitle, m_trackEtaBins, m_etaMin, m_etaMax, 0, 3, PrependDirectory);
+    m_pullwidthPlots[var] = pwHisto;    
+  }
 }
 
-void 
-InDetPerfPlot_res::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt) {
-	const int lowerEtaLimit(0),upperEtaLimit(19);
-	//
-	float m_track_truth_eta = truthprt.eta();
-	int ieta = int(m_track_truth_eta*4.0 + 10.0);
-	// the following happens quite often; its annoying to see these messages (TODO: use msgSvc)
-	if (not inRange(ieta,lowerEtaLimit,upperEtaLimit)) {
-		//std::cout << "Res plot: ieta is out of range, value="<<ieta <<std::endl;
-		return;
-	}
-	
-	//get the track particle parameters needed into a simple array
-	float trkParticleParams[NPARAMS];
-	trkParticleParams[D0] = trkprt.d0();
-	trkParticleParams[Z0] = trkprt.z0();
-	trkParticleParams[PHI] = trkprt.phi0();
-	trkParticleParams[THETA] = trkprt.theta();
-	//checked the following, at line 2519 of IDStandardPerformance.cxx
-	// https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetValidation/InDetPerformanceRTT/tags/InDetPerformanceRTT-01-00-05/src
-	trkParticleParams[Z0SIN_THETA] = trkprt.z0() * std::sin(trkprt.theta()); //! CHECK!
-	trkParticleParams[QOVER_PT] = trkprt.qOverP();
-	//
-	//const float unfilledValue(0.0); //should be NaN?
-	for (unsigned int var(0);var!=NPARAMS;++var){
-		const std::string & varName = m_paramNames[var];
-		const float trackParameter = trkParticleParams[var];
-		const bool truthIsAvailable = truthprt.isAvailable<float>(varName);
-		// get the corresponding truth variable, dont fill if doesn't exist
-		if (truthIsAvailable and m_resPlots[var][ieta]){
-		  const float truthParameter = (truthprt.auxdata< float >(varName));
-      if( var == QOVER_PT ) {
-        (m_resPlots[var][ieta])->Fill( 1.0 - (truthParameter / trackParameter) );
-      } else {
-        (m_resPlots[var][ieta])->Fill( trackParameter - truthParameter);
+void InDetPerfPlot_res::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt) {
+  float eta = trkprt.eta();
+  float pt = trkprt.pt();
+
+  double log_pt = Log10(trkprt.pt());
+
+  float trkParticleParams[NPARAMS];
+  trkParticleParams[D0] = trkprt.d0();
+  trkParticleParams[Z0] = trkprt.z0();
+  trkParticleParams[PHI] = trkprt.phi0();
+  trkParticleParams[THETA] = trkprt.theta();
+  trkParticleParams[Z0SIN_THETA] = trkprt.z0() * std::sin(trkprt.theta()); //This should be it
+  trkParticleParams[QOVERP] = trkprt.qOverP();
+   
+  for (unsigned int var(0);var!=NPARAMS;++var){
+    const string  varName = m_paramNames.at(var).first;
+    const string  errName = varName + std::string("err");
+    float trackParameter = trkParticleParams[var];                      //needed for all of them
+    bool truthIsAvailable = truthprt.isAvailable<float>(varName);
+    bool sigmaIsAvailable = trkprt.isAvailable<float>(errName);
+
+    if(var == Z0SIN_THETA){
+      float truthParameter = truthprt.auxdata< float >("z0") * std::sin(truthprt.auxdata< float >("theta"));
+      (m_meanbasePlots[var])->Fill(eta, (trackParameter - truthParameter));
+      if(log_mode == "ON"){
+  (m_mean_vs_ptbasePlots[var])->Fill(log_pt, (trackParameter - truthParameter));
+      }else if(log_mode == "OFF"){
+  (m_mean_vs_ptbasePlots[var])->Fill(pt, (trackParameter - truthParameter));
       }
-		}
-	}
+    }
+    if (truthIsAvailable){   //get the corresponding truth variable, only Fill if it exists
+      float truthParameter = (truthprt.auxdata< float >(varName));
+      if(m_meanbasePlots[var]){
+  if(var == QOVERP){
+    (m_meanbasePlots[var])->Fill(eta, 1.0 - (truthParameter/trackParameter));
+    if(log_mode == "ON"){
+      (m_mean_vs_ptbasePlots[var])->Fill(log_pt, (trackParameter - truthParameter));
+    }else if(log_mode == "OFF"){
+      (m_mean_vs_ptbasePlots[var])->Fill(pt, 1.0 - (truthParameter/trackParameter));
+    }
+  }else{
+    (m_meanbasePlots[var])->Fill(eta, (trackParameter - truthParameter));
+    if(log_mode == "ON"){
+      (m_mean_vs_ptbasePlots[var])->Fill(log_pt, (trackParameter - truthParameter));
+    }else if(log_mode == "OFF"){
+      (m_mean_vs_ptbasePlots[var])->Fill(pt, (trackParameter - truthParameter));
+    }
+  }
+      }
+      if(sigmaIsAvailable){
+  float sigma = (trkprt.auxdata< float >(errName));
+  if(m_pullPlots[var]){
+   (m_pullPlots[var])->Fill( (trackParameter - truthParameter) / sigma);
+   (m_pullbasePlots[var])->Fill(eta, (trackParameter - truthParameter)/sigma);
+  }
+      }
+    }
+  }
+  
 }
+
 
 void InDetPerfPlot_res::finalizePlots(){
-		int fold= 0;
-		projectStandardProfileY (m_resPlots[D0],    m_projectedPlots[D0].first,    m_projectedPlots[D0].second,    fold, 0, -3.0);
-		projectStandardProfileY (m_resPlots[Z0],    m_projectedPlots[Z0].first,    m_projectedPlots[Z0].second,    fold, 0, -3.0);
-		projectStandardProfileY (m_resPlots[Z0SIN_THETA],  m_projectedPlots[Z0SIN_THETA].first,  m_projectedPlots[Z0SIN_THETA].second,  fold, 0, -3.0);
-		projectStandardProfileY (m_resPlots[PHI],  m_projectedPlots[PHI].first,    m_projectedPlots[PHI].second,   fold, 0, -3.0);
-		projectStandardProfileY (m_resPlots[QOVER_PT],  m_projectedPlots[QOVER_PT].first,    m_projectedPlots[QOVER_PT].second,  fold, 0, -3.0);
-		projectStandardProfileY (m_resPlots[THETA], m_projectedPlots[THETA].first,    m_projectedPlots[THETA].second, fold, 0, -3.0);
+  string width_method = "gaussian";      //switch for changing between the iterative convergence & gaussian fit strategies
+  double m_Pt_logmax = Log10(m_PtMax);
+  double m_Pt_logmin = Log10(m_PtMin);
+
+  double eta_step = (m_etaMax - m_etaMin)/m_trackEtaBins;
+  double pt_step = (m_PtMax - m_PtMin)/m_PtBins;
+  double logpt_step = (m_Pt_logmax - m_Pt_logmin)/m_PtBins;
+
+  for (unsigned int var(0);var != NPARAMS; ++var){
+    double aymin = -m_paramNames.at(var).second;  //minimum possible value for this track parameter
+    double aymax = m_paramNames.at(var).second;   //maximum possible value for this track parameter
+    for(unsigned int j=1; j<=m_trackEtaBins; j++){
+      //Create dummy histo w/ content from TH2 in relevant eta bin
+      TH1D * temp = m_meanbasePlots[var]->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);
+      TH1D * temp_pull = m_pullbasePlots[var]->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
+      double mean(0);
+      double mean_error(0);
+      double RMS_error(0);
+      if( width_method == "iterative_convergence" ){
+        double temp_RMS = 0;
+        double new_RMS = 10;
+        //int loop_count = 0;                       //useful for making sure the while-loop doesn't get out of hand
+        while(fabs(new_RMS - temp_RMS) > 0.01){
+          temp_RMS = temp->GetRMS();
+          aymin = (temp->GetMean()) - 5*temp_RMS;
+          aymax = (temp->GetMean()) + 5*temp_RMS;
+          temp->SetAxisRange(aymin, aymax);
+          mean = temp->GetMean();
+          new_RMS = temp->GetRMS();
+        }
+        mean_error = temp->GetMeanError();       
+        RMS_error = temp->GetRMSError();         //Is this the proper error here, or should this be scaled by sqrt(number of entries)?
+        (m_meanPlots[var])->Fill((m_etaMin + (j-1)*eta_step), mean);
+        (m_meanPlots[var])->SetBinError(j, mean_error);
+        (m_resoPlots[var])->Fill((m_etaMin + (j-1)*eta_step), new_RMS);
+        (m_resoPlots[var])->SetBinError(j, RMS_error);
+        double temp_width(0);
+        double new_width(10);
+        while(fabs(new_width - temp_width) > 0.01){                                 
+	  temp_width = temp_pull->GetRMS();
+	  double pullmin = (temp_pull->GetMean()) - 5*temp_width;
+	  double pullmax = (temp_pull->GetMean()) + 5*temp_width;
+	  temp_pull->SetAxisRange(pullmin, pullmax);
+	  new_width = temp_pull->GetRMS();
+        }
+        (m_pullwidthPlots[var])->Fill((m_etaMin + (j-1)*eta_step), new_width);
+        double content = m_pullwidthPlots[var]->GetBinContent(j);
+        ATH_MSG_DEBUG("Pull Width: "<<new_width<<"  Histo Content: "<<content);
+      }else if( width_method == "gaussian" ){
+	double sigma(0);
+	if(temp->GetEntries() != 0){
+	  mean = temp->Fit("gaus", "QS0")->Parameter(1);
+	  mean_error = temp->GetMeanError();
+	  sigma = temp->Fit("gaus", "QS0")->Parameter(2);
+	  RMS_error = temp->GetRMSError();
+	  (m_meanPlots[var])->Fill((m_etaMin + (j-1)*eta_step), mean);
+	  (m_meanPlots[var])->SetBinError(j, mean_error);
+	  (m_resoPlots[var])->Fill((m_etaMin + (j-1)*eta_step), sigma);
+	  (m_resoPlots[var])->SetBinError(j, RMS_error);
+	}else{
+	  (m_meanPlots[var])->Fill((m_etaMin + (j-1)*eta_step), mean);
+	  (m_resoPlots[var])->Fill((m_etaMin + (j-1)*eta_step), sigma);
+	}
+	double width(0);
+	if(temp_pull->GetEntries() != 0){
+	  width = temp_pull->Fit("gaus", "QS0")->Parameter(2);
+	  (m_pullwidthPlots[var])->Fill((m_etaMin + (j-1)*eta_step), width);
+	}else{
+	  (m_pullwidthPlots[var])->Fill((m_etaMin + (j-1)*eta_step), width);
+	}
+      }
+    }
+    for (unsigned int i=1; i<=m_PtBins; i++){
+      TH1D * temp = m_mean_vs_ptbasePlots[var]->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i , i);
+      double mean(0);
+      double mean_error(0);
+      double RMS_error(0);
+      if(width_method == "iterative_convergence"){
+	double temp_RMS = 0;
+	double new_RMS = 10;
+	int loop_count = 0;
+	while(abs(new_RMS - temp_RMS) > 0.01){
+	  loop_count += 1;
+	  temp_RMS = temp->GetRMS();
+	  aymin = (temp->GetMean()) - 5*temp_RMS;
+	  aymax = (temp->GetMean()) + 5*temp_RMS;
+	  temp->SetAxisRange(aymin, aymax);
+	  mean = temp->GetMean();
+	  new_RMS = temp->GetRMS();
+	}
+	mean_error = temp->GetMeanError();
+	RMS_error = temp->GetRMSError();
+	if(log_mode == "ON"){ 
+	  (m_mean_vs_ptPlots[var])->Fill((m_Pt_logmin + (i-1)*logpt_step), mean);
+	  (m_resptPlots[var])->Fill((m_Pt_logmin + (i-1)*logpt_step), new_RMS);
+	}else if(log_mode == "OFF"){        
+	  (m_mean_vs_ptPlots[var])->Fill((m_PtMin + (i-1)*pt_step), mean);
+	  (m_resptPlots[var])->Fill((m_PtMin + (i-1)*pt_step), new_RMS);
+	}
+	(m_mean_vs_ptPlots[var])->SetBinError(i, mean_error);
+	(m_resptPlots[var])->SetBinError(i, RMS_error);
+      }else if(width_method == "gaussian"){
+	double sigma(0);
+	if(temp->GetEntries() != 0){
+	  mean = temp->Fit("gaus", "QS0")->Parameter(1);
+	  sigma = temp->Fit("gaus", "QS0")->Parameter(2);
+	  mean_error = temp->GetMeanError();
+	  RMS_error = temp->GetRMSError();
+	  if(log_mode == "ON"){
+	    (m_mean_vs_ptPlots[var])->Fill((m_Pt_logmin + (i-1)*logpt_step), mean);
+	    (m_resptPlots[var])->Fill((m_Pt_logmin + (i-1)*logpt_step), sigma);
+	  }else if(log_mode == "OFF"){
+	    (m_mean_vs_ptPlots[var])->Fill((m_PtMin + (i-1)*pt_step), mean);
+	    (m_resptPlots[var])->Fill((m_PtMin + (i-1)*pt_step), sigma);
+	  }
+	  (m_mean_vs_ptPlots[var])->SetBinError(i, mean_error);
+	  (m_resptPlots[var])->SetBinError(i, RMS_error);
+	}else{
+	  if(log_mode == "ON"){
+	    (m_mean_vs_ptPlots[var])->Fill((m_Pt_logmin + (i-1)*logpt_step), mean);
+	    (m_resptPlots[var])->Fill((m_Pt_logmin + (i-1)*logpt_step), sigma);
+	  }else if(log_mode == "OFF"){
+	    (m_mean_vs_ptPlots[var])->Fill((m_PtMin + (i-1)*pt_step), mean);
+	    (m_resptPlots[var])->Fill((m_PtMin + (i-1)*pt_step), sigma);
+	  }
+	}
+      }
+    }
+  }
 }
 
-std::string
-InDetPerfPlot_res::formName(const unsigned int p, const unsigned int eta) const {
-	return m_paramNames[p] + std::string("res_bin")+std::to_string(eta);
-}
 
 std::string
-InDetPerfPlot_res::formProjectionName(const unsigned int projection, const unsigned int param) const {
-	return m_projectionNames[projection] + std::string("_vs_eta_")+m_paramNames[param];
+InDetPerfPlot_res::formName(const unsigned int p, std::string type) const{
+  if(type == "measure"){
+    return std::string("Track Measurement Bias: ")+m_paramNames.at(p).first +std::string(" vs eta");
+  }else if((type == "meas_pt") and (log_mode == "OFF")){
+    return std::string("Track Measurement Bias: ")+m_paramNames.at(p).first +std::string(" vs pt");
+  }else if((type == "meas_pt") and (log_mode == "ON")){
+    return std::string("Track Measurement Bias: ")+m_paramNames.at(p).first +std::string(" vs log_10(pt)");
+  }else if(type == "reseta"){
+    return std::string("Track Resolution: ")+m_paramNames.at(p).first +std::string(" vs eta");
+  }else if((type == "respt") and (log_mode == "OFF")){
+    return std::string("Track Resolution: ")+m_paramNames.at(p).first +std::string(" vs pt");
+  }else if((type == "respt") and (log_mode == "ON")){
+    return std::string("Track Resolution: ")+m_paramNames.at(p).first +std::string(" vs log_10(pt)");
+  }else if(type == "pull"){
+    return std::string("Pull Distribution of ")+m_paramNames.at(p).first;
+  }else if(type == "pullbase"){
+    return std::string("Pull Distribution of ")+m_paramNames.at(p).first +std::string(" vs eta");
+  }else if(type == "width"){
+    return std::string("Pull Width of ")+m_paramNames.at(p).first +std::string(" vs eta");
+  }
+  return "";
 }
 
+
 std::string
-InDetPerfPlot_res::formProjectionTitle(const unsigned int projection, const unsigned int param) const {
-	//should use formatting/regex, but it's late and I'll get it wrong
-	static std::string titleComponents[NPARAMS][2] = {
-		{"d_{0}", "d^{rec}_{0}-d^{tru}_{0}"},
-		{"z_{0}", "z^{rec}_{0}-z^{tru}_{0}"},
-		{"#phi", "#phi^{rec}-#phi^{tru}"},
-		{"#theta","#theta^{rec}-#theta^{tru}"},
-		{"z_{0}*sin(#theta)", "z_{0}sin(#theta)^{rec}-z_{0}sin(#theta)^{tru}"},
-		{"q/p_{T}", "1-(q/p^{tru})/(q/p^{rec})"}
-	};
-	static std::string projectionTitles[2] = { "Track Measurement Bias: ","Track Resolution: "};
-	static std::string sigma[2] = {"#sigma(",""};
-	static std::string closure[2] = {")",""};
-	return projectionTitles[projection] + titleComponents[param][0] + std::string("versus #eta;#eta;") + sigma[projection] + titleComponents[param][1]+ closure[projection];
+InDetPerfPlot_res::formTitle(const unsigned int param, std::string type) const{
+
+  static std::string titlePrefix("");
+  static std::string titleLeft[NPARAMS] = {"d_{0}: ", "z_{0}: ", "#phi: ", "#theta:", "z_{0}*sin(#theta): ", "q/p: "};
+  static std::string titleRight[NPARAMS] = {"","","","","",""}; 
+
+  if((type == "measure") || (type == "meas_pt")){
+    static std::string titleRight[NPARAMS] = {
+      "(d^{rec}_{0} - d^{tru}_{0})",
+      "(z^{rec}_{0} - z^{tru}_{0})",
+      "(#phi^{rec} - #phi^{tru})",
+      "(#theta^{rec} - #theta^{tru})",
+      "(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})",
+      "1  - ((q/p)^{rec}/(q/p)^{tru})",
+    };
+    static std::string titlePrefix("Track Measurement Bias of ");
+  }else if((type == "reseta") || (type == "respt")){
+    static std::string titleRight[NPARAMS] = {
+      "#sigma(d^{rec}_{0} - d^{tru}_{0})",
+      "#sigma(z^{rec}_{0} - z^{tru}_{0})",
+      "#sigma(#phi^{rec} - #phi^{tru})",
+      "#sigma(#theta^{rec} - #theta^{tru})",
+      "#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})",
+      "(1 - (q/p)^{tru}/(q/p)^{rec})",
+    };
+    static std::string titlePrefix("Track Resolution of ");
+  }else if((type == "pull") || (type == "width") || (type == "pullbase")){
+    static std::string titleRight[NPARAMS] = {
+      "(d^{rec}_{0} - d^{tru}_{0})/#sigma_{d_{0}}",
+      "(z^{rec}_{0} - z^{tru}_{0})/#sigma_{z_{0}}",
+      "(#phi^{rec} - #phi^{tru})/#sigma_{#phi}",
+      "(#theta^{rec} - #theta^{tru})/#sigma_{#theta}",
+      "useless junk",
+     "((q/p)^{rec} - (q/p)^{tru})/#sigma_{q/p}"
+    };
+    static std::string titlePrefix("Pull Distribution of ");
+  }
+  return titlePrefix + titleLeft[param] + titleRight[param];
 }
