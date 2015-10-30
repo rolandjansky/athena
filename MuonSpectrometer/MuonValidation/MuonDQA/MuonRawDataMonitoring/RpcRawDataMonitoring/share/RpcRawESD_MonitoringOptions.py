@@ -95,6 +95,20 @@ rpcLv1RawMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
 topSequence += rpcLv1RawMonMan
 
 
+############# RpcLv1RawDataSectorLogic #############
+rpcLv1SLRawMonMan = AthenaMonManager(name="RpcLv1SLRawMonManager",
+                                     FileKey             = DQMonFlags.monManFileKey(),
+                                     Environment         = DQMonFlags.monManEnvironment(),
+                                     OutputLevel         = muonOutputLevel)
+############# RPCLV1RawDataValAlg #############
+from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RpcLv1RawDataSectorLogic
+rpcLV1RawDataSectorLogic = RpcLv1RawDataSectorLogic(name='rpcLV1RawDataSectorLogic',OutputLevel = OutputMessageLevel)
+
+ToolSvc += rpcLV1RawDataSectorLogic
+rpcLv1SLRawMonMan.AthenaMonTools += [ rpcLV1RawDataSectorLogic ]
+topSequence += rpcLv1SLRawMonMan
+print rpcLv1SLRawMonMan
+
 ###################################################################
 #
 ##--------------------------------------------------------------

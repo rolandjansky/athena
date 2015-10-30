@@ -113,10 +113,8 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
   /////// NB !!!!!
   // the eta strip number increases going far away from IP
   // the phi strip number increases going from HV side to RO side
-     
-    for(int keta=0; keta!= 9; keta++){
-      int ieta = keta ;
-      if(irpcstationEta<0)ieta = - keta ;
+   
+
       int krpcstationName    = irpcstationName ;
       int krpcstationNameMin = irpcstationName ;
       int krpcstationNameMax = irpcstationName ;
@@ -131,13 +129,19 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
       if(irpcstationName>=8&&irpcstationName<=10&&irpcdoubletR==2){ // feet extension
          krpcstationNameMin =  8; 
          krpcstationNameMax = 10; 
-      } 
-      
+      }    
+   
       for(int jrpcstationName=krpcstationNameMin; jrpcstationName!=krpcstationNameMax+1; jrpcstationName++){
        if (jrpcstationName>10 && jrpcstationName!=53) continue; 
        krpcstationName = jrpcstationName ;
-       if(krpcstationName==1)krpcstationName = 53 ; //BME
-      
+       if(krpcstationName==1)krpcstationName = 53 ; //BME     
+    
+    
+    for(int keta=0; keta!= 9; keta++){
+      int ieta = keta ;
+      if(irpcstationEta<0&&ieta==0)continue     ; 
+      if(irpcstationEta<0&&ieta >0)ieta = - keta;// 
+
         int krpcdoubletR=irpcdoubletR;
 	
 	if(PlaneTipo==0){
@@ -146,10 +150,9 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
 	 if(krpcstationName==4||krpcstationName==5||krpcstationName==9||krpcstationName==10)continue;  
         }
 	else if(PlaneTipo==1){
-	 if(krpcstationName==2&&abs(abs(ieta))==7  	         )krpcdoubletR=2;
-	 if(krpcstationName==2&&abs(abs(ieta))==6&&irpcstationPhi==7)krpcdoubletR=2;
-	 if(krpcstationName==2&&abs(ieta)==7         )krpcdoubletR=1;
-	 if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7)krpcdoubletR=1;
+	 if(krpcstationName==2&&abs(ieta)==7         ){krpcdoubletR=1;}
+	 else if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7){krpcdoubletR=1;}
+	 else{ krpcdoubletR=2;}
         }
 	else if(PlaneTipo==2){
 	 if(krpcstationName==2||krpcstationName==3||krpcstationName==8||krpcstationName==53)continue;
@@ -175,6 +178,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
 	     else{ 
 	      ShiftEtaStripsTot = NetaStripsTotSideA  ;  
 	      ShiftPhiTot_db    = NphiStripsTotSideA  ;
+	      //std::cout << "ShiftPhiTot_db  " <<ShiftPhiTot_db <<std::endl; 
 	      ShiftEtaPanelsTot = NetaPanelsTotSideA  ;
 	     }
 	    }
@@ -186,12 +190,15 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
 	  if(irpcstationEta<0){
 	   NetaStripsTotSideC  +=  rpc->NetaStrips()  ;
 	   NphiStripsTotSideC  +=  rpc->NphiStrips()  ;
+	   //std::cout << "-- NphiStripsTotSideC  " <<NphiStripsTotSideC  <<std::endl; 
     	   NetaPanelsTotSideC  ++                     ;
 	  }
 	  else{ 
 	   NetaStripsTotSideA  +=  rpc->NetaStrips()  ;
 	   NphiStripsTotSideA  +=  rpc->NphiStrips()  ;
-    	   NetaPanelsTotSideA  ++                     ;
+	   //std::cout << "** NphiStripsTotSideA  " <<NphiStripsTotSideA  <<std::endl; 
+    	   NetaPanelsTotSideA  ++                     ;	
+
 	  }
     	
 	  
@@ -243,6 +250,9 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
   }
   //2***
   // cool db strip index
+  
+  //std::cout <<" NetaStripsTotSideC "<< NetaStripsTotSideC << " NetaStripsTotSideA "<< NetaStripsTotSideA << " ShiftPhiTot_db " << ShiftPhiTot_db << std::endl;
+  
   if(irpcmeasuresPhi==0) {
     strip_dbindex = ( ShiftEtaStripsTot + irpcstrip ) * EtaStripSign ;
   }
@@ -316,7 +326,8 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
       }
    
       for(int ieta = 0; ieta != laststationEta+1; ieta++ ){
-        int keta = ieta ;
+        if(ieta == 0 && irpcstationEta<0)continue;
+	int keta = ieta ;
 	if(irpcstationEta<0){
 	  keta=-ieta;
 	} 
@@ -361,7 +372,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
 	  //std::cout <<iname << " "<< keta <<" "<< iphi<<" "<< iz<<" x "<< panel_dbindex<< std::endl; 
 	  
 	}}}}
-        //std::cout <<EtaStripSign<< " PlaneTipo "<< PlaneTipo << " Name "<< irpcstationName<<" Eta "<< irpcstationEta<<" Phi "<< irpcstationPhi<<" dR "<< irpcdoubletR << " dZ "<< irpcdoubletZ<<" dPhi "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl;    
+        //if(irpcstationName>8&&irpcstationName<11)std::cout <<ShiftEtaPanelsTot<< " ShiftEtaPanelsTot "<< EtaStripSign<< " PlaneTipo "<<PlaneTipo << " Name "<< irpcstationName<<" Eta "<< irpcstationEta<<" Phi "<< irpcstationPhi<<" dR "<< irpcdoubletR << " dZ "<< irpcdoubletZ<<" dPhi "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl;    
   
 
 

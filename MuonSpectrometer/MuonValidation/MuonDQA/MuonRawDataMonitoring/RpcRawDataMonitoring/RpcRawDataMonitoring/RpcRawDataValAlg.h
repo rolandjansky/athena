@@ -197,13 +197,16 @@ class RpcRawDataValAlg: public ManagedMonitorToolBase {
   int   nTrigEtaStat_BA_HighPt	       ;
   int   nTrigEtaStat_BC_HighPt	       ; 
   
-  enum {enum_Phi_LowPt     ,enum_Phi_HighPt    ,enum_Eta_LowPt     ,enum_Eta_HighPt    ,
-        enum_Phi_LowPt0_BA ,enum_Phi_LowPt1_BA ,enum_Eta_LowPt0_BA ,enum_Eta_LowPt1_BA ,
-        enum_Phi_Pivot0_BA ,enum_Phi_Pivot1_BA ,enum_Eta_Pivot0_BA ,enum_Eta_Pivot1_BA ,
-        enum_Phi_HighPt0_BA,enum_Phi_HighPt1_BA,enum_Eta_HighPt0_BA,enum_Eta_HighPt1_BA,
-        enum_Phi_LowPt0_BC ,enum_Phi_LowPt1_BC ,enum_Eta_LowPt0_BC ,enum_Eta_LowPt1_BC ,
-        enum_Phi_Pivot0_BC ,enum_Phi_Pivot1_BC ,enum_Eta_Pivot0_BC ,enum_Eta_Pivot1_BC ,
-        enum_Phi_HighPt0_BC,enum_Phi_HighPt1_BC,enum_Eta_HighPt0_BC,enum_Eta_HighPt1_BC};
+  enum {enum_Phi_LowPt        ,enum_Phi_HighPt       ,enum_Eta_LowPt       ,enum_Eta_HighPt       ,
+        enum_Phi_LowPt_BA     ,enum_Phi_HighPt_BA    ,enum_Eta_LowPt_BA    ,enum_Eta_HighPt_BA    ,
+        enum_Phi_LowPt_BC     ,enum_Phi_HighPt_BC    ,enum_Eta_LowPt_BC    ,enum_Eta_HighPt_BC    ,
+        enum_EtaPhi_LowPt_BA  ,enum_EtaPhi_HighPt_BA ,enum_EtaPhi_LowPt_BC ,enum_EtaPhi_HighPt_BC ,
+        enum_Phi_LowPt0_BA    ,enum_Phi_LowPt1_BA    ,enum_Eta_LowPt0_BA   ,enum_Eta_LowPt1_BA    ,
+        enum_Phi_Pivot0_BA    ,enum_Phi_Pivot1_BA    ,enum_Eta_Pivot0_BA   ,enum_Eta_Pivot1_BA    ,
+        enum_Phi_HighPt0_BA   ,enum_Phi_HighPt1_BA   ,enum_Eta_HighPt0_BA  ,enum_Eta_HighPt1_BA   ,
+        enum_Phi_LowPt0_BC    ,enum_Phi_LowPt1_BC    ,enum_Eta_LowPt0_BC   ,enum_Eta_LowPt1_BC    ,
+        enum_Phi_Pivot0_BC    ,enum_Phi_Pivot1_BC    ,enum_Eta_Pivot0_BC   ,enum_Eta_Pivot1_BC    ,
+        enum_Phi_HighPt0_BC   ,enum_Phi_HighPt1_BC   ,enum_Eta_HighPt0_BC  ,enum_Eta_HighPt1_BC}  ;
   std::vector<TH2I*> rpc2DPanelHits ; 
   std::vector<TH2I*> rpc1DvsLBPanelHits ;
   enum {enum_Phi_TrigTowerLowPt_BA ,enum_Phi_TrigTowerHighPt_BA, enum_Eta_TrigTowerLowPt_BA ,enum_Eta_TrigTowerHighPt_BA ,
