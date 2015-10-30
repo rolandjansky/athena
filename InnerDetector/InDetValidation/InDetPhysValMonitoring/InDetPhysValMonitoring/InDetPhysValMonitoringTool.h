@@ -19,9 +19,8 @@
 //local include
 #include "PATCore/IAsgSelectionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "InDetPhysValMonitoring/InDetValidationPlots.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-
+//#include "src/TrackTruthSelectionTool.h"
 
 //fwd declaration
 class IInDetPhysValDecoratorTool;
@@ -59,21 +58,21 @@ private:
 
 
 	///histograms
-	//InDetValidationPlots m_inDetValidationPlots;
-	InDetRttPlots * m_monPlots;
+	std::unique_ptr< InDetRttPlots > m_monPlots;
 	///Tool for selecting tracks
-  bool m_useTrackSelection;
+	bool m_useTrackSelection;
 	bool m_onlyInsideOutTracks;
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
-	///bool variable to determine whether a track selector is used (default is false, then all tracks are used)
-	ToolHandle<IInDetPhysValDecoratorTool> m_truthDecoratorTool;
-	ToolHandle<IInDetPhysValDecoratorTool> m_hitDecoratorTool;
-	ToolHandle<IInDetPhysValDecoratorTool> m_errDecoratorTool;
-	ToolHandle<IInDetPhysValDecoratorTool> m_truthClassDecoratorTool;
+	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
+
+	ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
+
+	//bool m_TrackTruthSelectionTool;
+	//ToolHandle<TrackTruthSelectionTool> m_TrackTruthSelectionTool;
 
   ///Jet Things
   std::string m_jetContainerName;
   float m_maxTrkJetDR;
+  std::string m_folder;
   bool m_fillTIDEPlots;
   bool m_fillExtraTIDEPlots;
 

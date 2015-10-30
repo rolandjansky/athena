@@ -15,18 +15,15 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir){
+InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir){
   //nop
 }
 
 
 void 
 InDetPerfPlot_VertexContainer::initializePlots() {
-
   const bool prependDirectory(false);
-
   m_vx_n_vs_mu = Book2D("vx_n_vs_mu", "Number of vertices vs #mu;N vertices;#mu;Entries", 70, 0.0, 70.,100,0.0,100,prependDirectory);  
-
 }
 
 void 

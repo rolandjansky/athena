@@ -77,3 +77,13 @@ def toolFactory( tool_class ):
         tool = tool_class()
         ToolSvc += tool 
     return tool
+
+def serviceFactory( svc_class ):
+    from AthenaCommon.AppMgr import ServiceMgr
+    if hasattr(ServiceMgr,svc_class.__name__) :
+        svc = getattr(ServiceMgr,svc_class.__name__)
+    else :
+        # print 'DEBUG svcFactory create %s' % (svc_class.__name__)
+        svc = svc_class()
+        ServiceMgr += svc 
+    return svc
