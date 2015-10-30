@@ -13,14 +13,16 @@ use EventPrimitives     EventPrimitives-*       Event
 use TrkExInterfaces     TrkExInterfaces-*       Tracking/TrkExtrapolation
 use TrkParameters       TrkParameters-*         Tracking/TrkEvent
 use TrkEventPrimitives  TrkEventPrimitives-*    Tracking/TrkEvent
-
+use TrkTrack            TrkTrack-*              Tracking/TrkEvent
 use MuonIdHelpers	MuonIdHelpers-*  	MuonSpectrometer
 
 use MuonSegment         MuonSegment-*           MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonRIO_OnTrack MuonRIO_OnTrack-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonCompetingRIOsOnTrack MuonCompetingRIOsOnTrack-* MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonLayerEvent      MuonLayerEvent-*        MuonSpectrometer/MuonReconstruction/MuonRecEvent
-
+use MuonClusterization  MuonClusterization-*    MuonSpectrometer/MuonReconstruction/MuonDataPrep
 use MuonCombinedEvent   MuonCombinedEvent-*     Reconstruction/MuonIdentification
-
+use xAODTruth           xAODTruth-*             Event/xAOD
 
 use MuonRecToolInterfaces      MuonRecToolInterfaces-*      MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonRecHelperTools         MuonRecHelperTools-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
@@ -28,10 +30,16 @@ use MuonCombinedToolInterfaces MuonCombinedToolInterfaces-* Reconstruction/MuonI
 use MuidInterfaces             MuidInterfaces-*             Reconstruction/MuonIdentification
 use MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 use MuonSegmentTaggerToolInterfaces MuonSegmentTaggerToolInterfaces-* Reconstruction/MuonIdentification/MuonSegmentTaggers
-
+use MuonHoughPatternTools      MuonHoughPatternTools-*      MuonSpectrometer/MuonReconstruction/MuonPatternFinders/MuonPatternFinderTools
+use MuonLayerHough             MuonLayerHough-*             MuonSpectrometer/MuonReconstruction/MuonRecUtils
+use MuonDetDescrUtils          MuonDetDescrUtils-*          MuonSpectrometer/MuonDetDescr
 use  MuonSegmentMakerToolInterfaces MuonSegmentMakerToolInterfaces-* MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools
 use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools
+use MuGirlStau MuGirlStau-* Reconstruction/MuonIdentification
 
+use  MdtCalibData               MdtCalibData-*                  MuonSpectrometer/MuonCalib/MdtCalib
+use  MdtCalibSvc                MdtCalibSvc-*                   MuonSpectrometer/MuonCalib/MdtCalib
+use TrkDriftCircleMath TrkDriftCircleMath-* Tracking/TrkUtilityPackages
 public
 
 apply_pattern component_library

@@ -16,7 +16,6 @@
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 
 #include "MuonLayerEvent/MuonSystemExtension.h"
-#include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonLayerEvent/MuonCandidate.h"
 #include "MuonSegment/MuonSegment.h"
 
@@ -33,11 +32,12 @@ namespace MuonCombined {
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
     m_ambiguityResolver("Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"),
     m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
+    m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
     m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
+    declareInterface<MuonInsideOutRecoTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MuonEDMPrinterTool",m_printer );    
@@ -49,8 +49,6 @@ namespace MuonCombined {
     declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
     declareProperty("MuonTrackBuilder",           m_trackFitter );    
     declareProperty("TrackAmbiguityProcessor",m_trackAmbibuityResolver );    
-    declareProperty("MuonRecoValidationTool",m_recoValidationTool);
-
   }
 
   MuonInsideOutRecoTool::~MuonInsideOutRecoTool() { }
@@ -68,7 +66,7 @@ namespace MuonCombined {
     ATH_CHECK(m_segmentMatchingTool.retrieve());
     ATH_CHECK(m_ambiguityResolver.retrieve());
     ATH_CHECK(m_candidateTrackBuilder.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     
@@ -106,7 +104,8 @@ namespace MuonCombined {
     std::vector< Muon::MuonLayerRecoData > allLayers;
 
     const std::vector<Muon::MuonSystemExtension::Intersection>& layerIntersections = muonSystemExtension->layerIntersections();
-    ATH_MSG_DEBUG(" ID track: pt "  << indetTrackParticle.pt() << " eta " << indetTrackParticle.eta() << " phi " << indetTrackParticle.phi() << " layers " << layerIntersections.size());
+    ATH_MSG_DEBUG(" ID track: pt "  << indetTrackParticle.pt() << " eta " << indetTrackParticle.eta() 
+                  << " phi " << indetTrackParticle.phi() << " layers " << layerIntersections.size());
 
     for( std::vector<Muon::MuonSystemExtension::Intersection>::const_iterator it = layerIntersections.begin();it!=layerIntersections.end();++it ){
 
@@ -145,7 +144,21 @@ namespace MuonCombined {
       }
       msg(MSG::DEBUG) << endreq;
     }
-    
+
+    // find best candidate and exit if none found
+    std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > bestCandidate = findBestCandidate(indetTrackParticle,allLayers);
+    if( !bestCandidate.first.get() ){
+      return;
+    }
+
+    // add candidate to indet candidate
+    addTag(indetCandidate,*bestCandidate.first.get(),bestCandidate.second);
+  }
+
+
+  std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> > 
+  MuonInsideOutRecoTool::findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const {
+
     // resolve ambiguities 
     std::vector< Muon::MuonCandidate > resolvedCandidates;
     m_ambiguityResolver->resolveOverlaps( allLayers, resolvedCandidates );
@@ -162,7 +175,7 @@ namespace MuonCombined {
     }
 
     // first handle easy cases of zero or one track
-    if( tracks.empty() ) return;
+    if( tracks.empty() ) return std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> >(nullptr,nullptr);
     
     const Trk::Track* selectedTrack = 0;
     if( tracks.size() == 1 ){
@@ -175,25 +188,31 @@ namespace MuonCombined {
       delete resolvedTracks;
     
     }
-
-    // perform standalone refit
-    const Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack);
-    
     // get candidate
     const Muon::MuonCandidate* candidate = trackCandidateLookup[selectedTrack];
     if( !candidate ){
       ATH_MSG_WARNING("candidate lookup failed, this should not happen");
-      return;
+      return std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> >(nullptr,nullptr);;
     }
-    
+
+    return std::make_pair( std::unique_ptr<const Muon::MuonCandidate>(new Muon::MuonCandidate(*candidate)),
+                           std::unique_ptr<const Trk::Track>(new Trk::Track(*selectedTrack)) );
+  }
+
+  void MuonInsideOutRecoTool::addTag( const InDetCandidate& indetCandidate, const Muon::MuonCandidate& candidate,  
+                                      std::unique_ptr<const Trk::Track>& selectedTrack ) const {
+
     // get segments 
     std::vector<const Muon::MuonSegment*> segments;
-    for( const auto& layer : candidate->layerIntersections ){
+    for( const auto& layer : candidate.layerIntersections ){
       segments.push_back( new Muon::MuonSegment(*layer.segment) );
     }
-    
+
+    // perform standalone refit
+    const Trk::Track* standaloneRefit = m_trackFitter->standaloneRefit(*selectedTrack.get());
+        
     // create tag and set SA refit
-    MuGirlTag* tag = new MuGirlTag(new Trk::Track(*selectedTrack),segments);    
+    MuGirlTag* tag = new MuGirlTag(selectedTrack.release(),segments);    
     if( standaloneRefit ) tag->setUpdatedExtrapolatedTrack(std::unique_ptr<const Trk::Track>(standaloneRefit));
 
     // add tag to IndetCandidate
