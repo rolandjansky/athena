@@ -3,6 +3,7 @@
 */
 
 #include "TrigInterfaces/HypoAlgo.h"
+#include <vector>
 namespace HLT{
   class TriggerElement;
 }
@@ -19,10 +20,8 @@ private:
 
   // monitoring
   float m_Tot_Et;
-  float m_Tot_Et_passing;
-  
-  // Coniguration 
+  float m_Tot_Et_passing;  
+  // Configuration   
   float    m_FcalEt_min;
   float    m_FcalEt_max;
-  
 };

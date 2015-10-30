@@ -94,7 +94,7 @@ HLT::ErrorCode ElectronUEMonitoring::hltExecute(const HLT::TriggerElement* /*inp
   double fcalEt = 0.;
   for ( auto &slice: *evtShape ) {
     if ( withinFcalRange(slice->etaMin()) and withinFcalRange(slice->etaMax()) ) {
-      fcalEt += slice->Et();
+      fcalEt += slice->et();
     }
   }
   // get ot to TeV scale

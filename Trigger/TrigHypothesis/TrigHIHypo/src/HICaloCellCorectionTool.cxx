@@ -68,7 +68,7 @@ double HICaloCellCorectionTool::getAvgEnergy(const int layer, const double eta){
     int evLayer = ev->layer();
     
     if(evLayer == layer && (eta <= ev->etaMax() && eta > ev->etaMin())){
-      double et = ev->Et();
+      double et = ev->et();
       if ( std::abs(et) > 0.1 ) // energy in MeV so this small value essentially zero
 	return et /= ev->nCells();
     }
