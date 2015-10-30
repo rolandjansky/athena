@@ -46,7 +46,7 @@ std::string choptoken(std::string& s1, const std::string& s2)
 std::string chomptoken(std::string& s1, const std::string& s2)
 {
   std::string s3 = "";
-  std::string::size_type pos = s1.find(s2);
+  std::string::size_type pos = s1.find_last_of(s2);
   if ( pos != std::string::npos ) {
     s3 = s1.substr(pos, s1.size());
     s1.erase(pos, s1.size()); 

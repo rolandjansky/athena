@@ -63,6 +63,11 @@ void contents( std::vector<std::string>& keys,
 double realmax( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 double realmin( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 
+
+double plotable( TH1* h );
+
+
+
 template<typename T>
 std::ostream& operator<<( std::ostream& s, std::vector<T>& v) { 
   for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
@@ -191,10 +196,9 @@ public:
       htest()->SetMarkerColor(htest()->GetLineColor());
       htest()->SetMarkerStyle(markers[i%6]);
 
-
-
       if(first)  { 
-	if ( plotref && href() ) { 
+	if ( plotref && href() ) {
+	  href()->GetYaxis()->SetMoreLogLabels(true);
 	  href()->Draw("hist][");
 	  //	  if ( tgref() ) { 
 	  //	    setParameters( href(), tgref() );

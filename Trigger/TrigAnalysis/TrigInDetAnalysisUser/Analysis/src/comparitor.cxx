@@ -22,6 +22,8 @@
 
 #include "TrigInDetAnalysis/Efficiency.h"
 
+#include "ReadCards.h"
+
 #include "Resplot.h"
 #include "utils.h"
 #include "label.h"
@@ -54,21 +56,22 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -t,  --tag value   \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value   \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value   \t creates output files into directory, \"value\" \n";
-  s << "    -e,  --efficiencies\t make test efficiencies with respect to reference \n";
-  s << "    -r,  --refit       \t refit all resplots\n";
-  s << "    -l,  --labels      \t use specified labels for key\n";
-  s << "    -nb  --nobayes     \t do not calculate Basyesian efficiency uncertaintiesr\n";
-  s << "    -as, --atlasstyle  \t use ATLAS style\n";
-  s << "    -ns, --nostats     \t do not show stats for mean and rms\n";
-  s << "    -nr, --noref       \t do not plot reference histograms\n";
-  s << "    -np, --noplots     \t do not actually make any plot\n";
-  s << "    -nw, --nowatermark \t do not plot the release watermark\n"; 
-  s << "         --nopng       \t do not print png files\n"; 
-  s << "         --deleteref   \t delete unused reference histograms\n"; 
-  s << "    -h,  --help        \t this help\n";
+  s << "    -c,  --config value \t configure which histograms to plot from config file,\n";
+  s << "    -t,  --tag value    \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value    \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir value    \t creates output files into directory, \"value\" \n";
+  s << "    -e,  --efficiencies \t make test efficiencies with respect to reference \n";
+  s << "    -r,  --refit        \t refit all resplots\n";
+  s << "    -l,  --labels       \t use specified labels for key\n";
+  s << "    -nb  --nobayes      \t do not calculate Basyesian efficiency uncertaintiesr\n";
+  s << "    -as, --atlasstyle   \t use ATLAS style\n";
+  s << "    -ns, --nostats      \t do not show stats for mean and rms\n";
+  s << "    -nr, --noref        \t do not plot reference histograms\n";
+  s << "    -np, --noplots      \t do not actually make any plot\n";
+  s << "    -nw, --nowatermark  \t do not plot the release watermark\n"; 
+  s << "         --nopng        \t do not print png files\n"; 
+  s << "         --deleteref    \t delete unused reference histograms\n"; 
+  s << "    -h,  --help         \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -96,6 +99,8 @@ public:
     m_lo(0),
     m_hi(0)
   { 
+    //    std::cout << "AxisInfo::info" << m_info << std::endl;
+
     std::vector<std::string> keys = split( s, ":" );
     
     //    std::cout << "\n\n" << s << "\nnkeys " << keys.size() << std::endl; 
@@ -104,22 +109,29 @@ public:
     
     if ( keys.size()>1 && keys[1]=="log" ) m_log = true;
 
+
     if ( keys.size()>2 ) { 
       if      ( keys[2]=="auto" )      m_autoset = true;
       else if ( keys[2]=="autosym" ) { m_autoset = true; m_symmetric = true; }
-      else { 
-	if ( keys.size()<4 ) { 
+    }
+
+
+    unsigned rangemin = 2;
+    if ( m_autoset ) rangemin++;
+     
+    if ( keys.size()>rangemin ) { 
+      if ( keys.size()<(rangemin+2) ) { 
 	  std::cerr << "not enough values for the axis range: " << s << std::endl;
 	  std::exit(-1);
-	}
-	m_rangeset = true;
-	
-	m_lo = std::atof(keys[2].c_str());
-	m_hi = std::atof(keys[3].c_str());
       }
+	
+      m_rangeset = true;
+	
+      m_lo = std::atof(keys[rangemin].c_str());
+      m_hi = std::atof(keys[rangemin+1].c_str());
     }
+   
   }
-
   
   /// accessors 
 
@@ -230,6 +242,8 @@ int main(int argc, char** argv) {
   bool nowatermark = false;
   bool noplots     = false;
 
+  std::string configfile = "";
+
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
     std::string arg  = argv[i];
@@ -248,6 +262,10 @@ int main(int argc, char** argv) {
 
     if ( arg=="-h" || arg=="--help" ) { 
        return usage(argv[0], 0);
+    }
+    else if ( arg=="-c" || arg=="--config" ) { 
+      if ( ++i<argc ) configfile=argv[i];
+      else return usage(argv[0], -1);
     }
     else if ( arg=="-t" || arg=="--tag" ) { 
       if ( ++i<argc ) tag=std::string("-")+argv[i];
@@ -444,37 +462,40 @@ int main(int argc, char** argv) {
   savedhistos.push_back("event");
 
 
-  const int Nhistos = 47;
-  std::string _histos[Nhistos][6] = { 
+  int    Nhistos = 48;
+  const  int __Nhistos = 48;
+  std::string __histos[__Nhistos][6] = { 
 
     /// distributions - 4
-    //  { "pT",  "p_{T}",   "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "pT",      "p_{T}",   "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "a0",      "a0",      "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",  "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "z0",      "z0",      "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
+    //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT",      "p_{T}",     "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT_rec",  "p_{T} rec", "xaxis:lin:20:300",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "a0",      "a0",        "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0_rec",  "a0 rec",    "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
 
     /// efficiencies - 10 
-    //    { "pT_eff", "Efficiency p_{T}", "xaxis:log:0.7:100",     "Offline p_{T} [GeV]",    "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto",        "Offline track p_{T} [GeV]",    "yaxis:lin:auto",   "Efficiency [%]" },       
-    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto",   "Efficiency [%]" },       
-    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto",   "Efficiency [%]" },       
-    { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:auto",   "Efficiency [%]" },       
-    //    { "a0_eff",       "Efficiency a0",    "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
-    { "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:auto",   "Efficiency [%]" },      
-    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:auto",   "Efficiency [%]" },        
-    { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },
-    { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "roi_dR_eff",   "Efficiency #DeltaR(RoI)",     "xaxis:lin:0:0.6",      "#Delta R (RoI)",     "yaxis:lin:90:102",   "Efficiency [%]" },       
+    //    { "pT_eff", "Efficiency p_{T}", "xaxis:log:0.7:100",     "Offline p_{T} [GeV]",          "yaxis:lin:90:102",       "Efficiency [%]" },       
+    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto",        "Offline track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
+    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
+    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
+    { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
+    //    { "a0_eff",  "Efficiency a0",   "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",       "Efficiency [%]" },        
+    { "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },      
+    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },        
+ 
+    { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",       "Efficiency [%]" },       
+    { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",       "Efficiency [%]" },
+    { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",       "Efficiency [%]" },       
+    { "roi_dR_eff",   "Efficiency #DeltaR(RoI)",     "xaxis:lin:0:0.6",      "#Delta R (RoI)",     "yaxis:lin:90:102",       "Efficiency [%]" },       
 
     /// standard residuals - 5 
-    { "ipT_res", "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",  "Normalised entries" },       
-    { "eta_res", "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",  "Normalised entries" },       
-    { "phi_res", "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",  "Normalised entries" },
-    //    { "z0_res",  "Residual z0", "xaxis:lin:-7:10",         "#Delta z_{0} [mm]",            "yaxis:lin:0:0.035",  "Normalised entries" },
-    { "z0_res",  "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",  "Normalised entries" },
-    { "a0_res",  "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",  "Normalised entries" },       
+    { "ipT_res",    "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",    "Normalised entries" },       
+    { "eta_res",    "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries" },       
+    { "phi_res",    "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",    "Normalised entries" },
+    //  { "z0_res", "Residual z0",       "xaxis:lin:-7:10",         "#Delta z_{0} [mm]",            "yaxis:lin:0:0.035", "Normalised entries" },
+    { "z0_res",     "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" },
+    { "a0_res",     "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" },       
  
     /// residuals vs track parameters - 17
     //    { "rd0_vs_pt/sigma",    "Residual d vs p_{T}",          "xaxis:lin:0:100",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },
@@ -509,8 +530,6 @@ int main(int argc, char** argv) {
     { "rzed_vs_zed/sigma",        "Residual z vs z",              "xaxis:lin:-250:250", "Offline z [mm]",        "yaxis:lin:auto", "z_{0} resolution [mm]" },
     { "rzed_vs_ipt/sigma",        "Residual z vs 1/p_{T}",        "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "z_{0} resolution [mm]" },
 
- 
-
     /// track multiplicity - 1
     { "ntracks_rec",             "number of reconstructed tracks", "xaxis:lin:auto",   "N trigger tracks",     "yaxis:log:auto", "Entries"  },
 
@@ -541,8 +560,47 @@ int main(int argc, char** argv) {
   };
   
 
-  std::string histos[Nhistos];
-  
+  std::vector<std::vector<std::string> > _histos;
+
+  /// read config in from a file if requested ...
+
+  if ( configfile!="" ) { 
+    if ( exists(configfile) ) { 
+
+      std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
+    
+      ReadCards rc(configfile);
+      
+      std::vector<std::string> histos = rc.GetStringVector("histos");
+      
+      //  std::string histos[Nhistos];
+      
+      for ( unsigned i=0 ; i<histos.size() ; ) { 
+	std::vector<std::string> duff;
+	for ( int j=0 ; j<6 && i<histos.size() ; j++, i++  ) duff.push_back( histos[i] );
+	_histos.push_back( duff );
+      }
+      
+      for ( unsigned i=0 ; i<_histos.size() ; i++ ) std::cout << "histos: " << i << "\t" << _histos[i] << std::endl;
+      
+    }
+    else { 
+      std::cerr << argv[0] << ":\t config file not found: " << configfile << std::endl;
+      return -1;
+    }
+  }
+  else { 
+    for ( int i=0 ; i<__Nhistos ; i++ ) { 
+      std::vector<std::string> duff;
+      for ( int j=0 ; j<6 ; j++ ) duff.push_back( __histos[i][j] );
+      _histos.push_back( duff );
+    }
+  }
+
+  Nhistos = _histos.size();
+
+  if ( _histos.size()==0 ) return usage(argv[0], -1);
+
 
 
   const int Nhistos2D = 2;
@@ -640,9 +698,9 @@ int main(int argc, char** argv) {
   /// so we can easily limit the number of histograms drawn
   int _Nhistos = Nhistos;
 
-  for ( int i=0 ; i<_Nhistos ; i++ ) {
+  std::vector<std::string> histos(_Nhistos);
 
-    //    if ( i!=17 ) continue;
+  for ( int i=0 ; i<_Nhistos ; i++ ) {
 
     histos[i] = _histos[i][0];
 
@@ -739,8 +797,6 @@ int main(int argc, char** argv) {
     //    bool uselogx = xinfo.log();
     //    bool uselogy = yinfo.log();
 
-
-
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
       std::cout << "       processing chain[" << j << "]   " << chains[j] << std::endl;
@@ -754,6 +810,7 @@ int main(int argc, char** argv) {
 
       TGraphAsymmErrors* tgtest = 0;
   
+     
       if ( refit_resplots && contains(histos[i],"/sigma") ) { 
 
     	    std::cout << "       refitting:  " << histos[i] << std::endl;
@@ -796,8 +853,6 @@ int main(int argc, char** argv) {
 	href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
 	savedhistos.push_back( chains[j]+"/"+histos[i] );
       }
-
-      
 
       if ( make_ref_efficiencies ) { 
 	if ( htest && href ) { 
@@ -853,7 +908,6 @@ int main(int argc, char** argv) {
       href->GetXaxis()->SetTitleOffset(1.5);
       href->GetXaxis()->SetTitle(xaxis.c_str());
       href->GetYaxis()->SetTitle(yaxis.c_str());
-
 
       if ( contains(histos[i],"ntracks") ) {
 	htest->Rebin(2);
@@ -924,6 +978,7 @@ int main(int argc, char** argv) {
       if ( uselabels )  plots.push_back( Plotter( htest, href, usrlabels[j], tgtest ) );
       else              plots.push_back( Plotter( htest, href, c, tgtest ) );
 
+
       if ( make_ref_efficiencies ) { 
 	
 	if ( htestnum && hrefnum ) { 
@@ -933,7 +988,8 @@ int main(int argc, char** argv) {
 
 	  double range = h->GetMaximum()-h->GetMinimum();
 
-	  if ( range<20 ) { 
+	  if ( range<20 ) {
+ 
 	    double _max = int( (h->GetMaximum() + 20)*0.1 )*10.0;
 	    double _min = int( (h->GetMinimum() - 10)*0.1 )*10.0;
 	    
@@ -942,13 +998,13 @@ int main(int argc, char** argv) {
 	    
 	    h->SetMinimum(_min);
 	    h->SetMaximum(_max);
+	    
 	  }
 
 	  plots_eff.push_back( Plotter( e.Hist(), 0, c ) );
 	  
 	}     
       }
-
 
       
       if(contains(histos[i],"_res"))  {
@@ -1046,7 +1102,7 @@ int main(int argc, char** argv) {
 
       }
       
-    }  
+    }
 
 
     if ( !noplots ) { 
@@ -1054,12 +1110,13 @@ int main(int argc, char** argv) {
       /// try to localise all axis range setting, log, lin sclaes etc
       /// to this one place 
       
-      plots.SetLogy(yinfo.log());
-      plots.SetLogx(xinfo.log());
-      
       if      ( xinfo.autoset() )  plots.xrange(xinfo.symmetric()); 
       else if ( xinfo.rangeset() ) plots.SetRangeUser( xinfo.lo(), xinfo.hi() );
       
+
+      double  yminset = 0;
+      double  ymaxset = 0;
+
       if ( yinfo.autoset() ) { 
 	
 	double rmin = 0;
@@ -1074,33 +1131,61 @@ int main(int argc, char** argv) {
 	  rmax = plots.realmax();
 	}
 	
-	if ( yinfo.log() ) { 
+	if ( yinfo.log() && rmin>0 ) { 
 	  double delta = std::log10(rmax)-std::log10(rmin);
-	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1)) );
-	  else              plots.Max( rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())) );
-	  plots.Min( rmin*std::pow(10,-delta*0.1) );
+
+	  if ( atlasstyle ) ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1));
+	  else              ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())); 
+
+	  yminset =  rmin*std::pow(10,-delta*0.1);
+
 	}
 	else { 
 	  double delta = rmax-rmin;
-	  plots.Max( rmax+delta*0.1*chains.size() );
-	  plots.Min( rmin-delta*0.1 );
+	  ymaxset = rmax+delta*0.1*chains.size();
+	  yminset = rmin-delta*0.1;
 	}
 	
       }
       else {  
 	if ( yinfo.rangeset() ) { 
-	  plots.Min(yinfo.lo());
-	  plots.Max(yinfo.hi());
+	  yminset = yinfo.lo();
+	  ymaxset = yinfo.hi();
 	}
       }
       
+
+      std::cout <<  "yauto: " << yinfo.autoset() << "\tyrange " << yinfo.rangeset() << std::endl;
+
+
+      if ( yinfo.autoset() && yinfo.rangeset() ) {
+
+	std::cout << "yauto and yrange set " << std::endl;
+ 
+	if ( yminset>yinfo.lo() ) yminset = yinfo.lo();
+	if ( ymaxset<yinfo.hi() ) ymaxset = yinfo.hi();
+      }
       
+
       if ( contains(histos[i],"_eff") ) { 
 	if ( effset ) { 
-	  plots.Max(effmax);
-	  plots.Min(effmin);
+	  ymaxset = effmax;
+	  yminset = effmin;
 	}
       }
+      
+      if ( ymaxset!=0 || yminset!=0 ) { 
+	plots.Max( ymaxset );
+	plots.Min( yminset );
+      }
+
+      if ( yminset>0 ) plots.SetLogy(yinfo.log());
+      else             plots.SetLogy(false);
+        
+
+      if ( xinfo.lo()<=0 ) plots.SetLogx(false);
+      else                 plots.SetLogx(xinfo.log());
+      
       
       ///    if ( contains(histos[i],"_res"))  plots.xrange(true);
       //      if ( contains(histos[i],"_res") ) plots.MaxScale( 100 ); 
@@ -1109,8 +1194,10 @@ int main(int argc, char** argv) {
       
       /// actually draw the plot here ...
       
+      //      std::cout << "drawing ..." << std::endl;
       plots.Draw( legend );
-      
+      //      std::cout << "done" << std::endl;
+
       if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, "for approval" );
       
       for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
@@ -1119,8 +1206,6 @@ int main(int argc, char** argv) {
       }
     }
     
-
-
     /*if ( histos[i],"eff")) {
       ATLASFORAPP_LABEL(0.15,0.2,1,0.05);
       myText(      0.7,0.3,1,"#sqrt{s}= 8 TeV", 0.045);
@@ -1157,15 +1242,17 @@ int main(int argc, char** argv) {
     else           c1->SetLogy(false);
 #endif
 
-    
     if ( !noplots ) { 
 
       if ( plotname!="" ) { 
+
 	//      plots.back().Print( dir+plotname+tag+".C" );
 	plots.back().Print( dir+plotname+tag+".pdf" );
+
 	if ( !nopng ) plots.back().Print( dir+plotname+tag+".png" );
+
       }    
-      
+
       
       if ( make_ref_efficiencies ) { 
 	
@@ -1174,19 +1261,21 @@ int main(int argc, char** argv) {
 	
 	plots_eff.Draw( legend_eff );
 	
-	
-	if ( plotname!="" ) { 
+	if ( plotname!="" ) {
+
 	  plots_eff.back().Print( dir+plotname+tag+"_refeff.pdf" );
+
 	  if ( !nopng ) plots_eff.back().Print( dir+plotname+tag+"_refeff.png" );
-	  gPad->SetLogx(true);
-	}    
 	
+	  gPad->SetLogx(true);
+
+	}    
 	
       }
       
-      //    std::cout << "delete c1 " << c1 << std::endl;
+      //      std::cout << "delete c1 " << c1 << std::endl;
       delete c1;
-      //  std::cout << "deleted " << std::endl;
+      //      std::cout << "deleted " << std::endl;
       
     }
   }
