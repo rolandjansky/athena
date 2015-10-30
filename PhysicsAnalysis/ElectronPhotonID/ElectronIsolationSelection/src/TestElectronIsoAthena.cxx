@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TestElectronIsoAthena.cxx 635994 2014-12-15 14:37:46Z morrisj $
+// $Id: TestElectronIsoAthena.cxx 704991 2015-10-30 20:02:12Z ludovica $
 
 // Local include(s):
 #include "TestElectronIsoAthena.h"
@@ -18,8 +18,7 @@ namespace CP
 
   TestElectronIsoAthena::TestElectronIsoAthena( const std::string& name, ISvcLocator* svcLoc ) :
     AthAlgorithm( name, svcLoc ),
-    m_sgKey("ElectronCollection"),
-    m_isoTool(nullptr)
+    m_sgKey("ElectronCollection")
   {  
     declareProperty( "IsoTool", m_isoTool );
   }
