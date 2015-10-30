@@ -34,4 +34,5 @@ private:
   
   double m_q0xShift; // shifts
   double m_q0yShift;
+  bool m_upperLimit;
 };

@@ -13,8 +13,9 @@ UltraCentralHypo::UltraCentralHypo(const std::string& name, ISvcLocator* pSvcLoc
   declareMonitoredVariable("FCalTotalEt"        , m_Tot_Et            ,  0.);
   declareMonitoredVariable("FCalTotalEtPassing" , m_Tot_Et_passing    , -1.);
 
-  declareProperty("FcalEtUpperBound",     m_FcalEt_max = -1., "Upper bound of passing values, negative means +inf.");
-  declareProperty("FcalEtLowerBound",     m_FcalEt_min = -1.,  "Lower bound of passing values, negative means -inf.");
+  declareProperty("FcalEtUpperBound",     m_FcalEt_max=1.e10, "Upper bound of passing values, negative means +inf.");
+  declareProperty("FcalEtLowerBound",     m_FcalEt_min=-1.e10, "Lower bound of passing values, negative means -inf.");
+
 }
 
 HLT::ErrorCode UltraCentralHypo::hltInitialize() { return HLT::OK; }
@@ -48,7 +49,7 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
   int size=evtShape->size();
   for(int i=0;i<size;i++){
     const xAOD::HIEventShape *sh=evtShape->at(i);
-    float Et     =  sh->Et();
+    float Et     =  sh->et();
     if(Et==0) continue;
     
     float eta=(sh->etaMin()+sh->etaMax())/2.0;
@@ -58,15 +59,9 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
   
   // now cutting
-  if ( m_FcalEt_max > 0. && m_Tot_Et < m_FcalEt_max ) {
+  if ( m_FcalEt_min <= m_Tot_Et and m_Tot_Et < m_FcalEt_max ) {
     pass = true;
     m_Tot_Et_passing = m_Tot_Et;
-    return HLT::OK;
-  }
-  if ( m_FcalEt_min > 0. && m_FcalEt_min < m_Tot_Et ) {
-    pass = true;
-    m_Tot_Et_passing = m_Tot_Et;
-    return HLT::OK;
   }
 
   return HLT::OK;

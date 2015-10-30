@@ -23,15 +23,19 @@ VnHypo::VnHypo(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("QThresholds",  m_helper.thresholds, "Values of thresholds above which the hypo accepts, size must match CentralityBins");
   declareProperty("QxShifts",  m_helper.qxshifts, "Values of q shifts along the x coordinate");
   declareProperty("QyShifts",  m_helper.qyshifts, "Values of q shifts along the y coordinate");
-  declareProperty("FlowHarmonic"  , m_FlowHarmonic  =2                     , "The Order of the flow harmonic (2/3)"); 
+  declareProperty("FlowHarmonic"  , m_FlowHarmonic  =2                     , "The Order of the flow harmonic (2/3)");
+  declareProperty("UpperLimit", m_upperLimit=false, "Apply q < threshold if true");
 }
 
 HLT::ErrorCode VnHypo::hltInitialize() {
   if ( not m_helper.valid() ) {
     ATH_MSG_ERROR("VnHypoHelper missocnfigured, likely centrality and vn thresholds vectors missmatch");
-    return HLT::ERROR;
-      
+    return HLT::ERROR;      
   }
+  
+  std::transform( m_helper.centcuts.begin(), m_helper.centcuts.end(),
+		  m_helper.centcuts.begin(), [](float x){ return x*1.e6; } ); // convert thresholds to MeV 
+    
   return HLT::OK; 
 }
 
@@ -67,23 +71,23 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
   int size=evtShape->size();
   for(int i=0;i<size;i++){
     const xAOD::HIEventShape *sh=evtShape->at(i);
-    float Et     =  sh->Et();
+    float Et     =  sh->et();
     if(Et==0) continue;
 
     float eta=(sh->etaMin()+sh->etaMax())*0.5;
     if(std::fabs(eta)<3.2) continue;//FCal Only
 
-    const std::vector<float> &c1=sh->Et_cos();
-    const std::vector<float> &s1=sh->Et_sin();
+    const std::vector<float> &c1=sh->etCos();
+    const std::vector<float> &s1=sh->etSin();
 
     m_qnx+=c1[FlowHarmonic_index];
     m_qny+=s1[FlowHarmonic_index];
     m_Tot_Et+=Et;
   }
-
+  
   m_icent=m_helper.getCentBin(m_Tot_Et);
   if(m_icent==-1) return HLT::OK;
-  
+
   m_qnx /= m_Tot_Et;
   m_qny /= m_Tot_Et;
   m_qnx -= m_helper.getQxShift(m_icent);
@@ -93,8 +97,9 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
 
   // now cutting
   float Vn_Threshold=m_helper.getThreshold(m_icent);
-
-  if ( m_qn > Vn_Threshold) {
+  //  ATH_MSG_INFO("Et " << m_Tot_Et << " icent " << m_icent << " threshold " << Vn_Threshold);
+  if ( (m_upperLimit == true and m_qn < Vn_Threshold)
+       or (m_upperLimit == false and m_qn > Vn_Threshold) ) {
     pass             = true;
     m_Tot_Et_passing = m_Tot_Et;
     m_qn_passing     = m_qn;
