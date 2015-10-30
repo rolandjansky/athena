@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 695114 2015-09-16 06:59:12Z sutt $
+//   $Id: ConfAnalysis.cxx 700401 2015-10-13 19:21:04Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -1465,7 +1465,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	if ( dumpflag ) { 
 	  if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
 	    dump = true;
-	  std:cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
+	    std::cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
 	  }  
 	}
 	
