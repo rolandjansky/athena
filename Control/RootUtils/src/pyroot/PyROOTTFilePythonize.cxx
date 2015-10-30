@@ -14,13 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// we need access to the protected TFile::GetRelOffset() method.
-// this is supposed to be fixed in 5.26.
-#define protected public
-#define private public
 #include "TFile.h"
-#undef private
-#undef protected
 
 // local includes
 #include "RootUtils/PyROOTTFilePythonize.h"

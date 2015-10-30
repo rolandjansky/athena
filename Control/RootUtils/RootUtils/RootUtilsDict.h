@@ -13,6 +13,17 @@
  * @brief Dictionary header for RootUtils.
  */
 
+namespace RootUtilsTest {
+
+// Small class used for unit testing.
+struct TreeTest
+{
+  int i;
+  float f;
+};
+
+}
+
 #include "RootUtils/InitHist.h"
 #include "RootUtils/StdHackGenerator.h"
 #include "RootUtils/ScanForAbstract.h"

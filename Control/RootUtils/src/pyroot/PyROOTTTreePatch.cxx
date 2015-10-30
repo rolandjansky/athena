@@ -11,6 +11,9 @@
  */
 
 #include "RootUtils/PyROOTTTreePatch.h"
+#include "Utility.h"
+#include "Converters.h"
+
 #include "Python.h"
 #include "TClass.h"
 #include "TClassRef.h"
@@ -22,11 +25,7 @@
 #include "TLeafObject.h"
 #include "TROOT.h"
 #include "TPython.h"
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
 #include "TInterpreterValue.h"
-#else
-#include "Api.h"
-#endif
 #include <map>
 #include <vector>
 
@@ -38,80 +37,14 @@
 
 namespace PyROOT {
 
-class PyRootClass {
-public:
-  PyHeapTypeObject fType;
-  TClassRef fClass;
-};
-
 class ObjectProxy {
 public:
   enum EFlags { kNone = 0x0, kIsOwner = 0x0001, kIsReference = 0x0002, kIsValue = 0x0004 };
-
-  TClass* ObjectIsA() const
-  {
-    return ((PyRootClass*)ob_type)->fClass.GetClass(); // may return null
-  }
-
-  void* GetObject() const
-  {
-      // Retrieve a pointer to the held C++ object.
-         if ( fObject && ( fFlags & kIsReference ) )
-            return *(reinterpret_cast< void** >( const_cast< void* >( fObject ) ));
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-         else if ( fObject && ( fFlags & kIsValue ) )
-            return ((TInterpreterValue*)fObject)->GetAsPointer();
-#endif
-         else
-            return const_cast< void* >( fObject );          // may be null
-  }
-
-  void HoldOn() { fFlags |= kIsOwner; }
 
   PyObject_HEAD
   void*     fObject;
   int       fFlags;
 };
-
-R__EXTERN PyTypeObject ObjectProxy_Type;
-
-template< typename T >
-inline Bool_t ObjectProxy_Check( T* object )
-{
-  return object && PyObject_TypeCheck( object, &ObjectProxy_Type );
-}
-
-PyObject* BindRootObjectNoCast(void* object, TClass* klass, Bool_t isRef = kFALSE
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-                               , Bool_t isValue = kFALSE
-#endif
-                               );
-PyObject* BindRootObject( void* object, TClass* klass, Bool_t isRef = kFALSE );
-
-union TParameter;
-
-class TConverter {
-public:
-  virtual ~TConverter() {}
-
-public:
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-  virtual Bool_t SetArg( PyObject*, TParameter&, CallFunc_t* = 0 ) = 0;
-#else
-  virtual Bool_t SetArg( PyObject*, TParameter&, G__CallFunc* = 0 ) = 0;
-#endif
-  virtual PyObject* FromMemory( void* address );
-  virtual Bool_t ToMemory( PyObject* value, void* address );
-};
-
-TConverter* CreateConverter( const std::string& fullType, Long_t user = -1 );
-
-
-namespace Utility {
-int GetBuffer( PyObject* pyobject, char tc, int size, void*& buf, Bool_t check = kTRUE );
-
-}
-
 
 } // namespace PyROOT
 
@@ -238,6 +171,8 @@ Bool_t TreeNotifier::Notify()
         PyErr_Clear();
     }
   }
+
+  if (m_chain) m_chain->Notify();
   return true;
 }
 
@@ -287,7 +222,9 @@ PyObject*
 leafToValueCache (TLeaf* leaf, PyObject* nameobj, PyObject* elements)
 {
   // Get a Python object holding the leaf.
-  PyObject* leafobj = BindRootObject (leaf, TLeaf::Class());
+  TClass* tleaf_cls = TClass::GetClass ("TLeaf");
+  TClass* act_cls = tleaf_cls->GetActualClass (leaf);
+  PyObject* leafobj = TPython::ObjectProxy_FromVoidPtr (leaf, act_cls->GetName());
   if (!leafobj)
     return 0;
 
@@ -328,7 +265,8 @@ branchToValueCache (TBranch* branch,
 
   // Bind the branch's object to a Python object.
   if ( klass && branch->GetAddress() )
-    ret = BindRootObjectNoCast( *(char**)branch->GetAddress(), klass );
+    ret = TPython::ObjectProxy_FromVoidPtr( *(char**)branch->GetAddress(),
+                                            klass->GetName() );
 
   // If we succeeded, add to the cache.
   // A 2-tuple with the branch and the object.
@@ -360,7 +298,9 @@ branchToValueCache (TBranch* branch,
                     PyObject* elements)
 {
   // First need to make a Python object holding the branch.
-  PyObject* branchobj = BindRootObject (branch, TBranch::Class());
+  TClass* tbranch_cls = TClass::GetClass ("TBranch");
+  TClass* act_cls = tbranch_cls->GetActualClass (branch);
+  PyObject* branchobj = TPython::ObjectProxy_FromVoidPtr (branch, act_cls->GetName());
   if (!branchobj)
     return 0;
   PyObject* ret = branchToValueCache (branch, branchobj, nameobj, elements);
@@ -445,10 +385,19 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
   // Allow access to branches/leaves as if they are data members
 
   // Decode the arguments.
-  ObjectProxy* self = 0; const char* name = 0;
-  if ( ! PyArg_ParseTuple( args, const_cast< char* >( "O!s:__getattr__" ),
-                           &ObjectProxy_Type, &self, &name ) )
+  PyObject* self = 0;
+  const char* name = 0;
+  if ( ! PyArg_ParseTuple( args, const_cast< char* >( "Os:__getattr__" ),
+                           &self, &name ) )
+  {
     return 0;
+  }
+  if (!TPython::ObjectProxy_Check (self))
+  {
+    PyErr_Format( PyExc_TypeError,
+                  "TTree::__getattr__ must be called on a root object" );
+    return 0;
+  }
 
   // Avoid wasting time for special python names.
   if (name[0] == '_' && name[1] == '_') {
@@ -470,7 +419,7 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
 
   // Find the __elements__ dictionary.  If it's there, try looking
   // up the name there first.
-  PyObject** dictptr = _PyObject_GetDictPtr ((PyObject*)self);
+  PyObject** dictptr = _PyObject_GetDictPtr (self);
   PyObject* elements = 0;
   if (dictptr && *dictptr) {
     // Note: returns a borrowed reference.
@@ -492,10 +441,10 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
         //  only if the size of the array doesn't change.
         PyObject* leafobj = PySequence_GetItem (elt, 0);
         if (TPython::ObjectProxy_Check (leafobj)) {
-          ObjectProxy* leafprox = (ObjectProxy*)leafobj;
           TLeaf* leaf =
-            (TLeaf*)leafprox->ObjectIsA()->DynamicCast( TLeaf::Class(),
-                                                     leafprox->GetObject() );
+            (TLeaf*)objectIsA(leafobj)->DynamicCast
+              ( TLeaf::Class(),
+                TPython::ObjectProxy_AsVoidPtr (leafobj) );
           if (leaf) {
             checkEnable (leaf->GetBranch());
             PyObject* ret = leafToValue (leaf);
@@ -512,19 +461,18 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
         // elt[0] is the branch, elt[1] is the obj.
         PyObject* branchobj = PySequence_GetItem (elt, 0);
         if (TPython::ObjectProxy_Check (branchobj)) {
-          ObjectProxy* branchprox = (ObjectProxy*)branchobj;
           TBranch* branch =
-            (TBranch*)branchprox->ObjectIsA()->DynamicCast( TBranch::Class(),
-                                                     branchprox->GetObject() );
+            (TBranch*)objectIsA(branchobj)->DynamicCast
+              ( TBranch::Class(),
+                TPython::ObjectProxy_AsVoidPtr (branchobj) );
           if (branch) {
             PyObject* objobj = PySequence_GetItem (elt, 1);
             if (TPython::ObjectProxy_Check (objobj)) {
               checkEnable (branch);
-              ObjectProxy* obj = (ObjectProxy*)objobj;
               // Now check that the address hasn't moved.
               // If not, we can just return the object as-is.
               // Otherwise, we need to make a new one.
-              if (*(char**)branch->GetAddress() != obj->GetObject())
+              if (*(char**)branch->GetAddress() != TPython::ObjectProxy_AsVoidPtr(objobj))
                 objobj = branchToValueCache (branch, branchobj,
                                              nameobj, elements);
               Py_XDECREF (elt);
@@ -548,7 +496,8 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
 
   // get hold of actual tree
   TTree* tree =
-    (TTree*)self->ObjectIsA()->DynamicCast( TTree::Class(),self->GetObject() );
+    (TTree*)objectIsA(self)->DynamicCast
+      ( TTree::Class(), TPython::ObjectProxy_AsVoidPtr (self) );
 
   if (!elements) {
     // Need to make the __elements__ dict.
@@ -556,19 +505,19 @@ PyObject* treeGetattr( PyObject*, PyObject* args )
     elements = PyDict_New();
     if (!elements)
       return 0;
-    int stat = PyObject_SetAttr ((PyObject*)self, elements_str, elements);
+    int stat = PyObject_SetAttr (self, elements_str, elements);
     Py_XDECREF (elements);
     if (stat < 0)
       return 0;
 
     // Make the notifier too.
-    PyObject* treeobj_ref = PyWeakref_NewRef ((PyObject*)self, 0);
+    PyObject* treeobj_ref = PyWeakref_NewRef (self, 0);
     if (!treeobj_ref)
       return 0;
     TNamed* notifier = new TreeNotifier (tree, treeobj_ref, elements);
-    PyObject* notobj = BindRootObjectNoCast (notifier, TNamed::Class());
-    ((ObjectProxy*)notobj)->HoldOn();
-    stat = PyObject_SetAttr ((PyObject*)self, notifier_str, notobj);
+    PyObject* notobj = TPython::ObjectProxy_FromVoidPtr (notifier, "TNamed");
+    setOwnership (notobj, true);
+    stat = PyObject_SetAttr (self, notifier_str, notobj);
     Py_XDECREF (notobj);
     if (stat < 0)
       return 0;
@@ -660,16 +609,19 @@ PyObject* treeGetNotify (PyObject*, PyObject* args)
 PyObject* branchSetAddress (PyObject*, PyObject* args)
 {
   // Decode arguments --- the branch and the buffer.
-  ObjectProxy* self = 0;
+  PyObject* self = 0;
   PyObject* address = 0;
-  if ( ! PyArg_ParseTuple( args, const_cast< char* >( "O!O:SetBranchAddress" ),
-                           &ObjectProxy_Type, &self, &address ) )
+  if ( ! PyArg_ParseTuple( args, const_cast< char* >( "OO:SetBranchAddress" ),
+                           &self, &address ) )
     return 0;
 
   // The branch as a Root object.
-  TBranch* branch =
-    (TBranch*)self->ObjectIsA()->DynamicCast( TBranch::Class(),
-                                              self->GetObject() );
+  TBranch* branch = 0;
+  if (TPython::ObjectProxy_Check (self)) {
+    branch =  (TBranch*)objectIsA(self)->DynamicCast
+      ( TBranch::Class(),
+        TPython::ObjectProxy_AsVoidPtr(self) );
+  }
 
   if ( ! branch ) {
     PyErr_SetString( PyExc_TypeError,
@@ -686,7 +638,7 @@ PyObject* branchSetAddress (PyObject*, PyObject* args)
     else
       buf = (void*)&((ObjectProxy*)address)->fObject;
   } else
-    Utility::GetBuffer( address, '*', 1, buf, kFALSE );
+    RootUtils::GetBuffer( address, '*', 1, buf, kFALSE );
 
   // Make the call and return.
   if ( buf != 0 )

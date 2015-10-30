@@ -41,5 +41,12 @@ macro_append RootUtilsPyROOTGen_dependencies " RootUtilsPyROOT"
 use TestTools	   TestTools-*         AtlasTest
 apply_pattern UnitTest_run unit_test=Type
 
+document athenarun_launcher ttreepatch_utest -group=check \
+    athenarun_exe="python" \
+    athenarun_pre="'source ../cmt/setup.sh'" \
+    athenarun_opt="../test/TTreePatch_t.py" \
+    athenarun_out="' >& TTreePatch_t.log'"
+macro_append ttreepatch_dependencies " RootUtilsPyROOT"
+
 end_private
 
