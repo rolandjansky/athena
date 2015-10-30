@@ -10,7 +10,7 @@
  * $Id: TRootCompare.cxx,v 1.3 2008-11-06 12:05:07 fwinkl Exp $
  */
 
-#include "TRootCompare.h"
+#include "TrigValTools/TRootCompare.h"
 
 #include "TClass.h"
 #include "TKey.h"
