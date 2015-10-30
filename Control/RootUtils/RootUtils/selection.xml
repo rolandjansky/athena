@@ -16,4 +16,6 @@
     <class name="RootUtils::ScatterH2" />
     <class name="RootUtils::ScatterH2::Pair" />
     <class name="std::vector<RootUtils::ScatterH2::Pair>" />
+
+    <class name="RootUtilsTest::TreeTest" />
 </lcgdict>
