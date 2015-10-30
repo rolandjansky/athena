@@ -13,7 +13,25 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(PlotBase *pParent, std::string sDir):PlotBase(pParent, sDir) {
+namespace {
+bool passJetCuts( const xAOD::Jet& jet ) {
+		float etaMin = -2.5;
+		float etaMax = 2.5;
+		float jetPtMin = 100;  // in GeV
+		float jetPtMax = 1000; // in GeV
+		float jetPt = jet.pt()/1e3; // GeV
+		if( jetPt < jetPtMin ) { return false; }
+		if( jetPt > jetPtMax ) { return false; }
+		float eta = jet.eta();
+		if( eta < etaMin ) { return false; }
+		if( eta > etaMax ) { return false; }
+
+		return true;
+	}
+
+}
+
+InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase *pParent, std::string sDir):InDetPlotBase(pParent, sDir) {
   // these should be configurable
   m_etaMin = -2.5;
   m_etaMax = 2.5;
@@ -198,7 +216,7 @@ void InDetPerfPlot_TrkInJet::initializePlots(){
 }
 
 void InDetPerfPlot_TrkInJet::finalizePlots() {
-
+  
   n_vs_jetDR_eff->Sumw2();
   n_vs_jetDR_eff->Divide(n_vs_jetDR_reco, n_vs_jetDR_truth, 1., 1., "B");
   n_vs_jetPt_eff->Sumw2();
@@ -207,7 +225,7 @@ void InDetPerfPlot_TrkInJet::finalizePlots() {
   sumPt_vs_jetDR_eff->Divide(sumPt_vs_jetDR_reco, sumPt_vs_jetDR_truth, 1., 1., "B");
   sumPt_vs_jetPt_eff->Sumw2();
   sumPt_vs_jetPt_eff->Divide(sumPt_vs_jetPt_reco, sumPt_vs_jetPt_truth, 1., 1., "B");
-
+  
 }
 
 void InDetPerfPlot_TrkInJet::clearCounters() {
@@ -226,22 +244,10 @@ void InDetPerfPlot_TrkInJet::clearEffCounters() {
   }
 }
 
-bool InDetPerfPlot_TrkInJet::PassJetCuts( const xAOD::Jet& jet ) {
-
-  float jetPt = jet.pt()/1e3; // GeV
-  if( jetPt < m_jetPtMin ) { return false; }
-  if( jetPt > m_jetPtMax ) { return false; }
-
-  float eta = jet.eta();
-  if( eta < m_etaMin ) { return false; }
-  if( eta > m_etaMax ) { return false; }
-
-  return true;
-}
 
 bool InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet) {
 
-  bool pass = PassJetCuts( jet );
+  bool pass = passJetCuts( jet );
   if( ! pass ) { return pass; }
 
   float jetDR = jet.p4().DeltaR( trk.p4() );
@@ -291,7 +297,7 @@ bool InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle& trk, const xAOD::Je
 
 bool InDetPerfPlot_TrkInJet::fillCounter(const xAOD::Jet& jet) {
 
-  bool pass = PassJetCuts( jet );
+  bool pass = passJetCuts( jet );
   if( ! pass ) {
     clearCounters(); // should have never been filled if does not pass jet cuts
     return pass; 
@@ -328,7 +334,7 @@ bool InDetPerfPlot_TrkInJet::fillCounter(const xAOD::Jet& jet) {
 bool InDetPerfPlot_TrkInJet::BookEffReco(const xAOD::TruthParticle& truth, const xAOD::Jet& jet) {
   // fill vectors like above in bins of dR with number of tracks and sum track pT
   // for reco tracks
-  bool pass = PassJetCuts( jet );
+  bool pass = passJetCuts( jet );
   if( ! pass ) { return pass; }
 
   float jetDR = jet.p4().DeltaR( truth.p4() );
@@ -344,7 +350,7 @@ bool InDetPerfPlot_TrkInJet::BookEffReco(const xAOD::TruthParticle& truth, const
 bool InDetPerfPlot_TrkInJet::BookEffTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet) {
   // fill vectors like above in bins of dR with number of tracks and sum track pT
   // for truth particle
-  bool pass = PassJetCuts( jet );
+  bool pass = passJetCuts( jet );
   if( ! pass ) { return pass; }
 
   float jetDR = jet.p4().DeltaR( truth.p4() );
@@ -361,7 +367,7 @@ bool InDetPerfPlot_TrkInJet::fillEff(const xAOD::Jet& jet) {
   // fill plots vs dR with number of track and sum pt of tracks in this jet
   // do this for truth and reco tracks separately ( vectors filled about )
   // need some way to get the efficiency from these two sets of histograms
-  bool pass = PassJetCuts( jet );
+  bool pass = passJetCuts( jet );
   if( ! pass ) { return pass; }
 
   float totalSumPt_reco(0);
