@@ -159,14 +159,18 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
     #filler.OutputLevel =2 
     return containerfiller
 
+from RecExConfig.RecFlags import rec 
+akt4refContainer = "AntiKt4TruthJets" if rec.doTruth() else ""
 
 #globalSelection = "0.7<JVF[0]"
 globalSelection = ""
 
 athenaMonTool = JetMonitoringTool(HistoTools = [
+    
 
-    commonPhysValTool( "AntiKt4LCTopoJets", "AntiKt4TruthJets" ,globalSelection = globalSelection),
-    commonPhysValTool( "AntiKt4EMTopoJets", "AntiKt4TruthJets" ,globalSelection = globalSelection),
+    commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
+    commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),
+
     commonPhysValTool( "AntiKt10LCTopoJets" ),   
     commonPhysValTool( "AntiKt3PV0TrackJets" ),
 
