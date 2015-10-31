@@ -83,8 +83,13 @@ template<class T, class U, class V>
     *newV = *v;    
   }  
 
+#ifdef ASGTOOL_STANDALONE
+  ATH_CHECK( evtStore()->record(container, containerName+"Fix") ); //TODO? make "Fix" configurable
+  ATH_CHECK( evtStore()->record(containerStore, containerName+"FixAux.") );
+#else
   ATH_CHECK( evtStore()->overwrite(container, containerName, true, false) );
   ATH_CHECK( evtStore()->overwrite(containerStore, containerNameAux, true, false) );
+#endif
 
   return StatusCode::SUCCESS;
 }

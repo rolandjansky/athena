@@ -9,7 +9,7 @@
 #include "xAODTau/TauDefs.h"
 
 class TH1;
-class TF1;
+class TFormula;
 
 /**
  * @brief Implementation of tool to correct tau ID variables for pile-up in a generic way
@@ -44,13 +44,14 @@ public:
 
 
 private:
+    std::string m_configPath;
     std::string m_tauContainerKey;
     std::string m_vertexContainerKey;
     std::string m_file1P; //!< energy calibration file
     std::string m_file3P; //!< energy calibration file
     
-    std::map<std::string, TF1> m_calibFunctions1P;
-    std::map<std::string, TF1> m_calibFunctions3P;
+    std::map<std::string, TFormula*> m_calibFunctions1P;
+    std::map<std::string, TFormula*> m_calibFunctions3P;
     
     struct TauConversion {
       std::string detailName;
@@ -61,6 +62,8 @@ private:
     : detailName(name), detailUncorr(detail1), detailCorr(detail2)
       { }
     };
+
+    StatusCode fillCalibMap( const std::string& file_name, std::map<std::string, TFormula*> &calib_map);
     
     std::vector<TauConversion> m_conversion;
     

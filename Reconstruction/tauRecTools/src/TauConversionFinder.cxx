@@ -21,7 +21,9 @@ conversion track too.
 
 /********************************************************************/
 TauConversionFinder::TauConversionFinder(const std::string& name) :
-  TauRecToolBase(name) {
+  TauRecToolBase(name),
+  m_numProng(0)
+{
 
     declareProperty("ConversionCandidatesName", m_ConversionCandidatesName = "ConversionsPID_Container"); //ConversionCandidate
     declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");

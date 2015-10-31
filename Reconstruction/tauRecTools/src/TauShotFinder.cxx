@@ -44,9 +44,14 @@ TauShotFinder::TauShotFinder(   const string& name ) :
     , m_caloCellContainerName("AllCalo")
     , m_shotClusterContainer(NULL)
     , m_shotClusterContainerName("TauShotClusters")
+    , m_PFOShotContainer(0)
     , m_shotPFOContainerName("TauShotParticleFlowObjects")
+    , m_PFOShotAuxStore(0)
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
+    , m_pt1(0)
+    , m_pt3(0)
+    , m_pt5(0)
 {
     declareProperty("CaloWeightTool", m_caloWeightTool);
     declareProperty("CaloCellContainerName", m_caloCellContainerName); 

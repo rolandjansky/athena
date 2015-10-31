@@ -70,6 +70,8 @@ m_stripEthr(0.2 * GeV),
 m_EMSumThr(0.5 * GeV),
 m_EMSumR(0.2),
 m_cellCone(0.2),
+m_emid(0),
+m_tileid(0),
 m_doCellCorrection(false) //FF: don't do cell correction by default
 {
 

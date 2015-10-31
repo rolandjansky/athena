@@ -43,7 +43,11 @@ void TrackFilterAlg(TLorentzVector tau,
 //-----------------------------------------------------------------------------
 
 TauTrackFilter::TauTrackFilter(const std::string &name ) :
-TauRecToolBase(name) {
+  TauRecToolBase(name),
+  m_nProng(0),
+  m_flag(0)
+{
+    declareProperty("ConfigPath", m_configPath = "tauRecTools/TauTrackFilter.conf");
     declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");
 }
 

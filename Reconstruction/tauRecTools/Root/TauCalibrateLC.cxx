@@ -30,14 +30,17 @@ TauRecToolBase(name),
 m_doEnergyCorr(false),
 m_doAxisCorr(false),
 m_printMissingContainerINFO(true),
+m_isCaloOnly(false),
 m_clusterCone(0.2)  //not used
 {
+    declareProperty("ConfigPath", m_configPath = "tauRecTools/TauCalibrateLC.conf");
     declareProperty("tauContainerKey", tauContainerKey = "TauJets");
     declareProperty("calibrationFile", calibrationFile = "EnergyCalibrationLC2012.root");
     declareProperty("vertexContainerKey", vertexContainerKey = "PrimaryVertices");
     declareProperty("doEnergyCorrection", m_doEnergyCorr);
     declareProperty("doAxisCorrection",    m_doAxisCorr);
     declareProperty("ClusterCone", m_clusterCone); //not used
+    declareProperty("isCaloOnly",    m_isCaloOnly);
 }
 
 /********************************************************************/
@@ -279,6 +282,13 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau)
 	pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
      
     }
+
+    if (m_isCaloOnly == true && tauEventData()->inTrigger() == true){
+
+	pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
+      
+    }
+
 
     return StatusCode::SUCCESS;
 }
