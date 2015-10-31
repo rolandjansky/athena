@@ -153,6 +153,10 @@ Node* TreeReader::readTree(
                     ATH_MSG_VERBOSE("Invalid number of points in UnivariateSlidingCut1D node");
                     return 0;
                 }
+		if(numPoints > 50000){
+		  ATH_MSG_ERROR("You have over 50k points, are you sure you want to do this? If so, raise the limit.");
+		  return nullptr;
+		}
             }
             else if (variable == FUNC)
             {
@@ -458,7 +462,8 @@ TreeReader::TreeReader(const string& filename):
   AsgMessaging("TauDiscriminant:TreeReader"),
   m_fileName(filename),
   floatVariables(0),
-  intVariables(0)
+  intVariables(0),
+  m_treeInfo(nullptr)
 {
     if (hasEnding(m_fileName, ".bin"))
     {
@@ -482,7 +487,7 @@ TreeReader::TreeReader(const string& filename):
 	return;
     }
 
-    unsigned int numVariables;
+    unsigned int numVariables = 0;
     unsigned int numBinningVariables = 0;
     char type;
     string line;
@@ -569,8 +574,15 @@ TreeReader::TreeReader(const string& filename):
         return;
     }
 
+    //input validation
+    if(numVariables > 10000){
+      ATH_MSG_ERROR("You have over 10k variables, are you sure you want to do this? If so, raise the limit.");
+      return;
+    }
+
     m_variableList = vector<string>(numVariables,"");
     m_variableTypeList = vector<char>(numVariables,'F');
+
 
     for (unsigned int j(0); j < numVariables; ++j)
     {
@@ -643,6 +655,10 @@ Node* TreeReader::build(bool checkTree)
         treeVector = new TreeVector();
         static_cast<PointerLeafNode<TreeVector>* >(*category_it)->setValue(treeVector);
         if (!read<unsigned int>(*m_treeInfo, numTrees, m_format)) ATH_MSG_VERBOSE("Failed extracting number of trees from the discriminant file!");
+	if(numTrees > 50000){
+	  ATH_MSG_ERROR("You have over 50k trees, are you sure you want to do this? If so, raise the limit.");
+	  return nullptr;
+	}
         for (unsigned int j(0); j < numTrees; ++j)
         {
             rootNode = 0;
