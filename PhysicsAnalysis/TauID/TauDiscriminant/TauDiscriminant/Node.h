@@ -107,9 +107,10 @@ class UnivariateCut: public DecisionNode
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
 
-	UnivariateCut<T>& operator=(UnivariateCut<T> other)
+	UnivariateCut<T>& operator=(const UnivariateCut<T>& other)
 	{
-	    swap(*this, other);
+	    UnivariateCut<T> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 
@@ -167,9 +168,10 @@ class UnivariateSlidingCut1D: public DecisionNode
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
 
-	UnivariateSlidingCut1D<T,U,V>& operator=(UnivariateSlidingCut1D<T,U,V> other)
+	UnivariateSlidingCut1D<T,U,V>& operator=(const UnivariateSlidingCut1D<T,U,V>& other)
 	{
-	    swap(*this, other);
+	    UnivariateSlidingCut1D<T,U,V> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 
@@ -273,9 +275,10 @@ class LeafNode: public Node
 
         LeafNode(const LeafNode<T>& other) { this->value = other.value; }
 
-	LeafNode<T>& operator=(LeafNode<T> other)
+	LeafNode<T>& operator=(const LeafNode<T>& other)
 	{
-	    swap(*this, other);
+	    LeafNode<T> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 	
@@ -326,9 +329,10 @@ class TransformationNode: public LeafNode<float>
             this->transform = other.transform->Clone();
         }
 
-	TransformationNode<X,Y,G>& operator=(TransformationNode<X,Y,G> other)
+	TransformationNode<X,Y,G>& operator=(const TransformationNode<X,Y,G>& other)
 	{
-	    swap(*this, other);
+	    TransformationNode<X,Y,G> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 
@@ -378,9 +382,10 @@ class PointerLeafNode: public Node
 
         PointerLeafNode(const PointerLeafNode<T>& other) { this->value = other.value; }
 
-	PointerLeafNode<T>& operator=(PointerLeafNode<T> other)
+	PointerLeafNode<T>& operator=(const PointerLeafNode<T>& other)
 	{
-	    swap(*this, other);
+	    PointerLeafNode<T> temp(other);
+	    swap(*this, temp);
 	    return *this;
 	}
 	

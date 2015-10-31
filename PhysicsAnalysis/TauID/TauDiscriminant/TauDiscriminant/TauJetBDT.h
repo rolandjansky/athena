@@ -31,6 +31,7 @@ class TauJetBDT: virtual public TauDiscriToolBase
         //!< Constructor
  TauJetBDT(const string& name):
   TauDiscriToolBase(name),
+    jetScore(-1.),
     jetBDTFile(""),
     jetSigBitsFile(""),
     jetBkgBitsFile(""),

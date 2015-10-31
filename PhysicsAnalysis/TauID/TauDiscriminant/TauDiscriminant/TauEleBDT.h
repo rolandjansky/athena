@@ -33,6 +33,7 @@ class TauEleBDT: virtual public TauDiscriToolBase
         //!< Constructor
         TauEleBDT(const string& name):
             TauDiscriToolBase(name),
+	    eleScore(-1.),
             eleBDTFile(""),
             eleBitsFile(""),
             eleBitsRootFile(""),
