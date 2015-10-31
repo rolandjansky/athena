@@ -101,7 +101,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
 	}
 	 
 	// If running cosmic triggers, don't worry about not having clusters in tau
-	if(tauEventData()->inTrigger() && isCosmics){
+	if(sc.isSuccess() && tauEventData()->inTrigger() && isCosmics){
 	  ATH_MSG_WARNING("this tau candidate does not have any constituent clusters! breaking off tau tool chain and not recording this candidate!");
 	} else {
 	  ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters! breaking off tau tool chain and not recording this candidate!");

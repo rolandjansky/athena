@@ -21,7 +21,15 @@ using CLHEP::GeV;
 //------------------------------------------------------------------------
 
 TauCalibrateEM::TauCalibrateEM(const std::string& name) :
-TauRecToolBase(name) {
+  TauRecToolBase(name),
+  m_f1_1p_lem(0),
+  m_f1_1p_hem_barrel(0),
+  m_f1_1p_hem_crack(0),
+  m_f1_1p_hem_endcap(0),
+  m_f1_mp_barrel(0),
+  m_f1_mp_crack(0),
+  m_f1_mp_endcap(0)  
+{
     declareProperty("response_functions_file", m_response_functions_file = "EMTES_Fits_Oct2010.root");
 }
 

@@ -25,8 +25,32 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
-    TauRecToolBase(name)
-    , m_readerOption("Silent:!Color")
+  TauRecToolBase(name),
+  m_readerOption("Silent:!Color"),
+  m_tmvaReader(0),
+  m_Abs_FIRST_ETA(0),
+  m_SECOND_R(0),
+  m_SECOND_LAMBDA(0),
+  m_Abs_DELTA_PHI(0),
+  m_Abs_DELTA_THETA(0),
+  m_CENTER_LAMBDA_helped(0),
+  m_LATERAL(0),
+  m_LONGITUDINAL(0),
+  m_ENG_FRAC_EM(0),
+  m_ENG_FRAC_MAX(0),
+  m_ENG_FRAC_CORE(0),
+  m_log_SECOND_ENG_DENS(0),
+  m_EcoreOverEEM1(0),
+  m_NHitsInEM1(0),
+  m_NPosCells_PS(0),
+  m_NPosCells_EM1(0),
+  m_NPosCells_EM2(0),
+  m_firstEtaWRTCluster_EM1(0),
+  m_firstEtaWRTCluster_EM2(0),
+  m_secondEtaWRTCluster_EM1(0),
+  m_secondEtaWRTCluster_EM2(0),
+  m_energy_EM1(0),
+  m_energy_EM2(0)
 {
     declareProperty("ReaderOption",            m_readerOption);
     declareProperty("BDTWeightFile",           m_weightfile);

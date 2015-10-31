@@ -36,11 +36,6 @@ public:
     virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
 
     virtual void print() const { }
-
-private:
-    
-    float m_pi0conedr;
-
 };
 
 #endif

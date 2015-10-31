@@ -30,7 +30,9 @@ using std::string;
 TauPi0ClusterScaler::TauPi0ClusterScaler( const string& name ) :
     TauRecToolBase(name)
     , m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
+    , m_chargedPFOContainer(0)
     , m_chargedPFOContainerName("TauChargedParticleFlowObjects")
+    , m_chargedPFOAuxStore(0)
 {
     declareProperty("ParticleCaloExtensionTool", m_caloExtensionTool);
     declareProperty("ChargedPFOContainerName", m_chargedPFOContainerName); 

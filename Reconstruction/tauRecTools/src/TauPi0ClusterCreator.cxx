@@ -30,9 +30,14 @@ TauPi0ClusterCreator::TauPi0ClusterCreator( const string& name) :
     TauRecToolBase(name)
     , m_inputPi0ClusterContainerName("TauPi0SubtractedClusters")
     , m_outputPi0ClusterContainerName("TauPi0Clusters")
+    , m_neutralPFOContainer(0)
     , m_neutralPFOContainerName("TauNeutralParticleFlowObjects")
+    , m_neutralPFOAuxStore(0)
+    , m_hadronicClusterPFOContainer(0)
     , m_hadronicClusterPFOContainerName("TauHadronicParticleFlowObjects")
+    , m_hadronicClusterPFOAuxStore(0)
     , m_clusterEtCut(500.)
+    , m_pOutputPi0CaloClusterContainer(0)
 {
 
     declareProperty("InputPi0ClusterContainerName",  m_inputPi0ClusterContainerName);

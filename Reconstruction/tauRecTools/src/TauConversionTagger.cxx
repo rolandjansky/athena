@@ -34,7 +34,9 @@
 
 TauConversionTagger::TauConversionTagger(const std::string &name) :
   TauRecToolBase(name),
-        m_trackToVertexTool("Reco::TrackToVertex")
+  m_TrkIsConv(false),
+  m_TRTHighTOutliersRatio(0),
+  m_trackToVertexTool("Reco::TrackToVertex")
 {
     declareProperty("ConversionTaggerVersion", m_ConvTaggerVer = 1);
     declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");

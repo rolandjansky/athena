@@ -49,6 +49,8 @@ tauCalibrateWeightTool::tauCalibrateWeightTool(const std::string& name) :
     TauRecToolBase(name),
     m_calibrateType( tauCalibrateWeightTool::calCells ),
     m_caloWeightTool(this),
+    m_emid(0),
+    m_tileid(0),
     m_cellWeightTool("CellWeightTool2004"),
     m_applyCellWeightEM(true),
     m_applyCellWeightHad(true),
