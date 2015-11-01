@@ -15,6 +15,8 @@
 #include "xAODTrigCalo/TrigCaloClusterContainer.h"
 #include "xAODTrigCalo/TrigCaloClusterAuxContainer.h"
 
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
+
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
@@ -46,29 +48,29 @@
 
 
 HLT_BEGIN_TYPE_REGISTRATION
-  HLT_REGISTER_TYPE(struct TrigEMCluster, struct TrigEMCluster,struct TrigEMClusterContainer)
-  HLT_REGISTER_TYPE(struct TrigCaloCluster, struct TrigCaloCluster,struct TrigCaloClusterContainer)
-  HLT_REGISTER_TYPE(struct TrigTauCluster, struct TrigTauCluster,struct TrigTauClusterContainer)
-  HLT_REGISTER_TYPE(struct TrigTauClusterDetails,struct TrigTauClusterDetails,struct TrigTauClusterDetailsContainer)
-  HLT_REGISTER_TYPE(struct RingerRings, struct RingerRings,struct RingerRingsContainer)  
-  HLT_REGISTER_TYPE(struct TrigT2Jet, struct TrigT2Jet,struct TrigT2JetContainer)
-  HLT_REGISTER_TYPE(struct TrigT2Jet, struct TrigT2JetContainer,struct TrigT2JetContainer)
-  HLT_REGISTER_TYPE(struct TrigT2MbtsBits,struct TrigT2MbtsBits,struct TrigT2MbtsBitsContainer)
-  HLT_REGISTER_TYPE(struct TrigT2ZdcSignals,struct TrigT2ZdcSignals,struct TrigT2ZdcSignalsContainer)
+  HLT_REGISTER_TYPE(class TrigEMCluster, class TrigEMCluster,class TrigEMClusterContainer)
+  HLT_REGISTER_TYPE(class TrigCaloCluster, class TrigCaloCluster,class TrigCaloClusterContainer)
+  HLT_REGISTER_TYPE(class TrigTauCluster, class TrigTauCluster,class TrigTauClusterContainer)
+  HLT_REGISTER_TYPE(class TrigTauClusterDetails,class TrigTauClusterDetails,class TrigTauClusterDetailsContainer)
+  HLT_REGISTER_TYPE(class RingerRings, class RingerRings,class RingerRingsContainer)  
+  HLT_REGISTER_TYPE(class TrigT2Jet, class TrigT2Jet,class TrigT2JetContainer)
+  HLT_REGISTER_TYPE(class TrigT2Jet, class TrigT2JetContainer,class TrigT2JetContainer)
+  HLT_REGISTER_TYPE(class TrigT2MbtsBits,class TrigT2MbtsBits,class TrigT2MbtsBitsContainer)
+  HLT_REGISTER_TYPE(class TrigT2ZdcSignals,class TrigT2ZdcSignals,class TrigT2ZdcSignalsContainer)
   //EF
-  HLT_REGISTER_TYPE(struct TrigRNNOutput, struct TrigRNNOutput,struct TrigRNNOutputContainer)
-  HLT_REGISTER_TYPE(struct CaloCell,struct  CaloCellContainer,struct CaloCellContainer )
-  HLT_REGISTER_TYPE(struct CaloCellLink,struct  CaloCellLinkContainer,struct CaloCellLinkContainer )
-  HLT_REGISTER_TYPE(struct CaloCluster, struct CaloClusterContainer, struct CaloClusterContainer )
-  HLT_REGISTER_TYPE(struct CaloClusterCellLink, struct CaloClusterCellLinkContainer, struct CaloClusterCellLinkContainer)
-  HLT_REGISTER_TYPE(struct CaloShower, struct  CaloShowerContainer,struct CaloShowerContainer )
-  HLT_REGISTER_TYPE(struct CaloTower, struct  CaloTowerContainer, struct CaloTowerContainer )
+  HLT_REGISTER_TYPE(class TrigRNNOutput, class TrigRNNOutput,class TrigRNNOutputContainer)
+  HLT_REGISTER_TYPE(class CaloCell,class  CaloCellContainer,class CaloCellContainer )
+  HLT_REGISTER_TYPE(class CaloCellLink,class  CaloCellLinkContainer,class CaloCellLinkContainer )
+  HLT_REGISTER_TYPE(class CaloCluster, class CaloClusterContainer, class CaloClusterContainer )
+  HLT_REGISTER_TYPE(class CaloClusterCellLink, class CaloClusterCellLinkContainer, class CaloClusterCellLinkContainer)
+  HLT_REGISTER_TYPE(class CaloShower, class  CaloShowerContainer,class CaloShowerContainer )
+  HLT_REGISTER_TYPE(class CaloTower, class  CaloTowerContainer, class CaloTowerContainer )
 
-  HLT_REGISTER_TYPE(struct CaloTopoTower, struct CaloTopoTowerContainer, struct CaloTopoTowerContainer )
-  HLT_REGISTER_TYPE(struct cannot_implement_this, struct CaloCell2ClusterMap, struct CaloCell2ClusterMap )
+  HLT_REGISTER_TYPE(class CaloTopoTower, class CaloTopoTowerContainer, class CaloTopoTowerContainer )
+  HLT_REGISTER_TYPE(class cannot_implement_this, class CaloCell2ClusterMap, class CaloCell2ClusterMap )
 
   // xAOD
-  HLT_REGISTER_TYPE(xAOD::CaloCluster, xAOD::CaloClusterContainer, xAOD::CaloClusterContainer, xAOD::CaloClusterAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::CaloCluster, xAOD::CaloClusterContainer, xAOD::CaloClusterContainer, xAOD::CaloClusterTrigAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigCaloCluster, xAOD::TrigCaloCluster, xAOD::TrigCaloClusterContainer, xAOD::TrigCaloClusterAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigEMCluster, xAOD::TrigEMCluster, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigEMCluster, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterAuxContainer) 

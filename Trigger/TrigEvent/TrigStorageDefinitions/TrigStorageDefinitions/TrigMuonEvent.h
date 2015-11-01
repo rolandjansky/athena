@@ -7,8 +7,8 @@
 #include "TrigStorageDefinitions/EDM_TypeInformation.h"
 
 namespace Muon{
-  struct MuonSegmentCombination;
-  struct MuonPatternCombination;
+  class MuonSegmentCombination;
+  class MuonPatternCombination;
 }
 
 typedef DataVector<Muon::MuonSegmentCombination> MuonSegmentCombinationCollection;
@@ -25,24 +25,24 @@ typedef DataVector<int> CachingFeatureCollection;
 #include "xAODTrigMuon/L2IsoMuonAuxContainer.h"
 
 HLT_BEGIN_TYPE_REGISTRATION
-  HLT_REGISTER_TYPE(struct MuonFeature, struct  MuonFeature , struct  MuonFeatureContainer)
-  HLT_REGISTER_TYPE(struct MuonFeatureDetails,struct MuonFeatureDetails,struct MuonFeatureDetailsContainer)
-  HLT_REGISTER_TYPE(struct CombinedMuonFeature, struct CombinedMuonFeature,struct CombinedMuonFeatureContainer)
-  HLT_REGISTER_TYPE(struct IsoMuonFeature, struct  IsoMuonFeature, struct IsoMuonFeatureContainer)
-  HLT_REGISTER_TYPE(struct TileMuFeature, struct TileMuFeature, struct TileMuFeatureContainer)
-  HLT_REGISTER_TYPE(struct TileTrackMuFeature,struct TileTrackMuFeature,struct TileTrackMuFeatureContainer)
-  HLT_REGISTER_TYPE(struct TrigMuonClusterFeature,struct TrigMuonClusterFeature,struct TrigMuonClusterFeatureContainer)
+  HLT_REGISTER_TYPE(class MuonFeature, class  MuonFeature , class  MuonFeatureContainer)
+  HLT_REGISTER_TYPE(class MuonFeatureDetails,class MuonFeatureDetails,class MuonFeatureDetailsContainer)
+  HLT_REGISTER_TYPE(class CombinedMuonFeature, class CombinedMuonFeature,class CombinedMuonFeatureContainer)
+  HLT_REGISTER_TYPE(class IsoMuonFeature, class  IsoMuonFeature, class IsoMuonFeatureContainer)
+  HLT_REGISTER_TYPE(class TileMuFeature, class TileMuFeature, class TileMuFeatureContainer)
+  HLT_REGISTER_TYPE(class TileTrackMuFeature,class TileTrackMuFeature,class TileTrackMuFeatureContainer)
+  HLT_REGISTER_TYPE(class TrigMuonClusterFeature,class TrigMuonClusterFeature,class TrigMuonClusterFeatureContainer)
   
  // LVL1 
  //  HLT_REGISTER_TYPE( LVL1::RecMuonRoI, DataVector<LVL1::RecMuonRoI> ) 
  // EF 
-  HLT_REGISTER_TYPE(struct TrigMuonEF,struct  TrigMuonEFContainer,struct TrigMuonEFContainer )
-  HLT_REGISTER_TYPE(struct TrigMuonEFInfo, struct TrigMuonEFInfoContainer, struct TrigMuonEFInfoContainer )
-  HLT_REGISTER_TYPE(struct TrigMuonEFIsolation, struct TrigMuonEFIsolationContainer,struct TrigMuonEFIsolationContainer)
+  HLT_REGISTER_TYPE(class TrigMuonEF,class  TrigMuonEFContainer,class TrigMuonEFContainer )
+  HLT_REGISTER_TYPE(class TrigMuonEFInfo, class TrigMuonEFInfoContainer, class TrigMuonEFInfoContainer )
+  HLT_REGISTER_TYPE(class TrigMuonEFIsolation, class TrigMuonEFIsolationContainer,class TrigMuonEFIsolationContainer)
   
   HLT_REGISTER_TYPE(Muon::MuonSegmentCombination, MuonSegmentCombinationCollection, MuonSegmentCombinationCollection)
   HLT_REGISTER_TYPE(Muon::MuonPatternCombination, MuonPatternCombinationCollection, MuonPatternCombinationCollection)
-  HLT_REGISTER_TYPE(struct MuidTrack, struct  MuidTrackContainer,struct MuidTrackContainer)
+  HLT_REGISTER_TYPE(class MuidTrack, class  MuidTrackContainer,class MuidTrackContainer)
   HLT_REGISTER_TYPE(int, CachingFeatureCollection, CachingFeatureCollection)
   // xAOD
   HLT_REGISTER_TYPE(xAOD::Muon, xAOD::MuonContainer, xAOD::MuonContainer, xAOD::MuonAuxContainer)

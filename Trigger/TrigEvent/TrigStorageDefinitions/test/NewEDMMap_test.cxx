@@ -12,7 +12,7 @@ struct value_printer{
   void do_it() const {std::cout << "["<< element::value << "] ";}
 };
 
-struct ElectronMuonTopoInfoContainer{
+class ElectronMuonTopoInfoContainer{
 };
 
 struct simpletest{

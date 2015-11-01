@@ -7,8 +7,8 @@
 #include "TrigStorageDefinitions/EDM_TypeInformation.h"
 
 HLT_BEGIN_TYPE_REGISTRATION
-  HLT_REGISTER_TYPE(struct TrigMonConfig, struct TrigMonConfig, struct TrigMonConfigCollection)
-  HLT_REGISTER_TYPE(struct TrigMonEvent, struct TrigMonEvent,struct TrigMonEventCollection)
+  HLT_REGISTER_TYPE(class TrigMonConfig, class TrigMonConfig, class TrigMonConfigCollection)
+  HLT_REGISTER_TYPE(class TrigMonEvent, class TrigMonEvent,class TrigMonEventCollection)
 HLT_END_TYPE_REGISTRATION(TrigMonitoringEvent)
 
 #endif
