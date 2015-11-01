@@ -9,9 +9,11 @@ TrigT2MbtsBits::TrigT2MbtsBits(): m_triggerEnergies(TrigT2MbtsBits::NUM_MBTS,0.)
                                   m_triggerTimes(TrigT2MbtsBits::NUM_MBTS,0) {
 }
 
-TrigT2MbtsBits::TrigT2MbtsBits(std::vector<float> triggerEnergies, 
-                               std::vector<float> triggerTimes): m_triggerEnergies(triggerEnergies),
-                                                                 m_triggerTimes(triggerTimes) {
+TrigT2MbtsBits::TrigT2MbtsBits(const std::vector<float>& triggerEnergies, 
+                               const std::vector<float>& triggerTimes):
+  m_triggerEnergies(triggerEnergies),
+  m_triggerTimes(triggerTimes)
+{
   m_triggerEnergies.resize(TrigT2MbtsBits::NUM_MBTS,0.);
   m_triggerTimes.resize(TrigT2MbtsBits::NUM_MBTS,0);
 }
