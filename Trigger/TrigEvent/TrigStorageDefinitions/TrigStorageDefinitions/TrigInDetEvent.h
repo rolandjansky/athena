@@ -8,28 +8,28 @@
 #include "DataModel/DataVector.h"
 
 namespace Trk{
-  struct Track;
-  struct VxCandidate;
-  struct VxSecVertexInfo;
-  struct Segment;
+  class Track;
+  class VxCandidate;
+  class VxSecVertexInfo;
+  class Segment;
   typedef DataVector<Trk::Segment> SegmentCollection;
   typedef DataVector<Trk::VxSecVertexInfo> VxSecVertexInfoContainer;
 }
 
 namespace Rec{
-  struct TrackParticle;
-  struct TrackParticleContainer;
+  class TrackParticle;
+  class TrackParticleContainer;
 }
 
 typedef DataVector<Trk::Track> TrackCollection;
 
 
 
-typedef DataVector<struct PRD_MultiTruthCollection>  PRD_MultiTruthCollectionContainer;
-typedef DataVector<struct DetailedTrackTruthCollection> DetailedTrackTruthCollectionContainer;
-typedef DataVector<struct TrackTruthCollection> TrackTruthCollectionContainer;
-typedef DataVector<struct TrackParticleTruthCollection> TrackParticleTruthCollectionContainer;
-typedef DataVector<struct TrackExtensionMap> TrackExtensionMapContainer;
+typedef DataVector<class PRD_MultiTruthCollection>  PRD_MultiTruthCollectionContainer;
+typedef DataVector<class DetailedTrackTruthCollection> DetailedTrackTruthCollectionContainer;
+typedef DataVector<class TrackTruthCollection> TrackTruthCollectionContainer;
+typedef DataVector<class TrackParticleTruthCollection> TrackParticleTruthCollectionContainer;
+typedef DataVector<class TrackExtensionMap> TrackExtensionMapContainer;
 
 
 #include "xAODTracking/VertexContainer.h"
@@ -57,27 +57,27 @@ typedef DataVector<struct TrackExtensionMap> TrackExtensionMapContainer;
 
 
 HLT_BEGIN_TYPE_REGISTRATION
-     HLT_REGISTER_TYPE(struct TrigInDetTrack,struct TrigInDetTrack,struct TrigInDetTrackCollection)
-     HLT_REGISTER_TYPE(struct TrigInDetTrack,struct TrigInDetTrackCollection,struct TrigInDetTrackCollection)
-     HLT_REGISTER_TYPE(struct TrigTauTracksInfo,struct TrigTauTracksInfo,struct TrigTauTracksInfoCollection )
-     HLT_REGISTER_TYPE(struct TrigVertex,struct TrigVertex,struct TrigVertexCollection )
-     HLT_REGISTER_TYPE(struct TrigVertex, struct TrigVertexCollection,struct TrigVertexCollection )
-     HLT_REGISTER_TYPE(struct TrigSpacePointCounts,struct  TrigSpacePointCounts,struct TrigSpacePointCountsCollection )
-     HLT_REGISTER_TYPE(struct TrigTrtHitCounts,struct TrigTrtHitCounts,struct TrigTrtHitCountsCollection )
-     HLT_REGISTER_TYPE(struct TrigTrackCounts,struct TrigTrackCounts,struct TrigTrackCountsCollection )
-     HLT_REGISTER_TYPE(struct TrigVertexCounts,struct TrigVertexCounts,struct TrigVertexCountsCollection )
-     HLT_REGISTER_TYPE(struct TrigInDetTrackFitPar, DataVector<TrigInDetTrackFitPar >, DataVector<TrigInDetTrackFitPar> )
+     HLT_REGISTER_TYPE(class TrigInDetTrack,class TrigInDetTrack,class TrigInDetTrackCollection)
+     HLT_REGISTER_TYPE(class TrigInDetTrack,class TrigInDetTrackCollection,class TrigInDetTrackCollection)
+     HLT_REGISTER_TYPE(class TrigTauTracksInfo,class TrigTauTracksInfo,class TrigTauTracksInfoCollection )
+     HLT_REGISTER_TYPE(class TrigVertex,class TrigVertex,class TrigVertexCollection )
+     HLT_REGISTER_TYPE(class TrigVertex, class TrigVertexCollection,class TrigVertexCollection )
+     HLT_REGISTER_TYPE(class TrigSpacePointCounts,class  TrigSpacePointCounts,class TrigSpacePointCountsCollection )
+     HLT_REGISTER_TYPE(class TrigTrtHitCounts,class TrigTrtHitCounts,class TrigTrtHitCountsCollection )
+     HLT_REGISTER_TYPE(class TrigTrackCounts,class TrigTrackCounts,class TrigTrackCountsCollection )
+     HLT_REGISTER_TYPE(class TrigVertexCounts,class TrigVertexCounts,class TrigVertexCountsCollection )
+     HLT_REGISTER_TYPE(class TrigInDetTrackFitPar, DataVector<TrigInDetTrackFitPar >, DataVector<TrigInDetTrackFitPar> )
   
 // EF
      HLT_REGISTER_TYPE(Trk::Track, TrackCollection,TrackCollection)
-     HLT_REGISTER_TYPE(Trk::VxCandidate,struct  VxContainer,struct VxContainer)
+     HLT_REGISTER_TYPE(Trk::VxCandidate,class  VxContainer,class VxContainer)
      HLT_REGISTER_TYPE(Trk::VxSecVertexInfo,  Trk::VxSecVertexInfo, Trk::VxSecVertexInfoContainer ) 
      HLT_REGISTER_TYPE(Trk::VxSecVertexInfo, Trk::VxSecVertexInfoContainer, Trk::VxSecVertexInfoContainer)
   
      HLT_REGISTER_TYPE(PRD_MultiTruthCollection, PRD_MultiTruthCollection,  PRD_MultiTruthCollectionContainer)
      HLT_REGISTER_TYPE(DetailedTrackTruthCollection, DetailedTrackTruthCollection,  DetailedTrackTruthCollectionContainer)
      HLT_REGISTER_TYPE(TrackTruthCollection, TrackTruthCollection,  TrackTruthCollectionContainer)
-     HLT_REGISTER_TYPE(struct TrackParticleTruthCollection, struct  TrackParticleTruthCollection,TrackParticleTruthCollectionContainer)
+     HLT_REGISTER_TYPE(class TrackParticleTruthCollection, class  TrackParticleTruthCollection,TrackParticleTruthCollectionContainer)
      HLT_REGISTER_TYPE(Trk::Segment,  Trk::SegmentCollection, Trk::SegmentCollection )
    
      HLT_REGISTER_TYPE(TrackExtensionMap, TrackExtensionMap, TrackExtensionMapContainer )

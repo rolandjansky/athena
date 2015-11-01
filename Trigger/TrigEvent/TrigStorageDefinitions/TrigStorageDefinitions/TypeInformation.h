@@ -116,6 +116,19 @@ struct at{
 
 // in case we just want to know if a specific element in already in a list we can use
 // this search function that iterates over the list and returns a bool with the answer
+#ifdef __COVERITY__
+template<typename element, typename list>
+struct do_search{
+    static const bool found = boost::is_same<element,typename list::first>::value or
+    do_search<element,typename list::rest>::found;
+};
+
+//if list is specified as terminated with 'nil'
+template<class element>
+struct do_search<element,nil>{
+    static const bool found =false;
+};
+#else
 template<typename element, typename list, int i = list::last_index>
 struct do_search{
   static const bool found = boost::is_same<element,typename at<list,i>::type>::value ||
@@ -126,6 +139,7 @@ template<typename element, typename list>
 struct do_search<element,list,0>{
   static const bool found = boost::is_same<element,typename at<list,0>::type>::value;
 };
+#endif
 
 template <class type, class list_of_types>
 template <class element>
@@ -319,11 +333,19 @@ struct do_my_add<type_info<O,F,C,A>,thelist,index>{
   typedef typename thelist::template set<index,type_info<typename old_entry::object,extended,typename old_entry::container,typename old_entry::aux> >::go result;
 };
 
+#ifdef __COVERITY__
+template <class type, class list_of_types>
+template<class newElement>
+struct list<type,list_of_types>::addWithChecking{
+    typedef typename do_my_add<newElement,list<type,list_of_types>,find<typename newElement::container,list<type,list_of_types>,get_cont>::result>::result go;
+};
+#else
 template <class type, class list_of_types>
 template<class O,class F,class C,class A>
 struct list<type,list_of_types>::addWithChecking<type_info<O,F,C,A> >{
   typedef typename do_my_add<type_info<O,F,C,A>,list<type,list_of_types>,find<typename type_info<O,F,C,A>::container,list<type,list_of_types>,get_cont>::result>::result go;
 };
+#endif
 
 //AND WE'RE DONE
 

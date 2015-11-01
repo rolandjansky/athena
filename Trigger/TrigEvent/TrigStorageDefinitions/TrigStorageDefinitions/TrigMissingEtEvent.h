@@ -11,8 +11,8 @@
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
 
 HLT_BEGIN_TYPE_REGISTRATION
-HLT_REGISTER_TYPE(struct TrigMissingET, struct TrigMissingET, struct TrigMissingETContainer )
-HLT_REGISTER_TYPE(struct TrigPileUpInfo, struct TrigPileUpInfo, struct TrigPileUpInfoContainer )
+HLT_REGISTER_TYPE(class TrigMissingET, class TrigMissingET, class TrigMissingETContainer )
+HLT_REGISTER_TYPE(class TrigPileUpInfo, class TrigPileUpInfo, class TrigPileUpInfoContainer )
 HLT_REGISTER_TYPE(xAOD::TrigMissingET, xAOD::TrigMissingETContainer, xAOD::TrigMissingETContainer, xAOD::TrigMissingETAuxContainer)
 HLT_REGISTER_TYPE(xAOD::TrigMissingET, xAOD::TrigMissingET, xAOD::TrigMissingETContainer, xAOD::TrigMissingETAuxContainer)
 HLT_END_TYPE_REGISTRATION(TrigMissingEtEvent)

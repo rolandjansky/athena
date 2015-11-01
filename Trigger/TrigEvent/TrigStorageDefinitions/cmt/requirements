@@ -32,8 +32,8 @@ use TestTools                   TestTools-*                     AtlasTest
 # libraries and headerfiles of packages that this one depends on. Transparent to CMT.
 apply_pattern cmake_add_command command=metalibrary
 
-#apply_pattern UnitTest_run unit_test=TypeInformation
-#apply_pattern UnitTest_run unit_test=ListMap
+apply_pattern UnitTest_run unit_test=TypeInformation
+apply_pattern UnitTest_run unit_test=ListMap
 apply_pattern UnitTest_run unit_test=NewEDMMap
-#apply_pattern UnitTest_run unit_test=Basic
+apply_pattern UnitTest_run unit_test=Basic
 
