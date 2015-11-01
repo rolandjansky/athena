@@ -193,6 +193,18 @@ const TrigTauClusterDetails* TrigTauCluster::clusterDetails() const
 	}
 }
 
+const ElementLink<TrigTauClusterDetailsContainer>&
+TrigTauCluster::clusterDetailsLink() const
+{
+  return m_clusterDetails;
+}
+
+void TrigTauCluster::setClusterDetails(const ElementLink<TrigTauClusterDetailsContainer>& clusterDetailsLink)
+{
+  m_clusterDetails = clusterDetailsLink;
+}
+
+
 bool operator== (const TrigTauCluster& clus1, const TrigTauCluster& clus2 )
 {
 	//if(clus1.clusterDetails() != 0 && clus2.clusterDetails() == 0 ) return false;

@@ -9,9 +9,20 @@ TrigT2ZdcSignals::TrigT2ZdcSignals(): m_triggerEnergies(TrigT2ZdcSignals::NUM_ZD
 				      m_triggerTimes(TrigT2ZdcSignals::NUM_ZDC,0) {
 }
 
-TrigT2ZdcSignals::TrigT2ZdcSignals(std::vector<float> triggerEnergies, 
-				   std::vector<float> triggerTimes): m_triggerEnergies(triggerEnergies),
-								     m_triggerTimes(triggerTimes) {
+TrigT2ZdcSignals::TrigT2ZdcSignals(const std::vector<float>& triggerEnergies, 
+				   const std::vector<float>& triggerTimes)
+  : m_triggerEnergies(triggerEnergies),
+    m_triggerTimes(triggerTimes)
+{
+  m_triggerEnergies.resize(TrigT2ZdcSignals::NUM_ZDC,0.);
+  m_triggerTimes.resize(TrigT2ZdcSignals::NUM_ZDC,0);
+}
+
+TrigT2ZdcSignals::TrigT2ZdcSignals(std::vector<float>&& triggerEnergies, 
+				   std::vector<float>&& triggerTimes)
+  : m_triggerEnergies(std::move(triggerEnergies)),
+    m_triggerTimes(std::move(triggerTimes))
+{
   m_triggerEnergies.resize(TrigT2ZdcSignals::NUM_ZDC,0.);
   m_triggerTimes.resize(TrigT2ZdcSignals::NUM_ZDC,0);
 }

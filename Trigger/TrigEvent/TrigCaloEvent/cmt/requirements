@@ -24,8 +24,8 @@ private
 use CaloEvent           CaloEvent-*		Calorimeter
 use xAODTrigCalo	xAODTrigCalo-*		Event/xAOD
 use xAODTrigL1Calo	xAODTrigL1Calo-*	Event/xAOD
-use xAODCaloEvent	xAODCaloEvent-*		Event/xAOD
-use xAODTrigMinBias	xAODTrigMinBias-*	Event/xAOD
+use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
+use xAODTrigMinBias     xAODTrigMinBias-*       Event/xAOD
 use xAODTrigRinger      xAODTrigRinger-*        Event/xAOD
 use xAODHIEvent         xAODHIEvent-*           Event/xAOD
 end_private
@@ -59,12 +59,10 @@ apply_pattern sercnv files="-s=${TrigCaloEvent_root}/TrigCaloEvent TrigCaloClust
                                CaloShowerContainer.h CaloTowerContainer.h CaloCellLinkContainer.h"
 apply_pattern sercnv \ 
 libtag="xAOD" \
-typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClusterAuxContainer \
+typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClusterAuxContainer xAOD::CaloClusterTrigAuxContainer \
                     xAOD::TrigCaloCluster xAOD::TrigCaloClusterContainer xAOD::TrigCaloClusterAuxContainer \
-                    xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
-                    xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \
-                    xAOD::TrigCaloCluster xAOD::TrigCaloClusterContainer xAOD::TrigCaloClusterAuxContainer \
-                    xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
+		    xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
+		    xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \	
                     xAOD::TrigRingerRings xAOD::TrigRingerRingsContainer xAOD::TrigRingerRingsAuxContainer\
                     xAOD::TrigRNNOutput xAOD::TrigRNNOutputContainer xAOD::TrigRNNOutputAuxContainer\
 		    xAOD::TrigT2ZdcSignals xAOD::TrigT2ZdcSignalsContainer xAOD::TrigT2ZdcSignalsAuxContainer\                   
@@ -72,6 +70,7 @@ typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClust
 		    xAOD::HIEventShape xAOD::HIEventShapeContainer xAOD::HIEventShapeAuxContainer " \
        files="-s=${xAODTrigCalo_root}/xAODTrigCalo TrigCaloCluster.h TrigCaloClusterContainer.h TrigCaloClusterAuxContainer.h \
                                 TrigEMCluster.h TrigEMClusterContainer.h TrigEMClusterAuxContainer.h \
+				CaloClusterTrigAuxContainer.h \
        -s=${xAODTrigL1Calo_root}/xAODTrigL1Calo TriggerTower.h TriggerTowerContainer.h TriggerTowerAuxContainer.h \
        -s=${xAODTrigRinger_root}/xAODTrigRinger TrigRingerRings.h TrigRingerRingsContainer.h TrigRingerRingsAuxContainer.h \
                                   TrigRNNOutput.h TrigRNNOutputContainer.h TrigRNNOutputAuxContainer.h \
