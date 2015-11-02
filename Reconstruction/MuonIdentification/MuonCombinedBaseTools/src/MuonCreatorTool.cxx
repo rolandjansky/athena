@@ -265,14 +265,22 @@ namespace MuonCombined {
       return 0;
     }
     
+    std::vector<const TagBase*> tags = candidate.combinedDataTags();
+    if(tags.size()==1 && !m_buildStauContainer){
+      const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tags[0]);
+      if (muGirlLowBetaTag){
+	ATH_MSG_DEBUG("Track has only a MuGirlLowBetaTag but Staus are not being built, so will not create muon");
+	return 0;
+      }
+    }
+    
     // Create the xAOD object:
     xAOD::Muon* muon = new xAOD::Muon();
     outputData.muonContainer->push_back( muon );
     std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
     muon->setMuonSegmentLinks(segments) ;
   
-    std::vector<const TagBase*> tags = candidate.combinedDataTags();
-    // now we need to sort these to get the best muon
+    // now we need to sort the tags to get the best muon
     
     // set the link to the ID track particle
     muon->setTrackParticleLink(xAOD::Muon::InnerDetectorTrackParticle, candidate.indetTrackParticleLink() );
@@ -288,6 +296,7 @@ namespace MuonCombined {
 
       // staus
       if( m_buildStauContainer ){
+
         const MuGirlLowBetaTag* muGirlLowBetaConstTag = dynamic_cast<const MuGirlLowBetaTag*>(tag);
 
         if( muGirlLowBetaConstTag ) {
@@ -298,6 +307,8 @@ namespace MuonCombined {
 	  
           muon->setAuthor(tag->author());
           muon->setMuonType(tag->type());
+          // Overrride type if InDet track is SiAssociated.
+          //if (candidate.isSiliconAssociated() ) muon->setMuonType(xAOD::Muon::SiliconAssociatedForwardMuon);
 	  
           if (tag->type() == xAOD::Muon::Combined ){
             ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag combined");
@@ -317,19 +328,23 @@ namespace MuonCombined {
               ATH_MSG_DEBUG("slowMuon muonLink valid");
               slowMuon->setMuonLink(muonLink);
             }
-          }
+          }          
         }
       }else{
-        
+
         //Don't want staus in muon branch
         const MuGirlLowBetaTag* muGirlLowBetaTag = dynamic_cast<const MuGirlLowBetaTag*>(tag);
-        if (muGirlLowBetaTag) continue; 
+        if (muGirlLowBetaTag) continue;
         
         // set author info 
         if( first ) {
-          ATH_MSG_DEBUG("MuonCreatorTool first muon: author="<<tag->author()<<"  type="<<tag->type());
+          ATH_MSG_DEBUG("MuonCreatorTool first muon tag: author="<<tag->author()<<"  type="<<tag->type());
           muon->setAuthor(tag->author());
           muon->setMuonType(tag->type());
+          // Overrride type if InDet track is SiAssociated.
+          if (candidate.isSiliconAssociated() ) {
+            muon->setMuonType(xAOD::Muon::SiliconAssociatedForwardMuon);
+          }
           first = false;
         }
 
