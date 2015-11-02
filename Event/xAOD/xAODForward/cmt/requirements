@@ -1,6 +1,8 @@
 package xAODForward
 
 author Libor Nozka <libor.nozka@cern.ch>
+author Peter Steinberg <peter.steinberg@bnl.gov>
+author Andrzej Zemla <azemla@cern.ch>
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
 public
@@ -10,6 +12,7 @@ use AtlasPolicy             AtlasPolicy-*
 use AthContainers           AthContainers-*           Control
 
 use xAODCore                xAODCore-*                Event/xAOD
+use xAODTrigL1Calo	    xAODTrigL1Calo-*	      Event/xAOD
 
 library xAODForward ../Root/*.cxx
 apply_pattern installed_library
@@ -23,3 +26,7 @@ use AtlasROOT               AtlasROOT-*               External
 apply_pattern lcgdict dict=xAODForward selectionfile=selection.xml \
                       headerfiles="../xAODForward/xAODForwardDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODForward
+
+
