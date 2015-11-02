@@ -43,13 +43,6 @@ namespace LVL1CTP {
       m_name(n), m_hashId(hash), m_passBP(passBP), m_passAP(passAP), m_passAV(passAV),
       m_prescaleFactor(factor) {}
 
-    Lvl1Item( const Lvl1Item& other) :
-      m_name(other.name()), m_hashId(other.hashId()),
-      m_passBP(other.isPassedBeforePrescale()),
-      m_passAP(other.isPassedAfterPrescale()),
-      m_passAV(other.isPassedAfterVeto()),
-      m_prescaleFactor(other.prescaleFactor()) {}
-
     std::string  name()   const { return m_name; }
     unsigned int hashId() const { return m_hashId; }
 

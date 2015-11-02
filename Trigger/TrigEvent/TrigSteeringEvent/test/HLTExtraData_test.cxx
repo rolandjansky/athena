@@ -24,7 +24,14 @@ using namespace HLT;
 
 ostream& operator<< (ostream& os, const HLTExtraData& x)
 {
-  os << ">" << x.appName << "< " << "[" << x.statusCode << "]";
+  os << ">";
+  for (size_t i=0; i < x.appName.size(); i++) {
+    if (isprint (x.appName[i]))
+      os << x.appName[i];
+    else
+      os << "\\0x" << std::hex << (int)x.appName[i] << std::dec;
+  }
+  os << "< " << "[" << x.statusCode << "]";
   for (size_t i=0; i<x.anonymous.size(); ++i) os << " " << x.anonymous[i];
   return os;
 }

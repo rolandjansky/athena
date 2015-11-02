@@ -36,6 +36,7 @@ namespace HLT {
    */
   class HLTExtraData {
   public:
+    friend void swap(HLTExtraData&, HLTExtraData&);
     /**
      * Construct empty object
      */
@@ -45,6 +46,10 @@ namespace HLT {
      * Construct from storage and fill members
      */
     HLTExtraData(const std::vector<uint32_t>& storage);
+    
+    HLTExtraData(const HLTExtraData&); //!< copy ctor
+    HLTExtraData(HLTExtraData&&); //!< move ctor
+    HLTExtraData& operator=(HLTExtraData); //!< unified assignement op
   
     /**
      * Serialize the data and append it to the vector
@@ -70,6 +75,8 @@ namespace HLT {
   
     StringSerializer m_stringSerializer;  
   };
+
+  void swap(HLTExtraData&, HLTExtraData&);
 
 } // namespace HLT
 

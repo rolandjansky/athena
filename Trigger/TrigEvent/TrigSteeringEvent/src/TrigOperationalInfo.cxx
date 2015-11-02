@@ -11,6 +11,13 @@ TrigOperationalInfo::TrigOperationalInfo() {
   
 }
 
+TrigOperationalInfo::TrigOperationalInfo(const std::vector<std::string>& keys,
+                                         const std::vector<float>& values)
+  : m_infoName (keys),
+    m_infoValue (values)
+{
+}
+
 unsigned int TrigOperationalInfo::defined(const std::string& name) const {
   return count( m_infoName.begin(), m_infoName.end(), name ); 
 }

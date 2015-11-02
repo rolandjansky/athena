@@ -78,6 +78,8 @@ public:
    unsigned int flagSize() const { return m_flagsPerObject[0].size(); }
 
 private:
+   friend class TrigPassFlagsCnv_p1;
+
    const void *m_container_ptr;
    std::vector<std::vector<bool> > m_flagsPerObject; //!< list of trainsient n-bit value (STL docu assures that a vector of booleans is efficient)
 };

@@ -44,6 +44,7 @@ public:
   unsigned int size() const { return m_decisions.size(); }
 
 private:
+  friend class TrigPassBitsCnv_p1;
   const void *m_container_ptr;
   std::vector<bool> m_decisions; //!< trainsient bits storage (STL docu assures that this is efficient)
 };
