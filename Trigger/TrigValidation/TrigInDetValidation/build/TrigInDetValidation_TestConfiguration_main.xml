@@ -157,8 +157,8 @@
             <auxFilePattern>ESD.pool.root</auxFilePattern>
 
 
-       </jobGroup>
-       <jobGroup name="AthenaElectronSliceDNAKalman" parent="Athena">
+         </jobGroup>
+         <jobGroup name="AthenaElectronSliceDNAKalman" parent="Athena">
             <keepFilePattern displayColor="blue" info="CBNTAA">ntuple*.root</keepFilePattern>
             <keepFilePattern displayColor="green">TrigInDetValidation_Histograms*.root</keepFilePattern>
             <keepFilePattern displayColor="green">Histos-*.root</keepFilePattern>

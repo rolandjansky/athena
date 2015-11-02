@@ -10,7 +10,7 @@
 #          include "samples/TrigInDetValidation_FTK_sample1.xml"
 
 
-            <action position="1">
+            <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -24,7 +24,7 @@
             </action>
 
 
-	    <action position="2">    
+     <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -33,13 +33,27 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_FTK   -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="02">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu6_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig HLT_mu24_FTK_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig   -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
 
 
 
