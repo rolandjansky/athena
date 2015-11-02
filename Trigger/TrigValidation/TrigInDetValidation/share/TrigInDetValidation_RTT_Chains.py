@@ -56,7 +56,7 @@ def electronChains(runMergedChain, doIDNewTracking):
 
   return (idTrigChainlist, tidaAnalysischains)
 
-def muonChains(runMergedChain, doIDNewTracking):
+def muonChains(runMergedChain, doIDNewTracking, doFTK):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
@@ -91,14 +91,17 @@ def muonChains(runMergedChain, doIDNewTracking):
     if use_new_tm:
       idTrigChainlist.append(['mu24_idperf',  'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
       idTrigChainlist.append(['mu6_idperf',   'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
-#      tidaAnalysischains.append('HLT_mu24_idperf:TrigFastTrackFinder_Muon')
-#      tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigParticleCreation_Muon_EFID')
       tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF')
       tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
-#      tidaAnalysischains.append('HLT_mu6_idperf:TrigFastTrackFinder_Muon')
-#      tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigParticleCreation_Muon_EFID')
       tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_FTF')
       tidaAnalysischains.append('HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+      if doFTK:
+        idTrigChainlist.append(['mu6_FTK_idperf',   'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
+        idTrigChainlist.append(['mu24_FTK_idperf',  'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
+      tidaAnalysischains.append('HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK')
+      tidaAnalysischains.append('HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+      tidaAnalysischains.append('HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK')
+      tidaAnalysischains.append('HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
     else:
       idTrigChainlist.append('mu22_IDTrkNoCut_tight_IDT')
       tidaAnalysischains.append('EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon')

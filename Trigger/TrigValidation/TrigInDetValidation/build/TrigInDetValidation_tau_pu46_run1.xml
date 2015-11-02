@@ -9,7 +9,7 @@
 	    
 #          include "samples/TrigInDetValidation_tau_sample2.xml"
 
-              <action position="1">
+              <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -23,7 +23,7 @@
             </action>
 
 
-            <action position="2">   
+            <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname> 
               <arg> 
@@ -36,7 +36,7 @@
               </arg>
             </action> 
 
-           <action position="3">   
+           <action position="03">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -52,6 +52,7 @@
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
 
 
 

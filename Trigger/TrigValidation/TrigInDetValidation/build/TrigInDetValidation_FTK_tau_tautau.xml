@@ -10,7 +10,7 @@
 #          include "samples/TrigInDetValidation_FTK_sample2.xml"
 
 
-            <action position="1">
+            <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -19,12 +19,12 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-muon-FTK.root   -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat -f data-tau-FTK.root   -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
 
-	    <action position="2">    
+     <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -33,13 +33,14 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_tautau-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
+                <argvalue>data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3    -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
 
 
 
@@ -49,8 +50,8 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_mu_tautau-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_mu_tautau-ref.root</auxFilePattern>
+	    <auxFilePattern>data-FTK_tau_tautau-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_tau_tautau-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
