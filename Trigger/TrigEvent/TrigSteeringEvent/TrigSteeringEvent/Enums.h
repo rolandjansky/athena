@@ -17,7 +17,7 @@ namespace HLT {
       ABORT_CHAIN = 1,  //!< if things went wrong but it is not severe, other unrelated chains will continue
       ABORT_EVENT = 2,  //!< if things went wrong severely, event corruption suspected
       ABORT_JOB   = 3,   //!< if things go really wrong, i.e. user suspects that the job is badly configured and continuing it will lead to taking rubbish data
-      __UNSPECIFIED = -1 //!< do not use
+      UNSPECIFIED_ = -1 //!< do not use
 
     } Code;
   };
@@ -40,8 +40,8 @@ namespace HLT {
       USERDEF_2,
       USERDEF_3,
       USERDEF_4,
-      __LAST            =0xf,        //!< and can't be higher because of serialization in the chain
-      __UNSPECIFIED = -1 //!< do not use
+      LAST_            =0xf,        //!< and can't be higher because of serialization in the chain
+      UNSPECIFIED_ = -1 //!< do not use
     } Code;
   };
 
@@ -60,8 +60,8 @@ namespace HLT {
       TIMEOUT,          //!< timeout forced by the steering
       BUSY,             //!< to flag that the event was busy
       BAD_JOB_SETUP,    //!< job is badly configured
-      __LAST,            //!< there is basically no restriction on size since these errors are not saved per chain so do not need to be serialized in 6 bits.
-      __UNSPECIFIED = -1 //!< do not use
+      LAST_,            //!< there is basically no restriction on size since these errors are not saved per chain so do not need to be serialized in 6 bits.
+      UNSPECIFIED_ = -1 //!< do not use
     } Code;
   };
 
@@ -74,7 +74,8 @@ namespace HLT {
    * -# explnation of the reson of that action, defined in class Reason
    * -# explnation of the reson which is internal to the steering rather than algorithms, defined in SteeringInternalReason
    */
-  struct ErrorCode {
+  class ErrorCode {
+  public:
     ErrorCode();                                           //!< for algo developers
     ErrorCode(Action::Code a);                             //!< for algo developers
     ErrorCode(Action::Code a, Reason::Code r);             //!< for algo developers
@@ -115,7 +116,7 @@ namespace HLT {
   //bunch of defines for backward compatibility
   static const ErrorCode OK(Action::CONTINUE);
   static const ErrorCode MISSING_FEATURE    (Action::CONTINUE,   Reason::MISSING_FEATURE);
-  static const ErrorCode __STOP_THIS_CHAIN  (Action::CONTINUE,   Reason::MISSING_FEATURE);
+  static const ErrorCode STOP_THIS_CHAIN_   (Action::CONTINUE,   Reason::MISSING_FEATURE);
 
   static const ErrorCode ERROR              (Action::ABORT_CHAIN, Reason::UNKNOWN);
   static const ErrorCode INVALID_TE         (Action::ABORT_CHAIN, Reason::UNKNOWN);
@@ -128,7 +129,7 @@ namespace HLT {
   static const ErrorCode STD_EXCEPTION      (Action::ABORT_CHAIN, Reason::STD_EXCEPTION);
   static const ErrorCode UNKNOWN_EXCEPTION  (Action::ABORT_CHAIN, Reason::UNKNOWN_EXCEPTION);
   static const ErrorCode TIMEOUT            (Action::ABORT_EVENT, Reason::TIMEOUT, SteeringInternalReason::TIMEOUT);
-  static const ErrorCode __STOP_EVENT       (Action::ABORT_EVENT);
+  static const ErrorCode STOP_EVENT_        (Action::ABORT_EVENT);
 
   static const ErrorCode NO_LVL1_ITEMS      (Action::ABORT_EVENT, SteeringInternalReason::NO_LVL1_ITEMS);
   static const ErrorCode NO_LVL2_CHAINS     (Action::ABORT_EVENT, SteeringInternalReason::NO_LVL2_CHAINS);
@@ -136,26 +137,26 @@ namespace HLT {
   static const ErrorCode WRONG_HLT_RESULT   (Action::ABORT_EVENT, SteeringInternalReason::WRONG_HLT_RESULT);
   static const ErrorCode NO_HLT_RESULT      (Action::ABORT_EVENT, SteeringInternalReason::NO_HLT_RESULT);
 
-  static const ErrorCode __STOP_JOB         (Action::ABORT_JOB);
+  static const ErrorCode STOP_JOB_          (Action::ABORT_JOB);
   static const ErrorCode BAD_JOB_SETUP      (Action::ABORT_JOB, Reason::BAD_JOB_SETUP);
   static const ErrorCode BAD_ALGO_CONFIG    (Action::ABORT_JOB, Reason::BAD_JOB_SETUP);
   static const ErrorCode FATAL              (Action::ABORT_JOB, Reason::UNKNOWN);
-  static const ErrorCode LAST_ERROR         (Action::ABORT_JOB, Reason::__LAST, SteeringInternalReason::__LAST);
+  static const ErrorCode LAST_ERROR         (Action::ABORT_JOB, Reason::LAST_, SteeringInternalReason::LAST_);
 
 
   // keep order so that worst is most right!
   /*  enum ErrorCode {
     OK=0, MISSING_FEATURE,
-    __STOP_THIS_CHAIN,
+    STOP_THIS_CHAIN_,
     ERROR,
     INVALID_TE, TOOL_FAILURE,
     NUM_ERROR, SG_ERROR, NAV_ERROR,
     GAUDI_EXCEPTION, EFORMAT_EXCEPTION, STD_EXCEPTION, UNKNOWN_EXCEPTION, // bunch of exceptions we handle
-    __STOP_EVENT,
+    STOP_EVENT_,
     NO_LVL1_ITEMS, NO_LVL2_CHAINS,
     NO_LVL1_RESULT, WRONG_HLT_RESULT, NO_HLT_RESULT,
     TIMEOUT,
-    __STOP_JOB,
+    STOP_JOB_,
     BAD_JOB_SETUP, BAD_ALGO_CONFIG, FATAL, LAST_ERROR };
 
 

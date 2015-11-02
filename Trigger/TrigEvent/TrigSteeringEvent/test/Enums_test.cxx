@@ -71,8 +71,8 @@ int main () {
   cout << HLT::getErrorCodePosFromStr("ABORT_THISJOB BAD_JOB_SETUP") << " truth: " <<  -1 << endl; 
 
   for ( int act = HLT::Action::CONTINUE; act <= HLT::Action::ABORT_JOB; act++) {
-    for (int res = HLT::Reason::UNKNOWN; res < HLT::Reason::__LAST; ++res ) {
-      for ( int ster = HLT::SteeringInternalReason::UNKNOWN; ster < HLT::SteeringInternalReason::__LAST; ++ster) {
+    for (int res = HLT::Reason::UNKNOWN; res < HLT::Reason::LAST_; ++res ) {
+      for ( int ster = HLT::SteeringInternalReason::UNKNOWN; ster < HLT::SteeringInternalReason::LAST_; ++ster) {
 	// make string
 	HLT::ErrorCode tmpec = HLT::ErrorCode(HLT::Action::Code(act), HLT::Reason::Code(res), HLT::SteeringInternalReason::Code(ster));
 	std::string str = HLT::strErrorCode(tmpec);

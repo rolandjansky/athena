@@ -36,11 +36,6 @@ namespace LVL1CTP {
     // default constructor
     Lvl1Result(bool config = false) : m_configured(config) { }
 
-    // Copy
-    Lvl1Result(const Lvl1Result& l1Result);
-
-    virtual ~Lvl1Result() { }
-
     bool isConfigured() const { return m_configured; }  //!< is LVL1 configured ?
     bool isAccepted() const;                            //!< final LVL1 decision && isConfigured
 

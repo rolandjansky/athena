@@ -29,15 +29,15 @@
 
 /// non member, non friend interface function 
 /// test whether a stub is contained within the roi                                                                                                                                                                  
-bool roiContainsZed( const IRoiDescriptor& roi, double _z, double _r ) {
+bool roiContainsZed( const IRoiDescriptor& roi, double z, double r ) {
   if ( roi.composite() ) { 
-    for ( unsigned int i=0 ; i<roi.size() ; i++ ) if ( roiContainsZed( *roi.at(i), _z, _r ) ) return true;
+    for ( unsigned int i=0 ; i<roi.size() ; i++ ) if ( roiContainsZed( *roi.at(i), z, r ) ) return true;
     return false;
   }
   if ( roi.isFullscan() ) return true;
-  double zminus = _r*roi.dzdrMinus()+roi.zedMinus();
-  double zplus  = _r*roi.dzdrPlus() +roi.zedPlus();
-  return ( _z>=zminus && _z<=zplus );
+  double zminus = r*roi.dzdrMinus()+roi.zedMinus();
+  double zplus  = r*roi.dzdrPlus() +roi.zedPlus();
+  return ( z>=zminus && z<=zplus );
 }
 
 
@@ -60,29 +60,29 @@ TrigRoiDescriptor::TrigRoiDescriptor( bool fullscan )
 
 
 
-TrigRoiDescriptor::TrigRoiDescriptor(double _eta, double _etaMinus, double _etaPlus, 
-				     double _phi, double _phiMinus, double _phiPlus, 
-				     double _zed, double _zedMinus, double _zedPlus) 
-  : RoiDescriptor( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus ),
+TrigRoiDescriptor::TrigRoiDescriptor(double eta, double etaMinus, double etaPlus, 
+				     double phi, double phiMinus, double phiPlus, 
+				     double zed, double zedMinus, double zedPlus) 
+  : RoiDescriptor( eta, etaMinus, etaPlus, phi, phiMinus, phiPlus, zed, zedMinus, zedPlus ),
     m_l1Id(0), m_roiId(0), m_roiWord(0)
 { } 
 
 
 TrigRoiDescriptor::TrigRoiDescriptor(unsigned int l1id, unsigned int id, 
-				     double _eta, double _etaMinus, double _etaPlus, 
-				     double _phi, double _phiMinus, double _phiPlus, 
-				     double _zed, double _zedMinus, double _zedPlus) 
-  : RoiDescriptor( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus ),
+				     double eta, double etaMinus, double etaPlus, 
+				     double phi, double phiMinus, double phiPlus, 
+				     double zed, double zedMinus, double zedPlus) 
+  : RoiDescriptor( eta, etaMinus, etaPlus, phi, phiMinus, phiPlus, zed, zedMinus, zedPlus ),
     m_l1Id(l1id), m_roiId(id), m_roiWord(0)
 { }
 
 
 
 TrigRoiDescriptor::TrigRoiDescriptor(unsigned int roiWord, unsigned int l1id, unsigned int id, 
-				     double _eta, double _etaMinus, double _etaPlus, 
-				     double _phi, double _phiMinus, double _phiPlus, 
-				     double _zed, double _zedMinus, double _zedPlus) 
-  : RoiDescriptor( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus ),
+				     double eta, double etaMinus, double etaPlus, 
+				     double phi, double phiMinus, double phiPlus, 
+				     double zed, double zedMinus, double zedPlus) 
+  : RoiDescriptor( eta, etaMinus, etaPlus, phi, phiMinus, phiPlus, zed, zedMinus, zedPlus ),
     m_l1Id(l1id), m_roiId(id), m_roiWord(roiWord)
 { }
 

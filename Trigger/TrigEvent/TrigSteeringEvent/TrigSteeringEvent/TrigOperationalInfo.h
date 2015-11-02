@@ -28,6 +28,8 @@ class TrigOperationalInfo {
 
 public:
   TrigOperationalInfo();
+  TrigOperationalInfo(const std::vector<std::string>& keys,
+                      const std::vector<float>& values);
   unsigned int    defined(const std::string& name) const;
   float  get(const std::string& name) const;
   void   set(const std::string& name, float value);

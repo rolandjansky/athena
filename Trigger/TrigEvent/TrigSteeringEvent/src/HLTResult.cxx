@@ -20,7 +20,7 @@ const uint32_t HLTResult::m_HLTResultClassVersion = 3;
 
 /// constructor
 HLTResult::HLTResult() :
-      m_extraData(0)
+      m_extraData{nullptr}
 {
   m_headerResult.resize(IndNumOfFixedBit);
   m_headerResult[IndHLTResultClassVersion]    = m_HLTResultClassVersion;
@@ -47,19 +47,33 @@ HLTResult::HLTResult() :
 }
 
 /// copy constructor
-HLTResult::HLTResult( const HLTResult& hltResult )
-  : GenericResult(),
-    m_headerResult(hltResult.m_headerResult),
-    m_chainsResult(hltResult.m_chainsResult),
-    m_navigationResult(hltResult.m_navigationResult),
-    m_navigationResult_DSonly(hltResult.m_navigationResult_DSonly),
-    m_id_name(hltResult.m_id_name),
-    m_id_name_DSonly(hltResult.m_id_name_DSonly),
-    m_modID_id_name(hltResult.m_modID_id_name),
-    m_navigationResultCuts(hltResult.m_navigationResultCuts),
-    m_navigationResultCuts_DSonly(hltResult.m_navigationResultCuts_DSonly),
-    m_extraData{nullptr}
+HLTResult::HLTResult(const HLTResult& rhs)
+  : m_headerResult{rhs.m_headerResult},
+    m_chainsResult{rhs.m_chainsResult},
+    m_navigationResult{rhs.m_navigationResult},
+    m_navigationResult_DSonly{rhs.m_navigationResult_DSonly},
+    m_extras{rhs.m_extras},
+    m_id_name{rhs.m_id_name},
+    m_id_name_DSonly{rhs.m_id_name_DSonly},
+    m_modID_id_name{rhs.m_modID_id_name},
+    m_navigationResultCuts{rhs.m_navigationResultCuts},
+    m_navigationResultCuts_DSonly{rhs.m_navigationResultCuts_DSonly},
+    m_extraData{rhs.m_extraData ? new HLTExtraData{*rhs.m_extraData} : nullptr}
 {
+}
+
+// move ctor
+HLTResult::HLTResult(HLTResult&& rhs)
+  : HLTResult{}
+{
+  swap(*this, rhs);
+}
+
+// unifying assignment operator
+HLTResult& HLTResult::operator=(HLTResult rhs)
+{
+  swap(*this, rhs);
+  return *this;
 }
 
 /// destructor
@@ -105,8 +119,7 @@ uint32_t HLTResult::error_bits() const {
   return bits;
 }
 
-// TODO make const when modifying header
-unsigned int HLTResult::estimateSize() {
+unsigned int HLTResult::estimateSize() const {
   return IndNumOfFixedBit
       + m_chainsResult.size() + 1      // size(one word) and payload
       + m_navigationResult.size() + 1
@@ -252,13 +265,6 @@ auto HLTResult::findDSCuts(unsigned int mod_id) const -> CutPairVecs
   return std::make_pair(cuts_dsonly, cuts_reg);
 }
 
-unsigned int HLTResult::estimateSize_DS(const unsigned int /*mod_id*/ )
-{
-  // TODO remove when modifying header
-  assert(false);
-  return 0;
-}
-
 /* static */
 unsigned int HLTResult::calc_total_size_DS(unsigned int ds_nav_size)
 {
@@ -327,7 +333,7 @@ bool HLTResult::serialize_navigation_DS(uint32_t* output,
     serialize_collections(output, data_size, m_navigationResult, dscuts.second);
 
     output[index_for_size_in_nav_preamble] = nav_size; /* the total size needs
-      to be replaced in the navigation preamble as the it was originally
+      to be replaced in the navigation preamble as it was originally
       calculated with all data scouting collections lumped together in the
       navigation. This needs to be corrected once headers can be changed and
       serialization can be requested for each module ID separately.
@@ -369,14 +375,13 @@ inline
 bool HLTResult::serialize_body_regular(uint32_t* output,
                                        int& data_size,
                                        unsigned int umax_size,
-                                       unsigned int estimated_size,
                                        bool truncating) const
 {
   return serialize_indivisible(output, data_size, m_chainsResult, umax_size,
-                               estimated_size, truncating) &&
+                               truncating) &&
          serialize_navigation_reg(output, data_size, umax_size, truncating) &&
          serialize_indivisible(output, data_size, m_extras, umax_size,
-                               estimated_size, truncating);
+                               truncating);
 }
 
 bool HLTResult::serialize_body_DS(uint32_t* output,
@@ -411,7 +416,7 @@ bool HLTResult::serialize_regular(uint32_t*& output,
   return serialize_bootstrap(output, data_size, truncating,
                              max_size, estim_size) &&
          serialize_body_regular(output, data_size,
-                                max_size, estim_size, truncating);
+                                max_size, truncating);
 }
 
 bool HLTResult::serialize_DS(uint32_t*& output,
@@ -482,21 +487,6 @@ bool HLTResult::deserialize(  uint32_t* source, const int data_size ) {
   std::vector<uint32_t> rawResult(&source[0], &source[data_size]);
   return unpackFromStorable(rawResult);
 }
-
-void HLTResult::clearHLTResult() {
-  /// TODO remove when changing header
-  assert(false); // should not be here
-}
-
-bool HLTResult::packForStorage(std::vector<uint32_t>& /*raw*/,
-                               const unsigned int /*mod_id*/)
-{
-  // TODO remove when changing header
-  assert(false); // should not be here
-  return false; // make compiler happy
-}
-
-
 
 bool HLTResult::unpackFromStorable(const std::vector<uint32_t>& raw)
 {
@@ -674,5 +664,20 @@ HLTExtraData& HLTResult::getExtraData()
   return *m_extraData;
 }
 
+void HLT::swap(HLTResult& lhs, HLTResult& rhs)
+{
+  using std::swap;
+  
+  swap(lhs.m_headerResult, rhs.m_headerResult);
+  swap(lhs.m_chainsResult, rhs.m_chainsResult);
+  swap(lhs.m_navigationResult, rhs.m_navigationResult);
+  swap(lhs.m_navigationResult_DSonly, rhs.m_navigationResult_DSonly);
+  swap(lhs.m_extras, rhs.m_extras);
+  swap(lhs.m_id_name, rhs.m_id_name);
+  swap(lhs.m_id_name_DSonly, rhs.m_id_name_DSonly);
+  swap(lhs.m_modID_id_name, rhs.m_modID_id_name);
+  swap(lhs.m_navigationResultCuts, rhs.m_navigationResultCuts);
+  swap(lhs.m_navigationResultCuts_DSonly, rhs.m_navigationResultCuts_DSonly);
+}
 
 #endif //XAOD_ANALYSIS

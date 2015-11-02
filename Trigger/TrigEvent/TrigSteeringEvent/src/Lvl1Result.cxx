@@ -6,16 +6,6 @@
 
 using namespace LVL1CTP;
 
-
-Lvl1Result::Lvl1Result(const Lvl1Result& other) :
-  m_configured(other.isConfigured()),
-  m_l1_itemsTBP( other.itemsBeforePrescale() ),
-  m_l1_itemsTAP( other.itemsAfterPrescale() ),
-  m_l1_itemsTAV( other.itemsAfterVeto() )
-{
-}
-
-
 bool Lvl1Result::anyActiveL1ItemAfterVeto() const
 {
   for (unsigned int i = 0; i < m_l1_itemsTAV.size(); ++i) {

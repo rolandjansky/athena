@@ -46,10 +46,13 @@ namespace HLT {
   class HLTResult : public GenericResult {
 
   public:
-
-    HLTResult();
-    HLTResult( const HLTResult& ); //!< copy constructor
-    ~HLTResult();
+    friend void swap(HLTResult& lhs, HLTResult& rhs);
+  
+    HLTResult(); //<! Default ctor
+    HLTResult(const HLTResult&); //!< copy constructor
+    HLTResult(HLTResult&& rhs); //!< move ctor
+    HLTResult& operator=(HLTResult rhs); //!< unified assignement operator
+    ~HLTResult(); //<! Dtor
 
     /**
      * @copydoc GenericResult::accepted()
@@ -296,7 +299,9 @@ namespace HLT {
      * @brief Return object representing the extra payload
      */
     HLTExtraData& getExtraData();
-    inline const HLTExtraData& getExtraData() const { return getExtraData(); }
+    inline const HLTExtraData& getExtraData() const {
+      return const_cast<HLTResult*>(this)->getExtraData();
+    }
 
     /*
      * @brief gets size of the rawResult (in words)
@@ -335,6 +340,7 @@ namespace HLT {
     
 
   private:
+    friend class HLTResultCnv_p1;
 
     /**
      * @brief fixed bits; general trigger and status information
@@ -355,11 +361,6 @@ namespace HLT {
 		    IndConfigPrescalesKey,   //!< configuration key for prescales		    
 		    IndNumOfFixedBit       //!< total number of fixed bits
     };
-
-    /**
-     * @brief Outdated: TODO remove when changing header
-     */
-    void clearHLTResult();
 
     using CutPairs = std::vector<std::pair<unsigned int, unsigned int>>;
     using CutPairVecs = std::pair<CutPairs, CutPairs>;
@@ -396,7 +397,6 @@ namespace HLT {
     bool serialize_body_regular(uint32_t* output,
                                 int& data_size,
                                 unsigned int umax_size,
-                                unsigned int estimated_size,
                                 bool truncating) const;
 
     /*
@@ -434,15 +434,9 @@ namespace HLT {
     void updateExtras();
 
     /**
-     * @brief Outdated: TODO remove when changing header
+     * Estimate the size this HLTResult would ocuppy once serialized.
      */
-    bool packForStorage(std::vector<uint32_t> &raw,
-                        const unsigned int rob_id = 0);
-
-    unsigned int estimateSize();
-
-    // TODO: remove when changing header
-    unsigned int estimateSize_DS(unsigned int mod_id);
+    unsigned int estimateSize() const;
 
     /**
      * Calculate the size of a DS result, given the size of its navigation
@@ -476,7 +470,7 @@ namespace HLT {
     std::vector<uint32_t>             m_chainsResult;      //!< storege of serialized chains
     std::vector<uint32_t>             m_navigationResult;  //!< storage of navigation (serialized also)
     std::vector<uint32_t>             m_navigationResult_DSonly;  //!< storage of navigation (serialized also) for DataScouting
-    std::vector<uint32_t>             m_extras;            //!< extra storeage (which can be used by DF applications like PSC to store some operational infos)
+    std::vector<uint32_t>             m_extras;            //!< extra storeage (which can be used to store some operational infos)
 
     std::vector< std::pair < CLID, std::string > >     m_id_name;
     
@@ -491,6 +485,8 @@ namespace HLT {
     mutable HLTExtraData* m_extraData;     //!< object for m_extras deserialization (on demand)
 
   };
+  
+  void swap(HLTResult& lhs, HLTResult& rhs);
 
 } // end namespace
 
