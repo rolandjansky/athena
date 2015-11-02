@@ -9,7 +9,7 @@
 
 #          include "samples/TrigInDetValidation_tau_sample2.xml"
            
-           <action position="1">
+           <action position="01">
              <modulename>RttLibraryTools</modulename>
              <testname>ExeRunner</testname>
              <arg>
@@ -23,7 +23,7 @@
            </action>
 
          	   
-           <action position="2">   
+           <action position="02">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -32,12 +32,12 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau_pu46-reference.root  HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig    HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3  -d HLTEF-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau_pu46-reference.root  HLT_tau25_idperf_track:InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3  HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3  -d HLTEF-plots </argvalue>
              </arg>
            </action> 
 	   
          	   
-           <action position="3">   
+           <action position="03">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -46,11 +46,11 @@
              </arg>
              <arg> 
                <argname>exeParamString</argname>
-               <argvalue>data-tau-merge.root data-tau_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_1 HLT_tau20_r1_idperf_TrigL2SiTrackFinder_Tau_2 -d HLTL2-plots </argvalue>
+               <argvalue>data-tau-merge.root data-tau_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots </argvalue>
              </arg>
            </action> 
 	   
-           <action position="4">   
+           <action position="04">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -66,6 +66,7 @@
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
 
 
 
