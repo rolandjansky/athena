@@ -58,7 +58,6 @@ def resetSigs():
   TriggerFlags.CosmicSlice.signatures = cosmicTrigChainlist
 
 PdgId=13
-triggerMenuVersion='LS1_v1'
 
 #disable pixel cluster splitting in the offline reco
 from InDetRecExample.InDetJobProperties import InDetFlags

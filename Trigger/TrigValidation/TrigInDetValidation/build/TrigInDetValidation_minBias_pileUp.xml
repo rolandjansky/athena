@@ -10,7 +10,7 @@
            
 #          include "samples/TrigInDetValidation_minBias_sample1.xml"
            
-	    <action position="1">
+     <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>

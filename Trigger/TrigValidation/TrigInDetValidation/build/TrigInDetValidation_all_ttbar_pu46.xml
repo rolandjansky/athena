@@ -1,7 +1,7 @@
          <athena trendId='all_pu46' userJobId='TrigInDetValidation_all_ttbar_pu46'>
             <doc>All slices, ttbar events, pu46, run2 chains</doc>
             <displayName>All slices, ttbar, pu46, run2 chains</displayName>
-	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -9,7 +9,7 @@
 
 #          include "samples/TrigInDetValidation_ttbar_mu46.xml"
 	   
-            <action position="1">
+            <action position="01">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -22,7 +22,7 @@
                 </arg>
             </action>
 
-           <action position="2">    
+           <action position="02">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -36,7 +36,7 @@
             </action>
 
 
-            <action position="3">    
+            <action position="03">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -50,7 +50,7 @@
             </action>
 
 
-            <action position="4">    
+            <action position="04">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -63,7 +63,7 @@
               </arg>
             </action>
 
-            <action position="5">    
+            <action position="05">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -76,7 +76,7 @@
               </arg>
             </action>
 
-            <action position="6">    
+            <action position="06">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -89,7 +89,7 @@
               </arg>
             </action>
 
-            <action position="7">    
+            <action position="07">
               <modulename>RttLibraryTools</modulename> 
               <testname>ExeRunner</testname>  
               <arg> 
@@ -102,7 +102,7 @@
               </arg>
             </action>
 	   
-            <action position="8">   
+            <action position="08">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -116,7 +116,7 @@
            </action> 
 	   
          	   
-           <action position="9">   
+           <action position="09">
              <modulename>RttLibraryTools</modulename> 
              <testname>ExeRunner</testname> 
              <arg> 
@@ -130,7 +130,7 @@
            </action> 
 	   
  
-           <action position="10">   
+           <action position="10">
                 <modulename>RttLibraryTools</modulename> 
                 <testname>ExeRunner</testname> 
                 <arg> 
@@ -146,6 +146,7 @@
 
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
 
 
 
