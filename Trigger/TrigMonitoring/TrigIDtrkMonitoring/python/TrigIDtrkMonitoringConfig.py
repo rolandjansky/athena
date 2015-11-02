@@ -388,6 +388,8 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaminbias.ntupleChainNames += [
 			"Offline",
+			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
+			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_IDTrig",
 			"HLT_mb_.*_hmtperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
 			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
 			"HLT_mb_.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF",
@@ -404,95 +406,14 @@ def TrigIDtrkMonitoringTool():
 		tidaminbiasshift.SliceTag = "HLT/TRIDT/minBias/Shifter"
 		tidaminbiasshift.ntupleChainNames += [
 			"Offline",
+			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_EFID",
+			"HLT_mb_.*_idperf.*:InDetTrigTrackingxAODCnv_minBias_IDTrig",
 			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_IDTrig",
 			"HLT_mb_sp.*_hmtperf:InDetTrigTrackingxAODCnv_minBias_FTF"
 			]
 		ToolSvc += tidaminbiasshift;
 		list += [ "TrigTestBase/IDminBiasShifterTool" ]
 
-
-
-
-	if False:
-
-		##############################################################
-		# Generic test instances - these signatures are largely 
-                #                          obsolete and incorrect now
-		##############################################################
-
-		# test instances
-		tidatool = TrigTestBase(name = "TIDATool",
-					histoPathBase = "/Trigger/HLT")
-		tidatool.AnalysisConfig = "Tier0"
-		tidatool.SliceTag = "HLT/TRIDT/MonTest"
-		# tidatool.OutputLevel = DEBUG
-		tidatool.ntupleChainNames += [
-			"Offline",
-			#egamma
-			"EF_e24vh_medium1:InDetTrigParticleCreation_Electron_EFID",
-			"L2_e24vh_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-			"L2_e24vh_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-			"L2_e24vh_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-			#mu
-			"EF_mu18_IDTrkNoCut_tight:InDetTrigParticleCreation_Muon_EFID",
-			"L2_mu18_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:0",
-			"L2_mu18_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:1",
-			"L2_mu18_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:2",
-			"EF_mu22_IDTrkNoCut_tight:InDetTrigParticleCreation_Muon_EFID",
-			"L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:0",
-			"L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:1",
-			"L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:2",
-			#tau
-			"L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:0",
-			"L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:1",
-			"L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:2",
-			"L2_tau125_IDTrkNoCut:TrigL2SiTrackFinder_Tau:0",
-			"L2_tau125_IDTrkNoCut:TrigL2SiTrackFinder_Tau:1",
-			"L2_tau125_IDTrkNoCut:TrigL2SiTrackFinder_Tau:2",
-			"EF_tau29_IDTrkNoCut:InDetTrigParticleCreation_Tau_EFID",
-			"EF_tau125_IDTrkNoCut:InDetTrigParticleCreation_Tau_EFID",
-			#bjet
-			"EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID",
-			"L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet",
-			#Full Scan
-			"L2_InDetMon_FS:TrigIDSCAN_FullScan",
-			"L2_InDetMon_FS:TrigSiTrack_FullScan",
-			"L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:0",
-			"L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:1",
-			"L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:2",
-			"EF_InDetMon_FS:InDetTrigParticleCreation_FullScan_EFID",
-                        #Cosmics
-			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
-			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
-		        #HI running
-			"L2_mu4_IDTrkNoCut:TrigL2SiTrackFinder_Muon:0",
-			"L2_mu4_IDTrkNoCut:TrigL2SiTrackFinder_Muon:1",
-			"L2_mu4_IDTrkNoCut:TrigL2SiTrackFinder_Muon:2",
-			"EF_mu4_IDTrkNoCut:InDetTrigParticleCreation_Muon_EFID",
-
-			"L2_mu8_IDTrkNoCut:TrigL2SiTrackFinder_Muon:0",
-			"L2_mu8_IDTrkNoCut:TrigL2SiTrackFinder_Muon:1",
-			"L2_mu8_IDTrkNoCut:TrigL2SiTrackFinder_Muon:2",
-			"EF_mu8_IDTrkNoCut:InDetTrigParticleCreation_Muon_EFID",
-
-			"L2_mu10_IDTrkNoCut:TrigL2SiTrackFinder_Muon:0",
-			"L2_mu10_IDTrkNoCut:TrigL2SiTrackFinder_Muon:1",
-			"L2_mu10_IDTrkNoCut:TrigL2SiTrackFinder_Muon:2",
-			"EF_mu10_IDTrkNoCut:InDetTrigParticleCreation_Muon_EFID",
-
-			"L2_e15_loose1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-			"L2_e15_loose1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-			"L2_e15_loose1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-			"EF_e15_loose1_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
-
-			"L2_e5_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-			"L2_e5_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-			"L2_e5_medium1_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-			"EF_e5_medium1_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID"
-
-			]
-		ToolSvc += tidatool;
-		list += [ "TrigTestBase/TIDATool" ]
 
         ### Tag and Probe ###
 
