@@ -583,6 +583,12 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile_LW*          m_disabledModules_per_lumi_B0;
     TProfile_LW*          m_disabledModules_per_lumi_B1;
     TProfile_LW*          m_disabledModules_per_lumi_B2;
+    TProfile_LW*          m_baddisabledModules_per_lumi_ECA;
+    TProfile_LW*          m_baddisabledModules_per_lumi_ECC;
+    TProfile_LW*          m_baddisabledModules_per_lumi_IBL;
+    TProfile_LW*          m_baddisabledModules_per_lumi_B0;
+    TProfile_LW*          m_baddisabledModules_per_lumi_B1;
+    TProfile_LW*          m_baddisabledModules_per_lumi_B2;
 
     //ROD Error histograms
     TH1F_LW*              m_error1;            

@@ -414,6 +414,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_disabledModules_per_lumi_B0 = 0;
    m_disabledModules_per_lumi_B1 = 0;
    m_disabledModules_per_lumi_B2 = 0;
+   m_baddisabledModules_per_lumi_ECA = 0;
+   m_baddisabledModules_per_lumi_ECC = 0;
+   m_baddisabledModules_per_lumi_B0 = 0;
+   m_baddisabledModules_per_lumi_B1 = 0;
+   m_baddisabledModules_per_lumi_B2 = 0;
+   m_baddisabledModules_per_lumi_IBL = 0;
    m_error1 = 0;            
    m_errorTypes = 0;        
    m_otherROD_per_lumi_IBL = 0; 

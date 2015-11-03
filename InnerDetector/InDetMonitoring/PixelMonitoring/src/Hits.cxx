@@ -488,7 +488,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          if(m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->Fill(rdoID, m_pixelid, m_doIBL);
          //if(m_average_pixocc2) m_average_pixocc2->ScaleBynPixnEvt(m_occupancy, m_event, m_nGood_IBL2D, m_nGood_IBL3D, m_nGood_B0, m_nGood_B1, m_nGood_B2, m_nGood_ECA, m_nGood_ECC, m_doIBL);
          //if(m_average_pixocc2) m_average_pixocc2->Fill(rdoID, m_pixelid, m_doIBL); 
-         if(m_average_pixocc) m_average_pixocc->WeightingFill(rdoID, m_pixelid, m_doIBL, 1.0/( 1.0*nchannels[pixlayeribl2d3d]) );
+         if(m_average_pixocc && nchannels[pixlayeribl2d3d] > 0) m_average_pixocc->WeightingFill(rdoID, m_pixelid, m_doIBL, 1.0/( 1.0*nchannels[pixlayeribl2d3d]) );
 	      if(m_doOnline && m_hitmap_tmp) m_hitmap_tmp->Fill(rdoID, m_pixelid, m_doIBL);
          
          /// Fill Lvl1A

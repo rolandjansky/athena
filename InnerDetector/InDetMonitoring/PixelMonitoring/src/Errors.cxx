@@ -462,10 +462,10 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
       for( int j=0; j<32; j++){
-         if(m_ErrorBit_per_lumi_mod[i]) m_ErrorBit_per_lumi_mod[i]->Fill(LBnum, j, nErrorBit_mod[i][j]/nmodLayer[i]);
+         if(m_ErrorBit_per_lumi_mod[i] && nmodLayer[i] > 0) m_ErrorBit_per_lumi_mod[i]->Fill(LBnum, j, nErrorBit_mod[i][j]/nmodLayer[i]);
       }
       for( int j=0; j<ErrorCategoryMODROD::COUNT; j++){
-         if(m_Error_per_lumi_mod[i]) m_Error_per_lumi_mod[i]->Fill(LBnum, j, nErrorTypes_mod[i][j]/nmodLayer[i]);
+         if(m_Error_per_lumi_mod[i] && nmodLayer[i] > 0) m_Error_per_lumi_mod[i]->Fill(LBnum, j, nErrorTypes_mod[i][j]/nmodLayer[i]);
       }
    }
 
@@ -480,7 +480,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       if(m_TruncationErrors_per_lumi_mod[i]) m_TruncationErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kTrunc]);
 
       for( int j=0; j<ErrorCategory::COUNT; j++){
-         if(m_ErrorFraction_per_evt[j][i]) m_ErrorFraction_per_evt[j][i]->Fill(LBnum, nErrorsCategory_permod[i][j]/nmodLayer[i]);
+         if(m_ErrorFraction_per_evt[j][i] && nmodLayer[i] > 0) m_ErrorFraction_per_evt[j][i]->Fill(LBnum, nErrorsCategory_permod[i][j]/nmodLayer[i]);
       }
    }
 
