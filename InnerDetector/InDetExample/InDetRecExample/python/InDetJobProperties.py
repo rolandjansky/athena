@@ -1336,10 +1336,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doCaloSeededBrem       , False)
        self.checkThenSet(self.doHadCaloSeededSSS     , False)
        # --- turn off TRT
-       DetFlags.makeRIO.TRT_setOff()
        DetFlags.TRT_setOff()
-       DetFlags.detdescr.TRT_setOn()
-       DetFlags.dcs.TRT_setOff()
 
     # --- special case minimal reconstruction setup
     elif (self.doMinimalReco()):
@@ -2047,6 +2044,7 @@ class InDetJobProperties(JobPropertyContainer):
     else:
        print '*    (1) - 2010 heavy ion settings'
        print '*    (2) - 2011 heavy ion settings with seed level 2'
+       print '*    (3) - 2011 heavy ion settings with seed level 2 and pT cut at 0.3 GeV'
     # -----------------------------------------
     if self.doBremRecovery():
        print '* run Brem Recovery in tracking'
