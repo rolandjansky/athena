@@ -218,6 +218,14 @@ if DQMonFlags.doMonitoring():
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up LUCID monitoring")
 
+   #---------------------#
+   # HeavyIon monitoring #
+   #---------------------#
+   if DQMonFlags.doHIMon():
+      try:
+         include("HIMonitoring/HIMonitoringSteering_jo.py")
+      except Exception:
+         treatException("DataQualitySteering_jobOptions.py: exception when setting up HI monitoring")
 
    #------------------------#
    # Trigger chain steering #
