@@ -30,7 +30,7 @@ StatusCode HIUEModulatorTool::initialize()
   if(m_do_v4) m_nh_vector.push_back(4);
   if(m_nh_vector.size()!=0 &&(m_shape_key.compare("NULL")==0)) 
     ATH_MSG_WARNING("Requested modulation, but provided no name for HIEventShapeContainer, no modulation will beapplied");
-
+  ATH_MSG(DEBUG) << "Equipping " << m_do_v2 << "\t" << m_do_v3 << "\t" << m_do_v4 << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -79,7 +79,7 @@ float HIUEModulatorTool::modulate(const std::vector<unsigned int>& nh_vector, co
       unsigned int ih=nh_vector.at(i)-1;
       float qx=shape->etCos().at(ih);
       float qy=shape->etSin().at(ih);
-      CxxUtils::sincos sc(phi*ih);
+      CxxUtils::sincos sc(phi*(ih+1.0));
       modulation+=2.*sc.apply(qx,qy);
     }
     modulation/=et;

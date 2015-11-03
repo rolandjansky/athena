@@ -5,9 +5,9 @@ private
 use NavFourMom		NavFourMom-*		Event
 use Navigation		Navigation-*		Control
 use CaloEvent           CaloEvent-*             Calorimeter
+use CaloRec           	CaloRec-*		Calorimeter
 use CaloUtils      	CaloUtils-*		Calorimeter
 use CxxUtils       	CxxUtils-*		Control
-use xAODJet             xAODJet-*		Event/xAOD
 use xAODCore            xAODCore-*              Event/xAOD
 use HIEventUtils	HIEventUtils-*		PhysicsAnalysis/HeavyIonPhys
 use AthenaBaseComps     AthenaBaseComps-*       Control
@@ -22,6 +22,7 @@ use JetRec              JetRec-*                Reconstruction/Jet
 use xAODBase		xAODBase-*		Event/xAOD
 use xAODHIEvent         xAODHIEvent-*		Event/xAOD
 use xAODCaloEvent	xAODCaloEvent-*	  	Event/xAOD
+use xAODJet             xAODJet-*		Event/xAOD
 use JetInterface        JetInterface-*         	Reconstruction/Jet
 
 

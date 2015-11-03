@@ -10,6 +10,7 @@
 #include "HIJetRec/HIJetDRAssociationTool.h"
 #include "HIJetRec/HIJetMaxOverMeanTool.h"
 #include "HIJetRec/HIJetDiscriminatorTool.h"
+#include "HIJetRec/HIJetSignificanceTool.h"
 #include "HIJetRec/HIUEModulatorTool.h"
 
 
@@ -21,6 +22,7 @@ DECLARE_TOOL_FACTORY(HIJetCellSubtractorTool)
 DECLARE_TOOL_FACTORY(HIJetDRAssociationTool)
 DECLARE_TOOL_FACTORY(HIJetMaxOverMeanTool)
 DECLARE_TOOL_FACTORY(HIJetDiscriminatorTool)
+DECLARE_TOOL_FACTORY(HIJetSignificanceTool)
 DECLARE_TOOL_FACTORY(HISubtractedCellMakerTool)
 DECLARE_TOOL_FACTORY(HIUEModulatorTool)
 

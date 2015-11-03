@@ -8,16 +8,15 @@
 #include "HIEventUtils/HIEventShapeMap.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIEventUtils/HIEventShapeSummaryUtils.h"
-#include "xAODJet/JetContainer.h"
 #include "xAODCore/ShallowCopy.h"
-#include "xAODCaloEvent/CaloCluster.h"
+
 
 
 namespace
 {
   struct SelectByList{
 
-    SelectByList() {};
+    SelectByList() : used_set(nullptr) {};
     std::set<unsigned int>* used_set;
     bool operator()(const xAOD::HIEventShape* in_slice)
     {
@@ -32,10 +31,10 @@ namespace
 HIEventShapeJetIteration::HIEventShapeJetIteration(std::string name) : AsgTool(name),
 								       m_isInit(false)
 {
-  ATH_MSG_INFO("HIEventShapeJetIteration constructor declaring properties");
   declareProperty("InputEventShapeKey",m_input_event_shape_key="HIEventShape");
   declareProperty("OutputEventShapeKey",m_output_event_shape_key="HIEventShape_iter");
-  declareProperty("SeedContainerKey",m_seed_key,"Names of seed collections");
+  declareProperty("CaloJetSeedContainerKey",m_calo_jet_seed_key,"Names of seed collections");
+  declareProperty("TrackJetSeedContainerKey",m_track_jet_seed_key,"Names of seed collections");
   declareProperty("ExclusionRadius",m_exclude_DR=0.4,"Exclude all calo regions w/in this DR to jet");
   declareProperty("ExcludeConstituents",m_exclude_constituents=false,"Only exclude constituents of jets");
   declareProperty("AssociationKey",m_association_key,"Name of jet attribute containing jet-cluster association");
@@ -53,9 +52,23 @@ int HIEventShapeJetIteration::execute() const
   const xAOD::HIEventShapeContainer* input_shape=0;
   CHECK(evtStore()->retrieve(input_shape,m_input_event_shape_key));
   
-  ATH_MSG_INFO("In execute");
-  const xAOD::JetContainer* theJets=0;
-  CHECK(evtStore()->retrieve(theJets,m_seed_key));
+  const xAOD::JetContainer* theCaloJets=0;
+  const xAOD::JetContainer* theTrackJets=0;
+
+  if(m_calo_jet_seed_key.compare("")!=0)    CHECK(evtStore()->retrieve(theCaloJets,m_calo_jet_seed_key));
+  if(m_track_jet_seed_key.compare("")!=0)
+  {
+    CHECK(evtStore()->retrieve(theTrackJets,m_track_jet_seed_key));
+    ATH_MSG(DEBUG) << "Retrieved track jet container " << m_track_jet_seed_key << endreq;
+  }
+
+
+  if(theTrackJets && m_exclude_constituents) 
+  {
+    ATH_MSG(ERROR) << "Incompatible options. Cannot track jets and constituents together." << endreq;
+    return 1;
+  }
+
 
    //shallow copy shares unaltered auxilliary data with the original container.
   auto shape_copy=xAOD::shallowCopyContainer(*input_shape);
@@ -78,43 +91,16 @@ int HIEventShapeJetIteration::execute() const
   std::set<unsigned int> used_indices;
   std::set<unsigned int> used_eta_bins;
 
-
-  for(xAOD::JetContainer::const_iterator jItr=theJets->begin(); jItr!=theJets->end(); jItr++)
+  std::vector<const xAOD::CaloCluster*> assoc_clusters;
+  assoc_clusters.reserve(6400);
+  if(theCaloJets) CHECK(makeClusterList(assoc_clusters,theCaloJets,used_indices,used_eta_bins));
+  if(theTrackJets)
   {
-    const xAOD::Jet* theJet=(*jItr);
-    xAOD::IParticle::FourMom_t jet4mom=theJet->p4();
-    
-    std::vector<const xAOD::IParticle*> assoc_clusters;
-    //only use jet constituents
-    if(m_exclude_constituents) assoc_clusters=theJet->getConstituents().asIParticleVector();
-    
-    //use associations w/ name m_association_key
-    else
-    {
-      if(! theJet->getAssociatedObjects<xAOD::IParticle>(m_association_key,assoc_clusters))
-      {
-	//this should only happen if SOME of the jets in the collection are missing the association
-	//technically possible, but should NOT happen
-	ATH_MSG(ERROR) << "Individual jet missing association " << m_association_key << endreq;
-	return StatusCode::FAILURE;
-      }
-    }
-    
-    //Now loop over associated objects
-    ATH_MSG(INFO) << "Jet " 
-		  << std::setw(10) << jet4mom.Pt()*1e-3
-		  << std::setw(10) << jet4mom.Eta()
-		  << std::setw(10) << jet4mom.Phi()
-		  << std::setw(10) << jet4mom.E()*1e-3
-		  << std::setw(25) << " has " << assoc_clusters.size() << " assoc. clusters"
-		  << endreq;
-    for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++)
-    {
-      if( jet4mom.DeltaR( (*pItr)->p4() ) > m_exclude_DR ) continue;
-      const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(*pItr);
-      m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,cl,used_indices,used_eta_bins);
-    }
-  }//end jet loop
+    ATH_MSG(DEBUG) << "Making cluster list for track jets" << endreq;
+    CHECK(makeClusterList(assoc_clusters,theTrackJets,used_indices,used_eta_bins));
+  }
+  for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++) 
+    m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,(*pItr));
 
   //compute ES for modulation
   if(m_modulation_scheme==0) return 0;
@@ -127,12 +113,19 @@ int HIEventShapeJetIteration::execute() const
   xAOD::HIEventShape* ms=new xAOD::HIEventShape();
   modShape->push_back(ms);
 
-  const xAOD::HIEventShape* s_fcal=0;
+  if(m_modulation_scheme==1 || m_modulation_scheme==2)
+  {
+    SelectByList selector;
+    selector.used_set=&used_eta_bins;
+    HI::fillSummary(output_shape,ms,selector);
+  }
+
   if(m_modulation_scheme > 1)
   {
     const xAOD::HIEventShapeContainer* summary_container=0;
     CHECK(evtStore()->retrieve(summary_container,"CaloSums"));
 
+    const xAOD::HIEventShape* s_fcal=0;
     for(unsigned int i=0; i<summary_container->size(); i++)
     {
       const xAOD::HIEventShape* sh=(*summary_container)[i];
@@ -144,15 +137,9 @@ int HIEventShapeJetIteration::execute() const
 	break;
       }
     }
-  }
-  if(m_modulation_scheme==3) (*ms)=(*s_fcal);
-  else
-  {
-    SelectByList selector;
-    selector.used_set=&used_eta_bins;
-    HI::fillSummary(output_shape,ms,selector);
-    //correct ms for FCal phase.
-    if(m_modulation_scheme==2)
+    if (!s_fcal) std::abort();
+    if(m_modulation_scheme==3) (*ms)=(*s_fcal);
+    else
     {
       float et_fcal=s_fcal->et();
       float et_fcal_recip=0;
@@ -169,39 +156,106 @@ int HIEventShapeJetIteration::execute() const
 	ms->etSin()[ih]=(qy*qx_fcal-qx*qy_fcal)*et_fcal_recip;
       } //end loop on harmonics
     } //end scheme==2
-  } //end else
+  } // end modulation > 1 case
 
 
-  if(m_do_remodulation)
+  if( !m_do_remodulation) return 0;
+
+  if(m_modulator_tool->setEventShapeForModulation(ms).isFailure())
   {
-    if(m_modulator_tool->setEventShapeForModulation(ms).isFailure())
-    {
-      ATH_MSG_ERROR("Cannot set shape for modulation using key");
-      return 1;
-    }
-    //now correct averages in each slice for effect of modulation
-    std::vector<float> mod_factors(HI::TowerBins::numEtaBins(),0);
-    for(std::set<unsigned int>::const_iterator sItr=used_indices.begin(); sItr!=used_indices.end(); sItr++)
-    {
-      unsigned int phi_bin=(*sItr) % HI::TowerBins::numEtaBins();
-      unsigned int eta_bin=(*sItr) / HI::TowerBins::numPhiBins();
-      mod_factors[eta_bin] += m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin));
-    }
-
-    float deta_dphi=HI::TowerBins::getBinArea();
-    //now loop on shape and correct;
-    for(unsigned int i=0; i<output_shape->size(); i++)
-    {
-      xAOD::HIEventShape* s=output_shape->at(i);
-      float eta0=0.5*(s->etaMin()+s->etaMax());
-      unsigned int eb=HI::TowerBins::findBinEta(eta0);
-      float area=s->area();
-      float cf=area/(area-deta_dphi*mod_factors[eb]);
-      //check on value of cf;
-      s->setEt(s->et()*cf);
-      s->setRho(s->rho()*cf);
-    }
+    ATH_MSG_ERROR("Cannot set shape for modulation using key");
+    return 1;
   }
+
+  //now correct averages in each slice for effect of modulation
+  std::vector<float> mod_factors(HI::TowerBins::numEtaBins(),0);
+  std::vector<float> mod_counts(HI::TowerBins::numEtaBins(),0);
+
+  for(std::set<unsigned int>::const_iterator sItr=used_indices.begin(); sItr!=used_indices.end(); sItr++)
+  {
+    unsigned int phi_bin=(*sItr) % HI::TowerBins::numEtaBins();
+    unsigned int eta_bin=(*sItr) / HI::TowerBins::numPhiBins();
+    mod_counts[eta_bin]++;
+    mod_factors[eta_bin]+=m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin));
+  }
+  double nphibins=HI::TowerBins::numPhiBins();
+  //now loop on shape and correct;
+  for(unsigned int i=0; i<output_shape->size(); i++)
+  {
+    xAOD::HIEventShape* s=output_shape->at(i);
+    float eta0=0.5*(s->etaMin()+s->etaMax());
+    unsigned int eb=HI::TowerBins::findBinEta(eta0);
+    double cf=(nphibins-mod_counts[eb])/(nphibins-mod_factors[eb]);
+    //check on value of cf;
+    if(cf < 0) cf =1;
+    if(cf > 2.) cf=2;
+
+    s->setEt(s->et()*cf);
+    s->setRho(s->rho()*cf);
+  }
+  
   return 0;
 }
+
+StatusCode HIEventShapeJetIteration::makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const xAOD::JetContainer* theJets,
+						     std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) const
+{
+  for(xAOD::JetContainer::const_iterator jItr=theJets->begin(); jItr!=theJets->end(); jItr++)
+  {
+    const xAOD::Jet* theJet=(*jItr);
+    xAOD::IParticle::FourMom_t jet4mom=theJet->p4();
+    std::vector<const xAOD::IParticle*> assoc_clusters;
+    //only use jet constituents
+    if(m_exclude_constituents) assoc_clusters=theJet->getConstituents().asIParticleVector();
+    else
+    {
+      if(! (theJet->getAssociatedObjects<xAOD::IParticle>(m_association_key,assoc_clusters)) )
+      {
+	//this should only happen if SOME of the jets in the collection are missing the association
+	//technically possible, but should NOT happen
+	ATH_MSG(ERROR) << "Individual jet missing association " << m_association_key << endreq;
+	return StatusCode::FAILURE;
+      }
+    }
+    ATH_MSG(DEBUG) << "Jet " 
+		   << std::setw(10) << jet4mom.Pt()*1e-3
+		   << std::setw(10) << jet4mom.Eta()
+		   << std::setw(10) << jet4mom.Phi()
+		   << std::setw(10) << jet4mom.E()*1e-3
+		   << std::setw(25) << " has " << assoc_clusters.size() << " assoc. clusters"
+		   << endreq;
+
+    for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++)
+    {
+      if( jet4mom.DeltaR( (*pItr)->p4() ) >  m_exclude_DR ) continue;
+      const xAOD::CaloCluster* cl_ptr=static_cast<const xAOD::CaloCluster*>(*pItr);
+      unsigned int tower_index=HI::TowerBins::findEtaPhiBin(cl_ptr->eta0(),cl_ptr->phi0());
+      
+      if(used_indices.insert(tower_index).second)
+      {
+	particleList.push_back(cl_ptr);
+	used_eta_bins.insert(HI::TowerBins::findBinEta(cl_ptr->eta0()));
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+
+}
+
+  // for(unsigned int i=0; i<output_shape->size();i++)
+  // {
+  //   std::cout << std::setw(10) << std::setprecision(3) <<  (*output_shape)[i]->etaMin()
+  // 	      << std::setw(10) << std::setprecision(3) <<  (*output_shape)[i]->etaMax()
+  // 	      << std::setw(10) << std::setprecision(3) <<  (*output_shape)[i]->layer()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*output_shape)[i]->et()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*input_shape)[i]->et()
+  // 	      << std::setw(20) << std::setprecision(3) <<  (*output_shape)[i]->rho()
+  // 	      << std::setw(20) << std::setprecision(3) <<  (*input_shape)[i]->rho()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*output_shape)[i]->area()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*input_shape)[i]->area()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*output_shape)[i]->nCells()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*input_shape)[i]->nCells()
+  // 	      << std::endl;
+  // }
+
 
