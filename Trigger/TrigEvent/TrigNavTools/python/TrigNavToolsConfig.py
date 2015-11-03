@@ -3,13 +3,13 @@
 from AthenaCommon.AppMgr import ToolSvc
 from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool
 
-def navigationSlimming( config ):  
+
+def slimmingTool( config ):
   global ToolSvc
   assert config.has_key('name'), 'name of the configuration is missing'
   assert config.has_key('mode'), 'mode of slimming has to be configured'
   assert config.has_key('ThinningSvc'), 'Instance of thinning svc to talk to is indispensable'
   assert config['ThinningSvc'], 'No ThinningSvc given'
-
 
   SlimTool=HLT__TrigNavigationSlimmingTool( config['name']+'Slim' )  
   SlimTool.ThinningSvc = config['ThinningSvc']
@@ -31,10 +31,21 @@ def navigationSlimming( config ):
     from AthenaCommon.Constants import DEBUG
     SlimTool.OutputLevel=DEBUG
   ToolSvc += SlimTool
+  return SlimTool
+
+def navigationSlimming( config ):  
+  global ToolSvc
+
+  SlimTool = slimmingTool(config)
 
   ThinTool = TrigNavigationThinningTool(config['name']+'Thin')
   ThinTool.ThinningSvc = config['ThinningSvc']
   #  ThinTool.ActInPlace=False
+
+  if config.has_key('xAOD'):
+    ThinTool.ResultKey=''
+    ThinTool.xAODNavigationKey=config['result']
+  
   if config.has_key('result'):
     ThinTool.ResultKey=config['result']
   else:
@@ -43,4 +54,6 @@ def navigationSlimming( config ):
   ToolSvc += ThinTool
 
   return ThinTool
+
+
 

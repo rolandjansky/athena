@@ -17,7 +17,9 @@ use  GaudiInterface             GaudiInterface-*                External
 use  StoreGate                  StoreGate-*                     Control
 use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
 
+
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+use  xAODTrigger          	xAODTrigger-*             	Event/xAOD
 use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAnalysis/DerivationFramework
 end_private
 
