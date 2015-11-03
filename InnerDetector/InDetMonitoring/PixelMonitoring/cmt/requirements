@@ -25,23 +25,24 @@ use TrkTrackSummary                TrkTrackSummary-*               Tracking/TrkE
 use LWHists                        LWHists-*                       Tools
 use TrkToolInterfaces              TrkToolInterfaces-*             Tracking/TrkTools
 #use  LumiBlockComps             LumiBlockComps-*                LumiBlock
-                                                                 
-public                                                           
+use AthenaPoolUtilities      AthenaPoolUtilities-*      Database/AthenaPOOL
+
+public
 use TrkTrack                       TrkTrack-*                      Tracking/TrkEvent
 use GaudiInterface                 GaudiInterface-*                External
 use  AtlasDetDescr                 AtlasDetDescr-*                 DetectorDescription
-use AtlasPolicy                    AtlasPolicy-*                   
+use AtlasPolicy                    AtlasPolicy-*
 use AthenaMonitoring               AthenaMonitoring-*              Control
 use InDetRawData                   InDetRawData-*                  InnerDetector/InDetRawEvent
 use InDetPrepRawData               InDetPrepRawData-*              InnerDetector/InDetRecEvent
 use  PixelGeoModel                 PixelGeoModel-*                 InnerDetector/InDetDetDescr
-use  LumiBlockComps             LumiBlockComps-*                LumiBlock                                                                   
+use  LumiBlockComps             LumiBlockComps-*                LumiBlock
 #use PixelRawDataByteStreamCnv      PixelRawDataByteStreamCnv-*     InnerDetector/InDetEventCnv
 
 library PixelMonitoring *.cxx componets/*.cxx
 #apply_pattern declare_joboptions files="*.py"
 apply_pattern component_library
-#apply_pattern declare_runtime
+apply_pattern declare_runtime files="*.csv"
 
 macro_append cppflags "" \
 
