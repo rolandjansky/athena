@@ -36,17 +36,17 @@ bool iFatras::PlanarOverlapDescriptor::reachableSurfaces(std::vector<Trk::Surfac
    surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
    
    if (pElement){
-     addOtherSide(pElement,surfaces);
-     addNextInPhi(pElement,surfaces);
-     addPrevInPhi(pElement,surfaces);
-     addNextInEta(pElement,surfaces);
-     addPrevInEta(pElement,surfaces);
+     addOtherSidePO(pElement,surfaces);
+     addNextInPhiPO(pElement,surfaces);
+     addPrevInPhiPO(pElement,surfaces);
+     addNextInEtaPO(pElement,surfaces);
+     addPrevInEtaPO(pElement,surfaces);
      const iFatras::PlanarDetElement* nextPhi =  pElement->nextInPhi();
-     addNextInEta(nextPhi,surfaces);
-     addPrevInEta(nextPhi,surfaces);
+     addNextInEtaPO(nextPhi,surfaces);
+     addPrevInEtaPO(nextPhi,surfaces);
      const iFatras::PlanarDetElement* prevPhi =  pElement->prevInPhi();
-     addNextInEta(prevPhi,surfaces);
-     addPrevInEta(prevPhi,surfaces);
+     addNextInEtaPO(prevPhi,surfaces);
+     addPrevInEtaPO(prevPhi,surfaces);
      
      if (m_addMoreSurfaces) {
        const iFatras::PlanarDetElement* currentNextPhi = nextPhi;
@@ -58,41 +58,41 @@ bool iFatras::PlanarOverlapDescriptor::reachableSurfaces(std::vector<Trk::Surfac
 
 	 // Adding the current next in phi and its next and previous in eta
 	 // then change the pointer to the next in phi
-	 addNextInPhi(currentNextPhi,surfaces);
+	 addNextInPhiPO(currentNextPhi,surfaces);
 	 if (currentNextPhi) {
 	   const iFatras::PlanarDetElement* nextCurrentNextPhi =  currentNextPhi->nextInPhi();
-	   addNextInEta(nextCurrentNextPhi,surfaces);
-	   addPrevInEta(nextCurrentNextPhi,surfaces);
+	   addNextInEtaPO(nextCurrentNextPhi,surfaces);
+	   addPrevInEtaPO(nextCurrentNextPhi,surfaces);
 	   currentNextPhi = nextCurrentNextPhi;
 	 }
 	 
 	 // Adding the current previous in phi and its next and previous in eta
 	 // then change the pointer to the previous in phi
-	 addPrevInPhi(currentPrevPhi,surfaces);
+	 addPrevInPhiPO(currentPrevPhi,surfaces);
 	 if (currentPrevPhi) {
 	   const iFatras::PlanarDetElement* prevCurrentPrevPhi =  currentPrevPhi->prevInPhi();
-	   addNextInEta(prevCurrentPrevPhi,surfaces);
-	   addPrevInEta(prevCurrentPrevPhi,surfaces);
+	   addNextInEtaPO(prevCurrentPrevPhi,surfaces);
+	   addPrevInEtaPO(prevCurrentPrevPhi,surfaces);
 	   currentPrevPhi = prevCurrentPrevPhi;
 	 }
 	 
 	 // Adding the current next in eta and its next and previous in phi
 	 // then change the pointer to the next in eta
 	 if (currentNextEta && currentNextEta->nextInEta()) {
-	   addNextInEta(currentNextEta,surfaces);
+	   addNextInEtaPO(currentNextEta,surfaces);
 	   const iFatras::PlanarDetElement* nextCurrentNextEta =  currentNextEta->nextInEta();
-	   addNextInPhi(nextCurrentNextEta,surfaces);
-	   addPrevInPhi(nextCurrentNextEta,surfaces);
+	   addNextInPhiPO(nextCurrentNextEta,surfaces);
+	   addPrevInPhiPO(nextCurrentNextEta,surfaces);
 	   currentNextEta = nextCurrentNextEta;
 	 }
 	 
 	 // Adding the current previous in eta and its next and previous in phi
 	 // then change the pointer to the previous in eta
 	 if (currentPrevEta && currentPrevEta->prevInEta()) {
-	   addPrevInEta(currentPrevEta,surfaces);
+	   addPrevInEtaPO(currentPrevEta,surfaces);
 	   const iFatras::PlanarDetElement* prevCurrentPrevEta =  currentPrevEta->prevInEta();
-	   addNextInPhi(prevCurrentPrevEta,surfaces);
-	   addPrevInPhi(prevCurrentPrevEta,surfaces);
+	   addNextInPhiPO(prevCurrentPrevEta,surfaces);
+	   addPrevInPhiPO(prevCurrentPrevEta,surfaces);
 	   currentPrevEta = prevCurrentPrevEta;
 	 }
        }

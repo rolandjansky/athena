@@ -19,11 +19,12 @@ use TrkGeometry                    TrkGeometry-*                     Tracking/Tr
 use CLIDSvc                        CLIDSvc-*                         Control
 use ISF_FatrasDetDescrInterfaces   ISF_FatrasDetDescrInterfaces-*    Simulation/ISF/ISF_Fatras
 use InDetReadoutGeometry           InDetReadoutGeometry-*            InnerDetector/InDetDetDescr
+use InDetIdentifier                InDetIdentifier-*                 InnerDetector/InDetDetDescr
+
 #################################################################
 
 # private use statements
 private
-use InDetIdentifier                InDetIdentifier-*                 InnerDetector/InDetDetDescr
 use GaudiInterface                 GaudiInterface-*                  External
 use StoreGate                      StoreGate-*                       Control
 public

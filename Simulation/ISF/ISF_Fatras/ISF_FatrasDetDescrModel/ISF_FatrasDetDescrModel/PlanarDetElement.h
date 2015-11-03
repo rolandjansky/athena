@@ -49,17 +49,22 @@ namespace iFatras {
     /// Constructor:
     PlanarDetElement( const Identifier &id, 
 		      const IdentifierHash & idHash,
+		      const Amg::Vector3D & centerOnModule,
 		      const Amg::Transform3D & transf,
 		      const Trk::LayerMaterialProperties & layerMaterial,
 		      const double thickness,
 		      const double lengthY,
 		      const double lengthXmin,
-		      const double lengthXmax = 0,
-		      const double pitchX = 0,
-		      const double pitchY = 0,
+		      const double lengthXmax = 0.,
+		      const double rMin = 0.,
+		      const double rMax = 0.,
+		      const double pitchX = 0.,
+		      const double pitchY = 0.,
+		      const double stereo = 0.,
 		      const bool isPixel = true,
 		      const bool isBarrel = true,
 		      const bool isOuterMost = false,
+		      const bool useTrapezoidal = false,
 		      const bool debug = false);
 
     /// Destructor:
@@ -106,6 +111,10 @@ namespace iFatras {
     
     /// Center in global coordinates
     const Amg::Vector3D & center() const {return m_center;};
+    
+    /// Center on module
+    // usefull for DiscTrapezoidalBounds on DiscSurface
+    const Amg::Vector3D & centerOnModule() const {return m_centerOnModule;};
 
     /**Return the center of the surface associated with this identifier
        In the case of silicon it returns the same as center()*/  
@@ -119,10 +128,14 @@ namespace iFatras {
     const Amg::Vector3D & normal(const Identifier&) const {return normal();};
 
     /// Element Surface
-    const Trk::Surface & surface () const {return m_surface;};
+    virtual const Trk::Surface & surface() const;
+    
     /**Return the surface associated with this identifier
        In the case of silicon it returns the same as surface()*/  
     const Trk::Surface & surface (const Identifier&) const {return surface();};
+    
+    /** Returns the full list of surfaces associated to this detector element */ 
+    virtual const std::vector<const Trk::Surface*>& surfaces() const; 
 
     // Return boundaries of the element
     const Trk::SurfaceBounds & bounds() const ;
@@ -142,12 +155,14 @@ namespace iFatras {
     //@{
     
     double thickness() const;
+    double stereo() const;
     double pitchX() const; 
     double pitchY() const;
     double phiPitch() const;
     double phiPitch(const Amg::Vector2D &localPos) const;
     double stripLength(const Amg::Vector2D &localPos) const;
     double lengthY() const;
+    double length() const;
     double lengthXmin() const;
     double lengthXmax() const;
     double sinStereoLocal(const Amg::Vector2D &localPos) const;
@@ -205,9 +220,12 @@ namespace iFatras {
     mutable HepGeom::Transform3D m_hitTransformCLHEP;
     
     mutable Amg::Vector3D    m_center;
+    mutable Amg::Vector3D    m_centerOnModule;
     mutable Amg::Vector3D    m_normal;
     
-    mutable Trk::PlaneSurface m_surface;
+    mutable Trk::Surface *   m_surface;
+    mutable std::vector<const Trk::Surface*> m_surfaces;
+
     Trk::SharedObject<const Trk::SurfaceBounds> * m_bounds;
     InDetDD::DetectorShape   m_shape;
 
@@ -217,6 +235,8 @@ namespace iFatras {
     double m_pitchX;
     double m_pitchY;
     double m_thickness;
+
+    double m_stereo;
 
     bool m_isOuterMost;
     bool m_debug;
@@ -249,9 +269,13 @@ namespace iFatras {
   {
     return m_thickness;
   }
+
+  inline double PlanarDetElement::stereo() const
+  {
+    return m_stereo;
+  }
   
-  inline const Trk::SurfaceBounds & 
-    PlanarDetElement::bounds() const
+  inline const Trk::SurfaceBounds& PlanarDetElement::bounds() const
   {
     return m_bounds->getRef();
   }
@@ -282,6 +306,11 @@ namespace iFatras {
   } 
 
   inline double PlanarDetElement::lengthY()const
+  {
+    return m_lengthY;
+  }
+
+  inline double PlanarDetElement::length()const
   {
     return m_lengthY;
   }

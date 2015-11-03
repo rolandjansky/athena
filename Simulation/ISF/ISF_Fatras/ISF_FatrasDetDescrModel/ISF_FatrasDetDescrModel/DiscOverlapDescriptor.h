@@ -19,14 +19,17 @@
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
 #include "TrkDetDescrUtils/Intersection.h"
 
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+
 #ifndef ISF_DETDESCRMODEL_DISCDETADDNEXTPHIETA
 #define ISF_DETDESCRMODEL_DISCDETADDNEXTPHIETA
-#define addSurface(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
-#define addOtherSide(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
-#define addNextInPhi(cur, surfaces) addSurface(cur->nextInPhi(), surfaces); addOtherSide(cur->nextInPhi(),surfaces)
-#define addPrevInPhi(cur, surfaces) addSurface(cur->prevInPhi(), surfaces); addOtherSide(cur->prevInPhi(),surfaces)
-#define addNextInEta(cur, surfaces) addSurface(cur->nextInEta(), surfaces); addOtherSide(cur->nextInEta(),surfaces)
-#define addPrevInEta(cur, surfaces) addSurface(cur->prevInEta(), surfaces); addOtherSide(cur->prevInEta(),surfaces)
+#define addSurfaceDPO(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
+#define addOtherSideDPO(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
+#define addNextInPhiDPO(cur, surfaces) addSurfaceDPO(cur->nextInPhi(), surfaces); addOtherSideDPO(cur->nextInPhi(),surfaces)
+#define addPrevInPhiDPO(cur, surfaces) addSurfaceDPO(cur->prevInPhi(), surfaces); addOtherSideDPO(cur->prevInPhi(),surfaces)
+#define addNextInEtaDPO(cur, surfaces) addSurfaceDPO(cur->nextInEta(), surfaces); addOtherSideDPO(cur->nextInEta(),surfaces)
+#define addPrevInEtaDPO(cur, surfaces) addSurfaceDPO(cur->prevInEta(), surfaces); addOtherSideDPO(cur->prevInEta(),surfaces)
 #endif // ISF_DETDESCRMODEL_DISCDETADDNEXTPHIETA
 
 namespace Trk {
@@ -53,7 +56,8 @@ namespace iFatras {
          
     /** Constructor */
     DiscOverlapDescriptor(const Trk::BinnedArray<Trk::Surface>* bin_array = 0,
-			  const std::vector<Trk::BinUtility*>* singleBinUtils = 0);
+			  const std::vector<Trk::BinUtility*>* singleBinUtils = 0, 
+			  const bool debug = false);
          
     /** Destructor */
     virtual ~DiscOverlapDescriptor() {}
@@ -72,15 +76,29 @@ namespace iFatras {
                            const Amg::Vector3D& dir) const override;
             
   private:
+    void dumpSurfaces(const PixelID* pixId, const SCT_ID* sctId, std::vector<Trk::SurfaceIntersection>& surfaces) const;
     
     const Trk::BinnedArray<Trk::Surface>*           m_bin_array;
     const std::vector<Trk::BinUtility*>*            m_singleBinUtils;
+
+    const bool                                      m_debug;
  
     
   };
   
   
-  inline DiscOverlapDescriptor* DiscOverlapDescriptor::clone() const { return new DiscOverlapDescriptor(); }     
+  inline DiscOverlapDescriptor* DiscOverlapDescriptor::clone() const { return new DiscOverlapDescriptor(); }
+
+  inline void DiscOverlapDescriptor::dumpSurfaces(const PixelID* m_pixIdHelper, const SCT_ID* m_sctIdHelper, std::vector<Trk::SurfaceIntersection>& surfaces) const {
+    std::cout << "Dumping Surfaces for "<< (m_pixIdHelper ? "Pixel " : "SCT ") << "with size = " << surfaces.size() << std::endl;
+    for (unsigned int surf = 0; surf < surfaces.size(); surf++) {
+      Identifier hitId = ((surfaces.at(surf)).object)->associatedDetectorElementIdentifier(); 
+      if (m_pixIdHelper)
+	std::cout <<  "barrel_ec " << m_pixIdHelper->barrel_ec(hitId) << ", layer_disk " << m_pixIdHelper->layer_disk(hitId) << ", phi_module " << m_pixIdHelper->phi_module(hitId) << ", eta_module " << m_pixIdHelper->eta_module(hitId) << std::endl;
+      else if (m_sctIdHelper)
+	std::cout <<  "barrel_ec " << m_sctIdHelper->barrel_ec(hitId) << ", layer_disk " << m_sctIdHelper->layer_disk(hitId) << ", phi_module " << m_sctIdHelper->phi_module(hitId) << ", eta_module " << m_sctIdHelper->eta_module(hitId) << ", side " << m_sctIdHelper->side(hitId) << std::endl;
+    }
+  }
   
 }
 

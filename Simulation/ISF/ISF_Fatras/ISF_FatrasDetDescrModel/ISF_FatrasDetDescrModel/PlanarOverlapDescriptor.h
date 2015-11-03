@@ -17,12 +17,12 @@
 
 #ifndef ISF_DETDESCRMODEL_PLANARDETADDNEXTPHIETA
 #define ISF_DETDESCRMODEL_PLANARDETADDNEXTPHIETA
-#define addSurface(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
-#define addOtherSide(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
-#define addNextInPhi(cur, surfaces) addSurface(cur->nextInPhi(), surfaces); addOtherSide(cur->nextInPhi(),surfaces)
-#define addPrevInPhi(cur, surfaces) addSurface(cur->prevInPhi(), surfaces); addOtherSide(cur->prevInPhi(),surfaces)
-#define addNextInEta(cur, surfaces) addSurface(cur->nextInEta(), surfaces); addOtherSide(cur->nextInEta(),surfaces)
-#define addPrevInEta(cur, surfaces) addSurface(cur->prevInEta(), surfaces); addOtherSide(cur->prevInEta(),surfaces)
+#define addSurfacePO(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
+#define addOtherSidePO(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
+#define addNextInPhiPO(cur, surfaces) addSurfacePO(cur->nextInPhi(), surfaces); addOtherSidePO(cur->nextInPhi(),surfaces)
+#define addPrevInPhiPO(cur, surfaces) addSurfacePO(cur->prevInPhi(), surfaces); addOtherSidePO(cur->prevInPhi(),surfaces)
+#define addNextInEtaPO(cur, surfaces) addSurfacePO(cur->nextInEta(), surfaces); addOtherSidePO(cur->nextInEta(),surfaces)
+#define addPrevInEtaPO(cur, surfaces) addSurfacePO(cur->prevInEta(), surfaces); addOtherSidePO(cur->prevInEta(),surfaces)
 #endif // ISF_DETDESCRMODEL_PLANARDETADDNEXTPHIETA
 
 namespace Trk {
