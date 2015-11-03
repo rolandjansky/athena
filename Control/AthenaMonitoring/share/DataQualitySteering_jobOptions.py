@@ -132,6 +132,7 @@ if DQMonFlags.doMonitoring():
          doLArCollisionTimeMon=True
       if doLArCollisionTimeMon:
          include ("LArCellRec/LArCollisionTime_jobOptions.py")
+         include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
       try:
          LArMon = AthenaMonManager(name="LArMonManager",
                           FileKey             = DQMonFlags.monManFileKey(),
@@ -217,6 +218,14 @@ if DQMonFlags.doMonitoring():
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up LUCID monitoring")
 
+   #---------------------#
+   # HeavyIon monitoring #
+   #---------------------#
+   if DQMonFlags.doHIMon():
+      try:
+         include("HIMonitoring/HIMonitoringSteering_jo.py")
+      except Exception:
+         treatException("DataQualitySteering_jobOptions.py: exception when setting up HI monitoring")
 
    #------------------------#
    # Trigger chain steering #
@@ -233,16 +242,23 @@ if DQMonFlags.doMonitoring():
    #--------------------------#
    # Post-setup configuration #
    #--------------------------#
+   if rec.triggerStream()=='express':
+      include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
    monToolSet_after = set(ToolSvc.getChildren())
    local_logger.debug('DQ Post-Setup Configuration')
    for tool in monToolSet_after-monToolSet_before:
-      # if we have the FilterTools attribute, assume this is in fact a
-      # monitoring tool
       # stop lumi access if we're in MC or enableLumiAccess == False
       if globalflags.DataSource.get_Value() == 'geant4' or not DQMonFlags.enableLumiAccess():
          if 'EnableLumi' in dir(tool):
             tool.EnableLumi = False
+      # if we have the FilterTools attribute, assume this is in fact a
+      # monitoring tool
       if hasattr(tool, 'FilterTools'):
+         # if express: use ATLAS Ready filter
+         local_logger.warning('Processing for tool %s', tool)
+         if rec.triggerStream()=='express':
+            local_logger.warning('Stream is express and we will add ready tool')
+            tool.FilterTools += [monAtlasReadyFilterTool]
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():
             tool.TriggerTranslatorTool = monTrigTransTool
