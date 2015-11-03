@@ -5,8 +5,7 @@ if rec.doESD :
      print "Applying HIP ESD flags mods"
 
      from RecExConfig.RecFlags import rec
-     rec.doAlfa.set_Value_and_Lock(True)
-     rec.doForwardDet.set_Value_and_Lock(True)
+     rec.doAlfa.set_Value_and_Lock(False)
 
      from InDetRecExample.InDetJobProperties import InDetFlags
      InDetFlags.doLowMuRunSetup.set_Value_and_Lock(True)
