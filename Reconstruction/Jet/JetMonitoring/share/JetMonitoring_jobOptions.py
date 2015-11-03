@@ -7,9 +7,10 @@ jetMonMan = AthenaMonManager( "JetMonManager",
                            DataType = DQMonFlags.monManDataType() )
 topSequence += jetMonMan
  
- 
-
-from JetMonitoring.JetMonitoringHistos import athenaMonitoringTools
+if rec.doHeavyIon:
+    from JetMonitoring.JetMonitoringHistosHI import athenaMonitoringTools
+else:
+    from JetMonitoring.JetMonitoringHistos import athenaMonitoringTools
 
 
 jetMonMan.AthenaMonTools += athenaMonitoringTools() 

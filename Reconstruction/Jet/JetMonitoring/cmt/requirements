@@ -15,7 +15,7 @@ public
 use xAODJet             xAODJet-*               Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 use JetInterface        JetInterface-*          Reconstruction/Jet
-
+use xAODHIEvent         xAODHIEvent-*           Event/xAOD
 
 use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External

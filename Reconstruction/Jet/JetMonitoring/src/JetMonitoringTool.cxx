@@ -10,7 +10,8 @@ JetMonitoringTool::JetMonitoringTool( const std::string& type,
                                       const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent )
   ,  m_htools(this)
-  , m_interval(HistoGroupBase::all)
+  //  , m_interval(HistoGroupBase::all)
+  , m_interval(HistoGroupBase::lumiBlock)
 {
    
   declareProperty( "HistoTools", m_htools );

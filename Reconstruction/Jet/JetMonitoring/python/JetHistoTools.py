@@ -2,6 +2,9 @@
 
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, HistosForJetSelection, LeadingJetsRelations, EfficiencyResponseHistos
 
+from RecExConfig.RecFlags import rec 
+if rec.doHeavyIon:
+    from JetMonitoring.JetMonitoringConf import HIJetUEMonitoring, HIEfficiencyResponseHistos
 
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 from JetMonitoring.JetAttributeHistoManager   import attributeHistoManager
@@ -117,7 +120,7 @@ compactSpecification = {
     "BchCorrDotx"      : (("BchCorrDotx:BchCorrDotx;",50,0,1), ("BchCorrDotx", "float") ),
     "BchCorrCell"      : (("BchCorrCell:BchCorrCell;",50,0,1), ("BchCorrCell", "float") ),
     ## Jet Cleaning variables ##
-    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 3.), ("AverageLArQF", "float") ),
+    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 5.), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
     # binning optimisation from Emma Tolley 
@@ -131,11 +134,11 @@ compactSpecification = {
     "OotFracClusters10": (("OotFracClusters10; OotFracClusters10;",50,-0.1,1.2), ("OotFracClusters10", "float") ),
     #CBG
     "ptN"               : (("Jet Pt;Pt [GeV];", 250, 0., 5000.) ,     ("pt","float","gev" ) ), 
-    "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,1000.), ("LeadingClusterCenterLambda", "float") ),
-    "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,1000.), ("LeadingClusterSecondLambda", "float") ),
+    "LeadingClusterCenterLambda": (("LeadingClusterCenterLambda; LeadingClusterCenterLambda;",100,0.,10000.), ("LeadingClusterCenterLambda", "float") ),
+    "LeadingClusterSecondLambda": (("LeadingClusterSecondLambda; LeadingClusterSecondLambda;",100,0.,10000.), ("LeadingClusterSecondLambda", "float") ),
     # binning optimisation from Emma Tolley 
     #"LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,1000.), ("LeadingClusterSecondR", "float") ), 
-    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,10000.), ("LeadingClusterSecondR", "float") ), 
+    "LeadingClusterSecondR": (("LeadingClusterSecondR; LeadingClusterSecondR;",100,0.,100000.), ("LeadingClusterSecondR", "float") ), 
     "CHF": (("SumPtTrkPt1000/pT; SumPtTrkPt1000/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ), 
     #CBG 
     # 
@@ -145,13 +148,28 @@ compactSpecification = {
     # where
     #  - binning is ("title;labelx;labely", nbins, xlow, xup, nbinsy, ylow, yup) as in TH2 ctor
     #  - attributeInfo is ("attribute", "attribute type") or ("attribute", "attribute type", "gev")    
-
+###########HI moments50,-5, 50
+        
+    "JetUnsubtractedScaleMomentum_pt"      : (("JetUnsubtractedScaleMomentum p_{T}; p_{T} [MeV];",100,0,300000),("JetUnsubtractedScaleMomentum_pt","float")),
+    "JetUnsubtractedScaleMomentum_eta"     : (("JetUnsubtractedScaleMomentum eta; #eta;",50,-6,6),("JetUnsubtractedScaleMomentum_eta","float")),
+    "JetUnsubtractedScaleMomentum_phi"     : (("JetUnsubtractedScaleMomentum phi; #phi;",50,-3.3,3.3),("JetUnsubtractedScaleMomentum_phi","float")),
+    "JetUnsubtractedScaleMomentum_m"       : (("JetUnsubtractedScaleMomentum m; Mass [MeV];",50,0,100000),("JetUnsubtractedScaleMomentum_m","float")),
+    "JetSubtractedScaleMomentum_pt"        : (("JetSubtractedScaleMomentum p_{T}; p_{T} [MeV];",50,-5000,100000),("JetSubtractedScaleMomentum_pt","float")),
+    "JetSubtractedScaleMomentum_eta"       : (("JetSubtractedScaleMomentum eta; #eta;",50,-6,6),("JetSubtractedScaleMomentum_eta","float")),
+    "JetSubtractedScaleMomentum_phi"       : (("JetSubtractedScaleMomentum phi; #phi;",50,-3.3,3.3),("JetSubtractedScaleMomentum_phi","float")),
+    "JetSubtractedScaleMomentum_m"         : (("JetSubtractedScaleMomentum m; Mass [MeV];",25,-5000,50000),("JetSubtractedScaleMomentum_m","float")),
+    "JetSubtractedScaleNoVnMomentum_pt"    : (("JetSubtractedScaleNoVnMomentum p_{T}; p_{T} [MeV];",50,0,100000),("JetSubtractedScaleNoVnMomentum_pt","float")),
+    "JetSubtractedScaleNoVnMomentum_eta"   : (("JetSubtractedScaleNoVnMomentum eta; #eta;",50,-6,6),("JetSubtractedScaleNoVnMomentum_eta","float")),
+    "JetSubtractedScaleNoVnMomentum_phi"   : (("JetSubtractedScaleNoVnMomentum phi; #phi;",50,-3.3,3.3),("JetSubtractedScaleNoVnMomentum_phi","float")),
+    "JetSubtractedScaleNoVnMomentum_m"     : (("JetSubtractedScaleNoVnMomentum m; Mass [MeV];",25,-5000,50000),("JetSubtractedScaleNoVnMomentum_m","float")),
+    "MaxOverMean"                          : (("MaxOverMean; MaxOverMean;",50,0,20),("MaxOverMean","float")),
+    "MaxConstituentET"                     : (("MaxConstituentET; E_{T} [MeV];",100,0,10000),("MaxConstituentET","float")),
     }
 
 # then fill the pers calo sampling attributes one by one :
 caloSamples =["PreSamplerB", "EMB1", "EMB2", "EMB3", "PreSamplerE", "EME1", "EME2", "EME3", "HEC0", "HEC1", "HEC2", "HEC3", "TileBar0", "TileBar1", "TileBar2", "TileGap1", "TileGap2", "TileGap3", "TileExt0", "TileExt1", "TileExt2", "FCAL0", "FCAL1", "FCAL2",         ]
 for i,c in enumerate(caloSamples):
-    compactSpecification[ c ] = ( ("Energy in "+c+";Energy(GeV);",50,-10,100), ("EnergyPerSampling[%d]"%(i,), "vector<float>", "gev"))
+    compactSpecification[ c ] = ( ("Energy in "+c+";Energy(GeV);",100,-10,1000), ("EnergyPerSampling[%d]"%(i,), "vector<float>", "gev"))
 
 
 # Translate the above specifications into proper histo tools
@@ -176,38 +194,113 @@ jhm.addTool( LeadingJetsRelations("leadingjetrel",
 
     ]
                                   )  )
-
-jhm.addTool( EfficiencyResponseHistos("effresponse", 
+if rec.doHeavyIon:
+    jhm.addTool( HIEfficiencyResponseHistos("effresponse", 
                                       HistoDef = [
-    hdef('erhEfficiencyR1', "Jet p_{T} Efficiency #DeltaR = 0.1;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
-    hdef('erhEfficiencyR2', "Jet p_{T} Efficiency #DeltaR = 0.2;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
-    hdef('erhEfficiencyR3', "Jet p_{T} Efficiency #DeltaR = 0.3;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR1', "Jet p_{T} Efficiency #DeltaR = 0.1;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR2', "Jet p_{T} Efficiency #DeltaR = 0.2;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR3', "Jet p_{T} Efficiency #DeltaR = 0.3;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                
+                hdef('erhResponse', "Jet p_{T} Response;Number of jets;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-1,1 ),
+                hdef('erhResponseVsEta', "Jet p_{T} Response vs #eta;#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
+                hdef('erhResponseVsEta_highpT', "Jet p_{T} Response vs #eta (pT>100 GeV);#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
+                hdef('erhResponseVsPt', "Jet p_{T} Response vs p_{T};p_{T}^{Truth} of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,1000 ),
+                
+                hdef('erhDeltaR', "#DeltaR between Jet and closest Truth Jet;#DeltaR;Number of jets",50,0,4 ),
 
-    hdef('erhResponse', "Jet p_{T} Response;Number of jets;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-1,1 ),
-    hdef('erhResponseVsEta', "Jet p_{T} Response vs #eta;#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
-    hdef('erhResponseVsPt', "Jet p_{T} Response vs p_{T};p_{T}^{Truth} of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,1000 ),
-
-    hdef('erhDeltaR', "#DeltaR between Jet and closest Truth Jet;#DeltaR;Number of jets",50,0,4 ),
-
-    ]
-                                      ) )
+                hdef('erhEfficiencyR1_CentralColl', "Jet p_{T} Efficiency in Central Coll. #DeltaR = 0.1;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR2_CentralColl', "Jet p_{T} Efficiency in Central Coll. #DeltaR = 0.2;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR3_CentralColl', "Jet p_{T} Efficiency in Central Coll. #DeltaR = 0.3;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhResponse_CentralColl', "Jet p_{T} Response in Central Coll.;Number of jets;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-1,1 ),
+                hdef('erhResponseVsEta_CentralColl', "Jet p_{T} Response vs #eta in Central Coll.;#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
+                hdef('erhResponseVsEta_highpT_CentralColl', "Jet p_{T} Response vs #eta (pT>100 GeV) in Central Coll.;#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
+                hdef('erhResponseVsPt_CentralColl', "Jet p_{T} Response vs p_{T} in Central Coll.;p_{T}^{Truth} of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,1000 ),
+                hdef('erhResponse_RP', "Jet p_{T} Response vs #Psi_{2}; #Psi_{2};#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-3.3,3.3 ),
+                hdef('erhResponse_2Dphi', "Jet p_{T} Response vs 2|#phi-#Psi_{2}|; 2|#phi - #Psi_{2}|;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,3.3 ),
+                hdef('erhResponse_highpT_RP', "Jet p_{T} Response vs #Psi_{2} (pT>100 GeV); #Psi_{2};#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-3.3,3.3 ),
+                hdef('erhResponse_highpT_2Dphi', "Jet p_{T} Response vs 2|#phi-#Psi_{2}| (pT>100 GeV); 2|#phi - #Psi_{2}|;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,3.3 ),
+                ]    
+                                          ) )
+else :
+    jhm.addTool( EfficiencyResponseHistos("effresponse", 
+                                      HistoDef = [
+                hdef('erhEfficiencyR1', "Jet p_{T} Efficiency #DeltaR = 0.1;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR2', "Jet p_{T} Efficiency #DeltaR = 0.2;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                hdef('erhEfficiencyR3', "Jet p_{T} Efficiency #DeltaR = 0.3;p_{T}^{Truth} (GeV);Efficiency",50,0,100 ),
+                
+                hdef('erhResponse', "Jet p_{T} Response;Number of jets;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-1,1 ),
+                hdef('erhResponseVsEta', "Jet p_{T} Response vs #eta;#eta of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,-5,5 ),
+                hdef('erhResponseVsPt', "Jet p_{T} Response vs p_{T};p_{T}^{Truth} of jet;#frac{p_{T}^{Jet} - p_{T}^{Truth}}{p_{T}^{Truth}}",50,0,1000 ),
+                
+                hdef('erhDeltaR', "#DeltaR between Jet and closest Truth Jet;#DeltaR;Number of jets",50,0,4 ),
+                
+                ]    
+                                          ) )
 
 # Selection tools
 jhm.addTool( HistosForJetSelection("alljets", SelectionType=0) )
 jhm.addTool( HistosForJetSelection("leadingjet", SelectionType=1) )
 jhm.addTool( HistosForJetSelection("subleadingjet", SelectionType=2) )
 
+if rec.doHeavyIon:
+    jhm.addTool( HIJetUEMonitoring("centrality", 
+                                   HistoDef = [
+                hdef('JetUnsubtractedScaleMomentum_pt_CentralColl', "JetUnsubtractedScaleMomentum p_{T} in Central Coll.;p_{T} [GeV];",100,0,300 ),
+                hdef('JetUnsubtractedScaleMomentum_eta_CentralColl', "JetUnsubtractedScaleMomentum eta in Central Coll.; #eta;",50,-6,6 ),
+                hdef('JetUnsubtractedScaleMomentum_phi_CentralColl', "JetUnsubtractedScaleMomentum phi in Central Coll.; #phi;",50,-3.3,3.3 ),
+                hdef('JetUnsubtractedScaleMomentum_m_CentralColl', "JetUnsubtractedScaleMomentum m in Central Coll.; Mass [GeV];",50,0,100 ),
+                hdef('JetSubtractedScaleMomentum_pt_CentralColl', "JetSubtractedScaleMomentum p_{T} in Central Coll.;p_{T} [GeV];",50,0,100 ),
+                hdef('JetSubtractedScaleMomentum_eta_CentralColl', "JetSubtractedScaleMomentum eta in Central Coll.; #eta;",50,-6,6 ),
+                hdef('JetSubtractedScaleMomentum_phi_CentralColl', "JetSubtractedScaleMomentum phi in Central Coll.; #phi;",50,-3.3,3.3 ),
+                hdef('JetSubtractedScaleMomentum_m_CentralColl', "JetSubtractedScaleMomentum m in Central Coll.; Mass [GeV];",25,0,50 ),
+                hdef('JetSubtractedScaleNoVnMomentum_pt_CentralColl', "JetSubtractedScaleNoVnMomentum p_{T} in Central Coll.;p_{T} [GeV];",50,0,100 ),
+                hdef('JetSubtractedScaleNoVnMomentum_eta_CentralColl', "JetSubtractedScaleNoVnMomentum eta in Central Coll.; #eta;",50,-6,6 ),
+                hdef('JetSubtractedScaleNoVnMomentum_phi_CentralColl', "JetSubtractedScaleNoVnMomentum phi in Central Coll.; #phi;",50,-3.3,3.3 ),
+                hdef('JetSubtractedScaleNoVnMomentum_m_CentralColl', "JetSubtractedScaleNoVnMomentum m in Central Coll.; Mass [GeV];",25,0,50 ),
+                hdef('MaxOverMean_CentralColl', "MaxOverMean in Central Coll.;MaxOverMean;",50,0,20 ),
+                hdef('MaxConstituentET_CentralColl', "MaxConstituentET in Central Coll.;  E_{T} [MeV];",100,0,10000 ),
+
+                hdef('SubtractedET_Centrality', "UnsubScMomentum-SubScMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV];",50,0,5,100,0,200 ),
+                hdef('2dSubtractedET_Centrality', "UnsubScMomentum-SubScMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV];",50,0,5,100,0,200 ),
+                hdef('2dSubtractedETNoVn_Centrality', "JetSubtractedScaleMomentum(NoVn - SubScMom) vs FCalET; FCal ET [TeV]; SubtractedET [GeV];",50,0,5,20,-20,20 ),
+                hdef('2dUnSubtractedETNoVN_Centrality', "Unsubtracted-JetSubtractedScaleNoVnMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV];",50,0,5,100,0,200 ),
+
+                hdef('2dSubtractedET_Expected_Centrality', "(UnsubScMomentum-SubScMomentum)/Expected vs FCalET; FCal ET [TeV]; (A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,0,5,100,0,2000 ),
+                hdef('2dSubtractedETNoVn_Expected_Centrality', "JetSubtractedScaleMomentum(SubScMom - NoVn)/Expected  vs FCalET; FCal ET [TeV];(A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,0,5,100,-200,200 ),
+                hdef('2dUnSubtractedETNoVN_Expected_Centrality', "(Unsubtracted-JetSubtractedScaleNoVnMomentum)/Expected  vs FCalET; FCal ET [TeV];(A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,0,5,100,0,2000 ),
+
+                hdef('2dSubtractedET_Expected_eta', "(UnsubScMomentum-SubScMomentum)/Expected vs #eta; #eta; (A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,-6,6,100,0,2000 ),
+                hdef('2dSubtractedETNoVn_Expected_eta', "JetSubtractedScaleMomentum(NoVn - SubScMom)/Expected  vs #eta; #eta;(A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,-6,6,100,-200,200 ),
+                hdef('2dUnSubtractedETNoVN_Expected_eta', "(Unsubtracted-JetSubtractedScaleNoVnMomentum)/Expected  vs #eta; #eta;(A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,-6,6,100,0,2000 ),
+                hdef('SubtractedET_Expected_eta', "(UnsubScMomentum-SubScMomentum)/Expected vs #eta; #eta; (A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,-6,6 ),
+                hdef('SubtractedETNoVn_Expected_eta', "JetSubtractedScaleMomentum(NoVn - SubScMom)/Expected  vs #eta; #eta;(A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,-6,6 ),
+                hdef('UnSubtractedETNoVN_Expected_eta', "Unsubtracted-JetSubtractedScaleNoVnMomentum/Expected  vs #eta; #eta;(A^{FCal}/A^{Jet})xSubtractedET/FCalET;",50,-6,6, ),
 
 
 
+                hdef('SubtractedET_eta', "UnsubScMomentum-SubScMomentum vs #eta;  #eta; SubtractedET [GeV];",50,-6,6 ),
+                hdef('SubtractedET_RP', "UnsubScMomentum-SubScMomentum vs #Psi_{2};  #Psi_{2}; SubtractedET [GeV];",50,-3.3,3.3 ),
+                hdef('SubtractedET_2Dphi', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}|; 2|#phi-#Psi_{2}|; SubtractedET [GeV];",25,0,3.3 ),
+                hdef('2dSubtractedET_2Dphi', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}|; 2|#phi-#Psi_{2}|; SubtractedET [GeV];",25,0,3.3, 100,0,200 ),
+                hdef('SubScMom-NoVn_2Dphi', "JetSubtractedScaleMomentum(SubScMom - NoVn) vs 2|#phi-#Psi_{2}|; 2|#phi - #Psi_{2}|; SubScMom - NoVn [GeV];",25,0,3.3 ),
+                hdef('2dSubScMom-NoVn_2Dphi', "JetSubtractedScaleMomentum(SubScMom - NoVn) vs 2|#phi-#Psi_{2}|; 2|#phi - #Psi_{2}|; SubScMom - NoVn [GeV];",25,0,3.3, 50,0,20 ),
 
+                hdef('SubtractedET_eta_CentralColl', "UnsubScMomentum-SubScMomentum vs #eta in MidCentral Coll.;  #eta; SubtractedET [GeV];",50,-6,6,0,200 ),
+                hdef('SubtractedET_RP_CentralColl', "UnsubScMomentum-SubScMomentum vs #Psi_{2} in MidCentral Coll.;  #Psi_{2}; SubtractedET [GeV];",50,-3.3,3.3 ),
+                hdef('SubtractedET_2Dphi_CentralColl', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}| in MidCentral Coll.; 2|#phi-#Psi_{2}|; SubtractedET [GeV];",25,0,3.3 ),
+                hdef('2dSubtractedET_2Dphi_CentralColl', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}| in MidCentral Coll.; 2|#phi-#Psi_{2}|; SubtractedET [GeV];",25,0,3.3, 100,0,200 ),
+                hdef('SubScMom-NoVn_2Dphi_CentralColl', "SubScMom - NoVn vs 2|#phi-#Psi_{2}| in MidCentral Coll.; 2|#phi - #Psi_{2}|; JetSubtractedScaleMomentum(SubScMom - NoVn) [GeV];",25,0,3.3 ),
+                hdef('2dSubScMom-NoVn_2Dphi_CentralColl', "SubScMom - NoVn vs 2|#phi-#Psi_{2}| in MidCentral Coll.; 2|#phi - #Psi_{2}|; JetSubtractedScaleMomentum(SubScMom - NoVn) [GeV];",25,0,3.3, 50,0,20 ),
+                ]
+                                   ))
 
 #**************************************
 #**************************************
 # a helper function to combine selection with histo tools.
 def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix="",**otherArgs):
 
-    if isinstance(selectType, str): 
+    if isinstance(selectType, str):
+        # interpret selectType as a string. For ex "20000<pt<500000" or "subleadingjet"
         tool = jhm.tool(selectType)
         if issubclass( tool.__class__ , HistosForJetSelection):
             # we're done.
