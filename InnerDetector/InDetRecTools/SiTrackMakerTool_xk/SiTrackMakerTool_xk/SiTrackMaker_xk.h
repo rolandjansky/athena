@@ -20,6 +20,9 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiTrackMaker.h"
@@ -161,8 +164,8 @@ namespace InDet{
       bool globalPositions(const Trk::SpacePoint*,const Trk::SpacePoint*,const Trk::SpacePoint*,
 			   double*,double*,double*);
 
-      void globalPosition(const Trk::SpacePoint*,double*,double*);
-      void globalPosition(const Trk::SpacePoint*,double*,double*,double*);
+      bool globalPosition(const Trk::SpacePoint*,double*,double*);
+      void globalDirections(double*,double*,double*,double*,double*,double*);
       void setTrackQualityCuts();
       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
@@ -176,6 +179,14 @@ namespace InDet{
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
+      //save SiSPSeedSegment
+      ToolHandle<Trk::IExtrapolator>        m_extrapolator; 		//!< extrapolator
+      ToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator; 		//!< Creator ROT
+      mutable TrackCollection*              m_seedsegmentsCollection; 	//!< output collection for seed
+      bool                                  m_seedsegmentsWrite; 	//!< Write out seedsegments or not
+      std::string                           m_seedsegmentsOutput; 	//!< SiSpSeedSegments Output Collection
+
+
     };
 
     MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
