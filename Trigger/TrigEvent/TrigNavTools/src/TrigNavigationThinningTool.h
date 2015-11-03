@@ -24,9 +24,17 @@ public:
   virtual StatusCode doThinning() const;
 
 private:  
+  template<class ResultType>
+  ResultType* retrieveResult(const std::string& key) const;
+
+
+  template<class ResultType>
+  ResultType* createAndRecordResult(const std::string& key) const;
+
   ServiceHandle<IThinningSvc> m_thinningSvc;
   ToolHandle<HLT::TrigNavigationSlimmingTool> m_slimmingTool;
-  std::string m_resultKey;
+  std::string m_HLTResultKey;
+  std::string m_xAODNavigationKey;
   bool m_actInPlace;
 };
 
