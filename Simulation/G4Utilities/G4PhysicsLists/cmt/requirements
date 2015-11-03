@@ -1,36 +1,23 @@
 package G4PhysicsLists
 
-author ADA <dellacqu@mail.cern.ch>
-author Andy Buckley <andy.buckley@cern.ch>
-
-branches src cmt
-
+public
 use AtlasPolicy       AtlasPolicy-*
+use Geant4            Geant4-*            External
 
 private
-use Geant4            Geant4-*            External
-use FadsPhysics       FadsPhysics-*       Simulation/G4Sim/FADS
 use GaudiInterface    GaudiInterface-*    External
 use AtlasCLHEP        AtlasCLHEP-*        External
 end_private
 
-include_dirs "$(G4PhysicsLists_root)" "$(G4PhysicsLists_root)/G4PhysicsLists"
+include_dirs "$(G4PhysicsLists_root)" "$(G4PhysicsLists_root)/G4PhysicsLists" "$(G4PhysicsLists_root)/src/MuBias"
 
-# Protection against compiling with G4 9.6 and later
-macro G4PhysicsLists_CodeUsed "../src/*.cc ../src/MuBias/*.cc ../src/ElVariations/*.cc" \
-      G496                    "../src/*.cc ../src/MuBias/*.cc"
+library G4PhysicsLists "../src/*.cc ../src/MuBias/*.cc"
 
-# Force the list of sources files for cmake to correspond to G4 9.6 since the cmt2cmake
-# parser takes the default macro value (it doesn't know which CMT tags are active). This
-# is transparent to CMT)
-apply_pattern cmake_set_macro macro=G4PhysicsLists_CodeUsed value="../src/*.cc ../src/MuBias/*.cc"
-
-library G4PhysicsLists "$(G4PhysicsLists_CodeUsed)"
-
-apply_pattern linked_library
+apply_pattern installed_library
 
 private
 
 ## get rid of CLHEP_SQR_DEFINED
 macro_remove CLHEP_pp_cppflags "-DCLHEP_SQR_DEFINED "
 apply_pattern declare_runtime files="biasValues.txt"
+end_private

@@ -23,8 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4EmStandardPhysics.cc,v 1.24 2010-10-10 15:18:34 vnivanch Exp $
-// GEANT4 tag $Name: geant4-09-04-patch-01 $
+// $Id: G4EmStandardPhysics.cc 79157 2014-02-19 15:35:01Z gcosmo $
 //
 //---------------------------------------------------------------------------
 //
@@ -43,11 +42,9 @@
 //----------------------------------------------------------------------------
 //
 
-#include "GaudiKernel/PathResolver.h"
-
 #include "G4EmStandardPhysics_MuBias.hh"
+#include "G4SystemOfUnits.hh"
 #include "G4ParticleDefinition.hh"
-#include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
 #include "G4EmProcessOptions.hh"
 
@@ -59,11 +56,27 @@
 #include "G4MuMultipleScattering.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4CoulombScattering.hh"
+#include "G4eCoulombScatteringModel.hh"
 #include "G4WentzelVIModel.hh"
+#include "G4Version.hh"
+#if G4VERSION_NUMBER>=1000
+#include "G4UrbanMscModel.hh"
+#define PARTICLEITERATOR aParticleIterator
+#else
+#  include "G4UrbanMscModel96.hh"
+#define PARTICLEITERATOR theParticleIterator
+    using G4UrbanMscModel=G4UrbanMscModel96;
+#endif
+
+#include "G4MuBremsstrahlungModel.hh"
+#include "G4MuPairProductionModel.hh"
+#include "G4hBremsstrahlungModel.hh"
+#include "G4hPairProductionModel.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
+#include "G4UAtomicDeexcitation.hh"
 
 #include "G4MuIonisation.hh"
 #include "G4BiasedMuBremsstrahlung.hh"
@@ -92,58 +105,70 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
+#include "G4PhysicsListHelper.hh"
+#include "G4BuilderType.hh"
+
+
+#include "GaudiKernel/PathResolver.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 
 void readFile(biasValues& val)
 {
-	std::string line;
-	const std::string fileName="biasValues.txt";
-	std::string inputFile=System::PathResolver::find_file(fileName,"DATAPATH");
-	if (inputFile=="")
-	{
-		std::cout<<" Could not open input file!!!!!"<<std::endl;
-		return;
-	}
-	std::cout<<" opening file "<<inputFile<<std::endl;
-	std::ifstream myfile(inputFile.c_str());
-	if (myfile.is_open())
-	{
-		while (myfile.good())
-		{
-			while (std::getline(myfile,line))
-			{
-				std::cout<<">>>>  "<<line<<std::endl;
-				std::istringstream sline(line);
-				std::string tag;
-				double value;
-				sline>>tag>>value;
-				if (tag=="MuBrems_bias") val.bremsBias=value;
-				else if (tag=="MuPair_bias") val.pairBias=value;
-				else std::cout<<"unknown tag "<<tag<<std::endl;
-			}	
-		}
-		myfile.close();
-	}
-	else
-		std::cout << " could not open file!" << std::endl;
+      std::string line;
+      const std::string fileName="biasValues.txt";
+      std::string inputFile=System::PathResolver::find_file(fileName,"DATAPATH");
+      if (inputFile=="")
+      {
+              std::cout<<" Could not open input file!!!!!"<<std::endl;
+              return;
+      }
+      std::cout<<" opening file "<<inputFile<<std::endl;
+      std::ifstream myfile(inputFile.c_str());
+      if (myfile.is_open())
+      {
+              while (myfile.good())
+              {
+                      while (std::getline(myfile,line))
+                      {
+                              std::cout<<">>>>  "<<line<<std::endl;
+                              std::istringstream sline(line);
+                              std::string tag;
+                              double value;
+                              sline>>tag>>value;
+                              if (tag=="MuBrems_bias") val.bremsBias=value;
+                              else if (tag=="MuPair_bias") val.pairBias=value;
+                              else std::cout<<"unknown tag "<<tag<<std::endl;
+                      }
+              }
+              myfile.close();
+      }
+      else
+              std::cout << " could not open file!" << std::endl;
 }
+
+// factory
+#include "G4PhysicsConstructorFactory.hh"
+//
+G4_DECLARE_PHYSCONSTR_FACTORY(G4EmStandardPhysics_MuBias);
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4EmStandardPhysics_MuBias::G4EmStandardPhysics_MuBias(G4int ver)
-  : G4VPhysicsConstructor("G4EmStandard"), verbose(ver)
+  : G4VPhysicsConstructor("G4EmStandard_MuBias"), verbose(ver)
 {
   G4LossTableManager::Instance();
+  SetPhysicsType(bElectromagnetic);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4EmStandardPhysics_MuBias::G4EmStandardPhysics_MuBias(G4int ver, const G4String&)
-  : G4VPhysicsConstructor("G4EmStandard"), verbose(ver)
+  : G4VPhysicsConstructor("G4EmStandard_MuBias"), verbose(ver)
 {
   G4LossTableManager::Instance();
+  SetPhysicsType(bElectromagnetic);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -186,79 +211,147 @@ void G4EmStandardPhysics_MuBias::ConstructParticle()
 
 void G4EmStandardPhysics_MuBias::ConstructProcess()
 {
-  // Add standard EM Processes
   G4cout<<" This is G4EmStandardPhysics_MuBias::ConstructProcess being "<<
-  	"run within QGSP_BERT_MuBias"<<G4endl;
+      "run within QGSP_BERT_MuBias"<<G4endl;
   readFile(biases);
+  if(verbose > 1) {
+    G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
+  }
+  G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() ){
-    G4ParticleDefinition* particle = theParticleIterator->value();
-    G4ProcessManager* pmanager = particle->GetProcessManager();
+  // muon & hadron bremsstrahlung and pair production
+  G4BiasedMuBremsstrahlung* mub=new G4BiasedMuBremsstrahlung;
+  mub->SetBiasFactor(biases.bremsBias);
+  G4BiasedMuPairProduction* mup=new G4BiasedMuPairProduction;
+  mup->SetBiasFactor(biases.pairBias);
+  G4hBremsstrahlung* pib = new G4hBremsstrahlung();
+  G4hPairProduction* pip = new G4hPairProduction();
+  G4hBremsstrahlung* kb = new G4hBremsstrahlung();
+  G4hPairProduction* kp = new G4hPairProduction();
+  G4hBremsstrahlung* pb = new G4hBremsstrahlung();
+  G4hPairProduction* pp = new G4hPairProduction();
+
+  // muon & hadron multiple scattering
+  G4MuMultipleScattering* mumsc = new G4MuMultipleScattering();
+  mumsc->AddEmModel(0, new G4WentzelVIModel());
+  G4MuMultipleScattering* pimsc = new G4MuMultipleScattering();
+  pimsc->AddEmModel(0, new G4WentzelVIModel());
+  G4MuMultipleScattering* kmsc = new G4MuMultipleScattering();
+  kmsc->AddEmModel(0, new G4WentzelVIModel());
+  G4MuMultipleScattering* pmsc = new G4MuMultipleScattering();
+  pmsc->AddEmModel(0, new G4WentzelVIModel());
+  G4hMultipleScattering* hmsc = new G4hMultipleScattering("ionmsc");
+
+  // high energy limit for e+- scattering models
+  G4double highEnergyLimit = 100*MeV;
+
+  // Add standard EM Processes
+  PARTICLEITERATOR->reset();
+  while( (*PARTICLEITERATOR)() ){
+    G4ParticleDefinition* particle = PARTICLEITERATOR->value();
     G4String particleName = particle->GetParticleName();
-    if(verbose > 1)
-      G4cout << "### " << GetPhysicsName() << " instantiates for " 
-	     << particleName << G4endl;
 
     if (particleName == "gamma") {
 
-      pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
-      pmanager->AddDiscreteProcess(new G4ComptonScattering);
-      pmanager->AddDiscreteProcess(new G4GammaConversion);
+      ph->RegisterProcess(new G4PhotoElectricEffect(), particle);
+      ph->RegisterProcess(new G4ComptonScattering(), particle);
+      ph->RegisterProcess(new G4GammaConversion(), particle);
 
     } else if (particleName == "e-") {
 
-      pmanager->AddProcess(new G4eMultipleScattering(), -1, 1, 1);
-      pmanager->AddProcess(new G4eIonisation,           -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung(),     -1,-3, 3);
+      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      G4UrbanMscModel* msc1 = new G4UrbanMscModel();
+      G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      msc1->SetHighEnergyLimit(highEnergyLimit);
+      msc2->SetLowEnergyLimit(highEnergyLimit);
+      msc->AddEmModel(0, msc1);
+      msc->AddEmModel(0, msc2);
+
+      G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
+      G4CoulombScattering* ss = new G4CoulombScattering();
+      ss->SetEmModel(ssm, 1); 
+      ss->SetMinKinEnergy(highEnergyLimit);
+      ssm->SetLowEnergyLimit(highEnergyLimit);
+      ssm->SetActivationLowEnergyLimit(highEnergyLimit);
+
+      ph->RegisterProcess(msc, particle);
+      ph->RegisterProcess(new G4eIonisation(), particle);
+      ph->RegisterProcess(new G4eBremsstrahlung(), particle);
+      ph->RegisterProcess(ss, particle);
 
     } else if (particleName == "e+") {
 
-      pmanager->AddProcess(new G4eMultipleScattering(), -1, 1, 1);
-      pmanager->AddProcess(new G4eIonisation,           -1, 2, 2);
-      pmanager->AddProcess(new G4eBremsstrahlung,       -1,-3, 3);
-      pmanager->AddProcess(new G4eplusAnnihilation,      0,-1, 4);
+      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      G4UrbanMscModel* msc1 = new G4UrbanMscModel();
+      G4WentzelVIModel* msc2 = new G4WentzelVIModel();
+      msc1->SetHighEnergyLimit(highEnergyLimit);
+      msc2->SetLowEnergyLimit(highEnergyLimit);
+      msc->AddEmModel(0, msc1);
+      msc->AddEmModel(0, msc2);
+
+      G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel(); 
+      G4CoulombScattering* ss = new G4CoulombScattering();
+      ss->SetEmModel(ssm, 1); 
+      ss->SetMinKinEnergy(highEnergyLimit);
+      ssm->SetLowEnergyLimit(highEnergyLimit);
+      ssm->SetActivationLowEnergyLimit(highEnergyLimit);
+
+      ph->RegisterProcess(msc, particle);
+      ph->RegisterProcess(new G4eIonisation(), particle);
+      ph->RegisterProcess(new G4eBremsstrahlung(), particle);
+      ph->RegisterProcess(new G4eplusAnnihilation(), particle);
+      ph->RegisterProcess(ss, particle);
 
     } else if (particleName == "mu+" ||
                particleName == "mu-"    ) {
 
-      G4MuMultipleScattering* msc = new G4MuMultipleScattering();
-      msc->AddEmModel(0, new G4WentzelVIModel());
-	  
-	  G4BiasedMuBremsstrahlung* muBrems=new G4BiasedMuBremsstrahlung;
-	  G4cout<<"special mu processes for "<<particleName<<" start "<<G4endl;
-	  muBrems->SetBiasFactor(biases.bremsBias);
-	  G4BiasedMuPairProduction* muPairs=new G4BiasedMuPairProduction;
-	  muPairs->SetBiasFactor(biases.pairBias);
-	  G4cout<<"special mu processes for "<<particleName<<" end "<<G4endl;
-	  
-      pmanager->AddProcess(msc,                     -1, 1, 1);
-      pmanager->AddProcess(new G4MuIonisation,      -1, 2, 2);
-      pmanager->AddProcess(muBrems,  -1,-3, 3);
-      pmanager->AddProcess(muPairs,  -1,-4, 4);
-      pmanager->AddDiscreteProcess(new G4CoulombScattering());
+      ph->RegisterProcess(mumsc, particle);
+      ph->RegisterProcess(new G4MuIonisation(), particle);
+      ph->RegisterProcess(mub, particle);
+      ph->RegisterProcess(mup, particle);
+      ph->RegisterProcess(new G4CoulombScattering(), particle);
 
     } else if (particleName == "alpha" ||
                particleName == "He3") {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);
+      //ph->RegisterProcess(hmsc, particle);
+      ph->RegisterProcess(new G4hMultipleScattering(), particle);
+      ph->RegisterProcess(new G4ionIonisation(), particle);
 
     } else if (particleName == "GenericIon") {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);
+      ph->RegisterProcess(hmsc, particle);
+      ph->RegisterProcess(new G4ionIonisation(), particle);
 
     } else if (particleName == "pi+" ||
-               particleName == "pi-" ||
-	       particleName == "kaon+" ||
-               particleName == "kaon-" ||
-               particleName == "proton" ) {
+               particleName == "pi-" ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
-      pmanager->AddProcess(new G4hBremsstrahlung,     -1,-3, 3);
-      pmanager->AddProcess(new G4hPairProduction,     -1,-4, 4);
+      //G4hMultipleScattering* pimsc = new G4hMultipleScattering();
+      ph->RegisterProcess(pimsc, particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
+      ph->RegisterProcess(pib, particle);
+      ph->RegisterProcess(pip, particle);
+      ph->RegisterProcess(new G4CoulombScattering(), particle);
+
+    } else if (particleName == "kaon+" ||
+               particleName == "kaon-" ) {
+
+      //G4hMultipleScattering* kmsc = new G4hMultipleScattering();
+      ph->RegisterProcess(kmsc, particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
+      ph->RegisterProcess(kb, particle);
+      ph->RegisterProcess(kp, particle);
+      ph->RegisterProcess(new G4CoulombScattering(), particle);
+
+    } else if (particleName == "proton" ||
+	       particleName == "anti_proton") {
+
+      //G4hMultipleScattering* pmsc = new G4hMultipleScattering();
+      ph->RegisterProcess(pmsc, particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
+      ph->RegisterProcess(pb, particle);
+      ph->RegisterProcess(pp, particle);
+      ph->RegisterProcess(new G4CoulombScattering(), particle);
 
     } else if (particleName == "B+" ||
 	       particleName == "B-" ||
@@ -271,7 +364,6 @@ void G4EmStandardPhysics_MuBias::ConstructProcess()
                particleName == "anti_deuteron" ||
                particleName == "anti_lambda_c+" ||
                particleName == "anti_omega-" ||
-               particleName == "anti_proton" ||
                particleName == "anti_sigma_c+" ||
                particleName == "anti_sigma_c++" ||
                particleName == "anti_sigma+" ||
@@ -279,7 +371,7 @@ void G4EmStandardPhysics_MuBias::ConstructProcess()
                particleName == "anti_triton" ||
                particleName == "anti_xi_c+" ||
                particleName == "anti_xi-" ||
-               particleName == "deuteron" ||
+	       particleName == "deuteron" ||
 	       particleName == "lambda_c+" ||
                particleName == "omega-" ||
                particleName == "sigma_c+" ||
@@ -288,17 +380,23 @@ void G4EmStandardPhysics_MuBias::ConstructProcess()
                particleName == "sigma-" ||
                particleName == "tau+" ||
                particleName == "tau-" ||
-               particleName == "triton" ||
+	       particleName == "triton" ||
                particleName == "xi_c+" ||
                particleName == "xi-" ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
-      pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
+      ph->RegisterProcess(hmsc, particle);
+      ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
-  opt.SetPolarAngleLimit(0.2);
+  //  opt.SetApplyCuts(true);
+  opt.SetPolarAngleLimit(CLHEP::pi);
+
+  // Deexcitation
+  //
+  G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
+  G4LossTableManager::Instance()->SetAtomDeexcitation(de);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: QGSP_BERT_MuBias.icc 526126 2012-11-15 17:07:14Z zmarshal $
+// $Id: QGSP_BERT_MuBias.icc 593815 2014-04-22 23:21:00Z zmarshal $
 // GEANT4 tag $Name: geant4-09-04-patch-01 $
 //
 //---------------------------------------------------------------------------
@@ -62,12 +62,12 @@
 #include "G4EmStandardPhysics_MuBias.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4IonPhysics.hh"
-#include "G4QStoppingPhysics.hh"
+#include "G4StoppingPhysics.hh"
 #include "G4HadronElasticPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_BERT.hh"
+#include "HadronPhysicsQGSP_BERT_MuBias.hh"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -94,10 +94,10 @@ template<class T> TQGSP_BERT_MuBias<T>::TQGSP_BERT_MuBias(G4int ver):  T()
   this->RegisterPhysics( new G4HadronElasticPhysics(ver) );
 
   // Hadron Physics
-  this->RegisterPhysics( new HadronPhysicsQGSP_BERT(ver));
+  this->RegisterPhysics( new G4HadronPhysicsQGSP_BERT_MuBias(ver));
 
   // Stopping Physics
-  this->RegisterPhysics( new G4QStoppingPhysics(ver) );
+  this->RegisterPhysics( new G4StoppingPhysics(ver) );
 
   // Ion Physics
   this->RegisterPhysics( new G4IonPhysics(ver));
