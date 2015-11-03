@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
-from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
+from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, HIJetUEMonitoring, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 from JetRec.JetRecFlags import jetFlags
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
@@ -25,10 +25,9 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-        selectionAndHistos( "20000<pt<500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_20_500" ),
-        selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_500_1000" ),
-        selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_1000_2000" ),
-        selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_2000_8000" ),
+        selectionAndHistos( "60000<pt<100000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_60_100" ),
+        selectionAndHistos( "100000<pt<250000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_100_250" ),
+        selectionAndHistos( "250000<pt<800000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_250_800" ),
         selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
         selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
 
@@ -38,16 +37,16 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         jhm.leadingjetrel,
         ]
 
-    if "Topo" in container:
+    if "HI" and not "Track" in container:
         filler.HistoTools += [
             
             # jet states
-            jhm.basickinematics_emscale,
-            jhm.basickinematics_constscale,
+#            jhm.basickinematics_emscale,
+#            jhm.basickinematics_constscale,
 
 
             # calo variables
-            jhm.NegativeE,
+#            jhm.NegativeE,
             jhm.EMFrac,
             jhm.HECFrac,
             jhm.Timing,
@@ -58,14 +57,14 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             jhm.HECQuality,
             jhm.FracSamplingMax,
             jhm.FracSamplingMaxIndex,
-            jhm.N90Constituents,
-            jhm.CentroidR,
-            jhm.OotFracClusters5,
-            jhm.OotFracClusters10,
-            jhm.ptN,
-            jhm.LeadingClusterCenterLambda,
-            jhm.LeadingClusterSecondLambda,
-            jhm.LeadingClusterSecondR,
+#            jhm.N90Constituents,
+#            jhm.CentroidR,
+#            jhm.OotFracClusters5,
+#            jhm.OotFracClusters10,
+#            jhm.ptN,
+#            jhm.LeadingClusterCenterLambda,
+#            jhm.LeadingClusterSecondLambda,
+#            jhm.LeadingClusterSecondR,
 
             # energy per sampling
             jhm.PreSamplerB,
@@ -92,8 +91,28 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             jhm.TileGap1,
             jhm.TileGap2,
             jhm.TileGap3,
-            
+
+############HI moments
+            jhm.MaxOverMean,
+            jhm.MaxConstituentET,
+            jhm.JetUnsubtractedScaleMomentum_pt,
+            jhm.JetUnsubtractedScaleMomentum_eta,
+            jhm.JetUnsubtractedScaleMomentum_phi,
+            jhm.JetUnsubtractedScaleMomentum_m,
+            jhm.JetSubtractedScaleMomentum_pt,
+            jhm.JetSubtractedScaleMomentum_eta,
+            jhm.JetSubtractedScaleMomentum_phi,
+            jhm.JetSubtractedScaleMomentum_m,
+            jhm.JetSubtractedScaleNoVnMomentum_pt,
+            jhm.JetSubtractedScaleNoVnMomentum_eta,
+            jhm.JetSubtractedScaleNoVnMomentum_phi,
+            jhm.JetSubtractedScaleNoVnMomentum_m,
             ]
+
+            # centrality
+        filler.HistoTools += [jhm.centrality,]                                                          
+        filler.HistoTools['centrality'].RefContainer = refcontainer
+
         if jetFlags.useTracks:
             filler.HistoTools += [
                 # track variables
@@ -114,15 +133,11 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
 
 
 
-athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,                                                  
-                                                  commonMonitoringTool( "AntiKt4EMTopoJets" ),
-                                                  commonMonitoringTool( "AntiKt10LCTopoJets" ),       
+athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4HIJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,                                                       
                                                   ],
                                   IntervalType = 6,) # 6 is 'Interval_t::run' interval
 if monitorTracks :
-     athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
-#if jetFlags.useTracks:
-#    athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
+     athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt4HITrackJets" ) ]
 
 ToolSvc += athenaMonTool
 
@@ -134,9 +149,7 @@ from AthenaMonitoring.DQMonFlags import DQMonFlags
 if DQMonFlags.useTrigger() :
     athenaMonTool_trig = JetMonitoringTool("JetMonitoring_trig",HistoTools =
                                            [
-                                               commonMonitoringTool( "AntiKt4LCTopoJets", pathSuffix='_trig' ),
-                                               commonMonitoringTool( "AntiKt4EMTopoJets", pathSuffix='_trig' ),
-                                               commonMonitoringTool( "AntiKt10LCTopoJets", pathSuffix='_trig' )
+                                               commonMonitoringTool( "AntiKt4HIJets", pathSuffix='_trig' ),
                                                ] , IntervalType = 6 )
     ToolSvc += athenaMonTool_trig
     athenaMonTool_trig.TrigDecisionTool =  ToolSvc.monTrigDecTool
