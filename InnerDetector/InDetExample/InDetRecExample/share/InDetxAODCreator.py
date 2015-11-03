@@ -1,8 +1,8 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() ) and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking()  and  InDetFlags.doParticleCreation()
+doCreation = InDetFlags.doParticleCreation()
+doConversion = InDetFlags.doParticleConversion()
 
 if doCreation:
     print "Creating xAOD::TrackParticles from Trk::Tracks"

@@ -1042,6 +1042,12 @@ class doSCTModuleVeto(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doParticleConversion(InDetFlagsJobProperty): 
+  """In case anyone still wants to do Rec->xAOD TrackParticle Conversion""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1330,10 +1336,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doCaloSeededBrem       , False)
        self.checkThenSet(self.doHadCaloSeededSSS     , False)
        # --- turn off TRT
-       DetFlags.makeRIO.TRT_setOff()
        DetFlags.TRT_setOff()
-       DetFlags.detdescr.TRT_setOn()
-       DetFlags.dcs.TRT_setOff()
 
     # --- special case minimal reconstruction setup
     elif (self.doMinimalReco()):
@@ -2041,6 +2044,7 @@ class InDetJobProperties(JobPropertyContainer):
     else:
        print '*    (1) - 2010 heavy ion settings'
        print '*    (2) - 2011 heavy ion settings with seed level 2'
+       print '*    (3) - 2011 heavy ion settings with seed level 2 and pT cut at 0.3 GeV'
     # -----------------------------------------
     if self.doBremRecovery():
        print '* run Brem Recovery in tracking'
@@ -2448,7 +2452,8 @@ _list_InDetJobProperties = [Enabled,
                             doNNToTCalibration,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
-                            doDBM
+                            doDBM,
+                            doParticleConversion
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

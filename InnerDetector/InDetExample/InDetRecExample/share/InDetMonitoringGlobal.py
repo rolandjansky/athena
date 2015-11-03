@@ -1,3 +1,5 @@
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 ####################################################
 #                                                  #
 # InDetGlobalManager top algorithm                 #
@@ -45,20 +47,35 @@ if InDetFlags.doMonitoringGlobal():
       
   from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalTrackMonTool
   InDetGlobalTrackMonTool=InDetGlobalTrackMonTool( name          = "InDetGlobalTrackMonTool",
-                                                  histoPathBase = "/GLOBAL",
-                                                  DoIBL         = InDetFlags.doIBL(),
-                                                  trackMax      = 1000)
+                                                   histoPathBase = "/GLOBAL",
+                                                   DoIBL         = InDetFlags.doIBL(),
+                                                   trackMax      = 75 )
 
   TrackCollection = InDetKeys.UnslimmedTracks()
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.UseTrkTrackTools = True
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.CutLevel = "LoosePrimary"
-  InDetGlobalTrackMonTool.Tight_SelTool.UseTrkTrackTools = True
-  InDetGlobalTrackMonTool.Tight_SelTool.CutLevel = "TightPrimary"
   
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.TrackSummaryTool = InDetTrackSummaryTool
-  InDetGlobalTrackMonTool.LoosePrimary_SelTool.Extrapolator        = InDetExtrapolator
-  InDetGlobalTrackMonTool.Tight_SelTool.TrackSummaryTool = InDetTrackSummaryTool
-  InDetGlobalTrackMonTool.Tight_SelTool.Extrapolator        = InDetExtrapolator
+  InDetTrackSelectionToolGlobalMon_LoosePrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_LoosePrimary",
+                                                                                 UseTrkTrackTools = True,
+                                                                                 CutLevel = "Loose",
+                                                                                 minNSiHitsIfSiSharedHits = 10,
+                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                                 Extrapolator        = InDetExtrapolator)
+
+  InDetTrackSelectionToolGlobalMon_TightPrimary = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_TightPrimary",
+                                                                                 UseTrkTrackTools = True,
+                                                                                 CutLevel = "Loose",
+                                                                                 minNSiHits = 9,
+                                                                                 minNSiHitsAboveEtaCutoff = 11,
+                                                                                 minNBothInnermostLayersHits = 1,
+                                                                                 minEtaForStrictNSiHitsCut = 1.65,
+                                                                                 maxNPixelHoles = 0,
+                                                                                 TrackSummaryTool    = InDetTrackSummaryTool,
+                                                                                 Extrapolator        = InDetExtrapolator)
+
+  ToolSvc += InDetTrackSelectionToolGlobalMon_LoosePrimary
+  ToolSvc += InDetTrackSelectionToolGlobalMon_TightPrimary
+  
+  InDetGlobalTrackMonTool.LoosePrimary_SelTool = InDetTrackSelectionToolGlobalMon_LoosePrimary
+  InDetGlobalTrackMonTool.Tight_SelTool = InDetTrackSelectionToolGlobalMon_TightPrimary
 
   if DQMonFlags.monManDataType == 'heavyioncollisions' or InDetFlags.doHeavyIon() == True:
     InDetGlobalTrackMonTool.trackMax      = 10000
@@ -154,7 +171,8 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
                                                                    vxContainerName = InDetKeys.xAODVertexContainer(),
                                                                    vxContainerNameWithOutBeamConstraint = InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
                                                                    vxContainerNameSplit = InDetKeys.PrimaryVerticesSplitStream(),
-                                                                   doEnhancedMonitoring = InDetFlags.doMonitoringPrimaryVertexingEnhanced())
+                                                                   doEnhancedMonitoring = InDetFlags.doMonitoringPrimaryVertexingEnhanced(),
+                                                                   EnableLumi    = False if athenaCommonFlags.isOnline() else True )
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
      InDetGlobalPrimaryVertexMonTool.FilterTools.append(monFilledBunchFilterTool)
 

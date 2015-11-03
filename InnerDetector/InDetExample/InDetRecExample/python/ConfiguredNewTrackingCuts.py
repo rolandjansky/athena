@@ -485,9 +485,15 @@ class ConfiguredNewTrackingCuts :
       elif self.__indetflags.cutLevel() == 2:
         self.__seedFilterLevel  = 2
         self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
+      elif self.__indetflags.cutLevel() == 3: # This is for MB data
+        self.__minPT            = 0.300 * Units.GeV
+        self.__seedFilterLevel  = 2
+        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
+        self.__useParameterizedTRTCuts   = False
+        self.__useNewParameterizationTRT = False
       self.__radMax           = 600. * Units.mm # restrict to pixels + first SCT layer
       self.__useTRT           = False 
-      
+
     # --- changes for Pixel/SCT segments
     from AthenaCommon.DetFlags    import DetFlags
     if ( DetFlags.haveRIO.pixel_on() and not DetFlags.haveRIO.SCT_on() ):
