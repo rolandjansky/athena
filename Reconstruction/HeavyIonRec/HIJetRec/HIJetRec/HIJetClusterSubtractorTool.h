@@ -4,8 +4,8 @@
 
 // HIJetClusterSubtractorTool.h
 
-#ifndef __HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H__
-#define __HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H__
+#ifndef HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H
+#define HIJETREC_HIJETCLUSTERSUBTRACTORTOOL_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///

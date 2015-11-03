@@ -4,8 +4,8 @@
 
 // HIJetSubtractorToolBase.h
 
-#ifndef __HIJETREC_HIJETSUBTRACTORTOOLBASE_H__
-#define __HIJETREC_HIJETSUBTRACTORTOOLBASE_H__
+#ifndef HIJETREC_HIJETSUBTRACTORTOOLBASE_H
+#define HIJETREC_HIJETSUBTRACTORTOOLBASE_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///

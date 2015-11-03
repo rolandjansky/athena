@@ -26,6 +26,7 @@
 #include "AsgTools/ToolHandle.h"
 #include <HIJetRec/IHISubtractorTool.h>
 #include <HIJetRec/IHIUEModulatorTool.h>
+#include "CaloRec/CaloClusterCollectionProcessor.h"
 
 class HIClusterSubtraction : virtual public asg::AsgTool,
 			     virtual public IJetExecuteTool
@@ -33,7 +34,8 @@ class HIClusterSubtraction : virtual public asg::AsgTool,
   ASG_TOOL_CLASS(HIClusterSubtraction,IJetExecuteTool)
 public:
   HIClusterSubtraction(std::string name);
-  ~HIClusterSubtraction() {};
+  virtual StatusCode initialize();
+  virtual ~HIClusterSubtraction() {};
 
   virtual int execute() const;
 
@@ -48,6 +50,7 @@ private:
   /// \brief handle to IHISubtractorTool which does calculates subtracted kinematics
   ToolHandle<IHISubtractorTool> m_subtractor_tool; 
   ToolHandle<IHIUEModulatorTool> m_modulator_tool;
-
+  ToolHandleArray<CaloClusterCollectionProcessor> m_clusterCorrectionTools; 
+  bool m_set_moments;
 };
 #endif
