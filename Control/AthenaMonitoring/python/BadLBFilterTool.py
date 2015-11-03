@@ -126,7 +126,7 @@ def GetLArBadLBFilterTool(origDbTag=None):
         lar_defects = set(defect for defect in lar_defects
                           if ('LAR' in defect and
                               (('HVTRIP' in defect) or ('SEV' in defect) or
-                               ('CORRUPT' in defect) or ('HVRAMPUP' in defect))))
+                               ('CORRUPT' in defect))))
 
     return GetBadLBFilterTool('LArBadLBFilterTool', tuple(lar_defects),
                               origDbTag=origDbTag)
