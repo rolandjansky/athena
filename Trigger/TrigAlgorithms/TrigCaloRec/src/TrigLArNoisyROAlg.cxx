@@ -38,7 +38,8 @@
 #include "LArTools/LArCablingService.h"
 //#include "GeoModelSvc/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+//#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
 #include <math.h>
 //
@@ -205,7 +206,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
        const CaloCell* cell = (*cellItr);
        if (!cell) continue;
        if ( cell->quality() < m_CellQualityCut ) continue;
-       if ( (cell->caloDDE()->getSubCalo()) ) continue;
+       if ( (cell->caloDDE()->getSubCalo()) != CaloCell_Base_ID::LAREM ) continue;
 
        Identifier id = cell->ID();
        HWIdentifier hwid = m_cablingService->createSignalChannelID(id);
@@ -281,7 +282,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
   m_config->getNavigation()->copyAllFeatures( (tes_in.front()).front(), AllTEoutputTE);
   std::string AllTEclusterCollKey = "";
   
-  xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
+  xAOD::CaloClusterTrigAuxContainer* aux = new xAOD::CaloClusterTrigAuxContainer();
   AllTECaloClusterContainer->setStore(aux);
   
   // Build the "uses" relation for the outputTE to the cell container
