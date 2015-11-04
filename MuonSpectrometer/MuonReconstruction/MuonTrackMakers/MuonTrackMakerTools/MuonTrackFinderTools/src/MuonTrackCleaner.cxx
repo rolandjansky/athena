@@ -101,6 +101,7 @@ namespace Muon {
     declareProperty("CleanCompROTs",  m_cleanCompROTs=true);
     declareProperty("OnlyUseHitErrorInRecovery", m_onlyUseHitErrorInRecovery = true );
     declareProperty("AdcCut", m_adcCut = 50 );
+    declareProperty("Iterate", m_iterate = true );
   }
 
 
@@ -868,6 +869,12 @@ namespace Muon {
       return 0;
     }
     std::stable_sort( cleaningResults.begin(),cleaningResults.end(),SortChamberRemovalResultByChi2Ndof());
+    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " chamberCleaning Results nr " << cleaningResults.size() << endreq;
+    std::vector<ChamberRemovalOutput>::iterator itt= cleaningResults.begin();
+    std::vector<ChamberRemovalOutput>::iterator itt_end= cleaningResults.end();
+    for( ;itt!=itt_end;++itt ) {
+       if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << " track " << m_printer->print(*(*itt).track ) << endreq;
+    }
 
     ChamberRemovalOutput& finalResult = cleaningResults.front();
     Trk::Track* newtrack = finalResult.track;
@@ -1162,6 +1169,7 @@ namespace Muon {
     m_chambersToBeRemovedPhi.clear();
     m_pullSumPerChamber.clear();
     m_pullSumPerChamberPhi.clear();
+    m_pullSumPerChamberEta.clear();
     m_hitsPerChamber.clear();
     m_outBoundsPerChamber.clear();
     m_measInfo.clear();
@@ -1593,6 +1601,7 @@ namespace Muon {
 	  if( pull > pullInfoCh.maxPull ) pullInfoCh.maxPull = pull;
 	}else{
 	  ChamberPullInfo& pullInfoTrig = measuresPhi ? m_pullSumPhi : m_pullSumTrigEta;
+          if(!measuresPhi) m_pullSumPerChamberEta[info.chId];
 	  pullInfoTrig.pullSum += pull;
 	  ++pullInfoTrig.nhits;
 	  if( pull > pullInfoTrig.maxPull ) pullInfoTrig.maxPull = pull;
@@ -1780,8 +1789,12 @@ namespace Muon {
     if( msgLvl(MSG::DEBUG) ) {
       if ( pullSumPerChamber.size() ) msg() << MSG::DEBUG << "Chamber pulls " << pullSumPerChamber.size() << ":";
     }
+    int ndof = 0;
+    double pulltot = 0.;
     for( ;cit!=cit_end;++cit ){
       double avePull = cit->second.pullSum/cit->second.nhits;
+      pulltot += cit->second.pullSum;
+      ndof += cit->second.nhits;  
       double avePullReduced = cit->second.nhits > 1 ? (cit->second.pullSum-cit->second.maxPull)/(cit->second.nhits-1) : avePull;
       if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << std::endl << " chamber " << m_idHelper->toStringChamber(cit->first) 
 				       << "  pull sum " << cit->second.pullSum << " max pull " << cit->second.maxPull << " nhits " << cit->second.nhits 
@@ -1801,11 +1814,41 @@ namespace Muon {
       }
     }
     if( msgLvl(MSG::DEBUG) ) msg() << endreq;
+    bool dropMore = false;
+    if(dropMore&&pulltot*pulltot>2.*ndof*ndof) {
+      doCleaning = true;
+      if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << "  large pull per dof " << pulltot << " ndof " << ndof << endreq;
+    }
+
+    if(doCleaning&&m_iterate) {
+      cit = pullSumPerChamber.begin();
+      for( ;cit!=cit_end;++cit ){
+        double avePull = cit->second.pullSum/cit->second.nhits;
+        if( !chambersToBeRemovedSet.count(cit->first) ) {
+          chambersToBeRemoved.push_back( std::make_pair(avePull,cit->first) );
+          chambersToBeRemovedSet.insert(cit->first);
+        }
+      }
+    }
+
+    if(dropMore&&doCleaning&&m_iterate) {
+// add trigger chambers
+      cit = m_pullSumPerChamberEta.begin();
+      cit_end = m_pullSumPerChamberEta.end();
+      for( ;cit!=cit_end;++cit ){
+        double avePull = cit->second.pullSum/cit->second.nhits;
+        if( !chambersToBeRemovedSet.count(cit->first) ) {
+          chambersToBeRemoved.push_back( std::make_pair(avePull,cit->first) );
+          chambersToBeRemovedSet.insert(cit->first);
+        }
+      }
+    }
 
     return doCleaning;
   }
 
   bool MuonTrackCleaner::isOutsideOnTrackCut( const Identifier& id, double res, double pull, double cutScaleFactor ) const {
+
 
     
     bool isMdt = id.is_valid() ? m_idHelper->isMdt(id) : false;
