@@ -57,7 +57,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	
 	int run_number;
 	run_number = atoi( (run_dir.substr(4, run_dir.size()-4 )).c_str() );
-        std::cout << "run_number rpc monitoring " << run_number <<std::endl;
+        //std::cout << "run_number rpc monitoring " << run_number <<std::endl;
 	
 	std::string pathRawMon     = run_dir + "/Muon/MuonRawDataMonitoring/RPC/"                           ;
 	//std::string pathTrackMon   = run_dir + "/Muon/MuonTrackMonitoring/NoTrigger/RPCStandAloneTrackMon/" ;
@@ -316,12 +316,15 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	if ( h_AverageTime_A	       ) h_AverageTime_A  	  ->Reset() ;
 	 
 	// summary plots
+	int countpanelindb = 0 ;
+	int countpaneleff0 = 0 ;
+	int countpaneltrack0 = 0 ;
 	for (int i_sec=0; i_sec!=15+1; i_sec++) {
 	  char sector_char[100]   ;
 	  std::string sector_name ;
           sprintf(sector_char,"_Sector%.2d",i_sec+1) ;  // sector number with 2 digits
           sector_name = sector_char ;
-	  //std::cout << " sector_name   "<< sector_name<<std::endl;
+	  std::cout << " RPC sector_name processing  "<< sector_name<<std::endl;
 	  
 	  std::string TrackProj_name		  	= dir_sum_track + "SummaryTrackProj"  		  	+ sector_name ;
 	  std::string HitOnTrack_name		  	= dir_sum_track + "SummaryHitOnTrack" 		  	+ sector_name ;
@@ -404,7 +407,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	  TH1F* h_Time_square         	  = NULL;
 	  TH1F* h_Occupancy           	  = NULL;
 	  TH1F* h_Occupancy_s          	  = NULL;
-	  TH1I* h_PanelId		  = NULL;
+	  TH1F* h_PanelId		  = NULL;
 	  
 	  TH1F* h_EffSecDist	          = NULL;
 	  TH1F* h_GapEffSecDist	          = NULL;
@@ -452,7 +455,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	  if ( RPCCheckHistogram( f, Time_square_name.c_str() 		) ){ h_Time_square  	      = (TH1F*) ( f->Get( Time_square_name.c_str()	      ) );}
 	  if ( RPCCheckHistogram( f, Occupancy_name.c_str()  		) ){ h_Occupancy   	      = (TH1F*) ( f->Get( Occupancy_name.c_str()	      ) );}
 	  if ( RPCCheckHistogram( f, Occupancy_s_name.c_str()  		) ){ h_Occupancy_s   	      = (TH1F*) ( f->Get( Occupancy_s_name.c_str()	      ) );}
-	  if ( RPCCheckHistogram( f, PanelId_name.c_str()               ) ){ h_PanelId                = (TH1I*) ( f->Get( PanelId_name.c_str()                ) );}
+	  if ( RPCCheckHistogram( f, PanelId_name.c_str()               ) ){ h_PanelId                = (TH1F*) ( f->Get( PanelId_name.c_str()                ) );}
 	  
 	  if ( RPCCheckHistogram( f, EffSecDist_name.c_str()	     	) ){ h_EffSecDist	      = (TH1F*) ( f->Get( EffSecDist_name.c_str()	      ) );}   
 	  if ( RPCCheckHistogram( f, GapEffSecDist_name.c_str()       	) ){ h_GapEffSecDist	      = (TH1F*) ( f->Get( GapEffSecDist_name.c_str()	      ) );}  
@@ -491,8 +494,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      n_hit_f = h_HitOnTrack -> GetBinContent(ib+1) ;
 	      n_tr_p  = h_TrackProj  -> GetBinContent(ib+1) ;
 	      
-	     if ( n_tr_p>50 ) {    
-	      if ( n_hit_f!=0) { panel_eff = n_hit_f/n_tr_p ; }
+	     //if ( n_tr_p>50 ) {    
+	      if ( n_tr_p!=0) { panel_eff = n_hit_f/n_tr_p ; }
 	      else { panel_eff=0. ; }
 	      if ( n_tr_p!=0 ) {
 	        panel_err_eff = sqrt( fabs(n_hit_f)/n_tr_p ) *
@@ -505,7 +508,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      if ( h_EffSecDist ) h_EffSecDist->Fill(panel_eff) ;
 	      if ( ib>( h_TrackProj->GetNbinsX()/2 ) ) { if ( h_AverageEff_A ) h_AverageEff_A->Fill(panel_eff) ; } 
 	      else                                     { if ( h_AverageEff_C ) h_AverageEff_C->Fill(panel_eff) ; }
-	    }
+	    //}
 	  }
 	    // write out histogram
 	    TDirectory* dir = f->GetDirectory( dir_sum_track.c_str() ) ;
@@ -534,7 +537,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      nEtaPhi = h_HitOnTrackCross->GetBinContent( ib+1	      ) ;
 	      n_tr_p  = h_TrackProj      ->GetBinContent( ib+1        ) ;
 	      
-	      if ( n_tr_p>50 ) { 
+	      if ( n_tr_p>0 ) { 
 	        gapEff    = (nEta+nPhi-nEtaPhi) / n_tr_p  ; 
                 //std::cout << " gapEff " << gapEff <<"  nEta  "<<nEta<<"  nPhi  "<<nPhi<< "  nEtaPhi  "<<nEtaPhi <<"  n_tr_p  "<<n_tr_p <<std::endl;
 	
@@ -543,10 +546,10 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		            sqrt( n_tr_p ) ;
                 //std::cout <<"sqrt( fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )"<<sqrt( fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )<<"sqrt( 1. - fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )"<<sqrt( 1. - fabs( nEta+nPhi-nEtaPhi -0.5)/n_tr_p )<< " gapErrEff " << gapErrEff <<std::endl;
               }
-	      //else  { 
-	      //  gapEff    = 0.; 
-	      //  gapErrEff = 0.;
-              //}
+	      else  { 
+	        gapEff    = 0.; 
+	        gapErrEff = 0.;
+              }
 	      h_GapEff -> SetBinContent(ib+1, gapEff    );
 	      h_GapEff -> SetBinError  (ib+1, gapErrEff );
 	      if ( h_GapEffSecDist ) h_GapEffSecDist->Fill(gapEff);
@@ -942,11 +945,11 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		sprintf(coolName, "Sector%.2d_%s_dblPhi%d", i_sec+1, (*iter).c_str(), i_dblPhi+1 );
 		std::string stripId_name       = dir_cool_raw + coolName + "_PanelId" ;
 	        std::string stripProfile_name  = dir_cool_raw + coolName + "_Profile" ;
-		
-		TH1I* h_stripId      = NULL;
+		//std::cout <<stripProfile_name << std::endl;
+		TH1F* h_stripId      = NULL;
 	        TH1F* h_stripProfile = NULL;
 	        
-		if ( RPCCheckHistogram(f, stripId_name.c_str()      ) ) { h_stripId      = (TH1I*) ( f->Get(stripId_name.c_str())      );} 
+		if ( RPCCheckHistogram(f, stripId_name.c_str()      ) ) { h_stripId      = (TH1F*) ( f->Get(stripId_name.c_str())      );} 
 		if ( RPCCheckHistogram(f, stripProfile_name.c_str() ) ) { h_stripProfile = (TH1F*) ( f->Get(stripProfile_name.c_str()) );} 
 		
 		if ( h_stripId && h_stripProfile ) {
@@ -970,25 +973,27 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		    
 		    
 
-		    if((int)h_stripId -> GetBinContent(Nstrips)==(int)h_stripId  -> GetBinContent(Nstrips+1))StripsOnPanel++;
+		    if((int)h_stripId -> GetBinContent(Nstrips)==(int)h_stripId  -> GetBinContent(Nstrips+1))StripsOnPanel++;                      
+		    //std::cout <<Nstrips<<" "<< (int)h_stripId-> GetBinCenter(Nstrips)<< " "<< SingleStripsStatus <<" PanelStripsStatus " << PanelStripsStatus <<" PanelStripsId " << PanelStripId <<std::endl;
+
 		    if((int)h_stripId -> GetBinContent(Nstrips)!=(int)h_stripId  -> GetBinContent(Nstrips+1)){
-		      
+		    //std::cout <<StripsOnPanel<<" StripsOnPanel "<< std::endl;
+  
 		    if((int)h_stripId-> GetBinCenter(Nstrips) <0){
 		    
 		    
-		   // std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;
+		    //std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;
 		    
 		    std::reverse(PanelStripsStatus.begin(), PanelStripsStatus.end());
 		
 		    }
-
+                       
 		      for(int ibin=1 ; ibin!=nbin+1 ; ibin++){
                         if ( h_PanelId )PannelCode = (int)h_PanelId-> GetBinContent(ibin) ;
 	                if(PannelCode !=PanelStripId)continue;
-			
 			  if(ibin%2!=0){
 			    if (h_TrackProj) {n_tr_peta  =(int)h_TrackProj   -> GetBinContent(ibin) ;}
-			      if(n_tr_peta >50){
+			      //if(n_tr_peta >0){
 	 
 			    	if ( h_GapEff	  )gapeff	       = h_GapEff	   ->GetBinContent(ibin) ;
 			    	if ( h_GapEff	  )errgapeff	       = h_GapEff	   ->GetBinError  (ibin) ;
@@ -1024,7 +1029,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			    	  effeleeta     =0.000;
  			    	  erreffeleeta  =0.000;
 			    	}
-        		    //    std::cout << " effeleeta " << effeleeta <<"  erreffeleeta  "<<erreffeleeta<<"  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
+        		        //std::cout << " effeleeta " << effeleeta <<"  erreffeleeta  "<<erreffeleeta<<"  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
 	
 			    	sprintf(m_effeta	   ,	"%f ", effeta		 ) ;   m_effeta 	  [5]	=0;
 			    	sprintf(m_erreffeta	   ,	"%f ", erreffeta	 ) ;   m_erreffeta	  [5]	=0;
@@ -1052,11 +1057,15 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
  			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  m_effeta, m_erreffeta,  m_effeleeta, m_erreffeleeta, m_reseta_cs1, m_errreseta_cs1, m_reseta_cs2, m_errreseta_cs2, m_reseta_csother, m_errreseta_csother, m_noiseeta, m_errnoiseeta, m_noiseeta_cor, m_errnoiseeta_cor, m_cl_sizeeta, m_errcl_sizeeta, m_rateCS1eta, m_rateCS2eta, m_rateCSmore2eta) ;
  			        sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
 				std::string cool_tagCondDB="RecoCondDB";
- 			        coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tagCondDB);	
-			      }
+ 			        coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tagCondDB);
+			        //std::cout <<"Eta " << PannelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+			        countpanelindb++;
+			        if(effeta==0.0)countpaneleff0++;
+			        if(n_tr_peta==0)countpaneltrack0++;
+			      //}
 			    }else{
 			     if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
- 			     if(n_tr_pphi >50 ){
+ 			     //if(n_tr_pphi >0){
  
 			     if ( h_PanelId )Binposition = (int)h_PanelId-> GetBinCenter(ibin) ;
 			     if(Binposition>0){
@@ -1095,7 +1104,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			       effelephi     = 0.000;
 			       erreffelephi  = 0.000;
  			     }			    
-        		    // std::cout << " effelephi " << effelephi <<"  erreffelephi  "<<erreffelephi<<"  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
+        		     //std::cout << " effelephi " << effelephi <<"  erreffelephi  "<<erreffelephi<<"  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
 			     
 			     
 			     sprintf(m_effphi		,    "%f ", effphi	      ) ;   m_effphi	       [5]   =0;
@@ -1123,20 +1132,28 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
  			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  m_effphi, m_erreffphi,  m_effelephi, m_erreffelephi, m_resphi_cs1, m_errresphi_cs1, m_resphi_cs2, m_errresphi_cs2, m_resphi_csother, m_errresphi_csother, m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi, m_rateCS1phi, m_rateCS2phi, m_rateCSmore2phi) ;
  			     sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
  			     std::string cool_tag="RecoCondDB";
- 			     coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tag);	
-			    }
+ 			     coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tag);
+			     //std::cout <<"Phi " << PannelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+			    //}	
+			    countpanelindb++;
+			    if(effphi==0.0)countpaneleff0++;
+			    if(n_tr_pphi==0)countpaneltrack0++;
 			  }		
 	    	          StripsOnPanel=1;
 	      	          PanelStripsStatus.clear();
- 		        }			
+ 		        }
+			//if(StripsOnPanel>1) std::cout<<stripProfile_name<< " bin " << Nstrips << " Not found PanelStripId " << PanelStripId<< std::endl;		
+	    	        StripsOnPanel=1;
+	      	        PanelStripsStatus.clear();			
 		      }
                     }		  
 		  }				
 	        } // end loop on DoubletPhi	
 	      } // end loop on layers
-	    }// end Cool Folder	    
+	    }// end Cool Folder	  
+	    std::cout <<"Count RC panels in DB " << countpanelindb << " Count RPCpanels in DB with zero efficiency "<< countpaneleff0 <<" Count RPCpanels in DB with zero track "<<countpaneltrack0 <<std::endl;	    
   	  } // end for sectors
-	
+	  std::cout <<"Count RC panels in DB " << countpanelindb << " Count RPCpanels in DB with zero efficiency "<< countpaneleff0 <<" Count RPCpanels in DB with zero track "<<countpaneltrack0 <<std::endl;
 	// write distribution plots all ATLAS
 	TDirectory* dirA = f->GetDirectory( dir_sideA_track.c_str() ) ;
 	if ( dirA != 0 ) {

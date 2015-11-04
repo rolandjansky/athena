@@ -70,7 +70,6 @@ library  DataQualityUtils  $(lib_opts) "\
  ../src/MonitoringFile_PixelPostProcess.cxx\
  ../src/MonitoringFile_SCTPostProcess.cxx\
  ../src/MonitoringFile_MuonTrackPostProcess.cxx\
- ../src/MonitoringFile_MuonTrkPhys.cxx\
  ../src/MonitoringFile_MergeAlgs.cxx\
  ../src/StatusFlagCOOL.cxx\
  ../src/StatusFlagCOOLBase.cxx\
