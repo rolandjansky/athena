@@ -740,18 +740,23 @@ namespace dqutils {
 	    if( EffG && dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
 	      xAxis = dirName(0,1) + dirName(4,1) + returnString( TString(dirName(3,1)).Atoi() + 1 );
 	    }
-            //BML1[AC]14-->BML4[AC]13
-	    if( dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
-	      xAxis = dirName(0,1) + dirName(4,1) + returnString( 4 );
+            //BME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BML4[AC]13
+	    if( EffG && dirName(0,3) == "BME" && VolumeMapBCap->GetNbinsY() >= 58 ){
+	      xAxis = dirName(0,1) + dirName(4,1) + "4";
+	      yAxis = "M,13";
 	    }
 	    double tubeLength = 4.9615;
+	    double tubeRadiusScale = 1;
 // 	    double maxTubeLengthBarrel = 4961.5;  // just FYI
 // 	    double maxTubeLengthEndcap = 5941.5;  // just FYI 
 	    GetTubeLength(tubeLength,dirName);    // should always fill tubeLength
-	    double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881;   // 0.0006881 m2 = pi*tube_r^2
-	    double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881; // these represent the total volume in (m3) covered by the tubes in the chamber
+	    if(dirName(0,3) == "BME") tubeRadiusScale = 0.25;
+	    double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881*tubeRadiusScale;   // 0.0006881 m2 = pi*tube_r^2
+	     // BME tubes are half the radius = 1/4 the volume/
+	    double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881*tubeRadiusScale; // these represent the total volume in (m3) covered by the tubes in the chamber
 
 	    // Fill volume maps regardless of whether the chamber is called dead
+
 	    if (EffG) {
 	      if(xAxis.BeginsWith("B")) {
 		VolumeMapBCap->Fill(xAxis,yAxis,chamb_vol);
@@ -1741,29 +1746,41 @@ namespace dqutils {
   void MonitoringFile::MDT2DHWName(TString hardware_name, TString &stateta_IMO_c, TString &statphi_IMO_c, TString &stateta_c, TString &statphi_c,
 				   TString &statphi_c2){
 
-    TString statphi_s = hardware_name(5,2);
-    TString Barrel = hardware_name(0,1);
-    TString Side = hardware_name(4,1);
-    TString hwname = hardware_name(1,1);
+	    TString statphi_s = hardware_name(5,2);
+	    TString Barrel = hardware_name(0,1);
+	    TString Side = hardware_name(4,1);
+	    TString hwname = hardware_name(1,1);
 
-    statphi_c = statphi_s+",1";
-    statphi_c2 = statphi_s+",2";
+	    TString eta_s = hardware_name(3,1);
 
-    if(hardware_name(0,3)=="BIR" || hardware_name(0,3)=="BIM") {
-      statphi_c = statphi_c +","+hardware_name(2,1);
-      statphi_c2 = statphi_c2 +","+hardware_name(2,1);
-    }
+	    //BME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BME4[AC]13 in histogram position
+	    if( hardware_name(0,3) == "BME" ){
+	      eta_s = "4";
+	      statphi_s = "13";
+	    }    
+	        
+	    statphi_c = statphi_s+",1";
+	    statphi_c2 = statphi_s+",2";
 
-    TString eta_s = hardware_name(3,1);
-    stateta_c = hardware_name(0,2);
-    stateta_c += hardware_name(4,1);
-    stateta_c+=eta_s;
+	    if(hardware_name(0,3)=="BIR" || hardware_name(0,3)=="BIM") {
+	      statphi_c = statphi_c +","+hardware_name(2,1);
+	      statphi_c2 = statphi_c2 +","+hardware_name(2,1);
+	    }
+	    
+	    //BML[45][AC]13-->BML[56][AC]13
+	    if( hardware_name(0,3) == "BML" && TString(hardware_name(3,1)).Atoi() >= 4 && hardware_name(5,2) == "13" ){
+	      eta_s = returnString( TString(hardware_name(3,1)).Atoi() + 1 );
+	    }
+	    
+	    stateta_c = hardware_name(0,2);
+	    stateta_c += hardware_name(4,1);
+	    stateta_c+=eta_s;
 
-    stateta_IMO_c = hardware_name(0,1);
-    stateta_IMO_c += hardware_name(4,1);
-    stateta_IMO_c += eta_s;
+	    stateta_IMO_c = hardware_name(0,1);
+	    stateta_IMO_c += hardware_name(4,1);
+	    stateta_IMO_c += eta_s;
 
-    statphi_IMO_c = hwname+","+statphi_s;
+	    statphi_IMO_c = hwname+","+statphi_s;
 
   }
 
@@ -1909,6 +1926,7 @@ namespace dqutils {
     else if( dirName(0,4) == "BIR1" ) tubeLength = 2.6715;
     else if( dirName(0,4) == "BIR2" || dirName(0,4) == "BIR4" || dirName(0,4) == "BIR5" ) tubeLength = 1.5365;
     else if( dirName(0,4) == "BIR3" || dirName(0,4) == "BIR6" ) tubeLength = 1.1055;
+    else if( dirName(0,3) == "BME" ) tubeLength = 2.15; //approximate!
     else if( dirName(0,3) == "BML" ) tubeLength = 3.5515;
     else if( dirName(0,3) == "BMS" || dirName(0,3) == "BMF" ) tubeLength = 3.0715;
     else if( dirName(0,3) == "BOL" ) tubeLength = 4.9615;
@@ -2216,4 +2234,5 @@ namespace dqutils {
   }
 
 }//namespace
+
 

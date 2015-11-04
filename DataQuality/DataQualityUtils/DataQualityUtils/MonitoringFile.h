@@ -178,16 +178,6 @@ namespace dqutils {
     // and efficiency error (err) according to errtype = 0(binomial), =1(UPX) or Sumw2
     static void GetCscEffAndErr(float& num, float& num_err, float& den, float& den_err, float& eff, float& err, int errtype);
 
-    // For MuonTrkPhysMonitoring
-    static void MuonTrkPhys(std::string inFileName, bool isIncremental = false);
-    static void MuonTrkPhys_Zmass(std::string inFileName);
-    static void MuonTrkPhys_Tracking(std::string inFileName);
-    static void MuonTrkPhys_DetectorSpecific(std::string inFileName);
-    static void MuonTrkPhys_BField(std::string inFileName);
-    static void MuonTrkPhys_Alignment(std::string inFileName);
-    static Double_t MuonTrkPhys_BWgaus(Double_t *x, Double_t *par);
-    static Double_t MuonTrkPhys_fitFunctionS(Double_t *x, Double_t *par);
-
     // For MuonTrackMonitoring
     static void MuonTrackPostProcess(std::string inFileName, bool isIncremental = false);
     static void MuonTrack_Main(std::string inFileName, TString dirname);
