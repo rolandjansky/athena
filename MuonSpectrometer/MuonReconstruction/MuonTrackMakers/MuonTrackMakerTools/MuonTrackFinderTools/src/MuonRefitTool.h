@@ -97,8 +97,6 @@ namespace Muon {
     MuonDriftCircleErrorStrategy m_errorStrategyBEE;
     MuonDriftCircleErrorStrategy m_errorStrategyEE;
     MuonDriftCircleErrorStrategy m_errorStrategyBIS78;
-    MuonDriftCircleErrorStrategy m_errorStrategyBXE;
-    MuonDriftCircleErrorStrategy m_errorStrategyEEL1C05;
     MuonDriftCircleErrorStrategy m_errorStrategyBarEnd;
     MuonDriftCircleErrorStrategy m_errorStrategySL;
     MuonDriftCircleErrorStrategy m_errorStrategyTwoStations;
@@ -134,9 +132,6 @@ namespace Muon {
     bool   m_deweightBEE;
     bool   m_deweightEE;
     bool   m_deweightBIS78;
-    bool   m_deweightBME;
-    bool   m_deweightBOE;
-    bool   m_deweightEEL1C05;
     bool   m_deweightTwoStationTracks;
   }; 
 }
