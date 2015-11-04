@@ -312,8 +312,18 @@ StatusCode eflowCaloObjectBuilder::makeTrackList() {
 }
 
 bool eflowCaloObjectBuilder::selectTrack(const xAOD::TrackParticle* track) {
-  if (track->pt()*0.001 < 100.0) return m_selTool->accept(*track, track->vertex());
-  else return false;
+
+  //The upper track pt cut depends on which calorimeter shower subtraction scheme is used
+  if (true == m_useUpdated2015ChargedShowerSubtraction) {
+    if (track->pt()*0.001 < 100.0) return m_selTool->accept(*track, track->vertex());
+    else return false;
+  }
+  else{
+    if (track->pt()*0.001 < 40.0) return m_selTool->accept(*track, track->vertex());
+    else return false;
+  }
+
+  return false;
 }
 
 void eflowCaloObjectBuilder::matchTracksWithClusters(int debug) {
