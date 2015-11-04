@@ -494,6 +494,13 @@ TriggerHLTList = [
     (chooseOneWithDefinedCCLID('xAOD::HIEventShapeAuxContainer_v1', 
                                'xAOD::HIEventShapeAuxContainer')+'#HLT_HIUEAux.',                   'BS ESD AODFULL AODSLIM', 'HeavyIon'),
 
+    # R=0.4 jets
+    ('xAOD::JetContainer#HLT_a4ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # R=0.3 jets
+    ('xAOD::JetContainer#HLT_a3ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+
     # start of L2+EF list
 
     # rois == L2 List
@@ -742,6 +749,8 @@ TriggerLvl1List=[
     ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.' ,'ESD',          'L1'),
     ('xAOD::TriggerTowerContainer#TriggerTowersMuon' ,'ESD',                 'L1'),
     ('xAOD::TriggerTowerAuxContainer#TriggerTowersMuonAux.' ,'ESD',          'L1'),
+    ('xAOD::TriggerTowerContainer#ZdcTriggerTowers'         , 'ESD',         'L1'),
+    ('xAOD::TriggerTowerAuxContainer#ZdcTriggerTowersAux.'  , 'ESD',         'L1'),
 
     ('xAOD::CPMTowerContainer#CPMTowers' ,               'ESD', 'L1'),
     ('xAOD::CPMTowerAuxContainer#CPMTowersAux.' ,        'ESD', 'L1'),
@@ -807,7 +816,7 @@ TriggerLvl1List=[
     ('xAOD::JEMTobRoIContainer#JEMTobRoIs',                     'ESD', 'L1'),
     ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsAux.',              'ESD', 'L1'),
     
-    ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIB',              'ESD', 'L1'),
+    ('xAOD::JEMTobRoIContainer#JEMTobRoIsRoIB',                 'ESD', 'L1'),
     ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIBAux.',          'ESD', 'L1'),
     
     ('xAOD::JetElementContainer#JetElements' ,                  'ESD', 'L1'),
@@ -1134,9 +1143,11 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet',
                  'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo',
                  'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 
+		 'xAODHIEvent',
                  'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict',
                  'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict',
-                 'xAODTrigMinBiasDict', 'xAODBTaggingDict'
+                 'xAODTrigMinBiasDict', 'xAODBTaggingDict',
+		 'xAODHIEventDict'
 	         #'ARA_TrigMonitoringEventTPCnvDict',
                  #'ARA_TrigCaloEventTPCnv1Dict',      'ARA_TrigCosmicEventTPCnv1Dict',
                  #'ARA_TrigDecisionEventTPCnv1Dict',  #'ARA_TrigInDetEventTPCnv1Dict',
