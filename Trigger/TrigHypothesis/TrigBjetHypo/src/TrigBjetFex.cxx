@@ -1013,12 +1013,10 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, m_trackKey);
 
-
   if (status != HLT::OK) {
     msg() << MSG::DEBUG << "No HLT track collection retrieved" << endreq;
-  } else if (pointerToEFTrackCollections == nullptr) {
-    msg() << MSG::DEBUG << "Null pointer to HLT track collection" << endreq;
-  } else if (msgLvl() <= MSG::DEBUG) {
+  } 
+  else if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "HLT track collection retrieved with size = " << pointerToEFTrackCollections->size() << endreq;
   }
 

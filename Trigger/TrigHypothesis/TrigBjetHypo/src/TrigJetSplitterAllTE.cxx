@@ -165,11 +165,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     }
     
     
-    
-    if(vertices->size() == 0) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " No primary vertices: returning HLT:OK" << endreq;
-      return HLT::OK;
-    } else if(vertices->size() > 1) {
+    if(vertices->size() > 1) {
       if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Retrieved " << vertices->size() << " primary vertices.  Using the first." << endreq;
     }
     
