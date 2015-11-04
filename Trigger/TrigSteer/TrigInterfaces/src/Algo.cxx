@@ -35,6 +35,7 @@ Algo::Algo(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_config(0),
     m_monitoringStarted(false),
+    m_ecMapSize(0),    
     m_doAuditors(false),
     m_msg( new MsgStream( msgSvc(), name) ),
     m_msgLvl( m_msg->level() ),

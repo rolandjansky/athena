@@ -34,9 +34,11 @@ private
 
 use AthenaKernel        AthenaKernel-*               Control
 use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
+use xAODTrigger		xAODTrigger-*		     Event/xAOD
 
 # UnitTest programs
 
 use TestTools      TestTools-*         AtlasTest
 apply_pattern UnitTest_run unit_test=Templates extrapatterns=".*"
 apply_pattern UnitTest_run unit_test=MonitoredAlgo extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=HLTCheck extrapatterns=".*"

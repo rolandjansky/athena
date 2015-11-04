@@ -10,9 +10,14 @@
 
 
 #include "TrigInterfaces/FexAlgo.h"
+#include "TrigInterfaces/HypoAlgo.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
+#include "xAODTrigger/TrigPassBits.h"
+
 
 //////////////////////////////////////////////////////////////////
 
@@ -36,6 +41,26 @@ CLASS_DEF(TestClassContainer, 64210, 1)
 
 
 using namespace HLT;
+
+class TestHypoAlgo  : HLT::HypoAlgo {
+public:
+  TestHypoAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
+    : HypoAlgo(name, pSvcLocator) {}
+  StatusCode hltIntitialize() { return StatusCode::SUCCESS; }
+
+  
+  virtual HLT::ErrorCode hltExecute(const TriggerElement* output, 
+				    bool& decision) {
+
+    const TrigRoiDescriptor *t(0);
+    getFeature(output, t, "duno");
+
+    attachFeature(output, t, "duno2" );
+    decision = false;
+    return HLT::OK;
+  }
+};
+
 
 class TestFexAlgo  : HLT::FexAlgo {
 public:
@@ -73,8 +98,9 @@ public:
 
     return HLT::OK;
 
-
   }
+
+  
 };
 
 

@@ -4,6 +4,7 @@
 
 #include "TrigSteeringEvent/TrigPassFlags.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigInterfaces/AlgoConfig.h"
 #include "TrigNavigation/Navigation.h"
@@ -53,16 +54,33 @@ HLT::ErrorCode HypoAlgo::createAndProcessTEs(std::vector<unsigned int>& inputTyp
 }
 
 
-HLT::ErrorCode HypoAlgo::attachBits(const TriggerElement* te, const TrigPassBits* bits, const std::string& label) {
+HLT::ErrorCode HypoAlgo::attachBits(const TriggerElement* outputTE, const TrigPassBits* bits, const std::string& label) {
   std::string key;
   if (!bits) {
     return HLT::FATAL;
   }
-   
-  if ( !config()->getNavigation() || !config()->getNavigation()->attachFeature(const_cast<HLT::TriggerElement*>(te), bits, HLT::NavigationCore::ObjectCreatedByNew, key, label)) {
-    return HLT::NAV_ERROR;
-  }   
-  return HLT::OK;
+  
+  {
+    const HLT::ErrorCode ec = attachFeature(outputTE, bits, label);
+    if ( ec != HLT::OK ) return ec;
+  }  
+
+  xAOD::TrigPassBits* xbits = new xAOD::TrigPassBits();
+  xbits->makePrivateStore();
+  xbits->setSize(bits->size());
+    
+  if( bits->size() == 0 ) {
+    xbits->setPassBits( std::vector< uint32_t >() );
+  } else {
+
+    xbits->setPassBits( std::vector< uint32_t >( ( ( bits->size() - 1 ) / 32 ) + 1 ) );
+  }
+
+  for ( size_t b = 0, bmax = bits->size(); b < bmax; ++b ) {
+    xbits->markPassing(b, bits->isPassing(b));
+  }
+
+  return attachFeature(outputTE, xbits, label);
 }
 
 HLT::ErrorCode HypoAlgo::attachFlags(const TriggerElement* outputTE, const TrigPassFlags* flags, const std::string& label) {
@@ -70,10 +88,5 @@ HLT::ErrorCode HypoAlgo::attachFlags(const TriggerElement* outputTE, const TrigP
   if (!flags) {
     return HLT::FATAL;
   }
-   
-  if ( !config()->getNavigation() || 
-       !config()->getNavigation()->attachFeature(const_cast<HLT::TriggerElement*>(outputTE), flags, HLT::NavigationCore::ObjectCreatedByNew, key, label)) {
-    return HLT::NAV_ERROR;
-  }   
-  return HLT::OK;
+  return attachFeature(outputTE, flags, label);
 }

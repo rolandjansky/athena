@@ -86,6 +86,12 @@ namespace HLT
     virtual bool runAlgo() const { return !m_isNoSelection; }
 
 
+    template<class T> HLT::ErrorCode attachFeature(const TriggerElement* te, T* feature, 
+						   const std::string& label = "") {
+      return Algo::attachFeature(const_cast<TriggerElement*>(te), feature, label);
+    }
+    
+    
     /**
      * @brief attached TrigPassBits object to the outputTE
      **/

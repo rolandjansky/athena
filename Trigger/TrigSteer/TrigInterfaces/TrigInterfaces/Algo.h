@@ -445,10 +445,48 @@ namespace HLT
 							 const std::string& label = "");
 
 
+    /**
+     * @brief Method used to attach a new feature to a TE.
+     * @return HLT::ErrorCode for feature attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param label label used to identify the attached feature.
+     *
+     * This method enables to attach a new feature to a TE; this is the method recommended for
+     * attaching features in case no StoreGate storage is required.
+     */
+    template<class T> HLT::ErrorCode attachFeature(TriggerElement* te, T* feature, 
+						   const std::string& label = "");
 
 
 
+    /**
+     * @brief Method used to store a new feature and attach it to a TE.
+     * @return HLT::ErrorCode for feature recording and attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param key store key used to identify the attached feature.
+     * @param label label used to identify the attached feature.
+     *
+     * This method enables to store a new feature and attach it to a TE.
+     */
+    template<class T> HLT::ErrorCode recordAndAttachFeature(TriggerElement* te, T* feature,
+							    std::string& key,
+							    const std::string& label = "");
 
+    /**
+     * @brief Method used to attach an already stored feature to a TE.
+     * @return HLT::ErrorCode for feature attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param key store key used to identify the attached feature.
+     * @param label label used to identify the attached feature.
+     *
+     * This method enables to store a new feature and attach it to a TE.
+     */
+    template<class T> HLT::ErrorCode reAttachFeature(TriggerElement* te, T* feature,
+						     std::string& key,
+						     const std::string& label = "");
 
 
     /**
@@ -635,6 +673,23 @@ namespace HLT
     /** @brief List of declared monitoring tools.*/
     ToolHandleArray < IMonitorToolBase > m_monitors;
 
+    /**
+     * @brief Method used to attach a new feature to a TE.
+     * @return HLT::ErrorCode for feature attaching.
+     * @param te pointer to the TE to which the feature must be attached.
+     * @param feature pointer to the feature to be attached.
+     * @param key store key used to identify the attached feature.
+     * @param label label used to identify the attached feature.
+     * @param mm memory management for the HLT::Navigation.
+     *
+     * This method enables to attach a new feature to a TE.
+     */
+    template<class T> HLT::ErrorCode attachFeature(TriggerElement* te, T* feature,
+						   std::string& key,
+						   const std::string& label,
+						   HLT::Navigation::MemoryManagement mm);
+
+    
   };
 
   template<class T> HLT::ErrorCode Algo::getFeature(const TriggerElement* te, const T*&  feature, 
@@ -715,6 +770,60 @@ namespace HLT
     return HLT::OK;
   }
 
+
+  template<class T> HLT::ErrorCode 
+    Algo::attachFeature(TriggerElement* te, T* feature,	std::string& key,
+			const std::string& label, 
+			HLT::Navigation::MemoryManagement mm) {    
+    if (!feature) {
+      msg() << MSG::FATAL << "Cannot attach null feature!" << endreq;
+      return HLT::FATAL;
+    }
+    
+    if (!m_config || !m_config->getNavigation() ||
+	!m_config->getNavigation()->attachFeature(te, feature, mm, key, label)) {
+      msg() << MSG::ERROR << "Failed to attach feature!" << endreq;
+      return HLT::NAV_ERROR;
+    }
+    
+    return HLT::OK;
+  }
+  
+  template<class T> HLT::ErrorCode 
+    Algo::attachFeature(TriggerElement* te, T* feature,	const std::string& label) {
+
+    // not used
+    std::string key = "";
+    return attachFeature(te, feature, key, label, HLT::Navigation::ObjectCreatedByNew);
+  }
+
+  template<class T> HLT::ErrorCode 
+    Algo::recordAndAttachFeature(TriggerElement* te, T* feature, std::string& key,
+				 const std::string& label) { 
+
+    std::string aliasKey = key;
+    HLT::ErrorCode status = attachFeature(te, feature, key, label, HLT::Navigation::ObjectToStoreGate);
+    if (status != HLT::OK) return status;
+
+    if (aliasKey == "") return HLT::OK;
+    if (!store() || store()->setAlias(feature, aliasKey).isFailure()) 
+      return HLT::NAV_ERROR;
+
+    return HLT::OK;
+  }
+
+  template<class T> HLT::ErrorCode 
+    Algo::reAttachFeature(TriggerElement* te, T* feature, std::string& key,
+			  const std::string& label) {
+    
+    return attachFeature(te, feature, key, label, HLT::Navigation::ObjectInStoreGate);
+  }
+
+
+  
 } // end namespace
+
+
+
 
 #endif
