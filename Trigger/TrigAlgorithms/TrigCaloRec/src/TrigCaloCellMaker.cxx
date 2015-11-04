@@ -53,14 +53,14 @@ const double TrigCaloCellMaker::m_dphis2 = 0.0245436926;
 TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator)
   ,  m_tcrAlgTools(this), 
+    m_counter(0),
+    pCaloCellContainer(NULL),
+    pTrigCaloQuality(NULL),
     m_fullScanEnabled(false),
     m_trustRoiLimits(false),
     m_createRoiForID(false),
     m_etaWidthForID(0),
-    m_phiWidthForID(0),
-    m_counter(0),
-    pCaloCellContainer(NULL),
-    pTrigCaloQuality(NULL)
+    m_phiWidthForID(0)
  {
 
    // Name of Tools to check and finalize the cell container...

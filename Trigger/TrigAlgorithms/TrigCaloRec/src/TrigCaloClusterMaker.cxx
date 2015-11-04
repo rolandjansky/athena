@@ -44,7 +44,8 @@
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+//#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 //#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
 //
@@ -267,7 +268,8 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     return HLT::TOOL_FAILURE;
   }
 
-  xAOD::CaloClusterAuxContainer aux;
+  //xAOD::CaloClusterAuxContainer aux;
+  xAOD::CaloClusterTrigAuxContainer aux;
   m_pCaloClusterContainer->setStore (&aux);
   
 
