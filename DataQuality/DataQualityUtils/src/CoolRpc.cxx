@@ -197,7 +197,7 @@ void
      }
      catch (cool::Exception& e) {
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
- 	 std::cout << " dentro create payload" << std::endl;
+ 	 std::cout << " Inside create payload" << std::endl;
      }
  }
 
@@ -252,7 +252,7 @@ void
     //   std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
-       std::cout << " dentro create insert" << std::endl;
+       std::cout << " Inside create insert" << std::endl;
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
      }
  }
@@ -271,7 +271,7 @@ void
     //   std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
-       std::cout << " dentro create insert" << std::endl;
+       std::cout << " Inside create insert" << std::endl;
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
      }
  }
@@ -290,7 +290,7 @@ void
        std::cout << "stored! without Tag" << std::endl;
      }
      catch (cool::Exception& e) {
-       std::cout << " dentro create insert" << std::endl;
+       std::cout << " Inside create insert" << std::endl;
  	 std::cout << "Unknown exception caught!" << e.what() << std::endl;
      }
  }
