@@ -121,7 +121,7 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   declareProperty("BunchCountOffset",    m_bunchCountOffset    =  -200.,      "Bunch crossing offset");
 
   declareProperty("MatchingWindow",      m_matchingWindow      =  1000.,      "Matching window");
-  declareProperty("MaskWindow",          m_maskWindow          =   700.,      "Masked window");
+  declareProperty("MaskWindow",          m_maskWindow          =   250.,      "Masked window");  // was 700 for large time window
   declareProperty("DeadTime",            m_deadTime            =   700.,      "MDT drift tube dead time");
   declareProperty("DiscardEarlyHits",    m_DiscardEarlyHits    =  true);
   //Configurations

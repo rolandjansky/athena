@@ -16,7 +16,8 @@ def MDT_FirstXing():
 # The latest bunch crossing time for which interactions will be sent
 # to the MdtDigitizationTool.
 def MDT_LastXing():
-    return 800
+    # was 800 for large time window
+    return 150
 
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )
@@ -90,3 +91,9 @@ def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
    jobproperties.Digitization.rndmSeedList.addSeed(mdtRndm, 49261510,105132394 )
    return CfgMgr.MDT_Response_DigiTool(name,**kwargs)
    
+def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    kwargs.setdefault("GetT0FromBD", True) #FIXME should depend on readBS and isRealData variables somehow
+    return MdtDigitizationTool(name,**kwargs)
+
