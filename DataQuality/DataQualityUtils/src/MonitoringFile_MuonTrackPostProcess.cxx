@@ -40,6 +40,45 @@ const char *SegStationName[17] = {"BIS", "BIL", "BMS", "BML", "BOS", "BOL", "BEE
                               "EIS", "EIL", "EMS", "EML", "EOS", "EOL", "EES", 
                               "EEL", "CSS", "CSL"};//For filling in monitoring plots
 
+double breitgausfun(double *x, double *par){
+	 //Fit parameters:
+	 //par[0]=Width (scale) Breit-Wigner
+	 //par[1]=Most Probable (MP, location) Breit mean
+	 //par[2]=Total area (integral -inf to inf, normalization constant)
+	 //par[3]=Width (sigma) of convoluted Gaussian function
+
+	 // Numeric constants
+	 double invsq2pi = 0.3989422804014; // (2 pi)^(-1/2)
+	 // Control constants
+	 double np = 100.0; // number of convolution steps
+	 double sc = 4; // convolution extends to +-sc Gaussian sigmas
+	 
+	 // Variables
+	 double xx;
+	 double fland;
+	 double sum = 0.0;
+	 double xlow, xupp;
+	 double step;
+	 double i;
+	 
+	 // Range of convolution integral
+	 xlow = x[0] - sc * par[3];
+	 xupp = x[0] + sc * par[3];
+	 step = (xupp-xlow) / np;
+	 
+	 // Convolution integral of Breit and Gaussian by sum
+	 for(i=1.0; i<=np/2; i++) {
+		 xx = xlow + (i-.5) * step;
+		 fland = TMath::BreitWigner(xx,par[1],par[0]);
+		 sum += fland * TMath::Gaus(x[0],xx,par[3]);
+		 
+		 xx = xupp - (i-.5) * step;
+		 fland = TMath::BreitWigner(xx,par[1],par[0]);
+		 sum += fland * TMath::Gaus(x[0],xx,par[3]);
+	 }
+	 return (par[2] * step * sum * invsq2pi / par[3]);
+}
+
 void TwoDto2D_Eff(TH2 * Numerator, TH2 * Denominator, TH2 * Efficiency, bool rebin2d = false){
   //the input histograms must have the same dimension!
   if (Numerator == NULL || Denominator == NULL || Efficiency == NULL) {return;}
@@ -105,12 +144,39 @@ void TwoDto1D_Sum(TH2 * m_parent, TH1 * m_child, int rebinning = 2){
   return;
 }
 
-void SetMassInfo(int iBin, TH1* InputHist, TH1* OutMean, TH1* OutSigma){
+void SetMassInfo(int iBin, TH1* InputHist, TH1* OutMean, TH1* OutSigma, TString recalg_path){
 	if (InputHist == NULL || OutMean == NULL || OutSigma == NULL) {return;}
-    OutMean-> SetBinContent(iBin, InputHist->GetMean(1));
-    OutMean-> SetBinError(  iBin, InputHist->GetMeanError(1));
-    OutSigma->SetBinContent(iBin, InputHist->GetRMS(1));
-    OutSigma->SetBinError(  iBin, InputHist->GetRMSError(1));
+	if (InputHist->GetMaximum() > 10.0){
+		if (recalg_path == "Z"){//only for Z
+			TF1 *fit1 = new TF1("fit1",breitgausfun, 76, 106, 4);
+	    fit1->SetLineColor(kRed);
+			fit1->SetParameter(0, 3.0);//par[0]=Width (scale) Breit-Wigner
+			fit1->SetParameter(1, 91.2);//par[1]=Most Probable (MP, location) Breit mean
+			fit1->SetParameter(2, InputHist->GetEntries());//par[2]=Total area (integral -inf to inf, normalization constant)
+			fit1->SetParameter(3, 1.0);//par[3]=Width (sigma) of convoluted Gaussian function
+			InputHist->Fit("fit1", "q", "", 77, 105);
+	   		fit1->Draw();
+	    	OutMean-> SetBinContent(iBin, fit1->GetParameter(1));
+	    	OutMean-> SetBinError(  iBin, fit1->GetParError(1));
+	    	OutSigma->SetBinContent(iBin, fit1->GetParameter(0));
+	    	OutSigma->SetBinError(  iBin, fit1->GetParError(0));
+		}
+		if (recalg_path == "Jpsi"){
+			InputHist->Fit("gaus", "q", "", 2.95, 3.25);
+			TF1 *fit1 = (TF1*)InputHist->GetFunction("gaus");
+	   		fit1->Draw();
+	    	OutMean-> SetBinContent(iBin, fit1->GetParameter(1));
+	    	OutMean-> SetBinError(  iBin, fit1->GetParError(1));
+	    	OutSigma->SetBinContent(iBin, fit1->GetParameter(2));
+	    	OutSigma->SetBinError(  iBin, fit1->GetParError(2));
+		}
+    }
+    else{
+    	OutMean-> SetBinContent(iBin, InputHist->GetMean(1));
+    	OutMean-> SetBinError(  iBin, InputHist->GetMeanError(1));
+    	OutSigma->SetBinContent(iBin, InputHist->GetRMS(1));
+    	OutSigma->SetBinError(  iBin, InputHist->GetRMSError(1));
+    }
     return;
 }
 
@@ -274,7 +340,8 @@ namespace dqutils {
 	        	TH1* m_Mass_region = (TH1F*)dir1->Get(Form("m_%s_M_%s_%s", recalg_path.Data(), 
 	        		det_region[i].Data(), det_region[j].Data()));
 	        	//std::cout << " bin " << i * 4 + (j + 1) << " content " << det_region[i] << " " << det_region[j] << std::endl;
-	        	SetMassInfo(i * 4 + (j + 1), m_Mass_region, m_Mass_Mean, m_Mass_Sigma);
+	        	SetMassInfo(i * 4 + (j + 1), m_Mass_region, m_Mass_Mean, m_Mass_Sigma, recalg_path);
+	        	if (m_Mass_region != NULL) m_Mass_region->Write("",TObject::kOverwrite);
 	        }
 	      }
 	      if (m_Mass_Mean != NULL) m_Mass_Mean->Write("",TObject::kOverwrite);
