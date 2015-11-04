@@ -18,7 +18,14 @@ class TrigLeptonJetMatchAllTEMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=100, xmin=-5.0, xmax=5.0) ]
         self.Histograms += [ defineHistogram('MuonEFPhi', type='TH1F', title="Phi of EF muons for successful mu-jet candidates",
                                              xbins=100, xmin=-3.2, xmax=3.2) ]
-
+        self.Histograms += [ defineHistogram('DeltaRPass', type='TH1F', title="DeltaR between mu-jet candidates",
+                                             xbins=100, xmin=0., xmax=2.) ]
+        self.Histograms += [ defineHistogram('DeltaRAll', type='TH1F', title="DeltaR between muon and any jet",
+                                             xbins=100, xmin=0., xmax=6.) ]
+        self.Histograms += [ defineHistogram('DeltaZPass', type='TH1F', title="DeltaZ between mu-jet candidates",
+                                             xbins=100, xmin=0., xmax=10.) ]
+        self.Histograms += [ defineHistogram('DeltaZAll', type='TH1F', title="DeltaZ between muon and any jet",
+                                             xbins=100, xmin=0., xmax=10.) ]
 
 
 class TrigEFLeptonJetMatchAllTEValidationMonitoring(TrigLeptonJetMatchAllTEMonitoring):
