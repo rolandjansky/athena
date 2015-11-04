@@ -749,6 +749,8 @@ TriggerLvl1List=[
     ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.' ,'ESD',          'L1'),
     ('xAOD::TriggerTowerContainer#TriggerTowersMuon' ,'ESD',                 'L1'),
     ('xAOD::TriggerTowerAuxContainer#TriggerTowersMuonAux.' ,'ESD',          'L1'),
+    ('xAOD::TriggerTowerContainer#ZdcTriggerTowers'         , 'ESD',         'L1'),
+    ('xAOD::TriggerTowerAuxContainer#ZdcTriggerTowersAux.'  , 'ESD',         'L1'),
 
     ('xAOD::CPMTowerContainer#CPMTowers' ,               'ESD', 'L1'),
     ('xAOD::CPMTowerAuxContainer#CPMTowersAux.' ,        'ESD', 'L1'),
@@ -1144,7 +1146,7 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
 		 'xAODHIEvent',
                  'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict',
                  'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict',
-                 'xAODTrigMinBi`asDict', 'xAODBTaggingDict',
+                 'xAODTrigMinBiasDict', 'xAODBTaggingDict',
 		 'xAODHIEventDict'
 	         #'ARA_TrigMonitoringEventTPCnvDict',
                  #'ARA_TrigCaloEventTPCnv1Dict',      'ARA_TrigCosmicEventTPCnv1Dict',
