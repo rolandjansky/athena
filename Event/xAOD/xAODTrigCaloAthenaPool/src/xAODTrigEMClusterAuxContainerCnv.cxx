@@ -30,9 +30,10 @@ xAOD::TrigEMClusterAuxContainer* xAODTrigEMClusterAuxContainerCnv::createTransie
 
    // The known ID(s) for this container:
    static const pool::Guid v1_guid( "CE08F151-A2BA-44ED-B854-7D8B9C8679DE" );
+   static const pool::Guid v2_guid( "2AC227DF-EE58-4469-AE60-F066F75DC0DD" );
 
    // Check which version of the container we're reading:
-   if( compareClassGuid( v1_guid ) ) {
+   if( compareClassGuid( v2_guid ) ) {
       // It's the latest version, read it directly:
       return poolReadObject< xAOD::TrigEMClusterAuxContainer >();
    }
