@@ -119,7 +119,6 @@ class photonHist
   TH1 *m_hLB_N; // Histogram for number of photons vs LB
   TH1 *m_hLB_NUnconv; // Histogram for number of photons vs LB
   TH1 *m_hLB_NConv; // Histogram for number of photons vs LB
-
   TH1 *m_hLB_fConv; // Histogram of Conv. photon fraction vs LB
 
  photonHist(std::string name)
@@ -152,6 +151,13 @@ class photonHist
     m_hLB_fConv(nullptr)
     {
       m_nameOfPhotonType = name;
+      m_lumiBlockNumber = 0;
+      m_nPhotonsInCurrentLB = 0;
+      m_nPhotonsInCurrentLBUnconv = 0;
+      m_nPhotonsInCurrentLBConv = 0;
+      m_nPhotons = 0;
+      m_nPhotonsUnconv = 0;
+      m_nPhotonsConv = 0;
     }
   
   ~photonHist(){}
