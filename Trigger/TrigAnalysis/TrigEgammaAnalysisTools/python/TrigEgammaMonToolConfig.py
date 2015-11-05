@@ -64,7 +64,7 @@ def TrigEgammaMonTool():
             File="",
             TagTriggerList=tagItems,
             RemoveCrack=False,
-            OutputLevel=0,DetailedHistograms=False)
+            OutputLevel=0,DetailedHistograms=True)
 
     JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='NavTPJpsieeAnalysis',
                                                         DirectoryPath=basePath+'TPJpsieeAnalysis',
