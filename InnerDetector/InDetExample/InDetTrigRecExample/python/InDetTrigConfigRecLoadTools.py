@@ -661,12 +661,14 @@ if InDetTrigFlags.loadSummaryTool():
   # Configrable version of loading the InDetTrackSummaryHelperTool
   #
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+  from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
                                                                        HoleSearch    = InDetTrigHoleSearchTool,
                                                                        AssoTool      = InDetTrigPrdAssociationTool,
                                                                        TestBLayerTool = None,
                                                                        PixelToTPIDTool= InDetTrigPixelToTPIDTool,
                                                                        DoSharedHits  = False,
+                                                                       TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
                                                                        usePixel      = DetFlags.haveRIO.pixel_on(),
                                                                        useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                        useTRT        = DetFlags.haveRIO.TRT_on())
@@ -707,6 +709,7 @@ if InDetTrigFlags.loadSummaryTool():
   
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
+                                                                TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
                                                                 isData = (globalflags.DataSource == 'data'))
 
   ToolSvc += InDetTrigTRT_ElectronPidTool
@@ -736,12 +739,14 @@ if InDetTrigFlags.loadSummaryTool():
     # Configrable version of loading the InDetTrackSummaryHelperTool
     #
     from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+    from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
     InDetTrigTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name         = "InDetTrigSummaryHelperSharedHits",
                                                                                    AssoTool     = InDetTrigPrdAssociationTool,
                                                                                    DoSharedHits = InDetTrigFlags.doSharedHits(),
                                                                                    HoleSearch   = InDetTrigHoleSearchTool,
                                                                                    TestBLayerTool=InDetTrigTestBLayerTool,
-                                                                                   PixelToTPIDTool=InDetTrigPixelToTPIDTool
+                                                                                   PixelToTPIDTool=InDetTrigPixelToTPIDTool,
+                                                                                   TRTStrawSummarySvc = TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
                                                                                    )
 
     ToolSvc += InDetTrigTrackSummaryHelperToolSharedHits

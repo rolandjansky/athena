@@ -304,7 +304,7 @@ class SCT_ConditionsServicesSetup:
 
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from IOVDbSvc.CondDB import conddb
-    if conddb.dbdata != "CONDBR2" or InDetTrigFlags.ForceCoraCool():
+    if conddb.dbdata == "COMP200" or InDetTrigFlags.ForceCoraCool():
       sctdaqpath='/SCT/DAQ/Configuration'
     else:
       sctdaqpath='/SCT/DAQ/Config'
