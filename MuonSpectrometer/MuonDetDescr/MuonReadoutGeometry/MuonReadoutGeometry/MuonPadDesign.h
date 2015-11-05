@@ -11,15 +11,14 @@
 #ifndef MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
 #define MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
 
-
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace MuonGM {
 
   struct MuonPadDesign {
   public:
-    int    padPhiMin;
-    int    padPhiMax;
     int    padEtaMin;
     int    padEtaMax;
     double sAngle;        //  
@@ -33,11 +32,25 @@ namespace MuonGM {
     double signY;
     double firstRowPos;
     double firstPhiPos;
-    double xSize;
-    double minYSize;
-    double maxYSize;
+    //double xSize;
+    //double minYSize;
+    //double maxYSize;
+    
+    double Length;
+    double sWidth;
+    double lWidth;
     double thickness;
     mutable double radialDistance;
+
+    double sPadWidth;
+    double lPadWidth;
+    double xFrame;
+    double ysFrame;
+    double ylFrame;
+    double yCutout;
+    int    nPadH;
+    int    nPadColumns;
+    double PadPhiShift;
 
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;
@@ -68,6 +81,12 @@ namespace MuonGM {
 
     /** access to cache */
     void setR( double R) const {this->radialDistance = R; }
+
+    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
+  protected:
+    mutable Athena::MsgStreamMember    m_msg = Athena::MsgStreamMember("MuonPadDesign");
 
   };
 
@@ -104,43 +123,96 @@ namespace MuonGM {
   inline std::pair<int,int> MuonPadDesign::channelNumber( const Amg::Vector2D& pos) const {
 
     // perform check of the sensitive area
-    if ( fabs(pos.y()) > 0.5*xSize ) return std::pair<int,int>(-1,-1);
-    if ( fabs(pos.x()) > (0.5*minYSize+0.5*(maxYSize-minYSize)*(pos.y()/xSize+0.5)) ) return std::pair<int,int>(-1,-1);
+    if ( pos.y() > (0.5*Length-ylFrame )|| pos.y() < (-0.5*Length+ysFrame ) ){
+       ATH_MSG_DEBUG("pos.y() out of bounds");
+       return std::pair<int,int>(-1,-1);
+    }
+    if ( pos.y() <= (0.5*Length-ylFrame-yCutout)){
+      if ( fabs(pos.x()) > (0.5*sPadWidth+0.5*(lPadWidth-sPadWidth)*((pos.y()+(0.5*Length-ysFrame))/(Length-ysFrame-ylFrame))) ) {
+         ATH_MSG_DEBUG("pos.x() out of bounds" );
+         return std::pair<int,int>(-1,-1);
+      }
+    }
+    else if ( pos.y() > (0.5*Length-ylFrame-yCutout)) {
+      if ( fabs(pos.x()) > (0.5*sPadWidth+0.5*(lPadWidth-sPadWidth)*(Length-ysFrame-ylFrame-yCutout)/(Length-ysFrame-ylFrame))) {
+         ATH_MSG_DEBUG("pos.x() out of bounds" );
+         return std::pair<int,int>(-1,-1);
+      }
+    }
 
     // padEta
- 
-    int padEta = ( radialDistance + pos.y() - firstRowPos )/inputRowPitch;
+    double y1 = 0.5*Length + pos.y(); //distance from small edge to hit
+    double padEtadouble;
+    int padEta = 0;
+    if (y1>ysFrame+firstRowPos) {
+       padEtadouble =((y1-ysFrame-firstRowPos)/inputRowPitch)+2;//+1 for firstRow, +1 because a remainder means another row (3.1=4)
+       padEta=padEtadouble;
+    }
+    else if (y1>ysFrame) {
+       padEta=1;
+    }
+    else if (y1>0 && y1<ysFrame) {
+       ATH_MSG_DEBUG("Hit the ysFrame" );
+       return std::pair<int,int>(-1,-1);
+    }
+    else if (y1<0) {
+       ATH_MSG_ERROR("negative distance to hit" );
+       return std::pair<int,int>(-1,-1);
+    }
+    else {
+       ATH_MSG_ERROR("undefined distance to hit" );
+       return std::pair<int,int>(-1,-1);
+    }
 
-    padEta += 1;           // for match with NSWgeometry
-   
-    if ( padEta < padEtaMin || padEta > padEtaMax ) return std::pair<int,int>(-1,-1);
+    if (padEta==nPadH+1){
+       padEta-=1;//the top row can be bigger, therefore it is really in the nPadH row.
+    } 
+    else if (padEta>nPadH+1) {
+       ATH_MSG_ERROR("padEta too high" );
+       return std::pair<int,int>(-1,-1);
+    }
 
-    padEta -= padEtaMin;
-    padEta += 1;           // index starts at 1
+   // padPhi
+   double locPhi = 180*atan( pos.x()/( radialDistance + pos.y()))/M_PI;
+   double maxlocPhi = 180*atan( 0.5*sPadWidth/( radialDistance + (-0.5*Length+ysFrame ) ))/M_PI;
+//    double maxlocPhi2 = 180*atan( 0.5*lPadWidth/( radialDistance + (0.5*Length-ylFrame) ))/M_PI;
+   if (abs(locPhi)>maxlocPhi) {
+      ATH_MSG_ERROR("locPhi too large" );
+      return std::pair<int,int>(-1,-1);
+   }
+   double fuzziedX = pos.x() - (PadPhiShift /cos(locPhi*M_PI/180)); //fuzziness for negative z must be fixed (need to take negative of PadPhiShift)
+   double fuzziedlocPhi = 180*atan( fuzziedX/( radialDistance + pos.y()))/M_PI;
+   if (abs(fuzziedlocPhi)>maxlocPhi) {
+      ATH_MSG_DEBUG("close to outer border" );
+      fuzziedlocPhi=locPhi;
+   }
+   double padPhidouble = (fuzziedlocPhi-firstPhiPos)/inputPhiPitch;
+   int padPhi = padPhidouble+2; //(+1 because remainder means next column e.g. 1.1=2, +1 so rightmostcolumn=1)
 
-    // padPhi
-  
-    double locPhi = atan( pos.x()/( radialDistance + pos.y()));
-
-    double fr = (locPhi-firstPhiPos)/inputPhiPitch;
-
-    int padPhi = int( fabs(fr) + 0.5);
-
-    if ( fr<0. ) padPhi*=-1;
-   
-    if ( padPhi < padPhiMin || padPhi > padPhiMax ) return std::pair<int,int>(-1,-1);
-
-    padPhi -= padPhiMin;
-    padPhi += 1;           // index starts at 1  
-
-    return std::pair<int,int>(padEta,padPhi);
+   if (padPhi == 0) {
+      padPhi=1;
+      ATH_MSG_DEBUG("adjusted rightmost. padPhi="<<padPhi );
+   }
+   else if(padPhi == nPadColumns+1){
+      padPhi=nPadColumns;
+      ATH_MSG_DEBUG("adjusted leftmost. padPhi="<<padPhi );
+   }
+   else if ( padPhi < 0 || padPhi > nPadColumns+1 ){
+      ATH_MSG_ERROR("padPhi out of bounds" );
+      return std::pair<int,int>(-1,-1);
+   }
+   ATH_MSG_DEBUG("padEta,padPhi: " <<padEta<<" , "<<padPhi );
+   return std::pair<int,int>(padEta,padPhi);
 
   }
 
 
-  inline bool MuonPadDesign::channelPosition( std::pair<int,int> pad, Amg::Vector2D& pos ) const {
+  inline bool MuonPadDesign::channelPosition( std::pair<int,int> pad, Amg::Vector2D& /*pos*/ ) const {
 
     if ( pad.first<1 || pad.second<1 ) return false;
+
+
+    /* DT 2/9/2015 The test on the indices for pads on subsequent layers is not implemented in MuonPadDesign,but in TrigT1NSW (IIRC).
 
     int padEta = pad.first-1+padEtaMin;
     int padPhi = pad.second-1+padPhiMin;
@@ -154,7 +226,9 @@ namespace MuonGM {
 
     pos[0] =  tan(phi)*( radialDistance + pos.y() );
 
-    return true; 
+    return true; */
+
+    return false;
 
   }
 

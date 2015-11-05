@@ -61,6 +61,12 @@ namespace MuonGM {
 	If the strip number is outside the range of valid strips, the function will return false */
     bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
 
+    /** pad number corresponding to local position */
+    int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
+
+    /** pad position */
+    bool padPosition( const Identifier& id, Amg::Vector2D& pos) const;
+
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
 
@@ -130,12 +136,6 @@ namespace MuonGM {
     void setChamberLayer(int ml) {_ml=ml;}
 
   private:
-
-    /** pad number corresponding to local position */
-    int padNumber( const Amg::Vector2D& pos, const Identifier& id) const;
-
-    /** pad position */
-    bool padPosition( const Identifier& id, Amg::Vector2D& pos) const;
 
     std::vector<MuonChannelDesign> m_phiDesign;
     std::vector<MuonChannelDesign> m_etaDesign;
@@ -226,8 +226,13 @@ namespace MuonGM {
   inline int sTgcReadoutElement::padNumber( const Amg::Vector2D& pos, const Identifier& id) const {
 
     const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) return -1;
+    if( !design ) {
+      *m_MsgStream << MSG::WARNING << "no pad Design" << endreq;
+      return -1;
+    }
     std::pair<int,int> pad(design->channelNumber(pos));
+    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endreq;
+
     if (pad.first>0 && pad.second>0) {
 
       Identifier padID=manager()->stgcIdHelper()->padID( manager()->stgcIdHelper()->stationName(id),
@@ -245,6 +250,7 @@ namespace MuonGM {
       }
       return channel;
     } 
+    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endreq;
 
     return -1; 
   }

@@ -203,7 +203,7 @@ private:
 					    double, double, double, double, double, double, double, double,
                                             double, double, double, const Amg::Vector3D fixedPoint) const;
     Amg::Vector3D positionOnDeformedChamber(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
-    Amg::Vector3D afterAsBuiltParamsInAmdbFrame(const Amg::Vector3D& locAMDBPos, int multilayer, int tubelayer, int tube) const;
+    void afterAsBuiltParamsInAmdbFrame(Amg::Vector3D& locAMDBWireCenter, Amg::Vector3D& locAMDBWireEnd, int multilayer, int tubelayer, int tube) const;
     Amg::Vector3D  afterAsBuiltParamsInAmdbFrameEIEM(const Amg::Vector3D& locAMDBPos, int multilayer, int tubelayer, int tube) const;
 
     // methods used only by friend class MdtAlignModule to shift chambers

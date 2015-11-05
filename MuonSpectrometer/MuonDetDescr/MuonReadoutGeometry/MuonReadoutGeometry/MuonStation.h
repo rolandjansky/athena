@@ -10,7 +10,7 @@
 #include <map>
 
 class BLinePar;
-class mdtAsBuiltParams;
+class MdtAsBuiltParams;
 class MsgStream;
 
 
@@ -124,6 +124,8 @@ public:
    inline bool hasALines() const;	
    inline bool hasBLines() const;
    inline bool hasMdtAsBuiltParams() const;
+   MdtAsBuiltParams* getMdtAsBuiltParams() const;
+   void setMdtAsBuiltParams(MdtAsBuiltParams* xtomo);
  
 private:
 
@@ -149,7 +151,7 @@ private:
    bool _hasALines;
    bool _hasBLines;
    mutable HepGeom::Point3D<double> _BlineFixedPointInAmdbLRS;
-   mdtAsBuiltParams* _XTomoData;
+   MdtAsBuiltParams* _XTomoData;
 
 
    //std::map< int, const MuonReadoutElement* > *m_REinStation;  //!< keep track of the REs in this station 

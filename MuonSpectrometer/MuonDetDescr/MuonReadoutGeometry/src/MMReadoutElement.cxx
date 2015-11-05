@@ -25,6 +25,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 //#include "StoreGate/DataHandle.h"
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "MuonAGDDDescription/MMDetectorHelper.h"
 
 #define MMReadout_verbose false
 
@@ -166,10 +168,12 @@ namespace MuonGM {
 
 
 
-  void MMReadoutElement::initDesign( double /*maxY*/, double /*minY*/, double /*xS*/, double pitch, double thickness) {
+  void MMReadoutElement::initDesign( double /*maxY*/, double /*minY*/, double /*xS*/, double /*pitch*/, double /*thickness*/) {
         
     m_etaDesign= std::vector<MuonChannelDesign>(m_nlayers);
     
+    MMDetectorHelper aHelper;
+
     for (int il=0; il<m_nlayers; il++) {
 
       // identifier of the first channel to retrieve max number of strips
@@ -177,6 +181,12 @@ namespace MuonGM {
       int chMax =  manager()->mmIdHelper()->channelMax(id);
       if ( chMax < 0 ) chMax = 2500;
       
+      char side = getStationEta() < 0 ? 'C' : 'A';
+      char sector_l = getStationName().substr(2,1)=="L" ? 'L' : 'S';
+      MMDetectorHelper aHelper;
+      MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), _ml, side);
+      MMReadoutParameters roParam = mm->GetReadoutParameters();
+
       m_etaDesign[il].type=0;
 
       m_etaDesign[il].xSize=2*m_halfX;
@@ -186,14 +196,15 @@ namespace MuonGM {
       m_etaDesign[il].deadO = 0.;
       m_etaDesign[il].deadI = 0.;
       m_etaDesign[il].deadS = 0.;
-      
+
+      double pitch =  getStationName().substr(2,1)=="L" ? roParam.stripPitch : roParam.stripPitch; 
       m_etaDesign[il].inputPitch = pitch;
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = pitch;
-      m_etaDesign[il].thickness = thickness;
+      m_etaDesign[il].thickness = roParam.gasThickness;
 
-      if (_ml == 1) m_etaDesign[il].sAngle = MM_STEREO_ANGLE_ML1[il];
-      else if (_ml == 2) m_etaDesign[il].sAngle = MM_STEREO_ANGLE_ML2[il];
+      if (_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
+      else if (_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
       else reLog()<<MSG::WARNING
 	          <<"MMReadoutElement -- Unexpected Multilayer: _ml= " << _ml <<endreq;
       

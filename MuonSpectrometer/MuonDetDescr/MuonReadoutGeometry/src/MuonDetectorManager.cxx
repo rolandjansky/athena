@@ -96,7 +96,8 @@ MuonDetectorManager::MuonDetectorManager() {
   n_mdtRE = n_cscRE = n_tgcRE = n_rpcRE = 0;
   m_aLineContainer = 0;
   m_bLineContainer = 0;
-  m_cscALineContainer =0;
+  m_cscALineContainer = 0;
+  m_AsBuiltParamsMap = 0;
   setName("Muon");
 
   m_cachingFlag      = 1;
@@ -175,6 +176,11 @@ MuonDetectorManager::~MuonDetectorManager() {
 	delete elem.second; elem.second = 0;
       }
     delete m_cscALineContainer; m_cscALineContainer = 0;
+  }
+
+  if (0 != m_AsBuiltParamsMap) {
+      m_AsBuiltParamsMap->clear();
+      delete m_AsBuiltParamsMap;
   }
 
   if (0 != m_aLineContainer)
@@ -2154,5 +2160,60 @@ void MuonDetectorManager::storeCscInternalAlignmentParams(CscInternalAlignmentPa
   }
 }
 
+void MuonDetectorManager::storeMdtAsBuiltParams(MdtAsBuiltParams* params) {
+   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+   
+   if (!m_AsBuiltParamsMap) {
+    log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endreq; 
+    m_AsBuiltParamsMap = new MdtAsBuiltParMapContainer;
+   }
+
+   // Transfer chamber name from online to offline identifier
+   std::string chamberName = params->getChamberName();
+   std::string stationName = chamberName.substr(0,3);
+   std::string stationEta = chamberName.substr(3,1);
+   std::string stationEtaSign = chamberName.substr(4,1);
+   std::string stationPhi = chamberName.substr(5,2);
+   
+   // convert eta and phi from string to int
+   std::stringstream stationEtaString(stationEta);
+   int eta;
+   stationEtaString >> eta;
+   if (!eta) {
+     std::cerr << "Not an integer value for eta for chamber " << chamberName << std::endl;
+     return;
+   }
+   if (stationEtaSign == "C") {
+     eta *= (-1);
+   }
+   std::stringstream stationPhiString(stationPhi);
+   int phi;
+   stationPhiString >> phi;
+   if (!phi) {
+     std::cerr << "Not an integer value for phi for chamber " << chamberName << std::endl;
+     return;
+   }   
+   // match online phi sector to offline sector
+   // online identifier phi sector ranges from 1 to 16
+   // offline identifier phi sector ranges from 1 to 8 for long and short chambers seperatly 
+   phi++;
+   phi /= 2;
+
+   log << MSG::INFO << "Store AsBuilt parameters for mdt chamber: " << chamberName << endreq;
+   log << MSG::INFO << "Offline identifier: " << stationName << ", eta: " << eta << ", phi: " << phi << endreq;
+   Identifier id = mdtIdHelper()->elementID(stationName, eta, phi);
+   
+   (*MdtAsBuiltParamsContainer())[id] = params;
+}
+
+MdtAsBuiltParams* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) {
+   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+   iMdtAsBuiltParMapContainer iter = MdtAsBuiltParamsContainer()->find(id);
+   if (iter == MdtAsBuiltParamsContainer()->end()) {
+      log << MSG::WARNING << "No Mdt AsBuilt parameters for station " << id.getString() << endreq;
+      return NULL;
+   }
+   return iter->second;
+}
 
 } // namespace MuonGM

@@ -593,6 +593,38 @@ bool MuonStation::endcap() const
 {
   return !barrel();
 }
+
+MdtAsBuiltParams* MuonStation::getMdtAsBuiltParams() const {
+   if (!hasMdtAsBuiltParams()) {
+      reLog() << MSG::WARNING << "No Mdt AsBuilt parameters for chamber " << getStationName() << endreq;
+   }
+   return _XTomoData;
+}
+
+void MuonStation::setMdtAsBuiltParams(MdtAsBuiltParams* xtomo) {
+   _XTomoData = xtomo;
+   /*int iMdtReadoutElement = -1;
+   // check if chamber contains at least one MdtReadoutElement
+   reLog() << MSG::INFO << "#MuonReadoutElements: " << nMuonReadoutElements() << endreq;
+   for (int i = 0; i < nMuonReadoutElements(); i++) {
+       const MuonReadoutElement* reTmp = getMuonReadoutElement(i);
+       if (reTmp == NULL) { reLog() << MSG::WARNING << "MuonReadoutElement == NULL" << endreq; }
+       else if (getMuonReadoutElement(i)->getTechnologyType() == "MDT") {
+          iMdtReadoutElement = i;
+          break;
+       }
+   }
+   if (iMdtReadoutElement < 0) {
+      reLog() << MSG::WARNING << "No MdtReadoutElement for chamber " << getStationName() << ", no AsBuilt parameters will be assigned" << endreq;
+      _XTomoData = NULL;
+      return;
+   }
+   MdtReadoutElement* mdtReadoutElement_tmp = (MdtReadoutElement*) getMuonReadoutElement(iMdtReadoutElement);
+   Identifier id = mdtReadoutElement_tmp->manager()->mdtIdHelper()->elementID(getStationType(), getEtaIndex(), getPhiIndex());
+   iMdtAsBuiltParMapContainer iter = mdtReadoutElement_tmp->manager()->MdtAsBuiltParamsContainer()->find(id);
+   _XTomoData = iter->second;*/
+}
+
 }
 
 

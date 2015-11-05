@@ -23,6 +23,7 @@
 #include "MuonReadoutGeometry/GenericCSCCache.h"
 #include "MuonAlignmentData/CorrContainer.h"
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <vector>
 
@@ -98,6 +99,8 @@ namespace MuonGM {
     
     // storeCscInternalAlignmentParams
     void storeCscInternalAlignmentParams(CscInternalAlignmentPar* x);
+
+    void storeMdtAsBuiltParams(MdtAsBuiltParams* params);
     
     // access to Readout Elements
     const MdtReadoutElement* getMdtReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
@@ -340,6 +343,7 @@ namespace MuonGM {
     inline ALineMapContainer * ALineContainer() const;
     inline BLineMapContainer * BLineContainer() const;
     inline CscInternalAlignmentMapContainer * CscInternalAlignmentContainer() const;
+    inline MdtAsBuiltParMapContainer* MdtAsBuiltParamsContainer() const;
     inline ciALineMap ALineMapBegin() const;
     inline ciBLineMap BLineMapBegin() const;
     inline ciALineMap ALineMapEnd() const;
@@ -351,6 +355,9 @@ namespace MuonGM {
     StatusCode initCSCInternalAlignmentMap() const;
     StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* cscIntAline) const;
     void initABlineContainers() const;
+
+    // get Mdt AsBuilt parameters for chamber specified by Identifier
+    MdtAsBuiltParams* getMdtAsBuiltParams(Identifier id);
 
     //!< provide a pointer to the msg svc to all readout geometry 
     inline IMessageSvc* msgSvc() const;    
@@ -430,6 +437,7 @@ namespace MuonGM {
     mutable  BLineMapContainer * m_bLineContainer;
     // CscInternalAlignmentMapContainer (pointers) will be created by RDBReaderAccess at the first attempt to store a CscInternalAlignmentPar -rot and transl parameters are held by the CSCredoutElements and the corresponding A-line is provided with this map (key Identifier) by the manager - the manager is responsible to delete the CscInternalAlignmentPar
     mutable  CscInternalAlignmentMapContainer * m_cscALineContainer;
+    mutable  MdtAsBuiltParMapContainer* m_AsBuiltParamsMap;
 
     //!< hold a pointer to the message svc to be used by all readout geometry 
     IMessageSvc* m_msgSvc;
@@ -536,6 +544,10 @@ namespace MuonGM {
   CscInternalAlignmentMapContainer*
     MuonDetectorManager::CscInternalAlignmentContainer() const
     {return  m_cscALineContainer;}
+
+  MdtAsBuiltParMapContainer* 
+    MuonDetectorManager::MdtAsBuiltParamsContainer() const
+    {return m_AsBuiltParamsMap;}
 
   ciALineMap MuonDetectorManager::ALineMapBegin() const {return m_aLineContainer->begin();}
   ciBLineMap MuonDetectorManager::BLineMapBegin() const {return m_bLineContainer->begin();}
