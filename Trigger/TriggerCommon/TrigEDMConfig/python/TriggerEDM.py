@@ -115,8 +115,10 @@ def chooseOneWithDefinedCCLID(a, b):
 
     aCLID = isCLIDDefined(a)
     bCLID = isCLIDDefined(b)
-    assert not(aCLID == True and bCLID == True), "Both classes " + a +" " + b + "have CLIDs defined"
+    #    assert not(aCLID == True and bCLID == True), "Both classes " + a +" " + b + "have CLIDs defined"
     assert not(aCLID == False and bCLID == False), "None of two classes " + a +" " + b + "have CLIDs defined"    
+    if aCLID and bCLID: # preffer CLID of unversioned class
+        return b if "_v" in a else a
     return a if aCLID else b
 
 
@@ -153,19 +155,19 @@ TriggerHLTList = [
 
     #calo
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL', 'Calo'), 
-    ('xAOD::CaloClusterAuxContainer#HLT_TrigCaloClusterMakerAux.', 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux.', 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_slw', 'BS ESD AODFULL', 'Calo'), 
-    ('xAOD::CaloClusterAuxContainer#HLT_TrigCaloClusterMaker_slwAux.', 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_slwAux.', 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_topo', 'BS ESD', 'Calo'), 
-    ('xAOD::CaloClusterAuxContainer#HLT_TrigCaloClusterMaker_topoAux.','BS ESD', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_topoAux.','BS ESD', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigEFCaloCalibFex', 'BS ESD AODFULL AODSLIM', 'Calo'),
-    ('xAOD::CaloClusterAuxContainer#HLT_TrigEFCaloCalibFexAux.', 'BS ESD AODFULL AODSLIM', 'Calo'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigEFCaloCalibFexAux.', 'BS ESD AODFULL AODSLIM', 'Calo'),
 
     #egamma
     ('xAOD::ElectronContainer#HLT_egamma_Electrons',                'BS ESD AODFULL AODSLIM', 'Egamma'),
-    ('xAOD::ElectronAuxContainer#HLT_egamma_ElectronsAux.',         'BS ESD AODFULL AODSLIM', 'Egamma'), 
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_ElectronsAux.',  'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::PhotonContainer#HLT_egamma_Photons',                    'BS ESD AODFULL AODSLIM', 'Egamma'),
-    ('xAOD::PhotonAuxContainer#HLT_egamma_PhotonsAux.',             'BS ESD AODFULL AODSLIM', 'Egamma'), 
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',        'BS ESD AODFULL AODSLIM', 'Egamma'), 
 
     ('xAOD::TrigElectronContainer#HLT_L2ElectronFex',            'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronFexAux.',     'BS ESD AODFULL AODSLIM', 'Egamma'), 
@@ -213,6 +215,8 @@ TriggerHLTList = [
     ('xAOD::TrigBphysAuxContainer#HLT_L2TrackMassAux.',                          'BS ESD AODFULL AODSLIM', 'Bphys'),
     ('xAOD::TrigBphysContainer#HLT_L2MultiMuFex',                                'BS ESD AODFULL AODSLIM', 'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_L2MultiMuFexAux.',                         'BS ESD AODFULL AODSLIM', 'Bphys'),
+    ('xAOD::TrigBphysContainer#HLT_EFBMuMuXFex_X',                               'BS ESD AODFULL AODSLIM',  'Bphys'),
+    ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuXFex_XAux.',                        'BS ESD AODFULL AODSLIM',  'Bphys'),
     
     #minbias
     # MinBias algs attach single objects therefore the pattern is slightly different, note also changes in the EDMList which define feature -> collection mapping
@@ -381,6 +385,7 @@ TriggerHLTList = [
     ('xAOD::JetContainer#HLT_a4tcemsubFS',                               'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubFSAux.',                    'BS ESD AODFULL', 'Jet'),
 
+
     ('xAOD::JetContainer#HLT_a4tcemsubjesFS',                            'BS ESD AODFULL AODSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a4tcemsubjesFSAux.',                 'BS ESD AODFULL AODSLIM', 'Jet'),
     ('xAOD::JetContainer#HLT_a4tcemnojcalibFS',                          'BS ESD AODFULL AODSLIM', 'Jet'),
@@ -467,7 +472,7 @@ TriggerHLTList = [
 
     #btagging
     ('xAOD::BTaggingContainer#HLT_HLTBjetFex',                           'BS ESD AODFULL AODSLIM', 'Bjet'),
-    ('xAOD::BTaggingAuxContainer#HLT_HLTBjetFexAux.',                    'BS ESD AODFULL AODSLIM', 'Bjet'),
+    ('xAOD::BTaggingTrigAuxContainer#HLT_HLTBjetFexAux.',                'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::BTagVertexContainer#HLT_BjetVertexFex', 	  	         'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::BTagVertexAuxContainer#HLT_BjetVertexFexAux.', 	         'BS ESD AODFULL AODSLIM', 'Bjet'),
 
@@ -479,6 +484,8 @@ TriggerHLTList = [
 
     # b-jets  
     ('xAOD::JetContainer#HLT_EFJet',                                     'BS ESD AODFULL AODSLIM', 'Bjet'),
+    ('xAOD::JetContainer#HLT_FarawayJet',                                'BS ESD AODFULL AODSLIM', 'Bjet'),
+    ('xAOD::JetTrigAuxContainer#HLT_FarawayJetAux.',                     'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::JetTrigAuxContainer#HLT_EFJetAux.',                          'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::JetContainer#HLT_SplitJet',                                  'BS ESD AODFULL AODSLIM', 'Bjet'),
     ('xAOD::JetTrigAuxContainer#HLT_SplitJetAux.',                       'BS ESD AODFULL AODSLIM', 'Bjet'),
@@ -493,6 +500,13 @@ TriggerHLTList = [
                                'xAOD::HIEventShapeContainer')+ '#HLT_HIUE',                          'BS ESD AODFULL AODSLIM', 'HeavyIon'),
     (chooseOneWithDefinedCCLID('xAOD::HIEventShapeAuxContainer_v1', 
                                'xAOD::HIEventShapeAuxContainer')+'#HLT_HIUEAux.',                   'BS ESD AODFULL AODSLIM', 'HeavyIon'),
+
+    # R=0.4 jets
+    ('xAOD::JetContainer#HLT_a4ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # R=0.3 jets
+    ('xAOD::JetContainer#HLT_a3ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
 
     # start of L2+EF list
 
@@ -738,15 +752,6 @@ TriggerLvl1List=[
     ('xAOD::JetEtRoIAuxInfo#LVL1JetEtRoIAux.' ,       'ESD AODFULL AODSLIM', 'L1'),
     ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,          'ESD AODFULL AODSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.','ESD AODFULL AODSLIM', 'L1'),
-    ('xAOD::TriggerTowerContainer#xAODTriggerTowers' ,'ESD',                 'L1'),
-    ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.' ,'ESD',          'L1'),
-    ('xAOD::TriggerTowerContainer#TriggerTowersMuon' ,'ESD',                 'L1'),
-    ('xAOD::TriggerTowerAuxContainer#TriggerTowersMuonAux.' ,'ESD',          'L1'),
-
-    ('xAOD::CPMTowerContainer#CPMTowers' ,               'ESD', 'L1'),
-    ('xAOD::CPMTowerAuxContainer#CPMTowersAux.' ,        'ESD', 'L1'),
-    ('xAOD::CPMTowerContainer#CPMTowersOverlap' ,        'ESD', 'L1'),
-    ('xAOD::CPMTowerAuxContainer#CPMTowersOverlapAux.' , 'ESD', 'L1'),
 
     ('DataVector<LVL1::JetElement>#JetElements' ,        'ESD', 'L1'),
     ('DataVector<LVL1::JetElement>#JetElementsOverlap' , 'ESD', 'L1'),
@@ -762,6 +767,7 @@ TriggerLvl1List=[
     ('DataVector<LVL1::JEMEtSums>#JEMEtSums' ,           'ESD', 'L1'),
     ('DataVector<LVL1::RODHeader>#RODHeaders' ,          'ESD', 'L1'),
     ('LVL1::CMMRoI#CMMRoIs' ,                            'ESD', 'L1'),
+    # =========================================================================
     ('CTP_RDO#CTP_RDO' ,                                 'ESD', 'Steer'),
     ('MuCTPI_RDO#MUCTPI_RDO' ,                           'ESD', 'Unknown'),
     ('ROIB::RoIBResult#RoIBResult' ,                     'ESD', 'Steer'),
@@ -973,7 +979,7 @@ EDMDetails["xAOD::TrigRNNOutputContainer"]    = {'persistent':"", 'typealias':''
 EDMDetails["xAOD::TrigRNNOutputAuxContainer"] = {'persistent':"", 'typealias':'', 'parent': 'xAOD::TrigRNNOutputContainer'}
 
 EDMDetails["xAOD::CaloClusterContainer" ]      = {'persistent':"",              'typealias':'Rings' }
-EDMDetails["xAOD::CaloClusterAuxContainer" ]   = {'persistent':"",              'typealias':'Rings', 'parent': 'xAOD::CaloClusterContainer'}
+EDMDetails["xAOD::CaloClusterTrigAuxContainer" ]   = {'persistent':"",              'typealias':'Rings', 'parent': 'xAOD::CaloClusterContainer'}
 
 EDMDetails[ "xAOD::L2StandAloneMuonContainer" ]     = {'persistent':"",         'typealias':'' }
 EDMDetails[ "xAOD::L2StandAloneMuonAuxContainer" ]  = {'persistent':"",         'typealias':'', 'parent': 'xAOD::L2StandAloneMuonContainer'}
@@ -1015,9 +1021,9 @@ EDMDetails["xAOD::EnergySumRoI"]               = {'persistent':"",              
 EDMDetails["xAOD::EnergySumRoIAuxInfo"]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::EnergySumRoI'}
 
 EDMDetails["xAOD::ElectronContainer"]          = {'persistent':"",              'typealias':'' }
-EDMDetails["xAOD::ElectronAuxContainer"]       = {'persistent':"",              'typealias':'', 'parent': 'xAOD::ElectronContainer'}
+EDMDetails["xAOD::ElectronTrigAuxContainer"]   = {'persistent':"",              'typealias':'', 'parent': 'xAOD::ElectronContainer'}
 EDMDetails["xAOD::PhotonContainer"]            = {'persistent':"",              'typealias':'' }
-EDMDetails["xAOD::PhotonAuxContainer"]         = {'persistent':"",              'typealias':'', 'parent': 'xAOD::PhotonContainer'}
+EDMDetails["xAOD::PhotonTrigAuxContainer"]     = {'persistent':"",              'typealias':'', 'parent': 'xAOD::PhotonContainer'}
 
 EDMDetails["xAOD::TrigBphysContainer" ]        = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::TrigBphysAuxContainer" ]     = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrigBphysContainer'}
@@ -1054,7 +1060,7 @@ EDMDetails["xAOD::TrigNavigation"]          = {'persistent':"",              'ty
 EDMDetails["xAOD::TrigNavigationAuxInfo"]   = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TrigNavigation'}
 
 EDMDetails["xAOD::BTaggingContainer"]          = {'persistent':"",              'typealias':'' }
-EDMDetails["xAOD::BTaggingAuxContainer"]       = {'persistent':"",              'typealias':'', 'parent': 'xAOD::BTaggingContainer'}
+EDMDetails["xAOD::BTaggingTrigAuxContainer"]   = {'persistent':"",              'typealias':'', 'parent': 'xAOD::BTaggingContainer'}
 EDMDetails["xAOD::BTagVertexContainer"]        = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::BTagVertexAuxContainer"]     = {'persistent':"",              'typealias':'', 'parent': 'xAOD::BTagVertexContainer'}
 
@@ -1134,9 +1140,11 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet',
                  'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo',
                  'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 
+		 'xAODHIEvent',
                  'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict',
                  'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict',
-                 'xAODTrigMinBiasDict', 'xAODBTaggingDict'
+                 'xAODTrigMinBiasDict', 'xAODBTaggingDict',
+		 'xAODHIEventDict'
 	         #'ARA_TrigMonitoringEventTPCnvDict',
                  #'ARA_TrigCaloEventTPCnv1Dict',      'ARA_TrigCosmicEventTPCnv1Dict',
                  #'ARA_TrigDecisionEventTPCnv1Dict',  #'ARA_TrigInDetEventTPCnv1Dict',
