@@ -96,7 +96,11 @@ class electronHist
     m_hEtaPhi (nullptr),
     m_hTopoEtCone40 (nullptr),
     m_hPtCone20 (nullptr),
-    m_hTime (nullptr)
+    m_hTime (nullptr),
+    m_lumiBlockNumber(0),
+    m_nElectronsInCurrentLB(0),
+    m_nElectrons(0),
+    m_hLB_N(nullptr)
     {
       m_nameOfElectronType = name;
     }
