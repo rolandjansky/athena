@@ -35,8 +35,8 @@ namespace
 {
 	struct BilloirTrack
 	{
-		BilloirTrack() : DtWD() {};
-		virtual ~BilloirTrack() {};
+		BilloirTrack() : originalPerigee(nullptr),chi2{} { DtWD.setZero(); DtWDx.setZero(); xpVec.setZero();}
+		virtual ~BilloirTrack() {}
 		const Trk::TrackParameters * originalPerigee;
 		AmgMatrix(3,3) DtWD;
 		Amg::Vector3D DtWDx;
@@ -46,8 +46,8 @@ namespace
 
 	struct BilloirVertex
 	{
-		BilloirVertex() {};
-		virtual ~BilloirVertex() {};
+		BilloirVertex() : chi2{},ndf{} { DtWD_Sum.setZero(); DtWDx_Sum.setZero();}
+		virtual ~BilloirVertex() {}
 		AmgMatrix(3,3) DtWD_Sum;
 		Amg::Vector3D DtWDx_Sum;
 		double chi2;
