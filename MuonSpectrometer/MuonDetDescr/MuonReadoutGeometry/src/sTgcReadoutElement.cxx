@@ -27,6 +27,10 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "MuonAGDDDescription/sTGCDetectorDescription.h"
+#include "MuonAGDDDescription/sTGCDetectorHelper.h"
+#include "AGDDModel/AGDDParameterStore.h"
+
 #define sTgcReadout_verbose false
 
 namespace MuonGM {
@@ -38,17 +42,14 @@ namespace MuonGM {
   {
     _ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:sTgcReadoutElement");
-    //MsgStream log(Athena::getMessageSvc(), "MuGM:sTgcReadoutElement");
 
     // get the setting of the caching flag from the manager
     setCachingFlag(mgr->cachingFlag());
 
     std::string vName = pv->getLogVol()->getName();
     std::string sName = vName.substr(vName.find("-")+1);
-    std::string fixName = (sName[2]=='L') ? "STL" : "STS";
+    std::string fixName = (sName[1]=='L') ? "STL" : "STS";
 	
-	// std::cout<<"sTgcReadoutElement: name,zi,fi,mL "<<stName<<" "<<zi<<" "<<fi<<" "<<mL<<std::endl;
-
     //setStationName(stName);
     setStationName(fixName);
     setStationEta(zi);
@@ -59,11 +60,39 @@ namespace MuonGM {
     Identifier id = mgr->stgcIdHelper()->channelID(fixName,zi,fi,mL,1,2,1);
     setIdentifier(id);
 
-    m_nlayers=0;
+    //m_nlayers=0;
 
-    m_halfX=std::vector<double>(4);
-    m_minHalfY=std::vector<double>(4);
-    m_maxHalfY=std::vector<double>(4);
+    sTGCDetectorHelper sTGC_helper;
+
+    std::string sTGCname = std::string("sTG1-")+sName;
+    
+    reLog() << MSG::INFO << "sTGCname: " << sTGCname << endreq;
+    sTGCDetectorDescription *sTGC = sTGC_helper.Get_sTGCDetectorType(sTGCname);
+    if(sTGC)
+      reLog() << MSG::INFO << "Found sTGC detector: " << sTGCname << " " << sTGC << endreq;
+
+    static const int nLayers = 4;
+
+    m_halfX=std::vector<double>(nLayers);
+    m_minHalfY=std::vector<double>(nLayers);
+    m_maxHalfY=std::vector<double>(nLayers);
+
+    for(int layer = 0; layer < nLayers; layer++){
+      double length = sTGC->Length(); //Distance between parallel sides of the trapezoid
+      double sWidth = sTGC->sWidth(); //Width on short side of trapezoid 
+      double lWidth = sTGC->lWidth(); //Widht on long side
+
+      double ysFrame = sTGC->ysFrame(); //Frame thickness on short parallel edge
+      double ylFrame = sTGC->ylFrame(); //Frame thickness on long parallel edge
+      double xFrame = sTGC->xFrame(); //Frame thickness of non parallel edge
+
+      reLog() << MSG::INFO << "length: " << length << " ysFrame: " << ysFrame << " ylFrame: " << ylFrame << endreq; 
+
+      m_halfX[layer] = (length - ysFrame - ylFrame)/2.0;
+      m_minHalfY[layer] = (sWidth - 2.0*xFrame)/2.0;
+      m_maxHalfY[layer] = (lWidth - 2.0*xFrame)/2.0;
+    }
+
     
     if (mgr->MinimalGeoFlag() == 0) {
       GeoPhysVol* pvc = NULL;
@@ -75,120 +104,52 @@ namespace MuonGM {
 	for (unsigned ich=0; ich<nchildvol; ++ich) {
 	  PVConstLink pc = pvc->getChildVol(ich);
 	  std::string childname = (pc->getLogVol())->getName();
+	  reLog() << MSG::INFO << "Volume Type: " << pc->getLogVol()->getShape()->type() << endreq;
 	  if ((npos = childname.find("Sensitive")) != std::string::npos ) {
 	    llay ++;
             if (llay > 4) {
-	      std::cerr<<"number of sTGC layers > 4: increase transform array size"<< std::endl;
+	      reLog() << MSG::WARNING << "number of sTGC layers > 4: increase transform array size"<< endreq;
               continue;
 	    }
-	    //std::cerr<<" navigating STGC named "
-	    //       <<childname<<" child "
-	    //	     <<ich<<" is a layer with tag "<<llay<<"," << pvc->getXToChildVol(ich).getTranslation()<< std::endl;
 	    _Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
-            // save layer dimensions
-	    if (llay==1 || abs(zi)<3 ) {
-			  // std::cout<<" \tType "<<pc->getLogVol()->getShape()->type()<<std::endl;
-			  if (pc->getLogVol()->getShape()->type()=="Shift") {
-			  	const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());
-				if(!myshift) {
-				  std::cerr<<"sTgcReadoutElement : even though the shape is of type shift it's not a shift - better crashing ..."<< std::endl;
-				  throw;
-				}
-				//std::cout<<" \t\ttype "<<myshift->getOp()->type()<<std::endl;
-				//std::cout<<" \t\t translation "<<myshift->getX().getTranslation()<<" "<<std::endl;
-				const GeoSimplePolygonBrep* poly=dynamic_cast<const GeoSimplePolygonBrep*>(myshift->getOp());
-				if(!poly) {
-				  std::cerr<<"sTgcReadoutElement : the sTGC is no polygon even though it should - better crashing ..."<< std::endl;
-				  throw;
-				}
-				//std::cout<<" \t\t\t\t GeoPolygonBrep: dz: "<<poly->getDZ()<<std::endl;
-				//for (int i=0;i<poly->getNVertices();i++)
-				//{
-				//	std::cout<<" \t\t\t\t Point "<<poly->getXVertex(i)<<" "<<poly->getYVertex(i)<<std::endl;
-				//}
-				if (poly->getNVertices()==4)
-				{
-					m_halfX[llay-1] = poly->getYVertex(0);
+	    /*if (llay==1 || abs(zi)<3 ) {
+	      if (pc->getLogVol()->getShape()->type()=="Shift") {
+		const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());
+		if(!myshift) {
+		  reLog() << MSG::ERROR << "sTgcReadoutElement : even though the shape is of type shift it's not a shift - better crashing ..." << endreq;
+		  throw;
+		}
+		const GeoSimplePolygonBrep* poly=dynamic_cast<const GeoSimplePolygonBrep*>(myshift->getOp());
+		if(!poly) {
+		  reLog() << MSG::ERROR << "sTgcReadoutElement : the sTGC is no polygon even though it should - better crashing ..." << endreq;
+		  throw;
+		}
+		if (poly->getNVertices()==4)
+		  {
+		    m_halfX[llay-1] = poly->getYVertex(0);
                     m_minHalfY[llay-1] = poly->getXVertex(3);
                     m_maxHalfY[llay-1] = poly->getXVertex(0);
-				}
-				else if (poly->getNVertices()==6)
-				{
-					m_halfX[llay-1] = poly->getYVertex(0);
-                    m_minHalfY[llay-1] = poly->getXVertex(4);
-					double d1=poly->getXVertex(5)-poly->getXVertex(4);
-					double d2=poly->getYVertex(5)-poly->getYVertex(4);
-					double x=2*poly->getYVertex(0)*d1/d2;
-                    m_maxHalfY[llay-1] = m_minHalfY[llay-1]+x;
-				}
-				
-			  }
-              else if (pc->getLogVol()->getShape()->type()=="Trd") {
-		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (pc->getLogVol()->getShape());
-		//std::cerr<<"sTGC layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		//	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
-                m_halfX[llay-1] = trd->getZHalfLength();
-                m_minHalfY[llay-1] = trd->getYHalfLength1();
-                m_maxHalfY[llay-1] = trd->getYHalfLength2();
- 
- 	      }	else if (pc->getLogVol()->getShape()->type()=="Subtraction") {
-		const GeoShapeSubtraction* sh = dynamic_cast<const GeoShapeSubtraction*> (pc->getLogVol()->getShape());
-                const GeoShape* subA = sh->getOpA();  
-                const GeoShape* subB = sh->getOpB();  
-
-                while (subA->type()=="Subtraction") {
-                   sh = dynamic_cast<const GeoShapeSubtraction*> (subA);
-                   subA = sh->getOpA();
-                   subB = sh->getOpB();                       
-		}
-		const GeoTrd* trd = dynamic_cast<const GeoTrd*> (subA);
-		const GeoShapeShift* shift = dynamic_cast<const GeoShapeShift*> (subB);
-                
-                if (!trd) {
-		  std::cerr<<"sTGC layer base shape not trapezoid? " << subA->type()<< std::endl;
-		} else {
-		  //std::cerr<<"sTGC layer shape dimensions:minX,maxX,minY,maxY,halfZ:"<< trd->getXHalfLength1()<<"," << trd->getXHalfLength2()
-		  //	 <<"," << trd->getYHalfLength1() <<"," << trd->getYHalfLength2() <<"," << trd->getZHalfLength() << std::endl;
-		  m_halfX[llay-1] =  trd->getZHalfLength();
-		  m_minHalfY[llay-1] = trd->getYHalfLength1();
-		  m_maxHalfY[llay-1] = trd->getYHalfLength2();
-                }
-                
-                if (!shift) {
-		  std::cerr<<"sTGC layer subtraction not shift? " << subB->type()<< std::endl;
-		} else {
-                  const GeoBox* box=dynamic_cast<const GeoBox*> (shift->getOp());
-		  //std::cerr<<"sTGC layer subtraction:stEta,layer:halfX,halfY,halfZ:"<<zi<<","<<llay<<":"<<shift->getX().getTranslation()<<std::endl;
-		  //if (box) std::cerr<< box->getXHalfLength()<<"," << box->getYHalfLength() <<"," << box->getZHalfLength() << std::endl;
-                  if (box) {
-                    double dx = shift->getX().getTranslation().z();
-		    double dd = fabs(dx)- box->getZHalfLength();
-                    double diff = dd - m_halfX[llay-1];
-                    if (diff<0.) {
-                      double fr = 0.5*diff/m_halfX[llay-1];
-                      m_halfX[llay-1] += 0.5*diff;  // diff negative-> reduce surface size
-		      if (dx<0.) {
-                        m_minHalfY[llay-1] -= fr*(m_maxHalfY[llay-1] - m_minHalfY[llay-1]); 
-		      } else {
-                        m_maxHalfY[llay-1] += fr*(m_maxHalfY[llay-1] - m_minHalfY[llay-1]); 
-		      }
-                      // move layer
-                      double dz = dx<0.? -0.5*diff : 0.5*diff;
-		      _Xlg[llay-1]= Amg::Translation3D(0.,0.,dz)*_Xlg[llay-1];                            	    
-		    }
 		  }
-                }
-
-
-              } else {
-	        std::cerr<<"sTGC layer shape not recognized:" <<pc->getLogVol()->getShape()->type()<< std::endl;
+		else if (poly->getNVertices()==6)
+		  {
+		    m_halfX[llay-1] = poly->getYVertex(0);
+                    m_minHalfY[llay-1] = poly->getXVertex(4);
+		    double d1 = poly->getXVertex(5)-poly->getXVertex(4);
+		    double d2 = poly->getYVertex(5)-poly->getYVertex(4);
+		    double x = 2*poly->getYVertex(0)*d1/d2;
+                    m_maxHalfY[llay-1] = m_minHalfY[llay-1]+x;
+		  }
+		
 	      }
-	    }
+	      else {
+	        reLog() << MSG::WARNING << "sTGC layer shape not recognized:" << pc->getLogVol()->getShape()->type() << endreq;
+	      }
+	      }*/
 	  }
 	}
         m_nlayers=llay;
       } else {
-	std::cerr<<"Cannot read the GeoModel tree ! "<<std::endl;
+	reLog() << MSG::WARNING << "Cannot read the GeoModel tree" << endreq;
       }
     }
 
@@ -214,7 +175,7 @@ namespace MuonGM {
     if (gethash_code != 0) 
       reLog()<<MSG::WARNING
      	     <<"sTgcReadoutElement --  collection hash Id NOT computed for id = "
-     	     <<idh->show_to_string(id)<<std::endl;
+     	     <<idh->show_to_string(id)<<endreq;
     m_idhash = collIdhash;
     // // set RE hash id 
     gethash_code = idh->get_detectorElement_hash(id, detIdhash);
@@ -227,57 +188,74 @@ namespace MuonGM {
 
 
 
-  void sTgcReadoutElement::initDesign(double /*largeX*/, double /*smallX*/, double /*lengthY*/, double stripPitch, double /*wirePitch*/,
-                                      double stripWidth, double /*wireWidth*/, double thickness) {
+  void sTgcReadoutElement::initDesign(double /*largeX*/, double /*smallX*/, double /*lengthY*/, double /*stripPitch*/, double /*wirePitch*/,
+                                      double /*stripWidth*/, double /*wireWidth*/, double thickness) {
 
-    int sector=getStationName().substr(2,1)=="L" ? 1 : 0;
+
+    // int sector=getStationName().substr(2,1)=="L" ? 1 : 0;
+    char sector_l=getStationName().substr(2,1)=="L" ? 'L' : 'S';
     int stEta=abs(getStationEta());
+
+    sTGCDetectorHelper aHelper;
+    reLog() << MSG::INFO<<getStationName()<<endreq;
+
+    sTGCDetectorDescription* stgc = aHelper.Get_sTGCDetector(sector_l,stEta,getStationPhi(),_ml,'A');
+    if (stgc) 
+      reLog() << MSG::INFO
+	      << "Found sTGC Detector " << stgc->GetName() << endreq;
+    else {
+      reLog() << MSG::INFO << "No sTGC Detector" << endreq;
+      reLog() << MSG::INFO << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<_ml << " "<<sector_l <<endreq;
+    }
 
     m_phiDesign = std::vector<MuonChannelDesign>(m_nlayers); 
     m_etaDesign = std::vector<MuonChannelDesign>(m_nlayers); 
     m_padDesign = std::vector<MuonPadDesign>(m_nlayers); 
 
+    //Get Chamber length, width and frame widths
+    double length = stgc->Length(); //Distance between parallel sides of the trapezoid
+    double sWidth = stgc->sWidth(); //Width on short side of trapezoid 
+    double lWidth = stgc->lWidth(); //Width on long side
+    
+    double ysFrame = stgc->ysFrame(); //Frame thickness on short parallel edge
+    double ylFrame = stgc->ylFrame(); //Frame thickness on long parallel edge
+    double xFrame  = stgc->xFrame(); //Frame thickness of non parallel edges
+    double yCutout = stgc->yCutout();// y of cutout of trapezoid (only in outermost detectors)
+
+    sTGCReadoutParameters roParam = stgc->GetReadoutParameters();
+
+    // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
+
     for (int il=0; il<m_nlayers; il++) {
 
       // identifier of the first channel - strip plane - to retrieve max number of strips
-      Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, il+1, 1, 1);
+      /*Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, il+1, 1, 1);
       int chMax =  manager()->stgcIdHelper()->channelMax(id);
-      if (chMax<0) chMax = 350;
-
-      //std::cerr<<"maximal number of strips:eta:layer:"<< stEta<<","<<chMax << std::endl;
+      if (chMax<0) chMax = 350;*/
 
       m_etaDesign[il].type=0;
-      
-      m_etaDesign[il].xSize    = stEta>2 ? 2*m_halfX[0] : 2*m_halfX[il];
-      m_etaDesign[il].minYSize = stEta>2 ? 2*m_minHalfY[0] : 2*m_minHalfY[il];
-      m_etaDesign[il].maxYSize = stEta>2 ? 2*m_maxHalfY[0] : 2*m_maxHalfY[il];
 
+      m_etaDesign[il].xSize    = length - ysFrame - ylFrame;
+      m_etaDesign[il].minYSize = sWidth - 2.0*xFrame;
+      m_etaDesign[il].maxYSize = lWidth - 2.0*xFrame;
+      
       m_etaDesign[il].deadO = 0.;
       m_etaDesign[il].deadI = 0.;
       m_etaDesign[il].deadS = 0.;
 
-      m_etaDesign[il].inputPitch = stripPitch;
+      m_etaDesign[il].inputPitch = 3.2; // parameterBagTech->stripPitch;
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-      m_etaDesign[il].inputWidth = stripWidth;
-      m_etaDesign[il].thickness = thickness;
+      m_etaDesign[il].inputWidth = 2.7; // parameterBagTech->stripWidth;
+      m_etaDesign[il].thickness = stgc->Tck();
       	
-      m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*stripPitch;
+      // m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(parameterBagTech->stripPitch);
+      m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(3.2);
+      reLog() << MSG::INFO
+	      << "firstPos: " << m_etaDesign[il].firstPos << endreq;
       m_etaDesign[il].sAngle = 0.;
       m_etaDesign[il].signY  = 1 ;
       
-      m_etaDesign[il].nch = (int) (m_etaDesign[il].xSize/stripPitch) + 1;
-
-      if (m_etaDesign[il].nch > chMax) {    // fix with help of dead zone
-
-	std::cerr<<"number of strips exceeds the maximum, adjusted:"<<m_etaDesign[il].nch<<"->"<<chMax << std::endl;
-
-	double dead = 0.5*(m_etaDesign[il].xSize - chMax*stripPitch);
-	m_etaDesign[il].deadO = dead;
-	m_etaDesign[il].deadI = dead;
-	m_etaDesign[il].firstPos += dead;
-	m_etaDesign[il].nch = chMax;
-      
-      }
+      m_etaDesign[il].nch = roParam.nStrips;
            
       m_nStrips.push_back(m_etaDesign[il].nch);
       
@@ -288,36 +266,29 @@ namespace MuonGM {
 
     for (int il=0; il<m_nlayers; il++) {
 
-      // identifier of the first channel - wire plane - to retrieve max number of wire gangs
-      Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, il+1, 2, 1);
-      int chMax =  manager()->stgcIdHelper()->channelMax(id);
-
-      if (chMax<0) chMax = (getStationName()).substr(2,1)=="L" ? 32 : 22;
-
       m_phiDesign[il].type=1;
 
-      m_phiDesign[il].xSize    = stEta>2 ? 2*m_halfX[0] : 2*m_halfX[il];
-      m_phiDesign[il].minYSize = stEta>2 ? 2*m_minHalfY[0] : 2*m_minHalfY[il];
-      m_phiDesign[il].maxYSize = stEta>2 ? 2*m_maxHalfY[0] : 2*m_maxHalfY[il];
+      m_phiDesign[il].xSize    = length - ysFrame - ylFrame;
+      m_phiDesign[il].minYSize = sWidth - 2.0*xFrame;
+      m_phiDesign[il].maxYSize = lWidth - 2.0*xFrame;
 
       m_phiDesign[il].deadO = 0.;
       m_phiDesign[il].deadI = 0.;
       m_phiDesign[il].deadS = 0.;
 
-      m_phiDesign[il].nch = chMax;
-      
-      double gangPitch = m_phiDesign[il].maxYSize/chMax;
-
-      m_phiDesign[il].inputPitch = gangPitch;
+      m_phiDesign[il].inputPitch = 1.8; // parameterBagTech->wirePitch;
       m_phiDesign[il].inputLength = m_phiDesign[il].xSize;
-      m_phiDesign[il].inputWidth = gangPitch;
-      m_phiDesign[il].thickness = thickness;
+      m_phiDesign[il].inputWidth = 0.015; // parameterBagTech->wireWidth;
+      m_phiDesign[il].thickness = stgc->Tck();
       	
-      m_phiDesign[il].firstPos = -0.5*m_phiDesign[il].maxYSize + 0.5*gangPitch;
+      // m_phiDesign[il].firstPos = -0.5*m_phiDesign[il].maxYSize + 0.5*(parameterBagTech->wirePitch);
+      m_phiDesign[il].firstPos = -0.5*m_phiDesign[il].maxYSize + 0.5*(1.8);
       m_phiDesign[il].sAngle = 0.;            // handled by surface rotation
       m_phiDesign[il].signY  = 1 ;
       	     
-      m_nWires.push_back(chMax);
+      m_phiDesign[il].nch = roParam.nWires[il];
+
+      m_nWires.push_back(m_phiDesign[il].nch);
 
       reLog()<<MSG::INFO 
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", wireGang pitch " << m_phiDesign[il].inputPitch << ", nWireGangs "<< m_phiDesign[il].nch << endreq;
@@ -326,33 +297,60 @@ namespace MuonGM {
 
     for (int il=0; il<m_nlayers; il++) {
 
-      m_padDesign[il].xSize    = stEta>2 ? 2*m_halfX[0] : 2*m_halfX[il];
-      m_padDesign[il].minYSize = stEta>2 ? 2*m_minHalfY[0] : 2*m_minHalfY[il];
-      m_padDesign[il].maxYSize = stEta>2 ? 2*m_maxHalfY[0] : 2*m_maxHalfY[il];
+	
+      m_padDesign[il].Length = length ;
+      m_padDesign[il].sWidth = sWidth ;
+      m_padDesign[il].lWidth = lWidth ;
+      m_padDesign[il].xFrame = xFrame ;
+      m_padDesign[il].ysFrame = ysFrame ;
+      m_padDesign[il].ylFrame = ylFrame ;
+      m_padDesign[il].yCutout = yCutout ;
+
+
+      m_padDesign[il].sPadWidth = roParam.sPadWidth;
+      m_padDesign[il].lPadWidth = roParam.lPadWidth;
+ 
 
       m_padDesign[il].deadO = 0.;
       m_padDesign[il].deadI = 0.;
-      m_padDesign[il].deadS = 0.;
+      m_padDesign[il].deadS = 0.;	
 
-      m_padDesign[il].padPhiMin = INDEX_LEFTMOST_COL[2*sector+(_ml-1)][stEta-1][il];
-      m_padDesign[il].padPhiMax = INDEX_RIGHTMOST_COL[2*sector+(_ml-1)][stEta-1][il];
-      m_padDesign[il].firstPhiPos = PAD_COL_PHI0[2*sector+(_ml-1)][stEta-1][il];
-      m_padDesign[il].inputPhiPitch = stEta<2 ? PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
-      m_padDesign[il].inputPhiWidth = m_padDesign[il].inputPhiPitch;
+      m_padDesign[il].nPadColumns = roParam.nPadX[il];
+      m_padDesign[il].firstPhiPos = roParam.firstPadPhi[il];//PAD_COL_PHI0[2*sector+(_ml-1)][stEta-1][il];
+      m_padDesign[il].inputPhiPitch = roParam.anglePadX;//stEta<2 ?  PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
+      m_padDesign[il].PadPhiShift = roParam.PadPhiShift[il];
       
-      m_padDesign[il].padEtaMin = FIRST_PAD_ROW_DIVISION[2*sector+(_ml-1)][stEta-1][il];
-      m_padDesign[il].padEtaMax = m_padDesign[il].padEtaMin + PAD_ROWS[2*sector+(_ml-1)][stEta-1][il];
-      m_padDesign[il].firstRowPos = H_PAD_ROW_0[2*sector+(_ml-1)][il];
-      m_padDesign[il].inputRowPitch = PAD_HEIGHT[2*sector+(_ml-1)][il];
-      m_padDesign[il].inputRowWidth = m_padDesign[il].inputRowPitch;
 
+      m_padDesign[il].padEtaMin =  roParam.firstPadRow[il];//FIRST_PAD_ROW_DIVISION[2*sector+(_ml-1)][stEta-1][il];
+      m_padDesign[il].nPadH = roParam.nPadH[il];     
+      m_padDesign[il].padEtaMax = m_padDesign[il].padEtaMin +  roParam.nPadH[il];//PAD_ROWS[2*sector+(_ml-1)][stEta-1][il];
+
+      m_padDesign[il].firstRowPos   = roParam.firstPadH[il];// H_PAD_ROW_0[2*sector+(_ml-1)][il];
+      m_padDesign[il].inputRowPitch = roParam.padH[il];// PAD_HEIGHT[2*sector+(_ml-1)][il];
+
+
+/*   Sum Height Check
+ *
+	double ActiveAreaHeight = m_padDesign[il].Length-m_padDesign[il].ysFrame-m_padDesign[il].ylFrame;
+	double sumheightpads =  m_padDesign[il].firstRowPos + (m_padDesign[il].inputRowPitch*(m_padDesign[il].nPadH-1));
+	double diff = ActiveAreaHeight-sumheightpads;
+	int good=0;
+	if (m_padDesign[il].inputRowPitch-abs(diff)>0){
+		 good =1;
+	}
+
+reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc->Length(): "<<stgc->Length()<<"ActiveArea Height "<<ActiveAreaHeight<<" sumheightpads: "<<sumheightpads<<" diff: "<< diff<<" padH: "<< m_padDesign[il].inputRowPitch <<" good : "<<good<<endreq;
+*/
       m_padDesign[il].thickness = thickness;
 
       m_padDesign[il].sAngle = 0.;            // handled by surface rotation
       m_padDesign[il].signY  = 1 ;
 
-      reLog()<<MSG::INFO 
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", phi pad size " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch << endreq;
+
+	
+	reLog() << MSG::INFO<<"initDesign stationname "<<getStationName()<<" layer " << il << ",pad phi angular width " << m_padDesign[il].inputPhiPitch << ", eta pad size "<< m_padDesign[il].inputRowPitch <<"  Length: "<< m_padDesign[il].Length<<" sWidth: "<< m_padDesign[il].sWidth<<" lWidth: "<<m_padDesign[il].lWidth<<" firstPhiPos:"<<m_padDesign[il].firstPhiPos<<" padEtaMin:"<<m_padDesign[il].padEtaMin<<" padEtaMax:"<<m_padDesign[il].padEtaMax<<" firstRowPos:"<<m_padDesign[il].firstRowPos<<" inputRowPitch:"<<m_padDesign[il].inputRowPitch<<" thickness:"<<m_padDesign[il].thickness<<" sPadWidth: " <<m_padDesign[il].sPadWidth<<" lPadWidth: "<< m_padDesign[il].lPadWidth<<" xFrame: "<< m_padDesign[il].xFrame <<" ysFrame: "<< m_padDesign[il].ysFrame<<" ylFrame: "<< m_padDesign[il].ylFrame << " yCutout: "<< m_padDesign[il].yCutout<<endreq;
+
+
 
     }
 
@@ -365,24 +363,25 @@ namespace MuonGM {
       reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endreq;
       return;
     }
-
+    /*
     if (abs(getStationEta())>2) {
       m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[0], m_minHalfY[0], m_maxHalfY[0]));  // strips
       m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[0], m_maxHalfY[0], m_halfX[0]));         // wires           
     }
-    
+    */
     for( int layer = 0; layer < m_nlayers; ++layer ){
 
-      if (abs(getStationEta())<3) {
-	m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
-	m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));         // wires           
-      }
+      //if (abs(getStationEta())<3) {
+      m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
+      m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));         // wires           
+	// }
 
       // identifier of the first channel - wire plane - locX along phi, locY max->min R
       Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, layer+1, 2, 1);
 
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
+      //m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(new Amg::Transform3D(), new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer])));
       m_surfaceData->m_layerTransforms.push_back(absTransform()*_Xlg[layer]*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)));
@@ -404,6 +403,7 @@ namespace MuonGM {
       m_surfaceData->m_layerTransforms.push_back(absTransform()*_Xlg[layer]*
 						 Amg::Translation3D(shift,0.,0.)*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
+
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
@@ -454,8 +454,8 @@ namespace MuonGM {
     int gg = manager()->stgcIdHelper()->gasGap(id);
     
     Amg::Vector3D  locP = _Xlg[gg-1]*locPos;
-    std::cout<<"locPos in the gg      r.f. "<<locPos<<std::endl;
-    std::cout<<"locP in the multilayer r.f. "<<locP<<std::endl;
+    reLog() << MSG::INFO << "locPos in the gg      r.f. "<<locPos<<endreq;
+    reLog() << MSG::INFO << "locP in the multilayer r.f. "<<locP<<endreq;
     
     return absTransform()*locP;
   }

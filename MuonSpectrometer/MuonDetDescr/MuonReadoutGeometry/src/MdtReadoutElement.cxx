@@ -986,7 +986,6 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 #endif  
 
   // Get positions after the deformations applied
-   //Amg::Vector3D localInAmdbFrameCenter_afterAllCorr = Amg::Vector3D(0.,0.,0.);
    Amg::Vector3D localInAmdbFrameEnd_afterAllCorr    = Amg::Vector3D(0.,0.,0.);
    Amg::Vector3D localInAmdbFrameEnd2_afterAllCorr    = Amg::Vector3D(0.,0.,0.);
  
@@ -995,8 +994,7 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
        posOnDefChamWire(toAMDB*pt_end,width_narrow,width_wide,height,thickness,
  			       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
    localInAmdbFrameEnd_afterAllCorr = localInAmdbFrameEnd_afterBline;
-   // if there are as built parameters ... apply them here 
-   localInAmdbFrameEnd_afterAllCorr = afterAsBuiltParamsInAmdbFrame(localInAmdbFrameEnd_afterBline,multilayer,tubelayer,tube);
+
    Amg::Vector3D my_pt_end_new = fromAMDB*localInAmdbFrameEnd_afterAllCorr; 
 
    /////////// second wire end point
@@ -1004,9 +1002,19 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
        posOnDefChamWire(toAMDB*pt_end2,width_narrow,width_wide,height,thickness,
  			       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
    localInAmdbFrameEnd2_afterAllCorr = localInAmdbFrameEnd2_afterBline;
-   // if there are as built parameters ... apply them here 
-   localInAmdbFrameEnd2_afterAllCorr = afterAsBuiltParamsInAmdbFrame(localInAmdbFrameEnd2_afterBline,multilayer,tubelayer,tube);
+
    Amg::Vector3D my_pt_end2_new = fromAMDB*localInAmdbFrameEnd2_afterAllCorr; 
+
+   // if there are as built parameters ... apply them here
+   Amg::Vector3D localInAmdbFrameCenter_afterAllCorr = Amg::Vector3D(0.,0.,0.);
+   Amg::Vector3D my_pt_center_new = Amg::Vector3D(0.,0.,0.);
+   if (parentMuonStation()->hasMdtAsBuiltParams()) {
+      // the two localInAmdbFrame... vectors are handed over by reference and change!
+      afterAsBuiltParamsInAmdbFrame(localInAmdbFrameCenter_afterAllCorr, localInAmdbFrameEnd_afterAllCorr, multilayer, tubelayer, tube);
+     my_pt_end_new = fromAMDB*localInAmdbFrameEnd_afterAllCorr;
+     my_pt_center_new = fromAMDB*localInAmdbFrameCenter_afterAllCorr;
+     my_pt_end2_new = 2.*my_pt_center_new - my_pt_end_new;
+   }
 
   Amg::Vector3D pt_end_new;
   Amg::Vector3D pt_end2_new;
@@ -1413,28 +1421,120 @@ MdtReadoutElement::positionOnDeformedChamber( const Amg::Vector3D& locAMDBPos,
   return deformPos;
 }
 
-Amg::Vector3D  
-MdtReadoutElement::afterAsBuiltParamsInAmdbFrame(const Amg::Vector3D& locAMDBPos, int /*multilayer*/, int /*tubelayer*/, int /*tube*/) const
+// Function to apply AsBuilt parameter correction to wire center and end position
+// For definitions of AsBuilt parameters see Florian Bauer's talk:
+// http://atlas-muon-align.web.cern.ch/atlas-muon-align/endplug/asbuilt.pdf
+void MdtReadoutElement::afterAsBuiltParamsInAmdbFrame(Amg::Vector3D& locAMDBWireCenter, Amg::Vector3D& locAMDBWireEnd, int multilayer, int tubelayer, int tube) const
 {
-   
+  Amg::Vector3D WireCenterTmp = locAMDBWireCenter; // copy of wire center position
+  Amg::Vector3D WireEndROTmp = locAMDBWireEnd; // copy of wire end position (readout side)
+  
+  // Calculate wire end position on HV side
+  Amg::Vector3D WireEndHVTmp = Amg::Vector3D(0., 0., 0.);
+  WireEndHVTmp.x() = 2*WireCenterTmp.x()-WireEndROTmp.x();
+  WireEndHVTmp.y() = 2*WireCenterTmp.y()-WireEndROTmp.y();
+  WireEndHVTmp.z() = 2*WireCenterTmp.z()-WireEndROTmp.z();
+  
+  MdtAsBuiltParams* asBuiltParameter = parentMuonStation()->getMdtAsBuiltParams();
+  if (asBuiltParameter == NULL) {
+      std::cerr << "Cannot find Mdt AsBuilt parameters for chamber " << getStationType() << ", eta " << getStationEta() << ", phi " << getStationPhi() << std::endl;
+      return;
+  }
+  if (asBuiltParameter->checkChamberID(getStationType(), getStationEta(), getStationPhi())) { 
+      std::cerr << "Station name for chamber " << getStationType() << " eta: " << getStationEta() << " phi: " << getStationPhi() << " does not match AsBuilt parameter information." << std::endl;
+      return;
+  }
+  
+  int nTubeLayers = getNLayers(); // number of tube layers in current chamber
+  //FIXME no hard coded numbers!!
+  const float nominalZPitch = 30.035; // in mm
+  const float nominalYPitch = 26.011; // in mm
+  
+  // correct RO side;
+  float deltaZ_RO = asBuiltParameter->getDeltaZ_RO(multilayer, getStationType());
+  float deltaY_RO = asBuiltParameter->getDeltaY_RO(multilayer, getStationType());
+  float zPitch_RO = asBuiltParameter->getZPitch_RO(multilayer, getStationType());
+  float yPitch_RO = asBuiltParameter->getYPitch_RO(multilayer, getStationType());
+  float deltaAlpha_RO = asBuiltParameter->getDeltaAlpha_RO(multilayer, getStationType());
+  
+  // First translation
+  float yAfterTrans_RO = WireEndROTmp.y() + deltaZ_RO + (tube-1) * (zPitch_RO - nominalZPitch); // z direction in AsBuilt reference frame is y direction in xyz chamber local reference frame!
+  float zAfterTrans_RO = WireEndROTmp.z() + deltaY_RO + (nTubeLayers + tubelayer * (int)(yPitch_RO/fabs(yPitch_RO)))%nTubeLayers * (yPitch_RO - nominalYPitch);// y direction in AsBuilt reference frame is z direction in xyz chamber local reference frame!
+  
+  // Then rotation
+  float yAfterCorr_RO = cos(deltaAlpha_RO) * yAfterTrans_RO - sin(deltaAlpha_RO) * zAfterTrans_RO;
+  float zAfterCorr_RO = sin(deltaAlpha_RO) * yAfterTrans_RO + cos(deltaAlpha_RO) * zAfterTrans_RO;
+  
+  // correct HV side;
+  float deltaZ_HV = asBuiltParameter->getDeltaZ_HV(multilayer, getStationType());
+  float deltaY_HV = asBuiltParameter->getDeltaY_HV(multilayer, getStationType());
+  float zPitch_HV = asBuiltParameter->getZPitch_HV(multilayer, getStationType());
+  float yPitch_HV = asBuiltParameter->getYPitch_HV(multilayer, getStationType());
+  float deltaAlpha_HV = asBuiltParameter->getDeltaAlpha_HV(multilayer, getStationType());
+  
+  // First translation
+  float yAfterTrans_HV = WireEndHVTmp.y() + deltaZ_HV + (tube-1) * (zPitch_HV - nominalZPitch); // z direction in AsBuilt reference frame is y direction in xyz chamber local reference frame!
+  float zAfterTrans_HV = WireEndHVTmp.z() + deltaY_HV + (nTubeLayers + tubelayer * (int)(yPitch_HV/fabs(yPitch_HV)))%nTubeLayers * (yPitch_HV - nominalYPitch);// y direction in AsBuilt reference frame is z direction in xyz chamber local reference frame!
+  
+  // Then rotation
+  float yAfterCorr_HV = cos(deltaAlpha_HV) * yAfterTrans_HV - sin(deltaAlpha_HV) * zAfterTrans_HV;
+  float zAfterCorr_HV = sin(deltaAlpha_HV) * yAfterTrans_HV + cos(deltaAlpha_HV) * zAfterTrans_HV;
+  
+  // calculate corrected wire center position 
+  WireCenterTmp.y() = (yAfterCorr_HV + yAfterCorr_RO) / 2;
+  WireCenterTmp.z() = (zAfterCorr_HV + zAfterCorr_RO) / 2;
+  
+  locAMDBWireCenter = WireCenterTmp;
+  locAMDBWireEnd = WireEndROTmp;
+  
+  reLog() << MSG::INFO << "Mdt AsBuilt coorection has been successfully applied for chamber " << asBuiltParameter->getChamberName() << endreq;
+  
+  /*  
   double ds = 0.;
   double dz = 0.;
-  double dt = 0.; 
+  double dt = 0.;
 
-  if  ( manager()->applyMdtAsBuiltParams() )  
-    {
-      // compute ds, dz, dt for asBuiltParams
-    }
+  //adding here hack for as built parameters ############
+  // C. Amelung: if you want to do it absolutely correct, you have to move ML1 (i.e. the multilayer closest to the IP) of EIS/EMS towards the IP, and ML2 of EIL/EML away from the IP, and keep the other multilayer fixed, respectively. This is because the multilayers on which alignment sensors are mounted should remain fixed in space, and the multilayers without sensors should move.
+  // ad hoc fix dy_pitch = 26.018-26.011mm; Delta_y=51microns
+  if ((getStationName().substr(0,3)=="EIS") ||(getStationName().substr(0,3)=="EMS")) 
+  {
+      // first subtract the extra y pitch for the current tube layer (i.e. (tubeLayer-1)*dypitch)
+      double dypitch = 26.018-26.011;
+      dt -= (m_nlayers-tubelayer)*dypitch;
+      // then check if extra shift is needed for the other multilayer 
+      if (multilayer==1)
+      {
+	  // add extra Delta_y + (n_layers-1)*dypitch from the first multilayer 
+	double Delta_y = 0.051;
+	dt -= (m_nlayers-1)*dypitch;
+	dt -= Delta_y;	  
+      }
+  }
+  else if ((getStationName().substr(0,3)=="EIL") ||(getStationName().substr(0,3)=="EML"))
+  {
+      // first add the extra y pitch for the current tube layer (i.e. (tubeLayer-1)*dypitch)
+      double dypitch = 26.018-26.011;
+      dt += (tubelayer-1)*dypitch;
+      // then check if extra shift is needed for the other multilayer 
+      if (multilayer==2)
+      {
+	  // add extra Delta_y + (n_layers-1)*dypitch from the first multilayer 
+	double Delta_y = 0.051;
+	dt += (m_nlayers-1)*dypitch;
+	dt += Delta_y;	  
+      }
+  }
   else 
-    {
-      // do nothing here 
-    }
+  {
+    // do nothing here 
+  }
   
-   
   Amg::Vector3D deformPos(locAMDBPos.x()+ds, locAMDBPos.y()+dz, locAMDBPos.z()+dt);
-   
-  return deformPos;
+  
+  return deformPos; */
 }
+
 
 
 Amg::Vector3D  
