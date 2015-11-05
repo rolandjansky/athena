@@ -29,6 +29,7 @@ using CLHEP::GeV;
 
 ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   :  egammaMonToolBase(type,name,parent),
+     m_hNZcandidates(nullptr),
      m_hMass(nullptr),
      m_hIDEt(nullptr),
      m_hIDEta(nullptr),
@@ -51,7 +52,9 @@ ZeeTaPMonTool::ZeeTaPMonTool(const std::string & type, const std::string & name,
   declareProperty("massUpperCut", m_MassUpperCut = 110*GeV,"Upper mass cut");
 
   m_lumiBlockNumber=-1;
-
+  m_lumiBlockNumber = 0;
+  m_nZCandidatesInCurrentLB = 0;
+  m_nZCandidates = 0; 
 }
 
 ZeeTaPMonTool::~ZeeTaPMonTool()
@@ -393,7 +396,7 @@ void ZeeTaPMonTool::fillElectronProbe(const xAOD::Electron *el, bool isTight, bo
   unsigned char numberOfSCTHits=-1;
   unsigned char numberOfTRTHits=-1;
   if(t) {
-    trackp = t->pt()/cosh(t->eta());
+    trackp = t->pt()*cosh(t->eta());
     // retrieve track summary information
     if( t->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits) ) {
       fillTH1FperRegion(m_hvNOfBLayerHits,ir,numberOfBLayerHits);
