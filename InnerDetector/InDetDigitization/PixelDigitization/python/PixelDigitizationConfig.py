@@ -184,6 +184,11 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
+    from IOVDbSvc.CondDB import conddb
+    if conddb.dbmc == "OFLP200" and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+      conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg")
+    if not conddb.folderRequested('PIXEL/PixReco'):
+      conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationToolHS(name="PixelDigitizationToolHS", **kwargs):
@@ -205,7 +210,8 @@ def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergeP
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
-    kwargs.setdefault("EvtStore", "BkgEvent_0_SG")
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicPixelDigitizationTool(name,**kwargs)
 
