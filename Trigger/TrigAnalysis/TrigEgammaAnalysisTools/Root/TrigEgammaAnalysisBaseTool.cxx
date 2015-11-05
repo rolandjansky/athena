@@ -35,6 +35,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "TrigEgammaAnalysisTools/ValidationException.h"
+#include "TrigSteeringEvent/TrigPassBits.h"
+#include "TrigSteeringEvent/TrigPassBitsCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
@@ -532,30 +534,31 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     float etabins[21]={-2.47,-2.37,-2.01,-1.81,-1.52,-1.37,-1.15,-0.8,-0.6,-0.1,
         0.0,0.1,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
     // TH2 with variable bin x-Axis, but constant bin y-Axis takes only Double_t arrays
-    float etbins[31];
-
+    float etbins_Zee[31]={0.,2.,4.,6.,8.,10.,
+                          12.,14.,16.,18.,20.,22.,24.,26.,28.,
+                          30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,65.,70.,100.};
     
+    float etbins_Jpsiee[52]={ 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5,
+                              5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5,
+                              10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,
+                              15,15.5,16,16.5,17,17.5,18,18.5,19,19.5,
+                              20,20.5,21,21.5,22,22.5,23,23.5,24,24.5,
+                              25,25.5};
+    
+
+    float *etbins;
+    int netbins=0;
+
+
     if(m_doJpsiee){
-
-      float temp[31]={0. ,3. ,3.5,4. ,4.5,
-                      5. ,5.5,6. ,6.5,7. ,
-                      7.5,8. ,8.5,9. ,9.5,
-                      10.,11.,12.,13.,14.,
-                      15.,16.,17.,18.,19.,
-                      20.,21.,22.,23.,24.,
-                      25.};
-      for (int i=0;i<31;i++)etbins[i]=temp[i];
-
-      
+      etbins=etbins_Jpsiee;
+      netbins=51;
     }
-    else
-    {
-    float temp[31]={0.,2.,4.,6.,8.,10.,
-                    12.,14.,16.,18.,20.,22.,24.,26.,28.,
-                    30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,65.,70.,100.};
-    
-      for (int i=0;i<31;i++)    etbins[i]=temp[i];
+    else {
+      etbins=etbins_Zee;
+      netbins=30;
     }
+
 
     // Strings for inefficiency labels
     std::vector<string> label_trigstep;
@@ -604,8 +607,9 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_VERBOSE(dirnames[i]);
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
-        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
+        
+        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", netbins,etbins)); 
+        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", netbins,etbins));
         addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
         addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
         addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
@@ -613,8 +617,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
-        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
-        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
+        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",netbins,etbins)); 
+        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", netbins, etbins)); 
         addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
@@ -623,8 +627,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
-        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
-        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",netbins,etbins)); 
+        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", netbins,etbins)); 
         addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
         addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
@@ -639,8 +643,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_VERBOSE(dirnames[i]);
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
-        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
+        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", netbins,etbins)); 
+        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", netbins,etbins));
         addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
         addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
         addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
@@ -648,8 +652,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
-        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
-        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
+        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",netbins,etbins)); 
+        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", netbins, etbins)); 
         addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
@@ -658,8 +662,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
-        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
-        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",netbins,etbins)); 
+        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", netbins,etbins)); 
         addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
         addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
@@ -705,8 +709,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
             for (int i = 0; i < (int) effdirs.size(); i++) {
                 ATH_MSG_VERBOSE(effdirs[i]);
                 addDirectory(effdirs[i]);
-                addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
-                addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
+                addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", netbins,etbins)); 
+                addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", netbins,etbins));
                 addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
                 addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
                 addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
@@ -714,8 +718,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
                 addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
                 addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
 
-                addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
-                addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
+                addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",netbins,etbins)); 
+                addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", netbins, etbins)); 
                 addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
                 addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
                 addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
@@ -724,8 +728,8 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
                 addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
                 addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
 
-                addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
-                addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
+                addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",netbins,etbins)); 
+                addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", netbins,etbins)); 
                 addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
                 addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
                 addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));

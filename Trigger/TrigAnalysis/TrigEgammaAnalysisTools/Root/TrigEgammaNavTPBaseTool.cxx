@@ -225,12 +225,14 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
                 // Probe available. Good Probe?
                 if(!isGoodProbeElectron(elProbe)) continue;//,probeTrigItem,etthr,pidname)) continue; //Ensure passing offline electron selection
                 hist1("ProbeCutCounter")->Fill("GoodProbe",1);
-                m_probeElectrons.push_back(elProbe);
+                // Shallow copy of pointer to avoid decoration of original object
+                m_probeElectrons.push_back(const_cast<xAOD::Electron*>(elProbe));
                 hist1("Mee")->Fill(tpPairMass/1.e3);
             }
         } // end of for in Probe
     } // end of for in Tags
-    ATH_MSG_DEBUG("Execute TandP BaseTool:: Probes " << m_probeElectrons.size());
+    ATH_MSG_DEBUG("Dress N Probes " << m_probeElectrons.size());
+    for(unsigned int i=0;i<m_probeElectrons.size();i++) DressPid(m_probeElectrons[i]);
 }
 
 void TrigEgammaNavTPBaseTool::matchObjects(const std::string probeTrigItem){
@@ -316,19 +318,20 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     bool tagPassed=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
       std::string tag = m_tagTrigList.at(ilist);
-      if(m_doJpsiee){
-        std::string p1trigger;
-        std::string p2trigger;
-        if(splitTriggerName(tag,p1trigger,p2trigger)){
-          if(fabs(p1trigger.find("tight"))<10) tag=p1trigger;
-          if(fabs(p2trigger.find("tight"))<10) tag=p2trigger;
+      if(m_trigdec->isPassed("HLT_"+tag)){ 
+        if(m_doJpsiee){
+          std::string p1trigger;
+          std::string p2trigger;
+          if(splitTriggerName(tag,p1trigger,p2trigger)){
+            if(fabs(p1trigger.find("tight"))<10) tag=p1trigger;
+            if(fabs(p2trigger.find("tight"))<10) tag=p2trigger;
+          }
+          if( m_matchTool->match(el,"HLT_"+tag) )
+            tagPassed=true;
         }
-        if( m_matchTool->match(el,"HLT_"+tag) )
-          tagPassed=true;
-      }
-      else{
-        if(m_trigdec->isPassed("HLT_"+tag) ) 
+        else{
           tagPassed=true; 
+        }
       }
     }
     if(!tagPassed) {
@@ -364,6 +367,7 @@ void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
         const std::string pidname="ElectronPass"+m_lhname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
+    eg->auxdecor<bool>("Isolated")=isIsolated(eg, m_offProbeIsolation);
 }
 
 bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
@@ -426,7 +430,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
     ATH_MSG_DEBUG("Checking electron object quality");
     if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
     hist1("ProbeCutCounter")->Fill("IsGoodOQ",1);
-    DressPid(el);
+    //DressPid(el);
     hist1("ProbeCutCounter")->Fill("GoodPid",1);
     if(m_applyJetNearProbeSelection){
         TLorentzVector probeCandidate;
@@ -444,8 +448,6 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         }
     }
     hist1("ProbeCutCounter")->Fill("NearbyJet",1);
-    bool iso=isIsolated(el, m_offProbeIsolation);
-    el->auxdecor<bool>("Isolated")=iso;
     return true; // Good probe electron
 }
 
