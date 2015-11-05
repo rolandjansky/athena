@@ -42,15 +42,6 @@ HIZdcMonTool.TriggerChain = "HLT_noalg_mb_L1ZDC_A_C"
 if DQMonFlags.useTrigger():
     HIZdcMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
-## Electrons  
-from HIMonitoring.HIMonitoringConf import HIMonitoringElectronsTool
-HIElectronsMonTool = HIMonitoringElectronsTool (
-name           = "HIElectronsMonTool",
-)
-                                      
-HIElectronsMonTool.TriggerChain = "HLT_e15_etcut_ion,HLT_e15_loose_ion,HLT_e15_medium_ion"
-if DQMonFlags.useTrigger():
-    HIElectronsMonTool.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
 
 
 
@@ -91,26 +82,14 @@ if DQMonFlags.monManEnvironment == 'tier0ESD':
                                    AthenaMonTools      = [ HIMuonsMonTool ])
     topSequence += HIMuonsMonMan
     
-    ToolSvc += HIZdcMonTool
-    HIZdcMonMan = AthenaMonManager( "HIZdcMonManager",
-                                   FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
-                                   ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
-                                   DataType            = DQMonFlags.monManDataType(),            #"cosmics"
-                                   Environment         = DQMonFlags.monManEnvironment(),         #"user"
-                                   ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup(),    #True
-                                   Run                 = DQMonFlags.monManRun(),                 #1
-                                   LumiBlock           = DQMonFlags.monManLumiBlock(),           #1
-                                   AthenaMonTools      = [ HIZdcMonTool ])
-    topSequence += HIZdcMonMan
-    
-    ToolSvc += HIElectronsMonTool
-    HIElectronsMonMan = AthenaMonManager( "HIElectronsMonManager",
-                                   FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
-                                   ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
-                                   DataType            = DQMonFlags.monManDataType(),            #"cosmics"
-                                   Environment         = DQMonFlags.monManEnvironment(),         #"user"
-                                   ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup(),    #True
-                                   Run                 = DQMonFlags.monManRun(),                 #1
-                                   LumiBlock           = DQMonFlags.monManLumiBlock(),           #1
-                                   AthenaMonTools      = [ HIElectronsMonTool ])
-    topSequence += HIElectronsMonMan
+    # ToolSvc += HIZdcMonTool
+    # HIZdcMonMan = AthenaMonManager( "HIZdcMonManager",
+                                   # FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
+                                   # ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(), #True
+                                   # DataType            = DQMonFlags.monManDataType(),            #"cosmics"
+                                   # Environment         = DQMonFlags.monManEnvironment(),         #"user"
+                                   # ManualRunLBSetup    = DQMonFlags.monManManualRunLBSetup(),    #True
+                                   # Run                 = DQMonFlags.monManRun(),                 #1
+                                   # LumiBlock           = DQMonFlags.monManLumiBlock(),           #1
+                                   # AthenaMonTools      = [ HIZdcMonTool ])
+    # topSequence += HIZdcMonMan
