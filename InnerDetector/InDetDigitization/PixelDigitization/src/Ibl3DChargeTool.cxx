@@ -89,8 +89,8 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
 
   // Charge Collection Probability Map bin size
-  const double x_bin_size = 0.002;
-  const double y_bin_size = 0.002;
+  const double x_bin_size = 0.001;
+  const double y_bin_size = 0.001;
  
   std::string readout;
  

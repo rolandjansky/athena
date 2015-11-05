@@ -135,6 +135,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("MergeSvc",		m_mergeSvc,		"Merge service used in Pixel digitization");
   declareProperty("TimeSvc", m_TimeSvc, "Time Svc");
   declareProperty("CalibSvc", m_CalibSvc, "Calib Svc");
+  declareProperty("OfflineCalibSvc",m_offlineCalibSvc);
   declareProperty("InputObjectName",m_inputObjectName="","Input Object name" );
   declareProperty("CreateNoiseSDO", m_createNoiseSDO=false, "Set create noise SDO flag");
   m_inputObjectName = "PixelHits";
@@ -775,8 +776,8 @@ StatusCode PixelDigitizationTool::initServices()
 	ATH_MSG_ERROR("Could not find given CalibSvc" );
 	return StatusCode::FAILURE;
   }
-  // Remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:
-  /*if ( !m_offlineCalibSvc.empty() ) {
+
+  if ( !m_offlineCalibSvc.empty() ) {
     StatusCode sc = m_offlineCalibSvc.retrieve();
     if (sc.isFailure() || !m_offlineCalibSvc ) {
       ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
@@ -785,7 +786,7 @@ StatusCode PixelDigitizationTool::initServices()
     else{
       ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
     }
-  }*/
+  }
   
   //
   // get SpecialPixelMapSvc
@@ -988,8 +989,8 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
     ATH_MSG_ERROR ( "PixelDigitizationTool::createRDO() collection : " << " bad Barrel/EC or Layer/Disk " );
   }
 	
-  //remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:	  
-  //m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+  m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);
+  ATH_MSG_DEBUG ( " ***** Overflow for IBL = " << m_overflowIBLToT );
   
   //
   
@@ -1004,10 +1005,9 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   std::vector < std::vector < int > > FEI4Map ( maxRow, std::vector < int > ( maxCol) );
   ATH_MSG_DEBUG ( "PixRegion = " << PixRegion << " MaxRow = " << maxRow << " MaxCol = " << maxCol);
   
-  //remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:	  
-  //if ( m_overflowIBLToT == 14 ) maxFEI4SmallHit = 0;
-  //if ( m_overflowIBLToT == 15 ) maxFEI4SmallHit = 1;
-  //if ( m_overflowIBLToT == 16 ) maxFEI4SmallHit = 2;
+  if ( m_overflowIBLToT == 14 ) maxFEI4SmallHit = 0;
+  if ( m_overflowIBLToT == 15 ) maxFEI4SmallHit = 1;
+  if ( m_overflowIBLToT == 16 ) maxFEI4SmallHit = 2;
 
   //
   // ToT scale, to be used for FEI4, which has at most 4 bits for ToT,
@@ -1061,11 +1061,8 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
 	  nToT = 8*((*i_chargedDiode).second.charge() - 1200. )/(8000. - 1200.);
 	}
         if ( nToT<=0 ) nToT=1;
-        // remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:
-        //else if ( nToT == 2 && m_overflowIBLToT == 16) nToT = 1; 
-	//else if ( nToT >= m_overflowIBLToT ) nToT = m_overflowIBLToT;
-        else if ( nToT == 2) nToT = 1;
-	else if ( nToT >= 16 ) nToT = 16;
+        else if ( nToT == 2 && m_overflowIBLToT == 16) nToT = 1; 
+	else if ( nToT >= m_overflowIBLToT ) nToT = m_overflowIBLToT;
       }
       int flag   = (*i_chargedDiode).second.flag();
       int bunch  = (flag >>  8) & 0xff;
