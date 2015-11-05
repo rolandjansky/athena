@@ -411,7 +411,7 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"outputRDO_FILTFile"):
             digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
             digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
-    digilog.info("no output file (outputRDOFile, outputRDO_FILTFile) specified - switching off output StreamRDO")
+    digilog.info("no output file (outputRDOFile or outputRDO_FILTFile) specified - switching off output StreamRDO")
     if not 'DetFlags' in dir():
         #if you configure one detflag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags
