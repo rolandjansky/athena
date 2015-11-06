@@ -182,12 +182,12 @@ GeoSysController::GeoSysController(IVP1System * sys)
   // MUON MISC
   d->subSysCheckBoxMap[VP1GeoFlags::MuonFeet] = d->ui.checkBox_MuonFeet;
   d->subSysCheckBoxMap[VP1GeoFlags::MuonShielding] = d->ui.checkBox_MuonShielding;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonToroidsEtc] = d->ui.checkBox_MuonEtc;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonNSW] = d->ui.checkBox_NSW;
+  d->subSysCheckBoxMap[VP1GeoFlags::MuonToroidsEtc] = d->ui.checkBox_MuonEtc; // this is the "Services" checkbox in the GUI
   // MUON CHAMBERS
   d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationCSC] = d->ui.checkBox_MuonEndcapStationCSC;
   d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationTGC] = d->ui.checkBox_MuonEndcapStationTGC;
   d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationMDT] = d->ui.checkBox_MuonEndcapStationMDT;
+  d->subSysCheckBoxMap[VP1GeoFlags::MuonNSW] = d->ui.checkBox_NSW;
   d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationInner] = d->ui.checkBox_MuonBarrelStationInner;
   d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationMiddle] = d->ui.checkBox_MuonBarrelStationMiddle;
   d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationOuter] = d->ui.checkBox_MuonBarrelStationOuter;
