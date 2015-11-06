@@ -38,21 +38,23 @@ def getQuasiStableG4PhysicsValidationUserAction(name="QuasiStableG4PhysicsValida
 def getTrackProcessorUserAction(name="ISFG4TrackProcessorUserAction", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
+    kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
+    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__TrackProcessorUserActionPassBack
+    return iGeant4__TrackProcessorUserActionPassBack(name, **kwargs)
+
+### Specialized Versions
+def getFullG4TrackProcessorUserAction(name='FullG4TrackProcessorUserAction', **kwargs):
+    kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
+    from AthenaCommon.BeamFlags import jobproperties
+    from G4AtlasApps.SimFlags import simFlags
     if jobproperties.Beam.beamType() == 'cosmics' or \
        (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
         kwargs.setdefault('TruthVolumeLevel',  2)
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
-    kwargs.setdefault('GeoIDSvc',      'ISF_GeoIDSvc')
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__TrackProcessorUserAction
-    return iGeant4__TrackProcessorUserAction(name, **kwargs)
-### Specialized Versions
-def getFullG4TrackProcessorUserAction(name='FullG4TrackProcessorUserAction', **kwargs):
-    kwargs.setdefault('Geant4OnlyMode', True)
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
-    return getTrackProcessorUserAction(name, **kwargs)
+    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__TrackProcessorUserActionFullG4
+    return iGeant4__TrackProcessorUserActionFullG4(name, **kwargs)
 
 def getPassBackG4TrackProcessorUserAction(name='PassBackG4TrackProcessorUserAction', **kwargs):
-    kwargs.setdefault('Geant4OnlyMode', False)
     kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
     return getTrackProcessorUserAction(name, **kwargs)
 
@@ -63,10 +65,6 @@ def getAFII_G4TrackProcessorUserAction(name='AFII_G4TrackProcessorUserAction', *
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
     kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )
     return getPassBackG4TrackProcessorUserAction(name, **kwargs)
-
-def getQuasiStableG4TrackProcessorUserAction(name='QuasiStableG4TrackProcessorUserAction', **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_LongLivedParticleBrokerSvc')
-    return getFullG4TrackProcessorUserAction(name, **kwargs)
 
 ## -----------------------------------------------------------------------------
 ### Base Version
@@ -97,7 +95,7 @@ def getAFII_G4TransportTool(name='AFII_G4TransportTool', **kwargs):
     return getG4TransportTool(name, **kwargs)
 
 def getQuasiStableG4TransportTool(name='QuasiStableG4TransportTool', **kwargs):
-    kwargs.setdefault('TrackProcessorUserAction', 'QuasiStableG4TrackProcessorUserAction')
+    kwargs.setdefault('TrackProcessorUserAction',    'FullG4TrackProcessorUserAction')
     kwargs.setdefault('PhysicsValidationUserAction', 'QuasiStableG4PhysicsValidationUserAction')
     kwargs.setdefault('QuasiStableParticlesIncluded', True)
     return getG4TransportTool(name, **kwargs)

@@ -16,8 +16,10 @@ private
 
 use AtlasCLHEP            AtlasCLHEP-*            External
 use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
 use AtlasHepMC            AtlasHepMC-*            External
 use AtlasROOT             AtlasROOT-*             External
+use BarcodeInterfaces     BarcodeInterfaces-*     Simulation/Barcode
 use FadsActions           FadsActions-*           Simulation/G4Sim/FADS
 use FadsGeometry          FadsGeometry-*          Simulation/G4Sim/FADS
 use FadsPhysics           FadsPhysics-*           Simulation/G4Sim/FADS
@@ -33,11 +35,6 @@ use ISF_Interfaces        ISF_Interfaces-*        Simulation/ISF/ISF_Core
 use MCTruth               MCTruth-*               Simulation/G4Sim
 use SimHelpers            SimHelpers-*            Simulation/G4Sim
 use StoreGate             StoreGate-*             Control
-
-########## Tracking ############################################################
-use GeoPrimitives         GeoPrimitives-*         DetectorDescription
-use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
-use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
 
 public
 library ISF_Geant4Tools *.cxx components/*.cxx

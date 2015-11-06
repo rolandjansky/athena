@@ -10,7 +10,7 @@
 #include "G4RunManagerHelper.h"
 
 // package includes
-#include "G4LayerDetectorConstruction.h"
+#include "G4DetectorConstruction.h"
 
 // Athena includes
 #include "FadsGeometry/FadsDetectorConstruction.h"
@@ -77,7 +77,7 @@ G4RunManager* iGeant4::G4RunManagerHelper::fastG4RunManager() const
   G4VUserPhysicsList *thePL = new QGSP_BERT;
 
   m_fastG4RunManager->SetUserInitialization(thePL);
-  m_fastG4RunManager->SetUserInitialization(new G4LayerDetectorConstruction());
+  m_fastG4RunManager->SetUserInitialization(new G4DetectorConstruction());
 
   // initialize Geant4
   m_fastG4RunManager->Initialize();

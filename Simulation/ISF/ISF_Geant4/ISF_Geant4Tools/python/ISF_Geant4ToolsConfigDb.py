@@ -14,7 +14,6 @@ addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getTrackProcessorUserAction"     
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getFullG4TrackProcessorUserAction"        , "FullG4TrackProcessorUserAction")
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getPassBackG4TrackProcessorUserAction"    , "PassBackG4TrackProcessorUserAction")
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getAFII_G4TrackProcessorUserAction"       , "AFII_G4TrackProcessorUserAction")
-addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getQuasiStableG4TrackProcessorUserAction" , "QuasiStableG4TrackProcessorUserAction")
 
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getG4TransportTool"                       , "ISFG4TransportTool")
 addTool("ISF_Geant4Tools.ISF_Geant4ToolsConfig.getFullG4TransportTool"                   , "FullG4TransportTool")

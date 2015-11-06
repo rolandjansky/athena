@@ -88,6 +88,9 @@ namespace iGeant4 {
     float                                                         m_pph;
     float                                                         m_p;
     float                                                         m_eloss;
+    float                                                         m_radloss; 
+    float                                                         m_ionloss; 
+    float                                                         m_wzOaTr; 
     float                                                         m_thIn;
     float                                                         m_phIn;
     float                                                         m_dIn;
@@ -112,6 +115,7 @@ namespace iGeant4 {
     mutable float                                                 m_vtx_plong_diff;
     mutable float                                                 m_vtx_pperp_diff;
     mutable float                                                 m_p_mother;
+    mutable float                                                 m_radLength;
     mutable int                                                   m_pdg_child[MAXCHILDREN];     // decay product pdg code
     mutable float                                                 m_fp_child[MAXCHILDREN];      // fraction of incoming momentum 
     mutable float                                                 m_oa_child[MAXCHILDREN];      // opening angle wrt the mother
@@ -124,6 +128,9 @@ namespace iGeant4 {
     double m_cavernRmean, m_cavernZmean;
     int m_volumeOffset;
     int m_minHistoryDepth;
+
+    mutable int m_currentTrack;
+    std::map<int, int> m_trackGenMap;
 
   };
    

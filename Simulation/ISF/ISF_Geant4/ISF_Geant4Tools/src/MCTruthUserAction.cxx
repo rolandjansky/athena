@@ -85,6 +85,8 @@ void iGeant4::MCTruthUserAction::PreUserTrackingAction(const G4Track* inTrack)
   
     G4Trajectory *temp=new iGeant4::ISFTrajectory(inTrack, m_truthRecordSvcQuick);
     FADS::FadsTrackingAction::GetTrackingAction()->SetTraj(temp);       
+    // TODO: check that the 'temp' obeject is actually deleted by the G4TrackingManager
+    //       after FADS::FadsTrackingAction::GetTrackingAction()->ResetTraj() is executed
   }
   
 }
