@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+from optparse import OptionParser
+import ROOT    
+import math
+parser = OptionParser(
+    usage="""Usage: %prog [options] [configFiles:label]
+    Where [configFiles:label] is a list of configuration files with the JobMaker
+    list of dictionaries inside. If no label is specified, the filename is used 
+    as a label instead. """)
+parser.add_option('-f','--field',dest='dict_field',
+                  help='name of dictionary field to plot in JobMaker',
+                  metavar='FIELD', default='mu')
+parser.add_option('-o','--outFile',dest='outFName',
+                  help='suffix of output file, saved filename will be field_comparison.eps by default.',
+                  metavar="FILE.pdf", default='comparison.pdf')
+def extract_jobmaker(fname):
+    file_handle=open(fname,'r')
+    jobmaker_str=""
+    start = False
+    for line in file_handle:
+        if line.strip().find("#")==0:
+            continue
+        if line.find("JobMaker=[")==0:
+            start = True
+        if start:
+            jobmaker_str+=line
+        if line.find("]")==0:
+            start = False
+    file_handle.close()
+    # we've got the jobmaker datastructure, now tell python to interpret it
+    jobmaker_str = """
+_evts = lambda x: x
+""" + jobmaker_str
+    bytecode = compile(jobmaker_str,'<string>','exec')
+    sandbox={}
+    exec bytecode in sandbox
+    return sandbox['JobMaker']
+def fill_hist(hist,task,field):
+    for job in task:
+        print "mu: %.3g %s: %.3g"%(job['mu'],field,job[field])
+        hist.SetBinContent(hist.FindBin(job['mu']),job[field])
+def mean(task,field):
+    tot=0
+    N=0
+    for job in task:
+        N+=job['evts']
+        tot+=job[field]
+    return tot/N
+def main():
+    (options,args)=parser.parse_args()
+    if len(args)==0:
+        parser.print_help()
+        exit(1)
+    opt_dict=vars(options)
+    out_fname=opt_dict['outFName']
+    field=opt_dict['dict_field']
+    c1=ROOT.TCanvas("c1","Comparison of mu to %s"%(field),600,600)
+    leg=ROOT.TLegend(0.68,0.78,0.89,0.89)
+    leg.SetFillStyle(0)
+    leg.SetBorderSize(0)
+    hists=[]
+    for col,arg in enumerate(args):
+        fname=arg.split(':')[0]
+        label=''
+        try:
+            label=arg.split(':')[1]
+        except IndexError: 
+            label=fname
+        task=extract_jobmaker(fname)
+        hist=ROOT.TH1F("hist_"+fname,"Comparison of mu to %s"%(field),
+                       len(task)+1,math.floor(task[0]['mu']),
+                       math.ceil(task[-1]['mu'])+2)
+        hist.SetLineColor(col+1)
+        hist.SetFillStyle(1001)
+        fill_hist(hist,task,field)
+        print "%s <%s> = %.2f"%(label,field,mean(task,field))
+        leg.AddEntry(hist,label,"l")
+        hists+=[hist]
+    maximum=max([hist.GetMaximum() for hist in hists])
+    hists[0].SetMaximum(1.2*maximum)
+    hists[0].Draw("H")
+    for hist in hists[1:]:
+        hist.Draw("H SAME")
+    c1.Draw()
+    leg.Draw()
+    name=field+"_"+out_fname
+    c1.SaveAs(name)
+if __name__ == "__main__":
+    ROOT.gROOT.SetBatch(1)
+    ROOT.gStyle.SetOptStat(0)
+    main()
