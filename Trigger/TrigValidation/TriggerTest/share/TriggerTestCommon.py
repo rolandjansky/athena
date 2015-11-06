@@ -25,6 +25,8 @@ if  ('chainOrderOption' in dir()):
         orderHLTChains=-1
     else:
         orderHLTChains=1
+#see ATR-11913 or more detailed:https://its.cern.ch/jira/browse/ATR-11913?focusedCommentId=852792&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-852792 
+    TriggerFlags.MuonSlice.disableSignatures(['HLT_mu0_muoncalib_ds3'])
     
     # set direct or inverse order of chain execution
     print "Setting order of trigger chain execution"
@@ -88,8 +90,8 @@ if memFreeze:
 
 
 # formatting of log output
-MessageSvc.debugLimit = 20000000
-MessageSvc.infoLimit  = 20000000
+MessageSvc.debugLimit = 10000
+MessageSvc.infoLimit  = 1000000
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 
 #get rid of messages and increase speed
@@ -102,5 +104,3 @@ if hasattr(svcMgr,'THistSvc'):
 #from AthenaCommon.AlgSequence import AlgSequence
 print AlgSequence
 print ServiceMgr
-
-
