@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArG4H6COLDTCMod0ChannelMap.h"
+#include "LArG4H6COLDTCMod0ChannelMap.h"
 
 #include "G4ThreeVector.hh"
 #include "G4PVPlacement.hh"

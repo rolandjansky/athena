@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArG4H6COLDTCMod0CalibCalculator.h"
+#include "LArG4H6COLDTCMod0CalibCalculator.h"
 
 #include "G4Step.hh"
 

@@ -2,90 +2,70 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArGeoH62004EventAction.h"
+#include "LArGeoH62004EventAction.h"
 
-#include "TBEvent/TBEventInfo.h"
-
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
-#include "StoreGate/StoreGateSvc.h"
-
 //#include "ParticleGenerator/ParticleManager.h"
-
 #include "LArG4RunControl/LArGeoTB2004Options.h"
+#include "CxxUtils/make_unique.h" // For make unique
 
 #include <iomanip>
 
-static LArGeoH62004EventAction sa("LArGeoH62004EventAction");
 int LArGeoH62004EventAction::m_evnum=0;
 
-LArGeoH62004EventAction::LArGeoH62004EventAction(std::string s):UserAction(s)
+LArGeoH62004EventAction::LArGeoH62004EventAction(const std::string& type, const std::string& name, const IInterface* parent)
+  : UserActionBase(type,name,parent)
+  , m_ev("TBEventInfo")
 {
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
-  StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
-  if (status.isFailure()) {
-     std::cout << "LArGeoH62004EventAction::LArGeoH62004EventAction could not get the MessageSvc !"<<std::endl;
-  }
-  MsgStream msgStr = MsgStream(m_msgSvc, "LArGeoH62004EventAction");
+  ATH_MSG_DEBUG ("LArGeoH62004EventAction::LArGeoH62004EventAction constructor");
+}
+
+StatusCode LArGeoH62004EventAction::initialize(){
   
-  msgStr << MSG::DEBUG  <<"LArGeoH62004EventAction::LArGeoH62004EventAction constructor"<<endreq;
-
-  status = svcLocator->service("StoreGateSvc", m_storeGate);
-  if (status.isFailure()) {
-     msgStr << MSG::ERROR << " could not fetch the StoraGateSvc !!!" << endreq;
-  }
-  status = svcLocator->service("DetectorStore", m_detectorStore);
-
-  if ( !status.isSuccess()  ||  m_detectorStore == 0 ) {
-        msgStr << MSG::FATAL << "could not access detector store - " << status << endreq;
-        throw GaudiException("Could not get DetectorStore","LArGeoH62004EventAction",StatusCode::FAILURE);
-  }
-  status = m_detectorStore->retrieve(m_largeoTB2004Options, "LArGeoTB2004Options");
+  StatusCode status = detStore()->retrieve(m_largeoTB2004Options, "LArGeoTB2004Options");
   if(status.isFailure()) {
-     msgStr << MSG::WARNING << "\tCan't access LArGeoTB2004Options, using default values" << endreq;
-     m_largeoTB2004Options = 0;
+    ATH_MSG_WARNING ( "\tCan't access LArGeoTB2004Options, using default values" );
+    m_largeoTB2004Options = 0;
   }
+  
+  return StatusCode::SUCCESS;
 }
 
-void LArGeoH62004EventAction::EndOfEventAction(const G4Event * /*theEvent*/)
+void LArGeoH62004EventAction::EndOfEvent(const G4Event * /*theEvent*/)
 { 
-   MsgStream msgStr = MsgStream(m_msgSvc, "LArGeoH62004EventAction");
-   msgStr << MSG::DEBUG <<"LArGeoH62004EventAction::EndOfEventAction"<<endreq;
-   StatusCode status;
 
-   //float beamm = PG::ParticleManager::GetInstance()->getEnergy(0);
-   float beamm = 0.;
-   //float ypos = PG::KinematicManager::GetManager()->getValue(PG::kTargetY);
-   float ypos,xpos;
-   if(m_largeoTB2004Options) {
-      ypos = m_largeoTB2004Options->TableYPosition();
-      xpos = m_largeoTB2004Options->CryoXPosition();
-   } else {
-      xpos = ypos = 0.;
-   }
-   //int pdg = PG::ParticleManager::GetInstance()->getPDG(0);
-   int pdg = 0;
-   int evtype = 1; // Physics !!!!
+  ATH_MSG_DEBUG ("LArGeoH62004EventAction::EndOfEventAction");
+  StatusCode status;
 
-   msgStr << MSG::DEBUG << "TBEventInfo: "<<m_evnum<<"/"<<pdg<<"/"<<evtype<<"/"<<0<<"/"<<beamm<<"/"<<""<<"/"<<xpos<<"/"<<0<<"/"<<ypos << endreq;
-   TBEventInfo *ev = new TBEventInfo(++m_evnum,pdg,evtype,0,beamm,"",xpos,0,ypos);
-   status = m_storeGate->record(ev,"TBEventInfo");
-   if (status.isFailure()) {
-       msgStr << MSG::ERROR << "Failed to record  TBEventInfo in StoreGate!" << endreq;
-   }
-   status = m_storeGate->setConst(ev);
-   if (status.isFailure()) {
-       msgStr << MSG::ERROR << "Failed to lock  TBEventInfo in StoreGate!" << endreq;
-   }
- return;
+  //float beamm = PG::ParticleManager::GetInstance()->getEnergy(0);
+  float beamm = 0.;
+  //float ypos = PG::KinematicManager::GetManager()->getValue(PG::kTargetY);
+  float ypos,xpos;
+  if(m_largeoTB2004Options) {
+    ypos = m_largeoTB2004Options->TableYPosition();
+    xpos = m_largeoTB2004Options->CryoXPosition();
+  } else {
+    xpos = ypos = 0.;
+  }
+  //int pdg = PG::ParticleManager::GetInstance()->getPDG(0);
+  int pdg = 0;
+  int evtype = 1; // Physics !!!!
+  
+  ATH_MSG_DEBUG ( "TBEventInfo: "<<m_evnum<<"/"<<pdg<<"/"<<evtype<<"/"<<0<<"/"<<beamm<<"/"<<""<<"/"<<xpos<<"/"<<0<<"/"<<ypos);
+
+  m_ev = CxxUtils::make_unique<TBEventInfo>(++m_evnum,pdg,evtype,0,beamm,"",xpos,0,ypos);
+  return;
 }
 
 
-
-
-
-
-
+StatusCode LArGeoH62004EventAction::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}
