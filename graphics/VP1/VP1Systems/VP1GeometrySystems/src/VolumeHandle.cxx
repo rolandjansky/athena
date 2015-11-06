@@ -92,6 +92,7 @@ VolumeHandle::VolumeHandle(VolumeHandleSharedData * cd,VolumeHandle * parent, co
   : d(new Imp(cd,pV,accumTrans)), m_childNumber(childNumber), m_nchildren(childNumber>=0?pV->getNChildVols():0), m_muonChamberState(mcs), m_parent(parent),
     m_state(VP1GeoFlags::CONTRACTED)
 {
+  // std::cout<<"VolumeHandle ctor for "<<this<<" with parent="<<parent<<" and GeoPVConstLink @"<<&pV<<std::endl;
   //commondata might be 0 in the special case where VolumeHandle is
   //used as a base class for other reasons inside
   //VolumeTreeModel. Just make sure we dont crash in that case.
@@ -492,6 +493,7 @@ bool VolumeHandle::isEther() const
 
 //____________________________________________________________________
 void VolumeHandle::expandMothersRecursivelyToNonEther() {
+  // std::cout<<" VolumeHandle::expandMothersRecursivelyToNonEther() for "<<this<<std::endl;
   if (!nChildren()||!isEther())
     return;
   setState(VP1GeoFlags::ZAPPED);
@@ -501,6 +503,8 @@ void VolumeHandle::expandMothersRecursivelyToNonEther() {
     (*childItr)->expandMothersRecursivelyToNonEther();
   }
   setState(VP1GeoFlags::EXPANDED);
+  // std::cout<<" VolumeHandle::expandMothersRecursivelyToNonEther() for "<<this<<" DONE"<<std::endl;
+  
 }
 
 //____________________________________________________________________

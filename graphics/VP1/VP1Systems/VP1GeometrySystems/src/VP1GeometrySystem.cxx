@@ -91,8 +91,8 @@ public:
 
   class SubSystemInfo {
   public:
-    //"geomodellocation" contains name of tree tops, or possible a
-    //bit more complex info in case of muons.
+    // "geomodellocation" contains name of tree tops, or possible a
+    // bit more complex info in case of muons.
     SubSystemInfo( QCheckBox* cb,const QRegExp& _geomodeltreetopregexp, bool _negatetreetopregexp,
 		  const QRegExp& _geomodelchildrenregexp, bool _negatechildrenregexp, VP1GeoFlags::SubSystemFlag _flag,
 		  const std::string& _matname,
@@ -133,7 +133,7 @@ public:
      *
      */
     QRegExp geomodeltreetopregexp;//For picking the geomodel treetops
-    QRegExp geomodelchildrenregexp;//If instead of the treetops, this system consists of volumes below some treetop, this is non-empty.
+    QRegExp geomodelchildrenregexp;//If instead of the treetops, this system consists of volumes below the treetop, this is non-empty.
     QRegExp geomodelgrandchildrenregexp;//If instead of the treetops, this system consists of volumes below the child of a treetop, this is non-empty.
     bool negatetreetopregexp;
     bool negatechildrenregexp;
@@ -169,6 +169,20 @@ public:
     bool grandchildrenRegExpNameCompatible(const std::string& volname) const {
     	//std::cout << "volname: " << volname << " - regexpr: " << geomodelgrandchildrenregexp.pattern().toStdString() << std::endl;
     	return negategrandchildrenregexp!=geomodelgrandchildrenregexp.exactMatch(volname.c_str());
+    }
+    
+    void dump() const {
+      std::cout<<" SubSystemInfo @ "<<this<<"\n" 
+               <<(isbuilt?"Is built.\n":"Is not built.\n") 
+               <<(muonchambers?"Has muon chambers.\n":"No muon chambers.\n");
+      std::cout<<"Contains following volhandles: [";
+      for (auto vol : vollist) std::cout<<&vol<<",";
+      std::cout<<"]"<<std::endl;
+      std::cout<<"Matname = "<<matname<<std::endl;
+      std::cout<<"Contains following TreetopInfo: [";
+      for (auto tt : treetopinfo) std::cout<<tt.volname<<",";
+      std::cout<<"]"<<std::endl;
+      
     }
 
   };
@@ -311,6 +325,8 @@ void VP1GeometrySystem::Imp::addSubSystem(const VP1GeoFlags::SubSystemFlag& f,
 					  const std::string& matname, bool negatetreetopregexp, bool negatechildrenregexp,
 					  const QString& grandchildrenregexp, bool negategrandchildrenregexp)
 {
+  theclass->message("VP1GeometrySystem::Imp::addSubSystem - "+str(matname.c_str()) );
+  
   QCheckBox * cb = controller->subSystemCheckBox(f);
   if (!cb) {
     theclass->message("Error: Problems retrieving checkbox for subsystem "+str(f));
@@ -325,6 +341,8 @@ void VP1GeometrySystem::Imp::addSubSystem(const VP1GeoFlags::SubSystemFlag& f,
 //_____________________________________________________________________________________
 QWidget * VP1GeometrySystem::buildController()
 {
+  message("VP1GeometrySystem::buildController");
+  
   d->controller = new GeoSysController(this);
 
   d->phisectormanager = new PhiSectorManager(d->controller->phiSectionWidget(),this,this);
@@ -408,7 +426,7 @@ QWidget * VP1GeometrySystem::buildController()
   d->addSubSystem( VP1GeoFlags::MuonShielding,"Muon",".*ANON.*","Shielding", false, false, "(JDSH|JTSH|JFSH).*");
 
 
-  // All muon stuff
+  // All muon stuff --> this will be linked to the "Services" checkbox in the GUI
 //  d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true);
   d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon",".*(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true,"(ECT_Toroids|BAR_Toroid|Feet|NewSmallWheel|JDSH|JTSH|JFSH).*",true);
   
@@ -729,6 +747,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     deselectAll();
     volhandle->setState(VP1GeoFlags::ZAPPED);
     message("===&gt; Zapping Node: "+volhandle->getName());
+    // std::cout<<"Zapped VH="<<volhandle<<std::endl;
     return;
   }
 
@@ -779,7 +798,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   /////////////////////////////////////////////////////////
 
   message("===&gt; Selected Node: "+volhandle->getName());
-
+  // std::cout<<"VolHandle = "<<volhandle<<std::endl;
   if (d->controller->printInfoOnClick_Shape()) {
     foreach (QString str, DumpShape::shapeToStringList(volhandle->geoPVConstLink()->getLogVol()->getShape()))
       message(str);
@@ -940,6 +959,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 		  VP1LinAlgUtils::transformToMatrix(it->xf,matr);
 		  VolumeHandle * vh = new VolumeHandle(volhandle_subsysdata,0,it->pV,ichild++,VolumeHandle::NONMUONCHAMBER,matr);
 		  si->vollist.push_back(vh);
+      // std::cout<<"Non muon chamber VH="<<vh<<std::endl;
 	  }
   } else {
 	  //Loop over the children of the physical volumes of the treetops that we previously selected:
@@ -963,6 +983,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 		  const bool hasMuonChambers=si->hasMuonChambers();
 
 		  GeoVolumeCursor av(it->pV);
+      unsigned int count=0;
 		  while (!av.atEnd()) {
 
 			  // DEBUG
@@ -974,14 +995,20 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 				  SbMatrix matr;
 				  VP1LinAlgUtils::transformToMatrix(av.getTransform(),matr);
 				  VolumeHandle * vh=0;
-
+          // std::cout<<count++<<": dump SubSystemInfo\n"<<"---"<<std::endl;
+          // si->dump();
+          // std::cout<<"---"<<std::endl;
 				  if (hasMuonChambers){
 					  vh = new MuonVolumeHandle(volhandle_subsysdata,0,pVD,ichild++,
 							  (hasMuonChambers?VolumeHandle::MUONCHAMBER_DIRTY:VolumeHandle::NONMUONCHAMBER),matr,pv2MuonStation[pVD],chamberT0s);
 					  muonchambers_pv2handles[pVD] = vh;
+            // std::cout<<"Has muon chamber VH="<<vh<<std::endl;
+            
 				  } else {
+            
 					  vh = new VolumeHandle(volhandle_subsysdata,0,pVD,ichild++,
 							  (hasMuonChambers?VolumeHandle::MUONCHAMBER_DIRTY:VolumeHandle::NONMUONCHAMBER),matr);
+                // std::cout<<"Does not have muon chamber (weird one) VH="<<vh<<std::endl;
 				  }
 
 				  // DEBUG
@@ -989,24 +1016,30 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 
 				  if (si->geomodelgrandchildrenregexp.isEmpty()) {
 					  // append the volume to the current list
-					  theclass->messageDebug("granchild inserted : " + vh->getDescriptiveName() + " - " + vh->getName() );
+					  theclass->messageDebug("grandchild inserted : " + vh->getDescriptiveName() + " - " + vh->getName() );
 					  si->vollist.push_back(vh);
 
 				  } else {
 					  theclass->messageDebug("filtering at grandchild level...");
 					  if (si->grandchildrenRegExpNameCompatible(vh->getName().toStdString() ) ) {
-						  theclass->messageDebug("filtered granchild inserted : " + vh->getDescriptiveName() + " - " + vh->getName() );
+						  theclass->messageDebug("filtered grandchild inserted : " + vh->getDescriptiveName() + " - " + vh->getName() );
 						  // append the volume to the current list
 						  si->vollist.push_back(vh);
+					  } else {
+              theclass->message("Zapping this volumehandle because it's probably junk."+vh->getDescriptiveName() + " - " + vh->getName());
+              vh->setState(VP1GeoFlags::ZAPPED); // FIXME - better solution for this? Maybe just don't create them?
+              
+              // std::cout<<"Not adding "<<vh->getName().toStdString()<<"["<<vh<<"] to vollist"<<std::endl;
 					  }
 				  }
 			  }
-			  av.next(); // increment volume cursor.
+			  av.next(); // increment volume cursor.        
 		  }
 		  volhandle_subsysdata->unref();//To ensure it is deleted if it was not used.
 	  }
   }
 
+  // std::cout<<"volumetreemodel->addSubSystem"<<std::endl;
   volumetreemodel->addSubSystem( si->flag, si->vollist );
 
   //NB: We let the destructor of volumetreemodel take care of deleting
@@ -1015,8 +1048,9 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 
   //Perform auto expansion of all ether volumes (needed for muon dead material):
   VolumeHandle::VolumeHandleListItr it, itE(si->vollist.end());
-  for (it = si->vollist.begin(); it!=itE; ++it)
+  for (it = si->vollist.begin(); it!=itE; ++it){
     (*it)->expandMothersRecursivelyToNonEther();
+  }
 
   phisectormanager->updateRepresentationsOfVolsAroundZAxis();
   phisectormanager->largeChangesEnd();
@@ -1024,6 +1058,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
   si->soswitch->enableNotify(save);
   if (save)
     si->soswitch->touch();
+  theclass->messageDebug("END of VP1GeometrySystem::Imp::buildSystem() " );
 }
 
 //_____________________________________________________________________________________
@@ -1643,7 +1678,7 @@ void VP1GeometrySystem::orientViewToMuonChamber(const GeoPVConstLink& chamberPV)
       //Zoom to chamber with given orientation - and we make sure the
       //chamber is attached while we initiate the zoom (so the camera
       //helper can use a boundaryboxaction to find the bounding box):
-      VP1CameraHelper::animatedZoomToSubTree(*it,d->sceneroot,chambersep,1.0,1.0,newdirection,newup);
+      VP1CameraHelper::animatedZoomToSubTree(*it,d->sceneroot,chambersep,1.0, 100.0, 100.0, 1.0,newdirection,newup);
     }
   }
 
