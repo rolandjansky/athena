@@ -50,9 +50,9 @@ namespace iGeant4 {
     /** create a new TruthBinding object for the given G4Track (may return 0 if unable) */
     ISF::ITruthBinding* newTruthBinding(const G4Track* aTrack) const;
 
-    ISF::ISFParticle* attachNewISFParticle(G4Track* aTrack,
-                                           const ISF::ISFParticle* parent,
-                                           AtlasDetDescr::AtlasRegion nextGeoID);
+    ISF::ISFParticle* newISFParticle(G4Track* aTrack,
+                                     const ISF::ISFParticle* parent,
+                                     AtlasDetDescr::AtlasRegion nextGeoID);
 
     /** kills the given G4Track, converts it into an ISFParticle and returns it to the ISF particle broker */
     void returnParticleToISF( G4Track *aTrack, ISF::ISFParticle *parentISP, AtlasDetDescr::AtlasRegion nextGeoID );

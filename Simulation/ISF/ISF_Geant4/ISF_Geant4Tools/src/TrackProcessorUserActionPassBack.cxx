@@ -296,9 +296,9 @@ iGeant4::TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack
 
 //________________________________________________________________________
 ISF::ISFParticle*
-iGeant4::TrackProcessorUserActionPassBack::attachNewISFParticle(G4Track* aTrack,
-                                                                const ISF::ISFParticle* parent,
-                                                                AtlasDetDescr::AtlasRegion  nextGeoID)
+iGeant4::TrackProcessorUserActionPassBack::newISFParticle(G4Track* aTrack,
+                                                          const ISF::ISFParticle* parent,
+                                                          AtlasDetDescr::AtlasRegion  nextGeoID)
 {
   ISF::ITruthBinding* tBinding = newTruthBinding(aTrack);
     
@@ -309,13 +309,6 @@ iGeant4::TrackProcessorUserActionPassBack::attachNewISFParticle(G4Track* aTrack,
     isp->setNextSimID( parent->nextSimID() );
   }
 
-  // store new ISF particle in m_parentISPmap
-  if (aTrack->GetTrackStatus()==fAlive) {
-    int trackID  = aTrack->GetTrackID();
-    ATH_MSG_VERBOSE("Setting ISFParticle to "<<isp<<" for trackID "<<trackID<<" (from new ISFParticle)");
-    ISFG4Helpers::linkG4TrackToISFParticle( *aTrack, isp );
-  }  
-
   return isp;
 }
 
@@ -323,14 +316,17 @@ iGeant4::TrackProcessorUserActionPassBack::attachNewISFParticle(G4Track* aTrack,
 //________________________________________________________________________
 void
 iGeant4::TrackProcessorUserActionPassBack::returnParticleToISF( G4Track *aTrack,
-                                                        ISF::ISFParticle *parentISP,
-                                                        AtlasDetDescr::AtlasRegion nextGeoID )
+                                                                ISF::ISFParticle *parentISP,
+                                                                AtlasDetDescr::AtlasRegion nextGeoID )
 {
   // kill track inside G4
   aTrack->SetTrackStatus( fStopAndKill );
 
   // create new ISFParticle and attach it to current G4Track
-  ISF::ISFParticle *newISP = attachNewISFParticle(aTrack, parentISP, nextGeoID);
+  ISF::ISFParticle *newISP = newISFParticle( aTrack, parentISP, nextGeoID );
+
+  // link the G4Track to the new ISFParticle
+  ISFG4Helpers::linkG4TrackToISFParticle( *aTrack, newISP );
 
   // flag the track to let code downstream know that this track was returned to ISF
   VTrackInformation* trackInfo = dynamic_cast<VTrackInformation*>(aTrack->GetUserInformation());
@@ -342,7 +338,7 @@ iGeant4::TrackProcessorUserActionPassBack::returnParticleToISF( G4Track *aTrack,
 
 
   // push the particle back to ISF
-  m_particleBroker->push(newISP, parentISP);
+  m_particleBrokerQuick->push(newISP, parentISP);
 
   return;
 }
