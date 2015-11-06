@@ -193,7 +193,7 @@ InDetFlags.doMonitoringAlignment = False
 InDetFlags.doPrintConfigurables = True
 
 #Turn off filling of TRT occupacy to EventInfo (does not work for Standalone)
-InDetFlags.doTRTOccupancyEventInfo = False
+InDetFlags.doTRTGlobalOccupancy = False
 
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!
 # This way RecExCommon just needs to import the properties without doing anything else!

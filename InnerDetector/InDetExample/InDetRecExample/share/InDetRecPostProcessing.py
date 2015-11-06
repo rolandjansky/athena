@@ -464,7 +464,8 @@ if InDetFlags.doConversions():
   topSequence.InDetConversionFinder.doExtrapolation = True
 
 
-if InDetFlags.doParticleCreation():
+# [XXX JDC: problems with the association tool (Tracks already in SG) 
+if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput():
 
  from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
  InDetVxLinkSetter = InDet__InDetVxLinksToTrackParticles(name          = "InDetVxLinkSetter",

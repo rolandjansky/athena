@@ -88,6 +88,8 @@ else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HighPileup")
       elif InDetFlags.doMinBias():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")        
+      elif InDetFlags.doDVRetracking():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("LargeD0")        
       else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
     InDetNewTrackingCuts.printInfo()
@@ -436,6 +438,54 @@ else:
 
     # ------------------------------------------------------------
     #
+    # --- Large-d0 option (FIXME: Here or should be placed 
+    #     after standard reconstruction...?
+    #
+    # ------------------------------------------------------------
+    if InDetFlags.doLargeD0():
+      #
+      # --- run Si pattern for high-d0
+      #
+      if InDetFlags.doDVRetracking():
+          # Cuts already defined in the mode, no need to re-load them
+          InDetNewTrackingCutsLargeD0 = InDetNewTrackingCuts
+      if (not 'InDetNewTrackingCutsLargeD0' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsLargeD0 not set before - import them now"      
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
+      InDetNewTrackingCutsLargeD0.printInfo()
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      # ----- Include (in the case of ESD processing) the standard tracks
+      #       in order to use the PRD association tool and use only unused hits
+      if InDetFlags.useExistingTracksAsInput():
+          InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
+      InDetLargeD0SiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+                                                            InDetKeys.ResolvedLargeD0Tracks(),
+                                                            InDetKeys.SiSpSeededLargeD0Tracks(),
+                                                            InDetNewTrackingCutsLargeD0,
+                                                            TrackCollectionKeys,
+                                                            TrackCollectionTruthKeys)
+      #
+      # --- do the TRT pattern
+      #
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetLargeD0TRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsLargeD0,
+                                                                 InDetLargeD0SiPattern.SiTrackCollection(),
+                                                                 InDetKeys.ExtendedLargeD0Tracks(),
+                                                                 InDetKeys.ExtendedTracksMapLargeD0(),
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
+      # --- remove the standard tracks included some lines before (in the ESD 
+      #     processing case, those tracks are not part of the re-tracking procedure)
+      if InDetFlags.useExistingTracksAsInput():
+          _dummy = InputCombinedInDetTracks.pop()
+      # --- add into list for combination
+      InputCombinedInDetTracks += [ InDetLargeD0TRTExtension.ForwardTrackCollection()]
+
+    
+
+    # ------------------------------------------------------------
+    #
     # --- Low Pt option (after BackTracking)
     #
     # ------------------------------------------------------------
@@ -588,7 +638,6 @@ else:
       # --- do not add into list for combination YET
       # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
     
-
     # ------------------------------------------------------------
     #
     # --- Pixel Tracklets on unassociated PRDs (after standard reconstruction + forward tracking)
@@ -860,6 +909,9 @@ else:
           InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DBMTracks(),
                                                        InDetKeys.DBMDetailedTracksTruth(),
                                                        InDetKeys.DBMTracksTruth())
+      
+      if InDetFlags.useExistingTracksAsInput():
+          InputCombinedInDetTracks +=  [ InDetKeys.ProcessedESDTracks() ] 
 
       if InDetFlags.doDBMstandalone():
         TrackCollectionKeys      += [ InDetKeys.DBMTracks() ]
@@ -1000,7 +1052,17 @@ else:
       InputTrackCollection    = InDetKeys.Tracks()
       if InDetFlags.doTruth():
         InputDetailedTrackTruth   = InDetKeys.DetailedTracksTruth()
-        InputTrackCollectionTruth = InDetKeys.TracksTruth()        
+        InputTrackCollectionTruth = InDetKeys.TracksTruth()       
+      # --- [FIXME JDC: PROVISIONAL PATCH. The final collection 
+      #      should be the one pointed by InDetKeys.Tracks()? Trying to 
+      #      find a solution...
+      if InDetFlags.useExistingTracksAsInput():
+        InDetTrkSlimmer.SlimmedTrackLocation = [ "MergedTracks" ]
+        InputTrackCollection = "MergedTracks"
+        if InDetFlags.doTruth():
+            InputDetailedTrackTruth   = "MergedTracksDetailedTruth"
+            InputTrackCollectionTruth = "MergedTracksTruth"
+      # --- [FIXME JDC: END PROVISIONAL PATCH
 
     # ---------------------------------------------------------------- 
     #
@@ -1031,6 +1093,17 @@ else:
         else: 
           InputDetailedTrackTruth   = InDetKeys.DetailedTracksTruth()
           InputTrackCollectionTruth = InDetKeys.TracksTruth()
+      # --- [FIXME JDC: PROVISIONAL PATCH. The final collection 
+      #      should be the one pointed by InDetKeys.Tracks()? Trying
+      #      to find a soluction...
+      if InDetFlags.useExistingTracksAsInput():
+        InDetCopyAlg.AliasName = "MergedTracks"
+        InputTrackCollection = "MergedTracks"
+        if InDetFlags.doTruth():
+            InputDetailedTrackTruth   = "MergedTracksDetailedTruth"
+            InputTrackCollectionTruth = "MergedTracksTruth"
+      # --- [FIXME JDC: PROVISIONAL PATCH. The final collection 
+
 
     # -----------------------------------------------------------------
     #

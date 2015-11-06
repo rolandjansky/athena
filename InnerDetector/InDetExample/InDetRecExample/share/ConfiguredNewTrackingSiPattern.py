@@ -11,7 +11,7 @@ include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
 class  ConfiguredNewTrackingSiPattern:
 
    def __init__(self, InputCollections = None, ResolvedTrackCollectionKey = None, SiSPSeededTrackCollectionKey = None , NewTrackingCuts = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[]):
-   
+      
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
       #
@@ -24,7 +24,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -208,7 +208,7 @@ class  ConfiguredNewTrackingSiPattern:
          elif InDetFlags.doHeavyIon():
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_HeavyIon'
          
-         elif NewTrackingCuts.mode() == "LowPt": 
+         elif NewTrackingCuts.mode() == "LowPt":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LowMomentum'
 
          elif NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
@@ -224,7 +224,10 @@ class  ConfiguredNewTrackingSiPattern:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardSLHCTracks'
 
          elif NewTrackingCuts.mode() == "VeryForwardSLHCTracks": 
-          InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks' 
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks' 
+
+         elif NewTrackingCuts.mode() == "LargeD0":
+           InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
          
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
@@ -472,7 +475,13 @@ class  ConfiguredNewTrackingSiPattern:
                TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
-               
+      
    def SiTrackCollection ( self ):
-      return self.__SiTrackCollection
+      try:
+         return self.__SiTrackCollection
+      except AttributeError:
+         raise AttributeError("ConfiguredNewTrackingSiPattern: "\
+                  " Neither InDetFlags.doSiSPSeededTrackFinder nor InDetFlags.doAmbiSolving"\
+                  " are True, meaning the __SiTrackCollection data member has not been declared.")
+               
 

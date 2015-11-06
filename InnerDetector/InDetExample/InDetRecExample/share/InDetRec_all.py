@@ -73,6 +73,7 @@ else:
     ServiceMgr.EventSelector.InputCollections   = athenaCommonFlags.FilesInput()
     ServiceMgr.EventSelector.SkipEvents         = athenaCommonFlags.SkipEvents()
 
+
 # ---- Beam Spot service
 include("InDetBeamSpotService/BeamCondSvc.py")
 # --- particle property service
@@ -80,6 +81,11 @@ include("PartPropSvc/PartPropSvc.py")
 # --- if truth, get corresponding POOL converters
 if InDetFlags.doTruth():
   include("GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py")
+
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+alg = xAODMaker__EventInfoCnvAlg()
+print alg
+topSequence += alg
 
 #------------------------------------------------------------
 # Event Data Model Monitor
@@ -102,6 +108,12 @@ if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()) and InDetFlags.doTruth()
 
 if not (('doWriteBS' in dir() and doWriteBS)):
   include( "InDetRecExample/InDetRec_jobOptions.py" )
+
+
+# for TrigConfBunchCrossingTool
+if not hasattr(ServiceMgr,'TrigConfigSvc') :
+  from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+  cfg = TriggerConfigGetter()
 
 #--------------------------------------------------------------
 # Load Inner Detector Monitoring, use the data quality flags for steering
@@ -239,6 +251,7 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     # --- load list of objects
     include ( "InDetRecExample/WriteInDetAOD.py" )
     StreamAOD.ItemList  += [ 'xAOD::EventInfo#EventInfo' , 'xAOD::EventAuxInfo#EventInfoAux.' ]
+
     # --- add trigger to IDRE standalone AOD
     StreamAOD.ItemList += [ "TrigDec::TrigDecision#TrigDecision" ]
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
@@ -255,4 +268,3 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamRDO.ItemList   +=  ['InDetSimDataCollection#*','McEventCollection#*']
     # --- Force read
     StreamRDO.ForceRead  = TRUE;  #force read of output data objs
- 

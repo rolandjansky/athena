@@ -30,10 +30,10 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 #
 if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
   SCTCablingDataSource='CORACOOL'
-  SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-  #if its CONDBR2, use new folders...
-  if (conddb.dbdata == "CONDBR2"):
-      SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+  SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+  #if its COMP200, use old folders...
+  if (conddb.dbdata == "COMP200"):
+      SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
   #...but now check if we want to override that decision with explicit flag (if there is one)
   try:
       if InDetFlags.ForceCoraCool():
