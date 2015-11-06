@@ -325,12 +325,19 @@ MatVisAttributes::MatVisAttributes() {
   }
 
 
+
+  /*
+   * ETHER MATERIAL
+   * This transparent material was used to hide the "fakeVolume" added by AGDD,
+   * but there are other "standard" volumes, which use "Ether" material, for example in CSC chambers.
+   * So we do not use this workaround anymore...
   {
-    /* Ether: ---> it's a special "totally transparent" material, made to hide the "fakeVol" volume used in GeoModel to cope with the G4GeoAssembly objects in G4
-	 * more details:
-	 * - https://its.cern.ch/jira/browse/ATLASVPONE-166
-	 * - https://svnweb.cern.ch/trac/atlasoff/browser/DetectorDescription/AGDD/AGDDControl/trunk/src/AGDD2GeoModelBuilder.cxx?rev=648789#L502
-	 */
+	//
+    // Ether: ---> it's a special "totally transparent" material, made to hide the "fakeVol" volume used in GeoModel to cope with the G4GeoAssembly objects in G4
+	// more details:
+	// - https://its.cern.ch/jira/browse/ATLASVPONE-166
+	// - https://svnweb.cern.ch/trac/atlasoff/browser/DetectorDescription/AGDD/AGDDControl/trunk/src/AGDD2GeoModelBuilder.cxx?rev=648789#L502
+	//
     SoMaterial *m = new SoMaterial;
     m->ambientColor.setValue(0.2, 0.2, 0.2);
     m->diffuseColor.setValue(0.58, 0.47, 0.81);
@@ -338,6 +345,8 @@ MatVisAttributes::MatVisAttributes() {
     m->transparency.setValue(1.0); // --> TOTALLY TRANSPARENT!!!  (set it to < 1.0 (e.g. 0.5) if you want to see the "fakeVol" cylinder in GeoModel)
     add("Ether",m);
   }
+  */
+ 
 
   {
     // C02:
