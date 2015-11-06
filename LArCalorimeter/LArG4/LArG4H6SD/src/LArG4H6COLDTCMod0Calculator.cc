@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArG4H6COLDTCMod0Calculator.h"
-#include "LArG4H6SD/LArG4H6COLDTCMod0ChannelMap.h"
+#include "LArG4H6COLDTCMod0Calculator.h"
+#include "LArG4H6COLDTCMod0ChannelMap.h"
 
 // ATLAS LAr includes
 #include "LArG4Code/LArG4Identifier.h"
@@ -24,6 +24,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <exception>
 
 #include <cmath>
 #include <limits>
@@ -183,5 +184,12 @@ G4bool LArG4H6COLDTCMod0Calculator::Process(const G4Step* a_step)
 
      return true;
   }
+}
+
+G4bool LArG4H6COLDTCMod0Calculator::Process(const G4Step*, std::vector<LArHitData>&)
+{
+  std::cout << "Not implemented!" << std::endl;
+  throw;
+  return false;
 }
 

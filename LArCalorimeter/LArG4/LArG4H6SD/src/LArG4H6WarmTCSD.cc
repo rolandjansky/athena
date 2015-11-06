@@ -2,17 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArG4H6WarmTCSD.h"
+#include "LArG4H6WarmTCSD.h"
 #include "CaloG4Sim/SimulationEnergies.h"
 
-#include "FadsSensitiveDetector/SensitiveDetectorEntryT.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
-
-#include "GaudiKernel/Bootstrap.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "G4HCofThisEvent.hh"
 #include "G4VTouchable.hh"
 #include "G4TouchableHistory.hh"
 #include "G4NavigationHistory.hh"
@@ -29,29 +21,23 @@
 #include "G4VSolid.hh"
 #include "G4LogicalVolume.hh"
 
+#include "CxxUtils/make_unique.h" // For make unique
+
 #undef DEBUG_ME
 
-static FADS::SensitiveDetectorEntryT<LArG4H6WarmTCSD> WarmTC_SDX("LArG4H6WarmTC::X");
-static FADS::SensitiveDetectorEntryT<LArG4H6WarmTCSD> WarmTC_SDY("LArG4H6WarmTC::Y");
-static FADS::SensitiveDetectorEntryT<LArG4H6WarmTCSD> WarmTC_SDAbs("LArG4H6WarmTC::Abs");
-
-
-LArG4H6WarmTCSD::LArG4H6WarmTCSD(G4String name) :
-  FADS::FadsSensitiveDetector(name),
-  m_Collection(0),
-  m_CalibSD(0)
+LArG4H6WarmTCSD::LArG4H6WarmTCSD(G4String name, G4String colname)
+  : G4VSensitiveDetector(name)
+  , m_Collection(colname)
+  , m_CalibSD(0)
 {
   if(name.find("::Abs")!=std::string::npos){
-    collectionName.insert("WarmTCAbsCollection");
     m_isABS = true;
     m_isX = false;
   } else {
     if(name.find("::X")!=std::string::npos){
-      collectionName.insert("WarmTCSciXCollection");
       m_isABS = false;
       m_isX = true;
     } else {
-      collectionName.insert("WarmTCSciYCollection");
       m_isABS = false;
       m_isX = false;
     }
@@ -65,24 +51,14 @@ LArG4H6WarmTCSD::LArG4H6WarmTCSD(G4String name) :
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: creating: "<<name<<std::endl;
 #endif
-  if(name.find("::Cal")!=std::string::npos) {
-    m_CalibSD = ((LArG4::CalibrationSensitiveDetector*)G4SDManager::GetSDMpointer()-> FindSensitiveDetector("TBEndcap::Dead"));
+  if(m_isCalib) {
+    m_CalibSD = ((LArG4CalibSD*)G4SDManager::GetSDMpointer()-> FindSensitiveDetector("TBEndcap::Dead"));
     if(!m_CalibSD) {
-      ATH_MSG_ERROR ( "LArG4H6WarmTCSD::LArG4H6WarmTCSD: could not find SD:  TBEndcap::Dead !!!" );
+      std::cout << "LArG4H6WarmTCSD::LArG4H6WarmTCSD: could not find SD:  TBEndcap::Dead !!!" << std::endl;
+      throw;
     }
   }
 
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap.h
-  if (svcLocator->service("StoreGateSvc", m_storeGate).isFailure()) {
-    ATH_MSG_ERROR ( " could not fetch the StoraGateSvc !!!" );
-  }
-
-}
-
-LArG4H6WarmTCSD::~LArG4H6WarmTCSD(){
-  // G4 handles the garbage collection
-  //   if(m_Collection) delete m_Collection;
-  //   if(m_CalibSD) delete m_CalibSD;
 }
 
 void LArG4H6WarmTCSD::Initialize(G4HCofThisEvent*)
@@ -90,7 +66,12 @@ void LArG4H6WarmTCSD::Initialize(G4HCofThisEvent*)
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: "<<SensitiveDetectorName<<" initializing coll.: "<<collectionName[0]<<std::endl;
 #endif
-  m_Collection = new LArG4H6WarmTCHitCollection();
+#ifdef ATHENAHIVE
+    // Temporary fix for Hive until isValid is fixed
+    m_Collection = CxxUtils::make_unique<LArG4H6WarmTCHitCollection>();
+#else
+    if (!m_Collection.isValid()) m_Collection = CxxUtils::make_unique<LArG4H6WarmTCHitCollection>();
+#endif
 #ifdef DEBUG_ME
   std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: initialized "<<collectionName[0]<<" with HCID: "<<G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0])<<std::endl;
 #endif
@@ -192,33 +173,14 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
   return true;
 }
 
-void LArG4H6WarmTCSD::EndOfEvent(G4HCofThisEvent* /*HCE*/)
+void LArG4H6WarmTCSD::EndOfAthenaEvent()
 {
   //G4int HCID;
   G4String cnam;
-  /*
-    G4SDManager *SDMAN = G4SDManager::GetSDMpointer();
-    if(m_isABS)
-    HCID = SDMAN->GetCollectionID(cnam="WarmTCAbsCollection");
-    else
-    if(m_isX) HCID = SDMAN->GetCollectionID(cnam="WarmTCSciXCollection");
-    else HCID = SDMAN->GetCollectionID(cnam="WarmTCSciYCollection");
-  */
   hitIt i;
   for (i = m_hits.begin(); i != m_hits.end(); i++ ) {
     //      m_Collection->insert( i->second );
     m_Collection->push_back(i->second);
   }
-#ifdef DEBUG_ME
-  std::cout<<"LArG4H6WarmTCSD::LArG4H6WarmTCSD: exporting: "<<collectionName[0]<<" and size: "<<m_Collection->size()<<std::endl;
-#endif
-  //HCE->AddHitsCollection(HCID, m_Collection );
-  if (m_storeGate->record(m_Collection,collectionName[0],false).isFailure()) {
-    ATH_MSG_ERROR ( "Failed to record LArG4H6WarmTCHitCollection  in StoreGate!" );
-  }
-  if (m_storeGate->setConst(m_Collection).isFailure()) {
-    ATH_MSG_ERROR ( "Failed to lock LArG4H6WarmTCHitCollection  in StoreGate!" );
-  }
-
   m_hits.clear();
 }

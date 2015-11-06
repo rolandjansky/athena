@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArFCALH62004CalibCalculatorBase.h"
+#include "LArFCALH62004CalibCalculatorBase.h"
 #include "LArG4FCAL/LArFCALCalculatorBase.h"
 
 #include "LArG4Code/LArG4Identifier.h"

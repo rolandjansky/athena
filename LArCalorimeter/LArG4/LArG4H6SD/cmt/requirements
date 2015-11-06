@@ -2,53 +2,47 @@ package LArG4H6SD
 
 author Pavol Strizenec <pavol@mail.cern.ch>
 
-
 use AtlasPolicy                 AtlasPolicy-*
-use AthenaBaseComps             AthenaBaseComps-*       Control
-use AthenaKernel                AthenaKernel-*          Control
-use CaloG4Sim                   CaloG4Sim-*             Calorimeter
-use FadsActions                 FadsActions-*           Simulation/G4Sim/FADS
-use FadsSensitiveDetector       FadsSensitiveDetector-* Simulation/G4Sim/FADS
+#use FadsSensitiveDetector       FadsSensitiveDetector-* Simulation/G4Sim/FADS
 use GaudiInterface              GaudiInterface-*        External
-use Geant4                      Geant4-*                External
-use Identifier                  Identifier-*            DetectorDescription
-use LArG4SD                     LArG4SD-*               LArCalorimeter/LArG4
-use LArG4Code                   LArG4Code-*             LArCalorimeter/LArG4
-use LArG4TBSimEvent             LArG4TBSimEvent-*       LArCalorimeter/LArG4TB
-use LArReadoutGeometry          LArReadoutGeometry-*    LArCalorimeter/LArGeoModel
-use LArSimEvent                 LArSimEvent-*           LArCalorimeter
-use RDBAccessSvc                RDBAccessSvc-*          Database/AthenaPOOL
-use SimHelpers                  SimHelpers-*            Simulation/G4Sim
-use StoreGate                   StoreGate-*             Control
 
-library LArG4H6SD LArG4H6EmecSD.cc LArG4H6EmecMultSD.cc LArG4TBECBeamChCalculator.cc LArG4TBECBeamChHit.cc LArG4TBECBeamChSensitiveDetector.cc  LArG4H6EmecMerger.cc LArG4H6EmecMergerFactory.cc
-apply_pattern linked_library
-
-library LArG4H62004SD LArG4H62004SD.cc  LArG4H62004MultSD.cc LArG4H62004CalibSD.cc LArG4H6WarmTCCalculator.cc LArG4H6WarmTCSD.cc  LArG4H6BeamSD.cc LArG4H6COLDTCMod0ChannelMap.cc LArG4H6COLDTCMod0Calculator.cc  LArG4H62004Merger.cc LArG4H62004MergerFactory.cc LArHitsH6EventAction.cc LArGeoH62004SteppingAction.cc RadLenNtuple.cc LArGeoH62004EventAction.cc LArG4H62004DeadCalibrationCalculator.cc LArG4H6COLDTCMod0CalibCalculator.cc LArFCALH62004CalibCalculatorBase.cc LArFCAL1H62004CalibCalculator.cc LArFCAL2H62004CalibCalculator.cc
-apply_pattern named_linked_library library=LArG4H62004SD
-
-library LArG4H6SDTools LArTBH6TriggerTimeTool.cxx  LArTBH6BeamInfo.cxx components/LArG4H6SDTools_entries.cxx components/LArG4H6SDTools_load.cxx
-apply_pattern named_component_library library=LArG4H6SDTools
+library LArG4H6SD *.cxx *.cc components/*.cxx
+apply_pattern component_library
 
 apply_pattern declare_python_modules files="*.py"
 #=======================================================
 private
 
-use AtlasHepMC          AtlasHepMC-*            External
-use AtlasCLHEP          AtlasCLHEP-*            External
-use AtlasBoost          AtlasBoost-*            External
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
-use CaloSimEvent        CaloSimEvent-*          Calorimeter
-use GeneratorObjects    GeneratorObjects-*      Generators
-use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
-use GeoModelUtilities   GeoModelUtilities-*     DetectorDescription/GeoModel
-use HitManagement       HitManagement-*         Simulation
-use LArG4HEC            LArG4HEC-*              LArCalorimeter/LArG4
-use LArG4EC             LArG4EC-*               LArCalorimeter/LArG4
-use LArG4FCAL           LArG4FCAL-*             LArCalorimeter/LArG4
-use LArG4RunControl     LArG4RunControl-*       LArCalorimeter/LArG4
-use PathResolver        PathResolver-*          Tools
-use TBEvent             TBEvent-*               TestBeam
+use AthenaBaseComps             AthenaBaseComps-*       Control
+use AthenaKernel                AthenaKernel-*          Control
+use CxxUtils                    CxxUtils-*              Control
+use G4AtlasTools                G4AtlasTools-*          Simulation/G4Atlas
+use Identifier                  Identifier-*            DetectorDescription
+use StoreGate                   StoreGate-*             Control
+use AtlasHepMC                  AtlasHepMC-*            External
+use AtlasCLHEP                  AtlasCLHEP-*            External
+use AtlasBoost                  AtlasBoost-*            External
+use CaloG4Sim                   CaloG4Sim-*             Calorimeter
+#use CaloIdentifier             CaloIdentifier-*        Calorimeter
+use CaloSimEvent                CaloSimEvent-*          Calorimeter
+use Geant4                      Geant4-*                External
+use GeneratorObjects            GeneratorObjects-*      Generators
+use GeoModelInterfaces          GeoModelInterfaces-*    DetectorDescription/GeoModel
+use GeoModelUtilities           GeoModelUtilities-*     DetectorDescription/GeoModel
+use HitManagement              HitManagement-*         Simulation
+use LArG4Code                   LArG4Code-*             LArCalorimeter/LArG4
+use LArG4HEC                    LArG4HEC-*              LArCalorimeter/LArG4
+use LArG4EC                     LArG4EC-*               LArCalorimeter/LArG4
+use LArG4FCAL                   LArG4FCAL-*             LArCalorimeter/LArG4
+#use LArG4SD                     LArG4SD-*               LArCalorimeter/LArG4
+use LArG4TBSimEvent             LArG4TBSimEvent-*       LArCalorimeter/LArG4TB
+use LArSimEvent                 LArSimEvent-*           LArCalorimeter
+use LArG4RunControl             LArG4RunControl-*       LArCalorimeter/LArG4
+use LArReadoutGeometry          LArReadoutGeometry-*    LArCalorimeter/LArGeoModel
+use PathResolver                PathResolver-*          Tools
+use RDBAccessSvc                RDBAccessSvc-*          Database/AthenaPOOL
+use SimHelpers                  SimHelpers-*            Simulation/G4Sim
+use TBEvent                     TBEvent-*               TestBeam
 
 #apply_pattern do_genconf library=LArG4H6SDTools
 
@@ -58,3 +52,4 @@ use TBEvent             TBEvent-*               TestBeam
 #macro_append LArG4Code_cppflags  " -O0 -g "
 
 end_private
+

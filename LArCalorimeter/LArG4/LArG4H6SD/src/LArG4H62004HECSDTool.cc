@@ -1,0 +1,51 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "LArG4H62004HECSDTool.h"
+#include "LArG4H62004SD.h"
+
+#include "LArG4Code/LArG4Hit.h"
+
+#include "LArG4HEC/LArHECLocalCalculator.h"
+
+#include "CxxUtils/make_unique.h"
+
+LArG4H62004HECSDTool::LArG4H62004HECSDTool(const std::string& type, const std::string& name, const IInterface *parent)
+  : LArG4SDTool(type,name,parent)
+  , m_HitColl("LArHitHEC")
+{
+  declareInterface<ISensitiveDetector>(this);
+}
+
+StatusCode LArG4H62004HECSDTool::initializeSD()
+{
+  LArHECLocalCalculator* aCalc = LArHECLocalCalculator::GetCalculator();
+  aCalc->SetOutOfTimeCut(10000.);
+  aCalc->SetX(true);
+  m_wheelSD = new LArG4H62004SD( "LAr::HEC::Module::Depth::Slice::Local::H6" , aCalc , m_timeBinType , m_timeBinWidth );
+
+  std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
+  configuration[m_wheelSD] = &m_volumeNames;
+  setupAllSDs(configuration);
+
+  // Make sure the ID helpers are all set up
+  setupHelpers(m_wheelSD);
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode LArG4H62004HECSDTool::Gather()
+{
+  // In this case, *unlike* other SDs, the *tool* owns the collection
+#ifdef ATHENAHIVE
+  // Temporary fix for Hive until isValid is fixed
+  m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
+#else
+  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<LArHitContainer>(m_HitColl.name());
+#endif
+  // Hand this collection name off to the SDs.  They will be writing to the
+  // collection, but only one at a time!
+  m_wheelSD->EndOfAthenaEvent( &*m_HitColl );
+  return StatusCode::SUCCESS;
+}
