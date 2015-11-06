@@ -207,6 +207,20 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	
 	declareProperty("CollectiveHistogramsNames", m_collectiveHistogramsNames);
 	declareProperty("CollectiveHistogramForAlgorithm", m_collectiveHistogramForAlgorithm);
+
+	//Additional initialization for non-static members found by Coverity
+	m_detStore = 0;
+	m_ZdcID = 0;
+	declareProperty("MBTS_countsBothSides", m_mbtsCountsBothSides);
+	declareProperty("pixSpBarr",	pixSpBarr = 0);
+	declareProperty("pixSpECA", 	pixSpECA = 0);
+	declareProperty("pixSpECC", 	pixSpECC = 0);
+	declareProperty("sctSpBarr",	sctSpBarr = 0);
+	declareProperty("sctSpECA", 	sctSpECA = 0);
+	declareProperty("sctSpECC", 	sctSpECC = 0);
+	declareProperty("mbTracks", 	mbTracks = 0);
+	declareProperty("totpix_spEF",	totpix_spEF = 0);
+	declareProperty("totsct_spEF",	totsct_spEF = 0);
 }
 
 StatusCode HLTMinBiasMonTool::init()
@@ -430,14 +444,14 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 			addHistogram(new TH1F("Efficiency", "Trigger Efficiency;Lumiblock;Efficiency", 1000, -0.5, 999.5));
 			hist("Efficiency")->Sumw2();
 			
-			addHistogram(new TH1F("EfficiencyTracksAll", "Trigger All Efficiency per Track;N_{trk}^{loose};Entries", 300, -0.5, 299.5));
+			addHistogram(new TH1F("EfficiencyTracksAll", "Trigger All Efficiency per Track;N_{trk}^{loose};Entries", 4000, -0.5, 3999.5));
 			hist("EfficiencyTracksAll")->Sumw2();
-			addHistogram(new TH1F("EfficiencyTracksPassed", "Trigger Passed Efficiency per Track;N_{trk}^{loose};Entries", 300, -0.5, 299.5));
+			addHistogram(new TH1F("EfficiencyTracksPassed", "Trigger Passed Efficiency per Track;N_{trk}^{loose};Entries", 4000, -0.5, 3999.5));
 			hist("EfficiencyTracksPassed")->Sumw2();
-			addHistogram(new TH1F("EfficiencyTracks", "Trigger Efficiency per Track;N_{trk}^{loose};Efficiency", 300, -0.5, 299.5));
+			addHistogram(new TH1F("EfficiencyTracks", "Trigger Efficiency per Track;N_{trk}^{loose};Efficiency", 4000, -0.5, 3999.5));
 			hist("EfficiencyTracks")->Sumw2();
 			
-			addHistogram(new TH1I("NumGoodOfflineTracks", "Number of accepted offline tracks (trigger passed);N_{trk}^{loose};Events", 300, 0, 300));
+			addHistogram(new TH1I("NumGoodOfflineTracks", "Number of accepted offline tracks (trigger passed);N_{trk}^{loose};Events", 4000, 0, 4000));
 			
 			addHistogram(new TH1F("GoodOfflineTracksPt", "Transverse momentum of accepted offline tracks (trigger passed);p_{T} [GeV];Entries", 160, 0.4, 20.));
 		}
@@ -1399,13 +1413,14 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 						if (mbtsHitTimes.at(k) < timeMin_A) timeMin_A = mbtsHitTimes.at(k);
 						if (k == 15) {  
 							hist("TimeMin_A")->Fill(timeMin_A);
+							timeMean_A = -999.0;
 							if (time_ebaCounters> 0) {
 								timeMean_A /= time_ebaCounters;
 								hist("TimeMean_A")->Fill(timeMean_A);
 							} 
-							else {
-							timeMean_A = -999.0;
-							}
+						 	//else {
+						 	//timeMean_A = -999.0;
+						 	//}
 						}
 					} else { // C side 
 						hist("OccupancyOnline_C")->Fill(cell_name, 1.0);
@@ -1413,13 +1428,14 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 						if (mbtsHitTimes.at(k) < timeMin_C) timeMin_C = mbtsHitTimes.at(k);
 						if (k == 31) {
 							hist("TimeMin_C")->Fill(timeMin_C);
+							timeMean_C = -999.0;
 							if (time_ebcCounters> 0) {
 								timeMean_C /= time_ebcCounters;
 								hist("TimeMean_C")->Fill(timeMean_C);
 							} 
-							else {
-							timeMean_C = -999.0;
-							}
+							//else {
+							//timeMean_C = -999.0;
+							//}
 						}
 					}
 					//Time online
@@ -1439,26 +1455,28 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 					if (mbtsHitEnergies.at(k) > energyMax_A) energyMax_A = mbtsHitEnergies.at(k);
 					if (k == 15) {
 						hist("EnergyMax_A")->Fill(energyMax_A);                                             
+						energyMean_A = -999.0;
 						if (energy_ebaCounters> 0) {
 							energyMean_A /= energy_ebaCounters;
 							hist("EnergyMean_A")->Fill(energyMean_A);
 						} 
-						else {
-							energyMean_A = -999.0;
-						}
+						//else {
+						//	energyMean_A = -999.0;
+						//}
 					}
 				} else { // C side 
 					energyMean_C += mbtsHitEnergies.at(k); energy_ebcCounters++;
 					if (mbtsHitEnergies.at(k) > energyMax_C) energyMax_C = mbtsHitEnergies.at(k);
 					if (k == 31)  {
 						hist("EnergyMax_C")->Fill(energyMax_C);
+						energyMean_C = -999.0;
 						if ( energy_ebcCounters> 0) {
 							energyMean_C /= energy_ebcCounters;
 							hist("EnergyMean_C")->Fill(energyMean_C);
 						} 
-						else {
-							energyMean_C = -999.0;
-						}
+						//else {
+						//	energyMean_C = -999.0;
+						//}
 					}
 				}
 				//Energy online
