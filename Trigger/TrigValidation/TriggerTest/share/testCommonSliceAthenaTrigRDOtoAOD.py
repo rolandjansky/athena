@@ -32,12 +32,15 @@ except:
     enableCostMonitoring=False
 
 # flags for RecExCommon
+#thanks to Olya for the "magic" AOD combination - see: https://its.cern.ch/jira/browse/ATR-11211
 doTrigger=True
 TriggerModernConfig=True
-rec.doWriteAOD=True
+rec.doWriteAOD.set_Value_and_Lock(True)
+rec.doWritexAOD.set_Value_and_Lock( True)
+rec.doAOD.set_Value_and_Lock(True)
+doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
-rec.doAOD=False 
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
 rec.doCBNT=False 
@@ -125,10 +128,6 @@ def minbiasEnhanced():
         if not HLTitem in TriggerFlags.MinBiasSlice.signatures():
             TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [HLTitem]
 
-def combinedOnly():
-    TriggerFlags.Slices_all_setOff()
-    TriggerFlags.CombinedSlice.setAll()
-
 # Override list of signatures in e/gamma slice
 try:
     from TriggerMenu import useNewTriggerMenu
@@ -166,8 +165,6 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(minbiasOnly)    
     elif sliceName == 'minbiasEnhanced':
         GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)    
-    elif sliceName == 'combined':
-        GenerateMenu.overwriteSignaturesWith(combinedOnly)
     else:
         log.info("WARNING no sliceName given! pleace check this testconfiguration")
 
