@@ -138,7 +138,7 @@ class ConfiguredInDetPreProcessingTRT:
          #
          #    Include alg to save the local occupancy inside xAOD::EventInfo
          #
-         if InDetFlags.doTRTOccupancyEventInfo():
+         if InDetFlags.doTRTGlobalOccupancy():
           from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
           InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(  name 		= "InDet_TRT_LocalOccupancy",
 								isTrigger	= False

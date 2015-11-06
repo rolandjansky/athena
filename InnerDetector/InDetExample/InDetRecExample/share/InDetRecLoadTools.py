@@ -79,6 +79,13 @@ if InDetFlags.doPixelClusterSplitting():
                                                                       LoadWithTrackNetwork = True)
                
         ToolSvc += NnClusterizationFactory
+
+        # special setup for DVRetracking mode
+        if InDetFlags.doDVRetracking() :
+           # COOL binding
+           from IOVDbSvc.CondDB import conddb
+           conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
+
         print NnClusterizationFactory  
         if (InDetFlags.doPrintConfigurables()):
             print NnClusterizationFactory
@@ -834,7 +841,8 @@ if InDetFlags.loadSummaryTool():
     # Configurable version of TRT_ElectronPidTools
     #
     InDetTRT_ElectronPidTool = None
-    if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
+    if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() \
+            and not InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used byt the TRT_LocalOccupancy tool) are not present in ESD
 
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(	  name 				="InDet_TRT_LocalOccupancy",

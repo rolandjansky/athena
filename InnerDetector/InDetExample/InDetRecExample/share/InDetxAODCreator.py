@@ -1,9 +1,10 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() ) and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking()  and  InDetFlags.doParticleCreation()
-
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0) \
+                    and InDetFlags.doParticleCreation()
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
+                    and InDetFlags.doParticleCreation()
 if doCreation:
     print "Creating xAOD::TrackParticles from Trk::Tracks"
 if doConversion:
@@ -14,6 +15,7 @@ from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorT
 InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool", 
                                                              Extrapolator            = InDetExtrapolator,
                                                              TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
+                                                             BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                              ForceTrackSummaryUpdate = False,
                                                              KeepParameters          = True)
 
@@ -22,7 +24,15 @@ ToolSvc += InDetxAODParticleCreatorTool
 if InDetFlags.doPrintConfigurables(): 
     print InDetxAODParticleCreatorTool 
 
-if doCreation or doConversion:
+if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <---- [XXX JDC Should we included this?
+                                #                                                    problems appear when nothing should
+                                #                                                    be done but
+                                #                                                    useExistinTracksAsInput...
+    # [XXX JDC: to deal with the MergedTracks case, the truth collections are
+    #           defined in the InputTrackCollectionTruth variable. To be deprecated
+    #           if finally there is no need of the special "MergedTrack" name
+    if 'InputTrackCollectionTruth' not in dir():
+        InputTrackCollectionTruth = InDetKeys.TracksTruth()
     from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg 
     if not InDetFlags.doDBMstandalone(): 
         xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(InDetKeys.xAODTrackParticleContainer()) 
@@ -35,7 +45,7 @@ if doCreation or doConversion:
         xAODTrackParticleCnvAlg.ConvertTrackParticles = doConversion 
         xAODTrackParticleCnvAlg.ConvertTracks = doCreation 
         xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() 
-        xAODTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.TracksTruth() 
+        xAODTrackParticleCnvAlg.TrackTruthContainerName = InputTrackCollectionTruth
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True 
         topSequence += xAODTrackParticleCnvAlg 
     if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
