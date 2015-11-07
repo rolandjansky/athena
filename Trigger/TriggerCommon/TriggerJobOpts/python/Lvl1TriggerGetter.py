@@ -59,8 +59,6 @@ class Lvl1SimulationGetter (Configured):
         topSequence = AlgSequence()
 
 
-        print "JOERG in Lvl1SimulationGetter : ", TriggerFlags.fakeLVL1() , TriggerFlags.doLVL1()
-        
         if (not TriggerFlags.fakeLVL1()) and TriggerFlags.doLVL1():
 
             if TriggerFlags.doCalo():
@@ -138,7 +136,6 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += alg
 
             if TriggerFlags.doLucid():
-                print "JOERG setting up LUCID"
                 from TrigT1Lucid.TrigT1LucidConf import LVL1__TrigT1Lucid
                 alg = LVL1__TrigT1Lucid()
 
@@ -153,7 +150,6 @@ class Lvl1SimulationGetter (Configured):
                 else:
                     log.warning("%s input (%s) missing, not adding to the topSequence" % (alg.getName(), sgKey))
                     TriggerFlags.doLucid.set_Value(False)
-                print "JOERG ",topSequence
                     
 
             if TriggerFlags.doL1Topo():
