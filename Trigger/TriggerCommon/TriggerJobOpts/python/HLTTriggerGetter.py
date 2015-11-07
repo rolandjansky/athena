@@ -151,7 +151,7 @@ class HLTSimulationGetter(Configured):
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
-            from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+            from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
             theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
             ServiceMgr += theFTK_DataProviderSvc
             
