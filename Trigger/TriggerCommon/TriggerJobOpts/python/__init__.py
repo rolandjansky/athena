@@ -2,7 +2,7 @@
 
 __version__ = '1.0.0'
 __author__  = 'Xin.Wu@cern.ch, Tomasz.Bold@cern.ch'
-__all__ = [ 'TriggerOnlineGetter', 'Lvl1TriggerOnlineGetter', 'TriggerFlags', 'TriggerGetter' , 'T0TriggerGetter' ]
+__all__ = [ 'Lvl1TriggerOnlineGetter', 'TriggerFlags', 'TriggerGetter' , 'T0TriggerGetter' ]
 
 from TrigEDMConfig.TriggerEDM import * 
 
