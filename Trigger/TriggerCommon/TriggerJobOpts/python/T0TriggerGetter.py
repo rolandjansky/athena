@@ -11,20 +11,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 log = logging.getLogger( "T0TriggerGetter.py" )
 
-try:
-    from TriggerMenu import useNewTriggerMenu
-    useNewTM = useNewTriggerMenu()
-    log.info("Using new TriggerMenu: %r" % useNewTM)
-except:
-    useNewTM = False
-    log.info("Using old TriggerMenuPython since TriggerMenu.useNewTriggerMenu can't be imported")
-
-if useNewTM:
-    from TriggerMenu.menu.GenerateMenu import GenerateMenu
-else:
-    from TriggerMenuPython.GenerateMenu import GenerateMenu
-
-
+from TriggerMenu.menu.GenerateMenu import GenerateMenu
 from RecExConfig.Configured import Configured 
 
 def withLVL1():
