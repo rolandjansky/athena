@@ -11,7 +11,9 @@
 
 #include "TrigGenericAlgs/PrescaleAlgo.h"
 PrescaleAlgo::PrescaleAlgo(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::AllTEAlgo(name, pSvcLocator) {
+  : HLT::AllTEAlgo(name, pSvcLocator),
+    m_engine(0)
+{
    declareProperty("Prescale", m_scaler = 0, "Prescaler value, default is 0 which means no output is created.");
   
 }

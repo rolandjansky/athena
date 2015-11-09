@@ -16,7 +16,8 @@ SeededSuperRoiAllTEAlgo::SeededSuperRoiAllTEAlgo(const std::string& name, ISvcLo
   : HLT::AllTEAlgo(name, pSvcLocator),
     m_runOncePerEvent(true),
     m_was_run(false),
-    m_useRoiSizes(true)
+    m_useRoiSizes(true),
+    m_regionSelector(0)
 {
   declareProperty("NumberOfOutputTEs", m_numberOfOutputTEs = 1, "configure the number of output TEs this algorithm will create");
   declareProperty("createRoIDescriptors",  m_createRoIDescriptors=true, "create SuperRoi descriptor if set true");
@@ -82,7 +83,8 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
 
       /// if we want to create our own RoiDescriptors, we need to ensure 
       /// they are deleted at the end
-      if ( !m_useRoiSizes ) superRoi->manageConstituents(true);
+      //      if ( !m_useRoiSizes ) superRoi->manageConstituents(true);
+      superRoi->manageConstituents(true);
 
       // if the input is valid, take _the_ last TEVec and process it
       const HLT::TEVec &tev = tes_in.back();
@@ -117,7 +119,7 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
 	} 
 	
 	if ( m_useRoiSizes ) { 
-	  if ( roiDescriptor ) superRoi->push_back(roiDescriptor);
+	  if ( roiDescriptor ) superRoi->push_back( new TrigRoiDescriptor( *roiDescriptor) );
 	}
 	else { 
 	  double eta = roiDescriptor->eta();
@@ -134,7 +136,7 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
     
     te = addRoI(type_out, superRoi ); // note: addRoI is defined in AllTEAlgo base class
     
-    te->setActiveState(true); // set this trigger element to be active
+    te->setActiveState(  (superRoi->size()>0) ); // set this trigger element to be active
 
   }
   

@@ -5,6 +5,7 @@
 #include "TrigGenericAlgs/OverlapRemoval.h"
 #include "TrigGenericAlgs/ReverseRoI.h"
 #include "TrigGenericAlgs/AcceptWhenInputMissing.h"
+#include "../AcceptWhenInputPresent.h"
 #include "TrigGenericAlgs/PrescaleAlgo.h"
 #include "TrigGenericAlgs/SeededSuperRoiAllTEAlgo.h"
 
@@ -23,6 +24,7 @@ DECLARE_ALGORITHM_FACTORY( DummyCombineAlgo )
 DECLARE_ALGORITHM_FACTORY( OverlapRemoval )
 DECLARE_ALGORITHM_FACTORY( ReverseRoI )
 DECLARE_ALGORITHM_FACTORY( AcceptWhenInputMissing )
+DECLARE_ALGORITHM_FACTORY( AcceptWhenInputPresent )
 DECLARE_ALGORITHM_FACTORY( PrescaleAlgo )
 DECLARE_ALGORITHM_FACTORY( ROBRequestAlgo )
 DECLARE_ALGORITHM_FACTORY( TimeBurner )
@@ -39,6 +41,7 @@ DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
     DECLARE_ALGORITHM( OverlapRemoval )
     DECLARE_ALGORITHM( ReverseRoI )
     DECLARE_ALGORITHM( AcceptWhenInputMissing )
+    DECLARE_ALGORITHM( AcceptWhenInputPresent )
     DECLARE_ALGORITHM( PrescaleAlgo )
     DECLARE_ALGORITHM( ROBRequestAlgo )      
     DECLARE_ALGORITHM( TimeBurner )      
