@@ -232,7 +232,7 @@ namespace Analysis {
       failedCuts.set(etaMax);
     }
     if(m_useTrackSummaryInfo) {
-      uint8_t nb;
+      uint8_t nb=0;
       track->summaryValue(nb, xAOD::numberOfBLayerHits); 
       if(nb < m_nHitBLayer) {
 	failedCuts.set(nHitBLayer);
@@ -240,7 +240,7 @@ namespace Analysis {
 	  pass = false;
 	  failedCuts.set(deadBLayer);
 	} else {
-	  uint8_t ehib;
+	  uint8_t ehib=1;
 	  if (!track->summaryValue(ehib,xAOD::expectBLayerHit)) {
 	    ATH_MSG_WARNING("#BTAG# expectBLayerHit not computed in  TrackSummary: assuming true");
 	    ehib=1;
@@ -251,14 +251,14 @@ namespace Analysis {
 	  }
 	}
       }
-      uint8_t nhp;
+      uint8_t nhp=0;
       track->summaryValue(nhp, xAOD::numberOfPixelHoles);
       if(m_useAntiPileUpCuts) {
 	if(nhp>=m_antiPileUpNHolePixCut) {
 	  pass = false;
 	}
       }
-      uint8_t np;
+      uint8_t np=0;
       track->summaryValue(np, xAOD::numberOfPixelHits);
       if(m_useDeadPixInfo) 
       {
@@ -270,7 +270,7 @@ namespace Analysis {
 	pass = false;
 	failedCuts.set(nHitPix);
       }
-      uint8_t ns;
+      uint8_t ns=0;
       track->summaryValue(ns, xAOD::numberOfSCTHits);
       if(m_useDeadSctInfo)
       {
@@ -292,13 +292,13 @@ namespace Analysis {
 	  failedCuts.set(nHitSi);
 	}
       }
-      uint8_t nh;
+      uint8_t nh=0;
       track->summaryValue(nh, xAOD::numberOfTRTHits);//ms
       if(nh < m_nHitTrt) {
 	pass = false;
 	failedCuts.set(nHitTrt);
       }
-      uint8_t nhe;
+      uint8_t nhe=0;
       track->summaryValue(nhe, xAOD::numberOfTRTHighThresholdHits);//ms
       if(nhe < m_nHitTrtHighE) {
 	pass = false;

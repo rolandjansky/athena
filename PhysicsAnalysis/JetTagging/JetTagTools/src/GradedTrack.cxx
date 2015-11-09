@@ -63,9 +63,9 @@ namespace Analysis {
     std::string suf("");
     for(uint i=0;i<m_grades.size();i++) {
       if(0==i) {
-        suf += (std::string)m_grades[i];
+        suf += m_grades[i].gradeString();
       } else {
-        suf += ("_" + (std::string)m_grades[i]);
+        suf += ("_" + m_grades[i].gradeString());
       }
     }
     return suf;
@@ -77,13 +77,13 @@ namespace Analysis {
 
   MsgStream& operator<<( MsgStream& out, const TrackGradePartition& part) {
     out << "#BTAG# GradePartition: [ ";
-    for(int i=0;i<part.size();i++) out<<" "<<(std::string)part.grades()[i];
+    for(int i=0;i<part.size();i++) out<<" "<<part.grades()[i].gradeString();
     out << " ]";
     return out;
   }
   std::ostream& operator<<( std::ostream& out, const TrackGradePartition& part) {
     out << "#BTAG# GradePartition: [ ";
-    for(int i=0;i<part.size();i++) out<<" "<<(std::string)part.grades()[i];
+    for(int i=0;i<part.size();i++) out<<" "<<part.grades()[i].gradeString();
     out << " ]";
     return out;
   }

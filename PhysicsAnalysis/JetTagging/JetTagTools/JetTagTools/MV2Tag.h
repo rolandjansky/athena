@@ -141,7 +141,7 @@ namespace Analysis {
     float m_sv0_mass; 
     float m_sv0_efrc; 
     float m_sv0_n2t; 
-    float m_sv0_radius; 
+    //float m_sv0_radius; 
     //JetFitter informations
     float m_jf_mass; 
     float m_jf_efrc; 

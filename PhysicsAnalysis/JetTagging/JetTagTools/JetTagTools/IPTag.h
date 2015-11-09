@@ -89,8 +89,8 @@ namespace Analysis {
     bool m_sortZ0D0sig;         // sorting input tracks by z0d0sig
     bool m_RejectBadTracks;
     bool m_SignWithSvx;
-    bool m_writeInfoBase;       // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
-    bool m_writeInfoPlus;       // writes a detailed info 
+    //bool m_writeInfoBase;       // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
+    //bool m_writeInfoPlus;       // writes a detailed info 
     bool m_checkOverflows;      // if true put the overflows in the first/last bins
     bool m_doForcedCalib;
     bool m_useCHypo;
@@ -127,14 +127,14 @@ namespace Analysis {
     int m_NtrkMin;          // minimum number of tracks to consider
     int m_NtrkMax;          // maximum number of tracks to consider (min will always prevail)
     float m_trkFract;       // fraction of total tracks to consider (min will alwayt prevail)
-    std::string sortOption; // steering option
+    std::string m_sortOption; // steering option
 
 
     //// VD: auxiliary information to be stored
     std::vector<std::string> m_hypotheses; // hypotheses: b | u
     /** information to persistify: */
     std::string m_originalTPCollectionName;
-    const xAOD::TrackParticleContainer* m_originalTPCollection;
+    //const xAOD::TrackParticleContainer* m_originalTPCollection;
     /** track classification. */
     std::vector<std::string>          m_trackGradePartitionsDefinition;
     std::vector<TrackGradePartition*> m_trackGradePartitions;

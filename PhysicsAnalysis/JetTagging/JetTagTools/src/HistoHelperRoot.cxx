@@ -333,7 +333,10 @@ void HistoHelperRoot::smoothASH2D(TH2* input2D, int m1, int m2, bool debug) {
     float wk1[41],wk2[41],wgt[100][100];
     double wk[41][41],wks = 0.;
     float ai,am1 = float(m1), am2 = float(m2);
-    float am12 = am1*am1, am22 = am2*am2;
+    const float am12 = am1*am1, am22 = am2*am2;
+    const float inv_am1_am2 = 1. / (am1 * am2);
+    const float inv_am12 = 1. / am12;
+    const float inv_am22 = 1. / am22;
     // Initialisation
     for (k = 0;k<nx-1;k++) {
       for (l = 0;l<ny-1;l++) {
@@ -343,20 +346,22 @@ void HistoHelperRoot::smoothASH2D(TH2* input2D, int m1, int m2, bool debug) {
     // Weights
     for (i = lsup+1-m1;i<lsup+m1;i++) {
       ai = float(i-lsup)*float(i-lsup);
-      wk1[i] = 15./16.*(1.-ai/am12)*(1.-ai/am12);
+      wk1[i] = 15./16.*(1.-ai*inv_am12)*(1.-ai*inv_am12);
       wks = wks + wk1[i];
     }
+    const double fac1 = am1 / wks;
     for (i = lsup+1-m1;i<lsup+m1;i++) {
-      wk1[i] =  wk1[i]*am1/wks;
+      wk1[i] =  wk1[i]*fac1;
     }
     wks = 0.;
     for (i = lsup+1-m2;i<lsup+m2;i++) {
       ai = float(i-lsup)*float(i-lsup);
-      wk2[i] = 15./16.*(1.-ai/am22)*(1.-ai/am22);
+      wk2[i] = 15./16.*(1.-ai*inv_am22)*(1.-ai*inv_am22);
       wks = wks + wk2[i];
     }
+    const double fac2 = am2 / wks;
     for (i = lsup+1-m2;i<lsup+m2;i++) {
-      wk2[i] =  wk2[i]*am2/wks;
+      wk2[i] =  wk2[i]*fac2;
     }
     for (i = lsup+1-m1;i<lsup+m1;i++) {
       for (j = lsup+1-m2;j<lsup+m2;j++) {
@@ -376,7 +381,7 @@ void HistoHelperRoot::smoothASH2D(TH2* input2D, int m1, int m2, bool debug) {
     }
     for (k = 0;k<nx-1;k++) {
       for (l = 0;l<ny-1;l++) {
-        res[k][l] = res[k][l]/am1/am2;
+        res[k][l] = res[k][l]*inv_am1_am2;
         if (wgt[k][l] != 0.) {res[k][l] = res[k][l]/wgt[k][l];}
       }
     }
@@ -476,7 +481,12 @@ void HistoHelperRoot::smoothASH3D(TH3* input3D, int m1, int m2, int m3, bool deb
     //float wgt[100][100][100]; // Trop gros pour certaines machines !!??
     double wk[41][41][41],wks = 0.;
     float ai,am1 = float(m1), am2 = float(m2), am3 = float(m3);
-    float am12 = am1*am1, am22 = am2*am2, am32 = am3*am3;
+    const float am12 = am1*am1, am22 = am2*am2, am32 = am3*am3;
+    const float inv_am1_am2 = 1. / (am1*am2);
+    const float inv_am12 = 1. / am12;
+    const float inv_am22 = 1. / am22;
+    const float inv_am32 = 1. / am32;
+    
     // Initialisation
     for (k = 0;k<nx-1;k++) {
       for (l = 0;l<ny-1;l++) {
@@ -515,29 +525,32 @@ void HistoHelperRoot::smoothASH3D(TH3* input3D, int m1, int m2, int m3, bool deb
     // Weights
     for (i = lsup+1-m1;i<lsup+m1;i++) {
       ai = float(i-lsup)*float(i-lsup);
-      wk1[i] = 15./16.*(1.-ai/am12)*(1.-ai/am12);
+      wk1[i] = 15./16.*(1.-ai*inv_am12)*(1.-ai*inv_am12);
       wks = wks + wk1[i];
     }
+    const double fac1 = am1 / wks;
     for (i = lsup+1-m1;i<lsup+m1;i++) {
-      wk1[i] =  wk1[i]*am1/wks;
+      wk1[i] =  wk1[i]*fac1;
     }
     wks = 0.;
     for (i = lsup+1-m2;i<lsup+m2;i++) {
       ai = float(i-lsup)*float(i-lsup);
-      wk2[i] = 15./16.*(1.-ai/am22)*(1.-ai/am22);
+      wk2[i] = 15./16.*(1.-ai*inv_am22)*(1.-ai*inv_am22);
       wks = wks + wk2[i];
     }
+    const double fac2 = am2 / wks;
     for (i = lsup+1-m2;i<lsup+m2;i++) {
-      wk2[i] =  wk2[i]*am2/wks;
+      wk2[i] =  wk2[i]*fac2;
     }
     wks = 0.;
     for (i = lsup+1-m3;i<lsup+m3;i++) {
       ai = float(i-lsup)*float(i-lsup);
-      wk3[i] = 15./16.*(1.-ai/am32)*(1.-ai/am32);
+      wk3[i] = 15./16.*(1.-ai*inv_am32)*(1.-ai*inv_am32);
       wks = wks + wk3[i];
     }
+    const double fac3 = am3 / wks;
     for (i = lsup+1-m3;i<lsup+m3;i++) {
-      wk3[i] =  wk3[i]*am3/wks;
+      wk3[i] =  wk3[i]*fac3;
     }
 
     for (i = lsup+1-m1;i<lsup+m1;i++) {
@@ -565,7 +578,7 @@ void HistoHelperRoot::smoothASH3D(TH3* input3D, int m1, int m2, int m3, bool deb
     for (k = 0;k<nx-1;k++) {
       for (l = 0;l<ny-1;l++) {
         for (m = 0;m<nz-1;m++) {
-          res[k][l][m] = res[k][l][m]/am1/am2;
+          res[k][l][m] = res[k][l][m]*inv_am1_am2;
           if (wgt[k][l][m] != 0.) {res[k][l][m] = res[k][l][m]/wgt[k][l][m];}
         }
       }

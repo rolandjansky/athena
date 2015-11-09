@@ -8,6 +8,7 @@
 #include "xAODJet/Jet.h"
 #include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
+#include "AthenaKernel/Units.h"
 #include "TMVA/Reader.h"
 #include "TList.h"
 #include "TString.h"
@@ -18,6 +19,8 @@
 #include <vector>
 #include <map>
 #include <list>
+
+using Athena::Units::GeV;
 
 namespace Analysis {
 
@@ -111,7 +114,7 @@ namespace Analysis {
         TObjString* ss = (TObjString*)list->At(i);
 	std::string sss = ss->String().Data();
 	//KM: if it doesn't find "<" in the string, it starts from non-space character
-	int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
 	std::string tmp = sss.erase(0,posi);
 	//std::cout<<tmp<<std::endl;
 	iss << tmp.data();	//iss << sss.Data();
@@ -208,26 +211,26 @@ namespace Analysis {
 
   /** helper functions to define the jet category: */
   static const int njptbin = 11;
-  static const double _jptbins[njptbin] = { 15., 30., 45., 60., 100., 140., 180., 220., 260., 310., 500. };
-  std::vector<double> _vptbins(_jptbins,_jptbins+njptbin);
+  static const double jptbins[njptbin] = { 15., 30., 45., 60., 100., 140., 180., 220., 260., 310., 500. };
+  std::vector<double> vptbins(jptbins,jptbins+njptbin);
   static const int netabin = 5;
-  static const double _etabins[netabin] = { 0., 0.6, 1.2, 1.8, 2.5 };
-  std::vector<double> _vetabins(_etabins,_etabins+netabin);
+  static const double etabins[netabin] = { 0., 0.6, 1.2, 1.8, 2.5 };
+  std::vector<double> vetabins(etabins,etabins+netabin);
 
   int MV1Tag::findPtBin(double pt) const {
-    std::vector<double>::iterator pos = std::lower_bound(_vptbins.begin(), 
-                                                         _vptbins.end(), pt);
-    return (pos-_vptbins.begin());
+    std::vector<double>::iterator pos = std::lower_bound(vptbins.begin(), 
+                                                         vptbins.end(), pt);
+    return (pos-vptbins.begin());
   }
   int MV1Tag::findEtaBin(double eta) const {
-    std::vector<double>::iterator pos = std::lower_bound(_vetabins.begin(), 
-                                                         _vetabins.end(), eta);
-    return (pos-_vetabins.begin());
+    std::vector<double>::iterator pos = std::lower_bound(vetabins.begin(), 
+                                                         vetabins.end(), eta);
+    return (pos-vetabins.begin());
   }
 
   int MV1Tag::jetCategory(double pt, double eta) const {
     int cat = 0;
-    double npt = pt/1000.; // input in MeV, internally in GeV
+    double npt = pt/GeV; // input in MeV, internally in GeV
     double neta = fabs(eta)+0.00000001; // to get same results for boundaries as Root FindBin()
     int binx = this->findPtBin(npt);
     int biny = this->findEtaBin(neta);

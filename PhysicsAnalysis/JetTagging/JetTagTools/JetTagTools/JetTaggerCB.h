@@ -589,7 +589,7 @@ inline bool NeuralNet::load_specifications(const std::string &filename)
 {
 	std::string line;
     std::ifstream FILE( filename.c_str() );
-    bool input_phase = false, output_phase = false, control_phase = false;
+    bool input_phase = false, output_phase = false;//, control_phase = false;
     if (!FILE.is_open()) 
     {
         std::cout << "\nError: Specification file name " << filename << " not found." << std::endl;
@@ -602,17 +602,17 @@ inline bool NeuralNet::load_specifications(const std::string &filename)
     	{
     		input_phase = true;
     		output_phase = false;
-    		control_phase = false;
+    		//control_phase = false;
     	}
     	if (line == "output:")
     	{
     		output_phase = true;
     		input_phase = false;
-    		control_phase = false;
+    		//control_phase = false;
     	}
     	if (line == "control:")
     	{
-    		control_phase = true;
+               //control_phase = true;
     		input_phase = false;
     		output_phase = false;
     	}
@@ -653,8 +653,8 @@ inline bool NeuralNet::load_specifications(const std::string &filename)
 //----------------------------------------------------------------------------
 inline bool NeuralNet::load_specifications(std::stringstream& spec_file)
 {
-	std::string line;
-    bool input_phase = false, output_phase = false, control_phase = false;
+       std::string line;
+    bool input_phase = false, output_phase = false;//, control_phase = false;
     while(std::getline( spec_file, line ))
     {
     	line = trim(line);
@@ -662,17 +662,17 @@ inline bool NeuralNet::load_specifications(std::stringstream& spec_file)
     	{
     		input_phase = true;
     		output_phase = false;
-    		control_phase = false;
+    		//control_phase = false;
     	}
     	if (line == "output:")
     	{
     		output_phase = true;
     		input_phase = false;
-    		control_phase = false;
+    		//control_phase = false;
     	}
     	if (line == "control:")
     	{
-    		control_phase = true;
+               //control_phase = true;
     		input_phase = false;
     		output_phase = false;
     	}

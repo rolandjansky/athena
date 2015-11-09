@@ -112,7 +112,7 @@ StatusCode JetFitterVariablesFactory::finalize() {
         
     //put all needed information inside :-)
     
-    const double s_massks=497.648;
+    //const double s_massks=497.648;
     const double s_pion=139.57018;//hard coded pion mass ;-)
     
     int ntrackPrimaryVtx=myJetCandidate.getPrimaryVertex()->getTracksAtVertex().size();
@@ -368,18 +368,18 @@ StatusCode JetFitterVariablesFactory::finalize() {
       //port range of mass to maximum 10000.
       if (mass>5000.) {
 	mass = 
-	  5000.+5000./TMath::Pi()*2.*TMath::ATan(TMath::Pi()/2./5000.*(mass-5000.));
+	  5000.+(5000./M_PI)*2.*TMath::ATan((M_PI/2./5000.)*(mass-5000.));
       }
       if (mass_uncorr>5000.) {
 	mass_uncorr = 
-	  5000.+5000./TMath::Pi()*2.*TMath::ATan(TMath::Pi()/2./5000.*(mass_uncorr-5000.));
+	  5000.+(5000./M_PI)*2.*TMath::ATan((M_PI/2./5000.)*(mass_uncorr-5000.));
       }
     }
     
     if (inverrordist!=0) {
       significance3d=dist/TMath::Sqrt(inverrordist);
       //port range of significance 3d to maximum 100.
-      significance3d=100./(TMath::Pi()/2.)*TMath::ATan(TMath::Pi()/2./100.*significance3d);
+      significance3d=100./(M_PI/2.)*TMath::ATan((M_PI/2./100.)*significance3d);
     }
     
     if (fabs(sumPAllVertices.mag())>1e-7) {

@@ -63,7 +63,7 @@ namespace Analysis
   }
 
   StatusCode SVTag::initialize() {
-    m_printParameterSettings();
+    printParameterSettings();
 
     /** number of hypotheses = 3 : b | u | c **/
     m_hypotheses.push_back("B");
@@ -175,7 +175,7 @@ namespace Analysis
     }
 
     //Conversion to GeV    
-    c_mom   = 1000.; 
+    m_c_mom   = 1000.; 
     //
     m_expos = 0.7;
                    
@@ -206,20 +206,20 @@ namespace Analysis
     /* The jet */
     double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
     ATH_MSG_VERBOSE("#BTAG# Jet properties : eta = " << jeteta
-		    << " phi = " << jetphi << " pT  = " <<jetpt/c_mom);
+		    << " phi = " << jetphi << " pT  = " <<jetpt/m_c_mom);
 
     // Fill control histograms
     if (m_runModus=="reference" && m_SVmode == "SV2") {
       if (fabs(jeteta) <= 2.5) {
 	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/eta",(double)jeteta);
 	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/phi",(double)jetphi);
-	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/pt",(double)jetpt/c_mom);
+	m_histoHelper->fillHisto("/RefFile/SV2/"+author+"/controlSV/pt",(double)jetpt/m_c_mom);
       }
     }
     //
     // Get the SV info 
     // 
-    float    ambtot = -1., xratio = -1., distnrm = 0., drJPVSV = 0.;
+    float    ambtot = -1., xratio = -1., distnrm = 0., drJPVSV = 0., Lxy = -100., L3d = -100.;
     int NSVPair = -1;
 
     //retrieving the secondary vertices
@@ -232,7 +232,7 @@ namespace Analysis
     if (myVertices.size()>0) {
 
       status &= BTag->variable<float>(m_secVxFinderName, "masssvx", ambtot);// mass in MeV
-      ambtot/=c_mom;
+      ambtot/=m_c_mom;
       status &= BTag->variable<float>(m_secVxFinderName, "efracsvx", xratio);
       status &= BTag->variable<int>(m_secVxFinderName, "N2Tpair", NSVPair);
 
@@ -260,6 +260,8 @@ namespace Analysis
 	if ( m_isFlipped ) drJPVSV = drJPVSV_2; // for negative tags
 	ATH_MSG_VERBOSE("#BTAG# DRJPVSV regular="<<drJPVSV_1<<" flipped="<<drJPVSV_2<<" chosen="<<drJPVSV);
 	
+	Lxy=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2));
+	L3d=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2)+pow(PvSvDir(2,0),2));
       }else{
 	ATH_MSG_VERBOSE("#BTAG# No secondary vertex.");
       }
@@ -323,9 +325,18 @@ namespace Analysis
 	{
 	  BTag->setTaggerInfo(distnrm, xAOD::BTagInfo::SV1_normdist);
 	  BTag->setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
+	  BTag->setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
+	  BTag->setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
+	  BTag->setVariable<float>(m_xAODBaseName, "L3d", L3d);
 	}
       else{
 	BTag->setVariable<float>(m_xAODBaseName, "normdist", distnrm);
+	if (m_xAODBaseName.find("SV1")!=std::string::npos) {
+	  BTag->setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
+	  BTag->setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
+	  BTag->setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
+	  BTag->setVariable<float>(m_xAODBaseName, "L3d", L3d);
+	}
       }
 
     }
@@ -342,7 +353,7 @@ namespace Analysis
       if (m_runModus=="reference") {
 	if (jetpt >= m_pTjetmin && fabs(jeteta) <= 2.5) {
 	  int label = xAOD::jetFlavourLabel(&jetToTag);
-	  double deltaRtoClosestB = 999., deltaRtoClosestC = 999.;
+	  double deltaRtoClosestB = 999.;//, deltaRtoClosestC = 999.;
 	  if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
 	    ATH_MSG_VERBOSE("#BTAG# label found : " << label);
 	    // for purification: require no b or c quark closer than dR=m_purificationDeltaR
@@ -494,7 +505,7 @@ namespace Analysis
   void SVTag::finalizeHistos() {
   }
 
-  void SVTag::m_printParameterSettings() {
+  void SVTag::printParameterSettings() {
     ATH_MSG_INFO("#BTAG# " << name() << "Parameter settings ");
     ATH_MSG_INFO("#BTAG# I am in " << m_runModus << " modus.");
     ATH_MSG_INFO("#BTAG# The method is " << m_SVmode);
@@ -554,6 +565,7 @@ namespace Analysis
 //    }
     bool invertible; 
     AmgSymMatrix(3) meanCovariance; 
+    meanCovariance.setZero();
     sumWeights.computeInverseWithCheck(meanCovariance, invertible); 
     if (! invertible) { 
        ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices"); 
@@ -575,11 +587,12 @@ namespace Analysis
     double Ly = meanPosition[1]-priVertex->position().y();
     double Lz = meanPosition[2]-priVertex->position().z();
     
-    double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
+    const double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
+    const double inv_decaylength = 1. / decaylength;
     
-    double dLdLx = Lx/decaylength;
-    double dLdLy = Ly/decaylength;
-    double dLdLz = Lz/decaylength;
+    double dLdLx = Lx * inv_decaylength;
+    double dLdLy = Ly * inv_decaylength;
+    double dLdLz = Lz * inv_decaylength;
     double decaylength_err = sqrt(dLdLx*dLdLx*covariance(0,0) +
 				  dLdLy*dLdLy*covariance(1,1) +
 				  dLdLz*dLdLz*covariance(2,2) +

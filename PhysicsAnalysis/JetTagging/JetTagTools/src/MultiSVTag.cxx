@@ -44,6 +44,10 @@
 #include "TMVA/IMethod.h"
 #include "TMVA/BinarySearchTree.h"
 #include "TMVA/MethodBase.h"
+#include "AthenaKernel/Units.h"
+
+using Athena::Units::GeV;
+
 namespace Analysis
 {
 
@@ -127,7 +131,8 @@ namespace Analysis
     //TString xmlFileName = "btag"+m_taggerNameBase+"Config_"+alias+".xml";//from MV1, so should work
     //ATH_MSG_DEBUG("#BTAG# xmlFileName= "<<xmlFileName);
 
-    TMVA::Reader* tmvaReader;       std::map<std::string, TMVA::Reader*>::iterator pos;
+    TMVA::Reader* tmvaReader = nullptr;
+    std::map<std::string, TMVA::Reader*>::iterator pos;
     TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
     egammaMVACalibNmsp::BDT *bdt=0; std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator it_egammaBDT;
     ATH_MSG_DEBUG("#BTAG# Jet author for MultiSVTag: " << author << ", alias: " << alias );
@@ -167,7 +172,7 @@ namespace Analysis
 	  TObjString* ss = (TObjString*)list->At(i);
 	  std::string sss = ss->String().Data();
 	  //KM: if it doesn't find "<" in the string, it starts from non-space character
-	  int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	  int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
 	  std::string tmp = sss.erase(0,posi);
 	  //std::cout<<tmp<<std::endl;
 	  iss << tmp.data();
@@ -252,7 +257,7 @@ namespace Analysis
 	  commaSepVars=tos->GetString().Data();
 	}
 
-	while (commaSepVars.find(",")!=-1) {
+	while (commaSepVars.find(",")!=std::string::npos) {
 	  inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(","))); calibNvars++;
 	  commaSepVars.erase(0,commaSepVars.find(",")+1);
 	}
@@ -289,7 +294,7 @@ namespace Analysis
     double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
     m_jetpt = jetpt;
     ATH_MSG_DEBUG("#BTAG# Jet properties : eta = " << jeteta
-                    << " phi = " << jetphi << " pT  = " <<jetpt/1000.);
+                  << " phi = " << jetphi << " pT  = " <<jetpt/GeV);
     //ATH_MSG_INFO("Factory PVX x = " << m_priVtx->x() << " y = " << m_priVtx->y() << " z = " << m_priVtx->z());
 
     TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag.pt(), jetToTag.eta(), jetToTag.phi(), jetToTag.m());

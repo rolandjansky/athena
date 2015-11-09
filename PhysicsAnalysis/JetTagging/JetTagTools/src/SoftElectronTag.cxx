@@ -483,7 +483,7 @@ void SoftElectronTag::UseElectrons(xAOD::Jet& jetToTag)
 	      totalpro = CombineWeights(jetToTag,eTemp,1);
 	    } else
 	      // in case of use of the cut based selection 
-	      if (eTemp->isemse()&&egammaPID::ElectronTight) {
+	      if (eTemp->isemse()&egammaPID::ElectronTight) {
 		// combine weights of pTrel + d0
 		totalpro = CombineWeights(jetToTag,eTemp,2);
 	      }
@@ -544,7 +544,7 @@ void SoftElectronTag::UsePhotons(xAOD::Jet& jetToTag)
 	    totalpro = CombineWeights(jetToTag,eTemp,1);
 	  } else
 	    // in case of use of the cut based selection 
-	    if (eTemp->isemse()&&egammaPID::ElectronTight) {
+	    if (eTemp->isemse()&egammaPID::ElectronTight) {
 	      // combine weights of pTrel + d0
 	      totalpro = CombineWeights(jetToTag,eTemp,2);
 	    }
@@ -995,7 +995,7 @@ bool SoftElectronTag::isBBaryon(const int pID) const
   //
   std::string idStr = longToStr( abs(pID) );
   char digit4 = idStr[ idStr.length() - 4 ];
-  if( (digit4=='5') ) 
+  if( digit4=='5' ) 
     return true;
   else 
     return false;
@@ -1026,7 +1026,7 @@ bool SoftElectronTag::isDBaryon(const int pID) const
   //
   std::string idStr = longToStr( abs(pID) );
   char digit4 = idStr[ idStr.length() - 4 ];
-  if( (digit4=='4') ) 
+  if( digit4=='4' ) 
     return true;
   else 
     return false;

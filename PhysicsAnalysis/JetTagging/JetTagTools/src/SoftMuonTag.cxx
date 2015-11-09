@@ -113,7 +113,7 @@ StatusCode SoftMuonTag::initialize()
 {
   
   ATH_MSG_INFO("#BTAG# Initializing..."); 
-  m_printParameterSettings();
+  printParameterSettings();
 
   /** retrieving ToolSvc: */
   IToolSvc* toolSvc;
@@ -302,7 +302,7 @@ StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
   std::vector<Amg::Vector3D> hardMus;
   if (m_runModus=="reference") {
     // Veto jets containing a muon from direct decay of W/Z/H:
-    bool hasHardMu(false);
+    //bool hasHardMu(false);
     //const SoftLeptonTruthInfo* sltinfo = jetToTag.tagInfo<SoftLeptonTruthInfo>("SoftLeptonTruthInfo");
     /*
     if (sltinfo) {
@@ -427,18 +427,18 @@ StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
     ///return StatusCode::SUCCESS; /// need to go untill the end to decorate
   }
 
-  SoftMuonInfo* softmInfo(0);
+  //SoftMuonInfo* softmInfo(0);
   // LOOP OVER MUONS ASSOCIATED WITH THE JET:
-  int muCounter         = 0;       // number of muons passing basic selection
-  int muCounterL1D      = 0;       // number of muons tagged by L1D algorithm
-  int muCounterLowPt    = 0;       // number of muons passing basic selection
-  int muCounterL1DLowPt = 0;       // number of muons tagged by L1D algorithm
-  std::vector<double> bestMuProbi; // likelihood (b, c, l) of the best muon
-  double bestMuWeight = 0;         // weight of the best muon
-  if(m_algMode == "CHI2") bestMuWeight = 1000.;
-  double highestPT = 0;       // for reference: if several, use
-  double highestPTrel = 0;    // only the muon with highest pt
-  bool   highestIsLowP = 0;
+  //int muCounter         = 0;       // number of muons passing basic selection
+  //int muCounterL1D      = 0;       // number of muons tagged by L1D algorithm
+  //int muCounterLowPt    = 0;       // number of muons passing basic selection
+  //int muCounterL1DLowPt = 0;       // number of muons tagged by L1D algorithm
+  //std::vector<double> bestMuProbi; // likelihood (b, c, l) of the best muon
+  //double bestMuWeight = 0;         // weight of the best muon
+  //if(m_algMode == "CHI2") bestMuWeight = 1000.;
+  //double highestPT = 0;       // for reference: if several, use
+  //double highestPTrel = 0;    // only the muon with highest pt
+  //bool   highestIsLowP = 0;
 
   
   /// variables used to decorate the Btagging object
@@ -461,7 +461,7 @@ StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
     if ( tmpMuon->muonType() != xAOD::Muon::Combined) continue;
 
     // Veto muons close to muons from W/Z/H decay in reference mode
-    bool closeToHardMu(false);
+    //bool closeToHardMu(false);
     
     /*
     for(uint i=0;i<hardMus.size();i++) {
@@ -703,16 +703,16 @@ StatusCode SoftMuonTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
   if (muonIndex!=-1) ATH_MSG_DEBUG(" #BTAG: choosing muon: " <<  muonIndex);
 
   // now decorate the b-tagging object
-  std::string m_xAODBaseName="SMT";
-  BTag->setVariable<float>(m_xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
-  BTag->setVariable<float>(m_xAODBaseName, "dR"              , jet_mu_dRmin_dR);
-  BTag->setVariable<float>(m_xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
-  BTag->setVariable<float>(m_xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
-  BTag->setVariable<float>(m_xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
-  BTag->setVariable<float>(m_xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
-  BTag->setVariable<float>(m_xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
-  BTag->setVariable<float>(m_xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
-  BTag->setVariable<float>(m_xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
+  std::string xAODBaseName="SMT";
+  BTag->setVariable<float>(xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
+  BTag->setVariable<float>(xAODBaseName, "dR"              , jet_mu_dRmin_dR);
+  BTag->setVariable<float>(xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
+  BTag->setVariable<float>(xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
+  BTag->setVariable<float>(xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
+  BTag->setVariable<float>(xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
+  BTag->setVariable<float>(xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
+  BTag->setVariable<float>(xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
+  BTag->setVariable<float>(xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
   
   ElementLink<xAOD::MuonContainer> theLink; 
   if (muonIndex!=-1) theLink=assocMuons.at(muonIndex);
@@ -768,7 +768,7 @@ void SoftMuonTag::finalizeHistos()
 }
 
 
-void SoftMuonTag::m_printParameterSettings()
+void SoftMuonTag::printParameterSettings()
 {
   ATH_MSG_INFO( "#BTAG# " << name() << "Parameter settings " );
   ATH_MSG_INFO( "#BTAG# I am in " << m_runModus << " modus." );

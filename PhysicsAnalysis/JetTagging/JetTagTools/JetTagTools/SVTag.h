@@ -57,7 +57,7 @@ namespace Analysis
       ToolHandle< NewLikelihoodTool > m_likelihoodTool;
       HistoHelperRoot* m_histoHelper;
       
-      double c_mom;
+      double m_c_mom;
       float  m_expos;
       
       std::string m_runModus; 
@@ -75,7 +75,7 @@ namespace Analysis
       const xAOD::Vertex* m_priVtx;
       
       /** just print some info at the beginning */
-      void m_printParameterSettings();
+      void printParameterSettings();
 
       // for debugging:
       int m_nbjet;

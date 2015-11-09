@@ -11,6 +11,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
+#include "AthenaKernel/Units.h"
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
 #include "TList.h"
@@ -23,6 +24,8 @@
 #include <map>
 #include <list>
 #include <math.h>       /* hypot */
+
+using Athena::Units::GeV;
 
 namespace Analysis {
 
@@ -192,7 +195,7 @@ namespace Analysis {
 	  TObjString* ss = (TObjString*)list->At(i);
 	  std::string sss = ss->String().Data();
 	  //KM: if it doesn't find "<" in the string, it starts from non-space character
-	  int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+	  int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
 	  std::string tmp = sss.erase(0,posi);
 	  //std::cout<<tmp<<std::endl;
 	  iss << tmp.data();
@@ -226,7 +229,7 @@ namespace Analysis {
 	}
 
 	//prepare inputVars
-	while (commaSepVars.find(",")!=-1) {
+	while (commaSepVars.find(",")!=std::string::npos) {
 	  inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
 	  commaSepVars.erase(0,commaSepVars.find(",")+1);
 	}
@@ -457,13 +460,11 @@ namespace Analysis {
     }
     
     /*** Accessing SV0 variables ***/    
-    bool sv0OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
     // don't check the following status
     BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
-    if (myVertices.size()>0 && myVertices[0].isValid()){      sv0OK=true;    }
 
-    if(sv0OK){
+    if(myVertices.size()>0 && myVertices[0].isValid()){//    if(sv0OK){
       int sv0_n2t= -1, sv0_ntkv= -1;
       if ("SV0" == m_sv0_infosource){
 	BTag->taggerInfo(m_sv0_mass, xAOD::BTagInfo::SV0_masssvx);
@@ -483,42 +484,14 @@ namespace Analysis {
       }
       m_sv0_n2t   = sv0_n2t;
       m_sv0_ntkv  = sv0_ntkv;
-      if ( m_trainingConfig=="Default" ) m_sv0_mass/=1000.;
+      if ( m_trainingConfig=="Default" ) m_sv0_mass/=GeV;
     }
 
-    /*** Accessing primary vertex information ***/
-    float pv_x=0, pv_y=0, pv_z=0;
-    if(m_priVtx) {
-      pv_x=m_priVtx->x();
-      pv_y=m_priVtx->y();
-      pv_z=m_priVtx->z();
-    }
-    else {
-      ATH_MSG_WARNING("#BTAG# MV2 cannot access primary vertex, PV is set as (0,0,0).");
-    }
-    
     /*** Accessing SV1 variables ***/        
-    bool sv1OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices1;
     // don't check the following status
     BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", myVertices1);
-    if (myVertices1.size()>0 && myVertices1[0].isValid()){
-      const xAOD::Vertex* firstVertex = *(myVertices1[0]);
-
-      float dx = firstVertex->x() - pv_x;
-      float dy = firstVertex->y() - pv_y;
-      float dz = firstVertex->z() - pv_z;
-      
-      TVector3 v3_PvSv; v3_PvSv.SetXYZ(dx,dy,dz);
-      m_sv1_dR = v3_PvSv.DeltaR(v3_jet);
-      m_sv1_Lxy= sqrt(v3_PvSv.Perp2());
-      m_sv1_L3d= v3_PvSv.Mag();
-      
-      //ATH_MSG_WARNING("#BTAG# MV2 sv1_Lxy, sv1_L3d= "<<m_sv1_Lxy<<"\t"<<m_sv1_L3d);
-      sv1OK=true;
-    }
-
-    if(sv1OK){
+    if(myVertices1.size()>0 && myVertices1[0].isValid()) {//    if(sv1OK){
       int sv1_n2t= -1, sv1_ntkv= -1;
       if ("SV1" == m_sv1_infosource){
 	status &= BTag->taggerInfo(m_sv1_mass, xAOD::BTagInfo::SV1_masssvx);
@@ -535,6 +508,9 @@ namespace Analysis {
 	status &= BTag->variable<float>(m_sv1_infosource, "normdist" , m_sv1_sig3);
       }
       status &= BTag->variable<float>(m_sv1_infosource, "dstToMatLay" , m_sv1_distmatlay);
+      status &= BTag->variable<float>(m_sv1_infosource, "deltaR"      , m_sv1_dR );
+      status &= BTag->variable<float>(m_sv1_infosource, "Lxy"         , m_sv1_Lxy);
+      status &= BTag->variable<float>(m_sv1_infosource, "L3d"         , m_sv1_L3d);
       m_sv1_n2t   = sv1_n2t;
       m_sv1_ntkv  = sv1_ntkv;
     }
@@ -579,7 +555,7 @@ namespace Analysis {
       m_jf_nvtx1t = jf_nvtx1t;
       m_jf_ntrkv  = jf_ntrkv;
       m_jf_n2tv   = jf_n2tv;
-      m_jf_dR     = m_jf_dphi==-10 and m_jf_deta==-10 ? -1 : m_jf_dR = hypot(m_jf_dphi,m_jf_deta);
+      m_jf_dR     = m_jf_dphi==-10 and m_jf_deta==-10 ? -1 : hypot(m_jf_dphi,m_jf_deta);
       // new jf variables
       status &= BTag->variable<float>(m_jftNN_infosource, "massUncorr" , m_jf_mass_unco);
       status &= BTag->variable<float>(m_jftNN_infosource, "dRFlightDir", m_jf_dR_flight);
@@ -697,7 +673,7 @@ namespace Analysis {
       double defaultL=1.-defaultB-defaultC;
 
       if(m_runModus=="analysis") {
-        if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", -1.);
+        if (m_taggerNameBase.find("MV2c")!=std::string::npos) BTag->setVariable<double>(m_xAODBaseName, "discriminant", -1.);
         else {
           BTag->setVariable<double>(m_xAODBaseName, "pb", defaultB);
           BTag->setVariable<double>(m_xAODBaseName, "pu", defaultL);
@@ -723,7 +699,7 @@ namespace Analysis {
       else {
 	it_mb = m_tmvaMethod.find(alias);
 	if((it_mb->second)!=0) {
-	  if (m_taggerNameBase.find("MV2c")!=-1) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
+	  if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2 = pos->second->EvaluateMVA( it_mb->second );//this gives back double
 	  else {
 	    std::vector<float> outputs= pos->second->EvaluateMulticlass( it_mb->second );//this gives back float
 	    if (outputs.size()==m_nClasses) {
@@ -746,7 +722,7 @@ namespace Analysis {
       }
       else {
 	if(it_egammaBDT->second !=0) {
-	  if (m_taggerNameBase.find("MV2c")!=-1) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
+	  if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
 	  else {
 	    std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
 	    //vector size is checked in the function above
@@ -757,13 +733,13 @@ namespace Analysis {
       }
     }
 
-    if (m_taggerNameBase.find("MV2c")!=-1) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos) ATH_MSG_DEBUG("#BTAG# MV2 weight: " << mv2<<", "<<alias<<", "<<author);
     else ATH_MSG_DEBUG("#BTAG# MV2 pb, pu, pc= " << mv2m_pb<<"\t"<<mv2m_pu<<"\t"<<mv2m_pc<<", "<<alias<<", "<<author);
 
     // #4: Fill MVA output variable(s) into xAOD
     /** give information to the info class. */
     if(m_runModus=="analysis") {
-      if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
+      if (m_taggerNameBase.find("MV2c")!=std::string::npos) BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv2);
       else {
 	BTag->setVariable<double>(m_xAODBaseName, "pb", mv2m_pb);
 	BTag->setVariable<double>(m_xAODBaseName, "pu", mv2m_pu);
@@ -832,7 +808,7 @@ namespace Analysis {
      m_sv0_mass=-1; 
      m_sv0_efrc=-1; 
      m_sv0_n2t=-1; 
-     m_sv0_radius=-1; 
+     //m_sv0_radius=-1; 
      m_jf_mass=-1000; 
      m_jf_efrc=-1; 
      m_jf_n2tv=-1; 
