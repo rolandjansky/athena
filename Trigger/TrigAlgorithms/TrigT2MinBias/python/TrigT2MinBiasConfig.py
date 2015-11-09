@@ -1192,7 +1192,18 @@ L2MbMbtsHypo_1_1_inn_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo11.Threshold = 0.18 # pC
 hypos["L2MbMbtsHypo_1_1_inn_veto"] = L2MbMbtsHypo_1_1_inn_veto 
 
-
+#photoproduction in PbPb ATR-12470
+# the following mean that only events with 0_2+, 2+_0, 2+_1 and 1_2+ will pass
+L2MbMbtsHypo_1_1_inn_one_side_veto = MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
+L2MbMbtsHypo_1_1_inn_one_side_veto.AcceptAll = False
+L2MbMbtsHypo_1_1_inn_one_side_veto.MbtsCounters = 2
+L2MbMbtsHypo_1_1_inn_one_side_veto.Coincidence = False
+L2MbMbtsHypo_1_1_inn_one_side_veto.Or = True
+L2MbMbtsHypo_1_1_inn_one_side_veto.Veto = True
+L2MbMbtsHypo_1_1_inn_one_side_veto.MBTSMode = 1 # inner
+L2MbMbtsHypo_1_1_inn_one_side_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
+#L2MbMbtsHypo11.Threshold = 0.18 # pC
+hypos["L2MbMbtsHypo_1_1_inn_one_side_veto"] = L2MbMbtsHypo_1_1_inn_one_side_veto
 
 #########
 ### ZDC
@@ -1339,7 +1350,6 @@ class ZdcHypo ( T2ZdcHypo ):
         self.AthenaMonTools += [ ZdcHypoMonitoring(), time]
 
 
-
 L2MbZdcHypo_PT = ZdcHypo("L2MbZdcHypo_PT")
 L2MbZdcHypo_PT.AcceptAll = True
 L2MbZdcHypo_PT.TimeLogic = 0
@@ -1432,3 +1442,17 @@ L2MbZdcHypo_hip_hi_sideC.MultCut = [ -1 , -1 ]
 L2MbZdcHypo_hip_hi_sideC.TimeCut= -1.
 hypos["L2MbZdcHypo_hip_hi_sideC"] = L2MbZdcHypo_hip_hi_sideC
 
+### ZDC both sides low threshold
+L2MbZdcHypo_sideAC_zdc_LG = ZdcHypo("L2MbZdcHypo_sideAC_zdc_LG")
+L2MbZdcHypo_sideAC_zdc_LG.AcceptAll = False
+L2MbZdcHypo_sideAC_zdc_LG.TimeLogic = 0
+L2MbZdcHypo_sideAC_zdc_LG.EnergyLogic = 1 ## AND
+L2MbZdcHypo_sideAC_zdc_LG.MultiplicityLogic = 0
+L2MbZdcHypo_sideAC_zdc_LG.TimeOffset = [0., 0., 0., 0., 0., 0., 0., 0.]
+L2MbZdcHypo_sideAC_zdc_LG.Pedestal = [0., 0., 0., 0., 0., 0., 0., 0.]
+L2MbZdcHypo_sideAC_zdc_LG.EnergyCalibration = [1., 1., 1., 1., 1., 1., 1., 1.]
+L2MbZdcHypo_sideAC_zdc_LG.TimeModuleCut = 99999.
+L2MbZdcHypo_sideAC_zdc_LG.SumEnergyCut = [-99999.,trigT2MinBiasProperties.zdcVetoThresholdLG(), -99999.,trigT2MinBiasProperties.zdcVetoThresholdLG()] # 1<A<2 || 3<C<4 - LONG LINE!
+L2MbZdcHypo_sideAC_zdc_LG.MultCut = [ -1 , -1 ]
+L2MbZdcHypo_sideAC_zdc_LG.TimeCut= -1.
+hypos["L2MbZdcHypo_sideAC_zdc_LG"] = L2MbZdcHypo_sideAC_zdc_LG
