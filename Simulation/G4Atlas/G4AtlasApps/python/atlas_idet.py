@@ -147,6 +147,13 @@ class TRT(object):
         self.atlas_trt_PhysReg_Ar.add_Cuts('e+',30.0)
         self.atlas_trt_PhysReg_Ar.add_Cuts('gamma',0.05)
         self.atlas_trt.add_PhysicsReg(self.atlas_trt_PhysReg_Ar)
+        self.atlas_trt_PhysReg_Kr=PyG4Atlas.PhysicsReg('TRT_Kr')
+        self.atlas_trt_PhysReg_Kr.add_Volumes('TRT::Gas_Kr')
+        self.atlas_trt_PhysReg_Kr.add_Volumes('TRT::GasMA_Kr')
+        self.atlas_trt_PhysReg_Kr.add_Cuts('e-',15.0)
+        self.atlas_trt_PhysReg_Kr.add_Cuts('e+',15.0)
+        self.atlas_trt_PhysReg_Kr.add_Cuts('gamma',0.05)
+        self.atlas_trt.add_PhysicsReg(self.atlas_trt_PhysReg_Kr)
 
 
 # -- IDET material services --
