@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 700669 2015-10-15 08:31:13Z wlampl $ -->
+<!-- $Id: selection.xml 706729 2015-11-09 14:26:22Z wlampl $ -->
 <lcgdict>
 
   <!-- CaloCluster(Container> --> 
@@ -73,8 +73,6 @@
     <field name="m_eta" transient="true" />       
     <field name="m_phi" transient="true" />
     <field name="m_invcosheta" transient="true" />
-    <field name="m_ieta" transient="true" />
-    <field name="m_iphi" transient="true" />
   </class>
   <read sourceClass="xAOD::CaloTower_v1" version="[1-]"
 	targetClass="xAOD::CaloTower_v1" source="" target="m_isComplete" >

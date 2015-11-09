@@ -55,8 +55,10 @@ xAOD::Type::ObjectType xAOD::CaloTower_v1::type() const { return Type::ObjectTyp
 void xAOD::CaloTower_v1::setupFourMom() const {
   if (m_isComplete) return;
 
-  const CaloTowerContainer_v1* pTowCont = dynamic_cast<const CaloTowerContainer_v1*>(this->container());
-  assert (pTowCont);
+  //const CaloTowerContainer_v1* pTowCont = dynamic_cast<const CaloTowerContainer_v1*>(this->container());
+  //assert (pTowCont);
+  const CaloTowerContainer_v1* pTowCont=static_cast<const CaloTowerContainer_v1*>(this->container());
+
 
   m_eta=pTowCont->eta(this->index());
   m_phi=pTowCont->phi(this->index());

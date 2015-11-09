@@ -75,8 +75,6 @@ namespace xAOD {
     mutable double m_eta;                    ///> @brief Transient store for @f$ \eta @f$
     mutable double m_phi;                    ///> @brief Transient store for @f$ \phi @f$
     mutable double m_invcosheta;             ///> @brief Speed-up conversion @f$ e \to p_{\mathrm{T}} @f$ using @f$ \eta @f$
-    mutable short  m_ieta;                   ///> @brief @f$ \eta @f$ index
-    mutable short  m_iphi;                   ///> @brief @f$ \phi @f$ index
     static  double m_towerMass;              ///> @brief Convention @f$ m_{\mathrm{tower}} = 0 @f$.
     /// @}
     /// @name Transient store helpers (internal)
