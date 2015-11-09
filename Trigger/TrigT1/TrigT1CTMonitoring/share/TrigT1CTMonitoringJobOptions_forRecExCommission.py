@@ -194,6 +194,16 @@ if not isOnline:
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
         topSequence += CTPSimulationOnData("CTPSimulation")
 
+        from AthenaMonitoring.DQMonFlags import DQMonFlags
+        histbase = "/" + DQMonFlags.monManFileKey() + "/"
+        if DQMonFlags.monManRun():
+            histbase += "run_RUNNR/"
+        try:
+            topSequence.CTPSimulation.HistBase = histbase
+        except AttributeError, ex:
+            print ex," ignore for now"
+
+
     ## AthenaMonManager is the Algorithm that manages many classes inheriting
     ## from ManagedMonitorToolBase
 
@@ -204,7 +214,7 @@ if not isOnline:
                                ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup(),
                                DataType            = DQMonFlags.monManDataType() )
     topSequence += monMan
-    
+   
     theApp.Dlls += [ "TrigT1CTMonitoring" ]
     
     
