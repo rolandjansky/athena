@@ -97,11 +97,17 @@ if tileESDMon:
 
 
     if (jobproperties.Beam.beamType() == 'collisions'):
-
+##### Not using JVT and JetCleaning in 20.1.8.x
+##        jvt = CfgMgr.JetVertexTaggerTool('JVT')
+##        ToolSvc += jvt
+##        cleaning = CfgMgr.JetCleaningTool("MyCleaningTool")
+##        cleaning.CutLevel = "LooseBad"
+##        cleaning.DoUgly = False
+##        ToolSvc += cleaning
         ToolSvc += CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
                                          , OutputLevel       = INFO
                                          , jetPtMin          = 20000.0
-                                         , jetEtaMax         = 1.4
+                                         , jetEtaMax         = 1.6
                                          , jetCollectionName = 'AntiKt4EMTopoJets'
                                          , do_1dim_histos    = False
                                          , do_2dim_histos    = False
@@ -109,6 +115,9 @@ if tileESDMon:
                                          , energyChanMin     = 2000
                                          , energyChanMax     = 4000
                                          , enediff_threshold = 2000
+                                         , do_event_cleaning = False
+                                         , do_jet_cleaning   = False
+                                         , jet_JVT_threshold = 0.64
                                          , histoPathBase     = "/Tile/Jet")
 
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
