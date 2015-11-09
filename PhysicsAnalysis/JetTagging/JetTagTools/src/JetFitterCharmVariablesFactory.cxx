@@ -156,7 +156,7 @@ StatusCode JetFitterCharmVariablesFactory::finalize() {
 
     //put all needed information inside :-)
     
-    const double s_massks=497.648;
+    //const double s_massks=497.648;
     const double s_pion=139.57018;//hard coded pion mass ;-)
     
     int ntrackPrimaryVtx=vxJetCandidate.getPrimaryVertex()->getTracksAtVertex().size();
@@ -464,7 +464,7 @@ StatusCode JetFitterCharmVariablesFactory::finalize() {
 
     add_vertex_info(generic_tag_info, secondary_vertices); 
 
-    assert(secondary_vertices.size() == nVTX); 
+    assert((int)secondary_vertices.size() == nVTX); 
 
     return generic_tag_info;
   }

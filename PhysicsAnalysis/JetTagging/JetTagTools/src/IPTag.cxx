@@ -142,7 +142,7 @@ namespace Analysis {
     declareProperty("NtrkMin"                 , m_NtrkMin =6 );
     declareProperty("NtrkMax"                 , m_NtrkMax =6 );
     declareProperty("NtrkFract"               , m_trkFract=1.0 );
-    declareProperty("SortingMode"             , sortOption="None"); //"None");
+    declareProperty("SortingMode"             , m_sortOption="None"); //"None");
 
     // tools:
     declareProperty("trackSelectorTool"         , m_trackSelectorTool              );
@@ -168,22 +168,22 @@ namespace Analysis {
   StatusCode IPTag::initialize() {
     
     // VD: deciding the track sorting mode
-    if ( sortOption=="None" ) {
+    if ( m_sortOption=="None" ) {
       ATH_MSG_DEBUG("#BTAG# No sorting applied ");
       m_sortPt     =false;
       m_sortD0sig  =false;
       m_sortZ0D0sig=false;
-    } else if ( sortOption=="SortPt" ) {
+    } else if ( m_sortOption=="SortPt" ) {
       ATH_MSG_DEBUG("#BTAG# Tracks will be sorted by Pt ");
       m_sortPt     =true;
       m_sortD0sig  =false;
       m_sortZ0D0sig=false;
-    } else if ( sortOption=="SortD0" ) {
+    } else if ( m_sortOption=="SortD0" ) {
       ATH_MSG_DEBUG("#BTAG# Tracks will be sorted by |d0Sig| ");
       m_sortPt     =false;
       m_sortD0sig  =true;
       m_sortZ0D0sig=false;
-    } else if ( sortOption=="SortZ0D0" ) {
+    } else if ( m_sortOption=="SortZ0D0" ) {
       ATH_MSG_DEBUG("#BTAG# Tracks will be sorted by sqrt( |d0Sig|^2 + |z0Sig|^2 ) ");
       m_sortPt     =false;
       m_sortD0sig  =false;
@@ -193,7 +193,7 @@ namespace Analysis {
       return StatusCode::FAILURE;
     }
 
-    if ( sortOption=="None" ) {
+    if ( m_sortOption=="None" ) {
       m_NtrkMax =1000;
       m_NtrkMin =m_NtrkMax;
       m_trkFract=1.0;
@@ -337,7 +337,7 @@ namespace Analysis {
 	  if(m_impactParameterView=="1D") {
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	      std::string hName = "/RefFile/IP1D/" + m_jetCollectionList[j] + "/"
-		+ m_hypotheses[ih] + "/" + (std::string)grd + "/SipZ0";
+		+ m_hypotheses[ih] + "/" + grd.gradeString() + "/SipZ0";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP1D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed Impact Parameter (z)",400,-40.,60.);
 	    }
@@ -345,7 +345,7 @@ namespace Analysis {
 	  if(m_impactParameterView=="2D") {
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	      std::string hName = "/RefFile/IP2D/" + m_jetCollectionList[j] + "/"
-		+ m_hypotheses[ih] + "/" + (std::string)grd + "/SipA0";
+		+ m_hypotheses[ih] + "/" + grd.gradeString() + "/SipA0";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP2D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed Impact Parameter (rphi)",400,-40.,60.);
 	    }
@@ -358,7 +358,7 @@ namespace Analysis {
 	    double ybi[nby] = {-40.,-20.,-12.,-8.,-4.,-3.,-2.,-1.,-0.5,0.,0.5,1.,2.,3.,4.,6.,8.,12.,20.,40.,60.};
 	    for(uint ih=0;ih<m_hypotheses.size();ih++) {
 	      std::string hName = "/RefFile/IP3D/" + m_jetCollectionList[j] + "/"
-		                      + m_hypotheses[ih] + "/" + (std::string)grd + "/Sip3D";
+                + m_hypotheses[ih] + "/" + grd.gradeString() + "/Sip3D";
 	      ATH_MSG_VERBOSE("#BTAG# booking for IP3D: " << hName);
 	      m_histoHelper->bookHisto(hName,"Signed IP Z0 vs (rphi)",nbx-1,xbi,nby-1,ybi);
 	    }
@@ -479,7 +479,7 @@ namespace Analysis {
     int nbTrak = 0;
     m_trackSelectorTool->primaryVertex(m_priVtx->position());
     m_trackSelectorTool->prepare();
-    std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
+    //std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
       BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
     double sumTrkpT = 0; unsigned ntrk=0;
@@ -513,7 +513,7 @@ namespace Analysis {
         nbTrak++;
         if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag.p4() );
-          ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << (std::string)(*theGrade) );
+          ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << theGrade->gradeString() );
 	  bool tobeUsed = false;
           for(int i=0;i<nbPart;i++) {
             if( std::find( (m_trackGradePartitions[i]->grades()).begin(), 
@@ -649,7 +649,7 @@ namespace Analysis {
       double szIP        = signOfZIP*fabs(z0wrtPriVtx);
       double z0Sig       = signOfZIP*fabs(z0wrtPriVtx/z0ErrwrtPriVtx);
 
-      msg(MSG::VERBOSE) << "#BTAG# IPTAG: Trk: grade= " << (std::string) trkItr->grade
+      msg(MSG::VERBOSE) << "#BTAG# IPTAG: Trk: grade= " << trkItr->grade.gradeString()
 			<< " Eta= " << trk->eta() << " Phi= " << trk->phi() << " pT= " << trk->pt()
 			<< " d0= " << sIP
 			<< "+-" << d0ErrwrtPriVtx
@@ -685,7 +685,7 @@ namespace Analysis {
     //std::cout << std::endl;
     //std::cout << " " << m_NtrkMax << " , " << m_trkFract << " , " << m_NtrkMin << std::endl;
     int resizeVal=vectObj.size();
-    int tmpSize=resizeVal;
+    //int tmpSize=resizeVal;
     if (m_NtrkMax!=1000) {
       if ( m_trkFract==1.0 ) {
 	if ( m_NtrkMax<resizeVal ) resizeVal=m_NtrkMax;
@@ -713,25 +713,25 @@ namespace Analysis {
           std::vector<TrackGrade>::const_iterator listEnd=gradeList.end();
           for ( ; listIter !=listEnd ; ++listIter ) {
             const TrackGrade & grd = (*listIter);
-	    ATH_MSG_DEBUG("#BTAG#   filling ref histo for grade " << (std::string)grd );
+	    ATH_MSG_DEBUG("#BTAG#   filling ref histo for grade " << grd.gradeString() );
 	    if( grd==(vectObj[i]).grade ) { // check the grade of current track
 	      ATH_MSG_DEBUG("#BTAG#   track is of required grade ");
-              const std::string suffix = "_" + (std::string)grd;
+              const std::string suffix = "_" + grd.gradeString();
               if( m_impactParameterView=="1D" ) {
 	        std::string hName = "/RefFile/IP1D/" + author + "/"
-		  + pref + "/" + (std::string)grd + "/SipZ0";
+		  + pref + "/" + grd.gradeString() + "/SipZ0";
 	        ATH_MSG_DEBUG("#BTAG#   histo 1D: " << hName);
 		m_histoHelper->fillHisto(hName, (vectObj[i]).z0sig );
 	      }
               if( m_impactParameterView=="2D" ) {
 	        std::string hName = "/RefFile/IP2D/" + author + "/"
-		  + pref + "/" + (std::string)grd + "/SipA0";
+		  + pref + "/" + grd.gradeString() + "/SipA0";
 	        ATH_MSG_DEBUG("#BTAG#   histo 2D: " << hName);
 		m_histoHelper->fillHisto(hName, (vectObj[i]).d0sig );
 	      }
               if( m_impactParameterView=="3D" ) {
 	        std::string hName = "/RefFile/IP3D/" + author + "/"
-		  + pref + "/" + (std::string)grd + "/Sip3D";
+		  + pref + "/" + grd.gradeString() + "/Sip3D";
 	        ATH_MSG_DEBUG("#BTAG#   histo 3D: " << hName);
 		m_histoHelper->fillHisto(hName,(vectObj[i]).d0sig, (vectObj[i]).z0sig);
 	      }
@@ -764,7 +764,7 @@ namespace Analysis {
           AtomicProperty atom1(vectD0Signi[i],"Significance of IP (rphi)");
           AtomicProperty atom2(vectZ0Signi[i],"Significance of Z0");
           std::string compoName(author+"#");
-          compoName += (std::string)vectGrades[i];
+          compoName += vectGrades[i].gradeString();
           compoName += "/Sip3D";
           Composite compo1(compoName);
           compo1.atoms.push_back(atom1);
@@ -776,7 +776,7 @@ namespace Analysis {
         if(m_impactParameterView=="2D") {
           AtomicProperty atom1(vectD0Signi[i],"Significance of IP (rphi)");
           std::string compoName(author+"#");
-          compoName += (std::string)vectGrades[i];
+          compoName += vectGrades[i].gradeString();
           compoName += "/SipA0";
           Composite compo1(compoName);
           compo1.atoms.push_back(atom1);
@@ -787,7 +787,7 @@ namespace Analysis {
         if(m_impactParameterView=="1D") {
           AtomicProperty atom1(vectZ0Signi[i],"Significance of IP (z)");
           std::string compoName(author+"#");
-          compoName += (std::string)vectGrades[i];
+          compoName += vectGrades[i].gradeString();
           compoName += "/SipZ0";
           Composite compo1(compoName);
           compo1.atoms.push_back(atom1);
@@ -893,7 +893,7 @@ namespace Analysis {
       AtomicProperty atom1(sa0,"Significance of IP (rphi)");
       AtomicProperty atom2(sz0,"Significance of Z0");
       std::string compoName(author+"#");
-      compoName += (std::string)grade;
+      compoName += grade.gradeString();
       compoName += "/Sip3D";
       Composite compo1(compoName);
       compo1.atoms.push_back(atom1);
@@ -905,7 +905,7 @@ namespace Analysis {
     if(m_impactParameterView=="2D") {
       AtomicProperty atom1(sa0,"Significance of IP (rphi)");
       std::string compoName(author+"#");
-      compoName += (std::string)grade;
+      compoName += grade.gradeString();
       compoName += "/SipA0";
       Composite compo1(compoName);
       compo1.atoms.push_back(atom1);
@@ -916,7 +916,7 @@ namespace Analysis {
     if(m_impactParameterView=="1D") {
       AtomicProperty atom1(sz0,"Significance of IP (z)");
       std::string compoName(author+"#");
-      compoName += (std::string)grade;
+      compoName += grade.gradeString();
       compoName += "/SipZ0";
       Composite compo1(compoName);
       compo1.atoms.push_back(atom1);

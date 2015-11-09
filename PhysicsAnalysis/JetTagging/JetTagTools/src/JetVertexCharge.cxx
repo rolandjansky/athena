@@ -48,9 +48,9 @@ namespace Analysis {
 
   JetVertexCharge::JetVertexCharge(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_runModus("analysis"), 
+    m_calibrationTool("BTagCalibrationBroker"),
     m_muonSelectorTool("JVC_MuonSelectorTool"),
-    m_calibrationTool("BTagCalibrationBroker")
+    m_runModus("analysis")
   { 
 
     declareProperty("SecVxFinderName",		m_secVxFinderName);
@@ -288,7 +288,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
           
 
 
-        for( int ivx = 0; ivx< JFVerticesLinks.size(); ivx++) {
+        for( size_t ivx = 0; ivx< JFVerticesLinks.size(); ivx++) {
 	   const xAOD::BTagVertex *myBTagVtx = (*JFVerticesLinks.at(ivx)); 
 
            //Cutting on the vertices
@@ -403,7 +403,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 
 
      TLorentzVector chad_k;
-     for(int itrk=0;  itrk< tvx.tracks.size();  itrk++) {
+     for(size_t itrk=0;  itrk< tvx.tracks.size();  itrk++) {
         const xAOD::TrackParticle *tp =  tvx.tracks.at(itrk);
         TLorentzVector part_k;
         if( itrk == 0)   part_k.SetPtEtaPhiM( tp->pt(), tp->eta(), tp->phi(), 493.667 );   //Kaon mass [MeV]
@@ -674,15 +674,15 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
 bool JetVertexCharge::passTrackCuts( const xAOD::TrackParticle &track) const {
 
 
-   double m_d0 = track.d0();
-   double m_z0 = track.z0();
-   double m_theta = track.theta();
+   double d0 = track.d0();
+   double z0 = track.z0();
+   double theta = track.theta();
    double chi2 = track.chiSquared() / track.numberDoF();
-   double deltaZ0 = fabs( m_z0 - m_primVtx->z() + track.vz() );
+   double deltaZ0 = fabs( z0 - m_primVtx->z() + track.vz() );
 
 
-   if( fabs(m_d0) > m_Trkd0Cut)  return false;
-   if( deltaZ0*sin(m_theta) > m_Trkz0Cut) return false; 
+   if( fabs(d0) > m_Trkd0Cut)  return false;
+   if( deltaZ0*sin(theta) > m_Trkz0Cut) return false; 
    if( track.pt() < m_TrkPtCut) return false;
    if( fabs(track.eta()) > 2.5 ) return false;
    if( chi2 > m_TrkChi2Cut) return false;
@@ -867,7 +867,7 @@ float  JetVertexCharge::logLikelihoodRatio( int mvaCat, float mvaWeight, std::st
 }
 
 
-StatusCode JetVertexCharge::SetupReaders( std::string author, std::string alias , int mvaCat, TList* list) {
+StatusCode JetVertexCharge::SetupReaders( std::string /*author*/, std::string alias , int mvaCat, TList* list) {
 
    ATH_MSG_DEBUG("JVC setting up reader for category "<<mvaCat);
 
@@ -913,7 +913,7 @@ StatusCode JetVertexCharge::SetupReaders( std::string author, std::string alias 
      TObjString* ss = (TObjString*)list->At(i);
      std::string sss = ss->String().Data();
      //KM: if it doesn't find "<" in the string, it starts from non-space character
-     int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+     std::string::size_type posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
      std::string tmp = sss.erase(0,posi);
      iss << tmp.data(); 
      if (tmp.find("<Variable")!=std::string::npos ) {

@@ -25,6 +25,7 @@ use JetSubStructureUtils       JetSubStructureUtils-*          Reconstruction/Je
 private
 apply_tag ROOTRooFitLibs
 apply_tag ROOTMathLibs
+apply_tag ROOTTMVALibs
 end_private
 use AtlasROOT            AtlasROOT-*             External
 
@@ -36,6 +37,7 @@ use JetTagInfo           JetTagInfo-*            PhysicsAnalysis/JetTagging
 use TrkParameters        TrkParameters-*         Tracking/TrkEvent
 private
 #use AtlasBoost           AtlasBoost-*            External
+use AthenaKernel         AthenaKernel-*          Control
 use Particle             Particle-*              Reconstruction
 use TrkTrack             TrkTrack-*              Tracking/TrkEvent
 
@@ -120,9 +122,9 @@ apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelper
 apply_pattern declare_runtime files="-s=../share *.root *.txt"
 
 private
-macro_append rootBasicLibs " -lTMVA "
+#macro_append rootBasicLibs " -lTMVA "
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 
 #Remove warning
-macro_append cppflags " -w"
+#macro_append cppflags " -w"

@@ -103,7 +103,7 @@ namespace Analysis
        const xAOD::Vertex* m_priVtx;
 
       /** just print some info at the beginning */
-      void m_printParameterSettings();
+      void printParameterSettings();
 
       std::vector<std::string> m_jetCollectionList;
       std::vector<std::string> m_hypothese; // "b" or "c" or "l"
@@ -115,7 +115,7 @@ namespace Analysis
       bool m_writeInfoPlus;
       std::string m_originalMuCollectionName;
       std::string m_muonAssociationName;
-      const MuonContainer* m_originalMuCollection;
+      //const MuonContainer* m_originalMuCollection;
 
   }; // End class
  

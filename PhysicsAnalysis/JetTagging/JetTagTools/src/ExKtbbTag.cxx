@@ -32,7 +32,6 @@ namespace Analysis {
 ExKtbbTag::ExKtbbTag(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t,n,p),
     m_runModus("analysis"),
-    m_calibrationTool("BTagCalibrationBroker"),
     m_tagMode("Hbb"),
     m_BDTMode("MV2andJFDRSig"),
     m_taggerNameBase("ExKtbb"),
@@ -40,7 +39,8 @@ ExKtbbTag::ExKtbbTag(const std::string& t, const std::string& n, const IInterfac
     m_ForceCalibChannel(""),
     m_debug(false),
     m_SubJetLabel("ExKt2SubJets"),
-    m_JFOnlyVtx(false)
+    m_JFOnlyVtx(false),
+    m_calibrationTool("BTagCalibrationBroker")
 {
   declareInterface<ITagTool>(this);
 
@@ -283,22 +283,22 @@ bool ExKtbbTag::JetTagAnalysisMode(xAOD::Jet& jetToTag, xAOD::BTagging* BTag){
   if(m_debug) ATH_MSG_INFO("Entering JetTagAnalysisMode");
 
   // Retrieve correct calibration file
-  std::string m_taggerCalibName = m_taggerNameBase + "Calib_" + m_tagMode + "_" + m_BDTMode + "_" + GetPtBin(&jetToTag);
-  std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, m_ForceCalibChannel, m_taggerCalibName);
+  std::string taggerCalibName = m_taggerNameBase + "Calib_" + m_tagMode + "_" + m_BDTMode + "_" + GetPtBin(&jetToTag);
+  std::pair<TList*, bool> calib = m_calibrationTool->retrieveTObject<TList>(m_taggerNameBase, m_ForceCalibChannel, taggerCalibName);
 
   // keyname for TMVAReader cache
-  std::string keyname = m_ForceCalibChannel + "/" + m_taggerCalibName;
+  std::string keyname = m_ForceCalibChannel + "/" + taggerCalibName;
 
   bool calibHasChanged = calib.second;
   if(calibHasChanged){ // initiate TMVA
 
     if(!calib.first){ // catch exception
-      ATH_MSG_WARNING("#BTAG# TList cannot be retrieved -> no calibration for " << m_taggerNameBase << "/" << m_ForceCalibChannel << "/" << m_taggerCalibName);
+      ATH_MSG_WARNING("#BTAG# TList cannot be retrieved -> no calibration for " << m_taggerNameBase << "/" << m_ForceCalibChannel << "/" << taggerCalibName);
       BTag->setVariable<double>(m_taggerName, m_BDTMode, -100);
       return true;
     }
 
-    m_calibrationTool->updateHistogramStatus(m_taggerNameBase, m_ForceCalibChannel, m_taggerCalibName, false);
+    m_calibrationTool->updateHistogramStatus(m_taggerNameBase, m_ForceCalibChannel, taggerCalibName, false);
 
     TList* list = calib.first; 
 
@@ -307,7 +307,7 @@ bool ExKtbbTag::JetTagAnalysisMode(xAOD::Jet& jetToTag, xAOD::BTagging* BTag){
       TObjString* ss = (TObjString*)list->At(i);
       std::string sss = ss->String().Data();
       //KM: if it doesn't find "<" in the string, it starts from non-space character
-      int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
+      int posi = sss.find('<')!=std::string::npos ? sss.find('<') : sss.find_first_not_of(" ");
       std::string tmp = sss.erase(0,posi);
       iss << tmp.data(); 
     }
@@ -365,7 +365,7 @@ bool ExKtbbTag::JetTagAnalysisMode(xAOD::Jet& jetToTag, xAOD::BTagging* BTag){
   return true;
 }
 
-bool ExKtbbTag::JetTagReferenceMode(xAOD::Jet& jetToTag, xAOD::BTagging* BTag){
+bool ExKtbbTag::JetTagReferenceMode(xAOD::Jet& /*jetToTag*/, xAOD::BTagging* /*BTag*/){
   if(m_debug) ATH_MSG_INFO("Entering JetTagReferenceMode");
 
   // No need to do anything, since all reference variable has been computed earlier //
@@ -1069,7 +1069,7 @@ bool ExKtbbTag::FillTMVAVariables(std::string BDTMode, const xAOD::Jet* jetToTag
     if(!BTag->variable<double>(m_taggerName, "SingleMV2c20", SingleMV2c20)) ATH_MSG_WARNING("#BTAG# Unable to get \"SingleMV2c20\"");
     double SV1CombMass;
     if(!BTag->variable<double>(m_taggerName, "SV1CombMass", SV1CombMass)) ATH_MSG_WARNING("#BTAG# Unable to get \"SV1CombMass\"");
-    int JFNtrksDiff;
+    int JFNtrksDiff = 0;
     if(!BTag->variable<int>(m_taggerName, "JFNtrksDiff", JFNtrksDiff)) ATH_MSG_WARNING("#BTAG# Unable to get\"JFNtrksDiff\"");
     double JFDRSignificance;
     if(!BTag->variable<double>(m_taggerName, "JFDRSignificance", JFDRSignificance)) ATH_MSG_WARNING("#BTAG# Unable to get \"JFDRSignificance\"");

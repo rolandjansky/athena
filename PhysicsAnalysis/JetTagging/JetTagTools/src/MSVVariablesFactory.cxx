@@ -201,6 +201,7 @@ StatusCode MSVVariablesFactory::finalize() {
     }
     bool invertible;
     AmgSymMatrix(3) meanCovariance;
+    meanCovariance.setZero();
     sumWeights.computeInverseWithCheck(meanCovariance, invertible);
     if (! invertible) {
       ATH_MSG_ERROR("#BTAG# Could not invert sum of sec vtx matrices");
@@ -213,10 +214,11 @@ StatusCode MSVVariablesFactory::finalize() {
     double Ly = meanPosition[1]-priVertex->position().y();
     double Lz = meanPosition[2]-priVertex->position().z();
 
-    double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
-    double dLdLx = Lx/decaylength;
-    double dLdLy = Ly/decaylength;
-    double dLdLz = Lz/decaylength;
+    const double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
+    const double inv_decaylength = 1. / decaylength;
+    double dLdLx = Lx * inv_decaylength;
+    double dLdLy = Ly * inv_decaylength;
+    double dLdLz = Lz * inv_decaylength;
     double decaylength_err = sqrt(dLdLx*dLdLx*covariance(0,0) +
                              dLdLy*dLdLy*covariance(1,1) +
                              dLdLz*dLdLz*covariance(2,2) +
