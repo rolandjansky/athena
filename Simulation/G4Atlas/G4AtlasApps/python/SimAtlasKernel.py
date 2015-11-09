@@ -174,11 +174,10 @@ class AtlasSimSkeleton(SimSkeleton):
 
         ## Forward Region Twiss files - needed before geometry setup!
         if simFlags.ForwardDetectors.statusOn:
-            checkFwdRegion = getattr(DetFlags.geometry, 'FwdRegion_on', None) #back-compatibility
-            if checkFwdRegion is not None and checkFwdRegion(): #back-compatibility
-                from atlas_forward import ForwardRegion
-                atlasForwardRegion = ForwardRegion(False)
-                atlasForwardRegion.setupTwissFiles()
+            if DetFlags.geometry.FwdRegion_on():
+                from AthenaCommon.CfgGetter import getPublicTool
+                from AthenaCommon.AppMgr import ToolSvc
+                ToolSvc += getPublicTool("ForwardRegionProperties")
 
         from AtlasGeoModel import GeoModelInit
         from AtlasGeoModel import SimEnvelopes
@@ -462,21 +461,14 @@ class AtlasSimSkeleton(SimSkeleton):
             fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
             AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
 
-            checkFwdRegion = getattr(DetFlags.geometry, 'FwdRegion_on', None) #back-compatibility
-            if checkFwdRegion is not None and checkFwdRegion(): #back-compatibility
-
-                # Set up Twiss Files
-                atlasForwardRegion.setupTwissFiles()
+            if DetFlags.geometry.FwdRegion_on():
+                from AthenaCommon.CfgGetter import getPublicTool
+                from AthenaCommon.AppMgr import ToolSvc
+                ToolSvc += getPublicTool("ForwardRegionProperties")
 
                 from atlas_forward import FwdRegion
                 atlasFwdRegion = FwdRegion()
                 AtlasG4Eng.G4Eng.add_DetFacility(atlasFwdRegion.atlas_FwdRegion, fwdRegionEnvelope)
-
-                # Set up the field
-                if simFlags.FwdStepLimitation.statusOn:
-                    atlasForwardRegion.add_field(simFlags.FwdStepLimitation())
-                else:
-                    atlasForwardRegion.add_field()
 
             ## ZDC
             if DetFlags.geometry.ZDC_on():
@@ -493,8 +485,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 AtlasG4Eng.G4Eng.add_DetFacility(atlasalfa.alfa, fwdRegionEnvelope)
 
             # AFP
-            checkAFP = getattr(DetFlags.geometry, 'AFP_on', None) #back-compatibility
-            if checkAFP is not None and checkAFP(): #back-compatibility
+            if DetFlags.geometry.AFP_on():
                 from atlas_forward import AFP
                 atlasAFP = AFP()
                 atlasAFP._initSD()
@@ -629,6 +620,59 @@ class AtlasSimSkeleton(SimSkeleton):
             AtlasG4Eng.G4Eng.menu_Field.add_Field(atlasfield)
             if simFlags.EquationOfMotion.statusOn:
                 AtlasG4Eng.G4Eng.menu_Field.set_EquationOfMotion( simFlags.EquationOfMotion.get_Value() )
+            ## Forward Region
+            if simFlags.ForwardDetectors.statusOn:
+                if DetFlags.geometry.FwdRegion_on():
+                    # Set up the field
+                    step_limitation = None
+                    if simFlags.FwdStepLimitation.statusOn:
+                        step_limitation = simFlags.FwdStepLimitation()
+                    fieldVolumes = []
+                    fieldVolumes += [ ['Q1', ['FwdRegion::LQXAA.1R1MagQ1'] ] ]
+                    fieldVolumes += [ ['Q2', ['FwdRegion::LQXBA.2R1MagQ2a', 'FwdRegion::LQXBA.2R1MagQ2b'] ] ]
+                    fieldVolumes += [ ['Q3', ['FwdRegion::LQXAG.3R1MagQ3'] ] ]
+                    fieldVolumes += [ ['D1', [ 'FwdRegion::MBXW.A4R1MagD1a', 'FwdRegion::MBXW.B4R1MagD1b', 'FwdRegion::MBXW.C4R1MagD1c',\
+                                               'FwdRegion::MBXW.D4R1MagD1d', 'FwdRegion::MBXW.E4R1MagD1e', 'FwdRegion::MBXW.F4R1MagD1f'] ] ]
+                    fieldVolumes += [ ['D2', ['FwdRegion::LBRCD.4R1MagD2'] ] ]
+                    fieldVolumes += [ ['Q4', ['FwdRegion::LQYCH.4R1MagQ4'] ] ]
+                    fieldVolumes += [ ['Q5', ['FwdRegion::LQNDC.5R1MagQ5'] ] ]
+                    fieldVolumes += [ ['Q6', ['FwdRegion::LQNDD.6R1MagQ6'] ] ]
+                    fieldVolumes += [ ['Q7', ['FwdRegion::LQNFD.7R1MagQ7a', 'FwdRegion::LQNFD.7R1MagQ7b'] ] ]
+                    fieldVolumes += [ ['Q1HKick', ['FwdRegion::LQXAA.1R1MagQ1HKick'] ] ]
+                    fieldVolumes += [ ['Q1VKick', ['FwdRegion::LQXAA.1R1MagQ1VKick'] ] ]
+                    fieldVolumes += [ ['Q2HKick', ['FwdRegion::LQXBA.2R1MagQ2HKick'] ] ]
+                    fieldVolumes += [ ['Q2VKick', ['FwdRegion::LQXBA.2R1MagQ2VKick'] ] ]
+                    fieldVolumes += [ ['Q3HKick', ['FwdRegion::LQXAG.3R1MagQ3HKick'] ] ]
+                    fieldVolumes += [ ['Q3VKick', ['FwdRegion::LQXAG.3R1MagQ3VKick'] ] ]
+                    fieldVolumes += [ ['Q4VKickA', ['FwdRegion::LQYCH.4R1MagQ4VKickA'] ] ]
+                    fieldVolumes += [ ['Q4HKick', ['FwdRegion::LQYCH.4R1MagQ4HKick'] ] ]
+                    fieldVolumes += [ ['Q4VKickB', ['FwdRegion::LQYCH.4R1MagQ4VKickB'] ] ]
+                    fieldVolumes += [ ['Q5HKick', ['FwdRegion::LQNDC.5R1MagQ5HKick'] ] ]
+                    fieldVolumes += [ ['Q6VKick', ['FwdRegion::LQNDD.6R1MagQ6VKick'] ] ]
+
+                    epsMin = 1e-9
+                    epsMax = 1e-8
+                    deltaIntersection = 1e-9
+                    deltaOneStep = 1e-8
+
+                    for i in fieldVolumes:
+                        a_field = PyG4Atlas.MagneticField('ForwardRegionMgField',i[0],typefield='MapField')
+                        for v in i[1]:
+                            a_field.add_Volume(v)
+                            a_field.set_G4FieldTrackParameters('DeltaIntersection',  v, deltaIntersection)
+                            a_field.set_G4FieldTrackParameters('DeltaOneStep',       v, deltaOneStep)
+                            a_field.set_G4FieldTrackParameters('MaximumEpsilonStep', v, epsMax)
+                            a_field.set_G4FieldTrackParameters('MinimumEpsilonStep', v, epsMin)
+
+                            # limit step length
+                            if step_limitation is not None:
+                                AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep(v, step_limitation)
+
+                        a_field.set_FieldMapFileName(i[0])
+                        AtlasG4Eng.G4Eng.menu_Field.add_Field(a_field)
+
+                    if step_limitation is not None:
+                        AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep('FwdRegion::ForwardRegionGeoModel', step_limitation)
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MagField :: done')
 
     @classmethod
