@@ -7,13 +7,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 metaDL1FlipTag = { 'IsATagger'          : True,
                       'xAODBaseName'       : 'DL1Flip',
                       'DependsOn'          : ['AtlasExtrapolator',
-                                              'BTagTrackToVertexTool',
-                                              'BTagCalibrationBrokerTool',
-                                              'IP2DNegTag',
-                                              'IP3DNegTag',
-                                              'NewJetFitterVxFinderFlip',
-                                              'SV0Tag',
-                                              'SV1FlipTag'],
+                                              'BTagTrackToVertexTool'],
                       'CalibrationFolders' : ['DL1',],
                       'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                       'ToolCollection'     : 'DL1FlipTag' }
@@ -25,16 +19,6 @@ def toolDL1FlipTag(name, useBTagFlagsDefaults = True, **options):
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    taggerName                          default: "DL1Flip"
-    taggerNameBase                      default: "DL1"
-    forceDL1CalibrationAlias            default: BTaggingFlags.ForceDL1CalibrationAlias
-    DL1CalibAlias                       default: BTaggingFlags.DL1CalibAlias
-    inputSV0SourceName                  default: "SV0"
-    inputSV1SourceName                  default: "SV1Flip"
-    inputIP2DSourceName                 default: "IP2DNeg"
-    inputIP3DSourceName                 default: "IP3DNeg"
-    inputJFSourceName                   default: "JetFitterFlip"
-    trainingConfig                      default: BTaggingFlags.DL1cTrainingConfig
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -43,11 +27,6 @@ def toolDL1FlipTag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'inputSV0SourceName'               : 'SV0',
-                     'inputSV1SourceName'               : 'SV1Flip',
-                     'inputIP2DSourceName'              : 'IP2DNeg',
-                     'inputIP3DSourceName'              : 'IP3DNeg',
-                     'inputJFSourceName'                : 'JetFitterFlip',
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
