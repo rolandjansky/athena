@@ -108,7 +108,7 @@ def getTauAxis():
 
 ########################################################################
 # Tau energy calibration
-def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
+def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', caloOnly=False):
  
     _name = sPrefix +'EnergyCalibrationLC' + postfix
     
@@ -121,6 +121,8 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
                                     calibrationFile = "TES2015_LC_online.root",
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis)
+
+    TauCalibrateLC.isCaloOnly = caloOnly
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC

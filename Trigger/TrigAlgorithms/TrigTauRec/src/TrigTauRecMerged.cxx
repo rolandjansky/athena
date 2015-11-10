@@ -866,7 +866,42 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	   msg() << MSG::DEBUG << endreq;
 	   }
 	  */
-	  
+
+	  //
+	  // copy CaloOnly four vector, if present
+	  //
+
+	  std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
+	  HLT::ErrorCode tmpCaloOnlyStatus = getFeatures(inputTE, tempCaloOnlyContVec, "TrigTauRecCaloOnly");
+
+	  if( tmpCaloOnlyStatus != HLT::OK){ 
+
+	    msg() << MSG::DEBUG << "Can't get container TrigTauRecCaloOnly to copy four-vector" << endreq;
+
+	  } else {
+
+	    msg() << MSG::DEBUG << "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size() << endreq;
+	     
+	    if ( tempCaloOnlyContVec.size() != 0 ) {
+
+	      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
+	      // for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyTauCont->begin(); tauIt != tempCaloOnlyTauCont->end(); tauIt++){ 
+
+	      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
+
+	      for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyContVec.back()->begin(); tauIt != tempCaloOnlyContVec.back()->end(); tauIt++){ 
+
+	   	msg() << MSG::DEBUG << "pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() << endreq;
+	  	
+	   	p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, (*tauIt)->ptTrigCaloOnly(), (*tauIt)->etaTrigCaloOnly(), (*tauIt)->phiTrigCaloOnly(), (*tauIt)->mTrigCaloOnly());
+
+	      }
+	      
+	    }
+	    
+	  }
+
+
 	  msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
 		<< " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
 		<< " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
