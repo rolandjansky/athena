@@ -34,6 +34,8 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["TileHitVector#MBTSHits"]
         if DetFlags.writeRDOPool.ID_on():
             StreamRDO_ItemList+=["InDetSimDataCollection#*"]
+            if not set(['doFastPixelDigi', 'doFastSCT_Digi', 'doFastTRT_Digi']).isdisjoint(set(digitizationFlags.experimentalDigi())):
+                StreamRDO_ItemList+=["PRD_MultiTruthCollection#*"]
         if DetFlags.writeRDOPool.Muon_on():
             StreamRDO_ItemList+=["CscSimDataCollection#CSC_SDO"]
             StreamRDO_ItemList+=["MuonSimDataCollection#MDT_SDO"]
