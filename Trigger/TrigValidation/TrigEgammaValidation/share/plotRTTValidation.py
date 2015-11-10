@@ -27,7 +27,7 @@ inputfile = TFile(currentfile)
 mtime = os.path.getmtime(str(currentfile))
 day = datetime.datetime.fromtimestamp(mtime).isoweekday() #monday=1,...sunday=7
 mtimeref = os.path.getmtime(str(referencefile))
-dayref = datetime.datetime.fromtimestamp(mtime).isoweekday() #monday=1,...sunday=7  
+dayref = datetime.datetime.fromtimestamp(mtimeref).isoweekday() #monday=1,...sunday=7  
 if day == 7 :
    day = 0
 if dayref == 7 :
