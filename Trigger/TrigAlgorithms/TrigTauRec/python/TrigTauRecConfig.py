@@ -52,7 +52,12 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
             tools.append(taualgs.getTauCommonCalcVars())
             tools.append(taualgs.getTauSubstructure())
             #tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            
+	    
+            for tool in tools:
+                tool.inTrigger = True
+                pass
+	    
+	    
             self.Tools = tools
 
             ## add beam type flag
@@ -102,6 +107,10 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             tools.append(taualgs.getTauSubstructure())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
             
+            for tool in tools:
+                tool.inTrigger = True
+                pass
+
             self.Tools = tools
 
             #necessary to write out deltaZ0 between tracks and lead trk
@@ -146,7 +155,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm -> Need to remove quality criteria for fast-tracks here
             # Insert bypass later?
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPreselection_", noSelector = True))
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPreselection_", noSelector = False))
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
@@ -159,6 +168,10 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
             tools.append(taualgs.getPileUpCorrection())
 
+
+            for tool in tools:
+                tool.inTrigger = True
+                pass
 
             self.Tools = tools
                 
@@ -200,9 +213,13 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
             tools.append(taualgs.getTauAxis())
             # Calibrate to TES
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy', caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauCaloOnly_"))
+
+            for tool in tools:
+                tool.inTrigger = True
+                pass
 
             self.Tools = tools
 
@@ -258,6 +275,10 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
             tools.append(taualgs.getPileUpCorrection())
             
+            for tool in tools:
+                tool.inTrigger = True
+                pass
+
             self.Tools = tools
 
             ## add beam type flag
