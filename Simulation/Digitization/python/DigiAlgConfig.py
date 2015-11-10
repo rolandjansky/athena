@@ -69,7 +69,7 @@ def getStandardForwardPileUpTools():
     if DetFlags.digitize.Lucid_on():
         PileUpToolsList += [ "LUCID_PileUpTool" ]
     if DetFlags.digitize.ZDC_on():
-        PileUpToolsList += [ "ZDC_DigitizationTool" ]
+        PileUpToolsList += [ "ZDC_PileUpTool" ]
     if DetFlags.digitize.ALFA_on():
         PileUpToolsList += [ "ALFA_PileUpTool" ]
     if hasattr(DetFlags.digitize, 'AFP_on') and DetFlags.digitize.AFP_on():
