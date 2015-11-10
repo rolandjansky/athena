@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm
+from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
+
 
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
@@ -20,6 +21,7 @@ def MuGirlAlg(name="MuGirlAlg",**kwargs):
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
+
 def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
     tools = [getPublicTool("MuonCaloTagTool")]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
@@ -34,8 +36,16 @@ def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
+def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
+    tools = [getPublicTool("MuonStauRecoTool")]
+    kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
+
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
     kwargs.setdefault("InDetCandidateTool",getPublicTool("InDetCandidateTool") )
+    if muonCombinedRecFlags.doSiAssocForwardMuons():
+        kwargs.setdefault("DoSiliconAssocForwardMuons", True )
+        kwargs.setdefault("InDetForwardCandidateTool", getPublicTool("MuonInDetForwardCandidateTool") )
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
     
 def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs ):
@@ -80,8 +90,10 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
             topSequence += getAlgorithm("MuonCombinedAlg") 
 
         if muonCombinedRecFlags.doMuGirl():
-            topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
-            #topSequence += getAlgorithm("MuGirlAlg") 
+            #topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
+            topSequence += getAlgorithm("MuGirlAlg") 
+            #if muonCombinedRecFlags.doMuGirlLowBeta():
+            #    topSequence += getAlgorithm("MuGirlStauAlg")
 
         if muonCombinedRecFlags.doCaloTrkMuId():
             topSequence += getAlgorithm("MuonCaloTagAlg") 
