@@ -110,9 +110,13 @@ from BTagging.BTaggingConfiguration_JetVertexCharge import *
 #ExKtbb tool
 from BTagging.BTaggingConfiguration_ExKtbbTag import *
 
-#DL1 tagger
-#from BTagging.BTaggingConfiguration_DL1Tag import *
-#from BTagging.BTaggingConfiguration_DL1FlipTag import *
+# MultivariateTagManager
+from BTagging.BTaggingConfiguration_MultivariateTagManager import *
+from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
+
+# DL1 tagger
+from BTagging.BTaggingConfiguration_DL1Tag import *
+from BTagging.BTaggingConfiguration_DL1FlipTag import *
 
 # Global dictionary keeping track of all tool collections                                       
 _BTaggingConfig_ToolCollections = {}

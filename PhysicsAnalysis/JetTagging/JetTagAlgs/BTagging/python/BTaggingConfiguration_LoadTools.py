@@ -456,9 +456,13 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #          if BTaggingFlags.MV2Flip:
 #            addTool('MV2FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #  if 'DL1' in TaggerList:
-#    ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-#  if 'DL1Flip' in TaggerList:
-#    ConfInstance.addTool('DL1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    obj = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    tag = ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    obj.DL1Classifier = tag
+#  if 'DL1Flip'in TaggerList:
+#    obj = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    tag = ConfInstance.addTool('DL1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    obj.DL1Classifier = tag
 
   # -- b-tagging tool is now fully configured.
 
@@ -706,10 +710,14 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
     ConfInstance.addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'JetVertexCharge' in TaggerList:   #LC FIXME
     ConfInstance.addTool('JetVertexCharge', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-#  if 'DL1Tag' in TaggerList:   
-#    ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-#  if 'DL1FlipTag' in TaggerList:   
-#    ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#  if 'DL1' in TaggerList:
+#    obj = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    tag = ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    obj.DL1Classifier = tag
+#  if 'DL1Flip'in TaggerList:
+#    obj = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    tag = ConfInstance.addTool('DL1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    obj.DL1Classifier = tag
 
   if BTaggingFlags.OutputLevel < 3:
     ConfInstance.printAllTools()
