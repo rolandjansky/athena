@@ -221,3 +221,8 @@ try:
 except:
     print 'got an exception' 
     pass
+
+from AthenaCommon.ConfigurationShelve import saveToAscii
+saveToAscii("config.txt")
+from MuonRecExample.MuonRecUtils import dumpDetFlags
+dumpDetFlags("config.txt")
