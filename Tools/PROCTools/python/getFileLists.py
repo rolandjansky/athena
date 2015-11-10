@@ -5,7 +5,6 @@ from xml.dom.minidom import parse
 from time import time
 import re
 from string import *
-import json
 
 def tctPath(build,rel):
     if not rel.startswith("rel_"):
@@ -249,17 +248,11 @@ class findTCTFiles:
         archfiles=dom.getElementsByTagName("archivefile")
         for af in archfiles:
             cpEle=af.getElementsByTagName("destination")
-            ## temporary fix until RTT API is ready
-            if not cpEle:
-                s = af.firstChild.nodeValue
-                json_acceptable_string = s.replace("'", "\"")
-                d = json.loads(json_acceptable_string)
-                castorpath=d['src']
-            else:
-                castorpath=cpEle[0].childNodes[0].data.strip()
+            castorpath=cpEle[0].childNodes[0].data.strip()
             #print castorpath
             if len(pattern.findall(castorpath)):
                 res+=[castorpath,]
+            
         del dom
         return res
 
