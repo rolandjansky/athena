@@ -37,6 +37,12 @@ typedef std::ostringstream __sstream;
 #include <TH2F.h>
 #include <TProfile2D.h>
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 
 TrigMuCTPiROBMonitor::TrigMuCTPiROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -560,7 +566,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 					    m_histProp_failedChecksumForROB.value().lowEdge(),
 					    m_histProp_failedChecksumForROB.value().highEdge());
     if (m_hist_failedChecksumForROB) {
-      m_hist_failedChecksumForROB->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_failedChecksumForROB);
       if( rootHistSvc->regHist(path + m_hist_failedChecksumForROB->GetName(), m_hist_failedChecksumForROB).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_failedChecksumForROB->GetName() );
       }
@@ -834,7 +840,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 						    m_histProp_Problem_Barrel_Hash.value().lowEdge(),
 						    m_histProp_Problem_Barrel_Hash.value().highEdge());
     if (m_hist_muCTPiL1_Problem_Barrel_Hash) {
-      m_hist_muCTPiL1_Problem_Barrel_Hash->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_muCTPiL1_Problem_Barrel_Hash);
       if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Barrel_Hash->GetName(), m_hist_muCTPiL1_Problem_Barrel_Hash).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Barrel_Hash->GetName() );
       }
@@ -848,7 +854,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 						     m_histProp_Problem_Barrel_Hash.value().lowEdge(),
 						     m_histProp_Problem_Barrel_Hash.value().highEdge());
     if (m_hist_muCTPiDaq_Problem_Barrel_Hash) {
-      m_hist_muCTPiDaq_Problem_Barrel_Hash->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_muCTPiDaq_Problem_Barrel_Hash);
       if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Barrel_Hash->GetName(), m_hist_muCTPiDaq_Problem_Barrel_Hash).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Barrel_Hash->GetName() );
       }
@@ -862,7 +868,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 						    m_histProp_Problem_Endcap_Hash.value().lowEdge(),
 						    m_histProp_Problem_Endcap_Hash.value().highEdge());
     if (m_hist_muCTPiL1_Problem_Endcap_Hash) {
-      m_hist_muCTPiL1_Problem_Endcap_Hash->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_muCTPiL1_Problem_Endcap_Hash);
       if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Endcap_Hash->GetName(), m_hist_muCTPiL1_Problem_Endcap_Hash).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Endcap_Hash->GetName() );
       }
@@ -876,7 +882,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 						     m_histProp_Problem_Endcap_Hash.value().lowEdge(),
 						     m_histProp_Problem_Endcap_Hash.value().highEdge());
     if (m_hist_muCTPiDaq_Problem_Endcap_Hash) {
-      m_hist_muCTPiDaq_Problem_Endcap_Hash->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_muCTPiDaq_Problem_Endcap_Hash);
       if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Endcap_Hash->GetName(), m_hist_muCTPiDaq_Problem_Endcap_Hash).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Endcap_Hash->GetName() );
       }
@@ -890,7 +896,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 						     m_histProp_Problem_Forward_Hash.value().lowEdge(),
 						     m_histProp_Problem_Forward_Hash.value().highEdge());
     if (m_hist_muCTPiL1_Problem_Forward_Hash) {
-      m_hist_muCTPiL1_Problem_Forward_Hash->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_muCTPiL1_Problem_Forward_Hash);
       if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Forward_Hash->GetName(), m_hist_muCTPiL1_Problem_Forward_Hash).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Forward_Hash->GetName() );
       }
@@ -904,7 +910,7 @@ StatusCode TrigMuCTPiROBMonitor::beginRun() {
 						      m_histProp_Problem_Forward_Hash.value().lowEdge(),
 						      m_histProp_Problem_Forward_Hash.value().highEdge());
     if (m_hist_muCTPiDaq_Problem_Forward_Hash) {
-      m_hist_muCTPiDaq_Problem_Forward_Hash->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_muCTPiDaq_Problem_Forward_Hash);
       if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Forward_Hash->GetName(), m_hist_muCTPiDaq_Problem_Forward_Hash).isFailure() ) {
 	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Forward_Hash->GetName() );
       }

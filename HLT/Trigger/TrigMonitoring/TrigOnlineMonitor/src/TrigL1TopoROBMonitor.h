@@ -39,6 +39,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   StatusCode beginRun();  
   StatusCode endRun();
  private:
+  static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
   StatusCode doCnvMon(bool);
   StatusCode doRawMon(bool);
   StatusCode doSimMon(bool);
@@ -46,6 +47,10 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   StatusCode monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& vFibreSizes, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& daqTobs);
   StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, std::string extraName, std::string extraTitle);
   StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge);
+  void compBitSets(std::string leftLabel, std::string rightLabel,
+                   const std::bitset<m_nTopoCTPOutputs>& left, 
+                   const std::bitset<m_nTopoCTPOutputs>& right, 
+                   TH1F*& hist);
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;
   BooleanProperty m_doRawMon;
@@ -73,13 +78,16 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histBCNsFromDAQConv;
   TH1F* m_histTopoSimHdwStatComparison;
   TH1F* m_histTopoSimHdwEventComparison;
+  TH1F* m_histTopoCtpSimHdwEventComparison;
+  TH1F* m_histTopoCtpHdwEventComparison;
   TH1F* m_histTopoSimResult;
   TH1F* m_histTopoHdwResult;
   TH1F* m_histTopoProblems;
-  static const unsigned int m_nTopoCTPOutputs = 128; //! Number of CTP outputs, used for histogram ranges and loops
   std::bitset<m_nTopoCTPOutputs> m_triggerBits; //! trigger bits sent to CTP
   std::bitset<m_nTopoCTPOutputs> m_overflowBits; //! overflow bits corresponding to CTP output
   std::bitset<m_nTopoCTPOutputs> m_topoSimResult; //! simulation of CTP output
+  std::bitset<m_nTopoCTPOutputs> m_topoCtpResult; //! actual hardware CTP output
+  bool m_setTopoSimResult;
   enum class Problems {
     ROI_NO_RDO=0,
     ROI_CNV_ERR,
