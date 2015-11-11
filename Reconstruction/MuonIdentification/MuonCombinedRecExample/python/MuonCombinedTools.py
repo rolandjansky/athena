@@ -49,8 +49,8 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
 
 def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwargs):
    #import pdb ; pdb.set_trace()
-   idCandTool = getPublicToolClone("InDetForwardCandidateTool","InDetCandidateTool", TrackSelector = getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool"))
-   idCandTool.TrackSelector = getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool")
+   idCandTool = getPublicToolClone("InDetForwardCandidateTool","InDetCandidateTool", TrackSelector = getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
+   idCandTool.FlagCandidatesAsSiAssociated = True
    return idCandTool
 
 def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
