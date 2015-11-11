@@ -32,6 +32,12 @@ typedef std::ostringstream __sstream;
 #include <TH1F.h>
 #include <TH2F.h>
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 namespace HltROBDataProviderConstants {
   // reserve a number of ROB monitor collections
   static const int Number_of_Rob_Monitor_Structs = 10;
@@ -995,7 +1001,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
       m_histProp_requestedROBsPerCall.value().lowEdge(),
       m_histProp_requestedROBsPerCall.value().highEdge());
   if (m_hist_requestedROBsPerCall) {
-    m_hist_requestedROBsPerCall->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_requestedROBsPerCall);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endreq;
     }
@@ -1008,7 +1014,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
       m_histProp_receivedROBsPerCall.value().lowEdge(),
       m_histProp_receivedROBsPerCall.value().highEdge());
   if (m_hist_receivedROBsPerCall) {
-    m_hist_receivedROBsPerCall->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_receivedROBsPerCall);
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endreq;
     }
@@ -1021,7 +1027,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
       m_histProp_timeROBretrieval.value().lowEdge(),
       m_histProp_timeROBretrieval.value().highEdge());
   if (m_hist_timeROBretrieval) {
-    m_hist_timeROBretrieval->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_timeROBretrieval);
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endreq;
     }

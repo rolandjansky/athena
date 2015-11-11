@@ -86,6 +86,12 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 
 #define ST_WHERE "HltEventLoopMgr::" << __func__ << "(): "
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 using namespace boost::property_tree;
 using std::string;
 using std::function;
@@ -101,6 +107,14 @@ namespace
       INITIAL_ROB_SIZE_MARGIN = 4; /* margin for the rob size, to account for 
                                       possible additional status words that may
                                       still be unknonw */
+
+  //=========================================================================
+  constexpr std::array<uint32_t, 7> L1R_MANDATORY_ROBS =
+    {{
+      0x7300a8, 0x7300a9, 0x7300aa, 0x7300ab, // TDAQ_CALO_CLUSTER_PROC_ROI ROBs
+      0x7500ac, 0x7500ad,                     // TDAQ_CALO_JET_PROC_ROI ROBs
+      0x760001                                // TDAQ_MUON_CTP_INTERFACE ROB
+    }};
 
   //=========================================================================
   constexpr std::array<uint32_t, 12> L1R_SKIP_ROB_CHECK =
@@ -166,6 +180,25 @@ namespace
     return std::find(begin(L1R_SKIP_ROB_CHECK),
                      end(L1R_SKIP_ROB_CHECK),
                      robid) != end(L1R_SKIP_ROB_CHECK);
+  }
+
+  //=========================================================================
+  std::string
+  missingL1RobsMsg(const std::vector<uint32_t>& rob_ids)
+  {
+    std::ostringstream ost;
+    if(!rob_ids.empty())
+    {
+      ost << "L1 result ROBs missing: ";
+
+      ost << "0x" << std::hex << std::setfill('0') << std::setw(6);
+      std::copy(std::begin(rob_ids),
+                std::end(rob_ids) - 1, // leave one to avoid delimiter
+                std::ostream_iterator<uint32_t>{ost, ", 0x"});
+      ost << rob_ids.back() << "."; // append without delimiter
+    }
+
+    return ost.str();
   }
 
   //=========================================================================
@@ -1282,6 +1315,17 @@ StatusCode HltEventLoopMgr::processRoIs (
     return StatusCode::RECOVERABLE;
   }
 
+  // Check for other missing L1 ROBs
+  auto missing_l1_robs = missingL1Robs(l1_result);
+  if(!missing_l1_robs.empty())
+  {
+    ++m_invalid_lvl1_result;
+    failedEvent(hlt_result, hltonl::PSC_ERROR_NO_L1_RESULT,
+                missingL1RobsMsg(missing_l1_robs));
+
+    return StatusCode::RECOVERABLE;
+  }
+
   //-----------------------------------------------------------------------
   // Clear the event store, if used in the event loop
   //-----------------------------------------------------------------------
@@ -1727,7 +1771,9 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
   //
   // The maximum possible space is already allocated by the HLTMPPU
   // copy the ROB contents into the allocated memory
-  addRobToHLTResult(hlt_result, rob, hlt_result.fragment_pointer, hlt_result.max_result_size);
+  auto next_fragment = hlt_result.fragment_pointer;
+  auto spaceleft = hlt_result.max_result_size;
+  addRobToHLTResult(hlt_result, rob, next_fragment, spaceleft);
 
   // delete the data array
   if (hltr_data != 0) delete[] hltr_data;
@@ -1896,7 +1942,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
   if (m_hist_Hlt_result_size) {
-    m_hist_Hlt_result_size->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_Hlt_result_size);
     regHistsTH1F.push_back(&m_hist_Hlt_result_size);
   }
 
@@ -1941,7 +1987,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_numStreamTags.value().lowEdge(),
       m_histProp_numStreamTags.value().highEdge());
   if (m_hist_numStreamTags) {
-    m_hist_numStreamTags->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_numStreamTags);
     regHistsTH1F.push_back(&m_hist_numStreamTags);
   }
 
@@ -1966,8 +2012,8 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_streamTagNames.value().lowEdge(),
       m_histProp_streamTagNames.value().highEdge());
   if (m_hist_streamTagNames) {
-    if (m_histProp_streamTagNames.value().bins()>0) m_hist_streamTagNames->GetXaxis()->SetBinLabel(1,std::string("DefaultLabel").c_str() );
-    m_hist_streamTagNames->SetBit(TH1::kCanRebin);
+    if (m_histProp_streamTagNames.value().bins()>0) m_hist_streamTagNames->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
+    CAN_REBIN(m_hist_streamTagNames);
     regHistsTH1F.push_back(&m_hist_streamTagNames);
   }
 
@@ -1984,7 +2030,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_num_partial_eb_robs.value().lowEdge(),
       m_histProp_num_partial_eb_robs.value().highEdge());
   if (m_hist_num_partial_eb_robs) {
-    m_hist_num_partial_eb_robs->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_num_partial_eb_robs);
     regHistsTH1F.push_back(&m_hist_num_partial_eb_robs);
   }
 
@@ -1993,7 +2039,7 @@ void HltEventLoopMgr::bookHistograms()
       "NumberSubDetectorsPartialEB;subdet;entries",
       n_bins_partEBSubDet,-0.5,(float) n_bins_partEBSubDet-0.5);
   if (m_hist_num_partial_eb_SubDetectors) {
-    m_hist_num_partial_eb_SubDetectors->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_num_partial_eb_SubDetectors);
     regHistsTH1F.push_back(&m_hist_num_partial_eb_SubDetectors);
   }
 
@@ -2008,7 +2054,7 @@ void HltEventLoopMgr::bookHistograms()
       m_hist_partial_eb_SubDetectors_ROBs->GetXaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
       n_tmp_bin++;
     }
-    m_hist_partial_eb_SubDetectors_ROBs->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_partial_eb_SubDetectors_ROBs);
     regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_ROBs);
   }
 
@@ -2023,7 +2069,7 @@ void HltEventLoopMgr::bookHistograms()
       m_hist_partial_eb_SubDetectors_SDs->GetXaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
       n_tmp_bin++;
     }
-    m_hist_partial_eb_SubDetectors_SDs->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_partial_eb_SubDetectors_SDs);
     regHistsTH1F.push_back(&m_hist_partial_eb_SubDetectors_SDs);
   }
 
@@ -2223,7 +2269,7 @@ void HltEventLoopMgr::fillHltResultHistograms(hltinterface::HLTResult& hlt_resul
   if (m_hist_streamTagNames) {
     scoped_lock_histogram lock;
     if(hlt_result.stream_tag.empty()) {
-      m_hist_streamTagNames->Fill((float)m_hist_streamTagNames->GetXaxis()->GetNbins() - 1.);
+      m_hist_streamTagNames->Fill(0.);
     } else {
       for(std::vector<eformat::helper::StreamTag>::const_iterator it = hlt_result.stream_tag.begin(); it != hlt_result.stream_tag.end(); it++) {
         m_hist_streamTagNames->Fill((*it).name.c_str(),1.);
@@ -2862,14 +2908,15 @@ bool HltEventLoopMgr::serializeRob(uint32_t*& tmpstor,
 //=========================================================================
 void HltEventLoopMgr::addRobToHLTResult(hltinterface::HLTResult& hltr,
                                         eformat::write::ROBFragment& rob,
-                                        uint32_t*& fp, uint32_t& spaceleft)
+                                        uint32_t*& next_fragment, // don't pass original fragment pointer!
+                                        uint32_t& spaceleft)
 {
   // Store the HLT ROB fragment in the HLT result
   // (Maximum possible space is already allocated by the HLTMPPU)
-  auto copied = eformat::write::copy(*rob.bind(), fp, rob.size_word());
-  hltr.hltResult_robs.emplace_back(fp);
+  auto copied = eformat::write::copy(*rob.bind(), next_fragment, rob.size_word());
+  hltr.hltResult_robs.emplace_back(next_fragment);
 
-  fp += copied;
+  next_fragment += copied;
   spaceleft -= copied;
 
   if(copied == 0 || copied != rob.size_word())  {
@@ -2980,4 +3027,42 @@ void HltEventLoopMgr::failedEvent(hltinterface::HLTResult& hlt_result,
               << emsg << " PSC error code = "
               << hltonl::PrintPscErrorCode(ecode)
               << "\n" << hlt_result << "\n" << endreq;
+}
+
+//=========================================================================
+std::vector<uint32_t> HltEventLoopMgr::
+missingL1Robs(const std::vector<eformat::ROBFragment<const uint32_t*>>& l1r)
+const
+{
+  using eformat::helper::SourceIdentifier;
+  using ROB = eformat::ROBFragment<const uint32_t*>;
+
+  std::vector<uint32_t> ret{};
+  for(const auto& robid : L1R_MANDATORY_ROBS)
+  {
+    if(isSubDetectorIn(SourceIdentifier(robid).subdetector_id()))
+    {
+      auto it = std::find_if(begin(l1r), end(l1r), [robid](const ROB& rob){
+        return rob.rob_source_id() == robid;
+      });
+      if(it == end(l1r))
+        ret.push_back(robid);
+    }
+  }
+
+  return ret;
+}
+
+//=========================================================================
+bool HltEventLoopMgr::isSubDetectorIn(eformat::SubDetector sd) const
+{
+  uint64_t most = std::get<3>(m_detector_mask);
+  most <<= 32;
+  most |= std::get<2>(m_detector_mask);
+
+  uint64_t least = std::get<1>(m_detector_mask);
+  least <<= 32;
+  least |= std::get<0>(m_detector_mask);
+
+  return eformat::helper::DetectorMask{least, most}.is_set(sd);
 }
