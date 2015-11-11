@@ -101,6 +101,7 @@ namespace MuonCombined {
     declareProperty("nmdtHitsML"                      , m_nmdtHitsML = 2 );
     declareProperty("TriggerHitCut"                   , m_triggerHitCut = true );
     declareProperty("MakeMuons"                       , m_makeMuons = false );
+    declareProperty("IgnoreSiAssociatedCandidates"    , m_ignoreSiAssocated = true );
     m_extrapolated.resize(15,0);
     m_goodExtrapolated.resize(15,0);
 
@@ -275,6 +276,10 @@ namespace MuonCombined {
       
       // ensure that the id trackparticle has a track
       if( ! idTP->indetTrackParticle().track() ) continue;
+
+      // Ignore if this is a siAssociated disk (and property set).
+      if ( m_ignoreSiAssocated && idTP->isSiliconAssociated() ) continue;
+
       ++trackCount;
        
       matchedSegment = false ;

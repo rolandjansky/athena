@@ -34,7 +34,7 @@ namespace MuonCombined {
   {
     declareInterface<IInDetCandidateTool>(this);
     declareProperty("TrackSelector",m_trackSelector );    
-    declareProperty("FlagCandidatesAsSiAssociated",m_flagCandidateAsSiAssociated );    
+    declareProperty("FlagCandidatesAsSiAssociated",m_flagCandidateAsSiAssociated = false );    
   }
 
   InDetCandidateTool::~InDetCandidateTool()
