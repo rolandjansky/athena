@@ -277,7 +277,10 @@ private:
   // add rob to hltinterface::HLTResult
   void addRobToHLTResult(hltinterface::HLTResult& hltr,
                          eformat::write::ROBFragment& rob,
-                         uint32_t*& fp, uint32_t& spaceleft);
+                         uint32_t*& next_fragment,
+                         uint32_t& spaceleft); /* don't pass original
+                         fragment_pointer or max_result_size (notice parameters
+                         passed by reference) */
   // Get monitoring information for navigation sizes of HLT EDM
   void recordEDMSizeInfo(size_t nav_size, bool serializationOk) const;
   // check if a ROB is enabled for readout in OKS
@@ -295,6 +298,14 @@ private:
                    hltonl::PSCErrorCode ecode,
                    const std::string& emsg,
                    bool empty_result = true);
+
+  // get a vector with the ids of the expected L1R robs that are missing
+  std::vector<uint32_t>
+  missingL1Robs(const std::vector<eformat::ROBFragment<const uint32_t*>>& l1r)
+  const;
+
+  // check whether a subdetector is in the run, according to the current detmask
+  bool isSubDetectorIn(eformat::SubDetector sd) const;
 
   /** Handles to required services/tools **/
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
