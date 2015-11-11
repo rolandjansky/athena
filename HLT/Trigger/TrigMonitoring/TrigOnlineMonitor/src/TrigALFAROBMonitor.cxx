@@ -45,7 +45,11 @@ typedef std::ostringstream __sstream;
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-//#include "../../geomTable.dat"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
 
 /// Unique interface ID of the tool that identifies it to the framweork
 static const InterfaceID IID_IRoIBResultByteStreamTool( "RoIBResultByteStreamTool", 2, 0 );
@@ -499,7 +503,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
 					        m_histProp_failedChecksumForALFAROB.value().lowEdge(),
 					        m_histProp_failedChecksumForALFAROB.value().highEdge());
     if (m_hist_failedChecksumForALFAROB) {
-      m_hist_failedChecksumForALFAROB->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_failedChecksumForALFAROB);
       if( rootHistSvc->regHist(path + "common/" + m_hist_failedChecksumForALFAROB->GetName(), m_hist_failedChecksumForALFAROB).isFailure() ) {
 	logStream() << MSG::WARNING << "Can not register ALFA ROB checksum monitoring histogram: " << m_hist_failedChecksumForALFAROB->GetName() <<endreq;
       }
@@ -511,7 +515,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     std::string histTitle = "goodDataAssessment";
     m_hist_goodData = new TH1F (histTitle.c_str(), (histTitle + " elastics").c_str(), 10, -0.5, 9.5);
     if (m_hist_goodData) {
-      m_hist_goodData->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hist_goodData);
       if( rootHistSvc->regHist(path + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
 	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName() <<endreq;
       }
