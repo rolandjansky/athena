@@ -465,11 +465,21 @@ if InDetFlags.doConversions():
 
 
 if InDetFlags.doParticleCreation():
+ trackToVertexTool = None
+ if InDetFlags.perigeeExpression() == 'Vertex' :
+     if hasattr(ToolSvc,'TrackToVertex') :
+        trackToVertexTool = ToolSvc.TrackToVertex
+     else :
+        from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+        trackToVertexTool = Reco__TrackToVertex('TrackToVertex')
+        ToolSvc += trackToVertexTool
+     
 
  from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
  InDetVxLinkSetter = InDet__InDetVxLinksToTrackParticles(name          = "InDetVxLinkSetter",
                                                          TracksName    = InDetKeys.xAODTrackParticleContainer(),
-                                                         VerticesName  = InDetKeys.xAODVertexContainer())
+                                                         VerticesName  = InDetKeys.xAODVertexContainer(),
+                                                         TrackToVertex = trackToVertexTool)
 
  topSequence += InDetVxLinkSetter
 

@@ -575,6 +575,13 @@ class doSplitVertexFindingForMonitoring(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class perigeeExpression(InDetFlagsJobProperty):
+    """Express track parameters wrt. to : 'BeamLine','BeamSpot','Vertex' (first primary vertex) """
+    statusOn     = True
+    allowedTypes = ['str']
+    allowedValues= ['BeamLine','BeamSpot','Vertex']
+    StoredValue  = 'BeamLine'   
+
 class secondaryVertexCutSetup(InDetFlagsJobProperty):
     """ string to store the type of cuts to be used in PV reconstruction: 'StartUp', 'PileUp' """
     statusOn     = True
@@ -1177,6 +1184,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.cutLevel               , 2    )
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.perigeeExpression      , 'Vertex')
 
     # --- special case SLHC
     elif (self.doSLHC()):
@@ -2376,6 +2384,7 @@ _list_InDetJobProperties = [Enabled,
                             doPrimaryVertex3DFinding,
                             doVertexFindingForMonitoring,
                             doSplitVertexFindingForMonitoring,
+                            perigeeExpression,
                             secondaryVertexCutSetup,
                             conversionVertexCutSetup,
                             doSharedHits,
