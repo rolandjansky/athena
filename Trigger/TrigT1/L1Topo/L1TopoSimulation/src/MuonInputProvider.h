@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include <vector>
 
 class TH1I;
@@ -22,6 +23,7 @@ namespace TrigConf {
 
 namespace TCS {
    class MuonTOB;
+   class LateMuonTOB;
 }
 
 namespace LVL1 {
@@ -46,6 +48,7 @@ namespace LVL1 {
 
       TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
+      TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
 
       StringProperty m_roibLocation;
 
@@ -65,6 +68,7 @@ namespace LVL1 {
 
      int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
      StringProperty m_MuCTPItoL1TopoLocation;
+     StringProperty m_MuCTPItoL1TopoLocationBC1;
    };
 }
 
