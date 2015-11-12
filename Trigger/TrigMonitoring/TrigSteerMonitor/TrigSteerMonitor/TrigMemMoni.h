@@ -54,9 +54,6 @@ private:
    longlong m_AbsSysTime;
    int      m_event;
 
-   // Output message stream
-   MsgStream m_MsgStream;
-
    // profile histogram to store data in
    TProfile*   m_pRelMemHist;
    TProfile*   m_pAbsMemHist;

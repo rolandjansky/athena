@@ -48,7 +48,6 @@ public:
    virtual ~TrigCorMoni();
 
    virtual StatusCode initialize();
-   virtual StatusCode finalize();
   
    virtual StatusCode bookHists();
    virtual StatusCode fillHists();
@@ -56,8 +55,6 @@ public:
   
 private:
 
-   MsgStream& log() { return *m_log; }
-  
    bool getLvl1Result(LVL1CTP::Lvl1Result &resultL1);
   
    std::vector<const TrigConf::TriggerItem *> FindL1Items(const TrigConf::HLTChain &chain);
@@ -80,11 +77,9 @@ private:
 
    // Tool variables
    std::string             m_level;
-   MsgStream              *m_log;
    const HLT::TrigSteer   *m_parentAlg;
   
    ServiceHandle<TrigConf::ITrigConfigSvc > m_configSvc;
-   ServiceHandle<StoreGateSvc>              m_storeGate;
   
    std::map<std::string, unsigned>  m_stream2bin; // map from stream name to bin number
    std::map<unsigned, Data>         m_hash2chain; // map from chain hash id to chain struct
