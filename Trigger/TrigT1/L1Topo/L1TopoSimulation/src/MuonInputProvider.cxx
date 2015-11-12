@@ -147,6 +147,27 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    return muon;
 }
 
+TCS::LateMuonTOB
+MuonInputProvider::createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
+
+   float phi = roi.getphi();
+   if(phi<-M_PI) phi+=2.0*M_PI;
+   if(phi> M_PI) phi-=2.0*M_PI;
+
+   ATH_MSG_DEBUG("Late Muon ROI (MuCTPiToTopo):bcid=1 thr pt = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << phi << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
+
+   TCS::LateMuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*phi), roi.getRoiID() );
+
+   muon.setEtaDouble( roi.geteta() );
+   muon.setPhiDouble( phi );
+
+   m_hPt->Fill(muon.Et());
+   m_hEtaPhi->Fill(muon.eta(),muon.phi());
+
+   ATH_MSG_DEBUG("LateMuon created");
+   return muon;
+}
+
 StatusCode
 MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
@@ -216,7 +237,23 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          //MuonInputProvider::createMuonTOB( *iMuCand );
          inputEvent.addMuon( MuonInputProvider::createMuonTOB( *iMuCand ) );
        }
-   }
+
+     //BC+1
+     if( evtStore()->contains<LVL1::MuCTPIL1Topo>(m_MuCTPItoL1TopoLocationBC1) ) {
+       LVL1::MuCTPIL1Topo* l1topoBC1  {nullptr};
+       CHECK( evtStore()->retrieve( l1topoBC1,m_MuCTPItoL1TopoLocationBC1));
+       ATH_MSG_DEBUG( "Contains L1Topo LateMuons L1Muctpi object from StoreGate!" );
+       l1topoBC1->print();
+       
+       std::vector<MuCTPIL1TopoCandidate> candList = l1topoBC1->getCandidates();
+       for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
+	 {
+	   //or would it be better to create muon and dynamic_cast?
+	   ATH_MSG_DEBUG("MuonInputProvider addLateMuon ");
+	   inputEvent.addLateMuon( MuonInputProvider::createLateMuonTOB( *iMuCand ) );	   
+	 }
+     }  
+  }
 
 
    return StatusCode::SUCCESS;
