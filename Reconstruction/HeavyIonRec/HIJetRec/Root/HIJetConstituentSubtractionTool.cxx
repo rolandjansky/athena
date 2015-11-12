@@ -56,7 +56,7 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
     xAOD::IParticle::FourMom_t p4((*ijet)->p4());
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
-    
+
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr) 
     {
@@ -83,6 +83,7 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 
 
     xAOD::JetFourMom_t jet4vec;
+    if(p4_subtr.E() < 0.) p4_subtr*=1e-5;
     jet4vec.SetCoordinates(p4_subtr.Pt(),p4_subtr.Eta(),p4_subtr.Phi(),p4_subtr.M());
     (*ijet)->setJetP4(MomentName(),jet4vec);
 
