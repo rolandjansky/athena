@@ -75,7 +75,6 @@ TCS::KalmanMETCorrection::processBitCorrect( const std::vector<TCS::TOBArray con
 
    if(input.size()!=2) {
       TCS_EXCEPTION("KalmanMETCorrection alg must have exactly two input list (jets and MET list), but got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
 
@@ -150,7 +149,6 @@ TCS::KalmanMETCorrection::process( const std::vector<TCS::TOBArray const *> & in
 
    if(input.size()!=2) {
       TCS_EXCEPTION("KalmanMETCorrection alg must have exactly two input list (jets and MET list), but got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
 

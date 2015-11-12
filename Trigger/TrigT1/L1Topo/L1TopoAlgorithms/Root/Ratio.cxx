@@ -87,7 +87,6 @@ TCS::Ratio::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=2) {
       TCS_EXCEPTION("Ratio alg must have exactly 2 input lists, but got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
    unsigned int sumET = 0;

@@ -100,15 +100,12 @@ TCS::DeltaPhiIncl2::initialize() {
 
 
    for (unsigned int i=0; i<numberOutputBits();i++) {
-     char MyTitle1[100];
-     char MyTitle2[100];
-     string Mys1 = MyAcceptHist[i].str();
-     string Mys2 = MyRejectHist[i].str();
-     std::strcpy(MyTitle1,Mys1.c_str());
-     std::strcpy(MyTitle2,Mys2.c_str());
+
+     const std::string& MyTitle1 = MyAcceptHist[i].str();
+     const std::string& MyTitle2 = MyRejectHist[i].str();
      
-     registerHist(m_histAcceptDPhi2[i] = new TH1F(MyTitle1,MyTitle1,100,0,3.4));
-     registerHist(m_histRejectDPhi2[i] = new TH1F(MyTitle2,MyTitle2,100,0,3.4));
+     registerHist(m_histAcceptDPhi2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,3.4));
+     registerHist(m_histRejectDPhi2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,3.4));
    }
    
    return StatusCode::SUCCESS;
@@ -124,8 +121,14 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 
       
    if( input.size() == 2) {
-
+     
+      // gcc-4.9.1
+      // bool iaccept[numberOutputBits()] = {};
+      // gcc-4.8.1
       bool iaccept[numberOutputBits()];
+      for (auto& i : iaccept){
+        i=false;
+      }
       
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
@@ -141,7 +144,7 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                // test DeltaPhiMin, DeltaPhiMax
                unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
 
-               bool accept[3];
+               bool accept[3] = {false,false,false};
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut

@@ -35,7 +35,6 @@ TCS::METNoSort::sort(const InputTOBArray & input, TOBArray & output) {
 
    if(input.size()!=1) {
       TCS_EXCEPTION("MET sort alg expects exactly single MET TOB, got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
    const MetTOBArray & mets = dynamic_cast<const MetTOBArray&>(input);

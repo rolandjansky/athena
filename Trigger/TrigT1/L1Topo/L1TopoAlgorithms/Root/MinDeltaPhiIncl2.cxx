@@ -101,15 +101,11 @@ TCS::MinDeltaPhiIncl2::initialize() {
    }
 
    for (unsigned int i=0; i<numberOutputBits();i++) {
-     char MyTitle1[100];
-     char MyTitle2[100];
-     string Mys1 = MyAcceptHist[i].str();
-     string Mys2 = MyRejectHist[i].str();
-     std::strcpy(MyTitle1,Mys1.c_str());
-     std::strcpy(MyTitle2,Mys2.c_str());
-     
-     registerHist(m_histAcceptMinDPhi2[i] = new TH1F(MyTitle1,MyTitle1,100,0,3.5));
-     registerHist(m_histRejectMinDPhi2[i] = new TH1F(MyTitle2,MyTitle2,100,0,3.5));
+     const std::string& MyTitle1 = MyAcceptHist[i].str();
+     const std::string& MyTitle2 = MyRejectHist[i].str();
+       
+     registerHist(m_histAcceptMinDPhi2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,3.5));
+     registerHist(m_histRejectMinDPhi2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,3.5));
    }
 
    return StatusCode::SUCCESS;
