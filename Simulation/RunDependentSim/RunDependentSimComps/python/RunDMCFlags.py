@@ -39,15 +39,12 @@ class RunToTimestampDict(JobProperty):
         222526:1377093769, ##MC15b 25ns, new R2 geo tag (nominal mu)
         226000:1394188626, ##MC15c PbPb
         228000:1398342135, ##MC15c pp at 5.02 TeV (25 ns, mu=1.6)
-        240000:1410000000, ##MC15c RUN-4 (ITk LoI+FCal layout, mu=0)
         240008:1410008000, ##MC15c RUN-4 (ITk LoI+FCal layout, mu=80)
         240014:1410014000, ##MC15c RUN-4 (ITk LoI+FCal layout, mu=140)
         240020:1410020000, ##MC15c RUN-4 (ITk LoI+FCal layout, mu=200)
-        240100:1410100000, ##MC15c RUN-4 (ITk LoI+sFCal (small LAr gap), mu=0)
         240108:1410108000, ##MC15c RUN-4 (ITk LoI+sFCal (small LAr gap), mu=80)
         240114:1410114000, ##MC15c RUN-4 (ITk LoI+sFCal (small LAr gap), mu=140)
         240120:1410120000, ##MC15c RUN-4 (ITk LoI+sFCal (small LAr gap), mu=200)
-        240200:1410200000, ##MC15c RUN-4 (ITk LoI+sFCal (large/original LAr gap), mu=0)
         240208:1410208000, ##MC15c RUN-4 (ITk LoI+sFCal (large/original LAr gap), mu=80)
         240214:1410214000, ##MC15c RUN-4 (ITk LoI+sFCal (large/original LAr gap), mu=140)
         240220:1410220000, ##MC15c RUN-4 (ITk LoI+sFCal (large/original LAr gap), mu=200)
@@ -55,7 +52,6 @@ class RunToTimestampDict(JobProperty):
         271516:1436762129, ##MC15c pp (50 ns bunch spacing, nominal mu)
         282420:1445073756, ##MC15c pp (beta*=90 m, ALFA)
         284500:1446539185  ##MC15c pp (25 ns bunch spacing, nominal mu)
-
         }
     def addEntry( self, run, timestamp, force=False):
         if not type(run) == int:
