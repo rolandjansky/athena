@@ -14,15 +14,13 @@
 ######################################################################### 
 
 
+
+
 JOBS =  \
         TrigInDetValidation_el_single_e_7-80_larged0.xml                \
-#        TrigInDetValidation_el_single_e_7-80_pu40_run1.xml              \
         TrigInDetValidation_el_single_e_7-80_pu40.xml                   \
-#        TrigInDetValidation_el_single_e_7-80_pu40_robustness.xml        \
         TrigInDetValidation_el_single_e_7-80_IBL.xml                    \
         TrigInDetValidation_el_single_e_7-80_IBL_pu40.xml               \
-#        TrigInDetValidation_el_single_e_7-80_IBL_pu40_robustness.xml    \
-#        TrigInDetValidation_el_Zee_pu46_run1.xml                        \
         TrigInDetValidation_el_Zee_IBL_pu40.xml                         \
         TrigInDetValidation_el_single_e_5.xml                           \
         TrigInDetValidation_el_Zee_pu46_run1.xml                        \
@@ -35,8 +33,8 @@ JOBS =  \
         TrigInDetValidation_bjet.xml                                    \
         TrigInDetValidation_bjet_pu46.xml                               \
         TrigInDetValidation_bjet_IBL_pu40.xml                           \
+        TrigInDetValidation_bjet_IBL_pu40_offline.xml                   \
                                                                         \
-#        TrigInDetValidation_tau_pu46_run1.xml                           \
         TrigInDetValidation_tau_pu46.xml                                \
         TrigInDetValidation_tau_IBL_pu46.xml                            \
                                                                         \
@@ -50,20 +48,21 @@ JOBS =  \
         TrigInDetValidation_mu_single_mu_larged0.xml                    \
                                                                         \
         TrigInDetValidation_minBias.xml                                 \
-        TrigInDetValidation_minBias_mergeDataPrep.xml                   \
-        TrigInDetValidation_minBias_pileUp.xml                          \
+        TrigInDetValidation_minBias_offline.xml                         \
                                                                         \
         TrigInDetValidation_FTK_mu_ttbar.xml                            \
-        TrigInDetValidation_FTK_tau_tautau.xml                           \
-									\
-        TrigInDetValidation_aux.xml
+        TrigInDetValidation_FTK_tau_tautau.xml                          \
 
 
+AUXFILES = TrigInDetValidation_aux.xml
 
+
+VPATH += scripts
 
 FILES   = TrigInDetValidation_TestConfiguration_main.xml
 XMLFILE = TrigInDetValidation_TestConfiguration.xml
 
+SCRIPTDIR = ../scripts
 
 install : all
 	mv ../test/$(XMLFILE) ../test/$(XMLFILE).bak
@@ -73,10 +72,20 @@ all: $(XMLFILE)
 
 $(FILES) : $(JOBS)
 
-$(XMLFILE) : clean $(FILES) $(JOBS)
+$(XMLFILE) : clean $(FILES) $(JOBS) $(AUXFILES)
 	cpp -traditional-cpp $(FILES) -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
 	cat /tmp/_$@ | grep -v \# > $@
 	python /afs/cern.ch/user/r/rtt/public/validateXML.py $@
+
+
+scripts : $(patsubst %.xml,$(SCRIPTDIR)/%.sh,$(JOBS))
+
+$(SCRIPTDIR)/%.sh : %.xml
+	../utils/mkargs -o $(SCRIPTDIR) $< 
+
+
+duff: 
+	echo $(patsubst %.xml,../scripts/%.sh,$(JOBS))
 
 clean:
 	rm -f $(XMLFILE) 
