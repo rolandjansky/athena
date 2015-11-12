@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigRingerRingsAuxContainerCnv_v1.cxx 713588 2015-12-09 13:59:15Z jodafons $
+// $Id: xAODTrigRingerRingsAuxContainerCnv_v1.cxx 707600 2015-11-12 19:55:33Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -14,7 +14,6 @@
 #include "xAODTrigRinger/versions/TrigRingerRingsContainer_v1.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
-#include "AthContainers/tools/copyAuxStoreThinned.h"
 
 // Local include(s):
 #include "xAODTrigRingerRingsAuxContainerCnv_v1.h"
@@ -48,8 +47,6 @@ persToTrans( const xAOD::TrigRingerRingsAuxContainer_v1* oldObj,
    // Clear the transient object:
    newObj->resize( 0 );
 
-   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
-
    // Set up an interface container for the old object:
    xAOD::TrigRingerRingsContainer_v1 oldInt;
    for( size_t i = 0; i < oldObj->size(); ++i ) {
@@ -65,7 +62,7 @@ persToTrans( const xAOD::TrigRingerRingsAuxContainer_v1* oldObj,
    newInt.setStore( newObj );
 
    // Translate the objects one by one:
-   for( size_t i = 0; i < oldInt.size(); ++i ) {
+   for( size_t i = 0; i < newObj->size(); ++i ) {
       newInt[ i ]->setRings( oldInt[ i ]->rings() );
    }
 
