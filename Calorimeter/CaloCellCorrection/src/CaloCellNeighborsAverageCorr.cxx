@@ -282,13 +282,13 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
 	neighborEnergyDensitySum=betterNeighborEnergyDensitySum;
       }
       else {//No good neighbors in the same region
-	ATH_MSG_DEBUG("Cell " <<  theCellID.get_identifier32().get_compact() << ": Did not find enough good neighbors in the same region. Will use neighbors from different regions");
+	msg(MSG::INFO) << "Cell " <<  theCellID.get_identifier32().get_compact() << ": Did not find enough good neighbors in the same region. Will use neighbors from different regions" << endreq;
 	nNeighbors=goodNeighbors;
 	neighborEnergyDensitySum=goodNeighborEnergyDensitySum;
       }
 
       if(nNeighbors <= 0) {
-	ATH_MSG_DEBUG("Did not get any suitable neighbor for cell " << theCellID.get_identifier32().get_compact() << ". Not corrected.");
+	ATH_MSG_WARNING("Did not get any suitable neighbor for cell " << theCellID.get_identifier32().get_compact() << ". Not corrected.");
 	continue;
       }
 
