@@ -41,14 +41,12 @@ class TrigSteerMoni: public MonitorToolBase {
     virtual ~TrigSteerMoni();
 
     StatusCode initialize();
-    StatusCode finalize();
 
     StatusCode bookHists();
     StatusCode fillHists();
 
  private:
 
-  MsgStream* m_log;
   std::string m_histoPath;
 
   const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!

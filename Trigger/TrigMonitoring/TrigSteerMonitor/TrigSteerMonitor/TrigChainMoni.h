@@ -42,8 +42,6 @@ public:
    virtual ~TrigChainMoni();
 
    virtual StatusCode initialize();
-   virtual StatusCode finalize();
-   virtual StatusCode endRun();
    virtual StatusCode bookHists();
    virtual StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
    virtual StatusCode fillHists();
@@ -52,11 +50,7 @@ public:
    virtual StatusCode finalHists();
   
 private:
-   StoreGateSvc* m_storeGate; //!< storegate
-   MsgStream* m_log; 
-   unsigned int m_logLvl; //!< MsgStram level
    std::string m_histoPathshift;
-   //  unsigned int m_reserveLumiHistos;  // this is availabel in base class so not needed here
    const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
 
    // 1D histograms
@@ -70,7 +64,6 @@ private:
    TH1I *m_runChainsHist;
    TH1I *m_rerunChainsHist;
 
-   unsigned int binnr; //not used anymore
    std::map< unsigned int, unsigned int > m_binmap;
    std::string m_trigLvl;
    bool m_useLBHistos;

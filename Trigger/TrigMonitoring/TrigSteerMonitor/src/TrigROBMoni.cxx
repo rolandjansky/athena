@@ -16,9 +16,6 @@
 #include "TrigInterfaces/TECreateAlgo.h"
 #include "TrigSteeringEvent/Chain.h"
 
-// Framework includes
-#include "StoreGate/StoreGateSvc.h"
-
 // ROOT includes
 #include "TH1F.h"
 #include "TH2I.h"
@@ -50,8 +47,6 @@ TrigROBMoni::TrigROBMoni(const std::string& type,
                          const std::string& name,
                          const IInterface* parent) :
   TrigMonitorToolBase(type, name, parent),
-  m_log(msgSvc(), name),
-  m_storeGate("StoreGateSvc" ,name),
   m_steering(0),
   m_hs_request_time(this, "ROBRequestTime", "Request time [ms]"),
   m_hs_request_size(this, "ROBRequestSize", "Request size [words]"),
@@ -82,14 +77,7 @@ TrigROBMoni::~TrigROBMoni()
 
 StatusCode TrigROBMoni::initialize()
 {
-  m_log.setLevel(outputLevel());
-  
-  m_log << MSG::INFO << " SG key for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endreq;
-
-  if ( m_storeGate.retrieve().isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve StoreGateSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  msg() << MSG::INFO << " SG key for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endreq;
 
   // Get pointer to steering (should be our parent)
   m_steering = dynamic_cast<const HLT::TrigSteer*>(parent());
@@ -103,7 +91,7 @@ StatusCode TrigROBMoni::initialize()
     }
   }
   else {
-    m_log << MSG::INFO << "Parent algorithm is not of type TrigSteer. Some monitoring histograms will not be available." << endreq;
+    msg() << MSG::INFO << "Parent algorithm is not of type TrigSteer. Some monitoring histograms will not be available." << endreq;
   }
 
   /*
@@ -144,19 +132,19 @@ StatusCode TrigROBMoni::bookHists()
   // Book histogram sets
   StatusCode sc;
   if (sc = m_hs_request_time.book(expertHists) != StatusCode::SUCCESS) 
-    m_log << MSG::ERROR << "Cannot book histogram Set " << m_hs_request_time.name  << endreq;
+    msg() << MSG::ERROR << "Cannot book histogram Set " << m_hs_request_time.name  << endreq;
     
   if (sc = m_hs_request_size.book(expertHists)!= StatusCode::SUCCESS) 
-    m_log << MSG::ERROR << "Cannot book histogram Set " << m_hs_request_size.name  << endreq;
+    msg() << MSG::ERROR << "Cannot book histogram Set " << m_hs_request_size.name  << endreq;
 
   if (sc = m_hs_cached_fraction.book(expertHists)!= StatusCode::SUCCESS) 
-    m_log << MSG::ERROR << "Cannot book histogram Set " << m_hs_cached_fraction.name  << endreq;
+    msg() << MSG::ERROR << "Cannot book histogram Set " << m_hs_cached_fraction.name  << endreq;
 
   if (sc = m_hs_history_total.book(expertHists, &robHistory)!= StatusCode::SUCCESS) 
-    m_log << MSG::ERROR << "Cannot book histogram Set " <<  m_hs_history_total.name  << endreq;
+    msg() << MSG::ERROR << "Cannot book histogram Set " <<  m_hs_history_total.name  << endreq;
 
   if (sc = m_hs_history_event.book(expertHists, &robHistory, false)!= StatusCode::SUCCESS) 
-    m_log << MSG::ERROR << "Cannot book histogram Set " <<  m_hs_history_event.name  << endreq;
+    msg() << MSG::ERROR << "Cannot book histogram Set " <<  m_hs_history_event.name  << endreq;
 
 
   // Book additional histograms
@@ -174,7 +162,7 @@ StatusCode TrigROBMoni::bookHists()
 
   // Register histograms
   if ( expertHists.regHist(m_h_shared_requests).isFailure() ){
-    m_log << MSG::ERROR << "Cannot register histogram " << m_h_shared_requests->GetName() << endreq;
+    msg() << MSG::ERROR << "Cannot register histogram " << m_h_shared_requests->GetName() << endreq;
     return StatusCode::FAILURE;
   }
     
@@ -187,16 +175,16 @@ StatusCode TrigROBMoni::fillHists()
 {
   // Do nothing if no monitoring collection found in StoreGate
   ROBDataMonitorCollection* robMonColl(0);
-  if ( m_storeGate->transientContains<ROBDataMonitorCollection>(m_ROBDataMonitorCollection_SG_Name.value()) ) {
-    StatusCode sc = m_storeGate->retrieve(robMonColl);
+  if ( evtStore()->transientContains<ROBDataMonitorCollection>(m_ROBDataMonitorCollection_SG_Name.value()) ) {
+    StatusCode sc = evtStore()->retrieve(robMonColl);
     if ( sc.isFailure() ) {
-      m_log << MSG::ERROR << "Could not retrieve ROBDataMonitorCollection" << endreq;
+      msg() << MSG::ERROR << "Could not retrieve ROBDataMonitorCollection" << endreq;
       return StatusCode::FAILURE;
     }
   }
   else {
-    if ( outputLevel() <= MSG::DEBUG ) {
-      m_log << MSG::DEBUG << "No ROBDataMonitorCollection found in StoreGate" << endreq;
+    if (msgLvl(MSG::DEBUG)) {
+      msg() << "No ROBDataMonitorCollection found in StoreGate" << endreq;
     }
     return StatusCode::SUCCESS;
   }  
@@ -221,19 +209,19 @@ StatusCode TrigROBMoni::fillHists()
       
       // Fill request size
       if (m_hs_request_size.fill(rob.rob_size, rob, algo_name) != StatusCode::SUCCESS) 
-	m_log << MSG::ERROR << "Cannot fill histogram Set " <<  m_hs_request_size.name  << endreq;
+	msg() << MSG::ERROR << "Cannot fill histogram Set " <<  m_hs_request_size.name  << endreq;
 
       // Fill request time
       if (m_hs_request_time.fill(robMon.elapsedTime(), rob, algo_name) != StatusCode::SUCCESS) 
-	m_log << MSG::ERROR << "Cannot fill histogram Set " <<  m_hs_request_time.name  << endreq;
+	msg() << MSG::ERROR << "Cannot fill histogram Set " <<  m_hs_request_time.name  << endreq;
       
       // Fill ROB history (need to fill with bin-1 since y-axis starts at 0 !)
       if ( m_hs_history_event.fill(m_ROBHistoryToBin[rob.rob_history]-1, rob, algo_name)!= StatusCode::SUCCESS) 
-	m_log << MSG::ERROR << "Cannot fill histogram Set " << m_hs_history_event.name  << endreq;
+	msg() << MSG::ERROR << "Cannot fill histogram Set " << m_hs_history_event.name  << endreq;
 
       // Fill ROB history (need to fill with bin-1 since y-axis starts at 0 !)
       if ( m_hs_history_total.fill(m_ROBHistoryToBin[rob.rob_history]-1, rob, algo_name)!= StatusCode::SUCCESS) 
-	m_log << MSG::ERROR << "Cannot fill histogram Set " << m_hs_history_total.name  << endreq;
+	msg() << MSG::ERROR << "Cannot fill histogram Set " << m_hs_history_total.name  << endreq;
 
     }    
   }
@@ -263,7 +251,7 @@ StatusCode TrigROBMoni::fillHists()
 	m_h_shared_requests->Fill(i1->first.c_str(), i2->first.c_str(),
 				  (double)(iv - shared.begin()) / i1->second.size());                       
       }
-      else m_log << MSG::WARNING << "Cannot fill m_h_shared_requests correctly" <<endreq;
+      else msg() << MSG::WARNING << "Cannot fill m_h_shared_requests correctly" <<endreq;
     }
   }
   

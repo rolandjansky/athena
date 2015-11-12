@@ -39,7 +39,6 @@ class TrigErrorMon: public TrigMonitorToolBase {
   virtual ~TrigErrorMon() {};
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
 
   virtual StatusCode bookHists();
   virtual StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
@@ -67,10 +66,8 @@ class TrigErrorMon: public TrigMonitorToolBase {
   TH2I* m_histo_mu_errors_etaphi;
   TH2I* m_histo_xe_errors_etaphi;
 
-  MsgStream* m_log;
-  unsigned int m_logLvl; //!< MsgStram level
   std::string m_trigLvl;  
-   std::map< unsigned int, unsigned int > m_binmap; // maps chain_counter to histogram bin
+  std::map< unsigned int, unsigned int > m_binmap; // maps chain_counter to histogram bin
 
   std::vector<std::string> m_te_names;
   bool m_expertMode;

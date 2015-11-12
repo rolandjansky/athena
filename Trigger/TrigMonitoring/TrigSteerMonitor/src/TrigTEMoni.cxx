@@ -46,8 +46,6 @@ TrigTEMoni::TrigTEMoni(const std::string & type, const std::string & name,
      //     m_reserveLumiHistos(0),
      //     m_bookedLumiHistos(0),
      //     m_histoPathexpert(""),
-     m_log(0),
-     m_logLvl(0),
      m_trigLvl("")
 
   
@@ -58,109 +56,63 @@ TrigTEMoni::TrigTEMoni(const std::string & type, const std::string & name,
   //  declareProperty("useLBHistos",m_useLBHistos=true);
 }
 
-StatusCode TrigTEMoni::finalize()
-{
-  delete m_log; m_log = 0;
-  return StatusCode::SUCCESS;
-}
-
 StatusCode TrigTEMoni::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-  m_logLvl = m_log->level();
-
-  if ( TrigMonitorToolBase::initialize().isFailure() ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << " Unable to initialize base class !"
-	     << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(TrigMonitorToolBase::initialize());
 
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   
   if ( !m_parentAlg ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !"
-	     << endreq;
+    ATH_MSG_ERROR(" Unable to cast the parent algorithm to HLT::TrigSteer !");
     return StatusCode::FAILURE;
   }
 
   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF ? "EF" : "HLT" ;
   
-  //Get StoreGate Service
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if(sc.isFailure()) {
-    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << "Unable to get pointer to StoreGate Service" << endreq;
-    return sc;
-  }
-  
   // Get LVL1 Config Svc handle:
   
   if (m_lvl1ConfigSvc.empty()) {
-    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << "no LVL1ConfigSvc set in the jobOptions-> abort" << endreq;
+    ATH_MSG_FATAL("no LVL1ConfigSvc set in the jobOptions-> abort");
     return StatusCode::FAILURE;
   }
-  //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "retrieving LVL1ConfigSvc." << endreq;
-  if ( m_lvl1ConfigSvc.retrieve().isFailure() ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << "Failed to retreive LvlConverter Tool: " << m_lvl1ConfigSvc << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    (*m_log) << MSG::INFO << "Retrieved " << m_lvl1ConfigSvc << endreq;
-  }
-  
+
+  ATH_CHECK(m_lvl1ConfigSvc.retrieve());
 
   //need LVL1 Config Svc for LVL1 thresholds
   /*sc = service( "TrigConf::LVL1ConfigSvc", m_lvl1ConfigSvc);
     if(sc.isFailure()) {
-    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << " Unable to get pointer to Lvl1ConfigService " << endreq;
+    if(m_logLvl <= MSG::FATAL) msg() << MSG::FATAL << " Unable to get pointer to Lvl1ConfigService " << endreq;
     return sc;
     }
   */
-  (*m_log) << MSG::INFO << "Finished initialize() of TrigTEMoni"
-	   << endreq;
   
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigTEMoni::bookHists()
-{ 
-  if ( bookHistograms( false, false, true ).isFailure() ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << "Failure" << endreq;
-    return StatusCode::FAILURE;
-  }
+{
+  ATH_CHECK(bookHistograms( false, false, true ));
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
 {
-  
   std::string tmpstring;
   TString htit;
-  TString hname;
-  
-  
-  //  if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "bookHistograms m_reserveLumiHistos=" <<m_reserveLumiHistos<<" m_useLBHistos "<<
-  //    m_useLBHistos<< endreq;
-  
+  TString hname;  
   TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
 
   //reset private members 
 
   m_numberOfTEsHist=0;
-
   m_numberOfallTEsHist=0;  
-
   m_numberOflvl1TEsHist=0;
-
   m_numberOfalllvl1TEsHist=0;
-
   m_numberOfTEsHist2d=0;
-
   m_numberOfallTEsHist2d=0;
-
   m_numberOflvl1TEsHist2d=0;
-
   m_numberOfalllvl1TEsHist2d=0;
-
   m_configuredTETypes.clear();
   m_configuredlvl1TETypes.clear();
   m_labels.clear();
@@ -201,24 +153,18 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   for (std::vector<TrigConf::TriggerThreshold*>::const_iterator lvl1TT = thresholdVector.begin();
        lvl1TT != thresholdVector.end(); ++lvl1TT) {
 
-    //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "Searching TE that matches LVL1 threshold: "
-    //     << (*lvl1TT)->name();
-
     unsigned int teId = 0;
     bool activeHLT = TrigConf::HLTTriggerElement::getId( (*lvl1TT)->name().c_str(), teId);
     if (activeHLT) {
-      //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << " => OK (found TE)" << endreq;
-      //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << " => TE=(name="<<(*lvl1TT)->name() << ", hashID="<<teId << ")"<<endreq;
 
       foundLvl1TETypes[(*lvl1TT)->name()] = teId;
-
       
     } else {
-      //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << " => NO" << endreq;
+      //if(m_logLvl <= MSG::DEBUG) msg() << MSG::DEBUG << " => NO" << endreq;
     }
     int tn = (*lvl1TT)->thresholdNumber()+1;
     if (tn < 0) {
-      (*m_log) << MSG::WARNING << "this LVL1 threshold bit position (" << tn << ") is smaller 0"
+      msg() << MSG::WARNING << "this LVL1 threshold bit position (" << tn << ") is smaller 0"
 	       << ", go on w/o this threshold!" <<endreq;
     }
   }
@@ -282,23 +228,21 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
       m_labels[ fit->second ] = bin_number;
     } else {
       m_labels[ fit->second ] = 0; // into the underflow bin
-      if(m_logLvl <= MSG::WARNING) 
-	(*m_log) << MSG::WARNING << "TE with blank label found. TEType: " << fit->second << endreq;
+      ATH_MSG_WARNING("TE with blank label found. TEType: " << fit->second);
     }
   }
   
   //cross check bin_number = number of TETypes ? 
   // This can happen now (17.8.11) if blank labels are found (as in the rerundb test)
   if(bin_number !=  m_configuredTETypes.size() ){
-    if (m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING<<" size of triggername, m_configuredTETypes, bin_number "
-					 <<m_configuredTETypes.size()<<" "<<bin_number<<" doesnt match "<<endreq;
+    ATH_MSG_WARNING(" size of triggername, m_configuredTETypes, bin_number "
+                    <<m_configuredTETypes.size()<<" "<<bin_number<<" doesnt match ");
   }
   //lvl1 stuff
   if(m_trigLvl!="EF"){
     if(bin_number_lvl1 !=  m_configuredlvl1TETypes.size() ){
-      if (m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING<<
-	" size of triggername, m_configuredlvl1TETypes, bin_number_lvl1 "
-					   <<m_configuredlvl1TETypes.size()<<" "<<bin_number_lvl1<<" doesnt match "<<endreq;
+      ATH_MSG_WARNING(" size of triggername, m_configuredlvl1TETypes, bin_number_lvl1 "
+                      <<m_configuredlvl1TETypes.size()<<" "<<bin_number_lvl1<<" doesnt match ");
     }
   }
 
@@ -324,7 +268,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   
   m_numberOfTEsHist_runsummary = new TH1I(run_name.c_str(),run_title.c_str(), bin_number,0.5, bin_number+0.5 );
   if (expertHistograms.regHist(m_numberOfTEsHist_runsummary).isFailure()){
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_numberOfTEsHist_runsummary->GetName() << endreq;
   }
   if ( m_useLBHistos) {
@@ -337,7 +281,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   std::string title = "TE abundance in "+ m_trigLvl;
   m_numberOfTEsHist = new  TH1I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5) ;
   if ( expertHistograms.regHist(m_numberOfTEsHist).isFailure() ) 
-    (*m_log) << MSG::WARNING << "Can't book histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book histogram " << name << endreq;
 
   /*
     histo for number of all TE
@@ -350,7 +294,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   run_name = name + "_runsummary";
   m_numberOfallTEsHist_runsummary =new TH1I(run_name.c_str(),run_title.c_str(), bin_number,0.5, bin_number+0.5 );
   if (expertHistograms.regHist(m_numberOfallTEsHist_runsummary).isFailure()){
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     << m_numberOfallTEsHist_runsummary ->GetName() << endreq;
   }
   if ( m_useLBHistos ) {
@@ -362,7 +306,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   title    = "All TE abundance in "+ m_trigLvl;
   m_numberOfallTEsHist =new TH1I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5 ) ;  
   if ( expertHistograms.regHist( m_numberOfallTEsHist ).isFailure()) 
-    (*m_log) << MSG::WARNING << "Can't book histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book histogram " << name << endreq;
 
 
   /*
@@ -376,7 +320,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     m_numberOfTEsHist2d_runsummary =new TH2I(run_name.c_str(),run_title.c_str(), bin_number,0.5, bin_number+0.5 , 20,-0.5,19.5 );
     
     if (expertHistograms.regHist(m_numberOfTEsHist2d_runsummary).isFailure()){
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
     << m_numberOfTEsHist2d_runsummary ->GetName() << endreq;
     }
     if ( m_useLBHistos ) {
@@ -391,7 +335,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   title  = "Number of TE per event in "+ m_trigLvl;
   m_numberOfTEsHist2d =new TH2I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5 , 20,-0.5,19.5 ) ;
   if ( expertHistograms.regHist( m_numberOfTEsHist2d ).isFailure()) 
-    (*m_log) << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
 
 
 
@@ -408,7 +352,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     m_numberOfallTEsHist2d_runsummary =new TH2I(run_name.c_str(),run_title.c_str(), bin_number,0.5, bin_number+0.5 , 20,-0.5,19.5 );
     
     if (expertHistograms.regHist(m_numberOfallTEsHist2d_runsummary).isFailure()){
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
     << m_numberOfallTEsHist2d_runsummary ->GetName() << endreq;
     }
     if ( m_useLBHistos ) {
@@ -422,7 +366,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   m_numberOfallTEsHist2d = new TH2I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5 , 20,-0.5,19.5 );
 
   if ( expertHistograms.regHist( m_numberOfallTEsHist2d ).isFailure()) 
-    (*m_log) << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
 
 
 
@@ -443,7 +387,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }
 
   if ( expertHistograms.regHist( m_numberOflvl1TEsHist ).isFailure()) 
-    (*m_log) << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
 
 
 
@@ -464,7 +408,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }
 
     if ( expertHistograms.regHist( (ITrigLBNHist*)m_numberOfalllvl1TEsHist ).isFailure()) 
-      (*m_log) << MSG::WARNING << "Can't book TrigLBN histogram " << name << endreq;
+      msg() << MSG::WARNING << "Can't book TrigLBN histogram " << name << endreq;
   */
 
 
@@ -482,7 +426,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
       m_numberOflvl1TEsHist2d = new TH2I(name.c_str(), title.c_str(), 1,-0.5, 0.5, 20,-0.5,19.5  );
     }
     if ( expertHistograms.regHist( m_numberOflvl1TEsHist2d ).isFailure()) 
-      (*m_log) << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+      msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
 
 
 
@@ -500,7 +444,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }
 
     if ( expertHistograms.regHist( (ITrigLBNHist*)m_numberOfalllvl1TEsHist2d ).isFailure()) 
-      (*m_log) << MSG::WARNING << "Can't book TrigLBN histogram " << name << endreq; 
+      msg() << MSG::WARNING << "Can't book TrigLBN histogram " << name << endreq; 
     */
   }//"EF"
 
@@ -536,10 +480,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }//for ...m_configuredlvl1TETypes.begin
   }
     
-  
-  (*m_log) << MSG::INFO << "bookHistograms() done" << endreq;
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -553,7 +494,7 @@ StatusCode TrigTEMoni::fillHists()
 				     !m_numberOflvl1TEsHist )
 				     //|| !( m_numberOfalllvl1TEsHist>0)  
 	    )  ){
-    (*m_log)<<MSG::WARNING<<" pointers to runsummary histograms not ok, dont Fill ! "<<endreq;
+    msg()<<MSG::WARNING<<" pointers to runsummary histograms not ok, dont Fill ! "<<endreq;
     return StatusCode::FAILURE;  
   }
   

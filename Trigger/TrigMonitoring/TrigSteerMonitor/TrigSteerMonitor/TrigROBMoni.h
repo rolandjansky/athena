@@ -23,7 +23,6 @@
 #include "TrigDataAccessMonitoring/ROBDataMonitor.h"
 
 // Framework includes
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Forward declararations
@@ -31,7 +30,6 @@ namespace HLT {
   class TrigSteer;
 }
 
-class StoreGateSvc;
 class TH1;
 class TH2I;
 class TH2F;
@@ -146,9 +144,6 @@ public:
   
 private:
   
-  MsgStream m_log;
-  ServiceHandle<StoreGateSvc> m_storeGate;
-
   /// Pointer to steering (partent algo of this tool)
   const HLT::TrigSteer* m_steering;
 

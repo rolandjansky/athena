@@ -63,13 +63,8 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
 
  private:
 
-  StoreGateSvc* m_storeGate;
-
   bool getDebugStreams(std::vector<std::string> &errorStreamNames);
 
-  MsgStream* m_log;
-  unsigned int m_logLvl; //!< MsgStram level
-  
   ServiceHandle<TrigConf::ITrigConfigSvc > m_trigConfigSvc; //!< handle for the Trigger configuration service
  
   std::string m_histoPathexpert;
@@ -94,7 +89,6 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
   std::map<std::string, TH1I*> m_chainsInStream;
 
   std::string m_trigLvl;
-  bool m_useLBHistos;
   unsigned int m_highestLBN;
   int m_eventsPerLBHack;
 

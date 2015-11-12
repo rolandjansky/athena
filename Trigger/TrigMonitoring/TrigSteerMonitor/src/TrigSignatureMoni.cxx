@@ -43,8 +43,6 @@
 TrigSignatureMoni::TrigSignatureMoni(const std::string & type, const std::string & name,
 				     const IInterface* parent)
   :  TrigMonitorToolBase(type, name, parent),   
-     m_log(0),
-     m_logLvl(0),  
      m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
      m_histoPathexpert(""),
      m_parentAlg(0),
@@ -55,22 +53,20 @@ TrigSignatureMoni::TrigSignatureMoni(const std::string & type, const std::string
      m_streamCorrel(0),
      m_chainlengthHist(0),
      m_lumiBlockNumDiffHist(0),
+     m_stepForEBHist(0),
+     m_signatureAcceptanceHist(0),
+     m_eventsPassingStepHist(0),
+     m_totaleventsPassingStepHist(0),
      m_trigLvl(""),
      m_highestLBN(0)
   
 {
-  //  declareInterface<IMonitorToolBase>(this);
   declareProperty("HistoPathexpert", m_histoPathexpert = "/EXPERT/TrigSteering");
-  //  declareProperty("useLBHistos",m_useLBHistos=true);
-  //  declareProperty("ReserveLumiHistos", m_reserveLumiHistos = 10);
   declareProperty("EventsPerLBHack",m_eventsPerLBHack=10000);
 }
 
 StatusCode TrigSignatureMoni::finalize()
 {
-  
-  delete m_log; m_log = 0;
-
   return StatusCode::SUCCESS;
 }
 
@@ -266,20 +262,9 @@ bool TrigSignatureMoni::getDebugStreams(std::vector<std::string> &errorStreamNam
   sc = service("JobOptionsSvc", jobOptionsSvc);
 
   if(sc.isFailure()) {
-    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Could not find JobOptionsSvc" << endreq;
+    ATH_MSG_WARNING("Could not find JobOptionsSvc");
     return false;
-  }    
-    
-  IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
-  if(svc != 0 ) {
-    if(m_logLvl <= MSG::INFO) (*m_log) << MSG::INFO << " TrigSignatureMoni " 
-				       << " is connected to JobOptionsSvc Service = "
-				       << svc->name() << endreq;
-  }
-  
-  //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << " About to ask for properties of the ResultBuilder" 
-  //			      << endreq;
-  
+  }      
   const std::vector<const Property*> *rb_properties;
   
   try {
@@ -289,39 +274,28 @@ bool TrigSignatureMoni::getDebugStreams(std::vector<std::string> &errorStreamNam
       rb_properties = jobOptionsSvc->getProperties("TrigSteer_EF.ResultBuilder");
     else 
       rb_properties = jobOptionsSvc->getProperties("TrigSteer_HLT.ResultBuilder");
-    //    if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG 
-    // << " Back from request for properties of the ResultBuilder" << endreq;
   }
   catch(...) {
-    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << 
-      "Attempt to retrieve ResultBuilder properties provoked an exception." << endreq;
+    ATH_MSG_WARNING("Attempt to retrieve ResultBuilder properties provoked an exception.");
     return false;
   }
   std::vector<const Property*>::const_iterator rb_it;
   
   if(rb_properties == 0) {
-    if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << 
-      "Unable to get the job properties of the ResultBuilder" << endreq;
+    ATH_MSG_ERROR("Unable to get the job properties of the ResultBuilder");
     return false;
   }
   
   for(rb_it = rb_properties->begin(); rb_it != rb_properties->end(); rb_it++) {
-    
-    //std::cout << "MMMM property: " << (*rb_it)->name() << std::endl;
     
     if( (*rb_it)->name() == "DefaultStreamTagForErrors") {
       
       const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
       
       if(sprop == 0) {
-	//const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
- 	if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << 
-	  "dynamic_cast of DefaultStreamTagForErrors property to StringProperty failed" << endreq;	
-	continue;
+        ATH_MSG_DEBUG("dynamic_cast of DefaultStreamTagForErrors property to StringProperty failed");	
+        continue;
       }		
-      
-      //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "value of DefaultStreamTagForErrors property: " 
-      //			     << sprop->value() << endreq;
       
       errorStreamNames.push_back( sprop->value() + "_debug");
       
@@ -329,49 +303,30 @@ bool TrigSignatureMoni::getDebugStreams(std::vector<std::string> &errorStreamNam
       const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
       // on lxplus tests and RTT, the cast works but online it is a StringArrayProperty
       if(sprop != 0) {
-	
-	//std::cout << "MMMM found, sprop:" << sprop << std::endl;
-	
-	//if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "value of ErrorStreamTags property: " 
-	//		       << sprop->value() << endreq;
-	StreamBlock::extractErrorStreamNames( sprop->value(), errorStreamNames );
-	
+        StreamBlock::extractErrorStreamNames( sprop->value(), errorStreamNames );
       } else {
- 	if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << 
-	  "dynamic_cast of ErrorStreamTags property to StringProperty failed" << endreq;	
+        ATH_MSG_DEBUG("dynamic_cast of ErrorStreamTags property to StringProperty failed");	
 	
-	const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
-
-	if ( saprop != 0 ) {
-	  const std::vector<std::string>& theProps = saprop->value( );
-	  for ( std::vector<std::string>::const_iterator ip = theProps.begin();
-		  ip != theProps.end();  ip++ )  {
-
-	    // if(m_logLvl <= MSG::DEBUG) 
-	    //   (*m_log) << MSG::DEBUG << "array property value: " << *ip << endreq;
-
-	    StreamBlock::extractErrorStreamNames( *ip, errorStreamNames );
-	  }
+        const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
+        
+        if ( saprop != 0 ) {
+          const std::vector<std::string>& theProps = saprop->value( );
+          for ( std::vector<std::string>::const_iterator ip = theProps.begin();
+                ip != theProps.end();  ip++ )  {
+                        
+            StreamBlock::extractErrorStreamNames( *ip, errorStreamNames );
+          }
         } else {
-	  if(m_logLvl <= MSG::INFO) (*m_log) << MSG::DEBUG << 
-	    "dynamic_cast of ErrorStreamTags property to StringArrayProperty failed" << endreq;	
-	}
+          ATH_MSG_DEBUG("dynamic_cast of ErrorStreamTags property to StringArrayProperty failed");	
+        }
       }
     }    
   }
   
-
-  if(m_logLvl <= MSG::INFO) {
-    for(std::vector<std::string>::const_iterator it_name = errorStreamNames.begin(); 
-	it_name != errorStreamNames.end(); it_name++) {
-      (*m_log) << MSG::INFO << "adding error stream name: " << *it_name << endreq;
-    }
+  for(std::vector<std::string>::const_iterator it_name = errorStreamNames.begin(); 
+      it_name != errorStreamNames.end(); it_name++) {
+    ATH_MSG_INFO("adding error stream name: " << *it_name);
   }
-  
-  // release JobOptionsSvc
-  //unsigned long mjcounter = jobOptionsSvc->release();
-  //  if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << mjcounter << " --> Release JobOptionsSvc Service" 
-  //			      << endreq;
   
   return true;
 }
@@ -414,78 +369,45 @@ void fillChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::ve
 
 StatusCode TrigSignatureMoni::initialize()
 {
-
-  m_log = new MsgStream(msgSvc(), name());
-  m_logLvl = m_log->level();
-  
-  //if(m_logLvl <= MSG::DEBUG) (*m_log)<<MSG::DEBUG<<"MMMM intitialize "<<endreq;
-
-  //used for HACK for testing ... remove HACK NOW!  and also remove m_testLB, m_testLBev from header file
-  ////m_testLB=0; 
-  ////m_testLBev=0;
-  //HACK ends here 
   if ( TrigMonitorToolBase::initialize().isFailure() ) {
-    (*m_log) << MSG::ERROR << " Unable to initialize base class !"
-	     << endreq;
+    ATH_MSG_ERROR(" Unable to initialize base class !");
     return StatusCode::FAILURE;
   }
 
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   if ( !m_parentAlg ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !"
-	     << endreq;
+    ATH_MSG_ERROR("Unable to cast the parent algorithm to HLT::TrigSteer");
     return StatusCode::FAILURE;
   }
 
   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : (m_parentAlg->getAlgoConfig()->getHLTLevel()==HLT::EF ? "EF" : "HLT");
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if(sc.isFailure()) {
-    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << "Unable to get pointer to StoreGate Service" << endreq;
-    return sc;
-  }
-  
   //get access to ConfigService 
   if (m_trigConfigSvc.empty()) {
-    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << "no TrigConfigSvc set in the jobOptions-> abort" << endreq;
+    ATH_MSG_ERROR("No TrigConfigSvc set in the jobOptions");
     return StatusCode::FAILURE;
   }
-  //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "retrieving TrigConfigSvc." << endreq;
-  if ( m_trigConfigSvc.retrieve().isFailure() ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << "Failed to retreive  TrigConfigSvc: " << m_trigConfigSvc << endreq;
-    return StatusCode::FAILURE;
-  }
+  
+  ATH_CHECK( m_trigConfigSvc.retrieve() );
 
-  if(m_logLvl <= MSG::INFO) (*m_log) << MSG::INFO << "Finished initialize() of TrigSignatureMoni"
-	   << endreq;
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigSignatureMoni::bookHists()
 {
-
-  if ( bookHistograms( false, false, true ).isFailure() ) {
-    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << "Failure" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( bookHistograms( false, false, true ) );
   return StatusCode::SUCCESS;
 }
 
 		
 StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
 {
-  
-  //if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<"MMMM bookHistograms "<<endreq;
-
   TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
   //TrigMonGroup shiftHistograms( this, m_parentAlg->name(), shift );
   std::vector<std::string> errorStreamNames;
 
   bool sc = getDebugStreams(errorStreamNames);
-  if(!sc) {
-    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << 
-      "Any python-configured error streams will not appear in histograms" << endreq;
-  }    
+  if(!sc) ATH_MSG_WARNING("Any python-configured error streams will not appear in histograms");
 
   // Some preliminaries to setting up m_signatureAcceptanceHist...
 
@@ -496,10 +418,10 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 
   std::vector<const HLT::SteeringChain*> configuredChains = m_parentAlg->getConfiguredChains();
 
-  m_generalBlock = new GeneralBlock(m_log);
-  m_streamBlock  = new StreamBlock(chainList, errorStreamNames, m_trigLvl, m_log);
-  m_groupBlock   = new GroupBlock(configuredChains, m_log);
-  m_chainBlock   = new ChainBlock(configuredChains, m_log);
+  m_generalBlock = new GeneralBlock(&msg());
+  m_streamBlock  = new StreamBlock(chainList, errorStreamNames, m_trigLvl, &msg());
+  m_groupBlock   = new GroupBlock(configuredChains, &msg());
+  m_chainBlock   = new ChainBlock(configuredChains, &msg());
   BinBlock::FinalizeInitialization();
 
   // Needed only for checking:
@@ -522,18 +444,13 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
   m_stepForEBHist=0;
  
     
-  //  if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<" found "<<m_streamBlock->GetNBins() <<" different stream tags "<<endreq;
-  //  if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<" found "<<m_groupBlock->GetNBins()  <<" different groups "<<endreq;
-  
   // HISTOGRAM DEFINITONS
-
   
   // Step For EventBuilding histogram  
  if(m_trigLvl == "HLT") {
    m_stepForEBHist = new TH1I("StepForEB", "Step at which EB is called  ", 60, -30., 30.);
    if ( expertHistograms.regHist(m_stepForEBHist).isFailure()){
-     if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
-					    << m_histoPathexpert+ m_stepForEBHist->GetName() << endreq;
+     ATH_MSG_WARNING("Can't book " << m_histoPathexpert+ m_stepForEBHist->GetName());
    }
    m_stepForEBHist->GetYaxis()->SetTitle("Events");
    m_stepForEBHist->GetXaxis()->SetTitle("Step of Event Building");
@@ -568,8 +485,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 			       BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5);
   
   if ( expertHistograms.regHist(m_chainlengthHist).isFailure()){
-    if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
-					   << m_histoPathexpert+ m_chainlengthHist->GetName() << endreq;
+    ATH_MSG_WARNING("Can't book "<< m_histoPathexpert+ m_chainlengthHist->GetName());
   }
   m_chainlengthHist->GetYaxis()->SetTitle("Step (Step 0 is the Input!)");
   m_chainlengthHist->GetXaxis()->SetTitle("chains");
@@ -580,8 +496,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 			      m_streamBlock->GetNBins(), 0, m_streamBlock->GetNBins(), 
 			      m_streamBlock->GetNBins(), 0, m_streamBlock->GetNBins());
     if(m_streamCorrel == 0) {
-      if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
-					     << m_streamCorrel->GetName() << endreq;
+      ATH_MSG_WARNING("Can't book "<< m_streamCorrel->GetName());
     }
     
     for(unsigned int i = 0; i <  m_streamBlock->GetNBins(); i++) {
@@ -589,8 +504,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
       m_streamCorrel->GetYaxis()->SetBinLabel(i+1, m_streamBlock->GetXLab(i).data());
     }
     if ( expertHistograms.regHist(m_streamCorrel).isFailure()){
-      if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't register "
-					     << m_streamCorrel->GetName() << ", deleting"  << endreq;
+      ATH_MSG_WARNING("Can't register "<< m_streamCorrel->GetName() << ", deleting");
       delete m_streamCorrel;
       m_streamCorrel = 0;
     }
@@ -616,8 +530,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
     
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_signatureAcceptanceHist).isFailure()) {
-    if (m_logLvl <= MSG::WARNING)(*m_log) << MSG::WARNING << "Can't book "
-					  << m_signatureAcceptanceHist->GetName() << endreq;
+    ATH_MSG_WARNING("Can't book "<< m_signatureAcceptanceHist->GetName());
   }
   
   /*
@@ -664,8 +577,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 				    20, 1, 21);
 			       
   if ( expertHistograms.regHist(m_lumiBlockNumDiffHist).isFailure()){
-    if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
-					   << m_histoPathexpert+ m_lumiBlockNumDiffHist->GetName() << endreq;
+    ATH_MSG_WARNING("Can't book "<< m_histoPathexpert+ m_lumiBlockNumDiffHist->GetName());
   }
 #endif
 
@@ -705,9 +617,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
   for ( s = m_chainsInStream.begin(); s != m_chainsInStream.end(); ++s ) {
     s->second->GetXaxis()->LabelsOption("a");
     if ( expertHistograms.regHist(s->second).isFailure()) {
-      if(m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING << "Failed to book stream histogram" <<endreq;
-    } else {
-      //     if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<"Booked ChainsInStream histogram for stream: " << s->first <<endreq;
+      ATH_MSG_WARNING("Failed to book stream histogram");
     }
   }
 
@@ -718,12 +628,8 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 
 StatusCode TrigSignatureMoni::fillHists()
 {
-
-  //if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<"MMMM fillHists "<<endreq;
-
-
   if( ! m_signatureAcceptanceHist  ){
-    if(m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
+    ATH_MSG_WARNING("Pointers to histograms not ok, dont Fill ! ");
     return StatusCode::FAILURE;  
   }
 
@@ -732,13 +638,12 @@ StatusCode TrigSignatureMoni::fillHists()
   BinBlock::SetLevel(tl);
 
   const EventInfo* constEventInfo(0);
-  StatusCode sc_cei =  m_storeGate->retrieve(constEventInfo);
+  StatusCode sc_cei =  evtStore()->retrieve(constEventInfo);
 
   //TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
 
   if(sc_cei.isFailure()){
-    if(m_logLvl <= MSG::WARNING)
-      (*m_log) << MSG::WARNING << "Can't get EventInfo object (for stream tags & Lumiblock number)" << endreq;
+    ATH_MSG_WARNING("Can't get EventInfo object (for stream tags & Lumiblock number)");
   }
 
 #ifdef _IF_LUMI_BLOCK_NUMBER_DIFF_HISTO_IS_WANTED_GET_RID_OF_THIS_IFDEF
@@ -752,8 +657,8 @@ StatusCode TrigSignatureMoni::fillHists()
     lumiBlockNumber =  constEventInfo->event_ID()->lumi_block();
     runNumber =  constEventInfo->event_ID()->run_number();
   }else{
-    if (m_logLvl <= MSG::DEBUG)(*m_log) << MSG::DEBUG << 
-      " LBN not possible because missing event_ID " << endreq;}
+    ATH_MSG_DEBUG("LBN not possible because missing event_ID");
+  }
 
   m_highestLBN = (lumiBlockNumber > m_highestLBN)? lumiBlockNumber : m_highestLBN;
   
@@ -924,10 +829,8 @@ StatusCode TrigSignatureMoni::fillHists()
 
   
   if(maxsuccessfulSteps > BinBlock::GetMaxSteps()){
-    if (m_logLvl <= MSG::ERROR)(*m_log) 
-      << MSG::ERROR 
-      << " something wrong? maxsuccessfulSteps "<<maxsuccessfulSteps<<" > m_sv[m_tl].maxSteps "
-      <<  BinBlock::GetMaxSteps() <<" ? "<<endreq;
+    ATH_MSG_ERROR("Something wrong? maxsuccessfulSteps "<<maxsuccessfulSteps<<" > m_sv[m_tl].maxSteps "
+                  <<  BinBlock::GetMaxSteps() <<" ?");
   }
 
   /*
@@ -1136,8 +1039,6 @@ const std::set<int> &GroupBlock::GetBinSet(unsigned int chainCounter)
 
 void GroupBlock::PrintBlock()
 {
-
-
   (*m_log) << MSG::DEBUG  << "Group Block " 
 	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endreq;
 
@@ -1370,13 +1271,12 @@ void StreamBlock::extractErrorStreamNames( std::string errStreamString,
   */
 
   std::stringstream ss;
+  ss.str(errStreamString);
+  char c;
   
   // assuming errStreamString looks something like:
   //['ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics', 'ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltex2 physics']
   
-  ss.str(errStreamString);
-  char c;
-
   /* there are no brackets when the tag comes from a StringArrayProperty
   if( (c = ss.get()) != '[') {
     //(*m_log) << MSG::DEBUG << "MMMM I'm lost already" << std::endl;
@@ -1384,21 +1284,20 @@ void StreamBlock::extractErrorStreamNames( std::string errStreamString,
   }
   */
   
-  while( (c = ss.get()) && ss.good() ) {
-    
+  while( ss.good() ) {
+    ss.get(c);
     if( c == '\'') {
       const int bufSize = 100;
       char charBuf[bufSize];
 
-      ss.getline(charBuf, bufSize, ':');
-      
+      ss.getline(charBuf, bufSize, ':');    
       ss.getline(charBuf, bufSize, '\'');
 
       char *pBuf = charBuf;
       for(int i = 0; i<bufSize-1 && charBuf[i] == ' '; i++) pBuf++;
 
       for(int i = 0; i<bufSize - (pBuf-charBuf) && pBuf[i] != '\0'; i++) { // change space to underscore
-	pBuf[i] = (pBuf[i] == ' ')? '_' : pBuf[i];
+        pBuf[i] = (pBuf[i] == ' ')? '_' : pBuf[i];
       }
 
       errorStreamNames.push_back(pBuf);

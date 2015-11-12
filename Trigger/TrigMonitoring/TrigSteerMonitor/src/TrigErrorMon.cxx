@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -41,8 +37,6 @@ TrigErrorMon::TrigErrorMon(const std::string & type, const std::string & name,
      m_histo_steeringInternalReason(0),
      m_histo2d_reason(0),
      m_histo2d_action(0),
-     m_log(0),
-     m_logLvl(0),
      m_trigLvl("") {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("expertMode", m_expertMode=false, "If set to 'true' includes also errors when HLT::Action == CONTINUE and errors eta/phi");
@@ -61,37 +55,18 @@ TrigErrorMon::TrigErrorMon(const std::string & type, const std::string & name,
 }
 
 
-/* ******************************** finalize ************************************** */
-StatusCode TrigErrorMon::finalize()
-{
-  delete m_log; m_log = 0;
-  return StatusCode::SUCCESS;
-}
-
-
 /* ******************************** initialize ************************************** */
 StatusCode TrigErrorMon::initialize()
 {
-  m_log = new MsgStream(msgSvc(), name());
-  m_logLvl = m_log->level();
+  ATH_CHECK(TrigMonitorToolBase::initialize());
 
-  if ( TrigMonitorToolBase::initialize().isFailure() ) {
-    if (m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << " Unable to initialize base class !"
-					 << endreq;
-    return StatusCode::FAILURE;
-  }
-  
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   if ( !m_parentAlg ) {
-    if (m_logLvl <= MSG::ERROR)(*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !"
-	     << endreq;
+    ATH_MSG_ERROR(" Unable to cast the parent algorithm to HLT::TrigSteer !");
     return StatusCode::FAILURE;
   }
 
   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF ? "EF" : "HLT" ;
-  
-  if (m_logLvl <= MSG::INFO)(*m_log) << MSG::INFO << "Finished initialize() of TrigErrorMon"
-	   << endreq;
   
   return StatusCode::SUCCESS;
 }
@@ -100,12 +75,8 @@ StatusCode TrigErrorMon::initialize()
 /* ******************************** bookHists  ************************************** */
 
 StatusCode TrigErrorMon::bookHists()
-{ 
-  if ( bookHistograms( false, false, true ).isFailure() ) { 
-    if (m_logLvl <= MSG::ERROR)(*m_log) << MSG::ERROR << "Failure" << endreq;
-    return StatusCode::FAILURE;
-    
-  }
+{
+  ATH_CHECK(bookHistograms( false, false, true ));
   return StatusCode::SUCCESS;
 }
 
@@ -115,11 +86,6 @@ StatusCode TrigErrorMon::bookHists()
 /* ******************************** book Histograms ************************************* */
 StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
 {
-  /*
-  if (m_logLvl <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG << "bookHistograms" << endreq;
-  }
-  */
   TrigMonGroup expertHistograms( this, boost::replace_all_copy(name(), ".", "/" ), expert );
   
   //retrieve chain names from configuredChains
@@ -206,7 +172,7 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
     string::size_type loc2=strErrorCode(ec).find_last_of(" ");
     //retrieve action, reason and steeringinternalreason code 
     if (loc1 ==std::string::npos  || loc1==loc2){
-      if (m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING<<"  can not identify Action, Reason and SteeringInternalReason from strErrorCode "<<endreq;
+      ATH_MSG_WARNING ("  can not identify Action, Reason and SteeringInternalReason from strErrorCode ");
     }else{
       actionName=sirName.substr(0,loc1);
       reasonName=sirName.substr(loc2);
@@ -247,23 +213,23 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
 
   
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_reason).isFailure())
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_reason->GetName() << endreq;
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_action).isFailure())
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     << m_histo_action->GetName() << endreq;
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_steeringInternalReason).isFailure())
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     << m_histo_steeringInternalReason->GetName() << endreq;
   
   if ( expertHistograms.regHist(m_histo2d_reason).isFailure())
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo2d_reason->GetName() << endreq;
   
   if ( expertHistograms.regHist(m_histo2d_action).isFailure())
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     << m_histo2d_action->GetName() << endreq;
 
 
@@ -329,57 +295,55 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
   
 
   if ( expertHistograms.regHist(m_histo_te_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_te_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_tau_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_tau_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_trk_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_trk_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_e_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_e_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_g_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_g_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_j_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_j_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_b_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_b_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_mu_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_mu_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_xe_errors_etaphi).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_xe_errors_etaphi->GetName() << endreq;
   }
 
   if ( expertHistograms.regHist(m_histo_te_errors_names).isFailure()) {
-    (*m_log) << MSG::WARNING << "Can't book "
+    msg() << MSG::WARNING << "Can't book "
 	     <<  m_histo_te_errors_names->GetName() << endreq;
   }
 
-  //if (m_logLvl <= MSG::DEBUG)   (*m_log) << MSG::DEBUG << "bookHists() done" << endreq;
-  
   return StatusCode::SUCCESS;
 }
 
@@ -400,7 +364,7 @@ StatusCode TrigErrorMon::fillHists()
   
   if( !m_histo_action || !m_histo_reason || !m_histo_steeringInternalReason 
       || !m_histo2d_reason || !m_histo2d_action ){
-    (*m_log)<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
+    msg()<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
     return StatusCode::FAILURE;
   }
 

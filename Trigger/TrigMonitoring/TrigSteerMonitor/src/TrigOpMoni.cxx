@@ -47,18 +47,17 @@ TrigOpMoni::TrigOpMoni(const std::string& type,
    m_MagFieldHistFilled(false),
    m_IOVDbHistFilled(false),
    m_SubDetHistFilled(false),
-   m_log(msgSvc(), name),
-   m_StoreGateSvc("StoreGateSvc/StoreGateSvc",  name),
    m_JobOptionsSvc("JobOptionsSvc", name),
    m_MagFieldSvc(0),   
    m_IOVDbSvc(0),
    m_monGroup(this, boost::algorithm::replace_all_copy(name,".","/"), TrigMonitorToolBase::expert),   
    m_MagFieldHist(0),
    m_iovChangeHist(0),
+   m_generalHist(0),
+   m_lbDiffHist(0),
    m_previousLB(0),
    m_pEvent(0)
 {
-   declareProperty("StoreGateSvc",    m_StoreGateSvc,  "StoreGateSvc/StoreGateSvc");
    declareProperty("JobOptionsSvc",   m_JobOptionsSvc, "JobOptionsSvc");
    declareProperty("ReleaseDataFile", m_releaseData = "../ReleaseData",
                    "Path to ReleaseData file (relative to LD_LIBRARY_PATH entries");
@@ -71,31 +70,15 @@ TrigOpMoni::~TrigOpMoni()
 }
 
 StatusCode TrigOpMoni::initialize()
-{   
-   if(m_StoreGateSvc.retrieve().isFailure())
-   {
-      m_log << MSG::ERROR << "Failed to retrieve StoreGateSvc" << endreq;
-      return StatusCode::FAILURE; 
-   }
+{
+  ATH_CHECK(m_JobOptionsSvc.retrieve());
 
-   if((m_JobOptionsSvc.retrieve()).isFailure())
-   {
-      m_log << MSG::ERROR << "Could not find JobOptionsSvc object" << endreq;
-      return StatusCode::FAILURE; 
-   }
-
-   // Register incident handlers 
-   ServiceHandle<IIncidentSvc> IncidSvc("IncidentSvc",name()); 
-   
-   if(IncidSvc.retrieve().isFailure()) 
-     { 
-       m_log << MSG::ERROR << "Could not find IncidentSvc object" << endreq; 
-       return StatusCode::FAILURE; 
-     } 
-   
-   IncidSvc->addListener(this, "EndOfBeginRun", 0);
+  // Register incident handlers 
+  ServiceHandle<IIncidentSvc> IncidSvc("IncidentSvc",name());  
+  ATH_CHECK(IncidSvc.retrieve());
+  IncidSvc->addListener(this, "EndOfBeginRun", 0);
                 
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -162,8 +145,8 @@ StatusCode TrigOpMoni::bookHists()
 
 StatusCode TrigOpMoni::fillHists()
 {
-  if (m_StoreGateSvc->retrieve(m_pEvent).isFailure()) {
-    m_log << MSG::DEBUG << "Could not find EventInfo object" << endreq;
+  if (evtStore()->retrieve(m_pEvent).isFailure()) {
+    ATH_MSG_DEBUG("Could not find EventInfo object");
     m_pEvent = 0;
   }
     
@@ -318,7 +301,7 @@ bool TrigOpMoni::regHist(HTYPE*& hist, bool verbose)
   if (!hist) return false;
   if ( m_monGroup.regHist(hist).isFailure() ) {
     if (verbose) {
-      m_log << MSG::WARNING << "Cannot register histogram " << hist->GetName() << endreq;
+      ATH_MSG_WARNING("Cannot register histogram " << hist->GetName());
     }
     delete hist;
     hist = 0;
@@ -362,9 +345,9 @@ void TrigOpMoni::FillIOVDbChangeHist()
     
     // Print IOV changes and fill histogram
     if ( iov != curIOV->second ) {
-      m_log << MSG::INFO << "IOV of " << *k << " changed from " << curIOV->second
-            << " to " << iov
-            << " on event: " << *m_pEvent->event_ID() << endreq;
+      ATH_MSG_INFO("IOV of " << *k << " changed from " << curIOV->second
+                    << " to " << iov
+                    << " on event: " << *m_pEvent->event_ID() );
 
       if ( m_iovChangeHist ) {
         // Perform a locked fill and remove any empty bins to allow correct gathering
@@ -426,18 +409,18 @@ void TrigOpMoni::FillSubDetHist()
       // create histogram
       if(!(SubDetHist = new TH2I))
       {
-         m_log << MSG::WARNING << "Cannot create instance of class TH2I" << endreq;
+         ATH_MSG_WARNING("Cannot create instance of class TH2I");
          m_SubDetHistFilled = true; // do not retry
          return;
       }
 
       // get event information
-      if(m_StoreGateSvc->retrieve(Event).isFailure())
-         m_log << MSG::WARNING << "Could not find EventInfo object" << endreq;
+      if(evtStore()->retrieve(Event).isFailure())
+         ATH_MSG_WARNING("Could not find EventInfo object");
 
       // get event ID
       else if(!(EventId = Event->event_ID()))
-         m_log << MSG::WARNING << "Could not find EventID object" << endreq;
+         ATH_MSG_WARNING("Could not find EventID object");
 
       // calculate subdetector mask
       else SubDetMask = ((uint64_t)EventId->detector_mask0())
@@ -447,23 +430,23 @@ void TrigOpMoni::FillSubDetHist()
       if(!(ROBProperty = Gaudi::Utils::getProperty(
          m_JobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs")))
       {
-         m_log << MSG::DEBUG << "Could not find enabled ROB IDs: ";
+         msg(MSG::DEBUG) << "Could not find enabled ROB IDs: ";
 
          if(!m_JobOptionsSvc->getProperties("DataFlowConfig"))
          {
-            m_log << "\"DataFlowConfig\" does not exist!" << endreq;
+            msg() << "\"DataFlowConfig\" does not exist!" << endreq;
             m_SubDetHistFilled = true;
          }
 
          else
          {
-            m_log << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endreq;
+            msg() << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endreq;
 
             const vector<const Property* >* PropTmp = m_JobOptionsSvc->getProperties("DataFlowConfig");
 
             for(unsigned int i = 0; i != PropTmp->size(); i++)
             {
-               m_log << MSG::DEBUG << (*PropTmp)[i]->name() << endreq;
+              msg() << MSG::DEBUG << (*PropTmp)[i]->name() << endreq;
             }
          }
       }
@@ -538,6 +521,7 @@ void TrigOpMoni::FillSubDetHist()
    }
 }
 
+
 // The release metadata file can be found in InstallArea/$CMTCONFIG/ReleaseData
 StatusCode TrigOpMoni::readReleaseData(const string& file, map<string,string>& result)
 {
@@ -561,7 +545,7 @@ void TrigOpMoni::FillReleaseData()
 {
   const char* ld_lib_path = getenv("LD_LIBRARY_PATH");
   if (ld_lib_path==0) {
-    m_log << MSG::WARNING << "LD_LIBRARY_PATH is not defined. Will not fill release histogram." << endreq;
+    ATH_MSG_WARNING("LD_LIBRARY_PATH is not defined. Will not fill release histogram." );
     return;
   }
 
@@ -569,8 +553,8 @@ void TrigOpMoni::FillReleaseData()
   list<DirSearchPath::path> file_list = DirSearchPath(ld_lib_path, ":").find_all(m_releaseData);
 
   if ( file_list.empty() ) {
-    m_log << MSG::WARNING << "Could not find release metadata file " << m_releaseData      
-          << " in LD_LIBRARY_PATH" << endreq;
+    ATH_MSG_WARNING("Could not find release metadata file " << m_releaseData      
+                    << " in LD_LIBRARY_PATH" );
     m_generalHist->Fill("Release ?", 1);
     return;
   }
@@ -583,7 +567,7 @@ void TrigOpMoni::FillReleaseData()
     // Read metadata file
     map<string, string> result;
     if ( readReleaseData(fit->string(), result).isFailure() ) {
-      m_log << MSG::WARNING << "Could not read release metadata from " << *fit<< endreq;
+      ATH_MSG_WARNING("Could not read release metadata from " << *fit);
       m_generalHist->Fill("Release ?", 1);    
       return;
     }
@@ -591,7 +575,7 @@ void TrigOpMoni::FillReleaseData()
     // Check format
     if ( result.find("project name")==result.end() ||
 	 result.find("release")==result.end() ) {
-      m_log << MSG::WARNING << "Invalid release metadata format in " << *fit << endreq;
+      ATH_MSG_WARNING("Invalid release metadata format in " << *fit );
       m_generalHist->Fill("Release ?", 1);    
       return;
     }
