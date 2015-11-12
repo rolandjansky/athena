@@ -144,7 +144,7 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                // test DeltaPhiMin, DeltaPhiMax
                unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
 
-               bool accept[3] = {};
+               bool accept[3] = {false,false,false};
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
@@ -191,9 +191,6 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
    if( input.size() == 2) {
 
       bool iaccept[numberOutputBits()];
-      for (auto& i : iaccept){
-        i=false;
-      }
       
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
@@ -209,7 +206,7 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                // test DeltaPhiMin, DeltaPhiMax
                unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
 
-               bool accept[3] = {};
+               bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 		  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
