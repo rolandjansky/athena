@@ -37,11 +37,14 @@ IsoCorrectionToolTrig = ToolFactory(ICT,
                                     name = "NewLeakageCorrToolTrig",
                                     IsMC = isMC)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
+from CaloIdentifier import SUBCALO
 CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloIsolationTool",
         doEnergyDensityCorrection = False,
         saveOnlyRequestedCorrections = True,
         IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
-        CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster)
+        CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
+        EMCaloNums = [SUBCALO.LAREM],
+        HadCaloNums = [SUBCALO.LARHEC,SUBCALO.TILE])
 
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
 CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,CaloClusterLocation = "CaloCalTopoCluster")
