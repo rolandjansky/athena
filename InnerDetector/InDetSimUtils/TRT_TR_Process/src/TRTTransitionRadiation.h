@@ -5,7 +5,7 @@
 #ifndef TRTTRANSITIONRADIATION_H
 #define TRTTRANSITIONRADIATION_H
 
-#include "TRT_TR_Process/TRTRadiatorParameters.h"
+#include "TRTRadiatorParameters.h"
 
 #include "G4VDiscreteProcess.hh"
 #include "G4LogicalVolume.hh"
@@ -25,13 +25,13 @@ class TRRegionXMLHandler;
 
 class TRTTransitionRadiation : public G4VDiscreteProcess {
 
- public:
+public:
 
   /////////////////////////////////////////////////////////////////////////////
   //                             Public Methods                              //
   /////////////////////////////////////////////////////////////////////////////
 
-  TRTTransitionRadiation(const G4String& processName="TransitionRadiation");
+  TRTTransitionRadiation(const G4String& processName="TransitionRadiation", const std::string xmlfilename="TRgeomodelgeometry.xml");
   virtual ~TRTTransitionRadiation();
 
   void Initialize();
@@ -44,9 +44,9 @@ class TRTTransitionRadiation : public G4VDiscreteProcess {
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
   bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
- private:
+private:
 
-  TRTTransitionRadiation (const TRTTransitionRadiation&); 
+  TRTTransitionRadiation (const TRTTransitionRadiation&);
   TRTTransitionRadiation& operator= (const TRTTransitionRadiation&);
   /////////////////////////////////////////////////////////////////////////////
   //                        Private Helper Methods                           //
@@ -55,26 +55,26 @@ class TRTTransitionRadiation : public G4VDiscreteProcess {
   G4double ComputePhotoAbsCof( const G4Material* Material, const G4double & GammaEnergy ) const;
 
   G4double XEmitanNevski( const G4double & PhotonEnergy,
-			  const G4double & Gamma,
-			  const G4double & GasThickness,
-			  const G4double & FoilThickness) const;
+                          const G4double & Gamma,
+                          const G4double & GasThickness,
+                          const G4double & FoilThickness) const;
 
   G4double XEmitanArtru( const G4double & PhotonEnergy,
-			 const G4double & Gamma,
-			 const G4double &GasThickness,
-			 const G4double &FoilThickness) const;
+                         const G4double & Gamma,
+                         const G4double &GasThickness,
+                         const G4double &FoilThickness) const;
 
   G4double NeffNevski( const G4double & sigGas,
-		       const G4double & sigFoil,
-		       const G4double & GasThickness,
-		       const G4double & FoilThickness,
-		       const G4int    & FoilsTraversed ) const;
+                       const G4double & sigFoil,
+                       const G4double & GasThickness,
+                       const G4double & FoilThickness,
+                       const G4int    & FoilsTraversed ) const;
 
   G4double NeffArtru( const G4double & sigGas,
-		      const G4double & sigFoil,
-		      const G4double & GasThickness,
-		      const G4double & FoilThickness,
-		      const G4int    & FoilsTraversed ) const;
+                      const G4double & sigFoil,
+                      const G4double & GasThickness,
+                      const G4double & FoilThickness,
+                      const G4int    & FoilsTraversed ) const;
 
   G4double XFinter( const G4double & X, const G4double* A, const G4double* F ) const;
   G4double XInteg( const G4double* yy, G4double* ss ) const;
@@ -86,7 +86,7 @@ class TRTTransitionRadiation : public G4VDiscreteProcess {
   //protected:
 
   TRRegionXMLHandler * m_XMLhandler;
-
+  const std::string m_xmlfilename;
   std::vector<TRTRadiatorParameters> m_radiators;
 
   G4double m_MinEnergyTR;   // min TR energy in material

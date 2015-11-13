@@ -10,11 +10,11 @@
 enum BEflag { BARREL, ENDCAP };
 
 class TRTRadiatorParameters {
- public:
+public:
   TRTRadiatorParameters(G4LogicalVolume * p,
-			G4double dFoil,
-			G4double dGas,
-			BEflag beflag) :
+                        G4double dFoil,
+                        G4double dGas,
+                        BEflag beflag) :
     m_aLogicalVolume(p),
     m_FoilThickness(dFoil),
     m_GasThickness(dGas),
@@ -25,7 +25,7 @@ class TRTRadiatorParameters {
   G4double          GetGasThickness()  const { return m_GasThickness; }
   BEflag            GetBEflag()        const { return m_BEflg; }
 
- private:
+private:
   G4LogicalVolume * m_aLogicalVolume;
   G4double          m_FoilThickness;
   G4double          m_GasThickness;
