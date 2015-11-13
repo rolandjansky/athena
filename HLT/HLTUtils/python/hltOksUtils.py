@@ -10,11 +10,8 @@ def defaultTags():
    """Return list of supported CMTCONFIG tags"""
    
    import pm.common
-   tags = [pm.common.tdaqRepository.getObject('Tag', 'x86_64-slc6-gcc48-opt'),
-           pm.common.tdaqRepository.getObject('Tag', 'x86_64-slc6-gcc48-dbg'),
-           pm.common.tdaqRepository.getObject('Tag', 'x86_64-slc6-gcc49-opt'),
-           pm.common.tdaqRepository.getObject('Tag', 'x86_64-slc6-gcc49-dbg'),
-           ]
+   tags = [pm.common.tdaqRepository.getObject('Tag', 'x86_64-slc6-gcc49-opt'),
+           pm.common.tdaqRepository.getObject('Tag', 'x86_64-slc6-gcc49-dbg')]
    
    return tags
 
