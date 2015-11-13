@@ -67,9 +67,7 @@ namespace HLT {
 
     const TrigConf::HLTStreamTag* m_configStream; //!< underlying Config StreamTag
     bool m_prescaled;                             //!< Flagged as "prescaled" for this event ?
-    int  m_scalerCounter;                         //!< counter used by scalers
     bool m_state;                                  //!< can we run this ? (call setPrescaleState())
-
   };
 
 

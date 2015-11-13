@@ -3,8 +3,8 @@
 */
 
 #include <algorithm>
+#include <map>
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -20,25 +20,26 @@
 #include "TrigMonitorBase/TrigLockedHist.h"
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
-#include "boost/foreach.hpp"
+#include "TrigT1Result/RoIBResult.h"
 
+#include "boost/foreach.hpp"
 
 #include <TH1I.h>
 
 Lvl1ConsistencyChecker::Lvl1ConsistencyChecker(const std::string& name, const std::string& type,
 		       const IInterface* parent) 
   : AthAlgTool(name, type, parent),
-    m_histogram(0),
-    m_log(0) {
+    m_histogram(0)
+{
   declareProperty("printErrorMessages", m_printErrorMessages=true, "print detailed error reports");
   declareProperty("returnFailure", m_returnFailure=false, "in case of inconsitency return FAILURE");
+  declareProperty("maxTOBs", m_returnFailure=false, "in case of inconsitency return FAILURE");
 
   declareInterface<Lvl1ConsistencyChecker>( this );
 } 
 
 
 StatusCode Lvl1ConsistencyChecker::initialize() {
-  m_log = new MsgStream(msgSvc(), name());
   return StatusCode::SUCCESS;
 }
 
@@ -139,8 +140,8 @@ Lvl1ConsistencyChecker::check(const std::vector<const LVL1CTP::Lvl1Item*>& items
             error_count++;
             lock_histogram_operation<TH1I>(m_histogram)->Fill(thr.second.name.c_str(), 1.);
             if (m_printErrorMessages ) {
-               (*m_log) << MSG::WARNING << "Item " << cIt->second.name << " required: " 
-                        << unsigned(thr.second.multiplicity) << " of: " << thr.second.name << " while got: " << found << endreq;
+              ATH_MSG_WARNING("Item " << cIt->second.name << " required: " 
+                              << unsigned(thr.second.multiplicity) << " of: " << thr.second.name << " while got: " << found);
             }
          }
       }
@@ -171,8 +172,8 @@ void Lvl1ConsistencyChecker::makeItemRoIMap(const TrigConf::TriggerItemNode *nod
          t.multiplicity = multiplicity;    
          item.addThreshold(t); 
       }
-      //    (*m_log) << MSG::DEBUG << " found threshold: " << tName <<" with multiplicity:" << multiplicity 
-      //	     << " for item:" << item.name  <<endreq;
+      //    ATH_MSG_DEBUG(" found threshold: " << tName <<" with multiplicity:" << multiplicity 
+      //	     << " for item:" << item.name);
 
    }
    if (node->type()==TrigConf::TriggerItemNode::AND) {
@@ -206,3 +207,4 @@ bool Lvl1ConsistencyChecker::thresholdToCheck(const std::string& name) {
   }
   return false;
 }
+

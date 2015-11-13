@@ -46,9 +46,10 @@ Signature::Signature( const TrigConf::HLTSignature* configSig,
    m_foundOverlap(false)
 {
 
-   if ( !m_config ) 
+   if ( !m_config ) {
       std::cerr << "AlgoConfig object not available in the Signature "<< configSig->label()<< " constructor " << std::endl;    
-
+      return;
+   }
    // Debug output
    if (m_config->getMsgLvl() <=MSG::DEBUG) {
       m_config->getMsgStream() << MSG::DEBUG << "Signature "

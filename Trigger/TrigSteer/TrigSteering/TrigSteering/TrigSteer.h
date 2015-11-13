@@ -32,7 +32,6 @@
 
 #include "TrigConfHLTData/HLTSequence.h"
 
-//#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -49,7 +48,6 @@ class StatusCode;
 class ITrigTimerSvc;
 class TrigTimer;
 class IIncidentSvc;
-class StoreGateSvc;
 class IROBDataProviderSvc;
 class ICoreDumpSvc;
 
@@ -217,8 +215,6 @@ namespace HLT {
       std::string m_lvlTopoConverterName;   //!< Topological trigger conversion
       std::string m_hltLevel;         //!< JO for trigger LVL [L2/EF/HLT]
 
-      MsgStream* m_log;               //!< MsgStream used within all non-Gaudi classes of this package
-      unsigned int m_logLvl;          //!< MsgStream level
       //    bool m_prescaleBeforeExecution; //!< do prescaling of chains before execution if true (true is default)
       //    bool m_calculatePrescaledChains;//!< calculate chains suppressed by prescales (true is default) 
       //    bool m_ignorePrescales;         //!< ignore prescales even though they are set (false by default)
@@ -253,7 +249,6 @@ namespace HLT {
       ToolHandleArray< IMonitorToolBase > m_monTools;     //!< Monitoring tools
       ToolHandleArray< IMonitorToolBase > m_opiTools;     //!< OPI Monitoring tools (they are run before result is built and therfore can add some info to it)
       ServiceHandle<IIncidentSvc> m_incSvc;               //!< IncidentSvc
-      ServiceHandle<StoreGateSvc> m_storeGate;            //!< StoreGateSvc
       ServiceHandle<ICoreDumpSvc> m_coreDumpSvc;          //!< CoreDumpSvc
       ToolHandle<IExecutionOrderStrategy> m_executionOrderStrategy; //!< Tool altering order of chains execution
       ToolHandle<IEventInfoAccessTool> m_EventInfoTool;   //!< Tool  to modify EventInfo after execution
