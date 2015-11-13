@@ -287,7 +287,7 @@ class TestEgammaMVATool(unittest.TestCase):
                 break
         print "tested %d photons" % i
         self.assertGreater(i, 10, msg="too few photons")
-
+        
 
 @unittest.skipIf(not is_file_readable('root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'),
                  "input file not available")
