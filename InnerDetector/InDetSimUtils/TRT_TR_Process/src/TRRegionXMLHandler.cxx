@@ -2,31 +2,43 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <string>
-#include "TRT_TR_Process/TRRegionXMLHandler.h"
-#include "TRT_TR_Process/TRTTransitionRadiation.h"
-#include "TRT_TR_Process/TRTRadiatorParameters.h"
-#include "FadsGeometry/GeometryManager.h"
+// class header
+#include "TRRegionXMLHandler.h"
+
+// package includes
+#include "TRTRadiatorParameters.h"
+#include "TRTTransitionRadiation.h"
+
+// Athena includes
 #include "IdDictDetDescr/IdDictManager.h"
 
-
-//For Detector store:
+// Gaudi includes
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include <iostream>
 
-TRRegionXMLHandler::TRRegionXMLHandler(std::string s,
-                                       TRTTransitionRadiation *tr) :
-  DescriptionFactory(s), m_theProcess(tr),
-  m_storeGate(0),
+// Geant4 includes
+#include "G4LogicalVolumeStore.hh"// For logical volume setup
+
+// For XML parsigin
+#include <boost/foreach.hpp>
+#include "boost/property_tree/xml_parser.hpp"
+#include "boost/property_tree/ptree.hpp"
+
+// STL includes
+#include <iostream>
+#include <fstream>
+#include <string>
+
+TRRegionXMLHandler::TRRegionXMLHandler(TRTTransitionRadiation *tr) :
+  m_theProcess(tr),
+  m_storeGate(nullptr),
   m_initialLayoutIdDict(false),
   m_msg("TRRegionXMLHandler")
 {}
 
-void TRRegionXMLHandler::BuildDescription()
+void TRRegionXMLHandler::Process(const std::string& name)
 {
   ISvcLocator * svcLocator = Gaudi::svcLocator(); // from Bootstrap
-
 
   if (msgLevel(MSG::DEBUG))
     msg(MSG::DEBUG) << "This is TRRegionXMLHandler. Handler called" << endreq;
@@ -35,12 +47,14 @@ void TRRegionXMLHandler::BuildDescription()
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
       msg(MSG::ERROR) << "Unable to locate StoreGate! Stopping!" << endreq;
+    throw;
   }
   StoreGateSvc* detStore = 0;
   sc = svcLocator->service( "DetectorStore", detStore);
   if( sc.isFailure() ) {
     if (msgLevel(MSG::ERROR))
       msg(MSG::ERROR) << "Unable to locate DetectorStore! Leaving!" << endreq;
+    throw;
   }
 
   const IdDictManager * idDictMgr = 0;
@@ -54,40 +68,56 @@ void TRRegionXMLHandler::BuildDescription()
     if (msgLevel(MSG::FATAL))
       msg(MSG::FATAL) << "Could not retrieve geometry layout. TR process is not to be trusted in the following "
                       << endreq;
+    throw;
   }
 
+  // Crack open the XML file
+  std::filebuf fb;
+  if (!fb.open(name,std::ios::in)){
+    msg(MSG::FATAL) << "Could not open file " << name << " bombing out" << endreq;
+    throw;
+  }
+  std::istream is(&fb);
+  boost::property_tree::ptree pt;
+  read_xml(is, pt);
 
-  FADS::GeometryManager* geomManager=FADS::GeometryManager::GetGeometryManager();
-  std::string volName=GetAttributeAsString("RadiatorName");
-  double foilThickness=GetAttributeAsDouble("RadiatorFoilThickness");
-  double gasThickness=GetAttributeAsDouble("RadiatorGasThickness");
-  int regionFlag=GetAttributeAsInt("RadiatorBARRELorENDCAP");
-  std::string detectorPart=GetAttributeAsString("DetectorPart");
+  BOOST_FOREACH( boost::property_tree::ptree::value_type const& v, pt.get_child("FADS") ) {
+    if( v.first == "TRRegionParameters" ) {
 
-  unsigned int numberOfVolumes = geomManager->GetVolume(detectorPart,volName).size();
-
-  if( numberOfVolumes == 0 ) {
-    // In case of destaged geometry (no C wheels) any missing volume
-    // except the radiators corresponding to the C wheels will cause
-    // the code to abort
-    if ( m_initialLayoutIdDict != 0 ) {
-      if  ( ( volName!="TRT::MainRadiatorC" ) &&
-            ( volName!="TRT::ThinRadiatorC" )    ) {
-        if (msgLevel(MSG::FATAL))
-          msg(MSG::FATAL) << " Volume-name " << volName
-                          <<" not found! Geometry layout "
-                          << m_initialLayoutIdDict << endreq;
-        std::abort();
+      std::string volName=v.second.get<std::string>("<xmlattr>.RadiatorName");
+      double foilThickness=v.second.get<double>("<xmlattr>.RadiatorFoilThickness");
+      double gasThickness=v.second.get<double>("<xmlattr>.RadiatorGasThickness");
+      int regionFlag=v.second.get<int>("<xmlattr>.RadiatorBARRELorENDCAP");
+      std::string detectorPart=v.second.get<std::string>("<xmlattr>.DetectorPart");
+    
+      G4LogicalVolumeStore *g4lvs = G4LogicalVolumeStore::GetInstance();
+      unsigned int numberOfVolumes = 0;
+      for (const auto log_vol : *g4lvs){
+        if (volName==log_vol->GetName()){
+          TRTRadiatorParameters rad( log_vol,
+                                     foilThickness,gasThickness,
+                                     (BEflag)regionFlag );
+          m_theProcess->AddRadiatorParameters(rad);
+          ++numberOfVolumes;
+        }
       }
-    }
-    return;
-  }
-
-  for( unsigned int i=0; i<numberOfVolumes; i++) {
-    TRTRadiatorParameters rad( geomManager->GetVolume(detectorPart,volName)[i],
-                               foilThickness,gasThickness,
-                               (BEflag)regionFlag );
-    m_theProcess->AddRadiatorParameters(rad);
-  }
+    
+      if( numberOfVolumes == 0 ) {
+        // In case of destaged geometry (no C wheels) any missing volume
+        // except the radiators corresponding to the C wheels will cause
+        // the code to abort
+        if ( m_initialLayoutIdDict != 0 ) {
+          if  ( ( volName!="TRT::MainRadiatorC" ) &&
+                ( volName!="TRT::ThinRadiatorC" )    ) {
+            if (msgLevel(MSG::FATAL))
+              msg(MSG::FATAL) << " Volume-name " << volName
+                              <<" not found! Geometry layout "
+                              << m_initialLayoutIdDict << endreq;
+            std::abort();
+          }
+        }
+      } // Didn't get any volumes
+    } // Loop over region parameters objects
+  } // Loop over FADS things in the XML file
 
 }

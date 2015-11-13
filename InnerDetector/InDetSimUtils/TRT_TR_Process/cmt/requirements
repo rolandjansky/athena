@@ -3,48 +3,47 @@ package TRT_TR_Process
 author Mogens Dam    <dam@nbi.dk>
 author Jakob Nielsen <langgard@nbi.dk>
 author Thomas Kittelmann <kittel@nbi.dk>
+author Edoardo Farina <edoardo.maria.farina@cern.ch>
 #Physics by Mogens, framework implementation by Jakob & Thomas, framework maintenance by Esben.
 
-branches src cmt
-
-use AtlasPolicy		        AtlasPolicy-*
-
 public
-use  AthenaKernel               AthenaKernel-*                  Control
-end_public
+use AtlasPolicy                 AtlasPolicy-*
+use GaudiInterface              GaudiInterface-*                External
 
 private
-use AtlasCLHEP			AtlasCLHEP-*			External
+use AtlasBoost                  AtlasBoost-*                    External
+use AthenaKernel                AthenaKernel-*                  Control
+use AtlasCLHEP                  AtlasCLHEP-*                    External
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-*   Simulation/Tools
-use AthenaBaseComps             AthenaBaseComps-*               Control
-use FadsGeometry                FadsGeometry-*                  Simulation/G4Sim/FADS
-use GaudiInterface              GaudiInterface-*                External
+use Geant4                      Geant4-*                        External
 use Geo2G4                      Geo2G4-*                        Simulation/G4Utilities
 use GeoModelInterfaces          GeoModelInterfaces-*            DetectorDescription/GeoModel
 use IdDictDetDescr              IdDictDetDescr-*                DetectorDescription
-use SimHelpers      		SimHelpers-*             	Simulation/G4Sim
+use SimHelpers                  SimHelpers-*                    Simulation/G4Sim
+use G4AtlasInterfaces           G4AtlasInterfaces-*             Simulation/G4Atlas
+use AthenaBaseComps             AthenaBaseComps-*               Control
+use StoreGate                   StoreGate-*                     Control
+use PathResolver        PathResolver-*          Tools
 end_private
 
-use Geant4  	 	        Geant4-*         	        External
-use FadsXMLParser		FadsXMLParser-*			Simulation/G4Sim/FADS
-use FadsPhysics         	FadsPhysics-*         		Simulation/G4Sim/FADS
 
-use StoreGate           	StoreGate-*          		Control
-
-library TRT_TR_Process ../src/*.cxx
+library TRT_TR_Process ../src/*.cxx -s=components *.cxx
 
 #previously like this:
-#apply_pattern component_library
-#like this instead to avoid genconf for the targets (we dont have any athena algs/tools):
+apply_pattern component_library
+
 
 # after that it was like this:
 #apply_pattern libraryShr library=TRT_TR_Process
 
 
-apply_pattern linked_library
+#apply_pattern linked_library
 apply_pattern declare_runtime files="-s=../data *.dtd *.xml"
+apply_pattern declare_python_modules files="*.py"
 
 #=======================================================
 private
 
-macro TRT_TR_Process_linkopts "-lGeo2G4" 
+macro TRT_TR_Process_linkopts "-lGeo2G4"
+
+end_private
