@@ -63,6 +63,9 @@ class HLTBjetMonTool : public IHLTMonTool {
  
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 
+  float phiCorr(float);
+  std::string m_priVtxKey;
+  float m_etCut;
 
 };
 
