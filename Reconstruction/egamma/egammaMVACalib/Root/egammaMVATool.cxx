@@ -118,7 +118,8 @@ StatusCode egammaMVATool::initialize() {
 std::set<std::string> egammaMVATool::guess_variables(std::string filename)
 {
   TFile f(filename.c_str());
-  TObjArray* formulae = dynamic_cast<TObjArray*>(f.Get("formulae"));
+  std::unique_ptr<TObjArray> formulae(dynamic_cast<TObjArray*>(f.Get("formulae")));
+  formulae->SetOwner(true);  // by default TObjArray doesn't own elements
   if (not formulae) { ATH_MSG_FATAL("cannot find formulae in " << filename); }
 
   // TODO: use regex parsing (regex supported only in gcc 4.9, TPRegexp sucks)
@@ -134,7 +135,7 @@ std::set<std::string> egammaMVATool::guess_variables(std::string filename)
   };
 
   std::set<std::string> variables_found;
-  TIter iter(formulae);
+  TIter iter(formulae.get());
   while (TNamed* obj = dynamic_cast<TNamed*>(iter())) {
     std::string expression = obj->GetTitle();
     for (const auto var : all_possibile_variables) {
