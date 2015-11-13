@@ -31,12 +31,9 @@ LvlConverter::LvlConverter(const std::string& name, const std::string& type,
 			   const IInterface* parent)
   : AthAlgTool(name, type, parent),
     m_config(0),
-    m_log(0),
-    m_logLvl(0),
     m_includePrescaledChains(false),
     m_ignorePrescales(false),
     m_hltTool("HLT::HLTResultAccessTool/HLTResultAccessTool",this),
-    m_storeGate("StoreGateSvc", name),
     m_configuredChains(0)
 {
   declareInterface<HLT::ILvlConverter>( this );
@@ -50,16 +47,8 @@ LvlConverter::LvlConverter(const std::string& name, const std::string& type,
 
 StatusCode LvlConverter::initialize()
 {
-  m_log = new MsgStream( msgSvc(), name());
-  m_logLvl = m_log->level();
-
-  ATH_MSG_DEBUG("initializing " << name());
-
   // get the hlt tool
   CHECK(m_hltTool.retrieve());
-
-  // get StoreGate
-  CHECK(m_storeGate.retrieve());
 
   if (hltInitialize() != HLT::OK ) return StatusCode::FAILURE;
   
@@ -72,7 +61,6 @@ StatusCode LvlConverter::initialize()
 StatusCode LvlConverter::finalize()
 {
   HLT::ErrorCode ec = hltFinalize();
-  delete m_log; m_log=0;
 
   if (ec == HLT::ERROR) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
