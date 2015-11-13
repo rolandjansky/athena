@@ -994,9 +994,8 @@ std::bitset<3> Lvl1ResultAccessTool::lvl1EMTauJetOverflow(const ROIB::RoIBResult
     for (const ROIB::JetEnergyRoI& roi : res.roIVec()) {
       int c = m_jepDecoder->crate(roi.roIWord());
       int m = m_jepDecoder->module(roi.roIWord());
-      int t = m_jepDecoder->roiType(roi.roIWord());
 
-      if (t==LVL1::TrigT1CaloDefs::JetRoIWordType) ++jet[{c,m}];
+      ++jet[{c,m}];
     }
   }
 
@@ -1007,13 +1006,13 @@ std::bitset<3> Lvl1ResultAccessTool::lvl1EMTauJetOverflow(const ROIB::RoIBResult
   overflow[2] = std::count_if(jet.begin(), jet.end(), [](const decltype(jet)::value_type& i){return i.second>MAXJET;});
 
   if (msgLvl(MSG::DEBUG)) {
-    msg() << "EM RoI multiplicities by crate,module: ";
+    msg() << "EM RoI multiplicities by module,crate: ";
     for (const auto& i : em) msg() << "(" << i.first.first << "," << i.first.second << "):" << i.second << " ";
 
-    msg() << endreq << "Tau RoI multiplicities by crate,module: ";
+    msg() << endreq << "Tau RoI multiplicities by module,crate: ";
     for (const auto& i : tau) msg() << "(" << i.first.first << "," << i.first.second << "):" << i.second << " ";
 
-    msg() << endreq << "Jet RoI multiplicities by crate,module: ";
+    msg() << endreq << "Jet RoI multiplicities by module,crate: ";
     for (const auto& i : jet) msg() << "(" << i.first.first << "," << i.first.second << "):" << i.second << " ";
     msg() << endreq;
   }
