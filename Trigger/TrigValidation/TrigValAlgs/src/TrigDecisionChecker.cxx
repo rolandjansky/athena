@@ -52,6 +52,8 @@
 
 #include "TrigConfigSvc/DSConfigSvc.h"
 
+#include "TrigSteeringEvent/Lvl1Result.h"
+
 // Gaudi inlcudes
 //#include "AthenaBaseComps/AthAlgorithm.h"
 //#include "GaudiKernel/ServiceHandle.h"
