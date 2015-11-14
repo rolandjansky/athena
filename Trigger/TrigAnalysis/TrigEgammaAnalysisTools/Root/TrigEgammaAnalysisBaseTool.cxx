@@ -37,6 +37,9 @@
 #include "TrigEgammaAnalysisTools/ValidationException.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassBitsCollection.h"
+
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
