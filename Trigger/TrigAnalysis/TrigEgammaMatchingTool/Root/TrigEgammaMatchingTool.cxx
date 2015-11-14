@@ -4,6 +4,7 @@
 
 #include "TrigEgammaMatchingTool/TrigEgammaMatchingTool.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
