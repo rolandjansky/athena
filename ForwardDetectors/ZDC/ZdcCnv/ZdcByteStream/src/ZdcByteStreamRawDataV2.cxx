@@ -67,7 +67,7 @@ StatusCode ZdcByteStreamRawDataV2::execute()
 	const DataHandle<xAOD::TriggerTowerContainer> ttCollection;
 
 	msg(MSG::DEBUG) << "Looking for ZDC trigger tower container at " << m_ZdcTriggerTowerContainerLocation << endreq;
-	//std::cout << "Looking for ZDC Digits Collection at " << m_ZdcDigitsCollectionLocation << std::endl;
+
 	StatusCode sc = evtStore()->retrieve(ttCollection, m_ZdcTriggerTowerContainerLocation);
 	if (sc.isFailure() || !ttCollection || ttCollection->empty())
 	{
@@ -75,7 +75,7 @@ StatusCode ZdcByteStreamRawDataV2::execute()
 		return StatusCode::SUCCESS;
 	}
 
-	//msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endreq;
+	msg(MSG::DEBUG) << ZdcToString(*ttCollection) << endreq;
 
 	return StatusCode::SUCCESS;
 }
