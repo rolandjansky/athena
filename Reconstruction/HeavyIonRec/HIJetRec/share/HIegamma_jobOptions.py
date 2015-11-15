@@ -16,6 +16,8 @@ from AthenaCommon.DetFlags import DetFlags
 
 jobproperties.CaloRecFlags.doCaloCluster=True
 jobproperties.CaloRecFlags.doEmCluster=True
+jobproperties.CaloRecFlags.doCaloTopoCluster = True
+jobproperties.CaloRecFlags.doCaloEMTopoCluster = True
 jobproperties.CaloRecFlags.clusterCellGetterName='HIJetRec.SubtractedCellGetter.SubtractedCellGetter'
 
 rec.doEgamma=True
@@ -27,50 +29,67 @@ jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
 jobproperties.egammaRecFlags.doTopoCaloSeeded=False
 
 if DetFlags.haveRIO.Calo_on() :    
-    try:
-        from CaloRec.CaloClusterSWCmbGetter import CaloClusterSWCmbGetter
-        CaloClusterSWCmbGetter()
-    except Exception:    
-        treatException("Problem with CaloSWCmbCluster. Switched off.")
-        jobproperties.CaloRecFlags.doCaloCluster=False        
-else:
-        jobproperties.CaloRecFlags.doCaloCluster=False        
-#
-# functionality : LAr Calorimeter clustering
-#
-if DetFlags.haveRIO.LAr_on() :
-
-    try:
-        include( "LArClusterRec/LArCluster_jobOptions.py" )
-        
-        # introduce multisize possibility
-        # include( "LArClusterRec/LArCluster_MultiSize_jobOptions.py" )
-    except Exception:        
-        treatException("Problem with LArCluster. Switched off.")
-        jobproperties.CaloRecFlags.doEmCluster=False    
-
-    # write digits of EM clusters
-    if jobproperties.CaloRecFlags.doEMDigits() and globalflags.DataSource()=='data' and globalflags.InputFormat() == 'bytestream': 
+    #combined clusters
+    if jobproperties.CaloRecFlags.doCaloCluster() : 
         try:
-            include ("LArClusterRec/LArDigits_fromEMCluster_jobptions.py")
+            from CaloRec.CaloClusterSWCmbGetter import CaloClusterSWCmbGetter
+            CaloClusterSWCmbGetter()
+        except Exception:    
+            treatException("Problem with CaloSWCmbCluster. Switched off.")
+            jobproperties.CaloRecFlags.doCaloCluster=False        
+    #EM clusters
+    if jobproperties.CaloRecFlags.doEmCluster() :
+        try: include( "LArClusterRec/LArCluster_jobOptions.py" )
+        except Exception:        
+            treatException("Problem with LArCluster. Switched off.")
+            jobproperties.CaloRecFlags.doEmCluster=False    
+        # write digits of EM clusters
+        if jobproperties.CaloRecFlags.doEMDigits() and globalflags.DataSource()=='data' and globalflags.InputFormat() == 'bytestream': 
+            try: include ("LArClusterRec/LArDigits_fromEMCluster_jobptions.py")
+            except Exception:
+                treatException("Problem with LArDigitsFromEMClust. Switched off.")
+                jobproperties.CaloRecFlags.doEMDigits=False
+
+    #Topoclusters
+    if jobproperties.CaloRecFlags.doCaloTopoCluster() :
+        try: include( "CaloRec/CaloTopoCluster_jobOptions.py" )
         except Exception:
-            treatException("Problem with LArDigitsFromEMClust. Switched off.")
-            jobproperties.CaloRecFlags.doEMDigits=False
-else:
-    jobproperties.CaloRecFlags.doEmCluster=False    
+            treatException("Problem with CaloTopoCluster. Switched off.")
+            jobproperties.CaloRecFlags.doCaloTopoCluster=False
+
+    #EM Topoclusters
+    if jobproperties.CaloRecFlags.doCaloEMTopoCluster() :
+        try: include( "CaloRec/EMTopoCluster_jobOptions.py" )    
+        except Exception:
+            treatException("Problem with EMTopoCluster. Switched off")
+            jobproperties.CaloRecFlags.doCaloTopoCluster=False
 
 
-#now run egamma
+
+#Run egamma
 pdr.flag_domain('egamma')
 if rec.doEgamma() : protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
 from AODFix.AODFix import AODFix_postEgammaRec
 AODFix_postEgammaRec()
 
-#now fix isolation
+#Fix isolation
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-iso=getattr(topSequence,"IsolationBuilder")
-topSequence.remove(iso)
-iso.EgIsoTypes=iso.MuIsoTypes
-iso.CellCollectionName='SubtractedCells'
-topSequence+=iso
+
+if hasattr(topSequence,"EDtpIsoCentralAlg") :
+    EDtpIsoCentralAlg=getattr(topSequence,"EDtpIsoCentralAlg")
+    topSequence.remove(EDtpIsoCentralAlg)
+    topSequence+=EDtpIsoCentralAlg
+
+if hasattr(topSequence,"EDtpIsoForwardAlg") :
+    EDtpIsoForwardAlg=getattr(topSequence,"EDtpIsoForwardAlg")
+    topSequence.remove(EDtpIsoForwardAlg)
+    topSequence+=EDtpIsoForwardAlg
+
+if hasattr(topSequence,"IsolationBuilder") :
+    iso=getattr(topSequence,"IsolationBuilder")
+    topSequence.remove(iso)
+    iso.EgIsoTypes=iso.MuIsoTypes
+    iso.CellCollectionName='SubtractedCells'
+    topSequence+=iso
+

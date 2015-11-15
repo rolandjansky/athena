@@ -70,9 +70,6 @@ StatusCode HIClusterMaker::execute()
     float eta_cl=0;
     float phi_cl=0;
     float time_cl=0;
-    float R_cl=0;
-    float R_cl_avg=0;
-    float ncell=0;
     // std::vector<float> E_sampling(NUMSAMPLES,0);
     // std::vector<float> eta_sampling(NUMSAMPLES,0);
     // std::vector<float> phi_sampling(NUMSAMPLES,0);
@@ -108,23 +105,16 @@ StatusCode HIClusterMaker::execute()
 
       time_cl+=cell_E_w*(*cellItr)->time();
 
-      double cell_radius=(*cellItr)->caloDDE()->r();
-      R_cl+=cell_E_w*cell_radius;
-      R_cl_avg+=cell_radius;
-      ncell++;
-
       // unsigned int isample=0;
       // E_sampling[isample]+=cell_E_w;
       // eta_sampling[isample] =cell_E_w*(*cellItr)->eta();
       // phi_sampling[isample]+=cell_E_w*(*cellItr)->phi();
 
     }//end cell loop
-    if(R_cl < 0) R_cl*=-1;
     if(E_cl < m_E_min_moment)
     {
       eta_cl=(*towerItr)->eta();
       phi_cl=(*towerItr)->phi();
-      if(ncell > 0. ) R_cl=R_cl_avg/ncell;
       time_cl=0;
       //set time to zero?
     }
@@ -133,7 +123,6 @@ StatusCode HIClusterMaker::execute()
       eta_cl/=E_cl;
       phi_cl/=E_cl;
       time_cl/=E_cl;
-      R_cl/=E_cl;
     }
 
     //phi moment does not respect wrap-around
@@ -163,7 +152,6 @@ StatusCode HIClusterMaker::execute()
 
 
     //extra info
-    cl->insertMoment(xAOD::CaloCluster::CENTER_MAG,R_cl);
     cl->setTime(time_cl);
 
     cl_container->push_back(cl);

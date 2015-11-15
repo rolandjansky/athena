@@ -43,9 +43,8 @@ class IHISubtractorTool : virtual public asg::IAsgTool {
   /// sets are queried to see if the cluster has already been used, e.g. by another jet seed
   /// checking/updating sets prevents double counting
   /// eta-bin set used to determine eta-averaged flow
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl, 
-				  std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) = 0;
-
+  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) = 0;
+  virtual float MinEnergyForMoments() const = 0;
 
 };
 
