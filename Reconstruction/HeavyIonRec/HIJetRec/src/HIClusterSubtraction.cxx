@@ -6,6 +6,7 @@
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"
+#include "HIJetRec/HIJetRecDefs.h"
 
 //**********************************************************************
 
@@ -66,10 +67,7 @@ int HIClusterSubtraction::execute() const
     else
     {
       m_subtractor_tool->Subtract(p4,cl,shape,es_index,m_modulator_tool);
-      cl->setRawE(p4.E());
-      cl->setRawEta(p4.Eta());
-      cl->setRawPhi(p4.Phi());
-      cl->setRawM(0);
+      HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
     }
         
   }

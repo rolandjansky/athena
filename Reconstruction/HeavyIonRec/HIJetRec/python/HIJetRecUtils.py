@@ -20,6 +20,11 @@ def AddToOutputList(tname, objType='xAOD::JetContainer') :
         if 'CaloCluster' in objType : 
             HIJetFlags.HIJetOutputList += [ objType.replace("Container","CellLinkContainer") + "#" + tname + "_links" ]
             if not HIJetFlags.WriteClusterMoments() : aux_suffix+='-'
+        else  :
+            for k in HIJetFlags.MomentsSkipped() :
+                if 'ScaleMomentum' in k :
+                    for var in ['pt','eta','phi','m'] : aux_suffix+='-%s_%s.' % (k,var)
+                else : aux_suffix+='-%s.' % k
         HIJetFlags.HIJetOutputList += [ objType + "#" + tname ]
         HIJetFlags.HIJetOutputList += [ objType.replace("Container","AuxContainer") + "#" + tname + aux_suffix ]
 
@@ -120,12 +125,28 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     subtr.Modulator=mod_tool
     subtr.MomentName='JetSubtractedScale%sMomentum' % moment_name
     subtr.SetMomentOnly=momentOnly
+    # useClusters=False
+    # if 'useClusters' in kwargs.keys() : useClusters=kwargs['useClusters']
+    # if useClusters :
+    #     if not hasattr(jtm,"HIJetClusterSubtractor") :         
+    #         from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+    #         cluster_subtr=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
+    #         cluster_subtr.ConfigDir=''
+    #         jtm.add(cluster_subtr)
+    #     subtr.Subtractor=jtm.HIJetClusterSubtractor
+
+    # else :
+    #     if not hasattr(jtm,"HIJetSubtractor") : 
+    #         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+    #         cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
+    #         jtm.add(cell_subtr)
     if not hasattr(jtm,"HIJetSubtractor") : 
         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
         cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
         jtm.add(cell_subtr)
-
+        
     subtr.Subtractor=jtm.HIJetSubtractor
+
     jtm.add(subtr)
     return subtr
 
@@ -236,7 +257,6 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     iter_tool.ModulationEventShapeKey=mod_shape_key
     if 'track_jet_seeds' in kwargs.keys() : 
         iter_tool.TrackJetSeedContainerKey=kwargs['track_jet_seeds']
-    iter_tool.OutputLevel=1
     jtm.add(iter_tool)
     jtm.jetrecs += [iter_tool]
     jtm.HIJetRecs+=[iter_tool]
@@ -315,7 +335,7 @@ def GetFlowMomentTools(key,mod_key) :
     if not HIJetFlags.ExtraFlowMoments() : return mtools
 
     #only add these tools if requested by package flag
-    for n in [2,3,4]:
+    for n in [2]:
 
         #if flow subtraction only used one harmonic
         #then extra moment for that harmonic is redundant, skip it

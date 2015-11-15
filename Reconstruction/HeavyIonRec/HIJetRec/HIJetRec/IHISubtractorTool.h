@@ -44,7 +44,7 @@ class IHISubtractorTool : virtual public asg::IAsgTool {
   /// checking/updating sets prevents double counting
   /// eta-bin set used to determine eta-averaged flow
   virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) = 0;
-
+  virtual float MinEnergyForMoments() const = 0;
 
 };
 

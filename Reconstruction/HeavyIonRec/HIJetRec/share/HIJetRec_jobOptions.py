@@ -7,9 +7,9 @@ jetFlags.useCells.set_Value(True);
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-#is getter tool okay instead?
-if not hasattr(topSequence,"CmbTowerBldr") :
-    include("CaloRec/CaloCombinedTower_jobOptions.py")
+from CaloRec.CaloTowerCmbGetter import CaloTowerCmbGetter
+CaloTowerCmbGetter()
+
 
 #check for event shape
 #if hasattr(topSequence,"HIEventShapeAlgorithm")
@@ -20,8 +20,6 @@ ClusterKey=HIJetFlags.HIClusterKey()
 from  HIJetRec.HIJetRecUtils import *
 HIClusterGetter()
 
-
-used_JetRec=hasattr(topSequence,"jetalg") 
 
 #equip basic tools
 from  HIJetRec.HIJetRecTools import jtm
@@ -79,6 +77,7 @@ subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulato
 ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=ClusterKey, modulator=modulator1,CalculateMoments=True)
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
 
+#subtr_cl=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1,momentOnly=True,useClusters=True,moment_name="ClSubtr")
 
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]

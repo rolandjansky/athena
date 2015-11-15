@@ -46,7 +46,8 @@ class HIJetCellSubtractorTool : public HIJetSubtractorToolBase
   virtual void SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator) override;
 private:
   void UpdateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg) const;
-  void SafeDivision(float E, float& eta, float& phi, float eta0, float phi0);
+
+
 };
 
 #endif

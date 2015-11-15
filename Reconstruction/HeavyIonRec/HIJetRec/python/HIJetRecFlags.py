@@ -59,7 +59,7 @@ class ApplyOriginCorrection(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class ApplyEtaJESCalibration(JobProperty):
     """ Option to apply MC-derived calibration 
@@ -96,7 +96,7 @@ class HarmonicsForSubtraction(JobProperty):
     statusOn     = True
     allowedTypes = ['list']
     #StoredValue  = [2,3,4]
-    StoredValue  = [2]
+    StoredValue  = []
 
 class ModulationScheme(JobProperty):
     """ 1, 2 or 3 correspond to total calo, total calo w/ fcal phase, fcal only
@@ -190,6 +190,13 @@ class WriteClusterMoments(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class MomentsSkipped(JobProperty):
+    """ List of moments not to write
+    """
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = []
+
 class WriteUnsubtracted(JobProperty):
     """ Option to write unsubtracted containers
     """
@@ -248,7 +255,8 @@ list_jobproperties = [UnsubtractedSuffix,
                       WriteClusterMoments,
                       WriteUnsubtracted,
                       WriteSeeds,
-                      UseHITracks
+                      UseHITracks,
+                      MomentsSkipped
                       ]
 
 for i in list_jobproperties:

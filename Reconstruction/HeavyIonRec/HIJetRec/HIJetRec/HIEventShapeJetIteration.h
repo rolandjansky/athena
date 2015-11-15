@@ -10,6 +10,7 @@
 #include "JetInterface/IJetExecuteTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
+#include "xAODHIEvent/HIEventShape.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "HIJetRec/IHISubtractorTool.h"
@@ -26,10 +27,21 @@ public:
   HIEventShapeJetIteration(std::string name);
   
   int execute() const;
-  
-private:
+
   StatusCode makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const xAOD::JetContainer* theJets,
-						       std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) const;
+			     std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) const;
+
+  //refactored for use in xAOD analysis.
+  //functionality decoupled from store access
+  StatusCode makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const xAOD::JetContainer* theJets) const;
+  StatusCode makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const std::vector<const xAOD::JetContainer*>& theJets_vector) const;
+  void updateShape(xAOD::HIEventShapeContainer* output_shape, const std::vector<const xAOD::CaloCluster*>& assoc_clusters, const HIEventShapeIndex* es_index=nullptr ) const;
+  StatusCode fillModulatorShape(xAOD::HIEventShape* ms, const xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_indices, unsigned int scheme) const;
+  StatusCode remodulate(xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_indices) const;
+  StatusCode remodulate(xAOD::HIEventShapeContainer* output_shape, const xAOD::HIEventShape* ms, const std::set<unsigned int>& used_indices) const;
+  StatusCode getShapes(const xAOD::HIEventShapeContainer*& input_shape, xAOD::HIEventShapeContainer*& output_shape, bool record_aux=false) const;
+
+private:
 
 
   ToolHandle<IHISubtractorTool> m_subtractor_tool;
