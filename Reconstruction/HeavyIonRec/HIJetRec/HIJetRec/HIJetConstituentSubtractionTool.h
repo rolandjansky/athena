@@ -62,7 +62,7 @@ private:
   /// kinematics are also set to reflect this subtraction
   /// eventually do this w/ a signal state
   bool m_moment_only;
-
+  bool m_flip_neg_E_cluster;
   /// \brief handle to IHISubtractorTool that determines the
   /// subtracted kinematics for each constituent
   ToolHandle<IHISubtractorTool> m_subtractor_tool;
@@ -79,7 +79,8 @@ protected:
   inline void SetEventShapeKey(std::string key) {m_event_shape_key=key;};
   inline void SetMomentName(std::string key) {m_moment_name=key;};
   inline void SetMomentOnly(bool x) {m_moment_only=x;};
-    
+
+  void applyConvention(xAOD::IParticle::FourMom_t* p) const;
 };
 
 #endif

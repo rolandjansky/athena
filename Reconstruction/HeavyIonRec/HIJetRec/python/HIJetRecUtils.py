@@ -5,7 +5,6 @@ from HIJetRec.HIJetRecTools import jtm
 from JetRec.JetRecFlags import jetFlags
 
 def AddToOutputList(tname, objType='xAOD::JetContainer') : 
-    from HIJetRec.HIJetRecFlags import HIJetFlags
 
     #filter container based on package flags
     if HIJetFlags.UnsubtractedSuffix() in tname and not HIJetFlags.WriteUnsubtracted() : return
@@ -17,9 +16,18 @@ def AddToOutputList(tname, objType='xAOD::JetContainer') :
             has_key=True
             break
     if not has_key :
+        aux_suffix='Aux.'
+        if 'CaloCluster' in objType : 
+            HIJetFlags.HIJetOutputList += [ objType.replace("Container","CellLinkContainer") + "#" + tname + "_links" ]
+            if not HIJetFlags.WriteClusterMoments() : aux_suffix+='-'
+        else  :
+            for k in HIJetFlags.MomentsSkipped() :
+                if 'ScaleMomentum' in k :
+                    for var in ['pt','eta','phi','m'] : aux_suffix+='-%s_%s.' % (k,var)
+                else : aux_suffix+='-%s.' % k
         HIJetFlags.HIJetOutputList += [ objType + "#" + tname ]
-        HIJetFlags.HIJetOutputList += [ objType.replace("Container","AuxContainer") + "#" + tname + "Aux." ]
-        if 'CaloCluster' in objType :  HIJetFlags.HIJetOutputList += [ objType.replace("Container","CellLinkContainer") + "#" + tname + "_links" ]
+        HIJetFlags.HIJetOutputList += [ objType.replace("Container","AuxContainer") + "#" + tname + aux_suffix ]
+
 
 
 def AppendOutputList(HIAODItemList=[]) :
@@ -50,7 +58,6 @@ def HIClusterGetter(tower_key="CombinedTower", cell_key="AllCalo", cluster_key="
 
 
 def AddHIJetFinder(R=0.4) :
-    from HIJetRec.HIJetRecFlags import HIJetFlags
     unsubtr_suffix=HIJetFlags.UnsubtractedSuffix()
     cname="AntiKt%dHIJets_%s" % (int(10*R),unsubtr_suffix)
     #'HI' is not allowed 'Label'
@@ -61,6 +68,7 @@ def AddHIJetFinder(R=0.4) :
     finder=jtm.addJetFinder(cname, "AntiKt", R, "HI",myMods,
                             consumers=None, ivtxin=None,
                             ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
+    jtm.HIJetRecs+=[finder]
 
 
 def AddPtAssociationTools(R, doTracks=True) :
@@ -117,12 +125,28 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     subtr.Modulator=mod_tool
     subtr.MomentName='JetSubtractedScale%sMomentum' % moment_name
     subtr.SetMomentOnly=momentOnly
+    # useClusters=False
+    # if 'useClusters' in kwargs.keys() : useClusters=kwargs['useClusters']
+    # if useClusters :
+    #     if not hasattr(jtm,"HIJetClusterSubtractor") :         
+    #         from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+    #         cluster_subtr=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
+    #         cluster_subtr.ConfigDir=''
+    #         jtm.add(cluster_subtr)
+    #     subtr.Subtractor=jtm.HIJetClusterSubtractor
+
+    # else :
+    #     if not hasattr(jtm,"HIJetSubtractor") : 
+    #         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+    #         cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
+    #         jtm.add(cell_subtr)
     if not hasattr(jtm,"HIJetSubtractor") : 
         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
         cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
         jtm.add(cell_subtr)
-
+        
     subtr.Subtractor=jtm.HIJetSubtractor
+
     jtm.add(subtr)
     return subtr
 
@@ -133,9 +157,8 @@ def ApplySubtractionToClusters(**kwargs) :
         event_shape_key=jobproperties.HIGlobalFlags.EventShapeKey()
 
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
-    else :
-        from HIJetRec.HIJetRecFlags import HIJetFlags
-        cluster_key=HIJetFlags.HIClusterKey()
+    else : cluster_key=HIJetFlags.HIClusterKey()
+        
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
@@ -195,6 +218,7 @@ def ApplySubtractionToClusters(**kwargs) :
 
     jtm.add(theAlg)
     jtm.jetrecs += [theAlg]
+    jtm.HIJetRecs+=[theAlg]
 
 def AddIteration(seed_container,shape_name, **kwargs) :
 
@@ -225,16 +249,17 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     iter_tool.InputEventShapeKey=shape_name
     iter_tool.OutputEventShapeKey=out_shape_name
     iter_tool.AssociationKey=assoc_name
-    iter_tool.SeedContainerKey=seed_container
+    iter_tool.CaloJetSeedContainerKey=seed_container
     iter_tool.Subtractor=jtm.HIJetSubtractor
-    iter_tool.ModulationScheme=1;
-    #iter_tool.RemodulateUE=remodulate
-    iter_tool.RemodulateUE=False
+    iter_tool.ModulationScheme=HIJetFlags.ModulationScheme()
+    iter_tool.RemodulateUE=HIJetFlags.Remodulate()
     iter_tool.Modulator=mod_tool
     iter_tool.ModulationEventShapeKey=mod_shape_key
-    #iter_tool.OutputLevel=1
+    if 'track_jet_seeds' in kwargs.keys() : 
+        iter_tool.TrackJetSeedContainerKey=kwargs['track_jet_seeds']
     jtm.add(iter_tool)
     jtm.jetrecs += [iter_tool]
+    jtm.HIJetRecs+=[iter_tool]
     return iter_tool
 
 def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
@@ -301,14 +326,26 @@ def GetNullModulator() :
 
 def GetFlowMomentTools(key,mod_key) :
     mtools=[]
-    for n in [2,3,4]:
+
+    #only compute no flow moment if subtraction actually used flow
+    if len(HIJetFlags.HarmonicsForSubtraction()) > 0 :
+        null_mod_tool=GetNullModulator()
+        mtools+=[MakeSubtractionTool(key,moment_name='NoVn',momentOnly=True,modulator=null_mod_tool)]
+    
+    if not HIJetFlags.ExtraFlowMoments() : return mtools
+
+    #only add these tools if requested by package flag
+    for n in [2]:
+
+        #if flow subtraction only used one harmonic
+        #then extra moment for that harmonic is redundant, skip it
+        if len(HIJetFlags.HarmonicsForSubtraction()) == 1 :
+            if n == HIJetFlags.HarmonicsForSubtraction()[0] : continue
+
         mod_tool=MakeModulatorTool(mod_key,harmonics=[n])
         subtr_tool=MakeSubtractionTool(key,moment_name='V%dOnly' % n,momentOnly=True,modulator=mod_tool)
         mtools+=[subtr_tool]
 
-    null_mod_tool=GetNullModulator()
-    mtools+=[MakeSubtractionTool(key,moment_name='NoVn',momentOnly=True,modulator=null_mod_tool)]
     return mtools
 
-        
-    
+

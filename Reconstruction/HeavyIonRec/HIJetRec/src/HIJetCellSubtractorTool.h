@@ -40,13 +40,14 @@ class HIJetCellSubtractorTool : public HIJetSubtractorToolBase
   /// Method expects cl_in to be a cluster
   virtual void Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator) override;
 
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl, 
-				  std::set<unsigned int>& used_indices, std::set<unsigned int>& used_eta_bins) override;
+  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) override;
+
 
   virtual void SubtractWithMoments(xAOD::CaloCluster* cl, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator) override;
 private:
   void UpdateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg) const;
-  void SafeDivision(float E, float& eta, float& phi, float eta0, float phi0);
+
+
 };
 
 #endif
