@@ -16,7 +16,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
