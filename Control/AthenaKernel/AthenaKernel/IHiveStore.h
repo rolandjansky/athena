@@ -17,7 +17,7 @@ class IProxyDictWithPool;
  * @brief the interface that provides access to the current hive store
  *
  * @author Paolo Calafiura - ATLAS
- *  $Id: IHiveStore.h 702201 2015-10-21 21:01:04Z ssnyder $
+ *  $Id: IHiveStore.h 702200 2015-10-21 21:00:55Z ssnyder $
  */
 
 class IHiveStore : virtual public INamedInterface {
