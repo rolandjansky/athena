@@ -218,7 +218,7 @@ namespace dqutils {
 	for(int i=0;i<15;i++){
 	  h2_maxErrHist[i] = (TH2I*)infile->Get(maxerrortitles_2d[i]);
 	  if(h2_maxErrHist[i]&&maxErrHist_new[i]){
-	    for(int m=0;m<2000;m++){
+	    for(int m=0;m<h2_maxErrHist[i]->GetXaxis()->GetNbins();m++){
 	      for(int n=0;n<8176;n++){
 		int maxModErrs = h2_maxErrHist[i]->GetBinContent(m+1,8176-n);
 		if(maxModErrs!=0){
