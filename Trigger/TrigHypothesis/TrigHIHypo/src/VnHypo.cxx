@@ -8,7 +8,10 @@
 #include "VnHypoHelper.h"
 
 VnHypo::VnHypo(const std::string& name, ISvcLocator* pSvcLocator) 
-  : HLT::HypoAlgo(name, pSvcLocator) {
+  : HLT::HypoAlgo(name, pSvcLocator),
+    m_decision(2, 0) // 2 times 0
+{
+
 
   declareMonitoredVariable("TotalEt"        , m_Tot_Et            ,  0.);
   declareMonitoredVariable("TotalEtPassing" , m_Tot_Et_passing    , -1.);
@@ -18,6 +21,7 @@ VnHypo::VnHypo(const std::string& name, ISvcLocator* pSvcLocator)
   declareMonitoredVariable("qny"            , m_qny               , -1);
   declareMonitoredVariable("q"              , m_qn                ,  0.);
   declareMonitoredVariable("qPassing"       , m_qn_passing        , -1.);
+  declareMonitoredStdContainer("decision"       , m_decision);
 
   declareProperty("CentralityBins",  m_helper.centcuts, "Bins of FcalEt for which the thresholds are set");
   declareProperty("QThresholds",  m_helper.thresholds, "Values of thresholds above which the hypo accepts, size must match CentralityBins");
@@ -55,6 +59,8 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
   m_Tot_Et_passing = -1; // this will only get assigned when we pass
   m_qn_passing     = -1;
   m_icent_passing  = -1;
+  m_decision[0] = -1;
+  m_decision[1] = -1;
 
   const xAOD::HIEventShapeContainer* evtShape;
   if(getFeature(outputTE, evtShape) == HLT::OK && evtShape != 0){
@@ -94,7 +100,7 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
   m_qny -= m_helper.getQyShift(m_icent);
   m_qn = hypot(m_qnx, m_qny);
    
-
+  m_decision[0] = 0;
   // now cutting
   float Vn_Threshold=m_helper.getThreshold(m_icent);
   //  ATH_MSG_INFO("Et " << m_Tot_Et << " icent " << m_icent << " threshold " << Vn_Threshold);
@@ -105,6 +111,6 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
     m_qn_passing     = m_qn;
     m_icent_passing  = m_icent;
   }
-  
+  m_decision[1] = (pass ? 1 : -1);
   return HLT::OK;
 }
