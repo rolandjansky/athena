@@ -35,7 +35,7 @@ KnownCollisionsProjects=["data08","data08_coll900","data09","data09_coll900","da
                          "data11_7TeV","data11_8TeV","data11_2p76TeV","data11_comm","data11_900GeV","data11_1beam","data11_hip", 
                          "data12_8TeV","data12_comm","mc12_8TeV","IS_SIMULATION","data12_1beam","data12_900GeV",
                          "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
-                         "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV"
+                         "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV"
                          ]
 
 KnownHeavyIonProjects=["data10_hi","data11_hi","data15_hi"]
@@ -442,10 +442,14 @@ def ConfigureBeamEnergy():
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('GeV','',1))/2 * 1000.
                 elif 'TeV' in projectName:
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
+                    if '5TeV' in projectName:
+                        beamEnergy=2510000.
                 elif projectName.endswith("_hi") or projectName.endswith("_hip"):
                     #beamEnergy=1380000. # 1.38 TeV (=3.5 TeV * (Z=82/A=208))
                     # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
-                    beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
+                    #beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
+                    # Pb (p) Beam energy in p-Pb collisions in 2012 will be 1.577 (4) TeV.
+                    beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208))
                     # Pb (p) Beam energy in p-Pb collisions in 2012 will be 1.577 (4) TeV.
                 else:
                     logAutoConfiguration.warning("Could not auto-configure beam energy based on project name: %s" , projectName)
