@@ -40,7 +40,7 @@ namespace dqutils {
 
 //   static const bool fdbg = false;
    static const bool fdbg = true;
-
+   static const bool m_HI_pp_key=true;//true::HI false::pp
 
   void
   MonitoringFile::HLTMuonHistogramDivision(std::string inFilename, TString& run_dir)
@@ -465,11 +465,24 @@ namespace dqutils {
       TString m_MSchainName = "_MSb";
 
       // YY: pt range.
-      int iSTDL = 91;  // 40 GeV
-      int iSTDH = 120; // 100 GeV
+      int iSTDL;
+      int iSTDH;
+      
+      if(m_HI_pp_key){
+        iSTDL = 45;  // 12 GeV
+        //iSTDL = 54;  // 15 GeV
+        iSTDH = 75; // 25 GeV
+      }else{
+        iSTDL = 91;  // 40 GeV
+        iSTDH = 120; // 100 GeV
+      }
       int iMSL = 105;  // 60 GeV
       int iMSH = 120;  // 100 GeV
 
+			if(m_HI_pp_key){
+				iMSL=54;//15GeV
+				iMSH=75;//25GeV
+			}
       // YY added:
       enum ieffAlgo {
         iMuFast = 0,   // StdAlgo
@@ -665,6 +678,10 @@ namespace dqutils {
 
 	      int m_iSTDL = 39;
 	      int m_iSTDH = 120;
+	      if(m_HI_pp_key){//HI run 4-25GeV
+          m_iSTDL = 17;
+          m_iSTDH = 75;				
+				}
 	      double sumeff, sumerr;
 	      double sumn = h1numb->Integral(m_iSTDL, m_iSTDH); // 10-100 GeV
 	      double sumd = h1denb->Integral(m_iSTDL, m_iSTDH);
@@ -2181,8 +2198,10 @@ namespace dqutils {
 	    }
 	    
 	    double sumeff, sumerr;
-	    double sumn = h1numb->Integral(7, 10); // 30-50 GeV
-	    double sumd = h1denb->Integral(7, 10);
+	    double sumn = h1numb->Integral(13, 25); // 12-25 GeV
+	    //double sumn = h1numb->Integral(7, 10); // 30-50 GeV
+	    double sumd = h1denb->Integral(13, 25);
+	    //double sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;
@@ -2193,8 +2212,10 @@ namespace dqutils {
 	    h1sumL->SetBinContent(1, sumeff);
 	    h1sumL->SetBinError(1, sumerr);
 	    
-	    sumn = h1nume->Integral(7, 10);
-	    sumd = h1dene->Integral(7, 10);
+	    sumn = h1nume->Integral(13, 25);
+	    //sumn = h1nume->Integral(7, 10);
+	    sumd = h1dene->Integral(13, 25);
+	    //sumd = h1dene->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;

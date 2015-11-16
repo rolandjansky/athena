@@ -45,11 +45,13 @@ namespace dqutils {
     
     std::vector<std::string> coll_dir_label;
     //coll_dir_label.push_back("ConvertedMBoySegments");
-    coll_dir_label.push_back("MooreSegments");
+    //coll_dir_label.push_back("MooreSegments");
+    coll_dir_label.push_back("MuonSegments");
 
     std::vector<std::string> coll_hist_label;
     //coll_hist_label.push_back("MuBoy");
-    coll_hist_label.push_back("Moore");
+    //coll_hist_label.push_back("Moore");
+    coll_hist_label.push_back("Muon");
 
     f->cd("/");
     TIter next_run ( f->GetListOfKeys() );

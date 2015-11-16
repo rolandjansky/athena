@@ -40,8 +40,10 @@ namespace dqutils {
     bool dbgLevel = false;
     if(dbgLevel) std::cout << "--> CSCChamberEfficiency: Calculate chamber efficiency by layer" << std::endl;
     std::string endc_label[2] = {"A","C"};
-    std::string coll_dir_label[2] = {"ConvertedMBoySegments","MooreSegments"};
-    std::string coll_hist_label[2] = {"MuBoy","Moore"};
+    //std::string coll_dir_label[2] = {"ConvertedMBoySegments","MooreSegments"};
+    //std::string coll_hist_label[2] = {"MuBoy","Moore"};
+    std::string coll_dir_label[1] = {"MuonSegments"};
+    std::string coll_hist_label[1] = {"Muon"};
 
     f->cd("/");
     TIter next_run ( f->GetListOfKeys() );
@@ -56,7 +58,7 @@ namespace dqutils {
       run_number=run_number;
 
       for(std::size_t iec = 0; iec < 2; iec++){
-        for(std::size_t icoll = 0; icoll < 2; icoll++){
+        for(std::size_t icoll = 0; icoll < 1; icoll++){
 
           TString csc_dir = run_dir + "/Muon/MuonSegmentMonitoring/EndCap" + endc_label[iec];
 
