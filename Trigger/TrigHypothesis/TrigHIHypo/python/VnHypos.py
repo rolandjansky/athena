@@ -18,16 +18,16 @@ class VnMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins = 100, xmin=0.0, xmax=8.5*TeV)]
 
 
-        self.Histograms += [ defineHistogram('icent',
-                                             type='TH1F',
-                                             title="Centrality bin if checked events;centrality[%]",
-                                             xbins = 101, xmin=-0.5, xmax=100.5)]
+        # self.Histograms += [ defineHistogram('icent',
+        #                                      type='TH1F',
+        #                                      title="Centrality bin if checked events;centrality[%]",
+        #                                      xbins = 101, xmin=-0.5, xmax=100.5)]
 
 
-        self.Histograms += [ defineHistogram('icentPassing',
-                                             type='TH1F',
-                                             title="Centrality bin of passing events;centrality[%]",
-                                             xbins = 101, xmin=-0.5, xmax=100.5)]
+        # self.Histograms += [ defineHistogram('icentPassing',
+        #                                      type='TH1F',
+        #                                      title="Centrality bin of passing events;centrality[%]",
+        #                                      xbins = 101, xmin=-0.5, xmax=100.5)]
 
 
         self.Histograms += [ defineHistogram('q',
@@ -41,18 +41,18 @@ class VnMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins = 50, xmin=0.0, xmax=0.25)]
         
 
-        self.Histograms += [ defineHistogram('qPassing, icentPassing',
+        self.Histograms += [ defineHistogram('TotalEt, decision',
                                              type='TH2F',
-                                             title="q%d vs centrality of passing events" % harmonic,
-                                             xbins=50, xmin=0.0, xmax=0.25,
-                                             ybins=101, ymin=-0.5, ymax=100.5) ]
+                                             title="(all row 0) (passing row 1); FCal Et",
+                                             xbins = 100, xmin=0.0, xmax=8.5*TeV,
+                                             ybins=2, ymin=-0.5, ymax=1.5) ]
 
 class VnBootstrap(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="VnBootstrap", harmonic=1):
         super(VnBootstrap, self).__init__(name)
         self.defineTarget(['Online', 'Validation'])
 
-        self.Histograms += [ defineHistogram('q, TotalEt',
+        self.Histograms += [ defineHistogram('TotalEt, q',
                                              type='TH2F',
                                              title="q%d vs Fcal of all events" % harmonic,
                                              xbins=200, xmin=0.0, xmax=8.5*TeV,
@@ -91,16 +91,16 @@ class V2Hypo(VnHypo):
         super( VnHypo, self ).__init__( name )
         self.FlowHarmonic = 2
         self.CentralityBins=_EtCuts
-        self.QxShifts = [0]*len(_EtCuts)
-        self.QyShifts = [0]*len(_EtCuts)
+        self.QxShifts = [-0.0018]*len(_EtCuts)
+        self.QyShifts = [0.00235]*len(_EtCuts)
         self.AthenaMonTools += [VnMonitoring(name="VnMonitoring", harmonic=self.FlowHarmonic)]
         
 V2_th16 = V2Hypo("V2_th16")
 V2_th16.AthenaMonTools += [QZeroMonitoring(name="QZeroMonitoring", harmonic=2, qmax=2), VnBootstrap(name="V2Bootstrap", harmonic=2)]
 V2_th16.CentralityBins=[-0.5]
 V2_th16.QThresholds=[1e3]
-V2_th16.QxShifts=[0]
-V2_th16.QyShifts=[0]
+V2_th16.QxShifts=[-0.0018]
+V2_th16.QyShifts=[0.00235]
 
 
 V2_th15 = V2Hypo("V2_th15")            
@@ -180,15 +180,15 @@ class V3Hypo(VnHypo):
         super( VnHypo, self ).__init__( name )
         self.FlowHarmonic = 3
         self.CentralityBins = _EtCuts
-        self.QxShifts = [0]*len(_EtCuts)
-        self.QyShifts =  [0]*len(_EtCuts)
+        self.QxShifts = [-0.00265]*len(_EtCuts)
+        self.QyShifts =  [0.00063]*len(_EtCuts)
         self.AthenaMonTools += [VnMonitoring(name="VnMonitoring", harmonic=self.FlowHarmonic)]
         
 V3_th16 =V3Hypo("V3_th16")
-V3_th16.QyShifts=[0]
 V3_th16.CentralityBins=[-0.5]
 V3_th16.QThresholds=[1e3]
-V3_th16.QxShifts=[0]
+V3_th16.QxShifts=[-0.00265]
+V3_th16.QyShifts=[0.00063]
 
 V3_th16.AthenaMonTools += [QZeroMonitoring(name="QZeroMonitoring", harmonic=3, qmax=2), VnBootstrap(name="V2Bootstrap", harmonic=3)]
 
