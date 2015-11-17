@@ -12,44 +12,39 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # EventStorage Input
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
 
-ByteStreamInputSvc.FullFileName = \
-["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
-#["/tmp/leite/test_map/data_test.00146536.calibration_map.daq.RAW._lb0000._ROSEventBuilder._0001.data"]
-#["/castor/cern.ch/grid/atlas/DAQ/2009/00115405/physics_ZDCStream/" + \
-#"data09_cos.00115405.physics_ZDCStream.daq.RAW._lb0000._SFO-1._0064.data"]
-
-#include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
+#ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
+#ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/standalone/data15_calib.00283741.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"]
+ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/det-zdc/ZdcData/calib/data15_calib.00285911.calibration_.daq.RAW._lb0000._ROS-FWD-ZDC-00._0001.data"]
 
 from AthenaCommon.GlobalFlags import GlobalFlags
-#GlobalFlags.InputFormat.set_bytestream()
+GlobalFlags.InputFormat = "bytestream"
 
 
 from AthenaCommon.JobProperties import jobproperties
-#jobproperties.Global.DetDescrVersion="ATLAS-CSC-01-02-00"
-#jobproperties.Global.DetDescrVersion="ATLAS-CSC-02-00-00"
+jobproperties.Global.DetDescrVersion="ATLAS-GEO-18-01-01"
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
-# Read LArRawChannel
-#include( "LArByteStream/ReadLArBS_jobOptions.py" )
-
 from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
 svcMgr += ByteStreamAddressProviderSvc()
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ZdcDigitsCollection"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/ZdcTriggerTowers"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/ZdcTriggerTowersAux."]
 
 # ToolSvc.LArRodDecoder.Print=true;
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
-ByteStreamCnvSvc.InitCnvs += [  "ZdcDigitsCollection"]
+ByteStreamCnvSvc.InitCnvs += [  "xAOD::TriggerTowerContainer"]
+ByteStreamCnvSvc.InitCnvs += [  "xAOD::TriggerTowerAuxContainer"]
 
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
-from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTool
-from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTester
+from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamReadV1V2Tool
+from ZdcRec.ZdcRecConf import ZdcRecChannelToolV2
 
 ToolSvc=Service("ToolSvc")
-ToolSvc += ZdcByteStreamTool("ZdcByteStreamTool")
+ToolSvc += ZdcByteStreamReadV1V2Tool("ZdcByteStreamReadV1V2Tool")
 theApp.Dlls += ["ZdcByteStream"]
+theApp.Dlls += ["ZdcRec"]
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
@@ -59,7 +54,7 @@ MessageSvc.OutputLevel      = 2
 # Event related parameters
 #--------------------------------------------------------------
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 1000
+theApp.EvtMax = 10
 #--------------------------------------------------------------
 # Algorithms Private Options
 #--------------------------------------------------------------
@@ -70,9 +65,14 @@ theApp.EvtMax = 1000
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=2
 
-theApp.TopAlg+=["ZdcByteStreamTester"]
-ZdcByteStreamTester=Algorithm("ZdcByteStreamTester")
-#ZdcByteStreamTester.ZdcDigitsCollectionLocation = "ZdcDigitsCollection"
+
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
+
+from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamRawDataV2
+job += ZdcByteStreamRawDataV2("ZdcByteStreamRawData2")
+from ZdcRec.ZdcModuleGetter import ZdcModuleGetter
+ZdcModuleGetter()
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

@@ -37,6 +37,7 @@ class IROBDataProviderSvc;
 class ISvcLocator;
 class StatusCode;
 class ZdcByteStreamTool;
+class ZdcByteStreamReadV1V2Tool;
 
 // Abstract factory to create the converter
 template <typename > class CnvFactory;
@@ -59,7 +60,7 @@ public:
 
 	virtual StatusCode initialize();
 	virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
-	virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+	//virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
 	/// Storage type and class ID
 	virtual long repSvcType() const
@@ -77,7 +78,8 @@ private:
 	std::string m_name;
 
 	/// Tool that does the actual work
-	ToolHandle<ZdcByteStreamTool> m_tool;
+	//ToolHandle<ZdcByteStreamTool> m_tool; // old style
+	ToolHandle<ZdcByteStreamReadV1V2Tool> m_tool; // new style
 
 	/// Service for READING bytestream
 	ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
