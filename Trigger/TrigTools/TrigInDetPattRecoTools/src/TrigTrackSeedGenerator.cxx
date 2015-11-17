@@ -11,6 +11,7 @@
 #include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 #include "IRegionSelector/IRoiDescriptor.h"
+#include "IRegionSelector/RoiUtil.h"
 
 TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& tcs) 
   : m_settings(tcs), 
@@ -152,7 +153,8 @@ void TrigTrackSeedGenerator::createSeeds() {
               }
               double z0  = zm - rm*tau;
               if (m_settings.m_doubletFilterRZ) {
-                if (!m_settings.roiDescriptor->contains(z0, tau)) {
+		//                if (!m_settings.roiDescriptor->contains(z0, tau)) {
+                if (!RoiUtil::contains( *(m_settings.roiDescriptor), z0, tau)) {
                   continue;
                 }
               }
@@ -200,7 +202,8 @@ void TrigTrackSeedGenerator::createSeeds() {
               double z0  = zm - rm*tau;
 
               if (m_settings.m_doubletFilterRZ) {
-                if (!m_settings.roiDescriptor->contains(z0, tau)) {
+		//                if (!m_settings.roiDescriptor->contains(z0, tau)) {
+                if (!RoiUtil::contains( *(m_settings.roiDescriptor), z0, tau)) {
                   continue;
                 }
               }
@@ -377,7 +380,8 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
         const double uc = 2*B*pS_r - A;
         const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
 
-        if(!m_settings.roiDescriptor->containsPhi(phi0)) {
+        // if(!m_settings.roiDescriptor->containsPhi(phi0)) {
+	if ( !RoiUtil::containsPhi( *(m_settings.roiDescriptor), phi0 ) ) {
           continue;
         }
       }
