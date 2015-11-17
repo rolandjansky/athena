@@ -11,8 +11,7 @@
 using namespace Trig;
 
 DecisionObjectHandleEventInfo::DecisionObjectHandleEventInfo( StoreGateSvc* sg, const std::string& key )
-  : asg::AsgMessaging("DecisionObjectHandleEventInfo"), 
-    m_sg(sg),
+  : m_sg(sg),
     m_key(key),
     m_object(nullptr)
 {

@@ -7,8 +7,6 @@
 // Trigger include(s):
 #include "TrigNavStructure/TrigNavStructure.h"
 
-#include "TrigNavigation/NavigationCore.h"
-
 #define private public
 #   include "TrigSteeringEvent/Lvl1Item.h"
 #undef private
@@ -18,6 +16,10 @@
 // Local include(s):
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
+
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#include "TrigNavigation/NavigationCore.h"
+#endif
 
 namespace {
 
@@ -40,8 +42,8 @@ namespace Trig {
   DecisionUnpackerStandalone::
   DecisionUnpackerStandalone( EventPtr_t sg, const std::string& deckey,
 			      const std::string& navikey)
-    : asg::AsgMessaging("DecisionUnpackerStandalone"), m_handle( new DecisionObjectHandleStandalone( sg, deckey, navikey ) ) {
-    
+    : m_handle( new DecisionObjectHandleStandalone( sg, deckey, navikey ) )
+  {
   }
   
   DecisionUnpackerStandalone::~DecisionUnpackerStandalone() {
@@ -107,6 +109,8 @@ namespace Trig {
          ATH_MSG_WARNING( "Unpacking  of EF/HLT chains failed" );
       }
 
+      this->unpacked_decision(true);
+
       return StatusCode::SUCCESS;
    }
 
@@ -135,6 +139,9 @@ namespace Trig {
                      << serializedNav->serialized().size() );
 
       
+      bool navi_nonempty = !(serializedNav->serialized().empty());
+
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
       HLT::NavigationCore* fullNav = dynamic_cast<HLT::NavigationCore*>(nav);
       
       if(!fullNav){
@@ -142,16 +149,19 @@ namespace Trig {
       }
       
       fullNav->reset();
+      bool unpacking_status = navi_nonempty && fullNav->deserialize( serializedNav->serialized() ) ;
+#else
+      nav->reset();
+      bool unpacking_status = navi_nonempty && nav->deserialize( serializedNav->serialized() ) ;
+#endif
 
-
-      bool unpacking_status =
-         ( ( ! serializedNav->serialized().empty() ) &&
-           fullNav->deserialize( serializedNav->serialized() ) );
       if ( ! unpacking_status ) {
          ATH_MSG_WARNING( "Navigation unpacking failed" );
       } else {
          ATH_MSG_DEBUG( "Unpacked Navigation" );
       }
+
+      this->unpacked_navigation(true);
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -175,15 +185,15 @@ namespace Trig {
    }
 
    void DecisionUnpackerStandalone::validate_handle(){
-
       m_handle->validate();
       return;
    }
 
    void DecisionUnpackerStandalone::invalidate_handle(){
-
       ATH_MSG_VERBOSE("invalidating handle");
       m_handle->reset();
+      this->unpacked_decision(false);
+      this->unpacked_navigation(false);
       return;
    }
 

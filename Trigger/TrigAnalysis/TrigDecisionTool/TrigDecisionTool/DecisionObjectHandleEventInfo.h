@@ -4,31 +4,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+//only show this header in full Athena
+#ifndef XAOD_ANALYSIS
+
 #ifndef TrigDecisionTool_DecisionObjectHandleEventInfo_h
 #define TrigDecisionTool_DecisionObjectHandleEventInfo_h
 
 #include <string>
 #include "AsgTools/AsgToolsConf.h"
-#ifdef ASGTOOL_ATHENA
 #include "StoreGate/DataHandle.h"
-#else
-template<typename T> struct DataHandle{};
-#endif
 
-
+#include "TrigDecisionTool/EventPtrDef.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/DecisionObjectHandle.h"
-
-
+#include "EventInfo/EventInfo.h"
+#include "AsgTools/AsgMessaging.h"
 
 class TriggerInfo;
 class EventInfo;
-#if defined(ASGTOOL_ATHENA) and !defined(XAOD_ANALYSIS)
-#include "EventInfo/EventInfo.h"
-#endif
-
-#include "AsgTools/AsgMessaging.h"
-
 class StoreGateSvc;
 
 namespace Trig {
@@ -36,11 +30,11 @@ namespace Trig {
    * @brief Decision invalidator for EventInfo (really doing the job)
    **/
   class DecisionObjectHandleEventInfo : public DecisionObjectHandle<TriggerInfo,void>, 
-					public DataHandle<EventInfo>,
-					public asg::AsgMessaging
+					public DataHandle<EventInfo>
   {
   public:
-    DecisionObjectHandleEventInfo( StoreGateSvc* sg, const std::string& key );
+    DecisionObjectHandleEventInfo( EventPtr_t sg, const std::string& key );
+    using DataHandle<EventInfo>::reset;
     virtual void reset();
     virtual TriggerInfo const * getDecision() const;
     virtual void const * getNavigation() const; 
@@ -52,3 +46,5 @@ namespace Trig {
 }
 
 #endif // TrigDecisionTool_DecisionObjectHandleEventInfo_h
+
+#endif //ifndef XAOD_ANALYSIS

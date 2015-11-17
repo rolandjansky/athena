@@ -70,9 +70,9 @@ void Trig::FeatureContainer::append(const FeatureContainer& other)
 }
 
 
-HLT::NavigationCore*
+HLT::TrigNavStructure*
 Trig::FeatureContainer::navigation() const {
-  return const_cast<HLT::NavigationCore*>(m_cgm->navigation());
+  return const_cast<HLT::TrigNavStructure*>(m_cgm->navigation());
 }
 
 
@@ -112,4 +112,37 @@ Trig::FeatureContainer::ordering_by_objects_attached2::weakOrder(const HLT::Trig
      return a_f.getCLID() < b_f.getCLID();
   }
   return false;
+}
+
+//this is a helper method to weakly order feature access helpers.
+class order_by_clid_and_index {
+public:
+  bool operator()(const Trig::TypelessFeature& a,const Trig::TypelessFeature& b){
+    if ( a.accessHelper().getCLID() == b.accessHelper().getCLID()) {
+      return a.accessHelper().getIndex() < b.accessHelper().getIndex();
+    }
+    return a.accessHelper().getCLID() < b.accessHelper().getCLID();
+  }
+    };
+
+
+const std::vector<Trig::TypelessFeature> Trig::FeatureContainer::typelessGet(HLT::class_id_type clid, const std::string& label, unsigned int condition, const std::string& teName) const {
+  if ( condition != TrigDefs::Physics && condition != TrigDefs::alsoDeactivateTEs ) {
+    throw std::runtime_error("Only two flags can be supplied to features");
+  }
+  // uniquify combinations first
+  getCombinations();
+
+  std::set<Trig::TypelessFeature,::order_by_clid_and_index> uniqnessHelper;
+  for(auto& comb :   m_combinations ) {
+    if (condition == TrigDefs::Physics) {
+      if (!comb.active()) continue;
+    }
+
+    std::vector<Trig::TypelessFeature> features = comb.typelessGet(clid, label, condition, teName);
+    for(auto& f : features) {      
+      uniqnessHelper.insert(f);
+    }
+  }
+  return std::vector<Trig::TypelessFeature>(uniqnessHelper.begin(), uniqnessHelper.end());
 }

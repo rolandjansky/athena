@@ -2,6 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AsgTools/AsgToolsConf.h"
+//only in full Athena
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+
+
+
 #ifndef XAOD_ANALYSIS
 //there is no better way????
 #define private public
@@ -16,7 +22,7 @@
 #include "TrigNavigation/NavigationCore.h"
 
 namespace Trig {
-  DecisionUnpackerAthena::DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key): asg::AsgMessaging("DecisionUnpackerAthena"), m_handle(new DecisionObjectHandleAthena(sg,key)){
+  DecisionUnpackerAthena::DecisionUnpackerAthena(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleAthena(sg,key)){
   }
 
   DecisionUnpackerAthena::~DecisionUnpackerAthena(){
@@ -121,6 +127,8 @@ namespace Trig {
     }
   
   
+    this->unpacked_decision(true);
+
     return StatusCode::SUCCESS;
   }
 
@@ -158,6 +166,8 @@ namespace Trig {
 	ATH_MSG_DEBUG("Unpacked Navigation ");  
       } 
     }
+    this->unpacked_navigation(true);
+
     return StatusCode::SUCCESS;
   }
 
@@ -181,6 +191,10 @@ namespace Trig {
   }
   void DecisionUnpackerAthena::invalidate_handle(){
     m_handle->invalidate();
+    this->unpacked_navigation(false);
+    this->unpacked_decision(false);
   }
 }
 #endif
+
+#endif // full Athena env

@@ -36,7 +36,7 @@ bool get32BitDecision( unsigned int index,
 
 
 namespace Trig {
-  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key) :  asg::AsgMessaging("DecisionUnpackerEventInfo"), m_handle(new DecisionObjectHandleEventInfo(sg,key)){
+  DecisionUnpackerEventInfo::DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key) : m_handle(new DecisionObjectHandleEventInfo(sg,key)){
   }
 
   DecisionUnpackerEventInfo::~DecisionUnpackerEventInfo(){
@@ -118,7 +118,7 @@ namespace Trig {
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& l2chainsCache,
 						    std::map<std::string, const HLT::Chain*>& efchainsByName,
 						    std::map<CHAIN_COUNTER, HLT::Chain*>& efchainsCache,
-						    char& bgCode,
+                                                    char& /*bgCode*/,
 						    bool unpackHLT
 						    ){
     
@@ -157,16 +157,14 @@ namespace Trig {
       ATH_MSG_WARNING("Unpacking  of EF/HLT chains failed");    
     }
     
-    
+    this->unpacked_decision(true);
+
     return StatusCode::SUCCESS;
   }
 
-  StatusCode DecisionUnpackerEventInfo::unpackNavigation(HLT::TrigNavStructure* nav){
-    static bool infoPrinted = false;
-    if( ! infoPrinted ) {
-      ATH_MSG_INFO( "This is the EventInfo Unpacker, there is no Navigation available." );
-      infoPrinted = true;
-    }
+  StatusCode DecisionUnpackerEventInfo::unpackNavigation(HLT::TrigNavStructure* /*nav*/){
+    ATH_MSG_ERROR("This is the EventInfo Unpacker, there is no Navigation available.");
+    this->unpacked_navigation(true);
     return StatusCode::SUCCESS;
   }
 
@@ -191,6 +189,8 @@ namespace Trig {
   }
   void DecisionUnpackerEventInfo::invalidate_handle(){
     m_handle->invalidate();
+    this->unpacked_navigation(false);
+    this->unpacked_decision(false);
   }
 }
 #endif

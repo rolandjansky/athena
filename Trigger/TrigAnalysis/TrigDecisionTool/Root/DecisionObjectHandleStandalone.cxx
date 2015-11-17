@@ -21,7 +21,7 @@ namespace Trig {
    DecisionObjectHandleStandalone::
    DecisionObjectHandleStandalone( EventPtr_t sg, const std::string& deckey,
                                    const std::string& navikey )
-     : asg::AsgMessaging("DecisionObjectHandleStandalone"), m_sg( sg ), m_deckey( deckey ), m_navikey( navikey ),
+     : m_sg( sg ), m_deckey( deckey ), m_navikey( navikey ),
      m_decision( 0 ), m_navigation( 0 ) {
 
    }

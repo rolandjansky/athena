@@ -2,7 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// g++ -I../../TrigDecisionTool ChainGroup_test.cxx ../src/*.cxx
+#include "AsgTools/AsgToolsConf.h"
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
 
 #include <iostream>
 #include <boost/assign/std/vector.hpp>
@@ -59,3 +60,7 @@ int main() {
   std::cout << DA.isPassed(*foo, TrigDefs::ignoreIOV) << std::endl;
 
 }
+#else
+int main() {
+}
+#endif // full Athena env

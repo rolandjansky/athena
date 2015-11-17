@@ -20,19 +20,7 @@
 #include <string>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "AnalysisTriggerEvent/Muon_ROI.h"
-#include "AnalysisTriggerEvent/EmTau_ROI.h"
-#include "AnalysisTriggerEvent/Jet_ROI.h"
-#include "AnalysisTriggerEvent/JetET_ROI.h"
-#include "AnalysisTriggerEvent/EnergySum_ROI.h"
-#include "AnalysisTriggerEvent/LVL1_ROI.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-
-#include "GaudiKernel/MsgStream.h"
-#include "TrigNavigation/NavigationCore.h"
-#include "TrigNavigation/TriggerElement.h"
-#include "TrigDecisionEvent/TrigDecision.h"
+#include "TrigNavStructure/TriggerElement.h"
 #include "TrigDecisionTool/Logger.h"
 #include "TrigDecisionTool/Conditions.h"
 #include "TrigDecisionTool/Combination.h"
@@ -41,6 +29,10 @@
 #include "TrigDecisionTool/ChainGroup.h"
 
 #include "TrigDecisionTool/Logger.h"
+
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+#include "TrigNavigation/NavigationCore.h"
+#endif
 
 namespace HLT {
   class Chain;
@@ -98,8 +90,11 @@ namespace Trig {
     /**
      * @brief return HLT::NavigationCore
      **/
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
     const HLT::NavigationCore* getNavigation() const;
-
+#else
+    const HLT::TrigNavStructure* getNavigation() const;
+#endif
 
     /**
      * Returns true if HLT result is truncated. This refers only to L2 for the time beeing.

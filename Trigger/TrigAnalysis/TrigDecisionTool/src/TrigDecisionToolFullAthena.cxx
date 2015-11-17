@@ -10,8 +10,13 @@
  * @brief main tool
  *
  * @author Michael Begel  <michael.begel@cern.ch> - Brookhaven National Laboratory
+ * @author Lukas Heinrich <lukas.heinrich@cern.ch> - NYU
  *
  ***********************************************************************************/
+#include "AsgTools/AsgToolsConf.h"
+//only in full Athena
+#if defined(ASGTOOL_ATHENA) && !defined(XAOD_ANALYSIS)
+
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -25,9 +30,12 @@
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
+#include "TrigDecisionTool/DecisionUnpackerEventInfo.h"
 
 
-#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigDecisionTool/TrigDecisionToolFullAthena.h"
+
+
 
 
 static std::vector<std::string> s_instances;
@@ -36,9 +44,7 @@ static std::vector<std::string> s_instances;
 Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name, const std::string& type,
                                          const IInterface* parent) :
    AthAlgTool(name, type, parent),
-   TrigDecisionToolCore(name),
    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-   m_store("StoreGateSvc", name),
    m_navigation("HLT::Navigation/Navigation", this)
 {
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger Config Service");
@@ -46,11 +52,21 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name, const std::str
    declareProperty( "Navigation", m_navigation, "HLT Navigation tool");
    declareProperty( "PublicChainGroups", m_publicChainGroups, "Pre-created chain groups");
    declareProperty( "UseAODDecision", m_useAODDecision = false );
-   declareProperty( "EvtStore", m_store );
+   declareProperty( "UseEventInfoDecision", m_useEventInfoDecision = false );
 
+   this->outputLevelProperty().declareUpdateHandler(&Trig::TrigDecisionTool::outputlevelupdateHandler, this );
+   Logger::setMessaging(this);
    declareInterface<Trig::TrigDecisionTool>(this);
    declareInterface<Trig::ITrigDecisionTool>(this);
 }
+
+#ifdef ASGTOOL_ATHENA
+void Trig::TrigDecisionTool::outputlevelupdateHandler(Property& p) {
+   //call the original update handler
+   this->msg_update_handler(p);
+   Logger::msg().setLevel(AthMessaging::msg().level());
+}
+#endif
 
 Trig::TrigDecisionTool::~TrigDecisionTool() {}
 
@@ -58,32 +74,23 @@ StatusCode
 Trig::TrigDecisionTool::initialize() {
    TrigDecisionToolCore::initialize().ignore();
 
-    
-   Trig::Logger::updateMsgStream(new MsgStream( msgSvc(), name()));   
-
    s_instances.push_back(name());
    if ( s_instances.size() > 1 ) {
-      log() << MSG::WARNING << "Several TrigDecisionTool instances: " << s_instances << endreq;
-      log() << MSG::WARNING << "This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." << endreq;      
+     ATH_MSG_WARNING("Several TrigDecisionTool instances" );
+     ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );      
    }
 
-   if (msgLvl(MSG::INFO))
-      log() << MSG::INFO << "Initializing Trig::TrigDecisionTool" << endreq;
+   ATH_MSG_INFO("Initializing Trig::TrigDecisionTool");
   
    if (setProperties().isFailure() ) {
-      log() << MSG::ERROR << "setting properties" << endreq;
-      return StatusCode::FAILURE;
-   }
-
-   if ( m_store.retrieve().isFailure() ) {
-      log() << MSG::ERROR << "retrieving StoreGateSvc" << endreq;
-      return StatusCode::FAILURE;
+     ATH_MSG_ERROR(" error whil setting properties");
+     return StatusCode::FAILURE;
    }
 
    StatusCode sc = m_configSvc.retrieve();
    if ( sc.isFailure() ) {
-      log() << MSG::FATAL << "Unable to get pointer to TrigConfigSvc" << endreq;
-      return sc;
+     ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");
+     return sc;
    }
    // call update if there is anything in config svc
    if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
@@ -92,33 +99,30 @@ Trig::TrigDecisionTool::initialize() {
 
    sc = m_navigation.retrieve();
    if ( sc.isFailure() ) {
-      log() << MSG::FATAL << "Unable to get Navigation tool" << endreq;
-      return sc;
+     ATH_MSG_FATAL( "Unable to get Navigation tool");
+     return sc;
    }
    cgm()->navigation(&*m_navigation);
    cgm()->setStore(&*evtStore());
-   cgm()->setDecisionKey(m_decisionKey);
 
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
    if (incSvc.retrieve().isFailure()) {
-      log() << MSG::WARNING << "Cannot retrieve IncidentSvc" << endreq;
-      return StatusCode::FAILURE;
+     ATH_MSG_ERROR("Cannot retrieve IncidentSvc");
+     return StatusCode::FAILURE;
    }
 
    long int pri=100;
    incSvc->addListener( this, "TrigConf", pri );
    incSvc->addListener( this, "BeginEvent", pri );
 
-   if (msgLvl(MSG::INFO))
-      log() << MSG::INFO << "Initialized TDT" << endreq;
+   ATH_MSG_INFO("Initialized TDT" );
 
    std::map<std::string, std::string>::const_iterator pIt;
    for ( pIt = m_publicChainGroups.begin(); pIt != m_publicChainGroups.end(); ++pIt ) {
       std::vector<std::string> patterns;
       patterns.push_back(pIt->second);
       cgm()->createChainGroup(patterns, pIt->first);
-      if (msgLvl(MSG::INFO))
-         log() << MSG::INFO << "created Public Chain Group " << pIt->first << " with pattern: " << pIt->second << endreq;
+      ATH_MSG_INFO("created Public Chain Group " << pIt->first << " with pattern: " << pIt->second );
    }
 
    return StatusCode::SUCCESS;
@@ -143,11 +147,7 @@ Trig::TrigDecisionTool::finalize() {
 void
 Trig::TrigDecisionTool::handle(const Incident& inc) {
    // an update configuration incident triggers the update of the configuration
-   if (msgLvl(MSG::DEBUG))
-      log() << MSG::DEBUG << "got  incident type:" << inc.type()  << " source: " << inc.source() << endreq;
-
-   if (msgLvl(MSG::DEBUG))
-      log() << MSG::DEBUG << "got  incident " << endreq;
+  ATH_MSG_VERBOSE("got  incident type:" << inc.type()  << " source: " << inc.source() );
 
    if ( inc.type()=="TrigConf" ) {
       configurationUpdate( m_configSvc->chainList(), 
@@ -179,3 +179,5 @@ Trig::TrigDecisionTool::isPassedBits( const std::string& chain ) const {
 
    return TrigDecisionToolCore::isPassedBits( chain );
 }
+
+#endif // full AthenaEnv

@@ -25,8 +25,6 @@
 #include "boost/foreach.hpp"
 #include <ext/hash_map>
 
-#include "TrigDecisionEvent/TrigDecision.h"
-
 #include "TrigConfHLTData/HLTChain.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
@@ -40,10 +38,11 @@
 #include "TrigDecisionTool/Logger.h"
 #include "AsgTools/AsgMessaging.h"
 
+
+
 namespace HLT {
   class Chain;
   class TriggerElement;
-  class NavigationCore;
 }
 
 namespace LVL1CTP {
@@ -51,24 +50,14 @@ namespace LVL1CTP {
   class Lvl1Result;
 }
 
-namespace asg {
-  class SgTEvent;
-}
-class StoreGateSvc;
 
-#ifdef ASGTOOL_STANDALONE
-typedef asg::SgTEvent* EventPtr_t;
-#elif defined(ASGTOOL_ATHENA)
-typedef StoreGateSvc*  EventPtr_t;
-#else
-#   error "Wrong environment configuration detected!"
-#endif
+#include "TrigDecisionTool/EventPtrDef.h"
 
 namespace Trig {
 
   class ChainGroup;
 
-  class CacheGlobalMemory : public virtual Logger, public asg::AsgMessaging {
+  class CacheGlobalMemory : public virtual Logger {
 
   using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
   
@@ -108,8 +97,15 @@ namespace Trig {
     const HLT::Chain* chain(const TrigConf::HLTChain& chIt) const;           //!< HLT chain object from given config chain
     const TrigConf::HLTChain* config_chain(const std::string& name) const;   //!< HLT config chain from given name
 
-    const HLT::NavigationCore* navigation() const { return m_navigation; }  //!< gives back pointer to navigation object
-    void navigation(HLT::NavigationCore* nav) { m_navigation = nav; }       //!< sets navigation object pointer
+    const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
+      if(!m_unpacker->unpacked_navigation()){
+	if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
+	  ATH_MSG_WARNING("unpack Navigation failed");;
+	}
+      }
+      return m_navigation; 
+    }
+    void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
     
     std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() {return m_chainGroupsRef;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
@@ -130,16 +126,13 @@ namespace Trig {
 
     void setUnpacker( Trig::IDecisionUnpacker* up ){ m_unpacker = up; }
     Trig::IDecisionUnpacker* unpacker(){ return m_unpacker; }
+    
 
     /// Set the event store to be used by the object
     void setStore( EventPtr_t store ) { m_store = store; }
     /// Get the event store that the object is using
     EventPtr_t store() const { return m_store; }
 
-    /// Set the event store to be used by the object
-    void setDecisionKey( const std::string& key ) { m_decisionKey = key; }
-    /// Get the event store that the object is using
-    std::string decisionKey() const { return m_decisionKey; }
 
     // 
     template<class T>
@@ -165,27 +158,18 @@ namespace Trig {
      **/
     void updateChainGroup(Trig::ChainGroup* chainGroup);
 
-    /**
-     * @brief access to navigation
-     **/
-    HLT::NavigationCore* navigation_feature() const { return m_navigation; }
-
     //
     // Data members
     //
 
     /// Pointer to the event store in use
-    std::string m_decisionKey;
-    
-
-    /// Pointer to the event store in use
     EventPtr_t m_store;
-
+    
     /// Trigger decision unpacker helper
     IDecisionUnpacker* m_unpacker;
 
     // Navigation owned by CGM
-    HLT::NavigationCore* m_navigation;
+    HLT::TrigNavStructure* m_navigation;
     
     // chain groups 
     typedef std::map< std::vector< std::string >, Trig::ChainGroup* >::iterator ChGrIt;
