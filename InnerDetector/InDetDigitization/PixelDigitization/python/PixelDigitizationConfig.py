@@ -169,7 +169,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         # For LVL1Latency, ToTMinCut, ApplyDupli and LowTOTduplication, first component [0] is always for IBL, even for run 1 production.
 	# The order is IBL, BL, L1, L2, EC, DBM
 	# For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
-        LVL1Latency = [16, 255, 255, 255, 255, 16]
+        LVL1Latency = [16, 150, 255, 255, 255, 16]
         kwargs.setdefault("LVL1Latency", LVL1Latency)
         ToTMinCut = [0, 4, 4, 4, 4, 0]
         kwargs.setdefault("ToTMinCut", ToTMinCut)
