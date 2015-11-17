@@ -120,6 +120,9 @@ if tileESDMon:
                                          , jet_JVT_threshold = 0.64
                                          , histoPathBase     = "/Tile/Jet")
 
+        if DQMonFlags.monManDataType == 'heavyioncollisions':
+            ToolSvc.TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
+
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
 
 
