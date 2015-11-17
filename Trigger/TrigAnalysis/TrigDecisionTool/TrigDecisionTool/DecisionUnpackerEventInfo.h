@@ -29,7 +29,7 @@ namespace LVL1CTP{
 namespace Trig{  
   
 
-  class DecisionUnpackerEventInfo : public IDecisionUnpacker, public asg::AsgMessaging { 
+  class DecisionUnpackerEventInfo : public IDecisionUnpacker, public Logger {
   public:
     DecisionUnpackerEventInfo(StoreGateSvc* sg, const std::string& key);
     virtual ~DecisionUnpackerEventInfo();

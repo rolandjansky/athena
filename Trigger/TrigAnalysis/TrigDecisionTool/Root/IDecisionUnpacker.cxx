@@ -4,6 +4,11 @@
 
 #include "TrigDecisionTool/IDecisionUnpacker.h"
 namespace Trig{
+  IDecisionUnpacker::IDecisionUnpacker() :
+    m_unpackedDecision(false), m_unpackedNavigation(false) {
+    
+  }
+
   IDecisionUnpacker::~IDecisionUnpacker(){
   }
 }

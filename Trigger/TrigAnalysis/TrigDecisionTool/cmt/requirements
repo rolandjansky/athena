@@ -7,12 +7,12 @@ author Joerg Stelzer <Joerg.Stelzer@cern.ch>
 use  AtlasPolicy                AtlasPolicy-*
 
 public
-use  DataModel                  DataModel-*                     Control
 use  GaudiInterface             GaudiInterface-*                External
-use  TrigDecisionEvent          TrigDecisionEvent-*             Trigger/TrigEvent
-use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigNavigation"
+
 use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
+use  AthenaKernel               AthenaKernel-*                  Control
 use  StoreGate                  StoreGate-*                     Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
@@ -20,27 +20,31 @@ use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEven
 use  TrigConfHLTData            TrigConfHLTData-*               Trigger/TrigConfiguration
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
 use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
-use  AnalysisTriggerEvent       AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
+#use  AnalysisTriggerEvent       AnalysisTriggerEvent-*          PhysicsAnalysis/AnalysisTrigger
+use_ifndef pplist="XAOD_ANALYSIS" pkg="PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent"
 use  xAODTrigger		xAODTrigger-*			Event/xAOD
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
-use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
+#use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigStorageDefinitions"
+use  TrigNavStructure		TrigNavStructure-*		Trigger/TrigEvent
+use  xAODBase			xAODBase-*			Event/xAOD
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigDecisionEvent"
+use  EventInfo			EventInfo-*			Event
 end_public
 
 private
-use  AthenaKernel               AthenaKernel-*                  Control
+#use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps		AthenaBaseComps-*		Control
-use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
-use  EventInfo                  EventInfo-*                     Event  
 use  CxxUtils                   CxxUtils-*                      Control
-# for the test suites
-use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
-use  TrigNavStructure		TrigNavStructure-*		Trigger/TrigEvent
-
+use  AthContainers              AthContainers-*                 Control
+use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
+#use  TrigMuonEvent              TrigMuonEvent-*                 Trigger/TrigEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigMuonEvent"
 
 end_private
 
 # Build a dual-use library:
-apply_pattern dual_use_library files=*.cxx
+apply_pattern dual_use_library files="../Root/*.cxx ../src/*.cxx"
 
 private 
 
