@@ -7,7 +7,7 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 	   
-#          include "samples/TrigInDetValidation_ttbar_sample1.xml"
+#          include "samples/TrigInDetValidation_bjet_sample0.xml"
 
             <action position="01">
                 <modulename>RttLibraryTools</modulename>

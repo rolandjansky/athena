@@ -82,7 +82,7 @@ tidaAnalysischains += electronAnalysischains
 (muonChainlist, muonAnalysischains) = muonChains(rMC, rID, rFTK)
 tidaAnalysischains += muonAnalysischains
 
-(tauChainlist, tauAnalysischains) = tauChains(rMC, rID, rFTK)
+(tauChainlist, tauAnalysischains) = tauChains(rMC, rID)
 tidaAnalysischains += tauAnalysischains
 
 (bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID)

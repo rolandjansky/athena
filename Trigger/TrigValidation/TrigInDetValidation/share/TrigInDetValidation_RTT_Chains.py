@@ -109,7 +109,7 @@ def muonChains(runMergedChain, doIDNewTracking, doFTK):
 
   return (idTrigChainlist, tidaAnalysischains)
 
-def tauChains(runMergedChain, doIDNewTracking, doFTK):
+def tauChains(runMergedChain, doIDNewTracking):
   idTrigChainlist = []
 
   tidaAnalysischains = ["Truth"]
@@ -137,12 +137,8 @@ def tauChains(runMergedChain, doIDNewTracking, doFTK):
   
   if runMergedChain==True:
     if use_new_tm:
-      idTrigChainlist.append(['tau25_idperf_track', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1]) 
+      idTrigChainlist.append(['tau25_idperf_track', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
       idTrigChainlist.append(['tau25_idperf_tracktwo', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
-      if doFTK:
-        idTrigChainlist.append(['tau25_idperf_FTK', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1]) 
-        idTrigChainlist.append(['tau25_idperf_FTKRefit', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1]) 
-
       tidaAnalysischains.append('HLT_tau25_idperf_track:TrigFastTrackFinder_Tau')
 #      tidaAnalysischains.append('HLT_tau25_idperf_track:InDetTrigParticleCreation_Tau_IDTrig')
       tidaAnalysischains.append('HLT_tau25_idperf_track:InDetTrigTrackingxAODCnv_Tau_FTF')
@@ -152,10 +148,6 @@ def tauChains(runMergedChain, doIDNewTracking, doFTK):
       tidaAnalysischains.append('HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1')
       tidaAnalysischains.append('HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3')
       tidaAnalysischains.append('HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3')
-      tidaAnalysischains.append('HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK')
-      tidaAnalysischains.append('HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_IDTrig')
-      tidaAnalysischains.append('HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit')
-      tidaAnalysischains.append('HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_IDTrig')
 
     else:
       idTrigChainlist.append('tau29_IDTrkNoCut_IDT')
