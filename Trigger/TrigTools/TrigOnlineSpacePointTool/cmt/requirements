@@ -4,6 +4,7 @@ use AtlasPolicy 		AtlasPolicy-*
 use Identifier			Identifier-*	    		DetectorDescription
 use GaudiInterface 		GaudiInterface-* 		External
 use IRegionSelector          	IRegionSelector-*                DetectorDescription
+# use RoiDescriptor               RoiDescriptor-*                 DetectorDescription
 
 use PixelRawDataByteStreamCnv   PixelRawDataByteStreamCnv-*     InnerDetector/InDetEventCnv
 use InDetReadoutGeometry 	InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
@@ -25,7 +26,8 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 
 use TrigSiSpacePointTool        TrigSiSpacePointTool-*          Trigger/TrigTools
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*       Trigger/TrigTools
-use SiClusterizationTool SiClusterizationTool-* InnerDetector/InDetRecTools
+use SiClusterizationTool        SiClusterizationTool-*          InnerDetector/InDetRecTools
+
 
 library TrigOnlineSpacePointTool "*.cxx components/*.cxx"
     

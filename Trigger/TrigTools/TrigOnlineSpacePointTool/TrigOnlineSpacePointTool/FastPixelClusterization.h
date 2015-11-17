@@ -234,9 +234,9 @@ private:
 
   std::vector<InDet::PixelClusterCollection *> m_clusterCollections;
 
-  unsigned int m_last_phi;
+  //unsigned int m_last_phi;
 
-  unsigned int m_last_rz;
+  //unsigned int m_last_rz;
 
   std::list<LocalCoordinate> m_pixelHitList;
   
