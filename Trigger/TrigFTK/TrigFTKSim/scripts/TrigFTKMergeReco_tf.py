@@ -4,7 +4,7 @@
 
 ## FTK Merge + Reco Transform
 #  Merge all FTK regions and reconstruct using the original RDOs
-# @version $Id: TrigFTKSim_tf.py 542398 2013-03-25 16:57:12Z gvolpi $ 
+# @version $Id: TrigFTKSim_tf.py 542398 2013-03-25 16:57:12Z gvolpi $
 
 import sys
 import time
@@ -28,15 +28,14 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from RecJobTransforms.recTransformUtils import addCommonRecTrfArgs
 
-ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--AddCaloDigi', '--DBRelease', '--FTKDoGrid', '--FTKForceAllInput', '--FTKOldFormat', '--FTKRefitMode', '--FTKSetupTag', '--FTKUnmergedInputPath', '--FirstRegion', '--FirstSubreg', '--HWNDiff', '--HitWarrior', '--MergeFromTowers', '--MergeRoads', '--NBanks', '--NSubRegions', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--autoConfiguration', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--digiRndmSvc', '--digiSeedOffset1', '--digiSeedOffset2', '--digiSteeringConf', '--doAllNoise', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--fileValidation', '--geometryVersion', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputDESD_FTKFile', '--inputFileValidation', '--inputHITSFile', '--inputNTUP_FTKFile', '--inputNTUP_FTKTMPFile', '--inputRDOFile', '--jobid', '--loadHWConf_path', '--maxEvents', '--orphanKiller', '--outputDESD_FTKFile', '--outputFileValidation', '--outputNTUP_FTKFile', '--outputNTUP_TRIGFile', '--outputRDOFile', '--outputRDO_FILTFile', '--outputRDO_FTKFile', '--parallelFileValidation', '--pmap_path', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--runNumber', '--samplingFractionDbTag', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--tmpRDO', '--tmpRDO_FILT', '--topOptions', '--trigStream', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--valid']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
-    
+
     msg.info('This is %s' % sys.argv[0])
-        
-    trf = getTransform() 
+
+    trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
@@ -47,22 +46,22 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    
+
     executorSet = set()
-    executorSet.add(athenaExecutor(name = 'FTKSimulationMerge', 
+    executorSet.add(athenaExecutor(name = 'FTKSimulationMerge',
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
                                    inData = ['NTUP_FTKTMP'],
                                    outData = ['NTUP_FTK','RDO_FTK'],))
-    executorSet.add(athenaExecutor(name = 'FTKSimulationRDOMerge', 
+    executorSet.add(athenaExecutor(name = 'FTKSimulationRDOMerge',
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
                                    inData = [('NTUP_FTKTMP','RDO')],
                                    outData = ['RDO_FTK'],))
     executorSet.add(athenaExecutor(name = 'FTKRecoRDOtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD.py',
-                                   substep = 'r2e', inData = [('RDO', 'NTUP_FTK')], outData = ['DESD_FTK'], 
+                                   substep = 'r2e', inData = [('RDO', 'NTUP_FTK')], outData = ['DESD_FTK'],
                                    perfMonFile = 'ntuple_RAWtoESD.pmon.gz',))
 #                                   extraRunargs = {'preInclude': ['TrigFTKSim/FTKReco_jobOptions.py']}))
     executorSet.add(athenaExecutor(name = 'FTKRecoESDtoNTUP', skeletonFile = 'PyJobTransforms/skeleton.ESDtoDPD.py',
-                                   substep = 'e2d', inData = ['DESD_FTK'], outData = ['NTUP_TRIG'], 
+                                   substep = 'e2d', inData = ['DESD_FTK'], outData = ['NTUP_TRIG'],
                                    perfMonFile = 'ntuple_ESDtoDPD.pmon.gz',
                                    ))
 #                                   extraRunargs = {'preInclude': ['TrigFTKSim/FTKReco_jobOptions.py']}))
@@ -84,14 +83,14 @@ def addFTKSimulationArgs(parser):
     parser.defineArgGroup('TrigFTKMerge', 'Fast tracker simulation merge options')
     parser.defineArgGroup('TrigFTKReco', 'Fast tracker reco options')
 
-    parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of pattern banks', group='TrigFTKSim')
-    parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of sub-regions', group='TrigFTKSim')
 
-    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of pmap file', group='TrigFTKSim')
-    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of HW configuration file', group='TrigFTKSim')
     parser.add_argument('--HWNDiff', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior threshold", group='TrigFTKSim')
@@ -100,52 +99,52 @@ def addFTKSimulationArgs(parser):
 
     parser.add_argument('--FTKSetupTag', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Setup the FTK architecture tag, if specific values are also used they have priority', group='TrigFTKSim')
-    
+
     parser.add_argument('--FirstRegion', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='First ID of the region (def: 0)')
     parser.add_argument('--FirstSubreg', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='First ID of the subregions (def: 0)')
-    
+
     # File handling
-    parser.add_argument('--inputNTUP_FTKTMPFile', 
+    parser.add_argument('--inputNTUP_FTKTMPFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftk', treeNames='ftkdata'),
                         help='Set of FTK tracks merged to region level', group='TrigFTKMerge',nargs='+')
-    parser.add_argument('--inputRDOFile', 
+    parser.add_argument('--inputRDOFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='rdo'),
                         help='Input RDO file', group='TrigFTKReco', nargs='+')
-    parser.add_argument('--inputNTUP_FTKFile', 
+    parser.add_argument('--inputNTUP_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftk', treeNames='ftkdata'),
                         help='FTK merged tracks file', group='TrigFTKReco',nargs='+')
-    parser.add_argument('--FTKOldFormat', 
+    parser.add_argument('--FTKOldFormat',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Interprets the NTUP_FTK file as coming from the old standalone simulation', group='TrigFTKReco')
-    parser.add_argument('--inputDESD_FTKFile', 
+    parser.add_argument('--inputDESD_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='ftk'),
                         help='Input FTK ESD file', group='TrigFTKReco', nargs='+')
-    parser.add_argument('--outputNTUP_FTKFile', 
+    parser.add_argument('--outputNTUP_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftk', treeNames='ftkdata'),
                         help='FTK merged tracks file', group='TrigFTKReco')
-    parser.add_argument('--outputDESD_FTKFile', 
+    parser.add_argument('--outputDESD_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='output', runarg=True, type='ftk'),
-                        help='Output FTK ESD file', group='TrigFTKReco')    
-    parser.add_argument('--outputRDO_FTKFile', 
+                        help='Output FTK ESD file', group='TrigFTKReco')
+    parser.add_argument('--outputRDO_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, runarg=True, io='output', type='rdo'),
                         help='RDO with FTK merged tracks file', group='TrigFTKReco')
-        
-    parser.add_argument('--FTKUnmergedInputPath', 
+
+    parser.add_argument('--FTKUnmergedInputPath',
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Unmerged Input file path', group='TrigFTKMerge')
-    parser.add_argument('--FTKForceAllInput', 
+    parser.add_argument('--FTKForceAllInput',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Force all Input files to be present', group='TrigFTKMerge')
-    parser.add_argument('--FTKDoGrid', 
+    parser.add_argument('--FTKDoGrid',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Use the naming for the grid input', group='TrigFTKMerge')
     parser.add_argument('--MergeFromTowers',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="This option can be used to merge NTUP_FTK files produced from a previous partial merging job", group="TrigFTKMerge")
 
-    
+
     parser.add_argument('--FTKRefitMode',
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help="TK refit scheme during the reconstruction", group="TrigFTKReco")

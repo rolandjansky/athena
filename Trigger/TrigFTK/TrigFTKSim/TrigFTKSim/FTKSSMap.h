@@ -144,17 +144,18 @@ public:
    int getSS(const FTKHit &hit) const { return getSSGlobal(hit); } // deprecated, use getSSGlobal()
 
    // methods to encode module and local coordinates to Global SSID 
-   int getSS(const int &, const int &, const int &, const int &,
-	     const double &x) const;
-   int getSS(const int &, const int &, const int &, const int &,
-	     const double &x, const double &y) const;
+   // in these methods, "etaofff" is the eta module in the barrel,
+   //  but encodes the "aside" and "section" information in the endcaps 
+   int getSSx(int plane,int section,int phimod,int etaoff,int x) const;
+   int getSSxy(int plane,int section,int phimod,int etaoff,
+               int localX,int localY) const;
 
    // methods to decode Global SSID to local coordinates
-   void decodeSS(int, const int&, const int&,
-		 int &, int &, int &, int &) const;
-   void decodeSS(int, const int&, const int&,
-		 int &, int &, int &, 
-		 int &, int &, int &) const;
+   void decodeSSx(int SSid,int plane,int &section,
+		 int &phimod,int &localX,int &etaoff) const;
+   void decodeSSxy(int SSid,int plane,int &section,
+                   int &phimod, int &localX, 
+                   int &etaoff,int &localY) const;
 
    // method to decode Tower SSID
    // *NOT* compatible with HWMODEID==2
@@ -163,19 +164,19 @@ public:
    // method to decode Tower SSID
    // compatible with HWMODEID==2
    void decodeSSTowerXY(int ssid,int towerid,int plane,int section,
-                        int &phimod,int &etamod,float &localX, float &localY);
+                        int &phimod,int &etaoff,int &localX, int &localY);
    void decodeSSTowerX(int ssid,int towerid,int plane,int section,
-                       int &phimod,int &etamod,float &localX);
+                       int &phimod,int &etaoff,int &localX);
 
    // method to encode Tower SSID
    // compatible with HWMODEID==2
    int encodeSSTowerXY(int towerid, int plane, int section,
                        int phimod, int etamod, 
-                       float localX,float localY) const;
+                       int localX,int localY) const;
    int encodeSSTowerX(int towerid, int plane, int section,
                       int phimod, int etamod, 
-                      float localX) const;
-  
+                      int localX) const;
+
    // generic, multi-use library function (is there a better place for this?)
    // Gray code input n
    static unsigned int gray_code(unsigned int n, int s=0);

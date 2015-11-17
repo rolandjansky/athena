@@ -29,11 +29,11 @@ using namespace std;
 /** default constructor, clustering options are set to
     default value, the configuration file is expected
     to change these anyway */
-FTK_RegionalRawInput::FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused) :
+FTK_RegionalRawInput::FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused,bool readTruthTracks) :
   FTKDataInput(pmap,pmap_unused),
   m_curfile(0x0),
   m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0), 
-  m_glob_event(0), m_ntruth_tracks(0)
+  m_glob_event(0), m_ntruth_tracks(0),m_readTruthTracks(readTruthTracks),m_truthTracksTree(0)
 {
   m_regional = true;
 }
@@ -42,7 +42,7 @@ FTK_RegionalRawInput::FTK_RegionalRawInput(const FTK_RegionalRawInput& v) :
   FTKDataInput(v),
   m_curfile(v.m_curfile), 
   m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0), 
-  m_glob_event(v.m_glob_event), m_ntruth_tracks(0)
+  m_glob_event(v.m_glob_event), m_ntruth_tracks(0),m_readTruthTracks(v.m_readTruthTracks),m_truthTracksTree(0)
 { 
   m_regional = true;
 }
@@ -210,8 +210,23 @@ int FTK_RegionalRawInput::nextFile()
        if (m_evtinfo) {
           m_evtinfo->SetBranchAddress("RunNumber",&m_run_number);
           m_evtinfo->SetBranchAddress("EventNumber",&m_event_number);
+          m_evtinfo->SetBranchAddress("LB",&m_LB);
+          m_evtinfo->SetBranchAddress("BCID",&m_BCID);
+          m_evtinfo->SetBranchAddress("ExtendedLevel1ID",&m_extendedLevel1ID);
+          m_evtinfo->SetBranchAddress("Level1TriggerType",&m_level1TriggerType);
+          m_evtinfo->SetBranchAddress("Level1TriggerInfo",&m_level1TriggerInfo);
+          m_evtinfo->SetBranchAddress("AverageInteractionsPerCrossing",&m_averageInteractionsPerCrossing);
+          m_evtinfo->SetBranchAddress("ActualInteractionsPerCrossing",&m_actualInteractionsPerCrossing);
        }
        m_evtnum = 0l;
+       if(m_readTruthTracks) {
+          // get and connect the truth tracks tree
+          m_truthTracksTree=dynamic_cast<TTree*>(m_curfile->Get("truthtracks"));
+          if(m_truthTracksTree) {
+             m_truthTracks=0;
+             m_truthTracksTree->SetBranchAddress("TruthTracks",&m_truthTracks);
+          }
+       }
        return 0;
     }
   }
@@ -313,7 +328,13 @@ int FTK_RegionalRawInput::readData() {
      }
      // read the event info
      m_evtinfo->GetEntry(m_evtnum);
-     
+
+     if(m_truthTracksTree) {
+        m_truthTracksTree->GetEntry(m_evtnum);
+        m_truth_track= * m_truthTracks;
+        m_ntruth_tracks=m_truth_track.size();
+     }
+
      m_glob_event += 1;
      m_evtnum += 1;
   } while (m_glob_event < m_firstEventFTK);
@@ -333,4 +354,12 @@ void FTK_RegionalRawInput::bootstrapEvent(const FTK_RegionalRawInput* v) {
   //for_each(m_original_hits.begin(),m_original_hits.end(),mem_fun_ref(&FTKRawHit::resetTruthPointer));
   m_run_number = v->runNumber();
   m_event_number = v->eventNumber();
+  m_averageInteractionsPerCrossing = v->averageInteractionsPerCrossing();
+  m_actualInteractionsPerCrossing = v->actualInteractionsPerCrossing();
+  m_LB = v->LB();
+  m_BCID = v->BCID();
+  m_extendedLevel1ID = v->extendedLevel1ID();
+  m_level1TriggerType = v->extendedLevel1ID();
+  m_level1TriggerInfo = v->level1TriggerInfo();
+
 }

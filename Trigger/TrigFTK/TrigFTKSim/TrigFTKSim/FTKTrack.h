@@ -120,6 +120,8 @@ public:
   // to integer precision used in firmware
   signed long long getAUXCoord(int i) const { return static_cast<signed long long>( floor((m_coord[i]*8.0) + 0.5) ); }
 
+  unsigned int getHwCoord(int i, int dim) const { return m_hits[i].getHwCoord(dim); }
+
   void setBankID(int v) { m_bankID = v; }
   void setRoadID(int v) { m_roadID = v; }
   void setPatternID(int v) { m_patternID = v; }
@@ -169,7 +171,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream&,const FTKTrack&);  
 
-  ClassDef(FTKTrack,17)
+  ClassDef(FTKTrack,18)
 };
 
 #endif // TRIGFTKSIM_FTKTRACK_H

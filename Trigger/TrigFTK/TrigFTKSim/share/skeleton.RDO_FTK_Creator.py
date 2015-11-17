@@ -18,12 +18,12 @@ if hasattr(runArgs,"maxEvents"):
     athenaCommonFlags.EvtMax = runArgs.maxEvents
 else:
     ftkLog.info("Running on all the events")
-    athenaCommonFlags.EvtMax = -1 
+    athenaCommonFlags.EvtMax = -1
 
 if hasattr(runArgs, "skipEvents"):
-  athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)
+    athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)
 elif hasattr(runArgs, "firstEvent"):
-  athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.firstEvent)
+    athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.firstEvent)
 
 inputNTUP_FTKFile = runArgs.inputNTUP_FTKFile
 
@@ -38,12 +38,10 @@ from PyJobTransforms.trfUtils import findFile
 import os.path
 
 FTK_RDO_CreatorAlgo.mergeTrackBName = "FTKMergedTracksStream"
-
 FTK_RDO_CreatorAlgo.mergedTrackPaths = inputNTUP_FTKFile
 
 from RecExConfig.RecFlags import rec
 rec.doCBNT.set_Value_and_Lock(False)
-#rec.doWriteRDO.set_Value_and_Lock(True)
 rec.doAOD.set_Value_and_Lock(False)
 rec.doWriteAOD.set_Value_and_Lock(False)
 rec.doWriteTAG.set_Value_and_Lock(False)
@@ -59,10 +57,7 @@ topSeq+=FTK_RDO_CreatorAlgo
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-
-
 theApp.Dlls += [ "TrigFTKSim" ]
-
 
 #from AthenaCommon.AlgSequence import AlgSequence
 #topSeq = AlgSequence()
@@ -72,7 +67,7 @@ theApp.Dlls += [ "TrigFTKSim" ]
 
 OutName = "RDO.pool.root"
 if hasattr(runArgs, "outputRDO_FTKFile") :
-    OutName = runArgs.outputRDO_FTKFile 
+    OutName = runArgs.outputRDO_FTKFile
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
@@ -80,12 +75,12 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 StreamRDO=MSMgr.GetStream("StreamRDO")
 StreamRDO.SetOutputFileName(OutName)
 StreamRDO.AddMetaDataItem(["IOVMetaDataContainer#*"])
-StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] ) 
+StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] )
 
 #from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
 #StreamRDO = AthenaPoolOutputStream( "StreamRDO", OutName, True)
-#StreamRDO.ItemList+=["FTK_RawTrackContainer#*"] 
+#StreamRDO.ItemList+=["FTK_RawTrackContainer#*"]
 
 #from RecExConfig.ObjKeyStore import objKeyStore
 #objKeyStore.addStreamRDO("FTK_RawTrackContainer","FTK_RDO_Tracks")

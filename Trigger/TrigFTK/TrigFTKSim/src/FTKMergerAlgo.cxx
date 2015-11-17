@@ -777,8 +777,10 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               // If not, Try to find branches named after merging has been done
               //
                  
-              }
-              else{
+              } else if (m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKMergedTracksStream%d",regNum))) {
+                  log << MSG::VERBOSE << "Setting merged branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endreq;
+                 m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKMergedTracksStream%d",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+              } else {
                  log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endreq;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
               }

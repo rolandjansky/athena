@@ -16,11 +16,11 @@
             <chainElement>
               <jobTransform userJobId="RunTower{{"%02d" % tower}}">
                 <jobTransformJobName>FTKSimTower{{"%02d" % tower}}</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents {{max_events}} --inputNTUP_FTKIPFile {{input_ftkip}} --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag {{ftk_setup_tag}} --firstEventFTK 0 --MergeRoads True  --ConstantsDir {{constants_dir}} --FitConstantsVersion {{fit_constants_version}} --PatternsVersion {{patterns_version}} --bankregion {{tower}}</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents {{max_events}} --inputNTUP_FTKIPFile {{input_ftkip}} --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{{"%02d" % tower}} --FTKSetupTag {{ftk_setup_tag}} --firstEventFTK 0 --MergeRoads True  --ConstantsDir {{constants_dir}} --FitConstantsVersion {{fit_constants_version}} --PatternsVersion {{patterns_version}} --bankregion {{tower}}</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <queue>medium</queue>
               </jobTransform> 
-              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+              <chainfileout>tmp.NTUP_FTKTMP_{{"%02d" % tower}}</chainfileout>
             </chainElement>
             {% endfor %}
           </parallel>
@@ -28,12 +28,12 @@
           <chainElement>
             <jobTransform userJobId="MergeTowers">
               <jobTransformJobName>FTKSimMerge</jobTransformJobName>
-              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents {{max_events}} --MergeRoads=True --UberFinalMerge=False --FTKSetupTag TDAQTDRv2 {% for tower in range(0,64) %}--inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} {% endfor %}--outputNTUP_FTKFile=tempout.root --inputNTUP_FTKIPFile={{input_ftkip}}</jobTransformCmd>
+              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents {{max_events}} --MergeRoads=True --UberFinalMerge=False --FTKSetupTag TDAQTDRv2 {% for tower in range(0,64) %}--inputNTUP_FTKTMP_{{"%02d" % tower}}File=tmp.NTUP_FTKTMP_{{"%02d" % tower}} {% endfor %}--outputNTUP_FTKFile=tempout.root --inputNTUP_FTKIPFile={{input_ftkip}}</jobTransformCmd>
               <group>FTKSimValidation</group>
               {% for tower in range(0,64) %}
               <chaindataset_info>
                 <jobTransformData />
-                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <chaindatasetName>tmp.NTUP_FTKTMP_{{"%02d" % tower}}</chaindatasetName>
                 <dataset_info>
                   <jobTransformData />
                   <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower{{"%02d" % tower}}.root</datasetName>
@@ -41,6 +41,50 @@
               </chaindataset_info>
               {% endfor %}
               <queue>medium</queue>
+             
+              <auxFilePattern>efficiency.cc</auxFilePattern>
+              <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
+ 
+              <test>
+                <modulename>RttLibraryTools</modulename>
+                <testname>Dataflow</testname>
+                <outputFile>output.txt</outputFile>
+                <arg>
+                  <argname>macro</argname>
+                  <argvalue>plot_simple_dataflow.C</argvalue>
+                </arg>
+                <arg>
+                  <argname>macroArg</argname>
+                  <argvalue>"tempout.root","-1"</argvalue>
+                </arg>
+                <arg>
+                  <argname>maxRunTime</argname>
+                  <argvalue>1200</argvalue>
+                </arg>
+              </test>
+               
+              <test>
+                <modulename>RttLibraryTools</modulename>
+                <testname>Efficiency</testname>
+                <outputFile>FTKCheckEff.root</outputFile>
+                <arg>
+                  <argname>macro</argname>
+                  <argvalue>efficiency.cc</argvalue>
+                </arg>
+                <arg>
+                  <argname>macroArg</argname>
+                  <argvalue>"--files","tempout.root"</argvalue>
+                </arg>
+                <arg>
+                  <argname>compileTheMacro</argname>
+                  <argvalue>thisValueIsIrrelevant</argvalue>
+                </arg>
+                <arg>
+                  <argname>maxRunTime</argname>
+                  <argvalue>1800</argvalue>
+                </arg>
+              </test>
+              
             </jobTransform>
             <chainfileout>tempout.root</chainfileout>
           </chainElement>
@@ -66,7 +110,7 @@
             <chainElement>
               <jobTransform userJobId="EfficiencyPlots">
                 <jobTransformJobName>EfficiencyPlots</jobTransformJobName>
-                <jobTransformCmd>source $AtlasBaseDir/*/$AtlasVersion/Trigger/TrigFTK/TrigFTKSim/scripts/efficiency_plots_RTT.sh</jobTransformCmd>
+                <jobTransformCmd>echo "Placeholder"</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
@@ -77,13 +121,14 @@
                   </dataset_info>
                 </chaindataset_info>
                 <queue>medium</queue>
+                <auxFilePattern>efficiency.cc</auxFilePattern>
               </jobTransform>
             </chainElement>
 
             <chainElement>
               <jobTransform userJobId="Dataflow">
                 <jobTransformJobName>Dataflow</jobTransformJobName>
-                <jobTransformCmd>root -q -b -l '$AtlasBaseDir/*/$AtlasVersion/Trigger/TrigFTK/TrigFTKSim/standalone/plot_simple_dataflow.C("tempout.root",-1)'</jobTransformCmd>
+                <jobTransformCmd>root -q -b -l 'plot_simple_dataflow.C("tempout.root",-1)'</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
@@ -94,13 +139,14 @@
                   </dataset_info>
                 </chaindataset_info>
                 <queue>medium</queue>
+                <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
               </jobTransform>
-            </chainElement>
-          </parallel>
-        
-        </sequential>
+            </chainElement>         
+        </parallel>
+       </sequential>
       </chain>
     </jobList>
+
     <jobGroups>
        <jobGroup name="FTKSimValidation" parent="Transform">
          <keepFilePattern info="Output Ntuples and plots">.root</keepFilePattern>

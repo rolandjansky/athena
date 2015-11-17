@@ -95,6 +95,9 @@ FTK_CompressedAMBank::FTK_CompressedAMBank
    } else {
       m_TSPmap=0;
    }
+   Info("CompressedAMBank")
+      <<"hwmodeIDtsp="<<m_hwmodeIDtsp
+      <<" hwmodeIDdc="<<m_hwmodeIDdc<<"\n";
 }
 
 void FTK_CompressedAMBank::setNPlanes(int nPlanes) {
@@ -398,7 +401,7 @@ std::vector<int> const &FTK_CompressedAMBank::getTSPssidVector
    method to convert tspSSID (fine geometry)
    to a dcSSID (coarse geometry)
 
-   FIXME: implement other HWModes
+   FIXME: check usage of section
  */
 
 int FTK_CompressedAMBank::getDCssidSlow
@@ -409,64 +412,57 @@ int FTK_CompressedAMBank::getDCssidSlow
       dcSSID = tspSSID;
    } else {
       int phimod=0,etamod=0,section=0;
-      float localX=0,localY=0;
+      int localX=0,localY=0;
       if (getHWModeSS_tsp()==0) {
          // ********* GLOBAL SSID HW Format **********
-         int phioff,etaoff,ilocalX,ilocalY=0;
-         for(
-             section=0;
-             section<getSSMapTSP()->getPlaneMap()->getNSections(layer);
-             section++
-             ) {
-            if (nDim==2) {
-               // PXL case
-               getSSMapTSP()->decodeSS
-                  (tspSSID,layer,0,phioff,phimod,ilocalX,etaoff,etamod,ilocalY);
-            } else {
-               // SCT case
-               getSSMapTSP()->decodeSS
-                  (tspSSID,layer,section,phioff,phimod,ilocalX,etamod);
-            }
-            if(phimod>=0) break;
+         if (nDim==2) {
+            // PXL case
+            getSSMapTSP()->decodeSSxy
+               (tspSSID,layer,section,phimod,localX,etamod,localY);
+         } else {
+            // SCT case
+            getSSMapTSP()->decodeSSx
+               (tspSSID,layer,section,phimod,localX,etamod);
          }
-         localX=ilocalX;
-         localY=ilocalY;
       } else if (getHWModeSS_tsp()==2) {
-          if (nDim==2) {
-             getSSMapTSP()->decodeSSTowerXY(tspSSID,getBankID(),layer,0,
-                                          phimod,etamod,localX,localY);
-          } else {
-             getSSMapTSP()->decodeSSTowerX(tspSSID,getBankID(),layer,0,
-                                           phimod,etamod,localX);
-          }
+         if (nDim==2) {
+            getSSMapTSP()->decodeSSTowerXY(tspSSID,getBankID(),layer,section,
+                                           phimod,etamod,localX,localY);
+         } else {
+            getSSMapTSP()->decodeSSTowerX(tspSSID,getBankID(),layer,section,
+                                          phimod,etamod,localX);
+         }
       } else {
          Fatal("getDCssidSlow")
             <<"hardware mode="<<getHWModeSS_tsp()
             <<" (TSP) not supported\n";
       }
+      if(phimod<0) {
+         Fatal("getDCssidSlow")
+            <<"could not decode TSP-SSID="<<tspSSID
+            <<" layer="<<layer<<" ndim="<<nDim
+            <<"\n";
+      }
       if (getHWModeSS_dc()==0) {
-         for(
-             section=0;
-             section<getSSMap()->getPlaneMap()->getNSections(layer);
-             section++
-             ) {
-            if (nDim==2) {
-               dcSSID=getSSMap()->getSS
-                  (layer,section,phimod,etamod,localX,localY);
-            } else {
-               dcSSID=getSSMap()->getSS
-                  (layer,section,phimod,etamod,localX);
-            }
-            if(dcSSID>=0) break;
+         if (nDim==2) {
+            dcSSID=getSSMap()->getSSxy
+               (layer,section,phimod,etamod,localX,localY);
+         } else {
+            dcSSID=getSSMap()->getSSx
+               (layer,section,phimod,etamod,localX);
          }
-      } else {
+      } else if(getHWModeSS_dc()==2) {
          if (nDim==2) {
             dcSSID=getSSMap()->encodeSSTowerXY
-               (getBankID(),layer,0,phimod,etamod,localX,localY);
+               (getBankID(),layer,section,phimod,etamod,localX,localY);
          } else {
             dcSSID=getSSMap()->encodeSSTowerX
-               (getBankID(),layer,0,phimod,etamod,localX);
+               (getBankID(),layer,section,phimod,etamod,localX);
          }
+      } else {
+         Fatal("getDCssidSlow")
+            <<"hardware mode="<<getHWModeSS_dc()
+            <<" (DC) not supported\n";
       }
       if(dcSSID<0) {
          Info("getDCssidSlow")
@@ -490,7 +486,7 @@ int FTK_CompressedAMBank::getDCssidSlow
    method to convert dcSSID (coarse geometry) plus subSS index
    to a tspSSID (fine geometry)
 
-   FIXME: implement other HWModes
+   FIXME: check usage of section
  */
 int FTK_CompressedAMBank::getTSPssidSlow
 (int layer,int dcSSID,int tspXY) {
@@ -512,64 +508,65 @@ int FTK_CompressedAMBank::getTSPssidSlow
    } else {
       int phimod=0,etamod=0;
       int section=0;
-      float localX=0,localY=0;
+      int localX=0,localY=0;
       if (getHWModeSS_dc()==0) {
          // ********* GLOBAL SSID HW Format **********
-         int phioff,etaoff,ilocalX,ilocalY=0;
-         for(
-             section=0;
-             section<getSSMap()->getPlaneMap()->getNSections(layer);
-             section++
-             ) {
-            if (nDim==2) {
-               // PXL case
-               getSSMap()->decodeSS
-                  (dcSSID,layer,0,phioff,phimod,ilocalX,etaoff,etamod,ilocalY);
-               localY =ilocalY+ iy*etassTSP;
-            } else {
-               // SCT case
-               getSSMap()->decodeSS
-                  (dcSSID,layer,section,phioff,phimod,ilocalX,etamod);
-            }
-            localX =ilocalX+ ix*phissTSP;
-            if(phimod>=0) break;
+         if (nDim==2) {
+            // PXL case
+            getSSMap()->decodeSSxy
+               (dcSSID,layer,section,phimod,localX,etamod,localY);
+            localY += iy*etassTSP;
+         } else {
+            // SCT case
+            getSSMap()->decodeSSx
+               (dcSSID,layer,section,phimod,localX,etamod);
          }
+         localX += ix*phissTSP;
       } else if (getHWModeSS_dc()==2) {
-          if (nDim==2) {
-             getSSMap()->decodeSSTowerXY(dcSSID,getBankID(),layer,0,
-                                         phimod,etamod,localX,localY);
-            localX =localX+ ix*phissTSP;
-            localY =localY+ iy*etassTSP;
-          } else {
-             getSSMap()->decodeSSTowerX(dcSSID,getBankID(),layer,0,
-                                        phimod,etamod,localX);
-            localX =localX+ ix*phissTSP;
-          }
+         if (nDim==2) {
+            getSSMap()->decodeSSTowerXY(dcSSID,getBankID(),layer,section,
+                                        phimod,etamod,localX,localY);
+            localX += ix*phissTSP;
+            localY += iy*etassTSP;
+         } else {
+            getSSMap()->decodeSSTowerX(dcSSID,getBankID(),layer,section,
+                                       phimod,etamod,localX);
+            localX += ix*phissTSP;
+         }
       } else {
          Fatal("getTSPssidSlow")
             <<"hardware mode="<<getHWModeSS_dc()
             <<" (DC) not supported\n";
       }
+      if(phimod<0) {
+         Fatal("getTSPssidSlow")
+            <<"could not decode DC-SSID="<<dcSSID
+            <<" layer="<<layer<<" ndim="<<nDim
+            <<"\n";
+      }
+      /* getSSMap()->LocateSection(layer,phimod,etamod);
+         getSSMapTSP()->LocateSection(layer,phimod,etamod); */
       if (getHWModeSS_tsp()==0) {
-         for(
-             section=0;
-             section<getSSMapTSP()->getPlaneMap()->getNSections(layer);
-             section++
-             ) {
-            if (nDim==2) {
-               tspSSID=getSSMapTSP()->getSS(layer,section,phimod,etamod,localX,localY);
-            } else {
-               tspSSID=getSSMapTSP()->getSS
-                  (layer,section,phimod,etamod,localX);
-            }
-            /* if(dcSSID==90632) {
-               std::cout<<"layer,nDim,phimod,etamod,localX,localY "
-                        <<layer<<" "<<nDim<<" "<<phimod<<" "<<etamod<<" "<<localX<<"\n";
-               std::cout<<"section="<<section<<" tspSSID="<<tspSSID<<"\n";
-               } */
-            if(tspSSID>=0) break;
+         if (nDim==2) {
+            tspSSID=getSSMapTSP()->getSSxy(layer,section,phimod,etamod,
+                                         localX,localY);
+         } else {
+            tspSSID=getSSMapTSP()->getSSx
+               (layer,section,phimod,etamod,localX);
          }
-      } else {
+         /* if(dcSSID==90932) {
+            std::cout<<"layer="<<layer
+                     <<" nDim="<<nDim
+                     <<" phiMod="<<phimod
+                     <<" etaMod="<<etamod
+                     <<" localX="<<localX
+                     <<" localY="<<localY
+                     <<"\n";
+            std::cout<<"section="<<section
+                     <<" bankId="<<getBankID()
+                     <<" tspSSID="<<tspSSID<<"\n";
+                     } */
+      } else if(getHWModeSS_tsp()==2) {
          if (nDim==2) {
             tspSSID=getSSMapTSP()->encodeSSTowerXY
                (getBankID(),layer,section,phimod,etamod,localX,localY);
@@ -577,6 +574,10 @@ int FTK_CompressedAMBank::getTSPssidSlow
             tspSSID=getSSMapTSP()->encodeSSTowerX
                (getBankID(),layer,section,phimod,etamod,localX);
          }
+      } else {
+         Fatal("getTSPssidSlow")
+            <<"hardware mode="<<getHWModeSS_dc()
+            <<" (TSP) not supported\n";
       }
    }
    if(tspSSID<0) {
@@ -2219,17 +2220,17 @@ void FTK_CompressedAMBank::init() {
       int layer=getNPlanes()-1;
       int nDim=m_TSPmap->getDim(layer);
       int tspSSID=(*iSSid).first;
-      int phioff,phimod,ilocalX,etaoff,etamod,ilocalY;
-      float localX,localY;
+      int section,phimod,ilocalX,etamod,ilocalY;
+      int localX,localY;
       if (getHWModeSS_tsp()==0) {
          if (nDim==2) {
             // PXL case
-            getSSMapTSP()->decodeSS
-               (tspSSID,layer,0,phioff,phimod,ilocalX,etaoff,etamod,ilocalY);
+            getSSMapTSP()->decodeSSxy
+               (tspSSID,layer,section,phimod,ilocalX,etamod,ilocalY);
          } else {
             // SCT case
-            getSSMapTSP()->decodeSS
-               (tspSSID,layer,0,phioff,phimod,ilocalX,etamod);
+            getSSMapTSP()->decodeSSx
+               (tspSSID,layer,section,phimod,ilocalX,etamod);
          }
       } else {
          if (nDim==2) {

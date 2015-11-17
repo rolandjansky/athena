@@ -24,18 +24,28 @@ private:
   int m_npatternsTSP; // number of TSP patterns
   int m_TSPMinCoverage; // minimum coverage of the TSP patterns
   int m_setAMSize; // if 1 or 2 the number of patterns to load is at AM level, not TSP level
+
+  // decide splitting strategy for AM patterns with DC bits
+  // default=0: no splitting
+  // >0       : split AM patterns and optimize DC usage
   int m_AMSplit;
 
+  // max number of AM patterns after split, default=-1: no limits
+  int m_maxAMAfterSplit; 
+
+  //minimum threshold for DVol/DNPatt for split; default=0
+  int m_minDVolOverDNPatt;
+  
   int m_DCMatchMethod; // define the was the DC match
 
   FTKSSMap *m_ssmap_tsp; // this SS map describe the detector at TSP level
 
   std::map<int,FTKSS> *m_splitted_ssmap; // maps storing the fired SS after the TSP splitting
+  std::string m_cachepath; // path of the cache file
 
   std::vector<int> m_PatternDBID; // vector of the ID used by a pattern in the DB
 
   bool m_makecache; // if true save the local bank as cache
-  std::string m_cachepath; // path of the cache file
 
 protected:
   virtual void data_organizer();
@@ -82,6 +92,14 @@ public:
 
   void setDCMatchMethod(int v) { m_DCMatchMethod = v; }
   const int& getDCMatchMethod() const { return m_DCMatchMethod; }
+
+  void setMaxAMAfterSplit( int maxAMAfterSplit){ m_maxAMAfterSplit=maxAMAfterSplit; }
+  const int& getMaxAMAfterSplit() const { return m_maxAMAfterSplit; }
+
+  void setMinDVolOverDNPatt(int minDVolOverDNPatt){m_minDVolOverDNPatt = minDVolOverDNPatt;}
+  const int& getMinDVolOverDNPatt() const { return m_minDVolOverDNPatt;}
+
+
 
   virtual const std::list<FTKRoad>& getRoads();
 };

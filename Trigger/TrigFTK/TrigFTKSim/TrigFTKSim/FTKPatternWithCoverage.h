@@ -47,11 +47,14 @@ class FTKRootFileChain;
 class FTKHitPattern {
 public:
    // store hit patterns
+   FTKHitPattern() { }
    FTKHitPattern(int nLayer) : fHits(nLayer) { }
    inline int GetHit(int i) const { return fHits[i]; }
    inline void SetHit(int layer, int data) { fHits[layer]=data; }
    inline int *GetAddress(void) { return &fHits[0]; }
    inline unsigned GetSize(void) const { return fHits.size(); }
+   inline void SetNLayer(int i) {fHits.resize(i);}
+   inline unsigned int GetNLayer() {return fHits.size();}
 protected:
    std::vector<int> fHits;
 };
@@ -59,6 +62,7 @@ protected:
 class FTKPatternWithCoverage {
 public:
    // store hit patterns and coverage
+   FTKPatternWithCoverage() { ;}
    FTKPatternWithCoverage(int nLayer) : fPattern(nLayer) { }
    inline int GetCoverage(void) const { return fCoverage; }
    inline FTKHitPattern const &GetHitPattern(void) const { return fPattern; }
@@ -69,6 +73,8 @@ public:
    inline void SetCoverage(int c) { fCoverage=c; }
    inline void SetHitPattern(FTKHitPattern const &p) { fPattern=p; }
    inline void SetHit(int layer,int data) { fPattern.SetHit(layer,data); }
+   inline void SetNLayer(int i) {fPattern.SetNLayer(i);}
+   inline unsigned int GetNLayer() {return fPattern.GetNLayer();}
 protected:
    FTKHitPattern fPattern;
    int fCoverage;
@@ -106,6 +112,9 @@ public:
       if(a.GetSize()>b.GetSize()) return true;
 #endif
       return false; 
+   }
+   virtual bool operator()(FTKPatternWithCoverage const &a,FTKPatternWithCoverage const &b) const {
+      return operator()(a.GetHitPattern(),b.GetHitPattern());
    }
 };
 

@@ -95,6 +95,7 @@ public:
    Long64_t GetNPatterns(void) const;
    Long64_t GetNPatterns(int sector) const;
    void GetNPatternsByCoverage(std::map<int,int> &coverageMap) const;
+   void GetNPatternsBySectorCoverage(std::map<int,std::map<int,int> >&sectorCoverageMap) const;
 
    int WritePatternsToASCIIstream(std::ostream &out,
                                   int iSub,int nSub); // export as ASCII

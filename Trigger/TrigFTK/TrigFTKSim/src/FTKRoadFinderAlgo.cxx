@@ -44,7 +44,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_scttrk_nlayers(0), m_scttrk_nsubs(0), m_scttrk_lastlayer(0),
   m_useTSPBank(0), m_useCompressedBank(0), 
   m_BankLevel(1), m_doTSPSim(0), m_minTSPCoverage(0),
-  m_setAMSize(0),
+  m_setAMSize(0), m_setAMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0), 
   m_doMakeCache(0), m_CachePath("bankcache.root"),
   m_SaveAllRoads(0),
   m_pmap(0x0), m_pmap_unused(0x0),
@@ -105,6 +105,9 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("DBBankLevel",m_BankLevel,"ID of the bank, if simulation level is 0");
   declareProperty("TSPMinCoverage",m_minTSPCoverage,"Minimum coverage of the TSP patterns");
   declareProperty("SetAMSize",m_setAMSize,"If 1 or 2 the flag in a TSP simulation decide to set the AM size");
+  declareProperty("SetAMSplit",m_setAMSplit,"default=0: use normal DC bits; if >0 optimize DC bits usage");
+  declareProperty("MaxAMAfterSplit", m_maxAMAfterSplit, "max number of AM patterns after split, default=-1: no limits");
+  declareProperty("MinDVolOverDNPatt", m_minDVolOverDNPatt, "minimum threshold for DVol/DNPatt for split; default=0");
   declareProperty("RoadWarrior",m_RoadWarrior);
   declareProperty("MakeCache",m_doMakeCache,"Enable the cache creation for the TSP bank");
   declareProperty("CachePath",m_CachePath,"Path of the cache file");
@@ -259,7 +262,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   else if (m_RegionalWrapper) {
     // the input comes from a wrapper file's format, prepare the standlone like input
     log << MSG::INFO << "Setting FTK_RegionalRawInput as input module" << endreq;
-    FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused);
+    FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused,false);
     if (m_pmap_unused) {
       // enable all the flags used for the 2nd stage fitting
       ftkrawinput->setSaveUnused(true);
@@ -414,6 +417,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       tspbank->setMakeCache(m_doMakeCache);
       tspbank->setCachePath(m_CachePath.c_str());
       tspbank->setAMSize(m_setAMSize);
+      tspbank->setAMSplit(m_setAMSplit);
+      tspbank->setMaxAMAfterSplit(m_maxAMAfterSplit);
+      tspbank->setMinDVolOverDNPatt(m_minDVolOverDNPatt);
       tspbank->setDCMatchMethod(m_DCMatchMethod);
       curbank = tspbank;
     }  else if(m_useCompressedBank) {
@@ -498,7 +504,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       }
     } else if (bankext == string("root") && !m_CachedBank) {
       // use the ROOT routine      
-      if (curbank->readROOTBank(bankpath.c_str(), m_bankpatterns[ib]) < 0) {
+      if (curbank->readROOTBank(bankpath.c_str(), m_bankpatterns[ib]) < 0 ) {
 	// error reading the file
 	delete curbank;
 	return StatusCode::FAILURE;

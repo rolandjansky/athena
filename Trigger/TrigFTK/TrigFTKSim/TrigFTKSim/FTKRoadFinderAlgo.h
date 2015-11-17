@@ -87,6 +87,19 @@ private:
      the pattern bank can stop when the number is reached (1) or untill
      the number is not exceeded (2) */
   int m_setAMSize;
+
+  // decide splitting strategy for AM patterns with DC bits
+  // default=0: no splitting
+  // >0       : split AM patterns and optimize DC usage
+  int m_setAMSplit;
+
+  //max number of AM patterns after split, default=-1: no limits
+  int m_maxAMAfterSplit; 
+
+  //minimum threshold for DVol/DNPatt for split; default=0
+  int m_minDVolOverDNPatt;  
+
+
  // store the variable if the TSP bank cache has to be saved
   bool m_doMakeCache;
   // path of the output file

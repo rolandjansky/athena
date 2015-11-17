@@ -67,9 +67,26 @@ private:
     TH1D *DeltaVolumeOverDeltaPatternCumulativeH;
 
 
+    int countSetBits( UInt_t dc_mask );
+    int clusterDistanceZeroDCmask( pair<UInt_t, UInt_t> &iPair, //
+                                   pair<UInt_t, UInt_t> &jPair, //
+                                   UInt_t &dc_mask);
+    int calculateVolume( UInt_t &dc_mask ); 
+    double calculateDeltaVolumeOverDeltaPatternCumulative( TH1D *histo );
+    int calculateThresholdBins( TH1D* histo );
+    void initHistograms();
+    void prepare_similarityMatrix();
+    double calculateAMCoverage( list<AMSelection>::iterator iAMDCbits );
+    void selectSplitMethod( list<AMSelection>::iterator iAMDCbits, int countDC ); 
+    TH1D* selectHistogram();
+    void printPreliminaryNumbers( int nPatWithDCbits, int nPattWithoutDCbits );
+    void treat_SinglePatternCase( list<AMSelection>::iterator iAMDCbits, int &no );
+    UInt_t calculateDCfromHalfPlaneMask( list<AMSelection>::iterator iAMDCbits );
+
+
 public:
     FTKAMSplit();
-    FTKAMSplit(int);
+    FTKAMSplit(int AMSplit, int maxAMAfterSplit, int minDVolOverDNPatt);
 
     void setDCSplit(int val){ m_DCSplit = val; }
     const int &getDCSplit(){ return m_DCSplit; }

@@ -557,6 +557,7 @@ void TrackFitter::processor(const FTKRoad &road) {
 	 m_nfits++;
 	 if (nmissing>0) m_nfits_maj++;
 
+
 	 /* Do the actual fit - see code in FTKConstantBank::linfit  */
 	 current_bank->linfit(sector,newtrk);
 	 newtrk.setOrigChi2(newtrk.getChi2());
