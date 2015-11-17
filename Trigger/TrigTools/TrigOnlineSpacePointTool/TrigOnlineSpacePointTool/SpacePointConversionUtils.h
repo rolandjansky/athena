@@ -21,8 +21,11 @@ class IdentifierHash;
 class TrigSiSpacePointBase;
 class IRoiDescriptor;
 
-bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi);
-bool roiContainsZed( const IRoiDescriptor& roi, double z, double r);
+/// header for factorised IRoiDescriptor interface
+#include "IRegionSelector/RoiUtil.h"
+
+// bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi);
+// bool roiContainsZed( const IRoiDescriptor& roi, double z, double r);
 
 namespace FTF {//FastTrackFinder
 
@@ -117,10 +120,10 @@ namespace FTF {//FastTrackFinder
       m_roi(roi), m_filter_phi(filter_phi) { }
       virtual void operator()(const Trk::SpacePoint* p) {
         if(m_filter_phi) {
-	  if( roiContains( *m_roi, p->globalPosition().z(), p->globalPosition().perp(), p->globalPosition().phi() ) ) createSpacePoint(p);
+	  if( RoiUtil::contains( *m_roi, p->globalPosition().z(), p->globalPosition().perp(), p->globalPosition().phi() ) ) createSpacePoint(p);
 	}
 	else {
-	  if( roiContainsZed(*m_roi, p->globalPosition().z(), p->globalPosition().perp() )) createSpacePoint(p);
+	  if( RoiUtil::containsZed(*m_roi, p->globalPosition().z(), p->globalPosition().perp() )) createSpacePoint(p);
 	}
       }
     private:
