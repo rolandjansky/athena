@@ -1,7 +1,7 @@
 <?xml version="1.0"?> 
 <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd"> 
 <!-- NB validate this file here before committing to svn:
- python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigAnalysisTest_TestConfiguration.xml
+ python /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigAnalysisTest_AthAnalysisBaseTestConfiguration.xml
  -->
 <unifiedTestConfiguration>
     
@@ -11,6 +11,7 @@
 	      <timelimit>30</timelimit>
 	      <author>Javier Montejo</author>
 	      <mailto>jmontejo@cern.ch</mailto>
+			 <package_atn>Trigger/TrigValidation/TrigAnalysisTest</package_atn>
 	      <expectations>
 	         <errorMessage>FAILURE </errorMessage>
 	         <returnValue>0</returnValue>
