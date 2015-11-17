@@ -13,14 +13,11 @@
  **************************************************************************/ 
 
 #include "RoiDescriptor/RoiDescriptor.h"
+#include "IRegionSelector/RoiUtil.h"
 
 #include <cmath>
 #include <sstream>
 #include <exception>
-
-/// This should be set by some static class function during the 
-/// overall configuration - perhaps by an RoiBuilder class  
-const double RoiDescriptor::zedWidthDefault = 225;
 
 
 #ifndef M_2PI
@@ -32,6 +29,11 @@ static const float  M_PIF = float(M_PI);
 #endif
 
 
+/// This should be set by some static class function during the 
+/// overall configuration - perhaps by an RoiBuilder class  
+const double RoiDescriptor::zedWidthDefault = 225;
+
+static int RoiVersion = 4;
 
 RoiDescriptor::RoiDescriptor( bool fullscan )
   : m_phi(0), m_eta(0), m_zed(0), 
@@ -40,10 +42,11 @@ RoiDescriptor::RoiDescriptor( bool fullscan )
     m_zedMinus(-zedWidthDefault),  m_zedPlus(zedWidthDefault), 
     m_dzdrMinus(0), m_dzdrPlus(0), 
     m_drdzMinus(0), m_drdzPlus(0), 
+    m_zedOuterMinus(0), m_zedOuterPlus(0), 
     m_fullscan(fullscan),
     m_composite(false),
     m_manageConstituents(true),
-    m_version(4)
+    m_version(RoiVersion)
 {
   /// if full scan, give it full detector limits just in 
   /// case anyone doesn't bother to check whether the fullscan 
@@ -54,73 +57,91 @@ RoiDescriptor::RoiDescriptor( bool fullscan )
 }
 
 
-RoiDescriptor::RoiDescriptor(double _eta, double _etaMinus, double _etaPlus, 
-			     double _phi, double _phiMinus, double _phiPlus, 
-			     double _zed, double _zedMinus, double _zedPlus) 
-  :  m_phi(phicheck(_phi)), m_eta(etacheck(_eta)), m_zed(zedcheck(_zed)), 
-     m_phiMinus(0),  m_phiPlus(0),
-     m_etaMinus(0),  m_etaPlus(0), 
-     m_zedMinus(0),  m_zedPlus(0), 
-     m_dzdrMinus(0), m_dzdrPlus(0), 
-     m_drdzMinus(0), m_drdzPlus(0), 
+RoiDescriptor::RoiDescriptor(double eta_, double etaMinus_, double etaPlus_, 
+			     double phi_, double phiMinus_, double phiPlus_, 
+			     double zed_, double zedMinus_, double zedPlus_) 
+  :  m_phi(RoiUtil::phicheck(phi_)), m_eta(RoiUtil::etacheck(eta_)), m_zed(RoiUtil::zedcheck(zed_)), 
+     m_phiMinus(0),      m_phiPlus(0),
+     m_etaMinus(0),      m_etaPlus(0), 
+     m_zedMinus(0),      m_zedPlus(0), 
+     m_dzdrMinus(0),     m_dzdrPlus(0), 
+     m_drdzMinus(0),     m_drdzPlus(0), 
+     m_zedOuterMinus(0), m_zedOuterPlus(0), 
      m_fullscan(false),
      m_composite(false),
      m_manageConstituents(true),
-     m_version(4)
+     m_version(RoiVersion)
 {
-  construct( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus );
+  construct( eta_, etaMinus_, etaPlus_, phi_, phiMinus_, phiPlus_, zed_, zedMinus_, zedPlus_ );
 }
 
 
-RoiDescriptor::RoiDescriptor(double _etaMinus, double _etaPlus, 
-			     double _phiMinus, double _phiPlus ) 
-  :  m_phi(0), m_eta(0), m_zed(zedcheck(0)), 
-     m_phiMinus(0),  m_phiPlus(0),
-     m_etaMinus(0),  m_etaPlus(0), 
-     m_zedMinus(0),  m_zedPlus(0), 
-     m_dzdrMinus(0), m_dzdrPlus(0), 
-     m_drdzMinus(0), m_drdzPlus(0), 
+RoiDescriptor::RoiDescriptor(double etaMinus_, double etaPlus_, 
+			     double phiMinus_, double phiPlus_ ) 
+  :  m_phi(0), m_eta(0), m_zed(0), 
+     m_phiMinus(0),      m_phiPlus(0),
+     m_etaMinus(0),      m_etaPlus(0), 
+     m_zedMinus(0),      m_zedPlus(0), 
+     m_dzdrMinus(0),     m_dzdrPlus(0), 
+     m_drdzMinus(0),     m_drdzPlus(0), 
+     m_zedOuterMinus(0), m_zedOuterPlus(0), 
      m_fullscan(false),
      m_composite(false),
      m_manageConstituents(true),
-     m_version(4)
+     m_version(RoiVersion)
 {
-  double _eta = 0.5*(_etaMinus+_etaPlus);
-  double _phi = 0.5*(_phiMinus+_phiPlus);
+  double eta_ = 0.5*(etaMinus_+etaPlus_);
+  double phi_ = 0.5*(phiMinus_+phiPlus_);
   
-  if ( _phiMinus>_phiPlus ) _phi += M_PI;
-  if ( _phi<-M_PI ) _phi -= M_2PI;
-  if ( _phi>M_PI )  _phi += M_2PI;
+  if ( phiMinus_>phiPlus_ ) phi_ += M_PI;
+  if ( phi_<-M_PI ) phi_ -= M_2PI;
+  if ( phi_>M_PI )  phi_ += M_2PI;
  
-  construct( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, 0, -zedWidthDefault, zedWidthDefault );
+  construct( eta_, etaMinus_, etaPlus_, phi_, phiMinus_, phiPlus_, 0, -zedWidthDefault, zedWidthDefault );
 }
 
 
-RoiDescriptor::RoiDescriptor( const IRoiDescriptor& _roi ) : 
-  m_phi(_roi.phi()), m_eta(_roi.eta()), m_zed(_roi.zed()), 
-  m_phiMinus(0),  m_phiPlus(0),
-  m_etaMinus(0),  m_etaPlus(0), 
-  m_zedMinus(0),  m_zedPlus(0), 
-  m_dzdrMinus(0), m_dzdrPlus(0), 
-  m_drdzMinus(0), m_drdzPlus(0), 
-  m_fullscan(_roi.isFullscan()),
-  m_composite(_roi.composite()),
+RoiDescriptor::RoiDescriptor( const IRoiDescriptor& roi ) : 
+  m_phi(roi.phi()), m_eta(roi.eta()), m_zed(roi.zed()), 
+  m_phiMinus(0),      m_phiPlus(0),
+  m_etaMinus(0),      m_etaPlus(0), 
+  m_zedMinus(0),      m_zedPlus(0), 
+  m_dzdrMinus(0),     m_dzdrPlus(0), 
+  m_drdzMinus(0),     m_drdzPlus(0), 
+  m_zedOuterMinus(0), m_zedOuterPlus(0), 
+  m_fullscan(roi.isFullscan()),
+  m_composite(roi.composite()),
   m_manageConstituents(true), /// always manage constituents
-  m_version(_roi.version()) { 
+  m_version(roi.version()) { 
 
-  construct( _roi );
-  
-  if ( _roi.size()>0 ) { 
+  RoiDescriptor::operator=(roi);
+
+}
+
+
+RoiDescriptor& RoiDescriptor::operator=( const IRoiDescriptor& roi ) {  
+
+  if ( this==&roi ) return *this;
+  construct( roi );
+  m_fullscan  = roi.isFullscan();
+  m_composite = roi.composite();
+  m_manageConstituents = true;
+  m_version = roi.version();
+
+  if ( roi.size()>0 ) { 
     if ( m_manageConstituents ) { 
       /// manging it's own constituents, so take a deep copy
-      for ( unsigned i=0 ; i<_roi.size() ; i++ ) push_back( new RoiDescriptor( *_roi.at(i) ) );
+      for ( unsigned i=0 ; i<roi.size() ; i++ ) push_back( new RoiDescriptor( *roi.at(i) ) );
     }
     else { 
       /// these are already managed elsewhere, just copy the pointers
-      for ( unsigned i=0 ; i<_roi.size() ; i++ ) push_back( _roi.at(i) );      
+      for ( unsigned i=0 ; i<roi.size() ; i++ ) push_back( roi.at(i) );      
     }
   }
+ 
+  return *this;
 }
+
 
 
 
@@ -129,24 +150,23 @@ RoiDescriptor::~RoiDescriptor(){
 }
 
 
-void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus, 
-			      double _phi, double _phiMinus, double _phiPlus, 
-			      double _zed, double _zedMinus, double _zedPlus)
+void RoiDescriptor::construct(double eta_, double etaMinus_, double etaPlus_, 
+			      double phi_, double phiMinus_, double phiPlus_, 
+			      double zed_, double zedMinus_, double zedPlus_)
 { 
-  m_eta = _eta;
-  m_phi = _phi;
-  m_zed = _zed;
+  m_eta = eta_;
+  m_phi = phi_;
+  m_zed = zed_;
 
-  m_etaPlus  = _etaPlus;
-  m_etaMinus = _etaMinus;
+  m_etaPlus  = etaPlus_;
+  m_etaMinus = etaMinus_;
 
-  m_zedMinus = _zedMinus;
-  m_zedPlus  = _zedPlus;
+  m_zedMinus = zedMinus_;
+  m_zedPlus  = zedPlus_;
 
   // deal with double -> float M_PI conversion 
 
-  m_phiPlus  = _phiPlus; 
-  //  m_phiMinus = _phiMinus;
+  m_phiPlus  = phiPlus_; 
   
   while ( m_phiPlus> M_PIF ) m_phiPlus -= M_2PI;
   while ( m_phiPlus<-M_PIF ) m_phiPlus += M_2PI;
@@ -160,8 +180,8 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
   if ( m_phiPlus> M_PI ) m_phiPlus -= 1e-7; 
   if ( m_phiPlus<-M_PI ) m_phiPlus += 1e-7; 
 
-  //  m_phiPlus  = _phiPlus; 
-  m_phiMinus = _phiMinus;
+
+  m_phiMinus = phiMinus_;
 
   while ( m_phiMinus<-M_PIF ) m_phiMinus += M_2PI;
   while ( m_phiMinus> M_PIF ) m_phiMinus -= M_2PI;
@@ -172,24 +192,24 @@ void RoiDescriptor::construct(double _eta, double _etaMinus, double _etaPlus,
 
   /// calculate the gradients - very useful these
 
-  m_drdzMinus = std::tan(2*std::atan(std::exp(-_etaMinus)));
-  m_drdzPlus  = std::tan(2*std::atan(std::exp(-_etaPlus)));
+  m_drdzMinus = std::tan(2*std::atan(std::exp(-etaMinus_)));
+  m_drdzPlus  = std::tan(2*std::atan(std::exp(-etaPlus_)));
  
   m_dzdrMinus = 1/m_drdzMinus;
   m_dzdrPlus  = 1/m_drdzPlus;
 
   const double maxR = 1100; // maximum radius of an ID RoI, hmmm should be a configurable parameter? 
 
-  m_zedOuterMinus = _zedMinus + m_dzdrMinus*maxR;
-  m_zedOuterPlus  = _zedPlus  + m_dzdrPlus*maxR;
+  m_zedOuterMinus = m_zedMinus + m_dzdrMinus*maxR;
+  m_zedOuterPlus  = m_zedPlus  + m_dzdrPlus*maxR;
 
 }
 
 
-void RoiDescriptor::construct( const IRoiDescriptor& _roi ) { 
-  construct( _roi.eta(),  _roi.etaMinus(),  _roi.etaPlus(), 
-	     _roi.phi(),  _roi.phiMinus(),  _roi.phiPlus(), 
-	     _roi.zed(),  _roi.zedMinus(),  _roi.zedPlus() ); 
+void RoiDescriptor::construct( const IRoiDescriptor& roi ) { 
+  construct( roi.eta(),  roi.etaMinus(),  roi.etaPlus(), 
+	     roi.phi(),  roi.phiMinus(),  roi.phiPlus(), 
+	     roi.zed(),  roi.zedMinus(),  roi.zedPlus() ); 
 }
 
 /// methods to calculate z position at the RoI boundary 
@@ -201,101 +221,6 @@ double  RoiDescriptor::rhoMin(const double z) const { return  (z-m_zedMinus)*m_d
 double  RoiDescriptor::rhoMax(const double z) const { return  (z-m_zedPlus)*m_drdzPlus ; }
 
 
-double RoiDescriptor::phicheck(double phi) { 
-  while ( phi> M_PIF ) phi-=M_2PI;
-  while ( phi<-M_PIF ) phi+=M_2PI;
-
-  if ( !(phi >= -M_PIF && phi <= M_PIF) ) { // use ! of range rather than range to also catch nan etc
-    //    printf( "RoiDescriptor: phi range error %20.18f\n", phi );
-    //   if ( phi < -M_PIF ) 
-    //      throw GaudiException("RoiDescriptor constructed with phi smaller than -PI (allowed range -PI / +PI)", "PhiRange", StatusCode::SUCCESS);
-    //   else
-    //      throw GaudiException("RoiDescriptor constructed with phi greater than PI (allowed range -PI / +PI)", "PhiRange", StatusCode::SUCCESS);
-    throw std::exception(); 
-  } 
-  return phi;
-}
-
-
-double RoiDescriptor::etacheck(double eta) {
-  if ( !(eta > -100  && eta < 100) ) { // check also for nan
-    //    std::cout << "RoiDescriptor: eta range error " << eta << std::endl;
-    throw std::exception();
-    // GaudiException("RoiDescriptor constructed with eta outside range -100 < eta <100", "EtaRange", StatusCode::SUCCESS);
-  } 
-  return eta;
-}
-
-
-double RoiDescriptor::zedcheck(double zed ) {
-  if ( !(zed > -100000  && zed < 100000 ) ) { // check also for nan
-    //    std::cout << "RoiDescriptor: zed range error " << zed << std::endl;
-    // throw GaudiException("RoiDescriptor constructed with eta outside range -100000 < sed <100000", "ZedRange", StatusCode::SUCCESS);
-    throw std::exception();
-  } 
-  return zed;
-}
-
-
-
-/// test whether a stub is contained within the roi
-bool RoiDescriptor::contains( double z0, double dzdr ) const {
-  static const double maxR = 1100; // maximum radius of RoI - outer TRT radius ~1070 mm - should be configurable? 
-  double zouter = dzdr*maxR + z0; 
-  if ( composite() ) { 
-    for ( roi_iterator itr=begin() ; itr!=end() ; itr++ ) if ( (*itr)->contains_internal( z0, zouter ) ) return true;
-    return false;
-  }
-  else return contains_internal( z0, zouter ); 
-} 
-
-
-bool RoiDescriptor::contains_internal( double z0, double zouter ) const {
-    if ( z0<=zedPlus() && z0>=zedMinus() && zouter<=m_zedOuterPlus && zouter>=m_zedOuterMinus ) return true;
-    return false;
-} 
-  
-
-
-/// test whether a stub is contained within the roi
-bool RoiDescriptor::containsPhi( double _phi ) const {
-  if ( composite() ) { 
-      for ( roi_iterator itr=begin() ; itr!=end() ; itr++ ) if ( (*itr)->containsPhi( _phi ) ) return true;
-      return false;
-  }
-  else {
-    if ( isFullscan() ) return true; 
-    if ( phiPlus()>phiMinus() ) return ( _phi<phiPlus() && _phi>phiMinus() );
-    else                        return ( _phi<phiPlus() || _phi>phiMinus() );
-  } 
-}
-
-
-
-bool RoiDescriptor::containsZed( double _z, double _r ) const {
-  if ( composite() ) { 
-    for ( roi_iterator itr=begin() ; itr!=end() ; itr++ ) if ( (*itr)->containsZed( _z, _r ) ) return true;
-    return false;
-  }
-  else { 
-    if ( isFullscan() ) return true;
-    double zminus = _r*dzdrMinus() + zedMinus();
-    double zplus  = _r*dzdrPlus()  + zedPlus();
-    return ( _z>=zminus && _z<=zplus );
-  }
-}
-
-
-bool RoiDescriptor::contains( double _z, double _r, double _phi ) const {
-  if ( composite() ) { 
-    for ( roi_iterator itr=begin() ; itr!=end() ; itr++ ) if ( (*itr)->contains( _z, _r, _phi ) ) return true;
-    return false;
-  }
-  else { 
-    return ( containsZed( _z, _r ) && containsPhi(_phi) );
-  }
-}
-  
 
 //////////////////////////////////////////////////////////////////
 // helper operators
