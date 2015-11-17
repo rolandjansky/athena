@@ -19,7 +19,6 @@ using namespace std;
 #		include <xAODRootAccess/TEvent.h>
 #		include <xAODRootAccess/Init.h>
 #		include <xAODRootAccess/tools/ReturnCheck.h>
-#               include <AsgTools/SgTEvent.h>
 #endif
 
 #include "TrigConfxAOD/xAODConfigTool.h"
@@ -70,9 +69,6 @@ namespace TrigAnalysisTest {
     trigDecTool.setProperty("ConfigTool",configHandle);
     trigDecTool.setProperty("TrigDecisionKey","xTrigDecision");
     trigDecTool.initialize();
-
-		asg::SgTEvent sgtevent(&event);
-		test->setEventStore( &sgtevent );
 
     // Run the files
     size_t nEntries = chain->GetEntries();

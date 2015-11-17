@@ -11,7 +11,6 @@
 #define __ITest__
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TrigAnalysisTest/EventPtrDef.h"
 
 namespace TrigAnalysisTest {
 
@@ -25,10 +24,6 @@ namespace TrigAnalysisTest {
     // Called at the end of the job - return 0 if the test passed.
     // Otherwise some non-zero integer.
     virtual int finalize() = 0;
-		inline void setEventStore(EventPtr_t store) { m_eventStore = store; }
-		inline EventPtr_t eventStore() { return m_eventStore; }
-	private:
- 		EventPtr_t m_eventStore;
   };
 
 }
