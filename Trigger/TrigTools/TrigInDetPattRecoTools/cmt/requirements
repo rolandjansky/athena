@@ -30,15 +30,16 @@ library TrigInDetPattRecoTools  *.cxx
 
 private 
 
-#use GeoPrimitives               GeoPrimitives-*              DetectorDescription 
-use IRegionSelector        IRegionSelector-*        DetectorDescription
+#use GeoPrimitives                      GeoPrimitives-*                 DetectorDescription 
+use     IRegionSelector                 IRegionSelector-*               DetectorDescription
+# use	RegionSelector			RegionSelector-*		DetectorDescription
+# use	RoiDescriptor			RoiDescriptor-*		        DetectorDescription
+
 use     TrigInDetPattRecoEvent		TrigInDetPattRecoEvent-*	Trigger/TrigEvent
 
 #use	DataModel			DataModel-*			Control
 #use 	StoreGate			StoreGate-*			Control
 
-#use 	IRegionSelector			IRegionSelector-*		DetectorDescription
-#use	RegionSelector			RegionSelector-*		DetectorDescription
 
 #use	DataCollection			DataCollection-*		External
 
