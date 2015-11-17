@@ -3,10 +3,10 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 //derived algorithm classes
-#include "TrigAnalysisTest/TriggersFiredTest.h"
+#include "TrigAnalysisTest/AthenaTestHarness.h"
 
-DECLARE_ALGORITHM_FACTORY( TriggersFiredTest )
+DECLARE_ALGORITHM_FACTORY( AthenaTestHarness )
 
 DECLARE_FACTORY_ENTRIES( TrigAnalysisTest ) {
-  DECLARE_ALGORITHM( TriggersFiredTest );
+  DECLARE_ALGORITHM( AthenaTestHarness );
 }
