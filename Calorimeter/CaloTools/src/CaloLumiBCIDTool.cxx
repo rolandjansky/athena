@@ -295,9 +295,9 @@ void CaloLumiBCIDTool::getListOfCells()
   unsigned int nsofc = 32;
   for(;it!=it_end;++it) {
     const HWIdentifier id  = *it;
-    m_minBias[index]=0;
-    m_first[index]=0;
-    m_isOnl[index]=0;
+    m_minBias.push_back(0);
+    m_first.push_back(0);
+    m_isOnl.push_back(0);
     if(m_cablingService->isOnlineConnected(id)) {
           //  get MinBiasAverage
           float MinBiasAverage = m_dd_minbiasAverage->minBiasAverage(id);
