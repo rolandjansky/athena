@@ -32,6 +32,7 @@
 #include <set>
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 #include "RegSelLUT/RegSelRoI.h"
 #include "RegSelLUT/RegSelName.h"
