@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4_tf.py 657731 2015-03-30 09:19:47Z gvolpi $ 
+# @version $Id: TrigFTKSM4_tf.py 707064 2015-11-11 00:19:24Z end $
 
 import sys
 import time
@@ -30,15 +30,14 @@ from RecJobTransforms.recTransformUtils import addAllRecoArgs
 
 subregions = 4
 
-ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--CachePath', '--CachedBank', '--ConstantsDir', '--DBBankLevel', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--FitConstantsVersion', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--MaxNcomb', '--MaxNhitsPerPlane', '--NBanks', '--NSubRegions', '--PatternsVersion', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SectorsAsPatterns', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--checkEventCount', '--command', '--doAuxFW', '--dumpJSON', '--dumpPickle', '--env', '--eventAcceptanceEfficiency', '--execOnly', '--fileValidation', '--fit711constants0path', '--fit711constants1path', '--fit711constants2path', '--fit711constants3path', '--fitconstants0path', '--fitconstants1path', '--fitconstants2path', '--fitconstants3path', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputFileValidation', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputRDOFile', '--inputTXT_FTKIPFile', '--jobid', '--loadHWConf_path', '--maxEvents', '--orphanKiller', '--outputFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--parallelFileValidation', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--postExec', '--postInclude', '--preExec', '--preInclude', '--reportName', '--reportType', '--rmap_path', '--runNum', '--sector0path', '--sector1path', '--sector2path', '--sector3path', '--separateSubRegFitConst', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--steering', '--taskid', '--tcmalloc', '--useDBPath', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--versionTag']
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
-    
+
     msg.info('This is %s' % sys.argv[0])
-        
-    trf = getTransform() 
+
+    trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
@@ -49,10 +48,10 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    
+
     executorSet = set()
     for subregion in range(subregions):
-        executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(subregion), 
+        executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(subregion),
                                        skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py',
                                        inData = ['RDO','NTUP_FTKIP','TXT_FTKIP'], outData = ['NTUP_FTKTMP_{0}'.format(subregion)],
                                        extraRunargs = {'banksubregion': [subregion]},
@@ -62,7 +61,7 @@ def getTransform():
                                                          'fit711constantspath': 'runArgs.fit711constants{0}path'.format(subregion),
                                                          'sectorpath': 'runArgs.sector{0}path'.format(subregion),
                                                          'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKTMP_{0}File'.format(subregion)}))
-    executorSet.add(athenaExecutor(name = 'FTKSimulationMerge', 
+    executorSet.add(athenaExecutor(name = 'FTKSimulationMerge',
                                    skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
                                    inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])],
                                    outData = ['NTUP_FTKTMP'],
@@ -81,75 +80,75 @@ def addFTKSimulationArgs(parser):
     # Add a specific FTK argument group
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation options')
 
-    parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of pattern banks', group='TrigFTKSim')
     # Here we set a default value as the merger wants this explicitly
-    parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of sub-regions', group='TrigFTKSim', default=trfArgClasses.argInt(subregions, runarg=True))
 
 
-    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of pmap file', group='TrigFTKSim')
-    parser.add_argument('--pmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--pmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of pmapunused file', group='TrigFTKSim')
-    parser.add_argument('--pmapcomplete_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--pmapcomplete_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of 11L pmap file', group='TrigFTKSim')
-    parser.add_argument('--rmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--rmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of rmap file', group='TrigFTKSim')
-    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of HW configuration file', group='TrigFTKSim')
     parser.add_argument('--HWNDiff', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
         help="Hit Warrior threshold", group='TrigFTKSim')
     parser.add_argument('--HitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
         help="Hit Warrior type: 0 none, 1 local, 2 global (def)", group='TrigFTKSim')
 
-    parser.add_argument('--ssmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--ssmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of ssmap file', group='TrigFTKSim')
-    parser.add_argument('--ssmaptsp_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--ssmaptsp_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of ssmaptsp file', group='TrigFTKSim')
-    parser.add_argument('--ssmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--ssmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of ssmapunused file', group='TrigFTKSim')
-    
-    parser.add_argument('--badmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+
+    parser.add_argument('--badmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of badmap file', group='TrigFTKSim')
-    parser.add_argument('--badmap_path_for_hit', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--badmap_path_for_hit', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of badmap file for hits', group='TrigFTKSim')
-    parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
+    parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='TSP bank utilisation', group='TrigFTKSim')
-    parser.add_argument('--DBBankLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--DBBankLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='DBBankLevel', group='TrigFTKSim')
-    parser.add_argument('--TSPSimulationLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--TSPSimulationLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='TSPSimulationLevel', group='TrigFTKSim')
-    parser.add_argument('--TSPMinCoverage', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--TSPMinCoverage', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='TSPMinCoverage', group='TrigFTKSim')
 
     parser.add_argument('--IBLMode',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help='Enalbe the IBL geometry',group='TrigFTKSim')
-    
+
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKSim")
     parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=False),
                         help="Set the SCT clustering [def: False]", group="TrigFTKSim")
 
-    parser.add_argument('--MakeCache', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
+    parser.add_argument('--MakeCache', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Enable MakeCache', group='TrigFTKSim')
-    parser.add_argument('--CachePath', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--CachePath', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='CachePath', group='TrigFTKSim')
     parser.add_argument("--CachedBank", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Interpret the pattern bank has a cache", group="TrigFTKSim")
     parser.add_argument("--SectorsAsPatterns", type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="If 1 allows to use a list of sectors as pattern bank, default 0")
-    
-    parser.add_argument('--DoRoadFile', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
+
+    parser.add_argument('--DoRoadFile', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Enable roads file', group='TrigFTKSim')
-    parser.add_argument('--RoadFilesDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--RoadFilesDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='RoadFilesDir', group='TrigFTKSim')
-    parser.add_argument('--SaveRoads', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
+    parser.add_argument('--SaveRoads', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Save roads file', group='TrigFTKSim')
-        
-    parser.add_argument('--bankregion', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True), 
+
+    parser.add_argument('--bankregion', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                         help='Bank region number', group='TrigFTKSim', nargs='+')
-    parser.add_argument('--bankpatterns', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True), 
+    parser.add_argument('--bankpatterns', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                         help='Number of bank patterns', group='TrigFTKSim', nargs='+')
     parser.add_argument('--SetAMSize',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='This variable decides how to set the limit on the number of patterns: 0 TSP, 1 or 2 AM (as soon as limit reached, before exceeded)',
@@ -163,92 +162,92 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="limit the number of hits per plane per road", group='TrigFTKSim')
 
-    parser.add_argument('--TRACKFITTER_MODE', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True), 
+    parser.add_argument('--TRACKFITTER_MODE', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                         help='track fitter mode', group='TrigFTKSim', nargs='+')
-    parser.add_argument('--SSFMultiConnection', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
+    parser.add_argument('--SSFMultiConnection', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Flag to enable the multi-connections mode in the SSF', group='TrigFTKSim')
-    parser.add_argument('--SSFNConnections', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--SSFNConnections', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Maximum number of connections in the SSF', group='TrigFTKSim')
-    parser.add_argument('--SSFAllowExtraMiss', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--SSFAllowExtraMiss', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Allowing extra missed layer in the transition region', group='TrigFTKSim')
-    parser.add_argument('--SSFTRDefn', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--SSFTRDefn', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='How the transition region is defined: 0=moduleID of last SCT layer, 1=by eta of 1st stage track', group='TrigFTKSim')
-    parser.add_argument('--SSFTRMinEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+    parser.add_argument('--SSFTRMinEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
                         help='when SSFTRDefn=1 (by eta), the min eta', group='TrigFTKSim')
-    parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True), 
+    parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
                         help='when SSFTRDefn=1 (by eta), the max eta', group='TrigFTKSim')
-    #JDC:	
-    parser.add_argument('--ConstantsDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    #JDC:
+    parser.add_argument('--ConstantsDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Directory where input files are kept', group='TrigFTKSim')
-    parser.add_argument('--FitConstantsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--FitConstantsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Version of fit constants', group='TrigFTKSim')
-    parser.add_argument('--PatternsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--PatternsVersion', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Version of patterns', group='TrigFTKSim')
-    parser.add_argument('--separateSubRegFitConst', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--separateSubRegFitConst', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Use separate fit constant for each subregion', group='TrigFTKSim')
-    parser.add_argument('--useDBPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--useDBPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Query the Data Base to get File Paths', group='TrigFTKSim')
-    parser.add_argument('--runNum', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+    parser.add_argument('--runNum', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Run Number', group='TrigFTKSim')
-    parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+    parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='COOL tag for a different version', group='TrigFTKSim')
     #end JDC
 
     # Add named parameters for each subregion
     for subregion in range(subregions):
-        parser.add_argument('--patternbank{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True), 
+        parser.add_argument('--patternbank{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                             help='Pattern bank path file, subregion {0}'.format(subregion), group='TrigFTKSim', nargs='+')
-        parser.add_argument('--fitconstants{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True), 
+        parser.add_argument('--fitconstants{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                             help='Fit-constants path file, subregion {0}'.format(subregion), group='TrigFTKSim', nargs='+')
-        parser.add_argument('--fit711constants{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True), 
+        parser.add_argument('--fit711constants{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                             help='Fit-constants second stage path file, subregion {0}'.format(subregion), group='TrigFTKSim', nargs='+')
-        parser.add_argument('--sector{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True), 
+        parser.add_argument('--sector{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
                             help='sectors path file, subregion {0}'.format(subregion), group='TrigFTKSim', nargs='+')
 
-    
+
     parser.add_argument('--FTKSetupTag', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Setup the FTK architecture tag, if specific values are also used they have priority', group='TrigFTKSim')
-    
+
     parser.defineArgGroup('TrigFTKMerge', 'Fast tracker simulation merge options')
 
     # File handling
-    parser.add_argument('--inputRDOFile', nargs='+', 
+    parser.add_argument('--inputRDOFile', nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input', runarg=True, type='rdo'),
                         help='Input RDO file', group='TrigFTKSim')
-    parser.add_argument('--inputNTUP_FTKIPFile', 
+    parser.add_argument('--inputNTUP_FTKIPFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptmp', treeNames='ftkhits'),
                         help='FTK RDO file in ROOT format', group='TrigFTKSim', nargs='+')
-    parser.add_argument('--inputTXT_FTKIPFile', 
-                        type=trfArgClasses.argFactory(trfArgClasses.argFTKIPFile, runarg=True, io='input', type='txt_ftkip'), 
+    parser.add_argument('--inputTXT_FTKIPFile',
+                        type=trfArgClasses.argFactory(trfArgClasses.argFTKIPFile, runarg=True, io='input', type='txt_ftkip'),
                         help='Wrapper files (in .dat.bz2 format)', group='TrigFTKSim', nargs='+')
-    parser.add_argument('--outputNTUP_FTKTMPFile', '--outputNTUP_FTKFile', 
+    parser.add_argument('--outputNTUP_FTKTMPFile', '--outputNTUP_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftk', treeNames='ftkdata'),
                         help='Subregion merged FTK file', group='TrigFTKMerge',nargs='+')
-    
+
     # The following for testing only
     for subregion in range(subregions):
-        parser.add_argument('--inputNTUP_FTKTMP_{0}File'.format(subregion), 
+        parser.add_argument('--inputNTUP_FTKTMP_{0}File'.format(subregion),
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptmp', treeNames='ftkdata'),
                         help='FTK NTUP file from subregion {0} (for testing only)'.format(subregion), group='TrigFTKSim', nargs='+')
-        parser.add_argument('--outputNTUP_FTKTMP_{0}File'.format(subregion), 
+        parser.add_argument('--outputNTUP_FTKTMP_{0}File'.format(subregion),
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftkiptmp', treeNames='ftkdata'),
                         help='FTK NTUP file from subregion {0} (for testing only)'.format(subregion), group='TrigFTKSim', nargs='+')
-        
-        
-    parser.add_argument('--FTKUnmergedInputPath', 
+
+
+    parser.add_argument('--FTKUnmergedInputPath',
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Unmerged Input file path', group='TrigFTKMerge')
 
-    parser.add_argument('--FTKForceAllInput', 
+    parser.add_argument('--FTKForceAllInput',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Force all Input files to be present', group='TrigFTKMerge')
 
-    parser.add_argument('--FTKDoGrid', 
+    parser.add_argument('--FTKDoGrid',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Use the naming for the grid input', group='TrigFTKMerge')
-    
 
-#print PyJobTransforms.transform 
+
+#print PyJobTransforms.transform
 
 if __name__ == '__main__':
     main()

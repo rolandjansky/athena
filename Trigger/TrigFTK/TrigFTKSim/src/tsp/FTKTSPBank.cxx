@@ -25,10 +25,10 @@ FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     m_TSPProcessor(0x0),
     m_file(0),
     m_SimulateTSP(0), m_npatternsTSP(0), m_TSPMinCoverage(0),
-    m_setAMSize(0), m_AMSplit(0),
+    m_setAMSize(0), m_AMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0),
     m_DCMatchMethod(0),
     m_ssmap_tsp(0x0), m_splitted_ssmap(0x0),
-    m_cachepath(""), m_makecache(false)
+    m_makecache(false),m_cachepath("")
 {}
 
 
@@ -309,8 +309,9 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
     AMPatternList.sort(); // use the sorting metho of the list
 
     if (m_AMSplit>0) {
-      FTKAMSplit amsplit(m_AMSplit); //Set up the functions to split AM Patterns
-      AMPatternList = amsplit.splittingAlgorithms(AMPatternList); //Function that calls the selected splitting algorithm
+//      FTKAMSplit amsplit(m_AMSplit); //Set up the functions to split AM Patterns
+     FTKAMSplit amsplit(m_AMSplit, m_maxAMAfterSplit, m_minDVolOverDNPatt); //Set up the functions to split AM Patterns
+     AMPatternList = amsplit.splittingAlgorithms(AMPatternList); //Function that calls the selected splitting algorithm
     }
 
     ftksetup.usageStat("Reading the AM bank");

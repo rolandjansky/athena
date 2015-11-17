@@ -85,6 +85,9 @@ EFF_OBJS = efficiency.o \
 MSB_OBJS = makecompressedbank.o \
         $(DICT_OBJS)
 
+PBI_OBJS = patternbankinfo.o \
+        $(DICT_OBJS)
+
 CFO_OBJS = compare_fitter_output.o \
         $(DICT_OBJS)
 
@@ -192,6 +195,11 @@ makecompressedbank: $(MSB_OBJS) libTrigFTKSim.a
 makecompressedbank.clean:
 	rm -f $(MSB_OBJS) makecompressedbank makecompressedbank.o makecompressedbank.d
 
+patternbankinfo: $(PBI_OBJS) libTrigFTKSim.a
+	$(CXX) -o $@ $(PBI_OBJS) $(LIBS) libTrigFTKSim.a
+patternbankinfo.clean:
+	rm -f $(PBI_OBJS) patternbankinfo patternbankinfo.o patternbankinfo.d
+
 compare_fitter_output: $(CFO_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(CFO_OBJS) $(LIBS) libTrigFTKSim.a
 compare_fitter_output.clean:
@@ -252,7 +260,8 @@ classes: libftk_classes.so
 
 libftk_classes.so: $(FTKLIB_OBJS)
 	$(CXX) -o $@ -shared $(FTKLIB_OBJS) -fPIC $(LIBS)
-	rlibmap -f -o $(@:.so=.rootmap) -l $@ -c TrigFTKSim/FTKSimLinkDef.h
+	# TODO: update to ROOT6 with rootcling
+	-rlibmap -f -o $(@:.so=.rootmap) -l $@ -c TrigFTKSim/FTKSimLinkDef.h
 
 libftk_classes.so.clean:
 	rm -f $(FTKLIB_OBJS) libftk_classes.so libftk_classes.rootmap TrigFTKSim_Dic_rdict.pcm
@@ -305,7 +314,7 @@ clean : pattvolume.clean efficiency.clean convert_lookup.clean road_finder.clean
         quick_fit.clean patmerge.clean patmergeroot.clean patmergetest.clean \
         sectorwalk.clean sectorfoam.clean \
         ftkascii2root.clean libftk_classes.so.clean libTrigFTKSim.a.clean \
-        ambankopt.clean makecompressedbank.clean compare_fitter_output.clean \
+        ambankopt.clean makecompressedbank.clean patternbankinfo.clean compare_fitter_output.clean \
         # ftkamsplit.clean \
         ftk_DCBankStat.clean
 	rm -f tmp/TrigFTKSim_Dic.C tmp/TrigFTKSim_Dic.h tmp/*.d tmp/tsp/*.d common_fcn.d common_fcn.o

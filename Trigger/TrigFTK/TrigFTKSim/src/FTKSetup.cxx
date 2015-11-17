@@ -186,6 +186,7 @@ void FTKSetup::usageStat(const char *header /* =0 */)
 void FTKSetup::PrintMessage(ftk::message_level_t level, const char *msg)
 {
 #ifndef FTK_STANDALONE
+   if(m_log) {
   if (level == ftk::debg) 
     *m_log << MSG::DEBUG;
   else if (level == ftk::warn)
@@ -196,6 +197,9 @@ void FTKSetup::PrintMessage(ftk::message_level_t level, const char *msg)
     *m_log << MSG::INFO;
 
   *m_log << msg  << endreq;
+   } else {
+      cout << "(level="<<level<<") "<<msg << endl;
+   }
 #else
    cout << msg << endl;
 #endif

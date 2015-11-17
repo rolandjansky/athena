@@ -39,9 +39,13 @@ class FTK_RegionalRawInput : public FTKDataInput
   long int m_ntruth_tracks;        // number of truth tracks
 
   int nextFile();
+
+  bool m_readTruthTracks;
+  TTree *m_truthTracksTree;
+  vector<FTKTruthTrack> *m_truthTracks;
   
 public:
-  FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused = 0x0);
+  FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused = 0x0,bool readTruthTracks=false);
   FTK_RegionalRawInput(const FTK_RegionalRawInput& v);
 
   virtual ~FTK_RegionalRawInput();

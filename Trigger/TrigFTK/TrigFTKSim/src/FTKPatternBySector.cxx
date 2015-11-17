@@ -211,6 +211,25 @@ void FTKPatternBySectorReader::GetNPatternsByCoverage
    }
 }
 
+void FTKPatternBySectorReader::GetNPatternsBySectorCoverage
+(std::map<int,std::map<int,int> > &sectorCoverageMap) const {
+   if(GetContentType()==CONTENT_NOTMERGED) {
+      Fatal("GetNPatternsBySectorCoverage")<<"patterns are not merged\n";
+   }
+   //Info("GetNPatternsBySectorCoverage")<<"number of sectors "<<fPatterns.size()<<"\n";
+   for(PatternTreeBySector_t::const_iterator i=fPatterns.begin();
+       i!=fPatterns.end();i++) {
+      FTKPatternRootTreeReader *reader=(*i).second;
+      map<int,int> &coverageMap(sectorCoverageMap[(*i).first]);
+      reader->ReadCoverageOnly(true);
+      reader->Rewind();
+      while(reader->ReadNextPattern()) {
+         coverageMap[reader->GetPattern().GetCoverage()]++;
+      }
+      reader->ReadCoverageOnly(false);      
+   }
+}
+
 int FTKPatternBySectorReader::GetFirstSector(void) const {
    // return first (lowest) sector number
    if(fPatterns.begin()!=fPatterns.end()) {
@@ -477,6 +496,8 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
    Info("AppendMergedPatterns")<<"loop over sectors\n";
    int nTotal=0;
    int totalCoverage=0;
+   int printed=0;
+   double nextPrint=1.0;
    for(int sector=source.GetFirstSector();sector>=0;
        sector=source.GetNextSector(sector)) {
       //ShowProgress(TString::Format("%d",sector));
@@ -485,9 +506,13 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
       FTKPatternOneSectorOrdered *orderedByCoverage=
          mergedPatterns->OrderPatterns(FTKPatternOrderByCoverage(minCoverage));
       totalCoverage += orderedByCoverage->GetSummedCoverage();
-      ShowProgress(TString::Format("%d %d %d %d",sector,
-				   mergedPatterns->GetNumberOfPatterns(),
-                                   nTotal,totalCoverage));
+      printed++;
+      if(printed>=nextPrint) {
+         ShowProgress(TString::Format("%d %d %d %d",sector,
+                                      mergedPatterns->GetNumberOfPatterns(),
+                                      nTotal,totalCoverage));
+         nextPrint=printed*1.3;
+      }
       error=AppendMergedPatterns(sector,orderedByCoverage);
       if(error) {delete orderedByCoverage; delete mergedPatterns; break;}
       int coverage=0;
@@ -514,6 +539,8 @@ int FTKPatternBySectorWriter::AppendMergedPatterns
       delete orderedByCoverage;
       delete mergedPatterns;
    }
+   Info(TString::Format("nsector=%d npattern=%d npattern*coverage=%d",printed,
+                        nTotal,totalCoverage));
    // save sector index as TTree
 #ifdef WRITE_INDEX_TREE
    fDir.cd();

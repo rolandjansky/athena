@@ -142,7 +142,7 @@ public:
 
   const int& getNPlanes() const { return m_nplanes; }
 
-  unsigned int getLocalModuleID(const FTKHit&, unsigned int);
+  unsigned int getLocalModuleID(const FTKHit&, unsigned int) const;
   void convertLocalID(unsigned int, int, int, int, int&, int&);
   unsigned int getLocalID(int towerID,int plane,int section,
                           int modPhi,int modEta) const;

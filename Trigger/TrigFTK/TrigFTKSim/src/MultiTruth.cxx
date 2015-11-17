@@ -32,7 +32,7 @@ MultiTruth::display() const
   cout << padding << "MultiTruth (event index,barcode) <=> pt/(1 MeV) with " << _truth.size() << endl;
   if( _truth.empty() ) { return; }
   for( TruthMap::const_iterator i=_truth.begin(), f=_truth.end(); i!=f; ++i ) {
-    cout << padding << "   " << (i->first).first << "," << (i->first).second 
+    cout << padding << "   " << (i->first).first << "," << (i->first).second
 	 << " <=> " << i->second << endl;
   }
   Barcode code;
@@ -44,7 +44,7 @@ MultiTruth::display() const
   cout << endl;
 }
 
-unsigned int
+long int
 MultiTruth::best_barcode() const
 {
   Barcode code;

@@ -367,6 +367,7 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
     else guess_res = missing_point_guess(track,secid);    
   }
    
+
   if (nmissing!=guess_res) {
     // majority failed, this chi2 is used as a flag
     track.setChi2(0.);
@@ -586,9 +587,6 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
     FTKSetup::PrintMessage(ftk::warn,"Missing IDs combination not stored\n");
 #endif // SIMPLEMJ_DBG
 
-//JAA try changing this
-    // TMatrixD coef(nmissing,nmissing);
-    // TVectorD a(nmissing);
     Eigen::MatrixXd coef(nmissing,nmissing);
     Eigen::VectorXd a(nmissing);
 
@@ -821,6 +819,12 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
     long double chi_component = m_kaverage[secid][i];
     signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // to the same level as the Sij
     
+
+    //   for (int ip = 0; ip < trk.getNPlanes(); ip++) {
+    // if dim = 2 can use both, otherwise use first one
+    //   ///      cerr << "JAAAAAAAAAAAAAAAA ip = " << ip <<" and coord0 " << trk.getHwCoord(ip,0) << " and 1 = " << trk.getHwCoord(ip,1) << " and dim = "<< trk.getFTKHit(ip).getDim() << endl;
+    // }
+
     for( int j = 0 ; j < m_ncoords ; ++j ) {
 
       chi_component += m_kernel[secid][i][j] * trk.getCoord(j); 
