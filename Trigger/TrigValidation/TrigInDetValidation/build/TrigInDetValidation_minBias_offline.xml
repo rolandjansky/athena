@@ -1,7 +1,7 @@
-         <athena userJobId='TrigInDetValidation_minBias'>
-            <doc>Tests LVL2 and EF ID full scan instance of tracking algorithms in the di-jet sample</doc>
-            <displayName>FullScan on di-jet events</displayName>
-	    <commandLineFlags>EventMax=1000;</commandLineFlags>
+         <athena userJobId='TrigInDetValidation_minBias_offline'>
+            <doc>Tests ID full scan tracking in the di-jet sample vs offline</doc>
+            <displayName>FullScan on di-jet event vs offlines</displayName>
+	    <commandLineFlags>EventMax=1000;doIDNewTracking=True</commandLineFlags>
             <options>TrigInDetValidation_RTT_topOptions_MonitorSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -18,7 +18,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-monitor.root -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt-offline.dat -f data-minBias.root -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -31,7 +31,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+                <argvalue>data-minBias.root data-minBias.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
               </arg>
             </action>
 

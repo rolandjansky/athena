@@ -10,24 +10,41 @@ endif
 set files = ""
 
 
+set outdir = "."
+set getoutdir = "0"
+
+set noglobbing = 0
 
 foreach arg ( $argv )
-  set   dir = $1
-  set   base = `basename $dir .xml`
-  set   basetail = ${dir:t}
 
-  if ( "$base" != "$basetail" ) then 
-     set files = "$files $1"
-  else
-     set files = "$files $dir/*.xml"
+  if ( "$getoutdir" == "1" ) then 
+     set outdir = $1
+     set getoutdir = "0"
+  else    
+    if ( "$arg" == "-o" ) then
+      set getoutdir = "1"
+    else 
+      if ( "$arg" == "-noglob" ) then
+        set noglobbing = "1"
+      else 
+        set   dir = $1
+        set   base = `basename $dir .xml`
+        set   basetail = ${dir:t}
+
+        if ( "$base" != "$basetail" ) then 
+          set files = "$files $1"
+        else
+          set files = "$files $dir/*.xml"
+        endif
+      endif
+    endif
   endif
- 
-#  echo "files: $files" 
 
   shift
 end
 
-echo "files: $files"
+echo "files:  $files"
+echo "outdir: $outdir"
 
 
 foreach xmlfile ( $files ) 
@@ -36,11 +53,17 @@ foreach xmlfile ( $files )
       
 #  echo "xmlfile $xmlfile  $_file"
 
+   set outfile = "$outdir/$_file.sh"
  
 #   if ( "$_file" != "TrigInDetValidation_TestConfiguration_main.xml" ) then 
-    if ( -e $_file.sh ) then 
-      echo "file $_file.sh already exists"
-      continue
+    if ( -e $outfile ) then 
+      if ( "$noglobbing" != "1" ) then 
+        echo "file $outfile already exists, moving to " $outfile.bak
+        mv $outfile{,.bak}
+      else      
+        echo "file $outfile already exists, move along, there's nothing to see here"
+        continue
+      endif
     endif
 
       set gpath = ${xmlfile:h}
@@ -54,8 +77,8 @@ foreach xmlfile ( $files )
 
       set file = `echo $_file | sed 's/\.xml//g'`
 
-      echo "#\!/bin/sh" > $_file.sh
-      chmod u+x $_file.sh
+      echo "#\!/bin/sh" > $outfile
+      chmod u+x $outfile
 
       grep "<argvalue>" /tmp/$_file.xml |  sed 's|<argvalue>||g' | sed 's|</argvalue>||g' > /tmp/_args
 
@@ -83,16 +106,16 @@ foreach xmlfile ( $files )
 # #     echo "joboption $joboptions    cmdlineflags $cmdlineflags"
 
       if ( "$joboptions" != "" ) then 
-         echo "\nget_files -jo $joboptions.py" >> $_file.sh
+         echo "\nget_files -jo $joboptions.py" >> $outfile
 #        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
-         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
+         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py \n\n" >> $outfile
       endif
   
 #     cat /tmp/_args
 
       set N = `cat /tmp/_args | wc -l`
 
-      echo "file: $_file.sh" 
+      echo "file: $outfile" 
 
       if ( $N > 0 ) then 
 
@@ -104,7 +127,7 @@ foreach xmlfile ( $files )
 
    	   if ( "$arg" == "TIDArdict.exe" || "$arg" == "TIDAcomparitor.exe" || "$arg" == "TIDAcpucost.exe" || "$arg" == "RunTrigCostD3PD.exe" ) then 
               if ( "$command" != "" ) then 
-                 echo "$command\n" >> $_file.sh
+                 echo "$command\n" >> $outfile
               endif
               set command = "$arg"
             else 
@@ -121,7 +144,7 @@ foreach xmlfile ( $files )
 #		 echo "ref: $ref     : ext: $ext"
                  if ( "$ext" == "dat" || "$ref" != "" )  then 
 #                   echo "   getting file $ffile"   
-		    echo "get_files -data $ffile" >> $_file.sh 
+		    echo "get_files -data $ffile" >> $outfile 
                  endif
               end
               set command = "$command $arg"
@@ -132,7 +155,7 @@ foreach xmlfile ( $files )
         end
 
         if ( "$command" != "" ) then 
-          echo  "$command\n\n"  >> $_file.sh
+          echo  "$command\n\n"  >> $outfile
         endif
 
       endif
