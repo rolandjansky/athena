@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 709805 2015-11-23 09:53:16Z tkaji $
+# $Id: skeleton.FTKStandaloneSim.py 706299 2015-11-06 06:03:26Z end $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -521,34 +521,6 @@ FTKTagOptions['SectorsAsPatterns8L64b3DHWMode2'] = {
     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap',
     'SaveRoads': True
     }
-
-
-FTKTagOptions['SectorsAsPatterns12L32b3DHWMode2'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap', 'bankpatterns': [-1]*NumberOfSubregions, \
-     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
-     'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'MaxMissingSCTPairs': 1, 'HWModeSS': 2,'ModuleLUTPath': 'raw_12Libl.moduleidmap', 'SaveRoads': True}
-FTKTagOptions['SectorsAsPatterns8L32b3DHWMode2'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
-     'bankpatterns': [-1]*NumberOfSubregions, \
-     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
-     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
-     'MaxMissingSCTPairs': 0,
-     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap', 'SaveRoads': True}
-
-FTKTagOptions['SectorsAsPatterns12L32b3D'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap', 'bankpatterns': [-1]*NumberOfSubregions, \
-     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
-     'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
-FTKTagOptions['SectorsAsPatterns8L32b3D'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
-     'bankpatterns': [-1]*NumberOfSubregions, \
-     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
-     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False,
-     'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1, 'SaveRoads': True}
-
 FTKTagOptions['SectorsAsPatterns12L64b'] = {
     'NBanks': 64, 'NSubRegions': 1,
     'pmap_path': 'raw_12LiblHW.pmap', 'rmap_path': 'raw_12Libl64TmodB.tmap',

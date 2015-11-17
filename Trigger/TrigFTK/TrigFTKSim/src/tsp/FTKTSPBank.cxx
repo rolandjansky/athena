@@ -28,8 +28,7 @@ FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     m_setAMSize(0), m_AMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0),
     m_DCMatchMethod(0),
     m_ssmap_tsp(0x0), m_splitted_ssmap(0x0),
-    m_cachepath(""),
-    m_makecache(false)
+    m_makecache(false),m_cachepath("")
 {}
 
 

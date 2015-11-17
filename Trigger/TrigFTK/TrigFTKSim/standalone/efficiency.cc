@@ -524,11 +524,11 @@ int main(int argc, char **argv) {
     po::options_description desc("Options");
     desc.add_options()
       ("help,h", "Print this help message")
-      ("output,o", po::value<std::string>(&output)->default_value("ftk_efficiency.root"), "The name out of the output file")
+      ("output,o", po::value<std::string>(&output)->default_value("FTKCheckEff.root"), "The name out of the output file")
       ("events,e", po::value<int>(&events)->default_value(-1), "The number of events to run over. Set to -1 to use all events")
       ("tower,t", po::value<int>(&towerNumber)->default_value(-1), "the number of the tower in ftkdata output data. Use -1 if you have fully merged output")
       ("use-first-stage", po::bool_switch(&Use1stStage)->default_value(false), "Use events 1st stage tracks instead of 2nd stage tracks")
-      ("files", po::value<std::vector<std::string> >(&files)->multitoken(), "FTK NTUP files");
+      ("files", po::value<std::vector<std::string> >(&files), "FTK NTUP files");
     po::variables_map vm;
     try
     {

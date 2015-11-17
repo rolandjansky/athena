@@ -30,10 +30,10 @@ FTKSetup::FTKSetup() :
    m_restrictSctPairLayer(0), m_restrictSctPairModule(0),
    m_usage_ncalls(0)
 {
-  //m_pid = getpid();
-  //cout << "FTK Framework created (PID " << m_pid << ")" << endl;
-  //gettimeofday(&m_starttime,0);
-  //cout << "Start time " << m_starttime.tv_sec << " sec" << endl;
+  m_pid = getpid();
+  cout << "FTK Framework created (PID " << m_pid << ")" << endl;
+  gettimeofday(&m_starttime,0);
+  cout << "Start time " << m_starttime.tv_sec << " sec" << endl;
 }
 
 

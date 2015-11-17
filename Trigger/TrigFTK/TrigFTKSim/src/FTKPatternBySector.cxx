@@ -362,7 +362,7 @@ void FTKPatternBySectorBlockReader::Rewind(void) {
        i!=fPatterns.end();i++) {
       FTKPatternRootTreeReader *reader=(*i).second;
       reader->Rewind();
-      /*bool returned =*/ reader->ReadNextPattern();
+      bool returned = reader->ReadNextPattern();
    }
 }
 

@@ -1056,7 +1056,6 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
   // set parameters that will remain the same for all the tracks
   newtrk.setBankID(road.getBankID());
   newtrk.setRoadID(road.getRoadID());
-  newtrk.setSectorID(road.getSectorID());
 
   // the base HW flag depends if the road is accepted by the RW
   int HWbase = road.getRWRejected()*10;
@@ -2917,7 +2916,6 @@ void TrackFitter711::prepareCompleteTrack(const FTKRoad &road) {
   // set parameters that will remain the same for all the tracks
   newtrk.setBankID(road.getBankID());
   newtrk.setRoadID(road.getRoadID());
-  newtrk.setSectorID(road.getSectorID());
 }
 
 void TrackFitter711::setLayerInversions(const FTKRoad &road) {

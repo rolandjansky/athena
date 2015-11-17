@@ -77,7 +77,7 @@ bool BOUNDING_BOX;
  * \param hit the hit to be examined
  * \return true if the hit belongs in the ROD, false otherwise
  */
-bool hitSelector(const FTKRawHit &/*hit*/) {
+bool hitSelector(const FTKRawHit &hit) {
     return true;
     //if (hit.getHitType() == PIXEL && hit.getBarrelEC() == 0 && hit.getLayer()== 1) {
         //if (hit.getPhiModule() == 13 && (hit.getEtaModule() <= 0))  {

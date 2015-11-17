@@ -1593,7 +1593,7 @@ int FTK_AMBank::informationMatch(FTKRoad *r1,FTKRoad *r2) {
       if ( condition1 && condition2 ) {
 	// here if the SS of the two patterns in this plane differs
 #ifdef VERBOSE_DEBUG
-	printf("\t\t\tSCT %d and %d (%u) differs\n",m_patterns[_SSPOS(patt1,i)],
+	printf("\t\t\tSCT %d and %d (%d) differs\n",m_patterns[_SSPOS(patt1,i)],
 	       m_patterns[_SSPOS(patt2,i)],bitmask2);
 #endif
 	nsame -= 1;
