@@ -676,7 +676,7 @@ void HLTJetMonTool::bookJetHists() {
 
 
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-  //::  fillBasicL1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
+  //::  fillBasic0L1forChain - "roidesc_eta;roidesc_phi;roidesc_phi_vs_eta;unmatched_eta"; // all with L1 prefix
   //::                      - "et;eta;phi;phi_vs_eta;"; // all with L1 prefix
   //:: 
 
@@ -1808,11 +1808,12 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
   double count=0;
 
   TLorentzVector v_thisjet; //create a 4vector for the single jets in the event
- 
+
+  
 
   if (getTDT()->isPassed(theChain.c_str())){
 
-    ATH_MSG_DEBUG("TDTPassed!");
+    
 
     if((h  = hist("L1Sigma_vs_LB"))){
       //   h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
@@ -1848,6 +1849,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
           double eta = (*it_L1)->eta();
           double phi = (*it_L1)->phi();
 	  double ene = et * cosh(eta);
+
 
           if(m_debuglevel) {
             const Jet_ROI::thresholds_type thrVec = (*it_L1)->thrNames();
@@ -1887,7 +1889,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
       } // for combIt
     } // l2It
 
-    if((h  = hist("L1Jet_Et")))           h->Fill(count,lumi_weight);
+    if((h  = hist("L1Jet_n")))           h->Fill(count,lumi_weight);
     
   } // L2 chain isPassed
 
