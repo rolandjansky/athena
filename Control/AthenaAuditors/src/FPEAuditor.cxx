@@ -49,7 +49,7 @@ FPEAuditor::FPEAuditor( const std::string& name,
   m_fpe_stack(),
   m_NstacktracesOnFPE(0),
   m_SigHandInstalled(false),
-  m_flagp(),
+  //m_flagp(),
   m_env()
 {
   //
@@ -69,6 +69,8 @@ FPEAuditor::FPEAuditor( const std::string& name,
 
 // Destructor
 ///////////////
+#include <fstream>
+#include <iomanip>
 FPEAuditor::~FPEAuditor()
 { 
   //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
