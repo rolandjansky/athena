@@ -355,6 +355,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
         self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
         self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
+        self.DoTrigInDetTrack = InDetTrigSliceSettings[('doTrigInDetTrack',remapped_type)]
 
         if remapped_type=="cosmics":
           self.Doublet_FilterRZ = False
@@ -434,11 +435,11 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.trigZFinder = theTrigZFinder
 
         
-        if type=="FTK" or type=="FTKrefit":
-          from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+        if type=="FTK" or type=="FTKRefit":
+          from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
           self.FTK_DataProviderSvc = TrigFTK_DataProviderSvc()
           self.FTK_Mode=True
-        if type=="FTKrefit":    
+        if type=="FTKRefit":    
           self.FTK_Refit=True
 
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
@@ -479,6 +480,6 @@ class TrigFastTrackFinder_FTK(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_FTK"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTK","FTK")
 
-class TrigFastTrackFinder_FTKrefit(TrigFastTrackFinderBase):
-  def __init__(self, name = "TrigFastTrackFinder_FTKrefit"):
-    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKrefit","FTKrefit")
+class TrigFastTrackFinder_FTKRefit(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_FTKRefit"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_FTKRefit","FTKRefit")
