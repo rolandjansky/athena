@@ -332,66 +332,59 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                 TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
                                 timeHist ]
 
-        if type=="FTK" or type=="FTKRefit":
-          from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
-          self.FTK_DataProviderSvc = theFTK_DataProviderSvc
-          self.FTK_Mode=True
-        if type=="FTKRefit":    
-          self.FTK_Refit=True
-        else:
-          #Spacepoint conversion
-          from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
-          spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool' + remapped_type)
-          spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
-          spTool.UseBeamTilt = False
-          ToolSvc += spTool
-          self.SpacePointProviderTool=spTool
-          self.MinSPs = 5 #Only process RoI with more than 5 spacepoints 
+        #Spacepoint conversion
+        from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
+        spTool = TrigSpacePointConversionTool().clone('TrigSpacePointConversionTool' + remapped_type)
+        spTool.DoPhiFiltering = InDetTrigSliceSettings[('doSpPhiFiltering',remapped_type)]
+        spTool.UseBeamTilt = False
+        ToolSvc += spTool
+        self.SpacePointProviderTool=spTool
+        self.MinSPs = 5 #Only process RoI with more than 5 spacepoints 
 
-          self.Triplet_MinPtFrac = 1
-          self.Triplet_nMaxPhiSlice = 53
-          if remapped_type=="cosmics":
-            self.Triplet_nMaxPhiSlice = 2 #Divide detector in 2 halves for cosmics
+        self.Triplet_MinPtFrac = 1
+        self.Triplet_nMaxPhiSlice = 53
+        if remapped_type=="cosmics":
+          self.Triplet_nMaxPhiSlice = 2 #Divide detector in 2 halves for cosmics
           
-          self.Triplet_MaxBufferLength = 3
-          self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
-          self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
-          self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)] 
-          self.TrackInitialD0Max   = InDetTrigSliceSettings[('d0TrackInitialMax',remapped_type)] 
-          self.TripletDoPSS   = False
-          self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
-          self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
-          self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
-          self.doTrigInDetTrack = InDetTrigSliceSettings[('doTrigInDetTrack',remapped_type)]
+        self.Triplet_MaxBufferLength = 3
+        self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
+        self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
+        self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)] 
+        self.TrackInitialD0Max   = InDetTrigSliceSettings[('d0TrackInitialMax',remapped_type)] 
+        self.TripletDoPSS   = False
+        self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
+        self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
+        self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
+        self.DoTrigInDetTrack = InDetTrigSliceSettings[('doTrigInDetTrack',remapped_type)]
 
-          if remapped_type=="cosmics":
-            self.Doublet_FilterRZ = False
-
-
-          ## SCT and Pixel detector elements road builder
-          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
-          InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
-          if remapped_type=="cosmics":
-            from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
-            InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-          ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
+        if remapped_type=="cosmics":
+          self.Doublet_FilterRZ = False
 
 
-          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
-          InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
-          ToolSvc += InDetTrigSiComTrackFinder_FTF
+        ## SCT and Pixel detector elements road builder
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
+        InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
+        InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
+        if remapped_type=="cosmics":
+          from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
+          InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
+        ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
+
+
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
+        InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
+        ToolSvc += InDetTrigSiComTrackFinder_FTF
         
         
-          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
-          TrackingCuts = EFIDTrackingCuts
-          if remapped_type=="cosmics":
-            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
-            TrackingCuts = EFIDTrackingCutsCosmics
+        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+        TrackingCuts = EFIDTrackingCuts
+        if remapped_type=="cosmics":
+          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
+          TrackingCuts = EFIDTrackingCutsCosmics
 
-          from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
+        from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
-          TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+type,
+        TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+type,
                                                 RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                                 CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
                                                 pTmin          = InDetTrigSliceSettings[('pTmin',remapped_type)],
@@ -405,55 +398,57 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                                 Xi2maxMultiTracks         = TrackingCuts.Xi2max(),
                                                 UseAssociationTool       = False)
 
-          from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-          if type=='eGamma' and InDetTrigFlags.doBremRecovery():
-            TrackMaker_FTF.useBremModel = True
+        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+        if type=='eGamma' and InDetTrigFlags.doBremRecovery():
+          TrackMaker_FTF.useBremModel = True
   
-          if remapped_type=="cosmics":
-            TrackMaker_FTF.RoadTool.CosmicTrack=True
+        if remapped_type=="cosmics":
+          TrackMaker_FTF.RoadTool.CosmicTrack=True
 
-          ToolSvc += TrackMaker_FTF
-          self.initialTrackMaker = TrackMaker_FTF
+        ToolSvc += TrackMaker_FTF
+        self.initialTrackMaker = TrackMaker_FTF
 
-          from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
-          theTrigInDetTrackFitter = TrigInDetTrackFitter()
-          theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
+        from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
+        theTrigInDetTrackFitter = TrigInDetTrackFitter()
+        theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
 
             
 
-          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
-          theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
-          ToolSvc += theTrigInDetTrackFitter
-          self.trigInDetTrackFitter = theTrigInDetTrackFitter
-          from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-          if type=='eGamma' and InDetTrigFlags.doBremRecovery():
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
+        theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
+        ToolSvc += theTrigInDetTrackFitter
+        self.trigInDetTrackFitter = theTrigInDetTrackFitter
+        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+        if type=='eGamma' and InDetTrigFlags.doBremRecovery():
             theTrigInDetTrackFitterBrem = TrigInDetTrackFitter(name='theTrigInDetTrackFitterBrem',
                                                                doBremmCorrection = True)
             ToolSvc += theTrigInDetTrackFitterBrem
             self.trigInDetTrackFitter = theTrigInDetTrackFitterBrem
 
-          self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
-          if (self.doZFinder):
-            from IDScanZFinder.IDScanZFinderConf import TrigZFinder
-            theTrigZFinder = TrigZFinder()
-            theTrigZFinder.NumberOfPeaks = 3
-            theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
-            ToolSvc += theTrigZFinder
-            self.trigZFinder = theTrigZFinder
+        self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
+        if (self.doZFinder):
+          from IDScanZFinder.IDScanZFinderConf import TrigZFinder
+          theTrigZFinder = TrigZFinder()
+          theTrigZFinder.NumberOfPeaks = 3
+          theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
+          ToolSvc += theTrigZFinder
+          self.trigZFinder = theTrigZFinder
 
         
-          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-          self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+        if type=="FTK" or type=="FTKRefit":
+          from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+          self.FTK_DataProviderSvc = TrigFTK_DataProviderSvc()
+          self.FTK_Mode=True
+        if type=="FTKRefit":    
+          self.FTK_Refit=True
 
-          if remapped_type == "tauCore":
-            from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
-            self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
-
-          from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
-          resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
-          ToolSvc += resCalc
-          self.TrigL2ResidualCalculator = resCalc
-          self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
+        from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+        self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+        from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
+        resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
+        ToolSvc += resCalc
+        self.TrigL2ResidualCalculator = resCalc
+        self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
         print self
 
 
