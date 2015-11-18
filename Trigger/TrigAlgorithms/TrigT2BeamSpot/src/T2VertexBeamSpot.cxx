@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpot.cxx 648108 2015-02-19 13:15:50Z smh $
+// $Id: T2VertexBeamSpot.cxx 702277 2015-10-22 10:33:51Z smh $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -124,6 +124,9 @@ T2VertexBeamSpot::T2VertexBeamSpot( const std::string& name, ISvcLocator* pSvcLo
 
   // Vertexing
   declareProperty("doVertexFit",       impl->m_doVertexFit = true);
+
+  // Use TrigInDetTracks instead of Trk::Tracks
+  declareProperty("doTrigInDetTrack",       m_doTrigInDetTrack = false);
   
   //-----------------------
   // activate TE  
@@ -344,43 +347,82 @@ T2VertexBeamSpot::hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& t
 
       // Create collections of selected tracks
       // TrigInDetTrackCollection mySelectedTrackCollection( SG::VIEW_ELEMENTS );
-      TrigInDetTrackCollection mySelectedTrackCollection;
-      mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
-      // FIXME: TrigInDetTrackCollection neglects to forward the
-      // DataVector<TrigInDetTrack>(SG::OwnershipPolicy) constructor
+      if (m_doTrigInDetTrack) {
+        TrigInDetTrackCollection mySelectedTrackCollection;
+        mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+        // FIXME: TrigInDetTrackCollection neglects to forward the
+        // DataVector<TrigInDetTrack>(SG::OwnershipPolicy) constructor
 
-      // Process all TEs (and in turn all ROIs in the TE, all tracks in the ROI)
-      impl->processTEs( tes_in, mySelectedTrackCollection );
-  
-      //-------------------------
-      // Requirements for tracks
-      //-------------------------
+        // Process all TEs (and in turn all ROIs in the TE, all tracks in the ROI)
+        impl->processTEs( tes_in, mySelectedTrackCollection );
 
-      // Check for seed tracks (= high-pT tracks)
-      if ( impl->m_TotalHiPTTracks < 1 )
+        //-------------------------
+        // Requirements for tracks
+        //-------------------------
+
+        // Check for seed tracks (= high-pT tracks)
+        if ( impl->m_TotalHiPTTracks < 1 )
         {
           if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " No seed tracks for vertex" << endreq;
           break;
         }
 
-      impl->eventStage( hasSeedTrack );
+        impl->eventStage( hasSeedTrack );
 
-      // Check for the total number of available tracks
-      if ( impl->m_TotalTracksPass < impl->m_totalNTrkMin )
+        // Check for the total number of available tracks
+        if ( impl->m_TotalTracksPass < impl->m_totalNTrkMin )
         {
           if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Not enough total passed tracks to vertex" << endreq;
           break;
         }
-  
-      impl->eventStage( enoughTracks );
-  
-      //-----------------------
-      // Vertex reconstruction
-      //-----------------------
 
-      // Cluster tracks in z around seed track and reconstruct vertices
-      impl->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+        impl->eventStage( enoughTracks );
 
+        //-----------------------
+        // Vertex reconstruction
+        //-----------------------
+
+        // Cluster tracks in z around seed track and reconstruct vertices
+        impl->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+      }
+    else {
+        TrackCollection mySelectedTrackCollection;
+        mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+        // FIXME: TrigInDetTrackCollection neglects to forward the
+        // DataVector<TrigInDetTrack>(SG::OwnershipPolicy) constructor
+
+        // Process all TEs (and in turn all ROIs in the TE, all tracks in the ROI)
+        impl->processTEs( tes_in, mySelectedTrackCollection );
+
+        //-------------------------
+        // Requirements for tracks
+        //-------------------------
+
+        // Check for seed tracks (= high-pT tracks)
+        if ( impl->m_TotalHiPTTracks < 1 )
+        {
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " No seed tracks for vertex" << endreq;
+          break;
+        }
+
+        impl->eventStage( hasSeedTrack );
+
+        // Check for the total number of available tracks
+        if ( impl->m_TotalTracksPass < impl->m_totalNTrkMin )
+        {
+          if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << " Not enough total passed tracks to vertex" << endreq;
+          break;
+        }
+
+        impl->eventStage( enoughTracks );
+
+        //-----------------------
+        // Vertex reconstruction
+        //-----------------------
+
+        // Cluster tracks in z around seed track and reconstruct vertices
+        impl->reconstructVertices( mySelectedTrackCollection, myVertexCollection, mySplitVertexCollections );
+      }
     } while (false);
 
   //------------------------------------

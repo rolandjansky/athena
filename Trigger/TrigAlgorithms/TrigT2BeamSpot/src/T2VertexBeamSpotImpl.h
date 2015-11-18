@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2VertexBeamSpotImpl.h 651766 2015-03-05 10:12:11Z smh $
+/// $Id: T2VertexBeamSpotImpl.h 704927 2015-10-30 17:01:06Z smh $
 ///
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
 ///
@@ -29,7 +29,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpotImpl.h 651766 2015-03-05 10:12:11Z smh $
+ * $Id: T2VertexBeamSpotImpl.h 704927 2015-10-30 17:01:06Z smh $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOTIMPL_H
@@ -47,6 +47,8 @@
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "DataModel/DataVector.h"
+
+#include "TrkTrack/TrackCollection.h"
 
 #include <string>
 #include <vector>
@@ -153,17 +155,33 @@ namespace PESA {
     void processTEs( const std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
                      TrigInDetTrackCollection& mySelectedTrackCollection );
 
+    void processTEs( const std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
+                     TrackCollection& mySelectedTrackCollection );
+
     void processROIs( const HLT::TEVec& myTEVec,
                       TrigInDetTrackCollection& mySelectedTrackCollection );
 
+    void processROIs( const HLT::TEVec& myTEVec,
+                      TrackCollection& mySelectedTrackCollection );
+
     void selectTracks( const std::vector< const TrigInDetTrackCollection* >& vectorOfTrackCollections,
                        TrigInDetTrackCollection& mySelectedTrackCollection );
+
+    void selectTracks( const std::vector< const TrackCollection* >& vectorOfTrackCollections,
+                       TrackCollection& mySelectedTrackCollection );
 
     void reconstructVertices( TrigInDetTrackCollection& mySelectedTrackCollection,
                               TrigVertexCollection& myVertexCollection,
                               DataVector< TrigVertexCollection >& mySplitVertexCollections );
 
+    void reconstructVertices( TrackCollection& mySelectedTrackCollection,
+                              TrigVertexCollection& myVertexCollection,
+                              DataVector< TrigVertexCollection >& mySplitVertexCollections );
+
     void reconstructSplitVertices( TrigInDetTrackCollection& mySelectedTrackCollection,
+                                   DataVector< TrigVertexCollection >& mySplitVertexCollections );
+
+    void reconstructSplitVertices( TrackCollection& mySelectedTrackCollection,
                                    DataVector< TrigVertexCollection >& mySplitVertexCollections );
 
     void createOutputTEs( TrigVertexCollection& myVertexCollection,

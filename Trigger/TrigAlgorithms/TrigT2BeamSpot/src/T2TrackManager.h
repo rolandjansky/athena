@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2TrackManager.h 648108 2015-02-19 13:15:50Z smh $
+/// $Id: T2TrackManager.h 702277 2015-10-22 10:33:51Z smh $
 ///
 /// T2TrackManager.h, (c) ATLAS Detector software
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -22,6 +22,7 @@
 #define TRIGT2BEAMSPOT_T2TRACKMANAGER_H
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
+#include "TrkTrack/TrackCollection.h"
 
 #include <vector>
 #include <cmath>
@@ -47,6 +48,7 @@ namespace PESA
     
     // Retrun a vector of sub-clusters
     std::vector< TrigInDetTrackCollection > split( const TrigInDetTrackCollection& cluster);
+    std::vector< TrackCollection >          split( const TrackCollection& cluster);
 
     // Get and Set parameters
     //    int GetNSplit() {return m_nSplit;}
