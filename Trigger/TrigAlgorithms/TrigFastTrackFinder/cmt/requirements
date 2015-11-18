@@ -44,6 +44,7 @@ use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*  Trigger/TrigTools
 use TrkTrack		        TrkTrack-* 		   Tracking/TrkEvent
 use TrigTimeAlgs		TrigTimeAlgs-*		   Trigger/TrigTools
 use InDetBeamSpotService        InDetBeamSpotService-*     InnerDetector/InDetConditions
+use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
 
 use AthenaBaseComps              AthenaBaseComps-*	   Control
 use InDetPrepRawData     	 InDetPrepRawData-*	   InnerDetector/InDetRecEvent 
