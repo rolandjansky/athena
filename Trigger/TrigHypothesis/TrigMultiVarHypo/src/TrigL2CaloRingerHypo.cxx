@@ -105,7 +105,6 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   float eta     = std::fabs(emCluster->eta());
   float et      = emCluster->et()*1e-3;//GeV
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
   float output  = rnnOutput->rnnDecision().at(0);
 
 

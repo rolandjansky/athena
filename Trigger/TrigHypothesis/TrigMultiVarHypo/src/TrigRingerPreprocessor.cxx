@@ -14,8 +14,6 @@
 #include <iostream>
 using namespace std;
 
-using TrigCaloRingsHelper::RingSet;
-
 //!======================================================================================
 TrigRingerPreprocessor::TrigRingerPreprocessor(std::vector<unsigned int> &nRings, 
                                                std::vector<unsigned int>  &normRings,
@@ -24,9 +22,7 @@ TrigRingerPreprocessor::TrigRingerPreprocessor(std::vector<unsigned int> &nRings
   // For each configured ring set, create an ordered RingSet, placing them into a vector.
   for (unsigned int i = 0; i < nRings.size(); ++i) {
     m_ringsSet.push_back(new RingSet(nRings[i], (RingSet::Normalisation) normRings[i], (RingSet::Section) sectionRings[i]));
-  } 
-
-  m_energyThreshold = -9999; 
+  }  
   m_maxRingsAccumulated = std::accumulate(nRings.begin(), nRings.end(), 0);
 }
 //!======================================================================================

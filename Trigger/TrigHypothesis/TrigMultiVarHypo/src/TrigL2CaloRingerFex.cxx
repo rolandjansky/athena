@@ -89,13 +89,13 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     MultiLayerPerceptron   *discr   = nullptr;
     TrigRingerPreprocessor *preproc = nullptr;
     
-    if ( msgLvl() <= MSG::INFO ) {
-      msg() << MSG::INFO << "Create multi layer perceptron discriminator using configuration:" << endreq; 
-      msg() << MSG::INFO << "   Input layer   :   " << m_nodes[i*SIZEOF_NODES+0] << endreq;
-      msg() << MSG::INFO << "   Hidden layer  :   " << m_nodes[i*SIZEOF_NODES+1] << endreq;
-      msg() << MSG::INFO << "   Output layer  :   " << m_nodes[i*SIZEOF_NODES+2] << endreq;
-      msg() << MSG::INFO << "   Eta range     :   " << m_etaBins[i][0] << " < |eta|   <=" << m_etaBins[i][1] << endreq;
-      msg() << MSG::INFO << "   Et range      :   " << m_etBins[i][0] << "  < Et[GeV] <=" << m_etBins[i][1]  << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) {
+      msg() << MSG::DEBUG << "Create multi layer perceptron discriminator using configuration:" << endreq; 
+      msg() << MSG::DEBUG << "   Input layer   :   " << m_nodes[i*SIZEOF_NODES+0] << endreq;
+      msg() << MSG::DEBUG << "   Hidden layer  :   " << m_nodes[i*SIZEOF_NODES+1] << endreq;
+      msg() << MSG::DEBUG << "   Output layer  :   " << m_nodes[i*SIZEOF_NODES+2] << endreq;
+      msg() << MSG::DEBUG << "   Eta range     :   " << m_etaBins[i][0] << " < |eta|   <=" << m_etaBins[i][1] << endreq;
+      msg() << MSG::DEBUG << "   Et range      :   " << m_etBins[i][0] << "  < Et[GeV] <=" << m_etBins[i][1]  << endreq;
     }
     try{
       ///Alloc discriminator
@@ -154,8 +154,8 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     m_storeTimer    = addTimer("StoreOutput");
   }///Only if time is set on python config
 
-  if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigL2CaloRingerHypo initialization completed successfully." << endreq;
+  if ( msgLvl() <= MSG::INFO )
+    msg() << MSG::INFO << "TrigL2CaloRingerHypo initialization completed successfully." << endreq;
 
   return HLT::OK;
 }
@@ -166,8 +166,8 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {
     if(m_preproc.at(i))         delete m_preproc.at(i);
     if(m_discriminators.at(i))  delete m_discriminators.at(i);
   }///Loop over all discriminators and prepoc objects
-  if ( msgLvl() <= MSG::DEBUG ) 
-    msg() << MSG::DEBUG << "TrigL2CaloRingerHypo finalization completed successfully." << endreq;
+  if ( msgLvl() <= MSG::INFO ) 
+    msg() << MSG::INFO << "TrigL2CaloRingerHypo finalization completed successfully." << endreq;
   return HLT::OK;
 }
 //!===============================================================================================
@@ -199,8 +199,6 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   MultiLayerPerceptron    *discr  = nullptr;
   TrigRingerPreprocessor  *preproc = nullptr;
   float eta = std::fabs(emCluster->eta());
-  if(eta>2.50) eta=2.50;///fix for events out of the ranger
-
   float et  = emCluster->et()*1e-3; ///in GeV
   
   if(m_discriminators.size() > 0){
@@ -217,26 +215,16 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
 
     ///get shape
     const std::vector<float> rings = ringerShape->rings();
-    if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "ringerShape->rings().size() is: " <<rings.size() << endreq;
- 
     std::vector<float> refRings(rings.size());
     refRings.assign(rings.begin(), rings.end());
-
-    if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Et = " << et << " GeV, |eta| = " << eta << endreq;
 
     ///pre-processing shape
     if(doTiming())  m_normTimer->start();
     if(preproc)     preproc->ppExecute(refRings);
     if(doTiming())  m_normTimer->stop();
 
-    if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "after preproc refRings.size() is: " <<rings.size() << endreq;
- 
     ///Apply the discriminator
-    if(discr)  m_output = discr->propagate(refRings);
-
+    m_output = discr->propagate(refRings);
   }else{
     if(msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "There is no discriminator into this Fex." << endreq;

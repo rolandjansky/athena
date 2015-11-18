@@ -4,32 +4,14 @@
 
 #ifndef TRIGRINGERHELPER_H
 #define TRIGRINGERHELPER_H
+
 #include <vector>
-#include <string>
 
 typedef float Feature;
 typedef std::vector<Feature> Pattern;
 
 
-namespace TrigCaloRingsHelper{
-  
-  enum CaloRingsLayer{
-    PS   = 0,
-    EM1  = 1,
-    EM2  = 2,
-    EM3  = 3,
-    HAD1 = 4,
-    HAD2 = 5,
-    HAD3 = 6
-  };
-  /*
-   * rings map into std::vector
-   * 0:7   PS; 8:71  EM1;  72:79 EM2;  80:87 EM3
-   * 88:91 HAD1; 92:95 HAD2; 96:99 HAD3
-   */
-  void parseTrigCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, 
-                                 std::string &caloLayerName);
-
+// Helper class used to build ringsets
 class RingSet {
   
   public: //interface
@@ -78,9 +60,4 @@ class RingSet {
     Section       m_section;  ///< the section this ring set belongs to
     Pattern       m_val;      ///< my current values
 };
-
-
-} // namespace TrigCaloRingsHelper
-
-
 #endif /* TrigCaloRingerHelper */
