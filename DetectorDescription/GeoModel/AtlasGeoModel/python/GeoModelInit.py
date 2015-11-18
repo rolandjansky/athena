@@ -7,8 +7,13 @@ def _setupGeoModel():
     from AthenaCommon.JobProperties import jobproperties
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
  
-    import DetDescrCnvSvc.DetStoreConfig
-    svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
+    try:
+        from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+        if not (hasattr(svcMgr,'DetDescrCnvSvc') and TrkDetFlags.ISF_FatrasCustomGeometry()):
+            import DetDescrCnvSvc.DetStoreConfig
+            svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
+    except ImportError:
+        pass
 
     # Conditions DB setup and TagInfo
     from IOVDbSvc.CondDB import conddb
