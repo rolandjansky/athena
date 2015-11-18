@@ -14,6 +14,10 @@
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+
 using namespace xAOD;
 
 class HIJetUEMonitoring : public JetHistoBase {
@@ -37,55 +41,96 @@ class HIJetUEMonitoring : public JetHistoBase {
   float m_vN_fcal;
   unsigned int n;
   unsigned int harmonic;
-  float minCut;
-  float maxCut;
+  float m_ptcut=60.0;
 
  protected:
   ToolHandleArray<HistoDefinitionTool> m_histoDef;
   std::string m_refContainerName;
+  int m_jetScale;
 
-  TH1F* m_MaxOverMean_CentralColl;
-  TH1F* m_MaxConstituentET_CentralColl;
-  TH1F* m_JetUnsubtractedScaleMomentum_pt_CentralColl; 
-  TH1F* m_JetUnsubtractedScaleMomentum_eta_CentralColl;
-  TH1F* m_JetUnsubtractedScaleMomentum_phi_CentralColl;
-  TH1F* m_JetUnsubtractedScaleMomentum_m_CentralColl;
-  TH1F* m_JetSubtractedScaleMomentum_pt_CentralColl; 
-  TH1F* m_JetSubtractedScaleMomentum_eta_CentralColl;
-  TH1F* m_JetSubtractedScaleMomentum_phi_CentralColl;
-  TH1F* m_JetSubtractedScaleMomentum_m_CentralColl;
-  TH1F* m_JetSubtractedScaleNoVnMomentum_pt_CentralColl; 
-  TH1F* m_JetSubtractedScaleNoVnMomentum_eta_CentralColl;
-  TH1F* m_JetSubtractedScaleNoVnMomentum_phi_CentralColl;
-  TH1F* m_JetSubtractedScaleNoVnMomentum_m_CentralColl;
+  TH1F* m_FCALET;
 
   TProfile * m_SubtractedET_Centrality;
-  TH2F * m_2d_SubtractedET_Centrality;
-  TH2F * m_2d_SubtractedETNoVN_Centrality; 
-  TH2F * m_2d_UnSubtractedETNoVN_Centrality; 
-  TH2F * m_2d_SubtractedET_Expected_Centrality;
-  TH2F * m_2d_SubtractedETNoVN_Expected_Centrality; 
-  TH2F * m_2d_UnSubtractedETNoVN_Expected_Centrality; 
-  TH2F * m_2d_SubtractedET_Expected_eta;
-  TH2F * m_2d_SubtractedETNoVN_Expected_eta; 
-  TH2F * m_2d_UnSubtractedETNoVN_Expected_eta; 
-  TProfile * m_SubtractedET_Expected_eta;
-  TProfile * m_SubtractedETNoVN_Expected_eta;
-  TProfile * m_UnSubtractedETNoVN_Expected_eta;
+  TH2F * m_2dSubtractedET_Centrality;
+  TH2F * m_2dSubtractedET_Expected_Centrality;
 
-  TProfile * m_SubtractedET_eta;
-  TProfile * m_SubtractedET_RP;
-  TProfile * m_SubtractedET_2Dphi;
-  TH2F * m_2d_SubtractedET_2Dphi;
-  TProfile * m_SubtractedETNoVN_2Dphi;
-  TH2F * m_2d_SubtractedETNoVN_2Dphi;
-  TProfile * m_SubtractedET_eta_CentralColl;
-  TProfile * m_SubtractedET_RP_CentralColl;
-  TProfile * m_SubtractedET_2Dphi_CentralColl;
-  TH2F * m_2d_SubtractedET_2Dphi_CentralColl;
-  TProfile * m_SubtractedETNoVN_2Dphi_CentralColl;
-  TH2F * m_2d_SubtractedETNoVN_2Dphi_CentralColl;
-  int m_jetScale;
+  //0-10%
+  TH1F* m_JetUnsubtractedScaleMomentum_pt_0_10; 
+  TH1F* m_JetUnsubtractedScaleMomentum_eta_0_10;
+  TH1F* m_JetUnsubtractedScaleMomentum_phi_0_10;
+  TH1F* m_JetUnsubtractedScaleMomentum_m_0_10;
+  TH1F* m_JetSubtractedScaleMomentum_pt_0_10; 
+  TH1F* m_JetSubtractedScaleMomentum_eta_0_10;
+  TH1F* m_JetSubtractedScaleMomentum_phi_0_10;
+  TH1F* m_JetSubtractedScaleMomentum_m_0_10;
+
+  TH2F * m_2dSubtractedET_Expected_eta_0_10;
+  TProfile * m_SubtractedET_Expected_eta_0_10;
+
+  TH2F *     m_2dSubtractedET_2Dphi_0_10;
+
+  TProfile * m_SubtractedET_eta_0_10;
+  TProfile * m_SubtractedET_pt_0_10;
+
+  TProfile * m_SubtractedET_2Dphi_0_10;
+
+  /* //10-20% */
+  TH1F* m_JetUnsubtractedScaleMomentum_pt_10_20; 
+  TH1F* m_JetUnsubtractedScaleMomentum_eta_10_20;
+  TH1F* m_JetUnsubtractedScaleMomentum_phi_10_20;
+  TH1F* m_JetUnsubtractedScaleMomentum_m_10_20;
+  TH1F* m_JetSubtractedScaleMomentum_pt_10_20; 
+  TH1F* m_JetSubtractedScaleMomentum_eta_10_20;
+  TH1F* m_JetSubtractedScaleMomentum_phi_10_20;
+  TH1F* m_JetSubtractedScaleMomentum_m_10_20;
+
+  TH2F * m_2dSubtractedET_Expected_eta_10_20;
+  TProfile * m_SubtractedET_Expected_eta_10_20;
+
+  TH2F *     m_2dSubtractedET_2Dphi_10_20;
+
+  TProfile * m_SubtractedET_eta_10_20;
+  TProfile * m_SubtractedET_pt_10_20;
+  TProfile * m_SubtractedET_2Dphi_10_20;
+
+  /* //20-40% */
+  TH1F* m_JetUnsubtractedScaleMomentum_pt_20_40; 
+  TH1F* m_JetUnsubtractedScaleMomentum_eta_20_40;
+  TH1F* m_JetUnsubtractedScaleMomentum_phi_20_40;
+  TH1F* m_JetUnsubtractedScaleMomentum_m_20_40;
+  TH1F* m_JetSubtractedScaleMomentum_pt_20_40; 
+  TH1F* m_JetSubtractedScaleMomentum_eta_20_40;
+  TH1F* m_JetSubtractedScaleMomentum_phi_20_40;
+  TH1F* m_JetSubtractedScaleMomentum_m_20_40;
+
+  TH2F * m_2dSubtractedET_Expected_eta_20_40;
+  TProfile * m_SubtractedET_Expected_eta_20_40;
+
+  TH2F *     m_2dSubtractedET_2Dphi_20_40;
+
+  TProfile * m_SubtractedET_eta_20_40;
+  TProfile * m_SubtractedET_pt_20_40;
+  TProfile * m_SubtractedET_2Dphi_20_40;
+
+  /* //60-100% */
+  TH1F* m_JetUnsubtractedScaleMomentum_pt_60_100; 
+  TH1F* m_JetUnsubtractedScaleMomentum_eta_60_100;
+  TH1F* m_JetUnsubtractedScaleMomentum_phi_60_100;
+  TH1F* m_JetUnsubtractedScaleMomentum_m_60_100;
+  TH1F* m_JetSubtractedScaleMomentum_pt_60_100; 
+  TH1F* m_JetSubtractedScaleMomentum_eta_60_100;
+  TH1F* m_JetSubtractedScaleMomentum_phi_60_100;
+  TH1F* m_JetSubtractedScaleMomentum_m_60_100;
+
+  TH2F * m_2dSubtractedET_Expected_eta_60_100;
+  TProfile * m_SubtractedET_Expected_eta_60_100;
+
+  TH2F *     m_2dSubtractedET_2Dphi_60_100;
+
+  TProfile * m_SubtractedET_eta_60_100;
+  TProfile * m_SubtractedET_pt_60_100;
+  TProfile * m_SubtractedET_2Dphi_60_100;
+
 };
 	
 	

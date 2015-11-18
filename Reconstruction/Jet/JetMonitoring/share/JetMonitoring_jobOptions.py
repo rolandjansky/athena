@@ -8,7 +8,7 @@ jetMonMan = AthenaMonManager( "JetMonManager",
 topSequence += jetMonMan
  
 if rec.doHeavyIon:
-    from JetMonitoring.JetMonitoringHistosHI import athenaMonitoringTools
+    from JetMonitoring.HIJetMonitoringHistos import athenaMonitoringTools
 else:
     from JetMonitoring.JetMonitoringHistos import athenaMonitoringTools
 
