@@ -1080,7 +1080,7 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
         seq=AthSequencer("AthFilterSeq")
         seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthFilterSeq")
         seq+=topSequence.TrigConfDataIOVChanger
-        seq+=topSequence.RoIBResultToAOD
+        seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
 
