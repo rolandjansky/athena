@@ -92,6 +92,7 @@ namespace MuonCombined {
     bool m_debugMode;                   //!< Switch for extra printout
     bool m_doOldExtrapolation;          //!< In doubt ? >
     //bool m_doDressing;                  //!< This is to speed up tests where high fake rate is expected. Should be true by default
+    bool m_ignoreSiAssocated;           //!< If true, ignore InDetCandidates which are SiAssociated
     
     // --- Isolation cuts ---
     double m_ptIsoPtRatioCut;           //!< Pt isolation for a .45 cone, normalized to track pt
