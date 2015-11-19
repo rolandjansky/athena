@@ -251,16 +251,11 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
 ///////////////////////////////////////////////////////////////////////////////
 // - New getDeposits
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* ccc) const {
+std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::TrackParticle* tp) const {
 
     ATH_MSG_DEBUG("In TrackDepositsInCaloTool::getDeposits() - new");
     std::vector<DepositInCalo> result;
     const unsigned int nSamples = CaloSampling::getNumberOfSamplings();
-
-    if (!ccc) {
-      ATH_MSG_WARNING("Could not retrieve caloCells");
-     // return result;
-    }
 
 // - associate calocells to trackparticle, cone size 0.2, use cache
 
