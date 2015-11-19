@@ -349,7 +349,7 @@ LArNumberHelper::prepare_arrays()
     Identifier id = m_em_id->region_id(2,2,0);
     IdentifierHash i = m_em_id->region_hash(id);
     double cellsize = (double)  m_em_id->phiGranularity(i);
-    phiEMECShift = cellsize / 6. ;
+    phiEMECShift = cellsize * (1./ 6.) ;
   }
 
   for ( unsigned int i=0; i < m_em_id->region_hash_max(); i++ ) {

@@ -61,7 +61,7 @@ LArRecoMaterialTool::initialize()
   // ---------- Fill arrays :
 
   // going though the full tree is too slow to be used as default, 
-  // if you want to do it set this flat to true :
+  // if you want to do it set this flag to true :
   // ( will become a property at some point ! )
   m_parseGeoModelForMaterial = false;
 
@@ -210,12 +210,10 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
     return false;
   }
 
-  // For EC, link to GeoModel does not exits (yet) : take barrel numbers
+  // For EC, link to GeoModel does not exist (yet) : take barrel numbers
 
   // Shortcut : 
-  if ( !m_parseGeoModelForMaterial && 
-       (alvol== CaloSubdetNames::LARCRYO_EC_POS
-        && alvol == CaloSubdetNames::LARCRYO_EC_NEG))
+  if ( !m_parseGeoModelForMaterial )
     {
       if ( alvol == CaloSubdetNames::LARCRYO_B || alvol == CaloSubdetNames::SOLENOID) {
 	mass = 3.61158e+07  ;
@@ -502,7 +500,7 @@ LArRecoMaterialTool::ScanPS(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass/CLHEP::gram;
+    mass =  childMass*(1./CLHEP::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -657,7 +655,7 @@ LArRecoMaterialTool::ScanEMB(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass/CLHEP::gram;
+    mass =  childMass*(1./CLHEP::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -853,7 +851,7 @@ LArRecoMaterialTool::ScanHEC(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass/CLHEP::gram;
+    mass =  childMass*(1./CLHEP::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -1031,7 +1029,7 @@ LArRecoMaterialTool::ScanFCAL(CaloSubdetNames::ALIGNVOL alvol,
 			  childX0, childDeDx,
 			  childAverageA, childAverageZ, childRho );
     
-    mass =  childMass/CLHEP::gram;
+    mass =  childMass*(1./CLHEP::gram);
     x0 = childX0;
     dEdx = childDeDx;
     aveA = childAverageA;
@@ -1097,13 +1095,13 @@ LArRecoMaterialTool::addMaterialFraction(const GeoLogVol& geoVol,
      double fraction = childMaterial->getFraction(iEl);
 
      ATH_MSG_DEBUG ("         direct child : " << geoEl->getName() << " fraction = " << fraction 
-                    << " A= " << geoEl->getA()/(CLHEP::gram) << " Z= " << geoEl->getZ());
+                    << " A= " << geoEl->getA()*(1./CLHEP::gram) << " Z= " << geoEl->getZ());
 
      volume.push_back(fraction*childVolume);
      mass.push_back(fraction*childVolume*childRho);
      x0.push_back(fraction*childX0);
      dEdX.push_back(fraction*childDeDx);
-     aveA.push_back(fraction*(geoEl->getA()/(CLHEP::gram)));
+     aveA.push_back(fraction*(geoEl->getA()*(1./CLHEP::gram)));
      aveZ.push_back(fraction*(geoEl->getZ()));             
    }
    
@@ -1151,7 +1149,7 @@ LArRecoMaterialTool::averageFraction (std::vector<double>& volumeFractions,
   ATH_MSG_DEBUG ("");
   ATH_MSG_DEBUG ("  + averaged over " << parsedVolumes << " volumes ");
   ATH_MSG_DEBUG ("    - volume   [mm^3]        : " << childVolume);
-  ATH_MSG_DEBUG ("    - mass     [gram]        : " << childMass/CLHEP::gram);
+  ATH_MSG_DEBUG ("    - mass     [gram]        : " << childMass*(1./CLHEP::gram));
   ATH_MSG_DEBUG ("    - rho      [gram/mm^3]   : " << childRho);
   ATH_MSG_DEBUG ("    - X0                     : " << childX0);
   ATH_MSG_DEBUG ("    - DeDx                   : " << childDeDx);
