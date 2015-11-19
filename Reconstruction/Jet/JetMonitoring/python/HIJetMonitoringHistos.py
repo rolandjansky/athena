@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
+from JetMonitoring.HIJetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, HIJetUEMonitoring, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 from JetRec.JetRecFlags import jetFlags
@@ -25,11 +25,9 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-        selectionAndHistos( "60000<pt<100000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_60_100" ),
-        selectionAndHistos( "100000<pt<250000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_100_250" ),
-        selectionAndHistos( "250000<pt<800000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_250_800" ),
-        selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
-        selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
+        selectionAndHistos( "60000<pt<100000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_60_100" ),
+        selectionAndHistos( "100000<pt<250000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_100_250" ),
+        selectionAndHistos( "250000<pt<800000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_250_800" ),
 
         jhm.Width,
 
@@ -57,14 +55,6 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             jhm.HECQuality,
             jhm.FracSamplingMax,
             jhm.FracSamplingMaxIndex,
-#            jhm.N90Constituents,
-#            jhm.CentroidR,
-#            jhm.OotFracClusters5,
-#            jhm.OotFracClusters10,
-#            jhm.ptN,
-#            jhm.LeadingClusterCenterLambda,
-#            jhm.LeadingClusterSecondLambda,
-#            jhm.LeadingClusterSecondR,
 
             # energy per sampling
             jhm.PreSamplerB,
@@ -103,24 +93,20 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             jhm.JetSubtractedScaleMomentum_eta,
             jhm.JetSubtractedScaleMomentum_phi,
             jhm.JetSubtractedScaleMomentum_m,
-            jhm.JetSubtractedScaleNoVnMomentum_pt,
-            jhm.JetSubtractedScaleNoVnMomentum_eta,
-            jhm.JetSubtractedScaleNoVnMomentum_phi,
-            jhm.JetSubtractedScaleNoVnMomentum_m,
             ]
 
             # centrality
         filler.HistoTools += [jhm.centrality,]                                                          
         filler.HistoTools['centrality'].RefContainer = refcontainer
 
-        if jetFlags.useTracks:
-            filler.HistoTools += [
-                # track variables
-                jhm.tool("JVF[0]"),
-                jhm.SumPtTrkPt1000,
-                jhm.GhostTrackCount,
-                jhm.CHF,
-                ]
+#        if jetFlags.useTracks:
+#            filler.HistoTools += [
+#                # track variables
+#                jhm.tool("JVF[0]"),
+#                jhm.SumPtTrkPt1000,
+#                jhm.GhostTrackCount,
+#                jhm.CHF,
+#                ]
             
         
         if refcontainer:
@@ -155,6 +141,7 @@ if DQMonFlags.useTrigger() :
     athenaMonTool_trig.TrigDecisionTool =  ToolSvc.monTrigDecTool
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
     #athenaMonTool_trig.TriggerChain =  "HLT_j25,HLT_j60,HLT_j200_jes_PS" 
+#    athenaMonTool_trig.TriggerChain =  "j20 ion"
     #athenaMonTool_trig.OutputLevel = 2
 
 
