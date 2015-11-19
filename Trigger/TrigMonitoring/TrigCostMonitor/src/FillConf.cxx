@@ -394,12 +394,11 @@ bool Trig::FillConf::FillHLT(TrigMonConfig &confg,
     //
     // Iterate over and add streams and groups
     //
-    //    const vector<TrigConf::HLTStreamTag*> &str_vec = hchn->streamTagList();
-
-    //    for(unsigned int i = 0; i < str_vec.size(); ++i) {
-    //      TrigConf::HLTStreamTag *htag = str_vec[i];
-      //      if(htag) mychn.addStream(htag->stream(), htag->prescale());
-    //    }
+    const vector<TrigConf::HLTStreamTag*> &str_vec = hchn->streams();
+    for(unsigned int i = 0; i < str_vec.size(); ++i) {
+      TrigConf::HLTStreamTag *htag = str_vec[i];
+      if(htag) mychn.addStream(htag->stream(), htag->prescale());
+    }
     BOOST_FOREACH(const string& grp, hchn->groups()) {
        mychn.addGroup(grp);
     }
