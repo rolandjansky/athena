@@ -55,14 +55,42 @@ protected:
   TProfile* m_etres_eta_hpt;
   TProfile* m_etres_pt;
 
-  TProfile * m_eff1_centcoll;
-  TProfile * m_eff2_centcoll;
-  TProfile * m_eff3_centcoll;
+  TProfile * m_eff1_0_10;
+  TProfile * m_eff2_0_10;
+  TProfile * m_eff3_0_10;
 
-  TH1F* m_etres_centcoll;
-  TProfile* m_etres_eta_centcoll;
-  TProfile* m_etres_eta_hpt_centcoll;
-  TProfile* m_etres_pt_centcoll;
+  TProfile * m_eff1_10_20;
+  TProfile * m_eff2_10_20;
+  TProfile * m_eff3_10_20;
+
+  TProfile * m_eff1_20_40;
+  TProfile * m_eff2_20_40;
+  TProfile * m_eff3_20_40;
+
+  TProfile * m_eff1_60_100;
+  TProfile * m_eff2_60_100;
+  TProfile * m_eff3_60_100;
+
+  TH1F* m_etres_0_10;
+  TProfile* m_etres_eta_0_10;
+  TProfile* m_etres_eta_hpt_0_10;
+  TProfile* m_etres_pt_0_10;
+
+  TH1F* m_etres_10_20;
+  TProfile* m_etres_eta_10_20;
+  TProfile* m_etres_eta_hpt_10_20;
+  TProfile* m_etres_pt_10_20;
+
+  TH1F* m_etres_20_40;
+  TProfile* m_etres_eta_20_40;
+  TProfile* m_etres_eta_hpt_20_40;
+  TProfile* m_etres_pt_20_40;
+
+  TH1F* m_etres_60_100;
+  TProfile* m_etres_eta_60_100;
+  TProfile* m_etres_eta_hpt_60_100;
+  TProfile* m_etres_pt_60_100;
+
   TProfile* m_etres_pt_RP;
   TProfile* m_etres_pt_hpt_RP;
   TProfile* m_etres_pt_2Dphi;

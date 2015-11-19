@@ -16,7 +16,7 @@
 #define toTeV 1/1000000.
 
 HIEfficiencyResponseHistos::HIEfficiencyResponseHistos(const std::string &t) : JetHistoBase(t) 
-                                                           , m_histoDef(this)
+									     , m_histoDef(this)
 {
   declareProperty("HistoDef", m_histoDef, "The list of HistoDefinitionTool defining the histos to be used in this tool"); 
   declareProperty("RefContainer", m_refContainerName);
@@ -51,14 +51,41 @@ int HIEfficiencyResponseHistos::buildHistos(){
   m_deltaRclosest = bookHisto( hbuilder.build<TH1F>("erhDeltaR") );
   ///////////////HI
   
-  m_eff1_centcoll = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR1_CentralColl") );
-  m_eff2_centcoll = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR2_CentralColl") );
-  m_eff3_centcoll = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR3_CentralColl") );
+  m_eff1_0_10 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR1_0_10") );
+  m_eff2_0_10 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR2_0_10") );
+  m_eff3_0_10 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR3_0_10") );
 
-  m_etres_centcoll = bookHisto( hbuilder.build<TH1F>("erhResponse_CentralColl") );
-  m_etres_eta_centcoll =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_CentralColl") );
-  m_etres_eta_hpt_centcoll =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_highpT_CentralColl") );
-  m_etres_pt_centcoll =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt_CentralColl") );
+  m_eff1_10_20 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR1_10_20") );
+  m_eff2_10_20 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR2_10_20") );
+  m_eff3_10_20 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR3_10_20") );
+
+  m_eff1_20_40 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR1_20_40") );
+  m_eff2_20_40 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR2_20_40") );
+  m_eff3_20_40 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR3_20_40") );
+
+  m_eff1_60_100 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR1_60_100") );
+  m_eff2_60_100 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR2_60_100") );
+  m_eff3_60_100 = bookHisto( hbuilder.build<TProfile>("erhEfficiencyR3_60_100") );
+
+  m_etres_0_10 = bookHisto( hbuilder.build<TH1F>("erhResponse_0_10") );
+  m_etres_eta_0_10 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_0_10") );
+  m_etres_eta_hpt_0_10 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_highpT_0_10") );
+  m_etres_pt_0_10 =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt_0_10") );
+
+  m_etres_10_20 = bookHisto( hbuilder.build<TH1F>("erhResponse_10_20") );
+  m_etres_eta_10_20 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_10_20") );
+  m_etres_eta_hpt_10_20 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_highpT_10_20") );
+  m_etres_pt_10_20 =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt_10_20") );
+
+  m_etres_20_40 = bookHisto( hbuilder.build<TH1F>("erhResponse_20_40") );
+  m_etres_eta_20_40 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_20_40") );
+  m_etres_eta_hpt_20_40 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_highpT_20_40") );
+  m_etres_pt_20_40 =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt_20_40") );
+
+  m_etres_60_100 = bookHisto( hbuilder.build<TH1F>("erhResponse_60_100") );
+  m_etres_eta_60_100 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_60_100") );
+  m_etres_eta_hpt_60_100 =bookHisto( hbuilder.build<TProfile>("erhResponseVsEta_highpT_60_100") );
+  m_etres_pt_60_100 =bookHisto( hbuilder.build<TProfile>("erhResponseVsPt_60_100") );
   
   m_etres_pt_RP = bookHisto( hbuilder.build<TProfile>("erhResponse_RP") );
   m_etres_pt_2Dphi = bookHisto( hbuilder.build<TProfile>("erhResponse_2Dphi") );
@@ -70,9 +97,6 @@ int HIEfficiencyResponseHistos::buildHistos(){
 
 
 int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer &cont){
-
-  maxCut=3; //This must be tunned.
-  minCut=0.5;
   n=2;
   harmonic=n-1;
   m_eventShape=nullptr;
@@ -121,10 +145,25 @@ int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer
     m_eff2->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
     m_eff3->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
 
-    if (m_FCalET > maxCut){
-      m_eff1_centcoll->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff2_centcoll->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
-      m_eff3_centcoll->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+    if (m_FCalET > 2.7){
+      m_eff1_0_10->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff2_0_10->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff3_0_10->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+    }
+    if (m_FCalET < 2.7 && m_FCalET > 1.75 ){//10-20%
+      m_eff1_10_20->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff2_10_20->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff3_10_20->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+    }
+    if (m_FCalET < 1.75 && m_FCalET > 0.65 ){//20-40%
+      m_eff1_20_40->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff2_20_40->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff3_20_40->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
+    }
+    if (m_FCalET < 0.20 ){//60-100%
+      m_eff1_60_100->Fill(refPt, dr<0.1 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff2_60_100->Fill(refPt, dr<0.2 ?  1 : 0 ); // 0 weight if not matching close enough
+      m_eff3_60_100->Fill(refPt, dr<0.3 ?  1 : 0 ); // 0 weight if not matching close enough
     }
     m_deltaRclosest->Fill( dr );
     float Acos = std::acos(std::cos(2*(matched->getAttribute<float>("JetEtaJESScaleMomentum_phi") - m_psiN_FCal)));
@@ -143,11 +182,29 @@ int HIEfficiencyResponseHistos::fillHistosFromContainer(const xAOD::JetContainer
       m_etres_pt->Fill( refPt, relDiff);
       m_etres_pt_2Dphi->Fill( Acos, relDiff );
       m_etres_pt_RP->Fill( m_psiN_FCal, relDiff );
-      if (m_FCalET > maxCut){
-	m_etres_centcoll->Fill( relDiff );
-	m_etres_eta_centcoll->Fill( refjet->eta(), relDiff);
-	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_centcoll->Fill( refjet->eta(), relDiff);
-	m_etres_pt_centcoll->Fill( refPt, relDiff);
+      if (m_FCalET > 2.7){
+	m_etres_0_10->Fill( relDiff );
+	m_etres_eta_0_10->Fill( refjet->eta(), relDiff);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_0_10->Fill( refjet->eta(), relDiff);
+	m_etres_pt_0_10->Fill( refPt, relDiff);
+      }
+      if (m_FCalET < 2.7 && m_FCalET > 1.75 ){//10-20%
+	m_etres_10_20->Fill( relDiff );
+	m_etres_eta_10_20->Fill( refjet->eta(), relDiff);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_10_20->Fill( refjet->eta(), relDiff);
+	m_etres_pt_10_20->Fill( refPt, relDiff);
+      }
+      if (m_FCalET < 1.75 && m_FCalET > 0.65 ){//20-40%
+	m_etres_20_40->Fill( relDiff );
+	m_etres_eta_20_40->Fill( refjet->eta(), relDiff);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_20_40->Fill( refjet->eta(), relDiff);
+	m_etres_pt_20_40->Fill( refPt, relDiff);
+      }
+      if (m_FCalET < 0.20 ){//60-100%
+	m_etres_60_100->Fill( relDiff );
+	m_etres_eta_60_100->Fill( refjet->eta(), relDiff);
+	if (matched->pt()* toGeV > 100) m_etres_eta_hpt_60_100->Fill( refjet->eta(), relDiff);
+	m_etres_pt_60_100->Fill( refPt, relDiff);
       }
 
     }
