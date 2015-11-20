@@ -141,10 +141,10 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   
   //Isolation
   declareProperty("ApplyIsolation", m_applyIsolation=false);
-  declareProperty("EtConeSizes",    m_EtConeSizes = 6);
+  declareProperty("EtConeSizes",    m_EtConeSizes = 3);
   declareProperty("RelEtConeCut",   m_RelEtConeCut);
   declareProperty("EtConeCut",      m_EtConeCut);  
-  declareProperty("PtConeSizes",    m_PtConeSizes = 3);
+  declareProperty("PtConeSizes",    m_PtConeSizes = 6);
   declareProperty("RelPtConeCut",   m_RelPtConeCut);
   declareProperty("PtConeCut",      m_PtConeCut);
   declareProperty("useClusETforCaloIso",      m_useClusETforCaloIso = true);
@@ -301,6 +301,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapPtCone.insert(std::pair<int, string>(0, "ptcone20")); 
     m_mapPtCone.insert(std::pair<int, string>(1, "ptcone30")); 
     m_mapPtCone.insert(std::pair<int, string>(2, "ptcone40")); 
+    m_mapPtCone.insert(std::pair<int, string>(3, "ptvarcone20")); 
+    m_mapPtCone.insert(std::pair<int, string>(4, "ptvarcone30")); 
+    m_mapPtCone.insert(std::pair<int, string>(5, "ptvarcone40")); 
     //
     m_mapRelEtCone.insert(std::pair<int, string>(0, "etcone20/ele_pt")); 
     m_mapRelEtCone.insert(std::pair<int, string>(1, "etcone30/ele_pt")); 
@@ -309,6 +312,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     m_mapRelPtCone.insert(std::pair<int, string>(0, "ptcone20/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(1, "ptcone30/ele_pt")); 
     m_mapRelPtCone.insert(std::pair<int, string>(2, "ptcone40/ele_pt")); 
+    m_mapRelPtCone.insert(std::pair<int, string>(3, "ptvarcone20/ele_pt")); 
+    m_mapRelPtCone.insert(std::pair<int, string>(4, "ptvarcone30/ele_pt")); 
+    m_mapRelPtCone.insert(std::pair<int, string>(5, "ptvarcone40/ele_pt")); 
 
   }//end of if(m_applyIsolation){
 
@@ -641,6 +647,12 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         egIt->isolationValue(val_float,xAOD::Iso::ptcone30);
 	PtCone.push_back(val_float);
         egIt->isolationValue(val_float,xAOD::Iso::ptcone40);
+	PtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::ptvarcone20);
+	PtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::ptvarcone30);
+	PtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::ptvarcone40);
 	PtCone.push_back(val_float);
 	
 	//printout
