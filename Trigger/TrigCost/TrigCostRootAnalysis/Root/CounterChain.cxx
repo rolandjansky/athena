@@ -104,7 +104,7 @@ namespace TrigCostRootAnalysis {
 
     //m_dataStore.store(kVarTotalPrescale, TrigConfInterface::getPrescale( m_name ), _weight);
     m_dataStore.store(kVarEventsActive, 1., _weight);
-    m_dataStore.store(kVarEventsPassed, (Int_t) m_costData->getIsChainPassed(_e), _weight);
+    m_dataStore.store(kVarEventsPassed, m_costData->getIsChainPassed(_e), _weight);
     m_dataStore.store(kVarTime, _chainTime, _weight);
 
     s_eventTimeExecute += _chainTime * _weight; // Tabulate over all chains in event

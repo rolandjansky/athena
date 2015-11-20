@@ -125,13 +125,6 @@ namespace TrigCostRootAnalysis {
         Float_t _algWeight = _weight * getPrescaleFactor(_e);
         if (isZero(_algWeight) == kTRUE) continue;
 
-        if ( Config::config().getVecSize(kPatternsMonitor) > 0) {
-          Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
-          const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID, m_costData->getSequenceLevel(_s) );
-          if (Config::config().getInt(kPatternsInvert) == kFALSE && Config::config().getVecMatches(kPatternsMonitor, _chainName) == kFALSE ) continue;
-          if (Config::config().getInt(kPatternsInvert) == kTRUE && Config::config().getVecMatches(kPatternsMonitor, _chainName) == kTRUE ) continue;
-        }
-
         m_dataStore.store(kVarAlgCalls, 1., _algWeight);
         m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_s, _a), _algWeight);
         m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);

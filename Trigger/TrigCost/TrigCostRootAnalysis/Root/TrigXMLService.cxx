@@ -556,7 +556,7 @@ namespace TrigCostRootAnalysis {
         XMLNodePointer_t _node = _xml->GetChild( _listNode );
         while( _node != 0) {
           if ( _xml->GetNodeName(_node) == std::string("lumivalues_data") ) {
-            Config::config().setFloat( kRunLumiXML, stringToFloat( _xml->GetNodeContent(_node) ), "EnhancedBiasOnlineLumi" );
+            Config::config().setFloat( kRunLumiXML, stringToFloat( _xml->GetNodeContent(_node) ) );
           } else if ( _xml->GetNodeName(_node) == std::string("lumivalues_pred") ) {
             Config::config().setFloat( kPredictionLumiRunXML, stringToFloat( _xml->GetNodeContent(_node) ), "PredictionLumiRunXML" );
           } else if ( _xml->GetNodeName(_node) == std::string("deadtime") ) {
