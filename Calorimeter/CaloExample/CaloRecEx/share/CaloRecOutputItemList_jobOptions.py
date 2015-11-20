@@ -14,6 +14,9 @@ svcMgr.ToolSvc += CaloCompactCellTool()
 CaloESDList += [ "TileCellContainer#E4prContainer" ]
 CaloESDList += [ "TileCellContainer#MBTSContainer" ]
 CaloESDList += [ "TileTTL1Container#TileTTL1MBTS" ]
+CaloESDList += [ "xAOD::CaloTowerContainer#CmbTowers",
+                 "xAOD::CaloTowerAuxContainer#CmbTowersAux."
+                 ]
 
 # explicitly list of CaloCluster related keys
 CaloClusterItemList=[]
@@ -155,3 +158,6 @@ CaloAODList+=["TileMuContainer#TileMuObj"]
 # LAr noisy Feb/PA summary
 CaloAODList +=  ["LArNoisyROSummary#LArNoisyROSummary"]
 
+CaloAODList += [ "xAOD::CaloTowerContainer#CmbTowers",
+                 "xAOD::CaloTowerAuxContainer#CmbTowersAux."
+                 ]
