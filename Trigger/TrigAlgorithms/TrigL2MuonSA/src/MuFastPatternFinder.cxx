@@ -175,7 +175,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
    // Saddress = pos1/3 = 0:Large, 1:Large-SP, 2:Small, 3:Small-SP
    trackPattern.s_address = (muonRoad.isEndcap)? -1: muonRoad.Special + 2*muonRoad.LargeSmall;
 
-   const unsigned int MAX_STATION =  8;
+   const unsigned int MAX_STATION =  10;
    const unsigned int MAX_LAYER   =  12;
 
    TrigL2MuonSA::MdtLayerHits v_mdtLayerHits[MAX_STATION][MAX_LAYER];
@@ -251,6 +251,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
      
      // remove outlier
      while(1) {
+       if (chamber==9) break;//BME skips this loop
        unsigned int layer = 999999;
        double DistMax  = 0.;
        double Residual = 0.;
@@ -328,7 +329,6 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	  mdtSegment.push_back(mdtHits[i_hit]);
 	}
       }
-      
       
       //
       msg() << MSG::DEBUG << "nr of hits in segment=" << mdtSegment.size() << endreq;

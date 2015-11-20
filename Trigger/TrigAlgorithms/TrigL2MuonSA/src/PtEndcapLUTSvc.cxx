@@ -12,7 +12,7 @@ TrigL2MuonSA::PtEndcapLUTSvc::PtEndcapLUTSvc(const std::string& name, ISvcLocato
   m_msg(0),
   m_ptEndcapLUT(0)
 {
-  declareProperty("FileName3", m_lut_fileName="pt_endcap_small_large.lut");
+  declareProperty("FileNameRun2", m_lut_fileName="pt_endcap_run2.lut");
 }
 
 // --------------------------------------------------------------------------------

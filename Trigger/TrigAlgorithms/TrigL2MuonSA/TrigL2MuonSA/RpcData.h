@@ -25,6 +25,9 @@ namespace TrigL2MuonSA {
       doubletPhi(0),
       doubletZ(0),
       layer(0),
+      eta(0),
+      phi(0),
+      l(0),
       measuresPhi(false),
       stationName("")
 	{};
@@ -42,6 +45,9 @@ namespace TrigL2MuonSA {
       int doubletPhi;
       int doubletZ;
       int layer;
+      double eta;
+      double phi;
+      double l;      
       bool measuresPhi;
       std::string stationName;
   };

@@ -688,6 +688,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int outer  = 2;
   int ee     = 6;
   int barrelinner = 0;
+  int bee = 8;
+  int bme = 9;
 
   std::string muonCollKey = "MuonL2SAInfo";
   
@@ -707,10 +709,12 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       outer  = xAOD::L2MuonParameters::Chamber::EndcapOuter;
       ee     = xAOD::L2MuonParameters::Chamber::EndcapExtra;
       barrelinner     = xAOD::L2MuonParameters::Chamber::BarrelInner;
+      bee = xAOD::L2MuonParameters::Chamber::BEE;
     } else {
       inner  = xAOD::L2MuonParameters::Chamber::BarrelInner;
       middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+      bme = xAOD::L2MuonParameters::Chamber::BME;
     }
 
     msg() << MSG::DEBUG << "pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size() << endreq;
@@ -719,7 +723,9 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     if (pattern.s_address==-1){
       msg() << MSG::DEBUG << "pattern#0: # of hits at ee  =" << pattern.mdtSegments[ee].size() << endreq;
       msg() << MSG::DEBUG << "pattern#0: # of hits at endcap barrel inner  =" << pattern.mdtSegments[barrelinner].size() << endreq;
+      msg() << MSG::DEBUG << "pattern#0: # of hits at BEE  =" << pattern.mdtSegments[bee].size() << endreq;
     }
+    else msg() << MSG::DEBUG << "pattern#0: # of hits at BME  =" << pattern.mdtSegments[bme].size() << endreq;
     msg() << MSG::DEBUG << "pt=" << pattern.pt << endreq;
 
     // ---------
@@ -750,7 +756,6 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     muonSA->setRMS(pattern.superPoints[inner].R);
     muonSA->setZMS(pattern.superPoints[inner].Z);
     muonSA->setDirZMS(pattern.superPoints[inner].Alin);
-    muonSA->setBeta(1.0);
 
     // add pt variables
     // Endcap
@@ -862,6 +867,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     }
 
     // RPC hits
+    float sumbeta[8]={0};
+    float nhit_layer[8]={0};
     for(unsigned int i_hit=0; i_hit<rpcHits.size(); i_hit++) {
       muonSA->setRpcHit(rpcHits[i_hit].layer, rpcHits[i_hit].measuresPhi, 
                         rpcHits[i_hit].x, rpcHits[i_hit].y, rpcHits[i_hit].z,
@@ -875,8 +882,24 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
             << "y=" << rpcHits[i_hit].y << ","
             << "y=" << rpcHits[i_hit].z << ","
             << endreq;
+
+      float dRMS = sqrt( fabs(pattern.etaMap-rpcHits[i_hit].eta)*fabs(pattern.etaMap-rpcHits[i_hit].eta) + acos(cos(pattern.phiMS-rpcHits[i_hit].phi))*acos(cos(pattern.phiMS-rpcHits[i_hit].phi)) );
+      if(dRMS>0.05) continue;
+      float muToF = rpcHits[i_hit].l/1000/(CLHEP::c_light/1000);
+      float Tprop = rpcHits[i_hit].distToPhiReadout/1000*4.8;
+      float beta = rpcHits[i_hit].l/1000/(muToF+rpcHits[i_hit].time-Tprop+3.125/2)/(CLHEP::c_light/1000);
+      sumbeta[rpcHits[i_hit].layer]=sumbeta[rpcHits[i_hit].layer]+beta;
+      nhit_layer[rpcHits[i_hit].layer]=nhit_layer[rpcHits[i_hit].layer]+1;
     }
 
+    std::vector<float> Avebeta_layer;
+    for(int i_layer=0;i_layer<8;i_layer++){
+      if(nhit_layer[i_layer]!=0)Avebeta_layer.push_back( sumbeta[i_layer]/nhit_layer[i_layer] );
+    }
+    if(Avebeta_layer.size()>0) muonSA->setBeta( std::accumulate(Avebeta_layer.begin(),Avebeta_layer.end(),0.0)/Avebeta_layer.size() );
+    else muonSA->setBeta( 9999 );
+    Avebeta_layer.clear();
+    
     // TGC hits
     for(unsigned int i_hit=0; i_hit<tgcHits.size(); i_hit++) {
       muonSA->setTgcHit(tgcHits[i_hit].eta, tgcHits[i_hit].phi, tgcHits[i_hit].r, tgcHits[i_hit].z,
@@ -927,9 +950,13 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     } else {
       // RPC fit results
       if (rpcFitResult.isSuccess ) {
+	// Fill middle fit results for the moment
+	muonSA->setRpcFitMid(rpcFitResult.phi, rpcFitResult.ZoverR_middle, 0.);
+	/*
 	muonSA->setRpcFitInn(rpcFitResult.phi_inner, rpcFitResult.slope_inner, rpcFitResult.offset_inner);
-	muonSA->setRpcFitInn(rpcFitResult.phi_middle, rpcFitResult.slope_middle, rpcFitResult.offset_middle);
-	muonSA->setRpcFitInn(rpcFitResult.phi_outer, rpcFitResult.slope_outer, rpcFitResult.offset_outer);
+	muonSA->setRpcFitMid(rpcFitResult.phi_middle, rpcFitResult.slope_middle, rpcFitResult.offset_middle);
+	muonSA->setRpcFitOut(rpcFitResult.phi_outer, rpcFitResult.slope_outer, rpcFitResult.offset_outer);
+	*/
       }
     }
 

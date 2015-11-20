@@ -333,7 +333,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.stationName = stationName;
        lutDigit.layer       = layer;
        
-       rpcHits.push_back(lutDigit);
        float r = sqrt(hitx*hitx+hity*hity);
        float phi = atan(hity/hitx);
        if (hitx<0 && hity>0) phi = phi + CLHEP::pi;
@@ -343,6 +342,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        float eta = -log(tan);
        float deta = p_roids->eta() - eta;
        float dphi = acos(cos( p_roids->phi() - phi ) );
+
+       lutDigit.eta = eta;
+       lutDigit.phi = phi;
+       lutDigit.l = l;
+       rpcHits.push_back(lutDigit);
        
        if (m_use_RoIBasedDataAccess) {
          if ( fabs(deta)<0.1 && fabs(dphi)<0.1) 

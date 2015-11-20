@@ -76,7 +76,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
                                               TrigL2MuonSA::MuonRoad&      muonRoad,
                                               TrigL2MuonSA::TgcFitResult&  tgcFitResult)
 {
-  const int N_STATION = 8;
+  const int N_STATION = 10;
 
   bool isMiddleFailure = true;
 
@@ -99,6 +99,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
   int endcap_extra = xAOD::L2MuonParameters::Chamber::EndcapExtra;
   int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
   int csc = xAOD::L2MuonParameters::Chamber::CSC;
+  int bee = xAOD::L2MuonParameters::Chamber::BEE;
  
   if (tgcHits.size()>0) {
     // TGC data is properly read
@@ -204,10 +205,13 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       muonRoad.bw[endcap_outer][0]     = tgcFitResult.intercept;
       muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
       muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
+      muonRoad.aw[bee][0]     = tgcFitResult.slope;
+      muonRoad.bw[bee][0]     = tgcFitResult.intercept;
       for (int i_layer=0; i_layer<8; i_layer++) {
         muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
         muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
         muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
+        muonRoad.rWidth[bee][i_layer] = R_WIDTH_DEFAULT;
       }
     } else {
       roiEta = p_roi->eta();
@@ -219,10 +223,13 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       muonRoad.bw[endcap_outer][0]     = 0;
       muonRoad.aw[endcap_extra][0]     = aw;
       muonRoad.bw[endcap_extra][0]     = 0;
+      muonRoad.aw[bee][0]     = aw;
+      muonRoad.bw[bee][0]     = 0;
       for (int i_layer=0; i_layer<8; i_layer++) {
         muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
         muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
         muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+        muonRoad.rWidth[bee][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
       }
     }
     
@@ -309,6 +316,8 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     muonRoad.bw[endcap_extra][0]     = 0;
     muonRoad.aw[barrel_inner][0]     = aw;
     muonRoad.bw[barrel_inner][0]     = 0;
+    muonRoad.aw[bee][0]     = aw;
+    muonRoad.bw[bee][0]     = 0;
     muonRoad.aw[csc][0]     = aw;
     muonRoad.bw[csc][0]     = 0;
     for (int i_layer=0; i_layer<8; i_layer++) {
@@ -317,6 +326,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
       muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
       muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[bee][i_layer] = m_rWidth_TGC_Failed;
       muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
     }
   }
@@ -373,13 +383,13 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     if ( name.substr(1, 1) != 'M' ) continue;
     int stationPhi = m_mdtIdHelper->stationPhi(id);
     float floatPhi = (stationPhi-1)*CLHEP::pi/4;
-    if (name[2]=='S') floatPhi = floatPhi + CLHEP::pi/8;
+    if (name[2]=='S' || name[2]=='E') floatPhi = floatPhi + CLHEP::pi/8;
     tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle);
     if (phiMiddle<0) tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle-2*CLHEP::pi);
     if(tempDeltaPhi > CLHEP::pi) tempDeltaPhi = fabs(tempDeltaPhi - 2*CLHEP::pi);
     
     int LargeSmall = 0;
-    if(name[2]=='S') LargeSmall = 1;
+    if(name[2]=='S' || name[2]=='E') LargeSmall = 1;
     int sector = (stationPhi-1)*2 + LargeSmall;
     if(sector_trigger == 99)
       sector_trigger = sector;
