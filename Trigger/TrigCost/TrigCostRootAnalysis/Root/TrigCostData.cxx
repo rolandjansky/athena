@@ -69,6 +69,7 @@ namespace TrigCostRootAnalysis {
     m_bufferEventNumber(-1),
     m_hasLumiData(kTRUE),
     m_emptySet(),
+    m_rosMatching(kFALSE),
     m_trigCostObject(0)
   {
     //Nothing here

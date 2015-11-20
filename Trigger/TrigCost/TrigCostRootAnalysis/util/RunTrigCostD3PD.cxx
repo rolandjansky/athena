@@ -240,7 +240,7 @@ int main(int argc, char* argv[]) {
     // Get event weight
     Float_t _weight = 1;
     if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
-      _weight =_config.getFloat( kEventWeight ); // This is our base weight that we can apply additional weights on top of
+      _weight = _config.getFloat( kEventWeight ); // This is our base weight that we can apply additional weights on top of
     }
 
     // Check / get menu configuration

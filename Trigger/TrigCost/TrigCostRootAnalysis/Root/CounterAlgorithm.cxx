@@ -40,9 +40,10 @@ namespace TrigCostRootAnalysis {
   CounterAlgorithm::CounterAlgorithm( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent) :
     CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_firstAlgStartTime(FLT_MAX),
-    m_firstAlgTime(0.),
-    m_firstAlgTimeWeight(0.),
-    m_eventWeight(1.) {
+    m_firstAlgTime(0.)
+    //m_firstAlgTimeWeight(0.),
+    //m_eventWeight(1.) 
+    {
 
     if (m_detailLevel == 0) {
       // Detail 0 is no histograms and additional data cached from first execution
@@ -59,6 +60,8 @@ namespace TrigCostRootAnalysis {
       .setSavePerCall("Algorithm Total Time Per Call;Algorithm Total Time per Call [ms];Calls")
       .setSavePerEvent("Algorithm Total Time Per Event;Algorithm Total Time per Event [ms];Events")
       .setSavePerEventFraction("Fractional Algorithm Total Time;Algorithm Total Time/Event Total Time;Events");
+    m_dataStore.newVariable(kVarTimeExec)
+      .setSavePerCall("Algorithm Exec Time Per Call (no cached);Algorithm Exec Time per Call [ms];Calls");
     m_dataStore.newVariable(kVarFirstTime)
       .setSavePerEvent("Time For Algorithm First Call Per Event;First Call Total Algorithm Time [ms];Events");
     m_dataStore.newVariable(kVarCPUTime)
@@ -121,8 +124,9 @@ namespace TrigCostRootAnalysis {
   void CounterAlgorithm::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
 
-    Float_t _prescaleFactor = getPrescaleFactor(_e);;
-    _weight *= _prescaleFactor;
+    // After some thought - this just doesn't work
+    //Float_t _prescaleFactor = getPrescaleFactor(_e);;
+    //_weight *= _prescaleFactor;
 
     // Special case. If we are running as part of the FullEvent monitor, we should keep weight=1 to make the output readable
     if (m_detailLevel == 0 && m_calls == 1) _weight = 1.;
@@ -133,11 +137,12 @@ namespace TrigCostRootAnalysis {
 
     if ( Config::config().debug() ) debug(_e, _f);
 
-    const std::string _myChain = TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e));
-    if ( m_chainsSeen.count( _myChain ) == 0) {
-      m_eventWeight *= (1. - _prescaleFactor);
-      m_chainsSeen.insert( _myChain );
-    }
+    // After some thought - this just doesn't work
+    // const std::string _myChain = TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e));
+    // if ( m_chainsSeen.count( _myChain ) == 0) {
+    //   m_eventWeight *= (1. - _prescaleFactor);
+    //   m_chainsSeen.insert( _myChain );
+    // }
 
     m_dataStore.store(kVarCalls, 1., _weight);
 
@@ -165,10 +170,13 @@ namespace TrigCostRootAnalysis {
     if ( m_costData->getSeqAlgTimeStart(_e, _f) < m_firstAlgStartTime ) {
       m_firstAlgStartTime = m_costData->getSeqAlgTimeStart(_e, _f);
       m_firstAlgTime = m_costData->getSeqAlgTimer(_e, _f);
-      m_firstAlgTimeWeight = _weight;
+      //m_firstAlgTimeWeight = _weight;
     }
 
     m_dataStore.store(kVarTime, m_costData->getSeqAlgTimer(_e, _f), _weight);
+
+    // Here we only do the timing if the alg was callled NOT cached
+    if (m_costData->getSeqAlgIsCalled(_e, _f) == 1) m_dataStore.store(kVarTimeExec, m_costData->getSeqAlgTimer(_e, _f), _weight);
 
     Float_t _ROSTime = m_costData->getSeqAlgROSTime(_e, _f);
     if (isZero(_ROSTime) == kFALSE) {
@@ -207,7 +215,13 @@ namespace TrigCostRootAnalysis {
     } else {
       Config::config().setFloat(kEventElapsed, _t, "EventElapsed", kUnlocked);
     }
-    Float_t _elapsed = _t - m_costData->getSeqAlgTimeStart(0, 0);
+    // Were we first?
+    Float_t _eventStart = Config::config().getFloat(kEventStartTime);
+    if (isZero(_eventStart) == kTRUE) {
+      _eventStart = _t;
+      Config::config().setFloat(kEventStartTime, _eventStart, "EventStart", kUnlocked);
+    }
+    Float_t _elapsed = _t - _eventStart;
     if (_elapsed < 0) _elapsed += 3600.;
     return _elapsed;
   }
@@ -273,15 +287,15 @@ namespace TrigCostRootAnalysis {
    * What was determined to be the first execution's time is saved, the total time for the event is used to calculate per-event averages.
    */
   void CounterAlgorithm::endEvent(Float_t _weight) {
-    if (m_chainsSeen.size() > 0) {
-      m_eventWeight = 1. - m_eventWeight;
-      m_dataStore.store(kVarEventsActive, 1., m_eventWeight * _weight);
-      m_dataStore.store(kVarFirstTime, m_firstAlgTime, m_firstAlgTimeWeight);
+    if (m_firstAlgStartTime != FLT_MAX) {
+      //m_eventWeight = 1. - m_eventWeight;
+      m_dataStore.store(kVarEventsActive, 1., /*m_eventWeight * */ _weight);
+      m_dataStore.store(kVarFirstTime, m_firstAlgTime, _weight);
       m_firstAlgStartTime = FLT_MAX; // Reset first-exec time
       m_firstAlgTime = 0.;
-      m_firstAlgTimeWeight = 0.;
-      m_eventWeight = 1.;
-      m_chainsSeen.clear();
+      //m_firstAlgTimeWeight = 0.;
+      //m_eventWeight = 1.;
+      //m_chainsSeen.clear();
     }
 
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);

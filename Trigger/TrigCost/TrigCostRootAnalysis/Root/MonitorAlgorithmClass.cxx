@@ -69,7 +69,7 @@ namespace TrigCostRootAnalysis {
     switch(_mode) {
       case kDoAllSummary:       return kTRUE;
       case kDoKeySummary:       return kTRUE;
-      case kDoLumiBlockSummary: return kFALSE;
+      case kDoLumiBlockSummary: return kTRUE;
       default: Error("MonitorAlgorithmClass::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
     }
     return kFALSE;

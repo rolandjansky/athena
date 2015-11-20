@@ -65,8 +65,12 @@ namespace TrigCostRootAnalysis {
     Bool_t getPassPS();
     // Bool_t getIsNotPhysics();
     Double_t getPSWeight();
+    Double_t getPSReducedWeight();
     Double_t getPS();
+    void     setPS(Double_t _PS);
+    void     setPSReduced(Double_t _PSReduced);
     Double_t getPassRawOverPS();
+    Double_t getPassRawOverPSReduced();
     Bool_t getPassRawAndPS();
     const std::string& getName();
     UInt_t getID();
@@ -77,6 +81,8 @@ namespace TrigCostRootAnalysis {
     Int_t              m_level; //!> Which level this item's at
     Double_t           m_PS; //!< The prescale to be applied to this item
     Double_t           m_PSWeight; //!< The equivalent PS weight, = 1/PS
+    Double_t           m_PSReduced; //!< prescaled with any coherent part factored out
+    Double_t           m_PSReducedWeight; //!< = 1/PSReduced
     Double_t           m_extraEfficiency; //<! Extra factor which can be supplied to scale the rate of this triggeer
     TRandom3           m_R; //!< Random number generator for when applying the PS directly.
     UInt_t             m_ID; //!< ID number, sequential, used for random seed

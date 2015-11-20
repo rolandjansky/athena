@@ -52,7 +52,11 @@ namespace TrigCostRootAnalysis {
    * It will simulate L0, L1 and HLT rates using Run2 EB data as input
    * It will apply efficiencies to simulate expected rates yeilds
    */
-  MonitorRatesUpgrade::MonitorRatesUpgrade(const TrigCostData* _costData) : MonitorBase(_costData, "RateUpgrade") {
+  MonitorRatesUpgrade::MonitorRatesUpgrade(const TrigCostData* _costData)
+    : MonitorBase(_costData, "RateUpgrade"),
+      m_unbiasedWeight(0),
+      m_unbiasedWeightRound(0)
+  {
     m_dummyCounter = static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), INT_MIN));
     m_globalRateL1Counter = nullptr;
     m_globalRateL2Counter = nullptr;

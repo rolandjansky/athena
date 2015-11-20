@@ -25,6 +25,7 @@
 #include "../TrigCostRootAnalysis/Utility.h"
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
+#include "../TrigCostRootAnalysis/RatesCPSGroup.h"
 
 
 namespace TrigCostRootAnalysis {
@@ -41,7 +42,8 @@ namespace TrigCostRootAnalysis {
     m_myUniqueCounter(0),
     m_globalRates(0),
     m_doSacleByPS(0),
-    m_doDirectPS(0) {
+    m_doDirectPS(0)
+  {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
       m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
@@ -113,7 +115,7 @@ namespace TrigCostRootAnalysis {
     m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
     m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
 
-    if (_unbiased == kTRUE) {
+    if (_unbiased == kTRUE) { // This is only used in upgrade rates?
       m_dataStore.store(kVarUnbiasedRun, 1., _weight * _scaleByPS); // Times UNBIASED chain is processed, regardless of decision. Other weights inc.
       if (!isZero(_weightPS)) {
         m_dataStore.store(kVarUnbiasedPassed, 1., _weightPS * _weight * _scaleByPS); // Chain passes UNBIASED with weight from PS as a float 0-1. Other weights inc.
@@ -161,11 +163,19 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Get all L! items which make up this combination
+   * Get all L1 items which make up this combination
    * @return Set of pointers to L1 RatesChainItem(s) which know their HLT items
    */
   ChainItemSet_t& CounterBaseRates::getL1ItemSet() {
     return m_L1s;
+  }
+
+  /**
+   * Get all CPS groupings assigned to this combination
+   * @return Set of pointers to CPS groups
+   */
+  CPSGroupSet_t& CounterBaseRates::getCPSGroupSet() {
+    return m_cpsGroups;
   }
 
   /**
@@ -197,6 +207,13 @@ namespace TrigCostRootAnalysis {
     m_L1s.insert( _toAdd );
     // Add back-link
     _toAdd->addCounter( this );
+  }
+
+  /**
+   * @param _toAdd Add a grouping of items in a CPS.
+   */
+  void CounterBaseRates::addCPSItem( RatesCPSGroup* _toAdd ) {
+    m_cpsGroups.insert( _toAdd );
   }
 
   /**
@@ -279,16 +296,24 @@ namespace TrigCostRootAnalysis {
    * @return kTRUE if at least one HLT counter of this chain had info in the D3PD for this event or one L1 counter of an L1 chain was in the bunch group.
    */
   Bool_t CounterBaseRates::getInEvent() {
-    if (m_L2s.size() > 0) { // I'm a HLT Chain
+    if (m_L2s.size() > 0 || m_cpsGroups.size() > 0) { // I'm a HLT Chain(s)
+      // Check my individual chains
       for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
         if ( (*_L2It)->getInEvent() == kTRUE ) return kTRUE;
       }
-    } else if (m_L1s.size() > 0) { // I'm a L1 Chain
+      // Chekc any CPS groups of chains I may have
+      for (CPSGroupSetIt_t _CPSIt = m_cpsGroups.begin(); _CPSIt != m_cpsGroups.end(); ++_CPSIt) {
+        RatesCPSGroup* _cpsGroup = (*_CPSIt);
+        for (ChainItemSetIt_t _it = _cpsGroup->getChainStart(); _it != _cpsGroup->getChainEnd(); ++_it) {
+          if ( (*_it)->getInEvent() == kTRUE ) return kTRUE;
+        }
+      }
+    } else if (m_L1s.size() > 0) { // I'm a L1 Chain(s)
       // Still need to check that the L1 chain is active for this bunch group
       for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
         if ( (*_L1It)->getInEvent() == kTRUE ) return kTRUE;
       }
-    } else if (m_L3s.size() > 0) { // I'm a Upgrade HLT Chain
+    } else if (m_L3s.size() > 0) { // I'm a Upgrade HLT Chain(s)
       for (ChainItemSetIt_t _L3It = m_L3s.begin(); _L3It != m_L3s.end(); ++_L3It) {
         if ( (*_L3It)->getInEvent() == kTRUE ) return kTRUE;
       }

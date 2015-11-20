@@ -130,6 +130,8 @@ namespace TrigCostRootAnalysis {
    * @return Ratio of (predictionLumi / runLumi), or 1 if insufficient/obviously wrong infomration present.
    */
   Float_t  TrigXMLService::getLumiExtrapWeight() {
+    Config::config().setFloat(kLumiExtrapWeight, 1., "FinalLumiExtrapWeight", kUnlocked); // This should be overwritten with the real weight below
+
     // Do we know the effective L of the run? If not return 1.
     if ( !Config::config().getIsSet(kRunLumi) && !Config::config().getIsSet(kRunLumiXML) ) {
       Warning("TrigXMLService::getLumiExtrapWeight", "No run lumi set. No extrapolation.");
@@ -187,6 +189,7 @@ namespace TrigCostRootAnalysis {
     _scalingFactor *= 1 + _onlineDeadtime;
     Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
       "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
+    Config::config().setFloat(kLumiExtrapWeight, _scalingFactor, "FinalLumiExtrapWeight", kLocked); // Keep a note of this factor
     return _scalingFactor;
   }
 
@@ -731,7 +734,7 @@ namespace TrigCostRootAnalysis {
    * @return The event weight from the EnhancedBias XML.
    */
   Float_t TrigXMLService::getEventWeight(UInt_t _eventNumber, UInt_t _lb) {
-    if (Config::config().getInt(kDoEBWeighting) == kFALSE) return 1.;
+    // if (Config::config().getInt(kDoEBWeighting) == kFALSE) return 1.;
     if (m_weightsServiceEnabled == kFALSE) parseEnhancedBiasXML();
 
     IntIntMapIt_t _ebIt = m_ebWeightingMap.find( _eventNumber );
