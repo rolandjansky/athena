@@ -25,6 +25,9 @@ namespace TrigL2MuonSA {
       phi        = 0;
       dPhidZ     = 0;
 
+      ZoverR_middle = 0;
+      ZoverR_outer  = 0;
+
       phi_inner     = 0;
       slope_inner   = 0;
       offset_inner   = 0;
@@ -45,6 +48,9 @@ namespace TrigL2MuonSA {
     double phi;
     double dPhidZ;
     
+    double ZoverR_middle;
+    double ZoverR_outer;
+
     double phi_inner;
     double slope_inner;
     double offset_inner;

@@ -74,7 +74,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
   declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
   declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
-  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = false);
+  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = true);
 
   declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 
@@ -836,11 +836,10 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                           mdtHits[i_hit].DriftTime, mdtHits[i_hit].DriftSpace, mdtHits[i_hit].DriftSigma);  
       }
     }
-    
-    //CSC hits
+
     for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
-      if ( 1/*cscHits[i_hit].MeasuresPhi==0*/ ){
-        if ( 1/*cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1*/ ) {
+      if ( cscHits[i_hit].MeasuresPhi==0 ){
+        if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
           muonSA->setCscHit(cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber, cscHits[i_hit].StationName,
                             cscHits[i_hit].StationEta, cscHits[i_hit].StationPhi,
                             cscHits[i_hit].ChamberLayer, cscHits[i_hit].WireLayer, cscHits[i_hit].MeasuresPhi, cscHits[i_hit].Strip,
@@ -952,10 +951,12 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       // RPC fit results
       if (rpcFitResult.isSuccess ) {
 	// Fill middle fit results for the moment
-
+	muonSA->setRpcFitMid(rpcFitResult.phi, rpcFitResult.ZoverR_middle, 0.);
+	/*
 	muonSA->setRpcFitInn(rpcFitResult.phi_inner, rpcFitResult.slope_inner, rpcFitResult.offset_inner);
 	muonSA->setRpcFitMid(rpcFitResult.phi_middle, rpcFitResult.slope_middle, rpcFitResult.offset_middle);
 	muonSA->setRpcFitOut(rpcFitResult.phi_outer, rpcFitResult.slope_outer, rpcFitResult.offset_outer);
+	*/
       }
     }
 

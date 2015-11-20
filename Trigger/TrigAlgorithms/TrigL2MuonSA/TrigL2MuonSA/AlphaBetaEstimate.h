@@ -41,7 +41,6 @@ namespace TrigL2MuonSA {
 			      double sign);
     
     double     computeRadius3Points(double InnerZ, double InnerR, double EEZ, double EER,double MiddleZ, double MiddleR );
-    double     calcDistance(double x1,double y1,double x2,double y2,double x3,double y3) ; 
     
     /** @brief Pointer to MsgStream.*/
     MsgStream* m_msg;

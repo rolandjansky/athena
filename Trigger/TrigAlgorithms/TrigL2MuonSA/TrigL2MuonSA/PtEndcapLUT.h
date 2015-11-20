@@ -18,7 +18,7 @@ namespace TrigL2MuonSA {
   class PtEndcapLUT
   {
   public:
-    enum DataType { INVALID, ALPHAPOL2, BETAPOL2, TGCALPHAPOL2, INVRADIUSPOL2 };
+    enum DataType { INVALID, ALPHAPOL2, BETAPOL2, INVRADIUSPOL2 };
     
     PtEndcapLUT(MsgStream* msg);
     ~PtEndcapLUT();
@@ -30,26 +30,27 @@ namespace TrigL2MuonSA {
 
     double alpha(double z1, double r1, double z2, double r2) const;
     double radius(double z1, double r1, double s1, double z2, double r2, double s2, double deltar) const;
-    double lookup(int side, int charge, DataType type, int iEta, int iPhi, double value) const;
+    double lookup(int side, int charge, DataType type, int sector, int iEta, int iPhi, double value) const;
 
 private:
-    enum sizes { ETAS = 30, PHIS = 12, PHISEE = 192};
+    enum sizes { ETAS = 30, PHIS = 12, PHIS24 = 24 };
 
     struct KeyType
     {
       int      m_side;    /**< 0 = -, 1 = + */
       int      m_charge;  /**< 0 = -, 1 = + */
       DataType m_type;
-    KeyType(int side, int charge, DataType type) :
-      m_side(side), m_charge(charge), m_type(type) {}
+      int      m_sector;
+    KeyType(int side, int charge, DataType type, int sector) :
+      m_side(side), m_charge(charge), m_type(type), m_sector(sector) {}
       bool operator<(const KeyType& other) const;
       std::string toString() const;
     };
     
     struct TableType
     {
-      double m_xcepts[ETAS][PHISEE];
-      double m_slopes[ETAS][PHISEE];
+      double m_xcepts[ETAS][PHIS24];
+      double m_slopes[ETAS][PHIS24];
       TableType()
       {
 	memset(m_xcepts, 0, sizeof(m_xcepts));

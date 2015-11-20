@@ -76,22 +76,15 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   const int N_SECTOR = 2; // 0: normal, 1:overlap
 
   if (m_use_rpc) {
-    double aw[3];
-    double bw[3];
-    unsigned int rpc_pattern;
-    if ( rpcPatFinder->findPatternEta(aw, bw, rpc_pattern) ) {
-      rpcFitResult.isSuccess = true;
-      rpcFitResult.offset_inner = bw[0];
-      rpcFitResult.offset_middle = bw[1];
-      rpcFitResult.offset_outer = bw[2];
-      rpcFitResult.slope_inner = 1.0/aw[0];
-      rpcFitResult.slope_middle = 1.0/aw[1];
-      rpcFitResult.slope_outer = 1.0/aw[2];
 
-      for(int i=0;i<3;i++){
-	//	std::cout<<"GGG "<<i<<" : aw(R/Z) = "<<1.0/aw[i]<<" / bw = "<<bw[i]<<std::endl;
-	if(fabs(1.0/aw[i]) <= ZERO_LIMIT) rpcFitResult.isSuccess = false;
-      }
+    double ZoverR_middle;
+    double ZoverR_outer;
+    unsigned int ZoverR_pattern;
+    
+    if ( rpcPatFinder->findPatternEta(ZoverR_middle, ZoverR_outer, ZoverR_pattern) ) {
+      rpcFitResult.isSuccess = true;
+      rpcFitResult.ZoverR_middle = ZoverR_middle;
+      rpcFitResult.ZoverR_outer = ZoverR_outer;
     } else {
       rpcFitResult.isSuccess = false;
     }
@@ -101,8 +94,6 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     unsigned int phi_pattern;
     if ( rpcPatFinder->findPatternPhi(phi_middle, phi_outer, phi_pattern)) {
       rpcFitResult.phi = phi_middle;
-      rpcFitResult.phi_middle = phi_middle;
-      rpcFitResult.phi_outer = phi_outer;
     } else {
       rpcFitResult.phi = p_roi->phi();
     }
@@ -185,17 +176,25 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   muonRoad.MDT_sector_overlap = sector_overlap;
   
   if (rpcFitResult.isSuccess) {
+
+    double awMiddle = (fabs(rpcFitResult.ZoverR_middle)>ZERO_LIMIT)? 1./rpcFitResult.ZoverR_middle: 0.;
+    double awOuter  = (fabs(rpcFitResult.ZoverR_outer)>ZERO_LIMIT)? 1./rpcFitResult.ZoverR_outer: 0.;
+    
     for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
-      muonRoad.aw[0][i_sector] = rpcFitResult.slope_inner;
-      muonRoad.bw[0][i_sector] = rpcFitResult.offset_inner;
-      muonRoad.aw[1][i_sector] =  rpcFitResult.slope_middle;
-      muonRoad.bw[1][i_sector] = rpcFitResult.offset_middle;
-      muonRoad.aw[2][i_sector] =  rpcFitResult.slope_outer;
-      muonRoad.bw[2][i_sector] = rpcFitResult.offset_outer;
-      muonRoad.aw[9][i_sector] = rpcFitResult.slope_middle;//BME
-      muonRoad.bw[9][i_sector] = rpcFitResult.offset_middle;
+      muonRoad.aw[0][i_sector] = awMiddle;
+      muonRoad.bw[0][i_sector] = 0;
     }
-   
+    for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
+      muonRoad.aw[1][i_sector] = awMiddle;
+      muonRoad.bw[1][i_sector] = 0;
+      muonRoad.aw[9][i_sector] = awMiddle;//BME
+      muonRoad.bw[9][i_sector] = 0;
+    }
+    for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
+      muonRoad.aw[2][i_sector] = awOuter;
+      muonRoad.bw[2][i_sector] = 0;
+    }
+    
   } else {
     double roiEtaLow = (roiEtaMinLow + roiEtaMaxLow) * 0.5;
     double roiEtaHigh = (roiEtaMinHigh + roiEtaMaxHigh) * 0.5;

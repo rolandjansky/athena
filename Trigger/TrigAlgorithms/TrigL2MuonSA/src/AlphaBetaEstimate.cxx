@@ -159,9 +159,22 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0])-1.)/0.05);
-
-    double phiEE = (tgcFitResult.tgcMid1[1]>0) ? tgcFitResult.tgcMid1[1] : tgcFitResult.tgcMid1[1] + 2*CLHEP::pi;
-    trackPattern.phiBinEE = static_cast<int> (phiEE*96/CLHEP::pi);
+    
+    if ( muonRoad.LargeSmall==1 ){//Small
+      int OctantSmall = Octant;
+      double PhiInOctantSmall = PhiInOctant;
+      if(tgcFitResult.tgcMid1[1]<0) PhiInOctantSmall = fabs(tgcFitResult.tgcMid1[1] - (OctantSmall-1)*(CLHEP::pi/4.));
+      trackPattern.phiBin24 = PhiInOctantSmall * PHI_RANGE;
+      trackPattern.smallLarge = 1;
+    } 
+    else {//Large
+      double tgcPhi = tgcFitResult.tgcMid1[1] + CLHEP::pi/8;
+      int OctantLarge = (int)(tgcPhi / (CLHEP::pi/4.));
+      double PhiInOctantLarge = fabs(tgcPhi - OctantLarge * (CLHEP::pi/4));
+      if (tgcPhi<0) PhiInOctantLarge = fabs(tgcPhi - (OctantLarge-1)*(CLHEP::pi/4.));
+      trackPattern.phiBin24 = PhiInOctantLarge * PHI_RANGE;
+      trackPattern.smallLarge = 0;
+    }
 
   } else {
     // TGC data readout problem -> use RoI (eta, phi) and assume straight track
@@ -184,10 +197,22 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(p_roi->eta())-1.)/0.05);
-
-    double phiEE = (p_roi->phi()>0) ? p_roi->phi() : p_roi->phi() + 2*CLHEP::pi;
-    trackPattern.phiBinEE = static_cast<int> (phiEE*96/CLHEP::pi);
     
+    if ( muonRoad.LargeSmall==1){//Small
+      int OctantSmall = Octant;
+      double PhiInOctantSmall = PhiInOctant;
+      if(tgcFitResult.tgcMid1[1]<0) PhiInOctantSmall = fabs(tgcFitResult.tgcMid1[1] - (OctantSmall-1)*(CLHEP::pi/4.));
+      trackPattern.phiBin24 = PhiInOctantSmall * PHI_RANGE;
+      trackPattern.smallLarge = 1;
+    }
+    else {//Large
+      double tgcPhi = tgcFitResult.tgcMid1[1] + CLHEP::pi/8;
+      int OctantLarge = (int)(tgcPhi / (CLHEP::pi/4.));
+      double PhiInOctantLarge = fabs(tgcPhi - OctantLarge * (CLHEP::pi/4));
+      if (tgcPhi<0) PhiInOctantLarge = fabs(tgcPhi - (OctantLarge-1)*(CLHEP::pi/4.));
+      trackPattern.phiBin24 = PhiInOctantLarge * PHI_RANGE;
+      trackPattern.smallLarge = 0;
+    }
   }
 
   if (MiddleZ && OuterZ) {
@@ -227,20 +252,13 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     }
   }
 
-  double distance=9999;//distance between track and IP
-  if (fabs(EEZ)>10000 && fabs(EEZ)<10600){//Small
-      if ( (EBIZ && EEZ) && MiddleZ ){
-        trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
-        distance = calcDistance(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
-      }
-    }
-  if (fabs(EEZ)>10600 && fabs(EEZ)<12000){//Large
-    if ( (InnerZ && EEZ) && MiddleZ ){
-      trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
-      distance = calcDistance(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
-    }
+  if ( (InnerZ && EEZ) && MiddleZ ){
+    trackPattern.endcapRadius3P = computeRadius3Points(InnerZ, InnerR, EEZ, EER, MiddleZ, MiddleR);
   }
-  if (distance>500) trackPattern.endcapRadius3P=0;//Reconstruction may fail
+  
+  if ( (EBIZ && EEZ) && MiddleZ ){
+    trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
+  }
 
   msg() << MSG::DEBUG << "... alpha/beta/endcapRadius/charge/s_address="
 	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
@@ -325,21 +343,6 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, doub
     
   radius_EE = sqrt(x0*x0 + y0*y0);
   return radius_EE;
-}
-
-double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double x2,double y2,double x3,double y3)    {
-  double xm1=(x1+x2)/2;
-  double xm2=(x2+x3)/2;
-  double ym1=(y1+y2)/2;
-  double ym2=(y2+y3)/2;
-  double a1=(x1-x2)/(y2-y1);
-  double a2=(x2-x3)/(y3-y2);
-  double x0=(a2*xm2-a1*xm1-ym2+ym1)/(a2-a1);//center of circle
-  double y0=a1*(x0-xm1)+ym1;//center of circle
-  double a = (x0-x1)/(y1-y0);//slope of sessen
-  double b = y1+x1*(x1-x0)/(y1-y0);//intercept of sessen
-  double d=fabs(b)/sqrt(a*a+1);
-  return d;
 }
 
 // --------------------------------------------------------------------------------

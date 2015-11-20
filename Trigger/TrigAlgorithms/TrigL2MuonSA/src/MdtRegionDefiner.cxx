@@ -111,6 +111,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	    ty2 = m_mdtIdHelper->stationNameIndex(name)+1;
 	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
 	  m_muonStation = m_mdtReadout->parentMuonStation();
+	  float scale = 10.;
 	  
 	  Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
 	  //HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
@@ -119,8 +120,8 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	    Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
 	  //	    HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
 	  
-	  tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp();
-	  tmp_rMax = tmp_rMin+m_muonStation->Rsize();
+	  tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp()/scale;
+	  tmp_rMax = tmp_rMin+m_muonStation->Rsize()/scale;
 	  
 	  if(rMin==0 || tmp_rMin < rMin)rMin = tmp_rMin;
 	  if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;	

@@ -110,6 +110,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       return false;
     }
     
+    tgcFitResult.isSuccess = true;
 
     // Fit lines to TGC middle station
     isMiddleFailure = false;
@@ -137,11 +138,6 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
           << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3] << endreq;
     msg() << MSG::DEBUG << "tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
           << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3] << endreq;
-  }
-   
-  if (tgcHits.size()>0 && !isMiddleFailure){
-
-    tgcFitResult.isSuccess = true;
     
     // PT calculation by using TGC fit result
     const double PHI_RANGE = 12./(CLHEP::pi/8.);
@@ -158,7 +154,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     
     int charge = (tgcFitResult.intercept * tgcFitResult.tgcMid2[3]) < 0.0 ? 0: 1;
     
-    tgcFitResult.tgcPT = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::TGCALPHAPOL2, etaBin, phiBin, alpha) / 1000.;
+    tgcFitResult.tgcPT = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, 2, etaBin, phiBin, alpha) / 1000.;
     if (charge==0) tgcFitResult.tgcPT = -1.*tgcFitResult.tgcPT;
     
     // Determine phi direction
