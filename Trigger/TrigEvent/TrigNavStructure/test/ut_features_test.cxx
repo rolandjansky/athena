@@ -5,23 +5,24 @@
 #include <stdexcept>
 #include <stdint.h>
 
-#include "TrigNavStructure/TrigNavStructure.h"
+#include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigNavStructure/TypelessHolder.h"
 #include "testutils.h"
 
 using namespace std;
 using namespace HLT;
 
-struct TestTNS : public TrigNavStructure {
+struct TestTNS : public StandaloneNavigation {
   BaseHolder* addHolder(class_id_type clid, sub_index_type sub, const std::string& label) {
-    TypelessHolder *th = new TypelessHolder(clid, label, sub);
-    m_holders.push_back(th);
-    return th;      
+    auto th = std::make_shared<TypelessHolder>(clid, label, sub);
+    MSG("DEBUG","added holder for clid/label/sub: " << clid << "/" << label << "/" << sub);
+    m_holderstorage.registerHolder(th);
+    return th.get();      
   }
   
   bool addFeature(TriggerElement* te, class_id_type clid, const std::string& label, index_type begin, index_type end) {
     sub_index_type sub = invalid_sub_index;
-    for ( auto holder: m_holders ) {
+    for ( auto holder: m_holderstorage.getAllHolders() ) {
       if ( clid == holder->typeClid() and label == holder->label() ) {
 	sub = holder->subTypeIndex();
       }
@@ -35,7 +36,7 @@ struct TestTNS : public TrigNavStructure {
 
   void dumpHolders() {
     MSG("DEBUG", "dumpHolders");
-    for (auto holder: m_holders) {
+    for (auto holder: m_holderstorage.getAllHolders()) {
       MSG("DEBUG", "Holder CLID:" << holder->typeClid() << " label: " << holder->label() << " sub: " << holder->subTypeIndex() );
     }
   }
@@ -156,7 +157,7 @@ bool getFromExplicitTE() {
 
   auto holder = tns.getHolder(fea);
   if ( holder == nullptr ) 
-    REPORT_AND_STOP("Could not get the holder");
+    REPORT_AND_STOP("Could not get the holder for features: " << fea);
   PROGRESS;
 
   if ( holder->label() != "L2ElectronClusters" ) 
@@ -198,13 +199,13 @@ bool getRecursivelyTEbyCLID() {
   const TriggerElement* source {nullptr};
 
   // check if the recursion goes in correct direction
-  auto fea = tns.getFeatureRecursively(getById(20), cluster_clid, source);
+  auto fea = tns.getFeatureRecursively(getById(20), cluster_clid,"", source);
   if ( fea.valid() ) 
     REPORT_AND_STOP("Recursion goes in the wrong direction, we should not be able to get cluster from RoI");
   PROGRESS;
 
   // check if the recursion starts well (i.e. the TE where objects is available should be covered as well)
-  fea = tns.getFeatureRecursively(getById(21), cluster_clid, source);
+  fea = tns.getFeatureRecursively(getById(21), cluster_clid, "", source);
   if ( not isGoodFeature(fea, cluster_clid, 3, 1, 2) ) 
     REPORT_AND_STOP("Recursion does not start properly");
   if ( source != getById(21) ) 
@@ -212,7 +213,7 @@ bool getRecursivelyTEbyCLID() {
   PROGRESS;
 
   // and finally check if the recursion works well (one step down)
-  fea = tns.getFeatureRecursively(getById(23), track_clid, source);
+  fea = tns.getFeatureRecursively(getById(23), track_clid, "", source);
   if ( not isGoodFeature(fea, track_clid, 0, 27, 32) ) 
     REPORT_AND_STOP("Recursion does not descend properly");
 
@@ -221,7 +222,7 @@ bool getRecursivelyTEbyCLID() {
   PROGRESS;
 
   // more steps down
-  fea = tns.getFeatureRecursively(getById(23), cluster_clid, source);
+  fea = tns.getFeatureRecursively(getById(23), cluster_clid, "", source);
   if ( not isGoodFeature(fea, cluster_clid, 3, 1, 2) ) 
     REPORT_AND_STOP("Recursion does not descend properly");
 
@@ -299,6 +300,8 @@ int main() {
   if ( attach() == false ) 
     ABORT("not strictly a test but pre-conditions, nonetheless fails");
   
+  MSG("INFO", "build navigation. test.");
+
   if ( getFromExplicitTE() == false ) 
     ABORT("basic get failed");
 

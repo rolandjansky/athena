@@ -14,6 +14,25 @@
 #include "TrigNavStructure/TriggerElementFactory.h"
 #include "TrigNavStructure/BaseHolder.h"
 
+#include "TrigNavStructure/TrigHolderStructure.h"
+
+namespace HLTNavDetails {
+  // RAII trick to fill sizes at the exit of the function
+  // at construction the extra word is reserved and the current size remembered
+  // at destruction the current size is filled at the previously reserved index
+  struct FillSize {
+    std::vector<uint32_t>& m_output;
+    size_t m_index;
+    FillSize(std::vector<uint32_t>& o)
+      : m_output(o), m_index(m_output.size()) {
+      m_output.push_back(0);
+    }
+    ~FillSize() {
+      m_output[m_index]  = m_output.size();
+    }
+  };
+}
+
 namespace HLT {
   class TrigNavStructure {
   public:
@@ -23,7 +42,7 @@ namespace HLT {
     /**
      * @brief resets all the navigation, goes to the factory and asks to withdraw all produced objects
      */
-    void reset();
+    virtual void reset();
 
     /**
      * @brief gets initial node, if node is not there then it is created on fly
@@ -120,18 +139,7 @@ namespace HLT {
      * @return if true then OK else some sort of failure happened (likely badly truncated structure)
      */
     bool serializeTEs( std::vector<uint32_t>& output ) const;
-    bool deserializeTEs( const std::vector<uint32_t>& input, std::vector<uint32_t>::const_iterator& start );
-
-    /**
-     * @brief method serizlizes the helper objects allowing use of FeatureAccessHelpers w/o CLID
-     * This methods should be owerwritten by the derived classes
-     *
-     * @param output vector to place the result
-     *
-     * @return if true then OK else some sort of failure happened (likely badly truncated structure)     
-     */
-    virtual bool serializeHolders( std::vector<uint32_t>& output ) const;
-    virtual bool deserializeHolders( const std::vector<uint32_t>& input, std::vector<uint32_t>::const_iterator& start );
+    bool deserializeTEs( std::vector<uint32_t>::const_iterator& start, unsigned int totalSize);
 
     /**
      * @brief method serizlizes entire navigation
@@ -140,9 +148,8 @@ namespace HLT {
      *
      * @return if true then OK else some sort of failure happened (likely badly truncated structure)
      */
-    bool serialize( std::vector<uint32_t>& output ) const;
-    bool deserialize( const std::vector<uint32_t>& input );
-
+    virtual bool serialize( std::vector<uint32_t>&) const = 0;
+    virtual bool deserialize( const std::vector<uint32_t>&) = 0;
 
     /**
      * @brief typeless feature access metod
@@ -151,8 +158,7 @@ namespace HLT {
      * @param sub feature sub index (@see TriggerElement::ObjectIndex), if invalid_sub_type is passed then it is neglected
      * @return invalid FeatureAccessHelper is returned if nothng is found, else valid one
      */
-    TriggerElement::FeatureAccessHelper getFeature(const TriggerElement* te,                                           
-					       class_id_type clid, sub_index_type sub ) const;
+    TriggerElement::FeatureAccessHelper getFeature(const TriggerElement* te, class_id_type clid, const index_or_label_type& index_or_label) const;
 
 
     /**
@@ -161,26 +167,8 @@ namespace HLT {
      * structure of TEs until it is found. It stops on RoI nodes.
      * @param sourceTE is the TE where the feature was found
      */
-    TriggerElement::FeatureAccessHelper getFeatureRecursively(const TriggerElement* startTE, 
-							  class_id_type clid, sub_index_type sub,
-							  const TriggerElement*& sourceTE ) const;
-
-    /**
-     * @brief as above but any feature of matching CLID is considered ok
-     */
-    TriggerElement::FeatureAccessHelper getFeatureRecursively(const TriggerElement* startTE,   
-							  class_id_type clid, 
-							  const TriggerElement*& sourceTE ) const;
-
-    /**
-     * @brief As above but the clid and sub are looked in before using the label 
-     * @warning labels uniqness is not checked, the first found is used in order to btain teh CLID and sub
-     */
-    TriggerElement::FeatureAccessHelper getFeatureRecursively(const TriggerElement* startTE,
-							  class_id_type clid, const std::string& label, 
-							  const TriggerElement*& sourceTE ) const;
-
-
+    TriggerElement::FeatureAccessHelper getFeatureRecursively(const TriggerElement* startTE, class_id_type clid,
+							      const index_or_label_type& index_or_label, const TriggerElement*& sourceTE) const;
 
 
     /**
@@ -329,7 +317,32 @@ namespace HLT {
 
     const BaseHolder* getHolder(const TriggerElement::FeatureAccessHelper& fea) const;
 
+    sub_index_type subType(class_id_type clid, const index_or_label_type& sti_or_label) const;
+    std::string label(class_id_type clid, const index_or_label_type& sti_or_label) const;
+
+
+    virtual bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
+				      const index_or_label_type& index_or_label,
+				      bool only_single_feature,
+			      	      TriggerElement::FeatureVec& features, 
+			              bool with_cache_recording,
+			              bool travel_backward_recursively,
+			              const TriggerElement*& source = m_unspecifiedTE, 
+			              std::string& sourcelabel  = m_unspecifiedLabel) const;
   protected:
+
+    virtual bool getFeatureAccessorsSingleTE( const TriggerElement* te, class_id_type clid,
+					      const index_or_label_type& index_or_label,
+					      bool only_single_feature,
+					      TriggerElement::FeatureVec& features,
+					      bool with_cache_recording,
+					      const TriggerElement*& source,
+					      std::string& sourcelabel ) const ;
+    
+    
+    //method to see if feature matches by clid and either index or label
+    bool matchFeature(const TriggerElement::FeatureAccessHelper& fea, class_id_type clid,  const index_or_label_type& index_or_label) const;
+
     /**
      * @brief rebuilds the sameRoIRelation between trigger elements (used internally by deserialize)
      * @warning should be called for each RoI like node
@@ -349,9 +362,10 @@ namespace HLT {
 
 
     TriggerElementFactory m_factory;                     //!< factory of trigger elements
+    TrigHolderStructure m_holderstorage;                 //!< structure for feature holders
+    static const TriggerElement* m_unspecifiedTE;
+    static std::string m_unspecifiedLabel;
 
-    typedef std::vector<BaseHolder*> holders_type;
-    holders_type m_holders;
 
   };
 } // end of HLT namespace

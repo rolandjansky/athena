@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#include "TrigNavStructure/TrigNavStructure.h"
+#include "TrigNavStructure/StandaloneNavigation.h"
 #include "testutils.h"
 
 using namespace std;
@@ -26,7 +26,7 @@ bool sizesCheck(const std::vector<uint32_t>& serialized) {
 
 bool empty() {
   BEGIN_TEST
-  TrigNavStructure tns;
+  StandaloneNavigation tns;
   tns.reset();
   std::vector<uint32_t> serialized;
   bool status = tns.serialize(serialized);
@@ -39,7 +39,7 @@ bool empty() {
   if (serialized[3] != 0 ) 
     REPORT_AND_STOP("Wrongly encoded numner of TEs");
   PROGRESS;
-  TrigNavStructure post;
+  StandaloneNavigation post;
   status = post.deserialize(serialized);
   if ( status == false ) 
     REPORT_AND_STOP("deserialization of the empty navigation failed");
@@ -50,7 +50,7 @@ bool empty() {
 
 bool singleTE() {
   BEGIN_TEST
-  TrigNavStructure tns;
+  StandaloneNavigation tns;
   tns.reset();
   tns.getInitialNode();
   std::vector<uint32_t> serialized;
@@ -66,7 +66,7 @@ bool singleTE() {
     REPORT_AND_STOP("Number of TEs wrongly encoded");
 
   PROGRESS;
-  TrigNavStructure post;
+  StandaloneNavigation post;
   status = post.deserialize(serialized);
   if ( status == false )
     REPORT_AND_STOP("Failed to deserialzie navigation with one TE");
@@ -77,7 +77,7 @@ bool singleTE() {
 
 bool realTEs() {
   BEGIN_TEST
-  TrigNavStructure tns;
+  StandaloneNavigation tns;
   tns.reset();
   TriggerElement* roi = tns.addRoINode(tns.getInitialNode());
   TriggerElement* some = tns.addNode(roi, 878); // 878 is just some test ID  
@@ -127,7 +127,7 @@ bool realTEs() {
 
 bool truncate() {
   BEGIN_TEST;
-  TrigNavStructure tns;
+  StandaloneNavigation tns;
   tns.reset();
   TriggerElement* roi = tns.addRoINode(tns.getInitialNode());
   TriggerElement* some = tns.addNode(roi, 878); // 878 is just some test ID  

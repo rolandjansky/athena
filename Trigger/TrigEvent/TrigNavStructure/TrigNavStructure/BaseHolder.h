@@ -19,8 +19,8 @@ namespace HLT {
     virtual sub_index_type subTypeIndex() const = 0;
     
 
-    static bool enquireSerialized(const std::vector<uint32_t>& blob,
-				  std::vector<uint32_t>::const_iterator& fromHere,
+    static bool enquireSerialized(std::vector<uint32_t>::const_iterator& fromHere,
+				  const std::vector<uint32_t>::const_iterator& end,
 				  class_id_type& c, std::string& label,
 				  sub_index_type& subtypeIndex );
 

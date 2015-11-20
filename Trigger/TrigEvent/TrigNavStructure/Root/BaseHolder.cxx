@@ -9,25 +9,28 @@ using namespace HLT;
 
 BaseHolder::~BaseHolder() {}
 
-bool BaseHolder::enquireSerialized(const std::vector<uint32_t>& blob,
-				   std::vector<uint32_t>::const_iterator& it,
+bool BaseHolder::enquireSerialized(std::vector<uint32_t>::const_iterator& fromHere,
+				   const std::vector<uint32_t>::const_iterator& end,
 				   class_id_type& c, std::string& label,
 				   sub_index_type& subtypeIndex ) {
   using namespace std;
-  if ( it == blob.end() )  return false;  
+  if ( fromHere == end )  return false;  
 
-  c = *it++;
-  if ( it == blob.end() )  return false;
+  c = *fromHere++;
+  if ( fromHere == end )  return false;
 
-  subtypeIndex = *it++;
-  if ( it == blob.end() ) return false;
+  subtypeIndex = *fromHere++;
+  if ( fromHere == end ) return false;
   
-  unsigned labelSize = *it++;
-  if ( it == blob.end() ) return false;
-  if ( it+labelSize > blob.end() ) return false;
+  unsigned labelSize = *fromHere++;
+  if ( fromHere == end ) return false;
+  if ( fromHere+labelSize > end ) return false;
   
-  std::vector<uint32_t>::const_iterator stringEnd = it+labelSize;
-  HLT::StringSerializer::deserialize(it, stringEnd, label);
+  std::vector<uint32_t>::const_iterator stringEnd = fromHere+labelSize;
+  HLT::StringSerializer::deserialize(fromHere, stringEnd, label);
+
+  //advance iterator to end of label
+  std::advance(fromHere,labelSize);
 
   return true;
 }
