@@ -16,7 +16,6 @@
 #include "TrigNavStructure/TypelessHolder.h"
 #include "TrigNavStructure/TrigNavStructure.h"
 
-
 //#define MLOG(x)   if (m_log->level()<=MSG::x+m_msgLvlOffset) *m_log << (m_msgLvlOffset+MSG::x)
 //#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
@@ -29,10 +28,12 @@ std::ostream& operator<<( std::ostream& s, const std::vector<T>& v)
   return s;
 }
 
+std::string TrigNavStructure::m_unspecifiedLabel = "";
+const TriggerElement* TrigNavStructure::m_unspecifiedTE = 0;
+
 
 TrigNavStructure::~TrigNavStructure() {
   m_factory.reset();
-
 }
 
 /*****************************************************************************
@@ -202,26 +203,8 @@ void TrigNavStructure::printASCIIArt (std::string& str, const TriggerElement* te
   }
 }
 
-namespace {
-  // RAII trick to fill sizes at the exit of the function
-  // at construction the extra word is reserved and the current size remembered
-  // at destruction the current size is filled at the previously reserved index
-  struct FillSize {
-    std::vector<uint32_t>& m_output;
-    size_t m_index;
-    FillSize(std::vector<uint32_t>& o)
-      : m_output(o), m_index(m_output.size()) {
-      m_output.push_back(0);
-    }
-    ~FillSize() {
-      m_output[m_index]  = m_output.size();
-    }
-  };
-}
-
-
 bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
-  FillSize fs(output);
+  ::HLTNavDetails::FillSize fs(output);
 
   const std::vector<TriggerElement*>& fullList =  m_factory.listOfProduced();
   std::vector<TriggerElement*> all;
@@ -258,28 +241,28 @@ bool TrigNavStructure::serializeTEs( std::vector<uint32_t>& output ) const {
   return true;
 }
 
-
 /*****************************************************************************
  *
  * DESERIALIZATION
  *
  *****************************************************************************/
 
-bool TrigNavStructure::deserializeTEs( const std::vector<uint32_t>& input, std::vector<uint32_t>::const_iterator& start ) {
+bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& start, unsigned int totalSize) {
   m_factory.reset();
-
+  
   std::vector<uint32_t>::const_iterator& inputIt = start;
-
   const size_t payloadSize = *inputIt++; 
-  if ( input.size() < payloadSize ) { // not all TEs were recorded
-    std::cerr << "size of the navigation payload smaller than the one required to save TEs" << input.size() << " < " << payloadSize << std::endl;
+  
+  if ( totalSize < payloadSize ) { // not all TEs were recorded
+    std::cerr << "size of the navigation payload smaller then reported size used to save TEs. " << totalSize << " < " << payloadSize << std::endl;
     return false;
   }
+
   
   const unsigned int size = *inputIt++; // size in terms of number of TEs
   TriggerElement* previous = 0;
   std::map<uint16_t, TriggerElement* > keys;
-
+  
   for ( unsigned int i = 0; i < size; ++i ) {
     // create new TE
     TriggerElement* te = m_factory.produce(TriggerElement::enquireId(inputIt)); //
@@ -288,7 +271,7 @@ bool TrigNavStructure::deserializeTEs( const std::vector<uint32_t>& input, std::
     // keys table for deserialization of other TEs
     keys[i] = te;
   }
-
+  
   if ( not m_factory.empty() ) {
     // rebuild  sameRoI relations (this can't be done by TEs deserialization)
     TriggerElement* initialNode = getInitialNode();
@@ -318,92 +301,6 @@ void TrigNavStructure::fillSameRoIRelation ( TriggerElement* roi, TriggerElement
     }
   }
 }
-
-
-
-bool TrigNavStructure::serializeHolders( std::vector<uint32_t>& output ) const {
-  for ( auto holder: m_holders) {
-    // put size placeholder
-    const size_t holderSizeIndex = output.size();
-    output.push_back(0);
-
-    holder->serialize(output);
-
-    output[holderSizeIndex] = output.size() - holderSizeIndex -1;
-  } 
-  return true;
-}
-
-
-bool TrigNavStructure::deserializeHolders( const std::vector<uint32_t>& input, std::vector<uint32_t>::const_iterator& start ) {  
-  using namespace std;
-  do {
-    if ( start == input.end() ) // no holders at all
-      break;
-    
-    const size_t holderPayloadSize = *start;    
-    ++start;
-    class_id_type clid;
-    std::string label;
-    sub_index_type sub;   
-    std::vector<uint32_t>::const_iterator oneBlobIt = start;
-    bool couldRead = BaseHolder::enquireSerialized( input, oneBlobIt, clid, label, sub);
-    
-    if ( couldRead == false ) // to few data words essentially
-      break;
-
-    m_holders.push_back( new TypelessHolder(clid, label, sub) );
-
-    std::advance(start, holderPayloadSize);
-    
-  } while(1);
-
-  return true;
-}
-
-bool TrigNavStructure::serialize( std::vector<uint32_t>& output ) const {
-  const unsigned int version=3; //GetBack - shall we change it to 4
-  output.push_back(version);
-
-  FillSize fs(output);
-
-  if ( serializeTEs(output) == false ) {    
-    return false;
-  }
-
-  if ( serializeHolders(output) == false ) {
-    return false;
-  }
-
-  return true;
-}
-  
-bool TrigNavStructure::deserialize( const std::vector<uint32_t>& input ) {
-  //  using namespace std;
-  //  cerr << "deseraializing " << input.size() << endl;
-  std::vector<uint32_t>::const_iterator inputIt = input.begin();
-  const unsigned int version = *inputIt++;
-  if (version) {}
-  //  cerr << "version " << version << endl;
-
-  const size_t totalSize = *inputIt++;   
-  if (totalSize) {}
-  //  cerr << "totSize " << totalSize << endl;
-
-  if ( deserializeTEs(input, inputIt) == false ) {    
-    return false;
-  }
-  //  cerr << "done wiht TEs " << m_factory.listOfProduced().size() << endl;
-
-  if ( deserializeHolders(input, inputIt) == false ) {
-    return false;
-  }
-  return true;
-}
-  
-
-
-
 
 /*****************************************************************************
  *
@@ -499,6 +396,7 @@ bool TrigNavStructure::haveCommonRoI ( const TriggerElement* te1, const TriggerE
 
   if ( it == vecRoINodes.end() )
     return false;
+  
   return true;
 }
 
@@ -560,7 +458,7 @@ bool TrigNavStructure::hasIdFromTheSet ( const TriggerElement* te, std::vector<u
 
 
 
-bool TrigNavStructure::isInitialNode( const TriggerElement* te ) {  
+bool TrigNavStructure::isInitialNode( const TriggerElement* te ) {
   if ( te->getRelated(TriggerElement::seededByRelation).empty() and te->getId() == 0 )
     return true;
   return false;
@@ -814,89 +712,162 @@ unsigned int TrigNavStructure::copyAllFeatures( const TriggerElement* sourceTE, 
 void TrigNavStructure::reset() {
   //  std::cerr << "resetting" << std::endl;
   m_factory.reset();
-  //  std::cerr << "factory cleaned" << m_holders.size() << std::endl;
-  for ( auto h: m_holders) {
-    //    std::cerr << "deleting holder" << h << " " << h->label() << std::endl;
-    delete h;
-  }
+  m_holderstorage.reset();
+}
 
-  m_holders.clear();
-  //  std::cerr << "Reset fully done" << std::endl;
+sub_index_type TrigNavStructure::subType(class_id_type clid, const index_or_label_type& sti_or_label) const {
+  return m_holderstorage.getSubTypeIndex(clid,sti_or_label);
+}
+
+std::string TrigNavStructure::label(class_id_type clid, const index_or_label_type& sti_or_label) const {
+  return m_holderstorage.getLabel(clid,sti_or_label);
 }
 
 
+TriggerElement::FeatureAccessHelper TrigNavStructure::getFeature(const TriggerElement* te, class_id_type clid, const index_or_label_type& index_or_label) const {
 
 
+  TriggerElement::FeatureVec features;
+  bool single = true; bool cache_rec = false; bool recursively = false;
+  bool status = getFeatureAccessors(te, clid,index_or_label,single,features,cache_rec, recursively);
 
-
-
-TriggerElement::FeatureAccessHelper TrigNavStructure::getFeature(const TriggerElement* te,                                           
-							     class_id_type clid, sub_index_type sub ) const {
-  auto& thisTEFeatures = te->getFeatureAccessHelpers();
-
-  for ( auto it = thisTEFeatures.rbegin(); it != thisTEFeatures.rend(); ++it  ) {
-    if ( it->getCLID() == clid and 
-	 ( sub == invalid_sub_index or it->getIndex().subTypeIndex() == sub ) ) { // we have found the object
-      return *it;
-    }    
+  if(status && !features.empty()){
+    return features.front();
   }
   return TriggerElement::FeatureAccessHelper(); // not found
 }
 
 
-TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(const TriggerElement* startTE, 
-									class_id_type clid, sub_index_type sub,
-									const TriggerElement*& sourceTE ) const {  
-  sourceTE = startTE;
-  auto fea = getFeature(startTE, clid, sub);
-  if ( fea.valid() ) 
-    return fea;
+TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(const TriggerElement* startTE, class_id_type clid,
+									    const index_or_label_type& index_or_label, const TriggerElement*& sourceTE) const {  
+
+  TriggerElement::FeatureVec features;
+  bool single = true; bool cache_rec = false; bool recursively = true;
+  bool status = getFeatureAccessors(startTE, clid,index_or_label,single,features,cache_rec, recursively,sourceTE);
+
+  if(status && !features.empty()){
+    return features.front();
+  }
+  return TriggerElement::FeatureAccessHelper(); // not found
+}
+
+bool TrigNavStructure::getFeatureAccessorsSingleTE( const TriggerElement* te, class_id_type clid,
+						    const index_or_label_type& index_or_label,
+						    bool only_single_feature,
+						    TriggerElement::FeatureVec& features,
+						    bool with_cache_recording,
+						    const TriggerElement*& source,
+						    std::string& sourcelabel ) const {
+
+  // ATH_MSG_VERBOSE("getFeatureAccessorsSingleTE: looking for:" << (only_single_feature ? "one object" : "many objects" ) << " of CLID: " << clid
+  // 		  << " label: \"" << label << "\"" << " starting from TE: " << te->getId());
+
+  //remove unused warning
+  (void)(with_cache_recording);
+  
+  int size = te->getFeatureAccessHelpers().size(), it;
+  
+  // loop the feature access helper in order depending of type of request (i.e. if single featyure needed then loop from back, if all then loop from the front)
+  for ( it = ( only_single_feature ? size-1 : 0 ); it != (only_single_feature ? -1 : size ); only_single_feature ? it--: it++ ) {
+    auto& fea = te->getFeatureAccessHelpers().at(it);
+    //ATH_MSG_VERBOSE("getFeatureAccessors: in a loop over FeatureAccessHelpers got ObjectIndex " << fea);
+
+    if(matchFeature(fea,clid,index_or_label)){
+      sourcelabel = label(clid,fea.getIndex().subTypeIndex());
+      source = te;
+      features.push_back(fea);
+
+      // ATH_MSG_DEBUG("getFeatureAccessors: matching feature found in te: " << *te << " index: " << fea);
+      // now the ending (depends on the "single" flag)
+      if ( only_single_feature )
+	break;
+    }
+  } // end of loop over feature access helpers of this TE
+  
+  return true;
+}
+
+bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_type clid,
+					    const index_or_label_type& index_or_label,
+					    bool only_single_feature,
+					    TriggerElement::FeatureVec& features,
+					    bool with_cache_recording,
+					    bool travel_backward_recursively,
+					    const TriggerElement*& source,
+					    std::string& sourcelabel ) const {
+
+  bool singleTEstatus = getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,with_cache_recording,source,sourcelabel);
+
+   if(!singleTEstatus){
+     // MLOG(WARNING) << "getFeatureAccessorsSingleTE() returned false" << endreq;
+   }
+
+ 
+
+  if ( ! travel_backward_recursively ) {
+    return true;
+  }
 
   // stop digging deeper if this is an RoI node already
-  if ( isRoINode(startTE) ) {
-    return TriggerElement::FeatureAccessHelper();
+  if ( isRoINode(te) ) {
+    return true;
   }
-  // resurse through the seeding TEs
-  for ( auto seed: getDirectPredecessors(startTE) ) {
-    sourceTE = seed;
-    auto seed_fea = getFeatureRecursively(seed, clid, sub, sourceTE);
-    if ( seed_fea.valid() ) 
-      return seed_fea;
+
+  // return if a feature(s) is/are found
+  if ( ! features.empty() ) {
+    return true;
   }
-  return TriggerElement::FeatureAccessHelper();
+
+  // recurse deeper
+  bool recursion_status = true;
+  for( TriggerElement* predecessor: getDirectPredecessors(te) ) {
+     
+    TriggerElement::FeatureVec features_in_branch;
+
+    recursion_status = recursion_status && getFeatureAccessors( predecessor, clid, index_or_label,
+								only_single_feature, features_in_branch,
+                                                                with_cache_recording, travel_backward_recursively,
+								source, sourcelabel);
+    features.insert(features.end(),  features_in_branch.begin(), features_in_branch.end());
+  }
+    
+  if ( only_single_feature &&  ( features.size() > 1 || recursion_status == false) ) {
+    // MLOG(DEBUG) << "getFeatureAccessors: looking for object of CLID: " << clid
+    //             << " label: \"" << label << "\"" << " found several objects matching criteria while can only return back one, this is ambiguous" << endreq;
+      
+    if ( getDirectPredecessors(te).size() > 1 ) // mark bifurcation point as to where one can start again
+      source = te;
+
+    return false;
+  }
+  return true;
 }
 
 
+bool TrigNavStructure::matchFeature(const TriggerElement::FeatureAccessHelper& fea, class_id_type clid, const index_or_label_type& index_or_label) const {
+  //we always require the CLID to match
+  if(fea.getCLID() != clid) return false;
 
-TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(const TriggerElement* startTE,   
-									class_id_type clid, 
-									const TriggerElement*& sourceTE ) const {  
-  return getFeatureRecursively(startTE, clid, invalid_sub_index, sourceTE);
-}
+  if(index_or_label.which() == 0){
+    //subtype index case: if argument is invalid_sub_index we always match, else require exact match
+    auto index = boost::get<sub_index_type>(index_or_label) ;
+    return (index == invalid_sub_index || index == fea.getIndex().subTypeIndex());
+  }
 
-
-
-
-
-
-TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(const TriggerElement* startTE,
-									class_id_type clid, const std::string& label, 
-									const TriggerElement*& sourceTE ) const {
-  
-  //loop over the holders to find the one matching the type or label or both
-  for (auto holder: m_holders) {    
-    if ( clid == holder->typeClid() and (label.empty() or  holder->label().find(label) != std::string::npos)  ) {
-      auto feat =  getFeatureRecursively(startTE, clid, holder->subTypeIndex(), sourceTE);
-      if(feat.valid()) return feat;
+  if(index_or_label.which() == 1){
+    //label case: if argument is "" we always match, else require exact match (via)
+    auto label = boost::get<std::string>(index_or_label);
+    if(label.empty()){
+      return true;
     }
+    label = (label == "!") ? "" : label;
+    auto sub = subType(clid,label);
+    if(sub == invalid_sub_index) return false;
+    return matchFeature(fea,clid,sub);
   }
-  return TriggerElement::FeatureAccessHelper();
+  return false;
 }
 
 const BaseHolder* TrigNavStructure::getHolder(const TriggerElement::FeatureAccessHelper& fea) const { 
-  for (auto holder: m_holders) {    
-    if ( fea.getCLID() == holder->typeClid() and  fea.getIndex().subTypeIndex() == holder->subTypeIndex() )   
-      return holder;
-  }
-  return nullptr;
+  return m_holderstorage.getHolderForFeature(fea);
 }

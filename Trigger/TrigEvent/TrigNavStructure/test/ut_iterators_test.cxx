@@ -4,11 +4,11 @@
 
 #include <stdint.h>
 
-#include "TrigNavStructure/TrigNavStructure.h"
+#include "TrigNavStructure/StandaloneNavigation.h"
 #include "TrigNavStructure/ComboIterator.h"
 #include "testutils.h"
 using namespace HLT;
-TrigNavStructure tns;
+StandaloneNavigation tns;
 namespace ID {
   const te_id_type trk=22;
   const te_id_type mu=33;
