@@ -25,25 +25,25 @@ TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
 
 StatusCode TauIDVarCalculator::eventInitialize()
 {
-  if(!m_doTrigger){
-    m_nVtx = int(LOW_NUMBER);
-    const xAOD::VertexContainer* vertexContainer = nullptr;
-    if( evtStore()->retrieve( vertexContainer, m_vertexContainerKey ).isFailure() ){
-      ATH_MSG_ERROR("VertexContainer with key " << m_vertexContainerKey << " could not be retrieved.");
-      return StatusCode::FAILURE;
-    }
-    if(vertexContainer){
-      m_nVtx = 0;
-      for( auto vertex : *vertexContainer ){
-	if(!vertex) continue;
-	int nTrackParticles = vertex->nTrackParticles();
-	if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
-	    (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
-	  m_nVtx++;
-	}
+  //if(!m_doTrigger){
+  m_nVtx = int(LOW_NUMBER);
+  const xAOD::VertexContainer* vertexContainer = nullptr;
+  if( evtStore()->retrieve( vertexContainer, m_vertexContainerKey ).isFailure() ){
+    ATH_MSG_ERROR("VertexContainer with key " << m_vertexContainerKey << " could not be retrieved.");
+    return StatusCode::FAILURE;
+  }
+  if(vertexContainer){
+    m_nVtx = 0;
+    for( auto vertex : *vertexContainer ){
+      if(!vertex) continue;
+      int nTrackParticles = vertex->nTrackParticles();
+      if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
+	  (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
+	m_nVtx++;
       }
     }
   }
+  //}
   
   return StatusCode::SUCCESS;
 }
@@ -60,6 +60,9 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
 
+  static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
+  acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0.;
+  
   if(m_doTrigger){
     //for old trigger BDT:
     static SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
