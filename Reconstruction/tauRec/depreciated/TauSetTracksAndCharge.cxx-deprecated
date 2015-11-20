@@ -1,0 +1,81 @@
+#include "tauRec/TauEventData.h"
+#include "tauRec/TauSetTracksAndCharge.h"
+#include "tauEvent/TauJetParameters.h"
+
+#include <GaudiKernel/IToolSvc.h>
+#include <GaudiKernel/ListItem.h>
+
+//-------------------------------------------------------------------------
+// Constructor
+//-------------------------------------------------------------------------
+TauSetTracksAndCharge::TauSetTracksAndCharge(const std::string &type,
+    const std::string &name,
+    const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_trackContainerName("TrackParticleCandidate") {
+    declareInterface<TauToolBase > (this);
+    declareProperty("TrackContainer", m_trackContainerName);
+}
+
+
+//-------------------------------------------------------------------------
+// Destructor
+//-------------------------------------------------------------------------
+TauSetTracksAndCharge::~TauSetTracksAndCharge() {
+}
+
+
+//-------------------------------------------------------------------------
+// Initializer
+//-------------------------------------------------------------------------
+StatusCode TauSetTracksAndCharge::initialize() {
+    return StatusCode::SUCCESS;
+}
+
+//-------------------------------------------------------------------------
+// Execution
+//-------------------------------------------------------------------------
+StatusCode TauSetTracksAndCharge::execute(TauEventData *data) {
+
+    StatusCode sc;
+    const Rec::TrackParticleContainer *trackContainer;
+
+    //SX changes needed by trigger
+    sc = data->getObject("TrackContainer", trackContainer);
+
+    if (sc == StatusCode::FAILURE || !trackContainer) {
+
+        ATH_MSG_DEBUG("no TrackParticleContainer for trigger");
+
+            StatusCode sc = evtStore()->retrieve(trackContainer, m_trackContainerName);
+        if (sc.isFailure() || !trackContainer) {
+            ATH_MSG_WARNING("Unable to retrieve track particle container <" << m_trackContainerName << ">!");
+            return StatusCode::SUCCESS;
+        }
+    }
+
+    Analysis::TauJet *pTau = data->tau;
+
+    double charge = 0;
+    
+    for (unsigned int i = 0; i != pTau->seedCalo_numTrack(); ++i) {
+        
+        charge += pTau->track(i)->charge();
+
+        // add tracks to global tau track collection
+        pTau->addTrack(trackContainer, pTau->track(i));
+    }
+    
+    ATH_MSG_INFO("seedCalo_numTrack = " << pTau->seedCalo_numTrack());
+    ATH_MSG_INFO("numTrack = " << pTau->numTrack());    
+    
+    // save charge
+    ATH_MSG_DEBUG("charge from tracks: " << charge << " will be saved in tau candidate as: " << (int)charge);
+    pTau->set_charge((int) charge);
+
+    return StatusCode::SUCCESS;
+}
+
+
+
+

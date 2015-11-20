@@ -1,0 +1,92 @@
+#ifndef TAUREC_TAUORIGINCORRECTIONTOOL_H
+#define TAUREC_TAUORIGINCORRECTIONTOOL_H
+
+#include <vector>
+#include "AthenaBaseComps/AthAlgTool.h" 
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticle.h"
+
+class Jet;
+class CaloCell;
+class CaloCluster;
+//class xAOD::VertexContainer;
+
+//namespace HepGeom {
+//    template<class T> class Vector3D;
+//}
+namespace Trk {
+  class RecVertex;
+}
+
+static const InterfaceID IID_ITauOriginCorrectionTool("TauOriginCorrectionTool",1,0);
+
+/**
+ * @brief Correct cells and cluster for vertex shift.
+ * 
+ *  Inspired by Reconstruction/Jet/JetCalibTools/JetCalibTools/JetCaloOrigin.h
+ * 
+ * @author Felix Friedrich
+ */
+
+class TauOriginCorrectionTool :  public AthAlgTool
+{
+    public:
+        TauOriginCorrectionTool( const std::string& type, const std::string& name, const IInterface* parent ) ;
+        virtual ~TauOriginCorrectionTool(){};
+
+        static const InterfaceID& interfaceID() { return IID_ITauOriginCorrectionTool; }
+
+        virtual StatusCode initialize()  ;
+        virtual StatusCode eventInitialize()  ;
+        virtual StatusCode finalize() { return StatusCode::SUCCESS; } ;
+
+        virtual void setOriginSource(const Jet* jet);
+        virtual void setOriginSource(const Trk::RecVertex* vertex); 
+	virtual void setOriginSource(const xAOD::Vertex* vertex); 
+	
+        virtual void correctCell(const CaloCell* cell);
+        virtual void resetCell(const CaloCell* cell);
+
+        virtual void correctCluster(const CaloCluster* cluster);
+        virtual void resetCluster(const CaloCluster* cluster);
+
+        // Return the vertex chosen
+        Amg::Vector3D chooseOrigin(const Jet* jet_in);
+
+
+    private:
+
+        // 3-vector pointing to a default origin
+        std::vector<double> m_originPosition;
+
+        // Choice of origin:
+        // Try the JetVertexAssociation
+        bool m_useJVA;
+        // Try retrieving primary vertex
+        bool m_usePrimaryVertex;
+        // Try retrieving beamspot
+        bool m_useBeamSpot;
+        
+        bool m_evnInitCalled;
+
+        // origin
+        Amg::Vector3D m_jetOrigin;
+
+        // Vertex Container Name
+        std::string m_primVtxName;
+
+        //JVA Moment Name
+        std::string m_OriginMomName;
+
+        // Pointer to the vertex container
+        const xAOD::VertexContainer* m_vxContainer;
+
+        // Pointer to the beamspot handle
+        ServiceHandle<IBeamCondSvc> m_beamConditionsService;
+
+};
+#endif

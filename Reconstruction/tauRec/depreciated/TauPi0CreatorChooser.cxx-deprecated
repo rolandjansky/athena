@@ -1,0 +1,180 @@
+//-----------------------------------------------------------------------------
+// file:        TauPi0CreatorChooser.cxx
+// package:     Reconstruction/tauEvent
+// authors:     Veit Scharf
+// date:        2008-10-23
+//-----------------------------------------------------------------------------
+
+#include <algorithm>
+#include "GaudiKernel/MsgStream.h"
+#include "CaloEvent/CaloCluster.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "tauEvent/TauCommonDetails.h"
+#include "tauRec/TauPi0CreatorChooser.h"
+
+//-------------------------------------------------------------------------
+// Constructor
+//-------------------------------------------------------------------------
+
+TauPi0CreatorChooser::TauPi0CreatorChooser(const std::string& type,
+    const std::string& name,
+    const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_tau1p3pCreatePi0ClusTool("tau1p3pCreatePi0Clus"),
+m_tauCommonCreatePi0ClusTool("TauCommonCreatePi0Clus"),
+m_pi0ClusterContainerName("Tau1P3PPi0ClusterContainer") {
+    declareInterface<TauToolBase > (this);
+
+    declareProperty("Tau1p3pCreatePi0ClusTool", m_tau1p3pCreatePi0ClusTool);
+    declareProperty("TauCommonCreatePi0ClusTool", m_tauCommonCreatePi0ClusTool);
+    declareProperty("Pi0ClusterContainer", m_pi0ClusterContainerName);
+}
+
+//-------------------------------------------------------------------------
+// Destructor
+//-------------------------------------------------------------------------
+
+TauPi0CreatorChooser::~TauPi0CreatorChooser() {
+}
+
+StatusCode TauPi0CreatorChooser::initialize() {
+
+    StatusCode sc;
+
+    sc = m_tau1p3pCreatePi0ClusTool.retrieve();
+    if (sc.isFailure()) {
+        ATH_MSG_ERROR("Could not retrieve tau1p3pCreatePi0ClusTool.");
+        return sc;
+    }
+
+    sc = m_tauCommonCreatePi0ClusTool.retrieve();
+    if (sc.isFailure()) {
+        ATH_MSG_ERROR("Could not retrieve tauCommonCreatePi0ClusTool.");
+        return sc;
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode TauPi0CreatorChooser::eventInitialize(TauEventData* data) {
+
+    StatusCode sc;
+    sc = m_tau1p3pCreatePi0ClusTool->eventInitialize(data);
+    if (sc.isFailure()) {
+        return sc;
+    }
+
+    sc = m_tauCommonCreatePi0ClusTool->eventInitialize(data);
+    if (sc.isFailure()) {
+        return sc;
+    }
+
+    m_tauDetails.clear();
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode TauPi0CreatorChooser::execute(TauEventData* data) {
+
+    StatusCode sc;
+
+    m_tauDetails.push_back(dynamic_cast<Analysis::TauCommonDetails*> (data->details));
+    if (data->tau->numTrack() != 1)
+        sc = m_tau1p3pCreatePi0ClusTool->execute(data);
+    else
+        sc = m_tauCommonCreatePi0ClusTool->execute(data);
+
+    return sc;
+}
+
+void TauPi0CreatorChooser::cleanup(TauEventData* data) {
+    if (data->tau->numTrack() != 1)
+        m_tau1p3pCreatePi0ClusTool->cleanup(data);
+    else
+        m_tauCommonCreatePi0ClusTool->cleanup(data);
+
+    std::vector<Analysis::TauCommonDetails*>::iterator i = std::find(m_tauDetails.begin(),
+        m_tauDetails.end(),
+        dynamic_cast<Analysis::TauCommonDetails*> (data->details));
+
+    if (i != m_tauDetails.end())
+        m_tauDetails.erase(i);
+
+    return;
+}
+
+StatusCode TauPi0CreatorChooser::eventFinalize(TauEventData* /* data */) {
+
+    // Do not call eventFinalize methods of the child tools. They would record
+    // two CaloClusterContainers with the same name. Instead do the work here.
+    ATH_MSG_INFO("TauPi0CreatorChooser::eventFinalize");
+
+    MsgStream rLog(msgSvc(), name());
+
+    StatusCode sc;
+
+
+   
+    CaloClusterContainer *pPi0ClusterContainer = new CaloClusterContainer();
+
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::recordClusters(&*evtStore(),
+    //         pPi0ClusterContainer,
+    //         m_pi0ClusterContainerName,
+    //         rLog);
+    
+    std::vector<Analysis::TauCommonDetails*>::iterator dataIt(m_tauDetails.begin()),
+        dataItE(m_tauDetails.end());
+
+
+    if (sc.isFailure()) {
+        ATH_MSG_WARNING("Could not create CaloClusterContainer: " << m_pi0ClusterContainerName << ". No pi0's will be stored.");
+
+        // remove all pi0s if registering the container fails.
+        for (; dataIt != dataItE; ++dataIt) {
+            if (*dataIt) (*dataIt)->pi0LinkVec().clear();
+        }
+
+        return StatusCode::SUCCESS;
+    }
+
+    // store clusters in the new container
+    for (dataIt = m_tauDetails.begin(); dataIt != dataItE; ++dataIt) {
+        for (unsigned i = 0; i < (*dataIt)->nPi0(); ++i) {
+            pPi0ClusterContainer->push_back(const_cast<CaloCluster*>((*dataIt)->pi0(i)));
+        }
+    }
+
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE; 
+    // sc = CaloClusterStoreHelper::finalizeClusters(&*evtStore(),
+    //     pPi0ClusterContainer,
+    //     m_pi0ClusterContainerName,
+    //     rLog);
+
+    if (sc.isFailure()) {
+        ATH_MSG_WARNING("Could not finalize CaloClusterContainer " << m_pi0ClusterContainerName << ". No pi0's will be stored.");
+        // remove all pi0s if registering the container fails.
+        for (; dataIt != dataItE; ++dataIt) {
+            if (*dataIt) (*dataIt)->pi0LinkVec().clear();
+        }
+        return StatusCode::SUCCESS;
+    }
+
+    // update links in Tau1P3PDetails
+    std::vector<const CaloCluster*> tmp;
+    for (dataIt = m_tauDetails.begin(); dataIt != dataItE; ++dataIt) {
+        tmp.clear();
+        for (unsigned i = 0; i < (*dataIt)->nPi0(); ++i) {
+            tmp.push_back((*dataIt)->pi0(i));
+        }
+        (*dataIt)->pi0LinkVec().clear();
+        for (unsigned i = 0; i < tmp.size(); ++i) {
+            (*dataIt)->addPi0(tmp.at(i), pPi0ClusterContainer);
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+

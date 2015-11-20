@@ -1,0 +1,98 @@
+#ifndef TAUREC_TAUPROCESSOR_H
+#define TAUREC_TAUPROCESSOR_H
+
+#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "tauRecTools/ITauToolBase.h"
+
+/**
+ * @brief       Main class for tau candidate building and processing.
+ * 
+ *  This class loop over tau candidates in the tau container placed there by the TauBuilder
+ *  and runs the given tau tools on the tau candidates. The tau objects are !!modified!!.
+ *  If a tool fails, the tau reconstruction will be aborted.
+ *  This algorithm has an AOD mode to skip TauExtraDetailsContainer, that is not available in AODs.
+ * 
+ *  (This algorithm was inspired by TauBuilder.)
+ * 
+ * @authors  Felix Friedrich
+ */
+
+class TauProcessor: public AthAlgorithm
+{
+    public:
+        //-----------------------------------------------------------------
+        // Contructor and destructor
+        //-----------------------------------------------------------------
+        TauProcessor( const std::string &name, ISvcLocator *pSvcLocator );
+        ~TauProcessor();
+
+        //-----------------------------------------------------------------
+        // Gaudi algorithm hooks
+        //-----------------------------------------------------------------
+        virtual StatusCode initialize();
+        virtual StatusCode execute();
+        virtual StatusCode finalize();
+
+	//-------------------------------------------------------------------------
+	// make a deep copy of conatiner a
+	// xAOD::TauJetContainer *cont(0);
+	// xAOD::TauJetAuxContainer* contAux(0);
+	// xAOD::TauJet* tau(0);
+	// ATH_CHECK( ITauToolBase::deepCopy( cont, contAux, tau, "TauJets", "TauJetsAux.") );
+	// tau is only used to infer type of object in T...
+	//-------------------------------------------------------------------------
+	template<class T, class U, class V>
+	  StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType, 
+			      const std::string& containername,  std::string containerNameAux="");
+
+
+    private:
+        std :: string                 m_tauContainerName;
+	std :: string                 m_tauAuxContainerName; 
+        bool                          m_AODmode;
+	bool                          m_deep_copy_chargedPFOContainer;
+	bool                          m_deep_copy_hadronicPFOContainer;
+	bool                          m_deep_copy_neutralPFOContainer;
+	bool                          m_deep_copy_SecVtxContainer;
+        ToolHandleArray<ITauToolBase>  m_tools;
+	TauEventData m_data;  // used
+};
+
+template<class T, class U, class V>
+  StatusCode TauProcessor::deepCopy(T*& container, U*& containerStore, const V* /*dummyContainerElementType*/, 
+				    const std::string& containerName, std::string containerNameAux){
+  if(containerNameAux=="") {
+    containerNameAux=containerName;
+    containerNameAux+="Aux.";
+  }
+
+  const T* constContainer(0);
+  const U* constAuxContainer(0);
+
+  ATH_CHECK( evtStore()->retrieve(constContainer, containerName) );
+  ATH_CHECK( evtStore()->retrieve(constAuxContainer, containerNameAux) );
+  if(container==0 && containerStore==0){
+    container = new T();
+    containerStore = new U();
+    container->setStore(containerStore);
+  }
+  else{
+    ATH_MSG_FATAL("Proviced non-null containters, not initializing please provide null containers: ");
+    return StatusCode::FAILURE;
+  }
+  for( const V* v : *constContainer ){
+    V* newV = new V();
+    container->push_back(newV);
+    *newV = *v;    
+  }  
+
+  ATH_CHECK( evtStore()->overwrite(container, containerName, true, false) );
+  ATH_CHECK( evtStore()->overwrite(containerStore, containerNameAux, true, false) );
+
+  return StatusCode::SUCCESS;
+}
+
+
+#endif // TAUREC_TAUPROCESSOR_H

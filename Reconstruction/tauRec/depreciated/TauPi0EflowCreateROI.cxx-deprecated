@@ -1,0 +1,510 @@
+//-----------------------------------------------------------------------------
+// file:        tau1p3pTrackCreateROI.cxx
+// package:     Reconstruction/tauRec
+// authors:     Elzbieta Richter-Was  (addapted from tau1p3pTrackMatchCells.cxx)
+// date:        June2007
+//
+// Tool for collecting cells for tauROI
+//
+// 17/03/2010: AK: change to P4Helpers
+// 16/05/2010 - (FF) pointer p_measPer never used (coverity 22627)
+//-----------------------------------------------------------------------------
+
+//TODO: statuscode failure --> recoverable
+//TODO: rename!
+
+#include "GaudiKernel/ListItem.h"
+
+#include "CaloEvent/CaloCluster.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCell.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloEvent/CaloClusterContainer.h"
+
+#include "tauRec/KineUtils.h"
+
+#include "tauRec/TauOriginCorrectionTool.h"
+#include "tauRec/TauPi0EflowCreateROI.h"
+
+//-----------------------------------------------------------------------------
+// Constructor
+//-----------------------------------------------------------------------------
+
+TauPi0EflowCreateROI::TauPi0EflowCreateROI(const std::string &type,
+    const std::string &name,
+    const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_cellsContainerName("AllCalo"),
+m_cellsOutputContainerName("TauCells"),
+m_detRIsolCaloCut(0.4),
+m_detRCoreCaloCut(0.2),
+m_useNoiseSigma(1),
+m_AbsNoiseSigma_cut(2),
+m_detRChrgEMCut(0.0375),
+m_removeChrgEM01(0),
+m_removeChrgEM2(0),
+m_fillCellContainer(false),
+m_pCellOutputContainer(0) ,
+m_doCellCorrection(false), //FF: don't do cell correction by default
+m_tauOriginCorrTool("")
+{
+    declareInterface<TauToolBase > (this);
+
+    declareProperty("CellsContainerName", m_cellsContainerName);
+    declareProperty("CellsOutputContainerName", m_cellsOutputContainerName);
+    // declare options for noise/weighting
+    declareProperty("useNoiseSigma", m_useNoiseSigma);
+    declareProperty("AbsNoiseSigma_cut", m_AbsNoiseSigma_cut);
+    declareProperty("CaloNoiseTool", m_noiseTool, "Tool Handle for noise tool");
+    // declare large fixed cone for creating subcollection of cells (cluster)
+    declareProperty("detRCoreCaloCut", m_detRCoreCaloCut);
+    declareProperty("detRChrgEMCut", m_detRChrgEMCut);
+    declareProperty("removeChrgEM01", m_removeChrgEM01);
+    declareProperty("removeChrgEM2", m_removeChrgEM2);
+    declareProperty("detRIsolCaloCut", m_detRIsolCaloCut);
+    declareProperty("fillCellContainer", m_fillCellContainer);
+    declareProperty("CaloCellMakerToolNames", m_caloCellMakerToolNames);
+    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("OriginCorrectionTool", m_tauOriginCorrTool);
+}
+
+
+//-----------------------------------------------------------------------------
+// Destructor
+//-----------------------------------------------------------------------------
+
+TauPi0EflowCreateROI::~TauPi0EflowCreateROI() {
+}
+
+//-----------------------------------------------------------------------------
+// Event Initializer
+//-----------------------------------------------------------------------------
+
+StatusCode TauPi0EflowCreateROI::eventFinalize(TauEventData *) {
+
+        
+    if (m_fillCellContainer) {
+
+        StatusCode sc;
+        
+        std::vector<ICaloCellMakerTool*>::iterator itrTool = m_caloCellMakerTools.begin();
+        std::vector<ICaloCellMakerTool*>::iterator endTool = m_caloCellMakerTools.end();
+
+        unsigned int index = 0;
+
+        ATH_MSG_DEBUG("Order and check container " << m_cellsOutputContainerName << " with " << m_caloCellMakerTools.size() << " tools");
+        for (; itrTool != endTool; ++itrTool) {
+
+            ATH_MSG_DEBUG("Calling tool " << m_caloCellMakerToolNames[index]);
+
+            ListItem theItem(m_caloCellMakerToolNames[index]);
+
+            sc = (*itrTool)->process(m_pCellOutputContainer);
+
+            if (sc.isFailure()) {
+                ATH_MSG_ERROR("Error executing tool " << m_caloCellMakerToolNames[index]);
+                //TODO: return something?
+            }
+            ++index;
+        }
+
+        ATH_MSG_DEBUG("setConst container " << m_cellsOutputContainerName);
+        sc = evtStore()->setConst(m_pCellOutputContainer);
+        if (sc.isFailure()) {
+            ATH_MSG_ERROR("Error while setting const: " << m_cellsOutputContainerName);
+        }
+    }
+    
+    return StatusCode::SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Event Initializer
+//-----------------------------------------------------------------------------
+
+StatusCode TauPi0EflowCreateROI::eventInitialize(TauEventData *) {
+
+    StatusCode sc;
+
+    const CaloCell_ID* cellID;
+    sc = detStore()->retrieve(cellID);
+    if (sc.isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve caloCell_ID helper from DetectorStore");
+        return sc;
+    }
+
+    //Build bitmap to keep track which cells have been added to CellContainer;
+    IdentifierHash hashMax;
+
+    // Get hash range
+    hashMax = cellID->calo_cell_hash_max();
+    ATH_MSG_VERBOSE("CaloCell Hash Max: " << hashMax);
+    m_addedCellsMap.resize(hashMax, false);
+    for (unsigned i = 0; i < hashMax; i++) {
+        m_addedCellsMap[i] = false;
+    }
+    //ak
+    m_clusterMap.clear();
+
+    // output cell container
+    // record here EMtopocluster
+    //---------------------------------------------------------------------
+    if (m_fillCellContainer) {
+        m_pCellOutputContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
+        ATH_MSG_VERBOSE("record container " << m_cellsOutputContainerName);
+        sc = evtStore()->record(m_pCellOutputContainer, m_cellsOutputContainerName);
+
+        if (sc.isFailure()) {
+            ATH_MSG_INFO("Unable to record " << m_cellsOutputContainerName << " to TES");
+        }
+    }
+    
+    if (m_doCellCorrection) {
+        // Cell Origin Correction Tool initializeEvent is not called automatically
+        // -> call from here
+        sc = m_tauOriginCorrTool->eventInitialize();
+        if (sc.isFailure()) {
+            ATH_MSG_ERROR("Unable to retrieve TauOriginCorrectionTool");
+            return sc;
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+//-------------------------------------------------------------------------
+// Initializer
+//-------------------------------------------------------------------------
+
+StatusCode TauPi0EflowCreateROI::initialize() {
+
+    ATH_MSG_VERBOSE(name() << " CellsContainerName = " << m_cellsContainerName);
+    ATH_MSG_VERBOSE(name() << " RconeTauCut        = " << m_detRIsolCaloCut);
+
+    //Create Noise Tools:
+    if (m_useNoiseSigma != 0) {
+        // SL changes to retrieval of CaloNoiseTool
+        if (m_noiseTool.retrieve().isFailure()) {
+            ATH_MSG_FATAL("Unable to find tool for Calorimeter Noise ");
+            return StatusCode::FAILURE;
+        }
+    }
+
+    StatusCode sc;
+    //---------------------------------------------------------------------
+    // Get pointer to Tool Service
+    //---------------------------------------------------------------------
+    IToolSvc *pToolSvc;
+    sc = service("ToolSvc", pToolSvc);
+    if (sc.isFailure()) {
+        ATH_MSG_FATAL("Tool Service not found");
+        return StatusCode::FAILURE;
+    }
+
+    //---------------------------------------------------------------------
+    // Need some tools for cells 
+    //---------------------------------------------------------------------
+    std::vector<std::string>::const_iterator itrName = m_caloCellMakerToolNames.begin();
+    std::vector<std::string>::const_iterator endName = m_caloCellMakerToolNames.end();
+
+    IAlgTool* algtool;
+    for (; itrName != endName; ++itrName) {
+
+        ListItem theItem(*itrName);
+
+        ATH_MSG_DEBUG("Retrieving " << *itrName);
+        sc = pToolSvc->retrieveTool(theItem.type(), theItem.name(), algtool);
+
+        if (sc.isFailure()) {
+            ATH_MSG_INFO("Unable to find tool for " << (*itrName));
+        } else {
+            ATH_MSG_INFO((*itrName) << " successfully retrieved");
+
+            m_caloCellMakerTools.push_back(dynamic_cast<ICaloCellMakerTool*> (algtool));
+        }
+    }
+    
+    if (m_tauOriginCorrTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR("Cannot find tool named <" << m_tauOriginCorrTool << ">");
+        return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+//-------------------------------------------------------------------------
+// Execution
+//-------------------------------------------------------------------------
+
+StatusCode TauPi0EflowCreateROI::execute(TauEventData *data) {
+    
+  xAOD::TauJet *pTau = data->xAODTau;
+
+    if (pTau->numTrack()==0) {
+        ATH_MSG_VERBOSE("tau has no tracks -> skip TrackCreateROI");
+        return StatusCode::SUCCESS;
+    }
+
+    StatusCode sc;
+
+    //---------------------------------------------------------------------
+    // Retrieve CaloCellCollection from StoreGate
+    //---------------------------------------------------------------------
+    const CaloCellContainer *pCellContainer;
+    sc = evtStore()->retrieve(pCellContainer, m_cellsContainerName);
+    if (sc.isFailure()) {
+        ATH_MSG_INFO("TrackCreateROI: Unable to retrieve " << m_cellsContainerName << " from TES");
+    } else {
+        ATH_MSG_VERBOSE("TrackCreateROI: Successfully retrieved " << m_cellsContainerName << " from TES");
+    }
+
+
+    // output cell container
+    /*
+    CaloCellContainer *pCellOutputContainer;
+    if (m_fillCellContainer) {
+        sc = evtStore()->retrieve(pCellOutputContainer, m_cellsOutputContainerName);
+        if (sc.isFailure()) {
+            ATH_MSG_INFO("TrackCreateROI: Unable to retrieve " << m_cellsOutputContainerName << " from TES");
+        } else {
+            ATH_MSG_VERBOSE("TrackCreateROI: Successfully retrieved " << m_cellsOutputContainerName << " from TES with size = " << pCellOutputContainer->size());
+        }
+    }
+    */
+
+    //---------------------------------------------------------------------
+    // Loop over cells collection and find closest cell at a given layer
+    // from track impact point at vertex and propagated in magnetic field
+    //---------------------------------------------------------------------
+
+    //do cell selection
+    //TODO: ATTENTION: distance 0.8 is hardcoded!!
+    CaloCellList *celllist = new CaloCellList(pCellContainer);       
+    celllist->select(pTau->track(0)->eta(), pTau->track(0)->phi(), 0.8);
+
+    if (celllist->ncells() == 0) {
+        delete celllist;
+        return StatusCode::FAILURE;
+    }
+
+    // scan ROI twice: first to classify the case, second time to classify cells
+
+    float sumEM01ChrgTrk = 0;
+    float sumEM2Chrg = 0;
+    float sumHADChrg = 0;
+    
+    //use tau vertex to correct cell position
+    if (m_doCellCorrection && pTau->vertexLink()) {
+      m_tauOriginCorrTool->setOriginSource( ( *pTau->vertexLink() ) );
+    }
+
+    const CaloCell *pCell;
+    pCell = 0;
+
+    CaloCellList::list_iterator itr = celllist->begin();
+    CaloCellList::list_iterator itrE = celllist->end();
+    for (; itr != itrE; ++itr) {
+        pCell = *itr;
+        
+        //correct cell
+        if (m_doCellCorrection) {
+            m_tauOriginCorrTool->correctCell(pCell);
+        }
+        
+        double cellPhi = pCell->phi();
+        double cellEta = pCell->eta();
+        double cellET  = pCell->et();
+        
+        if (m_doCellCorrection) {
+             m_tauOriginCorrTool->resetCell(pCell);
+        }
+
+	// XXXXstill need to migrate track extrapolation
+        double detCell = Tau1P3PKineUtils::deltaR(pTau->track(0)->eta(),pTau->track(0)->phi(), cellEta, cellPhi);
+	// double detCell = P4Helpers::deltaR(*pTau->track(0), cellEta, cellPhi);
+
+        // collect all cells (remove noisy cells ) in a fixed
+        // large cone around candidate (at vertex)
+        if (detCell > m_detRIsolCaloCut) continue;
+
+        // find position nominal position of the closest cell at each layer
+        int sampling = pCell->caloDDE()->getSampling();
+        if (sampling == 4) sampling = 0;
+        if (sampling == 5) sampling = 1;
+        if (sampling == 6) sampling = 2;
+        if (sampling == 7) sampling = 3;
+
+        if (sampling >= 3) sumHADChrg += cellET;
+
+        if (sampling < 4) //ak
+        {
+            //for each track connected to tau object
+            for (unsigned int itr = 0; itr < pTau->numTrack(); ++itr) {
+                // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+                if (itr >= 9) break;
+
+                double detEtaCell;
+                double detPhiCell;
+                // detEtaCell = Tau1P3PKineUtils::deltaEta(cellEta, pExtraDetails->etaTrkCaloSamp()[itr][sampling]);
+                // detPhiCell = Tau1P3PKineUtils::deltaPhi(cellPhi, pExtraDetails->phiTrkCaloSamp()[itr][sampling]);
+		// XXXXstill need to migrate track extrapolation
+                detEtaCell = Tau1P3PKineUtils::deltaEta(cellEta, pTau->track(itr)->eta());
+                detPhiCell = Tau1P3PKineUtils::deltaPhi(cellPhi, pTau->track(itr)->phi());
+
+                //FIX ME! Should we look for different cell in eta and 
+                //in phi? ot the closest one?
+                double detRCell = sqrt(detEtaCell * detEtaCell + detPhiCell * detPhiCell);
+                if (detRCell < m_detRChrgEMCut) {
+                    if (sampling == 0 || sampling == 1) sumEM01ChrgTrk += cellET;
+                    if (sampling == 2) sumEM2Chrg += cellET;
+                }
+            }
+        } //ak
+    } // end cell loop
+
+    float category = 0;
+    float maxEM2Chrg = 0;
+    if (sumEM01ChrgTrk < 0.05 * pTau->track(0)->pt()) {
+        category = 1;
+    } else if (sumEM01ChrgTrk >= 0.05 * pTau->track(0)->pt() && sumHADChrg > 0.40 * pTau->track(0)->pt()) {
+        category = 2;
+        maxEM2Chrg = sumEM2Chrg - 2.5 * sumEM01ChrgTrk;
+    }
+
+    float maxEMChrg = 0;
+    if (category == 1 || category == 2) {
+        maxEMChrg = 0.70 * pTau->track(0)->pt();
+    } else {
+        maxEMChrg = 0.65 * pTau->track(0)->pt();
+    }
+
+    // if track was not interacting early, defined by finding 40% of trackPT in EM3+HAD,
+    // subtract cells only from EM2
+    // if energy deposition in EM01, don't subtract in EM2 more then allowing up to 
+    // 2.5*EM01 left in EM2
+
+    //counting subtracted cells, do not allow for more subtraction than 70% of track pt
+    unsigned int counter = 0;
+
+    float sumEMChrg = 0;
+    sumEM2Chrg = 0.;
+
+    itr = celllist->begin();
+    for (; itr != itrE; ++itr) {
+        pCell = *itr;
+        
+        //correct cell
+        if (m_doCellCorrection) {
+            m_tauOriginCorrTool->correctCell(pCell);
+        }
+        
+        double cellPhi = pCell->phi();
+        double cellEta = pCell->eta();
+        double cellET  = pCell->et();
+        double cellEnergy = pCell->energy();
+        
+        if (m_doCellCorrection) {
+             m_tauOriginCorrTool->resetCell(pCell);
+        }
+
+        double detCell = Tau1P3PKineUtils::deltaR(pTau->track(0)->eta(),pTau->track(0)->phi(), cellEta, cellPhi);
+        // double detCell = P4Helpers::deltaR(*pTau->track(0), cellEta, cellPhi);
+
+        // collect all cells (remove noisy cells ) in a fixed
+        // large cone around candidate (at vertex)
+        if (detCell > m_detRIsolCaloCut) continue;
+
+        int isCellAccepted = 1;
+
+        if (m_useNoiseSigma == 1) {
+            double noiseSigma;
+            noiseSigma = m_noiseTool->getNoise(*itr, ICalorimeterNoiseTool::ELECTRONICNOISE_HIGHESTGAIN);
+            if (fabs(cellEnergy) < m_AbsNoiseSigma_cut * noiseSigma) isCellAccepted = 0;
+        }
+
+        // find position nominal position of the closest cell at each layer
+        int sampling = pCell->caloDDE()->getSampling();
+        if (sampling == 4) sampling = 0;
+        if (sampling == 5) sampling = 1;
+        if (sampling == 6) sampling = 2;
+        if (sampling == 7) sampling = 3;
+
+        if (sampling >= 3) isCellAccepted = 0;
+
+        if (isCellAccepted == 0) continue;
+
+        // remove cells in vicinity of the track
+        //TODO: if not necessary!
+        if (sampling < 4) //ak
+        {
+            //for each track connected to tau object
+            for (unsigned int itr = 0; itr < pTau->numTrack(); ++itr) {
+                // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+                if (itr >= 9) break;
+
+                double detEtaCell;
+                double detPhiCell;
+                // detEtaCell = Tau1P3PKineUtils::deltaEta(cellEta, pExtraDetails->etaTrkCaloSamp()[itr][sampling]);
+                // detPhiCell = Tau1P3PKineUtils::deltaPhi(cellPhi, pExtraDetails->phiTrkCaloSamp()[itr][sampling]);
+		// XXXXstill need to migrate track extrapolation
+                detEtaCell = Tau1P3PKineUtils::deltaEta(cellEta, pTau->track(itr)->eta());
+                detPhiCell = Tau1P3PKineUtils::deltaPhi(cellPhi, pTau->track(itr)->phi());
+
+                //FIX ME! Should we look for different cell in eta and 
+                //in phi? of the closest one?
+
+                double detRCell = sqrt(detEtaCell * detEtaCell + detPhiCell * detPhiCell);
+                if (detRCell < m_detRChrgEMCut) {
+
+                    if (m_removeChrgEM2 == 1 && sampling == 2) {
+                        if (sumEMChrg + cellET < maxEMChrg) {
+                            if (category == 2 && (sumEM2Chrg + cellET < maxEM2Chrg)) {
+                                isCellAccepted = 0;
+                                sumEMChrg += cellET;
+                                sumEM2Chrg += cellET;
+                            } else {
+                                isCellAccepted = 0;
+                                sumEMChrg += cellET;
+                            }
+                        }
+                    }
+                    if (m_removeChrgEM01 == 1 && (sampling == 0 || sampling == 1) && category != 2) {
+                        if (sumEMChrg + cellET < maxEMChrg) {
+                            isCellAccepted = 0;
+                            sumEMChrg += cellET;
+                        }
+                    }
+
+                }
+
+            }
+        } //ak
+
+
+        if (isCellAccepted == 0) continue;
+
+        // add accepted cells to the container
+        if (m_fillCellContainer && m_pCellOutputContainer != 0) {
+            //Ask cell for it's hash
+            const IdentifierHash cellHash = pCell->caloDDE()->calo_hash();
+            //Check it this cell is already part of reducedCellContainer
+            if (!m_addedCellsMap[cellHash]) {
+                ++counter;
+                m_pCellOutputContainer->push_back(pCell);
+                m_addedCellsMap[cellHash] = true;
+            } else
+                ATH_MSG_VERBOSE("Cell with hash " << cellHash << "added more than once.");
+        }              
+    } //end 2nd cell loop
+
+    delete celllist;
+
+    ATH_MSG_DEBUG("Added " << counter << "cells to container " << m_cellsOutputContainerName);
+    
+
+    return sc;
+}

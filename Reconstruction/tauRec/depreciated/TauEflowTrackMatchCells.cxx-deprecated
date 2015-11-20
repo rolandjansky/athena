@@ -1,0 +1,525 @@
+//-----------------------------------------------------------------------------
+// file:        tau1p3pTrackMatchCells.cxx
+// package:     Reconstruction/tauRec
+// authors:     Tadeusz Szymocha, Anna Kaczmarska
+// date:        2005-07-01
+//
+// Tool for building CaloCluster of cells associated with 
+// a given track.
+//
+// MODIFIED:
+// 08/10/2006 - (AK) change of m_RconeTauCut -> m_detRIsolCaloCut
+// 18/03/2008 - (AK) changing cone for cell preselection 0.8->0.45
+// 11/04/2008 - (AK) moving select cone size to tool properties
+// 30/06/2008 - (AK) (for MW) fix of memory leak
+// 16/03/2010 - (AK) initialization of triggerFlag variable 
+// 17/03/2010 - (AK) change to P4Helpers
+// 16/05/2010 - (FF) pointer p_measPer never used (coverity 22628)
+//-----------------------------------------------------------------------------
+
+//TODO: change statuscode failure --> recoverable
+
+#include "tauRec/TauEflowTrackMatchCells.h"
+
+#include "tauEvent/TauCommonDetails.h"
+#include "tauEvent/TauCommonExtraDetails.h"
+#include "tauRec/KineUtils.h"
+#include "tauRec/TauOriginCorrectionTool.h"
+
+#include <CaloEvent/CaloCluster.h>
+#include <CaloUtils/CaloClusterStoreHelper.h>
+#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCell.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+
+#include "FourMomUtils/P4Helpers.h"
+#include "FourMom/P4EEtaPhiM.h"
+
+#include <GaudiKernel/ListItem.h>
+#include <algorithm>
+
+static void delete_cluster(std::pair<Analysis::TauJet * const, CaloCluster *> &pr) {
+    pr.first->cellClusterLink().reset();
+    delete pr.second;
+}
+
+//-----------------------------------------------------------------------------
+// Constructor
+//-----------------------------------------------------------------------------
+
+TauEflowTrackMatchCells::TauEflowTrackMatchCells(const std::string &type,
+    const std::string &name,
+    const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_cellsContainerName("AllCalo"),
+m_detRIsolCaloCut(0.4),
+m_useNoiseSigma(1),
+m_AbsNoiseSigma_cut(2),
+m_selectConeSize(0.45),
+m_doCellCorrection(false), //FF: don't do cell correction by default
+m_tauOriginCorrTool("")  {
+    declareInterface<TauToolBase > (this);
+
+    declareProperty("CellsContainerName", m_cellsContainerName);
+    // declare large fixed cone for creating subcollection of cells (cluster)
+    declareProperty("detRIsolCaloCut", m_detRIsolCaloCut);
+    // declare options for noise/weighting
+    declareProperty("useNoiseSigma", m_useNoiseSigma);
+    declareProperty("AbsNoiseSigma_cut", m_AbsNoiseSigma_cut);
+    declareProperty("CaloNoiseTool", m_noiseTool, "Tool Handle for noise tool");
+    declareProperty("ClusterContainerName", m_clusterContainerName = "Tau1P3PCellCluster");
+    //ak
+    declareProperty("ClusterEMContainerName", m_clusterEMContainerName = "Tau1P3PCellEM012ClusterContainer");
+    declareProperty("selectConeSize", m_selectConeSize);
+    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("OriginCorrectionTool", m_tauOriginCorrTool);
+}
+
+
+//-----------------------------------------------------------------------------
+// Destructor
+//-----------------------------------------------------------------------------
+
+TauEflowTrackMatchCells::~TauEflowTrackMatchCells() {
+}
+
+//-------------------------------------------------------------------------
+// Initializer
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowTrackMatchCells::initialize() {
+    ATH_MSG_VERBOSE(name() << " CellsContainerName = " << m_cellsContainerName);
+    ATH_MSG_VERBOSE(name() << " RconeTauCut        = " << m_detRIsolCaloCut);
+    ATH_MSG_VERBOSE(name() << " selectConeSize     = " << m_selectConeSize);
+
+    //Create Noise Tools:
+    if (m_useNoiseSigma != 0) {
+        // SL changes to retrieval of CaloNoiseTool
+        if (m_noiseTool.retrieve().isFailure()) {
+            ATH_MSG_FATAL("Unable to retrieve CaloNoiseTool");
+            return StatusCode::FAILURE;
+        }
+    }
+    
+    if (m_tauOriginCorrTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR("Cannot find tool named <" << m_tauOriginCorrTool << ">");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_VERBOSE("tau Origin Correction Tool <" << m_tauOriginCorrTool << "> retrieved");
+    
+    return StatusCode::SUCCESS;
+}
+
+
+//-----------------------------------------------------------------------------
+// Event Initializer
+//-----------------------------------------------------------------------------
+
+StatusCode TauEflowTrackMatchCells::eventInitialize(TauEventData *) {
+    m_clusterMap.clear();
+    
+    if (m_doCellCorrection) {
+        // Cell Origin Correction Tool initializeEvent is not called automatically
+        // -> call from here
+        return m_tauOriginCorrTool->eventInitialize();
+    }
+    return StatusCode::SUCCESS;
+}
+
+
+//-------------------------------------------------------------------------
+// Event Finalizer
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowTrackMatchCells::eventFinalize(TauEventData *data) {
+
+    MsgStream rLog(msgSvc(), name());
+
+    StatusCode sc;
+
+    //----------------------------------------------------------------------
+    // Check if we're running in the trigger
+    //----------------------------------------------------------------------
+    bool triggerFlag = false;
+    sc = data->getObject("InTrigger?", triggerFlag);
+    if (sc.isSuccess() && triggerFlag) {
+        //------------------------------------------------------------------
+        // Delete all the clusters
+        //------------------------------------------------------------------
+        std::for_each(m_clusterMap.begin(), m_clusterMap.end(), delete_cluster);
+
+        Analysis::TauDetailsContainer *pCont = data->detailsContainer;
+        Analysis::TauDetailsContainer::iterator it1;
+        for (it1 = pCont->begin(); it1 != pCont->end(); ++it1) {
+            Analysis::TauDetails *td = *it1;
+            Analysis::TauCommonDetails *det = dynamic_cast<Analysis::TauCommonDetails *> (td);
+            if (det) {
+                delete det->cellEM012Cluster();
+                det->cellEM012ClusterLink().reset();
+            }
+        }
+        return StatusCode::SUCCESS;
+    }
+
+    //----------------------------------------------------------------------
+    // Create cluster container
+    //----------------------------------------------------------------------
+    CaloClusterContainer *clusterContainer = new CaloClusterContainer();
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::recordClusters(&*evtStore(),
+    //     clusterContainer,
+    //     m_clusterContainerName,
+    //     rLog);
+
+    //----------------------------------------------------------------------
+    // Put all clusters in the container
+    //----------------------------------------------------------------------
+    std::map<Analysis::TauJet *, CaloCluster *> ::iterator it;
+    for (it = m_clusterMap.begin(); it != m_clusterMap.end(); ++it)
+        clusterContainer->push_back((*it).second);
+
+    //ak 
+    std::sort(clusterContainer->begin(), clusterContainer->end(), OrderClust());
+
+    //---------------------------------------------------------------------
+    // Record cluster container
+    //---------------------------------------------------------------------
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::finalizeClusters(&*evtStore(),
+    //     clusterContainer,
+    //     m_clusterContainerName,
+    //     rLog);
+
+
+    //---------------------------------------------------------------------
+    // Set up element links
+    //---------------------------------------------------------------------
+    for (it = m_clusterMap.begin(); it != m_clusterMap.end(); ++it)
+        (*it).first->setCellCluster(clusterContainer, (*it).second);
+
+    //----------------------------------------------------------------------
+    // Create EM cluster container
+    //----------------------------------------------------------------------
+    CaloClusterContainer *clusterEMContainer = new CaloClusterContainer();
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::recordClusters(&*evtStore(),
+    //     clusterEMContainer,
+    //     m_clusterEMContainerName,
+    //     rLog);
+
+    //----------------------------------------------------------------------
+    // Put all clusters in the container
+    //----------------------------------------------------------------------
+    Analysis::TauDetailsContainer *pCont = data->detailsContainer;
+    Analysis::TauDetailsContainer::iterator it1;
+    for (it1 = pCont->begin(); it1 != pCont->end(); ++it1) {
+        Analysis::TauDetails *td = *it1;
+        Analysis::TauCommonDetails *det = dynamic_cast<Analysis::TauCommonDetails *> (td);
+        if (det) {
+            if (det->cellEM012Cluster()) {
+                clusterEMContainer->push_back(const_cast<CaloCluster *> (det->cellEM012Cluster()));
+            }
+        }
+    }
+
+    //---------------------------------------------------------------------
+    // Record cluster container
+    //---------------------------------------------------------------------
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::finalizeClusters(&*evtStore(),
+    //     clusterEMContainer,
+    //     m_clusterEMContainerName,
+    //     rLog);
+
+    //---------------------------------------------------------------------
+    // Set up element links
+    //---------------------------------------------------------------------
+    for (it1 = pCont->begin(); it1 != pCont->end(); ++it1) {
+        Analysis::TauDetails *td = *it1;
+        Analysis::TauCommonDetails *det = dynamic_cast<Analysis::TauCommonDetails *> (td);
+        if (det) {
+            if (det->cellEM012Cluster()) {
+                det->setCellEM012Cluster(clusterEMContainer, det->cellEM012Cluster());
+            }
+        }
+    }
+
+    return sc;
+}
+
+//-----------------------------------------------------------------------------
+// Cleanup, in case this candidate was rejected later
+//-----------------------------------------------------------------------------
+
+void TauEflowTrackMatchCells::cleanup(TauEventData *data) {
+
+    //-------------------------------------------------------------------------
+    // Cleanup cluster
+    //-------------------------------------------------------------------------
+    Analysis::TauJet *pTau = data->tau;
+    std::map<Analysis::TauJet *, CaloCluster *> ::iterator it;
+    it = m_clusterMap.find(pTau);
+
+    if (it != m_clusterMap.end()) {
+        delete (*it).second;
+        m_clusterMap.erase(it);
+    }
+
+    pTau->cellClusterLink().reset();
+
+    //-------------------------------------------------------------------------
+    // Cleanup EM012Cluster
+    //-------------------------------------------------------------------------
+    Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
+    if (pDetails) {
+        delete pDetails->cellEM012Cluster();
+        pDetails->cellEM012ClusterLink().reset();
+    }
+}
+
+
+//-------------------------------------------------------------------------
+// Execution
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowTrackMatchCells::execute(TauEventData *data) {
+
+    // Analysis::TauJet *pTau = data->tau;
+    // Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
+    // Analysis::TauCommonExtraDetails *pExtraDetails = dynamic_cast<Analysis::TauCommonExtraDetails *> (data->extraDetails);
+
+    // //
+    // if (pTau->numTrack()==0) {
+    //     ATH_MSG_VERBOSE("tau has no tracks -> skip TrackMatchCells");
+    //     return StatusCode::SUCCESS;
+    // }
+    
+    // if ( !pDetails || !pExtraDetails) {
+    //   ATH_MSG_ERROR("TauCommon(Extra)Details object not valid");
+    //   return StatusCode::FAILURE;
+    // }
+
+    // StatusCode sc;
+
+    
+    // //---------------------------------------------------------------------
+    // // Retrieve CaloCellCollection from StoreGate
+    // //---------------------------------------------------------------------
+    // const CaloCellContainer *pCellContainer;
+
+    // sc = data->getObject("CellContainer", pCellContainer);
+    // if (sc.isFailure() || !pCellContainer) {
+    //     sc = evtStore()->retrieve(pCellContainer, m_cellsContainerName);
+    //     if (sc.isFailure()) {
+    //         ATH_MSG_INFO("TrackMatchCells: Unable to retrieve " << m_cellsContainerName << " from TES");
+    //     }
+    // }
+
+    // xAOD::CaloCluster *pCluster = CaloClusterStoreHelper::makeCluster();
+    // xAOD::CaloCluster *pClusterEM = CaloClusterStoreHelper::makeCluster();
+
+    // //put cluster into object
+    // pTau->cellClusterLink().reset();
+    // pTau->cellClusterLink().setElement(pCluster);
+    // m_clusterMap[pTau] = pCluster;
+
+    // pDetails->cellEM012ClusterLink().reset();
+    // pDetails->cellEM012ClusterLink().setElement(pClusterEM);
+
+    // //---------------------------------------------------------------------
+    // // Loop over cells collection and find closest cell at a given layer
+    // // from track impact point at vertex and propagated in magnetic field
+    // //---------------------------------------------------------------------
+
+    // const int nTr = 10;
+    // const int nSa = 4;
+
+    // double detEtaCellMin[nTr][nSa], detPhiCellMin[nTr][nSa];
+    // double detEtaCellMinCh[nTr][nSa], detPhiCellMinCh[nTr][nSa];
+    // double detEtaVertMin[nSa], detPhiVertMin[4];
+
+    // const CaloCell * pTmpEtaCell[nTr][nSa];
+    // const CaloCell * pTmpPhiCell[nTr][nSa];
+    // const CaloCell * pTmpEtaVertCell[nSa];
+    // const CaloCell * pTmpPhiVertCell[nSa];
+
+
+    // for (int i = 0; i < nSa; ++i) {
+    //     detEtaVertMin[i] = 9999.;
+    //     detPhiVertMin[i] = 9999.;
+
+    //     pTmpEtaVertCell[i] = 0;
+    //     pTmpPhiVertCell[i] = 0;
+
+    //     for (int j = 0; j < nTr; ++j) {
+    //         detEtaCellMin[j][i] = 9999.;
+    //         detPhiCellMin[j][i] = 9999.;
+
+    //         detEtaCellMinCh[j][i] = 9999.;
+    //         detPhiCellMinCh[j][i] = 9999.;
+
+    //         pTmpEtaCell[j][i] = 0;
+    //         pTmpPhiCell[j][i] = 0;
+    //     }
+    // }
+
+    // const CaloCell *pCell;
+    // pCell = 0;
+
+    // /* FF:  
+    // //do cell selection
+    // CaloCellList *celllist = new CaloCellList(pCellContainer);
+    // celllist->select(pTau->track(0)->eta(), pTau->track(0)->phi(), m_selectConeSize);
+
+    // if (celllist->ncells() == 0) {
+    //     delete celllist;
+    //     return StatusCode::FAILURE;
+    // }
+    
+    // CaloCellList::list_iterator itr = celllist->begin();
+    // CaloCellList::list_iterator itrE = celllist->end();
+    //  */
+     
+     
+    // //use tau vertex to correct cell position
+    // if (m_doCellCorrection) {
+    //     m_tauOriginCorrTool->setOriginSource(pTau->origin());
+    // }
+
+    // //FF: use cells already associated to jet seed
+    // // this is valid until m_selectConeSize is < or about 0.4
+    // typedef NavigationToken<CaloCell, NavigationDefaults::DefaultWeight, CaloCellIDFcn> token_t;
+    // token_t nt;
+    // pTau->fillToken(nt);
+
+    // token_t::const_iterator itr = nt.begin();
+    // token_t::const_iterator itrE = nt.end();
+    // //
+
+    // //loop over cells and calculate the variables  
+    // for (; itr != itrE; itr++) {
+    //     pCell = *itr;
+        
+    //     // correct cell for tau vertex
+    //     if (m_doCellCorrection) {
+    //          m_tauOriginCorrTool->correctCell(pCell);
+    //     }
+        
+    //     double cellPhi = pCell->phi();
+    //     double cellEta = pCell->eta();
+    //     double cellEnergy = pCell->energy();
+        
+    //     if (m_doCellCorrection) {
+    //          m_tauOriginCorrTool->resetCell(pCell);
+    //     }
+
+    //     double detCell = P4Helpers::deltaR(*pTau->track(0), cellEta, cellPhi);
+
+    //     // collect all cells (remove noisy cells ) in a fixed
+    //     // large cone around candidate (at vertex)
+    //     if (detCell > m_detRIsolCaloCut) continue;
+
+    //     int isCellAccepted = 1;
+
+    //     if (m_useNoiseSigma == 1) {
+    //         double noiseSigma;
+    //         noiseSigma = m_noiseTool->getNoise(*itr, ICalorimeterNoiseTool::ELECTRONICNOISE_HIGHESTGAIN);
+    //         if (fabs(cellEnergy) < m_AbsNoiseSigma_cut * noiseSigma) isCellAccepted = 0;
+
+    //     }
+
+    //     // add cells above the noise to the associated cluster
+    //     if (isCellAccepted == 1) pCluster->addCell(pCellContainer, pCell, 1.0);
+
+    //     // find position nominal position of the closest cell at each layer
+    //     int samp = CaloSampling::getSampling(*pCell);
+    //     if (samp > 3 && samp < 8) samp = samp - 4;
+
+    //     //ak
+    //     if (samp < 3 && isCellAccepted == 1) pClusterEM->addCell(pCellContainer, pCell, 1.0);
+
+    //     // consider only sampling < 4
+    //     if (samp >= 4) continue;
+
+    //     double detPhiVert = Tau1P3PKineUtils::deltaPhi(cellPhi, pTau->phi());
+    //     double detEtaVert = Tau1P3PKineUtils::deltaEta(cellEta, pTau->eta());
+
+    //     if (detEtaVert < detEtaVertMin[samp]) {
+    //         detEtaVertMin[samp] = detEtaVert;
+    //         pTmpEtaVertCell[samp] = pCell;
+    //     }
+
+    //     if (detPhiVert < detPhiVertMin[samp]) {
+    //         detPhiVertMin[samp] = detPhiVert;
+    //         pTmpPhiVertCell[samp] = pCell;
+    //     }
+
+    //     //for each track connected to tau object
+    //     for (unsigned itr = 0; itr < pTau->numTrack(); itr++) {
+    //         // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+    //         if (itr >= 9) break;
+
+    //         double detEtaCell[nTr];
+    //         double detPhiCell[nTr];
+    //         detEtaCell[itr] = Tau1P3PKineUtils::deltaEta(cellEta, pExtraDetails->etaTrkCaloSamp()[itr][samp]);
+    //         detPhiCell[itr] = Tau1P3PKineUtils::deltaPhi(cellPhi, pExtraDetails->phiTrkCaloSamp()[itr][samp]);
+
+    //         //FIX ME! Should we look for different cell in eta and
+    //         //in phi? ot the closest one?
+
+    //         if (detEtaCell[itr] < detEtaCellMin[itr][samp]) {
+    //             detEtaCellMin[itr][samp] = detEtaCell[itr];
+    //             pTmpEtaCell[itr][samp] = pCell;
+    //         }
+
+    //         if (detPhiCell[itr] < detPhiCellMin[itr][samp]) {
+    //             detPhiCellMin[itr][samp] = detPhiCell[itr];
+    //             pTmpPhiCell[itr][samp] = pCell;
+    //         }
+
+    //         // for better collection of energy around charged track...
+    //         // correct if possible and consider only
+    //         // cells with really deposited energy
+    //         if (isCellAccepted == 0) continue;
+
+    //         if (detEtaCell[itr] < detEtaCellMinCh[itr][samp]) {
+    //             detEtaCellMinCh[itr][samp] = detEtaCell[itr];
+    //             pTmpEtaCell[itr][samp] = pCell;
+    //         }
+
+    //         if (detPhiCell[itr] < detPhiCellMinCh[itr][samp]) {
+    //             detPhiCellMinCh[itr][samp] = detPhiCell[itr];
+    //             pTmpPhiCell[itr][samp] = pCell;
+    //         }
+    //     } // end track loop 
+        
+    // } // end cell loop 
+
+    // // loop over sampling
+    // for (int i = 0; i < 4; i++) {
+    //     if (pTmpEtaVertCell[i]) pExtraDetails->setClosestEtaTrkVertCell(pTmpEtaVertCell[i], pCellContainer, 0, i);
+    //     if (pTmpPhiVertCell[i]) pExtraDetails->setClosestPhiTrkVertCell(pTmpPhiVertCell[i], pCellContainer, 0, i);
+
+    //     for (unsigned itr = 0; itr < pTau->numTrack(); itr++) {
+    //         // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+    //         if (itr >= 9) break;
+    //         if (pTmpEtaCell[itr][i]) pExtraDetails->setClosestEtaTrkCell(pTmpEtaCell[itr][i], pCellContainer, itr, i);
+    //         if (pTmpPhiCell[itr][i]) pExtraDetails->setClosestPhiTrkCell(pTmpPhiCell[itr][i], pCellContainer, itr, i);
+    //     }
+    // }
+
+    // //FF:
+    // //delete celllist;
+
+    // return sc;
+  return StatusCode::SUCCESS;
+}
+
+
+
+

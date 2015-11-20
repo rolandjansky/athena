@@ -1,0 +1,211 @@
+/*********************************************************
+NAME: TauOriginCorrectionTool.cxx
+PACKAGE: Reconstruction/tauRec
+AUTHORS: Felix Friedrich <felix.friedrich@cern.ch>
+DATE: May 12, 2011
+
+PURPOSE: correct cells and cluster for vertex shift
+inspired by Reconstruction/Jet/JetCalibTools/src/JetCaloOrigin.cxx
+and
+Reconstruction/Jet/JetMomentTools/src/JetOriginCorrectionTool.cxx
+
+ *************************************************************/
+
+#include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloCluster.h"
+// This class was removed. If we want to revive this tool we need to switch to the xAOD::CaloVertexedCluster interface
+// #include "CaloUtils/CaloClusterVertexCorrection.h"
+#include "JetEvent/Jet.h"
+#include "CLHEP/Geometry/Vector3D.h"
+// #include "VxVertex/VxContainer.h"
+
+#include "xAODTracking/VertexContainer.h"
+
+#include "tauRec/TauOriginCorrectionTool.h"
+
+
+TauOriginCorrectionTool::TauOriginCorrectionTool( const std::string& type, const std::string& name, const IInterface* parent ) :
+    AthAlgTool(type, name, parent),
+    m_originPosition(3,0),
+    m_useJVA(false),
+    m_usePrimaryVertex(false),
+    m_useBeamSpot(false),
+    m_evnInitCalled(false),
+    m_primVtxName("PrimaryVertices"),
+    // m_primVtxName("VxPrimaryCandidate"),
+    m_beamConditionsService("BeamCondSvc", name)
+{
+    declareInterface<TauOriginCorrectionTool>( this );
+
+    declareProperty("OriginPosition", m_originPosition);
+    declareProperty("UseJVA", m_useJVA);
+    declareProperty("UsePrimaryVertex", m_usePrimaryVertex);
+    declareProperty("UseBeamSpot", m_useBeamSpot);
+    declareProperty("VertexContainerKey",m_primVtxName = "VxPrimaryCandidate");
+    declareProperty("BeamConditionsSvc", m_beamConditionsService);
+    declareProperty("OriginMomentName", m_OriginMomName = "OriginIndex");
+
+}
+
+//*************************************************************************************************
+StatusCode TauOriginCorrectionTool::initialize()
+{
+    if(m_useBeamSpot) {
+        if(m_beamConditionsService.retrieve().isFailure() ) {
+            ATH_MSG_ERROR( "Cannot find service named <" << m_beamConditionsService << ">");
+            return StatusCode::FAILURE;
+        } 
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+//*************************************************************************************************
+StatusCode TauOriginCorrectionTool::eventInitialize()
+{
+    // skip if already called
+    if (m_evnInitCalled) return StatusCode::SUCCESS;
+    
+    // get VxContainer - must be retrieved in eventInitialize
+    if(m_usePrimaryVertex || m_useJVA) { 
+        StatusCode sc = evtStore()->retrieve(m_vxContainer, m_primVtxName);
+        if (sc.isFailure()) {
+            ATH_MSG_DEBUG("Could not retrieve VxContainer <" << m_primVtxName << "> during initialize() " );
+            return StatusCode::SUCCESS;
+        }
+        m_evnInitCalled = true;
+    }
+    return StatusCode::SUCCESS;
+}
+
+//*************************************************************************************************
+// set the origin source
+// jet is only used if useJVA is enabled
+void TauOriginCorrectionTool::setOriginSource(const Jet* jet) {
+    m_jetOrigin = chooseOrigin(jet);
+}
+
+//*************************************************************************************************
+// set the origin source by hand
+void TauOriginCorrectionTool::setOriginSource(const Trk::RecVertex* vertex) {
+    // set origin by hand
+    if (vertex) {
+      m_jetOrigin = Amg::Vector3D(vertex->position().x(), vertex->position().y(), vertex->position().z());
+    }
+    else {
+      m_jetOrigin = Amg::Vector3D(0,0,0);
+    }
+}
+
+//*************************************************************************************************
+// set the origin source by hand
+void TauOriginCorrectionTool::setOriginSource(const xAOD::Vertex* vertex) {
+    // set origin by hand
+    if (vertex) {
+      m_jetOrigin = Amg::Vector3D(vertex->position().x(), vertex->position().y(), vertex->position().z());
+    }
+    else {
+      m_jetOrigin = Amg::Vector3D(0,0,0);
+    }
+}
+
+//*************************************************************************************************
+// set a new cell vertex
+void TauOriginCorrectionTool::correctCell(const CaloCell* cell) {
+    cell->zVertex(&m_jetOrigin);
+}
+
+//*************************************************************************************************
+// reset cell 
+void TauOriginCorrectionTool::resetCell(const CaloCell* cell) {
+    cell->zVertex(0,true);
+}
+
+//*************************************************************************************************
+// set a new cluster vertex 
+void TauOriginCorrectionTool::correctCluster(const CaloCluster* cluster) {
+    // CaloClusterVertexCorrection::setVertex(cluster, &m_jetOrigin);
+}
+
+//*************************************************************************************************
+// reset cluster vertex
+void TauOriginCorrectionTool::resetCluster(const CaloCluster* cluster) {
+    // CaloClusterVertexCorrection::resetVertex(cluster);
+}
+
+// try to get the origin of the jet
+// not not really needed at the moment, because using JVA is switched off by default
+Amg::Vector3D TauOriginCorrectionTool::chooseOrigin(const Jet* jet)
+{  
+    // Cascade in order of priority
+    // If one fails, go to the next approach
+
+    // JetVertexAssociation
+    if(m_useJVA) {
+        ATH_MSG_VERBOSE("TauOriginCorrectionTool::chooseOrigin In useJVA");
+        unsigned int originIndex(jet->getMoment(m_OriginMomName)); // No way to know if this has been filled at the moment
+        ATH_MSG_VERBOSE("TauOriginCorrectionTool::chooseOrigin Just got originIndex moment "<< originIndex);
+        if (originIndex > m_vxContainer->size()) {
+            ATH_MSG_WARNING("Index of jet origin (" << originIndex
+                    << ") is larger than the size of the vertex container (" 
+                    << m_vxContainer->size() << "), we return (0,0,0)");
+            return Amg::Vector3D (0, 0, 0);
+        }
+        ATH_MSG_VERBOSE("TauOriginCorrectionTool::chooseOrigin Just before getting position of vertex");
+        Amg::Vector3D primaryVertex = (*(m_vxContainer->at(originIndex))).position();
+        ATH_MSG_VERBOSE("Found a primary vertex at ("
+                << primaryVertex.x() <<  ","
+                << primaryVertex.y() <<  ","
+                << primaryVertex.z() <<  ")"
+                );
+        return Amg::Vector3D (primaryVertex.x(), primaryVertex.y(), primaryVertex.z());
+    }
+
+    // PrimaryVertex
+    if(m_usePrimaryVertex) {  
+        if(m_vxContainer) {
+            // At least 1 vertex
+            if(m_vxContainer->size()>0) {
+                // More than 1 track pointing to the vertex
+                if((*m_vxContainer->begin())->nTrackParticles() > 1) {
+                    Amg::Vector3D primaryVertex = (*(m_vxContainer->begin()))->position();
+
+                    ATH_MSG_VERBOSE("Found a primary vertex at ("
+                            << primaryVertex.x() <<  ","
+                            << primaryVertex.y() <<  ","
+                            << primaryVertex.z() <<  ")"
+                            );
+
+                    return Amg::Vector3D (primaryVertex.x(), primaryVertex.y(), primaryVertex.z());
+                }        
+                ATH_MSG_DEBUG("Couldn't find a primary vertex! Try next approach" );
+            }
+        }
+    }
+
+    // BeamSpot
+    if(m_useBeamSpot) {
+        if(m_beamConditionsService) {
+            if(!m_beamConditionsService.empty()) {
+                Amg::Vector3D beamSpot = m_beamConditionsService->beamVtx().position();
+
+                ATH_MSG_VERBOSE("Found a beam spot at ("
+                        << beamSpot.x() <<  ","
+                        << beamSpot.y() <<  ","
+                        << beamSpot.z() <<  ")"
+                        );
+
+                return Amg::Vector3D (beamSpot.x(), beamSpot.y(), beamSpot.z());
+            }
+        }
+        ATH_MSG_DEBUG("Couldn't find a beam spot! Try next approach" );
+    }
+
+    // Set Vertex Position by Hand
+    if(m_originPosition.size() == 3)
+        return Amg::Vector3D (m_originPosition[0], m_originPosition[1], m_originPosition[2]);
+
+    // Last ditch default: (0,0,0)
+    return Amg::Vector3D (0,0,0);
+
+}

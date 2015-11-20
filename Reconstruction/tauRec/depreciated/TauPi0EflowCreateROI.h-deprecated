@@ -1,0 +1,86 @@
+#ifndef TAUREC_TAU1P3PTRACKCREATEROI_H
+#define TAUREC_TAU1P3PTRACKCREATEROI_H
+
+#include "tauRec/TauToolBase.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include <map>
+
+class ICaloNoiseTool;
+class CaloCellContainer;
+class TauOriginCorrectionTool;
+
+/**
+ * @brief Class for collecting cells for tau ROI.
+ * 
+ *  This tool was fomerly named as tau1p3pTrackCreateROI.
+ * 
+ * @author Elzbieta Richter-Was
+ * 
+ */
+
+class TauPi0EflowCreateROI : public TauToolBase {
+public:
+
+    TauPi0EflowCreateROI(const std::string& type,
+            const std::string& name,
+            const IInterface* parent);
+
+    virtual ~TauPi0EflowCreateROI();
+
+    virtual StatusCode initialize();
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
+
+
+private:
+
+    std::string m_cellsContainerName;
+    std::string m_cellsOutputContainerName;
+    std::string m_clusterContainerName;
+
+    //!  large fixed cone to collect cells around the track
+    double m_detRIsolCaloCut;
+
+    //!  large fixed cone to collect cells around the track
+    double m_detRCoreCaloCut;
+
+    //!  use noise tool to estimate sigma
+    double m_useNoiseSigma;
+
+    //!  threshold to suppress noisy cells
+    double m_AbsNoiseSigma_cut;
+
+    //!  threshold to suppress cell from being used for topo clustering
+    double m_detRChrgEMCut;
+
+    //!  threshold to suppress cell from being used for topo clustering
+    double m_removeChrgEM01;
+
+    //!  threshold to suppress cell from being used for topo clustering
+    double m_removeChrgEM2;
+
+    // ! flag to decide wether we fill an output cell container to be later use for other clustering
+    bool m_fillCellContainer;
+
+    //! tool for noise
+    ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+
+    std::map<Analysis::TauJet *, CaloCluster *> m_clusterMap;
+
+    std::vector<bool> m_addedCellsMap;
+    
+    std::vector<std::string> m_caloCellMakerToolNames ;
+    std::vector<ICaloCellMakerTool*> m_caloCellMakerTools ;
+    
+    CaloCellContainer * m_pCellOutputContainer;
+    
+    bool m_doCellCorrection; //<! enable cell origin correction
+    ToolHandle<TauOriginCorrectionTool> m_tauOriginCorrTool;
+
+};
+
+
+#endif

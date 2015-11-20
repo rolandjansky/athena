@@ -1,0 +1,49 @@
+#ifndef TAUREC_TAUEFLOWADDCALOINFO_H
+#define	TAUREC_TAUEFLOWADDCALOINFO_H
+
+#include "tauRec/TauToolBase.h"
+
+class TauOriginCorrectionTool;
+
+/**
+ * @brief Calculate calorimeter variables and their distances to the leading tau track. 
+ * 
+ *  Use cells placed there by TauEflowTrackMatchCells.
+ *  This tool was formerly named as tau1p3pAddCaloInfo.
+ * 
+ * @authors Lukasz Janyst, Anna Kaczmarska
+ * 
+ */
+
+class TauEflowAddCaloInfo : public TauToolBase {
+public:
+
+    TauEflowAddCaloInfo(const std::string& type,
+            const std::string& name,
+            const IInterface* parent);
+
+    virtual ~TauEflowAddCaloInfo();
+    
+    virtual StatusCode initialize();
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventInitialize(TauEventData *data);
+
+
+private:
+    double m_detRCoreCaloCut;
+    double m_detRIsolCaloCut;
+    double m_ETCellMinCut;
+    double m_ETStripMinCut;
+    double m_detaStripCut;
+    
+    /** 
+     * enable cell origin correction 
+     * eta and phi of the cells are corrected wrt to the origin of the tau vertex
+    */
+    bool m_doCellCorrection;
+    ToolHandle<TauOriginCorrectionTool> m_tauOriginCorrTool;
+
+};
+
+#endif	/* TAUREC_TAUEFLOWADDCALOINFO_H */
+

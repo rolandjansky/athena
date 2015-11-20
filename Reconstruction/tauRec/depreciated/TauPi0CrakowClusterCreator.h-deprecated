@@ -1,0 +1,60 @@
+#ifndef TAUREC_TauPi0CrakowClusterCreator_H
+#define	TAUREC_TauPi0CrakowClusterCreator_H
+
+#include "tauRec/TauToolBase.h"
+#include <map>
+
+namespace Analysis {
+    class TauCommonDetails;
+}
+class CaloCluster;
+
+/**
+ * @brief Class for creating Pi0 clusters from EMtopoForTaus collection.
+ * 
+ * @author Elzbieta Richter-Was
+ * 
+ */
+
+class TauPi0CrakowClusterCreator : public TauToolBase {
+public:
+
+    TauPi0CrakowClusterCreator(const std::string& type,
+            const std::string& name,
+            const IInterface* parent);
+
+    virtual ~TauPi0CrakowClusterCreator();
+    
+    virtual StatusCode initialize();
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
+    
+    virtual void cleanup(TauEventData *data);
+    StatusCode fillTopoClusterInfo(TauEventData *data);
+
+
+private:
+
+    std::string m_trackContainerName;
+    double m_detRCoreCaloCut;
+    double m_recoTopoClusterETCut;
+    double m_recoEtaCut;
+    double m_detTrkClusMin;
+    double m_fracEM01verEM;
+    std::string m_CaloClusterContainerName;
+
+    int m_nTopoClust;
+
+    std::vector<int> m_isTopoClusQualif;
+    std::vector<double> m_TopoClustPhi;
+    std::vector<double> m_TopoClusEta;
+
+    std::string m_pi0ContainerName;
+
+    // CaloCluster with all cells  after hypothesis of Pi0
+    std::map<Analysis::TauCommonDetails *, std::vector<CaloCluster *> > m_pi0Map;
+};
+
+#endif	/* TauPi0CrakowClusterCreator_H */
+

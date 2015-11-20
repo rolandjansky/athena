@@ -1,0 +1,450 @@
+//-----------------------------------------------------------------------------
+// file:        TauPi0CrakowClusterCreator.cxx
+// package:     Reconstruction/tauRec
+// authors:     Elzbieta Richter-Was 
+// date:        19/06/2007
+//
+// This tool classifies Pi0 clusters, adapted from tau1P3PCreatePi0Clus.cxx
+//-----------------------------------------------------------------------------
+
+#include <algorithm>
+#include <math.h>
+#include <sstream>
+
+#include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/Property.h"
+
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCluster.h"
+#include "CaloEvent/CaloCell.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CaloIdentifier/CaloID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloGeoHelpers/CaloSampling.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
+#include "AnalysisUtils/AnalysisMisc.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
+
+#include "tauEvent/TauCommonDetails.h"
+#include "tauEvent/TauCommonExtraDetails.h"
+#include "tauRec/KineUtils.h"
+#include "tauRec/TauPi0CrakowClusterCreator.h"
+
+//-------------------------------------------------------------------------
+// Constructor
+//-------------------------------------------------------------------------
+
+TauPi0CrakowClusterCreator::TauPi0CrakowClusterCreator(const std::string &type,
+    const std::string &name,
+    const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_detRCoreCaloCut(0.2),
+m_recoTopoClusterETCut(1000.0),
+m_recoEtaCut(2.5),
+m_detTrkClusMin(0.0375),
+m_fracEM01verEM(0.1),
+m_CaloClusterContainerName("EMTopoCluster"),
+m_pi0ContainerName("Tau1P3PPi0ClusterContainer") {
+    declareInterface<TauToolBase > (this);
+
+    declareProperty("detRCoreCaloCut", m_detRCoreCaloCut);
+    declareProperty("RecoTopoClusterETCut", m_recoTopoClusterETCut);
+    declareProperty("RecoEtaCut", m_recoEtaCut);
+    declareProperty("detTrkClusMin", m_detTrkClusMin);
+    declareProperty("fracEM01verEM", m_fracEM01verEM);
+    declareProperty("CaloClusterContainerName", m_CaloClusterContainerName);
+    declareProperty("Pi0ClusterContainer", m_pi0ContainerName);
+
+}
+
+
+//-------------------------------------------------------------------------
+// Destructor
+//-------------------------------------------------------------------------
+
+TauPi0CrakowClusterCreator::~TauPi0CrakowClusterCreator() {
+}
+
+
+//-------------------------------------------------------------------------
+// Initializer
+//-------------------------------------------------------------------------
+
+StatusCode TauPi0CrakowClusterCreator::initialize() {
+
+    ATH_MSG_VERBOSE(name() << " detRCoreCaloCut       = " << m_detRCoreCaloCut);
+    ATH_MSG_VERBOSE(name() << " RecoTopoClusterETCut  = " << m_recoTopoClusterETCut);
+    ATH_MSG_VERBOSE(name() << " detTrkClusMin         = " << m_detTrkClusMin);
+    ATH_MSG_VERBOSE(name() << " fracEM01verEM         = " << m_fracEM01verEM);
+
+
+    StatusCode sc;
+
+    //---------------------------------------------------------------------
+    // Retrieve pointer to ToolSvc
+    //---------------------------------------------------------------------
+    IToolSvc *pToolSvc;
+    sc = service("ToolSvc", pToolSvc);
+    if (sc.isFailure()) {
+        ATH_MSG_FATAL("Unable to retrieve pointer to ToolSvc");
+        return sc;
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+//-----------------------------------------------------------------------------
+// Delete Pi0 clusters
+//-----------------------------------------------------------------------------
+
+static void do_delete(CaloCluster *cluster) {
+    delete cluster;
+}
+
+
+//-------------------------------------------------------------------------
+// Event Initializer
+//-------------------------------------------------------------------------
+
+StatusCode TauPi0CrakowClusterCreator::eventInitialize(TauEventData *) {
+    m_pi0Map.clear();
+    return StatusCode::SUCCESS;
+}
+
+
+
+//-------------------------------------------------------------------------
+// Event Finalizer
+//-------------------------------------------------------------------------
+
+StatusCode TauPi0CrakowClusterCreator::eventFinalize(TauEventData *) {
+
+    MsgStream rLog(msgSvc(), name());
+
+    StatusCode sc;
+
+    //---------------------------------------------------------------------
+    // Create container for Pi0
+    //---------------------------------------------------------------------
+    CaloClusterContainer *pPi0Container = new CaloClusterContainer();
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::recordClusters(&*evtStore(),
+    //     pPi0Container,
+    //     m_pi0ContainerName,
+    //     rLog);
+
+
+    //---------------------------------------------------------------------
+    // Put all clusters into the container
+    //---------------------------------------------------------------------
+    std::map<Analysis::TauCommonDetails *, std::vector<CaloCluster *> > ::iterator it;
+    std::vector<CaloCluster *> ::iterator clustIt;
+
+    for (it = m_pi0Map.begin(); it != m_pi0Map.end(); ++it) {
+        for (clustIt = (*it).second.begin(); clustIt != (*it).second.end(); ++clustIt) {
+            pPi0Container->push_back(*clustIt);
+        }
+        AnalysisUtils::Sort::pT(pPi0Container);
+    }
+
+    //----------------------------------------------------------------------
+    // Register cluster container in StoreGate
+    //----------------------------------------------------------------------
+    //XXX need to check if we need this tool anymore. For now just make it fail all the time
+    sc = StatusCode::FAILURE;
+    // sc = CaloClusterStoreHelper::finalizeClusters(&*evtStore(),
+    //     pPi0Container,
+    //     m_pi0ContainerName,
+    //     rLog);
+
+
+    //---------------------------------------------------------------------
+    // Set element links
+    //---------------------------------------------------------------------
+    for (it = m_pi0Map.begin(); it != m_pi0Map.end(); ++it) {
+        (*it).first->pi0LinkVec().clear();
+        for (clustIt = (*it).second.begin(); clustIt != (*it).second.end(); ++clustIt) {
+            (*it).first->addPi0(*clustIt, pPi0Container);
+        }
+    }
+
+    return sc;
+}
+
+
+//-------------------------------------------------------------------------
+// Execution
+//-------------------------------------------------------------------------
+
+StatusCode TauPi0CrakowClusterCreator::execute(TauEventData *data) {
+
+    // Analysis::TauJet *pTau = data->tau;
+    // Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
+    // Analysis::TauCommonExtraDetails *pExtraDetails = dynamic_cast<Analysis::TauCommonExtraDetails *> (data->extraDetails);
+
+    // //
+    // if (pTau->numTrack()==0) {
+    //     ATH_MSG_VERBOSE("tau has no tracks -> skip CrakowClusterCreator");
+    //     return StatusCode::SUCCESS;
+    // }
+    
+    // if ( !pDetails || !pExtraDetails) {
+    //   ATH_MSG_ERROR("TauCommon(Extra)Details object not valid");
+    //   return StatusCode::FAILURE;
+    // }
+        
+    // StatusCode sc;    
+
+    // //FIX ME! needed only for cell coping
+    // const CaloCellContainer *pCellContainer;
+
+    // //for tau trigger
+    // sc = data->getObject("CellContainer", pCellContainer);
+
+    // if (sc.isFailure() || !pCellContainer) {
+    //     //TODO: AllCalo hardcoded!!
+    //     sc = evtStore()->retrieve(pCellContainer, "AllCalo");
+    //     if (sc.isFailure()) {
+    //         ATH_MSG_ERROR("Unable to find all calo container");
+    //         return StatusCode::FAILURE;
+    //     }
+    // }
+
+    // //---------------------------------------------------------------------
+    // // Retrieve calo cluster container from StoreGate
+    // //---------------------------------------------------------------------
+    // const CaloClusterContainer *pTopoContainer = 0;
+    // sc = evtStore()->retrieve(pTopoContainer, m_CaloClusterContainerName);
+
+    // if (sc.isFailure()) {
+    //     ATH_MSG_FATAL("No " << m_CaloClusterContainerName << " found in TES");
+    //     return sc;
+    // }
+
+
+    // double resPhiPi0 = 0;
+
+    // CaloPhiRange phiRange;
+
+    // std::vector<CaloCluster *> clusterPi0;
+    // const CaloCluster *pTopo;
+    
+    // //FF:
+    // //TODO: need cluster to be correct wrt tau origin?
+    // //Can not oversee impact, so leave everything as it is for the moment
+
+    // //---------------------------------------------------------------------
+    // // Start classifying clusters
+    // //---------------------------------------------------------------------
+    // CaloClusterContainer::const_iterator topoIter = pTopoContainer->begin();
+    // CaloClusterContainer::const_iterator topoIterE = pTopoContainer->end();
+
+    // for (; topoIter != topoIterE; ++topoIter) {
+
+    //     pTopo = *topoIter;
+
+    //     //---------------------------------------------------------------------
+    //     // Skip if cluster outside rapidity range or below pT threshold
+    //     //---------------------------------------------------------------------
+    //     if (pTopo->et() < m_recoTopoClusterETCut) continue;
+
+
+    //     double zvert = pTau->track(0)->measuredPerigee()->parameters()[Trk::z0];
+    //     double etazv = 0;
+    //     if (fabs(pTopo->eta()) < 1.45) {
+    //         double aeta = fabs(pTopo->eta());
+    //         double r = 1691. - 39.4884 * aeta - 23.556412 * aeta*aeta; // FIXME  approximate shower depth in barrel
+    //         double z = r * sinh(pTopo->eta());
+    //         double x = (z - zvert) / r;
+    //         etazv = logf(x + sqrt(1. + x * x));
+    //     } else {
+    //         double z = 3920; // FIXME approximate shower depth in emec
+    //         if (pTopo->eta() < 0) z = -3920;
+    //         double r = z / sinh(pTopo->eta());
+    //         double x = (z - zvert) / r;
+    //         etazv = logf(x + sqrt(1. + x * x));
+    //     }
+
+    //     //---------------------------------------------------------------------
+    //     // Skip if cluster outside tauCore region
+    //     //---------------------------------------------------------------------
+    //     double detPhi = phiRange.diff(pTopo->phi(), pTau->phi());
+    //     double detEta = etazv - pTau->eta();
+
+    //     if (sqrt(detPhi * detPhi + detEta * detEta) > m_detRCoreCaloCut) continue;
+
+
+    //     //-------------------------------------------------------------
+    //     // Check if cluster separated from track, skip otherwise
+    //     //-------------------------------------------------------------
+    //     int isTopoClusQualif = 1;
+
+    //     //loop on tracks in the object
+    //     for (unsigned itr = 0; itr < pTau->numTrack(); ++itr) {
+    //         // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+    //         if (itr >= 9) break;
+
+    //         int isampling = 2;
+
+    //         double detEta = fabs(pExtraDetails->etaTrkCaloSamp()[itr][isampling] - etazv);
+    //         double detPhi = fabs(phiRange.diff(pExtraDetails->phiTrkCaloSamp()[itr][isampling], pTopo->phi()));
+
+    //         if (sqrt(detPhi * detPhi + detEta * detEta) < m_detTrkClusMin) isTopoClusQualif = 0;
+    //     }
+
+
+    //     if (isTopoClusQualif == 0) continue;
+
+
+    //     //-------------------------------------------------------------
+    //     // Check if cluster has energy deposition in EM01, skip otherwise
+    //     //-------------------------------------------------------------
+    //     double e_emb0 = (double) pTopo->getVariable(CaloVariableType::ENERGY, CaloSampling::PreSamplerB, 1);
+    //     double e_emb1 = (double) pTopo->getVariable(CaloVariableType::ENERGY, CaloSampling::EMB1, 1);
+    //     //ak_unused double e_emb2 = (float)pTopo->getVariable(CaloVariableType::ENERGY,CaloSampling::EMB2,1); 
+    //     double e_eme0 = (double) pTopo->getVariable(CaloVariableType::ENERGY, CaloSampling::PreSamplerE, 1);
+    //     double e_eme1 = (double) pTopo->getVariable(CaloVariableType::ENERGY, CaloSampling::EME1, 1);
+    //     //ak_unused double e_eme2 = (float)pTopo->getVariable(CaloVariableType::ENERGY,CaloSampling::EME2,1); 
+
+
+    //     if ((e_emb0 + e_eme0 + e_emb1 + e_eme1) < m_fracEM01verEM * pTopo->e()) continue;
+
+    //     //-------------------------------------------------------------
+    //     // Cluster accepted, include in bary-center calculation
+    //     //-------------------------------------------------------------
+
+    //     // calculate energy weighted  (eta,phi)
+    //     double resPhi = phiRange.diff(pTopo->phi(), pTau->phi());
+    //     resPhiPi0 += resPhi * pTopo->e();
+
+    //     ATH_MSG_VERBOSE(name() << " accepted topoForTaus clusters "
+    //         << " energy " << pTopo->et()
+    //         << " phi  " << pTopo->phi()
+    //         << " eta " << pTopo->eta()
+    //         );
+
+    //     //-------------------------------------------------------------
+    //     // Cluster accepted, store in Pi0Cluster collection
+    //     //-------------------------------------------------------------
+
+    //     //create temp cluster for cells storing
+    // 	xAOD::CaloCluster *pPi0cluster = CaloClusterStoreHelper::makeCluster(pCellContainer);
+
+    //     //copy cells from selected cluster into created pi0 cluster
+    //     CaloCluster::cell_iterator cellIter = pTopo->cell_begin();
+    //     CaloCluster::cell_iterator cellIterE = pTopo->cell_end();
+
+    //     for (; cellIter != cellIterE; ++cellIter) {
+    // 	  //XXX still need to check this implementation
+    // 	  pPi0cluster->addCell(cellIter.getElement().index(), 1.0);
+    //     }
+
+    //     clusterPi0.push_back(pPi0cluster);
+    //     pDetails->addPi0(pPi0cluster, 0);
+    // }
+
+    // m_pi0Map[pDetails] = clusterPi0;
+
+
+    // /***** FIXME...
+    // //  loop over pi0 clusters correction
+    // //  correct position for zvertex
+    // //  calculate barycentre
+    // //  store as sumEM
+    //  ***********/
+
+    // if (clusterPi0.empty()) {
+    //     // no cluster found --> leave
+    //     return StatusCode::SUCCESS;
+    // }
+
+    // //---------------------------------------------------------------------
+    // // Calculate and register energy weighted bary-center 4-momenta
+    // // corrected for the z-vertex position
+    // //---------------------------------------------------------------------
+
+    // float sumEMeta = 0;
+    // float sumEMphi = 0;
+    // float sumEMet = 0;
+    // float sumEMe = 0;
+
+    // for (unsigned ipi0 = 0; ipi0 < clusterPi0.size(); ++ipi0) {
+    //     const CaloCluster *pPi0Clus = clusterPi0[ipi0];
+    //     sumEMeta += pPi0Clus->et() * pPi0Clus->eta();
+    //     float resphi = phiRange.diff(pPi0Clus->phi(), pTau->phi());
+    //     sumEMphi += pPi0Clus->et() * resphi;
+    //     sumEMet += pPi0Clus->et();
+    //     sumEMe += pPi0Clus->e();
+    // }
+
+    // float phiPi0 = phiRange.fix(sumEMphi / sumEMet + pTau->phi());
+    // float etaPi0 = sumEMeta / sumEMet;
+    // float ePi0 = sumEMe;
+
+    // //-------------------------------------------------------------
+    // // Correct for vertex position of the leading track
+    // //-------------------------------------------------------------
+    // double zvert = pTau->track(0)->measuredPerigee()->parameters()[Trk::z0];
+    // float etaPi0zv;
+    // if (fabs(etaPi0) < 1.45) {
+    //     double aeta = fabs(etaPi0);
+    //     double r = 1691. - 39.4884 * aeta - 23.556412 * aeta*aeta; // FIXME  approximate shower depth in barrel
+    //     double z = r * sinh(etaPi0);
+    //     double x = (z - zvert) / r;
+    //     etaPi0zv = logf(x + sqrt(1. + x * x));
+    // } else {
+    //     double z = 3920; // FIXME approximate shower depth in emec
+    //     if (etaPi0 < 0) z = -3920;
+    //     double r = z / sinh(etaPi0);
+    //     double x = (z - zvert) / r;
+    //     etaPi0zv = logf(x + sqrt(1. + x * x));
+    // }
+
+    // ATH_MSG_VERBOSE(name() << " final combined Pi0 4-momenta "
+    //     << " energy " << ePi0
+    //     << " phi  " << phiPi0
+    //     << " etaZV " << etaPi0zv
+    //     );
+
+    // double pxPi0 = ePi0 / cosh(etaPi0zv) * cos(phiPi0);
+    // double pyPi0 = ePi0 / cosh(etaPi0zv) * sin(phiPi0);
+    // double pzPi0 = ePi0 / cosh(etaPi0zv) * sinh(etaPi0zv);
+
+    // // FIXME calculated with mass less hypothesis
+    // CLHEP::HepLorentzVector sumem(pxPi0, pyPi0, pzPi0, ePi0);
+    // pDetails->setSumPi0Vec(sumem);
+
+    // ATH_MSG_VERBOSE(name() << " final Pi0 4-momenta (retrieve) "
+    //     << " energy " << pDetails->sumPi0Vec().e()
+    //     << " phi  " << pDetails->sumPi0Vec().phi()
+    //     << " etaZV " << pDetails->sumPi0Vec().eta()
+    //     );
+
+
+    return StatusCode::SUCCESS;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Cleanup, in case this candidate was rejected later
+//-----------------------------------------------------------------------------
+
+void TauPi0CrakowClusterCreator::cleanup(TauEventData *data) {
+
+    Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
+    std::map<Analysis::TauCommonDetails *, std::vector<CaloCluster *> > ::iterator it;
+    it = m_pi0Map.find(pDetails);
+
+    if (it != m_pi0Map.end()) {
+        std::for_each((*it).second.begin(), (*it).second.end(), do_delete);
+        m_pi0Map.erase(it);
+    }
+}
+
+
+
+

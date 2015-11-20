@@ -1,0 +1,76 @@
+#ifndef TAUREC_TAUEFLOWVARIABLES_H
+#define TAUREC_TAUEFLOWVARIABLES_H
+
+#include <vector>
+#include "EventKernel/INavigable4Momentum.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
+
+#include "tauRec/TauToolBase.h"
+
+class TauOriginCorrectionTool;
+
+/**
+ * @brief Class for building energy flow quantities.
+ * 
+ *  This tool was formerly named as tau1p3pAddEflowInfo. 
+ * 
+ * @author Tadeusz Szymocha, Anna Kaczmarska
+ */
+
+class TauEflowVariables : public TauToolBase {
+public:
+    TauEflowVariables(const std::string& type,
+            const std::string& name,
+            const IInterface* parent);
+
+    virtual ~TauEflowVariables();
+    virtual StatusCode initialize();
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
+
+    StatusCode fillTopoClusterInfo(TauEventData *data);
+
+
+private:
+
+    std::string m_trackContainerName;
+    double m_detRCoreCaloCut;
+    double m_ETCellMinCut;
+    double m_ETStripMinCut;
+    double m_detaStripCut;
+    double m_dphiEMCLCut;
+    double m_detaEMCLCut;
+    double m_dphiEMCLFACCut;
+    double m_detaEMCLFACCut;
+    double m_dphiChrgEMCut;
+    double m_detaChrgEMCut;
+    std::string m_CaloClusterContainerName;
+    double m_recoTopoClusterETCut;
+    double m_recoEtaCut;
+    double m_TrackTopoClusPhi2Cut;
+    double m_TrackTopoClusEta1Cut;
+    double m_TopoClusEtha1Cut;
+    double m_MVisEflowCut;
+    double m_MTrk3PCut;
+    double m_ETeflow_ETcaloCut;
+    double m_ETeflow_ETcaloCutMin;
+    double m_maxClusterEta;
+    bool m_useEMTopoClusters;
+
+    int m_nTopoclust;
+
+    std::vector<int> m_isTopoClusQualif;
+    std::vector<double> m_TopoClustPhi;
+    std::vector<int> m_closestTopoClusCell;
+    std::vector<double> m_closestTopoClusCellPhi;
+    std::vector<double> m_closestTopoClusCellEta;
+    std::vector<double> m_TopoClusPhi;
+    std::vector<double> m_TopoClusEta;
+    
+    bool m_doCellCorrection; //!< enable cell origin correction
+    ToolHandle<TauOriginCorrectionTool> m_tauOriginCorrTool;
+};
+
+
+#endif

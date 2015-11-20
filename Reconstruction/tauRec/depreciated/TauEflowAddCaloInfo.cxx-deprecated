@@ -1,0 +1,287 @@
+//-----------------------------------------------------------------------------
+// file:        tau1p3pAddCaloInfo.cxx
+// package:     Reconstruction/tauRec
+// authors:     Lukasz Janyst, Anna Kaczmarska
+// date:        2005-07-05
+//
+// Tool to calculate identification variables (calo + tracking)
+//
+// MODIFIED:
+// 11/09/2006 - (AK) correcting statusCode
+// 08/10/2006 - (AK) change of detRCoreCaloCut, detRIsolCaloCut
+//                   input parameters names
+// 03/07/2009 - (AK) changing closest*TrkVertCell accessors to the "old-EDM" ones
+//-----------------------------------------------------------------------------
+
+//TODO: revisit StatusCode
+
+#include <algorithm>
+#include <math.h>
+#include <sstream>
+
+#include "GaudiKernel/Property.h"
+
+#include "FourMom/P4EEtaPhiM.h"
+
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCluster.h"
+#include "CaloEvent/CaloCell.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CaloIdentifier/CaloID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloGeoHelpers/CaloSampling.h"
+
+#include "tauEvent/TauCommonDetails.h"
+#include "tauEvent/TauCommonExtraDetails.h"
+#include "tauRec/KineUtils.h"
+#include "tauRec/TauOriginCorrectionTool.h"
+
+#include "tauRec/TauEflowAddCaloInfo.h"
+
+//-------------------------------------------------------------------------
+// Constructor
+//-------------------------------------------------------------------------
+
+TauEflowAddCaloInfo::TauEflowAddCaloInfo(const std::string &type,
+        const std::string &name,
+        const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_detRCoreCaloCut(0.2),
+m_detRIsolCaloCut(0.4),
+m_ETCellMinCut(100.0),
+m_ETStripMinCut(200.0),
+m_detaStripCut(0.2),
+m_doCellCorrection(false), //FF: don't do cell correction by default
+m_tauOriginCorrTool("") {
+    declareInterface<TauToolBase > (this);
+
+    declareProperty("detRCoreCaloCut", m_detRCoreCaloCut);
+    declareProperty("detRIsolCaloCut", m_detRIsolCaloCut);
+    declareProperty("ETCellMinCut", m_ETCellMinCut);
+    declareProperty("ETStripMinCut", m_ETStripMinCut);
+    declareProperty("detaStripCut", m_detaStripCut);
+    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("OriginCorrectionTool", m_tauOriginCorrTool);
+
+}
+
+
+//-------------------------------------------------------------------------
+// Destructor
+//-------------------------------------------------------------------------
+
+TauEflowAddCaloInfo::~TauEflowAddCaloInfo() { }
+
+
+//-------------------------------------------------------------------------
+// Initializer
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowAddCaloInfo::initialize() {
+
+    ATH_MSG_VERBOSE(name() << " RconeTauCut            = " << m_detRIsolCaloCut);
+    ATH_MSG_VERBOSE(name() << " RconeCoreCut           = " << m_detRCoreCaloCut);
+    ATH_MSG_VERBOSE(name() << " ETCellMinCut           = " << m_ETCellMinCut);
+    ATH_MSG_VERBOSE(name() << " ETStripMinCut          = " << m_ETStripMinCut);
+    ATH_MSG_VERBOSE(name() << " detaStripCut           = " << m_detaStripCut);
+
+    if (m_tauOriginCorrTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR("Cannot find tool named <" << m_tauOriginCorrTool << ">");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_VERBOSE("tau Origin Correction Tool <" << m_tauOriginCorrTool << "> retrieved");
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode TauEflowAddCaloInfo::eventInitialize(TauEventData * /*data*/) 
+{
+    if (m_doCellCorrection) {
+        // Cell Origin Correction Tool initializeEvent is not called automatically
+        // -> call from here
+        return m_tauOriginCorrTool->eventInitialize();
+    }
+    return StatusCode::SUCCESS;
+}
+
+//-------------------------------------------------------------------------
+// Execution
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowAddCaloInfo::execute(TauEventData *data) {
+
+    Analysis::TauJet *pTau = data->tau;
+    Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
+    Analysis::TauCommonExtraDetails *pExtraDetails = dynamic_cast<Analysis::TauCommonExtraDetails *> (data->extraDetails);
+
+    if (pTau->numTrack() == 0) {
+        ATH_MSG_VERBOSE("tau has no tracks -> skip EflowAddCaloInfo");
+        return StatusCode::SUCCESS;
+    }
+
+    if (!pDetails || !pExtraDetails) {
+        ATH_MSG_ERROR("TauCommon(Extra)Details object not valid");
+        return StatusCode::FAILURE;
+    }
+
+    StatusCode sc;
+
+
+    //-----------------------------------------------------------------
+    // Variable initialization
+    //-----------------------------------------------------------------
+    int nStrips = 0;
+    double sumETR02 = 0;
+    double sumETR01 = 0;
+    double sumET012 = 0;
+    double sumDetET012 = 0;
+    double stripEta = 0;
+    double stripEta2 = 0;
+    double stripET = 0;
+    double detPhi = 999.;
+    double detEta = 999.;
+    double detCell = 999.;
+    double sumETotherHAD = 0;
+    double sumETotherEM = 0;
+    double sumETchrgHAD = 0;
+    double stripWidth2 = 0;
+    double Rem = 0;
+    double fracETR12 = 0;
+
+    //-----------------------------------------------------------------
+    // Loop on cells placed there by TauEflowTrackMatchCells
+    //-----------------------------------------------------------------
+    if (!pTau->cellCluster()) return StatusCode::FAILURE;
+    
+    //use tau vertex to correct cell position
+    if (m_doCellCorrection) {
+        m_tauOriginCorrTool->setOriginSource(pTau->origin());
+    }
+
+    const CaloCluster *pCluster = pTau->cellCluster();
+    CaloCluster::cell_iterator cellItr = pCluster->cell_begin();
+    CaloCluster::cell_iterator cellItrE = pCluster->cell_end();
+
+    const CaloCell *pCell;
+
+    //loop on cells connected to object
+    for (; cellItr != cellItrE; ++cellItr) {
+
+        pCell = (*cellItr);
+        
+        // correct cell for tau vertex
+        if (m_doCellCorrection) {
+             m_tauOriginCorrTool->correctCell(pCell);
+        }      
+        double cellPhi = pCell->phi();
+        double cellEta = pCell->eta();
+        double cellET  = pCell->et();
+        double cellEnergy = pCell->energy();
+        
+        if (m_doCellCorrection) {
+             m_tauOriginCorrTool->resetCell(pCell);
+        }
+
+        if (cellET < m_ETCellMinCut) continue;
+
+        int sampling = pCell->caloDDE()->getSampling();
+        if (sampling > 3 && sampling < 8) sampling = sampling - 4;
+
+        int i = 2;
+        if (sampling < 4) i = sampling;
+
+        const CaloCell* ccEta = pExtraDetails->closestEtaTrkVertCell(0, i);
+        const CaloCell* ccPhi = pExtraDetails->closestPhiTrkVertCell(0, i);
+
+        if (ccPhi) {
+            detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, ccPhi->phi());
+        } else {
+            detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, pTau->track(0)->phi());
+        }
+
+        if (ccEta) {
+            detEta = Tau1P3PKineUtils::deltaEta(cellEta, ccEta->eta());
+        } else {
+            detEta = Tau1P3PKineUtils::deltaEta(cellEta, pTau->track(0)->eta());
+        }
+
+        detCell = Tau1P3PKineUtils::deltaR(detPhi, detEta);
+
+
+        //-------------------------------------------------------------
+        // Cuts
+        //-------------------------------------------------------------
+        if (detCell > m_detRIsolCaloCut) continue;
+
+        if (detCell > m_detRCoreCaloCut) {
+            if (sampling > 3) {
+                sumETotherHAD += cellEnergy / cosh(cellEta);
+            } else {
+                sumETotherEM += cellET;
+            }
+        }
+
+        if (detCell > m_detRCoreCaloCut) continue;
+
+        if (sampling > 2) sumETchrgHAD += cellET;
+
+        if (sampling == 1 && cellET > m_ETStripMinCut) {
+            const CaloCell* ccEta1 = *pExtraDetails->closestEtaTrkVertCell()[0][1];
+
+            detEta = Tau1P3PKineUtils::deltaEta(cellEta, ccEta1->eta());
+
+            if (std::fabs(detEta) < m_detaStripCut) {
+                ++nStrips;
+            }
+        }
+
+        if (detCell < m_detRCoreCaloCut) sumETR02 += cellET;
+
+        if (detCell < m_detRCoreCaloCut / 2.) sumETR01 += cellET;
+
+        if (sampling > 2) continue;
+
+        sumET012 += cellET;
+        sumDetET012 += cellET * detCell;
+
+        if (sampling != 1) continue;
+
+        stripEta += cellEta * cellET;
+        stripEta2 += cellEta * cellEta * cellET;
+        stripET += cellET;        
+    }  // end cell loop
+
+    if (sumET012 > 0) Rem = sumDetET012 / sumET012;
+
+    if (sumETR02 > 0) fracETR12 = (sumETR02 - sumETR01) / sumETR02;
+
+    if (stripET > 0.0) stripWidth2 = (stripEta2 / stripET - stripEta * stripEta / stripET / stripET);
+
+
+    //-----------------------------------------------------------------
+    // Set properties
+    //-----------------------------------------------------------------
+    ATH_MSG_VERBOSE(name() << " taurec nStrips " << nStrips);
+    pDetails->setSeedTrk_nStrip(nStrips);
+
+    ATH_MSG_VERBOSE(name() << " Rem " << Rem);
+    pDetails->setSeedTrk_EMRadius(Rem);
+
+    ATH_MSG_VERBOSE(name() << " fracETR1 " << fracETR12);
+    pDetails->setSeedTrk_isolFrac(fracETR12);
+
+    ATH_MSG_VERBOSE(name() << " stripWidth2 " << stripWidth2);
+    pDetails->setSeedTrk_stripWidth2(stripWidth2);
+
+    ATH_MSG_VERBOSE(name() << " sumETotherHAD " << sumETotherHAD);
+    pDetails->setSeedTrk_etIsolHad(sumETotherHAD);
+
+    ATH_MSG_VERBOSE(name() << " sumETotherEM " << sumETotherEM);
+    pDetails->setSeedTrk_etIsolEM(sumETotherEM);
+
+    ATH_MSG_VERBOSE(name() << " sumETchrgHAD " << sumETchrgHAD);
+    pDetails->setSeedTrk_etChrgHad(sumETchrgHAD);
+
+    return sc;
+
+}

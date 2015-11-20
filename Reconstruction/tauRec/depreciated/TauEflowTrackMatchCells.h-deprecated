@@ -1,0 +1,89 @@
+#ifndef TAUREC_TAUEFLOWTRACKMATCHCELLS_H
+#define TAUREC_TAUEFLOWTRACKMATCHCELLS_H
+
+#include <map>
+
+#include "GaudiKernel/ToolHandle.h"
+#include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "CaloEvent/CaloClusterContainer.h"
+
+#include "tauRec/TauToolBase.h"
+
+class TauOriginCorrectionTool;
+
+/**
+ * @brief Tool for building CaloCluster of cells associated with a given tau.
+ * 
+ *  This tool was formerly named as tau1p3pTrackMatchCells.
+ * 
+ * @authors Tadeusz Szymocha, Anna Kaczmarska
+ * 
+ */
+
+class TauEflowTrackMatchCells : public TauToolBase
+{
+  public:
+
+    TauEflowTrackMatchCells(const std::string& type,
+            const std::string& name,
+            const IInterface* parent);
+
+    virtual ~TauEflowTrackMatchCells();
+
+    virtual StatusCode initialize();
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
+
+    virtual void cleanup(TauEventData *data);
+
+  private:
+    std::string m_cellsContainerName;
+    std::string m_clusterContainerName;
+
+    //!  large fixed cone to collect cells around the track
+    double m_detRIsolCaloCut;
+
+    //!  use noise tool to estimate sigma
+    double m_useNoiseSigma;
+
+    //!  threshold to suppress noisy cells
+    double m_AbsNoiseSigma_cut;
+
+    //! cone for cell pre-selection
+    double m_selectConeSize;
+
+    //! tool for noise
+    ToolHandle <ICalorimeterNoiseTool> m_noiseTool;
+
+    std::map<Analysis::TauJet *, CaloCluster *> m_clusterMap;
+
+    std::string m_clusterEMContainerName;
+    
+    /** 
+     * enable cell origin correction 
+     * eta and phi of the cells are corrected wrt to the origin of the tau vertex
+    */
+    bool m_doCellCorrection;
+    ToolHandle<TauOriginCorrectionTool> m_tauOriginCorrTool;
+
+};
+
+//TODO: same as in CaloClusterVariables! --> move both to KinUtils.h?
+//-------------------------------------------------------------------------
+//! Descending order by energy
+//-------------------------------------------------------------------------
+
+struct OrderClust
+{
+    bool operator()(const CaloCluster *t1, const CaloCluster * t2) const {
+      //FF:: don't need a warning here
+      //if (t1->et() == t2->et()) {
+      //      std::cout << " tauRec:tau1p3pTrackMatchCells WARNING  Found two clusters with the same et ! " << t1->et() << std::endl;
+      //  }
+        return t1->et() < t2->et();
+    }
+};
+
+
+#endif

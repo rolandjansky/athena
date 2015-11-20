@@ -1,0 +1,836 @@
+//-----------------------------------------------------------------------------
+// file:        tau1p3pAddEflowInfo.cxx
+// package:     Reconstruction/tauRec
+// authors:     Tadeusz Szymocha, Anna Kaczmarska
+// date:        2006-02-09
+//
+// This tool builds energy flow quantities.
+//
+// MODIFIED:
+// 07/10/2005 - (LJ) Proper deletion of Pi0 clusters
+// 14/09/2006 - (LJ,AK) temporaty solution for removing cells
+//               from object in order to avoid problems with 
+//               casting CaloCellContainer to
+//               INavigable4MomentumCollection
+// 07/10/2005 - (LJ) Proper deletion of Pi0 clusters
+// 08/10/2006 - (AK) change of RconeCoreCut parameter name
+//                  fixing wrong reading of extrapolation point for
+//                  endcap in fillTopoClusterInfo
+// 03/11/2006 - (AK) added filling sumEM  
+// 07/11/2006 - (AK) preselection with cuts on MVisEflow, MTrk3P, ETeflow / ETcalo variables
+// 24/11/2006 - (AK) correcting phi barycenter calculation
+// 26/11/2006 - (ERW) corrected eflow calculation
+// 13/07/2007 - (AK) dynamic allocation of arrays
+// 23/04/2007 - (AK) adding writing pi0 container
+// 10/07/2007 - (AK) allowing ntrack>3 candidates 
+// 19/06/2007 - (ERW) removing writting pi0 container -> delegated to tau1p3pCreatePi0Cluster.cxx
+// 07/07/2007 - (ERW) removing filling sumEM -> delegated to tau1p3pCreatePi0Cluster.cxx
+// 04/01/2008 - (AK) adding low cut on etcalo/etflow
+// 10/06/2008 - (AK) fixing floating point exceptions (bug 37635)
+// 30/09/2008 - (AK) memory fragmentation fixes (bug 41937)
+// 09/10/2009 - (AK) correcting unchecked SC (bug 56754)
+// 17/05/2011 - (FF) add initializer for array (line 276) (coverity 20321)
+//-----------------------------------------------------------------------------
+
+//TODO: change statuscode failure to recoverable
+//TODO: AllCalo hardcoded
+
+#include <algorithm>
+#include <math.h>
+#include <sstream>
+
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/IToolSvc.h"
+
+#include "FourMom/P4EEtaPhiM.h"
+
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCluster.h"
+#include "CaloEvent/CaloCell.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CaloIdentifier/CaloID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloGeoHelpers/CaloSampling.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
+
+#include "tauEvent/TauCommonDetails.h"
+#include "tauEvent/TauCommonExtraDetails.h"
+#include "tauRec/KineUtils.h"
+#include "tauRec/TauOriginCorrectionTool.h"
+#include "tauRec/TauEflowVariables.h"
+
+
+//-------------------------------------------------------------------------
+// Constructor
+//-------------------------------------------------------------------------
+
+TauEflowVariables::TauEflowVariables(const std::string &type,
+    const std::string &name,
+    const IInterface *parent) :
+TauToolBase(type, name, parent),
+m_detRCoreCaloCut(0.2),
+m_dphiEMCLCut(0.0375),
+m_detaEMCLCut(0.0375),
+m_dphiEMCLFACCut(2),
+m_detaEMCLFACCut(3),
+m_dphiChrgEMCut(0.0375),
+m_detaChrgEMCut(0.0375),
+m_CaloClusterContainerName("EMTopoCluster"),
+m_recoTopoClusterETCut(200.0),
+m_recoEtaCut(2.5),
+m_TrackTopoClusPhi2Cut(0.0375),
+m_TrackTopoClusEta1Cut(0.01),
+m_MVisEflowCut(10000),
+m_MTrk3PCut(10000),
+m_ETeflow_ETcaloCut(10.),
+m_ETeflow_ETcaloCutMin(0.1),
+m_maxClusterEta(4.0),
+m_useEMTopoClusters(true),
+m_doCellCorrection(false), //FF: don't do cell correction by default
+m_tauOriginCorrTool("") {
+    declareInterface<TauToolBase > (this);
+
+    declareProperty("detRCoreCaloCut", m_detRCoreCaloCut);
+    declareProperty("dphiEMCLCut", m_dphiEMCLCut);
+    declareProperty("detaEMCLCut", m_detaEMCLCut);
+    declareProperty("dphiEMCLFACCut", m_dphiEMCLFACCut);
+    declareProperty("detaEMCLFACCut", m_detaEMCLFACCut);
+    declareProperty("dphiChrgEMCut", m_dphiChrgEMCut);
+    declareProperty("detaChrgEMCut", m_detaChrgEMCut);
+    declareProperty("CaloClusterContainerName", m_CaloClusterContainerName);
+    declareProperty("RecoTopoClusterETCut", m_recoTopoClusterETCut);
+    declareProperty("RecoEtaCut", m_recoEtaCut);
+    declareProperty("TrackTopoClusPhi2Cut", m_TrackTopoClusPhi2Cut);
+    declareProperty("TrackTopoClusEta1Cut", m_TrackTopoClusEta1Cut);
+    declareProperty("MVisEflowCut", m_MVisEflowCut);
+    declareProperty("MTrk3PCut", m_MTrk3PCut);
+    declareProperty("ETeflow_ETcaloCut", m_ETeflow_ETcaloCut);
+    declareProperty("ETeflow_ETcaloCutMin", m_ETeflow_ETcaloCutMin);
+    declareProperty("MaxClusterEta", m_maxClusterEta);
+    declareProperty("useEMTopoClusters", m_useEMTopoClusters);
+    declareProperty("CellCorrection", m_doCellCorrection);
+    declareProperty("OriginCorrectionTool", m_tauOriginCorrTool);
+}
+
+
+//-------------------------------------------------------------------------
+// Destructor
+//-------------------------------------------------------------------------
+
+TauEflowVariables::~TauEflowVariables() {
+}
+
+StatusCode TauEflowVariables::eventFinalize(TauEventData *) {
+
+    std::vector<int>().swap(m_isTopoClusQualif);
+    std::vector<int>().swap(m_closestTopoClusCell);
+    std::vector<double>().swap(m_TopoClustPhi);
+    std::vector<double>().swap(m_closestTopoClusCellPhi);
+    std::vector<double>().swap(m_closestTopoClusCellEta);
+    std::vector<double>().swap(m_TopoClusPhi);
+    std::vector<double>().swap(m_TopoClusEta);
+
+    return StatusCode::SUCCESS;
+}
+
+
+//-------------------------------------------------------------------------
+// Initializer
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowVariables::initialize() {
+
+    StatusCode sc;
+
+    ATH_MSG_VERBOSE(name() << " RconeCoreCut           = " << m_detRCoreCaloCut);
+    ATH_MSG_VERBOSE(name() << " ETStripMinCut          = " << m_ETStripMinCut);
+    ATH_MSG_VERBOSE(name() << " detaStripCut           = " << m_detaStripCut);
+
+    //---------------------------------------------------------------------
+    // Retrieve pointer to ToolSvc
+    //---------------------------------------------------------------------
+    IToolSvc *pToolSvc;
+    sc = service("ToolSvc", pToolSvc);
+    if (sc.isFailure()) {
+        ATH_MSG_FATAL("Unable to retrieve pointer to ToolSvc");
+        return sc;
+    }
+    if (m_tauOriginCorrTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR("Cannot find tool named <" << m_tauOriginCorrTool << ">");
+        return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode TauEflowVariables::eventInitialize(TauEventData * /*data*/) 
+{
+    if (m_doCellCorrection) {
+        // Cell Origin Correction Tool initializeEvent is not called automatically
+        // -> call from here
+        return m_tauOriginCorrTool->eventInitialize();
+    }
+    return StatusCode::SUCCESS;
+}
+
+//-------------------------------------------------------------------------
+// Execution
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowVariables::execute(TauEventData *data) {
+
+    Analysis::TauJet *pTau = data->tau;
+    Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
+    Analysis::TauCommonExtraDetails *pExtraDetails = dynamic_cast<Analysis::TauCommonExtraDetails *> (data->extraDetails);
+
+    //
+    if (pTau->numTrack()==0) {
+        ATH_MSG_VERBOSE("tau has no tracks -> skip Eflow");
+        return StatusCode::SUCCESS;
+    }
+    
+    if ( !pDetails || !pExtraDetails) {
+      ATH_MSG_ERROR("TauCommon(Extra)Details object not valid");
+      return StatusCode::FAILURE;
+    }
+    
+    StatusCode sc;
+    
+    const CaloCellContainer *pCellContainer = 0;
+
+    // for tau trigger
+    sc = data->getObject("CellContainer", pCellContainer);
+    if (sc.isFailure() || !pCellContainer) {
+        // retrieve at the normal way
+        //TODO: AllCalo hardcoded!!
+        sc = evtStore()->retrieve(pCellContainer, "AllCalo");
+        if (sc.isFailure()) {
+            ATH_MSG_ERROR("Unable to find cell container");
+            return StatusCode::FAILURE;
+        }
+    }
+
+    const int nTr = 10;
+    double sumETCellsEM01Trk[nTr];
+    double sumETCellsChrgEMTrk[nTr];
+    double resChrgEMTrk[nTr];
+
+    for (int i = 0; i < nTr; ++i) {
+        sumETCellsEM01Trk[i] = 0.;
+        sumETCellsChrgEMTrk[i] = 0.;
+        resChrgEMTrk[i] = 0.;
+    }
+
+    double sumETcalo = 0.0;
+    double sumETcaloHAD = 0.0;
+    double sumETcaloEM = 0.0;
+    double sumETCellsEMCL = 0.0;
+    double sumETCellsNeuEM = 0.0;
+    double sumETCellsChrgEM = 0.0;
+    double sumETCellsChrgHAD = 0.0;
+    double sumETeflow = 0.0;
+    double resChrgEM = 0.0;
+    double resNeuEM = 0.0;
+    double resChrgEMTrkTot = 0.0;
+    double pttot = 0.0;
+
+    m_nTopoclust = 0;
+
+    //fill information about EM Clusters
+    if (m_useEMTopoClusters) {
+        sc = fillTopoClusterInfo(data);
+        if (sc.isFailure()) return sc;
+    }
+
+    //use tau vertex to correct cell position
+    if (m_doCellCorrection) {
+        m_tauOriginCorrTool->setOriginSource(pTau->origin());
+    }
+
+    //-----------------------------------------------------------------
+    // Loop on cells stored in object placed there by TauEflowTrackMatchCells
+    //-----------------------------------------------------------------
+    xAOD::CaloCluster* EMCLCluster = CaloClusterStoreHelper::makeCluster(pCellContainer);
+    xAOD::CaloCluster* NeuEMCluster = CaloClusterStoreHelper::makeCluster(pCellContainer);
+
+    const CaloCluster *pCluster = pTau->cellCluster();
+    CaloCluster::cell_iterator cellIter = pCluster->cell_begin();
+    CaloCluster::cell_iterator cellIterE = pCluster->cell_end();
+
+    const CaloCell *pCell;
+
+    for (; cellIter != cellIterE; ++cellIter) {
+        pCell = *cellIter;
+        
+        // correct cell for tau vertex
+        if (m_doCellCorrection) {
+             m_tauOriginCorrTool->correctCell(pCell);
+        }
+        
+        double cellEta = pCell->eta();
+        double cellPhi = pCell->phi();
+        double cellEt = pCell->et();
+        
+        if (m_doCellCorrection) {
+            m_tauOriginCorrTool->resetCell(pCell);
+        }  
+
+        int sampling = pCell->caloDDE()->getSampling();
+        if (sampling > 3 && sampling < 8) sampling = sampling - 4;
+
+        double detPhi, detEta, detPhiTrk[nTr] = {0.}, detEtaTrk[nTr] = {0.};
+
+        int i = 2;
+        if (sampling < 4) i = sampling;
+
+        if (pExtraDetails->closestPhiTrkVertCell(0, i))
+            detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, pExtraDetails->closestPhiTrkVertCell(0, i)->phi());
+        else
+            detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, pTau->track(0)->phi());
+
+        if (pExtraDetails->closestEtaTrkVertCell(0, i))
+            detEta = Tau1P3PKineUtils::deltaEta(cellEta, pExtraDetails->closestEtaTrkVertCell(0, i)->eta());
+        else
+            detEta = Tau1P3PKineUtils::deltaEta(cellEta, pTau->track(0)->eta());
+
+        double detCell = Tau1P3PKineUtils::deltaR(detPhi, detEta);
+
+        if (detCell > m_detRCoreCaloCut) continue;
+
+        //for each track connected to object
+        for (unsigned itr = 0; itr < pTau->numTrack(); ++itr) {
+            // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+            if (itr >= 9) break;
+
+            detPhiTrk[itr] = 0.;
+            detEtaTrk[itr] = 0.;
+
+            if (pExtraDetails->closestPhiTrkCell(itr, i))
+                detPhiTrk[itr] = Tau1P3PKineUtils::deltaPhi(cellPhi, pExtraDetails->closestPhiTrkCell(itr, i)->phi());
+            else
+                detPhiTrk[itr] = Tau1P3PKineUtils::deltaPhi(cellPhi, pExtraDetails->phiTrkCaloSamp()[0][i]);
+
+            if (pExtraDetails->closestEtaTrkCell(itr, i))
+                detEtaTrk[itr] = Tau1P3PKineUtils::deltaEta(cellEta, pExtraDetails->closestEtaTrkCell(itr, i)->eta());
+            else
+                detEtaTrk[itr] = Tau1P3PKineUtils::deltaEta(cellEta, pExtraDetails->etaTrkCaloSamp()[0][i]);
+        }
+
+        sumETcalo += cellEt;
+
+        if (sampling < 4) sumETcaloEM += cellEt;
+        else sumETcaloHAD += cellEt;
+
+        int isCellBooked = 0;
+
+        //-----------------------------------------------------------------
+        // sumETCellsEMCL - first iteration for 
+        //-----------------------------------------------------------------
+        if (sampling <= 2) {
+            int kPi0 = -1;
+            for (int ic = 0; ic < m_nTopoclust; ++ic) {
+                if (m_isTopoClusQualif[ic] != 1) continue;
+
+                double detPhi, detEta, Rcone;
+
+                detPhi = Tau1P3PKineUtils::deltaPhi(pTau->phi(), m_TopoClusPhi[ic]);
+                detEta = Tau1P3PKineUtils::deltaEta(pTau->eta(), m_TopoClusEta[ic]);
+                Rcone = Tau1P3PKineUtils::deltaR(detPhi, detEta);
+                if (Rcone > m_detRCoreCaloCut) continue;
+
+                ++kPi0;
+
+                if (m_closestTopoClusCell[ic] != 0) {
+                    detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, m_closestTopoClusCellPhi[ic]);
+                    detEta = Tau1P3PKineUtils::deltaEta(cellEta, m_closestTopoClusCellEta[ic]);
+                } else {
+                    detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, m_TopoClusPhi[ic]);
+                    detEta = Tau1P3PKineUtils::deltaEta(cellEta, m_TopoClusEta[ic]);
+                }
+
+                if (detEta < m_detaEMCLCut && detPhi < m_dphiEMCLCut) {
+                    if (!isCellBooked) {
+                        sumETCellsEMCL += cellEt;
+                        EMCLCluster->addCell(pCellContainer->findIndex(pCell->caloDDE()->calo_hash()), 1.0);
+
+                        isCellBooked = 1;
+                    }
+                }
+                if (isCellBooked) break;
+            } // end track loop
+        }
+
+        if (isCellBooked) continue; // go to next cell
+
+        //-----------------------------------------------------------------
+        // sumETCellsChrgEM 
+        //-----------------------------------------------------------------
+        //for each track connected to tau object
+        for (unsigned itr = 0; itr < pTau->numTrack(); ++itr) {
+            // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+            if (itr >= 9) break;
+
+            if (sampling <= 3 && detEtaTrk[itr] < m_detaChrgEMCut && detPhiTrk[itr] < m_dphiChrgEMCut) {
+                if (!isCellBooked) {
+                    sumETCellsChrgEM += cellEt;
+                    sumETCellsChrgEMTrk[itr] += cellEt;
+                    if (sampling <= 1) sumETCellsEM01Trk[itr] += cellEt;
+                    isCellBooked = 1;
+                }
+            }
+            if (isCellBooked) break;
+        } // end track loop
+
+        if (isCellBooked) continue; // go to next cell
+
+        //-----------------------------------------------------------------
+        // sumETCellsEMCL - second iteration for  
+        //-----------------------------------------------------------------
+        if (sampling <= 2) {
+            for (int ic = 0; ic < m_nTopoclust; ++ic) {
+                if (m_isTopoClusQualif[ic] != 1) continue;
+
+                double detPhi, detEta, Rcone;
+
+                detPhi = Tau1P3PKineUtils::deltaPhi(pTau->phi(), m_TopoClusPhi[ic]);
+                detEta = Tau1P3PKineUtils::deltaEta(pTau->eta(), m_TopoClusEta[ic]);
+                Rcone = Tau1P3PKineUtils::deltaR(detPhi, detEta);
+                if (Rcone > m_detRCoreCaloCut) continue;
+
+                if (m_closestTopoClusCell[ic] != 0) {
+                    detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, m_closestTopoClusCellPhi[ic]);
+                    detEta = Tau1P3PKineUtils::deltaEta(cellEta, m_closestTopoClusCellEta[ic]);
+                } else {
+                    detPhi = Tau1P3PKineUtils::deltaPhi(cellPhi, m_TopoClusPhi[ic]);
+                    detEta = Tau1P3PKineUtils::deltaEta(cellEta, m_TopoClusEta[ic]);
+                }
+
+                if (detEta < m_detaEMCLFACCut * m_detaEMCLCut && detPhi < m_dphiEMCLFACCut * m_dphiEMCLCut) {
+                    if (!isCellBooked) {
+                        sumETCellsEMCL += cellEt;
+                        EMCLCluster->addCell(pCellContainer->findIndex(pCell->caloDDE()->calo_hash()), 1.0);
+
+                        isCellBooked = 1;
+                    }
+                }
+                if (isCellBooked) break;
+            } // end track loop
+        }
+        if (isCellBooked) continue; // go to next cell
+
+        //-----------------------------------------------------------------
+        // sumETCellsNeuEM - from still not booked cells
+        //-----------------------------------------------------------------
+        //erw: layer 3 removed from sumETCellsNeuEM
+        if (sampling < 3) {
+            sumETCellsNeuEM += cellEt;
+            NeuEMCluster->addCell(pCellContainer->findIndex(pCell->caloDDE()->calo_hash()), 1.0);
+            isCellBooked = 1;
+        }
+        if (isCellBooked) continue; // go to next cell
+
+        //-----------------------------------------------------------------
+        // sumETCellsChrgHAD - from still not booked cells
+        //-----------------------------------------------------------------
+        //erw: layer 3 added to sumETCellsChrgHAD
+        if (sampling >= 3) {
+            sumETCellsChrgHAD += cellEt;
+            isCellBooked = 1;
+        }
+
+        // at this point cell should be booked already, print warning if it is not
+        if (!isCellBooked) ATH_MSG_WARNING("Please check why cell is not booked");
+    } // end cell loop
+
+    //-----------------------------------------------------------------
+    // calculate energy flow variables
+    //-----------------------------------------------------------------
+    //for 1 prong
+    if (pTau->numTrack() == 1) {
+        double leadTrkPt = pTau->track(0)->pt();
+
+        if ((sumETCellsEM01Trk[0] / leadTrkPt) < 0.05) {
+            resChrgEM = sumETCellsChrgEM - 0.7 * leadTrkPt;
+            if (resChrgEM < 0.0) resChrgEM = 0.0;
+            sumETeflow = sumETCellsEMCL + sumETCellsNeuEM + leadTrkPt + resChrgEM;
+        } else if ((sumETCellsEM01Trk[0] / leadTrkPt) > 0.05 && (sumETCellsChrgHAD / leadTrkPt) > 0.4) {
+            resChrgEM = 2.5 * sumETCellsEM01Trk[0];
+
+            if (resChrgEM > sumETCellsChrgEM) resChrgEM = sumETCellsChrgEM;
+            sumETeflow = sumETCellsEMCL + sumETCellsNeuEM + leadTrkPt + resChrgEM;
+        } else {
+            resChrgEM = sumETCellsChrgEM - 0.65 * leadTrkPt;
+            if (resChrgEM < 0.0) resChrgEM = 0.0;
+            resNeuEM = -0.1 * leadTrkPt;
+
+            if ((resNeuEM + sumETCellsNeuEM) < 0.0) resNeuEM = 0.0;
+
+            sumETeflow = sumETCellsEMCL + sumETCellsNeuEM + leadTrkPt + resChrgEM + resNeuEM;
+        }
+
+        pExtraDetails->setSumPtTrk(leadTrkPt);
+
+        ATH_MSG_VERBOSE(name() << " sumETCellsEMCL " << sumETCellsEMCL);
+        pDetails->setSeedTrk_etEMCL(sumETCellsEMCL);
+
+        ATH_MSG_VERBOSE(name() << " sumETCellsNeuEM " << sumETCellsNeuEM);
+        pDetails->setSeedTrk_etNeuEM(sumETCellsNeuEM);
+
+        ATH_MSG_VERBOSE(name() << " sumETCellsChrgEM " << sumETCellsChrgEM);
+        pDetails->setSeedTrk_etChrgEM(sumETCellsChrgEM);
+
+        ATH_MSG_VERBOSE(name() << " sumETCellsEM01Trk " << sumETCellsEM01Trk[0] << " " << pDetails->seedTrk_etChrgEM01Trk(0));
+        pDetails->addSeedTrk_etChrgEM01Trk(sumETCellsEM01Trk[0]);
+
+        ATH_MSG_VERBOSE(name() << " resChrgEM " << resChrgEM);
+        pDetails->addSeedTrk_etResChrgEMTrk(resChrgEM);
+
+        ATH_MSG_VERBOSE(name() << " resNeuEM " << resNeuEM);
+        pDetails->setSeedTrk_etResNeuEM(resNeuEM);
+
+        ATH_MSG_VERBOSE(name() << " sumETcaloEM " << sumETcaloEM);
+        pDetails->setSeedTrk_etEMAtEMScale(sumETcaloEM);
+
+        ATH_MSG_VERBOSE(name() << " sumETcaloHAD " << sumETcaloHAD);
+        pDetails->setSeedTrk_etHadAtEMScale(sumETcaloHAD);
+    } else {
+        resChrgEMTrkTot = 0.;
+        double sumETCellsChrgEMTrkTot = 0.;
+
+        for (unsigned itr = 0; itr < pTau->numTrack(); ++itr) {
+            // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+            if (itr >= 9) break;
+
+            double trkPt = pTau->track(itr)->pt();
+
+            pttot += trkPt;
+            sumETCellsChrgEMTrkTot += sumETCellsChrgEMTrk[itr];
+
+            if ((sumETCellsChrgEMTrk[itr] - 0.7 * trkPt) > 0)
+                resChrgEMTrk[itr] = sumETCellsChrgEMTrk[itr] - 0.7 * trkPt;
+
+            resChrgEMTrkTot += resChrgEMTrk[itr];
+
+            ATH_MSG_VERBOSE(name() << " 3p resChrgEM: track-> " << itr << " resChrgEMTrk(track) " << resChrgEMTrk[itr]);
+            pDetails->addSeedTrk_etResChrgEMTrk(resChrgEMTrk[itr]);
+
+            ATH_MSG_VERBOSE("taurec 3p sumETCellsEM01Trk " << itr << " " << sumETCellsEM01Trk[itr] << " " << pDetails->seedTrk_etChrgEM01Trk(itr));
+            pDetails->addSeedTrk_etChrgEM01Trk(sumETCellsEM01Trk[itr]);
+        } // end track loop
+
+        resNeuEM = -0.1 * pttot;
+        if ((resNeuEM + sumETCellsNeuEM) < 0.0) resNeuEM = -sumETCellsNeuEM;
+
+        sumETeflow = sumETCellsEMCL + sumETCellsNeuEM + pttot + resChrgEMTrkTot + resNeuEM;
+
+        pExtraDetails->setSumPtTrk(pttot);
+
+        ATH_MSG_VERBOSE(name() << " 3p sumETCellsEMCL " << sumETCellsEMCL);
+        pDetails->setSeedTrk_etEMCL(sumETCellsEMCL);
+
+        ATH_MSG_VERBOSE(name() << " 3p  sumETCellsNeuEM " << sumETCellsNeuEM);
+        pDetails->setSeedTrk_etNeuEM(sumETCellsNeuEM);
+
+        ATH_MSG_VERBOSE(name() << " 3p  sumETCellsChrgEM " << sumETCellsChrgEMTrkTot);
+        pDetails->setSeedTrk_etChrgEM(sumETCellsChrgEMTrkTot);
+
+        ATH_MSG_VERBOSE(name() << " 3p resNeuEM " << resNeuEM);
+        pDetails->setSeedTrk_etResNeuEM(resNeuEM);
+
+        ATH_MSG_VERBOSE(name() << " 3p  sumETcaloEM " << sumETcaloEM);
+        pDetails->setSeedTrk_etEMAtEMScale(sumETcaloEM);
+
+        ATH_MSG_VERBOSE(name() << " 3p  sumETcaloHAD " << sumETcaloHAD);
+        pDetails->setSeedTrk_etHadAtEMScale(sumETcaloHAD);
+    }
+
+    // calculate tau visible mass from Eflow
+    double MVisEflow = 0.;
+    if (EMCLCluster->et() != 0) {
+        xAOD::CaloCluster::cell_iterator cellIter = EMCLCluster->cell_begin();
+        xAOD::CaloCluster::cell_iterator cellIterE = EMCLCluster->cell_end();
+        const CaloCell *pCell;
+        double sumEMeta = 0;
+        double sumEMphi = 0;
+        double resphi = 0;
+        CaloPhiRange phiRange;
+        for (; cellIter != cellIterE; ++cellIter) {
+            pCell = *cellIter;
+            if (m_doCellCorrection) {
+                m_tauOriginCorrTool->correctCell(pCell);
+            }
+            
+            sumEMeta += pCell->et() * pCell->eta();
+            resphi = phiRange.diff(pCell->phi(), pTau->phi());
+            sumEMphi += pCell->et() * resphi;
+            
+            if (m_doCellCorrection) {
+                m_tauOriginCorrTool->resetCell(pCell);
+            }
+        }
+
+        double phiPi0 = phiRange.fix((sumEMphi / EMCLCluster->et()) + pTau->phi());
+        double etaPi0 = sumEMeta / sumETCellsEMCL;
+        if (etaPi0 < -1. * m_maxClusterEta) etaPi0 = -1. * m_maxClusterEta;
+        else if (etaPi0 > m_maxClusterEta) etaPi0 = m_maxClusterEta;
+
+        // correct for vertex position as given by seeding track
+        // as short-cut assumed that radius is 1600mm    
+        
+        //TODO: 
+        //should Perigee retrieved wrt tau origin?
+        //tracks are selected by quality cuts wrt tau origin so code below might be correct too.       
+        
+        //for 1 prong only
+        if (pTau->numTrack() == 1) {
+            double zvert = (pTau->track(0)->measuredPerigee())->parameters()[Trk::z0];
+            etaPi0 = asinh(sinh(etaPi0) - zvert / 1600.);
+        }
+
+        double pxPi0 = (sumETeflow - pttot) * cos(phiPi0);
+        double pyPi0 = (sumETeflow - pttot) * sin(phiPi0);
+        double pzPi0 = (sumETeflow - pttot) * sinh(etaPi0);
+        double ePi0 = (sumETeflow - pttot) * cosh(etaPi0);
+        double pxPiCh = pttot * cos(pTau->phi());
+        double pyPiCh = pttot * sin(pTau->phi());
+        double pzPiCh = pttot * sinh(pTau->eta());
+        double ePiCh = pttot * cosh(pTau->eta());
+
+        double mass = (ePi0 + ePiCh) * (ePi0 + ePiCh) - (pxPi0 + pxPiCh) * (pxPi0 + pxPiCh)
+            - (pyPi0 + pyPiCh) * (pyPi0 + pyPiCh) - (pzPi0 + pzPiCh) * (pzPi0 + pzPiCh);
+
+        if (mass > 0.) MVisEflow = sqrt(mass);
+    } else if (NeuEMCluster->et() != 0) {
+        xAOD::CaloCluster::cell_iterator cellIter = NeuEMCluster->cell_begin();
+        xAOD::CaloCluster::cell_iterator cellIterE = NeuEMCluster->cell_end();
+        const CaloCell *pCell;
+        double sumEMeta = 0;
+        double sumEMphi = 0;
+        double resphi = 0;
+        CaloPhiRange phiRange;
+        for (; cellIter != cellIterE; ++cellIter) {
+            pCell = *cellIter;
+            
+            if (m_doCellCorrection) {
+                m_tauOriginCorrTool->correctCell(pCell);
+            }
+            
+            sumEMeta += pCell->et() * pCell->eta();
+            resphi = phiRange.diff(pCell->phi(), pTau->phi());
+            sumEMphi += pCell->et() * resphi;
+            
+            if (m_doCellCorrection) {
+                m_tauOriginCorrTool->resetCell(pCell);
+            }            
+        }
+
+        double phi = phiRange.fix((sumEMphi / NeuEMCluster->et()) + pTau->phi());
+        double eta = sumEMeta / sumETCellsNeuEM;
+
+        if (eta < -1. * m_maxClusterEta) eta = -1. * m_maxClusterEta;
+        else if (eta > m_maxClusterEta) eta = m_maxClusterEta;
+
+        // correct for vertex position as given by seeding track
+        // as short-cut assumed that radius is 1600mm
+        
+        //TODO: 
+        //should Perigee retrieved wrt tau origin?
+        //tracks are selected by quality cuts wrt tau origin so code below might be correct too.    
+
+        //for 1 prong only
+        if (pTau->numTrack() == 1) {
+            double zvert = pTau->track(0)->measuredPerigee()->parameters()[Trk::z0];
+            eta = asinh(sinh(eta) - zvert / 1600.);
+        }
+
+        double px = (sumETeflow - pttot) * cos(phi);
+        double py = (sumETeflow - pttot) * sin(phi);
+        double pz = (sumETeflow - pttot) * sinh(eta);
+        double e = (sumETeflow - pttot) * cosh(eta);
+        double pxCh = pttot * cos(pTau->phi());
+        double pyCh = pttot * sin(pTau->phi());
+        double pzCh = pttot * sinh(pTau->eta());
+        double eCh = pttot * cosh(pTau->eta());
+
+        double mass = (e + eCh) * (e + eCh) - (px + pxCh) * (px + pxCh)
+            - (py + pyCh) * (py + pyCh) - (pz + pzCh) * (pz + pzCh);
+        if (mass > 0.) MVisEflow = sqrt(mass);
+    }
+
+    //add final 4-momentum of tau
+    //FF: uncommented pTau->setE(sumETeflow / pTau->sinTh());
+    pDetails->setEtEflow(sumETeflow);
+    pDetails->setMEflow(MVisEflow);
+    ATH_MSG_VERBOSE(name() << " tau mass vis " << pDetails->etEflow() << " tau eflow " << pDetails->etEflow());
+
+    delete EMCLCluster;
+    delete NeuEMCluster;
+
+    //Preselection
+    if ((pDetails->seedCalo_etEMAtEMScale() + pDetails->seedCalo_etHadAtEMScale()) == 0.) return StatusCode::FAILURE;
+
+    /*
+    if (MVisEflow > m_MVisEflowCut ||
+        sumETeflow / (pDetails->seedCalo_etEMAtEMScale() + pDetails->seedCalo_etHadAtEMScale()) > m_ETeflow_ETcaloCut ||
+        sumETeflow / (pDetails->seedCalo_etEMAtEMScale() + pDetails->seedCalo_etHadAtEMScale()) < m_ETeflow_ETcaloCutMin
+        ) sc = StatusCode::FAILURE;
+    //TODO: Really FAILURE??   
+    */
+    //adding some discrimination variables to the object
+
+    if (pDetails->seedTrk_etEMAtEMScale() + pDetails->seedTrk_etHadAtEMScale() !=0 ) {
+      pDetails->setSeedTrk_isolFracWide((pDetails->seedTrk_etIsolEM() + pDetails->seedTrk_etIsolHad()) / (pDetails->seedTrk_etEMAtEMScale() + pDetails->seedTrk_etHadAtEMScale()));
+    }
+
+    double totpt = 0;
+    for (unsigned itr = 0; itr < pTau->numTrack(); ++itr) {
+        totpt += pTau->track(itr)->pt();
+    }
+
+    double etoverpttot = pDetails->seedTrk_etChrgHad() / totpt;
+    pDetails->setSeedTrk_etChrgHadOverSumTrkPt(etoverpttot);
+
+    return StatusCode::SUCCESS;
+
+}
+
+
+//-------------------------------------------------------------------------
+// fill EM cluster info
+// TODO: need clusters and cells here also correction for tau vertex?
+// but what is aabout detector crack region cuts?
+// they should use uncorrected coordinates, or?
+//-------------------------------------------------------------------------
+
+StatusCode TauEflowVariables::fillTopoClusterInfo(TauEventData *data) {
+
+    StatusCode sc;
+
+    Analysis::TauJet *pTau = data->tau;
+    Analysis::TauCommonExtraDetails *pExtraDetails = dynamic_cast<Analysis::TauCommonExtraDetails *> (data->extraDetails);
+
+    //---------------------------------------------------------------------
+    // Retrieve calo cluster container from StoreGate
+    //---------------------------------------------------------------------
+    const CaloClusterContainer *pTopoContainer;
+    sc = evtStore()->retrieve(pTopoContainer, m_CaloClusterContainerName);
+
+    if (sc.isFailure()) {
+        ATH_MSG_WARNING("No " << m_CaloClusterContainerName << " found in TES");
+        ATH_MSG_WARNING("will not use information about tau EM topo clusters");     
+        m_useEMTopoClusters = false;
+        return StatusCode::RECOVERABLE;
+    }
+
+    ATH_MSG_VERBOSE(name() << " " << m_CaloClusterContainerName << " found " << pTopoContainer->size());
+
+    int ntopo = pTopoContainer->size();
+
+    m_isTopoClusQualif.resize(ntopo);
+    m_TopoClustPhi.resize(ntopo);
+    m_closestTopoClusCell.resize(ntopo);
+    m_closestTopoClusCellPhi.resize(ntopo);
+    m_closestTopoClusCellEta.resize(ntopo);
+    m_TopoClusPhi.resize(ntopo);
+    m_TopoClusEta.resize(ntopo);
+
+    for (int i = 0; i < ntopo; ++i) {
+        m_isTopoClusQualif[i] = 0;
+        m_TopoClustPhi[i] = 0.;
+        m_closestTopoClusCell[i] = 0;
+        m_closestTopoClusCellPhi[i] = 0;
+        m_closestTopoClusCellEta[i] = 0;
+        m_TopoClusPhi[i] = 0.;
+        m_TopoClusEta[i] = 0.;
+    }
+
+    //---------------------------------------------------------------------
+    // Get pointer to fist and last cluster in the calo cluster container
+    //---------------------------------------------------------------------
+    CaloClusterContainer::const_iterator topoIter = pTopoContainer->begin();
+    CaloClusterContainer::const_iterator topoIterE = pTopoContainer->end();
+
+    const CaloCluster *pTopo;
+    int iclust = 0;
+
+    for (; topoIter != topoIterE; ++topoIter) {
+        pTopo = *topoIter;
+
+        //---------------------------------------------------------------------
+        // Skip if cluster outside rapidity range or below pT threshold
+        //---------------------------------------------------------------------
+        if (std::fabs(pTopo->eta()) > m_recoEtaCut) continue;
+        if (pTopo->et() < m_recoTopoClusterETCut) continue;
+
+        //-------------------------------------------------------------
+        // Look for the closest cluster to tau track(s)
+        //-------------------------------------------------------------
+        double detEtaMin1 = 9999.0;
+        double detPhiMin2 = 9999.0;
+        double detPhi, detEta, detPhiCrude, detEtaCrude;
+        m_isTopoClusQualif[iclust] = 1;
+
+        //loop ontracks in object
+        for (unsigned itr = 0; itr < pTau->numTrack(); ++itr) {
+            // don't bother with matching for greater than 10 tracks (space only allocated for 10 tracks)
+            if (itr >= 9) break;
+
+            // very crude treatement of crack region
+            int isampling = 1;
+
+            detEtaCrude = Tau1P3PKineUtils::deltaEta(pExtraDetails->etaTrkCaloSamp()[itr][isampling], pTopo->eta());
+            detEta = Tau1P3PKineUtils::deltaEta(pExtraDetails->etaTrkCaloSamp()[itr][isampling], pTopo->getVariable(CaloVariableType::ETA, CaloSampling::EMB1, true));
+
+            if (detEtaCrude < detEta) detEta = detEtaCrude;
+            if (detEta < detEtaMin1) detEtaMin1 = detEta;
+
+            // very crude treatement of crack region
+            isampling = 2;
+
+            detPhiCrude = Tau1P3PKineUtils::deltaPhi(pExtraDetails->phiTrkCaloSamp()[itr][isampling], pTopo->phi());
+            detPhi = Tau1P3PKineUtils::deltaPhi(pExtraDetails->phiTrkCaloSamp()[itr][isampling], pTopo->getVariable(CaloVariableType::PHI, CaloSampling::EMB2, true));
+
+            if (detPhiCrude < detPhi) detPhi = detPhiCrude;
+            if (detPhi < detPhiMin2) detPhiMin2 = detPhi;
+        }
+
+        if (detPhiMin2 < m_TrackTopoClusPhi2Cut) m_isTopoClusQualif[iclust] = 0;
+        if (detEtaMin1 < m_TrackTopoClusEta1Cut) m_isTopoClusQualif[iclust] = 0;
+
+        m_TopoClusPhi[iclust] = pTopo->phi();
+        m_TopoClusEta[iclust] = pTopo->eta();
+
+        double detRCellMin = 9999.0;
+        const CaloCell *pTmpCell = 0;
+        const CaloCell *pCell;
+
+        CaloCluster::cell_iterator cellItr = pTopo->cell_begin();
+        CaloCluster::cell_iterator cellItrE = pTopo->cell_end();
+        for (; cellItr != cellItrE; ++cellItr) {
+            pCell = *cellItr;
+            if (pCell->caloDDE()->getSampling() == 2) {
+                double detPhi = Tau1P3PKineUtils::deltaPhi(pCell->phi(), pTopo->phi());
+                double detEta = Tau1P3PKineUtils::deltaEta(pCell->eta(), pTopo->eta());
+                double detRCell = Tau1P3PKineUtils::deltaR(detPhi, detEta);
+
+                if (detRCell < detRCellMin) {
+                    detRCellMin = detRCell;
+                    pTmpCell = pCell;
+                }
+            }
+        }
+        if (pTmpCell) {
+            m_closestTopoClusCell[iclust] = 1;
+            m_closestTopoClusCellPhi[iclust] = pTmpCell->phi();
+            m_closestTopoClusCellEta[iclust] = pTmpCell->eta();
+        }
+
+        ++iclust;
+    }
+
+    m_nTopoclust = iclust;
+
+    return StatusCode::SUCCESS;
+}
+
