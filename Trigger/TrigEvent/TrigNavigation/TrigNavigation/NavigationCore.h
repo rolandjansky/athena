@@ -13,9 +13,6 @@
 #include <sstream>
 #include <iostream>
 
-//#include <boost/cstdint.hpp>
-//#include <stdint.h>
-
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,27 +20,21 @@
 #include "DataModel/OwnershipPolicy.h"
 #include "DataModel/DataVector.h"
 
-// for 2 ways of performing serialization
 #include "StoreGate/StoreGateSvc.h"
-//#include "TrigSerializeResult/ITrigSerializerToolBase.h"
-//#include "TrigSerializeCnvSvc/TrigSerializeCnvSvc.h"
+
+#include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
 
 #include "TrigNavStructure/TrigNavStructure.h"
+#include "TrigNavStructure/ITrigHolderFactory.h"
 
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/TypeProxy.h"
-#include "TrigNavigation/AccessProxy.h"
 #include "TrigNavigation/TypeMaps.h"
 #include "TrigNavigation/TrigFeatureLink.h"
 
 
-
-#include "TrigStorageDefinitions/EDM_TypeInfoMethods.h"
-
 class StringSerializer;
-
-//static const InterfaceID IID_TrigNavigation("TrigNavigation", 1 , 0);
-
+class TrigEDMSizes;
 
 namespace HLTNavDetails { class TypeMapDeleter; }
 
@@ -51,14 +42,13 @@ class TrigBStoxAODTool;
 
 namespace HLT {
   class TrigNavigationSlimmingTool;
-  class TrigEDMSizes;
   /**
    * @brief The NavigationCore class, adds on top of the TrigNavStructure the EDM read-only handling
    *
    * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - U. of California - Irvine
    * @author Till Eifert     <Till.Eifert@cern.ch>     - U. of Geneva, Switzerland
    * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
-   *
+   * @author Lukas Heinrich  <lukas.heinrich@cern.ch>  - NYU
    *
    * The created nodes are given to user with all the navigational links prepared
    *
@@ -117,21 +107,6 @@ namespace HLT {
     NavigationCore();
     virtual ~NavigationCore();
 
-    /*
-    Navigation( const std::string& type,
-		const std::string& name,
-		const IInterface* parent );
-
-
-    static const InterfaceID& interfaceID() {
-      return IID_TrigNavigation;
-    }
-
-    virtual StatusCode initialize();  //!< initialization, there JO are read,parsed
-    virtual StatusCode finalize();    //!< finalization, as reset()
-    */
-
-
     /**
      * @brief prepapres the navigation for next event
      */
@@ -163,23 +138,11 @@ namespace HLT {
      *         if false then truncated because of missing space - if output.size() != 0
      *         if false and output.size() == 0 internal error
      */
-    bool serialize(std::vector<uint32_t>& output,
-                   std::vector<unsigned int>& cuts) const;
-    bool serialize(std::vector<uint32_t>& output,
-                   std::vector<unsigned int>& cuts,
-                   std::vector<std::pair<CLID, std::string> >& clid_name) const;
-    bool serialize_DSonly(std::vector<uint32_t>& output,
-                          std::vector<unsigned int>& cuts,
-                          std::vector<std::pair<CLID, std::string> >& clid_name)
-                          const;
-    bool deserialize(const std::vector<uint32_t>& input);
-
-    /**
-     * @brief reports on number of features which were unpacked frm BS but never accessed
-     * This mehtod is to report what objects are unnecesarilly put in BS or not extracted.
-     */
-    //int numberOfSerializedByPayload( std::vector<CLID>& listOfTypes );
-
+    virtual bool serialize( std::vector<uint32_t>& output) const;
+    bool serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts ) const;
+    bool serialize( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name) const;
+    bool serialize_DSonly( std::vector<uint32_t>& output, std::vector<unsigned int>& cuts, std::vector<std::pair<CLID, std::string> >& clid_name) const;
+    bool deserialize( const std::vector<uint32_t>& input );
 
     /**
      * @brief defines 3 possible origins of the objects which are attached to TEs
@@ -213,7 +176,7 @@ namespace HLT {
 		      std::map<const T*, std::string>* labels=0 );
 
     template<class T> 
-    bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = m_unspecifiedLabel);
+    bool getFeature( const TriggerElement* te, const T*&  features, const std::string& label="", std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
 
     template<class T> 
     const T* featureLink2Object( const TrigFeatureLink& );
@@ -257,13 +220,14 @@ namespace HLT {
     template<class T> 
     bool getRecentFeature( const TriggerElement* te, 
 			   const T*&  feature, const std::string& label="", 
-			   const TriggerElement*& source = m_unspecifiedTE, 
-			   std::string& sourcelabel = m_unspecifiedLabel );
+			   const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
+			   std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel );
 
     template<class LinkType> 
     bool getRecentFeatureDataOrElementLink( const TriggerElement* te,
 			    LinkType& link, const std::string& label="",
-			    const TriggerElement*& source = m_unspecifiedTE, std::string& sourcelabel = m_unspecifiedLabel);
+			    const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE,
+					    std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel);
 
     template<class C, class T> 
     bool getRecentFeaturesLinks( const TriggerElement* te,
@@ -272,8 +236,8 @@ namespace HLT {
     template<class C, class T> 
     bool getRecentFeatureLink( const TriggerElement* te,
 			       ElementLink<C>& link, const std::string& label="", 
-			       const TriggerElement*& source = m_unspecifiedTE, 
-			       std::string& sourcelabel = m_unspecifiedLabel );
+			       const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
+			       std::string& sourcelabel = ::HLT::TrigNavStructure::m_unspecifiedLabel );
 
     
 
@@ -292,16 +256,27 @@ namespace HLT {
      * @param source TriggerElement where the object was found (or query stopped)
      * @param sourcelabel is labels which the object had (useful when calling this routine with empty label)
      **/
-     
-    bool getFeatureAccessors( const TriggerElement* te, CLID clid, const std::string& label, 
-			      bool only_single_feature,
-			      TriggerElement::FeatureVec& features, 
-			      bool with_cache_recording,
-			      bool travel_backward_recursively,
-			      const TriggerElement*& source = m_unspecifiedTE, 
-			      std::string& sourcelabel  = m_unspecifiedLabel);
-      
 
+
+    virtual bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
+                                      const index_or_label_type& index_or_label,
+                                      bool only_single_feature,
+                                      TriggerElement::FeatureVec& features,
+                                      bool with_cache_recording,
+                                      bool travel_backward_recursively,
+                                      const TriggerElement*& source = m_unspecifiedTE,
+                                      std::string& sourcelabel  = m_unspecifiedLabel) const;
+    
+
+    virtual bool getFeatureAccessorsSingleTE( const TriggerElement* te, CLID clid,
+					      const index_or_label_type& index_or_label,
+					      bool only_single_feature,
+					      TriggerElement::FeatureVec& features, 
+					      bool with_cache_recording,
+					      const TriggerElement*& source = ::HLT::TrigNavStructure::m_unspecifiedTE, 
+					      std::string& sourcelabel  = ::HLT::TrigNavStructure::m_unspecifiedLabel) const;
+
+      
     /**
      * @brief retrieve features attached to the RoIs seeding this TriggerElement
      * @param te TriggerElement from which start
@@ -363,78 +338,15 @@ namespace HLT {
 			std::vector< HLT::TriggerElement* >& output,
 			const bool activeOnly=true) const;
 
-    using HLT::TrigNavStructure::getAllOfType;//( const HLT::te_id_type id, std::vector< TriggerElement* >& output,  const bool activeOnly = true ) const;
-
-    /** @brief return StoreGate label and position for each feature.
-     *
-     *  The format used here is: label::position, e.g. "HLT_initialRoi::1"
-     * @warning obsolete, will be removed
-     **/
-    /* maybe now
-    std::vector< std::string >
-    getFeatureSGLabelAndPosition( unsigned int clid, const TriggerElement* te,
-    				  const std::string& label="");
-
-    std::vector< std::string >
-    getFeatureSGLabelAndPosition( std::string featureClassName, const TriggerElement* te,
-				  const std::string& label="");
-
-    std::vector< std::string >
-    getRecentFeatureSGLabelAndPosition( unsigned int clid, const TriggerElement* te,
-    					const std::string& label="");
-
-    std::vector< std::string >
-    getRecentFeatureSGLabelAndPosition( std::string featureClassName, const TriggerElement* te,
-    					const std::string& label="");
-    */
-
-    /** @brief retrieve position of features inside the SG collections
-     *
-     * All data objects (features) attached to the TriggerElement te - with the given CLID + label -
-     * are retrieved and their positions are returned.
-     * @warning obsolete, will be removed
-     **/
-    /* maybe now
-    std::vector< unsigned int >
-    getFeatureContainerPosition( unsigned int clid, const TriggerElement* te,
-				 const std::string& label);
-
-
-    std::vector< unsigned int >
-    getFeatureContainerPosition( std::string typeName, const TriggerElement* te,
-    				 const std::string& label);
-    */
-    /** @brief retrieve position of features inside the SG collections
-     *
-     * All data objects (features) attached to the TriggerElement te - with the given CLID -
-     * are retrieved and their (label, position start - end) are returned.
-     *
-     * @warning obsolete, will be removed
-     */
-    // used in:  TrigOfflineVal.cxx (follow up)
-    /*
-    std::vector< HLT::FeatureDescriptor >
-    getFeatureContainerPosition( unsigned int clid, const TriggerElement* te);
-    
-
-    std::vector< HLT::FeatureDescriptor >
-    getFeatureContainerPosition( std::string typeName, const TriggerElement* te);
-
-
-    std::pair<std::string, std::string> getClassContainerNames(unsigned int clid) const;
-    */
-
-    /**
-     * @brief sets the object mediating communcation with SG
-     * We need this extra lightweight layer because in ARA we need to redirect SG::retrieve calls to ROOT TTree
-     **/    
-    void setAccessProxy(AccessProxy* ap);
+    using HLT::TrigNavStructure::getAllOfType;
 
     /**
      * @brief gets the access proxy
-     **/    
-    AccessProxy* getAccessProxy() const;
-    
+     **/   
+    AccessProxy* getAccessProxy() const{
+      return m_storeGate;
+    }
+
     /**
      * @brief  changes the default collections prefix (HLT) to another
      **/
@@ -454,23 +366,11 @@ namespace HLT {
 
     template<class T> HLTNavDetails::Holder<T>* getHolder ( const std::string& label, uint16_t suggestedIndex ); //!< aware holder discovery, creates holder if needed
 
-    //    template<class T> HLTNavDetails::HolderCont<T>* getHolderCont ( const std::string& label );                          //!< type aware holder discovery, creates holder if needed
-    // template<class T> HLTNavDetails::HolderCont<T>* getHolderCont ( uint16_t subTypeIndex );                             //!< as above but does not create holder on demand (return 0 if not found)
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, uint16_t subTypeIndex ) const;            //!< as above but not type wise holder returned
     HLTNavDetails::IHolder*                     getHolder ( CLID clid, const std::string& label ) const;         //!< as above
 
-    std::map< CLID, std::map< uint16_t, std::string> > m_lookupLabels;
 
-    typedef std::map<uint16_t, HLTNavDetails::IHolder*> IndexToHolderMap;
-    typedef std::map<std::string, HLTNavDetails::IHolder*> StringToHolderMap;
-    typedef std::map<CLID,  IndexToHolderMap>     FeaturesStructure;
-    typedef std::map<CLID,  StringToHolderMap>  FeaturesStructureLabelIndexed;
-
-    FeaturesStructure             m_featuresByIndex;     //!< all objects map (it can be addressed by m_features[clid][idx]
-
-    FeaturesStructureLabelIndexed m_featuresByLabel;     //!< all objects map (it can be addressed by m_features[clid][label]
-
-    std::map< CLID, std::vector<uint32_t>* > m_serializedFeatures; //!< map can be replaced by the same concept as in TriggerStore
+    TrigEDMSizes* retrieveOrCreateTrigEDMSizes(const std::string& name) const;
 
     /**
      * @brief Helper method for "combine": add one "level" of multiplicity to the results.
@@ -483,17 +383,14 @@ namespace HLT {
                      unsigned int maxResults = 1000, bool onlyActive = 1);
 
 
-    //    ITrigSerializerToolBase* m_serializer;     //!< pointer to Serializer
-
-    MsgStream                             *m_log;                                //!< log stream
-    //    IConversionSvc                        *m_serializerSvc;
-    ServiceHandle<IConversionSvc>           m_serializerSvc;
-    StringSerializer                      *m_stringSerializer;
-    AccessProxy                           *m_storeGate;
-    //    StoreGateSvc                          *m_storeGate;
-    //    unsigned int                           m_serializeSpaceLimit;   //!< proprty to limit BS content to some reasonable size
+    MsgStream*                             m_log;                                //!< log stream
+    IConversionSvc*                        m_serializerSvc;
+    StoreGateSvc*                          m_storeGate;
     std::string                            m_objectsKeyPrefix;      //!< property setting prefix which is to be given to all trigger EDM objects
     unsigned                               m_objectsIndexOffset;    //!< small integer used to generate sub type index 
+
+
+    ITrigHolderFactory* m_holderfactory;
 
     typedef std::pair<CLID, std::string> CSPair;
 
@@ -509,77 +406,31 @@ namespace HLT {
     std::vector<std::string> m_classesToPreregisterProperty;             //!< as above but for preregistration
     std::vector<CSPair> m_classesToPreregister;   //!< classes mentioned here will be put to SG irrespectively of thier presence in event
 
-
-
-    /**
-     * @brief initialization helper - turns the list of class#key into map of CLID:key
-     * As the same conversion (class name ==> CLID) needs to be done for classes to payload and classes to preregister this is outsourced to this function
-     */
-    StatusCode classKey2CLIDKey(const std::vector<std::string> prop, std::vector<CSPair>& decoded);
-
-
-
     bool m_referenceAllClasses;
     inline bool toBeReferenced(CLID /*c*/) { return m_referenceAllClasses; }
     bool toBePutToPayload(const HLTNavDetails::IHolder*) const;
 
-
-
-    bool appendSerializedFeatureToPayload(CLID c, std::vector<uint32_t>& payload, const std::vector<uint32_t>& feature) const;
-
-
     uint16_t nextSubTypeIndex(CLID clid, const std::string&label);
-
-    bool addBlob(std::vector<uint32_t>& output,
-		 const std::vector<uint32_t>& blob1,
-		 const std::vector<uint32_t>& blob2 ) const ;
 
     bool extractBlob(const std::vector<uint32_t>& input,
 		     std::vector<uint32_t>::const_iterator& it,
 		     std::vector<uint32_t>& blob) const ;
 
-
-
-
   private:
-    static const TriggerElement* m_unspecifiedTE;
-    static std::string m_unspecifiedLabel;
-    
     HLTNavDetails::IHolder* prepareOneHolder(CLID clid, const std::string& label);
 
-    // general serialize
-    bool serialize(std::vector<uint32_t>& output,
-                   std::vector<unsigned int>& cuts,
-                   std::vector<std::pair<CLID, std::string> >& clid_name,
-                   bool dscouting) const; // TODO: when changing header, merge
-                                          // this method with the one that does
-                                          // not have the last bool parameter,
-                                          // using default dscouting=false and
-                                          // leaving it public
-    // serialization helpers
-    size_t serialize_bootstrap(std::vector<uint32_t>& output,
-        std::vector<unsigned int>& cuts,
-        std::vector<std::pair<CLID, std::string> >& clid_name) const;
-    void serialize_features_offline(std::vector<uint32_t>& output,
-        std::vector<unsigned int>& cuts,
-        std::vector<std::pair<CLID, std::string> >& clid_name) const;
-    void serialize_features_online(std::vector<uint32_t>& output,
-        std::vector<unsigned int>& cuts,
-        std::vector<std::pair<CLID, std::string> >& clid_name,
-        bool dscouting) const;
-    size_t serializeFeature(std::vector<uint32_t>& output,
-        std::vector<unsigned int>& cuts,
-        std::vector<std::pair<CLID, std::string> >& clid_name,
-        HLTNavDetails::IHolder * holderPtr,
-        bool online) const;
-    TrigEDMSizes * get_edm_sizes() const;
+    bool serializeWithHolderSection(const std::vector<uint32_t>& holderdata, const std::vector<unsigned int>& holderblobsizes,
+				    std::vector<uint32_t>& output,std::vector<unsigned int>& cuts ,std::vector<std::pair<CLID, std::string> >& clid_name) const;
+
+    bool serializeHoldersWithoutPayload(const std::vector<HLTNavDetails::IHolder*>& holders, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes,std::vector<std::pair<CLID, std::string> >& clid_name) const;
+
+    bool serializeHoldersWithPayload(const std::vector<CSPair>& payload, std::vector<uint32_t>& output, std::vector<uint32_t>& holderblobsizes,
+				     std::vector<std::pair<CLID, std::string> >& clid_name, bool recordEDMsizes) const;
 
   };
 
   MsgStream& operator<< ( MsgStream& m, const NavigationCore& nav ); //<! printing helper
 
 } // eof namespace
-
-//#include "TrigNavigation/NavigationCore.icc"
 
 #endif //#ifndef HLTNAVIGATION_H

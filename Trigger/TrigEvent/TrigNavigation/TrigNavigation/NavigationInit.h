@@ -10,8 +10,6 @@
    *
    * This code is from Scott Snyder
    */
-//#include "TrigNavigation/NavigationCore.h"
-
 
 #include <boost/function_types/function_type.hpp>
 #include <boost/function_types/parameter_types.hpp>
@@ -52,8 +50,6 @@ namespace HLT{
   };  
   template <class TYPE> AuxInit<TYPE> RegisterAuxType<TYPE>::s;
 }
-
-
 
 #include "TrigNavigation/NavigationInit.icc"
 

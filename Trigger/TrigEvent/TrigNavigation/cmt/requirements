@@ -15,7 +15,7 @@ use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
 use  TrigNavStructure           TrigNavStructure-*              Trigger/TrigEvent
-
+use  AsgTools			AsgTools-*			Control/AthToolSupport
 private
 use  TrigSerializeResult        TrigSerializeResult-*           Trigger/TrigDataAccess
 use  AthContainersInterfaces    AthContainersInterfaces-*       Control

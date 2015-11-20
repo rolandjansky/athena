@@ -36,6 +36,8 @@
 #include "TrigNavigation/NavigationCore.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigNavigation/Holder.h"
+#include "TrigNavigation/FullHolderFactory.h"
+
 
 class StringSerializer;
 
@@ -52,6 +54,7 @@ namespace HLT {
    * @author Tomasz Bold     <Tomasz.Bold@cern.ch>     - U. of California - Irvine
    * @author Till Eifert     <Till.Eifert@cern.ch>     - U. of Geneva, Switzerland
    * @author Nicolas Berger  <Nicolas.Berger@cern.ch>  - CERN
+   * @author Lukas Heinrich  <lukas.heinrich@cern.ch>  - NYU
    *
    * The class is providing an interface to the whole navigation. The internal ingredients
    * of the navigation which are TriggerElements are well hidden.
@@ -214,20 +217,15 @@ namespace HLT {
 
     ServiceHandle<IConversionSvc>          m_serializerServiceHandle;
     ServiceHandle<StoreGateSvc>            m_storeGateHandle;
-    StringSerializer                      *m_stringSerializer;
     std::vector<std::string>               m_dlls;
-
+    FullHolderFactory                      m_fullholderfactory;
     
     StatusCode classKey2CLIDKey(const std::vector<std::string> prop, std::vector<std::pair<CLID, std::string> >& decoded);
-
-
 
   };
 
   MsgStream& operator<< ( MsgStream& m, const Navigation& nav ); //<! printing helper
 
 } // eof namespace
-
-//#include "TrigNavigation/Navigation.icc"
 
 #endif //#ifndef HLTNAVIGATION_H
