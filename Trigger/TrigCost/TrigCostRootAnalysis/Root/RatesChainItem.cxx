@@ -28,6 +28,8 @@ namespace TrigCostRootAnalysis {
     m_level(_level),
     m_PS(_PS), // Integer prescale
     m_PSWeight(1./m_PS), // Reciprocal of the prescale - this is the basic weight quantity for this ChainItem
+    m_PSReduced(1.), 
+    m_PSReducedWeight(1.),
     m_extraEfficiency(1.),
     m_R( ++s_chainCount ),
     m_ID( s_chainCount ),
@@ -237,6 +239,24 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * Sets a new prescale value
+   */
+  void RatesChainItem::setPS(Double_t _PS) {
+    m_PS = _PS;
+    m_PSWeight = 1./m_PS;
+    if (m_PS <= 0.) m_PSWeight = 0.;
+  }
+
+  /**
+   * Sets a reduced PS value. This is the component of the prescale which is not coherent with other chains in the CPS group
+   */
+  void RatesChainItem::setPSReduced(Double_t _PSReduced) {
+    m_PSReduced = _PSReduced;
+    m_PSReducedWeight = 1./m_PSReduced;
+    if (m_PSReduced <= 0.) m_PSReducedWeight = 0.;
+  }
+
+  /**
    * @return The chain item's name
    */
   const std::string& RatesChainItem::getName() {
@@ -330,11 +350,30 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+   * The reduced prescacle is the chain prescale divided by the lowest prescale of any chain within
+   * the same coherent prescale group.
+   * @return 1/PrescaleReduced weighting factor for this event. This is scaled by an optional user supplied extra efficiency factor which can modulate the rate
+   */
+  Double_t RatesChainItem::getPSReducedWeight() {
+    return m_PSReducedWeight * m_extraEfficiency;
+  }
+
+  /**
    * @return Zero if this chain did not pass raw, else returns 1/Prescale
    */
   Double_t RatesChainItem::getPassRawOverPS() {
     if (getPassRaw() == kFALSE) return 0.;
     return getPSWeight();
+  }
+
+  /**
+   * The reduced prescacle is the chain prescale divided by the lowest prescale of any chain within
+   * the same coherent prescale group.
+   * @return Zero if this chain did not pass raw, else returns 1/PrescaleReduced
+   */
+  Double_t RatesChainItem::getPassRawOverPSReduced() {
+    if (getPassRaw() == kFALSE) return 0.;
+    return getPSReducedWeight();
   }
 
   /**

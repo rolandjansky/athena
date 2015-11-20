@@ -65,6 +65,7 @@ namespace TrigCostRootAnalysis {
   class DataVariable;
   class CounterBaseRates;
   class RatesChainItem;
+  class RatesCPSGroup;
 
   /**
    * @enum VariableOption
@@ -153,6 +154,8 @@ namespace TrigCostRootAnalysis {
     kRatesOverlapWarning,
     kRatesScaleByPS,
     kExtrapolate8To13,
+    kExtrapolate13To5,
+    kLumiExtrapWeight,
     kMaxMultiSeed,
     kWroteProgressFile,
     kBasicEventWeight,
@@ -216,8 +219,10 @@ namespace TrigCostRootAnalysis {
     kSlowThreshold,
     kSlowEvThreshold,
     kEventElapsed,
+    kEventStartTime,
     kNBunchGroups,
     kDoEBWeighting,
+    kDoCPS,
     kDirectlyApplyPrescales,
     kNoUpgradePileupScaling,
     kNoOnlineDeadtimeCorrection,
@@ -275,6 +280,7 @@ namespace TrigCostRootAnalysis {
     kMultipleString,
     kAndString,
     kRateGlobalHLTString,
+    kRateGlobalPhysicsMainString,
     kRateGlobalL1String,
     kRateGlobalL0String,
     kRateUniqueString,
@@ -300,6 +306,7 @@ namespace TrigCostRootAnalysis {
     kRunNumber,
     kVersionString,
     kVarTime,     // Study Variable ENUMs
+    kVarTimeExec,
     kVarTimeElapsed,
     kVarFirstTime,
     kVarAlgTime,
@@ -359,6 +366,7 @@ namespace TrigCostRootAnalysis {
     kDecLbLength,
     kDecType,
     kDecID,
+    kDecIsCPS,
     kDecElapsedTime,
     kDecRatesGroupName,
     kDecPrescaleStr,
@@ -455,6 +463,12 @@ namespace TrigCostRootAnalysis {
 
   typedef std::map< std::string, RatesChainItem* > ChainItemMap_t;
   typedef ChainItemMap_t::const_iterator           ChainItemMapIt_t;
+
+  typedef std::set<RatesCPSGroup*>      CPSGroupSet_t;
+  typedef CPSGroupSet_t::const_iterator CPSGroupSetIt_t;
+
+  typedef std::map< std::string, RatesCPSGroup* > CPSGroupMap_t;
+  typedef CPSGroupMap_t::const_iterator           CPSGroupMapIt_t;
 
   typedef std::set< Int_t >        IntSet_t;
   typedef IntSet_t::const_iterator IntSetIt_t;

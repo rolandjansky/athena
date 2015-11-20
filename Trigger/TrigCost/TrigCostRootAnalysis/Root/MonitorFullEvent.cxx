@@ -122,6 +122,9 @@ namespace TrigCostRootAnalysis {
     const std::string _eventNumberStr = std::string("Event_") + intToString( m_costData->getEventNumber(), 6);
     CounterMap_t* _eventMap = getCounterCollection( _eventNumberStr );
 
+    // Reset this var
+    Config::config().setFloat(kEventStartTime, 0, "EventStart", kUnlocked);
+
     if (Config::config().getDisplayMsg(kMsgSaveFullEvent) == kTRUE) {
       Info("MonitorFullEvent::newEvent","Saving full %s event for event number %s", _type.c_str(), _eventNumberStr.c_str());
     }

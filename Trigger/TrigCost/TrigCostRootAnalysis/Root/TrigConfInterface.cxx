@@ -639,16 +639,56 @@ namespace TrigCostRootAnalysis {
     return getTCT()->GetChainGroupName(_c, _g);
   }
 
+  UInt_t      TrigConfInterface::getChainStreamNameSize(UInt_t _c) {
+    return getTCT()->GetChainStreamNameSize(_c);
+  }
+
+  std::string TrigConfInterface::getChainStreamName(UInt_t _c, UInt_t _g) {
+    return getTCT()->GetChainStreamName(_c, _g);
+  }
+
   std::vector<std::string> TrigConfInterface::getChainRatesGroupNames(UInt_t _c) {
     std::vector<std::string> _groups;
     for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
       std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
       if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
+        // Veto CPS groups - these have their own system
+        if (_groupName.find("CPS") != std::string::npos) continue;
         std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
         _groups.push_back(_groupName);
       }
     }
     return _groups;
   }
+
+  std::vector<std::string> TrigConfInterface::getChainStreamNames(UInt_t _c) {
+    std::vector<std::string> _streams;
+    for (UInt_t _stream = 0; _stream < getTCT()->GetChainStreamNameSize(_c); ++_stream) {
+      std::string _streamName = getTCT()->GetChainStreamName(_c, _stream);
+      _streams.push_back(_streamName);
+    }
+    return _streams;
+  }
+
+  Bool_t TrigConfInterface::getChainIsMainStream(UInt_t _c) {
+    for (UInt_t _s = 0; _s < getChainStreamNameSize(_c); ++_s) {
+      if (getChainStreamName(_c, _s) == "Main") return kTRUE;
+    }
+    return kFALSE;
+  }
+
+  std::string TrigConfInterface::getChainCPSGroup(UInt_t _c) {
+    std::string _cpsGroup = "";
+    for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
+      std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
+      if (_groupName.find("CPS") != std::string::npos) {
+        std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
+        if (_cpsGroup == "") _cpsGroup = _groupName;
+        else Warning("TrigConfInterface::getChainCPSGroup", "Chain %s has more than one CPS group (%s, %s). This is not supported.", getChainName(_c).c_str(), _cpsGroup.c_str(), _groupName.c_str());
+      }
+    }
+    return _cpsGroup;
+  }
+
 
 } // namespace TrigCostRootAnalysis

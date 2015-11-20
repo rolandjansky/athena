@@ -184,7 +184,7 @@ namespace TrigCostRootAnalysis {
       } else { // seen this one before
 
         // Check LB range
-        if (_lumiBlockNumber - m_perKeySummaryLBStart[ _key ] >= (UInt_t) Config::config().getInt(kNLbPerHLTConfig)) {
+        if (Int_t(_lumiBlockNumber - m_perKeySummaryLBStart[ _key ]) >= Config::config().getInt(kNLbPerHLTConfig)) {
           _doKeySummaryDesicion = kFALSE;
         }
 

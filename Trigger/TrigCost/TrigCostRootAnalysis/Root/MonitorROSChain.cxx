@@ -33,6 +33,7 @@ namespace TrigCostRootAnalysis {
   MonitorROSChain::MonitorROSChain(const TrigCostData* _costData) : MonitorBase(_costData, "ROS_Chain") {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
     allowSameIDCounters();
+    m_detailLevel = 0; // No Histogramming 
   }
 
   /**

@@ -58,6 +58,8 @@ namespace TrigCostRootAnalysis {
 
     Float_t m_param[9]; //<! Hold parameters of polynominal approximation of parton evolution
     Bool_t  m_enabled;  //<! If this class is being used
+    Bool_t  m_13To5;    //<! If downscaling
+
 
     StringFloatMap_t m_jettyItems;   //<! Energy of jet/EM
     StringFloatMap_t m_muonItems;    //<! Energy of muons

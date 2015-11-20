@@ -193,8 +193,16 @@ namespace TrigCostRootAnalysis {
     //Check for weights from energy extrapolation
     _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight( m_costData );
 
-    //Check for enhanced bias weights
-    _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi() );
+    //Check for enhanced bias weights.
+    if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
+      _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi() );
+
+      // If this event was random online, we want to *undo* the lumi extrapolation weight
+      // Random events do not depend on Lumi. This is a bit ugly. To be sorted out at next refactor
+      if (Config::config().getInt(kCurrentEventWasRandomOnline) == kTRUE) {
+        _weight /= Config::config().getFloat(kLumiExtrapWeight);
+      }
+    }
 
     // For each active monitoring type, process event
     if ( isZero(_weight) == kTRUE) return false;

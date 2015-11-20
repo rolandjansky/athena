@@ -140,6 +140,11 @@ namespace TrigCostRootAnalysis {
     static UInt_t      getChainGroupsNameSize(UInt_t _c);
     static std::string getChainGroupName(UInt_t _c, UInt_t _g);
     static std::vector<std::string> getChainRatesGroupNames(UInt_t _c);
+    static std::string getChainCPSGroup(UInt_t _c);
+    static UInt_t      getChainStreamNameSize(UInt_t _c);
+    static std::string getChainStreamName(UInt_t _c, UInt_t _g);
+    static std::vector<std::string> getChainStreamNames(UInt_t _c);
+    static Bool_t      getChainIsMainStream(UInt_t _c);
 
     // // Chain->Sig //todo gruntwork
     // UInt_t      GetSigN(UInt_t _c) const;

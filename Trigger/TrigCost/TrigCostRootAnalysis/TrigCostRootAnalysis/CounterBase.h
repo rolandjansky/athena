@@ -79,6 +79,7 @@ namespace TrigCostRootAnalysis {
     const std::string& getStrDecoration(ConfKey_t _key);
     Int_t getIntDecoration(ConfKey_t _key);
     Float_t getDecoration(ConfKey_t _key);
+    Bool_t hasDecoration(ConfKey_t _key);
 
    protected:
 

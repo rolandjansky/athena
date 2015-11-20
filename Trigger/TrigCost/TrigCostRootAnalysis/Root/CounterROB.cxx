@@ -29,6 +29,8 @@ namespace TrigCostRootAnalysis {
   CounterROB::CounterROB( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
     : CounterBase(_costData, _name, _ID, _detailLevel, _parent) {
 
+    if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
+
     m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
 
     m_dataStore.newVariable(kVarCalls)
