@@ -411,6 +411,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 
   if (m_writeToFile && m_outputFile) {                  
     uint16_t eventSize = event.size();       
+    if (eventSize>1000) return StatusCode::SUCCESS;
     uint8_t* buff = new uint8_t[eventSize];                                                                              
     event.dumpWords(buff,eventSize); 
     m_outputFile->write( (char*) buff, event.size() );                                                                   
@@ -460,6 +461,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   else if ( doDataScouting ) { 
 
     uint16_t eventSize_ds = event.size();  
+    if (eventSize_ds>1000) return StatusCode::SUCCESS;
 
     uint8_t* buff_ds = new uint8_t[eventSize_ds]; 
 

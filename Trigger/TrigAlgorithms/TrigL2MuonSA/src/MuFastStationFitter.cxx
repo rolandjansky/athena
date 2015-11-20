@@ -40,10 +40,10 @@ TrigL2MuonSA::MuFastStationFitter::MuFastStationFitter(const std::string& type,
 
    declareProperty("BackExtrapolator", m_backExtrapolator, "public tool for back extrapolating the muon tracks to the IV");
 
-   declareProperty("ENDCAPINN_MDT_CHI2_LIMIT", m_endcapinn_mdt_chi2_limit = 1000000);
-   declareProperty("ENDCAPMID_MDT_CHI2_LIMIT", m_endcapmid_mdt_chi2_limit = 1000000);
-   declareProperty("ENDCAPOUT_MDT_CHI2_LIMIT", m_endcapout_mdt_chi2_limit = 1000000);
-   declareProperty("ENDCAPEE_MDT_CHI2_LIMIT",  m_endcapee_mdt_chi2_limit  = 1000000);
+   declareProperty("ENDCAPINN_MDT_CHI2_LIMIT", m_endcapinn_mdt_chi2_limit = 20);
+   declareProperty("ENDCAPMID_MDT_CHI2_LIMIT", m_endcapmid_mdt_chi2_limit = 20);
+   declareProperty("ENDCAPOUT_MDT_CHI2_LIMIT", m_endcapout_mdt_chi2_limit = 20);
+   declareProperty("ENDCAPEE_MDT_CHI2_LIMIT",  m_endcapee_mdt_chi2_limit  = 20);
 
    declareProperty("RWIDTH_EndcapINN_FIRST",  m_rwidth_Endcapinn_first    = 150.);
    declareProperty("RWIDTH_EndcapINN_SECOND", m_rwidth_Endcapinn_second   = 80. );
@@ -233,7 +233,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
    float Ymid, Xmid, Amid;
 
    const float ZERO_LIMIT         = 1e-6;
-   const unsigned int MAX_STATION = 8;
+   const unsigned int MAX_STATION = 10;
    const float SIGMA              = 0.0080;
    const float DRIFTSPACE_LIMIT   = 16.;
    const int   MIN_MDT_FOR_FIT    = 3;
@@ -243,6 +243,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
    TrigL2MuonSA::PBFitResult pbFitResult;
 
    for (unsigned int chamber=0; chamber<MAX_STATION; chamber++) { // loop for station
+     if (chamber==9) continue;//skip BME chamber
      
      count = 0;
      Xor = 0.;
@@ -258,6 +259,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 
      TrigL2MuonSA::MdtHits::iterator itMdtHit;
      for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit
+       
        
        if (count >= NMEAMX) continue;
        if (itMdtHit->isOutlier) continue;
@@ -376,7 +378,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern,
                                                                const TrigL2MuonSA::MuonRoad&    m_muonRoad)
 {
-  const unsigned int MAX_STATION = 8;
+  const unsigned int MAX_STATION = 10;
   TrigL2MuonSA::MdtHits*    mdtSegment;
   TrigL2MuonSA::SuperPoint* superPoint;
   TrigL2MuonSA::PBFitResult pbFitResult;
@@ -384,14 +386,14 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
   for (unsigned int chamber=0; chamber<MAX_STATION; chamber++) { // loop for station
     msg() << MSG::DEBUG<<" superpoint fit station "<<chamber<<endreq;
 
-    if(chamber== 1 || chamber == 2 || chamber ==7 ) continue; // only loop for endcap Inner/Middle/Outer/EE/barrel inn
+    if(chamber== 1 || chamber == 2 || chamber ==7 || chamber == 9) continue; // only loop for endcap Inner/Middle/Outer/EE/barrel inn
 
     mdtSegment = &(trackPattern.mdtSegments[chamber]);
     superPoint = &(trackPattern.superPoints[chamber]);
     if (mdtSegment->size()==0) continue;
     
     TrigL2MuonSA::MdtHits::iterator itMdtHit;
-    if (chamber==0 || chamber == 6){
+    if (chamber==0 || chamber == 6 || chamber==8){
       int   count=0;
       int   FitFlag;
       float Xor   = 0.;
@@ -451,7 +453,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
         }
       } // end loop for MDT hits
      
-      msg() << MSG::DEBUG << "... MDT hit used in fit #=" << pbFitResult.NPOI << endreq;
+     msg() << MSG::DEBUG << "... MDT hit used in fit #=" << pbFitResult.NPOI << endreq;
       for(int i=0;i<pbFitResult.NPOI;i++) {
         msg() << MSG::DEBUG << "i/XILIN[i]/YILIN[i]/RILIN[i]/WILIN[i] = "
               << i << "/" << pbFitResult.XILIN[i] << "/" << pbFitResult.YILIN[i]
@@ -472,7 +474,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
             superPoint->R = (rm-Yor)/pbFitResult.ALIN - pbFitResult.BLIN/pbFitResult.ALIN + Xor;
             superPoint->Alin = 1./pbFitResult.ALIN;
             superPoint->Blin = -pbFitResult.BLIN/pbFitResult.ALIN;
-            if (chamber==0){//endcap barrel inner
+            if (chamber==0 || chamber==8){//endcap barrel inner or BEE
               superPoint->R      = ac*X + bc + Xor;
               superPoint->Z      = X + Yor;
               superPoint->Alin   = pbFitResult.ALIN;
@@ -1067,10 +1069,10 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
   float spR[8]; 
   float A_cand[8][6];
   float B_cand[8][6];
-  //float Chi2_cand[8][6]; 
+  float Chi2_cand[8][6]; 
   float spA[8];
   float spB[8];
-  //float spChi2[8];
+  float spChi2[8];
   const int middle = 4;
   const int outer  = 5;
 
@@ -1082,12 +1084,12 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
     spR[i_station]=0.; 
     spA[i_station]=0.;
     spB[i_station]=0.;
-    //spChi2[i_station]=0.;
+    spChi2[i_station]=0.;
 
     for (unsigned int ci=0; ci<NCAND; ci++) {
       A_cand[i_station][ci]    =0.;  
       B_cand[i_station][ci]    =0.; 
-      //Chi2_cand[i_station][ci] =0.;   
+      Chi2_cand[i_station][ci] =0.;   
     }
 
     if (i_station<4 || i_station>5) continue; // only loop for endcap Inner/Middle/Outer
@@ -1103,7 +1105,7 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
     for (unsigned int cand=0; cand<NCAND; cand++) {
       A_cand[i_station][cand]    = superPoint->SlopeCand[cand];
       B_cand[i_station][cand]    = superPoint->InterceptCand[cand];
-      //Chi2_cand[i_station][cand] = superPoint->Chi2Cand[cand];
+      Chi2_cand[i_station][cand] = superPoint->Chi2Cand[cand];
     }
   }
 
@@ -1117,13 +1119,13 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
   if (A_cand[middle][0] == 0. && A_cand[middle][1] == 0.) {
     spZ[middle]    = 0.;
     spR[middle]    = 0.;
-    //spChi2[middle] = 0.;
+    spChi2[middle] = 0.;
   }
 
   if (A_cand[outer][0] == 0. && A_cand[outer][1] == 0.) {
     spZ[outer]    = 0.;
     spR[outer]    = 0.;
-    //spChi2[outer] = 0.;
+    spChi2[outer] = 0.;
   }
 
   if (A_cand[middle][0] != 0. && A_cand[outer][0] == 0.) {
@@ -1139,7 +1141,7 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
         best_diff      = test_diff;
         rmatched       = A_cand[middle][m];
         spB[middle]    = B_cand[middle][m];
-        //spChi2[middle] = Chi2_cand[middle][m];
+        spChi2[middle] = Chi2_cand[middle][m];
        spR[middle]    = rmatched * spZ[middle] + spB[middle];
 
       }
@@ -1164,12 +1166,12 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
             if (t==0) {
             match_midA      = A_cand[middle][i];
             spB[middle]     = B_cand[middle][i];
-            //spChi2[middle]  = Chi2_cand[middle][i];
+            spChi2[middle]  = Chi2_cand[middle][i];
             spR[middle]     = match_midA * spZ[middle] + spB[middle];
             } else if(t==1) {
             match_outA     = A_cand[outer][i];
             spB[outer]     = B_cand[outer][i];
-            //spChi2[outer]  = Chi2_cand[outer][i];
+            spChi2[outer]  = Chi2_cand[outer][i];
             spR[outer]     = match_outA * spZ[outer] + spB[outer];
             }
           }
@@ -1189,6 +1191,15 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
 
   }
 
+  for (unsigned int i_station=4; i_station<MAX_STATION; i_station++) {
+    if (i_station<4 || i_station>5) continue; // only loop for endcap Inner/Middle/Outer
+    superPoint = &(trackPattern.superPoints[i_station]);
+    if(spA[i_station]!=0.){
+      superPoint->Alin =spA[i_station];
+      superPoint->Blin =spB[i_station];
+      superPoint->Chi2 =spChi2[i_station];
+    }
+  }
   return;
 }
 
@@ -1804,7 +1815,7 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
         *Square = 0.;
         for(j=0;j<NP;j++) {
             if(IG[j]>=1) {
-                DY = Y[j] - *A * X[j] - *B;
+                DY =(Y[j] - *A * X[j] - *B)/sqrt(1 + *A * *A);
                 //printf("Punto n.=%d , DY = %12.6f\n",j,DY);
                 *Square = *Square + W[j] * DY * DY;
             }
@@ -1920,7 +1931,7 @@ void TrigL2MuonSA::MuFastStationFitter::Xline (float *X,float *Y,float *W,int *I
       Aj = A0;
       Bj = B0;
       Circfit(Nmeas,XI,YI,RRi,WI,Igg,&Aj,&Bj,DAB,Chi2);
-
+      Circfit(Nmeas,XI,YI,RI,WI,IG,&Aj,&Bj,DAB,Chi2);
       st_A.push_back(Aj); st_B.push_back(Bj); st_chi2.push_back(*Chi2);
 
       if (*Chi2>=0.0&&*Chi2<=CHbest) {

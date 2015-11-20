@@ -508,7 +508,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
 	}
       }
     }
-    
+
     v_mdtCsms.push_back(*pCsmIt);
     msg() << MSG::DEBUG << "MDT Collection hash " << v_idHash_corr
        << " associated to:  SubDet 0x" << MSG::hex
@@ -631,6 +631,8 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        if (st=='I') chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
        if (st=='M') chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
        if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+       if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
+       if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
      }
      
      double R = m_mdtReadout->center(TubeLayer, Tube).perp();
@@ -758,11 +760,12 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    std::vector<IdentifierHash> idList;
 
    // get hashIdlist by using region selector
-   for(int i_station=0; i_station<3; i_station++) {
+   for(int i_station=0; i_station<4; i_station++) {
      int chamber=0;
      if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner; 
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+     if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::BME;
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
 	 idList.clear();
@@ -807,13 +810,14 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
    std::vector<IdentifierHash> idList;
 
    // get hashIdlist by using region selector
-   for(int i_station=0; i_station<5; i_station++) {
+   for(int i_station=0; i_station<6; i_station++) {
      int chamber = 0;
      if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::EndcapInner; 
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::EndcapOuter;
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::EndcapExtra;
      if (i_station==4) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
+     if (i_station==5) chamber = xAOD::L2MuonParameters::Chamber::BEE;
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
 	 idList.clear();

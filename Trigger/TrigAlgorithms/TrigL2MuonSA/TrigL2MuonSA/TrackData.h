@@ -8,7 +8,7 @@
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/SuperPointData.h"
 
-#define NCHAMBER 8
+#define NCHAMBER 10
 
 namespace TrigL2MuonSA {
 

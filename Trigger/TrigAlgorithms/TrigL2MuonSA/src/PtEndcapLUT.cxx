@@ -32,6 +32,9 @@ bool TrigL2MuonSA::PtEndcapLUT::KeyType::operator<(const KeyType& other) const
   if (m_charge < other.m_charge) return (true);
   if (m_charge > other.m_charge) return (false);
   if (m_type   < other.m_type)   return (true);
+  if (m_type   > other.m_type)   return (false);
+  if (m_sector < other.m_sector) return (true);
+  if (m_sector > other.m_sector) return (false);
   return (false);
 }
 
