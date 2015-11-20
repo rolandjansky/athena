@@ -51,6 +51,7 @@ objects += ['ElementLinkVector_p1<std::string>::ElementRef']
 objects += ['MuonFeature_p3']
 objects = []
 objects = ['xAOD::TrigTrackCountsAuxContainer']
+objects = ['xAOD::TrigTrackCountsContainer']
 objects = [
 'xAOD::TrigEMCluster',
 'xAOD::TrigEMClusterContainer',
