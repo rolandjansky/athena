@@ -2,6 +2,11 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 from MissingETMonitoring.MissingETMonitoringConf import *
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
+
+from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
+cleaningTool = JetCleaningTool( "LooseBadJets" , CutLevel = "LooseBad")
+ToolSvc += cleaningTool
+
 monbadlb = GetLArBadLBFilterTool()
 
 
@@ -23,7 +28,7 @@ if DQMonFlags.useTrigger():
 #     triggerList    += ["EF_xe25_FEB_L1TE90"]   # updated on March, 2012
 #    triggerList    += ["EF_xe30"]   # updated on June, 2013
     triggerList    += ["L1_XE35"]   # updated on June, 2013
-    triggerList    += ["EF_xe80"]   # updated on June, 2013
+#    triggerList    += ["EF_xe80"]   # updated on June, 2013
 else:
     triggerList = [""]
 
@@ -59,7 +64,31 @@ for trigger in triggerList:
     ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
-  
+    # Standard Monitoring cut80
+#    metMonTool = METMonTool(name = "METMonTool_cut80_"+triggerName)
+#    metMonTool.NameSuffix   = "cut80"
+#    if triggerName != "":
+#        metMonTool.NameSuffix += "_"+triggerName
+##    metMonTool.NameSuffix   = triggerName
+#    metMonTool.TriggerChain = trigger
+#    metMonTool.doMetCut80 = True
+#    metMonTool.metCut       = 10
+#    #New AthenaMonitoring filter tool to be added to filter out events in non-filled BCIDs
+    #    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+#    metMonTool.FilterTools.append(monbadlb)
+
+#    if trigger != "":
+#        metMonTool.TrigDecisionTool = monTrigDecTool
+        
+    #Uncomment when switching to AOD    
+    #metMonTool.eleColKey = "ElectronAODCollection"
+    #Uncomment to avoid the jet cleaning    
+    #metMonTool.doJetcleaning = False
+
+
+#    ToolSvc += metMonTool
+#    monManETmiss.AthenaMonTools += [ metMonTool ]
+    
     # Bad Jets Monitoring
     metMonTool = METMonTool(name = "METMonTool_BadJets"+triggerName)
     metMonTool.NameSuffix   = "BadJets"
@@ -73,6 +102,7 @@ for trigger in triggerList:
     metMonTool.TriggerChain = trigger
 #    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
+    metMonTool.JetSelectorTool = cleaningTool
     metMonTool.badJets = True
     if trigger != "":
         metMonTool.TrigDecisionTool = monTrigDecTool
@@ -141,10 +171,10 @@ for trigger in triggerList:
     ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
 
-    
-    # Tool for MET > 80 GeV monitoring
-    metMonTool = METMonTool(name = "METMonTool_cut80_"+triggerName)
-    metMonTool.NameSuffix   = "cut80"
+
+   # Tool for MET  monitoring dojet cleaning
+    metMonTool = METMonTool(name = "METMonTool_Refined_JetCleaning"+triggerName)
+    metMonTool.NameSuffix   = "Refined_JetCleaning"
     if triggerName != "":
         metMonTool.NameSuffix += "_"+triggerName
     metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
@@ -153,7 +183,10 @@ for trigger in triggerList:
     metMonTool.jetColKey    = "AntiKt4LCTopoJets"
     metMonTool.eleColKey    = ""
     metMonTool.muoColKey    = ""
-    metMonTool.metCut       = 80
+    metMonTool.doMetCut80 = False
+    metMonTool.metCut       = 80.0
+    metMonTool.doJetcleaning = True
+    metMonTool.JetSelectorTool = cleaningTool
     metMonTool.TriggerChain = trigger
 #    metMonTool.FilterTools.append(monFilledBunchFilterTool)
     metMonTool.FilterTools.append(monbadlb)
@@ -161,7 +194,93 @@ for trigger in triggerList:
         metMonTool.TrigDecisionTool = monTrigDecTool
     ToolSvc += metMonTool
     monManETmiss.AthenaMonTools += [ metMonTool ]
+
+      # Tool for calorimetric MET monitoring (TopoCluster)
+    metMonTool = METMonTool(name = "METMonTool_Topo_JetCleaning"+triggerName)
+    metMonTool.NameSuffix   = "Calo_JetCleaning"
+    if triggerName != "":
+        metMonTool.NameSuffix += "_"+triggerName
+    metMonTool.metKeys      = ["MET_Topo","MET_LocHadTopo"]
+    metMonTool.metFinKey    = ""
+    metMonTool.metCalKey    = ""
+    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.eleColKey    = ""
+    metMonTool.muoColKey    = ""
+    metMonTool.doJetcleaning = True
+    metMonTool.JetSelectorTool = cleaningTool
+    metMonTool.TriggerChain = trigger
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+    metMonTool.FilterTools.append(monbadlb)
+    if trigger != "":
+        metMonTool.TrigDecisionTool = monTrigDecTool
+    ToolSvc += metMonTool
+    monManETmiss.AthenaMonTools += [ metMonTool ]
+
+
+ # Tool for calorimetric MET monitoring  (Layer)
+    metMonTool = METMonTool(name = "METMonTool_Calos_JetCleaning"+triggerName)
+    metMonTool.NameSuffix   = "JetCleaning"
+    if triggerName != "":
+        metMonTool.NameSuffix += "_"+triggerName
+    metMonTool.metKeys      = []
+    metMonTool.metFinKey    = "MET_Topo"
+    metMonTool.metCalKey    = "MET_Topo"
+    metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+    metMonTool.eleColKey    = ""
+    metMonTool.muoColKey    = ""
+    metMonTool.doJetcleaning = True
+    metMonTool.JetSelectorTool = cleaningTool
+    metMonTool.TriggerChain = trigger
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+    metMonTool.FilterTools.append(monbadlb)
+    if trigger != "":
+        metMonTool.TrigDecisionTool = monTrigDecTool
+    ToolSvc += metMonTool
+    monManETmiss.AthenaMonTools += [ metMonTool ]
+
+
+
+# Tool for MET > 80 GeV monitoring
+metMonTool = METMonTool(name = "METMonTool_Refined_cut80")
+metMonTool.NameSuffix   = "Refined_cut80"
+#if triggerName != "":
+#    metMonTool.NameSuffix += "_"+triggerName
+metMonTool.metKeys      = ["MET_RefEle", "MET_RefGamma", "MET_RefTau", "MET_RefJet", "MET_Muon", "MET_PVSoftTrk", "MET_SoftClus", "MET_RefFinal"]
+metMonTool.metFinKey    = ""
+metMonTool.metCalKey    = ""
+metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+metMonTool.eleColKey    = ""
+metMonTool.muoColKey    = ""
+metMonTool.doMetCut80 = True
+metMonTool.metCut       = 80.0
+#    metMonTool.TriggerChain = trigger
+#    metMonTool.FilterTools.append(monFilledBunchFilterTool)
+metMonTool.FilterTools.append(monbadlb)
+if trigger != "":
+    metMonTool.TrigDecisionTool = monTrigDecTool
+ToolSvc += metMonTool
+monManETmiss.AthenaMonTools += [ metMonTool ]
     
+
+# Tool for calorimetric MET monitoring
+metMonTool = METMonTool(name = "METMonTool_Calo_cut80_"+triggerName)
+metMonTool.NameSuffix   = "Calo_cut80"
+metMonTool.metKeys      = ["MET_Topo","MET_LocHadTopo"]
+metMonTool.metFinKey    = ""
+metMonTool.metCalKey    = ""
+metMonTool.jetColKey    = "AntiKt4LCTopoJets"
+metMonTool.eleColKey    = ""
+metMonTool.muoColKey    = ""
+metMonTool.doMetCut80 = True
+metMonTool.metCut       = 80.0
+#metMonTool.TriggerChain = trigger
+metMonTool.FilterTools.append(monFilledBunchFilterTool)
+metMonTool.FilterTools.append(monbadlb)
+if trigger != "":
+    metMonTool.TrigDecisionTool = monTrigDecTool
+ToolSvc += metMonTool
+monManETmiss.AthenaMonTools += [ metMonTool ]
+
     
     
 # Monitoring for Random trigger
@@ -176,7 +295,8 @@ metMonTool = METMonTool(name = "METMonTool_Topo")
 metMonTool.NameSuffix        = "Topo"
 metMonTool.metKeys           = []
 metMonTool.metFinKey         = "MET_Topo"
-metMonTool.metCalKey         = "MET_Topo"
+#metMonTool.metCalKey         = "MET_Topo"
+metMonTool.metCalKey         = ""
 metMonTool.jetColKey         = "AntiKt4LCTopoJets"
 metMonTool.eleColKey         = ""
 metMonTool.muoColKey         = ""
@@ -190,6 +310,32 @@ if trigger != "":
     metMonTool.TrigDecisionTool = monTrigDecTool
 ToolSvc += metMonTool
 monManETmiss.AthenaMonTools += [ metMonTool ]
+
+
+
+# Tool for calorimeter term monitoring (TopoClusters) cut80
+metMonTool = METMonTool(name = "METMonTool_Topo_cut80")
+#metMonTool.NameSuffix        = "Topo_cut80"
+metMonTool.NameSuffix        = "cut80"
+metMonTool.metKeys           = []
+metMonTool.metFinKey         = "MET_Topo"
+metMonTool.metCalKey         = "MET_Topo"
+metMonTool.jetColKey         = "AntiKt4LCTopoJets"
+metMonTool.eleColKey         = ""
+metMonTool.muoColKey         = ""
+metMonTool.doMetCut80 = True
+metMonTool.metCut       = 80.0
+metMonTool.nEtBins           = 100
+metMonTool.EtRange           = 10.0
+metMonTool.SumEtRangeFactor  = 2.0
+metMonTool.FillNegativeSumEt = True
+#metMonTool.TriggerChain      = trigger
+#if trigger != "":
+#    metMonTool.TrigDecisionTool = monTrigDecTool
+ToolSvc += metMonTool
+monManETmiss.AthenaMonTools += [ metMonTool ]
+
+
 
 ## Tool for calorimeter term monitoring (2 sigma noise suppression)
 #metMonTool = METMonTool(name = "METMonTool_Base")

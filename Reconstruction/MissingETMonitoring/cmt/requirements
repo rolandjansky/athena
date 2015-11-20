@@ -6,7 +6,7 @@ public
 use AtlasPolicy      AtlasPolicy-*
 use AthenaMonitoring AthenaMonitoring-* Control
 use AtlasROOT        AtlasROOT-*        External
-
+use JetInterface        JetInterface-*          Reconstruction/Jet
 private
 use EventInfo           EventInfo-*             Event
 use AtlasCLHEP       AtlasCLHEP-*       External
