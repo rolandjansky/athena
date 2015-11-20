@@ -13,22 +13,22 @@ use  ParticleEvent              ParticleEvent-*                 PhysicsAnalysis/
 use  tauRecTools		tauRecTools-*			Reconstruction
 
 private
-use  CaloEvent                  CaloEvent-*                     Calorimeter
-use  CaloInterface              CaloInterface-*                 Calorimeter
-use  CaloUtils                  CaloUtils-*                     Calorimeter
+#use  CaloEvent                  CaloEvent-*                     Calorimeter
+#use  CaloInterface              CaloInterface-*                 Calorimeter
+#use  CaloUtils                  CaloUtils-*                     Calorimeter
 use  tauEvent                   tauEvent-*                      Reconstruction
-use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
-use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
-use  AtlasCLHEP                 AtlasCLHEP-*                    External
-use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
-use  CaloIdentifier             CaloIdentifier-*                Calorimeter
-use  FourMom                    FourMom-*                       Event
-use  FourMomUtils               FourMomUtils-*                  Event
-use  JetEvent                   JetEvent-*                      Reconstruction/Jet
-use  xAODTau                    xAODTau-*                       Event/xAOD
-use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
-use  xAODJet                    xAODJet-*                       Event/xAOD
-use  xAODTracking               xAODTracking-*                  Event/xAOD
+#use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
+#use  AnalysisUtils              AnalysisUtils-*                 PhysicsAnalysis/AnalysisCommon
+#use  AtlasCLHEP                 AtlasCLHEP-*                    External
+#use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
+#use  CaloIdentifier             CaloIdentifier-*                Calorimeter
+#use  FourMom                    FourMom-*                       Event
+#use  FourMomUtils               FourMomUtils-*                  Event
+#use  JetEvent                   JetEvent-*                      Reconstruction/Jet
+#use  xAODTau                    xAODTau-*                       Event/xAOD
+#use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
+#use  xAODJet                    xAODJet-*                       Event/xAOD
+#use  xAODTracking               xAODTracking-*                  Event/xAOD
 end_private
 
 # Specify the required ROOT components for cmake (transparent to CMT)
