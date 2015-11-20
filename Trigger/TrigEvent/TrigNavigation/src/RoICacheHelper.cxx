@@ -38,6 +38,9 @@ bool RoICacheHelper::cache ( TriggerElement* te ) {
     
     //    std::vector< TriggerElement::FeatureAccessHelper >::const_iterator e = it->holder()->getFeatureAccessHelpers().begin();
     //    advance(e, it->end());
+
+
+
     
     //    std::cerr << "caching now: " << it->begin() << " " << it->end() << std::endl;
     const TriggerElement::FeatureVec& fvec = it->holder()->getFeatureAccessHelpers();
@@ -46,15 +49,15 @@ bool RoICacheHelper::cache ( TriggerElement* te ) {
       return false;
     }
 
-
     unsigned int begin = it->begin();
-    unsigned int end = it->end();    
-    TriggerElement::FeatureVec temp(it->holder()->getFeatureAccessHelpers().begin()+begin, 
+    unsigned int end = it->end();   
+    TriggerElement::FeatureVec temp(it->holder()->getFeatureAccessHelpers().begin()+begin,
 				    it->holder()->getFeatureAccessHelpers().begin()+end);
+
     for ( auto fea: temp){
       te->addFeature(fea);
     }
-  
+    
     //    te->getFeatureAccessHelpers().insert(te->getFeatureAccessHelpers().end(), b, e);
     //    te->featuresKeyPrint().insert(te->featuresKeyPrint().end(), b, e);
     //    std::cerr << "after caching size: " << te->getFeatureAccessHelpers().size() << std::endl;

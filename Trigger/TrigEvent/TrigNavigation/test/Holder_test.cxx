@@ -41,7 +41,7 @@ StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typ
   if ( ! base_holder ) REPORT_AND_STOP ("Holder can't create base holder" );
   
 
-  iholder->prepare(msglog, pStore);
+  iholder->prepare(msglog, pStore,0);
   if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
   
   END_TEST;
@@ -50,7 +50,7 @@ StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typ
 StatusCode getUniqueKeyBeforeReg() {
   BEGIN_TEST( "use of unique key without sync to SG" );
   auto h = new HolderImp<TestBContainer, TestBContainer >();
-  h->prepare(msglog, pStore);
+  h->prepare(msglog, pStore,0);
   std::string key = h->getUniqueKey();
   REPORT_AND_CONTINUE("Got unique Key:" << key);
   END_TEST;
@@ -205,7 +205,7 @@ StatusCode serialization() {
   std::vector<uint32_t>::const_iterator it = blob.begin();
 
 
-  IHolder::enquireSerialized(blob, it, c, label, idx);
+  IHolder::enquireSerialized(it,blob.end(), c, label, idx);
   *msglog << MSG::DEBUG  << "INFO clid  : " << c << endreq;  
   *msglog << MSG::DEBUG  << "INFO STidx : " << idx << endreq;  
   *msglog << MSG::DEBUG  << "INFO label : " << label << endreq;  

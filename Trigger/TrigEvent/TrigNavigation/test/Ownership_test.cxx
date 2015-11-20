@@ -76,7 +76,7 @@ StatusCode noMixTest() {
   if (  stat == true ) {
     REPORT_AND_STOP("attachFeature worked while it should not");
   }
-  REPORT_AND_CONTINUE("The attachFeature was unsuccesfull");
+  REPORT_AND_CONTINUE("The attachFeature was unsuccesfull (as expected)");
 
   END_TEST;
 }

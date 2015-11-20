@@ -7,32 +7,22 @@
 #include <algorithm>
 #include <iterator> // remove it (it is here to help with debugging)
 
-
-
-//#include <boost/cstdint.hpp>
-//#include <stdint.h>
 #include <boost/lexical_cast.hpp>
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/System.h"
-//#include "GaudiKernel/IClassManager.h"
-//#include "GaudiKernel/SmartIF.h"
 
 #include "TrigNavigation/Navigation.h"
+
 using namespace HLT;
 using namespace HLTNavDetails;
 
-
-//std::map<CLID, IHolder* > Navigation::m_types;
-
-
-
-//Navigation::Navigation( TriggerElementFactory& factory )
 Navigation::Navigation(  const std::string& type, const std::string& name,
                          const IInterface* parent )
   : AthAlgTool(type, name, parent),
     m_serializerServiceHandle("TrigSerializeCnvSvc", name),
-    m_storeGateHandle("StoreGateSvc", name)
+    m_storeGateHandle("StoreGateSvc", name),
+    m_fullholderfactory(m_objectsKeyPrefix)
 {
 
   declareProperty("ReferenceAllClasses", m_referenceAllClasses=false,
@@ -49,10 +39,6 @@ Navigation::Navigation(  const std::string& type, const std::string& name,
   
   declareProperty("ClassesToPreregister", m_classesToPreregisterProperty,
                   "List of classes which need to be put in SG independently if they appear in event.");
-
-  //  declareProperty("SerializeSpaceLimit",  m_serializeSpaceLimit=8000000,
-  //                  "Limit of the size which navigation can use once serialized.");
-
   declareProperty("Dlls",  m_dlls, "Libraries to load (with trigger EDM)");
   declareProperty("ObjectsKeyPrefix", m_objectsKeyPrefix="HLT", "The prefix which all Trigger EDM objects will get, by default it is HLT");
   declareProperty("ObjectsIndexOffset", m_objectsIndexOffset=0, "The offset with which the objects idx is be shifted.");
@@ -60,7 +46,8 @@ Navigation::Navigation(  const std::string& type, const std::string& name,
   declareInterface<Navigation>(this);
 }
 
-Navigation::~Navigation() {}
+Navigation::~Navigation() {
+}
 
 
 /*****************************************************************************
@@ -73,15 +60,6 @@ StatusCode Navigation::initialize() {
   delete m_log;
   m_log = new MsgStream(msgSvc(), name() );
 
-  // factor of TEs
-  /* in CORE m_factory = new TriggerElementFactory;
-  if ( m_factory->listOfProduced().size() != 0 ) {
-    *m_log << MSG::FATAL << "Navigation::Navigation(), factory size not 0 but: " 
-	   << m_factory->listOfProduced().size() << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  */
  // get StoreGate
   StatusCode sc = m_storeGateHandle.retrieve();
   if(sc.isFailure()) {
@@ -89,26 +67,9 @@ StatusCode Navigation::initialize() {
              << m_storeGateHandle << endreq;
     return StatusCode::FAILURE;
   }
-  //  m_storeGate = m_storeGateHandle.operator->();
-  //  AccessProxy* ap = new AccessProxy(0, m_storeGateHandle.operator->());
-  setAccessProxy(m_storeGateHandle.operator->());
+  m_storeGate = m_storeGateHandle.operator->();
 
-  // create the Serializer
-  //  m_serializer = NULL;
-  /*
-    if ( m_serializerToolHandle.retrieve().isFailure() ) {
-    (*m_log) << MSG::FATAL << "failed to retrieve serializer tool: "
-    << m_serializerToolHandle<< endreq;
-    return  StatusCode::FAILURE;
-    } else {
-    (*m_log) << MSG::DEBUG << "successfully retrieved serializer tool: "
-    << m_serializerTool << endreq;
-    //    m_serializer = m_serializerTool.operator->();
-    }
-    m_serializerTool = m_serializerToolHandle.operator->();
-  */
-
-  StatusCode scnv = m_serializerSvc.retrieve();
+  StatusCode scnv = m_serializerServiceHandle.retrieve();
   if (scnv.isFailure()){
     *m_log << MSG::FATAL << "Navigation::initialize() cannot get TrigSerializeCnvSvc"
            << endreq;
@@ -117,6 +78,11 @@ StatusCode Navigation::initialize() {
       *m_log << MSG::DEBUG << "Navigation::initialize() got TrigSerializeCnvSvc"
              << endreq;
   }
+  m_serializerSvc = m_serializerServiceHandle.operator->();
+
+  m_fullholderfactory.prepare(m_storeGate,m_serializerSvc);
+  m_holderfactory = &m_fullholderfactory;
+
 
   // payload def
   if ( classKey2CLIDKey(m_classesToPayloadProperty,  m_classesToPayload).isFailure() ) {
@@ -147,10 +113,6 @@ StatusCode Navigation::initialize() {
              << m_classesToPreregisterProperty << endreq;
     return  StatusCode::FAILURE;
   }
-
-
-  // create string specific serializer
-  //in CORE m_stringSerializer = new StringSerializer();
 
   // print out registered holders
   HLT::TypeMaps::CLIDtoHolderMap::const_iterator holderIt;
@@ -226,18 +188,6 @@ Navigation::classKey2CLIDKey(const std::vector<std::string> property,
 StatusCode Navigation::finalize() {
   if (m_log->level() <= MSG::DEBUG )
     *m_log << MSG::DEBUG << "Navigation finalize" << endreq;
-  //  reset();
-
-  /* in CORE elete m_stringSerializer;
-  delete m_factory;
-  delete m_log;
-  */
-  /*
-    for (std::map< CLID, std::vector<uint32_t>* > ::iterator it = m_serializedFeatures.begin();
-    it != m_serializedFeatures.end(); ++it) {
-    delete it->second;
-    }
-  */
   return StatusCode::SUCCESS;
 }
 

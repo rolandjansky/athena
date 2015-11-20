@@ -79,13 +79,37 @@ struct acquire_getRecentFeatureConstDV<T, false> {
 };
   /////////////////////////////////////////////////////
 
+
+template<typename T>
+struct ConstDVCompatible{
+  typedef char yes[2];typedef char no[1];
+
+  template<typename X, X>
+  struct Help{
+  };
+
+  template<typename C>
+  static auto f(Help<decltype(&C::resize),&C::resize>*) -> yes&;
+
+  template<typename C>
+  static auto f(...) -> no&;
+  
+  static const bool value = sizeof(f<T>(0)) == sizeof(yes);
+};
+  
+
+
+  /////////////////////////////////////////////////////
+
 template<class T, bool FeatureIsContainer> struct acquire_attachFeatureConstDV;
 template<class T> 
 struct acquire_attachFeatureConstDV<T, true> {
   typedef  bool (HLT::Navigation::*type)( HLT::TriggerElement*, const ConstDataVector<T>*,
 					  HLT::Navigation::MemoryManagement, std::string&, const std::string&  );
   
-  static type do_it() { return &HLT::Navigation::attachFeature<ConstDataVector<T>>; }
+  static type do_it() {
+    return &HLT::Navigation::attachFeature<ConstDataVector<T>>; 
+  }
 };
 
 template<class T> 
@@ -165,8 +189,11 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
 
 
   __attribute__((__unused__))
-  typename acquire_attachFeatureConstDV<T, boost::is_same<T,C>::value>::type temp_attachFeatureConstDV;
-  temp_attachFeatureConstDV = acquire_attachFeatureConstDV<T, boost::is_same<T,C>::value>::do_it();
+    typename acquire_attachFeatureConstDV<T, boost::is_same<T,C>::value && ConstDVCompatible<T>::value>::type temp_attachFeatureConstDV;
+  temp_attachFeatureConstDV = acquire_attachFeatureConstDV<T,
+							   boost::is_same<T,C>::value && 
+							   ConstDVCompatible<T>::value
+							   >::do_it();
   
   //  typename acquire_getRecentFeatureConstDV<T, boost::is_same<T,C>::value>::type temp_getRecentFeatureConstDV;
   //  temp_getRecentFeatureConstDV = acquire_getRecentFeatureConstDV<T, boost::is_same<T,C>::value>::do_it();
