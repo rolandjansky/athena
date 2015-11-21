@@ -57,15 +57,34 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name, ISvcLocator* pSvcLocator
   // cleaning
   declareProperty("cleaningAlg", m_cleaningAlg = "noCleaning");
   declareProperty("matchingAlg", m_matchingAlg = "maximumBipartite");
-  
+  //basic cleaning  
   declareProperty("n90CleaningThreshold", m_n90Threshold = 2 );
   declareProperty("presamplerCleaningThreshold", m_presamplerThreshold = 0.9 );
-  declareProperty("negativeECleaningThreshold", m_negativeEThreshold = -60e3 );	// 60 GeV
+  declareProperty("negativeECleaningThreshold", m_negativeEThreshold = -60e3 ); // 60 GeV
   declareProperty("qmeanCleaningThreshold", m_qmeanThreshold = 0.8 );
   declareProperty("HECQCleaningThreshold", m_hecQThreshold = 0.5 );
   declareProperty("HECfCleaningThreshold", m_hecFThreshold = 0.5 );
   declareProperty("LArQCleaningThreshold", m_larQThreshold = 0.8 );
   declareProperty("EMfCleaningThreshold", m_emFThreshold = 0.95 );
+  //loose cleaning
+  declareProperty("fracSamplingMaxLooseThreshold", m_fSampMaxLooseThreshold = 0.8 );
+  declareProperty("etaLooseThreshold", m_etaLooseThreshold = 2.0 );
+  declareProperty("EMfLowLooseThreshold", m_emfLowLooseThreshold = 0.10 );
+  declareProperty("EMfHighLooseThreshold", m_emfHighLooseThreshold = 0.99 );
+  declareProperty("HECfLooseThreshold", m_hecfLooseThreshold = 0.85 );
+  //tight cleaning
+  declareProperty("fracSamplingMaxTightThreshold", m_fSampMaxTightThreshold = 0.8 );
+  declareProperty("etaTightThreshold", m_etaTightThreshold = 2.0 );
+  declareProperty("EMfLowTightThreshold", m_emfLowTightThreshold = 0.10 );
+  declareProperty("EMfHighTightThreshold", m_emfHighTightThreshold = 0.99 );
+  declareProperty("HECfTightThreshold", m_hecfTightThreshold = 0.85 );
+  //long-lived particle cleaning
+  declareProperty("fracSamplingMaxLlpThreshold", m_fSampMaxLlpThreshold = 0.85 );
+  declareProperty("negativeELlpThreshold", m_negELlpThreshold = -10e3 ); // 10 GeV
+  declareProperty("HECfLlpThreshold", m_hecfLlpThreshold = 0.5 );
+  declareProperty("HECQLlpThreshold", m_hecfLlpThreshold = 0.5 );
+  declareProperty("AverageLArQFLlpThreshold", m_avLarQFLlpThreshold = 0.8*65535 );
+
 
   declareMonitoredVariable("CutCounter", m_cutCounter);
 
@@ -309,9 +328,29 @@ void
 
    */
 
-   auto cleaner = cleanerFactory(m_n90Threshold, 
-                                 m_presamplerThreshold,
-                                 m_negativeEThreshold,
+   auto cleaner = cleanerFactory(//basic cleaning
+				 m_n90Threshold, 
+				 m_presamplerThreshold,
+				 m_negativeEThreshold,
+				 //loose cleaning
+				 m_fSampMaxLooseThreshold,
+				 m_etaLooseThreshold,
+				 m_emfLowLooseThreshold,
+				 m_emfHighLooseThreshold,
+				 m_hecfLooseThreshold,
+				 //tight cleaning
+				 m_fSampMaxTightThreshold,
+				 m_etaTightThreshold,
+				 m_emfLowTightThreshold,
+				 m_emfHighTightThreshold,
+				 m_hecfTightThreshold,
+				 //long-lived particle cleaning
+				 m_fSampMaxLlpThreshold,
+				 m_negELlpThreshold,
+				 m_hecfLlpThreshold,
+				 m_hecqLlpThreshold,
+				 m_avLarQFLlpThreshold,
+				//cleaning mode
                                  m_cleaningAlg);
    auto matcher = matcherFactory(m_conditions, m_matchingAlg);
 
