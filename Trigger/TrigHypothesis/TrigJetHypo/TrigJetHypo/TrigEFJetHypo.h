@@ -40,10 +40,10 @@ class TrigEFJetHypo : public HLT::HypoAlgo {
 
   // Cuts to be applied:
 
-  double     m_EtCut;
-  double     m_etaMinCut;
-  double     m_etaMaxCut;
-  unsigned int m_multiplicitycut;
+  double     m_EtCut{0.};
+  double     m_etaMinCut{0.};
+  double     m_etaMaxCut{0.};
+  unsigned int m_multiplicitycut{0};
 
   /// Et thresholds for assymmetric jet thresholds
   /// NB: for backwards compatability, retain the m_EtCut, 
@@ -54,42 +54,42 @@ class TrigEFJetHypo : public HLT::HypoAlgo {
   ///     use an extra vector for the actual property, 
   ///     so it can be modified, without changing what 
   ///     is actually passed in from the configurable 
-  std::vector<double> m_EtThresholds;
-  std::vector<double> m_EtThresholdsInput;
+  std::vector<double> m_EtThresholds{};
+  std::vector<double> m_EtThresholdsInput{};
 
 
-  int m_accepted;
-  int m_rejected;
-  int m_errors;
+  int m_accepted{0};
+  int m_rejected{0};
+  int m_errors{0};
 
   // Switch to accept all the events.
 
-  bool m_acceptAll;
+  bool m_acceptAll{false};
 
   // Switch on Monitoring:
   
-  bool m_doMonitoring;
+  bool m_doMonitoring{false};
 
-  int m_cutCounter;
-  double m_njet;
-  double m_et;
-  double m_eta;
-  double m_phi;
+  int m_cutCounter{0};
+  double m_njet{0.};
+  double m_et{0.};
+  double m_eta{0.};
+  double m_phi{0.};
   
   
   // switch on cleaning
   
-  bool m_doBasicCleaning;
-  bool m_triggerOnBad;
+  bool m_doBasicCleaning{false};
+  bool m_triggerOnBad{false};
   
-  float m_n90Threshold;
-  float m_presamplerThreshold;
-  float m_hecFThreshold;
-  float m_hecQThreshold;
-  float m_qmeanThreshold;
-  float m_negativeEThreshold;
-  float m_emFThreshold;
-  float m_larQThreshold;
+  float m_n90Threshold{0.};
+  float m_presamplerThreshold{0.};
+  float m_hecFThreshold{0.};
+  float m_hecQThreshold{0.};
+  float m_qmeanThreshold{0.};
+  float m_negativeEThreshold{0.};
+  float m_emFThreshold{0.};
+  float m_larQThreshold{0.};
   
 
   // path for the histograms:
@@ -99,11 +99,9 @@ class TrigEFJetHypo : public HLT::HypoAlgo {
   // Histogram Service:
   //IHistogramSvc* m_histsvc;
 
-  StoreGateSvc*                           m_storeGate;
-
   // Timing:
 
-  ITrigTimerSvc*            m_timersvc;
+  ITrigTimerSvc*            m_timersvc{nullptr};
   std::vector<TrigTimer*>   m_timers;
 
 };

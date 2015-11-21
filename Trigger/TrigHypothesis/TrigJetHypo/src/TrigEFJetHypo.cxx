@@ -174,10 +174,6 @@ HLT::ErrorCode TrigEFJetHypo::hltInitialize()
           << endreq;
   }
   
-  m_accepted=0;
-  m_rejected=0;
-  m_errors=0;
-  
   return HLT::OK;
   
 }

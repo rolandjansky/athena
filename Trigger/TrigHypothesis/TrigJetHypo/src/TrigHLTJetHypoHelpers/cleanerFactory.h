@@ -20,8 +20,9 @@
 #include <string>
 #include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h" // ICleaner
 
-std::shared_ptr<ICleaner> cleanerFactory(double,
-                                         double,
-                                         double,
+std::shared_ptr<ICleaner> cleanerFactory(double, double, double,
+					 double, double, double, double, double, 
+					 double, double, double, double, double, 
+					 double, double, double, double, double, 
                                          const std::string&);
 #endif

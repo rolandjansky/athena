@@ -86,8 +86,11 @@ FlowNetwork(int v);
    *      negative.
    */
   
-FlowNetwork(std::fstream& in);
-
+/* Commenting out this constructor used for testing due to inane complaints
+   from Coverity 
+   
+   FlowNetwork::FlowNetwork(std::fstream& in){FlowNetwork(std::fstream& in);
+*/
 
 /**
  * Returns the number of vertices in the edge-weighted graph.

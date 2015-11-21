@@ -83,6 +83,7 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   std::string m_cleaningAlg;  // determines cleaner obj
   std::string m_matchingAlg;  // determines matcher obj;
   
+  //basic cleaning
   float m_n90Threshold;
   float m_presamplerThreshold;
   float m_hecFThreshold;
@@ -91,7 +92,26 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   float m_negativeEThreshold;
   float m_emFThreshold;
   float m_larQThreshold;
-  
+  //loose cleaning
+  float m_fSampMaxLooseThreshold;
+  float m_etaLooseThreshold;
+  float m_emfLowLooseThreshold;
+  float m_emfHighLooseThreshold;
+  float m_hecfLooseThreshold;
+  //Tight cleaning
+  float m_fSampMaxTightThreshold;
+  float m_etaTightThreshold;
+  float m_emfLowTightThreshold;
+  float m_emfHighTightThreshold;
+  float m_hecfTightThreshold;
+  //Long-lived particle cleaning
+  float m_fSampMaxLlpThreshold;
+  float m_negELlpThreshold;
+  float m_hecfLlpThreshold;
+  float m_hecqLlpThreshold;
+  float m_avLarQFLlpThreshold;
+
+
   // Timing:
 
   ITrigTimerSvc*            m_timersvc;
