@@ -82,9 +82,12 @@ TObject* HanHistogramLink::
 getObject()
 {
   //std::cout << "Getting " << m_dir->GetPath() << " " << m_path << std::endl;
-  TKey* key = getObjKey(m_dir, m_path);
-  if (key == 0) return 0;
-  return key->ReadObj();
+  return m_dir->Get(m_path.c_str());
+  /*  std::unique_ptr<TKey> key(getObjKey(m_dir, m_path));
+  if (key.get() == 0) return 0;
+  TObject* rv = key->ReadObj();
+  if (TH1* hptr = dynamic_cast<TH1*>(rv)) { hptr->SetDirectory(0); }
+  return rv; */
 }
 
 boost::mutex root_mutex;

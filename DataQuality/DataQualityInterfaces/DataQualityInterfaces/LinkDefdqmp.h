@@ -2,6 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "DataQualityInterfaces/PAlgorithm.h"
+#include "DataQualityInterfaces/PMetadata.h"
+#include "DataQualityInterfaces/PParameter.h"
+#include "DataQualityInterfaces/PRegion.h"
+#include "DataQualityInterfaces/PResult.h"
+#include "DataQualityInterfaces/PFunctions.h"
+
 #ifdef __CINT__
 
 #pragma link off all globals;
