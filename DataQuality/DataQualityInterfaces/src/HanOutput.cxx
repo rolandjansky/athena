@@ -331,7 +331,7 @@ setInput(TDirectory* input)
 	m_input = input;
 }
 
-static void WriteListToDirectory(TDirectory *dir, TSeqCollection *list)
+static void WriteListToDirectory(TDirectory *dir, TSeqCollection *list, TFile* file, int level)
 {
   TIter nextElem(list);
   TObject *obj;
@@ -360,7 +360,8 @@ static void WriteListToDirectory(TDirectory *dir, TSeqCollection *list)
         tmp = strtok(0, "/");
       }
       TDirectory* daughter = dir->mkdir(str);
-      WriteListToDirectory(daughter, tmpList);
+      WriteListToDirectory(daughter, tmpList, file, level-1);
+      if (level > 0) { file->Write(); delete daughter; }
     }
     else if ((strncmp(obj->ClassName(), "TH", 2) == 0)
 	     || (strncmp(obj->ClassName(), "TGraph", 6) == 0)
@@ -380,7 +381,7 @@ HanOutput::
 deactivate()
 {
   flushResults();
-  WriteListToDirectory(m_file.get(), dynamic_cast<TSeqCollection *>(m_outputList->First()));
+  WriteListToDirectory(m_file.get(), dynamic_cast<TSeqCollection *>(m_outputList->First()), m_file.get(), 2);
   m_file->Write();
   m_file->Flush();
 }
