@@ -183,8 +183,8 @@ def _cmt_to_autoconf(cmt):
                         .replace("-shared ", " ")\
                         .replace("`checker_gccplugins_args`", " ")
 
-    cfg_env['CFLAGS'] = re.sub ('-fplugin=[^ ]+', '', cfg_env['CFLAGS'])
-    cfg_env['CXXFLAGS'] = re.sub ('-fplugin=[^ ]+', '', cfg_env['CXXFLAGS'])
+    cfg_env['CFLAGS'] = re.sub ('-fplugin[^ ]+', '', cfg_env['CFLAGS'])
+    cfg_env['CXXFLAGS'] = re.sub ('-fplugin[^ ]+', '', cfg_env['CXXFLAGS'])
 
     # hack: remove -Werror as many 3rd-party packages won't compile with it
     cfg_env['CFLAGS'] = cfg_env['CFLAGS']\
