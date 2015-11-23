@@ -218,14 +218,39 @@ class InDetTrigParticleCreation_EF( InDet__TrigParticleCreator ):
       InDetTrigPartCreaPrdAssociationTool     = None
       InDetTrigPartCreaTrackSummaryHelperTool = InDetTrigTrackSummaryHelperTool
       
+      # if InDetTrigFlags.doHolesOnTrack():
+      #    from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+      #    InDetTrigPartCreaTrackSummaryTool = Trk__TrackSummaryTool( name = "InDetTrigTrackSummaryToolHolesShared",
+      #                                                               InDetSummaryHelperTool = InDetTrigPartCreaTrackSummaryHelperTool,
+      #                                                               InDetHoleSearchTool = InDetTrigHoleSearchTool,
+      #                                                               doSharedHits = False )
 
-      from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorTool,InDetTrigParticleCreatorToolParams
-
-      creatorTool = InDetTrigParticleCreatorTool
+      #    ToolSvc += InDetTrigPartCreaTrackSummaryTool
+      # else:
+      #    InDetTrigPartCreaTrackSummaryTool   = InDetTrigTrackSummaryTool
+         
+      # load patricle creator tool
+      #
+      creatorName = "InDetTrigParticleCreatorTool"
+      keepPars=True
       if type=="photon":
-        creatorTool = InDetTrigParticleCreatorToolParams
+         creatorName = "InDetTrigParticleCreatorToolParams"
+         keepPars = True
 
-      self.ParticleCreatorTool = creatorTool
+      from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+      InDetTrigParticleCreatorTool = \
+          Trk__TrackParticleCreatorTool( name = creatorName,
+                                         Extrapolator = InDetTrigExtrapolator,
+                                         TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                         KeepParameters = keepPars,
+                                         ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
+                                         )
+
+      ToolSvc += InDetTrigParticleCreatorTool
+      if (InDetTrigFlags.doPrintConfigurables()):
+         print InDetTrigParticleCreatorTool
+
+      self.ParticleCreatorTool = Trk__TrackParticleCreatorTool(creatorName)
       self.PRDAssociationTool = InDetTrigPrdAssociationTool #for b-tagging
 
       #monitoring
@@ -261,16 +286,34 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
          
       # load patricle creator tool
       #
+      creatorName = "InDetTrigParticleCreatorTool"
+      keepPars=True
+      updateTrackSummary = True
+      summaryTool = InDetTrigTrackSummaryToolSharedHits
 
-
-      from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorToolWithSummary,InDetTrigParticleCreatorToolFTF
-
-      creatorTool = InDetTrigParticleCreatorToolWithSummary
+      if type=="photon":
+         creatorName = "InDetTrigParticleCreatorToolParams"
+         keepPars = True
 
       if "_FTF" in name:
-        creatorTool = InDetTrigParticleCreatorToolFTF
+        creatorName = "InDetTrigParticleCreatorTool_FTF"
+        updateTrackSummary = False
+        summaryTool = InDetTrigFastTrackSummaryTool
 
-      self.ParticleCreatorTool = creatorTool
+      from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+      InDetTrigParticleCreatorTool = \
+          Trk__TrackParticleCreatorTool( name = creatorName,
+                                         Extrapolator = InDetTrigExtrapolator,
+                                         TrackSummaryTool = summaryTool,
+                                         KeepParameters = keepPars,
+                                         ForceTrackSummaryUpdate = updateTrackSummary,  #summary update back here (slimmer not run anymore)
+                                         )
+
+      ToolSvc += InDetTrigParticleCreatorTool
+      if (InDetTrigFlags.doPrintConfigurables()):
+         print InDetTrigParticleCreatorTool
+
+      self.ParticleCreatorTool = Trk__TrackParticleCreatorTool(creatorName)
 
       #monitoring
       self.MonSliceSpecific = True
