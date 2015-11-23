@@ -11,13 +11,14 @@
 
 #include <math.h>
 #include <string>
+#include "MuonIdHelpers/MuonStationIndex.h"
 
 namespace ClusterSeg {
 
   struct Cluster {
   
-    Cluster( double x_, double y_, double z_, bool isPhi_, bool isMatch_ ,int barcode_);
-    Cluster( double x_, double y_, double z_, bool isPhi_, bool isMatch_ ,int barcode_, std::string chamberId_ );
+    Cluster( double x_, double y_, double z_, bool isPhi_, Muon::MuonStationIndex::TechnologyIndex tIndex_, Muon::MuonStationIndex::PhiIndex pIndex_, bool isMatch_ ,int barcode_);
+    Cluster( double x_, double y_, double z_, bool isPhi_, int tIndex_, int pIndex_, bool isMatch_ ,int barcode_);
 
     double x(){return m_x;}
     double y(){return m_y;}
@@ -28,17 +29,20 @@ namespace ClusterSeg {
     double theta(){return acos(m_z/(this->rSph()));}
     double eta(){return -log(tan(this->theta()/2.));}
     bool isPhi(){return m_isPhi;}
+    Muon::MuonStationIndex::TechnologyIndex techIndex(){return m_tIndex;}
+    Muon::MuonStationIndex::PhiIndex phiIndex(){return m_pIndex;}
     bool isMatch(){return m_isMatch;}
     int barcode(){return m_barcode;}
-    std::string chamberId(){return m_chamberId;}
 
-    bool isTGC(int num);
-    bool isSideA(){if(m_z > 0.) return true; else return false;}
+    
+    bool isSideA(){if (m_z > 0.) return true; else return false;}
 
     double m_x;
     double m_y;
     double m_z;
     bool m_isPhi; 
+    Muon::MuonStationIndex::TechnologyIndex m_tIndex;
+    Muon::MuonStationIndex::PhiIndex m_pIndex;
     bool m_isMatch;
     int m_barcode;
     std::string m_chamberId;
@@ -47,7 +51,7 @@ namespace ClusterSeg {
 
   struct SpacePoint {
 
-    SpacePoint( double eta_, double phi_, double z_,bool isMatch_ ,int barcode_,int eit_, int pit_);
+    SpacePoint( double eta_, double phi_, double z_, Muon::MuonStationIndex::TechnologyIndex tIndex_, Muon::MuonStationIndex::PhiIndex pIndex_, bool isMatch_ ,int barcode_,int eit_, int pit_);
 
     double x(){return this->rSph()*sin(this->theta())*cos(this->phi());}
     double y(){return this->rSph()*sin(this->theta())*sin(this->phi());}
@@ -57,16 +61,21 @@ namespace ClusterSeg {
     double phi(){return m_phi;}
     double theta(){return 2*atan(exp(-1*this->eta()));}
     double eta(){return m_eta;} 
+    Muon::MuonStationIndex::TechnologyIndex techIndex(){return m_tIndex;}
+    Muon::MuonStationIndex::PhiIndex phiIndex(){return m_pIndex;}
     bool isMatch(){return m_isMatch;}
     int barcode(){return m_barcode;}
     int eit(){return m_eit;}
     int pit(){return m_pit;}
 
     bool isTGC(int num);
+    bool isRPC(int num);
 
     double m_eta;
     double m_phi;
     double m_z;
+    Muon::MuonStationIndex::TechnologyIndex m_tIndex;
+    Muon::MuonStationIndex::PhiIndex m_pIndex;
     bool m_isMatch;
     int m_barcode;
     int m_eit;

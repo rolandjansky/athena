@@ -25,8 +25,13 @@ namespace ClusterSeg {
 
     private:
 
-      std::vector<std::vector<SpacePoint>> createSeeds(std::vector<SpacePoint>& points);
-      std::vector<SpacePoint> createSpacePoints(std::vector<Cluster*>& clust);
+      std::vector<std::vector<SpacePoint>> createTGCSeeds(std::vector<SpacePoint> points);
+      std::vector<std::vector<SpacePoint>> createRPCSeeds(std::vector<SpacePoint> points);
+      void createSeedsAllLayers(std::vector<SpacePoint> layer1Points,std::vector<SpacePoint> layer2Points,std::vector<SpacePoint> layer3Points,
+                                             std::vector<std::vector<SpacePoint>>& seeds);
+      void createSeedsTwoLayers(std::vector<SpacePoint> layer1Points,std::vector<SpacePoint> layer2Points,
+                                             std::vector<std::vector<SpacePoint>>& seeds);
+      std::vector<SpacePoint> createSpacePoints(std::vector<Cluster*> clust);
 
       TTree*        m_tree;
       ClusterNtuple m_ntuple;

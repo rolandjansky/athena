@@ -15,6 +15,9 @@ use GeoPrimitives GeoPrimitives-* DetectorDescription
 library MuonLinearSegmentMakerUtilities *.cxx
 apply_pattern installed_library
 
+public 
+use MuonIdHelpers               * MuonSpectrometer
+
 private 
 use AtlasGSL                    * External
 use MuonSegment                 * MuonSpectrometer/MuonReconstruction/MuonRecEvent
