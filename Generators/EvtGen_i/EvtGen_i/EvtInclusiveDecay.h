@@ -78,7 +78,8 @@ class EvtInclusiveDecay:public GenBase {
 		void removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticle* p);
 		void decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle* p);
 		void addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticle* part,
-					EvtParticle* evtPart, double momentumScaleFactor = 1.0);
+					EvtParticle* evtPart, EvtVector4R treeStart,
+                                        double momentumScaleFactor = 1.0);
 
 		bool isToBeDecayed(const HepMC::GenParticle* p, bool doCrossChecks);
 		bool isDefaultB(const int pId) const;
@@ -150,7 +151,7 @@ class EvtInclusiveDecay:public GenBase {
     double m_userSelMu2MaxEta;
     double m_userSelMinDimuMass;
     double m_userSelMaxDimuMass;
-    
+    bool m_isfHerwig;    
 };
 
 #endif
