@@ -20,9 +20,6 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "TrkTrack/TrackCollection.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiTrackMaker.h"
@@ -124,6 +121,7 @@ namespace InDet{
       bool                           m_useSSSfilter  ;
       bool                           m_useHClusSeed  ; // Hadronic Calorimeter Seeds 
       bool                           m_sss           ; // True if SSS seed without filter 
+      bool                           m_ITKGeomtry    ; // ITK geometry
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd   ; // max Xi2 for clusters
@@ -179,14 +177,6 @@ namespace InDet{
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
-      //save SiSPSeedSegment
-      ToolHandle<Trk::IExtrapolator>        m_extrapolator; 		//!< extrapolator
-      ToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator; 		//!< Creator ROT
-      mutable TrackCollection*              m_seedsegmentsCollection; 	//!< output collection for seed
-      bool                                  m_seedsegmentsWrite; 	//!< Write out seedsegments or not
-      std::string                           m_seedsegmentsOutput; 	//!< SiSpSeedSegments Output Collection
-
-
     };
 
     MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);

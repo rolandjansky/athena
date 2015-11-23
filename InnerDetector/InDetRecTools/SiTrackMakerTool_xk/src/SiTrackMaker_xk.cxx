@@ -32,16 +32,14 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   : AthAlgTool(t,n,p)                                        ,
     m_fieldServiceHandle("AtlasFieldSvc",n), 
     m_roadmaker   ("InDet::SiDetElementsRoadMaker_xk"    ),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
-    m_extrapolator("Trk::Extrapolator"),
-    m_rotcreator("InDetRotCreator")
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk")
 {
   m_fieldmode    = "MapSolenoid"      ;
   m_patternName  = "SiSPSeededFinder" ; 
   m_pix          = false              ;
   m_sct          = false              ;
-  m_usePix       = true              ;
-  m_useSct       = true              ;
+  m_usePix       = true               ;
+  m_useSct       = true               ;
   m_useassoTool  = false              ;
   m_cosmicTrack  = false              ;    
   m_simpleTrack  = false              ;
@@ -49,7 +47,8 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_useBremModel = false              ;
   m_useCaloSeeds = false              ;
   m_useHClusSeed = false              ;
-  m_useSSSfilter = true               ; 
+  m_useSSSfilter = true               ;
+  m_ITKGeomtry   = false              ;
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
   m_xi2maxlink   = 200.               ;
@@ -57,7 +56,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_pTmin        = 500.               ;
   m_pTminBrem    = 1000.              ;
   m_pTminSSS     = 1000.              ;
-  m_distmax      = 5.                 ;
+  m_distmax      = 3.                 ;
   m_nholesmax    = 2                  ;
   m_dholesmax    = 2                  ;
   m_nclusmin     = 6                  ;
@@ -71,9 +70,6 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_etaWidth     = .3                 ;
   m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
   m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
-  m_seedsegmentsWrite = false;
-  m_seedsegmentsCollection = 0;
-  m_seedsegmentsOutput = "SiSPSeedSegments";
   m_beamconditions               = "BeamCondSvc"            ;
 
   declareInterface<ISiTrackMaker>(this);
@@ -108,9 +104,9 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("InputClusterContainerName"   ,m_inputClusterContainerName   );
   declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
-  declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
   declareProperty("useSCT"                  , m_useSct);
   declareProperty("usePixel"                , m_usePix);
+  declareProperty("ITKGeometry"             , m_ITKGeomtry);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -183,11 +179,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   else if(m_patternName == "SiSpacePointsSeedMaker_ForwardTracks"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ForwardTracks    );
   }
-  /*     
   else if(m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
-  } 
-  */    
+  }     
   else                                                            {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );
   } 
@@ -215,23 +209,6 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }
   
   if(m_pTmin < 20.) m_pTmin = 20.;
-  // save SeedSegments
-  if(m_seedsegmentsWrite){
-    if(m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL ("Could not retrieve "<< m_extrapolator);
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_VERBOSE( "initialize() Retrieved service " << m_extrapolator);
-
-    // Retrieve the Track RotCreator tool
-    if(m_rotcreator.retrieve().isFailure()) {
-      ATH_MSG_FATAL ("Could not retrieve "<< m_rotcreator);
-      return StatusCode::FAILURE;
-    } else
-      ATH_MSG_VERBOSE( "initialize() Retrieved service " << m_rotcreator);
-  }
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -374,9 +351,6 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
   m_sct          = SCT && m_useSct;
   m_simpleTrack  = false;
 
-  // save seedsegments
-  if(m_seedsegmentsWrite)m_seedsegmentsCollection = new TrackCollection;
-
   setTrackQualityCuts();
 
   // New event for track finder tool
@@ -473,30 +447,6 @@ void InDet::SiTrackMaker_xk::endEvent()
 {
 
   // End event for track finder tool
-  // save seedsegments
-  if(m_seedsegmentsWrite){
-    const TrackCollection*  inputTracks = 0;
-    if(evtStore()->retrieve(inputTracks, m_seedsegmentsOutput)&&inputTracks) {
-      TrackCollection::const_iterator t,te = inputTracks->end();
-      for (t=inputTracks->begin(); t!=te; ++t) {
-       m_seedsegmentsCollection->push_back(new Trk::Track(*(*t)) );
-      }
-      msg(MSG::INFO)<<"Check SiSPSeedSegments Collection "<<m_seedsegmentsCollection->size()<<" inputTracks: "<<inputTracks->size()<<" "<<m_trackinfo<< endreq;
-      StatusCode s = evtStore()->overwrite(m_seedsegmentsCollection,m_seedsegmentsOutput,true);
-      if (s.isFailure() ) {
-        msg(MSG::ERROR)<<"Could not overwrite converted SiSPSeedSegments tracks" <<endreq;
-      }
-    }
-    else{
-      msg(MSG::INFO)<<" Check SiSPSeedSegments Collection "<<m_seedsegmentsCollection->size()<<" "<<m_trackinfo<< endreq;
-      StatusCode s = evtStore()->record(m_seedsegmentsCollection,m_seedsegmentsOutput,true);
-      if (s.isFailure() ) {
-       msg(MSG::ERROR)<<"Could not save converted SiSPSeedSegments tracks" <<endreq;
-      }
-    }
-  }
-
-
   //
   m_tracksfinder->endEvent();
 
@@ -571,54 +521,6 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
     }
   }
   m_findtracks+=m_tracks.size();
-
-  // save the seedsegments
-  if(m_seedsegmentsWrite){
-    std::vector<const Trk::PrepRawData*> prdsInSp;
-    std::list<const Trk::SpacePoint*>::const_iterator is=Sp.begin(),ise=Sp.end();
-    for(; is !=ise; ++is){
-      const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>& prds = (**is).clusterList();
-      if(prds.first)prdsInSp.push_back(prds.first);
-      if(prds.second&&prds.first != prds.second)prdsInSp.push_back(prds.second);
-    }
-    Trk::PerigeeSurface persurf;
-    const Trk::TrackParameters *per = m_extrapolator->extrapolate(*Tp,persurf,Trk::anyDirection,false,Trk::nonInteracting);
-    const Trk::TrackParameters *prevpar = Tp;
-    if(per){
-      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-      typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      const Trk::TrackStateOnSurface *pertsos=new Trk::TrackStateOnSurface(0,per,0,0,typePattern);
-      DataVector<const Trk::TrackStateOnSurface>* traj = new DataVector<const Trk::TrackStateOnSurface>;
-      traj->push_back(pertsos);
-      int ix1=0;
-      int i=0;
-      for ( ;i<(int)prdsInSp.size();i++){
-       const Trk::Surface &surf=prdsInSp[i]->detectorElement()->surface(prdsInSp[i]->identify());
-       const Trk::TrackParameters *thispar = m_extrapolator->extrapolate(*prevpar,surf,Trk::alongMomentum,false,Trk::nonInteracting);
-       if(thispar){
-         const Trk::TrackParameters *tmppar=thispar->clone();
-         delete thispar;
-         thispar=tmppar;
-         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-         typePattern.set(Trk::TrackStateOnSurface::Measurement);
-         const Trk::RIO_OnTrack *rot=0;
-         rot=m_rotcreator->correct(*prdsInSp[i],*thispar);
-         if (rot){
-           const Trk::TrackStateOnSurface *tsos=new Trk::TrackStateOnSurface(rot,thispar,0,0,typePattern);
-           traj->push_back(tsos);
-           prevpar=thispar;
-           ix1++;
-         }
-       }
-      }
-      Trk::TrackInfo trkinfo = m_trackinfo;
-      if(m_tracks.size()>0){ // survived seeds set as
-       trkinfo.setTrackFitter(Trk::TrackInfo::xKalman); // xk seedfinder
-      }
-      Trk::Track* t = new Trk::Track(trkinfo,traj,0);
-      if(t)m_seedsegmentsCollection->push_back(t);
-    }
-  }
   delete Tp;
   return m_tracks;
 }
@@ -956,6 +858,8 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
   }
   if(trackseed.empty()) return true;
 
+  if(m_ITKGeomtry && n!=3 && n!=6) return false;
+ 
   std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
 
   const Trk::Track* tr  = (*t)                             ;
@@ -972,8 +876,8 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     unsigned int ns = tr->measurementsOnTrack()->size(); if(ns > nsm) nsm = ns;
   }
   if(nt == n) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;}
-  
-  if(nsm3 > 13 || t3 > 2) return false;
+
+  if( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
 
   if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
   if(t3 > 0) return false;
@@ -1201,6 +1105,7 @@ bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s)
     static_cast<const InDetDD::SiDetectorElement*>(s->clusterList().first->detectorElement());
   return de && de->isDBM();
 }
+
 ///////////////////////////////////////////////////////////////////
 // Calculation global direction for positions of space points
 ///////////////////////////////////////////////////////////////////
