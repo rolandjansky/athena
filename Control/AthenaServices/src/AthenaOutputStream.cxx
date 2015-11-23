@@ -521,7 +521,12 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   tns << tn;
                }
 
-               if (aux_attr.size()) {
+               // Make the decision whether to try to call
+               // SG::IAuxStoreIO::selectAux(...) based on the SG key of the
+               // object. Because even if aux_attr is empty, we may need to
+               // reset an auxiliary store back to not being slimmed, after
+               // a previous stream slimmed it.
+               if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
                   SG::IAuxStoreIO* auxio(0);
                   try {
                      SG::fromStorable(itemProxy->object(), auxio, true);
@@ -534,6 +539,10 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   if( auxio ) {
                      // collect dynamic Aux selection (parse the line, attributes separated by dot)
                      std::set<std::string> attributes;
+                     // Start by resetting the object. This is needed in case a
+                     // previous stream set some selection on it that we don't
+                     // need here.
+                     auxio->selectAux( attributes );
                      if( aux_attr.size() ) {
                         std::stringstream ss(aux_attr);
                         std::string attr;
