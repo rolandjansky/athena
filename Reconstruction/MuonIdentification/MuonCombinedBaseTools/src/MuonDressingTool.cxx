@@ -203,8 +203,13 @@ namespace MuonCombined {
               ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::chName(index) );
             }
             if( hits ){
-              *hits  += chit->netaHits();
-              *holes += chit->etaProjection().nholes;
+              if(isMdt) {
+                *hits  += chit->nhits();
+                *holes += chit->nholes();
+              } else {
+                *hits  += chit->netaHits();
+                *holes += chit->etaProjection().nholes;
+              }
             }
           }
           if( !isMdt && !isMM ){
