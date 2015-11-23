@@ -281,23 +281,32 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
           InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
           InDetTrigHoleSearchTool,InDetTrigExtrapolator
-      
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+
          
       # load patricle creator tool
       #
       creatorName = "InDetTrigParticleCreatorTool"
       keepPars=True
+      updateTrackSummary = True
+      summaryTool = InDetTrigTrackSummaryToolSharedHits
+
       if type=="photon":
          creatorName = "InDetTrigParticleCreatorToolParams"
          keepPars = True
+
+      if "_FTF" in name:
+        creatorName = "InDetTrigParticleCreatorTool_FTF"
+        updateTrackSummary = False
+        summaryTool = InDetTrigFastTrackSummaryTool
 
       from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
       InDetTrigParticleCreatorTool = \
           Trk__TrackParticleCreatorTool( name = creatorName,
                                          Extrapolator = InDetTrigExtrapolator,
-                                         TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
+                                         TrackSummaryTool = summaryTool,
                                          KeepParameters = keepPars,
-                                         ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
+                                         ForceTrackSummaryUpdate = updateTrackSummary,  #summary update back here (slimmer not run anymore)
                                          )
 
       ToolSvc += InDetTrigParticleCreatorTool
