@@ -45,31 +45,35 @@ DblQ00Xtomo::DblQ00Xtomo(IRDBQuery* m_xtomo)
       m_d[i].XTOMONBERTUBE2 = m_xtomo->data<int>("XTOMODATA_DATA.XTOMONBERTUBE2");
       m_d[i].XTOMONBERML = m_xtomo->data<int>("XTOMODATA_DATA.XTOMONBERML");
       m_d[i].XTOMONBERLAYER = m_xtomo->data<int>("XTOMODATA_DATA.XTOMONBERLAYER");
+      try {
+	m_d[i].XTOMOML1STAGG = m_xtomo->data<int>("XTOMODATA_DATA.XTOMOML1STAGG");
+      } catch (std::exception&) {} // ignore exception for now: field missing in MuonSpectrometer-R.06.01-tomotest
+      try {
+        m_d[i].XTOMOML2STAGG = m_xtomo->data<int>("XTOMODATA_DATA.XTOMOML2STAGG");
+      } catch (std::exception&) {} // ignore exception for now: field missing in MuonSpectrometer-R.06.01-tomotest
+      try {
+        m_d[i].XTOMOD1 = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOD1");
+      } catch (std::exception&) {} // ignore exception for now: field missing in MuonSpectrometer-R.06.01-tomotest
+      try {
+        m_d[i].XTOMONMEZ = m_xtomo->data<int>("XTOMODATA_DATA.XTOMONMEZ");
+      } catch (std::exception&) {} // ignore exception for now: field missing in MuonSpectrometer-R.06.01-tomotest
       m_d[i].XTOMOML1NYTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NYTUB");
       m_d[i].XTOMOML1NZTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NZTUB"); 
-      m_d[i].XTOMOML1NDELY = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NDELY"); 
-      m_d[i].XTOMOML1NDELZ = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NDELZ"); 
       m_d[i].XTOMOML1NDELA = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NDELA"); 
       m_d[i].XTOMOML1NYPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NYPIT"); 
       m_d[i].XTOMOML1NZPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1NZPIT"); 
       m_d[i].XTOMOML1PYTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PYTUB"); 
       m_d[i].XTOMOML1PZTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PZTUB"); 
-      m_d[i].XTOMOML1PDELY = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PDELY"); 
-      m_d[i].XTOMOML1PDELZ = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PDELZ"); 
       m_d[i].XTOMOML1PDELA = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PDELA"); 
       m_d[i].XTOMOML1PYPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PYPIT"); 
       m_d[i].XTOMOML1PZPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML1PZPIT"); 
       m_d[i].XTOMOML2NYTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NYTUB"); 
       m_d[i].XTOMOML2NZTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NZTUB"); 
-      m_d[i].XTOMOML2NDELY = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NDELY"); 
-      m_d[i].XTOMOML2NDELZ = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NDELZ"); 
       m_d[i].XTOMOML2NDELA = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NDELA"); 
       m_d[i].XTOMOML2NYPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NYPIT"); 
       m_d[i].XTOMOML2NZPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2NZPIT"); 
       m_d[i].XTOMOML2PYTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PYTUB"); 
       m_d[i].XTOMOML2PZTUB = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PZTUB"); 
-      m_d[i].XTOMOML2PDELY = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PDELY"); 
-      m_d[i].XTOMOML2PDELZ = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PDELZ"); 
       m_d[i].XTOMOML2PDELA = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PDELA"); 
       m_d[i].XTOMOML2PYPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PYPIT"); 
       m_d[i].XTOMOML2PZPIT = m_xtomo->data<float>("XTOMODATA_DATA.XTOMOML2PZPIT"); 
