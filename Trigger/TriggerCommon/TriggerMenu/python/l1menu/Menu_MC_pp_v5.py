@@ -331,7 +331,7 @@ def defineMenu():
         'L1_MU20_FIRSTEMPTY',
 
         # multi lepton
-        "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM13VH", "L1_2EM15", "L1_2EM15VH", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7",
+        "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM13VH", "L1_2EM15", "L1_2EM15VH", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7","L1_EM20VH_2EM7",
         "L1_2MU4", "L1_2MU6", "L1_2MU10", "L1_2MU20_OVERLAY", "L1_MU10_2MU6", "L1_MU11_2MU6", "L1_3MU4", "L1_MU6_2MU4", "L1_3MU6", "L1_MU6_3MU4", "L1_2MU6_3MU4",
         "L1_EM7_MU10", "L1_EM8I_MU10", "L1_EM15I_MU4", "L1_2EM8VH_MU10", "L1_EM15VH_MU10", 
 
@@ -469,7 +469,7 @@ def defineMenu():
         #'L1_LUCID_COMM_EMPTY', 'L1_LUCID_COMM_UNPAIRED_ISO', 
 
         # ZDC
-        'L1_ZDC_A', 'L1_ZDC_C',
+        'L1_ZDC_A', 'L1_ZDC_C', 'L1_ZDC_A_C',
         'L1_ZDC_AND', # FTHR
 
         # VDM
@@ -728,6 +728,7 @@ def defineMenu():
         'L1_EM7_2EM3' : 29,
         'L1_EM12_2EM3' : 30,
         'L1_EM15VH_3EM7' : 31,
+        'L1_EM20VH_2EM7' : 423, 
         'L1_2MU4' : 32,
         'L1_2MU6' : 33,
         'L1_2MU10' : 34,
@@ -1121,6 +1122,7 @@ def defineMenu():
         'L1_ZDC_A':419,
         'L1_ZDC_C':420,
         'L1_ZDC_AND':421, 
+        'L1_ZDC_A_C':422, 
         
         'L1_ALFA_ELAST1'  : 424,
         'L1_ALFA_ELAST2'  : 425,

@@ -27,7 +27,7 @@ class ThresholdDef:
         # EM 
         ThresholdValue.setDefaults('EM',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 30, 50]:
+        for thrV in [3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 18, 20, 22, 30, 50]:
             tc.registerThr('EM%i' % thrV, 'EM').addThrValue(thrV)
 
 
@@ -167,7 +167,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [6, 8, 12, 15, 20, 25, 30, 40, 60]:
+        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         # beam splashes     

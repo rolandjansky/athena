@@ -98,6 +98,7 @@ class ItemDef:
         LVL1MenuItem('L1_EM20'      ).setLogic( EM20       & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM20VH'    ).setLogic( EM20VH     & physcond).setTriggerType( TT.calo )  
         LVL1MenuItem('L1_EM20VHI'   ).setLogic( EM20VHI    & physcond).setTriggerType( TT.calo )  # isolation not yet defined
+        LVL1MenuItem('L1_EM22'      ).setLogic( EM22       & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM22VHI'   ).setLogic( EM22VHI    & physcond).setTriggerType( TT.calo )  # isolation not yet defined
         LVL1MenuItem('L1_EM50V'     ).setLogic( EM50V      & physcond).setTriggerType( TT.calo )
 
@@ -114,7 +115,8 @@ class ItemDef:
         LVL1MenuItem('L1_2EM15VH'        ).setLogic( EM15VH.x(2)          & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM7_2EM3'       ).setLogic( EM7 & EM3.x(2)       & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_EM12_2EM3'      ).setLogic( EM12 & EM3.x(2)      & physcond).setTriggerType( TT.calo )
-        
+        LVL1MenuItem('L1_EM20VH_2EM7'    ).setLogic( EM20VH & EM7.x(2)    & physcond).setTriggerType( TT.calo )        
+
         # 4xEM
         LVL1MenuItem('L1_EM15VH_3EM7'   ).setLogic( EM15VH & EM7.x(3)    & physcond).setTriggerType( TT.calo )
 
@@ -171,7 +173,8 @@ class ItemDef:
         LVL1MenuItem('L1_EM5_FIRSTEMPTY'     ).setLogic(EM5 & firstempty).setTriggerType( TT.calo )
 
         LVL1MenuItem('L1_EM7_EMPTY'          ).setLogic(EM7 & cosmiccond).setTriggerType( TT.calo )
-        LVL1MenuItem('L1_EM7_UNPAIRED_ISO'   ).setLogic(EM7 & unpaired_isocond).setTriggerType( TT.calo ) 
+        LVL1MenuItem('L1_EM7_UNPAIRED_ISO'   ).setLogic(EM7 & unpaired_isocond).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_EM7_UNPAIRED_NONISO').setLogic(EM7 & unpaired_nonisocond).setTriggerType( TT.calo ) 
         LVL1MenuItem('L1_EM7_FIRSTEMPTY'     ).setLogic(EM7 & firstempty).setTriggerType( TT.calo )
 
         LVL1MenuItem('L1_EM20VH_FIRSTEMPTY'    ).setLogic( EM20VH & firstempty).setTriggerType( TT.calo )  
@@ -300,7 +303,12 @@ class ItemDef:
         LVL1MenuItem('L1_TAU8_UNPAIRED_NONISO').setLogic( HA8   & unpaired_nonisocond ).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU8_EMPTY'          ).setLogic( HA8   & cosmiccond ).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU8_FIRSTEMPTY'     ).setLogic( HA8   & firstempty ).setTriggerType( TT.calo )
-        
+
+        LVL1MenuItem('L1_TAU12_UNPAIRED_ISO').setLogic( HA12   & unpaired_isocond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU12_UNPAIRED_NONISO').setLogic( HA12   & unpaired_nonisocond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU12_EMPTY'          ).setLogic( HA12  & cosmiccond ).setTriggerType( TT.calo )
+        LVL1MenuItem('L1_TAU12_FIRSTEMPTY'     ).setLogic( HA12   & firstempty ).setTriggerType( TT.calo )
+
         # 3xTAU
         LVL1MenuItem('L1_TAU20_2TAU12'  ).setLogic( HA20 & HA12.x(2)  & physcond).setTriggerType( TT.calo )
         LVL1MenuItem('L1_TAU20_2TAU12I' ).setLogic( HA20 & HA12I.x(2) &  physcond).setTriggerType( TT.calo )

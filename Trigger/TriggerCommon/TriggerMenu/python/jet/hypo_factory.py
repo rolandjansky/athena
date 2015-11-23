@@ -6,18 +6,16 @@ from eta_string_conversions import eta_string_to_floats
 
 def hypo_factory(key, args):
 
-    if key == 'standard':
+    if key == 'HLThypo':
+        return JetHLTHypo(args)
+    if key == 'run1hypo':
         return JetStandardHypo(args)
-    if key == 'single_region':
+    if key == 'HLTSRhypo':
         return JetSingleEtaRegionHypo(args)
-    if key == 'single_region_cleaning':
-        return JetSingleEtaRegionCleaningHypo(args)
-    if key == 'maximum_bipartite':
-        return JetMaximumBipartiteHypo(args)
     if key == 'ht':
         return HTHypo(args)
 
-    raise RuntimeError('hypo_factory: unknoen key %s' % key)
+    raise RuntimeError('hypo_factory: unknown key %s' % key)
 
 class HypoAlg(object):
     """ Argument checking class that holds the  parameters for an
@@ -105,7 +103,7 @@ class JetHypo(HypoAlg):
 
 
 class JetStandardHypo(JetHypo):
-    hypo_type = 'standard'
+    hypo_type = 'run1hypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
@@ -125,25 +123,26 @@ class JetStandardHypo(JetHypo):
         return self.jet_attributes[0].eta_range
 
 
-class JetSingleEtaRegionHypo(JetStandardHypo):
-    hypo_type = 'single_region'
-
-    def __init__(self, ddict):
-        JetStandardHypo.__init__(self, ddict)
-
-
-class JetSingleEtaRegionCleaningHypo(JetStandardHypo):
-    hypo_type = 'single_region_cleaning'
-
-    def __init__(self, ddict):
-        JetStandardHypo.__init__(self, ddict)
-
-
-class JetMaximumBipartiteHypo(JetHypo):
-    hypo_type = 'maximum_bipartite'
+class JetHLTHypo(JetHypo):
+    hypo_type = 'HLThypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
+        
+    def _check_args(self, ddict):
+        JetHypo._check_args(self, ddict)
+
+        must_have = ('cleaner',
+                     )
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+
+class JetSingleEtaRegionHypo(JetHLTHypo):
+    hypo_type = 'HLTSRhypo'
+
+    def __init__(self, ddict):
+        JetHLTHypo.__init__(self, ddict)
 
 
 class HTHypo(HypoAlg):

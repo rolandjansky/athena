@@ -21,6 +21,9 @@ from SequenceTree import SequenceLinear
 from ChainConfigMaker import ChainConfigMaker
 from AlgFactory import AlgFactory
 
+from JetCleanMonitoring import JetChainsToKeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
 
 try:
     from AthenaCommon.Logging import logging
@@ -75,7 +78,7 @@ def _check_values(chain_parts):
 
     # input data check
     must_have = ('etaRange', 'threshold', 'recoAlg', 'dataType', 'calib',
-                 'addInfo', 'jetCalib')
+                 'addInfo', 'jetCalib', 'cleaning')
 
     for cp in chain_parts:
         missing = [k for k in must_have if k not in cp]
@@ -173,11 +176,18 @@ def _make_chaindef(from_central, instantiator):
                          lower_chain_name=chain_config.seed)
 
     # add sequence and signature (check point) information to it
-    
+
+    disableMon = not KeepMonitoring(final_chain_name,JetChainsToKeepMonitoring, strictComparison = True) #reduce number of online histograms according to a whitelist, strictComparison is needed as e.g. j25 is found as a substring in other chain names
 
     sig_ind = 0
     for s in sequences:
         
+        if disableMon: #if block used to remove online histograms of a hypo's AthenaMonTools
+            if "hypo" in s.alias:
+                for thisalg in s.alg_list:
+                    if hasattr(thisalg,"AthenaMonTools"):
+                        thisalg.AthenaMonTools = DisableMonitoringButValAndTime(thisalg.AthenaMonTools)
+    
         sig_ind += 1
         chain_def.addSequence(listOfAlgorithmInstances=s.alg_list,
                               te_in=s.te_in,

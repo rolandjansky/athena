@@ -64,7 +64,8 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       '11invm60','18invm60', 'bUpsi',
                       'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp',
-                      '11invm24', '24invm60']
+                      '11invm24', '24invm60',
+                      'tightChi2', 'Lxy0']
 AllowedTopos_jet = ['muvtx',
                     'llp',
 		    'noiso',
@@ -97,6 +98,9 @@ JetChainParts = {
     'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'trigType'     : ['j'],
     'extra'        : ['noL1','test1','test2','test3'],
+    'cleaning'     : ['cleanL','cleanT','cleanL','cleanLLP',
+                      'cleanLA','cleanTA','cleanLA','cleanLLPA', 'noCleaning'
+                      ],
     'recoAlg'      : ["a3","a4", "a10", "a10r"],
     'dataType'     : ['TT', 'tc', 'cc', 'ion'],
     'calib'        : ["had","lcw","em"],
@@ -120,6 +124,7 @@ JetChainParts_Default = {
     'etaRange'     : '0eta320',
     'trigType'     :'j',
     'extra'        : '',
+    'cleaning'     : 'noCleaning',
     'recoAlg'      :'a4',
     'dataType'     :'tc',
     'calib'        :'em',
@@ -223,7 +228,7 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
     'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic','dikaon', 'dikaontight'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
@@ -326,7 +331,7 @@ ElectronChainParts = {
     'threshold'      : '',
     'etaRange'       : ['0eta250', '250eta490'],
     'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose'],
-    'isoInfo'        : [ 'iloose'],
+    'isoInfo'        : [ 'iloose','ivarloose'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDTrkNoCut','FwdBackTrk','idperf'],
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],
@@ -457,11 +462,11 @@ MinBiasChainParts = {
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
-    'hypoL2Info'     : ['sp2', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp900',
+    'hypoL2Info'     : ['sp2', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
                         'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
-                        'sp2000', 'sp2100', 'sp2400', 'sp2500', 'sp2700', 'sp3000', ],
-    'pileupInfo'     : ['pusup350', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800',
-                        'pusup1000', 'pusup1100', 'pusup1300', 'pusup1400', 'pusup1500',],
+                        'sp2000', 'sp2100', 'sp2200', 'sp2400', 'sp2500', 'sp2700', 'sp3000', ],
+    'pileupInfo'     : ['pusup350', 'pusup400', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800',
+                        'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
     'hypoEFInfo'     : ['trk10', 'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 
                         'pt4', 'pt6', 'pt8', ],
@@ -503,8 +508,9 @@ HeavyIonChainParts = {
     'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 'perf', 'perfzdc'],
     'IDinfo'         : [],
     'trkInfo'        : [],
-    'eventShape'     : ['v2', 'v3'],
-    'hypoL2Info'     : ['loose', 'medium', 'tight'],
+    'eventShape'     : ['v2', 'v3', 'v23'],
+    'eventShapeVeto' : ['veto2', 'veto3'],
+    'hypoL2Info'     : ['loose', 'medium', 'tight', 'gg',],
     'pileupInfo'     : [],
     'hypoEFInfo'     : [],
     'hypoEFsumEtInfo': ['fcalet3000', 'fcalet3306', 'fcalet3391', 'fcalet3516',],
@@ -524,6 +530,7 @@ HeavyIonChainParts_Default = {
     'IDinfo'         : '',
     'trkInfo'        : '',
     'eventShape'     : '',
+    'eventShapeVeto' : '',
     'hypoL2Info'       : '',
     'pileupInfo'       : '',
     'hypoEFInfo'       : '',
@@ -624,7 +631,9 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'lhcfpeb',
                                 'alfaidpeb',
                                 'larpebj',
-                                'l1satmon']
+                                'l1satmon',
+                                'zdcpeb',
+                                ]
 
 # ---- Calib Chain Dictinary of all allowed Values ----
 ##stramingInfo not use in ChainConfiguration, only to distinguish streaming
@@ -667,7 +676,7 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon']
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow']
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {

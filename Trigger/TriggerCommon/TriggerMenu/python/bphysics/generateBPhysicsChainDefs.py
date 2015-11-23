@@ -341,6 +341,15 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_Jpsi_passL2()
         EFFex  = EFBMuMuFex_Jpsi()
         EFHypo = EFBMuMuHypo_Jpsi() 
+    elif ('bBmumu' in topoAlgs) & ('noL2' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_passL2
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_B
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_B
+        L2Fex  = L2BMuMuFex_DiMu_passL2()
+        L2Hypo = L2BMuMuHypo_DiMu_passL2()
+        EFFex  = EFBMuMuFex_B()
+        EFHypo = EFBMuMuHypo_B() 
     elif ('bDimu' in topoAlgs) & ('noEFbph' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu
@@ -359,6 +368,71 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_Jpsi()
         EFFex  = EFBMuMuFex_passEF()
         EFHypo = EFBMuMuHypo_passEF() 
+    # Tight Chi2 variants
+    elif ('bJpsimumu' in topoAlgs) & ('tightChi2' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_tightChi2
+        L2Fex  = L2BMuMuFex_Jpsi()
+        L2Hypo = L2BMuMuHypo_Jpsi()
+        EFFex  = EFBMuMuFex_Jpsi()
+        EFHypo = EFBMuMuHypo_Jpsi_tightChi2() 
+    elif ('bDimu' in topoAlgs) & ('tightChi2' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_tightChi2
+        L2Fex  = L2BMuMuFex_DiMu()
+        L2Hypo = L2BMuMuHypo_DiMu()
+        EFFex  = EFBMuMuFex_DiMu()
+        EFHypo = EFBMuMuHypo_DiMu_tightChi2() 
+    elif ('bBmumu' in topoAlgs) & ('tightChi2' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_B
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_B
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_B
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_B_tightChi2
+        L2Fex  = L2BMuMuFex_B()
+        L2Hypo = L2BMuMuHypo_B()
+        EFFex  = EFBMuMuFex_B()
+        EFHypo = EFBMuMuHypo_B_tightChi2() 
+    elif ('bUpsimumu' in topoAlgs) & ('tightChi2' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Upsi
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Upsi
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_Upsi
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Upsi_tightChi2
+        L2Fex  = L2BMuMuFex_Upsi()
+        L2Hypo = L2BMuMuHypo_Upsi()
+        EFFex  = EFBMuMuFex_Upsi()
+        EFHypo = EFBMuMuHypo_Upsi_tightChi2() 
+    # Lxy > 0 variants
+    elif ('bJpsimumu' in topoAlgs) & ('Lxy0' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_Lxy0
+        L2Fex  = L2BMuMuFex_Jpsi()
+        L2Hypo = L2BMuMuHypo_Jpsi()
+        EFFex  = EFBMuMuFex_Jpsi()
+        EFHypo = EFBMuMuHypo_Jpsi_Lxy0() 
+    elif ('bDimu' in topoAlgs) & ('Lxy0' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_Lxy0
+        L2Fex  = L2BMuMuFex_DiMu()
+        L2Hypo = L2BMuMuHypo_DiMu()
+        EFFex  = EFBMuMuFex_DiMu()
+        EFHypo = EFBMuMuHypo_DiMu_Lxy0() 
+    elif ('bBmumu' in topoAlgs) & ('Lxy0' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_B
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_B
+        from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_B
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_B_Lxy0
+        L2Fex  = L2BMuMuFex_B()
+        L2Hypo = L2BMuMuHypo_B()
+        EFFex  = EFBMuMuFex_B()
+        EFHypo = EFBMuMuHypo_B_Lxy0() 
     else:
         logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 

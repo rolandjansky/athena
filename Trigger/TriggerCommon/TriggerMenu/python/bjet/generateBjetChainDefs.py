@@ -148,6 +148,13 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     btracking = chainParts['bTracking']
     bmatching = chainParts['bMatching']
 
+    print "JK chainParts[bTracking] is ",chainParts['bTracking']
+    ftk=""
+    if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKrefit' in chainParts['bTracking']:
+        ftk="FTKVtx"
+
+    print "JK ftk is ",ftk
+
     #-----------------------------------------------------------------------------------
     # Import of algs
     #-----------------------------------------------------------------------------------
@@ -192,8 +199,29 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
 
     # tracking
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+#    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
+#    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+
+    if 'FTKVtx' in chainParts['bTracking']:
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+    elif 'FTKrefit' in chainParts['bTracking']:
+        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence # new
+        [trkvtx, trkftf] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["refit","2step"]).getSequence() # new
+        trkprec=[""]
+    elif 'FTK' in chainParts['bTracking']:
+        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence # new
+        [trkvtx, trkftf] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["2step"]).getSequence() # new
+        trkprec=[""]
+    else:
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+
+
+    print "JK trkvtx: ", trkvtx 
+    print "JK trkftf: ", trkftf 
+    print "JK trkprec: ", trkprec 
+
     # for b-tagging
     theBjetTracks = trkftf+trkprec
     # for vertexing
@@ -204,6 +232,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     # primary vertexing
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEConfig import EFHistoPrmVtxAllTE_Jet
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxComboConfig import EFHistoPrmVtxCombo_Jet
+    # JK FTK vertex
+    from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
+    from InDetTrigRecExample.InDetTrigConfigRecPostProcessing import *
 
     #--------------------
 
@@ -245,12 +276,23 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #-----------------------------------------------------------------------------------
     
     tracking        = "IDTrig"
-    jetEtHypoTE     = "HLT_j"+btagthresh
-    jetHypoTE       = "HLT_j"+btagthresh+"_eta"
+    if 'FTKVtx' in chainParts['bTracking']:
+        tracking    = "IDtrig"
+    elif 'FTKrefit' in chainParts['bTracking']:
+        tracking    = "FTKrefit"
+    elif 'FTK' in chainParts['bTracking']:
+        tracking    = "FTK"
+
+    print "JK , tracking is ",tracking
+
+    jetEtHypoTE     = "HLT_j"+btagthresh+ftk
+    jetHypoTE       = "HLT_j"+btagthresh+ftk+"_eta"
     jetSplitTE      = jetHypoTE+"_jsplit"
     jetFarawayTE    = jetSplitTE+"_faraway"
     jetTrackTE      = jetSplitTE+"_"+tracking
-    
+
+    print "JK , jetTrackTE ",jetTrackTE
+
     if any('antimatch' in bM for bM in chainParts['bMatching'] ) and  any('mu' in bM for bM in chainParts['bMatching'] ):
 
         # extract muon threshold from chainname
@@ -273,6 +315,12 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     secVtxTE        = jetTrackTE+"__"+"superVtx"
     lastTEout       = "HLT_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
 
+    if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKrefit' in chainParts['bTracking']:
+        comboPrmVtxTE="HLT_FTKVtx_Combo"
+ 
+
+    print "JK comboPrmVtx : ",comboPrmVtxTE
+
     topoThresh = chainDict['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
 
@@ -284,10 +332,13 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #-----------------------------------------------------------------------------------
 
     # Vertexing part of the chain
-    theChainDef.addSequence(theSuperRoi,      inputTEsEF,   superTE)
-    theChainDef.addSequence(theVertexTracks,  superTE,      superTrackingTE) 
-    theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()], superTrackingTE, prmVertexTE)
-    theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)
+    if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking'] or 'FTKrefit' in chainParts['bTracking'] :
+        theChainDef.addSequence([TrigFTK_VxPrimary_EF("TrigFTK_VxPrimary_Bjet_IDTrig","bjetVtx"), InDetTrigVertexxAODCnv_EF("InDetTrigVertexxAODCnv_Bjet_FTK","bjetVtx")] , inputTEsEF, comboPrmVtxTE)
+    else:
+        theChainDef.addSequence(theSuperRoi,      inputTEsEF,   superTE)
+        theChainDef.addSequence(theVertexTracks,  superTE,      superTrackingTE) 
+        theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()], superTrackingTE, prmVertexTE)
+        theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)
 
     # b-tagging part of the chain (requires PV)
     theChainDef.addSequence(theJetSplit,    [inputTEsEF, comboPrmVtxTE], jetSplitTE)

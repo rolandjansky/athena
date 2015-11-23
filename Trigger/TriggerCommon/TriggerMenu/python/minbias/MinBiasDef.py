@@ -108,6 +108,7 @@ class L2EFChain_MB(L2EFChainDef):
         elif "noalg" in self.chainPart['recoAlg']:
             self.setup_mb_noalg()
 
+
         L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
 
     def defineSequences(self):
@@ -642,8 +643,10 @@ class L2EFChain_MB(L2EFChainDef):
         shortName=chainName.strip('mb_')
         self.chainName       = shortName
         
+
 #####################################################################
-    
+
+
 #if __name__ == '__main__':
 #    triggerPythonConfig = TriggerPythonConfig('hlt.xml', None)
 #    for m in Muons:

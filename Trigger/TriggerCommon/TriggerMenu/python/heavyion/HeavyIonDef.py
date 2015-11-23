@@ -126,17 +126,34 @@ class L2EFChain_HI(L2EFChainDef):
         EShypo_temp = self.chainPart['extra']
         ESth=EShypo_temp.lstrip('th')
         #print 'igb: ES threshold:', ESth
-
-        if 'v2' in self.chainPart['eventShape']:
+        VetoHypo = None
+        ESHypo=None
+        ESDiHypo=None
+        if 'v2' == self.chainPart['eventShape']:
             from TrigHIHypo.VnHypos import V2_th
             chainSuffix = 'v2_th'+ESth
             assert V2_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth
-            EShypo=V2_th[int(ESth)] 
-        elif 'v3' in self.chainPart['eventShape']:
-            from TrigHIHypo.VnHypos import *
+            ESHypo=V2_th[int(ESth)] 
+            if self.chainPart['eventShapeVeto'] == 'veto3':
+                from TrigHIHypo.VnHypos import V3_th1_veto
+                VetoHypo = V3_th1_veto
+                
+        elif 'v3' == self.chainPart['eventShape']:
+            from TrigHIHypo.VnHypos import V3_th
             chainSuffix = 'v3_th'+ESth
-            assert V3_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth            
-            EShypo=V3_th[int(ESth)] 
+            assert V3_th.has_key(int(ESth)), "Missing V3 configuration for threshold "+ESth         
+            ESHypo=V3_th[int(ESth)] 
+            if self.chainPart['eventShapeVeto']  == 'veto2':
+                from TrigHIHypo.VnHypos import V2_th1_veto
+                VetoHypo = V2_th1_veto
+
+        elif 'v23' == self.chainPart['eventShape']:
+            from TrigHIHypo.VnHypos import V3_th,V2_th
+            chainSuffix = 'th'+ESth
+            th=int(ESth)
+            ESDiHypo = [V2_th[th], V3_th[th]]
+
+        print "WTF", ESHypo, VetoHypo, ESDiHypo, " when making chain ", self.chainPart
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 
@@ -150,20 +167,37 @@ class L2EFChain_HI(L2EFChainDef):
         self.EFsequenceList += [[['EF_hi_step1_fs'], 
                                  [theUEMaker], 'EF_hi_step1_ue']]
 
-        self.EFsequenceList += [[['EF_hi_step1_ue'], 
-                                 [EShypo], 'EF_hi_step2']]
-
-        ########### Signatures ###########
         self.L2signatureList += [ [['L2_hi_step1']] ]
         self.EFsignatureList += [ [['EF_hi_step1_fs']] ]
         self.EFsignatureList += [ [['EF_hi_step1_ue']] ]
-        self.EFsignatureList += [ [['EF_hi_step2']] ]
+
+        if ESHypo:
+            self.EFsequenceList += [[['EF_hi_step1_ue'], 
+                                     [ESHypo], 'EF_hi_step2']]
+            self.EFsignatureList += [ [['EF_hi_step2']] ]
+
+        if VetoHypo:
+            self.EFsequenceList += [[['EF_hi_step2'], 
+                                     [VetoHypo], 'EF_hi_step_veto']]
+            self.EFsignatureList += [ [['EF_hi_step_veto']] ]
+
+        if ESDiHypo:
+            self.EFsequenceList += [[['EF_hi_step1_ue'], 
+                                     [ESDiHypo[0]], 'EF_hi_step2']]
+            self.EFsequenceList += [[['EF_hi_step2'], 
+                                     [ESDiHypo[1]], 'EF_hi_step3']]
+
+            self.EFsignatureList += [ [['EF_hi_step2']] ]
+            self.EFsignatureList += [ [['EF_hi_step3']] ]
+
     
         self.TErenamingDict = {
             'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
             'EF_hi_step1_fs': mergeRemovingOverlap('EF_hi_fs_', chainSuffix),
             'EF_hi_step1_ue': mergeRemovingOverlap('EF_hi_ue_', chainSuffix),
             'EF_hi_step2': mergeRemovingOverlap('EF_hi_', chainSuffix),
+            'EF_hi_step3': mergeRemovingOverlap('EF_hi_', '_and_v3_'+chainSuffix),
+            'EF_hi_step_veto': mergeRemovingOverlap('EF_hi_veto_', chainSuffix),
             }
 
 ###########################
@@ -252,6 +286,10 @@ class L2EFChain_HI(L2EFChainDef):
             minPixel=6
             maxPixel=25
             chainSuffix = 'tight_upc'
+        if 'gg' in self.chainPart['hypoL2Info']:
+            minPixel=0
+            maxPixel=25
+            chainSuffix = 'gg_upc'
 
         theL2PixelHypo  = L2MbSpUPC("MbPixelSpUPC_min"+str(minPixel)+'_max'+str(maxPixel), minPixel, maxPixel)
         

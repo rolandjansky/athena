@@ -226,7 +226,7 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
     logCombined.debug("Input TEs to Razor algorithm: %s" % inputTEsEFMET)
 
     from TrigHLTJetHemisphereRec.TrigHLTJetHemisphereRecConfig import TrigHLTJetHemisphereRec_Builder
-    theTrigHLTJetHemisphereRec = TrigHLTJetHemisphereRec_Builder(jetPtCut=30000.)
+    theTrigHLTJetHemisphereRec = TrigHLTJetHemisphereRec_Builder(jetPtCut=40000.)
 
     EFChainName = "EF_" + chainDicts[0]['chainName']
 
