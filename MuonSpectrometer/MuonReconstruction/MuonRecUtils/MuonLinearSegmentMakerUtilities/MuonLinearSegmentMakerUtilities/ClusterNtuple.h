@@ -48,6 +48,8 @@ namespace ClusterSeg {
     double x[CLUSTERSIZE];
     double y[CLUSTERSIZE];
     double z[CLUSTERSIZE];
+    int tIndex[CLUSTERSIZE];
+    int pIndex[CLUSTERSIZE];
     bool isPhi[CLUSTERSIZE]; 
     bool isMatch[CLUSTERSIZE];
     int barcode[CLUSTERSIZE];
