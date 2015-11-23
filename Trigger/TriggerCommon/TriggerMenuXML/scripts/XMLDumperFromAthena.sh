@@ -13,15 +13,6 @@ sqliteFile=TriggerMenuSQLiteFile.sqlite
 uploadLog=TriggerMenuUpload.log
 doDBUpload="false"
 
-# Can be removed once relase 18 is no longer in use
-if echo $menu | egrep -q '_v5|LS1_v1|DC14|HI_v3'; then
-    print "Setting USE_NEW_TM=1 for menu "$menu
-    export USE_NEW_TM=1
-else
-    export USE_NEW_TM=0
-fi
-
-
 if [[ "$NICOS_ATLAS_RELEASE" != "" ]]; then
     release=$NICOS_ATLAS_RELEASE
     if [[ "$AtlasProject" != "AtlasP1HLT" && "$AtlasProject" != "AtlasCAFHLT" && "$AtlasProject" != "AtlasTestHLT" ]]; then
