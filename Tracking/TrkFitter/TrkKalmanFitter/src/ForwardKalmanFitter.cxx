@@ -421,7 +421,8 @@ const Trk::TrackParameters* Trk::ForwardKalmanFitter::predict
       const Trk::StraightLineSurface* wireSurface = 
         dynamic_cast<const Trk::StraightLineSurface*>(&destinationSurface);
       if (testPer and wireSurface) {
-        predPar = new Trk::AtaStraightLine(updatedPar->position(),
+        predPar = new Trk::AtaStraightLine(updatedPar->parameters()[Trk::loc1],
+					   updatedPar->parameters()[Trk::loc2],
                                            updatedPar->parameters()[Trk::phi],
                                            updatedPar->parameters()[Trk::theta],
                                            updatedPar->parameters()[Trk::qOverP],
