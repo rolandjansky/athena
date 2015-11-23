@@ -83,8 +83,9 @@ namespace MuonCombined {
     declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
     declareProperty("doCaloLR",                          m_doCaloLR             =  true );
     declareProperty("ShowTruth",                         m_doTruth              =  true);
-    declareProperty("DebugMode",                         m_debugMode            =  false); 
-    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  true); //change
+    declareProperty("DebugMode",                         m_debugMode            =  false);
+    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  false);
+    declareProperty("IgnoreSiAssociatedCandidates",      m_ignoreSiAssocated    =  true );
     declareProperty("ShowCutFlow",                       m_showCutFlow          =  true);
     declareProperty("CaloMuonLikelihoodTool",            m_caloMuonLikelihood           );
     declareProperty("CaloLRLikelihoodCut",               m_CaloLRlikelihoodCut  =  0.5  );  //Likelihood ratio hard cut
@@ -120,7 +121,7 @@ namespace MuonCombined {
       ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
       ATH_CHECK( m_caloMuonTagTight.retrieve()   );
       ATH_CHECK( m_trkDepositInCalo.retrieve()   );
-      ATH_CHECK( m_trackIsolationTool.retrieve() );
+      if(!m_trackIsolationTool.empty()) ATH_CHECK( m_trackIsolationTool.retrieve() );
       ATH_CHECK( m_trkSelTool.retrieve()         );
     }
     if(m_doTrkSelection && m_doCosmicTrackSelection) {
@@ -164,6 +165,11 @@ namespace MuonCombined {
 
     for( auto idTP : inDetCandidates ){
       
+      // skip track particles which are no complete ID track
+      if ( m_ignoreSiAssocated && idTP->isSiliconAssociated() ){
+        ATH_MSG_DEBUG("Associated track is just tracklet. Skipping this particle.");
+        continue;
+      }
       // ensure that the id trackparticle has a track
       const Trk::Track* track = idTP->indetTrackParticle().track(); //->originalTrack()
       //const xAOD::TrackParticle& tp =  (*idTP).indetTrackParticle(); //->originalTrackParticle()
@@ -240,7 +246,7 @@ namespace MuonCombined {
         if (m_doOldExtrapolation)  {
 	   deposits = m_trkDepositInCalo->getDeposits(par, caloCellCont);
         } else {
-	   deposits = m_trkDepositInCalo->getDeposits(tp, caloCellCont);
+	   deposits = m_trkDepositInCalo->getDeposits(tp);
         }
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
@@ -372,7 +378,7 @@ namespace MuonCombined {
     double ptIso = trackIsolation.ptcones[0];
     double ptIsoRatio = -9999;
     if (ptIso>0) {
-      double pt = 0;//ptcl->pt(); check
+      double pt = tp.pt();
       if (pt>0) // ---> just for safety (pt can never be 0 actually)
   	ptIsoRatio = ptIso/pt;
     } 
