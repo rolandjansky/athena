@@ -17,7 +17,7 @@ class CaloDef:
 
 
         caloInfo = tc.menu.CaloInfo
-
+        menuName = tc.menuName
         # global scale
         em_scale=2
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
@@ -72,11 +72,17 @@ class CaloDef:
 
 
         # min PT for TOBs
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=4) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=8, window=4) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
-
+        if "HI_" in menuName:
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=7) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=12) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=10, window=4) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=10, window=8) ]
+        else:
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=8) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=12, window=4) ]
+            caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
+            
         # jet weights
         if len( tc.menu.thresholds.allThresholdsOf('JET') ) <= 8:
             caloInfo.setJetWeights( CaloInfo.calcJetWeightsFromThresholds(tc) )  # no more jet weights in the new menu

@@ -37,7 +37,7 @@ def generateChainDefs(chainDict):
     
     if ('muvtx' in topoAlgs) or \
             ('llp' in topoAlgs) or \
-            (b_any(('invm' or 'deta') in x for x in topoAlgs)):
+            (b_any(('invm' or 'deta' in x) for x in topoAlgs)):
         logJet.info("Adding topo to jet chain")
         theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
 
@@ -68,7 +68,7 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
         theChainDef = generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif ('llp' in topoAlgs):
         theChainDef = generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
-    elif b_any(('invm' or 'deta') in x for x in topoAlgs):
+    elif b_any(('invm' or 'deta' in x) for x in topoAlgs):
         theChainDef = addDetaInvmTopo(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoAlgs)
     else:
         logJet.error('Your favourite topo configuration is missing.')

@@ -351,8 +351,9 @@ class AlgFactory(object):
             kargs)]
 
 
-    def _hlt_hypo(self, cleaningAlg, matchingAlg):
-        """
+    def hlt_hypo(self):
+        """ method to replace jr_hypo
+
         Skype discussion R Goncalo/P Sherwood
         [21/01/15, 18:44:50] Ricardo Goncalo:
         hypo parameters: ET, eta min, eta max
@@ -371,6 +372,9 @@ class AlgFactory(object):
         # assert len(self.hypo_params.jet_attributes) > 1
         
         ja = self.hypo_params.jet_attributes_tostring()
+
+        cleaningAlg = self.hypo_params.cleaner
+        matchingAlg = self.hypo_params.matcher
 
         # the hypo instance name is constructed from the
         # last jet fex run.
@@ -403,21 +407,6 @@ class AlgFactory(object):
         }
 
         return [Alg('TrigHLTJetHypo',(), kargs)]
-
-
-    def hlt_hypo_test1(self):
-        return self._hlt_hypo(cleaningAlg='noCleaning',
-                              matchingAlg='singleEtaRegion')
-
-
-    def hlt_hypo_test2(self):
-        return self._hlt_hypo(cleaningAlg='noCleaning',
-                              matchingAlg='maximumBipartite')
-
-
-    def hlt_hypo_test3(self):
-        return self._hlt_hypo(cleaningAlg='basicCleaning',
-                              matchingAlg='singleEtaRegion')
 
 
     def ht_hypo(self):

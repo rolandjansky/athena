@@ -150,21 +150,21 @@ class JetSequencesBuilder(object):
 
         # check that running the hypo has been requested
         if self.chain_config.run_hypo:
-            if self.chain_config.hypo_type in ('standard',
-                                               'single_region',
-                                               'maximum_bipartite',
-                                               'single_region_cleaning'):
+            hypo_type = self.chain_config.menu_data.hypo_params.hypo_type
+            if hypo_type in ('HLThypo',
+                             'HLTSRhypo',
+                             'run1hypo',):
                 seq_order.append('jh')
                 if self.chain_config.run_rtt_diags:
                     # run the jet hypo doagnostic after the jet hypo - so we can
                     # see which jets are cut.
                     seq_order.append('jhd')
-            elif self.chain_config.hypo_type == 'ht':
+            elif hypo_type == 'HT':
                 seq_order.append('jh_ht')
             else:
                 
                 msg = '%s._make_sequence_list: unknown hypo type %s ' % (
-                    self.__class__.__name__, str(self.chain_config.hypo_type))
+                    self.__class__.__name__, str(hypo_type))
                 raise RuntimeError(msg)
 
         if self.chain_config.data_scouting:
@@ -313,14 +313,15 @@ class JetSequencesBuilder(object):
         hypo = menu_data.hypo_params
 
         alias_base = 'hypo_' + hypo.jet_attributes_tostring()
+        alias_base += '_' + hypo.cleaner
 
         alias = alias_base  # copy
         
-        function_map  = {'standard': self.alg_factory.jr_hypo,
-                         'single_region': self.alg_factory.hlt_hypo_test1,
-                         'maximum_bipartite': self.alg_factory.hlt_hypo_test2,
-                         'single_region_cleaning': self.alg_factory.hlt_hypo_test3,
-                     }
+        function_map  = {
+            'HLThypo': self.alg_factory.hlt_hypo,  # maxbipartitite matcher
+            'HLTSRhypo': self.alg_factory.hlt_hypo,  # singleEtaRegion matcher
+            'run1hypo': self.alg_factory.jr_hypo,
+            }
 
         f = function_map.get(hypo.hypo_type, None)
 

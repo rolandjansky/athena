@@ -49,6 +49,19 @@ class ChainConfigMaker(object):
     reco_alg_re = re.compile(r'^a\d+$')
     recluster_alg_re = re.compile(r'^a\d+r$')
 
+    # conerverter for cleaner names used in chain anmes, and those
+    # used to instantiate the C++ converters (cleanerFactory keys)
+    
+    cleaner_names = {
+        'cleanL': 'looseCleaning',
+        'cleanLA': 'antiLooseCleaning',
+        'cleanT': 'tightCleaning',
+        'cleanTA': 'antiTightCleaning',
+        'cleanLLP': 'llpCleaning',
+        'cleanLLPA':'antLlpCleaning',
+        'noCleaning': 'noCleaning',
+        }
+
     def __init__(self, d):
             
         self.err_hdr = '%s.process_part: ' % self.__class__.__name__
@@ -231,15 +244,17 @@ class ChainConfigMaker(object):
         self.check_and_set('run_hypo', run_hypo)
 
         # --------  hypo parameters ----------------
-        hypo_type = {('j', ''): 'standard',
-                     ('j', 'test1'): 'single_region',
-                     ('j', 'test2'): 'maximum_bipartite',
-                     ('j', 'test3'): 'single_region_cleaning',
-                     ('ht', ''):'ht'}.get((part['trigType'],
-                                           self.test_flag), None)
+        hypo_type = {
+            # ('j', ''): 'standard',
+            ('j', ''): 'HLThypo',
+            ('j', 'test1'): 'run1hypo',
+            ('j', 'test2'): 'HLTSRhypo',
+            ('ht', ''):'ht'}.get((part['trigType'], self.test_flag), 
+                                          None)
 
-        if self.multi_eta: hypo_type = 'maximum_bipartite'
-
+        # maximum  bipartite is now "standard"
+        # if self.multi_eta: hypo_type = 'maximum_bipartite'
+                     
         if not hypo_type:
             msg = '%s: cannot determine hypo type '\
                   'from trigger type: %s test flag: %s' % (
@@ -248,11 +263,21 @@ class ChainConfigMaker(object):
 
         self.check_and_set('hypo_type', hypo_type)
 
+        # convert the cleaner names obtained from the chain name to 
+        # the one which will be used to key the C++ cleaner factory
+        cleaner = part['cleaning']
+        cleaner = self.cleaner_names.get(cleaner, None)
+        if cleaner is None:
+            m = 'Cannot convert chain name  cleaner name "%s" to C++ cleaner '\
+                'name ' % part['cleaning']
+            raise RuntimeError(m)
+
+        self.check_and_set('cleaner', cleaner) 
+
         hypo_setup_fn = {
-            'standard': self._setup_standard_hypo,
-            'single_region': self._setup_standard_hypo,
-            'maximum_bipartite': self._setup_standard_hypo,
-            'single_region_cleaning': self._setup_standard_cleaning_hypo,
+            'HLThypo': self._setup_hlt_hypo,
+            'run1hypo': self._setup_run1_hypo,
+            'HLTSRhypo': self._setup_hlt_hypo,
             'ht': self._setup_ht_hypo}.get(hypo_type, None)
 
         if hypo_setup_fn is None:
@@ -263,13 +288,13 @@ class ChainConfigMaker(object):
 
         hypo_setup_fn(part)
 
-            
         self.n_parts += 1
+
 
     def check_and_set(self, attr, val):
         """Set the value of attribute attr to val if the first chain part
         is being processed. For subsequent chain parts, ensure their
-        attributevalues is the same (chain parts have much redundant
+        attribute values are the same (chain parts have much redundant
         information)."""
 
         if self.n_parts == 0:
@@ -327,14 +352,34 @@ class ChainConfigMaker(object):
             # this is used to name the hypo instance
             last_fex_params = recluster_params  
 
-        if self.hypo_type in ('standard', 'single_region',
-                              'maximum_bipartite', 'single_region_cleaning'):
+        if self.hypo_type == 'HLThypo':
             hypo_args = {
                 'chain_name': self.chain_name,
                 'jet_attributes': self.jet_attributes,
-                'cleaning': self.cleaning,
+                'cleaner': self.cleaner,
+                'matcher': 'maximumBipartite', 
                 'isCaloFullScan': self.scan_type == 'FS',
                 'triggertower': self.data_type == 'TT',
+            }
+
+
+        elif self.hypo_type == 'HLTSRhypo':
+            hypo_args = {
+                'chain_name': self.chain_name,
+                'jet_attributes': self.jet_attributes,
+                'cleaner': self.cleaner,
+                'matcher':'singleEtaRegion', 
+                'isCaloFullScan': self.scan_type == 'FS',
+                'triggertower': self.data_type == 'TT',
+            }
+
+        elif self.hypo_type == 'run1hypo':
+            hypo_args = {
+                'chain_name': self.chain_name,
+                'jet_attributes': self.jet_attributes,
+                'isCaloFullScan': self.scan_type == 'FS',
+                'triggertower': self.data_type == 'TT',
+                'cleaner': 'noClean',
             }
 
         elif self.hypo_type == 'ht':
@@ -342,9 +387,10 @@ class ChainConfigMaker(object):
                 'chain_name': self.chain_name,
                 'eta_range': self.eta_range,
                 'ht_threshold': self.ht_threshold,
-                'jet_et_threshold': self.jet_et_threshold}
+                'jet_et_threshold': self.jet_et_threshold,
+                }
         else:
-            msg = '%s unknown hypo_type' % (self.err_hdr, self.hypo_type)
+            msg = '%s unknown hypo_type %s' % (self.err_hdr, self.hypo_type)
             raise RuntimeError(msg)
 
         hypo_params = hypo_factory(self.hypo_type, hypo_args)
@@ -363,7 +409,6 @@ class ChainConfigMaker(object):
                            seed=self.seed,
                            run_hypo=self.run_hypo,
                            run_rtt_diags=self.run_rtt_diags,
-                           hypo_type = self.hypo_type,
                            data_scouting=self.data_scouting,
                            menu_data=menu_data,)
 
@@ -381,20 +426,40 @@ class ChainConfigMaker(object):
             hypo_setup_fn = {'standard': self.setup_standard_hypo,
                              'ht': self.setup_ht_hypo}.get(hypo_type, None)
 
-    def _setup_standard_hypo(self, part):
+    def _setup_jet_hypo(self, part):
+        """make hypo parameteters an attribute of this instance so 
+        they can be checked with check_and_set. This method handles
+        common standard jet hypo paramters"""
+
         mult = int(part['multiplicity'])
         threshold = int(part['threshold'])
         eta_range = part['etaRange']
 
         self.jet_attributes.extend(
             [(JetAttributes(threshold, eta_range)) for i in range(mult)])
-        self.cleaning = False
 
-    def _setup_standard_cleaning_hypo(self, part):
-        self._setup_standard_hypo(part)
-        self.cleaning = True
+    def _setup_run1_hypo(self, part):
+        """Ensure the Run1 hypo is not being asked to do things it cannot do"""
+
+        if self.cleaner != 'noCleaning':
+            m ='Jet cleaning requested %s, '\
+                'but is incomaptable with the standard hypo' % self.cleaner
+            raise RuntimeError(m)
+        
+        if self.multi_eta:
+            m ='Hypo with > 1 eta refions requested , '\
+                'but is incomaptable with the standard hypo'
+            raise RuntimeError(m)
+
+        self._setup_jet_hypo(part)
+
+    def _setup_hlt_hypo(self, part):
+        """Delegate setting up the hypo parameters"""
+        self._setup_jet_hypo(part)
 
     def _setup_ht_hypo(self, part):
+        """make the HT hypo paramters attributes of this instance to 
+        allow consistency checking with check_and_set"""
 
         eta_range = part['etaRange']
         self.check_and_set('eta_range', eta_range)

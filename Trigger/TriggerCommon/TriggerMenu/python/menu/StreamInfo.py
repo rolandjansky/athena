@@ -52,6 +52,7 @@ calibStreams = ['Background',
                 'VdM',
                 'IDFwd',
                 'BeamSpot',
+                'zdcCalib',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

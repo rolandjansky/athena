@@ -1,10 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
-def KeepMonitoring(chainName, ChainsToKeepMonitoring):
+def KeepMonitoring(chainName, ChainsToKeepMonitoring, strictComparison = False):
   retval = False
   for chainToKeep in ChainsToKeepMonitoring:
-    retval = ( chainName.find(chainToKeep) > -1 )
+    if strictComparison:
+       retval = (chainName==chainToKeep)
+    else:
+       retval = ( chainName.find(chainToKeep) > -1 )
     if ( retval ) : break
   return retval
 

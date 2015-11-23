@@ -10,17 +10,13 @@ __doc__="Implementation of calib trigger sequence "
 from TriggerMenu.menu.HltConfig import *
 from AthenaCommon.Include import include
 from AthenaCommon.SystemOfUnits import GeV
+from TriggerJobOpts.TriggerFlags                       import TriggerFlags
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 mlog = logging.getLogger("TriggerMenu.calibcosmic.CalibDef")
 
 
-###########################################################################
-# !!!!HARDCODED ROI TO SEED TRKCALIB CHAINS OFF!!!!
-###########################################################################
-
-roi1  = 'HA8'    
 
 from TrigDetCalib.TrigDetCalibConfig import *
 #from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo
@@ -52,6 +48,7 @@ def getInputTEfromL1Item(item):
   L1Map = {'L1_CALREQ2':        ['NIM30'],
            #'L1_RD0_EMPTY':      [''],
            'L1_TAU8_EMPTY':      ['HA8'],
+           'L1_TAU12_EMPTY':      ['HA12'],
            'L1_FJ30_EMPTY':      ['JF30'],
            }
 	
@@ -104,10 +101,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       #   self.L2InputTE = self.L2InputTE.split("_")[0]
       #   self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
       
-
       if 'idcalib' in self.chainPart['purpose']:         
-         self.L2InputTE = roi1
-         self.setupTrkCalibChains()
+        if not 'HI_' in TriggerFlags.triggerMenuSetup():
+          roi1 = 'HA8'
+          #mlog.info('Using '+roi1+' as ROI for calibtrk chains, triggered by non-HI menuname)
+          self.L2InputTE = roi1
+        self.setupTrkCalibChains()
       elif 'ibllumi' in self.chainPart['purpose']:
         self.setupIBLLumiChains()
       elif ('larcalib' in self.chainPart['purpose']) or ('tilelarcalib' in self.chainPart['purpose']):
@@ -129,6 +128,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupLarPEBChains()
       elif 'l1satmon' in self.chainPart['purpose']:
         self.setupL1SaturatedMon()
+      elif 'zdcpeb' in self.chainPart['purpose']:
+        self.setupZDCPEBChains()
       else:
          mlog.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -415,3 +416,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.robWriter = [alfaidSubDetListWriter]            
      self.L2sequenceList += [['', self.robWriter, 'L2_alfaid']]     
      self.L2signatureList += [[['L2_alfaid']]]
+
+
+#####################################################################
+   def setupZDCPEBChains(self):
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     ZDCSubDetListWriter = TrigSubDetListWriter("ZDCSubDetListWriter")
+     ZDCSubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_ZDC'] 
+     ZDCSubDetListWriter.MaxRoIsPerEvent=1
+ 

@@ -78,7 +78,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -115,11 +115,17 @@ class TauHypoProvider:
 
             if part == 'id':
                 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
+                from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                 # Important Note: the pT cut here is an unused dummy
                 if criteria != 'cosmic':
-                    theVars = ['LowerPtCut','LowerTrackPtCut']
-                    theThresh = [int(threshold)*self.GeV,1.*self.GeV]
-                    currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
+                    if strategy != 'tracktwo':
+                        theVars = ['LowerPtCut','LowerTrackPtCut']
+                        theThresh = [int(threshold)*self.GeV,1.*self.GeV]
+                        currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
+                    else:
+                        theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
+                        theThresh = [1,3,1,0.*self.GeV,-1111,0]
+                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                 else:
                     theVars = ['LowerPtCut', 'TracksInCoreCut', 'TracksInIsoCut', 'DeltaZ0Cut']
                     theThresh = [int(threshold)*self.GeV, 9999, 9999, 9999.]

@@ -122,19 +122,19 @@ class L2EFChain_mu(L2EFChainDef):
 ############################### HELPER FUNCTIONS ##############################
   def getMuFastThresh(self):
     if "idperf" in self.chainPart['reccalibInfo']:
-      muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_v11a"
+      muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_v15a"
     elif "perf" in self.chainPart['addInfo']:
       muFastThresh = "passthrough"
     elif "mucombTag" in self.chainPart['reccalibInfo']:
       muFastThresh = "passthrough"
     elif "0eta105" in self.chainPart['etaRange']:
-      muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly" + "_v11a"
+      muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly" + "_v15a"
     elif int(self.chainPart['threshold'])  == 4:
-      muFastThresh = '4GeV_v11a'
+      muFastThresh = '4GeV_v15a'
     elif int(self.chainPart['threshold']) == 2:
-      muFastThresh = '2GeV'
+      muFastThresh = '2GeV_v15a'
     else:
-      muFastThresh = '6GeV_v11a'
+      muFastThresh = '6GeV_v15a'
     return muFastThresh
     
 
@@ -159,17 +159,17 @@ class L2EFChain_mu(L2EFChainDef):
       muCombThresh = "passthrough"
     elif "llns" in self.chainPart['addInfo']:
       if int(self.chainPart['threshold']) == 20:
-        muCombThresh = '6GeV'
+        muCombThresh = '6GeV_v15a'
       elif int(self.chainPart['threshold']) == 11:
-        muCombThresh = '4GeV'
+        muCombThresh = '4GeV_v15a'
     elif "perf" in self.chainPart['addInfo']:
       muCombThresh = "passthrough"
     elif "mucombTag" in self.chainPart['reccalibInfo']:
-      muCombThresh = str(self.chainPart['threshold'])+ "GeV"
+      muCombThresh = str(self.chainPart['threshold'])+ "GeV_v15a"
     elif int(self.chainPart['threshold']) >= 24:
-      muCombThresh = '22GeV'
+      muCombThresh = '22GeV_v15a'
     else:
-      muCombThresh = str(self.chainPart['threshold'])+ "GeV"
+      muCombThresh = str(self.chainPart['threshold'])+ "GeV_v15a"
     return muCombThresh
 
 
@@ -189,7 +189,7 @@ class L2EFChain_mu(L2EFChainDef):
     elif "perf" in self.chainPart['addInfo']:
       EFCombinerThresh = "passthrough"
     else:
-      EFCombinerThresh = str(self.chainPart['threshold'])+ "GeV"
+      EFCombinerThresh = str(self.chainPart['threshold'])+ "GeV_v15a"
     return EFCombinerThresh
 ############################### HELPER FUNCTIONS - END ##############################
 
@@ -608,7 +608,7 @@ class L2EFChain_mu(L2EFChainDef):
 
     if 'SuperEF' in self.chainPart['EFAlg']:
       from AthenaCommon import CfgGetter
-      theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF_TMEFonly")
+      theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF_SAonly")
       theEFAlg = theTrigMuSuperEF 
       EFRecoAlgName = "Muon"
     else:
@@ -686,7 +686,7 @@ class L2EFChain_mu(L2EFChainDef):
       'L2_mu_step2': mergeRemovingOverlap('L2_mucomb_', self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'], '')+'_'+self.L2InputTE),
       'EF_mu_step1': mergeRemovingOverlap('EF_EFIDInsideOutMerged_', self.chainPartNameNoMult),
       #'EF_mu_step2': mergeRemovingOverlap('EF_TRT_',   self.chainPartNameNoMult),
-      'EF_mu_step3': mergeRemovingOverlap('EF_SuperEF_TMEFOnly_',   self.chainPartNameNoMult),
+      'EF_mu_step3': mergeRemovingOverlap('EF_SuperEF_SAonly_',   self.chainPartNameNoMult),
       'EF_mu_step4': mergeRemovingOverlap('EF_Comb_',   self.chainPartNameNoMult),
      }
     
