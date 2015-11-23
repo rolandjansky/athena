@@ -31,7 +31,7 @@ ItemListSvc::~ItemListSvc()
 }
 StatusCode ItemListSvc::initialize()
 {
-  ATH_MSG_INFO("ItemListSvc initialize");
+  ATH_MSG_DEBUG("ItemListSvc initialize");
   return StatusCode::SUCCESS;
 }
 
@@ -40,12 +40,12 @@ StatusCode ItemListSvc::finalize()
 {
   ATH_MSG_DEBUG("ItemListSvc finalize");
   std::map<std::string, std::set<std::string> >::const_iterator it = m_streamItems.begin();
-  ATH_MSG_INFO("-- OUTPUT STREAM ITEM OVERLAP SUMMARY --");
+  ATH_MSG_DEBUG("-- OUTPUT STREAM ITEM OVERLAP SUMMARY --");
   while (it != m_streamItems.end()) {
-    ATH_MSG_INFO("STREAM " << it->first << " has (" << it->second.size() << ") items");
+    ATH_MSG_DEBUG("STREAM " << it->first << " has (" << it->second.size() << ") items");
     std::set<std::string>::const_iterator iprint = it->second.begin();
     while (iprint != it->second.end()) {
-      ATH_MSG_INFO("   - " << *iprint);
+      ATH_MSG_DEBUG("   - " << *iprint);
       ++iprint;
     }
     std::map<std::string, std::set<std::string> >::const_iterator it2 = m_streamItems.begin();
@@ -54,10 +54,10 @@ StatusCode ItemListSvc::finalize()
         std::set<std::string> olist;
         std::set_intersection(it->second.begin(),it->second.end(),it2->second.begin(),it2->second.end(),std::inserter(olist,olist.begin()));
         if (olist.size()>0) { 
-          ATH_MSG_INFO(" --> Overlap with " << it2->first << " (" << olist.size() << ") items"); 
+          ATH_MSG_DEBUG(" --> Overlap with " << it2->first << " (" << olist.size() << ") items"); 
           if (float(olist.size())/float(it->second.size()) > m_verboseThresh) {
             for (std::set<std::string>::iterator olit = olist.begin(); olit != olist.end(); olit++) {
-              ATH_MSG_INFO(" ----> item: " << *olit);
+              ATH_MSG_DEBUG(" ----> item: " << *olit);
             }
           } 
         }

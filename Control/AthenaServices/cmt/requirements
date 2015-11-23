@@ -25,6 +25,7 @@ library AthenaServices *.cxx -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="\
+AthTPCnvSvc_test.py \
 SimplePOSIXTimeKeeperOptions.py \
 SimplePOSIXTimeKeeperSvc_test.py \
 MixingEventSelector_test.py \
@@ -74,6 +75,11 @@ pre_script="../cmt/setup.sh"	\
 options="AthenaServices/TestStopRun.py" \
 post_script="post.sh TestStopRun $(q)SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO$(q)"
 
+apply_pattern athenarun_test name="AthTPCnvSvc" \
+pre_script="../cmt/setup.sh"	\
+options="AthenaServices/AthTPCnvSvc_test.py" \
+post_script="post.sh TestStopRun $(q)SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO$(q)"
+
 #
 # dictionary creation for python event loop mgr
 #
@@ -93,3 +99,9 @@ macro_append DOXYGEN_INPUT " ../test "
 
 private
 use DataModelRoot                  DataModelRoot-*                  Control
+
+library AthenaServicesTest -s=test *.cxx
+macro AthenaServicesTest_shlibflags "$(componentshr_linkopts) $(AthenaServicesTest_use_linkopts)"
+apply_pattern generate_componentslist library=AthenaServicesTest
+apply_pattern optdebug_library name=AthenaServicesTest
+
