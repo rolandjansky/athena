@@ -687,10 +687,17 @@ if InDetTrigFlags.loadSummaryTool():
   if not (conddb.folderRequested("/TRT/Calib/PID_RToT") or \
             conddb.folderRequested("/TRT/Onl/Calib/PID_RToT")):
      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
-  # if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
-  #           conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
-  #    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector")
-  #    from AthenaCommon.GlobalFlags import globalflags
+  if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
+            conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector")
+  if not (conddb.folderRequested("/TRT/Calib/ToT/ToTVectors") or \
+            conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTVectors")):
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTVectors","/TRT/Calib/ToT/ToTVectors")
+  if not (conddb.folderRequested("/TRT/Calib/ToT/ToTValue") or \
+            conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue")
+ 
+ #    from AthenaCommon.GlobalFlags import globalflags
   #    if globalflags.DataSource() == 'data':
   #      conddb.addOverride("/TRT/Onl/Calib/PID_vector"  ,"TRTOnlCalibPID_vector-ES1-UPD1-00-00-01")
      #else:
@@ -710,6 +717,7 @@ if InDetTrigFlags.loadSummaryTool():
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
                                                                 TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                                                OccupancyUsedInPID = True,
                                                                 isData = (globalflags.DataSource == 'data'))
 
   ToolSvc += InDetTrigTRT_ElectronPidTool
@@ -730,7 +738,6 @@ if InDetTrigFlags.loadSummaryTool():
   ToolSvc += InDetTrigTrackSummaryTool
   if (InDetTrigFlags.doPrintConfigurables()):
      print      InDetTrigTrackSummaryTool
-
 
 
 
@@ -761,7 +768,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                                 doSharedHits           = InDetTrigFlags.doSharedHits(),
                                                                 InDetHoleSearchTool    = InDetTrigHoleSearchTool,
                                                                 TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
-    #InDetTrigTrackSummaryToolSharedHits.OutputLevel = DEBUG
+
     ToolSvc += InDetTrigTrackSummaryToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetTrigTrackSummaryToolSharedHits
