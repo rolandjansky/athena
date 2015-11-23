@@ -722,6 +722,7 @@ std::string RDBReaderAtlas::TGCreadoutName(int ichtyp)
 }
 
 void RDBReaderAtlas::ProcessMdtAsBuiltParams() {
+  /*
     for (unsigned int i = 0; i < dhxtomo->size(); i++)
       {
 	if (i != (unsigned int) xtomo[i].line) { std::cerr << "Table line number does not fit for XtomoData table" << std::endl; }
@@ -735,44 +736,88 @@ void RDBReaderAtlas::ProcessMdtAsBuiltParams() {
 	int nTube2 = xtomo[i].XTOMONBERTUBE2;  
 	int nMl = xtomo[i].XTOMONBERML;     
 	int nLayer = xtomo[i].XTOMONBERLAYER;  
+	int stagg_ml1 = xtomo[i].XTOMOML1STAGG;
+	int stagg_ml2 = xtomo[i].XTOMOML2STAGG;
+	float d1 = xtomo[i].XTOMOD1;
+	int nmez = xtomo[i].XTOMONMEZ;
 	float ytubMl1N = xtomo[i].XTOMOML1NYTUB;   
 	float ztubMl1N = xtomo[i].XTOMOML1NZTUB;   
-	float delyMl1N = xtomo[i].XTOMOML1NDELY;   
-	float delzMl1N = xtomo[i].XTOMOML1NDELZ;   
 	float delaMl1N = xtomo[i].XTOMOML1NDELA;   
 	float ypitchMl1N = xtomo[i].XTOMOML1NYPIT;   
 	float zpitchMl1N = xtomo[i].XTOMOML1NZPIT;   
 	float ytubMl1P = xtomo[i].XTOMOML1PYTUB;   
 	float ztubMl1P = xtomo[i].XTOMOML1PZTUB;   
-	float delyMl1P = xtomo[i].XTOMOML1PDELY;   
-	float delzMl1P = xtomo[i].XTOMOML1PDELZ;   
 	float delaMl1P = xtomo[i].XTOMOML1PDELA;   
 	float ypitchMl1P = xtomo[i].XTOMOML1PYPIT;   
 	float zpitchMl1P = xtomo[i].XTOMOML1PZPIT;   
 	float ytubMl2N = xtomo[i].XTOMOML2NYTUB;   
 	float ztubMl2N = xtomo[i].XTOMOML2NZTUB;   
-	float delyMl2N = xtomo[i].XTOMOML2NDELY;   
-	float delzMl2N = xtomo[i].XTOMOML2NDELZ;   
 	float delaMl2N = xtomo[i].XTOMOML2NDELA;   
 	float ypitchMl2N = xtomo[i].XTOMOML2NYPIT;   
 	float zpitchMl2N = xtomo[i].XTOMOML2NZPIT;   
 	float ytubMl2P = xtomo[i].XTOMOML2PYTUB;   
 	float ztubMl2P = xtomo[i].XTOMOML2PZTUB;   
-	float delyMl2P = xtomo[i].XTOMOML2PDELY;   
-	float delzMl2P = xtomo[i].XTOMOML2PDELZ;   
 	float delaMl2P = xtomo[i].XTOMOML2PDELA;   
 	float ypitchMl2P = xtomo[i].XTOMOML2PYPIT;   
 	float zpitchMl2P = xtomo[i].XTOMOML2PZPIT;
 
-	MdtAsBuiltParams* xTomoPar = new MdtAsBuiltParams();
-	xTomoPar->setParameters(chamberName, site, siteId, time, xtomoPassed, side, nTube1, nTube2, nMl, nLayer,
-	                        ytubMl1N, ztubMl1N, delyMl1N, delzMl1N, delaMl1N, ypitchMl1N, zpitchMl1N,
-	                        ytubMl1P, ztubMl1P, delyMl1P, delzMl1P, delaMl1P, ypitchMl1P, zpitchMl1P,
-	                        ytubMl2N, ztubMl2N, delyMl2N, delzMl2N, delaMl2N, ypitchMl2N, zpitchMl2N,
-	                        ytubMl2P, ztubMl2P, delyMl2P, delzMl2P, delaMl2P, ypitchMl2P, zpitchMl2P);
+	MdtAsBuiltPar* xTomoPar = new MdtAsBuiltPar();
+	xTomoPar->setConfigurationParameters(
+	    chamberName,
+	    site,
+	    siteId,
+	    xtomoPassed,
+	    time,
+	    side,
+	    nMl,
+	    nLayer,
+	    nTube1,
+	    nTube2,
+	    stagg_ml1,
+	    stagg_ml2,
+	    d1,
+	    nmez
+	    );
+	xTomoPar->setMeasurementSide(
+	    MdtAsBuiltPar::ML1,
+	    MdtAsBuiltPar::HV,
+	    ytubMl1N,
+	    ztubMl1N,
+	    delaMl1N,
+	    ypitchMl1N,
+	    zpitchMl1N
+	    );
+	xTomoPar->setMeasurementSide(
+	    MdtAsBuiltPar::ML1,
+	    MdtAsBuiltPar::RO,
+	    ytubMl1P,
+	    ztubMl1P,
+	    delaMl1P,
+	    ypitchMl1P,
+	    zpitchMl1P
+	    );
+	xTomoPar->setMeasurementSide(
+	    MdtAsBuiltPar::ML2,
+	    MdtAsBuiltPar::HV,
+	    ytubMl2N,
+	    ztubMl2N,
+	    delaMl2N,
+	    ypitchMl2N,
+	    zpitchMl2N
+	    );
+	xTomoPar->setMeasurementSide(
+	    MdtAsBuiltPar::ML2,
+	    MdtAsBuiltPar::RO,
+	    ytubMl2P,
+	    ztubMl2P,
+	    delaMl2P,
+	    ypitchMl2P,
+	    zpitchMl2P
+	    );
 	
 	m_mgr->storeMdtAsBuiltParams(xTomoPar);
       }
+*/
 }
 
 } // namespace MuonGM

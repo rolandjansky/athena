@@ -513,6 +513,31 @@ namespace MuonGM {
     cscCache.dummy2 = 0;
     m_manager->setGenericCscDescriptor(cscCache);
 
+/*    // TMP DEBUG temporary code to read the as-built parameters from an ASCII file
+    {
+      AltAsciiDBMap::const_iterator fileit = m_altAsciiDBMap.find("XAMDT");
+      if (fileit != m_altAsciiDBMap.end()) {
+	const std::string& file = fileit->second;
+	std::ifstream fin(file.c_str());
+	std::string line;
+	MdtAsBuiltPar xPar;
+	int count = 0;
+	while(getline(fin, line)) {
+	  if (line.find("Corr:")==0) {
+	    if (!xPar.setFromAscii(line)) {
+	      log<< MSG::ERROR
+		<< "Unable to parse AsBuilt params from Ascii line: " << line
+		<<endreq;
+	    } else {
+	      m_manager->storeMdtAsBuiltParams(new MdtAsBuiltPar(xPar));
+	      ++count;
+	    }
+	  }
+	}
+	log << MSG::INFO << "Parsed AsBuilt parameters: " << count << endreq;
+      }
+    } */
+
     const StoredMaterialManager*  theMaterialManager;
     if ( StatusCode::SUCCESS != m_pDetStore->retrieve( theMaterialManager, "MATERIALS" ) )  
       {
