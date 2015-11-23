@@ -1290,7 +1290,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       // Select right MdtAsBuilt parameters from map in MuonDetectorManager and assign them to MuonStation
       if(manager->applyMdtAsBuiltParams() ) {
         Identifier AsBuiltId = manager->mdtIdHelper()->elementID(mstat->getStationType(), mstat->getEtaIndex(), mstat->getPhiIndex());  
-        MdtAsBuiltParams* xtomo = manager->getMdtAsBuiltParams(AsBuiltId);
+        MdtAsBuiltPar* xtomo = manager->getMdtAsBuiltParams(AsBuiltId);
         mstat->setMdtAsBuiltParams(xtomo);
       }
 
