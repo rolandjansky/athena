@@ -49,6 +49,8 @@
 
 iGeant4::TrackProcessorUserActionBase::TrackProcessorUserActionBase(const std::string& name)
   : ITrackProcessorUserAction(name)
+  , m_curTrackID(-1)
+  , m_curISP(nullptr)
     //ELLI , AthMessaging( msgSvc(), name)
 {
 
