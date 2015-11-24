@@ -22,7 +22,9 @@ class LArNoisyROSummary_p3
     m_BadFEBFlaggedPartitions(0),
     m_BadFEB_WFlaggedPartitions(0),
     m_SatMediumFlaggedPartitions(0),
-    m_SatTightFlaggedPartitions(0)
+    m_SatTightFlaggedPartitions(0),
+    m_MNBLooseFlaggedPartitions(0),
+    m_MNBTightFlaggedPartitions(0)
   {};
 
  private:
@@ -32,6 +34,8 @@ class LArNoisyROSummary_p3
   uint8_t m_BadFEB_WFlaggedPartitions;
   uint8_t m_SatMediumFlaggedPartitions;
   uint8_t m_SatTightFlaggedPartitions;
+  uint8_t m_MNBLooseFlaggedPartitions;
+  uint8_t m_MNBTightFlaggedPartitions;
   
 };
 
