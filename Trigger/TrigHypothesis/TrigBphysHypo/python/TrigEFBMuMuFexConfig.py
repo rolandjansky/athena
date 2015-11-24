@@ -73,25 +73,6 @@ class EFBMuMuFex_Jpsi (TrigEFBMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
-class EFBMuMuFex_Jpsi_oneTE (EFBMuMuFex_Jpsi):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuFex_Jpsi_oneTE"):
-        EFBMuMuFex_Jpsi.__init__( self, name )
-
-        self.NumberOfInputs     = 1
-        self.UseRoIs = False
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
-        validation = TrigEFBMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
-        online = TrigEFBMuMuFexOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online, time ]
-
-
-
 class EFBMuMuFex_Upsi (TrigEFBMuMuFex):
     __slots__ = []
     def __init__(self, name = "EFBMuMuFex_Upsi"):
@@ -206,24 +187,6 @@ class EFBMuMuFex_DiMu (TrigEFBMuMuFex):
         online = TrigEFBMuMuFexOnlineMonitoring()
 
         self.AthenaMonTools = [ validation, online, time ]
-
-class EFBMuMuFex_DiMu_oneTE (EFBMuMuFex_DiMu):
-    __slots__ = []
-    def __init__(self, name = "EFBMuMuFex_DiMu_oneTE"):
-        EFBMuMuFex_DiMu.__init__( self, name )
-
-        self.NumberOfInputs     = 1
-        self.UseRoIs = False
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("Time")
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexValidationMonitoring
-        validation = TrigEFBMuMuFexValidationMonitoring()
-        from TrigBphysHypo.TrigEFBMuMuFexMonitoring import TrigEFBMuMuFexOnlineMonitoring
-        online = TrigEFBMuMuFexOnlineMonitoring()
-
-        self.AthenaMonTools = [ validation, online, time ]
-
 
 class EFBMuMuFex_DiMu_DY (TrigEFBMuMuFex):
     __slots__ = []
