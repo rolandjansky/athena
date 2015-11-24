@@ -44,7 +44,9 @@ use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use TrkTruthData                TrkTruthData-*               Tracking/TrkEvent
 use GeneratorObjects            GeneratorObjects-*           Generators 
 use AtlasHepMC                  AtlasHepMC-*                 External 
-use FTK_RecToolInterfaces     FTK_RecToolInterfaces-*     Trigger/TrigFTK
+use FTK_RecToolInterfaces      FTK_RecToolInterfaces-*     Trigger/TrigFTK
+use IRegionSelector            IRegionSelector-*           DetectorDescription 
+use RoiDescriptor              RoiDescriptor-*             DetectorDescription 
 
 # Add transform
 apply_pattern declare_job_transforms tfs='*_tf.py' jo='skeleton.*.py'

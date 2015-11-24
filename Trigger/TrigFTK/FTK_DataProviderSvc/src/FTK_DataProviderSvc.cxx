@@ -63,7 +63,7 @@
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
 
-
+#include "IRegionSelector/RoiUtil.h"
 
 #include <map>
 
@@ -255,7 +255,7 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
       // Get FTK track
       const FTK_RawTrack* ftk_track= m_ftk_tracks->at(ftk_track_index);
       // check if track is inside RoI
-      if (roi.isFullscan() || (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh()))) {
+      if (roi.isFullscan() || (RoiUtil::containsPhi( roi,ftk_track->getPhi()) && RoiUtil::contains(roi, ftk_track->getZ0(), ftk_track->getCotTh()))) {
 
 
         if( m_refit_tp_map[ftk_track_index]>-1) {
@@ -297,7 +297,7 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
       // Get FTK track
       const FTK_RawTrack* ftk_track= m_ftk_tracks->at(ftk_track_index);
 
-      if (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh())) {
+      if (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi,ftk_track->getZ0(), ftk_track->getCotTh())) {
         // check track is inside RoI
 
         if( m_conv_tp_map[ftk_track_index]>-1) {
@@ -742,7 +742,7 @@ TrackCollection* FTK_DataProviderSvc::getTracksInRoi(const IRoiDescriptor& roi, 
     /// Check if the track is inside the ROI ///
 
     const FTK_RawTrack* ftk_track= m_ftk_tracks->at(ftk_track_index);
-    if (roi.isFullscan() || (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh()))) {
+    if (roi.isFullscan() || (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi,ftk_track->getZ0(), ftk_track->getCotTh()))) {
 
       Trk::Track* track = this->getCachedTrack(ftk_track_index, withRefit);
       if (track != nullptr) userTracks->push_back(track);
