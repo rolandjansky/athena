@@ -33,7 +33,7 @@ use AthenaKernel   AthenaKernel-*      Control
 
 # needed by all 
 use Identifier	   Identifier-*        DetectorDescription
-use LArTools	   LArTools-*          LArCalorimeter
+use LArCabling	   LArCabling-*        LArCalorimeter
 use CaloIdentifier CaloIdentifier-*    Calorimeter
 use LArIdentifier  LArIdentifier-*     LArCalorimeter
 use LArElecCalib   LArElecCalib-*      LArCalorimeter
