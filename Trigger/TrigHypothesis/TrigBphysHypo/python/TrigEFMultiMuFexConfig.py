@@ -79,10 +79,11 @@ class EFMultiMuFex_Tau (TrigEFMultiMuFex):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
-        self.LowerMassCut      = 1000.
-        self.UpperMassCut     = 2500.
+        self.LowerMassCut      = 0.
+        self.UpperMassCut     = 2900.
         self.MuonAlgo = "TrigMuSuperEF"
         self.NMassMuon = 3
+        self.CheckNinputTE = False
         
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
