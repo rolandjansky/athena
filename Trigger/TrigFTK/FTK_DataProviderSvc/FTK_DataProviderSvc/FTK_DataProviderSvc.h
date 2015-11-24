@@ -96,7 +96,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  virtual void handle( const Incident &incident );
 
- StatusCode getFTK_RawTracksFromSG();
+ void getFTK_RawTracksFromSG();
  Trk::Track* ConvertTrack(const unsigned int track);
  Trk::Track* getCachedTrack(const unsigned int track, const bool do_refit);
  StatusCode initTrackCache(bool do_refit);
