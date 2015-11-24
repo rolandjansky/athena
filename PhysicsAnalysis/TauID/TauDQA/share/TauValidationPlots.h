@@ -11,6 +11,7 @@
 #include "TauHistUtils/NewCorePlots.h"
 #include "TauHistUtils/BDTinputPlots.h"
 #include "TauHistUtils/Migration.h"
+#include "TauHistUtils/EfficiencyPtPlots.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h" 
@@ -59,6 +60,18 @@ class TauValidationPlots:public PlotBase {
       Tau::RecoTauPlots m_oMatchedTauAllProngsPlots;
       Tau::RecoTauPlots m_oFakeTauAllProngsPlots;
 
+      //Efficiency plots
+      Tau::EfficiencyPtPlots m_oMatchedTauEffPlots;
+      Tau::EfficiencyPtPlots m_oMatchedTauEff1PPlots;
+      Tau::EfficiencyPtPlots m_oMatchedTauEff3PPlots;
+
+      Tau::EfficiencyPtPlots m_oRecTauEffPlots;
+      Tau::EfficiencyPtPlots m_oRecTauEff1PPlots;
+      Tau::EfficiencyPtPlots m_oRecTauEff3PPlots;
+
+      Tau::EfficiencyPtPlots m_oFakeTauEffPlots;
+      Tau::EfficiencyPtPlots m_oFakeTauEff1PPlots;
+      Tau::EfficiencyPtPlots m_oFakeTauEff3PPlots;
 
       // All tau Reco with Backwards compatability, for comparison with 17.X.Y
       Tau::NewCorePlots m_oNewCorePlots;		
