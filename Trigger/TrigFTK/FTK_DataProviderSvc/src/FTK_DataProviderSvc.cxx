@@ -458,9 +458,8 @@ StatusCode FTK_DataProviderSvc::fillTrackCache(const bool withRefit) {
 
 
   /// If we're at the start of a new event, get the tracks from StoreGate
-  if (getFTK_RawTracksFromSG().isFailure()) {
-    return StatusCode::FAILURE;
-  }
+  getFTK_RawTracksFromSG();
+
   if (initTrackCache(withRefit).isFailure()) {
     return StatusCode::FAILURE;
   }
@@ -551,17 +550,15 @@ VxContainer* FTK_DataProviderSvc::getVxContainer(const ftk::FTK_TrackType trackT
     userVertex = new VxContainer();
   }
 
-  if (!m_gotRawTracks) return userVertex;
-    
-
+ 
   if (trackType == ftk::RawTrackType) {
     ATH_MSG_DEBUG( "getVxContainer: filling VxContainer from RAW tracks ");
     // get vertices from Raw FTK tracks
 
     if (!m_got_raw_vx) {
-      if (getFTK_RawTracksFromSG().isFailure()) {
-        return userVertex;
-      }
+      getFTK_RawTracksFromSG();
+      if (!m_gotRawTracks) return userVertex;
+
       m_raw_vx = m_RawVertexFinderTool->findVertex(m_ftk_tracks);
       std::string cacheName=m_VxContainerCacheName+"Raw";
       StatusCode sc = m_storeGate->record( m_raw_vx, cacheName);
@@ -703,9 +700,7 @@ TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit){
   }
 
   /// If we're at the start of a new event, get the tracks from StoreGate
-  if (getFTK_RawTracksFromSG().isFailure()) {
-    return userTracks;
-  }
+  getFTK_RawTracksFromSG();
   if (initTrackCache(withRefit).isFailure()) {
     return userTracks;
   }
@@ -734,9 +729,7 @@ TrackCollection* FTK_DataProviderSvc::getTracksInRoi(const IRoiDescriptor& roi, 
   
 
   /// If we're at the start of a new event, get the tracks from StoreGate
-  if (getFTK_RawTracksFromSG().isFailure()) {
-    return userTracks;
-  }
+  getFTK_RawTracksFromSG();
   if (initTrackCache(withRefit).isFailure()) {
     return userTracks;
   }
@@ -854,12 +847,10 @@ Trk::Track* FTK_DataProviderSvc::getCachedTrack(const unsigned int ftk_track_ind
 }
 
 
-StatusCode FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
+void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
   /// get the FTK Track pointers from StoreGate ///
 
-  if (!m_newEvent) {
-    return StatusCode::SUCCESS;
-  }
+  if (!m_newEvent) return;
   m_newEvent=false;
 
 
@@ -876,13 +867,13 @@ StatusCode FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
     ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
-    return StatusCode::SUCCESS;
+    return;
   } else {
     ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retreive");
     StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
-      return StatusCode::SUCCESS;
+      return;
     }
     ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
     m_gotRawTracks = true;
@@ -895,14 +886,14 @@ StatusCode FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
   StatusCode sc = m_storeGate->record(m_PixelClusterContainer,m_PixelClusterContainerName);
   if (sc.isFailure()) {
     ATH_MSG_DEBUG("Error registering the FTK pixel container in the SG");
-    return sc;
+    return;
   }
   // Generic format link for the pixel clusters
   const InDet::SiClusterContainer *symSiContainerPxl(0x0);
   sc = m_storeGate->symLink(m_PixelClusterContainer,symSiContainerPxl);
   if (sc.isFailure()) {
     ATH_MSG_DEBUG("Error creating the sym-link to the Pixel clusters");
-    return sc;
+    return;
   }
   // Creating collection for the SCT clusters
   m_SCT_ClusterContainer = new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max());
@@ -910,18 +901,18 @@ StatusCode FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
   sc = m_storeGate->record(m_SCT_ClusterContainer,m_SCT_ClusterContainerName);
   if (sc.isFailure()) {
     ATH_MSG_DEBUG("Error registering the FTK SCT container in the SG");
-    return sc;
+    return;
   }
   // Generic format link for the pixel clusters
   const InDet::SiClusterContainer *symSiContainerSCT(0x0);
   sc = m_storeGate->symLink(m_SCT_ClusterContainer,symSiContainerSCT);
   if (sc.isFailure()) {
     ATH_MSG_DEBUG("Error creating the sym-link to the SCT clusters");
-    return sc;
+    return;
   }
 
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 StatusCode FTK_DataProviderSvc::initTrackCache(bool withRefit) {
@@ -1262,12 +1253,11 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   double dx = m_trainingBeamspotX + m_trainingBeamspotTiltX*track.getZ0();//correction for tilt
   double dy = m_trainingBeamspotY + m_trainingBeamspotTiltY*track.getZ0();//correction for tilt
 
-  double d0 = track.getD0();
-  d0 = d0-dx*sin( track.getPhi())+dy*cos( track.getPhi());
-
+  double d0 = track.getD0()-dx*sin( track.getPhi())+dy*cos( track.getPhi());
+  double z0 = track.getZ0() - ((cos( track.getPhi()) *dx + sin( track.getPhi()*dy))/tan(trkTheta));
 
   const Trk::Perigee* trkPerigee = new Trk::Perigee( d0,
-      track.getZ0() + m_trainingBeamspotZ,
+      z0,
       track.getPhi(),
       trkTheta,
       trkQOverP,
@@ -1275,7 +1265,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       trkTrackCovm);
 
   ATH_MSG_VERBOSE( "   ConvertTrack: Track perigee created  d0 " <<  d0 << " z0 " <<
-      track.getZ0() + m_trainingBeamspotZ << " phi0 " << track.getPhi() << " theta " << trkTheta << " q/P " << trkQOverP);
+      z0<< " phi0 " << track.getPhi() << " theta " << trkTheta << " q/P " << trkQOverP);
   //
   // Build the TSOS
   //
