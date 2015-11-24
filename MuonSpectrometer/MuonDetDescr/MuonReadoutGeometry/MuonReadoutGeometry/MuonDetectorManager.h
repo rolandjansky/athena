@@ -32,6 +32,7 @@
 typedef std::map<Identifier,ALinePar*>::const_iterator ciALineMap;
 typedef std::map<Identifier,BLinePar*>::const_iterator ciBLineMap;
 typedef std::map<Identifier,CscInternalAlignmentPar*>::const_iterator ciCscInternalAlignmentMap;
+typedef std::map<Identifier,MdtAsBuiltPar*>::const_iterator ciMdtAsBuiltMap;
 
 class IMessageSvc;
 
@@ -100,7 +101,7 @@ namespace MuonGM {
     // storeCscInternalAlignmentParams
     void storeCscInternalAlignmentParams(CscInternalAlignmentPar* x);
 
-    void storeMdtAsBuiltParams(MdtAsBuiltParams* params);
+    void storeMdtAsBuiltParams(MdtAsBuiltPar* x);
     
     // access to Readout Elements
     const MdtReadoutElement* getMdtReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
@@ -343,21 +344,24 @@ namespace MuonGM {
     inline ALineMapContainer * ALineContainer() const;
     inline BLineMapContainer * BLineContainer() const;
     inline CscInternalAlignmentMapContainer * CscInternalAlignmentContainer() const;
-    inline MdtAsBuiltParMapContainer* MdtAsBuiltParamsContainer() const;
+    inline MdtAsBuiltMapContainer* MdtAsBuiltContainer() const;
     inline ciALineMap ALineMapBegin() const;
     inline ciBLineMap BLineMapBegin() const;
     inline ciALineMap ALineMapEnd() const;
     inline ciBLineMap BLineMapEnd() const;
     inline ciCscInternalAlignmentMap CscALineMapBegin() const;
     inline ciCscInternalAlignmentMap CscALineMapEnd() const;
+    inline ciMdtAsBuiltMap MdtAsBuiltMapBegin() const;
+    inline ciMdtAsBuiltMap MdtAsBuiltMapEnd() const;
     StatusCode updateAlignment(const ALineMapContainer* a) const; 
     StatusCode updateDeformations(const BLineMapContainer* a) const;
+    StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer* a) const;
     StatusCode initCSCInternalAlignmentMap() const;
     StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* cscIntAline) const;
     void initABlineContainers() const;
 
     // get Mdt AsBuilt parameters for chamber specified by Identifier
-    MdtAsBuiltParams* getMdtAsBuiltParams(Identifier id);
+    MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id);
 
     //!< provide a pointer to the msg svc to all readout geometry 
     inline IMessageSvc* msgSvc() const;    
@@ -437,7 +441,7 @@ namespace MuonGM {
     mutable  BLineMapContainer * m_bLineContainer;
     // CscInternalAlignmentMapContainer (pointers) will be created by RDBReaderAccess at the first attempt to store a CscInternalAlignmentPar -rot and transl parameters are held by the CSCredoutElements and the corresponding A-line is provided with this map (key Identifier) by the manager - the manager is responsible to delete the CscInternalAlignmentPar
     mutable  CscInternalAlignmentMapContainer * m_cscALineContainer;
-    mutable  MdtAsBuiltParMapContainer* m_AsBuiltParamsMap;
+    mutable  MdtAsBuiltMapContainer* m_AsBuiltParamsMap;
 
     //!< hold a pointer to the message svc to be used by all readout geometry 
     IMessageSvc* m_msgSvc;
@@ -545,8 +549,8 @@ namespace MuonGM {
     MuonDetectorManager::CscInternalAlignmentContainer() const
     {return  m_cscALineContainer;}
 
-  MdtAsBuiltParMapContainer* 
-    MuonDetectorManager::MdtAsBuiltParamsContainer() const
+  MdtAsBuiltMapContainer* 
+    MuonDetectorManager::MdtAsBuiltContainer() const
     {return m_AsBuiltParamsMap;}
 
   ciALineMap MuonDetectorManager::ALineMapBegin() const {return m_aLineContainer->begin();}
@@ -555,6 +559,8 @@ namespace MuonGM {
   ciBLineMap MuonDetectorManager::BLineMapEnd() const  {return m_bLineContainer->end();}
   ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapBegin() const {return  m_cscALineContainer->begin();}
   ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapEnd() const {return  m_cscALineContainer->end();}
+  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapBegin() const {return  m_AsBuiltParamsMap->begin();}
+  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapEnd() const {return  m_AsBuiltParamsMap->end();}
 
 
   void MuonDetectorManager::setCacheFillingFlag(int value){m_cacheFillingFlag = value;}

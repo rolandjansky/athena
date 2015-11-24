@@ -51,6 +51,7 @@ namespace MuonGM {
     int    nPadH;
     int    nPadColumns;
     double PadPhiShift;
+    int etasign;
 
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;
@@ -176,13 +177,13 @@ namespace MuonGM {
    double locPhi = 180*atan( pos.x()/( radialDistance + pos.y()))/M_PI;
    double maxlocPhi = 180*atan( 0.5*sPadWidth/( radialDistance + (-0.5*Length+ysFrame ) ))/M_PI;
 //    double maxlocPhi2 = 180*atan( 0.5*lPadWidth/( radialDistance + (0.5*Length-ylFrame) ))/M_PI;
-   if (abs(locPhi)>maxlocPhi) {
+   if (std::abs(locPhi)>maxlocPhi) {
       ATH_MSG_ERROR("locPhi too large" );
       return std::pair<int,int>(-1,-1);
    }
-   double fuzziedX = pos.x() - (PadPhiShift /cos(locPhi*M_PI/180)); //fuzziness for negative z must be fixed (need to take negative of PadPhiShift)
+   double fuzziedX = pos.x() - (etasign*PadPhiShift /cos(locPhi*M_PI/180)); //fuzziness for negative z takes negative of PadPhiShift
    double fuzziedlocPhi = 180*atan( fuzziedX/( radialDistance + pos.y()))/M_PI;
-   if (abs(fuzziedlocPhi)>maxlocPhi) {
+   if (std::abs(fuzziedlocPhi)>maxlocPhi) {
       ATH_MSG_DEBUG("close to outer border" );
       fuzziedlocPhi=locPhi;
    }
