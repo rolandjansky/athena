@@ -11,7 +11,7 @@ use AtlasExternalArea          AtlasExternalArea-*     External
 
 #macro HEPUtils_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/heputils"
 macro HEPUtils_home "$(LCG_external)/MCGenerators/heputils"
-macro HEPUtils_version "1.0.6"
+macro HEPUtils_version "1.1.0"
 macro HEPUtils_native_version "$(HEPUtils_version)_lcgcmt$(LCG_config_version)"
 macro HEPUtils_dir "$(HEPUtils_home)/$(HEPUtils_version)/$(LCG_ext_system)"
 
