@@ -99,6 +99,7 @@ class MultiLevelAlignmentDbTool: virtual public IMultiLevelAlignmentDbTool, publ
   virtual const ALineMapContainer* level23Container() const;
   virtual const ALineMapContainer* level3Container() const;
   virtual const CscInternalAlignmentMapContainer* ILineContainer() const;
+  virtual const MdtAsBuiltMapContainer* AsBuiltContainer() const;
 
   const Amg::Transform3D level0Transform() const;
   const Amg::Transform3D level1Transform(Identifier id) const;

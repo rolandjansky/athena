@@ -26,6 +26,7 @@
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
+#include "MuonAlignmentData/MdtAsBuiltPar.h"
 #include "MuonAlignmentData/CorrContainer.h"
 
 #include "MuonCondTool/MuonAlignmentDbTool.h" 
@@ -52,6 +53,7 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
   m_alineDataLocation="A_LINE_CORR_updates";
   m_blineDataLocation="B_LINE_CORR_updates";
   m_ilineDataLocation="I_LINE_CORR_updates";
+  m_asbuiltDataLocation="ASBUILT_CORR_updates";
   m_mdtIdHelper = 0;
   m_cscIdHelper = 0;
   m_rpcIdHelper = 0;
@@ -64,8 +66,10 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
   declareProperty("DumpALines",      m_dumpALines=false);
   declareProperty("DumpBLines",      m_dumpBLines=false);
   declareProperty("DumpILines",      m_dumpILines=false);
+  declareProperty("DumpAsBuilt",     m_dumpAsBuilt=false);
   declareProperty("ILinesFromCondDB",m_ILinesFromDb=false);
   declareProperty("ALinesFile",      m_aLinesFile="");
+  declareProperty("AsBuiltFile",     m_asBuiltFile="");
 }
 
 //StatusCode MuonAlignmentDbTool::updateAddress(SG::TransientAddress* tad)
@@ -90,6 +94,11 @@ StatusCode MuonAlignmentDbTool::updateAddress(StoreID::type /*storeID*/, SG::Tra
     if (1285567354== clid && m_ilineDataLocation == key)
     {
         if( m_debug )  m_log << MSG::DEBUG << "OK iline" << endreq;
+        return StatusCode::SUCCESS;
+    }
+    if (1198729422== clid && m_asbuiltDataLocation == key)
+    {
+        if( m_debug )  m_log << MSG::DEBUG << "OK asbuilt" << endreq;
         return StatusCode::SUCCESS;
     }
     return StatusCode::FAILURE;
@@ -150,7 +159,10 @@ StatusCode MuonAlignmentDbTool::initialize()
   m_alineData = new ALineMapContainer() ;
 
   m_ilineData = new CscInternalAlignmentMapContainer();
-  if( m_debug )  m_log << MSG::DEBUG<<"MGM_alTool init time: pointer to A-line container =<"<<m_alineData<<"> to B-line container <"<<m_blineData<<">"<<endreq;
+
+  m_asbuiltData = new MdtAsBuiltMapContainer();
+  if( m_debug )  m_log << MSG::DEBUG<<"MGM_alTool init time: pointer to A-line container =<"<<m_alineData<<"> to B-line container <"<<m_blineData<<"> to I-line container =<"<< m_ilineData << " to AsBuilt container =<" << m_asbuiltData <<endreq;
+
   
   // record the containers in the detector store
   
@@ -170,6 +182,14 @@ StatusCode MuonAlignmentDbTool::initialize()
   }
   else m_log << MSG::INFO << "B Lines container recorded in the detector store"<<endreq;
   
+  sc = m_detStore->record(m_asbuiltData,m_asbuiltDataLocation);
+  if (sc == StatusCode::FAILURE) {
+    m_log << MSG::ERROR << "Cannot record B Lines container in the detector store"
+	<< endreq;
+    return sc;
+  }
+  else m_log << MSG::INFO << "As-Built container recorded in the detector store"<<endreq;
+
   if( m_ILinesFromDb ) sc = m_detStore->record(m_ilineData,m_ilineDataLocation);
   if (sc == StatusCode::FAILURE && m_ILinesFromDb) {
     m_log << MSG::ERROR << "Cannot not record I-Lines container in the detector store"
@@ -240,6 +260,26 @@ StatusCode MuonAlignmentDbTool::initialize()
    if( m_ILinesFromDb ) tad->setProvider(addp, StoreID::DETECTOR_STORE);
    //tad->setProvider(addp);
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for CscInternalAlignmentMapContainer" << endreq;
+
+
+   proxy = m_detStore->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
+   if (!proxy) {
+     m_log << MSG::ERROR << "Unable to get the proxy for class MdtAsBuiltParContainer" << endreq;
+     return StatusCode::FAILURE;
+   }
+   else m_log << MSG::INFO << "proxy for class MdtAsBuiltParContainer found" << endreq;
+   
+   tad =  proxy->transientAddress();
+   if (!tad) {
+     m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+     return StatusCode::FAILURE;
+   }
+   else m_log << MSG::INFO << "proxy transient Address found" << endreq;
+
+   addp = this;
+   tad->setProvider(addp, StoreID::DETECTOR_STORE);
+   //tad->setProvider(addp);
+   if( m_debug )  m_log << MSG::DEBUG << "set address provider for MdtAsBuiltParContainer" << endreq;
 
   return sc;
  
@@ -367,6 +407,23 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if (!m_ILinesFromDb) sc = StatusCode::SUCCESS;
   }
   m_ilineData=0;
+
+  sc = m_detStore->retrieve( m_asbuiltData, m_asbuiltDataLocation );
+  if(sc.isSuccess())  {
+      m_log << MSG::INFO << "Previous As-Built Container found in the DetStore <" << m_asbuiltData <<">"<< endreq;
+      sc = m_detStore->remove( m_asbuiltData );
+      if(sc.isSuccess()) {
+	m_log << MSG::INFO << "As-Built Container at <" << m_asbuiltData << "> removed "<<endreq;
+      }
+      else m_log << MSG::INFO << " wow - what is as built , I wish I knew because then I could have removed it "<<endreq;
+  }
+  else {
+    if (m_blineData) {
+        m_log << MSG::INFO << "Previous As-Built Container not in the DetStore but pointer not NULL <" << m_asbuiltData <<">"<< endreq;
+        delete m_asbuiltData;
+    }	
+  }
+  m_asbuiltData=0;
   
   m_alineData = new ALineMapContainer() ;
   m_log << MSG::INFO<<"New ALineMapContainer pointer "<<(uintptr_t)m_alineData<<endreq;
@@ -374,6 +431,8 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   m_log << MSG::INFO<<"New BLineMapContainer pointer "<<(uintptr_t)m_blineData<<endreq;
   m_ilineData = new CscInternalAlignmentMapContainer() ;
   m_log << MSG::INFO<<"New CscInternalAlignmentMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
+  m_asbuiltData = new MdtAsBuiltMapContainer() ;
+  m_log << MSG::INFO<<"New AsBuiltMapContainer pointer "<<(uintptr_t)m_asbuiltData<<endreq;
 
   if (keys.empty()) 
   {
@@ -396,6 +455,7 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
               nLoadedFolders--;
             }
           }
+          else if(currentFolderName.find("ASBUILTPARAMS") != std::string::npos) sc = loadAlignAsBuilt(*itf);
           else sc = loadAlignABLines(*itf);
           if (sc == StatusCode::RECOVERABLE)
               m_log << MSG::WARNING
@@ -435,10 +495,11 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
                       sc = StatusCode::SUCCESS;
                     }
                   }
+                  else if(currentFolderName.find("ASBUILTPARAMS") != std::string::npos) sc = loadAlignAsBuilt(*itf);
                   else sc = loadAlignABLines(*itf);
                   if (sc != StatusCode::SUCCESS)
                       m_log << MSG::INFO
-                          << "Something wrong in loadAlignABLines" << endreq;
+                          << "Something wrong in loadAlignABLines: " << *itr << endreq;
               }
           }
       }
@@ -454,6 +515,8 @@ StatusCode MuonAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
     m_log << MSG::INFO<<"New I-line container recoded in the DetStore with key "<<m_ilineDataLocation<<endreq;
   }
   else m_log << MSG::INFO<<"I-line not recorded from this tool since functionality disabled."<<endreq;
+  if ((m_detStore->record( m_asbuiltData, m_asbuiltDataLocation )).isFailure()) return StatusCode::FAILURE;
+  m_log << MSG::INFO<<"New As-built container recoded in the DetStore with key "<<m_asbuiltDataLocation<<endreq;
   
   m_log << MSG::INFO <<"LoadParameters done !"<< endreq;
   
@@ -466,6 +529,8 @@ StatusCode MuonAlignmentDbTool::loadAlignALine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*ke
 StatusCode MuonAlignmentDbTool::loadAlignBLine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 {return StatusCode::SUCCESS;}
 StatusCode MuonAlignmentDbTool::loadAlignILine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
+{return StatusCode::SUCCESS;}
+StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 {return StatusCode::SUCCESS;}
 
 StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName) 
@@ -782,6 +847,8 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
    // dump B-lines to m_log file
    if (m_dumpBLines && (int)m_blineData->size()>0) dumpBLines(folderName);
    
+   if ( m_asBuiltFile!="" ) setAsBuiltFromAscii();
+
    if( m_verbose ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
        << atrc->clID() << endreq;
    
@@ -1047,6 +1114,130 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
    
    return  sc; 
 }
+
+StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName) 
+{
+
+   MsgStream m_log(msgSvc(), name());
+   StatusCode sc=StatusCode::SUCCESS;
+   m_log << MSG::INFO << "Load alignment parameters from DB folder <"<<folderName<<">"<< endreq;
+   if( m_debug ) m_log << MSG::DEBUG << " ----- MdtAsBuiltMapContainer pointer "<<(uintptr_t)m_asbuiltData<<endreq;
+
+   // retreive the collection of strings read out from the DB
+   const CondAttrListCollection * atrc;
+   sc=m_detStore->retrieve(atrc,folderName);
+   if(sc.isFailure())  {
+     m_log << MSG::WARNING 
+         << "could not retreive the CondAttrListCollection from DB folder " 
+         << folderName << endreq;
+     return StatusCode::RECOVERABLE;
+   }
+   else
+       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+   if( m_debug ) m_log << MSG::DEBUG << " data found ----- AsBuiltMapContainer pointer "<<(uintptr_t)m_ilineData<<endreq;
+
+   // unpack the strings in the collection and update the 
+   // AsBuiltContainer in TDS
+   int nLines = 0;
+   int nDecodedLines = 0;
+   int nNewDecodedAsBuilt = 0;
+   MdtAsBuiltPar xPar;
+   xPar.isNew(true);
+   CondAttrListCollection::const_iterator itr;
+   for (itr = atrc->begin(); itr != atrc->end(); ++itr)
+   {
+    const coral::AttributeList& atr=itr->second;
+    std::string data;
+    data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
+    
+    if( m_debug ) m_log << MSG::DEBUG << "Data load is " << data << " FINISHED HERE "<<endreq;
+    
+    // Check the first word to see if it is a correction
+    std::string type;
+    
+    //Parse corrections
+    std::string delimiter = "\n";
+    
+    std::vector<std::string> lines;
+    MuonCalib::MdtStringUtils::tokenize(data,lines,delimiter);
+    for (unsigned int i=0; i<lines.size();i++)
+    {
+      ++nLines;
+      //std::cout<<"scanning CLOB --- current line = "<<nLines<<std::endl;
+      //	CscInternalAlignmentPar* newILine = new CscInternalAlignmentPar();
+      std::string blobline = lines[i];
+
+      std::string delimiter = ":";
+      std::vector<std::string> tokens;
+      MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
+      type = tokens[0];
+      //Parse line
+      if (type.find("#")==0) {
+         //skip it
+         continue;
+      }
+	
+      if (type.find("Corr")==0) {
+	if (!xPar.setFromAscii(blobline)) {
+          m_log<< MSG::ERROR << "Unable to parse AsBuilt params from Ascii line: " << blobline <<endreq;
+          continue;
+	}
+
+        std::string stationType="XXX";
+        int jff = 0;
+        int jzz = 0;
+        int job = 0;
+        xPar.getAmdbId(stationType, jff, jzz, job);
+	Identifier id = m_mdtIdHelper->elementID(stationType, jzz, jff);
+
+	if( m_verbose ) m_log << MSG::VERBOSE <<"Station type jff jzz "  << stationType  << jff << " " << jzz << endreq;
+        ++nDecodedLines;
+        ++nNewDecodedAsBuilt;
+        ciMdtAsBuiltMap iasbuild;
+        if((iasbuild = m_asbuiltData->find(id)) != m_asbuiltData->end())
+        {
+          m_log << MSG::WARNING<< "More than one (As-built) entry in folder "<<folderName<<" for  "
+                << stationType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- keep the latest one"<< endreq;
+          m_asbuiltData->erase(id);
+          --nNewDecodedAsBuilt;
+        }
+	m_asbuiltData->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
+      }
+    }
+   }
+  if( m_debug ) m_log << MSG::DEBUG<<"In folder <"<<folderName<<"> # lines/decodedLines/newDecodedILines= "
+       <<nLines<<"/"<<nDecodedLines<<"/"<<nNewDecodedAsBuilt<<"/"<<endreq;
+
+   // dump I-lines to m_log file TBA
+   if (m_dumpAsBuilt && (int)m_asbuiltData->size()>0) dumpAsBuilt(folderName);
+   
+   if( m_verbose ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
+       << atrc->clID() << endreq;
+   
+   IOVRange range;
+   if ((m_IOVSvc->getRange(1238547719, folderName, range)).isFailure()) return StatusCode::FAILURE;
+   if( m_debug) m_log << MSG::DEBUG <<"IOVRange for these data is <"<<range<<">"<<endreq;
+   
+
+// ss:01/07/2008 not clear if this is needed at all 
+   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MdtAsBuiltMapContainer>::ID(), m_asbuiltDataLocation);
+    if (!proxy) {
+      m_log << MSG::ERROR << "Unable to get the proxy for class ILineParContainer" << endreq;
+      return StatusCode::FAILURE;
+    }
+    SG::TransientAddress* tad =  proxy->transientAddress();
+    if (!tad) {
+      m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+      return StatusCode::FAILURE;
+    }
+    IAddressProvider* addp = this;
+    //    tad->setProvider(addp);
+    tad->setProvider(addp, StoreID::DETECTOR_STORE);
+    if( m_debug ) m_log << MSG::DEBUG<< "set address provider for MdtAsBuiltParContainer" << endreq;
+   
+   return  sc; 
+}
+
     
 std::vector<std::string> MuonAlignmentDbTool::abLineFolderNames() const
 {return m_parlineFolder;}
@@ -1056,7 +1247,8 @@ std::string MuonAlignmentDbTool::bLineFolderName() const
 {return *m_parlineFolder.begin();}
 std::string MuonAlignmentDbTool::iLineFolderName() const
 {return *m_parlineFolder.begin();}
-
+std::string MuonAlignmentDbTool::asBuiltFolderName() const
+{return *m_parlineFolder.begin();}
 
 const ALineMapContainer*
 MuonAlignmentDbTool::ALineContainer() const
@@ -1067,6 +1259,9 @@ MuonAlignmentDbTool::BLineContainer() const
 const CscInternalAlignmentMapContainer*
 MuonAlignmentDbTool::ILineContainer() const
 {return m_ilineData;}
+const MdtAsBuiltMapContainer*
+MuonAlignmentDbTool::AsBuiltContainer() const
+{return m_asbuiltData;}
 
 int MuonAlignmentDbTool::stationPhiTGC(std::string stName, int fi, int zi_input) const
 {
@@ -1173,6 +1368,57 @@ void MuonAlignmentDbTool::setALinesFromAscii() const
 	ALine->setParameters(tras,traz,trat,rots,rotz,rott);      
     }
   }
+  return;
+}
+
+void MuonAlignmentDbTool::setAsBuiltFromAscii() const
+{
+  MsgStream m_log(msgSvc(), name());
+  m_log.setLevel(outputLevel());
+
+  m_log << MSG::INFO << " Set alignment constants from text file "<< m_asBuiltFile << endreq;
+
+  std::ifstream fin(m_asBuiltFile.c_str());
+  std::string line;
+  MdtAsBuiltPar xPar;
+  xPar.isNew(true);
+  int count = 0;
+  while(getline(fin, line)) {
+    if (line.find("Corr:")==0) {
+      if (!xPar.setFromAscii(line)) {
+        m_log<< MSG::ERROR << "Unable to parse AsBuilt params from Ascii line: " << line <<endreq;
+	} else {
+        std::string stName="XXX";
+        int jff = 0;
+        int jzz = 0;
+        int job = 0;
+        xPar.getAmdbId(stName, jff, jzz, job);
+        Identifier id = m_mdtIdHelper->elementID(stName, jzz, jff);
+        if (!id.is_valid()) {
+           m_log << MSG::ERROR << "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff << endreq;
+           continue;
+        }
+        iMdtAsBuiltMap ci = m_asbuiltData->begin();
+        if((ci = m_asbuiltData->find(id)) != m_asbuiltData->end())
+        {
+          if ( m_debug )
+             m_log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station " <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
+          if ( m_debug )
+             m_log << MSG::DEBUG<< "That is strange since it's read from ASCII so this station is listed twice!" << endreq;
+          MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
+          m_asbuiltData->erase(id);
+          delete oldAsBuilt; oldAsBuilt=0;
+        } else {
+          if ( m_debug ) m_log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
+                    <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id)<< endreq;
+        }
+	  m_asbuiltData->insert(std::make_pair(id,new MdtAsBuiltPar(xPar)));
+	  ++count;
+	}
+    }
+  }
+  m_log << MSG::INFO << "Parsed AsBuilt parameters: " << count << endreq;
+
   return;
 }
 
@@ -1284,6 +1530,15 @@ void MuonAlignmentDbTool::dumpILines(const std::string& folderName)
 	      << std::setw(6) << std::setprecision(6) <<  rott  <<"\t"
 	      << ILineId << endreq;
   }
+  //std::cout<<std::endl;
+}
+
+void MuonAlignmentDbTool::dumpAsBuilt(const std::string& folderName)
+{
+    //  MsgStream m_log(msgSvc(), name());
+   m_log.setLevel(outputLevel());
+
+  m_log << MSG::INFO << "dumping As-build for folder "<<folderName<<endreq;
   //std::cout<<std::endl;
 }
 
