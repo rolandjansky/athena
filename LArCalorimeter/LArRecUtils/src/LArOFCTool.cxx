@@ -18,8 +18,8 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 

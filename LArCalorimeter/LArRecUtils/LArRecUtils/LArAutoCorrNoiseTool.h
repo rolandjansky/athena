@@ -26,8 +26,8 @@
 #include "LArElecCalib/ILArAutoCorr.h"
 
 #include "StoreGate/DataHandle.h"
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"

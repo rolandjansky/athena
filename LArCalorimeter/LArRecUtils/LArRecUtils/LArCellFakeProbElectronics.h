@@ -19,7 +19,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "LArIdentifier/LArHVCellID.h" 
-//#include "LArTools/LArHVCablingTool.h" 
+//#include "LArCabling/LArHVCablingTool.h" 
 #include "Identifier/HWIdentifier.h"
 
 class StoreGateSvc; 
