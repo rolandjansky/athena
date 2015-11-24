@@ -9,7 +9,9 @@ LArNoisyROSummary::LArNoisyROSummary():
   m_BadFEBFlaggedPartitions(0), 
   m_BadFEB_WFlaggedPartitions(0),
   m_SatMediumFlaggedPartitions(0), 
-  m_SatTightFlaggedPartitions(0)
+  m_SatTightFlaggedPartitions(0),
+  m_MNBLooseFlaggedPartitions(0),
+  m_MNBTightFlaggedPartitions(0)
 {
 }
 
@@ -25,6 +27,8 @@ void LArNoisyROSummary::clear()
   m_BadFEB_WFlaggedPartitions = 0;
   m_SatMediumFlaggedPartitions = 0;
   m_SatTightFlaggedPartitions = 0;
+  m_MNBLooseFlaggedPartitions =0;
+  m_MNBTightFlaggedPartitions =0;
 }
 
 
