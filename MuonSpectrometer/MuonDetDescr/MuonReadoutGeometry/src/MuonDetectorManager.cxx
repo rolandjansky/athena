@@ -179,8 +179,11 @@ MuonDetectorManager::~MuonDetectorManager() {
   }
 
   if (0 != m_AsBuiltParamsMap) {
-      m_AsBuiltParamsMap->clear();
-      delete m_AsBuiltParamsMap;
+    for (auto elem: *m_AsBuiltParamsMap )
+      {
+	delete elem.second; elem.second = 0;
+      }
+    delete m_AsBuiltParamsMap; m_AsBuiltParamsMap = 0;
   }
 
   if (0 != m_aLineContainer)
@@ -2133,6 +2136,88 @@ MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMap
     
     return StatusCode::SUCCESS;
 }
+StatusCode
+MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer* m_asbuiltData) const
+{
+    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateAsBuiltParams");
+    if (m_asbuiltData == NULL)
+    {
+	log<<MSG::WARNING<<"Undefined pointer to temporary As-Built container - nothing to do here"<<endreq;
+	return StatusCode::SUCCESS;
+    }
+    if (m_asbuiltData->size()==0)
+    {
+	log<<MSG::WARNING<<"Empty temporary As-Built container - nothing to do here"<<endreq;
+	return StatusCode::SUCCESS;
+    }
+    else log<<MSG::INFO<<"temporary As-Built container with size = "<<m_asbuiltData->size()<<endreq;
+
+    if (!m_AsBuiltParamsMap) {
+      log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endreq; 
+      m_AsBuiltParamsMap = new MdtAsBuiltMapContainer();
+    }
+
+    // loop over the container of the updates passed by the MuonAlignmentDbTool
+    ciMdtAsBuiltMap ciasbuilt = m_asbuiltData->begin();
+    unsigned int nLines = 0;
+    unsigned int nUpdates = 0;
+    for (; ciasbuilt != m_asbuiltData->end(); ciasbuilt++)
+    {
+        nLines++;
+	  //std::cout<<"Aline n. "<<nLines<<std::endl;
+        Identifier AsBuiltId = (*ciasbuilt).first;
+        MdtAsBuiltPar* AsBuiltPar = (*ciasbuilt).second;
+        std::string stType = "";
+        int jff = 0;
+        int jzz = 0;
+        int job = 0;
+        AsBuiltPar->getAmdbId(stType, jff, jzz, job);
+        if (!AsBuiltPar->isNew())
+        {            
+            if (log.level()<=MSG::DEBUG)
+               log<<MSG::DEBUG <<"MdtAsBuiltPar with AmdbId "
+               <<stType<<" "<<jzz<<" "<<jff<<" "<<job
+               <<" is not new *** skipping"<<endreq;
+            continue;
+        } else {
+
+          ciMdtAsBuiltMap ci = MdtAsBuiltMapBegin();
+          if((ci = MdtAsBuiltContainer()->find(AsBuiltId)) != MdtAsBuiltMapEnd())
+          {
+            if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
+                                             <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
+            MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
+            MdtAsBuiltContainer()->erase(AsBuiltId);
+            delete oldAsBuilt; oldAsBuilt=0;
+          } else {
+            if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
+                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(AsBuiltId)<< endreq;
+          }
+          MdtAsBuiltContainer()->insert(std::make_pair(AsBuiltId,AsBuiltPar));
+        }
+        if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG <<"MdtAsBuiltPar with AmdbId "
+                 <<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" is new ID = "<<m_mdtIdHelper->show_to_string(AsBuiltId)<<endreq;
+
+        MuonStation* thisStation = getMuonStation(stType, jzz, jff);
+        if (thisStation) {
+            if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting as-built parameters for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<endreq;
+            thisStation->clearBLineCache();
+            thisStation->setMdtAsBuiltParams(AsBuiltPar);
+            if (cacheFillingFlag()) thisStation->fillBLineCache();
+            nUpdates++;
+        } else {
+            log<<MSG::WARNING <<"MdtAsBuiltPar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job 
+               <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endreq;
+          continue;
+        }
+
+    }
+    log<<MSG::INFO<<"# of MDT As-Built read from the MdtAsBuiltMapContainer in StoreGate is "<<nLines<<endreq;
+    log<<MSG::INFO<<"# of deltaTransforms updated according to As-Built                  is "<<nUpdates<<endreq;
+    log<<MSG::INFO<<"# of entries in the MdtAsBuilt historical container                 is "<<MdtAsBuiltContainer()->size()<<endreq;
+    
+    return StatusCode::SUCCESS;
+}
 void MuonDetectorManager::storeCscInternalAlignmentParams(CscInternalAlignmentPar* x)
 {
 
@@ -2160,60 +2245,58 @@ void MuonDetectorManager::storeCscInternalAlignmentParams(CscInternalAlignmentPa
   }
 }
 
-void MuonDetectorManager::storeMdtAsBuiltParams(MdtAsBuiltParams* params) {
-   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-   
-   if (!m_AsBuiltParamsMap) {
+void MuonDetectorManager::storeMdtAsBuiltParams(MdtAsBuiltPar* params) {
+  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+
+  if (!m_AsBuiltParamsMap) {
     log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endreq; 
-    m_AsBuiltParamsMap = new MdtAsBuiltParMapContainer;
-   }
+    m_AsBuiltParamsMap = new MdtAsBuiltMapContainer;
+  }
 
-   // Transfer chamber name from online to offline identifier
-   std::string chamberName = params->getChamberName();
-   std::string stationName = chamberName.substr(0,3);
-   std::string stationEta = chamberName.substr(3,1);
-   std::string stationEtaSign = chamberName.substr(4,1);
-   std::string stationPhi = chamberName.substr(5,2);
-   
-   // convert eta and phi from string to int
-   std::stringstream stationEtaString(stationEta);
-   int eta;
-   stationEtaString >> eta;
-   if (!eta) {
-     std::cerr << "Not an integer value for eta for chamber " << chamberName << std::endl;
-     return;
-   }
-   if (stationEtaSign == "C") {
-     eta *= (-1);
-   }
-   std::stringstream stationPhiString(stationPhi);
-   int phi;
-   stationPhiString >> phi;
-   if (!phi) {
-     std::cerr << "Not an integer value for phi for chamber " << chamberName << std::endl;
-     return;
-   }   
-   // match online phi sector to offline sector
-   // online identifier phi sector ranges from 1 to 16
-   // offline identifier phi sector ranges from 1 to 8 for long and short chambers seperatly 
-   phi++;
-   phi /= 2;
+  std::string stName="XXX";
+  int jff = 0;
+  int jzz = 0;
+  int job = 0;
+  params->getAmdbId(stName, jff, jzz, job);
+  Identifier id = mdtIdHelper()->elementID(stName, jzz, jff);
+  if (!id.is_valid()) {
+    log << MSG::ERROR << "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff << endreq;
+    return;
+  }
 
-   log << MSG::INFO << "Store AsBuilt parameters for mdt chamber: " << chamberName << endreq;
-   log << MSG::INFO << "Offline identifier: " << stationName << ", eta: " << eta << ", phi: " << phi << endreq;
-   Identifier id = mdtIdHelper()->elementID(stationName, eta, phi);
-   
-   (*MdtAsBuiltParamsContainer())[id] = params;
+  ciMdtAsBuiltMap ci = MdtAsBuiltMapBegin();
+  if((ci = MdtAsBuiltContainer()->find(id)) != MdtAsBuiltMapEnd())
+  {
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
+						 <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
+    MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
+    MdtAsBuiltContainer()->erase(id);
+    delete oldAsBuilt; oldAsBuilt=0;
+  } else {
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
+                    <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id)<< endreq;
+  }
+  MdtAsBuiltContainer()->insert(std::make_pair(id,params));
+
+  return;
 }
 
-MdtAsBuiltParams* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) {
-   MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-   iMdtAsBuiltParMapContainer iter = MdtAsBuiltParamsContainer()->find(id);
-   if (iter == MdtAsBuiltParamsContainer()->end()) {
-      log << MSG::WARNING << "No Mdt AsBuilt parameters for station " << id.getString() << endreq;
-      return NULL;
-   }
-   return iter->second;
+MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) {
+  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+  if (!MdtAsBuiltContainer()) {
+    log << MSG::DEBUG << "No Mdt AsBuilt parameter container available" << endreq;
+    return 0;
+  }
+  iMdtAsBuiltMap iter = MdtAsBuiltContainer()->find(id);
+  if (iter == MdtAsBuiltContainer()->end()) {
+    log << MSG::DEBUG << "No Mdt AsBuilt parameters for station " << id.getString() 
+      << " sta=" << mdtIdHelper()->stationNameString(mdtIdHelper()->stationName(id))
+      << " eta=" << mdtIdHelper()->stationEta(id)
+      << " phi=" << mdtIdHelper()->stationPhi(id)
+      << endreq;
+    return 0;
+  }
+  return iter->second;
 }
 
 } // namespace MuonGM

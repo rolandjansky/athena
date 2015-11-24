@@ -195,6 +195,7 @@ namespace MuonGM {
     // int sector=getStationName().substr(2,1)=="L" ? 1 : 0;
     char sector_l=getStationName().substr(2,1)=="L" ? 'L' : 'S';
     int stEta=abs(getStationEta());
+    int Etasign=getStationEta()/stEta;
 
     sTGCDetectorHelper aHelper;
     reLog() << MSG::INFO<<getStationName()<<endreq;
@@ -305,12 +306,12 @@ namespace MuonGM {
       m_padDesign[il].ysFrame = ysFrame ;
       m_padDesign[il].ylFrame = ylFrame ;
       m_padDesign[il].yCutout = yCutout ;
-
+      m_padDesign[il].etasign = Etasign;
 
       m_padDesign[il].sPadWidth = roParam.sPadWidth;
       m_padDesign[il].lPadWidth = roParam.lPadWidth;
  
-
+      
       m_padDesign[il].deadO = 0.;
       m_padDesign[il].deadI = 0.;
       m_padDesign[il].deadS = 0.;	
