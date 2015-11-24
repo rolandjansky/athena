@@ -96,3 +96,15 @@ class TrigL2MultiMuFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                                title = 'L2MultiMuFex - Fitted vertex Z-position ; Z [mm] ; # Candidates',
                                                xbins = 100, xmin = -500., xmax = 500. ) ]
 
+class TrigL2MultiMuFexOnlineMonitoring_passL2(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigL2MultiMuFexOnlineMonitoring_passL2"):
+        super(TrigL2MultiMuFexOnlineMonitoring_passL2, self).__init__(name)
+        self.defineTarget("Online")
+        self.Histograms  = [ defineHistogram ( 'Errors', type = 'TH1F',
+                                               title = 'L2MultiMuFex - Algorithm errors ; ; # Events / Candidates',
+                                               xbins = ERROR_number , xmin = -0.5, xmax = ERROR_number - 0.5,
+                                               labels = ERROR_labels ) ]
+        self.Histograms += [ defineHistogram ( 'Acceptance', type = 'TH1F',
+                                               title = 'L2MultiMuFex - Reached steps - acceptance ; ; # Events / Candidates',
+                                               xbins = ACCEPTANCE_number , xmin = -0.5, xmax = ACCEPTANCE_number - 0.5,
+                                               labels = ACCEPTANCE_labels ) ]

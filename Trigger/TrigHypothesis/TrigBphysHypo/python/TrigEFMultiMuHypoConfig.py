@@ -93,10 +93,10 @@ class EFMultiMuHypo_Tau (TrigEFMultiMuHypo):
         self.AcceptAll = False
 
         # EF Bmumu cuts
-        self.LowerMassCut      = 1000.
-        self.UpperMassCut     = 2500.
+        self.LowerMassCut      = 0.
+        self.UpperMassCut     = 2700.
         self.ApplyUpperMassCut     = True
-        self.Chi2VtxCut       =   20.
+        self.Chi2VtxCut       =   100.
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")

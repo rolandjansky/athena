@@ -80,10 +80,33 @@ class L2MultiMuHypo_Tau (TrigL2MultiMuHypo):
         self.AcceptAll = False
 
         # L2 Bmumu cuts
-        self.LowerMassCut      = 1000.
-        self.UpperMassCut     = 2500.
+        self.LowerMassCut      = 0.
+        self.UpperMassCut     = 2900.
         self.ApplyUpperMassCut     = True
-        self.Chi2VtxCut       =   20.
+        self.Chi2VtxCut       =   150.
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoValidationMonitoring
+        validation = TrigL2MultiMuHypoValidationMonitoring()
+        from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoOnlineMonitoring
+        online = TrigL2MultiMuHypoOnlineMonitoring()
+	
+        self.AthenaMonTools = [ validation, online, time ]
+
+class L2MultiMuHypo_Tau_passL2 (TrigL2MultiMuHypo):
+    __slots__ = []
+    def __init__(self, name = "L2MultiMuHypo_Tau_passL2"):
+        super( TrigL2MultiMuHypo, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = True
+
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 0.
+        self.UpperMassCut     = 2900.
+        self.ApplyUpperMassCut     = True
+        self.Chi2VtxCut       =   150.
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
