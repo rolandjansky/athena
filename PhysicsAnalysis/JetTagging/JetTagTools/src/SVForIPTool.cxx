@@ -108,12 +108,12 @@ namespace Analysis {
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkFromV0_ELs;
     //std::vector<const Trk::TrackParticleBase*> TrkBaseFromV0;
     //const ISvxAssociation* newSvxAssociation=jetToTag.getAssociation<ISvxAssociation>(secVxFinderName);
-    std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(secVxFinderName, "vertices", myVertices);
+    //std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
+    //BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(secVxFinderName, "vertices", myVertices);
 
-    if (myVertices.size()==0) {
-      ATH_MSG_DEBUG(" No secondary vertex found for getting the V0s from the secondary vertex finder info");
-    } else {
+    //if (myVertices.size()==0) {
+    //ATH_MSG_DEBUG(" No secondary vertex found for getting the V0s from the secondary vertex finder info");
+    //} else {
       
       BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(secVxFinderName, "badTracksIP", TrkFromV0_ELs);
       /* // not yet implemented in BTagging/BTagSecVertexing
@@ -173,7 +173,7 @@ namespace Analysis {
 	 }
 	 }*/
 
-    }
+      //}
   
 
 
