@@ -68,6 +68,8 @@ if OverlayFlags.doTile():
     include("TileSimAlgs/TileDigitization_jobOptions.py")
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
     theTileDigitsMaker.RndmEvtOverlay = True
+    #job.TileHitVecToCnt.DigitizationTool.OutputLevel=VERBOSE
+    #theTileDigitsMaker.OutputLevel=VERBOSE
     if readBS and isRealData:
        theApp.Dlls += [ "TileByteStream"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileBeamElemContainer/TileBeamElemCnt"]
