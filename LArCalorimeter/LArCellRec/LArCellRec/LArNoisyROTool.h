@@ -14,6 +14,7 @@
 // STL includes
 #include <string>
 #include <set>
+#include <array>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,12 +24,15 @@
 
 #include "CaloInterface/ILArNoisyROTool.h"
 
-#include "CaloEvent/CaloCellContainer.h"
+#include "Identifier/HWIdentifier.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "AthenaKernel/IOVSvcDefs.h"
 
 class LArOnlineID;
-class CaloCellID;
+class CaloCell_ID;
 class LArCablingService;
 class LArNoisyROSummary;
+class CaloCellContainer;
 
 class LArNoisyROTool: 
   virtual public ILArNoisyROTool,
@@ -59,7 +63,6 @@ class LArNoisyROTool:
   virtual 
   std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*);
 
-
  private: 
 
   /// Default constructor: 
@@ -67,7 +70,7 @@ class LArNoisyROTool:
 
   // Containers
 
-  enum LARFLAGREASON { BADFEBS=0, MEDIUMSATURATEDQ=1, TIGHTSATURATEDQ=2, BADFEBS_W=3} ;
+  //enum LARFLAGREASON { BADFEBS=0, MEDIUMSATURATEDQ=1, TIGHTSATURATEDQ=2, BADFEBS_W=3} ;
 
  private:  // classes
 
@@ -101,6 +104,8 @@ class LArNoisyROTool:
 
   };
 
+  size_t partitionNumber(const HWIdentifier);
+
 
   typedef SG::unordered_map<unsigned int, FEBEvtStat> FEBEvtStatMap;
   typedef SG::unordered_map<unsigned int, FEBEvtStat>::iterator FEBEvtStatMapIt;
@@ -109,7 +114,7 @@ class LArNoisyROTool:
  private: 
   std::string m_CaloCellContainerName;
   std::string m_outputKey;
-  FEBEvtStatMap m_FEBstats;
+  //FEBEvtStatMap m_FEBstats;
 
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
@@ -140,6 +145,12 @@ class LArNoisyROTool:
   //** Same as above but as set to increase search speed
   std::set<unsigned int> m_knownBadFEBs;
 
+  //** List of FEBs known to be affected by mini Noise Bursts (jobO) */
+  std::vector<unsigned int> m_knownMNBFEBsVec;
+
+  //* List of FEBs known to be affected by mini Noise Bursts. Using a set to avoid duplication */
+  std::set<HWIdentifier> m_knownMNBFEBs;
+
   //** count bad FEB for job */
   SG::unordered_map<unsigned int, unsigned int> m_badFEB_counters;
 
@@ -161,9 +172,40 @@ class LArNoisyROTool:
   //** Count events with too many saturated Qfactor cells */
   unsigned int m_SaturatedCellTightCutEvents;
 
+  float m_MNBLooseCut;
+  float m_MNBTightCut;
+
   //** jobO flag to turn on a summary printout in finalize
   bool m_printSummary;
+
+
+  std::array<uint8_t,4> m_partitionMask;
+
 }; 
+
+
+
+
+inline size_t LArNoisyROTool::partitionNumber(const HWIdentifier hwid) {
+
+  int pn=m_onlineID->pos_neg(hwid);
+  if (m_onlineID->isEMECchannel(hwid)) {
+    if (pn) 
+      return 0; //positive EMECA side
+    else
+      return 3; //negative EMECC side
+  }
+  if (m_onlineID->isEMBchannel(hwid)) {
+    if (pn) 
+      return 1; //positive EMBA side
+    else
+      return 2; //negative EMBC side
+  }
+
+  return 4;//Anything else
+}
+
+
 
 
 #endif //> !LARCELLREC_LARNOISYROTOOL_H
