@@ -55,7 +55,7 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
   : IflCur(true)
   , birksLaw(NULL)
   , m_nhits(0)
-  , m_detectorName("")
+  , m_detectorName("LArMgr")
   , m_testbeam(false)
 {
 
@@ -123,12 +123,10 @@ LArBarrelPresamplerCalculator::~LArBarrelPresamplerCalculator()
 
 
 // ==============================================================================
-G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step)
+G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
 {
   m_nhits = 0;
-  m_identifier.clear();
-  m_energy.clear();
-  m_time.clear();
+  hdata.clear();
   m_isInTime.clear();
 
 //  check the Step content is non trivial
@@ -352,18 +350,17 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step)
 //  to an already existing hit
       G4bool found=false;
       for (int j=0; j<m_nhits; j++) {
-        if (m_identifier[j]==m_identifier2) {
-           m_energy[j] += Current;
-           m_time[j] += time*Current;
+        if (hdata[j].id==m_identifier2) {
+           hdata[j].energy += Current;
+           hdata[j].time += time*Current;
            found=true;
            break;
         }
       }    // loop over hits
       if (!found) {
         m_nhits++;
-        m_identifier.push_back(m_identifier2);
-        m_energy.push_back(Current);
-        m_time.push_back(time*Current);
+        LArHitData newdata = {m_identifier2, time*Current, Current};
+        hdata.push_back(newdata);
         m_isInTime.push_back(true);
       }    // hit was not existing before
 
@@ -373,17 +370,17 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step)
 
 #ifdef DEBUGSTEP
     std::cout << "Number of hits for this step " << m_nhits << " "
-              << m_identifier.size() << " " << m_energy.size() << std::endl;
+              << hdata.size() << std::endl;
 #endif
 
 // finalise time computations
   for (int i=0;i<m_nhits;i++) {
-     if (std::fabs(m_energy[i])>1e-6) m_time[i]=m_time[i]/m_energy[i];
-     else m_time[i]=0.;
-     if (std::fabs(m_time[i])> m_OOTcut) m_isInTime[i]=false;
+     if (std::fabs(hdata[i].energy)>1e-6) hdata[i].time=hdata[i].time/hdata[i].energy;
+     else hdata[i].time=0.;
+     if (std::fabs(hdata[i].time)> m_OOTcut) m_isInTime[i]=false;
 #ifdef DEBUGSTEP
      std::cout << "Hit Energy/Time "
-               << m_energy[i] << " " << m_time[i] << std::endl;
+               << hdata[i].energy << " " << hdata[i].time << std::endl;
 #endif
   }
 

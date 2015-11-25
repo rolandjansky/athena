@@ -46,9 +46,9 @@ void MapEta::Initialize(int isampling)
   if (m_init==1) return;
   if (isampling < 1 || isampling >3) return;
   std::ostringstream fn;
-  if (isampling==1) fn<<"deta_strip.map"<<std::ends;
-  if (isampling==2) fn<<"deta_middle.map"<<std::ends;
-  if (isampling==3) fn<<"eta_trans.map"<<std::ends;
+  if (isampling==1) fn<<"deta_strip.map";
+  if (isampling==2) fn<<"deta_middle.map";
+  if (isampling==3) fn<<"eta_trans.map";
   std::string filename = fn.str();
   filename=filename.substr(0,15);
   std::string fileLocation;
