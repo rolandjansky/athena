@@ -7,12 +7,16 @@ author Mikhail Leltchouk <lelchuk@nevis.columbia.edu>
 # packages in LArG4.
 
 use AtlasPolicy     AtlasPolicy-*
-use CLIDSvc         CLIDSvc-*           Control
+#use CLIDSvc         CLIDSvc-*           Control
 
 use Geant4          Geant4-*            External
 use CaloG4Sim       CaloG4Sim-*      	Calorimeter
 use LArGeoCode      LArGeoCode-*     	LArCalorimeter/LArGeoModel
-use Identifier      Identifier-*        DetectorDescription
+use G4AtlasTools    G4AtlasTools-*      Simulation/G4Atlas
+#use Identifier      Identifier-*        DetectorDescription
+use AtlasCLHEP      AtlasCLHEP-*        External
+use LArSimEvent     LArSimEvent-*       LArCalorimeter
+use CaloSimEvent    CaloSimEvent-*      Calorimeter
 
 # Add the compiler macro definitions for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="add_definitions(-DLARG4NOROOT)"
@@ -23,11 +27,11 @@ apply_pattern installed_library
 
 #=======================================================
 private
-use AtlasCLHEP      AtlasCLHEP-*        External
 use CaloIdentifier  CaloIdentifier-* 	Calorimeter
-use GaudiInterface  GaudiInterface-* 	External
-use LArG4RunControl LArG4RunControl-*   LArCalorimeter/LArG4
+#use GaudiInterface  GaudiInterface-* 	External
+#use LArG4RunControl LArG4RunControl-*   LArCalorimeter/LArG4
 use MCTruth         MCTruth-*           Simulation/G4Sim
 use StoreGate       StoreGate-*      	Control
 
 macro_append LArG4Code_cppflags  " -DLARG4NOROOT "
+
