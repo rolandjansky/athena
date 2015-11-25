@@ -37,6 +37,7 @@ namespace LArG4 {
   namespace BarrelPresampler {
 
     CalibrationCalculator::CalibrationCalculator() 
+       : m_detectorName("LArMgr")
     {
       // Initialize the geometry calculator
       m_geometryCalculator = Geometry::GetInstance();

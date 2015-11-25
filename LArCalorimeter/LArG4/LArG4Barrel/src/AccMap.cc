@@ -40,7 +40,7 @@ AccMap::AccMap()
 // accordion folds
     for (int ifold=i1[iregion]; ifold<=i2[iregion]; ifold++) {
        std::ostringstream fn;
-       fn << "fold"<<ifold<<"_region"<<iregion<<".map\0"<<std::ends;
+       fn << "fold"<<ifold<<"_region"<<iregion<<".map";
        std::string filename = fn.str();
        std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
@@ -63,7 +63,7 @@ AccMap::AccMap()
 // straight section
     for (int istr=1; istr<=2; istr++) {
      std::ostringstream fn;
-     fn << "straight"<<istr<<"_region"<<iregion<<".map\0"<<std::ends;
+     fn << "straight"<<istr<<"_region"<<iregion<<".map";
       std::string filename = fn.str();
        std::string fileLocation;
 #ifdef LARG4_STAND_ALONE

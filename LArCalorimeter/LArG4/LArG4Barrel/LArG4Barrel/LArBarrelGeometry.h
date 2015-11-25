@@ -7,7 +7,7 @@
 #ifndef LARBARRELGEOMETRY_H
 #define LARBARRELGEOMETRY_H
 
-#include "LArG4Code/LArVCalculator.h"
+//#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 #include "G4ThreeVector.hh"
