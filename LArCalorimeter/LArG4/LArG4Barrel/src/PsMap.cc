@@ -26,7 +26,7 @@ PsMap::PsMap()
   for (int imap=0;imap<5;imap++) {
 // accordion folds
      std::ostringstream fn;
-     fn << "presampler_"<<imap<<".map\0"<<std::ends;
+     fn << "presampler_"<<imap<<".map";
      std::string filename = fn.str();
      std::string fileLocation;
 #ifdef LARG4_STAND_ALONE

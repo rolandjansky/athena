@@ -64,7 +64,7 @@ LArBarrelCalculator::LArBarrelCalculator()
     , m_dstep(.2*CLHEP::mm)
     , m_birksLaw(NULL)
     , m_doHV(false)
-    , m_detectorName("")
+    , m_detectorName("LArMgr")
     , m_nhits(0)
 {
   std::cout << "LArBarrelCalculator: Beginning initialisation " << std::endl;
@@ -194,13 +194,14 @@ LArBarrelCalculator::~LArBarrelCalculator()
 }
 
 // =============================================================================
-G4bool LArBarrelCalculator::Process(const G4Step* step)
+G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>& hdata)
 {
 
   m_nhits = 0;
-  m_identifier.clear();
-  m_energy.clear();
-  m_time.clear();
+  //m_identifier.clear();
+  //m_energy.clear();
+  //m_time.clear();
+  hdata.clear();
   m_isInTime.clear();
 
 //  check the Step content is non trivial
@@ -596,51 +597,48 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 //  to an already existing hit
     G4bool found=false;
     for (int i=0; i<m_nhits; i++) {
-        if (m_identifier[i]==m_identifier2) {
-           m_energy[i] += Current;
-           m_time[i] += time*Current;
+        if (hdata[i].id==m_identifier2) {
+           hdata[i].energy += Current;
+           hdata[i].time += time*Current;
            found=true;
            break; 
         }
     }    // loop over hits
     if (!found) {
        m_nhits++;
-       m_identifier.push_back(m_identifier2);
-       m_energy.push_back(Current);
-       m_time.push_back(time*Current);
+       LArHitData newdata = {m_identifier2, time*Current, Current};
+       hdata.push_back(newdata);
        m_isInTime.push_back(true);
     }    // hit was not existing before
 
     if (Xtalk) {
       for (int i=0; i<m_nhits; i++) {
-        if (m_identifier[i]==m_identifier_xt1) {
-           m_energy[i] += Current_xt1;
-           m_time[i] += time*Current_xt1;
+        if (hdata[i].id==m_identifier_xt1) {
+           hdata[i].energy += Current_xt1;
+           hdata[i].time += time*Current_xt1;
            found=true;
            break;
         }
       }    // loop over hits
       if (!found) {
        m_nhits++;
-       m_identifier.push_back(m_identifier_xt1);
-       m_energy.push_back(Current_xt1);
-       m_time.push_back(time*Current_xt1);
+       LArHitData newdata = {m_identifier_xt1, time*Current_xt1, Current_xt1};
+       hdata.push_back(newdata);
        m_isInTime.push_back(true);
       }  
       found=false;
       for (int i=0; i<m_nhits; i++) {
-        if (m_identifier[i]==m_identifier_xt2) {
-           m_energy[i] += Current_xt2;
-           m_time[i] += time*Current_xt2;
+        if (hdata[i].id==m_identifier_xt2) {
+           hdata[i].energy += Current_xt2;
+           hdata[i].time += time*Current_xt2;
            found=true;
            break; 
         }
       }    // loop over hits
       if (!found) {
        m_nhits++;
-       m_identifier.push_back(m_identifier_xt2);
-       m_energy.push_back(Current_xt2);
-       m_time.push_back(time*Current_xt2);
+       LArHitData newdata = {m_identifier_xt2, time*Current_xt2, Current_xt2};
+       hdata.push_back(newdata);
        m_isInTime.push_back(true);
       }
     }    // Xtalk true
@@ -650,17 +648,17 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 
 #ifdef DEBUGSTEP
     std::cout << "Number of hits for this step " << m_nhits << " " 
-              << m_identifier.size() << " " << m_energy.size() << std::endl;
+              << hdata.size() << std::endl;
 #endif
 
 // finalise time computations
   for (int i=0;i<m_nhits;i++) {
-     if (std::fabs(m_energy[i])>1e-6) m_time[i]=m_time[i]/m_energy[i];
-     else m_time[i]=0.;
-     if (std::fabs(m_time[i])> m_OOTcut) m_isInTime[i]=false;
+     if (std::fabs(hdata[i].energy)>1e-6) hdata[i].time=hdata[i].time/hdata[i].energy;
+     else hdata[i].time=0.;
+     if (std::fabs(hdata[i].time)> m_OOTcut) m_isInTime[i]=false;
 #ifdef DEBUGSTEP
      std::cout << "Hit Energy/Time " 
-               << m_energy[i] << " " << m_time[i] << std::endl;
+               << hdata[i].energy << " " << hdata[i].time << std::endl;
 #endif
   }
 
