@@ -93,19 +93,13 @@ if OverlayFlags.doPixel() or OverlayFlags.doSCT() or OverlayFlags.doTRT():
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
            ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::TRT_DriftCircleContainer/TRT_DriftCircle" ]
-           if hasattr(job.TRTDigitization, "DigitizationTool"):
-               job.TRTDigitization.DigitizationTool.Override_getT0FromData = 1
-           else:
-               job.TRTDigitization.Override_getT0FromData = 1
-
+           #if hasattr(job.TRTDigitization, "DigitizationTool"):
+           #    job.TRTDigitization.DigitizationTool.Override_getT0FromData = 1
+           #else:
+           #    job.TRTDigitization.Override_getT0FromData = 1
            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
            InDetTRTCalDbSvc = TRT_CalDbSvc()
            ServiceMgr += InDetTRTCalDbSvc
-          #from IOVDbSvc.CondDB import conddb
-#           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")
-#           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")
-           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibRt-HLT-UPD1-01</tag>")
-           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibT0-HLT-UPD1-01</tag>")
            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
     else:
         indetovl.do_TRT = False

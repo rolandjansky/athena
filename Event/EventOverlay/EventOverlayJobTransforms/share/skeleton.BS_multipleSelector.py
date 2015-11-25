@@ -54,13 +54,8 @@ from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult",
-    "MuCTPI_RDO/MUCTPI_RDO",
-    "CTP_RDO/CTP_RDO",
-    "MuCTPI_RIO/MUCTPI_RIO",
-    "CTP_RIO/CTP_RIO"
-    ]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
+
 from OverlayCommonAlgs.OverlayCommonAlgsConf import  BSFilter, ByteStreamMultipleOutputStreamCopyTool
 filAlg=BSFilter("BSFilter")
 filAlg.TriggerBit=TriggerBit # The trigger bit to select
@@ -68,13 +63,13 @@ filAlg.EventIdFile=runArgs.EventIdFile # Not really used, but writes out the Eve
 topSequence+=filAlg
 print filAlg
 
-# BS OutputStream Tool
+# BS MultipleOutputStreamTool
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
 bsCopyTool = ByteStreamMultipleOutputStreamCopyTool("MultipleOutputStreamBSCopyTool")
+svcMgr.ToolSvc += bsCopyTool
 bsCopyTool.lbn_map_file = runArgs.LbnMapFile
 bsCopyTool.skipevents = SkipEvents
-svcMgr.ToolSvc += bsCopyTool
-
+bsCopyTool.trigfile = runArgs.TrigFile
 bsCopyTool.NoutputSvc = Noutputs
 for i in range(0,bsCopyTool.NoutputSvc):
     if len(streamvec)>0:
@@ -135,7 +130,7 @@ for i in range(0,bsCopyTool.NoutputSvc):
     if i==48: bsCopyTool.ByteStreamOutputSvc48=bsOutputSvc
     if i==49: bsCopyTool.ByteStreamOutputSvc49=bsOutputSvc
 
-# BS InputStream
+# BS InputStream Tool
 bsCopyTool.ByteStreamInputSvc=svcMgr.ByteStreamInputSvc
 
 # create AthenaOutputStream for BS Copy 

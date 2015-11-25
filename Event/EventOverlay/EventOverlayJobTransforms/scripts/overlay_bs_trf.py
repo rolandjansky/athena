@@ -9,10 +9,10 @@ from PyJobTransformsCore.full_trfarg import *
 from PyJobTransformsCore.trfutil import *
 
 from EventOverlayJobTransforms.OverlayConfig import overlayConfig
-from SimuJobTransforms.Configuration import DigiRndmSvcArg
-from SimuJobTransforms.Configuration import SamplingFractionDbTagArg
-from SimuJobTransforms.Configuration import NoiseControlArg
-from SimuJobTransforms.Configuration import AddCaloDigiArg
+from EventOverlayJobTransforms.Configuration import DigiRndmSvcArg
+from EventOverlayJobTransforms.Configuration import SamplingFractionDbTagArg
+from EventOverlayJobTransforms.Configuration import NoiseControlArg
+from EventOverlayJobTransforms.Configuration import AddCaloDigiArg
 
 ListOfDefaultPositionalKeys = ['inputHitsFile', 'pileupBSFile', 'signalRDOFile', 'outputRDOFile', 'maxEvents', 'skipEvents', 'geometryVersion', 'digiSeedOffset1', 'digiSeedOffset2', 'conditionsTag', 'digiRndmSvc', 'samplingFractionDbTag', 'fSampltag', 'triggerConfig',  'DBRelease', 'jobConfig', 'preExec', 'postInclude', 'postExec', '--extraignorefilters']
 

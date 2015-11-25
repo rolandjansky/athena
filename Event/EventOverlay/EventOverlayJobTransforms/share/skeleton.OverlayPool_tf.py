@@ -2,59 +2,75 @@ from AthenaCommon.Logging import logging
 overlaylog = logging.getLogger('overlay')
 overlaylog.info( '****************** STARTING OVERLAY *****************' )
 
+overlaylog.info( '**** Transformation run arguments' )
+overlaylog.info( str(runArgs) )
+
+from PerfMonComps.PerfMonFlags import jobproperties as jp
+jp.PerfMonFlags.doMonitoring = True # to enable monitoring
+jp.PerfMonFlags.doFastMon = True    # to only enable a lightweight monitoring
+
+if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
+    for cmd in runArgs.preExec:
+        exec(cmd)
+
 import AthenaCommon.AtlasUnixStandardJob
 
-for cf in runArgs.jobConfig:
+if hasattr(runArgs, 'preInclude'):
+for cf in runArgs.preInclude:
     include(cf)
 
 #==============================================================
 # Job definition parameters:
 #==============================================================
-from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon.GlobalFlags  import globalflags
 
 globalflags.isOverlay.set_Value_and_Lock(True)
 
-from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-from AthenaCommon.AthenaCommonFlags import jobproperties
-jobproperties.AthenaCommonFlags.EvtMax = runArgs.maxEvents
-jobproperties.AthenaCommonFlags.SkipEvents= runArgs.skipEvents
+if hasattr(runArgs,"maxEvents"): from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+athenaCommonFlags.EvtMax = runArgs.maxEvents
+if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents= runArgs.skipEvents
 
-jobproperties.AthenaCommonFlags.PoolHitsInput=runArgs.inputHitsFile
-jobproperties.AthenaCommonFlags.PoolRDOOutput=runArgs.outputRDOFile
+if hasattr(runArgs,"inputHITSFile"):
+    athenaCommonFlags.PoolHitsInput.set_Value_and_Lock( runArgs.inputHITSFile )
+    SignalInputCollections = runArgs.inputHITSFile
+else:
+    raise RuntimeError ("No input HITS file defined")
 
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion=runArgs.geometryVersion
+if hasattr(runArgs,"outputRDOFile"): 
+    athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
+    OverlayCollection = runArgs.outputRDOFile
 
-from Digitization.DigitizationFlags import jobproperties
-jobproperties.Digitization.rndmSeedOffset1=int(runArgs.digiSeedOffset1)
-jobproperties.Digitization.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
-jobproperties.Digitization.physicsList=runArgs.samplingFractionDbTag
-jobproperties.Digitization.rndmSvc=runArgs.digiRndmSvc
+if hasattr(runArgs,"geometryVersion"): globalFlags.DetDescrVersion=runArgs.geometryVersion
 
-SignalInputCollections = runArgs.inputHitsFile
-jobproperties.AthenaCommonFlags.PoolRDOOutput = runArgs.outputRDOFile
-OverlayCollection = runArgs.outputRDOFile
+from Digitization.DigitizationFlags import digitizationFlags
+if hasattr(runArgs,"digiSeedOffset1"): digitizationFlags.rndmSeedOffset1=int(runArgs.digiSeedOffset1)
+if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
+if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
+if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 
 from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-SignalCollection = runArgs.signalRDOFile
-if runArgs.signalRDOFile=="NONE":
+if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
    OverlayFlags.set_SignalOff()
+   SignalCollection = "NONE"
+else:
+   SignalCollection = runArgs.outputRDO_SGNLFile
 
 OverlayFlags.set_BCMOff()
 OverlayFlags.set_LUCIDOff()
 
-readBS = runArgs.ReadByteStream
+readBS = False
+if hasattr(runArgs, 'ReadByteStream'):
+    readBS = runArgs.ReadByteStream
 isRealData = False
 
 if readBS:
    globalflags.InputFormat.set_Value_and_Lock('bytestream')
-   DataInputCollections=runArgs.inputZeroBiasBSFile
+   DataInputCollections=runArgs.inputPileUpBSFile
 else:
-   DataInputCollections=runArgs.pileupBSFile
-   jobproperties.AthenaCommonFlags.PoolRDOInput=runArgs.pileupBSFile
+   DataInputCollections=runArgs.inputRDO_BKGFile
+   athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
-if runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
+if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
    globalflags.ConditionsTag=runArgs.conditionsTag
    if len(globalflags.ConditionsTag())!=0:
       from IOVDbSvc.CondDB import conddb
@@ -63,7 +79,7 @@ if runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
 OverlayFlags.Print()
 
 # LVL1 Trigger Menu
-if runArgs.triggerConfig!="NONE":
+if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     # LVL1 Trigger Menu
     # PJB 9/2/2009 Setup the new triggerConfig flags here
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -83,7 +99,7 @@ DetFlags.ID_setOn()
 DetFlags.Muon_setOn()
 DetFlags.LAr_setOn()
 DetFlags.Tile_setOn()
-if runArgs.triggerConfig=="NONE":
+if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig=="NONE":
   DetFlags.LVL1_setOff()
 else:
   DetFlags.LVL1_setOn()
@@ -115,7 +131,7 @@ include ( "RecExCond/AllDet_detDescr.py" )
 #--------
 from AthenaCommon.AppMgr import theApp
 theApp.EventLoop = "PileUpEventLoopMgr"
-theApp.EvtMax = runArgs.maxEvents
+if hasattr(runArgs,"maxEvents"): theApp.EvtMax = runArgs.maxEvents
 
 include ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
 
@@ -146,9 +162,9 @@ if OverlayFlags.doSignal():
 
 # For random number initialization
 from AthenaCommon.ConfigurableDb import getConfigurable
-ServiceMgr += getConfigurable(jobproperties.Digitization.rndmSvc.get_Value())()
-jobproperties.Digitization.rndmSeedList.addtoService()
-jobproperties.Digitization.rndmSeedList.printSeeds()
+ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
+digitizationFlags.rndmSeedList.addtoService()
+digitizationFlags.rndmSeedList.printSeeds()
 
 # To not overwrite the BCID
 #from AthenaCommon.AppMgr import ServiceMgr
@@ -171,3 +187,7 @@ print "\n\noverlay_trf: at the end. ServiceMgr=\n", ServiceMgr
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
+
+if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
+    for cmd in runArgs.postExec:
+        exec(cmd)

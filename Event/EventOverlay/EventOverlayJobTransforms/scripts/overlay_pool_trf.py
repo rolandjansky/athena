@@ -9,10 +9,10 @@ from PyJobTransformsCore.full_trfarg import *
 from PyJobTransformsCore.trfutil import *
 
 from EventOverlayJobTransforms.OverlayConfig import overlayConfig
-from SimuJobTransforms.Configuration import DigiRndmSvcArg
-from SimuJobTransforms.Configuration import SamplingFractionDbTagArg
-from SimuJobTransforms.Configuration import NoiseControlArg
-from SimuJobTransforms.Configuration import AddCaloDigiArg
+from EventOverlayJobTransforms.Configuration import DigiRndmSvcArg
+from EventOverlayJobTransforms.Configuration import SamplingFractionDbTagArg
+from EventOverlayJobTransforms.Configuration import NoiseControlArg
+from EventOverlayJobTransforms.Configuration import AddCaloDigiArg
 
 class PostIncludeArg(JobOptionsArg):
     """Joboptions file with user settings, to run after the job itself"""

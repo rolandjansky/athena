@@ -1,19 +1,21 @@
 from AthenaCommon.Logging import logging
-overlaylog = logging.getLogger('overlay')
+overlaylog = logging.getLogger('overlay_bs')
 overlaylog.info( '****************** STARTING OVERLAY *****************' )
+
 overlaylog.info( '**** Transformation run arguments' )
 overlaylog.info( str(runArgs) )
+
 from PerfMonComps.PerfMonFlags import jobproperties as jp
 jp.PerfMonFlags.doMonitoring = True # to enable monitoring
 jp.PerfMonFlags.doFastMon = True    # to only enable a lightweight monitoring
 
 if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
-    exec( runArgs.preExec )
+    for cmd in runArgs.preExec:
+        exec(cmd)
 
 TileFrameLength=7
 
 from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.GlobalFlags import GlobalFlags
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 
@@ -31,45 +33,51 @@ isRealData = globalflags.isOverlay()
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock("collisions")
 
-import AthenaCommon.AtlasUnixStandardJob
+import AthenaCommon.AtlasUnixStandardJob #FIXME: Is this needed?
 
-for cf in runArgs.jobConfig:
-    include(cf)
+if hasattr(runArgs,"preInclude"):
+    for cf in runArgs.preInclude:
+        include(cf)
 
 #==============================================================
 # Job definition parameters:
 #==============================================================
-from AthenaCommon.GlobalFlags import GlobalFlags
-from AthenaCommon.GlobalFlags  import globalflags
 
-
-from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-
-if hasattr(runArgs,"pileupBSFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.pileupBSFile )
+if hasattr(runArgs,"inputBS_SKIMFile"):
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputBS_SKIMFile )
+    DataInputCollections=runArgs.inputBS_SKIMFile # Remove this line
+else:
+    raise RuntimeError ("No input BS file defined")
 
 if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
 if hasattr(runArgs,"maxEvents"): athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
 
-if hasattr(runArgs,"inputHitsFile"): athenaCommonFlags.PoolHitsInput.set_Value_and_Lock( runArgs.inputHitsFile )
-if hasattr(runArgs,"outputRDOFile"): athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
+if hasattr(runArgs,"inputHITSFile"):
+    athenaCommonFlags.PoolHitsInput.set_Value_and_Lock( runArgs.inputHITSFile )
+    SignalInputCollections = runArgs.inputHITSFile #remove this line
+else:
+    raise RuntimeError ("No input HITS file defined")
 
-OverlayCollection = runArgs.outputRDOFile
+if hasattr(runArgs,"outputRDOFile"):
+    athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
+    OverlayCollection = runArgs.outputRDOFile #remove this line
 
 from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-SignalCollection = runArgs.signalRDOFile
-if runArgs.signalRDOFile=="NONE":
-   OverlayFlags.set_SignalOff()
+
+if not hasattr(runArgs, 'outputRDO_SGNLFile') or runArgs.outputRDO_SGNLFile=="NONE":
+    OverlayFlags.set_SignalOff()
+    SignalCollection = "NONE"
+else:
+    SignalCollection = runArgs.outputRDO_SGNLFile
 
 if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
 
-from Digitization.DigitizationFlags import jobproperties
-jobproperties.Digitization.rndmSeedOffset1=int(runArgs.digiSeedOffset1)
-jobproperties.Digitization.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
-jobproperties.Digitization.physicsList=runArgs.samplingFractionDbTag
-jobproperties.Digitization.rndmSvc=runArgs.digiRndmSvc
-
-SignalInputCollections = runArgs.inputHitsFile
+from Digitization.DigitizationFlags import digitizationFlags
+if hasattr(runArgs,"digiSeedOffset1"): digitizationFlags.rndmSeedOffset1=int(runArgs.digiSeedOffset1)
+if hasattr(runArgs,"digiSeedOffset2"): digitizationFlags.rndmSeedOffset2=int(runArgs.digiSeedOffset2)
+if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runArgs.samplingFractionDbTag
+if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 
 readBS = True
 OverlayFlags.set_BkgOff() #ACH
@@ -79,8 +87,6 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DetGeo = 'commis'
 globalflags.DataSource.set_Value_and_Lock('data')
 #GlobalFlags.DataSource.set_data()
-
-DataInputCollections=runArgs.pileupBSFile
 
 import PyUtils.AthFile as af
 def getHITSFile(runArgs):
@@ -115,7 +121,7 @@ import MagFieldServices.SetupField
 
 from IOVDbSvc.CondDB import conddb
 
-if runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
+if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runArgs.conditionsTag!='':
    globalflags.ConditionsTag=runArgs.conditionsTag
    if len(globalflags.ConditionsTag())!=0:
       conddb.setGlobalTag(globalflags.ConditionsTag())
@@ -150,7 +156,6 @@ else:
 
 DetFlags.BCM_setOn()
 DetFlags.Lucid_on()
-
 DetFlags.simulateLVL1.Lucid_setOff()
 
 print "================ DetFlags ================ "
@@ -160,7 +165,8 @@ include ( "RecExCond/AllDet_detDescr.py" )
 
 from AthenaCommon.AppMgr import theApp
 theApp.EventLoop = "PileUpEventLoopMgr"
-theApp.EvtMax = runArgs.maxEvents
+if hasattr( runArgs, 'maxEvents'):
+    theApp.EvtMax = runArgs.maxEvents
 
 include ( "EventOverlayJobTransforms/ConfiguredOverlay_jobOptions.py" )
 
@@ -192,9 +198,13 @@ if OverlayFlags.doSignal():
 
 # For random number initialization
 from AthenaCommon.ConfigurableDb import getConfigurable
-ServiceMgr += getConfigurable(jobproperties.Digitization.rndmSvc.get_Value())()
-jobproperties.Digitization.rndmSeedList.addtoService()
-jobproperties.Digitization.rndmSeedList.printSeeds()
+ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
+digitizationFlags.rndmSeedList.addtoService()
+digitizationFlags.rndmSeedList.printSeeds()
+
+# Write Digitization MetaData
+from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
+writeDigitizationMetadata()
 
 #================================================================
 print "overlay_trf: final outStream = ", outStream
@@ -206,9 +216,12 @@ print "overlay_trf: final outStream = ", outStream
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
 
-conddb.addFolder("LAR","/LAR/ElecCalib/fSampl/Symmetry")
-conddb.addOverride("/LAR/ElecCalib/fSampl/Symmetry",runArgs.fSampltag+runArgs.samplingFractionDbTag )
-
+if hasattr(runArgs, 'fSampltag'):
+    #conddb.addFolder("LAR","/LAR/ElecCalib/fSampl/Symmetry")
+    #conddb.addOverride( "/LAR/ElecCalib/fSampl/Symmetry", runArgs.fSampltag + digitizationFlags.physicsList.get_Value() )
+    conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl",runArgs.fSampltag,force=True,forceMC=True)
+else:
+    raise RuntimeError ("--fSampltag not specified on command-line - see --help message")
 #if OverlayFlags.doSignal():
 #   InputDBConnection = "COOLOFL_LAR/COMP200"
 #   conddb.addFolder("","/LAR/ElecCalibOfl/AutoCorrs/AutoCorr"+"<dbConnection>"+InputDBConnection+"</dbConnection>")
@@ -222,7 +235,8 @@ if hasattr(runArgs,"postInclude"):
         include(fragment)
 
 if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
-    exec( runArgs.postExec )
+    for cmd in runArgs.postExec:
+        exec(cmd)
 
-#print "overlay_trf: at the end. job=\n", job
-print "\noverlay_trf: at the end. ServiceMgr=\n", ServiceMgr
+#print "OverlayBS_tf.py: at the end. job=\n", job
+print "\nOverlayBS_tf.py: at the end. ServiceMgr=\n", ServiceMgr

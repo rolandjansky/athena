@@ -8,8 +8,7 @@ import sys
 import re
 import os, commands
 
-#ListOfDefaultPositionalKeys = ['inputEvgenFile','EventIdFile','OutputBSFilterFile','PostInclude','TriggerBit','ZeroBiasFile','outputRAWFile']
-ListOfDefaultPositionalKeys = ['inputEvgenFile','PostInclude','TriggerBit','pileupBSFile','outputEvgenFile']
+ListOfDefaultPositionalKeys = ['inputEvgenFile','triggerBit','pileupBSFile','outputEvgenFile','filterFile']
 
 # execute it if not imported
 if __name__ == '__main__':
@@ -40,12 +39,15 @@ if __name__ == '__main__':
     #print "zeroBiasFileName", argMap['ZeroBiasFile']
 
     zeroBiasFileName=argMap['pileupBSFile']
-    triggerBit=argMap['TriggerBit']
+    triggerBit=-1
+    myfilterfile=''
+    if 'filterFile' in argMap: myfilterfile=argMap['filterFile']
+    if 'triggerBit' in argMap: triggerBit=argMap['triggerBit']
     
     # execute original trf
-    # EventIdFile=events.txt
-    com = "BSFilter_trf.py inputBSFile=%s EventIdFile=events.txt OutputBSFilterFile=simpledummy.data.RAW TriggerBit=%d skipEvents=0 maxEvents=100" % (zeroBiasFileName,triggerBit)    
-
+    #com = "BSFilter_trf.py inputBSFile=%s EventIdFile=events.txt OutputBSFilterFile=simpledummy.data.RAW TriggerBit=%d skipEvents=0 maxEvents=100" % (zeroBiasFileName,triggerBit)    
+    com = "BSOverlayFilter_tf.py --inputZeroBiasBSFile=%s --outputBS_SKIMFile=simplefiltered.data.RAW --outputTXT_EVENTIDFile=events.txt --inputFilterFile=%s --triggerBit=%d --skipEvents=0 --maxEvents=100" % (zeroBiasFileName,myfilterfile,triggerBit)
+    print "command = ",com
     retStat = os.system(com)
 
     inputEvgenFile=argMap['inputEvgenFile']
