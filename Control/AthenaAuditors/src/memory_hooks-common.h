@@ -22,7 +22,17 @@
 #include <boost/intrusive/splay_set.hpp>
 
 #define UNW_LOCAL_ONLY
+
+#if defined(__clang__)
+# pragma clang diagnostic push
+# if __has_warning("-Wextern-c-compat")
+#  pragma clang diagnostic ignored "-Wextern-c-compat"
+# endif
+#endif
 #include "libunwind.h"
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
 
 struct aiStruct
 {
