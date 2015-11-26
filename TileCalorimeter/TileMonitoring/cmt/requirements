@@ -52,11 +52,12 @@ apply_pattern declare_joboptions files="*.py"
 
 library TileMonitoring *.cxx components/*.cxx
 apply_pattern component_library
-macro_append TileMonitoring_shlibflags " -L$(ROOT_home)/lib -lSpectrum"
+
 
 private
 
 apply_tag ROOTGraphicsLibs
+macro_append TileMonitoring_shlibflags " -L$(ROOT_home)/lib -lSpectrum"
 
 # to compile debug version in opt release
 # should be commented out normally

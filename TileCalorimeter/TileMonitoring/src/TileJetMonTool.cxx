@@ -94,6 +94,9 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   m_partname[1] = "LBC";
   m_partname[2] = "EBA";
   m_partname[3] = "EBC";
+
+  m_first_event = true;
+
 }
 
 /*---------------------------------------------------------*/
@@ -153,7 +156,7 @@ StatusCode TileJetMonTool::initialize() {
 StatusCode TileJetMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 
-  return bookTimeHistograms();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -174,6 +177,12 @@ StatusCode TileJetMonTool::fillHistograms() {
   if (!jetContainer) return StatusCode::SUCCESS;
 
   fillEvtInfo();
+  if (m_first_event) {
+    m_first_event = false;
+    if (bookTimeHistograms() != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Something wrong when booking histograms.");
+    }
+  }	
   uint32_t LumiBlock = getLumiBlock();
 
   ATH_MSG_VERBOSE("TileJetMonTool::fillHistograms(), lumiblock " << LumiBlock);
@@ -242,8 +251,30 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in TileJetMonTool::bookTimeHistograms()" );
-  
-  
+
+  // Input for axis labels as in TileCellMonTool.cxx
+  std::vector<std::string> cellchLabel[NPART];
+  std::vector<std::string> moduleLabel[NPART];
+  for (int part = 0; part < NPART; ++part) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+      if (drawer % 2 == 1) {
+	moduleLabel[part].push_back(" ");
+      } else {
+	moduleLabel[part].push_back(TileCalibUtils::getDrawerString(part + 1,
+								    drawer));
+      }
+    }
+
+    for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+      std::string cell_name = getCellName(part + 1, channel);
+      if (cell_name.empty()) cell_name += "ch";
+      else cell_name += "_ch";
+      cellchLabel[part].push_back(cell_name + std::to_string(channel));
+    }
+
+  }
+
+
   // book histograms for all channels, even if some of them remain empty 
   // in the end
   std::string runNumStr = getRunNumStr();
@@ -358,14 +389,18 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 						 100,-1,1));
 	}
       }
-    }
-    // average time DQ plots, per partition
+    } // end-of-loop over modules
+    // average time DQ "temperature" plots, per partition
     m_TilePartTimeDQ.push_back( bookProfile2D( "DQ/",
-					       m_partname[p], 
-					       "Average_time_"+m_partname[p],
+					       "tileJetChanTime"+m_partname[p], 
+					       "Run " + runNumStr + " Partition " +
+					       m_partname[p] + ": Average time with jets",
 					       64, 0.5, 64.5, 48, -0.5, 47.5,
 					       -80,80));
-    
+    SetBinLabel(m_TilePartTimeDQ[p]->GetXaxis(), moduleLabel[p]);
+    SetBinLabel(m_TilePartTimeDQ[p]->GetYaxis(), cellchLabel[p]);
+    m_TilePartTimeDQ[p]->SetZTitle("Average Channel Time (ns)");
+    m_TilePartTimeDQ[p]->SetOption("COLZ");    
   } // end-of-loop over partitions
   
   ATH_MSG_INFO( "All histograms booked " );
@@ -528,7 +563,7 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
                 m_TileChanTime[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(sLumiBlock, tilecell->time1(), 1);
               }
 	      // info for DQ histograms
-	      m_TilePartTimeDQ[part1 - 1]->Fill(module+1,chan1,tilecell->time2());
+	      m_TilePartTimeDQ[part1 - 1]->Fill(module+1,chan1,tilecell->time1());
               // general histograms, only require non-affected channels
               if (bad1 < 2) {
                 m_TilePartTime[part1 - 1]->Fill(tilecell->time1());
@@ -682,7 +717,7 @@ bool TileJetMonTool::isGoodEvent() {
   return true;
 }
 
-bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
+bool TileJetMonTool::isGoodJet(const xAOD::Jet& /*jet*/) {
   /* Run-1 stuff
   double hecf = jet.getAttribute<float>(xAOD::JetAttribute::HECFrac);
 
