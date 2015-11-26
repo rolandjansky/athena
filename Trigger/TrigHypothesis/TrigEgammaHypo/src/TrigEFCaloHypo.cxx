@@ -79,7 +79,6 @@ TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator
 
   //Initialize pointers
   m_totalTimer = nullptr;
-  m_egContainer = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -282,11 +281,6 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       }
   }
 
-  // Now setup the Photon container for selection at EFCaloHypo
-  m_egContainer = new xAOD::PhotonContainer();
-  xAOD::PhotonAuxContainer egAux;
-  m_egContainer->setStore(&egAux);
-
   // Create pass bits for clusters
   TrigPassBits* passBits = HLT::makeTrigPassBits(clusContainer);
   double mu = 0.;
@@ -311,34 +305,34 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       const ElementLink<xAOD::CaloClusterContainer> clusterLink(*clusContainer,iclus);
       std::vector< ElementLink<xAOD::CaloClusterContainer> > clLinks;
       clLinks.push_back(clusterLink);
-      xAOD::Photon *eg = new xAOD::Photon();
-      m_egContainer->push_back(eg);
-      eg->setCaloClusterLinks(clLinks);
+      xAOD::Photon eg;
+      eg.makePrivateStore();
+      eg.setCaloClusterLinks(clLinks);
 
       // Run the tools for each object
       ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
-      if(m_fourMomBuilder->hltExecute(eg,0));
+      if(m_fourMomBuilder->hltExecute(&eg,0));
       else ATH_MSG_DEBUG("Problem with FourMomBuilder");
-      if(m_showerBuilder->recoExecute(eg,pCaloCellContainer));
+      if(m_showerBuilder->recoExecute(&eg,pCaloCellContainer));
       else ATH_MSG_DEBUG("Problem with ShowerBuilder");
       ATH_MSG_DEBUG("REGTEST: cluster e " << clus->e());
-      ATH_MSG_DEBUG("REGTEST: e " << eg->e());
-      ATH_MSG_DEBUG("REGTEST: eg cluster e " << eg->caloCluster()->e());
-      ATH_MSG_DEBUG("REGTEST: eta " << eg->eta());
-      ATH_MSG_DEBUG("REGTEST: phi " << eg->phi());
+      ATH_MSG_DEBUG("REGTEST: e " << eg.e());
+      ATH_MSG_DEBUG("REGTEST: eg cluster e " << eg.caloCluster()->e());
+      ATH_MSG_DEBUG("REGTEST: eta " << eg.eta());
+      ATH_MSG_DEBUG("REGTEST: phi " << eg.phi());
       // Increment counter for next cluster before selection
       iclus++;
       
       // Apply selection
       if(m_applyIsEM){
-          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg->caloCluster()->etaBE(2)) << " e = " << eg->caloCluster()->e());
-          if(m_SelectorTool->execute(eg).isFailure())
+          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
+          if(m_SelectorTool->execute(&eg).isFailure())
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
           else isEMTrig = m_SelectorTool->IsemValue();
       }
       else if(m_applyLH){
           if(useLumiTool){
-              const Root::TAccept& acc = m_LHSelectorTool->accept(eg,avg_mu);
+              const Root::TAccept& acc = m_LHSelectorTool->accept(&eg,avg_mu);
               lhval=m_LHSelectorTool->getTResult().getResult(0);
               ATH_MSG_DEBUG("LHValue with mu " << lhval);
               m_lhval.push_back(lhval);
@@ -346,7 +340,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           }
           else {
               ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-              const Root::TAccept& lhacc = m_LHSelectorTool->accept(eg); // use method for calo-only
+              const Root::TAccept& lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
               lhval=m_LHSelectorTool->getTResult().getResult(0);
               ATH_MSG_DEBUG("LHValue without mu " << lhval);
               m_lhval.push_back(lhval);
