@@ -365,8 +365,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   m_EgammaContainer = 0;
   m_NofPassedCuts=-1;
   m_a0.clear();
-  m_lhval.clear();
-  m_avgmu.clear();
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------
   if (timerSvc()) m_totalTimer->start();    

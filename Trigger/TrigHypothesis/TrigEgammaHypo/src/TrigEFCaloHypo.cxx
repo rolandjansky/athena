@@ -193,8 +193,6 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_E.clear();
   m_ECalib.clear();
   m_ERes.clear();
-  m_lhval.clear();
-  m_avgmu.clear();
 
     ATH_MSG_DEBUG(": in execute()");
  

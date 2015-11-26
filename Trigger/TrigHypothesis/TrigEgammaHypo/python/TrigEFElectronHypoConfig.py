@@ -167,7 +167,7 @@ class TrigEFElectronHypo_e_LH (TrigEFElectronHypoBase):
 # --- eXX LH chains for alignment with isolation 
 class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
     __slots__ = []
-    def __init__(self, name, threshold, IDinfo, lhInfo, isoInfo):
+    def __init__(self, name, threshold, IDinfo, lhInfo):
         super( TrigEFElectronHypo_e_LH_Iso, self ).__init__( name, threshold, IDinfo, lhInfo ) 
 # Set the properties        
         self.CaloCutsOnly = False
@@ -180,13 +180,10 @@ class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
         self.EtConeSizes = 3
         self.RelEtConeCut       = [-1, -1, -1]
         self.EtConeCut          = [-1, -1, -1]
-        #PtCone Size              =  20, 30, 40
+        #PtCone Size              =  20, 30, 40, 20 (varcone), 30 (varcone), 40 (varcone)
         self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
-        else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+        self.RelPtConeCut       = [0.100, -1, -1, -1, -1, -1]
+        self.PtConeCut          = [-1, -1, -1, -1, -1, -1]
 
 # --- W T&P supporting trigger
 #-----------------------------------------------------------------------
@@ -308,7 +305,7 @@ class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
         self.ApplyIsolation = True
         self.useClusETforCaloIso = True
         self.useClusETforTrackIso = True
-        #EtCone Size              =  20, 30, 40
+        #EtCone Size              =  15, 20, 25, 30, 35, 40
         self.EtConeSizes = 3
         self.RelEtConeCut       = [-1, -1, -1]
         self.EtConeCut          = [-1, -1, -1]
