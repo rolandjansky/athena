@@ -84,7 +84,7 @@ class useUpdated2015LeptonID(JobProperty):
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
 
 class storeLeptonCells(JobProperty):
     """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowCaloObjectBuilder
