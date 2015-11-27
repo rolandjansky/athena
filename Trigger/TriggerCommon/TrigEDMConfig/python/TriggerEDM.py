@@ -510,6 +510,11 @@ TriggerHLTList = [
 
     # start of L2+EF list
 
+#   ('TrigPassBits#HLT_passbits',                                         'BS ESD AODFULL AODSLIM', 'Steer'),
+
+   ('xAOD::TrigPassBits#HLT_passbits',                 'BS ESD AODFULL AODSLIM', 'Steer'),
+   ('xAOD::TrigPassBitsAuxContainer#HLT_passbitsAux.', 'BS ESD AODFULL AODSLIM', 'Steer'),
+
     # rois == L2 List
     ('TrigRoiDescriptor#HLT',                                             'BS ESD',                 'Steer'),
     ('TrigRoiDescriptor#HLT_forID',                                       'BS ESD AODFULL AODSLIM', 'Tracking'),
@@ -813,7 +818,7 @@ TriggerLvl1List=[
     ('xAOD::JEMTobRoIContainer#JEMTobRoIs',                     'ESD', 'L1'),
     ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsAux.',              'ESD', 'L1'),
     
-    ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIB',              'ESD', 'L1'),
+    ('xAOD::JEMTobRoIContainer#JEMTobRoIsRoIB',                 'ESD', 'L1'),
     ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIBAux.',          'ESD', 'L1'),
     
     ('xAOD::JetElementContainer#JetElements' ,                  'ESD', 'L1'),
@@ -966,6 +971,9 @@ EDMDetails["TrigInDetTrackTruthMap"]              = {'persistent':"",           
 
 #xAOD details. 
 
+EDMDetails[ "xAOD::TrigPassBits" ]             = {'persistent':"", 'typealias':'', 'collection':'xAOD::TrigPassBitsContainer'}
+EDMDetails[ "xAOD::TrigPassBitsAuxContainer" ] = {'persistent':"", 'typealias':'', 'parent': 'xAOD::TrigPassBitsContainer' }
+
 EDMDetails["xAOD::TrigEMCluster"]             = {'persistent':"", 'typealias':'', 'collection': 'xAOD::TrigEMClusterContainer' } 
 EDMDetails["xAOD::TrigEMClusterContainer"]    = {'persistent':"", 'typealias':''} 
 EDMDetails["xAOD::TrigEMClusterAuxContainer"] = {'persistent':"", 'typealias':'', 'parent': 'xAOD::TrigEMClusterContainer'} 
@@ -1100,7 +1108,7 @@ EDMDetails['xAOD::JEMTobRoIAuxContainer']                 = {'persistent': "", '
 EDMDetails['xAOD::JEMTobRoIAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JEMTobRoIAuxContainer'  }  
 
 EDMDetails['xAOD::JetElementContainer']                   = {'persistent': "", 'typealias':'' }                                
-EDMDetails['xAOD::JetElementAuxContainer']                = {'persistent': "", 'typealias':'', 'parent': 'AOD::JetElementContainer'  }  
+EDMDetails['xAOD::JetElementAuxContainer']                = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JetElementContainer'  }  
 
 EDMDetails['xAOD::RODHeaderContainer']                    = {'persistent': "", 'typealias':'' }                                
 EDMDetails['xAOD::RODHeaderAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::RODHeaderContainer' }   
@@ -1577,3 +1585,4 @@ def InsertContainerNameForHLT(typedict):
                 newnames+=[el]
             output[k] = newnames
     return output
+
