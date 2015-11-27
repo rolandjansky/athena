@@ -1,9 +1,9 @@
+// emacs: this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
-// emacs: this is -*- c++ -*-
 //
 //   @file    TrigRoiDescriptor.h        
 //
@@ -18,38 +18,10 @@
 
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include <cmath>
-#include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/StatusCode.h"
+#include <sstream>
 
-
-
-
-/// non member, non friend interface function 
-/// test whether a stub is contained within the roi                                                                                                                                                                  
-bool roiContainsZed( const IRoiDescriptor& roi, double z, double r ) {
-  if ( roi.composite() ) { 
-    for ( unsigned int i=0 ; i<roi.size() ; i++ ) if ( roiContainsZed( *roi.at(i), z, r ) ) return true;
-    return false;
-  }
-  if ( roi.isFullscan() ) return true;
-  double zminus = r*roi.dzdrMinus()+roi.zedMinus();
-  double zplus  = r*roi.dzdrPlus() +roi.zedPlus();
-  return ( z>=zminus && z<=zplus );
-}
-
-
-
-bool roiContains( const IRoiDescriptor& roi, double z, double r, double phi) { 
-  if ( roi.composite() ) { 
-    for ( unsigned int i=0 ; i<roi.size() ; i++ ) if ( roiContains( *roi.at(i), z, r, phi ) ) return true;
-    return false;
-  } 
-  if ( roi.isFullscan() ) return true;
-  return ( roiContainsZed( roi, z, r ) && roi.containsPhi(phi) ); 
-}
 
 
 
@@ -88,6 +60,39 @@ TrigRoiDescriptor::TrigRoiDescriptor(unsigned int roiWord, unsigned int l1id, un
 
 
 
+TrigRoiDescriptor::TrigRoiDescriptor( const IRoiDescriptor& roi ) 
+  : RoiDescriptor( roi ),
+    m_l1Id(roi.l1Id()), m_roiId(roi.roiId()), m_roiWord(roi.roiWord()) {  
+}
+
+
+TrigRoiDescriptor& TrigRoiDescriptor::operator=( const IRoiDescriptor& roi ) {
+  if ( this==&roi ) return *this;
+
+  m_l1Id    = roi.l1Id();
+  m_roiId   = roi.roiId();
+  m_roiWord = roi.roiWord();
+
+  construct(roi);
+  m_l1Id    = roi.l1Id();
+  m_roiId   = roi.roiId();
+  m_roiWord = roi.roiWord();
+
+  if ( roi.size()>0 ) { 
+    if ( m_manageConstituents ) { 
+      /// manging it's own constituents, so take a deep copy
+      for ( unsigned i=0 ; i<roi.size() ; i++ ) push_back( new TrigRoiDescriptor( *roi.at(i) ) );
+    }
+    else { 
+      /// these are already managed elsewhere, just copy the pointers
+      for ( unsigned i=0 ; i<roi.size() ; i++ ) push_back( roi.at(i) );      
+    }
+  }
+
+  return *this;
+}
+
+
 
 TrigRoiDescriptor::~TrigRoiDescriptor() { }
 
@@ -111,4 +116,3 @@ std::ostream& operator<<( std::ostream& m, const TrigRoiDescriptor& d ) {
   return m << std::string(d);
 }
 
-#endif
