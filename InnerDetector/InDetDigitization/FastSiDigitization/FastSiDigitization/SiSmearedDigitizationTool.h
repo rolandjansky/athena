@@ -100,10 +100,10 @@ public:
   typedef std::multimap<IdentifierHash, const InDet::PixelCluster*> Pixel_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, const iFatras::PlanarCluster*> Planar_detElement_RIO_map;  
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
-  StatusCode mergeEvent(Pixel_detElement_RIO_map * cluster_map);
-  StatusCode mergeEvent(Planar_detElement_RIO_map * cluster_map);
-  StatusCode mergeEvent(SCT_detElement_RIO_map * cluster_map);
-
+  StatusCode mergeClusters(Pixel_detElement_RIO_map * cluster_map); 
+  StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map); 
+  StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map); 
+     
   StatusCode digitize();
   StatusCode createAndStoreRIOs();
   StatusCode retrieveTruth();
@@ -120,7 +120,7 @@ public:
 
   template<typename CLUSTER> 
     StatusCode FillTruthMap(PRD_MultiTruthCollection*, CLUSTER*, TimedHitPtr<SiHit>); 
-
+  
  private:
   
   TimedHitCollection<SiHit>* m_thpcsi;      
@@ -140,6 +140,8 @@ public:
 
   bool m_merge;
   double m_nSigma;
+  
+  bool m_useDiscSurface;
   
   InDet::PixelClusterContainer*  m_pixelClusterContainer;               //!< the PixelClusterContainer
   

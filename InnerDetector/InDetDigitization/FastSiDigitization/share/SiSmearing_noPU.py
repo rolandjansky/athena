@@ -11,8 +11,8 @@ jobproperties.PerfMonFlags.doPostProcessing = True
 # AthenaCommon configuration
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-#athenaCommonFlags.SkipEvents=139
-athenaCommonFlags.EvtMax=2
+athenaCommonFlags.SkipEvents=0
+athenaCommonFlags.EvtMax=-1
 athenaCommonFlags.PoolHitsInput=["Hits.pool.root"]
 athenaCommonFlags.PoolRDOOutput="DigitizationOutput.pool.root"
 
@@ -41,7 +41,7 @@ globalflags.DetDescrVersion='ATLAS-PX-ITK-00-00-00'
 # DetFlags. Use to turn on/off individual subdetector or LVL1 trigger
 #--------------------------------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.ID_setOff()
+DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.LVL1_setOff()
@@ -95,9 +95,9 @@ topSequence = AlgSequence()
 
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.CheckSmear=True
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.OutputLevel=VERBOSE
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=10.0*micrometer
+#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=10.0*micrometer
 #topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=0*micrometer
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=55.0*micrometer
+#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=55.0*micrometer
 #topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=0*micrometer
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.TrackingGeometrySvc = AtlasTrackingGeometrySvc
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.UseCustomGeometry = True
@@ -110,7 +110,7 @@ topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.PRD_TruthPlanarCo
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.CheckSmear=True
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.SmearPixel = False
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.OutputLevel=VERBOSE
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 70.0*micrometer
+#topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 70.0*micrometer
 #topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 0*micrometer
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.TrackingGeometrySvc = AtlasTrackingGeometrySvc
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.UseCustomGeometry = True
@@ -131,6 +131,6 @@ topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlana
 ##topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
 #topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
 
-from VP1Algs.VP1AlgsConf import VP1Alg 
-topSequence += VP1Alg()
+#from VP1Algs.VP1AlgsConf import VP1Alg 
+#topSequence += VP1Alg()
 
