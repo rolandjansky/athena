@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigEMClusterAuxContainerCnv.h
+// $Id: xAODTrigEMClusterAuxContainerCnv.h 711098 2015-11-27 09:37:40Z krasznaa $
 #ifndef XAODTRIGCALOATHENAPOOL_XAODTRIGEMCLUSTERAUXCONTAINERCNV_H
 #define XAODTRIGCALOATHENAPOOL_XAODTRIGEMCLUSTERAUXCONTAINERCNV_H
 
@@ -25,8 +25,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigEMClusterAuxContainer,
  * @author Aranzazu Ruiz Martinez <Aranzazu.Ruiz.Martinez@cern.ch>
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 592328 $
- * $Date: 2014-04-10 12:58:05 +0200 (Thu, 10 Apr 2014) $
+ * $Revision: 711098 $
+ * $Date: 2015-11-27 10:37:40 +0100 (Fri, 27 Nov 2015) $
  */
 class xAODTrigEMClusterAuxContainerCnv :
    public xAODTrigEMClusterAuxContainerCnvBase {
