@@ -55,11 +55,17 @@
 using xAOD::EventInfo;
 
 /*---------------------------------------------------------*/
+#ifdef JVT
 TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
   , m_jvt("JVT")
   , m_cleaningTool("MyCleaningTool")
+#else
+TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
+  : TileFatherMonTool(type, name, parent)
+  , m_tileBadChanTool("TileBadChanTool")
+#endif
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -76,8 +82,10 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("enediff_threshold", m_enediff_threshold = 2000);
   declareProperty("do_event_cleaning",m_do_event_cleaning = true);
   declareProperty("do_jet_cleaning",m_do_jet_cleaning = true);
+#ifdef JVT
   declareProperty("useJVTTool",m_jvt);
   declareProperty("useJetCleaning",m_cleaningTool);
+#endif
   declareProperty("jet_tracking_eta_limit",m_jet_tracking_eta_limit = 2.4);
   declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.64);
   m_path = "/Tile/Jet";
@@ -86,6 +94,9 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   m_partname[1] = "LBC";
   m_partname[2] = "EBA";
   m_partname[3] = "EBC";
+
+  m_first_event = true;
+
 }
 
 /*---------------------------------------------------------*/
@@ -116,26 +127,11 @@ StatusCode TileJetMonTool::initialize() {
       ATH_MSG_ERROR("Unable to retrieve ToolSvc");
       return StatusCode::FAILURE;
     }
+#ifdef JVT
     if (m_jvt.retrieve().isFailure() ) {
       ATH_MSG_ERROR("Unable to retrieve JVT");
       return StatusCode::FAILURE;
     }
-
-    /*
-      pjvtag = 0;
-      const std::string jmeno = "jvtag";
-      pjvtag = new JetVertexTaggerTool(jmeno);
-    */
-    //  m_jvt = ToolHandle<IJetUpdateJvt>;
-    /*
-      bool fail = false;
-      fail |= pjvtag->setProperty("JVTFileName","JetMomentTools/share/JVTlikelihood_20140805.root").isFailure();
-      fail |= pjvtag->initialize().isFailure();
-      if ( fail ) {
-      ATH_MSG_ERROR("Tool initialialization failed!");
-      return 1;
-      }
-    */
     ATH_MSG_DEBUG("TileJetMonTool: initialized JVT updater");
     
     ATH_MSG_DEBUG("TileJetMonTool: initializing JetCleaningTool");
@@ -150,6 +146,7 @@ StatusCode TileJetMonTool::initialize() {
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("TileJetMonTool: initialized JetCleaningTool");
+#endif
   }
   return TileFatherMonTool::initialize();
 }
@@ -159,7 +156,7 @@ StatusCode TileJetMonTool::initialize() {
 StatusCode TileJetMonTool::bookHistograms() {
 /*---------------------------------------------------------*/
 
-  return bookTimeHistograms();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -180,6 +177,12 @@ StatusCode TileJetMonTool::fillHistograms() {
   if (!jetContainer) return StatusCode::SUCCESS;
 
   fillEvtInfo();
+  if (m_first_event) {
+    m_first_event = false;
+    if (bookTimeHistograms() != StatusCode::SUCCESS) {
+      ATH_MSG_ERROR("Something wrong when booking histograms.");
+    }
+  }	
   uint32_t LumiBlock = getLumiBlock();
 
   ATH_MSG_VERBOSE("TileJetMonTool::fillHistograms(), lumiblock " << LumiBlock);
@@ -248,8 +251,30 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 /*---------------------------------------------------------*/
 
   ATH_MSG_INFO( "in TileJetMonTool::bookTimeHistograms()" );
-  
-  
+
+  // Input for axis labels as in TileCellMonTool.cxx
+  std::vector<std::string> cellchLabel[NPART];
+  std::vector<std::string> moduleLabel[NPART];
+  for (int part = 0; part < NPART; ++part) {
+    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+      if (drawer % 2 == 1) {
+	moduleLabel[part].push_back(" ");
+      } else {
+	moduleLabel[part].push_back(TileCalibUtils::getDrawerString(part + 1,
+								    drawer));
+      }
+    }
+
+    for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+      std::string cell_name = getCellName(part + 1, channel);
+      if (cell_name.empty()) cell_name += "ch";
+      else cell_name += "_ch";
+      cellchLabel[part].push_back(cell_name + std::to_string(channel));
+    }
+
+  }
+
+
   // book histograms for all channels, even if some of them remain empty 
   // in the end
   std::string runNumStr = getRunNumStr();
@@ -364,14 +389,18 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
 						 100,-1,1));
 	}
       }
-    }
-    // average time DQ plots, per partition
+    } // end-of-loop over modules
+    // average time DQ "temperature" plots, per partition
     m_TilePartTimeDQ.push_back( bookProfile2D( "DQ/",
-					       m_partname[p], 
-					       "Average_time_"+m_partname[p],
+					       "tileJetChanTime"+m_partname[p], 
+					       "Run " + runNumStr + " Partition " +
+					       m_partname[p] + ": Average time with jets",
 					       64, 0.5, 64.5, 48, -0.5, 47.5,
 					       -80,80));
-    
+    SetBinLabel(m_TilePartTimeDQ[p]->GetXaxis(), moduleLabel[p]);
+    SetBinLabel(m_TilePartTimeDQ[p]->GetYaxis(), cellchLabel[p]);
+    m_TilePartTimeDQ[p]->SetZTitle("Average Channel Time (ns)");
+    m_TilePartTimeDQ[p]->SetOption("COLZ");    
   } // end-of-loop over partitions
   
   ATH_MSG_INFO( "All histograms booked " );
@@ -534,7 +563,7 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
                 m_TileChanTime[part1 - 1][TileCalibUtils::MAX_CHAN * module + chan1]->Fill(sLumiBlock, tilecell->time1(), 1);
               }
 	      // info for DQ histograms
-	      m_TilePartTimeDQ[part1 - 1]->Fill(module+1,chan1,tilecell->time2());
+	      m_TilePartTimeDQ[part1 - 1]->Fill(module+1,chan1,tilecell->time1());
               // general histograms, only require non-affected channels
               if (bad1 < 2) {
                 m_TilePartTime[part1 - 1]->Fill(tilecell->time1());
@@ -673,6 +702,7 @@ bool TileJetMonTool::isGoodEvent() {
   for (const xAOD::Jet* jet : *jetContainer) {
     ATH_MSG_DEBUG("Jet " << ijet << ", pT " << jet->pt()/1000.0 << " GeV, eta " 
 		  << jet->eta());
+#ifdef JVT
     if (jet->pt() > 50000) {
       if (m_cleaningTool->keep(*jet) == 0) return false;
     } else if ((jet->pt() > 20000) && (fabs(jet->eta()) < m_jet_tracking_eta_limit)) {
@@ -680,6 +710,7 @@ bool TileJetMonTool::isGoodEvent() {
       ATH_MSG_DEBUG("... jvt = " << jvt);
       if ((jvt > m_jet_jvt_threshold) && (m_cleaningTool->keep(*jet) == 0)) return false;
     }
+#endif
     ATH_MSG_DEBUG("... done with jet " << ijet);
     ijet++;
   }
@@ -708,6 +739,7 @@ bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
   bool isBadJet = isBad(MediumBad, quality, NegE, emf, hecf, time, fmax, em_eta, chf, HecQ);
   return (!isBadJet);
   */
+#ifdef JVT
   if (! m_do_jet_cleaning) return true;
   double pt = jet.pt();
   if (pt > 50000) {
@@ -722,6 +754,9 @@ bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
   } else {
     return(true);
   }
+#else
+  return(true);
+#endif
 }
 
 /*
