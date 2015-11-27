@@ -39,19 +39,21 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "EventPrimitives/EventPrimitives.h"
+#include "StoreGate/WriteHandle.h"
 
 #include <vector>
 #include <list>
 #include <utility> /* pair */
 #include <map>
 
-#ifndef MAXSTEPS
-#define MAXSTEPS 15
-#endif
+//FIXME - not used anywhere?
+// #ifndef MAXSTEPS
+// #define MAXSTEPS 15
+// #endif
 
-#ifndef MAXDRIFTSTEPS
-#define MAXDRIFTSTEPS 15
-#endif
+// #ifndef MAXDRIFTSTEPS
+// #define MAXDRIFTSTEPS 15
+// #endif
 
 
 class InDetSimDataCollection;
@@ -109,7 +111,8 @@ private:
 
   StatusCode digitize();
   //  void addSDO(const DiodeCollectionPtr& collection);
-
+  StatusCode createOutputContainers();
+  bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
@@ -135,10 +138,8 @@ private:
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   SCT_detElement_RIO_map* m_sctClusterMap;
 
-  std::string                   m_Sct_SiClustersName;  //!< name of the SCT_ClusterContainer
-  InDet::SCT_ClusterContainer  *m_sctClusterContainer; //!< the SCT_ClusterContainer
-  std::string                   m_prdTruthNameSCT;     //!< name of the PRD truth map
-  PRD_MultiTruthCollection     *m_sctPrdTruth;         //!< the PRD truth map for SCT measurements
+  SG::WriteHandle<InDet::SCT_ClusterContainer>  m_sctClusterContainer; //!< the SCT_ClusterContainer
+  SG::WriteHandle<PRD_MultiTruthCollection>     m_sctPrdTruth;         //!< the PRD truth map for SCT measurements
 
   double m_sctSmearPathLength;       //!< the 2. model parameter: smear the path
   bool m_sctSmearLandau;           //!< if true : landau else: gauss

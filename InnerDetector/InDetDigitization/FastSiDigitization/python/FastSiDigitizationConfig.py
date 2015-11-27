@@ -30,7 +30,12 @@ def FastSCT_LastXing():
 
 def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
-    if 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
+    #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
+    if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("UsePixelCalibCondDB", False)
+        kwargs.setdefault("PixelCalibSvc","");
+        kwargs.setdefault("PixelOfflineCalibSvc","");
+    else:
         from AthenaCommon.Include import include
         include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
         include.block( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
@@ -55,10 +60,11 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
             InDetPixelCalibSvc = PixelCalibSvc()
             ServiceMgr += InDetPixelCalibSvc
-    else:
-        kwargs.setdefault("UsePixelCalibCondDB", False)
-        kwargs.setdefault("PixelCalibSvc","");
-        kwargs.setdefault("PixelOfflineCalibSvc","");
+        if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
+            from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
+            from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
+            PixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
+            ServiceMgr += PixelSiPropertiesSvc
 
     from AthenaCommon import CfgMgr
     return CfgMgr.InDet__ClusterMakerTool(name,**kwargs)
