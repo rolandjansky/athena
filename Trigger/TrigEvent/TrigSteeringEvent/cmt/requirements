@@ -64,6 +64,11 @@ apply_pattern $(sercnvpatternname) typesWithNamespace="LVL1::RecJetRoI LVL1::Rec
                                          RecEnergyRoI.h RecJetEtRoI.h RecMuonRoI.h \
 					 -s=${xAODTrigger_root}/xAODTrigger TrigCompositeContainer.h TrigCompositeAuxContainer.h"
 
+apply_pattern sercnv \
+libtag="xAOD" \
+typesWithNamespace="xAOD::TrigPassBits xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer" \
+files="-s=${xAODTrigger_root}/xAODTrigger TrigPassBitsContainer.h TrigPassBitsAuxContainer.h"
+
 
 use TestTools      TestTools-*         AtlasTest
 apply_pattern UnitTest_run unit_test=Enums extrapatterns=".*"
