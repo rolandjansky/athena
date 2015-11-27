@@ -35,12 +35,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "TrigEgammaAnalysisTools/ValidationException.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassBitsCollection.h"
-
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 using namespace std;
@@ -55,7 +53,6 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
     declareProperty("MatchTool",m_matchTool);
-    declareProperty("Util",m_util);
     declareProperty("ElectronKey",m_offElContKey="Electrons");
     declareProperty("PhotonKey",m_offPhContKey="Photons");
     declareProperty("File",m_file="Validation_Zee");
@@ -64,8 +61,6 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("DetailedHistograms", m_detailedHists=false);
     declareProperty("DefaultProbePid", m_defaultProbePid="Loose");
     declareProperty("doJpsiee",m_doJpsiee=false);
-    declareProperty("isEMResultNames",m_isemname,"isEM");
-    declareProperty("LHResultNames",m_lhname,"LH");
     m_storeGate = nullptr;
     m_histsvc = nullptr;
     m_parent = nullptr;
@@ -100,7 +95,8 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
         ATH_MSG_ERROR("Unable to locate Service THistSvc");
         return sc;
     }
-
+    // Enable Expert mode to retrieve L1 menu items
+    m_trigdec->ExperimentalAndExpertMethods()->enable();
     // Clear map of histograms first ... don't delete anything, as ROOT takes care of this!
     if (m_hist1.size() != 0)
         m_hist1.clear();
@@ -518,7 +514,6 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
 
 
 }
-
 void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     std::vector <std::string> dirnames;
     ATH_MSG_VERBOSE("Booking Path " << basePath);
@@ -537,31 +532,35 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     float etabins[21]={-2.47,-2.37,-2.01,-1.81,-1.52,-1.37,-1.15,-0.8,-0.6,-0.1,
         0.0,0.1,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37,2.47};
     // TH2 with variable bin x-Axis, but constant bin y-Axis takes only Double_t arrays
-    float etbins_Zee[31]={0.,2.,4.,6.,8.,10.,
-                          12.,14.,16.,18.,20.,22.,24.,26.,28.,
-                          30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,65.,70.,100.};
+    float etbins[31];
+
+    float m_mee_down=50.;
+    float m_mee_up=150.;
     
-    float etbins_Jpsiee[52]={ 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5,
-                              5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5,
-                              10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,
-                              15,15.5,16,16.5,17,17.5,18,18.5,19,19.5,
-                              20,20.5,21,21.5,22,22.5,23,23.5,24,24.5,
-                              25,25.5};
-    
-
-    float *etbins;
-    int netbins=0;
-
-
     if(m_doJpsiee){
-      etbins=etbins_Jpsiee;
-      netbins=51;
-    }
-    else {
-      etbins=etbins_Zee;
-      netbins=30;
-    }
 
+      float temp[31]={0. ,3. ,3.5,4. ,4.5,
+                      5. ,5.5,6. ,6.5,7. ,
+                      7.5,8. ,8.5,9. ,9.5,
+                      10.,11.,12.,13.,14.,
+                      15.,16.,17.,18.,19.,
+                      20.,21.,22.,23.,24.,
+                      25.};
+      for (int i=0;i<31;i++)etbins[i]=temp[i];
+
+
+      m_mee_down=1.;
+      m_mee_up=8.;  
+      
+    }
+    else
+    {
+    float temp[31]={0.,2.,4.,6.,8.,10.,
+                    12.,14.,16.,18.,20.,22.,24.,26.,28.,
+                    30.,32.,34.,36.,38.,40.,42.,44.,46.,48.,50.,55.,60.,65.,70.,100.};
+    
+      for (int i=0;i<31;i++)    etbins[i]=temp[i];
+    }
 
     // Strings for inefficiency labels
     std::vector<string> label_trigstep;
@@ -569,7 +568,6 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     label_trigstep.push_back("L2Calo");
     label_trigstep.push_back("L2Cont"); 
     label_trigstep.push_back("L2");
-    label_trigstep.push_back("L2TrackCont");
     label_trigstep.push_back("EFCaloCont");   
     label_trigstep.push_back("EFCalo");
     label_trigstep.push_back("EFTrackCont");    
@@ -606,67 +604,33 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     dirnames.push_back(basePath + "/Efficiency/L2Calo");
     dirnames.push_back(basePath + "/Efficiency/L2");
     dirnames.push_back(basePath + "/Efficiency/EFCalo");
-
-    for (int i = 0; i < (int) dirnames.size(); i++) {
-        ATH_MSG_VERBOSE(dirnames[i]);
-        addDirectory(dirnames[i]);
-        
-        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", netbins,etbins)); 
-        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", netbins,etbins));
-        addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
-        addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
-        addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
-        addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
-        addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
-        addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
-        
-        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",netbins,etbins)); 
-        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", netbins, etbins)); 
-        addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
-        addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
-        addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
-        addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
-        
-        addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
-        addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
-        
-        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",netbins,etbins)); 
-        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", netbins,etbins)); 
-        addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
-        addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
-        addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
-        addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>; <#mu> ; Count", 50, 0, 100));
-        addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
-        addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
-    }
-    
-    dirnames.clear();
     dirnames.push_back(basePath + "/Efficiency/HLT");
-    
+
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_VERBOSE(dirnames[i]);
         addDirectory(dirnames[i]);
-        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", netbins,etbins)); 
-        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", netbins,etbins));
+        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
         addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
         addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
         addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
         addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
+        addHistogram(new TH1F("match_mee", "Trigger Matched Offline M(ee); m_ee [GeV] ; Count", 50, m_mee_down, m_mee_up));
         addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
-        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",netbins,etbins)); 
-        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", netbins, etbins)); 
+        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
+        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
         addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
         addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
-        
+        addHistogram(new TH1F("mee", "Offline M(ee); m_ee [GeV] ; Count", 50, m_mee_down, m_mee_up));
         addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
-        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",netbins,etbins)); 
-        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", netbins,etbins)); 
+        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
+        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
         addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
         addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
         addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
@@ -674,7 +638,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
 
-        addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",11,0,11));
+        addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",10,0,10));
         addHistogram(new TProfile("eff_hltreco","eff_hltreco",12,0,12));
 
         addHistogram(new TH1F("IsEmFailLoose","IsEmFailLoose",36,0,36));
@@ -694,55 +658,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("IsEmLHFailLoose","IsEmLHFailLoose",11,0,11));
         addHistogram(new TH1F("IsEmLHFailMedium","IsEmLHFailMedium",11,0,11));
         addHistogram(new TH1F("IsEmLHFailTight","IsEmLHFailTight",11,0,11));
-
-        if ( m_detailedHists ) {
-            std::vector<std::string> effdirs;
-            effdirs.push_back(basePath + "/Efficiency/HLT/Loose");
-            effdirs.push_back(basePath + "/Efficiency/HLT/Medium");
-            effdirs.push_back(basePath + "/Efficiency/HLT/Tight");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LHLoose");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LHMedium");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LHTight");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LooseIso");
-            effdirs.push_back(basePath + "/Efficiency/HLT/MediumIso");
-            effdirs.push_back(basePath + "/Efficiency/HLT/TightIso");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LHLooseIso");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LHMediumIso");
-            effdirs.push_back(basePath + "/Efficiency/HLT/LHTightIso");
-            for (int i = 0; i < (int) effdirs.size(); i++) {
-                ATH_MSG_VERBOSE(effdirs[i]);
-                addDirectory(effdirs[i]);
-                addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", netbins,etbins)); 
-                addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", netbins,etbins));
-                addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
-                addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
-                addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
-                addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
-                addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
-                addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
-
-                addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",netbins,etbins)); 
-                addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", netbins, etbins)); 
-                addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
-                addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
-                addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
-                addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
-
-                addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
-                addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
-
-                addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",netbins,etbins)); 
-                addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", netbins,etbins)); 
-                addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
-                addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
-                addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
-                addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>; <#mu> ; Count", 50, 0, 100));
-                addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
-                addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins));
-            }
-        }
     }
-    
     
     dirnames.clear();
     dirnames.push_back(basePath + "/Distributions/Offline");
@@ -1301,121 +1217,54 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     }
 }
 
-void TrigEgammaAnalysisBaseTool::fillEfficiency(const std::string dir,bool isPassed,const float etthr, const std::string pidword, const xAOD::Egamma *eg){
+void TrigEgammaAnalysisBaseTool::fillEfficiency(const std::string dir,bool isPassed,const float etthr,
+        const float et, const float eta, const float phi,const float avgmu /*=0.*/,const float mass /*=0.*/){
 
     cd(dir);
-    float et=0.;
-    bool pid=true;
-    if(xAOD::EgammaHelpers::isElectron(eg)){
-        ATH_MSG_DEBUG("Offline Electron");
-        const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-        pid=el->auxdecor<bool>(pidword);
-        et = getEt(el)/1e3;
+    hist1("et")->Fill(et);
+    hist1("highet")->Fill(et);
+    hist1("mee")->Fill(mass);
+    if(et > etthr+1.0){
+        hist1("eta")->Fill(eta);
+        hist1("phi")->Fill(phi);
+        hist1("mu")->Fill(avgmu);
+        hist2("et_eta")->Fill(et,eta);
+        hist2("coarse_et_eta")->Fill(et,eta);
     }
-    else  et=eg->caloCluster()->et()/1e3;
-
-    float eta = eg->caloCluster()->etaBE(2);
-    float phi = eg->phi();
-    float pt = eg->pt();
-    float avgmu=0.;
-    if(m_lumiTool)
-        avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
-   
-    ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
-    if(pid){
-        hist1("et")->Fill(et);
-        hist1("pt")->Fill(pt);
-        hist1("highet")->Fill(et);
+    if(isPassed) {
+        hist1("match_et")->Fill(et);
+        hist1("match_highet")->Fill(et);
+        hist1("match_mee")->Fill(mass);
         if(et > etthr+1.0){
-            hist1("eta")->Fill(eta);
-            hist1("phi")->Fill(phi);
-            hist1("mu")->Fill(avgmu);
-            hist2("et_eta")->Fill(et,eta);
-            hist2("coarse_et_eta")->Fill(et,eta);
-        }
-        if(isPassed) {
-            hist1("match_et")->Fill(et);
-            hist1("match_pt")->Fill(pt);
-            hist1("match_highet")->Fill(et);
-            if(et > etthr+1.0){
-                hist1("match_eta")->Fill(eta);
-                hist1("match_phi")->Fill(phi);
-                hist1("match_mu")->Fill(avgmu);
-                hist2("match_et_eta")->Fill(et,eta);
-                hist2("match_coarse_et_eta")->Fill(et,eta);
+            hist1("match_eta")->Fill(eta);
+            hist1("match_phi")->Fill(phi);
+            hist1("match_mu")->Fill(avgmu);
+            hist2("match_et_eta")->Fill(et,eta);
+            hist2("match_coarse_et_eta")->Fill(et,eta);
 
-            }
-            hist1("eff_et")->Fill(et,1);
-            hist1("eff_pt")->Fill(pt,1);
-            hist1("eff_highet")->Fill(et,1);
-            if(et > etthr+1.0){
-                hist1("eff_eta")->Fill(eta,1);
-                hist1("eff_phi")->Fill(phi,1);
-                hist1("eff_mu")->Fill(avgmu,1);
-                hist2("eff_et_eta")->Fill(et,eta,1);
-                hist2("eff_coarse_et_eta")->Fill(et,eta,1);
-            }
         }
-        else {
-            hist1("eff_et")->Fill(et,0);
-            hist1("eff_pt")->Fill(pt,0);
-            hist1("eff_highet")->Fill(et,0);
-            if(et > etthr+1.0){
-                hist1("eff_eta")->Fill(eta,0);
-                hist1("eff_phi")->Fill(phi,0);
-                hist1("eff_mu")->Fill(avgmu,0);
-                hist2("eff_et_eta")->Fill(et,eta,0);
-                hist2("eff_coarse_et_eta")->Fill(et,eta,0);
-            }
+        hist1("eff_et")->Fill(et,1);
+        hist1("eff_highet")->Fill(et,1);
+        if(et > etthr+1.0){
+            hist1("eff_eta")->Fill(eta,1);
+            hist1("eff_phi")->Fill(phi,1);
+            hist1("eff_mu")->Fill(avgmu,1);
+            hist2("eff_et_eta")->Fill(et,eta,1);
+            hist2("eff_coarse_et_eta")->Fill(et,eta,1);
         }
     }
-}
-
-void TrigEgammaAnalysisBaseTool::efficiency(const std::string basePath,const float etthr,const std::string pidword,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
-
-    ATH_MSG_DEBUG("efficiency" << pidword);
-
-
-    ATH_MSG_DEBUG("Fill probe histograms");
-    bool passedL1Calo=false;
-    bool passedL2Calo=false;
-    bool passedL2=false;
-    bool passedEFCalo=false;
-    bool passedEF=false;
-    if ( pairObj.second ) {
-        ATH_MSG_DEBUG("Retrieve Ancestor passed");
-        passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(pairObj.second);
-        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(pairObj.second);
-        if(xAOD::EgammaHelpers::isElectron(pairObj.first))
-            passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(pairObj.second);
-
-        else 
-            passedL2 = ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second);
-        
-        passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(pairObj.second);
-        
-        if(xAOD::EgammaHelpers::isElectron(pairObj.first))
-            passedEF = ancestorPassed<xAOD::ElectronContainer>(pairObj.second);
-        else 
-            passedEF = ancestorPassed<xAOD::PhotonContainer>(pairObj.second);
-
-    } // Features
-    fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,pidword,pairObj.first);
-    fillEfficiency(basePath+"L2Calo",passedL2Calo,etthr,pidword,pairObj.first);
-    fillEfficiency(basePath+"L2",passedL2,etthr,pidword,pairObj.first);
-    fillEfficiency(basePath+"EFCalo",passedEFCalo,etthr,pidword,pairObj.first);
-    fillEfficiency(basePath+"HLT",passedEF,etthr,pidword,pairObj.first);
-    if(m_detailedHists){
-        for(const auto pid : m_isemname) {
-            fillEfficiency(basePath+"HLT/"+pid,passedEF,etthr,"ElectronPass"+pid,pairObj.first);
-            if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(basePath+"HLT/"+pid+"Iso",passedEF,etthr,"ElectronPass"+pid,pairObj.first);
-        }
-        for(const auto pid : m_lhname) {
-            fillEfficiency(basePath+"HLT/"+pid,passedEF,etthr,"ElectronPass"+pid,pairObj.first);
-            if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(basePath+"HLT/"+pid+"Iso",passedEF,etthr,"ElectronPass"+pid,pairObj.first);
+    else {
+        hist1("eff_et")->Fill(et,0);
+        hist1("eff_highet")->Fill(et,0);
+        if(et > etthr+1.0){
+            hist1("eff_eta")->Fill(eta,0);
+            hist1("eff_phi")->Fill(phi,0);
+            hist1("eff_mu")->Fill(avgmu,0);
+            hist2("eff_et_eta")->Fill(et,eta,0);
+            hist2("eff_coarse_et_eta")->Fill(et,eta,0);
         }
     }
-    ATH_MSG_DEBUG("Complete efficiency"); 
+
 }
 
 void TrigEgammaAnalysisBaseTool::finalizeEfficiency(std::string dir){
@@ -1505,7 +1354,7 @@ void TrigEgammaAnalysisBaseTool::fillL2Calo(const std::string dir, const xAOD::T
 void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){
     cd(dir);
     ATH_MSG_DEBUG("Fill SS distributions " << dir);
-    if(!eg) ATH_MSG_WARNING("Egamma pointer fails"); 
+    if(!eg) ATH_MSG_DEBUG("Online pointer fails"); 
     else {
         ATH_MSG_DEBUG("Shower Shapes");
         hist1("e011")->Fill(getShowerShape_e011(eg)/1e3);
@@ -1523,9 +1372,19 @@ void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xA
         hist1("wtots1")->Fill(getShowerShape_wtots1(eg));
         hist1("f1")->Fill(getShowerShape_f1(eg));
         hist1("f3")->Fill(getShowerShape_f3(eg));
-        hist1("eratio")->Fill(getShowerShape_Eratio(eg));
-        hist1("et")->Fill(eg->pt()/1e3);
-        hist1("highet")->Fill(eg->pt()/1e3);
+        if(xAOD::EgammaHelpers::isElectron(eg)){
+            const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+            hist1("et")->Fill(getEt(el)/1e3);
+            hist1("highet")->Fill(getEt(el)/1e3);
+            hist1("ptcone20")->Fill(getIsolation_ptcone20(el)/1e3);
+            if (getEt(el) > 0) {
+                hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(el)/getEt(el));
+            }
+        }
+        else if(xAOD::EgammaHelpers::isPhoton(eg)){
+            hist1("et")->Fill(getCluster_et(eg)/1e3);
+            hist1("highet")->Fill(getCluster_et(eg)/1e3);
+        }
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
     }
@@ -1535,12 +1394,9 @@ void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xA
 void TrigEgammaAnalysisBaseTool::fillTracking(const std::string dir, const xAOD::Electron *eg){
     cd(dir);  
     ATH_MSG_DEBUG("Fill tracking");
-    if(!eg) ATH_MSG_WARNING("Electron pointer fails");
+    if(!eg) ATH_MSG_DEBUG("Online pointer fails");
     else {
-        float cleta = 0.;
-        if(eg->caloCluster()) cleta=eg->caloCluster()->eta();
-        else cleta=eg->eta();
-        ATH_MSG_DEBUG("Calo-track match");
+        float cleta = eg->caloCluster()->eta();
         hist1("deta1")->Fill(getCaloTrackMatch_deltaEta1(eg));
         if(cleta > 1.375 && cleta < 3.2)
             hist1("deta1_EMECA")->Fill(getCaloTrackMatch_deltaEta1(eg));
@@ -1553,25 +1409,17 @@ void TrigEgammaAnalysisBaseTool::fillTracking(const std::string dir, const xAOD:
         hist1("deta2")->Fill(getCaloTrackMatch_deltaEta2(eg));
         hist1("dphi2")->Fill(getCaloTrackMatch_deltaPhi2(eg));
         hist1("dphiresc")->Fill(getCaloTrackMatch_deltaPhiRescaled2(eg));
-        
-        
+        hist1("d0")->Fill(getTrack_d0(eg));
+        hist1("d0sig")->Fill(getD0sig(eg));
+        hist1("eratio")->Fill(getShowerShape_Eratio(eg));
         hist1("eprobht")->Fill(getTrackSummaryFloat_eProbabilityHT(eg));
         hist1("npixhits")->Fill(getTrackSummary_numberOfPixelHits(eg));
         hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(eg));
         hist1("charge")->Fill(eg->charge());
-        hist1("ptcone20")->Fill(getIsolation_ptcone20(eg)/1e3);
-        // Quantities directly from tracks
-        ATH_MSG_DEBUG("Get track Quantities");
-        hist1("d0")->Fill(getTrack_d0(eg));
-        hist1("d0sig")->Fill(getD0sig(eg));
         hist1("pt")->Fill(getTrack_pt(eg)/1e3);
-        if (eg->pt() > 0) {
-            hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(eg)/eg->pt());
-        }
         if (m_detailedHists ) {
-            hist2("deta1_vs_clusterEta")->Fill(cleta,getCaloTrackMatch_deltaEta1(eg));
+            hist2("deta1_vs_clusterEta")->Fill(getCluster_eta(eg),getCaloTrackMatch_deltaEta1(eg));
         }
-
     }
 }
 
@@ -1581,10 +1429,9 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
     ATH_MSG_DEBUG("Fill Resolution");
     float getOnlEt=0;
     float val_off=0.;
-    const float onl_eta=onl->eta();
-    const float feta = fabs(onl_eta);
+    const float feta = fabs(onl->eta());
     val_off=off->eta();
-    if(val_off!=0.) hist1("eta")->Fill((onl_eta-val_off)/val_off);
+    if(val_off!=0.) hist1("eta")->Fill((onl->eta()-val_off)/val_off);
     val_off=off->phi();
     if(val_off!=0.) hist1("phi")->Fill((onl->phi()-val_off)/val_off);
     if(xAOD::EgammaHelpers::isElectron(onl)){
@@ -1598,7 +1445,7 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
 
         val_off=getEt(eloff);
         if(val_off!=0.) {
-            hist2("res_etVsEta")->Fill(onl_eta,
+            hist2("res_etVsEta")->Fill(elonl->eta(),
                     (getEt(elonl)-val_off)/val_off);
             hist2("res_etVsEt")->Fill( getEt(elonl)/1e3,
                     (getEt(elonl)-val_off)/val_off);
@@ -1655,14 +1502,14 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
         if(val_off!=0.){
             hist1("et")->Fill((getCluster_et(onl)-val_off)/val_off);
 
-            hist2("res_etVsEta")->Fill(onl_eta,
+            hist2("res_etVsEta")->Fill(onl->eta(),
                     (getCluster_et(onl)-val_off)/val_off);
             hist2("res_etVsEt")->Fill( getCluster_et(onl)/1e3,
                     (getCluster_et(onl)-val_off)/val_off);
             const xAOD::Photon* phoff =static_cast<const xAOD::Photon*> (off);
             if(xAOD::EgammaHelpers::isConvertedPhoton(phoff)) {
                 hist1("et_cnv")->Fill((getCluster_et(onl)-val_off)/val_off);
-                hist2("res_cnv_etVsEta")->Fill(onl_eta,
+                hist2("res_cnv_etVsEta")->Fill(onl->eta(),
                         (getCluster_et(onl)-val_off)/val_off);
                 hist2("res_cnv_etVsEt")->Fill( getCluster_et(onl)/1e3,
                         (getCluster_et(onl)-val_off)/val_off);
@@ -1844,12 +1691,8 @@ void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,cons
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
         hist1("pt")->Fill((getTrack_pt(elonl)-getTrack_pt(eloff)));
         hist1("et")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
-        
-        const float onl_eta=onl->eta();
-        const float feta = fabs(onl_eta);
-        const float off_eta=off->eta();
-        hist1("eta")->Fill(onl_eta-off_eta);
-        hist1("phi")->Fill((elonl->phi()-eloff->phi()));
+        hist1("eta")->Fill((elonl->trackParticle()->eta()-eloff->trackParticle()->eta()));
+        hist1("phi")->Fill((elonl->trackParticle()->phi()-eloff->trackParticle()->phi()));
 
         hist2("res_etVsEta")->Fill(elonl->trackParticle()->eta(),
                                    (getEt(elonl)-getEt(eloff)));
@@ -1878,6 +1721,7 @@ void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,cons
                                               getIsolation_ptcone20(elonl)/getEt(elonl));
         }
 
+	float feta = fabs(elonl->trackParticle()->eta());
 	if( feta < 1.37 )
 	  hist1("res_etInEta0")->Fill((getEt(elonl)-getEt(eloff)));
 	else if( feta >=1.37 && feta <= 1.52 )
@@ -2218,13 +2062,9 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
     const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
     ATH_MSG_DEBUG("INEFF::Retrieve EF Cluster");
     const auto* EFClus = getFeature<xAOD::CaloClusterContainer>(feat);
-    //ATH_MSG_DEBUG("INEFF::Retrieve EF Trk");
-    //const auto* L2Trk = getFeature<xAOD::TrackParticleContainer>(feat);
-    //const auto* L2Trk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_FTF");
-    //const auto* EFIDTrk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
+    ATH_MSG_DEBUG("INEFF::Retrieve EF Trk");
+    const auto* EFTrk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
     //const auto* EFTrkIDTrig = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
-    
-
     //xAOD::TrackParticleContainer *EFTrk=0;
     //if(EFTrkEFID!=NULL) EFTrk=EFTrkEFID;
     //else if(EFTrkIDTrig!=NULL) EFTrk=EFTrkIDTrig;
@@ -2235,9 +2075,9 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
     bool passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
     bool passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
     bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat,"TrigEFCaloCalibFex");
-    //bool passedEFTrkEFID = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
-    //bool passedEFTrkIDTrig = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
-    //bool passedEFTrk = passedEFTrkEFID || passedEFTrkIDTrig;
+    bool passedEFTrkEFID = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
+    bool passedEFTrkIDTrig = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+    bool passedEFTrk = passedEFTrkEFID || passedEFTrkIDTrig;
     bool passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
 
     // Ensure L1 passes
@@ -2245,7 +2085,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
 
     if(passedL1Calo && et > etthr) {
         ATH_MSG_DEBUG("INEFF::Passed L1 and offline et");
-        ATH_MSG_DEBUG("INEFF:: " << passedL2Calo << passedL2 << passedEFCalo << passedEF);
+        ATH_MSG_DEBUG("INEFF:: " << passedL2Calo << passedL2 << passedEFCalo << passedEFTrk << passedEF);
         if(passedL2Calo){
             ATH_MSG_DEBUG("INEFF::Passes L2 Calo");
             hist1("eff_triggerstep")->Fill("L2Calo",1);
@@ -2258,54 +2098,52 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
             ATH_MSG_DEBUG("INEFF::Passes L2");
             hist1("eff_triggerstep")->Fill("L2",1);
         }
-        else {
+        else{
             ATH_MSG_DEBUG("INEFF::Fails L2");
             hist1("eff_triggerstep")->Fill("L2",0);
         }
-        /*if(L2Trk==NULL){
-            hist1("eff_triggerstep")->Fill("L2TrackCont",0);
-        }
-        else{
-            hist1("eff_triggerstep")->Fill("L2TrackCont",1);
-        }*/
         if(passedEFCalo){
             ATH_MSG_DEBUG("INEFF::Passes EFCalo");
             hist1("eff_triggerstep")->Fill("EFCalo",1);
+            hist1("eff_triggerstep")->Fill("EFCaloCont",1);
         }
         else{
             ATH_MSG_DEBUG("INEFF::Fails EFCalo");
+            if(EFClus==NULL)    hist1("eff_triggerstep")->Fill("EFCaloCont",0);
+            else             hist1("eff_triggerstep")->Fill("EFCaloCont",1);
             hist1("eff_triggerstep")->Fill("EFCalo",0);
         }
-        if(EFClus==NULL)    hist1("eff_triggerstep")->Fill("EFCaloCont",0);
-        else             hist1("eff_triggerstep")->Fill("EFCaloCont",1);
-        /*if(passedEFTrk){
+        if(passedEFTrk){
             ATH_MSG_DEBUG("INEFF:: Passes Track Hypo!");
             hist1("eff_triggerstep")->Fill("EFTrack",1);
-            //hist1("eff_triggerstep")->Fill("EFTrackCont",1);
+            hist1("eff_triggerstep")->Fill("EFTrackCont",1);
         }
         else {
             //ATH_MSG_INFO("INEFF:: Fails Track Hypo!");
             //ATH_MSG_INFO("INEFF:: EFCalo result " << passedEFCalo);
             hist1("eff_triggerstep")->Fill("EFTrack",0);
+            if(EFTrk==NULL){
+                hist1("eff_triggerstep")->Fill("EFTrackCont",0);
+                //ATH_MSG_INFO("TRKTEST: NULL Track Container!");
+            }
+            else{
+                hist1("eff_triggerstep")->Fill("EFTrackCont",1);
+                ATH_MSG_INFO("TRKTEST: Container has " << EFTrk->size() << " ntracks");
+                //for(const auto& trk : *EFTrk)
+                    //ATH_MSG_INFO("Track eta, phi: " << trk->eta() << " " << trk->phi());
+            }
         }
-        if(EFTrk==NULL){
-            hist1("eff_triggerstep")->Fill("EFTrackCont",0);
-            ATH_MSG_WARNING("TRKTEST: NULL Track Container! Run, Event " << runNumber << " " << eventNumber);
-        }
-        else{
-            hist1("eff_triggerstep")->Fill("EFTrackCont",1);
-            ATH_MSG_DEBUG("TRKTEST: Container has " << EFTrk->size() << " ntracks");
-        }*/
         if(passedEF){
             ATH_MSG_DEBUG("INEFF::Passes EF");
             hist1("eff_triggerstep")->Fill("HLT",1);
+            hist1("eff_triggerstep")->Fill("HLTCont",1);
         }
         else{
             ATH_MSG_DEBUG("INEFF::Fails EF");
+            if(EFEl==NULL)    hist1("eff_triggerstep")->Fill("HLTCont",0);
+            else     hist1("eff_triggerstep")->Fill("HLTCont",1);
             hist1("eff_triggerstep")->Fill("HLT",0);
         }
-        if(EFEl==NULL)    hist1("eff_triggerstep")->Fill("HLTCont",0);
-        else     hist1("eff_triggerstep")->Fill("HLTCont",1);
 
         // Fill efficiency plot for HLT trigger steps
         if(!passedEF && passedEFCalo){
@@ -2350,7 +2188,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                 ATH_MSG_DEBUG("Closest cluster dR " << dRmax);
             }
             else ATH_MSG_DEBUG("CaloCluster Container NULL");
-            /*dRmax=0.15;
+            dRmax=0.15;
             if ( EFTrk != NULL ){
                 ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency " << EFTrk->size());
                 for(const auto& trk : *EFTrk){
@@ -2362,7 +2200,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                 } // loop over EFPh
                 ATH_MSG_DEBUG("Closest track dR " << dRmax);
             } //FC exists
-            else ATH_MSG_DEBUG("TrackParticle Container NULL");*/
+            else ATH_MSG_DEBUG("TrackParticle Container NULL");
             if(EFClus==NULL){
                 hist1("eff_hltreco")->Fill("ClusterCont",0);
                 hist1("eff_hltreco")->Fill("Cluster",0);
@@ -2381,7 +2219,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                 }
             }
 
-            /*if(EFTrk==NULL){
+            if(EFTrk==NULL){
                 hist1("eff_hltreco")->Fill("TrackCont",0);
                 hist1("eff_hltreco")->Fill("Track",0);
                 hist1("eff_hltreco")->Fill("TrackMatch",0);
@@ -2397,7 +2235,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                     hist1("eff_hltreco")->Fill("Track",0);
                     hist1("eff_hltreco")->Fill("TrackMatch",0);
                 }
-            }*/
+            }
 
             if(EFPh==NULL){
                 hist1("eff_hltreco")->Fill("PhotonCont",0);
@@ -2559,7 +2397,7 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
     const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
     const TrigPassBits *EFbits = getFeature<TrigPassBits>(feat);
     if(EFbits==NULL) ATH_MSG_DEBUG("PassBits NULL");
-    if(EFPh != NULL && EFbits!=NULL){
+    if(EFPh != NULL && EFbits != NULL){
         if(passedEFPh){
             for(const auto& ph : *EFPh){
                 if( HLT::isPassing(EFbits,ph,EFPh)) ATH_MSG_DEBUG("Found passing Hypo object");
@@ -2571,10 +2409,7 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
                     ATH_MSG_DEBUG("Photon from TE NULL");
                     continue;
                 }
-                if(ph->caloCluster() && phOff->caloCluster())
-                    deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
-                else
-                    deltaR = dR(phOff->eta(),phOff->phi(),ph->eta(),ph->phi());
+                deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
                 if (deltaR < dRMax) {
                     dRMax = deltaR;
                     phEF =ph;
@@ -2588,7 +2423,6 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
     } // Feature Container
     else ATH_MSG_DEBUG("Feature Container NULL");
 }
-
 void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     ATH_MSG_DEBUG("Resolution Electron " << basePath);
     std::string dir1 = basePath + "/Resolutions/HLT";
@@ -2622,10 +2456,7 @@ void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,s
                     ATH_MSG_DEBUG("Failed Hypo Selection");
                     continue;
                 }
-                if(el->trackParticle() && elOff->trackParticle())
-                        deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
-                else 
-                    deltaR = dR(elOff->eta(),elOff->phi(),el->eta(),el->phi());
+                deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
                 if (deltaR < dRMax) {
                     dRMax=deltaR;
                     elEF=el;
@@ -2673,12 +2504,12 @@ void TrigEgammaAnalysisBaseTool::resolution(const std::string basePath,std::pair
 
 void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const std::string trigname, const std::string chainType){
     // Retrieve FeatureContainer for a given trigger
-    ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << trigname << " type " << chainType);
+    ATH_MSG_INFO("Distributions:: Retrieve features for chain " << trigname);
     if (boost::starts_with(trigname, "L1" )){
-        const auto fc = (m_trigdec->features(trigname, TrigDefs::alsoDeactivateTEs));
-        const auto initRois = fc.get<TrigRoiDescriptor>();
+        auto fc = (m_trigdec->features(trigname, TrigDefs::alsoDeactivateTEs));
+        auto initRois = fc.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(const auto feat : initRois){
+        for(auto feat : initRois){
             if(feat.te()==NULL) {
                 ATH_MSG_DEBUG("initial RoI feature NULL");
                 continue;
@@ -2687,7 +2518,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
             cd(basePath+"RoI");
             hist1("roi_eta")->Fill(roi->eta());
             hist1("roi_phi")->Fill(roi->phi());
-            const auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(feat);
+            auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(feat);
             const xAOD::EmTauRoI *l1 = itEmTau.cptr();
             if(l1==NULL) continue;
             cd(basePath+"HLT");
@@ -2698,11 +2529,11 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
     else {
         // Get the L1 features for all TEs
         const std::string l1trig=getL1Item(trigname);
-        const auto fcl1 = (m_trigdec->features(l1trig, TrigDefs::alsoDeactivateTEs));
-        const auto fc = (m_trigdec->features("HLT_"+trigname, TrigDefs::alsoDeactivateTEs));
-        const auto initRois = fcl1.get<TrigRoiDescriptor>();
+        auto fcl1 = (m_trigdec->features(l1trig, TrigDefs::alsoDeactivateTEs));
+        auto fc = (m_trigdec->features("HLT_"+trigname, TrigDefs::alsoDeactivateTEs));
+        auto initRois = fcl1.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(const auto feat : initRois){
+        for(auto feat : initRois){
             if(feat.te()==NULL) {
                 ATH_MSG_DEBUG("initial RoI feature NULL");
                 continue;
@@ -2719,7 +2550,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
             fillL1Calo(basePath+"L1Calo",l1);
         }
         const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
-        for (const auto feat : vec_l2em){
+        for (auto feat : vec_l2em){
             if(feat.te()==NULL) continue;
             const auto* obj = getFeature<xAOD::TrigEMCluster>(feat.te());
             //const auto *bits = getFeature<TrigPassBits>(feat.te());
@@ -2733,10 +2564,10 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
         }
         // Should monitor the selected objects
         // Currently not implemented for EFCalo
-        const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
-        for(const auto feat : vec_clus){
+        auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+        for(auto feat : vec_clus){
             if(feat.te()==NULL) continue;
-            const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
+            const xAOD::CaloClusterContainer *cont = feat.cptr();
             if(cont==NULL) continue;
             cd(basePath+"HLT");
             if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
@@ -2751,7 +2582,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
         // Loop over features, get PassBits from TE for Electron
         if(chainType=="electron"){
             const auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_l2el){
+            for (auto feat : vec_l2el){
                 if(feat.te()==NULL) continue;
                 const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
@@ -2768,33 +2599,32 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
                 }
             }
             const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_el){
+            for (auto feat : vec_el){
                 if(feat.te()==NULL) continue;
                 const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
-                if(cont==NULL) continue; 
+                if(bits==NULL) continue; 
+                if(cont==NULL) continue;
                 cd(basePath+"HLT");
                 if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
                     hist1("rejection")->Fill("HLT",1);
                 for(const auto& obj : *cont){
+                    // Only consider passing objects
                     if(!obj) continue;
-                    if(bits==NULL){
-                        fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
-                        fillTracking(basePath+"HLT",obj); // Fill HLT shower shapes
-                    }
-                    // Only consider passing objects if bits available
-                    else if(!HLT::isPassing(bits,obj,cont)) continue;
+                    if(!HLT::isPassing(bits,obj,cont)) continue;
                     fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
                     fillTracking(basePath+"HLT",obj); // Fill HLT shower shapes
                 }
             }
         }
+
         else if(chainType=="photon"){
             const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
-            for (const auto feat : vec_ph){
+            for (auto feat : vec_ph){
                 if(feat.te()==NULL) continue;
                 const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
+                if(bits==NULL) continue; 
                 if(cont==NULL) continue;
                 cd(basePath+"HLT");
                 if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
@@ -2802,11 +2632,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
                 for(const auto& obj : *cont){
                     // Only consider passing objects
                     if(!obj) continue;
-                    if(bits==NULL){
-                        fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
-                    }
-                    // Only consider passing objects if bits available
-                    else if(!HLT::isPassing(bits,obj,cont)) continue;
+                    if(!HLT::isPassing(bits,obj,cont)) continue;
                     fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
                 }
             }
@@ -2858,10 +2684,8 @@ float TrigEgammaAnalysisBaseTool::getEta2(const xAOD::Egamma* eg){
 }
 float TrigEgammaAnalysisBaseTool::getEt(const xAOD::Electron* eg){
     if(eg && (eg->caloCluster()) && (eg->trackParticle())){
-        const xAOD::TrackParticle *trk=eg->trackParticle();
-        const xAOD::CaloCluster *clus=eg->caloCluster();
-        float eta   = fabs(trk->eta()); 
-        return clus->e()/cosh(eta);      
+        float eta   = fabs(eg->trackParticle()->eta()); 
+        return eg->caloCluster()->e()/cosh(eta);      
     }
     else return -99.;
 }
@@ -3059,7 +2883,7 @@ GETTER(z0)
     // GETTERs for Track details monitoring    
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getTrackSummary_##_name_(const xAOD::Electron* eg) \
 { uint8_t val_uint8{0}; \
-    if(eg){ \
+    if(eg && eg->trackParticle()){ \
         eg->trackParticleSummaryValue(val_uint8,xAOD::_name_); \
         return val_uint8; } \
     else return -99; }
@@ -3082,7 +2906,7 @@ GETTER(numberOfTRTXenonHits)
 
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getTrackSummaryFloat_##_name_(const xAOD::Electron* eg) \
 { float val_float{0}; \
-    if(eg){ \
+    if(eg && eg->trackParticle()){ \
         eg->trackParticleSummaryValue(val_float,xAOD::_name_); \
         return val_float; } \
     else return -99; }
@@ -3094,7 +2918,7 @@ GETTER(pixeldEdx)
     // GETTERs for Calo-Track monitoring
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getCaloTrackMatch_##_name_(const xAOD::Electron* eg) \
 { float val={-99.}; \
-    if(eg){ \
+    if(eg && eg->trackParticle()){ \
         eg->trackCaloMatchValue(val,xAOD::EgammaParameters::_name_);} \
     return val; }
     GETTER(deltaEta0)
@@ -3130,256 +2954,14 @@ GETTER(deltaPhiRescaled3)
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
-
-    static std::map<std::string,std::string> m_triggerMap; //no longer class member but static
-    if(m_triggerMap.empty()) { //Only initialize once
-        m_triggerMap["e24_medium_iloose_L1EM18VH"]=           "L1_EM18VH";
-        m_triggerMap["e24_medium_iloose_L1EM20VH"]=           "L1_EM20VH";
-        m_triggerMap["e24_tight_iloose_L1EM20VH"]=            "L1_EM20VH";
-        m_triggerMap["e24_tight_iloose"]=                     "L1_EM20VHI";
-        m_triggerMap["e26_tight_iloose"]=                     "L1_EM22VHI";
-        m_triggerMap["e60_medium"]=                           "L1_EM22VHI";
-        m_triggerMap["e120_loose"]=                           "L1_EM22VHI";
-        m_triggerMap["e140_loose"]=                           "L1_EM22VHI";
-        m_triggerMap["e24_lhmedium_iloose_L1EM18VH"]=         "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_iloose_L1EM20VH"]=         "L1_EM20VH";
-        m_triggerMap["e24_lhtight_iloose_L1EM20VH"]=          "L1_EM20VH";
-        m_triggerMap["e24_lhtight_iloose"]=                   "L1_EM20VHI";
-        m_triggerMap["e26_lhtight_iloose"]=                   "L1_EM22VHI";
-        m_triggerMap["e60_lhmedium"]=                         "L1_EM22VHI";
-        m_triggerMap["e120_lhloose"]=                         "L1_EM22VHI";
-        m_triggerMap["e140_lhloose"]=                         "L1_EM22VHI";
-        m_triggerMap["e24_vloose_L1EM18VH"]=                  "L1_EM18VH";
-        m_triggerMap["e24_vloose_L1EM20VH"]=                  "L1_EM20VH";
-        m_triggerMap["e26_vloose_L1EM20VH"]=                  "L1_EM20VH";
-        m_triggerMap["e24_medium_L1EM18VH"]=                  "L1_EM18VH";
-        m_triggerMap["e24_tight_L1EM20VH"]=                   "L1_EM20VH";
-        m_triggerMap["e24_lhvloose_L1EM18VH"]=                "L1_EM18VH";
-        m_triggerMap["e24_lhvloose_L1EM20VH"]=                "L1_EM20VH";
-        m_triggerMap["e26_lhvloose_L1EM20VH"]=                "L1_EM20VH";
-        m_triggerMap["e24_lhmedium_L1EM18VH"]=                "L1_EM18VH";
-        m_triggerMap["e24_lhtight_L1EM20VH"]=                 "L1_EM20VH";
-        m_triggerMap["e24_medium_iloose_L2StarA_L1EM20VH"]=   "L1_EM20VH";
-        m_triggerMap["e24_medium_L2Star_idperf_L1EM20VH"]=    "L1_EM20VH";
-        m_triggerMap["e24_lhmedium_iloose_L2StarA_L1EM20VH"]= "L1_EM20VH";
-        m_triggerMap["e24_lhmedium_L2Star_idperf_L1EM20VH"]=  "L1_EM20VH";
-        m_triggerMap["e5_loose"]=                             "L1_EM3";
-        m_triggerMap["e5_loose_L2StarA"]=                     "L1_EM3";
-        m_triggerMap["e5_loose_L2Star_idperf"]=               "L1_EM3";
-        m_triggerMap["e5_loose_idperf"]=                     "L1_EM3";
-        m_triggerMap["e24_medium_idperf_L1EM20VH"]=          "L1_EM20VH";
-        m_triggerMap["e5_lhloose"]=                          "L1_EM3";
-        m_triggerMap["e5_lhloose_L2StarA"]=                  "L1_EM3";
-        m_triggerMap["e5_lhloose_L2Star_idperf"]=            "L1_EM3";
-        m_triggerMap["e5_lhloose_idperf"]=                   "L1_EM3";
-        m_triggerMap["e24_lhmedium_idperf_L1EM20VH"]=        "L1_EM20VH";
-        m_triggerMap["e5_vloose"]=                           "L1_EM3";
-        m_triggerMap["e10_vloose_L1EM7"]=                    "L1_EM7";
-        m_triggerMap["e15_vloose_L1EM7"]=                    "L1_EM7";
-        m_triggerMap["e20_vloose_L1EM12"]=                   "L1_EM12";
-        m_triggerMap["e25_vloose_L1EM15"]=                   "L1_EM15";
-        m_triggerMap["e30_vloose_L1EM15"]=                   "L1_EM15";
-        m_triggerMap["e40_vloose_L1EM15"]=                   "L1_EM15";
-        m_triggerMap["e50_vloose_L1EM15"]=                   "L1_EM15";
-        m_triggerMap["e60_vloose"]=                          "L1_EM22VHI";
-        m_triggerMap["e70_vloose"]=                          "L1_EM22VHI";
-        m_triggerMap["e80_vloose"]=                          "L1_EM22VHI";
-        m_triggerMap["e100_vloose"]=                         "L1_EM22VHI";
-        m_triggerMap["e120_vloose"]=                         "L1_EM22VHI";
-        m_triggerMap["e12_vloose_L1EM10VH"]=                 "L1_EM10VH";
-        m_triggerMap["e15_vloose_L1EM13VH"]=                 "L1_EM13VH";
-        m_triggerMap["e17_vloose"]=                          "L1_EM15VH";
-        m_triggerMap["e20_vloose"]=                          "L1_EM15VH";
-        m_triggerMap["e5_lhvloose"]=                         "L1_EM3";
-        m_triggerMap["e10_lhvloose_L1EM7"]=                  "L1_EM7";
-        m_triggerMap["e15_lhvloose_L1EM7"]=                  "L1_EM7";
-        m_triggerMap["e20_lhvloose_L1EM12"]=                 "L1_EM12";
-        m_triggerMap["e25_lhvloose_L1EM15"]=                 "L1_EM15";
-        m_triggerMap["e30_lhvloose_L1EM15"]=                 "L1_EM15";
-        m_triggerMap["e40_lhvloose_L1EM15"]=                 "L1_EM15";
-        m_triggerMap["e50_lhvloose_L1EM15"]=                 "L1_EM15";
-        m_triggerMap["e60_lhvloose"]=                        "L1_EM22VHI";
-        m_triggerMap["e70_lhvloose"]=                        "L1_EM22VHI";
-        m_triggerMap["e80_lhvloose"]=                        "L1_EM22VHI";
-        m_triggerMap["e100_lhvloose"]=                       "L1_EM22VHI";
-        m_triggerMap["e120_lhvloose"]=                       "L1_EM22VHI";
-        m_triggerMap["e12_lhvloose_L1EM10VH"]=               "L1_EM10VH";
-        m_triggerMap["e15_lhvloose_L1EM13VH"]=               "L1_EM13VH";
-        m_triggerMap["e17_lhvloose"]=                        "L1_EM15VH";
-        m_triggerMap["e20_lhvloose"]=                        "L1_EM15VH";
-        m_triggerMap["e17_loose_L1EM15VHJJ1523ETA49"]=       "L1_EM15VH_JJ15.23ETA49";
-        m_triggerMap["e17_lhloose_L1EM15VHJJ1523ETA49"]=     "L1_EM15VH_JJ15.23ETA49";
-        m_triggerMap["e0_perf_L1EM15"]=              "L1_EM15";
-        m_triggerMap["e0_L2Star_perf_L1EM15"]=       "L1_EM15";
-        m_triggerMap["e5_etcut"]=                             "L1_EM3";
-        m_triggerMap["e10_etcut_L1EM7"]=                      "L1_EM7";
-        m_triggerMap["e15_etcut_L1EM7"]=                      "L1_EM7";
-        m_triggerMap["e20_etcut_L1EM12"]=                     "L1_EM12";
-        m_triggerMap["e25_etcut_L1EM15"]=                     "L1_EM15";
-        m_triggerMap["e30_etcut_L1EM15"]=                     "L1_EM15";
-        m_triggerMap["e40_etcut_L1EM15"]=                     "L1_EM15";
-        m_triggerMap["e50_etcut_L1EM15"]=                     "L1_EM15";
-        m_triggerMap["e60_etcut"]=                            "L1_EM22VHI";
-        m_triggerMap["e80_etcut"]=                            "L1_EM22VHI";
-        m_triggerMap["e100_etcut"]=                           "L1_EM22VHI";
-        m_triggerMap["e120_etcut"]=                           "L1_EM22VHI";
-        m_triggerMap["e4_etcut"]=                             "L1_EM3";
-        m_triggerMap["e9_etcut"]=                             "L1_EM7";
-        m_triggerMap["e14_etcut"]=                            "L1_EM12";
-        m_triggerMap["e9_medium"]=                            "L1_EM7";
-        m_triggerMap["e12_loose"]=                            "L1_EM8VH";
-        m_triggerMap["e12_loose_L1EM10VH"]=                   "L1_EM8VH";
-        m_triggerMap["e15_loose_L1EM13VH"]=                   "L1_EM13VH";
-        m_triggerMap["e17_loose_L1EM15"]=                     "L1_EM15";
-        m_triggerMap["e17_loose"]=                            "L1_EM15VH";
-        m_triggerMap["e17_medium"]=                           "L1_EM15VH";
-        m_triggerMap["e17_medium_iloose"]=                    "L1_EM15VH";
-        m_triggerMap["e20_medium"]=                           "L1_EM15VH";
-        m_triggerMap["e24_medium_L1EM15VH"]=                  "L1_EM15VH";
-        m_triggerMap["e60_loose"]=                            "L1_EM22VHI";
-        m_triggerMap["e70_loose"]=                            "L1_EM22VHI";
-        m_triggerMap["e5_tight"]=                             "L1_EM3";
-        m_triggerMap["e9_tight"]=                             "L1_EM7";
-        m_triggerMap["e14_tight"]=                            "L1_EM12";
-        m_triggerMap["e9_lhmedium"]=                          "L1_EM7";
-        m_triggerMap["e12_lhloose"]=                          "L1_EM8VH";
-        m_triggerMap["e12_lhloose_L1EM10VH"]=                 "L1_EM10VH";
-        m_triggerMap["e15_lhloose_L1EM13VH"]=                 "L1_EM13VH";
-        m_triggerMap["e17_lhloose_L1EM15"]=                   "L1_EM15";
-        m_triggerMap["e17_lhloose"]=                          "L1_EM15VH";
-        m_triggerMap["e17_lhmedium"]=                         "L1_EM15VH";
-        m_triggerMap["e17_lhmedium_iloose"]=                  "L1_EM15VH";
-        m_triggerMap["e20_lhmedium"]=                         "L1_EM15VH";
-        m_triggerMap["e24_lhmedium_L1EM15VH"]=                "L1_EM15VH";
-        m_triggerMap["e60_lhloose"]=                          "L1_EM22VHI";
-        m_triggerMap["e70_lhloose"]=                          "L1_EM22VHI";
-        m_triggerMap["e5_lhtight"]=                           "L1_EM3";
-        m_triggerMap["e9_lhtight"]=                           "L1_EM7";
-        m_triggerMap["e14_lhtight"]=                          "L1_EM12";
-        m_triggerMap["e24_tight_iloose_L2EFCalo_L1EM20VH"]=    "L1_EM20VH";
-        m_triggerMap["e24_lhtight_iloose_L2EFCalo_L1EM20VH"]=  "L1_EM20VH";
-        m_triggerMap["e24_tight_iloose_HLTCalo_L1EM20VH"]=     "L1_EM20VH";
-        m_triggerMap["e24_lhtight_iloose_HLTCalo_L1EM20VH"]=   "L1_EM20VH";
-        m_triggerMap["e24_tight_iloose_etisem_L1EM20VH"]=      "L1_EM20VH";
-        m_triggerMap["g120_loose_HLTCalo"]=                    "L1_EM22VHI";
-        m_triggerMap["g35_medium_HLTCalo_g25_medium_HLTCalo"]= "L1_2EM15VH";
-        m_triggerMap["e24_lhmedium_nod0_L1EM18VH"]=            "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_nodphi_L1EM18VH"]=          "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_nodphires_L1EM18VH"]=       "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_cutd0dphi_L1EM18VH"]=       "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_nod0_iloose_L1EM18VH"]=            "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_nodphi_iloose_L1EM18VH"]=          "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_nodphires_iloose_L1EM18VH"]=       "L1_EM18VH";
-        m_triggerMap["e24_lhmedium_cutd0dphi_iloose_L1EM18VH"]=       "L1_EM18VH";
-        m_triggerMap["e120_loose1"]=  "L1_EM22VHI";
-        m_triggerMap["e24_medium1_iloose_L1EM18VH"]=  "L1_EM18VH";
-        m_triggerMap["e24_medium1_L1EM18VH"]=            "L1_EM18VH";
-        m_triggerMap["e24_tight1_iloose_L1EM20VH"]=      "L1_EM20VH";
-        m_triggerMap["e24_tight1_iloose"]=               "L1_EM20VHI";
-        m_triggerMap["e26_tight1_iloose"]=               "L1_EM22VHI";
-        m_triggerMap["e60_medium1"]=                     "L1_EM22VHI";
-        m_triggerMap["2e12_loose_L12EM10VH"]=            "L1_2EM10VH";
-        m_triggerMap["2e15_loose_L12EM13VH"]=            "L1_2EM13VH";
-        m_triggerMap["2e17_loose_L12EM15"]=              "L1_2EM15";
-        m_triggerMap["2e17_loose"]=                      "L1_2EM15VH";
-        m_triggerMap["2e12_lhloose_L12EM10VH"]=          "L1_2EM10VH";
-        m_triggerMap["2e15_lhloose_L12EM13VH"]=          "L1_2EM13VH";
-        m_triggerMap["2e17_lhloose"]=                    "L1_2EM15VH";
-        m_triggerMap["2e17_lhloose_L12EM15"]=            "L1_2EM15";
-        m_triggerMap["e17_medium_2e9_medium"]=           "L1_EM15VH_3EM7";
-        m_triggerMap["e17_loose_2e9_loose"]=             "L1_EM15VH_3EM7";
-        m_triggerMap["e17_lhloose_2e9_lhloose"]=         "L1_EM15VH_3EM7";
-        m_triggerMap["e17_medium_iloose_2e9_medium"]=    "L1_EM15VH_3EM7";
-        m_triggerMap["e17_lhmedium_2e9_lhmedium"]=       "L1_EM15VH_3EM7";
-        m_triggerMap["e17_lhmedium_iloose_2e9_lhmedium"]="L1_EM15VH_3EM7";
-        m_triggerMap["2e12_loose1_L12EM10VH"]=            "L1_2EM10VH";
-        m_triggerMap["2e17_loose1"]=                      "L1_2EM15VH";
-        m_triggerMap["e5_tight_e4_etcut"]=                                "L1_2EM3";
-        m_triggerMap["e5_tight_e4_etcut_Jpsiee"]=                         "L1_2EM3";
-        m_triggerMap["e9_tight_e4_etcut_Jpsiee"]=                         "L1_EM7_2EM3";
-        m_triggerMap["e9_etcut_e5_tight_Jpsiee"]=                         "L1_EM7_2EM3";
-        m_triggerMap["e14_tight_e4_etcut_Jpsiee"]=                        "L1_EM12_2EM3";
-        m_triggerMap["e14_etcut_e5_tight_Jpsiee"]=                        "L1_EM12_2EM3";
-        m_triggerMap["e5_lhtight_e4_etcut"]=                              "L1_2EM3";
-        m_triggerMap["e5_lhtight_e4_etcut_Jpsiee"]=                       "L1_2EM3";
-        m_triggerMap["e9_lhtight_e4_etcut_Jpsiee"]=                       "L1_EM7_2EM3";
-        m_triggerMap["e9_etcut_e5_lhtight_Jpsiee"]=                       "L1_EM7_2EM3";
-        m_triggerMap["e14_lhtight_e4_etcut_Jpsiee"]=                      "L1_EM12_2EM3";
-        m_triggerMap["e14_etcut_e5_lhtight_Jpsiee"]=                      "L1_EM12_2EM3";
-        m_triggerMap["e5_tight1_e4_etcut"]=         "L1_2EM3";
-        m_triggerMap["e5_tight1_e4_etcut_Jpsiee"]=  "L1_2EM3";
-        m_triggerMap["e5_tight_e4_etcut_L1JPSI-1M5"]=                                "L1_JPSI-1M5";
-        m_triggerMap["e5_lhtight_e4_etcut_L1JPSI-1M5"]=                                "L1_JPSI-1M5";
-        m_triggerMap["e5_tight1_e4_etcut_L1JPSI-1M5"]=                                "L1_JPSI-1M5";
-        m_triggerMap["e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5"]=             "L1_JPSI-1M5";
-        m_triggerMap["e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7"]=         "L1_JPSI-1M5-EM7";
-        m_triggerMap["e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7"]=         "L1_JPSI-1M5-EM7";
-        m_triggerMap["e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12"]=       "L1_JPSI-1M5-EM12";
-        m_triggerMap["e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12"]=       "L1_JPSI-1M5-EM12";
-        m_triggerMap["e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5"]=           "L1_JPSI-1M5";
-        m_triggerMap["e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7"]=           "L1_JPSI-1M5-EM7";
-        m_triggerMap["e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7"]=       "L1_JPSI-1M5-EM7";
-        m_triggerMap["e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12"]=      "L1_JPSI-1M5-EM12";
-        m_triggerMap["e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12"]=     "L1_JPSI-1M5-EM12";
-        m_triggerMap["e5_tight1_e4_etcut_Jpsiee_L1JPSI-1M5"]=       "L1_JPSI-1M5";
-        m_triggerMap["e13_etcut_trkcut"]= "L1_EM10_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0";
-        m_triggerMap["e18_etcut_trkcut"]= "L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EMXE_W-250RO2-XEHT-0";
-        m_triggerMap["e24_lhtight_L1EM20VH_e15_etcut_Zee"]= "L1_EM20VH";
-        m_triggerMap["e24_tight_L1EM20VH_e15_etcut_Zee"]=   "L1_EM20VH";
-        m_triggerMap["e26_lhtight_e15_etcut_Zee"]=          "L1_EM22VHI";
-        m_triggerMap["e26_tight_e15_etcut_Zee"]=            "L1_EM22VHI";
-        m_triggerMap["g120_loose"]=                    "L1_EM22VHI";
-        m_triggerMap["g140_loose"]=                    "L1_EM22VHI";
-        m_triggerMap["g0_perf_L1EM15"]=                "L1_EM15";
-        m_triggerMap["g20_etcut_L1EM12"]=              "L1_EM12";
-        m_triggerMap["g15_loose_L1EM7"]=               "L1_EM7";
-        m_triggerMap["g20_loose_L1EM12"]=              "L1_EM12";
-        m_triggerMap["g40_loose_L1EM15"]=              "L1_EM15";
-        m_triggerMap["g45_loose_L1EM15"]=              "L1_EM15";
-        m_triggerMap["g50_loose_L1EM15"]=              "L1_EM15";
-        m_triggerMap["g80_loose"]=                     "L1_EM22VHI";
-        m_triggerMap["g100_loose"]=                    "L1_EM22VHI";
-        m_triggerMap["g10_loose_L1EM7"]=               "L1_EM7";
-        m_triggerMap["g25_loose_L1EM15"]=              "L1_EM15";
-        m_triggerMap["g35_loose_L1EM15"]=              "L1_EM15";
-        m_triggerMap["g60_loose"]=                     "L1_EM22VHI";
-        m_triggerMap["g70_loose"]=                     "L1_EM22VHI";
-        m_triggerMap["g10_medium_L1EM7"]=              "L1_EM7";
-        m_triggerMap["g10_loose"]=                     "L1_EM8VH";
-        m_triggerMap["g10_medium"]=                    "L1_EM8VH";
-        m_triggerMap["g15_loose_L1EM3"]=               "L1_EM3";
-        m_triggerMap["g15_loose"]=                     "L1_EM13VH";
-        m_triggerMap["g20_loose_L1EM15"]=              "L1_EM15";
-        m_triggerMap["g20_loose"]=                     "L1_EM15VH";
-        m_triggerMap["g20_tight"]=                     "L1_EM15VH";
-        m_triggerMap["g25_loose"]=                     "L1_EM15VH";
-        m_triggerMap["g25_medium"]=                    "L1_EM15VH";
-        m_triggerMap["g35_loose"]=                     "L1_EM15VH";
-        m_triggerMap["g35_medium"]=                    "L1_EM15VH";
-        m_triggerMap["g40_tight"]=                     "L1_EM20VH";
-        m_triggerMap["g45_tight"]=                     "L1_EM22VHI";
-        m_triggerMap["g50_loose"]=                     "L1_EM15VH";
-        m_triggerMap["g60_loose_L1EM15VH"]=            "L1_EM15VH";
-        m_triggerMap["g35_loose_L1EM15_g25_loose_L1EM15"]=       "L1_2EM15";
-        m_triggerMap["g35_loose_g25_loose"]=                     "L1_2EM15VH";
-        m_triggerMap["g35_medium_g25_medium"]=                   "L1_2EM15VH";
-        m_triggerMap["2g20_loose_L12EM15"]=                      "L1_2EM15";
-        m_triggerMap["2g20_tight"]=                              "L1_2EM15VH";
-        m_triggerMap["2g50_loose"]=                              "L1_2EM15VH";
-        m_triggerMap["2g60_loose_L12EM15VH"]=                    "L1_2EM15VH";
-        m_triggerMap["3g15_loose"]=                              "L1_2EM13VH";
-        m_triggerMap["g20_loose_2g15_loose_L12EM13VH"]=          "L1_2EM13VH";
-        m_triggerMap["2g20_loose_g15_loose"]=                    "L1_2EM15VH";
-        m_triggerMap["3g20_loose"]=                              "L1_2EM15VH";
-        m_triggerMap["g0_hiptrt_L1EM18VH"]=                    "L1_EM18VH";
-        m_triggerMap["g0_hiptrt_L1EM20VH"]=                    "L1_EM20VH";
-        m_triggerMap["g0_hiptrt_L1EM20VHI"]=                   "L1_EM20VHI";
-        m_triggerMap["g0_hiptrt_L1EM22VHI"]=                 "L1_EM22VHI";
-
-    }
     if(boost::contains(trigger,"HLT")) trigger.erase(0,4);
-    return m_triggerMap[trigger];
-
+    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails("HLT_"+trigger);
+    std::string L1_seed = "";
+    if(trig_conf != NULL){
+        ATH_MSG_DEBUG("TrigConf available");
+        L1_seed = trig_conf->lower_chain_name(); //L1 trigger seed
+    }
+    return L1_seed;
 }
 
 
@@ -3429,7 +3011,7 @@ bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron *el, std::ve
   const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
   // For now, we are using only the first cluster 
   
-  if(clrings) clrings->exportRingsTo(ringsE);
+  if(clrings) clrings->exportRingsTo(*ringsE);
   else{
     ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
     return false;

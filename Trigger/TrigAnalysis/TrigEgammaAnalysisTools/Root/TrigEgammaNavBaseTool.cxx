@@ -52,7 +52,6 @@ TrigEgammaNavBaseTool( const std::string& myname )
 
   m_offElectrons=nullptr;
   m_offPhotons=nullptr;
-  m_eventInfo=nullptr;
   m_jets=nullptr;
   // Maps should be static
   // Make a wrapper function to set map and return value
@@ -109,29 +108,15 @@ StatusCode TrigEgammaNavBaseTool::childBook() {
 }
 
 
-bool TrigEgammaNavBaseTool::EventWiseSelection( ){
+StatusCode TrigEgammaNavBaseTool::eventWiseSelection( ){
     // Check Size of Electron Container
     m_offElectrons = 0;
-    m_offPhotons = 0;
-    m_eventInfo=0;
-
-    if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve eventInfo ");
-        return false;
-    }
-    
     if ( (m_storeGate->retrieve(m_offElectrons,m_offElContKey)).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
-        return false; 
-    }
-    
-    if ( (m_storeGate->retrieve(m_offPhotons,m_offPhContKey)).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
-        return false; 
+        ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
+        return StatusCode::FAILURE; 
     }
     
     for(const auto& eg : *m_offElectrons ){
-        ATH_MSG_DEBUG("ApplyElectronPid...");
         if(ApplyElectronPid(eg,"Loose")) hist1("electrons")->AddBinContent(1);
         if(ApplyElectronPid(eg,"Medium")) hist1("electrons")->AddBinContent(2);
         if(ApplyElectronPid(eg,"Tight")) hist1("electrons")->AddBinContent(3); 
@@ -139,8 +124,15 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
         if(ApplyElectronPid(eg,"LHMedium")) hist1("electrons")->AddBinContent(5);
         if(ApplyElectronPid(eg,"LHTight")) hist1("electrons")->AddBinContent(6); 
     }
-    
-    return true; 
+
+    // Check Size of Electron Container
+    m_offPhotons = 0;
+    if ( (m_storeGate->retrieve(m_offPhotons,m_offPhContKey)).isFailure() ){
+        ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
+        return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEgammaNavBaseTool::executeNavigation( std::string trigItem ){
@@ -212,6 +204,8 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
         if( !( getEt(eg)  > (etthr-5.)*1.e3) ) continue;
         if ( (fabs(eg->eta())>1.37 && fabs(eg->eta())<1.52) || fabs(eg->eta())>2.47 )
             continue; 
+        // if(!eg->passSelection(pidname)) continue;
+        // Rerun offline selection
         if(!ApplyElectronPid(eg,pidname)) continue;
         if (m_forceProbeIsolation) {
             if (!isIsolated(eg, m_offProbeIsolation)) {
@@ -238,8 +232,7 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
 
   clearList();
   ATH_MSG_DEBUG("Apply navigation selection");
- 
-  std::string pidname="PhotonPass"+m_photonPid;
+  
 
 
   for(const auto& eg : *m_offPhotons ){

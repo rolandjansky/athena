@@ -55,7 +55,7 @@ public:
   StatusCode childFinalize();
 protected:
   /*! EventWise Selection */
-  bool EventWiseSelection();
+  StatusCode eventWiseSelection();
   /*! navigation method called by derived classes */
   StatusCode executeNavigation(const std::string trigItem);
   /*! Tag Electron selection */
@@ -86,8 +86,6 @@ protected:
   std::string m_photonPid;
   /*! doUnconverted analysis */
   bool m_doUnconverted;
-
-  const xAOD::EventInfo* m_eventInfo;
 private:
   
   /*! navigation method called by executeNavigation */

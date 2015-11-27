@@ -22,7 +22,6 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 //#include "xAODCaloRings/RingSetContainer.h" 
 //#include "xAODCaloRings/CaloRingsContainer.h"
 //#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
@@ -90,7 +89,7 @@ protected:
   void bookAnalysisHistos(const std::string);
 
   /*! fill kinematic histograms, et,eta,phi,lumi and efficiency */
-  void fillEfficiency(const std::string,bool,const float,const std::string,const xAOD::Egamma *);
+  void fillEfficiency(const std::string,bool,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
 
   void fillL2CaloResolution(const std::string, const xAOD::TrigEMCluster *,const xAOD::Egamma *);
   void fillHLTResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
@@ -119,7 +118,6 @@ protected:
   void distribution(const std::string,const std::string,const std::string);
 
   /*! Finalizes efficiency for kinematic histograms */
-  void efficiency(const std::string,const float,const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   void finalizeEfficiency(std::string);
  
   float dR(const float, const float, const float, const float);
@@ -154,7 +152,6 @@ protected:
   // ToolHandles
   ToolHandle<Trig::TrigDecisionTool> m_trigdec;
   ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
-  ToolHandle<ITrigEgammaAnalysisBaseTool> m_util;
   /*! Offline Lumi tool */
   ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
   /*! Online Lumi tool */
@@ -181,11 +178,6 @@ protected:
   std::vector<std::string> m_cutlabels;
   /*! IsEM Labels for histograms */
   std::vector<std::string> m_labels;
-  /*! isEMResultNames for offline */
-  std::vector<std::string> m_isemname;
-  /*! LHResultNames for offline */
-  std::vector<std::string> m_lhname;
-
   // Common data members
   /*! creates map of category and triggers for each category */
   //std::map<std::string,std::vector<std::string>> m_mamMap;
@@ -273,6 +265,8 @@ protected:
 #define GETTER(_name_) float getTrackSummaryFloat_##_name_(const xAOD::Electron* eg);
       GETTER(eProbabilityComb)
       GETTER(eProbabilityHT)
+      GETTER(eProbabilityToT)
+      GETTER(eProbabilityBrem)
       GETTER(pixeldEdx)    
 #undef GETTER
 

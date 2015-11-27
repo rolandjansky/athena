@@ -13,17 +13,19 @@ TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgamm
   declareProperty("OfflineDirectoryPath",   m_offDir = "Offline/Egamma/Ntuple");
   ///Set base tool configuration
   m_forcePidSelection=false;
-
-  m_trig_L2_calo_energySample=nullptr;
   m_trig_L2_calo_rings=nullptr;
-  m_trig_L2_el_trackAlgID=nullptr;
   m_trig_L2_el_pt=nullptr;
   m_trig_L2_el_eta=nullptr;
-  m_trig_L2_el_caloEta=nullptr;
   m_trig_L2_el_phi=nullptr;
   m_trig_L2_el_charge=nullptr;
   m_trig_L2_el_nTRTHits=nullptr;
-  m_trig_L2_el_nTRTHiThresholdHits=nullptr;
+  m_trig_L2_el_rcore=nullptr;
+  m_trig_L2_el_eratio=nullptr;
+  m_trig_L2_el_ethad=nullptr;
+  m_trig_L2_el_f0=nullptr;
+  m_trig_L2_el_f1=nullptr;
+  m_trig_L2_el_f2=nullptr;
+  m_trig_L2_el_f3=nullptr;
   m_trig_L2_el_etOverPt=nullptr;
   m_trig_L2_el_trkClusDeta=nullptr;
   m_trig_L2_el_trkClusDphi=nullptr;
@@ -41,12 +43,6 @@ TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgamm
   m_mc_isElectron=false;
   m_mc_hasZMother=false;
   m_mc_hasWMother=false;
-  m_el_nGoodVtx=0;
-  m_el_nPileupPrimaryVtx=0;
-  m_calo_et=-999.;
-  m_calo_eta=-999.;
-  m_calo_phi=-999.;;
-  m_trig_EF_el_accept=false;
 }
 
 
@@ -56,22 +52,12 @@ StatusCode TrigEgammaNavNtuple::childInitialize(){
 }
 
 StatusCode TrigEgammaNavNtuple::childBook(){
-
-  // Container level kinematic histograms
-  addDirectory(m_dir+"/Counters");
-  const int nTrigger = (int) m_trigList.size();
-  addHistogram(new TH1F("electrons", "Offline Electrons; ; N_{electrons}", 6, 1, 6));   
-  std::vector<std::string> el_labels;
-  el_labels.push_back("loose");
-  el_labels.push_back("medium");
-  el_labels.push_back("tight");
-  el_labels.push_back("lhloose");
-  el_labels.push_back("lhmedium");
-  el_labels.push_back("lhtight");
-  setLabels(hist1("electrons"),el_labels); 
+  
+  addDirectory(m_dir);
+  addHistogram(new TH1F("electrons", "Offline Electrons; ; N_{electrons}", 6, 1., 6));   
+  addHistogram(new TH1F("elperevt", "Offline Electrons; ; N_{electrons}/Evt", 6, 1., 6)); 
 
 
-  //addDirectory(m_dir);
   ATH_MSG_DEBUG("Now configuring chains for analysis");
   std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*");
   for (int j = 0; j < (int) selectElectronChains.size(); j++) {
@@ -97,13 +83,8 @@ StatusCode TrigEgammaNavNtuple::childBook(){
       }
     }
   }  
-
-  addHistogram(new TH1F("trigger_counts", "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
-  setLabels(hist1("trigger_counts"),m_trigList);
-
-  
-  addDirectory(m_dir);
   for (int i = 0; i < (int) m_trigList.size(); i++) {      
+
     std::string trigItem = m_trigList[i];
     TTree *t = new TTree( (trigItem).c_str(), "tree of trigger, egamma and monte carlo information");
     bookEventBranches( t );
@@ -178,15 +159,13 @@ StatusCode TrigEgammaNavNtuple::childExecute(){
     }
   }// protection
 
-
-  cd(m_dir+"/Counters");
-  if( !EventWiseSelection() ) {
+  cd(m_dir);
+  if( eventWiseSelection().isFailure() ) {
     ATH_MSG_DEBUG("Unable to retrieve offline containers");
     return StatusCode::FAILURE;
   }
 
 
-  cd(m_dir);
   if(!executeTrigEgammaDump())  return StatusCode::FAILURE;
 
   /// Egamma ntuple mode
@@ -296,118 +275,82 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
         ATH_MSG_WARNING("Cound not found any TruthParticle for this Electron");
       }
         
+
       ///Start trigger analisys...
       const xAOD::EmTauRoI *emTauRoI = getFeature<xAOD::EmTauRoI>(feat);
-      if(emTauRoI){
-        fillEmTauRoI( emTauRoI ); 
-      }else{ 
-        ATH_MSG_WARNING("Cound not found EmTauRoI in this TriggerElement..");
-      }
+      m_trig_L1_emClus  = emTauRoI->emClus();
+      m_trig_L1_tauClus = emTauRoI->tauClus();
+      m_trig_L1_emIsol  = emTauRoI->emIsol();
+      m_trig_L1_hadIsol = emTauRoI->hadIsol();
+      for(unsigned i=0; i < emTauRoI->thrNames().size();++i)  m_trig_L1_thrNames->push_back(emTauRoI->thrNames().at(i));
+      m_trig_L1_accept = ancestorPassed<xAOD::EmTauRoI>(feat);
 
-      const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(feat);
-      if(emCluster){
-
-        if(!fillTrigEMCluster( emCluster )){
-          ATH_MSG_WARNING("Cound not attach the trigEMCluster information into the tree.");
-        }
-
-        if(!fillTrigCaloRings( emCluster )){
-          ATH_MSG_WARNING("Cound not attach the trigCaloRinger information into the tree.");
-        }
-      }///cluster protection
-
- 
-      const xAOD::TrigElectronContainer *trigElCont = getFeature<xAOD::TrigElectronContainer>(feat);
-      // Level 2 ID+Calo
-      if(trigElCont){
-        for(const auto& trigEl : *trigElCont){
-          if(!fillTrigElectron(trigEl)) {
-            ATH_MSG_WARNING("Cound not attach the trigElectron information into the tree.");
-          }    
-        }// loop over all trigElectrons for this feat
-      }
-
-      m_trig_L1_accept       = ancestorPassed<xAOD::EmTauRoI>(feat);
-      m_trig_L2_calo_accept  = ancestorPassed<xAOD::TrigEMCluster>(feat);
-      m_trig_L2_el_accept    = ancestorPassed<xAOD::TrigElectronContainer>(feat); 
-      m_trig_EF_calo_accept  = ancestorPassed<xAOD::CaloClusterContainer>(feat);
-      m_trig_EF_el_accept    = ancestorPassed<xAOD::ElectronContainer>(feat);
-      
-      ATH_MSG_DEBUG("L1Calo: "  << int(m_trig_L1_accept)); 
-      ATH_MSG_DEBUG("L2Calo: "  << int(m_trig_L2_calo_accept));
-      ATH_MSG_DEBUG("L2ID: "    << int(m_trig_L2_el_accept));
-      ATH_MSG_DEBUG("EFCalo: "  << int(m_trig_EF_calo_accept));
-      ATH_MSG_DEBUG("EFID: "    << int(m_trig_EF_el_accept));          
+      if(m_trig_L1_accept){   
+        const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(feat);
+        if(emCluster){
+    
+          m_trig_L2_calo_et         = emCluster->et();
+          m_trig_L2_calo_eta        = emCluster->eta();
+          m_trig_L2_calo_phi        = emCluster->phi();
+          m_trig_L2_calo_e237       = emCluster->e237();
+          m_trig_L2_calo_e277       = emCluster->e277();
+          m_trig_L2_calo_fracs1     = emCluster->fracs1();
+          m_trig_L2_calo_weta2      = emCluster->weta2();
+          m_trig_L2_calo_ehad1      = emCluster->ehad1();
+          m_trig_L2_calo_emaxs1     = emCluster->emaxs1();
+          m_trig_L2_calo_e2tsts1    = emCluster->e2tsts1();
+          m_trig_L2_calo_wstot      = emCluster->wstot();
+          m_trig_L2_calo_accept     = ancestorPassed<xAOD::TrigEMCluster>(feat);
+         
+          if(!fillTrigCaloRings( emCluster )){
+            ATH_MSG_WARNING("Cound not attach the trigCaloRinger information into the tree.");
+          }
+   
+          // Level 2 ID+Calo
+          if(m_trig_L2_calo_accept){
+            const xAOD::TrigElectronContainer *trigElCont = getFeature<xAOD::TrigElectronContainer>(feat);
+            if(trigElCont){
+              for(unsigned i = 0; i < trigElCont->size(); ++i ){
+                const xAOD::TrigElectron *trigEl = trigElCont->at(i);
+                m_trig_L2_el_pt          ->push_back(trigEl->pt()); 
+                m_trig_L2_el_eta         ->push_back(trigEl->eta());  
+                m_trig_L2_el_phi         ->push_back(trigEl->phi());  
+                m_trig_L2_el_charge      ->push_back(trigEl->charge());      
+                m_trig_L2_el_nTRTHits    ->push_back(trigEl->nTRTHits());        
+                m_trig_L2_el_rcore       ->push_back(trigEl->rcore());      
+                m_trig_L2_el_eratio      ->push_back(trigEl->eratio());      
+                m_trig_L2_el_ethad       ->push_back(trigEl->etHad());      
+                m_trig_L2_el_f0          ->push_back(trigEl->f0());      
+                m_trig_L2_el_f1          ->push_back(trigEl->f1());        
+                m_trig_L2_el_f2          ->push_back(trigEl->f2());      
+                m_trig_L2_el_f3          ->push_back(trigEl->f3());            
+                m_trig_L2_el_etOverPt    ->push_back(trigEl->etOverPt());          
+                m_trig_L2_el_trkClusDeta ->push_back(trigEl->trkClusDeta());
+                m_trig_L2_el_trkClusDphi ->push_back(trigEl->trkClusDphi());
+              }// loop over all trigElectrons for this feat
+            }// protection
+    
+            m_trig_L2_el_accept    = ancestorPassed<xAOD::TrigElectronContainer>(feat); 
+            // Level EF
+            if(m_trig_L2_el_accept){
+              m_trig_EF_calo_accept    = ancestorPassed<xAOD::CaloClusterContainer>(feat);
+              m_trig_EF_el_accept      = ancestorPassed<xAOD::ElectronContainer>(feat);
+            }// EF
+          }// protection L2 Track
+        }// protection L2 Calo
+      }// protection L1
       ATH_MSG_DEBUG("Record information into the ttree.");
       t->Fill();// save information
     }// loop
-  } // End loop over trigger
+  } // End loop over trigger list
   return true;
 }
-
-bool TrigEgammaNavNtuple::fillEmTauRoI( const xAOD::EmTauRoI *emTauRoI ){
-  
-  m_trig_L1_eta     = emTauRoI->eta();
-  m_trig_L1_phi     = emTauRoI->phi();
-  m_trig_L1_emClus  = emTauRoI->emClus();
-  m_trig_L1_tauClus = emTauRoI->tauClus();
-  m_trig_L1_emIsol  = emTauRoI->emIsol();
-  m_trig_L1_hadIsol = emTauRoI->hadIsol();
-  for(unsigned i=0; i < emTauRoI->thrNames().size();++i)  m_trig_L1_thrNames->push_back(emTauRoI->thrNames().at(i));
-  return true;
-} 
-
-bool TrigEgammaNavNtuple::fillTrigEMCluster( const xAOD::TrigEMCluster *emCluster ){
-  
-  m_trig_L2_calo_et         = emCluster->et();
-  m_trig_L2_calo_eta        = emCluster->eta();
-  m_trig_L2_calo_phi        = emCluster->phi();
-  m_trig_L2_calo_e237       = emCluster->e237();
-  m_trig_L2_calo_e277       = emCluster->e277();
-  m_trig_L2_calo_fracs1     = emCluster->fracs1();
-  m_trig_L2_calo_weta2      = emCluster->weta2();
-  m_trig_L2_calo_ehad1      = emCluster->ehad1();
-  m_trig_L2_calo_emaxs1     = emCluster->emaxs1();
-  m_trig_L2_calo_e2tsts1    = emCluster->e2tsts1();
-  m_trig_L2_calo_wstot      = emCluster->wstot();
-  for(unsigned i=0; i<emCluster->energySample().size(); ++i){
-    m_trig_L2_calo_energySample->push_back( emCluster->energySample().at(i));
-  }
-
-  return true;
-}
-
-
-bool TrigEgammaNavNtuple::fillTrigElectron( const xAOD::TrigElectron *trigEl ){
-
-   const xAOD::TrackParticle* trkIter = trigEl->trackParticle();
-   if (trkIter==NULL) return false; // disconsider candidates without track
-   int algoId = 0;
-   if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::FastTrackFinderSeed] ) algoId=9;
-   if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyA] )           algoId=5;
-   if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyB] )           algoId=6;
-   if ( trkIter->patternRecoInfo()[xAOD::TrackPatternRecoInfo::strategyC] )           algoId=7;
-
-   m_trig_L2_el_trackAlgID  ->push_back(algoId);
-   m_trig_L2_el_caloEta     ->push_back(trigEl->caloEta()); 
-   m_trig_L2_el_trkClusDphi ->push_back(trigEl->trkClusDphi());  
-   m_trig_L2_el_trkClusDeta ->push_back(trigEl->trkClusDeta());  
-   m_trig_L2_el_pt          ->push_back(trigEl->pt());
-   m_trig_L2_el_phi         ->push_back(trigEl->phi());  
-   m_trig_L2_el_etOverPt    ->push_back(trigEl->etOverPt());          
-   m_trig_L2_el_nTRTHits    ->push_back(trigEl->nTRTHits());        
-   m_trig_L2_el_nTRTHiThresholdHits->push_back(trigEl->nTRTHiThresholdHits());
-   m_trig_L2_el_charge      ->push_back(trigEl->charge());      
-   return true;
-}
-
 
 
 bool TrigEgammaNavNtuple::fillEvent(){
   ///Event information
   m_runNumber               = m_eventInfo->runNumber();
   m_eventNumber             = m_eventInfo->eventNumber();
-  if(m_lumiTool)    m_avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
   return true;
 }
 
@@ -586,14 +529,11 @@ void TrigEgammaNavNtuple::bookEventBranches(TTree *t){
   
   t->Branch("RunNumber",        &m_runNumber);
   t->Branch("EventNumber",      &m_eventNumber);
-  t->Branch("avgmu",            &m_avgmu);
 }
 
 void TrigEgammaNavNtuple::bookTriggerBranches(TTree *t){
 
   // Level L1 cluster
-  t->Branch( "trig_L1_eta",             &m_trig_L1_eta);
-  t->Branch( "trig_L1_phi",             &m_trig_L1_phi);
   t->Branch( "trig_L1_emClus",          &m_trig_L1_emClus);
   t->Branch( "trig_L1_tauClus",         &m_trig_L1_tauClus);
   t->Branch( "trig_L1_emIsol",          &m_trig_L1_emIsol);
@@ -611,20 +551,23 @@ void TrigEgammaNavNtuple::bookTriggerBranches(TTree *t){
   t->Branch( "trig_L2_calo_emaxs1",     &m_trig_L2_calo_emaxs1);
   t->Branch( "trig_L2_calo_e2tsts1",    &m_trig_L2_calo_e2tsts1);
   t->Branch( "trig_L2_calo_wstot",      &m_trig_L2_calo_wstot);
-  t->Branch( "trig_L2_calo_energySample",&m_trig_L2_calo_energySample ); 
   t->Branch( "trig_L2_calo_rings",      &m_trig_L2_calo_rings ); 
   t->Branch( "trig_L2_calo_accept",     &m_trig_L2_calo_accept);
-  t->Branch( "trig_L2_el_trackAlgID" ,         &m_trig_L2_el_trackAlgID );
-  t->Branch( "trig_L2_el_pt" ,                 &m_trig_L2_el_pt );
-  t->Branch( "trig_L2_el_eta",                 &m_trig_L2_el_eta);
-  t->Branch( "trig_L2_el_phi",                 &m_trig_L2_el_phi );
-  t->Branch( "trig_L2_el_caloEta",             &m_trig_L2_el_caloEta );
-  t->Branch( "trig_L2_el_charge",              &m_trig_L2_el_charge);
-  t->Branch( "trig_L2_el_nTRTHits",            &m_trig_L2_el_nTRTHits);
-  t->Branch( "trig_L2_el_nTRTHiThresholdHits", &m_trig_L2_el_nTRTHiThresholdHits);
-  t->Branch( "trig_L2_el_etOverPt" ,           &m_trig_L2_el_etOverPt );
-  t->Branch( "trig_L2_el_trkClusDeta" ,        &m_trig_L2_el_trkClusDeta );
-  t->Branch( "trig_L2_el_trkClusDphi" ,        &m_trig_L2_el_trkClusDphi );
+  t->Branch( "trig_L2_el_pt" ,          &m_trig_L2_el_pt  );
+  t->Branch( "trig_L2_el_eta",          &m_trig_L2_el_eta );
+  t->Branch( "trig_L2_el_phi",          &m_trig_L2_el_phi );
+  t->Branch( "trig_L2_el_charge",       &m_trig_L2_el_charge );
+  t->Branch( "trig_L2_el_nTRTHits",     &m_trig_L2_el_nTRTHits);
+  t->Branch( "trig_L2_el_rcore" ,       &m_trig_L2_el_rcore );
+  t->Branch( "trig_L2_el_eratio" ,      &m_trig_L2_el_eratio );
+  t->Branch( "trig_L2_el_ethad" ,       &m_trig_L2_el_ethad );
+  t->Branch( "trig_L2_el_f0" ,          &m_trig_L2_el_f0 );
+  t->Branch( "trig_L2_el_f1" ,          &m_trig_L2_el_f1 );
+  t->Branch( "trig_L2_el_f2" ,          &m_trig_L2_el_f2 );
+  t->Branch( "trig_L2_el_f3" ,          &m_trig_L2_el_f3 );
+  t->Branch( "trig_L2_el_etOverPt" ,    &m_trig_L2_el_etOverPt );
+  t->Branch( "trig_L2_el_trkClusDeta" , &m_trig_L2_el_trkClusDeta );
+  t->Branch( "trig_L2_el_trkClusDphi" , &m_trig_L2_el_trkClusDphi );
   t->Branch( "trig_L2_el_accept",       &m_trig_L2_el_accept );
   t->Branch( "trig_EF_calo_accept",     &m_trig_EF_calo_accept);
   t->Branch( "trig_EF_el_accept",       &m_trig_EF_el_accept);
@@ -718,7 +661,6 @@ void TrigEgammaNavNtuple::linkEventBranches(TTree *t){
   
   InitBranch( t, "RunNumber",        &m_runNumber);
   InitBranch( t, "EventNumber",      &m_eventNumber);
-  InitBranch( t, "avgmu",            &m_avgmu);
 }
 
 void TrigEgammaNavNtuple::linkElectronBranches( TTree *t ){
@@ -790,8 +732,6 @@ void TrigEgammaNavNtuple::linkElectronBranches( TTree *t ){
 
 void TrigEgammaNavNtuple::linkTriggerBranches( TTree *t ){
 
-  InitBranch(t, "trig_L1_eta",             &m_trig_L1_eta);
-  InitBranch(t, "trig_L1_phi",             &m_trig_L1_phi);
   InitBranch(t, "trig_L1_emClus",          &m_trig_L1_emClus);
   InitBranch(t, "trig_L1_tauClus",         &m_trig_L1_tauClus);
   InitBranch(t, "trig_L1_emIsol",          &m_trig_L1_emIsol);
@@ -810,21 +750,22 @@ void TrigEgammaNavNtuple::linkTriggerBranches( TTree *t ){
   InitBranch(t, "trig_L2_calo_e2tsts1",    &m_trig_L2_calo_e2tsts1);
   InitBranch(t, "trig_L2_calo_wstot",      &m_trig_L2_calo_wstot);
   InitBranch(t, "trig_L2_calo_rings",      &m_trig_L2_calo_rings ); 
-  InitBranch(t, "trig_L2_calo_energySample",&m_trig_L2_calo_energySample ); 
   InitBranch(t, "trig_L2_calo_accept",     &m_trig_L2_calo_accept);
-
-  InitBranch(t, "trig_L2_el_trackAlgID" ,         &m_trig_L2_el_trackAlgID );
-  InitBranch(t, "trig_L2_el_pt" ,                 &m_trig_L2_el_pt );
-  InitBranch(t, "trig_L2_el_eta",                 &m_trig_L2_el_eta);
-  InitBranch(t, "trig_L2_el_phi",                 &m_trig_L2_el_phi );
-  InitBranch(t, "trig_L2_el_caloEta",             &m_trig_L2_el_caloEta );
-  InitBranch(t, "trig_L2_el_charge",              &m_trig_L2_el_charge);
-  InitBranch(t, "trig_L2_el_nTRTHits",            &m_trig_L2_el_nTRTHits);
-  InitBranch(t, "trig_L2_el_nTRTHiThresholdHits", &m_trig_L2_el_nTRTHiThresholdHits);
-  InitBranch(t, "trig_L2_el_etOverPt" ,           &m_trig_L2_el_etOverPt );
-  InitBranch(t, "trig_L2_el_trkClusDeta" ,        &m_trig_L2_el_trkClusDeta );
-  InitBranch(t, "trig_L2_el_trkClusDphi" ,        &m_trig_L2_el_trkClusDphi );
-
+  InitBranch(t, "trig_L2_el_pt" ,          &m_trig_L2_el_pt );
+  InitBranch(t, "trig_L2_el_eta",          &m_trig_L2_el_eta);
+  InitBranch(t, "trig_L2_el_phi",          &m_trig_L2_el_phi );
+  InitBranch(t, "trig_L2_el_charge",       &m_trig_L2_el_charge);
+  InitBranch(t, "trig_L2_el_nTRTHits",     &m_trig_L2_el_nTRTHits);
+  InitBranch(t, "trig_L2_el_rcore" ,       &m_trig_L2_el_rcore );
+  InitBranch(t, "trig_L2_el_eratio" ,      &m_trig_L2_el_eratio );
+  InitBranch(t, "trig_L2_el_ethad" ,       &m_trig_L2_el_ethad );
+  InitBranch(t, "trig_L2_el_f0" ,          &m_trig_L2_el_f0 );
+  InitBranch(t, "trig_L2_el_f1" ,          &m_trig_L2_el_f1 );
+  InitBranch(t, "trig_L2_el_f2" ,          &m_trig_L2_el_f2 );
+  InitBranch(t, "trig_L2_el_f3" ,          &m_trig_L2_el_f3 );
+  InitBranch(t, "trig_L2_el_etOverPt" ,    &m_trig_L2_el_etOverPt );
+  InitBranch(t, "trig_L2_el_trkClusDeta" , &m_trig_L2_el_trkClusDeta );
+  InitBranch(t, "trig_L2_el_trkClusDphi" , &m_trig_L2_el_trkClusDphi );
   InitBranch(t, "trig_L2_el_accept",       &m_trig_L2_el_accept );
   InitBranch(t, "trig_EF_el_accept",       &m_trig_EF_el_accept );
   InitBranch(t, "trig_EF_calo_accept",     &m_trig_EF_calo_accept );
@@ -854,7 +795,7 @@ void TrigEgammaNavNtuple::clear(){
   ///EventInfo
   m_runNumber             = 0;
   m_eventNumber           = 0;
-  m_avgmu                 = 0;
+
   ///Egamma
   m_el_et                 = -1;
   m_el_pt                 = -1;
@@ -915,8 +856,6 @@ void TrigEgammaNavNtuple::clear(){
   m_calo_phi              = -1; 
 
   ///Trigger
-  m_trig_L1_eta           = -1;
-  m_trig_L1_phi           = -1;
   m_trig_L1_emClus        = -1;
   m_trig_L1_tauClus       = -1;
   m_trig_L1_emIsol        = -1;
@@ -933,8 +872,6 @@ void TrigEgammaNavNtuple::clear(){
   m_trig_L2_calo_emaxs1   = -1;
   m_trig_L2_calo_e2tsts1  = -1;
   m_trig_L2_calo_wstot    = -1; 
-
-  m_trig_L1_accept        = false;
   m_trig_L2_calo_accept   = false;
   m_trig_L2_el_accept     = false; 
   m_trig_EF_calo_accept   = false;
@@ -956,56 +893,63 @@ void TrigEgammaNavNtuple::clear(){
   m_mc_hasWMother         = false;
 
   ///Some vectors
-  m_trig_L1_thrNames               ->clear(); 
-  m_trig_L2_calo_energySample      ->clear();
-  m_trig_L2_calo_rings             ->clear();
-
-  m_trig_L2_el_trackAlgID          ->clear(); 
-  m_trig_L2_el_eta                 ->clear(); 
-  m_trig_L2_el_phi                 ->clear(); 
-  m_trig_L2_el_caloEta             ->clear(); 
-  m_trig_L2_el_trkClusDeta         ->clear(); 
-  m_trig_L2_el_trkClusDphi         ->clear(); 
-  m_trig_L2_el_pt                  ->clear(); 
-  m_trig_L2_el_etOverPt            ->clear();         
-  m_trig_L2_el_nTRTHits            ->clear();       
-  m_trig_L2_el_nTRTHiThresholdHits ->clear();       
-  m_trig_L2_el_charge              ->clear();     
+  m_trig_L1_thrNames      ->clear(); 
+  m_trig_L2_el_pt         ->clear();   
+  m_trig_L2_el_eta        ->clear();    
+  m_trig_L2_el_phi        ->clear();    
+  m_trig_L2_el_charge     ->clear();        
+  m_trig_L2_el_nTRTHits   ->clear();          
+  m_trig_L2_el_rcore      ->clear();        
+  m_trig_L2_el_eratio     ->clear();        
+  m_trig_L2_el_ethad      ->clear();        
+  m_trig_L2_el_f0         ->clear();        
+  m_trig_L2_el_f1         ->clear();          
+  m_trig_L2_el_f2         ->clear();        
+  m_trig_L2_el_f3         ->clear();              
+  m_trig_L2_el_etOverPt   ->clear();            
+  m_trig_L2_el_trkClusDeta->clear(); 
+  m_trig_L2_el_trkClusDphi->clear(); 
 }
 
 void TrigEgammaNavNtuple::alloc_space(){
 
-  m_el_ringsE                       = new std::vector<float>();
-  m_trig_L1_thrNames                = new std::vector<std::string>();
-  m_trig_L2_calo_energySample       = new std::vector<float>();
-  m_trig_L2_calo_rings              = new std::vector<float>();
-  m_trig_L2_el_trackAlgID           = new std::vector<int>();
-  m_trig_L2_el_eta                  = new std::vector<float>();   
-  m_trig_L2_el_phi                  = new std::vector<float>();   
-  m_trig_L2_el_caloEta              = new std::vector<float>();   
-  m_trig_L2_el_trkClusDeta          = new std::vector<float>();
-  m_trig_L2_el_trkClusDphi          = new std::vector<float>();
-  m_trig_L2_el_pt                   = new std::vector<float>();   
-  m_trig_L2_el_etOverPt             = new std::vector<float>();           
-  m_trig_L2_el_nTRTHits             = new std::vector<float>();         
-  m_trig_L2_el_nTRTHiThresholdHits  = new std::vector<float>();         
-  m_trig_L2_el_charge               = new std::vector<float>();       
-  
+  m_el_ringsE              = new std::vector<float>();
+  m_trig_L1_thrNames       = new std::vector<std::string>();
+  m_trig_L2_calo_rings     = new std::vector<float>();
+  m_trig_L2_el_pt          = new std::vector<float>();  
+  m_trig_L2_el_eta         = new std::vector<float>();   
+  m_trig_L2_el_phi         = new std::vector<float>();   
+  m_trig_L2_el_charge      = new std::vector<float>();       
+  m_trig_L2_el_nTRTHits    = new std::vector<float>();         
+  m_trig_L2_el_rcore       = new std::vector<float>();       
+  m_trig_L2_el_eratio      = new std::vector<float>();       
+  m_trig_L2_el_ethad       = new std::vector<float>();       
+  m_trig_L2_el_f0          = new std::vector<float>();       
+  m_trig_L2_el_f1          = new std::vector<float>();         
+  m_trig_L2_el_f2          = new std::vector<float>();       
+  m_trig_L2_el_f3          = new std::vector<float>();             
+  m_trig_L2_el_etOverPt    = new std::vector<float>();           
+  m_trig_L2_el_trkClusDeta = new std::vector<float>();
+  m_trig_L2_el_trkClusDphi = new std::vector<float>();
+ 
 }
 
 void TrigEgammaNavNtuple::release_space(){
   delete m_el_ringsE              ;
   delete m_trig_L1_thrNames       ;
-  delete m_trig_L2_calo_energySample;
   delete m_trig_L2_calo_rings     ;
-  delete m_trig_L2_el_trackAlgID  ;
   delete m_trig_L2_el_pt          ;  
   delete m_trig_L2_el_eta         ;   
-  delete m_trig_L2_el_caloEta     ;   
   delete m_trig_L2_el_phi         ;   
   delete m_trig_L2_el_charge      ;       
   delete m_trig_L2_el_nTRTHits    ;         
-  delete m_trig_L2_el_nTRTHiThresholdHits    ;         
+  delete m_trig_L2_el_rcore       ;       
+  delete m_trig_L2_el_eratio      ;       
+  delete m_trig_L2_el_ethad       ;       
+  delete m_trig_L2_el_f0          ;       
+  delete m_trig_L2_el_f1          ;         
+  delete m_trig_L2_el_f2          ;       
+  delete m_trig_L2_el_f3          ;             
   delete m_trig_L2_el_etOverPt    ;           
   delete m_trig_L2_el_trkClusDeta ;
   delete m_trig_L2_el_trkClusDphi ;

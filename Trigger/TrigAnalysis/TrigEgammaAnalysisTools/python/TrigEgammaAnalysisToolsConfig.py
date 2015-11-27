@@ -97,24 +97,19 @@ from TrigEgammaAnalysisTools.TrigEgammaProbelist import * # to import probelist
 triggerlist = default
 #EgammaMatchTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaMatchingTool,name="TrigEgammaMatchingTool",DeltaR=0.07,L1DeltaR=0.15)
 from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
-EgammaMatchTool = Trig__TrigEgammaMatchingTool("MatchingTool")
+EgammaMatchTool = Trig__TrigEgammaMatchingTool("MatchingTool");
 ToolSvc += EgammaMatchTool
 # Base tool configuration here as example
 # All tools inherit these triggerlist properties
 # These are triggerlist in constructor as well
 # Using Factories need to set for each tool
-Util = ToolFactory(TrigEgammaAnalysisToolsConf.EfficiencyTool, name="Util")
-
 
 TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPNtuple, name ="TrigEgammaNavTPNtuple",
         DirectoryPath='NavZeeTPNtuple',
         ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        Util=Util,
+        MatchTool = EgammaMatchTool, 
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
-        isEMResultNames=["Tight","Medium","Loose"],
-        LHResultNames=["LHTight","LHMedium","LHLoose"],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         ZeeLowerMass=80,
@@ -125,7 +120,6 @@ TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPN
         OppositeCharge=True,
         OfflineTagMinEt=25,
         OfflineProbeMinEt=24,
-        CutLabels=["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"],
         TagTriggerList="e24_tight_iloose",
         TriggerList=triggerlist,
         )
@@ -133,15 +127,13 @@ TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPN
 TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtuple, name ="TrigEgammaNavNtuple",
         DirectoryPath='NavNtuple',
         ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        Util=Util,
+        MatchTool = EgammaMatchTool, 
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         TriggerList=triggerlist,
         OfflineDirectoryPath='Offline/Egamma/Ntuple', 
-        ForcePidSelection=True,
         DoOfflineDump=False,
         dR=0.07,
         )
@@ -150,11 +142,8 @@ TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgamma
         DirectoryPath='NavTPAnalysis',
         ElectronKey = 'Electrons',
         MatchTool = EgammaMatchTool,
-        Util=Util,
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
-        isEMResultNames=["Tight","Medium","Loose"],
-        LHResultNames=["LHTight","LHMedium","LHLoose"],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         ZeeLowerMass=80,
@@ -180,11 +169,8 @@ TrigEgammaNavTPJpsieeAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.Trig
          DirectoryPath='NavTPJpsieeAnalysis',
          ElectronKey = 'Electrons',
          MatchTool = EgammaMatchTool,
-         Util=Util,
          MVACalibTool=mvatool,
          ApplyMVACalib=False,
-         isEMResultNames=["Tight","Medium","Loose"],
-         LHResultNames=["LHTight","LHMedium","LHLoose"],
          ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
          ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
          ZeeLowerMass=2,
@@ -208,8 +194,7 @@ TrigEgammaNavTPJpsieeAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.Trig
 TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavAnalysisTool, name ="TrigEgammaNavAnalysisTool",
         DirectoryPath='NavAnalysis',
         ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool,
-        Util=Util,
+        MatchTool = EgammaMatchTool, 
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ForcePidSelection=True,
@@ -225,7 +210,6 @@ TrigEgammaEmulationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEmul
         DirectoryPath='Emulation',
         ElectronKey = 'Electrons',
         MatchTool = EgammaMatchTool,
-        Util=Util,
         TriggerList=triggerlist,
         PhotonOnlPPSelector=[ ToolSvc.AsgPhotonIsEMTightSelector,
             ToolSvc.AsgPhotonIsEMMediumSelector,
