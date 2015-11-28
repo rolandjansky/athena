@@ -1,9 +1,10 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
+
+///////////////////////// -*- C++ -*- /////////////////////////////
 // LumiCalcSvc.h 
 // Header file for class LumiCalcSvc
 // Author: B.Radics<radbal@cern.ch>
@@ -130,3 +131,4 @@ inline const InterfaceID& LumiCalcSvc::interfaceID()
 
 #endif //> !ATHENAKERNEL_LUMICALCSVC_H
 
+#endif
