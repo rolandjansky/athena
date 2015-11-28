@@ -17,7 +17,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Tokenizer.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
