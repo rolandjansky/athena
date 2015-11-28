@@ -21,11 +21,11 @@ if not jobproperties.HIRecExampleFlags.ppMode :
 
       rec.doRestrictedESD =               False
       
-      #turning off TopoClusters
+
       from CaloRec.CaloRecFlags import jobproperties
       #need this eventually, but for now it breaks egamma isolation
-      #jobproperties.CaloRecFlags.doCaloTopoCluster = False
-      #jobproperties.CaloRecFlags.doCaloEMTopoCluster = False
+      jobproperties.CaloRecFlags.doCaloTopoCluster = False
+      jobproperties.CaloRecFlags.doCaloEMTopoCluster = False
       jobproperties.CaloRecFlags.doCaloTopoTower = False
       
       if jobproperties.HIRecExampleFlags.doHIJetRec() and \
@@ -33,6 +33,10 @@ if not jobproperties.HIRecExampleFlags.ppMode :
          print 'AO: CaloRecFlags doCaloCluster=False'
          jobproperties.CaloRecFlags.doCaloCluster=False  # not working?
          jobproperties.CaloRecFlags.doEmCluster=False
+         #turning off TopoClusters
+         #jobproperties.CaloRecFlags.doCaloTopoCluster = False
+         #jobproperties.CaloRecFlags.doCaloEMTopoCluster = False
+      
          rec.doEgamma=False
 
       from egammaRec.egammaRecFlags import jobproperties
