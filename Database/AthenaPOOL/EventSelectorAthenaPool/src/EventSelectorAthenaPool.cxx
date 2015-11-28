@@ -435,6 +435,10 @@ StatusCode EventSelectorAthenaPool::start() {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::stop() {
+   return(StatusCode::SUCCESS);
+}
+
+void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile) const {
    if (m_processMetadata.value()) {
       if (m_evtCount >= 0) {
          if (m_headerIterator == 0 || m_headerIterator->next() == 0) {
@@ -444,23 +448,25 @@ StatusCode EventSelectorAthenaPool::stop() {
                FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
                m_incidentSvc->fireIncident(endInputFileIncident);
             }
-            // Fire EndTagFile incident
-            FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
-            m_incidentSvc->fireIncident(endTagFileIncident);
-            if (!m_tagDataStore->clearStore().isSuccess()) {
-               ATH_MSG_WARNING("Unable to clear tag MetaData Proxies");
+            // Fire EndTagFile incident if not out of file
+            if(m_inputCollectionsIterator!=m_inputCollectionsProp.value().end()) {
+               FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
+               m_incidentSvc->fireIncident(endTagFileIncident);
+               if (!m_tagDataStore->clearStore().isSuccess()) {
+                  ATH_MSG_WARNING("Unable to clear tag MetaData Proxies");
+               }
             }
          }
       }
       // Fire LastInputFile incident
-      if (m_firedIncident) {
+      if (isLastFile && m_firedIncident) {
          FileIncident lastInputFileIncident(name(), "LastInputFile", "end");
          m_incidentSvc->fireIncident(lastInputFileIncident);
          m_firedIncident = false;
       }
    }
-   return(StatusCode::SUCCESS);
 }
+
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::finalize() {
    if (!m_counterTool.empty()) {
@@ -594,31 +600,20 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          }
          delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
          // Assume that the end of collection file indicates the end of payload file.
+         fireEndFileIncidents(false);
          if (m_guid != Guid::null()) {
-            if (m_processMetadata.value()) {
-               // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(endInputFileIncident);
-            }
             // Explicitly disconnect file corresponding to old m_guid to avoid holding on to large blocks of memory
             if (!m_keepInputFilesOpen.value()) {
                m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + m_guid.toString(), IPoolSvc::kInputStream).ignore();
             }
             m_guid = Guid::null();
          }
-         if (m_processMetadata.value()) {
-            // Fire EndTagFile incident
-            FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
-            m_incidentSvc->fireIncident(endTagFileIncident);
-            if (!m_tagDataStore->clearStore().isSuccess()) {
-               ATH_MSG_WARNING("Unable to clear tag MetaData Proxies");
-            }
-         }
          // Open next file from inputCollections list.
          m_inputCollectionsIterator++;
          // Create PoolCollectionConverter for input file
          m_poolCollectionConverter = getCollectionCnv(true);
          if (m_poolCollectionConverter == 0) {
+            fireEndFileIncidents(true); //no events left, so fire LastInputFile incident
             // Return end iterator
             *rIt = *m_endIter;
             m_evtCount = -1;
@@ -656,11 +651,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
       }
       if (guid != m_guid) {
          if (m_guid != Guid::null()) {
-            if (m_processMetadata.value()) {
-               // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(endInputFileIncident);
-            }
+            fireEndFileIncidents(false);
             // Explicitly disconnect file corresponding to old m_guid to avoid holding on to large blocks of memory
             if (!m_keepInputFilesOpen.value()) {
                m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + m_guid.toString(), IPoolSvc::kInputStream).ignore();
@@ -830,6 +821,7 @@ StatusCode EventSelectorAthenaPool::seek(int evtNum) {
    if (newColl == -1) {
       m_headerIterator = 0;
       ATH_MSG_INFO("seek: Reached end of Input.");
+      fireEndFileIncidents(true);
       return(StatusCode::RECOVERABLE);
    }
    if (newColl != m_curCollection) {
