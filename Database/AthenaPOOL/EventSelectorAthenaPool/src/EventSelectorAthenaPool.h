@@ -140,6 +140,9 @@ private: // internal member functions
    /// Search for event number evtNum.
    int findEvent(int evtNum);
 
+   /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
+   void fireEndFileIncidents(bool isLastFile) const;
+
 private: // data
    EventContextAthenaPool*      m_beginIter;
    EventContextAthenaPool*      m_endIter;
@@ -222,7 +225,7 @@ private: // properties
    mutable std::vector<long> m_skipEventSequence;
 
    mutable int m_evtCount; // internal count of events
-   bool m_firedIncident;
+   mutable bool m_firedIncident;
 };
 
 #endif
