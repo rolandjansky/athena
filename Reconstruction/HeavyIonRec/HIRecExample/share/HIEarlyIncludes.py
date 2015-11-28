@@ -10,9 +10,6 @@ if rec.doMonitoring() :
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     DQMonFlags.doMissingEtMon.set_Value_and_Lock(False)
     DQMonFlags.doTauMon.set_Value_and_Lock(False)
-    DQMonFlags.doLVL1CaloMon.set_Value_and_Lock(False)
-    DQMonFlags.doCTPMon.set_Value_and_Lock(False)
-    DQMonFlags.enableLumiAccess.set_Value_and_Lock(False)
 
 #turn off some EventTags
 from RecExConfig.RecFlags import rec
