@@ -134,6 +134,16 @@ const Amg::Vector3D&
 MdtDetectorElement::normal(const Identifier& id) const
   {return _mdtRE[0]->normal(id);}
 
+const std::vector<const Trk::Surface*>&  MdtDetectorElement::surfaces() const
+{
+   // needs to be created each time because there's no clearCache() method
+   m_detectorSurfaces.clear();
+   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
+     m_detectorSurfaces.insert(m_detectorSurfaces.end(),_mdtRE[i]->surfaces().begin(),_mdtRE[i]->surfaces().end());
+   }
+   return m_detectorSurfaces;
+}
+
 MsgStream& MdtDetectorElement::msg( MSG::Level lvl ) const { return m_msg << lvl ; }
 bool MdtDetectorElement::msgLevel( MSG::Level lvl ) { return m_msg.get().level() <= lvl ; }
 

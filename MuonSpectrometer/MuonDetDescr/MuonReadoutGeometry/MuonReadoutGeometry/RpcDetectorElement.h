@@ -74,6 +74,8 @@ namespace MuonGM {
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
+    const std::vector<const Trk::Surface*>& surfaces() const;
+
     enum RpcGMRanges
       {NDoubletZ = 4}; 
     // using some trick to save space: dbz=4 if rib's chambers and doubletphi=2;
@@ -84,6 +86,8 @@ namespace MuonGM {
     int _ndbz;
     const RpcReadoutElement* _rpcVector[NDoubletZ];
     //here is the std::vector of pointers to ReadoutElements in this DetectorElement
+
+    mutable std::vector<const Trk::Surface*> m_detectorSurfaces;
   };
 
 } // namespace MuonGM

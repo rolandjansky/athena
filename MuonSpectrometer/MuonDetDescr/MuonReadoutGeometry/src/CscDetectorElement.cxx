@@ -57,13 +57,13 @@ CscDetectorElement::transform(const Identifier& id) const
 
 const Amg::Vector3D& 
 CscDetectorElement::center(const Identifier& id) const
-{
-  
-  return surface(id).center();
-}
+{return surface(id).center();}
 
 const Amg::Vector3D& 
 CscDetectorElement::normal(const Identifier& id) const
-  {return _cscre->normal(id);}
+{return _cscre->normal(id);}
+
+const std::vector<const Trk::Surface*>&  CscDetectorElement::surfaces() const
+{return _cscre->surfaces();}
 
 }

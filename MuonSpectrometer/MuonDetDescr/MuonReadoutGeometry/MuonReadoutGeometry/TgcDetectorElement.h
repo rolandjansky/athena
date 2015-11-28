@@ -62,6 +62,8 @@ public:
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
+    const std::vector<const Trk::Surface*>& surfaces() const;
+
    // access to the readout-elements in this DetectorElement
    const TgcReadoutElement* readoutElement() const {return _tgcre;}
   

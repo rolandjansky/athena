@@ -69,4 +69,8 @@ const Amg::Vector3D&
 TgcDetectorElement::normal(const Identifier& id) const
   {return _tgcre->normal(id);}
 
+const std::vector<const Trk::Surface*>& 
+TgcDetectorElement::surfaces() const
+{return _tgcre->surfaces();}
+
 }

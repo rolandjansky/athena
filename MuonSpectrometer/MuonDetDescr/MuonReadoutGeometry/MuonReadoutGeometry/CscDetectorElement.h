@@ -71,6 +71,8 @@ public:
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
+    const std::vector<const Trk::Surface*>& surfaces() const;
+
 private:
    const CscReadoutElement *_cscre;
 

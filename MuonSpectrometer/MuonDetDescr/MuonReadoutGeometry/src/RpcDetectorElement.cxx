@@ -136,5 +136,15 @@ RpcDetectorElement::center(const Identifier& id) const
 const Amg::Vector3D& 
 RpcDetectorElement::normal(const Identifier& id) const
   {return _rpcVector[0]->normal(id);}
-    
+
+const std::vector<const Trk::Surface*>&  RpcDetectorElement::surfaces() const
+{
+   // needs to be created each time because there's no clearCache() method
+   m_detectorSurfaces.clear();
+   for (unsigned int i=0; i<NDoubletZ; i++)
+     m_detectorSurfaces.insert(m_detectorSurfaces.end(),_rpcVector[i]->surfaces().begin(),_rpcVector[i]->surfaces().end());
+
+   return m_detectorSurfaces;
+}
+
 }
