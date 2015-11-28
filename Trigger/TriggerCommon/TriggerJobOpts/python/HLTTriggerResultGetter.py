@@ -118,6 +118,12 @@ class xAODConversionGetter(Configured):
         xaodconverter.HLTResultKey="HLTResult_EF"
         topSequence += xaodconverter
 
+        # define list of HLT xAOD containers to be written to the output root file
+        # (previously this was defined in HLTTriggerResultGetter def configure)
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+        self.xaodlist = {}
+        self.xaodlist.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(), 2 ))
+
         return True
     
         
@@ -297,10 +303,12 @@ class HLTTriggerResultGetter(Configured):
         if TriggerFlags.readBS():
             bs = ByteStreamUnpackGetter()
 
-        if not recAlgs.doTrigger():
-            #only convert when running on old data
-            if TriggerFlags.EDMDecodingVersion()==1:
-                xaodcnvrt = xAODConversionGetter()
+        xAODContainers = {}
+        
+#        if not recAlgs.doTrigger():            #only convert when running on old data
+        if TriggerFlags.EDMDecodingVersion()==1:
+            xaodcnvrt = xAODConversionGetter()
+            xAODContainers = xaodcnvrt.xaodlist
 
         if recAlgs.doTrigger() or TriggerFlags.doTriggerConfigOnly():
             tdt = TrigDecisionGetter()
@@ -342,7 +350,13 @@ class HLTTriggerResultGetter(Configured):
         _TriggerESDList = {}
 
         from TrigEDMConfig.TriggerEDM import getTriggerEDMList 
-        _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+        # we have to store xAOD containers in the root file, NOT AOD,
+        # if the xAOD container list is not empty
+        if(xAODContainers):
+            _TriggerESDList.update( xAODContainers )
+        else:
+            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+
         log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d" % (TriggerFlags.ESDEDMSet() ,TriggerFlags.EDMDecodingVersion()) )
 
         # AOD objects choice
