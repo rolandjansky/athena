@@ -1034,9 +1034,15 @@ if rec.doFileMetaData():
 
     #lumiblocks
     if rec.readESD() or rec.readAOD():
-        # Lumi counting tool
-        from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-        svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
+        # Lumi counting tool ... but not if in athenaMP ...
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+        if jps.ConcurrencyFlags.NumProcs>=1 or jps.ConcurrencyFlags.NumProcs==-1:
+            #athenaMP ... use the lumiblock making algorithm for now. This will be useless after skimming has occured though!
+            include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
+        else:
+            #ok to use the metadata tool if single process
+            from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
+            svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
         # Trigger tool
         ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
