@@ -22,5 +22,6 @@ addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_WideCone05","TrigM
 
 # tools for Calotag  #####Commenting out so things will run...
 #addTool("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TrackIsolationTool", "TrigMuSuperEF_TrackIsolationTool")
-#addTool("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_MuonCaloTagTool", "TrigMuSuperEF_MuonCaloTagTool")
-#addTool("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TrackDepositInCaloTool", "TrigMuSuperEF_TrackDepositInCaloTool")
+addTool("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_MuonCaloTagTool", "TrigMuSuperEF_MuonCaloTagTool")
+addTool("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TrackDepositInCaloTool", "TrigMuSuperEF_TrackDepositInCaloTool")
+addTool("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_CaloTrkSelectorTool", "TrigMuSuperEF_CaloTrkSelectorTool")
