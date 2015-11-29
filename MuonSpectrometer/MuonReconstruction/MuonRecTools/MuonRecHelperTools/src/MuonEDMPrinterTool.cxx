@@ -46,7 +46,8 @@ namespace Muon {
     : AthAlgTool(ty,na,pa), 
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
+      m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
+      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   {
     declareInterface<MuonEDMPrinterTool>(this);
     declareProperty( "MuonIdHelperTool",    m_idHelper);
@@ -198,7 +199,12 @@ namespace Muon {
 	idStrings.push_back(idStr);
 	if ( idStr.length() > idWidth ) idWidth = idStr.length();
 	// Data part
+        const Trk::TrackParameters* trackParameters = (*it)->trackParameters();
 	std::string dataStr = printData(*m);
+        if (trackParameters) {
+          const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(m, trackParameters, Trk::ResidualPull::Unbiased);
+          if (resPull) dataStr += print(*resPull);
+        }
 	if ( (*it)->type(Trk::TrackStateOnSurface::Outlier) ) {
 	  dataStr += " (Outlier)";
 	} else if ( (*it)->type(Trk::TrackStateOnSurface::Hole) ) {
@@ -762,9 +768,9 @@ namespace Muon {
     const std::vector<double>& residual = resPull.residual(); 
     const std::vector<double>& pull = resPull.pull(); 
     for( unsigned int i=0;i<residual.size();++i ) {
-      if( residual[i] != 999. && residual[i] != -999. ) sout << std::setprecision(3) << std::setw(8) << residual[i] << "  ";
+      if( residual[i] != 999. && residual[i] != -999. ) sout << " residual " << std::setprecision(3) << std::setw(8) << residual[i] << "  ";
     }
-    sout << " pulls ";
+    sout << " pull ";
     for( unsigned int i=0;i<pull.size();++i ) sout << std::setprecision(3) << std::setw(8) << pull[i] << "  ";
     return sout.str();
   }
@@ -790,7 +796,8 @@ namespace Muon {
       // add drift time for MDT
       const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
       if (mdt) {
-	sout << "  r_drift " << std::fixed << std::setprecision(2) << std::setw(5) << mdt->driftRadius();
+        double error = std::sqrt(measurement.localCovariance()(0,0));
+	sout << "  r_drift " << std::fixed << std::setprecision(2) << std::setw(5) << mdt->driftRadius() << " error " <<  std::fixed << std::setprecision(2) << std::setw(5) << error ;
       } else {
 	// add time for RPC
 	const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(rot);
