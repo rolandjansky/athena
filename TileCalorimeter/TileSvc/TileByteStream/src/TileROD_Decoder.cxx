@@ -4002,8 +4002,10 @@ void TileROD_Decoder::unpack_frag40( uint32_t collid, uint32_t version, const ui
   int ros=(collid>>8);
   int drawer=collid&0xff;
   HWIdentifier drawerID = m_tileHWID->drawer_id(ros,drawer);
-  int nchan = 4; // FIXME:  should be different for barrel and ext.barrel, now assuming that only ext.barrel exist
-  int nsamp = datasize / 8; // FIXME: should be changed for barrel 
+  int nsamp = 7; // assume fixed number of samples for the moment
+  int nmod = (ros>2)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
+  int nchan = 4 * datasize / nmod / nsamp; // factor 4 because in one 32-bit word we have 4 samples
+
   int nsamp1 = nsamp-1;
   
   std::vector<float> digits(nsamp);
@@ -4016,12 +4018,13 @@ void TileROD_Decoder::unpack_frag40( uint32_t collid, uint32_t version, const ui
   // Note that order of samples is inversed with respect to time line, 
   // i.e. first sample from data should go to the last sample in TileDigits vector
 
-  int wpos=(collid&7)<<2;
+  int wpos=(collid%nmod)*nchan; // location of first sample for given channel in given module
+  int jump = nchan*nmod; // distance between samples for one channel in number of bytes
   const unsigned char * adc = reinterpret_cast<const unsigned char *>(p);
 
   for (int i=0; i<nchan; ++i) {
     for (int j=0; j<nsamp; ++j) {
-      digits[nsamp1-j] = adc[wpos+32*j];
+      digits[nsamp1-j] = adc[wpos+jump*j];
     }
     ++wpos;
     HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
@@ -4055,9 +4058,10 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
   HWIdentifier drawerID = m_tileHWID->drawer_id(ros,drawer);
   float calFactorADC2MeV = 1.0;
 
-  int nchan = datasize/8; // we have 8 modules in fragment, number of channels per module is 8 times smaller
+  int nmod = (ros>2)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
+  int nchan = datasize / nmod;
 
-  int wpos=(collid&7)<<2;
+  int wpos=(collid%nmod)*nchan;
 
   if (version == 0) {
 
