@@ -63,8 +63,6 @@ class TileRawChannelBuilderMF;
 #include <string>
 #include <vector>
 
-// missing includes
-
 class TilePulseForTileMuonReceiver: public AthAlgorithm {
   public:
     // constructor
@@ -95,7 +93,7 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     int nSamp;          //!< Number of time slices for each channel
     int iTrig;          //!< Index of the triggering time slice
     int adcMax;         //!< ADC saturation value
-    double tileThresh;     //!< Actual threshold value
+    double tileThresh;  //!< Actual threshold value
 
     // This is used when loading a pulse from db
     //
