@@ -78,104 +78,117 @@ StatusCode TileMuonReceiverReadCnt::execute() {
 
   // step1: read the tile muon receiver container from TES
   //
-  const TileMuonReceiverContainer *container0;
-  CHECK(evtStore()->retrieve(container0, m_TileMuRcvContainer));
- 
-  ATH_MSG_INFO( "Reading the TileMuRcvContainer: " << m_TileMuRcvContainer);
+  const TileMuonReceiverContainer *container0 = evtStore()->tryConstRetrieve<TileMuonReceiverContainer>(m_TileMuRcvContainer);
+  if (container0) {
 
-  // step2: check the number of entries that should be 128 per event
-  //
-  int nentries = container0->size();
-  ATH_MSG_INFO( "--- The number of container elements in " <<  m_TileMuRcvContainer << " is " << nentries );
+    ATH_MSG_INFO( "Reading the TileMuRcvContainer: " << m_TileMuRcvContainer);
 
-  // step3: check container contents
-  //
-  TileMuonReceiverContainer::const_iterator it = container0->begin();
-  TileMuonReceiverContainer::const_iterator itLast = container0->end();
+    // step2: check the number of entries that should be 128 per event
+    //
+    int nentries = container0->size();
+    ATH_MSG_INFO( "--- The number of container elements in " <<  m_TileMuRcvContainer << " is " << nentries );
 
-  for (; it != itLast; ++it) {
+    // step3: check container contents
+    //
+    TileMuonReceiverContainer::const_iterator it = container0->begin();
+    TileMuonReceiverContainer::const_iterator itLast = container0->end();
 
-    const TileMuonReceiverObj * obj = (*it);
+    for (; it != itLast; ++it) {
 
-    int id = obj->GetID();
-    ATH_MSG_INFO( "+-- Identifier of module: 0x" <<MSG::hex<< id <<MSG::dec<< " ros:" << (id>>8) << " module:"<< (id&0xff));
+      const TileMuonReceiverObj * obj = (*it);
 
-    // -- read thresholds
-    const std::vector<float> & thresh = obj->GetThresholds();
-    if (thresh.size()>=4)
-      ATH_MSG_INFO( "--- thresholds' vector size : " << thresh.size() << " value: " << thresh[0] << " " << thresh[1] << " " << thresh[2] << " " << thresh[3] );
-    else
-      ATH_MSG_DEBUG( "--- thresholds' vector size : " << thresh.size() );
+      int id = obj->GetID();
+      ATH_MSG_INFO( "+-- Identifier of module: 0x" <<MSG::hex<< id <<MSG::dec<< " ros:" << (id>>8) << " module:"<< (id&0xff));
 
-    // -- read energy
-    const std::vector<float> & ene = obj->GetEne(); 
-    if (ene.size()==2)
-      ATH_MSG_INFO( "--- energy vector size : " << ene.size() << " value: " << ene[0] << " " << ene[1] );
-    else
-      ATH_MSG_DEBUG( "--- energy vector size : " << ene.size() ); 
+      // -- read thresholds
+      const std::vector<float> & thresh = obj->GetThresholds();
+      if (thresh.size()>=4)
+        ATH_MSG_INFO( "--- thresholds' vector size : " << thresh.size() << " value: " << thresh[0] << " " << thresh[1] << " " << thresh[2] << " " << thresh[3] );
+      else
+        ATH_MSG_DEBUG( "--- thresholds' vector size : " << thresh.size() );
 
-    // -- read time
-    const std::vector<float> & time = obj->GetTime(); 
-    if (time.size()>=2)
-      ATH_MSG_INFO( "--- time vector size : " << time.size() << " value: " << time[0] << " " << time[1] );
-    else
-      ATH_MSG_DEBUG( "--- time vector size : " << time.size() );
+      // -- read energy
+      const std::vector<float> & ene = obj->GetEne(); 
+      if (ene.size()==2)
+        ATH_MSG_INFO( "--- energy vector size : " << ene.size() << " value: " << ene[0] << " " << ene[1] );
+      else
+        ATH_MSG_DEBUG( "--- energy vector size : " << ene.size() ); 
 
-    // -- read decision
-    const std::vector<bool> & decision = obj->GetDecision(); 
-    if (decision.size()>=4)
-      ATH_MSG_INFO( "--- decision vector size : " << decision.size() << " value: " << decision[0] << " " << decision[1] << " " << decision[2] << " " << decision[3] ); 
-    else
-      ATH_MSG_DEBUG( "--- decision vector size : " << decision.size() ); 
+      // -- read time
+      const std::vector<float> & time = obj->GetTime(); 
+      if (time.size()>=2)
+        ATH_MSG_INFO( "--- time vector size : " << time.size() << " value: " << time[0] << " " << time[1] );
+      else
+        ATH_MSG_DEBUG( "--- time vector size : " << time.size() );
 
+      // -- read decision
+      const std::vector<bool> & decision = obj->GetDecision(); 
+      if (decision.size()>=4)
+        ATH_MSG_INFO( "--- decision vector size : " << decision.size() << " value: " << decision[0] << " " << decision[1] << " " << decision[2] << " " << decision[3] ); 
+      else
+        ATH_MSG_DEBUG( "--- decision vector size : " << decision.size() ); 
+    }
+  } else {
+    ATH_MSG_INFO("Container " << m_TileMuRcvContainer << " not found") ;
   }
 
-  const TileRawChannelContainer *container1;
-  CHECK(evtStore()->retrieve(container1, m_TileRawChannelContainer));
+  const TileRawChannelContainer *container1 = evtStore()->tryConstRetrieve<TileRawChannelContainer>("TileRawChannelCnt");
+  container1 = evtStore()->tryConstRetrieve<TileRawChannelContainer>(m_TileRawChannelContainer);
+  if (container1) {
 
-  ATH_MSG_INFO( "Reading the TileRawChannelContainer: " << m_TileRawChannelContainer);
+    const float TMDB_AMPLITUDE_FACTOR = 1.0;
 
-  TileRawChannelContainer::const_iterator collItr1  = container1->begin(); 
-  TileRawChannelContainer::const_iterator lastColl1 = container1->end();
+    ATH_MSG_INFO( "Reading the TileRawChannelContainer: " << m_TileRawChannelContainer);
 
-  for ( ; collItr1 != lastColl1; ++collItr1 ){
-    TileRawChannelCollection::const_iterator chanItr1  = (*collItr1)->begin();
-    TileRawChannelCollection::const_iterator lastChan1 = (*collItr1)->end();
-    if (chanItr1==lastChan1) continue;
-    int frag_id = (*collItr1)->identify();
-    int ros=frag_id>>8;
-    int drawer=(frag_id&0xFF);
-    for ( ; chanItr1 != lastChan1; ++chanItr1 ){
-      HWIdentifier hwid = (*chanItr1)->adc_HWID() ;
-      int channel       = m_tileHWID->channel(hwid) ;
-      ATH_MSG_INFO("+-- hwid   : " << m_tileHWID->to_string(hwid,-1)) ;
-      ATH_MSG_INFO("---- channel: " << channel << " ros: " << ros << " drawer: " << drawer<< " E[MeV]: " <<(*chanItr1)->amplitude()<<" t[ns]: "<<(*chanItr1)->time()<<" QF: "<<(*chanItr1)->quality());
+    TileRawChannelContainer::const_iterator collItr1  = container1->begin(); 
+    TileRawChannelContainer::const_iterator lastColl1 = container1->end();
+
+    for ( ; collItr1 != lastColl1; ++collItr1 ){
+      TileRawChannelCollection::const_iterator chanItr1  = (*collItr1)->begin();
+      TileRawChannelCollection::const_iterator lastChan1 = (*collItr1)->end();
+      if (chanItr1==lastChan1) continue;
+      int frag_id = (*collItr1)->identify();
+      int ros=frag_id>>8;
+      int drawer=(frag_id&0xFF);
+      for ( ; chanItr1 != lastChan1; ++chanItr1 ){
+        HWIdentifier hwid = (*chanItr1)->adc_HWID() ;
+        int channel       = m_tileHWID->channel(hwid) ;
+        ATH_MSG_INFO("+-- hwid   : " << m_tileHWID->to_string(hwid,-1)) ;
+        //ATH_MSG_INFO("---- channel: " << channel << " ros: " << ros << " drawer: " << drawer<< " E[MeV]: " <<(*chanItr1)->amplitude()<<" t[ns]: "<<(*chanItr1)->time()<<" QF: "<<(*chanItr1)->quality());
+        ATH_MSG_INFO("---- channel: " << channel << " ros: " << ros << " drawer: " << drawer<< " E[MeV]: " <<lround((*chanItr1)->amplitude()*TMDB_AMPLITUDE_FACTOR));
+      }
     }
+  } else {
+    ATH_MSG_INFO("Container " << m_TileRawChannelContainer << " not found") ;
   }
+  
+  const TileDigitsContainer *container2 = evtStore()->tryConstRetrieve<TileDigitsContainer>("TileDigitsCnt");
+  container2 = evtStore()->tryConstRetrieve<TileDigitsContainer>(m_TileDigitsContainer);
+  if (container2) {
 
-  const TileDigitsContainer *container2;
-  CHECK(evtStore()->retrieve(container2, m_TileDigitsContainer));
+    TileDigitsContainer::const_iterator collItr2  = container2->begin(); 
+    TileDigitsContainer::const_iterator lastColl2 = container2->end();
 
-  TileDigitsContainer::const_iterator collItr2  = container2->begin(); 
-  TileDigitsContainer::const_iterator lastColl2 = container2->end();
+    ATH_MSG_INFO( "Reading the TileDigitsContainer: " << m_TileDigitsContainer);
 
-  ATH_MSG_INFO( "Reading the TileDigitsContainer: " << m_TileDigitsContainer);
-
-  for ( ; collItr2 != lastColl2; ++collItr2 ){
-    TileDigitsCollection::const_iterator chanItr2  = (*collItr2)->begin();
-    TileDigitsCollection::const_iterator lastChan2 = (*collItr2)->end();
-    if (chanItr2==lastChan2) continue;
-    int frag_id = (*collItr2)->identify();
-    int ros=frag_id>>8;
-    int drawer=(frag_id&0xFF);
-    for ( ; chanItr2 != lastChan2; ++chanItr2 ){
-      HWIdentifier hwid = (*chanItr2)->adc_HWID() ;
-      int channel       = m_tileHWID->channel(hwid) ;
-      ATH_MSG_INFO("+-- hwid    : " << m_tileHWID->to_string(hwid,-1)) ;
-      ATH_MSG_INFO("---- channel : " << channel << " ros: " << ros << " drawer: " << drawer);
-      const std::vector<float> digits = (*chanItr2)->samples();
-      for (uint ismp=0;ismp<digits.size();ismp++) ATH_MSG_INFO( "----- sample " << ismp << ": " << digits.at(ismp));
+    for ( ; collItr2 != lastColl2; ++collItr2 ){
+      TileDigitsCollection::const_iterator chanItr2  = (*collItr2)->begin();
+      TileDigitsCollection::const_iterator lastChan2 = (*collItr2)->end();
+      if (chanItr2==lastChan2) continue;
+      int frag_id = (*collItr2)->identify();
+      int ros=frag_id>>8;
+      int drawer=(frag_id&0xFF);
+      for ( ; chanItr2 != lastChan2; ++chanItr2 ){
+        HWIdentifier hwid = (*chanItr2)->adc_HWID() ;
+        int channel       = m_tileHWID->channel(hwid) ;
+        ATH_MSG_INFO("+-- hwid    : " << m_tileHWID->to_string(hwid,-1)) ;
+        ATH_MSG_INFO("---- channel : " << channel << " ros: " << ros << " drawer: " << drawer);
+        const std::vector<float> digits = (*chanItr2)->samples();
+        for (uint ismp=0;ismp<digits.size();ismp++) ATH_MSG_INFO( "----- sample " << ismp << ": " << digits.at(ismp));
+      }
     }
+  } else {
+    ATH_MSG_INFO("Container " << m_TileDigitsContainer << " not found") ;
   }
 
   // Execution completed.
