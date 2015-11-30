@@ -72,14 +72,29 @@ if doTileDigitsFromPulse:
 
 if doTileDigitToRawChannel:
     
-    # Reconstruction method: OF2 (default in full ATLAS reco)
-    from TileRecUtils.TileRecFlags import jobproperties
-    jobproperties.TileRecFlags.doTileFit = False
-    jobproperties.TileRecFlags.doTileManyAmps = False
-    jobproperties.TileRecFlags.doTileOpt = False
-    if jobproperties.Beam.beamType == 'collisions': 
-        jobproperties.TileRecFlags.doTileOptATLAS = True
+    #from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+    #RUN1=(geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    OF2asDefault=True
 
+    # Reconstruction method: COF or OF2-NI for collisions, OF2-I for cosmics  
+    from TileRecUtils.TileRecFlags import jobproperties
+    if not (jobproperties.TileRecFlags.doTileFlat        \
+            or jobproperties.TileRecFlags.doTileFit      \
+            or jobproperties.TileRecFlags.doTileFitCool  \
+            or jobproperties.TileRecFlags.doTileOpt      \
+            or jobproperties.TileRecFlags.doTileOF1      \
+            or jobproperties.TileRecFlags.doTileOpt2     \
+            or jobproperties.TileRecFlags.doTileOptATLAS \
+            or jobproperties.TileRecFlags.doTileMF):
+        if jobproperties.Beam.beamType == 'collisions':
+            if OF2asDefault: 
+                jobproperties.TileRecFlags.doTileOptATLAS = True
+            else:
+                jobproperties.TileRecFlags.doTileMF = True
+        else:
+            jobproperties.TileRecFlags.doTileOpt2 = True
+    
+    if jobproperties.Beam.beamType == 'collisions':
         if jobproperties.Beam.bunchSpacing.get_Value()<75:
             from Digitization.DigitizationFlags import digitizationFlags
             halfBS=float(digitizationFlags.bunchSpacing.get_Value())
@@ -105,17 +120,46 @@ if doTileDigitToRawChannel:
                 mlog.info("Setting max/min time for parabolic correction to +/- %4.1f ns" % halfBS)
                 jobproperties.TileRecFlags.TimeMinForAmpCorrection = -halfBS
                 jobproperties.TileRecFlags.TimeMaxForAmpCorrection = halfBS
-    else: 
-        jobproperties.TileRecFlags.doTileOpt2 = True
     
     from TileRecUtils.TileRawChannelGetter import *
     theTileRawChannelGetter=TileRawChannelGetter()
     
     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelCnt"
+    # make sure that only one output container has default name "TileRawChannelCnt"
     if jobproperties.Beam.beamType == 'collisions': 
-        ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+        if OF2asDefault:
+            if jobproperties.TileRecFlags.doTileOptATLAS():
+                ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                if jobproperties.TileRecFlags.doTileMF():
+                    ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
+                if jobproperties.TileRecFlags.doTileOpt2():
+                    ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = "TileRawChannelOpt2"
+            elif jobproperties.TileRecFlags.doTileMF():
+                ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+            elif jobproperties.TileRecFlags.doTileOpt2():
+                ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+        else:
+            if jobproperties.TileRecFlags.doTileMF():
+                ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+                if jobproperties.TileRecFlags.doTileOptATLAS():
+                    ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
+                if jobproperties.TileRecFlags.doTileOpt2():
+                    ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = "TileRawChannelOpt2"
+            elif jobproperties.TileRecFlags.doTileOptATLAS():
+                ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+            elif jobproperties.TileRecFlags.doTileOpt2():
+                ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
     else:
-        ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+        if jobproperties.TileRecFlags.doTileOpt2():
+            ToolSvc.TileRawChannelBuilderOpt2Filter.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+            if jobproperties.TileRecFlags.doTileMF():
+                ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = "TileRawChannelMF"
+            if jobproperties.TileRecFlags.doTileOptATLAS():
+                ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = "TileRawChannelFixed"
+        elif jobproperties.TileRecFlags.doTileOptATLAS():
+            ToolSvc.TileRawChannelBuilderOptATLAS.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
+        elif jobproperties.TileRecFlags.doTileMF():
+            ToolSvc.TileRawChannelBuilderMF.TileRawChannelContainer = jobproperties.TileRecFlags.TileRawChannelContainer()
 
 
 if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
