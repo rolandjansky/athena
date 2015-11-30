@@ -10,7 +10,6 @@ use AtlasBoost          AtlasBoost-*             External
 use DataCollection      DataCollection-*         External
 use GaudiInterface      GaudiInterface-*         External
 use HLTtdaqcommon       HLTtdaqcommon-*          HLT/HLTExternal
-use HLTtdaq             HLTtdaq-*                HLT/HLTExternal
 
 library TrigPSC *.cxx
 apply_pattern linked_library
@@ -23,7 +22,6 @@ use AtlasPython         AtlasPython-*            External
 use PathResolver        PathResolver-*           Tools
 use TrigKernel          TrigKernel-*             HLT/Trigger/TrigControl
 use TrigConfBase        TrigConfBase-*           Trigger/TrigConfiguration
-#use IOVDbSvc            IOVDbSvc-*               Database
 use RDBAccessSvc        RDBAccessSvc-*           Database/AthenaPOOL
 use AtlasCORAL          AtlasCORAL-*             External
 

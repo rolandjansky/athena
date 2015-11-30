@@ -17,9 +17,6 @@
 #include "hltinterface/HLTInterface.h"
 #include "hltinterface/EventId.h"
 
-// TDAQ includes
-#include "threads/ThreadData.h"
-
 // Gaudi Includes
 #include "GaudiKernel/StatusCode.h"
 
