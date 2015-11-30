@@ -22,7 +22,7 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
@@ -44,7 +44,7 @@ TileRawChannelContByteStreamCnv::TileRawChannelContByteStreamCnv(ISvcLocator* sv
   , m_tool("TileRawChannelContByteStreamTool")
   , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
   , m_byteStreamCnvSvc(0)
-  , m_storeGate("StoreGateSvc", m_name)
+  , m_activeStore("ActiveStoreSvc", m_name)
   , m_robSvc("ROBDataProviderSvc", m_name)
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
@@ -96,7 +96,7 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
     incSvc->addListener(this, "StoreCleared");
   }
 
-  CHECK( m_storeGate.retrieve() );
+  CHECK( m_activeStore.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -156,7 +156,7 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
     ATH_MSG_DEBUG( "Creating Container " << *(pRE_Addr->par()) );  
 
     if (isTMDB) {
-      CHECK( m_storeGate->record( m_containers[icnt], "MuRcvRawChCnt" ) );
+      CHECK( m_activeStore->activeStore()->record( m_containers[icnt], "MuRcvRawChCnt" ) );
     } else {
       pObj = SG::asStorable( m_containers[icnt] ) ;
     }
@@ -214,7 +214,7 @@ void TileRawChannelContByteStreamCnv::handle(const Incident& incident) {
 
   if (incident.type() == "StoreCleared") {
     if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)) {
-      if (inc->store() == &*m_storeGate) {
+      if (inc->store() == m_activeStore->activeStore()) {
         for (TileRawChannelContainer* rawChannelContainer : m_containers){
           for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
             const_cast<TileRawChannelCollection*>(rawChannelCollection)->clear();
