@@ -484,8 +484,11 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
       unsigned char * adc;
       unsigned short * result;
       int tmdb_ch1 = std::min(5U,((robsourceid)>>16)&0xF);
-      int tmdb_ch2 = (((robsourceid))&0xF)<<3;
-      const char * dr56rl[4] = { "D5-L","D5-R","D6-L","D6-R" };
+      int nmod = (tmdb_ch1>2)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
+      int tmdb_ch2 = (((robsourceid))&0xF)*nmod;
+      const char * dr56EB[10] = { "D5-L","D5-R","D6-L","D6-R","D4-L","D4-R","XX-X","XX-X","XX-X","XX-X" };
+      const char * dr56LB[10] = { "D0-x","D1-L","D1-R","D2-L","D2-R","D3-L","D3-R","B8-L","B8-R","XX-X" };
+      const char ** dr56rl = ((tmdb_ch1>2)) ? dr56EB : dr56LB;
       const char * ch11[6] = { "AUX","LBA","LBC","EBA","EBC","UNK" };
       const char * ch12[6] = { "aux","lba","lbc","eba","ebc","unk" };
       const char * dr56hl[4] = {" D6L "," D6H "," D56L"," D56H"};
@@ -494,6 +497,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
       std::cout << std::hex << std::endl << tit[type&3] <<" fragment 0x" << type << " vers 0x"<< id << ", "
                 << std::dec << size << " words found"<< std::endl << std::endl;
 
+      int nchmod = 4;
       int nsamp = 7;
       int nch = 32;
       int ntd = 3;
@@ -501,7 +505,9 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
       switch (type) {
 
         case 0x40: 
-            nsamp=4*size/nch;
+            //nsamp=4*size/nch; // here we assume that number of channels is fixed - doesn't work for simulated data
+            nch=4*size/nsamp; // instead of assuming fixed number of channels assume fixed number of samples
+            nchmod = nch/nmod;
             std::cout << "ch      cell   ";
             for (int ind=nsamp; ind>0; --ind) {
               std::cout << "    S"<<ind;
@@ -510,27 +516,30 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             adc = reinterpret_cast<unsigned char *>(data);
             for (int pword=0;pword<nch;++pword) {
               std::cout << std::setw(2) << pword << " | " << ch11[tmdb_ch1] <<std::setfill('0')<<std::setw(2) <<tmdb_ch2+count
-                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword%4];
+                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[std::min(9,pword%nchmod)];
               for (int ind=nsamp-1; ind>-1; --ind) {
-                std::cout << " | " << std::setw(3) << (  static_cast<unsigned>(adc[pword+32*ind]) );
+                std::cout << " | " << std::setw(3) << (  static_cast<unsigned>(adc[pword+nch*ind]) );
               }
               std::cout << std::endl;
-              if (pword%4==3) count+=1;
+              if ((pword+1)%nchmod==0) count+=1;
             }
             break;
 
         case 0x41: 
+            nch = size; // one word per channel
+            nchmod = nch/nmod;
             std::cout << "ch      cell      energy" << std::endl; 
             for (int pword=0;pword<size;++pword) {
               std::cout << std::setw(2) << pword<< " | " << ch11[tmdb_ch1] <<std::setfill('0')<<std::setw(2) <<tmdb_ch2+count
-                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[pword%4]
+                        << "-" <<std::setfill(' ')<<std::setw(4)<<dr56rl[std::min(9,pword%nchmod)]
                         << " | "<< std::setw(6) << static_cast<int>(data[pword])
                         <<  std::endl;
-              if (pword%4==3) count+=1;
+              if ((pword+1)%nchmod==0) count+=1;
             }
             break;
 
         case 0x42:
+            nchmod = nch/nmod;
             std::cout << "nn   name   " << dr56hl[3] << dr56hl[2]
                       << dr56hl[1] << dr56hl[0] << std::endl; 
             result = reinterpret_cast<unsigned short *>(data);
