@@ -83,7 +83,7 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
   declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0.01,  
       "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV ) ");
   
-  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 0.65,
+  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 0.75,
       "Maximum fraction of tube hits for vertices with TRT tracks");
   
 
