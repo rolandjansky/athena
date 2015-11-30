@@ -21,7 +21,7 @@ class DataObject;
 class StatusCode;
 class IAddressCreator;
 class IByteStreamEventAccess;
-class StoreGateSvc; 
+class ActiveStoreSvc;
 class MsgStream; 
 class TileDigitsContainer; 
 class TileDigitsContByteStreamTool;
@@ -85,7 +85,7 @@ class TileDigitsContByteStreamCnv
     ByteStreamCnvSvc* m_byteStreamCnvSvc;
     
     /** Pointer to StoreGateSvc */
-    ServiceHandle<StoreGateSvc> m_storeGate; 
+    ServiceHandle<ActiveStoreSvc> m_activeStore; 
     
     /** Pointer to IROBDataProviderSvc */
     ServiceHandle<IROBDataProviderSvc> m_robSvc;
