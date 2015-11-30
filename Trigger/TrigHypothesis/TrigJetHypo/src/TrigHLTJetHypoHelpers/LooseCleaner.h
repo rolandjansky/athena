@@ -16,7 +16,7 @@
 // ********************************************************************
 //
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h" //ICleaner
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "xAODJet/Jet.h"
 
 class LooseCleaner: public ICleaner{
@@ -29,6 +29,8 @@ class LooseCleaner: public ICleaner{
                float hecfLooseThreshold);
   
   bool operator()(const xAOD::Jet* jet) const override;
+  std::string toString() const noexcept override;
+  std::string getName() const noexcept override;
 
  private:
   float m_fSampMaxLooseThreshold;

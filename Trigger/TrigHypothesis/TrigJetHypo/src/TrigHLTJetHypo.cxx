@@ -14,7 +14,6 @@
 
 #include <algorithm>
 #include <sstream>
-// #include <cmath>
 #include <stdexcept>
 #include <memory>
 //
@@ -24,7 +23,6 @@
 
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigJetHypo/TrigHLTJetHypo.h"
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
@@ -33,13 +31,19 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TrigSteeringEvent/TrigPassBits.h"
-#include "./TrigHLTJetHypoHelpers/matcherFactory.h"
-#include "./TrigHLTJetHypoHelpers/cleanerFactory.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/matcherFactoryFactory.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
+#include "./TrigHLTJetHypoHelpers/conditionsFactory.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ConditionsSorter.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
 
 
-TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name, ISvcLocator* pSvcLocator):
+#include <memory>
+
+TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
+			       ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
-
   
   m_accepted=0;
   m_rejected=0;
@@ -53,11 +57,21 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("EtThresholds",   m_EtThresholds ); // Default: 40 GeV
   declareProperty("eta_mins",   m_etaMins);
   declareProperty("eta_maxs",   m_etaMaxs);
- 
+
+  //TLA style jet indices
+  declareProperty("ystar_mins", m_ystarMins);
+  declareProperty("ystar_maxs", m_ystarMaxs);
+  declareProperty("mass_mins", m_massMins);
+  declareProperty("mass_maxs", m_massMaxs);
+  declareProperty("jetvec_indices",   m_jetvec_indices);
+
   // cleaning
   declareProperty("cleaningAlg", m_cleaningAlg = "noCleaning");
+
+  // matching. Legal: maximumBipartite, orderedCollections, selectedJets
   declareProperty("matchingAlg", m_matchingAlg = "maximumBipartite");
-  //basic cleaning  
+ 
+ //basic cleaning  
   declareProperty("n90CleaningThreshold", m_n90Threshold = 2 );
   declareProperty("presamplerCleaningThreshold", m_presamplerThreshold = 0.9 );
   declareProperty("negativeECleaningThreshold", m_negativeEThreshold = -60e3 ); // 60 GeV
@@ -84,7 +98,7 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("HECfLlpThreshold", m_hecfLlpThreshold = 0.5 );
   declareProperty("HECQLlpThreshold", m_hecfLlpThreshold = 0.5 );
   declareProperty("AverageLArQFLlpThreshold", m_avLarQFLlpThreshold = 0.8*65535 );
-
+ 
 
   declareMonitoredVariable("CutCounter", m_cutCounter);
 
@@ -114,46 +128,127 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
     m_timers.push_back(tmp);
   }
 
-  if (m_EtThresholds.size() != m_etaMins.size() or
-      m_EtThresholds.size() != m_etaMaxs.size()){
+  std::vector<std::string> v {"orderedCollections", "maximumBipartite"};
+  if (std::find(v.begin(), v.end(), m_matchingAlg) != v.end()){
 
+    if (m_EtThresholds.size() != m_etaMins.size() or
+	m_EtThresholds.size() != m_etaMaxs.size()){
+
+      msg() << MSG::ERROR
+	    << name()
+	    << ": mismatch between number of thresholds and eta min, max boundaries: "
+	    << m_EtThresholds.size() << " "
+	    << m_etaMins.size() << " "
+	    << m_etaMaxs.size() << " "
+	    << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
+    }
+  }
+
+  if (m_matchingAlg == "selectedJets") {
+    if (m_etaMins.size() != m_etaMaxs.size() or
+	m_etaMins.size() != m_ystarMins.size() or
+	m_etaMins.size() != m_ystarMaxs.size() or
+	m_etaMins.size() != m_massMins.size() or
+	m_etaMins.size() != m_massMaxs.size()){
+
+
+      msg() << MSG::ERROR
+	    << name()
+	    << ": size mismatch: "
+	    << "eta_mins" <<  m_etaMins.size() << " "
+	    << "eta_maxs"  <<  m_etaMaxs.size() << " "
+	    << "ystar_mins" <<  m_ystarMins.size() << " "
+	    << "ystar_maxs" <<  m_ystarMaxs.size() << " "
+	    << "mass_mins" <<  m_massMins.size() << " "
+	    << "mass_maxs" <<  m_massMaxs.size() << " "
+	    << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
+    }
+  }
+
+  if(m_matchingAlg == "orderedCollections"){
+    if (std::set<double>(m_etaMins.cbegin(), m_etaMins.cend()).size() != 1){
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
+    }      
+    if (std::set<double>(m_etaMaxs.cbegin(), m_etaMaxs.cend()).size() != 1){
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
+    }      
+  }
+
+  std::vector<std::string> vv {"orderedCollections", "maximumBipartite"};
+
+  Conditions conditions;
+  std::shared_ptr<IMatcherFactory> matcherFactory;
+
+  if (std::find(vv.begin(), vv.end(), m_matchingAlg) != vv.end()){
+    conditions =  conditionsFactory(m_etaMins,
+				    m_etaMaxs,
+				    m_EtThresholds);
+    std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
+    matcherFactory = matcherFactoryFactory(conditions, m_matchingAlg);
+  } else if (m_matchingAlg == "selectedJets") {
+    conditions =  conditionsFactory(m_etaMins, m_etaMaxs,
+				    m_ystarMins, m_ystarMaxs,
+				    m_massMins, m_massMaxs);
+    std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
+    matcherFactory = matcherFactoryFactory(conditions,
+					   m_jetvec_indices,
+					   m_matchingAlg);
+  } else {
     msg() << MSG::ERROR
           << name()
-          << ": mismatch between number of thresholds and eta min, max boundaries: "
-          << m_EtThresholds.size() << " "
-          << m_etaMins.size() << " "
-          << m_etaMaxs.size() << " "
+          << ": unknown key to set up the matcher factory: "
+	  << m_matchingAlg
           << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
-  }   
-  
-  for (std::size_t i = 0; i != m_EtThresholds.size(); ++i){
-    m_conditions.push_back(Condition(m_etaMins[i],
-                                     m_etaMaxs[i],
-                                     m_EtThresholds[i]));
   }
 
-  std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
+   CleanerFactory cleanerFactory(//basic cleaning
+				 m_n90Threshold, 
+				 m_presamplerThreshold,
+				 m_negativeEThreshold,
+				 //loose cleaning
+				 m_fSampMaxLooseThreshold,
+				 m_etaLooseThreshold,
+				 m_emfLowLooseThreshold,
+				 m_emfHighLooseThreshold,
+				 m_hecfLooseThreshold,
+				 //tight cleaning
+				 m_fSampMaxTightThreshold,
+				 m_etaTightThreshold,
+				 m_emfLowTightThreshold,
+				 m_emfHighTightThreshold,
+				 m_hecfTightThreshold,
+				 //long-lived particle cleaning
+				 m_fSampMaxLlpThreshold,
+				 m_negELlpThreshold,
+				 m_hecfLlpThreshold,
+				 m_hecqLlpThreshold,
+				 m_avLarQFLlpThreshold,
+				 m_cleaningAlg);
+   
+   // m_cleaner = cleanerFactory.make();
 
-  /*
-  std::string msg = 'JetHypo conditions (threshold, eta min, eta max): \n';
-  for(auto c : m_conditions){
-    msg += c.threshold() + " " + c.etaMin() + " " + c.etaMax() + '\n';
-  }
-  ATH_MSG_INFO(msg);
-  */
+   m_cleanerMatcherFactory = 
+     std::make_shared<CleanerMatcherFactory>(cleanerFactory,
+					     matcherFactory);
 
   // Later code assumes conditions vector is not empty.
-  if (m_conditions.empty()){
+  if (conditions.empty()){
     ATH_MSG_ERROR("TrigHLTJetHypo bad configuration, no conditions given");
     return HLT::ERROR;
   }
     
-  ATH_MSG_INFO("TrigHLTJetHypo conditions: "<< m_conditions.size());
-  for(auto c: m_conditions){ATH_MSG_INFO(c);}
-  ATH_MSG_INFO("TrigHLTJetHypo cleaner: "<< m_cleaningAlg);
-  ATH_MSG_INFO("TrigHLTJetHypo matcher: "<< m_matchingAlg);
 
+  // print out the CleanerMatcher configuration
+  ATH_MSG_INFO("TrigHLTJetHypo cleanerMatcher: ");
+  std::string line = (m_cleanerMatcherFactory->make()).toString();
+  std::vector<std::string> lines = lineSplitter(line, '\n');
+
+  for(auto l : lines){
+    ATH_MSG_INFO(l);
+  }
 
   return HLT::OK;
   
@@ -189,18 +284,9 @@ HLT::ErrorCode TrigHLTJetHypo::hltExecute(const HLT::TriggerElement* outputTE,
   /* copy the jets to a non-constant container */
   std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
 
-  /* set up jet cleaning and hypothesis algorithm according to the user
-     set flags */
 
-  CleanerMatcher cleanerMatcher(std::shared_ptr<ICleaner>{},
-                                std::shared_ptr<IMatcher>{});
-
-  try{
-    cleanerMatcher = getCleanerMatcher();
-  } catch (std::invalid_argument& e){
-    ATH_MSG_ERROR("Exception raised creating cleanerMatcher: " << e.what());
-    return HLT::ERROR;
-  }
+  // auto cleanerMatcher = getCleanerMatcher();
+  auto cleanerMatcher = m_cleanerMatcherFactory->make();
 
    /* apply cleaning and hypotheis alg */
   ATH_MSG_DEBUG("cleaning and Matching start... " << name() << "...");
@@ -262,8 +348,9 @@ HLT::ErrorCode TrigHLTJetHypo::checkJets(const xAOD::JetContainer* outJets){
      monitorLeadingJet(*leading_jet);
    }
 
+   writeDebug(pass, passedJetIters, failedJetIters, cm);
+
    int multiplicity = passedJetIters.second - passedJetIters.first;
-   writeDebug(pass, multiplicity, passedJetIters, failedJetIters);
    bumpCounters(pass, multiplicity);
  }
 
@@ -288,21 +375,14 @@ void TrigHLTJetHypo::monitorLeadingJet(const xAOD::Jet* jet){
 
 void 
  TrigHLTJetHypo::writeDebug(bool pass,
-                            int multiplicity,
                             const std::pair<JetCIter, JetCIter>& passedJetIters,
-                            const std::pair<JetCIter, JetCIter>& failedJetIters
+                            const std::pair<JetCIter, JetCIter>& failedJetIters,
+			    const CleanerMatcher& cm
                             ) const{
     ATH_MSG_DEBUG("Writing debug " << name() << "...");
    // Et Cut
     if(pass){ATH_MSG_DEBUG("Event accepted");}
     else { ATH_MSG_DEBUG("Event rejected");}
-
-
-   ATH_MSG_DEBUG("found multiplicity: "
-                 << multiplicity
-                 << "\t multiplicity cut: "
-                 << m_conditions.size()
-                 << ("passed Jets:"));
 
    for (JetCIter j = passedJetIters.first; j != passedJetIters.second; ++j) {
      ATH_MSG_DEBUG((*j)->p4().Et() << " " << (*j) -> eta());
@@ -314,48 +394,11 @@ void
    }
 
    ATH_MSG_DEBUG("conditions: ");
-   for (auto c = m_conditions.begin(); c != m_conditions.end(); ++c) {
-     ATH_MSG_DEBUG(*c);
+   for (auto c : cm.getConditions()) {
+     ATH_MSG_DEBUG(c.toString());
    }
+
   }
-
- CleanerMatcher TrigHLTJetHypo::getCleanerMatcher() const{
-   /* initalise a Cleaner Matcher.
-      Cleaning: according to the user set flags.
-
-      Match conditions: SingleEtaRegion and MaximumBipartite matchers are 
-      available. For now only hardwire the MaximumBipartite matcher.
-
-   */
-
-   auto cleaner = cleanerFactory(//basic cleaning
-				 m_n90Threshold, 
-				 m_presamplerThreshold,
-				 m_negativeEThreshold,
-				 //loose cleaning
-				 m_fSampMaxLooseThreshold,
-				 m_etaLooseThreshold,
-				 m_emfLowLooseThreshold,
-				 m_emfHighLooseThreshold,
-				 m_hecfLooseThreshold,
-				 //tight cleaning
-				 m_fSampMaxTightThreshold,
-				 m_etaTightThreshold,
-				 m_emfLowTightThreshold,
-				 m_emfHighTightThreshold,
-				 m_hecfTightThreshold,
-				 //long-lived particle cleaning
-				 m_fSampMaxLlpThreshold,
-				 m_negELlpThreshold,
-				 m_hecfLlpThreshold,
-				 m_hecqLlpThreshold,
-				 m_avLarQFLlpThreshold,
-				//cleaning mode
-                                 m_cleaningAlg);
-   auto matcher = matcherFactory(m_conditions, m_matchingAlg);
-
-   return CleanerMatcher(cleaner, matcher);
- }
 
 
 HLT::ErrorCode
