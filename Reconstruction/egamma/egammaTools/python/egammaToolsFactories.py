@@ -36,7 +36,7 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
 
 from egammaMVACalib import egammaMVACalibConf 
 egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
-                              folder="egammaMVACalib/offline/v3_E4crack")
+                              folder="egammaMVACalib/offline/v3_E4crack_bis")
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
