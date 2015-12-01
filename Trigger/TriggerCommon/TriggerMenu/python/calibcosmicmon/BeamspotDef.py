@@ -119,7 +119,19 @@ class L2EFChain_Beamspot(L2EFChainDef):
            theFex =  T2VertexBeamSpot_activeAllTE_FTF()
         else:
            mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
-
+     elif ('FTK' in self.l2IDAlg):
+        if 'trkFS' in self.chainPart['addInfo'] :
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTK
+           theFex = T2VertexBeamSpot_FTK()
+        elif 'activeTE' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTK
+           theFex = T2VertexBeamSpot_activeTE_FTK()
+        elif 'allTE' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
+           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+        else:
+           mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
+           
      if  ('L2StarB' in self.l2IDAlg):
        #from TrigSiTrack.TrigSiTrack_Config import TrigSiTrack_BeamSpot
         TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
@@ -130,9 +142,12 @@ class L2EFChain_Beamspot(L2EFChainDef):
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
         teaddition = 'trkfast'
+     elif ('FTK' in self.l2IDAlg):
+        from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
+        [trk_alg, trk_prec] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+        teaddition = 'trkFTK'
      else:
-        mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))
-     
+        mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        
     
      from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
      self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpottracks']]

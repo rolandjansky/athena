@@ -35,7 +35,7 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs)
 
-    elif any("mt" in alg for alg in topoAlgs):
+    if any("mt" in alg for alg in topoAlgs):
         ##Check that we only have a MET and Electron chain
         inputChains=[]
         for ChainPart in chainDicts: 
@@ -46,7 +46,7 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addTransverseMass(theChainDef,chainDicts,listOfChainDefs)
             
-    elif any("razor" in alg for alg in topoAlgs):
+    if any("razor" in alg for alg in topoAlgs):
         ##Check that we only have a MET and JET chain
         inputChains=[]
         for ChainPart in chainDicts: 
@@ -90,8 +90,8 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
     #     else:
     #         theChainDef=_addDEtaJetJet(theChainDef,chainDicts,listOfChainDefs)   
 
-    else:
-        logCombined.error("do nothing, intra-signature topological cut not implemented yet")
+    #else:
+    #    logCombined.error("do nothing, intra-signature topological cut not implemented yet")
 
         
     return theChainDef
@@ -106,8 +106,9 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
         if 'dphi' in topo_item:
             maxJets=int(topo_item.split('dphi')[0])
             DPhiCut=float(topo_item.split('dphi')[1])/10.
-        else:
-            logCombined.debug("No Dphi threshold in topo definition")
+
+    if DPhiCut==-1 or maxJets==-1:
+        logCombined.error("No dphi chain part found in DPhiMetJet Topo cut")
 
     JetThr=-1
     for ChainPart in chainDicts:
@@ -117,9 +118,6 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
 
     if JetThr==-1:
         logCombined.error("No JET chain part found in DPhiMetJet Topo cut")
-
-    if DPhiCut==-1 or maxJets==-1:
-        logCombined.error("No dphi chain part found in DPhiMetJet Topo cut")
 
     from TrigJetHypo.TrigEFDPhiMetJetAllTEConfig import *
 
@@ -135,7 +133,7 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
 
     logCombined.debug("Input TEs to DPhi algorithm: %s" % inputTEsEF)
 
-    EFChainName = "EF_" + chainDicts[0]['chainName']
+    EFChainName = "EF_dphi_" + chainDicts[0]['chainName']
     if (len(EFChainName) > 99):
         EFChainName = EFChainName[:-(len(EFChainName)-99)]
     #if '_L1' in EFChainName:
@@ -150,8 +148,13 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
 ##############################################################################
 def _addTransverseMass(theChainDef,chainDicts,listOfChainDefs): 
 
+    MTCut=-1
     for topo_item in chainDicts[0]['topo']:
-        MTCut=int(topo_item.split('mt')[1]) if 'mt' in topo_item else logCombined.error("No mt threshold in topo definition")
+        if 'mt' in topo_item:
+            MTCut=int(topo_item.split('mt')[1])
+
+    if MTCut==-1:
+        logCombined.error("No mt threshold in topo definition")
     
     ElectronThr=-1
     for ChainPart in chainDicts:
@@ -177,8 +180,10 @@ def _addTransverseMass(theChainDef,chainDicts,listOfChainDefs):
     logCombined.debug("Input TEs to Transverse Mass algorithm: %s" % inputTEsEF)
 
     EFChainName = "EF_" + chainDicts[0]['chainName']
-    if '_L1' in EFChainName:
-        EFChainName = EFChainName.split("_L1")[0]
+    if (len(EFChainName) > 99):
+        EFChainName = EFChainName[:-(len(EFChainName)-99)]
+    #if '_L1' in EFChainName:
+        #EFChainName = EFChainName.split("_L1")[0]
     
     theChainDef.addSequence([MT_Hypo],inputTEsEF,EFChainName)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    

@@ -6,14 +6,16 @@ from eta_string_conversions import eta_string_to_floats
 
 def hypo_factory(key, args):
 
-    if key == 'HLThypo':
-        return JetHLTHypo(args)
     if key == 'run1hypo':
         return JetStandardHypo(args)
     if key == 'HLTSRhypo':
         return JetSingleEtaRegionHypo(args)
+    if key == 'HLThypo':
+        return JetMaximumBipartiteHypo(args)
     if key == 'ht':
         return HTHypo(args)
+    if key == 'tla':
+        return TLAHypo(args)
 
     raise RuntimeError('hypo_factory: unknown key %s' % key)
 
@@ -123,26 +125,18 @@ class JetStandardHypo(JetHypo):
         return self.jet_attributes[0].eta_range
 
 
-class JetHLTHypo(JetHypo):
+class JetSingleEtaRegionHypo(JetStandardHypo):
+    hypo_type = 'HLTSRhypo'
+
+    def __init__(self, ddict):
+        JetStandardHypo.__init__(self, ddict)
+
+
+class JetMaximumBipartiteHypo(JetHypo):
     hypo_type = 'HLThypo'
 
     def __init__(self, ddict):
         JetHypo.__init__(self, ddict)
-        
-    def _check_args(self, ddict):
-        JetHypo._check_args(self, ddict)
-
-        must_have = ('cleaner',
-                     )
-
-        HypoAlg.check_missing_args(self, must_have, ddict)
-
-
-class JetSingleEtaRegionHypo(JetHLTHypo):
-    hypo_type = 'HLTSRhypo'
-
-    def __init__(self, ddict):
-        JetHLTHypo.__init__(self, ddict)
 
 
 class HTHypo(HypoAlg):
@@ -168,5 +162,30 @@ class HTHypo(HypoAlg):
         return '_'.join(['ht' + str(int(self.ht_threshold)),
                          self.eta_range,
                          'j' + str(int(self.jet_et_threshold))])
+         
+
+class TLAHypo(HypoAlg):
+    """ Store paramters for the HT hypoAlg"""
+
+    hypo_type = 'tla'
+    
+    def __init__(self, ddict):
+        HypoAlg.__init__(self, ddict)
+
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+
+        must_have = ('chain_name',
+                     'tla_string',
+                     'indexlo',
+                     'indexhi',
+                     'mass_min',
+                     'mass_max')
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_to_string(self):
+        return 'tla_' + self.tla_string
         
 

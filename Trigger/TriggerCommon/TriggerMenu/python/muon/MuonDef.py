@@ -53,7 +53,9 @@ class L2EFChain_mu(L2EFChainDef):
     self.asymDiMuonChain = asymDiMuonChain
 
     self.doOvlpRm = False
-    if (self.mult > 1) & ('wOvlpRm' in self.ovlpRm):
+    if "nscan" in self.chainName or "bTau" in self.chainName :
+      self.doOvlpRm = False
+    elif (self.mult > 1) & ('wOvlpRm' in self.ovlpRm):
       self.doOvlpRm = True
     elif (self.asymDiMuonChain) and (self.mult > 1) and not self.chainPart['extra'] and not self.chainPart['reccalibInfo'] :
       self.doOvlpRm = True
@@ -243,10 +245,10 @@ class L2EFChain_mu(L2EFChainDef):
       logMuonDef.error("Chain built with %s but so far only muComb is supported." % (self.chainPart['L2CBAlg']))
       return False
            
-    if "wOvlpRm" in self.chainPart['overlapRemoval']:
-      from TrigMuonHypo.TrigL2MuonOverlapRemoverConfig import TrigL2MuonOverlapRemoverConfig
-      theL2OvlpRmConfig_mufast = TrigL2MuonOverlapRemoverConfig('Mufast','nominal')
-      theL2OvlpRmConfig_mucomb = TrigL2MuonOverlapRemoverConfig('Mucomb','nominal') 
+    #if "wOvlpRm" in self.chainPart['overlapRemoval']:
+    from TrigMuonHypo.TrigL2MuonOverlapRemoverConfig import TrigL2MuonOverlapRemoverConfig
+    theL2OvlpRmConfig_mufast = TrigL2MuonOverlapRemoverConfig('Mufast','nominal')
+    theL2OvlpRmConfig_mucomb = TrigL2MuonOverlapRemoverConfig('Mucomb','nominal') 
 
         
     #--- EF algos ---

@@ -296,6 +296,15 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         EFFex  = EFBMuMuFex_DiMu_24invm60_noOS()
         EFHypo = EFBMuMuHypo_DiMu_24invm60_noVtx()
         
+    elif ('bDimu' in topoAlgs) & ('novtx' in topoAlgs) & ('noos' in topoAlgs) & ('noL2' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_passL2
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
+        from TrigBphysHypo.TrigEFBMuMuFexConfig  import EFBMuMuFex_DiMu_noOS
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_noVtx
+        L2Fex  = L2BMuMuFex_DiMu_passL2() 
+        L2Hypo = L2BMuMuHypo_DiMu_passL2()
+        EFFex  = EFBMuMuFex_DiMu_noOS()
+        EFHypo = EFBMuMuHypo_DiMu_noVtx()        
     elif ('bDimu' in topoAlgs) & ('novtx' in topoAlgs) & ('noos' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_noOS
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_noVtx

@@ -408,6 +408,51 @@ class AlgFactory(object):
 
         return [Alg('TrigHLTJetHypo',(), kargs)]
 
+    def hlt_hypo_tla(self):
+
+        name = '"TrigHLTJetHypo_%s"' % self.hypo_params.tla_string
+        hypo = self.menu_data.hypo_params
+
+        eta_min = -2.8
+        eta_max = 2.8
+        eta_mins = [eta_min]
+        eta_maxs = [eta_max]
+        ystar_mins = [0.]
+        ystar_maxs = [min(0.5*abs(eta_max-eta_min), 1.2)]
+        mass_mins = [float(hypo.mass_min)]
+        mass_maxs = [float(hypo.mass_max)]
+        indices = [int(hypo.indexlo), int(hypo.indexhi)]
+
+        kargs = {
+            'name': name,
+            'eta_mins': eta_mins,
+            'eta_maxs': eta_maxs,
+            'ystar_mins': ystar_mins,
+            'ystar_maxs': ystar_maxs,
+            'mass_mins': mass_mins,
+            'mass_maxs': mass_maxs,
+            'cleaningAlg': '"noCleaning"', 
+            'matchingAlg': '"selectedJets"',
+            'jetvec_indices': indices,
+        }
+
+        return [Alg('TrigHLTJetHypo',(), kargs)]
+
+
+    def hlt_hypo_test1(self):
+        return self._hlt_hypo(cleaningAlg='noCleaning',
+                              matchingAlg='orderedCollections')
+
+
+    def hlt_hypo_test2(self):
+        return self._hlt_hypo(cleaningAlg='noCleaning',
+                              matchingAlg='maximumBipartite')
+
+
+    def hlt_hypo_test3(self):
+        return self._hlt_hypo(cleaningAlg='basicCleaning',
+                              matchingAlg='orderedCollections')
+
 
     def ht_hypo(self):
         """set up a HT hypo"""

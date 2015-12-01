@@ -21,7 +21,8 @@ def splitInterSignatureChainDict(chainDict):
             newSplitChainDict['chainParts'] = [chainPart]
             newSplitChainDict['signature'] = chainPart['signature']
             listOfSplitChainDicts += [newSplitChainDict]
-        
+            #print "Hi : adding to listofsplitchaindicts " + str(newSplitChainDict)
+
     #oder the splitted dicts
     orderedListOfSplitChainDicts = []
     if not chainDict.has_key("mergingOrder"):
@@ -33,7 +34,7 @@ def splitInterSignatureChainDict(chainDict):
             for splitChainDict in listOfSplitChainDicts:
                 if splitChainDict['chainParts'][0]['chainPartName'] == chainPartName:
                     orderedListOfSplitChainDicts += [splitChainDict]
-            
+                    #print "Hi : adding to orderedListOfSplitChainDicts " + str(splitChainDict)
         if not len(orderedListOfSplitChainDicts) == len(listOfSplitChainDicts):
             #for chainPartName in chainDict["mergingOrder"]:
             #    for splitChainDict in listOfSplitChainDicts:
