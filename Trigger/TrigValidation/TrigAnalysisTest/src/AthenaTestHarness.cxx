@@ -37,6 +37,8 @@ StatusCode AthenaTestHarness::initialize()
         msg(MSG::ERROR) << "Could not retrieve the test: "<< m_test_name << endreq;
         return StatusCode::FAILURE;
 		}
+
+		m_test->setEventStore( evtStore().operator->() ); // explicitly call the arrow operator
     
     msg(MSG::INFO) << "Initialization successful" << endreq;
     

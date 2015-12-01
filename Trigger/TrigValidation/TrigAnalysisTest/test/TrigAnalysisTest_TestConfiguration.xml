@@ -221,8 +221,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="PhysValMonitoring" type="script" suite="tat_MC_Slim"> 
-            <options_atn>trigtest.pl --test PhysValMonitoring --run PhysValMonitoring --conf TrigAnalysisTest.conf</options_atn> 
+        <!--TEST name="PhysValMonitoring" type="script" suite="tat_MC_Slim"> 
+            <options_atn>trigtest.pl - -test PhysValMonitoring - -run PhysValMonitoring - -conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>60</timelimit> 
             <author>TrigAnalysis validation</author> 
             <project_exclude>AthAnalysisBase</project_exclude>
@@ -230,7 +230,7 @@
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
-        </TEST> 
+        </TEST--> 
         
         <TEST name= "TrigHLT_Run1BStoxAOD" type="script" suite="tat_BackComp"> 
             <options_atn>trigtest.pl --test TrigHLT_Run1BStoxAOD --run TrigHLT_Run1BStoxAOD --conf TrigAnalysisTest.conf</options_atn> 
@@ -243,6 +243,41 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>  
+
+        <TEST name= "TrigHLT_Run1BStoxAOD_validation" type="script" suite="tat_BackComp"> 
+	    <options_atn>trigtest.pl --test TrigHLT_Run1BStoxAOD_validation --run TrigHLT_Run1BStoxAOD_validation --conf TrigAnalysisTest.conf</options_atn>
+            <timelimit>45</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <mailto> oleg.kuprash@cern.ch </mailto> 
+            <project_exclude>AthAnalysisBase</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>  
+        
+        
+        <TEST name= "AthenaTrigRDOtoAOD_MC_pp_v6" type="script" suite="tat_MC_v6"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC_pp_v6 --run AthenaTrigRDOtoAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysisBase</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name= "AthenaTrigRDOtoESDAOD_MC_pp_v6" type="script" suite="tat_MC_v6"> 
+            <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_MC_pp_v6 --run AthenaTrigRDOtoESDAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysisBase</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
         
         
         <!-- the following one complains about  WARNING Job options file for TrigIDtrk (PhysValMonitoring/PhysValTrigIDtrk_jobOptions.py) was not found in JOBOPTSEARCHPATH! 
@@ -408,6 +443,7 @@
             <prerequisite>tat_MC_Slim</prerequisite>
             <!--prerequisite>tat_PhysVal</prerequisite-->
             <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>tat_MC_v6</project_exclude>
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
@@ -456,7 +492,20 @@
                 <displayProcess>Reco</displayProcess>
                 <displayComponent>Trig-Common</displayComponent>
             </classification> 
-            
+
+<jobTransform userJobId="LeakCheck_MC_pp_v6" >
+    <doc>
+        LeakCheck MC_pp_v5 menu top 100 events
+    </doc>
+    <jobTransformJobName>LeakCheck_MC_pp_v5</jobTransformJobName>
+    <jobTransformCmd>
+        export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc49-opt/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'RunningRTT=TRUE;menu="MC_pp_v6";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py
+    </jobTransformCmd>
+    <group>TrigAnalysisTestIOTests</group>
+    <queue>long</queue>
+    <alwaysRunPostProc />
+</jobTransform>
+
             <jobTransform userJobId="LeakCheck_MC_pp_v5" >
                 <doc>
                     LeakCheck MC_pp_v5 menu top 100 events
@@ -490,6 +539,27 @@
                 <jobTransformJobName>Valgrind_RDOtoAOD_MC_pp_v5</jobTransformJobName>
                 <jobTransformCmd>
                     cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v5";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
+                </jobTransformCmd>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue> 
+                <testToRemove>
+                    <jobGroupName>RTT:Athena</jobGroupName>
+                    <testidentifier>Athena_FileGrepper</testidentifier>
+                </testToRemove>
+                <testToRemove>
+                    <jobGroupName>TrigAnalysisTest:TrigAnalysisTestIOTests</jobGroupName>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                </testToRemove>
+                <alwaysRunPostProc />
+            </jobTransform>
+            
+            <jobTransform userJobId="Valgrind_RDOtoAOD_MC_pp_v6" >
+                <doc>
+                    Valgrind on RDOtoAOD MC_pp_v6 menu top events
+                </doc>
+                <jobTransformJobName>Valgrind_RDOtoAOD_MC_pp_v6</jobTransformJobName>
+                <jobTransformCmd>
+                    cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp --suppressions=/afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=TRUE;menu="MC_pp_v6";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00";fileRange=[1,4]' TrigAnalysisTest/testAthenaTrigRDOtoAOD.py 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TrigAnalysisTestIOTests</group>
                 <queue>long</queue> 
@@ -548,6 +618,8 @@
                 </testToRemove>
                 <alwaysRunPostProc />
             </jobTransform>
+            
+            
             
             <jobTransform userJobId="Valgrind_RDOtoESDAOD_Physics_pp_v5" >
                 <doc>
@@ -615,6 +687,38 @@
                 <queue>long</queue> 
                 <alwaysRunPostProc />  
             </athena>
+            
+            
+            <athena userJobId="RDOtoAOD_MC_v6" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6 Sample: top - produces AOD 100 events
+                </doc>
+                <displayName>RDOtoAOD_MC_v6</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00';fileRange=[1,4]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            <athena userJobId="RDOtoESDAOD_MC_v6" doMonitoring="True">
+                <doc>
+                    Menu: MC_pp_v6 Sample: top - produces AOD and ESD 100 events
+                </doc>
+                <displayName>RDOtoESDAOD_MC_v6</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00';fileRange=[1,4]
+                </commandLineFlags>    
+                <options>testAthenaTrigRDOtoESDAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package> 
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue> 
+                <alwaysRunPostProc />  
+            </athena>
+            
             <athena userJobId="RDOtoESDAOD_Physics" doMonitoring="True">
                 <doc>
                     Menu: Physics_pp_v5 Sample: top - produces AOD and ESD 100 events
@@ -892,6 +996,22 @@
                 <displayName>RDOtoAOD_MC_pp_v5_1000</displayName>
                 <commandLineFlags>
                     RunningRTT=TRUE;menu='MC_pp_v5';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00';fileRange=[1,4]
+                </commandLineFlags>
+                <options>testAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TrigAnalysisTest</package>
+                <group>TrigAnalysisTestIOTests</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            
+            <athena userJobId="RDOtoAOD_MC_pp_v6_1000" doMonitoring="True">
+                <doc>
+                    Menu: RDOtoAOD_MC_pp_v6 Sample: top - produces AOD 1000 events
+                </doc>
+                <displayName>RDOtoAOD_MC_pp_v6_1000</displayName>
+                <commandLineFlags>
+                    RunningRTT=TRUE;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00';fileRange=[1,4]
                 </commandLineFlags>
                 <options>testAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TrigAnalysisTest</package>
