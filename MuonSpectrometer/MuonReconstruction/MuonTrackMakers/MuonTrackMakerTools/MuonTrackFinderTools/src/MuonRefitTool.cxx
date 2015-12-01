@@ -68,6 +68,8 @@ namespace Muon {
     m_errorStrategyBEE(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyEE(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyBIS78(MuonDriftCircleErrorStrategyInput()),
+    m_errorStrategyBXE(MuonDriftCircleErrorStrategyInput()),
+    m_errorStrategyEEL1C05(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyBarEnd(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategySL(MuonDriftCircleErrorStrategyInput()),
     m_errorStrategyTwoStations(MuonDriftCircleErrorStrategyInput()),
@@ -104,9 +106,12 @@ namespace Muon {
     declareProperty("MdtRotCreator",m_mdtRotCreator);
     declareProperty("CscRotCreator",m_cscRotCreator);
     declareProperty("TriggerRotCreator",m_triggerRotCreator);
-    declareProperty("DeweightBEE", m_deweightBEE = true );
-    declareProperty("DeweightEE",  m_deweightEE = true );
+    declareProperty("DeweightBEE", m_deweightBEE = false );
+    declareProperty("DeweightEE",  m_deweightEE = false );
     declareProperty("DeweightBIS78", m_deweightBIS78 = true );
+    declareProperty("DeweightBME", m_deweightBME = true );
+    declareProperty("DeweightBOE", m_deweightBOE = true );
+    declareProperty("DeweightEEL1C05", m_deweightEEL1C05 = false );
     declareProperty("DeweightTwoStationTracks",  m_deweightTwoStationTracks = false );
   }
 
@@ -228,6 +233,12 @@ namespace Muon {
     m_errorStrategyBIS78 = strategy;
     m_errorStrategyBIS78.setParameter(MuonDriftCircleErrorStrategy::StationError,true);
 
+    m_errorStrategyBXE = strategy;
+    m_errorStrategyBXE.setParameter(MuonDriftCircleErrorStrategy::StationError,true);
+
+    m_errorStrategyEEL1C05 = strategy;
+    m_errorStrategyEEL1C05.setParameter(MuonDriftCircleErrorStrategy::StationError,true);
+
     m_errorStrategySL = strategy;
     m_errorStrategySL.setParameter(MuonDriftCircleErrorStrategy::FixedError,true);
     m_errorStrategySL.setParameter(MuonDriftCircleErrorStrategy::BroadError,false);
@@ -245,6 +256,9 @@ namespace Muon {
     if( m_deweightBEE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BEE";
     if( m_deweightEE )                   msg(MSG::INFO) << MSG::INFO << " Deweight EE";
     if( m_deweightBIS78 )                msg(MSG::INFO) << MSG::INFO << " Deweight BIS78";
+    if( m_deweightBME )                  msg(MSG::INFO) << MSG::INFO << " Deweight BME";
+    if( m_deweightBOE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BOE";
+    if( m_deweightEEL1C05 )              msg(MSG::INFO) << MSG::INFO << " Deweight EEL1C05";
     if( m_deweightTwoStationTracks )     msg(MSG::INFO) << MSG::INFO << " Deweight Two stations";
     msg(MSG::INFO) << endreq;
 
@@ -647,7 +661,28 @@ namespace Muon {
 
 	  // error update for three stations with barrel-endcap and shared sectors
 	  if( !m_deweightTwoStationTracks || nmaxStations > 2 ){
-	    if( m_deweightBEE && stIndex == MuonStationIndex::BE ) {
+	    if( m_deweightEEL1C05 && stIndex == MuonStationIndex::EE && m_idHelper->chamberIndex(id) == MuonStationIndex::EEL &&
+		m_idHelper->stationEta(id) < 0 && m_idHelper->stationPhi(id) == 3){
+	      //for this chamber the errors are enormous (for a period of time)
+	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyEEL1C05 ); 
+
+	    }else if( deweightBarrel && ( stIndex == MuonStationIndex::BI || stIndex == MuonStationIndex::BM || stIndex == MuonStationIndex::BO ) ) { 
+	      //std::cout << " MUONREFIT deweightBarrel " << std::endl;
+	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBarEnd ); 
+	      if( settings.removeBarrelEndcapOverlap ) type = Trk::TrackStateOnSurface::Outlier;
+	      
+	    }else if( deweightEndcap && ( stIndex == MuonStationIndex::EI || stIndex == MuonStationIndex::EM || stIndex == MuonStationIndex::EO ||
+		      stIndex == MuonStationIndex::EE || MuonStationIndex::BE ) ) { // BEE chambers enter the endcap alignment system!
+	      //std::cout << " MUONREFIT deweightEndcap " << std::endl;
+	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBarEnd ); 
+	      if( settings.removeBarrelEndcapOverlap ) type = Trk::TrackStateOnSurface::Outlier;
+
+	    }else if( settings.deweightOtherSectors && sector != selectedSector ) {
+	      //std::cout << " MUONREFIT deweightOther " << std::endl;
+	      ++deweightHits;
+	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategySL );
+	      
+	    }else if( m_deweightBEE && stIndex == MuonStationIndex::BE ) {
 	      //std::cout << " MUONREFIT deweightBEE " << std::endl;
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBEE );
 	      if( settings.removeBEE ) type = Trk::TrackStateOnSurface::Outlier;
@@ -656,27 +691,21 @@ namespace Muon {
 	      //std::cout << " MUONREFIT deweightEE " << std::endl;
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyEE );
 
-	    }else if( deweightBarrel && ( stIndex == MuonStationIndex::BI || stIndex == MuonStationIndex::BM || stIndex == MuonStationIndex::BO ) ) { 
-	      //std::cout << " MUONREFIT deweightBarrel " << std::endl;
-	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBarEnd ); 
-	      if( settings.removeBarrelEndcapOverlap ) type = Trk::TrackStateOnSurface::Outlier;
-	      
-	    }else if( deweightEndcap && ( stIndex == MuonStationIndex::EI || stIndex == MuonStationIndex::EM || stIndex == MuonStationIndex::EO ) ) { 
-	      //std::cout << " MUONREFIT deweightEndcap " << std::endl;
-	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBarEnd ); 
-	      if( settings.removeBarrelEndcapOverlap ) type = Trk::TrackStateOnSurface::Outlier;
-
 	    }else if( m_deweightBIS78 && stIndex == MuonStationIndex::BI && m_idHelper->chamberIndex(id) == MuonStationIndex::BIS &&
 		      abs(m_idHelper->stationEta(id)) > 6 ){
 
 	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBIS78 ); 
 
-	    }else if( settings.deweightOtherSectors && sector != selectedSector ) {
-	      
-	      //std::cout << " MUONREFIT deweightOther " << std::endl;
-	      ++deweightHits;
-	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategySL );
-	      
+	    }else if( m_deweightBME && stIndex == MuonStationIndex::BM && m_idHelper->stationPhi(id) == 7 && 
+		      (m_idHelper->mdtIdHelper()).stationName(id) == 53 ){
+
+	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBXE ); 
+
+	    }else if( m_deweightBOE && stIndex == MuonStationIndex::BO && m_idHelper->chamberIndex(id) == MuonStationIndex::BOL &&
+		      abs(m_idHelper->stationEta(id)) == 7 && m_idHelper->stationPhi(id) == 7){
+
+	      rot = m_mdtRotCreator->updateError( *mdt, pars, &m_errorStrategyBXE ); 
+
 	    }else{
 	      /** default strategy */
 	      //std::cout << " MUONREFIT updateError " << std::endl;
