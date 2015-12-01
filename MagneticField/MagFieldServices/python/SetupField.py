@@ -15,7 +15,7 @@ conddb.addFolderSplitMC('GLOBAL','/GLOBAL/BField/Maps <noover/>','/GLOBAL/BField
 conddb.toMetaData('/GLOBAL/BField/Maps')
 if not athenaCommonFlags.isOnline():
     conddb.addFolder('DCS_OFL','/EXT/DCS/MAGNETS/SENSORDATA')
-    conddb.toMetaData('/EXT/DCS/MAGNETS/SENSORDATA')
+    #conddb.toMetaData('/EXT/DCS/MAGNETS/SENSORDATA')  # Fix for ATEAM-199
     
 # import the field service
 # (it is MagFieldServices.MagFieldServicesConfig which takes care of configuration)
