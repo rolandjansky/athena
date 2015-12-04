@@ -23,7 +23,7 @@ ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup',
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
 
-    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skeleton.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre"]):
+    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skeleton.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
         athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
     def preExecute(self, input=set(), output=set()):
