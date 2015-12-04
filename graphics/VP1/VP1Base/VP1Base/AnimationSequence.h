@@ -27,18 +27,18 @@ class AnimationSequence {
   // A frame class:
   class Frame {
   public:
-    Frame(const REGION &r, const SbVec3f &d, const SbVec3f & u,
-	  const double& t,bool vs, bool fc)
-      : time(t),variableSpeed(vs), forceCircular(fc), reg(r),dir(d),upvec(u){}
-    Frame(QByteArray cs, const double& t,bool vs,bool fc)
-      : time(t), variableSpeed(vs), forceCircular(fc),
+    Frame(const REGION &r, const SbVec3f &d, const SbVec3f & u, const double& t,bool vs, bool fc, double c)
+      : time(t), clipVolPercent(c), variableSpeed(vs), forceCircular(fc), reg(r),dir(d),upvec(u){}
+    Frame(QByteArray cs, const double& t,bool vs,bool fc, double c)
+      : time(t), clipVolPercent(c), variableSpeed(vs), forceCircular(fc),
 	camState(cs), reg(VERTEX),dir(SbVec3f(0,0,0)),upvec(SbVec3f(0,0,0)){}
 
     double  time;   // time
+    double  clipVolPercent; // Percentage of ATLAS Vol used as clipping volume.
     bool variableSpeed;
     bool forceCircular;
 
-    //If camstate is not empty, (ref,dir,upvec) defines the frame. Otherwise those three are ignored.
+    //If camstate is not empty, (reg,dir,upvec) defines the frame. Otherwise those three are ignored.
     QByteArray camState;
     REGION  reg; // region
     SbVec3f dir; // direction
@@ -50,16 +50,16 @@ class AnimationSequence {
 
   // Add a frame:
   void addFrame(REGION reg, const SbVec3f & dir, const SbVec3f & upvec, double t,
-		bool variableSpeed = false, bool forceCircular = false  ) {
-    sequence.push_back(Frame(reg, dir, upvec, t,variableSpeed, forceCircular));
+		bool variableSpeed = false, bool forceCircular = false, double clip=100.0  ) {
+    sequence.push_back(Frame(reg, dir, upvec, t, variableSpeed, forceCircular, clip));
   }
   void addFrame(REGION reg, const SbVec3f & dir, double t,
-		bool variableSpeed = false, bool forceCircular = false  ) {//default upvec along y-axis
-    sequence.push_back(Frame(reg, dir, SbVec3f(0,1,0), t,variableSpeed, forceCircular));
+		bool variableSpeed = false, bool forceCircular = false, double clip=100.0  ) {//default upvec along y-axis
+    sequence.push_back(Frame(reg, dir, SbVec3f(0,1,0), t, variableSpeed, forceCircular, clip));
   }
   void addFrame(QByteArray camState, double t,
-		bool variableSpeed = true, bool forceCircular = false  ) {//default upvec along y-axis
-    sequence.push_back(Frame(camState, t, variableSpeed, forceCircular));
+		bool variableSpeed = true, bool forceCircular = false, double clip=100.0  ) {//default upvec along y-axis
+    sequence.push_back(Frame(camState, t, variableSpeed, forceCircular, clip));
   }
 
   // Get number of frames;

@@ -20,10 +20,13 @@
 
 //____________________________________________________________________
 class VP1EtaPhiCutWidget::Imp {
+
 public:
+
   Ui::VP1EtaPhiCutForm ui;
   VP1Interval last_allowedEta;
   QList<VP1Interval> last_allowedPhi;
+
   void adaptSpinBoxRangesForSymmetry(bool symmetric);
 };
 
@@ -61,13 +64,27 @@ VP1EtaPhiCutWidget::~VP1EtaPhiCutWidget()
 //____________________________________________________________________
 VP1Interval VP1EtaPhiCutWidget::allowedEta() const
 {
-  if (!d->ui.checkBox_cut_etarange->isChecked())
+	messageVerbose("VP1EtaPhiCutWidget::allowedEta()");
+
+  // if "eta cut" is not set: we return an interval ]-inf,inf[, so all objects will pass the internal eta cut
+  if (!d->ui.checkBox_cut_etarange->isChecked()) {
     return VP1Interval(-std::numeric_limits<double>::infinity(),std::numeric_limits<double>::infinity());
+  }
+
   const double min = d->ui.doubleSpinBox_cut_etalower->value();
   const double max = d->ui.doubleSpinBox_cut_etaupper->value();
+
+  // if max < min: we return what??
   if (max<min)
     return VP1Interval();
-  return VP1Interval( min, max );//fixme: closed interval??
+
+  // FIXME: checkBox_etacut_excludeRange is not actually used now, check and fix!
+  // if "Exclude Eta range" is selected, we set the "excludeInterval" flag in the instance of the VP1Interval class
+  if (d->ui.checkBox_etacut_excludeRange) {
+	  messageVerbose("excludeRange=true");
+	  return VP1Interval(min, max, true, true, true);
+  }
+  return VP1Interval( min, max );//fixme: closed interval?? Ckeck!
 }
 
 //____________________________________________________________________
@@ -171,6 +188,20 @@ void VP1EtaPhiCutWidget::setEtaCutEnabled(bool b)
 void VP1EtaPhiCutWidget::setEtaCut(const double& e)
 {
   setEtaCut(-fabs(e),fabs(e));
+}
+
+
+//____________________________________________________________________
+void VP1EtaPhiCutWidget::showEtaCut(bool b)
+{
+	d->ui.checkBox_cut_etarange->setChecked(b);
+	d->ui.widget_etacut->setVisible(b);
+}
+//____________________________________________________________________
+void VP1EtaPhiCutWidget::showPhiCut(bool b)
+{
+	d->ui.checkBox_cut_phi->setChecked(b);
+	d->ui.widget_phicut->setVisible(b);
 }
 
 //____________________________________________________________________
