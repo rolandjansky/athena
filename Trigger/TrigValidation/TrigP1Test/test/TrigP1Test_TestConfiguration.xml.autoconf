@@ -210,6 +210,15 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
+
+        <TEST name="HLT_mcV6" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
+            <timelimit>40</timelimit>      
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
         
         <!-- ENABLE-IN-PROJECT-END -->
         <!-- end of MC chain of tests -->
@@ -295,6 +304,15 @@
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
+
+        <TEST name="HLT_physicsV6" type="script" suite="TrigP1HLTphysv5"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
         
         
         <!-- ENABLE-IN-PROJECT-END --> 
