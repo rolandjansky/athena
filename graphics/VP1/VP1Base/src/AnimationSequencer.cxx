@@ -13,6 +13,7 @@
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoGroup.h>
+#include <iostream>
 
 class AnimationSequencer::Clockwork {
 
@@ -31,6 +32,7 @@ public:
   int movieHeight;
   QString movieOutdir;
   QString frameFileNamePrefix;
+  double last_clipVolPercent;
 };
 
 void AnimationSequencer::setMovie(bool b)
@@ -78,6 +80,7 @@ const AnimationSequence & AnimationSequencer::sequence() const {
 void AnimationSequencer::startAnimating(bool skipFirstFrame) {
 
   c->animationFrameNumber=(skipFirstFrame?1:0);
+  c->last_clipVolPercent = 100;
   nextAnimationFrame();
 }
 
@@ -123,9 +126,11 @@ void AnimationSequencer::nextAnimationFrame()
   SoGroup * root = static_cast<SoGroup*>(rootnode);
 
   unsigned int i = c->animationFrameNumber;
+  
 
   //Get region:
   AnimationSequence::Frame f=sequence().getFrame(i);
+  // std::cout<<"Frame: "<<i<<" clipVolumePercentOfATLAS="<<f.clipVolPercent<<std::endl;
 
   if (f.time==0.0&&!f.camState.isEmpty())
   {
@@ -136,6 +141,7 @@ void AnimationSequencer::nextAnimationFrame()
   } else {
     VP1CameraHelper *helper(0);
     if (f.camState.isEmpty()) {
+      // std::cout<<"camState empty"<<std::endl;
       camera->ref();
       bool notifyenabled = root->enableNotify(false);
       SoSphere * regionsphere = c->getRegionSphere(AnimationSequence::REGION(f.reg),
@@ -145,7 +151,7 @@ void AnimationSequencer::nextAnimationFrame()
       SbVec3f lookat=f.dir, upvec = f.upvec;
       root->insertChild(regionsphere,0);
       VP1Msg::messageVerbose("nextAnimationFrame Initiating zoom to region sphere.");
-      helper = VP1CameraHelper::animatedZoomToSubTree(camera,root,regionsphere,f.time,0.1,lookat,upvec,f.variableSpeed,f.forceCircular);
+      helper = VP1CameraHelper::animatedZoomToSubTree(camera,root,regionsphere,f.time,f.clipVolPercent, c->last_clipVolPercent,0.1,lookat,upvec,f.variableSpeed,f.forceCircular);
 
       root->removeChild(regionsphere);
 
@@ -155,7 +161,8 @@ void AnimationSequencer::nextAnimationFrame()
       }
 
     } else {
-      helper = VP1CameraHelper::animatedZoomToCameraState( camera,root,f.camState,f.time, f.variableSpeed,f.forceCircular );
+      // std::cout<<"camState not empty"<<std::endl;
+      helper = VP1CameraHelper::animatedZoomToCameraState( camera,root,f.camState,f.time,f.clipVolPercent,  c->last_clipVolPercent, f.variableSpeed,f.forceCircular );
     }
 
     if (c->movieEnabled)
@@ -163,8 +170,12 @@ void AnimationSequencer::nextAnimationFrame()
 
     connect(helper,SIGNAL(animationFinished()), this, SLOT(nextAnimationFrame()));
     connect(helper,SIGNAL(animationFinishedAbnormally()), this, SLOT(abortAnimation()));
+    connect(helper,SIGNAL(clipVolumePercentageOfATLAS(double)), this, SIGNAL(clipVolumePercentOfATLAS(double)));
 
   }
+  // std::cout<<" Setting last_clipVolPercent to "<<f.clipVolPercent<<std::endl;
+  c->last_clipVolPercent = f.clipVolPercent;
+  
 
   rootnode->unrefNoDelete();
   c->animationFrameNumber++;

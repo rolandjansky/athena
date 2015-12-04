@@ -24,7 +24,7 @@ class VP1Interval {
 public:
   static double inf() { return std::numeric_limits<double>::infinity(); }
 
-  VP1Interval(const double& lower,const double& upper, bool openLower=true, bool openUpper=true);
+  VP1Interval(const double& lower,const double& upper, bool openLower=true, bool openUpper=true, bool excludeRange=false);
   VP1Interval();//]0,0[
   ~VP1Interval(){};
 
@@ -34,7 +34,8 @@ public:
   void setOpen(bool openLower,bool openUpper);
   void setLower(const double& lower);
   void setUpper(const double& upper);
-  void set(const double& lower,const double& upper, bool openLower=true, bool openUpper=true);
+  void setExcludeInterval(bool excludeInterval); // TODO: so far used only by contains(double). If needed, extend it to other 'contains' methods.
+  void set(const double& lower,const double& upper, bool openLower=true, bool openUpper=true, bool excludeRange=false);
   void translate(const double&);
 
   //Get:
@@ -42,6 +43,7 @@ public:
   double upper() const;
   double openLower() const;
   double openUpper() const;
+  bool excludeInterval() const;
   QString toString() const;
   double length() const;
 
@@ -78,6 +80,7 @@ private:
   double m_upper;
   bool m_openLower;
   bool m_openUpper;
+  bool m_excludeInterval;
 
 };
 

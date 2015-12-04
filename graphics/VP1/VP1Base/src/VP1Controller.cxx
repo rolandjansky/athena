@@ -36,6 +36,9 @@
 #include <Inventor/SbColor4f.h>
 #include <Inventor/nodes/SoMaterial.h>
 
+VP1CustomTourEditor* VP1Controller::m_customTourEditor=0;
+
+
 //____________________________________________________________________
 class VP1Controller::Imp {
 public:
@@ -378,6 +381,8 @@ void VP1Controller::connectToLastUpdateSlot(VP1ColorSelectButton* csb)
 //____________________________________________________________________
 void VP1Controller::restoreSettings(QByteArray ba)
 {
+	messageDebug("VP1Controller::restoreSettings()");
+
   VP1Deserialise s(ba,systemBase());
   actualRestoreSettings(s);
 
@@ -395,12 +400,17 @@ void VP1Controller::restoreSettings(QByteArray ba)
 //____________________________________________________________________
 QByteArray VP1Controller::saveSettings() const
 {
+	messageDebug("VP1Controller::saveSettings()");
+
   VP1Serialise s(currentSettingsVersion(),systemBase());
+
+  messageDebug("calling actualSaveSettings()...");
   actualSaveSettings(s);
 
   //Warn unsaved:
   if (d->collWidget)
     s.ignoreWidget(d->collWidget);
+
   s.warnUnsaved((QWidget*)(this));
   QPair<QPushButton*,QWidget*> b2d;
   foreach (Imp::DialogInfo* di,d->dialogs)

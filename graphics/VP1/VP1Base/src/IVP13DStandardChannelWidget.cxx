@@ -463,15 +463,15 @@ QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool ba
 			  true);
   }
 
+  // if changed programatically, set the width back to the original value set by the user
+  if (width) d->uisnapshot.spinBox_width->setValue( original_width );
+
   // default, with user's preferences from the GUI
   VP1Msg::messageVerbose("save the screenshot with the default tool (with settings from GUI) - using VP1QtInventorUtils::renderToPixmap()");
   return VP1QtInventorUtils::renderToPixmap(d->viewer,
 					    d->uisnapshot.spinBox_width->value(),
 					    d->uisnapshot.spinBox_height->value(),
 					    d->uisnapshot.checkBox_transp->isChecked());
-
-  // if changed programatically, set the width back to the original value set by the user
-  if (width) d->uisnapshot.spinBox_width->setValue( original_width );
 
   //return QPixmap(); // for DEBUG
 
