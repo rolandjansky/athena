@@ -26,6 +26,8 @@ class PhiSectionWidget;
 class VP1MaterialButton;
 class VP1ColorSelectButton;
 class VP1CollectionWidget;
+//class JetCollectionSettingsButton;
+class VP1CollectionSettingsButtonBase;
 class SoMaterial;
 class QCheckBox;
 class QGroupBox;
@@ -46,6 +48,7 @@ public:
   virtual ~VP1Serialise();
 
   QByteArray result();
+  qint32 version() const;
 
   void ignoreWidget(const QWidget*);//Ignores widget and all children.
   void widgetHandled(const QWidget*);//Indicates that the widget should be considered as handled.
@@ -91,6 +94,8 @@ public:
   void save(const VP1MaterialButton*);//Persistifies values of first handled material (saves empty byte array if none handled)
   void save(SoMaterial*);
   void save(const VP1CollectionWidget*);
+//  void save(const JetCollectionSettingsButton* jcb);
+  void save(const VP1CollectionSettingsButtonBase* jcb);
   void save(const VP1EtaPhiCutWidget*);
   void save(const VP1DrawOptionsWidget*);
   void save(const PhiSectionWidget*);//Used to be QPair<int,QList<int> >

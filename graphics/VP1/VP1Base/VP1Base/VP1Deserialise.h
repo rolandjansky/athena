@@ -25,6 +25,8 @@ class PhiSectionWidget;
 class VP1MaterialButton;
 class VP1ColorSelectButton;
 class VP1CollectionWidget;
+//class JetCollectionSettingsButton;
+class VP1CollectionSettingsButtonBase;
 class SoMaterial;
 class QCheckBox;
 class QGroupBox;
@@ -89,6 +91,8 @@ public:
   void restore(VP1MaterialButton*);
   void restore(SoMaterial*);
   void restore(VP1CollectionWidget*);
+//  void restore(JetCollectionSettingsButton*w);
+  void restore(VP1CollectionSettingsButtonBase*w);
   void restore(VP1EtaPhiCutWidget*);
   void restore(VP1DrawOptionsWidget*);
   void restore(PhiSectionWidget*);

@@ -265,6 +265,8 @@ QList<QWidget*> VP1StdCollection::provideWidgetsForGuiRow() const
 //____________________________________________________________________
 QByteArray VP1StdCollection::persistifiableState() const
 {
+	messageDebug("VP1StdCollection::persistifiableState()");
+
   if (!d->material) {
     message("ERROR: persistifiableState() called before init()");
     return QByteArray();

@@ -41,6 +41,9 @@ public:
   void setEtaCut(const double&);//sets symmetric eta cut
   void setEtaCut(const double&,const double&);//sets asymmetric eta cut (unless range is symmetric)
 
+  void showEtaCut(bool b);
+  void showPhiCut(bool b);
+
 signals:
   void allowedEtaChanged(const VP1Interval&);
   void allowedPhiChanged(const QList<VP1Interval>&);
