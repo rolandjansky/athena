@@ -16,6 +16,7 @@
 #define PatternTrackParameters_H
 
 #include "TrkParametersBase/ParametersBase.h"
+#include "TrkParametersBase/Charged.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 
@@ -169,7 +170,8 @@ namespace Trk {
       m_iscovariance =     false;
     }
 
-  inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P)
+  inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P):
+    m_surface(P.m_surface),m_parameters{},m_covariance{},m_iscovariance(P.m_iscovariance)
     {
       *this = P;
     }
