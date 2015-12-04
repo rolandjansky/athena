@@ -184,7 +184,7 @@ class ConfiguredSecondaryVertexCuts :
         self.__TrkSel_RatioCut1                  = 0.0    # UNCHANGED, e-prob: Ntrt < 15
         self.__TrkSel_RatioCut2                  = 0.1    # UNCHANGED, e-prob: 15 < Ntrt < 25  
         self.__TrkSel_RatioCut3                  = 0.1    # UNCHANGED, e-prob: Ntrt > 25
-        self.__TrkSel_RatioTRT                   = 0.9    # new e-prob cut for TRT only from Bruno
+        self.__TrkSel_RatioTRT                   = 0.7    # new e-prob cut for TRT only from Bruno
         
         # Track pairs selector
         self.__TrkPairSel_MaxDistBetweenTracks   = [10.*Units.mm,50.*Units.mm,50.*Units.mm]       # UNCHANGED, minimum distance cut at vertex (Mauro 10,100,50)
@@ -210,7 +210,7 @@ class ConfiguredSecondaryVertexCuts :
         self.__SingleTrk_MaxBLayerHits              = 0                # UNCHANGED, no blayer hits on single track conversion
         self.__SingleTrk_MinInitialHitRadius        =  70.*Units.mm    # UNCHANGED, start conversion in layer 1
         self.__SingleTrk_MinInitialHitRadius_noBlay = 120.*Units.mm    # but allow for conversion tracks starting in layer 2 if blayer is dead        
-        self.__SingleTrk_MinRatioOfHLhits           = 0.95             # e-prob cut, Bruno prefered 0.8
+        self.__SingleTrk_MinRatioOfHLhits           = 0.7              # e-prob cut, Bruno prefered 0.8
 
     else:
       print "*********************** ERROR, wrong configuration for Configured Secondary Vertex Cuts !!!"
