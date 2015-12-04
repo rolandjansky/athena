@@ -28,6 +28,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QScrollBar>
+#include <iostream>
 
 //____________________________________________________________________
 class VP1CustomTourEditor::Imp {
@@ -137,6 +138,7 @@ void VP1CustomTourEditor::closeEvent(QCloseEvent*ev)
 //____________________________________________________________________
 void VP1CustomTourEditor::Imp::addFrame(VP1CustomTourFrameWidget*frame)
 {
+  // std::cout<<"VP1CustomTourEditor::Imp::addFrame %= "<<frame->clipVolumePercentOfATLAS()<<std::endl;
   frames << frame;
   connect(frame,SIGNAL(requestStepToEarlier()),theclass,SLOT(frameStepToEarlier()));
   connect(frame,SIGNAL(requestStepToLater()),theclass,SLOT(frameStepToLater()));
@@ -230,7 +232,8 @@ void VP1CustomTourEditor::frameShow()
     if (d->viewer->isAnimating())
       d->viewer->stopAnimating();
     VP1CameraHelper::animatedZoomToCameraState( cam,static_cast<SoGroup*>(root),frame->camState(),
-						frame->zoomToFrameTime(),
+		        frame->zoomToFrameTime(),
+		        frame->clipVolumePercentOfATLAS(),
 						frame->zoomToFrameWithVariableSpeed(),
 						frame->zoomToFrameForcedCircular() );
   } else {
@@ -307,7 +310,7 @@ void VP1CustomTourEditor::buttonClicked()
     bool notifyenabled = cam->enableNotify(false);
     d->viewer->resetCamera();
     VP1CameraHelper::animatedZoomToBBox( cam,static_cast<SoGroup*>(root),
-					 box, 0.0, 1.0,lookat,upvec);
+					 box, 0.0, 100.0, 1.0,lookat,upvec);
     if (notifyenabled)
       cam->enableNotify(true);//Don't touch here - to avoid showing
 			      //the reset cam state (the camera helper
@@ -405,17 +408,27 @@ void VP1CustomTourEditor::addTourToAnimationSequencer(AnimationSequencer& as,boo
     if (frame->frameIsEnabled()) {
       double t(frame->zoomToFrameTime());
       if (firstInDirectJump) {
-	t = 0.0;
-	firstInDirectJump = false;
+        t = 0.0;
+        firstInDirectJump = false;
       }
-      as.sequence().addFrame(frame->camState(),t,
-			     frame->zoomToFrameWithVariableSpeed(),
-			     frame->zoomToFrameForcedCircular() );
+      
+      // std::cout<<"addTourToAnimationSequencer %="<<frame->clipVolumePercentOfATLAS()<<std::endl;
+      as.sequence().addFrame(frame->camState(),t, 
+                             frame->zoomToFrameWithVariableSpeed(),frame->zoomToFrameForcedCircular(), 
+                             frame->clipVolumePercentOfATLAS() );
       if (frame->stayOnFrameTime()>0.0)
-	as.sequence().addFrame(frame->camState(),frame->stayOnFrameTime(),false);
+        as.sequence().addFrame(frame->camState(),frame->stayOnFrameTime(),false, false, frame->clipVolumePercentOfATLAS());
     }
   }
 }
+
+void VP1CustomTourEditor::setClipVolumePercentOfATLAS(double percent){
+  emit clipVolumePercentOfATLAS( percent );
+  
+  // Let's assume ATLAS is 40m long. So emit this.
+  emit clipVolumeRadiusChanged( percent * 400 );
+}
+
 
 //____________________________________________________________________
 void VP1CustomTourEditor::disableObjectWhenTourNotAvailable(QObject *o)

@@ -17,19 +17,20 @@
 #include <cmath>
 
 //____________________________________________________________________
-VP1Interval::VP1Interval(const double& lower,const double& upper, bool openLower, bool openUpper)
-  : m_lower(lower), m_upper(upper), m_openLower(openLower), m_openUpper(openUpper)
+VP1Interval::VP1Interval(const double& lower,const double& upper, bool openLower, bool openUpper, bool excludeInterval )
+  : m_lower(lower), m_upper(upper), m_openLower(openLower), m_openUpper(openUpper), m_excludeInterval(excludeInterval)
 {
   testSanity();
 }
 
 //____________________________________________________________________
-void VP1Interval::set(const double& lower,const double& upper, bool openLower, bool openUpper)
+void VP1Interval::set(const double& lower,const double& upper, bool openLower, bool openUpper, bool excludeInterval)
 {
   m_lower = lower;
   m_upper = upper;
   m_openLower = openLower;
   m_openUpper = openUpper;
+  m_excludeInterval = excludeInterval;
   testSanity();
 }
 
@@ -74,15 +75,29 @@ bool VP1Interval::contains(const VP1Interval& other) const
   return true;
 }
 
+
+/*bool VP1Interval::contains(const double& x) const
+{
+ VP1Msg::messageDebug("m_excludeInterval: "+QString::number(m_excludeInterval));
+  if (m_excludeInterval) {
+  	return ! (!excludedByLower(x) && !excludedByUpper(x));
+  }
+  return !excludedByLower(x) && !excludedByUpper(x);
+}
+*/
+
 //____________________________________________________________________
 bool VP1Interval::contains(const double& x, const double& period ) const
 {
   if (isEmpty())
     return false;
+
   if (period<=0)
     return period==0;
+
   if (length()>=period)
     return true;
+
   //Translate x a number of periods, so that x is in
   //[lower,lower+period[, and compare:
   return contains(x+period*ceil((m_lower-x)/period));

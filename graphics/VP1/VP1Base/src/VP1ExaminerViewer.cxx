@@ -3,6 +3,7 @@
 */
 
 
+
 ////////////////////////////////////////////////////////////////
 //                                                            //
 //  Implementation of class VP1ExaminerViewer                 //
@@ -15,6 +16,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1ExaminerViewer.h"
+#include "VP1Base/VP1Controller.h"
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1CameraHelper.h"
 #include "VP1Base/VP1QtInventorUtils.h"
@@ -110,7 +112,6 @@ public:
   action_moviefps(0),
   action_movieoutdir(0),
   action_moviefadetocurrentview(0),
-
   detectorViewButtons(dvb),
   animationSequencer(tc),
   tourLoopsForever(false),
@@ -139,7 +140,7 @@ public:
 		// is not removed before the new rendering.
 		// theclass->setClearBeforeRender(FALSE, TRUE);
 		// theclass->setClearBeforeRender(FALSE, FALSE);
-		// theclass->setClearBeforeOverlayRender(FALSE);
+		// theclass->setClearBeforeOverlayRender(FALSE); 
 }
 
 
@@ -540,6 +541,16 @@ VP1ExaminerViewer::VP1ExaminerViewer(QWidget * parent,
 	 *   http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/ISpy/Client/src/ISpy3DView.cc?view=co
 	 */
 	setAutoClippingStrategy(CONSTANT_NEAR_PLANE, 0.9, fixedDistanceClipPlanesCB, this);
+
+  // Let's build this now, otherwise there will be problems with making the connections later:
+	d->customtoureditor = new VP1CustomTourEditor(this);
+	QObject::connect(&(d->animationSequencer),SIGNAL(clipVolumePercentOfATLAS(double)),d->customtoureditor,SLOT(setClipVolumePercentOfATLAS(double)));
+  VP1Controller::setCustomTourEditor(d->customtoureditor);
+	d->customtoureditor->disableObjectWhenTourNotAvailable(d->customtour_execute);
+	if (d->customtoureditorState!=QByteArray()) {
+		d->customtoureditor->setState(d->customtoureditorState);
+		d->customtoureditorState = QByteArray();
+	}   
 
 	// test Ric
 	VP1Msg::messageVerbose("is stereo: " + QString(isStereoViewing()) + " - offset: " + QString::number(getStereoOffsetSlot()) + " - type: " + QString::number(getStereoType()) );
@@ -1098,7 +1109,7 @@ void VP1ExaminerViewer::Imp::init()
 			takeTourButton=button;
 			QObject::connect(button,SIGNAL(clicked()), signalcatcher, SLOT(catchSignal()));
 			theclass->addAppPushButton(button);
-			QObject::connect(&animationSequencer,SIGNAL(animationFinishedSuccessfully()),signalcatcher,SLOT(catchSignal()));
+			QObject::connect(&animationSequencer,SIGNAL(animationFinishedSuccessfully()),signalcatcher,SLOT(catchSignal()));      
 		}
 	}
 	QWidget * w_spacer = new QWidget(tempparent);
@@ -1325,7 +1336,7 @@ void VP1ExaminerViewer::Imp::detectorZoomButtonClicked(std::pair<REGION,VIEW> p)
 	//   if (resetCamera_state!=QByteArray())
 	//     VP1CameraHelper::animatedZoomToCameraState( camera,root,resetCamera_state,1.0, true );
 	//   else
-	VP1CameraHelper::animatedZoomToSubTree(camera,root,regionsphere,1.0,0.1,lookat,upvec);
+	VP1CameraHelper::animatedZoomToSubTree(camera,root,regionsphere,1.0,100.0,100.0,0.1,lookat,upvec);
 
 	root->removeChild(regionsphere);
 	if (notifyenabled) {
@@ -2450,7 +2461,7 @@ void VP1ExaminerViewer::showPopupMenu()
 				if (sv.name()==name) {
 					if (isAnimating())
 						stopAnimating();
-					VP1CameraHelper::animatedZoomToCameraState( camera,root,sv.camState(),1.5, true );
+					VP1CameraHelper::animatedZoomToCameraState( camera,root,sv.camState(),1.5, 100.0, 100.0, true );
 					break;
 				}
 			}
@@ -2505,6 +2516,8 @@ void VP1ExaminerViewer::showPopupMenu()
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Launch custom tour editor.");
 		if (!d->customtoureditor) {
 			d->customtoureditor = new VP1CustomTourEditor(this);
+			QObject::connect(&(d->animationSequencer),SIGNAL(clipVolumePercentOfATLAS(double)),d->customtoureditor,SLOT(setClipVolumePercentOfATLAS(double)));
+      VP1Controller::setCustomTourEditor(d->customtoureditor);
 			d->customtoureditor->disableObjectWhenTourNotAvailable(d->customtour_execute);
 			if (d->customtoureditorState!=QByteArray()) {
 				d->customtoureditor->setState(d->customtoureditorState);
@@ -2660,25 +2673,29 @@ void VP1ExaminerViewer::showPopupMenu()
 //
 	if (selAct==d->popup_focal_value_action) {
 
-//		float old = d->popup_focal_value_action->data().toFloat();
+		//		float old = d->popup_focal_value_action->data().toFloat();
 		bool ok;
 		SoPerspectiveCamera * camera = dynamic_cast<SoPerspectiveCamera*>(getCamera());
-		float current_value = camera->focalDistance.getValue();
-		int newfocal = QInputDialog::getDouble(getWidget(),
-						"Change focal length", // title
-						"New focal length: ", // label
-						current_value, // initial value
-						0.1, // min value
-						2147483647, // max value
-						1, // decimals
-						&ok);
-		if (ok && current_value != newfocal) {
-			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed focal length to "+VP1Msg::str(newfocal));
-			d->popup_focal_value_action->setData(newfocal);
-//			SoCamera *camera = getCamera();
-			camera->focalDistance.setValue(newfocal);
-//			camera->heightAngle.setValue(newfocal);
-			d->popup_focal_value_action->setText("Change FOCAL LENGTH value [current: "+QString::number(newfocal)+"]");
+		if (!camera==NULL) {
+			float current_value = camera->focalDistance.getValue();
+			int newfocal = QInputDialog::getDouble(getWidget(),
+					"Change focal length", // title
+					"New focal length: ", // label
+					current_value, // initial value
+					0.1, // min value
+					2147483647, // max value
+					1, // decimals
+					&ok);
+			if (ok && current_value != newfocal) {
+				VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed focal length to "+VP1Msg::str(newfocal));
+				d->popup_focal_value_action->setData(newfocal);
+				//			SoCamera *camera = getCamera();
+				camera->focalDistance.setValue(newfocal);
+				//			camera->heightAngle.setValue(newfocal);
+				d->popup_focal_value_action->setText("Change FOCAL LENGTH value [current: "+QString::number(newfocal)+"]");
+			}
+		} else {
+			VP1Msg::message("Warning! No 'camera'...");
 		}
 		return;
 	}

@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 inline VP1Interval::VP1Interval()
-  : m_lower(0), m_upper(0), m_openLower(true), m_openUpper(true)
+  : m_lower(0), m_upper(0), m_openLower(true), m_openUpper(true), m_excludeInterval(false)
 {
 }
 
@@ -45,6 +45,11 @@ inline void VP1Interval::setUpper(const double& upper)
   testSanity();
 }
 
+inline void VP1Interval::setExcludeInterval(bool excludeInterval)
+{
+	m_excludeInterval = excludeInterval;
+}
+
 inline void VP1Interval::translate(const double& t)
 {
   m_lower += t;
@@ -70,6 +75,11 @@ inline double VP1Interval::openLower() const
 inline double VP1Interval::openUpper() const
 {
   return m_openUpper;
+}
+
+inline bool VP1Interval::excludeInterval() const
+{
+	return m_excludeInterval;
 }
 
 inline bool VP1Interval::isEmpty() const
@@ -113,8 +123,13 @@ inline bool VP1Interval::excludedByUpper(const double&x) const
 
 inline bool VP1Interval::contains(const double& x) const
 {
+  // FIXME: m_excludeInterval is not used now, fix me!
+  //if (m_excludeInterval) {
+  //	return ! (!excludedByLower(x) && !excludedByUpper(x));
+  //}
   return !excludedByLower(x) && !excludedByUpper(x);
 }
+
 
 inline QString VP1Interval::toString() const
 {

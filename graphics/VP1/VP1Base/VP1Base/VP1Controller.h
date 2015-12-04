@@ -40,6 +40,7 @@ class VP1Serialise;
 class VP1Deserialise;
 class SoMaterial;
 class VP1MaterialButton;
+class VP1CustomTourEditor;
 
 class VP1Controller : public QWidget, public VP1HelperClassBase {
 
@@ -54,6 +55,11 @@ public:
 
   QByteArray saveSettings() const;
   void restoreSettings(QByteArray);
+
+  // Need to be able to pass signals from customtoureditor to 
+  static void setCustomTourEditor(VP1CustomTourEditor* editor) { m_customTourEditor=editor;}
+  static VP1CustomTourEditor* customTourEditor() {return m_customTourEditor;}
+
 
 protected:
 
@@ -100,15 +106,23 @@ protected:
   //convenience:
   SoMaterial * getMaterial(VP1MaterialButton*) const;
   SoMaterial * fallBackMaterial() const;
-protected slots:
+  
+
+  protected slots:
   void testForChanges() { dummyUpdateTrigger(); }
-public slots:
+
+  public slots:
   void toggleDialogState(QObject* widget=0);
   void enabledButtonStateChanged();
   void collWidgetContentChanged();
-signals:
+
+
+  signals:
   void dummyUpdateTrigger();
+
+
 private:
+  static VP1CustomTourEditor* m_customTourEditor;
 
   class Imp;
   Imp * d;

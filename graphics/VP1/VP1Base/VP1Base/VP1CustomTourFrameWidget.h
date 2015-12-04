@@ -40,6 +40,7 @@ public:
   bool zoomToFrameForcedCircular() const;
   double zoomToFrameTime() const;//in seconds
   double stayOnFrameTime() const;//in seconds
+  double clipVolumePercentOfATLAS() const;//in percent
   bool camStateIsPerspective() const;
   QByteArray camState() const;
 

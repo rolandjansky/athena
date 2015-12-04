@@ -42,6 +42,7 @@ class AnimationSequencer : public QObject {
 
 signals:
   void animationFinishedSuccessfully();
+  void clipVolumePercentOfATLAS(double);
 
 private slots:
 

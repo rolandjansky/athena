@@ -45,31 +45,31 @@ public:
   //For zoom to persistified camera states:
   static VP1CameraHelper * animatedZoomToCameraState( SoCamera * camera, SoGroup * sceneroot,
 						      const QByteArray& camstate,
-						      double duration_in_secs = 1.0, bool varySpeed=true,
+						      double duration_in_secs = 1.0, double clipVolPercent=100.0, double lastClipVolPercent=100.0, bool varySpeed=true,
 						      bool forceCircular = false );
 
   //Imitate the zoom towards a point (similar to the ones initiated by the user in an examiner viewer):
   static VP1CameraHelper * animatedZoomToPoint( SoCamera * camera, SoGroup * sceneroot,
-						SbVec3f, double duration_in_secs = 1.0, bool varySpeed=true,
+						SbVec3f, double duration_in_secs = 1.0, double clipVolPercent=100.0, bool varySpeed=true,
 						bool forceCircular = false );
 
   //For the next three methods, slack < 1.0 gives tighter zoom and slack > 1.0 gives looser zoom.
   //The first two are more reliable:
   static VP1CameraHelper * animatedZoomToPath( SoCamera * camera, SoGroup * sceneroot,
-					       SoPath * path, double duration_in_secs = 1.0, double slack = 1.0,
+					       SoPath * path, double duration_in_secs = 1.0, double clipVolPercent=100.0, double slack = 1.0,
 					       const SbVec3f& lookat = SbVec3f(999,999,999),
 					       const SbVec3f& upvec = SbVec3f(999,999,999), bool varySpeed=true,
 					       bool forceCircular = false );
 
   static VP1CameraHelper *  animatedZoomToBBox( SoCamera * camera, SoGroup * sceneroot,
-						const SbBox3f& box,double duration_in_secs = 1.0, double slack = 1.0,
+						const SbBox3f& box,double duration_in_secs = 1.0, double clipVolPercent=100.0,  double slack = 1.0,
 						const SbVec3f& lookat = SbVec3f(999,999,999),
 						const SbVec3f& upvec = SbVec3f(999,999,999),bool varySpeed=true,
 						bool forceCircular = false );
 
   //Dont use the following if subtreeroot appears multiple times in your scenegraph:
   static VP1CameraHelper * animatedZoomToSubTree( SoCamera * camera, SoGroup * sceneroot,
-						  SoNode*subtreeroot,double duration_in_secs = 1.0, double slack = 1.0,
+						  SoNode*subtreeroot,double duration_in_secs = 1.0, double clipVolPercent=100.0, double lastClipVolPercent=100.0, double slack = 1.0,
 						  const SbVec3f& lookat = SbVec3f(999,999,999),
 						  const SbVec3f& upvec = SbVec3f(999,999,999), bool varySpeed=true,
 						  bool forceCircular = false );
@@ -93,6 +93,7 @@ public:
 signals:
   void animationFinished();//If Bob's your uncle and everything went as expected.
   void animationFinishedAbnormally();//If e.g. the camera was deleted by someone else during animation.
+  void clipVolumePercentageOfATLAS(double);//The percentage of the ATLAS vol corresponding the clipping volume
 
 private:
   VP1CameraHelper( SoCamera *, SoGroup * );

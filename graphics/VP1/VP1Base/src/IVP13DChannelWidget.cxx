@@ -129,9 +129,12 @@ void IVP13DChannelWidget::goingToNextEvent()
 //_______________________________________________________
 QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool batch)
 {
-	VP1Msg::messageVerbose("IVP13DChannelWidget::getSnapshot() - transparent bkg: "+QString(transp)+" , width: "+QString::number(width)+" , batch: "+QString(batch));
+	VP1Msg::messageVerbose("IVP13DChannelWidget::getSnapshot()");
 
-	//Unfortunately, the renderareas does not render properly by a
+    // TODO: check if transp and width can be used in this implementation of the method
+	VP1Msg::messageVerbose("(currently, we are not using the values - transp: "+QString::number(transp)+" - width: "+QString::number(width)+")");
+
+	//Unfortunately, the renderer's areas does not render properly by a
 	//simple grabWidget. We remedy this the hard way...
 	//  d->it = d->renderareas.begin();
 	//  message("Have "+QString::number(d->renderareas.size())+" ras");

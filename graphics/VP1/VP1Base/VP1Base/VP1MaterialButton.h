@@ -33,8 +33,8 @@ class VP1MaterialButtonBase : public QPushButton, public VP1HelperClassBase{
    virtual double lastAppliedShininess() const=0 ;
    virtual double lastAppliedBrightness() const=0;
    
-   QByteArray saveState() const; //!< fill out with the state of the object (used for drag and drop etc)
-   void restoreFromState( const QByteArray& );
+   virtual QByteArray saveState() const =0; //!< fill out with the state of the object (used for drag and drop etc)
+   virtual void restoreFromState( const QByteArray& )=0 ;
       
   virtual ~VP1MaterialButtonBase() {}
   signals:

@@ -1,235 +1,275 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>VP1CustomTourFrameWidgetForm</class>
- <widget class="QFrame" name="VP1CustomTourFrameWidgetForm" >
-  <property name="geometry" >
+ <widget class="QFrame" name="VP1CustomTourFrameWidgetForm">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
+    <width>430</width>
     <height>96</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Form</string>
   </property>
-  <property name="frameShape" >
+  <property name="frameShape">
    <enum>QFrame::Panel</enum>
   </property>
-  <property name="frameShadow" >
+  <property name="frameShadow">
    <enum>QFrame::Sunken</enum>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" >
-   <property name="margin" >
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="margin">
     <number>4</number>
    </property>
    <item>
-    <layout class="QGridLayout" name="gridLayout_3" >
-     <item rowspan="2" row="0" column="0" >
-      <layout class="QGridLayout" name="gridLayout" >
-       <property name="sizeConstraint" >
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0" rowspan="2">
+      <layout class="QGridLayout" name="gridLayout">
+       <property name="sizeConstraint">
         <enum>QLayout::SetFixedSize</enum>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>0</number>
        </property>
-       <item rowspan="2" row="0" column="1" >
-        <widget class="QLabel" name="label_snapshot" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+       <item row="0" column="1" rowspan="2">
+        <widget class="QLabel" name="label_snapshot">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="minimumSize" >
+         <property name="minimumSize">
           <size>
            <width>80</width>
            <height>80</height>
           </size>
          </property>
-         <property name="maximumSize" >
+         <property name="maximumSize">
           <size>
            <width>80</width>
            <height>80</height>
           </size>
          </property>
-         <property name="frameShape" >
+         <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
-         <property name="frameShadow" >
+         <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Snapshot</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0" >
-        <widget class="QPushButton" name="pushButton_moveEarlier" >
-         <property name="minimumSize" >
+       <item row="0" column="0">
+        <widget class="QPushButton" name="pushButton_moveEarlier">
+         <property name="minimumSize">
           <size>
            <width>20</width>
            <height>40</height>
           </size>
          </property>
-         <property name="maximumSize" >
+         <property name="maximumSize">
           <size>
            <width>20</width>
            <height>40</height>
           </size>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>^</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0" >
-        <widget class="QPushButton" name="pushButton_moveLater" >
-         <property name="minimumSize" >
+       <item row="1" column="0">
+        <widget class="QPushButton" name="pushButton_moveLater">
+         <property name="minimumSize">
           <size>
            <width>20</width>
            <height>40</height>
           </size>
          </property>
-         <property name="maximumSize" >
+         <property name="maximumSize">
           <size>
            <width>20</width>
            <height>40</height>
           </size>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>v</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="0" column="1" >
-      <layout class="QHBoxLayout" name="horizontalLayout_2" >
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLabel" name="label_camtypeicon" >
-         <property name="text" >
+        <widget class="QLabel" name="label_camtypeicon">
+         <property name="text">
           <string/>
          </property>
-         <property name="pixmap" >
-          <pixmap resource="icons.qrc" >:/icons/icons/perspective.png</pixmap>
+         <property name="pixmap">
+          <pixmap resource="icons.qrc">:/icons/icons/perspective.png</pixmap>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBox_frameEnabled" >
-         <property name="text" >
+        <widget class="QCheckBox" name="checkBox_frameEnabled">
+         <property name="text">
           <string>Enabled</string>
          </property>
-         <property name="checked" >
+         <property name="checked">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_remove" >
-         <property name="text" >
+        <widget class="QPushButton" name="pushButton_remove">
+         <property name="text">
           <string>Remove</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_show" >
-         <property name="text" >
+        <widget class="QPushButton" name="pushButton_show">
+         <property name="text">
           <string>Show</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
-     <item row="1" column="1" >
-      <layout class="QGridLayout" name="gridLayout_2" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label" >
-         <property name="text" >
+     <item row="1" column="1">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
           <string>Approach:</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="0" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_zoomToFrameTime" >
-         <property name="alignment" >
+       <item row="0" column="1">
+        <widget class="QDoubleSpinBox" name="doubleSpinBox_zoomToFrameTime">
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
-         <property name="accelerated" >
+         <property name="accelerated">
           <bool>true</bool>
          </property>
-         <property name="suffix" >
+         <property name="suffix">
           <string> s</string>
          </property>
-         <property name="singleStep" >
+         <property name="singleStep">
           <double>0.100000000000000</double>
          </property>
-         <property name="value" >
+         <property name="value">
           <double>1.500000000000000</double>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="label_2" >
-         <property name="text" >
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
           <string>Stay on view:</string>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="0" column="2" >
-        <widget class="QComboBox" name="comboBox_approachMethod" >
-         <property name="sizeAdjustPolicy" >
+       <item row="0" column="2">
+        <widget class="QComboBox" name="comboBox_approachMethod">
+         <property name="sizeAdjustPolicy">
           <enum>QComboBox::AdjustToContents</enum>
          </property>
          <item>
-          <property name="text" >
+          <property name="text">
            <string>Smoothed motion</string>
           </property>
          </item>
          <item>
-          <property name="text" >
+          <property name="text">
            <string>Constant motion</string>
           </property>
          </item>
          <item>
-          <property name="text" >
+          <property name="text">
            <string>Circular motion</string>
           </property>
          </item>
         </widget>
        </item>
-       <item row="2" column="1" >
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_stayOnFrameTime" >
-         <property name="alignment" >
+       <item row="2" column="1">
+        <widget class="QDoubleSpinBox" name="doubleSpinBox_stayOnFrameTime">
+         <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
-         <property name="accelerated" >
+         <property name="accelerated">
           <bool>true</bool>
          </property>
-         <property name="suffix" >
+         <property name="suffix">
           <string> s</string>
          </property>
-         <property name="singleStep" >
+         <property name="singleStep">
           <double>0.100000000000000</double>
          </property>
         </widget>
+       </item>
+       <item row="2" column="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Clip </string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="doubleSpinBox_clipVolumePercentOfATLAS">
+           <property name="toolTip">
+            <string>Percentage of ATLAS volume to express clipping volume. The exact use of this will depend on the configuation of the systems, but for instance it can be used to make tracks appear to grow with time.</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="accelerated">
+            <bool>true</bool>
+           </property>
+           <property name="suffix">
+            <string>%</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>100.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
     </layout>
    </item>
    <item>
-    <spacer name="horizontalSpacer" >
-     <property name="orientation" >
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="sizeHint" stdset="0" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>94</width>
        <height>20</height>
@@ -240,7 +280,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="icons.qrc" />
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
 </ui>

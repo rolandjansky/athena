@@ -86,29 +86,31 @@ VP1CustomTourFrameWidget::VP1CustomTourFrameWidget( QByteArray serialisedFrame,
   : QFrame(parent), d(new Imp(this))
 {
   VP1Deserialise s(serialisedFrame);
-  if (s.version()==0) {
-    d->camState = s.restoreByteArray();
-    d->camPerspective = s.restoreBool();
-    s.restore(d->ui.doubleSpinBox_zoomToFrameTime);
-    s.restore(d->ui.doubleSpinBox_stayOnFrameTime);
-    s.restore(d->ui.comboBox_approachMethod);
-    s.restore(d->ui.checkBox_frameEnabled);
-    QPixmap pm = s.restore<QPixmap>();
-    if (!pm.isNull())
-      d->ui.label_snapshot->setPixmap(pm);
-    s.warnUnrestored(this);
+  d->camState = s.restoreByteArray();
+  d->camPerspective = s.restoreBool();
+  s.restore(d->ui.doubleSpinBox_zoomToFrameTime);
+  s.restore(d->ui.doubleSpinBox_stayOnFrameTime);
+  if (s.version()>0) {
+  	s.restore(d->ui.doubleSpinBox_clipVolumePercentOfATLAS);
   }
+  s.restore(d->ui.comboBox_approachMethod);
+  s.restore(d->ui.checkBox_frameEnabled);
+  QPixmap pm = s.restore<QPixmap>();
+  if (!pm.isNull())
+    d->ui.label_snapshot->setPixmap(pm);
+  s.warnUnrestored(this);
   d->init();
 }
 
 //____________________________________________________________________
 QByteArray VP1CustomTourFrameWidget::serialise() const
 {
-  VP1Serialise s(0/*version*/);
+  VP1Serialise s(1/*version*/);
   s.save(d->camState);
   s.save(d->camPerspective);
   s.save(d->ui.doubleSpinBox_zoomToFrameTime);
   s.save(d->ui.doubleSpinBox_stayOnFrameTime);
+  s.save(d->ui.doubleSpinBox_clipVolumePercentOfATLAS);
   s.save(d->ui.comboBox_approachMethod);
   s.save(d->ui.checkBox_frameEnabled);
   s.save(d->ui.label_snapshot->pixmap() ? *(d->ui.label_snapshot->pixmap()) : QPixmap());
@@ -163,6 +165,12 @@ double VP1CustomTourFrameWidget::zoomToFrameTime() const
 double VP1CustomTourFrameWidget::stayOnFrameTime() const
 {
   return d->ui.doubleSpinBox_stayOnFrameTime->value();
+}
+
+//____________________________________________________________________
+double VP1CustomTourFrameWidget::clipVolumePercentOfATLAS() const
+{
+  return d->ui.doubleSpinBox_clipVolumePercentOfATLAS->value();
 }
 
 //____________________________________________________________________

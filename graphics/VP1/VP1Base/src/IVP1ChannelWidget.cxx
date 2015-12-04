@@ -26,7 +26,7 @@ public:
   cloneid(0), controller(0), state(CONSTRUCTED),
   canregistercontroller(false),
   canregistersystem(true),
-  runnumber(0), eventnumber(0)
+  runnumber(0), eventnumber(0), timestamp(0)
 {}
 	const QString name;
 	const QString information;
@@ -59,12 +59,14 @@ IVP1ChannelWidget::IVP1ChannelWidget(const QString & n, const QString & i, const
 //_______________________________________________________
 IVP1ChannelWidget::~IVP1ChannelWidget()
 {
+	VP1Msg::messageDebug("IVP1ChannelWidget::~IVP1ChannelWidget()");
 	assert(d->state==UNCREATED||d->state==CONSTRUCTED);
 	assert(!d->controller);
 	//Delete systems:
 	std::set<IVP1System *>::iterator it, itE = d->systems.end();
 	for (it=d->systems.begin();it!=itE;++it) {
 		assert((*it)->state()==IVP1System::UNCREATED||(*it)->state()==IVP1System::CONSTRUCTED);
+		VP1Msg::messageDebug("deleting system: "+ (*it)->name());
 		delete *it;
 	}
 	d->systems.clear();
@@ -128,6 +130,9 @@ void IVP1ChannelWidget::create()
 void IVP1ChannelWidget::systemRefreshed(IVP1System*s)
 {
 	assert(d->state==READY);
+	if(! s->state()==IVP1System::REFRESHED) {
+		VP1Msg::messageVerbose("s->state() != IVP1System::REFRESHED!");
+	}
 	assert(s->state()==IVP1System::REFRESHED);
 //	s = 0;//get rid of compile warning in opt mode
 	VP1Msg::messageDebug("systemRefreshed: "+s->name());
@@ -137,7 +142,11 @@ void IVP1ChannelWidget::systemRefreshed(IVP1System*s)
 void IVP1ChannelWidget::systemErased(IVP1System*s)
 {
 	assert(d->state==READY);
-	assert(s->state()==IVP1System::ERASED);
+	bool isErased = (s->state()==IVP1System::ERASED) ? true : false;
+	if(!isErased) {
+		VP1Msg::messageVerbose("s->state() != IVP1System::ERASED!");
+	}
+	assert(isErased);
 //	s = 0;//get rid of compile warning in opt mode
 	VP1Msg::messageDebug("systemErased: "+s->name());
 }
@@ -296,8 +305,10 @@ void IVP1ChannelWidget::setCanRegister(const bool&c,const bool&s)
 //_______________________________________________________
 QPixmap IVP1ChannelWidget::getSnapshot(bool transp, int width, bool batch)
 {
-	VP1Msg::messageVerbose("IVP1ChannelWidget::getSnapshot() - transparent bkg: "+QString(transp)+" , width: "+QString::number(width)+" , batch: "+QString(batch) );
-	return QPixmap::grabWidget ( this );
+	VP1Msg::messageVerbose("IVP1ChannelWidget::getSnapshot() - using QPixmap::grabWidget()");
+	VP1Msg::messageVerbose("(and so, not using the values - transp: "+QString::number(transp)+" - width: "+QString::number(width)+" - batch: " + batch +")");
+
+	return QPixmap::grabWidget( this );
 }
 
 //_______________________________________________________

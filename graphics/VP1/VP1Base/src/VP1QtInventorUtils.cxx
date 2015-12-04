@@ -184,8 +184,9 @@ public:
 			exit(1);
 		}
 
+
 		if ((image->type & 0xFF00) == 0x0100) {
-			x = image->ysize * image->zsize * sizeof(unsigned);
+			x = (image->ysize * image->zsize) * sizeof(unsigned);
 			image->rowStart = (unsigned *)malloc(x);
 			image->rowSize = (int *)malloc(x);
 			if (image->rowStart == NULL || image->rowSize == NULL) {
@@ -194,8 +195,13 @@ public:
 			}
 			image->rleEnd = 512 + (2 * x);
 			fseek(image->file, 512, SEEK_SET);
-			fread(image->rowStart, 1, x, image->file);
-			fread(image->rowSize, 1, x, image->file);
+
+			size_t bytesRead = 0;
+			bytesRead = fread(image->rowStart, 1, x, image->file);
+			VP1Msg::messageDebug("bytesRead(rowStart): " + QString::number(bytesRead));
+			bytesRead = fread(image->rowSize, 1, x, image->file);
+			VP1Msg::messageDebug("bytesRead(rowSize): " + QString::number(bytesRead));
+
 			if (swapFlag) {
 				ConvertLong(image->rowStart, x/(int)sizeof(unsigned));
 				ConvertLong((unsigned *)image->rowSize, x/(int)sizeof(int));
@@ -225,34 +231,42 @@ public:
 		unsigned char *iPtr, *oPtr, pixel;
 		int count;
 
-		if ((image->type & 0xFF00) == 0x0100) {
-			fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
-			fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
-					image->file);
+		if (image) {
+			if ((image->type & 0xFF00) == 0x0100) {
+				fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
+				fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
+						image->file);
 
-			iPtr = image->tmp;
-			oPtr = buf;
-			for (;;) {
-				pixel = *iPtr++;
-				count = (int)(pixel & 0x7F);
-				if (!count) {
-					return;
-				}
-				if (pixel & 0x80) {
-					while (count--) {
-						*oPtr++ = *iPtr++;
-					}
-				} else {
+				iPtr = image->tmp;
+				oPtr = buf;
+				for (;;) {
 					pixel = *iPtr++;
-					while (count--) {
-						*oPtr++ = pixel;
+					count = (int)(pixel & 0x7F);
+					if (!count) {
+						return;
+					}
+					if (pixel & 0x80) {
+						while (count--) {
+							*oPtr++ = *iPtr++;
+						}
+					} else {
+						pixel = *iPtr++;
+						while (count--) {
+							*oPtr++ = pixel;
+						}
 					}
 				}
-			}
-		} else {
-			fseek(image->file, 512+(y*image->xsize)+(z*image->xsize*image->ysize),
-					SEEK_SET);
-			fread(buf, 1, image->xsize, image->file);
+			} else {
+			fseek(image->file, 512+(y*image->xsize)+(z*image->xsize*image->ysize), SEEK_SET);
+
+			size_t bytesRead = 0;
+			bytesRead = fread(buf, 1, image->xsize, image->file);
+			VP1Msg::messageDebug("bytesRead(buf): " + QString::number(bytesRead));
+
+		}
+		}
+		else {
+			std::cout << "Warning! ImageGetRow() - no 'image'..." << std::endl;
 		}
 	}
 
@@ -465,13 +479,13 @@ QImage VP1QtInventorUtils::renderToImage(VP1ExaminerViewer *ra, int pixels_x, in
 	// get the scenegraph
 	SoNode *root = ra->getSceneManager()->getSceneGraph();
 	VP1Msg::messageVerbose("got the scenegraph");
-	std::cout << "root: " << root << std::endl;
+	//std::cout << "root: " << root << std::endl;
 
 	// get the overlay scenegraph
 //	SoNode *rootOverlay = ra->getOverlaySceneManager()->getSceneGraph();
 	SoNode *rootOverlay = ra->getOverlaySceneGraph();
 	VP1Msg::messageVerbose("got the overlay scenegraph");
-	std::cout << "overlay root: " << rootOverlay << std::endl;
+	//std::cout << "overlay root: " << rootOverlay << std::endl;
 
 	// set a new viewport to the preferred size
 	SbViewportRegion myViewport;
@@ -670,8 +684,8 @@ QString VP1QtInventorUtils::transparencyType2PrettyString( SoGLRenderAction::Tra
 	case SoGLRenderAction::ADD: return "Add"; break;
 	case SoGLRenderAction::DELAYED_ADD: return "Delayed add"; break;
 	case SoGLRenderAction::SORTED_OBJECT_ADD: return "Sorted object add"; break;
-	case SoGLRenderAction::BLEND: return "Blend"; break;
-	case SoGLRenderAction::SORTED_OBJECT_BLEND: return "Sorted object blend"; break;
+	case SoGLRenderAction::BLEND: return "Blend (Best for Geo volumes)"; break;
+	case SoGLRenderAction::SORTED_OBJECT_BLEND: return "Sorted object blend (Best for physics objects: jets, tracks, ...)"; break;
 	case SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_ADD: return "Sorted object sorted triangle add"; break;
 	case SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_BLEND: return "Sorted object sorted triangle blend"; break;
 	case SoGLRenderAction::NONE: return "None"; break;
