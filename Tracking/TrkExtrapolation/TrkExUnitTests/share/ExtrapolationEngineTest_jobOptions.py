@@ -22,7 +22,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
-#DetFlags.TRT_setOff()
+DetFlags.TRT_setOff()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 
@@ -31,8 +31,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 # build GeoModel
-DetDescrVersion = 'ATLAS-R2-2015-02-01-00'
-#DetDescrVersion = 'ATLAS-PX-ITK-00-00-00'
+#DetDescrVersion = 'ATLAS-R2-2015-02-01-00'
+DetDescrVersion = 'ATLAS-PX-ITK-00-00-00'
 from AtlasGeoModel import SetGeometryVersion 
 from AtlasGeoModel import GeoModelInit 
 
@@ -55,8 +55,8 @@ TrkDetFlags.TRT_BuildStrawLayers     = False
 
 # switch the material loading off
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-TrkDetFlags.MaterialSource              = 'COOL'
-#TrkDetFlags.MaterialSource              = 'Input'
+#TrkDetFlags.MaterialSource              = 'COOL'
+TrkDetFlags.MaterialSource              = 'Input'
 TrkDetFlags.MaterialVersion             = 20
 TrkDetFlags.MaterialSubVersion          = ''
 #TrkDetFlags.MaterialSubVersion          = 'f'
@@ -85,7 +85,7 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 # Number of events to be processed (default is until the end of
 # input, or -1, however, since we have no input, a limit needs
 # to be set explicitly, here, choose 10)
-theApp.EvtMax           = 1000
+theApp.EvtMax           = 2000
 ExToolOutputLevel       = INFO # VERBOSE # INFO #
 ExAlgorithmOutputLevel  = INFO # VERBOSE #
 
@@ -127,16 +127,16 @@ ExtrapolationEngineTest.NumberOfTestsPerEvent   = 100
 # parameters mode: 0 - neutral tracks, 1 - charged particles 
 ExtrapolationEngineTest.ParametersMode          = 1
 # do the full test backwards as well            
-ExtrapolationEngineTest.BackExtrapolation       = True
+ExtrapolationEngineTest.BackExtrapolation       = False
 # Smear the production vertex - standard primary vertex paramters
 ExtrapolationEngineTest.SmearOrigin             = False   
 ExtrapolationEngineTest.SimgaOriginD0           = 0.015 
 ExtrapolationEngineTest.SimgaOriginZ0           = 55.6
 # pT range for testing                        
-ExtrapolationEngineTest.PtMin                   = 1000
-ExtrapolationEngineTest.PtMax                   = 1000
+ExtrapolationEngineTest.PtMin                   = 100000
+ExtrapolationEngineTest.PtMax                   = 100000
 # The test range in Eta                      
-ExtrapolationEngineTest.EtaMin                  =  -3.5
+ExtrapolationEngineTest.EtaMin                  =   -3.5
 ExtrapolationEngineTest.EtaMax                  =   3.5
 # Configure how you wanna run                  
 ExtrapolationEngineTest.CollectSensitive        = True

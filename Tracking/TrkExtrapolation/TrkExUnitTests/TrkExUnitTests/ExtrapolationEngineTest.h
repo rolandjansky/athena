@@ -20,6 +20,10 @@
 
 class TTree;
 
+class PixelID;
+class SCT_ID;
+class AtlasDetectorID;
+
 namespace Trk {
     
     class IExtrapolationEngine;
@@ -62,6 +66,10 @@ namespace Trk {
        /** retrieve it */
        ToolHandle<IExtrapolationEngine>             m_extrapolationEngine;     
        
+       const AtlasDetectorID*                       m_idHelper;
+       const PixelID*                               m_pixel_ID;       //!< Handle to the ID helper
+       const SCT_ID*                                m_sct_ID;         //!< Handle to the ID helper
+              
        bool                                         m_parametersMode; // 0 - neutral, 1 - charged, 2 - multi
        int                                          m_particleHypothesis;
      
@@ -160,9 +168,18 @@ namespace Trk {
        std::vector< std::vector< float >* >         m_pP;                                              
        std::vector< std::vector< float >* >         m_pPt;
 
+       std::vector< int >*                          m_sensitiveSurfaceType;
        std::vector< int >*                          m_sensitiveLayerIndex;
        std::vector< float >*                        m_sensitiveLocalPosX;
        std::vector< float >*                        m_sensitiveLocalPosY;
+       std::vector< float >*                        m_sensitiveLocalPosR;
+       std::vector< float >*                        m_sensitiveLocalPosPhi;
+       std::vector< int >*                          m_sensitiveIsPixel;
+       std::vector< int >*                          m_sensitiveBarrelEndcap;
+       std::vector< int >*                          m_sensitiveLayerDisc;
+       std::vector< int >*                          m_sensitiveEtaModule;
+       std::vector< int >*                          m_sensitivePhiModule;
+       std::vector< int >*                          m_sensitiveSide;
        
        float                                        m_materialThicknessInX0;
        float                                        m_materialThicknessInL0;

@@ -15,6 +15,11 @@
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 #include "TrkExUtils/MaterialInteraction.h"
 #include "TrkGeometry/Layer.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 
 template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
 {
@@ -74,9 +79,18 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::runTestT()
         }
         
         if (m_collectSensitive){
-            m_sensitiveLayerIndex->clear();
-            m_sensitiveLocalPosX->clear();
+	    m_sensitiveLayerIndex->clear();
+	    m_sensitiveSurfaceType->clear();
+	    m_sensitiveLocalPosX->clear();
             m_sensitiveLocalPosY->clear();
+	    m_sensitiveLocalPosR->clear();
+            m_sensitiveLocalPosPhi->clear();
+	    m_sensitiveIsPixel->clear();
+            m_sensitiveBarrelEndcap->clear();
+            m_sensitiveLayerDisc->clear();
+            m_sensitiveEtaModule->clear();
+            m_sensitivePhiModule->clear();
+            m_sensitiveSide->clear();
         }
         
         for (size_t ip = 0; ip < m_parameterNames.size(); ++ip){
@@ -298,7 +312,7 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
     
     // loop over the collected information
     for (auto& es : ecc.extrapolationSteps){
-        // continue if we have parameters
+       // continue if we have parameters
        const T* parameters = es.parameters;
        if (parameters){
            // collect for stepwise extrapolation
@@ -331,15 +345,52 @@ template <class T, class P> StatusCode Trk::ExtrapolationEngineTest::fillStepInf
            m_pP[ip]->push_back(parameters->momentum().mag());
            m_pPt[ip]->push_back(parameters->momentum().perp());
            // check this
-	       if (ip == 0 && m_collectSensitive){
-               // fill the layer index and the local variables
-               int idx = parameters->associatedSurface().associatedLayer() ? 
-                   parameters->associatedSurface().associatedLayer()->layerIndex().value() : 0;
-               m_sensitiveLayerIndex->push_back(idx);
-               // loc X and loc Y
-	           m_sensitiveLocalPosX->push_back(parameters->localPosition().x()); 
-	           m_sensitiveLocalPosY->push_back(parameters->localPosition().y()); 
-	       }  
+	   if (ip == 0 && m_collectSensitive){
+             // fill the layer index and the local variables
+             int idx = parameters->associatedSurface().associatedLayer() ? 
+                 parameters->associatedSurface().associatedLayer()->layerIndex().value() : -1;
+             m_sensitiveLayerIndex->push_back(idx);
+	     int type = parameters->associatedSurface().type();
+	     m_sensitiveSurfaceType->push_back(type);
+	     
+	     if (type == Trk::Surface::Disc) {
+	       // loc R and loc phi
+	       m_sensitiveLocalPosR->push_back(parameters->localPosition()[Trk::loc1]); 
+	       m_sensitiveLocalPosPhi->push_back(parameters->localPosition()[Trk::loc2]); 
+	       Amg::Vector2D localCart = *(dynamic_cast<const Trk::DiscSurface*>(&parameters->associatedSurface())->localPolarToLocalCartesian(parameters->localPosition()));
+	       m_sensitiveLocalPosX->push_back(localCart[Trk::loc1]); 
+	       m_sensitiveLocalPosY->push_back(localCart[Trk::loc2]); 
+	     } else if (type == Trk::Surface::Plane) {
+	       // loc X and loc Y
+	       m_sensitiveLocalPosX->push_back(parameters->localPosition()[Trk::loc1]);
+	       m_sensitiveLocalPosY->push_back(parameters->localPosition()[Trk::loc2]); 
+	     }
+	     
+	     if (parameters->associatedSurface().associatedDetectorElement()) {
+	       Identifier id = parameters->associatedSurface().associatedDetectorElement()->identify();
+	       
+	       if (m_idHelper->is_pixel(id)) {
+		 // save pixel info
+		 m_sensitiveIsPixel->push_back(1);
+		 m_sensitiveBarrelEndcap->push_back(m_pixel_ID->barrel_ec(id));
+		 m_sensitiveLayerDisc->push_back(m_pixel_ID->layer_disk(id));
+		 m_sensitiveEtaModule->push_back(m_pixel_ID->eta_module(id));
+		 m_sensitivePhiModule->push_back(m_pixel_ID->phi_module(id));
+		 m_sensitiveSide->push_back(0);
+		 
+	       } else if (m_idHelper->is_sct(id)) {
+		 // save sct info 
+		 m_sensitiveIsPixel->push_back(0);
+		 m_sensitiveBarrelEndcap->push_back(m_sct_ID->barrel_ec(id));
+		 m_sensitiveLayerDisc->push_back(m_sct_ID->layer_disk(id));
+		 m_sensitiveEtaModule->push_back(m_sct_ID->eta_module(id));
+		 m_sensitivePhiModule->push_back(m_sct_ID->phi_module(id));
+		 m_sensitiveSide->push_back(m_sct_ID->side(id));
+	       }
+	       
+	     }
+	     
+	   }
                 
            // collect the material if configured to do so
            if (m_collectMaterial && es.material){

@@ -16,6 +16,10 @@ use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkValInterfaces      TrkValInterfaces-*      Tracking/TrkValidation
 use TrkGeometry           TrkGeometry-*           Tracking/TrkDetDescr
 use TrkExUtils            TrkExUtils-*            Tracking/TrkExtrapolation
+use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
+use Identifier            Identifier-*            DetectorDescription
+use InDetIdentifier       InDetIdentifier-*       InnerDetector/InDetDetDescr
+
 
 private
 library TrkExUnitTests *.cxx components/*.cxx

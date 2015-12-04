@@ -15,6 +15,9 @@
 Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, ISvcLocator* pSvcLocator) :
  Trk::TrkExUnitTestBase(name, pSvcLocator),
  m_extrapolationEngine(""),
+ m_idHelper(0),
+ m_pixel_ID(0),
+ m_sct_ID(0),
  m_parametersMode(1),
  m_particleHypothesis(2),
  m_smearProductionVertex(false),
@@ -41,16 +44,58 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
  m_stepwiseExtrapolation(false),
  m_stepsPhi(1),
  m_currentPhiStep(0),
+ m_etaScans(0),
  m_currentEta(0.),
+ m_phiScans(0),
  m_currentPhi(0.),
  m_splitCharge(false),
  m_writeTTree(true),
  m_treeName("ExtrapolationEngineTest"),
  m_treeFolder("/val/"),
- m_treeDescription("ExtrapolationEngine test setup"),    
+ m_treeDescription("ExtrapolationEngine test setup"),  
+ m_tree(0),
+ m_tRandom(0),
+ m_startPositionX(0),
+ m_startPositionY(0),
+ m_startPositionZ(0),
+ m_startPositionR(0),
+ m_startPhi(0),
+ m_startTheta(0),
+ m_startEta(0),
+ m_startP(0),
+ m_startPt(0),  
  m_charge(-1.0),
+ m_endSuccessful(0),
+ m_endPositionX(0),
+ m_endPositionY(0),
+ m_endPositionZ(0),
+ m_endPositionR(0),
+ m_endPhi(0),
+ m_endTheta(0),
+ m_endEta(0),
+ m_endP(0),
+ m_endPt(0),
+ m_endPathLength(0),
+ m_backSuccessful(0),
+ m_backPositionX(0),
+ m_backPositionY(0),
+ m_backPositionZ(0),
+ m_backPositionR(0),
+ m_backPhi(0),
+ m_backTheta(0),
+ m_backEta(0),
+ m_backP(0),
+ m_backPt(0),
+ /** lots of vectors, ignore **/
+ m_sensitiveLayerIndex(0),
+ m_sensitiveLocalPosX(0),
+ m_sensitiveLocalPosY(0),
  m_materialThicknessInX0(0.),
  m_materialThicknessInL0(0.),
+ m_materialThicknessZARho(0),
+ m_materialEmulatedIonizationLoss(0),
+ m_materialThicknessInX0Bwd(0),
+ m_materialThicknessInL0Bwd(0),
  m_materialThicknessInX0Sensitive(0.),
  m_materialThicknessInX0Passive(0.),
  m_materialThicknessInX0Boundary(0.),
@@ -64,8 +109,22 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
  m_materialPositionY(0),
  m_materialPositionZ(0),
  m_materialPositionR(0),
+ m_materialPositionP(0),
+ m_materialPositionPt(0),
  m_materialScaling(0),
- m_stepDirection(0)
+ m_stepDirection(0),
+ m_endStepSuccessful(0),
+ m_endStepPositionX(0),
+ m_endStepPositionY(0),
+ m_endStepPositionZ(0),
+ m_endStepPositionR(0),
+ m_endStepPhi(0),
+ m_endStepTheta(0),         
+ m_endStepEta(0),       
+ m_endStepP(0),         
+ m_endStepPt(0),       
+ m_endStepPathLength(0),
+ m_endStepThicknessInX0()
 {
     // the extrapolation engine
     declareProperty("ExtrapolationEngine",      m_extrapolationEngine);
@@ -133,8 +192,17 @@ StatusCode Trk::ExtrapolationEngineTest::finalize() {
         delete m_pPt[ip];
     }  
     delete m_sensitiveLayerIndex;
+    delete m_sensitiveSurfaceType;
     delete m_sensitiveLocalPosX;
     delete m_sensitiveLocalPosY;
+    delete m_sensitiveLocalPosR;
+    delete m_sensitiveLocalPosPhi;
+    delete m_sensitiveIsPixel;
+    delete m_sensitiveBarrelEndcap;
+    delete m_sensitiveLayerDisc;
+    delete m_sensitiveEtaModule;
+    delete m_sensitivePhiModule;
+    delete m_sensitiveSide;
     delete m_materialThicknessInX0Accumulated;
     delete m_materialThicknessInX0Steps;
     delete m_materialThicknessInL0Steps;
@@ -164,6 +232,25 @@ StatusCode Trk::ExtrapolationEngineTest::initializeTest()
         return StatusCode::FAILURE;
     } else 
         ATH_MSG_INFO("Successfully retrieved ExtrapolationEngine.");
+    
+    //ID Helper
+   if (detStore()->retrieve(m_idHelper, "AtlasID" ).isFailure()) {
+     ATH_MSG_ERROR ( "Could not get ATLAS ID helper" );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Successfully retrieved ATLAS ID Helper.");
+
+    if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
+        ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Successfully retrieved Pixel ID Helper.");
+    
+    if (detStore()->retrieve(m_sct_ID, "SCT_ID").isFailure()) {
+        ATH_MSG_ERROR ( "Could not get SCT ID helper" );
+        return StatusCode::FAILURE;
+    } else 
+        ATH_MSG_INFO("Successfully retrieved SCT ID Helper.");
         
     // success return
     return StatusCode::SUCCESS;    
@@ -243,17 +330,35 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree()
     
     if (m_collectSensitive){
         m_sensitiveLayerIndex      = new std::vector< int >;
+	m_sensitiveSurfaceType     = new std::vector< int >;
         m_sensitiveLocalPosX       = new std::vector< float >;
         m_sensitiveLocalPosY       = new std::vector< float >;
-        m_tree->Branch("SensitiveLayerIndex", m_sensitiveLayerIndex);
-        m_tree->Branch("SensitiveLocalPosX",  m_sensitiveLocalPosX);
-        m_tree->Branch("SensitiveLocalPosY",  m_sensitiveLocalPosY);
+	m_sensitiveLocalPosR       = new std::vector< float >;
+        m_sensitiveLocalPosPhi     = new std::vector< float >;
+	m_sensitiveIsPixel         = new std::vector< int >; 
+        m_sensitiveBarrelEndcap    = new std::vector< int >;
+        m_sensitiveLayerDisc       = new std::vector< int >;
+        m_sensitiveEtaModule       = new std::vector< int >;
+        m_sensitivePhiModule       = new std::vector< int >;
+        m_sensitiveSide            = new std::vector< int >;
+        m_tree->Branch("SensitiveLayerIndex"  ,  m_sensitiveLayerIndex);
+	m_tree->Branch("SensitiveSurfaceType" ,  m_sensitiveSurfaceType);
+        m_tree->Branch("SensitiveLocalPosX"   ,  m_sensitiveLocalPosX);
+        m_tree->Branch("SensitiveLocalPosY"   ,  m_sensitiveLocalPosY);
+	m_tree->Branch("SensitiveLocalPosR"   ,  m_sensitiveLocalPosR);
+        m_tree->Branch("SensitiveLocalPosPhi" ,  m_sensitiveLocalPosPhi);
+	m_tree->Branch("SensitiveIsPixel"     ,  m_sensitiveIsPixel);
+	m_tree->Branch("SensitiveBarrelEndcap",  m_sensitiveBarrelEndcap);
+	m_tree->Branch("SensitiveLayerDisc"   ,  m_sensitiveLayerDisc);
+	m_tree->Branch("SensitiveEtaModule"   ,  m_sensitiveEtaModule);
+	m_tree->Branch("SensitivePhiModule"   ,  m_sensitivePhiModule);
+	m_tree->Branch("SensitiveSide"        ,  m_sensitiveSide);
     }
     
     
     // collect the material, you need branches for this
     if (m_collectMaterial){
-        m_materialThicknessInX0Accumulated = new std::vector<float>;         
+        m_materialThicknessInX0Accumulated = new std::vector<float>;
         m_materialThicknessInX0Steps       = new std::vector<float>;
         m_materialThicknessInL0Steps       = new std::vector<float>;     
         m_materialPositionX                = new std::vector<float>;
