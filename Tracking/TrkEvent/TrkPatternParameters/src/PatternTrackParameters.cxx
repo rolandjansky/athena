@@ -16,7 +16,6 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
-#include "TrkParametersBase/ChargeDefinition.h"
 
 ///////////////////////////////////////////////////////////////////
 // Conversion Trk::PatternTrackParameters to  Trk::TrackParameters
