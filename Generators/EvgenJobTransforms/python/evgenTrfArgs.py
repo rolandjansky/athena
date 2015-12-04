@@ -83,4 +83,4 @@ def addStdEvgenArgs(parser):
 
     parser.add_argument("--outputTXTFile", group="Evgen",
                         help="optional output TXT file for LHEF events, default is None",
-                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
+                        type=trfArgClasses.argFactory(trfArgClasses.argFile))

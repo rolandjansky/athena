@@ -2,7 +2,7 @@
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
-Generate_tf.py --ecmEnergy=8000 --runNumber=119996 --maxEvents=10 \
-    --jobConfig=$JODIR/share/tests/MC14.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.py  \
-    --outputEVNTFile=test_minbias_inelastic_high.EVNT.pool.root \
+Generate_tf.py --ecmEnergy=13000 --runNumber=361035 --maxEvents=10 \
+    --jobConfig=$JODIR15/share/DSID361xxx/MC15.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.py \
+    --outputEVNTFile=test_minbias_high.EVNT.pool.root \
     $@

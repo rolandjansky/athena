@@ -51,7 +51,7 @@ def gen_require_steering(gennames):
     "Return a boolean of whether this set of generators requires the steering command line flag"
     if not "EvtGen" in gennames: return False
     if any(("Pythia" in gen and not "Pythia8" in gen) for gen in gennames): return True
-    #if any(("Herwig" in gen and not "Herwigpp" in gen) for gen in gennames): return True
+    if any(("Herwig" in gen and not "Herwigpp" in gen) for gen in gennames): return True
     return False
 
 def gen_known(genname):

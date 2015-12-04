@@ -14,7 +14,7 @@ theApp = acam.theApp
 acam.athMasterSeq += acas.AlgSequence("EvgenGenSeq")
 genSeq = acam.athMasterSeq.EvgenGenSeq
 #acam.athMasterSeq += acas.AlgSequence("EvgenFixSeq")
-l#fixSeq = acam.athMasterSeq.EvgenFixSeq
+#fixSeq = acam.athMasterSeq.EvgenFixSeq
 acam.athMasterSeq += acas.AlgSequence("EvgenPreFilterSeq")
 prefiltSeq = acam.athMasterSeq.EvgenPreFilterSeq
 acam.athFilterSeq += acas.AlgSequence("EvgenTestSeq")
@@ -248,14 +248,21 @@ gennames = sorted(evgenConfig.generators, key=gen_sortkey)
 if joparts[0].startswith("MC"): #< if this is an "official" JO
     genpart = jo_physshortparts[0]
     expectedgenpart = ''.join(gennames)
-    ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Jimmy" label
-    expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Jimmy")
+    ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Herwig" label
+    expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
         return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, genpart))
-        sys.exit(1)
+    def _norm2(s):
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+
+    def _short2(s):
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+
+    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
+        sys.exit(1) 
+
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
     if not gens_notune(gennames) and len(jo_physshortparts) < 3:
