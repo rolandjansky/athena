@@ -93,7 +93,7 @@ class mbtsGlobalTimeOffset(JobProperty):
 class zdcVetoThresholdLG(JobProperty): # Threshold for ZDC veto in Low Gain
     statusOn = True
     allowedTypes = ['float']
-    StoredValue = 10. # default
+    StoredValue = 1300. # default
  
 ##-----------------------------------------------------------------------------
 ## 2nd step
