@@ -15,6 +15,7 @@
 #include "VP1Base/VP1CollectionWidget.h"
 #include "VP1Base/VP1StdCollection.h"
 #include "VP1Base/VP1MaterialButton.h"
+#include "VP1Base/VP1Msg.h"
 #include <QtGui/QSpacerItem>
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
@@ -278,6 +279,7 @@ int VP1CollectionWidget::appropriateFixedWidth() const
 //____________________________________________________________________
 void VP1CollectionWidget::Imp::updateStatesWithCurrentInfo()
 {
+	VP1Msg::messageDebug("VP1CollectionWidget::Imp::updateStatesWithCurrentInfo()");
   VP1Collection::updateStates(states,VP1Collection::getStates(collections));
 }
 

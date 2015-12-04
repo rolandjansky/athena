@@ -12,6 +12,8 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1Collection.h"
+#include "VP1Base/VP1Msg.h"
+
 
 //____________________________________________________________________
 class VP1Collection::Imp {
@@ -46,6 +48,8 @@ VP1Collection::~VP1Collection()
 //____________________________________________________________________
 QByteArray VP1Collection::persistifiableID() const
 {
+	VP1Msg::messageDebug("VP1Collection::persistifiableID()");
+
   if (!d->persistIDProvided) {
     d->persistIDProvided = true;
     d->persistID = providePersistifiableID().toHex();//toHex() necessary for some unknown reason!
@@ -87,9 +91,16 @@ QString VP1Collection::sectionToolTip() const
 //____________________________________________________________________
 VP1CollStates VP1Collection::getStates(QList<VP1Collection*> cols)
 {
-  VP1CollStates states;
-  foreach (VP1Collection* col,cols)
+	VP1Msg::messageDebug("VP1Collection::getStates() - start...");
+
+	VP1CollStates states;
+  foreach (VP1Collection* col,cols) {
+	  VP1Msg::messageDebug("inserting collection: " + col->section() );
     states.insert(col->persistifiableID(),col->persistifiableState());
+  }
+
+  VP1Msg::messageDebug("VP1Collection::getStates() - end.");
+
   return states;
 }
 
@@ -104,9 +115,11 @@ void VP1Collection::applyStates(QList<VP1Collection*> cols, const VP1CollStates&
 //____________________________________________________________________
 void VP1Collection::updateStates(VP1CollStates& state, const VP1CollStates& newInfo)
 {
+	VP1Msg::messageDebug("VP1Collection::updateStates() - start...");
   QMapIterator<QByteArray,QByteArray> it(newInfo);
   while (it.hasNext()) {
     it.next();
     state.insert(it.key(),it.value());
   }
+	VP1Msg::messageDebug("VP1Collection::updateStates() - end.");
 }

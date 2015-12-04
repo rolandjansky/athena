@@ -1,12 +1,13 @@
 package VP1Base
 
 author Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
-manager Thomas Kittelmann <Thomas.Kittelmann@cern.ch>
+manager Riccardo Maria BIANCHI <rbianchi@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 use VP1Qt               VP1Qt-*              graphics/VP1
 use AtlasCoinInventor   AtlasCoinInventor-*  External
 use AtlasSoQt           AtlasSoQt-*          External
+
 private
 use VP1HEPVis           VP1HEPVis-*          graphics/VP1
 
@@ -32,6 +33,11 @@ apply_pattern declare_scripts files="generate-vp1-factory-code"
 ## macro_append VP1Base_linkopts "" \
 ##              notAsNeeded    "" \
 ##              asNeeded       " -Wl,--as-needed "
+
+private
+#macro_append cppflags "-std=c++0x -fPIC" # not needed, we comment it out
+#macro_append cppflags "-Wall -Wconversion" # to check implicit conversions; but it triggers many warnings from Inventor and Qt 'moc' files
+public
 
 pattern vp1plugin \
   action generatevp1factorycode "generate-vp1-factory-code" ; \

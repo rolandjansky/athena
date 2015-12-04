@@ -359,7 +359,7 @@ void VP1CustomStereoEditor::buttonClicked()
 			d->viewer->stereo_offset_camera = offset;
 			VP1Msg::messageDebug("Changed CAMERA STEREO offset to: "+QString::number(offset));
 		}
-		if (old_parallax != offset) {
+		if (old_parallax != parallax) {
 			camera->setBalanceAdjustment(parallax);
 			d->viewer->stereo_parallax_camera = parallax;
 			VP1Msg::messageDebug("Changed CAMERA STEREO balance/parallax to : "+QString::number(parallax));

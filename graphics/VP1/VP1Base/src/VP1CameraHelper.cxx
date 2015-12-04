@@ -36,6 +36,7 @@
 #include <QtGui/QPixmap>
 
 #include <map>
+#include <iostream>
 
 //____________________________________________________________________
 class VP1CameraHelper::Imp {
@@ -65,7 +66,9 @@ public:
   SoSFFloat camerastart_focalDistance, cameraend_focalDistance;
   bool camera_isperspective;
   SoSFFloat camerastart_ortho_height, cameraend_ortho_height;
+  
   bool varySpeed;
+  double clipVol_startPercentage, clipVol_percentage, clipVol_endPercentage;
 
   //Movie making mode:
 //  SoQtRenderArea * renderArea; // original
@@ -83,6 +86,7 @@ public:
   SbRotation last_cameraorient;
   SbVec3f last_cameraposition;
   SoSFFloat last_camera_ortho_height;
+  double clipVol_lastPercentage;
   void updateLastVars();
   bool lastParsChanged() const;
 
@@ -277,6 +281,7 @@ void VP1CameraHelper::Imp::updateLastVars()
   last_cameraorient = camera->orientation.getValue();
   if (!camera_isperspective)
     last_camera_ortho_height=static_cast<SoOrthographicCamera*>(camera)->height;
+  clipVol_lastPercentage = clipVol_percentage;
 }
 
 //____________________________________________________________________
@@ -295,12 +300,18 @@ bool VP1CameraHelper::Imp::lastParsChanged() const
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToCameraState( SoCamera * camera, SoGroup * sceneroot,
 							      const QByteArray& camstate,
-							      double duration_in_secs, bool varySpeed,
+							      double duration_in_secs, double clipVolPercent, double lastClipVolPercent, bool varySpeed,
 							      bool forceCircular )
 {
+  // std::cout<<"VP1CameraHelper::animatedZoomToCameraState - clipVol%="<<clipVolPercent<<" lastClipVolPercent"<<lastClipVolPercent<<std::endl;
+  // std::cout<<"clipVol_lastPercentage%="<<d->clipVol_lastPercentage<<", clipVol_percentage%="<<d->clipVol_percentage
+  //   <<", clipVol_startPercentage%="<<d->clipVol_startPercentage<<", clipVol_endPercentage%="<<d->clipVol_endPercentage<<std::endl;
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
   helper->d->actual_animatedZoomToCameraState( camstate,duration_in_secs );
   helper->d->varySpeed=varySpeed;
+  helper->d->clipVol_startPercentage=lastClipVolPercent;
+  helper->d->clipVol_percentage=lastClipVolPercent;
+  helper->d->clipVol_endPercentage=clipVolPercent;
   helper->d->forceCircular = forceCircular;
   return helper;
 }
@@ -358,10 +369,10 @@ void VP1CameraHelper::Imp::actual_animatedZoomToCameraState( const QByteArray& c
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper*  VP1CameraHelper::animatedZoomToPath( SoCamera * camera, SoGroup * sceneroot,
-						       SoPath * path,double duration_in_secs, double slack,
+						       SoPath * path,double duration_in_secs, double clipVolPercent, double slack,
 						       const SbVec3f& lookat, const SbVec3f& upvec, bool varySpeed,
 						       bool forceCircular )
-{
+{  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
   helper->d->actual_animatedZoomToPath( path,duration_in_secs, slack, lookat, upvec );
   helper->d->varySpeed=varySpeed;
@@ -400,10 +411,10 @@ void VP1CameraHelper::Imp::actual_animatedZoomToPath( SoPath * path,double durat
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToSubTree(SoCamera * camera, SoGroup * sceneroot,
-							 SoNode*subtreeroot,double duration_in_secs, double slack,
+							 SoNode*subtreeroot,double duration_in_secs, double clipVolPercent, double lastClipVolPercent, double slack,
 							 const SbVec3f& lookat, const SbVec3f& upvec, bool varySpeed,
 							 bool forceCircular )
-{
+{  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
   helper->d->actual_animatedZoomToSubTree( subtreeroot,duration_in_secs,slack,lookat,upvec );
   helper->d->varySpeed=varySpeed;
@@ -447,10 +458,11 @@ void VP1CameraHelper::Imp::actual_animatedZoomToSubTree( SoNode*subtreeroot,doub
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToBBox(SoCamera * camera, SoGroup * sceneroot,
-						      const SbBox3f& box,double duration_in_secs, double slack,
+						      const SbBox3f& box,double duration_in_secs, double clipVolPercent, double slack,
 						      const SbVec3f& lookat, const SbVec3f& upvec , bool varySpeed,
 						      bool forceCircular )
 {
+  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
   helper->d->actual_animatedZoomToBBox( box,duration_in_secs,slack,lookat,upvec );
   helper->d->varySpeed=varySpeed;
@@ -578,9 +590,9 @@ void VP1CameraHelper::Imp::actual_animatedZoomToBBox( const SbBox3f& box,double 
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToPoint(SoCamera * camera, SoGroup * sceneroot,
-						       SbVec3f targetpoint,double duration_in_secs, bool varySpeed,
+						       SbVec3f targetpoint,double duration_in_secs, double clipVolPercent, bool varySpeed,
 						       bool forceCircular )
-{
+{  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
   helper->d->actual_animatedZoomToPoint( targetpoint,duration_in_secs );
   helper->d->varySpeed=varySpeed;
@@ -702,6 +714,10 @@ void VP1CameraHelper::Imp::seeksensorCB(void * data, SoSensor * s)
   }
 
   if ((t > 1.0f) || (d->fps<=0&&(t + sensor->getInterval().getValue()/d->seekperiod > 1.0f))) t = 1.0f;
+  
+  d->clipVol_percentage = d->clipVol_startPercentage+(d->clipVol_endPercentage - d->clipVol_startPercentage)*t;
+  emit d->theclass->clipVolumePercentageOfATLAS(d->clipVol_percentage);
+
   bool end = (t == 1.0f);
 
   if (d->varySpeed)

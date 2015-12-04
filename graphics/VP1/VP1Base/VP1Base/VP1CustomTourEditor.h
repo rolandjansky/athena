@@ -43,6 +43,13 @@ public:
 
   void addTourToAnimationSequencer(AnimationSequencer&,bool jumpDirectlyToFirstFrame) const;
 
+signals:
+  void clipVolumePercentOfATLAS(double);
+  void clipVolumeRadiusChanged(double);
+
+public slots:
+  void setClipVolumePercentOfATLAS(double);
+
 protected:
   void closeEvent(QCloseEvent*);
 private slots:
