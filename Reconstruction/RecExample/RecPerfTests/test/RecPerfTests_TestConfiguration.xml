@@ -218,7 +218,74 @@
 
 
 
+      <jobTransform userJobId="fullsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Full Geant4 simulation (MC15 production setup, based on AMI tag s2745 )</doc>
+	<jobTransformJobName>fullsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; 
+	  Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 20 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Sim_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="fullsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
 
+      <jobTransform userJobId="fastsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>ATLFASTII simulation (MC15 production setup)</doc>
+	<jobTransformJobName>fastsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; 
+	  Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTII' --postInclude 'default:RecJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 20 --maxEvents 20 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Sim_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="fastsim_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
+
+      <jobTransform userJobId="digi_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40">
+	<doc>Digitization (MC15 production setup)</doc>
+	<jobTransformJobName>digi_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigitizationTestsCompFile DiffPool_Comp.pool.root; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 HITS.04919495._001041.pool.root.1; LowPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/"; for file in `eos ls $LowPtMinbiasHitsFile`; do  xrdcp root://eosatlas/$LowPtMinbiasHitsFile/$file $file ; done; HighPtMinbiasHitsFile="/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/"; for file in `eos ls $HighPtMinbiasHitsFile | grep 00067`; do  xrdcp root://eosatlas/$HighPtMinbiasHitsFile/$file $file ; done; Digi_tf.py --inputHITSFile HITS.04919495.*.pool.root.? --conditionsTag default:OFLCOND-RUN12-SDR-25 --digiSeedOffset1 170 --digiSeedOffset2 170 --geometryVersion ATLAS-R2-2015-03-01-00 --inputHighPtMinbiasHitsFile HITS.05098387.*.pool.root.? --inputLowPtMinbiasHitsFile HITS.05098374.*.pool.root.? --jobNumber 1 --maxEvents 25 --numberOfCavernBkg 0 --numberOfHighPtMinBias 0.12268057 --numberOfLowPtMinBias 39.8773194 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'HITtoRDO:from AthenaCommon.CfgGetter import getPublicTool;getPublicTool("MergeMcEventCollTool").OnlySaveSignalTruth=True;ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1' --postInclude 'default:PyJobTransforms/UseFrontier.py' --pileupFinalBunch 6 --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True);from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True;' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run222525_v1.py' --skipEvents 0 | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Digi_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  export userJobId="digi_mc15_ttbar_valid_13tev_25ns_mu00_to_mu40"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
 
 
     
