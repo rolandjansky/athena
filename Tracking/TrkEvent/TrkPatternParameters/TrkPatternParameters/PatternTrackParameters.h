@@ -16,6 +16,7 @@
 #define PatternTrackParameters_H
 
 #include "TrkParametersBase/ParametersBase.h"
+#include "TrkParametersBase/Charged.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
 
