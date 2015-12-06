@@ -34,12 +34,14 @@ namespace Trk {
       /** structure to hold the information for the eta/phi projection of RPC, TGC and CSC
 	  chambers and per multilayer for MDT chambers */
       struct Projection {
-        Projection() : nhits(0),nholes(0),noutliers(0),ndeltas(0), ncloseHits(0){}
+      Projection() : nhits(0),nholes(0),noutliers(0),ndeltas(0), ncloseHits(0), ngoodHits(0), noutBounds(0) {}
         int nhits;      //<! number of hits on track in the projection
         int nholes;     //<! number of holes in the projection
         int noutliers;  //<! number of outliers in the projection
         int ndeltas;    //<! number of delta electrons in the projection (only filled for MDT chambers)
         int ncloseHits; //<! number of hits within a road around the track in the projection
+	int ngoodHits;  //<! number of hits that matter for the track
+	int noutBounds; //<! number of out-of-bounds hits
       };
 
       ChamberHitSummary(  ):m_chId{},m_isMdt{} {}
@@ -69,6 +71,12 @@ namespace Trk {
 
       /** returns the total number of close hits in the chamber */
       int ncloseHits() const { return first.ncloseHits + second.ncloseHits; }
+
+      /** returns the number of non-deweighted hits in the chamber */
+      int ngoodHits() const { return first.ngoodHits + second.ngoodHits; }
+
+      //returns the number of out of bounds hits
+      int noutBoundsHits() const { return first.noutBounds + second.noutBounds; }
 
       /** returns the total number of eta hits on track  in the chamber */
       int netaHits() const { return isMdt() ? nhits() : first.nhits; }
