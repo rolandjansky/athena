@@ -66,6 +66,16 @@ public:
         double positionAlongStrip
     );
 
+    // Alternate constructor that doesn't dereference the RIO link.
+    TgcClusterOnTrack(
+                      const ElementLinkToIDC_TGC_Container& RIO,
+                      const Trk::LocalParameters& locpos,
+                      const Amg::MatrixX& locerr,
+                      const Identifier& id,
+                      const MuonGM::TgcReadoutElement* detEl,
+                      double positionAlongStrip
+                      );
+
     /** @brief Destructor*/
     virtual ~TgcClusterOnTrack();
 
@@ -74,6 +84,7 @@ public:
 
     /** @brief Returns the TgcPrepData - is a TRT_DriftCircle in this scope*/
     virtual const TgcPrepData* prepRawData() const;
+    const ElementLinkToIDC_TGC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
     virtual const MuonGM::TgcReadoutElement* detectorElement() const;
@@ -116,6 +127,11 @@ inline const TgcPrepData* TgcClusterOnTrack::prepRawData() const
 {
     if (m_rio.isValid()) return m_rio.cachedElement(); 
     else return 0;
+}
+
+inline const ElementLinkToIDC_TGC_Container& TgcClusterOnTrack::prepRawDataLink() const
+{
+  return m_rio;
 }
 
 inline const MuonGM::TgcReadoutElement*  TgcClusterOnTrack::detectorElement() const

@@ -65,6 +65,7 @@ public:
     MdtDriftCircleOnTrack(const MdtDriftCircleOnTrack &);
 
     MdtDriftCircleOnTrack &operator=(const MdtDriftCircleOnTrack &);
+    MdtDriftCircleOnTrack &operator=(MdtDriftCircleOnTrack &&);
 
 
 
@@ -132,6 +133,21 @@ public:
                            );
 
 
+    // Alternate constructor that doesn't dereference the RIO link.
+    MdtDriftCircleOnTrack( 
+        const ElementLinkToIDC_MDT_Container& RIO, 
+        const Trk::LocalParameters&     locPos, 
+        const Amg::MatrixX&             errDriftRadius, 
+        const Identifier&               id,
+        const MuonGM::MdtReadoutElement* detEl,
+        const double                    driftTime,
+        const Trk::DriftCircleStatus    status,  
+        double                          positionAlongWire, 
+        float                           localAngle,
+        const MuonDriftCircleErrorStrategy& errorStrategy,
+        const Trk::StraightLineSurface* surface
+                           );
+
     /** @brief Destructor: */
     virtual ~MdtDriftCircleOnTrack();
 
@@ -148,6 +164,7 @@ public:
 
     /** @brief Returns the PrepRawData used to create this corrected measurement */
     virtual const MdtPrepData* prepRawData() const;
+    const ElementLinkToIDC_MDT_Container& prepRawDataLink() const;
 
     /** @brief Returns the hashID of the PRD collection */
     virtual IdentifierHash collectionHash() const;
@@ -221,6 +238,9 @@ private:
     If there is a sagged wire defined, this will be used for the transformation, otherwise the detector element surface is used*/
     void setGlobalPosition(HepGeom::Point3D<double>& loc3Dframe) const;                  
 
+    //Sets the error strategy, only used by the Muon::MdtDriftCircleOnTrackCreator
+    void setErrorStrategy(const MuonDriftCircleErrorStrategy* strategy);
+
     /**information on the status of the Mdt measurement - see Trk::DriftCircleStatus for definitions*/
     Trk::DriftCircleStatus                      m_status;
     
@@ -280,6 +300,11 @@ inline const MdtPrepData* MdtDriftCircleOnTrack::prepRawData() const
     return 0;
 }
 
+inline const ElementLinkToIDC_MDT_Container& MdtDriftCircleOnTrack::prepRawDataLink() const
+{
+  return m_rio;
+}
+
 inline IdentifierHash MdtDriftCircleOnTrack::collectionHash() const
 {
     const MdtPrepData* prd = prepRawData();
@@ -302,6 +327,11 @@ inline  void MdtDriftCircleOnTrack::setLocalParameters(const Trk::LocalParameter
 {
     // update base class values
   m_localParams = locParams;
+}
+
+inline void MdtDriftCircleOnTrack::setErrorStrategy(const MuonDriftCircleErrorStrategy* strategy)
+{
+  m_errorStrategy=*strategy;
 }
 
 inline  void MdtDriftCircleOnTrack::setValues(const Trk::TrkDetElementBase* detEl,
