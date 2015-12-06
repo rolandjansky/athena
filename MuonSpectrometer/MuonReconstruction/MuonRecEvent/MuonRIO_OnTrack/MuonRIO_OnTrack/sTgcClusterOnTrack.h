@@ -14,6 +14,8 @@
 
 typedef ElementLink<Muon::sTgcPrepDataContainer> ElementLinkToIDC_STGC_Container;
 
+class STGC_ClusterOnTrackCnv_p1;
+
 namespace MuonGM
 {
   class sTgcReadoutElement;
@@ -33,6 +35,7 @@ namespace Muon
 
   public:
     friend class  Trk::ITrkEventCnvTool;
+    friend class ::STGC_ClusterOnTrackCnv_p1;
 
     sTgcClusterOnTrack();
     sTgcClusterOnTrack(const sTgcClusterOnTrack &);
@@ -61,6 +64,7 @@ namespace Muon
 
     /** @brief Returns the sTgcPrepData - is a TRT_DriftCircle in this scope*/
     virtual const sTgcPrepData* prepRawData() const;
+    virtual const ElementLinkToIDC_STGC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
     virtual const MuonGM::sTgcReadoutElement* detectorElement() const;
@@ -103,6 +107,11 @@ namespace Muon
   {
     if (m_rio.isValid()) return m_rio.cachedElement(); 
     else return 0;
+  }
+
+  inline const ElementLinkToIDC_STGC_Container& sTgcClusterOnTrack::prepRawDataLink() const
+  {
+    return m_rio;
   }
 
   inline const MuonGM::sTgcReadoutElement*  sTgcClusterOnTrack::detectorElement() const
