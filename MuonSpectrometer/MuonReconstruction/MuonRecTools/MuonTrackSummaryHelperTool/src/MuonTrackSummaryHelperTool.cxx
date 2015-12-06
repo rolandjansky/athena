@@ -18,6 +18,8 @@
 
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
+#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+#include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -332,6 +334,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
   }
 
   ATH_MSG_DEBUG("Adding detailed muon track summary");
+  ATH_MSG_DEBUG(track.info());
   // loop over track and get chamber Identifiers
   const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
   if( !states || states->empty() ){
@@ -417,8 +420,21 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       continue;
     }
 
+    if(!pars){
+      ATH_MSG_DEBUG("measurement without pars");
+      continue;
+    }
+
+    Amg::Vector2D locPos;
+    if( !meas->associatedSurface().globalToLocal(pars->position(),pars->position(),locPos) ){
+      ATH_MSG_DEBUG(" localToGlobal failed !!!!! " );
+      continue;
+    }
+    bool inBounds = true;
+
     Identifier id;
     std::set<Identifier> layIds;
+    std::set<Identifier> goodLayIds; //holds mdt hits that have not been deweighted
 
     // check whether ROT
     const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
@@ -426,8 +442,29 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       id = rot->identify();
       if( !m_idHelperTool->isMuon(id) ) continue;
 
+      // bound checks
+      double tol1 = 100.;
+      double tol2 = 2*tol1;
+      if( !pseudo && m_idHelperTool->isMdt(id) ) tol1 = 5.;
+      // we need a special bound check for MDTs so we cast to SL surface
+      const Trk::StraightLineSurface* slSurf = dynamic_cast<const Trk::StraightLineSurface*>(&meas->associatedSurface());
+      if( slSurf ) {
+	// perform bound check only for second coordinate
+	inBounds = slSurf->bounds().insideLoc2(locPos,tol2);
+      }else{
+	inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
+      }
+
       Identifier layId =  m_idHelperTool->layerId( id );
       layIds.insert(layId);
+      const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
+      if(mdtdc){
+	MuonDriftCircleErrorStrategy errStrat=mdtdc->errorStrategy();
+	if(!(errStrat.creationParameter(MuonDriftCircleErrorStrategy::BroadError) && errStrat.creationParameter(MuonDriftCircleErrorStrategy::FixedError))
+	   && !errStrat.creationParameter(MuonDriftCircleErrorStrategy::StationError)){
+	  goodLayIds.insert(layId);
+	}
+      }
     }else{
       const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
       if( crot ){
@@ -482,7 +519,6 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
 
       if( isMdt ){
-
 	if( pars ){
 	  double rDrift = fabs(meas->localParameters()[Trk::locR]);
 	  double rTrack = fabs(pars->parameters()[Trk::locR]);
@@ -497,7 +533,9 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
     }else{
       proj.nhits += layIds.size();
+      proj.ngoodHits += goodLayIds.size();
     } 
+    if(!inBounds && isMdt) proj.noutBounds++;
 
   } //end of for loop over Track State on Surfaces      
 
@@ -587,6 +625,8 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
     extrapolator = &*(m_slExtrapolator);
   }
   if ( !extrapolator ) return;
+
+  ATH_MSG_DEBUG("road hits for chamber "<<m_idHelperTool->toString(chamberHitSummary.chamberId()));
 
   //currently treating MDTs only
   if(!chamberHitSummary.isMdt()) return;
