@@ -130,14 +130,19 @@ namespace Muon {
 
       MuonStationIndex::StIndex index = m_idHelper->stationIndex(chId);
       HitSummary& hitSummary = sum.stationLayers[index];
+      hitSummary.isEndcap=m_idHelper->isEndcap(chId);
+      hitSummary.isSmall=m_idHelper->isSmallChamber(chId);
       if( isMdt ){
         hitSummary.nprecisionHits  += chit->nhits();
         hitSummary.nprecisionHoles += chit->nholes();
         hitSummary.nprecisionOutliers += chit->noutliers();
         hitSummary.nprecisionCloseHits += chit->ncloseHits();
+	hitSummary.nprecisionGoodHits += chit->ngoodHits();
+	hitSummary.noutBoundsHits += chit->noutBoundsHits();
       }else{
         if( isEIPrec ){
           hitSummary.nprecisionHits  += chit->netaHits();
+	  hitSummary.nprecisionGoodHits += chit->netaHits();
           hitSummary.nprecisionHoles += chit->etaProjection().nholes;	
           hitSummary.nprecisionOutliers += chit->etaProjection().noutliers;
           hitSummary.nprecisionCloseHits += chit->etaProjection().ncloseHits;
@@ -179,6 +184,7 @@ namespace Muon {
 
   void MuonHitSummaryTool::calculateSummaryCounts(IMuonHitSummaryTool::CompactSummary& sum) const {
     sum.nprecisionLayers = 0;
+    sum.nprecisionGoodLayers=0;
     sum.nprecisionHoleLayers = 0;
     sum.nphiLayers = 0;         
     sum.ntrigEtaLayers = 0;     
@@ -192,7 +198,16 @@ namespace Muon {
       sum.ntrigEtaLayers += hitSummary.netaTriggerLayers;
       sum.nphiHoleLayers += hitSummary.nphiHoleLayers;
       sum.ntrigEtaHoleLayers += hitSummary.netaTriggerHoleLayers;
-      if( hitSummary.nprecisionHits > 2 )       ++sum.nprecisionLayers;
+      if( hitSummary.nprecisionHits > 2 ){
+	++sum.nprecisionLayers;
+	if(hitSummary.nprecisionGoodHits > 2 ){  
+	  ++sum.nprecisionGoodLayers; 
+	  if(hitSummary.isEndcap) sum.isEndcap=true;
+	  else sum.isEndcap=false;
+	  if(hitSummary.isSmall) sum.isSmall=true;
+	  else sum.isSmall=false;
+	}
+      }
       else if( hitSummary.nprecisionHoles > 2 ) ++sum.nprecisionHoleLayers;
     } 
     sum.nphiLayers = sum.phiLayers.size();
