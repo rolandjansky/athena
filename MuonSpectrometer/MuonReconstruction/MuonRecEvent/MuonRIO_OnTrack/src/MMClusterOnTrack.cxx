@@ -36,6 +36,19 @@ namespace Muon
     m_rio.setElement(RIO);
   }
 
+  MMClusterOnTrack::MMClusterOnTrack(
+                                     const ElementLinkToIDC_MM_Container& RIO,
+                                     const Trk::LocalParameters& locpos,
+                                     const Amg::MatrixX& locerr,
+                                     const Identifier& id,
+                                     const MuonGM::MMReadoutElement* detEl,
+                                     double positionAlongStrip) :
+    MuonClusterOnTrack(locpos, locerr, id, positionAlongStrip), //call base class constructor
+    m_rio( RIO ),
+    m_detEl( detEl )
+  {
+  }
+
   // Destructor:
   MMClusterOnTrack::~MMClusterOnTrack()
   {

@@ -54,6 +54,23 @@ RpcClusterOnTrack::RpcClusterOnTrack(
     m_rio.setElement(RIO);
  }
 
+
+RpcClusterOnTrack::RpcClusterOnTrack(
+                     const ElementLinkToIDC_RPC_Container& RIO,
+                     const Trk::LocalParameters& locpos,
+                     const Amg::MatrixX& locerr,
+                     const Identifier& id,
+                     const MuonGM::RpcReadoutElement* detEl,
+                     double positionAlongStrip,
+                     float time) 
+    :
+    MuonClusterOnTrack(locpos, locerr, id, positionAlongStrip ), //call base class constructor
+    m_rio (RIO),
+    m_detEl( detEl ),
+    m_time(time)
+{
+}
+
 // Destructor:
 RpcClusterOnTrack::~RpcClusterOnTrack()
 {
