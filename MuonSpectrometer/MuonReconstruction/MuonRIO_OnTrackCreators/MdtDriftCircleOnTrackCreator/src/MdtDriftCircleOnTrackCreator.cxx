@@ -635,7 +635,7 @@ const Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::updateErr
   }
   Muon::MdtDriftCircleOnTrack* rot = DCT.clone();
  rot->m_localCovariance(0,0) = sigmaR2; 
-  
+ rot->setErrorStrategy(myStrategy);
   
   
   ATH_MSG_VERBOSE("updated error for " << m_idHelper->toString(DCT.identify()) << " new error " << Amg::error(rot->localCovariance(),Trk::locR)
@@ -1039,6 +1039,14 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyLoose(const MuonDri
         ATH_MSG_VERBOSE(" track error BIS78 ");
         if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
         else                                       return 4*sigmaR2 + 25;    // 2* + 5. mm
+      }else if( stIndex == MuonStationIndex::BM && m_idHelper->stationPhi(id) == 7 && 
+                (m_idHelper->mdtIdHelper()).stationName(id) == 53 ){
+        ATH_MSG_VERBOSE(" track error BME ");
+        return 1.44*sigmaR2 + 0.25; // 1.2* + 0.5 mm
+      }else if( stIndex == MuonStationIndex::BO && m_idHelper->chamberIndex(id) == MuonStationIndex::BOL &&
+                abs(m_idHelper->stationEta(id)) == 7 && m_idHelper->stationPhi(id) == 7 ){
+        ATH_MSG_VERBOSE(" track error BOE ");
+        return 1.44*sigmaR2 + 0.25; // 1.2* + 0.5 mm
       }
       ATH_MSG_VERBOSE(" track station error  ");
       return 1.44*sigmaR2 + 0.04; // 1.2* + 0.2 mm
@@ -1119,7 +1127,19 @@ double Muon::MdtDriftCircleOnTrackCreator::mooreErrorStrategyTight(const MuonDri
         abs(m_idHelper->stationEta(id)) > 6 ){
           ATH_MSG_VERBOSE(" track error BIS78 ");
           if( abs(m_idHelper->stationEta(id)) == 7 ) return 1.44*sigmaR2 + 1.; // 1.2* + 1. mm
-          else                                       return 4*sigmaR2 + 4;    // 2* + 2. mm
+          else                                       return 4*sigmaR2 + 1.;    // 2* + 1. mm
+      }else if( stIndex == MuonStationIndex::BM && m_idHelper->stationPhi(id) == 7 && 
+		(m_idHelper->mdtIdHelper()).stationName(id) == 53 ){
+          ATH_MSG_VERBOSE(" track error BME ");
+          return 1.21*sigmaR2 + 0.25; // 1.1* + 0.5 mm
+      }else if( stIndex == MuonStationIndex::BO && m_idHelper->chamberIndex(id) == MuonStationIndex::BOL &&
+        abs(m_idHelper->stationEta(id)) == 7 && m_idHelper->stationPhi(id) == 7 ){
+          ATH_MSG_VERBOSE(" track error BOE ");
+          return 1.21*sigmaR2 + 0.25; // 1.1* + 0.5 mm
+      }else if( stIndex == MuonStationIndex::EE && m_idHelper->chamberIndex(id) == MuonStationIndex::EEL &&
+        m_idHelper->stationEta(id) < 0 && m_idHelper->stationPhi(id) == 3 ){
+          ATH_MSG_VERBOSE(" track error EEL1C05 ");
+          return 1.21*sigmaR2 + 25.; // 1.1* + 5 mm
       }
       ATH_MSG_VERBOSE(" track station error  ");
       return 1.21*sigmaR2 + 0.04; // 1.1* + 0.2 mm
