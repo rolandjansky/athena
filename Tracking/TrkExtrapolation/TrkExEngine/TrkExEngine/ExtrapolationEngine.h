@@ -27,6 +27,7 @@ namespace Trk {
   
   class TrackingGeometry;
   class IPropagationEngine;    
+  class INavigationEngine;        
 
   /** @class ExtrapolationEngine 
       
@@ -101,6 +102,8 @@ namespace Trk {
         ToolHandleArray<IExtrapolationEngine>               m_extrapolationEngines;      //!< the extrapolation engines for retrieval
         ToolHandle<IPropagationEngine>                      m_propagationEngine;         //!< the used propagation engine for navigation initialization
         std::vector<const IExtrapolationEngine*>            m_eeAccessor;                //!< the extrapolation engines for 
+
+        ToolHandle<INavigationEngine>                       m_navigationEngine;          //!< access to tracking geometry (unique?)
 
         //!< forces a global search for the initialization, allows to switch TrackingGeometries in one job
         bool                                                m_forceSearchInit; 
