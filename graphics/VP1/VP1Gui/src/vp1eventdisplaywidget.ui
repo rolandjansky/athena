@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>985</width>
-    <height>731</height>
+    <width>1038</width>
+    <height>923</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -127,6 +127,9 @@
                  </item>
                  <item>
                   <widget class="QRadioButton" name="radioButton_blue">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="text">
                     <string>Blue</string>
                    </property>
@@ -151,7 +154,7 @@
                     <string>300 px</string>
                    </property>
                    <property name="checked">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -166,6 +169,30 @@
                   <widget class="QRadioButton" name="radioButton_600px">
                    <property name="text">
                     <string>600 px</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioButton_800px">
+                   <property name="text">
+                    <string>800 px</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioButton_1000px">
+                   <property name="text">
+                    <string>1000 px</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioButton_1200px">
+                   <property name="text">
+                    <string>1200 px</string>
                    </property>
                   </widget>
                  </item>
@@ -337,7 +364,7 @@
                      <string>12</string>
                     </property>
                     <property name="checked">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                    </widget>
                   </item>
@@ -352,6 +379,16 @@
                    <widget class="QRadioButton" name="radioButton_size32">
                     <property name="text">
                      <string>32</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="radioButton_size44">
+                    <property name="text">
+                     <string>44</string>
+                    </property>
+                    <property name="checked">
+                     <bool>true</bool>
                     </property>
                    </widget>
                   </item>
@@ -401,7 +438,7 @@
                   <item>
                    <widget class="QRadioButton" name="radioButton_italics">
                     <property name="text">
-                     <string>Italics</string>
+                     <string>Italic</string>
                     </property>
                    </widget>
                   </item>
