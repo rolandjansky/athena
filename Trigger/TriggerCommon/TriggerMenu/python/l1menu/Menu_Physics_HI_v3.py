@@ -60,7 +60,7 @@ def defineMenu():
         # 15 x 2-bit JET (can have maximum multiplicity of 3) (SLOT 8, CON 1)
 
         # 3 x Central Jet
-        'JJ15.23ETA49','J20.28ETA31','J40.0ETA25', 
+        'JJ15.23ETA49','J15.28ETA31', 'J20.28ETA31',
 
         # 6 Jets
         'J40', 'J50', 'J75', 'J85', 'J100', 'J175',

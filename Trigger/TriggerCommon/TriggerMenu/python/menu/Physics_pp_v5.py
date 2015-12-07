@@ -3265,7 +3265,7 @@ def setupMenu():
 	['noalg_L1J12',  'L1_J12',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ], 
 	['noalg_L1J120',  'L1_J120',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1],
 	['noalg_L1J15',  'L1_J15',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
-#	['noalg_L1J15.28ETA31',  'L1_J15.28ETA31',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
+	['noalg_L1J15.28ETA31',  'L1_J15.28ETA31',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
 	['noalg_L1J15.31ETA49',  'L1_J15.31ETA49',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
 	['noalg_L1J20',  'L1_J20',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
         ['noalg_L1J20.28ETA31',  'L1_J20.28ETA31',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],

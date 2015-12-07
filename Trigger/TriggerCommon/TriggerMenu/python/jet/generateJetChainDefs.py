@@ -16,11 +16,6 @@ from TriggerMenu.jet.JetDef_HT import L2EFChain_HT
 
 from TriggerMenu.menu.MenuUtils import *
 
-from JetDef import dump_chaindef
-from exc2string import exc2string2
-from TriggerMenu.menu.ChainDef import ErrorChainDef
-import os
-
 from  __builtin__ import any as b_any
 
 #############################################################################
@@ -30,11 +25,7 @@ def generateChainDefs(chainDict):
     """Delegate the creation of ChainDef instnaces to JetDEf,
     then add in  the top information."""
     
-    jetgroup_chain = True
-    chainName = chainDict['chainName']
-    print 'processing chain part 1 start', chainName
     theChainDef = generateHLTChainDef(chainDict)
-    print 'processing chain part 2 end', chainName
 
     listOfChainDicts = splitChainDict(chainDict)
 
@@ -47,20 +38,8 @@ def generateChainDefs(chainDict):
     if ('muvtx' in topoAlgs) or \
             ('llp' in topoAlgs) or \
             (b_any(('invm' or 'deta' in x) for x in topoAlgs)):
-
         logJet.info("Adding topo to jet chain")
-        try:
-            theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
-        except Exception, e:
-            tb = exc2string2()
-            theChainDef = process_exception(e, tb, chainName)
-
-        jetgroup_chain = False
-
-    no_instantiation_flag = 'JETDEF_NO_INSTANTIATION' in os.environ
-    dump_chain = 'JETDEF_DEBUG2' in os.environ
-    if (not jetgroup_chain) and dump_chain:
-        dump_chaindef(chainDict, theChainDef, no_instantiation_flag)
+        theChainDef = _addTopoInfo(theChainDef, chainDict, topoAlgs)
 
     return theChainDef
 
@@ -218,9 +197,3 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [chainName])    
 
     return theChainDef
-
-
-def  process_exception(e, tb, chain_name):
-    msg = 'JetDef Instantiator error: error: %s\n%s' % (str(e), tb)
-    cd = ErrorChainDef(msg, chain_name)
-    return cd

@@ -144,7 +144,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
         teaddition = 'trkfast'
      elif ('FTK' in self.l2IDAlg):
         from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-        [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+        [trk_alg, trk_prec] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
         teaddition = 'trkFTK'
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        

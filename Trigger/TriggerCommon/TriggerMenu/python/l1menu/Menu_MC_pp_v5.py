@@ -69,7 +69,7 @@ def defineMenu():
         # 15 x 2-bit JET (can have maximum multiplicity of 3) (SLOT 8, CON 1)
 
         # 3 x Central Jet
-        'JJ15.23ETA49', 'J20.28ETA31','J40.0ETA25',
+        'JJ15.23ETA49','J15.28ETA31', 'J20.28ETA31',
 
         # 6 Jets
         'J50', 'J75', 'J85', 'J100', 'J120', 'J400',
@@ -397,8 +397,8 @@ def defineMenu():
         "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50","L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
         "L1_J20.31ETA49", "L1_J30.31ETA49", "L1_J50.31ETA49", "L1_J75.31ETA49", "L1_J100.31ETA49",
         #'L1_J15.23ETA49',
-        'L1_J15.31ETA49',
-        "L1_J20.28ETA31",'L1_J40.0ETA25',  
+        'L1_J15.28ETA31', 'L1_J15.31ETA49',
+        "L1_J20.28ETA31", 
         "L1_J12_EMPTY","L1_J12_FIRSTEMPTY", "L1_J12_UNPAIRED_ISO", "L1_J12_UNPAIRED_NONISO", "L1_J12_ABORTGAPNOTCALIB", 
         "L1_J30_EMPTY", "L1_J30_FIRSTEMPTY", "L1_J30.31ETA49_EMPTY", "L1_J30.31ETA49_UNPAIRED_ISO",
         "L1_J30.31ETA49_UNPAIRED_NONISO",
@@ -805,7 +805,7 @@ def defineMenu():
         'L1_J50.31ETA49' : 105,
         'L1_J75.31ETA49' : 106,
         'L1_J100.31ETA49' : 107,
-        'L1_J40.0ETA25' : 108,
+        'L1_J15.28ETA31' : 108,
         'L1_J15.31ETA49' : 109,
         'L1_J20.28ETA31' : 110,
         'L1_J12_EMPTY' : 111,

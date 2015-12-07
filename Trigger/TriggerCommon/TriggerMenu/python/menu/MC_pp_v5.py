@@ -92,9 +92,9 @@ def setupMenu():
         ['j300_a10_lcw_sub_L1J75', 'L1_J75', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j300_a10r_L1J75', 'L1_J75', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
 
-        ['j40_0eta490_j30_0eta490_deta25_xe80',    'L1_XE60', ['','',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jets'], -1, ['serial',-1,["j40_0eta490","j30_0eta490_deta25","xe80"]]],
-        ['j40_j30_0eta490_deta25_xe80_tc_lcw',     'L1_XE60', ['','',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jets'], -1, ['serial',-1,["j40","j30_0eta490_deta25","xe80_tc_lcw"]]],
-        ['j65_0eta490_j40_0eta490_invm250_xe80',   'L1_XE60', ['','',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jets'], -1, ['serial',-1,["j65_0eta490","j40_0eta490_invm250","xe80"]]],
+        ['j40_0eta490_j30_0eta490_deta25_xe80_L1XE60',    'L1_XE60', ['','',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jets'], -1, ['serial',-1,["j40_0eta490","j30_0eta490_deta25","xe80_L1XE60"]]],
+        ['j40_j30_0eta490_deta25_xe80_tc_lcw_L1XE60',     'L1_XE60', ['','',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jets'], -1, ['serial',-1,["j40","j30_0eta490_deta25","xe80_tc_lcw_L1XE60"]]],
+        ['j65_0eta490_j40_0eta490_invm250_xe80_L1XE60',   'L1_XE60', ['','',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jets'], -1, ['serial',-1,["j65_0eta490","j40_0eta490_invm250","xe80_L1XE60"]]],
 
 
 

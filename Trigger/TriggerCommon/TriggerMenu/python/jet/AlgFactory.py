@@ -183,7 +183,7 @@ class AlgFactory(object):
             'jet_calib': "'nojcalib'",
             'cluster_calib': "'EM'",
             'output_collection_label': "'tcollection'",
-            'ptMinCut': 20.0
+            'ptMinCut': 0.
         }
 
         return [Alg(factory, (), kwds)]
@@ -419,8 +419,8 @@ class AlgFactory(object):
         eta_maxs = [eta_max]
         ystar_mins = [0.]
         ystar_maxs = [min(0.5*abs(eta_max-eta_min), 1.2)]
-        mass_mins = [float(hypo.mass_min) * GeV]
-        mass_maxs = [float(hypo.mass_max) * GeV]
+        mass_mins = [float(hypo.mass_min)]
+        mass_maxs = [float(hypo.mass_max)]
         indices = [int(hypo.indexlo), int(hypo.indexhi)]
 
         kargs = {

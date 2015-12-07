@@ -206,17 +206,6 @@ class TopoAlgoDef:
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 10)
         tm.registerAlgo(alg)
-
-        if '_v6' in TriggerFlags.triggerMenuSetup(): 
-            alg = AlgConf.MuonSort_1BC( name = 'LMUs', inputs = 'LateMuonTobArray', outputs = 'LMUs', algoId = currentAlgoId ); currentAlgoId += 1
-            
-            alg.addgeneric('InputWidth', HW.InputWidthMU)
-            alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
-            alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
-            alg.addgeneric('nDelayedMuons', 1)
-            alg.addvariable('MinEta', 0)
-            alg.addvariable('MaxEta', 25)
-            tm.registerAlgo(alg)
         
         # Abbreviated lists:
         alg = AlgConf.ClusterSelect( name = 'EMab', inputs = 'ClusterTobArray', outputs = 'EMab', algoId = currentAlgoId ); currentAlgoId += 1
@@ -651,28 +640,14 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         # W T&P: MINDPHI(J, XE0), (EM, XE0)
-        if not '_v6' in TriggerFlags.triggerMenuSetup():
-            alglist = [
-                {"minDPhi":  5, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-                {"minDPhi": 10, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-                {"minDPhi": 15, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-                {"minDPhi": 10, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minDPhi": 15, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                ]
-        else:
-            alglist = [
-                {"minDPhi":  5, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-                {"minDPhi": 10, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-                {"minDPhi": 15, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-                {"minDPhi": 05, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minDPhi": 10, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minDPhi": 15, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minDPhi": 15, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                ]
-
-        for x in alglist:
+        for x in [
+            {"minDPhi":  5, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+            {"minDPhi": 10, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+            {"minDPhi": 15, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+            {"minDPhi": 10, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            {"minDPhi": 15, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            ]:
             
             for k in x:
                 exec("%s = x[k]" % k)
@@ -696,20 +671,11 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         # W T&P MT
-        if not '_v6' in TriggerFlags.triggerMenuSetup():
-            alglistmt = [
-                {"minMT": 25, "otype" : "EM", "ocut" : "10", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minMT": 30, "otype" : "EM", "ocut" : "10", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minMT": 35, "otype" : "EM", "ocut" : "15", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                ]
-        else:
-            alglistmt = [
-                {"minMT": 25, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minMT": 30, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minMT": 35, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                {"minMT": 35, "otype" : "EM", "ocut" : "15", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-                ]
-        for x in alglistmt:
+        for x in [
+            {"minMT": 25, "otype" : "EM", "ocut" : "10", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            {"minMT": 30, "otype" : "EM", "ocut" : "10", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            {"minMT": 35, "otype" : "EM", "ocut" : "15", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            ]:
             for k in x:
                 exec("%s = x[k]" % k)
 
@@ -1362,28 +1328,7 @@ class TopoAlgoDef:
             alg.addvariable('PhiMax', maxPhi)
             tm.registerAlgo(alg)
 
-        # LATE MUON
-        if '_v6' in TriggerFlags.triggerMenuSetup(): 
-            for x in [     
-                {"otype" : "LATEMU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
-                ]:
 
-                for k in x:
-                    exec("%s = x[k]" % k)
-
-                toponame = "%s%ss1"  % ( otype, str(ocut) )
-            
-                log.info("Define %s" % toponame)
-                                
-                inputList = 'LMUs'
-                
-                alg = AlgConf.EtCut( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
-                alg.addgeneric('InputWidth', inputwidth) 
-                alg.addgeneric('MaxTob', 1)
-                alg.addgeneric('NumResultBits', 1)
-                alg.addvariable('MinEt', str(ocut))
-                tm.registerAlgo(alg)
-            
         for x in [     
             {"etcut": 0, "Threlist": [ 35, 45, 55, 60, 65, 75 ]},
             ]:
@@ -1409,32 +1354,3 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
             
 
-        # (ATR-12748) fat jet trigger with Simple Cone algo
-        if '_v6' in TriggerFlags.triggerMenuSetup():     
-            for x in [            
-                {"minHT": 111, "otype" : "CJ", "ocut" : 15, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "oeta" : 26},
-                {"minHT": 85, "otype" : "CJ", "ocut" : 15, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "oeta" : 26},                
-                ]:
-            
-                for k in x:
-                    exec("%s = x[k]" % k)
-                
-                toponame = "SC%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta))
-            
-                log.info("Define %s" % toponame)
-            
-                inputList = otype + olist
-
-                alg = AlgConf.JetSimpleCone( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId ); currentAlgoId += 1
-
-
-                alg.addgeneric('InputWidth', inputwidth)
-                alg.addgeneric('MaxTob', nleading)        
-                alg.addgeneric('NumRegisters', 2 if olist=="all" else 0)
-                alg.addgeneric('NumResultBits', 1)
-                alg.addvariable('MinET', ocut)                        
-                alg.addvariable('MinEta', 0)
-                alg.addvariable('MaxEta', oeta)
-                alg.addvariable('Radius', 10)                        
-                alg.addvariable('MinHt', minHT)
-                tm.registerAlgo(alg)  
