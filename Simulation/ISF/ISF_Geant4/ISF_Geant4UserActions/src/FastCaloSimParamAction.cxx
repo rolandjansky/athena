@@ -42,8 +42,13 @@
 // TileCAL calculators
 #include "TileGeoG4SD/TileGeoG4SDCalc.hh"
 
-#include "ISF_Event/FCS_StepInfo.h"
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
+
+//Geometry
+#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloIdentifier/CaloIdManager.h"
 
 // For MC Truth information:
 #include "GeneratorObjects/McEventCollection.h"
@@ -72,19 +77,23 @@ FastCaloSimParamAction::FastCaloSimParamAction(std::string s)
     m_calculator_EMEPS(0),
     m_calculator_Tile(0),
     m_lar_helper(0),
+    m_lar_emID(0),
+    m_calo_dd_man(0),
     m_storeGateSvc("StoreGateSvc", s), 
     m_detStore(0),
     m_eventSteps(0),
-    m_ndetectors(0)
+    m_ndetectors(0),
+    m_shift_lar_subhit(true),
+    m_shorten_lar_step(true),
+    m_isinit(false)
 {
 #ifdef _myDEBUG_
   G4cout << "############################################" << G4endl
 	 << "##  FastCaloSimParamAction - Constructor  ##" << G4endl
 	 << "############################################" << G4endl;
 #endif
-
 }
-
+ 
 FastCaloSimParamAction::~FastCaloSimParamAction()
 {
 }
@@ -131,6 +140,7 @@ StoreGateSvc* FastCaloSimParamAction::detStoreSvc() const
 
 void FastCaloSimParamAction::BeginOfEventAction(const G4Event* )
 {
+  if (!m_isinit) ParseProperties();
   //G4cout << "############################################" << G4endl
   //     << "##  FastCaloSimParamAction - BeginOfEvent ##" << G4endl
   //     << "############################################" << G4endl;
@@ -176,6 +186,7 @@ void FastCaloSimParamAction::BeginOfEventAction(const G4Event* )
   //G4cout << "############################################" << G4endl
   //	 << "## FastCaloSimParamAction - BeginOfEvent2 ##" << G4endl
   //	 << "############################################" << G4endl;
+
  
   return;
 }
@@ -198,26 +209,7 @@ void FastCaloSimParamAction::EndOfEventAction(const G4Event* )
 #ifdef _myDEBUG_
   G4cout << "FastCaloSimParamAction::EndOfEventAction: Before initial cleanup, N=" << m_eventSteps->size() << G4endl;
 #endif
-  /*
-  if (m_eventSteps->size()>2000) { //can have more.. ZH
-    std::cout <<"ZH too many hits: "<<m_eventSteps->size()<<" will merge"<<std::endl;
-   
-    ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = m_eventSteps->begin();
-    while (i1 != m_eventSteps->end()) {
-      ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i2 = i1 + 1;
-      while (i2 != m_eventSteps->end()) {
-    	  // if distance below cut off, combined and erase && make sure they're in the same detector ZH && time!!!??
-	if ( (i1 != i2) && ((*i1)->diff2(**i2) < dsame) && (*i1)->cell_ID() == (*i2)->cell_ID()  ) {
-    		  **i1 += **i2;
-    		  i2 = m_eventSteps->erase(i2);
-    	  } else {
-    		  ++i2;
-    	  }
-      }
-      ++i1;
-    }
-  }
-  */
+
   //  G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
   if (m_eventSteps->size()==0) return; //don't need to play with it
   G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
@@ -281,7 +273,7 @@ void FastCaloSimParamAction::BeginOfRunAction(const G4Run* )
   //G4cout << "############################################" << G4endl
   // << "##    FastCaloSimParamAction - BeginOfRun ##" << G4endl
   // << "############################################" << G4endl;
-
+  if (!m_isinit) ParseProperties();
   // ?? Ok, where do I need this??
   // init calculator
   if (m_calculator_EMECIW_pos == 0)
@@ -319,7 +311,17 @@ void FastCaloSimParamAction::BeginOfRunAction(const G4Run* )
 	m_current_transform = new G4AffineTransform ();
   m_lar_helper = new LArIdentifierConverter(detStoreSvc());
 
+  //get also lar em helper
+  m_calo_dd_man  = CaloDetDescrManager::instance();
 
+  const DataHandle<CaloIdManager> caloIdManager;
+  StatusCode sc=detStoreSvc()->retrieve(caloIdManager);
+  if(sc.isSuccess())
+    std::cout<<"CaloIDManager retrieved."<<std::endl;
+   else
+     throw std::runtime_error("ISF_HitAnalysis: Unable to retrieve CaloIDManeger");
+  
+  m_lar_emID=caloIdManager->getEM_ID();
   return;
 }
 
@@ -431,6 +433,7 @@ void FastCaloSimParamAction::SteppingAction(const G4Step* aStep)
   G4ThreeVector position1 = aStep->GetPreStepPoint()->GetPosition(); //pre step is the position i'm interested in
   G4ThreeVector position2 = aStep->GetPostStepPoint()->GetPosition();
   G4ThreeVector pos = 0.5*(position1+position2);
+  //  std::cout <<" === NEW STEP ==="<<std::endl;
 
   G4TouchableHistory* theTouchable = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable()); //this has all the history depth
   if (!theTouchable)
@@ -463,7 +466,7 @@ void FastCaloSimParamAction::SteppingAction(const G4Step* aStep)
   std::string CurrentLogicalVolumeName = pCurrentLogicalVolume->GetName();
   std::string OrigLogicalVolumeName = CurrentLogicalVolumeName;
   //  std::cout <<"ZH Step length: "<<aStep->GetStepLength() /CLHEP::mm <<" in "<<OrigLogicalVolumeName<<std::endl;
-  //double StepLength = aStep->GetStepLength();
+  double StepLength = aStep->GetStepLength()/ CLHEP::mm;;
   //std::cout <<"ZH Step: "<<StepLength<<std::endl;
   //std::cout <<"Current : "<<CurrentLogicalVolumeName<<std::endl;
 
@@ -587,8 +590,15 @@ void FastCaloSimParamAction::SteppingAction(const G4Step* aStep)
   ////////////////////////////////////////////////////////////
 
   if (aStep->GetTotalEnergyDeposit()>0) {
-      //std::cout <<"ZH Step length: "<<aStep->GetStepLength() /CLHEP::mm <<" in "<<OrigLogicalVolumeName<<std::endl;
-      /*
+    /*
+    std::cout <<" === NEW STEP ==="<<std::endl;
+    std::cout <<"Prestep pos: "<<position1.x()<<" "<<position1.y()<<" "<<position1.z()<<std::endl;
+    std::cout <<"Poststep pos: "<<position2.x()<<" "<<position2.y()<<" "<<position2.z()<<std::endl;
+    std::cout <<"Step pos: "<<pos.x()<<" "<<pos.y()<<" "<<pos.z()<<std::endl;
+
+    std::cout <<"ZH Step length: "<<aStep->GetStepLength() /CLHEP::mm <<" in "<<OrigLogicalVolumeName<<std::endl;
+    */  
+    /*
       G4VPhysicalVolume *pNextVolume = aStep->GetPostStepPoint()->GetPhysicalVolume();
       if (!pNextVolume)
 	{
@@ -622,118 +632,251 @@ void FastCaloSimParamAction::SteppingAction(const G4Step* aStep)
 	
 	double et = 0; // Total collected charge
 	//G4cout << m_current_calculator << " " << position << G4endl;
-		
-	if (m_current_calculator->Process(aStep)) 
-	  {
-	    //this was to test if presampler calculators work
-	    /*
-	    if (test_presamplere)
-	      {
-		G4cout <<"ZH presampler calculator works: "<<m_current_calculator->getNumHits()<<" "<<test_presamplere<<G4endl;
-		int nlarh = m_current_calculator->getNumHits();
-		for (int i=0; i<nlarh; ++i)
-		  {
-		    std::cout <<"ZH Hit: "<<i<<" E: "<<m_current_calculator->energy(i)<<" in: "<<(std::string) m_current_calculator->identifier(i)<<std::endl;            
-		  }
-	      }
-	    */
-	    /*
-	    if (m_current_calculator == m_calculator_BIB)
-	      {
-		std::cout <<"ZH BIB test: "<<std::endl;
-		int nlarh = m_current_calculator->getNumHits();
-		for (int i=0; i<nlarh; ++i)
-		  {
-		    std::cout <<"ZH BIB Hit: "<<i<<" E: "<<m_current_calculator->energy(i)<<" in: "<<(std::string) m_current_calculator->identifier(i)<<std::endl;
-	          }
-	      }  
-	    */
-	    /*
-	    if (m_current_calculator == m_calculator_BOB)
-              { 
-		std::cout <<"ZH BOB test: "<<std::endl;
-                int nlarh = m_current_calculator->getNumHits();
-                for (int i=0; i<nlarh; ++i)
-                  { 
-		    std::cout <<"ZH BOB Hit: "<< pCurrentVolume->GetName()<<i<<" E: "<<m_current_calculator->energy(i)<<" in: "<<(std::string) m_current_calculator->identifier(i)<<std::endl;  
-                  }
-              }
-	    */       
-	    /*
-	    //Ok, this seems to be giving same E,t, but different identifiers -> keep pos/neg separated
-	    if (m_current_calculator == m_calculator_EMECIW_neg)
-	      {
-		std::cout <<"ZH emeciw pos/neg test: "<<std::endl;
-                int nlarh = m_current_calculator->getNumHits();
-                for (int i=0; i<nlarh; ++i)
-                  {
-		    std::cout <<"ZH Hit neg: "<<i<<" E: "<<m_current_calculator->energy(i)<<" t: "<<m_current_calculator->time(i)<<" in: "<<(std::string) m_current_calculator->identifier(i)<<std::endl;
-                  }
-		m_calculator_EMECIW_pos->Process(aStep);
-		int nlarh2 = m_calculator_EMECIW_pos->getNumHits();
-		for (int i=0; i<nlarh2; ++i)
-                  {
-		    std::cout <<"ZH Hit pos: "<<i<<" E: "<<m_calculator_EMECIW_pos->energy(i)<<" t: "<<m_calculator_EMECIW_pos->time(i)<<" in: "<<(std::string) m_calculator_EMECIW_pos->identifier(i)<<std::endl;
-                  }
-		
-	      }
-	    */
 
-	    //G4cout <<"ZH process step ok: "<<m_current_calculator->getNumHits()<<G4endl;
-	    int nlarh = m_current_calculator->getNumHits();
-	    for (int i=0; i<nlarh; ++i) 
+	std::vector<const G4Step*> steps;
+	bool shortstep = false;
+	if (m_shorten_lar_step && StepLength>0.2)
+	  {		
+	    //create smaller substeps instead
+	    G4int nsub_step=(int) (StepLength/0.2) + 1;
+	    G4double delta=1./((double) nsub_step);
+	    //std::cout <<"Orig prestep: "<<aStep->GetPreStepPoint()->GetPosition()<<std::endl;
+	    for (G4int i=0;i<nsub_step;i++) {
+	      // G4double fraction=(((G4double) i)+0.5)*delta;
+	      G4double fraction1 = ((G4double) i)*delta;
+	      G4double fraction2 = (((G4double) i) + 1.)*delta;
+	      G4ThreeVector subpoint1=position1*(1-fraction1) + position2*fraction1;
+	      G4ThreeVector subpoint2=position1*(1-fraction2) + position2*fraction2;
+	      
+	      //G4StepPoint *startpoint = 0;
+	      //startpoint = const_cast<G4StepPoint*>(aStep->GetPreStepPoint());
+	      //startpoint->SetPosition(subpoint1);
+	      //G4StepPoint *endpoint = 0;
+	      //endpoint = const_cast<G4StepPoint*>(aStep->GetPostStepPoint());
+	      //endpoint->SetPosition(subpoint2);
+
+	      G4StepPoint *startpoint = new G4StepPoint(*(aStep->GetPreStepPoint()));
+	      G4StepPoint *endpoint = new G4StepPoint(*(aStep->GetPostStepPoint()));
+	      startpoint->SetPosition(subpoint1);
+	      endpoint->SetPosition(subpoint2);
+
+	      //std::cout <<"ZH substep: "<<i<<" Pos: "<<subpoint1<<" "<<subpoint2<<std::endl;
+	      G4Step* newstep = new G4Step(*aStep);
+	      //newstep = const_cast<G4Step*>(aStep);
+	      if(newstep->GetPreStepPoint()) delete newstep->GetPreStepPoint();
+	      if(newstep->GetPostStepPoint()) delete newstep->GetPostStepPoint(); 
+	      newstep->SetPreStepPoint(startpoint);
+	      newstep->SetPostStepPoint(endpoint);
+	      newstep->SetStepLength( (subpoint1-subpoint2).mag());
+	      newstep->SetTotalEnergyDeposit(aStep->GetTotalEnergyDeposit()/nsub_step); 
+	      //std::cout <<"ZH substep: "<<newstep->GetPreStepPoint()->GetPosition()<<" "<<newstep->GetPostStepPoint()->GetPosition()<<"   /   "<<0.5*(newstep->GetPreStepPoint()->GetPosition()+newstep->GetPostStepPoint()->GetPosition())<<std::endl;
+	      steps.push_back(newstep);
+	    }
+	    //std::cout <<"Orig poststep"<<aStep->GetPostStepPoint()->GetPosition()<<std::endl;
+	    shortstep = true;
+	  }
+	else
+	  {
+	    steps.push_back(aStep);
+	  }
+
+	//std::cout <<"ZH Step size: "<<steps.size()<<" full step length "<<StepLength<<std::endl;
+	for (unsigned int istep = 0; istep <steps.size(); istep++)
+	  {
+	    //need to update the position!
+	    pos = 0.5*(steps[istep]->GetPreStepPoint()->GetPosition()+steps[istep]->GetPostStepPoint()->GetPosition());
+	    //std::cout <<"ZH Processing step: "<<istep<<" at position "<<pos<<std::endl;
+	    bool istep_ok = false;
+	    if (m_current_calculator->Process(steps[istep])) 
 	      {
-		et += (m_current_calculator->energy(i));
-		//std::cout <<"ZH Hit: "<<i<<" E: "<<m_current_calculator->energy(i)<<" in: "<<(std::string) m_current_calculator->identifier(i)<<std::endl;
-	      }
-	    //if (pCurrentVolume->GetName().find("HEC") != std::string::npos)
-	    //  {
-	    //    std::cout <<"ZH HEC good: "<<m_current_calculator->getNumHits()<<std::endl;
-	    //  }
-	    
-	  } 
-	else 
-	  {
-	    //Maybe 0 hits or something like that...
-	    //G4cout << "ZH: Error: Hit not processed by calculator! But why am I here?" << G4endl;
-	    //G4cout << "ZH: calculator not processed: Volume: "<< pCurrentVolume->GetName()<<" "<<m_current_calculator<< G4endl;
-	    //if (pCurrentVolume->GetName().find("HEC") != std::string::npos)
-	    //  {
-	    //    std::cout <<"ZH HEC bad??"<<std::endl;
-	    //  }
-	    return;
-	  }
-	
-	// drop hits with zero deposited energy (could still happen with negative corrections from calculator)
-	if (et <= 0.)
-	  {
-	    return;
-	  }
-	
-	int nlarh = m_current_calculator->getNumHits();
-	for (int i=0; i<nlarh; ++i)
-	  {
-	    LArG4Identifier ident = m_current_calculator->identifier(i);
-	    Identifier id = m_lar_helper->convertID(ident);
-	    
-	    Identifier inv_id;
-	    if (id == inv_id)
+		//if (!shortstep) G4cout <<"ZH process step ok: "<<m_current_calculator->getNumHits()<<G4endl;
+		int nlarh = m_current_calculator->getNumHits();
+		for (int i=0; i<nlarh; ++i) 
+		  {
+		    et += (m_current_calculator->energy(i));
+		    //std::cout <<"ZH Hit: "<<i<<" E: "<<m_current_calculator->energy(i)<<" in: "<<(std::string) m_current_calculator->identifier(i)<<std::endl;
+		  }
+                istep_ok = true;
+	      } 
+	    else 
 	      {
-		std::cout <<"Something wrong with identifier (LAr): "<<(std::string) ident;
-		std::cout <<" "<<id<<" "<<id.getString()<<" "<<CurrentLogicalVolumeName  <<" nhit: "<<nlarh<<std::endl;
-		std::cout <<inv_id<<std::endl;
+		//Maybe 0 hits or something like that...
+		//G4cout << "ZH: Error: Hit not processed by calculator! " << istep<<" / "<<steps.size()<<" shortstep: "<<shortstep<<G4endl;
+		//G4cout << "ZH: calculator not processed: Volume: "<< pCurrentVolume->GetName()<<" "<<m_current_calculator<< " position: "<<pos<<" SL: "<<StepLength<<G4endl;
+		//G4cout <<"ZH: Orig position: "<<steps[istep]->GetPreStepPoint()->GetPosition()<<"  /  "<<steps[istep]->GetPostStepPoint()->GetPosition()<<"and SL: "<<StepLength<<" step: "<<aStep->GetPreStepPoint()->GetPosition()<<" / "<<aStep->GetPostStepPoint()->GetPosition()<<G4endl;
+		//return;
+		//don't return here! istep
 	      }
-	    //std::cout <<"LArIdent "<<(std::string) ident<<std::endl;
-	    //std::cout <<"Ident "<<id.getString()<<std::endl;
-	    //std::cout <<"ZH Step: LAr: "<<StepLength<<std::endl;
-	    ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, (double) m_current_calculator->energy(i), (double) m_current_calculator->time(i), true, nlarh); //store nlarh as info 
-	    //This one stores also StepLength, but it is not yet in SVN...
-	    //	    ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, (double) m_current_calculator->energy(i), (double) m_current_calculator->time(i), true, nlarh, StepLength); //store nlarh as info 
-	    m_eventSteps->push_back(theInfo);
+	    
+	    // drop hits with zero deposited energy (could still happen with negative corrections from calculator)
+	    //Or if total energy is <0
+	    /*
+	    if (et <= 0.)
+	      {
+		std::cout <<"ZH: Total negative energy: "<<et<<" not processing..."<<std::endl;
+		return;
+	      }
+	    */
+	    if (istep_ok)
+	      {
+		int nlarh = m_current_calculator->getNumHits();
+		std::vector<G4ThreeVector> subhitcells;
+		subhitcells.resize(nlarh);
+		G4ThreeVector origpos = pos;
+		double e_subhitmax = -999.;
+		int e_subhitmaxindex =-1;
+		if (nlarh>0)
+		  {
+		    e_subhitmax = m_current_calculator->energy(0);
+		    e_subhitmaxindex = 0;
+		  }
+		//Figure out the subhit with most energy
+		for (int i=1; i<nlarh; ++i)
+		  {
+		    if (e_subhitmax< m_current_calculator->energy(i))
+		      {
+			e_subhitmax = m_current_calculator->energy(i);
+			e_subhitmaxindex = i;
+		      }
+		  }
+		//Identifier for the subhit with max energy
+		LArG4Identifier e_subhitmax_ident = m_current_calculator->identifier(e_subhitmaxindex);
+		Identifier e_subhitmax_id = m_lar_helper->convertID(e_subhitmax_ident);
+		
+		for (int i=0; i<nlarh; ++i)
+		  {
+		    LArG4Identifier ident = m_current_calculator->identifier(i);
+		    Identifier id = m_lar_helper->convertID(ident);
+		    
+		    Identifier inv_id;
+		    if (id == inv_id)
+		      {
+			std::cout <<"Something wrong with identifier (LAr): "<<(std::string) ident;
+			std::cout <<" "<<id<<" "<<id.getString()<<" "<<CurrentLogicalVolumeName  <<" nhit: "<<nlarh<<std::endl;
+			std::cout <<inv_id<<std::endl;
+		      }
+		    
+		    //std::cout <<"Subhit: "<<i<<std::endl;
+		    //std::cout <<"LArIdent "<<(std::string) ident<<std::endl;
+		    //std::cout <<"Ident "<<id.getString()<<std::endl;
+		    //std::cout <<"ZH Step: LAr: "<<StepLength<<std::endl;
+		    //need to get the cell information
+		    
+		    if (nlarh>1)
+		      {
+			//it didn't seem to happen outside em_barrel
+			if (m_lar_emID->is_em_barrel(id))
+			  {
+			    if (m_shift_lar_subhit)
+			      {
+				//find subhit with largest energy
+				
+				if (e_subhitmaxindex == -1)
+				  {
+				    std::cout <<"ZH no subhit index with e>-999??? "<<std::endl;
+				    return;
+				  }
+				else
+				  {
+				    //std::cout <<"ZH shifting subhits: largest energy subhit index is "<<e_subhitmaxindex<<" E: "<<e_subhitmax<<" identifier: "<<e_subhitmax_id.getString()<<std::endl;
+				  }
+				//from sampling, hit_eta, hit_phi (simple geometry)
+				//CaloDetDescrElement *bestcell = m_calo_dd_man->get_element(m_calo_dd_man->get_element(id)->getSampling(),origpos.eta(), origpos.phi());
+				CaloDetDescrElement *highestcell = m_calo_dd_man->get_element(e_subhitmax_id);
+				//from identifier
+				CaloDetDescrElement *thiscell = m_calo_dd_man->get_element(id);
+				//delete them afterwards?
+				if (!highestcell)
+				  {
+				    //How often does this happen, do not shift
+				    std::cout <<"ZH highestEcell failed: "<<e_subhitmax_id.getString()<<std::endl;
+				    //" "<<m_calo_dd_man->get_element(id)->getSampling()<<" "<<origpos.eta()<<" "<< origpos.phi()<<std::endl;
+				    //do no shift?
+				    pos = origpos;
+				  }
+				else if (highestcell == thiscell)
+				  {
+				    //the cells match, do not shift this hit
+				    //std::cout <<"No shift: index: "<<i<<std::endl;
+				    //std::cout <<"Orig pos: "<<origpos.x()<<" "<<origpos.y()<<" "<<origpos.z()<<std::endl;
+				    //std::cout <<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<std::endl;
+				    //std::cout <<"No shift"<<std::endl;
+				    pos = origpos;
+				  }
+				else
+				  {
+				    //the two cells do not match => shift
+				    //std::cout <<"Orig pos: "<<origpos.x()<<" "<<origpos.y()<<" "<<origpos.z()<<std::endl;
+				    G4ThreeVector diff(thiscell->x()-highestcell->x(), thiscell->y()-highestcell->y(), thiscell->z()-highestcell->z());
+				    pos = origpos+diff;
+				    //std::cout <<"Shift: ! index: "<<i<<std::endl;
+				    //std::cout <<"This cell: "<<thiscell->x()<<" "<<thiscell->y()<<" "<<thiscell->z()<<std::endl;
+				    //std::cout <<"Highest E cell: "<<highestcell->x()<<" "<<highestcell->y()<<" "<<highestcell->z()<<std::endl;
+				    //std::cout <<"(Best cell: "<<bestcell->x()<<" "<<bestcell->y()<<" "<<bestcell->z()<<")"<<std::endl;
+				    //std::cout <<"Shift pos: "<<pos.x()<<" "<<pos.y()<<" "<<pos.z()<<std::endl;
+				  }
+				//delete highestcell;
+				//delete thiscell;
+			      }
+			  }
+			else
+			  {
+			    //Does this happen?
+			    std::cout <<"More subhits, but not in LAr barrel "<<(std::string) ident<<std::endl;
+			  }
+		      }
+		    
+		    /*
+		    //This was only for testing purposes that the shifted hits match to the right cells
+		    CaloDetDescrElement *pcell = m_calo_dd_man->get_element(id);
+		    if (pcell)
+		    {
+		    G4ThreeVector cellvec(pcell->x(),pcell->y(), pcell->z());
+		    std::cout <<"Hit-cell dist: "<<(pos-cellvec).mag()<<"  in: "<<i<<"  "<<(std::string) ident<<" sampling: "<<pcell->getSampling()<<" "<<id.getString()<<std::endl;
+		    CaloDetDescrElement *testcell = m_calo_dd_man->get_element(pcell->getSampling(),pos.eta(), pos.phi());
+		    if (testcell)
+		    {
+		    G4ThreeVector testvec(testcell->x(),testcell->y(), testcell->z());
+		    std::cout <<"Test cell: "<<testcell->x()<<" "<<testcell->y()<<" "<<testcell->z()<<" "<<testcell->identify().getString()<<std::endl;
+		    std::cout <<"Hit-test cell dist: "<<(pos-testvec).mag()<<"  in: "<<i<<"  sampling: "<<testcell->getSampling()<<std::endl;
+		    }
+		    else
+		    {
+		    std::cout <<"Test cell failed: "<<pcell->getSampling()<<" "<<pos.eta()<<" "<<pos.phi()<<std::endl;
+		    }
+		    }
+		    else
+		    {
+		    std::cout <<"pcell failed: "<<id.getString()<<std::endl;
+		    }
+		    */
+		    //Finalize time for LAr hits?: NO
+		    //double time = m_current_calculator->energy(i)==0 ? 0. : (double) m_current_calculator->time(i)/m_current_calculator->energy(i)/CLHEP::ns;
+		    double time = m_current_calculator->time(i);
+		    double energy = m_current_calculator->energy(i)/CLHEP::MeV;
+		    
+		    ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, energy, time, true, nlarh); //store nlarh as info 
+		    //This one stores also StepLength, but it is not yet in SVN...
+		    //	    ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, (double) m_current_calculator->energy(i), (double) m_current_calculator->time(i), true, nlarh, StepLength); //store nlarh as info 
+		    //std::cout <<"Adding new step info: "<<i<<" at: "<<pos<<" Id: "<<id<<" E: "<<energy<<" time: "<<time<<std::endl;
+		    m_eventSteps->push_back(theInfo);
+		  }//nlarh
+	      }//istep ok
+	    //std::cout <<"----"<<std::endl;
+	  } //istep
+	
+	//Delete steps?
+	if (shortstep && steps.size()>1)
+	  {
+	    //only when doing substeps, don't want to delete the original a4step
+            //while(!steps.empty()) delete steps.back(), steps.pop_back();
+            for (unsigned int istep = 0; istep<steps.size(); istep++)
+              { 
+                delete steps[istep];
+              }
+            steps.clear();
 	  }
-	//std::cout <<"----"<<std::endl;
       }
-      
       ////////////////////////
       //Do TileCal Stuff
       ////////////////////////
@@ -782,4 +925,43 @@ void FastCaloSimParamAction::SteppingAction(const G4Step* aStep)
       return;
   }
   return;
+}
+
+void FastCaloSimParamAction::ParseProperties()
+{
+  G4cout <<"FastCaloSimParamAction ParseProperties() "<<std::endl;
+  if(theProperties.find("shift_lar_subhit")==theProperties.end()){
+    //property not found set it to true                                                                          
+    G4cout <<"ZH shift_lar_subhit Property not found!"<<G4endl;
+    SetProperty("shift_lar_subhit","1");
+  }
+  if (theProperties.find("shorten_lar_step")==theProperties.end()){
+    //property not found set it to true
+    G4cout <<"ZH LAr step length property not found"<<G4endl;
+    SetProperty("shorten_lar_step","1");
+    }
+
+  if (theProperties["shift_lar_subhit"]=="0")
+    {
+      m_shift_lar_subhit = false;
+      G4cout <<"FastCaloSimParamAction: not shifting LAr subhits"<<G4endl;
+    }
+  else
+    {
+      m_shift_lar_subhit = true;
+      G4cout <<"FastCaloSimParamAction: shifting LAr subhits"<<G4endl;
+    }
+
+  if (theProperties["shorten_lar_step"]=="0")
+    {
+      m_shorten_lar_step = false;
+      G4cout <<"FastCaloSimParamAction: using default LAr step length"<<G4endl;
+    }
+  else
+    {
+      m_shorten_lar_step = true;
+      G4cout <<"FastCaloSimParamAction: making LAr steps shorter than 0.2mm!"<<G4endl;
+    }
+
+  m_isinit = true;
 }
