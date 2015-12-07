@@ -1113,7 +1113,7 @@ TRT_ID::get_id 		(const IdentifierHash& hash_id,
 	}
 	else if (m_STRAW_INDEX == end) {
 	    // Do not know how to calculate straw id from hash yet!!
-	    std::cout << "Do not know how to calculate straw id from hash yet!!" << std::endl;
+	    std::cout << "Do not know how to calculate straw id from hash yet!!" << std::cout;
 	}
     }
     return (result);
