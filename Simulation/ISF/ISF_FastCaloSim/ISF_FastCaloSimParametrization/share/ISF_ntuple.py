@@ -14,7 +14,11 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #specify input file here
 #athenaCommonFlags.FilesInput = glob( "ESDpion_eta1.pool.root" )
 #athenaCommonFlags.FilesInput = glob( "ESD_calo__211__E10000_10000__eta20_20_Evts0-1000_z03350.pool.root" )
-athenaCommonFlags.FilesInput = glob( "ESD_*root" )
+#athenaCommonFlags.FilesInput = glob( "ESD_*root" )
+
+#athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/ForMichael/ESD_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.pool.root"] 
+#athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_fulldet.ESD.pool.root"] 
+athenaCommonFlags.FilesInput = ["/afs/cern.ch/user/c/cmills/public/pions20GeV_z0150_fulldet.ESD.pool.root"] 
 
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
@@ -49,55 +53,64 @@ ISF_HitAnalysis.NtupleFileName = 'ISF_HitAnalysis'
 #ISF_HitAnalysis.CaloBoundaryZ = [ -3475., -3475., 3475., 3475. ]
        
 ISF_HitAnalysis.CaloBoundaryR = 1148.0
-ISF_HitAnalysis.CaloBoundaryZ = 3550.0 #before: 3475.0
+ISF_HitAnalysis.CaloBoundaryZ = 3549.5 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
 ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
-
-#from TrackToCalo.ExtrapolTrackToCaloToolBase import ExtrapolTrackToCaloToolFactory
-	   
-#theFSElectronExtrapolTrackToCaloTool        =ExtrapolTrackToCaloToolFactory(depth="middle",straightLine=False)
-#ISF_HitAnalysis.electronExtrapolTool=theFSElectronExtrapolTrackToCaloTool.getFullName()
-#ToolSvc+=theFSElectronExtrapolTrackToCaloTool
-
-#theFSElectronExtrapolTrackToCaloToolEntrance=ExtrapolTrackToCaloToolFactory(depth="entrance",straightLine=False)
-#ISF_HitAnalysis.electronExtrapolToolEntrance=theFSElectronExtrapolTrackToCaloToolEntrance.getFullName()
-#ToolSvc+=theFSElectronExtrapolTrackToCaloToolEntrance
-
-from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-theExtrapolator=AtlasExtrapolator()
-ToolSvc+=theExtrapolator
-
-ISF_HitAnalysis.ExtrapolatorName=theExtrapolator.getType()
-ISF_HitAnalysis.ExtrapolatorInstanceName=theExtrapolator.getName()
-
-from CaloTrackingGeometry.CaloSurfaceBuilderBase import CaloSurfaceBuilderFactory
-theCaloSurfaceBuilderMiddle=CaloSurfaceBuilderFactory(depth="middle")
-ISF_HitAnalysis.CalosurfMiddleInstanceName=theCaloSurfaceBuilderMiddle.getName()
-ToolSvc+=theCaloSurfaceBuilderMiddle
-
-theCaloSurfaceBuilderEntrance=CaloSurfaceBuilderFactory(depth="entrance")
-ISF_HitAnalysis.CalosurfEntranceInstanceName=theCaloSurfaceBuilderEntrance.getName()
-ToolSvc+=theCaloSurfaceBuilderEntrance
+ISF_HitAnalysis.OutputLevel = DEBUG
 
 #############################
+##### NEW TRACKING SETUP ####
+#############################
+mlog = logging.getLogger( 'ISF_HitAnalysis::configure:' )
+mlog.info("now configure the non-interacting propagator...")
+from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
+niPropagator = Trk__STEP_Propagator()
+niPropagator.MaterialEffects = False 
+ToolSvc+=niPropagator    
+mlog.info("configure nono-interacting propagator finished")
+
+mlog.info("now configure the TimedExtrapolator...")
+from TrkExTools.TimedExtrapolator import TimedExtrapolator
+timedExtrapolator=TimedExtrapolator()
+timedExtrapolator.STEP_Propagator = niPropagator
+timedExtrapolator.ApplyMaterialEffects = False
+ToolSvc+=timedExtrapolator
+mlog.info("configure TimedExtrapolator finished")
+
+from CaloTrackingGeometry.CaloTrackingGeometryConf import CaloSurfaceHelper
+caloSurfaceHelper = CaloSurfaceHelper()
+ToolSvc+=caloSurfaceHelper
+
+from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags 
+
+ISF_HitAnalysis.CaloEntrance=TrkDetFlags.InDetContainerName()
+ISF_HitAnalysis.CaloSurfaceHelper=caloSurfaceHelper
+ISF_HitAnalysis.Extrapolator=timedExtrapolator
+
+#############################
+
+from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import FastCaloSimGeometryHelper
+FCSgeoHelper=FastCaloSimGeometryHelper()
+ToolSvc+=FCSgeoHelper
+ISF_HitAnalysis.CaloGeometryHelper=FCSgeoHelper
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 #name the output file here
-OutputName=athenaCommonFlags.FilesInput()[0]
+OutputName="ESD_output_test.root"
 OutputName=OutputName.replace("ESD","ISF_HitAnalysis")
 print OutputName
 #Use this to automatically name the output file (rename ESD->ISF_HitAnalysis)
 ServiceMgr.THistSvc.Output += [ "ISF_HitAnalysis DATAFILE='"+OutputName+"' OPT='RECREATE'" ]
 from AthenaCommon.GlobalFlags import jobproperties
-ServiceMgr.THistSvc.Output += [ "ISF_Geometry DATAFILE='"+jobproperties.Global.DetDescrVersion.get_Value()+".root' OPT='RECREATE'" ]
+ServiceMgr.THistSvc.Output += [ "ISF_Geometry DATAFILE='output_geo.root' OPT='RECREATE'" ]
 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 9999999
 
 #All events by default
-theApp.EvtMax = -1
-#theApp.EvtMax = 10
+#theApp.EvtMax = -1
+theApp.EvtMax = 100
 
 ServiceMgr.AuditorSvc.Auditors  += [ "ChronoAuditor"]
 

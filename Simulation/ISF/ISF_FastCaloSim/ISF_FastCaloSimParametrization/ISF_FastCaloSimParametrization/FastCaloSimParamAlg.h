@@ -63,7 +63,7 @@ class FastCaloSimParamAlg : public AthAlgorithm {
   void addingTagsToLibrary();
 
   /* data members */
-  BooleanProperty           m_clusterize; //Y/N to merge nearby hits
+  IntegerProperty           m_clusterize; //bool (int) to merge nearby hits (==2 default)
   DoubleProperty            m_truncate; // Drop E<0 (if >1), t>1000 (if >2)
   DoubleProperty            m_maxDistance;
   DoubleProperty            m_maxRadius;          //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
