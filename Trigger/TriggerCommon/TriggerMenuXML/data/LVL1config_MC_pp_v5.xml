@@ -830,9 +830,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="108" partition="1" name="L1_J40.0ETA25" complex_deadtime="0" definition="(J40.0ETA25[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="108" partition="1" name="L1_J15.28ETA31" complex_deadtime="0" definition="(J15.28ETA31[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="J40.0ETA25_x1" triggerthreshold="J40.0ETA25"/>
+        <TriggerCondition multi="1" name="J15.28ETA31_x1" triggerthreshold="J15.28ETA31"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -5718,6 +5718,15 @@
     <TriggerCounter name="7J15.0ETA25" type="CTPIN">
       <TriggerCondition name="7J15.0ETA25" triggerthreshold="J15.0ETA25" multi="7"/>
     </TriggerCounter>
+    <TriggerCounter name="1J15.28ETA31" type="CTPIN">
+      <TriggerCondition name="1J15.28ETA31" triggerthreshold="J15.28ETA31" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="2J15.28ETA31" type="CTPIN">
+      <TriggerCondition name="2J15.28ETA31" triggerthreshold="J15.28ETA31" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="3J15.28ETA31" type="CTPIN">
+      <TriggerCondition name="3J15.28ETA31" triggerthreshold="J15.28ETA31" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="1J15.31ETA49" type="CTPIN">
       <TriggerCondition name="1J15.31ETA49" triggerthreshold="J15.31ETA49" multi="1"/>
     </TriggerCounter>
@@ -5858,15 +5867,6 @@
     </TriggerCounter>
     <TriggerCounter name="7J40" type="CTPIN">
       <TriggerCondition name="7J40" triggerthreshold="J40" multi="7"/>
-    </TriggerCounter>
-    <TriggerCounter name="1J40.0ETA25" type="CTPIN">
-      <TriggerCondition name="1J40.0ETA25" triggerthreshold="J40.0ETA25" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="2J40.0ETA25" type="CTPIN">
-      <TriggerCondition name="2J40.0ETA25" triggerthreshold="J40.0ETA25" multi="2"/>
-    </TriggerCounter>
-    <TriggerCounter name="3J40.0ETA25" type="CTPIN">
-      <TriggerCondition name="3J40.0ETA25" triggerthreshold="J40.0ETA25" multi="3"/>
     </TriggerCounter>
     <TriggerCounter name="1J400" type="CTPIN">
       <TriggerCondition name="1J400" triggerthreshold="J400" multi="1"/>
@@ -6876,17 +6876,18 @@
         <Signal range_begin="0" range_end="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="2" id="77" mapping="11" name="J20.28ETA31" type="JET" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="63" name="J20.28ETA31full" phimin="0" phimax="64" priority="0" thresholdval="1023" type="JET" window="8" windowSize="LARGE"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-31" etamax="-28" had_isolation="63" had_veto="63" name="J20.28ETA31full" phimin="0" phimax="64" priority="1" thresholdval="20" type="JET" window="8" windowSize="LARGE"/>
-      <TriggerThresholdValue em_isolation="63" etamin="28" etamax="31" had_isolation="63" had_veto="63" name="J20.28ETA31full" phimin="0" phimax="64" priority="1" thresholdval="20" type="JET" window="8" windowSize="LARGE"/>
+    <TriggerThreshold active="1" bitnum="2" id="77" mapping="11" name="J15.28ETA31" type="JET" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="63" name="J15.28ETA31full" phimin="0" phimax="64" priority="0" thresholdval="1023" type="JET" window="8" windowSize="LARGE"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-31" etamax="-28" had_isolation="63" had_veto="63" name="J15.28ETA31full" phimin="0" phimax="64" priority="1" thresholdval="15" type="JET" window="8" windowSize="LARGE"/>
+      <TriggerThresholdValue em_isolation="63" etamin="28" etamax="31" had_isolation="63" had_veto="63" name="J15.28ETA31full" phimin="0" phimax="64" priority="1" thresholdval="15" type="JET" window="8" windowSize="LARGE"/>
       <Cable connector="CON1" input="SLOT8" name="JET2">
         <Signal range_begin="2" range_end="3"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="2" id="78" mapping="12" name="J40.0ETA25" type="JET" input="ctpin" version="1">
-      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="63" name="J40.0ETA25full" phimin="0" phimax="64" priority="0" thresholdval="1023" type="JET" window="8" windowSize="LARGE"/>
-      <TriggerThresholdValue em_isolation="63" etamin="-25" etamax="25" had_isolation="63" had_veto="63" name="J40.0ETA25full" phimin="0" phimax="64" priority="1" thresholdval="40" type="JET" window="8" windowSize="LARGE"/>
+    <TriggerThreshold active="1" bitnum="2" id="78" mapping="12" name="J20.28ETA31" type="JET" input="ctpin" version="1">
+      <TriggerThresholdValue em_isolation="63" etamin="-49" etamax="49" had_isolation="63" had_veto="63" name="J20.28ETA31full" phimin="0" phimax="64" priority="0" thresholdval="1023" type="JET" window="8" windowSize="LARGE"/>
+      <TriggerThresholdValue em_isolation="63" etamin="-31" etamax="-28" had_isolation="63" had_veto="63" name="J20.28ETA31full" phimin="0" phimax="64" priority="1" thresholdval="20" type="JET" window="8" windowSize="LARGE"/>
+      <TriggerThresholdValue em_isolation="63" etamin="28" etamax="31" had_isolation="63" had_veto="63" name="J20.28ETA31full" phimin="0" phimax="64" priority="1" thresholdval="20" type="JET" window="8" windowSize="LARGE"/>
       <Cable connector="CON1" input="SLOT8" name="JET2">
         <Signal range_begin="4" range_end="5"/>
       </Cable>
