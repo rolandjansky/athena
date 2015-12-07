@@ -95,7 +95,7 @@ struct SortByE{
 FastCaloSimParamAlg::FastCaloSimParamAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), m_calo_dd_man(0)
 {
-  declareProperty("Clusterize", m_clusterize = true, "merge nearby hits");
+  declareProperty("Clusterize", m_clusterize = 2, "merge nearby hits");
   declareProperty("Truncate", m_truncate = 2,"truncate hits with t>1000ns (if >=2)"); 
   declareProperty("MaxDistance",   m_maxDistance = 50000.,
 		  "max distance squared after which the hits will be truncated");
@@ -154,6 +154,7 @@ StatusCode FastCaloSimParamAlg::initialize()
   }
 
   msg(MSG::INFO) << "FastCaloSimParamAlg " << this->name() << " initialized" << endmsg;
+  msg(MSG::INFO) << "FastCaloSimParamAlg " << m_clusterize << " " << m_truncate << endmsg;
   m_calo_dd_man  = CaloDetDescrManager::instance(); 
 
 
@@ -275,171 +276,113 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
   std::cout <<"ZH FastCaloSimParamAlg initial clusterize size: "<<stepinfo->size()<<" will merge steps in the same cell which are less than dR and dT to each other"<<std::endl;          
   double dsame, tsame; 
 
-  //Try this if it will be faster: split to cells first
-  //ISF_FCS_Parametrization::FCS_StepInfoCollection *rez = new ISF_FCS_Parametrization::FCS_StepInfoCollection();
-  ISF_FCS_Parametrization::FCS_StepInfo *copy = NULL;
-
-  std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*> FCS_SIC_cells;
-  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it = stepinfo->begin(); it != stepinfo->end(); ++it)
+  double total_energy1 = 0;
+  double total_energy2 = 0;
+  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin(); i1 != stepinfo->end(); ++i1)
     {
-      if (FCS_SIC_cells.find((*it)->identify()) != FCS_SIC_cells.end())
-	{
-	  //std::cout <<"Cell: "<<(*it)->identify()<<" exists in map, including hit: "<<std::endl;
-	  //this cell already exists
-	  copy = NULL;
-	  copy = new ISF_FCS_Parametrization::FCS_StepInfo(*(*it));
-	  FCS_SIC_cells[(*it)->identify()]->push_back(copy);
-	  //std::cout <<"Adding hit E: "<<(*it)->energy()<<" New size: "<<FCS_SIC_cells[(*it)->identify()]->size()<<std::endl;
-	}
-      else
-	{
-	  //new cell
-	  ISF_FCS_Parametrization::FCS_StepInfoCollection* new_fcs_sic= new ISF_FCS_Parametrization::FCS_StepInfoCollection();
-	  copy = NULL;
-	  copy = new ISF_FCS_Parametrization::FCS_StepInfo(*(*it));
-	  new_fcs_sic->push_back(copy);
-	  FCS_SIC_cells.insert(std::pair<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>((*it)->identify(),new_fcs_sic));
-	  //std::cout <<"New cell: "<<(*it)->identify()<<" size: "<<FCS_SIC_cells[(*it)->identify()]->size()<<std::endl;
-	}
+      total_energy1+=(*i1)->energy();
     }
-  
-  std::cout <<"ZH FastCaloSimParamAlg Merging separately in each cell: Ncells: "<<FCS_SIC_cells.size()<<std::endl;
-  //Then do merging for each cell
-  //Int_t cellN = 0;
-  for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it)
+  std::cout <<"ZH Check: total energy before clusterize "<<total_energy1<<std::endl;
+  if (m_clusterize == 2)
     {
-      //cellN++;
-      //std::cout <<"Merging cell: "<<cellN<<" id: "<<it->first<<" with Nhits: "<<(it->second)->size()<<std::endl;
-      //sort each cell hits by Energy?
-      //std::cout <<"Test: "<<std::endl;
-      //for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator itt = FCS_SIC_cells[it->first]->begin(); itt!= FCS_SIC_cells[it->first]->end(); ++itt)
-      //	{
-      //	  std::cout <<"In "<<it->first<<" E: "<<(*itt)->energy()<<std::endl;
-      //	}
-
-      std::sort(FCS_SIC_cells[it->first]->begin(), FCS_SIC_cells[it->first]->end(), SortByE()); 
-      //      std::cout <<"Test: "<<std::endl;
-      //for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator itt = FCS_SIC_cells[it->first]->begin(); itt!= FCS_SIC_cells[it->first]->end(); ++itt)
-      //        {
-      //	  std::cout <<"In "<<it->first<<" sorted E: "<<(*itt)->energy()<<std::endl;
-      //        }
-
-      std::sort(FCS_SIC_cells[it->first]->begin(), FCS_SIC_cells[it->first]->end(), SortByE());
-
-      //Int_t hitN = 0;
-      //ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it1 = FCS_SIC_cells[it->first]->begin();
-      ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it1 = (it->second)->begin();
-            
-      //while (it1 != FCS_SIC_cells[it->first]->end())                                                                    
-      while ( it1 != (it->second)->end() )
-	{
-	  //hitN++;
-	  //std::cout <<"Merging cell: "<<cellN<<" id: "<<it->first<<" with Nhits: "<<(it->second)->size()<<std::endl;
-	  if (! m_calo_dd_man->get_element(it->first))
-	    {
-	      //bad identifier                                                                                     
-	      std::cout <<"Something wrong with identifier: "<<(*it1)->identify()<<std::endl;
-	      break; //no need to merge these
+      //don't split into cells 
+      std::sort(stepinfo->begin(), stepinfo->end(), SortByE());
+      auto it1 = stepinfo->begin();
+      while (it1 != stepinfo->end()){
+	// Get the limits for this cell - optimism!
+	if (m_calo_dd_man->get_element((*it1)->identify()))
+	  {
+	    //ignore invalid           
+	    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element( (*it1)->identify() )->getSampling();
+	    if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+	      dsame = m_maxRadiusLAr;
+	      tsame = m_maxTimeLAr;
+	    } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+	      dsame = m_maxRadiusHEC;
+	      tsame = m_maxTimeHEC;
+	    } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+	      dsame = m_maxRadiusTile;
+	      tsame = m_maxTimeTile;
+	    } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+	      dsame = m_maxRadiusFCAL;
+	      tsame = m_maxTimeFCAL;
+	    } else {
+	      dsame = m_maxRadius;
+	      tsame = m_maxTime;
 	    }
-	  else if ((it->second)->size()==1)
+	    // Look for other cells to merge
+
+	    auto it2=it1;
+	    while (it2!=stepinfo->end()){
+	      if (it2==it1 || // Don't merge a hit with itself
+		  (*it1)->identify()!=(*it2)->identify() || // Must have the same cell identifier
+		  (*it1)->diff2(**it2) >= dsame || // Too far away!
+		  fabs((*it1)->time() - (*it2)->time()) >= tsame ){ // Too distant in time!
+		++it2;
+		continue;
+	      }
+	      // Merge the hits
+	      **it1 += **it2;
+	      it2 = stepinfo->erase(it2);
+	      //std::cout <<"Remaining: "<<stepinfo->size()<<std::endl;
+	    }
+	  }
+	++it1; // while loop to avoid issues with end() being invalidated
+      }
+      //      std::cout <<"ZH Check2: "<<stepinfo->size()<<std::endl;
+      for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin(); i1 != stepinfo->end(); ++i1)
+	{
+	  total_energy2+=(*i1)->energy();
+	}
+
+    }
+  else if (m_clusterize == 3)
+    {
+      //Try this if it will be faster: split to cells first
+      //ISF_FCS_Parametrization::FCS_StepInfoCollection *rez = new ISF_FCS_Parametrization::FCS_StepInfoCollection();
+      ISF_FCS_Parametrization::FCS_StepInfo *copy = NULL;
+      
+      std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*> FCS_SIC_cells;
+      for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it = stepinfo->begin(); it != stepinfo->end(); ++it)
+	{
+	  std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator ic = FCS_SIC_cells.find((*it)->identify());
+	  if (ic != FCS_SIC_cells.end())
 	    {
-	      //std::cout <<"Just one hit in : "<<(*it1)->identify()<<std::endl;
-	      break; //go to next iterator
+	      //std::cout <<"Cell: "<<(*it)->identify()<<" exists in map, including hit: "<<std::endl;
+	      //this cell already exists
+	      copy = NULL;
+	      copy = new ISF_FCS_Parametrization::FCS_StepInfo(*(*it));
+	      (ic->second)->push_back(copy);
+	      //std::cout <<"Adding hit E: "<<(*it)->energy()<<" New size: "<<FCS_SIC_cells[(*it)->identify()]->size()<<std::endl;
 	    }
 	  else
 	    {
-	      ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it2 = it1;//hm is this the problem?
-	      while (it2 != (it->second)->end())
-		{
-		  if ( (it1 ==it2) ) //they shouldn't be anyway                                       
-		    {
-		      ++it2;
-		    }
-		  else
-		    {
-		      CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(it->first)->getSampling();
-		      if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3)
-			{
-			  dsame = m_maxRadiusLAr;
-			  tsame = m_maxTimeLAr;
-			}
-		      else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3)
-			{
-			  dsame = m_maxRadiusHEC;
-			  tsame = m_maxTimeHEC;
-			}
-		      else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2)
-			{
-			  dsame = m_maxRadiusTile;
-			  tsame = m_maxTimeTile;
-			}
-		      else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2)
-			{
-			  dsame = m_maxRadiusFCAL;
-			  tsame = m_maxTimeFCAL;
-			}
-		      else
-			{
-			  dsame = m_maxRadius;
-			  tsame = m_maxTime;
-			}
-		      
-		      if (((*it1)->diff2(**it2) < dsame) && fabs((*it1)->time() - (*it2)->time()) < tsame ) 
-			{
-			  **it1 += **it2;
-			  it2 = (it->second)->erase(it2);
-			} 
-		      else 
-			{
-			  ++it2;
-			}
-		    }
-		}
-	      ++it1;
+	      //new cell
+	      ISF_FCS_Parametrization::FCS_StepInfoCollection* new_fcs_sic= new ISF_FCS_Parametrization::FCS_StepInfoCollection();
+	      new_fcs_sic->reserve(100);//try reserving 100 elements 
+	      copy = NULL;
+	      copy = new ISF_FCS_Parametrization::FCS_StepInfo(*(*it));
+	      new_fcs_sic->push_back(copy);
+	      FCS_SIC_cells.insert(std::pair<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>((*it)->identify(),new_fcs_sic));
+	      //std::cout <<"New cell: "<<(*it)->identify()<<" size: "<<FCS_SIC_cells[(*it)->identify()]->size()<<std::endl;
 	    }
 	}
-    }
-  //merge them back into a single list
-  std::cout <<"Copying back"<<std::endl;
-  stepinfo->clear();
-  for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it)
-    {
-      for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator iit = FCS_SIC_cells[it->first]->begin(); iit != FCS_SIC_cells[it->first]->end(); ++iit)
+      
+      std::cout <<"ZH FastCaloSimParamAlg Merging separately in each cell: Ncells: "<<FCS_SIC_cells.size()<<std::endl;
+      //Then do merging for each cell
+      //Int_t cellN = 0;
+      for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it)
 	{
-	  stepinfo->push_back(*iit);
-	}
-    }
-  std::cout <<"ZH Check: "<<stepinfo->size()<<std::endl;
-
-  /*
-  ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin();
-
-  while (i1 != stepinfo->end()) 
-    {
-      CaloDetDescrElement* element = m_calo_dd_man->get_element((*i1)->identify());
-      if (!element)
-	{
-	  std::cout <<"Something wrong with identifier: "<<(*i1)->identify()<<" from: index "<<std::distance(stepinfo->begin(), i1)<<std::endl;
-	  //              ++i1;                                                                                          
-	  //	  break; //this should break while i2 and increment i1                                                           
-	}
-
-      ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i2 = i1 + 1;
-      while (i2 != stepinfo->end()) 
-	{
-	  // if distance && time are below cut off, combined and erase && make sure they're in the same detector ZH  
-	  if ( (i1 !=i2) && ( (*i1)->identify() == (*i2)->identify() ) )
+	  std::sort((it->second)->begin(), (it->second)->end(), SortByE());
+	  
+	  //Int_t hitN = 0;
+	  //ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it1 = FCS_SIC_cells[it->first]->begin();
+	  ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it1 = (it->second)->begin();
+	  if (m_calo_dd_man->get_element(it->first))
 	    {
-	      CaloDetDescrElement* element = m_calo_dd_man->get_element((*i1)->identify());
-	      if (!element)
-		{
-		  std::cout <<"Something wrong with identifier: "<<(*i1)->identify()<<std::endl;
-		  //		  ++i1;
-		  break; //this should break while i2 and increment i1
-		}
-	      CaloCell_ID::CaloSample layer = element->getSampling();
-	      //std::cout <<"Same cell: "<< layer<<" / "<<m_calo_dd_man->get_element((*i2)->identify())->getSampling()<<std::endl;
-	      if (layer >= CaloCell_ID::EMB1 && layer <= CaloCell_ID::EME3)
+	      //ignore invalid
+	      CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element(it->first)->getSampling();
+	      if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3)
 		{
 		  dsame = m_maxRadiusLAr;
 		  tsame = m_maxTimeLAr;
@@ -465,47 +408,65 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
 		  tsame = m_maxTime;
 		}
 	      
-	      //std::cout <<"Comparing with : dR: "<<dsame<< ", dT: "<<tsame<<std::endl;
-	      double dr = (*i1)->diff2(**i2);
-	      //std::cout <<"I have: "<<dr<<" "<<std::endl;
-	      if (dr>10000)
+	      while ( it1 != (it->second)->end() )
 		{
-		  //std::cout << (*i1)->position()<<" "<<(*i2)->position()<<std::endl;
+		  //hitN++;
+		  //std::cout <<"Merging cell: "<<cellN<<" id: "<<it->first<<" with Nhits: "<<(it->second)->size()<<std::endl;
+		  if ((it->second)->size()==1)
+		    {
+		      //std::cout <<"Just one hit in : "<<(*it1)->identify()<<std::endl;
+		      break; //go to next iterator
+		    }
+		  else
+		    {
+		      ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator it2 = it1;//hm is this the problem?
+		      while (it2 != (it->second)->end())
+			{
+			  if ( (it1 ==it2) ) //they shouldn't be anyway                                       
+			    {
+			      ++it2;
+			    }
+			  else
+			    {
+			      if (((*it1)->diff2(**it2) < dsame) && fabs((*it1)->time() - (*it2)->time()) < tsame ) 
+				{
+				  **it1 += **it2;
+				  it2 = (it->second)->erase(it2);
+				} 
+			      else 
+				{
+				  ++it2;
+				}
+			    }
+			}
+		      ++it1;
+		    }
 		}
-	      if ( (dr < dsame) && ( fabs( (*i1)->time() - (*i2)->time() ) < tsame ) ) 
-		{
-		  //std::cout <<"Deleting: Old E: "<<(*i1)->energy()<<" "<<(*i2)->energy()<<" at "<<(*i1)->position()<<" and "<<(*i2)->position()<<" from: index "<<std::distance(stepinfo->begin(), i1)<< " and "<<std::distance(stepinfo->begin(), i2)<<std::endl;
-		  **i1 += **i2;
-		  //std::cout <<"New E: "<<(*i1)->energy()<<" pos "<<(*i1)->position()<<std::endl;
-		  i2 = stepinfo->erase(i2);
-		} 
-	      else 
-		{
-		  //std::cout <<"Not deleting: "<<(*i1)->diff2(**i2)<<" "<<(*i1)->time()<<" "<<(*i2)->time()<<std::endl;
-		  ++i2;
-		}
-	      //std::cout <<"New stepinfo size: "<<stepinfo->size()<<std::endl;
-	    }
-	  else
-	    {
-	      ++i2; //no match
 	    }
 	}
-      ++i1;
+    
+      //merge them back into a single list
+      //std::cout <<"Copying back, before deleting: "<<stepinfo->size()<<std::endl;
+      for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin(); i1 != stepinfo->end(); )
+	{ 
+	  //delete (*i1); //can't delete, but does this leak?
+	  i1 = stepinfo->erase(i1);
+	}
+      stepinfo->clear();
+      //std::cout <<"Cleared: "<<stepinfo->size()<<std::endl;
+      total_energy2 = 0;
+      for (std::map<Identifier, ISF_FCS_Parametrization::FCS_StepInfoCollection*>::iterator it = FCS_SIC_cells.begin(); it!= FCS_SIC_cells.end(); ++it)
+	{
+	  for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator iit = (it->second)->begin(); iit != (it->second)->end(); ++iit)
+	    {
+	      stepinfo->push_back(*iit);
+	      total_energy2+=(*iit)->energy();
+	    }
+	}
     }
-  */
-  std::cout <<"ZH FastCaloSimParamAlg after clusterize: "<<stepinfo->size()<<std::endl;
-  // remove invalid
-  //for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i = stepinfo->begin(); i != stepinfo->end();) {
-  //  if ((*i)->valid()) {
-  //    i++;
-  //  } else {
-  //    delete (*i);
-  //    i = stepinfo->erase(i);
-  //  }
-  // }
+  std::cout <<"ZH Check: "<<stepinfo->size()<<" Total energy: "<<total_energy2<<std::endl;
   
-  //std::cout <<"ZH after clustering "<<stepinfo->size()<<std::endl;
+  std::cout <<"ZH FastCaloSimParamAlg after clusterize: "<<stepinfo->size()<<std::endl;
 }
 
 void FastCaloSimParamAlg::truncate(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo)
