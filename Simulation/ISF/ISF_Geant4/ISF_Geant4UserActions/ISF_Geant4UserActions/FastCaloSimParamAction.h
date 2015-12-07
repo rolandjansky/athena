@@ -31,7 +31,7 @@ class LArVHitMerger;
 class StoreGateSvc;
 class LArIdentifierConverter;
 class TileGeoG4SDCalc;
-
+class CaloDetDescrManager;
   /**
    *
    *   @short Class for collecting G4 hit information
@@ -101,7 +101,8 @@ class FastCaloSimParamAction: public FADS::UserAction {
 
   // helper
   LArIdentifierConverter* m_lar_helper;
-
+  const LArEM_ID *m_lar_emID;
+  const CaloDetDescrManager* m_calo_dd_man;
 
   typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
   StoreGateSvc_t m_storeGateSvc;                  //!< pointer to StoreGate service
@@ -109,13 +110,15 @@ class FastCaloSimParamAction: public FADS::UserAction {
   //! return pointer to StoreGate service
   StoreGateSvc_t storeGateSvc() const;
   StoreGateSvc* detStoreSvc() const;
-
+  void ParseProperties();
 
   ISF_FCS_Parametrization::FCS_StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
   std::map<std::string,int> m_detectormap;
   std::set<std::string> m_unuseddetector;
   int m_ndetectors;
-
+  bool m_shift_lar_subhit;
+  bool m_shorten_lar_step;
+  bool m_isinit;
 };
 
 #endif
