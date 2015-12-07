@@ -12,6 +12,8 @@
 #include "TrkExEngine/PropagationEngine.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/Surface.h"
+#include "TrkEventPrimitives/PropDirection.h"
+//https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkEventPrimitives/trunk/TrkEventPrimitives/PropDirection.h
 
 // constructor
 Trk::PropagationEngine::PropagationEngine(const std::string& t, const std::string& n, const IInterface* p)
@@ -37,7 +39,6 @@ Trk::PropagationEngine::~PropagationEngine()
 // the interface method initialize
 StatusCode Trk::PropagationEngine::initialize()
 {
-    
     if (m_propagator.retrieve().isFailure()){
         EX_MSG_FATAL( "", "initialize", "", "failed to retrieve propagator '"<< m_propagator << "'. Aborting." );
         return StatusCode::FAILURE;
@@ -130,7 +131,7 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellNeutral& eCe
     // it is the final propagation if it is the endSurface
     bool finalPropagation = (eCell.endSurface == (&sf));
     // intersect the surface
-    Trk::Intersection sfIntersection = pDir ? sf.straightLineIntersection(eCell.leadParameters->position(),
+    Trk::Intersection sfIntersection = (pDir!=Trk::anyDirection) ? sf.straightLineIntersection(eCell.leadParameters->position(),
                                                                           pDir*eCell.leadParameters->momentum().unit(),
                                                                           true, bcheck) :
                                               sf.straightLineIntersection(eCell.leadParameters->position(),
@@ -138,17 +139,17 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellNeutral& eCe
                                               false, bcheck); 
     // we have a valid intersection                                 
     if (sfIntersection.valid){
-        // fill the transport information - only if the propation direction is not 0
-        if (pDir){
+        // fill the transport information - only if the propation direction is not 0 ('anyDirection')
+        if (pDir!=Trk::anyDirection){
            double pLength = (sfIntersection.position-eCell.leadParameters->position()).mag(); 
            EX_MSG_VERBOSE(eCell.navigationStep,"propagate", "neut", "path length of " << pLength << " added to the extrapolation cell (limit = " << eCell.pathLimit << ")" );    
            eCell.stepTransport(sf,pLength);
         }
         // now check if it is valud it's further away than the pathLimit
         if (eCell.pathLimitReached(m_pathLimitTolerance)){
-	    // cache the last lead parameters
-	    eCell.lastLeadParameters = eCell.leadParameters;
-	    // create new neutral curvilinear parameters at the path limit reached 
+						// cache the last lead parameters
+						eCell.lastLeadParameters = eCell.leadParameters;
+						// create new neutral curvilinear parameters at the path limit reached 
             double pDiff = eCell.pathLimit - cPath;
             eCell.leadParameters = new Trk::NeutralCurvilinearParameters(eCell.leadParameters->position()+pDiff*eCell.leadParameters->momentum().unit(), 
                                                                          eCell.leadParameters->momentum(),
@@ -156,8 +157,8 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellNeutral& eCe
             EX_MSG_VERBOSE(eCell.navigationStep,"propagate", "neut", "path limit of " << eCell.pathLimit << " reached. Stopping extrapolation."); 
             return Trk::ExtrapolationCode::SuccessPathLimit;
         }  
-	// cache the last lead parameters
-	eCell.lastLeadParameters = eCell.leadParameters;
+				// cache the last lead parameters
+				eCell.lastLeadParameters = eCell.leadParameters;
         // now exchange the lead parameters 
         // create the new curvilinear paramters at the surface intersection -> if so, trigger the success
         eCell.leadParameters = returnCurvilinear ? new Trk::NeutralCurvilinearParameters(sfIntersection.position, eCell.leadParameters->momentum(), 0.) :
@@ -165,9 +166,9 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellNeutral& eCe
                                                        
         // check if the propagation was called with directly, then lead parameters become end parameters
         if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::Direct)) 
-	  eCell.endParameters = eCell.leadParameters;
+	          eCell.endParameters = eCell.leadParameters;
 	
-	// return success for the final destination or in progress                                                                   
+	      // return success for the final destination or in progress                                                                   
         return (finalPropagation ? Trk::ExtrapolationCode::SuccessDestination : Trk::ExtrapolationCode::InProgress);
 
     } else {

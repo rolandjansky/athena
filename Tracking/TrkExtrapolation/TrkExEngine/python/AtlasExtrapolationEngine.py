@@ -58,6 +58,7 @@ class AtlasExtrapolationEngine( ExEngine ):
         # configure output formatting               
         MaterialEffectsEngine.OutputPrefix        = '[ME] - '
         MaterialEffectsEngine.OutputPostfix       = ' - '
+        #MaterialEffectsEngine.EnergyLossCorrection = False
         if ToolOutputLevel : 
             MaterialEffectsEngine.OutputLevel     = ToolOutputLevel
         # add to tool service
@@ -99,6 +100,7 @@ class AtlasExtrapolationEngine( ExEngine ):
         ExEngine.__init__(self, name=nameprefix+'Extrapolation',\
                           ExtrapolationEngines   = [ StaticExtrapolator ], \
                           PropagationEngine      = StaticPropagator, \
+                          NavigationEngine       = StaticNavigator, \
                           TrackingGeometrySvc    = AtlasTrackingGeometrySvc, \
                           OutputPrefix           = '[ME] - ', \
                           OutputPostfix          = ' - ')

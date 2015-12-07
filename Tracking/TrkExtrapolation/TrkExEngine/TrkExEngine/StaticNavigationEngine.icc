@@ -180,14 +180,15 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
         if (stopAtThisBoundary){
             EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "geometry signature change from " << eCell.leadVolume->geometrySignature()  << " to " << nextVolume->geometrySignature());
 	        eCell.nextGeometrySignature = nextVolume->geometrySignature();
-            // return the boundary reached     
+            // return the boundary reached : the navigation resolved already    
+	    eCell.leadVolume                      = nextVolume;    
             return Trk::ExtrapolationCode::SuccessBoundaryReached;
         } 
         // remember the last boundary surface for loop protection
         eCell.lastBoundarySurface             = &bSurface;
         eCell.lastBoundaryParameters          = eCell.leadParameters;
         // set next volume and reset lead layer
-        eCell.leadVolume                      = nextVolume;    
+	eCell.leadVolume                      = nextVolume;    
         eCell.leadLayer                       = 0;
         // we have bParameters -> break the loop over boundaryIntersections
         return  Trk::ExtrapolationCode::InProgress;
@@ -196,3 +197,33 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
      // you need to keep on trying 
      return Trk::ExtrapolationCode::Unset;
  }
+
+
+/** handle the failure - as configured */
+template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePositionT(Trk::ExtrapolationCell<T>& eCell,
+                                                                                        Trk::PropDirection pDir,
+                                                                                        bool /*noLoop*/ ) const 
+{   
+    EX_MSG_DEBUG(++eCell.navigationStep, "navigation", "", "resolve position '"<< eCell.leadParameters->position() 
+                << (int(pDir) > 0 ? "' along momentum." : "' opposite momentum.") );
+
+    // noLoop= True is used when we have exit from leadVolume 
+
+    if (!eCell.leadVolume) eCell.leadVolume = trackingGeometry().lowestStaticTrackingVolume(eCell.leadParameters->position());
+    if (!eCell.leadVolume) return Trk::ExtrapolationCode::FailureNavigation;
+    const Trk::TrackingVolume* nextVol=0;
+    if ( trackingGeometry().atVolumeBoundary(eCell.leadParameters->position(),
+                                             eCell.leadParameters->momentum(), 
+                                             eCell.leadVolume,
+                                             nextVol, pDir, 0.01) ) {          // set tolerance globally 
+  
+       //if (noLoop && nextVol==eCell.leadVolume) return Trk::ExtrapolationCode::FailureLoop;  
+
+       if (nextVol) {
+         eCell.leadVolume = nextVol;
+         return Trk::ExtrapolationCode::InProgress;
+       } else return Trk::ExtrapolationCode::FailureNavigation;
+    }
+
+    return Trk::ExtrapolationCode::InProgress;
+}

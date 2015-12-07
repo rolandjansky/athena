@@ -1,0 +1,144 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// StepEngine.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#include "TrkExInterfaces/IMaterialEffectsEngine.h"
+#include "TrkExInterfaces/INavigationEngine.h"
+#include "TrkSurfaces/Surface.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#include "TrkGeometry/TrackingVolume.h"
+#include "TrkGeometry/Layer.h"
+#include <iostream>
+#include <iomanip>
+	 
+template<class T> Trk::ExtrapolationCode Trk::StepEngine::targetSurfacesT(Trk::ExtrapolationCell<T>& eCell,
+	       	                                           Trk::TargetSurfaceVector& ts,		 
+                                                           bool trueOrderedIntersections,
+              	                                           const Trk::Surface* sf,
+							   Trk::BoundaryCheck bcheck ) const					
+{
+    // evaluate the initial distance and save for the propagator/transport step
+    Amg::Vector3D gp  = eCell.leadParameters->position();	
+    Amg::Vector3D mom = eCell.leadParameters->momentum().normalized();	
+    Trk::PropDirection dir = eCell.propDirection;
+
+    // destination surface
+    if (sf) { 
+      Trk::TargetSurface tt(sf,bcheck,Trk::SurfNavigType::Target,0,0,Trk::TVNavigType::Unknown);
+      evaluateDistance(tt,gp,mom*dir,ts,trueOrderedIntersections);  
+      // abort if no valid intersection
+      if (!ts.size()) return Trk::ExtrapolationCode::FailureDestination;
+    }
+
+    // static frame boundaries
+    const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = eCell.leadVolume->boundarySurfaces();
+    // count number of non-trivial solutions
+    unsigned int iInt=0;
+    for (unsigned int ib=0; ib< bounds.size(); ib++ ){
+      const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+      Trk::TargetSurface bb(&surf,true,Trk::SurfNavigType::BoundaryFrame,ib,eCell.leadVolume,Trk::TVNavigType::Frame);
+      evaluateDistance(bb,gp,mom*dir,ts,trueOrderedIntersections);  
+      if (ts.size() && ts.back().surf==&surf && ts.back().distanceAlongPath>m_tolerance) iInt++;
+    }
+    if (iInt==0 ) {     // navigation problem : frame volume not resolved : trigger return && catch inf loop
+      return Trk::ExtrapolationCode::FailureLoop;
+    }
+
+    // frame resolved
+
+    // order intersections
+    if ( ts.size()>1 && trueOrderedIntersections ) {  
+      
+      std::vector<unsigned int> sols(ts.size());
+      for (unsigned int i=0;i<ts.size(); i++) { sols[i]=i; }
+
+      unsigned int itest=1;
+      while ( itest<sols.size() ) {
+        if ( ts[sols[itest]].distanceAlongPath < ts[sols[itest-1]].distanceAlongPath ) {
+       	  unsigned int iex = sols[itest-1];
+          sols[itest-1]=sols[itest];
+          sols[itest]=iex;
+          itest=1;
+        } else itest++; 
+      }
+
+      Trk::TargetSurfaceVector tsOrd ;		
+      for (unsigned int i=0;i<ts.size(); i++) tsOrd.push_back(ts[sols[i]]); 
+      for (unsigned int i=0;i<ts.size(); i++) ts[i]=tsOrd[i]; 
+    }
+
+    return Trk::ExtrapolationCode::InProgress;                                   
+}
+
+template<class T> Trk::ExtrapolationCode Trk::StepEngine::resolveFrameBoundaryT(Trk::ExtrapolationCell<T>& eCell, Amg::Vector3D gp,
+                                                                                unsigned int bIndex ) const
+{                                                                                                                    
+   const std::vector< Trk::SharedObject< const Trk::BoundarySurface< Trk::TrackingVolume> > > bounds = eCell.leadVolume->boundarySurfaces();
+
+   EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "","current lead volume:"<<eCell.leadVolume->volumeName());
+   
+   const Trk::TrackingVolume* nextVolume = bounds[bIndex].getPtr()->attachedVolume(gp, 
+										   eCell.leadParameters->momentum(), 
+									           eCell.propDirection);  
+
+   if (nextVolume)  EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "resolveFrameBoundary:"<< nextVolume->volumeName()
+   <<" at position:"<< eCell.leadParameters->position().perp() <<","<<eCell.leadParameters->position().z() 
+   << ","<<eCell.leadParameters->momentum().normalized()<<","<<eCell.propDirection);
+
+   if (!nextVolume) return Trk::ExtrapolationCode::SuccessBoundaryReached;
+
+   // - geometrySignature change and configuration to stop then triggers a Success 
+   bool stopAtThisBoundary = eCell.checkConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary) 
+                            && (nextVolume->geometrySignature() != eCell.leadVolume->geometrySignature()); 
+
+   if (stopAtThisBoundary) {
+      EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "geometry signature change from " <<
+		       eCell.leadVolume->geometrySignature()  << " to " << nextVolume->geometrySignature());
+      eCell.nextGeometrySignature = nextVolume->geometrySignature();
+      // return the boundary reached     
+      return Trk::ExtrapolationCode::SuccessBoundaryReached;
+   } else { 
+     // fill the boundary into the cache if successfully hit boundary surface
+      eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectBoundary);
+   }
+   // loop protection - relaxed for the cases where you start from the boundary
+   if (eCell.leadVolume == nextVolume ) {
+      // the start parameters where on the boundary already give a relaxed return code
+      //  if (&bSurface == eCell.lastBoundarySurface) return Trk::ExtrapolationCode::Unset;
+      // give some screen output as of why this happens
+      EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", 
+      "loop detected while trying to leave TrackingVolume '" << nextVolume->volumeName() << ".");
+  
+      // can be a precision problem
+      if ((eCell.leadParameters->position()-eCell.lastBoundaryParameters->position()).mag()>0 
+         && nextVolume->inside(gp+0.01*eCell.leadParameters->momentum().normalized()*eCell.propDirection,0.001) )
+	 EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", 
+           "recovered, continue propagation in " << nextVolume->volumeName() << ".");
+      else return Trk::ExtrapolationCode::FailureLoop;
+   }
+   // remember the last boundary surface for loop protection
+   // ecNeutral.lastBoundarySurface             = &bounds[index];
+   eCell.lastBoundaryParameters          = eCell.leadParameters;
+   // set next volume 
+   eCell.leadVolume                      = nextVolume;    
+
+   // retrieve frame boundary surfaces, check early exit
+   if ( !m_targetSurfaces.initFrameVolume(eCell.leadParameters->position(),
+		      			  eCell.leadParameters->momentum().normalized()*eCell.propDirection,
+                                          eCell.leadVolume ) ) {
+     // problem detected in the update of tracking surfaces: probably exit from the frame volume within tolerance range
+     EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "","early exit detected at boundary index:"<< m_targetSurfaces.nextSf());
+     Amg::Vector3D gp = eCell.leadParameters->position()+
+                        eCell.leadParameters->momentum().normalized()*eCell.propDirection*m_targetSurfaces.distanceToNext();
+     return resolveFrameBoundaryT(eCell,gp,m_targetSurfaces.nextSf());
+     
+   }
+
+    EX_MSG_VERBOSE(eCell.navigationStep, "navigation", ""," frame volume resolved :"<< eCell.leadVolume->volumeName()); 
+
+   return  Trk::ExtrapolationCode::InProgress;
+ } 

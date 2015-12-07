@@ -53,17 +53,32 @@ namespace Trk {
 
         /** avoid method shaddowing */
         using INavigationEngine::resolveBoundary;
+        using INavigationEngine::resolvePosition;
 
         /** resolve the boundary situation - for charged particles */
         virtual ExtrapolationCode resolveBoundary(Trk::ExCellCharged& eCell, PropDirection dir=alongMomentum) const;                                                                                         
 
         /** resolve the boundary situation - for neutral particles */
         virtual ExtrapolationCode resolveBoundary(Trk::ExCellNeutral& eCelll, PropDirection dir=alongMomentum) const;
+
+        /** resolve the boundary situation - for charged particles */
+        virtual ExtrapolationCode resolvePosition(Trk::ExCellCharged& eCell, PropDirection dir=alongMomentum, bool noLoop=false) const;                                                                                         
+
+        /** resolve the boundary situation - for neutral particles */
+        virtual ExtrapolationCode resolvePosition(Trk::ExCellNeutral& eCelll, PropDirection dir=alongMomentum, bool noLoop=false) const;
+
+        /** acces to tracking geometry */
+        virtual const TrackingGeometry& trackingGeometry() const throw (GaudiException);
         
      private:
         /** resolve the boundary situation */
         template <class T> ExtrapolationCode resolveBoundaryT(ExtrapolationCell<T>& eCell,
                                                              PropDirection dir=alongMomentum) const;
+                                                             
+        /** resolve position */
+        template <class T> ExtrapolationCode resolvePositionT(ExtrapolationCell<T>& eCell,
+							      PropDirection dir=alongMomentum,
+                                                              bool noLoop=false) const;
                                                              
         /** deal with the boundary Surface - called by resolveBoundary */
         template <class T> ExtrapolationCode handleBoundaryT(ExtrapolationCell<T>& eCell,
@@ -75,9 +90,6 @@ namespace Trk {
         //!< retrieve TrackingGeometry
         StatusCode  updateTrackingGeometry() const; 
         
-        //!< return and retrieve
-        const TrackingGeometry& trackingGeometry() const throw (GaudiException);
-
         ToolHandle<IPropagationEngine>                       m_propagationEngine;        //!< the used propagation engine
         ToolHandle<IMaterialEffectsEngine>                   m_materialEffectsEngine;    //!< the material effects updated
 

@@ -69,6 +69,14 @@ Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolveBoundary(Trk::ExCellC
 Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolveBoundary(Trk::ExCellNeutral& ecNeutral, PropDirection dir) const
 { return resolveBoundaryT<Trk::NeutralParameters>(ecNeutral,dir); }
 
+/** charged  */
+Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePosition(Trk::ExCellCharged& ecCharged, PropDirection dir, bool noLoop) const
+{ return resolvePositionT<Trk::TrackParameters>(ecCharged,dir, noLoop); }
+
+/** neutral */
+Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolvePosition(Trk::ExCellNeutral& ecNeutral, PropDirection dir, bool noLoop) const
+{ return resolvePositionT<Trk::NeutralParameters>(ecNeutral,dir, noLoop); }
+
 StatusCode Trk::StaticNavigationEngine::updateTrackingGeometry() const {
     // retrieve the TrackingGeometry from the detector store 
     if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()){
