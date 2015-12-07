@@ -9,8 +9,8 @@
     <file>icons/fileprint.png</file>
     <file>icons/3d_glasses_24x24.png</file>
     <file>icons/3D_mode_24x24.png</file>
-    <file>icons/event_display_32x32.jpg</file>
     <file>icons/3d_32x32.png</file>
+    <file>icons/event_display_32x32.png</file>
     <file>icons/back_32x32.png</file>
     <file>icons/button_cancel_32x32.png</file>
     <file>icons/button_ok_32x32.png</file>
@@ -51,5 +51,11 @@
     <file>images/ATLAS-chrome-logo-URL_600px.png</file>
     <file>images/ATLAS-chrome-logo-URL_450px.png</file>
     <file>images/ATLAS-chrome-logo-URL_300px.png</file>
+    <file>images/ATLAS-Logo-New_1200pixels.png</file>
+    <file>images/ATLAS-Logo-New_1000pixels.png</file>
+    <file>images/ATLAS-Logo-New_800pixels.png</file>
+    <file>images/ATLAS-Logo-New_600pixels.png</file>
+    <file>images/ATLAS-Logo-New_450pixels.png</file>
+    <file>images/ATLAS-Logo-New_300pixels.png</file>
   </qresource>
 </RCC>
