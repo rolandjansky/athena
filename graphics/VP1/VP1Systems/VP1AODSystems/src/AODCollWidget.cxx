@@ -5,29 +5,29 @@
 
 ////////////////////////////////////////////////////////////////
 //                                                            //
-//  Implementation of class IParticleCollWidget                   //
+//  Implementation of class AODCollWidget                     //
 //                                                            //
-//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
-//  Initial version: February 2008                            //
+//  Author: edward.moyse@cern.ch                              //
+//  Initial version: June 2015                                //
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#include "IParticleCollWidget.h"
+#include "AODCollWidget.h"
 
 //____________________________________________________________________
-class IParticleCollWidget::Imp {
+class AODCollWidget::Imp {
 public:
-  static IParticleCollWidget * theclass;
+  static AODCollWidget * theclass;
   static bool sectionSorting(const QString &s1, const QString &s2)
   {
 	  return true; //FIXME! Don't really care about this for the moment.
   }
 };
 
-IParticleCollWidget * IParticleCollWidget::Imp::theclass = 0;
+AODCollWidget * AODCollWidget::Imp::theclass = 0;
 
 //____________________________________________________________________
-void IParticleCollWidget::sortSections(QList<QString>& sections)
+void AODCollWidget::sortSections(QList<QString>& sections)
 {
   Imp::theclass = this;//I guess this is not really threadsafe...
   qSort(sections.begin(),sections.end(),Imp::sectionSorting);

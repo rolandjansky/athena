@@ -3,12 +3,13 @@
 */
 
 // Local
-#include "VP1Base/VP1ColorSelectButton.h"
 #include "MuonCollectionSettingsButton.h"
+#include "VP1AODSystems/AODSystemController.h"
 #include "ui_permuoncollectionsettings_form.h"
 #include "ui_settings_cuts_form.h"
 
 //VP1
+#include "VP1Base/VP1ColorSelectButton.h"
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
@@ -42,9 +43,9 @@ public:
   Ui::MuonCollectionSettingsForm editwindow_ui;
   
   VP1MaterialButton* matButton;// main collection colour
-  VP1MaterialButton* defaultParametersMatButton;
+  // VP1MaterialButton* defaultParametersMatButton;
   
-  QList<VP1MaterialButton*> parameterTypeMatButtons;// enum used to access the specific button
+  // QList<VP1MaterialButton*> parameterTypeMatButtons;// enum used to access the specific button
   
   SoDrawStyle * trackDrawStyle;
   SoLightModel * trackLightModel;
@@ -55,6 +56,8 @@ public:
   VP1Interval last_cutAllowedP;
   VP1Interval last_cutAllowedEta;
   QList<VP1Interval> last_cutAllowedPhi;
+  unsigned int last_minimumQuality;
+  ShownAssociatedObjects last_shownAssociatedObjects;
   
   int dim;
   QPoint dragStartPosition;
@@ -126,6 +129,15 @@ MuonCollectionSettingsButton::MuonCollectionSettingsButton(QWidget * parent,int 
   
   // -> cutAllowedPhi
   connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
+ 
+  // -> quality
+  connect(d->editwindow_ui.comboBox_minimumQuality,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_minimumQuality()));
+  d->last_minimumQuality=minimumQuality();
+ 
+  // -> shownObjects
+  connect(d->editwindow_ui.checkBox_showTrackParticles,SIGNAL(toggled(bool)),this,SLOT(possibleChange_shownAssociatedObjects()));
+  connect(d->editwindow_ui.comboBox_shownTrackParticles,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_shownAssociatedObjects()));
+  d->last_shownAssociatedObjects=shownAssociatedObjects();
   
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
   connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
@@ -256,10 +268,13 @@ SoLightModel * MuonCollectionSettingsButton::trackLightModel() const
 }
 
 SoMaterial* MuonCollectionSettingsButton::defaultParameterMaterial() const {
-  return d->defaultParametersMatButton->handledMaterials().at(0);// Only have one material per button.
+  // return d->defaultParametersMatButton->handledMaterials().at(0);// Only have one material per button.
+  return 0;
 }
-SoMaterial* MuonCollectionSettingsButton::parameterMaterial( xAOD::ParameterPosition position) const{
-  return (d->parameterTypeMatButtons.at(static_cast<unsigned int>(position)))->handledMaterials().at(0);// Only have one material per button.
+
+SoMaterial* MuonCollectionSettingsButton::parameterMaterial( xAOD::ParameterPosition /**position*/ ) const{
+  // return (d->parameterTypeMatButtons.at(static_cast<unsigned int>(position)))->handledMaterials().at(0);// Only have one material per button.
+  return 0;
 }
 
 // void setDefaultParameterMaterial(SoMaterial* mat) {    
@@ -272,6 +287,39 @@ SoMaterial* MuonCollectionSettingsButton::parameterMaterial( xAOD::ParameterPosi
 // void MuonCollectionSettingsButton::setParameterMaterial(SoMaterial*, xAOD::ParameterPosition){
 //   // FIXME!
 // }
+
+unsigned int MuonCollectionSettingsButton::minimumQuality() const
+{
+  if (!d->editwindow)
+    d->initEditWindow();
+  
+  QString text = d->editwindow_ui.comboBox_minimumQuality->currentText();
+  if (text=="Very Loose") return static_cast<unsigned int>(xAOD::Muon::VeryLoose);
+  if (text=="Loose")  return static_cast<unsigned int>(xAOD::Muon::Loose);
+  if (text=="Medium") return static_cast<unsigned int>(xAOD::Muon::Medium);
+  if (text=="Tight")  return static_cast<unsigned int>(xAOD::Muon::Tight);
+
+  message("ERROR! MuonCollectionSettingsButton::minimumQuality - unknown value! Returning 'Very Loose'.");
+  return static_cast<unsigned int>(xAOD::Muon::VeryLoose);
+}
+
+MuonCollectionSettingsButton::ShownAssociatedObjects MuonCollectionSettingsButton::shownAssociatedObjects() const 
+{
+  if (!d->editwindow)
+    d->initEditWindow();
+  ShownAssociatedObjects parts = ShownAssociatedObject::Nothing;
+  // if (!d->ui_col.checkBox_hideactualpaths->isChecked()) parts |= TrackCommonFlags::ActualPath;
+  if (d->editwindow_ui.checkBox_showTrackParticles->isChecked()) {
+    if (d->editwindow_ui.comboBox_shownTrackParticles->currentIndex()==0) parts |= ShownAssociatedObject::TrackParticlesPrimary;
+    if (d->editwindow_ui.comboBox_shownTrackParticles->currentIndex()==1) parts |= ShownAssociatedObject::TrackParticlesCB;
+    if (d->editwindow_ui.comboBox_shownTrackParticles->currentIndex()==2) parts |= ShownAssociatedObject::TrackParticlesID;
+    if (d->editwindow_ui.comboBox_shownTrackParticles->currentIndex()==3) parts |= ShownAssociatedObject::TrackParticlesMS;
+    if (d->editwindow_ui.comboBox_shownTrackParticles->currentIndex()==4) parts |= ShownAssociatedObject::TrackParticlesME;
+  }
+  if (d->editwindow_ui.checkBox_showCaloClusters->isChecked()) parts |= ShownAssociatedObject::CaloClusters;
+  if (d->editwindow_ui.checkBox_showSegments->isChecked()) parts |= ShownAssociatedObject::Segments;  
+  return parts;
+}
 
 bool  MuonCollectionSettingsButton::hideActualTrackPath() const
 {
@@ -473,3 +521,26 @@ void MuonCollectionSettingsButton::possibleChange_cutAllowedPhi()
   emit cutAllowedPhiChanged(d->last_cutAllowedPhi);
 }
 
+void MuonCollectionSettingsButton::possibleChange_minimumQuality()
+{
+  messageVerbose("possibleChange_minimumQuality()");
+  
+  if (d->last_minimumQuality==minimumQuality()) return;
+  messageVerbose("minimumQuality() changed");
+  d->last_minimumQuality=minimumQuality();
+  emit minimumQualityChanged(d->last_minimumQuality);
+}
+
+// #define VP1CONTROLLERCLASSNAME MuonCollectionSettingsButton
+// #include "VP1Base/VP1ControllerMacros.h"
+// POSSIBLECHANGE_IMP(shownAssociatedObjects)
+
+void MuonCollectionSettingsButton::possibleChange_shownAssociatedObjects()
+{
+  messageVerbose("possibleChange_shownAssociatedObjects()");
+  
+  if (d->last_shownAssociatedObjects==shownAssociatedObjects()) return;
+  messageVerbose("shownAssociatedObjects() changed");
+  d->last_shownAssociatedObjects=shownAssociatedObjects();
+  emit shownAssociatedObjectsChanged(d->last_shownAssociatedObjects);
+}

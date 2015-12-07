@@ -14,11 +14,16 @@
 #include "VP1AODSystems/VP1AODSystem.h"
 #include "VP1AODSystems/AODSystemController.h"
 #include "IParticleCollHandleBase.h"
+#include "AODCollHandleBase.h"
 #include "IParticleCollHandle_TrackParticle.h"
+#include "IParticleHandle_TrackParticle.h"
 #include "IParticleCollHandle_Jet.h"
 #include "IParticleCollHandle_Muon.h"
+#include "IParticleCollHandle_CaloCluster.h" 
+#include "MissingEtCollHandle.h"
+#include "VertexCollHandle.h"
 #include "AODSysCommonData.h"
-#include "IParticleCollWidget.h"
+#include "AODCollWidget.h"
 
 //VP1
 #include "VP1Base/VP1CameraHelper.h"
@@ -27,6 +32,8 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Utils/VP1DetInfo.h"
+#include "VP1Utils/VP1AvailableToolsHelper.h"
+#include "VP1Utils/VP1ToolAccessHelper.h"
 
 // SoCoin (see if we can shift this to external file?)
 #include <Inventor/nodes/SoSeparator.h>
@@ -43,30 +50,47 @@
 
 // Std
 #include <sstream>
+#include <typeinfo>
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
+#include "TrkExInterfaces/IExtrapolationEngine.h"
 
 // Qt
 #include <QTreeWidget>
+
+
 
 class VP1AODSystem::Imp {
 public:
   VP1AODSystem * theclass;
   AODSysCommonData * common;
   SoCooperativeSelection * selObjects;
-  
+  // AODHandleSelectionManager * ascObjSelManager;
+
   SoSeparator * totmomsep;
   SoLineSet * totmomline;
   Amg::Vector3D totmomgev;
   double totmass;
 
+  // TrackCommonFlags::SELECTIONMODE selMode;
+
   //Return value is number of track handles used for input (e.g. those without valid momentum info are ignored)
   unsigned calcTotalMomentumOfSelectedHandles(Amg::Vector3D& totmom, Amg::Vector3D& totpos, double& mass);
 
+  //  template <class T>
+  //  QList<IParticleCollHandleBase*> createSpecificCollections(xAOD::Type::ObjectType type) {
+  //    QList<IParticleCollHandleBase*> l;
+  //    foreach (QString name, T::availableCollections(theclass)) {
+  //      T * col = new T(common,name,type);
+  //      col->init();
+  //      l << col;
+  //    }
+  //    return l;
+  //  }
   template <class T>
-  QList<IParticleCollHandleBase*> createSpecificCollections(xAOD::Type::ObjectType type) {
-    QList<IParticleCollHandleBase*> l;
+  QList<AODCollHandleBase*> createSpecificCollections(xAOD::Type::ObjectType type) {
+    QList<AODCollHandleBase*> l;
     foreach (QString name, T::availableCollections(theclass)) {
       T * col = new T(common,name,type);
       col->init();
@@ -76,13 +100,20 @@ public:
   }
 
   /*
-   * here we load the different systems (Muon, Jet, TrackParticle, ...)
-   */
-  QList<IParticleCollHandleBase*> createCollections() {
-    QList<IParticleCollHandleBase*> l;
+  * here we load the different systems (Muon, Jet, TrackParticle, ...)
+  *
+  * types from:
+  * http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODBase/Root/ObjectType.cxx
+  *
+  */
+  QList<AODCollHandleBase*> createCollections() {
+    QList<AODCollHandleBase*> l;
     l << createSpecificCollections<IParticleCollHandle_TrackParticle>(xAOD::Type::TrackParticle);
     l << createSpecificCollections<IParticleCollHandle_Jet>(xAOD::Type::Jet);
     l << createSpecificCollections<IParticleCollHandle_Muon>(xAOD::Type::Muon);
+    l << createSpecificCollections<IParticleCollHandle_CaloCluster>(xAOD::Type::CaloCluster); // Calorimeter Clusters
+    l << createSpecificCollections<MissingEtCollHandle>(xAOD::Type::Other);
+    l << createSpecificCollections<VertexCollHandle>(xAOD::Type::Vertex);
     return l;
   }
 };
@@ -90,7 +121,7 @@ public:
 //____________________________________________________________________
 VP1AODSystem::VP1AODSystem(QString name)
   : IVP13DSystemSimple(name,
-"System showing all track-like objects.",
+"System showing all (x)AOD objects.",
 "Edward.Moyse@cern.ch, Riccardo.maria.bianchi@cern.ch"), d(new Imp)
 {
   d->theclass = this;
@@ -104,7 +135,16 @@ VP1AODSystem::VP1AODSystem(QString name)
 //____________________________________________________________________
 VP1AODSystem::~VP1AODSystem()
 {
-  delete d;
+  if(d) {
+    if(d->common) {
+      if(d->common->controller()) {
+        if (d->common->controller()->objBrowser()) {
+          d->common->controller()->objBrowser()->close();
+        }
+      }
+    }
+  }
+  delete d; d=0;
 }
 
 //____________________________________________________________________
@@ -112,6 +152,21 @@ void VP1AODSystem::systemcreate(StoreGateSvc* /*detstore*/)
 {
   messageVerbose("systemcreate");
   ensureBuildController();
+
+  //Get available extrapolators:
+  QString tooltype("Trk::ExtrapolationEngine");
+  VP1AvailableToolsHelper availTools(this);
+  availTools.addMonitoredType(tooltype);
+  QStringList existingExtrapolators =  availTools.availableTools();
+
+  foreach (QString value, existingExtrapolators)
+    messageVerbose(value);
+
+
+  VP1ToolAccessHelper toolaccess(this);
+  Trk::IExtrapolationEngine * extrapolator = toolaccess.getToolPointer<Trk::IExtrapolationEngine>("Trk::ExtrapolationEngine/AtlasExtrapolation",false/*silent*/,true/*create if not exists*/);
+  d->common->setExtrapolator(extrapolator);
+
   // d->common->controller()->initTools();
 }
 
@@ -153,9 +208,9 @@ void VP1AODSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   messageVerbose("VP1AODSystem::buildEventSceneGraph start");
 
   // set complexity to a lower value, so that e.g. the straws are manageable
-  SoComplexity * complexity = new SoComplexity;
-  complexity->value.setValue(0.9f);//Fixme: Hardcoded here and elsewhere (fixme: Recheck all complexity values!)
-  root->addChild(complexity);
+  // SoComplexity * complexity = new SoComplexity;
+  // complexity->value.setValue(0.9f);//Fixme: Hardcoded here and elsewhere (fixme: Recheck all complexity values!)
+  // root->addChild(complexity);
   // root->addChild(d->common->controller()->ascObjDrawStyle());
   // root->addChild(d->common->controller()->ascObjComplexity());//this will be inherited to the tracks
   //                                                             // (but giving no effect)
@@ -166,32 +221,32 @@ void VP1AODSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   registerSelectionNode(d->selObjects);
 
   // reset last selected trk
-  d->common->setLastSelectedTrack(0);
+  d->common->setLastSelectedHandle(0);
   updateSelectionMode();
-  
-  if (!d->common->m_textSep) {
-    // FIXME!
-    //    std::cout<<"Making new Text sep"<<std::endl;
-    d->common->m_textSep = new SoSeparator;
-    d->common->m_textSep->setName("TextSep");
-    d->common->m_textSep->ref();
-  }
-  root->addChild(d->common->m_textSep);
-  
+
+  // if (!d->common->m_textSep) {
+  //   // FIXME!
+  //   //    std::cout<<"Making new Text sep"<<std::endl;
+  //   d->common->m_textSep = new SoSeparator;
+  //   d->common->m_textSep->setName("TextSep");
+  //   d->common->m_textSep->ref();
+  // }
+  // root->addChild(d->common->m_textSep);
+
   // Fixme - what if font is missing?
-  SoFont *myFont = new SoFont;
-  myFont->name.setValue("Arial");
-  myFont->size.setValue(13.0);
-  d->common->m_textSep->addChild(myFont);
+  // SoFont *myFont = new SoFont;
+  // myFont->name.setValue("Arial");
+  // myFont->size.setValue(13.0);
+  // d->common->m_textSep->addChild(myFont);
 
   messageVerbose("createCollections start");
-  
+
   //Create collection list based on contents of event store, populate gui and apply states:
   d->common->controller()->collWidget()->setCollections(d->createCollections());
 
   //Add collections to event scenegraph:
   foreach (VP1StdCollection* col,d->common->controller()->collWidget()->collections<VP1StdCollection>()){
-    std::cout<<"Add collswitch="<<col->collSwitch()<< " to EventSceneGraph"<<std::endl;
+    // std::cout<<"Add collswitch="<<col->collSwitch()<< " to EventSceneGraph"<<std::endl;
     d->selObjects->addChild(col->collSwitch());
   }
 
@@ -224,16 +279,16 @@ void VP1AODSystem::systemerase()
 
   if (d->totmomsep)
     d->totmomsep->removeAllChildren();
-    
-  if (d->common->m_textSep) // FIXME!
-    d->common->m_textSep->removeAllChildren();
-    
+
+  // if (d->common->m_textSep) // FIXME!
+  //   d->common->m_textSep->removeAllChildren();
+
   d->totmomgev = Amg::Vector3D(0,0,0);
 
   // if (verbose()) {
-  //   if (AssociatedObjectHandleBase::numberOfInstances()!=0)
-  //     message("Warning: "+str(AssociatedObjectHandleBase::numberOfInstances())
-  //       +" instances of AssociatedObjectHandleBase alive at end of systemerase(). "
+  //   if (AODHandleBase::numberOfInstances()!=0)
+  //     message("Warning: "+str(AODHandleBase::numberOfInstances())
+  //       +" instances of AODHandleBase alive at end of systemerase(). "
   //       "(ignore this warning if there is more than one track system instance).");
   //   if (AODHandleBase::numberOfInstances()!=0)
   //     message("Warning: "+str(AODHandleBase::numberOfInstances())
@@ -247,14 +302,23 @@ void VP1AODSystem::systemerase()
 //____________________________________________________________________
 QByteArray VP1AODSystem::saveState()
 {
+  messageDebug("VP1AODSystem::saveState()");
+
   //Version & base state:
   VP1Serialise serialise(1/*version*/,this);
+
+  messageDebug("saving the base class...");
   serialise.save(IVP13DSystemSimple::saveState());//Info from base class
 
   // Actual state info:
+  messageDebug("saving the controller...");
   ensureBuildController();
   serialise.save(d->common->controller()->saveSettings());
+
+  messageDebug("saving the collectionWidget...");
   serialise.save((VP1CollectionWidget*)d->common->controller()->collWidget());
+
+
 
   serialise.disableUnsavedChecks();//We do the testing in the controller
 
@@ -264,6 +328,7 @@ QByteArray VP1AODSystem::saveState()
 //____________________________________________________________________
 void VP1AODSystem::restoreFromState(QByteArray ba)
 {
+  messageDebug("VP1AODSystem::restoreFromState()");
   //Version & base state:
   VP1Deserialise state(ba,this);
   if (state.version()==0) {
@@ -281,6 +346,7 @@ void VP1AODSystem::restoreFromState(QByteArray ba)
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
   d->common->controller()->restoreSettings(state.restoreByteArray());
+
   state.restore((VP1CollectionWidget*)d->common->controller()->collWidget());
 
   state.disableUnrestoredChecks();//We do the testing in the controller
@@ -327,9 +393,10 @@ void VP1AODSystem::updateSelectionMode()
   //   messageVerbose("updateSelectionMode Warning: Ignoring due to null pointers.");
   //   return;
   // }
-  // deselectAll();
+  deselectAll();
   // d->ascObjSelManager->deselectAll();
   // d->selMode = d->common->controller()->selectionMode();//NB: Don't abort if unchanged (we call this method to init)
+
   // if (d->selMode==TrackCommonFlags::TRACKFIT) {
   //   messageVerbose("updateSelectionMode => TRACKFIT");
   //   d->selObjects->policy = SoCooperativeSelection::SINGLE;
@@ -342,7 +409,7 @@ void VP1AODSystem::updateSelectionMode()
   //   if (d->selMode!=TrackCommonFlags::SINGLEOBJECT)
   //     message("updateSelectionMode ERROR: Unexpected selection mode flag");
   //   messageVerbose("updateSelectionMode => SINGLEOBJECT");
-  //   d->selObjects->policy = SoCooperativeSelection::SINGLE;
+  d->selObjects->policy = SoCooperativeSelection::SINGLE;
   //   d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
   // }
   messageVerbose("updateSelectionMode end");
@@ -364,7 +431,21 @@ void VP1AODSystem::userPickedNode(SoNode* pickedNode, SoPath* /*pickedPath*/)
 void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* node, SoPath* pickedPath )
 {
   messageVerbose("userSelectedSingleNode");
-  // AssociatedObjectHandleBase* pickedHandle(0);
+
+  if (sel!=d->selObjects) {
+    message("userSelectedSingleNode - ERROR, sel=!d->selObjects");
+    return;
+  }
+
+  AODHandleBase* handle = d->common->getHandleFromNode(pickedPath);
+  if (!handle) handle = d->common->getHandleFromNode(node);
+  if (!handle) {
+    message("ERROR: Unknown handle from path or node.");
+  }
+
+  if (handle) message(handle->clicked());
+
+  // AODHandleBase* pickedHandle(0);
   // if (!d->ascObjSelManager->handleUserSelectedSingleNode(sel,node,pickedPath,pickedHandle)) {
   //   if (sel==d->selObjects) {
   // //Hack to get selections working when representing tracks with tubes:
@@ -372,7 +453,7 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //       pickedPath->pop();
   //       node=pickedPath->getTail();
   //     }
-  //     AODHandleBase * handle = d->common->trackHandle(node);
+  //     AODHandleBase * handle = d->common->getHandleFromNode(node);
   //     if (!handle) {
   //       message("ERROR: Unknown track.");
   //       return;
@@ -380,15 +461,15 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //     TrackHandle_TrkTrack * handle_trktrack = dynamic_cast<TrackHandle_TrkTrack *>(handle);
   //     if (handle_trktrack&&d->selMode==TrackCommonFlags::TRACKFIT) {
   //       messageVerbose("userSelectedSingleNode - find measurements for track fit");
-  //       
-  //       QList<AssociatedObjectHandleBase*> trackmeas = handle_trktrack->getVisibleMeasurements();
-  //       
+  //
+  //       QList<AODHandleBase*> trackmeas = handle_trktrack->getVisibleMeasurements();
+  //
   //       if (trackmeas.size()==0) message("In refit mode, but no visible measurements found so can't do anything. Perhaps they're not enabled in 'Details'?");
-  //       QList<AssociatedObjectHandleBase*> currentsel = d->ascObjSelManager->currentSelection();
+  //       QList<AODHandleBase*> currentsel = d->ascObjSelManager->currentSelection();
   // //If at least one of the track measurements is unselected, we
   // //select them all. Otherwise we deselect them.
   //       bool oneunselected(false);
-  //       foreach(AssociatedObjectHandleBase* meas,trackmeas) {
+  //       foreach(AODHandleBase* meas,trackmeas) {
   //         if (!currentsel.contains(meas)) {
   //           oneunselected = true;
   //           break;
@@ -398,9 +479,9 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //       if (oneunselected) {
   //         messageVerbose("userSelectedSingleNode - selecting " +QString::number(trackmeas.size()) + " measurements.");
   //         d->ascObjSelManager->ensureSelected(trackmeas);
-  //         
+  //
   //         // Add PRDs. Need to be careful as they might not exist.
-  //         foreach(AssociatedObjectHandleBase* meas,trackmeas) {
+  //         foreach(AODHandleBase* meas,trackmeas) {
   //           AscObj_TSOS* tsosAsc = dynamic_cast<AscObj_TSOS*>(meas);
   //           if (tsosAsc && tsosAsc->rioOnTrack() && tsosAsc->rioOnTrack()->prepRawData()) prdSet.append(tsosAsc->rioOnTrack()->prepRawData());
   //         }
@@ -409,13 +490,13 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //         d->ascObjSelManager->ensureDeselected(trackmeas);
   //       }
   //       setSelectedPRDs(prdSet); // FIXME - maybe I should append/remove from existing list?
-  //       
+  //
   //       d->selObjects->deselectAll();
   //     } else {
   //       if (d->common->controller()->printInfoOnSingleSelection()){
   //         message(handle->clicked());
   //         messageVerbose("Emitting newTrackSelected ");
-  //         d->common->setLastSelectedTrack(handle);
+  //         d->common->setLastSelectedHandle(handle);
   //         emit newTrackSelected(*handle);
   //         d->common->controller()->setNumberOfSelectedPRDsAndTracks(d->selectedPRDs.count(),1); // FIXME - we can do this more cleanly?
   //       }
@@ -441,7 +522,7 @@ void VP1AODSystem::userClickedOnBgd()
   messageVerbose("userClickedOnBgd");
   // if (d->ascObjSelManager)
   //   d->ascObjSelManager->userClickedOnBgd();
-  // d->common->setLastSelectedTrack(0);
+  // d->common->setLastSelectedHandle(0);
 }
 
 //____________________________________________________________________
@@ -484,6 +565,11 @@ unsigned VP1AODSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& to
   //   totpos /= nused;
   // }
   // return nused;
+  return 0;
+}
+
+SoCooperativeSelection * VP1AODSystem::selObjects() const{
+  return d->selObjects;
 }
 
 
@@ -516,7 +602,7 @@ void VP1AODSystem::updateShownTotMomentum()
   //     SoVertexProperty * vertices = new SoVertexProperty;
   //     d->totmomline->vertexProperty = vertices;
   //     d->totmomline->numVertices.set1Value(0,2);
-  // 
+  //
   //   }
   //   SoVertexProperty * vertices = static_cast<SoVertexProperty*>(d->totmomline->vertexProperty.getValue());
   //   vertices->vertex.set1Value(0,totpos.x(),totpos.y(),totpos.z());
@@ -535,11 +621,11 @@ void VP1AODSystem::updateShownTotMomentum()
 void VP1AODSystem::userChangedSelection(SoCooperativeSelection* sel, QSet<SoNode*> /*nodes*/, QSet<SoPath*>/*paths*/)
 {
   messageVerbose("userChangedSelection begin");
-  // if (sel!=d->selObjects)
-  //   return;
-  // messageVerbose("userChangedSelection => selObjects!!");
-  // 
-  // 
+  if (sel!=d->selObjects)
+    return;
+  messageVerbose("userChangedSelection => selObjects!!");
+  //
+  //
   // if (d->common->controller()->printTotMomentumOnMultiTrackSelection()) {
   //   Amg::Vector3D totmom;
   //   Amg::Vector3D totpos;
@@ -551,11 +637,113 @@ void VP1AODSystem::userChangedSelection(SoCooperativeSelection* sel, QSet<SoNode
   //     message("Total mass [GeV] : "+str(totmass/CLHEP::GeV));//Fixme: Eta/phi/etc...
   //   }
   // }
-  // 
+  //
   // updateShownTotMomentum();
 }
 
+void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle*>& trackparticles)
+{
+  messageVerbose("updateAssociatedObjects TrackParticle");
+  std::cout<<"EJWM Got "<<trackparticles.size() << " from " <<typeid(sender()).name()<<std::endl;
 
+  IParticleCollHandle_TrackParticle* newcoll = new  IParticleCollHandle_TrackParticle( d->common, "TrackParticlesFromMuons", xAOD::Type::Muon, false );
+
+  std::cout<<"EJWM Adding handles "<<std::endl;
+  for (auto tp : trackparticles){
+    IParticleHandle_TrackParticle* newhandle = new IParticleHandle_TrackParticle(newcoll, tp);
+    newcoll->addHandle( newhandle );
+  }
+  std::cout<<"EJWM init "<<std::endl;
+
+  newcoll->init();
+  // TrackCollHandle_RefittedTracks * newtrackcoll =
+  // new TrackCollHandle_RefittedTracks(d->common,
+  //            d->common->controller()->nameOfNewlyFittedCollections(),
+  //            fittedtracks);
+
+  QList<IParticleCollHandle_TrackParticle*> newcolls;
+  newcolls << newcoll;
+
+  std::cout<<"EJWM addCollections "<<std::endl;
+
+  d->common->controller()->collWidget()->addCollections(newcolls);
+  std::cout<<"EJWM addChild "<<std::endl;
+
+  foreach (IParticleCollHandle_TrackParticle* col,newcolls) {
+    d->selObjects->addChild(col->collSwitch());
+    col->setVisible(true);
+  }
+  messageVerbose("updateAssociatedObjects TrackParticle end");
+
+}
+
+// void VP1AODSystem::updateAssociatedObjects(QList<xAOD::CaloCluster*>& clusters)
+// {
+//   messageVerbose("updateAssociatedObjects CaloCluster");
+//   std::cout<<"Got "<<clusters.size() << " from " <<typeid(sender()).name()<<std::endl;
+//
+// }
+
+void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::MuonSegment*>& segments)
+{
+  messageVerbose("updateAssociatedObjects Segment");
+  std::cout<<"Got "<<segments.size() << " from " <<typeid(sender()).name()<<std::endl;
+
+}
+
+void VP1AODSystem::dumpToJSON()
+{
+  messageVerbose("dumpToJSON called");
+  
+  // Format should be as follows:
+  // { "Type1Name" : { "Coll1name": {coll1data}, "Coll2name": {coll2data} } , "Type2Name" : { "Coll1name": {coll1data}, "Coll2name": {coll2data} } }
+  // "Coll1name": {coll1data} is handled by the appropriate collHandle, called by ahandle->dumpToJSON(outfile);
+  // All the outer dressing is done here i.e.
+  // { "Type1Name" : { xxx, xxx }, "Type2Name" : { xxx, xxx } }
+  
+  std::ofstream outfile ("EventDump.json");
+  if (outfile.is_open()){
+    outfile << "{";
+    outfile<< "\"event number\":234, \"run number\":234,\n"; //FIXME - make this into a metadata section?
+    
+    xAOD::Type::ObjectType lastType = xAOD::Type::EventInfo; // Set to this value because nothing that follows should use it i.e. can distinguish first loop.
+    
+    unsigned int collNum=0; // Count of collection numbers
+    for (auto col : d->common->controller()->collWidget()->visibleStdCollections() ){
+      AODCollHandleBase* ahandle = dynamic_cast<AODCollHandleBase*>(col);
+      if (!ahandle){
+        message("WAAAAH! Not an AODCollHandleBase! Should never happen!");
+        continue;
+      }
+      // std::cout<<"collNum="<<collNum++<<std::endl;
+      if (ahandle->xAODType()!=lastType) {
+        // std::cout<<"Last type = "<<lastType<<", new type="<<ahandle->xAODType()<<std::endl;;
+        // New type, so Terminate the 'type' enclosure add a new level of JSON enclosure. 
+        if (lastType != xAOD::Type::EventInfo) {
+          // std::cout<<"Not first loop, so do add },"<<std::endl;
+          outfile << "},\n"; // This is the }, marked *},* : { "Type1Name" : { xxx, xxx } , "Type2Name" : { xxx, xxx } *},*. Don't do this on the first loop!
+        } 
+        lastType=ahandle->xAODType();
+        
+        // Format is "TYPE":{ coll1, coll2, coll3 }
+        // Here we do just "TYPE":{
+        outfile << "\""<<ahandle->xAODType()<<"\" : {";
+        // std::cout<<"Dumping: "<< "\""<<ahandle->xAODType()<<"\" : {"<<std::endl;
+      } else {
+        // std::cout<<"Not the first loop, so add comma"<<std::endl;
+        // This is the comma marked *,*: { "Type1Name" : { xxx, xxx } *,* "Type2Name" : { xxx, xxx } }. Don't do this on the first loop!
+        outfile <<","; 
+      }
+      // Dump collection
+      ahandle->dumpToJSON(outfile);
+      
+    } 
+  
+    outfile << "}\n}\n"; // First closes last TYPE, second closes overall object
+  } else {
+    message("WAAAAH! Problem opening EventDump.json for output!");
+  }
+}
 
 
 

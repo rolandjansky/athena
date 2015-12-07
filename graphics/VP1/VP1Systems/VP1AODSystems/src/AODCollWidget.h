@@ -5,7 +5,7 @@
 
 ////////////////////////////////////////////////////////////////
 //                                                            //
-//  Header file for class IParticleCollWidget                     //
+//  Header file for class AODCollWidget                     //
 //                                                            //
 //  Description: Collection widget. Specialisation which      //
 //               imposes desired section ordering.            //
@@ -15,19 +15,19 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#ifndef IPARTICLECOLLWIDGET_H
-#define IPARTICLECOLLWIDGET_H
+#ifndef AODCOLLWIDGET_H
+#define AODCOLLWIDGET_H
 
 #include "VP1Base/VP1CollectionWidget.h"
 
-class IParticleCollWidget : public VP1CollectionWidget {
+class AODCollWidget : public VP1CollectionWidget {
 
   Q_OBJECT
 
 public:
 
-  IParticleCollWidget(QWidget * parent = 0) : VP1CollectionWidget(parent) {}
-  virtual ~IParticleCollWidget(){}
+  AODCollWidget(QWidget * parent = 0) : VP1CollectionWidget(parent) {}
+  virtual ~AODCollWidget(){}
 
 protected:
 
