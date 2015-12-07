@@ -514,6 +514,7 @@ void VP1EventDisplayEditor::setTextLabel()
 		if (d->ui.radioButton_size12->isChecked()) size = 12;
 		else if (d->ui.radioButton_size24->isChecked()) size = 24;
 		else if (d->ui.radioButton_size32->isChecked()) size = 32;
+		else if (d->ui.radioButton_size44->isChecked()) size = 44;
 		else if (d->ui.radioButton_sizeCustom->isChecked()) {
 			size = d->ui.spinBox_size->value();
 		}
@@ -619,24 +620,45 @@ void VP1EventDisplayEditor::addLogo()
 	// load the right version of the ATLAS logo
 	if ( d->ui.radioButton_300px->isChecked() ) {
 		if ( d->ui.radioButton_gray->isChecked() )
-			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL_300px.png");
+			pix.load(":/vp1/images/images/ATLAS-Logo-New_300pixels.png");
 		if (d->ui.radioButton_blue->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_300px.png");
 		name = "logo_300px";
 	}
 	else if ( d->ui.radioButton_450px->isChecked() ) {
 		if ( d->ui.radioButton_gray->isChecked() )
-			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL_450px.png");
+			pix.load(":/vp1/images/images/ATLAS-Logo-New_450pixels.png");
 		if (d->ui.radioButton_blue->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_450px.png");
 		name = "logo_450px";
 	}
 	else if ( d->ui.radioButton_600px->isChecked() ) {
 		if ( d->ui.radioButton_gray->isChecked() )
-			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL_600px.png");
+			pix.load(":/vp1/images/images/ATLAS-Logo-New_600pixels.png");
 		if (d->ui.radioButton_blue->isChecked() )
 			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
 		name = "logo_600px";
+	}
+	else if ( d->ui.radioButton_800px->isChecked() ) {
+		if ( d->ui.radioButton_gray->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-New_800pixels.png");
+//		if (d->ui.radioButton_blue->isChecked() )
+//			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		name = "logo_800px";
+	}
+	else if ( d->ui.radioButton_1000px->isChecked() ) {
+		if ( d->ui.radioButton_gray->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-New_1000pixels.png");
+//		if (d->ui.radioButton_blue->isChecked() )
+//			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		name = "logo_1000px";
+	}
+	else if ( d->ui.radioButton_1200px->isChecked() ) {
+		if ( d->ui.radioButton_gray->isChecked() )
+			pix.load(":/vp1/images/images/ATLAS-Logo-New_1200pixels.png");
+//		if (d->ui.radioButton_blue->isChecked() )
+//			pix.load(":/vp1/images/images/ATLAS-chrome-logo-URL-blue_600px.png");
+		name = "logo_1200px";
 	}
 
 	// add the logo to the scene
