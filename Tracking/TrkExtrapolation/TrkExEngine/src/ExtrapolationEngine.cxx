@@ -19,6 +19,7 @@ Trk::ExtrapolationEngine::ExtrapolationEngine(const std::string& t, const std::s
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_propagationEngine(""),    
+  m_navigationEngine(""),    
   m_forceSearchInit(false)
 {
     declareInterface<Trk::IExtrapolationEngine>(this);
@@ -28,6 +29,7 @@ Trk::ExtrapolationEngine::ExtrapolationEngine(const std::string& t, const std::s
     declareProperty("ExtrapolationEngines"                  , m_extrapolationEngines);    
     // The Tools needed
     declareProperty("PropagationEngine"                     , m_propagationEngine);
+    declareProperty("NavigationEngine"                      , m_navigationEngine);
     // steering of the screen outoput (SOP)
     declareProperty("OutputPrefix"                          , m_sopPrefix);
     declareProperty("OutputPostfix"                         , m_sopPostfix);
@@ -72,6 +74,12 @@ StatusCode Trk::ExtrapolationEngine::initialize()
       return StatusCode::FAILURE;
     } else 
       EX_MSG_DEBUG("", "initialize", "", "successfully  propagation engine '" << m_propagationEngine << "'." );
+    
+    if (m_navigationEngine.retrieve().isFailure()){
+        EX_MSG_FATAL("", "initialize", "", "failed to retrieve navigation engine '"<< m_navigationEngine << "'. Aborting." );
+        return StatusCode::FAILURE;
+    } else 
+        EX_MSG_DEBUG("", "initialize", "", "successfully retrieved '" << m_navigationEngine << "'." );
     
     return StatusCode::SUCCESS;
 }    

@@ -155,7 +155,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
             double sigmaP = 0.;
             double kazl   = 0.;
             /** dE/dl ionization energy loss per path unit */
-            double dEdl = sign*m_interactionFormulae.dEdl_ionization(p, &material, eCell.pHypothesis, sigmaP, kazl);    
+            double dEdl = sign*dir*m_interactionFormulae.dEdl_ionization(p, &material, eCell.pHypothesis, sigmaP, kazl);    
             double dE   = thickness*pathCorrection*dEdl;
             sigmaP *= thickness*pathCorrection;
             // calcuate the new momentum
@@ -166,7 +166,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
             // update the covariance if needed
             if (uCovariance)
     	       (*uCovariance)(Trk::qOverP, Trk::qOverP) += sign*sigmaQoverP*sigmaQoverP;
-        }
+	}
         // (B) - update the covariance if needed
         if (uCovariance && m_mscCorrection){
 	        /** multiple scattering as function of dInX0 */
@@ -189,7 +189,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
         // now either create new ones or update - only start parameters can not be updated
         if (eCell.leadParameters != eCell.startParameters ){
             EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on non-initial parameters."); 
-            parameters.updateParameters(uParameters,uCovariance);
+            const_cast<Trk::TrackParameters*>(&parameters)->updateParameters(uParameters,uCovariance);	    
         } else {
             EX_MSG_VERBOSE(eCell.navigationStep, "layer",  layer->layerIndex().value(), "material update on initial parameters, creating new ones."); 
             // create new parameters
@@ -200,8 +200,8 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
                                                                                      uParameters[Trk::theta],
                                                                                      uParameters[Trk::qOverP],
                                                                                      uCovariance);
-             // these are newly created                                                                                     
-             return tParameters;                                                                                                                                         
+	    // these are newly created
+	    return tParameters;                     
         }                
     }        
     return (&parameters);
