@@ -14,7 +14,7 @@ namespace Trk {
  template class ParametersT<5,Neutral,ConeSurface>;
  template class ParametersT<5,Neutral,PerigeeSurface>;
  template class ParametersT<5,Neutral,StraightLineSurface>;
- template class CurvilinearParametersT<5,Neutral,PlaneSurface>;
+  template class CurvilinearParametersT<5,Neutral,PlaneSurface>;
 
 }
 
