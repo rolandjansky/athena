@@ -94,3 +94,27 @@ class EFMultiMuFex_Tau (TrigEFMultiMuFex):
                                 
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFMultiMuFex_Tau2 (TrigEFMultiMuFex):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuFex_Tau2"):
+        super( TrigEFMultiMuFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # L2 Bmumu cuts
+        self.LowerMassCut      = 0.
+        self.UpperMassCut     = 2900.
+        self.MuonAlgo = "TrigMuSuperEF"
+        self.NMassMuon = 2
+        self.CheckNinputTE = False
+        
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigEFMultiMuFexMonitoring import TrigEFMultiMuFexValidationMonitoring
+        validation = TrigEFMultiMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigEFMultiMuFexMonitoring import TrigEFMultiMuFexOnlineMonitoring
+        online = TrigEFMultiMuFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
+
