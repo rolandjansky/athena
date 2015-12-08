@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonTrackSummaryAccessors_v1.cxx 599069 2014-05-27 14:13:41Z emoyse $
+// $Id: MuonTrackSummaryAccessors_v1.cxx 713316 2015-12-08 14:39:35Z wleight $
 
 // System include(s):
 #include <iostream>
@@ -64,6 +64,21 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer2Holes );
         DEFINE_ACCESSOR( uint8_t, etaLayer3Holes );
         DEFINE_ACCESSOR( uint8_t, etaLayer4Holes );
+
+	DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, outerClosePrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, extendedClosePrecisionHits );
+
+	DEFINE_ACCESSOR( uint8_t, innerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, middleOutBoundsPrecisionHits );
+	DEFINE_ACCESSOR( uint8_t, outerOutBoundsPrecisionHits );
+        DEFINE_ACCESSOR( uint8_t, extendedOutBoundsPrecisionHits );
+
+	DEFINE_ACCESSOR( uint8_t, combinedTrackOutBoundsPrecisionHits );
+
+	DEFINE_ACCESSOR( uint8_t, isEndcapGoodLayers );
+	DEFINE_ACCESSOR( uint8_t, isSmallGoodSectors );
 
       default:                  
          std::cerr << "xAOD::MuonTrackParticle_v1 ERROR Unknown MuonSummaryType ("
