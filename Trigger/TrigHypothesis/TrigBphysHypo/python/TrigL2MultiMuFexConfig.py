@@ -129,6 +129,36 @@ class L2MultiMuFex_Tau (TrigL2MultiMuFex):
         
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2MultiMuFex_Tau2 (TrigL2MultiMuFex):
+    __slots__ = []
+    def __init__(self, name = "L2MultiMuFex_Tau2"):
+        super( TrigL2MultiMuFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # L2 Bmumu cuts
+        # self.TrackPTthr          = 1.4
+        # self.TrackAlgoId         = 2
+        # self.pTsumTrackPair      = 0.
+        self.LowerMassCut      = 0.
+        self.UpperMassCut     = 2900.
+        self.NMassMuon          =2
+        self.CheckNinputTE = False
+        self.doVertexFit         = True
+        self.TrigL2VertexFitter = L2VFitTool
+        self.TrigVertexingTool = VertexTool
+                                
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+        from TrigBphysHypo.TrigL2MultiMuFexMonitoring import TrigL2MultiMuFexValidationMonitoring
+        validation = TrigL2MultiMuFexValidationMonitoring()
+        from TrigBphysHypo.TrigL2MultiMuFexMonitoring import TrigL2MultiMuFexOnlineMonitoring
+        online = TrigL2MultiMuFexOnlineMonitoring()
+        
+        self.AthenaMonTools = [ validation, online, time ]
+
 class L2MultiMuFex_Tau_passL2 (TrigL2MultiMuFex):
     __slots__ = []
     def __init__(self, name = "L2MultiMuFex_Tau_passL2"):
