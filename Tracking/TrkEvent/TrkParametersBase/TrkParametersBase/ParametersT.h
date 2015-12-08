@@ -11,140 +11,139 @@
 
 // Trk includes
 #include "TrkParametersBase/ParametersBase.h"
-#include "TrkParametersBase/SurfaceUniquePtrT.h"
-#include "TrkEventPrimitives/DefinedParameter.h"
+
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-#include <assert.h>
-#include <cmath>
+namespace Trk
+{
+  class MaterialEffectsEngine;
 
-class MsgStream;
-
-class TrackParametersCnv_p2;
-
-namespace Trk {
   /**
-  @class ParametersT
+     @class ParametersT
 
-  The templated base class for charged and neutral representations,
-  template argumetns are the type and the surface
+     The class for charged and neutral track representations containing
     
-    - the parameters vector
-	- charge
-	- position
-	- momentum
-	- local position (ponter to)
+     - the parameters vector
+     - charge
+     - position
+     - momentum
 
-	Which can be returned by the parameters() method as a Amg::Vector(DIM):
-	\left(\begin{array}{c}
-	x\\y\\z\\p_{x}\\p_{y}\\p_{z}\end{array}\right)
-	\f$
+     Which can be returned by the parameters() method as a Amg::Vector(DIM):
+     \left(\begin{array}{c}
+     x\\y\\z\\p_{x}\\p_{y}\\p_{z}\end{array}\right)
+     \f$
 
-	The standard dimension for both charged and neutral parameters
-	is of dimension 5, extended parameters will have dimension 6.
-    
-    The friend list is motivated by the most common manipulation needs
-
-	@author edward.moyse@cern.ch, andreas.salzburger@cern.ch
+     @tparam DIM number of track parameters (usually 5)
+     @tparam T charge of track (either <tt>Trk::Charged</tt> or <tt>Trk::Neutral</tt>)
+     @tparam S type of surface
+     
+     @author edward.moyse@cern.ch, andreas.salzburger@cern.ch
   */
+  template<int DIM,class T,class S>
+  class ParametersT : public ParametersBase<DIM,T>
+  {
+  public:
+    /** default constructor only for POOL and dervied classes */
+    ParametersT();
     
-  template <int DIM, class T, class S> class ParametersT : public ParametersBase<DIM, T> {
+    /** Constructor with local arguments - uses global <-> local for parameters */
+    ParametersT(double loc1,
+		double loc2,
+		double phi,
+		double theta,
+		double qop, 
+		const S& surface,
+		AmgSymMatrix(DIM)* covariance = 0);
   
-    public:
-         
-      friend class MaterialEffectsEngine;
-      friend class ::TrackParametersCnv_p2;
-          
-        
-  	  /** default constructor */
-      ParametersT ();
+    /** Constructor with parameters - extract position and momentum */
+    ParametersT(const AmgVector(DIM)& parameters,
+		const S& surface,
+		AmgSymMatrix(DIM)* covariance = 0);
   
-      /** Constructor with local arguments - uses global <-> local for parameters */
-      ParametersT (double loc1, double loc2, double phi, double theta, double qop, 
-                   const S& surface,
-  				   AmgSymMatrix(DIM)* covariance = 0);
-  
-      /** Constructor with local arguments - uses global <-> local for parameters */
-      ParametersT (const AmgVector(DIM)& parameters,
-                   const S& surface,
-                   AmgSymMatrix(DIM)* covariance = 0);
-  
-      /** Constructor with local arguments - uses global <-> local for parameters.
-          Takes ownership of the surface.
-          Meant for use by P->T conversion. */
-      ParametersT (const AmgVector(DIM)& parameters,
-                   SurfaceUniquePtrT<const S> surface,
-                   AmgSymMatrix(DIM)* covariance = 0);
-  
-      /** Constructor with mixed arguments 1 - uses global <-> local for parameters */
-      ParametersT (const Amg::Vector3D& position,
-                   double phi, double theta, double qop,
-                   const S& surface,
-                   AmgSymMatrix(DIM)* covariance = 0);
-      
-      /** Constructor with mixed arguments 2 - uses global <-> local for parameters */
-      ParametersT (double loc1, double loc2,
-                   const Amg::Vector3D& momentum,
-                   double charge,
-                   const S& surface,
-                   AmgSymMatrix(DIM)* covariance = 0);
-          
-      /** Constructor with global arguments - uses global <-> local for parameters */
-      ParametersT (const Amg::Vector3D& position,
-                   const Amg::Vector3D& momentum,
-  				   double charge,
-  				   const S& surface,
-  				   AmgSymMatrix(DIM)* covariance = 0);
-  
-  	  /** Copy constructor */
-      ParametersT (const ParametersT& rhs);
-      
-      /** Assignment operator */
-      ParametersT& operator= (const ParametersT& rhs);
+    /** Constructor with global arguments - uses global <-> local for parameters */
+    ParametersT(const Amg::Vector3D& position,
+		const Amg::Vector3D& momentum,
+		double charge,
+		const S& surface,
+		AmgSymMatrix(DIM)* covariance = 0);
 
-      /** Move assignment operator */
-      ParametersT& operator= (ParametersT&& rhs);
+    /** Constructor with mixed arguments 1 - uses global <-> local for parameters */
+    ParametersT (const Amg::Vector3D& position,
+		 double phi, double theta, double qop,
+		 const S& surface,
+		 AmgSymMatrix(DIM)* covariance = 0);
+    
+    /** Copy constructor */
+    ParametersT(const ParametersT<DIM,T,S>& rhs);
       
-      //**Destructor*/
-      virtual ~ParametersT ();
-      
-      /** Virtual constructor. Allows copying of vector of ParametersT*/
-      virtual ParametersT* clone() const override { return new ParametersT<DIM,T,S>(*this); }
-  
-      /** Access to the Surface method */
-      virtual const S& associatedSurface() const override { return (*m_surface); }    
-  
-      /** Return the measurementFrame of the parameters */
-      const Amg::RotationMatrix3D measurementFrame() const override;
-  
-      /** Return the ParametersType enum */
-      virtual ParametersType type() const override { return AtaSurface; }
+    /** Move constructor */
+    ParametersT(ParametersT<DIM,T,S>&& rhs);
+    
+    /** Assignment operator */
+    ParametersT<DIM,T,S>& operator=(const ParametersT<DIM,T,S>& rhs);
 
-    private:
-	  /** --- PRIVATE CONSTRUCTOR : for persistency purpose only */
-      ParametersT (const AmgVector(DIM)& parameters,
-                   const S* surface,
-                   AmgSymMatrix(DIM)* covariance = 0);
-
-      /** --- PRIVATE METHOD: access is controlled via friend list 
-          Update method for single defined parameters parameters,
-          this deletes the covariance and overwrites if the pointer value differs  */ 
-      void updateParameter(DefinedParameter updatedParameter,
-                           AmgSymMatrix(DIM)* updatedCovariance = 0) const override;
-                                   
-      /** ---- PRIVATE METHOD: access is controlled via friend list 
-          Update method for measurement parameter update and material effects update,
-          this deletes the covariance and overwrites if the pointer value differs  */ 
-      void updateParameters(const AmgVector(DIM)& updatedParameters,
-                            AmgSymMatrix(DIM)* updatedCovariance = 0) const override; 
-  
-      mutable const S*                m_surface;          //!< surface template
+    /** Move assignment operator */
+    ParametersT<DIM,T,S>& operator=(ParametersT<DIM,T,S>&& rhs);
       
-          
+    //** Destructor */
+    virtual ~ParametersT();
+      
+    /** equality operator */
+    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
+
+    /** Virtual clone */
+    virtual ParametersT<DIM,T,S>* clone() const override {return new ParametersT<DIM,T,S>(*this);}
+
+    /** Return the ParametersType enum */
+    virtual ParametersType type() const override {return Trk::AtaSurface;}
+
+    /** Returns charge of track */
+    virtual double charge() const override {return m_chargeDef.charge();}
+
+    /** Access method for the parameters */
+    virtual const AmgVector(DIM)& parameters() const final {return m_parameters;}
+      
+    /** Access method for the covariance matrix - 0 if no covariance matrix is given */
+    virtual const AmgSymMatrix(DIM)* covariance() const final {return m_covariance;}
+    
+    /** Access to the Surface method */
+    virtual const S& associatedSurface() const override {return *m_surface;}    
+  
+    /** Access method for the position */
+    virtual const Amg::Vector3D& position() const final {return m_position;}
+      
+    /** Access method for the momentum */
+    virtual const Amg::Vector3D& momentum() const final {return m_momentum;}
+
+    /** Return the measurementFrame of the parameters */
+    const Amg::RotationMatrix3D measurementFrame() const override;
+  
+  protected:
+    /** --- PRIVATE CONSTRUCTOR : for persistency purpose only */
+    ParametersT (const AmgVector(DIM)& parameters,
+		 const S* surface,
+		 AmgSymMatrix(DIM)* covariance = 0);
+    
+    ParametersT (const Amg::Vector3D& pos,
+		 const Amg::Vector3D& mom,
+		 AmgSymMatrix(DIM)* covariance = 0);
+    
+    AmgVector(DIM)        m_parameters;       //!< contains the n parameters
+    AmgSymMatrix(DIM)*    m_covariance;       //!< contains the n x n covariance matrix
+    Amg::Vector3D         m_position;         //!< point on track
+    Amg::Vector3D         m_momentum;         //!< momentum at this point on track
+    const S*              m_surface;          //!< surface template
+    T                     m_chargeDef;        //!< charge definition for this track
+
+    /** DESIGN TO BE REVISITED */
+  public:
+
+  protected:
+    friend class MaterialEffectsEngine;
+    virtual void updateParameters(const AmgVector(DIM)& updatedParameters,AmgSymMatrix(DIM)* updatedCovariance = 0) override; 
   };
-
 } //end of namespace Trk
 
 #include "TrkParametersBase/ParametersT.icc"

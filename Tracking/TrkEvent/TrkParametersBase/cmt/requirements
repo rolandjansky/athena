@@ -9,13 +9,8 @@ use GeoPrimitives       GeoPrimitives-*          DetectorDescription
 use EventPrimitives     EventPrimitives-*        Event
 use TrkEventPrimitives  TrkEventPrimitives-*     Tracking/TrkEvent
 
-library TrkParametersBase *.cxx
-apply_pattern installed_library
-
 private
 
 macro DOXYGEN_IMAGE_PATH "../doc/images"
 macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
 
-#use AtlasReflex   AtlasReflex-*   External -no_auto_imports
-#apply_pattern lcgdict dict=TrkParametersBase selectionfile=selection.xml headerfiles="../TrkParametersBase/TrkParametersBaseDict.h"

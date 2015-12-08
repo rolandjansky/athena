@@ -3,30 +3,30 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// CurvilinerParametersT.h, (c) ATLAS Detector software
+// CurvilinearParametersT.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef TRKPARAMETERSBASE_CURVILINEARPARAMETERS_T_H
 #define TRKPARAMETERSBASE_CURVILINEARPARAMETERS_T_H
 
+// STL
+#include <memory>
+
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 // Tracking includes
-#include "TrkParametersBase/ParametersBase.h"
-#include "TrkEventPrimitives/DefinedParameter.h"
+#include "TrkParametersBase/ParametersT.h"
 #include "TrkEventPrimitives/CurvilinearUVT.h"
 
 class MsgStream;
 
-namespace Trk {
-
+namespace Trk
+{
   /**
    @class CurvilinearParametersT
 
-   The templated base class for charged and neutral representations:
-
-   This class represents the track parameters as defined in the curvilinear frame.
+   The specialised class for charged and neutral track parameters in the curvilinear frame.
 
    The method parameters() returns a vector of the track parameters, defined as:
    \f$\left(\begin{array}{c}
@@ -34,116 +34,96 @@ namespace Trk {
    \end{array}\right)\f$
 
    The following is true per definition:
-           - the local position is per definition (0.,0.)
-           - the surface is per definition a plane surface normal to the track (UVT frame)
+    - the local position is per definition (0.,0.)
+    - the surface is per definition a plane surface normal to the track (UVT frame)
 
-   The friend list is motivated by the most common manipulation needs
-
+   @tparam DIM number of track parameters (usually 5)
+   @tparam T   charge of track (either <tt>Trk::Charged</tt> or <tt>Trk::Neutral</tt>)
+   
    @author andreas.salzburger@cern.ch
+  */
 
-   */
-   
-template <int DIM, class T, class S> class CurvilinearParametersT : public ParametersBase<DIM, T>
-{
+
+  template<int DIM,class T, class S>
+  class CurvilinearParametersT : public ParametersT<DIM,T,S>
+  {
   public:
-      
-    friend class MaterialEffectsEngine;  
-      
-    /**Default constructor for POOL. Do not use!*/
-    CurvilinearParametersT(AmgSymMatrix(DIM)* covariance = 0);
+    /** default constructor only for POOL */
+    CurvilinearParametersT() = default;
 
-    /** Create CurvilinearParametersT from DIM+2 parameters 
-	  - these are: global position, momentum, charge, extension */
-    CurvilinearParametersT(const AmgVector(DIM+2)& parameters, 
-	                       AmgSymMatrix(DIM)* covariance = 0,
-                           unsigned int cIdenfier = 0); 
-
+    /** Create CurvilinearParametersT from DIM+2 parameters
+        - these are: global position, momentum, charge, extension */
+    CurvilinearParametersT(const AmgVector(DIM+2)& parameters,
+			   AmgSymMatrix(DIM)* covariance = 0,
+			   unsigned int cIdenfier = 0);
+    
     /**Create CurvilinearParametersT from mixed parameters: pos, local parameters*/
-    CurvilinearParametersT (
-        const Amg::Vector3D& pos, 
-        double tphi, 
-        double ttheta, 
-        double tqOverP,
-        AmgSymMatrix(DIM)* covariance = 0,
-        unsigned int cIdenfier = 0);
+    CurvilinearParametersT(const Amg::Vector3D& pos, 
+			   double phi, 
+			   double theta, 
+			   double qOverP,
+			   AmgSymMatrix(DIM)* covariance = 0,
+			   unsigned int cIdenfier = 0);
        
-    /**Create CurvilinearParametersT from global parameters.
-    -- it will throw a GaudiException if the position is not on surface
-    */     
-    CurvilinearParametersT (
-        const Amg::Vector3D& pos, 
-        const Amg::Vector3D& mom,
-        double charge,
-        AmgSymMatrix(DIM)* covariance = 0,
-        unsigned int cIdenfier = 0);
+    /** Create CurvilinearParametersT from global parameters.
+       -- it will throw a GaudiException if the position is not on surface  */     
+    CurvilinearParametersT(const Amg::Vector3D& pos, 
+			   const Amg::Vector3D& mom,
+			   double charge,
+			   AmgSymMatrix(DIM)* covariance = 0,
+			   unsigned int cIdenfier = 0);
         
-    /**Copy Constructor*/
-    CurvilinearParametersT (const Trk::CurvilinearParametersT<DIM, T, S>&); 
+    /** Copy Constructor */
+    CurvilinearParametersT(const CurvilinearParametersT<DIM,T,S>&); 
    
-    /**Destructor*/
-    virtual ~CurvilinearParametersT (); 
-                 
-    /**Pseudo constructor*/             
-    CurvilinearParametersT* clone() const override { return new Trk::CurvilinearParametersT<DIM, T, S>(*this); }
+    /** Move Constructor */
+    CurvilinearParametersT(CurvilinearParametersT<DIM,T,S>&&); 
+   
+    /** Destructor */
+    virtual ~CurvilinearParametersT() = default;
                  
     /** Assignment operator*/
-    Trk::CurvilinearParametersT<DIM, T, S> &operator= (const Trk::CurvilinearParametersT<DIM, T, S>&);
+    CurvilinearParametersT<DIM,T,S> &operator=(const CurvilinearParametersT<DIM,T,S>&);
 
-    /** return the curvilinear frame */
-    const CurvilinearUVT& curvilinearFrame() const;
+    /** Move assignment operator*/
+    CurvilinearParametersT<DIM,T,S> &operator=(CurvilinearParametersT<DIM,T,S>&&);
 
-    /** return associated surface by pointer 
-       - for curvilinear parameters it is a boundless planar surface*/
+    /** equality operator */
+    virtual bool operator==(const ParametersBase<DIM,T>& rhs) const override;
+
+    /** Pseudo constructor */             
+    virtual CurvilinearParametersT<DIM,T,S>* clone() const override {return new CurvilinearParametersT<DIM,T,S>(*this);}
+                 
+    /** Return the ParametersType enum */
+    virtual ParametersType type() const override {return Trk::Curvilinear;}
+    
+    /** Access to the Surface method */
     virtual const S& associatedSurface() const override;
 
     /** Return the measurementFrame of the parameters */
-    const Amg::RotationMatrix3D measurementFrame() const override;
+    virtual const Amg::RotationMatrix3D measurementFrame() const override;
+
+    /**Dumps relevant information about the track parameters into the ostream.*/
+    virtual MsgStream& dump(MsgStream& out) const override;
+    virtual std::ostream& dump(std::ostream& out) const override;
 
     /** the curvilinear parameters identifier */
-    unsigned int cIdentifier() const;
-    
-    /**Dumps relevant information about the track parameters into the ostream.*/
-    virtual MsgStream& dump( MsgStream& out ) const ;
-    virtual std::ostream& dump( std::ostream& out ) const ;
+    unsigned int cIdentifier() const {return m_cIdentifier;}
 
-    // ----------- POOL methods.
-    /**Used by custom convertor to recreate the surface link.
-       DO NOT USE THIS METHOD. It may be removed in the future*
-       Senseless for Curvilinear parameters
-     */
-    void setAssociatedSurface(const Surface*) {}      
-
-    /** Return the ParametersType enum */
-    virtual ParametersType type() const override { return Curvilinear; }
+  protected:
+    friend class MaterialEffectsEngine;
+    virtual void updateParameters(const AmgVector(DIM)& updatedParameters,AmgSymMatrix(DIM)* updatedCovariance = 0) override; 
 
   private:
-    /** --- PRIVATE METHOD: access is controlled via friend list 
-        Update method for single defined parameters parameters,
-        this deletes the covariance and overwrites if the pointer value differs  */ 
-    virtual
-    void updateParameter(DefinedParameter updatedParameter,
-                         AmgSymMatrix(DIM)* updatedCovariance = 0) const override;
-                                 
-    /** ---- PRIVATE METHOD: access is controlled via friend list 
-        Update method for measurement parameter update and material effects update,
-        this deletes the covariance and overwrites if the pointer value differs  */ 
-    virtual
-    void updateParameters(const AmgVector(DIM)& updatedParameters,
-                          AmgSymMatrix(DIM)* updatedCovariance = 0) const override;
-
-    /** helper method for the curvilinear frame */
-    mutable CurvilinearUVT  m_curvilinearFrame;  
-
-    /** the plane surface where these parameters are defined at */
-    mutable const S*        m_associatedSurface;
+    /** return the curvilinear frame */
+    const CurvilinearUVT& curvilinearFrame() const;
+    
+    /** the curvilinear frame */
+    mutable std::unique_ptr<CurvilinearUVT>  m_curvilinearFrame;  
 
     /** the curvilinear parameters identifier */
     unsigned int m_cIdentifier;
   };
-  
-  template <int DIM, class T, class S> unsigned int CurvilinearParametersT<DIM,T,S>::cIdentifier() const 
-  { return m_cIdentifier; }
-  
 }//end of namespace Trk
 
 #include "TrkParametersBase/CurvilinearParametersT.icc"

@@ -6,53 +6,62 @@
 // Neutral.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef TRKEVENTPRIMITIVES_NEUTRAL_H
-#define TRKEVENTPRIMITIVES_NEUTRAL_H
+#ifndef TRKPARAMETERSBASE_NEUTRAL_H
+#define TRKPARAMETERSBASE_NEUTRAL_H 1
 
-#include "TrkParametersBase/ChargeDefinition.h"
-#include "GaudiKernel/MsgStream.h"
+#include <iostream>
+#include <cmath>
 
-namespace Trk {
-
-/** @class Neutral
-
-   Charge definition class : charged
-   for templating the NeutralTrackParameters
-   
-   @author Andreas.Salzburger@cern.ch   
-*/
-class Neutral : public ChargeDefinition
+namespace Trk
 {
+  /**
+     @class Neutral
+
+     Simple helper class for defining track parameters for neutral particles
+
+     @author Christian Gumpert <christian.gumpert@cern.ch>
+   */
+  class Neutral
+  {
   public:
-    /** default ctor for POOL*/
-    Neutral() :
-     ChargeDefinition()
-     {}
+    /** Default constructor */
+    Neutral() {}
+
+    /** Default constructor with dummy parameter */
+    Neutral(const double&) {}
 
     /** Copy constructor */
-    Neutral( const Neutral& chdef) :
-     ChargeDefinition(chdef)
-     {}
-     
-    ///Assignment 
-    Neutral & operator=(const Neutral & rhs) = default;
+    Neutral(const Neutral&) = default;
 
-    /** Destructor */
-    virtual ~Neutral(){}
+    /** Move constructor */
+    Neutral(Neutral&&) = default;
+
+    /** Default destructor */
+    ~Neutral() {}
     
-    /**Dumps relevant information about the track parameters into the ostream.*/
-    void dump( MsgStream& out ) const;
-    void dump( std::ostream& out ) const;
+    /** Assignment operator */
+    Neutral& operator=(const Neutral&) = default;
 
- };
+    /** Move assignment operator */
+    Neutral& operator=(Neutral&&) = default;
 
-inline void Neutral::dump( MsgStream& out) const
-{ out << "Trk::Neutral";  }
+    /** Charge for neutral particles is always 0 */
+    double charge() const {return 0.;}
 
-inline void Neutral::dump( std::ostream& out) const
-{ out << "Trk::Neutral";  }
+    /** Setting the charge for a neutral particle has no effect */
+    void setCharge(double) {}
 
+    /** Equality operator yields always true */
+    bool operator==(const Neutral&) const
+    {
+      return true;
+    }
 
-} //end ns
-
+    /** Inequality operator */
+    bool operator!=(const Neutral& rhs) const
+    {
+      return !(*this == rhs);
+    }
+  };
+} //end of namespace Trk
 #endif
