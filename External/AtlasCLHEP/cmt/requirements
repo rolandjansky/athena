@@ -7,20 +7,15 @@ use CLHEP v* LCG_Interfaces
 
 macro AtlasCLHEP_native_version "$(CLHEP_native_version)"
 macro AtlasCLHEP_home           "$(CLHEP_home)"
-
-macro AtlasCLHEP_dir "$(AtlasCLHEP_home)"
-macro AtlasCLHEP_lib "$(AtlasCLHEP_dir)/lib"
-
+macro AtlasCLHEP_dir            "$(AtlasCLHEP_home)"
+macro AtlasCLHEP_lib            "$(AtlasCLHEP_dir)/lib"
 
 macro_remove CLHEP_linkopts "" \
              notAsNeeded    "" \
-             asNeeded       "-lCLHEP-Vector-$(CLHEP_native_version)"
-macro_remove CLHEP_linkopts "" \
-             notAsNeeded    "" \
-             asNeeded       "-lCLHEP-Random-$(CLHEP_native_version)"
+             asNeeded       "-lCLHEP-$(CLHEP_native_version)"
 macro_append CLHEP_linkopts "" \
              notAsNeeded    "" \
-             asNeeded       " $(notAsNeeded_linkopt) -lCLHEP-Vector-$(CLHEP_native_version)  -lCLHEP-Random-$(CLHEP_native_version) $(asNeeded_linkopt) "
+             asNeeded       " $(notAsNeeded_linkopt) -lCLHEP-$(CLHEP_native_version) $(asNeeded_linkopt) "
 
 macro CLHEP_pp_cppflags " -DCLHEP_MAX_MIN_DEFINED -DCLHEP_ABS_DEFINED -DCLHEP_SQR_DEFINED "
 macro CLHEP_pp_fflags " -DCLHEP_MAX_MIN_DEFINED -DCLHEP_ABS_DEFINED -DCLHEP_SQR_DEFINED "
@@ -31,4 +26,3 @@ include_path none
 include_dirs "$(AtlasCLHEP_include)"
 
 apply_pattern set_root_include_path
-
