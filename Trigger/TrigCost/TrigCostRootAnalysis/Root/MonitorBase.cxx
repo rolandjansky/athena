@@ -48,7 +48,6 @@ namespace TrigCostRootAnalysis {
     m_allowSameNamedCounters(kFALSE),
     m_allowSameIDCounters(kFALSE),
     m_filterOutput(kFALSE),
-    m_invertFilter(kFALSE),
     m_filterOnDecorationKey(),
     m_filterOnDecorationValue(),
     m_counterCollections(),
@@ -57,7 +56,7 @@ namespace TrigCostRootAnalysis {
     m_currentCollectionLBNumber(-1),
     m_currentDBKey(-1, -1, -1),
     m_timer("Monitor",_name) {
-      //Nothing here
+    m_invertFilter = Config::config().getInt(kPatternsInvert);
   }
 
   /**

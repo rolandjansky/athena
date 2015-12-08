@@ -925,8 +925,10 @@ namespace TrigCostRootAnalysis {
     if( _n >= 0 && _n < (Int_t) getNRoIs()) {
       if (getIsRoINone(_n) == kTRUE) return Config::config().getStr(kNoneString);
       else if (getIsRoIMuon(_n) == kTRUE) return Config::config().getStr(kMuonString);
-      else if (getIsRoIEmTau(_n) == kTRUE) return Config::config().getStr(kEmTauString);
-      else if (getIsRoIJet(_n) == kTRUE) return Config::config().getStr(kJetString);
+      else if (getIsRoIEmTau(_n) == kTRUE) {
+        if (getIsRoITau(_n))  return Config::config().getStr(kTauString);
+        else return Config::config().getStr(kEmString);
+      } else if (getIsRoIJet(_n) == kTRUE) return Config::config().getStr(kJetString);
       else if (getIsRoIJetEt(_n) == kTRUE) return Config::config().getStr(kJetEtString);
       else if (getIsRoIEnergy(_n) == kTRUE) return Config::config().getStr(kEnergyString);
     }

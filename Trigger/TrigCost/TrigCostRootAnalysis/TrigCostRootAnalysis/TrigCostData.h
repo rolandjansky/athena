@@ -214,13 +214,23 @@ namespace TrigCostRootAnalysis {
     Float_t getRoIArea(UInt_t _n) const;
     Float_t getRoIEta(UInt_t _n) const;
     Float_t getRoIPhi(UInt_t _n) const;
+    Float_t getRoIEt(UInt_t _n) const;
     Int_t   getRoINL1Thresh(UInt_t _n) const;
     Bool_t  getIsRoIEmTau(UInt_t _n) const;
+    Bool_t  getIsRoITau(UInt_t _n) const;
     Bool_t  getIsRoIEnergy(UInt_t _n) const;
     Bool_t  getIsRoIJet(UInt_t _n) const;
     Bool_t  getIsRoIJetEt(UInt_t _n) const;
     Bool_t  getIsRoIMuon(UInt_t _n) const;
     Bool_t  getIsRoINone(UInt_t _n) const;
+    Float_t getRoIEtLarge(UInt_t _n) const;
+    Int_t   getRoIMuonCharge(UInt_t _n) const;
+    Int_t   getRoIEmTauIsoBits(UInt_t _n) const;
+    Float_t getRoIVectorEX(UInt_t _n) const;
+    Float_t getRoIVectorEY(UInt_t _n) const;
+    Bool_t  getRoIOverflowEX(UInt_t _n) const;
+    Bool_t  getRoIOverflowEY(UInt_t _n) const;
+    Bool_t  getRoIOverflowET(UInt_t _n) const;
     const std::string& getRoITypeString(Int_t _n) const;
     
     //
