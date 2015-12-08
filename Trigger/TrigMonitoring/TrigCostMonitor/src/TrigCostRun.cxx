@@ -575,7 +575,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     ptr->addWord(appId); //Backward compatability
 
     if(fill_size) {
-      ptr->addVar(9, float(eventCol->size()));
+      ptr->addVar(Trig::kEventBufferSize, float(eventCol->size()));
       fill_size = false;
     }
     
@@ -592,7 +592,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     //
     bool _haveLumiLength = false;
     for (unsigned i=0; i < ptr->getVarKey().size(); ++i) {
-      if (ptr->getVarKey().at(i) == 43) {
+      if (ptr->getVarKey().at(i) == Trig::kEventLumiBlockLength) {
         _haveLumiLength = true;
         if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Lumi length already stored in event" << endreq;
         break;
@@ -604,7 +604,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
         log() << MSG::INFO << "Reading lumi length" << endreq;
         m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
       }
-      ptr->addVar(43, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
+      ptr->addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
       if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endreq;
       std::string _msg = m_readLumiBlock.infos();
       if (_msg.size()) log() << MSG::INFO << _msg;
@@ -619,7 +619,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     vecEvent.push_back(*ptr);
 
     float _isCostEvent = 0.;
-    ptr->getVar(47, _isCostEvent);
+    ptr->getVar(Trig::kIsCostEvent, _isCostEvent);
     if (_isCostEvent > 0.5) ++countCostEvent;
   }
 
