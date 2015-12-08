@@ -9,11 +9,17 @@
 // Local
 #include "TrigMonitoringEvent/TrigMonAlg.h"
 #include "TrigMonitoringEvent/TrigMonRoi.h"
+#include "TrigMonMSG.h"
 
 namespace AlgBits
 {
   const uint32_t maskCache = 0x80; // bit used to set caching state
   const uint32_t maskPos   = 0x7f; // mask bottom 7 bits
+}
+
+namespace MSGService
+{
+  static TrigMonMSG msg("TrigMonAlg");
 }
 
 using namespace std;
@@ -32,7 +38,7 @@ TrigMonAlg::TrigMonAlg(unsigned int position, bool is_cached)
     m_byte[0] = position;
   }
   else {
-    cerr << "TrigMonAlg ctor error! Position is out of allowed range: " << position << endl;
+    MSGService::msg.Log("TrigMonAlg ctor error! Position is out of allowed range.", MSG::ERROR);
   }
 
   if(is_cached) {
@@ -50,11 +56,11 @@ void TrigMonAlg::addTimer(const TrigMonTimer &tbeg, const TrigMonTimer &tend)
   // Save start and stop time for one algorithm call
   //
   if(isCached()) {
-    cerr << "TrigMonAlg::addTimers error! Cached algorithm has no timers." << endl;
+    MSGService::msg.Log("TrigMonAlg::addTimers error! Cached algorithm has no timers.", MSG::ERROR);
     return;
   }
   else if(!m_word.empty()) {
-    cerr << "TrigMonAlg::addTimers error! Timers already added!" << endl;
+    MSGService::msg.Log("TrigMonAlg::addTimers error! Timers already added!", MSG::ERROR);
     return;
   }
 
@@ -71,8 +77,8 @@ void TrigMonAlg::addRoiId(unsigned int roi_id)
   if(roi_id < 256) {
     m_byte.push_back(static_cast<uint8_t>(roi_id)); 
   }
-  else {
-    cerr << "TrigMonAlg::addRoiId error! RoiId value is out of range: " << roi_id << endl;
+  else if (roi_id == 256) {
+    MSGService::msg.Log("TrigMonAlg::addRoiId error! RoiId value is out of range! (only reported for ID=256)", MSG::WARNING);
   }
 }
 
@@ -83,7 +89,7 @@ void TrigMonAlg::addWord(unsigned int word)
   // Save start and stop time for one algorithm call
   //
   if(m_word.size() != 2 && !isCached()) {
-    cerr << "TrigMonAlg::addWord error! Timers must be added first." << endl;
+    MSGService::msg.Log("TrigMonAlg::addWord error! Timers must be added first.", MSG::ERROR);
     return;
   }
 

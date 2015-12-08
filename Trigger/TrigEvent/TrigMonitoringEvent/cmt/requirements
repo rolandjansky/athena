@@ -1,10 +1,18 @@
 package TrigMonitoringEvent
 author Rustem Ospanov
 
+action checkreq " echo 'disabling checkreq!!' " 
+
+public
+
 use AtlasPolicy         AtlasPolicy-*
 use CLIDSvc             CLIDSvc-*                Control
 use DataModel           DataModel-*              Control
 use DataCollection      DataCollection-*         External
+
+use TrigSteering        TrigSteering-*           Trigger/TrigSteer
+use TrigInterfaces      TrigInterfaces-*         Trigger/TrigSteer
+use TrigSteeringEvent   TrigSteeringEvent-*      Trigger/TrigEvent
 
 apply_pattern installed_library
 library TrigMonitoringEvent *.cxx
@@ -15,6 +23,8 @@ use AthenaKernel        AthenaKernel-*           Control
 use AtlasReflex         AtlasReflex-*            External -no_auto_import
 use TrigNavigation      TrigNavigation-*         Trigger/TrigEvent
 use TrigSerializeUtils  TrigSerializeUtils-*     Trigger/TrigDataAccess
+use TrigConfL1Data      TrigConfL1Data-*         Trigger/TrigConfiguration
+use TrigT1Interfaces    TrigT1Interfaces-*       Trigger/TrigT1
 
 apply_pattern sercnv files="-s=${TrigMonitoringEvent_root}/TrigMonitoringEvent TrigMonEvent.h \
                             -s=${TrigMonitoringEvent_root}/TrigMonitoringEvent TrigMonEventCollection.h \
