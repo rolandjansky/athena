@@ -122,6 +122,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _noOnlineDTCorrection = kFALSE;
     static Int_t _noUpgradePileupScaling = kFALSE;
     static Int_t _doCPS = kFALSE;
+    static Int_t _patternsInvert = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -152,7 +153,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-07-28";
+    std::string _version = "TrigCostRootAnalysis-00-07-30";
     std::string _upgradeScenario = "";
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
@@ -247,6 +248,7 @@ namespace TrigCostRootAnalysis {
         {"outputModeStandard",     no_argument,       &_outputModeStandard,     1},
         {"noOnlineDTCorrection",   no_argument,       &_noOnlineDTCorrection,   1},
         {"noUpgradePileupScaling", no_argument,       &_noUpgradePileupScaling, 1},
+        {"patternsInvert",         no_argument,       &_patternsInvert,         1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -383,9 +385,10 @@ namespace TrigCostRootAnalysis {
           std::cout << "--defaultLBLength " << _defaultLBLength << "\t\t\t\tDefault lumi block length in seconds. Used as an approximate fallback for inputs without LB length data." << std::endl;
           std::cout << "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed." << std::endl;
           std::cout << "--patternsOutput patt1 patt2 ...\t\tPatterns to match in names when saving results. Regex currently NOT supported. Partial matched allowed. Only entries which match will be included in the output." << std::endl;
+          std::cout << "--patternsInvert\t\t\t\tInvert the behaviour of --patternsMonitor and --patternsOutput to be a list of chains to explicitly exclude." << std::endl;
           std::cout << "--fullEvNumFilelist\t\t\t\tInput file list with one event number per line. If supplied, only HLT events matching will be used in Full Event Summaries." << std::endl;
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
-          std::cout << "--noMsgSuppression\t\t\tDo not suppress any output." << std::endl;
+          std::cout << "--noMsgSuppression\t\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu/L1 XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu/L1 XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;
@@ -1083,6 +1086,8 @@ namespace TrigCostRootAnalysis {
     set(kMessageWait, _messageWait, "MessageWait");
     setFloat(kEventElapsed, 0., "EventElasped", kUnlocked);
     setFloat(kEventStartTime,  0., "EventStart", kUnlocked);
+    set(kPatternsInvert, _patternsInvert, "PatternsInvert");
+
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
@@ -1230,6 +1235,8 @@ namespace TrigCostRootAnalysis {
     set(kNoneString, "None");
     set(kMuonString, "Muon");
     set(kEmTauString, "EMTau");
+    set(kTauString, "Tau");
+    set(kEmString, "EM");
     set(kJetString, "Jet");
     set(kJetEtString, "JetEt");
     set(kEnergyString, "Energy");
@@ -1283,6 +1290,7 @@ namespace TrigCostRootAnalysis {
     set(kVarType, "Type");
     set(kVarEta, "Eta");
     set(kVarPhi, "Phi");
+    set(kVarEt, "ET");
     set(kVarArea, "Area");
     set(kVarL1Thresh, "L1Thresholds");
     set(kVarEventsPerLumiblock, "EventsPerLB");
