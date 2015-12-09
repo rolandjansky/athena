@@ -436,14 +436,19 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         
         if type=="FTK" or type=="FTKRefit":
-          from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-          self.FTK_DataProviderSvc = TrigFTK_DataProviderSvc()
+          from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
+          self.FTK_DataProviderSvc = theFTK_DataProviderSvc
           self.FTK_Mode=True
         if type=="FTKRefit":    
           self.FTK_Refit=True
 
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+
+        if remapped_type == "tauCore":
+          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
+          self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
+
         from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
         resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
         ToolSvc += resCalc
