@@ -161,10 +161,10 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
   } else {
     // normal track parameters - check if the type is 'permitted' to be written, if not, convert to curvilinear
     if (isPersistifiableType(transObj)) {
-      unsigned int nRows = transObj->m_parameters.rows();
+      unsigned int nRows = transObj->parameters().rows();
       persObj->m_parameters.resize( nRows); 
       for( unsigned int i = 0; i < nRows; i++ ){
-        persObj->m_parameters[i]   = (transObj->m_parameters)[i];      
+        persObj->m_parameters[i]   = (transObj->parameters())[i];      
       }
       fillPersSurface(transObj, persObj, log);
     } else {
@@ -182,9 +182,9 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
   }
   
   // Errormatrix
-  if (transObj->m_covariance){
+  if (transObj->covariance()){
     Trk::ErrorMatrix pMat;
-    EigenHelpers::eigenMatrixToVector(pMat.values, *transObj->m_covariance, "TrackParametersCnv_p2");
+    EigenHelpers::eigenMatrixToVector(pMat.values, *transObj->covariance(), "TrackParametersCnv_p2");
     persObj->m_errorMatrix = toPersistent( &m_emConverter, &pMat, log );
   }
 

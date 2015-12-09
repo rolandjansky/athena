@@ -25,12 +25,12 @@ void NeutralPerigeeCnv_p1::persToTrans(    const Trk::Perigee_p1 *persObj,
 
   transObj->m_surface = createTransFromPStore( &m_perigeeSurfaceCnv, persObj->m_assocSurface, log );
 
-  double qop=transObj->m_parameters[Trk::qOverP];
-  if ( qop< 0.) transObj->m_chargeDefinition.flipSign();
+  double qop=transObj->parameters()[Trk::qOverP];
+  if ( qop< 0.) transObj->m_chargeDef.setCharge(-1);
     // fill momentum & then position using the surface
-  double p = qop != 0. ? (static_cast<double>(transObj->m_chargeDefinition))/qop : 1.;
-  double phi = transObj->m_parameters[Trk::phi];
-  double theta = transObj->m_parameters[Trk::theta];
+  double p = qop != 0. ? transObj->charge()/qop : 1.;
+  double phi = transObj->parameters()[Trk::phi];
+  double theta = transObj->parameters()[Trk::theta];
 
   transObj->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
     p*sin(phi)*sin(theta),

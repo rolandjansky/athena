@@ -27,13 +27,13 @@ persToTrans( const Trk::AtaSurface_p1 *persObj, ATA_SURFACE *transObj, MsgStream
    transObj->m_surface = dynamic_cast<const typename SURFACE_CNV::Trans_t*>(temp);
    
     if (transObj->m_surface!=NULL) {
-       if (transObj->m_parameters[Trk::qOverP] < 0.) transObj->m_chargeDefinition.flipSign();
+       if (transObj->m_parameters[Trk::qOverP] < 0.) transObj->m_chargeDef.setCharge(-1);
        // fill momentum & then position using the surface
-       double qop=transObj->m_parameters[Trk::qOverP];
+       double qop=transObj->parameters()[Trk::qOverP];
        
-       double p = qop != 0. ? (static_cast<double>(transObj->m_chargeDefinition))/qop : 1.;
-       double phi = transObj->m_parameters[Trk::phi];
-       double theta = transObj->m_parameters[Trk::theta];
+       double p = qop != 0. ? transObj->charge()/qop : 1.;
+       double phi = transObj->parameters()[Trk::phi];
+       double theta = transObj->parameters()[Trk::theta];
 
        transObj->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
                                                          p*sin(phi)*sin(theta),
