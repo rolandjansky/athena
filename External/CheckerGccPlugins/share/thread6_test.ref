@@ -1,0 +1,40 @@
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In member function 'void S::f1(int) const':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:27:8: warning: Setting mutable field 'S::x' within thread-safe function 'void S::f1(int) const'; may not be thread-safe.
+   x = y;
+        ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:27:8: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In function 'void f2(const S*)':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:33:12: warning: Setting mutable field 'S::x' within thread-safe function 'void f2(const S*)'; may not be thread-safe.
+   s->x = 10;
+            ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:33:12: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In function 'void f4(const S*)':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:40:5: warning: Taking non-const reference to mutable field 'S::x' within thread-safe function 'void f4(const S*)'; may not be thread-safe.
+   f3(&s->x);
+     ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:40:5: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In function 'int* f5(const S*)':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:45:14: warning: Taking non-const reference to mutable field 'S::x' within thread-safe function 'int* f5(const S*)'; may not be thread-safe.
+   return &s->x;
+              ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:45:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In member function 'void S::f6(int) const':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:51:10: warning: Setting mutable field 'S::b' within thread-safe function 'void S::f6(int) const'; may not be thread-safe.
+   b.z = y;
+          ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:51:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In function 'int* f7(const S*)':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:56:16: warning: Taking non-const reference to mutable field 'S::b' within thread-safe function 'int* f7(const S*)'; may not be thread-safe.
+   return &s->b.z;
+                ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:56:16: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In function 'int* f8(const S*)':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:61:20: warning: Taking non-const reference to mutable field 'S::bb' within thread-safe function 'int* f8(const S*)'; may not be thread-safe.
+   return &s->bb[2].z;
+                    ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:61:20: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx: In member function 'void S::f9(int) const':
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:67:14: warning: Setting mutable field 'S::bb' within thread-safe function 'void S::f9(int) const'; may not be thread-safe.
+   bb[0].z = y;
+              ^
+/home/sss/atlas/rootaccess/../test/thread6_test.cxx:67:14: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.

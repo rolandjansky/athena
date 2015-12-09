@@ -1,0 +1,102 @@
+// testing check_direct_static_use
+
+#pragma ATLAS thread_safe
+
+
+int f1(int xx)
+{
+  static int x;
+  x = xx;
+  return x;
+}
+
+int f2(int xx)
+{
+  static thread_local int x;
+  x = xx;
+  return x;
+}
+
+
+int f3(int xx)
+{
+  static int x [[gnu::thread_safe]];
+  x = xx;
+  return x;
+}
+
+
+int f4()
+{
+  static const int x = 10;
+  return x;
+}
+
+
+struct Y
+{
+  int y1;
+  int y2;
+};
+
+static Y yy1;
+
+static int y1;
+static thread_local int y2;
+static int y3 [[gnu::thread_safe]];
+static const int y4 = 0;
+static int y5[10];
+
+
+int g1()
+{
+  int a = 0;
+  a = y1 + y2 + y3 + y4 + yy1.y1 + y5[5];
+  return a;
+}
+
+
+void g2(int x)
+{
+  y1 = x;
+  y2 = x;
+  y3 = x;
+  yy1.y2 = x;
+  y5[4] = x;
+}
+
+
+int g3(int x)
+{
+  return (x>0) ? y1 : y2;
+}
+
+
+struct H
+{
+  static int h1;
+  static thread_local int h2;
+  static int h3 [[gnu::thread_safe]];
+  static const int h4 = 0;
+
+  int hee1();
+  void hee2(int);
+};
+
+
+int H::hee1()
+{
+  int a = 0;
+  a = h1 + h2 + h3 + h4;
+  return a;
+}
+
+
+void H::hee2(int x)
+{
+  h1 = x;
+  h2 = x;
+  h3 = x;
+}
+
+

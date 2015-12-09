@@ -22,13 +22,37 @@
 #define HAVE_DECL_GETOPT 1
 
 #include "gcc-plugin.h"
+#include "input.h"
+#include <string.h>
 
 #define CHECKER_GCCPLUGINS_VERSION_FULL "0.1"
 #define CHECKER_GCCPLUGINS_C_VERSION "Atlas gcc checker plugins version: " CHECKER_GCCPLUGINS_VERSION_FULL
 
 
+namespace CheckerGccPlugins {
+
+
+/// Has DECL been declared thread-safe?
+bool is_thread_safe (tree decl);
+
+bool is_thread_safe_location (location_t loc);
+
+void handle_thread_safe_pragma (cpp_reader*);
+
+void inform_url (location_t loc, const char* url);
+
+inline
+bool startswith (const char* s, const char* prefix)
+{
+  return strncmp (s, prefix, strlen(prefix)) == 0;
+}
+
+
+} // namespace CheckerGccPlugins
+
+
 // Declare prototypes for the checker initialization functions.
-#define CHECKER(NAME) void init_##NAME##_checker (plugin_name_args* plugin_info);
+#define CHECKER(NAME, FLAG) void init_##NAME##_checker (plugin_name_args* plugin_info);
 #include "checkers.def"
 #undef CHECKER
 

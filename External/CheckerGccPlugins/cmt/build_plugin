@@ -19,7 +19,7 @@ build_one() {
     return
   fi
 
-  . $compiler/setup.sh
+  . $compiler/setup.sh ""
   mkdir -p $destination
 
   gcclibdir=`ls -d $compiler/lib/gcc/x86_64-unknown-linux-gnu/*`
@@ -27,7 +27,7 @@ build_one() {
   gmp_home=`cmt show macro_value gmp_home`
 
   includes="-I$plugindir/include -I$gcclibdir -I$gmp_home/include"
-  flags="-std=c++11 -c -g -fPIC -O2 $includes -Wno-literal-suffix"
+  flags="-std=c++11 -c -g -fPIC -O2 $includes -Wno-literal-suffix -fno-rtti"
 
   cp ../src/* $destination
   cd $destination
@@ -46,10 +46,10 @@ build_config()
   compiler=""
   case $cmtconfig in
     i686-slc6-gcc48-opt|x86_64-slc6-gcc48-opt|x86_64-slc6-gcc48-dbg)
-      compiler=/afs/cern.ch/sw/lcg/releases/LCG_71/gcc/4.8.1/x86_64-slc6
+      compiler=/afs/cern.ch/sw/lcg/releases/gcc/4.8.1/x86_64-slc6
       ;;
     i686-slc6-gcc49-opt|x86_64-slc6-gcc49-opt|x86_64-slc6-gcc49-dbg)
-      compiler=/afs/cern.ch/sw/lcg/releases/LCG_71/gcc/4.9.1/x86_64-slc6
+      compiler=/afs/cern.ch/sw/lcg/releases/gcc/4.9.1/x86_64-slc6
       ;;
   esac
 

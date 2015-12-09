@@ -32,10 +32,18 @@ namespace {
  */
 const char* type_name (tree t)
 {
-  return type_as_string (t,
-                         TFF_PLAIN_IDENTIFIER +
-                         //TFF_UNQUALIFIED_NAME +
-                         TFF_NO_OMIT_DEFAULT_TEMPLATE_ARGUMENTS);
+#if defined(GCC_VERSION) && (GCC_VERSION >= 4009)
+  unsigned int save = flag_sanitize;
+  flag_sanitize = 0;
+#endif
+  const char* ret = type_as_string (t,
+                                    TFF_PLAIN_IDENTIFIER +
+                                    //TFF_UNQUALIFIED_NAME +
+                                    TFF_NO_OMIT_DEFAULT_TEMPLATE_ARGUMENTS);
+#if defined(GCC_VERSION) && (GCC_VERSION >= 4009)
+  flag_sanitize = save;
+#endif
+  return ret;
 }
 
 

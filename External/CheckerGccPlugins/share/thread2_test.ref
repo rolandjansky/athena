@@ -1,0 +1,40 @@
+../test/thread2_test.cxx: In function 'int* f1()':
+../test/thread2_test.cxx:13:11: warning: Pointer or reference bound to static expression 'y1' within thread-safe function 'int* f1()'; may not be thread-safe.
+   return &y1;
+           ^
+../test/thread2_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+../test/thread2_test.cxx:13:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return &y1;
+           ^
+../test/thread2_test.cxx: In function 'const int* f2()':
+../test/thread2_test.cxx:19:11: warning: Pointer or reference bound to static expression 'y1' within thread-safe function 'const int* f2()'; may not be thread-safe.
+   return &y1;
+           ^
+../test/thread2_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+../test/thread2_test.cxx:19:11: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return &y1;
+           ^
+../test/thread2_test.cxx: In function 'int& f3()':
+../test/thread2_test.cxx:25:10: warning: Pointer or reference bound to static expression 'y1' within thread-safe function 'int& f3()'; may not be thread-safe.
+   return y1;
+          ^
+../test/thread2_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+../test/thread2_test.cxx:25:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return y1;
+          ^
+../test/thread2_test.cxx: In function 'const int& f4()':
+../test/thread2_test.cxx:31:10: warning: Pointer or reference bound to static expression 'y1' within thread-safe function 'const int& f4()'; may not be thread-safe.
+   return y1;
+          ^
+../test/thread2_test.cxx:6:12: note: Declared here:
+ static int y1;
+            ^
+../test/thread2_test.cxx:31:10: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+   return y1;
+          ^
