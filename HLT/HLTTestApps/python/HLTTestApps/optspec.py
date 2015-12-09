@@ -412,7 +412,8 @@ emoninput = {} # empty for now
 
 # constants (only common_constants for now)
 common_constants = {'ohserver': 'HLT-Histogramming',
-                    'rootprovider': "athenaHLT"}
+                    'rootprovider': "athenaHLT",
+                    'oh_numslots': 5}
 
 # helper procedure to get the available short options
 def __short_avail():
