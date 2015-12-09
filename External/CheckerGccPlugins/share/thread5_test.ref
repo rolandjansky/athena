@@ -1,0 +1,20 @@
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f2(const int*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:8:26: warning: Const discarded from expression 'y' in call from thread-safe function 'void f2(const int*)'; may not be thread-safe.
+   f1(const_cast<int*>(y));
+                          ^
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:8:26: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f3(const int*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:13:18: warning: Const discarded from expression '<unknown>' in call from thread-safe function 'void f3(const int*)'; may not be thread-safe.
+   f1((int*)&y[5]);
+                  ^
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:13:18: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f4(const S*)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:25:18: warning: Const discarded from expression '<unknown>' in call from thread-safe function 'void f4(const S*)'; may not be thread-safe.
+   f1((int*)&s->x);
+                  ^
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:25:18: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx: In function 'void f6(const S&)':
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:37:26: warning: Const discarded from expression 's' in call from thread-safe function 'void f6(const S&)'; may not be thread-safe.
+   const_cast<S&>(s).foo();
+                          ^
+/home/sss/atlas/rootaccess/../test/thread5_test.cxx:37:26: note: See <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CheckerGccPlugins#thread_plugin>.
