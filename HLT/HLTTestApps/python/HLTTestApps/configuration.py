@@ -139,6 +139,7 @@ class configuration(dict):
     pt = ptree()
     if self['oh-monitoring']:
       paramspt, rulept = ptree(), ptree()
+      paramspt['NumberOfSlots'] = str(self['oh_numslots'])
       paramspt['PublishInterval'] = str(self['histogram-publishing-interval'])
       paramspt['OHServer'] = self['ohserver']
       paramspt['ROOTProvider'] = self['rootprovider']
@@ -788,6 +789,8 @@ class configuration_tests(unittest.TestCase):
     self._test_ptree_path(pt, mon_config_rule_path + ".Name")
     self._test_ptree_path(pt, oh_params_path + ".OHServer")
     self._test_ptree_path(pt, oh_params_path + ".ROOTProvider")
+    self._test_ptree_path(pt, oh_params_path + ".PublishInterval")
+    self._test_ptree_path(pt, oh_params_path + ".NumberOfSlots")
   def test_mon_online_config_ptree_include_filter(self):
     val = 'abc'
     pt = self._gen_complete_mon_config_ptree(['--oh-monitoring', 
