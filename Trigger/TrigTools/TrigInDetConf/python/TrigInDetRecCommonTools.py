@@ -7,7 +7,7 @@
 """
 
 ___author___ = "Jiri Masik"
-___version___ = "$Id: TrigInDetRecCommonTools.py 590759 2014-04-02 03:25:17Z masik $"
+___version___ = "$Id: TrigInDetRecCommonTools.py 713541 2015-12-09 10:38:32Z masik $"
 
 from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -25,3 +25,17 @@ InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrack
 ToolSvc += InDetTrigFastTrackSummaryTool
 if (InDetTrigFlags.doPrintConfigurables()):
     print      InDetTrigFastTrackSummaryTool
+
+
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
+InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolWithHoleSearch",
+                                                                InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
+                                                                InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                                                                doSharedHits           = False,
+                                                                TRT_ElectronPidTool    = None
+                                                      )
+ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
+if (InDetTrigFlags.doPrintConfigurables()):
+    print      InDetTrigTrackSummaryToolWithHoleSearch
+
+
