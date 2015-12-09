@@ -7,7 +7,7 @@ use AtlasCompilers      AtlasCompilers-*  External
 
 # The version of the plugin that we run from externals.
 # This is not necessarily the same as the package version.
-macro CheckerGccPlugins_native_version "CheckerGccPlugins-00-01-12"
+macro CheckerGccPlugins_native_version "CheckerGccPlugins-00-01-84"
 
 macro CheckerGccPlugins_home "${ATLAS_EXTERNAL}/CheckerGccPlugins/$(CheckerGccPlugins_native_version)"
 
@@ -25,7 +25,12 @@ macro CheckerGccPlugins_plugin_dir "$(CheckerGccPlugins_cmtpath)/$(cmt_installar
   CheckerGccPlugins_project_AtlasProduction "$(CheckerGccPlugins_home)/$(CMTCONFIG)" \
   CheckerGccPlugins_project_AtlasPhysics "$(CheckerGccPlugins_home)/$(CMTCONFIG)"
 
-macro CheckerGccPlugins_args "" target-gcc " -fplugin=$(CheckerGccPlugins_plugin_dir)/libchecker_gccplugins.so "
+#apply_tag CheckerGccPlugins_$(AtlasCompilers_project_release)
+macro CheckerGccPlugins_enablenaming "" \
+  NICOSrel_0 " -fplugin-arg-libchecker_gccplugins-checkers=naming " \
+  CheckerGccPlugins_rel_0  " -fplugin-arg-libchecker_gccplugins-checkers=naming "
+
+macro CheckerGccPlugins_args "" target-gcc " -fplugin=$(CheckerGccPlugins_plugin_dir)/libchecker_gccplugins.so $(CheckerGccPlugins_enablenaming) "
 
 private
 
@@ -34,8 +39,11 @@ private
 
 
 use gmp v* LCG_Interfaces
-# gmp isn't available in experimental LCG
-macro gmp_home $(LCG_EXTERNAL)/gmp/5.1.1/$(LCG_system)
+# gmp isn't available in experimental LCG.
+# and for gcc49, we have only the opt symlink...
+macro GMP_system "$(LCG_system)" \
+      x86_64-slc6-gcc49-dbg  "x86_64-slc6-gcc49-opt"
+macro gmp_home $(LCG_EXTERNAL)/gmp/5.1.1/$(GMP_system)
 #macro gmp_native_version 5.1.1
 build_strategy no_prototypes
 
@@ -43,9 +51,10 @@ build_strategy no_prototypes
 macro_remove cppflags "" target-icc "-wd383 -wd981 -wd1418 -wd1419 -we1011 -we117 -wd82 -wd522 -wd444 -wd304 -Wno-deprecated"
 
 # The gcc_home macro is unreliable.  Just look at what we're actually using.
-macro checker_gcc_home "`which gcc |sed "s=/bin/gcc==g"`"
+macro checker_gcc_home "`which gcc | xargs readlink -m |sed "s=/bin/gcc==g"`"
 
-macro_prepend cppflags " -I$(checker_gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include -I$(checker_gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version) -I$(gmp_home)/include -Wno-literal-suffix "
+macro orig_cppflags " $(cppflags) "
+macro_prepend cppflags " -I$(checker_gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include -I$(checker_gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version) -I$(gmp_home)/include -Wno-literal-suffix -fno-rtti "
 macro_prepend cflags " -I$(checker_gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include  -I$(checker_gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)   -I$(gmp_home)/include "
 
 
@@ -66,6 +75,44 @@ macro cpp_name "g++" gcc "$(cpp_name)"
 macro CheckerGccPlugins_export_paths "$(CheckerGccPlugins_home)/$(CMTCONFIG)"
 
 library checker_gccplugins ../src/*.cxx 
+apply_pattern optdebug_library name=checker_gccplugins
 
 
 apply_pattern declare_scripts files="../scripts/checker_gccplugins_args"
+
+
+private
+
+# Adapted from athenarun_launcher in TestPolicy.
+# We can't use that directly because TestPolicy depends on AtlasPolicy,
+# so that would lead to a cyclic dependency.
+
+make_fragment checkertest_launcher_header
+make_fragment checkertest_launcher -header=checkertest_launcher_header
+
+pattern checker_test \
+    document checkertest_launcher <name>_test -group=check \
+        checkertest_exe="'../test/checkertest.sh'" \
+        checkertest_opt="../test/<name>_test.cxx" \
+        checkertest_out="' > <name>_test.log 2>&1'" \
+        checkertest_post="'../test/post.sh <name>_test'"
+
+
+apply_pattern checker_test name=gaudi_inheritance
+apply_pattern checker_test name=divcheck
+#apply_pattern checker_test name=usingns1
+#apply_pattern checker_test name=usingns2
+#apply_pattern checker_test name=usingns3
+#apply_pattern checker_test name=usingns4
+#apply_pattern checker_test name=usingns5
+#apply_pattern checker_test name=usingns6
+#apply_pattern checker_test name=usingns7
+apply_pattern checker_test name=naming
+apply_pattern checker_test name=ists1
+apply_pattern checker_test name=thread1
+apply_pattern checker_test name=thread2
+apply_pattern checker_test name=thread3
+apply_pattern checker_test name=thread4
+apply_pattern checker_test name=thread5
+apply_pattern checker_test name=thread6
+apply_pattern checker_test name=thread7
