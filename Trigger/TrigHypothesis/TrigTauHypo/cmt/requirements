@@ -2,11 +2,11 @@ package TrigTauHypo
 
 use     AtlasPolicy             AtlasPolicy-*
 use     GaudiInterface          GaudiInterface-*     	External
-use     TrigCaloEvent     		TrigCaloEvent-*      	Trigger/TrigEvent
-use     TrigInDetEvent     		TrigInDetEvent-*     	Trigger/TrigEvent
-use     TrigParticle     		TrigParticle-*       	Trigger/TrigEvent
+use     TrigCaloEvent           TrigCaloEvent-*      	Trigger/TrigEvent
+use     TrigInDetEvent          TrigInDetEvent-*     	Trigger/TrigEvent
+use     TrigParticle            TrigParticle-*       	Trigger/TrigEvent
 use     TrigSteeringEvent     	TrigSteeringEvent-*     Trigger/TrigEvent
-use     TrigInterfaces    		TrigInterfaces-*        Trigger/TrigSteer
+use     TrigInterfaces          TrigInterfaces-*        Trigger/TrigSteer
 use     AtlasROOT               AtlasROOT-*             External
 use     StoreGate               StoreGate-*             Control
 
@@ -31,10 +31,11 @@ use     EventInfo               EventInfo-*             Event
 use     PathResolver            PathResolver-*          Tools
 use     TrigCaloEvent           TrigCaloEvent-*         Trigger/TrigEvent
 use     TrkTrack                TrkTrack-*              Tracking/TrkEvent
-use		xAODJet                 xAODJet-*               Event/xAOD
-use		xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
-use		xAODTau					xAODTau-*				Event/xAOD
-use 	xAODTracking			xAODTracking-*			Event/xAOD
-use     CaloEvent				CaloEvent-*				Calorimeter
+use     TrkTrackSummary         TrkTrackSummary-*       Tracking/TrkEvent
+use	xAODJet                 xAODJet-*               Event/xAOD
+use	xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
+use	xAODTau                 xAODTau-*		Event/xAOD
+use 	xAODTracking            xAODTracking-*          Event/xAOD
+use     CaloEvent               CaloEvent-*             Calorimeter
 
 end_private

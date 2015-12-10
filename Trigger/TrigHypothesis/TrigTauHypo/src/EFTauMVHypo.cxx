@@ -75,7 +75,7 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: EFTauMVHypo will cut on "<<endreq;
   msg() << MSG::INFO << " REGTEST: param NTrackMin " << m_numTrackMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param NTrackMax " << m_numTrackMax <<endreq;
-  msg() << MSG::INFO << " REGTEST: param NTrackMax " << m_numWideTrackMax <<endreq;
+  msg() << MSG::INFO << " REGTEST: param NWideTrackMax " << m_numWideTrackMax <<endreq;
   msg() << MSG::INFO << " REGTEST: param EtCalib " << m_EtCalibMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param Level " << m_level <<endreq;
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endreq;
