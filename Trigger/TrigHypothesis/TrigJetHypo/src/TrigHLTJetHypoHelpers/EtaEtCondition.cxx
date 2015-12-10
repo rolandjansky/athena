@@ -4,7 +4,6 @@
 
 #include "TrigJetHypo/TrigHLTJetHypoUtils/EtaEtCondition.h"
 #include <sstream>
-#include <cmath>
 
 
 EtaEtCondition::EtaEtCondition(double etaMin, double etaMax, double threshold): 
@@ -12,11 +11,11 @@ EtaEtCondition::EtaEtCondition(double etaMin, double etaMax, double threshold):
 
 
 bool EtaEtCondition::isSatisfied(const xAOD::IParticle* ip) const {
-  auto abseta = std::abs((ip->p4()).Eta());
+  auto eta = (ip->p4()).Eta();
   auto et = (ip->p4()).Et();
   return 
-    m_etaMin <= abseta and
-    m_etaMax > abseta and
+    m_etaMin <= eta and
+    m_etaMax > eta and
     m_threshold <= et;
 }
 

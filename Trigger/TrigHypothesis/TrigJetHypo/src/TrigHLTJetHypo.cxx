@@ -94,9 +94,9 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("HECfTightThreshold", m_hecfTightThreshold = 0.85 );
   //long-lived particle cleaning
   declareProperty("fracSamplingMaxLlpThreshold", m_fSampMaxLlpThreshold = 0.85 );
-  declareProperty("negativeELlpThreshold", m_negELlpThreshold = 10e3 ); // 10 GeV
+  declareProperty("negativeELlpThreshold", m_negELlpThreshold = -10e3 ); // 10 GeV
   declareProperty("HECfLlpThreshold", m_hecfLlpThreshold = 0.5 );
-  declareProperty("HECQLlpThreshold", m_hecqLlpThreshold = 0.5 );
+  declareProperty("HECQLlpThreshold", m_hecfLlpThreshold = 0.5 );
   declareProperty("AverageLArQFLlpThreshold", m_avLarQFLlpThreshold = 0.8*65535 );
  
 
