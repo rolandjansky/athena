@@ -951,12 +951,10 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       // RPC fit results
       if (rpcFitResult.isSuccess ) {
 	// Fill middle fit results for the moment
-	muonSA->setRpcFitMid(rpcFitResult.phi, rpcFitResult.ZoverR_middle, 0.);
-	/*
+
 	muonSA->setRpcFitInn(rpcFitResult.phi_inner, rpcFitResult.slope_inner, rpcFitResult.offset_inner);
 	muonSA->setRpcFitMid(rpcFitResult.phi_middle, rpcFitResult.slope_middle, rpcFitResult.offset_middle);
 	muonSA->setRpcFitOut(rpcFitResult.phi_outer, rpcFitResult.slope_outer, rpcFitResult.offset_outer);
-	*/
       }
     }
 
