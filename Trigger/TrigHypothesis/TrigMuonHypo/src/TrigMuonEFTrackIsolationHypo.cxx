@@ -20,6 +20,7 @@ TrigMuonEFTrackIsolationHypo::TrigMuonEFTrackIsolationHypo(const std::string & n
   
 	declareProperty("AcceptAll", m_acceptAll=true);
 	declareProperty("DoAbsCut", m_abscut=true); //true for absolute cuts, false for sumpt/pt
+	declareProperty("useVarIso", m_useVarIso=false); //true for offline isolation variables, false for online
 	declareProperty("PtCone02Cut",m_ptcone02_cut=-1.0); //convention is < 0 means don't cut
 	declareProperty("PtCone03Cut",m_ptcone03_cut=-1.0); //convention is < 0 means don't cut
 	
@@ -124,12 +125,27 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   for(auto muon : *muonContainer) {
     
     float ptcone20(-1), ptcone30(-1);
-    bool res = muon->isolation(ptcone20, xAOD::Iso::IsolationType::ptcone20);
-    if(!res) 
-      ATH_MSG_WARNING("Problem accessing ptcone20, " << ptcone20);
-    res = muon->isolation(ptcone30, xAOD::Iso::IsolationType::ptcone30);
-    if(!res) 
-      ATH_MSG_WARNING("Problem accessing ptcone30, " << ptcone30);
+    bool res = false; 
+    if(m_useVarIso){
+      res = muon->isolation(ptcone20, xAOD::Iso::IsolationType::ptvarcone20);
+      if(!res) 
+        ATH_MSG_WARNING("Problem accessing ptvarcone20, " << ptcone20);
+    }
+    else{
+      res = muon->isolation(ptcone20, xAOD::Iso::IsolationType::ptcone20);
+      if(!res) 
+        ATH_MSG_WARNING("Problem accessing ptcone20, " << ptcone20);
+    }
+    if(m_useVarIso){
+      res = muon->isolation(ptcone30, xAOD::Iso::IsolationType::ptvarcone30);
+      if(!res) 
+        ATH_MSG_WARNING("Problem accessing ptvarcone30, " << ptcone30);
+    }
+    else{
+      res = muon->isolation(ptcone30, xAOD::Iso::IsolationType::ptcone30);
+      if(!res) 
+        ATH_MSG_WARNING("Problem accessing ptcone30, " << ptcone30);
+    }
 
     // monitoring
     m_fex_ptcone02.push_back(ptcone20/1000.0);

@@ -6,6 +6,7 @@ from AthenaCommon.SystemOfUnits import GeV
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from AthenaCommon.AppMgr import ToolSvc
+import re
 
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
@@ -106,6 +107,33 @@ efCombinerThresholds = {
     '80GeV_v15a'            : [ [0,1.05,1.5,2.0,9.9], [ 72.00, 72.00, 72.00, 72.00] ],
     '100GeV_v15a'           : [ [0,1.05,1.5,2.0,9.9], [ 90.00, 90.00, 90.00, 90.00] ],
     }
+
+efCaloTagThresholds = {
+    '0GeV'             : [ [0,9.9],              [ 0.1,  0.1,  0.1,  0.1   ] ],
+    '2GeV'             : [ [0,9.9],              [ 2.0,  2.0,  2.0,  2.0   ] ],
+    '4GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 4.0,  4.0,  4.0,  4.0   ] ],
+    '5GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 5.0,  5.0,  5.0,  5.0   ] ],
+    '6GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 6.0,  6.0,  6.0,  6.0   ] ],
+    '7GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 7.0,  7.0,  7.0,  7.0   ] ],
+    '8GeV'             : [ [0,1.05,1.5,2.0,9.9], [ 8.0,  8.0,  8.0,  8.0   ] ],
+    '10GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 10.0, 10.0, 10.0, 10.0  ] ],
+    '11GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 11.0, 11.0, 11.0, 11.0  ] ],
+    '12GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 12.0, 12.0, 12.0, 12.0  ] ], 
+    '13GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 13.0, 13.0, 13.0, 13.0  ] ],
+    '14GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 14.0, 14.0, 14.0, 14.0  ] ],
+    '15GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 15.0, 15.0, 15.0, 15.0  ] ],
+    '18GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 18.0, 18.0, 18.0, 18.0  ] ],
+    '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 20.0, 20.0, 20.0, 20.0  ] ],
+    '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 22.0, 22.0, 22.0, 22.0  ] ],
+    '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 24.0, 24.0, 24.0, 24.0  ] ],
+    '30GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 30.0, 30.0, 30.0, 30.0  ] ],
+    '40GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 40.0, 40.0, 40.0, 40.0  ] ], 
+    '50GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 50.0, 50.0, 50.0, 50.0  ] ], 
+    '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 60.0, 60.0, 60.0, 60.0  ] ], 
+    '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 70.0, 70.0, 70.0, 70.0  ] ], 
+    '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 80.0, 80.0, 80.0, 80.0  ] ],
+    '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 100.0,100.0,100.0,100.0 ] ]
+}
 
 
 muCombThresholds = {
@@ -1216,7 +1244,25 @@ trigMuonEFTrkIsoThresholds = {
     
     'RelEFOnlyLooseWide'      : [-1.0 ,  0.2  ],
     'RelEFOnlyMediumWide'     : [-1.0 ,  0.12 ],
-    'RelEFOnlyTightWide'      : [-1.0 ,  0.06 ] 
+    'RelEFOnlyTightWide'      : [-1.0 ,  0.06 ],
+
+    'VarEFOnlyLoose'             : [ 4200.0,  -1.0 ],
+    'VarEFOnlyTight'             : [ 1500.0,  -1.0 ],
+    'VarLoose'                   : [ 2800.0,  -1.0 ],
+    'VarTight'                   : [ -1.0,   1000.0],
+    'VarTauCP'                   : [ -1.0,      1.0],
+
+    'RelEFOnlyVarLoose'          : [ 0.2,  -1.0 ],
+    'RelEFOnlyVarMedium'         : [ 0.18, -1.0 ],
+    'RelEFOnlyVarTight'          : [ 0.06, -1.0 ],
+    
+    'EFOnlyVarLooseWide'         : [ -1.0,   4200.0],
+    'EFOnlyVarMediumWide'        : [ -1.0,   2100.0],
+    'EFOnlyVarTightWide'         : [ -1.0,   1500.0],
+    
+    'RelEFOnlyVarLooseWide'      : [-1.0 ,  0.2  ],
+    'RelEFOnlyVarMediumWide'     : [-1.0 ,  0.12 ],
+    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] 
     }
 
 """
@@ -1250,7 +1296,10 @@ class TrigMuonEFTrackIsolationHypoConfig(TrigMuonEFTrackIsolationHypo) :
                 self.DoAbsCut = False
             else :
                 self.DoAbsCut = True
-                                            
+            if 'Var' in args[1] :
+                self.useVarIso = True
+            else :
+                self.useVarIso = False                                
         except LookupError:
             if(args[1]=='passthrough') :
                 print 'Setting passthrough'
@@ -1294,8 +1343,8 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
                     print 'TrigMuonEFCaloIsolationConfig configured in passthrough mode'
 
             # Isolation Hypothesis configuration and cuts
-            self.UseCalo    = True
-            self.UseAbsCalo = True
+            # self.UseCalo    = True
+            # self.UseAbsCalo = True
             #self.UseID      = True
             #self.UseAbsID   = False
 
@@ -1310,10 +1359,10 @@ class TrigMuonEFCaloIsolationHypoConfig(TrigMuonEFCaloIsolationHypo) :
             #self.MaxIDIso_2   = 0.05
             #self.MaxIDIso_3   = 0.05
 
-            if 'Rel' in args[1] :
-                self.UseAbsCalo = False
-            else :
-                self.UseAbsCalo = True
+            # if 'Rel' in args[1] :
+            #     self.UseAbsCalo = False
+            # else :
+            #     self.UseAbsCalo = True
                                             
         except LookupError:
             if(args[1]=='passthrough') :
@@ -1430,6 +1479,7 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig(TrigMuonEFCombinerDiMuonMa
 
 #^^^^^   pvn
 
+
 class MufastNSWHypoConfig(MufastNSWHypo) :
 
     __slots__ = []
@@ -1471,9 +1521,83 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
   __slots__ = []
 
   def __new__(cls, *args, **kwargs):
-    newargs = ['%s' % cls.getType()] + list(args)
+    newargs = ['%s_%s' % (cls.getType(),reduce(lambda s1,s2: str(s1)+"_"+str(s2), args))] + list(args)
+    #newargs = ['%s' % (cls.getType())] + list(args)
     return super( TrigMuonCaloTagHypoConfig, cls).__new__(cls, *newargs, **kwargs)
 
   def __init__(self, name, *args, **kwargs):
     super( TrigMuonCaloTagHypoConfig, self).__init__(name)
 
+    self.PtThresholds = [t*1000 for t in efCaloTagThresholds[args[1]][1][:args[2]]]
+
+
+class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonIDTrackMultiHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonIDTrackMultiHypoConfig, self ).__init__( name )
+        # print "TrigMuonIDTrackMultiHypoConfig args = ",args[0]
+        try:
+            if args[0]=='passthrough':
+                self.AcceptAll = True
+            else:
+                self.AcceptAll = False
+
+                if args[1]=='FTF':
+                    self.TrkAlgo = "InDetTrigTrackingxAODCnv_Muon_FTF"
+                elif args[1]=='IDTrig':
+                    self.TrkAlgo = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
+                elif args[1]=='Muon':
+                    self.UseMuon = True
+                else:
+                    print 'args[1] = ', args[1]
+                    raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
+
+                split_args = args[0].split("_")
+                pattern_pt = re.compile("pt")
+                pattern_mass = re.compile("m")
+                for i in range(len(split_args)):
+                    # print "TrigMuonIDTrackMultiHypoConfig split args ",i," ",split_args[i]
+                    if pattern_pt.search(split_args[i]) :
+                        ptargs = split_args[i].split("pt")
+                        threshold = ptargs[1]
+                        multiplicity = ptargs[0]
+                        if args[1]=='FTF':
+                            values = muCombThresholds[threshold+"GeV"]
+                        if args[1]=='IDTrig':
+                            values = efCombinerThresholds[threshold+"GeV"]
+                        if args[1]=='Muon':
+                            values = efCombinerThresholds[threshold+"GeV"]
+                        # print "TrigMuonIDTrackMultiHypoConfig pt args p0=", ptargs[0], " p1=", ptargs[1]
+                        if i == 0:
+                            self.PtBins1 = values[0]
+                            self.PtThresholds1 = [ x * GeV for x in values[1] ]
+                            self.Multiplicity1 = int(multiplicity)
+                        if i == 1:
+                            self.PtBins2 = values[0]
+                            self.PtThresholds2 = [ x * GeV for x in values[1] ]
+                            self.Multiplicity2 = int(multiplicity)
+                        if i == 2:
+                            self.PtBins3 = values[0]
+                            self.PtThresholds3 = [ x * GeV for x in values[1] ]
+                            self.Multiplicity3 = int(multiplicity)
+                        if i > 2:
+                            raise Exception('TrigMuonIDTrackMultiHypo Misconfigured : more than 3 pt settings')
+                    elif pattern_mass.search(split_args[i]) :
+                        massargs = split_args[i].split("m")
+                        self.LowMassCut = int(massargs[0])
+                        self.HighMassCut = int(massargs[1])
+                        # print "TrigMuonIDTrackMultiHypoConfig mass args p0=", massargs[0], " p1=", massargs[1]
+                                            
+        except LookupError:
+            print 'args[0] = ', args[0]
+            raise Exception('TrigMuonIDTrackMultiHypo Misconfigured')
+        
+        online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
+	
+        self.AthenaMonTools = [ online ]
