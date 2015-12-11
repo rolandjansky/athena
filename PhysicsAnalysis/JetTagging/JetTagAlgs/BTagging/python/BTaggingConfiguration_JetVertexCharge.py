@@ -66,8 +66,6 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
                      'CutSharedHits'                    : 2,
                      'MuonQuality'                      : 2,
                     }
-        if(BTaggingFlags.Runmodus == 'reference'): 
-            defaults['BTagJetEtamin'] = 2.5  
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

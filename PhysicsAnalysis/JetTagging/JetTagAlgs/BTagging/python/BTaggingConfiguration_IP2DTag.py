@@ -71,7 +71,7 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                      'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'impactParameterView'              : '2D',
                      'trackGradePartitions'             : grades,
-                     'RejectBadTracks'                  : False,
+                     'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'unbiasIPEstimation'               : False,

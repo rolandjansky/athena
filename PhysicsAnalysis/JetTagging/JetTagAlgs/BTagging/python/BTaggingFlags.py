@@ -222,7 +222,7 @@ class _BTaggingFlags:
         if attr == 'SoftEl':
           setattr(self, attr, False)
         if attr == 'SoftMu':
-          setattr(self, attr, False)
+          setattr(self, attr, True)
         if attr == 'SoftMuChi2':
           setattr(self, attr, False)
         if attr == 'BasicJetFitter':
