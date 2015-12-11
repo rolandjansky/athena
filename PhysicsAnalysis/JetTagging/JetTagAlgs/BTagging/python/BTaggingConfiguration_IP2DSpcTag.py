@@ -59,7 +59,7 @@ def toolIP2DSpcTag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'impactParameterView'              : '2D',
                      'trackGradePartitions'             : [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ],
-                     'RejectBadTracks'                  : False,
+                     'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,

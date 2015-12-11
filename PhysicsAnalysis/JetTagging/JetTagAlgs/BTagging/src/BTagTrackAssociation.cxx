@@ -277,8 +277,8 @@ namespace Analysis {
       ++muAssocNameIter;
     }          
 
-
-    return StatusCode::SUCCESS;
+    return sc;
+    //return StatusCode::SUCCESS;
    }
 
 } // namespace

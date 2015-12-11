@@ -77,7 +77,7 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
                      'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'impactParameterView'              : '3D',
                      'trackGradePartitions'             : grades ,
-                     'RejectBadTracks'                  : False,
+                     'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
 #                     'SecVxFinderNameForV0Removal'      : "InDetVKalVxInJetTool",

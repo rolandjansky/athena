@@ -56,7 +56,7 @@ def toolIP1DTag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'impactParameterView'              : '1D',
                      'trackGradePartitions'             : [ "Good", "Shared" ],
-                     'RejectBadTracks'                  : False,
+                     'RejectBadTracks'                  : True,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
