@@ -21,7 +21,7 @@ public:
   virtual void persToTrans( const FTK_RawTrack_p1 *, FTK_RawTrack *, MsgStream& );
   virtual void transToPers( const FTK_RawTrack *, FTK_RawTrack_p1 *, MsgStream& );
 
-  enum {th1=0, th2=1, th3=2, th4=3, th5=4};
+  enum {th1=0, th2=1, th3=2, th4=3, th5=4,th6=5};
   
 };
 
