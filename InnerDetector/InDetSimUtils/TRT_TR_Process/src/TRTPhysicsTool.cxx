@@ -9,6 +9,7 @@
 #include "G4ParticleTable.hh"
 #include "G4VProcess.hh"
 #include "G4Version.hh"
+#include "G4AutoDelete.hh"
 
 #include "globals.hh"
 #include <iostream>
@@ -38,14 +39,6 @@ TRTPhysicsTool::TRTPhysicsTool( const std::string& type,
 }
 
 //=============================================================================
-// Destructor
-//=============================================================================
-
-TRTPhysicsTool::~TRTPhysicsTool()
-{
-}
-
-//=============================================================================
 // Initialize
 //=============================================================================
 StatusCode TRTPhysicsTool::initialize( )
@@ -55,31 +48,42 @@ StatusCode TRTPhysicsTool::initialize( )
   return StatusCode::SUCCESS;
 }
 
-
+//=============================================================================
+// Return the physics constructor
+//=============================================================================
 G4VPhysicsConstructor* TRTPhysicsTool::GetPhysicsOption()
 {
+  // I am the physics constructor, so return self.
   return this;
 }
 
-
+//=============================================================================
+// Particle construction; not implemented
+//=============================================================================
 void TRTPhysicsTool::ConstructParticle()
 {
-
 }
+
+//=============================================================================
+// Physics process construction
+//=============================================================================
 void TRTPhysicsTool::ConstructProcess()
 {
   ATH_MSG_DEBUG("TRTPhysicsTool::ConstructProcess()");
-  // TODO: cleanup memory
-  m_pXTR = new TRTTransitionRadiation( "XTR", m_xmlFile ) ;
+
+  // Use the Geant4 garbage collection mechanism to clean this up.
+  // It's just a convenient way to clean up in multi-threading.
+  auto trProc = new TRTTransitionRadiation("XTR", m_xmlFile) ;
+  G4AutoDelete::Register(trProc);
 
   PARTICLEITERATOR->reset();
   while( (*PARTICLEITERATOR)() ) {
     G4ParticleDefinition* particle = PARTICLEITERATOR->value();
     G4ProcessManager* pmanager = particle->GetProcessManager();
     if ( particle->GetPDGCharge() != 0.0 && particle->GetPDGMass() != 0.0 ) {
-      m_pXTR->SetVerboseLevel(1);
+      trProc->SetVerboseLevel(1);
       ATH_MSG_DEBUG("TRT Process Added to "<<particle->GetParticleName());
-      pmanager->AddDiscreteProcess( m_pXTR );
+      pmanager->AddDiscreteProcess(trProc);
     }
   }
 }
