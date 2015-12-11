@@ -4,45 +4,50 @@
 
 //#define ARTRU          // Choice of TR generator
 
-#include "TRT_TR_Process/TRTTransitionRadiation.h"
-#include "TRT_TR_Process/TRTRadiatorParameters.h"
-#include "TRT_TR_Process/TRRegionXMLHandler.h"
+// class header
+#include "TRTTransitionRadiation.h"
 
+// package includes
+#include "TRTRadiatorParameters.h"
+#include "TRRegionXMLHandler.h"
+
+// Athena includes
+#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "GeoModelInterfaces/AbsMaterialManager.h"//Material Manager
+#include "GeoModelInterfaces/StoredMaterialManager.h"//Material Manager
+#include "Geo2G4/Geo2G4MaterialFactory.h" //Converting GeoMaterial -> G4Material
+#include "PathResolver/PathResolver.h"
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/StoreGateSvc.h"//Detector Store
+#include "SimHelpers/ProcessSubTypeMap.h"
+
+// Geant4 includes
 #include "G4DynamicParticle.hh"
+#include "G4Gamma.hh"
 #include "G4Material.hh"
 #include "Randomize.hh"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+
+// CLHEP includes
 #include "CLHEP/Random/RandPoisson.h"
-#include "G4Gamma.hh"
-#include <limits>
+
+// STL includes
 #include <cmath>
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-//Detector Store:
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-//Material Manager:
-#include "GeoModelInterfaces/AbsMaterialManager.h"
-#include "GeoModelInterfaces/StoredMaterialManager.h"
-//Converting GeoMaterial -> G4Material
-#include "Geo2G4/Geo2G4MaterialFactory.h"
-
-#include "SimHelpers/ProcessSubTypeMap.h"
+#include <limits>
 
 ////////////////////////////////////////////////////////////////////////////
 //
 // Constructor, destructor
 
-TRTTransitionRadiation::TRTTransitionRadiation( const G4String& processName) :
-  G4VDiscreteProcess(processName,fElectromagnetic),m_XMLhandler(NULL),
+TRTTransitionRadiation::TRTTransitionRadiation( const G4String& processName, const std::string xmlfilename) :
+  G4VDiscreteProcess(processName,fElectromagnetic),m_XMLhandler(NULL),m_xmlfilename(xmlfilename),
   m_MinEnergyTR(0.0),m_MaxEnergyTR(0.0),m_NumBins(0),m_WplasmaGas(0.0),
   m_WplasmaFoil(0.0),m_GammaMin(0.0),m_EkinMin(0.0),m_Ey(NULL),m_Sr(NULL),
   m_om(NULL),m_Omg(NULL),m_sigmaGas(NULL),m_sigmaFoil(NULL),
   m_msg("TRTTransitionRadiation")
 {
   m_radiators.clear();
-  m_XMLhandler = new TRRegionXMLHandler( "TRRegionParameters", this );
+  m_XMLhandler = new TRRegionXMLHandler( this );
 
   SetProcessSubType(  fTransitionRadiation );
 
@@ -83,7 +88,7 @@ void TRTTransitionRadiation::AddRadiatorParameters(TRTRadiatorParameters p) {
 
 
 void TRTTransitionRadiation::Initialize() {
-
+  ATH_MSG_DEBUG ( "Constructor TRTTransitionRadiation::Initialize()" );
   m_NumBins     = 100;         // Bins for TR generation (Nevski has 25 bins)
   m_MinEnergyTR =   2.0*CLHEP::keV;   // Minimum TR energy
   m_MaxEnergyTR =  50.0*CLHEP::keV;   // Maximum TR energy
@@ -159,6 +164,14 @@ void TRTTransitionRadiation::Initialize() {
     m_sigmaFoil[j] = ComputePhotoAbsCof( g4mat_FoilMaterial, m_om[j] );
   }
 
+  const std::string file=PathResolver::find_file(m_xmlfilename,"DATAPATH");
+  if (!file.empty())
+    {
+      m_XMLhandler->Process(file);
+    }
+  else ATH_MSG_WARNING("File "<<m_xmlfilename<<" not found! Expect problems.");
+
+  ATH_MSG_DEBUG ( "Constructor TRTTransitionRadiation::Initialize() DONE!" );
   return;
 
 }
