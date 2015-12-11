@@ -65,11 +65,20 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
         SimExe.inputDataTypeCountCheck = ['EVNT']
     executorSet.add(SimExe)
 
-def addAtlasG4Substep(executorSet):
-    executorSet.add(athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
-                                   substep = 'sim', tryDropAndReload = False, 
-                                   inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
-                                   outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] ))
+def addAtlasG4Substep(executorSet, overlayTransform = False):
+    AtlasG4Exe = athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
+                                substep = 'sim', tryDropAndReload = False,
+                                inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
+                                outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] )
+    if overlayTransform:
+        from PyJobTransforms.trfUtils import releaseIsOlderThan
+        if releaseIsOlderThan(20,3):
+            AtlasG4Exe.inData = [('EVNT', 'BS_SKIM')]
+        else:
+            AtlasG4Exe.inData = [('EVNT','TXT_EVENTID')]
+        AtlasG4Exe.outData = ['HITS']
+        AtlasG4Exe.inputDataTypeCountCheck = ['EVNT']
+    executorSet.add(AtlasG4Exe)
 
 def addConfigurableSimSubstep(executorSet, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs):
     executorSet.add(athenaExecutor(name = confName, skeletonFile = extraSkeleton + ['SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py'],
