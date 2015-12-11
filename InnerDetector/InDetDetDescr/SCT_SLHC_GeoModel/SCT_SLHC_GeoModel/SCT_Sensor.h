@@ -41,6 +41,7 @@ class SCT_Sensor: public SCT_UniqueComponentFactory{
   double m_subSensorLength;
   int m_numSegments;
   int m_moduleType;
+  int m_chargeCarrier;
 
   GeoLogVol * m_subSensorLog;
 

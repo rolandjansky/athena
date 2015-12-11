@@ -75,13 +75,13 @@ SCT_BarrelParametersOld::SCT_BarrelParametersOld(const SCT_DataBase * sctdb, con
       continue;
     }
     //if not a comment, then get the name and the value of the parameter
-    sscanf(line, "%s %f", name, &value);
+    sscanf(line, "%499s %99f", name, &value);
     //exit when reaching the Module parameters part
     if(strstr(name, "BRL_PARAMETERS_END") != NULL) break;
     //put string paramters in a different container
     if(strstr(name, "_STRNG") != NULL){
       //re-read the second parameter as a string
-      sscanf(line, "%s %s", name, value_strng);
+      sscanf(line, "%499s %4999s", name, value_strng);
       (*m_SCT_Parameters_Strng)[std::string(name)] = std::string(value_strng);
     }
     //layer number
@@ -93,7 +93,7 @@ SCT_BarrelParametersOld::SCT_BarrelParametersOld(const SCT_DataBase * sctdb, con
       //re-anlyse this line: get module positions
       char name_tmp[NAMELEN];
       char value_strg[LINELEN];
-      sscanf(line, "%s %s", name_tmp, value_strg);
+      sscanf(line, "%499s %4999s", name_tmp, value_strg);
       //module positions are code in a string (see the txt config file)
       std::vector<std::string> vec_str;
       //a delimeter "|" is used!
@@ -111,7 +111,7 @@ SCT_BarrelParametersOld::SCT_BarrelParametersOld(const SCT_DataBase * sctdb, con
       //---dbg std::cout<<"Module position: ";
       for(unsigned int i=0; i<modules_per_ski; i++){
 	float pos;
-	sscanf(vec_str[i].c_str(), "%f", &pos);
+	sscanf(vec_str[i].c_str(), "%99f", &pos);
 	//---dbg std::cout<<" "<<pos;
 	mod_pos->push_back(pos);
       }
@@ -125,7 +125,7 @@ SCT_BarrelParametersOld::SCT_BarrelParametersOld(const SCT_DataBase * sctdb, con
       //re-anlyse this line: get module id
       char name_tmp[NAMELEN];
       char value_strg[LINELEN];
-      sscanf(line, "%s %s", name_tmp, value_strg);
+      sscanf(line, "%499s %4999s", name_tmp, value_strg);
       //module ids are code in a string (see the txt config file)
       std::vector<std::string> vec_str;
       //a delimeter "|" is used!
@@ -141,7 +141,7 @@ SCT_BarrelParametersOld::SCT_BarrelParametersOld(const SCT_DataBase * sctdb, con
       std::cout<<"Module id: ";
       for(unsigned int i=0; i<modules_per_ski; i++){
 	int id;
-	sscanf(vec_str[i].c_str(), "%d", &id);
+	sscanf(vec_str[i].c_str(), "%99d", &id);
 	std::cout<<" "<<id;
 	mod_id->push_back(id);
       }

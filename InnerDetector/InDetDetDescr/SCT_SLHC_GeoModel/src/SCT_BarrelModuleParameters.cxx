@@ -65,6 +65,15 @@ SCT_BarrelModuleParameters::sensorMaterial(int moduleType) const
   return sensorMaterial;
 }
 
+int 
+SCT_BarrelModuleParameters::chargeCarrier(int moduleType) const 
+{
+  if (!db()->testField(SctBrlSensor, "CARRIER", moduleType)) return 1;
+  int chargeCarrier = db()->getDouble(SctBrlSensor, "CARRIER", moduleType);
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"-----------2 Barrel Carge Carrier CARRIER mod_type("<<moduleType<<") = "<<chargeCarrier <<endreq;
+  return chargeCarrier;
+}
+
 //
 // Barrel BaseBoard
 //

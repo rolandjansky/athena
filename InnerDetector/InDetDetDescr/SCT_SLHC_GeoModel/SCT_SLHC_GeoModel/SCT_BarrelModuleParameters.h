@@ -27,6 +27,7 @@ public:
   virtual double sensorWidth(int moduleType) const;
   virtual double sensorLength(int moduleType) const;
   virtual std::string sensorMaterial(int moduleType) const;
+  virtual int chargeCarrier(int moduleType) const;
 
   // BaseBoard
   virtual double baseBoardThickness(int moduleType) const;
