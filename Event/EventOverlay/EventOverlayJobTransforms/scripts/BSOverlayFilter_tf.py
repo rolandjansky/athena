@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Transform for preparation of BS overlay
-# @version $Id: BSOverlayFilter_tf.py 696813 2015-09-25 11:02:35Z tkharlam $ 
+# @version $Id: BSOverlayFilter_tf.py 696812 2015-09-25 11:01:04Z tkharlam $ 
 
 import os.path
 import sys

@@ -44,6 +44,10 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--maxFilesPerSubjob',
                         type=argFactory(argSubstepInt, defaultSubstep='overlayBSFilt'),
                         help='Number of bytestream input files for each athena subjob', group='Overlay Filter')
+    parser.add_argument('--WriteRDOFileMetaData',
+                        type=argFactory(argBool), default = 'false',
+                        help='Write the /Digitization/Parameters/ metadata into the RDO file', group='Overlay Filter')
+
 
 # jobNumber=102
 # InputDataTarFile=/afs/cern.ch/work/e/efeld/overlay/prep/mytar.tar.gz

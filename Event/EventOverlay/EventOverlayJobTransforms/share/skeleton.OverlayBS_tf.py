@@ -202,9 +202,11 @@ ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
 digitizationFlags.rndmSeedList.addtoService()
 digitizationFlags.rndmSeedList.printSeeds()
 
-# Write Digitization MetaData
-from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
-writeDigitizationMetadata()
+if hasattr(runArgs,"WriteRDOFileMetaData"):
+   if runArgs.WriteRDOFileMetaData:
+      # Write Digitization MetaData
+      from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
+      writeDigitizationMetadata()
 
 #================================================================
 print "overlay_trf: final outStream = ", outStream
@@ -217,8 +219,9 @@ ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%45W%S%7W%R%T %0W%M"
 
 if hasattr(runArgs, 'fSampltag'):
-    conddb.addFolder("LAR","/LAR/ElecCalib/fSampl/Symmetry")
-    conddb.addOverride( "/LAR/ElecCalib/fSampl/Symmetry", runArgs.fSampltag + digitizationFlags.physicsList.get_Value() )
+    #conddb.addFolder("LAR","/LAR/ElecCalib/fSampl/Symmetry")
+    #conddb.addOverride( "/LAR/ElecCalib/fSampl/Symmetry", runArgs.fSampltag + digitizationFlags.physicsList.get_Value() )
+    conddb.addFolderWithTag("LAR_OFL","/LAR/ElecCalibMC/fSampl",runArgs.fSampltag,force=True,forceMC=True)
 else:
     raise RuntimeError ("--fSampltag not specified on command-line - see --help message")
 #if OverlayFlags.doSignal():
