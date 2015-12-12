@@ -210,43 +210,43 @@ else:
     FTKMerger.EvtInfoTreeName = ''
 
 # Set output file
-if hasattr(runArgs,'FTKUnmergedInputPath'):
+if hasattr(runArgs, 'FTKUnmergedInputPath'):
     doGrid = False
-    if hasattr(runArgs,'FTKDoGrid') :
+    if hasattr(runArgs, 'FTKDoGrid'):
         doGrid = runArgs.FTKDoGrid
-
-    if doGrid :
+    if doGrid:
         ftkLog.info('Searching for input files in: %s' % runArgs.FTKUnmergedInputPath)
         FTKMerger.FTKUnmergedInputPath = runArgs.FTKUnmergedInputPath
         import glob
         filelist = glob.glob(runArgs.FTKUnmergedInputPath+"/NTUP_FTKTMP*.root*")
         filelist.sort() # sort the files by name
 
-        if len(filelist)==0 :
+        if len(filelist) == 0:
             raise RuntimeError, "No input files in: " + runArgs.FTKUnmergedInputPath
         for curfile in filelist :
             ftkLog.info('Adding files to the list: %s' % curfile)
         FTKMerger.FTKToMergePaths = filelist # assign the list of files to the algorithms
-    else :
+    else:
         FTKMerger.FTKUnmergedInputPath = runArgs.FTKUnmergedInputPath
-        import os
-        dirList=os.listdir(runArgs.FTKUnmergedInputPath)
+        dirList = os.listdir(runArgs.FTKUnmergedInputPath)
         fileRoot = "ftkoutput_unmerged"
         for fname in dirList:
             if fname.find(".root") != -1:
                 keys = fname.split("_")
                 nKeys = len(keys)
                 if nKeys > 1:
-                    fileRoot =fname.replace("_"+keys[nKeys-2]+"_"+keys[nKeys-1],"")
-
-
-        print "Using file root",fileRoot
+                    fileRoot = fname.replace("_"+keys[nKeys-2]+"_"+keys[nKeys-1],"")
+        print "Using file root", fileRoot
         FTKMerger.FTKUnmergedFileRoot = fileRoot
-elif hasattr(runArgs,'inputNTUP_FTKTMPFile'):
+elif hasattr(runArgs, 'inputNTUP_FTKTMP_00File'):
+    # tower files specified separately
+    FTKMerger.FTKToMergePaths = [
+        getattr(runArgs, 'inputNTUP_FTKTMP_{0:02d}File'.format(tower))[0]
+        for tower in range(64)] 
+elif hasattr(runArgs, 'inputNTUP_FTKTMPFile'):
     FTKMerger.FTKToMergePaths = runArgs.inputNTUP_FTKTMPFile
 else:
     ftkLog.warning('no input files to merge')
-
 
 # Set output file
 if hasattr(runArgs,'FTKForceAllInput'):
