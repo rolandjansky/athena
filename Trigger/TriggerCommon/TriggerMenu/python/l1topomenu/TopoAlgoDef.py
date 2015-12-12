@@ -640,14 +640,26 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         # W T&P: MINDPHI(J, XE0), (EM, XE0)
-        for x in [
-            {"minDPhi":  5, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-            {"minDPhi": 10, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-            {"minDPhi": 15, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
-            {"minDPhi": 10, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-            {"minDPhi": 15, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-            {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-            ]:
+        if not '_v6' in TriggerFlags.triggerMenuSetup():
+            alglist = [
+                {"minDPhi":  5, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+                {"minDPhi": 10, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+                {"minDPhi": 15, "otype" : "AJj", "ocut" : 20, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+                {"minDPhi": 10, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+                {"minDPhi": 15, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+                {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+                ]
+        else:
+            alglist = [
+                {"minDPhi":  5, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+                {"minDPhi": 10, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+                {"minDPhi": 15, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
+                {"minDPhi": 10, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+                {"minDPhi": 15, "otype" : "EM",  "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+                {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+                ]
+
+        for x in alglist:
             
             for k in x:
                 exec("%s = x[k]" % k)

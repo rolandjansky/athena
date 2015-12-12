@@ -35,6 +35,12 @@ def setupMenu():
 
     TriggerFlags.MuonSlice.signatures = [
         # single muon
+
+        ['mu20_ivarloose_L1MU15',     'L1_MU15',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu24_ivarloose_L1MU15',     'L1_MU15',	   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu24_ivarmedium',	      'L1_MU20',	   [], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu26_ivarmedium',	     'L1_MU20', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+
         ['mu0_perf',              'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1], 
         ['mu26_imedium',          'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu50',                  'L1_MU20',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -73,9 +79,11 @@ def setupMenu():
 
         # multi muons
         ['2mu14',                  'L1_2MU10',          [], [PhysicsStream, 'express'], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu14_l2idonly',                  'L1_2MU10',          [], [PhysicsStream, 'express'], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['3mu6',                   'L1_3MU6',           [], [PhysicsStream, 'express'], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['3mu6_msonly',            'L1_3MU6',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['2mu10',                  'L1_2MU10',          [], [PhysicsStream, 'express'], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu10_l2idonly',                  'L1_2MU10',          [], [PhysicsStream, 'express'], ['RATE:MultiMuon', 'BW:Muon'], -1],
         ['mu24_mu8noL1',           'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','mu8noL1']]],
         ['mu24_2mu4noL1',          'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','2mu4noL1']]],
         ['mu22_mu8noL1',           'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1']]],
@@ -83,6 +91,7 @@ def setupMenu():
         ['mu20_mu8noL1',           'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','mu8noL1']]],
         ['mu20_2mu4noL1',          'L1_MU20', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','2mu4noL1']]],
         ['mu18_mu8noL1',           'L1_MU15', ['L1_MU15',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','mu8noL1']]],
+        ['mu18_l2idonly_mu8noL1',           'L1_MU15', ['L1_MU15',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18_l2idonly','mu8noL1']]],
         ['mu18_2mu4noL1',          'L1_MU15', ['L1_MU15',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu18','2mu4noL1']]],
         ['mu6_mu4noL1',            'L1_MU6',  ['L1_MU6',''],  [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu6','mu4noL1']]],
         ['mu4_mu4noL1',            'L1_MU4',  ['L1_MU4',''],  [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu4','mu4noL1']]],
@@ -134,10 +143,12 @@ def setupMenu():
         ['mu20_msonly_mu6noL1_msonly_nscan05',       'L1_MU20',      ['L1_MU20','L2_mu20_msonly'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_msonly','mu6noL1_msonly_nscan05']]],
         ['mu11_L1MU10_2mu4noL1_nscan03_L1MU10_2MU6', 'L1_MU10_2MU6', ['L1_MU10','L2_mu11_L1MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_L1MU10','2mu4noL1_nscan03']]],
         ['mu20_mu6noL1_nscan03',                     'L1_MU20',      ['L1_MU20','L2_mu20'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','mu6noL1_nscan03']]],
+        ['mu20_l2idonly_mu6noL1_nscan03',                     'L1_MU20',      ['L1_MU20','L2_mu20_l2idonly'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_l2idonly','mu6noL1_nscan03']]],
 	['mu11_2mu4noL1_nscan03_L1MU11_2MU6',        'L1_MU11_2MU6', ['L1_MU11','L2_mu11'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
+	['mu11_l2idonly_2mu4noL1_nscan03_L1MU11_2MU6',        'L1_MU11_2MU6', ['L1_MU11','L2_mu11_l2idonly'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_l2idonly','2mu4noL1_nscan03']]],
         ['mu11_L1MU10_2mu4noL1_nscan03',             'L1_LFV-MU',    ['L1_MU10','L2_mu11_L1MU10'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_L1MU10','2mu4noL1_nscan03']]],
         ['mu11_2mu4noL1_nscan03_L1MU11_LFV-MU',      'L1_LFV-MU',    ['L1_MU11','L2_mu11'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11','2mu4noL1_nscan03']]],
-
+        #['mu11_l2idonly_mu6noL1_nscan03_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_l2idonly','mu6noL1_nscan03']]],
 
         ['mu20_llns_mu6noL1_nscan03',                     'L1_MU20',      ['L1_MU20','L2_mu6'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_llns','mu6noL1_nscan03']]],
         ['mu11_llns_2mu4noL1_nscan03_L1MU11_2MU6',        'L1_MU11_2MU6', ['L1_MU11','L2_mu4'],        [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu11_llns','2mu4noL1_nscan03']]],
@@ -2188,6 +2199,8 @@ def setupMenu():
         ['j30_jes_PS_llp_L1TAU8_EMPTY',        'L1_TAU8_EMPTY',        [], ["Late"], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO', 'L1_TAU8_UNPAIRED_ISO', [], ["Late"], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j30_jes_PS_llp_noiso_L1TAU60',       'L1_TAU60',             [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+
+
 
         # LLP triggers
         ['g15_loose_2mu10_msonly_L1MU4_EMPTY',        'L1_MU4_EMPTY',['L1_EM8VH','L1_2MU10'], ["Late"], ['RATE:EgammaMuon', 'BW:Egamma','BW:Muon'],-1,['parallel',-1,[] ]],

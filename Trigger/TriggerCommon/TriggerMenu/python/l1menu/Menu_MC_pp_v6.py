@@ -191,9 +191,9 @@ def defineMenu():
         '1INVM5-EMs1-EMall', '1INVM5-EM7s1-EMall', '1INVM5-EM12s1-EMall',        
 
         #W T&P
-        '05MINDPHI-AJj20s6-XE0',
-        '10MINDPHI-AJj20s6-XE0',
-        '15MINDPHI-AJj20s6-XE0',
+        '05MINDPHI-AJj10s6-XE0',
+        '10MINDPHI-AJj10s6-XE0',
+        '15MINDPHI-AJj10s6-XE0',
         '10MINDPHI-EM10s6-XE0',
         '15MINDPHI-EM10s6-XE0',
         '05MINDPHI-EM15s6-XE0',
@@ -417,10 +417,11 @@ def defineMenu():
         # combined em - jet
         #'L1_EM15VH_J15.23ETA49',
         'L1_EM15VH_JJ15.23ETA49',
+        'L1_EM13VH_3J20',
 
         # combined mu - jet
         'L1_MU4_J12', 'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
-        'L1_MU4_3J15', 'L1_MU4_3J20','L1_MU4_J30','L1_MU4_J50',
+        'L1_MU4_3J15', 'L1_MU4_3J20','L1_MU4_J30','L1_MU4_J50','L1_MU10_3J20',
 
         # single jet
         "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50","L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
@@ -446,7 +447,8 @@ def defineMenu():
         
         # combined jet
         "L1_2J15_XE55", "L1_J40_XE50", "L1_J75_XE40","L1_J30.0ETA49_XE50",
-        
+        'L1_2J40_XE45', "L1_2J50_XE40", "L1_J40_XE60",
+
         # XE
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80", 
         "L1_XE35_BGRP7", "L1_XE40_BGRP7", "L1_XE45_BGRP7", "L1_XE50_BGRP7", "L1_XE55_BGRP7", "L1_XE60_BGRP7", "L1_XE70_BGRP7", "L1_XE80_BGRP7", 
@@ -892,7 +894,6 @@ def defineMenu():
         'L1_J75_3J20' : 136,
         'L1_J30.0ETA49_2J20.0ETA49' : 137,
         'L1_3J25.0ETA23' : 373,
-        'L1_J30.0ETA49_XE50' : 170, 
         'L1_TE10' : 138,
         'L1_4J15.0ETA25' : 139,
         'L1_5J15.0ETA25' : 140,
@@ -926,6 +927,13 @@ def defineMenu():
         'L1_MBTS_2_UNPAIRED_ISO' : 167,
         'L1_MBTS_1_1_EMPTY' : 168,
         'L1_MBTS_1_1_UNPAIRED_ISO' : 169,
+        'L1_J30.0ETA49_XE50' : 170, 
+        'L1_DPHI-AJ20s2XE50' : 171,
+        'L1_EM13VH_3J20' : 172,
+        'L1_MU10_3J20' : 173,
+        'L1_2J40_XE45' : 174,
+        'L1_2J50_XE40' : 175,
+        'L1_J40_XE60' : 176,
 # freeing some CTPIDs  
 #        'L1_MBTSA0' : 170,
 #        'L1_MBTSA1' : 171,
@@ -1007,7 +1015,6 @@ def defineMenu():
         'L1_3J15_BTAG-MU4J30' : 247,
         'L1_3J15_BTAG-MU6J25' : 248,
         'L1_3J20_BTAG-MU4J20' : 249,
-        'L1_DPHI-AJ20s2XE50' : 171,
         'L1_J40_DPHI-Js2XE50' : 250,
         'L1_J40_DPHI-J20s2XE50' : 251,
         'L1_J40_DPHI-J20XE50' : 252,

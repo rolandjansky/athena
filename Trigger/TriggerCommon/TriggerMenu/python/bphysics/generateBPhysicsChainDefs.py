@@ -93,7 +93,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         EFHypo = EFMultiMuHypo_Jpsi()
         
     elif (mtopo =='bDimu'):
-        if ('3mu' in chainDict['chainName']):
+        import re
+        if ('3mu' in chainDict['chainName'] or re.search('2mu[0-9]+_mu[0-9]+',chainDict['chainName']) or re.search('mu[0-9]+_2mu[0-9]+',chainDict['chainName'])):
             from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_DiMu
             from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_DiMu
             from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_DiMu
@@ -395,6 +396,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_passL2()
         EFFex  = EFBMuMuFex_DiMu()
         EFHypo = EFBMuMuHypo_DiMu() 
+        if ('nscan' in chainDict['chainName'] ): # do not do L2 at all; expect one TE
+            L2Fex = None
+            L2Hypo = None
+            from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_oneTE
+            EFFex  = EFBMuMuFex_DiMu_oneTE()
     elif ('bJpsimumu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_passL2
@@ -404,6 +410,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_Jpsi_passL2()
         EFFex  = EFBMuMuFex_Jpsi()
         EFHypo = EFBMuMuHypo_Jpsi() 
+        if ('nscan' in chainDict['chainName'] ): # do not do L2 at all; expect one TE
+            L2Fex = None
+            L2Hypo = None
+            from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_Jpsi_oneTE
+            EFFex  = EFBMuMuFex_Jpsi_oneTE()
     elif ('bBmumu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2

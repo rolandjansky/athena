@@ -56,9 +56,9 @@ def defineMenu():
         TopoOutput( algoname='DISAMB-EM15abhi-TAU40ab',                     module=0, fpga=1, clock=0, firstbit=13 ), # -> added back in
         
         # module: 1, FPGA: 0        
-        TopoOutput( algoname='05MINDPHI-AJj20s6-XE0',                       module=1, fpga=0, clock=0, firstbit=0 ),
-        TopoOutput( algoname='10MINDPHI-AJj20s6-XE0',                       module=1, fpga=0, clock=0, firstbit=1 ),
-        TopoOutput( algoname='15MINDPHI-AJj20s6-XE0',                       module=1, fpga=0, clock=0, firstbit=2 ),
+        TopoOutput( algoname='05MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=0 ),
+        TopoOutput( algoname='10MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=1 ),
+        TopoOutput( algoname='15MINDPHI-AJj10s6-XE0',                       module=1, fpga=0, clock=0, firstbit=2 ),
         TopoOutput( algoname='0DR04-MU4ab-CJ15ab',                          module=1, fpga=0, clock=0, firstbit=3 ), # fpga 1 clock 0
         TopoOutput( algoname='0DR04-MU4ab-CJ20ab',                          module=1, fpga=0, clock=0, firstbit=4 ),
         TopoOutput( algoname='0DR04-MU4ab-CJ30ab',                          module=1, fpga=0, clock=0, firstbit=5 ),
