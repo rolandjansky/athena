@@ -66,6 +66,7 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   m_outFileNameRawHits( "ftksim_raw_hits.dat.bz2" ),
   m_readTruthTracks(false),
   m_dooutFileRawHits(false),
+  m_UseNominalOrigin(false),
   ofl(),
   oflraw()
 {
@@ -92,6 +93,7 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   declareProperty("logBeamSpotOutput"		, m_logBeamSpotOutput);
   declareProperty("DoOutFileRawHits"            , m_dooutFileRawHits);
   declareProperty("ReadTruthTracks", m_readTruthTracks);
+  declareProperty("UseNominalOrigin", m_UseNominalOrigin);
 }
 
 
@@ -904,8 +906,18 @@ FTK_SGHitInput::read_truth_tracks()
       const Amg::Vector3D momentum( particle->momentum().px(), particle->momentum().py(), particle->momentum().pz());
       const Amg::Vector3D position( particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
       const Trk::CurvilinearParameters cParameters( position, momentum, charge);
-      Trk::PerigeeSurface persf( m_beamSpotSvc->beamPos() );
+
+      Trk::PerigeeSurface persf;
+      if (m_UseNominalOrigin) {
+	Amg::Vector3D    origin(0,0,0);
+	persf = Trk::PerigeeSurface(origin);
+      }
+      else {
+	persf = m_beamSpotSvc->beamPos();
+      }
+
       const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
+
       const double m_track_truth_d0 = tP ? tP->parameters()[Trk::d0] : 999.;
       const double m_track_truth_phi = tP ? tP->parameters()[Trk::phi] : 999.;
       const double m_track_truth_p = (tP && fabs(tP->parameters()[Trk::qOverP]) > 1.e-8) ?

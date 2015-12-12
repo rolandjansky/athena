@@ -103,7 +103,7 @@ def getTransform():
                 outData=['NTUP_FTKTMP_{0:02d}'.format(tower)],
                 extraRunargs={
                     'inputNTUP_FTKTMPFile': [
-                        'tmp.NTUP_FTKTMP_{0:02d}_{1}'.format(tower,subregion)
+                        'tmp.NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)
                             for subregion in range(subregions)]},
                 runtimeRunargs={
                     'MergeRegion': tower,
@@ -121,10 +121,6 @@ def getTransform():
                 'NTUP_FTKTMP_{0:02d}'.format(tower)
                 for tower in range(ntowers)]) + ('NTUP_FTKIP',)],
             outData=['NTUP_FTK'],
-            extraRunargs={
-                'inputNTUP_FTKTMPFile': [
-                    'tmp.NTUP_FTKTMP_{0:02d}'.format(tower)
-                    for tower in range(ntowers)]},
             runtimeRunargs={
                 'MergeFromTowers': True,
                 'FirstRegion': 0,
