@@ -41,11 +41,12 @@ FTKConstantBank::FTKConstantBank() :
 FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_bankID(0),
   m_nplanes(0),
+  m_AUX(false),
   m_invfit_consts(0x0),
   m_kernel_aux(0),
   m_kaverage_aux(0),
-  m_AUX(false),
-  m_maj_invkk_aux(0), m_maj_invkk_pow(0)
+  m_maj_invkk_aux(0),
+  m_maj_invkk_pow(0)
 {
   //TODO: make possible to read constants in different formats
   m_ncoords = ncoords;
