@@ -25,18 +25,18 @@ use FTK_DataProviderInterfaces FTK_DataProviderInterfaces-* Trigger/TrigFTK
 #use PixelConditionsServices    PixelConditionsServices-*  InnerDetector/InDetConditions
 #use TrkFitterUtils             TrkFitterUtils-*           Tracking/TrkFitter 
 #use TrkFitterInterfaces        TrkFitterInterfaces-*      Tracking/TrkFitter 
-#use TrkEventPrimitives         TrkEventPrimitives-*       Tracking/TrkEvent
+use TrkEventPrimitives         TrkEventPrimitives-*       Tracking/TrkEvent
 #use TrkParameters              TrkParameters-*            Tracking/TrkEvent
 
 private
 use EventInfo                  EventInfo-*                Event
 use TrkTrack		       TrkTrack-*		  Tracking/TrkEvent
 use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
-#use AtlasDetDescr              AtlasDetDescr-*            DetectorDescription
+use AtlasDetDescr              AtlasDetDescr-*            DetectorDescription
 #use GeoPrimitives              GeoPrimitives-*            DetectorDescription
-#use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDetDescr
+use InDetIdentifier            InDetIdentifier-*          InnerDetector/InDetDetDescr
 #use InDetRIO_OnTrack           InDetRIO_OnTrack-*         InnerDetector/InDetRecEvent
-#use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
+use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
 #use TrkRIO_OnTrack             TrkRIO_OnTrack-*           Tracking/TrkEvent
 use VxVertex            VxVertex-*       Tracking/TrkEvent
 use xAODTracking                xAODTracking-*            Event/xAOD

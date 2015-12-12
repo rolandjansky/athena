@@ -14,12 +14,13 @@
 
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
-
+#include "TrkEventPrimitives/VertexType.h"
 #include <vector>
 #include <string>
 #include <map>
 
 #include "TH1D.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 class FTK_RDO_ReaderAlgo: public AthAlgorithm {
@@ -32,14 +33,40 @@ public:
 
 private:
 
+  std::string strVertexType( const Trk::VertexType vxtype);
+  std::string strVertexType( const xAOD::VxType::VertexType vxtype);
+  
+
   /// Tools and services ///
   ITHistSvc*    rootHistSvc;
   StoreGateSvc* m_StoreGate;
 
 
   /// Track collections ///
+
+  bool m_getRawTracks;
+
   std::string m_ftk_raw_trackcollection_Name;
   FTK_RawTrackContainer *m_ftk_raw_trackcollection;
+
+  bool m_getTracks;
+  //  std::string m_TrackCollectionName;
+  bool m_getRefitTracks; 
+  //  std::string m_refitTrackCollectionName;
+  bool m_getTrackParticles; 
+  //  std::string m_TrackParticleCollectionName;
+  bool m_getRefitTrackParticles; 
+  //  std::string m_refitTrackParticleCollectionName;
+  bool m_getRawVxVertex; 
+  bool m_getVxVertex; 
+  //  std::string m_VxContainerName;
+  bool m_getRefitVxVertex; 
+  //  std::string m_refitVxContainerName;
+  bool m_getVertex;
+  //  std::string m_VertexContainerName;
+  bool m_getRefitVertex;
+  //  std::string m_refitVertexContainerName;
+
 
   //IFTK_DataProviderSvc* m_DataProviderSvc;
   ServiceHandle<IFTK_DataProviderSvc> m_DataProviderSvc;
@@ -51,7 +78,7 @@ private:
   TH1D* h_FTK_RawTrack_phi;
   TH1D* h_FTK_RawTrack_d0;
   TH1D* h_FTK_RawTrack_z0;
-  TH1D* h_FTK_RawTrack_curv;
+  TH1D* h_FTK_RawTrack_invPt;
   TH1D* h_FTK_RawTrack_cot;
   TH1D* h_FTK_RawTrack_eta;
   TH1D* h_FTK_RawTrack_nPix;
@@ -61,7 +88,7 @@ private:
   TH1D* h_Track_phi;
   TH1D* h_Track_d0;
   TH1D* h_Track_z0;
-  TH1D* h_Track_curv;
+  TH1D* h_Track_invPt;
   TH1D* h_Track_cot;
   TH1D* h_Track_eta;
   TH1D* h_Track_nPix;
@@ -71,7 +98,7 @@ private:
   TH1D* h_refitTrack_phi;
   TH1D* h_refitTrack_d0;
   TH1D* h_refitTrack_z0;
-  TH1D* h_refitTrack_curv;
+  TH1D* h_refitTrack_invPt;
   TH1D* h_refitTrack_cot;
   TH1D* h_refitTrack_eta;
   TH1D* h_refitTrack_nPix;
