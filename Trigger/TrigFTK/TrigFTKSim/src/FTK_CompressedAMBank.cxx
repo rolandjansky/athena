@@ -38,7 +38,7 @@ int const FTK_CompressedAMBank::MAX_NROAD=300000;
 //using namespace std;
 
 template<class A> inline void FTK_CompressedAMBank::patternLoop
-(A &a,uint8_t const __restrict *ptr,uint32_t firstPattern,int nPattern)
+(A &a,uint8_t const * __restrict ptr,uint32_t firstPattern,int nPattern)
    const {
    // first pattern ID is known
    a.initialize(firstPattern);
@@ -1887,7 +1887,7 @@ int FTK_CompressedAMBank::readCCachedBank(TDirectory *inputDir) {
                sectordata.m_NPattern=nPatternVar;
                sectordata.m_offset=sectorOffset[sectorVar];
                sectordata.m_length=nDataVar;
-               uint8_t __restrict *dest=
+               uint8_t * __restrict dest=
                   layerData.m_CompressedDeltaBySector[sectorVar].data()+
                   sectordata.m_offset;
                for(int i=0;i<nDataVar;i++) {
@@ -1966,7 +1966,7 @@ int FTK_CompressedAMBank::writeCCachedBankFile(char const *filename) const {
             firstPatternVar=(*sector).second.m_FirstPattern;
             nPatternVar=(*sector).second.m_NPattern;
             nDataVar=(*sector).second.m_length;
-            uint8_t __restrict const *compressedDeltaData=layerData.
+            uint8_t const *  __restrict compressedDeltaData=layerData.
                m_CompressedDeltaBySector[sectorVar].data()+
                (*sector).second.m_offset;
             for(int i=0;i<nDataVar;i++)
@@ -2497,7 +2497,7 @@ void FTK_CompressedAMBank::am_in_r
          update(firstPattern);
       }
    protected:
-      HitPattern_t __restrict *patternPtr;
+      HitPattern_t * __restrict patternPtr;
       HitPattern_t mask;
    };
    class MaskUpdaterSlow {
@@ -2556,7 +2556,7 @@ void FTK_CompressedAMBank::am_in_r
          update(firstPattern);
       }
    protected:
-      HitPattern_t __restrict *patternPtr,*base;
+      HitPattern_t * __restrict  patternPtr,* __restrict  base;
       HitPattern_t mask;
       HitPattern_t notMask;
       VECTOR<

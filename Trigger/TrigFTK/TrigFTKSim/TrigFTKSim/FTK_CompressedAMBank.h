@@ -211,7 +211,7 @@ protected:
    //                  (1..4 byte, big-endian)
    //   0xFx : encode repeated occurance of delta=1 (repeat=2..17)
    template<class A>
-      inline void patternLoop(A &a,uint8_t const __restrict *ptr,
+      inline void patternLoop(A &a,uint8_t const * __restrict ptr,
                               uint32_t firstPattern,int nPattern) const;
    struct SectorData {
       //

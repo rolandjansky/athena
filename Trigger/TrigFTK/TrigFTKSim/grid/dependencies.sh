@@ -1,13 +1,10 @@
 # This script sets BOOST_LDFLAGS,BOOST_CXXFLAGS,DCAP_LDFLAGS,DCAL_CXXFLAGS from athena environment
 # Note that you must have sourced athena setup.sh -tag=whatever, so that SITEROOT is defined!
-# VERIFIED TO WORK WITH ALL ATHENA VERSIONS BETWEEN 13.0.40 and 15.6.1
 
 # Make sure athena environment has been bootstrapped
 #uct3_64=0 # new uct3 installation not require any special treatment for uct3_64
 
 arch=`echo $CMTCONFIG | cut -d '-' -f 1`
-# Stefan, 2013/12/17, replace == by = otherwise script does not work with zsh
-### if [ "$arch" == "x86_64" ] ; then
 if [ "$arch" = "x86_64" ] ; then
     export uct3_64=1
     echo "Detected 64 bit environment"
