@@ -222,7 +222,8 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
 	  ATH_MSG_VERBOSE( itr << ": pT: " << trkPt  << " eta: " << trkEta << " phi: " <<  (*pTrack)->getPhi() << " d0: " << (*pTrack)->getD0() <<
 			   " z0: " << (*pTrack)->getZ0()<< " cot " << (*pTrack)->getCotTh() << " theta " << trkTheta << " invPt " << (*pTrack)->getInvPt() <<
 			   " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size()<< " barCode: "<<(*pTrack)->getBarcode()  );
-	  if (m_fillHists) {
+	  ATH_MSG_VERBOSE( "     SectorID " << (*pTrack)->getSectorID()   <<   "  RoadID "  << (*pTrack)->getRoadID() << " LayerMap " << (*pTrack)->getLayerMap());
+			if (m_fillHists) {
 	    h_FTK_RawTrack_phi->Fill((*pTrack)->getPhi());
 	    h_FTK_RawTrack_d0->Fill((*pTrack)->getD0());
 	    h_FTK_RawTrack_z0->Fill((*pTrack)->getZ0());
