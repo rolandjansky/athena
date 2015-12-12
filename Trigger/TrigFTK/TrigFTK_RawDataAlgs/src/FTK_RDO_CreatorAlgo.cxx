@@ -57,10 +57,10 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("mergeTrackBName",m_mergedtracks_bname,"Branch name for the merged tracks");
   declareProperty("CheckRDO",m_check);
 
-  m_FTK_RawTrack_checkFails.reserve(7);
+  m_FTK_RawTrack_checkFails.reserve(9);
   m_FTK_RawSCT_Cluster_checkFails.reserve(6);
   m_FTK_RawPixelCluster_checkFails.reserve(4);
-  for (unsigned int i=0; i < 7; i++)   m_FTK_RawTrack_checkFails[i]=0;
+  for (unsigned int i=0; i < 9; i++)   m_FTK_RawTrack_checkFails[i]=0;
   for (unsigned int i=0; i < 6; i++)   m_FTK_RawSCT_Cluster_checkFails[i]=0;
   for (unsigned int i=0; i < 4; i++)   m_FTK_RawPixelCluster_checkFails[i]=0;
 }
@@ -161,7 +161,6 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
 StatusCode FTK_RDO_CreatorAlgo::execute() {
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() start" << endreq;
-
   // Get information on the events
   const EventInfo* eventInfo(0);
   if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
@@ -249,6 +248,8 @@ StatusCode FTK_RDO_CreatorAlgo::finalize() {
     if (m_FTK_RawTrack_checkFails[4]!=0) ATH_MSG_INFO("phi " << m_FTK_RawTrack_checkFails[4]);
     if (m_FTK_RawTrack_checkFails[5]!=0) ATH_MSG_INFO("cosTheta " << m_FTK_RawTrack_checkFails[5]);
     if (m_FTK_RawTrack_checkFails[6]!=0) ATH_MSG_INFO("invPt " << m_FTK_RawTrack_checkFails[6]);
+    if (m_FTK_RawTrack_checkFails[7]!=0) ATH_MSG_INFO("SectorID " << m_FTK_RawTrack_checkFails[7]);
+    if (m_FTK_RawTrack_checkFails[8]!=0) ATH_MSG_INFO("LayerMap " << m_FTK_RawTrack_checkFails[8]);
 
     if (m_FTK_RawPixelCluster_checkFails[0]!=0) ATH_MSG_INFO("ModuleID " << m_FTK_RawPixelCluster_checkFails[0]);
     if (m_FTK_RawPixelCluster_checkFails[1]!=0) ATH_MSG_INFO("Layer " << m_FTK_RawPixelCluster_checkFails[1]);
@@ -281,6 +282,8 @@ FTK_RawTrack* FTK_RDO_CreatorAlgo::SimToRaw(const FTKTrack &track)
   const unsigned int sctHashMax = m_sctId->wafer_hash_max();
   const unsigned int pixHashMax = m_pixelId->wafer_hash_max();
 
+  unsigned int layerMap = 0;
+
   for (unsigned int iPlane = 0, isct=0; iPlane<(unsigned int)track.getNPlanes(); ++iPlane){
     const FTKHit& hit = track.getFTKHit(iPlane);
 
@@ -296,6 +299,9 @@ FTK_RawTrack* FTK_RDO_CreatorAlgo::SimToRaw(const FTKTrack &track)
       ATH_MSG_INFO(" Pixel hit at plane " << iPlane);
       type = 1;
     }
+
+    layerMap |= (1 << iPlane);
+
     ATH_MSG_VERBOSE("Information from FTKHit " << iPlane << ": sector " << hit.getSector()<< " plane " << hit.getPlane() << " etaCode " << hit.getEtaCode());
     ATH_MSG_VERBOSE(" isBarrel " << hit.getIsBarrel() << " Aside " << hit.getASide() << " Cside "<< hit.getCSide() );
     ATH_MSG_VERBOSE(" eta module " << hit.getEtaModule() << " phiModule " << hit.getPhiModule() << " section " << hit.getSection());
@@ -392,9 +398,10 @@ FTK_RawTrack* FTK_RDO_CreatorAlgo::SimToRaw(const FTKTrack &track)
     }
   } // end of hit loop
 
-
   // Road ID convert to 32 bit ///
   ATH_MSG_VERBOSE( " Setting track properties ");
+  raw_track->setSectorID(track.getSectorID());
+  raw_track->setLayerMap(layerMap);
   raw_track->setRoadID((unsigned int)track.getRoadID());
   raw_track->setD0(track.getIP());
   raw_track->setZ0(track.getZ0());
@@ -429,7 +436,10 @@ void FTK_RDO_CreatorAlgo::printTrack(const FTKTrack& track, const FTK_RawTrack *
   int iHit = 0;
   float invpt=0;
   if (track.getPt()!=0) invpt = 1./track.getPt();
-  std::cout << "FTK_RawTrack: RoadID= " << raw_track->getRoadID() <<
+  std::cout << "FTK_RawTrack:" << 
+    " SectorID= 0x" << std::hex << raw_track->getSectorID() << 
+    " LayerMap= 0x" << raw_track->getLayerMap() << 
+    " RoadID= 0x" << raw_track->getRoadID() << std::dec <<
     " d0= " << raw_track->getD0()     <<
     " z0= " << raw_track->getZ0()     <<
     " phi= " << raw_track->getPhi()    <<
@@ -437,7 +447,10 @@ void FTK_RDO_CreatorAlgo::printTrack(const FTKTrack& track, const FTK_RawTrack *
     " invPt= " << raw_track->getInvPt()   <<
     " chi2= " << raw_track->getChi2()   <<
     " barcode= " << raw_track->getBarcode()<< std::endl;
-  std::cout << "FTKTRack:     RoadID= " << track.getRoadID() <<
+  std::cout << "FTKTRack:   "<<
+    "  SectorID= 0x" << std::hex << track.getSectorID()<<
+    "  LayerMap= 0x" << track.getBitmask()<<
+    "  RoadID= 0x" << track.getRoadID() << std::dec<<
     " d0= " << track.getIP() <<
     " z0= " << track.getZ0() <<
     " phi= " << track.getPhi() <<
@@ -513,7 +526,7 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 
   bool check_ok= true;
   if (!(this->checkInt(track.getRoadID(), rdo.getRoadID(), "RoadID"))) {
-    m_FTK_RawTrack_checkFails[0]+=1; check_ok=false;
+    m_FTK_RawTrack_checkFails[8]+=1; check_ok=false;
   }
   if (!(this->checkInt(track.getBarcode(), rdo.getBarcode(), "BarCode"))){
     m_FTK_RawTrack_checkFails[1]+=1;check_ok=false;
@@ -539,6 +552,12 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
     if (!(this->checkValue(invpt, rdo.getInvPt(), invPtRes, "invPt"))){
       m_FTK_RawTrack_checkFails[6]+=1;check_ok=false;
     }
+  }
+  if (!(this->checkInt((track.getSectorID()&0xffff), rdo.getSectorID(), "SectorID"))) {
+    m_FTK_RawTrack_checkFails[7]+=1; check_ok=false;
+  }
+  if (!(this->checkInt((track.getBitmask()&0xfff), rdo.getLayerMap(), "LayerMap"))) {
+    m_FTK_RawTrack_checkFails[8]+=1; check_ok=false;
   }
 
   for (unsigned int i = 0; i<<track.getNPlanes(); i++) {
