@@ -187,10 +187,13 @@ private:
   /** CoolDB */
   StatusCode DumpRPCCalibFromCoolDB();
         
-  bool m_turnON_efficiency      ;
-  bool m_turnON_clustersize     ;
-  int  m_testbeam_clustersize   ;
-  int  m_FirstClusterSizeInTail ;
+  bool  m_turnON_efficiency      ;
+  bool  m_kill_deadstrips        ;//gabriele
+  bool  m_applyEffThreshold      ;//stefania
+  float m_Minimum_efficiency     ;//gabriele
+  bool  m_turnON_clustersize     ;
+  int   m_testbeam_clustersize   ;
+  int   m_FirstClusterSizeInTail ;
     
   std::vector<float> m_PhiAndEtaEff_A;
   std::vector<float> m_OnlyPhiEff_A  ; 
