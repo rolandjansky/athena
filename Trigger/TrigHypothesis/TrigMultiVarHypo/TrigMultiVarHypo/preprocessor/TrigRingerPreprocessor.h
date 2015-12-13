@@ -21,7 +21,7 @@ class TrigRingerPreprocessor{
     std::vector<unsigned int> m_sectionRings;
     double                    m_energyThreshold;///Defines the energy threshlod for divisions, in MeV's
     /// RingSet object
-    std::vector<RingSet*>     m_ringsSet;
+    std::vector<TrigCaloRingsHelper::RingSet*>     m_ringsSet;
     unsigned int              m_maxRingsAccumulated;
   public:
 
@@ -65,7 +65,7 @@ class TrigRingerPreprocessor{
      *
      * @param rset The ring set configuration to use for creating the rings
      */
-    void normalize_rings(std::vector<RingSet*>&  rset);
+    void normalize_rings(std::vector<TrigCaloRingsHelper::RingSet*>&  rset);
 
 };
 #endif /* TrigRingerPreproc */
