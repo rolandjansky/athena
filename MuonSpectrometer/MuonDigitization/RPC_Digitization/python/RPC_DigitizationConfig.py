@@ -39,7 +39,7 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     kwargs.setdefault("turnON_clustersize"             ,True  )  
     kwargs.setdefault("testbeam_clustersize"           ,0     )  
     kwargs.setdefault("ClusterSize1_2uncorr"           ,0     ) 
-    kwargs.setdefault("CutProjectedTracks"             ,10    ) # 50 is the default	    
+    kwargs.setdefault("CutProjectedTracks"             ,100   ) 
     kwargs.setdefault("RPCInfoFromDb"                  ,True  )  
     kwargs.setdefault("Efficiency_fromCOOL"            ,True  )
     kwargs.setdefault("EfficiencyPatchForBMShighEta"   ,False )   
