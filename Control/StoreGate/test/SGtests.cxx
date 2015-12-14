@@ -672,7 +672,7 @@ namespace Athena_test {
     cout << "*** StoreGateSvcClient_test readPrivateCopy BEGINS ***" <<endl;
     const Foo *cFoo(0);
     assert(rSG.retrieve<Foo>(cFoo,"silly").isSuccess());
-    std::auto_ptr<Foo> apFoo(rSG.readPrivateCopy<Foo>("silly"));
+    std::unique_ptr<Foo> apFoo(rSG.readUniquePrivateCopy<Foo>("silly"));
     assert(cFoo != apFoo.get());
     assert(rSG.retrieve(cFoo, "silly").isSuccess());
     cout << "*** StoreGateSvcClient_test readPrivateCopy OK ***" <<endl;
@@ -683,7 +683,7 @@ namespace Athena_test {
     cout << "*** StoreGateSvcClient_test retrievePrivateCopy BEGINS ***" <<endl;
     const Foo *cFoo(0);
     assert(rSG.retrieve<Foo>(cFoo,"silly").isSuccess());
-    std::auto_ptr<Foo> apFoo(rSG.retrievePrivateCopy<Foo>("silly"));
+    std::unique_ptr<Foo> apFoo(rSG.retrieveUniquePrivateCopy<Foo>("silly"));
     assert(cFoo == apFoo.get());
     SGASSERTERROR(rSG.retrieve(cFoo, "silly").isSuccess());
     cout << "*** StoreGateSvcClient_test retrievePrivateCopy OK ***" <<endl;
