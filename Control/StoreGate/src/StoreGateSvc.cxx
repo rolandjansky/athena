@@ -875,6 +875,7 @@ StoreGateSvc::typeless_overwrite( const CLID& clid, DataObject* obj, const std::
   StatusCode sc(StatusCode::SUCCESS);
   SG::DataProxy* toRemove(proxy(clid, key, false));
   if (0 != toRemove) {  
+    toRemove->addRef();
     const bool FORCEREMOVE(true); 	 
     sc =removeProxy(toRemove, (void*)0, FORCEREMOVE);
   }
@@ -889,6 +890,8 @@ StoreGateSvc::typeless_overwrite( const CLID& clid, DataObject* obj, const std::
   if (toRemove && sc.isSuccess() && store()->storeID() == StoreID::DETECTOR_STORE) {
     sc = getIIOVSvc()->replaceProxy(toRemove, proxy(clid, key));
   }
+  if (toRemove)
+    toRemove->release();
   return sc;
 }
 
