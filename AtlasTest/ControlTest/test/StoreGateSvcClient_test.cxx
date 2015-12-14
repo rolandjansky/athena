@@ -349,6 +349,15 @@ int main() {
   test_lock (*pStore);
 
   pStore->finalize().ignore();
+
+  ///////
+
+  StoreGateSvc* detStore(0);
+  assert((pSvcLoc->service("DetectorStore", detStore, CREATE)).isSuccess());
+  assert(detStore);
+
+  testRecord(*detStore);
+
   cout << "*** StoreGateSvcClient_test OK ***" <<endl;
   return 0;
 }
