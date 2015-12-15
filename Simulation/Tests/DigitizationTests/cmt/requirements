@@ -37,4 +37,7 @@ apply_pattern declare_runtime extras="../test/DigitizationTests_TestConfiguratio
 macro DigitizationTests_TestConfiguration "../test/DigitizationTests_TestConfiguration.xml"
 
 #scripts
-apply_pattern declare_scripts files="../scripts/Digitization_mc15test.sh"
+# apply_pattern declare_scripts files="../scripts/Digitization_mc15test.sh ../scripts/DigitizationCheckReferenceLocation.sh"
+apply_pattern declare_scripts files="../scripts/*.sh"
+
+
