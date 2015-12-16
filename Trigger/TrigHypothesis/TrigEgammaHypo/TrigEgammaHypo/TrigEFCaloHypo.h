@@ -85,7 +85,6 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   ToolHandle<IAsgElectronLikelihoodTool> m_LHSelectorTool;
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
   ToolHandle<IEMShowerBuilder> m_showerBuilder;
-  xAOD::PhotonContainer* m_egContainer;
   /** Luminosity Tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
   
