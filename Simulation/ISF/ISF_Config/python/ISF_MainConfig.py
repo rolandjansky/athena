@@ -533,12 +533,14 @@ def getKernel_G4JPsiLeptonsCone_FatrasID_FastCalo (name="ISF_Kernel_G4JPsiLepton
 def getKernel_G4ZLeptonsCone_FatrasID_FastCalo (name="ISF_Kernel_G4ZLeptonsCone_FatrasID_FastCalo", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_SubDetStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsPositionConeGeant4Selector' ,
-                                                        'ISF_DefaultFatrasSelector' ] )
+                                                        'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_SubDetStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsDirectionConeGeant4Selector' ,
+                                                        'ISF_EtaGreater5ParticleKillerSimSelector', # Fatras might get upset if this is not used
                                                         'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_SubDetStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsPositionConeGeant4Selector' ,
+                                                        'ISF_MuonFatrasSelector',
                                                         'ISF_WithinEta5FastCaloSimSelector',
                                                         'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_SubDetStickyGeant4SimSelector',
@@ -550,11 +552,13 @@ def getKernel_G4ZLeptonsCone_FatrasID_FastCalo (name="ISF_Kernel_G4ZLeptonsCone_
 ############## Simulator: G4ZLeptonsConeSticky_FatrasID_FastCalo ###############
 def getKernel_G4ZLeptonsConeSticky_FatrasID_FastCalo (name="ISF_Kernel_G4ZLeptonsConeSticky_FatrasID_FastCalo", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_GlobalStickyGeant4SimSelector',
-                                                        'ISF_DefaultFatrasSelector' ] )
+                                                        'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_GlobalStickyGeant4SimSelector',
                                                         'ISF_ZLeptonsDirectionConeGeant4Selector' ,
+                                                        'ISF_EtaGreater5ParticleKillerSimSelector', # Fatras might get upset if this is not used
                                                         'ISF_DefaultFatrasSelector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_GlobalStickyGeant4SimSelector',
+                                                        'ISF_MuonFatrasSelector',
                                                         'ISF_WithinEta5FastCaloSimSelector',
                                                         'ISF_DefaultParticleKillerSelector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_GlobalStickyGeant4SimSelector',
