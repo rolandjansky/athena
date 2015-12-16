@@ -1,0 +1,22 @@
+package ISF_FatrasDetDescrAlpine
+author LAPP Team
+
+public
+use AtlasPolicy             AtlasPolicy-*
+use AtlasROOT               AtlasROOT-*               External
+use GaudiInterface          GaudiInterface-*          External
+use ISF_FatrasDetDescrModel ISF_FatrasDetDescrModel-* Simulation/ISF/ISF_Fatras
+use InDetTrackingGeometryXML InDetTrackingGeometryXML-* InnerDetector/InDetDetDescr
+
+private
+use TrkGeometry             TrkGeometry-*             Tracking/TrkDetDescr
+use TrkGeometryAlpine       TrkGeometryAlpine-*       Tracking/TrkDetDescr
+
+public
+library ISF_FatrasDetDescrAlpine *.cxx components/*.cxx
+apply_pattern installed_library
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_runtime files="*.xml"
