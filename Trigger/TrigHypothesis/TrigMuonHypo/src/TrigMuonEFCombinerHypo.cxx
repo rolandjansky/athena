@@ -12,6 +12,7 @@ class ISvcLocator;
 TrigMuonEFCombinerHypo::TrigMuonEFCombinerHypo(const std::string & name, ISvcLocator* pSvcLocator):
 	HLT::HypoAlgo(name, pSvcLocator){
 	declareProperty("AcceptAll", m_acceptAll=true);
+	declareProperty("RejectCBmuons", m_rejectCBmuons=false);
 	std::vector<float> def_bins;
 	def_bins.push_back(0);
 	def_bins.push_back(9.9);
@@ -85,7 +86,7 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 
 	bool result = false;
 	bool debug = msgLvl() <= MSG::DEBUG;
-
+	if(m_rejectCBmuons) result=true;
 	// Some debug output:
 	if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
@@ -127,6 +128,10 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	    if (fabs(muon->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
 	      result = true;
 	      hypo_ok = true;
+	    }
+	    if(m_rejectCBmuons && muontype == xAOD::Muon::MuonType::Combined){
+	      result = false;
+	      hypo_ok = false;
 	    }
 	    if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << muon->pt()/CLHEP::GeV << " CLHEP::GeV "
 			//<< " with Charge " << muon->Charge()

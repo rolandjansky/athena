@@ -13,14 +13,19 @@ TrigMuonCaloTagHypo::TrigMuonCaloTagHypo(const std::string& name, ISvcLocator* p
   HLT::HypoAlgo(name, pSvcLocator),
   m_acceptAll(false),
   m_storeGate(nullptr),
-  m_ptMin(4*CLHEP::GeV),
+  m_ptThresholds(),
   m_etaMax(3.0),
-  m_doTight(false),
-  m_maxMissedCells(1)
+  m_doLH(true),
+  m_lhCut(0.95),
+  m_doTight(true),
+  m_maxMissedCells(1),
+  m_ctTrackContName("MuonEFInfo_CaloTagTrackParticles")
 {
   declareProperty("AcceptAll", m_acceptAll);
-  declareProperty("PtMin", m_ptMin);
+  declareProperty("PtThresholds", m_ptThresholds);
   declareProperty("EtaMax", m_etaMax);
+  declareProperty("UseLH",        m_doLH);
+  declareProperty("LHCut",        m_lhCut);
   declareProperty("TightCaloTag", m_doTight);
   declareProperty("MaxMissingCells", m_maxMissedCells);
   declareProperty("TrackContainerName", m_ctTrackContName,"MuonEFInfo_CaloTagTrackParticles");
@@ -36,7 +41,11 @@ HLT::ErrorCode TrigMuonCaloTagHypo::hltInitialize()
     ATH_MSG_INFO("Accepting all events");
   }
 
-  ATH_MSG_INFO("Initialized TrigMuonCaloTagHypo with threshold " << m_ptMin << " GeV");
+  std::string thrsh_str;
+  for(const auto& t : m_ptThresholds)
+    thrsh_str = std::to_string(t) + "GeV, ";
+
+  ATH_MSG_INFO("Initialized TrigMuonCaloTagHypo with thresholds " << thrsh_str);
   ATH_MSG_INFO("Completed intialization successfully");
   return HLT::OK;
 }
@@ -45,49 +54,60 @@ HLT::ErrorCode TrigMuonCaloTagHypo::hltExecute(const HLT::TriggerElement* output
 {
   m_storeGate = store();
 
-  ATH_MSG_INFO("In execute");
+  ATH_MSG_DEBUG("In execute");
   
   if (m_acceptAll) {
     pass = true;
-    ATH_MSG_INFO("Accepting event");
+    ATH_MSG_DEBUG("Accepting event");
     return HLT::OK;
   }
 
   //Retrieve tagged track particles
-  const xAOD::TrackParticleContainer* tpCont = nullptr;
-  HLT::ErrorCode status = getFeature<xAOD::TrackParticleContainer>(outputTE, tpCont, m_ctTrackContName);
+  const xAOD::TrackParticleContainer* tpCont(0);
 
-  if (status != HLT::OK) {
-    ATH_MSG_WARNING("Failed to retrieve xAOD::TrackParticleContainer " << m_ctTrackContName);
-  }
-  else {
-    ATH_MSG_INFO("Retrieved track particles");
+  if (getFeature<xAOD::TrackParticleContainer>(outputTE, tpCont, m_ctTrackContName)!= HLT::OK || tpCont==0) {
+    ATH_MSG_DEBUG("Failed to retrieve xAOD::TrackParticleContainer " << m_ctTrackContName);
+    return HLT::MISSING_FEATURE;
   }
 
   //Check whether a particle passes the selection
+  unsigned int nPassed = 0;
   for(const xAOD::TrackParticle* tp : *tpCont) {
-    auto calotag = tp->auxdata<unsigned short>("CaloTag");
-    ATH_MSG_INFO("Track Particle: pt, eta, phi = " << tp->pt() << ", " << tp->eta() << ", " << tp->phi() << ", Tag: " << calotag);
+    ATH_MSG_DEBUG("Track Particle: pt, eta, phi, ptcut = " << tp->pt() << ", " << tp->eta() << ", " << tp->phi() << ", " << m_ptThresholds[nPassed]);
 
-    if (tp->pt() < m_ptMin) continue;
+    if (tp->pt() < m_ptThresholds[nPassed]) continue;
     if (fabs(tp->eta()) > m_etaMax) continue;
     
-    if (m_doTight){
-      if (calotag < (4 - m_maxMissedCells)*10) continue;
-    }else{
-      if (calotag < (4 - m_maxMissedCells)) continue;
+    if (m_doLH) {
+      auto lh      = tp->auxdata<double>("CaloTagLH");
+      ATH_MSG_DEBUG("Track Particle: lh, lhcut = " << ", LH: " << lh << ", cut: " << m_lhCut);
+      if (lh < m_lhCut) continue;
+    } 
+    else {
+      auto calotag = tp->auxdata<unsigned short>("CaloTag");
+      ATH_MSG_DEBUG("Track Particle: ct = " << calotag );
+      if (m_doTight){
+        if (calotag < (4 - m_maxMissedCells)*10) continue;
+      }else{
+        if (calotag < (4 - m_maxMissedCells)) continue;
+      }
     }
-    
-    pass = true;
-    break;
+
+    ++nPassed; 
+    ATH_MSG_DEBUG("Muon passed");
+    //Check if we've found all required muons
+    if (nPassed >= m_ptThresholds.size()) break;
   }
+
+  pass = (nPassed >= m_ptThresholds.size());
+  ATH_MSG_DEBUG("Found muons: " << nPassed << ", passed = " << pass);
 
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigMuonCaloTagHypo::hltFinalize()
 {
-  ATH_MSG_INFO("In finalize");
+  ATH_MSG_DEBUG("In finalize");
 
   return HLT::OK;
 }
