@@ -61,7 +61,7 @@ namespace Muon {
     double   m_samplingTime ;
     double   m_signalWidth  ;
     // the read out structure
-    mutable CscRODReadOut rodReadOut;
+    mutable CscRODReadOut m_rodReadOut;
 
   };
 }
