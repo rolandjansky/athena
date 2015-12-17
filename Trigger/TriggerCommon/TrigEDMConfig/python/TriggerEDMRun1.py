@@ -86,8 +86,6 @@ TriggerL2List = [
     ('TrigTauCluster#HLT_TrigT2CaloTau',                                  'BS ESD AODFULL AODSLIM', 'Tau'),
     ('TrigTauClusterDetails#HLT_TrigT2CaloTauDetails',                    'BS ESD AODFULL AODSLIM', 'Tau'),
     ('TrigTauTracksInfo#HLT',                                             'BS ESD',                 'Tau'),
-    ('CosmicMuonCollection#HLT_CosmicMuons',                              'BS ESD AODFULL',         'Cosmics'),
-    ('MdtTrackSegmentCollection#HLT_MDTsegments',                         'BS ESD AODFULL',         'Cosmics'),
     ('TrigRNNOutput#HLT_TrigTRTHTCounts',                                 'BS ESD AODFULL AODSLIM', 'Tracking'),
 
     # bphys
