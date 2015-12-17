@@ -16,6 +16,8 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 
+from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
+
 
 def  EDMDecodingVersion():
 
@@ -254,7 +256,7 @@ class TrigDecisionGetter(Configured):
                 
         else:
             log.info("Will not write TrigDecision object to storegate")
-
+    
         return True
     
     
@@ -262,7 +264,6 @@ class HLTTriggerResultGetter(Configured):
 
     log = logging.getLogger("HLTTriggerResultGetter.py")
 
-    
     def _AddOPIToESD(self):
 
         log = logging.getLogger("HLTTriggerResultGetter.py")        
@@ -337,6 +338,14 @@ class HLTTriggerResultGetter(Configured):
             objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
             objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
 
+
+        if rec.doAOD():
+            # schedule the RoiDescriptorStore conversion
+            # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
+            topSequence += RoiWriter()
+            # write out the RoiDescriptorStores
+            from TrigEDMConfig.TriggerEDM import TriggerRoiList
+            objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
         #Are we adding operational info objects in ESD?
         added=self._AddOPIToESD()

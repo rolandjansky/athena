@@ -151,9 +151,8 @@ class HLTSimulationGetter(Configured):
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
-            from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-            theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
-            ServiceMgr += theFTK_DataProviderSvc
+            # TrigFTK_DataProviderSvc moved to TrigFTK_RecExample
+            pass
             
         if TriggerFlags.doHLT():
             log.info("configuring HLT Steering")
