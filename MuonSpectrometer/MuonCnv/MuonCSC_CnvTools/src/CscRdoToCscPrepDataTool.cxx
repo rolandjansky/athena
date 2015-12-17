@@ -220,7 +220,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
 StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {
   
   
-  typedef CscRawDataContainer::const_iterator collection_iterator;
+  //typedef CscRawDataContainer::const_iterator collection_iterator;
   
   IdContext cscContext = m_cscHelper->module_context();
   
@@ -243,8 +243,8 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 
   //**********************************************
   // retrieve specific collection for the givenID
-  uint32_t idColl = 0xffff;
-  m_cabling->hash2Rod(givenHashId,idColl);
+  uint16_t idColl = 0xffff;
+  m_cabling->hash2CollectionId(givenHashId,idColl);
   CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
   if (rdoContainer->end() ==  it_coll) {
     // unsigned int coll_hash = idColl;  
@@ -625,7 +625,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
           bool IsThisStripDecoded =0; 
           for ( CscStripPrepDataCollection::const_iterator idig=collection->begin();
                 idig!=collection->end(); ++idig ) {
-            CscStripPrepData& dig = **idig;
+            const CscStripPrepData& dig = **idig;
             Identifier did = dig.identify();
             if (did ==channelId) {
               IsThisStripDecoded =1;
