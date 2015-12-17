@@ -24,7 +24,7 @@ TrigMuonEFCaloIsolationHypo::TrigMuonEFCaloIsolationHypo(const std::string &name
     // declareMonitoredStdContainer("PtCone03", m_fex_ptcone03,  IMonitoredAlgo::AutoClear);
 
     //Std isolation
-    declareProperty("CaloConeSize",         m_CaloConeSize = 2); //Calorimetric cone size (1: DR=0.1, 2: DR=0.2, 3: DR=0.3: 4: DR=0.4)
+    declareProperty("CaloConeSize",         m_CaloConeSize = 1); //Calorimetric cone size (1: DR=0.2, 2: DR=0.3: 3: DR=0.4)
     m_CaloConeSize.verifier().setBounds(1, 4);
 
     declareProperty("MaxCaloIso_1",         m_MaxCaloIso_1 = 4000.0);
@@ -113,10 +113,10 @@ HLT::ErrorCode TrigMuonEFCaloIsolationHypo::hltExecute(const HLT::TriggerElement
 
     //Select the right isolation variable
     xAOD::Iso::IsolationType selectedIsoCone;
-    if      (m_CaloConeSize == 1) selectedIsoCone  = xAOD::Iso::IsolationType::etcone20;
-    else if (m_CaloConeSize == 2) selectedIsoCone  = xAOD::Iso::IsolationType::etcone30;
-    else if (m_CaloConeSize == 3) selectedIsoCone  = xAOD::Iso::IsolationType::etcone40;
-    else                          selectedIsoCone  = xAOD::Iso::IsolationType::etcone20;
+    if      (m_CaloConeSize == 1) selectedIsoCone  = xAOD::Iso::etcone20;
+    else if (m_CaloConeSize == 2) selectedIsoCone  = xAOD::Iso::etcone30;
+    else if (m_CaloConeSize == 3) selectedIsoCone  = xAOD::Iso::etcone40;
+    else                          selectedIsoCone  = xAOD::Iso::etcone20;
 
     // loop over objects (muons) in the container
     for (auto muon : *muonContainer) {

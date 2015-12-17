@@ -26,6 +26,7 @@ class TrigMuonEFCombinerHypo: public HLT::HypoAlgo {
   std::vector<float> m_ptBins;
   std::vector<float> m_ptThresholds;
   BooleanProperty m_acceptAll;
+  BooleanProperty m_rejectCBmuons;
 
   // Other members:   
   std::vector<float>::size_type m_bins;
