@@ -381,7 +381,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			int pID = event[i].id();
 			if (abs(pID) == 531) { //NOTE THIS WILL FIND BS AND ANTIBS
 				i_Bs = i;
-				vector<int> daughterlist = event.daughterList(i);
+				std::vector<int> daughterlist = event.daughterList(i);
 
 				if (daughterlist.size() != 2)
 					continue;
@@ -405,8 +405,8 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				}
 				if (!isphi || !isjpsi)
 					continue;
-				vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
-				vector<int> daughterlistPhi = event.daughterList(i_Phi);
+				std::vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
+				std::vector<int> daughterlistPhi = event.daughterList(i_Phi);
 				if (daughterlistJpsi.size() != 2 || daughterlistPhi.size() != 2)
 					continue;
 				//resets values to avoid possible bug
@@ -526,7 +526,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 					"Max prob exceeded, too many of these indicates a problem, a few is fine");
 		}
 		if (debug)
-			cout << "totalprob " << prob1 * prob2 << endl;
+		  std::cout << "totalprob " << prob1 * prob2 << std::endl;
 		if (rand < (prob1 * prob2)) {
 
 			if (debug)
@@ -565,7 +565,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			const int pID = event[i].id();
 			if (abs(pID) == 511) { //NOTE THIS FIND BD and Anti-Bd
 				i_Bd = i;
-				vector<int> daughterlist = event.daughterList(i);
+				std::vector<int> daughterlist = event.daughterList(i);
 
 				if (daughterlist.size() != 2)
 					continue;
@@ -589,8 +589,8 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				}
 				if (!iskstar || !isjpsi)
 					continue;
-				vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
-				vector<int> daughterlistKstar = event.daughterList(i_Kstar);
+				std::vector<int> daughterlistJpsi = event.daughterList(i_Jpsi);
+				std::vector<int> daughterlistKstar = event.daughterList(i_Kstar);
 				if (daughterlistJpsi.size() != 2 || daughterlistKstar.size() != 2)
 					continue;
 				//resets values to avoid possible bug
@@ -701,7 +701,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 					"Max prob exceeded, too many of these indicates a problem, a few is fine");
 		}
 		if (debug)
-			cout << "totalprob " << prob1 * prob2 << endl;
+		  std::cout << "totalprob " << prob1 * prob2 << std::endl;
 		if (rand < (prob1 * prob2)) {
 			if (debug)
 				ATH_MSG_INFO("Passed PDF filter");
