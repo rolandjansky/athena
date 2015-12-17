@@ -53,6 +53,9 @@ class TrigMuonEFTrackIsolationHypo: public HLT::HypoAlgo {
   /// cut on absolute or sumpt/pt?
   BooleanProperty m_abscut;
 
+  /// use offline or online isolation variables?
+  BooleanProperty m_useVarIso;
+
   /// monitor the variables we cut on
   std::vector<float> m_fex_ptcone02;
   std::vector<float> m_fex_ptcone03;
