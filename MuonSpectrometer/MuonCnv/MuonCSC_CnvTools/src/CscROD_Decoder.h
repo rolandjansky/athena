@@ -29,9 +29,8 @@
 class CscRawDataContainer;
 class CscIdHelper;
 
-using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
-
-using eformat::helper::SourceIdentifier; 
+//using namespace OFFLINE_FRAGMENTS_NAMESPACE ; 
+//using eformat::helper::SourceIdentifier; 
 
 namespace Muon {
 
@@ -56,11 +55,11 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize() { return StatusCode::SUCCESS; }
   
-  void setRobFragment(const ROBFragment* robFrag);
+  void setRobFragment(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag);
   void setEventInfo(const EventInfo* eventInfo);
   void setGeoVersion(const std::string geoVersion);
 
-  void fillCollection(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog) ; 
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog) ; 
 
   Identifier getChannelId(const uint32_t word, std::string detdesription);
   uint32_t getHashId(const uint32_t word, std::string detdesription);
@@ -71,16 +70,16 @@ public:
 private:
 
   /** the ROD version */
-  void rodVersion0(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
+  void rodVersion0(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
 
-  void rodVersion1(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
+  void rodVersion1(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
 
-  void rodVersion2(const ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
+  void rodVersion2(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,  CscRawDataContainer& rdoIDC, MsgStream& mLog);
 
 private:
 
   CSC_Hid2RESrcID                   m_hid2re;
-  const ROBFragment *               m_robFragment;
+  const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *               m_robFragment;
   const EventInfo   *               m_eventInfo;
   std::string                       m_geoVersion;
   const CscIdHelper *               m_cscHelper;
@@ -92,7 +91,7 @@ private:
 }; 
 
 /// set the ROD header
-inline void CscROD_Decoder::setRobFragment(const ROBFragment* rob) {
+inline void CscROD_Decoder::setRobFragment(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob) {
    m_robFragment=rob;
 }
 

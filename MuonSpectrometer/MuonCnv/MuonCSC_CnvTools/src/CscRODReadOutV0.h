@@ -28,10 +28,10 @@ public:
   uint32_t getHeaderSize()    {return ROD_HEADER_SIZE;}
   uint32_t getFooterSize()    {return ROD_FOOTER_SIZE;}
   uint32_t getFormatVersion() {return ROD_VERSION;}
-  double   getSamplingTime()  {return SAMPLING_TIME;}
-  double   getStartTime()     {return TIME_OFFSET;}
-  double   getConversion()    {return CHARGE_TO_ADC_COUNT;}
-  double   getMaxTimeBin()    {return Z0;}
+  double   getSamplingTime()  {return m_SAMPLING_TIME;}
+  double   getStartTime()     {return m_TIME_OFFSET;}
+  double   getConversion()    {return m_CHARGE_TO_ADC_COUNT;}
+  double   getMaxTimeBin()    {return m_Z0;}
 
   // encoding
   uint32_t getSourceID(uint16_t side, uint16_t rodId);  
@@ -81,12 +81,12 @@ private:
   uint32_t  m_address;
   double    m_norm;
   
-  double   TIME_OFFSET; 
-  double   SIGNAL_WIDTH;  
-  double   SAMPLING_TIME; 
-  int      NUMBER_OF_INTEGRATION;
-  double   CHARGE_TO_ADC_COUNT;
-  double   Z0; 
+  double   m_TIME_OFFSET; 
+  double   m_SIGNAL_WIDTH;  
+  double   m_SAMPLING_TIME; 
+  int      m_NUMBER_OF_INTEGRATION;
+  double   m_CHARGE_TO_ADC_COUNT;
+  double   m_Z0; 
 
   static const uint32_t ROD_HEADER      = 0xEE1234EE;
   static const uint32_t ROD_HEADER_SIZE = 0x8;
@@ -185,8 +185,8 @@ inline Identifier CscRODReadOutV0::decodeAddress(const Identifier& moduleId) {
 // get the signal amplitude for a given sampling time (ns)
 inline double CscRODReadOutV0::signal_amplitude (double samplingTime) const {
  
-  if (samplingTime <= TIME_OFFSET) return 0.0;
-  double z = (samplingTime-TIME_OFFSET) / SIGNAL_WIDTH;
+  if (samplingTime <= m_TIME_OFFSET) return 0.0;
+  double z = (samplingTime-m_TIME_OFFSET) / m_SIGNAL_WIDTH;
   return signal (z) / m_norm;
 
 } 
@@ -194,8 +194,8 @@ inline double CscRODReadOutV0::signal_amplitude (double samplingTime) const {
 // signal amplitude as a function of the time bin z
 inline double CscRODReadOutV0::signal(double z) const {
 
-  double amplitude = (1.0 - z / (1 + NUMBER_OF_INTEGRATION)) 
-                     * std::pow(z, NUMBER_OF_INTEGRATION)
+  double amplitude = (1.0 - z / (1 + m_NUMBER_OF_INTEGRATION)) 
+                     * std::pow(z, m_NUMBER_OF_INTEGRATION)
                      * exp(-z);
   return amplitude;
 }

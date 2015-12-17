@@ -33,7 +33,7 @@ public:
   uint32_t samplingRate()     {return RATE;}
   uint32_t numDPU()           {return NUM_DPU;}
   void triggerInfo(uint32_t * trigger) {
-     for (int i=0; i<3; i++) *(trigger+i) = TRIGGER_INFO[i];
+     for (int i=0; i<3; i++) *(trigger+i) = m_TRIGGER_INFO[i];
   };
 
 
@@ -42,11 +42,11 @@ public:
   uint32_t dpuHeaderSize()    {return DPU_HEADER_SIZE;}
 
   // get additional info
-  double   getSamplingTime()  {return SAMPLING_TIME;}
-  void setSamplingTime ( double time ) { SAMPLING_TIME = time; }
-  double   getStartTime()     {return TIME_OFFSET;}
-  double   getConversion()    {return CHARGE_TO_ADC_COUNT;}
-  double   getMaxTimeBin()    {return Z0;}
+  double   getSamplingTime()  {return m_SAMPLING_TIME;}
+  void setSamplingTime ( double time ) { m_SAMPLING_TIME = time; }
+  double   getStartTime()     {return m_TIME_OFFSET;}
+  double   getConversion()    {return m_CHARGE_TO_ADC_COUNT;}
+  double   getMaxTimeBin()    {return m_Z0;}
 
   // encoding
   uint32_t getSourceID(uint16_t side, uint16_t rodId);  
@@ -103,14 +103,14 @@ private:
   uint32_t  m_address;
   double    m_norm;
   
-  double   TIME_OFFSET; 
-  double   SIGNAL_WIDTH;  
-  double   SAMPLING_TIME; 
-  int      NUMBER_OF_INTEGRATION;
-  double   CHARGE_TO_ADC_COUNT;
-  double   Z0; 
+  double   m_TIME_OFFSET; 
+  double   m_SIGNAL_WIDTH;  
+  double   m_SAMPLING_TIME; 
+  int      m_NUMBER_OF_INTEGRATION;
+  double   m_CHARGE_TO_ADC_COUNT;
+  double   m_Z0; 
 
-  uint32_t TRIGGER_INFO[3];
+  uint32_t m_TRIGGER_INFO[3];
 
   static const uint32_t ROD_HEADER_SIZE   = 12;
   
@@ -140,13 +140,13 @@ private:
 
 inline void CscRODReadOutV1::setParams(double timeOffset, double samplingTime,
 				     double signalWidth) {
-  TIME_OFFSET = timeOffset;
-  SAMPLING_TIME = samplingTime;
-  SIGNAL_WIDTH = signalWidth;
+  m_TIME_OFFSET = timeOffset;
+  m_SAMPLING_TIME = samplingTime;
+  m_SIGNAL_WIDTH = signalWidth;
 }
 
 inline void CscRODReadOutV1::setParams(double samplingTime) {
-  SAMPLING_TIME = samplingTime;
+  m_SAMPLING_TIME = samplingTime;
 }
 
 inline uint32_t CscRODReadOutV1::getSourceID(uint16_t side, uint16_t rodId) {
@@ -288,8 +288,8 @@ inline uint32_t CscRODReadOutV1::numberOfStrips(const uint32_t fragment) {
 // get the signal amplitude for a given sampling time (ns)
 inline double CscRODReadOutV1::signal_amplitude (double samplingTime) const {
  
-  if (samplingTime <= TIME_OFFSET) return 0.0;
-  double z = (samplingTime-TIME_OFFSET) / SIGNAL_WIDTH;
+  if (samplingTime <= m_TIME_OFFSET) return 0.0;
+  double z = (samplingTime-m_TIME_OFFSET) / m_SIGNAL_WIDTH;
   return signal (z) / m_norm;
 
 } 
@@ -297,8 +297,8 @@ inline double CscRODReadOutV1::signal_amplitude (double samplingTime) const {
 // signal amplitude as a function of the time bin z
 inline double CscRODReadOutV1::signal(double z) const {
 
-  double amplitude = (1.0 - z / (1 + NUMBER_OF_INTEGRATION)) 
-                     * std::pow(z, NUMBER_OF_INTEGRATION)
+  double amplitude = (1.0 - z / (1 + m_NUMBER_OF_INTEGRATION)) 
+                     * std::pow(z, m_NUMBER_OF_INTEGRATION)
                      * exp(-z);
   return amplitude;
 }
