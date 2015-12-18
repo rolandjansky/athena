@@ -146,7 +146,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty( "MinHits",               m_minHits = 5 );
 
-  declareProperty("DoTrigInDetTrack",            m_doTrigInDetTrack  = false);
+  declareProperty("doTrigInDetTrack",            m_doTrigInDetTrack  = false);
   declareProperty( "OutputCollectionSuffix",m_outputCollectionSuffix = "");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
@@ -163,7 +163,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "retrieveBarCodes", m_retrieveBarCodes = false);
   declareProperty( "SignalBarCodes", m_vSignalBarCodes);
   declareProperty( "MinSignalSPs", m_minSignalSPs = 3);
-  declareProperty( "doResMonitoring",       m_doResMonitoring = true);
+  declareProperty( "doResMon",       m_doResMonitoring = true);
 
   declareProperty("doCloneRemoval", m_doCloneRemoval = true);
 
@@ -256,51 +256,58 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     } else {
       ATH_MSG_INFO("Configured to retrieve FTK tracks from " << m_ftkDataProviderSvcName);
     }
-  }
+  } else {
 
-  StatusCode sc= m_trackSummaryTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("unable to locate track summary tool");
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
-
-  if (m_useBeamSpot) {
-    StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
-    if (scBS.isFailure() || m_iBeamCondSvc == 0) {
-      m_iBeamCondSvc = 0;
-      ATH_MSG_WARNING("Could not retrieve Beam Conditions Service. ");
-    }
-  }
-
-  sc=m_numberingTool.retrieve(); 
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool); 
-    return HLT::BAD_JOB_SETUP;
-   } 
-
-  sc = m_spacePointTool.retrieve();
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not retrieve "<<m_spacePointTool); 
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  sc = m_trackMaker.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve "<<m_trackMaker); 
-    return HLT::BAD_JOB_SETUP;
-  }
-  sc = m_trigInDetTrackFitter.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve "<<m_trigInDetTrackFitter); 
-    return HLT::BAD_JOB_SETUP;
-  }
-  
-  if (m_doZFinder) {
-    sc = m_trigZFinder.retrieve();
+    StatusCode sc= m_trackSummaryTool.retrieve();
     if(sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
+      ATH_MSG_ERROR("unable to locate track summary tool");
+      return HLT::BAD_JOB_SETUP;
+    }
+    
+    ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
+    
+    if (m_useBeamSpot) {
+      StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
+      if (scBS.isFailure() || m_iBeamCondSvc == 0) {
+	m_iBeamCondSvc = 0;
+	ATH_MSG_WARNING("Could not retrieve Beam Conditions Service. ");
+      }
+    }
+    
+    sc=m_numberingTool.retrieve(); 
+    if(sc.isFailure()) { 
+      ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool); 
+      return HLT::BAD_JOB_SETUP;
+    } 
+    
+    sc = m_spacePointTool.retrieve();
+    if(sc.isFailure()) { 
+      ATH_MSG_ERROR("Could not retrieve "<<m_spacePointTool); 
+      return HLT::BAD_JOB_SETUP;
+    }
+    
+    sc = m_trackMaker.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve "<<m_trackMaker); 
+      return HLT::BAD_JOB_SETUP;
+    }
+    sc = m_trigInDetTrackFitter.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve "<<m_trigInDetTrackFitter); 
+      return HLT::BAD_JOB_SETUP;
+    }
+    
+    if (m_doZFinder) {
+      sc = m_trigZFinder.retrieve();
+      if(sc.isFailure()) {
+	ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
+	return HLT::BAD_JOB_SETUP;
+      }
+    }
+
+    sc = m_trigL2ResidualCalculator.retrieve();
+    if ( sc.isFailure() ) {
+      msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endreq;
       return HLT::BAD_JOB_SETUP;
     }
   }
@@ -321,11 +328,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     return StatusCode::FAILURE;
   }
 
-  sc = m_trigL2ResidualCalculator.retrieve();
-  if ( sc.isFailure() ) {
-    msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endreq;
-    return HLT::BAD_JOB_SETUP;
-  }
   
   if ( m_outputCollectionSuffix != "" ) {
     m_attachedFeatureName = string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
@@ -341,7 +343,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     m_nSignalDetected=0;
     m_nSignalTracked=0;
     m_nSignalClones=0;
-    sc = m_TrigL2SpacePointTruthTool.retrieve();
+    StatusCode sc = m_TrigL2SpacePointTruthTool.retrieve();
     if ( sc.isFailure() ) {
       ATH_MSG_FATAL("Unable to locate SpacePoint-to-Truth associator tool " << m_TrigL2SpacePointTruthTool);
       return HLT::BAD_JOB_SETUP;
