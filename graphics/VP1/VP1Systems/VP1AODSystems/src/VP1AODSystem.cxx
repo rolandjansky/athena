@@ -484,12 +484,14 @@ unsigned VP1AODSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& to
   //   totpos /= nused;
   // }
   // return nused;
+  return 0;
 }
 
 
 //____________________________________________________________________
 void VP1AODSystem::updateShownTotMomentum()
 {
+
   // messageVerbose("updateShownTotMomentum");
   // if (!d->common->controller()->showTotMomentumOnMultiTrackSelection()) {
   //   //ensure detach:
@@ -529,6 +531,7 @@ void VP1AODSystem::updateShownTotMomentum()
   //     d->totmomsep->addChild(d->totmomline);
   //   return;
   // }
+  return;
 }
 
 //____________________________________________________________________
