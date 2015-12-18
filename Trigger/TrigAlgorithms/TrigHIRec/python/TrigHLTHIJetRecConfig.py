@@ -128,7 +128,11 @@ def _getHIJetBuildTool(merge_param,
 
     # calibration
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-    calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4TopoEM",ConfigFile="JES_Full2012dataset_Preliminary_Jan13.config",CalibSequence="AbsoluteEtaJES")
+    #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4TopoEM",ConfigFile="JES_Full2012dataset_Preliminary_Jan13.config",CalibSequence="AbsoluteEtaJES")
+    #calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_Full2012dataset_May2014.config",CalibSequence="JetArea_Residual_Origin_EtaJES_GSC",IsData=False)
+    calib_tool=JetCalibrationTool("HLT_a"+str(int_merge_param)+"HICalibTool",JetCollection="AntiKt4EMTopo",ConfigFile="JES_MC15Prerecommendation_April2015.config",CalibSequence="EtaJES", IsData=False)
+
+
     jtm.add(calib_tool)
 
     from  TrigHLTJetRec.TrigHLTJetRecConfig import _getTriggerPseudoJetGetter
