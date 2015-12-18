@@ -141,38 +141,46 @@ void TrackHandle_xAODTrackParticle::ensureTouchedMuonChambersInitialised() const
 unsigned TrackHandle_xAODTrackParticle::getNPixelHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfPixelHits) : 0; 
+  return 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNSCTHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfSCTHits) : 0; 
+  return 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNTRTHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfTRTHits) : 0; 
+  return 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNMuonPhiHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) + d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) + d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0;
+  return 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNMDTHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfMdtHits) : 0; 
+  return 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNRPCHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfRpcEtaHits) + d->trackparticle->trackSummary()->get(Trk::numberOfRpcPhiHits) : 0; 
+  return 0;
 }//____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNTGCHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfTgcEtaHits) + d->trackparticle->trackSummary()->get(Trk::numberOfTgcPhiHits) : 0; 
+  return 0;
 }
 //____________________________________________________________________
 unsigned TrackHandle_xAODTrackParticle::getNCSCHits() const
 { 
   // return (d->trackparticle->trackSummary()) ? d->trackparticle->trackSummary()->get(Trk::numberOfCscEtaHits) + d->trackparticle->trackSummary()->get(Trk::numberOfCscPhiHits) : 0; 
+  return 0;
 }

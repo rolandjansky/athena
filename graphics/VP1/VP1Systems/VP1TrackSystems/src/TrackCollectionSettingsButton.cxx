@@ -125,7 +125,9 @@ TrackCollectionSettingsButton::TrackCollectionSettingsButton(QWidget * parent,in
   connect(d->editwindow_ui.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
   connect(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
   connect(d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-  connect(d->editwindow_ui.comboBox_momtype,SIGNAL(valueChanged(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+  //connect(d->editwindow_ui.comboBox_momtype,SIGNAL(valueChanged(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(d->editwindow_ui.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_cutAllowedPt()));
+
 
   // -> cutAllowedEta
   connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
