@@ -224,30 +224,35 @@ bool AODSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList l
 bool AODSystemController::orientAndZoomOnSingleSelection() const
 {
   // return d->ui_int.checkBox_selsingle_orientzoom->isChecked();
+  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::printInfoOnSingleSelection() const
 {
   // return d->ui_int.checkBox_selsingle_printinfo->isChecked();
+  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::printVerboseInfoOnSingleSelection() const
 {
   // return printInfoOnSingleSelection() && d->ui_int.checkBox_selsingle_printinfo_verbose->isChecked();
+  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::printTotMomentumOnMultiTrackSelection() const
 {
   // return d->ui_int.checkBox_sel_printtotmom->isChecked();
+  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::showTotMomentumOnMultiTrackSelection() const
 {
   // return d->ui_int.checkBox_sel_showtotmom->isChecked();
+  return true;
 }
 
 QTreeWidget* AODSystemController::objBrowser() const
