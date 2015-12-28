@@ -22,13 +22,13 @@
 // Root includes
 #include "TH1.h"
 
+// xAOD
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTruth/TruthParticle.h"
 
 // Forward declaration
-
 namespace ZeeValidation {
   
   class ZeeValidationMonitoringTool
@@ -41,12 +41,12 @@ namespace ZeeValidation {
     
     // Copy constructor:
     
-    /// Constructor with parameters:
+    // Constructor with parameters:
     ZeeValidationMonitoringTool( const std::string& type,
 			 const std::string& name, 
 			 const IInterface* parent );
     
-    /// Destructor:
+    // Destructor:
     virtual ~ZeeValidationMonitoringTool(); 
     
     // Athena algtool's Hooks
@@ -71,6 +71,9 @@ namespace ZeeValidation {
     /// Default constructor:
     ZeeValidationMonitoringTool();
  
+    // Protect against Truth in Data
+    bool m_isData;
+
     // Containers
     std::string m_eventInfoName;
     std::string m_elecName; 
@@ -80,21 +83,21 @@ namespace ZeeValidation {
     std::string m_trackName;
     std::string m_truthName;
     
-    //Cut Values
+    // Cut Values
     double m_PtCentCut, m_PtFwdCut;
     double m_MeeLowCut, m_MeeHighCut;
     double m_EtaCentCut, m_EtaLowFwdCut, m_EtaHighFwdCut;
     double m_EtaCrackLowCut, m_EtaCrackHighCut;
     double m_dRminRecoTrue;
 
-   // Hists
+    // Hists
     ZeeValidation::ReconElectronsPlots m_ReconElectronsPlots;
     ZeeValidation::TrueElectronsPlots m_TrueElectronsPlots;
     ZeeValidation::TrueFwdElectronsPlots m_TrueFwdElectronsPlots;
     ZeeValidation::ZeePlots m_ZeePlots;
     ZeeValidation::FWDZeePlots m_FWDZeePlots;
 
-    //Matching True-Reco
+    // Matching True-Reco
     void MatchElec(const xAOD::TruthParticle* truth_electron, const xAOD::ElectronContainer* electrons);
     double drmin_elreco_truth;
     bool matchedE;

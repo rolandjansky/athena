@@ -39,6 +39,7 @@ namespace ZeeValidation {
 				  const std::string& name,
 				  const IInterface* parent ) :
     ManagedMonitorToolBase( type, name, parent ),
+    m_isData(false),
     m_ReconElectronsPlots(0, "Zee/ReconElectrons/", "Electrons"),
     m_TrueElectronsPlots(0, "Zee/TrueElectrons/", "True Electrons"),
     m_TrueFwdElectronsPlots(0, "Zee/TrueFwdElectrons/", "True FWD Electrons"),
@@ -48,6 +49,7 @@ namespace ZeeValidation {
     matched_electron(NULL),
     drmin_phreco_truth(0), matchedP(false)
   {
+    declareProperty( "IsData", m_isData = false);
     declareProperty( "EventInfoContainerName", m_eventInfoName = "EventInfo");
     declareProperty( "ElectronContainerName", m_elecName = "ElectronCollection" );
     declareProperty( "ElectronContainerFrwdName", m_elecFwdName = "FwdElectrons" ); 
@@ -101,8 +103,11 @@ namespace ZeeValidation {
     
     if (m_detailLevel >= 10) {
       ATH_CHECK(book(m_ReconElectronsPlots));
-      ATH_CHECK(book(m_TrueElectronsPlots));
-      ATH_CHECK(book(m_TrueFwdElectronsPlots));
+      if( !m_isData )
+	{
+	  ATH_CHECK(book(m_TrueElectronsPlots));
+	  ATH_CHECK(book(m_TrueFwdElectronsPlots));
+	}
       ATH_CHECK(book(m_ZeePlots));
       ATH_CHECK(book(m_FWDZeePlots));
     }
@@ -129,9 +134,6 @@ namespace ZeeValidation {
 
     const xAOD::PhotonContainer* photons(0);
     ATH_CHECK(evtStore() -> retrieve(photons, m_photonName));
-
-    const xAOD::TruthParticleContainer* truth_particles(0);
-    ATH_CHECK(evtStore() -> retrieve(truth_particles, m_truthName));
 
     ///////////////////////////////////////////////////////////////////
     // Reconstructed electrons
@@ -226,124 +228,131 @@ namespace ZeeValidation {
     ///////////////////////////////////////////////////////////////////
     // Truth electrons
     ///////////////////////////////////////////////////////////////////
-  
-    for (auto truth_part : *truth_particles){
-
-      //select truth particle which passed pT, eta cuts and have pid=11
-      if ( TMath::Abs(truth_part -> pdgId()) != 11 || truth_part -> status() != 1  || truth_part -> barcode() > 100000 ) continue;
-      if ( truth_part -> pt()*(1./GeV) < m_PtCentCut ) continue;
-      if (TMath::Abs(truth_part -> eta()) > m_EtaCentCut ) continue;
-
-      bool inAcceptance = TMath::Abs(truth_part -> eta()) > m_EtaCrackHighCut || TMath::Abs(truth_part -> eta()) < m_EtaCrackLowCut;
-      //fill plots with all truth particles passed cuts
-      m_TrueElectronsPlots.fill(truth_part, 0);
-      if (inAcceptance)
-	m_TrueElectronsPlots.fillinAcc(truth_part, 0);
-
-      MatchElec(truth_part, electrons); //matching to reconstructed electrons
-      MatchPhot(truth_part, photons); //matching to reconstructed photons
-
-      if (matchedE && drmin_elreco_truth < m_dRminRecoTrue){ //if matched to reconstructed electron
-	m_TrueElectronsPlots.fill(truth_part, 1); //fill "associated" plots: if matched to electron or photon
-	m_TrueElectronsPlots.fill(truth_part, 2); //fill "matched" plots: if matched to electron
-
-	if (inAcceptance){
-	  m_TrueElectronsPlots.fillinAcc(truth_part, 1);
-	  m_TrueElectronsPlots.fillinAcc(truth_part, 2);
-	}
-
-	bool loose = false, medium = false, tight = false, lhloose = false, lhmedium = false, lhtight = false, oq = false;
-	matched_electron -> passSelection(loose, "Loose"); 
-	matched_electron -> passSelection(medium, "Medium");
-	matched_electron -> passSelection(tight, "Tight");
-	matched_electron -> passSelection(lhloose, "LHLoose"); 
-	matched_electron -> passSelection(lhmedium, "LHMedium");
-	matched_electron -> passSelection(lhtight, "LHTight");
-	if ( matched_electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
+    if( !m_isData )
+      {
+	const xAOD::TruthParticleContainer* truth_particles(0);
+	ATH_CHECK(evtStore() -> retrieve(truth_particles, m_truthName));
     
-	if (oq) //fill if passed OQ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 3);
-	if (oq && loose) //fill if passed OQ and Loose++ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 4);
-	if (oq && medium ) //fill if passed OQ and Medium++ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 5);
-	if (oq && tight ) //fill if passed OQ and Tight++ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 6);
-	if (oq && lhloose) //fill if passed OQ and LHLoose++ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 7);
-	if (oq && lhmedium ) //fill if passed OQ and LHMedium++ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 8);
-	if (oq && lhtight ) //fill if passed OQ and LHTight++ cuts
-	  m_TrueElectronsPlots.fill(truth_part, 9);
+	for(auto truth_part : *truth_particles)
+	  {
+	    // Select truth particle which passed pT, eta cuts and have pid=11
+	    if( TMath::Abs(truth_part -> pdgId()) != 11 || truth_part -> status() != 1  || truth_part -> barcode() > 100000 ) continue;
+	    if( truth_part -> pt()*(1./GeV) < m_PtCentCut ) continue;
+	    if(TMath::Abs(truth_part -> eta()) > m_EtaCentCut ) continue;
 
-	if (inAcceptance){ 
-	  if (oq)
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 3);
-	  if (oq && loose)
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 4);
-	  if (oq && medium )
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 5);
-	  if (oq && tight )
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 6);
-	  if (oq && lhloose)
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 7);
-	  if (oq && lhmedium )
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 8);
-	  if (oq && lhtight )
-	    m_TrueElectronsPlots.fillinAcc(truth_part, 9);
+	    bool inAcceptance = TMath::Abs(truth_part -> eta()) > m_EtaCrackHighCut || TMath::Abs(truth_part -> eta()) < m_EtaCrackLowCut;
+	    // Fill plots with all truth particles passed cuts
+	    m_TrueElectronsPlots.fill(truth_part, 0);
+	    if( inAcceptance )
+	      m_TrueElectronsPlots.fillinAcc(truth_part, 0);
+	    
+	    MatchElec(truth_part, electrons); // Matching to reconstructed electrons
+	    MatchPhot(truth_part, photons); // Matching to reconstructed photons
+	    
+	    if( matchedE && drmin_elreco_truth < m_dRminRecoTrue) { //if matched to reconstructed electron
+	      m_TrueElectronsPlots.fill(truth_part, 1); //fill "associated" plots: if matched to electron or photon
+	      m_TrueElectronsPlots.fill(truth_part, 2); //fill "matched" plots: if matched to electron
+	      
+	      if( inAcceptance )
+		{
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 1);
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 2);
+		}
+	      
+	      bool loose = false, medium = false, tight = false, lhloose = false, lhmedium = false, lhtight = false, oq = false;
+	      matched_electron -> passSelection(loose, "Loose"); 
+	      matched_electron -> passSelection(medium, "Medium");
+	      matched_electron -> passSelection(tight, "Tight");
+	      matched_electron -> passSelection(lhloose, "LHLoose"); 
+	      matched_electron -> passSelection(lhmedium, "LHMedium");
+	      matched_electron -> passSelection(lhtight, "LHTight");
+	      if ( matched_electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
+	      
+	      if (oq) //fill if passed OQ cuts
+		m_TrueElectronsPlots.fill(truth_part, 3);
+	      if (oq && loose) //fill if passed OQ and Loose++ cuts
+		m_TrueElectronsPlots.fill(truth_part, 4);
+	      if (oq && medium ) //fill if passed OQ and Medium++ cuts
+		m_TrueElectronsPlots.fill(truth_part, 5);
+	      if (oq && tight ) //fill if passed OQ and Tight++ cuts
+		m_TrueElectronsPlots.fill(truth_part, 6);
+	      if (oq && lhloose) //fill if passed OQ and LHLoose++ cuts
+		m_TrueElectronsPlots.fill(truth_part, 7);
+	      if (oq && lhmedium ) //fill if passed OQ and LHMedium++ cuts
+		m_TrueElectronsPlots.fill(truth_part, 8);
+	      if (oq && lhtight ) //fill if passed OQ and LHTight++ cuts
+		m_TrueElectronsPlots.fill(truth_part, 9);
+	      
+	      if (inAcceptance){ 
+		if (oq)
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 3);
+		if (oq && loose)
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 4);
+		if (oq && medium )
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 5);
+		if (oq && tight )
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 6);
+		if (oq && lhloose)
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 7);
+		if (oq && lhmedium )
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 8);
+		if (oq && lhtight )
+		  m_TrueElectronsPlots.fillinAcc(truth_part, 9);
+	      }
+	      
+	      //fill plots for electron energy response
+	      m_TrueElectronsPlots.fillResponse( truth_part, matched_electron);
+	      const xAOD::CaloCluster* cluster = matched_electron -> caloCluster();
+	      if (cluster)
+		m_TrueElectronsPlots.fillResponseCluster( truth_part, cluster );
+	    }
+
+	    if (!(matchedE && drmin_elreco_truth < m_dRminRecoTrue) && drmin_phreco_truth < m_dRminRecoTrue){  //if matched to reconstructed photon
+	      m_TrueElectronsPlots.h_dr_photon -> Fill( drmin_phreco_truth );
+	      
+	      m_TrueElectronsPlots.fill(truth_part, 1); //fill "associated" plots: if matched to electron or photon
+	      if (inAcceptance)
+		m_TrueElectronsPlots.fillinAcc(truth_part, 1);
+	    }
+	    
+	  }
+	
+	///////////////////////////////////////////////////////////////////
+	// Truth FWD electrons
+	///////////////////////////////////////////////////////////////////
+
+	for (auto truth_part : *truth_particles){
+	  
+	  //select truth particle which passed fwd pT, eta cuts and have pid=11
+	  if ( TMath::Abs(truth_part -> pdgId()) != 11 || truth_part -> status() != 1  || truth_part -> barcode() > 100000 ) continue;
+	  if ( truth_part -> pt()*(1./GeV) < m_PtFwdCut ) continue;
+	  if (TMath::Abs( truth_part -> eta() ) < m_EtaLowFwdCut || TMath::Abs(  truth_part -> eta() ) > m_EtaHighFwdCut ) continue;
+	  
+	  //fill plots with all truth particles passed fwd cuts
+	  m_TrueFwdElectronsPlots.fill(truth_part, 0);
+	  
+	  MatchElec(truth_part, fwd_electrons);
+	  if (matchedE && drmin_elreco_truth < m_dRminRecoTrue){ //if matched to reconstructed electron
+	    m_TrueFwdElectronsPlots.fill(truth_part, 1);
+	    
+	    bool loose = false, tight = false;
+	    matched_electron -> passSelection(loose, "Loose"); 
+	    matched_electron -> passSelection(tight, "Tight");
+	    
+	    if (loose) //fill if passed Loose++ cuts
+	      m_TrueFwdElectronsPlots.fill(truth_part, 2);
+	    if (tight) //fill if passed  Tight++ cuts
+	      m_TrueFwdElectronsPlots.fill(truth_part, 3);
+	    
+	    //fill plots for electron energy response
+	    m_TrueFwdElectronsPlots.fillResponse( truth_part, matched_electron);
+	    
+	  }
 	}
+      
+      } // if( !m_isData )
 	
-	//fill plots for electron energy response
-	m_TrueElectronsPlots.fillResponse( truth_part, matched_electron);
-	const xAOD::CaloCluster* cluster = matched_electron -> caloCluster();
-	if (cluster)
-	  m_TrueElectronsPlots.fillResponseCluster( truth_part, cluster );
-      }
-
-      if (!(matchedE && drmin_elreco_truth < m_dRminRecoTrue) && drmin_phreco_truth < m_dRminRecoTrue){  //if matched to reconstructed photon
-	m_TrueElectronsPlots.h_dr_photon -> Fill( drmin_phreco_truth );
-	
-	m_TrueElectronsPlots.fill(truth_part, 1); //fill "associated" plots: if matched to electron or photon
-	if (inAcceptance)
-	  m_TrueElectronsPlots.fillinAcc(truth_part, 1);
-      }
-  
-    }
- 
-    ///////////////////////////////////////////////////////////////////
-    // Truth FWD electrons
-    ///////////////////////////////////////////////////////////////////
-
-    for (auto truth_part : *truth_particles){
-
-      //select truth particle which passed fwd pT, eta cuts and have pid=11
-      if ( TMath::Abs(truth_part -> pdgId()) != 11 || truth_part -> status() != 1  || truth_part -> barcode() > 100000 ) continue;
-      if ( truth_part -> pt()*(1./GeV) < m_PtFwdCut ) continue;
-      if (TMath::Abs( truth_part -> eta() ) < m_EtaLowFwdCut || TMath::Abs(  truth_part -> eta() ) > m_EtaHighFwdCut ) continue;
-
-      //fill plots with all truth particles passed fwd cuts
-      m_TrueFwdElectronsPlots.fill(truth_part, 0);
-    
-      MatchElec(truth_part, fwd_electrons);
-      if (matchedE && drmin_elreco_truth < m_dRminRecoTrue){ //if matched to reconstructed electron
-	m_TrueFwdElectronsPlots.fill(truth_part, 1);
-	
-	bool loose = false, tight = false;
-	matched_electron -> passSelection(loose, "Loose"); 
-	matched_electron -> passSelection(tight, "Tight");
-	
-	if (loose) //fill if passed Loose++ cuts
-	  m_TrueFwdElectronsPlots.fill(truth_part, 2);
-	if (tight) //fill if passed  Tight++ cuts
-	  m_TrueFwdElectronsPlots.fill(truth_part, 3);
-
-	//fill plots for electron energy response
-	m_TrueFwdElectronsPlots.fillResponse( truth_part, matched_electron);
-
-      }
-    }
-
-    ///////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////
     // Z->ee
     ///////////////////////////////////////////////////////////////////
 
@@ -689,8 +698,11 @@ namespace ZeeValidation {
     ATH_MSG_INFO ("Finalising hists " << name() << "...");
     //fill efficiencies 
     m_ReconElectronsPlots.finalize();
-    m_TrueElectronsPlots.finalize();
-    m_TrueFwdElectronsPlots.finalize();
+    if( !m_isData )
+      {
+	m_TrueElectronsPlots.finalize();
+	m_TrueFwdElectronsPlots.finalize();
+      }
     m_ZeePlots.finalize();
     m_FWDZeePlots.finalize();
 
