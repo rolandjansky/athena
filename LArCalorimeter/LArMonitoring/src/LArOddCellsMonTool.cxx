@@ -509,7 +509,7 @@ LArOddCellsMonTool::fillHistograms()
 	    double signif = 0;
 	    double signedSignif = (double(samples[m_sampleNumber]) - refPed) / refNoise;
 	    if (m_posNeg == 0 ) signif = fabs(signedSignif);
-	    if (fabs(m_posNeg) == 1 ) signif = m_posNeg * signedSignif;
+	    if (std::abs(m_posNeg) == 1 ) signif = m_posNeg * signedSignif;
 	    // Store temporarily ADC-Ped for coherent noise analysis (have to sum whole FEB before looking for odd sums)
 	    feedthroughinfo.hTempSumComput->Fill(slot-1,m_sampleNumber,double(samples[m_sampleNumber]) - refPed);
 	    
@@ -546,7 +546,7 @@ LArOddCellsMonTool::fillHistograms()
 	      double signif = 0;
 	      double signedSignif = (double) ((samples[j] - refPed)/refNoise);
 	      if (m_posNeg == 0) signif = fabs(signedSignif);
-	      if (fabs(m_posNeg) == 1) signif = m_posNeg * (signedSignif);
+	      if (std::abs(m_posNeg) == 1) signif = m_posNeg * (signedSignif);
 	      // Store temporarily ADC-Ped for coherent noise analysis (have to sum whole FEB before looking for odd sums)
 	      feedthroughinfo.hTempSumComput->Fill(slot-1,j,double(samples[j]) - refPed);
 

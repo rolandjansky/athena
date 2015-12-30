@@ -24,8 +24,8 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArHVCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -130,7 +130,7 @@ class LArNoiseBursts : public AthAlgorithm  {
    int m_lowqfactor;
    int m_medqfactor;
    int m_hiqfactor;
-   long n_noisycell;
+   long m_n_noisycell;
    int  m_nt_larcellsize;
    int  m_nt_cellsize;
    int  m_nt_npv;

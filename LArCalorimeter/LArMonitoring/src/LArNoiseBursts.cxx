@@ -140,7 +140,7 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_lowqfactor(0),
     m_medqfactor(0),
     m_hiqfactor(0),
-    n_noisycell(0),
+    m_n_noisycell(0),
     m_nt_larcellsize(0),
     m_nt_cellsize(0),
     m_nt_npv(0),
@@ -494,7 +494,7 @@ StatusCode LArNoiseBursts::initialize() {
   m_tree->Branch("NoisyCellQFactor",&m_nt_qfactorcell);                // Q factor
   m_tree->Branch("NoisyCellIsBad",&m_nt_isbadcell);                    // Bad channel status
   // Event properties related to q factor
-  //  m_tree->Branch("nNoisyCell",n_noisycell,"nNoisyCell/i"); // Nb of cells in 3 sigma tails - redundant with PerCentNoisyCell - Removed by BT 5/1/11
+  //  m_tree->Branch("nNoisyCell",m_n_noisycell,"nNoisyCell/i"); // Nb of cells in 3 sigma tails - redundant with PerCentNoisyCell - Removed by BT 5/1/11
   m_tree->Branch("nbLowQFactor", &m_lowqfactor,"m_lowqfactor/i"); // Nb of cells per event with q factor<1000
   m_tree->Branch("nbMedQFactor", &m_medqfactor,"m_medqfactor/i"); // Nb of cells per event with 1000<q factor<10000
   m_tree->Branch("nbHighQFactor", &m_hiqfactor,"m_hiqfactor/i");  // Nb of cells per event with q 10000<factor<65535
@@ -549,7 +549,7 @@ StatusCode LArNoiseBursts::clear() {
   ATH_MSG_DEBUG ( "start clearing variables " );
   
   m_nb_sat     = 0;
-  n_noisycell  = 0;
+  m_n_noisycell  = 0;
   m_lowqfactor = 0;
   m_medqfactor = 0;
   m_hiqfactor  = 0;
@@ -1073,28 +1073,28 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   }
 
   m_nb_sat = 0;
-  n_noisycell =0;
+  m_n_noisycell =0;
   int nlarcell = 0;
   CaloCellContainer::const_iterator caloItr;
   int n_noisy_cell_part[8] = {0,0,0,0,0,0,0,0};
   int n_cell_part[8] = {0,0,0,0,0,0,0,0};
-  std::vector<short> m_ft_noisy, m_slot_noisy, m_channel_noisy;
-  std::vector<bool> m_isbarrel, m_isendcap, m_isfcal, m_ishec;
-  std::vector<short> m_layer; 
-  std::vector<int> m_partition,m_noisycellHVphi,m_noisycellHVeta;
-  std::vector<float> m_energycell, m_qfactorcell, m_signifcell;
-  std::vector<float> m_phicell, m_etacell;
-  std::vector<bool> m_isbadcell;
-  std::vector<IdentifierHash>  m_IdHash;
-  std::vector<int> m_cellpartlayerindex;
-  std::vector<Identifier> m_cellIdentifier;
+  std::vector<short> v_ft_noisy, v_slot_noisy, v_channel_noisy;
+  std::vector<bool> v_isbarrel, v_isendcap, v_isfcal, v_ishec;
+  std::vector<short> v_layer; 
+  std::vector<int> v_partition,v_noisycellHVphi,v_noisycellHVeta;
+  std::vector<float> v_energycell, v_qfactorcell, v_signifcell;
+  std::vector<float> v_phicell, v_etacell;
+  std::vector<bool> v_isbadcell;
+  std::vector<IdentifierHash>  v_IdHash;
+  std::vector<int> v_cellpartlayerindex;
+  std::vector<Identifier> v_cellIdentifier;
 
-  m_ft_noisy.clear();m_slot_noisy.clear();m_channel_noisy.clear();
-  m_isbarrel.clear();m_isendcap.clear();m_isfcal.clear();m_ishec.clear();
-  m_layer.clear();m_partition.clear();m_energycell.clear();m_qfactorcell.clear(); 
-  m_phicell.clear();m_etacell.clear();m_signifcell.clear();m_isbadcell.clear();
-  m_IdHash.clear();m_noisycellHVeta.clear();m_noisycellHVphi.clear();
-  m_cellpartlayerindex.clear();m_cellIdentifier.clear();
+  v_ft_noisy.clear();v_slot_noisy.clear();v_channel_noisy.clear();
+  v_isbarrel.clear();v_isendcap.clear();v_isfcal.clear();v_ishec.clear();
+  v_layer.clear();v_partition.clear();v_energycell.clear();v_qfactorcell.clear(); 
+  v_phicell.clear();v_etacell.clear();v_signifcell.clear();v_isbadcell.clear();
+  v_IdHash.clear();v_noisycellHVeta.clear();v_noisycellHVphi.clear();
+  v_cellpartlayerindex.clear();v_cellIdentifier.clear();
 
   for(caloItr=caloTES->begin();caloItr!=caloTES->end();caloItr++){
     const CaloDetDescrElement* caloDDE = (*caloItr)->caloDDE();
@@ -1164,7 +1164,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     if(qfactor>=1000 && qfactor<10000) {m_medqfactor++;}
     if(qfactor>=10000 && qfactor<65535){m_hiqfactor++;}
     if(qfactor==65535){
-      ATH_MSG_DEBUG ("Satured cell at eta: "<<eta<<", phi: "<<phi<<", partition: "<<partition);
+      ATH_MSG_DEBUG ("Saturated cell at eta: "<<eta<<", phi: "<<phi<<", partition: "<<partition);
        m_nb_sat = m_nb_sat +1;
        m_nt_partition_sat.push_back(partition);
        m_nt_energy_sat.push_back(eCalo);
@@ -1183,27 +1183,27 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     }
     // Store all cells in positive and negative 3 sigma tails...
     if(significance > m_sigmacut || qfactor > 4000){
-      m_ft_noisy.push_back(m_LArOnlineIDHelper->feedthrough(onlID));
-      m_slot_noisy.push_back(m_LArOnlineIDHelper->slot(onlID));
-      m_channel_noisy.push_back(m_LArOnlineIDHelper->channel(onlID));
+      v_ft_noisy.push_back(m_LArOnlineIDHelper->feedthrough(onlID));
+      v_slot_noisy.push_back(m_LArOnlineIDHelper->slot(onlID));
+      v_channel_noisy.push_back(m_LArOnlineIDHelper->channel(onlID));
 
       /*
-      m_isbarrel.push_back(is_lar_em_barrel);
-      m_isendcap.push_back(is_lar_em_endcap);
-      m_isfcal.push_back(is_lar_fcal);
-      m_ishec.push_back(is_lar_hec);
+      v_isbarrel.push_back(is_lar_em_barrel);
+      v_isendcap.push_back(is_lar_em_endcap);
+      v_isfcal.push_back(is_lar_fcal);
+      v_ishec.push_back(is_lar_hec);
       */
 
-      m_layer.push_back(layer);
-      m_energycell.push_back(eCalo);
-      m_qfactorcell.push_back(qfactor);
-      m_phicell.push_back(phi);
-      m_etacell.push_back(eta);
-      m_signifcell.push_back(significance);
-      m_isbadcell.push_back(badcell);
-      m_partition.push_back(partition);
-      m_IdHash.push_back(channelHash);
-      m_cellIdentifier.push_back(m_LArCablingService->cnvToIdentifier(onlID));
+      v_layer.push_back(layer);
+      v_energycell.push_back(eCalo);
+      v_qfactorcell.push_back(qfactor);
+      v_phicell.push_back(phi);
+      v_etacell.push_back(eta);
+      v_signifcell.push_back(significance);
+      v_isbadcell.push_back(badcell);
+      v_partition.push_back(partition);
+      v_IdHash.push_back(channelHash);
+      v_cellIdentifier.push_back(m_LArCablingService->cnvToIdentifier(onlID));
     // ...but count only cells in positive 3 sigma tails!
       if (significance > m_sigmacut){
 	for(unsigned int k=0;k<8;k++){
@@ -1213,7 +1213,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
 	}
       }
       int caloindex = GetPartitionLayerIndex(idd);
-      m_cellpartlayerindex.push_back(caloindex);
+      v_cellpartlayerindex.push_back(caloindex);
       //store HV information
       /*std::vector<int> * hvid = new std::vector<int>;
       hvid.clear();
@@ -1229,9 +1229,9 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
             m_nt_maximalhv.push_back(maximal_HV);
 	}
 	}*/
-      m_noisycellHVphi.push_back(m_LArElectrodeIDHelper->hv_phi(onlID));
-      m_noisycellHVeta.push_back(m_LArElectrodeIDHelper->hv_eta(onlID));
-      n_noisycell++;
+      v_noisycellHVphi.push_back(m_LArElectrodeIDHelper->hv_phi(onlID));
+      v_noisycellHVeta.push_back(m_LArElectrodeIDHelper->hv_eta(onlID));
+      m_n_noisycell++;
     }   
 
   }//loop over cells
@@ -1242,7 +1242,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   ATH_MSG_DEBUG ("all cell size = "<<int(caloTES->size()));
 
   if (nlarcell > 0)
-    m_nt_noisycellpercent = 100.0*double(n_noisycell)/double(nlarcell);
+    m_nt_noisycellpercent = 100.0*double(m_n_noisycell)/double(nlarcell);
   else
     m_nt_noisycellpercent = 0;
  
@@ -1286,7 +1286,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   if(store_condition){
     std::vector<short> samples;
     samples.clear();
-    for(unsigned int k=0;k<m_etacell.size();k++){
+    for(unsigned int k=0;k<v_etacell.size();k++){
       m_nt_samples.push_back(samples);
       m_nt_gain.push_back(0);
     }
@@ -1294,8 +1294,8 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          pLArDigit = *it;  
          HWIdentifier id2 = pLArDigit->hardwareID();
          IdentifierHash hashid2 = m_LArOnlineIDHelper->channel_Hash(id2);
-          for(unsigned int j=0;j<m_IdHash.size();j++){
-            if (hashid2 == m_IdHash[j] ){
+          for(unsigned int j=0;j<v_IdHash.size();j++){
+            if (hashid2 == v_IdHash[j] ){
               ATH_MSG_DEBUG ( "find a IdentifierHash of the noisy cell in LArDigit container " );
               samples = pLArDigit->samples();
               int gain=-1;
@@ -1309,31 +1309,32 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
 	    }  
 	 }
      }
-    for(unsigned int i=0;i<m_etacell.size();i++){
-      m_nt_energycell.push_back( m_energycell[i]);
-      m_nt_qfactorcell.push_back( m_qfactorcell[i]);
-      m_nt_signifcell.push_back( m_signifcell[i]);
-      m_nt_partition.push_back( m_partition[i]);   
-      m_nt_cellIdentifier.push_back(m_cellIdentifier[i].get_identifier32().get_compact());
+    for(unsigned int i=0;i<v_etacell.size();i++){
+      m_nt_energycell.push_back( v_energycell[i]);
+      m_nt_qfactorcell.push_back( v_qfactorcell[i]);
+      m_nt_signifcell.push_back( v_signifcell[i]);
+      m_nt_partition.push_back( v_partition
+                                [i]);   
+      m_nt_cellIdentifier.push_back(v_cellIdentifier[i].get_identifier32().get_compact());
       if(!m_keepOnlyCellID){
-        m_nt_ft_noisy.push_back( m_ft_noisy[i]);
-        m_nt_slot_noisy.push_back( m_slot_noisy[i]);
-        m_nt_channel_noisy.push_back( m_channel_noisy[i]);
+        m_nt_ft_noisy.push_back( v_ft_noisy[i]);
+        m_nt_slot_noisy.push_back( v_slot_noisy[i]);
+        m_nt_channel_noisy.push_back( v_channel_noisy[i]);
    
         /*
         m_nt_isbarrel.push_back( m_isbarrel[i]);
-        m_nt_isendcap.push_back( m_isendcap[i]);
-        m_nt_isfcal.push_back( m_isfcal[i]);
-        m_nt_ishec.push_back( m_ishec[i]);
+        m_nt_isendcap.push_back( v_isendcap[i]);
+        m_nt_isfcal.push_back( v_isfcal[i]);
+        m_nt_ishec.push_back( v_ishec[i]);
         */
    
-        m_nt_layer.push_back( m_layer[i]);
-        m_nt_phicell.push_back( m_phicell[i]);
-        m_nt_etacell.push_back( m_etacell[i]);
-        m_nt_isbadcell.push_back( m_isbadcell[i]);
-        m_nt_noisycellHVphi.push_back(m_noisycellHVphi[i]);     
-        m_nt_noisycellHVeta.push_back(m_noisycellHVeta[i]);
-        m_nt_cellpartlayerindex.push_back(m_cellpartlayerindex[i]);
+        m_nt_layer.push_back( v_layer[i]);
+        m_nt_phicell.push_back( v_phicell[i]);
+        m_nt_etacell.push_back( v_etacell[i]);
+        m_nt_isbadcell.push_back( v_isbadcell[i]);
+        m_nt_noisycellHVphi.push_back(v_noisycellHVphi[i]);     
+        m_nt_noisycellHVeta.push_back(v_noisycellHVeta[i]);
+        m_nt_cellpartlayerindex.push_back(v_cellpartlayerindex[i]);
       }
     }		  
     ATH_MSG_DEBUG ("leaving if checknoise and larnoisyro");

@@ -16,7 +16,7 @@
 #include "Identifier/HWIdentifier.h"
 #include "LArMonitoring/LArOnlineIDStrHelper.h"
 #include "LArElecCalib/ILArPedestal.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
 #include <map>

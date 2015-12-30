@@ -6,7 +6,7 @@
 #define LARCONDUTILSDICT_H
 
 #include "GaudiKernel/AlgTool.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArHVCablingTool.h"
 #include "LArMonitoring/LArHVMapTool.h"
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"

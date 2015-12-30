@@ -9,13 +9,11 @@ use AtlasROOT           AtlasROOT-*            External
 
 use AthenaMonitoring    AthenaMonitoring-*     Control
 use AthenaBaseComps     AthenaBaseComps-*      Control
-use AthenaBaseComps     AthenaBaseComps-*       Control
 use EventContainers     EventContainers-*      Event
 
 use LArElecCalib        LArElecCalib-*         LArCalorimeter
 use LArIdentifier       LArIdentifier-*        LArCalorimeter
 use LArRawEvent         LArRawEvent-*          LArCalorimeter
-use LArTools            LArTools-*             LArCalorimeter
 use LArRecConditions    LArRecConditions-*     LArCalorimeter
 
 use CaloIdentifier      CaloIdentifier-*       Calorimeter
@@ -24,10 +22,10 @@ use Identifier          Identifier-*           DetectorDescription
 
 use AnalysisTools       AnalysisTools-*        PhysicsAnalysis/AnalysisCommon
 
-use LArHV                LArHV-*                LArCalorimeter/LArGeoModel
-use LArReadoutGeometry   LArReadoutGeometry-*   LArCalorimeter/LArGeoModel
-use LArTools             LArTools-*             LArCalorimeter
-use AtlasReflex         AtlasReflex-*       External
+use LArHV               LArHV-*                LArCalorimeter/LArGeoModel
+use LArReadoutGeometry  LArReadoutGeometry-*   LArCalorimeter/LArGeoModel
+use LArCabling          LArCabling-*           LArCalorimeter
+use AtlasReflex         AtlasReflex-*          External
 
 
 use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
