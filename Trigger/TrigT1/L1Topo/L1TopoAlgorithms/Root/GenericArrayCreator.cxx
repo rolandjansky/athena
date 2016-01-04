@@ -47,5 +47,5 @@ TCS::GenericArrayCreator::sort(const InputTOBArray & input, TOBArray & output) {
          TCS_EXCEPTION("GenericArrayCreator: neither ClusterArray nor JetArray")
       }
    }
-   // code cannot be reached return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
