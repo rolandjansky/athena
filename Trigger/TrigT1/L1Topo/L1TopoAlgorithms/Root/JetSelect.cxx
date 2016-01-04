@@ -23,7 +23,7 @@ TCS::JetSelect::JetSelect(const std::string & name) :
    defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 31);
-//   m_jetsize = JetTOB::JS1;
+   m_jetsize = JetTOB::JS1;
 }
 
 

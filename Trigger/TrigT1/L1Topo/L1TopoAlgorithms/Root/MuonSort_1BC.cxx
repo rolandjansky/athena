@@ -15,9 +15,10 @@ REGISTER_ALG_TCS(MuonSort_1BC)
 
 // constructor
 TCS::MuonSort_1BC::MuonSort_1BC(const std::string & name) : SortingAlg(name) {
-   defineParameter( "InputWidth", 32 );  
+   defineParameter( "InputWidth", 32 ); // for FW
+   defineParameter( "InputWidth1stStage", 16 ); // for FW
    defineParameter( "OutputWidth", 6 );
-   defineParameter( "MinET", 0 );
+   //defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 7); 
    defineParameter( "nDelayedMuons", 1 );  
@@ -33,7 +34,7 @@ TCS::MuonSort_1BC::initialize() {
    m_numberOfMuons = parameter("nDelayedMuons").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   m_et = parameter("MinET").value();
+   //m_et = parameter("MinET").value();
 
    return TCS::StatusCode::SUCCESS;
 }
@@ -52,7 +53,7 @@ TCS::MuonSort_1BC::sort(const InputTOBArray & input, TOBArray & output) {
 
     const GenericTOB gtob(**lm);
     ++ii;
-    if( parType_t((*lm)->Et()) <= m_et ) continue; // ET cut
+    //if( parType_t((*lm)->Et()) <= m_et ) continue; // ET cut
     
     // eta cut
     if (parType_t(fabs((*lm)-> eta())) < m_minEta) continue; 
