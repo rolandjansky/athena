@@ -340,9 +340,9 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
       << _weight << ", (float: " << (Float_t) _weight
       << ") and BG " << EBBunchGroupNames[_eventBG]
       << " and isUnbiased flag:" << _isUnbiased << "  this will be stored in locations 45, 46 and 48" );
-    event.addVar(45, (Float_t) _weight);
-    event.addVar(46, (Float_t) _eventBG);
-    event.addVar(48, (Float_t) _isUnbiased);
+    event.addVar(kEBWeight, (Float_t) _weight);
+    event.addVar(kEBBunchGroup, (Float_t) _eventBG);
+    event.addVar(kEBIsUnbiasedFlag, (Float_t) _isUnbiased);
 
     return true;
 }

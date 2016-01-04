@@ -5,6 +5,7 @@
 // C/C++
 #include <string>
 #include <sstream>
+#include <bitset>
 
 // Framework
 #include "AthenaKernel/IClassIDSvc.h"
@@ -458,16 +459,32 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement 
         data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
         data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
 
-
-        double _etaHalfWidth = 0.5*std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
-        double _phiHalfWidth = 0.5*std::fabs( HLT::wrapPhi( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ) );
-
-        //  data.roiMon.setRoIArea(data.roiHlt->etaHalfWidth(), data.roiHlt->phiHalfWidth());
-        data.roiMon.setRoIArea( _etaHalfWidth, _phiHalfWidth );
+        float _etaWidth = std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
+        float _phiWidth = std::fabs( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ); // Wrap phi not needed here it seems
+        data.roiMon.setRoIArea( _etaWidth, _phiWidth );
   
-        if(data.roiEm)   data.roiMon.setType(TrigMonRoi::kEmTau);
-        if(data.roiJet)  data.roiMon.setType(TrigMonRoi::kJet);
-        if(data.roiMuon) data.roiMon.setType(TrigMonRoi::kMuon);
+        if(data.roiEm) {
+          data.roiMon.setType(TrigMonRoi::kEmTau);
+          data.roiMon.addVar( TrigMonVar(kRoIET, data.roiEm->et()) );
+          data.roiMon.addVar( TrigMonVar(kRoIIsTau, (data.roiEm->roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType ? 1. : 0.)) ); // If false then is electron RoI
+          data.roiMon.addVar( TrigMonVar(kRoIIsolationBits, (float) data.roiEm->isolation()) );
+          // Check this bit pattern can be saved in a float
+          if ( data.roiEm->isolation() != (unsigned int) data.roiMon.getVarVal().back()) {
+            std::bitset<32> _a( data.roiEm->isolation() );
+            std::bitset<32> _b( (unsigned int) data.roiMon.getVarVal().back() );
+            ATH_MSG_WARNING("Encoding of EMTAU RoI isolation bits in a float failed, " << _a << " != " << _b );
+          }
+        }  
+        if(data.roiJet) {
+          data.roiMon.setType(TrigMonRoi::kJet);
+          data.roiMon.addVar( TrigMonVar(kRoIET, data.roiJet->etSmall()) );
+          data.roiMon.addVar( TrigMonVar(kRoIETLarge, data.roiJet->etLarge()) );
+        }
+        if(data.roiMuon) {
+          data.roiMon.setType(TrigMonRoi::kMuon);
+          data.roiMon.addVar( TrigMonVar(kRoIET, data.roiMuon->getThresholdValue()) );
+          data.roiMon.addVar( TrigMonVar(kRoIMuonCharge, (float) data.roiMuon->candidateCharge()) );
+        }
       }
     } else if(data.roiEnergy) {
       // Use 0 word (see Lvl1Converter.cxx)
@@ -475,10 +492,17 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement 
       data.roiValid = true;
 
       if(m_collectRoIData) {
-        data.roiMon.addWord(0);
+        data.roiMon.addWord(data.roiEnergy->roiWord1());
+        data.roiMon.addWord(data.roiEnergy->roiWord2());
         data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
         data.roiMon.setType(TrigMonRoi::kEnergy);
         data.roiMon.setRoiId(Trig::getRoiId_Energy());
+        data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorX,   data.roiEnergy->energyX()) );
+        data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorY,   data.roiEnergy->energyY()) );
+        data.roiMon.addVar( TrigMonVar(kRoIET,              data.roiEnergy->energyT()) );
+        data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowX, (float) data.roiEnergy->overflowX()) );
+        data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowY, (float) data.roiEnergy->overflowX()) );
+        data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowT, (float) data.roiEnergy->overflowT()) );
       }
     } else if(data.roiJetEt) {
       data.roiMon = TrigMonRoi(data.roiJetEt->roiWord());
@@ -525,8 +549,8 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement 
     float eta = -1999.0, phi = -1999.0;    
     
     if(roi.getVarKey().size() > 1 && roi.getVarVal().size() > 1) {
-      if(roi.getVarKey()[0] == 0) eta = roi.getVarVal()[0];
-      if(roi.getVarKey()[1] == 1) phi = roi.getVarVal()[1];
+      if(roi.getVarKey()[0] == kRoIEta) eta = roi.getVarVal()[0];
+      if(roi.getVarKey()[1] == kRoIPhi) phi = roi.getVarVal()[1];
     }
 
     unsigned rword = 0;
