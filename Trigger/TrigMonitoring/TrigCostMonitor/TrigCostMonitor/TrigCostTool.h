@@ -123,7 +123,6 @@ class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
   unsigned                           m_run;           // Current run number
   unsigned                           m_lumi;          // Current run luminosity block
   unsigned                           m_countEvent;    // Continous count of events
-  unsigned                           m_keyTimer;      // Starting key for adding timers
   unsigned                           m_exportedConfig;// Number of configs exported to the HLT result
   unsigned                           m_exportedEvents;// Number of events exported to the HLT result
   float                              m_costChainPS;      // Set to value of the cost chain prescale on load of new config
