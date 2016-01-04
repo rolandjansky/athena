@@ -28,7 +28,7 @@ TCS::JetSort::JetSort(const std::string & name) :
    defineParameter( "JetSize", 2 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 31);
-//   m_jetsize = JetTOB::JS1;
+   m_jetsize = JetTOB::JS1;
 }
 
 

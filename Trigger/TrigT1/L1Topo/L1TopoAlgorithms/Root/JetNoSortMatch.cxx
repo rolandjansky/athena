@@ -21,7 +21,7 @@ TCS::JetNoSortMatch::JetNoSortMatch(const std::string & name) :
    defineParameter( "JetSize", 2 );
    defineParameter("MinET1",0);
    defineParameter("MinET2",0);
-//   m_jetsize = JetTOB::JS1;
+   m_jetsize = JetTOB::JS1;
 }
 
 
