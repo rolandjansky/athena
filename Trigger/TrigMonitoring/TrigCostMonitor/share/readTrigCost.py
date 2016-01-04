@@ -39,6 +39,8 @@ from RecExConfig.RecFlags import rec
 rec.readRDO = False
 rec.AutoConfiguration=['everything']
 
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
 
 #----------------------------------------------------------------------
 # Set services for reading BS files
@@ -64,11 +66,18 @@ if len(svcMgr.ByteStreamInputSvc.FullFileName) == 0:
     sys.exit(1)
     
 #----------------------------------------------------------------------
+# Schedule conversion of BS EventInfo to xAOD for reading by TrigCostRun
+#
+from xAODEventInfoCnv.xAODEventInfoCnvConf import *
+convAlg = xAODMaker__EventInfoCnvAlg()
+convAlg.AODKey = "ByteStreamEventInfo"
+convAlg.xAODKey = "xAOD::EventInfo"
+topSeq += convAlg
+
+#----------------------------------------------------------------------
 # Setup cost algorithm
 #
-from AthenaCommon.AlgSequence import AlgSequence
 from TrigCostMonitor.TrigCostMonitorConfig import prepareCostRun, setupCostDebug
-
 
 costRunString = " "
 if ('costD3PD_doL2' in dir() and bool(costD3PD_doL2) == True): costRunString += "l2 "
@@ -76,7 +85,6 @@ if ('costD3PD_doEF' in dir() and bool(costD3PD_doEF) == True): costRunString += 
 if ('costD3PD_doHLT' in dir() and bool(costD3PD_doHLT) == True): costRunString += "hlt "
 
 print "Setting up TrigCostRun algorithm: Running over levels - " + costRunString
-topSeq = AlgSequence()
 runAlg = prepareCostRun('TrigCostRun', costRunString)
 
 #setDebug = 1
@@ -117,3 +125,4 @@ if not hasattr(ServiceMgr, "AthenaEventLoopMgr"):
     ServiceMgr += AthenaEventLoopMgr()
     
 ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
+
