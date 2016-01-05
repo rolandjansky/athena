@@ -242,9 +242,6 @@ macro_append AtlasCxxPolicy_pp_cppflags           "" \
              target-gcc&target-x86_64&host-x86_64 " -DHAVE_64_BITS" \
              target-gcc&target-x86_64&host-darwin " -DHAVE_64_BITS"
 
-# Add flag to control 64-bit Identifiers
-macro_append AtlasCxxPolicy_pp_cppflags  " -D__IDENTIFIER_64BIT__ " 
-
 # Suppress warnings about ext/hash_map being deprecated.
 macro_append AtlasCxxPolicy_pp_cppflags  " -D_GLIBCXX_PERMIT_BACKWARD_HASH " 
 
