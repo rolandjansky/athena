@@ -9,8 +9,6 @@ use AtlasPolicy              AtlasPolicy-*
 use AthenaKernel             AthenaKernel-*             Control
 use AthenaBaseComps          AthenaBaseComps-*          Control
 use GaudiInterface           GaudiInterface-*           External
-use GeoPrimitives            GeoPrimitives-*            DetectorDescription
-
 
 ########## Barcode ##########################################################
 use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode/ 
@@ -26,10 +24,11 @@ use Geant4                   Geant4-*                   External
 
 ########## Tracking #########################################################
 use TrkEventPrimitives       TrkEventPrimitives-*       Tracking/TrkEvent
-use TrkParameters            TrkParameters-*            Tracking/TrkEvent
-
 
 private
+
+########## Generators ##########################################################
+use GeneratorObjects         GeneratorObjects-*         Generators/
 
 ########## Control #############################################################
 use StoreGate                StoreGate-*                Control
@@ -42,17 +41,11 @@ use AtlasBoost               AtlasBoost-*               External
 
 ########## Tracking ############################################################
 use TrkGeometry              TrkGeometry-*              Tracking/TrkDetDescr
-use TrkSurfaces              TrkSurfaces-*              Tracking/TrkDetDescr
-use TrkDetDescrInterfaces    TrkDetDescrInterfaces-*    Tracking/TrkDetDescr
 
 ########## ISF ##############################################################
 use ISF_Interfaces           ISF_Interfaces-*           Simulation/ISF/ISF_Core   
 use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode
 use ISF_Geant4Tools          ISF_Geant4Tools-*          Simulation/ISF/ISF_Geant4
-
-########## FADS ######################################################
-use FadsPhysics              FadsPhysics-*              Simulation/G4Sim/FADS/
-use FadsActions              FadsActions-*              Simulation/G4Sim/FADS/
 
 ########## SUSY particles ######################################################
 ## does not link at the moment (04/02/2008)

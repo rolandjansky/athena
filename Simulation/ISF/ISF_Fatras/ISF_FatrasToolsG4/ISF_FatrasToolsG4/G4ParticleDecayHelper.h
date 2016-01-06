@@ -19,8 +19,6 @@
 #include "ISF_Event/ISFParticleVector.h"
 // iFatras
 #include "ISF_FatrasInterfaces/IParticleDecayHelper.h"
-// Trk
-#include "TrkParameters/TrackParameters.h"
 // STD
 #include <vector>
 #include <math.h>
@@ -35,16 +33,9 @@ namespace ISF {
     class IG4RunManagerHelper;
 }
 
-namespace Trk {
-   class Track;
-   class TrackingVolume;
-   class IMagneticFieldTool;
-}
-
 namespace iFatras {
 
    class ITrackCreator;
-   class IParticleDecayer;
    class PDGToG4Particle;
    class IPhysicsValidationTool;
 
@@ -72,8 +63,18 @@ namespace iFatras {
       /** free path estimator (-1 for stable particle) */
       double freePath(const ISF::ISFParticle& isp) const;
 
+      /** decay handling secondaries */
+      void decay(const ISF::ISFParticle& isp,
+		 const Amg::Vector3D& vertex,
+		 const Amg::Vector3D& mom,
+		 double timeStamp = 0) const;
+
       /** decay */
-      void decay(const ISF::ISFParticle& isp) const;
+      std::vector<ISF::ISFParticle*> decayParticle(const ISF::ISFParticle& parent,
+                                                 const Amg::Vector3D& vertex,
+                                                 const Amg::Vector3D& mom,
+                                                 double timeStamp = 0) const;
+
 
    private:
       /** initialize G4RunManager on first call if not done by then */
@@ -91,7 +92,7 @@ namespace iFatras {
 
 
       ServiceHandle<IAtRndmGenSvc>        m_rndmSvc;               //!< Random Svc
-      CLHEP::HepRandomEngine*                    m_randomEngine;          //!< Random engine (updated to streams)
+      CLHEP::HepRandomEngine*             m_randomEngine;          //!< Random engine (updated to streams)
       std::string                         m_randomEngineName;      //!< Name of the random number stream
       std::string                         m_G4RandomEngineName;    //!< Name of the random number stream for G4 tools
 
@@ -99,7 +100,6 @@ namespace iFatras {
        *  ToolHandles
        *------------------------------------------------------------*/
       ToolHandle<ISF::IG4RunManagerHelper> m_g4RunManagerHelper;   //!< G4RunManager needs to be initialized before G4 tables are accessed
-      ToolHandle<IParticleDecayer>        m_particleDecayCreator;  //!< Handle for the G4ParticleDecayer AlgTool
       ToolHandle<PDGToG4Particle>         m_pdgToG4Conv;           //!< Handle for the  PDGToG4Particle converter tool
 
       mutable G4RunManager*                m_g4runManager;         //!< for dummy G4 initialization 
