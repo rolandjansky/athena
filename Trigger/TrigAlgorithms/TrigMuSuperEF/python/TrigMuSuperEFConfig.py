@@ -14,6 +14,7 @@ from AthenaCommon.CfgGetter import getPublicTool
 from AthenaCommon import CfgMgr
 from AthenaCommon.SystemOfUnits import mm
 
+
 #
 # Default config: RoI based, Combined, TrigMuonEF only
 # Old default:  RoI based, Combined, TrigMuonEF first, TrigMuGirl is TrigMuonEF fails. Should be put back once TrigMuGirl is back in release
@@ -151,6 +152,10 @@ def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwarg
     kwargs.setdefault("doOutsideIn", True)
     kwargs.setdefault("CombinerOnly", True)
     kwargs.setdefault("UseL2Info",False)
+    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
+    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
+    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
+    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
@@ -159,10 +164,10 @@ def TrigMuSuperEF_WideCone(name="TrigMuSuperEF_WideCone",**kwargs):
     kwargs.setdefault("deltaPhiRoI", 0.3)
     kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_IDTrig")
-#    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
-#    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
-#    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
-#    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
+    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
+    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
+    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
     return TrigMuSuperEFConfig(name,**kwargs)
 
 def TrigMuSuperEF_WideCone05(name="TrigMuSuperEF_WideCone05",**kwargs):
@@ -173,10 +178,10 @@ def TrigMuSuperEF_WideCone05(name="TrigMuSuperEF_WideCone05",**kwargs):
     kwargs.setdefault("doOutsideIn", True)
     kwargs.setdefault("StandaloneOnly", True)
     kwargs.setdefault("UseL2Info",False)
-#    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
-#    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
-#    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
-#    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
+    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
+    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
+    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
     return TrigMuSuperEFConfig(name,**kwargs)
 #
 # Full scan configs
@@ -186,27 +191,31 @@ def TrigMuSuperEF_FSCB(name="TrigMuSuperEF_FSCB",**kwargs):
     kwargs.setdefault("doOutsideIn",True)
     kwargs.setdefault("fullScan",True)    
     kwargs.setdefault("UseL2Info",False)
-#    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
-#    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
-#    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
-#    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
+    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
+    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
+    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
 def TrigMuSuperEF_FSSA(name="TrigMuSuperEF_FSSA",**kwargs):
     kwargs.setdefault("StandaloneOnly",True)
     kwargs.setdefault("UseL2Info",False)
-#    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
-#    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
-#    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
-#    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
+    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
+    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
+    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
     return TrigMuSuperEF_FSCB(name,**kwargs)
 
 def TrigMuSuperEF_CTonly(name="TrigMuSuperEF_CTonly", **kwargs):
     kwargs.setdefault("CaloTagOnly", True)
+    kwargs.setdefault("UseL2Info", False)
+    kwargs.setdefault("fullScan", False)
+    kwargs.setdefault("doInsideOut", True)
+    kwargs.setdefault("doOutsideIn", False)
     kwargs.setdefault("IdTrackParticles", "")
-#    kwargs.setdefault("TrackIsolationTool", "TrigMuSuperEF_TrackIsolationTool");
-    return TrigMuSuperEF_FSCB(name, **kwargs)
+
+    return TrigMuSuperEFConfig(name, **kwargs)
 
 
 class TrigMuSuperEFHypoConfig(TrigMuonEFCombinerHypoConfig):
@@ -221,20 +230,39 @@ class TrigMuSuperEFHypoConfig(TrigMuonEFCombinerHypoConfig):
 
 
 def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
+    #from AthenaCommon.AppMgr import ToolSvc
+    #import TrigMuSuperEF.CombinedMuonTrackSummary_Trig
     kwargs.setdefault("CaloMuonTagLoose",       getPublicTool("CaloMuonTagLoose") )
     kwargs.setdefault("CaloMuonTagTight",       getPublicTool("CaloMuonTag") )
     kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrigMuSuperEF_TrackDepositInCaloTool") )
-    kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
-    #kwargs.setdefault("TrackIsolationTool",     getPublicTool("TrigMuSuperEF_TrackIsolationTool") )
+    kwargs.setdefault("TrackSelectorTool",      getPublicTool("TrigMuSuperEF_CaloTrkSelectorTool") )
     kwargs.setdefault("TrackIsolationTool",     None)
+    kwargs.setdefault("DebugMode",              True)
+    kwargs.setdefault("doTrkSelection",         True)
+    kwargs.setdefault("doCaloLR",               False)
     return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
 
 def TrigMuSuperEF_TrackIsolationTool( name = "TrigMuSuperEF_TrackIsolationTool", **kwargs):
     return TrigMuonEFTrackIsolationTool(name, deltaZCut = 6.0*mm, removeSelf=True, useAnnulus=False) 
 
 def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCaloTool", **kwargs):
-    #kwargs.setdefault("CaloCellContainerName", "")
-    #kwargs.setdefault("CaloClusterContainerName", "TrigCaloClusterContainer")
+    kwargs.setdefault("CaloCellContainerName", "TrigCaloCellMaker")
     return CfgMgr.TrackDepositInCaloTool(name, **kwargs)
+
+def TrigMuSuperEF_CaloTrkSelectorTool( name = 'TrigMuSuperEF_CaloTrkSelectorTool', **kwargs):
+    from AthenaCommon.AppMgr import ToolSvc
+
+    kwargs.setdefault("pTMin", 5000.)
+    kwargs.setdefault("IPd0Max", 7.)
+    kwargs.setdefault("IPz0Max", 130)     # 130 (tuned on Z)
+    kwargs.setdefault("nHitBLayer", 0)
+    kwargs.setdefault("nHitPix", 1)
+    kwargs.setdefault("nHitSct", 5)
+    kwargs.setdefault("nHitSi", 7)
+    kwargs.setdefault("nHitTrt", 0)
+    kwargs.setdefault("TrackSummaryTool", getPublicTool("TMEF_TrackSummaryTool"))
+    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
+
+    return CfgMgr.InDet__InDetDetailedTrackSelectorTool( name, **kwargs )
 
