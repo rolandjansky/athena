@@ -168,7 +168,7 @@ MinBiasScintillatorSD::~MinBiasScintillatorSD()
 
 void MinBiasScintillatorSD::Initialize(G4HCofThisEvent* /* HCE */)
 {
-  if (verboseLevel>0)
+  if (verboseLevel>10)
     {
       G4cout << "MinBiasScintillatorSD::Initialize()" << G4endl;
     }

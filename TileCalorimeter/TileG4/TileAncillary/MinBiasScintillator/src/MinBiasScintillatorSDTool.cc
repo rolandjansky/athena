@@ -28,7 +28,7 @@ MinBiasScintillatorSDTool::MinBiasScintillatorSDTool(const std::string& type, co
 
 G4VSensitiveDetector* MinBiasScintillatorSDTool::makeSD()
 {
-  ATH_MSG_INFO( "Creating a copy of the MinBiasScintillatorSD!" );
+  ATH_MSG_VERBOSE( "Creating a copy of the MinBiasScintillatorSD!" );
 
   return new MinBiasScintillatorSD(name(), m_outputCollectionNames[0], m_options);
 }
