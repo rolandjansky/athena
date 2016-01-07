@@ -33,6 +33,7 @@ using std::endl;
 TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvcLocator* pSvcLocator) :
   FexAlgo(name, pSvcLocator),
   m_requireCombined(false),
+  m_useVarIso(false),
   m_debug(false),
   m_coneSizes(),
   m_efIsoTool("TrigMuonEFTrackIsolationTool/TrigMuonEFTrackIsolationTool", this),
@@ -41,12 +42,14 @@ TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvc
   m_doMyTiming(false),
   m_dataPrepTime(0),
   m_calcTime(0),
-  m_dataOutputTime(0) {
+  m_dataOutputTime(0){
+
 
   declareProperty("IsolationTool", m_efIsoTool);
   declareProperty("IdTrackParticles", m_idTrackParticlesName);
   declareProperty("doMyTiming", m_doMyTiming);
   declareProperty("requireCombinedMuon", m_requireCombined);
+  declareProperty("useVarIso", m_useVarIso);
   
 
   ///////// Monitoring Variables
@@ -91,6 +94,8 @@ HLT::ErrorCode TrigMuonEFTrackIsolation::hltInitialize() {
 	  << "requireCombinedMuon:           " << m_requireCombined << endreq;
     msg() << MSG::DEBUG
 	  << "doMyTiming                     " << m_doMyTiming << endreq;
+    msg() << MSG::DEBUG
+	  << "useVarIso                  " << m_useVarIso << endreq;
   }//debug
 
   StatusCode sc = m_efIsoTool.retrieve();
@@ -203,10 +208,13 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
       
       m_trkptiso_cone2.push_back(ptcone20 * 1e-3); // convert to GeV 
       m_trkptiso_cone3.push_back(ptcone30 * 1e-3); // convert to GeV      
-
-      ((xAOD::Muon*)muon)->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
-      ((xAOD::Muon*)muon)->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
-
+      if (m_useVarIso){
+        ((xAOD::Muon*)muon)->setIsolation( ptcone20, xAOD::Iso::ptvarcone20 );
+        ((xAOD::Muon*)muon)->setIsolation( ptcone30, xAOD::Iso::ptvarcone30 );
+      } else { 
+        ((xAOD::Muon*)muon)->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
+        ((xAOD::Muon*)muon)->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
+      }
     }// isolation tool ok
   }//loop on muon container
 
