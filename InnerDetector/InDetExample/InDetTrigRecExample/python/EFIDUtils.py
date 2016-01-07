@@ -61,19 +61,28 @@ def tooldiff():
 def debuglevel(level=2):
   from AthenaCommon.AlgSequence           import AlgSequence
   job = AlgSequence()
-  if hasattr(job,'TrigSteer_EF'):
-    steeringEF = job.TrigSteer_EF
-    steeringEF.OutputLevel=level+1
+  if hasattr(job,'TrigSteer_HLT'):
+    steeringEF = job.TrigSteer_HLT
+    steeringEF.OutputLevel=level
     import re
-    exp=re.compile("EFID")
+    exp=re.compile("EFID|FTF|IDTrig|FTK|L2ID")
     pokus=None
     reftoconf=list()
     reftoname=list()
     for alg in steeringEF.getAllChildren():
-      if exp.search(alg.name()):
-        print alg.name()
-        alg.OutputLevel=level
-        pokus=alg
+      try:
+        algname = alg.name()
+      except:
+        print 'No algname for ', alg
+        algname=''
+
+      if exp.search(algname):
+        print algname
+        try:
+          alg.OutputLevel=level
+          pokus=alg
+        except:
+          pass
    
       for j in alg.properties().items():
         (aa,ab) = j
@@ -88,7 +97,10 @@ def debuglevel(level=2):
     for t in ToolSvc.getAllChildren():
       for it in reftoname:
         if t.getName().find(it)>-1:
-          t.OutputLevel=level
+          try:
+            t.OutputLevel=level
+          except:
+            print 'Setting of outputlevel failed for ', t
           #print t
 
 
@@ -104,5 +116,9 @@ def muondebugoff():
     ToolSvc.RpcROD_Decoder.OutputLevel=lvl
     ToolSvc.TgcPrepDataProviderToolc.OutputLevel=lvl
     ServiceMgr.MdtCalibrationSvc.OutputLevel=lvl
+    ServiceMgr.MuonRPC_CablingSvc.OutputLevel=lvl
+
+    ToolSvc.TrigDataAccess.OutputLevel=lvl
+
   except:
     pass
