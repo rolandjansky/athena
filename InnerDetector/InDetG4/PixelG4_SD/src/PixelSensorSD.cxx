@@ -227,7 +227,79 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       G4cout << "----- Endcap #    " << BrlEcap << G4endl;
     }
 
-  } else {
+  } else if(BEcopyNo == 500) { //Inclined
+    
+    std::string volName = myTouch->GetVolume()->GetName();
+
+    // split the volname vs '_'
+    std::replace(volName.begin(),volName.end(),'_',' ');    
+    
+    std::vector<std::string> v;
+    std::istringstream s(volName);
+    std::string tmp;
+    while (s >> tmp) {
+      v.push_back(tmp);
+    }
+    
+    BrlEcap = 0;   // no endcap defined in alpine
+    LayerDisk = atoi(v[1].c_str());
+    phiMod = atoi(v[2].c_str());
+    etaMod = atoi(v[3].c_str());
+  
+    if (verboseLevel>5){
+      G4cout << "Volume name " << volName <<G4endl;     
+      double xpos = coord1.x();
+      double ypos = coord1.y();
+      double zpos = coord1.z();
+      double r = sqrt(xpos*xpos+ypos*ypos);
+      G4cout << "In the Alpine " << G4endl; 
+      G4cout << "----- PhiModule # " << phiMod << G4endl; 
+      G4cout << "----- Ring/Eta #  " << etaMod << G4endl; 
+      G4cout << "----- Disk #      " << LayerDisk << G4endl; 
+      G4cout << "----- Endcap #    " << BrlEcap << G4endl; 
+      G4cout << "----- Pos        # " << r<<"  "<<zpos << G4endl; 
+      G4cout << "----- volume  " << myTouch->GetVolume()->GetName()<< G4endl;
+      G4cout << "  " << myTouch->GetVolume(1)->GetName()<<" "<<
+	myTouch->GetVolume(2)->GetName()<< "  " << myTouch->GetVolume(3)->GetName()<<G4endl;
+    }
+      
+  } else if(BEcopyNo == 600) { //ITk ECring 
+
+    std::string volName = myTouch->GetVolume()->GetName();
+
+    // split the volname vs '_'
+    std::replace(volName.begin(),volName.end(),'_',' ');    
+    
+    std::vector<std::string> v;
+    std::istringstream s(volName);
+    std::string tmp;
+    while (s >> tmp) {
+      v.push_back(tmp);
+    }
+    
+    BrlEcap = atoi(v[1].c_str());
+    LayerDisk = atoi(v[2].c_str());
+    phiMod = atoi(v[3].c_str());
+    etaMod = atoi(v[4].c_str());
+  
+    if (verboseLevel>5){
+      double xpos = coord1.x();
+      double ypos = coord1.y();
+      double zpos = coord1.z();
+      double r = sqrt(xpos*xpos+ypos*ypos);
+      G4cout << "Volume name " << volName <<G4endl;     
+      G4cout << "In the ITk EC ring " << G4endl; 
+      G4cout << "----- PhiModule # " << phiMod << G4endl; 
+      G4cout << "----- Ring/Eta #  " << etaMod << G4endl; 
+      G4cout << "----- Disk #      " << LayerDisk << G4endl; 
+      G4cout << "----- Endcap #    " << BrlEcap << G4endl; 
+      G4cout << "----- Pos        # " << r<<"  "<<zpos << G4endl; 
+      G4cout << "----- volume  " << myTouch->GetVolume()->GetName()<< G4endl;
+      G4cout << "  " << myTouch->GetVolume(1)->GetName()<<" "<<
+	myTouch->GetVolume(2)->GetName()<< "  " << myTouch->GetVolume(3)->GetName()<<G4endl;
+    }
+ }
+ else {
     // Do not expect other numbers. Need to fix PixelGeoModel if this occurs.
     G4ExceptionDescription description;
     description << "ProcessHits: Unrecognized geometry in Pixel sensitive detector. Please contact the maintainer of the Pixel Detector Description.";
