@@ -30,8 +30,7 @@ class TrackPattern
    phiMap(0),
    etaBin(0),
    phiBin(0),
-   phiBin24(0),
-   smallLarge(-1),
+   phiBinEE(0),
    barrelRadius(0),
    barrelSagitta(0),
    endcapAlpha(0),
@@ -74,8 +73,7 @@ class TrackPattern
 
     int    etaBin;
     int    phiBin;  
-    int    phiBin24; 
-    int    smallLarge;
+    int    phiBinEE; 
 
     double barrelRadius;
     double barrelSagitta;

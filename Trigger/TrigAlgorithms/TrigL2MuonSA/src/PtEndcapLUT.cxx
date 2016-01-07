@@ -33,8 +33,6 @@ bool TrigL2MuonSA::PtEndcapLUT::KeyType::operator<(const KeyType& other) const
   if (m_charge > other.m_charge) return (false);
   if (m_type   < other.m_type)   return (true);
   if (m_type   > other.m_type)   return (false);
-  if (m_sector < other.m_sector) return (true);
-  if (m_sector > other.m_sector) return (false);
   return (false);
 }
 
@@ -44,7 +42,7 @@ bool TrigL2MuonSA::PtEndcapLUT::KeyType::operator<(const KeyType& other) const
 std::string TrigL2MuonSA::PtEndcapLUT::KeyType::toString() const
 {
   std::ostringstream ss;
-  ss << "side=" << m_side << " charge=" << m_charge << " type=" << dt2s(m_type) << " sector=" << m_sector;
+  ss << "side=" << m_side << " charge=" << m_charge << " type=" << dt2s(m_type);
   return ss.str();
 }
 
@@ -72,9 +70,9 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
     if (line.empty()) continue;
     
     if (line.substr(0, 5) == "side=") {
-      char side, charge, ctype[15],sector;
+      char side, charge, ctype[15];
       
-      if (sscanf(line.c_str(), "side=%c charge=%c %s sector=%c", &side, &charge, ctype, &sector) != 4) {
+      if (sscanf(line.c_str(), "side=%c charge=%c %s", &side, &charge, ctype) != 3) {
 	msg() << MSG::ERROR << "Invalid header line " << line_no << " in EndcapLUT file "
 	      << lut_fileName << endreq;
 	return StatusCode::FAILURE;
@@ -85,13 +83,8 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
 	msg() << MSG::ERROR << "Invalid header line " << line_no << " in EndcapLUT file " << lut_fileName << endreq;
 	return StatusCode::FAILURE;
       }
-      int sectorID=3;
-      if (sector=='S') sectorID=0;
-      if (sector=='L') sectorID=1;
-      if (sector=='A') sectorID=2;
-      if (sectorID==3) return StatusCode::FAILURE;
 
-      KeyType key(side == '+' ? 1 : 0, charge == '+' ? 1 : 0, type, sectorID);
+      KeyType key(side == '+' ? 1 : 0, charge == '+' ? 1 : 0, type);
       table = new TableType();
       m_tables.insert(TableMap::value_type(key, table));
       msg() << MSG::DEBUG << "Created table for " << key.toString() << endreq;
@@ -175,13 +168,12 @@ double TrigL2MuonSA::PtEndcapLUT::radius(double z1, double r1, double s1, double
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, int sector, int iEta, int iPhi, double value) const
+double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, int iEta, int iPhi, double value) const
 {
   msg() << MSG::DEBUG << "lookup("
         << "side="    << side
         << ",charge=" << charge
         << ",type="   << dt2s(type)
-        << ",sector=" << sector
         << ",iEta="   << iEta
         << ",iPhi="    << iPhi
         << ",value="  << value
@@ -190,16 +182,16 @@ double TrigL2MuonSA::PtEndcapLUT::lookup(int side, int charge, DataType type, in
   if (iEta == -1) iEta =  0;
   if (iEta == 30) iEta = 29;
   
-  if (iEta < 0 || iEta >= ETAS || iPhi < 0 || iPhi >= PHIS24) {
-    msg() << MSG::WARNING << "lookup(" << side << ", " << charge << ", " << dt2s(type) << ", " << sector
+  if (iEta < 0 || iEta >= ETAS || iPhi < 0 || iPhi >= PHISEE) {
+    msg() << MSG::WARNING << "lookup(" << side << ", " << charge << ", " << dt2s(type) 
 	  << ", " << iEta << ", " << iPhi << ") Invalid indices" << endreq;
     return 0.0;
   }
 
-  TableMap::const_iterator it = m_tables.find(KeyType(side, charge, type, sector));
+  TableMap::const_iterator it = m_tables.find(KeyType(side, charge, type));
 
   if (it == m_tables.end()) {
-    msg() << MSG::ERROR << "lookup(" << side << ", " << charge << ", " << dt2s(type) << ", " << sector
+    msg() << MSG::ERROR << "lookup(" << side << ", " << charge << ", " << dt2s(type)
 	  << ", " << iEta << ", " << iPhi << ") Invalid key" << endreq;
     return 0.0;
   }
@@ -272,6 +264,7 @@ TrigL2MuonSA::PtEndcapLUT::DataType TrigL2MuonSA::PtEndcapLUT::s2dt(const char* 
     std::string stype(type);
     if (stype == "alphapol2")  return (ALPHAPOL2);
     if (stype == "betapol2")   return (BETAPOL2);
+    if (stype == "tgcalphapol2")  return (TGCALPHAPOL2);
     if (stype == "invradiuspol2") return (INVRADIUSPOL2);
 
     return (INVALID);
@@ -289,6 +282,9 @@ const char* TrigL2MuonSA::PtEndcapLUT::dt2s(TrigL2MuonSA::PtEndcapLUT::DataType 
 
   case BETAPOL2:
     return ("betapol2");    break;
+
+  case TGCALPHAPOL2:
+    return ("tgcalphapol2");   break;
 
   case INVRADIUSPOL2:
     return ("invradiuspol2");   break;
