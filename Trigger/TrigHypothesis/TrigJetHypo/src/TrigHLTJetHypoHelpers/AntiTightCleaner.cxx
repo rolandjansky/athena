@@ -13,9 +13,7 @@
 //
 
 #include "./AntiTightCleaner.h"
-#include "xAODJet/Jet.h"  //ICleaner
-
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
+#include "xAODJet/Jet.h"
 
 AntiTightCleaner::AntiTightCleaner(float fSampMaxTightThreshold,
                                    float etaTightThreshold,
@@ -32,6 +30,8 @@ bool AntiTightCleaner::operator()(const xAOD::Jet* jet) const{
   return TightCleaner::operator()(jet);
 }
 
+std::string 
+AntiTightCleaner::getName() const noexcept {return "AntiTightCleaner";}
 
 
 

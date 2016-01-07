@@ -15,8 +15,6 @@
 #include "./AntiLooseCleaner.h"
 #include "xAODJet/Jet.h"  //ICleaner
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
-
 AntiLooseCleaner::AntiLooseCleaner(float fSampMaxLooseThreshold,
                                    float etaLooseThreshold,
                                    float emfLowLooseThreshold,
@@ -33,6 +31,8 @@ bool AntiLooseCleaner::operator()(const xAOD::Jet* jet) const{
 }
 
 
+std::string  
+AntiLooseCleaner::getName() const noexcept {return "AntiLooseCleaner";}
 
 
 

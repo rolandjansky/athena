@@ -17,12 +17,14 @@
 //
 
 #include <utility>  // std::pair
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h" // IMatcher...
+#include "TrigJetHypo/TrigHLTJetHypoUtils/IMatcher.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/Matcher.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "xAODJet/Jet.h"
 
 using JetSet = std::set<const xAOD::Jet*>;
 
-class MaximumBipartiteMatcher: public IMatcher {
+class MaximumBipartiteMatcher: virtual public IMatcher, private Matcher {
 
   /* Used to find jets pass multithreshold,
      possibly overlapping eta regions
@@ -31,12 +33,14 @@ class MaximumBipartiteMatcher: public IMatcher {
      See Algorithms, Sedgewick and Wayne 4th edition */
 
 public:
-  MaximumBipartiteMatcher(const Conditions& cs);
+  MaximumBipartiteMatcher(const Conditions& cs, const std::string& name);
+  ~MaximumBipartiteMatcher(){}
   void match(JetIter b, JetIter e) override;
   bool pass() const  override;
   std::pair<JetCIter, JetCIter> passed_iters() const override;
   std::pair<JetCIter, JetCIter> failed_iters() const override;
-
+  std::string toString() const noexcept override;
+  const Conditions& getConditions() const noexcept override;
 private:
   Conditions m_conditions;
   bool m_pass;

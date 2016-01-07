@@ -16,7 +16,7 @@
 // ********************************************************************
 //
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h" // ICleaner
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "./LooseCleaner.h"
 #include "xAODJet/Jet.h"
 
@@ -29,7 +29,11 @@ public:
                    float emfHighLooseThreshold,
                    float hecfLooseThreshold);
 
+  ~AntiLooseCleaner(){}
+
   bool operator()(const xAOD::Jet* jet) const override;
+  std::string getName() const noexcept override;
+
 };
 
 #endif

@@ -13,9 +13,8 @@
 //
 
 #include "./AntiLlpCleaner.h"
-#include "xAODJet/Jet.h"  //ICleaner
+#include "xAODJet/Jet.h"
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
 
 AntiLlpCleaner::AntiLlpCleaner(float fSampMaxLlpThreshold,
                                float negELlpThreshold,
@@ -32,7 +31,8 @@ bool AntiLlpCleaner::operator()(const xAOD::Jet* jet) const{
   return !LlpCleaner::operator()(jet);
 }
 
-
+std::string
+AntiLlpCleaner::getName() const noexcept {return "AntiLlpCleaner";}
 
 
 

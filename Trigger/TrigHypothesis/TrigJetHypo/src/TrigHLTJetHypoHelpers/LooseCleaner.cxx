@@ -16,6 +16,7 @@
 #include "./UncleanableJet.h"  // exception class
 
 #include <cmath>
+#include <sstream>
 
 LooseCleaner::LooseCleaner(float fSampMaxLooseThreshold,
                            float etaLooseThreshold,
@@ -58,3 +59,18 @@ bool LooseCleaner::operator()(const xAOD::Jet* jet) const {
   return isClean;
 
 }
+
+std::string LooseCleaner::toString() const noexcept {
+  std::stringstream ss;
+  ss << getName() 
+     <<  ":"
+     << " fSampMaxLooseThreshold " << m_fSampMaxLooseThreshold
+     << " etaLooseThreshold " << m_etaLooseThreshold
+     << " emfLowLooseThreshold " << m_emfLowLooseThreshold
+     << " emfHighLooseThreshold " << m_emfHighLooseThreshold
+     << " hecfLooseThreshold " << m_hecfLooseThreshold
+     << '\n';
+  return ss.str();
+}
+
+std::string LooseCleaner::getName() const noexcept {return "LooseCleaner";}

@@ -58,3 +58,19 @@ bool TightCleaner::operator()(const xAOD::Jet* jet) const {
   return isClean;
 
 }
+
+std::string TightCleaner::toString() const noexcept {
+  std::stringstream ss;
+  ss << getName() 
+     <<  ":"
+     << " fSampMaxTightThreshold " << m_fSampMaxTightThreshold
+     << " etaTightThreshold " << m_etaTightThreshold
+     << " emfLowTightThreshold " << m_emfLowTightThreshold
+     << " emfHighTightThreshold " << m_emfHighTightThreshold
+     << " hecfTightThreshold " << m_hecfTightThreshold
+     << '\n';
+  return ss.str();
+}
+
+
+std::string TightCleaner::getName() const noexcept {return "TightCleaner";}
