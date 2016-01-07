@@ -31,15 +31,8 @@
 #include "InDetIdentifier/PixelID.h"
 #include <fstream>
 #include <string>
-//Includes related to determining presence of ITK
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
-
 
 static bool isIBL(false);
-static bool isRUN1(false);
-static bool isITK(false);
  
 //namespace PixelCalib
 //{
@@ -58,8 +51,7 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   m_tableName(""),
   m_dbTag(""),
   m_dbRevision(0),
-  m_calibData(0),
-  m_geoModelSvc("GeoModelSvc",name)
+  m_calibData(0)
 {
   declareInterface< IPixelCalibDbTool >(this); 
 
@@ -73,8 +65,6 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   declareProperty("tableName",m_tableName);
   declareProperty("dbTag",m_dbTag);
   declareProperty("dbRevision",m_dbRevision);
-  declareProperty("GeoModelService",m_geoModelSvc);
-
 }
 //================ Address update =============================================
 
@@ -119,14 +109,6 @@ StatusCode  PixelCalibDbTool::initialize()
     if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " IOVSvc not found "<<endreq; 
     return StatusCode::FAILURE; 
   }
-  // determine if RUN1 or RUN2 used 
-  if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
-    return (StatusCode::FAILURE);
-  }
-  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN2) { isIBL =true; }
-  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN1) { isRUN1=true; }
-  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4) { isITK =true; }
 
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
@@ -138,12 +120,10 @@ StatusCode  PixelCalibDbTool::initialize()
     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
     return StatusCode::FAILURE;
   }
-  if(isRUN1&&(m_pixid->wafer_hash_max()==2048)){
-    isIBL = true;
-    isRUN1 = false;
-  }
+
   itermin = m_pixman->getDetectorElementBegin(); 
   itermax = m_pixman->getDetectorElementEnd();
+  if(m_pixid->wafer_hash_max()>1744)isIBL = true;
 
   // setup list of TDS objects from geometry description 
   
@@ -155,14 +135,12 @@ StatusCode  PixelCalibDbTool::initialize()
     if(element !=0){ 
       Identifier ident = element->identify(); 
       if(m_pixid->is_pixel(ident)){  // OK this Element is included 
-        const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-        if(!design)continue;
-        unsigned int mchips = design->numberOfCircuits();
-        if (!isITK) {
-          if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits() 
-        }
-        m_calibobjs.push_back(std::make_pair(ident,mchips)); 
-        // write up the dump calibration here with default value:
+	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+	if(!design)continue;
+	unsigned int mchips = design->numberOfCircuits();
+	if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits() 
+	m_calibobjs.push_back(std::make_pair(ident,mchips)); 
+	// write up the dump calibration here with default value:
       }
     }
   }
@@ -233,12 +211,15 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       // unpack the string in the collection and update the PixelCalibDbData in TDS 
 
       CondAttrListCollection::const_iterator itrx; 
-      int kx(0);
       for(itrx = atrc->begin(); itrx !=atrc->end(); ++itrx){
+	CondAttrListCollection::ChanNum chanNum = (*itrx).first;
+	CondAttrListCollection::iov_const_iterator iovIt = atrc->chanIOVPair(chanNum);
+        const IOVRange& range = (*iovIt).second;
+ 
 	const coral::AttributeList& atr = itrx->second; 
 	std::string data; 
 	data =*(static_cast<const std::string*>((atr["data"]).addressOfData())); 
-	kx++;
+
 	//	int ix;
 	//unsigned int ix;
 	std::string ix;
@@ -251,12 +232,13 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
  
 	int component, eta;
 	unsigned int layer,phi;
-  if(!isRUN1){
-    // RUN-2 or RUN-4 IOVs
-//    if(!isIBL)continue;   // Need to think better protection mechanism.
-    istr>>component>>c>>layer>>c>>phi>>c>>eta;
-  }
-  else{	 
+	if(isIBL){
+	  // RUN-1 or RUN-4 IOVs
+	  if((range.start().run()<222222) || 
+	     (range.start().run()>=240000 && range.start().run()<250000))continue;
+	  istr>>component>>c>>layer>>c>>phi>>c>>eta;
+	}
+	else{	 
 	  istr>>ix;
 	  unsigned int hashID = atoi(ix.c_str());
 	  component =static_cast<int>((hashID & (3 << 25)) / 33554432) * 2 - 2 ;
@@ -298,7 +280,7 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	//
 	// load constants from new db -- A.X. // make sure PCDDb working ok
 	//
-	if(!isRUN1){
+	if(isIBL){
           if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "not implemented loading PixelCalibDb with IBL from Coral Db " << endreq;
           return StatusCode::FAILURE;
 	}
@@ -405,8 +387,7 @@ StatusCode PixelCalibDbTool::readPixelCalibDBtoTextFile(std::string file) const
     }
     if(nobj%100==0&&msgLvl(MSG::INFO)) msg(MSG::INFO) << " ith Module written:"<<nobj<<" with wafer_hash: " << wafsh<<endreq; 
    
-    if(!isRUN1){
-      if(!isIBL)continue;
+    if(isIBL){
       *outfile<<m_pixid->barrel_ec(key)<<","<<m_pixid->layer_disk(key)<<","<<m_pixid->phi_module(key)<<","<<m_pixid->eta_module(key)<<std::endl;
     }
     else{
@@ -506,8 +487,7 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
     int component, eta;
     unsigned int layer,phi;
     char c;
-    if(!isRUN1){
-      if(!isIBL)continue;
+    if(isIBL){
       std::istringstream istr(pch);
       istr>>component>>c>>layer>>c>>phi>>c>>eta;
     }

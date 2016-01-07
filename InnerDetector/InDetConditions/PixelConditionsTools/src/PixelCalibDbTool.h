@@ -26,7 +26,6 @@ class IAthenaOutputStreamTool;
 class PixelID; 
 class IToolSvcl; 
 class IIOVSvc; 
-class IGeoModelSvc;
 
 namespace InDetDD{ 
   class PixelDetectorManager; 
@@ -100,9 +99,7 @@ private:
   int m_dbRevision;
 
   std::vector<std::pair<Identifier,int> > m_calibobjs; 
-  mutable PixelCalibDataColl* m_calibData;
- 
-  ServiceHandle< IGeoModelSvc > m_geoModelSvc;
+  mutable PixelCalibDataColl* m_calibData; 
     
 };
 
