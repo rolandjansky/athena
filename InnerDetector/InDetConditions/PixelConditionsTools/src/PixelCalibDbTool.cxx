@@ -233,7 +233,9 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
 	int component, eta;
 	unsigned int layer,phi;
 	if(isIBL){
-	  if(range.start().run()<222222)continue;
+	  // RUN-1 or RUN-4 IOVs
+	  if((range.start().run()<222222) || 
+	     (range.start().run()>=240000 && range.start().run()<250000))continue;
 	  istr>>component>>c>>layer>>c>>phi>>c>>eta;
 	}
 	else{	 
