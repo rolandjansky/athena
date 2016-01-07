@@ -26,6 +26,7 @@ public:
   AntiBasicCleaner(float n90Threshold,
                    float presamplerThreshold,
                    float negativeEThreshold);
+  ~AntiBasicCleaner(){}
   
   bool operator()(const xAOD::Jet* jet) const override;
   std::string getName() const noexcept override;

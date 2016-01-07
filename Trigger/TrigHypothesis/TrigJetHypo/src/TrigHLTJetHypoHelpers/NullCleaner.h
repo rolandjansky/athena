@@ -27,6 +27,8 @@ namespace AOD{
 class NullCleaner: public ICleaner{
   /* apply no cleaning cuts */
 public:
+  ~NullCleaner(){}
+
   bool operator()(const xAOD::Jet*) const override;
   std::string toString() const noexcept override;
   std::string getName() const noexcept override;

@@ -29,6 +29,8 @@ public:
                  float hecqLlpThreshold,
                  float avLarQFLlpThreshold);
 
+  ~AntiLlpCleaner(){}
+
   bool operator()(const xAOD::Jet* jet) const override;
   std::string getName() const noexcept override;
 };

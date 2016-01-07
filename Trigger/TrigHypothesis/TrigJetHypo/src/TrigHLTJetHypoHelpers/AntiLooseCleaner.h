@@ -29,6 +29,8 @@ public:
                    float emfHighLooseThreshold,
                    float hecfLooseThreshold);
 
+  ~AntiLooseCleaner(){}
+
   bool operator()(const xAOD::Jet* jet) const override;
   std::string getName() const noexcept override;
 

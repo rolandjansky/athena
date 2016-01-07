@@ -29,6 +29,8 @@ public:
                    float emfHighTightThreshold,
                    float hecfTightThreshold);
 
+  ~AntiTightCleaner() {}
+
   bool operator()(const xAOD::Jet* jet) const override;
   std::string getName() const noexcept override;
 };

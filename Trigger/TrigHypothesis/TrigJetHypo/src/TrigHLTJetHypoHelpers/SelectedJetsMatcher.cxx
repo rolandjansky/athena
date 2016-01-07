@@ -47,14 +47,11 @@ void SelectedJetsMatcher::match(JetIter b, JetIter e){
 
   // check if there are enough jets find the highest (last, as the vector is
   // ordered) and see if it lies within the jet vector
-  if((e - b) < *(m_indices.end()-1)){
-    for(auto i : m_indices){
-      if (b + i < e) {
-	m_failed_jets.push_back(*(b+i));
-      } else {
-	break;
-      }
-    }
+  if((e - b -1) < m_indices.back()){
+    unsigned int i = -1;
+    while (b + (++i) < e) {m_failed_jets.push_back(*(b+i));}
+    m_pass = false;
+    return;
   }
 
 

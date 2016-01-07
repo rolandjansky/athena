@@ -28,6 +28,8 @@ class TightCleaner: public ICleaner{
                float emfHighTightThreshold,
                float hecfTightThreshold);
   
+  ~TightCleaner() {}
+
   bool operator()(const xAOD::Jet* jet) const override;
   std::string toString() const noexcept override;
   std::string getName() const noexcept override;

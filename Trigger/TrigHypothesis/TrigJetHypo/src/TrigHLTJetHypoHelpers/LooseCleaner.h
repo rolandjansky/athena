@@ -28,6 +28,8 @@ class LooseCleaner: public ICleaner{
                float emfHighLooseThreshold,
                float hecfLooseThreshold);
   
+  ~LooseCleaner() {}
+
   bool operator()(const xAOD::Jet* jet) const override;
   std::string toString() const noexcept override;
   std::string getName() const noexcept override;
