@@ -48,6 +48,9 @@ class TrigMuonEFTrackIsolation : public virtual HLT::FexAlgo,
   /// Require that EF muons are combined (should move to pass bits)
   bool m_requireCombined;
 
+  /// Use offline isolation variables
+  bool m_useVarIso;
+
   /// flag to see if debug is enabled
   bool m_debug;
 
