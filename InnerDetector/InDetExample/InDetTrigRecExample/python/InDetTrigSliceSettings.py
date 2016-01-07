@@ -98,7 +98,6 @@ class InDetTrigSliceSettingsDB:
       dotrigindettrack[i] = False 
     dozfinder['beamSpot'] = True
     self.db['doZFinder']=dozfinder
-    dotrigindettrack['beamSpot'] = True
     self.db['doTrigInDetTrack']=dotrigindettrack
 
     for i in _slices:
