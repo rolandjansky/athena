@@ -1,0 +1,9 @@
+package PixelInterfaces
+
+public
+
+use AtlasPolicy      AtlasPolicy-*
+use AthenaKernel     AthenaKernel-*      Control
+use GaudiInterface   GaudiInterface-*    External
+
+
