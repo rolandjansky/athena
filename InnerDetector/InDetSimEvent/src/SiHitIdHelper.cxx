@@ -51,7 +51,8 @@ void SiHitIdHelper::Initialize() {
   InitializeField("PixelSCT",0,1);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
-  InitializeField("LayerDisk",0,20);
+  if(!isSLHC)InitializeField("LayerDisk",0,20);
+  else InitializeField("LayerDisk",0,50);
   if (isSLHC) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
   InitializeField("PhiModule",0,200);
