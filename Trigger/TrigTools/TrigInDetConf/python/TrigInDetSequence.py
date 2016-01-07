@@ -29,6 +29,11 @@ from InDetTrigRecExample.InDetTrigRecLowPtTracking \
      import SiTrigSpacePointFinderLowPt_EF, SiTrigTrackFinderLowPt_EF, \
      TrigAmbiguitySolverLowPt_EF
 
+try:
+  from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
+except:
+  pass
+
 from TrigInDetConf.RoiManipulators import IDTrigRoiUpdater
 from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
 
@@ -63,7 +68,8 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                     "TrigVxPrimary",
                     "InDetTrigParticleCreation",
                     "InDetTrigTrackParticleTruthMaker",
-                    "InDetTrigVertexxAODCnv"
+                    "InDetTrigVertexxAODCnv",
+                    "TrigFTK_VxPrimary",
                     ]
 
     clname = algname
@@ -82,8 +88,10 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         _inst = algName+'_%s_FTF'
       elif "L2Star" in seqType:
         _inst = algName+'_%s_L2ID'
-      elif "IDTrig" in seqType or "FTK" in seqType:
+      elif "IDTrig" in seqType:
         _inst = algName+'_%s_IDTrig'
+      elif "FTK" in seqType:
+        _inst = algName+'_%s_FTK'
       else:
         _inst = algName+'_%s_EFID'
     else:
