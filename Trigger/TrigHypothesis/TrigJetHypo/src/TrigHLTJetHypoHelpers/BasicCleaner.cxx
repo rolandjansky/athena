@@ -16,6 +16,7 @@
 #include "./UncleanableJet.h"  // exception class
 
 #include "CaloGeoHelpers/CaloSampling.h"
+#include <sstream>
 
 BasicCleaner::BasicCleaner(float n90Threshold,
                            float presamplerThreshold,
@@ -91,3 +92,19 @@ bool BasicCleaner::operator()(const xAOD::Jet* jet) const {
   return isClean;
 
 }
+
+std::string BasicCleaner::toString() const noexcept{
+  std::stringstream ss;
+  ss << getName() 
+     <<  ": n90Threshold: "
+     <<  m_n90Threshold
+     <<  " m_presamplerThreshold: " 
+     <<  m_presamplerThreshold
+     <<  "m_negativeEThreshold: "
+     <<  m_negativeEThreshold 
+     << '\n';
+  return ss.str();
+}
+
+std::string 
+BasicCleaner::getName() const noexcept {return "BasicCleaner";}

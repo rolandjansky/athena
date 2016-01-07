@@ -17,7 +17,7 @@
 //
 
 #include "xAODJet/Jet.h"
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h" // ICleaner
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "./FlowNetwork.h"
 
 namespace AOD{
@@ -27,7 +27,11 @@ namespace AOD{
 class NullCleaner: public ICleaner{
   /* apply no cleaning cuts */
 public:
+  ~NullCleaner(){}
+
   bool operator()(const xAOD::Jet*) const override;
+  std::string toString() const noexcept override;
+  std::string getName() const noexcept override;
 };
 
 

@@ -15,8 +15,6 @@
 #include "./AntiBasicCleaner.h"
 #include "xAODJet/Jet.h"  //ICleaner
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
-
 AntiBasicCleaner::AntiBasicCleaner(float n90Threshold,
                                    float presamplerThreshold,
                                    float negativeEThreshold):
@@ -26,7 +24,8 @@ bool AntiBasicCleaner::operator()(const xAOD::Jet* jet) const{
   return !BasicCleaner::operator()(jet);
 }
 
-
+std::string
+AntiBasicCleaner::getName() const noexcept {return "AntiBasicCleaner";}
 
 
 

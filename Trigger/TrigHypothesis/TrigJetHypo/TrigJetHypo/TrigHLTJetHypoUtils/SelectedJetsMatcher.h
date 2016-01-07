@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETHYPO_SINGLEETAREGIONMATCHER_H
-#define TRIGJETHYPO_SINGLEETAREGIONMATCHER_H
+#ifndef TRIGJETHYPO_SELECTEDJETSMATCHER_H
+#define TRIGJETHYPO_SELECTEDJETSMATCHER_H
 
 
 // ********************************************************************
 //
-// NAME:     SingleEtaRegionMatcher.h
+// NAME:     SelectedJetsMatcher.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigJetHypo
 //
 // AUTHOR:  P Sherwood
@@ -19,27 +19,33 @@
 #include <utility>
 
 #include "xAODJet/Jet.h"
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/IMatcher.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/Matcher.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 
-class SingleEtaRegionMatcher: public IMatcher{
+
+class SelectedJetsMatcher: virtual public IMatcher, private Matcher{
   /* Match by ordering all jets in the single eta region
      in Et, pair of with the Conditions objects also ordered
      in Et. Event pass if the Et of each jet >= to the threshold
      of the paired Condition.
    */
 public:
-  ConditionsSorter sorterPred;
-  SingleEtaRegionMatcher(const Conditions& cs);
+  SelectedJetsMatcher(const Conditions& cs, 
+		      const std::vector<unsigned int>& indices,
+		      const std::string& name);
+  ~SelectedJetsMatcher(){}
   void match(JetIter b, JetIter e) override;
   bool pass() const override;
   std::pair<JetCIter, JetCIter> passed_iters() const override;
   std::pair<JetCIter, JetCIter> failed_iters() const override;
-
+  std::string toString() const noexcept override;
+  const Conditions& getConditions() const noexcept override;
 private:
   Conditions m_conditions;
-  bool m_pass;
-
+  std::vector<unsigned int> m_indices;
   JetVector m_passed_jets;
   JetVector m_failed_jets;
+  bool m_pass;
 };
 #endif

@@ -16,7 +16,7 @@
 // ********************************************************************
 //
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h" // ICleaner
+#include "TrigJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
 #include "./BasicCleaner.h"
 #include "xAODJet/Jet.h"
 
@@ -26,8 +26,10 @@ public:
   AntiBasicCleaner(float n90Threshold,
                    float presamplerThreshold,
                    float negativeEThreshold);
+  ~AntiBasicCleaner(){}
   
   bool operator()(const xAOD::Jet* jet) const override;
+  std::string getName() const noexcept override;
 };
 
 #endif

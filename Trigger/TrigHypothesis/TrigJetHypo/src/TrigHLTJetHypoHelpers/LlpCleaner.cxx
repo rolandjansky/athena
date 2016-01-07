@@ -15,6 +15,7 @@
 #include "./LlpCleaner.h"
 #include "./UncleanableJet.h"  // exception class
 
+#include <sstream>
 #include <cmath>
 
 LlpCleaner::LlpCleaner(float fSampMaxLlpThreshold,
@@ -69,3 +70,18 @@ bool LlpCleaner::operator()(const xAOD::Jet* jet) const {
   return isClean;
 
 }
+
+std::string LlpCleaner::toString() const noexcept {
+  std::stringstream ss;
+  ss << getName() 
+     <<  ":"
+     << " fSampMaxLlpThreshold " << m_fSampMaxLlpThreshold
+     << " negELlpThreshold " << m_negELlpThreshold
+     << " hecfLlpThreshold " << m_hecfLlpThreshold
+     << " hecqLlpThreshold " << m_hecqLlpThreshold
+     << " avLarQFLlpThreshold " << m_avLarQFLlpThreshold
+     << '\n';
+  return ss.str();
+}
+
+std::string LlpCleaner::getName() const noexcept {return "LlpCleaner";}

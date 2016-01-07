@@ -13,14 +13,13 @@
 //
 
 #include <stdexcept>
-#include "./MaximumBipartiteMatcher.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteMatcher.h"
 #include "./FlowNetwork.h"
 #include "./FordFulkerson.h"
 
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
-
-MaximumBipartiteMatcher::MaximumBipartiteMatcher(const Conditions& cs):
-  m_conditions(cs), m_pass(false){}
+MaximumBipartiteMatcher::MaximumBipartiteMatcher(const Conditions& cs,
+						 const std::string& name):
+  Matcher(name), m_conditions(cs), m_pass(false){}
   
 void MaximumBipartiteMatcher::match(JetIter b, JetIter e){
 
@@ -45,7 +44,7 @@ void MaximumBipartiteMatcher::match(JetIter b, JetIter e){
 
   // add in edges - source node to each condition node
   // the condition labels start at 1. 0 is reserved for the source node.  
-  std::map<int, const Condition*> conditionsmap;
+  std::map<int, Conditions::value_type*> conditionsmap;
   int inode = 1;
   for(auto c = m_conditions.begin(); c != m_conditions.end(); ++c){
     G.addEdge(std::make_shared<FlowEdge>(0, inode, capacity));
@@ -88,7 +87,7 @@ void MaximumBipartiteMatcher::match(JetIter b, JetIter e){
 
   for(auto c : conditionsmap){
     for (auto j : jetmap){
-      if (c.second->allOK(j.second)){
+      if (c.second->isSatisfied(j.second)){
         G.addEdge(std::make_shared<FlowEdge>(c.first, j.first, capacity));
       }
     }
@@ -119,10 +118,10 @@ void MaximumBipartiteMatcher::match(JetIter b, JetIter e){
   JetSet passing_jets;
   
   if(m_pass){
-    for(auto e : G.edges()){
-      auto it = jetmap.find(e->to());  // label corresponds ot jet?
+    for(auto edge : G.edges()){
+      auto it = jetmap.find(edge->to());  // label corresponds ot jet?
       if (it == mapend){continue;}  
-      if (std::round(e->flow()) == 1){ // jet participates in hypo decision?
+      if (std::round(edge->flow()) == 1){ // jet participates in hypo decision?
         passing_jets.insert(it->second);
         jetmap.erase(it);  // remove passing jets from map
       }
@@ -176,3 +175,15 @@ MaximumBipartiteMatcher::failed_iters() const {
   return  std::pair<JetCIter, JetCIter> (m_failed_jets.begin(),
                                          m_failed_jets.end());}
 
+
+std::string MaximumBipartiteMatcher::toString() const noexcept {
+  std::string s = Matcher::toString();
+  for(auto c : m_conditions){ s += "\n" + c.toString();}
+  return s;
+}
+
+
+const Conditions& MaximumBipartiteMatcher::getConditions() const noexcept {
+  return m_conditions;
+}
+    

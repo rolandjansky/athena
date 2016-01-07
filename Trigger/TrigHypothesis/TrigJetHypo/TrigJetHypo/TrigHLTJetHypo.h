@@ -15,12 +15,12 @@
  *
  *********************************************************************/
 
-// #include <memory>
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "TrigJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoUtils.h"
+#include "TrigJetHypo/TrigHLTJetHypoUtils/CleanerMatcherFactory.h"
 
 class TriggerElement;
+class CleanerMatcher;
 
 class TrigHLTJetHypo : public HLT::HypoAlgo {
 
@@ -40,11 +40,12 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
                      const xAOD::JetContainer*&);
   void bumpCounters(bool, int);
   void monitorLeadingJet(const xAOD::Jet* jet);
-  void writeDebug(bool, int,
+  void writeDebug(bool,
                   const std::pair<JetCIter, JetCIter>&,
-                  const std::pair<JetCIter, JetCIter>& ) const;
+                  const std::pair<JetCIter, JetCIter>&,
+		  const CleanerMatcher&) const;
 
-  CleanerMatcher getCleanerMatcher() const;
+  // CleanerMatcher getCleanerMatcher() const;
   
   HLT::ErrorCode 
     markAndStorePassingJets(const CleanerMatcher&,
@@ -57,7 +58,17 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   std::vector<double> m_EtThresholds;
   std::vector<double> m_etaMins;
   std::vector<double> m_etaMaxs;
-  Conditions m_conditions;
+
+  // vector of indices find ofssets into the jet vector,
+  // and other Condition variables used for TLA style hypos.
+  std::vector<unsigned int> m_jetvec_indices;
+  std::vector<double> m_ystarMins;
+  std::vector<double> m_ystarMaxs;
+  std::vector<double> m_massMins;
+  std::vector<double> m_massMaxs;
+
+  // Conditions m_conditions;
+  std::shared_ptr<CleanerMatcherFactory> m_cleanerMatcherFactory;
 
   int m_accepted;
   int m_rejected;
@@ -82,7 +93,7 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   
   std::string m_cleaningAlg;  // determines cleaner obj
   std::string m_matchingAlg;  // determines matcher obj;
-  
+
   //basic cleaning
   float m_n90Threshold;
   float m_presamplerThreshold;
@@ -111,6 +122,7 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   float m_hecqLlpThreshold;
   float m_avLarQFLlpThreshold;
 
+  // std::shared_ptr<ICleaner> m_cleaner;
 
   // Timing:
 
