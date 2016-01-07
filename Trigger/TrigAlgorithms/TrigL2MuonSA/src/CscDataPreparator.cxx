@@ -161,19 +161,22 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
     m_regionSelector->DetHashIDList( CSC, *iroi, cscHashIDs );
   } else {
     msg() << MSG::DEBUG << "Use full data access" << endreq;
-    m_regionSelector->DetHashIDList( CSC, cscHashIDs );
+    //    m_regionSelector->DetHashIDList( CSC, cscHashIDs ); full decoding is executed with an empty vector
   }
   msg() << MSG::DEBUG << "cscHashIDs.size()=" << cscHashIDs.size() << endreq;
+
+  bool to_full_decode=( fabs(p_roids->etaMinus())>1.7 || fabs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
 
   // Decode
   std::vector<IdentifierHash> cscHashIDs_decode;
   cscHashIDs_decode.clear();
-  if( !cscHashIDs.empty() ){
+  if( !cscHashIDs.empty() || to_full_decode ){
     if( m_cscPrepDataProvider->decode( cscHashIDs, cscHashIDs_decode ).isFailure() ){
       msg() << MSG::WARNING << "Problems when preparing CSC PrepData" << endreq;
     }
     cscHashIDs.clear();
   }
+  msg() << MSG::DEBUG << "cscHashIDs_decode.size()=" << cscHashIDs_decode.size() << endreq;
 
   // Clustering
   std::vector<IdentifierHash> cscHashIDs_cluster;

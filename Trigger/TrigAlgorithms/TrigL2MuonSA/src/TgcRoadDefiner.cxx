@@ -154,7 +154,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     
     int charge = (tgcFitResult.intercept * tgcFitResult.tgcMid2[3]) < 0.0 ? 0: 1;
     
-    tgcFitResult.tgcPT = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, 2, etaBin, phiBin, alpha) / 1000.;
+    tgcFitResult.tgcPT = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::TGCALPHAPOL2, etaBin, phiBin, alpha) / 1000.;
     if (charge==0) tgcFitResult.tgcPT = -1.*tgcFitResult.tgcPT;
     
     // Determine phi direction

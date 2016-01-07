@@ -48,8 +48,8 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   int  side   = (trackPattern.etaMap <= 0.0) ? 0 : 1;
   int  charge = (trackPattern.intercept * trackPattern.etaMap) < 0.0 ? 0 : 1;
 
-  float mdtPt = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, 2,  trackPattern.etaBin,
-				      trackPattern.phiBin, trackPattern.endcapAlpha) / 1000;//sector=2 All
+  float mdtPt = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, trackPattern.etaBin,
+				      trackPattern.phiBin, trackPattern.endcapAlpha) / 1000;
 
   if (charge == 0)  mdtPt = -mdtPt;
   trackPattern.ptEndcapAlpha = mdtPt;//pt calculated by alpha
@@ -59,8 +59,8 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   
   // use MDT beta if condition allows
   if (fabs(mdtPt) > ALPHA_TO_BETA_PT && fabs(trackPattern.endcapBeta)>ZERO_LIMIT) {
-    float betaPt = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::BETAPOL2, 2, trackPattern.etaBin,
-					 trackPattern.phiBin, trackPattern.endcapBeta) / 1000;//sector=2 All
+    float betaPt = m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::BETAPOL2, trackPattern.etaBin,
+					 trackPattern.phiBin, trackPattern.endcapBeta) / 1000;
 
     if (charge == 0)  betaPt = -betaPt;
     trackPattern.ptEndcapBeta = betaPt;//pt calculated by beta
@@ -73,27 +73,29 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
     }
   }
   if (trackPattern.endcapRadius3P>0) {//calculate pt from radius
-    msg() << MSG::DEBUG << "calculate pt from invR" << endreq;
+    msg() << MSG::DEBUG << "calculate pt from Radius" << endreq;
     float invR = 1. / trackPattern.endcapRadius3P;
 
-    if (trackPattern.smallLarge==1)//Small 
-      trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 0, trackPattern.etaBin, 
-							   trackPattern.phiBin24, invR) / 1000;
-    if (trackPattern.smallLarge==0)//Large 
-      trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 1, trackPattern.etaBin, 
-							   trackPattern.phiBin24, invR) / 1000;
+    if (trackPattern.etaBin<8){
+      trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 
+                                          trackPattern.etaBin, trackPattern.phiBinEE, invR) / 1000;
+    }
   }
 
   if(mdtPt!=0.0) {
     trackPattern.pt     = fabs(mdtPt);
     trackPattern.charge = mdtPt / fabs(mdtPt);
   }
+
+  if (trackPattern.ptEndcapRadius>0 && trackPattern.ptEndcapRadius<500)
+      trackPattern.pt = trackPattern.ptEndcapRadius;//use pt calculated from endcap radius
   
   msg() << MSG::DEBUG << "pT determined from alpha and beta: endcapAlpha/endcapBeta/endcapRadius3P/pT/charge/s_address="
 	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" << trackPattern.pt
 	<< "/" << trackPattern.charge << "/" << trackPattern.s_address << endreq;
-  msg() << MSG::DEBUG << "ptEndcapAlpha/ptEndcapBeta/ptEndcapRadius="
-	<< trackPattern.ptEndcapAlpha << "/" << trackPattern.ptEndcapBeta << "/" << trackPattern.ptEndcapRadius << endreq;
+  msg() << MSG::DEBUG << "ptEndcapAlpha/ptEndcapBeta/tgcPt/ptEndcapRadius="
+	<< trackPattern.ptEndcapAlpha << "/" << trackPattern.ptEndcapBeta << "/" 
+        << tgcPt << "/" << trackPattern.ptEndcapRadius << endreq;
 
   return StatusCode::SUCCESS; 
 }
