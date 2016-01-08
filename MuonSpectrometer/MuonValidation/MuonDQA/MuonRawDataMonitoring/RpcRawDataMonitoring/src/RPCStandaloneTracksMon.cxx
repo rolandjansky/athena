@@ -52,8 +52,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrack/TrackCollection.h"
-
-#include "xAODEventInfo/EventInfo.h" 
+ 
  
 #include "RpcRawDataMonitoring/RPCStandaloneTracksMon.h"
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"  
@@ -84,7 +83,8 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   :ManagedMonitorToolBase( type, name, parent ),
    m_first(true), 
    m_rpcRoiSvc( "LVL1RPC::RPCRecRoiSvc", name ),
-   m_tgcRoiSvc( "LVL1TGC::TGCRecRoiSvc", name )
+   m_tgcRoiSvc( "LVL1TGC::TGCRecRoiSvc", name ),
+   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   // Declare the properties 
   declareProperty("DoRpcEsd",            m_doRpcESD		= false	); 
@@ -135,12 +135,22 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   
   
   declareProperty("MuonDeltaRMatching"          , m_MuonDeltaRMatching         =   0.15 ); 
-  declareProperty("requireMuonCombinedTight"    , m_requireMuonCombinedTight   = false );
-  declareProperty("StandAloneMatchedWithTrack"  , m_StandAloneMatchedWithTrack = true  );
+  declareProperty("requireMuonCombinedTight"    , m_requireMuonCombinedTight   = false  );
+  declareProperty("StandAloneMatchedWithTrack"  , m_StandAloneMatchedWithTrack = true   );
+  
+  declareProperty( "selectTriggerChainGroup"    , m_selectTriggerChainGroup    = false     );
+  declareProperty( "deSelectTriggerChainGroup"  , m_deselectTriggerChainGroup  = false     );
+  declareProperty( "triggerChainGroupRegNot"    , m_triggerChainGroupRegNot    ="HLT_j.*" ); 
+  declareProperty( "triggerChainGroupRegExp"    , m_triggerChainGroupRegExp    ="HLT_mu.*"  );//".*" all triggers//"HLT_mu.*" all EF muon triggers//"HLT_.*" all EF triggers//"L2_.*"  all L2 triggers//"L1_.*"  all L1 triggers 
 
   
   m_padsId     = 0;
   m_chambersId = 0;
+
+  m_chainGroupSelect=NULL;
+  m_chainGroupVeto=NULL;
+
+
 } 
                             
 RPCStandaloneTracksMon::~RPCStandaloneTracksMon()
@@ -232,6 +242,17 @@ StatusCode RPCStandaloneTracksMon::initialize(){
     ATH_MSG_WARNING ( "Cannot retrieve PC_ROI_Mapping()" );	
     return StatusCode::FAILURE;
   } else { ATH_MSG_DEBUG ( "RPC_ROI_Mapping() done. " );    }
+  
+  
+  
+  if ( m_selectTriggerChainGroup || m_deselectTriggerChainGroup ) {
+     sc = m_trigDec.retrieve();
+     if ( sc.isFailure() ){
+         ATH_MSG_WARNING ("Can't get handle on TrigDecisionTool");
+     } else {
+         ATH_MSG_DEBUG ("Got handle on TrigDecisionTool");
+     }
+  }     
  
   rpc_eventstotal=0;
   
@@ -291,16 +312,57 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 {
   StatusCode sc = StatusCode::SUCCESS; 
   
-  
   ATH_MSG_DEBUG ( "RPCStandaloneTracksMon::RPCStandaloneTracksMon Histograms being filled" );
   if( m_doRpcESD==true ) { if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {  
-      
+          
+  // TRIGGER SELECTION BASED ON CHAIN GROUP
+		 
+  if (m_selectTriggerChainGroup || m_deselectTriggerChainGroup){
+    std::string triggerChainGroupRegExp = m_triggerChainGroupRegExp;
+    std::string triggerChainGroupRegNot = m_triggerChainGroupRegNot;
+    m_chainGroupVeto   = m_trigDec->getChainGroup(triggerChainGroupRegNot.c_str());
+    std::vector<std::string> vec_list = m_chainGroupVeto->getListOfTriggers();
+    ATH_MSG_DEBUG(" List of Triggers to be Vetoed "<<vec_list);
+    m_chainGroupSelect = m_trigDec->getChainGroup(triggerChainGroupRegExp.c_str());
+    vec_list = m_chainGroupSelect->getListOfTriggers();
+    ATH_MSG_DEBUG(" List of Triggers to be Selected "<<vec_list);
+    if (m_chainGroupSelect) 
+      {
+	if (!m_chainGroupSelect->isPassed()) 
+	  {
+	    ATH_MSG_DEBUG(" not passed ....  skip ");
+	    return sc;
+	  }
+	else 
+	  {
+	    ATH_MSG_DEBUG(" passed ....  keep event ");
+	  }
+      }
+    if (m_chainGroupVeto) 
+      {
+	if (m_chainGroupVeto->isPassed()) 
+	  {
+	    ATH_MSG_DEBUG(" a trigger to be vetoed is passed ....  skip ");
+	    return sc;
+	  }
+	else 
+	  {
+	    ATH_MSG_DEBUG(" passed ....  keep event ");
+	  }
+      }
+  }
+    
    //Muon tracks
      
 //       // retrieve containers
 //       const xAOD::MuonSegmentContainer*     MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >        (m_muonSegmentsName);       
 //       const xAOD::TrackParticleContainer*   tracksMS     = evtStore()->retrieve< const xAOD::TrackParticleContainer >        (m_muonTracksName);      
          const xAOD::MuonContainer*	       Muons        = evtStore()->retrieve< const xAOD::MuonContainer >                      (m_muonsName);
+	 if (!Muons)   {
+	   ATH_MSG_WARNING ("Couldn't retrieve Muons container with key: " << m_muonsName);
+	   return StatusCode::SUCCESS;
+	 } 
+	 ATH_MSG_DEBUG ("Muon container with key: " << m_muonsName<<" found");
 //       const xAOD::VertexContainer*	       MSVertices   = evtStore()->retrieve< const xAOD::VertexContainer >           (m_msVertexCollection);
 //       const xAOD::TrackParticleContainer*   METracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_muonExtrapTracksName );
 //       const xAOD::TrackParticleContainer*   IDTracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >     ( m_innerTracksName );
@@ -313,24 +375,26 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	ATH_MSG_ERROR ( " Cannot retrieve RpcPrepDataContainer " << m_key_rpc );
 	return sc;
       }
+      ATH_MSG_DEBUG ( "RpcPrepDataContainer " << m_key_rpc <<" found");
 
-  
+      
 
-       const DataHandle<xAOD::EventInfo> eventInfo;
-       const DataHandle<xAOD::EventInfo> eventInfoEnd;
-       ATH_CHECK( m_eventStore->retrieve(eventInfo, eventInfoEnd) );
-       if (eventInfo == eventInfoEnd)
-       {
-        ATH_MSG_ERROR( "No event info objects" );
-        return StatusCode::FAILURE;
-       }
-      
-      
+      const DataHandle<xAOD::EventInfo> eventInfo;
+      sc = m_eventStore->retrieve( eventInfo );
+      if (sc.isFailure()) {
+	ATH_MSG_DEBUG ( "no event info" );
+	return StatusCode::SUCCESS;
+      }
+      else {
+	ATH_MSG_DEBUG ( "yes event info" );
+      }
+
+            
       //int RunNumber = eventInfo->runNumber();
       //long int EventNumber = eventInfo->eventNumber();
-      long int BCID =  eventInfo->bcid();
-      int lumiBlock = eventInfo->lumiBlock()  ;
-  
+      long int BCID   =  eventInfo->       bcid()  ;
+      int lumiBlock   =  eventInfo->  lumiBlock()  ; 
+      
       //select lumiblock for analysis
       if ( m_selectLB ) {	 
 	  // skip events outside Lb range selected in jobOpt
@@ -350,10 +414,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
        ATH_MSG_INFO( "SIMULATION");
       }
       //   return StatusCode::SUCCESS; // stop this algorithms execute() for this event, here only interested in MC
-    
-      
-    
-    
+        
       ATH_MSG_DEBUG ("****** rpc->size() : " << rpc_container->size());  
     
       Muon::RpcPrepDataContainer::const_iterator containerIt;
@@ -413,6 +474,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	  Rpc_x_3D.clear()         ;
 	  Rpc_y_3D.clear()         ;
 	  Rpc_z_3D.clear()         ;
+	  Rpc_eta_3D.clear()       ;
+	  Rpc_phi_3D.clear()       ;
 	  Rpc_t_3D.clear()         ;
 	  Rpc_avEta_3D.clear()     ;
 	  Rpc_avPhi_3D.clear()	   ;
@@ -589,9 +652,11 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  stripPosC = stripPosC / irpc_clus_size ;
 		}
 		avstripphi = av_strip + ShiftStrips;
-		irpc_clus_posx = stripPosC.x() ;
-		irpc_clus_posy = stripPosC.y() ;
-		irpc_clus_posz = stripPosC.z() ;
+		irpc_clus_posx   = stripPosC.x()   ;
+		irpc_clus_posy   = stripPosC.y()   ; 
+		irpc_clus_posz   = stripPosC.z()   ;
+		irpc_clus_poseta = stripPosC.eta() ;
+		irpc_clus_posphi = stripPosC.phi() ;
             
 	    		  
 		//get information from geomodel to book and fill rpc histos with the right max strip number
@@ -764,9 +829,11 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }
 		    avstripeta += float(ShiftEtaStripsTot)       ;
 		    avstripeta  = avstripeta*float(EtaStripSign) ;
-		    irpc_clus_posxII = stripPosCII.x() ;
-		    irpc_clus_posyII = stripPosCII.y() ;
-		    irpc_clus_poszII = stripPosCII.z() ;
+		    irpc_clus_posxII   = stripPosCII.x()   ;
+		    irpc_clus_posyII   = stripPosCII.y()   ;
+		    irpc_clus_poszII   = stripPosCII.z()   ;
+		    irpc_clus_posetaII = stripPosCII.eta() ;
+		    irpc_clus_posphiII = stripPosCII.phi() ;
 	   
   
 		    //evaluate layer type
@@ -790,17 +857,25 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      layertype = 6 ;
 		    }
 	      
+		    ATH_MSG_DEBUG("Candidate 3D RPC cluster N_Rpc_Clusters3D = "<<N_Rpc_Clusters3D 
+				  << " station name/phi/eta " << irpc_clus_station << " " << irpc_clus_phi << " " << irpc_clus_eta);
+
 		    //build 3D Rpc points without trigger hits //select clusters with size 1 or 2 
 		    //Check for muon combined match
 	            bool foundmatch3DwithMuon = false;
+		    int nm=0;
 		    if (Muons){	
                       // CombinedMuons Tight
 	             for (const xAOD::Muon* muons: *Muons)
 	             {       
 	                if ( muons->muonType()!=xAOD::Muon::Combined  || ( muons->quality()!=xAOD::Muon::Tight && m_requireMuonCombinedTight ))continue;
+			++nm;
+			ATH_MSG_DEBUG("muons passing quality cuts to test cluster-muon track matching is now "<<nm);
 	                const xAOD::TrackParticle* metrack = muons->trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );          
-	                if( !metrack   ) continue;
-		        if(  sqrt(fabs(irpc_clus_eta-metrack->eta())*fabs(irpc_clus_eta-metrack->eta()) +  fabs(irpc_clus_phi-metrack->phi())*fabs(irpc_clus_phi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
+	                if( !metrack   ) continue;		        
+			
+			ATH_MSG_DEBUG("xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle found for this muon ");
+		        if(  sqrt(fabs(irpc_clus_posetaII-metrack->eta())*fabs(irpc_clus_posetaII-metrack->eta()) +  fabs(irpc_clus_posphi-metrack->phi())*fabs(irpc_clus_posphi-metrack->phi())) <   m_MuonDeltaRMatching) foundmatch3DwithMuon = true ;
 		    	      
 		     }}//end muons
 		    
@@ -829,20 +904,21 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      Rpc_GasGap_3D.push_back (irpc_clus_gasgap    )  ;
 		      Rpc_x_3D.push_back      (irpc_clus_posx	 )  ;
 		      Rpc_y_3D.push_back      (irpc_clus_posy	 )  ;
-		      Rpc_z_3D.push_back      (irpc_clus_poszII    )  ;
+		      Rpc_z_3D.push_back      (irpc_clus_poszII          )  ;
+		      Rpc_eta_3D.push_back    (irpc_clus_posetaII	 )  ;
+		      Rpc_phi_3D.push_back    (irpc_clus_posphi          )  ;
 		      Rpc_t_3D.push_back      (irpc_clus_time	 )  ;
 		      Rpc_SL_3D.push_back     (SectorLogic	 )  ;
 		      Rpc_Side_3D.push_back   (Side		 )  ;
 		      Rpc_id_phi_3D.push_back (prd_id  	         )  ;
 		      Rpc_id_eta_3D.push_back (prd_idII  	         )  ;
-		      Rpc_avEta_3D.push_back  (int (avstripeta )   )  ;
-		      Rpc_avPhi_3D.push_back  (int (avstripphi )   )  ;
-		      Amg::Vector3D Vector3D(irpc_clus_posx  , irpc_clus_posy  ,  irpc_clus_poszII);
+		      Rpc_avEta_3D.push_back  (int (avstripeta )         )  ;
+		      Rpc_avPhi_3D.push_back  (int (avstripphi )         )  ;
+		      Amg::Vector3D Vector3D  (irpc_clus_posx  , irpc_clus_posy  ,  irpc_clus_poszII);
 		      Rpc_Point.push_back     (Vector3D 	         )  ;
 		      Rpc_Matched_mu.push_back(foundmatch3DwithMuon 	 )  ;
 		  
 		    
-            
 		      /*
 			std::cout << "Next 3D RPC cluster" << std::endl;
 			std::cout << N_Rpc_Clusters3D << " " << irpc_clus_phi << " " << irpc_clus_station << " " << irpc_clus_eta << std::endl;
@@ -928,11 +1004,15 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
     sc = (*m_activeStore) -> retrieve(sectorLogicContainer);     
     
     if (sc.isFailure()) {
-      ATH_MSG_WARNING ( "Cannot retrieve the RpcSectorLogicContainer" );     
-      return StatusCode::SUCCESS;
+      if (isMC==1) ATH_MSG_DEBUG ( "Cannot retrieve the RpcSectorLogicContainer ... that's normal in MC: no container is produced in digitization" );
+      else 
+	{
+	  ATH_MSG_WARNING ( "Cannot retrieve the RpcSectorLogicContainer ... however, there's no reason to stop here" );     
+	  //return StatusCode::SUCCESS;
+	}
     }
     else {
-     ATH_MSG_DEBUG(" Retrieve the RpcSectorLogicContainer " << sectorLogicContainer->size());
+     ATH_MSG_DEBUG("RpcSectorLogicContainer found with size " << sectorLogicContainer->size());
 
       ///////////////////////////////////////////
       // Loop over the Sector Logic containers //
@@ -1207,6 +1287,13 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	   
 	  }//end muon loop
 	  }//end if	
+	  ATH_MSG_DEBUG("-----------------------Search for 3D clusters is OVER-----------------------N_Rpc_Clusters3D "<<N_Rpc_Clusters3D<<" found");
+	  for (int i_3D=0; i_3D!=N_Rpc_Clusters3D; i_3D++) {
+	    ATH_MSG_DEBUG("----listing them-----"<<i_3D<<" layertype/planetype "<<LayerType.at(i_3D)<<"/"<<PlaneType.at(i_3D)
+			  <<" statName/eta/phi "<<Rpc_Station_3D.at(i_3D)<<"/"<<Rpc_Eta_3D.at(i_3D)<<"/"<<Rpc_Phi_3D.at(i_3D)
+			  <<" dbR/Z/P/gg "<<Rpc_DBLr_3D.at(i_3D)<<"/"<<Rpc_DBLz_3D.at(i_3D)<<"/"<<Rpc_DBLphi_3D.at(i_3D)
+			  <<"/"<<Rpc_GasGap_3D.at(i_3D)<<" eta/phi strip = "<<Rpc_avEta_3D.at(i_3D)<<"/"<<Rpc_avPhi_3D.at(i_3D));
+	  }
 			 	  
      
 	  /////////////// RPC standalone tracking     
@@ -1223,7 +1310,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	    Rpc_track = new int[N_Rpc_Clusters3D]; 
 			      
 	    for (int ilayertype=0; ilayertype!=7; ilayertype++) { //ilayertype==6 do tracks with all 6 layers
-            
+	      ATH_MSG_DEBUG("---***---***---***--- Track Search iteration ilayertype="<<ilayertype<<" out of [0-6]");
+
 
 	      for (int i_3D=0; i_3D!=N_Rpc_Clusters3D; i_3D++) { Rpc_track[ i_3D ] = 0; }
                                         
@@ -1243,16 +1331,20 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		}	              
 	      */
  	      for (int i_3D0=0; i_3D0!=N_Rpc_Clusters3D; i_3D0++) {
-	        if( Rpc_Matched_mu.at(i_3D0) && m_StandAloneMatchedWithTrack )continue;
+	        if( !(Rpc_Matched_mu.at(i_3D0)) && m_StandAloneMatchedWithTrack )continue;
  		if(LayerType.at(i_3D0)==ilayertype &&  ilayertype!=6  )continue;
  		if(Rpc_track[ i_3D0 ]>0||PlaneType.at(i_3D0)!=0)continue;//Start always with no-track assigned LowPt plane
  		Phi_Rpc_Track = Rpc_Phi_3D[ i_3D0 ]; 
  		PointperTrack = 1  ;
  		Rpc_track[ i_3D0 ] = N_Rpc_Tracks + 1 ;//preliminary assigned
- 		//std::cout << "First Clusters 3D " << i_3D0 <<" " <<LayerType.at(i_3D0)<<" "<< (Rpc_Point.at(i_3D0)).x() << " " << (Rpc_Point.at(i_3D0)).y() << " " <<(Rpc_Point.at(i_3D0)).z() <<std::endl ;  
+		/*std::cout << "First Cluster 3D " << i_3D0 <<" on LayerType[0-5] =" 
+		  <<LayerType.at(i_3D0)<<" "<< (Rpc_Point.at(i_3D0)).x() << " " << (Rpc_Point.at(i_3D0)).y() << " " <<(Rpc_Point.at(i_3D0)).z() 
+		  <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3D0)<<"/"<<Rpc_Eta_3D.at(i_3D0)<<"/"<
+		  <Rpc_Phi_3D.at(i_3D0)<<"/"<<Rpc_DBLr_3D.at(i_3D0)<<"/"<<Rpc_DBLz_3D.at(i_3D0)<<"/"<<Rpc_DBLphi_3D.at(i_3D0)
+		  <<"/"<<Rpc_GasGap_3D.at(i_3D0)<<std::endl ;*/
  		linkedtrack   = 0 ;
 		for (int i_3DI=0;i_3DI!=N_Rpc_Clusters3D;i_3DI++) {
-	          if( Rpc_Matched_mu.at(i_3DI)  && m_StandAloneMatchedWithTrack )continue;
+	          if( !(Rpc_Matched_mu.at(i_3DI))  && m_StandAloneMatchedWithTrack )continue;
 		  if(linkedtrack == 1 ) continue ;
 		  if(  abs(Rpc_Eta_3D.at(i_3DI)-Rpc_Eta_3D.at(i_3D0)) > EtaStationSpan )continue;
 		  if(  abs(Rpc_Phi_3D.at(i_3DI)-Rpc_Phi_3D.at(i_3D0)) > DoublePhiSpan  )continue;
@@ -1260,25 +1352,33 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		  if(Rpc_track[ i_3DI ]>0||PlaneType.at(i_3DI)!=1)continue;//Second always no-track assigned Pivot plane
 		  Rpc_track[ i_3DI ] = N_Rpc_Tracks + 1 ;
 		  PointperTrack = 2 ;
-		     
-		  //std::cout << "Second Clusters 3D " << i_3DI <<" "<<LayerType.at(i_3DI)<<" " <<(Rpc_Point.at(i_3DI)).x() << " " <<(Rpc_Point.at(i_3DI)).y() << " " <<(Rpc_Point.at(i_3DI)).z() <<std::endl ; 
-	
+		  /*  std::cout << "Second Cluster 3D " << i_3DI <<" on LayerType[0-5] =" <<LayerType.at(i_3DI)<<" "
+		      << (Rpc_Point.at(i_3DI)).x() << " " << (Rpc_Point.at(i_3DI)).y() << " " <<(Rpc_Point.at(i_3DI)).z() 
+		      <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3DI)<<"/"<<Rpc_Eta_3D.at(i_3DI)<<"/"
+		      <<Rpc_Phi_3D.at(i_3DI)<<"/"<<Rpc_DBLr_3D.at(i_3DI)<<"/"<<Rpc_DBLz_3D.at(i_3DI)<<"/"<<Rpc_DBLphi_3D.at(i_3DI)<<"/"
+		      <<Rpc_GasGap_3D.at(i_3DI)<<std::endl ;*/
 		  SegVector = Rpc_Point.at(i_3DI)-Rpc_Point.at(i_3D0) ;	  
 		  SegPoint  =			Rpc_Point.at(i_3D0) ;
-		  
+		  /*std::cout << "for First-Second cluster pair: start     point="
+		    <<SegPoint.x() << " " <<SegPoint.y()<< " "<< SegPoint.z()
+		    <<" r/phi/z "<<SegPoint.perp()<<"/"<<SegPoint.phi()<<SegPoint.z()<<std::endl ;
+		    std::cout << "for First-Second cluster pair: 1-2Vector point="
+		    <<SegVector.x() << " " <<SegVector.y()<< " "<< SegVector.z()
+		    <<" r/phi/z "<<SegVector.perp()<<"/"<<SegVector.phi()<<SegVector.z()<<std::endl ;*/
 		  lookforthirdII   = 0 ;
 		  thirdlayertypeII = 0 ; 
 		  thirdlayerHPt    = 0 ;
 		
 		  for (int i_3DII=0;i_3DII!=N_Rpc_Clusters3D;i_3DII++) {
-	            if( Rpc_Matched_mu.at(i_3DII) && m_StandAloneMatchedWithTrack )continue;
+	            if( !(Rpc_Matched_mu.at(i_3DII)) && m_StandAloneMatchedWithTrack )continue;
 		    if(  abs(Rpc_Eta_3D.at(i_3DII)-Rpc_Eta_3D.at(i_3DI)) > EtaStationSpan )continue;
 		    if(  abs(Rpc_Phi_3D.at(i_3DII)-Rpc_Phi_3D.at(i_3DI)) > DoublePhiSpan  )continue;
 		    if(LayerType.at(i_3DII)==ilayertype &&  ilayertype!=6  )continue;
 		    if(Rpc_track[ i_3DII ]>0)continue;//Third no-track assigned LowPt or Pivot or HighPt plane
 		  
-		    //std::cout << "Third Clusters 3D " << i_3DII <<" "<<LayerType.at(i_3DII)<<" " <<(Rpc_Point.at(i_3DII)).x() << " " <<(Rpc_Point.at(i_3DII)).y() << " "<<(Rpc_Point.at(i_3DII)).z() <<std::endl ; 
-		  
+		    /*
+		    std::cout << "Third Cluster 3D " << i_3DII <<" on LayerType[0-5] =" <<LayerType.at(i_3DII)<<" "<< (Rpc_Point.at(i_3DII)).x() << " " << (Rpc_Point.at(i_3DII)).y() << " " <<(Rpc_Point.at(i_3DII)).z() <<" station/eta/phi/dbR/dbZ/dbP/gg = "<< Rpc_Station_3D.at(i_3DII)<<"/"<<Rpc_Eta_3D.at(i_3DII)<<"/"<<Rpc_Phi_3D.at(i_3DII)<<"/"<<Rpc_DBLr_3D.at(i_3DII)<<"/"<<Rpc_DBLz_3D.at(i_3DII)<<"/"<<Rpc_DBLphi_3D.at(i_3DII)<<"/"<<Rpc_GasGap_3D.at(i_3DII)<<std::endl ;*/
+
 		    ImpactVector = (SegPoint-Rpc_Point.at(i_3DII)).cross(SegVector);	    
 		    if(SegVector.mag()!=0)ImpactVector = ImpactVector/ SegVector.mag();	   
 		    
@@ -1286,7 +1386,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      std::cout << "ImpactVector "<<ImpactVector.x() << " " <<ImpactVector.y()<< " "<< ImpactVector.z()<<std::endl ;
 		      std::cout << "SegVector "<<SegVector.x() << " " <<SegVector.y()<< " "<< SegVector.z()<<std::endl ;
 		      std::cout << "SegPoint "<<SegPoint.x() << " " <<SegPoint.y()<< " "<< SegPoint.z()<<std::endl ;
-		      std::cout << "Distance " << ImpactVector.mag() <<std::endl ;
+		      std::cout << "Distance " << ImpactVector.mag() <<" to be compared with threshold = "<<MergePointDistance<<std::endl ;
 		    */
 		    
 		    if(ilayertype<6){
@@ -1297,13 +1397,19 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    }      
 		    
 		    if(ImpactVector.mag()<MergePointDistance){
-		      //std::cout << "Merge " <<std::endl ;
+		      /*
+		      std::cout << "Third (or following) cluster matches the segment built with 1st-2nd 3D cluster pair... 1st,2nd,3rd indices = "
+				<<i_3D0<<"/"
+				<<i_3DI<<"/"
+				<<i_3DII
+				<<" for track index "<<N_Rpc_Tracks + 1<<" at ilayertype iter="<<ilayertype<<std::endl ;
+		      */
 		      Rpc_track[ i_3DII ] = N_Rpc_Tracks + 1 ;
 		      PointperTrack++ ;
 		      lookforthirdII = 1 ;
 		      if (LayerType.at(i_3DII)!=LayerType.at(i_3DI) && LayerType.at(i_3DII)!=LayerType.at(i_3D0) ){ 
 			thirdlayertypeII = 1 ;
-			//std::cout << "third layer found " <<std::endl ;
+			//std::cout << "third cluster found - is not on the same layer as 1st and 2nd  " <<std::endl ;
 		      }
 		      if (LayerType.at(i_3DII)> 3 ){ 
 			thirdlayerHPt = 1 ;
@@ -1311,6 +1417,8 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		      }
 		     	    
 		    }
+		    else ATH_MSG_VERBOSE("Third (or following) cluster DO NOT match the segment built with 1st-2nd 3D cluster");
+
 		          
 		    
 		    //merge in costheta not used
@@ -1322,7 +1430,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 			
 		  }//Third
 		  //First and Second do not link with different layer type with any Third let free Second
-	
+
+		  /*
+		  std::cout<<"3rd LOOP over clusters is OVER: any good triplet ?? lookforthirdII/thirdlayertypeII/ilayertype/thirdlayerHPt/ = "
+			   <<lookforthirdII<<"/"<<thirdlayertypeII<<"/"<<ilayertype<<"/"<<thirdlayerHPt<<"/"<<m_HPtPointForHPteff<<"/"
+			   <<m_HPtPointForLPteff<<"/"<<m_HPtPointForTracks<<std::endl;
+		  */
+			   
+
 		  if( (lookforthirdII==0||thirdlayertypeII==0)                  ||
 		      (ilayertype==4&&thirdlayerHPt==0&&m_HPtPointForHPteff==1) ||
 		      (ilayertype==5&&thirdlayerHPt==0&&m_HPtPointForHPteff==1) ||
