@@ -1,0 +1,32 @@
+
+package PixelLayoutECRing
+author LAPP team
+
+private
+
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PathResolver   PathResolver-*    Tools
+
+use Identifier           Identifier-*           DetectorDescription
+use PixelGeoModelModule   PixelGeoModelModule-*   InnerDetector/InDetDetDescr/PixelLayouts
+
+public
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*       External
+use AthenaBaseComps	 AthenaBaseComps-*      Control
+use AthenaKernel         AthenaKernel-*         Control
+use AtlasXercesC         AtlasXercesC-*         External
+use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
+
+use InDetTrackingGeometryXML        InDetTrackingGeometryXML-* 	InnerDetector/InDetDetDescr
+use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
+
+use PixelLayoutUtils   PixelLayoutUtils-*   InnerDetector/InDetDetDescr/PixelLayouts
+use PixelInterfaces   PixelInterfaces-*   InnerDetector/InDetDetDescr/PixelLayouts
+
+library PixelLayoutECRing *.cxx components/*.cxx
+apply_pattern component_library
+
