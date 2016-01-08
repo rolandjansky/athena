@@ -95,6 +95,8 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 using namespace boost::property_tree;
 using std::string;
 using std::function;
+using std::begin;
+using std::end;
 using SOR = TrigSORFromPtreeHelper::SOR;
 
 namespace
@@ -114,7 +116,7 @@ namespace
       0x7300a8, 0x7300a9, 0x7300aa, 0x7300ab, // TDAQ_CALO_CLUSTER_PROC_ROI ROBs
       0x7500ac, 0x7500ad,                     // TDAQ_CALO_JET_PROC_ROI ROBs
       0x760001                                // TDAQ_MUON_CTP_INTERFACE ROB
-    }};
+    }}; // default list of IDs of ROBs that must come in the L1R from the RoIB
 
   //=========================================================================
   constexpr std::array<uint32_t, 12> L1R_SKIP_ROB_CHECK =
@@ -302,6 +304,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_hist_HltEdmSizes_With_Truncation(0),
   m_hist_HltEdmSizes_TruncatedResult_Retained_Collections(0),
   m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections(0),
+  m_mandatoryL1ROBs{{begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)}},
   m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,200000,100)),
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,9.5,10)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
@@ -330,6 +333,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("setMagFieldFromIS",        m_setMagFieldFromIS=false);
   declareProperty("enabledROBs",              m_enabledROBs);
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
+  declareProperty("MandatoryL1ROBs",          m_mandatoryL1ROBs, "List of mandatory ROB IDs coming from the RoIB (must come in L1R seed)");
   declareProperty("HltEDMCollectionNames",    m_hltEdmCollectionNames, "Names of all HLT EDM Collections");
   declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
   declareProperty("doMonitoring",             m_doMonitoring=true, "Produce framework monitoring histograms");
@@ -902,10 +906,6 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   // create an empty HLT Result Object and register it in StoreGate
   // (if this fails, steering will try to create a HLT result object)
   //-----------------------------------------------------------------------
-  /*
-  HLT::HLTResult* pHltResult(0);
-  pHltResult = new HLT::HLTResult() ;
-  */
   auto pHltResult = new HLT::HLTResult;
   pHltResult->setLvl1Id(m_currentEvent->event_ID()->event_number());
   HLT::HLTExtraData& extraData = pHltResult->getExtraData();
@@ -978,12 +978,13 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     sc = executeAlgorithms();
   }
   catch ( const std::exception& e ) {
-    logStream() << MSG::ERROR << "Caught " << e.what() << endreq;
-    throw;
+    logStream() << MSG::ERROR << "Caught a standard exception "
+                << e.what() << endreq;
+    sc = StatusCode::FAILURE;
   }
   catch (...) {
     logStream() << MSG::ERROR << "Unknown exception" << endreq;
-    throw;
+    sc = StatusCode::FAILURE;
   }
 
   if (sc.isSuccess()) {
@@ -2208,7 +2209,7 @@ void HltEventLoopMgr::HltBookHistograms()
 } //  end method HltEventLoopMgr::HltBookHistograms
 
 //=========================================================================
-void HltEventLoopMgr::fillHltResultHistograms(hltinterface::HLTResult& hlt_result)
+void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt_result)
 {
   if ( logLevel() <= MSG::DEBUG ) {
     logStream() << MSG::DEBUG << "---> fillHltResultHistograms(hltinterface::HLTResult& hlt_result) for " << name() << " called " << endreq;
@@ -2841,8 +2842,18 @@ HltEventLoopMgr::serializeRobs(hltinterface::HLTResult& hltr, bool& serOk,
   // obtain the module ids that need serialization
   auto modids = dobj->listOfModIDs(); // hope for copy ellision
 
-  if(m_forceHltAccept && find(begin(modids), end(modids), 0) == end(modids))
-    modids.push_back(0);
+  if(find(begin(modids), end(modids), 0) == end(modids))
+  {
+    const auto& sts = hltr.stream_tag;
+    using ST = decltype(sts[0]);
+    auto pred = [](const ST& st){ return st.type == "debug"; };
+
+    if (m_forceHltAccept ||
+        find_if(begin(sts), end(sts), pred) != end(sts))
+    {
+      modids.push_back(0);
+    }
+  }
 
   // loop over module ids and build a rob for each one
   for(const auto& modid : modids)
@@ -3020,8 +3031,10 @@ void HltEventLoopMgr::failedEvent(hltinterface::HLTResult& hlt_result,
 
   addDebugStreamTag(hlt_result, m_HltDebugStreamName.value());
   if(empty_result)
+  {
     HltEmptyResultROB(hlt_result, ecode);
-  fillHltResultHistograms(hlt_result);
+    fillHltResultHistograms(hlt_result);
+  }
 
   logStream() << MSG::ERROR << ST_WHERE
               << emsg << " PSC error code = "
@@ -3038,7 +3051,7 @@ const
   using ROB = eformat::ROBFragment<const uint32_t*>;
 
   std::vector<uint32_t> ret{};
-  for(const auto& robid : L1R_MANDATORY_ROBS)
+  for(const auto& robid : m_mandatoryL1ROBs.value())
   {
     if(isSubDetectorIn(SourceIdentifier(robid).subdetector_id()))
     {

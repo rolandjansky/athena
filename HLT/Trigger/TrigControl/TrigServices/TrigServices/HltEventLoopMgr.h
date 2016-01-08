@@ -155,7 +155,7 @@ private:
    * @brief Helper to fill histograms from HLT result
    * @param hlt_result          reference to dataflow HLTResult object
    */
-  void fillHltResultHistograms(hltinterface::HLTResult& hlt_result);
+  void fillHltResultHistograms(const hltinterface::HLTResult& hlt_result);
   
   /// Check if running in partition
   bool validPartition() const {
@@ -386,6 +386,7 @@ private:
   typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
   Uint32ArrayProperty       m_enabledROBs;         //!< list of all enabled ROBs which can be retrieved
   Uint32ArrayProperty       m_enabledSubDetectors; //!< list of all enabled Sub Detectors which can be retrieved
+  Uint32ArrayProperty       m_mandatoryL1ROBs;     //!< list of mandatory ROB IDs coming from the RoIB (must come in L1R seed)
 
   StringArrayProperty       m_hltEdmCollectionNames; //!< names of all HLT EDM collections for histogram label 
   
