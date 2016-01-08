@@ -1,0 +1,26 @@
+
+package PixelGeoModelModule
+
+private
+
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+
+use PathResolver   PathResolver-*    Tools
+
+use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
+use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PixelGeoComponent 	 PixelGeoComponent-*  InnerDetector/InDetDetDescr/PixelLayouts
+use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
+
+public
+
+use AtlasPolicy          AtlasPolicy-*
+use AtlasXercesC         AtlasXercesC-*         External
+
+use Identifier           Identifier-*           DetectorDescription
+use PixelLayoutUtils   PixelLayoutUtils-*   InnerDetector/InDetDetDescr/PixelLayouts
+
+apply_pattern installed_library
+library PixelGeoModelModule *.cxx
+
