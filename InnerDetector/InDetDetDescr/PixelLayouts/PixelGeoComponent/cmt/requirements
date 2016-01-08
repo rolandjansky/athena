@@ -1,0 +1,25 @@
+package PixelGeoComponent
+
+author LAPP team
+
+private
+
+#use StoreGate           StoreGate-*           Control
+#use GeoModelSvc         GeoModelSvc-*         DetectorDescription/GeoModel
+#use GeoModelInterfaces         GeoModelInterfaces-*         DetectorDescription/GeoModel
+#use GeoModelUtilities         GeoModelUtilities-*         DetectorDescription/GeoModel
+#use GeometryDBSvc       GeometryDBSvc-*       DetectorDescription
+use InDetGeoModelUtils InDetGeoModelUtils-*  InnerDetector/InDetDetDescr
+
+public
+
+use SGTools              SGTools-*           Control
+use AtlasPolicy	    AtlasPolicy-*
+#use GaudiInterface  GaudiInterface-*  External
+#use AthenaKernel    AthenaKernel-*    Control
+use AtlasCLHEP      AtlasCLHEP-*      External
+use GeoModelKernel  GeoModelKernel-*  DetectorDescription/GeoModel
+#use RDBAccessSvc    RDBAccessSvc-*    Database/AthenaPOOL
+
+apply_pattern installed_library
+library PixelGeoComponent *.cxx
