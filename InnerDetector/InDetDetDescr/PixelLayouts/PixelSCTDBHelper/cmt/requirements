@@ -1,0 +1,22 @@
+package PixelSCTDBHelper
+
+
+private
+
+use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
+
+public
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaKernel         AthenaKernel-*         Control
+use AtlasCLHEP           AtlasCLHEP-*           External
+use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
+use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
+use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
+
+
+#library PixelDBHelper *.cxx components/*.cxx
+#apply_pattern component_library
+
+apply_pattern installed_library
+library PixelSCTDBHelper *.cxx
