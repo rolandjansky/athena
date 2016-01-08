@@ -1815,7 +1815,7 @@
                                 <doc>Email notification when finished</doc>
                                 <jobTransformJobName>Notification</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_finishedMail.py atlas-sw-tct@cern.ch summaryESDTAGcomp.txt MinBiasStream_Run201489_Pileup_20_Collisions_Comparison.txt,JetTauEtmissStream_Run201489_Pileup_20_Collisions_Comparison.txt,MuonsStream_Run201489_Pileup_20_Collisions_Comparison.txt,EgammaStream_Run201489_Pileup_20_Collisions_Comparison.txt
+                                    tct_finishedMail.py atlas-sw-tct@cern.ch summaryESDTAGcomp.txt MainStream_Run276689_Collisions_Comparison.txt
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <chaindataset_info>
@@ -1828,30 +1828,7 @@
                                 </chaindataset_info>
                                 <chaindataset_info>
                                     <jobTransformData/>
-                                    <chaindatasetName>MinBiasStream_Run201489_Pileup_20_Collisions_Comparison.txt</chaindatasetName> <!-- Made by MinBiasStream_Run201489_Pileup_20_Collisions_Comparison -->
-                                    <dataset_info>
-                                        <jobTransformData/>
-                                        <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/webtimestamp</datasetName>
-                                    </dataset_info>
-                                </chaindataset_info>
-                                <chaindataset_info>
-                                    <jobTransformData/>
-                                    <chaindatasetName>JetTauEtmissStream_Run201489_Pileup_20_Collisions_Comparison.txt</chaindatasetName> <!-- Made by JetTauEtmissStream_Run201489_Pileup_20_Collisions_Comparison -->
-                                    <dataset_info>
-                                        <jobTransformData/>
-                                        <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/webtimestamp</datasetName>
-                                    </dataset_info>
-                                </chaindataset_info>
-                                <chaindataset_info>
-                                    <jobTransformData/>
-                                    <chaindatasetName>MuonsStream_Run201489_Pileup_20_Collisions_Comparison.txt</chaindatasetName> <!-- Made by MuonsStream_Run201489_Pileup_20_Collisions_Comparison -->
-                                    <dataset_info>
-                                        <jobTransformData/>
-                                        <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/webtimestamp</datasetName>
-                                    </dataset_info>
-                                </chaindataset_info>
-                                <chaindataset_info>
-                                    <jobTransformData/>                                    <chaindatasetName>EgammaStream_Run201489_Pileup_20_Collisions_Comparison.txt</chaindatasetName> <!-- Made by EgammaStream_Run201489_Pileup_20_Collisions_Comparison -->
+                                    <chaindatasetName>MainStream_Run276689_Collisions_Comparison.txt</chaindatasetName> <!-- Made by MainStream_Run276689_Collisions_Comparison -->
                                     <dataset_info>
                                         <jobTransformData/>
                                         <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/webtimestamp</datasetName>
