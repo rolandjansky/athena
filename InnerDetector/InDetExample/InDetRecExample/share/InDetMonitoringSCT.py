@@ -60,6 +60,14 @@ if (InDetFlags.doPrintConfigurables()):
   print InDetSCTErrMonTool
                
 
+
+if not hasattr(ServiceMgr,"TrigConfigSvc"):
+  from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
+  trigconfigsvc= SetupTrigConfigSvc()
+  trigconfigsvc.SetStates('ds')
+  trigconfigsvc.InitialiseSvc()
+  pass
+
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 SCT_BunchCrossingTool = BunchCrossingTool()
 

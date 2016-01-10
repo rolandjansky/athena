@@ -4,12 +4,21 @@ from InDetRecExample.InDetKeys import InDetKeys
 doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0) \
                     and InDetFlags.doParticleCreation()
 doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() \
-                    and InDetFlags.doParticleCreation()
+                    and InDetFlags.doParticleConversion()
+
 if doCreation:
     print "Creating xAOD::TrackParticles from Trk::Tracks"
 if doConversion:
     print "Converting Rec::TrackParticles to xAOD::TrackParticles"
 
+_perigee_expression=InDetFlags.perigeeExpression()
+# need to tread Vertex specifically because at the time of
+# the track particle creation the primary vertex does not yet exist.
+# The problem is solved by first creating track particles wrt. the beam line
+# and correcting the parameters after the vertex finding.
+if _perigee_expression == 'Vertex' :
+    _perigee_expression = 'BeamLine'
+    
 
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
 InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool", 
@@ -17,7 +26,8 @@ InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODPa
                                                              TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                              BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                              ForceTrackSummaryUpdate = False,
-                                                             KeepParameters          = True)
+                                                             KeepParameters          = True,
+                                                             PerigeeExpression       = _perigee_expression)
 
 
 ToolSvc += InDetxAODParticleCreatorTool 
