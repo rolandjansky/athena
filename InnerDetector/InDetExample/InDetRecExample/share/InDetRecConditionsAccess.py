@@ -1,6 +1,8 @@
 # block include of file, this is used by many packages
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
+isData = (globalflags.DataSource == 'data')
+
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
   from IOVDbSvc.CondDB import conddb
@@ -95,7 +97,9 @@ if DetFlags.haveRIO.pixel_on():
         if InDetFlags.doPrintConfigurables():
             print InDetPixelDCSSvc
 
-        InDetPixelConditionsSummarySvc.UseDCS         = True
+        # temporarily workaround incomplete conditions data for MC
+        #  by only enabling the usage of dcs in the pixel conditions summary service for data
+        InDetPixelConditionsSummarySvc.UseDCS         = isData
         InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY' ]
         InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING' ]
         # Force Lorentz angle calculation to use DCS for data

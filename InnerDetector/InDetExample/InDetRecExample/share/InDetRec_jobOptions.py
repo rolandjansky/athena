@@ -474,7 +474,8 @@ else:
                                                                  InDetKeys.ExtendedLargeD0Tracks(),
                                                                  InDetKeys.ExtendedTracksMapLargeD0(),
                                                                  TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
+                                                                 TrackCollectionTruthKeys,
+                                                                 False)
       # --- remove the standard tracks included some lines before (in the ESD 
       #     processing case, those tracks are not part of the re-tracking procedure)
       if InDetFlags.useExistingTracksAsInput():
