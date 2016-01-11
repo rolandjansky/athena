@@ -3062,11 +3062,11 @@ def setupMenu():
         ['noalg_L1TGC_BURST',   'L1_TGC_BURST', [], ['TgcNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
         
         #DCM level monitoring test chain
-        ['noalg_dcmmon_L1RD0_EMPTY',   'L1_RD0_EMPTY',        [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
-
-        ['noalg_dcmmon_L1RD2_EMPTY',   'L1_RD2_EMPTY',        [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
-        ['noalg_dcmmon_L1RD2_BGRP12',  'L1_RD2_BGRP12',       [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
-
+#        ['noalg_dcmmon_L1RD0_EMPTY',   'L1_RD0_EMPTY',        [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
+#
+#        ['noalg_dcmmon_L1RD2_EMPTY',   'L1_RD2_EMPTY',        [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
+#        ['noalg_dcmmon_L1RD2_BGRP12',  'L1_RD2_BGRP12',       [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
+#
         #background streamers
         ['noalg_bkg_L1Bkg',               'L1_Bkg',               [], ['Background'], ["RATE:SeededStreamers", "BW:Other"], -1], 
         ['noalg_bkg_L1J12',               'L1_J12',               [], ['Background'], ["RATE:SeededStreamers", "BW:Other"], -1], 
@@ -3265,7 +3265,7 @@ def setupMenu():
 	['noalg_L1J12',  'L1_J12',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ], 
 	['noalg_L1J120',  'L1_J120',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1],
 	['noalg_L1J15',  'L1_J15',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
-	['noalg_L1J15.28ETA31',  'L1_J15.28ETA31',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
+#	['noalg_L1J15.28ETA31',  'L1_J15.28ETA31',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
 	['noalg_L1J15.31ETA49',  'L1_J15.31ETA49',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
 	['noalg_L1J20',  'L1_J20',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],
         ['noalg_L1J20.28ETA31',  'L1_J20.28ETA31',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:Jets"], -1 ],

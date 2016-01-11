@@ -247,8 +247,8 @@ class LVL1TopoInput(LVL1Threshold):
             from TriggerMenu.l1topo.TopoOutput import TriggerLine
             if type(triggerlines)==list:
                 # multibit triggerlines
-                (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga) = TriggerLine.checkMultibitConsistency(triggerlines)
-                super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype='TOPO', mapping=firstbit)
+                (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga, ordinal) = TriggerLine.checkMultibitConsistency(triggerlines)
+                super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype='TOPO', mapping=ordinal)
 
                 self.cable      = cable           # 0 .. 1
                 self.bitnum     = numberOfBits

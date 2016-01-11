@@ -141,19 +141,16 @@ class L2EFChain_tau(L2EFChainDef):
     
     
     #create the tracking sequence and tracking selection sequence    
-    def addTrackPreselectionSequences(self,threshold,selection,preselection,idperf,trkprec):        
-        # Run-II tracking-based approach
-        theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
-
+    def addTrackingSequence(self,threshold,selection,preselection,idperf,trkprec):        
         # Get the necessary fexes
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         if preselection == 'FTK':
             from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
             # use [:] so the list trkprec is modified by this function
-            [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=[""]).getSequence()
+            [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["PT"]).getSequence()
         elif preselection == 'FTKRefit':
             from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-            [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit"]).getSequence()
+            [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit","PT"]).getSequence()
         else:
             [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
         # Use cosmic-specific tracking algorithm
@@ -164,7 +161,10 @@ class L2EFChain_tau(L2EFChainDef):
         self.EFsequenceList += [[[ self.currentItem ],
                                  trkfast,
                                  self.continueChain('EF', 'trfast')]]
-            
+    
+    def addTrackingSelectionSequence(self,threshold,selection,preselection,idperf,trkprec):
+        # Run-II tracking-based approach
+        theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)  
         # Run the track-based pre-selection
         # Only cut if we're not in idperf
         if not idperf:
@@ -173,7 +173,7 @@ class L2EFChain_tau(L2EFChainDef):
                                      self.continueChain('EF', 'trackpre')]]
             
     #create the vertexing selection sequence        
-    def addVertexPreselectionSequence(self,threshold,selection,preselection,idperf):   
+    def addVertexSequence(self,threshold,selection,preselection,idperf):   
         
         #import FEX and xAOD Conversion algorithm   
         from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
@@ -186,19 +186,13 @@ class L2EFChain_tau(L2EFChainDef):
         from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigVertexxAODCnv 
         theInDet__TrigVertexxAODCnv = InDet__TrigVertexxAODCnv()
         theInDet__TrigVertexxAODCnv.InputVxContainerKey = 'PrimVxFTK'
-        theInDet__TrigVertexxAODCnv.OutputVxContainerKey = 'PrimVtxFTK'
+        theInDet__TrigVertexxAODCnv.OutputVxContainerKey = 'PrimVertexFTK'
 
         vertexAlgorithms = [theTrigFTK_VxPrimary_EF, theInDet__TrigVertexxAODCnv]
         
-        #selection is applied only if not an idperf chain
-        if not idperf:
-            from TrigTauHypo.TrigTauHypoConf import HLTVertexPreSelHypo
-            theHLTVertexPreSelHypo = HLTVertexPreSelHypo()
-            vertexAlgorithms.append(theHLTVertexPreSelHypo)
-            
         self.EFsequenceList += [[[ self.currentItem ],
-                                     vertexAlgorithms,
-                                     self.continueChain('EF', 'vertpre')]]
+                                         vertexAlgorithms,
+                                         self.continueChain('EF', 'vertex')]]
         
     #create the TrigTauRec preselection sequence       
     def addTrigTauRecTauPreselectionSequence(self,threshold,selection,preselection,idperf):              
@@ -322,11 +316,12 @@ class L2EFChain_tau(L2EFChainDef):
             selection = 'perf'
 
         #Create FTK chain or other chains
-        if preselection == 'FTK' or preselection == 'FTKRefit':
-            self.addTrackPreselectionSequences(threshold, selection, preselection, idperf, trkprec)
-            self.addVertexPreselectionSequence(threshold, selection, preselection, idperf)
+        if preselection == 'FTK' or preselection == 'FTKRefit':           
             self.addCaloSequence(threshold, selection, preselection)
+            self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
+            self.addVertexSequence(threshold,selection,preselection,idperf)
             self.addTrigTauRecTauFTKSequence(threshold,selection,preselection,idperf)
+            self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
             self.addCaloHypoSequence(threshold,selection,preselection)
         else:
             # Calorimeter
@@ -345,7 +340,8 @@ class L2EFChain_tau(L2EFChainDef):
                     self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
             # One step fast-tracking
             if preselection in needsTrackPre:
-                self.addTrackPreselectionSequences(threshold, selection, preselection, idperf, trkprec)   
+                self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
+                self.addTrackingSelectionSequence(threshold,selection,preselection,idperf,trkprec) 
                 self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
 
         if preselection in needsRun2Hypo:

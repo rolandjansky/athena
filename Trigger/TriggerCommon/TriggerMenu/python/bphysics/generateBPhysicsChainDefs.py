@@ -93,7 +93,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         EFHypo = EFMultiMuHypo_Jpsi()
         
     elif (mtopo =='bDimu'):
-        if ('3mu' in chainDict['chainName']):
+        import re
+        if ('3mu' in chainDict['chainName'] or re.search('2mu[0-9]+_mu[0-9]+',chainDict['chainName']) or re.search('mu[0-9]+_2mu[0-9]+',chainDict['chainName'])):
             from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_DiMu
             from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_DiMu
             from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_DiMu
@@ -114,14 +115,36 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             EFHypo = EFBMuMuHypo_DiMu()
 
     elif (mtopo == 'bTau'):
+        chainParts = chainDict['chainParts']
+        mult = 0
+        for part in chainParts :
+            mult = mult + int(part['multiplicity'])
+
         from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
+        from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau2
         from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau
-        L2Fex = L2MultiMuFex_Tau()
-        L2Hypo = L2MultiMuHypo_Tau()        
-        EFFex = EFMultiMuFex_Tau()
-        EFHypo = EFMultiMuHypo_Tau()
+
+        if ('nscan' in chainDict['chainName'] ): # do not do L2
+            L2Fex = None
+            L2Hypo = None
+            if mult == 2 :
+                EFFex = EFMultiMuFex_Tau2()
+            else :
+                EFFex = EFMultiMuFex_Tau()
+            EFHypo = EFMultiMuHypo_Tau()
+        else :
+            if mult == 2 :
+                L2Fex = L2MultiMuFex_Tau2()
+                EFFex = EFMultiMuFex_Tau2()
+            else :
+                L2Fex = L2MultiMuFex_Tau()
+                EFFex = EFMultiMuFex_Tau()
+            L2Hypo = L2MultiMuHypo_Tau()
+            EFHypo = EFMultiMuHypo_Tau()
+
     
     elif (mtopo == 'bUpsi'):
         from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Upsi
@@ -175,10 +198,10 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     else:
         logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
-
-    theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
-    theChainDef.addSignatureL2([L2TEname])
-
+   
+    if  L2Fex != None :
+        theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
+        theChainDef.addSignatureL2([L2TEname])
     theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from=topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])    
 
@@ -295,7 +318,39 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_24invm60_noVtx()
         EFFex  = EFBMuMuFex_DiMu_24invm60_noOS()
         EFHypo = EFBMuMuHypo_DiMu_24invm60_noVtx()
+   
+    elif ('bTau' in topoAlgs) :
         
+        chainParts = chainDict['chainParts']
+        mult = 0
+        for part in chainParts :
+            mult = mult + int(part['multiplicity'])
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau
+        from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau2
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
+
+        if ('nscan' in chainDict['chainName'] or  'noL2' in topoAlgs ): # do not do L2
+            L2Fex = None
+            L2Hypo = None
+            if mult ==  2 :
+                EFFex = EFMultiMuFex_Tau2()
+            else :
+                EFFex = EFMultiMuFex_Tau()
+            EFHypo = EFMultiMuHypo_Tau()
+        else :
+            from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
+            from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
+            if mult ==  2 :
+                L2Fex = L2MultiMuFex_Tau2()
+                EFFex = EFMultiMuFex_Tau2()
+            else :
+                L2Fex = L2MultiMuFex_Tau()
+                EFFex = EFMultiMuFex_Tau()
+            L2Hypo = L2MultiMuHypo_Tau()
+            EFHypo = EFMultiMuHypo_Tau()
+
+     
     elif ('bDimu' in topoAlgs) & ('novtx' in topoAlgs) & ('noos' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
@@ -341,6 +396,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_DiMu_passL2()
         EFFex  = EFBMuMuFex_DiMu()
         EFHypo = EFBMuMuHypo_DiMu() 
+        if ('nscan' in chainDict['chainName'] ): # do not do L2 at all; expect one TE
+            L2Fex = None
+            L2Hypo = None
+            from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_DiMu_oneTE
+            EFFex  = EFBMuMuFex_DiMu_oneTE()
     elif ('bJpsimumu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_passL2
@@ -350,6 +410,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         L2Hypo = L2BMuMuHypo_Jpsi_passL2()
         EFFex  = EFBMuMuFex_Jpsi()
         EFHypo = EFBMuMuHypo_Jpsi() 
+        if ('nscan' in chainDict['chainName'] ): # do not do L2 at all; expect one TE
+            L2Fex = None
+            L2Hypo = None
+            from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_Jpsi_oneTE
+            EFFex  = EFBMuMuFex_Jpsi_oneTE()
     elif ('bBmumu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_DiMu_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
@@ -445,10 +510,10 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
     else:
         logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
-
-    theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
-    theChainDef.addSignatureL2([L2TEname])
-
+    if L2Fex != None :
+        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
+        theChainDef.addSignatureL2([L2TEname])
+ 
     theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
