@@ -78,6 +78,7 @@ class JetSequencesBuilder(object):
                        'rc': self.make_jr_recluster,  # recluster jets
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
+                       'jh_tla': self.make_jh_tla,  # TLA hypo
                        'ps': self.make_ps,  # partial scan Roi maker
                        'cm': self.make_cm,  # cell and cluster maker
                        'tt': self.make_tt,  # construct trigger tower objects
@@ -161,6 +162,8 @@ class JetSequencesBuilder(object):
                     seq_order.append('jhd')
             elif hypo_type == 'HT':
                 seq_order.append('jh_ht')
+            elif hypo_type == 'tla':
+                seq_order.append('jh_tla')
             else:
                 
                 msg = '%s._make_sequence_list: unknown hypo type %s ' % (
@@ -335,7 +338,6 @@ class JetSequencesBuilder(object):
         return AlgList(f(), alias)
 
 
-
     def make_jh_ht(self):
         """Create an alg_list for 2015 JetRec hypo sequence"""
 
@@ -344,6 +346,16 @@ class JetSequencesBuilder(object):
         alias = 'hypo_%s' % str(hypo.attributes_to_string())
 
         return AlgList(self.alg_factory.ht_hypo(), alias)
+
+
+    def make_jh_tla(self):
+        """Create an alg_list for the TLA hypo"""
+
+        menu_data = self.chain_config.menu_data
+        hypo = menu_data.hypo_params
+        alias = 'hypo_%s' % str(hypo.tla_string)
+
+        return AlgList(self.alg_factory.hlt_hypo_tla(), alias)
 
 
     def make_tt(self):

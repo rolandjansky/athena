@@ -48,6 +48,8 @@ class ChainConfigMaker(object):
 
     reco_alg_re = re.compile(r'^a\d+$')
     recluster_alg_re = re.compile(r'^a\d+r$')
+    tla_re = \
+        re.compile(r'^(?P<indexlo>\d+)i(?P<indexhi>\d+)c(?P<mass_min>\d+)m(?P<mass_max>\d+)TLA$')
 
     # conerverter for cleaner names used in chain anmes, and those
     # used to instantiate the C++ converters (cleanerFactory keys)
@@ -244,21 +246,25 @@ class ChainConfigMaker(object):
         self.check_and_set('run_hypo', run_hypo)
 
         # --------  hypo parameters ----------------
-        hypo_type = {
-            # ('j', ''): 'standard',
-            ('j', ''): 'HLThypo',
-            ('j', 'test1'): 'run1hypo',
-            ('j', 'test2'): 'HLTSRhypo',
-            ('ht', ''):'ht'}.get((part['trigType'], self.test_flag), 
-                                          None)
+        self.check_and_set('tla_string',  part['TLA'])
+
+        hypo_type = {('j', '', False): 'HLThypo',
+                     ('j', 'test1', False): 'run1hypo',
+                     ('j', 'test2', False): 'HLTSRhypo',
+                     ('ht', '', False):'ht',
+                     ('j', '', True): 'tla'}.get((part['trigType'],
+                                                   self.test_flag,
+                                                   bool(self.tla_string)), None)
+
+        if self.multi_eta: hypo_type = 'HLThypo'
 
         # maximum  bipartite is now "standard"
         # if self.multi_eta: hypo_type = 'maximum_bipartite'
                      
         if not hypo_type:
             msg = '%s: cannot determine hypo type '\
-                  'from trigger type: %s test flag: %s' % (
-                self.err_hdr, part['trigType'], self.test_flag)
+                  'from trigger type: %s test flag: %s TLA: %s' % (
+                self.err_hdr, part['trigType'], self.test_flag, part['TLA'])
             raise RuntimeError(msg)
 
         self.check_and_set('hypo_type', hypo_type)
@@ -278,6 +284,7 @@ class ChainConfigMaker(object):
             'HLThypo': self._setup_hlt_hypo,
             'run1hypo': self._setup_run1_hypo,
             'HLTSRhypo': self._setup_hlt_hypo,
+            'tla': self._setup_tla_hypo,
             'ht': self._setup_ht_hypo}.get(hypo_type, None)
 
         if hypo_setup_fn is None:
@@ -368,7 +375,7 @@ class ChainConfigMaker(object):
                 'chain_name': self.chain_name,
                 'jet_attributes': self.jet_attributes,
                 'cleaner': self.cleaner,
-                'matcher':'singleEtaRegion', 
+                'matcher': 'orderedCollections', 
                 'isCaloFullScan': self.scan_type == 'FS',
                 'triggertower': self.data_type == 'TT',
             }
@@ -389,6 +396,15 @@ class ChainConfigMaker(object):
                 'ht_threshold': self.ht_threshold,
                 'jet_et_threshold': self.jet_et_threshold,
                 }
+
+        elif self.hypo_type == 'tla':
+            hypo_args = {
+                'chain_name': self.chain_name,
+                'indexlo': int(self.indexlo),
+                'indexhi': int(self.indexhi),
+                'mass_min': float(self.mass_min),
+                'mass_max': float(self.mass_max),
+                'tla_string': self.tla_string}
         else:
             msg = '%s unknown hypo_type %s' % (self.err_hdr, self.hypo_type)
             raise RuntimeError(msg)
@@ -482,3 +498,15 @@ class ChainConfigMaker(object):
             
         self.check_and_set('jet_et_threshold', jet_et_threshold)
             
+    def _setup_tla_hypo(self, part):
+
+        m = self.tla_re.search(self.tla_string)
+        if m == None:
+            m = 'ChainConfigMaker:_setup_tla_hypo unmatched ' \
+                'tla string: %s regex: %s'  % (tla_string, 
+                                               self.tla_re.pattern)
+            raise RuntimeError(m)
+
+        for k, v in m.groupdict().items():
+            self.check_and_set(k, v)
+ 

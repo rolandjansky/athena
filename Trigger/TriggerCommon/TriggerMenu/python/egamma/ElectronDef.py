@@ -672,6 +672,8 @@ class L2EFChain_e(L2EFChainDef):
             
             from TrigEgammaHypo.TrigEFElectronHypoConfig    import TrigEFElectronHypo_e_ID
             from TrigEgammaHypo.TrigEFElectronHypoConfig    import TrigEFElectronHypo_e_Iso
+            from TrigEgammaHypo.TrigEFElectronHypoConfig    import TrigEFElectronHypo_e_LH
+            from TrigEgammaHypo.TrigEFElectronHypoConfig    import TrigEFElectronHypo_e_LH_Iso
             from TrigEgammaHypo.TrigEFTrackHypoConfig       import EFTrackHypo_e
 
             # L2 Calo
@@ -681,12 +683,21 @@ class L2EFChain_e(L2EFChainDef):
             theEFTrackHypo     = EFTrackHypo_e("EFTrackHypo_e"+str(threshold)+"_"+str(IDinfo),threshold)
             # EF Electron
             if self.chainPart['isoInfo']:
-                theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+\
-                                                              "_"+str(IDinfo)+"_"+str(isoInfo),\
-                                                              threshold,IDinfo,isoInfo)
+                if self.chainPart['lhInfo']:
+                    lhInfo = self.chainPart['lhInfo']
+                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+\
+                            "_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo),threshold,IDinfo,lhInfo,isoInfo)
+                else:
+                    theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+\
+                            "_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
             else: 
-                theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+\
-                                                             "_"+str(IDinfo),threshold,IDinfo)
+                if self.chainPart['lhInfo']:
+                    lhInfo = self.chainPart['lhInfo']
+                    theEFElectronHypo = TrigEFElectronHypo_e_LH("TrigEFElectronHypo_e"+str(threshold)+\
+                            "_"+str(IDinfo)+"_"+str(lhInfo),threshold,IDinfo,lhInfo)
+                else:
+                    theEFElectronHypo  = TrigEFElectronHypo_e_ID("TrigEFElectronHypo_e"+str(threshold)+\
+                                                                 "_"+str(IDinfo),threshold,IDinfo)
         
         else:
             algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
@@ -1123,7 +1134,7 @@ class L2EFChain_e(L2EFChainDef):
                     theEFElectronHypo  = TrigEFElectronHypo_e_ID_EtIsEM_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_EtIsEM"+"_"+str(isoInfo),threshold,IDinfo)
                 elif self.chainPart['lhInfo']:
                     lhInfo = self.chainPart['lhInfo']
-                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo),threshold,IDinfo,lhInfo)
+                    theEFElectronHypo = TrigEFElectronHypo_e_LH_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(lhInfo)+"_"+str(isoInfo),threshold,IDinfo,lhInfo,isoInfo)
                 else:
                     theEFElectronHypo  = TrigEFElectronHypo_e_Iso("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_"+str(isoInfo),threshold,IDinfo,isoInfo)
             elif 'etisem' in self.chainPart['addInfo']:

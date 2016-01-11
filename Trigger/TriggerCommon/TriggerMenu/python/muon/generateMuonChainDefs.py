@@ -50,6 +50,7 @@ def generateChainDefs(chainDict):
     else: asymDiMuonChain = False
 
     modifyNscanInputTE = False
+    modifyCalotagInputTE = False
 
     for subChainDict in listOfChainDicts:
         if "IdTest" in subChainDict["chainParts"]["addInfo"]:
@@ -68,6 +69,9 @@ def generateChainDefs(chainDict):
         #only needed for nscan
         if "nscan" in  subChainDict["chainParts"]['FSinfo']:
             modifyNscanInputTE = True
+        if "calotag" in subChainDict["chainParts"]['FSinfo']:
+            if "0eta010" not in subChainDict["chainParts"]["etaRange"] and '0eta500' not in subChainDict["chainParts"]['etaRange']:
+                modifyCalotagInputTE = True
 
 
     if len(listOfChainDefs)>1:
@@ -81,6 +85,8 @@ def generateChainDefs(chainDict):
     # needed for nscan to replace the placeholder TE with the L2TE of the other chain
     if (modifyNscanInputTE == True):
         theChainDef = _modifyTEinChainDef(theChainDef,chainDict)
+    if (modifyCalotagInputTE == True):
+        theChainDef = _modifyTEinChainDef(theChainDef, chainDict)
         
     #if chainDict["topo"]:
     #    theChainDef = _addTopoInfo(theChainDef,chainDict)
