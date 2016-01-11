@@ -35,7 +35,7 @@ TrigMuonIDTrackMultiHypo::TrigMuonIDTrackMultiHypo(const std::string & name, ISv
   def_bins.push_back(0);
   def_bins.push_back(10);
   std::vector<float> def_thrs;
-  def_thrs.push_back(5.83 * CLHEP::GeV);
+  def_thrs.push_back(2.5 * CLHEP::GeV);
   declareProperty("PtBins1",   m_ptBins1   = def_bins);
   declareProperty("PtBins2",   m_ptBins2   = def_bins);
   declareProperty("PtBins3",   m_ptBins3   = def_bins);
@@ -105,46 +105,48 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltBeginRun()
 
     msg() << MSG::INFO << "TrkAlg = " << m_TrkAlgo << endreq;
 
-    auto m_bins = m_ptBins1.size() - 1;
-    if (m_bins != m_ptThresholds1.size()) {
+    auto m_bins1 = m_ptBins1.size() - 1;
+    if (m_bins1 != m_ptThresholds1.size()) {
       msg() << MSG::INFO << "bad thresholds setup for #1.... exiting!" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }else{
+      msg() << MSG::INFO << "track multiplicity for #1 is " << m_Multiplicity1 << endreq;
+      for (std::vector<float>::size_type i = 0; i < m_bins1; ++i) {
+	msg() << MSG::INFO
+	      << "bin " << m_ptBins1[i] << " - " <<  m_ptBins1[i + 1]
+	      << " with Pt Threshold of " << (m_ptThresholds1[i]) / CLHEP::GeV
+	      << " GeV" << endreq;
+      }
     }
-    m_bins = m_ptBins2.size() - 1;
-    if (m_bins != m_ptThresholds2.size()) {
+
+    auto m_bins2 = m_ptBins2.size() - 1;
+    if (m_bins2 != m_ptThresholds2.size()) {
       msg() << MSG::INFO << "bad thresholds setup for #2.... exiting!" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }else{
+      msg() << MSG::INFO << "track multiplicity for #2 is " << m_Multiplicity2 << endreq;
+      for (std::vector<float>::size_type i = 0; i < m_bins2; ++i) {
+	msg() << MSG::INFO
+	      << "bin " << m_ptBins2[i] << " - " <<  m_ptBins2[i + 1]
+	      << " with Pt Threshold of " << (m_ptThresholds2[i]) / CLHEP::GeV
+	      << " GeV" << endreq;
+      }
     }
-    m_bins = m_ptBins3.size() - 1;
-    if (m_bins != m_ptThresholds3.size()) {
+    
+    auto m_bins3 = m_ptBins3.size() - 1;
+    if (m_bins3 != m_ptThresholds3.size()) {
       msg() << MSG::INFO << "bad thresholds setup for #3.... exiting!" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }else{
+      msg() << MSG::INFO << "track multiplicity for #3 is " << m_Multiplicity3 << endreq;
+      for (std::vector<float>::size_type i = 0; i < m_bins3; ++i) {
+	msg() << MSG::INFO
+	      << "bin " << m_ptBins3[i] << " - " <<  m_ptBins3[i + 1]
+	      << " with Pt Threshold of " << (m_ptThresholds3[i]) / CLHEP::GeV
+	      << " GeV" << endreq;
+      }
     }
-    m_bins = m_ptBins1.size() - 1;
     
-    msg() << MSG::INFO << "track multiplicity for #1 is " << m_Multiplicity1 << endreq;
-    for (std::vector<float>::size_type i = 0; i < m_bins; ++i) {
-      msg() << MSG::INFO
-	    << "bin " << m_ptBins1[i] << " - " <<  m_ptBins1[i + 1]
-	    << " with Pt Threshold of " << (m_ptThresholds1[i]) / CLHEP::GeV
-	    << " GeV" << endreq;
-    }
-    msg() << MSG::INFO << "track multiplicity for #2 is " << m_Multiplicity2 << endreq;
-    m_bins = m_ptBins1.size() - 1;
-    for (std::vector<float>::size_type i = 0; i < m_bins; ++i) {
-      msg() << MSG::INFO
-	    << "bin " << m_ptBins2[i] << " - " <<  m_ptBins2[i + 1]
-	    << " with Pt Threshold of " << (m_ptThresholds2[i]) / CLHEP::GeV
-	    << " GeV" << endreq;
-    }
-    msg() << MSG::INFO << "track multiplicity for #3 is " << m_Multiplicity3 << endreq;
-    m_bins = m_ptBins3.size() - 1;
-    for (std::vector<float>::size_type i = 0; i < m_bins; ++i) {
-      msg() << MSG::INFO
-	    << "bin " << m_ptBins3[i] << " - " <<  m_ptBins3[i + 1]
-	    << " with Pt Threshold of " << (m_ptThresholds3[i]) / CLHEP::GeV
-	    << " GeV" << endreq;
-    }
     msg() << MSG::INFO << "LowMassCut : " << m_LowMassCut << " GeV" << endreq;
     msg() << MSG::INFO << "HighMassCut : " << m_HighMassCut << " GeV" << endreq;
 
