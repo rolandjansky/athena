@@ -421,7 +421,11 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
 #####################################################################
    def setupZDCPEBChains(self):
      from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
-     ZDCSubDetListWriter = TrigSubDetListWriter("ZDCSubDetListWriter")
-     ZDCSubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_ZDC'] 
-     ZDCSubDetListWriter.MaxRoIsPerEvent=1
+     zdcSubDetListWriter = TrigSubDetListWriter("ZDCSubDetListWriter")
+     zdcSubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_ZDC'] 
+     zdcSubDetListWriter.MaxRoIsPerEvent=1
  
+     self.robWriter = [zdcSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_zdc']]     
+     self.L2signatureList += [[['L2_zdc']]]
+

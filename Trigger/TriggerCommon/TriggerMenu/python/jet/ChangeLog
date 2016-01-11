@@ -1,3 +1,22 @@
+2015-12-14  Peter Sherwood  <sherwood@lxplus0065.cern.ch>
+
+	* AlgFactory.py (AlgFactory.hlt_hypo_tla):
+	Fix units bug for TLA mass window (GeV=>MeV)
+2015-12-11  Peter Sherwood  <sherwood@lxplus0110.cern.ch>
+
+	* AlgFactory.py (AlgFactory.jetrec_triggertowers): 
+	Fix unit error: pT cut is in MeV. Numerical value is now 20.0
+
+2015-12-10  Peter Sherwood  <sherwood@lxplus0110.cern.ch>
+
+	* generateJetChainDefs.py (generateChainDefs): add
+	debug to dump non JetDef chains.
+
+	* AlgFactory.py (AlgFactory.jetrec_triggertowers): 
+	set the pt cut for trigger towers to 20 MeV to 
+	prevent the jet algorithm from seeing a large number of
+	empty inputs
+
 2015-07-31   Peter Sherwood  <peter@localhost>
 
 	* Changes to jetDefInstantiator, AlgFactory, JetSequenceBuilder and

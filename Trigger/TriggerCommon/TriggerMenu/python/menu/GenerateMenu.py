@@ -954,7 +954,7 @@ class GenerateMenu:
         #checkTriggerGroupAssignment(self.triggerPythonConfig)
 
 
-        cpsMenus = ['Physics_pp_v5']
+        cpsMenus = ['Physics_pp_v5','Physics_pp_v6']
         if TriggerFlags.triggerMenuSetup() in cpsMenus :
             log.info('Assigning CPS groups now')
             addCPS(self.triggerPythonConfig,self.signaturesOverwritten)
