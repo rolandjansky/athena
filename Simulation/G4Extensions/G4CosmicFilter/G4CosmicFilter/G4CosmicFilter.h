@@ -10,26 +10,22 @@
 #ifndef G4CosmicFilter_H
 #define G4CosmicFilter_H
 
-#include <string>
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "StoreGate/StoreGateSvc.h"
-
-
 #include "G4AtlasTools/UserActionBase.h"
 
+#include <string>
 
-class G4CosmicFilter final: public UserActionBase {
-private:
+class G4CosmicFilter final: public UserActionBase
+{
+ private:
 
-  StoreGateSvc*   m_storeGate;
   int m_ntot,m_npass;
   int m_PDGId;
-  std::string m_collectionName,m_volumeName;
+  std::string m_collectionName;
 
   double m_ptMin , m_ptMax;
 
 public:
+
   G4CosmicFilter(const std::string& type, const std::string& name, const IInterface* parent);
 
   virtual StatusCode initialize() override;
@@ -38,10 +34,63 @@ public:
   virtual void EndOfEvent(const G4Event*) override;
   virtual void EndOfRun(const G4Run*) override;
 
-
-
-
 };
+
+
+#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+
+namespace G4UA{
+  class G4CosmicFilter:
+  public AthMessaging, public IEndEventAction
+  {
+    
+  public:
+    
+    struct Config
+    {
+      std::string collectionName="CaloEntryLayer";
+      int PDGId=0;
+      double ptMin=-1;
+      double ptMax=-1;
+    };
+    
+    struct Report
+    {
+      
+      int ntot=0;
+      int npass=0;
+      void merge(const Report& rep){
+	ntot+=rep.ntot;
+	ntot+=rep.npass;
+      }
+    };
+    
+    G4CosmicFilter(const Config& config);
+    const Report& getReport() const
+    { return m_report; }
+    
+    virtual void endOfEvent(const G4Event*) override;
+  
+  private:
+    Config m_config;
+    Report m_report;
+
+    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+    /// Pointer to StoreGate (event store by default)
+    mutable StoreGateSvc_t m_evtStore;
+    /// Pointer to StoreGate (detector store by default)
+    mutable StoreGateSvc_t m_detStore;
+    
+  }; // class G4CosmicFilter
+  
+  
+} // namespace G4UA 
+
 
 
 #endif

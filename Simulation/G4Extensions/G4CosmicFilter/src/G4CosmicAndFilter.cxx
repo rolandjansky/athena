@@ -9,68 +9,69 @@
 #include "G4Event.hh"
 
 
+#include "StoreGate/ReadHandle.h"
 
-G4CosmicAndFilter::G4CosmicAndFilter(const std::string& type, const std::string& name, const IInterface* parent): UserActionBase(type,name,parent),
-                                                                                                                  ntracks(0),m_storeGate(0),m_ntot(0),m_npass(0),
-                                                                                                                  m_volumeName("TRTBarrelEntryLayer"),
-                                                                                                                  m_volumeName2("CaloEntryLayer"){
-
-  declareProperty("VolumeName",m_volumeName);
-  declareProperty("VolumeName2",m_volumeName2);
-
+G4CosmicAndFilter::G4CosmicAndFilter(const std::string& type, const std::string& name, const IInterface* parent)
+  : UserActionBase(type,name,parent)
+  , ntracks(0)
+  , m_ntot(0)
+  , m_npass(0)
+  , m_collectionName("TRTBarrelEntryLayer")
+  , m_collectionName2("CaloEntryLayer")
+{
+  declareProperty("CollectionName",m_collectionName);
+  declareProperty("CollectionName2",m_collectionName2);
 }
 
 void G4CosmicAndFilter::EndOfEvent(const G4Event*)
 {
 
   m_ntot++;
-
   int counter(0);
+  SG::ReadHandle <TrackRecordCollection> coll(m_collectionName);
+  if (! coll.isValid())
+    {
+      ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " << m_collectionName);
+    }
+  else
+    {
+      counter = coll->size();
+    }
 
-  const DataHandle <TrackRecordCollection> coll;
-
-  StatusCode sc = m_storeGate->retrieve(coll,m_collectionName);
-
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " << m_collectionName);
-  } else counter = coll->size();
-
-  if (counter==0){
-    ATH_MSG_INFO("aborting event due to failing AND filter");
-    G4RunManager::GetRunManager()->AbortEvent();
-  } else {
-
-    const DataHandle <TrackRecordCollection> coll2;
-
-    StatusCode sc = m_storeGate->retrieve(coll2,m_collectionName2);
-
-    if (sc.isFailure()) {
-      ATH_MSG_INFO( "Cannot retrieve TrackRecordCollection " << m_collectionName2 );
-    } else counter = coll2->size();
-
-    if (counter==0){
+  if (counter==0)
+    {
       ATH_MSG_INFO("aborting event due to failing AND filter");
       G4RunManager::GetRunManager()->AbortEvent();
-    } else m_npass++;
+      return;
+    }
 
-  }
+  SG::ReadHandle <TrackRecordCollection> coll2(m_collectionName2);
+  if (! coll2.isValid())
+    {
+      ATH_MSG_INFO( "Cannot retrieve TrackRecordCollection " << m_collectionName2 );
+    }
+  else
+    {
+      counter = coll2->size();
+    }
 
+  if (counter==0)
+    {
+      ATH_MSG_INFO("aborting event due to failing AND filter");
+      G4RunManager::GetRunManager()->AbortEvent();
+      return;
+    }
+
+    m_npass++;
+    return;
 }
 
-StatusCode G4CosmicAndFilter::initialize(){
-
-
-  m_collectionName=m_volumeName;
-  m_collectionName2=m_volumeName2;
+StatusCode G4CosmicAndFilter::initialize()
+{
 
   ATH_MSG_INFO( "using collectionName "<<m_collectionName << " and " <<m_collectionName2 );
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StatusCode status =   svcLocator->service("StoreGateSvc", m_storeGate);
-  if (status.isFailure()) {
-    ATH_MSG_WARNING( "Could not access StoreGateSvc!" );
-  }
-  return StatusCode::SUCCESS;
 
+  return StatusCode::SUCCESS;
 }
 
 void G4CosmicAndFilter::EndOfRun(const G4Run*)
@@ -79,15 +80,83 @@ void G4CosmicAndFilter::EndOfRun(const G4Run*)
 }
 
 
-
 StatusCode G4CosmicAndFilter::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
+  if ( IUserAction::interfaceID().versionMatch(riid) )
+    {
+      *ppvInterface = dynamic_cast<IUserAction*>(this);
+      addRef();
+    }
+  else
+    {
+      // Interface is not directly available : try out a base class
+      return UserActionBase::queryInterface(riid, ppvInterface);
+    }
   return StatusCode::SUCCESS;
 }
+
+
+
+
+#include "G4CosmicFilter/G4CosmicAndFilter.h"
+
+
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IMessageSvc.h"
+
+namespace G4UA{
+
+
+  G4CosmicAndFilter::G4CosmicAndFilter(const Config& config):
+    AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"G4CosmicAndFilter"),
+    m_config(config),m_report(),
+    m_evtStore("StoreGateSvc/StoreGateSvc","G4CosmicAndFilter"),
+    m_detStore("StoreGateSvc/DetectorStore","G4CosmicAndFilter"){;
+  }
+
+  void G4CosmicAndFilter::endOfEvent(const G4Event*){;
+
+    m_report.ntot++;
+    int counter(0);
+    SG::ReadHandle <TrackRecordCollection> coll(m_config.collectionName);
+    if (! coll.isValid())
+      {
+	ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " << m_config.collectionName);
+      }
+    else
+      {
+	counter = coll->size();
+      }
+    
+    if (counter==0)
+      {
+	ATH_MSG_INFO("aborting event due to failing AND filter");
+	G4RunManager::GetRunManager()->AbortEvent();
+	return;
+      }
+    
+    SG::ReadHandle <TrackRecordCollection> coll2(m_config.collectionName2);
+    if (! coll2.isValid())
+    {
+      ATH_MSG_INFO( "Cannot retrieve TrackRecordCollection " << m_config.collectionName2 );
+    }
+    else
+      {
+	counter = coll2->size();
+      }
+
+    if (counter==0)
+      {
+	ATH_MSG_INFO("aborting event due to failing AND filter");
+	G4RunManager::GetRunManager()->AbortEvent();
+	return;
+      }
+    
+    m_report.npass++;
+    return;
+
+  }
+
+
+} // namespace G4UA 
