@@ -5,11 +5,17 @@ author Jamie Boyd <Jamie.Boyd@cern.ch>
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*     External
 use G4AtlasTools        G4AtlasTools-*       Simulation/G4Atlas
+use G4AtlasInterfaces	G4AtlasInterfaces-*  Simulation/G4Atlas
+use AthenaBaseComps AthenaBaseComps-* Control
+use StoreGate             StoreGate-*              Control
+
 
 private
 use Geant4              Geant4-*             External
 use TrackRecord         TrackRecord-*        Simulation/G4Sim
 use MCTruth             MCTruth-*            Simulation/G4Sim
+use CxxUtils            CxxUtils-*              Control
+
 end_private
 
 library G4CosmicFilter ../src/*.cxx ../src/components/*.cxx
