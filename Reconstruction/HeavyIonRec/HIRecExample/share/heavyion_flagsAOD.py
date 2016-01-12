@@ -11,12 +11,6 @@ if not jobproperties.HIRecExampleFlags.ppMode:
   from JetRec.JetRecFlags import jetFlags
   jetFlags.Enabled = False
 
-  # running CaloTopoClusters for monitoring purposes
-  if rec.doMonitoring() :
-    from CaloRec.CaloRecFlags import jobproperties
-    jobproperties.CaloRecFlags.Enabled.set_Value_and_Lock(True) 
-    jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(True)
-    jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(True)
 
   from ParticleBuilderOptions.AODFlags import AODFlags
 
