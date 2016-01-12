@@ -82,6 +82,8 @@ def analyzeTree():
 # Main===========================================================================================================
 parser = argparse.ArgumentParser()
 parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help="Run number",action='store')
+parser.add_argument('-ll','--lowerlb',type=int,dest='lowerLB',default='0',help="Lower lb",action='store')
+parser.add_argument('-ul','--upperlb',type=int,dest='upperLB',default='999999',help="Upper lb",action='store')
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
 parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
 parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
@@ -99,6 +101,8 @@ args = parser.parse_args()
 parser.print_help()
 
 run = args.runNumber
+lowerLumiBlock = args.lowerLB
+upperLumiBlock = args.upperLB
 stream = args.stream
 tag = args.tag
 amiTag = args.amiTag
@@ -115,7 +119,7 @@ if ("MET" in objectType):
 print '\n'
 print '---------------------------------'
 print "Investigation on run "+str(run)+"/"+stream+" stream with ami TAG "+amiTag
-listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag)
+listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag,tag)
 
 tree = TChain("POOLCollectionTree")
 
@@ -140,10 +144,11 @@ else:
   h0mapClean = TH2D("mapClean","General map of %s with Et/Pt > %d MeV - LArFlags != ERROR"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
 
 for jentry in xrange( entries ): # Loop on all events
-  if (jentry % 10000 == 0):
+  if (jentry % 100000 == 0):
     print "%d / %d evnt processed"%(jentry,entries)
   nb = tree.GetEntry( jentry )
-  analyzeTree()     
+  if (tree.LumiBlockN>lowerLumiBlock and tree.LumiBlockN<upperLumiBlock):
+    analyzeTree()     
 
 print "I have looked for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE)
 if (args.larcleaning):
