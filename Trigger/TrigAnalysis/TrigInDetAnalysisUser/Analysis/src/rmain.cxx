@@ -218,8 +218,6 @@ std::vector<T*> pointers( std::vector<T>& v ) {
 int main(int argc, char** argv) 
 {
 
-  std::cout << "main() compiled " << __DATE__ << " " << __TIME__ << std::endl;
-
   //  ROOT::Cintex::Cintex::Enable();
 
   if ( argc<2 ) { 
@@ -714,6 +712,8 @@ int main(int argc, char** argv)
 
     ConfAnalysis* analy_conf = new ConfAnalysis(chainnames.back());
     analy_conf->initialiseFirstEvent(initialiseFirstEvent);
+    analy_conf->initialise();
+    analy_conf->setprint(false);
 
     std::string vtxTool = chainConfig[i].value("rvtx");
 
@@ -721,10 +721,6 @@ int main(int argc, char** argv)
       ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool );
       analy_conf->store().insert( anal_confvtx, "rvtx" );
     }
-
-    analy_conf->initialise();
-    analy_conf->setprint(false);
-
 
     // analy_conf->setprint(true);
 
@@ -1473,9 +1469,12 @@ int main(int argc, char** argv)
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 
-
     // std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
     analyses[i]->finalise();
+
+    ConfVtxAnalysis* vtxanal = 0;
+    analyses[i]->store().find( vtxanal, "rvtx" );
+    if ( vtxanal ) vtxanal->finalise();
     
     delete analyses[i];
   }
