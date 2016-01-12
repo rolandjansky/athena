@@ -103,7 +103,6 @@ def main():
         extractEvents(args.run, eventList, args.inputfile, args.fileformat)
         sys.exit(0)
         
-
     if args.fileformat == False:
         print "Unknown argument for -f/--fileformat - please provide a valid string describing the file format, i.e. one containing 'RAW', 'ESD' or 'AOD'"
         sys.exit(1)
@@ -175,6 +174,11 @@ def main():
         print "Will look for the sought event(s) in the following %d file(s):" % len(fileNames)
         for file in fileNames:
             print "   %s" % file
+
+    # if no files are found, tell the user and stop
+    if len(fileNames) == 0:
+	print "No files available in %s - will exit" % (filePath+datasetNames[0]+'/')
+	sys.exit(1)
 
     # Actually extract the events!
     extractEvents(args.run, eventList, fileNames, args.fileformat)
