@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 700401 2015-10-13 19:21:04Z sutt $
+//   $Id: ConfAnalysis.cxx 707900 2015-11-14 12:55:13Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -1091,7 +1091,6 @@ void ConfAnalysis::finalise() {
 
   //  d.pop();
 
-  
   ConfVtxAnalysis* vtxanal = 0;
   store().find( vtxanal, "rvtx" );
   if ( vtxanal ) vtxanal->finalise();

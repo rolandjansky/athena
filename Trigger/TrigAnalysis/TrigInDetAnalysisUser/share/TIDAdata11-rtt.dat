@@ -149,6 +149,11 @@ testChains = {
     "HLT_tau25_idperf_tracktwo:InDetTrigTrackingxAODCnv_TauIso_FTF:forID3",
     "HLT_tau25_idperf_tracktwo:InDetTrigTrackingxAODCnv_Tau_IDTrig:forID3",
 
+    "HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK",
+    "HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_IDTrig",
+    "HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit",
+    "HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_IDTrig",
+
     "HLT_tau29_track:TrigFastTrackFinder_Tau",
     "HLT_tau29_track:TrigFastTrackFinder_Tau_IDTrig",
     "HLT_tau29_track:InDetTrigParticleCreation_Tau_EFID",
