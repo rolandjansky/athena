@@ -8,6 +8,7 @@
 #include <functional>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
+#include "TrigNavStructure/Types.h"
 #include "TrigNavStructure/TriggerElement.h"
 
 using namespace std;
@@ -39,6 +40,15 @@ void TriggerElement::addFeature( class_id_type clid, const ObjectIndex& index, b
 }
 
 void TriggerElement::addFeature( const FeatureAccessHelper& f) {
+  const static size_t max_features_per_te = 0xfff;
+  if ( m_uses.size() == max_features_per_te-1 ) {
+    std::cout << "ERROR -  count of features per TE exceeds the limitation, further attach operations are ignored" << std::endl;
+  }
+  if ( m_uses.size() == max_features_per_te ) {
+    return;
+  }
+  //  if ( m_uses.size() > 100 ) 
+  //    std::cout << "INFO - many features per TE " << f.getCLID() << std::endl;
   m_uses.push_back( f );
   m_prev.push_back( f );
 }
@@ -190,12 +200,15 @@ void TriggerElement::deserialize( std::vector<uint32_t>::const_iterator& inputIt
 	    //	    relate ( te, seededByRelation );
 	    te->relate ( this, seedsRelation );
 	    this->relate ( te, seededByRelation ); // seededBy and seeds are reflexive ...
+ 	    m_prev.reserve(m_prev.size() + te->getPreviousFeatures().size());
 	    m_prev.insert(m_prev.end(), te->getPreviousFeatures().begin(), te->getPreviousFeatures().end() ); // rebuild previous features list
 	}
     }
     if ( relationsCount %2 == 1 )  inputIt++; // we need to do this because if number of features is odd the payload iterator is not incremented by extract...
 
     // unpack features holders info
+    m_uses.reserve(m_uses.size() + featuresAttached);
+    m_prev.reserve(m_prev.size() + featuresAttached);
     for ( unsigned int i = 0 ; i < featuresAttached; ++i ) {
 	unsigned int clid = *inputIt++;
 	ObjectIndex coordinate;
