@@ -56,6 +56,9 @@ def addStandardRecoFiles(parser):
     parser.add_argument('--inputRDO_TRIGFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='input'),
                         help='Input RDO_TRIG file', group='Reco Files')
+    parser.add_argument('--inputRDO_FTKFile',
+                        type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='input'),
+                        help='Input RDO_FTK file', group='Reco Files')
     parser.add_argument('--inputAODFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
                         help='Input AOD file', group='Reco Files')
@@ -94,7 +97,7 @@ def addRecoSubsteps(executorSet):
     executorSet.add(athenaExecutor(name = 'RDOtoRDOTrigger', skeletonFile = 'RecJobTransforms/skeleton.RDOtoRDOtrigger.py',
                                    substep = 'r2t', inData = ['RDO'], outData = ['RDO_TRIG']))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
-                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU'], 
+                                   substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU', 'RDO_FTK'], 
                                    outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],))
     executorSet.add(athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
                                    substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT']))
