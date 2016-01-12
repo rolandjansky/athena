@@ -18,10 +18,10 @@ def RunCleanQTest(qtest,pwd,release):
     print "Finished clean \"Reco_tf.py --AMI "+q+"\""
     pass
 
-def RunPatchedQTest(qtest,pwd,release):
+def RunPatchedQTest(qtest,pwd,release,theTestArea):
     q=qtest
     print "Running patched \"Reco_tf.py --AMI "+q+"\""
-    cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+",here >& /dev/null ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" > "+q+".log 2>&1"
+    cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" > "+q+".log 2>&1"
     subprocess.call(cmd,shell=True)
     print "Finished patched \"Reco_tf.py --AMI "+q+"\""
     pass
@@ -32,18 +32,40 @@ def pwd():
     return Out
     
 def GetReleaseSetup():
-    current_nightly = os.environ['AtlasPatchVersion']
-    latest_nightly  = (os.environ['AtlasArea'].split('rel')[:-1])[0]+"latest_copied_release" 
+    
+
+    atlas_base_dir = os.environ['AtlasBaseDir']
+
+    if 'AtlasPatchVersion' in os.environ:
+        current_nightly = os.environ['AtlasPatchVersion']
+    elif 'AtlasArea' in os.environ:
+        current_nightly = os.environ['AtlasArea'].split('/')[-1]
+    elif 'AtlasVersion' in os.environ:
+        current_nightly = os.environ['AtlasVersion']
+
+
+    latest_tag = "latest_copied_release"
+    if atlas_base_dir.split('/')[1] == 'cvmfs':
+        latest_tag = "latest"
+        latest_nightly  = (os.environ['AtlasBaseDir'].split('rel')[:-1])[0]+latest_tag 
+    elif atlas_base_dir.split('/')[1] == 'afs':  
+        latest_nightly  = (os.environ['AtlasArea'].split('rel')[:-1])[0]+latest_tag 
+
     latest_nightly  = subprocess.Popen(['/bin/bash', '-c',"ls -l "+latest_nightly], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[-1]
     
-    release  = os.environ['AtlasArea'].split('/')[7]
-    platform = os.environ['CLASSPATH'].split('/')[6]
-        
+    release  = os.environ['ATLAS_RELEASE_BASE']
+    if 'afs' in release.split('/'):
+        release = release.split('/')[-1]         
+    elif 'cvmfs' in release.split('/'):
+        release = release.split('/')[-2]         
+
+    platform = os.environ['GEANT4'].split('/')[-1]
+
+
     if current_nightly != latest_nightly:
         print "Please be aware that you are not testing your tags in the latest available nightly, which is",latest_nightly 
     print "Your tags will be tested in",os.environ['AtlasArea']
     setup="%s,%s,%s"%(release,platform.replace("-", ","),current_nightly)
-
     return setup
 
 
@@ -199,9 +221,13 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
 def main():
 
 ########### Is an ATLAS release setup?
-    if 'AtlasPatchVersion' not in os.environ:
-        print "Exit. Please setup the latest ATLAS Tier 0 release"
+    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ:
+        print "Exit. Please setup the an ATLAS release"
+        sys.exit(0)    
     else:
+
+        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
+            print "Please be aware that you are running in a base release rather than a Tier0 release, where in general q-tests are not guaranteed to work." 
 
 ########### Does the user have a valid grid proxy
         valid_grid_cert()
@@ -218,7 +244,8 @@ def main():
 ########### Get release info
         mysetup = GetReleaseSetup() 
         mypwd   = pwd()
-        
+        myTestArea = os.environ['TestArea']
+
         print "------------------ Run Athena q-tests ---------------"    
         for qtest in qTestsToRun:
 
@@ -230,7 +257,7 @@ def main():
                 pass
     
             def mypatchedqtest():
-                RunPatchedQTest(q,mypwd,mysetup)
+                RunPatchedQTest(q,mypwd,mysetup,myTestArea)
                 pass
             
             d1 = threading.Thread(target=mycleanqtest)
