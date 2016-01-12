@@ -2,8 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-## ESDMerge_tf.py - ESD merger
-# @version $Id: RDOMerge_tf.py 670203 2015-05-27 13:19:01Z graemes $ 
+# @version $Id: RDOMerge_tf.py 710146 2015-11-24 10:37:59Z graemes $ 
 
 import sys
 import time
