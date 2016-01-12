@@ -70,7 +70,7 @@ def createRPCConditionDB():
 
        spec2=cool.RecordSpecification()
        spec2.extend("PanelRes",cool.StorageType.String255)
-       spec2.extend("StripStatus",cool.StorageType.String255)
+       spec2.extend("StripStatus",cool.StorageType.String4k)
 
        desc="<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>"
 

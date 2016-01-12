@@ -24,6 +24,7 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TFile.h"
 #include "TClass.h"
 #include "TKey.h"
@@ -91,6 +92,13 @@ namespace dqutils {
 	return;
       }
       
+      TString status_dir = run_dir + "/Pixel/Status/";
+      TDirectory *statusdir = infile->GetDirectory(status_dir);
+      if(!statusdir){
+	std::cerr << "--> PixelPostProcess: directory " << status_dir << " not found " <<std::endl;
+	return;
+      }
+      
       TString norm_histName = rno_dir + "num_hits";
       TH1F *h_norm = (TH1F*)infile->Get(norm_histName);
       if(!h_norm){
@@ -102,9 +110,11 @@ namespace dqutils {
       float nevents = h_norm->Integral();
       TString layerName[nlayer] = {"IBL", "B0", "B1", "B2", "ECA", "ECC"};
       float npixel[nlayer] = {26880, 46080, 46080, 46080, 46080, 46080};
+      float nmodule[nlayer] = {280., 286., 494., 676., 144., 144.};
 
       const static int nerror = 5;
-      TString errorName[nerror] = {"OpticalErrors_", "SEUErrors_", "SyncErrors_", "TimeoutErrors_", "TruncationErrors_"};
+      //TString errorName[nerror] = {"OpticalErrors_", "SEUErrors_", "SyncErrors_", "TimeoutErrors_", "TruncErrors_"};
+      TString errorName[nerror] = {"OpticalErrors_", "SEUErrors_", "SyncErrors_", "TimeoutErrors_", "TruncErrors_"};
       
       TH2F *h_occ[nlayer];
       TH2F *h_occ_new[nlayer];
@@ -112,12 +122,20 @@ namespace dqutils {
       TH2F *h_clus_new[nlayer];
       TH2F *h_err[nlayer][nerror];
       TH2F *h_err_new[nlayer][nerror];
+      TH1F *h_disabled_per_lumi[nlayer];
+      TH1F *h_syncerr_per_lumi[nlayer];
+      TH1F *h_disabled_syncerr_per_lumi[nlayer];
 
       for( int i=0; i<nlayer; i++){
          /// initialize 
          h_occ[i] = 0; h_occ_new[i] = 0;
          h_clus[i] = 0; h_clus_new[i] = 0;
+         h_disabled_per_lumi[i] = 0;
+         h_syncerr_per_lumi[i] = 0;
+         h_disabled_syncerr_per_lumi[i] = 0;
+
          /// for hit occupancy
+         
          /// get histo
          TString keyname = "Occupancy_";
          TString histName = rno_dir + keyname + layerName[i];
@@ -128,7 +146,12 @@ namespace dqutils {
             h_occ_new[i] = (TH2F*)h_occ[i]->Clone( tmpname );
             h_occ_new[i]->Scale( 1.0/(nevents*npixel[i]) );
          }
+         /// Write
+         dir->cd();
+         if( h_occ_new[i] ) h_occ_new[i]->Write();
+
          /// for cluster occupancy
+         
          /// get histo
          keyname = "Cluster_Occupancy_";
          histName = clus_dir + keyname + layerName[i];
@@ -139,7 +162,11 @@ namespace dqutils {
             h_clus_new[i] = (TH2F*)h_clus[i]->Clone( tmpname );
             h_clus_new[i]->Scale( 1.0/nevents );
          }
+         clusdir->cd();
+         if( h_clus_new[i] ) h_clus_new[i]->Write();
+
          /// for error map
+         
          for( int j=0; j<nerror; j++){
             /// initialize
             h_err[i][j] = 0; h_err_new[i][j] = 0;
@@ -153,28 +180,40 @@ namespace dqutils {
                h_err_new[i][j] = (TH2F*)h_err[i][j]->Clone( tmpname );
                h_err_new[i][j]->Scale( 1.0/nevents );
             }
-         }
-      }
-      
-      dir->cd();
-      for( int i=0; i<nlayer; i++){
-         if( h_occ_new[i] ) h_occ_new[i]->Write();
-      }
-
-      clusdir->cd();
-      for( int i=0; i<nlayer; i++){
-         if( h_clus_new[i] ) h_clus_new[i]->Write();
-      }
-      
-      errdir->cd();
-      for( int i=0; i<nlayer; i++){
-         for( int j=0; j<nerror; j++){
+            /// write
+            errdir->cd();
             if( h_err_new[i][j] ) h_err_new[i][j]->Write();
          }
+
+         /// for disabled + sync errors module
+         keyname = "SyncErrorsFrac_per_event_";
+         histName = err_dir + keyname + layerName[i];
+         h_syncerr_per_lumi[i] = (TH1F*)infile->Get(histName);
+         keyname = "DisabledModules_per_lumi_";
+         histName = status_dir + keyname + layerName[i];
+         h_disabled_per_lumi[i] = (TH1F*)infile->Get(histName);
+         /// normalize
+         if( h_disabled_per_lumi[i] && h_syncerr_per_lumi[i]){
+           keyname = "DisabledAndSyncErrorsModules_per_lumi_";
+           TString tmpname = keyname + layerName[i] + "_byPostProcess";
+           h_disabled_syncerr_per_lumi[i] = new TH1F(tmpname, ";Lumi block;Avg. fraction per event", 2500, 0, 2500);
+           //h_disabled_syncerr_per_lumi[i]->Scale( 1.0/nmodule[i] );
+           for(int ibin=0; ibin<2500+1 ; ibin++){
+             Double_t cont1 = h_disabled_per_lumi[i]->GetBinContent(ibin) / nmodule[i];
+             Double_t err1 = h_disabled_per_lumi[i]->GetBinError(ibin) / nmodule[i];
+             Double_t cont2 = h_syncerr_per_lumi[i]->GetBinContent(ibin);
+             Double_t err2 = h_syncerr_per_lumi[i]->GetBinError(ibin);
+             h_disabled_syncerr_per_lumi[i]->SetBinContent(ibin, cont1+cont2 );
+             h_disabled_syncerr_per_lumi[i]->SetBinError(ibin, err1+err2 );
+           }
+         }
+         errdir->cd();
+         if( h_disabled_syncerr_per_lumi[i] ) h_disabled_syncerr_per_lumi[i]->Write();
+
       }
       
-      infile->Write();
       
+      infile->Write();
     }//while
   }
     

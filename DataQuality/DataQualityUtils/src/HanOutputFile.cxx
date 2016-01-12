@@ -865,6 +865,8 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   if(LookForDisplay) {
     display = getStringName(pathname + "/"+ nameHis + "_/Config/annotations/display" );
   }
+  // Plot overflows?
+  bool PlotOverflows = (display.find("PlotUnderOverflow") != std::string::npos);
   // Look for Draw Options
   std::size_t found = display.find("Draw=");
   std::string drawopt ="";
@@ -1219,13 +1221,17 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    hRef->SetLineColor(local_color);
 	    hRef->SetLineWidth(local_color);
 	    double ymin = ( hRef->GetMinimum() < h->GetMinimum() )? hRef->GetMinimum(): h->GetMinimum(); 
-	    double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum(); 
-	    //double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
-	    //double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  
-	    //hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
-	      double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ? hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
-	      double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) > h->GetBinLowEdge( h->GetNbinsX() ) ?  
-			      hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ) ;
+	    double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum();
+	    double xmin, xmax;
+	    if (PlotOverflows) {
+	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
+	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  
+		hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
+	    } else {
+	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ? hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
+	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) > h->GetBinLowEdge( h->GetNbinsX() ) ?  
+		       hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ) ;
+	    }
 	    // 	  double y_av = (ymax + ymin)/2;
 	    // 	  double y_halv = (ymax-ymin)*0.6;
 	    bool isLogY=(display.find("LogY")!=std::string::npos);
@@ -1244,6 +1250,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	      h->SetAxisRange(ymin-yMargin,ymax+yMargin,"Y");
 	    }
 	    h->GetXaxis()->SetRangeUser(xmin,xmax);
+	    hRef->GetXaxis()->SetRangeUser(xmin,xmax);
 	    axisOption(display,h);
 	    if(  h->GetMinimum()>= 0. && hRef->GetMinimum()>= 0. && h->GetMaximum()> 0. && hRef->GetMaximum()> 0.) {
 	      gPad->SetLogy(display.find("LogY")!=std::string::npos );
@@ -1268,11 +1275,15 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    //hRef->SetFillColor(local_color);
 	    hRef->SetLineColor(local_color);
 	    double ymin = ( hRef->GetMinimum() < h->GetMinimum() )? hRef->GetMinimum(): h->GetMinimum(); 
-	    double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum(); 
-	    //double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
-	    //double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
-	    double xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
-	    double xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ;
+	    double ymax = ( hRef->GetMaximum() > h->GetMaximum() )? hRef->GetMaximum(): h->GetMaximum();
+	    double xmin, xmax;
+	    if (PlotOverflows) {
+	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1)-hRef->GetBinWidth(1) : h->GetBinLowEdge(1)-h->GetBinWidth(1);
+	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  2.0*hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) +  2.0*h->GetBinWidth( h->GetNbinsX() ) ;
+	    } else {
+	      xmin = ( hRef->GetBinLowEdge(1) <  h->GetBinLowEdge(1)) ?   hRef->GetBinLowEdge(1) : h->GetBinLowEdge(1);
+	      xmax = ( hRef->GetBinLowEdge( hRef->GetNbinsX() ) +  hRef->GetBinWidth( hRef->GetNbinsX() ) >   h->GetBinLowEdge( h->GetNbinsX() ) +  h->GetBinWidth( h->GetNbinsX() ) ) ?  hRef->GetBinLowEdge( hRef->GetNbinsX() ) + hRef->GetBinWidth( hRef->GetNbinsX() ):  h->GetBinLowEdge( h->GetNbinsX() ) + h->GetBinWidth( h->GetNbinsX() ) ;
+	    }
 
 	    // 	  double y_av = (ymax + ymin)/2;
 	    // 	  double y_halv = (ymax-ymin)*0.6;
@@ -1295,6 +1306,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    }
 
 	    h->GetXaxis()->SetRangeUser(xmin,xmax);
+	    hRef->GetXaxis()->SetRangeUser(xmin,xmax);
 	    myC->cd();
 	    if(  h->GetMinimum()>= 0 && hRef->GetMinimum()>= 0 && h->GetMaximum()> 0. && hRef->GetMaximum()> 0.) {
 	      gPad->SetLogy(display.find("LogY")!=std::string::npos );

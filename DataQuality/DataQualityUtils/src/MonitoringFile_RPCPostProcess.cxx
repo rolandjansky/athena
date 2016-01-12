@@ -820,7 +820,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
            float errcl_sizeeta     = -1; 	  float errcl_sizephi	  =-1;  	 char m_errcl_sizeeta	  [10];      char m_errcl_sizephi     [10];	    
   		
 	 
-	   int   PannelCode   = 0;
+	   int   PanelCode   = 0;
 	   int   Binposition   = 0;
 	   int   TableVersion = 1;     //Version of Cool Table Formatting according with Andrea Di Simone Table
 	   int   n_tr_peta    = 0;     //Number of eta tracks reconstructed on a gas volume
@@ -834,8 +834,8 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	   int nbin = 0;
 	   if ( h_Eff ) nbin = h_Eff ->GetNbinsX() ;
 	   for(int ibin=1 ; ibin!=nbin+1 ; ibin++){
-	    if ( h_PanelId )PannelCode = (int)h_PanelId-> GetBinContent(ibin) ;
-	    if(PannelCode ==0)continue;
+	    if ( h_PanelId )PanelCode = (int)h_PanelId-> GetBinContent(ibin) ;
+	    if(PanelCode ==0)continue;
   	     if(ibin%2==0){ 
 	     
 	      if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
@@ -880,7 +880,7 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      if ( h_CS 	)errcl_sizeeta       = h_CS		 ->GetBinError  (ibin) ;      sprintf(m_errcl_sizeeta	 ,    "%f ", errcl_sizeeta     ) ;   m_errcl_sizeeta	[5]   =0;	     
 	     
 	    
-              //std::cout<<"PannelCode  "<<PannelCode<<" etaprimo "<<"\n";
+              //std::cout<<"PanelCode  "<<PanelCode<<" etaprimo "<<"\n";
  
 	      char recEta   [4000]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
 	      char detEta   [4000]; //noise, noise_corr, cs, mean and rms
@@ -894,15 +894,17 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      sprintf(recPhi2, "%s %s %s %s %s ", m_erreffphi, m_errresphi_cs1, m_errresphi_cs2, m_errresphi_csother, m_errtimephi) ;  
 	      sprintf(detPhi1, "%s %s %s %s %s %s ", m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi) ;  
 	      sprintf(detPhi2, "0 ") ;  
- 	      std::string cool_tag="Reco";
- 	      coolrpc.insert_withTag(run_number,PannelCode,recEta,detEta,recPhi1,recPhi2,detPhi1,detPhi2, cool_tag);			    
+ 	      std::string cool_tag="Reco";		        
+              coolrpc.setSince(0U,0U);		
+              coolrpc.setUntil(4294967295U,0U);	
+ 	      coolrpc.insert_withTag(run_number*0+429496729U,PanelCode,recEta,detEta,recPhi1,recPhi2,detPhi1,detPhi2, cool_tag);			    
 	     }
 	    }
 	   
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 	   
-            int   TableVersionCondDB  = 1 ;         //RPC conditionDB table versioning
+            int   TableVersionCondDB  = 2 ;         //RPC conditionDB table versioning
 	    float effeleeta           = -9999;	       char m_effeleeta 	 [10];  	   
             float erreffeleeta        = -1;	       char m_erreffeleeta	 [10];  	   
             float effelephi	      = -9999;	       char m_effelephi 	 [10];
@@ -968,29 +970,29 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 		    if (StripOccupancy>0   && StripOccupancy<0.9) SingleStripsValue=5;
 		    if (StripOccupancy>0.9) SingleStripsValue=9;
 		    		    
-		    sprintf(SingleStripsStatus, "%d", SingleStripsValue );
+		    if(h_stripId-> GetBinCenter(Nstrips) > 0){ 
+		     sprintf(SingleStripsStatus, "%d 000.0 0.000|", SingleStripsValue );
+		    }else{ 
+		     sprintf(SingleStripsStatus, "|000.0 0.000 %d", SingleStripsValue );
+		    }
 		    PanelStripsStatus = PanelStripsStatus + SingleStripsStatus;
 		    
 		    
 
 		    if((int)h_stripId -> GetBinContent(Nstrips)==(int)h_stripId  -> GetBinContent(Nstrips+1))StripsOnPanel++;                      
-		    //std::cout <<Nstrips<<" "<< (int)h_stripId-> GetBinCenter(Nstrips)<< " "<< SingleStripsStatus <<" PanelStripsStatus " << PanelStripsStatus <<" PanelStripsId " << PanelStripId <<std::endl;
+		    //std::cout <<Nstrips<<" "<< h_stripId-> GetBinCenter(Nstrips)<< " "<< SingleStripsStatus <<" PanelStripsStatus " << PanelStripsStatus <<" PanelStripsId " << PanelStripId <<std::endl;
 
 		    if((int)h_stripId -> GetBinContent(Nstrips)!=(int)h_stripId  -> GetBinContent(Nstrips+1)){
 		    //std::cout <<StripsOnPanel<<" StripsOnPanel "<< std::endl;
   
-		    if((int)h_stripId-> GetBinCenter(Nstrips) <0){
-		    
-		    
-		    //std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;
-		    
-		    std::reverse(PanelStripsStatus.begin(), PanelStripsStatus.end());
-		
+		    if(h_stripId-> GetBinCenter(Nstrips) < 0){		    		    
+		     //std::cout << " PanelStripsStatus " << PanelStripsStatus <<std::endl;		    
+		     std::reverse(PanelStripsStatus.begin(), PanelStripsStatus.end());		
 		    }
                        
 		      for(int ibin=1 ; ibin!=nbin+1 ; ibin++){
-                        if ( h_PanelId )PannelCode = (int)h_PanelId-> GetBinContent(ibin) ;
-	                if(PannelCode !=PanelStripId)continue;
+                        if ( h_PanelId )PanelCode = (int)h_PanelId-> GetBinContent(ibin) ;
+	                if(PanelCode !=PanelStripId)continue;
 			  if(ibin%2!=0){
 			    if (h_TrackProj) {n_tr_peta  =(int)h_TrackProj   -> GetBinContent(ibin) ;}
 			      //if(n_tr_peta >0){
@@ -1052,13 +1054,15 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			    	sprintf(m_rateCSmore2eta   ,	"%f ", rateCSmore2eta	 ) ;   m_rateCSmore2eta   [5]	=0;
 	
 			        char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
-			        char StripStatus   [255]; //strips status 0 to 9 for dead noisy strips
+			        char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
 				
  			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  m_effeta, m_erreffeta,  m_effeleeta, m_erreffeleeta, m_reseta_cs1, m_errreseta_cs1, m_reseta_cs2, m_errreseta_cs2, m_reseta_csother, m_errreseta_csother, m_noiseeta, m_errnoiseeta, m_noiseeta_cor, m_errnoiseeta_cor, m_cl_sizeeta, m_errcl_sizeeta, m_rateCS1eta, m_rateCS2eta, m_rateCSmore2eta) ;
  			        sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
-				std::string cool_tagCondDB="RecoCondDB";
- 			        coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tagCondDB);
-			        //std::cout <<"Eta " << PannelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+				std::string cool_tagCondDB="RecoCondDB";		        
+                                coolrpc.setSince(0U,0U);		
+                                coolrpc.setUntil(4294967295U,0U);	
+ 			        coolrpc.insertCondDB_withTag(run_number*0+429496729U,PanelCode,PanelRes, StripStatus,cool_tagCondDB);
+			        //std::cout <<"Eta " << PanelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
 			        countpanelindb++;
 			        if(effeta==0.0)countpaneleff0++;
 			        if(n_tr_peta==0)countpaneltrack0++;
@@ -1128,12 +1132,14 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			     sprintf(m_rateCSmore2phi	,    "%f ", rateCSmore2phi    ) ;   m_rateCSmore2phi   [5]   =0;
 			    		
 			     char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
-			     char StripStatus   [255]; //strips status 0 to 9 for dead noisy strips
+			     char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
  			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  m_effphi, m_erreffphi,  m_effelephi, m_erreffelephi, m_resphi_cs1, m_errresphi_cs1, m_resphi_cs2, m_errresphi_cs2, m_resphi_csother, m_errresphi_csother, m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi, m_rateCS1phi, m_rateCS2phi, m_rateCSmore2phi) ;
  			     sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
- 			     std::string cool_tag="RecoCondDB";
- 			     coolrpc.insertCondDB_withTag(run_number,PannelCode,PanelRes, StripStatus,cool_tag);
-			     //std::cout <<"Phi " << PannelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
+ 			     std::string cool_tag="RecoCondDB";		        
+                             coolrpc.setSince(0U,0U);		
+                             coolrpc.setUntil(4294967295U,0U);	
+ 			     coolrpc.insertCondDB_withTag(run_number*0+429496729U,PanelCode,PanelRes, StripStatus,cool_tag);
+			     //std::cout <<"Phi " << PanelCode << " --- " << PanelRes<< " --- " << StripStatus << std::endl;	
 			    //}	
 			    countpanelindb++;
 			    if(effphi==0.0)countpaneleff0++;
