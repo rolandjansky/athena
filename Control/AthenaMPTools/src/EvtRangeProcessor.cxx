@@ -139,7 +139,7 @@ int EvtRangeProcessor::makePool(int, int nprocs, const std::string& topdir)
 
   // Create rank queue and fill it
   std::ostringstream rankQueueName;
-  rankQueueName << "EvtRangeProcessor_RankQueue_" << getpid();
+  rankQueueName << "EvtRangeProcessor_RankQueue_" << getpid() << "_" << m_randStr;
   m_sharedRankQueue = new AthenaInterprocess::SharedQueue(rankQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedRankQueue->send_basic<int>(i)) {
@@ -399,8 +399,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
 
   // Get the yampl connection channels
   m_socketFactory = new yampl::SocketFactory();
-  m_socket2Scatterer = m_socketFactory->createClientSocket(yampl::Channel(m_channel2Scatterer.value(),yampl::LOCAL),yampl::MOVE_DATA);
-  ATH_MSG_INFO("Created CLIENT socket to the Scatterer: " << m_channel2Scatterer.value());
+  std::string socket2ScattererName = m_channel2Scatterer.value() + std::string("_") + m_randStr;
+  m_socket2Scatterer = m_socketFactory->createClientSocket(yampl::Channel(socket2ScattererName,yampl::LOCAL),yampl::MOVE_DATA);
+  ATH_MSG_INFO("Created CLIENT socket to the Scatterer: " << socket2ScattererName);
   std::ostringstream pidstr;
   pidstr << getpid();
   yampl::ISocket* socket2EvtSel(0); 

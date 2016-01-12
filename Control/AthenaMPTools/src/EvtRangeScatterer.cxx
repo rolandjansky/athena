@@ -199,8 +199,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
   ATH_MSG_INFO("Created CLIENT socket for communicating Event Ranges with the Pilot");
   // Create a socket to communicate with EvtRangeProcessors
-  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(m_processorChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
-  ATH_MSG_INFO("Created SERVER socket to token processors: " << m_processorChannel.value());
+  std::string socket2ProcessorName = m_processorChannel.value() + std::string("_") + m_randStr;
+  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(socket2ProcessorName,yampl::LOCAL),yampl::MOVE_DATA);
+  ATH_MSG_INFO("Created SERVER socket to token processors: " << socket2ProcessorName);
   // Create a socket to communicate with the token extractor
   yampl::ISocket* socket2Extractor(nullptr);
   if(m_useTokenExtractor) {

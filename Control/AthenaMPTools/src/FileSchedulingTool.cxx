@@ -87,7 +87,7 @@ int FileSchedulingTool::makePool(int maxevt, int nprocs, const std::string& topd
 
   // Create rank queue and fill it
   std::ostringstream rankQueueName;
-  rankQueueName << "FileSchedulingTool_RankQueue_" << getpid();
+  rankQueueName << "FileSchedulingTool_RankQueue_" << getpid() << "_" << m_randStr;
   m_sharedRankQueue = new AthenaInterprocess::SharedQueue(rankQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedRankQueue->send_basic<int>(i)) {
@@ -97,7 +97,7 @@ int FileSchedulingTool::makePool(int maxevt, int nprocs, const std::string& topd
 
   // Create finalization scheduling queue
   std::ostringstream finQueueName;
-  finQueueName << "FileSchedulingTool_FinQueue_" << getpid();
+  finQueueName << "FileSchedulingTool_FinQueue_" << getpid() << "_" << m_randStr;
   m_sharedFinQueue = new AthenaInterprocess::SharedQueue(finQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedFinQueue->send_basic<int>(i*10)) {  // TO DO: this '3' could be made configurable
