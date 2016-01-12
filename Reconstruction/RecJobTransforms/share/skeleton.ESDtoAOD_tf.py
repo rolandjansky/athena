@@ -5,7 +5,7 @@
 #
 # New version for revamped job transforms
 #
-# $Id: skeleton.ESDtoAOD_tf.py 654717 2015-03-17 13:39:36Z graemes $
+# $Id: skeleton.ESDtoAOD_tf.py 700697 2015-10-15 09:48:11Z lerrenst $
 #
 #==============================================================
 
@@ -102,6 +102,13 @@ if hasattr(runArgs,"preInclude"):
 if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
+# Remove unwanted back navigation to ESD when ESD is temporary
+if hasattr(runArgs,"outputAODFile"):
+    if hasattr(runArgs,"ESDFileIO") and runArgs.ESDFileIO == "temporary":
+        try:
+            StreamAOD.ExtendProvenanceRecord = False
+        except:
+            print "StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
 
 #D3PDMaker outputs
 if hasattr(runArgs,"outputNTUP_MINBIASFile"):
