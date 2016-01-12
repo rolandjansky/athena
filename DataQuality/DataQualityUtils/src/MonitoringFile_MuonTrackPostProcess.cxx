@@ -267,12 +267,31 @@ namespace dqutils {
       TString muonqualstr[4] = {"Tight", "Medium", "Loose", "Veryloose"};
       // Divide the efficiency histograms
       TH2F* m_EffDenominator = (TH2F*)dir1->Get(Form("%sMuons_%s_eta_phi", plotdirname.Data(), recalg_path.Data()));
-      m_EffDenominator->Rebin2D();//here change the default binnning of eta-phi
+      //m_EffDenominator->Rebin2D();//here change the default binnning of eta-phi! disabled once we are in 64 bins
       for (int i = 0; i < 4; i++){
         TH2F* m_EffNumerator = (TH2F*)dir1->Get(Form("%sMuons_%s_%s_eta_phi", plotdirname.Data(), recalg_path.Data(), muonqualstr[i].Data()));
         TH2F* m_Efficiency = (TH2F*)dir1->Get(Form("%sMuons_%s_%s_eff", plotdirname.Data(), recalg_path.Data(), muonqualstr[i].Data()));
-        TwoDto2D_Eff(m_EffNumerator, m_EffDenominator, m_Efficiency, true);//here change the default binnning of eta-phi
+        TwoDto2D_Eff(m_EffNumerator, m_EffDenominator, m_Efficiency);//here change the default binnning of eta-phi
       }
+      TH2F* m_eff_nPrec    = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nPrec", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_nPhi     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nPhi", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_nTrigEta = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_nTrigEta", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_ndof     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_ndof", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_eff_chi2     = (TH2F*)dir1->Get(Form("%sMuons_%s_eff_chi2", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_ID_eff_ndof  = (TH2F*)dir1->Get(Form("%sMuons_%s_ID_eff_ndof", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_ID_eff_chi2  = (TH2F*)dir1->Get(Form("%sMuons_%s_ID_eff_chi2", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_MS_eff_ndof  = (TH2F*)dir1->Get(Form("%sMuons_%s_MS_eff_ndof", plotdirname.Data(), recalg_path.Data()));
+      TH2F* m_MS_eff_chi2  = (TH2F*)dir1->Get(Form("%sMuons_%s_MS_eff_chi2", plotdirname.Data(), recalg_path.Data()));
+
+      TwoDto2D_Eff(m_eff_nPrec, m_EffDenominator, m_eff_nPrec);
+      TwoDto2D_Eff(m_eff_nPhi, m_EffDenominator, m_eff_nPhi);
+      TwoDto2D_Eff(m_eff_nTrigEta, m_EffDenominator, m_eff_nTrigEta);
+      TwoDto2D_Eff(m_eff_ndof, m_EffDenominator, m_eff_ndof);
+      TwoDto2D_Eff(m_eff_chi2, m_EffDenominator, m_eff_chi2);
+      TwoDto2D_Eff(m_ID_eff_ndof, m_EffDenominator, m_ID_eff_ndof);
+      TwoDto2D_Eff(m_ID_eff_chi2, m_EffDenominator, m_ID_eff_chi2);
+      TwoDto2D_Eff(m_MS_eff_ndof, m_EffDenominator, m_MS_eff_ndof);
+      TwoDto2D_Eff(m_MS_eff_chi2, m_EffDenominator, m_MS_eff_chi2);
     }//ends different subfolder for muon efficiency
 
 
