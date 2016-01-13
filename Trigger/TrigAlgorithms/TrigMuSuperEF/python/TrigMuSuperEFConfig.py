@@ -238,9 +238,11 @@ def TrigMuSuperEF_MuonCaloTagTool( name='OnlineMuonCaloTagTool', **kwargs ):
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrigMuSuperEF_TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("TrigMuSuperEF_CaloTrkSelectorTool") )
     kwargs.setdefault("TrackIsolationTool",     None)
-    kwargs.setdefault("DebugMode",              True)
+    kwargs.setdefault("DebugMode",              False)
     kwargs.setdefault("doTrkSelection",         True)
     kwargs.setdefault("doCaloLR",               False)
+    kwargs.setdefault("doOldExtrapolation",     True)
+    kwargs.setdefault("ShowTruth",              False)
     return CfgMgr.MuonCombined__MuonCaloTagTool(name,**kwargs )
 
 def TrigMuSuperEF_TrackIsolationTool( name = "TrigMuSuperEF_TrackIsolationTool", **kwargs):
@@ -253,9 +255,9 @@ def TrigMuSuperEF_TrackDepositInCaloTool(name = "TrigMuSuperEF_TrackDepositInCal
 def TrigMuSuperEF_CaloTrkSelectorTool( name = 'TrigMuSuperEF_CaloTrkSelectorTool', **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
 
-    kwargs.setdefault("pTMin", 5000.)
-    kwargs.setdefault("IPd0Max", 7.)
-    kwargs.setdefault("IPz0Max", 130)     # 130 (tuned on Z)
+    kwargs.setdefault("pTMin", 3000.)
+    kwargs.setdefault("IPd0Max", 14)
+    kwargs.setdefault("IPz0Max", 200)     # 130 (tuned on Z)
     kwargs.setdefault("nHitBLayer", 0)
     kwargs.setdefault("nHitPix", 1)
     kwargs.setdefault("nHitSct", 5)
