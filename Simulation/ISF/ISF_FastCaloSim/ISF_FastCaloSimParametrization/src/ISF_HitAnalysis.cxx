@@ -1108,7 +1108,7 @@ void ISF_HitAnalysis::extrapolate_to_ID(const HepMC::GenParticle* part)
  //Trk::GlobalMomentum* trackmom=params_on_surface_ID->Trk::TrackParameters::momentum();
  if (params_on_surface_ID)
    {
-     Amg::Vector3D trackmom=params_on_surface_ID->Trk::TrackParameters::momentum().unit();
+     Amg::Vector3D trackmom=params_on_surface_ID->momentum().unit();
      //Amg::Vector3D vec_IP(x_ID,y_ID,z_ID);
      //std::cout<<"Momentum Vektor px="<<trackmom.x()<<" py "<<trackmom.y()<<" pz "<<trackmom.z()<<std::endl; //ok
      //angle between vec and trackmom:
