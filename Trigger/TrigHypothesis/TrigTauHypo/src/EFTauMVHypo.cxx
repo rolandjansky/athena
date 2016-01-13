@@ -45,7 +45,7 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("EtCalibMin",m_EtCalibMin  = -10000.);
   declareProperty("Level",     m_level       = -1);
   declareProperty("Method",    m_method      = 0);
-  declareMonitoredVariable("CutCounter",m_cutCounter);
+  declareMonitoredVariable("CutCounter",m_cutCounter=0);
   OneProngGraph=0;
   MultiProngGraph=0;
 }

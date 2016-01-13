@@ -37,5 +37,5 @@ use	xAODCaloEvent           xAODCaloEvent-*         Event/xAOD
 use	xAODTau                 xAODTau-*		Event/xAOD
 use 	xAODTracking            xAODTracking-*          Event/xAOD
 use     CaloEvent               CaloEvent-*             Calorimeter
-
+use  	TrigNavStructure        TrigNavStructure-*      Trigger/TrigEvent
 end_private

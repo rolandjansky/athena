@@ -69,7 +69,7 @@ EFTauInvHypo::EFTauInvHypo(const std::string& name,
   declareProperty("trkrad_MP_a1", m_trkrad_MP_a1= 100.);
   declareProperty("trkrad_MP_a2", m_trkrad_MP_a2= 100.);
   
-  declareMonitoredVariable("CutCounter",m_cutCounter);
+  declareMonitoredVariable("CutCounter",m_cutCounter=0);
   
 }
 
