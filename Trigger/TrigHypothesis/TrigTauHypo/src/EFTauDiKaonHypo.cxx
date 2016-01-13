@@ -47,7 +47,7 @@ EFTauDiKaonHypo::EFTauDiKaonHypo(const std::string& name,
   declareProperty("nTrackMax",     m_nTrackMax  = 2);
   declareProperty("EMPOverTrkSysPMax",     m_EMPOverTrkSysPMax  = 5.);
 
-  declareMonitoredVariable("CutCounter",m_cutCounter);
+  declareMonitoredVariable("CutCounter",m_cutCounter=0);
 }
 
 /////////////////////////////////////////////////////////////////////
