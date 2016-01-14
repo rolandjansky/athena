@@ -242,7 +242,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
 
       //Add SCT specific information
       const InDet::SiWidth cw = prd->width();
-      xprd->auxdata<int>("size") = (int)cw.colRow()[0];
+      xprd->auxdata<int>("SiWidth") = (int)cw.colRow()[0];
       xprd->auxdata<int>("hitsInThirdTimeBin") = (int)(prd->hitsInThirdTimeBin());
 
       xprd->auxdata<int>("bec")          =   m_SCTHelper->barrel_ec(clusterId)   ;

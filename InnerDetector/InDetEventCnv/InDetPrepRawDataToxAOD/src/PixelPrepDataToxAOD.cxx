@@ -213,7 +213,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       const InDet::SiWidth cw = prd->width();
       xprd->auxdata<int>("sizePhi") = (int)cw.colRow()[0];
       xprd->auxdata<int>("sizeZ")   = (int)cw.colRow()[1];
-      xprd->auxdata<int>("size")    = (int)prd->rdoList().size();
+      xprd->auxdata<int>("nRDO")    = (int)prd->rdoList().size();
    
       xprd->auxdata<float>("charge")  =  prd->totalCharge(); 
       xprd->auxdata<int>("ToT")       =  prd->totalToT(); 
