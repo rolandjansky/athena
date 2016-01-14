@@ -140,7 +140,7 @@ namespace {
   }
 
   double toRad(double deg) {
-    return deg * M_PI/180;
+    return deg * (M_PI/180);
   }
 
   double sqr( double a) {
@@ -212,12 +212,12 @@ void test_d0significance() {
       double vy_cov=beamspot_sigma.y();
       double vxy_cov=beamspot_sigma.xy();
       double expected_d0_uncert_2=sqr(ref_d0_uncert) + sin(phi)*(sin(phi)*sqr(vx_cov)-cos(phi)*vxy_cov)+cos(phi)*(cos(phi)*sqr(vy_cov)-sin(phi)*vxy_cov);
-      double _phi =p->phi();
-      assert( checkEqual<float>(_phi, phi));
+      double phi2 =p->phi();
+      assert( checkEqual<float>(phi2, phi));
       assert( checkEqual<float>(ref_d0, p->d0()));
-      double _d0_uncert = p->definingParametersCovMatrixVec()[0];
-      assert( checkEqual<float>(sqr(ref_d0_uncert), _d0_uncert));
-      expected_d0_uncert_2=p->definingParametersCovMatrixVec()[0]  + sin(_phi)*(sin(_phi)*sqr(vx_cov)-cos(_phi)*vxy_cov)+cos(_phi)*(cos(_phi)*sqr(vy_cov)-sin(_phi)*vxy_cov);
+      double d0_uncert2 = p->definingParametersCovMatrixVec()[0];
+      assert( checkEqual<float>(sqr(ref_d0_uncert), d0_uncert2));
+      expected_d0_uncert_2=p->definingParametersCovMatrixVec()[0]  + sin(phi2)*(sin(phi2)*sqr(vx_cov)-cos(phi2)*vxy_cov)+cos(phi2)*(cos(phi2)*sqr(vy_cov)-sin(phi2)*vxy_cov);
 
       assert( expected_d0_uncert_2 >= 0.);
       double expected_d0_significance = ref_d0 / sqrt( expected_d0_uncert_2);
