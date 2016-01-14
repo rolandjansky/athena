@@ -242,7 +242,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   }
   if (distance>500) trackPattern.endcapRadius3P=0;//Reconstruction may fail
 
-  msg() << MSG::INFO << "... alpha/beta/endcapRadius/charge/s_address="
+  msg() << MSG::DEBUG << "... alpha/beta/endcapRadius/charge/s_address="
 	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
 	<< trackPattern.charge << "/" << trackPattern.s_address << endreq;
   // 
