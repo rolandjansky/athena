@@ -151,9 +151,8 @@ class HLTSimulationGetter(Configured):
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
-            from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-            theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
-            ServiceMgr += theFTK_DataProviderSvc
+            # TrigFTK_DataProviderSvc moved to TrigFTK_RecExample
+            pass
             
         if TriggerFlags.doHLT():
             log.info("configuring HLT Steering")
@@ -187,6 +186,16 @@ class HLTSimulationGetter(Configured):
                 
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
             TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
+            if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
+                print "TrigSteer_HLT.LvlTopoConverter has attribute MuonInputProvider"
+
+                from AthenaCommon.GlobalFlags  import globalflags
+                if globalflags.DataSource()!='data':
+                    log.info("Muon eta/phi encoding with reduced granularity for MC (L1Topo emulation for HLT seeding)")
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuonEncoding = 1 # reduced granularity muon input
+                else:
+                    log.info("Muon eta/phi encoding with full granularity for data (L1Topo emulation for HLT seeding) - should be faced out")
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuonEncoding = 0 # full granularity muon input - should be faced out
 
             from TrigEDMConfig.TriggerEDM import  getHLTPreregistrationList, getEDMLibraries
             TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList()

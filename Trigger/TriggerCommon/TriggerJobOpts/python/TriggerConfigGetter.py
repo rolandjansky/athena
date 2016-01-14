@@ -341,7 +341,6 @@ class TriggerConfigGetter(Configured):
         folders = []
         if self.hltFolders: folders += [ "HLT/Menu", "HLT/HltConfigKeys" ]
         if self.l1Folders:  folders += [ "LVL1/Lvl1ConfigKey", "LVL1/Menu", "LVL1/Prescales" ]
-        if self.l1Folders:  folders += [ "LVL1/Thresholds" ]
         if globalflags.DataSource() == 'data':
             if self.l1Folders:  folders += [ "LVL1/BunchGroupKey", "LVL1/BunchGroupDescription", "LVL1/BunchGroupContent" ]
         if self.hasLBwiseHLTPrescalesAndL1ItemDef:
@@ -354,6 +353,7 @@ class TriggerConfigGetter(Configured):
             # Need thresholds folders but only for Tier0 BS->ESD
             log.info("Also adding new folders to IOVDbSvc")
             if self.hltFolders: folders += [ "HLT/Groups" ]
+            if self.l1Folders: folders += [ "LVL1/Thresholds" ]
 
         for f in folders:
             log.info("     /TRIGGER/%s" % f)
