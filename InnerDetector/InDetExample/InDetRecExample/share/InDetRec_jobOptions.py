@@ -666,7 +666,7 @@ else:
 
       include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
       InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
-                                                                 InDetKeys.SiSpSeededPixelTracks(),
+                                                                 InDetKeys.PixelPrdAssociationTracks(),
                                                                  InDetKeys.ExtendedTracksPixelPrdAssociation(),
                                                                  InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
                                                                  TrackCollectionKeys,
