@@ -33,7 +33,7 @@
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_larged0_PU.xml"
 
-#     include   "TrigInDetValidation_el_single_e_7-80_pu40.xml"
+<!-- #     include   "TrigInDetValidation_el_single_e_7-80_pu40.xml" -->
 
 #     include   "TrigInDetValidation_el_single_e_7-80_IBL.xml"
 #     include   "TrigInDetValidation_el_single_e_7-80_IBL_pu40.xml"
