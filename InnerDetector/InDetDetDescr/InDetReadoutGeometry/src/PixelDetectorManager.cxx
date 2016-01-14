@@ -323,8 +323,15 @@ namespace InDetDD {
   if(msgLvl(MSG::INFO))
     msg(MSG::INFO) << "Processing IBLDist alignment container." << endreq;
 
-  float ibldist[14] = {}; 
-  float iblbaseline[14] = {}; 
+  int nstaves = 0;
+  if (numerology().numPhiModulesForLayer(0)<14) nstaves = 14;
+  else nstaves = numerology().numPhiModulesForLayer(0);
+
+  std::vector<float> ibldist; 
+  std::vector<float> iblbaseline;
+  ibldist.resize(nstaves);
+  iblbaseline.resize(nstaves);
+ 
   const CondAttrListCollection* atrlistcol=0;
   if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
     // loop over objects in collection
@@ -375,8 +382,11 @@ namespace InDetDD {
   // loop over all the AlignableTransform objects in the collection
   for (DataVector<AlignableTransform>::const_iterator pat=container->begin();
    pat!=container->end();++pat) {
-    if ((*pat)->tag()!="/Indet/Align/PIXB1") {  // hard-coded to IBL for now
-      msg(MSG::VERBOSE) << "IBLDist; ignoring collections " << (*pat)->tag() << endreq;
+
+    if (!( (*pat)->tag()=="/Indet/Align/PIXB1" && 
+	   numerology().numPhiModulesForLayer(0)==14 &&
+	   numerology().numLayers()==4) ){  // hard-coded to IBL for now; no other geometry should really apply this!
+      msg(MSG::DEBUG) << "IBLDist; ignoring collections " << (*pat)->tag() << endreq;
     }
     else{
       const AlignableTransform* transformCollection = *pat;
@@ -389,6 +399,12 @@ namespace InDetDD {
         }
   
         IdentifierHash idHash = getIdHelper()->wafer_hash(trans_iter->identify());
+	if (!idHash.is_valid()){
+	  msg(MSG::WARNING) << "Invalid HashID for identifier "
+			 << getIdHelper()->show_to_string(trans_iter->identify())   << endreq;
+	  msg(MSG::WARNING) << "No IBLDist corrections can be applied for invalid HashID's - exiting " << endreq;
+	  return false;
+	}
         SiDetectorElement * sielem = m_elementCollection[idHash];
         //This should work as Bowing is in L3 frame, i.e. local module frame                 
         double z = sielem->center()[2];
