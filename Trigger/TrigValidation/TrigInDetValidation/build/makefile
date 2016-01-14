@@ -18,7 +18,6 @@
 
 JOBS =  \
         TrigInDetValidation_el_single_e_7-80_larged0.xml                \
-        TrigInDetValidation_el_single_e_7-80_pu40.xml                   \
         TrigInDetValidation_el_single_e_7-80_IBL.xml                    \
         TrigInDetValidation_el_single_e_7-80_IBL_pu40.xml               \
         TrigInDetValidation_el_Zee_IBL_pu40.xml                         \

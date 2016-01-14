@@ -39,26 +39,16 @@
             <queue>long</queue>
 
 
-          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000005.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000143.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000174.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000176.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000269.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000291.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000332.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000340.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000375.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226793_00/RDO.01226793._000476.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000604.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000647.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000664.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000671.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000678.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000697.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000711.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000714.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000718.pool.root.1</dataset>
-	  <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_14TeV.105568.ttbar_Pythia.digit.RDO.e842_s1321_d603_tid01226794_00/RDO.01226794._000754.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
 
 	   
             <action position="01">
@@ -331,26 +321,16 @@
            <queue>long</queue>
 
 
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._000670.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._001127.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._001268.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._001367.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._001370.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._003545.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._003559.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._003572.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._003756.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._003762.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004043.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004227.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004368.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004387.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004439.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004495.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004591.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004594.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._004786.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e2743_s2044_s2008_r5988_tid04722228_00/RDO.04722228._005089.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000006.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000007.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000008.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000010.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000017.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000021.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000023.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000024.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000029.pool.root.1</dataset>
+	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.129190.Pythia8_AU2CTEQ6L1_ppToJpsie3e3.recon.RDO.e3802_s2608_s2183_r7042/RDO.06758877._000039.pool.root.1</dataset>
 	   
            <action position="01">
              <modulename>RttLibraryTools</modulename> 
@@ -960,221 +940,6 @@
          <athenaCommonFlags /> 
          </athena>
 
-
-
-
-         <athena trendId='electronTrend' userJobId='TrigInDetValidation_el_single_e_7-80_pu40'>
-            <doc>Single part electron test 7-80 GeV, pu40, run2 chains</doc>
-            <displayName>ElectronSlice single partile e 7-80 GeV, pu40</displayName>
-	    <commandLineFlags>EventMax=6000;runMergedChain=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
-            <package>Trigger/TrigValidation/TrigInDetValidation</package>
-            <group>TrigInDetValidation</group>
-            <queue>long</queue>
-
-
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000008.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000081.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000325.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000422.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000463.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000473.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000485.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000635.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000664.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.107020.singlepart_e_Et7-80.digit.RDO.e974_s1310_s1300_d619/RDO.604928._000805.pool.root.1</dataset> 
-
-            <action position="01">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDArdict.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>TIDAdata11-rtt.dat -f data-electron.root -p 11 -b Test_bin.dat </argvalue>
-              </arg>
-            </action>
-
-
-
-
-     <action position="02">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-el_single_e_7-80_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig  HLT_e24_medium_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID -d HLTEF-plots  </argvalue>
-              </arg>
-            </action>
-
-     <action position="03">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-el_single_e_7-80_pu40-reference.root  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF  HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig HLT_e5_loose_L2Star_idperf_InDetTrigTrackingxAODCnv_Electron_EFID  -d HLTEF-plots-lowpt  </argvalue>
-              </arg>
-            </action>
-
-
-     <action position="04">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-el_single_e_7-80_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e24_medium_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2 -d HLTL2-plots  </argvalue>
-              </arg>
-            </action>
-
-     <action position="05">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname>  
-              <arg> 
-                <argname>exeName</argname>
-                <argvalue>TIDAcomparitor.exe</argvalue> 
-              </arg>
-              <arg> 
-                <argname>exeParamString</argname>
-                <argvalue>data-electron.root data-el_single_e_7-80_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_0  HLT_e5_loose_L2Star_idperf_TrigL2SiTrackFinder_eGamma_2  -d HLTL2-plots-lowpt  </argvalue>
-              </arg>
-            </action>
-
-
-
-
-            <action position="20">
-              <modulename>RttLibraryTools</modulename>
-              <testname>ExeRunner</testname>
-              <arg>
-                <argname>exeName</argname>
-                <argvalue>TIDAcpucost.exe</argvalue>
-              </arg>
-              <arg>
-                <argname>exeParamString</argname>
-                <argvalue>expert-monitoring.root  expert-monitoring*-ref.root --auto -o times </argvalue>
-              </arg>
-            </action>
-
-
-
-            <action position="30">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>RunTrigCostD3PD.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> -f trig_cost.root  --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir </argvalue>
-              </arg> 
-            </action>
-
-            <action position="31">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall" </argvalue>
-              </arg> 
-            </action>
-
-            <action position="32">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent" </argvalue>
-              </arg> 
-            </action>
-
-
-
-
-            <action position="33">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall" </argvalue>
-              </arg> 
-            </action>
-
-            <action position="34">
-              <modulename>RttLibraryTools</modulename> 
-              <testname>ExeRunner</testname> 
-              <arg> 
-                <argname>exeName</argname> 
-                <argvalue>TIDAcpucost.exe</argvalue> 
-              </arg> 
-              <arg> 
-                <argname>exeParamString</argname> 
-                <argvalue> costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent" </argvalue>
-              </arg> 
-            </action>
-
-        <action position="40">
-             <modulename>CheckLog_TriggerTest</modulename>
-             <testname>CheckLog_TriggerTest</testname>
-             <arg>
-                <argname>command</argname>
-                <argvalue>check_log.pl --conf checklogTriggerTest.conf  %JOBLOG</argvalue>
-             </arg>
-        </action>
-
-
-
-            <testToRemove>
-              <jobGroupName>RTT:Top</jobGroupName>
-              <testidentifier>CheckFileRunner0</testidentifier>
-            </testToRemove>
-
-
-	    <auxFilePattern>data-el_single_e_7-80_pu40-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-el_single_e_7-80_pu40-ref.root</auxFilePattern>
-
-
-            <auxFilePattern>TIDA*.dat</auxFilePattern>
-            <auxFilePattern>Test_bin.dat</auxFilePattern>
- 
-            <auxFilePattern>TIDAWeb/*</auxFilePattern>
-            <auxFilePattern>TIDAWeb/build/*</auxFilePattern>
-            <auxFilePattern>TIDAindex.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-EFID.html</auxFilePattern>
-            <auxFilePattern>TIDAindex-*.htm</auxFilePattern>
-            <auxFilePattern>TIDAindex*.php</auxFilePattern>
-            <auxFilePattern>TIDAstyle.css</auxFilePattern>
-	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
-
-
-         <athenaCommonFlags /> 
-         </athena>
 
 
 
@@ -1909,26 +1674,17 @@
            <queue>long</queue>
 
 
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000149.pool.root.1</dataset>  -->    
-<!--         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000133.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000448.pool.root.1</dataset> --> 
- <!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000484.pool.root.1</dataset> --> 
-  <!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000522.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000545.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000553.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000590.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000782.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000791.pool.root.1</dataset> --> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000024.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000032.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000046.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000047.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000050.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000059.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000068.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000070.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000092.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000095.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000001.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000002.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000008.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000009.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000013.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000014.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000019.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
+ 
 
 	   
            <action position="01">
@@ -2135,26 +1891,17 @@
            <queue>long</queue>
 
 
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000149.pool.root.1</dataset>  -->    
-<!--         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000133.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000448.pool.root.1</dataset> --> 
- <!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000484.pool.root.1</dataset> --> 
-  <!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000522.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000545.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000553.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000590.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000782.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000791.pool.root.1</dataset> --> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000024.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000032.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000046.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000047.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000050.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000059.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000068.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000070.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000092.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000095.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000001.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000002.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000008.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000009.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000013.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000014.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000019.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
+ 
 
 	   
            <action position="01">
@@ -2360,26 +2107,17 @@
            <queue>long</queue>
 
 
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000149.pool.root.1</dataset>  -->    
-<!--         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000133.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000448.pool.root.1</dataset> --> 
- <!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000484.pool.root.1</dataset> --> 
-  <!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000522.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000545.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000553.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000590.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000782.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000791.pool.root.1</dataset> --> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000024.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000032.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000046.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000047.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000050.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000059.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000068.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000070.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000092.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000095.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000001.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000002.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000008.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000009.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000013.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000014.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000019.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
+ 
 
 	   
            <action position="01">
@@ -2585,26 +2323,17 @@
            <queue>long</queue>
 
 
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000149.pool.root.1</dataset>  -->    
-<!--         <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000133.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000448.pool.root.1</dataset> --> 
- <!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000484.pool.root.1</dataset> --> 
-  <!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000522.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000545.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000553.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000590.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000782.pool.root.1</dataset> --> 
-<!--               <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000791.pool.root.1</dataset> --> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000024.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000032.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000046.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000047.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000050.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000059.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000068.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000070.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000092.pool.root.1</dataset> 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.RDO.e3059_s1982_s2008_r5787_tid01572722_00/RDO.01572722._000095.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000001.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000002.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000008.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000009.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000013.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000014.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000019.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000024.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191/RDO.06753544._000025.pool.root.1</dataset> 
+ 
 
 	   
            <action position="01">
@@ -4096,26 +3825,17 @@
             <queue>long</queue>
 	   
 
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._000975.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._001787.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._002140.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._002604.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._002895.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004006.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004207.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004411.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004795.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004848.pool.root.3</dataset> -->
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000027.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000028.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000038.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000073.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000094.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000105.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000107.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000119.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000145.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
 
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
@@ -4293,26 +4013,17 @@
             <queue>long</queue>
 	   
 
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._000975.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._001787.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._002140.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._002604.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._002895.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004006.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004207.pool.root.1</dataset> -->
-<!--              <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004411.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004795.pool.root.1</dataset> -->
-<!--             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2176_s1682_s1691_r4710_tid01323021_00/RDO.01323021._004848.pool.root.3</dataset> -->
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000027.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000028.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000038.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000073.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000094.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000105.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000107.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000119.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5865_tid01605857_00/RDO.01605857._000145.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000041.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000044.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000048.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000051.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000053.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000054.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000055.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000059.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000060.pool.root.1</dataset>
+          <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7143/RDO.06718152._000071.pool.root.1</dataset>
+
 
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
@@ -4749,16 +4460,15 @@
            <queue>long</queue>
 
 
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000004.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000014.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000025.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000032.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000042.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000054.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000055.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000059.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000065.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000072.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001750.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._002371.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._002653.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004508.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004555.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004607.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004797.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004832.pool.root.1</dataset>
            
            <action position="01">
              <modulename>RttLibraryTools</modulename>
@@ -4947,16 +4657,15 @@
            <queue>long</queue>
 
 
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000004.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000014.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000025.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000032.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000042.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000054.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000055.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000059.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000065.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO.e2658_s1967_s1964_r5865_tid01605861_00/RDO.01605861._000072.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001556.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._001750.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._002371.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._002653.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004508.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004555.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004607.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004797.pool.root.1</dataset>
+	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2757_r7245/RDO.06885566._004832.pool.root.1</dataset>
            
            <action position="01">
              <modulename>RttLibraryTools</modulename>
@@ -5537,36 +5246,16 @@
 
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000012.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000013.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000018.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000022.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000024.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000034.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000038.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000041.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000046.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000054.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000062.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000066.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000076.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000078.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000083.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000085.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000088.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000096.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000102.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000138.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000149.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000151.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000163.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000171.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000176.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000181.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000188.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000189.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000195.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000014.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000017.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000019.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000022.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000024.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000025.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
 
 
 
@@ -5746,36 +5435,16 @@
 
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000012.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000013.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000018.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000022.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000024.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000034.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000038.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000041.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000046.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000054.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000062.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000066.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000076.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000078.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000083.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000085.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000088.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000096.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000102.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000138.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000149.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000151.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000163.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000171.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000176.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000181.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000188.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000189.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000195.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000014.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000017.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000019.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000022.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000024.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000025.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
 
 
 
@@ -5954,36 +5623,16 @@
 
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000012.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000013.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000018.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000022.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000024.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000034.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000038.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000041.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000046.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000054.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000062.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000066.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000076.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000078.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000083.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000085.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000088.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000096.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000102.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000138.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000149.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000151.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000163.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000171.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000176.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000181.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000188.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000189.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000195.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000014.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000017.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000019.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000022.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000024.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000025.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
 
 
 
@@ -6163,36 +5812,16 @@
 
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000012.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000013.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000018.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000022.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000024.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000034.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000038.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000041.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000046.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000054.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000062.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000066.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000076.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000078.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000083.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000085.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000088.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._000096.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000102.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000138.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000149.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000151.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000163.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000171.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000176.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000181.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000188.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000189.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/RDOs/r6067/147407.PowhegPythia8_AZNLO_Zmumu/RDO.04771243._0000195.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000014.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000017.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000019.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000022.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000024.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000025.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000032.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000034.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000036.pool.root.1</dataset>
 
 
 
@@ -6372,27 +6001,10 @@
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000001.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000002.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000003.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000004.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000005.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000007.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000008.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000009.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000010.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000011.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000012.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000013.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000014.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000015.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000016.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000017.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000018.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000019.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14621068/user.tursom.4636539.EXT0._000020.RDO.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0.14628781/user.tursom.4636539.EXT0._000021.RDO.pool.root</dataset>
- 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000001.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000002.pool.root.1</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc15_13TeV.300401.Pythia8BPhotospp_A14_CTEQ6L1_Bs_Jpsimu3p5mu3p5_phi.recon.RDO.e4397_s2608_r6869/RDO.06461186._000003.pool.root.1</dataset>
+
 
 
             <action position="01">
@@ -6585,9 +6197,9 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000076.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000084.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000088.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000102.pool.root.1</dataset>
+            <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000102.pool.root.1</dataset> -->
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000104.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000112.pool.root.1</dataset>
+            <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000112.pool.root.1</dataset> -->
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000126.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000138.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000153.pool.root.1</dataset>
@@ -6766,9 +6378,9 @@
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000076.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000084.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000088.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000102.pool.root.1</dataset>
+            <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000102.pool.root.1</dataset> -->
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000104.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000112.pool.root.1</dataset>
+            <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000112.pool.root.1</dataset> -->
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000126.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000138.pool.root.1</dataset>
             <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc14_13TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e2743_s1982_s2008_r5922_tid01613944_00/RDO.01613944._000153.pool.root.1</dataset>
@@ -6935,11 +6547,16 @@
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.RDO_FTK.e3698_s2608_s2183_r6630.test.v2_EXT2.39080319/user.jahreda.6259805.EXT2._000001.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.RDO_FTK.e3698_s2608_s2183_r6630.test.v2_EXT2.39080319/user.jahreda.6259805.EXT2._000002.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.RDO_FTK.e3698_s2608_s2183_r6630.test.v2_EXT2.39080319/user.jahreda.6259805.EXT2._000003.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.RDO_FTK.e3698_s2608_s2183_r6630.test.v2_EXT2.39080319/user.jahreda.6259805.EXT2._000004.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.RDO_FTK.e3698_s2608_s2183_r6630.test.v2_EXT2.39080319/user.jahreda.6259805.EXT2._000005.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000001.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000002.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000003.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000004.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000005.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000006.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000007.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000008.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000009.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700/user.jahreda.7261042.EXT2._000010.RDO_FTK.pool.root</dataset>
 
 
 
@@ -7119,16 +6736,16 @@
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000001.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000002.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000003.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000004.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000005.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000006.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000007.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000008.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000009.RDO_FTK.pool.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Pythia8_AU2CTEQ6L1_Ztautau.recon.RDO_FTK.e3802_s2608_s2183_r6635.test_EXT2.38814075/user.jahreda.6247883.EXT2._000010.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000001.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000002.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000003.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000004.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000005.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000006.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000007.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000008.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000009.RDO_FTK.pool.root</dataset>
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.mc15_13TeV.147818.Ztautau.recon.RDO.e3802_s2608_s2183_r6635.updatesJohn.newFormat.v1_EXT2.58456225/user.jahreda.7261043.EXT2._000010.RDO_FTK.pool.root</dataset>
 
 
 
@@ -7157,7 +6774,20 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3    -d HLTL2-plots </argvalue>
+                <argvalue>data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit  -d HLTL2-plots </argvalue>
+              </arg>
+            </action>
+
+     <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDAcomparitor.exe</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-tau-FTK.root data-FTK_tau_tautau-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig  HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_IDTrig  -d HLTEF-plots </argvalue>
               </arg>
             </action>
 
