@@ -1988,7 +1988,15 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="254" partition="1" name="L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="254" partition="1" name="L1_TAU40_2TAU20IM" complex_deadtime="0" definition="(HA40[x1]&amp;HA20IM[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="HA40_x1" triggerthreshold="HA40"/>
+        <TriggerCondition multi="2" name="HA20IM_x2" triggerthreshold="HA20IM"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="255" partition="1" name="L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
@@ -1999,7 +2007,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="255" partition="1" name="L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="256" partition="1" name="L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS40[x1]&amp;05MINDPHI-AJj10s6-XE0[x1]&amp;05MINDPHI-EM15s6-XE0[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
@@ -2010,20 +2018,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="256" partition="1" name="L1_EM12_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="257" partition="1" name="L1_EM12_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <TriggerCondition multi="1" name="XS50_x1" triggerthreshold="XS50"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="257" partition="1" name="L1_EM15_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
-        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
-        <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2168,9 +2167,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="278" partition="1" name="L1_W-08RO-XEHT-0" complex_deadtime="0" definition="(08RATIO-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="278" partition="1" name="L1_MU10_2J20" complex_deadtime="0" definition="(MU10[x1]&amp;J20[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="08RATIO-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="08RATIO-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="MU10_x1" triggerthreshold="MU10"/>
+        <TriggerCondition multi="2" name="J20_x2" triggerthreshold="J20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2211,20 +2211,20 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="284" partition="1" name="L1_EM10VH_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM10VH[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="284" partition="1" name="L1_EM15_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="EM10VH_x1" triggerthreshold="EM10VH"/>
-        <TriggerCondition multi="1" name="XS50_x1" triggerthreshold="XS50"/>
+        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
+        <TriggerCondition multi="1" name="EM15_x1" triggerthreshold="EM15"/>
+        <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="285" partition="1" name="L1_EM15VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="285" partition="1" name="L1_EM10VH_W-MT35_XS50" complex_deadtime="0" definition="(35MT-EM12s6-XE0[x1]&amp;EM10VH[x1]&amp;XS50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
-        <TriggerCondition multi="1" name="EM15VH_x1" triggerthreshold="EM15VH"/>
-        <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
+        <TriggerCondition multi="1" name="35MT-EM12s6-XE0_x1" triggerthreshold="35MT-EM12s6-XE0"/>
+        <TriggerCondition multi="1" name="EM10VH_x1" triggerthreshold="EM10VH"/>
+        <TriggerCondition multi="1" name="XS50_x1" triggerthreshold="XS50"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2237,7 +2237,16 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="287" partition="1" name="L1_EM20VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM20VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="287" partition="1" name="L1_EM15VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM15VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
+        <TriggerCondition multi="1" name="EM15VH_x1" triggerthreshold="EM15VH"/>
+        <TriggerCondition multi="1" name="XS60_x1" triggerthreshold="XS60"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="288" partition="1" name="L1_EM20VH_W-MT35_XS60" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM20VH[x1]&amp;XS60[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM20VH_x1" triggerthreshold="EM20VH"/>
@@ -2246,7 +2255,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="288" partition="1" name="L1_EM22VHI_W-MT35_XS40" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM22VHI[x1]&amp;XS40[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="289" partition="1" name="L1_EM22VHI_W-MT35_XS40" complex_deadtime="0" definition="(35MT-EM15s6-XE0[x1]&amp;EM22VHI[x1]&amp;XS40[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="35MT-EM15s6-XE0_x1" triggerthreshold="35MT-EM15s6-XE0"/>
         <TriggerCondition multi="1" name="EM22VHI_x1" triggerthreshold="EM22VHI"/>
@@ -2255,24 +2264,13 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="289" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="290" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
         <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
         <TriggerCondition multi="1" name="90RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="90RATIO2-XE0-HT0-AJj15all.ETA49"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="290" partition="1" name="L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30" complex_deadtime="0" definition="(25MT-EM12s6-XE0[x1]&amp;EM12[x1]&amp;15MINDPHI-AJj10s6-XE0[x1]&amp;15MINDPHI-EM12s6-XE0[x1]&amp;XS30[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="25MT-EM12s6-XE0_x1" triggerthreshold="25MT-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
-        <TriggerCondition multi="1" name="15MINDPHI-AJj10s6-XE0_x1" triggerthreshold="15MINDPHI-AJj10s6-XE0"/>
-        <TriggerCondition multi="1" name="15MINDPHI-EM12s6-XE0_x1" triggerthreshold="15MINDPHI-EM12s6-XE0"/>
-        <TriggerCondition multi="1" name="XS30_x1" triggerthreshold="XS30"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
