@@ -29,6 +29,7 @@
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
 
+    
     <TEST name="Py8Jets" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test a Pythia8 jet slice, with a very low filter efficiency</doc>
       <classification>
@@ -40,7 +41,8 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
-
+    
+    
     <TEST name="Py8Ztautau" type="script" suite="EvgenJobTransforms-Core">
       <doc>Tests a Pythia8 Z->tautau job, with Photos++</doc>
       <classification>
@@ -52,7 +54,9 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+   
 
+    
     <TEST name="Py8EvtGen" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test Pythia8+EvtGen</doc>
       <classification>
@@ -64,7 +68,9 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+    
 
+    
     <TEST name="Py8Powheg" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test POWHEG+Pythia8</doc>
       <classification>
@@ -76,7 +82,9 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+    
 
+    
     <TEST name="McAtNloJimmy" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test MC@NLO+HERWIG+JIMMY</doc>
       <classification>
@@ -88,7 +96,9 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+    
 
+    
     <TEST name="McAtNloHerwigpp" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test MC@NLO+Herwig++</doc>
       <classification>
@@ -100,7 +110,9 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+   
 
+    
     <TEST name="AlpgenJimmy" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test Alpgen+HERWIG+JIMMY</doc>
       <classification>
@@ -112,7 +124,9 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+    
 
+    
     <TEST name="AlpgenPythia" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test Alpgen+PYTHIA</doc>
       <classification>
@@ -124,7 +138,110 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+   
 
+    
+    <TEST name="QGSJet" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test minimum bias generation with QGSJet</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_qgsjet</options_atn>
+      <timelimit>15</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+    
+
+    
+    <TEST name="Herwig++" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test minimum bias generation with Herwigpp</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_herwigpp</options_atn>
+      <timelimit>15</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+    
+    <TEST name="PowhegWenu" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test W-enu generation with Powheg</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_powheg_wenu</options_atn>
+      <timelimit>30</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+    
+    <TEST name="Powhegttbar" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test ttbar generation with Powheg</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_powheg_ttbar</options_atn>
+      <timelimit>20</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+
+    <TEST name="PowhegtW" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test ttbar generation with Powheg</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_powheg_pythia_evtgen_wt</options_atn>
+      <timelimit>30</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+
+    <TEST name="MadGraphttW" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test ttbar generation with MadGraph</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_mgpythia8_ttW</options_atn>
+      <timelimit>30</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+
+    <TEST name="MadGraphZmumu" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test ttbar generation with MadGraph</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_mgpythia8_Zmumu</options_atn>
+      <timelimit>30</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+
+    
+    <TEST name="SherpaDY" type="script" suite="EvgenJobTransforms-Core">
+      <doc>Test DY Z-ee  generation with Sherpa</doc>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>EvGen</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+      <options_atn>${ATN_PACKAGE}/test/test_sherpa_dy</options_atn>
+      <timelimit>20</timelimit>
+      <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
+    </TEST>
+    
+
+    <!--
     <TEST name="Epos" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test minimum bias generation with EPOS</doc>
       <classification>
@@ -136,8 +253,10 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
+    -->
+    
 
-    <!--
+    
     <TEST name="BPhys" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test B->JPsiX generation with Pythia8B</doc>
       <classification>
@@ -149,7 +268,7 @@
       <timelimit>15</timelimit>
       <prescript>source ${ATN_PACKAGE}/test/setup_testenv</prescript>
     </TEST>
-    -->
+    
 
     <TEST name="Single" type="script" suite="EvgenJobTransforms-Core">
       <doc>Test single particle generation with ParticleGun</doc>
