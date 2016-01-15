@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+
 #include "TrigConfL1Data/PrescaleSet.h"
 #include "TrigConfL1Data/L1PSNumber.h"
 #include <iostream>
@@ -139,7 +141,7 @@ TrigConf::PrescaleSet::setPrescales(const int64_t p[], const unsigned int size) 
  */
 void TrigConf::PrescaleSet::setPrescales(const int p[], const unsigned int size) {
    for (unsigned int i = 0; i < size; i++) {
-      setPrescale(i, p[i]);
+     setPrescale(i, (int64_t) p[i]);
    }
 }
 
@@ -163,6 +165,16 @@ TrigConf::PrescaleSet::setPrescale(unsigned int num, int prescaleValue) {
    setPrescale(num, (int64_t) prescaleValue);
 }
 
+void 
+TrigConf::PrescaleSet::setPrescale(unsigned int num, float prescaleValue) {
+  int32_t cut = getCutFromPrescale(prescaleValue);
+  m_Prescales[num] = cut;
+  m_Prescales_ctp[num] = cut;
+  m_Prescales_float[num] = prescaleValue;
+  m_null = false;
+}
+
+
 void
 TrigConf::PrescaleSet::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
@@ -170,7 +182,7 @@ TrigConf::PrescaleSet::print(const std::string& indent, unsigned int detail) con
       printNameIdV("");
       if(detail>=3) {
          int i(0);
-         for( auto ps: m_Prescales)
+         for( auto ps: m_Prescales_float)
             cout << indent << "        ctpid=" << i++ << ": " << " prescale=" << ps << endl;
       }
    }
