@@ -153,9 +153,19 @@ class Lvl1SimulationGetter (Configured):
                     
 
             if TriggerFlags.doL1Topo():
+                log.info("Enabling L1Topo simulation")
                 from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
                 topSequence += L1TopoSimulation()
-                #topSequence.L1TopoSimulation.OutputLevel = DEBUG
+
+                # enable the reduced (coarse) granularity topo simulation
+                # currently only for MC
+                from AthenaCommon.GlobalFlags  import globalflags
+                if globalflags.DataSource()!='data':
+                    log.info("Muon eta/phi encoding with reduced granularity for MC (L1 Simulation)")
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
+                else:
+                    log.info("Muon eta/phi encoding with full granularity for data (L1 Simulation) - should be faced out")
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 0
 
 
             log.info("adding ctp simulation to the topSequence")
