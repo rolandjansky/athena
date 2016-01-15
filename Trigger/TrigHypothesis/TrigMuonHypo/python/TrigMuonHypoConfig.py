@@ -1515,6 +1515,9 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
     super( TrigMuonCaloTagHypoConfig, self).__init__(name)
 
     self.PtThresholds = [t*1000 for t in efCaloTagThresholds[args[1]][1][:args[2]]]
+    self.UseLH = False
+    self.TightCaloTag = False
+    self.MaxMissingCells = 3
 
 
 class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :

@@ -128,16 +128,25 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	    if (fabs(muon->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
 	      result = true;
 	      hypo_ok = true;
-	    }
-	    if(m_rejectCBmuons && muontype == xAOD::Muon::MuonType::Combined){
-	      result = false;
-	      hypo_ok = false;
+	      if(m_rejectCBmuons && muontype == xAOD::Muon::MuonType::Combined){
+		result = false;
+		hypo_ok = false;
+	      }
+	      else{
+		result = true;
+		hypo_ok=true;
+	      }
 	    }
 	    if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << muon->pt()/CLHEP::GeV << " CLHEP::GeV "
 			//<< " with Charge " << muon->Charge()
 			    << " and threshold cut is " << threshold/CLHEP::GeV << " CLHEP::GeV"
 			    << " so hypothesis is " << (hypo_ok?"true":"false") << endreq;
 	  }//combined or segment tagged muon
+	  else{
+	    if(m_rejectCBmuons){
+	      result = true;
+	    }
+	  }
 	}//loop on muons		     		
        
 	pass = result;
