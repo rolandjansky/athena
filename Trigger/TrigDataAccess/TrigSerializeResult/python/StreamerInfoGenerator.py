@@ -6,13 +6,16 @@ import cppyy
 class StreamerInfoGenerator:
   def __init__(self):
     self.debug = True
+    print "StreamerInfoGenerator   v1.0.0"
     self.classlist = []
-    self.blacklist = ['std::']
-    cppyy.Cintex.Enable()
+    self.problemclasses = []
+    #MN: ROOT6 strips std:: from types, so we need to check the names
+    self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
+    self.type = cppyy.gbl.RootType
+    self.type.EnableCintex()
     cppyy.loadDict('libSTLRflx')
     cppyy.loadDict('libSTLAddRflx')
     cppyy.loadDict('libAtlasSTLAddReflexDict')
-    self.type = cppyy.makeClass("Reflex::Type")
     #MN: switch off auto dict generation - god knows what that can mess up
     cppyy.gbl.gROOT.ProcessLine(".autodict")
 
@@ -23,7 +26,7 @@ class StreamerInfoGenerator:
     dontAdd = False
     
     for b in self.blacklist:
-      if typename.find(b)>-1:
+      if typename.find(b) == 0:
         if self.debug: print 'blacklisted ', typename
         dontAdd = True
         
@@ -81,11 +84,9 @@ class StreamerInfoGenerator:
         self.inspect(ttname)
     elif t.IsClass():
       if self.debug: print typename, ' is a class'
-
       cname = t.Name(7)
       if self.debug: print cname
-      
-      
+            
       for i in range(t.DataMemberSize()):
         d = t.DataMemberAt(i)
         dname = d.Name()
@@ -97,6 +98,7 @@ class StreamerInfoGenerator:
 
     else:
       print 'what to do about ', typename,'?'
+      self.problemclasses.append( typename )
       return
 
         
@@ -107,7 +109,6 @@ class StreamerInfoGenerator:
 
 if __name__ == '__main__':
   from ROOT import TClass, TFile
-  cppyy.Cintex.Enable()
   a = StreamerInfoGenerator()
   a.inspect('TrigTauClusterContainer_tlp1')
 
