@@ -34,6 +34,8 @@ class RunToTimestampDict(JobProperty):
         222222:1376009561, ##DC14 (mu=30) 25ns, old R1 geo tag
         222250:1376075781, ##DC14 (mu=30) 50ns, old R1 geo tag
         222500:1376646281, ##MC15a 50ns, new R2 geo tag (mu=0)
+        222506:1376656281, ##MC15a PbPb
+        222508:1376661281, ##MC15a pp at 5.02 TeV
         222510:1376669101, ##MC15a 50ns, new R2 geo tag (nominal mu)
         222525:1376703331, ##MC15a 25ns, new R2 geo tag (nominal mu)
         222526:1377093769, ##MC15b 25ns, new R2 geo tag (nominal mu)
