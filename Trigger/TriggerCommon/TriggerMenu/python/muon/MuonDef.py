@@ -1088,21 +1088,17 @@ class L2EFChain_mu(L2EFChainDef):
       log.error("The list of allMuonThreshold is empty for a noL1 chain! It should never happen")
       return
     
-    #If running TMSEF first drop first threshold from config
-    if "0eta010" not in self.chainPart['etaRange'] and "0eta500" not in self.chainPart['etaRange']:
-      allMuThrs = self.allMuThrs[1:]
-      hypocut = self.allMuThrs[0]
-      hypocutEF = str(len(allMuThrs))+"_"+allMuThrs[0]
-    else:
-      allMuThrs = self.allMuThrs
-      hypocut = ""
-      hypocutEF = str(len(allMuThrs))+"_"+allMuThrs[0]
+    threshold = str(self.chainPart['threshold'])+'GeV'
+    multiplicity = str(self.mult)
+    hypocut = 'opposite'
+    hypocutEF = multiplicity+"_"+threshold
+    seed = self.allMuThrs[0]
 
     from AthenaCommon import CfgGetter
     theCTAlg = CfgGetter.getAlgorithm("TrigMuSuperEF_CTonly")
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonCaloTagHypoConfig
-    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', allMuThrs[0],len(allMuThrs))
+    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity) )
 
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo, TrigCaloCellMaker_super
     
@@ -1111,7 +1107,7 @@ class L2EFChain_mu(L2EFChainDef):
     
     ########### Sequence List ##############
     if "0eta010" in self.chainPart['etaRange'] or "0eta500" in self.chainPart["etaRange"]:
-    
+      seed = '0eta0'
       from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
       from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig
       if "0eta010" in self.chainPart['etaRange']:
@@ -1192,12 +1188,12 @@ class L2EFChain_mu(L2EFChainDef):
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_','TMSEFHypo_' + hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_','TMSEFHypo_'+hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', 'TMSEFHypo_'+hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_','TMSEFHypo_'+hypocut + '_CTHypo_' +hypocutEF), 
-      'EF_CT_fex': mergeRemovingOverlap('EF_CT_fex_', 'TMSEFHypo_'+ hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hypo_', 'TMSEFHypo_' + hypocut + '_CTHypo_' +hypocutEF),
+      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_',seed),
+      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_',seed+"_"+hypocut),
+      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', seed+"_"+hypocut),
+      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_',seed+"_"+hypocut),
+      'EF_CT_fex': mergeRemovingOverlap('EF_CT_fex_', seed+"_"+hypocut),
+      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hypo_',seed+"_"+ hypocut+'_CTHypo_'+hypocutEF),
       }
   #################################################################################################
   #################################################################################################
@@ -1338,31 +1334,31 @@ class L2EFChain_mu(L2EFChainDef):
 
     if "nscan03" in self.chainPart['FSinfo']:
       self.TErenamingDict = {
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
+        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName), 
+        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
+        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
+        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
+        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName), 
+        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
       }
     if "nscan05" in self.chainPart['FSinfo']:
       if "noComb" in self.chainPart['addInfo']:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocutEF+cone+suffix),
-          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocutEF+cone+suffix),
-          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocutEF+cone+suffix), 
-          'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocutEF+cone+suffix+"_"+self.chainName), 
+          'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
           }
       else:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
           }
       
 

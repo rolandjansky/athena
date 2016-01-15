@@ -377,7 +377,7 @@ def defineMenu():
         "L1_TAU8_UNPAIRED_ISO", "L1_TAU8_FIRSTEMPTY", 
 
         # multi tau
-        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", 
+        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM",
 
         # combined tau - lepton
         "L1_EM15HI_2TAU12IM",          
@@ -427,7 +427,7 @@ def defineMenu():
 
         # combined mu - jet
         'L1_MU4_J12', 'L1_MU6_J20', 'L1_MU6_J30.0ETA49_2J20.0ETA49', 'L1_MU6_J40', 'L1_MU6_J75',
-        'L1_MU4_3J15', 'L1_MU4_3J20','L1_MU4_J30','L1_MU4_J50','L1_MU10_3J20',
+        'L1_MU4_3J15', 'L1_MU4_3J20','L1_MU4_J30','L1_MU4_J50','L1_MU10_2J20','L1_MU10_3J20',
 
         # single jet
         "L1_J12","L1_J15","L1_J20","L1_J25", "L1_J30", "L1_J40", "L1_J50","L1_J75","L1_J85", "L1_J100", "L1_J120", "L1_J400",
@@ -576,7 +576,6 @@ def defineMenu():
         'L1_W-05DPHI-EM15XE-1',
         'L1_W-15DPHI-EM15XE-0',
         'L1_W-05RO-XEHT-0',
-        'L1_W-08RO-XEHT-0',
         'L1_W-90RO2-XEHT-0',
         'L1_W-250RO2-XEHT-0',
         'L1_W-HT20-JJ15.ETA49',
@@ -604,7 +603,6 @@ def defineMenu():
         'L1_EM22VHI_W-MT35_XS40',
         # Old
         'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0',
-        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30',
         'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20',
         'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE',
         'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30',
@@ -966,6 +964,8 @@ def defineMenu():
         'L1_2J50_XE40' : 175,
         'L1_J40_XE60' : 176,
         'L1_J40.0ETA25_XE50' : 177,
+        'L1_MU10_2J20' : 278,
+	'L1_TAU40_2TAU20IM' : 254,
 # freeing some CTPIDs  
 #        'L1_MBTSA0' : 170,
 #        'L1_MBTSA1' : 171,
@@ -1085,7 +1085,6 @@ def defineMenu():
         'L1_W-15DPHI-EMXE-0' : 275,
         'L1_W-05DPHI-EMXE-1' : 276,
         'L1_W-05RO-XEHT-0' : 277,
-        'L1_W-08RO-XEHT-0' : 278,
         'L1_W-90RO2-XEHT-0' : 279,
         'L1_W-250RO2-XEHT-0' : 280,
         'L1_W-HT20-JJ15.ETA49' : 281,
