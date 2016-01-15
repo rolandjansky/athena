@@ -829,7 +829,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::buildFrameWork()
   m_ipt2      = m_ipt*m_ipt                    ;
   m_K         = 0.                             ;
 
-  m_ns = m_nsaz = m_nsazv = m_nr = m_nrf = m_nrfz = m_nrfzv = 0;
+  m_ns = m_nsaz = m_nsazv = m_nr = m_nrfz = m_nrfzv = 0;
 
   // Build radius sorted containers
   //
@@ -849,8 +849,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::buildFrameWork()
   m_sF        = m_ptmin /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < m_sFmin) m_sF = m_sFmin;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
 
-  m_nrf   = 0; for(int i=0; i!= 53; ++i) {rf_index  [i]=0; rf_map  [i]=0;}
-
+ 
   // Build radius-azimuthal-Z sorted containers
   //
   m_nrfz  = 0; for(int i=0; i!=583; ++i) {rfz_index [i]=0; rfz_map [i]=0;}
@@ -1056,7 +1055,6 @@ void InDet::SiSpacePointsSeedMaker_Trigger::fillLists()
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
       int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
-      rf_Sorted[f].push_back(*r); if(!rf_map[f]++) rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();
 
@@ -1092,29 +1090,23 @@ void InDet::SiSpacePointsSeedMaker_Trigger::erase()
 {
   for(int i=0; i!=m_nr;    ++i) {
     int n = r_index[i]; r_map[n] = 0;
-    r_Sorted[n].erase(r_Sorted[n].begin(),r_Sorted[n].end());
-  }
-
-  for(int i=0; i!=m_nrf;   ++i) {
-    int n = rf_index[i]; rf_map[n] = 0;
-    rf_Sorted[n].erase(rf_Sorted[n].begin(),rf_Sorted[n].end());
+    r_Sorted[n].clear();
   }
 
   for(int i=0; i!=m_nrfz;  ++i) {
     int n = rfz_index[i]; rfz_map[n] = 0;
-    rfz_Sorted[n].erase(rfz_Sorted[n].begin(),rfz_Sorted[n].end());
+    rfz_Sorted[n].clear();
   }
 
   for(int i=0; i!=m_nrfzv; ++i) {
     int n = rfzv_index[i]; rfzv_map[n] = 0;
-    rfzv_Sorted[n].erase(rfzv_Sorted[n].begin(),rfzv_Sorted[n].end());
+    rfzv_Sorted[n].clear();
   }
   m_state = 0;
   m_ns    = 0;
   m_nsaz  = 0;
   m_nsazv = 0;
   m_nr    = 0;
-  m_nrf   = 0;
   m_nrfz  = 0;
   m_nrfzv = 0;
 }

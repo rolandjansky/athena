@@ -159,7 +159,6 @@ namespace InDet {
       int rf_size                                                 ;
       int rfz_size                                                ;
       std::list<InDet::SiSpacePointForSeed*>* r_Sorted            ;
-      std::list<InDet::SiSpacePointForSeed*>  rf_Sorted  [    53] ; 
       std::list<InDet::SiSpacePointForSeed*>  rfz_Sorted [   583] ;
       std::list<InDet::SiSpacePointForSeed*>  rfzv_Sorted[   300] ;
       std::list<InDet::SiSpacePointForSeed*>  l_spforseed         ;
@@ -171,7 +170,6 @@ namespace InDet {
       int m_fNmin,m_fvNmin                                        ;
       int m_zMin                                                  ;
       int  m_nr     ; int* r_index   ; int* r_map                 ;
-      int  m_nrf    , rf_index   [ 53], rf_map   [ 53]            ;
       int  m_nrfz   , rfz_index  [583], rfz_map  [583]            ;
       int  m_nrfzv  , rfzv_index [300], rfzv_map [300]            ;
       int rfz_b[583],rfz_t[593],rfz_ib[583][9],rfz_it[583][9]     ;

@@ -70,7 +70,7 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   r_index     = 0       ;
   r_map       = 0       ;    
   m_maxsizeSP = 5000    ;
-  m_maxOneSize= 10      ;
+  m_maxOneSize= 5       ;
   m_SP        = 0       ;
   m_R         = 0       ;
   m_Tz        = 0       ;
@@ -240,7 +240,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
 {
   m_trigger = false;
   if(!m_pixel && !m_sct) return; 
-  
+
   iteration <=0 ? m_iteration = 0 : m_iteration = iteration;
   erase();
   m_dzdrmin =  m_dzdrmin0;
@@ -980,7 +980,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   m_ipt2      = m_ipt*m_ipt                    ;
   m_K         = 0.                             ;
 
-  m_ns = m_nsaz = m_nsazv = m_nr = m_nrf = m_nrfz = m_nrfzv = 0;
+  m_ns = m_nsaz = m_nsazv = m_nr = m_nrfz = m_nrfzv = 0;
 
   // Build radius sorted containers
   //
@@ -1001,8 +1001,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
 
   m_sF        = ptm /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < m_sFmin) m_sF = m_sFmin;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
-
-  m_nrf   = 0; for(int i=0; i!= 53; ++i) {rf_index  [i]=0; rf_map  [i]=0;}
 
   // Build radius-azimuthal-Z sorted containers
   //
@@ -1220,7 +1218,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
       int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
-      rf_Sorted[f].push_back(*r); if(!rf_map[f]++) rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();
 
@@ -1253,11 +1250,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::erase()
 {
-  for(int i=0; i!=m_nrf;   ++i) {
-    int n = rf_index[i]; rf_map[n] = 0;
-    rf_Sorted[n].clear();
-  }
-    
   for(int i=0; i!=m_nrfz;  ++i) {
     int n = rfz_index[i]; rfz_map[n] = 0;
     rfz_Sorted[n].clear();
@@ -1270,7 +1262,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::erase()
   m_state = 0;
   m_nsaz  = 0;
   m_nsazv = 0;
-  m_nrf   = 0;
   m_nrfz  = 0;
   m_nrfzv = 0;
 }
@@ -1472,8 +1463,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 	float Rb =(*r)->radius();  
 	float dR = R-Rb; 
 
+	if(dR > m_drmax) {rb[i]=r; continue;}   
 	if(dR < m_drmin || (m_iteration && (*r)->spacepoint->clusterList().second)) break;
-	if(dR > m_drmax || (*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
+	if((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
 
 	float Tz = (Z-(*r)->z())/dR, aTz =fabs(Tz);
 
@@ -1509,7 +1501,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
 	// Comparison with vertices Z coordinates
 	//
-	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rt,Tz)) continue;
+	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R,Tz)) continue;
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
     }
@@ -1556,6 +1548,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float  Vb   = m_V [b]      ;
       float  Ub   = m_U [b]      ;
       float  Tzb2 = (1.+Tzb*Tzb) ;
+      float sTzb2 = sqrt(Tzb2)   ;
       float  CSA  = Tzb2*COFK    ;
       float ICSA  = Tzb2*ipt2C   ;
       float imax  = imaxp        ; if(m_SP[b]->spacepoint->clusterList().second) imax = imaxs;
@@ -1574,7 +1567,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
 	float Im  = fabs((A-B*R)*R)                  ; 
 
-	if(Im <= imax) {m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t])); m_SP[t]->setParam(Im);}
+	if(Im <= imax) {
+	  float dr; m_R[t] < m_R[b] ? dr = m_R[t] : dr = m_R[b]; Im+=fabs((Tzb-m_Tz[t])/(dr*sTzb2));
+	  m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t])); m_SP[t]->setParam(Im);
+
+	}
       }
       if(!m_CmSp.empty()) {newOneSeedWithCurvaturesComparison(m_SP[b],(*r0),Zob);}
     }
@@ -1632,8 +1629,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
 	float Rb =(*r)->radius();  
 
 	float dR = R-Rb; 
+	if(dR > m_drmax) {rb[i]=r; continue;}   
+	if((*r)->sur()==sur0) continue;
+
 	if(dR < m_drmin || (m_iteration && (*r)->spacepoint->clusterList().second)) break;
-	if(dR > m_drmax || (*r)->sur()==sur0) continue;
 
 	// Comparison with  bottom and top Z 
 	//
@@ -1658,7 +1657,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
 	
 	if(dR<m_drmin) {rt[i]=r; continue;}
 	if(dR>m_drmax) break;
-
 	if( (*r)->sur()==sur0) continue;
 
 	// Comparison with  bottom and top Z 
