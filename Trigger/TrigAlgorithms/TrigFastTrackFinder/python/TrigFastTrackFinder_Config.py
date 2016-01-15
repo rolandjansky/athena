@@ -417,7 +417,8 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
           from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
           theTrigInDetTrackFitter = TrigInDetTrackFitter()
-          theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
+          #theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
+          theTrigInDetTrackFitter.correctClusterPos = True  #temporarily to true to improve err(z0) estimates
 
             
 
