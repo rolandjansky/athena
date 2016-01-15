@@ -439,6 +439,13 @@ if InDetTrigFlags.loadFitter():
     if InDetTrigFlags.useBroadClusterErrors():
       InDetTrigTrackFitter.RecalibrateSilicon = False
 
+    if InDetTrigFlags.doRefit():
+      InDetTrigTrackFitter.BroadRotCreatorTool = None
+      InDetTrigTrackFitter.RecalibrateSilicon = False
+      InDetTrigTrackFitter.RecalibrateTRT     = False
+      InDetTrigTrackFitter.ReintegrateOutliers= False
+
+
     if InDetTrigFlags.doRobustReco():
       InDetTrigTrackFitter.OutlierCut         = 10.0
       InDetTrigTrackFitter.TrackChi2PerNDFCut = 20
