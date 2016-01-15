@@ -97,19 +97,31 @@ from TrigEgammaAnalysisTools.TrigEgammaProbelist import * # to import probelist
 triggerlist = default
 #EgammaMatchTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaMatchingTool,name="TrigEgammaMatchingTool",DeltaR=0.07,L1DeltaR=0.15)
 from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
-EgammaMatchTool = Trig__TrigEgammaMatchingTool("MatchingTool");
+EgammaMatchTool = Trig__TrigEgammaMatchingTool("MatchingTool")
 ToolSvc += EgammaMatchTool
 # Base tool configuration here as example
 # All tools inherit these triggerlist properties
 # These are triggerlist in constructor as well
 # Using Factories need to set for each tool
+EfficiencyTool = ToolFactory(TrigEgammaAnalysisToolsConf.EfficiencyTool, 
+        name="EfficiencyTool",
+        isEMResultNames=["Tight","Medium","Loose"],
+        LHResultNames=["LHTight","LHMedium","LHLoose"],
+        OutputLevel=2)
+ResolutionTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaResolutionTool, name="ResolutionTool",OutputLevel=0)
+DistTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaDistTool, name="DistTool",OutputLevel=0)
+PlotTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaPlotTool, name="TrigEgammaPlotTool",OutputLevel=0)
+
 
 TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPNtuple, name ="TrigEgammaNavTPNtuple",
         DirectoryPath='NavZeeTPNtuple',
         ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool, 
+        MatchTool = EgammaMatchTool,
+        Tools=[EfficiencyTool],
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
+        isEMResultNames=["Tight","Medium","Loose"],
+        LHResultNames=["LHTight","LHMedium","LHLoose"],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         ZeeLowerMass=80,
@@ -120,6 +132,7 @@ TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPN
         OppositeCharge=True,
         OfflineTagMinEt=25,
         OfflineProbeMinEt=24,
+        CutLabels=["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"],
         TagTriggerList="e24_tight_iloose",
         TriggerList=triggerlist,
         )
@@ -127,7 +140,8 @@ TrigEgammaNavTPNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPN
 TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtuple, name ="TrigEgammaNavNtuple",
         DirectoryPath='NavNtuple',
         ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool, 
+        MatchTool = EgammaMatchTool,
+        Tools=[EfficiencyTool],
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
@@ -136,14 +150,24 @@ TrigEgammaNavNtuple = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavNtupl
         OfflineDirectoryPath='Offline/Egamma/Ntuple', 
         DoOfflineDump=False,
         dR=0.07,
+        ForcePidSelection=True,
+        ForceProbeIsolation=False,
+        ForceEtThreshold=True,
+        RemoveCrack=True,
+        ForceFilterSelection=False,
+        ElectronFilterType="Tight",
+        PhotonFilterType="Loose",
         )
 
 TrigEgammaNavTPAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavTPAnalysisTool, name = "TrigEgammaNavTPAnalysisTool",
         DirectoryPath='NavTPAnalysis',
         ElectronKey = 'Electrons',
         MatchTool = EgammaMatchTool,
+        Tools=[EfficiencyTool,ResolutionTool,DistTool],
         MVACalibTool=mvatool,
         ApplyMVACalib=False,
+        isEMResultNames=["Tight","Medium","Loose"],
+        LHResultNames=["LHTight","LHMedium","LHLoose"],
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         ZeeLowerMass=80,
@@ -169,8 +193,11 @@ TrigEgammaNavTPJpsieeAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.Trig
          DirectoryPath='NavTPJpsieeAnalysis',
          ElectronKey = 'Electrons',
          MatchTool = EgammaMatchTool,
+         Tools=[EfficiencyTool],
          MVACalibTool=mvatool,
          ApplyMVACalib=False,
+         isEMResultNames=["Tight","Medium","Loose"],
+         LHResultNames=["LHTight","LHMedium","LHLoose"],
          ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector], 
          ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
          ZeeLowerMass=2,
@@ -194,15 +221,21 @@ TrigEgammaNavTPJpsieeAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.Trig
 TrigEgammaNavAnalysisTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaNavAnalysisTool, name ="TrigEgammaNavAnalysisTool",
         DirectoryPath='NavAnalysis',
         ElectronKey = 'Electrons',
-        MatchTool = EgammaMatchTool, 
+        MatchTool = EgammaMatchTool,
+        Tools=[EfficiencyTool,ResolutionTool,DistTool],
         MVACalibTool=mvatool,
-        ApplyMVACalib=False,
-        ForcePidSelection=True,
         ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector],
         ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector], 
         IsEMLabels=IneffLabels,
         TriggerList=triggerlist,
         dR = 0.07,
+        ForcePidSelection=True,
+        ForceProbeIsolation=False,
+        ForceEtThreshold=True,
+        RemoveCrack=True,
+        ForceFilterSelection=False,
+        ElectronFilterType="Tight",
+        PhotonFilterType="Loose", 
         )
 
 
@@ -210,6 +243,7 @@ TrigEgammaEmulationTool = ToolFactory(TrigEgammaAnalysisToolsConf.TrigEgammaEmul
         DirectoryPath='Emulation',
         ElectronKey = 'Electrons',
         MatchTool = EgammaMatchTool,
+        Tools=[EfficiencyTool],
         TriggerList=triggerlist,
         PhotonOnlPPSelector=[ ToolSvc.AsgPhotonIsEMTightSelector,
             ToolSvc.AsgPhotonIsEMMediumSelector,

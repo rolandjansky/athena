@@ -3,7 +3,7 @@
 
 def TrigEgammaMonTool():
     from AthenaCommon.AppMgr import ToolSvc
-    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
+    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool, PlotTool
     from TrigEgammaAnalysisTools.TrigEgammaProbelist import default,defaultJpsi # to import probelist
     #from TrigHLTMonitoring.HLTMonTriggerList import hltmonList # import MaM trigger list, not available!!!!
    
@@ -55,20 +55,20 @@ def TrigEgammaMonTool():
 
     Analysis = TrigEgammaNavAnalysisTool(name='NavAnalysis',
             DirectoryPath=basePath+'Analysis',
-            TriggerList=probelist, 
+            TriggerList=probelist, #["e26_lhtight_iloose","g20_tight"],
             File="",
-            OutputLevel=0,DetailedHistograms=False)
+            OutputLevel=2,DetailedHistograms=False)
     TPAnalysis = TrigEgammaNavTPAnalysisTool(name='NavTPAnalysis',
             DirectoryPath=basePath+'TPAnalysis',
-            TriggerList=probelist, 
+            TriggerList=probelist,#["e26_lhtight_iloose"],
             File="",
             TagTriggerList=tagItems,
             RemoveCrack=False,
-            OutputLevel=0,DetailedHistograms=False)
+            OutputLevel=2,DetailedHistograms=False)
 
     JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='NavTPJpsieeAnalysis',
                                                         DirectoryPath=basePath+'TPJpsieeAnalysis',
-                                                        TriggerList=Jpsiprobelist,
+                                                        TriggerList=Jpsiprobelist,#["e5_lhloose"],
                                                         File="",
                                                         TagTriggerList= JpsitagItems,
                                                         RemoveCrack=True,
@@ -81,9 +81,11 @@ def TrigEgammaMonTool():
                                                         doJpsiee=True)
 
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
+    PlotTool = PlotTool()
+    ToolSvc += PlotTool
     TrigEgammaMonTool = TrigEgammaMonTool( name = "TrigEgammaMonTool", 
             histoPathBase=basePath,
             Tools=["TrigEgammaNavAnalysisTool/NavAnalysis",
-                   "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
+                "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
                    "TrigEgammaNavTPAnalysisTool/NavTPJpsieeAnalysis"])
     ToolSvc += TrigEgammaMonTool

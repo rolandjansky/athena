@@ -1,0 +1,49 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ITrigEgammaPlotTool.h
+
+#ifndef ITrigEgammaPlotTool_H
+#define ITrigEgammaPlotTool_H
+
+#include "AsgTools/IAsgTool.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IInterface.h"
+#include "TrigHLTMonitoring/IHLTMonTool.h"
+//#include "StoreGate/StoreGateSvc.h"
+
+#include "xAODEgamma/Egamma.h"
+#include "TrigConfHLTData/HLTTriggerElement.h"
+
+#include "TH1.h"
+#include "TH2.h"
+#include "TTree.h"
+#include <utility>
+
+class ITrigEgammaPlotTool : virtual public asg::IAsgTool {
+  ASG_TOOL_INTERFACE(ITrigEgammaPlotTool)
+
+public:
+
+  virtual StatusCode initialize()=0;
+  virtual StatusCode book(const std::string)=0;
+  virtual StatusCode execute()=0;
+  virtual StatusCode finalize()=0;
+  virtual void setParent(IHLTMonTool *)=0;
+  virtual void setDetail(bool)=0;
+  virtual void setAltBinning(bool)=0;
+  virtual void cd(const std::string &dir)=0;
+  virtual void addDirectory(const std::string &s)=0;
+  virtual void addHistogram(TH1 *h, const std::string &dir = "")=0;
+  virtual void addHistogram(TH2 *h, const std::string &dir = "")=0;
+  virtual void addTree(TTree *t, const std::string &dir = "")=0;
+
+  virtual TH1 *hist1(const std::string &histName, const std::string &dir = "")=0;
+  virtual TH2 *hist2(const std::string &histName, const std::string &dir = "")=0;
+  virtual TTree *tree(const std::string &treeName, const std::string &dir = "")=0;
+  virtual void setLabels(TH1* histo, const std::vector<std::string>& labels)=0;
+
+};
+
+#endif
