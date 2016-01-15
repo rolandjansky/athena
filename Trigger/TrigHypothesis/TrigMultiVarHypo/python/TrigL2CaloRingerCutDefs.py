@@ -4,9 +4,11 @@
 class TrigL2CaloRingerCutDefs():
 
   _signatureDict = {
-      'benchmark' : ['pd','sp','pf'],
+      #'benchmark' : ['pd','sp','pf'],
       'chainName' : '',
-      'caloInfo'  : ['L2Calo', 'L2EFCalo'],
+      #L2+EF (Calo) combined. ringers is set like T2Calo benchmark
+      #EFCalo: using only ringer calo like EFCalo benchmark step
+      'caloInfo'  : ['L2EFCalo','EFCalo'],
       'signature' : ['e','g'],
       'threshold' : 0,
   }
@@ -33,8 +35,8 @@ class TrigL2CaloRingerCutDefs():
 
     self._chainPart['chainName'] = chainName
     self._chainPart['IDinfo']    = IDinfo
-    self._chainPart['benchmark'] = 'pd'
-    self._chainPart['caloInfo']  = 'L2EFCalo'
+    #self._chainPart['benchmark'] = 'pd'
+    self._chainPart['caloInfo']  = 'EFCalo'
 
     from TrigMultiVarHypo.TrigL2CaloRingerConstants import SignaturesMap
     self._signatures = SignaturesMap()
@@ -47,10 +49,10 @@ class TrigL2CaloRingerCutDefs():
     for partName in chainName.split('_'):
 
       #default is Probabillity detection (PD) reference
-      if partName in self._signatureDict['benchmark']:
-        self._chainPart['benchmark']=partName
+      #if partName in self._signatureDict['benchmark']:
+      #  self._chainPart['benchmark']=partName
       
-      #default is L2EFCalo benchmark level    
+      #default is EFCalo benchmark level    
       if partName in self._signatureDict['caloInfo']:
         self._chainPart['caloInfo']=partName
 
@@ -71,14 +73,16 @@ class TrigL2CaloRingerCutDefs():
     logger.info(('set discriminator for  %dGeV because the threshold is %d.')%(self._chainPart['threshold'],
                                                                                float(threshold)))
  
-    key = ('%s%d_%s_%s_%s')%(  self._chainPart['signature'],
+    key = ('%s%d_%s_%s')%(  self._chainPart['signature'],
                                self._chainPart['threshold'],
                                self._chainPart['IDinfo'],
                                self._chainPart['caloInfo'],
-                               self._chainPart['benchmark'],)
+                               #self._chainPart['benchmark'],
+                               )
 
     try:  
       #inport all the discriminators
+      logger.info('discriminator: %s -> key: %s',self._chainPart['chainName'],key)
       discrs =  self._signatures[key] 
     except:
       logger.info(('INCORRECT key info: [%s] not configured.')%(key) )
