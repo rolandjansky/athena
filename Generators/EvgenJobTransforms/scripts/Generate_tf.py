@@ -23,7 +23,7 @@ ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup',
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
 
-    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skeleton.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre"]):
+    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skeleton.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
         athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
     def preExecute(self, input=set(), output=set()):
@@ -119,13 +119,29 @@ class EvgenExecutor(athenaExecutor):
             #os.environ.update(newenv)
 
         else: ## Use the CVMFS copy of the latest MC14 JOs tag
-            if os.path.exists("/cvmfs/atlas.cern.ch"):
+            sw_base =  os.popen("echo $ATLAS_SW_BASE").read()
+#            print subprocess.Popen("echo Hellllo World", shell=True, stdout=subprocess.PIPE).stdout.read()
+#            sw_base = print subprocess.Popen("echo $ATLAS_LOCAL_ROOT_BASE", shell=True, stdout=subprocess.PIPE)
+            sw_base = sw_base.strip()
+            if (sw_base == ""):
+                msg.info('$ATLAS_SW_BASE not defined, trying explicite /cvmfs path')
+                sw_base = '/cvmfs'
+#                msg.info('sw_base path %s ' %sw_base)
+            else:    
+                msg.info('ATLAS_SW_BASE path: %s' %sw_base)
+
+            cvmfs_path = os.path.join(sw_base, "atlas.cern.ch")
+            
+            if os.path.exists(cvmfs_path):
                 # TODO: Make the package name configurable
                 if "MC14" in str(joparam):
-                    mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/", "MC14JobOptions","_joproxy14")
+                    cvmfs_mc14 = os.path.join(cvmfs_path, "repo/sw/Generators/MC14JobOptions/latest/")
+                    mk_jo_proxy(cvmfs_mc14, "MC14JobOptions","_joproxy14")
 #                if "MC15" in str(joparam):
                 else :
-                    mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/", "MC15JobOptions","_joproxy15")
+                    cvmfs_mc15 = os.path.join(cvmfs_path, "repo/sw/Generators/MC15JobOptions/latest/")
+#                    msg.info('cvmfs_mc15 path: %s ' %cvmfs_mc15)
+                    mk_jo_proxy(cvmfs_mc15, "MC15JobOptions","_joproxy15")
                 msg.info("No evgenJobOpts tarball specified, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
             elif os.path.exists("/afs/cern.ch/atlas/groups/Generators"):
                 if "MC14" in str(joparam):
