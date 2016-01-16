@@ -423,7 +423,7 @@ int TRT_StrawNeighbourSvc::getRunningNumbering(Identifier offlineID){
 ///////////////////////////////////////////
 void TRT_StrawNeighbourSvc::getSocket(Identifier offlineID, int&socket){
 
-  if ( !(abs(m_trtid->barrel_ec(offlineID)==1))) {
+  if ( !(abs(m_trtid->barrel_ec(offlineID))==1)) {
     msg(MSG::ERROR) << "Sorry, this only works for barrel"<<endreq;
     return;
   }
@@ -499,6 +499,7 @@ void TRT_StrawNeighbourSvc::getChip(Identifier offlineID, int& chip ){
   //orientation
   
   // endcap A is normal. endcap C is reverse
+/*
   int orientation = 1;
   if (bec < 0) orientation = -1;
 
@@ -552,7 +553,9 @@ void TRT_StrawNeighbourSvc::getChip(Identifier offlineID, int& chip ){
 
  
   return;
+*/
 }
+
 
 
 
