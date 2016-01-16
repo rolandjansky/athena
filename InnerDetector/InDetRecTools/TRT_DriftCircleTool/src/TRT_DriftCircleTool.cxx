@@ -294,7 +294,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       if( newtdcvalue==0 || newtdcvalue==24 ) {
         isOK=false;
       } else {
-        radius    = m_driftFunctionTool->driftRadius(rawTime,id,t0,isOK);
+        radius    = m_driftFunctionTool->driftRadius(rawTime,id,t0,isOK,word);
         driftTime = rawTime-t0;
       }
 
@@ -317,7 +317,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       std::vector<Identifier>    dvi                                   ;
       double error=0;
 
-      if(Mode<2) error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id,mu);
+      if(Mode<2) error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id,mu,word);
 
       if( !isOK || (error==0.&&Mode<2) ) //Drifttime out of range. Make wirehit
 	{
