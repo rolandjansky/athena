@@ -31,6 +31,7 @@ TRT_StrawAlignDbSvc::TRT_StrawAlignDbSvc( const std::string& name,
     par_strawtextfile(""),
     par_forcecallback(false),
     m_trtid(0),
+    m_trtman(0),
     m_streamer("AthenaPoolOutputStreamTool/CondStream1")
 {
   declareProperty("StrawTextFile",par_strawtextfile);

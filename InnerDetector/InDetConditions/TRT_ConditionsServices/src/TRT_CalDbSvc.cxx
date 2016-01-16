@@ -45,6 +45,11 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   declareProperty("StreamTool",m_streamer);
   declareProperty("calibTextFile",par_caltextfile);
   declareProperty("DetectorStore",m_detstore);
+  declareProperty("RtFolderName",par_rtcontainerkey);
+  declareProperty("T0FolderName",par_t0containerkey);
+  declareProperty("ErrorSlopeFolderName",par_slopecontainerkey);
+  declareProperty("ErrorFolderName",par_errcontainerkey);
+
   ++s_numberOfInstances;
 }
 
@@ -740,9 +745,11 @@ double TRT_CalDbSvc::driftRadius(const double& time, float& t0, const Identifier
   if (time - t0 > 55){
     		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " > 55, check Rt derivative" << endreq;
 		// Check Second Derivative.
-		if (rtr->drdt( time - t0 ) < 0 ){
+		if (rtr != 0){
+			if (rtr->drdt( time - t0 ) < 0 ){
 	    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " and rt derivative: " <<  rtr->drdt( time - t0 )   << endreq;
 			radius=2.;
+			}
 		}
   }
   return radius;
