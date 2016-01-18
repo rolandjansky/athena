@@ -966,6 +966,21 @@ listAODtoDPD.append(WritePreselectElectronStreamFromAODInput.StreamName)
 ## ByteStream DPDs, skimming (event selection) ONLY!
 ##---------------
 
+class WriteRAWPhysDPD_RPVLL(JobProperty):
+    """ Produce the RPVLL in Byte Stream format."""
+    statusOn       = True
+    allowedTypes   = ['bool']
+    StoredValue    = False
+    StreamName     = "StreamDRAW_RPVLL"
+    FileName       = ""
+    Prescale       = 1
+    isVirtual      = False
+    DPDMakerScript = "LongLivedParticleDPDMaker/PhysDRAW_RPVLL.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteRAWPhysDPD_RPVLL)
+listRAWtoDPD.append(WriteRAWPhysDPD_RPVLL.StreamName)
+
+
 class WriteRAWPerfDPD_ZEE(JobProperty):
     """ Produce the primary DPD Zee in Byte Stream format."""
     statusOn       = True
