@@ -18,10 +18,12 @@ use TrkVertexAnalysisUtils      TrkVertexAnalysisUtils-*      Tracking/TrkVertex
 use AtlasROOT                   AtlasROOT-*                   External
 use TrkV0Fitter                 TrkV0Fitter-*                 Tracking/TrkVertexFitter
 use TrkVertexFitterInterfaces   TrkVertexFitterInterfaces-*   Tracking/TrkVertexFitter
+use TrkVertexFitterUtils        TrkVertexFitterUtils-*        Tracking/TrkVertexFitter
 use EventPrimitives             EventPrimitives-*             Event
 use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
 use TrkParametersBase           TrkParametersBase-*           Tracking/TrkEvent
 use VxVertex                    VxVertex-*                    Tracking/TrkEvent
+use xAODBPhys                   xAODBPhys-*                   Event/xAOD
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

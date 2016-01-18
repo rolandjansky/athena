@@ -36,6 +36,36 @@ JpsiExample::JpsiExample(const std::string& name, ISvcLocator* pSvcLocator) :
   // Global Counters; for truth statistics
   eventCntr = 0;
   jpsiCntr = 0;
+
+  m_jpsiMass = 0;
+  m_jpsiMassError = 0;
+  m_jpsiMassRec = 0;
+  m_jpsiMassPullRec = 0;
+  m_jpsiMassPullMC = 0;
+  m_jpsiChi2 = 0;
+
+  m_trkRefitPx1 = 0;
+  m_trkRefitPy1 = 0;
+  m_trkRefitPz1 = 0;
+  m_trkRefitPx2 = 0;
+  m_trkRefitPy2 = 0;
+  m_trkRefitPz2 = 0;
+
+  m_vx = 0;
+  m_vy = 0;
+  m_vz = 0;
+
+  m_trkOrigCharge1 = 0;
+  m_trkOrigPx1 = 0;
+  m_trkOrigPy1 = 0;
+  m_trkOrigPz1 = 0;
+  m_trkOrigCharge2 = 0;
+  m_trkOrigPx2 = 0;
+  m_trkOrigPy2 = 0;
+  m_trkOrigPz2 = 0;
+
+  outputFile = 0;
+  auxTree = 0;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -117,7 +147,7 @@ StatusCode JpsiExample::execute() {
   // Extract information from the Jpsi candidates 
   for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; vxcItr++ ) {
     const xAOD::Vertex* jpsiCandidate = (*vxcItr);
-    ATH_MSG_INFO("Cov. matrix " << jpsiCandidate->covariance().size());
+    //ATH_MSG_INFO("Cov. matrix " << jpsiCandidate->covariance().size());
 
     // refitted track parameters
     TLorentzVector refTrk1 = track4Momentum(jpsiCandidate, 0, m_muonMass);

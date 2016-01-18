@@ -19,6 +19,7 @@
 
 JpsiAlg::JpsiAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  eventCntr(0), jpsiCntr(0),
   m_jpsiFinder("Analysis::JpsiFinder"),
   m_jpsiContainerName("JpsiCandidates")
 {

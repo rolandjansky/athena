@@ -118,7 +118,7 @@ print      TrkVKalVrtFitter
 # --- load linearized track factory
 #
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
-InDetLinFactory = Trk__FullLinearizedTrackFactory(name              = "InDetFullLinearizedTrackFactory",
+InDetLinFactory = Trk__FullLinearizedTrackFactory(name              = "Trk::InDetFullLinearizedTrackFactory",
                                                   Extrapolator      = InDetExtrapolator,
 #                                                  MagneticFieldTool = InDetMagField
                                                   )
@@ -165,7 +165,7 @@ MBTSTimeFilterTool.ChargeThreshold   = 60.0/222.0
 MBTSTimeFilterTool.MinHitsPerSide    = 2
 MBTSTimeFilterTool.MaxTimeDifference = 10.0
 
-from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
-InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools")
-ToolSvc += InDetV0Tools
-print InDetV0Tools
+#from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
+#InDetV0Tools = Trk__V0Tools(name = "InDetV0Tools")
+#ToolSvc += InDetV0Tools
+#print InDetV0Tools
