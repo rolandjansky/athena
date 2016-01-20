@@ -32,20 +32,14 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigT1/TrigT1Interfaces"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigNavigation"
 
 
-pattern apply_tag_ifAnalysisBase \
-   macro <package>_check_statement "`echo $(pp_cppflags)|grep -q XAOD_ANALYSIS &&echo ISATHANALYSISBASE||echo ISNOTISATHANALYSISBASE`" ; \
-   apply_tag $(<package>_check_statement)
-
-apply_tag_ifAnalysisBase
-
 pattern dummypattern \
   macro dummymacro "dummyvalue_<selectionfile>_<dict>_<headerfiles>_<dataLinks>_<files>_<typesWithNamespace>"
 
 macro dictpatternname			"lcgdict" \
-		      ISATHANALYSISBASE		"dummypattern"
+		      AthAnalysisBase		"dummypattern"
 
 macro sercnvpatternname			"sercnv" \
-		      ISATHANALYSISBASE	"dummypattern"
+		      AthAnalysisBase	"dummypattern"
       		  
 
 apply_pattern $(dictpatternname) dict=TrigSteeringEvent selectionfile="selection.xml" \
