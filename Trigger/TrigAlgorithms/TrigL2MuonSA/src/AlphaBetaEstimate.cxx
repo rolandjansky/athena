@@ -33,7 +33,7 @@ TrigL2MuonSA::AlphaBetaEstimate::~AlphaBetaEstimate()
 StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*   p_roi,
 							 TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							 TrigL2MuonSA::TrackPattern& trackPattern,
-                                                         const TrigL2MuonSA::MuonRoad& muonRoad)
+                                                         const TrigL2MuonSA::MuonRoad& /*muonRoad*/)
 {
   const int MAX_STATION = 5;
   const double PHI_RANGE = 12./(CLHEP::pi/8.);
@@ -242,7 +242,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
   }
   if (distance>500) trackPattern.endcapRadius3P=0;//Reconstruction may fail
 
-  msg() << MSG::INFO << "... alpha/beta/endcapRadius/charge/s_address="
+  msg() << MSG::DEBUG << "... alpha/beta/endcapRadius/charge/s_address="
 	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
 	<< trackPattern.charge << "/" << trackPattern.s_address << endreq;
   // 

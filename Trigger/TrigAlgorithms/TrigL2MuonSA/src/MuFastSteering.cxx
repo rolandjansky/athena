@@ -64,7 +64,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("ESD_RPC_size",m_esd_rpc_size=100);
   declareProperty("ESD_TGC_size",m_esd_tgc_size=50);
   declareProperty("ESD_MDT_size",m_esd_mdt_size=100);
-  declareProperty("ESD_CSC_size",m_esd_csc_size=50);
+  declareProperty("ESD_CSC_size",m_esd_csc_size=100);
 
   declareProperty("R_WIDTH_RPC_FAILED",m_rWidth_RPC_Failed=400);
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
