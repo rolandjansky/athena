@@ -91,7 +91,7 @@ namespace Trig {
     const LVL1CTP::Lvl1Item* item(const std::string& name) const;            //!< CTP item from given name
     const LVL1CTP::Lvl1Item* item(const TrigConf::TriggerItem& i) const;     //!< CTP item from given config item
     const TrigConf::TriggerItem* config_item(const std::string& name) const; //!< CTP config item from given name
-    int item_prescale(int ctpid) const;                                      //!< Prescale for CPT item
+    float item_prescale(int ctpid) const;                                      //!< Prescale for CPT item
     
     const HLT::Chain* chain(const std::string& name) const;                  //!< HLT chain object from given name (0 pointer returned if no match)
     const HLT::Chain* chain(const TrigConf::HLTChain& chIt) const;           //!< HLT chain object from given config chain
