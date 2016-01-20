@@ -39,7 +39,7 @@ namespace LVL1CTP {
   public:
 
     Lvl1Item( std::string n, unsigned int hash, bool passBP = false,
-              bool passAP = true, bool passAV = true, int factor = 1) :
+              bool passAP = true, bool passAV = true, float factor = 1) :
       m_name(n), m_hashId(hash), m_passBP(passBP), m_passAP(passAP), m_passAV(passAV),
       m_prescaleFactor(factor) {}
 
@@ -55,18 +55,18 @@ namespace LVL1CTP {
     bool isPrescaled() const { return isPassedBeforePrescale() && ! isPassedAfterPrescale(); }
     bool isVeto() const      { return isPassedAfterPrescale()  && ! isPassedAfterVeto();     }
 
-    int prescaleFactor() const { return m_prescaleFactor; }
+    float prescaleFactor() const { return m_prescaleFactor; }
 
     void setName  (std::string name) { m_name = name; }
     void setHashId(unsigned int hash) { m_hashId = hash; }
-    void setPrescaleFactor(int factor) { m_prescaleFactor = factor; }
+    void setPrescaleFactor(float factor) { m_prescaleFactor = factor; }
 
   private:
 
     std::string m_name;
     unsigned int m_hashId;
     bool m_passBP, m_passAP, m_passAV;
-    int m_prescaleFactor;
+    float m_prescaleFactor;
   };
 
 } // end of namespace
