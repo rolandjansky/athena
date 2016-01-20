@@ -154,7 +154,7 @@ namespace Trig {
       unsigned int L1Bits(const std::string& item) const;
 
       float HLTPrescale(const std::string& chain, unsigned int condition) const;
-      int L1Prescale(const std::string& item, unsigned int condition) const;
+      float L1Prescale(const std::string& item, unsigned int condition) const;
 
       std::string getLowerName(const std::string& EFname) const;
 

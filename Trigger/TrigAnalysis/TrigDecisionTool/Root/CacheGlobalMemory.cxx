@@ -127,7 +127,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
    for(auto& item : m_itemsCache){delete item.second;}
    m_itemsCache.clear();
 
-  std::vector<int> prescales = ctp->prescaleSet().prescales();
+  std::vector<float> prescales = ctp->prescaleSet().prescales_float();
   for(auto item : ctp->menu().items() ) {
      unsigned int ctpid = item->ctpId();
      m_itemsCache[ctpid] = new LVL1CTP::Lvl1Item(item->name(),
@@ -285,7 +285,7 @@ const TrigConf::TriggerItem* Trig::CacheGlobalMemory::config_item(const std::str
    return *f;
 }
 
-int Trig::CacheGlobalMemory::item_prescale(int ctpid) const {
+float Trig::CacheGlobalMemory::item_prescale(int ctpid) const {
   // find items in cache
   if ( m_itemsCache.count(ctpid) == 0 ) {
     ATH_MSG_ERROR( "item of CTP: " << ctpid
