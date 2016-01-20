@@ -34,6 +34,8 @@ def pdf_cmds(setname, subname):
     cmds = mkpdf_cmds(setname, varname)
     cmds += "set /Herwig/Particles/p+:PDF /Herwig/Partons/%s\n" % varname
     cmds += "set /Herwig/Particles/pbar-:PDF /Herwig/Partons/%s\n" % varname
+    cmds += "set /Herwig/Partons/QCDExtractor:FirstPDF  /Herwig/Partons/%s\n" % varname
+    cmds += "set /Herwig/Partons/QCDExtractor:SecondPDF /Herwig/Partons/%s\n" % varname
     cmds += "get /Herwig/Particles/p+:PDF\n"
     return cmds
 
@@ -41,7 +43,13 @@ def pdf_cmds(setname, subname):
 ## Set a leading order PDF
 def lo_pdf_cmds(lo_setname):
     """Set LO PDF as requested by arg, defaulting to current production PDF."""
-    return pdf_cmds(lo_setname, "LO")
+    cmds = pdf_cmds(lo_setname, "LO")
+    cmds += "\n"
+    cmds += "## Set PDF explicitly for MPI.\n"
+    cmds += "set /Herwig/Partons/MPIExtractor:FirstPDF  /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Partons/MPIExtractor:SecondPDF /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "\n"
+    return cmds 
 
 
 ## Set an NLO PDF for the matrix element, plus an LO one for MPI
@@ -53,6 +61,8 @@ def nlo_pdf_cmds(nlo_setname, lo_setname):
     cmds = mkpdf_cmds(lo_setname, "AtlasPDFsetLO")
     cmds += "set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Partons/MPIExtractor:FirstPDF  /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Partons/MPIExtractor:SecondPDF /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "\n"
     cmds += pdf_cmds(nlo_setname, "NLO")
     cmds += "## Use 2-loop alpha_s\n"
@@ -214,6 +224,8 @@ def ue_tune_cmds(tune_name):
         cmds = ue_cmds(3.91, 0.33, 2.30, 0.80, preco=0.49)
     elif tune_name == "UE-EE-5-LO**":
         cmds = ue_cmds(4.620, 0.314, 2.240, 0.860, preco=0.420)
+    elif tune_name == "H7-UE-MMHT":
+        cmds = ue_cmds(4.39, 0.366, 2.30, 0.798, preco=0.4276)
     else:
         raise Exception("Tune name '%s' unknown" % tune_name)
 
@@ -236,6 +248,7 @@ insert /Herwig/EventHandlers/LHEHandler:LesHouchesReaders 0 /Herwig/EventHandler
 
 set /Herwig/EventHandlers/LHEReader:MomentumTreatment RescaleEnergy
 set /Herwig/EventHandlers/LHEReader:WeightWarnings 0
+set /Herwig/EventHandlers/LHEReader:AllowedToReOpen 0
 
 set /Herwig/EventHandlers/LHEHandler:WeightOption VarNegWeight
 set /Herwig/EventHandlers/LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor

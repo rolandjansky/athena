@@ -17,6 +17,9 @@ end_private
 library Herwigpp_i *.cxx -s=components *.cxx
 apply_pattern component_library
 
+# Add the macro definitions for cmake (transparent to CMT)
+apply_pattern cmake_add_command command='add_definitions(-DHWVERSION=\"${HERWIGPP_VERSION}\")'
+
 macro Herwigpp_i_linkopts "$(Herwigpp_linkopts) "
 macro_append Herwigpp_i_pp_cppflags '-DHWVERSION=\"$(Herwigpp_version)\" '
 macro_append Herwigpp_i_pp_cppflags '-DHWREPODIR=\"$(Herwigpp_repodir)\" '
