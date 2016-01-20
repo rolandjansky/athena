@@ -319,7 +319,7 @@ float Trig::ChainGroup::HLTPrescale(const std::string& chain, unsigned int /*con
 }
 
 
-int Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condition*/) const {
+float Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condition*/) const {
   if (item=="") return 0;
 
   if(item.find(',')==std::string::npos) {
@@ -331,22 +331,22 @@ int Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*conditi
     // now we can;t access the prescale value because this information doe not come togehther as in HLT
     // we need to go to the cache of L1 items and get it from there  
     int ctpid = fitem->ctpId();
-    int itemprescale = cgm(true)->item_prescale(ctpid);
+    float itemprescale = cgm(true)->item_prescale(ctpid);
     if ( itemprescale < 1)
       itemprescale = 0;
     return itemprescale;
   } else {
-    int minprescale=0;
+    float minprescale=0;
     std::vector< std::string > items = convertStringToVector(item);
     std::vector< std::string >::iterator itit = items.begin();
     for(;itit != items.end(); ++itit) {
       const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(*itit);
       if (fitem==0) {
         ATH_MSG_WARNING("Configuration for the item: " << *itit << " not known");
-        return std::numeric_limits<int>::quiet_NaN();
+        return std::numeric_limits<float>::quiet_NaN();
       }
       int ctpid = fitem->ctpId();
-      int itemprescale = cgm(true)->item_prescale(ctpid);
+      float itemprescale = cgm(true)->item_prescale(ctpid);
       if ( itemprescale < 1)
 	itemprescale = 0;
       minprescale = (minprescale&&(minprescale<itemprescale)?minprescale:itemprescale); // takes min, except the first time
@@ -407,7 +407,7 @@ float Trig::ChainGroup::calculatePrescale(unsigned int condition)
   for ( iIt = conf_item_begin(); iIt != conf_item_end(); ++iIt) {
 
     const std::string & l1ItemName = (*iIt)->name();
-    int itemRESULT = L1Prescale(l1ItemName,condition);
+    float itemRESULT = L1Prescale(l1ItemName,condition);
     if(l1ItemName.find(',')!=std::string::npos) singleTrigger=false;
 
     if (singleTrigger) return itemRESULT; // for a single trigger we are done
