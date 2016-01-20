@@ -1,0 +1,28 @@
+package TrkDigTools
+
+manager Andreas Salzburger <Andreas.Salzburger@cern.ch>
+author  Andreas Salzburger <Andreas.Salzburger@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy            AtlasPolicy-*
+use GeoPrimitives          GeoPrimitives-*          DetectorDescription
+use GaudiInterface         GaudiInterface-*         External
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use TrkDigInterfaces       TrkDigInterfaces-*       Tracking/TrkDigitization
+use TrkDigEvent            TrkDigEvent-*            Tracking/TrkDigitization
+
+#################################################################
+# private use statements
+private
+use TrkDetDescrUtils       TrkDetDescrUtils-*       Tracking/TrkDetDescr
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
+
+public
+library TrkDigTools *.cxx components/*.cxx
+apply_pattern component_library
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+macro DOXYGEN_IMAGE_PATH "../doc/images"
