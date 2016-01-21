@@ -395,7 +395,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
             self.useMdtSeededDecoding = True
             self.useRpcSeededDecoding = True
             self.useTgcSeededDecoding = True
-            self.useCscSeededDecoding = False
+            self.useCscSeededDecoding = True
             
             # use ROB based seeded decoding instead of PRD based
             self.useMdtRobDecoding = True
