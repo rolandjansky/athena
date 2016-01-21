@@ -9,14 +9,13 @@ use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
 use RootConversions      RootConversions-*       Database/AthenaPOOL
 
 # use statements for data packages
-use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
+#use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigDecisionEvent    TrigDecisionEvent-*     Trigger/TrigEvent
 use TrigInDetEvent       TrigInDetEvent-*        Trigger/TrigEvent
 use TrigParticle         TrigParticle-*          Trigger/TrigEvent
 use TrigMissingEtEvent   TrigMissingEtEvent-*    Trigger/TrigEvent
 use TrigMuonEvent        TrigMuonEvent-*         Trigger/TrigEvent
 use TrigCaloEvent        TrigCaloEvent-*         Trigger/TrigEvent
-use TrigCosmicEvent      TrigCosmicEvent-*       Trigger/TrigEvent
 use TrigBphysicsEvent    TrigBphysicsEvent-*     Trigger/TrigEvent
 use TrigMonitoringEvent  TrigMonitoringEvent-*   Trigger/TrigEvent
 use TrigTopoEvent        TrigTopoEvent-*         Trigger/TrigEvent
@@ -26,20 +25,19 @@ use TrigFTK_RawData      TrigFTK_RawData-*       Trigger/TrigFTK
 # use statement for converters
 #use TrigEventTPCnv           TrigEventTPCnv-*             Trigger/TrigEvent
 #use TrigConfigSvcTPCnv       TrigConfigSvcTPCnv-*         Trigger/TrigConfiguration
-use TrigSteeringEventTPCnv    TrigSteeringEventTPCnv-*     Trigger/TrigEvent
+#use TrigSteeringEventTPCnv    TrigSteeringEventTPCnv-*     Trigger/TrigEvent
 use TrigDecisionEventTPCnv    TrigDecisionEventTPCnv-*     Trigger/TrigEvent
 use TrigInDetEventTPCnv       TrigInDetEventTPCnv-*        Trigger/TrigEvent
 use TrigParticleTPCnv         TrigParticleTPCnv-*          Trigger/TrigEvent
 use TrigMissingEtEventTPCnv   TrigMissingEtEventTPCnv-*    Trigger/TrigEvent
 use TrigMuonEventTPCnv        TrigMuonEventTPCnv-*         Trigger/TrigEvent
 use TrigCaloEventTPCnv        TrigCaloEventTPCnv-*         Trigger/TrigEvent
-use TrigCosmicEventTPCnv      TrigCosmicEventTPCnv-*       Trigger/TrigEvent
 use TrigMonitoringEventTPCnv  TrigMonitoringEventTPCnv-*   Trigger/TrigEvent
 use TrigTopoEventTPCnv        TrigTopoEventTPCnv-*         Trigger/TrigEvent
 use TrigCombinedEventTPCnv  TrigCombinedEventTPCnv-*   Trigger/TrigEvent
 use TrigFTK_RawDataTPCnv      TrigFTK_RawDataTPCnv-*       Trigger/TrigFTK
 
-apply_pattern poolcnv typesWithNamespace="HLT::HLTResult TrigDec::TrigDecision LVL1CTP::Lvl1Result" \
+apply_pattern poolcnv typesWithNamespace="TrigDec::TrigDecision" \
       files="-s=${TrigParticle_root}/TrigParticle TrigL2BphysContainer.h \ 
             -s=${TrigParticle_root}/TrigParticle TrigElectronContainer.h \ 
             -s=${TrigParticle_root}/TrigParticle TrigTauContainer.h \ 
@@ -48,17 +46,17 @@ apply_pattern poolcnv typesWithNamespace="HLT::HLTResult TrigDec::TrigDecision L
             -s=${TrigParticle_root}/TrigParticle TrigEFBjetContainer.h \
             -s=${TrigParticle_root}/TrigParticle TrigPhotonContainer.h \
             -s=${TrigParticle_root}/TrigParticle TrigEFBphysContainer.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptor.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptorCollection.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassBits.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassBitsCollection.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassFlags.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassFlagsCollection.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent GenericResult.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent Lvl1Result.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent HLTResult.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigOperationalInfo.h \
-            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigOperationalInfoCollection.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptor.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigRoiDescriptorCollection.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassBits.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassBitsCollection.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassFlags.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigPassFlagsCollection.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent GenericResult.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent Lvl1Result.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent HLTResult.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigOperationalInfo.h \
+#            -s=${TrigSteeringEvent_root}/TrigSteeringEvent TrigOperationalInfoCollection.h \
             -s=${TrigDecisionEvent_root}/TrigDecisionEvent TrigDecision.h \
             -s=${TrigInDetEvent_root}/TrigInDetEvent TrigInDetTrackCollection.h \ 
             -s=${TrigInDetEvent_root}/TrigInDetEvent TrigVertexCollection.h \ 
@@ -96,8 +94,6 @@ apply_pattern poolcnv typesWithNamespace="HLT::HLTResult TrigDec::TrigDecision L
             -s=${TrigMuonEvent_root}/TrigMuonEvent TrigCombDiMuonContainer.h \
             -s=${TrigBphysicsEvent_root}/TrigBphysicsEvent TrigJpsi.h \
             -s=${TrigBphysicsEvent_root}/TrigBphysicsEvent TrigJpsiContainer.h \
-            -s=${TrigCosmicEvent_root}/TrigCosmicEvent CosmicMuonCollection.h \
-            -s=${TrigCosmicEvent_root}/TrigCosmicEvent MdtTrackSegmentCollection.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigEMCluster.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigEMClusterContainer.h \
             -s=${TrigCaloEvent_root}/TrigCaloEvent TrigTauCluster.h \
