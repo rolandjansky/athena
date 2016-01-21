@@ -92,7 +92,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  
  virtual VxContainer* getVxContainer(const ftk::FTK_TrackType trackType);
  virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit);
-
+ StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit);
 
  virtual void handle( const Incident &incident );
 
@@ -215,6 +215,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   float m_dPhiCut;
   float m_dEtaCut;
   bool m_useViewContainers;
+  bool m_barrelOnly;
+  float m_barrelMaxCotTheta;
   
 };
 
