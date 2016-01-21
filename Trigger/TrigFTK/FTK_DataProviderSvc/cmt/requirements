@@ -36,7 +36,6 @@ use TrkParameters              TrkParameters-*            Tracking/TrkEvent
 use TrkRIO_OnTrack             TrkRIO_OnTrack-*           Tracking/TrkEvent
 use PixelConditionsServices    PixelConditionsServices-*  InnerDetector/InDetConditions
 use TrkFitterInterfaces        TrkFitterInterfaces-*      Tracking/TrkFitter 
-use IRegionSelector            IRegionSelector-*          DetectorDescription
 use TrkFitterUtils             TrkFitterUtils-*           Tracking/TrkFitter 
 use TrkToolInterfaces		TrkToolInterfaces-*        Tracking/TrkTools
 use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent

@@ -63,6 +63,7 @@
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
 
+#include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
 
 #include <map>
@@ -140,7 +141,9 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_rejectBadTracks(false),
   m_dPhiCut(0.4),
   m_dEtaCut(0.6),
-  m_useViewContainers(true)
+  m_useViewContainers(true),
+  m_barrelOnly(false),
+  m_barrelMaxCotTheta(2.)
 {
   declareProperty("TrackCollectionName",m_trackCacheName);
   declareProperty("TrackParticleContainerName",m_trackParticleCacheName);
@@ -168,6 +171,8 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("BadTrackdPhiCut", m_dPhiCut);
   declareProperty("BadTrackdEtaCut", m_dEtaCut);
   declareProperty("UseViewContainers",m_useViewContainers);
+  declareProperty("BarrelOnly",m_useViewContainers);
+  declareProperty("BarrelMaxCotTheta",m_barrelMaxCotTheta);
 }
 
 FTK_DataProviderSvc::~FTK_DataProviderSvc(){
@@ -212,6 +217,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_MSG_INFO( "SCT_ClusterContainer name : " << m_SCT_ClusterContainerName);
   ATH_MSG_INFO( "PRD Truth SCT name: " << m_ftkSctTruthName);
   ATH_MSG_INFO( "PRD Truth Pixel name : " << m_ftkPixelTruthName);
+  ATH_MSG_INFO( "Maximum CotTheta for FTK Barrel set to : " << m_barrelMaxCotTheta);
   if (m_useViewContainers) {
     ATH_MSG_INFO(" Using View containers");
   } else { 
@@ -255,8 +261,8 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
       // Get FTK track
       const FTK_RawTrack* ftk_track= m_ftk_tracks->at(ftk_track_index);
       // check if track is inside RoI
-      if (roi.isFullscan() || (RoiUtil::containsPhi( roi,ftk_track->getPhi()) && RoiUtil::contains(roi, ftk_track->getZ0(), ftk_track->getCotTh()))) {
-
+      if (roi.isFullscan() || (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi, ftk_track->getZ0(), ftk_track->getCotTh()))) {
+      //if (roi.isFullscan() || (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh()))) {//Old interface
 
         if( m_refit_tp_map[ftk_track_index]>-1) {
           // tp is in cache
@@ -297,7 +303,8 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
       // Get FTK track
       const FTK_RawTrack* ftk_track= m_ftk_tracks->at(ftk_track_index);
 
-      if (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi,ftk_track->getZ0(), ftk_track->getCotTh())) {
+      if (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi,ftk_track->getZ0(), ftk_track->getCotTh())) { 
+      //if (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh())) {
         // check track is inside RoI
 
         if( m_conv_tp_map[ftk_track_index]>-1) {
@@ -341,6 +348,7 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
 StatusCode FTK_DataProviderSvc::fillTrackParticleCache(const bool withRefit){
 
   ATH_MSG_DEBUG("FTK_DataProviderSvc::fillTrackParticleCache called with Refit " << withRefit);
+
   if (initTrackParticleCache(withRefit).isFailure()) {
     return StatusCode::FAILURE;
   }
@@ -559,11 +567,21 @@ VxContainer* FTK_DataProviderSvc::getVxContainer(const ftk::FTK_TrackType trackT
       getFTK_RawTracksFromSG();
       if (!m_gotRawTracks) return userVertex;
 
-      m_raw_vx = m_RawVertexFinderTool->findVertex(m_ftk_tracks);
+      if (!m_barrelOnly) {
+	m_raw_vx = m_RawVertexFinderTool->findVertex(m_ftk_tracks);
+      } else {
+	FTK_RawTrackContainer barrel_tracks;
+	for (auto pTrack = m_ftk_tracks->begin(); pTrack !=  m_ftk_tracks->end(); pTrack++) {
+	  if (fabs((*pTrack)->getCotTh()) < m_barrelMaxCotTheta) {
+	    barrel_tracks.push_back(*pTrack);
+	  }
+	}
+	m_raw_vx = m_RawVertexFinderTool->findVertex(&barrel_tracks);
+      }
       std::string cacheName=m_VxContainerCacheName+"Raw";
       StatusCode sc = m_storeGate->record( m_raw_vx, cacheName);
       if (sc.isFailure()) {
-        ATH_MSG_DEBUG( "fillVxContainer: Failed to record VxCollection " << cacheName );
+        ATH_MSG_DEBUG( "getVxContainer: Failed to record VxCollection " << cacheName );
         delete(m_raw_vx);
         return userVertex;
       }
@@ -689,6 +707,38 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 
 }
 
+StatusCode FTK_DataProviderSvc::getVertexContainer(xAOD::VertexContainer* userVertex, const bool withRefit){
+
+  if (fillTrackParticleCache(withRefit).isFailure()) return StatusCode::SUCCESS;
+
+  if (withRefit) { // get vertex from refitted tracks
+    if (!m_got_refit_vertex) {
+      ATH_MSG_DEBUG( "getVertexContainer: filling VertexContainer from refitted tracks ");
+      m_got_refit_vertex = fillVertexContainerCache(withRefit, m_refit_tp);
+    }
+    if (m_got_refit_vertex) {
+      ATH_MSG_DEBUG( "getVertexContainer: cache contains " << m_refit_vertex->size() <<  " vertices from refitted tracks");
+      for (auto pv = m_refit_vertex->begin(); pv != m_refit_vertex->end(); ++pv) {
+        userVertex->push_back(new xAOD::Vertex(*(*pv)));
+      }
+    }
+  } else {   // get vertex from converted tracks
+    if (!m_got_conv_vertex) {
+      ATH_MSG_DEBUG( "getVertexContainer: filling VertexContainer from converted tracks ");
+      m_got_conv_vertex = fillVertexContainerCache(withRefit, m_conv_tp);
+    }
+    if (m_got_conv_vertex) {
+      ATH_MSG_DEBUG( "getVertexContainer: cache contains " << m_conv_vertex->size() <<  " vertices from converted tracks");
+      for (auto pv = m_conv_vertex->begin(); pv != m_conv_vertex->end(); ++pv) {
+	xAOD::Vertex* vert = new xAOD::Vertex(*(*pv));
+        userVertex->push_back(vert);
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+
+}
+
 
 TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit){
 
@@ -743,7 +793,7 @@ TrackCollection* FTK_DataProviderSvc::getTracksInRoi(const IRoiDescriptor& roi, 
 
     const FTK_RawTrack* ftk_track= m_ftk_tracks->at(ftk_track_index);
     if (roi.isFullscan() || (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi,ftk_track->getZ0(), ftk_track->getCotTh()))) {
-
+    //if (roi.isFullscan() || (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh()))) {
       Trk::Track* track = this->getCachedTrack(ftk_track_index, withRefit);
       if (track != nullptr) userTracks->push_back(track);
     }
@@ -768,6 +818,7 @@ Trk::Track* FTK_DataProviderSvc::getCachedTrack(const unsigned int ftk_track_ind
   // First check if the converted track is in teh cache and create it if it isn't
 
   if( m_conv_track_map[ftk_track_index]>-1) { /// Track already converted ///
+    ATH_MSG_VERBOSE( "m_conv_track_map[" <<ftk_track_index<<"]= "<<m_conv_track_map[ftk_track_index]);
     track = m_conv_tracks->at((unsigned int) m_conv_track_map[ftk_track_index]);
     if (track == nullptr) {
       ATH_MSG_VERBOSE( "getCachedTrack:  failed to retrieve converted track with index " << m_conv_track_map[ftk_track_index] << " corresponding to FTK track " << ftk_track_index);
@@ -929,12 +980,29 @@ StatusCode FTK_DataProviderSvc::initTrackCache(bool withRefit) {
     }
     
     if (m_gotRawTracks) {
-      
-      m_conv_track_map.reserve(m_ftk_tracks->size());
-      m_refit_track_map.reserve(m_ftk_tracks->size());
-      for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_conv_track_map.push_back(-1);
-      for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_refit_track_map.push_back(-1);
-      ATH_MSG_VERBOSE( "initTrackCache: converted track cache initialised ");
+      if (m_conv_track_map.size()==0) {
+	m_conv_track_map.reserve(m_ftk_tracks->size());
+	if (!m_barrelOnly) {
+	  for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_conv_track_map.push_back(-1);
+	} else {
+	  unsigned int ftk_track_index = 0, nBarrel=0;
+	  for (auto pTrack = m_ftk_tracks->begin(); pTrack !=  m_ftk_tracks->end(); ftk_track_index++, pTrack++){
+	    if (fabs((*pTrack)->getCotTh()) < m_barrelMaxCotTheta) {
+	      m_conv_track_map.push_back(-1);
+	      nBarrel++;
+	    } else {
+	      m_conv_track_map.push_back(-2); // do not use this track
+	    }
+	  }
+	}   
+	
+	ATH_MSG_VERBOSE( "initTrackCache: converted track map initialised with size " << m_ftk_tracks->size());
+      }
+      if (m_refit_track_map.size()==0) {
+	m_refit_track_map.reserve(m_ftk_tracks->size());
+	for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_refit_track_map.push_back(-1);
+	ATH_MSG_VERBOSE( "initTrackCache: refitted track map initialised with size " << m_ftk_tracks->size());
+      }
     }
   }
   if (withRefit) {
@@ -955,8 +1023,13 @@ return  (m_gotRawTracks? StatusCode::SUCCESS : StatusCode::FAILURE) ;
 
 StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
 
-  if (not m_gotRawTracks) return StatusCode::FAILURE;
-
+  getFTK_RawTracksFromSG();
+  if (not m_gotRawTracks) {
+     return StatusCode::FAILURE;
+  }
+  if (initTrackCache(withRefit).isFailure()) {
+    return StatusCode::FAILURE;
+  }
 
   if (withRefit) {
 
@@ -984,7 +1057,7 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
       }
       m_refit_tp_map.reserve(m_ftk_tracks->size());
       for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_refit_tp_map.push_back(-1);
-      ATH_MSG_VERBOSE( "initTrackParticleCache: cache initialized for refitted TracksParticles");
+      ATH_MSG_VERBOSE( "initTrackParticleCache:  map initialized for refitted TracksParticles with size " << m_ftk_tracks->size());
 
     }
   } else {
@@ -1012,7 +1085,7 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
       }
       m_conv_tp_map.reserve(m_ftk_tracks->size());
       for (unsigned int i = 0; i!=m_ftk_tracks->size(); i++) m_conv_tp_map.push_back(-1);
-      ATH_MSG_VERBOSE( "initTrackParticleCache: cache initialized for converted TracksParticles");
+      ATH_MSG_VERBOSE( "initTrackParticleCache: map initialized for converted TracksParticles, map size "<<m_ftk_tracks->size());
     }
 
   }
