@@ -2,6 +2,7 @@
 #include <map>
 #include <numeric>
 #include <utility>  // Temporary
+#include <memory>
 
 #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
 #include "TrigT1CaloUtils/CPAlgorithm.h"
@@ -391,8 +392,8 @@ void L1CPCMXTools::getHits(const xAOD::CMXCPTob *tob, HitsVector &hit0,
        Simplest way without duplication is to create a CPMTobRoI */
     int et = energy[slice];
     int isol = isolation[slice];
-    const LVL1::CPMTobRoI *roi =
-        new CPMTobRoI(crate, cpm, chip, loc, type, et, isol);
+    std::unique_ptr<LVL1::CPMTobRoI> roi(
+        new CPMTobRoI(crate, cpm, chip, loc, type, et, isol));
 
     /* Now get the hit information using RecEmTauroI */
     RecEmTauRoI recRoI(roi->roiWord(), &thresholds);
