@@ -27,7 +27,9 @@ use TrigSteeringEvent    TrigSteeringEvent-*     Trigger/TrigEvent
 
 branches TrigSteeringEventTPCnv src
 
-library TrigSteeringEventTPCnv *.cxx
+macro TrigSteeringEventTPCnv_whattocompile "*.cxx" AthAnalysisBase "TrigPass*.cxx"
+
+library TrigSteeringEventTPCnv $(TrigSteeringEventTPCnv_whattocompile)
 apply_pattern tpcnv_library
 
 
