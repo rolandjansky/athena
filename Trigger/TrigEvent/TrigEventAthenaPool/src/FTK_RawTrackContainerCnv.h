@@ -13,7 +13,7 @@
  * @author Francesca Bucci  <f.bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: FTK_RawTrackContainerCnv.h 611854 2014-08-14 14:58:22Z jhowarth $
+ * $Id: FTK_RawTrackContainerCnv.h 716421 2016-01-05 14:33:14Z schaffer $
  **********************************************************************************/
 #ifndef TRIGEVENTATHENAPOOL_FTKRAWTRACKCONTAINERCNV_H
 #define TRIGEVENTATHENAPOOL_FTKRAWTRACKCONTAINERCNV_H
@@ -21,18 +21,10 @@
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
-#ifdef __IDENTIFIER_64BIT__
-    class FTK_RawTrackContainer_tlp1;
-    class FTK_RawTrackContainerCnv_tlp1;
-    typedef FTK_RawTrackContainer_tlp1  FTK_RawTrackContainer_PERS;
-    typedef FTK_RawTrackContainerCnv_tlp1  FTK_RawTrackContainerCnv_PERS;
-#else
-    class FTK_RawTrackContainer_tlp1;
-    class FTK_RawTrackContainerCnv_tlp1;
-    typedef FTK_RawTrackContainer_tlp1  FTK_RawTrackContainer_PERS;
-    typedef FTK_RawTrackContainerCnv_tlp1  FTK_RawTrackContainerCnv_PERS;
-#endif
-
+class   FTK_RawTrackContainer_tlp1;
+class   FTK_RawTrackContainerCnv_tlp1;
+typedef FTK_RawTrackContainer_tlp1  FTK_RawTrackContainer_PERS;
+typedef FTK_RawTrackContainerCnv_tlp1  FTK_RawTrackContainerCnv_PERS;
 
 typedef T_AthenaPoolCustomCnv<FTK_RawTrackContainer, FTK_RawTrackContainer_PERS > FTK_RawTrackContainerCnvBase; 
 
