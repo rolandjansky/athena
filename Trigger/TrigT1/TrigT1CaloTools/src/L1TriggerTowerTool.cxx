@@ -142,10 +142,19 @@ void L1TriggerTowerTool::handle(const Incident& inc)
    
     m_idTable.clear();
 
+    const EventInfo* pevt = 0; // pointer for the event
+    StatusCode status = evtStore()->retrieve(pevt); // retrieve the pointer to the event
+    if(!status.isSuccess() || pevt == 0) {
+      ATH_MSG_WARNING("Cannot determine run");
+      return;
+    }
     // determine whether this is Run-1 or Run-2 to get the correct conditions later on
-    auto e = dynamic_cast<const EventIncident&>(inc);
-    EventID* pei = e.eventInfo().event_ID();
-    EventType* pet = e.eventInfo().event_type();
+    EventID* pei = pevt->event_ID();
+    EventType* pet = pevt->event_type();
+    if(pei == 0 || pet == 0) {
+      ATH_MSG_WARNING("Cannot determine run");
+      return;
+    }
     if(pet->test(EventType::IS_SIMULATION) || pei->run_number() >= 253377) {
         m_isRun2 = true;
     } else {
