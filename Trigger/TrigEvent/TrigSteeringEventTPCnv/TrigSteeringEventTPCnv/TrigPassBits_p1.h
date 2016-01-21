@@ -25,7 +25,7 @@ class TrigPassBits_p1
   friend class TrigPassBitsCnv_p1;
   
  private:
-  unsigned int m_size;
+  unsigned int m_size = 0;
   std::vector<uint32_t> m_serialized;
 };
 

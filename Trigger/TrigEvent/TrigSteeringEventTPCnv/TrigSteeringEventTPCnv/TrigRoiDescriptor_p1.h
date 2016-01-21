@@ -28,18 +28,18 @@ class TrigRoiDescriptor_p1
   
  private:
     
-  float m_phi0;                 
-  float m_eta0;   
-  float m_zed0;
-  float m_phiHalfWidth;         
-  float m_etaHalfWidth;         
-  float m_zedHalfWidth;
-  float m_etaPlus;
-  float m_etaMinus;
+  float m_phi0 = 0;                 
+  float m_eta0 = 0;   
+  float m_zed0 = 0;
+  float m_phiHalfWidth = 0;         
+  float m_etaHalfWidth = 0;         
+  float m_zedHalfWidth = 0;
+  float m_etaPlus = 0;
+  float m_etaMinus = 0;
          
-  unsigned int m_l1Id;          
-  unsigned int m_roiId;         
-  unsigned int m_roiWord;       
+  unsigned int m_l1Id = 0;          
+  unsigned int m_roiId = 0;         
+  unsigned int m_roiWord = 0;       
   std::vector<uint32_t> m_serialized;
 
 

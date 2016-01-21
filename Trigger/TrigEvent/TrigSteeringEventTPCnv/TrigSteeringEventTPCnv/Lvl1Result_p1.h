@@ -43,7 +43,7 @@ namespace LVL1CTP {
 
   private:
 
-    bool m_configured;
+    bool m_configured = false;
     std::vector<uint32_t> m_l1_items;           
     std::vector<uint32_t> m_l1_itemsPrescaled;  
 
