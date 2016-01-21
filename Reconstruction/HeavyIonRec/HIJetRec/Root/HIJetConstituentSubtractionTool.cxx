@@ -19,7 +19,6 @@ HIJetConstituentSubtractionTool::HIJetConstituentSubtractionTool(const std::stri
   declareProperty("SetMomentOnly",m_moment_only=true);
   declareProperty("Subtractor",m_subtractor_tool);
   declareProperty("Modulator",m_modulator_tool);
-  declareProperty("FlipNegativeCluster",m_flip_neg_E_cluster=true,"flip direction of momentum vector for neg E clusters in sum");
 }
 
 
@@ -66,56 +65,46 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
 
-    xAOD::IParticle::FourMom_t p4((*ijet)->p4());
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
-    xAOD::IParticle::FourMom_t p4_old;
+    xAOD::IParticle::FourMom_t p4_unsubtr;
     
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr) 
     {
       if(shape)	m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulator_tool); //modifies p4_cl to be constituent 4-vector AFTER subtraction
-      //applyConvention(&p4_cl);
       p4_subtr+=p4_cl;
       const xAOD::CaloCluster* clc=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
-      xAOD::IParticle::FourMom_t p_temp=clc->p4(HIJetRec::subtractedClusterState());
+      xAOD::IParticle::FourMom_t p_temp=clc->p4(HIJetRec::unsubtractedClusterState());
 
-      p4_old+=p_temp;
-      // std::cout << std::setw(12) << "Adding:"
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.E()*1e-3
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.Pt()*1e-3
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.Eta()
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.Phi()
-      // 		<< std::setw(20) << std::setprecision(3) << p4_old.E()*1e-3
-      // 		<< std::setw(12) << std::setprecision(3) << p4_old.Pt()*1e-3
-      // 		<< std::setw(12) << std::setprecision(3) << p4_old.Eta()
-      // 		<< std::setw(12) << std::setprecision(3) << p4_old.Phi()
-      // 		<< std::setw(20) << std::setprecision(3) << p4_subtr.E()*1e-3-p4_old.E()*1e-3
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.Pt()*1e-3-p4_old.Pt()*1e-3
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.Eta()-p4_old.Eta()
-      // 		<< std::setw(12) << std::setprecision(3) << p4_subtr.Phi()-p4_old.Phi()
-      // 		<< std::endl;
+      p4_unsubtr+=p_temp;
     }
     
     ATH_MSG_DEBUG("Subtracting" 
 		  << std::setw(12) << "Before:"
-		  << std::setw(7) << std::setprecision(3) << p4.E()*1e-3
-		  << std::setw(7) << std::setprecision(3) << p4.Pt()*1e-3
-		  << std::setw(7) << std::setprecision(3) << p4.Eta()
-		  << std::setw(7) << std::setprecision(3) << p4.Phi()
-		  << std::setw(7) << std::setprecision(3) << p4.M()*1e-3
-		  << std::setw(10) << "After:"
-		  << std::setw(7) << std::setprecision(3) << p4_subtr.E()*1e-3
-		  << std::setw(7) << std::setprecision(3) << p4_subtr.Pt()*1e-3
-		  << std::setw(7) << std::setprecision(3) << p4_subtr.Eta()
-		  << std::setw(7) << std::setprecision(3) << p4_subtr.Phi()
-		  << std::setw(7) << std::setprecision(3) << p4_subtr.M()*1e-3);
+		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.Pt()*1e-3
+		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.Eta()
+		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.Phi()
+		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.E()*1e-3
+		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.M()*1e-3
+		  << std::setw(12) << "After:"
+
+		  << std::setw(10) << std::setprecision(3) << p4_subtr.Pt()*1e-3
+		  << std::setw(10) << std::setprecision(3) << p4_subtr.Eta()
+		  << std::setw(10) << std::setprecision(3) << p4_subtr.Phi()
+		  << std::setw(10) << std::setprecision(3) << p4_subtr.E()*1e-3
+		  << std::setw(10) << std::setprecision(3) << p4_subtr.M()*1e-3);
 
 
     
     xAOD::JetFourMom_t jet4vec;
+    if(p4_subtr.E()/std::cosh(p4_subtr.Eta()) < E_min) 
+    {
+      p4_subtr=p4_unsubtr;
+      p4_subtr*=1e-7;//ghost scale
+    }
     jet4vec.SetCoordinates(p4_subtr.Pt(),p4_subtr.Eta(),p4_subtr.Phi(),p4_subtr.M());
-    if(p4_subtr.E()/std::cosh(p4_subtr.Eta()) < E_min) jet4vec*=E_min/p4_subtr.E();
+
 
     (*ijet)->setJetP4(MomentName(),jet4vec);
 
@@ -135,11 +124,3 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   return 1;
 }
 
-void HIJetConstituentSubtractionTool::applyConvention(xAOD::IParticle::FourMom_t* p) const
-{
-  if(!m_flip_neg_E_cluster) return;
-  float p_E=p->E();
-  if(p_E > 0) return;
-  p->SetPxPyPzE(-p->Px(),-p->Py(),-p->Pz(),p_E); //flip sign of everybody except E
-
-}

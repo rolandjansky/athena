@@ -62,7 +62,7 @@ modulator0=iter0.Modulator
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
 #now iterate
-seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibTool,jtm.jetfilHISeeds],shallow=False) #add calib tool
+seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibTool,jtm.jetfilHISeeds],shallow=False)
 jtm.HIJetRecs+=[seeds1]
 iteration_dict=dict(suffix="iter1")
 if jetFlags.useTracks() and HIJetFlags.TrackJetSeeds() : iteration_dict['track_jet_seeds']=HIJetFlags.TrackJetContainerName()

@@ -172,10 +172,19 @@ jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5]
 hi_trk_modifiers=[assoc,max_over_mean,jtm.width]
 hi_modifiers = []
 
+from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
+
+from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+cl_subtr_tool=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
+cl_subtr_tool.ConfigDir='HIJetRec/'
+jtm.add(cl_subtr_tool)
+
+
 if HIJetFlags.ApplyOriginCorrection() : hi_modifiers +=  [jtm.jetorigincorr]
 if HIJetFlags.ApplyEtaJESCalibration() :
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4TopoEM',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
+    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4EMTopo',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
     jtm.add(calib_tool)
     hi_modifiers += [jtm.HICalibTool]
 hi_modifiers += [jtm.jetfilHI,jtm.jetsorter]
