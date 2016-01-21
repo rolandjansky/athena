@@ -188,8 +188,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
         chip=chip-20;
         board=1;
       }
-      xprd->auxdata<int>("board") =   board ; 
-      xprd->auxdata<int>("chip")  =   chip  ;
+      xprd->auxdata<int>("TRTboard") =   board ; 
+      xprd->auxdata<int>("TRTchip")  =   chip  ;
 
       
       //Set Local Position
@@ -272,14 +272,15 @@ StatusCode TRT_PrepDataToxAOD::execute()
       //Full bit patternword from the TRT
       xprd->auxdata<unsigned int>("bitPattern") = word;
       
-      char isArgonStraw = 0;
+      char gas_type = kUnset;
       if (!m_TRTStrawSummarySvc.empty()) {
-        if (m_TRTStrawSummarySvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good) {
-          isArgonStraw = 1;
-        }
+        int stat = m_TRTStrawSummarySvc->getStatusHT(surfaceID);
+        
+        if       ( stat==1 || stat==4 ) { gas_type = kArgon; }
+        else if  ( stat==5 )            { gas_type = kKrypton; }
+        else if  ( stat==2 || stat==3 ) { gas_type = kXenon; }
       }
-      xprd->auxdata<char>("isArgon")              = isArgonStraw            ;
-
+      xprd->auxdata<char>("gasType")              = gas_type;
 
       // Use the MultiTruth Collection to get a list of all true particle contributing to the DC
       if(m_prdmtColl){

@@ -5,40 +5,42 @@
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 from DerivationFrameworkInDet.InDetCommon import *
 
+from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+
 # Select active sub-systems
-dumpPixInfo=True
-dumpSctInfo=True
-dumpTrtInfo=False
+dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
+dumpSctInfo = InDetDxAODFlags.DumpSctInfo()
+dumpTrtInfo = InDetDxAODFlags.DumpTrtInfo()
 
 # Thin hits to store only the ones on-track
-thinHitsOnTrack=True
+thinHitsOnTrack= InDetDxAODFlags.ThinHitsOnTrack()
 
 # Thin track collection, if necessary
 # Example (p_T > 1.0 GeV && delta_z0 < 5 mm):
 # InDetTrackParticles.pt > 1*GeV && abs(DFCommonInDetTrackZ0AtPV) < 5.0
-thinTrackSelection = "InDetTrackParticles.pt > 0.1*GeV"
+thinTrackSelection = InDetDxAODFlags.ThinTrackSelection() ##"InDetTrackParticles.pt > 0.1*GeV"
 
 # Bytestream errors (for sub-systems who have implemented it)
-dumpBytestreamErrors=True
+dumpBytestreamErrors=InDetDxAODFlags.DumpByteStreamErrors() #True
 
 # Unassociated hits decorations
-dumpUnassociatedHits=True
+dumpUnassociatedHits= InDetDxAODFlags.DumpUnassociatedHits() #True
 
 # Add LArCollisionTime augmentation tool
-dumpLArCollisionTime=True
+dumpLArCollisionTime=InDetDxAODFlags.DumpLArCollisionTime() #True
 
 # Force to do not dump truth info if set to False
 #  (otherwise determined by autoconf below)
-dumpTruthInfo=True
+dumpTruthInfo=InDetDxAODFlags.DumpTruthInfo() # True
 
 # Saves partial trigger information in the output stream (none otherwise)
-dumpTriggerInfo=True
+dumpTriggerInfo= InDetDxAODFlags.DumpTriggerInfo()  #True
 
 # Print settings for main tools
-printIdTrkDxAODConf = True
+printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
 
 # Create split-tracks if running on cosmics
-makeSplitTracks = True and athCommonFlags.Beam.beamType() == 'cosmics'
+makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
 
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
@@ -159,7 +161,7 @@ if dumpSctInfo:
     ## Content steering Properties (default value shown as comment)
     xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
     xAOD_SCT_PrepDataToxAOD.UseTruthInfo        = dumpTruthInfo
-    xAOD_SCT_PrepDataToxAOD.WriteRDOinformation = False
+    xAOD_SCT_PrepDataToxAOD.WriteRDOinformation = True
     #xAOD_SCT_PrepDataToxAOD.WriteSDOs           = True
     #xAOD_SCT_PrepDataToxAOD.WriteSiHits         = True # if available
 
@@ -174,8 +176,8 @@ if dumpPixInfo:
     ## Content steering Properties (default value shown as comment)
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
-    xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = False
-    xAOD_PixelPrepDataToxAOD.WriteNNinformation   = False
+    xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = InDetDxAODFlags.DumpPixelRdoInfo()
+    xAOD_PixelPrepDataToxAOD.WriteNNinformation   = InDetDxAODFlags.DumpPixelNNInfo()
     #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
     #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
     if InDetFlags.doSLHC():
