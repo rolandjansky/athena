@@ -29,7 +29,7 @@ class TrigRoiDescriptor_p3
 
   unsigned ids[2];
 
-  bool     fullscan;
+  bool     fullscan = false;
 
   std::vector< std::vector<float> > rois;
 
