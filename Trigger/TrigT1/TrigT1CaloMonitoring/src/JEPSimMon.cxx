@@ -25,7 +25,6 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-
 #include "xAODTrigL1Calo/RODHeaderContainer.h"
 
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
@@ -55,89 +54,90 @@
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
-JEPSimMon::JEPSimMon(const std::string & type,
-                     const std::string & name,
+JEPSimMon::JEPSimMon(const std::string& type, const std::string& name,
                      const IInterface* parent)
-  : ManagedMonitorToolBase(type, name, parent),
-    m_jetCmxTool("LVL1::L1JetCMXTools/L1JetCMXTools"),
-    m_jetTool("LVL1::L1JEMJetTools/L1JEMJetTools"),
-    m_jetElementTool("LVL1::L1JetElementTools/L1JetElementTools"),
-    m_energyCmxTool("LVL1::L1EnergyCMXTools/L1EnergyCMXTools"),
-    m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
-    m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-    m_debug(false), m_rodTES(0), m_limitedRoi(0),
-    m_histBooked(false),
-    m_h_jem_em_2d_etaPhi_jetEl_SimEqCore(0),
-    m_h_jem_em_2d_etaPhi_jetEl_SimNeCore(0),
-    m_h_jem_em_2d_etaPhi_jetEl_SimNoCore(0),
-    m_h_jem_em_2d_etaPhi_jetEl_CoreNoSim(0),
-    m_h_jem_had_2d_etaPhi_jetEl_SimEqCore(0),
-    m_h_jem_had_2d_etaPhi_jetEl_SimNeCore(0),
-    m_h_jem_had_2d_etaPhi_jetEl_SimNoCore(0),
-    m_h_jem_had_2d_etaPhi_jetEl_CoreNoSim(0),
-    m_h_jem_em_2d_etaPhi_jetEl_SimEqOverlap(0),
-    m_h_jem_em_2d_etaPhi_jetEl_SimNeOverlap(0),
-    m_h_jem_em_2d_etaPhi_jetEl_SimNoOverlap(0),
-    m_h_jem_em_2d_etaPhi_jetEl_OverlapNoSim(0),
-    m_h_jem_had_2d_etaPhi_jetEl_SimEqOverlap(0),
-    m_h_jem_had_2d_etaPhi_jetEl_SimNeOverlap(0),
-    m_h_jem_had_2d_etaPhi_jetEl_SimNoOverlap(0),
-    m_h_jem_had_2d_etaPhi_jetEl_OverlapNoSim(0),
-    m_h_jem_2d_roi_EnergyLgSimEqData(0),
-    m_h_jem_2d_roi_EnergyLgSimNeData(0),
-    m_h_jem_2d_roi_EnergyLgSimNoData(0),
-    m_h_jem_2d_roi_EnergyLgDataNoSim(0),
-    m_h_jem_2d_roi_EnergySmSimEqData(0),
-    m_h_jem_2d_roi_EnergySmSimNeData(0),
-    m_h_jem_2d_roi_EnergySmSimNoData(0),
-    m_h_jem_2d_roi_EnergySmDataNoSim(0),
-    m_h_jem_2d_etaPhi_roi_SimEqData(0),
-    m_h_jem_2d_etaPhi_roi_SimNeData(0),
-    m_h_jem_2d_etaPhi_roi_SimNoData(0),
-    m_h_jem_2d_etaPhi_roi_DataNoSim(0),
-    m_h_cmx_2d_tob_EnergyLgSimEqData(0),
-    m_h_cmx_2d_tob_EnergyLgSimNeData(0),
-    m_h_cmx_2d_tob_EnergyLgSimNoData(0),
-    m_h_cmx_2d_tob_EnergyLgDataNoSim(0),
-    m_h_cmx_2d_tob_EnergySmSimEqData(0),
-    m_h_cmx_2d_tob_EnergySmSimNeData(0),
-    m_h_cmx_2d_tob_EnergySmSimNoData(0),
-    m_h_cmx_2d_tob_EnergySmDataNoSim(0),
-    m_h_cmx_2d_etaPhi_tob_SimEqData(0),
-    m_h_cmx_2d_etaPhi_tob_SimNeData(0),
-    m_h_cmx_2d_etaPhi_tob_SimNoData(0),
-    m_h_cmx_2d_etaPhi_tob_DataNoSim(0),
-    m_h_cmx_1d_thresh_SumsSimEqData(0),
-    m_h_cmx_1d_thresh_SumsSimNeData(0),
-    m_h_cmx_1d_thresh_SumsSimNoData(0),
-    m_h_cmx_1d_thresh_SumsDataNoSim(0),
-    m_h_cmx_1d_thresh_SumsOvfSimEqData(0),
-    m_h_cmx_1d_thresh_SumsOvfSimNeData(0),
-    m_h_cmx_2d_thresh_SumsThreshSimEqData(0),
-    m_h_cmx_2d_thresh_SumsThreshSimNeData(0),
-    m_h_cmx_2d_topo_SimEqData(0),
-    m_h_cmx_2d_topo_SimNeData(0),
-    m_h_cmx_2d_topo_SimNoData(0),
-    m_h_cmx_2d_topo_DataNoSim(0),
-    m_h_jem_2d_energy_SimEqData(0),
-    m_h_jem_2d_energy_SimNeData(0),
-    m_h_jem_2d_energy_SimNoData(0),
-    m_h_jem_2d_energy_DataNoSim(0),
-    m_h_cmx_2d_energy_JemEqCmx(0),
-    m_h_cmx_2d_energy_JemNeCmx(0),
-    m_h_cmx_2d_energy_JemNoCmx(0),
-    m_h_cmx_2d_energy_CmxNoJem(0),
-    m_h_cmx_2d_energy_SumsSimEqData(0),
-    m_h_cmx_2d_energy_SumsSimNeData(0),
-    m_h_cmx_2d_energy_SumsSimNoData(0),
-    m_h_cmx_2d_energy_SumsDataNoSim(0),
-    m_h_cmx_2d_energy_EtMapsThreshSimEqData(0),
-    m_h_cmx_2d_energy_EtMapsThreshSimNeData(0),
-    m_h_jem_2d_SimEqDataOverview(0),
-    m_h_jem_2d_SimNeDataOverview(0),
-    m_h_jem_1d_SimNeDataSummary(0),
-    m_v_2d_MismatchEvents(0)
-    /*---------------------------------------------------------*/
+    : ManagedMonitorToolBase(type, name, parent),
+      m_jetCmxTool("LVL1::L1JetCMXTools/L1JetCMXTools"),
+      m_jetTool("LVL1::L1JEMJetTools/L1JEMJetTools"),
+      m_jetElementTool("LVL1::L1JetElementTools/L1JetElementTools"),
+      m_energyCmxTool("LVL1::L1EnergyCMXTools/L1EnergyCMXTools"),
+      m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
+      m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
+      m_debug(false),
+      m_rodTES(0),
+      m_limitedRoi(0),
+      m_histBooked(false),
+      m_h_jem_em_2d_etaPhi_jetEl_SimEqCore(0),
+      m_h_jem_em_2d_etaPhi_jetEl_SimNeCore(0),
+      m_h_jem_em_2d_etaPhi_jetEl_SimNoCore(0),
+      m_h_jem_em_2d_etaPhi_jetEl_CoreNoSim(0),
+      m_h_jem_had_2d_etaPhi_jetEl_SimEqCore(0),
+      m_h_jem_had_2d_etaPhi_jetEl_SimNeCore(0),
+      m_h_jem_had_2d_etaPhi_jetEl_SimNoCore(0),
+      m_h_jem_had_2d_etaPhi_jetEl_CoreNoSim(0),
+      m_h_jem_em_2d_etaPhi_jetEl_SimEqOverlap(0),
+      m_h_jem_em_2d_etaPhi_jetEl_SimNeOverlap(0),
+      m_h_jem_em_2d_etaPhi_jetEl_SimNoOverlap(0),
+      m_h_jem_em_2d_etaPhi_jetEl_OverlapNoSim(0),
+      m_h_jem_had_2d_etaPhi_jetEl_SimEqOverlap(0),
+      m_h_jem_had_2d_etaPhi_jetEl_SimNeOverlap(0),
+      m_h_jem_had_2d_etaPhi_jetEl_SimNoOverlap(0),
+      m_h_jem_had_2d_etaPhi_jetEl_OverlapNoSim(0),
+      m_h_jem_2d_roi_EnergyLgSimEqData(0),
+      m_h_jem_2d_roi_EnergyLgSimNeData(0),
+      m_h_jem_2d_roi_EnergyLgSimNoData(0),
+      m_h_jem_2d_roi_EnergyLgDataNoSim(0),
+      m_h_jem_2d_roi_EnergySmSimEqData(0),
+      m_h_jem_2d_roi_EnergySmSimNeData(0),
+      m_h_jem_2d_roi_EnergySmSimNoData(0),
+      m_h_jem_2d_roi_EnergySmDataNoSim(0),
+      m_h_jem_2d_etaPhi_roi_SimEqData(0),
+      m_h_jem_2d_etaPhi_roi_SimNeData(0),
+      m_h_jem_2d_etaPhi_roi_SimNoData(0),
+      m_h_jem_2d_etaPhi_roi_DataNoSim(0),
+      m_h_cmx_2d_tob_EnergyLgSimEqData(0),
+      m_h_cmx_2d_tob_EnergyLgSimNeData(0),
+      m_h_cmx_2d_tob_EnergyLgSimNoData(0),
+      m_h_cmx_2d_tob_EnergyLgDataNoSim(0),
+      m_h_cmx_2d_tob_EnergySmSimEqData(0),
+      m_h_cmx_2d_tob_EnergySmSimNeData(0),
+      m_h_cmx_2d_tob_EnergySmSimNoData(0),
+      m_h_cmx_2d_tob_EnergySmDataNoSim(0),
+      m_h_cmx_2d_etaPhi_tob_SimEqData(0),
+      m_h_cmx_2d_etaPhi_tob_SimNeData(0),
+      m_h_cmx_2d_etaPhi_tob_SimNoData(0),
+      m_h_cmx_2d_etaPhi_tob_DataNoSim(0),
+      m_h_cmx_1d_thresh_SumsSimEqData(0),
+      m_h_cmx_1d_thresh_SumsSimNeData(0),
+      m_h_cmx_1d_thresh_SumsSimNoData(0),
+      m_h_cmx_1d_thresh_SumsDataNoSim(0),
+      m_h_cmx_1d_thresh_SumsOvfSimEqData(0),
+      m_h_cmx_1d_thresh_SumsOvfSimNeData(0),
+      m_h_cmx_2d_thresh_SumsThreshSimEqData(0),
+      m_h_cmx_2d_thresh_SumsThreshSimNeData(0),
+      m_h_cmx_2d_topo_SimEqData(0),
+      m_h_cmx_2d_topo_SimNeData(0),
+      m_h_cmx_2d_topo_SimNoData(0),
+      m_h_cmx_2d_topo_DataNoSim(0),
+      m_h_jem_2d_energy_SimEqData(0),
+      m_h_jem_2d_energy_SimNeData(0),
+      m_h_jem_2d_energy_SimNoData(0),
+      m_h_jem_2d_energy_DataNoSim(0),
+      m_h_cmx_2d_energy_JemEqCmx(0),
+      m_h_cmx_2d_energy_JemNeCmx(0),
+      m_h_cmx_2d_energy_JemNoCmx(0),
+      m_h_cmx_2d_energy_CmxNoJem(0),
+      m_h_cmx_2d_energy_SumsSimEqData(0),
+      m_h_cmx_2d_energy_SumsSimNeData(0),
+      m_h_cmx_2d_energy_SumsSimNoData(0),
+      m_h_cmx_2d_energy_SumsDataNoSim(0),
+      m_h_cmx_2d_energy_EtMapsThreshSimEqData(0),
+      m_h_cmx_2d_energy_EtMapsThreshSimNeData(0),
+      m_h_jem_2d_SimEqDataOverview(0),
+      m_h_jem_2d_SimNeDataOverview(0),
+      m_h_jem_1d_SimNeDataSummary(0),
+      m_v_2d_MismatchEvents(0)
+/*---------------------------------------------------------*/
 {
   declareProperty("JetCMXTool", m_jetCmxTool);
   declareProperty("JetTool", m_jetTool);
@@ -146,31 +146,35 @@ JEPSimMon::JEPSimMon(const std::string & type,
   declareProperty("ErrorTool", m_errorTool);
   declareProperty("HistogramTool", m_histTool);
 
-  declareProperty("JetElementLocation",
-                  m_jetElementLocation =
-                    LVL1::TrigT1CaloDefs::JetElementLocation);
+  declareProperty(
+      "JetElementLocation",
+      m_jetElementLocation = LVL1::TrigT1CaloDefs::JetElementLocation);
   declareProperty("JetElementLocationOverlap",
                   m_jetElementLocationOverlap =
-                    LVL1::TrigT1CaloDefs::JetElementLocation + "Overlap");
-  declareProperty("CMXJetTobLocation",
-                  m_cmxJetTobLocation  = LVL1::TrigT1CaloDefs::CMXJetTobLocation);
-  declareProperty("CMXJetHitsLocation",
-                  m_cmxJetHitsLocation = LVL1::TrigT1CaloDefs::CMXJetHitsLocation);
+                      LVL1::TrigT1CaloDefs::JetElementLocation + "Overlap");
+  declareProperty(
+      "CMXJetTobLocation",
+      m_cmxJetTobLocation = LVL1::TrigT1CaloDefs::CMXJetTobLocation);
+  declareProperty(
+      "CMXJetHitsLocation",
+      m_cmxJetHitsLocation = LVL1::TrigT1CaloDefs::CMXJetHitsLocation);
   declareProperty("JEMTobRoILocation",
-                  m_jemRoiLocation     = LVL1::TrigT1CaloDefs::JEMTobRoILocation);
+                  m_jemRoiLocation = LVL1::TrigT1CaloDefs::JEMTobRoILocation);
   declareProperty("CMXRoILocation",
-                  m_cmxRoiLocation     = LVL1::TrigT1CaloDefs::CMXRoILocation);
-  declareProperty("JEMEtSumsLocation",
-                  m_jemEtSumsLocation  = LVL1::TrigT1CaloDefs::JEMEtSumsLocation);
-  declareProperty("CMXEtSumsLocation",
-                  m_cmxEtSumsLocation  = LVL1::TrigT1CaloDefs::CMXEtSumsLocation);
-  declareProperty("TriggerTowerLocation",
-                  m_triggerTowerLocation =
-                    LVL1::TrigT1CaloDefs::TriggerTowerLocation);
-  declareProperty("RodHeaderLocation",
-                  m_rodHeaderLocation = LVL1::TrigT1CaloDefs::RODHeaderLocation);
-  declareProperty("ErrorLocation",
-                  m_errorLocation     = "L1CaloJEMMismatchVector");
+                  m_cmxRoiLocation = LVL1::TrigT1CaloDefs::CMXRoILocation);
+  declareProperty(
+      "JEMEtSumsLocation",
+      m_jemEtSumsLocation = LVL1::TrigT1CaloDefs::JEMEtSumsLocation);
+  declareProperty(
+      "CMXEtSumsLocation",
+      m_cmxEtSumsLocation = LVL1::TrigT1CaloDefs::CMXEtSumsLocation);
+  declareProperty(
+      "TriggerTowerLocation",
+      m_triggerTowerLocation = LVL1::TrigT1CaloDefs::TriggerTowerLocation);
+  declareProperty(
+      "RodHeaderLocation",
+      m_rodHeaderLocation = LVL1::TrigT1CaloDefs::RODHeaderLocation);
+  declareProperty("ErrorLocation", m_errorLocation = "L1CaloJEMMismatchVector");
 
   declareProperty("RootDirectory", m_rootDir = "L1Calo/JEM");
 }
@@ -178,15 +182,14 @@ JEPSimMon::JEPSimMon(const std::string & type,
 /*---------------------------------------------------------*/
 JEPSimMon::~JEPSimMon()
 /*---------------------------------------------------------*/
-{
-}
+{}
 
 #ifndef PACKAGE_VERSION
 #define PACKAGE_VERSION "unknown"
 #endif
 
 /*---------------------------------------------------------*/
-StatusCode JEPSimMon:: initialize()
+StatusCode JEPSimMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
@@ -199,39 +202,37 @@ StatusCode JEPSimMon:: initialize()
   if (sc.isFailure()) return sc;
 
   sc = m_jetElementTool.retrieve();
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1JetElementTools"
-                    << endreq;
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Unable to locate Tool L1JetElementTools" << endreq;
     return sc;
   }
 
   sc = m_jetTool.retrieve();
-  if ( sc.isFailure() ) {
+  if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool L1JetTools" << endreq;
     return sc;
   }
 
   sc = m_jetCmxTool.retrieve();
-  if ( sc.isFailure() ) {
+  if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool L1JetCMXTools" << endreq;
     return sc;
   }
 
   sc = m_energyCmxTool.retrieve();
-  if ( sc.isFailure() ) {
+  if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool L1EnergyCMXTools" << endreq;
     return sc;
   }
 
   sc = m_errorTool.retrieve();
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
-  if ( sc.isFailure() ) {
+  if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
                     << endreq;
     return sc;
@@ -246,33 +247,35 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
 {
   msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
 
-  if ( m_environment == AthenaMonManager::online ) {
+  if (m_environment == AthenaMonManager::online) {
     // book histograms that are only made in the online environment...
   }
 
-  if ( m_dataType == AthenaMonManager::cosmics ) {
+  if (m_dataType == AthenaMonManager::cosmics) {
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newEventsBlock || newLumiBlock ) { }
+  if (newEventsBlock || newLumiBlock) {
+  }
 
-  if ( newRun ) {
-
+  if (newRun) {
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     std::string dir1(m_rootDir + "/Errors/Transmission_Simulation");
-    MonGroup monShift( this, dir1, run, attr );
-    MonGroup monExpert( this, dir1, run, attr );
-    MonGroup monElements( this, dir1 + "/PPM2Elements", run, attr );
-    MonGroup monRoIs( this, dir1 + "/Elements2RoIs", run, attr );
-    MonGroup monEnergy( this, dir1 + "/Elements2Energy", run, attr );
-    MonGroup monEvent1( this, dir1 + "/MismatchEventNumbers", run, attr, "", "eventSample" );
+    MonGroup monShift(this, dir1, run, attr);
+    MonGroup monExpert(this, dir1, run, attr);
+    MonGroup monElements(this, dir1 + "/PPM2Elements", run, attr);
+    MonGroup monRoIs(this, dir1 + "/Elements2RoIs", run, attr);
+    MonGroup monEnergy(this, dir1 + "/Elements2Energy", run, attr);
+    MonGroup monEvent1(this, dir1 + "/MismatchEventNumbers", run, attr, "",
+                       "eventSample");
     std::string dir2(m_rootDir + "_CMX/Errors/Transmission_Simulation");
-    MonGroup monTobs( this, dir2 + "/RoIs2TOBs", run, attr );
-    MonGroup monHitSums( this, dir2 + "/TOBs2HitSums", run, attr );
-    MonGroup monTopo( this, dir2 + "/TOBs2Topo", run, attr );
-    MonGroup monEnergy2( this, dir2 + "/JEM2CMXEnergy", run, attr );
-    MonGroup monEnergySums( this, dir2 + "/Energy2Sums", run, attr );
-    MonGroup monEvent2( this, dir2 + "/MismatchEventNumbers", run, attr, "", "eventSample" );
+    MonGroup monTobs(this, dir2 + "/RoIs2TOBs", run, attr);
+    MonGroup monHitSums(this, dir2 + "/TOBs2HitSums", run, attr);
+    MonGroup monTopo(this, dir2 + "/TOBs2Topo", run, attr);
+    MonGroup monEnergy2(this, dir2 + "/JEM2CMXEnergy", run, attr);
+    MonGroup monEnergySums(this, dir2 + "/Energy2Sums", run, attr);
+    MonGroup monEvent2(this, dir2 + "/MismatchEventNumbers", run, attr, "",
+                       "eventSample");
 
     // JetElements
 
@@ -303,119 +306,139 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
         "jem_had_2d_etaPhi_jetEl_CoreNoSim",
         "Core Jet Elements HAD Data but no Simulation");
     m_h_jem_em_2d_etaPhi_jetEl_SimEqOverlap = m_histTool->bookJEMEtaVsPhi(
-          "jem_em_2d_etaPhi_jetEl_SimEqOverlap",
-          "Overlap Jet Elements EM Data/Simulation Non-zero Matches");
+        "jem_em_2d_etaPhi_jetEl_SimEqOverlap",
+        "Overlap Jet Elements EM Data/Simulation Non-zero Matches");
     m_h_jem_em_2d_etaPhi_jetEl_SimNeOverlap = m_histTool->bookJEMEtaVsPhi(
-          "jem_em_2d_etaPhi_jetEl_SimNeOverlap",
-          "Overlap Jet Elements EM Data/Simulation Non-zero Mismatches");
+        "jem_em_2d_etaPhi_jetEl_SimNeOverlap",
+        "Overlap Jet Elements EM Data/Simulation Non-zero Mismatches");
     m_h_jem_em_2d_etaPhi_jetEl_SimNoOverlap = m_histTool->bookJEMEtaVsPhi(
-          "jem_em_2d_etaPhi_jetEl_SimNoOverlap",
-          "Overlap Jet Elements EM Simulation but no Data");
+        "jem_em_2d_etaPhi_jetEl_SimNoOverlap",
+        "Overlap Jet Elements EM Simulation but no Data");
     m_h_jem_em_2d_etaPhi_jetEl_OverlapNoSim = m_histTool->bookJEMEtaVsPhi(
-          "jem_em_2d_etaPhi_jetEl_OverlapNoSim",
-          "Overlap Jet Elements EM Data but no Simulation");
+        "jem_em_2d_etaPhi_jetEl_OverlapNoSim",
+        "Overlap Jet Elements EM Data but no Simulation");
     m_h_jem_had_2d_etaPhi_jetEl_SimEqOverlap = m_histTool->bookJEMEtaVsPhi(
-          "jem_had_2d_etaPhi_jetEl_SimEqOverlap",
-          "Overlap Jet Elements HAD Data/Simulation Non-zero Matches");
+        "jem_had_2d_etaPhi_jetEl_SimEqOverlap",
+        "Overlap Jet Elements HAD Data/Simulation Non-zero Matches");
     m_h_jem_had_2d_etaPhi_jetEl_SimNeOverlap = m_histTool->bookJEMEtaVsPhi(
-          "jem_had_2d_etaPhi_jetEl_SimNeOverlap",
-          "Overlap Jet Elements HAD Data/Simulation Non-zero Mismatches");
+        "jem_had_2d_etaPhi_jetEl_SimNeOverlap",
+        "Overlap Jet Elements HAD Data/Simulation Non-zero Mismatches");
     m_h_jem_had_2d_etaPhi_jetEl_SimNoOverlap = m_histTool->bookJEMEtaVsPhi(
-          "jem_had_2d_etaPhi_jetEl_SimNoOverlap",
-          "Overlap Jet Elements HAD Simulation but no Data");
+        "jem_had_2d_etaPhi_jetEl_SimNoOverlap",
+        "Overlap Jet Elements HAD Simulation but no Data");
     m_h_jem_had_2d_etaPhi_jetEl_OverlapNoSim = m_histTool->bookJEMEtaVsPhi(
-          "jem_had_2d_etaPhi_jetEl_OverlapNoSim",
-          "Overlap Jet Elements HAD Data but no Simulation");
+        "jem_had_2d_etaPhi_jetEl_OverlapNoSim",
+        "Overlap Jet Elements HAD Data but no Simulation");
 
     //  RoIs
 
     m_histTool->setMonGroup(&monRoIs);
 
     m_h_jem_2d_roi_EnergyLgSimEqData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergyLgSimEqData", "JEM RoI Energy Large Data/Simulation Non-zero Matches");
+        "jem_2d_roi_EnergyLgSimEqData",
+        "JEM RoI Energy Large Data/Simulation Non-zero Matches");
     m_h_jem_2d_roi_EnergyLgSimNeData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergyLgSimNeData", "JEM RoI Energy Large Data/Simulation Non-zero Mismatches");
+        "jem_2d_roi_EnergyLgSimNeData",
+        "JEM RoI Energy Large Data/Simulation Non-zero Mismatches");
     m_h_jem_2d_roi_EnergyLgSimNoData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergyLgSimNoData", "JEM RoI Energy Large Simulation but no Data");
+        "jem_2d_roi_EnergyLgSimNoData",
+        "JEM RoI Energy Large Simulation but no Data");
     m_h_jem_2d_roi_EnergyLgDataNoSim = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergyLgDataNoSim", "JEM RoI Energy Large Data but no Simulation");
+        "jem_2d_roi_EnergyLgDataNoSim",
+        "JEM RoI Energy Large Data but no Simulation");
     m_h_jem_2d_roi_EnergySmSimEqData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergySmSimEqData", "JEM RoI Energy Small Data/Simulation Non-zero Matches");
+        "jem_2d_roi_EnergySmSimEqData",
+        "JEM RoI Energy Small Data/Simulation Non-zero Matches");
     m_h_jem_2d_roi_EnergySmSimNeData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergySmSimNeData", "JEM RoI Energy Small Data/Simulation Non-zero Mismatches");
+        "jem_2d_roi_EnergySmSimNeData",
+        "JEM RoI Energy Small Data/Simulation Non-zero Mismatches");
     m_h_jem_2d_roi_EnergySmSimNoData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergySmSimNoData", "JEM RoI Energy Small Simulation but no Data");
+        "jem_2d_roi_EnergySmSimNoData",
+        "JEM RoI Energy Small Simulation but no Data");
     m_h_jem_2d_roi_EnergySmDataNoSim = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "jem_2d_roi_EnergySmDataNoSim", "JEM RoI Energy Small Data but no Simulation");
+        "jem_2d_roi_EnergySmDataNoSim",
+        "JEM RoI Energy Small Data but no Simulation");
 
     m_h_jem_2d_etaPhi_roi_SimEqData = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "jem_2d_etaPhi_roi_SimEqData", "JEM RoI Data/Simulation Non-zero Matches");
+        "jem_2d_etaPhi_roi_SimEqData",
+        "JEM RoI Data/Simulation Non-zero Matches");
     m_h_jem_2d_etaPhi_roi_SimNeData = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "jem_2d_etaPhi_roi_SimNeData", "JEM RoI Data/Simulation Non-zero Mismatches");
+        "jem_2d_etaPhi_roi_SimNeData",
+        "JEM RoI Data/Simulation Non-zero Mismatches");
     m_h_jem_2d_etaPhi_roi_SimNoData = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "jem_2d_etaPhi_roi_SimNoData", "JEM RoI Simulation but no Data");
+        "jem_2d_etaPhi_roi_SimNoData", "JEM RoI Simulation but no Data");
     m_h_jem_2d_etaPhi_roi_DataNoSim = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "jem_2d_etaPhi_roi_DataNoSim", "JEM RoI Data but no Simulation");
+        "jem_2d_etaPhi_roi_DataNoSim", "JEM RoI Data but no Simulation");
 
     //  CMX-Jet TOBs
 
     m_histTool->setMonGroup(&monTobs);
 
     m_h_cmx_2d_tob_EnergyLgSimEqData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergyLgSimEqData", "CMX TOB Energy Large Data/Simulation Non-zero Matches");
+        "cmx_2d_tob_EnergyLgSimEqData",
+        "CMX TOB Energy Large Data/Simulation Non-zero Matches");
     m_h_cmx_2d_tob_EnergyLgSimNeData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergyLgSimNeData", "CMX TOB Energy Large Data/Simulation Non-zero Mismatches");
+        "cmx_2d_tob_EnergyLgSimNeData",
+        "CMX TOB Energy Large Data/Simulation Non-zero Mismatches");
     m_h_cmx_2d_tob_EnergyLgSimNoData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergyLgSimNoData", "CMX TOB Energy Large Simulation but no Data");
+        "cmx_2d_tob_EnergyLgSimNoData",
+        "CMX TOB Energy Large Simulation but no Data");
     m_h_cmx_2d_tob_EnergyLgDataNoSim = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergyLgDataNoSim", "CMX TOB Energy Large Data but no Simulation");
+        "cmx_2d_tob_EnergyLgDataNoSim",
+        "CMX TOB Energy Large Data but no Simulation");
     m_h_cmx_2d_tob_EnergySmSimEqData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergySmSimEqData", "CMX TOB Energy Small Data/Simulation Non-zero Matches");
+        "cmx_2d_tob_EnergySmSimEqData",
+        "CMX TOB Energy Small Data/Simulation Non-zero Matches");
     m_h_cmx_2d_tob_EnergySmSimNeData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergySmSimNeData", "CMX TOB Energy Small Data/Simulation Non-zero Mismatches");
+        "cmx_2d_tob_EnergySmSimNeData",
+        "CMX TOB Energy Small Data/Simulation Non-zero Mismatches");
     m_h_cmx_2d_tob_EnergySmSimNoData = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergySmSimNoData", "CMX TOB Energy Small Simulation but no Data");
+        "cmx_2d_tob_EnergySmSimNoData",
+        "CMX TOB Energy Small Simulation but no Data");
     m_h_cmx_2d_tob_EnergySmDataNoSim = m_histTool->bookJEMCrateModuleVsFrameLoc(
-                                         "cmx_2d_tob_EnergySmDataNoSim", "CMX TOB Energy Small Data but no Simulation");
+        "cmx_2d_tob_EnergySmDataNoSim",
+        "CMX TOB Energy Small Data but no Simulation");
 
     m_h_cmx_2d_etaPhi_tob_SimEqData = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "cmx_2d_etaPhi_tob_SimEqData", "CMX TOB Data/Simulation Non-zero Matches");
+        "cmx_2d_etaPhi_tob_SimEqData",
+        "CMX TOB Data/Simulation Non-zero Matches");
     m_h_cmx_2d_etaPhi_tob_SimNeData = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "cmx_2d_etaPhi_tob_SimNeData", "CMX TOB Data/Simulation Non-zero Mismatches");
+        "cmx_2d_etaPhi_tob_SimNeData",
+        "CMX TOB Data/Simulation Non-zero Mismatches");
     m_h_cmx_2d_etaPhi_tob_SimNoData = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "cmx_2d_etaPhi_tob_SimNoData", "CMX TOB Simulation but no Data");
+        "cmx_2d_etaPhi_tob_SimNoData", "CMX TOB Simulation but no Data");
     m_h_cmx_2d_etaPhi_tob_DataNoSim = m_histTool->bookJEMRoIEtaVsPhi(
-                                        "cmx_2d_etaPhi_tob_DataNoSim", "CMX TOB Data but no Simulation");
+        "cmx_2d_etaPhi_tob_DataNoSim", "CMX TOB Data but no Simulation");
 
     m_histTool->setMonGroup(&monHitSums);
 
     // Local/Remote/Total sums
 
     m_h_cmx_1d_thresh_SumsSimEqData = m_histTool->book1F(
-                                        "cmx_1d_thresh_SumsSimEqData",
-                                        "CMX Hit Sums Data/Simulation Non-zero Matches", 4, 0, 4);
+        "cmx_1d_thresh_SumsSimEqData",
+        "CMX Hit Sums Data/Simulation Non-zero Matches", 4, 0, 4);
     setLabelsSH(m_h_cmx_1d_thresh_SumsSimEqData);
     m_h_cmx_1d_thresh_SumsSimNeData = m_histTool->book1F(
-                                        "cmx_1d_thresh_SumsSimNeData",
-                                        "CMX Hit Sums Data/Simulation Non-zero Mismatches", 4, 0, 4);
+        "cmx_1d_thresh_SumsSimNeData",
+        "CMX Hit Sums Data/Simulation Non-zero Mismatches", 4, 0, 4);
     setLabelsSH(m_h_cmx_1d_thresh_SumsSimNeData);
-    m_h_cmx_1d_thresh_SumsSimNoData = m_histTool->book1F(
-                                        "cmx_1d_thresh_SumsSimNoData",
-                                        "CMX Hit Sums Simulation but no Data", 4, 0, 4);
+    m_h_cmx_1d_thresh_SumsSimNoData =
+        m_histTool->book1F("cmx_1d_thresh_SumsSimNoData",
+                           "CMX Hit Sums Simulation but no Data", 4, 0, 4);
     setLabelsSH(m_h_cmx_1d_thresh_SumsSimNoData);
-    m_h_cmx_1d_thresh_SumsDataNoSim = m_histTool->book1F(
-                                        "cmx_1d_thresh_SumsDataNoSim",
-                                        "CMX Hit Sums Data but no Simulation", 4, 0, 4);
+    m_h_cmx_1d_thresh_SumsDataNoSim =
+        m_histTool->book1F("cmx_1d_thresh_SumsDataNoSim",
+                           "CMX Hit Sums Data but no Simulation", 4, 0, 4);
     setLabelsSH(m_h_cmx_1d_thresh_SumsDataNoSim);
     m_h_cmx_1d_thresh_SumsOvfSimEqData = m_histTool->book1F(
-                                           "cmx_1d_thresh_SumsOvfSimEqData",
-                                           "CMX Hit Sums RoI Overflow Bit Data/Simulation Matches", 2, 0, 2);
+        "cmx_1d_thresh_SumsOvfSimEqData",
+        "CMX Hit Sums RoI Overflow Bit Data/Simulation Matches", 2, 0, 2);
     LWHist::LWHistAxis* axis = m_h_cmx_1d_thresh_SumsOvfSimEqData->GetXaxis();
     axis->SetBinLabel(1, "Remote");
     axis->SetBinLabel(2, "Total");
     m_h_cmx_1d_thresh_SumsOvfSimNeData = m_histTool->book1F(
-                                           "cmx_1d_thresh_SumsOvfSimNeData",
-                                           "CMX Hit Sums RoI Overflow Bit Data/Simulation Mismatches", 2, 0, 2);
+        "cmx_1d_thresh_SumsOvfSimNeData",
+        "CMX Hit Sums RoI Overflow Bit Data/Simulation Mismatches", 2, 0, 2);
     axis = m_h_cmx_1d_thresh_SumsOvfSimNeData->GetXaxis();
     axis->SetBinLabel(1, "Remote");
     axis->SetBinLabel(2, "Total");
@@ -423,9 +446,10 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
         "cmx_2d_thresh_SumsThreshSimEqData",
         "CMX Hit Sums Data/Simulation Threshold Matches", 4, 0, 4, 25, 0, 25);
     setLabelsSHF(m_h_cmx_2d_thresh_SumsThreshSimEqData);
-    m_h_cmx_2d_thresh_SumsThreshSimNeData = m_histTool->book2F(
-        "cmx_2d_thresh_SumsThreshSimNeData",
-        "CMX Hit Sums Data/Simulation Threshold Mismatches", 4, 0, 4, 25, 0, 25);
+    m_h_cmx_2d_thresh_SumsThreshSimNeData =
+        m_histTool->book2F("cmx_2d_thresh_SumsThreshSimNeData",
+                           "CMX Hit Sums Data/Simulation Threshold Mismatches",
+                           4, 0, 4, 25, 0, 25);
     setLabelsSHF(m_h_cmx_2d_thresh_SumsThreshSimNeData);
 
     // Topo output information
@@ -433,20 +457,21 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     m_histTool->setMonGroup(&monTopo);
 
     m_h_cmx_2d_topo_SimEqData = m_histTool->book2F(
-                                  "cmx_2d_topo_SimEqData", "CMX Topo Output Data/Simulation Non-zero Matches",
-                                  2, 0, 2, 3, 0, 3);
+        "cmx_2d_topo_SimEqData",
+        "CMX Topo Output Data/Simulation Non-zero Matches", 2, 0, 2, 3, 0, 3);
     setLabelsTopo(m_h_cmx_2d_topo_SimEqData);
     m_h_cmx_2d_topo_SimNeData = m_histTool->book2F(
-                                  "cmx_2d_topo_SimNeData", "CMX Topo Output Data/Simulation Non-zero Mismatches",
-                                  2, 0, 2, 3, 0, 3);
+        "cmx_2d_topo_SimNeData",
+        "CMX Topo Output Data/Simulation Non-zero Mismatches", 2, 0, 2, 3, 0,
+        3);
     setLabelsTopo(m_h_cmx_2d_topo_SimNeData);
     m_h_cmx_2d_topo_SimNoData = m_histTool->book2F(
-                                  "cmx_2d_topo_SimNoData", "CMX Topo Output Simulation but no Data",
-                                  2, 0, 2, 3, 0, 3);
+        "cmx_2d_topo_SimNoData", "CMX Topo Output Simulation but no Data", 2, 0,
+        2, 3, 0, 3);
     setLabelsTopo(m_h_cmx_2d_topo_SimNoData);
     m_h_cmx_2d_topo_DataNoSim = m_histTool->book2F(
-                                  "cmx_2d_topo_DataNoSim", "CMX Topo Output Data but no Simulation",
-                                  2, 0, 2, 3, 0, 3);
+        "cmx_2d_topo_DataNoSim", "CMX Topo Output Data but no Simulation", 2, 0,
+        2, 3, 0, 3);
     setLabelsTopo(m_h_cmx_2d_topo_DataNoSim);
 
     // JEMEtSums
@@ -454,78 +479,85 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     m_histTool->setMonGroup(&monEnergy);
 
     m_h_jem_2d_energy_SimEqData = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                    "jem_2d_energy_SimEqData", "JEM EtSums Data/Simulation Non-zero Matches");
+        "jem_2d_energy_SimEqData",
+        "JEM EtSums Data/Simulation Non-zero Matches");
     m_h_jem_2d_energy_SimNeData = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                    "jem_2d_energy_SimNeData",
-                                    "JEM EtSums Data/Simulation Non-zero Mismatches");
+        "jem_2d_energy_SimNeData",
+        "JEM EtSums Data/Simulation Non-zero Mismatches");
     m_h_jem_2d_energy_SimNoData = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                    "jem_2d_energy_SimNoData", "JEM EtSums Simulation but no Data");
+        "jem_2d_energy_SimNoData", "JEM EtSums Simulation but no Data");
     m_h_jem_2d_energy_DataNoSim = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                    "jem_2d_energy_DataNoSim", "JEM EtSums Data but no Simulation");
+        "jem_2d_energy_DataNoSim", "JEM EtSums Data but no Simulation");
 
     // CMXEtSums
 
     m_histTool->setMonGroup(&monEnergy2);
 
     m_h_cmx_2d_energy_JemEqCmx = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                   "cmx_2d_energy_JemEqCmx", "CMX EtSums/JEM EtSums Non-zero Matches");
+        "cmx_2d_energy_JemEqCmx", "CMX EtSums/JEM EtSums Non-zero Matches");
     m_h_cmx_2d_energy_JemNeCmx = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                   "cmx_2d_energy_JemNeCmx", "CMX EtSums/JEM EtSums Non-zero Mismatches");
+        "cmx_2d_energy_JemNeCmx", "CMX EtSums/JEM EtSums Non-zero Mismatches");
     m_h_cmx_2d_energy_JemNoCmx = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                   "cmx_2d_energy_JemNoCmx", "JEM EtSums but no CMX EtSums");
+        "cmx_2d_energy_JemNoCmx", "JEM EtSums but no CMX EtSums");
     m_h_cmx_2d_energy_CmxNoJem = m_histTool->bookJEMCrateModuleVsExEyEt(
-                                   "cmx_2d_energy_CmxNoJem", "CMX EtSums but no JEM EtSums");
+        "cmx_2d_energy_CmxNoJem", "CMX EtSums but no JEM EtSums");
 
     m_histTool->setMonGroup(&monEnergySums);
 
     // Energy Crate/System sums
 
     m_h_cmx_2d_energy_SumsSimEqData = m_histTool->book2F(
-                                        "cmx_2d_energy_SumsSimEqData",
-                                        "Energy Totals Data/Simulation Non-zero Matches", 5, 0, 5, 11, 0, 11);
+        "cmx_2d_energy_SumsSimEqData",
+        "Energy Totals Data/Simulation Non-zero Matches", 5, 0, 5, 11, 0, 11);
     setLabelsEnTot(m_h_cmx_2d_energy_SumsSimEqData);
-    m_h_cmx_2d_energy_SumsSimNeData = m_histTool->book2F(
-                                        "cmx_2d_energy_SumsSimNeData",
-                                        "Energy Totals Data/Simulation Non-zero Mismatches", 5, 0, 5, 11, 0, 11);
+    m_h_cmx_2d_energy_SumsSimNeData =
+        m_histTool->book2F("cmx_2d_energy_SumsSimNeData",
+                           "Energy Totals Data/Simulation Non-zero Mismatches",
+                           5, 0, 5, 11, 0, 11);
     setLabelsEnTot(m_h_cmx_2d_energy_SumsSimNeData);
     m_h_cmx_2d_energy_SumsSimNoData = m_histTool->book2F(
-                                        "cmx_2d_energy_SumsSimNoData",
-                                        "Energy Totals Simulation but no Data", 5, 0, 5, 11, 0, 11);
+        "cmx_2d_energy_SumsSimNoData", "Energy Totals Simulation but no Data",
+        5, 0, 5, 11, 0, 11);
     setLabelsEnTot(m_h_cmx_2d_energy_SumsSimNoData);
     m_h_cmx_2d_energy_SumsDataNoSim = m_histTool->book2F(
-                                        "cmx_2d_energy_SumsDataNoSim",
-                                        "Energy Totals Data but no Simulation", 5, 0, 5, 11, 0, 11);
+        "cmx_2d_energy_SumsDataNoSim", "Energy Totals Data but no Simulation",
+        5, 0, 5, 11, 0, 11);
     setLabelsEnTot(m_h_cmx_2d_energy_SumsDataNoSim);
     m_h_cmx_2d_energy_EtMapsThreshSimEqData = m_histTool->book2F(
-          "cmx_2d_energy_EtMapsThreshSimEqData",
-          "Et Maps Data/Simulation Threshold Matches", 10, 0, 10, 24, 0, 24);
+        "cmx_2d_energy_EtMapsThreshSimEqData",
+        "Et Maps Data/Simulation Threshold Matches", 10, 0, 10, 24, 0, 24);
     setLabelsEnTotThr(m_h_cmx_2d_energy_EtMapsThreshSimEqData);
     m_h_cmx_2d_energy_EtMapsThreshSimNeData = m_histTool->book2F(
-          "cmx_2d_energy_EtMapsThreshSimNeData",
-          "Et Maps Data/Simulation Threshold Mismatches", 10, 0, 10, 24, 0, 24);
+        "cmx_2d_energy_EtMapsThreshSimNeData",
+        "Et Maps Data/Simulation Threshold Mismatches", 10, 0, 10, 24, 0, 24);
     setLabelsEnTotThr(m_h_cmx_2d_energy_EtMapsThreshSimNeData);
 
     // Summary
 
     m_histTool->setMonGroup(&monExpert);
 
-    m_h_jem_2d_SimEqDataOverview = m_histTool->book2F("jem_2d_SimEqDataOverview",
-                                   "JEP Transmission/Comparison with Simulation Overview - Events with Matches;Crate/Module",
-                                   36, 0, 36, NumberOfSummaryBins, 0, NumberOfSummaryBins);
+    m_h_jem_2d_SimEqDataOverview = m_histTool->book2F(
+        "jem_2d_SimEqDataOverview",
+        "JEP Transmission/Comparison with Simulation Overview - Events with "
+        "Matches;Crate/Module",
+        36, 0, 36, NumberOfSummaryBins, 0, NumberOfSummaryBins);
     m_histTool->jemCMXCrateModule(m_h_jem_2d_SimEqDataOverview);
     setLabels(m_h_jem_2d_SimEqDataOverview, false);
 
-    m_h_jem_2d_SimNeDataOverview = m_histTool->book2F("jem_2d_SimNeDataOverview",
-                                   "JEP Transmission/Comparison with Simulation Overview - Events with Mismatches;Crate/Module",
-                                   36, 0, 36, NumberOfSummaryBins, 0, NumberOfSummaryBins);
+    m_h_jem_2d_SimNeDataOverview = m_histTool->book2F(
+        "jem_2d_SimNeDataOverview",
+        "JEP Transmission/Comparison with Simulation Overview - Events with "
+        "Mismatches;Crate/Module",
+        36, 0, 36, NumberOfSummaryBins, 0, NumberOfSummaryBins);
     m_histTool->jemCMXCrateModule(m_h_jem_2d_SimNeDataOverview);
     setLabels(m_h_jem_2d_SimNeDataOverview, false);
 
     m_histTool->setMonGroup(&monShift);
 
-    m_h_jem_1d_SimNeDataSummary = m_histTool->book1F("jem_1d_SimNeDataSummary",
-                                  "JEP Transmission/Comparison with Simulation Mismatch Summary;;Events",
-                                  NumberOfSummaryBins, 0, NumberOfSummaryBins);
+    m_h_jem_1d_SimNeDataSummary = m_histTool->book1F(
+        "jem_1d_SimNeDataSummary",
+        "JEP Transmission/Comparison with Simulation Mismatch Summary;;Events",
+        NumberOfSummaryBins, 0, NumberOfSummaryBins);
     setLabels(m_h_jem_1d_SimNeDataSummary);
 
     // Mismatch Event Number Samples
@@ -536,30 +568,31 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     m_v_2d_MismatchEvents.clear();
     m_v_2d_MismatchEvents.resize(8, hist);
     hist = m_histTool->bookJEMEventVsCrateModule(
-             "jem_em_2d_jetEl_MismatchEvents",
-             "Jet Elements EM Mismatch Event Numbers");
+        "jem_em_2d_jetEl_MismatchEvents",
+        "Jet Elements EM Mismatch Event Numbers");
     m_v_2d_MismatchEvents[0] = hist;
     hist = m_histTool->bookJEMEventVsCrateModule(
-             "jem_had_2d_jetEl_MismatchEvents",
-             "Jet Elements Had Mismatch Event Numbers");
+        "jem_had_2d_jetEl_MismatchEvents",
+        "Jet Elements Had Mismatch Event Numbers");
     m_v_2d_MismatchEvents[1] = hist;
     hist = m_histTool->bookJEMEventVsCrateModule(
-             "jem_2d_roi_MismatchEvents", "JEM RoIs Mismatch Event Numbers");
+        "jem_2d_roi_MismatchEvents", "JEM RoIs Mismatch Event Numbers");
     m_v_2d_MismatchEvents[2] = hist;
     hist = m_histTool->bookJEMEventVsCrateModule(
-             "jem_2d_energy_MismatchEvents", "JEM Energy Mismatch Event Numbers");
+        "jem_2d_energy_MismatchEvents", "JEM Energy Mismatch Event Numbers");
     m_v_2d_MismatchEvents[4] = hist;
 
     m_histTool->setMonGroup(&monEvent2);
 
     hist = m_histTool->bookJEMEventVsCrateModule(
-             "cmx_2d_tob_MismatchEvents", "CMX TOBs Mismatch Event Numbers");
+        "cmx_2d_tob_MismatchEvents", "CMX TOBs Mismatch Event Numbers");
     m_v_2d_MismatchEvents[3] = hist;
     hist = m_histTool->bookJEMEventVsCrateModule(
-             "cmx_2d_energy_MismatchEvents", "CMX Energy Mismatch Event Numbers");
+        "cmx_2d_energy_MismatchEvents", "CMX Energy Mismatch Event Numbers");
     m_v_2d_MismatchEvents[5] = hist;
     hist = m_histTool->bookEventNumbers("cmx_2d_thresh_SumsMismatchEvents",
-                                        "CMX Hit Sums Mismatch Event Numbers", 6, 0., 6.);
+                                        "CMX Hit Sums Mismatch Event Numbers",
+                                        6, 0., 6.);
     axis = hist->GetYaxis();
     axis->SetBinLabel(1, "Local 0");
     axis->SetBinLabel(2, "Local 1");
@@ -568,8 +601,9 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     axis->SetBinLabel(5, "Topo 0");
     axis->SetBinLabel(6, "Topo 1");
     m_v_2d_MismatchEvents[6] = hist;
-    hist = m_histTool->bookEventNumbers("cmx_2d_energy_SumsMismatchEvents",
-                                        "CMX Energy Sums Mismatch Event Numbers", 10, 0., 10.);
+    hist = m_histTool->bookEventNumbers(
+        "cmx_2d_energy_SumsMismatchEvents",
+        "CMX Energy Sums Mismatch Event Numbers", 10, 0., 10.);
     axis = hist->GetYaxis();
     axis->SetBinLabel(1, "Modules 0");
     axis->SetBinLabel(2, "Modules 1");
@@ -586,7 +620,7 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     m_histTool->unsetMonGroup();
     m_histBooked = true;
 
-  } // end if (newRun ...
+  }  // end if (newRun ...
 
   msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
 
@@ -597,7 +631,6 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
 StatusCode JEPSimMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
-
   ATH_MSG_DEBUG("fillHistograms entered");
 
   if (!m_histBooked) {
@@ -613,71 +646,71 @@ StatusCode JEPSimMon::fillHistograms()
   }
 
   StatusCode sc;
-  //Retrieve Trigger Towers from SG
+  // Retrieve Trigger Towers from SG
   const xAOD::TriggerTowerContainer* triggerTowerTES = 0;
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation);
-  if ( sc.isFailure()  ||  !triggerTowerTES ) {
+  if (sc.isFailure() || !triggerTowerTES) {
     msg(MSG::DEBUG) << "No Trigger Tower container found" << endreq;
   }
 
-  //Retrieve Core and Overlap Jet Elements from SG
+  // Retrieve Core and Overlap Jet Elements from SG
   const xAOD::JetElementContainer* jetElementTES = 0;
   const xAOD::JetElementContainer* jetElementOvTES = 0;
   sc = evtStore()->retrieve(jetElementTES, m_jetElementLocation);
-  if ( sc.isFailure()  ||  !jetElementTES ) {
+  if (sc.isFailure() || !jetElementTES) {
     msg(MSG::DEBUG) << "No Core Jet Element container found" << endreq;
   }
   sc = evtStore()->retrieve(jetElementOvTES, m_jetElementLocationOverlap);
-  if ( sc.isFailure()  ||  !jetElementOvTES ) {
+  if (sc.isFailure() || !jetElementOvTES) {
     msg(MSG::DEBUG) << "No Overlap Jet Element container found" << endreq;
   }
-  //Retrieve JEM RoIs from SG
+  // Retrieve JEM RoIs from SG
   const xAOD::JEMTobRoIContainer* jemRoiTES = 0;
-  sc = evtStore()->retrieve( jemRoiTES, m_jemRoiLocation);
-  if ( sc.isFailure()  ||  !jemRoiTES  ||  jemRoiTES->empty() ) {
+  sc = evtStore()->retrieve(jemRoiTES, m_jemRoiLocation);
+  if (sc.isFailure() || !jemRoiTES || jemRoiTES->empty()) {
     msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endreq;
   }
 
-  //Retrieve ROD Headers from SG
+  // Retrieve ROD Headers from SG
   m_rodTES = 0;
   m_limitedRoi = 0;
-  sc = evtStore()->retrieve( m_rodTES, m_rodHeaderLocation);
-  if ( sc.isFailure()  ||  !m_rodTES ) {
+  sc = evtStore()->retrieve(m_rodTES, m_rodHeaderLocation);
+  if (sc.isFailure() || !m_rodTES) {
     msg(MSG::DEBUG) << "No ROD Header container found" << endreq;
   }
-  //Retrieve CMX-Jet TOBs from SG
+  // Retrieve CMX-Jet TOBs from SG
   const xAOD::CMXJetTobContainer* cmxJetTobTES = 0;
-  sc = evtStore()->retrieve( cmxJetTobTES, m_cmxJetTobLocation);
-  if ( sc.isFailure()  ||  !cmxJetTobTES ) {
+  sc = evtStore()->retrieve(cmxJetTobTES, m_cmxJetTobLocation);
+  if (sc.isFailure() || !cmxJetTobTES) {
     msg(MSG::DEBUG) << "No CMX-Jet TOB container found" << endreq;
   }
-  //Retrieve CMX-Jet Hits from SG
+  // Retrieve CMX-Jet Hits from SG
   const xAOD::CMXJetHitsContainer* cmxJetHitsTES = 0;
-  sc = evtStore()->retrieve( cmxJetHitsTES, m_cmxJetHitsLocation);
-  if ( sc.isFailure()  ||  !cmxJetHitsTES ) {
+  sc = evtStore()->retrieve(cmxJetHitsTES, m_cmxJetHitsLocation);
+  if (sc.isFailure() || !cmxJetHitsTES) {
     msg(MSG::DEBUG) << "No CMX-Jet Hits container found" << endreq;
   }
 
-  //Retrieve CMX RoIs from SG
+  // Retrieve CMX RoIs from SG
   const xAOD::CMXRoIContainer* cmxRoiTEScontainer = 0;
   const xAOD::CMXRoI* cmxRoiTES = 0;
-  sc = evtStore()->retrieve( cmxRoiTEScontainer, m_cmxRoiLocation);
-  if ( sc.isFailure()  ||  !cmxRoiTEScontainer || !cmxRoiTEScontainer->size() ) {
+  sc = evtStore()->retrieve(cmxRoiTEScontainer, m_cmxRoiLocation);
+  if (sc.isFailure() || !cmxRoiTEScontainer || !cmxRoiTEScontainer->size()) {
     msg(MSG::DEBUG) << "No DAQ CMX RoIs found" << endreq;
   }
   cmxRoiTES = *cmxRoiTEScontainer->begin();
 
-  //Retrieve JEM Et Sums from SG
+  // Retrieve JEM Et Sums from SG
   const xAOD::JEMEtSumsContainer* jemEtSumsTES = 0;
-  sc = evtStore()->retrieve( jemEtSumsTES, m_jemEtSumsLocation);
-  if ( sc.isFailure()  ||  !jemEtSumsTES ) {
+  sc = evtStore()->retrieve(jemEtSumsTES, m_jemEtSumsLocation);
+  if (sc.isFailure() || !jemEtSumsTES) {
     msg(MSG::DEBUG) << "No JEM Et Sums container found" << endreq;
   }
 
-  //Retrieve CMX Et Sums from SG
+  // Retrieve CMX Et Sums from SG
   const xAOD::CMXEtSumsContainer* cmxEtSumsTES = 0;
-  sc = evtStore()->retrieve( cmxEtSumsTES, m_cmxEtSumsLocation);
-  if ( sc.isFailure()  ||  !cmxEtSumsTES ) {
+  sc = evtStore()->retrieve(cmxEtSumsTES, m_cmxEtSumsLocation);
+  if (sc.isFailure() || !cmxEtSumsTES) {
     msg(MSG::DEBUG) << "No CMX-Energy Et Sums container found" << endreq;
   }
 
@@ -685,18 +718,18 @@ StatusCode JEPSimMon::fillHistograms()
 
   JetElementMap jeMap;
   JetElementMap ovMap;
-  JEMTobRoIMap     jrMap;
-  CmxJetTobMap  ctMap;
+  JEMTobRoIMap jrMap;
+  CmxJetTobMap ctMap;
   CmxJetHitsMap chMap;
-  JemEtSumsMap  jsMap;
-  CmxEtSumsMap  csMap;
-  setupMap(jetElementTES,   jeMap);
+  JemEtSumsMap jsMap;
+  CmxEtSumsMap csMap;
+  setupMap(jetElementTES, jeMap);
   setupMap(jetElementOvTES, ovMap);
-  setupMap(jemRoiTES,       jrMap);
-  setupMap(cmxJetTobTES,    ctMap);
-  setupMap(cmxJetHitsTES,   chMap);
-  setupMap(jemEtSumsTES,    jsMap);
-  setupMap(cmxEtSumsTES,    csMap);
+  setupMap(jemRoiTES, jrMap);
+  setupMap(cmxJetTobTES, ctMap);
+  setupMap(cmxJetHitsTES, chMap);
+  setupMap(jemEtSumsTES, jsMap);
+  setupMap(cmxEtSumsTES, csMap);
 
   // Vectors for error overview bits;
   const int vecsizeJem = 2 * s_crates * s_modules;
@@ -781,7 +814,8 @@ StatusCode JEPSimMon::fillHistograms()
   }
   CmxJetHitsMap cmxLocalSimMap;
   setupMap(cmxLocalSIM, cmxLocalSimMap);
-  compare(cmxLocalSimMap, chMap, errorsCMX, xAOD::CMXJetHits::Sources::LOCAL_MAIN);
+  compare(cmxLocalSimMap, chMap, errorsCMX,
+          xAOD::CMXJetHits::Sources::LOCAL_MAIN);
   cmxLocalSimMap.clear();
   delete cmxLocalSIM;
   delete cmxLocalSIMAux;
@@ -802,9 +836,11 @@ StatusCode JEPSimMon::fillHistograms()
   }
   CmxJetHitsMap cmxTotalSimMap;
   setupMap(cmxTotalSIM, cmxTotalSimMap);
-  compare(cmxTotalSimMap, chMap, errorsCMX, xAOD::CMXJetHits::Sources::TOTAL_MAIN);
+  compare(cmxTotalSimMap, chMap, errorsCMX,
+          xAOD::CMXJetHits::Sources::TOTAL_MAIN);
   cmxTotalSimMap.clear();
   delete cmxTotalSIM;
+  delete cmxTotalSIMAux;
 
   // Compare Topo Info simulated from CMX TOBs with Topo Info from data
 
@@ -814,11 +850,13 @@ StatusCode JEPSimMon::fillHistograms()
     cmxTopoSIM = new xAOD::CMXJetHitsContainer;
     cmxTopoSIMAux = new xAOD::CMXJetHitsAuxContainer;
     cmxTopoSIM->setStore(cmxTopoSIMAux);
-    simulate(cmxJetTobTES, cmxTopoSIM, xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
+    simulate(cmxJetTobTES, cmxTopoSIM,
+             xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
   }
   CmxJetHitsMap cmxTopoSimMap;
   setupMap(cmxTopoSIM, cmxTopoSimMap);
-  compare(cmxTopoSimMap, chMap, errorsCMX, xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
+  compare(cmxTopoSimMap, chMap, errorsCMX,
+          xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
   cmxTopoSimMap.clear();
   delete cmxTopoSIM;
   delete cmxTopoSIMAux;
@@ -852,11 +890,13 @@ StatusCode JEPSimMon::fillHistograms()
     cmxEtLocalSIM = new xAOD::CMXEtSumsContainer;
     cmxEtLocalSIMAux = new xAOD::CMXEtSumsAuxContainer;
     cmxEtLocalSIM->setStore(cmxEtLocalSIMAux);
-    simulate(cmxEtSumsTES, cmxEtLocalSIM, xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
+    simulate(cmxEtSumsTES, cmxEtLocalSIM,
+             xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
   }
   CmxEtSumsMap cmxEtLocalSimMap;
   setupMap(cmxEtLocalSIM, cmxEtLocalSimMap);
-  compare(cmxEtLocalSimMap, csMap, errorsCMX, xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
+  compare(cmxEtLocalSimMap, csMap, errorsCMX,
+          xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
   cmxEtLocalSimMap.clear();
   delete cmxEtLocalSIM;
   delete cmxEtLocalSIMAux;
@@ -874,11 +914,13 @@ StatusCode JEPSimMon::fillHistograms()
     cmxEtTotalSIMAux = new xAOD::CMXEtSumsAuxContainer;
     cmxEtTotalSIM->setStore(cmxEtTotalSIMAux);
 
-    simulate(cmxEtSumsTES, cmxEtTotalSIM, xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
+    simulate(cmxEtSumsTES, cmxEtTotalSIM,
+             xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
   }
   CmxEtSumsMap cmxEtTotalSimMap;
   setupMap(cmxEtTotalSIM, cmxEtTotalSimMap);
-  compare(cmxEtTotalSimMap, csMap, errorsCMX, xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
+  compare(cmxEtTotalSimMap, csMap, errorsCMX,
+          xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
   cmxEtTotalSimMap.clear();
   delete cmxEtTotalSIM;
   delete cmxEtTotalSIMAux;
@@ -893,11 +935,13 @@ StatusCode JEPSimMon::fillHistograms()
     cmxSumEtSIMAux = new xAOD::CMXEtSumsAuxContainer;
     cmxSumEtSIM->setStore(cmxSumEtSIMAux);
 
-    simulate(cmxEtSumsTES, cmxSumEtSIM, xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
+    simulate(cmxEtSumsTES, cmxSumEtSIM,
+             xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
   }
   CmxEtSumsMap cmxSumEtSimMap;
   setupMap(cmxSumEtSIM, cmxSumEtSimMap);
-  compare(cmxSumEtSimMap, csMap, errorsCMX, xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
+  compare(cmxSumEtSimMap, csMap, errorsCMX,
+          xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
   cmxSumEtSimMap.clear();
   delete cmxSumEtSIM;
   delete cmxSumEtSIMAux;
@@ -968,26 +1012,24 @@ StatusCode JEPSimMon::procHistograms()
 
 bool JEPSimMon::compare(const JetElementMap& jeSimMap,
                         const JetElementMap& jeMap, ErrorVector& errors,
-                        bool overlap)
-{
+                        bool overlap) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Simulated JetElements with data" << endreq;
   }
 
   bool mismatch = false;
 
-  JetElementMap::const_iterator simMapIter    = jeSimMap.begin();
+  JetElementMap::const_iterator simMapIter = jeSimMap.begin();
   JetElementMap::const_iterator simMapIterEnd = jeSimMap.end();
-  JetElementMap::const_iterator datMapIter    = jeMap.begin();
+  JetElementMap::const_iterator datMapIter = jeMap.begin();
   JetElementMap::const_iterator datMapIterEnd = jeMap.end();
 
   while (simMapIter != simMapIterEnd || datMapIter != datMapIterEnd) {
-
     int simKey = 0;
     int datKey = 0;
-    int simEm  = 0;
+    int simEm = 0;
     int simHad = 0;
-    int datEm  = 0;
+    int datEm = 0;
     int datHad = 0;
     double eta = 0.;
     double phi = 0.;
@@ -997,11 +1039,10 @@ bool JEPSimMon::compare(const JetElementMap& jeSimMap,
 
     if ((datMapIter == datMapIterEnd) ||
         ((simMapIter != simMapIterEnd) && (datKey > simKey))) {
-
       // Simulated JetElement but no data JetElement
 
       const xAOD::JetElement* je = simMapIter->second;
-      simEm  = je->emJetElementET();
+      simEm = je->emJetElementET();
       simHad = je->hadJetElementET();
       eta = je->eta();
       phi = je->phi();
@@ -1009,25 +1050,23 @@ bool JEPSimMon::compare(const JetElementMap& jeSimMap,
 
     } else if ((simMapIter == simMapIterEnd) ||
                ((datMapIter != datMapIterEnd) && (simKey > datKey))) {
-
       // Data JetElement but no simulated JetElement
 
       const xAOD::JetElement* je = datMapIter->second;
-      datEm  = je->emJetElementET();
+      datEm = je->emJetElementET();
       datHad = je->hadJetElementET();
       eta = je->eta();
       phi = je->phi();
       ++datMapIter;
 
     } else {
-
       // Have both
 
       const xAOD::JetElement* jeS = simMapIter->second;
       const xAOD::JetElement* jeD = datMapIter->second;
-      simEm  = jeS->emJetElementET();
+      simEm = jeS->emJetElementET();
       simHad = jeS->hadJetElementET();
-      datEm  = jeD->emJetElementET();
+      datEm = jeD->emJetElementET();
       datHad = jeD->hadJetElementET();
       eta = jeD->eta();
       phi = jeD->phi();
@@ -1042,46 +1081,52 @@ bool JEPSimMon::compare(const JetElementMap& jeSimMap,
     const LVL1::Coordinate coord(phi, eta);
     LVL1::CoordToHardware converter;
     const int crate = (overlap) ? converter.jepCrateOverlap(coord)
-                      : converter.jepCrate(coord);
-    const int jem   = (overlap) ? converter.jepModuleOverlap(coord)
-                      : converter.jepModule(coord);
+                                : converter.jepCrate(coord);
+    const int jem = (overlap) ? converter.jepModuleOverlap(coord)
+                              : converter.jepModule(coord);
     if (crate >= s_crates || jem >= s_modules) continue;
-    const int loc   = crate * s_modules + jem;
+    const int loc = crate * s_modules + jem;
     const int jemBins = s_crates * s_modules;
-    const int bitEm  = (1 << EMElementMismatch);
+    const int bitEm = (1 << EMElementMismatch);
     const int bitHad = (1 << HadElementMismatch);
-    if (simEm && simEm == datEm)    errors[loc] |= bitEm;
+    if (simEm && simEm == datEm) errors[loc] |= bitEm;
     if (simHad && simHad == datHad) errors[loc] |= bitHad;
-    if (simEm != datEm)     errors[loc + jemBins] |= bitEm;
-    if (simHad != datHad)   errors[loc + jemBins] |= bitHad;
+    if (simEm != datEm) errors[loc + jemBins] |= bitEm;
+    if (simHad != datHad) errors[loc + jemBins] |= bitHad;
     if (simEm != datEm || simHad != datHad) {
       mismatch = true;
-      ATH_MSG_VERBOSE("JE mismatch, EM data/sim: " << datEm << "/"
-                          << simEm << " Had data/sim: " << datHad << "/" << simHad
-                          << " crate/jem: " << crate << "/" << jem
-                          << " eta/phi: " << eta << "/" << phi
-      );
+      ATH_MSG_VERBOSE("JE mismatch, EM data/sim: "
+                      << datEm << "/" << simEm << " Had data/sim: " << datHad
+                      << "/" << simHad << " crate/jem: " << crate << "/" << jem
+                      << " eta/phi: " << eta << "/" << phi);
     }
     TH2F_LW* hist1 = 0;
     TH2F_LW* hist2 = 0;
     if (overlap) {
-      if (simEm && simEm == datEm)              hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimEqOverlap;
-      if (simEm && datEm && simEm != datEm)     hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNeOverlap;
-      if (simEm && !datEm)                      hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNoOverlap;
-      if (datEm && !simEm)                      hist1 = m_h_jem_em_2d_etaPhi_jetEl_OverlapNoSim;
-      if (simHad && simHad == datHad)           hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimEqOverlap;
-      if (simHad && datHad && simHad != datHad) hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNeOverlap;
-      if (simHad && !datHad)                    hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNoOverlap;
-      if (datHad && !simHad)                    hist2 = m_h_jem_had_2d_etaPhi_jetEl_OverlapNoSim;
+      if (simEm && simEm == datEm)
+        hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimEqOverlap;
+      if (simEm && datEm && simEm != datEm)
+        hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNeOverlap;
+      if (simEm && !datEm) hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNoOverlap;
+      if (datEm && !simEm) hist1 = m_h_jem_em_2d_etaPhi_jetEl_OverlapNoSim;
+      if (simHad && simHad == datHad)
+        hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimEqOverlap;
+      if (simHad && datHad && simHad != datHad)
+        hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNeOverlap;
+      if (simHad && !datHad) hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNoOverlap;
+      if (datHad && !simHad) hist2 = m_h_jem_had_2d_etaPhi_jetEl_OverlapNoSim;
     } else {
-      if (simEm && simEm == datEm)              hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimEqCore;
-      if (simEm && datEm && simEm != datEm)     hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNeCore;
-      if (simEm && !datEm)                      hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNoCore;
-      if (datEm && !simEm)                      hist1 = m_h_jem_em_2d_etaPhi_jetEl_CoreNoSim;
-      if (simHad && simHad == datHad)           hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimEqCore;
-      if (simHad && datHad && simHad != datHad) hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNeCore;
-      if (simHad && !datHad)                    hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNoCore;
-      if (datHad && !simHad)                    hist2 = m_h_jem_had_2d_etaPhi_jetEl_CoreNoSim;
+      if (simEm && simEm == datEm) hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimEqCore;
+      if (simEm && datEm && simEm != datEm)
+        hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNeCore;
+      if (simEm && !datEm) hist1 = m_h_jem_em_2d_etaPhi_jetEl_SimNoCore;
+      if (datEm && !simEm) hist1 = m_h_jem_em_2d_etaPhi_jetEl_CoreNoSim;
+      if (simHad && simHad == datHad)
+        hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimEqCore;
+      if (simHad && datHad && simHad != datHad)
+        hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNeCore;
+      if (simHad && !datHad) hist2 = m_h_jem_had_2d_etaPhi_jetEl_SimNoCore;
+      if (datHad && !simHad) hist2 = m_h_jem_had_2d_etaPhi_jetEl_CoreNoSim;
     }
     if (hist1) m_histTool->fillJEMEtaVsPhi(hist1, eta, phi);
     if (hist2) m_histTool->fillJEMEtaVsPhi(hist2, eta, phi);
@@ -1093,19 +1138,16 @@ bool JEPSimMon::compare(const JetElementMap& jeSimMap,
 //  Compare Simulated RoIs with data
 
 void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
-                        const JEMTobRoIMap& roiMap,
-                        ErrorVector& errors)
-{
+                        const JEMTobRoIMap& roiMap, ErrorVector& errors) {
   if (m_debug) msg(MSG::DEBUG) << "Compare Simulated RoIs with data" << endreq;
 
   LVL1::JEPRoIDecoder decoder;
-  JEMTobRoIMap::const_iterator simMapIter    = roiSimMap.begin();
+  JEMTobRoIMap::const_iterator simMapIter = roiSimMap.begin();
   JEMTobRoIMap::const_iterator simMapIterEnd = roiSimMap.end();
-  JEMTobRoIMap::const_iterator datMapIter    = roiMap.begin();
+  JEMTobRoIMap::const_iterator datMapIter = roiMap.begin();
   JEMTobRoIMap::const_iterator datMapIterEnd = roiMap.end();
 
   while (simMapIter != simMapIterEnd || datMapIter != datMapIterEnd) {
-
     int simKey = 0;
     int datKey = 0;
     unsigned int simEnLg = 0;
@@ -1119,7 +1161,6 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
 
     if ((datMapIter == datMapIterEnd) ||
         ((simMapIter != simMapIterEnd) && (datKey > simKey))) {
-
       // Simulated RoI but no data RoI
 
       roi = simMapIter->second;
@@ -1127,14 +1168,12 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
       simEnSm = roi->energySmall();
       ++simMapIter;
       ATH_MSG_VERBOSE("Sim  RoI crate/jem/frame/loc/energyLg/energySm: "
-            << roi->crate() << "/" << roi->jem() << "/" << roi->frame() << "/"
-            << roi->location() << "/" << roi->energyLarge() << "/"
-            << roi->energySmall()
-      );
+                      << roi->crate() << "/" << roi->jem() << "/"
+                      << roi->frame() << "/" << roi->location() << "/"
+                      << roi->energyLarge() << "/" << roi->energySmall());
 
     } else if ((simMapIter == simMapIterEnd) ||
                ((datMapIter != datMapIterEnd) && (simKey > datKey))) {
-
       // Data RoI but no simulated RoI
 
       roi = datMapIter->second;
@@ -1142,17 +1181,15 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
       datEnSm = roi->energySmall();
       ++datMapIter;
       ATH_MSG_VERBOSE("Data RoI crate/jem/frame/loc/energyLg/energySm: "
-            << roi->crate() << "/" << roi->jem() << "/" << roi->frame() << "/"
-            << roi->location() << "/" << roi->energyLarge() << "/"
-            << roi->energySmall()
-      );
+                      << roi->crate() << "/" << roi->jem() << "/"
+                      << roi->frame() << "/" << roi->location() << "/"
+                      << roi->energyLarge() << "/" << roi->energySmall());
 
     } else {
-
       // Have both
 
       const xAOD::JEMTobRoI* roiS = simMapIter->second;
-      roi     = datMapIter->second;
+      roi = datMapIter->second;
       simEnLg = roiS->energyLarge();
       simEnSm = roiS->energySmall();
       datEnLg = roi->energyLarge();
@@ -1160,15 +1197,13 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
       ++simMapIter;
       ++datMapIter;
       ATH_MSG_VERBOSE("Sim  RoI crate/jem/frame/loc/energyLg/energySm: "
-            << roiS->crate() << "/" << roiS->jem() << "/" << roiS->frame() << "/"
-            << roiS->location() << "/" << roiS->energyLarge() << "/"
-            << roiS->energySmall()
-      );
+                      << roiS->crate() << "/" << roiS->jem() << "/"
+                      << roiS->frame() << "/" << roiS->location() << "/"
+                      << roiS->energyLarge() << "/" << roiS->energySmall());
       ATH_MSG_VERBOSE("Data RoI crate/jem/frame/loc/energyLg/energySm: "
-            << roi->crate() << "/" << roi->jem() << "/" << roi->frame() << "/"
-            << roi->location() << "/" << roi->energyLarge() << "/"
-            << roi->energySmall()
-      );
+                      << roi->crate() << "/" << roi->jem() << "/"
+                      << roi->frame() << "/" << roi->location() << "/"
+                      << roi->energyLarge() << "/" << roi->energySmall());
     }
 
     if (!simEnLg && !simEnSm && !datEnLg && !datEnSm) continue;
@@ -1180,14 +1215,15 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
 
     //  Fill in error plots
 
-    const int jem   = roi->jem();
+    const int jem = roi->jem();
     const int frame = roi->frame();
     const int local = roi->location();
-    const int locX  = crate * s_modules + jem;
-    const int locY  = frame * s_locCoords + local;
+    const int locX = crate * s_modules + jem;
+    const int locY = frame * s_locCoords + local;
     const int jemBins = s_crates * s_modules;
     const int bit = (1 << RoIMismatch);
-    const LVL1::CoordinateRange coord(decoder.coordinate(roi->roiWord()));    // Should still work
+    const LVL1::CoordinateRange coord(
+        decoder.coordinate(roi->roiWord()));  // Should still work
     double eta = coord.eta();
     // Distinguish right forward columns 3 and 4 for checking purposes
     if ((jem == 7 || jem == 15) && frame > 3) eta = (local % 2) ? 4.05 : 3.2;
@@ -1242,10 +1278,8 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
 
     if (simEnLg != datEnLg || simEnSm != datEnSm) {
       ATH_MSG_VERBOSE(" RoI Mismatch Crate/JEM DataEnergy/SimEnergy: "
-                        << crate << "/" << jem << " "
-                        << datEnLg << "/" << simEnLg << " "
-                        << datEnSm << "/" << simEnSm
-     );
+                      << crate << "/" << jem << " " << datEnLg << "/" << simEnLg
+                      << " " << datEnSm << "/" << simEnSm);
     }
   }
 }
@@ -1253,20 +1287,19 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
 //  Compare simulated CMX TOBs with data
 
 void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
-                        ErrorVector& errorsJEM, ErrorVector& errorsCMX)
-{
-  if (m_debug) msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endreq;
+                        ErrorVector& errorsJEM, ErrorVector& errorsCMX) {
+  if (m_debug)
+    msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endreq;
 
   LVL1::JEPRoIDecoder decoder;
-  CmxJetTobMap::const_iterator simMapIter    = simMap.begin();
+  CmxJetTobMap::const_iterator simMapIter = simMap.begin();
   CmxJetTobMap::const_iterator simMapIterEnd = simMap.end();
-  CmxJetTobMap::const_iterator datMapIter    = datMap.begin();
+  CmxJetTobMap::const_iterator datMapIter = datMap.begin();
   CmxJetTobMap::const_iterator datMapIterEnd = datMap.end();
 
   while (simMapIter != simMapIterEnd || datMapIter != datMapIterEnd) {
-
-    int simKey  = 0;
-    int datKey  = 0;
+    int simKey = 0;
+    int datKey = 0;
     int simEnLg = 0;
     int simEnSm = 0;
     int datEnLg = 0;
@@ -1278,7 +1311,6 @@ void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
 
     if ((datMapIter == datMapIterEnd) ||
         ((simMapIter != simMapIterEnd) && (datKey > simKey))) {
-
       // Simulated TOB but no data TOB
 
       tob = simMapIter->second;
@@ -1288,7 +1320,6 @@ void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
 
     } else if ((simMapIter == simMapIterEnd) ||
                ((datMapIter != datMapIterEnd) && (simKey > datKey))) {
-
       // Data TOB but no simulated TOB
 
       tob = datMapIter->second;
@@ -1297,7 +1328,6 @@ void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
       ++datMapIter;
 
     } else {
-
       // Have both
 
       const xAOD::CMXJetTob* tobS = simMapIter->second;
@@ -1319,17 +1349,18 @@ void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
 
     //  Fill in error plots
 
-    const int cmx   = 1;                                              //<<== CHECK
-    const int jem   = tob->jem();
+    const int cmx = 1;  //<<== CHECK
+    const int jem = tob->jem();
     const int frame = tob->frame();
-    const int loc   = tob->location();
-    const int locX  = crate * s_modules + jem;
-    const int locY  = frame * 4 + loc;
-    const int loc2  = crate * s_cmxs + cmx;
+    const int loc = tob->location();
+    const int locX = crate * s_modules + jem;
+    const int locY = frame * 4 + loc;
+    const int loc2 = crate * s_cmxs + cmx;
     const int jemBins = s_crates * s_modules;
     const int cmxBins = s_crates * s_cmxs;
     const int bit = (1 << CMXJetTobMismatch);
-    const uint32_t roiWord = ((((((crate << 4) + jem) << 3) + frame) << 2) + loc) << 19;
+    const uint32_t roiWord =
+        ((((((crate << 4) + jem) << 3) + frame) << 2) + loc) << 19;
     const LVL1::CoordinateRange coord(decoder.coordinate(roiWord));
     const double eta = coord.eta();
     const double phi = coord.phi();
@@ -1386,77 +1417,77 @@ void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
       }
     }
     if (hist) m_histTool->fillJEMRoIEtaVsPhi(hist, eta, phi);
-
   }
 }
 
 //  Compare Simulated CMX Hit Sums and Data CMX Hit Sums
 
 void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
-                        const CmxJetHitsMap& cmxMap,
-                        ErrorVector& errors, int selection)
-{
+                        const CmxJetHitsMap& cmxMap, ErrorVector& errors,
+                        int selection) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Simulated CMX Hit Sums and Data CMX Hit Sums"
                     << endreq;
   }
 
-  const bool local  = (selection == xAOD::CMXJetHits::Sources::LOCAL_MAIN);
+  const bool local = (selection == xAOD::CMXJetHits::Sources::LOCAL_MAIN);
   const bool remote = (selection == xAOD::CMXJetHits::Sources::REMOTE_MAIN);
-  const bool total  = (selection == xAOD::CMXJetHits::Sources::TOTAL_MAIN);
-  const bool topo   = (selection == xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
+  const bool total = (selection == xAOD::CMXJetHits::Sources::TOTAL_MAIN);
+  const bool topo = (selection == xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
   if (!local && !remote && !total && !topo) return;
   unsigned int hitsSimMain0 = 0;
   unsigned int hitsSimMain1 = 0;
-  unsigned int hitsSimFwd0  = 0;
-  unsigned int hitsSimFwd1  = 0;
+  unsigned int hitsSimFwd0 = 0;
+  unsigned int hitsSimFwd1 = 0;
   unsigned int hitsDatMain0 = 0;
   unsigned int hitsDatMain1 = 0;
-  unsigned int hitsDatFwd0  = 0;
-  unsigned int hitsDatFwd1  = 0;
+  unsigned int hitsDatFwd0 = 0;
+  unsigned int hitsDatFwd1 = 0;
   int overflowSim = 0;
   int overflowDat = 0;
-  CmxJetHitsMap::const_iterator cmxSimMapIter    = cmxSimMap.begin();
+  CmxJetHitsMap::const_iterator cmxSimMapIter = cmxSimMap.begin();
   CmxJetHitsMap::const_iterator cmxSimMapIterEnd = cmxSimMap.end();
-  CmxJetHitsMap::const_iterator cmxMapIter       = cmxMap.begin();
-  CmxJetHitsMap::const_iterator cmxMapIterEnd    = cmxMap.end();
+  CmxJetHitsMap::const_iterator cmxMapIter = cmxMap.begin();
+  CmxJetHitsMap::const_iterator cmxMapIterEnd = cmxMap.end();
 
   while (cmxSimMapIter != cmxSimMapIterEnd || cmxMapIter != cmxMapIterEnd) {
-
     int cmxSimKey = 0;
-    int cmxKey    = 0;
+    int cmxKey = 0;
     unsigned int cmxSimHit0 = 0;
     unsigned int cmxSimHit1 = 0;
     unsigned int cmxHit0 = 0;
     unsigned int cmxHit1 = 0;
     int cmxSimOvf = 0;
-    int cmxOvf    = 0;
-    int crate  = 0;
+    int cmxOvf = 0;
+    int crate = 0;
     int source = 0;
 
     if (cmxSimMapIter != cmxSimMapIterEnd) cmxSimKey = cmxSimMapIter->first;
-    if (cmxMapIter    != cmxMapIterEnd)    cmxKey    = cmxMapIter->first;
+    if (cmxMapIter != cmxMapIterEnd) cmxKey = cmxMapIter->first;
 
     if ((cmxMapIter == cmxMapIterEnd) ||
         ((cmxSimMapIter != cmxSimMapIterEnd) && (cmxKey > cmxSimKey))) {
-
       // Sim CMX Hits but no Data CMX Hits
 
       const xAOD::CMXJetHits* cmxS = cmxSimMapIter->second;
       ++cmxSimMapIter;
       source = cmxS->sourceComponent();
-      if (local  && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
-          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD) continue;
+      if (local && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
+          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD)
+        continue;
       if (remote && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
-          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD) continue;
-      if (total  && source != xAOD::CMXJetHits::Sources::TOTAL_MAIN &&
-          source != xAOD::CMXJetHits::Sources::TOTAL_FORWARD) continue;
-      if (topo   && source != xAOD::CMXJetHits::Sources::TOPO_CHECKSUM      &&
+          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD)
+        continue;
+      if (total && source != xAOD::CMXJetHits::Sources::TOTAL_MAIN &&
+          source != xAOD::CMXJetHits::Sources::TOTAL_FORWARD)
+        continue;
+      if (topo && source != xAOD::CMXJetHits::Sources::TOPO_CHECKSUM &&
           source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_MAP &&
-          source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS) continue;
+          source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS)
+        continue;
       cmxSimHit0 = cmxS->hits0();
       cmxSimHit1 = cmxS->hits1();
-      crate      = cmxS->crate();
+      crate = cmxS->crate();
       if (remote || total) {
         LVL1::DataError err(cmxS->error0());
         cmxSimOvf = err.get(LVL1::DataError::Overflow);
@@ -1464,54 +1495,60 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
 
     } else if ((cmxSimMapIter == cmxSimMapIterEnd) ||
                ((cmxMapIter != cmxMapIterEnd) && (cmxSimKey > cmxKey))) {
-
       // Data CMX Hits but no Sim CMX Hits
 
       const xAOD::CMXJetHits* cmxD = cmxMapIter->second;
       ++cmxMapIter;
-      source   = cmxD->sourceComponent();
-      if (local  && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
-          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD)  continue;
+      source = cmxD->sourceComponent();
+      if (local && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
+          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD)
+        continue;
       if (remote && source != xAOD::CMXJetHits::Sources::REMOTE_MAIN &&
-          source != xAOD::CMXJetHits::Sources::REMOTE_FORWARD) continue;
-      if (total  && source != xAOD::CMXJetHits::Sources::TOTAL_MAIN &&
-          source != xAOD::CMXJetHits::Sources::TOTAL_FORWARD)  continue;
-      if (topo   && source != xAOD::CMXJetHits::Sources::TOPO_CHECKSUM      &&
+          source != xAOD::CMXJetHits::Sources::REMOTE_FORWARD)
+        continue;
+      if (total && source != xAOD::CMXJetHits::Sources::TOTAL_MAIN &&
+          source != xAOD::CMXJetHits::Sources::TOTAL_FORWARD)
+        continue;
+      if (topo && source != xAOD::CMXJetHits::Sources::TOPO_CHECKSUM &&
           source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_MAP &&
-          source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS) continue;
+          source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS)
+        continue;
       cmxHit0 = cmxD->hits0();
       cmxHit1 = cmxD->hits1();
-      crate   = cmxD->crate();
+      crate = cmxD->crate();
       if (remote || total) {
         LVL1::DataError err(cmxD->error0());
         cmxOvf = err.get(LVL1::DataError::Overflow);
       }
 
     } else {
-
       // Have both
 
       const xAOD::CMXJetHits* cmxS = cmxSimMapIter->second;
       const xAOD::CMXJetHits* cmxD = cmxMapIter->second;
       ++cmxSimMapIter;
       ++cmxMapIter;
-      source   = cmxS->sourceComponent();
-      if (local  && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN    &&
-          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD)  continue;
-      if (remote && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN    &&
+      source = cmxS->sourceComponent();
+      if (local && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
+          source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD)
+        continue;
+      if (remote && source != xAOD::CMXJetHits::Sources::LOCAL_MAIN &&
           source != xAOD::CMXJetHits::Sources::LOCAL_FORWARD &&
-          source != xAOD::CMXJetHits::Sources::REMOTE_MAIN   &&
-          source != xAOD::CMXJetHits::Sources::REMOTE_FORWARD) continue;
-      if (total  && source != xAOD::CMXJetHits::Sources::TOTAL_MAIN    &&
-          source != xAOD::CMXJetHits::Sources::TOTAL_FORWARD)  continue;
-      if (topo   && source != xAOD::CMXJetHits::Sources::TOPO_CHECKSUM      &&
+          source != xAOD::CMXJetHits::Sources::REMOTE_MAIN &&
+          source != xAOD::CMXJetHits::Sources::REMOTE_FORWARD)
+        continue;
+      if (total && source != xAOD::CMXJetHits::Sources::TOTAL_MAIN &&
+          source != xAOD::CMXJetHits::Sources::TOTAL_FORWARD)
+        continue;
+      if (topo && source != xAOD::CMXJetHits::Sources::TOPO_CHECKSUM &&
           source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_MAP &&
-          source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS) continue;
+          source != xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_COUNTS)
+        continue;
       cmxSimHit0 = cmxS->hits0();
       cmxSimHit1 = cmxS->hits1();
-      cmxHit0    = cmxD->hits0();
-      cmxHit1    = cmxD->hits1();
-      crate      = cmxS->crate();
+      cmxHit0 = cmxD->hits0();
+      cmxHit1 = cmxD->hits1();
+      crate = cmxS->crate();
       if (remote || total) {
         LVL1::DataError err(cmxS->error0());
         cmxSimOvf = err.get(LVL1::DataError::Overflow);
@@ -1520,17 +1557,18 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
       }
     }
 
-    if (!cmxSimHit0 && !cmxSimHit1 && !cmxHit0 && !cmxHit1 &&
-        !cmxSimOvf && !cmxOvf) continue;
+    if (!cmxSimHit0 && !cmxSimHit1 && !cmxHit0 && !cmxHit1 && !cmxSimOvf &&
+        !cmxOvf)
+      continue;
 
     //  Fill in error plots
 
     if (local || total) {
-      const int cmx = 1;                                              //<<== CHECK (and below)
+      const int cmx = 1;  //<<== CHECK (and below)
       const int loc = crate * s_cmxs + cmx;
       const int cmxBins = s_crates * s_cmxs;
-      const int bit = (local) ? (1 << LocalJetMismatch)
-                      : (1 << TotalJetMismatch);
+      const int bit =
+          (local) ? (1 << LocalJetMismatch) : (1 << TotalJetMismatch);
       TH1F_LW* hist = 0;
       if (cmxSimHit0 == cmxHit0 && cmxSimHit1 == cmxHit1) {
         errors[loc] |= bit;
@@ -1539,8 +1577,10 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
         errors[loc + cmxBins] |= bit;
         if ((cmxSimHit0 || cmxSimHit1) && (cmxHit0 || cmxHit1))
           hist = m_h_cmx_1d_thresh_SumsSimNeData;
-        else if (!cmxHit0 && !cmxHit1) hist = m_h_cmx_1d_thresh_SumsSimNoData;
-        else                           hist = m_h_cmx_1d_thresh_SumsDataNoSim;
+        else if (!cmxHit0 && !cmxHit1)
+          hist = m_h_cmx_1d_thresh_SumsSimNoData;
+        else
+          hist = m_h_cmx_1d_thresh_SumsDataNoSim;
       }
       const int loc1 = (total) ? 3 : crate;
       if (hist) hist->Fill(loc1);
@@ -1559,31 +1599,31 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
 
       int nThresh0 = 5;
       int nThresh1 = 5;
-      int thrLen   = 3;
-      int offset0  = 0;
-      int offset1  = 5;
+      int thrLen = 3;
+      int offset0 = 0;
+      int offset1 = 5;
       if (source == xAOD::CMXJetHits::Sources::LOCAL_FORWARD ||
           source == xAOD::CMXJetHits::Sources::TOTAL_FORWARD) {
         nThresh0 = 8;
         nThresh1 = 7;
-        thrLen   = 2;
-        offset0  = 10;
-        offset1  = 18;
+        thrLen = 2;
+        offset0 = 10;
+        offset1 = 18;
       }
-      int same = m_histTool->thresholdsSame(cmxHit0, cmxSimHit0, nThresh0,
-                                            thrLen);
-      int diff = m_histTool->thresholdsDiff(cmxHit0, cmxSimHit0, nThresh0,
-                                            thrLen);
-      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData,
-                                    loc1, same, nThresh0, 1, offset0);
-      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData,
-                                    loc1, diff, nThresh0, 1, offset0);
+      int same =
+          m_histTool->thresholdsSame(cmxHit0, cmxSimHit0, nThresh0, thrLen);
+      int diff =
+          m_histTool->thresholdsDiff(cmxHit0, cmxSimHit0, nThresh0, thrLen);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData, loc1,
+                                    same, nThresh0, 1, offset0);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData, loc1,
+                                    diff, nThresh0, 1, offset0);
       same = m_histTool->thresholdsSame(cmxHit1, cmxSimHit1, nThresh1, thrLen);
       diff = m_histTool->thresholdsDiff(cmxHit1, cmxSimHit1, nThresh1, thrLen);
-      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData,
-                                    loc1, same, nThresh1, 1, offset1);
-      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData,
-                                    loc1, diff, nThresh1, 1, offset1);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData, loc1,
+                                    same, nThresh1, 1, offset1);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData, loc1,
+                                    diff, nThresh1, 1, offset1);
     } else if (topo) {
       const int cmx = 1;
       const int loc = crate * s_cmxs + cmx;
@@ -1597,32 +1637,36 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
         errors[loc + cmxBins] |= bit;
         if ((cmxSimHit0 || cmxSimHit1) && (cmxHit0 || cmxHit1))
           hist = m_h_cmx_2d_topo_SimNeData;
-        else if (!cmxHit0 && !cmxHit1) hist = m_h_cmx_2d_topo_SimNoData;
-        else                           hist = m_h_cmx_2d_topo_DataNoSim;
+        else if (!cmxHit0 && !cmxHit1)
+          hist = m_h_cmx_2d_topo_SimNoData;
+        else
+          hist = m_h_cmx_2d_topo_DataNoSim;
       }
-      const int loc1 = (source == xAOD::CMXJetHits::Sources::TOPO_CHECKSUM)
-                       ? 0 : (source == xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_MAP)
-                       ? 1 : 2;
+      const int loc1 =
+          (source == xAOD::CMXJetHits::Sources::TOPO_CHECKSUM)
+              ? 0
+              : (source == xAOD::CMXJetHits::Sources::TOPO_OCCUPANCY_MAP) ? 1
+                                                                          : 2;
       if (hist) hist->Fill(crate, loc1);
     } else {
       if (source == xAOD::CMXJetHits::Sources::LOCAL_MAIN) {
         if (crate == 0) {
           hitsSimMain0 = cmxSimHit0;
           hitsSimMain1 = cmxSimHit1;
-          overflowSim  = cmxSimOvf;
+          overflowSim = cmxSimOvf;
         }
       } else if (source == xAOD::CMXJetHits::Sources::LOCAL_FORWARD) {
         if (crate == 0) {
-          hitsSimFwd0  = cmxSimHit0;
-          hitsSimFwd1  = cmxSimHit1;
+          hitsSimFwd0 = cmxSimHit0;
+          hitsSimFwd1 = cmxSimHit1;
         }
       } else if (source == xAOD::CMXJetHits::Sources::REMOTE_MAIN) {
         hitsDatMain0 = cmxHit0;
         hitsDatMain1 = cmxHit1;
-        overflowDat  = cmxOvf;
+        overflowDat = cmxOvf;
       } else {
-        hitsDatFwd0  = cmxHit0;
-        hitsDatFwd1  = cmxHit1;
+        hitsDatFwd0 = cmxHit0;
+        hitsDatFwd1 = cmxHit1;
       }
     }
   }
@@ -1645,7 +1689,8 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
           hist = m_h_cmx_1d_thresh_SumsSimNeData;
         else if (!hitsDatMain0 && !hitsDatMain1)
           hist = m_h_cmx_1d_thresh_SumsSimNoData;
-        else hist = m_h_cmx_1d_thresh_SumsDataNoSim;
+        else
+          hist = m_h_cmx_1d_thresh_SumsDataNoSim;
       }
       if (hist) hist->Fill(loc1);
     }
@@ -1660,7 +1705,8 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
           hist = m_h_cmx_1d_thresh_SumsSimNeData;
         else if (!hitsDatFwd0 && !hitsDatFwd1)
           hist = m_h_cmx_1d_thresh_SumsSimNoData;
-        else hist = m_h_cmx_1d_thresh_SumsDataNoSim;
+        else
+          hist = m_h_cmx_1d_thresh_SumsDataNoSim;
       }
       if (hist) hist->Fill(loc1);
     }
@@ -1677,60 +1723,61 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
     }
 
     const int mainLen = 3;
-    const int fwdLen  = 2;
+    const int fwdLen = 2;
     int nThresh = 5;
     int offset = nThresh;
     int same = m_histTool->thresholdsSame(hitsDatMain0, hitsSimMain0, nThresh,
                                           mainLen);
     int diff = m_histTool->thresholdsDiff(hitsDatMain0, hitsSimMain0, nThresh,
                                           mainLen);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData,
-                                  loc1, same, nThresh, 1);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData,
-                                  loc1, diff, nThresh, 1);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData, loc1,
+                                  same, nThresh, 1);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData, loc1,
+                                  diff, nThresh, 1);
     same = m_histTool->thresholdsSame(hitsDatMain1, hitsSimMain1, nThresh,
                                       mainLen);
     diff = m_histTool->thresholdsDiff(hitsDatMain1, hitsSimMain1, nThresh,
                                       mainLen);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData,
-                                  loc1, same, nThresh, 1, offset);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData,
-                                  loc1, diff, nThresh, 1, offset);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData, loc1,
+                                  same, nThresh, 1, offset);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData, loc1,
+                                  diff, nThresh, 1, offset);
     offset += nThresh;
     nThresh = 8;
-    same = m_histTool->thresholdsSame(hitsDatFwd0, hitsSimFwd0, nThresh, fwdLen);
-    diff = m_histTool->thresholdsDiff(hitsDatFwd0, hitsSimFwd0, nThresh, fwdLen);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData,
-                                  loc1, same, nThresh, 1, offset);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData,
-                                  loc1, diff, nThresh, 1, offset);
+    same =
+        m_histTool->thresholdsSame(hitsDatFwd0, hitsSimFwd0, nThresh, fwdLen);
+    diff =
+        m_histTool->thresholdsDiff(hitsDatFwd0, hitsSimFwd0, nThresh, fwdLen);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData, loc1,
+                                  same, nThresh, 1, offset);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData, loc1,
+                                  diff, nThresh, 1, offset);
     offset += nThresh;
     nThresh = 7;
-    same = m_histTool->thresholdsSame(hitsDatFwd1, hitsSimFwd1, nThresh, fwdLen);
-    diff = m_histTool->thresholdsDiff(hitsDatFwd1, hitsSimFwd1, nThresh, fwdLen);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData,
-                                  loc1, same, nThresh, 1, offset);
-    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData,
-                                  loc1, diff, nThresh, 1, offset);
+    same =
+        m_histTool->thresholdsSame(hitsDatFwd1, hitsSimFwd1, nThresh, fwdLen);
+    diff =
+        m_histTool->thresholdsDiff(hitsDatFwd1, hitsSimFwd1, nThresh, fwdLen);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimEqData, loc1,
+                                  same, nThresh, 1, offset);
+    m_histTool->fillXVsThresholds(m_h_cmx_2d_thresh_SumsThreshSimNeData, loc1,
+                                  diff, nThresh, 1, offset);
   }
 }
 
 //  Compare simulated JEM Et Sums with data
 
 void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
-                        const JemEtSumsMap& jemMap,
-                        ErrorVector& errors)
-{
-  if (m_debug) msg(MSG::DEBUG) << "Compare simulated JEM Et Sums with data"
-                                 << endreq;
+                        const JemEtSumsMap& jemMap, ErrorVector& errors) {
+  if (m_debug)
+    msg(MSG::DEBUG) << "Compare simulated JEM Et Sums with data" << endreq;
 
-  JemEtSumsMap::const_iterator simMapIter    = jemSimMap.begin();
+  JemEtSumsMap::const_iterator simMapIter = jemSimMap.begin();
   JemEtSumsMap::const_iterator simMapIterEnd = jemSimMap.end();
-  JemEtSumsMap::const_iterator datMapIter    = jemMap.begin();
+  JemEtSumsMap::const_iterator datMapIter = jemMap.begin();
   JemEtSumsMap::const_iterator datMapIterEnd = jemMap.end();
 
   while (simMapIter != simMapIterEnd || datMapIter != datMapIterEnd) {
-
     int simKey = 0;
     int datKey = 0;
     unsigned int simEt = 0;
@@ -1740,14 +1787,13 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
     unsigned int datEx = 0;
     unsigned int datEy = 0;
     int crate = 0;
-    int jem   = 0;
+    int jem = 0;
 
     if (simMapIter != simMapIterEnd) simKey = simMapIter->first;
     if (datMapIter != datMapIterEnd) datKey = datMapIter->first;
 
     if ((datMapIter == datMapIterEnd) ||
         ((simMapIter != simMapIterEnd) && (datKey > simKey))) {
-
       // Simulation EtSums but no data EtSums
 
       const xAOD::JEMEtSums* sime = simMapIter->second;
@@ -1755,12 +1801,11 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
       simEx = sime->ex();
       simEy = sime->ey();
       crate = sime->crate();
-      jem   = sime->module();
+      jem = sime->module();
       ++simMapIter;
 
     } else if ((simMapIter == simMapIterEnd) ||
                ((datMapIter != datMapIterEnd) && (simKey > datKey))) {
-
       // Data EtSums but no simulation EtSums
 
       const xAOD::JEMEtSums* date = datMapIter->second;
@@ -1768,11 +1813,10 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
       datEx = date->ex();
       datEy = date->ey();
       crate = date->crate();
-      jem   = date->module();
+      jem = date->module();
       ++datMapIter;
 
     } else {
-
       // Have both
 
       const xAOD::JEMEtSums* sime = simMapIter->second;
@@ -1784,7 +1828,7 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
       datEx = date->ex();
       datEy = date->ey();
       crate = date->crate();
-      jem   = date->module();
+      jem = date->module();
       ++simMapIter;
       ++datMapIter;
     }
@@ -1800,34 +1844,45 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
     if (simEt != datEt || simEx != datEx || simEy != datEy)
       errors[loc + jemBins] |= bit;
     if (simEt != datEt || simEx != datEx || simEy != datEy) {
-      ATH_MSG_VERBOSE(
-          "EtSums Mismatch Crate/JEM, Data Et/Ex/Ey, Sim Et/Ex/Ey: "
-          << crate << "/" << jem << ", "
-          << datEt << "/" << datEx << "/" << datEy << ", "
-          << simEt << "/" << simEx << "/" << simEy);
+      ATH_MSG_VERBOSE("EtSums Mismatch Crate/JEM, Data Et/Ex/Ey, Sim Et/Ex/Ey: "
+                      << crate << "/" << jem << ", " << datEt << "/" << datEx
+                      << "/" << datEy << ", " << simEt << "/" << simEx << "/"
+                      << simEy);
     }
     TH2F_LW* hist = 0;
-    if (simEx && simEx == datEx) hist = m_h_jem_2d_energy_SimEqData;
+    if (simEx && simEx == datEx)
+      hist = m_h_jem_2d_energy_SimEqData;
     else if (simEx != datEx) {
-      if (simEx && datEx) hist = m_h_jem_2d_energy_SimNeData;
-      else if (!datEx)    hist = m_h_jem_2d_energy_SimNoData;
-      else                hist = m_h_jem_2d_energy_DataNoSim;
+      if (simEx && datEx)
+        hist = m_h_jem_2d_energy_SimNeData;
+      else if (!datEx)
+        hist = m_h_jem_2d_energy_SimNoData;
+      else
+        hist = m_h_jem_2d_energy_DataNoSim;
     }
     if (hist) hist->Fill(loc, 0);
     hist = 0;
-    if (simEy && simEy == datEy) hist = m_h_jem_2d_energy_SimEqData;
+    if (simEy && simEy == datEy)
+      hist = m_h_jem_2d_energy_SimEqData;
     else if (simEy != datEy) {
-      if (simEy && datEy) hist = m_h_jem_2d_energy_SimNeData;
-      else if (!datEy)    hist = m_h_jem_2d_energy_SimNoData;
-      else                hist = m_h_jem_2d_energy_DataNoSim;
+      if (simEy && datEy)
+        hist = m_h_jem_2d_energy_SimNeData;
+      else if (!datEy)
+        hist = m_h_jem_2d_energy_SimNoData;
+      else
+        hist = m_h_jem_2d_energy_DataNoSim;
     }
     if (hist) hist->Fill(loc, 1);
     hist = 0;
-    if (simEt && simEt == datEt) hist = m_h_jem_2d_energy_SimEqData;
+    if (simEt && simEt == datEt)
+      hist = m_h_jem_2d_energy_SimEqData;
     else if (simEt != datEt) {
-      if (simEt && datEt) hist = m_h_jem_2d_energy_SimNeData;
-      else if (!datEt)    hist = m_h_jem_2d_energy_SimNoData;
-      else                hist = m_h_jem_2d_energy_DataNoSim;
+      if (simEt && datEt)
+        hist = m_h_jem_2d_energy_SimNeData;
+      else if (!datEt)
+        hist = m_h_jem_2d_energy_SimNoData;
+      else
+        hist = m_h_jem_2d_energy_DataNoSim;
     }
     if (hist) hist->Fill(loc, 2);
   }
@@ -1835,20 +1890,16 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
 
 //  Compare JEM EtSums and CMX EtSums
 
-void JEPSimMon::compare(const JemEtSumsMap& jemMap,
-                        const CmxEtSumsMap& cmxMap,
-                        ErrorVector& errorsJEM,
-                        ErrorVector& errorsCMX)
-{
+void JEPSimMon::compare(const JemEtSumsMap& jemMap, const CmxEtSumsMap& cmxMap,
+                        ErrorVector& errorsJEM, ErrorVector& errorsCMX) {
   if (m_debug) msg(MSG::DEBUG) << "Compare JEM EtSums and CMX EtSums" << endreq;
 
-  JemEtSumsMap::const_iterator jemMapIter    = jemMap.begin();
+  JemEtSumsMap::const_iterator jemMapIter = jemMap.begin();
   JemEtSumsMap::const_iterator jemMapIterEnd = jemMap.end();
-  CmxEtSumsMap::const_iterator cmxMapIter    = cmxMap.begin();
+  CmxEtSumsMap::const_iterator cmxMapIter = cmxMap.begin();
   CmxEtSumsMap::const_iterator cmxMapIterEnd = cmxMap.end();
 
   while (jemMapIter != jemMapIterEnd || cmxMapIter != cmxMapIterEnd) {
-
     int jemKey = 0;
     int cmxKey = 0;
     unsigned int jemEt = 0;
@@ -1857,15 +1908,14 @@ void JEPSimMon::compare(const JemEtSumsMap& jemMap,
     unsigned int cmxEt = 0;
     unsigned int cmxEx = 0;
     unsigned int cmxEy = 0;
-    int crate  = 0;
-    int jem    = 0;
+    int crate = 0;
+    int jem = 0;
 
     if (jemMapIter != jemMapIterEnd) jemKey = jemMapIter->first;
     if (cmxMapIter != cmxMapIterEnd) cmxKey = cmxMapIter->first;
 
     if ((cmxMapIter == cmxMapIterEnd) ||
         ((jemMapIter != jemMapIterEnd) && (cmxKey > jemKey))) {
-
       // JEM EtSums but no CMX EtSums
 
       const xAOD::JEMEtSums* jeme = jemMapIter->second;
@@ -1873,12 +1923,11 @@ void JEPSimMon::compare(const JemEtSumsMap& jemMap,
       jemEx = jeme->ex();
       jemEy = jeme->ey();
       crate = jeme->crate();
-      jem   = jeme->module();
+      jem = jeme->module();
       ++jemMapIter;
 
     } else if ((jemMapIter == jemMapIterEnd) ||
                ((cmxMapIter != cmxMapIterEnd) && (jemKey > cmxKey))) {
-
       // CMX EtSums but no JEM EtSums
 
       const xAOD::CMXEtSums* cmxe = cmxMapIter->second;
@@ -1886,12 +1935,11 @@ void JEPSimMon::compare(const JemEtSumsMap& jemMap,
       cmxEx = cmxe->ex();
       cmxEy = cmxe->ey();
       crate = cmxe->crate();
-      jem   = cmxe->sourceComponent();
+      jem = cmxe->sourceComponent();
       ++cmxMapIter;
       if (jem > 15) continue;
 
     } else {
-
       // Have both
 
       const xAOD::JEMEtSums* jeme = jemMapIter->second;
@@ -1903,7 +1951,7 @@ void JEPSimMon::compare(const JemEtSumsMap& jemMap,
       cmxEx = cmxe->ex();
       cmxEy = cmxe->ey();
       crate = jeme->crate();
-      jem   = jeme->module();
+      jem = jeme->module();
       ++jemMapIter;
       ++cmxMapIter;
     }
@@ -1912,41 +1960,53 @@ void JEPSimMon::compare(const JemEtSumsMap& jemMap,
 
     //  Fill in error vectors
 
-    const int cmx = 0; // CMX-Energy is left ==> cmx 0                        << CHECK
-    const int loc  = crate * s_modules + jem;
+    const int cmx = 0;  // CMX-Energy is left ==> cmx 0 << CHECK
+    const int loc = crate * s_modules + jem;
     const int loc2 = crate * s_cmxs + cmx;
     const int jemBins = s_crates * s_modules;
     const int cmxBins = s_crates * s_cmxs;
     const int bit = (1 << CMXEtSumsMismatch);
     if (jemEt == cmxEt && jemEx == cmxEx && jemEy == cmxEy) {
-      errorsJEM[loc]  |= bit;
+      errorsJEM[loc] |= bit;
       errorsCMX[loc2] |= bit;
     } else {
-      errorsJEM[loc + jemBins]  |= bit;
+      errorsJEM[loc + jemBins] |= bit;
       errorsCMX[loc2 + cmxBins] |= bit;
     }
     TH2F_LW* hist = 0;
-    if (jemEx && jemEx == cmxEx) hist = m_h_cmx_2d_energy_JemEqCmx;
+    if (jemEx && jemEx == cmxEx)
+      hist = m_h_cmx_2d_energy_JemEqCmx;
     else if (jemEx != cmxEx) {
-      if (jemEx && cmxEx) hist = m_h_cmx_2d_energy_JemNeCmx;
-      else if (!cmxEx)    hist = m_h_cmx_2d_energy_JemNoCmx;
-      else                hist = m_h_cmx_2d_energy_CmxNoJem;
+      if (jemEx && cmxEx)
+        hist = m_h_cmx_2d_energy_JemNeCmx;
+      else if (!cmxEx)
+        hist = m_h_cmx_2d_energy_JemNoCmx;
+      else
+        hist = m_h_cmx_2d_energy_CmxNoJem;
     }
     if (hist) hist->Fill(loc, 0);
     hist = 0;
-    if (jemEy && jemEy == cmxEy) hist = m_h_cmx_2d_energy_JemEqCmx;
+    if (jemEy && jemEy == cmxEy)
+      hist = m_h_cmx_2d_energy_JemEqCmx;
     else if (jemEy != cmxEy) {
-      if (jemEy && cmxEy) hist = m_h_cmx_2d_energy_JemNeCmx;
-      else if (!cmxEy)    hist = m_h_cmx_2d_energy_JemNoCmx;
-      else                hist = m_h_cmx_2d_energy_CmxNoJem;
+      if (jemEy && cmxEy)
+        hist = m_h_cmx_2d_energy_JemNeCmx;
+      else if (!cmxEy)
+        hist = m_h_cmx_2d_energy_JemNoCmx;
+      else
+        hist = m_h_cmx_2d_energy_CmxNoJem;
     }
     if (hist) hist->Fill(loc, 1);
     hist = 0;
-    if (jemEt && jemEt == cmxEt) hist = m_h_cmx_2d_energy_JemEqCmx;
+    if (jemEt && jemEt == cmxEt)
+      hist = m_h_cmx_2d_energy_JemEqCmx;
     else if (jemEt != cmxEt) {
-      if (jemEt && cmxEt) hist = m_h_cmx_2d_energy_JemNeCmx;
-      else if (!cmxEt)    hist = m_h_cmx_2d_energy_JemNoCmx;
-      else                hist = m_h_cmx_2d_energy_CmxNoJem;
+      if (jemEt && cmxEt)
+        hist = m_h_cmx_2d_energy_JemNeCmx;
+      else if (!cmxEt)
+        hist = m_h_cmx_2d_energy_JemNoCmx;
+      else
+        hist = m_h_cmx_2d_energy_CmxNoJem;
     }
     if (hist) hist->Fill(loc, 2);
   }
@@ -1955,100 +2015,104 @@ void JEPSimMon::compare(const JemEtSumsMap& jemMap,
 //  Compare Simulated CMX EtSums and Data CMX EtSums
 
 void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
-                        const CmxEtSumsMap& cmxMap,
-                        ErrorVector& errors, int selection)
-{
+                        const CmxEtSumsMap& cmxMap, ErrorVector& errors,
+                        int selection) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Simulated CMX EtSums and Data CMX EtSums"
                     << endreq;
   }
 
-  const bool local  = (selection == xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
+  const bool local = (selection == xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
   const bool remote = (selection == xAOD::CMXEtSums::Sources::REMOTE_STANDARD);
-  const bool total  = (selection == xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
+  const bool total = (selection == xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
   const bool etmaps = (selection == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
   if (!local && !remote && !total && !etmaps) return;
-  unsigned int localEt   = 0;
-  unsigned int localEx   = 0;
-  unsigned int localEy   = 0;
-  unsigned int localEtM  = 0;
-  unsigned int localExM  = 0;
-  unsigned int localEyM  = 0;
-  unsigned int remoteEt  = 0;
-  unsigned int remoteEx  = 0;
-  unsigned int remoteEy  = 0;
+  unsigned int localEt = 0;
+  unsigned int localEx = 0;
+  unsigned int localEy = 0;
+  unsigned int localEtM = 0;
+  unsigned int localExM = 0;
+  unsigned int localEyM = 0;
+  unsigned int remoteEt = 0;
+  unsigned int remoteEx = 0;
+  unsigned int remoteEy = 0;
   unsigned int remoteEtM = 0;
   unsigned int remoteExM = 0;
   unsigned int remoteEyM = 0;
-  CmxEtSumsMap::const_iterator cmxSimMapIter    = cmxSimMap.begin();
+  CmxEtSumsMap::const_iterator cmxSimMapIter = cmxSimMap.begin();
   CmxEtSumsMap::const_iterator cmxSimMapIterEnd = cmxSimMap.end();
-  CmxEtSumsMap::const_iterator cmxMapIter       = cmxMap.begin();
-  CmxEtSumsMap::const_iterator cmxMapIterEnd    = cmxMap.end();
+  CmxEtSumsMap::const_iterator cmxMapIter = cmxMap.begin();
+  CmxEtSumsMap::const_iterator cmxMapIterEnd = cmxMap.end();
 
   while (cmxSimMapIter != cmxSimMapIterEnd || cmxMapIter != cmxMapIterEnd) {
-
     int cmxSimKey = 0;
-    int cmxKey    = 0;
+    int cmxKey = 0;
     unsigned int cmxSimEt = 0;
     unsigned int cmxSimEx = 0;
     unsigned int cmxSimEy = 0;
     unsigned int cmxEt = 0;
     unsigned int cmxEx = 0;
     unsigned int cmxEy = 0;
-    int crate  = 0;
+    int crate = 0;
     int source = 0;
 
     if (cmxSimMapIter != cmxSimMapIterEnd) cmxSimKey = cmxSimMapIter->first;
-    if (cmxMapIter    != cmxMapIterEnd)    cmxKey    = cmxMapIter->first;
+    if (cmxMapIter != cmxMapIterEnd) cmxKey = cmxMapIter->first;
 
     if ((cmxMapIter == cmxMapIterEnd) ||
         ((cmxSimMapIter != cmxSimMapIterEnd) && (cmxKey > cmxSimKey))) {
-
       // Sim CMX EtSums but no Data CMX EtSums
 
       const xAOD::CMXEtSums* cmxS = cmxSimMapIter->second;
       ++cmxSimMapIter;
       source = cmxS->sourceComponent();
-      if (local  && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED) continue;
+      if (local && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
+          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED)
+        continue;
       if (remote && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED) continue;
-      if (total  && source != xAOD::CMXEtSums::Sources::TOTAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED) continue;
+          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED)
+        continue;
+      if (total && source != xAOD::CMXEtSums::Sources::TOTAL_STANDARD &&
+          source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
+        continue;
       if (etmaps && source != xAOD::CMXEtSums::Sources::SUM_ET_STANDARD &&
           source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED &&
           source != xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD &&
           source != xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED &&
-          source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD) continue;
+          source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD)
+        continue;
       cmxSimEt = cmxS->et();
       cmxSimEx = cmxS->ex();
       cmxSimEy = cmxS->ey();
-      if (!etmaps) { // include overflow bit in test
+      if (!etmaps) {  // include overflow bit in test
         cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
         cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
         cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
       }
-      crate    = cmxS->crate();
+      crate = cmxS->crate();
 
     } else if ((cmxSimMapIter == cmxSimMapIterEnd) ||
                ((cmxMapIter != cmxMapIterEnd) && (cmxSimKey > cmxKey))) {
-
       // Data CMX EtSums but no Sim CMX EtSums
 
       const xAOD::CMXEtSums* cmxD = cmxMapIter->second;
       ++cmxMapIter;
-      source   = cmxD->sourceComponent();
-      if (local  && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED)  continue;
+      source = cmxD->sourceComponent();
+      if (local && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
+          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED)
+        continue;
       if (remote && source != xAOD::CMXEtSums::Sources::REMOTE_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED) continue;
-      if (total  && source != xAOD::CMXEtSums::Sources::TOTAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)  continue;
+          source != xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED)
+        continue;
+      if (total && source != xAOD::CMXEtSums::Sources::TOTAL_STANDARD &&
+          source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
+        continue;
       if (etmaps && source != xAOD::CMXEtSums::Sources::SUM_ET_STANDARD &&
           source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED &&
           source != xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD &&
           source != xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED &&
-          source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD) continue;
+          source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD)
+        continue;
       cmxEt = cmxD->et();
       cmxEx = cmxD->ex();
       cmxEy = cmxD->ey();
@@ -2060,42 +2124,45 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
       crate = cmxD->crate();
 
     } else {
-
       // Have both
 
       const xAOD::CMXEtSums* cmxS = cmxSimMapIter->second;
       const xAOD::CMXEtSums* cmxD = cmxMapIter->second;
       ++cmxSimMapIter;
       ++cmxMapIter;
-      source   = cmxS->sourceComponent();
-      if (local  && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED)  continue;
+      source = cmxS->sourceComponent();
+      if (local && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
+          source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED)
+        continue;
       if (remote && source != xAOD::CMXEtSums::Sources::LOCAL_STANDARD &&
           source != xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED &&
           source != xAOD::CMXEtSums::Sources::REMOTE_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED) continue;
-      if (total  && source != xAOD::CMXEtSums::Sources::TOTAL_STANDARD &&
-          source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)  continue;
+          source != xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED)
+        continue;
+      if (total && source != xAOD::CMXEtSums::Sources::TOTAL_STANDARD &&
+          source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
+        continue;
       if (etmaps && source != xAOD::CMXEtSums::Sources::SUM_ET_STANDARD &&
           source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED &&
           source != xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD &&
           source != xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED &&
-          source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD) continue;
+          source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD)
+        continue;
       cmxSimEt = cmxS->et();
       cmxSimEx = cmxS->ex();
       cmxSimEy = cmxS->ey();
-      cmxEt    = cmxD->et();
-      cmxEx    = cmxD->ex();
-      cmxEy    = cmxD->ey();
+      cmxEt = cmxD->et();
+      cmxEx = cmxD->ex();
+      cmxEy = cmxD->ey();
       if (!etmaps) {
         cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
         cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
         cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
-        cmxEt    |= ((cmxD->etError() & 0x1) << 15);
-        cmxEx    |= ((cmxD->exError() & 0x1) << 15);
-        cmxEy    |= ((cmxD->eyError() & 0x1) << 15);
+        cmxEt |= ((cmxD->etError() & 0x1) << 15);
+        cmxEx |= ((cmxD->exError() & 0x1) << 15);
+        cmxEy |= ((cmxD->eyError() & 0x1) << 15);
       }
-      crate    = cmxS->crate();
+      crate = cmxS->crate();
     }
 
     if (!cmxSimEt && !cmxSimEx && !cmxSimEy && !cmxEt && !cmxEx && !cmxEy)
@@ -2104,66 +2171,92 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
     //  Fill in error vectors
 
     if (local || total || etmaps) {
-      const int cmx = 0;                                                       //<< CHECK
+      const int cmx = 0;  //<< CHECK
       const int loc = crate * s_cmxs + cmx;
       const int cmxBins = s_crates * s_cmxs;
-      const int bit = (local)
-                      ? (1 << LocalEnergyMismatch)
-                      : (total)
-                      ? (1 << TotalEnergyMismatch)
-                      : (source == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD ||
-                         source == xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED)
-                      ? (1 << SumEtMismatch)
-                      : (source == xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD ||
-                         source == xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED)
-                      ? (1 << MissingEtMismatch)
-                      : (1 << MissingEtSigMismatch);
-      const int offset = (source == xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED  ||
-                          source == xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED ||
-                          source == xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED  ||
-                          source == xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED ||
-                          source == xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED) ? 6 : 0;
+      const int bit =
+          (local)
+              ? (1 << LocalEnergyMismatch)
+              : (total)
+                    ? (1 << TotalEnergyMismatch)
+                    : (source == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD ||
+                       source == xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED)
+                          ? (1 << SumEtMismatch)
+                          : (source == xAOD::CMXEtSums::Sources::
+                                           MISSING_ET_STANDARD ||
+                             source == xAOD::CMXEtSums::Sources::
+                                           MISSING_ET_RESTRICTED)
+                                ? (1 << MissingEtMismatch)
+                                : (1 << MissingEtSigMismatch);
+      const int offset =
+          (source == xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED ||
+           source == xAOD::CMXEtSums::Sources::REMOTE_RESTRICTED ||
+           source == xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED ||
+           source == xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED ||
+           source == xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED)
+              ? 6
+              : 0;
       if (cmxSimEt == cmxEt && cmxSimEx == cmxEx && cmxSimEy == cmxEy) {
         errors[loc] |= bit;
-      } else errors[loc + cmxBins] |= bit;
+      } else
+        errors[loc + cmxBins] |= bit;
       const int loc1 = (local) ? crate : 3;
       if (local || total) {
         TH2F_LW* hist = 0;
-        if (cmxSimEx && cmxSimEx == cmxEx) hist = m_h_cmx_2d_energy_SumsSimEqData;
+        if (cmxSimEx && cmxSimEx == cmxEx)
+          hist = m_h_cmx_2d_energy_SumsSimEqData;
         else if (cmxSimEx != cmxEx) {
-          if (cmxSimEx && cmxEx) hist = m_h_cmx_2d_energy_SumsSimNeData;
-          else if (!cmxEx)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-          else                   hist = m_h_cmx_2d_energy_SumsDataNoSim;
+          if (cmxSimEx && cmxEx)
+            hist = m_h_cmx_2d_energy_SumsSimNeData;
+          else if (!cmxEx)
+            hist = m_h_cmx_2d_energy_SumsSimNoData;
+          else
+            hist = m_h_cmx_2d_energy_SumsDataNoSim;
         }
         if (hist) hist->Fill(loc1, 0 + offset);
         hist = 0;
-        if (cmxSimEy && cmxSimEy == cmxEy) hist = m_h_cmx_2d_energy_SumsSimEqData;
+        if (cmxSimEy && cmxSimEy == cmxEy)
+          hist = m_h_cmx_2d_energy_SumsSimEqData;
         else if (cmxSimEy != cmxEy) {
-          if (cmxSimEy && cmxEy) hist = m_h_cmx_2d_energy_SumsSimNeData;
-          else if (!cmxEy)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-          else                   hist = m_h_cmx_2d_energy_SumsDataNoSim;
+          if (cmxSimEy && cmxEy)
+            hist = m_h_cmx_2d_energy_SumsSimNeData;
+          else if (!cmxEy)
+            hist = m_h_cmx_2d_energy_SumsSimNoData;
+          else
+            hist = m_h_cmx_2d_energy_SumsDataNoSim;
         }
         if (hist) hist->Fill(loc1, 1 + offset);
         hist = 0;
-        if (cmxSimEt && cmxSimEt == cmxEt) hist = m_h_cmx_2d_energy_SumsSimEqData;
+        if (cmxSimEt && cmxSimEt == cmxEt)
+          hist = m_h_cmx_2d_energy_SumsSimEqData;
         else if (cmxSimEt != cmxEt) {
-          if (cmxSimEt && cmxEt) hist = m_h_cmx_2d_energy_SumsSimNeData;
-          else if (!cmxEt)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-          else                   hist = m_h_cmx_2d_energy_SumsDataNoSim;
+          if (cmxSimEt && cmxEt)
+            hist = m_h_cmx_2d_energy_SumsSimNeData;
+          else if (!cmxEt)
+            hist = m_h_cmx_2d_energy_SumsSimNoData;
+          else
+            hist = m_h_cmx_2d_energy_SumsDataNoSim;
         }
         if (hist) hist->Fill(loc1, 2 + offset);
       } else {
-        const int loc2 = (source == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD ||
-                          source == xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED)
-                         ? 3 : (source == xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD ||
-                                source == xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED)
-                         ? 4 : 5;
+        const int loc2 =
+            (source == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD ||
+             source == xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED)
+                ? 3
+                : (source == xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD ||
+                   source == xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED)
+                      ? 4
+                      : 5;
         TH2F_LW* hist = 0;
-        if (cmxSimEt && cmxSimEt == cmxEt) hist = m_h_cmx_2d_energy_SumsSimEqData;
+        if (cmxSimEt && cmxSimEt == cmxEt)
+          hist = m_h_cmx_2d_energy_SumsSimEqData;
         else if (cmxSimEt != cmxEt) {
-          if (cmxSimEt && cmxEt) hist = m_h_cmx_2d_energy_SumsSimNeData;
-          else if (!cmxEt)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-          else                   hist = m_h_cmx_2d_energy_SumsDataNoSim;
+          if (cmxSimEt && cmxEt)
+            hist = m_h_cmx_2d_energy_SumsSimNeData;
+          else if (!cmxEt)
+            hist = m_h_cmx_2d_energy_SumsSimNoData;
+          else
+            hist = m_h_cmx_2d_energy_SumsDataNoSim;
         }
         if (hist) hist->Fill(loc1, loc2 + offset);
         if (cmxSimEt || cmxEt) {
@@ -2174,15 +2267,17 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
               source == xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED) {
             loc3 = 2;
             offset2 = 8;
-          }
-          else if (source == xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD) {
+          } else if (source ==
+                     xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD) {
             loc3 = 4;
             offset2 = 16;
           }
           m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData,
-                                        loc3 + offset, cmxEt & cmxSimEt, nThresh, 1, offset2);
+                                        loc3 + offset, cmxEt & cmxSimEt,
+                                        nThresh, 1, offset2);
           m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData,
-                                        loc3 + offset, cmxEt ^ cmxSimEt, nThresh, 1, offset2);
+                                        loc3 + offset, cmxEt ^ cmxSimEt,
+                                        nThresh, 1, offset2);
         }
       }
     } else {
@@ -2209,65 +2304,90 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
       }
     }
   }
-  if (remote && (localEt   || localEx   || localEy  ||
-                 localEtM  || localExM  || localEyM ||
-                 remoteEt  || remoteEx  || remoteEy ||
-                 remoteEtM || remoteExM || remoteEyM)) {
+  if (remote && (localEt || localEx || localEy || localEtM || localExM ||
+                 localEyM || remoteEt || remoteEx || remoteEy || remoteEtM ||
+                 remoteExM || remoteEyM)) {
     const int crate = 1;
     const int cmx = 0;
     const int loc = crate * s_cmxs + cmx;
     const int cmxBins = s_crates * s_cmxs;
     const int bit = (1 << RemoteEnergyMismatch);
     if (localEt == remoteEt && localEx == remoteEx && localEy == remoteEy &&
-        localEtM == remoteEtM && localExM == remoteExM && localEyM == remoteEyM) {
+        localEtM == remoteEtM && localExM == remoteExM &&
+        localEyM == remoteEyM) {
       errors[loc] |= bit;
-    } else errors[loc + cmxBins] |= bit;
+    } else
+      errors[loc + cmxBins] |= bit;
     TH2F_LW* hist = 0;
-    if (localEx && localEx == remoteEx) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (localEx && localEx == remoteEx)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (localEx != remoteEx) {
-      if (localEx && remoteEx) hist = m_h_cmx_2d_energy_SumsSimNeData;
-      else if (!remoteEx)      hist = m_h_cmx_2d_energy_SumsSimNoData;
-      else                     hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      if (localEx && remoteEx)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!remoteEx)
+        hist = m_h_cmx_2d_energy_SumsSimNoData;
+      else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(2, 0);
     hist = 0;
-    if (localEy && localEy == remoteEy) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (localEy && localEy == remoteEy)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (localEy != remoteEy) {
-      if (localEy && remoteEy) hist = m_h_cmx_2d_energy_SumsSimNeData;
-      else if (!remoteEy)      hist = m_h_cmx_2d_energy_SumsSimNoData;
-      else                     hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      if (localEy && remoteEy)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!remoteEy)
+        hist = m_h_cmx_2d_energy_SumsSimNoData;
+      else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(2, 1);
     hist = 0;
-    if (localEt && localEt == remoteEt) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (localEt && localEt == remoteEt)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (localEt != remoteEt) {
-      if (localEt && remoteEt) hist = m_h_cmx_2d_energy_SumsSimNeData;
-      else if (!remoteEt)      hist = m_h_cmx_2d_energy_SumsSimNoData;
-      else                     hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      if (localEt && remoteEt)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!remoteEt)
+        hist = m_h_cmx_2d_energy_SumsSimNoData;
+      else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(2, 2);
     hist = 0;
-    if (localExM && localExM == remoteExM) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (localExM && localExM == remoteExM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (localExM != remoteExM) {
-      if (localExM && remoteExM) hist = m_h_cmx_2d_energy_SumsSimNeData;
-      else if (!remoteExM)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-      else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      if (localExM && remoteExM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!remoteExM)
+        hist = m_h_cmx_2d_energy_SumsSimNoData;
+      else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(2, 6);
     hist = 0;
-    if (localEyM && localEyM == remoteEyM) hist = m_h_cmx_2d_energy_SumsSimEqData;
-    else if (localEyM !=  remoteEyM) {
-      if (localEyM && remoteEyM) hist = m_h_cmx_2d_energy_SumsSimNeData;
-      else if (!remoteEyM)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-      else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    if (localEyM && localEyM == remoteEyM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (localEyM != remoteEyM) {
+      if (localEyM && remoteEyM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!remoteEyM)
+        hist = m_h_cmx_2d_energy_SumsSimNoData;
+      else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(2, 7);
     hist = 0;
-    if (localEtM && localEtM == remoteEtM) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (localEtM && localEtM == remoteEtM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (localEtM != remoteEtM) {
-      if (localEtM && remoteEtM) hist = m_h_cmx_2d_energy_SumsSimNeData;
-      else if (!remoteEtM)       hist = m_h_cmx_2d_energy_SumsSimNoData;
-      else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      if (localEtM && remoteEtM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!remoteEtM)
+        hist = m_h_cmx_2d_energy_SumsSimNoData;
+      else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(2, 8);
   }
@@ -2275,10 +2395,8 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
 
 // Compare Et Maps and Energy Totals with Energy RoIs from data
 
-void JEPSimMon::compare(const CmxEtSumsMap& cmxMap,
-                        const xAOD::CMXRoI* cmxRoi,
-                        ErrorVector& errors)
-{
+void JEPSimMon::compare(const CmxEtSumsMap& cmxMap, const xAOD::CMXRoI* cmxRoi,
+                        ErrorVector& errors) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Et Maps and Energy Totals with RoIs from data"
                     << endreq;
@@ -2361,218 +2479,268 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxMap,
     eyRoi = (cmxRoi->ey() | ((cmxRoi->eyError() & 0x1) << 15));
     sumEtRoiM = cmxRoi->sumEtHits(LVL1::CMXRoI::MASKED);
     missEtRoiM = cmxRoi->missingEtHits(LVL1::CMXRoI::MASKED);
-    etRoiM = (cmxRoi->et(LVL1::CMXRoI::MASKED) | ((cmxRoi->etError() & 0x1) << 15));
-    exRoiM = (cmxRoi->ex(LVL1::CMXRoI::MASKED) | ((cmxRoi->exError() & 0x1) << 15));
-    eyRoiM = (cmxRoi->ey(LVL1::CMXRoI::MASKED) | ((cmxRoi->eyError() & 0x1) << 15));
+    etRoiM =
+        (cmxRoi->et(LVL1::CMXRoI::MASKED) | ((cmxRoi->etError() & 0x1) << 15));
+    exRoiM =
+        (cmxRoi->ex(LVL1::CMXRoI::MASKED) | ((cmxRoi->exError() & 0x1) << 15));
+    eyRoiM =
+        (cmxRoi->ey(LVL1::CMXRoI::MASKED) | ((cmxRoi->eyError() & 0x1) << 15));
   }
-  if (sumEtMap || sumEtRoi || missEtMap || missEtRoi ||
-      missEtSigMap || missEtSigRoi ||
-      et || etRoi || ex || exRoi || ey || eyRoi ||
-      sumEtMapM || sumEtRoiM || missEtMapM || missEtRoiM ||
-      etM || etRoiM || exM || exRoiM || eyM || eyRoiM) {
+  if (sumEtMap || sumEtRoi || missEtMap || missEtRoi || missEtSigMap ||
+      missEtSigRoi || et || etRoi || ex || exRoi || ey || eyRoi || sumEtMapM ||
+      sumEtRoiM || missEtMapM || missEtRoiM || etM || etRoiM || exM || exRoiM ||
+      eyM || eyRoiM) {
     const int crate = 1;
     const int cmx = 0;
     const int loc = crate * s_cmxs + cmx;
     const int cmxBins = s_crates * s_cmxs;
     const int bit = (1 << EnergyRoIMismatch);
     if (sumEtMap == sumEtRoi && missEtMap == missEtRoi &&
-        missEtSigMap == missEtSigRoi &&
-        et == etRoi && ex == exRoi && ey == eyRoi &&
-        sumEtMapM == sumEtRoiM && missEtMapM == missEtRoiM &&
-        etM == etRoiM && exM == exRoiM && eyM == eyRoiM) errors[loc] |= bit;
-    else errors[loc + cmxBins] |= bit;
+        missEtSigMap == missEtSigRoi && et == etRoi && ex == exRoi &&
+        ey == eyRoi && sumEtMapM == sumEtRoiM && missEtMapM == missEtRoiM &&
+        etM == etRoiM && exM == exRoiM && eyM == eyRoiM)
+      errors[loc] |= bit;
+    else
+      errors[loc + cmxBins] |= bit;
     TH2F_LW* hist = 0;
-    if (ex && ex == exRoi)         hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (ex && ex == exRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (ex != exRoi) {
-      if (ex && exRoi)             hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (ex && exRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!exRoi) {
         if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 0);
     hist = 0;
-    if (ey && ey == eyRoi)         hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (ey && ey == eyRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (ey != eyRoi) {
-      if (ey && eyRoi)             hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (ey && eyRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!eyRoi) {
         if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 1);
     hist = 0;
-    if (et && et == etRoi)         hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (et && et == etRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (et != etRoi) {
-      if (et && etRoi)             hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (et && etRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!etRoi) {
         if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 2);
     hist = 0;
-    if (sumEtMap && sumEtMap == sumEtRoi) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (sumEtMap && sumEtMap == sumEtRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (sumEtMap != sumEtRoi) {
-      if (sumEtMap && sumEtRoi)           hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (sumEtMap && sumEtRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!sumEtRoi) {
-        if (!limitedRoiSet(crate))        hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                              hist = m_h_cmx_2d_energy_SumsDataNoSim;
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 3);
     hist = 0;
-    if (missEtMap && missEtMap == missEtRoi) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (missEtMap && missEtMap == missEtRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (missEtMap != missEtRoi) {
-      if (missEtMap && missEtRoi)            hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (missEtMap && missEtRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!missEtRoi) {
-        if (!limitedRoiSet(crate))           hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                                 hist = m_h_cmx_2d_energy_SumsDataNoSim;
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 4);
     hist = 0;
-    if (missEtSigMap && missEtSigMap == missEtSigRoi) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (missEtSigMap && missEtSigMap == missEtSigRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (missEtSigMap != missEtSigRoi) {
-      if (missEtSigMap && missEtSigRoi)               hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (missEtSigMap && missEtSigRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!missEtSigRoi) {
-        if (!limitedRoiSet(crate))                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                                          hist = m_h_cmx_2d_energy_SumsDataNoSim;
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 5);
     hist = 0;
-    if (exM && exM == exRoiM)      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (exM && exM == exRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (exM != exRoiM) {
-      if (exM && exRoiM)           hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (exM && exRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!exRoiM) {
         if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 6);
     hist = 0;
-    if (eyM && eyM == eyRoiM)      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (eyM && eyM == eyRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (eyM != eyRoiM) {
-      if (eyM && eyRoiM)           hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (eyM && eyRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!eyRoiM) {
         if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 7);
     hist = 0;
-    if (etM && etM == etRoiM)      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (etM && etM == etRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (etM != etRoiM) {
-      if (etM && etRoiM)           hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (etM && etRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!etRoiM) {
         if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                       hist = m_h_cmx_2d_energy_SumsDataNoSim;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 8);
     hist = 0;
-    if (sumEtMapM && sumEtMapM == sumEtRoiM) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (sumEtMapM && sumEtMapM == sumEtRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (sumEtMapM != sumEtRoiM) {
-      if (sumEtMapM && sumEtRoiM)            hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (sumEtMapM && sumEtRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!sumEtRoiM) {
-        if (!limitedRoiSet(crate))           hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                                 hist = m_h_cmx_2d_energy_SumsDataNoSim;
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 9);
     hist = 0;
-    if (missEtMapM && missEtMapM == missEtRoiM) hist = m_h_cmx_2d_energy_SumsSimEqData;
+    if (missEtMapM && missEtMapM == missEtRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
     else if (missEtMapM != missEtRoiM) {
-      if (missEtMapM && missEtRoiM)             hist = m_h_cmx_2d_energy_SumsSimNeData;
+      if (missEtMapM && missEtRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
       else if (!missEtRoiM) {
-        if (!limitedRoiSet(crate))              hist = m_h_cmx_2d_energy_SumsSimNoData;
-      } else                                    hist = m_h_cmx_2d_energy_SumsDataNoSim;
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
     }
     if (hist) hist->Fill(4, 10);
 
     const int thrLen = 1;
     const int nThresh = 8;
-    if ((sumEtMap || sumEtRoi) && !(sumEtMap && !sumEtRoi
-                                    && limitedRoiSet(crate))) {
+    if ((sumEtMap || sumEtRoi) &&
+        !(sumEtMap && !sumEtRoi && limitedRoiSet(crate))) {
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 1,
                                     sumEtRoi & sumEtMap, nThresh, thrLen);
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 1,
                                     sumEtRoi ^ sumEtMap, nThresh, thrLen);
     }
-    if ((missEtMap || missEtRoi) && !(missEtMap && !missEtRoi
-                                      && limitedRoiSet(crate))) {
-      const int offset  = 8;
+    if ((missEtMap || missEtRoi) &&
+        !(missEtMap && !missEtRoi && limitedRoiSet(crate))) {
+      const int offset = 8;
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 3,
-                                    missEtRoi & missEtMap, nThresh, thrLen, offset);
+                                    missEtRoi & missEtMap, nThresh, thrLen,
+                                    offset);
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 3,
-                                    missEtRoi ^ missEtMap, nThresh, thrLen, offset);
+                                    missEtRoi ^ missEtMap, nThresh, thrLen,
+                                    offset);
     }
-    if ((missEtSigMap || missEtSigRoi) && !(missEtSigMap && !missEtSigRoi
-                                            && limitedRoiSet(crate))) {
-      const int offset  = 16;
+    if ((missEtSigMap || missEtSigRoi) &&
+        !(missEtSigMap && !missEtSigRoi && limitedRoiSet(crate))) {
+      const int offset = 16;
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 5,
-                                    missEtSigRoi & missEtSigMap, nThresh, thrLen, offset);
+                                    missEtSigRoi & missEtSigMap, nThresh,
+                                    thrLen, offset);
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 5,
-                                    missEtSigRoi ^ missEtSigMap, nThresh, thrLen, offset);
+                                    missEtSigRoi ^ missEtSigMap, nThresh,
+                                    thrLen, offset);
     }
-    if ((sumEtMapM || sumEtRoiM) && !(sumEtMapM && !sumEtRoiM
-                                      && limitedRoiSet(crate))) {
+    if ((sumEtMapM || sumEtRoiM) &&
+        !(sumEtMapM && !sumEtRoiM && limitedRoiSet(crate))) {
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 7,
                                     sumEtRoiM & sumEtMapM, nThresh, thrLen);
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 7,
                                     sumEtRoiM ^ sumEtMapM, nThresh, thrLen);
     }
-    if ((missEtMapM || missEtRoiM) && !(missEtMapM && !missEtRoiM
-                                        && limitedRoiSet(crate))) {
-      const int offset  = 8;
+    if ((missEtMapM || missEtRoiM) &&
+        !(missEtMapM && !missEtRoiM && limitedRoiSet(crate))) {
+      const int offset = 8;
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 9,
-                                    missEtRoiM & missEtMapM, nThresh, thrLen, offset);
+                                    missEtRoiM & missEtMapM, nThresh, thrLen,
+                                    offset);
       m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 9,
-                                    missEtRoiM ^ missEtMapM, nThresh, thrLen, offset);
+                                    missEtRoiM ^ missEtMapM, nThresh, thrLen,
+                                    offset);
     }
   }
 }
 
-void JEPSimMon::fillEventSample(int err, int loc, bool isJem)
-{
+void JEPSimMon::fillEventSample(int err, int loc, bool isJem) {
   int hist = 0;
-  int y    = 0;
+  int y = 0;
   if (isJem) {
     hist = (err < 4) ? err : err - 4;
-    y    = loc;
+    y = loc;
   } else {
     hist = (err < 8) ? 6 : 7;
-    y = loc / s_cmxs; // crate number
-    if      (err == RemoteJetMismatch)    y = 2; // first 2 Local 0/1
-    else if (err == TotalJetMismatch)     y = 3;
-    else if (err == CMXJetTopoMismatch)   y += 4;
-    else if (err == LocalEnergyMismatch)  y += 2;// first 2 Module 0/1
-    else if (err == RemoteEnergyMismatch) y = 4;
-    else if (err == TotalEnergyMismatch)  y = 5;
-    else if (err == SumEtMismatch)        y = 6;
-    else if (err == MissingEtMismatch)    y = 7;
-    else if (err == MissingEtSigMismatch) y = 8;
-    else if (err == EnergyRoIMismatch)    y = 9;
+    y = loc / s_cmxs;  // crate number
+    if (err == RemoteJetMismatch)
+      y = 2;  // first 2 Local 0/1
+    else if (err == TotalJetMismatch)
+      y = 3;
+    else if (err == CMXJetTopoMismatch)
+      y += 4;
+    else if (err == LocalEnergyMismatch)
+      y += 2;  // first 2 Module 0/1
+    else if (err == RemoteEnergyMismatch)
+      y = 4;
+    else if (err == TotalEnergyMismatch)
+      y = 5;
+    else if (err == SumEtMismatch)
+      y = 6;
+    else if (err == MissingEtMismatch)
+      y = 7;
+    else if (err == MissingEtSigMismatch)
+      y = 8;
+    else if (err == EnergyRoIMismatch)
+      y = 9;
   }
-  if (m_v_2d_MismatchEvents[hist]) m_histTool->fillEventNumber(m_v_2d_MismatchEvents[hist], y);
+  if (m_v_2d_MismatchEvents[hist])
+    m_histTool->fillEventNumber(m_v_2d_MismatchEvents[hist], y);
 }
 
-void JEPSimMon::setLabels(LWHist* hist, bool xAxis)
-{
+void JEPSimMon::setLabels(LWHist* hist, bool xAxis) {
   // Simulation steps in red (#color[2]) depend on Trigger Menu
   LWHist::LWHistAxis* axis = (xAxis) ? hist->GetXaxis() : hist->GetYaxis();
-  axis->SetBinLabel(1 + EMElementMismatch,    "EM je");
-  axis->SetBinLabel(1 + HadElementMismatch,   "Had je");
-  axis->SetBinLabel(1 + RoIMismatch,          "#color[2]{RoIs}");
-  axis->SetBinLabel(1 + CMXJetTobMismatch,    "CMXTob");
-  axis->SetBinLabel(1 + LocalJetMismatch,     "#color[2]{Local}");
-  axis->SetBinLabel(1 + RemoteJetMismatch,    "Remote");
-  axis->SetBinLabel(1 + TotalJetMismatch,     "Total");
-  axis->SetBinLabel(1 + CMXJetTopoMismatch,   "Topo");
-  axis->SetBinLabel(1 + JEMEtSumsMismatch,    "JEMSums");
-  axis->SetBinLabel(1 + CMXEtSumsMismatch,    "CMXSums");
-  axis->SetBinLabel(1 + LocalEnergyMismatch,  "#color[2]{Local}");
+  axis->SetBinLabel(1 + EMElementMismatch, "EM je");
+  axis->SetBinLabel(1 + HadElementMismatch, "Had je");
+  axis->SetBinLabel(1 + RoIMismatch, "#color[2]{RoIs}");
+  axis->SetBinLabel(1 + CMXJetTobMismatch, "CMXTob");
+  axis->SetBinLabel(1 + LocalJetMismatch, "#color[2]{Local}");
+  axis->SetBinLabel(1 + RemoteJetMismatch, "Remote");
+  axis->SetBinLabel(1 + TotalJetMismatch, "Total");
+  axis->SetBinLabel(1 + CMXJetTopoMismatch, "Topo");
+  axis->SetBinLabel(1 + JEMEtSumsMismatch, "JEMSums");
+  axis->SetBinLabel(1 + CMXEtSumsMismatch, "CMXSums");
+  axis->SetBinLabel(1 + LocalEnergyMismatch, "#color[2]{Local}");
   axis->SetBinLabel(1 + RemoteEnergyMismatch, "Remote");
-  axis->SetBinLabel(1 + TotalEnergyMismatch,  "Total");
-  axis->SetBinLabel(1 + SumEtMismatch,        "#color[2]{SumEt}");
-  axis->SetBinLabel(1 + MissingEtMismatch,    "#color[2]{MissingEt}");
+  axis->SetBinLabel(1 + TotalEnergyMismatch, "Total");
+  axis->SetBinLabel(1 + SumEtMismatch, "#color[2]{SumEt}");
+  axis->SetBinLabel(1 + MissingEtMismatch, "#color[2]{MissingEt}");
   axis->SetBinLabel(1 + MissingEtSigMismatch, "#color[2]{MissEtSig}");
-  axis->SetBinLabel(1 + EnergyRoIMismatch,    "Engy RoIs");
+  axis->SetBinLabel(1 + EnergyRoIMismatch, "Engy RoIs");
 }
 
-void JEPSimMon::setLabelsSH(LWHist* hist)
-{
+void JEPSimMon::setLabelsSH(LWHist* hist) {
   LWHist::LWHistAxis* axis = hist->GetXaxis();
   axis->SetBinLabel(1, "Local0");
   axis->SetBinLabel(2, "Local1");
@@ -2580,14 +2748,12 @@ void JEPSimMon::setLabelsSH(LWHist* hist)
   axis->SetBinLabel(4, "Total");
 }
 
-void JEPSimMon::setLabelsSHF(LWHist* hist)
-{
+void JEPSimMon::setLabelsSHF(LWHist* hist) {
   setLabelsSH(hist);
   m_histTool->jemThresholds(hist, 0, false);
 }
 
-void JEPSimMon::setLabelsTopo(TH2F_LW* hist)
-{
+void JEPSimMon::setLabelsTopo(TH2F_LW* hist) {
   LWHist::LWHistAxis* axis = hist->GetXaxis();
   axis->SetBinLabel(1, "Crate 0");
   axis->SetBinLabel(2, "Crate 1");
@@ -2598,8 +2764,7 @@ void JEPSimMon::setLabelsTopo(TH2F_LW* hist)
   axis->SetTitle("Topo Info");
 }
 
-void JEPSimMon::setLabelsEnTot(LWHist* hist)
-{
+void JEPSimMon::setLabelsEnTot(LWHist* hist) {
   LWHist::LWHistAxis* axis = hist->GetXaxis();
   axis->SetBinLabel(1, "Local0");
   axis->SetBinLabel(2, "Local1");
@@ -2620,8 +2785,7 @@ void JEPSimMon::setLabelsEnTot(LWHist* hist)
   axis->SetBinLabel(11, "MissingEtM");
 }
 
-void JEPSimMon::setLabelsEnTotThr(LWHist* hist)
-{
+void JEPSimMon::setLabelsEnTotThr(LWHist* hist) {
   LWHist::LWHistAxis* axis = hist->GetXaxis();
   axis->SetBinLabel(1, "SumEt");
   axis->SetBinLabel(2, "SumEt RoI");
@@ -2639,88 +2803,86 @@ void JEPSimMon::setLabelsEnTotThr(LWHist* hist)
 }
 
 void JEPSimMon::setupMap(const xAOD::JetElementContainer* coll,
-                         JetElementMap& map)
-{
+                         JetElementMap& map) {
   if (coll) m_jetElementTool->mapJetElements(coll, &map);
 }
 
-void JEPSimMon::setupMap(const xAOD::JEMTobRoIContainer* coll, JEMTobRoIMap& map)
-{
+void JEPSimMon::setupMap(const xAOD::JEMTobRoIContainer* coll,
+                         JEMTobRoIMap& map) {
   if (coll) {
-    xAOD::JEMTobRoIContainer::const_iterator pos  = coll->begin();
+    xAOD::JEMTobRoIContainer::const_iterator pos = coll->begin();
     xAOD::JEMTobRoIContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
       const int crate = (*pos)->crate();
-      const int jem   = (*pos)->jem();
+      const int jem = (*pos)->jem();
       const int frame = (*pos)->frame();
-      const int loc   = (*pos)->location();
-      const int key   = ((((((crate << 4) | jem) << 3) | frame) << 3) | loc);
+      const int loc = (*pos)->location();
+      const int key = ((((((crate << 4) | jem) << 3) | frame) << 3) | loc);
       map.insert(std::make_pair(key, *pos));
     }
   }
 }
 
-void JEPSimMon::setupMap(const xAOD::CMXJetTobContainer* coll, CmxJetTobMap& map)
-{
+void JEPSimMon::setupMap(const xAOD::CMXJetTobContainer* coll,
+                         CmxJetTobMap& map) {
   if (coll) {
-    xAOD::CMXJetTobContainer::const_iterator pos  = coll->begin();
+    xAOD::CMXJetTobContainer::const_iterator pos = coll->begin();
     xAOD::CMXJetTobContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
       const int crate = (*pos)->crate();
-      const int jem   = (*pos)->jem();
+      const int jem = (*pos)->jem();
       const int frame = (*pos)->frame();
-      const int loc   = (*pos)->location();
-      const int key   = ((((((crate << 4) | jem) << 3) | frame) << 3) | loc);
+      const int loc = (*pos)->location();
+      const int key = ((((((crate << 4) | jem) << 3) | frame) << 3) | loc);
       map.insert(std::make_pair(key, *pos));
     }
   }
 }
 
-void JEPSimMon::setupMap(const xAOD::CMXJetHitsContainer* coll, CmxJetHitsMap& map)
-{
+void JEPSimMon::setupMap(const xAOD::CMXJetHitsContainer* coll,
+                         CmxJetHitsMap& map) {
   if (coll) {
-    xAOD::CMXJetHitsContainer::const_iterator pos  = coll->begin();
+    xAOD::CMXJetHitsContainer::const_iterator pos = coll->begin();
     xAOD::CMXJetHitsContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
-      const int crate  = (*pos)->crate();
+      const int crate = (*pos)->crate();
       const int source = (*pos)->sourceComponent();
-      const int key  = crate * 100 + source;
+      const int key = crate * 100 + source;
       map.insert(std::make_pair(key, *pos));
     }
   }
 }
 
-void JEPSimMon::setupMap(const xAOD::JEMEtSumsContainer* coll, JemEtSumsMap& map)
-{
+void JEPSimMon::setupMap(const xAOD::JEMEtSumsContainer* coll,
+                         JemEtSumsMap& map) {
   if (coll) {
-    xAOD::JEMEtSumsContainer::const_iterator pos  = coll->begin();
+    xAOD::JEMEtSumsContainer::const_iterator pos = coll->begin();
     xAOD::JEMEtSumsContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
       const int crate = (*pos)->crate();
-      const int jem   = (*pos)->module();
-      const int key   = crate * 100 + jem;
+      const int jem = (*pos)->module();
+      const int key = crate * 100 + jem;
       map.insert(std::make_pair(key, *pos));
     }
   }
 }
 
-void JEPSimMon::setupMap(const xAOD::CMXEtSumsContainer* coll, CmxEtSumsMap& map)
-{
+void JEPSimMon::setupMap(const xAOD::CMXEtSumsContainer* coll,
+                         CmxEtSumsMap& map) {
   if (coll) {
-    xAOD::CMXEtSumsContainer::const_iterator pos  = coll->begin();
+    xAOD::CMXEtSumsContainer::const_iterator pos = coll->begin();
     xAOD::CMXEtSumsContainer::const_iterator posE = coll->end();
     for (; pos != posE; ++pos) {
-      const int crate  = (*pos)->crate();
+      const int crate = (*pos)->crate();
       const int source = (*pos)->sourceComponent();
-      const int key  = crate * 100 + source;
+      const int key = crate * 100 + source;
       map.insert(std::make_pair(key, *pos));
     }
   }
 }
 
 void JEPSimMon::simulate(const xAOD::TriggerTowerContainer* towers,
-                         xAOD::JetElementContainer* elements)
-{
+                         xAOD::JetElementContainer* elements) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Simulate Jet Elements from Trigger Towers" << endreq;
   }
@@ -2728,17 +2890,19 @@ void JEPSimMon::simulate(const xAOD::TriggerTowerContainer* towers,
   // Make zero-suppressed collection to speed up simulation
 
   xAOD::TriggerTowerContainer* towersZ = new xAOD::TriggerTowerContainer;
-  xAOD::TriggerTowerAuxContainer* towersZAux = new xAOD::TriggerTowerAuxContainer;
+  xAOD::TriggerTowerAuxContainer* towersZAux =
+      new xAOD::TriggerTowerAuxContainer;
   towersZ->setStore(towersZAux);
-  
-  xAOD::TriggerTowerContainer::const_iterator pos  = towers->begin();
+
+  xAOD::TriggerTowerContainer::const_iterator pos = towers->begin();
   xAOD::TriggerTowerContainer::const_iterator posE = towers->end();
   for (; pos != posE; ++pos) {
     if ((*pos)->cpET() > 0 || (*pos)->jepET() > 0) {
       xAOD::TriggerTower* tt = new xAOD::TriggerTower;
-      *tt = **pos; 
+      *tt = **pos;
       towersZ->push_back(tt);
-      // ATH_MSG_INFO("SASHA: " << tt->adc().size() << " " << tt->adc()[tt->adcPeak()]);
+      // ATH_MSG_INFO("SASHA: " << tt->adc().size() << " " <<
+      // tt->adc()[tt->adcPeak()]);
     }
   }
   m_jetElementTool->makeJetElements(towersZ, elements);
@@ -2748,14 +2912,13 @@ void JEPSimMon::simulate(const xAOD::TriggerTowerContainer* towers,
 
 void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
                          const xAOD::JetElementContainer* elementsOv,
-                         xAOD::JEMTobRoIContainer* rois)
-{
+                         xAOD::JEMTobRoIContainer* rois) {
   ATH_MSG_DEBUG("Simulate JEM RoIs from Jet Elements");
 
   // Process a crate at a time to use overlap data
   const int ncrates = 2;
   std::vector<xAOD::JetElementContainer*> crateColl;
-  
+
   for (int crate = 0; crate < ncrates; ++crate) {
     crateColl.push_back(new xAOD::JetElementContainer(SG::VIEW_ELEMENTS));
   }
@@ -2764,7 +2927,7 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
   xAOD::JetElementContainer::const_iterator iter;
   xAOD::JetElementContainer::const_iterator iterE;
   if (elements) {  // core data
-    iter  = elements->begin();
+    iter = elements->begin();
     iterE = elements->end();
     for (; iter != iterE; ++iter) {
       xAOD::JetElementContainer::value_type je = *iter;
@@ -2774,16 +2937,16 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
     }
   }
   if (elementsOv) {  // overlap data
-    iter  = elementsOv->begin();
+    iter = elementsOv->begin();
     iterE = elementsOv->end();
     for (; iter != iterE; ++iter) {
-      xAOD::JetElementContainer::value_type  je = *iter;
+      xAOD::JetElementContainer::value_type je = *iter;
       const LVL1::Coordinate coord(je->phi(), je->eta());
       const int crate = converter.jepCrateOverlap(coord);
       if (crate < ncrates) crateColl[crate]->push_back(je);
     }
   } else if (elements) {  // take overlap from core
-    iter  = elements->begin();
+    iter = elements->begin();
     iterE = elements->end();
     for (; iter != iterE; ++iter) {
       xAOD::JetElementContainer::value_type je = *iter;
@@ -2795,7 +2958,7 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
   for (int crate = 0; crate < ncrates; ++crate) {
     InternalRoiCollection* intRois = new InternalRoiCollection;
     m_jetTool->findRoIs(crateColl[crate], intRois);
-    
+
     for (auto it = intRois->begin(); it != intRois->end(); ++it) {
       xAOD::JEMTobRoI* roi = (*it)->jemTobRoI();
       if (roi->crate() == crate) {
@@ -2804,9 +2967,9 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
         delete roi;
       }
     }
-    
+
     // xAOD::JEMTobRoIContainer* roiTemp = new xAOD::JEMTobRoIContainer;
-        
+
     // m_jetCmxTool->formJEMTobRoI(intRois, roiTemp);
     // xAOD::JEMTobRoIContainer::iterator roiIter  = roiTemp->begin();
     // xAOD::JEMTobRoIContainer::iterator roiIterE = roiTemp->end();
@@ -2816,7 +2979,7 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
     //   }
     // }
     delete intRois;
-    //delete roiTemp;
+    // delete roiTemp;
     delete crateColl[crate];
   }
 }
@@ -2824,8 +2987,7 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
 // Quicker version when core and overlap the same
 
 void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
-                         xAOD::JEMTobRoIContainer* rois)
-{
+                         xAOD::JEMTobRoIContainer* rois) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Simulate JEM RoIs from Jet Elements" << endreq;
   }
@@ -2834,26 +2996,23 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
   if (elements) {
     m_jetTool->findRoIs(elements, intRois);
     for (auto it = intRois->begin(); it != intRois->end(); ++it) {
-        rois->push_back((*it)->jemTobRoI());
+      rois->push_back((*it)->jemTobRoI());
     }
   }
   delete intRois;
 }
 
 void JEPSimMon::simulate(const xAOD::JEMTobRoIContainer* rois,
-                         xAOD::CMXJetTobContainer* tobs)
-{
-  if (m_debug) msg(MSG::DEBUG) << "Simulate CMX-Jet TOBs from JEM RoIs"
-                                 << endreq;
+                         xAOD::CMXJetTobContainer* tobs) {
+  if (m_debug)
+    msg(MSG::DEBUG) << "Simulate CMX-Jet TOBs from JEM RoIs" << endreq;
   m_jetCmxTool->formCMXJetTob(rois, tobs);
 }
 
 void JEPSimMon::simulate(const xAOD::CMXJetTobContainer* tobs,
-                         xAOD::CMXJetHitsContainer* hits,
-                         int selection)
-{
-  if (m_debug) msg(MSG::DEBUG) << "Simulate CMX-Jet Hit sums from CMX-Jet TOBs"
-                                 << endreq;
+                         xAOD::CMXJetHitsContainer* hits, int selection) {
+  if (m_debug)
+    msg(MSG::DEBUG) << "Simulate CMX-Jet Hit sums from CMX-Jet TOBs" << endreq;
 
   if (selection == xAOD::CMXJetHits::Sources::LOCAL_MAIN) {
     m_jetCmxTool->formCMXJetHitsCrate(tobs, hits);
@@ -2863,27 +3022,24 @@ void JEPSimMon::simulate(const xAOD::CMXJetTobContainer* tobs,
 }
 
 void JEPSimMon::simulate(const xAOD::CMXJetHitsContainer* hitsIn,
-                         xAOD::CMXJetHitsContainer* hitsOut)
-{
-  if (m_debug) msg(MSG::DEBUG) << "Simulate CMX Total Hit sums from Remote/Local"
-                                 << endreq;
+                         xAOD::CMXJetHitsContainer* hitsOut) {
+  if (m_debug)
+    msg(MSG::DEBUG) << "Simulate CMX Total Hit sums from Remote/Local"
+                    << endreq;
 
   m_jetCmxTool->formCMXJetHitsSystem(hitsIn, hitsOut);
 }
 
 void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
-                         xAOD::JEMEtSumsContainer* sums)
-{
-  if (m_debug) msg(MSG::DEBUG) << "Simulate JEM EtSums from JetElements"
-                                 << endreq;
+                         xAOD::JEMEtSumsContainer* sums) {
+  if (m_debug)
+    msg(MSG::DEBUG) << "Simulate JEM EtSums from JetElements" << endreq;
 
   m_energyCmxTool->formJEMEtSums(elements, sums);
 }
 
 void JEPSimMon::simulate(const xAOD::CMXEtSumsContainer* sumsIn,
-                         xAOD::CMXEtSumsContainer* sumsOut,
-                         int selection)
-{
+                         xAOD::CMXEtSumsContainer* sumsOut, int selection) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Simulate CMX-Energy Total sums from CMX-Energy Sums"
                     << endreq;
@@ -2900,19 +3056,17 @@ void JEPSimMon::simulate(const xAOD::CMXEtSumsContainer* sumsIn,
 
 // Check if LimitedRoISet bit set
 
-bool JEPSimMon::limitedRoiSet(int crate)
-{
+bool JEPSimMon::limitedRoiSet(int crate) {
   if (m_rodTES) loadRodHeaders();
   return (((m_limitedRoi >> crate) & 0x1) == 1);
 }
 
 // Load ROD Headers
 
-void JEPSimMon::loadRodHeaders()
-{
+void JEPSimMon::loadRodHeaders() {
   if (m_rodTES) {
     m_limitedRoi = 0;
-    xAOD::RODHeaderContainer::const_iterator rodIter  = m_rodTES->begin();
+    xAOD::RODHeaderContainer::const_iterator rodIter = m_rodTES->begin();
     xAOD::RODHeaderContainer::const_iterator rodIterE = m_rodTES->end();
     for (; rodIter != rodIterE; ++rodIter) {
       const xAOD::RODHeader* rod = *rodIter;
@@ -2927,5 +3081,5 @@ void JEPSimMon::loadRodHeaders()
   }
 }
 // ============================================================================
-} // end namespace
+}  // end namespace
 // ============================================================================
