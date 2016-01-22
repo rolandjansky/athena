@@ -201,7 +201,8 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
         if runArgs.runNumber != jo_dsidpart:
             raise Exception()
     except:
-        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % (str(runArgs.runNumber), jo_dsidpart))
+        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % 
+(str(runArgs.runNumber), jo_dsidpart))
         sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[2]
@@ -259,6 +260,7 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
      
     if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
         evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
+        evgenLog.error("gennames '%s' " %(expectedgenpart))
         sys.exit(1)
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
