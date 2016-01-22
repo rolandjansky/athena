@@ -20,9 +20,10 @@
 #include "IParticleCollHandleBase.h"
 #include "xAODBase/ObjectType.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODTracking/TrackParticle.h"
 #endif 
 
-class MuonCollectionSettingsButton;
+#include "MuonCollectionSettingsButton.h"
 
 class IParticleCollHandle_Muon : public IParticleCollHandleBase {
 
@@ -41,10 +42,18 @@ public:
 
   const MuonCollectionSettingsButton& collSettingsButton() const;
 
+signals:
+  void shownAssociatedObjectsChanged(const QList<const xAOD::TrackParticle*>&);
+
 protected:	
   virtual bool load();
-  virtual bool cut(IParticleHandleBase*);
+  virtual bool cut(AODHandleBase*);
   virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 1.0f, 0.5f); }
+  void updateAssociatedTrackParticles();
+  
+private slots:
+  void setMinimumQuality(unsigned int); // Can't use xAOD::Muon::Quality because of the boost/Qt bug.
+  void updateShownAssociatedObjects(); // Will get settings from the button.
 
 private:
 

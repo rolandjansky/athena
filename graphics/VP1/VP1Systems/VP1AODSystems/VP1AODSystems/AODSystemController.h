@@ -36,7 +36,7 @@ namespace Trk {
   class Volume;
 }
 
-class IParticleCollWidget;
+class AODCollWidget;
 
 class AODSystemController : public VP1Controller {
 
@@ -52,7 +52,7 @@ public:
   void actualSaveSettings(VP1Serialise&) const;
 
   /// Return widget which fills the collection selection list in the GUI (i.e. which finds and lists the available collections).
-  IParticleCollWidget * collWidget() const;
+  AODCollWidget * collWidget() const;
   bool cutOnlyVertexAssocTracks() const;
 
   //Interactions:
