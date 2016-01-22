@@ -20,7 +20,8 @@
 #include "VP1AODSystems/AODSystemController.h"
 #include "VP1AODSystems/VP1AODSystem.h"
 #include "AODSysCommonData.h"
-#include "IParticleCollWidget.h"
+#include "AODCollWidget.h"
+#include "AODHandleBase.h"
 #include "ui_vp1aodcontrollerform.h"
 #include "ui_settings_cuts_form.h"
 #include "ui_objectbrowser.h"
@@ -50,12 +51,13 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
+#include <typeinfo>
 //____________________________________________________________________
 class AODSystemController::Imp {
 public:
   AODSystemController * theclass;
   Ui::VP1AODControllerForm ui;
-  IParticleCollWidget * collwidget;
+  AODCollWidget * collwidget;
   bool updateComboBoxContents(QComboBox*cb,QStringList l,QString& restoredSelection);
   static const QString noneAvailString;
 
@@ -104,7 +106,7 @@ AODSystemController::AODSystemController(IVP1System * sys)
   d->theclass = this;
   //Stuff with tools waits until ::initTools() is called:
   d->ui.setupUi(this);
-  d->collwidget = new IParticleCollWidget;
+  d->collwidget = new AODCollWidget;
   setupCollWidgetInScrollArea(d->ui.collWidgetScrollArea,d->collwidget);
 
   initDialog(d->ui_objBrowser, d->ui.pushButton_ObjectBrowser);
@@ -115,6 +117,8 @@ AODSystemController::AODSystemController(IVP1System * sys)
 
 
   //Disable elements based on job configuration:
+
+  
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
@@ -130,6 +134,28 @@ AODSystemController::AODSystemController(IVP1System * sys)
   d->objBrowserWidget->setHeaderLabels(l);
   connect(d->objBrowserWidget,SIGNAL(itemClicked(QTreeWidgetItem *, int)),this,SLOT(objectBrowserClicked(QTreeWidgetItem *, int)));
 
+  // Hide interactions until we're ready.
+  d->ui.pushButton_interactions->hide();
+  
+  // Tell system to dump to JSON
+  connect(d->ui.pushButton_dumpToJSON,SIGNAL(pressed()),systemBase(),SLOT(dumpToJSON()));
+  
+  if (VP1QtUtils::environmentVariableIsSet("VP1_DUMPTOJSON")){
+    messageVerbose("AODSystemController enable dumping to JSON");
+    d->ui.pushButton_dumpToJSON->setMaximumHeight(static_cast<int>(0.5+QFontMetricsF(d->ui.pushButton_dumpToJSON->font()).height()*1.05+2));
+    d->ui.pushButton_dumpToJSON->setMinimumHeight(d->ui.pushButton_dumpToJSON->maximumHeight());
+    d->ui.pushButton_dumpToJSON->setCheckable(true);
+    
+    QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    sizePolicy.setHorizontalStretch(0);
+    sizePolicy.setVerticalStretch(0);
+    sizePolicy.setHeightForWidth(d->ui.pushButton_dumpToJSON->sizePolicy().hasHeightForWidth());
+    d->ui.pushButton_dumpToJSON->setSizePolicy(sizePolicy);
+    d->ui.pushButton_dumpToJSON->setFocusPolicy(Qt::NoFocus);
+  } else {
+    d->ui.pushButton_dumpToJSON->hide();
+  }
+  
   // we want "Print information" on single track selection turned ON by default
   // //d->ui_int.checkBox_selsingle_printinfo->setChecked(true);
 
@@ -147,21 +173,27 @@ AODSystemController::~AODSystemController()
 //____________________________________________________________________
 int AODSystemController::currentSettingsVersion() const
 {
-  return 1;
+  int version = 1;
+  messageVerbose("AODSystemController::currentSettingsVersion() - current version: " + QString::number(version));
+  return version;
 }
 
 //____________________________________________________________________
 void AODSystemController::actualSaveSettings(VP1Serialise&s) const
 {
+  messageVerbose("AODSystemController::actualSaveSettings()");
+  messageDebug("version: " + QString::number(s.version()));
+
 }
 
 //____________________________________________________________________
-void AODSystemController::actualRestoreSettings(VP1Deserialise& s)
+void AODSystemController::actualRestoreSettings(VP1Deserialise& /**s*/)
 {
+  messageVerbose("AODSystemController::actualRestoreSettings()");
 }
 
 //____________________________________________________________________
-IParticleCollWidget * AODSystemController::collWidget() const
+AODCollWidget * AODSystemController::collWidget() const
 {
   return d->collwidget;
 }
@@ -200,15 +232,15 @@ bool AODSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList l
       //AtlasExtrapolater over... whatever (same for fitters):
       int i_vp1(-1), i_atlas(-1);
       for (int j = 0; j <cb->count();++j) {
-	if (i_vp1==-1&&cb->itemText(j).contains("vp1",Qt::CaseInsensitive))
-	  i_vp1 = j;
-	if (i_atlas==-1&&cb->itemText(j).contains("atlas",Qt::CaseInsensitive))
-	  i_atlas = j;
+        if (i_vp1==-1&&cb->itemText(j).contains("vp1",Qt::CaseInsensitive))
+          i_vp1 = j;
+        if (i_atlas==-1&&cb->itemText(j).contains("atlas",Qt::CaseInsensitive))
+          i_atlas = j;
       }
       if (i_vp1>=0)
-	cb->setCurrentIndex(i_vp1);
+        cb->setCurrentIndex(i_vp1);
       else if (i_atlas>=0)
-	cb->setCurrentIndex(i_atlas);
+        cb->setCurrentIndex(i_atlas);
     }
     ////d->ui_extrap.radioButton_athenaExtrapolator->setEnabled(true);
     enabled = true;
@@ -223,41 +255,41 @@ bool AODSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList l
 //____________________________________________________________________
 bool AODSystemController::orientAndZoomOnSingleSelection() const
 {
+  return false;
   // return d->ui_int.checkBox_selsingle_orientzoom->isChecked();
-  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::printInfoOnSingleSelection() const
 {
+  return false;
   // return d->ui_int.checkBox_selsingle_printinfo->isChecked();
-  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::printVerboseInfoOnSingleSelection() const
 {
+  return false;
   // return printInfoOnSingleSelection() && d->ui_int.checkBox_selsingle_printinfo_verbose->isChecked();
-  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::printTotMomentumOnMultiTrackSelection() const
 {
+  return false;
   // return d->ui_int.checkBox_sel_printtotmom->isChecked();
-  return true;
 }
 
 //____________________________________________________________________
 bool AODSystemController::showTotMomentumOnMultiTrackSelection() const
 {
+  return false;
   // return d->ui_int.checkBox_sel_showtotmom->isChecked();
-  return true;
 }
 
 QTreeWidget* AODSystemController::objBrowser() const
 {
-    return d->objBrowserWidget;
+  return d->objBrowserWidget;
 }
 
 AODSysCommonData * AODSystemController::common() const {
@@ -269,99 +301,37 @@ void AODSystemController::setCommonData(AODSysCommonData * common){
 
 void AODSystemController::objectBrowserClicked(QTreeWidgetItem * item, int){
   messageVerbose("objectBrowserClicked for "+item->text(0));
- //  
- //  VP1TrackSystem* sys = dynamic_cast<VP1TrackSystem*>(systemBase());
- //  if (!sys){
- //    messageVerbose("AODSystemController::objectBrowserClicked: Couldn't get VP1TrackSystem pointer");
- //    return;
- //  }
- //  
- //  //sys->deselectAll(); // FIXME. necessary?
- // 
- //  SoNode* node = common()->node(item);
- //  if (node) {
- //    // okay, have track
- //    SoCooperativeSelection * sel = sys->selTracks();
- //    sel->select(node);
- //  } else {
- //    // maybe it's a TSOS? Check first that it has a parent 
- //    if (item->parent()) node = common()->node(item->parent());
- //    if (node) {
- //      // yes, so now get index within track, as we can hopefully use this to find the AscObj_TSOS
- //      unsigned int index = item->parent()->indexOfChild(item);// should correspond to the TSOS number
- //      messageVerbose("AODSystemController::objectBrowserClicked: item has index of "+QString::number(index));
- //      TrackHandle_TrkTrack* trkHandle = dynamic_cast<TrackHandle_TrkTrack*>(common()->trackHandle(node));
- //      if (trkHandle && trkHandle->trkTrackPointer()) {
- //        if (index<trkHandle->trkTrackPointer()->trackStateOnSurfaces()->size() ){
- //          // in range
- //          const Trk::TrackStateOnSurface* tsos = (*trkHandle->trkTrackPointer()->trackStateOnSurfaces())[index];
- //          // now find matching AscObj_TSOS
- //          QList<AssociatedObjectHandleBase*> list = trkHandle->getVisibleMeasurements();
- //          for (int i = 0; i < list.size(); ++i) {
- //            messageVerbose("AODSystemController::objectBrowserClicked: checking ASC "+QString::number(i));
- // 
- //            AscObj_TSOS* asc = dynamic_cast<AscObj_TSOS*>(list.at(i));
- //            if (asc && asc->trackStateOnSurface()==tsos) {
- //               messageVerbose("AODSystemController::objectBrowserClicked: this ASC matches "+QString::number(i));
- //              //asc->zoomView();
- //               common()->ascObjSelectionManager()->pretendUserClicked(asc);          
- //            } else {
- //              messageVerbose("AODSystemController::objectBrowserClicked: no matching Asc found");
- //            }
- //          } // for loop
- //        } else {
- //          messageVerbose("AODSystemController::objectBrowserClicked: index of  "+QString::number(index)+" is greater than number of TSOSes:"+QString::number(trkHandle->trkTrackPointer()->trackStateOnSurfaces()->size()));
- //        }
- //      }
- //    } else {
- //      messageVerbose("AODSystemController::objectBrowserClicked: Couldn't get node pointer. Maybe object not visible?");
- //    }
- //  }
- //  
- //  
- //  // if (selTrack){
- //  //   SoCooperativeSelection * sel = sys->selTracks();
- //  //   sel->select(node);
- //  // } else {
- //  //   common()->ascObjSelectionManager()->pretendUserClicked();
- //  // }
- //  // 
- //  // SoCooperativeSelection * sel = sys->selTracks();
- //  // SoCooperativeSelection * selAsc  = dynamic_cast<SoCooperativeSelection*>(common()->ascObjSelectionManager()->getAscObjAttachSep());
- //  // SoSeparator* eventRoot = common()->ascObjSelectionManager()->eventRoot();  
- //  // 
- //  // SoSearchAction mySearchAction;
- //  // mySearchAction.setNode(node);
- //  // // SoSeparator* eventRoot = common()->ascObjSelectionManager()->eventRoot();
- //  // mySearchAction.apply(eventRoot); 
- //  // SoPath* path=mySearchAction.getPath();
- //  // if ( !path ) { 
- //  //   messageVerbose("AODSystemController::objectBrowserClicked: Couldn't get SoPath");
- //  //   return;
- //  // } else {
- //  //   messageVerbose("AODSystemController::objectBrowserClicked: got SoPath. Will now try to select.");
- //  //   messageVerbose("pathlength="+QString::number(path->getLength()));
- //  // }
- //  // 
- //  // //sel->select(path); //Doesn't work.
- //  // // messageVerbose("findpath="+QString::number(sel->findPath(path)));
- //  // sel->select(node); // Doesn't work.
- //  // if (sel->getNumSelected()==0){
- //  //   messageVerbose("AODSystemController::objectBrowserClicked: Couldn't select. Trying with ASC sel node.");
- //  //   
- //  //   selAsc->select(node);
- //  //   if (selAsc->getNumSelected()==0){
- //  //     messageVerbose("AODSystemController::objectBrowserClicked: Couldn't select. Trying with ASC sel using path.");
- //  //     
- //  //     selAsc->select(path);
- //  //   }
- //  // }
- //  // // messageVerbose("findpath="+QString::number(sel->findPath(path)));
- //  // 
- //  // // sel->touch();
- //  // messageVerbose("numselected="+QString::number(sel->getNumSelected()));
- //  
- // // path->unref();
+  //  
+   IVP1System* sysBase = systemBase();
+   if (!sysBase){
+     messageVerbose("AODSystemController::objectBrowserClicked: Couldn't get system base pointer");
+     return;
+   }
+   
+   VP1AODSystem* sys = dynamic_cast<VP1AODSystem*>(sysBase);
+   if (!sys){
+     messageVerbose("AODSystemController::objectBrowserClicked: Couldn't get VP1AODSystem pointer");
+     std::cout<<"Pointer value = "<<sysBase<<" and type = "<<typeid(sysBase).name()<<std::endl;
+     return;
+   }
+   
+   
+   sys->deselectAll(); // FIXME. necessary?
+  // 
+   SoNode* node = common()->getNodeFromBrowser(item);
+   if (node) {
+     std::cout<< "Have node from browser: "<<node<<std::endl;
+     
+     AODHandleBase* handle = common()->getHandleFromNode(node);
+     handle->clicked();
+     // okay, have object
+     
+     SoCooperativeSelection * sel = sys->selObjects();
+     std::cout<< "sel->select(node): "<<node<<std::endl;
+
+     sel->select(node);
+   }
+   messageVerbose("end objectBrowserClicked ");
 }
 
 ///////////////////////////////////////////////////////////////////////////

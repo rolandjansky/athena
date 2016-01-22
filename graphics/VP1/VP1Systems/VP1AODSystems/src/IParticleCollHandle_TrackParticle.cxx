@@ -46,6 +46,7 @@ public:
   IParticleCollHandle_TrackParticle * theclass;
   int updateGUICounter;
   TrackParticleCollectionSettingsButton* collSettingsButton;
+  bool shouldLoad;
 
   void possiblyUpdateGUI() {//Fixme: to IParticleCollHandleBase
     if (!((updateGUICounter++)%50)) {
@@ -56,12 +57,13 @@ public:
 
 //____________________________________________________________________
 IParticleCollHandle_TrackParticle::IParticleCollHandle_TrackParticle(AODSysCommonData * cd,
-  const QString& name, xAOD::Type::ObjectType type)
+  const QString& name, xAOD::Type::ObjectType type, bool shouldLoad)
   : IParticleCollHandleBase(cd,name,type), d(new Imp)
 {
   d->theclass = this;
   d->updateGUICounter = 0;
   d->collSettingsButton=0;
+  d->shouldLoad = shouldLoad;
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
   QString safetext(text());
@@ -85,6 +87,8 @@ IParticleCollHandle_TrackParticle::IParticleCollHandle_TrackParticle(AODSysCommo
 IParticleCollHandle_TrackParticle::~IParticleCollHandle_TrackParticle()
 {
   delete d;
+  // FIXME - check that we're not leaking handles if (!d->shouldLoad){
+
 }
 
 //____________________________________________________________________
@@ -120,6 +124,9 @@ void IParticleCollHandle_TrackParticle::setupSettingsFromControllerSpecific(AODS
   connect(d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
   setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
 
+  // Propagation
+  connect(d->collSettingsButton,SIGNAL(propagationOptionsChanged()),        this,SLOT(propagationOptionsChanged()));
+
   // Parameters
   connect(d->collSettingsButton,SIGNAL(showParametersChanged(bool)),        this,SLOT(showParametersChanged(bool)));
   connect(d->collSettingsButton,SIGNAL(colourParametersByTypeChanged(bool)),this,SLOT(showParametersChanged(bool)));
@@ -137,6 +144,10 @@ const TrackParticleCollectionSettingsButton& IParticleCollHandle_TrackParticle::
 //____________________________________________________________________
 bool IParticleCollHandle_TrackParticle::load()
 {
+  if (!d->shouldLoad){
+    messageVerbose("not loading TrackParticle collection - contains associated objects.");
+    return true;
+  }
   messageVerbose("loading TrackParticle collection");
 
   //Get collection:
@@ -179,14 +190,14 @@ bool IParticleCollHandle_TrackParticle::load()
 }
 
 //____________________________________________________________________
-bool IParticleCollHandle_TrackParticle::cut(IParticleHandleBase* handle)
+bool IParticleCollHandle_TrackParticle::cut(AODHandleBase* handle)
 {
 	messageVerbose("IParticleCollHandle_TrackParticle::cut()");
 
   if (!IParticleCollHandleBase::cut(handle))
     return false;
 
-  //Fixme: more? Or just use base class method and remove this?
+  //FIXME - add cuts on tracksummary etc.
 
   return true;
 }
@@ -194,4 +205,25 @@ bool IParticleCollHandle_TrackParticle::cut(IParticleHandleBase* handle)
 void IParticleCollHandle_TrackParticle::showParametersChanged(bool val) {
   messageVerbose("IParticleCollHandle_TrackParticle::showParametersChanged to "+str(val));
   update3DObjectsOfAllHandles();
+}
+
+void IParticleCollHandle_TrackParticle::propagationOptionsChanged() {
+  messageVerbose("IParticleCollHandle_TrackParticle::propagationOptionsChanged");
+  update3DObjectsOfAllHandles();
+}
+
+void IParticleCollHandle_TrackParticle::dumpToJSON( std::ofstream& str) const {
+  str << "\""<<name().toLatin1().data()<<"\":{";
+  
+  unsigned int num=0;
+  for (auto handle : getHandlesList() ) {
+    if (handle->visible()) {
+      if (num) str <<",\n";
+      str << "\"Trk "<<num++<< "\":{";
+      handle->dumpToJSON(str);
+      str << "}";
+    }
+  }
+  
+  str << "}";
 }

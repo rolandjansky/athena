@@ -35,7 +35,7 @@
         <bool>true</bool>
        </property>
        <property name="toolTip">
-        <string>Browse tracking objects in this event, and use to navigate in 3D view (especially if zooming is turned on in Interactions)</string>
+        <string>Browse AOD objects in this event, and use to navigate in 3D view.</string>
        </property>
        <property name="text">
         <string>Browser</string>
@@ -50,6 +50,36 @@
         <bool>false</bool>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_interactions">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Interactions</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_dumpToJSON">
+       <property name="text">
+        <string>Dump to JSON</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QWidget" name="widget_settingsButtonsPlaceholder" native="true">
@@ -75,8 +105,6 @@
     <widget class="QScrollArea" name="collWidgetScrollArea"/>
    </item>
   </layout>
-  <zorder>collWidgetScrollArea</zorder>
-  <zorder>pushButton_ObjectBrowser</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -19,18 +19,24 @@
 #include "VP1Base/VP1HelperClassBase.h"
 #include "VP1Base/VisibleObjectToMaterialHelper.h"
 #include "VP1Utils/HitsSoNodeManager.h"
-
+// #include "AODHandleSelectionManager.h"
 class IVP13DSystem;
 class AODSystemController;
 class SoNode;
+class SoPath;
 class IParticleHandleBase;
 class SoPointSet;
 class QTreeWidgetItem;
 class SoSeparator;//Fixme!
-class TrackPropagationHelper;
+class AODHandleBase;
+
 
 namespace xAOD {
 	class IParticle;
+}
+
+namespace Trk {
+  class IExtrapolationEngine;
 }
 
 class AODSysCommonData : public VP1HelperClassBase {
@@ -42,25 +48,23 @@ public:
   VP1AODSystem * system() const;
   AODSystemController * controller() const;
 
-  TrackPropagationHelper * trackPropagationHelper() const;
-
   SoPointSet * singlePoint() const;//A single point at (0,0,0)
 
-  //register node->track connection (erased at next clearEventData)
-  void registerHandle(SoNode*,IParticleHandleBase*);
-  void unregisterHandle(SoNode*);
+  Trk::IExtrapolationEngine * extrapolator() const { return m_extrapolator; }
+  void setExtrapolator(Trk::IExtrapolationEngine * e) { m_extrapolator=e; }
   
-  //get the connection:
-  IParticleHandleBase* handle(SoNode*n);
-  SoNode* node(IParticleHandleBase* h); //!< Returns the node associated with this handle. Returns zero if no match found.
-  SoNode* node(QTreeWidgetItem* item); //!< Returns the node associated with this item. Returns zero if no match found.
+  // AODHandleSelectionManager* selectionManager() const { return m_selManager; }
+  // void setSelManager(AODHandleSelectionManager* m) {m_selManager=m;}
+  // void deleteSelManager() { delete m_selManager; m_selManager=0; }
   
-  void setLastSelectedTrack(IParticleHandleBase* sel);
-  IParticleHandleBase* lastSelectedTrackHandle();//!< pointer to base of last selected track (zero if nothing selected)
-  SoSeparator* textSep(); // FIXME! FIXME!
-  SoSeparator* m_textSep; // FIXME! FIXME! Make private, but then need set method for VP1AODSystem.cxx:247
-
-  const IParticleHandleBase* getHandle(const xAOD::IParticle* trk);
+  // Called inside AODHandleBase. 
+  void registerHandle( AODHandleBase* h );
+  void deregisterHandle( AODHandleBase* h );
+  AODHandleBase* getHandleFromNode( SoNode* node );
+  SoNode* getNodeFromBrowser( QTreeWidgetItem* item );
+  AODHandleBase* getHandleFromNode(const SoPath*path);
+  
+  void setLastSelectedHandle (AODHandleBase* h);
   
 private:
   class Imp;
@@ -69,15 +73,13 @@ private:
   VP1AODSystem * m_3dsystem;
   AODSystemController * m_controller;
   SoPointSet * m_singlePoint;
-  IParticleHandleBase* m_lastSelectedTrack;
+  Trk::IExtrapolationEngine* m_extrapolator;
+  // AODHandleSelectionManager* m_selManager;
 };
 
 inline VP1AODSystem* AODSysCommonData::system() const { return m_3dsystem; }
 inline AODSystemController * AODSysCommonData::controller() const { return m_controller; }
 inline SoPointSet * AODSysCommonData::singlePoint() const { return m_singlePoint; }
-inline void AODSysCommonData::setLastSelectedTrack( IParticleHandleBase* sel) {m_lastSelectedTrack=sel;}
-inline IParticleHandleBase* AODSysCommonData::lastSelectedTrackHandle() {return m_lastSelectedTrack;}
-inline SoSeparator* AODSysCommonData::textSep() {return m_textSep;} // FIXME! FIXME!
 
 #endif
 

@@ -7,13 +7,16 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>291</height>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QVBoxLayout" name="verticalLayout_7">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
@@ -151,6 +154,9 @@
     </widget>
    </item>
    <item>
+    <widget class="VP1EtaPhiCutWidget" name="etaPhiCutWidget_2" native="true"/>
+   </item>
+   <item>
     <widget class="QWidget" name="cuts" native="true">
      <property name="enabled">
       <bool>true</bool>
@@ -271,6 +277,131 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_cuts_momentum_2">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Quality cuts</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Minimum quality </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_minimumQuality">
+          <property name="toolTip">
+           <string>Minimum quality level shown. 'Very Loose' is equivalent to no cut.</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Very Loose</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Loose</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Medium</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Tight</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Associated objects</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QCheckBox" name="checkBox_showTrackParticles">
+          <property name="toolTip">
+           <string>Show the trackparticles associated with this muon. You can chose which to show with the pulldown.</string>
+          </property>
+          <property name="text">
+           <string>TrackParticles</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_shownTrackParticles">
+          <item>
+           <property name="text">
+            <string>Primary</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Combined</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Muon Standalone</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Muon Extrapolated</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_showCaloClusters">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Calo clusters</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_showSegments">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Segments</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="_2">
      <item>
       <spacer>
@@ -294,19 +425,6 @@
      </item>
     </layout>
    </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -323,5 +441,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkBox_showTrackParticles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>comboBox_shownTrackParticles</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>386</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>313</x>
+     <y>387</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

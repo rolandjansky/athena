@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CaloClusterSettingsDisplayForm</class>
+ <widget class="QWidget" name="CaloClusterSettingsDisplayForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="groupBox_calocluster_scale">
+     <property name="title">
+      <string>Length scale</string>
+     </property>
+     <layout class="QVBoxLayout">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="margin">
+       <number>4</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="_2">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Fix point:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="_3">
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="_4">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QGridLayout" name="_5">
+            <property name="verticalSpacing">
+             <number>2</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QRadioButton" name="radioButton_absoluteScale">
+              <property name="toolTip">
+               <string>Absolute energy scale.</string>
+              </property>
+              <property name="text">
+               <string>E = 10 GeV:</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_lengthOf10GeV">
+              <property name="toolTip">
+               <string>Set the absolute energy scale. The value here will be the length of a cluster with an energy of 10 GeV.</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="suffix">
+               <string> m</string>
+              </property>
+              <property name="minimum">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>9.990000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.050000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QRadioButton" name="radioButton_relativeScale">
+              <property name="toolTip">
+               <string>Relative scale. Set the length of the most energetic visible cluster.</string>
+              </property>
+              <property name="text">
+               <string>Most energetic:</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_lengthOfMostEnergetic">
+              <property name="toolTip">
+               <string>Set the relative energy scale. The length here will be the length of the most energetic of the visible clusters.</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="suffix">
+               <string> m</string>
+              </property>
+              <property name="minimum">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>9.990000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.050000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="_6">
+            <item>
+             <spacer>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Preferred</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>10</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_current_most_energetic">
+              <property name="toolTip">
+               <string>Energy of the most energetic cluster currently shown</string>
+              </property>
+              <property name="text">
+               <string>Current value: 0 GeV</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="_7">
+        <item>
+         <widget class="QCheckBox" name="checkBox_logscale">
+          <property name="toolTip">
+           <string>Select to get a logarithmic rather than linear scale.</string>
+          </property>
+          <property name="text">
+           <string>Logarithmic scale</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_calocluster_drawsettings">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Draw options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="checkBox_showVolumeOutLines">
+        <property name="toolTip">
+         <string>Decorate shapes with lines at the edges (current only certain shapes such as muon chambers are supported)</string>
+        </property>
+        <property name="text">
+         <string>Show outlines</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="VP1DrawOptionsWidget" name="widget_drawOptions" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1DrawOptionsWidget</class>
+   <extends>QWidget</extends>
+   <header>VP1Base/VP1DrawOptionsWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

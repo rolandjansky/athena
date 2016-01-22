@@ -4,7 +4,7 @@
 
 // Local
 #include "VP1Base/VP1ColorSelectButton.h"
-#include "JetCollectionSettingsButton.h"
+#include "VP1AODSystems/JetCollectionSettingsButton.h"
 // UIs
 //#include "ui_perjetcollectionsettings_form.h"
 #include "ui_periparticlecollectionsettings_form.h"
@@ -17,8 +17,7 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Msg.h"
 
-//SoCoin
-
+//Coin3D
 #include "Inventor/nodes/SoDrawStyle.h"
 #include "Inventor/nodes/SoLightModel.h"
 #include "Inventor/nodes/SoMaterial.h"
@@ -41,16 +40,15 @@ class JetCollectionSettingsButton::Imp {
 public:
 
 //	Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
-	Imp():theclass(0),editwindow(0),matButton(0) {}
+	Imp():theclass(0),editwindow(0),matButton(0), dim(0) {}
 
 	// the main class
 	JetCollectionSettingsButton * theclass;
 
 	// setup the UI
 	QWidget * editwindow; // the main window
-	Ui::IParticleCollectionSettingsForm editwindow_ui; // the main UI window
-	Ui::JetSysSettingsDisplayForm ui_disp; // the custom "display" jet cuts
-
+	Ui::IParticleCollectionSettingsForm editwindow_ui; // the common main UI window
+	Ui::JetSysSettingsDisplayForm ui_disp; // the custom jet cuts
 
 	VP1MaterialButton* matButton;// main collection colour
 //	VP1MaterialButton* defaultParametersMatButton;
@@ -68,15 +66,50 @@ public:
 	double last_scale;
 	bool last_useDefaultCuts;
 	bool last_randomJetColours;
+	bool last_useMaxR;
+	double last_maxR;
 //	double last_trackTubeRadius;
 //	QList<unsigned> last_cutRequiredNHits;
 //	bool last_cutOnlyVertexAssocTracks;
+
+	// GUI b-tagging
+	bool last_bTaggingEnabled;
+	QString last_bTaggingTagger;
+	QString last_bTaggingSkin;
+	double last_bTaggingCut;
+//	SoMaterial* last_bTaggingMaterial; // not needed...
+	bool last_bTaggingRenderingSkin;
+	bool last_bTaggingRenderingMaterial;
+
+	// jet material
+	SoMaterial* m_jetMaterialDefault;
+
+	// b-tagging material
+	SoMaterial * materialFallback;
+
+	// material functions
+	SoMaterial * getMat(VP1MaterialButton*) const;
+	SoMaterial * createMaterial(const int& r,const int& g,const int& b) const;
+	SoMaterial * createMaterial(const int& r,const int& g,const int& b, const int& brightness, const int& transparency) const;
+
 
 	int dim;
 	QPoint dragStartPosition;
 
 	void initEditWindow();
 };
+
+
+//____________________________________________________________________
+SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(const int& r,const int& g,const int& b) const
+{
+  return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0,0.2/*brightness*/);
+}
+//____________________________________________________________________
+SoMaterial * JetCollectionSettingsButton::Imp::createMaterial(const int& r,const int& g,const int& b, const int& brightness, const int& transparency) const
+{
+  return VP1MaterialButton::createMaterial(r/255.0,g/255.0,b/255.0, brightness, transparency);
+}
 
 //____________________________________________________________________
 void JetCollectionSettingsButton::Imp::initEditWindow()
@@ -88,9 +121,11 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 	// create a parent widget
 	editwindow = new QWidget(0,Qt::WindowStaysOnTopHint); // parent widget
 
-	// init UI
+	// init the different UIs, with the same parent widget
 	editwindow_ui.setupUi(editwindow);
 	ui_disp.setupUi(editwindow);
+
+
 
 	//// CUSTOMIZE "Momentum cuts" widget
 	// change labels to match jets' nomenclature
@@ -103,37 +138,30 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 	editwindow_ui.doubleSpinBox_cut_minpt_gev->setValue(10.00);
 	editwindow_ui.doubleSpinBox_cut_maxpt_gev->setValue(100.00);
 
-	// compose UI: adding to the default GUI the "display" custom cuts for jets
-	editwindow_ui.verticalLayout_additional_widgets->layout()->addWidget( ui_disp.groupBox_jet_display );
-
 	// get a handle on the material button
 	matButton = editwindow_ui.pushButton_matButton;
 
+	// compose UI: adding to the default GUI the "display" custom cuts for jets
+	editwindow_ui.verticalLayout_additional_widgets->layout()->addWidget( ui_disp.groupBox_jet_display );
 
-//	defaultParametersMatButton = editwindow_ui.matButton_parametersDefaultColour;
-//	SoMaterial* defParamMat = new SoMaterial; // Default (for the moment)
-//	defaultParametersMatButton->setMaterial(defParamMat);
-//	editwindow_ui.frame_parameterTypeColours->hide();
+	// set b-tagging taggers
+	ui_disp.bTaggingComboBox->clear(); // remove all taggers defined in the .ui file
+	QStringList bTagList;
+	bTagList << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
+	ui_disp.bTaggingComboBox->insertItems(0, bTagList);
 
-	//  // Set the default colours for the "colour by parameter type" section
-	//  parameterTypeMatButtons.append(editwindow_ui.pushButton_matButton_parameters_default_colour_2);
-	//  parameterTypeMatButtons.append(editwindow_ui.pushButton_matButton_parameters_default_colour_3);
-	//  parameterTypeMatButtons.append(editwindow_ui.pushButton_matButton_parameters_default_colour_4);
-	//  parameterTypeMatButtons.append(editwindow_ui.pushButton_matButton_parameters_default_colour_5);
-	//  parameterTypeMatButtons.append(editwindow_ui.pushButton_matButton_parameters_default_colour_6);
-	//  parameterTypeMatButtons.append(editwindow_ui.pushButton_matButton_parameters_default_colour_7);
-	//  QList<QColor> colours;
-	//  colours.append(QColor(0.0, 170.0, 255.0));
-	//  colours.append(QColor(170, 85, 255));
-	//  colours.append(QColor(255, 85, 0));
-	//  colours.append(QColor(170, 0, 127));
-	//  colours.append(QColor(170, 255, 0));
-	//  colours.append(QColor(85, 0, 255));
-	//
-	//  for (unsigned int i=0; i<6;++i){
-	//    SoMaterial * mat = VP1MaterialButton::createMaterial(colours.at(i));
-	//    (parameterTypeMatButtons.at(i))->setMaterial(mat);
-	//  }
+	// set b-tagging "Material" checked by default ("Skin" will be optional)
+	ui_disp.radioButton_material->setChecked(true);
+
+	// x-y projection
+	ui_disp.groupBox_IDprojection->setEnabled(false); // TODO: check what it did in previous versions and fix it!
+
+	// when creating a new controller, check if b-tagging checkbox is enabled,
+	// for example from a config file or from a drag&drop from another collection
+	if (ui_disp.bTaggingCheckBox->isChecked())
+		theclass->possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
+	else
+		theclass->possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
 }
 
 //____________________________________________________________________
@@ -154,16 +182,70 @@ double JetCollectionSettingsButton::lengthOf100GeV()
 	return val;
 }
 
+//____________________________________________________________________
+double JetCollectionSettingsButton::maxR()
+{
+	double val = d->ui_disp.checkBox_maxR->isChecked() ? (d->ui_disp.doubleSpinBox_maxR->value() ) : -1; //d->ui_disp.doubleSpinBox_maxR->value();
+	VP1Msg::messageVerbose("JetCollectionSettingsButton::maxR() - value: " + QString::number(val));
+	return val;
+}
+
+
+//____________________________________________________________________
+double JetCollectionSettingsButton::bTaggingCut() const {
+  return d->ui_disp.bTaggingSpinBox->value();
+}
+//____________________________________________________________________
+QString JetCollectionSettingsButton::bTaggingTagger() const {
+  return d->ui_disp.bTaggingComboBox->currentText();
+}
+//____________________________________________________________________
+QString JetCollectionSettingsButton::bTaggingSkin() const {
+  return d->ui_disp.skinsComboBox->currentText();
+}
+//____________________________________________________________________
+SoMaterial* JetCollectionSettingsButton::bTaggingMaterial() const {
+  return getMaterial(d->ui_disp.matButton_btaggedJets);
+}
+//____________________________________________________________________
+bool JetCollectionSettingsButton::bTaggingEnabled() const {
+  return d->ui_disp.bTaggingCheckBox->isChecked();
+}
+//____________________________________________________________________
+bool JetCollectionSettingsButton::bTaggingRenderingSkin() const {
+  return d->ui_disp.radioButton_skins->isChecked();
+}
+//____________________________________________________________________
+bool JetCollectionSettingsButton::bTaggingRenderingMaterial() const {
+  return d->ui_disp.radioButton_material->isChecked();
+}
+
+//____________________________________________________________________
+bool JetCollectionSettingsButton::is_bTaggingSkinEnabled() const
+{
+	return d->ui_disp.radioButton_skins->isChecked();
+}
+
+//____________________________________________________________________
+bool JetCollectionSettingsButton::is_bTaggingMaterialEnabled() const
+{
+	return d->ui_disp.radioButton_material->isChecked();
+}
+
+
+
 
 
 //____________________________________________________________________
 JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _dim)
-: VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+: VP1CollectionSettingsButtonBase(parent,0), d(new Imp)
+//: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
 {
 	d->dim = _dim;
 
 	d->theclass = this;
 	d->initEditWindow();
+
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
@@ -217,10 +299,34 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 	connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
 
 	// random colors
+	connect(d->ui_disp.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(enableRandomColours(bool)));
 	connect(d->ui_disp.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(possibleChange_randomJetColours()));
 	connect(d->ui_disp.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
+	this->enableRandomColours(false);
+
+	// maxR
+	connect(d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(enableMaxR(bool)));
+	connect(d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(possibleChange_maxR()));
+	connect(d->ui_disp.doubleSpinBox_maxR, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_maxR()));
+	this->enableMaxR(false);
 
 
+	// BTagging
+	connect(d->ui_disp.bTaggingCheckBox, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingEnabled(bool)) );
+
+	connect(d->ui_disp.bTaggingComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(possibleChange_bTaggingTagger()) );
+
+	connect(d->ui_disp.bTaggingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_bTaggingCut()) );
+
+	connect(d->ui_disp.radioButton_material, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingMaterial(bool)) );
+
+	// not needed...
+	//connect(d->ui_disp.matButton_btaggedJets, SIGNAL(lastAppliedChanged()), this, SLOT(possibleChange_bTaggingMaterial()) );
+
+	connect(d->ui_disp.radioButton_skins, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingSkin(bool)) );
+
+
+	// Material button
 	connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
 	connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
 	connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
@@ -228,6 +334,26 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 	setAcceptDrops(true);
 
 	QTimer::singleShot(0, this, SLOT(updateButton()));
+
+	////////////////////////
+	//  Custom Materials  //
+	////////////////////////
+
+	std::cout << "setting jet custom materials..." << std::endl;
+
+
+
+	// create default material for b-jets
+	d->materialFallback = d->createMaterial(116,255,228, 0.2, 0.3); // light greenish-blue (R,G,B, brightness, transparency)
+	d->materialFallback->ref();
+
+
+
+	// init material for b-tagged jet
+	d->ui_disp.matButton_btaggedJets->setMaterial(d->materialFallback);
+
+//	updateButton();
+
 
 }
 
@@ -248,7 +374,7 @@ void JetCollectionSettingsButton::updateButton()
 {
 	if (objectName().isEmpty())
 		setObjectName("JetCollectionSettingsButton");
-	messageVerbose("setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
+	messageVerbose("jet - setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
 	VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
 }
 
@@ -277,6 +403,11 @@ bool JetCollectionSettingsButton::setMaterial(SoMaterial*mat)
 	if (!d->matButton) d->initEditWindow();
 	d->matButton->setMaterial(mat);
 	return true;
+}
+
+VP1MaterialButton* JetCollectionSettingsButton::getMaterialButton() const
+{
+	return d->matButton;
 }
 
 void JetCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
@@ -475,18 +606,44 @@ void JetCollectionSettingsButton::dropEvent(QDropEvent *event)
 
 
 QByteArray JetCollectionSettingsButton::saveState() const{
+
+	messageDebug("JetCollectionSettingsButton::saveState()");
+
 	// messageVerbose("getState");
 	// if (d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
 	VP1Serialise serialise(1/*version*/);
 
-	serialise.save(d->matButton);
-	// serialise.disableUnsavedChecks();
 
-	//	serialise.save(d->editwindow_ui.horizontalSlider_trackWidth);
-	//serialise.save(d->editwindow_ui.checkBox_trackTubes);
-	//serialise.save(d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM);
-	//serialise.save(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
-	//serialise.save(d->editwindow_ui.checkBox_hideactualpaths);
+	serialise.save(d->matButton);
+	//serialise.disableUnsavedChecks(); // TODO: what this does??
+
+	// COMMON SETTINGS
+	serialise.save(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
+	serialise.save(d->editwindow_ui.checkBox_cut_minpt);
+	serialise.save(d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
+	serialise.save(d->editwindow_ui.checkBox_cut_maxpt);
+	serialise.save(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
+	serialise.save(d->editwindow_ui.comboBox_momtype);
+
+	// ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
+	serialise.save(d->editwindow_ui.etaPhiCutWidget);
+
+	// JET SETTINGS
+	serialise.save(d->ui_disp.checkBox_randomColours);
+	serialise.save(d->ui_disp.doubleSpinBox_lengthOf100GeV);
+	serialise.save(d->ui_disp.checkBox_maxR);
+	serialise.save(d->ui_disp.doubleSpinBox_maxR);
+
+	serialise.save(d->ui_disp.groupBox_IDprojection);
+	serialise.save(d->ui_disp.checkBox_radialScale);
+	serialise.save(d->ui_disp.doubleSpinBox_radialScale);
+
+	serialise.save(d->ui_disp.bTaggingCheckBox);
+	serialise.save(d->ui_disp.bTaggingComboBox);
+	serialise.save(d->ui_disp.bTaggingSpinBox);
+	serialise.save(d->ui_disp.radioButton_material, d->ui_disp.radioButton_skins);
+	serialise.save(d->ui_disp.matButton_btaggedJets);
+	serialise.save(d->ui_disp.skinsComboBox);
 
 	// Parameters
 //	serialise.save(d->editwindow_ui.checkBox_showparameters);
@@ -499,18 +656,46 @@ QByteArray JetCollectionSettingsButton::saveState() const{
 
 void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 
+	messageDebug("JetCollectionSettingsButton::restoreFromState()");
+
 	VP1Deserialise state(ba,systemBase());
-	if (state.version()<0||state.version()>1)
+	if (state.version()<0||state.version()>1) {
+		messageDebug("restoreFromState() - ignoring...");
 		return;//Ignore silently
+	}
 	state.restore(d->matButton);
 
-//	state.restore(d->editwindow_ui.horizontalSlider_trackWidth);
-//	state.restore(d->editwindow_ui.checkBox_trackTubes);
-//	state.restore(d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM);
-//	state.restore(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
-//	state.restore(d->editwindow_ui.checkBox_hideactualpaths);
 
-//	// Parameters
+	// COMMON SETTINGS
+	state.restore(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
+	state.restore(d->editwindow_ui.checkBox_cut_minpt);
+	state.restore(d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
+	state.restore(d->editwindow_ui.checkBox_cut_maxpt);
+	state.restore(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
+	state.restore(d->editwindow_ui.comboBox_momtype);
+
+	// ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
+	state.restore(d->editwindow_ui.etaPhiCutWidget);
+
+	// JET SETTINGS
+	state.restore(d->ui_disp.checkBox_randomColours);
+	state.restore(d->ui_disp.doubleSpinBox_lengthOf100GeV);
+	state.restore(d->ui_disp.checkBox_maxR);
+	state.restore(d->ui_disp.doubleSpinBox_maxR);
+
+	state.restore(d->ui_disp.groupBox_IDprojection);
+	state.restore(d->ui_disp.checkBox_radialScale);
+	state.restore(d->ui_disp.doubleSpinBox_radialScale);
+
+	state.restore(d->ui_disp.bTaggingCheckBox);
+	state.restore(d->ui_disp.bTaggingComboBox);
+	state.restore(d->ui_disp.bTaggingSpinBox);
+	state.restore(d->ui_disp.radioButton_material, d->ui_disp.radioButton_skins);
+	state.restore(d->ui_disp.matButton_btaggedJets);
+	state.restore(d->ui_disp.skinsComboBox);
+
+
+	//	// Parameters
 //	state.restore(d->editwindow_ui.checkBox_showparameters);
 //	state.restore(d->editwindow_ui.checkBox_parameters_colourByType);
 
@@ -521,6 +706,13 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 //	updateTrackLightModel(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
 
 	updateButton();
+
+	// after restoring the state, check if b-tagging checkbox is enabled,
+	if (d->ui_disp.bTaggingCheckBox->isChecked())
+		possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
+	else
+		possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
+
 
 	//FIXME - anything else need updating?
 }
@@ -610,7 +802,8 @@ void JetCollectionSettingsButton::possibleChange_scale()
 	messageVerbose("possibleChange_scale() ");
 
 	if (d->last_scale == lengthOf100GeV()) return;
-	messageVerbose("lengthOf100GeV() changed");
+
+	messageVerbose("lengthOf100GeV changed");
 	d->last_scale = lengthOf100GeV();
 	emit scaleChanged(d->last_scale);
 }
@@ -626,6 +819,13 @@ void JetCollectionSettingsButton::possibleChange_randomJetColours()
 	emit randomJetColoursChanged(d->last_randomJetColours);
 }
 
+
+//____________________________________________________________________
+void JetCollectionSettingsButton::enableRandomColours(bool bb)
+{
+	d->ui_disp.pushButton_colourbyrandom_rerandomise->setEnabled(bb);
+}
+
 //____________________________________________________________________
 bool JetCollectionSettingsButton::randomJetColours() const
 {
@@ -638,4 +838,109 @@ void JetCollectionSettingsButton::emitRerandomise()
 {
   messageVerbose("JetCollectionSettingsButton - Emitting rerandomise");
   emit rerandomise();
+}
+
+////____________________________________________________________________
+//void JetCollectionSettingsButton::emitMaxR()
+//{
+//  messageVerbose("JetCollectionSettingsButton - Emitting signalMaxR");
+//  emit signalMaxR();
+//}
+
+//____________________________________________________________________
+void JetCollectionSettingsButton::enableMaxR(bool bb)
+{
+	d->ui_disp.doubleSpinBox_maxR->setEnabled(bb);
+}
+
+//____________________________________________________________________
+void JetCollectionSettingsButton::possibleChange_maxR()
+{
+	messageVerbose("possibleChange_maxR() ");
+
+	if ( !  d->ui_disp.checkBox_maxR->isChecked() ) {
+		messageVerbose("maxR unchecked --> setting maxR=0.0 and returning");
+		emit maxRChanged(0.0); // setting marR=0.0 disables the maxR option in handleJet
+		return;
+	}
+
+	messageVerbose("setting maxR");
+	d->last_maxR = maxR();
+	emit maxRChanged(d->last_maxR);
+}
+
+//____________________________________________________________________
+void JetCollectionSettingsButton::possibleChange_bTaggingEnabled(bool bb)
+{
+	messageVerbose("possibleChange_bTaggingEnabled()");
+
+	d->ui_disp.bTaggingAlgLabel->setEnabled(bb);
+	d->ui_disp.bTagginWeightCutLabel->setEnabled(bb);
+	d->ui_disp.bTaggingComboBox->setEnabled(bb);
+	d->ui_disp.bTaggingSpinBox->setEnabled(bb);
+	d->ui_disp.groupBox_btagging_render->setEnabled(bb);
+	d->ui_disp.matButton_btaggedJets->setEnabled(bb);
+
+	emit bTaggingEnabledChanged(bb);
+}
+
+//____________________________________________________________________
+void JetCollectionSettingsButton::possibleChange_bTaggingTagger()
+{
+	messageVerbose("possibleChange_bTaggingTagger() - " + bTaggingTagger() );
+	emit bTaggingTaggerChanged( bTaggingTagger() );
+}
+//____________________________________________________________________
+void JetCollectionSettingsButton::possibleChange_bTaggingCut()
+{
+	messageVerbose("possibleChange_bTaggingCut() - " + QString::number(bTaggingCut()) );
+
+	if (d->last_bTaggingCut == bTaggingCut() ) return;
+
+	messageVerbose("bTaggingSpinBox changed");
+	d->last_bTaggingCut = bTaggingCut();
+
+	emit bTaggingCutChanged( bTaggingCut() );
+}
+
+
+// called when user clicks on "Material" checkbox
+//____________________________________________________________________
+void JetCollectionSettingsButton::possibleChange_bTaggingRenderingMaterial(bool ok)
+{
+	messageVerbose("possibleChange_bTaggingRenderingMaterial()");
+	messageVerbose("radioButton_material changed - " + QString::number(ok) );
+
+	emit bTaggingRenderingMaterialChanged(ok);
+}
+
+// not needed...
+//// called when b-tagging material changes
+////____________________________________________________________________
+//void JetCollectionSettingsButton::possibleChange_bTaggingMaterial()
+//{
+//	messageVerbose("possibleChange_bTaggingMaterial()");
+//
+//	if (d->last_bTaggingMaterial == bTaggingMaterial() ) {
+//		messageVerbose("material not changed. Returning...");
+//		return;
+//	}
+//
+//	messageVerbose("matButton_btaggedJets changed");
+//	d->last_bTaggingMaterial = bTaggingMaterial();
+//
+//	emit bTaggingMaterialChanged();
+//}
+
+
+
+
+// called when user clicks on "Skin" checkbox
+//____________________________________________________________________
+void JetCollectionSettingsButton::possibleChange_bTaggingRenderingSkin(bool ok)
+{
+	messageVerbose("possibleChange_bTaggingRenderingSkin()");
+	messageVerbose("radioButton_skins changed - " + QString::number(ok) );
+
+	emit bTaggingRenderingSkinChanged(ok);
 }

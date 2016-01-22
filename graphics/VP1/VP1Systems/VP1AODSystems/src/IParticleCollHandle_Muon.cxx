@@ -18,6 +18,7 @@
 
 //xAOD
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
 
 //VP1
 #include "VP1Base/IVP1System.h"
@@ -47,6 +48,8 @@ public:
   int updateGUICounter;
   MuonCollectionSettingsButton* collSettingsButton;
 
+  unsigned int last_minimumQuality;
+
   void possiblyUpdateGUI() {//Fixme: to IParticleCollHandleBase
     if (!((updateGUICounter++)%50)) {
       theclass->systemBase()->updateGUI();
@@ -62,6 +65,7 @@ IParticleCollHandle_Muon::IParticleCollHandle_Muon(AODSysCommonData * cd,
   d->theclass = this;
   d->updateGUICounter = 0;
   d->collSettingsButton=0;
+  d->last_minimumQuality=0;
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
   QString safetext(text());
@@ -97,6 +101,9 @@ void IParticleCollHandle_Muon::init(VP1MaterialButtonBase*)
   VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button. 
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
+  
+  // Connections back to system
+  connect(this,SIGNAL(shownAssociatedObjectsChanged(const QList<const xAOD::TrackParticle*>&)),systemBase(),SLOT(updateAssociatedObjects(const QList<const xAOD::TrackParticle*>&))) ;
 
   // std::cout<<"IParticleCollHandle_Muon::init 2"<<std::endl;
   // std::cout<<"swi: "<<collSwitch()<<std::endl;
@@ -119,6 +126,11 @@ void IParticleCollHandle_Muon::setupSettingsFromControllerSpecific(AODSystemCont
 
   connect(d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
   setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+
+  connect(d->collSettingsButton,SIGNAL(minimumQualityChanged(unsigned int)),this,SLOT(setMinimumQuality(unsigned int)));
+  setMinimumQuality(d->collSettingsButton->minimumQuality());
+
+  connect(d->collSettingsButton,SIGNAL(shownAssociatedObjectsChanged(MuonCollectionSettingsButton::ShownAssociatedObjects)),this,SLOT(updateShownAssociatedObjects()));
 }
 
 const MuonCollectionSettingsButton& IParticleCollHandle_Muon::collSettingsButton() const {
@@ -153,6 +165,7 @@ bool IParticleCollHandle_Muon::load()
   const_cast< xAOD::MuonContainer* >( coll )->setStore(
     ( SG::IAuxStore* ) coll->getConstStore() );
 
+  QList<const xAOD::TrackParticle*> listOfTrackParticles;
   //Make appropriate trk::track handles:
   // hintNumberOfTracksInEvent(coll->size());
   xAOD::MuonContainer::const_iterator it, itEnd = coll->end();
@@ -166,19 +179,82 @@ bool IParticleCollHandle_Muon::load()
     //   messageDebug("WARNING: Ignoring Muon which claims to be neutral (charge()==0.0).");
     //   continue;
     // }
-    addHandle(new IParticleHandle_Muon(this,*it));
+    IParticleHandle_Muon* muonH = new IParticleHandle_Muon(this,*it);
+    addHandle(muonH );
+    listOfTrackParticles<<muonH->muon().primaryTrackParticle();
+    
   }
+  emit shownAssociatedObjectsChanged(listOfTrackParticles);
 
   return true;
 }
 
 //____________________________________________________________________
-bool IParticleCollHandle_Muon::cut(IParticleHandleBase* handle)
+bool IParticleCollHandle_Muon::cut(AODHandleBase* handle)
 {
+  
   if (!IParticleCollHandleBase::cut(handle))
     return false;
 
+  IParticleHandle_Muon * muon = dynamic_cast<IParticleHandle_Muon*>(handle);
+  std::cout<<"muon: "<<muon<<"\t muon->quality()="<<muon->quality()<<" collSettingsButton().minimumQuality()="<<collSettingsButton().minimumQuality()<<std::endl;
+  if (!muon || static_cast<unsigned int>(muon->quality()) > collSettingsButton().minimumQuality() )
+    return false;
   //Fixme: more? Or just use base class method and remove this?
 
   return true;
 }
+
+void IParticleCollHandle_Muon::setMinimumQuality(unsigned int quality) {
+  if (quality == d->last_minimumQuality)
+    return;
+  std::cout<<"IParticleCollHandle_Muon::setMinimumQuality : "<<quality<<" last = "<<d->last_minimumQuality<<std::endl;
+  bool relaxcut = quality > d->last_minimumQuality;
+  d->last_minimumQuality = quality;
+
+  if (relaxcut)
+    recheckCutStatusOfAllNotVisibleHandles();
+  else
+    recheckCutStatusOfAllVisibleHandles();
+  
+  // If we shift this to the base class, then we can probably put it into one of the check methods
+  updateAssociatedTrackParticles();
+}
+
+void IParticleCollHandle_Muon::updateAssociatedTrackParticles()
+{
+  QList<const xAOD::TrackParticle*> listOfTrackParticles;
+  MuonCollectionSettingsButton::ShownAssociatedObjects so = collSettingsButton().shownAssociatedObjects();
+  
+  handleIterationBegin ();  
+  AODHandleBase * handle;
+  while ( (handle = getNextHandle() ) ) {
+    if (handle->visible()){
+      IParticleHandle_Muon* mhandle = dynamic_cast<IParticleHandle_Muon*>(handle);
+      if (mhandle && so) {        
+        // Only add if bit set, and if link!=0;
+        if (so.testFlag(MuonCollectionSettingsButton::TrackParticlesPrimary) &&  mhandle->muon().trackParticle( xAOD::Muon::Primary) ) 
+          listOfTrackParticles<<mhandle->muon().trackParticle( xAOD::Muon::Primary);
+        if (so.testFlag(MuonCollectionSettingsButton::TrackParticlesCB)  &&  mhandle->muon().trackParticle( xAOD::Muon::CombinedTrackParticle) ) 
+          listOfTrackParticles<<mhandle->muon().trackParticle( xAOD::Muon::CombinedTrackParticle);
+        if (so.testFlag(MuonCollectionSettingsButton::TrackParticlesID) &&  mhandle->muon().trackParticle( xAOD::Muon::InnerDetectorTrackParticle) ) 
+          listOfTrackParticles<<mhandle->muon().trackParticle( xAOD::Muon::InnerDetectorTrackParticle);
+        if (so.testFlag(MuonCollectionSettingsButton::TrackParticlesMS) &&  mhandle->muon().trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle) ) 
+          listOfTrackParticles<<mhandle->muon().trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle);
+        if (so.testFlag(MuonCollectionSettingsButton::TrackParticlesME) &&  mhandle->muon().trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) ) 
+          listOfTrackParticles<<mhandle->muon().trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+      }
+    }
+  }
+  std::cout<<"IParticleCollHandle_Muon::updateAssociatedTrackParticles Emitting "<<listOfTrackParticles.size()<<" track particles."<<std::endl;
+  emit shownAssociatedObjectsChanged(listOfTrackParticles);
+}
+
+void IParticleCollHandle_Muon::updateShownAssociatedObjects()
+{
+  std::cout<<"IParticleCollHandle_Muon::setShownAssociatedObjects : "<<std::endl;
+  updateAssociatedTrackParticles();
+}
+
+
+

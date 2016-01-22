@@ -128,18 +128,22 @@ TrackParticleCollectionSettingsButton::TrackParticleCollectionSettingsButton(QWi
   d->trackDrawStyle->ref();
   updateTrackDrawStyle();
   connect(d->editwindow_ui.horizontalSlider_trackWidth,SIGNAL(valueChanged(int)),this,SLOT(updateTrackDrawStyle()));
+  d->last_trackTubeRadius=trackTubeRadius();
+  connect(d->editwindow_ui.checkBox_trackTubes,SIGNAL(toggled(bool)),this,SLOT(updateTrackTubeRadius()));
+  connect(d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM,SIGNAL(valueChanged(double)),this,SLOT(updateTrackTubeRadius()));
+ 
   
   d->trackLightModel = new SoLightModel;
   d->trackLightModel->setName("TrackParticleLightModel");
   d->trackLightModel->ref();
   updateTrackLightModel(false);
   connect(d->editwindow_ui.checkBox_tracksUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateTrackLightModel(bool)));
-  
-  d->last_trackTubeRadius=trackTubeRadius();
-  connect(d->editwindow_ui.checkBox_trackTubes,SIGNAL(toggled(bool)),this,SLOT(updateTrackTubeRadius()));
-  connect(d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM,SIGNAL(valueChanged(double)),this,SLOT(updateTrackTubeRadius()));
-  
   connect(d->editwindow_ui.checkBox_hideactualpaths,SIGNAL(toggled(bool)),this,SLOT(updateHideActualTrackPath(bool)));
+  
+  // Propagation - for all of these, just emit the propagationOptionsChanged() signal and rely on clients checking to see what has changed.
+  connect(d->editwindow_ui.radioButton_existingParameters, SIGNAL(toggled(bool)),    this, SIGNAL(propagationOptionsChanged()));
+  connect(d->editwindow_ui.radioButton_extrapolate,        SIGNAL(toggled(bool)),    this, SIGNAL(propagationOptionsChanged()));
+  connect(d->editwindow_ui.horizontalSlider_numBezierSteps,SIGNAL(valueChanged(int)),this, SIGNAL(propagationOptionsChanged()));
 
   // -> parameters
   connect(d->editwindow_ui.checkBox_showparameters,SIGNAL(toggled(bool)),this,SLOT(possibleChange_showParameters()));
@@ -298,6 +302,14 @@ SoDrawStyle * TrackParticleCollectionSettingsButton::trackDrawStyle() const
 SoLightModel * TrackParticleCollectionSettingsButton::trackLightModel() const
 {
   return d->trackLightModel;
+}
+
+bool TrackParticleCollectionSettingsButton::useExistingParameters() const{
+  return d->editwindow_ui.radioButton_existingParameters->isChecked();
+}
+
+int TrackParticleCollectionSettingsButton::numOfStepsForInterpolation() const {
+  return d->editwindow_ui.horizontalSlider_numBezierSteps->value();
 }
 
 SoMaterial* TrackParticleCollectionSettingsButton::defaultParameterMaterial() const {

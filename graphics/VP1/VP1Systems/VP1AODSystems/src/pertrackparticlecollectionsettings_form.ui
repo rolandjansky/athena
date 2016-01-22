@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>756</height>
+    <height>892</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -151,6 +151,104 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Propagation</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_9">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="QRadioButton" name="radioButton_existingParameters">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>Try to use a simpler method to draw tracks</string>
+          </property>
+          <property name="text">
+           <string>Use existing track parameters  </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioButton_extrapolate">
+          <property name="text">
+           <string>Extrapolate from 1st parameter</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_17">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string># steps in interpolation</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="horizontalSlider_numBezierSteps">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>10</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_numBezierSteps">
+          <property name="text">
+           <string>1</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Parameters</string>
@@ -159,16 +257,16 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_14">
         <item>
-         <widget class="QCheckBox" name="checkBox_parameters_colourByType">
+         <widget class="QCheckBox" name="checkBox_showparameters">
           <property name="text">
-           <string>Colour parameters by type</string>
+           <string>Show parameters</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox_showparameters">
+         <widget class="QCheckBox" name="checkBox_parameters_colourByType">
           <property name="text">
-           <string>Show parameters</string>
+           <string>Colour parameters by type</string>
           </property>
          </widget>
         </item>
@@ -750,6 +848,22 @@
   <connection>
    <sender>checkBox_parameters_colourByType</sender>
    <signal>toggled(bool)</signal>
+   <receiver>frame_parameterTypeColours</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>214</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>371</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_parameters_colourByType</sender>
+   <signal>toggled(bool)</signal>
    <receiver>frame_defaultParameterColour</receiver>
    <slot>setHidden(bool)</slot>
    <hints>
@@ -764,18 +878,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_parameters_colourByType</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>frame_parameterTypeColours</receiver>
-   <slot>setVisible(bool)</slot>
+   <sender>horizontalSlider_numBezierSteps</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_numBezierSteps</receiver>
+   <slot>setNum(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>201</y>
+     <x>312</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
-     <x>214</x>
-     <y>371</y>
+     <x>416</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>

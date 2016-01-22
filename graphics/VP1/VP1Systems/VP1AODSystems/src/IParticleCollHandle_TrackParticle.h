@@ -30,12 +30,14 @@ public:
 
   static QStringList availableCollections(IVP1System*);//For the collection widget.
 
+  /// shouldLoad is used to disable the call to load if the collhandle is for temporary (read: associated) trackparticles.
   IParticleCollHandle_TrackParticle( AODSysCommonData *,
-         const QString& name, xAOD::Type::ObjectType type );
+         const QString& name, xAOD::Type::ObjectType type, bool shouldLoad=true );
   virtual ~IParticleCollHandle_TrackParticle();
 
   virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to this.
   virtual void setupSettingsFromControllerSpecific(AODSystemController*);
+  virtual void dumpToJSON( std::ofstream& ) const ;
 
   const TrackParticleCollectionSettingsButton& collSettingsButton() const;
 
@@ -45,11 +47,12 @@ public:
 
 protected:	
   virtual bool load();
-  virtual bool cut(IParticleHandleBase*);
+  virtual bool cut(AODHandleBase*);
   virtual QColor defaultColor() const { return QColor::fromRgbF(1.0f, 1.0f, 0.5f); }
 
 private slots:
   void showParametersChanged(bool);
+  void propagationOptionsChanged();
 
 private:
 

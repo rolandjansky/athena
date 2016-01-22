@@ -6,7 +6,9 @@
 #define VP1AODSYSTEMS_MUONCOLLSETTINGSBUTTON_H
 
 #include "VP1Base/VP1MaterialButton.h"
-#include "xAODTracking/TrackingPrimitives.h"
+#ifndef Q_MOC_RUN
+#include "xAODMuon/Muon.h"
+#endif 
 
 class SoDrawStyle;
 class SoLightModel;
@@ -45,8 +47,24 @@ public:
   
   // Parameters 
   SoMaterial* defaultParameterMaterial() const;
-  SoMaterial* parameterMaterial( xAOD::ParameterPosition) const;
+  SoMaterial* parameterMaterial( xAOD::ParameterPosition ) const;
     
+  // Quality cuts
+  unsigned int minimumQuality() const;
+  
+  enum ShownAssociatedObject {
+      Nothing = 0x0,
+      TrackParticlesPrimary = 0x1,
+      TrackParticlesCB = 0x2,
+      TrackParticlesID = 0x3,
+      TrackParticlesMS = 0x4,
+      TrackParticlesME = 0x5,
+      CaloClusters = 0x6,
+      Segments = 0x7
+  };
+  Q_DECLARE_FLAGS(ShownAssociatedObjects, ShownAssociatedObject)
+  ShownAssociatedObjects shownAssociatedObjects() const;
+  
   QByteArray saveState() const; //!< fill out with the state of the object (used for drag and drop etc)
   void restoreFromState( const QByteArray& );
   
@@ -58,7 +76,10 @@ public:
   void cutAllowedPtChanged(const VP1Interval&);
   void cutAllowedEtaChanged(const VP1Interval&);
   void cutAllowedPhiChanged(const QList<VP1Interval>&);
-
+  
+  void minimumQualityChanged(unsigned int);
+  
+  void shownAssociatedObjectsChanged(MuonCollectionSettingsButton::ShownAssociatedObjects);
    
   public slots:
   void showEditMaterialDialog();
@@ -86,7 +107,11 @@ private:
   void possibleChange_cutAllowedPt();
   void possibleChange_cutAllowedEta();
   void possibleChange_cutAllowedPhi();
+  void possibleChange_minimumQuality();
+  void possibleChange_shownAssociatedObjects();
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(MuonCollectionSettingsButton::ShownAssociatedObjects)
 
 #endif
 

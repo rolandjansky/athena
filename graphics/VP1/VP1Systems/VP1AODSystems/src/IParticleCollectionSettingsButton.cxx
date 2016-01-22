@@ -57,6 +57,12 @@ public:
 //____________________________________________________________________
 void IParticleCollectionSettingsButton::Imp::initEditWindow()
 {
+	/*
+	 * Note: the Eta-Phi widget is inserted
+	 * promoting an empty QWidget to VP1EtaPhiCutWidget
+	 * directly in the periparticlecollectionsettingsform.ui!!
+	 */
+
   if (editwindow)
     return;
   theclass->messageVerbose("Initialising material editor dialog");
