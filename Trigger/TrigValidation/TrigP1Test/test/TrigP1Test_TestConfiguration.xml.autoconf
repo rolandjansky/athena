@@ -102,8 +102,8 @@
 
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
         
-        <TEST name="HLT_physicsV5_COS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS --rundir HLT_physicsV5_COS --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_COS" type="script" suite="TrigP1HLTCOS"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS --rundir HLT_physicsV6_COS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -111,8 +111,8 @@
             </expectations> 
         </TEST>
 
-        <TEST name="HLT_physicsV5_COS_2012" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_2012 --rundir HLT_physicsV5_COS_2012 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_COS_2012" type="script" suite="TrigP1HLTCOS"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2012 --rundir HLT_physicsV6_COS_2012 --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -120,8 +120,8 @@
             </expectations> 
         </TEST>    
         
-        <TEST name="HLT_physicsV5_COS_2015MUONS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_2015MUONS --rundir HLT_physicsV5_COS_2015MUONS --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_COS_2015MUONS" type="script" suite="TrigP1HLTCOS"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015MUONS --rundir HLT_physicsV6_COS_2015MUONS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -129,8 +129,8 @@
             </expectations> 
         </TEST>
 
-        <TEST name="HLT_physicsV5_COS_2015IDCOSMICS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_2015IDCOSMICS --rundir HLT_physicsV5_COS_2015IDCOSMICS --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_COS_2015IDCOSMICS" type="script" suite="TrigP1HLTCOS"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015IDCOSMICS --rundir HLT_physicsV6_COS_2015IDCOSMICS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit>  
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -139,8 +139,8 @@
         </TEST>
 
         
-        <TEST name="HLT_physicsV5_COS_2015CALO" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_2015CALO --rundir HLT_physicsV5_COS_2015CALO   --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_COS_2015CALO" type="script" suite="TrigP1HLTCOS"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015CALO --rundir HLT_physicsV6_COS_2015CALO   --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -148,8 +148,8 @@
             </expectations> 
         </TEST>
 
-         <TEST name="HLT_physicsV5_COS_2015MBTS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_2015MBTS --rundir HLT_physicsV5_COS_2015MBTS   --conf TrigP1Test.conf</options_atn> 
+         <TEST name="HLT_physicsV6_COS_2015MBTS" type="script" suite="TrigP1HLTCOS"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015MBTS --rundir HLT_physicsV6_COS_2015MBTS   --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -163,8 +163,8 @@
         
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
         
-        <TEST name="HLT_mcV5" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV5 --rundir HLT_mcV5 --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_mcV6" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>      
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -172,8 +172,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_mcV5_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV5_caf --rundir HLT_mcV5_caf --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_mcV6_caf" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir --test HLT_mcV6_caf --rundir HLT_mcV6_caf --conf TrigP1Test.conf</options_atn>
             <timelimit>30</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -181,8 +181,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV5_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_caf --rundir HLT_physicsV5_caf --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV6_caf" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_caf --rundir HLT_physicsV6_caf --conf TrigP1Test.conf</options_atn>
             <timelimit>30</timelimit>
             <nightly_exclude>.*</nightly_exclude>
             <expectations>
@@ -191,8 +191,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="PrepareMenuKeys_mcV5_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_mcV5_caf --rundir PrepareMenuKeys_mcV5_caf --conf TrigP1Test.conf</options_atn>
+        <TEST name="PrepareMenuKeys_mcV6_caf" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_mcV6_caf --rundir PrepareMenuKeys_mcV6_caf --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <nightly_exclude>.*</nightly_exclude>
             <expectations>
@@ -201,8 +201,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="PrepareMenuKeys_physicsV5_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_physicsV5_caf --rundir PrepareMenuKeys_physicsV5_caf --conf TrigP1Test.conf</options_atn>
+        <TEST name="PrepareMenuKeys_physicsV6_caf" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_physicsV6_caf --rundir PrepareMenuKeys_physicsV6_caf --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <nightly_exclude>.*</nightly_exclude>
             <expectations>
@@ -211,8 +211,8 @@
             </expectations>
         </TEST>
 
-        <TEST name="HLT_mcV6" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_mcV5" type="script" suite="TrigP1HLTMC">
+            <options_atn>trigtest.pl --cleardir --test HLT_mcV5 --rundir HLT_mcV5 --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>      
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -224,8 +224,8 @@
         <!-- end of MC chain of tests -->
         
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
-        <TEST name="HLT_physicsV5" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5 --rundir HLT_physicsV5 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6" type="script" suite="TrigP1HLTphysv6"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -233,8 +233,8 @@
             </expectations> 
         </TEST> 
 
-        <TEST name="HLT_physicsV5_L1Topo_data" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_L1Topo_data --rundir HLT_physicsV5_L1Topo_data --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_L1Topo_data" type="script" suite="TrigP1HLTphysv6"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_L1Topo_data --rundir HLT_physicsV6_L1Topo_data --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -242,8 +242,8 @@
             </expectations> 
         </TEST> 
 
-        <TEST name="HLT_physicsV5_ALFAMon" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_ALFAMon --rundir HLT_physicsV5_ALFAMon --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_ALFAMon" type="script" suite="TrigP1HLTphysv6"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_ALFAMon --rundir HLT_physicsV6_ALFAMon --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -251,8 +251,8 @@
             </expectations> 
         </TEST> 
 
-        <TEST name="HLT_physicsV5_rerunlvl1" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_rerunlvl1 --rundir HLT_physicsV5_rerunlvl1 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_rerunlvl1" type="script" suite="TrigP1HLTphysv6"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunlvl1 --rundir HLT_physicsV6_rerunlvl1 --conf TrigP1Test.conf</options_atn> 
             <timelimit>35</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -260,8 +260,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="RAWtoESD_physicsV5" type="script" suite="TrigP1HLTphysV5"> 
-            <options_atn>trigtest.pl --cleardir  --test RAWtoESD_physicsV5 --rundir RAWtoESD_physicsV5 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="RAWtoESD_physicsV6" type="script" suite="TrigP1HLTphysV6"> 
+            <options_atn>trigtest.pl --cleardir  --test RAWtoESD_physicsV6 --rundir RAWtoESD_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -269,8 +269,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="TrigEDMCheck_physicsV5" type="script" suite="TrigP1HLTphysV5"> 
-            <options_atn>trigtest.pl --cleardir  --test TrigEDMCheck_physicsV5 --rundir TrigEDMCheck_physicsV5 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="TrigEDMCheck_physicsV6" type="script" suite="TrigP1HLTphysV6"> 
+            <options_atn>trigtest.pl --cleardir  --test TrigEDMCheck_physicsV6 --rundir TrigEDMCheck_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit>           
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -278,8 +278,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="TrigDecTool_physicsV5" type="script" suite="TrigP1HLTphysV5"> 
-            <options_atn>trigtest.pl --cleardir  --test TrigDecTool_physicsV5 --rundir TrigDecTool_physicsV5 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="TrigDecTool_physicsV6" type="script" suite="TrigP1HLTphysV6"> 
+            <options_atn>trigtest.pl --cleardir  --test TrigDecTool_physicsV6 --rundir TrigDecTool_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -287,7 +287,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaP1BS_standalone" type="script" suite="TrigP1HLTphysV5">
+        <TEST name="AthenaP1BS_standalone" type="script" suite="TrigP1HLTphysV6">
             <options_atn>trigtest.pl --cleardir --test AthenaP1BS_standalone  --rundir AthenaP1BS_standalone --conf TrigP1Test.conf</options_atn>
             <timelimit>30</timelimit>
             <expectations>
@@ -296,8 +296,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV5_magField_on_off_on" type="script" suite="TrigP1HLTphysV5">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_magField_on_off_on --rundir HLT_physicsV5_magField_on_off_on --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV6_magField_on_off_on" type="script" suite="TrigP1HLTphysV6">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_magField_on_off_on --rundir HLT_physicsV6_magField_on_off_on --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit> 
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -305,8 +305,8 @@
             </expectations>
         </TEST>
 
-        <TEST name="HLT_physicsV6" type="script" suite="TrigP1HLTphysv5"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV5" type="script" suite="TrigP1HLTphysv6"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5 --rundir HLT_physicsV5 --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -316,12 +316,12 @@
         
         
         <!-- ENABLE-IN-PROJECT-END --> 
-        <!-- End of physics V5 menu chain --> 
+        <!-- End of physics V6 menu chain --> 
         
         <!--  chain of test with various data, menu and detector conditions -->
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT-->
-        <TEST name="HLT_physicsV5_run_stop_run" type="script" suite="TrigP1HLTvarious">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_run_stop_run --rundir HLT_physicsV5_run_stop_run --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV6_run_stop_run" type="script" suite="TrigP1HLTvarious">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_run_stop_run --rundir HLT_physicsV6_run_stop_run --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -329,8 +329,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV5_beamspot" type="script" suite="TrigP1HLTvarious">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV5_beamspot --rundir HLT_physicsV5_beamspot --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV6_beamspot" type="script" suite="TrigP1HLTvarious">
+            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_beamspot --rundir HLT_physicsV6_beamspot --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -420,8 +420,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="TrfTestPPV5" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir  --test TrfTestPPV5 --rundir TrfTestPPV5 --conf TrigP1Test.conf</options_atn>
+        <TEST name="TrfTestPPV6" type="script" suite="TrigP1HLTmenus">
+            <options_atn>trigtest.pl --cleardir  --test TrfTestPPV6 --rundir TrfTestPPV6 --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <nightly_exclude>.*</nightly_exclude>
             <expectations>
@@ -430,8 +430,8 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV5_prescaleChange" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_prescaleChange --rundir HLT_physicsV5_prescaleChange --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV6_prescaleChange" type="script" suite="TrigP1HLTmenus">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_prescaleChange --rundir HLT_physicsV6_prescaleChange --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <nightly_exclude>.*</nightly_exclude>
             <expectations>
@@ -440,10 +440,10 @@
             </expectations>
         </TEST>
         
-        <!--  rerun MT and PT on physics_pp_V5 menu and upload to db again (same test, different dir), check same key returned: only in P1 HLT -->
+        <!--  rerun MT and PT on physics_pp_V6 menu and upload to db again (same test, different dir), check same key returned: only in P1 HLT -->
         
-        <TEST name="HLT_physicsV5_rerun" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_rerun --rundir HLT_physicsV5_rerun --conf TrigP1Test.conf</options_atn>
+        <TEST name="HLT_physicsV6_rerun" type="script" suite="TrigP1HLTmenus">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerun --rundir HLT_physicsV6_rerun --conf TrigP1Test.conf</options_atn>
             <timelimit>20</timelimit>          
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -479,8 +479,8 @@
         <!--  A short chain of tests on data with the T0 reco release -->
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
                        
-         <TEST name="Trigreco_physicsV5_currentT0" type="script" suite="TrigP1HLTvarious"> 
-            <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV5_currentT0 --rundir Trigreco_physicsV5_currentT0 --conf TrigP1Test.conf</options_atn> 
+         <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
+            <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV6_currentT0 --rundir Trigreco_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>35</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -488,8 +488,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="TrigEDMCheck_physicsV5_currentT0" type="script" suite="TrigP1HLTvarious"> 
-            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV5_currentT0 --rundir TrigEDMCheck_physicsV5_currentT0 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="TrigEDMCheck_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
+            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV6_currentT0 --rundir TrigEDMCheck_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -573,7 +573,7 @@
             <prerequisite>TrigP1HLTMC</prerequisite>
             <prerequisite>TrigP1HLTcore</prerequisite>
              <prerequisite>TrigP1HLTCOS</prerequisite> 
-            <prerequisite>TrigP1HLTphysv5</prerequisite>
+            <prerequisite>TrigP1HLTphysv6</prerequisite>
             <prerequisite>TrigP1HLTvarious</prerequisite>
             <prerequisite>TrigP1HLTmenus</prerequisite>
             <prerequisite>TrigP1HLThiV3</prerequisite>
@@ -589,7 +589,7 @@
             <prerequisite>TrigP1HLTMC</prerequisite>
             <prerequisite>TrigP1HLTcore</prerequisite>
             <prerequisite>TrigP1HLTCOS</prerequisite>
-            <prerequisite>TrigP1HLTphysv5</prerequisite>
+            <prerequisite>TrigP1HLTphysv6</prerequisite>
             <prerequisite>TrigP1HLTvarious</prerequisite>
             <prerequisite>TrigP1HLTmenus</prerequisite>
             <prerequisite>TrigP1HLThiV3</prerequisite>
@@ -630,7 +630,7 @@
                 </doc>
                 <jobTransformJobName>All_data_run_stop_run_chain</jobTransformJobName>
                 <jobTransformCmd>
-                    get_files run-stop-run-saveHist-rtt.trans; athenaHLT.py --perfmon -i -M -F /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/RTT/data/BS/rttEBdataRunStopRunEvents.py -o All_data_run_stop_run -c "testPhysicsV5=True;rerunLVL1=True;doValidation=True" TrigP1Test/runHLT_standaloneRTT.py &lt; run-stop-run-saveHist-rtt.trans
+                    get_files run-stop-run-saveHist-rtt.trans; athenaHLT.py --perfmon -i -M -F /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/RTT/data/BS/rttEBdataRunStopRunEvents.py -o All_data_run_stop_run -c "testPhysicsV6=True;rerunLVL1=True;doValidation=True" TrigP1Test/runHLT_standaloneRTT.py &lt; run-stop-run-saveHist-rtt.trans
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
@@ -643,7 +643,7 @@
                 <jobTransformJobName>athenaHLT_on_data_leakCheck</jobTransformJobName>
                 <jobTransformCmd>
                     export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc47-opt/lib/libunwind.so ; 
-                    athenaHLT.py --stdcmalloc --leak-check-execute  -o HLT_physicsV5  -n 100 -f /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 -c 'testPhysicsV5=True;HLTOutputLevel=WARNING;doValidation=True' TrigP1Test/runHLT_standaloneRTT_leakCheck.py
+                    athenaHLT.py --stdcmalloc --leak-check-execute  -o HLT_physicsV6  -n 100 -f /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 -c 'testPhysicsV6=True;HLTOutputLevel=WARNING;doValidation=True' TrigP1Test/runHLT_standaloneRTT_leakCheck.py
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>

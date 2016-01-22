@@ -22,7 +22,7 @@ if [ "$type" == "HLT_LS1V1" ]; then
 elif [ "$type" == "HLT_physicsV5" ]; then
   stump="Physics_pp_v5"
 elif [ "$type" == "HLT_physicsV6" ]; then
-  stump="Physics_pp_v5"
+  stump="Physics_pp_v6"
 else 
   stump=""
 fi
