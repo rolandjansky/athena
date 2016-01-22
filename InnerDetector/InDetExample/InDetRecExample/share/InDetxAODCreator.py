@@ -72,7 +72,7 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
         xAODDBMTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() 
         xAODDBMTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.DBMTracksTruth() 
         xAODDBMTrackParticleCnvAlg.PrintIDSummaryInfo = True 
-        xAODDBMTrackParticleCnvAlg.OutputLevel = VERBOSE 
+        #xAODDBMTrackParticleCnvAlg.OutputLevel = VERBOSE 
         topSequence += xAODDBMTrackParticleCnvAlg 
 
 if not InDetFlags.doVertexFinding():
@@ -144,13 +144,13 @@ if InDetFlags.doTrackSegmentsPixelPrdAssociation() and InDetFlags.doParticleCrea
  xAODPixelPrdAssociationTrackParticleCnvAlg.xAODContainerName = InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()
  xAODPixelPrdAssociationTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()
  xAODPixelPrdAssociationTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool
- # xAODPixelPrdAssociationTrackParticleCnvAlg.TrackContainerName = InDetKeys.PixelPrdAssociationTracks()
- xAODPixelPrdAssociationTrackParticleCnvAlg.TrackContainerName = InDetKeys.ExtendedTracksPixelPrdAssociation()
+ xAODPixelPrdAssociationTrackParticleCnvAlg.TrackContainerName = InDetKeys.PixelPrdAssociationTracks()
+ xAODPixelPrdAssociationTrackParticleCnvAlg.TrackTruthContainerName = InDetKeys.PixelPrdAssociationTracksTruth()
  xAODPixelPrdAssociationTrackParticleCnvAlg.ConvertTrackParticles = False
  xAODPixelPrdAssociationTrackParticleCnvAlg.ConvertTracks = True
- xAODPixelPrdAssociationTrackParticleCnvAlg.AddTruthLink = False
+ xAODPixelPrdAssociationTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth()
  xAODPixelPrdAssociationTrackParticleCnvAlg.PrintIDSummaryInfo = True
- #xAODPixelTrackParticleCnvAlg.OutputLevel = VERBOSE
+ #xAODPixelPrdAssociationTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODPixelPrdAssociationTrackParticleCnvAlg
 
 if InDetFlags.doTrackSegmentsSCT() and InDetFlags.doParticleCreation():

@@ -658,7 +658,7 @@ else:
       InDetNewTrackingCutsPixelPrdAssociation.printInfo()
       # --- configure pixel segment finding
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.PixelPrdAssociationTracks(),
+      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedPixelPrdAssociationTracks(),
                                                                  InDetKeys.SiSpSeededPixelTracks(),
                                                                  InDetNewTrackingCutsPixelPrdAssociation,
                                                                  TrackCollectionKeys,
@@ -666,7 +666,7 @@ else:
 
       include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
       InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
-                                                                 InDetKeys.SiSpSeededPixelTracks(),
+                                                                 InDetKeys.ResolvedPixelPrdAssociationTracks(),
                                                                  InDetKeys.ExtendedTracksPixelPrdAssociation(),
                                                                  InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
                                                                  TrackCollectionKeys,
@@ -955,7 +955,37 @@ else:
           # add final output for statistics
           #
             TrackCollectionTruthKeys += [ InDetKeys.UnslimmedTracksTruth() ]
-          
+    
+    
+
+      # Dummy Merger to fill additional info for PRD-associated pixel tracklets
+      if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+       DummyCollection = []
+       DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+       TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
+                                                                 TracksLocation          = DummyCollection,
+                                                                 OutputTracksLocation    = InDetKeys.PixelPrdAssociationTracks(),
+                                                                 AssoTool                = InDetPrdAssociationTool,
+                                                                 UpdateSharedHitsOnly    = False,
+                                                                 UpdateAdditionalInfo    = True,
+                                                                 SummaryTool             = InDetTrackSummaryToolSharedHits)
+       #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
+       topSequence += TrkTrackCollectionMerger_pix
+
+       
+       if InDetFlags.doTruth():
+          # set up the truth info for this container
+          #
+            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelPrdAssociationTracks(),
+                                                         InDetKeys.PixelPrdAssociationDetailedTracksTruth(),
+                                                         InDetKeys.PixelPrdAssociationTracksTruth())
+    
+
+       if (InDetFlags.doPrintConfigurables()):
+         print TrkTrackCollectionMerger_pix
+
+
     # ------------------------------------------------------------
     #
     # ----------- prepare output track collection for post processing
