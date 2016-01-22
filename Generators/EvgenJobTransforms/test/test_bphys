@@ -2,7 +2,7 @@
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
-Generate_tf.py --ecmEnergy=8000 --runNumber=108411 --maxEvents=10 \
-    --jobConfig=$JODIR/share/tests/MC14.208201.Pythia8B_AU2_CTEQ6L1_bb_Jpsimu4mu4.py \
+Generate_tf.py --ecmEnergy=13000 --runNumber=304697 --maxEvents=10 \
+    --jobConfig=$JODIR15/share/DSID304xxx/MC15.304697.Pythia8BEvtGen_A14NNPDF23LO_pp_JpsimumuZmumu.py \
     --outputEVNTFile=test_bb_Jpsimu4mu4X.EVNT.pool.root \
     $@
