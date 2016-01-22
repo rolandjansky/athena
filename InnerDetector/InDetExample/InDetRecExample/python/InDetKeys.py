@@ -437,6 +437,18 @@ class SiSpSeededPixelPrdAssociationTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeededPixelPrdAssociationTracks'
 
+class PixelPrdAssociationTracksTruth(JobProperty):
+    """StoreGate key for pixel tracks truth run after New Tracking on remaining PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelPrdAssociationTracksTruthCollection'
+
+class PixelPrdAssociationDetailedTracksTruth(JobProperty):
+    """StoreGate key for detailed pixel tracks truth run after New Tracking on remaining PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelPrdAssociationTracksDetailedTruth'
+
 class SiSpSeededSCTTracks(JobProperty):
     """StoreGate key for SP seeded SCT standalone tracks """
     statusOn     = True
@@ -462,7 +474,7 @@ class PixelTracksTruth(JobProperty):
     StoredValue  = 'ResolvedPixelTrackTruthCollection'
 
 
-class PixelPrdAssociationTracks(JobProperty):
+class ResolvedPixelPrdAssociationTracks(JobProperty):
     """StoreGate key for resolved pixel tracks run after New Tracking on remaining PRDs"""
     statusOn     = True
     allowedTypes = ['str']
@@ -473,6 +485,12 @@ class ExtendedTracksPixelPrdAssociation(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ExtendedTracksPixelPrdAssociation'
+
+class PixelPrdAssociationTracks(JobProperty):
+    """StoreGate key for rfinal pixel tracks run after New Tracking on remaining PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelPrdAssociationTracks'
 
 class ExtendedTracksMapPixelPrdAssociation(JobProperty):
     """ Storegate key for new-tracking extended pixel tracks map"""
@@ -1037,8 +1055,11 @@ jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedPixelPrdAssociationTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksPixelPrdAssociation)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapPixelPrdAssociation)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)

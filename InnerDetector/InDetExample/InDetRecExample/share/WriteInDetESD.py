@@ -83,6 +83,12 @@ if InDetFlags.doBeamGas():
    InDetESDList+=["TrackCollection#"+InDetBeamGasTRTExtension.ForwardTrackCollection()] #ExtendedHaloTracks
 if InDetFlags.doBeamHalo():
    InDetESDList+=["TrackCollection#"+InDetRecHaloTRTExtension.ForwardTrackCollection()] #ExtendedBeamGasTracks 
+
+if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+  InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
+  if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
    
 # Add TRT Segments (only if standalone is off).
 # -----------------
