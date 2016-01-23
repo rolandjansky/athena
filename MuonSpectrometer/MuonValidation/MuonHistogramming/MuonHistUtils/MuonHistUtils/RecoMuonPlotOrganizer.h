@@ -11,6 +11,7 @@
 #include "MuonHistUtils/RecoMuonTrackPlotOrganizer.h"
 #include "MuonHistUtils/RecoInfoPlots.h"
 #include "MuonHistUtils/MuonParamPlots.h"
+#include "MuonHistUtils/ChargeDepParamPlots.h"
 #include "MuonHistUtils/MomentumPullPlots.h"
 #include "MuonHistUtils/MuonIsolationPlots.h"
 #include "MuonHistUtils/MuonHitSummaryPlots.h"
@@ -21,11 +22,11 @@
 
 namespace Muon
 {
-  enum RECOPLOTCLASS {MUON_TRKPARAM,MUON_PARAM,MUON_TRKIMPACT,MUON_RECOINFO,MUON_MOMPULLS,MUON_HITS,MUON_ISO,MAX_RECOPLOTCLASS};
+  enum RECOPLOTCLASS {MUON_TRKPARAM=0,MUON_PARAM,MUON_TRKIMPACT,MUON_RECOINFO,MUON_MOMPULLS,MUON_HITS,MUON_ISO,MUON_CHARGEPARAM,MAX_RECOPLOTCLASS};
   
   class RecoMuonPlotOrganizer:public PlotBase {
   public:
-    RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir,std::vector<int> *selPlots=0);
+    RecoMuonPlotOrganizer(PlotBase* pParent, std::string sDir, std::vector<int> *selPlots=0);
     ~RecoMuonPlotOrganizer();
     
     std::vector<PlotBase*> m_allPlots;
@@ -41,7 +42,9 @@ namespace Muon
     Muon::MomentumPullPlots         *m_oMomentumPullPlots;
     Muon::MuonHitSummaryPlots       *m_oMuonHitSummaryPlots;
     Muon::MuonIsolationPlots        *m_oMuonIsolationPlots;
-
+    Muon::ChargeDepParamPlots       *m_oChargeParamPlotsLowPt;
+    Muon::ChargeDepParamPlots       *m_oChargeParamPlotsHighPt;
+  
   };
  
 }
