@@ -25,7 +25,7 @@ class MuonValidationPlots:public PlotBase {
 
     std::vector<unsigned int> m_selectedAuthors;
     std::vector<std::string> m_truthSelections;    
- 
+    
     Muon::RecoMuonPlotOrganizer *m_oRecoMuonPlots;
     Muon::TruthRelatedMuonPlotOrganizer *m_oTruthRelatedMuonPlots;
     std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_perQuality;
@@ -33,7 +33,10 @@ class MuonValidationPlots:public PlotBase {
     std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_perQuality;
     std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_perAuthor;
     std::vector<Muon::TruthMuonPlotOrganizer*> m_oTruthMuonPlots;
-
+    
+    std::vector<Muon::TruthRelatedMuonPlotOrganizer*> m_oTruthRelatedMuonPlots_SiAssocFwrdMu;
+    std::vector<Muon::RecoMuonPlotOrganizer*> m_oRecoMuonPlots_SiAssocFwrdMu;
+  
  private:
     void fillRecoMuonPlots(const xAOD::Muon& mu);
     void fillTruthMuonPlots(const xAOD::TruthParticle &truthMu);

@@ -17,23 +17,24 @@ def browseDir( dir ):
     path = dir.GetPath().split(':/', 1)[-1]
     pathdir = dir #.GetDirectory(path)
     #print pathdir.GetPath()
+    keylist = dir.GetListOfKeys()
     
-    for key in dir.GetListOfKeys():
+    for key in keylist:
         obj = key.ReadObj()
 
         #2D histograms cannot be compared, tprofiles and efficiencies should not be normalized; skip
-        if obj.IsA().InheritsFrom(ROOT.TH2.Class()) or obj.IsA().InheritsFrom(ROOT.TProfile.Class()) or "Eff" in obj.GetName() or 'RecoFraction' in obj.GetName() or 'Purity' in obj.GetName() or "PtResol" in obj.GetName() or "PtScale" in obj.GetName() or "Prof" in obj.GetName() or "Fit" in obj.GetName():
+        if obj.IsA().InheritsFrom(ROOT.TH2.Class()) or obj.IsA().InheritsFrom(ROOT.TProfile.Class()) or "fficiency" in obj.GetName() or 'RecoFraction' in obj.GetName() or 'purity' in obj.GetName() or "PtResol" in obj.GetName() or "PtScale" in obj.GetName() or "Prof" in obj.GetName() or "Fit" in obj.GetName():
             continue
 
         if obj.IsA().InheritsFrom(ROOT.TH1.Class()) :
             #normalize
             #print '----- ', obj.GetName()
             ii = 1.*obj.Integral()
-            hname = obj.GetName()      
+            hname = obj.GetName()
             if ii>0:
                  obj.Scale(1./ii)
                  #print '   ',hname
-                 pathdir.WriteTObject( obj ) #, hname , "Overwrite" )
+                 pathdir.WriteTObject( obj , hname , "WriteDelete" )
             continue
 
         if obj.IsA().InheritsFrom(ROOT.TDirectory.Class()):
