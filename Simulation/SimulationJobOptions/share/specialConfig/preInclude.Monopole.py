@@ -78,19 +78,15 @@ if doG4SimConfig:
 
     simFlags.InitFunctions.add_function("postInit", setup_stepper_classicalrk4)
 
-    def setup_looperkiller():
-        from G4AtlasApps import PyG4Atlas,AtlasG4Eng
-        myLooperKiller = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-        myLooperKiller.set_Properties({"MaxSteps":"2000000","PrintSteps":"2","VerboseLevel":"0"})
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myLooperKiller)
+    # configure the looper killer
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+    from AthenaCommon.CfgGetter import getPublicToolClone
+    # use specific configuration
+    lkAction = getPublicToolClone("LooperKillerMonopole", "LooperKiller", PrintSteps=2, MaxSteps=2000000, VerboseLevel=0)
+    UAStore.addAction(lkAction,['Step'])
+    # add HIP killer
+    UAStore.addAction('HIPKiller',['Step'])
 
-    simFlags.InitFunctions.add_function("postInit", setup_looperkiller)
 
-    def setup_hipkiller():
-        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-        myHipKiller = PyG4Atlas.UserAction('G4UserActions', 'HIPKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(myHipKiller)
-
-    simFlags.InitFunctions.add_function("postInit", setup_hipkiller)
 
 del doG4SimConfig, simdict

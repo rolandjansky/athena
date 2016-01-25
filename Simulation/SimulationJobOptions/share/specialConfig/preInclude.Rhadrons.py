@@ -406,8 +406,8 @@ if simdict.has_key("DECAYS"):
   from PythiaRhad_i.PythiaRhad_iConf import PythiaRhad
   genSeq +=PythiaRhad()
   genSeq.PythiaRhad.useAtlasPythiaTune09=False
-  #genSeq.PythiaRhad.Tune_Name="PYTUNE_103"
-  genSeq.PythiaRhad.Tune_Name="ATLAS_20110003"
+  genSeq.PythiaRhad.Tune_Name="PYTUNE_103"
+  #genSeq.PythiaRhad.Tune_Name="ATLAS_20110003"
   genSeq.PythiaRhad.PythiaCommand += [
     "pyinit pylisti 12",
     "pyinit pylistf 1",
@@ -539,6 +539,7 @@ if simdict.has_key("DECAYS"):
     genSeq.PythiaRhad.boost_rh_to_rest_frame=True
     genSeq.PythiaRhad.rotate_rh=True
     genSeq.PythiaRhad.translate_rh_to_stopping_position=True
+    genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
     genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
     try:
       include("StoppingInput.txt")
@@ -606,6 +607,7 @@ if simdict.has_key("DECAYS"):
     genSeq.PythiaRhad.boost_rh_to_rest_frame=True
     genSeq.PythiaRhad.rotate_rh=True
     genSeq.PythiaRhad.translate_rh_to_stopping_position=True
+    genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
     genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
     try:
       include("StoppingInput.txt")
@@ -650,6 +652,7 @@ if simdict.has_key("DECAYS"):
     genSeq.PythiaRhad.boost_rh_to_rest_frame=True
     genSeq.PythiaRhad.rotate_rh=True
     genSeq.PythiaRhad.translate_rh_to_stopping_position=True
+    genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
     genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
     try:
       include("StoppingInput.txt")
