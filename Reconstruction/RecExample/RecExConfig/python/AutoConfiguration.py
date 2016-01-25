@@ -22,6 +22,7 @@ KnownCosmicsProjects=["data08_calocomm","data08_muoncomm","data08_cos","data08_c
                       "data13_calib","data13_calocomm","data13_cos","data13_idcomm","data13_larcomm","data13_muoncomm","data13_tilecomm",
                       "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14_tilecomm",
                       "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
+                      "data16_calib","data16_calocomm","data16_cos","data16_idcomm","data16_larcomm","data16_muoncomm","data16_tilecomm"
                       ]
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
@@ -35,10 +36,11 @@ KnownCollisionsProjects=["data08","data08_coll900","data09","data09_coll900","da
                          "data11_7TeV","data11_8TeV","data11_2p76TeV","data11_comm","data11_900GeV","data11_1beam","data11_hip", 
                          "data12_8TeV","data12_comm","mc12_8TeV","IS_SIMULATION","data12_1beam","data12_900GeV",
                          "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
-                         "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV"
+                         "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV",
+                         "data16_comm","data16_13TeV","data16_900GeV","data16_1beam"
                          ]
 
-KnownHeavyIonProjects=["data10_hi","data11_hi","data15_hi"]
+KnownHeavyIonProjects=["data10_hi","data11_hi","data15_hi","data16_hi"]
 
 KnownHeavyIonProtonProjects=["data12_hip","data13_hip"]
 
