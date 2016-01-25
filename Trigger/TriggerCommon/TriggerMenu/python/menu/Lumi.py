@@ -139,6 +139,10 @@ def lumi(triggerPythonConfig):
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'tightperf_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_tightperf_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_tightperf_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
         elif 'loose_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_loose_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_loose_mc_prescale
@@ -203,6 +207,7 @@ def applyPrescales(triggerPythonConfig, HLTPrescales):
     #now also the loose and tight prescales in mc
     if 'loose_mc_prescale' in TriggerFlags.triggerMenuSetup() or \
        'tight_mc_prescale' in TriggerFlags.triggerMenuSetup() or \
+       'tightperf_mc_prescale' in TriggerFlags.triggerMenuSetup() or \
        'special_mc_prescale' in TriggerFlags.triggerMenuSetup(): mc_loose_tight_prescale = True
         
     if 'no_Bphysics' in TriggerFlags.triggerMenuSetup(): no_Bphysics = True

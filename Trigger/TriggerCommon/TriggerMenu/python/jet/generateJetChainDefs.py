@@ -132,12 +132,13 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonIsoB])
     
     # adding seq using jetTE and TE from seq above (MuonCluster fex)
-    theChainDef.addSequence([fexes_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
+#    theChainDef.addSequence([fexes_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
+    theChainDef.addSequence([fexes_l2_MuonCluster,hypos_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterFex])
 
-    # adding MuonCluster hypo
-    theChainDef.addSequence([hypos_l2_MuonCluster], TEmuonClusterFex, TEmuonClusterHypo)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterHypo])
+#    # adding MuonCluster hypo
+#    theChainDef.addSequence([hypos_l2_MuonCluster], TEmuonClusterFex, TEmuonClusterHypo)
+#    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterHypo])
 
     return theChainDef
 
@@ -199,7 +200,7 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
     for topo_item in topoAlgs:
         algoName = algoName+"_"+topo_item
         if 'deta' in topo_item:
-            detaCut=float(topo_item.split('deta')[1]) 
+            detaCut=(float(topo_item.split('deta')[1])/10.) 
         else:
             logJet.debug("No deta threshold in topo definition, using default deta=99.")
             detaCut = -99.

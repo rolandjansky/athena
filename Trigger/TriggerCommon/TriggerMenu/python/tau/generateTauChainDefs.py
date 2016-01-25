@@ -8,6 +8,7 @@ __version__="Implementation of Tau Slice"
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
+from AthenaCommon.SystemOfUnits import mm
 
 from TriggerMenu.tau.TauDef import L2EFChain_tau as L2EFChain_tau
 try:
@@ -54,4 +55,41 @@ def generateChainDefs(chainDict):
     else:
         theChainDef = listOfChainDefs[0]
         
+    #add support for topological algorithms
+    if chainDict["topo"]:
+        log.info("Adding Tau Topological Algorithm(s) to chain")
+        theChainDef = _addTopoInfo(theChainDef,chainDict)    
+        
     return theChainDef
+
+L2VertexDistances = {'L' : 3 * mm, 'M' : 2 * mm, 'T' : 1 * mm}
+
+def _addTopoInfo(theChainDef,chainDict):
+    if(chainDict["topo"][0][:-1] == 'ditau'):
+        #find the last preselection step
+        lastPreselectionStep = None
+        i = 0
+        for signature in theChainDef.signatureList:
+            #All preselection steps should start with L2
+            if signature['listOfTriggerElements'][0][:2] == "L2":
+                lastPreselectionStep = i
+            i = i + 1
+        
+        from TrigTauHypo.TrigTauHypoConf import HLTVertexCombo
+        from TrigTauHypo.TrigTauHypoConf import HLTVertexPreSelHypo
+        theHLTVertexCombo = HLTVertexCombo()
+        theHLTVertexPreSelHypo = HLTVertexPreSelHypo(name = "HLTVertexPreSelHypo_" + chainDict["topo"][0])
+        
+        #set the allowable distance in z between vertices
+        theHLTVertexPreSelHypo.acceptableZ0Distance = L2VertexDistances[chainDict["topo"][0][-1]]
+        
+        
+        preselectionTEName = "L2_" + chainDict['chainName']
+        preselectionAlgorithms = [theHLTVertexCombo, theHLTVertexPreSelHypo]
+        preselectionTEs = theChainDef.signatureList[lastPreselectionStep]['listOfTriggerElements']
+        theChainDef.addSequence(preselectionAlgorithms, preselectionTEs, preselectionTEName, None)
+        theChainDef.addSignatureL2([preselectionTEName])
+        
+        return theChainDef
+
+
