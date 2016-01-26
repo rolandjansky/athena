@@ -4,7 +4,7 @@
 # @purpose the central module to parse command line options of athena.py
 # @date December 2009
 
-__version__ = "$Revision: 672545 $"
+__version__ = "$Revision: 708288 $"
 __doc__ = "a module to parse command line options for athena.py"
 __author__ = "Sebastien Binet"
 
@@ -383,6 +383,10 @@ def parse(chk_tcmalloc=True):
 
         elif opt in ("--debugWorker",):
             opts.debug_worker = True
+
+    # Unconditionally set this environment (see JIRA ATEAM-241)
+    # This behavior can be controlled by a flag, if needed
+    os.environ['LIBC_FATAL_STDERR_']='1'        
 
     # overwrite nprovs if ATHENA_PROC_NUMBER is set
     envNProcs = os.getenv('ATHENA_PROC_NUMBER')
