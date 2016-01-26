@@ -23,6 +23,7 @@
    <TEST name="AthenaCommon_JobOptions" type="script">
       <package>Control/AthenaCommon</package>
       <options>JobOptionsUnitTests.py</options>
+      <project_exclude>AthAnalysis</project_exclude>
       <author> Wim Lavrijsen </author>
       <mailto> pcalafiura@lbl.gov, binet@cern.ch, wlav@lbl.gov </mailto>
       <expectations>
