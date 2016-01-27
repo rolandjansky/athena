@@ -245,9 +245,7 @@ private:
   /// Set the xAOD::EventInfo in the event store
   StatusCode prepXAODEventInfo() const;
   /// Update the magnet field from IS when necessary and possible
-  StatusCode updMagField() const;
-  /// Set magnetic field from IS
-  StatusCode setMagFieldFromIS() const;
+  StatusCode updMagField(const boost::property_tree::ptree& pt) const;
   /// Reset selected proxies / IOV folders
   StatusCode resetCoolValidity();
   /// Helper to log a message with some details when ready to run
@@ -372,9 +370,9 @@ private:
   TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Retained_Collections; //!< HLT EDM sizes for all collections which were retained in a truncated HLT result
   TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections;//!< HLT EDM sizes for all collections which were truncated in a truncated HLT result
   // --------------------------- Properties -------------------------------------
-  BooleanProperty           m_setMagFieldFromIS; //!< Read magnet currents from IS
-  StringProperty            m_applicationName;   //!< Application Name (="None" or "athenaHLT" for simulated data, "HLTMPPU-xx"? in online environment) */
-  StringProperty            m_partitionName;     //!< Partition Name (="None" for offline, real partion name in online environment)
+  BooleanProperty           m_setMagFieldFromPtree; //!< Read magnet currents from ptree
+  StringProperty            m_applicationName;      //!< Application Name (="None" or "athenaHLT" for simulated data, "HLTMPPU-xx"? in online environment) */
+  StringProperty            m_partitionName;        //!< Partition Name (="None" for offline, real partion name in online environment)
   BooleanProperty           m_forceHltReject;      // force reject of all events 
   BooleanProperty           m_forceHltAccept;      // force accept of all events
   StringProperty            m_HltResultName;       // name of HLT result in StoreGate

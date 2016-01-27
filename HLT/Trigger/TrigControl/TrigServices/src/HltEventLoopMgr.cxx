@@ -330,7 +330,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("Lvl1CTPROBid",             m_lvl1CTPROBid=0x770001);
   declareProperty("ApplicationName",          m_applicationName="None");
   declareProperty("PartitionName",            m_partitionName="None");
-  declareProperty("setMagFieldFromIS",        m_setMagFieldFromIS=false);
+  declareProperty("setMagFieldFromPtree",     m_setMagFieldFromPtree=false);
   declareProperty("enabledROBs",              m_enabledROBs);
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
   declareProperty("MandatoryL1ROBs",          m_mandatoryL1ROBs, "List of mandatory ROB IDs coming from the RoIB (must come in L1R seed)");
@@ -1029,7 +1029,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
     updMetadaStore(soral);  // update metadata store
 
     const EventInfo * evinfo;
-    if(updMagField().isFailure() ||       // update mag field when appropriate
+    if(updMagField(pt).isFailure() ||     // update mag field when appropriate
        updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
        resetCoolValidity().isFailure() || // reset selected proxies/IOV folders
        prepXAODEventInfo().isFailure() || // update xAOD event data in SG
@@ -2583,15 +2583,6 @@ HltEventLoopMgr::getSorAttrList(const SOR * sor) const
 }
 
 //=========================================================================
-namespace {
-  /* Helper for setMagFieldFromIS */
-  struct ddcvalue {
-    template <class T, class R>
-    void operator()(const T& t, R& r) { r = t.value; }
-  };
-}
-
-//=========================================================================
 StatusCode HltEventLoopMgr::updHLTConfigSvc()
 {
   // Get HLTConfigSvc if available and do sanity check
@@ -2674,59 +2665,57 @@ StatusCode HltEventLoopMgr::prepXAODEventInfo() const
 }
 
 //=========================================================================
-StatusCode HltEventLoopMgr::updMagField() const
+StatusCode HltEventLoopMgr::updMagField(const ptree& pt) const
 {
-  if ( m_setMagFieldFromIS && validPartition() ) {
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "Reading magnetic fields from IS" << endreq;
+  if(m_setMagFieldFromPtree && validPartition())
+  {
+    try
+    {
+      auto tor_cur = pt.get<float>("Magnets.ToroidsCurrent.value");
+      auto sol_cur = pt.get<float>("Magnets.SolenoidCurrent.value");
 
-    if ( setMagFieldFromIS().isFailure() ) {
+      IProperty* magfsvc(0);
+      service("AtlasFieldSvc", magfsvc, /*createIf=*/false).ignore();
+      if ( magfsvc==0 ) {
+        logStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot retrieve AtlasFieldSvc" << endreq;
+        return StatusCode::FAILURE;
+      }
+
+      auto sc = Gaudi::Utils::setProperty(magfsvc, "UseSoleCurrent", sol_cur);
+      if ( sc.isFailure() ) {
+        logStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot set property AtlasFieldSvc.UseSoleCurrent"
+                    << endreq;
+        return StatusCode::FAILURE;
+      }
+
+      sc = Gaudi::Utils::setProperty(magfsvc, "UseToroCurrent", tor_cur);
+      if ( sc.isFailure() ) {
+        logStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot set property AtlasFieldSvc.UseToroCurrent"
+                    << endreq;
+        return StatusCode::FAILURE;
+      }
+
+      logStream() << MSG::INFO << "*****************************************" << endreq;
+      logStream() << MSG::INFO << "  Auto-configuration of magnetic field:  " << endreq;
+      logStream() << MSG::INFO << "    solenoid current from IS = " << sol_cur << endreq;
+      logStream() << MSG::INFO << "     torroid current from IS = " << tor_cur << endreq;
+      logStream() << MSG::INFO << "*****************************************" << endreq;
+    }
+    catch(ptree_bad_path& e)
+    {
       logStream() << MSG::ERROR << ST_WHERE
-                  << "Magnet auto-configuration failed" << endreq;
-
+                  << "Magnet auto-configuration failed: " << e.what() << endreq;
       return StatusCode::FAILURE;
     }
   }
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-StatusCode HltEventLoopMgr::setMagFieldFromIS() const
-{
-  float solCur(-100);
-  float torCur(-100);
-  StatusCode sc = m_isHelper->findValue<ddc::DdcFloatInfoNamed>(TrigISHelper::SolenoidCurrent,
-      solCur, ddcvalue());
-  if ( sc.isFailure() ) return sc;
-
-  sc = m_isHelper->findValue<ddc::DdcFloatInfoNamed>(TrigISHelper::ToroidCurrent,
-      torCur, ddcvalue());
-  if ( sc.isFailure() ) return sc;
-
-  IProperty* magFieldSvc(0);
-  service("AtlasFieldSvc", magFieldSvc, /*createIf=*/false).ignore();
-  if ( magFieldSvc==0 ) {
-    logStream() << MSG::ERROR << "Cannot retrieve AtlasFieldSvc" << endreq;
-    return StatusCode::FAILURE;
+  else
+  {
+    logStream() << MSG::DEBUG << ST_WHERE
+                << "Magnetic fields not available" << endreq;
   }
-
-  sc = Gaudi::Utils::setProperty(magFieldSvc, "UseSoleCurrent", solCur);
-  if ( sc.isFailure() ) {
-    logStream() << MSG::ERROR << "Cannot set property AtlasFieldSvc.UseSoleCurrent" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = Gaudi::Utils::setProperty(magFieldSvc, "UseToroCurrent", torCur);
-  if ( sc.isFailure() ) {
-    logStream() << MSG::ERROR << "Cannot set property AtlasFieldSvc.UseToroCurrent" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  logStream() << MSG::INFO << "*****************************************" << endreq;
-  logStream() << MSG::INFO << "  Auto-configuration of magnetic field:  " << endreq;
-  logStream() << MSG::INFO << "    solenoid current from IS = " << solCur << endreq;
-  logStream() << MSG::INFO << "     torroid current from IS = " << torCur << endreq;
-  logStream() << MSG::INFO << "*****************************************" << endreq;
 
   return StatusCode::SUCCESS;
 }
