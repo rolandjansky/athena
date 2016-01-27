@@ -11,6 +11,7 @@
 #include "PixelGeoModel/PixelSwitches.h" 
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h" 
+#include "PixelGeoModel/PixelDetectorFactoryFastGeo.h" 
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "PixelGeoModel/PixelGeoModelAthenaComps.h"
@@ -49,6 +50,9 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
     m_manager(0),
+    m_bFastBuildGeoModel(false),
+    m_bConfigGeoAlgTool(false),
+    m_ConfigGeoBase("GeoPixelEnvelopeLoI"),
     m_athenaComps(0)
 {
   declareProperty("Services",m_services=true);
@@ -66,6 +70,9 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
   declareProperty("OverrideVersionName", m_overrideVersionName);
+  declareProperty("FastBuildGeoModel", m_bFastBuildGeoModel);
+  declareProperty("ConfigGeoAlgTool", m_bConfigGeoAlgTool);
+  declareProperty("ConfigGeoBase", m_ConfigGeoBase);
 }
 /**
  ** Destructor
@@ -308,6 +315,11 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
 	PixelDetectorFactorySR1 thePixel(m_athenaComps, switches);
         thePixel.create(world);      
         m_manager  = thePixel.getDetectorManager();
+      } else if (m_bFastBuildGeoModel) {
+	// Fast-build GeoModel
+	PixelDetectorFactoryFastGeo thePixel(m_athenaComps, switches,m_ConfigGeoBase,m_bConfigGeoAlgTool);
+	thePixel.create(world);     
+	m_manager  = thePixel.getDetectorManager();
       } else {
 	// DC3, SLHC, IBL
         PixelDetectorFactory thePixel(m_athenaComps, switches);

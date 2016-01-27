@@ -6,6 +6,25 @@ def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
     from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
     if GeometryFlags.isSLHC():
         kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC");
+
+        envelopeToolName="none"
+        
+        if GeometryFlags.GeoType() in ["LoIFG","LoIVFFG","ECRingFG"]:
+            envelopeToolName="GeoPixelEnvelopeLoITool"
+        elif GeometryFlags.GeoType() in ["Alpine"]:
+            envelopeToolName="GeoPixelEnvelopeAlpineTool"
+        elif GeometryFlags.GeoType() in ["BrlExt3.2_ref","BrlExt4.0_ref"]:
+            envelopeToolName="GeoPixelEnvelopeExtRefTool"
+        elif GeometryFlags.GeoType() in ["InclBrl4.0_ref"]:
+            envelopeToolName="GeoPixelEnvelopeInclRefTool"
+        print "GEOTYPE : ",GeometryFlags.GeoType()," ",envelopeToolName
+
+        if envelopeToolName!="none":
+            kwargs.setdefault("FastBuildGeoModel",True)
+            kwargs.setdefault("ConfigGeoAlgTool",True)
+
+        kwargs.setdefault("ConfigGeoBase",envelopeToolName)
+
     else:
         kwargs.setdefault("ServiceBuilderTool",    "");
     from AthenaCommon.DetFlags      import DetFlags

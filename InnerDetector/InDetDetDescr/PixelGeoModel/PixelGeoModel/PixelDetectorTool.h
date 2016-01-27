@@ -61,7 +61,9 @@ private:
   ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
   const InDetDD::PixelDetectorManager * m_manager;
   std::string m_overrideVersionName;
-
+  bool m_bFastBuildGeoModel;
+  bool m_bConfigGeoAlgTool;
+  std::string m_ConfigGeoBase;
   PixelGeoModelAthenaComps * m_athenaComps;
 
 };

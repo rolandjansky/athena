@@ -11,6 +11,7 @@ use DetDescrConditions   DetDescrConditions-*   DetectorDescription/DetDescrCond
 use InDetCondServices    InDetCondServices-*    InnerDetector/InDetConditions
 use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
 use GeometryDBSvc        GeometryDBSvc-*        DetectorDescription
+use PixelGeoComponent    PixelGeoComponent-*    InnerDetector/InDetDetDescr/PixelLayouts
 
 public
 
@@ -25,6 +26,7 @@ use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
 use Identifier           Identifier-*           DetectorDescription
 use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PixelInterfaces      PixelInterfaces-*      InnerDetector/InDetDetDescr/PixelLayouts
 use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
 use AthenaBaseComps	 AthenaBaseComps-*      Control
 
