@@ -132,9 +132,30 @@ namespace InDet {
             InDetDD::SiDetectorElement* element,
             const PixelID& pixelID) const;
 
+	// Functions for merging broken cluster segments (to be used for upgrade studies)
+	// ITk: This function checks if two barrel clusters are potentially a single cluster which is broken into two pieces  
+	bool mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
+				    const std::vector<Identifier>& group2,
+				    InDetDD::SiDetectorElement* element,
+				    const PixelID& pixelID) const;
+	// ITk: this function checks if two to-be-merged barrel proto-clusters have sizeZ consistent with cluster positions 
+	bool mergeTwoClusters(const std::vector<Identifier>& group1, 
+			      const std::vector<Identifier>& group2,
+			      InDetDD::SiDetectorElement* element,
+			      const PixelID& pixelID) const;
+
+	// ITk: checkSizeZ compares cluster sizeZ with expected cluster size for this cluster position (+/-200 mm for beam spread)
+	// checkSizeZ()=-1 if cluster is too small
+	// checkSizeZ()=0 if cluster sizeZ is within allowed range
+        // checkSizeZ()=1 if cluster is too large
+	// in the future, it may be changed to return deltaSizeZ 
+	int checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const;
+	//------- end of declaration of new functions
+
+
         ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
-       ServiceHandle<IBLParameterSvc>                         m_IBLParameterSvc;        
-        bool						                        m_emulateSplitter;      //!< don't split - only emulate the split    
+	ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;        
+        bool						    m_emulateSplitter;      //!< don't split - only emulate the split    
         unsigned int                                        m_minSplitSize;         //!< minimum split size, regulates also the cluster splitting
         unsigned int                                        m_maxSplitSize;         //!< minimum split size, regulates also the cluster splitting
         double                                              m_minSplitProbability;  //!< minimal split probability
@@ -142,6 +163,11 @@ namespace InDet {
         ToolHandle<InDet::IPixelClusterSplitter>            m_clusterSplitter;      //!< ToolHandle for the split probability tool
 	bool						    m_doIBLSplitting;
 	bool						    m_IBLAbsent;
+
+	bool                                                m_doMergeBrokenClusters; // ITk: switch to turn ON/OFF merging of broken clusters
+	bool                                                m_doRemoveClustersWithToTequalSize; // ITk: switch to remove clusters with ToT=size
+	bool                                                m_doCheckSizeBeforeMerging; // ITk: switch to check size of to-be-merged clusters
+	double                                              m_beam_spread; // ITK: size of the luminous region, need to check cluster size                     
 
         mutable InDet::PixelGangedClusterAmbiguities*       m_splitClusterMap;      //!< the actual split map         
         std::string                                         m_splitClusterMapName; //!< split cluster ambiguity map
@@ -151,7 +177,7 @@ namespace InDet {
         mutable unsigned int                                m_splitOrigClusters;    //!< statistics output
         mutable unsigned int                                m_splitProdClusters;    //!< statistics output
         mutable unsigned int                                m_largeClusters;        //!< statistics output
-        mutable int                                                 m_overflowIBLToT;                                                                                          
+        mutable int                                         m_overflowIBLToT;                                                                                          
         ServiceHandle<IPixelOfflineCalibSvc>                m_pixofflinecalibSvc;
         //ServiceHandle< StoreGateSvc >                       m_detStore;
         //const PixelID*                                      m_idHelper;

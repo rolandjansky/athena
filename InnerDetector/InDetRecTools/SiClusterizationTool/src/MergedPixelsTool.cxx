@@ -62,6 +62,10 @@ namespace InDet {
     m_clusterSplitter(""),
     m_doIBLSplitting(false),
     m_IBLAbsent(true),
+    m_doMergeBrokenClusters(false),             /* ITk: switch to turn ON/OFF merging of broken clusters */
+    m_doRemoveClustersWithToTequalSize(false),  /* ITk: switch to remove clusters with ToT=size */
+    m_doCheckSizeBeforeMerging(false),          /* ITk: switch to check size to-be-merged clusters */
+    m_beam_spread(200.0),                       /* ITk: size of luminous region, needed for cluster size check */  
     m_splitClusterMap(0),
     m_splitClusterMapName("SplitClusterAmbiguityMap"),
     m_processedClusters(0),
@@ -84,6 +88,10 @@ namespace InDet {
       declareProperty("ClusterSplitter",             m_clusterSplitter);
       declareProperty("DoIBLSplitting",		     m_doIBLSplitting);
       declareProperty("SplitClusterAmbiguityMap",    m_splitClusterMapName);
+      declareProperty("DoMergeBrokenClusters",       m_doMergeBrokenClusters); // ITk: switch to turn ON/OFF merging of broken clusters
+      declareProperty("DoRemoveClustersWithToTequalSize",m_doRemoveClustersWithToTequalSize); // ITk: switch to remove clusters with ToT=size
+      declareProperty("DoCheckSizeBeforeMerging",    m_doCheckSizeBeforeMerging); // ITk: switch to check size to-be-merged clusters
+      declareProperty("BeamSpread",                  m_beam_spread); // ITk: size of luminous region, needed for cluster size check
     }
   
 //---------------------------------------------------------------------------
@@ -385,16 +393,34 @@ namespace InDet {
                // writing the split boolean is done the following way
                // - if in emulation mode: always write the output of the splitter for validation
                // - if in pseudo-emulation mode (1-pixel clusters): set boolean to false, but keep split probs
-               bool   clusterModified    = false;
-               bool   clusterSplit       = false;
-               double clusterSplitP1     = 0.;
-               double clusterSplitP2     = 0.;
-               bool singlePixelSplitCase = 0;
-    // the size of the inition rdo group
-               size_t groupSize = (**group).size();
-    // If cluster is empty, i.e. it has been merged with another, 
-    // do not attempt to make cluster.
-            if ( groupSize > 0 )
+	  bool   clusterModified    = false;
+	  bool   clusterSplit       = false;
+	  double clusterSplitP1     = 0.;
+	  double clusterSplitP2     = 0.;
+	  bool singlePixelSplitCase = 0;
+	  // the size of the inition rdo group
+	  size_t groupSize = (**group).size();
+	  
+	  // ITk: check for clusters with ToT=size, this might be needed for upgrade simulation
+	  bool isToTequalSize=false;
+	  if(m_doRemoveClustersWithToTequalSize)
+	    {
+	      std::vector<int>::const_iterator tot_begin = (**totgroup).begin();    
+	      std::vector<int>::const_iterator tot_end = (**totgroup).end();
+	      unsigned int cluster_total_tot=0;
+	      for (; tot_begin!= tot_end; ++tot_begin)
+		{
+		  cluster_total_tot += *tot_begin;
+		}	  
+	      isToTequalSize = (groupSize==cluster_total_tot);	      
+	    }
+	  // -------- end of checks for clusters with ToT=size
+	       
+	  
+	  // If cluster is empty, i.e. it has been merged with another, 
+	  // do not attempt to make cluster.
+	  if ( groupSize > 0 && isToTequalSize==false) // ITk: modification to remove clusters with ToT=size, may be needed for upgrade
+	  // if ( groupSize > 0 )
             {
                 ++m_processedClusters;
                 // create the original cluster - split & split probs are by default false and 0
@@ -943,7 +969,13 @@ void MergedPixelsTool::checkForMerge(const Identifier& id,
 
     for (; nextGroup!= lastGroup; ++nextGroup)
     {
-        if (areNeighbours(**nextGroup, id, element, pixelID))
+      // modified for ITk samples:
+      // mergeTwoClusters() checks if neighboring clusters are not too large to be merged
+      // mergeTwoBrokenClusters() checks if two separated clusters are from the same broken cluster
+      if ((areNeighbours(**nextGroup, id, element, pixelID) 
+	   && mergeTwoClusters(**baseGroup,**nextGroup,element,pixelID))
+	  || mergeTwoBrokenClusters(**baseGroup,**nextGroup,element,pixelID)) 
+        // if (areNeighbours(**nextGroup, id, element, pixelID))
         {
       // merge the RDO identifier groups
             idIterator firstID = (*nextGroup)->begin();
@@ -975,6 +1007,238 @@ void MergedPixelsTool::checkForMerge(const Identifier& id,
         nextLvl1Group++;
     }
 }
+
+
+// ------------ New functions to merge broken clusters for ITk upgrade studies
+bool MergedPixelsTool::mergeTwoBrokenClusters(const std::vector<Identifier>& group1, 
+					      const std::vector<Identifier>& group2,
+					      InDetDD::SiDetectorElement* element,
+					      const PixelID& pixelID) const
+{
+  bool mergeClusters=false;
+  if(m_doMergeBrokenClusters)
+    {
+      std::vector<Identifier>::const_iterator group1Begin = group1.begin(); // first pixel in cluster-1
+      std::vector<Identifier>::const_iterator group1End = group1.end();     // last pixel in cluster-1
+      std::vector<Identifier>::const_iterator group2Begin = group2.begin(); // first pixel in cluster-2
+      std::vector<Identifier>::const_iterator group2End = group2.end();     // last pixel in cluster-2
+      Identifier id1b= *group1Begin; // first pixel in cluster1
+      Identifier id2b= *group2Begin; // first pixel in cluster2
+      if(pixelID.is_barrel(id1b) && pixelID.is_barrel(id2b)) // make sure both clusters are in barrel
+	{
+	  int cl1_rowMin= 1000;
+	  int cl1_rowMax= 0;
+	  int cl2_rowMin= 1000;
+	  int cl2_rowMax= 0;
+	  int cl1_colMin= 1000;
+	  int cl1_colMax= 0;
+	  int cl2_colMin= 1000;
+	  int cl2_colMax= 0;
+// 	  int cl1_rowLast=0;    // row # of last pixel in cluster1
+// 	  int cl1_rowFirst=0;   // row # of first pixel in cluster1
+// 	  int cl2_rowLast=0;    // row # of last pixel in cluster2
+// 	  int cl2_rowFirst=0;   // row # of first pixel in cluster2
+	  
+	  float cl1_ave_row=0.0; // average row # in cluster1
+	  float cl2_ave_row=0.0; // average row # in cluster2
+	  unsigned int cl1_size=group1.size(); // number of pixels in cluster-1
+	  unsigned int cl2_size=group2.size(); // number of pixels in cluster-2
+	  
+	  // determin cluster-1 boundaries
+	  for(; group1Begin!=group1End; ++group1Begin)
+	    {
+	      Identifier id=*group1Begin;
+	      int row=pixelID.phi_index(id);
+	      int col=pixelID.eta_index(id);
+	      
+	      cl1_ave_row=cl1_ave_row + row/(1.0*cl1_size);
+	      
+	      if(col<cl1_colMin) 
+		{
+		  cl1_colMin=col;
+// 		  cl1_rowFirst=row; // first pixel is determined by pixel with smallest column number
+		}
+	      if(col>cl1_colMax) 
+		{
+		  cl1_colMax=col;
+// 		  cl1_rowLast=row; // last pixel is determined by by pixel with largest column number
+		}
+	      if(row<cl1_rowMin) cl1_rowMin=row;
+	      if(row>cl1_rowMax) cl1_rowMax=row;
+	    }
+	  
+	  // determin cluster-2 boundaries
+	  for(; group2Begin!=group2End; ++group2Begin)
+	    {
+	      Identifier id=*group2Begin;
+	      int row=pixelID.phi_index(id);
+	      int col=pixelID.eta_index(id);
+	      
+	      cl2_ave_row=cl2_ave_row + row/(1.0*cl2_size);
+	      
+	      if(col<cl2_colMin) 
+		{
+		  cl2_colMin=col;
+// 		  cl2_rowFirst=row; // first pixel is determined by pixel with smallest column number
+		}
+	      if(col>cl2_colMax) 
+		{
+		  cl2_colMax=col;
+// 		  cl2_rowLast=row; // last pixel is determined by by pixel with largest column number
+		}
+	      if(row<cl2_rowMin) cl2_rowMin=row;
+	      if(row>cl2_rowMax) cl2_rowMax=row;
+	    }
+	  
+	  int cl1_sizeZ=cl1_colMax - cl1_colMin + 1;
+	  int cl2_sizeZ=cl2_colMax - cl2_colMin + 1;
+	  int cl1_sizePhi=cl1_rowMax - cl1_rowMin + 1;
+	  int cl2_sizePhi=cl2_rowMax - cl2_rowMin + 1;
+	  
+	  int col_last=  cl1_colMax<cl2_colMin ? cl1_colMax : cl2_colMin; 
+	  int col_first= cl2_colMin<cl1_colMax ? cl2_colMin : cl1_colMax;
+// 	  int delta_row= cl1_colMax<cl2_colMin ? cl2_rowFirst - cl1_rowLast : cl1_rowFirst - cl2_rowLast;
+	  
+	  int clMerged_sizePhi= std::max(cl1_rowMax,cl2_rowMax) - std::min(cl1_rowMin,cl2_rowMin) + 1;
+	  
+	  // these are intial values for merging, to be optimized in studies
+	  if( (cl1_colMin<=cl2_colMin && cl2_colMin<=cl1_colMax) 
+	      || (cl2_colMin<=cl1_colMin && cl1_colMin<=cl2_colMax) )  return mergeClusters; // don't merge, clusters overlap in column number; original default
+	  //       if(cl1_sizePhi>2 || cl2_sizePhi>2) return mergeClusters; // for now, don't merge clusters if any of fragments is larger than 2 pixels in phi 
+	  //------- comment out check for sizePhi, clusters have strong dependence of sizePhi on eta 
+	  //      if(cl1_sizePhi>3 || cl2_sizePhi>3) return mergeClusters; // for now, don't merge clusters if any of fragments is larger than 3 pixels in phi 
+	  if(cl1_sizePhi>cl1_sizeZ || cl2_sizePhi>cl2_sizeZ) return mergeClusters; // for now, don't merge clusters if sizePhi>sizeZ; original default 
+	  if(col_first - col_last >= std::min(cl1_sizeZ,cl2_sizeZ)) return mergeClusters; // don't merge clusters where gap in eta is larger than min size; original default 
+	  //       if(col_first - col_last >= std::max(cl1_sizeZ,cl2_sizeZ)) return mergeClusters; // don't merge clusters where gap in eta is larger than max size; test-6 
+	  //       if(cl1_sizeZ+cl2_sizeZ<4) return mergeClusters; // don't merge if both fragments are small; original default 
+	  
+	  if(col_first - col_last > 3) return mergeClusters; // don't merge clusters if gap in eta is larger than 3 pixels; original default
+	  //       if(col_first - col_last > 4) return mergeClusters; // don't merge clusters if gap in eta is larger than 4 pixels (test-5 and test-6)
+	  
+	  // it doesn't matter that much which row number is used as input to checkSizeZ() 
+	  if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>0) return mergeClusters; // don't merge, cluster1 is too large; original default
+	  if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>0) return mergeClusters; // don't merge, cluster2 is too large; original default
+	  //       if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>=0) return mergeClusters; // don't merge, cluster1 is good or too large; test-9
+	  //       if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>=0) return mergeClusters; // don't merge, cluster2 is good or too large; test-9
+	  if(checkSizeZ(std::min(cl1_colMin,cl2_colMin),std::max(cl1_colMax,cl2_colMax),cl2_rowMin,element)>0) return mergeClusters; // don't merge, new cluster is too large; original default
+	  
+	  //       if(clMerged_sizePhi>3) return mergeClusters; // don't merge, cluster1 is too large in sizePhi
+	  if(clMerged_sizePhi>(cl1_sizePhi+cl2_sizePhi-1)) return mergeClusters; // don't merge, cluster1 is too large in sizePhi; to be replaced by eta-dependent cut in the future; original default
+
+
+	  //       if(delta_row==0) mergeClusters=true; // merge clusters only if first and last pixels in CL1 and CL2 are in the same row (original default)
+	  //       if(abs(delta_row)<=1) mergeClusters=true; // merge clusters only if first and last pixels in CL1 and CL2 are in the same row
+	  if(fabs(cl1_ave_row - cl2_ave_row)<1.0) mergeClusters=true; // merge clusters only if ave_row(CL1) and ave_row(CL2) are more than one pixel apart (test-2)  
+	  //       if(fabs(cl1_ave_row - cl2_ave_row)<2.0) mergeClusters=true; // merge clusters only if ave_row(CL1) and ave_row(CL2) are more than one pixel apart  
+	  // not finished yet      
+	  
+	}
+    }
+  return mergeClusters;
+}
+
+
+bool MergedPixelsTool::mergeTwoClusters(const std::vector<Identifier>& group1, 
+					const std::vector<Identifier>& group2,
+					InDetDD::SiDetectorElement* element,
+					const PixelID& pixelID) const
+{
+  bool mergeClusters=true;
+  if(m_doCheckSizeBeforeMerging) 
+    {
+      std::vector<Identifier>::const_iterator group1Begin = group1.begin(); // first pixel in cluster-1
+      std::vector<Identifier>::const_iterator group1End = group1.end();     // last pixel in cluster-1
+      std::vector<Identifier>::const_iterator group2Begin = group2.begin(); // first pixel in cluster-2
+      std::vector<Identifier>::const_iterator group2End = group2.end();     // last pixel in cluster-2
+      Identifier id1b= *group1Begin; // first pixel in cluster1
+      Identifier id2b= *group2Begin; // first pixel in cluster2
+      if(pixelID.is_barrel(id1b) && pixelID.is_barrel(id2b)) // make sure both clusters are in barrel
+	{
+	  int cl1_rowMin= 1000;
+	  int cl1_rowMax= 0;
+	  int cl2_rowMin= 1000;
+	  int cl2_rowMax= 0;
+	  int cl1_colMin= 1000;
+	  int cl1_colMax= 0;
+	  int cl2_colMin= 1000;
+	  int cl2_colMax= 0;
+	  
+	  // determin cluster-1 boundaries
+	  for(; group1Begin!=group1End; ++group1Begin)
+	    {
+	      Identifier id=*group1Begin;
+	      int row=pixelID.phi_index(id);
+	      int col=pixelID.eta_index(id);
+	      if(col<cl1_colMin) cl1_colMin=col;
+	      if(col>cl1_colMax) cl1_colMax=col;
+	      if(row<cl1_rowMin) cl1_rowMin=row;
+	      if(row>cl1_rowMax) cl1_rowMax=row;
+	    }
+	  
+	  // determin cluster-2 boundaries
+	  for(; group2Begin!=group2End; ++group2Begin)
+	    {
+	      Identifier id=*group2Begin;
+	      int row=pixelID.phi_index(id);
+	      int col=pixelID.eta_index(id);
+	      if(col<cl2_colMin) cl2_colMin=col;
+	      if(col>cl2_colMax) cl2_colMax=col;
+	      if(row<cl2_rowMin) cl2_rowMin=row;
+	      if(row>cl2_rowMax) cl2_rowMax=row;
+	    }
+	  
+	  // it doesn't matter that much which row number is used as input to checkSizeZ() 
+	  if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>0) return false; // don't merge, cluster1 is too large (original default)
+	  if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>0) return false; // don't merge, cluster2 is too large (original default)
+	  //       if(checkSizeZ(cl1_colMin,cl1_colMax,cl1_rowMin,element)>=0) return false; // don't merge, cluster1 is good or too large
+	  //       if(checkSizeZ(cl2_colMin,cl2_colMax,cl2_rowMin,element)>=0) return false; // don't merge, cluster2 is good or too large
+	  if(checkSizeZ(std::min(cl1_colMin,cl2_colMin),std::max(cl1_colMax,cl2_colMax),cl2_rowMin,element)>0) return false; // don't merge, new cluster is too large
+
+	}
+    }
+  return mergeClusters;
+}
+
+// checkSizeZ compares cluster sizeZ with expected cluster size for this cluster position (+/-200 mm for beam spread)
+// checkSizeZ()=-1 if cluster is too small
+// checkSizeZ()=0 if cluster sizeZ is within allowed range
+// checkSizeZ()=1 if cluster is too large
+// in the future, it may be changed to return deltaSizeZ 
+int MergedPixelsTool::checkSizeZ(int colmin, int colmax, int row, InDetDD::SiDetectorElement* element) const
+{
+  int pass_code=0;
+  
+  // const float m_beam_spread=200.0;
+  const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+  if (not design)
+    {
+      ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool. This cluster will not be considered for merging");
+      return 1; // don't merge
+    }
+  
+  // calculating cluster position in the global coordinate system
+  InDetDD::SiLocalPosition sumOfPositions(0,0,0);
+  InDetDD::SiLocalPosition siLocalPosition1(design->positionFromColumnRow(colmin,row)); 
+  InDetDD::SiLocalPosition siLocalPosition2(design->positionFromColumnRow(colmax,row)); 
+  sumOfPositions = siLocalPosition1+siLocalPosition2;
+  InDetDD::SiLocalPosition centroid(sumOfPositions/2);
+  Amg::Vector3D globalPos = element->globalPosition(centroid);
+  // calculating min and max size of a cluster assuming its global position and +/-20 cm luminous region 
+  float sensorThickness = element->thickness();
+  float pitch = design->etaPitch();
+  
+  if(globalPos.perp()>0.0)
+    {
+      float length1= fabs(globalPos.z()+m_beam_spread)*sensorThickness/globalPos.perp();
+      float length2= fabs(globalPos.z()-m_beam_spread)*sensorThickness/globalPos.perp();
+      if((colmax-colmin+1)*pitch > (std::max(length1,length2)+pitch)) pass_code=1;
+      if((colmax-colmin+1)*pitch < (std::max(length1,length2)-pitch)) pass_code=-1;
+    }
+  else return 1; // don't merge
+
+  return pass_code;
+}
+
 
 }
 
