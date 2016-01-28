@@ -84,10 +84,17 @@ bool fcontains( const std::string& s, const std::string& p) {
 }
 
 
-double plotable( TH1* h ) { 
+double plotable( TH1* h ) { // , double xlo, double xhi ) {
   double n = 0;
-  for ( int i=h->GetNbinsX()+1 ; --i ; ) { 
-    n += h->GetBinContent(i);
+    
+  double _xlo = h->GetBinLowEdge(1);
+  double _xhi = h->GetBinLowEdge(h->GetNbinsX()+1);
+
+  //  if ( xlo!=-999 ) _xlo = xlo;
+  //  if ( xhi!=-999 ) _xhi = xhi;
+
+  for ( int i=h->GetNbinsX()+1 ; --i ; ) {
+    if ( h->GetBinCenter(i)>_xlo && h->GetBinCenter(i)<_xhi ) n += h->GetBinContent(i);
   } 
   return n;
 }
@@ -329,7 +336,7 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
     limits[1] = ihi;
   }
 
-  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
+  //  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
 
   return limits; 
 
@@ -363,3 +370,4 @@ void xrangeuser(TH1* h, bool symmetric ) {
   std::vector<double> limits = findxrangeuser( h, symmetric );
   h->GetXaxis()->SetRangeUser( limits[0], limits[1] );
 }
+

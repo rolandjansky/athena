@@ -66,6 +66,7 @@ std::ostream& operator<<( std::ostream& s, const histoinfo& h ) {
 }
 
 
+
 int main(int argc, char** argv) {
 
   if (argc < 4) { return usage(argv[0], -1); }
@@ -234,7 +235,7 @@ int main(int argc, char** argv) {
   }
 #endif
 
-  TFile fcock( "fcock.root", "recreate" );
+  TFile fcck( "fcck.root", "recreate" );
 
 
   std::vector<histoinfo> histograms;
@@ -326,7 +327,9 @@ int main(int argc, char** argv) {
 
       std::cout << "dir " << dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
 
- 
+      //      std::cout << "testhist " << testhist << " " << refhist << std::endl;
+
+
       std::vector<std::string> chains;
       chains.push_back( algname + tag );
 
@@ -339,7 +342,7 @@ int main(int argc, char** argv) {
 
       if ( Nent==0 && Nent_ref==0 ) { 
 	_ylog = false;
-	std::cerr << "skipping, histograms empty: " << testhist->GetName() << std::endl;
+	std::cerr << "histograms empty: " << testhist->GetName() << std::endl;
 	continue;
       }
 
@@ -392,13 +395,13 @@ int main(int argc, char** argv) {
     std::cout << "done hist " << histogram << " " << histograms.at(histogram).dname << " " << std::endl;
   }
 
-  fcock.Write();
-  fcock.Close();
+  fcck.Write();
+  fcck.Close();
 
   tdir->cd();
 
 
-#ifdef RENE_IS_NOT_AN_ARSE
+#ifdef RENE_IS_PROBABLY_AN_ARSE
 
   std::cout << "deleting ftest" << std::endl;
 

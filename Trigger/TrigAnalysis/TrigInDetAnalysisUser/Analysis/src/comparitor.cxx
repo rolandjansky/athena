@@ -68,6 +68,7 @@ int usage(const std::string& name, int status) {
   s << "    -ns, --nostats      \t do not show stats for mean and rms\n";
   s << "    -nr, --noref        \t do not plot reference histograms\n";
   s << "    -np, --noplots      \t do not actually make any plot\n";
+  s << "    -C,  --Cfiles       \t write C files also\n"; 
   s << "    -nw, --nowatermark  \t do not plot the release watermark\n"; 
   s << "         --nopng        \t do not print png files\n"; 
   s << "         --deleteref    \t delete unused reference histograms\n"; 
@@ -77,123 +78,6 @@ int usage(const std::string& name, int status) {
   s << std::endl;
   return status;
 }
-
-
-
-
-
-
-/// class to store information about axes, limits, whether it is 
-/// log or linear scale etc
-
-class AxisInfo { 
-
-public:
-
-  AxisInfo( const std::string& s ) : 
-    m_info(s), 
-    m_log(false),
-    m_autoset(false),
-    m_symmetric(false),
-    m_rangeset(false),
-    m_lo(0),
-    m_hi(0)
-  { 
-    //    std::cout << "AxisInfo::info" << m_info << std::endl;
-
-    std::vector<std::string> keys = split( s, ":" );
-    
-    //    std::cout << "\n\n" << s << "\nnkeys " << keys.size() << std::endl; 
-
-    if ( keys.size()>0 ) m_tag = keys[0];
-    
-    if ( keys.size()>1 && keys[1]=="log" ) m_log = true;
-
-
-    if ( keys.size()>2 ) { 
-      if      ( keys[2]=="auto" )      m_autoset = true;
-      else if ( keys[2]=="autosym" ) { m_autoset = true; m_symmetric = true; }
-    }
-
-
-    unsigned rangemin = 2;
-    if ( m_autoset ) rangemin++;
-     
-    if ( keys.size()>rangemin ) { 
-      if ( keys.size()<(rangemin+2) ) { 
-	  std::cerr << "not enough values for the axis range: " << s << std::endl;
-	  std::exit(-1);
-      }
-	
-      m_rangeset = true;
-	
-      m_lo = std::atof(keys[rangemin].c_str());
-      m_hi = std::atof(keys[rangemin+1].c_str());
-    }
-   
-  }
-  
-  /// accessors 
-
-  std::string tag() const { return m_tag; }
-
-  bool   log()  const { return m_log; }
-
-  bool   autoset() const { return m_autoset; }
-  
-  bool   symmetric() const { return m_symmetric; }
-
-  bool   rangeset() const { return m_rangeset; }
-  double lo() const { return m_lo; } 
-  double hi() const { return m_hi; } 
-  
-public:
-
-  static std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
-    
-    std::string _s = s;
-    size_t pos = _s.find(t);
-    
-    std::vector<std::string> tags;
-    
-    while ( pos!=std::string::npos ) { 
-      tags.push_back( chop(_s,t) );
-      pos = _s.find(t);
-    }
-    
-    tags.push_back(_s);
-    
-    return tags;
-  } 
-  
-
-public:
-
-  std::string m_info;
-  
-  std::string m_tag;
-
-  bool   m_log;
-  bool   m_autoset;
-  bool   m_symmetric;
-
-  bool   m_rangeset;
-  double m_lo; 
-  double m_hi;
-
-};
-
-
-inline std::ostream& operator<<( std::ostream& s, const AxisInfo& a ) { 
-  s << "[ " << a.tag() << ( a.log() ? " : log" : "" ) << " ";
-  if ( a.autoset() ) s << " : auto";
-  else if ( a.rangeset() ) { 
-    s << " : range " << a.lo() << " - " << a.hi();
-  }
-  s << " ]";
-  return s; 
-}
-
 
 
 
@@ -241,6 +125,7 @@ int main(int argc, char** argv) {
   bool deleteref   = false;
   bool nowatermark = false;
   bool noplots     = false;
+  bool Cfile       = false;
 
   std::string configfile = "";
 
@@ -311,9 +196,12 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-nb" || arg=="--nobayes" ) { 
       _bayes = false;
-    }
+    } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
       noplots = true;
+    }
+    else if ( arg=="-C" || arg=="--Cfiles" ) { 
+      Cfile = true;
     }
     else if ( arg=="--deleteref" ) { 
       deleteref = true;
@@ -468,15 +356,15 @@ int main(int argc, char** argv) {
 
     /// distributions - 4
     //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "pT",      "p_{T}",     "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "pT_rec",  "p_{T} rec", "xaxis:lin:20:300",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT",      "p_{T}",     "xaxis:lin:auto:1:100",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT_rec",  "p_{T} rec", "xaxis:lin:auto:1:100",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "a0",      "a0",        "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
     { "a0_rec",  "a0 rec",    "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
     { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
 
     /// efficiencies - 10 
     //    { "pT_eff", "Efficiency p_{T}", "xaxis:log:0.7:100",     "Offline p_{T} [GeV]",          "yaxis:lin:90:102",       "Efficiency [%]" },       
-    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto",        "Offline track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
+    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto:1:100",        "Offline track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
     { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
     { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
     { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
@@ -701,6 +589,8 @@ int main(int argc, char** argv) {
   std::vector<std::string> histos(_Nhistos);
 
   for ( int i=0 ; i<_Nhistos ; i++ ) {
+
+    //    if ( i!=17 ) continue;
 
     histos[i] = _histos[i][0];
 
@@ -998,18 +888,19 @@ int main(int argc, char** argv) {
 	    
 	    h->SetMinimum(_min);
 	    h->SetMaximum(_max);
-	    
+	   
 	  }
 
 	  plots_eff.push_back( Plotter( e.Hist(), 0, c ) );
 	  
 	}     
       }
-
       
-      if(contains(histos[i],"_res"))  {
+      if( contains(histos[i],"_res") || contains(histos[i],"1d") ) { 
 	
 	/// resolutions 
+
+	std::cout << "calculating resolutions : " << histos[i] << " " << htest->GetName() << std::endl;
 
 	TF1* d95 = Resplot::FitNull95( (TH1D*)htest );
 	
@@ -1104,15 +995,13 @@ int main(int argc, char** argv) {
       
     }
 
-
     if ( !noplots ) { 
 
-      /// try to localise all axis range setting, log, lin sclaes etc
+      /// try to localise all axis range setting, log, lin scales etc
       /// to this one place 
-      
-      if      ( xinfo.autoset() )  plots.xrange(xinfo.symmetric()); 
-      else if ( xinfo.rangeset() ) plots.SetRangeUser( xinfo.lo(), xinfo.hi() );
-      
+
+      /// sort out the range settings for the xaxis ...
+      plots.sortx( xinfo );
 
       double  yminset = 0;
       double  ymaxset = 0;
@@ -1123,21 +1012,24 @@ int main(int argc, char** argv) {
 	double rmax = 0;
 	
 	if ( xinfo.rangeset() ) { 
-	  rmin = plots.realmin( xinfo.lo(), xinfo.hi() );
-	  rmax = plots.realmax( xinfo.lo(), xinfo.hi() );
+	  rmin = plots.realmin( plots.lo(), plots.hi() );
+	  rmax = plots.realmax( plots.lo(), plots.hi() );
 	}
 	else {
 	  rmin = plots.realmin();
 	  rmax = plots.realmax();
 	}
 	
-	if ( yinfo.log() && rmin>0 ) { 
+	if ( yinfo.log() && rmin!=0 && rmax!=0 ) { 
+
 	  double delta = std::log10(rmax)-std::log10(rmin);
 
 	  if ( atlasstyle ) ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1));
 	  else              ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())); 
 
 	  yminset =  rmin*std::pow(10,-delta*0.1);
+
+	  if ( yminset!=yminset ) std::exit(-1);
 
 	}
 	else { 
@@ -1155,13 +1047,12 @@ int main(int argc, char** argv) {
       }
       
 
-      std::cout <<  "yauto: " << yinfo.autoset() << "\tyrange " << yinfo.rangeset() << std::endl;
+      //      std::cout <<  "yauto: " << yinfo.autoset() << "\tyrange " << yinfo.rangeset() << std::endl;
 
+      //      std::cout << "yminset " << yminset << "\tymaxset " << ymaxset << std::endl;  
 
       if ( yinfo.autoset() && yinfo.rangeset() ) {
 
-	std::cout << "yauto and yrange set " << std::endl;
- 
 	if ( yminset>yinfo.lo() ) yminset = yinfo.lo();
 	if ( ymaxset<yinfo.hi() ) ymaxset = yinfo.hi();
       }
@@ -1181,11 +1072,9 @@ int main(int argc, char** argv) {
 
       if ( yminset>0 ) plots.SetLogy(yinfo.log());
       else             plots.SetLogy(false);
-        
+   
+      //      plots.SetLogy(false);
 
-      if ( xinfo.lo()<=0 ) plots.SetLogx(false);
-      else                 plots.SetLogx(xinfo.log());
-      
       
       ///    if ( contains(histos[i],"_res"))  plots.xrange(true);
       //      if ( contains(histos[i],"_res") ) plots.MaxScale( 100 ); 
@@ -1195,9 +1084,11 @@ int main(int argc, char** argv) {
       /// actually draw the plot here ...
       
       //      std::cout << "drawing ..." << std::endl;
-      plots.Draw( legend );
-      //      std::cout << "done" << std::endl;
 
+      plots.Draw( legend );
+
+      //      std::cout << "done" << std::endl;
+      
       if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, "for approval" );
       
       for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
@@ -1219,8 +1110,11 @@ int main(int argc, char** argv) {
     */
     
     if ( !nostats && !noplots ) { 
-      if ( (contains(histos[i],"_res") || histos[i]=="pT" || contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
-	if ( contains(histos[i],"_res") ){
+      if ( (contains(histos[i],"_res") || 
+	    contains(histos[i],"1d")   ||
+	    histos[i]=="pT"            || 
+	    contains(histos[i],"vs_pt") ) && !contains(histos[i],"sigma") ) { 
+	if ( contains(histos[i],"_res") || contains(histos[i],"1d") ){
 	  for ( unsigned j=0 ; j<chains.size() ; j++ ) { 
 	    if ( j<MeanRef.size() ) {
 	      if ( !noref ) DrawLabel( xpos-0.02, (0.6-j*0.035), MeanRef[j], colours[j%6] );
@@ -1245,6 +1139,8 @@ int main(int argc, char** argv) {
     if ( !noplots ) { 
 
       if ( plotname!="" ) { 
+
+	if ( Cfile ) plots.back().Print( dir+plotname+tag+".C" );
 
 	//      plots.back().Print( dir+plotname+tag+".C" );
 	plots.back().Print( dir+plotname+tag+".pdf" );
@@ -1273,9 +1169,7 @@ int main(int argc, char** argv) {
 	
       }
       
-      //      std::cout << "delete c1 " << c1 << std::endl;
       delete c1;
-      //      std::cout << "deleted " << std::endl;
       
     }
   }
@@ -1337,7 +1231,7 @@ int main(int argc, char** argv) {
   /// now actually overwrite the old reference file
 
   if ( deleteref ) { 
-    //    std::cout << "ref " << frefname << "\ttest " << ftestname << std::endl; 
+    std::cout << "ref " << frefname << "\ttest " << ftestname << std::endl; 
     if ( frefname !=  ftestname ) { 
       std::string cmd = std::string("mv ") + frefname + " " + frefname + ".bak";
       std::system( cmd.c_str() );
