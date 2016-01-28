@@ -1,0 +1,75 @@
+         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar'>
+            <doc>Bjetslice, ttbar, FTK chains</doc>
+            <displayName>BjetSlice, ttbar, FYK chains</displayName>
+	    <commandLineFlags>EventMax=500;runMergedChain=True;doFTK=True</commandLineFlags>
+            <options>TrigInDetValidation_RTT_topOptions_BjetSlice</options>
+            <package>Trigger/TrigValidation/TrigInDetValidation</package>
+            <group>TrigInDetValidation</group>
+            <queue>long</queue>
+	   
+#          include "samples/TrigInDetValidation_FTK_sample1.xml"
+
+            <action position="01">
+                <modulename>RttLibraryTools</modulename>
+                <testname>ExeRunner</testname>
+                <arg>
+                    <argname>exeName</argname>
+                    <argvalue>TIDArdict.exe</argvalue>
+                </arg>
+                <arg>
+                    <argname>exeParamString</argname>
+                    <argvalue>TIDAdata11-rtt.dat -f data-bjet-FTK.root -b Test_bin.dat </argvalue>
+                </arg>
+            </action>
+
+           <action position="02">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit -d HLTL2-plots </argvalue>
+                </arg>
+            </action>
+
+           <action position="03">
+                <modulename>RttLibraryTools</modulename> 
+                <testname>ExeRunner</testname> 
+                <arg> 
+                    <argname>exeName</argname>
+                    <argvalue>TIDAcomparitor.exe</argvalue> 
+                </arg>
+                <arg> 
+                    <argname>exeParamString</argname>
+                    <argvalue>data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_bperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_bperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_bperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig  HLT_j55_bperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots </argvalue>
+                </arg>
+            </action>
+
+
+#	  include "TrigInDetValidation_expertMonitoring.xml"
+#	  include "TrigInDetValidation_costMonitoring.xml"
+#         include "TrigInDetValidation_extra.xml"
+
+
+
+        
+
+            <testToRemove>
+              <jobGroupName>RTT:Top</jobGroupName>
+              <testidentifier>CheckFileRunner0</testidentifier>
+            </testToRemove>
+
+
+            <auxFilePattern>data-FTK_bjet_ttbar-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_bjet_ttbar-ref.root</auxFilePattern>
+#           include "TrigInDetValidation_aux.xml"
+
+   
+         <athenaCommonFlags /> 
+         </athena>
+
+
+
