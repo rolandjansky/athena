@@ -34,6 +34,7 @@
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "TrkSurfaces/DiscTrapezoidalBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
@@ -56,33 +57,58 @@ SoNode*    SurfaceToSoNode::translateSurface(const Trk::Surface& sf, const bool&
 {
 
   SoNode* sono =0;
-    const Trk::CylinderSurface* ccsf = dynamic_cast<const Trk::CylinderSurface*>(&sf);
-    if (ccsf) sono = this->translateCylinderSurface(*ccsf);
-
-    const Trk::DiscSurface* cdsf = sono ? 0 : dynamic_cast<const Trk::DiscSurface*>(&sf);
-    if (cdsf) sono = this->translateDiscSurface(*cdsf);
-
-    const Trk::PlaneSurface* cpsf = sono ? 0 : dynamic_cast<const Trk::PlaneSurface*>(&sf);
-    if (cpsf) sono = this->translatePlaneSurface(*cpsf);
-
-    const Trk::StraightLineSurface* cssf = sono ? 0 : dynamic_cast<const Trk::StraightLineSurface*>(&sf);
-    if (cssf) sono = this->translateStraightLineSurface(*cssf, simple);
-
-    const Trk::PerigeeSurface* cpersf    = sono ? 0 : dynamic_cast<const Trk::PerigeeSurface*>(&sf);
-    if (cpersf) sono = this->translatePerigeeSurface(*cpersf);
-
-    if (!sono) {
-      std::cout<<"ERROR! Surface unknown!"<<std::endl;
-      return 0;
+  const Trk::CylinderSurface* ccsf = dynamic_cast<const Trk::CylinderSurface*>(&sf);
+  if (ccsf) sono = this->translateCylinderSurface(*ccsf);
+  
+  const Trk::DiscSurface* cdsf = sono ? 0 : dynamic_cast<const Trk::DiscSurface*>(&sf);
+  if (cdsf) sono = this->translateDiscSurface(*cdsf);
+  
+  const Trk::PlaneSurface* cpsf = sono ? 0 : dynamic_cast<const Trk::PlaneSurface*>(&sf);
+  if (cpsf) sono = this->translatePlaneSurface(*cpsf);
+  
+  const Trk::StraightLineSurface* cssf = sono ? 0 : dynamic_cast<const Trk::StraightLineSurface*>(&sf);
+  if (cssf) sono = this->translateStraightLineSurface(*cssf, simple);
+  
+  const Trk::PerigeeSurface* cpersf    = sono ? 0 : dynamic_cast<const Trk::PerigeeSurface*>(&sf);
+  if (cpersf) sono = this->translatePerigeeSurface(*cpersf);
+  
+  if (!sono) {
+    std::cout<<"ERROR! Surface unknown!"<<std::endl;
+    return 0;
+  }
+  
+  // place and transform them
+  SoSeparator* sosep = new SoSeparator();
+  SoTransform* sotra = VP1LinAlgUtils::toSoTransform(sf.transform());
+  
+  if (cdsf) {
+    const Trk::DiscTrapezoidalBounds* cdtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(cdsf->bounds()));
+    if (cdtbo) {
+      double rMedium  = cdtbo->rCenter();
+      double stereo = cdtbo->stereo();
+      double avePhi = cdtbo->averagePhi()-stereo;
+      
+      double dx = rMedium*cos(avePhi);
+      double dy = rMedium*sin(avePhi);
+      double dz = ((sf.transform()).translation()).z();
+       
+      // std::cout << "rMedium  --> " << rMedium << std::endl;
+      // std::cout << "(dx, dy, dz) --> " << "(" << dx << ", " << dy << ", " << dz << ")" << std::endl;
+      
+      Amg::Vector3D transl(dx,dy,dz);
+      Amg::RotationMatrix3D rotation;
+      rotation = Amg::AngleAxis3D(0., Amg::Vector3D::UnitX())*
+	Amg::AngleAxis3D(0., Amg::Vector3D::UnitY())*
+	Amg::AngleAxis3D(-M_PI/2.+avePhi-stereo, Amg::Vector3D::UnitZ());
+      Amg::Transform3D transform(rotation, transl);
+      sotra = VP1LinAlgUtils::toSoTransform(transform);
     }
+  }
 
-    // place and transform them
-    SoSeparator* sosep = new SoSeparator();
-    SoTransform* sotra = VP1LinAlgUtils::toSoTransform(sf.transform());
-    sosep->addChild(sotra);
-    sosep->addChild(sono);
-
-    return sosep;
+  sosep->addChild(sotra);
+  sosep->addChild(sono);
+  
+  return sosep;
 }
 
 SoNode*    SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf ) const
@@ -104,6 +130,8 @@ SoNode*    SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf )
      gb->setParametersForTrapezoid( 0.5*surfaceThickness/*dz*/, 0/*theta*/, 0/*phi*/, heta/*dy1*/,
 				    hminphi/*dx1*/, hmaxphi/*dx2*/, heta/*dy2*/, hminphi/*dx3*/,
 				    hmaxphi/*dx4*/, 0/*alp1*/, 0/*alp2*/ );
+
+     
      gb->drawEdgeLines.setValue(true);
      return gb;
    }
@@ -168,23 +196,40 @@ SoNode*    SurfaceToSoNode::translateDiscSurface(const Trk::DiscSurface& dsf) co
    //std::cout<<"translateDiscSurface"<<std::endl;
   const Trk::DiscBounds* cdbo = dynamic_cast<const Trk::DiscBounds*>(&(dsf.bounds()));
   if (cdbo){
-   double iradius    = cdbo->rMin();
-   double oradius    = cdbo->rMax();
-   double halfphisec = cdbo->halfPhiSector();
-
-   SoTubs* discSurface = new SoTubs();
-   (*discSurface).pRMin = iradius;
-   (*discSurface).pRMax = oradius;
-   (*discSurface).pDz   = 0.25;
-
-   if (fabs(halfphisec-M_PI)>10e-5){
-     // sweep back the rotation as the sweepangle starts from x-axis
-     (*discSurface).pSPhi = -halfphisec;
-     (*discSurface).pDPhi = 2.* halfphisec;
-   }
-
-   return discSurface;
+    double iradius    = cdbo->rMin();
+    double oradius    = cdbo->rMax();
+    double halfphisec = cdbo->halfPhiSector();
+    double avePhi     = cdbo->averagePhi(); 
+    
+    SoTubs* discSurface = new SoTubs();
+    (*discSurface).pRMin = iradius;
+    (*discSurface).pRMax = oradius;
+    (*discSurface).pDz   = 0.25;
+    
+    if (fabs(halfphisec-M_PI)>10e-5){
+      // sweep back the rotation as the sweepangle starts from x-axis
+      (*discSurface).pSPhi = -halfphisec + avePhi;
+      (*discSurface).pDPhi = 2.* halfphisec +avePhi;
+    }
+    
+    return discSurface;
   }
+  
+  const Trk::DiscTrapezoidalBounds* cdtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(dsf.bounds()));
+  if (cdtbo){
+    SoGenericBox * gb = new SoGenericBox;
+    const double hminphi = cdtbo->minHalflengthX();
+    const double hmaxphi = cdtbo->maxHalflengthX();
+    const double heta    = cdtbo->halflengthY();
+
+    gb->setParametersForTrapezoid( 0.5*surfaceThickness/*dz*/, 0/*theta*/, 0/*phi*/, heta/*dy1*/,
+     				   hminphi/*dx1*/, hmaxphi/*dx2*/, heta/*dy2*/, hminphi/*dx3*/,
+				   hmaxphi/*dx4*/, 0/*alp1*/, 0/*alp2*/ );
+    
+    gb->drawEdgeLines.setValue(true);
+    return gb;
+  }
+  
   return 0;
 }
 
