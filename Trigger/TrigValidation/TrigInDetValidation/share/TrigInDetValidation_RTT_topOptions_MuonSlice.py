@@ -32,10 +32,10 @@ from AthenaCommon.AppMgr import release_metadata
 d = release_metadata()
 ##TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
 print d['nightly name']
-if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC' or d['nightly name']=='20.X.Y-VAL' or d['nightly name']=='20.7.X-VAL' or '20.7.3.Y-VAL' in d['nightly name'] :
-  print '***JK This is TrigMC, 20.7.X or devval '
+if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC' or d['nightly name']=='20.X.Y-VAL' or d['nightly name']=='21.X.Y' or d['nightly name']=='20.7.X-VAL' or '20.7.3.Y-VAL' in d['nightly name'] or '20.7.4.Y-VAL' in d['nightly name'] :
+  print '***JK This is a realease with FTK, will include chains '
 else:
-  print '***JK This is NOT TrigMC will set doFTK=False'
+  print '***JK This release does not include FTK, will set doFTK=False'
   doFTK=False
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")

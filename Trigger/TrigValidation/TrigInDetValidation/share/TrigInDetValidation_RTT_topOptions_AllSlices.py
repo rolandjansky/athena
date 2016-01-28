@@ -85,7 +85,7 @@ tidaAnalysischains += muonAnalysischains
 (tauChainlist, tauAnalysischains) = tauChains(rMC, rID, rFTK)
 tidaAnalysischains += tauAnalysischains
 
-(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID)
+(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID, rFTK)
 tidaAnalysischains += bjetAnalysischains
 
 (minBiasChainlist, minBiasAnalysischains) = minBiasChains(rMC, rID)
