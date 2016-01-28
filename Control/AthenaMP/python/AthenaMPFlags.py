@@ -109,6 +109,20 @@ class UseTokenExtractor(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
+class ReadEventOrders(JobProperty):
+    """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+class EventOrdersFile(JobProperty):
+    """ Name of the file for storing/reading event orders (Shared Queue)
+    """
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = 'athenamp_eventorders.txt'
+
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
     """ The global AthenaMP job property container.
@@ -134,6 +148,8 @@ list_jobproperties = [
     EvtRangeScattererCaching,
     ChunkSize,
     UseTokenExtractor,
+    ReadEventOrders,
+    EventOrdersFile,
     ]
 
 for i in list_jobproperties:

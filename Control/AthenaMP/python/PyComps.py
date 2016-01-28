@@ -71,17 +71,19 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             if (self.nThreads >= 1):
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
                 self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=False,
-                                                IsPileup=pileup,
-                                                IsRoundRobin=(strategy=='RoundRobin'),
-                                                EventsBeforeFork=events_before_fork,
-                                                Debug=debug_worker)   ]
+                                                           IsPileup=pileup,
+                                                           IsRoundRobin=(strategy=='RoundRobin'),
+                                                           EventsBeforeFork=events_before_fork,
+                                                           Debug=debug_worker)   ]
             else:
                 from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
                 self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=False,
-                                                IsPileup=pileup,
-                                                IsRoundRobin=(strategy=='RoundRobin'),
-                                                EventsBeforeFork=events_before_fork,
-                                                Debug=debug_worker)   ]
+                                                       IsPileup=pileup,
+                                                       IsRoundRobin=(strategy=='RoundRobin'),
+                                                       ReadEventOrders=jp.AthenaMPFlags.ReadEventOrders(),
+                                                       EventOrdersFile=jp.AthenaMPFlags.EventOrdersFile(),
+                                                       EventsBeforeFork=events_before_fork,
+                                                       Debug=debug_worker)   ]
 
             # Enable seeking
             setupEvtSelForSeekOps()
