@@ -65,7 +65,7 @@ namespace TrigCostRootAnalysis {
         }
 
         // Are we running over this chain?
-        if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+        if ( checkPatternNameMonitor( _chainName, m_invertFilter, m_costData->getIsChainResurrected(_c) ) == kFALSE ) continue;
 
         CounterBase* _counter = getCounter( _counterMap, _chainName, _chainID );
         _counter->processEventCounter( _c, 0, _weight );
@@ -140,6 +140,10 @@ namespace TrigCostRootAnalysis {
     _toSaveTable.push_back( TableColumnFormatter("Total Chain Time [%]",
       "Total chain time as a percentage of the total time of all chains in this run range.",
       &tableFnChainGetTotalFracTime, 2 ) );
+
+    _toSaveTable.push_back( TableColumnFormatter("Time Use In Rerun [%]",
+      "Percentage of this chains CPU usage which comes from resurrection.",
+      kVarRerunTime, kSavePerEvent, kVarTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
 
     _toSaveTable.push_back( TableColumnFormatter("Run Agls/Event",
       "Total number of algorithms executed by this chain.",

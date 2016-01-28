@@ -48,8 +48,7 @@ namespace TrigCostRootAnalysis {
     void populateCounterMap(CounterMap_t* _counterMap);
     void populateChainItemMaps();
     void saveRateGraphs();
-    void saveRuleBookXML();
-    void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);
+
 
     void createGlobalCounters(CounterMap_t* _counterMap);
     void createL1Counters(CounterMap_t* _counterMap);
@@ -57,9 +56,6 @@ namespace TrigCostRootAnalysis {
     void createOverlapCounters(CounterMap_t* _counterMap);
     void createCPSGroupCounters(CounterMap_t* _counterMap);
     void createGroupCounters(CounterMap_t* _counterMap);
-
-    Bool_t checkPatternUnique( const std::string& _patternName );
-    Bool_t checkPatternOverlap( const std::string& _patternName );
 
     CounterRatesUnion* m_globalRateHLTCounter;
     CounterRatesUnion* m_globalRateL1Counter;

@@ -124,6 +124,9 @@ namespace TrigCostRootAnalysis {
     UInt_t  getSeqROBRetrievals(UInt_t _n) const;
     Float_t getSeqROBRetrievalSize(UInt_t _n) const;
     UInt_t  getSeqROBOthers(UInt_t _n) const;
+    //
+    Bool_t  getSeqIsRerun(UInt_t _n) const;
+
     
     //
     // SEQUENCE ---> ALGORITHM VARIABLES
@@ -153,7 +156,6 @@ namespace TrigCostRootAnalysis {
     UInt_t  getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a) const;
     Float_t getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a) const;
     UInt_t  getSeqAlgROBOthers(UInt_t _n, UInt_t _a) const;
-
 
     //
     // LEVEL 1 VARIABLES
@@ -308,6 +310,8 @@ namespace TrigCostRootAnalysis {
     mutable std::map< Int_t, UInt_t > m_chainAlgCallMap; //!< Algorithm calls per chain
     mutable std::map< Int_t, UInt_t > m_chainAlgCacheMap; //!< Algorithm caches per chain
     mutable std::map< Int_t, Float_t > m_chainAlgTimeMap; //!< Algorithm time per chain
+
+    mutable std::map< Int_t, Bool_t > m_chainRerunStatus; //!< Rerun bit for a chain ID
 
     mutable std::map< Int_t, std::set< std::pair<Int_t,Int_t> > > m_chainAlgMap; //!< Chain ID to set of algorithm locations in current event
     mutable std::map< Int_t, std::set< std::pair<Int_t,Int_t> > > m_seqAlgMap; //!< Sequence ID to set of algorithm locations in current event

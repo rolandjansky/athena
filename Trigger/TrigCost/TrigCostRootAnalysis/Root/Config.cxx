@@ -121,8 +121,12 @@ namespace TrigCostRootAnalysis {
     static Int_t _noMsgSup = kFALSE;
     static Int_t _noOnlineDTCorrection = kFALSE;
     static Int_t _noUpgradePileupScaling = kFALSE;
+    static Int_t _noUpgradeBunchScaling = kFALSE;
     static Int_t _doCPS = kFALSE;
     static Int_t _patternsInvert = kFALSE;
+    static Int_t _isCPUPrediction;
+    static Int_t _doUpgradeRatesScan = kFALSE;
+    static Int_t _doNotLumiWeightUnbiased = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -153,8 +157,9 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-07-30";
+    std::string _version = "TrigCostRootAnalysis-00-08-05";
     std::string _upgradeScenario = "";
+    std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
     UInt_t _nEvents = INT_MAX;
@@ -248,7 +253,11 @@ namespace TrigCostRootAnalysis {
         {"outputModeStandard",     no_argument,       &_outputModeStandard,     1},
         {"noOnlineDTCorrection",   no_argument,       &_noOnlineDTCorrection,   1},
         {"noUpgradePileupScaling", no_argument,       &_noUpgradePileupScaling, 1},
+        {"noUpgradeBunchScaling",  no_argument,       &_noUpgradeBunchScaling,  1},
         {"patternsInvert",         no_argument,       &_patternsInvert,         1},
+        {"isCPUPrediction",        no_argument,       &_isCPUPrediction,        1},
+        {"doUpgradeRatesScan",     no_argument,       &_doUpgradeRatesScan,     1},
+        {"doNotLumiWeightUnbiased",no_argument,       &_doNotLumiWeightUnbiased,1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -300,6 +309,7 @@ namespace TrigCostRootAnalysis {
         {"nLbPerHLTConfig",        required_argument, 0,                      'Q'},
         {"upgradeScenario",        required_argument, 0,                      'm'},
         {"messageWait",            required_argument, 0,                      'z'},
+        {"jira",                   required_argument, 0,                      'Z'},
         {0, 0, 0, 0}
       };
 
@@ -352,7 +362,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--monitorEventProfile\t\t\t\tBreakdown what an average event looks like, including with some (hardcoded) preselections." << std::endl;
           std::cout << "--monitorFullEvent\t\t\t\tFor select events, save detailed record of algorithm execution." << std::endl;
           std::cout << "--monitorRates\t\t\t\t\tPerform rate monitoring on chains and overlaps with other chains in the same group." << std::endl;
-          std::cout << "--monitorRatesUpgrade\t\t\t\tSpecialised rates mode for upgrade studies." << std::endl;
+          std::cout << "--monitorRatesUpgrade\t\t\t\tRate monitoring with customizable menu and pileup settings." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ OUTPUT TO GENERATE ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--doOutputCanvas\t\t\t\tSave results as decorated canvases in output ROOT file." << std::endl;
           std::cout << "--doOutputHist\t\t\t\t\tSave results as raw histograms in output ROOT file." << std::endl;
@@ -370,6 +380,7 @@ namespace TrigCostRootAnalysis {
 #endif
           std::cout << "--lbBegin INT_MIN\t\t\t\tLowest value luminosity block from input to use." << std::endl;
           std::cout << "--lbEnd INT_MAX\t\t\t\t\tHighest value luminosity block from input to use." << std::endl;
+          std::cout << "--jira\t\t\t\t\t\tLink to a bug report associated with this processing." << std::endl;
           std::cout << "--basicWeight "<< _basicWeight <<"\t\t\t\t\tBase event weight. Can be used to apply global scaling factor to run." << std::endl;
           std::cout << "--extrapolate8To13\t\t\t\tExperimental parameter! Attempt to evolve 8 TeV data/MC to 13 TeV based on HLT result." << std::endl;
           std::cout << "--extrapolate13To5\t\t\t\tExperimental parameter! Attempt to devolve 13 TeV data/MC to 5 TeV based on HLT result." << std::endl;
@@ -387,6 +398,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--patternsOutput patt1 patt2 ...\t\tPatterns to match in names when saving results. Regex currently NOT supported. Partial matched allowed. Only entries which match will be included in the output." << std::endl;
           std::cout << "--patternsInvert\t\t\t\tInvert the behaviour of --patternsMonitor and --patternsOutput to be a list of chains to explicitly exclude." << std::endl;
           std::cout << "--fullEvNumFilelist\t\t\t\tInput file list with one event number per line. If supplied, only HLT events matching will be used in Full Event Summaries." << std::endl;
+          std::cout << "--isCPUPrediction\t\t\t\tIn this mode TrigCost assumes it's running on EnhancedBias data reprocessed with physics prescales and with the costmonitor chain unprescaled." << std::endl;
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "--noMsgSuppression\t\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
@@ -410,8 +422,11 @@ namespace TrigCostRootAnalysis {
           std::cout << "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."<<std::endl;
           std::cout << "--maxMultiSeed "<< _maxMultiSeed <<"\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity." << std::endl;
           std::cout << "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." << std::endl;
+          std::cout << "--doNotLumiWeightUnbiased\t\t\tIf set, unbiased EB events only get EB weight and do not get lumi extrapolation weight." << std::endl;
           std::cout << "--upgradeScenario\t\t\t\tSpecify the name of the scenario to load when doing upgrade rate estimations." << std::endl;
+          std::cout << "--doUpgradeRatesScan\t\t\t\tAdd a standard set of spaced out L1 triggers at different energies to get pT dependence." << std::endl;
           std::cout << "--noUpgradePileupScaling\t\t\tWhen doing upgrade rates, use this flag to avoid scaling rates for increased <mu>." << std::endl;
+          std::cout << "--noUpgradeBunchScaling\t\t\t\tWhen doing upgrade rates, use this flag to avoid scaling rates for increased bunches." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ I/O CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--files file1 file2 ...\t\t\t\tInput ntuple files." << std::endl;
           std::cout << "--fileList\t\t\t\t\tFile with full path of data, one entry per line. Can be EOS if at CERN and ROOT6." << std::endl;
@@ -429,7 +444,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--outputImageDirectory \"" << _outImageDirectory << "\"\t\t\tName of folder for image results." << std::endl;
           std::cout << "--outputCSVDirectory \"" << _outCSVDirectory << "\"\t\t\tName of folder for CSV results." << std::endl;
           std::cout << "--outputXMLDirectory \"" << _outXMLDirectory << "\"\t\t\tName of folder for XML results." << std::endl;
-          std::cout << "--messageWait "<< _messageWait <<"\t\t\t\t\tTime in seconds between progress reports." << std::endl;
+          std::cout << "--messageWait "<< _messageWait <<"\t\t\t\tTime in seconds between progress reports." << std::endl;
           std::cout << "--writeEBXML\t\t\t\t\tWrite out EnhancedBias weights from D3PD to XML for future use (for use by rate experts)." << std::endl;
           std::cout << "--cleanAll\t\t\t\t\tRemove any old output directory before saving output." << std::endl;
           std::cout << "--userDetails \t\t\t\t\tUser supplied metadata string giving any extra details about this run." << std::endl;
@@ -440,7 +455,6 @@ namespace TrigCostRootAnalysis {
           // Hidden --doNotWriteMetadata
           // Hidden --histogramBinMin
           // Hidden --histogramBinMax
-          // Hidden --ratesUpgradeMode
           abort();
         }
         // I did not set a flag, but was also not caught above. Require implementation
@@ -712,6 +726,11 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _ratesOverlapWarning;
         break;
+      case 'Z':
+        // JIRA
+        _ss << optarg;
+        _ss >> _jira;
+        break;
       case 'H':
         // Different HLT prefix
         _HLTPrefix = std::string( optarg );
@@ -943,6 +962,13 @@ namespace TrigCostRootAnalysis {
     set(kDoRatesMonitor,             _monitorRates, "RatesMonitor");
     set(kDoRatesUpgradeMonitor,      _monitorRatesUpgrade, "RatesUpgradeMonitor");
 
+    // Number of passes, UpgradeMonitor needs 2 if we are doing upgrade pileup scaling
+    if (_monitorRatesUpgrade == kTRUE && _noUpgradePileupScaling == kFALSE) {
+        set(kNPasses, 2, "NPasses");
+    } else {
+        set(kNPasses, 1, "NPasses");
+    }
+
     // String patterns to match when doing monitoring
     set(kPatternsMonitor, _patternsMonitor, "PatternsMonitor", kUnlocked);
     set(kPatternsOutput, _patternsOutput, "PatternsOutput", kUnlocked);
@@ -1083,11 +1109,16 @@ namespace TrigCostRootAnalysis {
     set(kNoOnlineDeadtimeCorrection, _noOnlineDTCorrection, "NoOnlineDeadtimeCorrection");
     set(kUpgradeScenario, _upgradeScenario, "UpgradeScenario");
     set(kNoUpgradePileupScaling, _noUpgradePileupScaling, "NoUpgradePileupScaling");
+    set(kNoUpgradeBunchScaling, _noUpgradeBunchScaling, "NoUpgradeBunchScaling");
+    set(kDoUpgradeRatesScan, _doUpgradeRatesScan, "DoUpgradeRatesScan");
     set(kMessageWait, _messageWait, "MessageWait");
     setFloat(kEventElapsed, 0., "EventElasped", kUnlocked);
     setFloat(kEventStartTime,  0., "EventStart", kUnlocked);
     set(kPatternsInvert, _patternsInvert, "PatternsInvert");
-
+    set(kIsCPUPrediction, _isCPUPrediction, "IsCPUPrediction");
+    set(kIgnoreRerun, 0, "IgnoreRerun", kUnlocked); 
+    set(kDoNotLumiWeightUnbiased, _doNotLumiWeightUnbiased, "DoNotLumiWeightUnbiased");
+    set(kJIRA, _jira, "JIRA");
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
@@ -1183,11 +1214,14 @@ namespace TrigCostRootAnalysis {
     set(kDirectlyApplyPrescales, 1, "DirectlyApplyPrescales");
     set(kNBunchGroups, 16, "NumberOfBunchGroups");
     set(kLinkOutputDirName, "costMon", "OutputDirLinkName");
-    setFloat(kUnbiasedWeightThreshold, 2.5e5, "kUnbiasedWeightThreshold"); // RUn1 ONLY: Events with w>this will be considered to be RD0 streamers (unbiased)
+    setFloat(kUnbiasedWeightThreshold, 2.5e5, "UnbiasedWeightThreshold"); // RUn1 ONLY: Events with w>this will be considered to be RD0 streamers (unbiased)
     if ( _binMin != FLT_MIN && _binMax != FLT_MIN ) {
       setFloat(kHistBinMin, _binMin, "HistogramBinMin");
       setFloat(kHistBinMax, _binMax, "HistogramBinMax");
     }
+    set(kUpgradeEMCountsPerGeV, 2, "UpgradeEMCountsPerGeV");
+    set(kUpgradeJetCountsPerGeV, 1, "UpgradeJetCountsPerGeV");
+    set(kUpgradeJetLargeWindow, 1, "UpgradeJetLargeWindow");
 
     // Maximum number of certain messages to show
     setDisplayMsg(kMsgDivZero, 5, "Division by zero");
@@ -1209,6 +1243,7 @@ namespace TrigCostRootAnalysis {
     setDisplayMsg(kMsgCannotFindVO, 5, "Cannot find variable option (VO) for variable in data store");
     setDisplayMsg(kMsgNewUniqueCounter, 30, "Created new unique counter");
     setDisplayMsg(kMsgLumiScaling, 1, "No XML to do partial run scaling (only important if processing an EB run)");
+    setDisplayMsg(kMsgNoTETOB, 5, "Event did not contain any Total Energy TOB");
 
     // Const strings literals to be referenced throughout
     set(kL0String,"L0");
@@ -1226,6 +1261,7 @@ namespace TrigCostRootAnalysis {
     set(kAndString,"__AND__");
     set(kRateGlobalHLTString,"RATE_GLOBAL_HLT");
     set(kRateGlobalPhysicsMainString,"RATE_GLOBAL_PHYSICS");
+    set(kRateGlobalL2String,"RATE_GLOBAL_L2");
     set(kRateGlobalL1String,"RATE_GLOBAL_L1");
     set(kRateGlobalL0String,"RATE_GLOBAL_L0");
     set(kRateUniqueString,"UNIQUE_");
@@ -1240,6 +1276,7 @@ namespace TrigCostRootAnalysis {
     set(kJetString, "Jet");
     set(kJetEtString, "JetEt");
     set(kEnergyString, "Energy");
+    set(kMissingEnergyString, "MET");
     set(kROBINString, "ROBIN");
     set(kROSString, "ROS");
     set(kAlwaysPassString, "UNSEEDED");
@@ -1247,6 +1284,8 @@ namespace TrigCostRootAnalysis {
 
     // Different variables to save
     set(kVarTime, "Time");
+    set(kVarRerunTime, "RerunTime");
+    set(kVarPassTime, "PassTime");
     set(kVarTimeExec, "TimeExec");
     set(kVarTimeElapsed, "TimeElapsed");
     set(kVarFirstTime, "FirstTime");

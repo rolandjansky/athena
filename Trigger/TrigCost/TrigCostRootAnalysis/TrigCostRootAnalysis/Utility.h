@@ -150,6 +150,7 @@ namespace TrigCostRootAnalysis {
     kFullEventMaxNumToSave,
     kFullEventSaveOnePer,
     kUpgradeScenario,
+    kDoUpgradeRatesScan,
     kRatesForcePass,
     kRatesOverlapWarning,
     kRatesScaleByPS,
@@ -218,6 +219,7 @@ namespace TrigCostRootAnalysis {
     kErrorIgnore,
     kSlowThreshold,
     kSlowEvThreshold,
+    kIsCPUPrediction,
     kEventElapsed,
     kEventStartTime,
     kNBunchGroups,
@@ -226,20 +228,32 @@ namespace TrigCostRootAnalysis {
     kPatternsInvert,
     kDirectlyApplyPrescales,
     kNoUpgradePileupScaling,
+    kNoUpgradeBunchScaling,
+    kUpgradeEMCountsPerGeV,
+    kUpgradeJetCountsPerGeV,
+    kUpgradeJetLargeWindow,
     kNoOnlineDeadtimeCorrection,
     kOnlineDeadtime,
+    kDeadtimeScalingFinal, // Final scaling factor used for online deadtime
     kDoUniqueRates,
     kRatesOnly,
     kDoGroupOverlap,
     kDoAllOverlap,
     kRatesForNonPhysics,
     kDefaultLBLength,
-    kPredictionLumi,
-    kPredictionLumiRunXML,
-    kPredictionLumiMenuXML,
+    kPredictionLumi, // From the CLI (priority 1)
+    kPredictionLumiRunXML, // From the EB XML (prioirty 3)
+    kPredictionLumiMenuXML, // From the prescales XML (priority 2)
+    kPredictionLumiFinal, // The value actually chosen to be used
+    kTargetPeakMuAverage,
+    kTargetPairedBunches,
+    kDoNotLumiWeightUnbiased,
+    kJIRA,
     kRunLumi,
     kRunLumiXML,
     kDebug, 
+    kNPasses,
+    kCurrentPass,
     kMessageWait,
     kCleanAll,
     kSloppyExit,
@@ -262,6 +276,7 @@ namespace TrigCostRootAnalysis {
     kWriteEBWeightXML,
     kWriteDummyPSXML,
     kNoMsgSuppression,
+    kIgnoreRerun,
     kHistBins,
     kHistBinMin,
     kHistBinMax,
@@ -282,6 +297,7 @@ namespace TrigCostRootAnalysis {
     kAndString,
     kRateGlobalHLTString,
     kRateGlobalPhysicsMainString,
+    kRateGlobalL2String,
     kRateGlobalL1String,
     kRateGlobalL0String,
     kRateUniqueString,
@@ -300,6 +316,7 @@ namespace TrigCostRootAnalysis {
     kJetString,
     kJetEtString,
     kEnergyString,
+    kMissingEnergyString,
     kROBINString,
     kROSString,
     kAlwaysPassString,
@@ -309,6 +326,8 @@ namespace TrigCostRootAnalysis {
     kRunNumber,
     kVersionString,
     kVarTime,     // Study Variable ENUMs
+    kVarRerunTime,
+    kVarPassTime,
     kVarTimeExec,
     kVarTimeElapsed,
     kVarFirstTime,
@@ -399,6 +418,7 @@ namespace TrigCostRootAnalysis {
     kMsgCannotFindVO,
     kMsgNewUniqueCounter,
     kMsgLumiScaling,
+    kMsgNoTETOB,
     kConfKey_SIZE //!<  END of config. ENUM keysNumber of configuration keys - keep me as last entry
   };
 
@@ -484,6 +504,12 @@ namespace TrigCostRootAnalysis {
 
   // Helper functions
   // These need to find a more permanent home
+
+  Bool_t checkPatternNameMonitor( const std::string& _patternName, Bool_t _invert, Bool_t _isRerun = kFALSE );
+  Bool_t checkPatternNameOutput( const std::string& _patternName, Bool_t _invert );
+  Bool_t checkPatternUnique( const std::string& _patternName, Bool_t _invert );
+  Bool_t checkPatternOverlap( const std::string& _patternName, Bool_t _invert );
+  Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list, Bool_t _invert );
 
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);

@@ -16,6 +16,7 @@
 
 // Local include(s):
 #include "Utility.h"
+#include "MonitorRatesUpgrade.h" // Special class defs
 
 // ROOT includes
 #include <TRandom3.h>
@@ -52,8 +53,11 @@ namespace TrigCostRootAnalysis {
     Bool_t getUpperContainsAll( std::set<RatesChainItem*>& _set );
     void setExtraEfficiency(Double_t _extraEfficiency);
     void setRateReductionFactor(Double_t _reductionFactor);
+    void setTriggerLogic(TriggerLogic* _tl);
 
     void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
+    void beginEvent(TOBAccumulator* _eventTOBs);
+
     void endEvent();
     void newRandomPS();
 
@@ -74,6 +78,7 @@ namespace TrigCostRootAnalysis {
     Bool_t getPassRawAndPS();
     const std::string& getName();
     UInt_t getID();
+    TriggerLogic* getTriggerLogic();
 
    private:
    
@@ -100,6 +105,8 @@ namespace TrigCostRootAnalysis {
 
     ChainItemSet_t m_lower; //!< Pointers to seeding chains from lower levels
     ChainItemSet_t m_upper; //!< Pointers to seeding chains from lower levels
+
+    TriggerLogic* m_triggerLogic; //!< If set, this logic is to be used to determine if the event passed or not.
 
     CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
 

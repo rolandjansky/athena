@@ -43,6 +43,7 @@ namespace TrigCostRootAnalysis {
     m_costData(_costData),
     m_name(_name),
     m_level(0),
+    m_pass(1),
     m_detailLevel(10),
     m_dummyCounter(0),
     m_allowSameNamedCounters(kFALSE),
@@ -57,6 +58,7 @@ namespace TrigCostRootAnalysis {
     m_currentDBKey(-1, -1, -1),
     m_timer("Monitor",_name) {
     m_invertFilter = Config::config().getInt(kPatternsInvert);
+    m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
   }
 
   /**
@@ -82,6 +84,20 @@ namespace TrigCostRootAnalysis {
     }
     m_collectionLumiCollector.clear();
     delete m_dummyCounter;
+  }
+
+  /**
+   * @ param _pass Set which pass through the input files are we on.
+   */ 
+  void MonitorBase::setPass(UInt_t _pass) {
+    m_pass = _pass;
+  }
+
+  /**
+   * @return Which pass through the input files are we on.
+   */ 
+  UInt_t MonitorBase::getPass() {
+    return m_pass;
   }
 
   /**
@@ -230,6 +246,7 @@ namespace TrigCostRootAnalysis {
    * Keep track on the event lumi
    */
   void MonitorBase::recordLumi( const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength) {
+    if (m_pass != 1) return; // Only do lumi on the first pass
     if ( m_collectionLumiCollector.count( _name ) == 0)  {
       m_collectionLumiCollector.insert( std::make_pair( _name, new LumiCollector()) );
     }
@@ -360,7 +377,7 @@ namespace TrigCostRootAnalysis {
         CounterBase* _TCCB =  _mapIt->second;
 
         // Check if we are saving this
-        if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName() ) == kFALSE ) continue;
+        if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName(), m_invertFilter ) == kFALSE ) continue;
 
         // Check if there is any content
         if ( _TCCB->getValueExists(kVarCalls, kSavePerEvent) == kTRUE ) {
@@ -563,7 +580,7 @@ namespace TrigCostRootAnalysis {
     std::ios::fmtflags _foutFlags( _fout.flags() );
 
     // Check if we are saving this
-    if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName() ) == kFALSE ) return;
+    if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName(), m_invertFilter ) == kFALSE ) return;
 
     if ( m_filterOutput && m_filterOnDecorationValue != Config::config().getStr(kBlankString) ) {
       if ( _TCCB->getStrDecoration(m_filterOnDecorationKey) != m_filterOnDecorationValue ) return;
@@ -769,41 +786,6 @@ namespace TrigCostRootAnalysis {
       _counterMap->insert( std::make_pair( _name, _tcc ) );
     }
     return _tcc;
-  }
-
-  /**
-   * Check to see if a counter name has been specified by the user as one we're interested in.
-   * Match it to the vector of chains to run over.
-   * @param _counterName Const reference to counter name to test.
-   * @result If the counter is in the list of counters to process in this run.
-   */
-  Bool_t MonitorBase::checkPatternNameMonitor( const std::string& _counterName ) {
-    return checkPatternInternal(_counterName, kPatternsMonitor);
-  }
-
-  /**
-   * Check to see if a counter name has been specified by the user as one we're interested in saving.
-   * Match it to the vector of chains to save.
-   * @param _counterName Const reference to counter name to test.
-   * @result If the counter is in the list of counters to output from this run.
-   */
-  Bool_t MonitorBase::checkPatternNameOutput( const std::string& _counterName ) {
-    return checkPatternInternal(_counterName, kPatternsOutput);
-  }
-
-  /**
-   * Code to actually perform the check if a counter is listed in a given vector
-   * @param _counterName Const reference to counter name to test.
-   * @param _list The key of the saved configuration vector to test in
-   * @result If the counter is in the list of counters to output from this run.
-   */
-  Bool_t MonitorBase::checkPatternInternal( const std::string& _counterName, ConfKey_t _list ) {
-    if ( Config::config().getVecSize(_list) > 0 ) {
-      Bool_t _result = Config::config().getVecMatches(_list, _counterName);
-      if (m_invertFilter == kTRUE) return !_result;
-      return _result;
-    }
-    return kTRUE;
   }
 
   /**

@@ -21,8 +21,8 @@
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/Utility.h"
-#include "../TrigCostRootAnalysis/WriteXML_JSON.h"
 #include "../TrigCostRootAnalysis/TrigConfInterface.h"
+#include "../TrigCostRootAnalysis/CounterBaseRates.h"
 
 // ROOT includes
 #include <TSystem.h>
@@ -154,9 +154,8 @@ namespace TrigCostRootAnalysis {
     // which was an EB run) then return 1
     if ( !Config::config().getIsSet(kPredictionLumi)
       && !Config::config().getIsSet(kPredictionLumiMenuXML)
-      && Config::config().getInt(kDoRatesMonitor) == 0
-      && Config::config().getInt(kDoRatesUpgradeMonitor) == 0) {
-      Warning("TrigXMLService::getLumiExtrapWeight", "We have a prediction lumi for this run from the EB XML (%e), but are not doing rates. To use this explicitly specify a --predictionLumi",
+      && Config::config().getInt(kDoRatesMonitor) == 0) {
+      Warning("TrigXMLService::getLumiExtrapWeight", "We have a prediction lumi for this run from the EB XML (%e), but are not doing standard rates. To use this explicitly specify a --predictionLumi",
        Config::config().getFloat(kPredictionLumiRunXML) );
       return 1.;
     }
@@ -190,6 +189,8 @@ namespace TrigCostRootAnalysis {
     Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
       "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
     Config::config().setFloat(kLumiExtrapWeight, _scalingFactor, "FinalLumiExtrapWeight", kLocked); // Keep a note of this factor
+    Config::config().setFloat(kPredictionLumiFinal, _predictionLumi, "PredictionLumiFinal", kLocked); 
+    Config::config().setFloat(kDeadtimeScalingFinal, (1. + _onlineDeadtime), "DeadtimeScalingFinal", kLocked); 
     return _scalingFactor;
   }
 
@@ -731,9 +732,14 @@ namespace TrigCostRootAnalysis {
   /**
    * Read (if not already imported) the XML rates and bunch groups for this run.
    * Return the weight for this event and store the event's  bunch group setting using the config service.
+   * @param _pass Which pass through the file(s), only increment counters on first pass
    * @return The event weight from the EnhancedBias XML.
    */
-  Float_t TrigXMLService::getEventWeight(UInt_t _eventNumber, UInt_t _lb) {
+  Float_t TrigXMLService::getEventWeight(UInt_t _eventNumber, UInt_t _lb, UInt_t _pass) {
+
+// HACK, 
+   // return 1.;
+
     // if (Config::config().getInt(kDoEBWeighting) == kFALSE) return 1.;
     if (m_weightsServiceEnabled == kFALSE) parseEnhancedBiasXML();
 
@@ -759,7 +765,7 @@ namespace TrigCostRootAnalysis {
     // Store the event BG
     Config::config().set(kCurrentEventBunchGroupID, _eventBG, _bgString, kUnlocked);
     Config::config().setFloat(kCurrentEventEBWeight, _eventWeight, _ebString, kUnlocked);
-    m_eventsPerBGCounter[_eventBG] += 1;
+    if (_pass == 1) m_eventsPerBGCounter[_eventBG] += 1;
     // Store if the event was unbiased online (triggered by random).
     // In run 2 wedo something more fancy
     Int_t _isRandom = 0;
@@ -768,7 +774,7 @@ namespace TrigCostRootAnalysis {
     } else {
       if ( _eventWeight > Config::config().getFloat(kUnbiasedWeightThreshold) ) _isRandom = 1;
     }
-    if (_isRandom) m_unbiasedPerBGCounter[_eventBG] += 1;
+    if (_isRandom && _pass == 1) m_unbiasedPerBGCounter[_eventBG] += 1;
     Config::config().set(kCurrentEventWasRandomOnline, _isRandom, _rdString, kUnlocked);
 
     return _eventWeight;
@@ -907,6 +913,314 @@ namespace TrigCostRootAnalysis {
 
     Info("TrigXMLService::writePrescaleXML","Exported XML with %i chains.", TrigConfInterface::getChainN());
 
+  }
+
+  void TrigXMLService::saveRuleBookXML(CounterCollection_t& _counterCollections, std::string _levelStr) {
+
+    if (Config::config().getInt(kOutputXML) == kFALSE) return;
+
+    // Save tables. Loop over counter collections.
+    CounterCollectionIt_t _colIt = _counterCollections.begin();
+    for (; _colIt != _counterCollections.end(); ++_colIt) {
+      const std::string _counterCollectionName = _colIt->first;
+      const CounterMap_t* _counterMap = &(_colIt->second);
+      // Skip if there are no counters to process
+      if ( _counterMap->size() == 0) continue;
+
+      const std::string _outputFolder = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory);
+      gSystem->mkdir( _outputFolder.c_str(), kTRUE);
+
+      const std::string _xmlName = _outputFolder
+        + "/TrigRate_"
+        + Config::config().getStr(kOutputTag) + "_"
+        + _levelStr + "_"
+        + _counterCollectionName
+        + ".xml";
+      std::ofstream _fout;
+      _fout.open( _xmlName.c_str() );
+      _fout << std::fixed; // Use fixed width output
+
+      if (Config::config().debug()) {
+        Info("TrigXMLService::saveRuleBookXML","Doing XML output with path %s.", _xmlName.c_str());
+      }
+
+      XMLExport _xml(_fout);
+      _xml.setSpaces(2);
+      _xml.addNode(_fout, "trigger");
+
+      // Do General Info
+      _xml.addNode(_fout, "Xsection", intToString(0)); // TODO
+
+      Float_t _runLumi = 0.;
+      if ( Config::config().getIsSet(kRunLumi) ) _runLumi = Config::config().getFloat(kRunLumi);
+      else if ( Config::config().getIsSet(kRunLumiXML) ) _runLumi = Config::config().getFloat(kRunLumiXML);
+      _xml.addNode(_fout, "Luminosity", floatToString(_runLumi) );
+
+      _xml.addNode(_fout, "GenEff", intToString(0)); // TODO
+      _xml.addNode(_fout, "n_evts", intToString(Config::config().getInt(kEventsProcessed)) );
+
+      Float_t _predictionLumi = 0.;
+      if ( Config::config().getIsSet(kPredictionLumi) ) _predictionLumi = Config::config().getFloat(kPredictionLumi);
+      else if ( Config::config().getIsSet(kPredictionLumiMenuXML) ) _predictionLumi = Config::config().getFloat(kPredictionLumiMenuXML);
+      else if ( Config::config().getIsSet(kPredictionLumiRunXML) ) _predictionLumi = Config::config().getFloat(kPredictionLumiRunXML);
+      _xml.addNode(_fout, "PredictionLumi", floatToString(_predictionLumi) );
+
+      for (UInt_t _f = 0; _f < Config::config().getVecSize(kInputFiles); ++_f) {
+        _xml.addNode(_fout, "Dataset", Config::config().getVecEntry(kInputFiles, _f));
+      }
+      _xml.addNode(_fout, "AtlasProject", TrigConfInterface::getMetaStringVal("AtlasProject") );
+      _xml.addNode(_fout, "AtlasVersion", TrigConfInterface::getMetaStringVal("AtlasVersion") );
+      _xml.addNode(_fout, "triggerMenuSetup", TrigConfInterface::getMetaStringVal("triggerMenuSetup") );
+      _xml.addNode(_fout, "L1PrescaleSet", TrigConfInterface::getMetaStringVal("L1PrescaleSet") );
+      _xml.addNode(_fout, "HLTPrescaleSet", TrigConfInterface::getMetaStringVal("HLTPrescaleSet") );
+      _xml.addNode(_fout, "CMTPATH", TrigConfInterface::getMetaStringVal("CMTPATH") );
+
+      // Do Bunch Group info
+      // Currently we prefer XML
+      if ( TrigXMLService::trigXMLService().getParsedRunXML() == kTRUE ) {
+        _xml.addNode(_fout, "bunchgroup");
+        for (Int_t _bg = 0; _bg < TrigXMLService::trigXMLService().getNBunchGroups(); ++_bg) {
+          _xml.addNode(_fout, "bunchgrouptype");
+          _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bg) );
+          _xml.addNode(_fout, "bunchgroup_key", TrigXMLService::trigXMLService().getBunchGroupName(_bg) );
+          _xml.addNode(_fout, "bunchgroup_size", intToString(TrigXMLService::trigXMLService().getBunchGroupSize(_bg)) );
+          _xml.endNode(_fout); // bunchgrouptype
+        }
+        _xml.endNode(_fout); //bunchgroup
+      } else {
+          // Otherwise try from ntuple (this is broken 06/15) TODO fix in athena
+        StringIntMap_t _bunchGroups = TrigConfInterface::getBunchGroupSetup();
+        UInt_t _bgCounter = 0;
+        _xml.addNode(_fout, "bunchgroup");
+        for (StringIntMapIt_t _it = _bunchGroups.begin(); _it != _bunchGroups.end(); ++_it) {
+          _xml.addNode(_fout, "bunchgrouptype");
+          _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bgCounter++) );
+          _xml.addNode(_fout, "bunchgroup_key", _it->first );
+          _xml.addNode(_fout, "bunchgroup_size", intToString(_it->second) );
+          _xml.endNode(_fout); // bunchgrouptype
+        }
+        _xml.endNode(_fout); //bunchgroup
+      }
+
+      _xml.addNode(_fout, "level");
+      //Add L1 data
+      _xml.addNode(_fout, "lvl_name", "L1");
+      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
+        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
+        if (_counter->getStrDecoration(kDecType) != "L1") continue;
+        saveXMLElement(_fout, _xml, _counter);
+      }
+      _xml.endNode(_fout); //level
+      //Add L2 data
+      _xml.addNode(_fout, "lvl_name", "L2");
+      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
+        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
+        if (_counter->getStrDecoration(kDecType) != "L2") continue;
+        saveXMLElement(_fout, _xml, _counter);
+      }
+      _xml.endNode(_fout); //level
+      _xml.addNode(_fout, "level");
+      //Add HLT data
+      _xml.addNode(_fout, "lvl_name", "HLT");
+      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
+        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
+        if (_counter->getStrDecoration(kDecType) != "Chain") continue;
+        saveXMLElement(_fout, _xml, _counter);
+      }
+      _xml.endNode(_fout); //level
+      _xml.endNode(_fout); //trigger
+
+      _fout.close();
+    }
+  }
+
+  /**
+   * Save all rate data for a single chain into an output XML stream
+   * @param _fout Reference to output stream.
+   * @param _xml Reference to XML export engine.
+   * @returns _counter Counter to export.
+   */
+  void TrigXMLService::saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter) {
+    const UInt_t _xmlPrecision = 7;
+
+    Float_t _evPassWeight = _counter->getValue(kVarEventsPassed, kSavePerCall);
+    Float_t _evPassWeightErr = _counter->getValueError(kVarEventsPassed, kSavePerCall); // Get sqrt(sumW2)
+
+    Float_t _evRun = _counter->getValue(kVarEventsRun, kSavePerCall); // EB Weighted
+    Float_t _evPassNoPS = _counter->getValue(kVarEventsPassedNoPS, kSavePerCall); // EB Weighted
+
+    Float_t _evPassRawStat = _counter->getValue(kVarEventsPassRawStat, kSavePerCall); // Not EB Weighted
+    //Float_t _evRunRawStat  = _counter->getValue(kVarEventsRunRawStat,  kSavePerCall); // Not EB Weighted
+
+    Float_t _walltime = _counter->getDecoration(kDecLbLength);
+
+    Float_t _rate = _evPassWeight / _walltime;
+    Float_t _rateErr = _evPassWeightErr / _walltime;    // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
+
+    Float_t _uniqueRate = _counter->getDecoration(kDecUniqueRate);
+    Float_t _uniqueFraction = _counter->getDecoration(kDecUniqueFraction); // Was in percent, change back to 0-1
+
+    Bool_t _isL1 = kFALSE;
+    if (_counter->getStrDecoration(kDecType) == "L1") _isL1 = kTRUE;
+    UNUSED(_isL1);
+
+    // TODO - THIS IS WRONG FOR WEIGHTED EVENTS
+    Float_t _eff = 0., _effErr = 0., _psEff = 0., _psEffErr = 0.;
+    if (_evRun) {
+      _eff = _evPassNoPS / _evRun;
+      _effErr = (1./_evRun) * TMath::Sqrt( _evPassNoPS * (1. - _eff) ); // Binomal
+      _psEff = _evPassWeight / _evRun;
+      _psEffErr =  (1./_evRun) * TMath::Sqrt( _evPassWeight * (1. - _psEff) ); // Binomal
+    }
+
+    UNUSED(_effErr);
+    UNUSED(_psEffErr);
+
+    _xml.addNode(_fout, "signature");
+    _xml.addNode(_fout, "sig_name", _counter->getName());
+    _xml.addNode(_fout, "express_stream", intToString(0) ); // TODO add me!
+    _xml.addNode(_fout, "chain_prescale", floatToString( _counter->getBasicPrescale() )); // This holds the *item* PS
+    _xml.addNode(_fout, "passthrough", "0" );
+    _xml.addNode(_fout, "lower_chain_name", "" );
+    _xml.addNode(_fout, "evts_passed", floatToString( _evPassRawStat, _xmlPrecision));
+    _xml.addNode(_fout, "evts_passed_weighted", floatToString( _evPassWeight, _xmlPrecision));
+    _xml.addNode(_fout, "efficiency", floatToString( _eff, _xmlPrecision));
+    //_xml.addNode(_fout, "efficiency_err", floatToString( _effErr, _xmlPrecision)); // TODO FIX ME
+    _xml.addNode(_fout, "efficiency_err", floatToString((Float_t)0.));
+    _xml.addNode(_fout, "prescaled_efficiency", floatToString( _psEff, _xmlPrecision));
+    //_xml.addNode(_fout, "prescaled_efficiency_err", floatToString( _psEffErr, _xmlPrecision)); // TODO FIX ME
+    _xml.addNode(_fout, "prescaled_efficiency_err",  floatToString((Float_t)0.));
+    _xml.addNode(_fout, "rate", floatToString( _rate, _xmlPrecision));
+    _xml.addNode(_fout, "rate_err", floatToString( _rateErr, _xmlPrecision));
+    _xml.addNode(_fout, "unique_fraction", floatToString(_uniqueFraction, _xmlPrecision));
+    _xml.addNode(_fout, "unique_rate", floatToString(_uniqueRate, _xmlPrecision));
+    _xml.endNode(_fout); //signature
+
+  }
+
+  /**
+   * We need extra information which is kept in upgrade XMLs. These share similarity with standard rate XMLs but have additional fields
+   * @param _isoBits Pass by reference to map of isolation ID string to isolation bits map, to read from XML
+   * @param _upgradeChains Pass by reference to set of ChainInfo objects containing all info needed to create chain counters, to read from XML
+   */
+  void TrigXMLService::parseUpgradeXML(StringIntMap_t& _isoBits, std::multiset<ChainInfo>& _upgradeChains) {
+
+    const std::string _scenario = Config::config().getStr(kUpgradeScenario);
+    const std::string _file = std::string("upgrade_") + _scenario + std::string("_menu.xml");
+    std::string _path;
+
+    if (Config::config().getInt(kIsRootCore) == kTRUE) {
+      _path = std::string( Config::config().getStr(kDataDir) + _file );
+    } else {
+// CAUTION - "ATHENA ONLY" CODE
+#ifndef ROOTCORE
+      _path = PathResolverFindDataFile( _file );
+#endif // not ROOTCORE
+    }
+
+    // If file exists
+    TXMLEngine* _xml = new TXMLEngine();
+    XMLDocPointer_t _xmlDoc = 0;
+    std::string _level = "none";
+
+    if (_path != Config::config().getStr(kBlankString) && access( _path.c_str(), F_OK ) != -1 ) {
+      _xmlDoc = _xml->ParseFile( _path.c_str() );
+    }
+
+    if (_xmlDoc == 0) {
+      Error("MonitorRatesUpgrade::parseUpgradeXML","Cannot find upgrade XML %s, critical error - must be supplied. Use --upgradeScenario.", _file.c_str() );
+      delete _xml;
+      abort();
+    }
+
+    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    assert( _xml->GetNodeName(_mainNode) == std::string("trigger") );
+    XMLNodePointer_t _listNode = _xml->GetChild( _mainNode );
+
+    while ( _listNode != 0 ) { // Loop over all menu elements
+      const std::string _listName = _xml->GetNodeName(_listNode);
+      XMLNodePointer_t _node = _xml->GetChild( _listNode );
+      if (_listName == "lumivalues") {
+        while( _node != 0) {
+          if ( _xml->GetNodeName(_node) == std::string("target_paired_bcid") ) {
+            Config::config().set(kTargetPairedBunches, stringToInt( _xml->GetNodeContent(_node) ), "TargetPairedBunches");
+          } else if ( _xml->GetNodeName(_node) == std::string("target_peak_mu_av") ) {
+            Config::config().setFloat(kTargetPeakMuAverage, stringToFloat( _xml->GetNodeContent(_node) ), "TargetPeakMuAverage");
+          }
+          _node = _xml->GetNext(_node);
+        }
+      } else if (_listName == "iso_bits") {
+        while( _node != 0) {
+          if ( _xml->GetNodeName(_node) == std::string("iso") ) {
+            std::bitset<5> _bits( std::string( _xml->GetAttr(_node, "bits") ) );
+            _isoBits[ _xml->GetAttr(_node, "name") ] = _bits.to_ulong();
+            Info("MonitorRatesUpgrade::parseUpgradeXML","Got isobits for %s = %s => %s = %i",
+              _xml->GetAttr(_node, "name"), _xml->GetAttr(_node, "bits"), _bits.to_string().c_str(), _isoBits[_xml->GetAttr(_node,"name")] );
+          }
+          _node = _xml->GetNext(_node);
+        }
+      } else if (_listName == "level") {
+        while (_node != 0) {
+          if( _xml->GetNodeName(_node) == std::string("lvl_name") ) {
+            _level = _xml->GetNodeContent( _node );
+            _node = _xml->GetNext( _node );
+            if (_node == 0) break;
+          }
+          assert( _xml->GetNodeName(_node) == std::string("signature") );
+          XMLNodePointer_t _detailsNode = _xml->GetChild( _node );
+          std::string _sigName = "", _group = "", _comment = "", _hltProxy = "", _lower = "";
+          Float_t _l1ReductionFactor = 1., _l2ReductionFactor = 1., _hltReductionFactor = 1.;
+          TriggerLogic _triggerLogic;
+
+          while( _detailsNode != 0) {
+            const std::string _detail = _xml->GetNodeName(_detailsNode);
+            if (_detail != "conditions" && _xml->GetNodeContent(_detailsNode) == nullptr) { // Avoid NULL except with conditions
+              _detailsNode = _xml->GetNext(_detailsNode);
+              continue;
+            }
+            if (_detail == "sig_name") _sigName = _xml->GetNodeContent(_detailsNode);  
+            else if (_detail == "hlt_proxy") _hltProxy = _xml->GetNodeContent(_detailsNode);
+            else if (_detail == "group") _group = _xml->GetNodeContent(_detailsNode);
+            else if (_detail == "comment") _comment = _xml->GetNodeContent(_detailsNode);
+            else if (_detail == "lower_chain_name") _lower = _xml->GetNodeContent(_detailsNode);
+            else if (_detail == "l1_reduction_factor") _l1ReductionFactor = stringToFloat( _xml->GetNodeContent(_detailsNode) );
+            else if (_detail == "l2_reduction_factor") _l2ReductionFactor = stringToFloat( _xml->GetNodeContent(_detailsNode) );
+            else if (_detail == "hlt_reduction_factor") _hltReductionFactor = stringToFloat( _xml->GetNodeContent(_detailsNode) );
+            else if (_detail == "conditions") {
+              XMLNodePointer_t _requirement = _xml->GetChild( _detailsNode );
+              while (_requirement != 0) {
+                std::string _name = _xml->GetAttr(_requirement, "name");
+                UInt_t _multi = stringToInt( _xml->GetAttr(_requirement, "multi"));
+                UInt_t _thresh = stringToInt( _xml->GetAttr(_requirement, "triggerthreshold"));
+                Int_t _iso = _isoBits[ _xml->GetAttr(_requirement, "iso") ];
+                UInt_t _min = stringToInt( _xml->GetAttr(_requirement, "min"));
+                UInt_t _max = stringToInt( _xml->GetAttr(_requirement, "max"));
+                _triggerLogic.addCondition(_name, _multi, _thresh, _iso, _min, _max);
+                _requirement = _xml->GetNext(_requirement);
+              }
+            } else if (_detail == "OR") {
+              Error("MonitorRatesUpgrade::parseUpgradeXML", "The OR of TOBs is currently unsupported");
+            } else {
+              Error("MonitorRatesUpgrade::parseUpgradeXML", "Unknown XML detail: %s", _detail.c_str());
+            }
+            _detailsNode = _xml->GetNext(_detailsNode);
+          }
+          if (_level == "L1") {
+            Info("MonitorRatesUpgrade::parseUpgradeXML","Will do L1->L2 chain: %s with logic: %s", _sigName.c_str(), _triggerLogic.print().c_str() );
+            _upgradeChains.insert( ChainInfo(_sigName, 1, _triggerLogic, _group, _comment, _l1ReductionFactor, _l2ReductionFactor) );
+          } else if (_level == "HLT") {
+            _upgradeChains.insert( ChainInfo(_sigName, 3, _hltProxy, _lower, _comment, _hltReductionFactor) );
+          } else {
+            Error("MonitorRatesUpgrade::parseUpgradeXML", "Signatures from unknown trigger level: %s", _level.c_str());
+          }
+          _node = _xml->GetNext(_node);
+        }
+      }
+
+      _listNode = _xml->GetNext(_listNode);
+    }
+
+    delete _xml;
   }
 
 } // namespace TrigCostRootAnalysis
