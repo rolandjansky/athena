@@ -49,20 +49,37 @@
 
 #include "zbeam.h"
 
+
+
+
 // useful function to return a string with the 
 // current date   
 std::string time_str() { 
   time_t _t;
   time(&_t);
-
   std::string s(ctime(&_t));
-
   //  std::string::size_type pos = s.find("\n");
   // if ( pos != std::string::npos ) 
-
   return s.substr(0,s.find("\n"));
   //  return s;
 }
+
+
+
+/// convert string to integer with check if successful
+int atoi_check( const std::string& s ) {
+  int i = std::atoi( s.c_str() );
+  char check[128];
+  std::sprintf( check, "%d", i );
+  if ( std::string(check)!=s ) return -1;
+  else return i;
+}
+
+
+
+
+
+
 
 int Nvtx = 0;
 int NvtxCount = 0;
@@ -217,8 +234,6 @@ std::vector<T*> pointers( std::vector<T>& v ) {
 
 int main(int argc, char** argv) 
 {
-
-  std::cout << "main() compiled " << __DATE__ << " " << __TIME__ << std::endl;
 
   //  ROOT::Cintex::Cintex::Enable();
 
@@ -458,21 +473,69 @@ int main(int argc, char** argv)
     }
   }
 
+
+
+  /// reference vertex selection 
+
+  std::string vertexSelection = "";
+  if ( inputdata.isTagDefined("VertexSelection") ) vertexSelection = inputdata.GetString("VertexSelection");
+
+  
+  bool bestPTVtx  = false;
+  bool bestPT2Vtx = false;
+  int  vtxind     = -1;
+  
+  if ( vertexSelection!="" ) { 
+    if      ( vertexSelection=="BestPT" )  bestPTVtx  = true;
+    else if ( vertexSelection=="BestPT2" ) bestPT2Vtx = true;
+    else vtxind = atoi_check( vertexSelection );
+  }
+  
+
+
+
+ /// test vertex selection 
+
+  std::string vertexSelection_rec = "";
+  if ( inputdata.isTagDefined("VertexSelectionRec") ) vertexSelection_rec = inputdata.GetString("VertexSelectionRec");
+
+  bool bestPTVtx_rec  = false;
+  bool bestPT2Vtx_rec = false;
+  int  vtxind_rec     = -1;
+  
+  if ( vertexSelection_rec!="" ) { 
+    if      ( vertexSelection_rec=="BestPT" )  bestPTVtx_rec  = true;
+    else if ( vertexSelection_rec=="BestPT2" ) bestPT2Vtx_rec = true;
+    else vtxind_rec = atoi_check( vertexSelection_rec ); 
+  }
+  
+
+
+
+#if 0
+
+  //////////////////////////////////////////////////////////////////
+  /// don't use these three options any longer 
+
   bool useBestVertex = false;
   if ( inputdata.isTagDefined("useBestVertex") ) useBestVertex = ( inputdata.GetValue("useBestVertex") ? 1 : 0 );
 
   bool useSumPtVertex = true;
   if ( inputdata.isTagDefined("useSumPtVertex") ) useSumPtVertex = ( inputdata.GetValue("useSumPtVertex") ? 1 : 0 );
 
-  bool vetoBestVertex = false;
-  if ( inputdata.isTagDefined("vetoBestVertex") ) vetoBestVertex = ( inputdata.GetValue("vetoBestVertex") ? 1 : 0 );
+  int MinVertices = 1;
+  if ( inputdata.isTagDefined("MinVertices") ) MinVertices = inputdata.GetValue("MinVertices");
+
+  /////////////////////////////////////////////////////////////////
+
+#endif
 
 
+
+  /// is this option needed any longer ???
   int NVtxTrackCut = 2;
   if ( inputdata.isTagDefined("NVtxTrackCut") ) NVtxTrackCut = inputdata.GetValue("NVtxTrackCut");
 
-  int MinVertices = 1;
-  if ( inputdata.isTagDefined("MinVertices") ) MinVertices = inputdata.GetValue("MinVertices");
 
 
   std::vector<double> event_list;
@@ -714,6 +777,8 @@ int main(int argc, char** argv)
 
     ConfAnalysis* analy_conf = new ConfAnalysis(chainnames.back());
     analy_conf->initialiseFirstEvent(initialiseFirstEvent);
+    analy_conf->initialise();
+    analy_conf->setprint(false);
 
     std::string vtxTool = chainConfig[i].value("rvtx");
 
@@ -721,10 +786,6 @@ int main(int argc, char** argv)
       ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool );
       analy_conf->store().insert( anal_confvtx, "rvtx" );
     }
-
-    analy_conf->initialise();
-    analy_conf->setprint(false);
-
 
     // analy_conf->setprint(true);
 
@@ -1077,11 +1138,6 @@ int main(int argc, char** argv)
     refPurityTracks.clear();
     //    offlineTracks.clear();
 
-    /// set the vertex in the vertex filter
-    /// this takes the first "good" vertex
-    /// NB: probably need to use the vertex  
-    ///     with most tracks
-    int good_vertex = -1;
     
     Nvtx = 0;
 
@@ -1111,64 +1167,62 @@ int main(int argc, char** argv)
     }
 
   
+
+    /// select the reference offline vertices
+
     std::vector<TIDA::Vertex> vertices;
     
-    NvtxCount = 0;
-
     const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
 
-    int SumPtBest = -1;
-    double highestSumPt = 0.0;
+    int     selectvtx = -1;
+    double  selection = 0;
+    
+    //    std::vector<TIDA::Vertex>& vertices = vertices;
+    
+    if ( bestPTVtx || bestPT2Vtx )  {  
+      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
+	double selection_ = 0.0;
+	for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
+	  TIDA::Track* tr = offTracks.tracks().at(itr);
+	  if( std::fabs(mv[iv].position()[2]-tr->z0()) < 1.5 ) { 
+	    if      ( bestPTVtx  ) selection_ += std::fabs(tr->pT());
+	    else if ( bestPT2Vtx ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
+	  }
+	}
+	if( selection_>selection){
+	  selection = selection_;
+	  selectvtx = iv;
+	}
+      }
+      if ( selectvtx!=-1 ) vertices.push_back( mv[selectvtx] );
+    }
+    else if ( vtxind>=0 ) {
+      if ( unsigned(vtxind)<mv.size() ) vertices.push_back( mv[vtxind] );
+    }
+    else { 
+      for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
+    }
+    
+    /// always push back the vector - if required there will be only one vertex on it
+    filter_vertex.setVertex( vertices );
+
+
+    /// calculate number of "vertex tracks"
+
+    NvtxCount = 0;
 
     for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) {
       int Ntracks = mv[iv].Ntracks();
-      if ( Ntracks>NVtxTrackCut ) {
+      if ( Ntracks>NVtxTrackCut ) { /// do we really want this cut ???
 	Nvtx += Ntracks;
-	vertices.push_back( mv[iv] );
+	//	vertices.push_back( mv[iv] );
         NvtxCount++;
-	if ( good_vertex == -1 || Ntracks>mv[good_vertex].Ntracks() ) { 
-	  good_vertex = iv;
-	}
-      }
-      double SumPt = 0.0;
-      for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
-	TIDA::Track* tr = offTracks.tracks().at(itr);
-	if(std::fabs(mv.at(iv).position()[2]-tr->z0())<1.5) SumPt += std::fabs(tr->pT());
-      }
-      if(SumPt>highestSumPt){
-	highestSumPt = SumPt;
-	SumPtBest = iv;
-      }
-    }//loop over vertices
-    
-    
-    
-    // all vertices *except* the best one
-    std::vector<TIDA::Vertex> vvtx;
-    if ( vetoBestVertex ) { 
-      for (unsigned int i=0 ; i<vertices.size() ; i++ ) { 
-	if ( good_vertex!=int(i) ) vvtx.push_back(vertices[i]);
-      }
-    }
-    else { 
-      for (unsigned int i=0 ; i<vertices.size() ; i++ ) vvtx.push_back(vertices[i]);
-    }
-    
-    if ( int(vvtx.size())<MinVertices ) continue;
-    
-    NvtxCount = vvtx.size();
-    if(useSumPtVertex) good_vertex = SumPtBest;
-    if ( MinVertices>0 ) { 
-      /// if no good vertex, skip this event
-      if ( good_vertex==-1 ) continue;
-      else { 
-	if ( useBestVertex )  filter_vertex.setVertex( mv[good_vertex] );
-	else                  filter_vertex.setVertex( vvtx );
       }
     }
 
+
     //    filter_vertex.setVertex( vvtx ) ;
-    hcorr->Fill( vvtx.size(), Nvtx ); 
+    hcorr->Fill( vertices.size(), Nvtx ); 
 
     dynamic_cast<Filter_Combined*>(refFilter)->setRoi(0);
 
@@ -1238,7 +1292,45 @@ int main(int argc, char** argv)
         TIDARoiDescriptor roi( troi.roi() );
 
 
-	const std::vector<TIDA::Vertex>& vertices_test = troi.vertices();
+	/// select the test sample (trigger) vertices
+
+	const std::vector<TIDA::Vertex>& mvt = troi.vertices();
+
+
+	std::vector<TIDA::Vertex> vertices_test;
+    
+	int     selectvtx = -1;
+	double  selection = 0;
+    
+	if ( bestPTVtx_rec || bestPT2Vtx_rec )  {  
+
+	  const std::vector<TIDA::Track>& recTracks = troi.tracks();
+
+	  for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) {
+	    double selection_ = 0.0;
+	    for (unsigned itr=0; itr<recTracks.size(); itr++){
+	      const TIDA::Track* tr = &recTracks[itr];
+	      if( std::fabs(mvt[iv].position()[2]-tr->z0()) < 1.5 ) { 
+		if      ( bestPTVtx_rec  ) selection_ += std::fabs(tr->pT());
+		else if ( bestPT2Vtx_rec ) selection_ += std::fabs(tr->pT())*std::fabs(tr->pT()); 
+	      }
+	    }
+	    if( selection_>selection){
+	      selection = selection_;
+	      selectvtx = iv;
+	    }
+	  }
+	  if ( selectvtx!=-1 ) vertices_test.push_back( mvt[selectvtx] );
+	}
+	else if ( vtxind_rec!=-1 ) {
+	  if ( unsigned(vtxind_rec)<mvt.size() )       vertices_test.push_back( mvt[vtxind] );
+	}
+	else { 
+	  for ( unsigned iv=0 ; iv<mvt.size() ; iv++ ) vertices_test.push_back( mvt[iv] );
+	}
+	
+
+
 
 	
 	//extract beamline position values from rois
@@ -1341,17 +1433,17 @@ int main(int argc, char** argv)
 	    ///  all the functions to allow over riding with vector<T*> *and* vector<const T*> 
 	    ///  to get this nonsense to work
 	    
-	    std::vector<TIDA::Vertex> vtxcock = vertices;	    
-	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcock );
+	    std::vector<TIDA::Vertex> vtxcck = vertices;	    
+	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
 
-	    vtxp.reserve( vtxcock.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock.size() ; iv++ ) vtxp.push_back( &vtxcock[iv] );
+	    vtxp.reserve( vtxcck.size() );
+	    for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
 	    
-	    std::vector<TIDA::Vertex> vtxcock_test = vertices_test;
-	    std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcock_test );
+	    std::vector<TIDA::Vertex> vtxcck_test = vertices_test;
+	    std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcck_test );
 	    
-	    vtxp_test.reserve( vtxcock_test.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock_test.size() ; iv++ ) vtxp_test.push_back( &vtxcock_test[iv] );
+	    vtxp_test.reserve( vtxcck_test.size() );
+	    for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
 	    
 	    vtxanal->execute( vtxp, vtxp_test );
 	  }
@@ -1375,18 +1467,18 @@ int main(int argc, char** argv)
 #if 1
 	  if ( vtxanal ) { 
 
-	    std::vector<TIDA::Vertex> vtxcock = vertices;
-	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcock );
-	    vtxp.reserve( vtxcock.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock.size() ; iv++ ) vtxp.push_back( &vtxcock[iv] );
+	    std::vector<TIDA::Vertex> vtxcck = vertices;
+	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
+	    vtxp.reserve( vtxcck.size() );
+	    for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
 
-	    std::vector<TIDA::Vertex> vtxcock_test = vertices_test;	    
-	    std::vector<TIDA::Vertex*> vtxp_test; //  = pointers( vtxcock_test );
-	    vtxp_test.reserve( vtxcock_test.size() );
-	    for ( unsigned iv=0 ; iv<vtxcock_test.size() ; iv++ ) vtxp_test.push_back( &vtxcock_test[iv] );
+	    std::vector<TIDA::Vertex> vtxcck_test = vertices_test;	    
+	    std::vector<TIDA::Vertex*> vtxp_test; //  = pointers( vtxcck_test );
+	    vtxp_test.reserve( vtxcck_test.size() );
+	    for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
 
-	    // std::cout << "vtx ref\t"  << vtxcock << std::endl; 
-	    // std::cout << "vtx test\t" << vtxcock_test << std::endl; 
+	    // std::cout << "vtx ref\t"  << vtxcck << std::endl; 
+	    // std::cout << "vtx test\t" << vtxcck_test << std::endl; 
 	    
 	    vtxanal->execute( vtxp, vtxp_test );
 	    
@@ -1473,9 +1565,12 @@ int main(int argc, char** argv)
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 
-
     // std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
     analyses[i]->finalise();
+
+    ConfVtxAnalysis* vtxanal = 0;
+    analyses[i]->store().find( vtxanal, "rvtx" );
+    if ( vtxanal ) vtxanal->finalise();
     
     delete analyses[i];
   }
