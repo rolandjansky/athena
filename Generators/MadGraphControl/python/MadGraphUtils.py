@@ -288,11 +288,12 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         return 1
 
     (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath) 
-    
+
             
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
     mglog.info( sorted( os.listdir( proc_dir+'/lib/' ) ) )
 
+    setupFastjet(isNLO, proc_dir=proc_dir)
 
     mglog.info('Now I will hack the make files a bit.  Apologies, but there seems to be no good way around this.')
     shutil.copyfile(proc_dir+'/Source/make_opts',proc_dir+'/Source/make_opts_old')
@@ -378,18 +379,12 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         newcard = open(config_card_loc+'.tmp','w')
         
         # Make sure params only set once
-        lhapdf_set=False
-        fastjet_set=False
         run_mode_set=False
         auto_html_set=False
         cltype_set=False
         clqueue_set=False
         nbcore_set=False
         tmppath_set=False
-        thelhapath = LHAPATH.split('share/')[0]+os.environ['CMTCONFIG']
-        thefastjetpath = '/afs/cern.ch/sw/lcg/external/fastjet/3.0.3/x86_64-slc6-gcc47-opt'
-        if not os.path.exists(thefastjetpath):
-            thefastjetpath='/cvmfs/sft.cern.ch/lcg/external/fastjet/3.0.3/x86_64-slc6-gcc47-opt'
 
         for line in oldcard:
             if 'run_mode =' in line:
@@ -402,17 +397,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                     mglog.info('Setting automatic_html_opening = %s'%('False'))
                     newcard.write('automatic_html_opening = %s \n'%('False'))
                     auto_html_set=True
-# Shouldn't be needed as this is now set above...
-#            elif 'lhapdf = ' in line:
-#                if not lhapdf_set:
-#                    mglog.info('Setting lhapdf path = %s'%(thelhapath+'/bin/lhapdf-config'))
-#                    newcard.write('lhapdf = %s \n'%(thelhapath+'/bin/lhapdf-config'))
-#                    lhapdf_set=True
-            elif 'fastjet = ' in line:
-                if not fastjet_set:
-                    mglog.info('Setting fastjet path = %s'%(thefastjetpath+'/bin/fastjet-config'))
-                    newcard.write('fastjet = %s \n'%(thefastjetpath+'/bin/fastjet-config'))
-                    fastjet_set=True
             elif 'cluster_type = ' in line and mode == 1:
                 if not cltype_set:
                     mglog.info('Setting cluster type = %s in %s'%(cluster_type,config_card_loc))   
@@ -488,8 +472,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 remove_old = subprocess.Popen(['rm',('../'+gridpack_name)])
                 remove_old.wait()
                 mglog.info('Package up new tarball')
-                tar = subprocess.Popen(['tar','cvzfh',('../'+gridpack_name),'.'])
-                tar.wait()
+                tar = subprocess.Popen(['tar','cvzf','../'+gridpack_name,'--exclude=lib/PDFsets','.']) 
+                tar.wait() 
+
                 os.chdir('../')
                 mglog.info('Remove temporary directory')
                 remove_tmp = subprocess.Popen(['rm','-fr','tmp%i/'%os.getpid()])
@@ -504,7 +489,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             os.chdir('../')
             mglog.info('Package up proc_dir')
             os.rename(proc_dir,gridpack_dir) 
-            tar = subprocess.Popen(['tar','cvzfh',gridpack_name,gridpack_dir,'--exclude=lib/PDFsets']) 
+            tar = subprocess.Popen(['tar','czf',gridpack_name,gridpack_dir,'--exclude=lib/PDFsets']) 
             tar.wait() 
             os.rename(gridpack_dir,proc_dir) 
 
@@ -518,11 +503,25 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
             else:
                 shutil.move('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz')
-                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz'))
+                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
 
         else:
             mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
             raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
+
+    elif isNLO:
+
+        mglog.info('Moving generated events to be in correct format for arrange_output().')
+        mglog.info('Unzipping generated events.')
+        unzip = subprocess.Popen(['gunzip','Events/'+run_name+'/events.lhe.gz'])
+        unzip.wait()
+        
+        mglog.info('Moving file over to '+'/Events/'+run_name+'/unweighted_events.lhe')
+        shutil.move('Events/'+run_name+'/events.lhe','Events/'+run_name+'/unweighted_events.lhe')
+        
+        mglog.info('Re-zipping into dataset name '+'/Events/'+run_name+'/unweighted_events.lhe.gz')
+        rezip = subprocess.Popen(['gzip','/Events/'+run_name+'/unweighted_events.lhe'])
+        rezip.wait()
         
     os.chdir(currdir)
 
@@ -539,6 +538,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
 
     version = getMadGraphVersion()
     (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath) 
+
+    setupFastjet(isNLO, proc_dir=proc_dir)
 
     if param_card is not None:
         #DR: only copy param_card if name of destination directory differs
@@ -628,18 +629,11 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         newcard = open(config_card_loc+'.tmp','w')
         
         # Make sure params only set once
-        lhapdf_set=False
-        fastjet_set=False
         run_mode_set=False
         auto_html_set=False
         cltype_set=False
         clqueue_set=False
         nbcore_set=False
-        thelhapath = LHAPATH.split('share/')[0]+os.environ['CMTCONFIG']
-
-        thefastjetpath = '/afs/cern.ch/sw/lcg/external/fastjet/3.0.3/x86_64-slc6-gcc47-opt'
-        if not os.path.exists(thefastjetpath):
-            thefastjetpath='/cvmfs/sft.cern.ch/lcg/external/fastjet/3.0.3/x86_64-slc6-gcc47-opt'
 
         for line in oldcard:
             if 'run_mode =' in line:
@@ -652,16 +646,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
                     mglog.info('Setting automatic_html_opening = %s'%('False'))
                     newcard.write('automatic_html_opening = %s \n'%('False'))
                     auto_html_set=True
-#            elif 'lhapdf = ' in line:
-#                if not lhapdf_set:
-#                    mglog.info('Setting lhapdf path = %s'%(thelhapath+'/bin/lhapdf-config'))
-#                    newcard.write('lhapdf = %s \n'%(thelhapath+'/bin/lhapdf-config'))
-#                    lhapdf_set=True
-            elif 'fastjet = ' in line:
-                if not fastjet_set:
-                    mglog.info('Setting fastjet path = %s'%(thefastjetpath+'/bin/fastjet-config'))
-                    newcard.write('fastjet = %s \n'%(thefastjetpath+'/bin/fastjet-config'))
-                    fastjet_set=True
             elif 'nb_core = ' in line:                                               
                 if not nbcore_set:
                     mglog.info('Setting number of cores = %i in %s'%(1,config_card_loc)) 
@@ -720,9 +704,14 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         else: 
             mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/')) 
             raise RuntimeError('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/')) 
-    else: #DR
-        shutil.copy(gridpack_dir+'/Events/'+run_name+'/events.lhe.gz','events.lhe.gz') #DR
+    else: 
 
+        if os.path.exists(gridpack_dir+'Events/GridRun_%i/'%random_seed):
+            shutil.copy(gridpack_dir+'/Events/GridRun_%i/events.lhe.gz'%random_seed,'events.lhe.gz') 
+        else:
+            shutil.copy(gridpack_dir+'/Events/'+run_name+'/events.lhe.gz','events.lhe.gz') 
+
+ 
         
 
     mglog.info('For your information, ls of '+currdir+':')
@@ -773,7 +762,46 @@ def getMadGraphVersion():
     return(version)
 
 
-#DR: put LHAPDF setup in function
+def setupFastjet(isNLO, proc_dir=None):
+
+    mglog.info('Path to fastjet install dir:%s'%os.environ['FASTJETPATH'])
+
+
+    getfjconfig = subprocess.Popen(['get_files','-data','fastjet-config'])
+    getfjconfig.wait() 
+    #Get custom fastjet-config 
+    if not os.access(os.getcwd()+'/fastjet-config',os.X_OK):
+        mglog.error('Failed to get fastjet-config from MadGraphControl')
+        return 1
+    fastjetconfig = os.getcwd()+'/fastjet-config'
+    
+    mglog.info('fastjet-config --version:      %s'%str(subprocess.Popen([fastjetconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
+    mglog.info('fastjet-config --prefix:       %s'%str(subprocess.Popen([fastjetconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
+        
+    if not isNLO:
+        config_card=proc_dir+'/Cards/me5_configuration.txt'
+    else:
+        config_card=proc_dir+'/Cards/amcatnlo_configuration.txt'
+        
+    oldcard = open(config_card,'r')
+    newcard = open(config_card+'.tmp','w')
+     
+    for line in oldcard:
+        if 'fastjet = ' in line:                                                
+            newcard.write('fastjet = %s \n'%(fastjetconfig))
+            mglog.info('Setting fastjet = %s in %s'%(fastjetconfig,config_card))
+        else:
+            newcard.write(line)
+    oldcard.close()
+    newcard.close()
+    shutil.move(config_card+'.tmp',config_card)
+    #mglog.info('New %s card:'%config_card)
+    #configCard = subprocess.Popen(['cat',config_card])             
+    #configCard.wait()
+
+    return
+
+
 def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
 
     origLHAPATH=os.environ['LHAPATH']
@@ -791,6 +819,9 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
 
     mglog.info('Path to LHAPDF install dir:%s'%LHAPATH)
     mglog.info('Path to LHAPDF data dir: %s'%LHADATAPATH)
+    if not os.path.isdir(LHADATAPATH):
+        mglog.error('LHAPDF data dir: %s is not accesible'%LHADATAPATH)
+        return 1
 
     # Dealing with LHAPDF (Only need to edit configuration file for 2.1.1 onwards)
     if int(version.split('.')[0]) >= 2 and ( int(version.split('.')[1]) > 1 or ( int(version.split('.')[1]) == 1 and int(version.split('.')[2]) > 0) ):
@@ -835,12 +866,14 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
         oldcard.close()
         newcard.close()
         shutil.move(config_card+'.tmp',config_card)
-        mglog.info('New me5_configuration.txt card:')
-        configCard = subprocess.Popen(['cat',config_card])             
-        configCard.wait()
+        #mglog.info('New me5_configuration.txt card:')
+        #configCard = subprocess.Popen(['cat',config_card])             
+        #configCard.wait()
 
         mglog.info('Creating links for LHAPDF')
-        if os.path.isdir(proc_dir+'/lib/PDFsets'):
+        if os.path.islink(proc_dir+'/lib/PDFsets'):
+            os.unlink(proc_dir+'/lib/PDFsets')
+        elif os.path.isdir(proc_dir+'/lib/PDFsets'):
             shutil.rmtree(proc_dir+'/lib/PDFsets')
         os.symlink(LHADATAPATH,proc_dir+'/lib/PDFsets')
         mglog.info('Available PDFs are:')
