@@ -7,7 +7,7 @@
 #include "G4ExternalDecay/PythiaForDecays.h"
 #include "Pythia_i/Pythia.h"
 #include "Pythia_i/Pydat3.h"
-//#include "Pythia_i/Pydat2.h"
+#include "Pythia_i/Pydat2.h"
 #include "Pythia_i/Pydat1.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/GenEvent.h"
@@ -116,13 +116,17 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
   //Real Rhadron stuff...
   pdgid=abs(pdgid);
   pyjets_.k[0][0]=6;
+  Pydat3 m_pydat3;
+  Pydat2 m_pydat2;
   //pylist_(&pyl);
   if ( pdgid/10000==109 || pdgid/1000==1009 || pdgid/100==10009 ){
     //std::cout<<"ACH decay gluino rhadron .."<<std::endl;
-    Pydat3 m_pydat3;
     int kfgl = 1000021;//gluino
     m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable gluino
+    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
     pygldc_();//gluino DECAY
+    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else if ( pdgid/1000==1006 || pdgid/100==10006 ){
@@ -130,8 +134,10 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
     Pydat3 m_pydat3;
     int kfgl = 1000006;//stop
     m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable stop
-    int sq=1000006;
-    pysqdc_(&sq);//stop DECAY!
+    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!
+    pysqdc_(&kfgl);//stop DECAY!
+    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else if ( pdgid/1000==1005 || pdgid/100==10005 ){
@@ -139,8 +145,10 @@ void PythiaForDecays::DecayRhadrons(int pdgid){
     Pydat3 m_pydat3;
     int kfgl = 1000005;//sbottom
     m_pydat3.mdcy(pycomp_(&kfgl),1)=1;// MDCY(PYCOMP(KFGL),1)=1 //unstable sbottom
-    int sq=1000005;
-    pysqdc_(&sq);//sbottom DECAY!
+    float oldl=m_pydat2.pmas(pycomp_(&kfgl),4);//remember lifetime
+    m_pydat2.pmas(pycomp_(&kfgl),4)=0;//decay it promptly!    
+    pysqdc_(&kfgl);//sbottom DECAY!
+    m_pydat2.pmas(pycomp_(&kfgl),4)=oldl;//set lifetime back to what it was
     //pylist_(&pyl);
   }
   else{
