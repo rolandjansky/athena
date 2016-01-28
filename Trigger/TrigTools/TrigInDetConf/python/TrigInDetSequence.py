@@ -183,10 +183,6 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     roiupdater = ""
     cnvname = "InDetTrigTrackingxAODCnv_%s_FTF"
 
-    if sequenceType=="FTK":
-      ftfname = "TrigFastTrackFinder_FTK";
-      cnvname = "InDetTrigTrackingxAODCnv_%s_FTK";
-      
     if sequenceFlavour=="2step":
       ftfname = "TrigFastTrackFinder_%sCore";  ftf2name = "TrigFastTrackFinder_%sIso"; 
       cnvname = "InDetTrigTrackingxAODCnv_%sCore_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
@@ -197,17 +193,13 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         roiupdater = "IDTrigRoiUpdater_%sVtx_IDTrig"; roi2updater="";
       elif self.__signature__=="muon":
         if sequenceType=="IDTrig":
-          ftfname = "TrigFastTrackFinder_%s";  ftf2name = "TrigFastTrackFinder_%sIso"; 
+          ftfname = "TrigFastTrackFinder_%s_IDTrig";  ftf2name = "TrigFastTrackFinder_%sIso_IDTrig"; 
           cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
-          roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
-        elif sequenceType=="FTK":
-          ftfname = "TrigFastTrackFinder_FTK"; ftf2name = "TrigFastTrackFinder_FTK"
-          cnvname = "InDetTrigTrackingxAODCnv_%s_FTK"; cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTK"; 
           roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
           
         
 
-    if sequenceType=="IDTrig"  or sequenceType=="FTK":
+    if sequenceType=="IDTrig":
 
       algos = list()
 
