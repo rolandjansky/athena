@@ -81,13 +81,14 @@ class TrigInDetFTKSequence(TrigInDetSequence):
       if "dev" in sequenceFlavour:
         algos += dataprep
 
+      ptsuffix = suffix+"_IDTrig"
       algos += [("TrigAmbiguitySolver",""),
                 ("TRTDriftCircleMaker",""),
                 ("InDetTrigPRD_MultiTruthMaker",""), 
                 ("TRTTrackExtAlg",""),
                 ("TrigExtProcessor",""),
                 ("InDetTrigTrackSlimmer",""),
-                ("InDetTrigTrackingxAODCnv",""),
+                ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_"+ptsuffix),
                 #("InDetTrigDetailedTrackTruthMaker",""),
                 ]
       fullseq.append(algos)

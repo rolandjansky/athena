@@ -7,7 +7,7 @@
 """
 
 ___author___ = "Jiri Masik"
-___version___ = "$Id: TrigInDetPostTools.py 716748 2016-01-07 11:43:21Z masik $"
+___version___ = "$Id: TrigInDetPostTools.py 716747 2016-01-07 11:42:47Z masik $"
 
 from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
