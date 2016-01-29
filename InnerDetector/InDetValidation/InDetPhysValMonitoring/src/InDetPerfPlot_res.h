@@ -53,28 +53,29 @@ private:
   unsigned int m_PtBins;
   float m_PtMin, m_PtMax;
   double m_Pt_logmin, m_Pt_logmax;
+
   std::string log_mode;
 
   std::vector<TH2*> m_meanbasePlots;
-  std::vector<TProfile*> m_meanPlots;
+  std::vector<TH1*> m_meanPlots;
 
   std::vector<TH2*> m_mean_vs_ptbasePlots;
-  std::vector<TProfile*> m_mean_vs_ptPlots;
+  std::vector<TH1*> m_mean_vs_ptPlots;
 
-  std::vector<TProfile*> m_resoPlots;
-  std::vector<TProfile*> m_resptPlots;
+  std::vector<TH1*> m_resoPlots;
+  std::vector<TH1*> m_resptPlots;
 
   std::vector<TH1*> m_pullPlots;
   std::vector<TH2*> m_pullbasePlots;
-  //std::vector<TProfile*> m_pullbasePlots;
-  std::vector<TProfile*> m_pullwidthPlots;
+  std::vector<TH1*> m_pullmeanPlots;
+  std::vector<TH1*> m_pullwidthPlots;
 
   std::vector<std::pair<std::string, float> > m_paramNames;
 
   void initializePlots();
   void finalizePlots();
 
-  std::string formName(const unsigned int p, std::string type) const;
+  std::string formName(const unsigned int p, std::string type, std::string dir = "") const;
   std::string formTitle(const unsigned int parameter, std::string type) const;
 };
 

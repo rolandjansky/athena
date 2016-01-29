@@ -18,6 +18,7 @@
 
 #include "InDetPlotBase.h"
 #include "InDetPerfPlot_Pt.h"
+#include "InDetBasicPlot.h"
 #include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/ImpactPlots.h"
 #include "TrkValHistUtils/RecoInfoPlots.h"
@@ -28,9 +29,9 @@
 #include "InDetPerfPlot_fakes.h"
 #include "InDetPerfPlot_Eff.h"
 #include "InDetPerfPlot_hitResidual.h"
+#include "InDetPerfPlot_duplicate.h"
 
 #include "InDet_BadMatchRate.h"
-
 #include "TrkValHistUtils/IDHitPlots.h"
 #include "InDetPerfPlot_HitDetailed.h"
 #include "InDetPerfPlot_Vertex.h"
@@ -55,6 +56,8 @@ public:
 	void fill(const xAOD::TrackParticle& particle);
 	///fill for things needing truth only
 	void fill(const xAOD::TruthParticle& particle);
+	void fillSingleMatch(const xAOD::TrackParticle & trackParticle);
+	void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle & trackParticle,const xAOD::TrackParticle & particle, const xAOD::TruthParticle&  tp);
 	///fill for things needing all truth - not just the ones from the reco tracks
 	void fillTruth(const xAOD::TruthParticle& particle);
 
@@ -94,6 +97,7 @@ public:
 	
 private:
 	InDetPerfPlot_Pt  m_ptPlot;
+	InDetBasicPlot m_basicPlot;
 	Trk::ParamPlots m_PtEtaPlots;
 	Trk::ImpactPlots m_IPPlots;
 	Trk::RecoInfoPlots m_TrackRecoInfoPlots;
@@ -110,12 +114,12 @@ private:
 	Trk::IDHitPlots m_hitsFakeTracksPlots;
 	InDetPerfPlot_HitDetailed m_hitsDetailedPlots;
 	InDetPerfPlot_Eff m_effPlots;
-
 	InDet_BadMatchRate m_BadMatchRate;
 
 	InDetPerfPlot_VertexContainer m_verticesPlots;
 	InDetPerfPlot_Vertex m_vertexPlots;
 	InDetPerfPlot_Vertex m_hardScatterVertexPlots;	
+	InDetPerfPlot_duplicate m_duplicatePlots;
 
 	//Set scripts to analyze the duplicates that appear
 	//InDetPerfPlot_trackDuplicates m_DuplicateTrack;

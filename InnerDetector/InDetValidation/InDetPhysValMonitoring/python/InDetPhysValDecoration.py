@@ -249,11 +249,17 @@ def _addDecorators(decorator_alg_list, add_after=None) :
 
   if mon_man_index == None :
      for decorator_alg in decorator_alg_list :
+        if findAlg(decorator_alg.getName()) != None :
+            print 'DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName())
+            continue
         print 'DEBUG add decorator %s at end of top sequence:' % (decorator_alg.getFullName())
         topSequence += decorator_alg
 
   else :
       for decorator_alg in decorator_alg_list :
+         if findAlg(decorator_alg.getName()) != None :
+            print 'DEBUG decorator %s already in sequence. Not adding again.' % (decorator_alg.getFullName())
+            continue
          print 'DEBUG insert decorator %s at position %i' % (decorator_alg.getFullName(),mon_man_index)
          topSequence.insert(mon_man_index,decorator_alg)
          mon_man_index += 1
@@ -281,7 +287,7 @@ def addGSFTrackDecoratorAlg() :
       # print ToolSvc
       # print 'DEBUG has EMBremCollectionBuilder %s' % hasattr(ToolSvc,'EMBremCollectionBuilder')
       if hasattr(ToolSvc,'EMBremCollectionBuilder') :
-          decor_index = findAlg(decorators[0].name())
+          decor_index = findAlg(decorators[0].getName())
           if decor_index != None :
               from TrkTrackSlimmer.TrkTrackSlimmerConf import Trk__TrackSlimmer as ConfigurableTrackSlimmer
               slimmer = ConfigurableTrackSlimmer(name                 = "RealGSFTrackSlimmer",
@@ -373,11 +379,50 @@ def addExtraMonitoring() :
     traceback.print_exc()
     raise
 
+def canAddDecorator() :
+    '''
+    check whether the decorator can be added.
+
+    A decorator can be added if a track particle converter alg is in the sequence or
+    if ESDs or AODs are read.
+    '''
+    from RecExConfig.RecFlags import rec
+    if not rec.doInDet :
+        return False
+
+    if rec.readAOD :
+        return True
+
+    if rec.readESD :
+        return True
+
+    if rec.readTAG :
+        return False
+
+    if rec.readRDO :
+      try :
+        from AthenaCommon.AlgSequence import AlgSequence,AthSequencer 
+        topSequence = AlgSequence()
+        import re
+        pat =re.compile('.*(TrackParticleCnvAlg).*')
+        for alg in topSequence.getChildren() :
+            if pat.match( alg.getFullName() ) != None :
+                return True
+
+      except :
+        pass
+    
+    return False
+
 def addDecoratorIfNeeded() :
    '''
     Run the InDet decoration algorithm if it has not been ran yet.
    '''
-   print 'DEBUG addDecoratorIfNeeded'
+
+   if  not canAddDecorator() :
+         print 'DEBUG addDecoratorIfNeeded ? Stage is too early or too late for running the decoration. Needs reconstructed tracks. Try again during next stage ?'
+         return
+
    meta_data = getMetaData()
    if len(meta_data) == 0 :
       # decoration has not been ran
