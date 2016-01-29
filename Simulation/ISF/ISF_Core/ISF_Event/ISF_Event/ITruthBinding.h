@@ -66,7 +66,7 @@ namespace ISF {
         /** Implicit constructor*/
         TruthBindingT* clone() const { return new TruthBindingT(*m_tParticle); }
 
-        /** Get the mother particle */
+        /** Get particle's representation in the MC truth record */
         T& truthParticle() const { return (*m_tParticle);  } 
 
     private:

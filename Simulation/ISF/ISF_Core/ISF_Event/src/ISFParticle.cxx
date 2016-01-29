@@ -28,6 +28,7 @@ ISF::ISFParticle::ISFParticle(
  m_history(p.history()),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
+ m_primaryTruthParticle(p.getPrimaryTruthParticle()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(0)
@@ -54,6 +55,7 @@ ISF::ISFParticle::ISFParticle(
  m_history(p.history()),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
+ m_primaryTruthParticle(p.getPrimaryTruthParticle()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(0)
@@ -69,6 +71,7 @@ ISF::ISFParticle::ISFParticle(
   int pdgCode,
   double time,
   const DetRegionSvcIDPair &origin,
+  const HepMC::GenParticle *primaryTruthParticle,
   Barcode::ParticleBarcode barcode,
   ITruthBinding* truth):
  m_position(pos),
@@ -80,6 +83,7 @@ ISF::ISFParticle::ISFParticle(
  m_history(1, origin),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
+ m_primaryTruthParticle(primaryTruthParticle),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(0)
@@ -95,6 +99,7 @@ ISF::ISFParticle::ISFParticle(
   int pdgCode,
   double time,
   const DetRegionSvcIDPair &origin,
+  const HepMC::GenParticle *primaryTruthParticle,
   Barcode::ParticleBarcode barcode,
   ITruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z() ),
@@ -106,6 +111,7 @@ ISF::ISFParticle::ISFParticle(
  m_history(1, origin),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
+ m_primaryTruthParticle(primaryTruthParticle),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
  m_userInfo(0)

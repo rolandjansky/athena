@@ -23,6 +23,8 @@
 // CHLEP classes
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+// HepMC
+#include "HepMC/GenParticle.h"
 
 namespace ISF {
 
@@ -72,6 +74,7 @@ namespace ISF {
                 int pdgCode,
                 double time,
                 const DetRegionSvcIDPair &origin,
+                const HepMC::GenParticle *primaryTruthParticle,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
                 ITruthBinding* truth = 0 );
 
@@ -83,6 +86,7 @@ namespace ISF {
                 int pdgCode,
                 double time,
                 const DetRegionSvcIDPair &origin,
+                const HepMC::GenParticle *primaryTruthParticle,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
                 ITruthBinding* truth = 0 );
 
@@ -153,6 +157,9 @@ namespace ISF {
     /** set extra barcode */
     void setExtraBC(const Barcode::ParticleBarcode& bc);
 
+    /** pointer to the primary particle in the simulation truth */
+    const HepMC::GenParticle* getPrimaryTruthParticle() const;
+
     /** pointer to the simulation truth - optional, can be 0 */
     ITruthBinding* truthBinding() const;
 
@@ -184,9 +191,10 @@ namespace ISF {
     ParticleHistory              m_history;
     Barcode::ParticleBarcode     m_barcode;
     Barcode::ParticleBarcode     m_extraBarcode;
+    const HepMC::GenParticle*    m_primaryTruthParticle;  //!< pointer to corresponding primary (generator) particle
     ITruthBinding*               m_truth;
-    ParticleOrder                m_order;                                      //!< particle simulation order
-    mutable ParticleUserInformation *m_userInfo;                               //!< user information stored with the ISFParticle
+    ParticleOrder                m_order;                 //!< particle simulation order
+    mutable ParticleUserInformation *m_userInfo;          //!< user information stored with the ISFParticle
   };
 
   // Overload of << operator for MsgStream for debug output

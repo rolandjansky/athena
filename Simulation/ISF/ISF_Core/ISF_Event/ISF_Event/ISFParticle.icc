@@ -66,6 +66,10 @@ namespace ISF {
     m_extraBarcode = bc;
   }
 
+  inline const HepMC::GenParticle* ISFParticle::getPrimaryTruthParticle() const {
+    return m_primaryTruthParticle;
+  }
+
   // printout methods
   inline MsgStream& ISFParticle::dump( MsgStream& out ) const
       { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
