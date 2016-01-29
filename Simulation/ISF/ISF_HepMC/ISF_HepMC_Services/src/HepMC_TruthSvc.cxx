@@ -390,6 +390,10 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
   //  truth particles
   bool setPersistent = true;
   HepMC::GenParticle *parent = ti.parentParticle( setPersistent );
+  if (!parent) {
+    ATH_MSG_ERROR("Unable to write particle interaction to MC truth due to missing parent HepMC::GenParticle instance");
+    abort();
+  }
 
   // generate vertex
   Barcode::VertexBarcode vtxbcode = m_barcodeSvcQuick->newVertex( parentBC, processCode );
