@@ -88,6 +88,9 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("sig_offset", m_sigOffset=4.93182 , "Resolution offset");
   declareProperty("sig_slope",  m_sigSlope=0.442864 , "Resolution slope");
   declareProperty("sig_quadr",  m_sigQuadr=0.0 , "Resolution quad term");
+  declareProperty("sig_offset_feb", m_sigOffset_feb=-1.886 , "Resolution offset");
+  declareProperty("sig_slope_feb",  m_sigSlope_feb=1.15 , "Resolution slope");
+  declareProperty("sig_quadr_feb",  m_sigQuadr_feb=0.0 , "Resolution quad term");
 }
 
 
@@ -207,7 +210,7 @@ StatusCode HLTMETMonTool::book() {
   std::string prof_name = "Eff_" + m_numerator_trigger[0];
   std::string eff_title = eff_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
   trig_eff_num[0] = new TH1F(numerator_name.c_str(), numerator_title.c_str(), m_eff_bins, m_eff_min, m_eff_max);
-  addHistogram(new TH1F(eff_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+  //addHistogram(new TH1F(eff_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   addProfile(new TProfile(prof_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
 
 
@@ -247,7 +250,7 @@ StatusCode HLTMETMonTool::book() {
     std::string prof_name = "Eff_" + m_numerator_trigger[i_eff];
     std::string eff_title = eff_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     trig_eff_num[i_eff] = new TH1F(numerator_name.c_str(), numerator_title.c_str(), m_eff_bins, m_eff_min, m_eff_max);
-    addHistogram(new TH1F(eff_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+    //addHistogram(new TH1F(eff_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
     addProfile(new TProfile(prof_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   }
 
@@ -881,14 +884,16 @@ StatusCode HLTMETMonTool::fillMETHist() {
   float off_met = -9e9;
   float off_sumet = -9e9;
   float off_phi = -9e9;
-  if (m_off_met_cont && m_off_met_cont->size()) {
-    m_off_met = (*m_off_met_cont)["FinalClus"];
-
-    off_ex = ((*m_off_met_cont)["FinalClus"]->mpx())/CLHEP::GeV;
-    off_ey = ((*m_off_met_cont)["FinalClus"]->mpy())/CLHEP::GeV;
-    off_met = sqrt(off_ex*off_ex+off_ey*off_ey);
-    off_sumet = ((*m_off_met_cont)["FinalClus"]->sumet())/CLHEP::GeV;
-    off_phi = atan2(off_ey, off_ex);
+  if (m_off_met_cont) {
+    if (m_off_met_cont->size()) {
+      m_off_met = (*m_off_met_cont)["FinalClus"];
+      
+      off_ex = ((*m_off_met_cont)["FinalClus"]->mpx())/CLHEP::GeV;
+      off_ey = ((*m_off_met_cont)["FinalClus"]->mpy())/CLHEP::GeV;
+      off_met = sqrt(off_ex*off_ex+off_ey*off_ey);
+      off_sumet = ((*m_off_met_cont)["FinalClus"]->sumet())/CLHEP::GeV;
+      off_phi = atan2(off_ey, off_ex);
+    }
   }
 
   TH1 *h(0);
