@@ -158,6 +158,7 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("useMagneticFieldMap",&m_useMagneticFieldMap,"Use magnetic field map in drifttime calculation");
   defineNewBoolVariable("useAttenuation",&m_useAttenuation,"Simulate attenuation of signal strength depending on propagation length in wire");
   defineNewBoolVariable("getT0FromData",&m_getT0FromData,"Shift the individual straw t0 according to data (conditions database)");
+  defineNewBoolVariable("isOverlay",&m_isOverlay,"Flag set for overlay jobs");
 
   //ints:
   defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 delta shift in 0.78125 ns steps, short barrel straws",-32,32);
@@ -446,6 +447,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_killBarrel = false;
   m_cosmicFlag=0;
   m_isCTB = false;
+  m_isOverlay=false;
 
   // trues
   m_timeCorrection = true;

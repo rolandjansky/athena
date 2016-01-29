@@ -128,7 +128,10 @@ def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
      kwargs.setdefault("OutputObjectName", "TRT_RDOs")
      kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
      kwargs.setdefault("HardScatterSplittingMode", 0)
-     kwargs.setdefault("Override_getT0FromData", 1) #FIXME should depend on readBS and isRealData variables somehow.
+     kwargs.setdefault("Override_getT0FromData", 0)
+     kwargs.setdefault("Override_noiseInSimhits", 0)
+     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
+     kwargs.setdefault("Override_isOverlay", 1)
      return BasicTRTDigitizationTool(name,**kwargs)
 
 def TRT_OverlayDigitization(name="TRT_OverlayDigitization",**kwargs):
