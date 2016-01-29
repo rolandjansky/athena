@@ -233,12 +233,13 @@ void ISF::Geant4TruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode n
 
     // get parent if it exists in user info
     VTrackInformation *trackInfo=static_cast<VTrackInformation*>( curSecondary->GetUserInformation() );
-    const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : 0;
+    const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetBaseISFParticle() : 0;
 
     // assume these G4Track don't have an information yet.
     TrackBarcodeInfo * bi = new TrackBarcodeInfo(newBarcode,parent);
 
-    // FIXME: doesn't that cause a memory leak if UserInformation already existed before?
+    // FIXME: doesn't that cause a memory leak if UserInformation already existed before
+    //        and/or discard information that was previously stored in the UserInformation ?
     curSecondary->SetUserInformation(bi);
   }
 
@@ -268,13 +269,17 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::childParticle(unsigned short i,
   // get last (parent) ISFParticle link
   const G4Track *track = m_step->GetTrack();
   VTrackInformation *trackInfo = static_cast<VTrackInformation*>( track->GetUserInformation() );
-  const ISF::ISFParticle* parentISP = (trackInfo) ? trackInfo->GetISFParticle() : 0;
+  const ISF::ISFParticle*   parentISP = (trackInfo) ? trackInfo->GetBaseISFParticle() : 0;
+  const HepMC::GenParticle* primary   = (trackInfo) ? trackInfo->GetPrimaryHepMCParticle() : 0;
+
+  // FIXME: arent' we leaking memory here? where does the old trackInfo object get deleted?
  
   // create new TrackInformation (with link to hepParticle and ISFParticle)
   // and attach it to G4Track
   TrackInformation *ti = new TrackInformation(hepParticle, parentISP);
   ti->SetRegenerationNr(0);
   ti->SetClassification(RegisteredSecondary);
+  ti->SetPrimaryHepMCParticle(primary);
 
   thisChild->SetUserInformation(ti);
 

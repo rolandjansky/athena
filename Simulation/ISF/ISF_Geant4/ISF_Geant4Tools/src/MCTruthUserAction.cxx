@@ -36,8 +36,7 @@ iGeant4::MCTruthUserAction::MCTruthUserAction(const std::string& type,
   AthAlgTool(type,name,parent),
   m_sHelper(FADS::FadsTrackingAction::GetTrackingAction()->GetTrackingManager()),
   m_truthRecordSvc("ISF_TruthRecordSvc", name),
-  m_truthRecordSvcQuick(0),
-  m_isfParent(0)
+  m_truthRecordSvcQuick(0)
 {
 
   declareInterface<IMCTruthUserAction>(this);
@@ -74,7 +73,6 @@ void iGeant4::MCTruthUserAction::PreUserTrackingAction(const G4Track* inTrack)
   //std::cout<<"in MCTruthUserAction::PreUserTrackingAction, m_ilevel="<<m_ilevel<<std::endl;
 
   //m_sHelper.ResetNrOfSecondaries();
-  m_isfParent = 0; 
     
   G4Track* inT = const_cast<G4Track*> (inTrack);
   TrackHelper trackHelper(inT);

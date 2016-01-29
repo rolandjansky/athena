@@ -276,7 +276,7 @@ HepMC::GenParticle* iGeant4::TrackProcessorUserActionPassBack::findMatchingDaugh
 ISF::ITruthBinding*
 iGeant4::TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack) const
 {
-  ISF::ITruthBinding* tBinding = 0;
+  ISF::ITruthBinding* tBinding = nullptr;
 
   VTrackInformation* trackInfo = ISFG4Helpers::getISFTrackInfo(*aTrack);
 
@@ -326,15 +326,10 @@ iGeant4::TrackProcessorUserActionPassBack::returnParticleToISF( G4Track *aTrack,
   ISF::ISFParticle *newISP = newISFParticle( aTrack, parentISP, nextGeoID );
 
   // link the G4Track to the new ISFParticle
-  ISFG4Helpers::linkG4TrackToISFParticle( *aTrack, newISP );
-
-  // flag the track to let code downstream know that this track was returned to ISF
-  VTrackInformation* trackInfo = dynamic_cast<VTrackInformation*>(aTrack->GetUserInformation());
-  if (!trackInfo) {
-    trackInfo = new TrackBarcodeInfo(Barcode::fUndefinedBarcode, newISP);
-    aTrack->SetUserInformation(trackInfo);
-  }
-  trackInfo->SetReturnedToISF(true);
+  ISFG4Helpers::setG4TrackInfoFromBaseISFParticle( *aTrack,
+                                                   *newISP,
+                                                   true // returnToISF
+                                                  );
 
 
   // push the particle back to ISF

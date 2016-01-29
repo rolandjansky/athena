@@ -10,6 +10,10 @@
 #include <string>
 
 // forward declarations
+namespace HepMC {
+  class GenParticle;
+}
+
 namespace ISF {
   class ISFParticle;
 }
@@ -39,6 +43,7 @@ namespace iGeant4 {
   private:
     /** for keeping track of the currently processed G4Track and its corresponding ISFParticle */
     int                                 m_curTrackID;  //!< the TrackID of the currently processed G4Track
+    const HepMC::GenParticle           *m_curPrimary;  //!< the primary particle causing the currently processed G4Track
     ISF::ISFParticle                   *m_curISP;      //!< the corresponding ISFParticle to this G4Track
 
   };

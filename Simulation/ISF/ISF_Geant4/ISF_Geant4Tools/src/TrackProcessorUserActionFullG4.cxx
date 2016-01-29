@@ -26,11 +26,7 @@
 
 #include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
 
-#include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruth/TruthStrategyManager.h"
-#include "MCTruth/VTrackInformation.h"
 
 #include "SimHelpers/StepHelper.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -152,7 +148,8 @@ void iGeant4::TrackProcessorUserActionFullG4::ISFSteppingAction(const G4Step* aS
 
       ISF::ISFParticle *tmpISP = ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
                                                                             detRegionSimSvcPair,
-                                                                            0          // truthBinding
+                                                                            curISP->getPrimaryTruthParticle(),
+                                                                            nullptr // truthBinding
                                                                            );
 
       tmpISP->setNextGeoID( nextGeoID );

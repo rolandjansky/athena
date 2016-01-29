@@ -39,19 +39,23 @@ iGeant4::ISFG4Helpers::~ISFG4Helpers()
 
 /** convert the given G4Track into an ISFParticle */
 ISF::ISFParticle*
-iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track &aTrack,
-                                                   const ISF::ISFParticle &parent,
-                                                   ISF::ITruthBinding *truth)
+iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
+                                                   const ISF::ISFParticle& parent,
+                                                   ISF::ITruthBinding* truth)
 {
   const ISF::DetRegionSvcIDPair regionSimSvcPair( parent.nextGeoID(), parent.nextSimID() );
-  return ISFG4Helpers::convertG4TrackToISFParticle(aTrack, regionSimSvcPair, truth);
+  return ISFG4Helpers::convertG4TrackToISFParticle( aTrack,
+                                                    regionSimSvcPair,
+                                                    parent.getPrimaryTruthParticle(),
+                                                    truth );
 }
 
 /** convert the given G4Track into an ISFParticle */
 ISF::ISFParticle*
-iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track &aTrack,
-                                                   const ISF::DetRegionSvcIDPair &regionSimSvcPair,
-                                                   ISF::ITruthBinding *truth)
+iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
+                                                   const ISF::DetRegionSvcIDPair& regionSimSvcPair,
+                                                   const HepMC::GenParticle* primaryTruthParticle,
+                                                   ISF::ITruthBinding* truth)
 {
   const G4ThreeVector& g4pos = aTrack.GetPosition();
   const double         gTime = aTrack.GetGlobalTime();
@@ -74,6 +78,7 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track &aTrack,
                                                 pdgID,
                                                 gTime,
                                                 regionSimSvcPair,
+                                                primaryTruthParticle,
                                                 barcode,
                                                 truth
                                                );
@@ -84,7 +89,7 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track &aTrack,
 
 /** get the ParticleBarcode corresponding to the given G4Track */
 Barcode::ParticleBarcode
-iGeant4::ISFG4Helpers::getParticleBarcode(const G4Track &aTrack)
+iGeant4::ISFG4Helpers::getParticleBarcode(const G4Track& aTrack)
 {
   VTrackInformation* trackInfo = getISFTrackInfo(aTrack);
 
@@ -96,35 +101,41 @@ iGeant4::ISFG4Helpers::getParticleBarcode(const G4Track &aTrack)
 
 /** return a valid UserInformation object of the G4Track for use within the ISF */
 VTrackInformation *
-iGeant4::ISFG4Helpers::getISFTrackInfo(const G4Track &aTrack) 
+iGeant4::ISFG4Helpers::getISFTrackInfo(const G4Track& aTrack) 
 {
   VTrackInformation* trackInfo = static_cast<VTrackInformation*>(aTrack.GetUserInformation());
-  bool isValidInISF = trackInfo && (trackInfo->GetHepMCParticle() || dynamic_cast<TrackBarcodeInfo*>(trackInfo));
+  bool isValidInISF = trackInfo && (trackInfo->GetPrimaryHepMCParticle() || dynamic_cast<TrackBarcodeInfo*>(trackInfo));
 
   return ( (isValidInISF) ? trackInfo : 0 );
 }
 
 /** link the given G4Track to the given ISFParticle */
 void
-iGeant4::ISFG4Helpers::linkG4TrackToISFParticle(G4Track &aTrack, const ISF::ISFParticle *isp)
+iGeant4::ISFG4Helpers::setG4TrackInfoFromBaseISFParticle( G4Track& aTrack,
+                                                          const ISF::ISFParticle& baseIsp,
+                                                          bool setReturnToISF )
 {
-  G4VUserTrackInformation *g4TrackInfo = aTrack.GetUserInformation();
-  VTrackInformation       *trackInfo   = dynamic_cast<VTrackInformation*>( g4TrackInfo );
+  G4VUserTrackInformation* g4TrackInfo = aTrack.GetUserInformation();
+  VTrackInformation*       trackInfo   = dynamic_cast<VTrackInformation*>( g4TrackInfo );
 
-  if (trackInfo) {
-    // set the ISFParticle link in the existing TrackInformation
-    trackInfo->SetISFParticle( isp );
-  } else {
+
+  if (!trackInfo) {
     // create and attach a new TrackInformation object to the G4Track
 
     // NB: using a lightweight TrackBarcodeInfo instead of TrackInformation
     //     possibly leads to an output change in the SiHitCollection_p2_BCMHits.m_id
-    HepMC::GenParticle *hepParticle = 0;
-    trackInfo = new TrackInformation( hepParticle, isp );
+    HepMC::GenParticle* hepParticle = nullptr;
+    trackInfo = new TrackInformation( hepParticle, &baseIsp );
     trackInfo->SetClassification( Secondary );
     aTrack.SetUserInformation( trackInfo );
   }
 
+  auto hepPrimary = baseIsp.getPrimaryTruthParticle();
+  trackInfo->SetBaseISFParticle( &baseIsp );
+  trackInfo->SetPrimaryHepMCParticle( hepPrimary );
+
+  bool returnToISF = setReturnToISF | trackInfo->GetReturnedToISF();
+  trackInfo->SetReturnedToISF( returnToISF );
+
   return;
 }
-

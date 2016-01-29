@@ -537,7 +537,7 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
           else {
             ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
           }
-          if(NULL==(*iter)->end_vertex()) {
+          if(nullptr==(*iter)->end_vertex()) {
             if(m_quasiStableParticlesIncluded) {
               ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
             }
