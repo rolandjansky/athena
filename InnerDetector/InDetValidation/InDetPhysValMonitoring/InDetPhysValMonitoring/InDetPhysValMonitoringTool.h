@@ -20,12 +20,16 @@
 #include "PATCore/IAsgSelectionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 //#include "src/TrackTruthSelectionTool.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
-
+namespace Root {
+  class TAccept;
+}
 
 /**
  * Tool to book and fill inner detector histograms for physics validation
@@ -56,6 +60,8 @@ private:
 	///EventInfo container name
 	std::string m_eventInfoContainerName;
 
+	///Directory name
+	std::string m_dirName;
 
 	///histograms
 	std::unique_ptr< InDetRttPlots > m_monPlots;
@@ -69,15 +75,34 @@ private:
 	//bool m_TrackTruthSelectionTool;
 	//ToolHandle<TrackTruthSelectionTool> m_TrackTruthSelectionTool;
 
-  ///Jet Things
-  std::string m_jetContainerName;
-  float m_maxTrkJetDR;
-  std::string m_folder;
-  bool m_fillTIDEPlots;
-  bool m_fillExtraTIDEPlots;
+	std::vector<int> m_prospectsMatched;
+	int m_twoMatchedEProb;
+	int m_threeMatchedEProb;
+	int m_fourMatchedEProb;
+	int m_truthCounter;
 
+	void fillTrackCutFlow(Root::TAccept& accept);
+	std::vector<std::string> m_trackCutflowNames;
+	std::vector<int> m_trackCutflow;
 
+	void fillTruthCutFlow(Root::TAccept& accept);
+	std::vector<std::string> m_truthCutflowNames;
+	std::vector<int> m_truthCutflow;
+	
+	void fillCutFlow(Root::TAccept& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
+	
+	std::string m_pileupSwitch; // All, PileUp, or HardScatter
+	
+	///Jet Things
+	std::string m_jetContainerName;
+	float m_maxTrkJetDR;
+	bool m_fillTIDEPlots;
+	bool m_fillExtraTIDEPlots;
 
+	std::string m_folder;
+
+	void getTruthParticles(std::vector<const xAOD::TruthParticle*>& truthParticles);
+	
 	template<class T>
 	const T* getContainer( const std::string & containerName);
 };

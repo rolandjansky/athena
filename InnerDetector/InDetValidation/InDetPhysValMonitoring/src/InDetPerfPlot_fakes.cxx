@@ -8,7 +8,7 @@
 **/
 
 #include "InDetPerfPlot_fakes.h"
-#include <math.h> //for Pi
+#include <math.h> //for M_PI
 
 
 
@@ -20,33 +20,21 @@ InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase* pParent, const std::stri
 
 void 
 InDetPerfPlot_fakes::initializePlots() {
-  const bool prependDirectory(false);
+  //const bool prependDirectory(false);
   
   //
-  SingleHistogramDefinition hd= retrieveDefinition("fakepT", "default");
-  m_fakepT  = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
-  hd= retrieveDefinition("fakepTlow", "default");
-  m_fakePtLow = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
-  hd = retrieveDefinition("fakephi", "default");
-  m_fakephi = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
-  hd = retrieveDefinition("fakeeta", "default");
-  m_fakeeta = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
-  hd = retrieveDefinition("faked0", "default");
-  m_faked0 = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
-  hd = retrieveDefinition("fakez0", "default");
-  m_fakez0 = Book1D(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second, prependDirectory);
+  book(m_fakepT, "fakepT");
+  book(m_fakePtLow, "fakepTlow");
+  book(m_fakephi, "fakephi");
+  book(m_fakeeta, "fakeeta");
+  book(m_faked0,"faked0");
+  book(m_fakez0, "fakez0");
   //
-  hd = retrieveDefinition("track_fakerate_vs_eta", "default");
-  m_track_fakerate_vs_eta= BookTProfile(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second,hd.yAxis.first,hd.yAxis.second, prependDirectory); 
-  hd = retrieveDefinition("track_fakerate_vs_pt", "default");
-  m_track_fakerate_vs_pt= BookTProfile(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second,hd.yAxis.first,hd.yAxis.second, prependDirectory); 
-  hd = retrieveDefinition("track_fakerate_vs_phi", "default");
-  m_track_fakerate_vs_phi= BookTProfile(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second,hd.yAxis.first,hd.yAxis.second, prependDirectory); 
-  hd = retrieveDefinition("track_fakerate_vs_d0", "default");
-  m_track_fakerate_vs_d0= BookTProfile(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second,hd.yAxis.first,hd.yAxis.second, prependDirectory); 
-  hd = retrieveDefinition("track_fakerate_vs_z0", "default");
-  m_track_fakerate_vs_z0= BookTProfile(hd.name,hd.allTitles,hd.nBinsX,hd.xAxis.first,hd.xAxis.second,hd.yAxis.first,hd.yAxis.second, prependDirectory); 
- 
+  book(m_track_fakerate_vs_eta, "track_fakerate_vs_eta");
+  book(m_track_fakerate_vs_pt, "track_fakerate_vs_pt");
+  book(m_track_fakerate_vs_phi, "track_fakerate_vs_phi");
+  book(m_track_fakerate_vs_d0, "track_fakerate_vs_d0");
+  book(m_track_fakerate_vs_z0, "track_fakerate_vs_z0"); 
 }
 
 void 
@@ -67,8 +55,8 @@ InDetPerfPlot_fakes::fill(const xAOD::TrackParticle& trkprt,const bool isFake, c
 			m_faked0->Fill(d0);
 			m_fakez0->Fill(z0);
 		}
-		m_track_fakerate_vs_eta->Fill(pt,fakeNum);
-		m_track_fakerate_vs_pt->Fill(eta,fakeNum);
+		m_track_fakerate_vs_eta->Fill(eta,fakeNum);
+		m_track_fakerate_vs_pt->Fill(pt,fakeNum);
 		m_track_fakerate_vs_phi->Fill(phi_degrees,fakeNum);
 		m_track_fakerate_vs_d0->Fill(d0,fakeNum);
 		m_track_fakerate_vs_z0->Fill(z0,fakeNum);
