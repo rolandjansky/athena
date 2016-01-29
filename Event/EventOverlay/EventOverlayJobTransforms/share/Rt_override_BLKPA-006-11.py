@@ -20,9 +20,13 @@ conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE","PixDCSTemp-UPD1-00",force=True,forceData=True)
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
 conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.blockFolder("/PIXEL/PixReco")
+conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixReco","PixReco-SIM-RUN12-000-01",force=True,forceMC=True)
 
 conddb.blockFolder("/TRT/Cond/DigVers")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+
+conddb.addOverride("/LAR/ElecCalibOfl/Shape/RTM/5samples1phase","LARElecCalibOflShapeRTM5samples1phase-UPD1-04")
 
 ###################################################
 print "Haas: RT OVERRIDE, for COMCOND-BLKPA-006-11"
@@ -65,3 +69,7 @@ conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/MDT/ENDCAP/SIDEC","MuonAlign
 conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEA","MuonAlignTGCEndCapAAlign-0001-DEFAULT",force=True,forceData=True)
 conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEC","MuonAlignTGCEndCapCAlign-0001-DEFAULT",force=True,forceData=True)
 
+conddb.blockFolder("/SCT/DAQ/Configuration/Chip")
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/Chip","/SCT/DAQ/Configuration/Chip",force=True)
+conddb.blockFolder("/SCT/DAQ/Configuration/Module")
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/Module","/SCT/DAQ/Configuration/Module",force=True)
