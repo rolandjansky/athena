@@ -41,7 +41,8 @@ PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const st
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
 	declareProperty("CalibSvc",m_CalibSvc);
-	declareProperty("TimeSvc",m_TimeSvc);	
+	declareProperty("TimeSvc",m_TimeSvc);
+        declareProperty("doITk",m_doITk=false,"Phase-II upgrade ITk flag");
 }
 
 // Destructor:
@@ -106,7 +107,12 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
  
    bool ComputeTW = true;
-   //if (getReadoutTech(collection.element()) == FEI4)ComputeTW = false;
+   //   such calls to getReadoutTech don't compile
+   //if (getReadoutTech(collection.element()) == RD53) ComputeTW = false;
+   //if (getReadoutTech(collection.element()) == FEI4) ComputeTW = false;
+   //   instead for ITk:
+   if (m_doITk) ComputeTW = false;
+   //   and for IBL:
    const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
    if ((!m_IBLabsent && pixelId->is_blayer(collection.element()->identify())) || 
                       pixelId->barrel_ec(collection.element()->identify())==4 ||

@@ -124,23 +124,23 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   
   declareInterface<PixelDigitizationTool>(this);
   declareProperty("PixelNoisyCellGenerator", m_pixelNoisyCellGenerator,   "PixelNoisyCellGenerator");
-  declareProperty("PixelCellDiscriminator", m_pixelCellDiscriminator,   "PixelCellDiscriminator");
-  declareProperty("PixelChargeSmearer", m_pixelChargeSmearer,   "PixelChargeSmearer");
+  declareProperty("PixelCellDiscriminator",  m_pixelCellDiscriminator,    "PixelCellDiscriminator");
+  declareProperty("PixelChargeSmearer",      m_pixelChargeSmearer,        "PixelChargeSmearer");
   declareProperty("PixelDiodeCrossTalkGenerator", m_pixelDiodeCrossTalkGenerator,   "PixelDiodeCrossTalkGenerator");
-  declareProperty("PixelGangedMerger", m_pixelGangedMerger,   "PixelGangedMerger");
+  declareProperty("PixelGangedMerger",       m_pixelGangedMerger,         "PixelGangedMerger");
   declareProperty("PixelRandomDisabledCellGenerator", m_pixelRandomDisabledCellGenerator,   "PixelRandomDisabledCellGenerator");
-  declareProperty("SpecialPixelGenerator", m_specialPixelGenerator,   "Special pixel generator");
-  declareProperty("SurfaceChargesTool", m_SurfaceChargesTool,   "Surface charges tool");
-  declareProperty("RndmSvc",		m_rndmSvc,		"Random number service used in Pixel Digitization");
-  declareProperty("MergeSvc",		m_mergeSvc,		"Merge service used in Pixel digitization");
-  declareProperty("TimeSvc", m_TimeSvc, "Time Svc");
-  declareProperty("CalibSvc", m_CalibSvc, "Calib Svc");
-  declareProperty("OfflineCalibSvc",m_offlineCalibSvc);
-  declareProperty("InputObjectName",m_inputObjectName="","Input Object name" );
-  declareProperty("CreateNoiseSDO", m_createNoiseSDO=false, "Set create noise SDO flag");
+  declareProperty("SpecialPixelGenerator",   m_specialPixelGenerator,     "Special pixel generator");
+  declareProperty("SurfaceChargesTool",      m_SurfaceChargesTool,        "Surface charges tool");
+  declareProperty("RndmSvc",                 m_rndmSvc,                   "Random number service used in Pixel Digitization");
+  declareProperty("MergeSvc",                m_mergeSvc,                  "Merge service used in Pixel digitization");
+  declareProperty("TimeSvc",                 m_TimeSvc,                   "Time Svc");
+  declareProperty("CalibSvc",                m_CalibSvc,                  "Calib Svc");
+  declareProperty("OfflineCalibSvc",         m_offlineCalibSvc);
+  declareProperty("InputObjectName",         m_inputObjectName="",        "Input Object name" );
+  declareProperty("CreateNoiseSDO",          m_createNoiseSDO=false,      "Set create noise SDO flag");
   m_inputObjectName = "PixelHits";
-  declareProperty("SpecialPixelMapKey",m_specialPixelMapKey,"Special Pixel Map Key"); 
-  declareProperty("SpecialPixelMapSvc",m_specialPixelMapSvc);
+  declareProperty("SpecialPixelMapKey",      m_specialPixelMapKey,        "Special Pixel Map Key"); 
+  declareProperty("SpecialPixelMapSvc",      m_specialPixelMapSvc);
 
   //
   // Get parameter values from jobOptions file
@@ -150,7 +150,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("EventIOV",           m_eventIOV,             "Number of events per IOV");
   declareProperty("IOVFlag",            m_IOVFlag,              "IOV flag - how to simulate the validity period");
   declareProperty("LVL1Latency",        m_maxToT,               "LVL1 latency (max possible ToT)");
-  declareProperty("ToTMinCut",          m_minToT,               "Minimu ToT cut (online cut) ");
+  declareProperty("ToTMinCut",          m_minToT,               "Minimum ToT cut (online cut)");
   declareProperty("ApplyDupli",         m_applyDupli,           "Duplicate low ToT hits");
   declareProperty("LowTOTduplication",  m_maxToTForDupli,       "ToT value below which the hit is duplicated");
 
@@ -169,6 +169,10 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("RDOforSPM",          m_doRDOforSPM,          "Create RDOs for special pixels");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
+  
+  //
+  // For ITk upgrade
+  declareProperty("doITk",              m_doITk=false,          "Phase-II upgrade ITk flag");
 }
 
 
@@ -980,15 +984,26 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   int layer_disk = pixelId->layer_disk(collection->element()->identify());
   int PixRegion = -1;
   int ishift = 0;
-  if ( m_IBLabsent ) ishift = 1;
-  if ( barrel_ec == 0) PixRegion = layer_disk + ishift; // PixRegion = 0, 1, 2, or 3 for IBL, BL, L1 or L2
+  if ( barrel_ec == 0 ) {
+    if ( m_doITk ) {
+      // PixRegion = 0, 1, 2, 3 for the first four pixel barrel layers,
+      //             6 for the fifth pixel barrel layer (4 and 5 already taken)
+      PixRegion = layer_disk;
+      if ( layer_disk == 4 ) PixRegion = 6;
+    }
+    else {
+      // PixRegion = 0, 1, 2, or 3 for IBL, BL, L1 or L2
+      if ( m_IBLabsent ) ishift = 1;
+      PixRegion = layer_disk + ishift;
+    }
+  }
   if ( barrel_ec == 2 || barrel_ec == -2 ) PixRegion = 4; // 4 for disks
-  if ( barrel_ec == 4 || barrel_ec == -4 ) PixRegion = 5; // 5 for DBM  
+  if ( barrel_ec == 4 || barrel_ec == -4 ) PixRegion = 5; // 5 for DBM
   
-  if ( PixRegion < 0 || PixRegion > 5 ) {
+  if ( PixRegion < 0 || (!m_doITk && PixRegion > 5) || PixRegion > 6 ) {
     ATH_MSG_ERROR ( "PixelDigitizationTool::createRDO() collection : " << " bad Barrel/EC or Layer/Disk " );
   }
-	
+
   m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);
   ATH_MSG_DEBUG ( " ***** Overflow for IBL = " << m_overflowIBLToT );
   
@@ -1093,16 +1108,17 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
 
       int iirow = cellId.phiIndex();
       int iicol = cellId.etaIndex();
-      if ( PixRegion == 0 && iicol >= maxCol ) iicol = iicol - maxCol; // FEI4 copy mechanism works per FE.
+      if ( !m_doITk && PixRegion == 0 && iicol >= maxCol ) iicol = iicol - maxCol; // FEI4 copy mechanism works per FE.
       
       
       //
       //if (correct_id_readout!=diodeID) {
       //  ATH_MSG_DEBUG ( "correct_readout_id != diodeID" );
       // }
-      // Create hit only if bunch within the acceptance (not for IBL and DBM:
+      // Create hit only if bunch within the acceptance (not for IBL and DBM):
+      //     Do this for ITk as well
       
-      if ( PixRegion != 0 ) {
+      if ( m_doITk || PixRegion != 0 ) {
         if ( bunch >= 0 && bunch < m_TimeSvc->getTimeBCN()) {
 	  Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch, 0, bunch );
 	  PixelRDOColl->push_back(p_rdo);
@@ -1130,7 +1146,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       }
       // Duplication mechanism for FEI3 small hits :
       
-      if ( PixRegion != 0 && PixRegion != 5 ) {
+      if ( !m_doITk && PixRegion != 0 && PixRegion != 5 ) {
         if ( m_applyDupli[PixRegion]) {
           if ( nToT <= m_maxToTForDupli[PixRegion] && bunch > 0 && bunch <= m_TimeSvc->getTimeBCN()) {
 	    Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch-1, 0, bunch-1 );
@@ -1142,7 +1158,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   }
   // Copy mechanism for IBL small hits:
   
-  if ( PixRegion == 0 && m_applyDupli[PixRegion] && nSmallHitsFEI4 > 0 ){
+  if ( !m_doITk && PixRegion == 0 && m_applyDupli[PixRegion] && nSmallHitsFEI4 > 0 ){
     bool recorded = false;
     //First case: Record small hits which are in the same Pixel Digital Region than a big hit:
     
@@ -1467,9 +1483,11 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, PileUpEventInf
 
   return StatusCode::SUCCESS;
 }
-  
+
 PixelDigitizationTool::ReadoutTech PixelDigitizationTool::getReadoutTech(const InDetDD::SiDetectorElement *module) {
-	const PixelID* pixelId = static_cast<const PixelID *>(module->getIdHelper());
+	if(m_doITk) return RD53;
+        
+        const PixelID* pixelId = static_cast<const PixelID *>(module->getIdHelper());
 	if ((!m_IBLabsent && pixelId->is_blayer(module->identify())) ||
 	    pixelId->barrel_ec(module->identify())==4 ||
 	    pixelId->barrel_ec(module->identify())==-4) return FEI4;

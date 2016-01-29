@@ -220,7 +220,7 @@ private:
   
    virtual StatusCode createOutputContainers();
    StatusCode getNextEvent();
-   enum ReadoutTech {FEI3,FEI4};
+   enum ReadoutTech {FEI3,FEI4,RD53};
    ReadoutTech getReadoutTech(const InDetDD::SiDetectorElement *module);   
 
    PixelDigitizationTool();
@@ -283,6 +283,12 @@ private:
    //
    bool                      m_cosmics;              /**< cosmic run */
    bool                      m_useComTime;           /**< use ComTime for timing */
+
+   //
+   // ITk flag
+   //
+   bool                      m_doITk;
+   
 
    //
    // Conditions database options

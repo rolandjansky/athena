@@ -18,7 +18,7 @@ apply_pattern declare_joboptions files="PixelDigitization_jobOptions.py PixelDig
 
 apply_pattern declare_python_modules files="*.py"
 
-apply_pattern declare_runtime files="3DFEI3-3E-problist-1um_v1.txt 3DFEI4-2E-problist-1um_v0.txt"
+apply_pattern declare_runtime files="3DFEI3-3E-problist-1um_v1.txt 3DFEI4-2E-problist-1um_v0.txt Bichsel_*.dat"
 
 branches PixelDigitization src src/components share python
 
@@ -62,5 +62,6 @@ use  Identifier               Identifier-*            DetectorDescription
 use  InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
 use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
+use  PathResolver               PathResolver-*                  Tools
 public
 use  AthenaBaseComps          AthenaBaseComps-*       Control

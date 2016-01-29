@@ -28,12 +28,72 @@ def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
     return CfgMgr.ChargeCollProbSvc(name, **kwargs)
 
 def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
+    if hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation():
+        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelBichselChargeTool")
+        kwargs.setdefault("PixelECChargeTool","PixelECBichselChargeTool")
+        kwargs.setdefault("IblPlanarChargeTool","IblPlanarBichselChargeTool")
+        kwargs.setdefault("Ibl3DChargeTool","Ibl3DBichselChargeTool")
+    else:
+        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelChargeTool")
+        kwargs.setdefault("PixelECChargeTool","PixelECChargeTool")
+        kwargs.setdefault("IblPlanarChargeTool","IblPlanarChargeTool")
+        kwargs.setdefault("Ibl3DChargeTool","Ibl3DChargeTool")
+    kwargs.setdefault("DBMChargeTool","DBMChargeTool") # No separate implementation when using Bichsel model
     return CfgMgr.SurfaceChargesTool(name, **kwargs)
 
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.DBMChargeTool(name, **kwargs)
+
+###############################################################################
+
+def BichselSimTool(name="BichselSimTool", **kwargs):
+    kwargs.setdefault("DeltaRayCut", 117.)
+    return CfgMgr.BichselSimTool(name, **kwargs)
+
+def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
+    # kwargs.setdefault("doBichsel", False)
+    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("BichselSimTool", "BichselSimTool")
+    # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
+    # kwargs.setdefault("doHITPlots", True)
+    return CfgMgr.PixelBarrelBichselChargeTool(name, **kwargs)
+
+def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
+    # kwargs.setdefault("doBichsel", False)
+    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("BichselSimTool", "BichselSimTool")
+    return CfgMgr.PixelECBichselChargeTool(name, **kwargs)
+
+def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
+    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("BichselSimTool", "BichselSimTool")
+    return CfgMgr.IblPlanarBichselChargeTool(name, **kwargs)
+
+def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
+    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("BichselSimTool", "BichselSimTool")
+    return CfgMgr.Ibl3DBichselChargeTool(name, **kwargs)
+
+
+###############################################################################
+
 
 def PixelBarrelChargeTool(name="PixelBarrelChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())

@@ -80,7 +80,7 @@ StatusCode PixelBarrelChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  const InDetDD::SiDetectorElement &Module)
 {
   ATH_MSG_DEBUG("Applying PixelBarrel charge processor");
-  const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
+  const HepMcParticleLink McLink = HepMcParticleLink(phit->particleLink());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
@@ -145,7 +145,7 @@ StatusCode PixelBarrelChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       double ed=e1*this->electronHolePairsPerEnergy;
       
       //The following lines are adapted from SiDigitization's Inserter class
-      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->particleLink())));
     
        SiCellId diode = Module.cellIdOfPosition(scharge.position());
        
