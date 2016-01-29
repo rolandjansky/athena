@@ -322,7 +322,11 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
     pOvrEt->set_user_type("Overlaid"); //FIXME
     pOvrEt->set_mc_channel_number(pEvent->event_type()->mc_channel_number());
     pOvrEt->set_mc_event_number(pEvent->event_type()->mc_event_number());
-    pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight());
+    const unsigned int nWeights(pEvent->event_type()->n_mc_event_weights());
+    for (unsigned int iWeight(0); iWeight<nWeights; ++iWeight)
+      {
+        pOvrEt->set_mc_event_weight(pEvent->event_type()->mc_event_weight(iWeight));
+      }
     if (m_isEventOverlayJob){
       pOvrEt->set_mc_channel_number(m_mcRunNumber);
       ATH_MSG_DEBUG ( "pOvrEt set_mc_channel_number: " << m_mcRunNumber );
