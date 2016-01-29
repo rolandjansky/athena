@@ -496,12 +496,12 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
     }
   }
 
-  if (!m_settings->noiseInSimhits()){//probably doing overlay
+  if (m_settings->isOverlay()){//doing overlay
     digit += (1<<31);//flag digit a "MC" one
     static bool first = true;
     if (first){
       first=false;
-      msg(MSG::INFO) << "ACH666: Flagging digits as MC (for overlay)" << endreq;
+      msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endreq;
     }
   }
 
