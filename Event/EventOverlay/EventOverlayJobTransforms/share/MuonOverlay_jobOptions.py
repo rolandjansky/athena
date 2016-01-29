@@ -4,7 +4,6 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
 from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon.DetFlags import DetFlags
-from MuonRecExample.MuonRecFlags import muonRecFlags,mooreFlags,muonboyFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 from AthenaCommon import CfgGetter
 
