@@ -1,5 +1,7 @@
-if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment() == 'online' or  DQMonFlags.monManEnvironment() == 'AOD' :
 
+#if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment() == 'online' or  DQMonFlags.monManEnvironment() == 'AOD':
+if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
+                                       
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
  
