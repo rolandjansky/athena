@@ -1,15 +1,18 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 702179 2015-10-21 18:59:13Z mbaugh $
+# $Id: PhysVal_jobOptions.py 718465 2016-01-19 15:37:04Z sroe $
 
 # Set up the reading of the input xAOD:
 
 #"AOD.05522648._000044.pool.root.1" K-short dataset
 #"ESD.05108991._000060.pool.root.1" original ttbar dataset 
 #"ESD.05297574._000081.pool.root.1" new ttbar dataset (this one should enable residuals)
+import getpass
+FNAME = "AOD.pool.root"
+if (getpass.getuser())=="mbaugh":
+  FNAME = "ESD.05297574._000081.pool.root.1"
+  print " Hello, Max"
 
-FNAME = "ESD.05297574._000081.pool.root.1"
-#FNAME = "AOD.pool.root"
 include( "AthenaPython/iread_file.py" )
 
 
@@ -20,7 +23,7 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/test.hdef"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/inDetPhysValMonitoringPlotDefinitions.hdef"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
 decorators = InDetPhysValDecoratorAlg()
@@ -35,14 +38,15 @@ monMan.Environment         = "altprod"
 monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
-monMan.FileKey = "Mttbar_21Oct_v2"
+monMan.FileKey = "Mttbar_9Nov_v0"
 topSequence += monMan
 
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 tool1 = InDetPhysValMonitoringTool()
+
+#tool1.useTrackSelection = True
 '''
-tool1.useTrackSelection = False
 #tool1.useTrackSelection = True
 #tool1.onlyInsideOutTracks = True
 tool1.TrackSelectionTool.CutLevel         = "Loose"
@@ -63,11 +67,11 @@ print InDetHoleSearchTool
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["Mttbar_21Oct_v2 DATAFILE='Mttbar_21Oct_v2.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["Mttbar_9Nov_v0 DATAFILE='Mttbar_9Nov_v0.root' OPT='RECREATE'"]
 
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-theApp.EvtMax = 5
+theApp.EvtMax = 100

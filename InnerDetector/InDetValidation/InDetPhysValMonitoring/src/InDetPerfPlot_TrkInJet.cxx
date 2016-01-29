@@ -54,15 +54,6 @@ InDetPerfPlot_TrkInJet::InDetPerfPlot_TrkInJet(InDetPlotBase *pParent, std::stri
   }
 }
 
-void InDetPerfPlot_TrkInJet::setEtaRange(float eta_min, float eta_max) {
-  m_etaMin = eta_min;
-  m_etaMax = eta_max;
-}
-
-void InDetPerfPlot_TrkInJet::setJetPtRange(float jetPt_min, float jetPt_max) {
-  m_jetPtMin = jetPt_min;
-  m_jetPtMax = jetPt_max;
-}
 
 void InDetPerfPlot_TrkInJet::initializePlots(){
 

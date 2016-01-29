@@ -104,6 +104,7 @@ namespace { //utility functions used in this area - stolen from InDetPhysValMoni
 
 InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir),
     m_ptPlot(this,"Tracks/SelectedGoodTracks"),
+    m_basicPlot(this, "Tracks/SelectedGoodTracks"),
     m_PtEtaPlots(this,"Tracks/SelectedGoodTracks","TrackParticle"),
     m_IPPlots(this,"Tracks/SelectedGoodTracks"),
     m_TrackRecoInfoPlots(this,"Tracks/SelectedGoodTracks"),
@@ -122,9 +123,9 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):I
     m_verticesPlots(this, "Vertices/AllPrimaryVertices"),
     m_vertexPlots(this,"Vertices/AllPrimaryVertices"),
     m_hardScatterVertexPlots(this,"Vertices/HardScatteringVertex"),
-									  
-									  //m_DuplicateTrack(this, "Tracks/SelectedGoodTracks"),	       
-    //
+									  //m_DuplicateTruth(this, "Tracks/SelectedGoodTrack"),
+    m_duplicatePlots(this,"Tracks/SelectedMatchedTracks"),
+
     m_trkInJetPlot(this,"Tracks/SelectedGoodJetTracks"),
     m_trkInJetPlot_highPt(this,"Tracks/SelectedGoodHighPtJetTracks"),
     m_trkInJetPtPlot(this,"Tracks/SelectedGoodJetTracks"),
@@ -156,7 +157,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):I
     m_trkInJetResPlotsDr1020 = new InDetPerfPlot_res(this,"Tracks/SelectedGoodJetDr1020Tracks");
     m_trkInJetResPlotsDr2030 = new InDetPerfPlot_res(this,"Tracks/SelectedGoodJetDr2030Tracks");
   }
-  m_trkInJetPlot_highPt.setJetPtRange( 450, 900 );
+  //m_trkInJetPlot_highPt.setJetPtRange( 450, 900 );
 }
 
 
@@ -164,7 +165,7 @@ void
 InDetRttPlots::fill(const xAOD::TrackParticle& particle,const xAOD::TruthParticle& truthParticle){
   //fill measurement bias, resolution, and pull plots
   m_resPlots.fill(particle, truthParticle); 
-
+  m_basicPlot.fill(truthParticle);
   //Not sure that the following hitsMatchedTracksPlots does anything...
   float barcode = truthParticle.barcode();
   if (barcode < 100000 && barcode != 0) { //Not sure why the barcode limit is 100k instead of 200k...
@@ -172,11 +173,25 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle,const xAOD::TruthParticl
   }
 }
 
+void
+InDetRttPlots::fillSingleMatch(const xAOD::TrackParticle & trackParticle){
+  m_duplicatePlots.fillSingleMatch(trackParticle);
+}
+
+void
+InDetRttPlots::fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle & trackParticle,const xAOD::TrackParticle & particle, const xAOD::TruthParticle&  tp){
+  m_duplicatePlots.fillTwoMatchDuplicate(prob1,prob2,trackParticle,particle,tp);
+}
+
+
+
+
 void 
 InDetRttPlots::fill(const xAOD::TrackParticle& particle){
   m_hitResidualPlot.fill(particle); 
   //fill pt plots
   m_ptPlot.fill(particle);
+  m_basicPlot.fill(particle);
   m_PtEtaPlots.fill(particle);
   m_IPPlots.fill(particle);
   m_TrackRecoInfoPlots.fill(particle);
@@ -356,6 +371,8 @@ InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle& particle){
   }
 
 }
+
+
 
 
 void

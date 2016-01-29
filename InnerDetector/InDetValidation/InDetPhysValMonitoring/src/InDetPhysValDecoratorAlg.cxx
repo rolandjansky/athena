@@ -17,7 +17,6 @@
 //containers
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
-//#include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h" 
 
@@ -37,16 +36,6 @@ namespace { //utility functions used here
 		}
     return result;
   }
-  /** unused
-   //get truth/track matching probability
-  float getMatchingProbability(const xAOD::TrackParticle & trackParticle){
-  	float result(std::numeric_limits<float>::quiet_NaN());
-  	if (trackParticle.isAvailable<float>("truthMatchProbability")){
-  		result = trackParticle.auxdata<float>("truthMatchProbability" );
-  	}
-  	return result;
-  }**/
-  
 }
 
 
@@ -83,14 +72,7 @@ StatusCode InDetPhysValDecoratorAlg::execute(){
   //retrieve trackParticle container
   auto ptracks = getContainer<xAOD::TrackParticleContainer>(m_trkParticleName);
   if ((!ptracks) ) return StatusCode::FAILURE;
-  //retrieve truthParticle container
-  //auto ptruth = getContainer<xAOD::TruthParticleContainer>(m_truthParticleName);
-  //if ((!ptruth) ) {
-  //  ATH_MSG_INFO("Truth container not available");
-  //}
-  ATH_MSG_VERBOSE("Both track and truth containers were retrieved");
-  //
-  //retrieve trackParticle container
+  ATH_MSG_VERBOSE("Trackparticle container was retrieved");
 	//
 	//Loop over reconstructed tracks
 	const unsigned int nTracks(ptracks->size());
@@ -111,15 +93,27 @@ StatusCode InDetPhysValDecoratorAlg::execute(){
 		 /**
 			* Decorate the particles with information 
 			**/
-			bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*associatedTruth,"");
-			if (not successfulDecoration) ATH_MSG_WARNING ("Could not retrieve some information for the truth particle.");
-			successfulDecoration = m_truthClassDecoratorTool->decorateTruth(*associatedTruth,"");
-			if (not successfulDecoration) ATH_MSG_WARNING ("The truth particle could not be assigned a type");
+			//bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*associatedTruth,"");
+			//if (not successfulDecoration) ATH_MSG_WARNING ("Could not retrieve some information for the truth particle.");
+			//successfulDecoration = m_truthClassDecoratorTool->decorateTruth(*associatedTruth,"");
+			//if (not successfulDecoration) ATH_MSG_WARNING ("The truth particle could not be assigned a type");
 		} 
 	}
-	ATH_MSG_VERBOSE(nTracks <<" tracks were retrieved; " << num_truthmatch_match <<" had associated truth.");
+	const xAOD::TruthParticleContainer* truthParticles = (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
+  if (truthParticles) {
+    for (const auto & thisTruth: *truthParticles){      
+      bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*thisTruth,"");
+      if (not successfulDecoration) ATH_MSG_WARNING ("Could not retrieve some information for the truth particle.");
+      //      successfulDecoration = m_truthDecoratorTool->decorateTruth(*thisTruth,"");
+      //      if (not successfulDecoration) ATH_MSG_WARNING ("The truth particle could not be assigned a type");
+      // std::cout<<"InDetPhysValDecoratorAlg.cxx :"<<thisTruth->auxdataConst<float>("prodR") <<std::endl;
+    }
+  }
+  
+  ATH_MSG_VERBOSE(nTracks <<" tracks were retrieved; " << num_truthmatch_match <<" had associated truth.");
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode InDetPhysValDecoratorAlg::finalize(){
 
