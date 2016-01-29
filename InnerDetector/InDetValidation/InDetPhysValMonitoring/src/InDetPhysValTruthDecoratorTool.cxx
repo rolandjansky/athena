@@ -17,28 +17,9 @@
 #include "TParticlePDG.h"
 #include "TrkParameters/TrackParameters.h" //Contains typedef to Trk::CurvilinearParameters
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-
+#include <cmath>
 
 //ref: https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkParametersBase/trunk/TrkParametersBase/CurvilinearParametersT.h
-namespace {
-  template <class T>
-  bool
-  is_nan(const T & n){
-    return (n!=n);
-  }
-  /** unused
-  double chargeOnParticle(const int pid){
-    if (pid == 1000010020) return 1.0; //deuteron
-    if (pid == 1000010030) return 1.0; //triton
-    double charge(std::numeric_limits<double>::quiet_NaN());
-    TDatabasePDG p;
-    TParticlePDG* ap = TDatabasePDG::Instance()->GetParticle (pid);
-    if (ap){
-      charge=ap->Charge()/3.0; //see :http://root.cern.ch/root/html/TParticlePDG.html#TParticlePDG:fCharge
-    }
-    return charge;
-  } **/
-}
 
 
 
@@ -78,7 +59,7 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & partic
     const int pid(particle.pdgId());
     double charge = particle.charge();
 
-    if (is_nan(charge)){
+    if (std::isnan(charge)){
       ATH_MSG_DEBUG("charge not found on particle with pid "<<pid);
       return false;
     } 
@@ -96,7 +77,11 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & partic
       ATH_MSG_DEBUG("A production vertex pointer was retrieved, but it is NULL");
       return false;
     }
-    const Amg::Vector3D position(ptruthVertex->x(), ptruthVertex->y(), ptruthVertex->z());
+    const auto xPos=ptruthVertex->x();
+    const auto yPos=ptruthVertex->y();
+    const auto z_truth=ptruthVertex->z();
+    const Amg::Vector3D position(xPos, yPos, z_truth);
+    const float prodR_truth = std::sqrt(xPos*xPos+ yPos*yPos);
     //delete ptruthVertex;ptruthVertex=0;
     const Trk::CurvilinearParameters cParameters(position, momentum, charge);
     
@@ -111,11 +96,14 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle & partic
       double qOverP_truth = tP->parameters()[Trk::qOverP]; //P or Pt ??
       double z0st_truth = z0_truth * std::sin(theta_truth);
       particle.auxdecor<float>(prefix + "d0") = d0_truth;
+      //ATH_MSG_INFO("Truth d0 decorated: "<<d0_truth);
       particle.auxdecor<float>(prefix + "z0") = z0_truth;
       particle.auxdecor<float>(prefix + "phi") = phi_truth;
       particle.auxdecor<float>(prefix + "theta") = theta_truth;
       particle.auxdecor<float>(prefix + "z0st") = z0st_truth;
       particle.auxdecor<float>(prefix + "qOverP") = qOverP_truth;
+      particle.auxdecor<float>(prefix + "prodR") = prodR_truth;
+      particle.auxdecor<float>(prefix + "prodZ") = z_truth;
       delete tP;tP=0;
       return true;
     } else {

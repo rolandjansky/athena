@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETPHYSVALMONITORING_InDetTestPlot_PT
+#ifndef INDETPHYSVALMONITORING_InDetTestPlot
 #define INDETPHYSVALMONITORING_InDetTestPlot
 /**
  * @file InDetTestPlot.h
@@ -17,7 +17,7 @@
 #include "InDetPlotBase.h"
 #include "xAODTracking/TrackParticle.h"
 
-///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
+///class holding plots to test the histogram definition service and subsequent filling
 class InDetTestPlot:public InDetPlotBase {
 public:
 	InDetTestPlot(InDetPlotBase * pParent, const std::string & dirName);
@@ -25,6 +25,8 @@ public:
 	
 private:
 	TH1* m_test;
+	TH1* m_test1;
+	TH1* m_test2;
 	TProfile * m_testProfile;
 	//plot base has nop default implementation of this; we use it to book the histos
 	void initializePlots();

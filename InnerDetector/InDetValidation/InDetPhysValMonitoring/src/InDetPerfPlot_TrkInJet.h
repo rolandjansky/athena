@@ -25,10 +25,6 @@ class InDetPerfPlot_TrkInJet: public InDetPlotBase {
     void clearCounters();
     void clearEffCounters();
 
-    ///@name Hit content of xAOD::TrackParticle as function of eta
-    ///@{
-    void setEtaRange  (float eta_min,   float eta_max  );
-    void setJetPtRange(float jetPt_min, float jetPt_max);
 
     TH1* m_jetPt;
     TH1* m_recPt;
