@@ -661,9 +661,12 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
     theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
 
+    from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    if "FTK" in self.chainPart['L2IDAlg']:
-      [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "FTK").getSequence()
+    if "FTKRefit" in self.chainPart['L2IDAlg']:
+      [trkfast, trkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["refit","PT"]).getSequence()
+    elif "FTK" in self.chainPart['L2IDAlg']:
+      [trkfast, trkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["PT"]).getSequence()
     else:
       [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
@@ -1088,21 +1091,17 @@ class L2EFChain_mu(L2EFChainDef):
       log.error("The list of allMuonThreshold is empty for a noL1 chain! It should never happen")
       return
     
-    #If running TMSEF first drop first threshold from config
-    if "0eta010" not in self.chainPart['etaRange'] and "0eta500" not in self.chainPart['etaRange']:
-      allMuThrs = self.allMuThrs[1:]
-      hypocut = self.allMuThrs[0]
-      hypocutEF = str(len(allMuThrs))+"_"+allMuThrs[0]
-    else:
-      allMuThrs = self.allMuThrs
-      hypocut = ""
-      hypocutEF = str(len(allMuThrs))+"_"+allMuThrs[0]
+    threshold = str(self.chainPart['threshold'])+'GeV'
+    multiplicity = str(self.mult)
+    hypocut = 'opposite'
+    hypocutEF = multiplicity+"_"+threshold
+    seed = self.allMuThrs[0]
 
     from AthenaCommon import CfgGetter
     theCTAlg = CfgGetter.getAlgorithm("TrigMuSuperEF_CTonly")
 
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonCaloTagHypoConfig
-    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', allMuThrs[0],len(allMuThrs))
+    theTrigMuonCT_FS_Hypo = TrigMuonCaloTagHypoConfig('MuonCT', threshold, int(multiplicity) )
 
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo, TrigCaloCellMaker_super
     
@@ -1111,7 +1110,7 @@ class L2EFChain_mu(L2EFChainDef):
     
     ########### Sequence List ##############
     if "0eta010" in self.chainPart['etaRange'] or "0eta500" in self.chainPart["etaRange"]:
-    
+      seed = '0eta0'
       from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
       from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFFSRoiMakerUnseededConfig
       if "0eta010" in self.chainPart['etaRange']:
@@ -1192,12 +1191,12 @@ class L2EFChain_mu(L2EFChainDef):
     ########### TE renaming ##########
 
     self.TErenamingDict = {
-      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_','TMSEFHypo_' + hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_','TMSEFHypo_'+hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', 'TMSEFHypo_'+hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_','TMSEFHypo_'+hypocut + '_CTHypo_' +hypocutEF), 
-      'EF_CT_fex': mergeRemovingOverlap('EF_CT_fex_', 'TMSEFHypo_'+ hypocut + '_CTHypo_' +hypocutEF),
-      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hypo_', 'TMSEFHypo_' + hypocut + '_CTHypo_' +hypocutEF),
+      'EF_CT_seed': mergeRemovingOverlap('EF_CT_seed_',seed),
+      'EF_CT_roi': mergeRemovingOverlap('EF_CT_roi_',seed+"_"+hypocut),
+      'EF_CT_calo': mergeRemovingOverlap('EF_CT_calo_', seed+"_"+hypocut),
+      'EF_CT_tracks': mergeRemovingOverlap('EF_CT_tracks_',seed+"_"+hypocut),
+      'EF_CT_fex': mergeRemovingOverlap('EF_CT_fex_', seed+"_"+hypocut),
+      'EF_CT_hypo': mergeRemovingOverlap('EF_CT_hypo_',seed+"_"+ hypocut+'_CTHypo_'+hypocutEF),
       }
   #################################################################################################
   #################################################################################################
@@ -1238,15 +1237,18 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFRoiAggregatorConfig
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerMultiHypoConfig, TrigMuonEFCombinerHypoConfig
 
- 
+    name = 'Muon'
+    if "noComb" in self.chainPart['addInfo']:
+      name = 'Muon_noComb'
+    
     if len(self.allMuThrs) == 1:
-      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerHypoConfig('Muon', self.allMuThrs[0])
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerHypoConfig(name, self.allMuThrs[0])
       theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorHypoConfig('Muon', self.allMuThrs[0])      
     elif len(self.allMuThrs) == 2:
-      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1]) 
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0], self.allMuThrs[1]) 
       theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1])                                                      
     elif len(self.allMuThrs) == 3:
-      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
       theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])                                    
     else:
       log.error("No TrigMuonEFCombinerHypo config yet for events with more than 3 muons")
@@ -1328,41 +1330,31 @@ class L2EFChain_mu(L2EFChainDef):
         self.EFsignatureList += [ [['EF_CB_NS_single']] ]
         self.EFsignatureList += [ [['EF_CB_NS']] ]
 
-    ########### TE renaming ##########
-    if self.chainPart['L1item']:
-      suffix = "_"+self.chainPart['L1item']
-      reccalibinfo = ''
-      if "l2msonly" in self.chainPart['reccalibInfo']:
-        reccalibinfo = '_l2ms'
-
+    nscanseed = self.chainPart['L1item']
+    l1seed = self.chainL1Item
 
     if "nscan03" in self.chainPart['FSinfo']:
       self.TErenamingDict = {
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo),
+        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+'_'+nscanseed+'_'+l1seed),
       }
     if "nscan05" in self.chainPart['FSinfo']:
       if "noComb" in self.chainPart['addInfo']:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocutEF+cone+suffix),
-          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocutEF+cone+suffix),
-          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocutEF+cone+suffix), 
-          'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+'_noComb_'+nscanseed+'_'+l1seed),
           }
       else:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_NS': mergeRemovingOverlap('EF_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+'_'+nscanseed+'_'+l1seed),
           }
       
 
