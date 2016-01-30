@@ -2219,6 +2219,12 @@ def setupMenu():
         ['e17_lhmedium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25',  'L1_EM15TAU12I-J25',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium_iloose","tau25_medium1_tracktwo"]]],
         ['e17_medium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25',  'L1_EM15TAU12I-J25',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_medium_iloose","tau25_medium1_tracktwo"]]],
 
+        ['e17_medium_ivarloose_tau25_medium1_tracktwo',   'L1_EM15HI_2TAU12IM_J25_3J12',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["e17_medium_ivarloose","tau25_medium1_tracktwo"]]],
+        ['e17_lhmedium_ivarloose_tau25_medium1_tracktwo',  'L1_EM15HI_2TAU12IM_J25_3J12',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["e17_lhmedium_ivarloose","tau25_medium1_tracktwo"]]],
+
+        ['e17_lhmedium_ivarloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25',  'L1_EM15TAU12I-J25',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_lhmedium_ivarloose","tau25_medium1_tracktwo"]]],
+        ['e17_medium_ivarloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25',  'L1_EM15TAU12I-J25',['L1_EM15HI','L1_TAU12IM'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e17_medium_ivarloose","tau25_medium1_tracktwo"]]],
+
 
         # High-threshold
         ['e17_medium_tau80_medium1_tracktwo',   'L1_EM15HI_TAU40_2TAU15',['L1_EM15HI','L1_TAU40'], [PhysicsStream], ['RATE:ElectronTau', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["e17_medium","tau80_medium1_tracktwo"]]],
@@ -2248,7 +2254,8 @@ def setupMenu():
         ['mu14_iloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', 'L1_DR-MU10TAU12I_TAU12I-J25',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau'], -1,['serial',-1,["mu14_iloose","tau25_medium1_tracktwo"]]],        
         ['mu14_iloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I', 'L1_DR-MU10TAU12I',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau'], -1,['serial',-1,["mu14_iloose","tau25_medium1_tracktwo"]]],        
         ['mu14_iloose_tau25_medium1_tracktwo_L1MU10_TAU12I-J25', 'L1_MU10_TAU12I-J25',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau'], -1,['serial',-1,["mu14_iloose","tau25_medium1_tracktwo"]]],        
-        
+
+
         
         # Tau + MET
         ['tau35_medium1_tracktwo_xe70_L1XE45',  'L1_TAU20IM_2J20_XE45',['L1_TAU20IM','L1_XE45'], [PhysicsStream], ['RATE:TauMET', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","xe70_L1XE45"]]],  
@@ -3222,7 +3229,6 @@ def setupMenu():
         ['noalg_l1calo_L1XE45',   'L1_XE45',    [], ['L1Calo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_l1calo_L1XE55',   'L1_XE55',    [], ['L1Calo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_l1calo_L1XE60',   'L1_XE60',    [], ['L1Calo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
-        #['noalg_l1calo_L1XE65',   'L1_XE65',    [], ['L1Calo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
         ['noalg_l1calo_L1XE70',   'L1_XE70',    [], ['L1Calo'],    ["RATE:SeededStreamers", "BW:Other"], -1],
                                                                                                                                                     
         

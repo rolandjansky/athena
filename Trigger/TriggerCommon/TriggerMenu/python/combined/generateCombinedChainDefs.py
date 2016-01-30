@@ -126,10 +126,29 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     
     ##Get only the last MET TE
     inputTEsEF = [] 
-    for cD in listOfChainDefs: 
-        inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+
+    # First TE: MET
+    for cD in listOfChainDefs:
+        if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_xe' in x]:
+            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+            break
+
+    if inputTEsEF == []:
+        for cD in listOfChainDefs:
+            if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_xs' in x]:
+                inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+                break
+
+    # Second TE: jets
+    for cD in listOfChainDefs:
+        if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF__' in x]:
+            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+            break
+
+    #for cD in listOfChainDefs: 
+    #    inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
  		         
-    inputTEsEF.reverse() # need first met then jet input TE           
+    #inputTEsEF.reverse() # need first met then jet input TE           
 
     logCombined.debug("Input TEs to DPhi algorithm: %s" % inputTEsEF)
 
@@ -172,10 +191,29 @@ def _addTransverseMass(theChainDef,chainDicts,listOfChainDefs):
     
     ##Get only the last MET TE
     inputTEsEF = [] 
-    for cD in listOfChainDefs: 
-        inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+
+    # First TE: MET
+    for cD in listOfChainDefs:
+        if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_xe' in x]:
+            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+            break
+
+    if inputTEsEF == []:
+        for cD in listOfChainDefs:
+            if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_xs' in x]:
+                inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+                break
+
+    # Second TE: electron
+    for cD in listOfChainDefs:
+        if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if 'EF_e' in x]:
+            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+            break
+
+    #for cD in listOfChainDefs: 
+    #    inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
                          
-    inputTEsEF.reverse() # need first met then jet input TE           
+    #inputTEsEF.reverse() # need first met then jet input TE           
 
     logCombined.debug("Input TEs to Transverse Mass algorithm: %s" % inputTEsEF)
 

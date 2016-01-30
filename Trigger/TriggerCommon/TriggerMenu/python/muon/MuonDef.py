@@ -661,6 +661,7 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
     theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
 
+    from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     if "FTKRefit" in self.chainPart['L2IDAlg']:
       [trkfast, trkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["refit","PT"]).getSequence()
