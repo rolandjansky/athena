@@ -79,12 +79,13 @@ AllowedTopos_jet = ['muvtx',
                     'invm700',
                     'invm800',
                     'invm1000']
+AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
 
 #NOTE: removed jets from list, special case for VBF triggers
-AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_bphys + AllowedTopos_xe + AllowedTopos_comb
+AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_bphys + AllowedTopos_xe + AllowedTopos_Tau + AllowedTopos_comb
 
 
 #==========================================================
@@ -179,7 +180,7 @@ MuonChainParts = {
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
     'hypoInfo'       : [],
     'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
-    'L2IDAlg'        : ['L2Star','IdScan','FTK'],
+    'L2IDAlg'        : ['L2Star','IdScan','FTK','FTKRefit'],
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
@@ -244,6 +245,7 @@ TauChainParts = {
     'recoAlg'      : '',
     'calib'        : '',
     'addInfo'      : ['IdTest'],
+    'topo'         : AllowedTopos_Tau,
 }
 TauChainParts_Default = {
     'signature'    : ['Tau'],
@@ -259,6 +261,7 @@ TauChainParts_Default = {
     'recoAlg'      : '',
     'calib'        : '',
     'addInfo'      : '',
+    'topo'         : [],
 }
 
 #==========================================================

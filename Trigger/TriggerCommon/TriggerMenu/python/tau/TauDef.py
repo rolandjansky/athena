@@ -117,7 +117,7 @@ class L2EFChain_tau(L2EFChainDef):
         # Run topoclustering
         self.EFsequenceList += [[[ self.currentItem ],
                                  [cellmaker, clustermaker_topo, caloroiupdater],
-                                 self.continueChain('EF', 'clf0')]]
+                                 self.continueChain('L2', 'clf0')]]
         
     #create the TrigTauRec Calorimeter only sequence    
     def addTrigTauRecCaloOnlySequence(self,threshold,selection,preselection):
@@ -128,7 +128,7 @@ class L2EFChain_tau(L2EFChainDef):
 
         self.EFsequenceList += [[[ self.currentItem ],
                                  [caloRec],
-                                 self.continueChain('EF', 'calorec')]]
+                                 self.continueChain('L2', 'calorec')]]
         
     #create the Calorimeter hypo (selection) sequence    
     def addCaloHypoSequence(self,threshold,selection,preselection):    
@@ -136,7 +136,7 @@ class L2EFChain_tau(L2EFChainDef):
         # Run the calo-based pre-selection
         self.EFsequenceList += [[[ self.currentItem ],
                                  [theHLTPre],
-                                 self.continueChain('EF', 'calopre')]]
+                                 self.continueChain('L2', 'calopre')]]
         
     
     
@@ -160,7 +160,7 @@ class L2EFChain_tau(L2EFChainDef):
         # Run fast-tracking
         self.EFsequenceList += [[[ self.currentItem ],
                                  trkfast,
-                                 self.continueChain('EF', 'trfast')]]
+                                 self.continueChain('L2', 'trfast')]]
     
     def addTrackingSelectionSequence(self,threshold,selection,preselection,idperf,trkprec):
         # Run-II tracking-based approach
@@ -170,7 +170,7 @@ class L2EFChain_tau(L2EFChainDef):
         if not idperf:
             self.EFsequenceList += [[[ self.currentItem ],
                                      [theHLTTrackPre],
-                                     self.continueChain('EF', 'trackpre')]]
+                                     self.continueChain('L2', 'trackpre')]]
             
     #create the vertexing selection sequence        
     def addVertexSequence(self,threshold,selection,preselection,idperf):   
@@ -192,7 +192,7 @@ class L2EFChain_tau(L2EFChainDef):
         
         self.EFsequenceList += [[[ self.currentItem ],
                                          vertexAlgorithms,
-                                         self.continueChain('EF', 'vertex')]]
+                                         self.continueChain('L2', 'vertex')]]
         
     #create the TrigTauRec preselection sequence       
     def addTrigTauRecTauPreselectionSequence(self,threshold,selection,preselection,idperf):              
@@ -202,7 +202,7 @@ class L2EFChain_tau(L2EFChainDef):
 
         self.EFsequenceList += [[[ self.currentItem ],
                                  [recPreselection],
-                                 self.continueChain('EF', 'storepre')]]
+                                 self.continueChain('L2', 'storepre')]]
     
     #create the TrigTauRec FTK preselection sequence    
     def addTrigTauRecTauFTKSequence(self,threshold,selection,preselection,idperf):            
@@ -212,7 +212,7 @@ class L2EFChain_tau(L2EFChainDef):
 
         self.EFsequenceList += [[[ self.currentItem ],
                                  [recPreselection],
-                                 self.continueChain('EF', 'storepre')]]
+                                 self.continueChain('L2', 'storepre')]]
         
     #create the two step tracking sequences
     def addTwoStepTrackingSequence(self,threshold,selection,preselection,idperf,trkprec): 
@@ -241,7 +241,7 @@ class L2EFChain_tau(L2EFChainDef):
         # Run fast-tracking
         self.EFsequenceList += [[[ self.currentItem ],
                                  ftracks,
-                                 self.continueChain('EF', 'trfasttwo')]]
+                                 self.continueChain('L2', 'trfasttwo')]]
         
     def addTwoStepTrackingSelectionSequence(self,threshold,selection,preselection,idperf): 
         theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
@@ -251,7 +251,7 @@ class L2EFChain_tau(L2EFChainDef):
         if not idperf:
             self.EFsequenceList += [[[ self.currentItem ],
                                      [theHLTTrackPre],
-                                     self.continueChain('EF', 'trackpre')]]
+                                     self.continueChain('L2', 'trackpre')]]
 
 
 
