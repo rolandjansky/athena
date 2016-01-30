@@ -77,19 +77,19 @@ namespace LVL1
                               DataVector<ModuleEnergy>* modules, int slice = -1) ;
       /** Returns a vector of LVL1::CrateEnergy objects */
       virtual void crateSums(const DataVector<ModuleEnergy>* modules,
-                             DataVector<CrateEnergy>* crates, float etaMax = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
       virtual void crateSums(const DataVector<EnergyCMXData>* modules,
-                             DataVector<CrateEnergy>* crates, float etaMax = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
       /** Directly obtain LVL1::CrateEnergy objects */
       virtual void crateSums(const xAOD::JetElementContainer* jetelements,
-                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMax = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
       virtual void crateSums(const std::map<int, xAOD::JetElement*>* jemap,
-                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMax = 5., bool restricted = false) ;
+                             DataVector<CrateEnergy>* crates, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
       /** Returns a LVL1::SystemEnergy object */
       virtual SystemEnergy systemSums(const DataVector<CrateEnergy>* crates) ;
       /** Directly obtain a LVL1::SystemEnergy object */
-      virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMax = 5., bool restricted = false) ;
-      virtual SystemEnergy systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice = -1, float etaMax = 5., bool restricted = false) ;
+      virtual SystemEnergy systemSums(const xAOD::JetElementContainer* jetelements, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
+      virtual SystemEnergy systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice = -1, float etaMaxXE = 5., float etaMaxTE = 5., bool restricted = false) ;
             
     private:
 
