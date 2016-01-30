@@ -170,12 +170,12 @@ void L1EtTools::moduleSums(const std::map<int, xAOD::JetElement*>* jemap,
 
 //=====================Form JE Crate ET sums ====================
 
-void L1EtTools::crateSums(const DataVector<ModuleEnergy>* modules, DataVector<CrateEnergy>* crates, float etaMax, bool restricted) {
+void L1EtTools::crateSums(const DataVector<ModuleEnergy>* modules, DataVector<CrateEnergy>* crates, float etaMaxXE, float etaMaxTE, bool restricted) {
 
   crates->clear();
   // Loop over crates and create set of CrateEnergy objects
   for (int crate = 0; crate < 2; ++crate) {
-    crates->push_back( new CrateEnergy(crate, modules, etaMax, restricted) );
+    crates->push_back( new CrateEnergy(crate, modules, etaMaxXE, etaMaxTE, restricted) );
   }
   
   return;
@@ -183,12 +183,12 @@ void L1EtTools::crateSums(const DataVector<ModuleEnergy>* modules, DataVector<Cr
 
 //=====================Form JE Crate ET sums ====================
 
-void L1EtTools::crateSums(const DataVector<EnergyCMXData>* modules, DataVector<CrateEnergy>* crates, float etaMax, bool restricted) {
+void L1EtTools::crateSums(const DataVector<EnergyCMXData>* modules, DataVector<CrateEnergy>* crates, float etaMaxXE, float etaMaxTE, bool restricted) {
 
   crates->clear();
   // Loop over crates and create set of CrateEnergy objects
   for (int crate = 0; crate < 2; ++crate) {
-    crates->push_back( new CrateEnergy(crate, modules, etaMax, restricted) );
+    crates->push_back( new CrateEnergy(crate, modules, etaMaxXE, etaMaxTE, restricted) );
   }
   
   return;
@@ -207,7 +207,7 @@ SystemEnergy L1EtTools::systemSums(const DataVector<CrateEnergy>* crates) {
 //=====================Return JE Crate ET sums directly =============
 
 void L1EtTools::crateSums(const xAOD::JetElementContainer* jetelements,
-                          DataVector<CrateEnergy>* crates, int slice, float etamax, bool restricted) {
+                          DataVector<CrateEnergy>* crates, int slice, float etaMaxXE, float etaMaxTE, bool restricted) {
 
   crates->clear();
   
@@ -218,7 +218,7 @@ void L1EtTools::crateSums(const xAOD::JetElementContainer* jetelements,
   
   // Loop over crates and create set of CrateEnergy objects
    for (int crate = 0; crate < 2; ++crate) {
-     crates->push_back( new CrateEnergy(crate, modules, etamax, restricted) );
+     crates->push_back( new CrateEnergy(crate, modules, etaMaxXE, etaMaxTE, restricted) );
    }
 
   delete modules;
@@ -229,7 +229,7 @@ void L1EtTools::crateSums(const xAOD::JetElementContainer* jetelements,
 //=====================Return JE Crate ET sums directly =============
 
 void L1EtTools::crateSums(const std::map<int, xAOD::JetElement*>* jemap,
-                          DataVector<CrateEnergy>* crates, int slice, float etamax, bool restricted) {
+                          DataVector<CrateEnergy>* crates, int slice, float etaMaxXE, float etaMaxTE, bool restricted) {
 
   crates->clear();
   
@@ -240,7 +240,7 @@ void L1EtTools::crateSums(const std::map<int, xAOD::JetElement*>* jemap,
   
   // Loop over crates and create set of CrateEnergy objects
    for (int crate = 0; crate < 2; ++crate) {
-     crates->push_back( new CrateEnergy(crate, modules, etamax, restricted) );
+     crates->push_back( new CrateEnergy(crate, modules, etaMaxXE, etaMaxTE, restricted) );
    }
 
   delete modules;
@@ -250,12 +250,12 @@ void L1EtTools::crateSums(const std::map<int, xAOD::JetElement*>* jemap,
 
 //=====================Return final System ET sums directly =============
 
-SystemEnergy L1EtTools::systemSums(const xAOD::JetElementContainer* jetelements, int slice, float etamax, bool restricted) {
+SystemEnergy L1EtTools::systemSums(const xAOD::JetElementContainer* jetelements, int slice, float etaMaxXE, float etaMaxTE, bool restricted) {
 
   // First need to form modules and crates
   DataVector<CrateEnergy>* crates = new DataVector<CrateEnergy>;
 
-  crateSums(jetelements, crates, slice, etamax, restricted);
+  crateSums(jetelements, crates, slice, etaMaxXE, etaMaxTE, restricted);
 
   // Then do the final summing, thresholding etc
   SystemEnergy result(crates, m_configSvc);
@@ -266,12 +266,12 @@ SystemEnergy L1EtTools::systemSums(const xAOD::JetElementContainer* jetelements,
 
 //=====================Return final System ET sums directly =============
 
-SystemEnergy L1EtTools::systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice, float etamax, bool restricted) {
+SystemEnergy L1EtTools::systemSums(const std::map<int, xAOD::JetElement*>* jemap, int slice, float etaMaxXE, float etaMaxTE, bool restricted) {
 
   // First need to form modules and crates
   DataVector<CrateEnergy>* crates = new DataVector<CrateEnergy>;
 
-  crateSums(jemap, crates, slice, etamax, restricted);
+  crateSums(jemap, crates, slice, etaMaxXE, etaMaxTE, restricted);
 
   // Then do the final summing, thresholding etc
   SystemEnergy result(crates, m_configSvc);
