@@ -24,10 +24,10 @@ StatusCode GenFilter::initialize() {
 
 
 StatusCode GenFilter::execute() {
-  if (events()->empty()) {
+  if (events_const()->empty()) {
     ATH_MSG_ERROR("No events found in McEventCollection");
     return StatusCode::FAILURE;
-  } else if (events()->size() > 1) {
+  } else if (events_const()->size() > 1) {
     /// @todo Probably the filter should only look at the first event... right?
     ATH_MSG_WARNING("More than one event in current McEventCollection -- which is valid?");
   }
