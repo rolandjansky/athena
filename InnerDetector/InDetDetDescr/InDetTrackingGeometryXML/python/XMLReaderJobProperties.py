@@ -1,0 +1,123 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+
+# -------------------------------------------------------------------------------------
+#  XMLReader jobproperties 
+# -------------------------------------------------------------------------------------
+
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+
+class IdDictFileName(JobProperty):
+    """ IdDict.xml """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'UNDEFINED'
+class PixelBarrelLayout(JobProperty):
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'UNDEFINED'
+class PixelEndcapLayout(JobProperty):
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'UNDEFINED'
+class SCTBarrelLayout(JobProperty):
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'UNDEFINED'
+class SCTEndcapLayout(JobProperty):
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'UNDEFINED'
+class doPix(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+class doSCT(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True   
+class splitBarrelLayers(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+class isRingLayout(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+class InnerLayerIndices(JobProperty):
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = []
+class Initialized(JobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+
+# add to jobproperties
+class XMLReaderFlags_JobProperties(JobPropertyContainer):
+    """ XMLReader properties """
+    def __init__(self, context=""):
+        JobPropertyContainer.__init__(self,context)
+        return
+
+    def setValuesFromSetup(self,**kwargs):
+
+        print "XMLReaderFlags setup : "
+        for key in kwargs:
+            print "   %s: %s" % (key, kwargs[key])    
+
+        self.PixelBarrelLayout = kwargs["PixelBarrelLayout"]
+        if kwargs["PixelEndcapLayout"]!=None: 
+            self.PixelEndcapLayout = kwargs["PixelEndcapLayout"]
+        self.SCTBarrelLayout = kwargs["SCTBarrelLayout"]
+        self.SCTEndcapLayout = kwargs["SCTEndcapLayout"]
+        self.doPix = kwargs["doPix"]
+        self.doSCT = kwargs["doSCT"]
+
+        self.splitBarrelLayers = False
+        self.isRingLayout = False
+        self.InnerLayerIndices = []
+
+        if "ECRing" in self.PixelEndcapLayout():
+            self.isRingLayout  = True
+            
+        if "Alpine4" in self.PixelBarrelLayout():
+            self.isRingLayout  = True
+            self.splitBarrelLayers = True          
+            if "Alpine4" in self.PixelEndcapLayout():
+                self.InnerLayerIndices = [0]
+
+        if "ExtBrl" in self.PixelBarrelLayout():
+            self.splitBarrelLayers = True          
+            self.InnerLayerIndices = [0,1]
+
+        if "InclBrl" in self.PixelBarrelLayout():
+            self.splitBarrelLayers = True
+            self.InnerLayerIndices = [0,1]
+
+        self.Initialized = True
+
+    def dump(self):
+        print "Pixel = ", self.PixelBarrelLayout()," ", self.PixelEndcapLayout()
+        print "SCT   = ", self.SCTBarrelLayout()," ", self.SCTEndcapLayout()
+        print "ID    = ", self.doPix," ",self.doSCT
+        print "splitBarrel  : ", self.splitBarrelLayers()
+        print "isRingLayout : ", self.isRingLayout()
+        print "InnerLayer   : ", self.InnerLayerIndices()
+        
+jobproperties.add_Container(XMLReaderFlags_JobProperties)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(IdDictFileName)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(PixelBarrelLayout)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(PixelEndcapLayout)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(SCTBarrelLayout)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(SCTEndcapLayout)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doPix)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(doSCT)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(splitBarrelLayers)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(isRingLayout)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(InnerLayerIndices)
+jobproperties.XMLReaderFlags_JobProperties.add_JobProperty(Initialized)
+
+XMLReaderFlags = jobproperties.XMLReaderFlags_JobProperties

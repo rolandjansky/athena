@@ -1,0 +1,60 @@
+2016-01-31 Noemi Calace <noemi.calace@cern.ch>
+	* Changing Barrel description for IExtBrl4Ref layout
+        * tagged as InDetTrackingGeometryXML-00-00-24
+
+2016-01-29 Noemi Calace <noemi.calace@cern.ch>
+	* Adding phi offset for layers
+        * tagged as InDetTrackingGeometryXML-00-00-23
+
+2016-01-27 Noemi Calace <noemi.calace@cern.ch>
+        * Adding creation of the dictionary folder if it doesn't exist
+        * tagged as InDetTrackingGeometryXML-00-00-22
+
+2016-01-26 Noemi Calace <noemi.calace@cern.ch>
+        * Fixing memory leak: https://its.cern.ch/jira/browse/ATLPHYSVAL-386
+        * Thanks to Robert Harrington and Shaun Roe
+        * tagged as InDetTrackingGeometryXML-00-00-21
+
+2016-01-24 Noemi Calace <noemi.calace@cern.ch>
+	* Added changes to fix binUtiliy errors for Barrel and Endcaps
+	* tagged as InDetTrackingGeometryXML-00-00-20
+
+2016-01-24 Noemi Calace <noemi.calace@cern.ch>
+	* Adding FourLayersNoStub_23-25-dev0 layout to match Strip fro GeoModel 
+	* with SCT_Version = SCT_SLHC_05 and SLHC_Version = 23-25-dev0
+	* tagged as InDetTrackingGeometryXML-00-00-19
+
+2016-01-11 Noemi Calace <noemi.calace@cern.ch>
+	* Updated z displacement in pixel rings description: moving to 6mm
+	* tagged as InDetTrackingGeometryXML-00-00-18
+
+2015-12-16 Noemi Calace <noemi.calace@cern.ch>
+	* Fixed a bug in the bin utility segmentation for the barrel	
+	* tagged as InDetTrackingGeometryXML-00-00-17
+
+2015-12-15 Noemi Calace <noemi.calace@cern.ch>
+	* Many changes in the builder to add DiscSurface representation for trapezoidal modules
+        * Updating layout description: changing to RD53 modules
+        * Updating layout description: moving to 0.5 mm gap for rings
+	* tagged as InDetTrackingGeometryXML-00-00-16
+
+2015-12-10 Sabine Elles
+	* Update pixl module names IBL/RD53 and xml description files
+	* tagged as InDetTrackingGeometryXML-00-00-15
+
+2015-11-30 Sabine Elles
+	* Adding XMLReader jobProperties
+	* Adapt ConfiguredSLHC script to new tracking geometry interface
+	
+2015-11-14 Noemi Calace <noemi.calace@cern.ch>
+	* Adding module tilt on the top of the stave tilt (J. Leveque)
+	* Adding InclBrl layouts
+	* tagged as InDetTrackingGeometryXML-00-00-12
+	
+
+2015-11-03 Noemi Calace <noemi.calace@cern.ch>
+        * Adding surfaces to layer association
+	* tagged as InDetTrackingGeometryXML-00-00-11
+
+2015-06-16 Remi Lafaye < Remi.Lafaye -at- cern.ch >
+        * Initial import
