@@ -9,7 +9,7 @@
 
   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
 
-    <rttContactPerson>Rocco Mandrysch (rocco.mandrysch@cern.ch)</rttContactPerson>
+    <rttContactPerson>Antonio Limosani (antonio.limosani@cern.ch)</rttContactPerson>
     <refRelease>15.5.0</refRelease>
 
     <jobList>
@@ -22,78 +22,59 @@
 
 
 
-
-      <jobTransform userJobId="data12_8TeV_long_tcmalloc">
-	<doc>Reco_trf runs on 8TeV collision data</doc>
-	<jobTransformJobName>RecoTrf_8TeV_data_long_tcmalloc</jobTransformJobName>
+      <jobTransform userJobId="rtt_generation_mc15_pythia8evtgen_a14nnpdf23lo_jetjet_jz6w_13tev">
+	<doc>Event generation (MC15 production setup)</doc>
+	<jobTransformJobName>rtt_generation_mc15_pythia8evtgen_a14nnpdf23lo_jetjet_jz6w_13tev</jobTransformJobName>
 	<jobTransformCmd>
-Reco_trf.py inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 maxEvents=500 autoConfiguration=everything outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root outputTAGFile=myTAG.root outputHISTFile=myHist.root outputNTUP_SCTFile=myNTUP_SCTFile.root outputDESD_SGLELFile=myDESD_SGLELFile.pool.root outputDESD_ZMUMUFile=DESD_ZMUMUFile.pool.root outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root outputDESD_SGLMUFile=myDESD_SGLMUFile.pool.root outputDESDM_RPVLLFile=myDESDM_RPVLL.pool.root outputDAOD_ZMUMUFile=myDAOD_ZMUMU.pool.root outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_PHOJETFile=myDESD_PHOJET.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDAOD_ZEEFile=myDAOD_ZEE.pool.root outputDESD_ZEEFile=myDESD_ZEE.pool.root outputDRAW_ZEEFile=myDRAW_ZEEFile.pool.root outputDRAW_ZMUMUFile=myDRAW_ZMUMU.pool.root preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True
+	  export TRF_ECHO=1;
+	  Generate_tf.py --jobConfig=MC15JobOptions/MC15.361026.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ6W.py --ecmEnergy=13000 --evgenJobOpts=MC15JobOpts-00-00-13_v1.tar.gz --firstEvent=1090001 --outputEVNTFile=myEVNT.pool.root --maxEvents 250 --randomSeed 1091 --runNumber=361026 --skipEvents=1090000 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True' | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Generate_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myEVNT.pool.root &gt; myEVNT.pool.root.checkfile.txt ;
+	  export userJobId="rtt_generation_mc15_pythia8evtgen_a14nnpdf23lo_jetjet_jz6w_13tev"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  perl -pi -e "s/leakperevt_evt11to50/leakperevt_evt11to100/g;" __log.txt
+	  perl -pi -e "s/leakperevt_evt51plus/leakperevt_evt101plus/g;" __log.txt
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
 	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
       </jobTransform>
 
 
-
-      <jobTransform userJobId="data12_8TeV_long_stdcmalloc">
-	<doc>Reco_trf runs on 8TeV collision data</doc>
-	<jobTransformJobName>RecoTrf_8TeV_data_long_stdcmalloc</jobTransformJobName>
+      <jobTransform userJobId="rtt_simulation_mc_ttbarmuplusjets_7tev">
+	<doc>Full Geant4 simulation (MC12 production setup)</doc>
+	<jobTransformJobName>rtt_simulation_mc_ttbarmuplusjets_7tev</jobTransformJobName>
 	<jobTransformCmd>
-Reco_trf.py inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 maxEvents=500 autoConfiguration=everything outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root outputTAGFile=myTAG.root outputHISTFile=myHist.root outputNTUP_SCTFile=myNTUP_SCTFile.root outputDESD_SGLELFile=myDESD_SGLELFile.pool.root outputDESD_ZMUMUFile=DESD_ZMUMUFile.pool.root outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root outputDESD_SGLMUFile=myDESD_SGLMUFile.pool.root outputDESDM_RPVLLFile=myDESDM_RPVLL.pool.root outputDAOD_ZMUMUFile=myDAOD_ZMUMU.pool.root outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_PHOJETFile=myDESD_PHOJET.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDAOD_ZEEFile=myDAOD_ZEE.pool.root outputDESD_ZEEFile=myDESD_ZEE.pool.root outputDRAW_ZEEFile=myDRAW_ZEEFile.pool.root outputDRAW_ZMUMUFile=myDRAW_ZMUMU.pool.root --athenaopts='--stdcmalloc' preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True
+	  export TRF_ECHO=1;
+ Sim_tf.py --inputEVNTFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/simulation/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root --maxEvents=15  --athenaopts=' --pmon=sdmonfp' --outputHITSFile myHITS.pool.root --DataRunNumber=222525 --simulator=MC12G4 --randomSeed=0 --enableLooperKiller=True --skipEvents=0 --geometryVersion='ATLAS-R2-2015-02-01-00_VALIDATION' --conditionsTag='OFLCOND-RUN12-SDR-21'  | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Sim_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myHITS.pool.root &gt; myHITS.pool.root.checkfile.txt ;
+	  export userJobId="rtt_simulation_mc_ttbarmuplusjets_7tev"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  perl -pi -e "s/leakperevt_evt11to50/leakperevt_evt11to100/g;" __log.txt
+	  perl -pi -e "s/leakperevt_evt51plus/leakperevt_evt101plus/g;" __log.txt
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
 	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-      
-      
-
-      <jobTransform userJobId="data12_8TeV_detailprintout">
-	<doc>Reco_trf runs on 8TeV collision data</doc>
-	<jobTransformJobName>RecoTrf_8TeV_data_detailprintout</jobTransformJobName>
-	<jobTransformCmd>
-Reco_trf.py inputBSFile=/afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 maxEvents=300 autoConfiguration=everything outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root outputTAGFile=myTAG.root outputHISTFile=myHist.root outputNTUP_SCTFile=myNTUP_SCTFile.root outputDESD_SGLELFile=myDESD_SGLELFile.pool.root outputDESD_ZMUMUFile=DESD_ZMUMUFile.pool.root outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root outputDESD_SGLMUFile=myDESD_SGLMUFile.pool.root outputDESDM_RPVLLFile=myDESDM_RPVLL.pool.root outputDAOD_ZMUMUFile=myDAOD_ZMUMU.pool.root outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_PHOJETFile=myDESD_PHOJET.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDAOD_ZEEFile=myDAOD_ZEE.pool.root outputDESD_ZEEFile=myDESD_ZEE.pool.root outputDRAW_ZEEFile=myDRAW_ZEEFile.pool.root outputDRAW_ZMUMUFile=myDRAW_ZMUMU.pool.root preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True,,pmjp.PerfMonFlags.doExtraPrintouts=True
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-
-
-
-
-      
-      <jobTransform userJobId="mc12_long_tcmalloc">
-	<doc>Reco_trf runs on mc12</doc>
-	<jobTransformJobName>RecoTrf_mc12_long_tcmalloc</jobTransformJobName>
-	<jobTransformCmd>
-Reco_trf.py inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 maxEvents=500 autoConfiguration=everything outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root outputTAGFile=myTAG.root outputHISTFile=myHist.root outputNTUP_SCTFile=myNTUP_SCTFile.root outputDESD_SGLELFile=myDESD_SGLELFile.pool.root outputDESD_ZMUMUFile=DESD_ZMUMUFile.pool.root outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root outputDESD_SGLMUFile=myDESD_SGLMUFile.pool.root outputDESDM_RPVLLFile=myDESDM_RPVLL.pool.root outputDAOD_ZMUMUFile=myDAOD_ZMUMU.pool.root outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_PHOJETFile=myDESD_PHOJET.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDAOD_ZEEFile=myDAOD_ZEE.pool.root outputDESD_ZEEFile=myDESD_ZEE.pool.root preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
       </jobTransform>
 
-
-
-      <jobTransform userJobId="mc12_long_stdcmalloc">
-	<doc>Reco_trf runs on mc12</doc>
-	<jobTransformJobName>RecoTrf_mc12_long_stdcmalloc</jobTransformJobName>
-	<jobTransformCmd>
-Reco_trf.py inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 maxEvents=500 autoConfiguration=everything outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root outputTAGFile=myTAG.root outputHISTFile=myHist.root outputNTUP_SCTFile=myNTUP_SCTFile.root outputDESD_SGLELFile=myDESD_SGLELFile.pool.root outputDESD_ZMUMUFile=DESD_ZMUMUFile.pool.root outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root outputDESD_SGLMUFile=myDESD_SGLMUFile.pool.root outputDESDM_RPVLLFile=myDESDM_RPVLL.pool.root outputDAOD_ZMUMUFile=myDAOD_ZMUMU.pool.root outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_PHOJETFile=myDESD_PHOJET.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDAOD_ZEEFile=myDAOD_ZEE.pool.root outputDESD_ZEEFile=myDESD_ZEE.pool.root --athenaopts='--stdcmalloc' preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
-
-
-
-      <jobTransform userJobId="mc12_detailprintout">
-	<doc>Reco_trf runs on mc12</doc>
-	<jobTransformJobName>RecoTrf_mc12_detailprintout</jobTransformJobName>
-	<jobTransformCmd>
-Reco_trf.py inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 maxEvents=500 autoConfiguration=everything outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root outputTAGFile=myTAG.root outputHISTFile=myHist.root outputNTUP_SCTFile=myNTUP_SCTFile.root outputDESD_SGLELFile=myDESD_SGLELFile.pool.root outputDESD_ZMUMUFile=DESD_ZMUMUFile.pool.root outputDESDM_EGAMMAFile=myDESDM_EGAMMA.pool.root outputDESD_SGLMUFile=myDESD_SGLMUFile.pool.root outputDESDM_RPVLLFile=myDESDM_RPVLL.pool.root outputDAOD_ZMUMUFile=myDAOD_ZMUMU.pool.root outputDESD_CALJETFile=myDESD_CALJET.pool.root outputDESD_PHOJETFile=myDESD_PHOJET.pool.root outputDESDM_TRACKFile=myDESDM_TRACK.pool.root outputDAOD_ZEEFile=myDAOD_ZEE.pool.root outputDESD_ZEEFile=myDESD_ZEE.pool.root preExec=from@PerfMonComps.PerfMonFlags@import@jobproperties@as@pmjp,,pmjp.PerfMonFlags.doMallocMonitoring=True,,pmjp.PerfMonFlags.doPostProcessing=True,,pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True,,pmjp.PerfMonFlags.doExtraPrintouts=True
-	</jobTransformCmd>
-	<group>TrfRecPerf_CheckFile_PerfMon</group>
-	<queue>long</queue>
-      </jobTransform>
 
    </jobList>
 
@@ -101,74 +82,32 @@ Reco_trf.py inputRDOFile=root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/
 
       <jobGroup name="TrfRecPerf" parent="Transform">
 	<!-- keep everything which is not huge -->
-        <keepFilePattern>*.pmon.gz</keepFilePattern>
-        <keepFilePattern>*.log</keepFilePattern>
-        <keepFilePattern>*.xml</keepFilePattern>
-        <keepFilePattern>*.py</keepFilePattern>
-        <keepFilePattern>*.pdf</keepFilePattern>
-        <keepFilePattern>*.txt</keepFilePattern>
-        <keepFilePattern>*.png</keepFilePattern>
-        <keepFilePattern>*.out</keepFilePattern>
-        <keepFilePattern>*.ascii</keepFilePattern>
-        <keepFilePattern>last*</keepFilePattern>
-        <keepFilePattern>*pickle</keepFilePattern>
-        <keepFilePattern>jobReport*</keepFilePattern>
-        <keepFilePattern>runargs*</keepFilePattern>
-        <keepFilePattern>ntuple*perfmon*</keepFilePattern>
-        <keepFilePattern>pmb-callgrind*log</keepFilePattern>
-        <keepFilePattern>callgrind*bz2</keepFilePattern>
-
-      </jobGroup>
-
-
-      <jobGroup name="TrfRecPerf_NoCheckFile_PerfMon" parent="TrfRecPerf">
-        <test>
-          <modulename>RttLibraryTools</modulename>
-          <testname>PerfMonRunner</testname>
-          <arg>
-            <argname>fileName</argname>
-            <argvalue>ntuple_RAW*.pmon.gz</argvalue>
-          </arg>
-        </test>
-
-        <testToRemove>
-          <jobGroupName>Top</jobGroupName>
-          <testidentifier>CheckFileRunner0</testidentifier>
-        </testToRemove>
-      </jobGroup>
-
-
-      <jobGroup name="TrfRecPerf_NoCheckFile_NoPerfMon" parent="TrfRecPerf">
-        <test>
-          <modulename>RttLibraryTools</modulename>
-          <testname>PerfMonRunner</testname>
-          <arg>
-            <argname>fileName</argname>
-            <argvalue>ntuple_RAW*.pmon.gz</argvalue>
-          </arg>
-        </test>
-
-        <testToRemove>
-          <jobGroupName>Top</jobGroupName>
-          <testidentifier>CheckFileRunner0</testidentifier>
-          </testToRemove>
-      </jobGroup>
-
-
-      <jobGroup name="TrfRecPerf_CheckFile_PerfMon" parent="TrfRecPerf">
-	<keepFilePattern>*.root</keepFilePattern>
+	<keepFilePattern>*.checkfile.txt</keepFilePattern>
 	<keepFilePattern>*.pmon.gz</keepFilePattern>
-	<keepFilePattern>*.log</keepFilePattern>
-        <!--test>
-          <modulename>RttLibraryTools</modulename>
-          <testname>PerfMonRunner</testname>
-          <arg>
-            <argname>fileName</argname>
-            <argvalue>ntuple*perfmon.gz</argvalue>
-          </arg>
-        </test-->
-
+	<keepFilePattern>*log*</keepFilePattern>
+	<keepFilePattern>*exitcode*</keepFilePattern>
+	<keepFilePattern>*checkfile*</keepFilePattern>
+	<keepFilePattern>*.xml</keepFilePattern>
+	<keepFilePattern>*.py</keepFilePattern>
+	<keepFilePattern>*.pdf</keepFilePattern>
+	<keepFilePattern>*.txt</keepFilePattern>
+	<keepFilePattern>*.png</keepFilePattern>
+	<keepFilePattern>*.out</keepFilePattern>
+	<keepFilePattern>*.ascii</keepFilePattern>
+	<keepFilePattern>last*</keepFilePattern>
+	<keepFilePattern>*pickle</keepFilePattern>
+	<keepFilePattern>jobReport*</keepFilePattern>
+	<keepFilePattern>runargs*</keepFilePattern>
+	<keepFilePattern>ntuple*perfmon*</keepFilePattern>
+	<keepFilePattern>pmb-callgrind*log</keepFilePattern>
+	<keepFilePattern>callgrind*bz2</keepFilePattern>
+	<keepFilePattern>log.EVNTtoHIT</keepFilePattern>
+	<keepFilePattern>log.RAWtoESD</keepFilePattern>
+	<keepFilePattern>log.ESDtoAOD</keepFilePattern>
+	<keepFilePattern>log.AODtoDAOD</keepFilePattern>
       </jobGroup>
+
+
 
     </jobGroups>
 
