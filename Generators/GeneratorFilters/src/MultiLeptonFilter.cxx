@@ -17,7 +17,7 @@ MultiLeptonFilter::MultiLeptonFilter(const std::string& name, ISvcLocator* pSvcL
 StatusCode MultiLeptonFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   int numLeptons = 0;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
       if ( (*pitr)->status() != 1) continue;
@@ -28,7 +28,7 @@ StatusCode MultiLeptonFilter::filterEvent() {
 	  }
 	}
   }
-  ATH_MSG_INFO("Found " << numLeptons << "Leptons");
+  //  ATH_MSG_INFO("Found " << numLeptons << "Leptons");
   setFilterPassed(numLeptons >= m_NLeptons);
   return StatusCode::SUCCESS;
 }
