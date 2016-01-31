@@ -1,0 +1,36 @@
+
+<PixelServices>
+
+<SimpleService>
+  <NAME>IST</NAME>
+  <RMIN> 133. </RMIN>
+  <RMAX> 139. </RMAX>
+  <ZMIN> 0 </ZMIN>
+  <ZMAX> 3170 </ZMAX>
+  <ZSYMM> 1 </ZSYMM>
+  <MATERIAL> pix::IST </MATERIAL>
+</SimpleService>
+
+<SimpleService>
+  <NAME>PST</NAME>
+  <RMIN> 341 </RMIN>
+  <RMAX> 361.75 </RMAX>
+  <ZMIN> 0 </ZMIN>
+  <ZMAX> 3170 </ZMAX>
+  <ZSYMM> 1 </ZSYMM>
+  <MATERIAL> pix::PST </MATERIAL>
+</SimpleService>
+
+</PixelServices>
+
+<!--
+<SimpleService>
+  <NAME> </NAME>
+  <RMIN> </RMIN>
+  <RMAX> </RMAX>
+  <ZMIN> </ZMIN>
+  <ZMAX> </ZMAX>
+  <ZSYMM> </ZSYMM>
+  <MATERIAL> </MATERIAL>
+</SimpleService>
+-->
