@@ -86,7 +86,7 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   // m_acceptAll = false, selection cuts applied
 
   bool m_acceptAll; //!<  true all events are taken
-  bool m_acceptLOOSE; //!<  true only events that satisfy ET > ETcut are taken
+  //bool m_acceptLOOSE; //!<  true only events that satisfy ET > ETcut are taken
   
   //Calocuts offline
 
