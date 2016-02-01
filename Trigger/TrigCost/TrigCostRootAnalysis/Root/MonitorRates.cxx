@@ -60,26 +60,6 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Check to see if a counter name has been specified by the user as one we're interested in
-   * doing unique rates for.
-   * @param _counterName Const reference to counter name to test.
-   * @result If the counter is in the list of counters to output from this run.
-   */
-  Bool_t MonitorRates::checkPatternUnique( const std::string& _counterName ) {
-    return checkPatternInternal(_counterName, kPatternsUnique);
-  }
-
-  /**
-   * Check to see if a counter name has been specified by the user as one we're interested in
-   * doing overlap rates for.
-   * @param _counterName Const reference to counter name to test.
-   * @result If the counter is in the list of counters to output from this run.
-   */
-  Bool_t MonitorRates::checkPatternOverlap( const std::string& _counterName ) {
-    return checkPatternInternal(_counterName, kPatternsOverlap);
-  }
-
-  /**
    * Here we create a RatesChainItem for each trigger item at each level, it is these which will be loaded
    * per event with the raw decision of that trigger item and the counters will use the information of the L1
    * and HLT chain items given to them to calculate their event weight.
@@ -226,8 +206,8 @@ namespace TrigCostRootAnalysis {
         const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
         const std::string _chainName = TrigConfInterface::getChainName(_i);
 
-        if ( checkPatternUnique( _chainName ) == kFALSE ) continue; // In the list of unique counters?
-        if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+        if ( checkPatternUnique( _chainName, kFALSE ) == kFALSE ) continue; // In the list of unique counters? Does not get inverted
+        if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
         const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
         CounterRatesUnion* _uniqueChain = new CounterRatesUnion(m_costData, _uniqueName, _chainID, 10, (MonitorBase*)this); // Mint new counter
@@ -251,7 +231,7 @@ namespace TrigCostRootAnalysis {
       const std::string _chainName = TrigConfInterface::getChainName(_i);
       const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
 
-      if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+      if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
       // Find the ChainItem for this chain
       ChainItemMapIt_t _it = m_chainItemsL1.find( _chainName );
@@ -313,8 +293,8 @@ namespace TrigCostRootAnalysis {
         const std::string _chainName = TrigConfInterface::getChainName(_i);
         const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
 
-        if ( checkPatternUnique( _chainName ) == kFALSE ) continue; // In the list of unique counters?
-        if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+        if ( checkPatternUnique( _chainName, kFALSE ) == kFALSE ) continue; // In the list of unique counters?
+        if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
         const std::string _L1Name = TrigConfInterface::getLowerChainName(_chainName);
         if ( _L1Name == Config::config().getStr(kBlankString) ) {
@@ -371,7 +351,7 @@ namespace TrigCostRootAnalysis {
       }
 
       // Are we running over this chain?
-      if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+      if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
       // Find the ChainItem for this chain
       ChainItemMapIt_t _it = m_chainItemsHLT.find( _chainName );
@@ -447,7 +427,7 @@ namespace TrigCostRootAnalysis {
 
     for (UInt_t _i = 0; _i < TrigConfInterface::getChainN(); ++_i) {
       if (TrigConfInterface::getChainLevel(_i) == 1) continue; // Only HLT chains
-      if ( checkPatternNameMonitor( TrigConfInterface::getChainName(_i) ) == kFALSE ) continue;
+      if ( checkPatternNameMonitor( TrigConfInterface::getChainName(_i), m_invertFilter ) == kFALSE ) continue;
 
       const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
       if (_chainCPSGroup == "") continue; // Only chains in a CPS group
@@ -483,7 +463,7 @@ namespace TrigCostRootAnalysis {
 
     for (UInt_t _i = 0; _i < TrigConfInterface::getChainN(); ++_i) {
       if (TrigConfInterface::getChainLevel(_i) == 1) continue; // Only HLT chains
-      if ( checkPatternNameMonitor( TrigConfInterface::getChainName(_i) ) == kFALSE ) continue;
+      if ( checkPatternNameMonitor( TrigConfInterface::getChainName(_i), m_invertFilter ) == kFALSE ) continue;
 
       const Bool_t _isMain = TrigConfInterface::getChainIsMainStream(_i);
       const std::vector<std::string> _chainGroups = TrigConfInterface::getChainRatesGroupNames(_i);
@@ -572,7 +552,7 @@ namespace TrigCostRootAnalysis {
         const std::string _name = _counterA->getName() + Config::config().getStr(kAndString) + _counterB->getName();
 
         // Does this name contain one of the two chains i'm investigating?
-        if (checkPatternOverlap(_name) == kFALSE) continue;
+        if (checkPatternOverlap(_name, kFALSE) == kFALSE) continue;
 
         // Add new overlap counter!
         CounterRatesIntersection* _overlapCounter = new CounterRatesIntersection(m_costData, _name, 0, 10, (MonitorBase*)this); // Mint new counter
@@ -599,6 +579,8 @@ namespace TrigCostRootAnalysis {
    * @param _weight The event weight.
    */
   void MonitorRates::newEvent(Float_t _weight) {
+    if (getPass() == 2) return; // We don't do 2-pass
+
     m_timer.start();
     if ( Config::config().debug() ) Info("MonitorRates::newEvent", "*** Processing Chain Rates ***");
 
@@ -635,7 +617,10 @@ namespace TrigCostRootAnalysis {
         }
 
         RatesChainItem* _chainItem = _it->second;
-        _chainItem->beginEvent( m_costData->getIsChainPassedRaw(_c), _inEventCounterMap );
+        Bool_t _desicison = kFALSE;
+        if (m_isCPUPrediction) _desicison = m_costData->getIsChainPassed(_c);
+        else                   _desicison = m_costData->getIsChainPassedRaw(_c);
+        _chainItem->beginEvent( _desicison, _inEventCounterMap );
         _chainItemsInEvent.insert( _chainItem );
 
         if (Config::config().debug()) {
@@ -672,7 +657,11 @@ namespace TrigCostRootAnalysis {
 
         //XXX TODO READDRESS THIS - NO LONGER TRUE I THINK
 
-        Bool_t _desicison = m_costData->getIsL1PassedBeforePrescale(_c);
+        // We definitly want to use TAV when prescales were applied to EB on the grid (CPU prediction mode)
+
+        Bool_t _desicison = kFALSE;
+        if (m_isCPUPrediction == kTRUE) _desicison = m_costData->getIsL1PassedAfterVeto(_c);
+        else                            _desicison = m_costData->getIsL1PassedBeforePrescale(_c);
         // if ( Config::config().getInt(kDoEBWeighting) == 0) {
         //   _desicison = m_costData->getIsL1PassedAfterVeto(_c);
         // }
@@ -834,7 +823,7 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    saveRuleBookXML();
+    TrigXMLService::trigXMLService().saveRuleBookXML(m_counterCollections, getLevelStr());
 
     if (Config::config().getInt(kOutputRatesGraph) == kTRUE) saveRateGraphs();
 
@@ -939,188 +928,6 @@ namespace TrigCostRootAnalysis {
     filterOutputOnStrDecoration(kDecType, "Union");
     sharedTableOutputRoutine( _toSaveTable );
     sharedHistogramOutputRoutine( _toSavePlots );
-
-  }
-
-  void MonitorRates::saveRuleBookXML() {
-
-    if (Config::config().getInt(kOutputXML) == kFALSE) return;
-
-    // Save tables. Loop over counter collections.
-    CounterCollectionIt_t _colIt = m_counterCollections.begin();
-    for (; _colIt != m_counterCollections.end(); ++_colIt) {
-      const std::string _counterCollectionName = _colIt->first;
-      const CounterMap_t* _counterMap = &(_colIt->second);
-      // Skip if there are no counters to process
-      if ( _counterMap->size() == 0) continue;
-
-      const std::string _outputFolder = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory);
-      gSystem->mkdir( _outputFolder.c_str(), kTRUE);
-
-      const std::string _xmlName = _outputFolder
-        + "/TrigRate_"
-        + Config::config().getStr(kOutputTag) + "_"
-        + getLevelStr() + "_"
-        + _counterCollectionName
-        + ".xml";
-      std::ofstream _fout;
-      _fout.open( _xmlName.c_str() );
-      _fout << std::fixed; // Use fixed width output
-
-      if (Config::config().debug()) {
-        Info("MonitorRates::saveRuleBookXML","Doing XML output with path %s.", _xmlName.c_str());
-      }
-
-      XMLExport _xml(_fout);
-      _xml.setSpaces(2);
-      _xml.addNode(_fout, "trigger");
-
-      // Do General Info
-      _xml.addNode(_fout, "Xsection", intToString(0)); // TODO
-
-      Float_t _runLumi = 0.;
-      if ( Config::config().getIsSet(kRunLumi) ) _runLumi = Config::config().getFloat(kRunLumi);
-      else if ( Config::config().getIsSet(kRunLumiXML) ) _runLumi = Config::config().getFloat(kRunLumiXML);
-      _xml.addNode(_fout, "Luminosity", floatToString(_runLumi) );
-
-      _xml.addNode(_fout, "GenEff", intToString(0)); // TODO
-      _xml.addNode(_fout, "n_evts", intToString(Config::config().getInt(kEventsProcessed)) );
-
-      Float_t _predictionLumi = 0.;
-      if ( Config::config().getIsSet(kPredictionLumi) ) _predictionLumi = Config::config().getFloat(kPredictionLumi);
-      else if ( Config::config().getIsSet(kPredictionLumiMenuXML) ) _predictionLumi = Config::config().getFloat(kPredictionLumiMenuXML);
-      else if ( Config::config().getIsSet(kPredictionLumiRunXML) ) _predictionLumi = Config::config().getFloat(kPredictionLumiRunXML);
-      _xml.addNode(_fout, "PredictionLumi", floatToString(_predictionLumi) );
-
-      for (UInt_t _f = 0; _f < Config::config().getVecSize(kInputFiles); ++_f) {
-        _xml.addNode(_fout, "Dataset", Config::config().getVecEntry(kInputFiles, _f));
-      }
-      _xml.addNode(_fout, "AtlasProject", TrigConfInterface::getMetaStringVal("AtlasProject") );
-      _xml.addNode(_fout, "AtlasVersion", TrigConfInterface::getMetaStringVal("AtlasVersion") );
-      _xml.addNode(_fout, "triggerMenuSetup", TrigConfInterface::getMetaStringVal("triggerMenuSetup") );
-      _xml.addNode(_fout, "L1PrescaleSet", TrigConfInterface::getMetaStringVal("L1PrescaleSet") );
-      _xml.addNode(_fout, "HLTPrescaleSet", TrigConfInterface::getMetaStringVal("HLTPrescaleSet") );
-      _xml.addNode(_fout, "CMTPATH", TrigConfInterface::getMetaStringVal("CMTPATH") );
-
-      // Do Bunch Group info
-      // Currently we prefer XML
-      if ( TrigXMLService::trigXMLService().getParsedRunXML() == kTRUE ) {
-        _xml.addNode(_fout, "bunchgroup");
-        for (Int_t _bg = 0; _bg < TrigXMLService::trigXMLService().getNBunchGroups(); ++_bg) {
-          _xml.addNode(_fout, "bunchgrouptype");
-          _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bg) );
-          _xml.addNode(_fout, "bunchgroup_key", TrigXMLService::trigXMLService().getBunchGroupName(_bg) );
-          _xml.addNode(_fout, "bunchgroup_size", intToString(TrigXMLService::trigXMLService().getBunchGroupSize(_bg)) );
-          _xml.endNode(_fout); // bunchgrouptype
-        }
-        _xml.endNode(_fout); //bunchgroup
-      } else {
-          // Otherwise try from ntuple (this is broken 06/15) TODO fix in athena
-        StringIntMap_t _bunchGroups = TrigConfInterface::getBunchGroupSetup();
-        UInt_t _bgCounter = 0;
-        _xml.addNode(_fout, "bunchgroup");
-        for (StringIntMapIt_t _it = _bunchGroups.begin(); _it != _bunchGroups.end(); ++_it) {
-          _xml.addNode(_fout, "bunchgrouptype");
-          _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bgCounter++) );
-          _xml.addNode(_fout, "bunchgroup_key", _it->first );
-          _xml.addNode(_fout, "bunchgroup_size", intToString(_it->second) );
-          _xml.endNode(_fout); // bunchgrouptype
-        }
-        _xml.endNode(_fout); //bunchgroup
-      }
-
-      _xml.addNode(_fout, "level");
-      //Add L1 data
-      _xml.addNode(_fout, "lvl_name", "L1");
-      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
-        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
-        if (_counter->getStrDecoration(kDecType) != "L1") continue;
-        saveXMLElement(_fout, _xml, _counter);
-      }
-      _xml.endNode(_fout); //level
-      _xml.addNode(_fout, "level");
-      //Add HLT data
-      _xml.addNode(_fout, "lvl_name", "HLT");
-      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
-        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
-        if (_counter->getStrDecoration(kDecType) != "Chain") continue;
-        saveXMLElement(_fout, _xml, _counter);
-      }
-      _xml.endNode(_fout); //level
-      _xml.endNode(_fout); //trigger
-
-      _fout.close();
-    }
-  }
-
-  /**
-   * Save all rate data for a single chain into an output XML stream
-   * @param _fout Reference to output stream.
-   * @param _xml Reference to XML export engine.
-   * @returns _counter Counter to export.
-   */
-  void MonitorRates::saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter) {
-    const UInt_t _xmlPrecision = 7;
-
-    Float_t _evPassWeight = _counter->getValue(kVarEventsPassed, kSavePerCall);
-    Float_t _evPassWeightErr = _counter->getValueError(kVarEventsPassed, kSavePerCall); // Get sqrt(sumW2)
-
-    //Float_t _evPassDirect = _counter->getValue(kVarEventsPassedDP, kSavePerCall);
-    //Float_t _evPassDirectErr = _counter->getValueError(kVarEventsPassedDP, kSavePerCall); //unused
-
-    Float_t _evRun = _counter->getValue(kVarEventsRun, kSavePerCall); // EB Weighted
-    Float_t _evPassNoPS = _counter->getValue(kVarEventsPassedNoPS, kSavePerCall); // EB Weighted
-
-    Float_t _evPassRawStat = _counter->getValue(kVarEventsPassRawStat, kSavePerCall); // Not EB Weighted
-    //Float_t _evRunRawStat  = _counter->getValue(kVarEventsRunRawStat,  kSavePerCall); // Not EB Weighted
-
-    Float_t _walltime = _counter->getDecoration(kDecLbLength);
-
-    Float_t _rate = _evPassWeight / _walltime;
-    Float_t _rateErr = _evPassWeightErr / _walltime;    // B. Peterson # err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
-
-    Float_t _uniqueRate = _counter->getDecoration(kDecUniqueRate);
-    Float_t _uniqueFraction = _counter->getDecoration(kDecUniqueFraction); // Was in percent, change back to 0-1
-
-    Bool_t _isL1 = kFALSE;
-    if (_counter->getStrDecoration(kDecType) == "L1") _isL1 = kTRUE;
-
-    // TODO - THIS IS WRONG FOR WEIGHTED EVENTS
-    Float_t _eff = 0., _effErr = 0., _psEff = 0., _psEffErr = 0.;
-    if (_evRun) {
-      _eff = _evPassNoPS / _evRun;
-      _effErr = (1./_evRun) * TMath::Sqrt( _evPassNoPS * (1. - _eff) ); // Binomal
-      _psEff = _evPassWeight / _evRun;
-      _psEffErr =  (1./_evRun) * TMath::Sqrt( _evPassWeight * (1. - _psEff) ); // Binomal
-    }
-
-    UNUSED(_effErr);
-    UNUSED(_psEffErr);
-
-    _xml.addNode(_fout, "signature");
-    _xml.addNode(_fout, "sig_name", _counter->getName());
-    _xml.addNode(_fout, "express_stream", intToString(0) ); // TODO add me!
-    _xml.addNode(_fout, "chain_prescale", floatToString( _counter->getBasicPrescale() )); // This holds the *item* PS
-    if (_isL1) {
-      _xml.addNode(_fout, "passthrough", "0" );
-      _xml.addNode(_fout, "lower_chain_name", "" );
-    } else {
-      _xml.addNode(_fout, "passthrough", floatToString( TrigConfInterface::getPassthrough(_counter->getName()), _xmlPrecision ) );
-      _xml.addNode(_fout, "lower_chain_name", TrigConfInterface::getLowerChainName(_counter->getName()) );
-    }
-    _xml.addNode(_fout, "evts_passed", floatToString( _evPassRawStat, _xmlPrecision));
-    _xml.addNode(_fout, "evts_passed_weighted", floatToString( _evPassWeight, _xmlPrecision));
-    _xml.addNode(_fout, "efficiency", floatToString( _eff, _xmlPrecision));
-    //_xml.addNode(_fout, "efficiency_err", floatToString( _effErr, _xmlPrecision)); // TODO FIX ME
-    _xml.addNode(_fout, "efficiency_err", floatToString((Float_t)0.));
-    _xml.addNode(_fout, "prescaled_efficiency", floatToString( _psEff, _xmlPrecision));
-    //_xml.addNode(_fout, "prescaled_efficiency_err", floatToString( _psEffErr, _xmlPrecision)); // TODO FIX ME
-    _xml.addNode(_fout, "prescaled_efficiency_err",  floatToString((Float_t)0.));
-    _xml.addNode(_fout, "rate", floatToString( _rate, _xmlPrecision));
-    _xml.addNode(_fout, "rate_err", floatToString( _rateErr, _xmlPrecision));
-    _xml.addNode(_fout, "unique_fraction", floatToString(_uniqueFraction, _xmlPrecision));
-    _xml.addNode(_fout, "unique_rate", floatToString(_uniqueRate, _xmlPrecision));
-    _xml.endNode(_fout); //signature
 
   }
 

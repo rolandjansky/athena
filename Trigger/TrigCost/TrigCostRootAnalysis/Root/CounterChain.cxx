@@ -54,6 +54,7 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarTime)
       .setSavePerEvent("Chain Total Time Per Event;Chain Total Time per Event [ms];Events")
       .setSavePerEventFraction("Fractional Chain Total Time;Chain Total Time/Event Total Time;Events");
+    m_dataStore.newVariable(kVarRerunTime).setSavePerEvent();
     m_dataStore.newVariable(kVarROBReqs)
       .setSavePerEvent("Number Of Cached ROBs Per Event;Cached ROBs;Events");
     m_dataStore.newVariable(kVarROBRets)
@@ -106,6 +107,10 @@ namespace TrigCostRootAnalysis {
     m_dataStore.store(kVarEventsActive, 1., _weight);
     m_dataStore.store(kVarEventsPassed, (Int_t) m_costData->getIsChainPassed(_e), _weight);
     m_dataStore.store(kVarTime, _chainTime, _weight);
+
+    if (m_costData->getIsChainResurrected(_e)) {
+      m_dataStore.store(kVarRerunTime, _chainTime, _weight);
+    }
 
     s_eventTimeExecute += _chainTime * _weight; // Tabulate over all chains in event
 

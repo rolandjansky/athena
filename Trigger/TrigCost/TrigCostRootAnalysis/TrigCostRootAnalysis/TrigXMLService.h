@@ -18,6 +18,8 @@
 
 //Local include(s):
 #include "Utility.h"
+#include "WriteXML_JSON.h"
+#include "MonitorRatesUpgrade.h"
 
 // Forward dec
 class TXMLEngine;
@@ -37,11 +39,15 @@ namespace TrigCostRootAnalysis {
     static TrigXMLService& trigXMLService(); //!< Use this method to get the singleton
 
     Double_t getPrescale( const std::string& _name );
-    Float_t  getEventWeight(UInt_t _eventNumber, UInt_t _lb);
+    Float_t  getEventWeight(UInt_t _eventNumber, UInt_t _lb, UInt_t _pass);
     Double_t getHLTCostWeightingFactor(const std::string& _chainName );
     Float_t  getLumiExtrapWeight();
     IntIntMap_t& getBGMap();
     IntIntMap_t& getBGUnbiasedMap();
+
+    void saveRuleBookXML(CounterCollection_t& _counterCollections, std::string _levelStr);
+    void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);
+    void parseUpgradeXML(StringIntMap_t& _isoBits, std::multiset<ChainInfo>& _upgradeChains);
 
 
     void parseEnhancedBiasXML();

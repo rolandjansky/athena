@@ -72,10 +72,8 @@ namespace TrigCostRootAnalysis {
       }
 
       // Are we running over this chain?
-      if ( Config::config().getVecSize(kPatternsMonitor) > 0) {
-        if (Config::config().getInt(kPatternsInvert) == kFALSE && Config::config().getVecMatches(kPatternsMonitor, _chainName) == kFALSE ) continue;
-        if (Config::config().getInt(kPatternsInvert) == kTRUE && Config::config().getVecMatches(kPatternsMonitor, _chainName) == kTRUE ) continue;
-      }
+      static Bool_t _invertFilter = Config::config().getInt(kPatternsInvert);
+      if ( checkPatternNameMonitor( _chainName, _invertFilter, _costData->getSeqIsRerun(_s) ) == kFALSE ) continue;
 
       // Loop over all algorithms in sequence
       for (UInt_t _a = 0; _a < _costData->getNSeqAlgs(_s); ++_a) {

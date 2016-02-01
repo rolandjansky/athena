@@ -4,6 +4,7 @@
     <lumivalues_data>2.037e+33</lumivalues_data>
     <lumivalues_pred>2e+34</lumivalues_pred>
     <deadtime>0.04</deadtime>
+    <peak_mu_av>14.71</peak_mu_av>
   </lumivalues>
   <bunchgroups>
     <bunchgroup id="0" name="BCRVeto">3543</bunchgroup>

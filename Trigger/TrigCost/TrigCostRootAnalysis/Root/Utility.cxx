@@ -26,6 +26,74 @@
 namespace TrigCostRootAnalysis {
 
   /**
+   * Check to see if a counter name has been specified by the user as one we're interested in.
+   * Match it to the vector of chains to run over.
+   * A check is made here to allow for the exlusion of rerun chains in events which failed the HLT 
+   * @param _counterName Const reference to counter name to test.
+   * @param _invert if the results are to be inverted 
+   * @result If the counter is in the list of counters to process in this run.
+   */
+  Bool_t checkPatternNameMonitor( const std::string& _counterName, Bool_t _invert, Bool_t _isRerun ) {
+    Bool_t _result = checkPatternInternal(_counterName, kPatternsMonitor, _invert);
+    static Bool_t _isPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
+    if (_isPrediction == kTRUE && _result == kTRUE) {
+      // Check if this chain is rerun 
+      Bool_t _ignoreRerun = (Bool_t) Config::config().getInt(kIgnoreRerun);
+      if (_ignoreRerun == kTRUE && _isRerun == kTRUE) return kFALSE;
+    }
+    return _result;
+  }
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in saving.
+   * Match it to the vector of chains to save.
+   * @param _counterName Const reference to counter name to test.
+   * @param _invert if the results are to be inverted 
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t checkPatternNameOutput( const std::string& _counterName, Bool_t _invert ) {
+    return checkPatternInternal(_counterName, kPatternsOutput, _invert);
+  }
+
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in
+   * doing unique rates for.
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t checkPatternUnique( const std::string& _counterName, Bool_t _invert ) {
+    return checkPatternInternal(_counterName, kPatternsUnique, _invert);
+  }
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in
+   * doing overlap rates for.
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t checkPatternOverlap( const std::string& _counterName, Bool_t _invert ) {
+    return checkPatternInternal(_counterName, kPatternsOverlap, _invert);
+  }
+
+
+  /**
+   * Code to actually perform the check if a counter is listed in a given vector
+   * @param _counterName Const reference to counter name to test.
+   * @param _list The key of the saved configuration vector to test in
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list, Bool_t _invert ) {
+    if ( Config::config().getVecSize(_list) > 0 ) {
+      Bool_t _result = Config::config().getVecMatches(_list, _counterName);
+      if (_invert == kTRUE) return !_result;
+      return _result;
+    }
+    return kTRUE;
+  }
+
+
+  /**
    * Helper function, converts string to signed int
    * @param _i string to convert.
    * @returns Integer representation of string.

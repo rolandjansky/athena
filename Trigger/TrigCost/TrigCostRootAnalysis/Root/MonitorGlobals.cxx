@@ -121,8 +121,7 @@ namespace TrigCostRootAnalysis {
 
     std::vector<TableColumnFormatter> _toSave;
 
-    // Question. What other flags, if set, mean we're definitly looking at a prediction rather than a run?
-    const Bool_t _isAPrediction =  (Bool_t) Config::config().getInt(kDoEBWeighting);
+    const Bool_t _isAPrediction =  (Bool_t) Config::config().getInt(kIsCPUPrediction);
 
     if ( _isAPrediction == kTRUE ) {
       _toSave.push_back( TableColumnFormatter("Effective LB Length (s)",
@@ -142,6 +141,10 @@ namespace TrigCostRootAnalysis {
       _toSave.push_back( TableColumnFormatter("Predicted HLT Cores Required",
         "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
         &tableFnGlobalGetHLTNodePrediction, 2) );
+
+      _toSave.push_back( TableColumnFormatter("Predicted Cores Err",
+        "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
+        &tableFnGlobalGetHLTNodePredictionErr, 2) );
     } else {
       _toSave.push_back( TableColumnFormatter("Farm Usage from Steering (%)",
         "Approximated by Total HLT Steering Time / (Lumi Block Length * N HLT PUs)",
@@ -199,6 +202,14 @@ namespace TrigCostRootAnalysis {
     _toSave.push_back( TableColumnFormatter("Alg Walltime Time/Call [ms]",
       "Average per algorithm call of the sum over all algorithms walltimes.",
       kVarAlgTime, kSavePerCall, kVarAlgCalls, kSavePerCall, 2) );
+
+    _toSave.push_back( TableColumnFormatter("Time Use In Rerun [%]",
+      "Percentage of this total CPU usage which comes from resurrection.",
+      kVarRerunTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
+
+    _toSave.push_back( TableColumnFormatter("Time Use In Accepted Events [%]",
+      "Percentage of this total CPU usage which comes from resurrection.",
+      kVarPassTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
 
     _toSave.push_back( TableColumnFormatter("ROS Walltime Time/Event [ms]",
       "Average per event of the sum over all algorithms ROS request times.",
