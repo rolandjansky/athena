@@ -431,14 +431,15 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       
       HepGeom::Vector3D<double> mom(pMomentum.px(),pMomentum.py(),pMomentum.pz());
       ISF::ISFParticle* sParticle = new ISF::ISFParticle( *pos,
-							  mom,
-							  pMass,
-							  charge,
-							  pPdgId,
-							  pTime,
-							  origin,
-							  m_uniqueBc,
-							  tBinding );
+                                                           mom,
+                                                           pMass,
+                                                           charge,
+                                                           pPdgId,
+                                                           pTime,
+                                                           origin,
+                                                           &(tBinding->truthParticle()), // primary generator particle
+                                                           m_uniqueBc,
+                                                           tBinding );
       
       // MB : need this (for now) to store extra barcode information
       Barcode::ParticleBarcode extrabc(Barcode::fUndefinedBarcode);
