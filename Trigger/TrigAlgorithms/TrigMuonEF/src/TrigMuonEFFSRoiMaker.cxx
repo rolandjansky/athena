@@ -97,8 +97,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
 
   //Create RoI centered around the crack in MS
   if (m_createCrackRoI) {
-    double phiSize = 3.0;
-    TrigRoiDescriptor* newRoI = new TrigRoiDescriptor(0.0, -m_roiSizeEta, m_roiSizeEta, 0.0, -phiSize, phiSize);
+    TrigRoiDescriptor* newRoI = new TrigRoiDescriptor(0.0, -m_roiSizeEta, m_roiSizeEta, 0.0, -m_roiSizePhi, m_roiSizePhi);
     
     HLT::TriggerElement* outputTE = nullptr;
     if (m_roiLabel == "") {
