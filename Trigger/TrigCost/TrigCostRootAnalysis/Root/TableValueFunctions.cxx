@@ -100,6 +100,13 @@ namespace TrigCostRootAnalysis {
     return _algTime / _lbTime;
   }
 
+  Float_t tableFnGlobalGetHLTNodePredictionErr(CounterMap_t* _map, CounterBase* _TCCB) {
+    // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
+    UNUSED( _map );
+    Float_t _algTimeErr = _TCCB->getValueError(kVarAlgTime, kSavePerCall); // Get sqrt(sumW2)
+    Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
+    return _algTimeErr / _walltime;  
+  }
 
   /////////////////////////////////////
   /// BEGIN RATES MONITOR FUNCTIONS ///

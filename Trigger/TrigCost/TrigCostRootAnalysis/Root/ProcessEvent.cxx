@@ -57,6 +57,8 @@ namespace TrigCostRootAnalysis {
     m_nThread = Config::config().getInt(kNThread);
     m_threadFnPtr = &newEventThreaded;
     m_ratesOnly = Config::config().getIsSet(kRatesOnly);
+    m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
+    m_doNotLumiWeightUnbiased = (Bool_t) Config::config().getInt(kDoNotLumiWeightUnbiased);
   }
 
   /**
@@ -195,12 +197,14 @@ namespace TrigCostRootAnalysis {
 
     //Check for enhanced bias weights.
     if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
-      _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi() );
+      _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi(), getPass() );
 
-      // If this event was random online, we want to *undo* the lumi extrapolation weight
-      // Random events do not depend on Lumi. This is a bit ugly. To be sorted out at next refactor
-      if (Config::config().getInt(kCurrentEventWasRandomOnline) == kTRUE) {
-        _weight /= Config::config().getFloat(kLumiExtrapWeight);
+      if (m_doNotLumiWeightUnbiased) { // Have this is a flag - it tends to underestimate low thresholds (but they can otherwise be overestimated!)
+        // If this event was random online, we want to *undo* the lumi extrapolation weight
+        // Random events do not depend on Lumi. This is a bit ugly. To be sorted out at next refactor
+        if (Config::config().getInt(kCurrentEventWasRandomOnline) == kTRUE) {
+          _weight /= Config::config().getFloat(kLumiExtrapWeight);
+        }
       }
     }
 
@@ -213,6 +217,7 @@ namespace TrigCostRootAnalysis {
     for (monitorIt_t _it = m_monitorCollections.begin(); _it != m_monitorCollections.end(); ++_it) {
       _takeEvent += _it->second->getNCollectionsToProcess();
       // Note we cannot break this loop early, all monitors need to get this call to prepare their list of collections to process
+      // and perform bookkeeping
     }
     m_takeEventTimer.stop();
     if (_takeEvent == 0) return kFALSE;
@@ -231,6 +236,23 @@ namespace TrigCostRootAnalysis {
       m_cacheROSTimer.stop();
     }
 
+
+    // Special - CPU prediction mode
+    // We demand a chain which was not the costmonitor chain (or any other "misbehaving" streamers etc.) to pass physics physics chain (NOT rerun).
+    // Otherwise rerun on the costmon chain will mess up the prediction
+    if (m_isCPUPrediction) {
+      UInt_t _chainPasses = 0;
+      for (UInt_t _c = 0; _c < m_costData->getNChains(); ++_c) {
+        const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( m_costData->getChainID(_c), m_costData->getChainLevel(_c) );
+        if (Config::config().getVecMatches(kPatternsMonitor, _chainName) == kTRUE) continue;
+        _chainPasses += (Int_t) m_costData->getIsChainPassed(_c);
+        if (_chainPasses > 0) break;
+      }
+      static const std::string _ign = "IgnoreRerun";
+      if (_chainPasses == 0) Config::config().set(kIgnoreRerun, 1, _ign, kUnlocked);  //Then ignore RERUN chains in this event.
+      else                   Config::config().set(kIgnoreRerun, 0, _ign, kUnlocked);  
+    }
+    
     if (m_nThread == 1 || m_ratesOnly == kTRUE) {
       
       // Non threaded
@@ -286,6 +308,22 @@ namespace TrigCostRootAnalysis {
     }
     return kTRUE;
 
+  }
+
+  /**
+    * Sets which pass through the input file(s) we're on down to all the monitors
+    * @param _pass Number of this pass
+    **/
+  void ProcessEvent::setPass(UInt_t _pass) {
+    for (const auto& _monitor : m_monitorCollections) _monitor.second->setPass(_pass);
+    m_pass = _pass;
+  }
+
+  /**
+    *  @return Which number pass through the input file(s)
+    **/
+  UInt_t ProcessEvent::getPass() {
+    return m_pass;
   }
 
   /**
