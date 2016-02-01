@@ -202,12 +202,16 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
                 
-        AllowedInstances = ["EF"]
+        AllowedInstances = ["EF", "MuJetChain"]
 
         self.JetKey = "SplitJet"
         
         if instance in AllowedInstances :
             
+            if instance=="MuJetChain" :
+                self.JetKey = "FarawayJet"
+                instance = "EF"
+                
             if instance=="EF" :
                 self.AcceptAll = True
                 self.Instance  = "EF"
