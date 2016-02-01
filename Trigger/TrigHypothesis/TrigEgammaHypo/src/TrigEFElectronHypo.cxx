@@ -41,6 +41,8 @@
 
 #include "TrigSteeringEvent/TrigPassFlags.h"
 
+using std::string;
+
 namespace {
     template <class DEST,class SRC>
         inline DEST** my_pp_cast(SRC** ptr) {
