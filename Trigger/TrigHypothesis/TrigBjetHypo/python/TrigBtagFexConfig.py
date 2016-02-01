@@ -163,7 +163,7 @@ class BtagFexFTK (TrigBtagFex):
             instance = "EF"
         
         self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
-        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK"
+        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
         
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
@@ -218,7 +218,7 @@ class BtagFexFTKRefit (TrigBtagFex):
             instance = "EF"
         
         self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
-        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit"
+        self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig"
         
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
