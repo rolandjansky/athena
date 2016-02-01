@@ -68,12 +68,10 @@ G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track*
 		ppi=dynamic_cast
 			<PrimaryParticleInformation *> (pp->GetUserInformation());
 		if (ppi) {
-		        const ISF::ISFParticle* isp = ppi->GetISFParticle();
 			const HepMC::GenParticle *part=ppi->GetHepMCParticle();
 			if (part) {// OK, we got back to HepMC
 			  TrackInformation *ti=new TrackInformation(part);
 			  ti->SetRegenerationNr(0); 
-			  ti->SetISFParticle(isp);
 			  // regNr=0 and classify=Primary are default values anyway
 			  inT->SetUserInformation(ti);
 			  ti->SetClassification(Primary);
@@ -82,13 +80,12 @@ G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track*
 			else if (ppi->GetParticleBarcode()>=0) {
 			  // PrimaryParticleInformation should at least provide a barcode
 			  TrackBarcodeInfo *bi=new TrackBarcodeInfo(ppi->GetParticleBarcode());
-			  bi->SetISFParticle(isp);
 			  inT->SetUserInformation(bi);
 			}
 		}
 	}
 	else		// secondary track: see if it must be saved
-	{			
+	{
 
           // Time cut for particles stacking after a certain time...
           if (  p_stackEnergyCut > 0 &&
