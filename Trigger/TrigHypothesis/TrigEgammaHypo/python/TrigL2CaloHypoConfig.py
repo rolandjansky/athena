@@ -78,7 +78,7 @@ class L2CaloHypo_NoCut (TrigL2CaloHypoBase):
 class L2CaloHypo_EtCut (TrigL2CaloHypoBase):
     __slots__ = []
     def __init__(self, name, threshold):
-        super( L2CaloHypo_EtCutTrk, self ).__init__( name )
+        super( L2CaloHypo_EtCut, self ).__init__( name )
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
 

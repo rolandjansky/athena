@@ -48,20 +48,20 @@ TrigL2CaloHypo::TrigL2CaloHypo(const std::string & name, ISvcLocator* pSvcLocato
   declareProperty("F3thr",          m_F3thr);
 
   // declare monitoring histograms for all cut variables
-  declareMonitoredVariable("dEta", dEta);
-  declareMonitoredVariable("dPhi", dPhi);
-  declareMonitoredVariable("Et_em", eT_T2Calo);
-  declareMonitoredVariable("Et_had", hadET_T2Calo);
-  declareMonitoredVariable("Rcore", rCore);
-  declareMonitoredVariable("Eratio", energyRatio);
-  declareMonitoredVariable("EtaBin", etaBin);
-  declareMonitoredVariable("Eta", monEta);
-  declareMonitoredVariable("Phi", monPhi);
-  declareMonitoredVariable("F1", F1); 
-  declareMonitoredVariable("Weta2", Weta2);
-  declareMonitoredVariable("Wstot", Wstot);
-  declareMonitoredVariable("F3", F3);
-  declareMonitoredVariable("CutCounter", PassedCuts);
+  declareMonitoredVariable("dEta", m_dEta);
+  declareMonitoredVariable("dPhi", m_dPhi);
+  declareMonitoredVariable("Et_em", m_eT_T2Calo);
+  declareMonitoredVariable("Et_had", m_hadET_T2Calo);
+  declareMonitoredVariable("Rcore", m_rCore);
+  declareMonitoredVariable("Eratio", m_energyRatio);
+  declareMonitoredVariable("EtaBin", m_etaBin);
+  declareMonitoredVariable("Eta", m_monEta);
+  declareMonitoredVariable("Phi", m_monPhi);
+  declareMonitoredVariable("F1", m_F1); 
+  declareMonitoredVariable("Weta2", m_Weta2);
+  declareMonitoredVariable("Wstot", m_Wstot);
+  declareMonitoredVariable("F3", m_F3);
+  declareMonitoredVariable("CutCounter", m_PassedCuts);
 }
 
 
@@ -153,16 +153,16 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 {
 
   // initialise monitoring variables for each event
-  dPhi         = -1.0;
-  dEta         = -1.0;
-  eT_T2Calo    = -1.0;
-  hadET_T2Calo = -1.0;
-  rCore        = -1.0;
-  energyRatio  = -1.0;
-  Weta2        = -1.0;
-  Wstot        = -1.0;
-  F3        = -1.0;
-  PassedCuts   = -1;
+  m_dPhi         = -1.0;
+  m_dEta         = -1.0;
+  m_eT_T2Calo    = -1.0;
+  m_hadET_T2Calo = -1.0;
+  m_rCore        = -1.0;
+  m_energyRatio  = -1.0;
+  m_Weta2        = -1.0;
+  m_Wstot        = -1.0;
+  m_F3        = -1.0;
+  m_PassedCuts   = -1;
   // Accept-All mode: temporary patch; should be done with force-accept 
   if (m_acceptAll) {
     pass = true;
@@ -220,7 +220,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 	<< endreq;
     return HLT::OK;
   }
-  PassedCuts++; //Input
+  m_PassedCuts++; //Input
   // get cluster
   const xAOD::TrigEMCluster* pClus = vectorOfClusters.front();
 
@@ -230,45 +230,45 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   }
 
   // increment event counter 
-  PassedCuts++; //// the ROI at least contais the cluster
+  m_PassedCuts++; //// the ROI at least contais the cluster
 
   float absEta = fabs( pClus->eta() );
-  etaBin = -1;
-  monEta = pClus->eta();
-  monPhi = pClus->phi();
+  m_etaBin = -1;
+  m_monEta = pClus->eta();
+  m_monPhi = pClus->phi();
   for (std::size_t iBin = 0; iBin < m_etabin.size()-1; iBin++)
-    if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) etaBin = iBin; 
+    if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) m_etaBin = iBin; 
  
   // find if electron is in calorimeter crack
   bool inCrack = ( absEta > 2.37 || ( absEta > 1.37 && absEta < 1.52) );
 
   
-  dEta =  pClus->eta() - etaRef;
+  m_dEta =  pClus->eta() - etaRef;
   // Deal with angle diferences greater than Pi
-  dPhi =  fabs(pClus->phi() - phiRef);
-  dPhi = (dPhi < M_PI ? dPhi : 2*M_PI - dPhi );
+  m_dPhi =  fabs(pClus->phi() - phiRef);
+  m_dPhi = (m_dPhi < M_PI ? m_dPhi : 2*M_PI - m_dPhi );
 
 
   // calculate cluster quantities // definition taken from TrigElectron constructor     
   if ( pClus->emaxs1() + pClus->e2tsts1() > 0 ) 
-    energyRatio = ( pClus->emaxs1() - pClus->e2tsts1() ) / ( pClus->emaxs1() + pClus->e2tsts1() );
+    m_energyRatio = ( pClus->emaxs1() - pClus->e2tsts1() ) / ( pClus->emaxs1() + pClus->e2tsts1() );
 
   // (VD) here the definition is a bit different to account for the cut of e277 @ EF 
-  if ( pClus->e277()!= 0.) rCore = pClus->e237() / pClus->e277();
+  if ( pClus->e277()!= 0.) m_rCore = pClus->e237() / pClus->e277();
 
   //fraction of energy deposited in 1st sampling
-  if ( fabs(pClus->energy()) > 0.00001) F1 = (pClus->energy(CaloSampling::EMB1)+pClus->energy(CaloSampling::EME1))/pClus->energy();
+  if ( fabs(pClus->energy()) > 0.00001) m_F1 = (pClus->energy(CaloSampling::EMB1)+pClus->energy(CaloSampling::EME1))/pClus->energy();
 
-  eT_T2Calo  = pClus->et();
+  m_eT_T2Calo  = pClus->et();
   
-  if ( eT_T2Calo!=0 && pClus->eta()!=0 ) hadET_T2Calo = pClus->ehad1()/cosh(fabs(pClus->eta()))/eT_T2Calo;
+  if ( m_eT_T2Calo!=0 && pClus->eta()!=0 ) m_hadET_T2Calo = pClus->ehad1()/cosh(fabs(pClus->eta()))/m_eT_T2Calo;
  
 
   //extract Weta2 varable
-  Weta2 = pClus->weta2();
+  m_Weta2 = pClus->weta2();
 
   //extract Wstot varable
-  Wstot = pClus->wstot();
+  m_Wstot = pClus->wstot();
 
   //extract F3 (backenergy i EM calorimeter
   float e0 = pClus->energy(CaloSampling::PreSamplerB) + pClus->energy(CaloSampling::PreSamplerE);
@@ -276,115 +276,115 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   float e2 = pClus->energy(CaloSampling::EMB2) + pClus->energy(CaloSampling::EME2);
   float e3 = pClus->energy(CaloSampling::EMB3) + pClus->energy(CaloSampling::EME3);
   float eallsamples = e0+e1+e2+e3;
-  F3= fabs(eallsamples)>0. ? e3/eallsamples : 0.; 
+  m_F3= fabs(eallsamples)>0. ? e3/eallsamples : 0.; 
 
   // apply cuts: DeltaEta(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG  << "TrigEMCluster: eta="  << pClus->eta()
-	  << " roi eta=" << etaRef << " DeltaEta=" << dEta
+	  << " roi eta=" << etaRef << " DeltaEta=" << m_dEta
 	  << " cut: <"   << m_detacluster          << endreq;
   }
   if ( fabs(pClus->eta() - etaRef) > m_detacluster ) return HLT::OK;
-  PassedCuts++; //Deta
+  m_PassedCuts++; //Deta
   
   // DeltaPhi(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << ": phi="  << pClus->phi()
-	  << " roi phi="<< phiRef    << " DeltaPhi="<< dPhi
+	  << " roi phi="<< phiRef    << " DeltaPhi="<< m_dPhi
 	  << " cut: <"  << m_dphicluster            << endreq;
   }
-  if( dPhi > m_dphicluster ) return HLT::OK;
-  PassedCuts++; //DPhi
+  if( m_dPhi > m_dphicluster ) return HLT::OK;
+  m_PassedCuts++; //DPhi
 
   // eta range
-  if ( etaBin==-1 ) {  // VD
+  if ( m_etaBin==-1 ) {  // VD
     msg() << MSG::DEBUG << "Cluster eta: " << absEta << " outside eta range " << m_etabin[m_etabin.size()-1] << endreq;
     return HLT::OK;
   } else { 
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "eta bin used for cuts " << etaBin << endreq;
+      msg() << MSG::DEBUG << "eta bin used for cuts " << m_etaBin << endreq;
   }
-  PassedCuts++; // passed eta cut
+  m_PassedCuts++; // passed eta cut
   
   // Rcore
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: Rcore=" << rCore 
-	  << " cut: >"  << m_carcorethr[etaBin] << endreq;
-  if ( rCore < m_carcorethr[etaBin] )  return HLT::OK;
-  PassedCuts++; //Rcore
+    msg() << MSG::DEBUG << "TrigEMCluster: Rcore=" << m_rCore 
+	  << " cut: >"  << m_carcorethr[m_etaBin] << endreq;
+  if ( m_rCore < m_carcorethr[m_etaBin] )  return HLT::OK;
+  m_PassedCuts++; //Rcore
 
   // Eratio
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: Eratio=" << energyRatio
-	  << " cut: >"  << m_caeratiothr[etaBin] << endreq;   
-  if ( inCrack || F1<m_F1thr[0] ) {
-    msg() << MSG::DEBUG << "TrigEMCluster: InCrack= " << inCrack << " F1=" << F1 << endreq;
+    msg() << MSG::DEBUG << "TrigEMCluster: Eratio=" << m_energyRatio
+	  << " cut: >"  << m_caeratiothr[m_etaBin] << endreq;   
+  if ( inCrack || m_F1<m_F1thr[0] ) {
+    msg() << MSG::DEBUG << "TrigEMCluster: InCrack= " << inCrack << " F1=" << m_F1 << endreq;
   } else {
-    if ( energyRatio < m_caeratiothr[etaBin] ) return HLT::OK;
+    if ( m_energyRatio < m_caeratiothr[m_etaBin] ) return HLT::OK;
   }
-  PassedCuts++; //Eratio
-  if(inCrack) energyRatio = -1; //Set default value in crack for monitoring.
+  m_PassedCuts++; //Eratio
+  if(inCrack) m_energyRatio = -1; //Set default value in crack for monitoring.
   
   // ET_em
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: ET_em=" << eT_T2Calo
-	<< " cut: >"  << m_eTthr[etaBin] << endreq;
-  if ( eT_T2Calo < m_eTthr[etaBin]) return HLT::OK;
-  PassedCuts++; // ET_em
+    msg() << MSG::DEBUG << "TrigEMCluster: ET_em=" << m_eT_T2Calo
+	<< " cut: >"  << m_eTthr[m_etaBin] << endreq;
+  if ( m_eT_T2Calo < m_eTthr[m_etaBin]) return HLT::OK;
+  m_PassedCuts++; // ET_em
  
   float hadET_cut = 0.0;  
   // find which ET_had to apply	: this depends on the ET_em and the eta bin
-  if ( eT_T2Calo >  m_eT2thr[etaBin] ) {
-    hadET_cut = m_hadeT2thr[etaBin] ;
+  if ( m_eT_T2Calo >  m_eT2thr[m_etaBin] ) {
+    hadET_cut = m_hadeT2thr[m_etaBin] ;
 
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "ET_em>"     << m_eT2thr[etaBin]
+      msg() << MSG::DEBUG << "ET_em>"     << m_eT2thr[m_etaBin]
 	  << ": use high ET_had cut: <" << hadET_cut << endreq;
   } else {
-    hadET_cut = m_hadeTthr[etaBin];
+    hadET_cut = m_hadeTthr[m_etaBin];
 
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "ET_em<"    << m_eT2thr[etaBin] 
+      msg() << MSG::DEBUG << "ET_em<"    << m_eT2thr[m_etaBin] 
 	  << ": use low ET_had cut: <" << hadET_cut << endreq;
   }
   
   // ET_had
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: ET_had=" << hadET_T2Calo
+    msg() << MSG::DEBUG << "TrigEMCluster: ET_had=" << m_hadET_T2Calo
 	<< " cut: <" << hadET_cut << endreq;
 
-  if ( hadET_T2Calo > hadET_cut ) return HLT::OK;
-  PassedCuts++; //ET_had
+  if ( m_hadET_T2Calo > hadET_cut ) return HLT::OK;
+  m_PassedCuts++; //ET_had
   
   // F1
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: F1=" << F1
+    msg() << MSG::DEBUG << "TrigEMCluster: F1=" << m_F1
 	  << " cut: >"  << m_F1thr[0] << endreq;
-  // if ( F1 < m_F1thr[0]) return HLT::OK;  //(VD) not cutting on this variable, only used to select whether to cut or not on eRatio
-  PassedCuts++; //F1
+  // if ( m_F1 < m_F1thr[0]) return HLT::OK;  //(VD) not cutting on this variable, only used to select whether to cut or not on eRatio
+  m_PassedCuts++; //F1
 
 
   //Weta2
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: Weta2=" << Weta2
-	  << " cut: <"  << m_WETA2thr[etaBin] << endreq; 
-  if ( Weta2 > m_WETA2thr[etaBin]) return HLT::OK;
-  PassedCuts++; //Weta2
+    msg() << MSG::DEBUG << "TrigEMCluster: Weta2=" << m_Weta2
+	  << " cut: <"  << m_WETA2thr[m_etaBin] << endreq; 
+  if ( m_Weta2 > m_WETA2thr[m_etaBin]) return HLT::OK;
+  m_PassedCuts++; //Weta2
 
 
   //Wstot
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: Wstot=" << Wstot
-	  << " cut: <"  << m_WSTOTthr[etaBin] << endreq; 
-  if ( Wstot >= m_WSTOTthr[etaBin]) return HLT::OK;
-  PassedCuts++; //Wstot
+    msg() << MSG::DEBUG << "TrigEMCluster: Wstot=" << m_Wstot
+	  << " cut: <"  << m_WSTOTthr[m_etaBin] << endreq; 
+  if ( m_Wstot >= m_WSTOTthr[m_etaBin]) return HLT::OK;
+  m_PassedCuts++; //Wstot
 
   //F3
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigEMCluster: F3=" << F3
-	  << " cut: <"  << m_F3thr[etaBin] << endreq; 
-  if ( F3 > m_F3thr[etaBin]) return HLT::OK;
-  PassedCuts++; //F3
+    msg() << MSG::DEBUG << "TrigEMCluster: F3=" << m_F3
+	  << " cut: <"  << m_F3thr[m_etaBin] << endreq; 
+  if ( m_F3 > m_F3thr[m_etaBin]) return HLT::OK;
+  m_PassedCuts++; //F3
 
 
   // got this far => passed!

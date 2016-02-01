@@ -60,9 +60,9 @@ class TrigL2CaloLayersHypo: public HLT::HypoAlgo {
     
     bool m_acceptAll;
   
-    int PassedCuts; //!< counter for candidates passing each cut
-    float monEta; // Monitor cluster eta
-    float monPhi; // Monitor cluster phi!!
+    int m_PassedCuts; //!< counter for candidates passing each cut
+    float m_monEta; // Monitor cluster eta
+    float m_monPhi; // Monitor cluster phi!!
     float m_Energy; // Monitor total RoI energy
     float m_preSamp; // Presampler Energy
     float m_preSampFrac; // Presampler Energy Fraction
