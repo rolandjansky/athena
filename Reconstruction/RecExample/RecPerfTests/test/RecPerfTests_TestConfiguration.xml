@@ -27,7 +27,7 @@
 	<jobTransformJobName>rtt_generation_mc15_pythia8evtgen_a14nnpdf23lo_jetjet_jz6w_13tev</jobTransformJobName>
 	<jobTransformCmd>
 	  export TRF_ECHO=1;
-	  Generate_tf.py --jobConfig=MC15JobOptions/MC15.361026.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ6W.py --ecmEnergy=13000 --evgenJobOpts=MC15JobOpts-00-00-13_v1.tar.gz --firstEvent=1090001 --outputEVNTFile=myEVNT.pool.root --maxEvents 250 --randomSeed 1091 --runNumber=361026 --skipEvents=1090000 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True' | tee  __log.txt; 
+	  Generate_tf.py --jobConfig=MC15JobOptions/MC15.361026.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ6W.py --ecmEnergy=13000 --evgenJobOpts=MC15JobOpts-00-00-13_v1.tar.gz --firstEvent=1090001 --outputEVNTFile=myEVNT.pool.root --maxEvents 10 --randomSeed 1091 --runNumber=361026 --skipEvents=1090000 --preExec='from PerfMonComps.PerfMonFlags import jobproperties as pmjp;pmjp.PerfMonFlags.doPostProcessing=True;pmjp.PerfMonFlags.doSemiDetailedMonitoringFullPrint=True' | tee  __log.txt; 
 	  echo $? &gt;  __exitcode ; 
 	  touch __done ;
 	  grep  -i "Generate_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
