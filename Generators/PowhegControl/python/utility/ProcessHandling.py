@@ -73,9 +73,9 @@ class SingleProcessThread :
   def write_queued_output( self ) :
     for stream in [ 'stdout', 'stderr' ] :
       while True :
-        output = getattr( self, stream ).readline(timeout=0.1)
-        if output is None or len(output) == 0 : break
-        self.log( output, self.log_level[stream] )
+        output, queue_size = getattr( self, stream ).readline(timeout=0.1)
+        if not (output is None or len(output) == 0) : self.log( output, self.log_level[stream] )
+        if queue_size == 0 : break
 
 
   ## stdout stream from underlying process

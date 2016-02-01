@@ -21,11 +21,14 @@ class PowhegConfig_t_sch(PowhegConfig_base) :
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'CKM' )
+    self.add_parameter_set( 'electroweak properties', boson='w' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'lepton mass', prefix='tdec' )
     self.add_parameter_set( 'sin**2 theta W' )
-    self.add_parameter_set( 'single top' )
-    self.add_parameter_set( 'top decay branching' )
+    self.add_parameter_set( 'top decay branching', prefix='tdec' )
     self.add_parameter_set( 'top decay mode' )
-    self.add_parameter_set( 'top mass' )
+    self.add_parameter_set( 'top properties' )
+    self.add_parameter_set( 'upper bound' )
 
     ## Set optimised integration parameters
     self.ncall1  = 50000

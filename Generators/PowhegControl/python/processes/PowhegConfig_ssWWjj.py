@@ -22,23 +22,28 @@ class PowhegConfig_ssWWjj(PowhegConfig_base) :
     self.logger.warning( 'Integration parameters have not been validated - see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PowhegForATLAS#Changing_POWHEG_BOX_integration' )
 
     ## Add process specific options
-    self.add_parameter( 'smincuts', -1, desc='(default -1, Powheg-default)' )
+    self.add_parameter( 'smincuts', -1, desc='(-1:Powheg-default)' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'fake virtual' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
+    self.add_parameter_set( 'running scales' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
-    self.add_parameter_set( 'WW decay' )
+    self.add_parameter_set( 'WW decay', boson='W' )
+    self.add_parameter_set( 'zero width' )
 
     ## Set optimised integration parameters
-    self.itmx1   = 3
-    self.itmx2   = 4
-    self.ncall1  = 1000000
-    self.ncall2  = 100000
-    self.nubound = 100000
-    self.foldx   = 5
-    self.foldy   = 5
-    self.foldphi = 10
+    self.itmx1   = 5
+    self.itmx2   = 5
+    self.ncall1  = 10000000
+    self.ncall2  = 1000000
+    self.nubound = 1000000
+    self.foldx   = 25
+    self.foldy   = 25
+    self.foldphi = 25
 
     ## Override defaults
     self.withdamp = 0

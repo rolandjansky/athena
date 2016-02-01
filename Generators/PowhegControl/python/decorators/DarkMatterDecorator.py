@@ -17,7 +17,7 @@ class DarkMatterDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'DM_mass', 10,   default='{0}', desc='DM-candidate mass', parameter='DMmass' )
-    self.decorated.add_parameter( 'gDM', 1.0,      default='{0}', desc='X-Xbar-med coupling', parameter='DMgDM' )
-    self.decorated.add_parameter( 'gSM', 1.0,      default='{0}', desc='q-q-med coupling', parameter='DMgSM' )
-    self.decorated.add_parameter( 'idDM', 1000022, default='{0}', desc='PDG ID of DM particles' )
+    self.decorated.add_parameter( 'DM_mass', 10,   desc='DM-candidate mass', parameter='DMmass' )
+    self.decorated.add_parameter( 'gDM', 1.0,      desc='X-Xbar-med coupling', parameter='DMgDM' )
+    self.decorated.add_parameter( 'gSM', 1.0,      desc='q-q-med coupling', parameter='DMgSM' )
+    self.decorated.add_parameter( 'idDM', 1000022, desc='PDG ID of DM particles' )

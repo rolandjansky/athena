@@ -21,13 +21,14 @@ class PowhegConfig_ggF_HZ(PowhegConfig_base) :
     self._powheg_executable += '/ggHZ/pwhg_main'
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'Higgs + vector boson' )
     self.add_parameter_set( 'Higgs fixed width' )
-    self.add_parameter_set( 'Higgs mass window' )
     self.add_parameter_set( 'Higgs properties' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scales' )
-    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'top properties' )
     self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'vector boson decay mode' )
     self.add_parameter_set( 'Z mass window' )
 
     ## Set optimised integration parameters

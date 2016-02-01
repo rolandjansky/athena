@@ -4,7 +4,6 @@
 #  Powheg configuration for VBF_ssWW subprocess
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
-#           Daniel Hayden   <danhayden0@googlemail.com>
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
@@ -19,13 +18,16 @@ class PowhegConfig_VBF_ssWW(PowhegConfig_base) :
     super(PowhegConfig_VBF_ssWW, self).__init__( runArgs, opts )
     self._powheg_executable += '/vbf_wp_wp/pwhg_main'
 
+    ## Logger warnings for unvalidated process
+    self.logger.warning( 'Integration parameters have not been validated - see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PowhegForATLAS#Changing_POWHEG_BOX_integration' )
+
     ## Decorate with generic option sets
-    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fake virtual' )
-    self.add_parameter_set( 'LHEv3' )
-    self.add_parameter_set( 'MiNLO NNLL' )
-    self.add_parameter_set( 'radiation parametrisation' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scales' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
     self.add_parameter_set( 'WW decay', boson='w' )
     self.add_parameter_set( 'zero width' )

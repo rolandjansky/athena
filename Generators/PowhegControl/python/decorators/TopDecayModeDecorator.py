@@ -17,4 +17,4 @@ class TopDecayModeDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'topdecaymode', 0, default='{0}', desc='5 digits indicating the maximum number of (e,mu,tau,u,c) allowed in decays' )
+    self.decorated.add_parameter( 'topdecaymode', 0, desc='5 digits indicating the maximum number of (e,mu,tau,u,c) allowed in decays' )

@@ -19,8 +19,8 @@ class DibosonDecorator(object) :
 
     self.decorated.allowed_decay_modes = []
 
-    self.decorated.add_phantom(   'decay_mode', None, default='{0}', desc='Diboson decay mode' )
-    self.decorated.add_parameter( 'dronly', 0,        default='{0}', desc='(0:disabled; 1:enabled) include only double resonant diagrams' )
+    self.decorated.add_phantom(   'decay_mode', None, desc='Diboson decay mode' )
+    self.decorated.add_parameter( 'dronly', 0,        desc='(0:disabled; 1:enabled) include only double resonant diagrams' )
 
 
   def finalise( self ) :
@@ -29,4 +29,4 @@ class DibosonDecorator(object) :
       self.decorated.logger.warning( 'Decay mode {0} not recognised!'.format( self.decorated.decay_mode) )
     ## Add entry for each decay mode
     for decay_mode in self.decorated.allowed_decay_modes :
-      self.decorated.fix_parameter( decay_mode, [-1,1][decay_mode==self.decorated.decay_mode], default='{0}', desc='(default user-configured) Diboson decay mode, 1:enabled; -1:disabled' )
+      self.decorated.fix_parameter( decay_mode, [-1,1][decay_mode==self.decorated.decay_mode], default='user-configured', desc='(1:enabled; -1:disabled) Diboson decay mode, ' )

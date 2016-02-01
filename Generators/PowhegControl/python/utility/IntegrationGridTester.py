@@ -31,14 +31,15 @@ class IntegrationGridTester(object):
     inclusive_xs, inclusive_xs_error, negative_weights, total_weights, n_events, n_upper_bound_failures = 0, 0, 0, 0, 0, 0
     for file_name in glob.glob( 'pwg*stat*.dat' ) :
       if os.path.isfile( file_name ) :
-        # Inclusive cross-section uncertainty
+        # Inclusive cross-section uncertainty [relative error on (total pos + |total neg|)]
         with open( file_name, 'rb' ) as data_file :
           try :
-            matched_lines = [ line.replace('+-','') for line in data_file if re.match(r'(.*)(total(.*)cross section|suppression factor)(.*)[0-9](.*)\+\-(.*)[0-9](.*)', line) ]
+            matched_lines = [ line.replace('+-','') for line in data_file if re.match(r'(.*)(btilde(.*)weights)(.*)[0-9](.*)\+\-(.*)[0-9](.*)', line) ]
             if len(matched_lines) > 0 :
-              inclusive_xs_values = map( float, re.findall( cls.__re_match_floats, matched_lines[0] ) )
-              inclusive_xs += inclusive_xs_values[0]
-              inclusive_xs_error += inclusive_xs_values[1]
+              positive_weight_xs = sum( [ map( float, re.findall(cls.__re_match_floats,line) ) for line in matched_lines if 'pos.' in line ], [] )
+              negative_weight_xs = sum( [ map( float, re.findall(cls.__re_match_floats,line) ) for line in matched_lines if '|neg.|' in line ], [] )
+              inclusive_xs += positive_weight_xs[0] + negative_weight_xs[0]
+              inclusive_xs_error += math.sqrt( positive_weight_xs[1]**2 + negative_weight_xs[1]**2 )
           except : # catch all exceptions
             pass
         # Negative weight test
@@ -53,13 +54,13 @@ class IntegrationGridTester(object):
 
     for file_name in glob.glob( 'pwgcounters*.dat' ) :
       if os.path.isfile( file_name ) :
-        # Upper bound violations
+        # Upper bound violations [in inclusive cross-section and generation of radiation]
         with open( file_name, 'rb' ) as data_file :
           try :
             matched_lines = [ line.replace('+-','') for line in data_file if re.match(r'(.*)(btilde event|remnant event|upper bound failure)(.*)[0-9](.*)', line) ]
             if len(matched_lines) > 0 :
-              n_events += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'event' in line][0] ) )[0]
-              n_upper_bound_failures += sum( map( float, sum( [ re.findall( cls.__re_match_floats, line ) for line in matched_lines if 'upper bound failure' in line ], [] ) ) )
+              n_events += sum( map( float, [ re.findall(cls.__re_match_floats,line)[0] for line in matched_lines if 'event' in line ] ) )
+              n_upper_bound_failures += sum( map( float, [ re.findall(cls.__re_match_floats,line)[0] for line in matched_lines if 'upper bound failure' in line ] ) )
           except : # catch all exceptions
             pass
 
@@ -82,5 +83,7 @@ class IntegrationGridTester(object):
       getattr( logger, ['warning','info'][0.0 <= inclusive_xs_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('cross-section uncertainty', inclusive_xs_test) )
       getattr( logger, ['warning','info'][0.0 <= negative_weight_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('negative weight fraction', negative_weight_test) )
       getattr( logger, ['warning','info'][0.0 <= upper_bound_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('upper bound violations', upper_bound_test) )
+      if inclusive_xs_test < 0.0 or inclusive_xs_test >= 1.0 or negative_weight_test < 0.0 or negative_weight_test >= 1.0 or upper_bound_test < 0.0 or upper_bound_test >= 1.0 :
+        logger.warning( 'Not all integration tests passed. Please ensure that physics validation is done before using this sample!' )
     except : # catch all exceptions
       pass

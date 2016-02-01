@@ -20,18 +20,21 @@ class PowhegConfig_ttH(PowhegConfig_base) :
     self._powheg_executable += '/ttH/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'delta_mttmin', 0, desc='(default 0d0) if not zero, use generation cut on m_tt' )
+    self.add_parameter( 'delta_mttmin', 0, desc='if non-zero, use generation cut on m_tt' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fake virtual' )
+    self.add_parameter_set( 'generic scale' )
     self.add_parameter_set( 'Higgs decay mode' )
     self.add_parameter_set( 'Higgs properties' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scales' )
     self.add_parameter_set( 'semileptonic' )
-    self.add_parameter_set( 'top decay branching', tdec_prefix=False )
+    self.add_parameter_set( 'top decay branching' )
     self.add_parameter_set( 'top decay mode' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
     self.add_parameter_set( 'zero width' )
 
@@ -42,6 +45,6 @@ class PowhegConfig_ttH(PowhegConfig_base) :
 
     ## Override defaults
     self.minlo        = -1
-    self.topdecaymode = 00000 #22222 - decaying tops not supported at the moment
+    self.topdecaymode = 22222
 
     self.populate_default_strings()

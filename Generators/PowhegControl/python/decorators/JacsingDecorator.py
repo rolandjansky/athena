@@ -17,4 +17,4 @@ class JacsingDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'jacsing', -1, default='{0}', desc='(-1:use Powheg default)' )
+    self.decorated.add_parameter( 'jacsing', -1, desc='(-1:use Powheg default)' )

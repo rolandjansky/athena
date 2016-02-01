@@ -17,4 +17,4 @@ class HeavyQuarkDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'quark_mass', -1, default='{0}', desc='mass of heavy quark in GeV', parameter='qmass' )
+    self.decorated.add_parameter( 'quark_mass', -1, desc='mass of heavy quark in GeV', parameter='qmass' )

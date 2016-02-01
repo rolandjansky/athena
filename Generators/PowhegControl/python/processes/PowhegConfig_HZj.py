@@ -19,36 +19,38 @@ class PowhegConfig_HZj(PowhegConfig_base) :
     self._powheg_executable += '/HZJ/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'bornsuppfactV', -1 )
     self.add_parameter( 'kappa_ghz', 1, desc='multiplicative kappa-factor of the Higgs-Z coupling' )
-    self.add_parameter( 'ptVhigh', -1 )
-    self.add_parameter( 'ptVlow', -1 )
-    self.add_parameter( 'Vstep', -1 )
 
     ## Decorate with generic option sets
-    self.add_parameter_set( 'Higgs mass window' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'Higgs + vector boson' )
+    self.add_parameter_set( 'Higgs + vector boson + jet' )
     self.add_parameter_set( 'Higgs properties' )
-    self.add_parameter_set( 'Higgs+V+jet' )
-    self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'MiNLO NNLL' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scales' )
-    self.add_parameter_set( 'top mass' )
-    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'top properties' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'vector boson decay mode' )
     self.add_parameter_set( 'Z mass window' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 40000
-    self.ncall2   = 150000
-    self.nubound  = 100000
+    self.itmx1    = 8
+    self.itmx2    = 5
+    self.ncall1   = 60000
+    self.ncall2   = 60000
+    self.nubound  = 300000
     self.xupbound = 4
-    self.foldx    = 5
-    self.foldy    = 10
+    self.foldx    = 10
+    self.foldy    = 5
     self.foldphi  = 5
+
 
     ## Override defaults
     self.doublefsr   = 1
-    self.mass_Z_low  = 60.0
+    self.mass_Z_low  = 10.0
     self.mass_Z_high = 2.0 * self.beam_energy
 
     self.populate_default_strings()

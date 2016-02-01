@@ -22,16 +22,19 @@ class PowhegConfig_Hjj(PowhegConfig_base) :
     self.logger.warning( 'Integration parameters have not been validated - see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PowhegForATLAS#Changing_POWHEG_BOX_integration' )
 
     ## Add process specific options
-    self.add_parameter( 'polecheck', -1 )
+    self.add_parameter( 'polecheck', -1, desc='(-1:Powheg default)' )
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'Breit-Wigner width' )
     self.add_parameter_set( 'CKKW' )
-    self.add_parameter_set( 'H+jets' )
+    self.add_parameter_set( 'generic scale' )
     self.add_parameter_set( 'Higgs fixed width' )
     self.add_parameter_set( 'Higgs properties' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'radiation parametrisation' )
     self.add_parameter_set( 'running scales' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters

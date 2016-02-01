@@ -17,4 +17,4 @@ class ZeroWidthDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'zerowidth', 0, default='{0}', desc='(0:disabled; 1:enabled) use on-shell quarks/bosons only' )
+    self.decorated.add_parameter( 'zerowidth', 0, desc='(0:disabled; 1:enabled) use on-shell quarks/bosons only' )

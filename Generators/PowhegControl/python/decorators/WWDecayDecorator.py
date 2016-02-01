@@ -12,13 +12,13 @@ class WWDecayDecorator(object) :
   ## Define decorator name string
   name = 'WW decay'
 
-  def __init__( self, decorated, boson='W' ) :
+  def __init__( self, decorated, boson ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
     self.decorated.allowed_decay_modes = []
-    self.decorated.add_phantom( 'decay_mode', None, default='{0}', desc='WW decay mode' )
+    self.decorated.add_phantom( 'decay_mode', None, desc='WW decay mode' )
     self.boson = boson
 
 

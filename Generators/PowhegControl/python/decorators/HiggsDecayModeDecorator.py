@@ -17,4 +17,4 @@ class HiggsDecayModeDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'hdecaymode', 0, default='{0}', desc='(-1:no decay; 0:all; 1-6:dd, uu etc.; 7-9:e+e-, etc.; 10:WW; 11:ZZ; 12:gammagamma) Higgs boson decay' )
+    self.decorated.add_parameter( 'hdecaymode', 0, desc='(-1:no decay; 0:all; 1-6:dd, uu etc.; 7-9:e+e-, etc.; 10:WW; 11:ZZ; 12:gammagamma) Higgs boson decay' )

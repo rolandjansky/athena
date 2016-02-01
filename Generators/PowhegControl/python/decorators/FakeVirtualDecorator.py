@@ -17,4 +17,4 @@ class FakeVirtualDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'fakevirt', 0, default='{0}', desc='(0:disabled; 1:enabled) use Born for virtuals - DO NOT USE when generating events.' )
+    self.decorated.add_parameter( 'fakevirt', 0, desc='(0:disabled; 1:enabled) use Born for virtuals - DO NOT USE when generating events.' )

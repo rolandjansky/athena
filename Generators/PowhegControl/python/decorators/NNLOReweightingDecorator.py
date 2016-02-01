@@ -16,8 +16,8 @@ class NNLOReweightingDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_phantom( 'NNLO_reweighting_inputs', {}, default='{0}', desc='dictionary of labels => (pre-existing) HNNLO output' )
-    self.decorated.add_phantom( 'NNLO_output_weights', {},     default='{0}', desc='dictionary of weight ID string => weight calculation in NNLOPS format' )
+    self.decorated.add_phantom( 'NNLO_reweighting_inputs', {}, desc='dictionary of labels => (pre-existing) HNNLO output' )
+    self.decorated.add_phantom( 'NNLO_output_weights', {},     desc='dictionary of weight ID string => weight calculation in NNLOPS format' )
 
 
   def finalise( self ) :
