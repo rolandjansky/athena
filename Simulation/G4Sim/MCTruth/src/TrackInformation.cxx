@@ -5,11 +5,15 @@
 #include "MCTruth/TrackInformation.h"
 #include "HepMC/GenEvent.h"
 
-TrackInformation::TrackInformation():regenerationNr(0),theParticle(0),theISFParticle(0),returnedToISF(false)
+TrackInformation::TrackInformation():regenerationNr(0),theParticle(0),theBaseISFParticle(0),returnedToISF(false)
 {
 }
 
-TrackInformation::TrackInformation(const HepMC::GenParticle *p,const ISF::ISFParticle* isp):regenerationNr(0),theParticle(p),theISFParticle(isp),returnedToISF(false)
+TrackInformation::TrackInformation(const HepMC::GenParticle *p,const ISF::ISFParticle* baseIsp):
+    regenerationNr(0),
+    theParticle(p),
+    theBaseISFParticle(baseIsp),
+    returnedToISF(false)
 {
 }
 
@@ -18,19 +22,14 @@ const HepMC::GenParticle* TrackInformation::GetHepMCParticle() const
   return theParticle;
 }
 
-const ISF::ISFParticle* TrackInformation::GetISFParticle() const
+const ISF::ISFParticle* TrackInformation::GetBaseISFParticle() const
 {
-  return theISFParticle;
+  return theBaseISFParticle;
 }
 
 int TrackInformation::GetParticleBarcode() const
 {
-  //return theParticle?theParticle->barcode():-1;
-  if (!theParticle) {
-    std::cout<<"*AS* ERROR TrackInformation::GetParticleBarcode() without particle "<<std::endl;
-    return -1;
-  }
-  return theParticle->barcode();
+  return ( theParticle ? theParticle->barcode() : 0 );
 }
 
 void TrackInformation::SetParticle(const HepMC::GenParticle* p)
@@ -38,7 +37,7 @@ void TrackInformation::SetParticle(const HepMC::GenParticle* p)
   theParticle=p;
 }
 
-void TrackInformation::SetISFParticle(const ISF::ISFParticle* p)
+void TrackInformation::SetBaseISFParticle(const ISF::ISFParticle* p)
 {
-  theISFParticle=p;
+  theBaseISFParticle=p;
 }

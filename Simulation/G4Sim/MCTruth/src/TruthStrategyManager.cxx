@@ -227,8 +227,8 @@ void TruthStrategyManager::SaveSecondaryVertex(G4Track* primaryTrack,
 		// see if TrackInformation already exists
 		VTrackInformation* trackInfo = dynamic_cast<VTrackInformation*>(secondaries[itrack]->GetUserInformation());		  
 		if (trackInfo) {
-		  const ISF::ISFParticle* parent=trackInfo->GetISFParticle();
-		  ti->SetISFParticle(parent);
+		  const ISF::ISFParticle* parent=trackInfo->GetBaseISFParticle();
+		  ti->SetBaseISFParticle(parent);
 		}
 		secondaries[itrack]->SetUserInformation(ti);
 		vtx->add_particle_out(p2);
