@@ -1,9 +1,10 @@
 <?xml version="1.0" ?>
+<!-- Please note this is Heavy Ion data -->
 <trigger>
   <lumivalues>
     <lumivalues_data>6.37e+25</lumivalues_data>
     <lumivalues_pred>2e+27</lumivalues_pred>
-    <deadtime>0.00</deadtime>
+    <deadtime>0.04</deadtime>
     <peak_mu_av>1.2e-5</peak_mu_av>
   </lumivalues>
   <bunchgroups>
@@ -120,8 +121,8 @@
     <lb id="472">7895</lb>
     <lb id="473">7738</lb>
     <lb id="474">7709</lb>
-    <lb id="475">2937</lb>
-    <lb id="476">30184</lb>
+    <lb id="475" flag="bad">2937</lb>
+    <lb id="476" flag="bad">30184</lb>
     <lb id="477">6011</lb>
   </lb_list>
   <filters>

@@ -55,7 +55,7 @@ namespace TrigCostRootAnalysis {
 
     bufferSequenceAlgCallsCaches(); // Needs mapChainAndSeqToAlg
     bufferChainSeqTime();
-    bufferChainAlgCalls(); // Needs bufferSequenceAlgCallsCaches
+    bufferChainAlgCalls(); // This ALSO buffers chain Rerun status. Needs bufferSequenceAlgCallsCaches
 
     //bufferChainPassed(); // Is anything using this?
     //bufferIsL1PassedBeforePrescale(); // Is anything using this?
@@ -65,6 +65,15 @@ namespace TrigCostRootAnalysis {
       bufferSeqROSInformation(); // needs bufferAlgRosInformation
       bufferChainRosInformation(); // Needs mapChainAndSeqToAlg
     }
+  }
+
+
+  /**
+   * Figure out if the alg is part of a chain which was resurrected
+   */
+  Bool_t TrigCostData::getSeqIsRerun(UInt_t _n) const { 
+    Int_t _chainID = getSequenceChannelCounter(_n);
+    return m_chainRerunStatus[ _chainID ];
   }
 
   /**
@@ -141,12 +150,15 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Calculate the number of algorithms which are called by a chain. This is buffered, along with caches.
+   * Also buffers the rerun status flag
    * @param _n Chain index in D3PD.
    * @return Total number of algorithm calls by the chain in the event.
    **/
   void TrigCostData::bufferChainAlgCalls() const {
     for (UInt_t _c = 0; _c < this->getNChains(); ++_c) {
       Int_t _chainID = this->getChainID(_c);
+
+      m_chainRerunStatus[ _chainID ] = (Bool_t) getIsChainResurrected(_c);
 
       UInt_t _called = 0;
       UInt_t _cached = 0;
@@ -926,8 +938,9 @@ namespace TrigCostRootAnalysis {
       if (getIsRoINone(_n) == kTRUE) return Config::config().getStr(kNoneString);
       else if (getIsRoIMuon(_n) == kTRUE) return Config::config().getStr(kMuonString);
       else if (getIsRoIEmTau(_n) == kTRUE) {
-        if (getIsRoITau(_n))  return Config::config().getStr(kTauString);
-        else return Config::config().getStr(kEmString);
+        return Config::config().getStr(kEmTauString);
+        //if (getIsRoITau(_n))  return Config::config().getStr(kTauString); // For later
+        //else return Config::config().getStr(kEmString);
       } else if (getIsRoIJet(_n) == kTRUE) return Config::config().getStr(kJetString);
       else if (getIsRoIJetEt(_n) == kTRUE) return Config::config().getStr(kJetEtString);
       else if (getIsRoIEnergy(_n) == kTRUE) return Config::config().getStr(kEnergyString);
@@ -993,6 +1006,7 @@ namespace TrigCostRootAnalysis {
       m_seqROBRetSize.clear();
       m_seqROBReqSize.clear();
       m_seqROBOther.clear();
+      m_chainRerunStatus.clear();
     }
   }
 

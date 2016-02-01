@@ -58,6 +58,8 @@ namespace TrigCostRootAnalysis {
     void setLevel( UInt_t _l );
     CounterMap_t* getCounterCollection(const std::string& _identifier);
     UInt_t getNCounters();
+    void setPass(UInt_t _pass);
+    UInt_t getPass();
 
     struct TableColumnFormatter {
       TableColumnFormatter(const std::string& _title,
@@ -114,19 +116,18 @@ namespace TrigCostRootAnalysis {
     void endEvent(Float_t _weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
-    Bool_t checkPatternNameMonitor( const std::string& _patternName );
-    Bool_t checkPatternNameOutput( const std::string& _patternName );
-    Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list );
     void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kFALSE);
 
     std::string m_name; //<! Name of this monitor, for use in output.
     UInt_t m_level; //<! Level of monitor (2 or 3)
+    UInt_t m_pass; //<! On rare occasions we may need more than one pass through the file, this holds which pass we're on
     UInt_t m_detailLevel; //!<< How detailed this monitor is to be, passed on to created Counters
     CounterBase* m_dummyCounter; //!< Counter of appropriate type which is not used for monitoring, but can be used to reset static tabulators & generate output patterns.
     Bool_t m_allowSameNamedCounters; //!< If true, one counter is registered per unique name. If false, every call to getCounter will assign a new counter.
     Bool_t m_allowSameIDCounters; //<! For counters where there may be a many->one mapping of ID->name. Disable warning.
     Bool_t m_filterOutput; //!< Set if the user's supplied chain name filter is to be applied to this monitor's counters during the output routine.
     Bool_t m_invertFilter; //!< Set true to have the filter specify items *not* to be saved.
+    Bool_t m_isCPUPrediction; //!< Flag implies prescales were applied to EB on the grid. Monitors should use after prescale bits rather than before
     ConfKey_t m_filterOnDecorationKey; //!< If the output is filtered by decoration, holds which decoration to use
     std::string m_filterOnDecorationValue; //!< If output is filtered by decoration, holds string must be an exact match
 

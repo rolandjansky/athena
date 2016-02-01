@@ -8,6 +8,9 @@
 //  author: Tim Martin <Tim.Martin@cern.ch>
 // -------------------------------------------------------------
 
+// STL include(s):
+#include <bitset>
+
 // Local include(s):
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 #include "../TrigCostRootAnalysis/CounterBaseRates.h"
@@ -15,6 +18,7 @@
 
 // ROOT includes
 #include <TError.h>
+#include <TMath.h>
 
 namespace TrigCostRootAnalysis {
 
@@ -39,7 +43,8 @@ namespace TrigCostRootAnalysis {
     m_inEvent(kFALSE),
     m_doDirectPS(kFALSE),
     m_matchRandomToOnline(kFALSE),
-    m_iAmRandom(kFALSE)
+    m_iAmRandom(kFALSE),
+    m_triggerLogic(nullptr)
   {
     if (Config::config().debug()) {
       Info("RatesChainItem::RatesChainItem","New ChainItem:%s, Level:%i PS:%f", m_name.c_str(), m_level, m_PS);
@@ -112,7 +117,7 @@ namespace TrigCostRootAnalysis {
    * @param _extraEfficiency Additional scaling factor which will scale the rate when the item fires
    */
   void RatesChainItem::setExtraEfficiency(Double_t _extraEfficiency) {
-    m_extraEfficiency = _extraEfficiency;
+    m_extraEfficiency *= _extraEfficiency;
   }
 
   /**
@@ -120,7 +125,7 @@ namespace TrigCostRootAnalysis {
    * @param _reductionFactor Scale rate down by this factor
    */
   void RatesChainItem::setRateReductionFactor(Double_t _reductionFactor) {
-    m_extraEfficiency = 1. / _reductionFactor;
+    m_extraEfficiency *= 1. / _reductionFactor;
   }
 
 
@@ -288,8 +293,77 @@ namespace TrigCostRootAnalysis {
         m_inEvent = kFALSE;
       }
     }
-
   }
+
+  /**
+   * @param _eventTOBs A TOBAccumulator of all TOBs in this event or pseudo-event (simulated high pileup TOB overlay).
+   * Note - this function call requires a TriggerLogic pointer to be set, this logic will be used against the set of TOBs
+   */
+  void RatesChainItem::beginEvent(TOBAccumulator* _eventTOBs) {
+    m_inEvent = kTRUE;
+    static Bool_t _largeJetWindow = Config::config().getInt(kUpgradeJetLargeWindow);
+
+    // Loop over logic
+    m_passRaw = kTRUE; // Assume we passed, see if we didn't
+    for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
+
+      if (_condition.m_type == kMissingEnergyString) {
+        if (_eventTOBs->MET() < _condition.m_thresh) {
+          m_passRaw = kFALSE;
+          break;
+        } 
+      } else if (_condition.m_type == kEnergyString) {
+        if (_eventTOBs->HT() < _condition.m_thresh) {
+          m_passRaw = kFALSE;
+          break; 
+        }
+      } else {  // For EM/JET/TAU/MU
+
+        UInt_t _tobsPassingCondition = 0;
+        for (const auto& _tob : _eventTOBs->TOBs() ) {
+          if (_tob.m_type != _condition.m_type) continue; // Incorrect type (EM/TAU/MU etc.)
+          Float_t _et = _tob.m_et;
+          if (_tob.m_type == kJetString && _largeJetWindow == kTRUE) _et = _tob.m_etLarge;
+          // Energy too low ?
+          if (_tob.m_type == kMuonString) {
+            if (_et < _condition.m_thresh) continue; // Muons are at set thresholds so should be <
+          } else {
+            if (_et <= _condition.m_thresh) continue; // From testing on jets, really does seem to be <=
+          }
+          if (TMath::Abs(_tob.m_eta) * 10 < _condition.m_min) continue; // eta too low
+          if (TMath::Abs(_tob.m_eta) * 10 > _condition.m_max) continue; // eta too high
+          if (_condition.m_iso != 0) { // Check isolation bits (if conditions require isolation)
+            std::bitset<5> _tobIso = _tob.m_iso;
+            std::bitset<5> _conditionIso = _condition.m_iso;
+            Bool_t _pass = kTRUE;
+            for (UInt_t _b = 0; _b < 5; ++_b) {
+              if (_conditionIso.test(_b) == kTRUE && _tobIso.test(_b) == kFALSE) _pass = kFALSE;
+            }
+            if (_pass == kFALSE) continue; // A required isolation bit was not found
+          }
+          ++_tobsPassingCondition; // All requirements met
+          if (_tobsPassingCondition == _condition.m_multi) break; // Do we have enough TOBs passing this condition? Bail out if so, don't need more
+        }
+        if (_tobsPassingCondition < _condition.m_multi) {
+          m_passRaw = kFALSE; // A condition was not satisfied :( all must be satisfied. We cannot accept this event.
+          break;
+        }
+
+      }
+    }
+
+    //Info("RatesChainItem::beginEvent","%s applying logic to %i TOBs (passed - %i) MET is %f HT is %f", getName().c_str(), _eventTOBs->TOBs().size(), (Int_t)m_passRaw, _eventTOBs->MET(), _eventTOBs->HT());
+
+
+    // For random seeded triggers where the HLT was re-run, we need to check that we only run over unbiased events in the sample
+    if (m_matchRandomToOnline == kTRUE && m_iAmRandom == kTRUE) {
+      if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) {
+        m_passRaw = kFALSE;
+        m_inEvent = kFALSE;
+      }
+    }
+  }
+
 
   /**
    * Reset all flags to zero
@@ -383,4 +457,22 @@ namespace TrigCostRootAnalysis {
     return (getPassRaw() && getPassPS());
   }
 
+  /**
+   * @param _tl Use a TriggerLogic to generate the pass/fail for this chain
+   * Note this is required to use void beginEvent(TOBAccumulator* _eventTOBs, CounterBaseRatesSet_t& _counterSet)
+   * RatesChainItem object does not own the trigger logic.
+   */
+  void RatesChainItem::setTriggerLogic(TriggerLogic* _tl) {
+    m_triggerLogic = _tl;
+  }
+
+  /**
+   * @return Pointer to any registered TriggerLogic item
+   */
+  TriggerLogic* RatesChainItem::getTriggerLogic() {
+    return m_triggerLogic;
+  }
+
 } // namespace TrigCostRootAnalysis
+
+

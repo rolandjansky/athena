@@ -77,13 +77,14 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Monitor rate of this chain
-   * @param _e For rates processing this is an unbiased flag, true if event was unbiased online.
-   * @param _f Extra rates factor for unbiased events - to allow scaling due to pileup. Passed as int for technical reasons
+   * @param _e Unused
+   * @param _f Unused
    * @param _weight Event weight.
    */
   void CounterBaseRates::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+    UNUSED(_e);
+    UNUSED(_f);
     ++m_calls;
-    const Bool_t _unbiased = (Bool_t)_e;
 
     if (getInEvent() == kFALSE) return;
     // Reminder - _weight here is the enhanced bias event weight. May be already multiplied up by the basic weight (if not the default value of 1)
@@ -115,17 +116,6 @@ namespace TrigCostRootAnalysis {
     m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
     m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
 
-    if (_unbiased == kTRUE) { // This is only used in upgrade rates?
-      m_dataStore.store(kVarUnbiasedRun, 1., _weight * _scaleByPS); // Times UNBIASED chain is processed, regardless of decision. Other weights inc.
-      if (!isZero(_weightPS)) {
-        m_dataStore.store(kVarUnbiasedPassed, 1., _weightPS * _weight * _scaleByPS); // Chain passes UNBIASED with weight from PS as a float 0-1. Other weights inc.
-        // Now we add the contribution of pileup. Note this is another call to add rate to the main accumulator
-        // We just use the event weight here - no extrapolation factors
-        const Float_t _unbiasedScaling = (Float_t) _f;
-        if (!isZero(_unbiasedScaling)) m_dataStore.store(kVarEventsPassed, 1., _weightPS * Config::config().getFloat(kCurrentEventEBWeight) * _unbiasedScaling );
-      } 
-
-    }
   }
 
   /**
@@ -184,12 +174,12 @@ namespace TrigCostRootAnalysis {
    * @return Prescale of top level of basic chain
    */
   UInt_t CounterBaseRates::getBasicPrescale() {
-    if (getStrDecoration(kDecType) == "L1" || getStrDecoration(kDecType) == "L0") {
+    if (getStrDecoration(kDecType) == "L1") {
       if (m_L1s.size() != 1) {
         Warning("CounterBaseRates::getBasicPrescale", "Expected only 1x L1 chain but found %i.", (Int_t)m_L1s.size());
       }
       return (**m_L1s.begin()).getPS();
-    } else if (getStrDecoration(kDecType) == "Chain") {
+    } else if (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L2") {
       if (m_L2s.size() != 1) {
         Warning("CounterBaseRates::getBasicPrescale", "Expected only 1x L2 chain but found %i.", (Int_t)m_L2s.size());
       }

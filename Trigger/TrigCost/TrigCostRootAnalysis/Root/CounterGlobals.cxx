@@ -57,6 +57,10 @@ namespace TrigCostRootAnalysis {
     .setSavePerCall("Algorithm WallTime Per Algorithm Call;Algorithm Time [ms];Calls")
     .setSavePerEvent("Algorithm WallTime Per Event;Algorithm Time [ms];Events");
 
+    m_dataStore.newVariable(kVarRerunTime).setSavePerEvent();
+
+    m_dataStore.newVariable(kVarPassTime).setSavePerEvent();
+
     m_dataStore.newVariable(kVarAlgCalls).setSavePerEvent().setSavePerCall(); //TODO remove this latter one
 
     m_dataStore.newVariable(kVarROSTime).setSavePerEvent("Readout System Time Per Event;ROS Time [ms];Events");
@@ -92,6 +96,7 @@ namespace TrigCostRootAnalysis {
     ++m_calls;
     UNUSED( _e );
     UNUSED( _f );
+    static Bool_t _invertFilter = (Bool_t) Config::config().getInt(kPatternsInvert);
 
     m_earliestTimestamp = FLT_MAX;
     m_latestTimestamp = FLT_MIN;
@@ -110,26 +115,31 @@ namespace TrigCostRootAnalysis {
     if (m_costData->getNChains()) m_dataStore.store(kVarHLTEvents, 1., _weight);
 
     //Did HLT pass?
+    Bool_t _hltPass = kFALSE;
     for (UInt_t _i = 0; _i < m_costData->getNChains(); ++_i) {
       if ( m_costData->getIsChainPassed( _i ) == kFALSE ) continue;
-      if ( TrigConfInterface::getHLTNameFromChainID( m_costData->getChainID( _i ) ).find("costmonitor") != std::string::npos ) continue; // This always passes!
+      const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( m_costData->getChainID( _i ) );
+      if ( _chainName.find("costmonitor") != std::string::npos ) continue; // This always passes!
+      if ( checkPatternNameMonitor( _chainName, _invertFilter, m_costData->getIsChainResurrected(_i) ) == kFALSE ) continue;
       m_dataStore.store(kVarHLTPassEvents, 1., _weight);
+      _hltPass = kTRUE;
       break;
     }
 
     // Look at all algs in this event
+    Int_t _havePatterns = Config::config().getVecSize(kPatternsMonitor);
     for (UInt_t _s = 0; _s < m_costData->getNSequences(); ++_s) {
       // Loop over all algorithms in sequence
+      Bool_t _isRerun = m_costData->getSeqIsRerun(_s);
       for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
 
         Float_t _algWeight = _weight * getPrescaleFactor(_e);
         if (isZero(_algWeight) == kTRUE) continue;
 
-        if ( Config::config().getVecSize(kPatternsMonitor) > 0) {
+        if ( _havePatterns > 0 ) {
           Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
-          const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID, m_costData->getSequenceLevel(_s) );
-          if (Config::config().getInt(kPatternsInvert) == kFALSE && Config::config().getVecMatches(kPatternsMonitor, _chainName) == kFALSE ) continue;
-          if (Config::config().getInt(kPatternsInvert) == kTRUE && Config::config().getVecMatches(kPatternsMonitor, _chainName) == kTRUE ) continue;
+          const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID );
+          if ( checkPatternNameMonitor( _chainName, _invertFilter, m_costData->getSeqIsRerun(_s) ) == kFALSE ) continue;
         }
 
         m_dataStore.store(kVarAlgCalls, 1., _algWeight);
@@ -137,6 +147,9 @@ namespace TrigCostRootAnalysis {
         m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);
         m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_s, _a), _algWeight);
         m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_s, _a) - m_costData->getSeqAlgROSTime(_s, _a), _algWeight);
+
+        if (_isRerun) m_dataStore.store(kVarRerunTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);
+        if (_hltPass) m_dataStore.store(kVarPassTime,  m_costData->getSeqAlgTimer(_s, _a), _algWeight);
 
         // Calculate the start and stop from the steering info
         if ( !isZero(m_costData->getSeqAlgTimeStart(_s, _a)) && m_costData->getSeqAlgTimeStart(_s, _a) < m_earliestTimestamp ) {
