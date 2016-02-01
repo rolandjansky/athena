@@ -11,12 +11,14 @@ macro MadGraph_home "${SITEROOT}/atlas/offline/external/madgraph" \
         EXTSITE     "${SITEROOT}/madgraph" \
         STANDALONE  "${SITEROOT}/madgraph"
 
-macro MadGraph_native_version "MG5_aMC_v2_2_3_p4"
+macro MadGraph_native_version "MG5_aMC_v2_3_3"
 
 set MADPATH "$(MadGraph_home)/$(MadGraph_native_version)"
 
 macro MadGraph_export_paths "$(MadGraph_home)/$(MadGraph_native_version)"
-macro MadGraph_follow_symlinks "" PACK yes
+
+# This is how we would copy files instead of copying links
+#macro MadGraph_follow_symlinks "" PACK yes
 
 apply_pattern install_external_home
 
