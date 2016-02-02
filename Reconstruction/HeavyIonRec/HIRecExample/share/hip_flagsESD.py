@@ -5,6 +5,7 @@ if rec.doESD :
      print "Applying HIP ESD flags mods"
 
      from RecExConfig.RecFlags import rec
+     rec.Commissioning.set_Value_and_Lock(True)
 
      from InDetRecExample.InDetJobProperties import InDetFlags
      InDetFlags.doMinBias.set_Value_and_Lock(True)
