@@ -1,9 +1,11 @@
 # Andrzej Olszewski
-# cleanup from CBNT mods # 15 Sep 2010
-###################################################
+####################################################
 
-# debug print at the end of setup
-DetFlags.Print()
+if rec.doESD :
+    # trk vs PV  (20.1.9) version    
+    from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+    ttvx = Reco__TrackToVertex("TrackToVertex")
+    ToolSvc+=ttvx;topSequence.InDetVxLinkSetter.TrackToVertex=ttvx
 
 #=========================================================
 #

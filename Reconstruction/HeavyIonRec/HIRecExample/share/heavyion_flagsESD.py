@@ -14,22 +14,41 @@ if not jobproperties.HIRecExampleFlags.ppMode :
    if rec.doESD :
       print "Applying HI ESD flags mods"
 
+      # AO general
+      rec.Commissioning.set_Value_and_Lock(True)
+      rec.doRestrictedESD.set_Value_and_Lock(False)
+      
       # AO (standard JetRec turned off)
       from JetRec.JetRecFlags import jetFlags
-      jetFlags.Enabled =                  False
-      #jetFlags.noStandardConfig =         True
+      jetFlags.Enabled = False
+      #jetFlags.noStandardConfig = True
 
-      rec.doRestrictedESD =               False
-      
+      # AO InDet 2015
+      InDetFlags.cutLevel = 3
+      InDetFlags.doSGDeletion = False
 
       from CaloRec.CaloRecFlags import jobproperties
       #need this eventually, but for now it breaks egamma isolation
       jobproperties.CaloRecFlags.doCaloTopoCluster = False
       jobproperties.CaloRecFlags.doCaloEMTopoCluster = False
       jobproperties.CaloRecFlags.doCaloTopoTower = False
+      # 2015 data, no pileup
+      from CaloTools.CaloNoiseFlags import jobproperties
+      jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
+      from CaloRec.CaloCellFlags import jobproperties
+      jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False)
+      # MC, no pileup
+      if ( globalflags.DataSource == "geant4" ):
+         from CaloRec.CaloCellFlags import jobproperties
+         jobproperties.CaloCellFlags.doLArCellEmMisCalib = False
       
       if jobproperties.HIRecExampleFlags.doHIJetRec() and \
              jobproperties.HIRecExampleFlags.doHIegamma() :
+         # 2015 fix: cell subtraction
+         from egammaRec.egammaRecFlags import jobproperties
+         jobproperties.egammaRecFlags.cellContainerName.set_On()
+         jobproperties.egammaRecFlags.cellContainerName.set_Value_and_Lock("SubtractedCells")
+
          print 'AO: CaloRecFlags doCaloCluster=False'
          jobproperties.CaloRecFlags.doCaloCluster=False  # not working?
          jobproperties.CaloRecFlags.doEmCluster=False
@@ -65,7 +84,6 @@ if not jobproperties.HIRecExampleFlags.ppMode :
       recAlgs.doCaloTrkMuId = False
       from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
       muonCombinedRecFlags.doMuGirlLowBeta = False
-
 
       ptCutVal = 0.5
       if jobproperties.HIRecExampleFlags.ptCutOn():
