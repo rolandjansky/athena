@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometry/TRT_LayerBuilder.h"
-#include "InDetTrackingGeometry/TRT_OverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/TRT_OverlapDescriptor.h"
 //Trk
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/RectangleBounds.h"
