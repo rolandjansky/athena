@@ -21,6 +21,12 @@ def addTrigFTKSimOptions(parser,nsubregions=4):
 
     parser.add_argument('--IBLMode',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help='Enalbe the IBL geometry',group='TrigFTKSim')
+
+    parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='TSP bank utilisation', group='TrigFTKSim')
+    parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='use compressed bank algorithm', group='TrigFTKSim')
+
                         
     # Cannot take maxEvents as an argument from addAthenaArguments() as it will have the wrong
     # default ('first', but we need 'all')    

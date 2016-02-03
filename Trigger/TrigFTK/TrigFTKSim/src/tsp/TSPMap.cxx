@@ -175,10 +175,10 @@ void TSPMap::generate(const FTKSSMap *amssmap, const FTKSSMap *tspssmap)
 
   m_bitoffset = new int[m_nplanes];
   m_bitoffset[0] = 0;
-  cout << "DC mask offsets: " << 0 << ends;
+  cout << "DC mask offsets: " << 0 /* << ends */ ;
   for (int ip=1;ip<m_nplanes;++ip) {
     m_bitoffset[ip] = m_bitoffset[ip-1]+m_nbits[ip-1];
-    cout << " - " << m_bitoffset[ip] << ends;  
+    cout << " - " << m_bitoffset[ip] /* << ends */ ;  
   }
   cout << ". Tot bits: " << m_totbits << endl;
 
@@ -292,7 +292,7 @@ void TSPMap::generateGrayCodeTables()
 /** This method evaluate the high resolution part of a SS, in relation
  * to the AM part. The Gray encoding.
  */
-int TSPMap::getHighResSSPart(FTKHit &hit) const {
+int TSPMap::getHighResSSPart(FTKHit const &hit) const {
   // retrieve constant values
   const int iplane(hit.getPlane());
   const int ndim(hit.getDim());

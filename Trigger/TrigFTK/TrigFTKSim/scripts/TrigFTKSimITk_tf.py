@@ -3,8 +3,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-#  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4Un_tf.py 719637 2016-01-25 17:41:15Z sschmitt $
+#  Specialist version to use when running the ITk geometry
+#  Jordan Webste - 2015.1.13
 
 import sys
 import time
@@ -24,17 +24,15 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
-subregions = 4
+subregions = 1
 
 from TrigFTKSim.FTKSimOptions import *
-
 
 @stdTrfExceptionHandler
 @sigUsrStackTrace
 def main():
 
     print '\ntesting if this is the correct transform...\n\n'
-
 
     msg.info('This is %s' % sys.argv[0])
 
@@ -51,29 +49,54 @@ def main():
 def getTransform():
 
     executorSet = set()
-    for subregion in range(subregions):
-        executorSet.add(athenaExecutor(name = 'FTKFullSimulationBank{0}'.format(subregion),
-                                       skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py',
-                                       inData = ['NTUP_FTKIP','TXT_FTKIP'], outData = ['NTUP_FTKTMP_{0}'.format(subregion)],
-                                       extraRunargs = {'banksubregion': [subregion]},
-                                       # Need to ensure that the correct subregion is used
-                                       runtimeRunargs = {'patternbankpath': 'runArgs.patternbank{0}path'.format(subregion),
-                                                         'outputNTUP_FTKTMPFile': 'runArgs.outputNTUP_FTKTMP_{0}File'.format(subregion),
-                                                         'cachedbankpath': 'runArgs.cachedbank{0}path'.format(subregion),
-                                                         'CachePath': 'runArgs.CachePath{0}'.format(subregion)   }))
 
-    executorSet.add(athenaExecutor(name = 'FTKSimulationMerge',
-                                   skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py',
-                                   inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])+('NTUP_FTKIP',)],
-                                   outData = ['NTUP_FTKTMP'],
-                                   extraRunargs = {'inputNTUP_FTKTMPFile': [ 'tmp.NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions)]},
-                                   runtimeRunargs = {'MergeRegion': 'runArgs.bankregion[0]',
-                                                     'FirstRegion': 'runArgs.bankregion[0]',
-                                                     'TruthTrackTreeName' : "'truthtracks'",
-                                                     'EvtInfoTreeName' : "'evtinfo'",
-                                                     'SaveTruthTree' : '1'
-													 },
-                                   ))
+    for subregion in range(subregions):
+        executorSet.add(
+            athenaExecutor(
+                name = 'FTKFullSimulationBank{0}'.format(subregion) ,
+                skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py' ,
+                inData = ['NTUP_FTKIP','TXT_FTKIP'] ,
+                outData = ['NTUP_FTKTMP_{0}'.format(subregion)] ,
+                extraRunargs = {
+                    'banksubregion' : [subregion] ,
+                    'FTKSetupTag' : 'FitITk' ,
+                    'maxEvents' : 200 ,
+                    #'inputNTUP_FTKIPFile' : ['ftksim_ITk_wrap.root'] ,
+                    #'outputNTUP_FTKTMPFile' : 'ftktracks_TMP{0}.root'.format(subregion) ,
+                    'fitconstantspath' : ['corrgen_raw_8L_reg13.gcon'] ,
+                } ,
+                runtimeRunargs = {
+                    'patternbankpath' : 'runArgs.patternbank{0}path'.format(subregion) ,
+                    'outputNTUP_FTKTMPFile' : 'runArgs.outputNTUP_FTKTMP_{0}File'.format(subregion) ,
+                    'cachedbankpath' : 'runArgs.cachedbank{0}path'.format(subregion) ,
+                    'CachePath' : 'runArgs.CachePath{0}'.format(subregion) ,
+                }
+            )
+        )
+
+    executorSet.add(
+        athenaExecutor(
+            name = 'FTKSimulationMerge' ,
+            skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py' ,
+            inData = [tuple([ 'NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions) ])+('NTUP_FTKIP',)] ,
+            outData = ['NTUP_FTKTMP'] ,
+            extraRunargs = {
+                'inputNTUP_FTKTMPFile' : ['tmp.NTUP_FTKTMP_{0}'.format(subregion) for subregion in range(subregions)] ,
+                #'inputNTUP_FTKTMPFile' : ['ftktracks_TMP0.root'] ,
+                #'outputNTUP_FTKTMPFile' : 'ftktracks_merge.root' ,
+                'FTKSetupTag' : 'FitITk' ,
+                'maxEvents' : 200 ,
+            } ,
+            runtimeRunargs = {
+                'MergeRegion' : 'runArgs.bankregion[0]' ,
+                'FirstRegion' : 'runArgs.bankregion[0]' ,
+                'TruthTrackTreeName' : "'truthtracks'" ,
+                'EvtInfoTreeName' : "'evtinfo'",
+                'SaveTruthTree' : '1' ,
+    	    }
+        )
+    )
+    
     trf = transform(executor = executorSet, description = 'FTK Subregion simulate x {0} and merge.'.format(subregions))
 
     addFTKSimulationArgs(trf.parser)
@@ -88,11 +111,24 @@ def addFTKSimulationArgs(parser):
     # Add a specific FTK argument group
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation options')
 
-    parser.add_argument('--bankregion', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
-                            help='Bank region number', group='TrigFTKSim', nargs='+')
-    parser.add_argument('--sectorpath', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
-                            help='sectors path file for all the subregions', group='TrigFTKSim', nargs='+')
+    parser.add_argument('--maxEvents', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                        help='Number of events to be processed', group='TrigFTKSim')
 
+    parser.add_argument('--bankregion', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
+                        help='Bank region number', group='TrigFTKSim', nargs='+')
+
+    parser.add_argument('--sectorpath', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
+                        help='sectors path file for all the subregions', group='TrigFTKSim', nargs='+')
+
+    parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='Location of pmap file', group='TrigFTKSim')
+    
+    parser.add_argument('--rmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='Location of rmap file', group='TrigFTKSim')
+
+    parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='Location of HW configuration file', group='TrigFTKSim')
+    
     # Add named parameters for each subregion
     for subregion in range(subregions):
         parser.add_argument('--patternbank{0}path'.format(subregion), type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
@@ -112,6 +148,7 @@ def addFTKSimulationArgs(parser):
                         help='set splitting algo; 0 (default) means no-splitting', group='TrigFTKSim')
 
 
+    
     parser.defineArgGroup('TrigFTKMerge', 'Fast tracker simulation merge options')
 
     # File handling
@@ -124,30 +161,15 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--outputNTUP_FTKTMPFile', '--outputNTUP_FTKFile',
                         type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftk', treeNames='ftkdata'),
                         help='Subregion merged FTK file'.format(subregion), group='TrigFTKMerge',nargs='+')
-    parser.add_argument('--HWModeSS', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help='SSID encoding scheme', group='TrigFTKSim')
-    parser.add_argument('--ModuleLUTPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='module LUT for HWModeSS=2', group='TrigFTKSim')
-    parser.add_argument('--MaxMissingSCTPairs', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help='6/8 option for transition region', group='TrigFTKSim')
-    parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='TSP bank utilisation', group='TrigFTKSim')
-    parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='use compressed bank algorithm', group='TrigFTKSim')
-    parser.add_argument('--badmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
-                        help='bad module map', group='TrigFTKSim')
-    parser.add_argument('--RoadWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help='road warrior', group='TrigFTKSim')
-
 
     # The following for testing only
     for subregion in range(subregions):
         parser.add_argument('--inputNTUP_FTKTMP_{0}File'.format(subregion),
-                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptmp', treeNames='ftkdata'),
-                        help='FTK NTUP file from subregion {0} (for testing only)'.format(subregion), group='TrigFTKSim', nargs='+')
+                            type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptmp', treeNames='ftkdata'),
+                            help='FTK NTUP file from subregion {0} (for testing only)'.format(subregion), group='TrigFTKSim', nargs='+')
         parser.add_argument('--outputNTUP_FTKTMP_{0}File'.format(subregion),
-                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftkiptmp', treeNames='ftkdata'),
-                        help='FTK NTUP file from subregion {0} (for testing only)'.format(subregion), group='TrigFTKSim', nargs='+')
+                            type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='output', type='ntup_ftkiptmp', treeNames='ftkdata'),
+                            help='FTK NTUP file from subregion {0} (for testing only)'.format(subregion), group='TrigFTKSim', nargs='+')
 
 
 

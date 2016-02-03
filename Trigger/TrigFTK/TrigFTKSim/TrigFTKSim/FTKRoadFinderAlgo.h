@@ -57,6 +57,7 @@ private:
   bool m_RestrictSctPairLayer; // restrict SCT layers in the transition region
 
   int m_IBLMode; // Enable the use of IBL
+  bool m_ITkMode; // Use ITk geometry
   
   double m_ss_offset_fraction;
 

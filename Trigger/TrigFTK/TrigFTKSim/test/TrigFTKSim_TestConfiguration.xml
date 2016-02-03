@@ -1239,66 +1239,6 @@
               
               <queue>medium</queue>
              
-              <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
-              <auxFilePattern>CompareFTKSimDirectories_RTT.py</auxFilePattern>
-              
-              <test>
-                <modulename>RttLibraryTools</modulename>
-                <testname>ROOTMacroRunner</testname>
-                <outputFile>output.txt</outputFile>
-                <testidentifier>Dataflow</testidentifier>
-                <arg>
-                  <argname>macro</argname>
-                  <argvalue>plot_simple_dataflow.C</argvalue>
-                </arg>
-                <arg>
-                  <argname>macroArg</argname>
-                  <argvalue>"tempout.root","-1"</argvalue>
-                </arg>
-                <arg>
-                  <argname>maxRunTime</argname>
-                  <argvalue>1200</argvalue>
-                </arg>
-              </test>
-               
-              <test>
-                <modulename>RttLibraryTools</modulename>
-                <testname>ExeRunner</testname>
-                <outputFile>RefvsNew.pdf</outputFile>
-                <testidentifier>Consistency</testidentifier>
-                <arg>
-                  <argname>exeName</argname>
-                  <argvalue>CompareFTKSimDirectories_RTT.py</argvalue>
-                </arg>
-                <arg>
-                  <argname>macroArg</argname>
-                  <argvalue>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root --ChkFile tempout.root --PlotTowers</argvalue>
-                </arg>
-                <arg>
-                  <argname>maxRunTime</argname>
-                  <argvalue>1800</argvalue>
-                </arg>
-              </test>
-              
-              <test>
-                <modulename>RttLibraryTools</modulename>
-                <testname>ExeRunner</testname>
-                <outputFile>ftk_efficiency.root</outputFile>
-                <testidentifier>Efficiency</testidentifier>
-                <arg>
-                  <argname>exeName</argname>
-                  <argvalue>trigftk_efficiency.exe</argvalue>
-                </arg>
-                <arg>
-                  <argname>macroArg</argname>
-                  <argvalue>--files tempout.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>maxRunTime</argname>
-                  <argvalue>1800</argvalue>
-                </arg>
-              </test>
-              
               <test>
                 <modulename>RttLibraryTools</modulename>
                 <testname>PerfMonRunner</testname>

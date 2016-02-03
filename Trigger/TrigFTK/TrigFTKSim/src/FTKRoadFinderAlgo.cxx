@@ -34,6 +34,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_MaxMissingPlanes(1), m_RoadWarrior(0), m_KeepRemoved(0),
   m_MaxMissingSCTPairs(0), m_RestrictSctPairModule(false), m_RestrictSctPairLayer(false),
   m_IBLMode(0),
+  m_ITkMode(false),
   m_ss_offset_fraction(0),
   m_PixelClusteringMode(0),
   m_DuplicateGanged(1),
@@ -73,6 +74,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NBanks",m_nbanks);
   declareProperty("NSubRegions",m_nsubregions);
   declareProperty("BarrelOnly",m_BarrelOnly);
+  declareProperty("MaxMissingPlanes",m_MaxMissingPlanes);
   
   declareProperty("pmap_path",m_pmap_path);
   declareProperty("pmapunused_path",m_pmapunused_path);
@@ -87,6 +89,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("ModuleLUTPath",m_modulelut_path);
   
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("ITkMode",m_ITkMode);
 
   declareProperty("PixelClusteringMode",m_PixelClusteringMode,"Pixel clustering correction: 0 simple default, 1 channel center and linear ToT interpolation and account for different pixel lengths");
   declareProperty("DuplicateGanged",m_DuplicateGanged,"Duplicate ganged pixels so we don't lose efficiency");
@@ -170,6 +173,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   log << MSG::INFO << "IBL mode value: " << m_IBLMode << endreq;
   ftkset.setIBLMode(m_IBLMode);
 
+  log << MSG::INFO << "ITk mode value: " << m_ITkMode << endreq;
+  ftkset.setITkMode(m_ITkMode);
+  
   log << MSG::INFO << "HWModeSS value: " << m_HWModeSS << endreq;
   ftkset.setHWModeSS(m_HWModeSS);
 
@@ -265,8 +271,8 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused,false);
     if (m_pmap_unused) {
       // enable all the flags used for the 2nd stage fitting
-      ftkrawinput->setSaveUnused(true);
-      m_rfobj.setSSSearchUnused(true);
+      ftkrawinput->setSaveUnused(!m_ITkMode);
+      m_rfobj.setSSSearchUnused(!m_ITkMode);
     }
 
     // add the input files

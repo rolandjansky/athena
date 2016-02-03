@@ -131,7 +131,7 @@ std::streamsize FTKLogger::xsputn(const char * s, std::streamsize n) {
 void FTKLogger::PostMessage(void) {
    static char const *text[]={"FATAL","ERROR","WARNING","INFO","DEBUG"};
    if(fType<fPrintLevel) {
-      std::cout<<text[fType]<<" "<<fBuffer->str()<<"\n";
+      std::cout<<text[fType]<<"\t"<<fBuffer->str()<<"\n";
    }
    if(fType<fAbortLevel) {
       exit(1+fType);
