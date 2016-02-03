@@ -928,7 +928,7 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
   //  Set event index
   //
   const unsigned int &iev = m_neventsMerged;
-  bool found[64];
+  bool found[96];
   log << MSG::VERBOSE << "Getting entries " << endreq;
   for (  unsigned int ireg=0; ireg!=m_nregions;   ++ireg) {
      found[ireg] = false;

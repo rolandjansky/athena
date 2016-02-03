@@ -234,6 +234,7 @@ int FTK_SGHitInput::readData()
   setaverageInteractionsPerCrossing(eventInfo->averageInteractionsPerCrossing());
   setactualInteractionsPerCrossing(eventInfo->actualInteractionsPerCrossing());
   setextendedLevel1ID(triggerInfo->extendedLevel1ID() );
+
   setlevel1TriggerType(triggerInfo->level1TriggerType () );
   setlevel1TriggerInfo(triggerInfo->level1TriggerInfo ());
 

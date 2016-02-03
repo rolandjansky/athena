@@ -184,7 +184,7 @@ class FTK_AMsimulation_base {
    int m_nplanes; // number of the planes for this bank
    bool m_require_first; // require a hit in the first layer (usually Pixel B-layer)
    bool m_require_last; // require a hit in the last layer (eg, SCTtrk pseudo-layer)
-   FTKSSMap *m_ssmap; // ss convetion map used in this bank
+   FTKSSMap *m_ssmap; // ss conversion map used in this bank
    FTKSSMap *m_ssmap_unused; // ss convetion map used in this bank, for unused layers
    // cluster/ss information for Naoki's timing simulation
    std::vector<int> m_nao_nclus;    // number of clusters routed into current region [nplanes]

@@ -42,6 +42,8 @@ private:
 
   int m_IBLMode;  // if using IBL configuration
 
+  bool m_ITkMode; // use ITk geometry
+
   int m_verbosity; /// verbosity level
 
   int m_tot_events; // number of event to process
@@ -103,6 +105,9 @@ public:
   void setIBLMode(int v) { m_IBLMode = v; }
   int getIBLMode() const { return m_IBLMode; }
 
+  void setITkMode(bool v) { m_ITkMode = v; }
+  bool getITkMode() const { return m_ITkMode; }
+  
   void setEnableFTKSim(int v) { m_EnableFTKSim = v; }
   int getEnableFTKSim() const { return m_EnableFTKSim; }
 

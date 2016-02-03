@@ -28,6 +28,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_trackOutputTool("FTK_SGTrackOutput/FTK_SGTrackOutput"),
   m_SecondStageFit(false),
   m_IBLMode(0),
+  m_ITkMode(false),
   m_nbanks(0), m_nsubregions(1),
   m_verbosity(0),
   m_chi2cut(17),
@@ -67,6 +68,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
 {
   declareProperty("SecondStageFit",m_SecondStageFit,"Enable the second-stage fitter code");
   declareProperty("IBLMode",m_IBLMode,"Switch on the IBL layer");
+  declareProperty("ITkMode",m_ITkMode,"Use ITk geometry, for Phase-II studies");
   declareProperty("NBanks",m_nbanks); // number of banks
   declareProperty("NSubRegions",m_nsubregions);
   declareProperty("Chi2Cut",m_chi2cut);
@@ -135,6 +137,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   log << MSG::INFO << "IBLMode value: " << m_IBLMode << endreq;
   FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
 
+  log << MSG::INFO << "ITkMode value: " << m_ITkMode << endreq;
+  FTKSetup::getFTKSetup().setITkMode(m_ITkMode);
+  
    if (m_SecondStageFit) 
     m_tfpobj = new TrackFitter711;
   else 
@@ -303,6 +308,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   m_tfpobj->setMaxTrkout(m_MaxTrkout);
 
   m_tfpobj->setRequireFirst(0);
+  m_tfpobj->setOnePerRoad(m_OnePerRoad);
 
   //std::cout << "chi2cut "        << m_tfpobj->getChi2Cut()         << std::endl;
   //std::cout << "hitwarr "        << m_tfpobj->getHitWarrior()      << std::endl;

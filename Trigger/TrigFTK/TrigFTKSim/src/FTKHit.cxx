@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKHit.h"
 #include "TrigFTKSim/MultiTruth.h"
 #include "TrigFTKSim/ftkdefs.h"
@@ -111,6 +110,7 @@ FTKHit::FTKHit() :
   m_sector(-1), m_plane(-1),
   m_etaWidth(0), m_phiWidth(0), m_n_strips(0),
   m_bankID(-1),
+  m_ITkMode(false),
   m_coord(0), m_truth(MultiTruth()),
   m_channels()
 {
@@ -122,6 +122,7 @@ FTKHit::FTKHit(int dim) :
   m_sector(-1), m_plane(-1),
   m_etaWidth(0), m_phiWidth(0), m_n_strips(0),
   m_bankID(-1),
+  m_ITkMode(false),
   m_coord(dim), m_truth(MultiTruth()),
   m_channels(0)
 {
@@ -133,6 +134,7 @@ FTKHit::FTKHit(const FTKHit &hit) :
   m_sector(hit.m_sector), m_plane(hit.m_plane),
   m_etaWidth(hit.m_etaWidth), m_phiWidth(hit.m_phiWidth), 
   m_n_strips(hit.m_n_strips), m_bankID(hit.m_bankID),
+  m_ITkMode(hit.m_ITkMode),
   m_coord(hit.m_coord), m_truth(hit.m_truth),
   m_channels(hit.m_channels)
 {
@@ -152,6 +154,7 @@ FTKHit& FTKHit::operator=(const FTKHit &hit)
       m_phiWidth = hit.m_phiWidth;
       m_n_strips = hit.m_n_strips;
       m_bankID = hit.m_bankID;
+      m_ITkMode = hit.m_ITkMode;
       m_coord = hit.m_coord;
       m_truth = hit.m_truth;
       m_channels = hit.m_channels;
