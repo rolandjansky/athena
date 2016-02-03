@@ -266,17 +266,17 @@ Amg::Transform3D iFatras::PlanarModuleProvider::getTransform(double R, double dR
 }
 
 
-Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getDiscOverlapDescriptor() const
+Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getDiscOverlapDescriptor(bool) const
 {
   return new iFatras::DiscOverlapDescriptor();
 }
 
-Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getDiscOverlapDescriptor(Trk::BinnedArray<Trk::Surface>* binnedArray, std::vector< Trk::BinUtility*>* subBinUtilities) const
+Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getDiscOverlapDescriptor(bool, Trk::BinnedArray<Trk::Surface>* binnedArray, std::vector< Trk::BinUtility*>* subBinUtilities) const
 {
   return new iFatras::DiscOverlapDescriptor(binnedArray,subBinUtilities);
 }
 
-Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getPlanarOverlapDescriptor() const
+Trk::OverlapDescriptor* iFatras::PlanarModuleProvider::getPlanarOverlapDescriptor(bool) const
 {
   return new iFatras::PlanarOverlapDescriptor();
 }
