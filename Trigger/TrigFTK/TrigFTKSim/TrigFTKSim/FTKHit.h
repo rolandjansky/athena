@@ -80,6 +80,7 @@ protected:
   int m_phiWidth; // clustering width in phi direction
   int m_n_strips; // # of strips in a cluster for SCT; time-over-threshold for pixels
   int m_bankID; // bank ID for 8L banks
+  bool m_ITkMode; // true for ITk sector mapping
   FTKCoord m_coord;
   MultiTruth m_truth;
   std::vector<FTKHit> m_channels; // channels within the current
@@ -103,14 +104,14 @@ public:
   int getSector() const { return  m_sector; }
   int getPlane() const { return m_plane; }
   int getEtaCode() const { return m_sector%1000; }
-  int getIsBarrel() const { return m_coord.getDim()!=3? (m_sector%1000 < 20 ? 1 : 0) : 0; }
-  int getASide() const { return m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 == 0) : 0; }
-  int getCSide() const { return m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 != 0) : 0; }
+  int getIsBarrel() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 2 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 1 : 0) : 0 ); }
+  int getASide() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 4 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 == 0) : 0 ); }
+  int getCSide() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 0 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 != 0) : 0 ); }
   int getEtaWidth() const { return m_etaWidth; }
   int getPhiWidth() const { return m_phiWidth; }
-  int getEtaModule() const { return m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1; }
-  int getPhiModule() const { return m_coord.getDim()!=3 ? m_sector/1000 : m_sector/10000; }
-  int getSection() const { return m_coord.getDim()!=3 ? (m_sector%1000 < 20 ? 0 : m_sector%10) : 0; }
+  int getEtaModule() const { return m_ITkMode ? ( ((m_sector % 100000) / 100) - 60 ) : ( m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1 ); }
+  int getPhiModule() const { return m_ITkMode ? ( m_sector / 100000 ) : ( m_coord.getDim()!=3 ? m_sector/1000 : m_sector/10000 ); }
+  int getSection() const { return m_ITkMode ? ( m_sector % 10 ) : ( m_coord.getDim()!=3 ? (m_sector%1000 < 20 ? 0 : m_sector%10) : 0 ); } // FIXME
   int getDim() const { return m_coord.getDim(); }
   FTKCoord getCoord() const { return m_coord; }
   FTKCoord &getCoord() { return m_coord; }
@@ -140,6 +141,10 @@ public:
   void setNStrips(int v) { m_n_strips = v; }
   void setTot(int v) { m_n_strips = v; }
 
+  // functions to toggle ITk sector mapping
+  bool getITkMode() const { return m_ITkMode; }
+  void setITkMode(bool v) { m_ITkMode = v; }
+  
   // clustering debugging features
   void addChannel(const FTKHit &hit) { m_channels.push_back(hit); }
   const FTKHit& getChannel(unsigned int pos) const { return m_channels[pos]; }

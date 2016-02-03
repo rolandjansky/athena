@@ -7,6 +7,8 @@
 #include <iostream>
 #include <iomanip>
 
+// #define VERBOSE_DEBUG
+
 using namespace std;
 
 /* class FTK_AMsimulation_base
@@ -339,7 +341,7 @@ void FTK_AMsimulation_base::road_warrior() {
 
 #ifdef VERBOSE_DEBUG
   printf("%d ghosts found, %d roads left\n", totGhosts,
-	 nroads);
+	 m_roads.size());
 #endif
 }
 
@@ -394,7 +396,7 @@ void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
             //(*iroad).second->Print();
             cout<<setw(6)<<road->getSectorID();
             for(int i=0;i<road->getNPlanes();i++) {
-               cout<<setw(6)<<road->getSSID(i);
+               cout<<" "<<setw(5)<<road->getSSID(i);
             }
             cout<<" ";
             for(int i=0;i<road->getNPlanes();i++) {

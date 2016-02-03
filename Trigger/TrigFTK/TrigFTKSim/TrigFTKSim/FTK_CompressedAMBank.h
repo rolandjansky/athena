@@ -13,6 +13,7 @@
 #include <inttypes.h>
 #include <vector>
 #include <map>
+#include <set>
 #include <list>
 
 /* class FTK_CompressedAMBank
@@ -118,12 +119,21 @@ public:
                         FTKSSMap *ssMapTSP=0,
                         int hwmodeid_TSP=-1,int hwmodeid_DC=-1,
                         char const *name="FTK_CompressedAMBank");
+
+   // check hwmodeid settings
+   int getHWModeSS_dc(void) const;
+   int getHWModeSS_tsp(void) const;
+
    // set SS map (TSP)
    void setSSMapTSP(FTKSSMap *m_ssmap_tsp) { m_SSmapTSP=m_ssmap_tsp; }
    FTKSSMap *getSSMapTSP() const { return m_SSmapTSP; }
 
+   void readSectorDefinition(const char *sectorFileHWMODEID0,
+                             const char *sectorFileHWMODEID2);
+
    // write cached-bank file
-   int writePCachedBankFile(char const *cachedBankFile) const;
+   int writePCachedBankFile(char const *cachedBankFile,
+                            int flatFormat=0) const;
 
    // write root file (reasonaby fast)
    int writeCCachedBankFile(char const *cachedBankFile) const;
@@ -153,7 +163,7 @@ public:
    // FTK_AMsimulation_base interface to load bank data
    virtual int readROOTBank(const char*, int maxpatts);
    virtual int readROOTBankCache(const char*);
-   // set up wildcards here
+   
    virtual void init();
 
    // methods requuired by passHits in the simulation
@@ -170,11 +180,11 @@ public:
    // translate SSID from DC to TSP and back
    // these functions could possibly be moved elsewhere
    //   TSPMap???
-   std::vector<int> const &getTSPssidVector(int layer,int dcSSID);
-   inline int getTSPssid(int layer,int dcSSID,int tspXY) {
-      return getTSPssidVector(layer,dcSSID)[tspXY];
+   std::vector<int> const &getTSPssidVector(int layer,int sector,int dcSSID);
+   inline int getTSPssid(int layer,int sector,int dcSSID,int tspXY) {
+      return getTSPssidVector(layer,sector,dcSSID)[tspXY];
    }
-   std::pair<int,int> const &getDCssid(int layer,int tspSSID);
+   std::pair<int,int> const &getDCssid(int layer,int sector,int tspSSID);
 
    // read root file (sector-ordered), split subregions
    int readSectorOrderedBank(const char *name, int maxpatts,int nSub);
@@ -193,6 +203,9 @@ protected:
 
    // finalize memory structures after reading bank data from file
    void readBankPostprocessing(const char *where);
+
+   // read wildcards from files
+   void readWildcards(void);
 
    // hold pattern data for a given layer,SSID,sector (all patterns)
    //
@@ -272,7 +285,10 @@ protected:
   //
   // hold wildcards (layer mask) per sector
   typedef uint8_t HitPattern_t;
-  MAP<int,HitPattern_t> m_SectorWildcard;
+  VECTOR<HitPattern_t> m_SectorWC;
+  //
+  // hold bad SSIDs, from wildcard file
+  VECTOR<std::set<int> > m_badSSID;
 
   //
   // TSP-SSIDs 
@@ -298,7 +314,6 @@ protected:
   // minimum number of hits
   uint8_t m_nhWCmin;
   int m_MAX_MISSING_PLANES;
-  int m_MAX_MISSING_SCT_PAIRS;
 
  private:
   //
@@ -312,18 +327,16 @@ protected:
   // these methods are used to populate tables to translate
   //   tspSSID to dcSSID and back
   //   (this should be moved to another class?)
-  int getTSPssidSlow(int layer,int ssid,int tspXY);
-  int getDCssidSlow(int layer,int tspSSID);  
-  void insertSSID(int layer,int tspSSID,int dcSSID);
+  int getTSPssidSlow(int layer,int sector,int ssid,int tspXY);
+  int getDCssidSlow(int layer,int sector,int tspSSID);  
+  void insertSSID(int layer,int sector,int tspSSID,int dcSSID);
 
-  int getHWModeSS_dc(void) const;
-  int getHWModeSS_tsp(void) const;
   //
   // table to convert SSID and tspXY offsets to a TSP SSID
-  VECTOR<MAP<int,std::vector<int> > > m_DCtoTSP;
+  VECTOR<MAP<int,MAP<int,std::vector<int> > > > m_DCtoTSP;
   //
   // table to convert TSP SSID to SSID and index
-  VECTOR<MAP<int,std::pair<int,int> > > m_TSPtoDC;
+  VECTOR<MAP<int,MAP<int,std::pair<int,int> > > > m_TSPtoDC;
   //
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB
   //    m_subSSmask[layer][dcHBbits]  returns the subSSmask for this layer
@@ -358,6 +371,14 @@ protected:
 
   //   map TSP to DC geometry (fine superstrip <-> coarse superstrip)
   TSPMap *m_TSPmap;
+
+  // convert HWMODEID=0 to HWMODEID=2 and back
+  //   m_moduleIdHW0[plane][sector] : module identifier for HWMODEID=0
+  //   m_moduleIdHW2[plane][sector] : module identifier for HWMODEID=2
+  VECTOR<VECTOR<int> > m_moduleIdHW0,m_moduleIdHW2;
+  //
+  // identifier for wildcard SS
+  static int const m_WCID;
 };
 
 #endif

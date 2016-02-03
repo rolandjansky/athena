@@ -22,7 +22,7 @@ MsgStream* FTKSetup::m_log(0x0);
 
 
 FTKSetup::FTKSetup() :
-   m_BarrelOnly(0), m_SCTtrkMode(0), m_IBLMode(0), m_verbosity(0),
+   m_BarrelOnly(0), m_SCTtrkMode(0), m_IBLMode(0), m_ITkMode(false), m_verbosity(0),
    m_tot_events(0), m_EnableFTKSim(0), m_RawMode(1),
    m_SectorsAsPatterns(0),
    m_MaxMissingPlanes(1), m_MaskLayers(0), m_RoadWarrior(1),

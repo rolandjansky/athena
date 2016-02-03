@@ -1167,7 +1167,7 @@ void FTK_AMBank::am_in() {
 #endif
 
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
+  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-ftkset.getMaxMissingSctPairs();
   m_fired_patts.clear();
 
   // send real hits into the SS
@@ -1215,7 +1215,7 @@ void FTK_AMBank::am_in() {
 
 void FTK_AMBank::am_in_minimal() {
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  const unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
+  const unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-ftkset.getMaxMissingSctPairs();
   m_fired_patts.clear();
 
   /* the bias is the criteria that means a road is matched, if remain >0, this is the initial value,
@@ -1271,11 +1271,11 @@ void FTK_AMBank::am_in_minimal() {
 
 void FTK_AMBank::am_in2() {
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
+  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-ftkset.getMaxMissingSctPairs();
   m_fired_patts.clear();
 
   unsigned int prematch_threshold = m_upperindex ? m_nplanes-m_lutsepplane : m_lutsepplane;
-  prematch_threshold -= ftkset.getMaxMissingPlanes()+FTKSetup::getFTKSetup().getMaxMissingSctPairs();
+  prematch_threshold -= ftkset.getMaxMissingPlanes()+ftkset.getMaxMissingSctPairs();
 
   vector<int> prefiredpatts;
   int startplane = m_upperindex ? m_lutsepplane : 0;

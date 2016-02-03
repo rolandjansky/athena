@@ -242,7 +242,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                  int ssid = TSPpattern->getSSID(i);
                  
                  // Separate the phi and eta part TOFIX
-                 int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false) : m_ssMaps[bankID - 1]->getPhiOffset(true);
+                 int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode()) : m_ssMaps[bankID - 1]->getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
                  int ssid_eta = ssid % ssoff;
                  
                  int newssid(0);

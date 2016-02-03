@@ -23,89 +23,89 @@
 #include "TrigFTKSim/FTKPatternBySector.h"
 #include "TrigFTKSim/FTKRootFile.h"
 #include "TrigFTKSim/FTKLogging.h"
+#include "TrigFTKSim/FTKPattern.h"
+
+#include "boost/program_options.hpp"
+#include "boost/filesystem.hpp"
 
 using namespace std;
 
 int main(int argc, char const *argv[]) {
    FTKLogging logging("main");
-   int error=0;
-   if(argc<2) {
-      cout<<"usage: "<<argv[0]<<" sector-ordered-bank.root\n";
+   std::string output;
+   std::vector<std::string> files;
+   try {
+    std::string appName = boost::filesystem::basename(argv[0]);
+    namespace po = boost::program_options;
+    po::options_description desc("Options");
+    desc.add_options()
+       ("help,h", "Print this help message")
+       ("output,o",po::value<std::string>(&output),
+        "Name of output root file for histograms")
+       ("files,f", po::value<std::vector<std::string> >(&files),
+        "Input files with pattern banks (sector,pcache,ccache)")
+       ;
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+    if (vm.count("help")) {
+       cout << desc << "\n";
+       return 1;
+    }
+    po::notify(vm);
+   } catch (std::exception& e) {
+      logging.Error("parse_arguments")<< e.what()<<"\n";
       return 1;
    }
-   TDirectory *statFile=0;
-   TDirectory *bankFile=FTKRootFile::Instance()->
-      OpenRootFileReadonly(argv[1]);
-   if(!bankFile) {
-      logging.Fatal("openRootFile")<<"can not open: "<<argv[1]<<"\n";
-      error++;
-   } else {
-      logging.Info("openRootFile")<<"file opened: "<<argv[1]<<"\n";
-   }
-   if(argc>2) {
-      statFile=FTKRootFile::Instance()->
-         CreateRootFile(argv[2]);
-      if(!statFile) {
-         logging.Error("createRootFile")<<"failed to create: "<<argv[2]<<"\n";
-         error++;
+   TDirectory *statFile=FTKRootFile::Instance()->
+      CreateRootFile(output.c_str());
+   std::map<int,uint64_t> s100sector,s100pattern,s1pattern;
+   int ifilesRead=0;
+   for(unsigned ifile=0;ifile<files.size();ifile++) {
+      TDirectory *bankFile=FTKRootFile::Instance()->
+         OpenRootFileReadonly(files[ifile].c_str());
+      if(!bankFile) {
+         logging.Fatal("openInputFile")<<"can not open: "<<files[ifile]<<"\n";
       } else {
-         logging.Info("createRootFile")<<"histogram file: "<<argv[2]<<"\n";   
-      }
-   }
-   if(bankFile) {
-      FTKPatternBySectorReader bankReader(*bankFile);
-      int minSector=-1,maxSector=-1,nSector=0;
-      std::map<int,int> s100sector,s100pattern;
-      for(int sector=bankReader.GetFirstSector();sector>=0;
-          sector=bankReader.GetNextSector(sector)) {
-         if((minSector<0)||(sector<minSector)) minSector=sector;
-         if((maxSector<0)||(sector>maxSector)) maxSector=sector;
-         nSector++;
-         int i100=sector/100;
-         s100sector[i100]++;
-         s100pattern[i100]+=bankReader.GetNPatterns(sector);
-      }
-      logging.Info("statistics")
-         <<"total number of patterns: "<<bankReader.GetNPatterns()<<"\n";
-      logging.Info("statistics")
-         <<"total number of sectors: "<<nSector
-         <<" ["<<minSector<<","<<maxSector<<"]\n";
-      if(!s100sector.empty()) {
-         int i0=(*s100sector.begin()).first;
-         int i1=(*s100sector.rbegin()).first;
-         int nBin=(i1-i0+1);
-         if(statFile) {
-            TH1D *h_s100_count=
-               new TH1D("h_s100_count",";Sector;nSector",nBin,
-                        i0*100,(i1+1)*100);
-            TH1D *h_s100_pattern=
-               new TH1D("h_s100_pattern",";Sector;nPattern",nBin,
-                        i0*100,(i1+1)*100);
-            TH1D *h_s100_patternPerSector=
-               new TH1D("h_s100_patternPerSector",
-                        ";Sector;nPattern/nSector",nBin,
-                        i0*100,(i1+1)*100);
-            for(int i100=0;i100<nBin;i100++) {
-               int ns=s100sector[i100];
-               int np=s100pattern[i100];
-               h_s100_count->SetBinContent(i100+1,ns);
-               h_s100_pattern->SetBinContent(i100+1,np);
-               h_s100_patternPerSector->SetBinContent(i100+1,np/(double)ns);
-            }
-            h_s100_count->Write();
-            h_s100_pattern->Write();
-            h_s100_patternPerSector->Write();
+         logging.Info("openInputFile")<<"file opened: "<<files[ifile]<<"\n";
+         FTKPatternBySectorReader bankReader(*bankFile);
+         int nSector=0;
+         for(int sector=bankReader.GetFirstSector();sector>=0;
+             sector=bankReader.GetNextSector(sector)) {
+            nSector++;
+            int i100=sector/100;
+            s100sector[i100]++;
+            uint64_t nPattern=bankReader.GetNPatterns(sector);
+            s100pattern[i100]+=nPattern;
+            s1pattern[sector]+=nPattern;
+         }
+         if(nSector) {
+            logging.Info("sectorOrderedFile")
+               <<"total number of patterns: "<<bankReader.GetNPatterns()<<"\n";
+            logging.Info("sectorOrderedFile")
+               <<"total number of sectors: "<<nSector
+               <<" ["<<(*s1pattern.begin()).first<<","
+               <<(*s1pattern.rbegin()).first<<"]\n";
             if(bankReader.GetContentType()==
                FTKPatternBySectorReader::CONTENT_NOTMERGED) {
-               logging.Warning("contentType")<<"This bank is not merged, coverage details unknown\n";
+               logging.Warning("sectorOrderedFile")
+                  <<"This bank is not merged, coverage details unknown\n";
+            } else if(ifilesRead>0) {
+               if(ifilesRead==1)
+                  logging.Warning("sectorOrderedFile")
+                     <<"Coverage histograms are determined "
+                     "from the first input file alone\n";
             } else {
+               statFile->cd();
+               // not a sector ordered bank, read cached bank
+               int i100e=(*s100sector.rbegin()).first;
+               int nBin100=(i100e+1);
                TH1D *h_coverage100=
                   new TH1D("h_coverage100",";coverage;count",100,0.5,100.5);
                TH1D *h_coverage1000=
                   new TH1D("h_coverage1000",";coverage;count",100,0.5,1000.5);
                TH1D *h_s100_covPattern=
                   new TH1D("h_s100_covPattern",";sector;coverage*npattern",
-                           nBin,i0*100,(i1+1)*100);
+                           nBin100,0,nBin100*100.);
                std::map<int,std::map<int,int> > scMap;
                bankReader.GetNPatternsBySectorCoverage(scMap);
                uint64_t covPatt=0;
@@ -129,20 +129,78 @@ int main(int argc, char const *argv[]) {
                   <<" average coverage: "<<covPatt/(double)npattTotal<<"\n";
                TH1D *h_s100_coverage=
                   new TH1D("h_s100_coverage",";sector;<coverage>",
-                           nBin,i0*100,(i1+1)*100);
-               h_s100_coverage->Divide(h_s100_covPattern,h_s100_pattern);
+                           nBin100,0.,nBin100*100.);
+               for(int i100=0;i100<nBin100;i100++) {
+                  int cn=h_s100_covPattern->GetBinContent(i100);
+                  double n=s100pattern[i100];
+                  if(n>0.) {
+                     h_s100_coverage->SetBinContent(i100,cn/n);
+                  }
+               }
                h_coverage100->Write();
                h_coverage1000->Write();
                h_s100_covPattern->Write();
                h_s100_coverage->Write();
             }
+         } else {
+            TTree *tree;
+            // try to read pcached bank:
+            // "Bank" tree is a list of FTKPattern objects
+            bankFile->GetObject("Bank",tree);
+            if(tree) {
+               // pcached bank
+               int nPattern=tree->GetEntriesFast();
+               logging.Info("readPCachedBank")
+                  <<"\""<<bankFile->GetName()<<"\" number of patterns: "
+                  <<nPattern<<"\n";
+               FTKPattern *pattern=new FTKPattern();
+               tree->SetBranchAddress("Pattern",&pattern);
+               TBranch *branch_sectorID=tree->GetBranch("m_sectorID");
+               for(int iPattern=0;iPattern<nPattern;++iPattern) {
+                  branch_sectorID->GetEntry(iPattern);
+                  int sector=pattern->getSectorID();
+                  int i100=sector/100;
+                  s100pattern[i100]++;
+                  uint64_t &npatt=s1pattern[sector];
+                  if(!npatt) s100sector[i100]++; // count sector only once
+                  npatt++;
+               }
+            }
+            delete bankFile;
          }
+         ifilesRead++;
+      }
+   }
+   if(!s1pattern.empty()) {
+      if(statFile) {
+         statFile->cd();
+         int i100e=(*s100sector.rbegin()).first;
+         int nBin100=(i100e+1);
+         TH1D *h_s100_count=
+            new TH1D("h_s100_count",";Sector;nSector",nBin100,
+                     0.,nBin100*100);
+         TH1D *h_s100_pattern=
+            new TH1D("h_s100_pattern",";Sector;nPattern",nBin100,
+                     0.,nBin100*100);
+         TH1D *h_s100_patternPerSector=
+            new TH1D("h_s100_patternPerSector",
+                     ";Sector;nPattern/nSector",nBin100,
+                     0.,nBin100*100);
+         for(int i100=0;i100<nBin100;i100++) {
+            int ns=s100sector[i100];
+            int np=s100pattern[i100];
+            h_s100_count->SetBinContent(i100+1,ns);
+            h_s100_pattern->SetBinContent(i100+1,np);
+            h_s100_patternPerSector->SetBinContent(i100+1,np/(double)ns);
+         }
+         h_s100_count->Write();
+         h_s100_pattern->Write();
+         h_s100_patternPerSector->Write();
       } else {
          logging.Warning("statistics")
             <<"no pattern data was found (bank is empty)\n";
       }
    }
    if(statFile) delete statFile;
-   if(bankFile) delete bankFile;
-   return error;
+   return 0;
 }

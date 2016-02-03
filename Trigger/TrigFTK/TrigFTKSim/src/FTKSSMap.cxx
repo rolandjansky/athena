@@ -89,6 +89,7 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
   if (!m_ssm) {
     FTKSetup::PrintMessage(ftk::sevr,"Impossible to allocate ssmap structure");
   }
+  bool cmDebug =  FTKSetup::getFTKSetup().getVerbosity()>1;
 
   for (int iplane=0; iplane<nplanes; ++iplane) {
     // retrieve the number of sections in this plane
@@ -114,6 +115,10 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
 
   // loop to read all the elements
   int nrlayers = pmap->getRLayers();
+  if( FTKSetup::getFTKSetup().getITkMode() ) {
+    FTKSetup::PrintMessage(ftk::warn, "ITkMode currently only set up to process first 8 layers in ss map");
+    nrlayers = 8;
+  }
   for (int ilayer=0;ilayer<nrlayers;++ilayer) {
     int type, isEC, layer;
     int phiss, phiwidth, etass, etawidth;
@@ -125,7 +130,7 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
       ilayer -= 1;
       continue;
     }
-    cout << line << endl;
+    if(cmDebug) cout << line << endl;
     istringstream sline(line);
       
     // read the element
@@ -218,8 +223,8 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
         m_ssm[plane][section][j].m_ndcx = ndcx;
         m_ssm[plane][section][j].m_ndcy = ndcy;
 	  }
-	  printf("SS info. : %d.%d (%d %d-%d) %d %d\n",
-             plane,section,type,isEC,layer, m_ssm[plane][section][0].m_phiss, m_ssm[plane][section][0].m_phioffset);
+	  if(cmDebug)
+             printf("SS info. : %d.%d (%d %d-%d) %d %d\n", plane,section,type,isEC,layer, m_ssm[plane][section][0].m_phiss, m_ssm[plane][section][0].m_phioffset);
 	}
 	else{ // cy else if scttrk
 	  /* TEMP include all sections */
@@ -258,7 +263,8 @@ FTKSSMap::FTKSSMap(FTKRegionMap *rmap, const char *fname,
 	    else
 	      m_ssm[plane][section][j].m_curvoffset = (curvwidth-curvwidth%curvss+curvss)*j; // total phi offset of j's module.
 	  }
-	  printf("SS info. : %d.%d (%d %d-%d) %d %d %d %d %d %d\n",
+          if(cmDebug)
+             printf("SS info. : %d.%d (%d %d-%d) %d %d %d %d %d %d\n",
              plane,section,type,isEC,layer, m_ssm[plane][section][0].m_fiss, m_ssm[plane][section][0].m_fioffset, m_ssm[plane][section][0].m_cottss, m_ssm[plane][section][0].m_cottoffset, m_ssm[plane][section][0].m_curvss, m_ssm[plane][section][0].m_curvoffset);
 	}
       
@@ -361,7 +367,8 @@ FTKSSMap::FTKSSMap(TDirectory* file, TString DCorTSP) : m_isok(false)
 
    // RegionMap (and PlaneMap)
    m_rmap = FTKRegionMap::GetRMapFromRootFile(file);
-   if ( !m_rmap->getIsOK() ) {
+
+   if ((!m_rmap)||(!m_rmap->getIsOK()) ) {
       cerr<<"Error in FTKSSMap::FTKSSMap. Could not get valid region map from file."<<endl;
       m_isok = false;
       delete m_rmap;
@@ -745,7 +752,7 @@ int FTKSSMap::getSSGlobal(const FTKHit &hit, bool quiet) const {
   // pixel - including eta partitioning
   if(hit.getDim() == 2) { 
 
-    int phioff = FTKSSMap::getPhiOffset(false); // hardcoded in FTKSSMap.h (default = 200 for pixels)
+    int phioff = FTKSSMap::getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode()); // hardcoded in FTKSSMap.h (default = 200 for pixels, 1000 if ITkMode=true)
     // phi piece:
     // STS 15-06-10 add check phiss must be >0
     int phiss=m_ssm[iplane][isection][iphi].m_phiss;
@@ -818,7 +825,7 @@ int FTKSSMap::getSSGlobal(const FTKHit &hit, bool quiet) const {
   
   // SCT - using original Corrinne's encoding
   else if (hit.getDim() == 1) {
-    int phioff = FTKSSMap::getPhiOffset(true); // hardcoded in FTKSSMap.h (default = 100 for SCT)
+    int phioff = FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode()); // hardcoded in FTKSSMap.h (default = 100 for SCT, 1000 if ITkMode=true)
     // STS 15-06-10 add check phiss must be >0
     int phiss=m_ssm[iplane][isection][iphi].m_phiss;
     if(phiss<=0) {
@@ -839,9 +846,9 @@ int FTKSSMap::getSSGlobal(const FTKHit &hit, bool quiet) const {
     ss = static_cast<int>(floor( (m_ssm[iplane][isection][iphi].m_phioffset+x+offset)/phiss )*phioff+(ieta));
     if(x<0 || x>=m_ssm[iplane][isection][iphi].m_phiwidth) {
        if ((!quiet)||(cmDebug>5)) {
-        cout << "Plane " << iplane << " | Section " << isection << " | Phi " << iphi << " | Eta " << ieta << " | X " << x << " => ss " << ss << endl;
-        cout << "ss width = " << m_ssm[iplane][isection][iphi].m_phiss << ", offset = " << m_ssm[iplane][isection][iphi].m_phioffset << endl;
-        //printf("hit info: dPhi=%f\n",hit.getDeltaPhi()
+	 //cout << "Plane " << iplane << " | Section " << isection << " | Phi " << iphi << " | Eta " << ieta << " | X " << x << " => ss " << ss << endl;
+	 //cout << "ss width = " << m_ssm[iplane][isection][iphi].m_phiss << ", offset = " << m_ssm[iplane][isection][iphi].m_phioffset << endl;
+	 //printf("hit info: dPhi=%f\n",hit.getDeltaPhi()
       }
       if (cmDebug > 2 )
         FTKSetup::PrintMessageFmt(ftk::warn,"ss_hit: local module x (%f) exceeds declared module bounds (SCT phi) (%d)\n",
@@ -1044,6 +1051,7 @@ int FTKSSMap::getSSTower(const FTKHit &hit, unsigned int TowerID) const {
   return ss;
 }
 
+#ifdef UNUSED
 /* this method decode a SS ID used in the Tower format 
    as input it needs a SSID, the tower id and the logical layer ID.
 */
@@ -1072,16 +1080,16 @@ void FTKSSMap::decodeSSTower(int ssid, int towerid, int plane, int section,
     localY = 1;
   }
 }
+#endif
 
 /* this method decode a SS ID used in the Tower format (HWMODEID=2) 
    as input it needs a SSID, the tower id and the logical layer ID.
    It handles the pixel layers
 */
 void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
-                               int &phimod, int &etamod, 
-                               int &localX, int &localY) {
-   int phi_dc_bits = getSSDCX(plane,section);
-   int eta_dc_bits = getSSDCY(plane,section);
+                               int &localmoduleID,int &localX, int &localY) {
+   int phi_dc_bits = getSSDCX(plane);
+   int eta_dc_bits = getSSDCY(plane);
    const unsigned int max_compressed_ssid_phi_dc =
       std::min( 1<<phi_dc_bits , getSSOffsetInternal(plane,section) );
    const unsigned int max_compressed_ssid_etaphi_dc =
@@ -1105,8 +1113,8 @@ void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
       (1<<(phi_dc_bits+eta_dc_bits));
    unsigned multP3=max_nondc_lx*max_compressed_ssid_etaphi_dc;
 
-   unsigned localModuleID=ssid/total_offset;
-   m_rmap->convertLocalID(localModuleID,towerid,plane,section,phimod,etamod);
+   localmoduleID=ssid/total_offset;
+   //moduleID=m_rmap->getGlobalId(towerid,plane,localModuleID);
 
    unsigned local_ssid=ssid%total_offset;
 
@@ -1132,17 +1140,17 @@ void FTKSSMap::decodeSSTowerXY(int ssid, int towerid, int plane, int section,
    as input it needs a SSID, the tower id and the logical layer ID.
    It handles the strip layers
 */
-void FTKSSMap::decodeSSTowerX(int ssid, int towerid, int plane, int section,
-                             int &phimod, int &etamod,int &localX) {
-   int phi_dc_bits = getSSDCX(plane,section);
+void FTKSSMap::decodeSSTowerX(int ssid, int towerid, int plane, int &section,
+                             int &localmoduleID,int &localX) {
+   int phi_dc_bits = getSSDCX(plane);
    const unsigned int total_localssid_bits =
       m_nbitsssid-m_nbitsssid_module_strip;
    unsigned int max_compressed_ssid =
       std::min((1<<total_localssid_bits)-1,getSSOffset(plane,section));
    max_compressed_ssid =
       (int)ceil(max_compressed_ssid/(1.*(1<<phi_dc_bits)))*(1<<phi_dc_bits);
-   int localModuleID=ssid/max_compressed_ssid;
-   m_rmap->convertLocalID(localModuleID,towerid,plane,section,phimod,etamod);
+   localmoduleID=ssid/max_compressed_ssid;
+   //moduleID=m_rmap->getGlobalId(towerid,plane,localModuleID);
 
    int local_ssid= ssid%max_compressed_ssid;
    localX=local_ssid* m_ssm[plane][section][0].m_phiss;
@@ -1151,60 +1159,13 @@ void FTKSSMap::decodeSSTowerX(int ssid, int towerid, int plane, int section,
    //         <<"  localX="<<localX<<"\n";
 }
 
-/**
-   this method encodes a SS ID in the Tower format 
-   as input it need the tower id, layer ID, module coordinates
-   and local pixel coordinates
-*/
-int FTKSSMap::encodeSSTowerXY(int towerid, int plane, int section,
-                             int phimod, int etamod, 
-                             int localX, int localY) const {
-   int localID=m_rmap->getLocalID(towerid,plane,section,phimod,etamod);
-   if ( localID<0 ) {
-      std::cout<<"tower="<<towerid<<" plane="<<plane<<" section="<<section
-               <<" phimod="<<phimod<<" etamod="<<etamod
-               <<" localX="<<localX<<" localY="<<localY
-               <<" localID="<<localID<<" ssid=???"
-               <<"\n";
-      throw FTKException("encodeSSTowerXY: Error in the DC configuration");
-   }
-   int ssid=compressed_ssid_word_pixel(localID,plane,section,localX,localY);
-   /* std::cout<<"tower="<<towerid<<" plane="<<plane<<" section="<<section
-            <<" phimod="<<phimod<<" etamod="<<etamod
-            <<" localX="<<localX<<" localY="<<localY
-            <<" localID="<<localID<<" ssid="<<ssid
-            <<"\n"; */
-   return ssid;
-}
-			     
-/**
-   this method encodes a SS ID in the Tower format 
-   as input it need the tower id, layer ID, module coordinates
-   and local strip coordinate
-*/
-int FTKSSMap::encodeSSTowerX(int towerid, int plane, int section,
-                             int phimod, int etamod, 
-                             int localX) const {
-   int localID=m_rmap->getLocalID(towerid,plane,section,phimod,etamod);
-   if ( localID<0 ) {
-      std::cout<<"encodeSSTowerX: tower="<<towerid
-               <<" plane="<<plane<<" section="<<section
-               <<" phimod="<<phimod<<" etamod="<<etamod
-               <<" localX="<<localX
-               <<" localID="<<localID<<" ssid=???\n";
-      throw FTKException("encodeSSTowerX: Error in the DC configuration");
-   }
-   int ssid=compressed_ssid_word_strip(localID,plane,section,localX);
-   return ssid;
-}
-
 /** This method returns, for Pixel layers, the SS number passing the
     module's information and the cluster coordinate */
 int FTKSSMap::getSSxy(int plane,int section, 
                       int phimod, int etaoff,
                       int x,int y) const
 {
-  int phioff = FTKSSMap::getPhiOffset(false); // hardcoded in FTKSSMap.h (default = 100 for SCT)
+  int phioff = FTKSSMap::getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode()); // hardcoded in FTKSSMap.h (default = 100 for SCT, 1000 if ITkMode=true)
 
   int phiss=m_ssm[plane][section][phimod].m_phiss;
   int etass=m_ssm[plane][section][etaoff].m_etass;
@@ -1249,7 +1210,7 @@ int FTKSSMap::getSSx(int plane,int section,
                     int phimod,int etaoff,
                     int x) const
 {
-  int phioff = FTKSSMap::getPhiOffset(true); // hardcoded in FTKSSMap.h (default = 100 for SCT)
+  int phioff = FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode()); // hardcoded in FTKSSMap.h (default = 100 for SCT, 1000 if ITkMode=true)
   
   int phiss=m_ssm[plane][section][phimod].m_phiss;
   int ss=-1;
@@ -1285,87 +1246,63 @@ int FTKSSMap::getSSx(int plane,int section,
     different SS map.
     SCT version, with just a one-dimensional local SS id */
 void FTKSSMap::decodeSSx(int SSid,int plane,int &section,
-                        int &phimod,int &localX, int &etaoff)
+                        int &phimod,int &localX, int &etacode)
    const {
  
   /* start to decompose the information codified in the ID */
   // SSid: Superstrip ID
   // plane
-  // section
 
   // OUTPUTS
-  // etaoff: eta module value
+  // etaoff: eta module
+  // section: eta section
   // phimod: phi module value
   // phioff: offset for first phi superstrip within the module (note: in "phi SS units, meaning after eta part was separated)
   // localX: lower edge of the superstrip in strip units within the module
 
   // reduce the information to the phi information
-  int SSid_x = SSid/FTKSSMap::getPhiOffset(true);
+  int SSid_x = SSid/FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
   // extract eta offset
-  int SSid_y = SSid%FTKSSMap::getPhiOffset(true);
-
-  section=-1;
+  int SSid_y = SSid%FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
+  // decide barrel/endcap and section number
+  static FTKHit dummyHit;
+  dummyHit.setSector(SSid_y);
+  section=dummyHit.getSection();
+  etacode=dummyHit.getEtaCode();
   phimod=-1;
   localX=-1;
-  etaoff=-1;
-  int nsolution_section=0;
   int nsolution_phi=0;
-  int nsections = m_rmap->getPlaneMap()->getNSections(plane);
   int nConflict=0;
   int phiwidth_found=-1;
   int phiss_found=-1;
-  for(int test_section=0;test_section<nsections;test_section++) {  
-     int module_max=
-        m_rmap->getRegionMapItem(-1,plane,test_section).getTotMod()-1;
-     if(FTKSetup::getFTKSetup().getIBLMode()>=1)
-        module_max+=3;
-     int phimod_section=-1;
-     int localX_section=-1;
-     int nSolution_section_phi=0;
-     for(int test_module=module_max;test_module>=0;test_module--) {
-        int phiwidth = m_ssm[plane][test_section][test_module].m_phiwidth;
-        int phiss = m_ssm[plane][test_section][test_module].m_phiss;
-        if((phiss>0)&&(phiwidth>0)) {
-           int test_localX=
-              (SSid_x*phiss-
-               m_ssm[plane][test_section][test_module].m_phioffset);
-           if((test_localX>=0)&&(test_localX<phiwidth)) {
-              phimod_section=test_module;
-              localX_section=test_localX;
-              nSolution_section_phi++;
-              if(phiwidth_found>0) {
-                 if((phiwidth_found!=phiwidth)||
-                    (phiss_found!=phiss)) {
-                    nConflict++;
-                 }
-              } else {
-                 phiwidth_found=phiwidth;
-                 phiss_found=phiss;
+  int module_max=
+     m_rmap->getRegionMapItem(-1,plane,section).getTotMod()-1;
+  if(FTKSetup::getFTKSetup().getIBLMode()>=1) module_max+=3;
+  for(int test_module=module_max;test_module>=0;test_module--) {
+     int phiwidth = m_ssm[plane][section][test_module].m_phiwidth;
+     int phiss = m_ssm[plane][section][test_module].m_phiss;
+     if((phiss>0)&&(phiwidth>0)) {
+        int test_localX=
+           (SSid_x*phiss-m_ssm[plane][section][test_module].m_phioffset);
+        if((test_localX>=0)&&(test_localX<phiwidth)) {
+           phimod=test_module;
+           localX=test_localX;
+           nsolution_phi++;
+           if(phiwidth_found>0) {
+              if((phiwidth_found!=phiwidth)||
+                 (phiss_found!=phiss)) {
+                 nConflict++;
               }
+           } else {
+              phiwidth_found=phiwidth;
+              phiss_found=phiss;
            }
         }
-     }
-     if((nSolution_section_phi>0)) {
-        nsolution_section++;
-     }
-     if((section<0)&&(phimod_section>=0)) {
-        section=test_section;
-        phimod=phimod_section;
-        localX=localX_section;
-        etaoff=SSid_y;
-        nsolution_phi=nSolution_section_phi;
      }
   }
   if(nConflict) {
      FTKSetup::PrintMessageFmt
-        (ftk::sevr,"FTKSSMap::decodeSSx SSid=%d: %d sections match but their geometry is not the same\n",SSid,nsolution_section);
-  }
-  if((nsolution_section>1)&&(FTKSetup::getFTKSetup().getVerbosity()>2)) {
-     FTKSetup::PrintMessageFmt
-        (ftk::warn,"FTKSSMap::decodeSSx %d found %d/%d valid sections\n",
-         SSid,nsolution_section,nsections);
-     /* cout<<"section="<<section<<" phimod="<<phimod<<" localX="<<localX
-        <<" etaoff="<<etaoff<<"\n"; */
+        (ftk::sevr,"FTKSSMap::decodeSSx SSid=%d: %d solutions\n",SSid,nsolution_phi);
   }
   if(nsolution_phi!=1) {
      FTKSetup::PrintMessageFmt
@@ -1400,9 +1337,9 @@ void FTKSSMap::decodeSSxy(int SSid,int plane,int &section,
 
 
   // reduce the information to the phi information
-  int SSid_x = SSid/FTKSSMap::getPhiOffset(false);
-  // extract eta offset
-  int SSid_y = SSid%FTKSSMap::getPhiOffset(false);
+  int SSid_x = SSid/FTKSSMap::getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode());
+  // extract eta information
+  int SSid_y = SSid%FTKSSMap::getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode());
 
   // STS: 2015/09/09
   //  the original code below assumed that all modules have the same
@@ -1415,110 +1352,85 @@ void FTKSSMap::decodeSSxy(int SSid,int plane,int &section,
   localX=-1;
   etaoff=-1;
   localY=-1;
-  int nsolution_section=0;
-  int nsolution_eta=0;
-  int nsolution_phi=0;
-  int nConflict_phi=0;
-  int nConflict_eta=0;
-  int phiwidth_found=-1;
-  int phiss_found=-1;
-  int etawidth_found=-1;
-  int etass_found=-1;
+  int nSolution_eta=0;
+
+  // barrel
+  int barrel_max=13;  // quick fix, not valid for IBL
+  int test_section=0;
+  for(int test_module=barrel_max;test_module>=0;test_module--) {
+     int etawidth = m_ssm[plane][test_section][test_module].m_etawidth;
+     int etass = m_ssm[plane][test_section][test_module].m_etass;
+     if((etass>0)&&(etawidth>0)) {
+        int test_localY=
+           SSid_y*etass-m_ssm[plane][test_section][test_module].m_etaoffset;
+        if((test_localY>=0)&&(test_localY<etawidth)) {
+           section = test_section;
+           etaoff = test_module;
+           localY =test_localY;
+           nSolution_eta++;
+        }
+     }
+  }
   int nsections = m_rmap->getPlaneMap()->getNSections(plane);
-  for(int test_section=0;test_section<nsections;test_section++) {
-     int module_max=
-        m_rmap->getRegionMapItem(-1,plane,test_section).getTotMod()-1;
-     if(FTKSetup::getFTKSetup().getIBLMode()>=1)
-        module_max+=3;
-     int phimod_section=-1;
-     int localX_section=-1;
-     int etaoff_section=-1;
-     int localY_section=-1;
-     int nSolution_section_eta=0;
-     int nSolution_section_phi=0;
-     for(int test_module=module_max;test_module>=0;test_module--) {
-        int phiwidth = m_ssm[plane][test_section][test_module].m_phiwidth;
-        int phiss = m_ssm[plane][test_section][test_module].m_phiss;
+  for(test_section=0;test_section<nsections;test_section++) {
+     for(int aside=0;aside<2;aside++) {
+        int test_module=14+3*aside+test_section;
         int etawidth = m_ssm[plane][test_section][test_module].m_etawidth;
         int etass = m_ssm[plane][test_section][test_module].m_etass;
-        /* if(SSid==92812) {
-           cout<<" section="<<test_section
-               <<" module="<<test_module
-               <<" phiwidth="<<phiwidth
-               <<" phiss="<<phiss
-               <<" etawidth="<<etawidth
-               <<" etass="<<etass<<"\n";
-               } */
-        if((phiss>0)&&(phiwidth>0)) {
-           int test_localX=
-              SSid_x*phiss-m_ssm[plane][test_section][test_module].m_phioffset;
-           /* if(SSid==92812) cout<<" localX="<<test_localX
-              <<" offset="<<m_ssm[plane][test_section][test_module].m_phioffset<<"\n"; */
-           if((test_localX>=0)&&(test_localX<phiwidth)) {
-              phimod_section=test_module;
-              localX_section=test_localX;
-              nSolution_section_phi++;
-              if(phiwidth_found>0) {
-                 if((phiwidth_found!=phiwidth)||
-                    (phiss_found!=phiss)) {
-                    nConflict_phi++;
-                 }
-              } else {
-                 phiwidth_found=phiwidth;
-                 phiss_found=phiss;
-              }
-           }
-        }
         if((etass>0)&&(etawidth>0)) {
            int test_localY=
-              SSid_y*etass-m_ssm[plane][test_section][test_module].m_etaoffset;
-           /* if(SSid==92812) cout<<" localY="<<test_localY
-              <<" offset="<<m_ssm[plane][test_section][test_module].m_etaoffset<<"\n"; */
+              SSid_y*etass-m_ssm[plane][test_section][test_module].m_etaoffset;              
            if((test_localY>=0)&&(test_localY<etawidth)) {
-              etaoff_section = test_module;
-              localY_section=test_localY;
-              nSolution_section_eta++;
-              if(etawidth_found>0) {
-                 if((etawidth_found!=etawidth)||
-                    (etass_found!=etass)) {
-                    nConflict_eta++;
-                 }
-              } else {
-                 phiwidth_found=phiwidth;
-                 phiss_found=phiss;
+              if(section>=0) {
+                 cout<<"first solution: "<<section<<" "<<etaoff<<" "<<localY<<"\n";
+                 cout<<"second solution: "<<test_section<<" "<<test_module<<" "<<test_localY<<" "<<etawidth<<" "<<etass<<"\n";
               }
+              section = test_section;
+              etaoff = test_module;
+              localY =test_localY;
+              nSolution_eta++;
            }
         }
      }
-     if((nSolution_section_phi>0)&&(nSolution_section_eta>0)) {
-        nsolution_section++;
-     }
-     if((section<0)&&(phimod_section>=0)&&(etaoff_section>=0)) {
-        section=test_section;
-        phimod=phimod_section;
-        localX=localX_section;
-        etaoff=etaoff_section;
-        localY=localY_section;
-        nsolution_eta=nSolution_section_eta;
-        nsolution_phi=nSolution_section_phi;
+  }
+  if(nSolution_eta!=1) {
+     cout<<"SSid_x="<<SSid_x<<" SSid_y="<<SSid_y<<"\n";
+     FTKSetup::PrintMessageFmt
+        (ftk::sevr,"FTKSSMap::decodeSSxy %d plane=%d found %d valid sections\n",SSid,plane,nSolution_eta);
+  }
+  int nSolution_phi=0;
+  int module_max=
+     m_rmap->getRegionMapItem(-1,plane,section).getTotMod()-1;
+  if(FTKSetup::getFTKSetup().getIBLMode()>=1) module_max+=3;
+  for(int test_module=module_max;test_module>=0;test_module--) {
+     int phiwidth = m_ssm[plane][section][test_module].m_phiwidth;
+     int phiss = m_ssm[plane][section][test_module].m_phiss;
+     if((phiss>0)&&(phiwidth>0)) {
+        int test_localX=
+           SSid_x*phiss-m_ssm[plane][section][test_module].m_phioffset;
+        if((test_localX>=0)&&(test_localX<phiwidth)) {
+           phimod=test_module;
+           localX=test_localX;
+           nSolution_phi++;
+        }
      }
   }
-  if(nConflict_phi || nConflict_eta) {
-     FTKSetup::PrintMessageFmt
-        (ftk::sevr,"FTKSSMap::decodeSSxx SSid=%d: %d sections match but their geometry is not the same\n",SSid,nsolution_section);
-  }
-  if((nsolution_section>1)&&(FTKSetup::getFTKSetup().getVerbosity()>2)) {
-     FTKSetup::PrintMessageFmt
-        (ftk::warn,"FTKSSMap::decodeSSxy %d found %d/%d valid sections\n",
-         SSid,nsolution_section,nsections);
-  }
-  if((nsolution_phi!=1)||(nsolution_eta!=1)) {
-     FTKSetup::PrintMessageFmt
-        (ftk::warn,"FTKSSMap::decodeSSxy ssid=%d plane=%d: found %d solutions in phi, %d solutions in eta\n",
-         SSid,plane,nsolution_phi,nsolution_eta);
-     if((!nsolution_phi)||(!nsolution_eta)) {
-        cout<<"SSid_x="<<SSid_x<<" SSid_y="<<SSid_y<<"\n";
+
+  if(nSolution_phi!=1) {
+     cout<<"SSid_x="<<SSid_x<<" SSid_y="<<SSid_y<<" section="<<section<<"\n";
+     for(int test_module=module_max;test_module>=0;test_module--) {
+        int phiwidth = m_ssm[plane][section][test_module].m_phiwidth;
+        int phiss = m_ssm[plane][section][test_module].m_phiss;
+        cout<<" module: "<<test_module<<" phiwidth: "<<phiwidth<<" phiss: "<<phiss<<"\n";
+        if((phiss>0)&&(phiwidth>0)) {
+           int test_localX=
+              SSid_x*phiss-m_ssm[plane][section][test_module].m_phioffset;
+           cout<<"  test_localX: "<<test_localX<<" phioffset: "<<m_ssm[plane][section][test_module].m_phioffset<<"\n";
+        }
      }
+     FTKSetup::PrintMessageFmt
+        (ftk::sevr,"FTKSSMap::decodeSSxy ssid=%d plane=%d: found %d solutions in phi\n",
+         SSid,plane,nSolution_phi);
   }
 }
 
@@ -1653,8 +1565,8 @@ FTKSSMap::compressed_ssid_word_pixel
 (unsigned int local_module_id,int plane,int section,
  float localX,float localY) const
 {
-   int phi_dc_bits = getSSDCX(plane,section);
-   int eta_dc_bits = getSSDCY(plane,section);
+   int phi_dc_bits = getSSDCX(plane);
+   int eta_dc_bits = getSSDCY(plane);
    const unsigned int total_localssid_bits =
       m_nbitsssid-m_nbitsssid_module_pixel;
   const unsigned int total_nondc_bits =
@@ -1677,8 +1589,8 @@ FTKSSMap::compressed_ssid_word_pixel
   unsigned int dc_x = x & (phi_dc_bits>0 ? (1<<phi_dc_bits)-1 : 0 );
   unsigned int dc_y = y & (eta_dc_bits>0 ? (1<<eta_dc_bits)-1 : 0 );
   // Alberto Annovi: gray code to be enabled below
-  //dc_x = gray_code(dc_x, VALUE);
-  //dc_y = gray_code(dc_y, VALUE);
+  dc_x ^= dc_x>>1;
+  dc_y ^= dc_y>>1;
   // unsigned int dc = (dc_y << phi_dc_bits) | dc_x;
   // non-dc piece. current compression scheme just drops higher order bits.
   // relative to uncompressed superstrip ids, this effectively
@@ -1721,6 +1633,14 @@ FTKSSMap::compressed_ssid_word_pixel
   const unsigned int result = global_ssid;
   const unsigned int result_mask = (1<<m_nbitsssid)-1;
   if ( (result & result_mask) != result ) {
+     std::cout<<"local id="<<local_module_id
+              <<" plane="<<plane
+              <<" section="<<section
+              <<" localX="<<localX
+              <<" localY="<<localY<<"\n";
+     std::cout<<"total_offset="<<total_offset
+              <<" local_module_id="<<local_module_id
+              <<" local_ssid="<<local_ssid<<"\n";
      std::cout<<" result="<<result<<" [0x"<<std::setbase(16)<<result
               <<"] mask=0x"<<result_mask<<std::setbase(10)
               <<" nbit="<<m_nbitsssid<<"\n";
@@ -1750,7 +1670,7 @@ unsigned int
 FTKSSMap::compressed_ssid_word_strip(int localID,int plane,int section,
                                      float localX) const
 {
-   int phi_dc_bits = getSSDCX(plane,section);
+   int phi_dc_bits = getSSDCX(plane);
   const unsigned int total_localssid_bits =
      m_nbitsssid-m_nbitsssid_module_strip;
   const unsigned int total_nondc_bits = total_localssid_bits-phi_dc_bits;
@@ -1761,6 +1681,8 @@ FTKSSMap::compressed_ssid_word_strip(int localID,int plane,int section,
   x /= phi_ss_width;
   // dc piece.
   unsigned int dc_x = x & ((1<<phi_dc_bits)-1);
+  // gray-code DC bits
+  dc_x ^= dc_x>>1;
   // check for SSID strip word logic error when masking bits
   assert( (dc_x & ((1<<phi_dc_bits)-1)) == dc_x );
   // non-dc piece. current compression scheme just drops higher order bits.
