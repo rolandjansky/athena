@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 709805 2015-11-23 09:53:16Z tkaji $
+# $Id: skeleton.FTKStandaloneSim.py 718877 2016-01-20 17:26:56Z jwebster $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -127,6 +127,7 @@ runArgsFromTrfOptionalRF = {
     'SetAMSize': 0,
     'SetAMSplit' : 5,
     'IBLMode': 0,
+    'ITkMode': False,
     'PixelClusteringMode': 0,
     'GangedPatternReco' : 0,
     'DuplicateGanged' : 1,
@@ -138,10 +139,12 @@ runArgsFromTrfOptionalRF = {
     'DCMatchMethod': 1,
     'HWModeSS': 0,
     'ModuleLUTPath': "",
+    'UseCompressedBank': False
     }
 
 runArgsFromTrfOptionalTF = {
     'IBLMode': 0,
+    'ITkMode': False,
     'Chi2Cut': 17,
     'Chi2Cut_Maj': 14,
     'Chi2DofCut': 4, # if >0 the previous values are ignored
@@ -269,6 +272,31 @@ if (NumberOfSubregions != len(runArgs.bankregion)
 
 # prestore some common configurations that can be called through the option FTKSetupTag
 FTKTagOptions = {}
+
+
+FTKTagOptions["HWMode2Test32Tower"] = {
+    'NBanks': 32, 'NSubRegions': 4,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
+    'ssmap_path': 'raw_30x64x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [2097152]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True,
+####    'ModuleLUTPath': 'raw_12LiblHW_32.moduleidmap',
+    'ModuleLUTPath': 'raw_8LcIbl123_32.moduleidmap',
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_8LcIbl123.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
+    'SecondStageFit': False,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'HWModeSS': 2,
+    'IBLMode': 2, 'PixelClusteringMode': 1,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    }
+
+
 FTKTagOptions["TDRv0"] = {
     'NBanks': 64, 'NSubRegions': 4,
     'pmap_path': 'raw_8Lc.pmap', 'rmap_path': 'raw_11L.tmap',
@@ -358,6 +386,22 @@ FTKTagOptions["TDAQTDRv2_testFederico"] = {
 FTKTagOptions["Run2v0"] = {
     'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl3D123.pmap',
     'rmap_path': 'raw_12Libl3D.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [4194304]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True,
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12Libl3D.pmap',
+    'SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 3,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'IBLMode': 2, 'PixelClusteringMode': 1,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    }
+FTKTagOptions["Run2v1"] = {
+    'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+    'rmap_path': 'raw_12Libl64TmodB_3D_t1.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss',
     'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
     'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
     'bankpatterns': [4194304]*NumberOfSubregions,
@@ -628,6 +672,23 @@ FTKTagOptions['SectorsAsPatterns8L32bHWMode2'] = {
     'SaveRoads': True
     }
 
+FTKTagOptions['FitITk'] = {
+    'MaxMissingPlanes': 2,
+    'MaxMissingSCTPairs': 0,
+    'MaxNComb': 1000,
+    'UseTSPBank': False,
+    'UseCompressedBank': False,
+    'SecondStageFit': False,
+    'TRACKFITTER_MODE': 1,
+    'Chi2DofCut': 1000,
+    'IBLMode': 0,
+    'ITkMode': True,
+    'bankpatterns': [-1]*NumberOfSubregions,
+    'PixelClusteringMode': 1,
+    'SectorsAsPatterns': 0,
+    'SetAMSplit': 0,
+    'SaveRoads': True }
+
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
     ftktag = getattr(runArgs,'FTKSetupTag')
@@ -654,8 +715,8 @@ else:
     FTKRoadMarket.SaveRoads = False
 
 # Normalize some mandatory options removing few of them according
-if hasattr(runArgs, 'UseTSPBank'):
-    if not runArgs.UseTSPBank:
+if hasattr(runArgs, 'UseTSPBank') :
+    if not runArgs.UseTSPBank and not runArgs.UseCompressedBank:
         skipArgs += ['DBBankLevel', 'TSPSimulationLevel', 'ssmaptsp_path']
 else:
     skipArgs += ['DBBankLevel','TSPSimulationLevel','ssmaptsp_path']

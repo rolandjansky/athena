@@ -63,12 +63,6 @@ apply_tag  ROOTTableLibs
 # Specify the required ROOT components (cmake-specific)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
 
-# Create the ROOT dictionary (cmake-specific)
-apply_pattern cmake_add_command command="athena_add_root_dictionary(TrigFTKSimDict ROOT_HEADERS TrigFTKSim/FTKRoad.h TrigFTKSim/FTKTruthTrack.h TrigFTKSim/FTKRawHit.h TrigFTKSim/FTKHit.h TrigFTKSim/FTKTrack.h TrigFTKSim/FTKRoadStream.h TrigFTKSim/FTKTrackStream.h TrigFTKSim/FTKSS.h TrigFTKSim/MultiTruth.h TrigFTKSim/FTKPattern.h TrigFTKSim/TrigFTKSimLinkDef.h INCLUDE_PATHS -I${CMAKE_CURRENT_SOURCE_DIR} -I${ROOT_INCLUDE_DIR})"
-
-# Add the generated source file to the list of files in the library (cmake-specific)
-apply_pattern cmake_add_generated_files library=TrigFTKSim files=TrigFTKSimDict.cxx
-
 # Declare that Boost iostreams are available (cmake-specific)
 apply_pattern cmake_add_command command="add_definitions(-DHAVE_BOOST_IOSTREAMS)"
 
@@ -76,9 +70,9 @@ apply_pattern cmake_add_command command="add_definitions(-DHAVE_BOOST_IOSTREAMS)
 #apply_pattern component_library
 
 apply_pattern declare_joboptions files="-k=.*job[Oo]ptions.py *.py"
-apply_pattern generic_declare_for_link kind=ftkmapfiles prefix=share/ftk_configuration/map_files files="../config/map_file/raw_7L.pmap ../config/map_file/raw_7L_unused.pmap ../config/map_file/raw_8Lc.pmap ../config/map_file/raw_8Lc_unused.pmap ../config/map_file/raw_11L.pmap ../config/map_file/raw_7L.rmap ../config/map_file/raw_11L.rmap   ../config/map_file/raw_11L.tmap  ../config/map_file/raw_8LcIbl123.pmap ../config/map_file/raw_8LcIbl3D123.pmap ../config/map_file/raw_12Libl.pmap ../config/map_file/raw_8LcIbl123_unused.pmap ../config/map_file/raw_12Libl.tmap ../config/map_file/raw_12LiblHW.pmap ../config/map_file/raw_8LcIbl123.moduleidmap ../config/map_file/raw_12Libl.moduleidmap ../config/map_file/raw_12Libl3D.pmap ../config/map_file//raw_12Libl3D.tmap ../config/map_file/raw_12Libl3DTempv0.tmap ../config/map_file/raw_12Libl3D_WA.tmap ../config/map_file/raw_12Libl64TmodB_3D_t1.tmap ../config/map_file/raw_12LiblHW3D.pmap ../config/map_file/raw_12Libl32TmodB.tmap ../config/map_file/raw_12Libl64TmodB.tmap ../config/map_file/raw_12Libl32TmodB_3D_t13.tmap ../config/map_file/raw_12Libl64TmodB_3D_t13.tmap"
-apply_pattern generic_declare_for_link kind=ftkssdefs prefix=share/ftk_configuration/ss_files files="../config/ss_file/raw_24x20x36.ss ../config/ss_file/raw_48x40x36.ss ../config/ss_file/raw_unused.ss ../config/ss_file/raw_15x16x36.ss ../config/ss_file/raw_15x16x36unused.ss  ../config/ss_file/raw_30x32x36.ss ../config/ss_file/raw_30x32x72.ss ../config/ss_file/raw_50x64x14412LIblunused.ss ../config/ss_file/raw_50x64x14412LIbl.ss ../config/ss_file/raw_15x16x36Ibl.ss ../config/ss_file/raw_15x16x38Ibl.ss ../config/ss_file/raw_30x32x72Ibl.ss ../config/ss_file/raw_15x16x36Iblunused.ss ../config/ss_file/raw_8LcIBL123_unusedmedium.ss ../config/ss_file/raw_8LcIBL123_unusedsmall.ss ../config/ss_file/raw_8LcIBL123_i8s4_unused.ss ../config/ss_file/raw_60x32a64p2x72Ibl.ss ../config/ss_file/raw_60x64x72Ibl.ss"
-apply_pattern generic_declare_for_link kind=ftkhwdef prefix=share/ftk_configuration/hwsdev_file files="../config/hwsdev_file/raw_7L.hw ../config/hwsdev_file/raw_11L.hw ../config/hwsdev_file/raw_8Lc.hw ../config/hwsdev_file/raw_8LcIbl123.hw ../config/hwsdev_file/raw_12L.hw"
+apply_pattern generic_declare_for_link kind=ftkmapfiles prefix=share/ftk_configuration/map_files files="../config/map_file/raw_7L.pmap ../config/map_file/raw_7L_unused.pmap ../config/map_file/raw_8Lc.pmap ../config/map_file/raw_8Lc_unused.pmap ../config/map_file/raw_11L.pmap ../config/map_file/raw_7L.rmap ../config/map_file/raw_11L.rmap   ../config/map_file/raw_11L.tmap  ../config/map_file/raw_8LcIbl123.pmap ../config/map_file/raw_8LcIbl3D123.pmap ../config/map_file/raw_12Libl.pmap ../config/map_file/raw_8LcIbl123_unused.pmap ../config/map_file/raw_12Libl.tmap ../config/map_file/raw_12LiblHW.pmap ../config/map_file/raw_8LcIbl123.moduleidmap ../config/map_file/raw_12Libl.moduleidmap ../config/map_file/raw_12Libl3D.pmap ../config/map_file//raw_12Libl3D.tmap ../config/map_file/raw_12Libl3DTempv0.tmap ../config/map_file/raw_12Libl3D_WA.tmap ../config/map_file/raw_12Libl64TmodB_3D_t1.tmap ../config/map_file/raw_12LiblHW3D.pmap ../config/map_file/raw_12Libl32TmodB.tmap ../config/map_file/raw_12Libl64TmodB.tmap ../config/map_file/raw_12Libl32TmodB_3D_t13.tmap ../config/map_file/raw_12Libl64TmodB_3D_t13.tmap ../config/map_file/raw_12LiblHW_32.moduleidmap ../config/map_file/raw_8LcIbl123_32.moduleidmap ../config/map_file/raw_ITkExample.tmap ../config/map_file/raw_ITkExample.pmap"
+apply_pattern generic_declare_for_link kind=ftkssdefs prefix=share/ftk_configuration/ss_files files="../config/ss_file/raw_24x20x36.ss ../config/ss_file/raw_48x40x36.ss ../config/ss_file/raw_unused.ss ../config/ss_file/raw_15x16x36.ss ../config/ss_file/raw_15x16x36unused.ss  ../config/ss_file/raw_30x32x36.ss ../config/ss_file/raw_30x32x72.ss ../config/ss_file/raw_50x64x14412LIblunused.ss ../config/ss_file/raw_50x64x14412LIbl.ss ../config/ss_file/raw_15x16x36Ibl.ss ../config/ss_file/raw_15x16x38Ibl.ss ../config/ss_file/raw_30x32x72Ibl.ss ../config/ss_file/raw_15x16x36Iblunused.ss ../config/ss_file/raw_8LcIBL123_unusedmedium.ss ../config/ss_file/raw_8LcIBL123_unusedsmall.ss ../config/ss_file/raw_8LcIBL123_i8s4_unused.ss ../config/ss_file/raw_60x32a64p2x72Ibl.ss ../config/ss_file/raw_60x64x72Ibl.ss ../config/ss_file/raw_30x64x72Ibl.ss ../config/ss_file/raw_ITkExample.ss"
+apply_pattern generic_declare_for_link kind=ftkhwdef prefix=share/ftk_configuration/hwsdev_file files="../config/hwsdev_file/raw_7L.hw ../config/hwsdev_file/raw_11L.hw ../config/hwsdev_file/raw_8Lc.hw ../config/hwsdev_file/raw_8LcIbl123.hw ../config/hwsdev_file/raw_12L.hw ../config/hwsdev_file/raw_ITkExample.hw"
 apply_pattern generic_declare_for_link kind=ftkbadmod prefix=share/ftk_configuration/bad_modules files="../config/bad_modules/empty.bmap"
 
 # Add transform
@@ -121,7 +115,7 @@ apply_pattern dual_use_library files="FTKRoadFinderAlgo.cxx FTKDumpCondAlgo.cxx 
 #include the TestConfig file
 macro TrigFTKSim_TestConfiguration "../test/TrigFTKSim_TestConfiguration.xml"
 #install all the files for RTT where it can find them (may be redundant for some files?)
-apply_pattern declare_runtime extras= "../test/TrigFTKSim_TestConfiguration.xml ../scripts/CompareFTKSimDirectories_RTT.py ../scripts/TrigFTKSM4Un_tf.py ../standalone/plot_simple_dataflow.C ../scripts/TrigFTKTM64SM4Un_tf.py"
+apply_pattern declare_runtime extras= "../test/TrigFTKSim_TestConfiguration.xml ../scripts/CompareFTKSimDirectories_RTT.py ../scripts/TrigFTKSM4Un_tf.py ../standalone/plot_simple_dataflow.C ../scripts/TrigFTKTM64SM4Un_tf.py ../scripts/TrigFTKSimITk_tf.py"
 #########################
 
 # the following two lines are required to enable the debug flags

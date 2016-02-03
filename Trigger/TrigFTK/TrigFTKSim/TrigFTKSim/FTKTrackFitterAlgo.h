@@ -42,6 +42,9 @@ private:
   // enable the use of IBL
   int m_IBLMode;
 
+  // use ITk geometry
+  bool m_ITkMode;
+  
   // Number of regions/banks
   int m_nbanks;
   int m_nsubregions;

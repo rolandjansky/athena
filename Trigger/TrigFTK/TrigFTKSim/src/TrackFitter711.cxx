@@ -1093,7 +1093,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     // this is special hack for DC match, the first N bits should be ignored
     int realSS = AMroad->getDCMatchMode()==1 ? (AMroad->getSSID(layerpos)>>AMroad->getHLID(layerpos)) : AMroad->getSSID(layerpos);
     // isEndcap? : condition.
-    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true))>=20;
+    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode()))>=20;
 
     if (isEndcap)
       missing_section[i] = realSS%10; // endcap section
@@ -1603,7 +1603,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
 
       // the hits are obtained from the extrapolated SS and the neighbor
       for (int ss_shift=-m_nneighbours/2; ss_shift!=m_nneighbours/2+1; ++ss_shift) {
-        const int tmpSS = ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(true);
+        const int tmpSS = ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
 
         // skip SS out of the current module boundaries
         if (/*(ndim==1)&&*/(tmpSS<bounds[ip][0]||tmpSS>bounds[ip][1])) // TODO:
@@ -2332,7 +2332,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
 
     // isEndcap? : condition.
     int realSS = AMroad->getDCMatchMode()==1 ? AMroad->getSSID(layerpos)>>AMroad->getHLID(layerpos) : AMroad->getSSID(layerpos) ;
-    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true))>=20;
+    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode()))>=20;
 
     if (isEndcap)
       missing_section[i] = realSS%10; // endcap section
@@ -2610,7 +2610,7 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
       for (int ss_shift=-m_nneighbours/2; ss_shift!=m_nneighbours/2+1; ++ss_shift) {
         for (int ss_shiftEta=-m_etaneighbours/2; ss_shiftEta!=m_etaneighbours/2+1; ++ss_shiftEta) {
 
-          const int tmpSS = ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(true)+ss_shiftEta;
+          const int tmpSS = ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode())+ss_shiftEta;
 
           // skip SS out of the current module boundaries
           if (/*(ndim==1)&&*/(tmpSS<bounds[ip][0]||tmpSS>bounds[ip][1])) // TODO:
@@ -2946,7 +2946,7 @@ void TrackFitter711::setLayerInversions(const FTKRoad &road) {
 
     // isEndcap? : condition.
     const int realSS = AMroad->getDCMatchMode()==1 ? AMroad->getSSID(layerpos)>>AMroad->getHLID(layerpos) : AMroad->getSSID(layerpos);
-    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true))>=20;
+    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode()))>=20;
 
     if (isEndcap)
       m_section_of_exp_layers[i] = realSS%10; // endcap section
@@ -3271,7 +3271,7 @@ void TrackFitter711::obtainHitsFromSSIDs() {
     for (int ss_shift=-m_nneighbours/2; ss_shift!=m_nneighbours/2+1; ++ss_shift) {
       for (int ss_shiftEta=-m_etaneighbours/2; ss_shiftEta!=m_etaneighbours/2+1; ++ss_shiftEta) {
 
-        const int tmpSS = m_ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(isSCT)+ss_shiftEta;
+        const int tmpSS = m_ssid[ip]+ss_shift*FTKSSMap::getPhiOffset(isSCT,FTKSetup::getFTKSetup().getITkMode())+ss_shiftEta;
 
         if (getDiagnosticMode()) {
           if (ip==0 && ibl_module_with_hit != 0) {

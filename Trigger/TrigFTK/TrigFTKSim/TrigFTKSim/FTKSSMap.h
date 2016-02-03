@@ -99,6 +99,8 @@ public:
 
    const FTKRegionMap* getRegionMap() const { return m_rmap; }
    const FTKPlaneMap* getPlaneMap() const { return m_rmap->getPlaneMap(); }
+   FTKRegionMap* getModifyableRegionMap() const { return m_rmap; }
+   FTKPlaneMap* getModifyablePlaneMap() const { return m_rmap->getModifyablePlaneMap(); }
 
    void checkPrint(const char *tag) const;
 
@@ -127,10 +129,10 @@ public:
    //     {  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ndcx; }
    //const int& getSSDCY(const FTKHit& hit) const;
    //{  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ndcy; }
-   const int& getSSDCX(int plane,int section) const
-     {  return m_ssm[plane][section][0].m_ndcx; }
-   const int& getSSDCY(int plane,int section) const
-     {  return m_ssm[plane][section][0].m_ndcy; }
+   const int& getSSDCX(int plane) const
+     {  return m_ssm[plane][0][0].m_ndcx; }
+   const int& getSSDCY(int plane) const
+     {  return m_ssm[plane][0][0].m_ndcy; }
 
    const char *getPath() const { return m_path.c_str(); }
    void setSSDCX(const int plane, const int dcx) 
@@ -152,30 +154,23 @@ public:
 
    // methods to decode Global SSID to local coordinates
    void decodeSSx(int SSid,int plane,int &section,
-		 int &phimod,int &localX,int &etaoff) const;
+		 int &phimod,int &localX,int &etacode) const;
    void decodeSSxy(int SSid,int plane,int &section,
                    int &phimod, int &localX, 
-                   int &etaoff,int &localY) const;
+                   int &etacode,int &localY) const;
 
+#ifdef UNUSED
    // method to decode Tower SSID
    // *NOT* compatible with HWMODEID==2
    void decodeSSTower(int, int, int, int, int&, int&, float&, float&);
+#endif
 
    // method to decode Tower SSID
    // compatible with HWMODEID==2
    void decodeSSTowerXY(int ssid,int towerid,int plane,int section,
-                        int &phimod,int &etaoff,int &localX, int &localY);
-   void decodeSSTowerX(int ssid,int towerid,int plane,int section,
-                       int &phimod,int &etaoff,int &localX);
-
-   // method to encode Tower SSID
-   // compatible with HWMODEID==2
-   int encodeSSTowerXY(int towerid, int plane, int section,
-                       int phimod, int etamod, 
-                       int localX,int localY) const;
-   int encodeSSTowerX(int towerid, int plane, int section,
-                      int phimod, int etamod, 
-                      int localX) const;
+                        int &localmoduleID,int &localX, int &localY);
+   void decodeSSTowerX(int ssid,int towerid,int plane,int &section,
+                       int &localmoduleID,int &localX);
 
    // generic, multi-use library function (is there a better place for this?)
    // Gray code input n
@@ -200,7 +195,8 @@ public:
    double getOffsetFraction() const { return m_fraction; }
 
    // encoding step for sct and pixels
-   static int getPhiOffset(bool isSCT) {
+   static int getPhiOffset(bool isSCT, bool isITk) {
+     if (isITk) return 1000;
      if (isSCT) return 100;
      return 200; // change to 300 if pixel-eta ss<13
    }

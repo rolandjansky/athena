@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 707064 2015-11-11 00:19:24Z end $
+# @version $Id: TrigFTKSim_tf.py 718238 2016-01-18 11:05:57Z sschmitt $
 
 import argparse
 import sys
@@ -87,6 +87,8 @@ def addFTKSimulationArgs(parser):
                         help='Location of badmap file for hits', group='TrigFTKSim')
     parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='TSP bank utilisation', group='TrigFTKSim')
+    parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='use compressed bank algorithm', group='TrigFTKSim')
     parser.add_argument('--DBBankLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='DBBankLevel', group='TrigFTKSim')
     parser.add_argument('--TSPSimulationLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
@@ -184,6 +186,12 @@ def addFTKSimulationArgs(parser):
                         help='Run Number', group='TrigFTKSim')
     parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='COOL tag for a different version', group='TrigFTKSim')
+    parser.add_argument('--HWModeSS', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='SSID encoding scheme', group='TrigFTKSim')
+    parser.add_argument('--ModuleLUTPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='module LUT for HWModeSS=2', group='TrigFTKSim')
+    parser.add_argument('--MaxMissingSCTPairs', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='6/8 option for transition region', group='TrigFTKSim')
     #end JDC
 
 
