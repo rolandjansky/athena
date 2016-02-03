@@ -231,7 +231,10 @@ GeoVPhysVol* GeoPixelLadderExtRef::Build() {
       //
       // Get the module with correct identifier / build and register detector element
       //
-      GeoFullPhysVol* modulePhys = m_barrelModule->Build(0, m_layer, m_sector, iModuleCmpt);
+      int planarModTag = 500;
+      std::ostringstream modName; 
+      modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
+      GeoFullPhysVol* modulePhys = m_barrelModule->Build(0, m_layer, m_sector, iModuleCmpt, planarModTag, modName.str());
       
       Identifier idwafer = getBasics()->getIdHelper()->wafer_id(0, m_layer, m_sector, iModuleCmpt);
       InDetDD::SiDetectorElement* element = new InDetDD::SiDetectorElement( idwafer, m_barrelModuleDesign, 
