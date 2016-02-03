@@ -35,10 +35,12 @@ except:
 #thanks to Olya for the "magic" AOD combination - see: https://its.cern.ch/jira/browse/ATR-11211
 doTrigger=True
 TriggerModernConfig=True
+
 rec.doWriteAOD.set_Value_and_Lock(True)
 rec.doWritexAOD.set_Value_and_Lock( True)
 rec.doAOD.set_Value_and_Lock(True)
 doWriteAOD=True
+
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doESD.set_Value_and_Lock(False) 
@@ -95,6 +97,11 @@ def metOnly():
 def tauOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.TauSlice.setAll() 
+
+def mubphysics():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.MuonSlice.setAll()
+    TriggerFlags.BphysicsSlice.setAll()
 
 def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
@@ -163,6 +170,8 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(tauOnly)
     elif sliceName == 'minbias':
         GenerateMenu.overwriteSignaturesWith(minbiasOnly)    
+    elif sliceName == 'mubphysics':
+        GenerateMenu.overwriteSignaturesWith(mubphysics)
     elif sliceName == 'minbiasEnhanced':
         GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)    
     else:

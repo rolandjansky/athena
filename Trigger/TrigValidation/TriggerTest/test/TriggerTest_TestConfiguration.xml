@@ -37,14 +37,14 @@
     <atn>
         
         <!-- SKIP until updated and tested the CONDS TEST name="AthenaTrigBS_standalone" type="script" suite="tt_11"> 
-            <options_atn>trigtest.pl - -test AthenaTrigBS_standalone - -run AthenaTrigBS_standalone - -conf TriggerTest.conf</options_atn> 
-            <timelimit>45</timelimit> 
-            <author>Trigger Validation</author>
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST--> 
+         <options_atn>trigtest.pl - -test AthenaTrigBS_standalone - -run AthenaTrigBS_standalone - -conf TriggerTest.conf</options_atn> 
+         <timelimit>45</timelimit> 
+         <author>Trigger Validation</author>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
         
         <!--TEST name="AthenaTrigRDO_standalone" type="script" suite="tt_12"> 
          <options_atn>trigtest.pl - -test AthenaTrigRDO_standalone - -run AthenaTrigRDO_standalone - -conf TriggerTest.conf</options_atn> 
@@ -87,6 +87,15 @@
             </expectations>
         </TEST>
         
+        <TEST name="AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK" type="script" suite="tt_23">
+            <options_atn>trigtest.pl --test AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --run AthenaTrigRDO_MC_pp_v6_no_prescale_toxAOD_FTK --conf TriggerTest.conf</options_atn>
+            <timelimit>60</timelimit>
+            <author>Trigger Validation</author>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
         
         <!-- 3 -->
         <!-- EITHER -->
@@ -112,17 +121,17 @@
          </expectations>
          </TEST-->
         
-        <!-- 4 -->
-        <TEST name="AthenaTrigRDO_leakcheck" type="script" suite="tt_40"> 
-            <options_atn>export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc49-opt/lib/libunwind.so ; trigtest.pl --test AthenaTrigRDO_leakcheck --run AthenaTrigRDO_leakcheck --conf TriggerTest.conf</options_atn> 
-            <timelimit>60</timelimit> 
-            <author>Trigger Validation</author>
-            <platform>opt</platform>
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
+        <!-- 4 stop for now running in RTT anyhow-->
+        <!--TEST name="AthenaTrigRDO_leakcheck" type="script" suite="tt_40"> 
+         <options_atn>export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; trigtest.pl - -test AthenaTrigRDO_leakcheck - -run AthenaTrigRDO_leakcheck - -conf TriggerTest.conf</options_atn> 
+         <timelimit>30</timelimit> 
+         <author>Trigger Validation</author>
+         <platform>opt</platform>
+         <expectations> 
+         <errorMessage>FAILURE </errorMessage> 
+         <returnValue>0</returnValue> 
+         </expectations> 
+         </TEST--> 
         
         <TEST name="AthenaTrigRDO_StatusCodes" type="script" suite="tt_41"> 
             <options_atn>trigtest.pl --test AthenaTrigRDO_StatusCodes --run AthenaTrigRDO_StatusCodes --conf TriggerTest.conf</options_atn> 
@@ -393,14 +402,15 @@
             <timelimit>10</timelimit>
             <author>Frank Winklmeier</author>
             <!--prerequisite>tt_0</prerequisite>
-            <prerequisite>tt_10</prerequisite>
-            <prerequisite>tt_11</prerequisite>
-            <prerequisite>tt_12</prerequisite-->
+             <prerequisite>tt_10</prerequisite>
+             <prerequisite>tt_11</prerequisite>
+             <prerequisite>tt_12</prerequisite-->
             <prerequisite>tt_20</prerequisite>
             <prerequisite>tt_21</prerequisite>
             <prerequisite>tt_22</prerequisite>
+            <prerequisite>tt_23</prerequisite>
             <!--prerequisite>tt_3</prerequisite-->
-            <prerequisite>tt_40</prerequisite>
+            <!--prerequisite>tt_40</prerequisite-->
             <prerequisite>tt_41</prerequisite>
             <prerequisite>tt_42</prerequisite>
             <prerequisite>tt_50</prerequisite>
@@ -458,11 +468,11 @@
             
             <jobTransform userJobId="LeakCheck_Physics_pp_v6" >
                 <doc>
-                    LeakCheck Physics_pp_v6 menu minbias events
+                    LeakCheck Physics_pp_v6 menu on top events
                 </doc>
                 <jobTransformJobName>LeakCheck_Physics_pp_v6</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="Physics_pp_v6";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e1119_a185_a187_tid00998581_00";fileRange=[0,20]' TriggerTest/testCommonSliceAthenaTrigRDO.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="Physics_pp_v6";checkLeak=True;RunningRTT=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10); jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' TriggerTest/testCommonSliceAthenaTrigRDO.py
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -471,11 +481,11 @@
             
             <jobTransform userJobId="LeakCheck_Physics_pp_v6_tight_physics" >
                 <doc>
-                    LeakCheck Physics_pp_v6_tight_physics menu top events
+                    LeakCheck Physics_pp_v6_tight_physics menu on top events
                 </doc>
                 <jobTransformJobName>LeakCheck_Physics_pp_v6_tight_physics</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="Physics_pp_v6_tight_physics_prescale";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testCommonSliceAthenaTrigRDO.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="Physics_pp_v6_tight_physics_prescale";checkLeak=True;RunningRTT=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10); jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' TriggerTest/testCommonSliceAthenaTrigRDO.py
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -484,11 +494,11 @@
             
             <jobTransform userJobId="LeakCheck_MC_pp_v6" >
                 <doc>
-                    LeakCheck MC_pp_v6 menu top events
+                    LeakCheck MC_pp_v6 menu on top events
                 </doc>
                 <jobTransformJobName>LeakCheck_MC_pp_v6</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v6";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testCommonSliceAthenaTrigRDO.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v6";checkLeak=True;RunningRTT=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10); jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' TriggerTest/testCommonSliceAthenaTrigRDO.py
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -497,11 +507,11 @@
             
             <jobTransform userJobId="LeakCheck_MC_pp_v6_tight_mc_prescale" >
                 <doc>
-                    LeakCheck MC_pp_v6_tight_mc_prescale menu top events
+                    LeakCheck MC_pp_v6_tight_mc_prescale menu on top events
                 </doc>
                 <jobTransformJobName>LeakCheck_MC_pp_v6_tight_mc_prescale</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v6_tight_mc_prescale";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_tid01177880_00";fileRange=[1,20]' TriggerTest/testCommonSliceAthenaTrigRDO.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v6_tight_mc_prescale";checkLeak=True;RunningRTT=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10); jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' TriggerTest/testCommonSliceAthenaTrigRDO.py
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -510,11 +520,26 @@
             
             <jobTransform userJobId="LeakCheck_MC_pp_v6_loose_mc_prescale" >
                 <doc>
-                    LeakCheck MC_pp_v6_loose_mc_prescale menu minbias events
+                    LeakCheck MC_pp_v6_loose_mc_prescale menu on top events
                 </doc>
                 <jobTransformJobName>LeakCheck_MC_pp_v6_loose_mc_prescale</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v6_loose_mc_prescale";checkLeak=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e1119_a185_a187_tid00998581_00";fileRange=[0,20]' TriggerTest/testCommonSliceAthenaTrigRDO.py
+                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/${CMTCONFIG}/lib/libunwind.so ; athena.py --stdcmalloc --leak-check-execute -c 'menu="MC_pp_v6_loose_mc_prescale";checkLeak=True;RunningRTT=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10); jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[0,2]' TriggerTest/testCommonSliceAthenaTrigRDO.py
+                </jobTransformCmd>
+                <group>TriggerTestValidationJobs</group>
+                <queue>long</queue>
+                <alwaysRunPostProc />
+            </jobTransform>
+            
+            
+            
+            <jobTransform userJobId="RDOtoRDOTrigger_TimingTest" >
+                <doc>
+                     RDOtoRDOTrigger_TimingTest menu on top events
+                </doc>
+                <jobTransformJobName>RDOtoRDOTrigger_TimingTest</jobTransformJobName>
+                <jobTransformCmd>
+                    cp /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RDOtoRDOTrigger_template/* ./ ; ./runwrapper.RDOtoRDOTrigger.sh ; perl -i.clean -pe 's/^[\d:]+ //' log.RDOtoRDOTrigger ; grep -B1 -e "PMonSD..evt" log.RDOtoRDOTrigger | head -20 > timing.log ; if [[ `head -2 timing.log | grep -c 'Trig'` == 1 ]]; then echo "Timing   ERROR  : a TriggerChain runs longer than StreamBS - this should not be the case - please consult / check: timing.log - Thank you" &gt; timing_check_log; fi ; grep -B 1 -e "evtloop_time" log.RDOtoRDOTrigger &gt; average_time_per_event.log ; if [[ `grep "[0-9]" average_time_per_event.log | awk '{print $4}'` -gt 30000 ]]; then echo "Timing   ERROR  : the average cpu time per event is too large &gt; 30000 - this should not be the case - please consult / check: average_time_per_event.log - Thank you" &gt; average_time_per_event_ERROR_log; fi 
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -526,11 +551,11 @@
             
             <jobTransform userJobId="Valgrind_Physics_pp_v6" >
                 <doc>
-                    Valgrind Physics_pp_v6 menu mibias events
+                    Valgrind Physics_pp_v6 menu on top events
                 </doc>
                 <jobTransformJobName>Valgrind_Physics_pp_v6</jobTransformJobName>
                 <jobTransformCmd>
-                    athena.py --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=True;menu="Physics_pp_v6";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e1119_a185_a187_tid00998581_00";fileRange=[0,20]' valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
+                    athena.py -c 'RunningRTT=True;menu="Physics_pp_v6";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[0,2]' --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -547,11 +572,11 @@
             
             <jobTransform userJobId="Valgrind_Physics_pp_v6_tight_physics" >
                 <doc>
-                    Valgrind Physics_pp_v6_tight_physics menu top events
+                    Valgrind Physics_pp_v6_tight_physics menu on top events
                 </doc>
                 <jobTransformJobName>Valgrind_Physics_pp_v6</jobTransformJobName>
                 <jobTransformCmd>
-                    athena.py --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=True;menu="Physics_pp_v6_tight_physics_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
+                    athena.py -c 'RunningRTT=True;menu="Physics_pp_v6_tight_physics_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -568,11 +593,11 @@
             
             <jobTransform userJobId="Valgrind_MC_pp_v6" >
                 <doc>
-                    Valgrind MC_pp_v6 menu minbias events
+                    Valgrind MC_pp_v6 menu on top events
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v6</jobTransformJobName>
                 <jobTransformCmd>
-                    athena.py --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=True;menu="MC_pp_v6";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' valgrind.pkl 2&gt;&amp;1 | sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
+                    athena.py -c 'RunningRTT=True;menu="MC_pp_v6";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc valgrind.pkl 2&gt;&amp;1 | sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -589,11 +614,11 @@
             
             <jobTransform userJobId="Valgrind_MC_pp_v6_tight_mc_prescale" >
                 <doc>
-                    Valgrind MC_pp_v6_tight_mc_prescale menu top events
+                    Valgrind MC_pp_v6_tight_mc_prescale menu on top events
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v6_tight_mc_prescale</jobTransformJobName>
                 <jobTransformCmd>
-                    athena.py --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=True;menu="MC_pp_v6_tight_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
+                    athena.py -c 'RunningRTT=True;menu="MC_pp_v6_tight_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -610,11 +635,11 @@
             
             <jobTransform userJobId="Valgrind_MC_pp_v6_loose_mc_prescale" >
                 <doc>
-                    Valgrind MC_pp_v6_loose_mc_prescale menu minbias events
+                    Valgrind MC_pp_v6_loose_mc_prescale menu on top events
                 </doc>
                 <jobTransformJobName>Valgrind_MC_pp_v6_tight_mc_prescale</jobTransformJobName>
                 <jobTransformCmd>
-                    athena.py --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --tool=memcheck --leak-check=full --smc-check=all --show-reachable=yes --num-callers=30 `which athena.py` --stdcmalloc -c 'RunningRTT=True;menu="MC_pp_v6_loose_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(2); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.recon.RDO.e1119_a185_a187_tid00998581_00";fileRange=[0,20]' valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
+                    athena.py -c 'RunningRTT=True;menu="MC_pp_v6_loose_mc_prescale";jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(3); jp.Rec.doPerfMon.set_Value_and_Lock( False ) ; jp.Rec.doDetailedPerfMon.set_Value_and_Lock( False ); jp.Rec.doSemiDetailedPerfMon.set_Value_and_Lock( False ); from PerfMonComps.PerfMonFlags import jobproperties ; jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False ) ; jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;include("TriggerTest/TriggerTestSilence.py");dsName="/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00";fileRange=[1,2]' --config-only=valgrind.pkl TriggerTest/testCommonSliceAthenaTrigRDO.py ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/pythonJobO.supp ./ ; cp /afs/cern.ch/user/k/krasznaa/public/valgrind/reflexPyROOT.supp ./ ; cp $ROOTSYS/etc/valgrind-root.supp ./ ; get_files newSuppressions.supp; get_files oracleDB.supp; get_files root.supp; get_files valgrindRTT.supp; get_files Gaudi.supp; get_files valgrind-python.supp ; valgrind --suppressions=valgrind-root.supp --track-origins=yes --trace-children=yes --suppressions=newSuppressions.supp --suppressions=oracleDB.supp --suppressions=root.supp --suppressions=valgrindRTT.supp --suppressions=Gaudi.supp --suppressions=valgrind-python.supp --suppressions=pythonJobO.supp --suppressions=reflexPyROOT.supp --error-limit=no --leak-check=yes --num-callers=30 `which athena.py` --stdcmalloc valgrind.pkl 2&gt;&amp;1 |  sed -e '/    definitely lost: / { N; d; }'  | tee  Valgrind_test_log_1 ; cp /afs/cern.ch/user/c/czodrows/public/ValgrindAnalysisScript_TriggerTest.py ./ ; python ValgrindAnalysisScript_TriggerTest.py ; mv Valgrind_test_log_1 Valgrind_test_log
                 </jobTransformCmd>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
@@ -633,16 +658,25 @@
             
             <athena userJobId="No_FPE_Physics_pp_v6">
                 <doc>
-                    Physics_pp_v6 menu - doFloatingPointException=True - on minbias 
+                    Physics_pp_v6 menu - doFloatingPointException=True - on top events
                 </doc>
                 <displayName>No_FPE_Physics_pp_v6</displayName>
                 <commandLineFlags>
-                    menu='Physics_pp_v6';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                    menu='Physics_pp_v6';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue> 
+                <test position="1">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <testidentifier>CheckLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
                 <alwaysRunPostProc />
             </athena>
             
@@ -652,12 +686,21 @@
                 </doc>
                 <displayName>testAthenaTrigRDO_noFPE_Physics_pp_v6_tight_physics</displayName>
                 <commandLineFlags>
-                    menu='Physics_pp_v6_tight_physics_prescale';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                    menu='Physics_pp_v6_tight_physics_prescale';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
+                <test position="1">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <testidentifier>CheckLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
                 <alwaysRunPostProc />
             </athena>
             
@@ -667,42 +710,69 @@
                 </doc>
                 <displayName>No_FPE_MC_pp_v6</displayName>
                 <commandLineFlags>
-                    menu='MC_pp_v6';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                    menu='MC_pp_v6';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
+                <test position="1">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <testidentifier>CheckLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
                 <alwaysRunPostProc />
             </athena>
             
             <athena userJobId="No_FPE_MC_pp_v6_loose_mc_prescale">
                 <doc>
-                    MC_pp_v6_loose_mc_prescale menu - doFloatingPointException=True - on minbias 
+                    MC_pp_v6_loose_mc_prescale menu - doFloatingPointException=True - on top events 
                 </doc>
                 <displayName>No_FPE_MC_pp_v6_loose_mc_prescale</displayName>
                 <commandLineFlags>
-                    menu='MC_pp_v6_loose_mc_prescale';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                    menu='MC_pp_v6_loose_mc_prescale';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue> 
+                <test position="1">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <testidentifier>CheckLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
                 <alwaysRunPostProc />
             </athena>
             
             <athena userJobId="No_FPE_MC_pp_v6_tight_mc_prescale">
                 <doc>
-                    MC_pp_v6_tight_mc_prescale menu - doFloatingPointException=True - on ttbar 
+                    MC_pp_v6_tight_mc_prescale menu - doFloatingPointException=True - on top events
                 </doc>
                 <displayName>No_FPE_MC_pp_v6_tight_mc_prescale</displayName>
                 <commandLineFlags>
-                    menu='MC_pp_v6_tight_mc_prescale';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(10);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
+                    menu='MC_pp_v6_tight_mc_prescale';from RecExConfig.RecFlags import rec;rec.doFloatingPointException.set_Value_and_Lock(True);AbortOnError=True;jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(100);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2]
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
                 <group>TriggerTestValidationJobs</group>
                 <queue>long</queue>
+                <test position="1">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <testidentifier>CheckLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
                 <alwaysRunPostProc />
             </athena>
             
@@ -825,6 +895,21 @@
                 <queue>long</queue>
                 <alwaysRunPostProc />
             </athena>
+
+            <athena userJobId="MC_pp_v6_no_prescale_toxAOD_FTK" doMonitoring="True" >
+              <doc>
+                Runs MC_pp_v6_no_prescale menu on user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700 dumping 500 events in an xAOD
+              </doc>
+              <displayName>MC_pp_v6_no_prescale_toxAOD_FTK</displayName>
+              <commandLineFlags>
+                RunningRTT=True;menu='MC_pp_v6_no_prescale';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK.set_Value_and_Lock(True);dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.jahreda.mc15_13TeV.410000.recon.RDO.e3698_s2608_s2183_r6630_20.7.2.3.updatesJohn.newFormat.v1_EXT2.58456700_FTK/';fileRange=[1,10]
+              </commandLineFlags>
+              <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
+              <package>Trigger/TrigValidation/TriggerTest</package>
+              <group>TriggerTestMonitorHistos</group>
+              <queue>long</queue>
+              <alwaysRunPostProc />
+            </athena>
             
             <athena userJobId="MC_pp_v6_tight_mc_prescale" doMonitoring="True">
                 <doc>
@@ -927,7 +1012,7 @@
                 </doc>
                 <displayName>BPhysics</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;RunningRTT=True;menu='MC_pp_v6';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0';fileRange=[1,20] 
+                    enableCostMonitoring=True;RunningRTT=True;menu='MC_pp_v6';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDO.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -942,7 +1027,23 @@
                 </doc>
                 <displayName>BPhysics_toAOD</displayName>
                 <commandLineFlags>
-                    RunningRTT=True;menu='MC_pp_v6';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/user.tursom.mc12_14TeV.208410.Pythia8B_AU2_CTEQ6L1_Bs_Jpsimu6mu6_phi_KK.recon.v6_EXT0';fileRange=[1,20] 
+                    RunningRTT=True;menu='MC_pp_v6';sliceName='bphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_RTT_1000_Bphysics_toAOD_r6889/Bphysics_RDO_r6889_mixed.pool.root']
+                </commandLineFlags>
+                <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
+                <package>Trigger/TrigValidation/TriggerTest</package>
+                <group>TriggerTestMonitorHistos</group>
+                <queue>medium</queue>
+                <alwaysRunPostProc />
+            </athena>
+            
+            
+            <athena userJobId="BphysExo_toAOD" doMonitoring="True" >
+                <doc>
+                    Runs B-physics AND Muon slice on mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos see ATR-13193 
+                </doc>
+                <displayName>BPhysics_toAOD</displayName>
+                <commandLineFlags>
+                    RunningRTT=True;menu='MC_pp_v6';sliceName='mubphysics';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.180593.Pythia8_AUMSTW2008LO_Wtaunu_3mu_noPhotos.recon.RDO.e3802_s2608_s2183_r6790/RDO.05594910._000008.pool.root.1']
                 </commandLineFlags>
                 <options>testCommonSliceAthenaTrigRDOtoAOD.py</options>
                 <package>Trigger/TrigValidation/TriggerTest</package>
@@ -1032,7 +1133,7 @@
                 </doc>
                 <displayName>MinBias</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;sliceName='minbias';RunningRTT=True;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2] 
+                    enableCostMonitoring=True;sliceName='minbias';RunningRTT=True;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(500);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2] 
                 </commandLineFlags>
                 <!--options>testMinBiasSliceAthenaTrigRDO.py</options-->
                 <options>testCommonSliceAthenaTrigRDO.py</options>
@@ -1047,7 +1148,7 @@
                 </doc>
                 <displayName>MinBias_Enhanced</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;sliceName='minbiasEnhanced';RunningRTT=True;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2] 
+                    enableCostMonitoring=True;sliceName='minbiasEnhanced';RunningRTT=True;menu='MC_pp_v6';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(250);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;dsName='/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6727_tid05522624_00';fileRange=[1,2] 
                 </commandLineFlags>
                 <!--options>testMinBiasSliceAthenaTrigRDO.py</options-->
                 <options>testCommonSliceAthenaTrigRDO.py</options>
@@ -1123,15 +1224,6 @@
                 <auxFilePattern>checklogTriggerTest.conf</auxFilePattern>
                 
                 <test position="1">
-                    <modulename>CheckLog_TriggerTest</modulename>
-                    <testname>CheckLog_TriggerTest</testname>
-                    <arg>
-                        <argname>command</argname>
-                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
-                    </arg>
-                </test>
-                
-                <test position="2">
                     <modulename>LogTail_TriggerTest</modulename>
                     <testname>LogTail_TriggerTest</testname>
                     <arg>
@@ -1156,6 +1248,16 @@
             <jobGroup name="TriggerTestMonitorHistos" parent="TriggerTestValidationJobs">
                 
                 <test position="1">
+                    <modulename>CheckLog_TriggerTest</modulename>
+                    <testname>CheckLog_TriggerTest</testname>
+                    <testidentifier>CheckLog_TriggerTest</testidentifier>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>check_log.pl --config checklogTriggerTest.conf %JOBLOG</argvalue>
+                    </arg>
+                </test>
+                
+                <test position="2">
                     <modulename>PerfMonRunner</modulename>
                     <testname>PerfMonRunner</testname>
                     <testidentifier>PerfMonRunner</testidentifier>
@@ -1170,9 +1272,10 @@
                     <noalarm />
                 </test>
                 
-                <test position="2">
+                <test position="3">
                     <modulename>chainDump</modulename>
                     <testname>chainDump</testname>
+                    <testidentifier>chainDump</testidentifier>
                     <arg>
                         <argname>rootFile</argname>
                         <argvalue>expert-monitoring.root</argvalue>
@@ -1180,7 +1283,7 @@
                     <noalarm />
                 </test>
                 
-                <test position="3">
+                <test position="4">
                     <modulename>CheckForTrigCostD3PD_TriggerTest</modulename>
                     <testname>CheckForTrigCostD3PD_TriggerTest</testname>
                     <arg>
