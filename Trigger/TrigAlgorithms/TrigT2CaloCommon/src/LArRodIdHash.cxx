@@ -21,7 +21,7 @@ using eformat::helper::SourceIdentifier;
 
 // default contructor 
 LArRodIdHash::LArRodIdHash( ) 
-  : m_offset(0)
+  : m_size(0), m_offset(0)
 {
 
 }

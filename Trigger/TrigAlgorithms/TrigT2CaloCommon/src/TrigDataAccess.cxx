@@ -113,6 +113,8 @@ StatusCode TrigDataAccess::initialize()
           m_rIdshec3.reserve(300);
           m_rIdsfcalhad0.reserve(256);
           m_rIdsfcalhad1.reserve(128);
+          m_rIdsfcalhad2.reserve(128);
+          m_rIdsfcalhad3.reserve(128);
           m_rIdsfcalem0.reserve(300);
           m_rIdstile.reserve(300);
           m_vrodid32lar.reserve(900);
@@ -193,7 +195,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
         delete m_tilecell;
         if ( m_sel ) delete m_sel;
         if(m_usefullcoll){
-	 delete m_fullCellContainer;
+       //delete m_fullCellContainer;
          delete m_selem;
          delete m_selhec;
          delete m_selfcalhad;
@@ -305,6 +307,8 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
           if ( m_rIdshec1.size() != 0 ) m_rIdshec1.clear();
           if ( m_rIdsfcalhad0.size() != 0 ) m_rIdsfcalhad0.clear();
           if ( m_rIdsfcalhad1.size() != 0 ) m_rIdsfcalhad1.clear();
+          if ( m_rIdsfcalhad2.size() != 0 ) m_rIdsfcalhad2.clear();
+          if ( m_rIdsfcalhad3.size() != 0 ) m_rIdsfcalhad3.clear();
           if ( m_rIdsfcalem0.size() != 0 ) m_rIdsfcalem0.clear();
           if ( m_rIdstile.size() != 0 ) m_rIdstile.clear();
 	} // End of m_usefullcoll
@@ -369,6 +373,8 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
           m_pRegionSelector->DetHashIDList(TTHEC,3,tmproi,m_rIdshec3);
           m_pRegionSelector->DetHashIDList(FCALHAD,0,tmproi,m_rIdsfcalhad0);
           m_pRegionSelector->DetHashIDList(FCALHAD,1,tmproi,m_rIdsfcalhad1);
+          m_pRegionSelector->DetHashIDList(FCALHAD,2,tmproi,m_rIdsfcalhad2);
+          m_pRegionSelector->DetHashIDList(FCALHAD,3,tmproi,m_rIdsfcalhad3);
 	  m_pRegionSelector->DetHashIDList(FCALEM,0,tmproi,m_rIdsfcalem0);
           m_pRegionSelector->DetHashIDList(TILE,tmproi,m_rIdstile);
           m_alltile.clear();
@@ -394,6 +400,8 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
           m_rIdshec.insert(m_rIdshec.end(),m_rIdshec3.begin(),m_rIdshec3.end());
           // FCALHAD
           m_rIdsfcalhad0.insert(m_rIdsfcalhad0.end(),m_rIdsfcalhad1.begin(),m_rIdsfcalhad1.end());
+          m_rIdsfcalhad0.insert(m_rIdsfcalhad0.end(),m_rIdsfcalhad2.begin(),m_rIdsfcalhad2.end());
+          m_rIdsfcalhad0.insert(m_rIdsfcalhad0.end(),m_rIdsfcalhad3.begin(),m_rIdsfcalhad3.end());
 
           m_selem->setRoIs(m_rIdsem0);
           m_selhec->setRoIs(m_rIdshec);
@@ -488,7 +496,7 @@ void TrigDataAccess::RegionSelectorRobID (const int sampling,
 	  m_full_vrodid32.erase(std::unique(m_full_vrodid32.begin(),m_full_vrodid32.end()),m_full_vrodid32.end());
 	  if ( fetchROBs ) {m_robDataProvider->addROBData(m_full_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();} 
         } 
-	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();} 
+	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_vrodid32,m_robFrags); m_robFrags.clear();} 
 
 	if (msgLvl(MSG::DEBUG)) {
           ATH_MSG_DEBUG( "m_vrodid32.size() = " << m_vrodid32.size() );

@@ -5,19 +5,17 @@ from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigDataAccess
 from AthenaCommon.AppMgr import ToolSvc
-TDA=TrigDataAccess()
-ToolSvc+=TDA
+ToolSvc+=TrigDataAccess()
 ToolSvc.TrigDataAccess.loadFullCollections = ( TriggerFlags.doEF() or TriggerFlags.doHLT() )
 ToolSvc.TrigDataAccess.loadAllSamplings    = ( TriggerFlags.doLVL2() or TriggerFlags.doHLT() )
-AOC=True
-ToolSvc.TrigDataAccess.ApplyOffsetCorrection=AOC # Later we should find a better way to play with this
-#AOD=ToolSvc.TrigDataAccess.ApplyOffsetCorrection # why this is not working?!
+
+AOC=getattr(ToolSvc.TrigDataAccess,'ApplyOffsetCorrection',ToolSvc.TrigDataAccess.getDefaultProperty('ApplyOffsetCorrection'))
 
 if ( globalflags.DatabaseInstance == "COMP200" ) :
   ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
   print "TrigDataAccessConfigured.py : Not possible to run BCID offset"
 else:
-  if ( AOC ) :
+  if 'AOC' in dir() :
       print 'TrigDataAccessConfigured.py: will configure the HLT to apply offset correction'
       if globalflags.DataSource()=='data':
             if athenaCommonFlags.isOnline:
@@ -32,6 +30,7 @@ else:
       theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
       ToolSvc+=theCaloLumiBCIDTool
       ToolSvc.TrigDataAccess.CaloLumiBCIDTool = theCaloLumiBCIDTool
+      #ToolSvc.TrigDataAccess.ApplyOffsetCorrection=True
 
 transientBS = (rec.readRDO() and not globalflags.InputFormat()=='bytestream')
 if ( transientBS or TriggerFlags.writeBS() ):

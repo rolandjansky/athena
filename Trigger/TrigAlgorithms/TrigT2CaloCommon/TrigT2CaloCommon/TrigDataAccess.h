@@ -45,6 +45,7 @@
 #include "LArByteStream/LArRodDecoder.h"
 #include "TileByteStream/TileROD_Decoder.h"
 #include "ZdcByteStream/ZdcByteStreamTool.h"
+#include "ZdcByteStream/ZdcByteStreamReadV1V2Tool.h"
 #include "ZdcRec/ZdcRecChannelTool.h"
 //#include "LumiBlockComps/ILuminosityTool.h"
 
@@ -88,9 +89,9 @@ public:
     m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigDataAccess"),
     m_lardecoder("LArRodDecoder/LArRodDecoder"),
     m_tiledecoder("TileROD_Decoder/TileROD_Decoder"),
-    m_zdcdecoder("ZdcByteStreamTool/ZdcByteStreamTool"),
+    m_zdcdecoder("ZdcByteStreamReadV1V2Tool/ZdcByteStreamTool"),
     m_zdcrectool("ZdcRecChannelTool/ZdcByteChannelTool"), 
-    m_applyOffsetCorrection(false),
+    m_applyOffsetCorrection(true),
     m_caloLumiBCIDTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault")
     //m_lumiTool("LuminosityTool")
     //		 m_present_etamin(-10.0),
@@ -104,7 +105,7 @@ public:
 		    ,"RobDataProvider for data fetching based on ROD ID");
     declareProperty("LArRodDecoder",m_lardecoder,"LArRodDecoder Tool for ByteStream Conversion");
     declareProperty("TileROD_Decoder",m_tiledecoder,"TileROD_Decoder Tool for ByteStream Conversion");
-    declareProperty("ZdcByteStreamTool",m_zdcdecoder,"ZdcByteStreamTool for ByteStream Conversion");
+    declareProperty("ZdcByteStreamReadV1V2Tool",m_zdcdecoder,"ZdcByteStreamReadV1V2Tool for ByteStream Conversion");
     declareProperty("ZdcRecTool",m_zdcrectool,"ZdcRecTool for RawChannel rec");
     declareProperty("ApplyOffsetCorrection",m_applyOffsetCorrection,"Apply offset correction or not (false by default)"); 
     declareProperty("CaloLumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction"); 
@@ -343,6 +344,8 @@ private:
   std::vector<IdentifierHash> m_rIdshec3;
   std::vector<IdentifierHash> m_rIdsfcalhad0;
   std::vector<IdentifierHash> m_rIdsfcalhad1;
+  std::vector<IdentifierHash> m_rIdsfcalhad2;
+  std::vector<IdentifierHash> m_rIdsfcalhad3;
   std::vector<IdentifierHash> m_rIdsfcalem0;
   std::vector<IdentifierHash> m_rIdstile;
   /** List of RodIds to be fetched for a given RoI. */
@@ -381,7 +384,7 @@ private:
   ToolHandle<TileROD_Decoder> m_tiledecoder;
   /** Pointer to the Zdc ROD Decoder Tool. This will perform
       the real ByteStream Conversion for Zdc data. */
-  ToolHandle<ZdcByteStreamTool> m_zdcdecoder;
+  ToolHandle<ZdcByteStreamReadV1V2Tool> m_zdcdecoder;
   /** Pointer to the Zdc Rec Tool. This will perform
       the real ByteStream Conversion for Zdc data. */
   ToolHandle<ZdcRecChannelTool> m_zdcrectool;
