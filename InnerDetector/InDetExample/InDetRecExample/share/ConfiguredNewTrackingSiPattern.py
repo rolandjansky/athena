@@ -257,6 +257,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useNewStrategy = False,
                                                                     useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                                     useZBoundFinding = False)
+          if InDetFlags.doHeavyIon() :
+           InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
          
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
@@ -268,6 +270,9 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useNewStrategy = InDetFlags.useNewSiSPSeededTF() and NewTrackingCuts.mode() != "DBM",
                                                                     useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                                     useZBoundFinding = NewTrackingCuts.doZBoundary() and NewTrackingCuts.mode() != "DBM")   
+
+          if InDetFlags.doHeavyIon() :
+           InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
