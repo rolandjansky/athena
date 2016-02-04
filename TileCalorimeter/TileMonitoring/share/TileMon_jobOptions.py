@@ -124,6 +124,8 @@ if tileESDMon:
 
         if DQMonFlags.monManDataType == 'heavyioncollisions':
             ToolSvc.TileJetMonTool.jetCollectionName = 'AntiKt4HIJets'
+            ToolSvc.TileJetMonTool.do_event_cleaning = False
+            ToolSvc.TileJetMonTool.do_jet_cleaning   = False
         
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
 

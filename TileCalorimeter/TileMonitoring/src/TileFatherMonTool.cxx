@@ -65,7 +65,7 @@ TileFatherMonTool::TileFatherMonTool(const std::string & type, const std::string
   declareInterface<IMonitorToolBase>(this);
 
   declareProperty("MBTSCellContainerID", m_MBTSCellContainerID = "MBTSContainer");
-  declareProperty("CellsContainerName" , m_cellsContainerName = "AllCalo"); //SG Cell Container
+  declareProperty("CellsContainerID" , m_cellsContainerID = "AllCalo"); //SG Cell Container
 
   // conversion from ROS index to partition index
   m_ros2partition[TileHWID::BEAM_ROS] = NumPart;
@@ -312,16 +312,16 @@ void TileFatherMonTool::checkIsCollision() {
     }
   }
 
-  if (!TileFatherMonTool::m_is_collision && !m_cellsContainerName.empty()) {
+  if (!TileFatherMonTool::m_is_collision && !m_cellsContainerID.empty()) {
 
     const CaloCellContainer* cell_container;
 
-    if (evtStore()->retrieve(cell_container, m_cellsContainerName).isFailure()) {
-      ATH_MSG_INFO( "TileCellMonTool: Retrieval of Tile cells from container " << m_cellsContainerName 
+    if (evtStore()->retrieve(cell_container, m_cellsContainerID).isFailure()) {
+      ATH_MSG_INFO( "TileCellMonTool: Retrieval of Tile cells from container " << m_cellsContainerID
                     << " failed! No checking if it is collision possible!" );
       ATH_MSG_INFO( "Will not try to read this container anymore!" );
 
-      m_cellsContainerName = "";
+      m_cellsContainerID = "";
 
     } else {
       int nHitsA = 0;

@@ -806,7 +806,7 @@ void TileDQFragMonTool::drawErrHist(int ros, int drawer) {
   can->SetBottomMargin(0.15);
 
   sStr.str("");
-  TLatex m_Text;
+  TLatex text;
   sStr << "The Total GlobalCRC Errors, in Drawer " << m_PartitionsLabels[ros] << std::setfill('0')
       << std::setw(2) << drawer + 1 << ", are: " << m_globalErrCount[ros][drawer];
 
@@ -815,7 +815,7 @@ void TileDQFragMonTool::drawErrHist(int ros, int drawer) {
   m_hist_error[ros][drawer]->SetMarkerColor(kRed);
   m_hist_error[ros][drawer]->SetMarkerSize(1.2);
   m_hist_error[ros][drawer]->Draw("colztext");
-  m_Text.DrawLatex(-3.6, -1.6, sStr.str().c_str());
+  text.DrawLatex(-3.6, -1.6, sStr.str().c_str());
   can->Update();
 
   if (m_savePng) {

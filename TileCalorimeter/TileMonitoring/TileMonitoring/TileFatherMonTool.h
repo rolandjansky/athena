@@ -160,7 +160,7 @@ protected:
 private:
   void checkIsCollision(); //moved to private. Should not be called from the derived classes.
   std::string m_MBTSCellContainerID;
-  std::string m_cellsContainerName;
+  std::string m_cellsContainerID;
 
 };
 

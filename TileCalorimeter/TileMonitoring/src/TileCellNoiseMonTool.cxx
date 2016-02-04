@@ -62,12 +62,14 @@ TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std:
   , m_tileBadChanTool("TileBadChanTool")
     //, m_TileCellTrig(0U)
     //, m_delta_lumiblock(0U)
-  , h_partition1(0)
-  , h_partition2(0)
-  , h2_partition0(0)
-  , h2_partition1(0)
-  , h2_partition2(0)
-  , h2_partition3(0)
+  , m_oldLumiblock(-1)
+  , m_isFirstEvent(true)
+  , m_hPartition1(0)
+  , m_hPartition2(0)
+  , m_h2Partition0(0)
+  , m_h2Partition1(0)
+  , m_h2Partition2(0)
+  , m_h2Partition3(0)
 
 
 /*---------------------------------------------------------*/
@@ -77,17 +79,11 @@ TileCellNoiseMonTool::TileCellNoiseMonTool(const std::string & type,  const std:
   declareProperty("cellsContainerName"     , m_cellsContName="AllCalo"); //SG Cell Container
   declareProperty("doOnline"               , m_doOnline=false); //online mode
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
-  declareProperty("Xmin"                   , m_xmin = -1000. ); //xmin for the single cell noise histos
-  declareProperty("Xmax"                   , m_xmax =  1000. ); //xmax for the single cell noise histos
+  declareProperty("Xmin"                   , m_xMin = -1000. ); //xmin for the single cell noise histos
+  declareProperty("Xmax"                   , m_xMax =  1000. ); //xmax for the single cell noise histos
 
   m_path = "/Tile/CellNoise";
-  
-  std::ostringstream ss;
 
-  m_old_lumiblock= -1;
-  m_isFirstEv = true;
-
-  
 }
 
 /*---------------------------------------------------------*/
@@ -165,93 +161,106 @@ StatusCode TileCellNoiseMonTool::bookCellNoiseHistos() {
     // Long barrel cells
     for (int icell = 0; icell < NLBCells; ++icell) {
 
-      m_TileCellEne[PartLBA][imod].push_back(
+      m_tileCellEne[PartLBA][imod].push_back(
           book1F("",
               "CellNoise_" + PartitionName[PartLBA] + module_str + "_" + LBCellName[icell],
               "TileCellNoise - Run " + runNumStr + " " + PartitionName[PartLBA] + module_str + " "
-                  + LBCellName[icell], 100, m_xmin, m_xmax));
+                  + LBCellName[icell], 100, m_xMin, m_xMax));
       
 
-      m_TileCellEne[PartLBC][imod].push_back(
+      m_tileCellEne[PartLBC][imod].push_back(
           book1F("",
               "CellNoise_" + PartitionName[PartLBC] + module_str + "_" + LBCellName[icell],
               "TileCellNoise - Run " + runNumStr + " " + PartitionName[PartLBC] + module_str + " "
-                  + LBCellName[icell], 100, m_xmin, m_xmax));
+                  + LBCellName[icell], 100, m_xMin, m_xMax));
 	
     } // icell
     
       // Extended barrel cells
     for (int icell = 0; icell < NEBCells; ++icell) {
 
-      m_TileCellEne[PartEBA][imod].push_back(
+      m_tileCellEne[PartEBA][imod].push_back(
           book1F("",
               "CellNoise_" + PartitionName[PartEBA] + module_str + "_" + EBCellName[icell],
               "TileCellNoise - Run " + runNumStr + " " + PartitionName[PartEBA] + module_str + " "
-                  + EBCellName[icell], 100, m_xmin, m_xmax));
+                  + EBCellName[icell], 100, m_xMin, m_xMax));
 
-      m_TileCellEne[PartEBC][imod].push_back(
+      m_tileCellEne[PartEBC][imod].push_back(
           book1F("",
               "CellNoise_" + PartitionName[PartEBC] + module_str + "_" + EBCellName[icell],
               "TileCellNoise  Run " + runNumStr + " " + PartitionName[PartEBC] + module_str + " "
-                  + EBCellName[icell], 100, m_xmin, m_xmax));
+                  + EBCellName[icell], 100, m_xMin, m_xMax));
 
     } // icell
 
   } // module
 
-  h_partition1  = book1F ("" , "h_partitions1","partitions1", 8, -2., 6.);
-  h_partition2  = book1F ("" , "h_partitions2","partitions1", 8, -2., 6.);
-  h2_partition0 = book2F ("" , "h2_partition0","h2_partition0", 100, -2., 2., 100, 0, 6.28);
-  h2_partition1 = book2F ("" , "h2_partition1","h2_partition1", 100, -2., 2., 100, 0, 6.28);
-  h2_partition2 = book2F ("" , "h2_partition2","h2_partition2", 100, -2., 2., 100, 0, 6.28);
-  h2_partition3 = book2F ("" , "h2_partition3","h2_partition3", 100, -2., 2., 100, 0, 6.28);
+  m_hPartition1  = book1F ("" , "h_partitions1","partitions1", 8, -2., 6.);
+  m_hPartition2  = book1F ("" , "h_partitions2","partitions1", 8, -2., 6.);
+  m_h2Partition0 = book2F ("" , "h2_partition0","h2_partition0", 100, -2., 2., 100, 0, 6.28);
+  m_h2Partition1 = book2F ("" , "h2_partition1","h2_partition1", 100, -2., 2., 100, 0, 6.28);
+  m_h2Partition2 = book2F ("" , "h2_partition2","h2_partition2", 100, -2., 2., 100, 0, 6.28);
+  m_h2Partition3 = book2F ("" , "h2_partition3","h2_partition3", 100, -2., 2., 100, 0, 6.28);
 
   for (int ipart = 0; ipart < 4; ++ipart) {
-    m_map_sigma1 [ipart] =  book2F ("",       "map_sigma1_" + PartitionName[ipart] , "Sigma 1 - "        + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_sigma2 [ipart] =  book2F ("",       "map_sigma2_" + PartitionName[ipart] , "Sigma 2 - "        + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_R      [ipart] =  book2F ("",       "map_R_"      + PartitionName[ipart] , "R (A_{1}/A_{2})- " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_chi2   [ipart] =  book2F ("",       "map_chi2_"   + PartitionName[ipart] , "chi2 - "           + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_chi2prb[ipart] =  book2F ("",       "map_chi2prb_"+ PartitionName[ipart] , "chi2 prob. - "     + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_rmsOsig[ipart] =  book2F ("",       "map_rmsOsig_"+ PartitionName[ipart] , "RMS/ Sigma1 - "    + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
-    m_map_rms    [ipart] =  book2F ("",       "map_rms_"    + PartitionName[ipart] , "RMS - "            + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+    m_mapSigma1[ipart] = book2F("", "map_sigma1_" + PartitionName[ipart]
+                                 , "Sigma 1 - " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+
+    m_mapSigma2[ipart] = book2F("", "map_sigma2_" + PartitionName[ipart]
+                                 , "Sigma 2 - " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+
+    m_mapR[ipart] = book2F("", "map_R_" + PartitionName[ipart]
+                            , "R (A_{1}/A_{2})- " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+
+    m_mapChi2[ipart] = book2F("", "map_chi2_" + PartitionName[ipart]
+                               , "chi2 - " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+
+    m_mapChi2prb[ipart] = book2F("", "map_chi2prb_" + PartitionName[ipart]
+                                  , "chi2 prob. - " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+
+    m_mapRmsOsig[ipart] = book2F("", "map_rmsOsig_" + PartitionName[ipart]
+                                  , "RMS/ Sigma1 - " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
+
+    m_mapRms[ipart] = book2F("", "map_rms_" + PartitionName[ipart]
+                              , "RMS - " + PartitionName[ipart], 23, 0., 23., 65, 0., 65.);
 
     // Set cell Names for LB partitions
     if (PartitionName[ipart] == "LBA" || PartitionName[ipart] == "LBC") {
       for (int icell = 0; icell < NLBCells; ++icell) {
 
-	    sprintf(CellName, "%s ", LBCellName[icell].c_str()  );
-	    m_map_sigma1   [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);	    
-	    m_map_sigma2   [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);	    
-	    m_map_R        [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_chi2     [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_chi2prb  [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_rmsOsig  [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_rms      [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
+        sprintf(CellName, "%s ", LBCellName[icell].c_str());
+        m_mapSigma1[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapSigma2[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapR[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapChi2[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapChi2prb[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapRmsOsig[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapRms[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
       } // icell
     }  // if ipart is Barrel
     if (PartitionName[ipart] == "EBA" || PartitionName[ipart] == "EBC") {
       for (int icell = 0; icell < NEBCells; ++icell) {
 
-	    sprintf(CellName, "%s ", EBCellName[icell].c_str()  );
-	    m_map_sigma1   [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);	    
-	    m_map_sigma2   [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);	    
-	    m_map_R        [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_chi2     [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_chi2prb  [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_rmsOsig  [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	    m_map_rms      [ipart]->GetXaxis()->SetBinLabel(icell+1,CellName);
-	  } // icell
-      }  // if ipart is Barrel
+        sprintf(CellName, "%s ", EBCellName[icell].c_str());
+        m_mapSigma1[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapSigma2[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapR[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapChi2[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapChi2prb[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapRmsOsig[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+        m_mapRms[ipart]->GetXaxis()->SetBinLabel(icell + 1, CellName);
+      } // icell
+    }  // if ipart is Barrel
     //////////// SET THE MODULE NAMES ON THE Y-AXIS ////////////
     for (int imod = 1; imod < 65; imod = imod + 2) {
       sprintf(modName, "%s%s%i ", PartitionName[ipart].c_str(), (imod < 10 ? "0" : ""), imod);
-      m_map_sigma1[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
-      m_map_sigma2[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
-      m_map_R[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
-      m_map_chi2[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
-      m_map_chi2prb[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
-      m_map_rmsOsig[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
-      m_map_rms[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapSigma1[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapSigma2[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapR[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapChi2[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapChi2prb[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapRmsOsig[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
+      m_mapRms[ipart]->GetYaxis()->SetBinLabel(imod + 1, modName);
     } // imod
 
   } // ipart
@@ -267,7 +276,7 @@ StatusCode TileCellNoiseMonTool::bookHistograms()
   ATH_MSG_INFO( "---  m_path = " << m_path );
 
   cleanHistVec(); //necessary to avoid problems at the run, evblock, lumi blocks boundaries
-  m_isFirstEv = true;
+  m_isFirstEvent = true;
   
   // Use all triggers (if needs to be done per trigger type then move the booking to the fillhisto where we check the trigger)
 
@@ -288,7 +297,7 @@ void TileCellNoiseMonTool::cleanHistVec() {
 
   for (int ipart = 0; ipart < 4; ++ipart) {
     for (int imod = 0; imod < 64; ++imod) {
-      m_TileCellEne[ipart][imod].clear();
+      m_tileCellEne[ipart][imod].clear();
     } // imod
   } // ipart
 
@@ -304,7 +313,7 @@ void TileCellNoiseMonTool::do2GFit() {
   float xmin = -1000.;
   float xmax = 1000.;
 
-  if (m_TileCellEne[0][0].size() == 0) {
+  if (m_tileCellEne[0][0].size() == 0) {
     ATH_MSG_WARNING( "in  do2GFit() - m_TileCellEne[0][0] contains zero histogram - bailing out from 2G fit section " );
     return;
   }
@@ -318,17 +327,17 @@ void TileCellNoiseMonTool::do2GFit() {
 
     for (int imod = 0; imod < 64; ++imod) {
       // loop over cells
-      for (unsigned int icell = 0; icell < m_TileCellEne[ipart][imod].size(); ++icell) {
+      for (unsigned int icell = 0; icell < m_tileCellEne[ipart][imod].size(); ++icell) {
         // fit the single cell energy distributions
 
         ATH_MSG_VERBOSE( "in  do2GFit() : ipart =  " << ipart
                          << "   imod = " << imod
                          << "   icell = " << icell );
 
-        if (m_TileCellEne[ipart][imod][icell] != 0
-            && m_TileCellEne[ipart][imod][icell]->GetEntries() > 0) {
+        if (m_tileCellEne[ipart][imod][icell] != 0
+            && m_tileCellEne[ipart][imod][icell]->GetEntries() > 0) {
 
-          do2GFit(m_TileCellEne[ipart][imod][icell], fitresults, &fitfunction);
+          do2GFit(m_tileCellEne[ipart][imod][icell], fitresults, &fitfunction);
         }
 
 	  // then store the fitresults into a permanent container
@@ -336,24 +345,24 @@ void TileCellNoiseMonTool::do2GFit() {
                           << " sigma1  = " << fitresults[2]
                           << "  sigma2  = " << fitresults[5]
                           << "  amp1    = " << fitresults[0]
-		          << "  amp2    = " << fitresults[3]
-		          << "  chi2    = " << fitresults[6]
-		          << "  chi2prb = " << fitresults[7]
-		          << "  CellRMS = " << fitresults[8] );
+                          << "  amp2    = " << fitresults[3]
+                          << "  chi2    = " << fitresults[6]
+		                      << "  chi2prb = " << fitresults[7]
+		                      << "  CellRMS = " << fitresults[8] );
 
 
         //////////// Store the results in 2D maps /////////////
 
         //////////// Store Sigma 1,2,R, chi2, RMS/sigma , RMS /////////////
         R = (fitresults[3] != 0) ? fitresults[0] / fitresults[3] : -1;
-        m_map_sigma1[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[2]); // sigma 1
-        m_map_sigma2[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[5]); // sigma 2
-        m_map_R[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, R); // R = Amp1/Amp2
-        m_map_chi2[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[6]);
-        m_map_chi2prb[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[7]);
+        m_mapSigma1[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[2]); // sigma 1
+        m_mapSigma2[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[5]); // sigma 2
+        m_mapR[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, R); // R = Amp1/Amp2
+        m_mapChi2[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[6]);
+        m_mapChi2prb[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[7]);
         rmsOsig = (fitresults[2] != 0) ? (fitresults[8] / fitresults[2]) : -1;
-        m_map_rmsOsig[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, rmsOsig);
-        m_map_rms[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[8]);
+        m_mapRmsOsig[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, rmsOsig);
+        m_mapRms[ipart]->Fill((float) icell + 0.5, (float) imod + 1.5, fitresults[8]);
 
       } // icell
 
@@ -476,8 +485,8 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
   };
 
   // do we need to do something for the first event?
-  if (m_isFirstEv) {
-    FirstEvInit();
+  if (m_isFirstEvent) {
+    initFirstEvent();
   }
 
   // Pointer to a Tile cell container
@@ -524,8 +533,8 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
       }
 
 
-      h_partition1->Fill(partition1);
-      h_partition2->Fill(partition2);
+      m_hPartition1->Fill(partition1);
+      m_hPartition2->Fill(partition2);
 
       // just to avoid potential problems with disconnected cells
       if (partition1 >= 4) partition1 = getPartition(cell_ptr);
@@ -556,10 +565,15 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
       double eta    = cell_ptr  -> eta();
       double phi    = cell_ptr  -> phi();
 
-      if(partition1== 0) {      h2_partition0->Fill(eta,phi); }
-      if(partition1== 1) {      h2_partition1->Fill(eta,phi); }
-      if(partition1== 2) {      h2_partition2->Fill(eta,phi); }
-      if(partition1== 3) {      h2_partition3->Fill(eta,phi); }
+      if (partition1 == 0) {
+        m_h2Partition0->Fill(eta, phi);
+      } else if (partition1 == 1) {
+        m_h2Partition1->Fill(eta, phi);
+      } else if (partition1 == 2) {
+        m_h2Partition2->Fill(eta, phi);
+      } else if (partition1 == 3) {
+        m_h2Partition3->Fill(eta, phi);
+      }
 
       // From the channel number we need to decide which cell this is
       
@@ -615,7 +629,7 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
         msg(MSG::DEBUG) << "CellName2           = " << CellName2 << endmsg;
         msg(MSG::DEBUG) << "Cell energy         = " << energy << endmsg;
         msg(MSG::DEBUG) << "ch1Ok               = " << (ch1Ok ? 1 : 0) << "  ch2Ok           = " << (ch2Ok ? 1 : 0) << endmsg;
-        msg(MSG::DEBUG) << "HistoName           = " << m_TileCellEne[partition1][m_tileID->module(id)][CellID1]->GetName() << endmsg;
+        msg(MSG::DEBUG) << "HistoName           = " << m_tileCellEne[partition1][m_tileID->module(id)][CellID1]->GetName() << endmsg;
       }
 
       ATH_MSG_DEBUG( "ch1Ok = " << ch1Ok
@@ -627,7 +641,7 @@ StatusCode TileCellNoiseMonTool::fillHistoPerCell() {
 
       //// Fill histo with cell energy ////  
       if (ch1Ok && ch2Ok && cell_isbad == 0) {
-        if (gn1 == gn2) m_TileCellEne[partition1][m_tileID->module(id)][CellID1]->Fill(energy);
+        if (gn1 == gn2) m_tileCellEne[partition1][m_tileID->module(id)][CellID1]->Fill(energy);
         //if(gn1==1 && gn2==1) 	  m_TileCellEne[partition1][m_tileID->module(id)][CellID1]->Fill(energy);
 
         if (CellName1 != CellName2) {
@@ -702,8 +716,8 @@ StatusCode TileCellNoiseMonTool::checkHists(bool /* fromFinalize */) {
 
 // Operations to be done only once at the first event
 /*---------------------------------------------------------*/
-void TileCellNoiseMonTool::FirstEvInit() {
+void TileCellNoiseMonTool::initFirstEvent() {
 /*---------------------------------------------------------*/
-  m_isFirstEv = false; //Set the flag
+  m_isFirstEvent = false; //Set the flag
 } // FirstEvInit
 
