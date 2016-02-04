@@ -50,39 +50,39 @@ class TileCellNoiseMonTool: public TileFatherMonTool {
 
   private:
 
-    void FirstEvInit();
+    void initFirstEvent();
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
 
     bool m_doOnline;
     //int32_t m_TileCellTrig;
-    int32_t m_old_lumiblock;
+    int32_t m_oldLumiblock;
     //int32_t m_delta_lumiblock;
     std::string m_cellsContName;
 
-    bool m_isFirstEv;
+    bool m_isFirstEvent;
 
     // x-axis range for the individual cell noise histograms
-    float m_xmin;
-    float m_xmax;
+    float m_xMin;
+    float m_xMax;
 
-    std::vector<TH1F*> m_TileCellEne[4][64]; // a 2D array of 4x64 partitions X modules, each containing a vector of cells
+    std::vector<TH1F*> m_tileCellEne[4][64]; // a 2D array of 4x64 partitions X modules, each containing a vector of cells
 
-    TH2F* m_map_sigma1[4];
-    TH2F* m_map_sigma2[4];
-    TH2F* m_map_R[4];
-    TH2F* m_map_chi2[4];
-    TH2F* m_map_chi2prb[4];
-    TH2F* m_map_rmsOsig[4];
-    TH2F* m_map_rms[4];
+    TH2F* m_mapSigma1[4];
+    TH2F* m_mapSigma2[4];
+    TH2F* m_mapR[4];
+    TH2F* m_mapChi2[4];
+    TH2F* m_mapChi2prb[4];
+    TH2F* m_mapRmsOsig[4];
+    TH2F* m_mapRms[4];
 
-    TH1F* h_partition1;
-    TH1F* h_partition2;
+    TH1F* m_hPartition1;
+    TH1F* m_hPartition2;
 
-    TH2F* h2_partition0;
-    TH2F* h2_partition1;
-    TH2F* h2_partition2;
-    TH2F* h2_partition3;
+    TH2F* m_h2Partition0;
+    TH2F* m_h2Partition1;
+    TH2F* m_h2Partition2;
+    TH2F* m_h2Partition3;
 
     //  TH2D* m_test;
 };

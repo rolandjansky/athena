@@ -80,7 +80,6 @@ class TileJetMonTool: public TileFatherMonTool {
     float m_jetPtMin;
     float m_jetEtaMax;
     std::string m_jetCollectionName;
-    std::string m_THistSvcStreamName;
     float m_energyChanMin;
     float m_energyChanMax;
   //    float m_averageMinEvt;
@@ -90,7 +89,7 @@ class TileJetMonTool: public TileFatherMonTool {
     float m_enediff_threshold;
   
     std::string m_partname[NPART];
-    std::set<Identifier> used_cells;  // cells already used in the given event
+    std::set<Identifier> m_usedCells;  // cells already used in the given event
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //Tile bad channel tool
 
@@ -106,33 +105,34 @@ class TileJetMonTool: public TileFatherMonTool {
     // channels 0, 1, 12, 13 are not included in the sum
     std::vector<TH1F*> m_TileEBTime_NoScint;
 
-  // this variable holds the summary DQ histograms, per partition
-  std::vector<TProfile2D*> m_TilePartTimeDQ;
-  
-  // vector for enediff histograms
-  std::vector<TH1F*> m_TileEneDiff_LG[NPART];
-  std::vector<TH1F*> m_TileEneDiff_HG[NPART];
+    // this variable holds the summary DQ histograms, per partition
+    std::vector<TProfile2D*> m_TilePartTimeDQ;
 
-  // vector for total cell histograms
-  std::vector<TH1F*> m_TilePartCellTimeHG[NPART];
-  std::vector<TH1F*> m_TilePartCellTimeLG[NPART];
-  std::vector<TH1F*> m_TilePartCellEneHG[NPART];
-  std::vector<TH1F*> m_TilePartCellEneLG[NPART];
+    // vector for enediff histograms
+    std::vector<TH1F*> m_TileEneDiff_LG[NPART];
+    std::vector<TH1F*> m_TileEneDiff_HG[NPART];
 
-  std::vector<float> cell_ene_hg_up;
-  std::vector<float> cell_ene_lg_up;
+    // vector for total cell histograms
+    std::vector<TH1F*> m_TilePartCellTimeHG[NPART];
+    std::vector<TH1F*> m_TilePartCellTimeLG[NPART];
+    std::vector<TH1F*> m_TilePartCellEneHG[NPART];
+    std::vector<TH1F*> m_TilePartCellEneLG[NPART];
 
-  bool m_do_event_cleaning, m_do_jet_cleaning;
-  float m_jet_tracking_eta_limit;
-  float m_jet_jvt_threshold;
-  bool m_first_event;
-  // JVT
+    std::vector<float> m_cell_ene_hg_up;
+    std::vector<float> m_cell_ene_lg_up;
+
+    bool m_do_event_cleaning;
+    bool m_do_jet_cleaning;
+    float m_jet_tracking_eta_limit;
+    float m_jet_jvt_threshold;
+    bool m_first_event;
+    // JVT
 #ifdef JVT
-  ToolHandle<IJetUpdateJvt> m_jvt;
+    ToolHandle<IJetUpdateJvt> m_jvt;
 #endif
-  // event/jet cleaning
-  ToolHandle<IJetSelector> m_cleaningTool;
-  //  JetCleaningTool* m_cleaningTool;
+    // event/jet cleaning
+    ToolHandle<IJetSelector> m_cleaningTool;
+    //  JetCleaningTool* m_cleaningTool;
 };
 
 #endif

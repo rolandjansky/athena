@@ -35,10 +35,10 @@ TileRawChannelTimeMonTool::TileRawChannelTimeMonTool(const std::string & type, c
  : TileFatherMonTool(type, name, parent)
  , m_beamInfo("TileBeamInfoProvider")
  , m_tileBadChanTool("TileBadChanTool")
- , m_DQstatus(0)
+ , m_dqStatus(0)
  , m_doOnline(false)
- , m_old_lumiblock(-1)
- , m_delta_lumiblock(0)
+ , m_oldLumiblock(-1)
+ , m_deltaLumiblock(0)
  , m_nEvents(0)
  , m_bookProfHistOnce(5, false)
 
@@ -120,11 +120,11 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
     histTitle = moduleName + " Time vs LumiBlock, Digi" + std::to_string(dig + 1);
 
     if(m_doOnline){
-      profile_hist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 100, -99.5, 0.5);
-      profile_hist[ros][drawer][dig]->GetXaxis()->SetTitle("Last LumiBlocks");
+      m_profileHist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 100, -99.5, 0.5);
+      m_profileHist[ros][drawer][dig]->GetXaxis()->SetTitle("Last LumiBlocks");
     }else{
-      profile_hist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 1500, -0.5, 1499.5);
-      profile_hist[ros][drawer][dig]->GetXaxis()->SetTitle("LumiBlock");
+      m_profileHist[ros][drawer][dig]=bookProfile(subDir, histName, histTitle, 1500, -0.5, 1499.5);
+      m_profileHist[ros][drawer][dig]->GetXaxis()->SetTitle("LumiBlock");
     }
   }
 
@@ -138,7 +138,7 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
 
     subDir = "Summary";
 
-    profile2d_hist[ros] = bookProfile2D(subDir, histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5, -50, 50);
+    m_profile2dHist[ros] = bookProfile2D(subDir, histName, histTitle, 64, 0.5, 64.5, 48, -0.5, 47.5, -50, 50);
 
     std::string module_name;
     std::string cell_name;
@@ -146,13 +146,13 @@ void TileRawChannelTimeMonTool::bookHists(int ros, int drawer) {
 
     for (unsigned int drw = 0; drw < TileCalibUtils::MAX_DRAWER; drw += 2) {
       module_name = TileCalibUtils::getDrawerString(ros, drw);
-      profile2d_hist[ros]->GetXaxis()->SetBinLabel(drw + 1, module_name.c_str());
+      m_profile2dHist[ros]->GetXaxis()->SetBinLabel(drw + 1, module_name.c_str());
     }
 
     for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
       cell_name = getCellName(ros, channel);
       channel_name = cell_name + (cell_name.empty() ? "ch" : "_ch") + std::to_string(channel);
-      profile2d_hist[ros]->GetYaxis()->SetBinLabel(channel + 1, channel_name.c_str());
+      m_profile2dHist[ros]->GetYaxis()->SetBinLabel(channel + 1, channel_name.c_str());
     }
 
     m_bookProfHistOnce[ros] = true;
@@ -179,7 +179,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
   if (m_nEvents % 1000 == 0) ATH_MSG_INFO(m_nEvents<<" events processed so far");
   ++m_nEvents;
 
-  m_DQstatus = m_beamInfo->getDQstatus();
+  m_dqStatus = m_beamInfo->getDQstatus();
 
 
   const TileRawChannelContainer* RawChannelCnt;
@@ -218,7 +218,7 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
 
           int adc = m_tileHWID->adc(adc_id);
 
-          bool good  = m_DQstatus->isAdcDQgood(ros, drawer, chan, adc) && m_beamInfo->isChanDCSgood(ros, drawer, chan);
+          bool good  = m_dqStatus->isAdcDQgood(ros, drawer, chan, adc) && m_beamInfo->isChanDCSgood(ros, drawer, chan);
 
           if (good) {
             TileBchStatus status = m_tileBadChanTool->getAdcStatus(drawerIdx, chan, adc);
@@ -245,33 +245,33 @@ StatusCode TileRawChannelTimeMonTool::fillHists()
           
             timeCorr = time - avgTimePerPart[ros];      
 
-            profile2d_hist[ros]->Fill(drawer + 1, chan, timeCorr);
+            m_profile2dHist[ros]->Fill(drawer + 1, chan, timeCorr);
 
             int32_t current_lumiblock = getLumiBlock();
-            if(m_old_lumiblock == -1) {
-              m_old_lumiblock = current_lumiblock;
+            if(m_oldLumiblock == -1) {
+              m_oldLumiblock = current_lumiblock;
             }
 
             if(m_doOnline) {
-              m_delta_lumiblock = current_lumiblock - m_old_lumiblock;
+              m_deltaLumiblock = current_lumiblock - m_oldLumiblock;
 
-              if(m_delta_lumiblock > 0) {//move bins
+              if(m_deltaLumiblock > 0) {//move bins
 
                 for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
                   for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
                     for (unsigned int digi = 0; digi < 8; ++digi) {
-                      ShiftTprofile(profile_hist[ros][drawer][digi], m_delta_lumiblock);
+                      ShiftTprofile(m_profileHist[ros][drawer][digi], m_deltaLumiblock);
                     }
                   }
                 }
 
-                m_old_lumiblock = current_lumiblock;
+                m_oldLumiblock = current_lumiblock;
               }
 
-              profile_hist[ros][drawer][ch2digi[chan]]->Fill(0., timeCorr);
+              m_profileHist[ros][drawer][ch2digi[chan]]->Fill(0., timeCorr);
 
             } else {// End of Online
-              profile_hist[ros][drawer][ch2digi[chan]]->Fill(current_lumiblock, timeCorr);
+              m_profileHist[ros][drawer][ch2digi[chan]]->Fill(current_lumiblock, timeCorr);
             }
           }      //k==1 
         } // loop over channels

@@ -64,7 +64,8 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     bool m_book2D;
     int m_runType;
     std::string m_contName;
-    std::string m_contNameDSP, m_contNameOF;
+    std::string m_contNameDSP;
+    std::string m_contNameOF;
     double m_DownLimit; // Down Threshold for Amp/Q ratio plots
     double m_UpLimit;   // Up  Threshold for Amp/Q ratio plots
     double m_lo_IntegralLimit; // Warning error bar Low limit for  Amp/Q ratio plots
@@ -74,7 +75,8 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     //bool m_plotOptFilt; //book Optimal Filter histograms?
     bool m_plotDsp; //book Optimal Filter histograms?
     bool m_storeGraph; //Store TGraph to file: necessary due to THistSvc bug
-    std::map<int, std::vector<double> > m_efitMap, m_tfitMap;
+    std::map<int, std::vector<double> > m_efitMap;
+    std::map<int, std::vector<double> > m_tfitMap;
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
     ToolHandle<TileBeamInfoProvider> m_beamInfo;
     double m_efitThresh;
@@ -83,16 +85,16 @@ class TileRawChannelMonTool: public TilePaterMonTool {
 
     ///Function to check for data corruption. Modified from TileDigitsMonTool implementation
 
-    bool DMUheaderCheck(std::vector<uint32_t>* headerVec, int dmu);
+    bool checkDmuHeader(std::vector<uint32_t>* headerVec, int dmu);
     //vector to hold data corruption information
     // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)
-    bool corrup[5][64][2][16]; //ros, drawer, gain, DMU
+    bool m_corrup[5][64][2][16]; //ros, drawer, gain, DMU
 
     /// Fuction to check that the DMU header format is correct
     /// bit_31 of the DMU header must be 1 and
     /// bit_17 of the DMU header must be 0
     /// Return true in the case of error
-    inline bool DMUheaderFormatCheck(uint32_t header) {
+    inline bool checkDmuHeaderFormat(uint32_t header) {
       if (((header >> 31 & 0x1) == 1) && ((header >> 17 & 0x1) == 0))
         return false; //no error
       else
@@ -102,7 +104,7 @@ class TileRawChannelMonTool: public TilePaterMonTool {
     /// Function to check that the DMU header parity is correct
     /// Parity of the DMU header should be odd
     /// Return true in case of error
-    inline bool DMUheaderParityCheck(uint32_t header) {
+    inline bool checkDmuHeaderParity(uint32_t header) {
       uint32_t parity(0);
       for (int i = 0; i < 32; ++i)
         parity += ((header >> i) & 0x1);
@@ -130,29 +132,29 @@ class TileRawChannelMonTool: public TilePaterMonTool {
       sumEdsp_fit = 0, sumTdsp_fit = 1, sumEdsp = 2, NsumDsp = 3
     };
 
-    const uint32_t * m_cispar;
+    const uint32_t* m_cispar;
 
     bool m_bigain;
     int m_nEvents;
-    float RangeQ[2][2][3][48];
-    double TimeCov[5][64][48][2][2][6];
-    double TimeCovCorr[5][64][48][2][2][3];	//Lukas
+    float m_rangeQ[2][2][3][48];
+    double m_timeCov[5][64][48][2][2][6];
+    double m_timeCovCorr[5][64][48][2][2][3];	//Lukas
 
     //Pointers to Histograms
-    std::vector<TH1S *> hist1[5][64][48][2]; // ros,drawer,channel,gain
-    std::vector<TH2S *> hist2[5][64][48][2];
-    std::vector<TH1F *> final_hist1[5][64][2][2]; //ros, drawer,capacitor, gain
-    std::vector<TH2F *> final_hist2[256][2];
+    std::vector<TH1S *> m_hist1[5][64][48][2]; // ros,drawer,channel,gain
+    std::vector<TH2S *> m_hist2[5][64][48][2];
+    std::vector<TH1F *> m_finalHist1[5][64][2][2]; //ros, drawer,capacitor, gain
+    std::vector<TH2F *> m_finalHist2[256][2];
 
-    std::vector<TH1F *> histdsp1[5][64][48][2]; // ros,drawer,channel,gain
-    std::vector<TH2F *> histdsp2[5][64][48][2];
-    std::vector<TH1F *> final_histdsp1[5][64][2]; //ros,drawer,gain
-    std::vector<TH2F *> final_histdsp2[5][64][2];
-    std::vector<TH1F *> hbardsp1[5][64][2]; // ros, drawer,gain
+    std::vector<TH1F *> m_histDsp1[5][64][48][2]; // ros,drawer,channel,gain
+    std::vector<TH2F *> m_histDsp2[5][64][48][2];
+    std::vector<TH1F *> m_finalHistDsp1[5][64][2]; //ros,drawer,gain
+    std::vector<TH2F *> m_finalHistDsp2[5][64][2];
+    std::vector<TH1F *> m_hBarDsp1[5][64][2]; // ros, drawer,gain
 
-    std::vector<TH1F *> summary_pmts[5][64][2][2];
+    std::vector<TH1F *> m_summaryPmts[5][64][2][2];
 
-    TileRawChannelUnit::UNIT m_CalibUnit;
+    TileRawChannelUnit::UNIT m_calibUnit;
 
     int m_summaryUpdateFrequency;
     bool m_resetAfterSummaryUpdate;
