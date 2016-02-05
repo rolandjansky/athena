@@ -8,7 +8,6 @@ use AtlasPolicy          AtlasPolicy-*
 use AtlasReflex          AtlasReflex-*              External
 
 use EventInfo            EventInfo-*                Event
-use ByteStreamData       ByteStreamData-*           Event
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 
 
