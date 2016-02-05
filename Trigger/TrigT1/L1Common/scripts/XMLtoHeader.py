@@ -119,7 +119,8 @@ def CreateFiles(time):
     cppBaseStartstring = "/*\n*This file was automatically created by XMLtoHeader.py\n* Created on:             {creationTime}\n* Created with config:    {xmlFile}\n*\n* Author: Ruth Poettgen\n* Contact: ruth.poettgen@cern.ch\n**Brief: Defines class for different CTP versions.\n*/\n\n\n#include <inttypes.h>\n#include <assert.h>\n#include <iostream>\n#include <stdlib.h>\n#include <map>\n#include <iomanip>\n#include <sstream>\n\n"
     start = cppBaseStartstring.format(creationTime = time, xmlFile = inputXMLname)
 
-    baseName = os.path.basename(outputNames) + 'Version'
+    baseNameRoot = os.path.basename(outputNames)
+    baseName = baseNameRoot + 'Version'
     fileName = outputNames + 'Version'
     baseHeader = open(fileName+'.h','w')
     baseHeader.write(start)
@@ -170,7 +171,7 @@ def CreateFiles(time):
         if (v!='v0'):
             changedValuesDict[v] = []
         
-        pyStartstring = pyStartstring.format(creationTime = time,version = versionDict[v], xmlFile = inputXMLname, classname=outputNames)
+        pyStartstring = pyStartstring.format(creationTime = time,version = versionDict[v], xmlFile = inputXMLname, classname=baseNameRoot)
         headerName = outputNames + "_" + v + ".py"
         pyHeader = open(headerName,'w')
         pyHeader.write(pyStartstring)
@@ -340,7 +341,7 @@ def CreateFiles(time):
         # finalise the file writing
         #------------------------------
   
-        pyHeader.write('\n\n' + outputNames + '_' + v + ' = ' + outputNames + '()'+'\n\n' + 'del ' + outputNames)
+        pyHeader.write('\n\n' + baseNameRoot + '_' + v + ' = ' + baseNameRoot + '()'+'\n\n' + 'del ' + baseNameRoot)
         #javaHeader.write('\n}') 
         
     dumpString += '        s << \"|-------------------------------------------------------------|\" << std::endl;\n\n';
