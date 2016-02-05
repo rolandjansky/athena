@@ -43,9 +43,9 @@ public:
 
 
    // access to the readout-elements in this DetectorElement
-   const CscReadoutElement* readoutElement() const {return _cscre;}
+   const CscReadoutElement* readoutElement() const {return m_cscre;}
    
-   void setReadoutElement(const CscReadoutElement *re) {_cscre=re; ++_nREinDetectorElement;}
+   void setReadoutElement(const CscReadoutElement *re) {m_cscre=re; ++m_nREinDetectorElement;}
    // access to the MuonStation this DetectorElement belongs to
    MuonStation* parentMuonStation() const;
 
@@ -72,7 +72,7 @@ public:
     const Amg::Vector3D& center(const Identifier& id) const;
 
 private:
-   const CscReadoutElement *_cscre;
+   const CscReadoutElement *m_cscre;
 
 
 };

@@ -32,7 +32,7 @@ MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv,
   //                      << (int)idHash << endreq;
 
   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
-    _mdtRE[i] = 0;
+    m_mdtRE[i] = 0;
   }
   m_nRE=0;
 }
@@ -49,8 +49,8 @@ MdtDetectorElement::addMdtReadoutElement (const MdtReadoutElement* x, int ml)
 						   << endreq;
   //std::cout<<" adding mdtRE with ml = "<<ml<<" to MdtDE with id hash "<< (int)m_idhash<<std::endl;
  
-  _mdtRE[ml-1] = x;
-  ++_nREinDetectorElement;
+  m_mdtRE[ml-1] = x;
+  ++m_nREinDetectorElement;
 }
 
 
@@ -72,7 +72,7 @@ MdtDetectorElement::getMdtReadoutElement(Identifier id) const
 #endif
         return 0;
     }
-    return _mdtRE[ml-1];
+    return m_mdtRE[ml-1];
 }
 
 
@@ -91,24 +91,24 @@ MdtDetectorElement::getMdtReadoutElement(int ml) const
 #endif
     return 0;
   }
-  return _mdtRE[ml-1];
+  return m_mdtRE[ml-1];
 }
 
 
 const Amg::Transform3D& MdtDetectorElement::transform() const
-{return _mdtRE[0]->transform();}
+{return m_mdtRE[0]->transform();}
 
 const Trk::Surface& MdtDetectorElement::surface() const
-{return _mdtRE[0]->surface();}
+{return m_mdtRE[0]->surface();}
 
 const Trk::SurfaceBounds& MdtDetectorElement::bounds() const
-{return _mdtRE[0]->bounds();}
+{return m_mdtRE[0]->bounds();}
 
 const Amg::Vector3D& MdtDetectorElement::center() const
-{return _mdtRE[0]->center();}
+{return m_mdtRE[0]->center();}
 
 const Amg::Vector3D& MdtDetectorElement::normal() const
-{return _mdtRE[0]->normal();}
+{return m_mdtRE[0]->normal();}
 
 const Trk::Surface& 
 MdtDetectorElement::surface(const Identifier& id) const
@@ -127,12 +127,12 @@ MdtDetectorElement::center(const Identifier& id) const
 {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   int ml = idh->multilayer(id);
-  return _mdtRE[ml-1]->center(idh->tubeLayer(id), idh->tube(id));
+  return m_mdtRE[ml-1]->center(idh->tubeLayer(id), idh->tube(id));
 }
 
 const Amg::Vector3D& 
 MdtDetectorElement::normal(const Identifier& id) const
-  {return _mdtRE[0]->normal(id);}
+  {return m_mdtRE[0]->normal(id);}
 
 MsgStream& MdtDetectorElement::msg( MSG::Level lvl ) const { return m_msg << lvl ; }
 bool MdtDetectorElement::msgLevel( MSG::Level lvl ) { return m_msg.get().level() <= lvl ; }

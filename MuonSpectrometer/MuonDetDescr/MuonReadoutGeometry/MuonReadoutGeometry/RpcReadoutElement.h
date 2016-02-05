@@ -263,11 +263,11 @@ namespace MuonGM {
     double m_etastriplength;
     double m_phipaneldead,  m_etapaneldead;
     double m_exthonthick;
-    double first_phistrip_s[maxphipanels];
-    double first_etastrip_z[maxetapanels];
-    double etastrip_s[maxphipanels];
-    double phistrip_z[maxetapanels];    
-    Amg::Transform3D _Xlg[2][2];
+    double m_first_phistrip_s[maxphipanels];
+    double m_first_etastrip_z[maxetapanels];
+    double m_etastrip_s[maxphipanels];
+    double m_phistrip_z[maxetapanels];    
+    Amg::Transform3D m_Xlg[2][2];
 
     const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
     const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const; 

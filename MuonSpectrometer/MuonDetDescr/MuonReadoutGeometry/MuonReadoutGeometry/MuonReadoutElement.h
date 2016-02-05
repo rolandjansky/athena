@@ -144,19 +144,19 @@ public:
 
    void setIndexOfREinMuonStation();
    int getIndexOfREinMuonStation() const;
-   unsigned int nMDTinStation() const {return _nMDTinStation;}
-   unsigned int nCSCinStation() const {return _nCSCinStation;}
-   unsigned int nTGCinStation() const {return _nTGCinStation;}
-   unsigned int nRPCinStation() const {return _nRPCinStation;}
+   unsigned int nMDTinStation() const {return m_nMDTinStation;}
+   unsigned int nCSCinStation() const {return m_nCSCinStation;}
+   unsigned int nTGCinStation() const {return m_nTGCinStation;}
+   unsigned int nRPCinStation() const {return m_nRPCinStation;}
 
    void setNofREinStation(int nMdt, int nRpc, int nTgc, int nCsc) 
-    {_nMDTinStation = nMdt; 
-     _nCSCinStation=nCsc; 
-     _nTGCinStation=nTgc; 
-     _nRPCinStation=nRpc;}
+    {m_nMDTinStation = nMdt; 
+     m_nCSCinStation=nCsc; 
+     m_nTGCinStation=nTgc; 
+     m_nRPCinStation=nRpc;}
 
-   bool hasCutouts() const {return _hasCutouts;}
-   void setHasCutouts(bool flag) {_hasCutouts = flag;}
+   bool hasCutouts() const {return m_hasCutouts;}
+   void setHasCutouts(bool flag) {m_hasCutouts = flag;}
     
    // Tracking related interfaces
    // Element Surface
@@ -190,12 +190,12 @@ protected:
    IdentifierHash m_detectorElIdhash;   //!< detector element hash identifier 
    mutable int m_caching;
    //!< 0 if we want to avoid caching geometry info for tracking interface
-   int _indexOfREinMuonStation; //!<  index of this RE in the mother MuonStation
-   bool _hasCutouts; //!<  true is there are cutouts in the readdout-element
-   unsigned int _nMDTinStation;
-   unsigned int _nCSCinStation;
-   unsigned int _nRPCinStation;
-   unsigned int _nTGCinStation;
+   int m_indexOfREinMuonStation; //!<  index of this RE in the mother MuonStation
+   bool m_hasCutouts; //!<  true is there are cutouts in the readdout-element
+   unsigned int m_nMDTinStation;
+   unsigned int m_nCSCinStation;
+   unsigned int m_nRPCinStation;
+   unsigned int m_nTGCinStation;
     
    MsgStream* m_MsgStream;
     
@@ -207,8 +207,8 @@ private:
    bool m_mirrored;
    int m_id_max_init_field;
    //int m_id_fields[maxfieldindex];
-   PVConstLink _parentStationPV;
-   const MuonStation* _parentMuonStation; 
+   PVConstLink m_parentStationPV;
+   const MuonStation* m_parentMuonStation; 
    MuonDetectorManager* m_muon_mgr;
 
   mutable const Amg::Transform3D* m_absTransform;

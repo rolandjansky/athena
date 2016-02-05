@@ -63,16 +63,16 @@ public:
     const Amg::Vector3D& center(const Identifier& id) const;
 
    // access to the readout-elements in this DetectorElement
-   const TgcReadoutElement* readoutElement() const {return _tgcre;}
+   const TgcReadoutElement* readoutElement() const {return m_tgcre;}
   
-   void setReadoutElement(const TgcReadoutElement *re) {_tgcre=re;}
+   void setReadoutElement(const TgcReadoutElement *re) {m_tgcre=re;}
    // access to the MuonStation this DetectorElement belongs to
    MuonStation* parentMuonStation() const;
 
    unsigned int NreadoutElements() const {return 1;}
 
 private:
-   const TgcReadoutElement *_tgcre;
+   const TgcReadoutElement *m_tgcre;
 
 
 };

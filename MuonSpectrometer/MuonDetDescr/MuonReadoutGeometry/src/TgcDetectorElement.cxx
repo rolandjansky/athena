@@ -22,41 +22,41 @@
 namespace MuonGM {
 
 TgcDetectorElement::TgcDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr,Identifier id, IdentifierHash 
-idHash) : MuonDetectorElement(pv,mgr,id,idHash), _tgcre(NULL)
+idHash) : MuonDetectorElement(pv,mgr,id,idHash), m_tgcre(NULL)
 {
     //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:TgcDetectorElement");
-  _nREinDetectorElement=1; 
+  m_nREinDetectorElement=1; 
 }
 
 const Amg::Transform3D& TgcDetectorElement::transform() const
-{return _tgcre->transform();}
+{return m_tgcre->transform();}
 
 const Trk::Surface& TgcDetectorElement::surface() const
-{return _tgcre->surface();}
+{return m_tgcre->surface();}
 
 const Trk::SurfaceBounds& TgcDetectorElement::bounds() const
-{return _tgcre->bounds();}
+{return m_tgcre->bounds();}
 
 const Amg::Vector3D& TgcDetectorElement::center() const
 {
     //    msg(MSG::INFO)<<"Test from TgcDetectorElement::center()"<<endreq;
     
-return _tgcre->center();}
+return m_tgcre->center();}
 
 const Amg::Vector3D& TgcDetectorElement::normal() const
-{return _tgcre->normal();}
+{return m_tgcre->normal();}
 
 const Trk::Surface& 
 TgcDetectorElement::surface(const Identifier& id) const
-{return _tgcre->surface(id);}
+{return m_tgcre->surface(id);}
 
 const Trk::SurfaceBounds& 
 TgcDetectorElement::bounds(const Identifier& id) const
-{return _tgcre->bounds(id);}
+{return m_tgcre->bounds(id);}
 
 const Amg::Transform3D& 
 TgcDetectorElement::transform(const Identifier& id) const
-{return _tgcre->transform(id);}
+{return m_tgcre->transform(id);}
 
 const Amg::Vector3D& 
 TgcDetectorElement::center(const Identifier& id) const
@@ -67,6 +67,6 @@ TgcDetectorElement::center(const Identifier& id) const
 
 const Amg::Vector3D& 
 TgcDetectorElement::normal(const Identifier& id) const
-  {return _tgcre->normal(id);}
+  {return m_tgcre->normal(id);}
 
 }

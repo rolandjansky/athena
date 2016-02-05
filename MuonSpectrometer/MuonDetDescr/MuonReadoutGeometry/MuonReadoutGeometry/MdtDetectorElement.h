@@ -109,7 +109,7 @@ public:
 protected:    
 
 private:
-   const MdtReadoutElement *_mdtRE[maxMdtREinDE];
+   const MdtReadoutElement *m_mdtRE[maxMdtREinDE];
    unsigned int m_nRE;
 
 };

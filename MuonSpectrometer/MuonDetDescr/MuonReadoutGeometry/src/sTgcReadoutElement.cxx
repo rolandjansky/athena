@@ -40,7 +40,7 @@ namespace MuonGM {
 					 MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
-    _ml = mL;
+    m_ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:sTgcReadoutElement");
 
     // get the setting of the caching flag from the manager
@@ -111,7 +111,7 @@ namespace MuonGM {
 	      reLog() << MSG::WARNING << "number of sTGC layers > 4: increase transform array size"<< endreq;
               continue;
 	    }
-	    _Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
+	    m_Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
 	    /*if (llay==1 || abs(zi)<3 ) {
 	      if (pc->getLogVol()->getShape()->type()=="Shift") {
 		const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());
@@ -200,13 +200,13 @@ namespace MuonGM {
     sTGCDetectorHelper aHelper;
     reLog() << MSG::INFO<<getStationName()<<endreq;
 
-    sTGCDetectorDescription* stgc = aHelper.Get_sTGCDetector(sector_l,stEta,getStationPhi(),_ml,'A');
+    sTGCDetectorDescription* stgc = aHelper.Get_sTGCDetector(sector_l,stEta,getStationPhi(),m_ml,'A');
     if (stgc) 
       reLog() << MSG::INFO
 	      << "Found sTGC Detector " << stgc->GetName() << endreq;
     else {
       reLog() << MSG::INFO << "No sTGC Detector" << endreq;
-      reLog() << MSG::INFO << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<_ml << " "<<sector_l <<endreq;
+      reLog() << MSG::INFO << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<m_ml << " "<<sector_l <<endreq;
     }
 
     m_phiDesign = std::vector<MuonChannelDesign>(m_nlayers); 
@@ -230,7 +230,7 @@ namespace MuonGM {
     for (int il=0; il<m_nlayers; il++) {
 
       // identifier of the first channel - strip plane - to retrieve max number of strips
-      /*Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, il+1, 1, 1);
+      /*Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, il+1, 1, 1);
       int chMax =  manager()->stgcIdHelper()->channelMax(id);
       if (chMax<0) chMax = 350;*/
 
@@ -317,17 +317,17 @@ namespace MuonGM {
       m_padDesign[il].deadS = 0.;	
 
       m_padDesign[il].nPadColumns = roParam.nPadX[il];
-      m_padDesign[il].firstPhiPos = roParam.firstPadPhi[il];//PAD_COL_PHI0[2*sector+(_ml-1)][stEta-1][il];
+      m_padDesign[il].firstPhiPos = roParam.firstPadPhi[il];//PAD_COL_PHI0[2*sector+(m_ml-1)][stEta-1][il];
       m_padDesign[il].inputPhiPitch = roParam.anglePadX;//stEta<2 ?  PAD_PHI_DIVISION/PAD_PHI_SUBDIVISION : PAD_PHI_DIVISION ;
       m_padDesign[il].PadPhiShift = roParam.PadPhiShift[il];
       
 
-      m_padDesign[il].padEtaMin =  roParam.firstPadRow[il];//FIRST_PAD_ROW_DIVISION[2*sector+(_ml-1)][stEta-1][il];
+      m_padDesign[il].padEtaMin =  roParam.firstPadRow[il];//FIRST_PAD_ROW_DIVISION[2*sector+(m_ml-1)][stEta-1][il];
       m_padDesign[il].nPadH = roParam.nPadH[il];     
-      m_padDesign[il].padEtaMax = m_padDesign[il].padEtaMin +  roParam.nPadH[il];//PAD_ROWS[2*sector+(_ml-1)][stEta-1][il];
+      m_padDesign[il].padEtaMax = m_padDesign[il].padEtaMin +  roParam.nPadH[il];//PAD_ROWS[2*sector+(m_ml-1)][stEta-1][il];
 
-      m_padDesign[il].firstRowPos   = roParam.firstPadH[il];// H_PAD_ROW_0[2*sector+(_ml-1)][il];
-      m_padDesign[il].inputRowPitch = roParam.padH[il];// PAD_HEIGHT[2*sector+(_ml-1)][il];
+      m_padDesign[il].firstRowPos   = roParam.firstPadH[il];// H_PAD_ROW_0[2*sector+(m_ml-1)][il];
+      m_padDesign[il].inputRowPitch = roParam.padH[il];// PAD_HEIGHT[2*sector+(m_ml-1)][il];
 
 
 /*   Sum Height Check
@@ -378,12 +378,12 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
 	// }
 
       // identifier of the first channel - wire plane - locX along phi, locY max->min R
-      Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, layer+1, 2, 1);
+      Identifier id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 2, 1);
 
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
       //m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(new Amg::Transform3D(), new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer])));
-      m_surfaceData->m_layerTransforms.push_back(absTransform()*_Xlg[layer]*
+      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)));
 
@@ -397,11 +397,11 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       double shift = 0.5*m_etaDesign[layer].thickness;
 
       // identifier of the first channel - strip plane
-      id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, layer+1, 1, 1);
+      id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 1, 1);
 
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
-      m_surfaceData->m_layerTransforms.push_back(absTransform()*_Xlg[layer]*
+      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 						 Amg::Translation3D(shift,0.,0.)*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
 
@@ -410,11 +410,11 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       m_surfaceData->m_layerNormals.push_back(m_surfaceData->m_layerTransforms.back().linear()*Amg::Vector3D(0.,0.,-1.));
 
       // identifier of the first channel - pad plane
-      id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, layer+1, 0, 1);
+      id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 0, 1);
 
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
-      m_surfaceData->m_layerTransforms.push_back(absTransform()*_Xlg[layer]*
+      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 						 Amg::Translation3D(-shift,0.,0.)*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
 						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
@@ -436,7 +436,7 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
     if (manager()->stgcIdHelper()->stationEta(id)!= getStationEta() ) return false;
     if (manager()->stgcIdHelper()->stationPhi(id)!= getStationPhi() ) return false;
 
-    if (manager()->stgcIdHelper()->multilayerID(id)!= _ml ) return false;
+    if (manager()->stgcIdHelper()->multilayerID(id)!= m_ml ) return false;
     
     int gasgap     = manager()->stgcIdHelper()->gasGap(id);
     if (gasgap  <1 || gasgap > m_nlayers) return false;
@@ -454,7 +454,7 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
   {
     int gg = manager()->stgcIdHelper()->gasGap(id);
     
-    Amg::Vector3D  locP = _Xlg[gg-1]*locPos;
+    Amg::Vector3D  locP = m_Xlg[gg-1]*locPos;
     reLog() << MSG::INFO << "locPos in the gg      r.f. "<<locPos<<endreq;
     reLog() << MSG::INFO << "locP in the multilayer r.f. "<<locP<<endreq;
     

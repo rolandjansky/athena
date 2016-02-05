@@ -225,7 +225,7 @@ private:
     double m_firstwire_y[maxnlayers];
     double m_innerRadius;
     double m_tubeWallThickness;
-    mutable int _zsignRO_tubeFrame; // comes from AMDB CRO location in the station
+    mutable int m_zsignRO_tubeFrame; // comes from AMDB CRO location in the station
 
     mutable std::vector<Amg::Transform3D*> * m_deformTransfs;
     mutable BLinePar* m_BLinePar;
