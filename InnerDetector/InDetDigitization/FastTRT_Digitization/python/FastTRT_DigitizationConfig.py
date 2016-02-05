@@ -28,6 +28,16 @@ def BasicTRTFastDigitizationTool(name, **kwargs):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
     if not conddb.folderRequested('/TRT/Calib/errors'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors")
+    if not conddb.folderRequested('/TRT/Calib/PIDver_New'):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PIDver_New","/TRT/Calib/PIDver_New")    
+    if not conddb.folderRequested('/TRT/Calib/PID_RToTver_New'):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToTver_New","/TRT/Calib/PID_RToTver_New")    
+    if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
+    if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
+        conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTVectors") 
+    if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
+        conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTValue")
     #choose random number service
     from Digitization.DigitizationFlags import digitizationFlags
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
@@ -45,26 +55,26 @@ def BasicTRTFastDigitizationTool(name, **kwargs):
     return CfgMgr.TRTFastDigitizationTool(name,**kwargs)
 
 def TRTFastDigitizationTool(name="TRTFastDigitizationTool",**kwargs):
-    kwargs.setdefault("trtDriftCircleContainerName", "TRT_DriftCircles")
-    kwargs.setdefault("prdMultiTruthCollectionName", "PRD_MultiTruthTRT")
+    kwargs.setdefault("trtDriftCircleContainer", "TRT_DriftCircles")
+    kwargs.setdefault("trtPrdMultiTruthCollection", "PRD_MultiTruthTRT")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicTRTFastDigitizationTool(name,**kwargs)
 
 def TRTFastDigitizationToolHS(name="TRTFastDigitizationToolHS",**kwargs):
-    kwargs.setdefault("trtDriftCircleContainerName", "TRT_DriftCircles")
-    kwargs.setdefault("prdMultiTruthCollectionName", "PRD_MultiTruthTRT")
+    kwargs.setdefault("trtDriftCircleContainer", "TRT_DriftCircles")
+    kwargs.setdefault("trtPrdMultiTruthCollection", "PRD_MultiTruthTRT")
     kwargs.setdefault("HardScatterSplittingMode", 1)
     return BasicTRTFastDigitizationTool(name,**kwargs)
 
 def TRTFastDigitizationToolPU(name="TRTFastDigitizationToolPU",**kwargs):
-    kwargs.setdefault("trtDriftCircleContainerName", "TRT_PU_DriftCircles")
-    kwargs.setdefault("prdMultiTruthCollectionName", "PRD_MultiTruthTRT_PU")
+    kwargs.setdefault("trtDriftCircleContainer", "TRT_PU_DriftCircles")
+    kwargs.setdefault("trtPrdMultiTruthCollection", "PRD_MultiTruthTRT_PU")
     kwargs.setdefault("HardScatterSplittingMode", 2)
     return BasicTRTFastDigitizationTool(name,**kwargs)
 
 def TRTFastDigitizationToolSplitNoMergePU(name="TRTFastDigitizationToolSplitNoMergePU",**kwargs):
     kwargs.setdefault("trtHitCollectionName", "PileupTRTUncompressedHits")
-    kwargs.setdefault("trtDriftCircleContainerName", "TRT_PU_DriftCircles")
-    kwargs.setdefault("prdMultiTruthCollectionName", "PRD_MultiTruthTRT_PU")
+    kwargs.setdefault("trtDriftCircleContainer", "TRT_PU_DriftCircles")
+    kwargs.setdefault("trtPrdMultiTruthCollection", "PRD_MultiTruthTRT_PU")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicTRTFastDigitizationTool(name,**kwargs)
