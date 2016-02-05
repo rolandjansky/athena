@@ -78,7 +78,7 @@ UInt_t CalculateCheckSum (TClass* cl, const char* name_in)
       int i;
       for (i=0; i<il; i++) id = id*3+name[i];
       type = tdm->GetFullTypeName();
-      if (TClassEdit::IsSTLCont(type))
+      if (TClassEdit::IsSTLCont(type) != ROOT::kNotSTL)
         type = TClassEdit::ShortType( type, TClassEdit::kDropStlDefault );
 
       il = type.Length();

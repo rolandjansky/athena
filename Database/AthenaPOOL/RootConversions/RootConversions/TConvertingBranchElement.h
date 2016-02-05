@@ -44,7 +44,16 @@
 #ifndef TCONVERTINGBRANCHELEMENT_H
 #define TCONVERTINGBRANCHELEMENT_H
 
+#if defined(__clang__)
+# pragma clang diagnostic push
+# if __has_warning("-Wformat-pedantic")
+#  pragma clang diagnostic ignored "-Wformat-pedantic"
+# endif
+#endif
 #include "TBranchElement.h"
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#endif
 
 class TVirtualConverter;
 
@@ -89,11 +98,15 @@ public:
    */
   virtual Int_t GetEntry(Long64_t entry, Int_t getall);
 
+  // Need to hide this from cling; otherwise, genreflex will try to
+  // generate an implementation for this.
+#ifndef __CLING__
   /**
    * @brief Read or write this object.
    * @param R__b The Root buffer.
    */
   virtual void Streamer(TBuffer& R__b);
+#endif
 
   /**
    * @brief Set the address of the object to use for I/O.

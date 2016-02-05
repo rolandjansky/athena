@@ -189,12 +189,18 @@ bool TConvertingStreamerInfo::parse (const std::string& smsg)
   std::string::size_type ito = smsg.find (" to type:");
   if (ito == std::string::npos) return false;
 
-  std::string from (smsg, ifrom+11, ito - (ifrom+11));
+  ifrom += 11;
+  while (ifrom < ito && smsg[ifrom] == ' ')
+    ++ifrom;
+  std::string from (smsg, ifrom, ito - ifrom);
 
   std::string::size_type iskip = smsg.find (", skip element");
   if (iskip == std::string::npos) return false;
 
-  std::string to (smsg, ito+9, iskip - (ito+9));
+  ito += 9;
+  while (ito < iskip && smsg[ito] == ' ')
+    ++ito;
+  std::string to (smsg, ito, iskip - ito);
 
   return s_self->patch (field, from, to);
 }
