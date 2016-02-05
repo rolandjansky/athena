@@ -43,7 +43,7 @@ void PileUpEventInfoCnv_p1::persToTrans(const PileUpEventInfo_p1* pers, PileUpEv
    trans->m_subEvents.clear();
    while( p_sub_iter != pers->m_subEvents.end() ) {
       PileUpEventInfo::SubEvent	sub_event;
-      sub_event.m_timeIndex.m_index =  static_cast<short>( (p_sub_iter->m_timeIndex)/MODULO );
+      sub_event.m_timeIndex.m_index =  static_cast<short>( (p_sub_iter->m_timeIndex) * (1./MODULO) );
       unsigned long index = MODULO*sub_event.m_timeIndex.m_index;
       sub_event.m_timeIndex.m_time  = static_cast<short>( MINTIME+(p_sub_iter->m_timeIndex-index) );
       sub_event.m_timeIndex.m_type  = PileUpTimeEventIndex::Unknown;

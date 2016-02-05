@@ -31,7 +31,6 @@
 #include "EventTPCnv/PileUpEventInfo_p3.h"
 #include "EventTPCnv/PileUpEventInfo_p4.h"
 #include "EventTPCnv/PileUpEventInfo_p5.h"
-#include "EventTPCnv/ByteStreamMetadata_p1.h"
 
 struct GCCXML_DUMMY_INSTANTIATION_EVENTTPCNV {
     std::set<std::pair<unsigned int, std::string> > m_set;

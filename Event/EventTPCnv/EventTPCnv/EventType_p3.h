@@ -35,7 +35,8 @@ public:
 inline
 EventType_p3::EventType_p3()
         :
-        m_mc_channel_number(0)
+             m_mc_channel_number(0),
+             m_mc_event_number(0)
 {}
 
 inline

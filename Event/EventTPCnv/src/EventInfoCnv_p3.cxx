@@ -29,20 +29,15 @@ void EventInfoCnv_p3::persToTrans(const EventInfo_p3* pers, EventInfo* trans, Ms
     // std::cout<<"EventInfo vers  EventID: "<<(vers&0x003f)<<"\t EventType: "<< ((vers>>6)&0x003f)<<"\tTriggerInfo: "<<((vers>>12)&0x003f) <<"\t Local vars: "<<(vers>>18)<<std::endl;
 
     bool bugcompat = (vers&(1<<24)) == 0;
-	
-    EventID *t = new EventID();
-    idConv.persToTrans(i, t);
-    trans->m_event_ID = t;
-	
-    EventType *et = new EventType();
-    typeConv.persToTrans(i, et, (vers>>6)&0x003f, bugcompat );
-    trans->m_event_type = et;
+
+    idConv.persToTrans (i, trans->m_event_ID);
+    typeConv.persToTrans(i, trans->m_event_type, (vers>>6)&0x003f, bugcompat );
 	
     if ((vers>>12)&0x003f){ // if there is trigger info
-        TriggerInfo *ti = new TriggerInfo();
-        trigInfoCnv.persToTrans(i, ti, bugcompat);
-        trans->m_trigger_info = ti;
+        trigInfoCnv.persToTrans(i, trans->m_trigger_info, bugcompat);
     }
+    else
+      *trans->m_trigger_info = TriggerInfo();
 
     if (i != pers->m_AllTheData.end()) {
         // must reset event flags, in case we're reusing the EventInfo object
@@ -103,7 +98,7 @@ void EventInfoCnv_p3::transToPers(const EventInfo* trans, EventInfo_p3* pers, Ms
 
 // work around the default constructor of EventInfo allocating memory
 EventInfo* EventInfoCnv_p3::createTransient( const EventInfo_p3* persObj, MsgStream &log) {
-    std::auto_ptr<EventInfo> trans( new EventInfo(0,0,0) );
+    std::auto_ptr<EventInfo> trans( new EventInfo() );
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
