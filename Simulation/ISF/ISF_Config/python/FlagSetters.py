@@ -41,6 +41,12 @@ def configureFlagsPassBackG4():
     simFlags.SimulationFlavour = "PassBackG4"
     return
 
+def configureFlagsFullG4_LongLived():
+    configureFlagsFullG4()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "FullG4_LongLived"
+    return
+
 def configureFlagsMC12G4():
     configureFlagsFullG4()
     from G4AtlasApps.SimFlags import simFlags

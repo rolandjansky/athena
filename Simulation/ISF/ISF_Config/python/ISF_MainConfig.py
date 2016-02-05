@@ -247,8 +247,8 @@ def getKernel_CosmicsG4(name="ISF_Kernel_CosmicsG4", **kwargs):
     kwargs.setdefault("EventFilterTools"            , [ 'ISF_CosmicEventFilter']   )
     return getKernel_FullG4(name, **kwargs)
 
-############## Simulator: MC12G4_longLived ###############
-def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
+############## Simulator: FullG4_LongLived ###############
+def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors" , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
@@ -256,6 +256,10 @@ def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
     kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]  )
     kwargs.setdefault("ParticleBroker"              ,   'ISF_LongLivedParticleBrokerSvc'       )
     return getKernel_GenericG4Only(name, **kwargs)
+
+############## Simulator: MC12G4_longLived ###############
+def getKernel_MC12G4_longLived(name="ISF_Kernel_MC12G4_longLived", **kwargs):
+    return getKernel_FullG4_LongLived(name, **kwargs)
 
 ############## Simulator: MC12G4 ###############
 def getKernel_MC12G4(name="ISF_Kernel_MC12G4", **kwargs):
