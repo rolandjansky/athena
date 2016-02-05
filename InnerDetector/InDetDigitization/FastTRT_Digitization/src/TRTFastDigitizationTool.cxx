@@ -36,7 +36,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 // InDet stuff
-#include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 
 // CLHEP
@@ -47,84 +46,73 @@
 // Conditions data
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "CxxUtils/make_unique.h"
 
-// Math
-#include <cmath>
 
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
+static constexpr unsigned int crazyParticleBarcode( std::numeric_limits< int32_t >::max() );
+// Barcodes at the HepMC level are int
 
-TRTFastDigitizationTool::TRTFastDigitizationTool(const std::string &type,
-                                                 const std::string &name,
-                                                 const IInterface *parent )
+TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
+                                                  const std::string &name,
+                                                  const IInterface *parent )
   : PileUpToolBase( type, name, parent ),
     m_trtDriftFunctionTool( "TRT_DriftFunctionTool/FatrasTrtDriftFunctionTool" ),
+    m_useTrtElectronPidTool( true ),
+    m_trtElectronPidTool( "InDet::TRT_ElectronPidToolRun2/InDetTRT_ElectronPidTool" ),
+    m_trtStrawStatusSummarySvc( "InDetTRTStrawStatusSummarySvc", name ),
     m_mergeSvc( "PileUpMergeSvc", name ),
     m_atRndmGenSvc ( "AtRndmGenSvc", name ),
     m_randomEngine( nullptr ),
-    m_randomEngineName("FatrasRnd"),
-    //m_partPropSvc( "PartPropSvc", "PartPropSvc" ),
-    //m_particleDataTable( nullptr ),
+    m_randomEngineName( "FatrasRnd" ),
     m_trtHitCollectionKey( "TRTUncompressedHits" ),
+    m_trtDriftCircleContainer( "TRT_DriftCircles" ),
+    m_trtPrdTruth( "PRD_MultiTruthTRT" ),
     m_thpctrt( nullptr ),
-    m_trtDriftCircleKey( "TRT_DriftCircles" ),
-    m_trtDriftCircleContainer( nullptr ),
-    m_prdMultiTruthKey( "PRD_MultiTruthTRT" ),
-    m_prdMultiTruthCollection( nullptr ),
     m_trt_manager( nullptr ),
     m_trt_id( nullptr ),
-    m_trtTRsimulation( true ),
-    m_trtTailFraction( 0.02 ),
-    m_trtSigmaDriftRadius( 145. * Gaudi::Units::micrometer ),
-    m_trtSigmaDriftRadiusTail( 1154.70053838 * Gaudi::Units::micrometer ),
-    m_trtFitAmplitude( 0.478 ),
-    m_trtFitMu( 0.9386 ),
-    m_trtFitR( 0.9325 ),
-    m_trtFitSigma( 0.2509 ),
-    m_trtFitConstant( 0.03232 ),
-    m_trtTRprobParC1( 0.036 ),
-    m_trtTRprobParC2( 0.175 ),
-    m_trtTRprobParC3( 3.395 ),
-    m_trtTRprobParC4( 0.258 ),
-    m_HardScatterSplittingMode(0),
-    m_HardScatterSplittingSkipper(false),
-    m_vetoThisBarcode(crazyParticleBarcode)
+    m_HardScatterSplittingMode( 0 ),
+    m_HardScatterSplittingSkipper( false ),
+    m_vetoThisBarcode( crazyParticleBarcode )
 {
   declareInterface< ITRTFastDigitizationTool >( this );
   declareProperty( "TRT_DriftFunctionTool",       m_trtDriftFunctionTool );
+  declareProperty( "TRT_ElectronPidTool",         m_trtElectronPidTool );
+  declareProperty( "TRT_StrawStatusSummarySvc",   m_trtStrawStatusSummarySvc );
   declareProperty( "MergeSvc",                    m_mergeSvc );
   declareProperty( "RndmSvc",                     m_atRndmGenSvc );
   declareProperty( "RandomStreamName",            m_randomEngineName );
   declareProperty( "trtHitCollectionName",        m_trtHitCollectionKey );
-  declareProperty( "trtDriftCircleContainerName", m_trtDriftCircleKey );
-  declareProperty( "prdMultiTruthCollectionName", m_prdMultiTruthKey );
+  declareProperty( "trtDriftCircleContainer",     m_trtDriftCircleContainer );
+  declareProperty( "trtPrdMultiTruthCollection",  m_trtPrdTruth );
   declareProperty( "HardScatterSplittingMode",    m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty( "ParticleBarcodeVeto",         m_vetoThisBarcode, "Barcode of particle to ignore");
 }
 
-//_____________________________________________________________________________
+
 StatusCode TRTFastDigitizationTool::initialize()
 {
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::initialize()" );
 
-  if ( detStore()->retrieve( m_trt_id, "TRT_ID" ).isFailure() ) {
-    ATH_MSG_ERROR( "Could not get TRT ID helper" );
+  // Get Random Service
+  CHECK( m_atRndmGenSvc.retrieve() );
+  m_randomEngine = m_atRndmGenSvc->GetEngine( m_randomEngineName );
+  if ( !m_randomEngine ) {
+    ATH_MSG_ERROR( "Could not get random engine '" << m_randomEngineName << "'" );
     return StatusCode::FAILURE;
   }
 
   // Get the TRT Detector Manager
-  if ( detStore()->retrieve( m_trt_manager, "TRT" ).isFailure() ) {
-    ATH_MSG_ERROR( "Can't get TRT_DetectorManager" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved TRT_DetectorManager with version "  << m_trt_manager->getVersion().majorNum() );
-  }
+  CHECK( detStore()->retrieve( m_trt_manager, "TRT" ) );
+  ATH_MSG_DEBUG( "Retrieved TRT_DetectorManager with version "  << m_trt_manager->getVersion().majorNum() );
+
+  CHECK( detStore()->retrieve( m_trt_id, "TRT_ID" ) );
 
   // PileUp Merge Service
-  if ( m_mergeSvc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR( "Could not find PileUpMergeSvc" );
-    return StatusCode::FAILURE;
-  }
+  CHECK( m_mergeSvc.retrieve() );
+
+  // Argon / Xenon
+  CHECK( m_trtStrawStatusSummarySvc.retrieve() );
+  ATH_MSG_DEBUG( "Retrieved TRT_StrawStatusSummarySvc " << m_trtStrawStatusSummarySvc );
 
   // Check data object name
   if ( m_trtHitCollectionKey == "" ) {
@@ -134,74 +122,51 @@ StatusCode TRTFastDigitizationTool::initialize()
     ATH_MSG_DEBUG( "Input hits: " << m_trtHitCollectionKey );
   }
 
-  // Get Random Service
-  if ( m_atRndmGenSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Could not initialize Random Number Service" );
-    return StatusCode::FAILURE;
-  }
-  m_randomEngine = m_atRndmGenSvc->GetEngine( m_randomEngineName );
-  if ( !m_randomEngine ) {
-    ATH_MSG_ERROR( "Could not get random engine '" << m_randomEngineName << "'" );
-    return StatusCode::FAILURE;
-  }
+  CHECK( m_trtDriftFunctionTool.retrieve() );
 
-  if ( m_trtDriftFunctionTool.retrieve().isFailure() ) {
-    ATH_MSG_WARNING( "Could not retrieve " << m_trtDriftFunctionTool << endreq << "-> Switching to simplified cluster creation!" );
-  }
-
-  // // Particle Properties Service
-  // if ( m_partPropSvc.retrieve().isFailure() ) {
-  //   ATH_MSG_ERROR( "Could not initialize Particle Properties Service" );
-  //   return StatusCode::FAILURE;
-  // }
-  // m_particleDataTable = m_partPropSvc->PDT();
+  if ( m_useTrtElectronPidTool ) {
+    CHECK( m_trtElectronPidTool.retrieve() );
+  } 
 
   return StatusCode::SUCCESS;
 }
 
-//_____________________________________________________________________________
-StatusCode TRTFastDigitizationTool::prepareEvent(unsigned int)
+
+StatusCode TRTFastDigitizationTool::prepareEvent( unsigned int )
 {
-
   m_trtHitCollList.clear();
-  m_thpctrt = new TimedHitCollection<TRTUncompressedHit>();
+  m_thpctrt = new TimedHitCollection< TRTUncompressedHit >();
   m_HardScatterSplittingSkipper = false;
+  
   return StatusCode::SUCCESS;
-
 }
 
-//_____________________________________________________________________________
-StatusCode TRTFastDigitizationTool::processBunchXing(int /*bunchXing*/,
-                                                     PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                     PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
 
-  //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
-  if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
-  if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
-  if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
+StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
+                                                      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents ) {
 
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
-    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
-    const TRTUncompressedHitCollection* seHitColl(nullptr);
-    if (!seStore.retrieve(seHitColl,m_trtHitCollectionKey).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent TRTUncompressedHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
+  // decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
+  if ( m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
+  if ( m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
+  if ( m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
+
+  PileUpEventInfo::SubEvent::const_iterator iEvt( bSubEvents );
+  while ( iEvt != eSubEvents ) {
+    StoreGateSvc& seStore( *iEvt->pSubEvtSG );
+    PileUpTimeEventIndex thisEventIndex( PileUpTimeEventIndex( static_cast< int >( iEvt->time() ),iEvt->index() ) );
+    const TRTUncompressedHitCollection* seHitColl( nullptr );
+    CHECK( seStore.retrieve( seHitColl, m_trtHitCollectionKey ) );
+    // copy Hit Collection
+    TRTUncompressedHitCollection* trtHitColl( new TRTUncompressedHitCollection( "TRTUncompressedHits") );
+    // read hits from this collection
+    for ( TRTUncompressedHitCollection::const_iterator itr = seHitColl->begin(); itr != seHitColl->end(); ++itr ) {
+      const TRTUncompressedHit trthit( *itr );
+      trtHitColl->Insert( trthit );
     }
-    ATH_MSG_VERBOSE ( "TRTUncompressedHitCollection found with " << seHitColl->size() << " hits" );
-    //Copy Hit Collection
-    TRTUncompressedHitCollection* trtHitColl(new TRTUncompressedHitCollection("TRTUncompressedHits"));
-    TRTUncompressedHitCollection::const_iterator i(seHitColl->begin());
-    TRTUncompressedHitCollection::const_iterator e(seHitColl->end());
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      const TRTUncompressedHit trthit(*i);
-      trtHitColl->Insert(trthit);
-    }
-    m_thpctrt->insert(thisEventIndex, trtHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_trtHitCollList.push_back(trtHitColl);
+    m_thpctrt->insert( thisEventIndex, trtHitColl );
+    // store these for deletion at the end of mergeEvent
+    m_trtHitCollList.push_back( trtHitColl );
 
     ++iEvt;
   }
@@ -209,8 +174,25 @@ StatusCode TRTFastDigitizationTool::processBunchXing(int /*bunchXing*/,
   return StatusCode::SUCCESS;
 }
 
-//_____________________________________________________________________________
+
 StatusCode TRTFastDigitizationTool::produceDriftCircles() {
+
+  // constants
+  const double trtTailFraction( 4.7e-4 );                   // part of the fraction in Tails ( default 2% )
+  const double trtSigmaDriftRadiusTail( 1.15470053838 );    // sigma of one TRT straw in R (Tail) [mm], 4./sqrt(12.)
+
+  // { correction coefficient for TRT efficiency,
+  //   correction coefficient for TRT sigma, adjust total/precise hits ratio
+  //   narrow Gaus1 : wide Gaus2, Gaus1 sigma, Gaus2 sigma }
+  const double cFit[ 8 ][ 5 ] = { { 0.884, 0.997, 0.900, 1.030, 2.400 },  // Barrel A-side Xenon
+                                  { 0.921, 1.065, 0.900, 0.970, 2.400 },  // EndCap A-side Xenon
+                                  { 0.877, 0.997, 0.900, 1.030, 2.400 },  // Barrel C-side Xenon
+                                  { 0.941, 1.065, 0.900, 0.970, 2.400 },  // EndCap C-side Xenon
+                                  { 0.982, 1.020, 0.800, 0.995, 2.400 },  // Barrel A-side Argon
+                                  { 0.999, 1.040, 0.800, 0.935, 2.400 },  // EndCap A-side Argon
+                                  { 0.986, 1.020, 0.800, 0.995, 2.400 },  // Barrel C-side Argon
+                                  { 1.018, 1.040, 0.800, 0.935, 2.400 }   // EndCap C-side Argon
+                                };
 
   m_driftCircleMap.clear();
 
@@ -241,101 +223,93 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 
       const InDetDD::TRT_BaseElement *trtBaseElement = m_trt_manager->getElement( hash );
       Identifier hit_id = trtBaseElement->identify();
+      
+      int BEC = m_trt_id->barrel_ec( hit_id );
+      bool isArgon = isArgonStraw( straw_id );
+      int idx = ( BEC > 0 ? BEC : 2 - BEC ) + 4 * isArgon - 1;
 
+      // Get 'track-to-wire' distance
       double driftRadiusLoc = getDriftRadiusFromXYZ( hit );
 
-      double efficiency = m_trtFitAmplitude * ( erf( ( m_trtFitMu + m_trtFitR - driftRadiusLoc ) / ( std::sqrt( 2 ) * m_trtFitSigma ) )
-                                                + erf( ( m_trtFitMu + m_trtFitR + driftRadiusLoc ) / ( std::sqrt( 2 ) * m_trtFitSigma ) )
-                                                - erf( ( m_trtFitMu - m_trtFitR - driftRadiusLoc ) / ( std::sqrt( 2 ) * m_trtFitSigma ) )
-                                                - erf( ( m_trtFitMu - m_trtFitR + driftRadiusLoc ) / ( std::sqrt( 2 ) * m_trtFitSigma ) )
-                                              )
-                          + m_trtFitConstant;
-
-      efficiency *= ( hitID & 0x00200000 ? 1.11 : 0.98 ); // endcap : barrel
+      double efficiency = strawEfficiency( driftRadiusLoc, abs( BEC ) );
+      efficiency *= cFit[ idx ][ 0 ];
 
       // Decide wether to throw away this cluster or not
       if ( CLHEP::RandFlat::shoot( m_randomEngine ) < ( 1. - efficiency ) ) continue;
 
       // Decide core/tail fraction
-      bool isTail = ( CLHEP::RandFlat::shoot( m_randomEngine ) < m_trtTailFraction );
-      // Start with the constant smearing
-      double sigmaTrt = ( isTail ? m_trtSigmaDriftRadiusTail : m_trtSigmaDriftRadius );
+      bool isTail = ( CLHEP::RandFlat::shoot( m_randomEngine ) < trtTailFraction );
 
-      // Take driftfunction tool only when it is not a tail
+      double sigmaTrt = trtSigmaDriftRadiusTail;
       if ( !isTail ) {
         double driftTime = m_trtDriftFunctionTool->approxDriftTime( fabs( driftRadiusLoc ) );
         sigmaTrt = m_trtDriftFunctionTool->errorOfDriftRadius( driftTime, hit_id );
       }
 
-      double smearedRadius = driftRadiusLoc;
-      double tail_smearing = CLHEP::RandFlat::shoot( m_randomEngine );
-
-      smearedRadius += CLHEP::RandGauss::shoot( m_randomEngine, 0., ( tail_smearing < 0.77 ? 0.75 : 2.2 ) ) * sigmaTrt;
-
+      // driftRadiusLoc smearing procedure 
+      double dR = 0;
       int ii = 0;
-      while ( smearedRadius > 2. ) {
-        smearedRadius += CLHEP::RandGauss::shoot( m_randomEngine, 0., ( tail_smearing < 0.77 ? 0.75 : 2.2 ) ) * sigmaTrt;
+      do {
+        double tailSmearing = CLHEP::RandFlat::shoot( m_randomEngine );
+        dR = CLHEP::RandGauss::shoot( m_randomEngine, 0., ( tailSmearing < cFit[ idx ][ 2 ] ? cFit[ idx ][ 3 ] : cFit[ idx ][ 4 ] ) ) * sigmaTrt;
         ++ii;
-        if ( ii > 50 ) {
-          smearedRadius = 2.;
+        if ( ii > 50 ) {  // should not appear in simulation
+          dR = 2. - driftRadiusLoc;
           break;
         }
       }
-
-      if ( smearedRadius < 0. ) {
-        smearedRadius = 0.;
-        sigmaTrt = m_trtSigmaDriftRadiusTail;
-      }
-
-      if ( smearedRadius < 1.0e-5 ) {
-        sigmaTrt = m_trtSigmaDriftRadiusTail;
-      }
+      while ( driftRadiusLoc + dR > 2. || driftRadiusLoc + dR < 0. );
+      double smearedRadius = driftRadiusLoc + dR;
 
       Amg::Vector2D hitLocalPosition( smearedRadius, 0. );
-
       std::vector< Identifier > rdoList = { straw_id };
 
       Amg::MatrixX *hitErrorMatrix = new Amg::MatrixX( 1, 1 );
-      ( *hitErrorMatrix )( Trk::driftRadius, Trk::driftRadius ) = sigmaTrt * sigmaTrt;
+      ( *hitErrorMatrix )( Trk::driftRadius, Trk::driftRadius ) = sigmaTrt * sigmaTrt * cFit[ idx ][ 1 ] * cFit[ idx ][ 1 ];
 
       // the TRT word simulate only TR information for the moment
       // consult TRTElectronicsProcessing::EncodeDigit() in TRT_Digitization/src/TRTElectronicsProcessing.cxx
       unsigned int word = 0x00007c00;  // set to a standard low threshold hit: word = 0; for ( unsigned int j = 10; j < 15; ++j ) word += 1 << ( 25 - j - j / 8 );
 
-      if ( m_trtTRsimulation ) {
+      // set High Threshold bit
+      HepGeom::Point3D< double > hitGlobalPosition = getGlobalPosition( hit );
+      int particleEncoding = hit->GetParticleEncoding();
+      float kineticEnergy = hit->GetKineticEnergy();
 
-        HepGeom::Point3D< double > hitGlobalPosition = getGlobalPosition( hit );
+      if ( m_useTrtElectronPidTool ) {
+
+        double position = ( BEC == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
+        // double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, driftRadiusLoc, position );
+        double probability = getProbHT( particleEncoding, kineticEnergy, straw_id, smearedRadius, position );
+        if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
+      }
+      else {
+
         double eta = hitGlobalPosition.pseudoRapidity();
-
-        int particleEncoding = hit->GetParticleEncoding();
-        float kineticEnergy = hit->GetKineticEnergy();
-
         // double mass = particleMass( particle );
         // double p = sqrt( kineticEnergy * kineticEnergy + 2. * kineticEnergy * mass );
         float p = kineticEnergy;  // like in TRT_Digitization ( previously we also use zero mass due to bug in particleMass routine )
 
         if ( abs( particleEncoding ) == 11 && p > 5000. ) {  // electron
-
           double probability = ( p < 20000. ? HTProbabilityElectron_low_pt( eta ) : HTProbabilityElectron_high_pt( eta ) );
           if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
         }
         else if ( abs( particleEncoding ) == 13 || abs( particleEncoding ) > 100 ) {  // muon or other particle
-
           double probability = ( p < 20000. ? HTProbabilityMuon_5_20( eta ) : HTProbabilityMuon_60( eta ) );
           if ( CLHEP::RandFlat::shoot( m_randomEngine ) < probability ) word |= 0x04020100;
         }
-      }  // end of m_trtTRsimulation
+
+      }
 
       InDet::TRT_DriftCircle *trtDriftCircle = new InDet::TRT_DriftCircle( straw_id, hitLocalPosition, rdoList, hitErrorMatrix, trtBaseElement, word );
-
       if ( !trtDriftCircle ) continue;
 
       m_driftCircleMap.insert( std::multimap< Identifier, InDet::TRT_DriftCircle * >::value_type( straw_id, trtDriftCircle ) );
 
       if ( hit->particleLink().isValid() ) {
-        const int barcode( hit->particleLink().barcode());
+        const int barcode( hit->particleLink().barcode() );
         if ( barcode !=0 && barcode != m_vetoThisBarcode ) {
-          m_prdMultiTruthCollection->insert( std::make_pair( trtDriftCircle->identify(), hit->particleLink() ) );
+          m_trtPrdTruth->insert( std::make_pair( trtDriftCircle->identify(), hit->particleLink() ) );
           ATH_MSG_DEBUG( "Truth map filled with cluster " << trtDriftCircle << " and link = " << hit->particleLink() );
         }
       }
@@ -347,7 +321,6 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
   }
 
   return StatusCode::SUCCESS;
-
 }
 
 
@@ -355,31 +328,7 @@ StatusCode TRTFastDigitizationTool::processAllSubEvents() {
 
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::processAllSubEvents()" );
 
-  // Create OUTPUT TRT_DriftCircleContainer and register it in StoreGate
-  m_trtDriftCircleContainer = new InDet::TRT_DriftCircleContainer( m_trt_id->straw_layer_hash_max() );
-  if( !m_trtDriftCircleContainer ) {
-    ATH_MSG_FATAL( "Could not create TRT_DriftCircleContainer" );
-    return StatusCode::FAILURE;
-  }
-  if ( evtStore()->record( m_trtDriftCircleContainer, m_trtDriftCircleKey ).isFailure() ) {
-    ATH_MSG_FATAL( "Container " << m_trtDriftCircleKey << " could not be registered in StoreGate" );
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG( "Container " << m_trtDriftCircleKey << " registered in StoreGate" );
-  }
-
-  // Create (or retrieve) OUTPUT PRD_MultiTruthCollection
-  m_prdMultiTruthCollection = new PRD_MultiTruthCollection;
-  if ( evtStore()->contains< PRD_MultiTruthCollection >( m_prdMultiTruthKey )
-       && evtStore()->retrieve( m_prdMultiTruthCollection, m_prdMultiTruthKey ).isFailure() ) {
-    ATH_MSG_FATAL( "Could not retrieve collection " << m_prdMultiTruthKey );
-    return StatusCode::FAILURE;
-  }
-  else if ( evtStore()->record( m_prdMultiTruthCollection, m_prdMultiTruthKey ).isFailure() ) {
-    ATH_MSG_FATAL("Could not record collection " << m_prdMultiTruthKey);
-    return StatusCode::FAILURE;
-  }
+  CHECK( this->createOutputContainers() );
 
   typedef PileUpMergeSvc::TimedList< TRTUncompressedHitCollection >::type HitCollectionTimedList;
 
@@ -396,84 +345,79 @@ StatusCode TRTFastDigitizationTool::processAllSubEvents() {
   m_HardScatterSplittingSkipper = false;
   TimedHitCollection< TRTUncompressedHit > timedHitCollection( numberOfSimHits );
   for ( HitCollectionTimedList::iterator itr = hitCollectionTimedList.begin(); itr != hitCollectionTimedList.end(); ++itr ) {
-    //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; continue; }
-    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { continue; }
-    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
+    // decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
+    if ( m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; continue; }
+    if ( m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { continue; }
+    if ( m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
     timedHitCollection.insert( itr->first, static_cast< const TRTUncompressedHitCollection * >( itr->second ) );
   }
-  m_thpctrt = & timedHitCollection;
+  m_thpctrt = &timedHitCollection;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  if ( produceDriftCircles().isFailure() ) {
-    ATH_MSG_FATAL( "produceDriftCircles() method failed!" );
-    return StatusCode::FAILURE;
-  }
+  CHECK( this->produceDriftCircles() );
 
-  if ( createAndStoreRIOs().isFailure() ) {
-    ATH_MSG_FATAL( "createAndStoreRIOs() failed" );
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG( "createAndStoreRIOs() succeeded" );
-  }
+  CHECK( this->createAndStoreRIOs() );
+  ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
 
   return StatusCode::SUCCESS;
 }
 
-//_____________________________________________________________________________
+
+StatusCode TRTFastDigitizationTool::createOutputContainers() {
+
+  ATH_MSG_DEBUG( "TRTFastDigitizationTool::createOutputContainers()" );
+
+  // Create OUTPUT TRT_DriftCircleContainer and register it in StoreGate
+  if ( !m_trtDriftCircleContainer.isValid() ) {
+    m_trtDriftCircleContainer = CxxUtils::make_unique< InDet::TRT_DriftCircleContainer >( m_trt_id->straw_layer_hash_max() );
+    if ( !m_trtDriftCircleContainer.isValid() ) {
+      ATH_MSG_FATAL( "Could not create TRT_DriftCircleContainer" );
+      return StatusCode::FAILURE;
+    }
+  }
+  ATH_MSG_DEBUG( "InDet::TRT_DriftCircleContainer " << m_trtDriftCircleContainer.name() << " registered in StoreGate" );
+
+  // Create OUTPUT PRD_MultiTruthCollection for TRT measurements
+  if ( !m_trtPrdTruth.isValid() ) {
+    m_trtPrdTruth = CxxUtils::make_unique< PRD_MultiTruthCollection >();
+    if ( !m_trtPrdTruth.isValid() ) {
+      ATH_MSG_FATAL( "Could not record collection " << m_trtPrdTruth.name() );
+      return StatusCode::FAILURE;
+    }
+  }
+  ATH_MSG_DEBUG( "PRD_MultiTruthCollection " << m_trtPrdTruth.name() << " registered in StoreGate" );
+
+  return StatusCode::SUCCESS;
+}
 
 
 StatusCode TRTFastDigitizationTool::mergeEvent() {
 
-  //  ATH_MSG_INFO ( "--- In mergeEvent() ---" );
+  ATH_MSG_DEBUG( "TRTFastDigitizationTool::mergeEvent()" );
 
-
-  m_trtDriftCircleContainer = new InDet::TRT_DriftCircleContainer(m_trt_id->straw_layer_hash_max());
-
-  if(!m_trtDriftCircleContainer) {
-    ATH_MSG_FATAL( "[ --- ] Could not create TRT_DriftCircleContainer");
-    return StatusCode::FAILURE;
-  }
-
-  //  Register it to StoreGate
-  if ( evtStore()->record(m_trtDriftCircleContainer,"TRT_DriftCircles").isFailure() ) {
-    ATH_MSG_FATAL( "Container TRT_DriftCircles could not be registered in StoreGate !" );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_DEBUG ( "Container TRT_DriftCircles registered in StoreGate" );
+  CHECK( this->createOutputContainers() );
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
-  if(this->produceDriftCircles().isFailure()) {
-    ATH_MSG_FATAL ( "produceDriftCircles method failed!" );
-    return StatusCode::FAILURE;
+  if ( m_thpctrt != 0 ) {
+    CHECK( this->produceDriftCircles() );
   }
 
-
+  // Clean up temporary containers
   delete m_thpctrt;
-  std::list<TRTUncompressedHitCollection*>::iterator trtHitColl(m_trtHitCollList.begin());
-  std::list<TRTUncompressedHitCollection*>::iterator trtHitCollEnd(m_trtHitCollList.end());
-  while(trtHitColl!=trtHitCollEnd)
-    {
-      delete (*trtHitColl);
-      ++trtHitColl;
-    }
+  std::list< TRTUncompressedHitCollection * >::iterator trtHitColl( m_trtHitCollList.begin() );
+  std::list< TRTUncompressedHitCollection * >::iterator trtHitCollEnd( m_trtHitCollList.end() );
+  while( trtHitColl != trtHitCollEnd ) {
+    delete ( *trtHitColl );
+    ++trtHitColl;
+  }
   m_trtHitCollList.clear();
 
-
-  if (createAndStoreRIOs().isFailure()) {
-    ATH_MSG_FATAL ( "createAndStoreRIOs() failed!" );
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
-
-  }
-
+  CHECK( this->createAndStoreRIOs() );
+  ATH_MSG_DEBUG ( "createAndStoreRIOs() succeeded" );
 
   return StatusCode::SUCCESS;
-
 }
+
 
 StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
 {
@@ -507,7 +451,7 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
       trtDriftCircleCollection->push_back( trtDriftCircle );
     }
 
-    if ( trtDriftCircleCollection && m_trtDriftCircleContainer->addCollection( trtDriftCircleCollection, hash ).isFailure() ) {
+    if ( m_trtDriftCircleContainer->addCollection( trtDriftCircleCollection, hash ).isFailure() ) {
       ATH_MSG_WARNING( "Could not add collection to Identifyable container" );
     }
   }
@@ -547,19 +491,6 @@ double TRTFastDigitizationTool::getDriftRadiusFromXYZ( const TimedHitPtr< TRTUnc
 
   return driftRadius;
 }
-
-
-// double TRTFastDigitizationTool::particleMass( int particleEncoding ) const
-// {
-//   double mass = 0.;
-
-//   const HepPDT::ParticleData *particle = m_particleDataTable->particle( HepPDT::ParticleID( abs( particleEncoding ) ) );
-//   if ( particle ) {
-//     mass = particle->mass().value();
-//   }
-
-//   return mass;
-// }
 
 
 Identifier TRTFastDigitizationTool::getIdentifier( int hitID, IdentifierHash &hash, Identifier &layer_id, bool &status ) const
@@ -660,6 +591,113 @@ HepGeom::Point3D< double > TRTFastDigitizationTool::getGlobalPosition( const Tim
 
   ATH_MSG_WARNING( "Could not find global coordinate of a straw - drifttime calculation will be inaccurate" );
   return HepGeom::Point3D< double >( 0., 0., 0. );
+}
+
+
+bool TRTFastDigitizationTool::isArgonStraw( const Identifier &straw_id ) const
+{
+  // TRTCond::StrawStatus::Good == Xenon
+  // return ( m_trtStrawStatusSummarySvc->getStatusHT( straw_id ) != TRTCond::StrawStatus::Good ? true : false );
+  return ( gasType( straw_id ) == 1 ? true : false );
+} 
+
+
+int TRTFastDigitizationTool::gasType( const Identifier &straw_id ) const
+{
+  // getStatusHT returns enum EStatus { Undefined, Dead, Good, Xenon, Argon, Krypton } // from 20.7.1
+  // ​see InnerDetector/​InDetConditions/​TRT_ConditionsData/​TRT_ConditionsData/​StrawStatus.h
+  // TRT representation of gasType = Xenon: 0, Argon: 1, Krypton: 2
+
+  int status = m_trtStrawStatusSummarySvc->getStatusHT( straw_id );
+
+  if ( status == 2 || status == 3 )
+    return 0;
+  else if ( status == 1 || status == 4 )
+    return 1;
+  else if ( status == 5 )
+    return 2;
+  else {
+    ATH_MSG_WARNING( "TRTFastDigitizationTool::gasType() getStatusHT = " << status << ", must be in [1..5] range" );
+    return -1;
+  }
+  
+}
+
+
+double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEnergy, const Identifier &straw_id, double rTrkWire, double hitGlobalPosition ) const {
+
+  Trk::ParticleHypothesis hypothesis = Trk::pion;
+  
+  switch( abs( particleEncoding ) ) {
+
+    case 11:
+    hypothesis = Trk::electron;
+    break;
+
+    case 13:
+    hypothesis = Trk::muon;
+    break;
+    
+    case 321:
+    hypothesis = Trk::kaon;
+    break;
+    
+    case 211:
+    default:
+    hypothesis = Trk::pion;
+    break;
+
+  } // end of switch
+
+  static Trk::ParticleMasses particleMasses;
+  float pTrk = sqrt( kineticEnergy * kineticEnergy + 2. * kineticEnergy * particleMasses.mass[ hypothesis ] );
+  if ( pTrk < 250. || pTrk > 7000000. ) return 0.;
+
+  int layerOrWheel = m_trt_id->layer_or_wheel( straw_id );
+  int strawLayer = m_trt_id->straw_layer( straw_id );
+
+  // trtPart = Barrel: 0, EndcapA: 1, EndcapB: 2
+  int trtPart = 0;
+  if ( abs( m_trt_id->barrel_ec( straw_id ) ) == 2 ) trtPart = ( ( layerOrWheel < 6 ) ? 1 : 2 );
+
+  // strawLayer = Barrel: 0-72, Endcap A-side: 0-95 (16 layers in 6 modules), EndcapB: 0-63 (8 layers in 8 modules)
+  if ( trtPart == 0 ) {       // Barrel
+    if ( layerOrWheel ) strawLayer += 19 + ( layerOrWheel == 1 ? 0 : 24 );
+  }
+  else if ( trtPart == 1 ) {  // EndcapA
+    strawLayer += 16 * layerOrWheel;
+  }
+  else {                      // EndcapB
+    strawLayer += 8 * ( layerOrWheel - 6 );
+  }
+
+  const int strawLayerMax[] = { 72, 95, 63 };
+  if ( strawLayer > strawLayerMax[ trtPart ] || strawLayer < 0 ) {
+    ATH_MSG_WARNING( "strawLayer was outside allowed range: trtPart = " << trtPart << ", strawLayer = " << strawLayer );
+    return 0.;
+  }
+
+  const double hitGlobalPositionMin[] = {   0.,  630.,  630. };
+  const double hitGlobalPositionMax[] = { 720., 1030., 1030. };
+
+  if ( hitGlobalPosition < hitGlobalPositionMin[ trtPart ] ) {
+    ATH_MSG_WARNING( "hitGlobalPosition was below allowed range (will be adjusted): trtPart = " << trtPart << ", hitGlobalPosition = " << hitGlobalPosition );
+    hitGlobalPosition = hitGlobalPositionMin[ trtPart ] + 0.001;
+  }
+  if ( hitGlobalPosition > hitGlobalPositionMax[ trtPart ] ) {
+    ATH_MSG_WARNING( "hitGlobalPosition was above allowed range (will be adjusted): trtPart = " << trtPart << ", hitGlobalPosition = " << hitGlobalPosition );
+    hitGlobalPosition = hitGlobalPositionMax[ trtPart ] - 0.001;
+  }
+
+  if ( rTrkWire > 2.2 ) rTrkWire = 2.175;
+
+  double Occupancy = 0.1;
+
+  double probHT = m_trtElectronPidTool->probHTRun2( pTrk, hypothesis, trtPart, gasType( straw_id ), strawLayer, hitGlobalPosition, rTrkWire, Occupancy );
+  if ( probHT == 0.5 || probHT == 1. ) probHT = 0.;
+  probHT /= correctionHT( pTrk, hypothesis );
+
+  return probHT;
 }
 
 
@@ -821,8 +859,30 @@ double TRTFastDigitizationTool::HTProbabilityMuon_60( double eta )
 }
 
 
-double TRTFastDigitizationTool::strawEfficiency( double driftRadius )
+// parametrization of TRT efficiency as function of 'track-to-wire' distance
+double TRTFastDigitizationTool::strawEfficiency( double driftRadius, int BEC )
 {
+  const double p[][ 5 ] = { { 0.478,    0.9386,  0.9325,  0.2509,   0.03232 }, // old parametrization
+                            { 0.477001, 1.02865, 1.02910, 0.185082, 0. },      // Barrel
+                            { 0.482528, 1.03601, 1.03693, 0.182581, 0. }       // EndCap
+                          };
+  
+  const double &trtFitAmplitude = p[ BEC ][ 0 ];
+  const double &trtFitMu = p[ BEC ][ 1 ];
+  const double &trtFitR = p[ BEC ][ 2 ];
+  const double &trtFitSigma = p[ BEC ][ 3 ];
+  const double &trtFitConstant = p[ BEC ][ 4 ];
+
+  double efficiency = trtFitAmplitude * ( erf( ( trtFitMu + trtFitR - driftRadius ) / ( std::sqrt( 2 ) * trtFitSigma ) )
+                                                + erf( ( trtFitMu + trtFitR + driftRadius ) / ( std::sqrt( 2 ) * trtFitSigma ) )
+                                                - erf( ( trtFitMu - trtFitR - driftRadius ) / ( std::sqrt( 2 ) * trtFitSigma ) )
+                                                - erf( ( trtFitMu - trtFitR + driftRadius ) / ( std::sqrt( 2 ) * trtFitSigma ) )
+                                            )
+                      + trtFitConstant;
+
+  return efficiency;
+  
+  /*
   static const std::vector< double > bins = { 0.05, 1.43, 1.48, 1.53, 1.58, 1.63, 1.68, 1.73, 1.78, 1.83, 1.88, 1.93, 1.99 };
   static const std::vector< double > efficiency = { 0.94,        // [ 0., 0.05 ]
                                                     0.96,        // [ 0.05, 1.43 ]
@@ -841,11 +901,28 @@ double TRTFastDigitizationTool::strawEfficiency( double driftRadius )
                                                   };
 
   return efficiency[ std::distance( bins.begin(), std::lower_bound( bins.begin(), bins.end(), driftRadius ) ) ];
+  */ 
 }
 
 
-StatusCode TRTFastDigitizationTool::finalize() {
+double TRTFastDigitizationTool::correctionHT( double momentum, Trk::ParticleHypothesis hypothesis )
+{
+  const double par[][ 6 ] = { { 5.96038,  0.797671,  1.28832, -2.02763, -2.24630, 21.6857  },  // pion
+                              { 0.522755, 0.697029, -3.90787,  6.32952,  1.06347,  3.51847 }   // electron
+                            };
 
+  int j = ( hypothesis == Trk::electron ? 1 : 0 );
+  double x0 = momentum * 1.e-3;
+  double x1 = 1. / ( x0 + par[ j ][ 0 ] );
+  double x2 = log( x0 ) * x1;
+  double value = par[ j ][ 1 ] + par[ j ][ 2 ] * x1 + par[ j ][ 3 ] * x1 * x1 + par[ j ][ 4 ] * x2 + par[ j ][ 5 ] * x1 * x2;
+  return ( momentum > 1500. ? value : 1. );
+}
+
+
+StatusCode TRTFastDigitizationTool::finalize()
+{
   ATH_MSG_DEBUG( "TRTFastDigitizationTool::finalize()" );
+
   return StatusCode::SUCCESS;
 }
