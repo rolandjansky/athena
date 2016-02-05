@@ -181,7 +181,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }
   else if(m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
-  }     
+  } 
   else                                                            {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );
   } 
@@ -876,6 +876,10 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     unsigned int ns = tr->measurementsOnTrack()->size(); if(ns > nsm) nsm = ns;
   }
   if(nt == n) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;}
+
+  if     (m_xi2max < 8.5) {
+    if(n==3 || t3 <=0) return true; return false;
+  }
 
   if( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
 
