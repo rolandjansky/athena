@@ -91,7 +91,7 @@ CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
         }
       }
     } else {
-      std::cerr<<"Cannot perform a dinamic cast ! "<<std::endl;
+      std::cerr<<"Cannot perform a dynamic cast ! "<<std::endl;
     }
   } else {
     // hard wire for the moment

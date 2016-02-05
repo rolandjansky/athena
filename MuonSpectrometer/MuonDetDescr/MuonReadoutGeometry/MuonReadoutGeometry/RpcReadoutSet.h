@@ -43,9 +43,9 @@ public:
     
 private:
 
-   Identifier _id; // this is a detectorId
-   const RpcIdHelper*  _helper;
-   const MuonDetectorManager* _mgr;
+   Identifier m_id; // this is a detectorId
+   const RpcIdHelper*  m_helper;
+   const MuonDetectorManager* m_mgr;
 };
 
 } // namespace MuonGM

@@ -78,7 +78,7 @@ namespace MuonGM {
 		//       <<ngv<<" is a gas volume  with tag "<<lgg<<std::endl;
 		PVConstLink pcgg = pcgv->getChildVol(0);
 		HepGeom::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
-		_Xlg[llay-1][lgg-1] = Amg::CLHEPTransformToEigen(trans);
+		m_Xlg[llay-1][lgg-1] = Amg::CLHEPTransformToEigen(trans);
 	      }
 	    }
 	  }
@@ -134,13 +134,13 @@ namespace MuonGM {
     double local_s=0.;
     int dbphi = doubletPhi-1;
     if (m_nphistrippanels == 1) dbphi=0;
-    if (measphi == 1) local_s = first_phistrip_s[dbphi]+(strip-1)*StripPitch(measphi);
-    else  local_s = etastrip_s[dbphi];
+    if (measphi == 1) local_s = m_first_phistrip_s[dbphi]+(strip-1)*StripPitch(measphi);
+    else  local_s = m_etastrip_s[dbphi];
 
     if (RpcReadout_verbose)
       std::cout<<"RpcReadoutElement:: Ssize, ndvs, nstr/pan, spitch, 1st-strp "<<m_Ssize<<" "
 	       <<m_nphistrippanels<<" "<<m_nphistripsperpanel<<" "<< m_phistrippitch
-	       <<" "<<first_phistrip_s[doubletPhi-1]<<std::endl;
+	       <<" "<<m_first_phistrip_s[doubletPhi-1]<<std::endl;
     if (RpcReadout_verbose)
       std::cout<<"RpcReadoutElement::localStripSCoord local_s is "<<local_s<<" for dbZ/dbP/mphi/strip "
 	       <<doubletZ<<" "<<doubletPhi<<" "<<measphi<<"/"<<strip<<std::endl;
@@ -182,20 +182,20 @@ namespace MuonGM {
     
     double local_z=0.;
     if (measphi == 0) {
-      double xx = first_etastrip_z[0];
-      if (m_netastrippanels>1 && doubletZ>1)  xx = first_etastrip_z[doubletZ-1];
+      double xx = m_first_etastrip_z[0];
+      if (m_netastrippanels>1 && doubletZ>1)  xx = m_first_etastrip_z[doubletZ-1];
       local_z = xx + (strip-1)*StripPitch(measphi);
     }
     else  {
-      double xx = phistrip_z[0];
-      if (m_netastrippanels>1 && doubletZ>1)  xx =  phistrip_z[doubletZ-1];
+      double xx = m_phistrip_z[0];
+      if (m_netastrippanels>1 && doubletZ>1)  xx =  m_phistrip_z[doubletZ-1];
       local_z = xx;
     }
     
     if (RpcReadout_verbose) std::cout<<"RpcReadoutElement:: Zsize, ndvz, nstr/pan, zpitch, 1st-strp "
                                      <<m_Zsize<<" "
                                      <<m_netastrippanels<<" "<<m_netastripsperpanel<<" "<< m_etastrippitch
-                                     <<" "<<first_etastrip_z[doubletZ-1]<<std::endl;
+                                     <<" "<<m_first_etastrip_z[doubletZ-1]<<std::endl;
     if (RpcReadout_verbose) std::cout<<"RpcReadoutElement::localStripZCoord local_z is "
                                      <<local_z<<" for dbZ/dbP/mphi/strip "
                                      <<doubletZ<<" "<<doubletPhi<<" "<<measphi<<"/"<<strip<<std::endl;
@@ -543,7 +543,7 @@ namespace MuonGM {
     Amg::Vector3D localP1 = localPold;
     if (manager()->MinimalGeoFlag() == 0)
       {
-       localP1 = _Xlg[lgg-1][lggPhi-1].translation();
+       localP1 = m_Xlg[lgg-1][lggPhi-1].translation();
         if ( fabs(localP1.x()-localPold.x())>0.01 || fabs(localP1.y()-localPold.y())>0.01 || fabs(localP1.z()-localPold.z())>0.01 )
 	  {
             const RpcIdHelper* idh = manager()->rpcIdHelper();
