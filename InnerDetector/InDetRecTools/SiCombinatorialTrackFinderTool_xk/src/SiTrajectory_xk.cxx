@@ -503,7 +503,7 @@ bool InDet::SiTrajectory_xk::initialize
   rquality          = true;     
   m_ntos            =    0;
   int    ndfwrong   =    0;
-  double Xi2cut     = 2.*m_tools->xi2max();
+  double Xi2cut     = 2.*m_tools->xi2max(); if(m_tools->xi2max() < 8.5) Xi2cut = m_tools->xi2max();
 
   std::list<const InDet::SiCluster*>::iterator c;
   if(lSiCluster.size() < 2) return false;
@@ -937,7 +937,6 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   int    ndcut          = 3                   ;
   int    F              = L                   ;
   double Xi2best        = 0.                  ;
-
   m_elements[m_elementsMap[F]].setNdist(0);
 
   for(; it!=itmax; ++it) {
@@ -1145,6 +1144,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
   int                     TE    [100]                              ;  
   const InDet::SiCluster* CL    [100]                              ;
 
+  int    nclmax         = 12; if(m_tools->xi2max() < 8.5) nclmax = 14; 
   int    maxholes       = m_tools->maxholes ()                     ;
   int    maxdholes      = m_tools->maxdholes()                     ;
   const int itm         = itmax-1                                  ;
@@ -1249,7 +1249,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 	}
       }
       nclbest = m_nclusters+nbest;
-      if( (nclbest >= 12 && !h) || (fl==lElement && ndbest == 0)) break;
+      if( (nclbest >= nclmax && !h) || (fl==lElement && ndbest == 0)) break;
     }
 
     F = -1; bool cl = false; int nb = lElement-nclbest-1; double Xn;
