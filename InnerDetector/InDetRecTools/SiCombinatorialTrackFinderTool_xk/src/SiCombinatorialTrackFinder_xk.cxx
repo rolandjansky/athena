@@ -628,7 +628,7 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   if(!Qr) ++m_roadbug; if(!Q) return false;
   ++m_inittracks;
   bool pixseed = m_trajectory.isLastPixel();
-  int itmax    = 30; if(m_simpleTrack) itmax = 10; 
+  int itmax    = 30; if(m_simpleTrack) itmax = 10; if(m_xi2max < 8.5) itmax = 50; 
 
   // Track finding
   //

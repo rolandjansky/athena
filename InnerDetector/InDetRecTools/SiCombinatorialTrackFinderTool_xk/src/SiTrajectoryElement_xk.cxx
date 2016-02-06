@@ -59,6 +59,12 @@ bool InDet::SiTrajectoryElement_xk::set
   m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
   m_halflenght   = 0.                      ;
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
+
+  if(m_tools->xi2max() < 8.5) {
+    if(m_ndf==2) {m_xi2max = 13.; m_xi2maxNoAdd = 13.;}
+    else         {m_xi2max =  4.; m_xi2maxNoAdd =  8.;}
+  }
+
   noiseInitiate()                          ;
   (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
     m_stereo = true : m_stereo = false;
