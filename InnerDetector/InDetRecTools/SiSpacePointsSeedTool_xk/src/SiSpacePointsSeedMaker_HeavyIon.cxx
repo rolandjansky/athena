@@ -62,7 +62,7 @@ InDet::SiSpacePointsSeedMaker_HeavyIon::SiSpacePointsSeedMaker_HeavyIon
   r_index     = 0       ;
   r_map       = 0       ;    
   m_maxsizeSP = 4000    ;
-  m_maxOneSize= 10      ;
+  m_maxOneSize= 6       ;
   m_SP        = 0       ;
   m_R         = 0       ;
   m_Tz        = 0       ;
@@ -243,7 +243,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newEvent (int)
     
 	for(; sp != spe; ++sp) {
 	  
-	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
+	  float r = (*sp)->r(); if(r < 43. || r>=r_rmax) continue;
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
 
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
@@ -781,7 +781,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildFrameWork()
   m_ipt2      = m_ipt*m_ipt                    ;
   m_K         = 0.                             ;
 
-  m_ns = m_nsaz = m_nsazv = m_nr = m_nrf = m_nrfz = m_nrfzv = 0;
+  m_ns = m_nsaz = m_nsazv = m_nr = m_nrfz = m_nrfzv = 0;
 
   // Build radius sorted containers
   //
@@ -800,8 +800,6 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildFrameWork()
 
   m_sF        = m_ptmin /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < m_sFmin) m_sF = m_sFmin;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
-
-  m_nrf   = 0; for(int i=0; i!= 53; ++i) {rf_index  [i]=0; rf_map  [i]=0;}
 
   // Build radius-azimuthal-Z sorted containers
   //
@@ -977,13 +975,9 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::buildBeamFrameWork()
 void  InDet::SiSpacePointsSeedMaker_HeavyIon::convertToBeamFrameWork
 (Trk::SpacePoint*const& sp,float* r) 
 {
-  
-  float x = float(sp->globalPosition().x())-m_xbeam[0];
-  float y = float(sp->globalPosition().y())-m_ybeam[0];
-  float z = float(sp->globalPosition().z())-m_zbeam[0];
-  r[0]     = m_xbeam[1]*x+m_xbeam[2]*y+m_xbeam[3]*z;
-  r[1]     = m_ybeam[1]*x+m_ybeam[2]*y+m_ybeam[3]*z;
-  r[2]     = m_zbeam[1]*x+m_zbeam[2]*y+m_zbeam[3]*z;
+  r[0] = float(sp->globalPosition().x())-m_xbeam[0];
+  r[1] = float(sp->globalPosition().y())-m_ybeam[0];
+  r[2] = float(sp->globalPosition().z())-m_zbeam[0];
 }
    
 ///////////////////////////////////////////////////////////////////
@@ -1006,7 +1000,6 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::fillLists()
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
       int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
-      rf_Sorted[f].push_back(*r); if(!rf_map[f]++) rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();
 
@@ -1046,29 +1039,23 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::erase()
 {
   for(int i=0; i!=m_nr;    ++i) {
     int n = r_index[i]; r_map[n] = 0;
-    r_Sorted[n].erase(r_Sorted[n].begin(),r_Sorted[n].end());
-  }
-
-  for(int i=0; i!=m_nrf;   ++i) {
-    int n = rf_index[i]; rf_map[n] = 0;
-    rf_Sorted[n].erase(rf_Sorted[n].begin(),rf_Sorted[n].end());
+    r_Sorted[n].clear();
   }
 
   for(int i=0; i!=m_nrfz;  ++i) {
     int n = rfz_index[i]; rfz_map[n] = 0;
-    rfz_Sorted[n].erase(rfz_Sorted[n].begin(),rfz_Sorted[n].end());
+    rfz_Sorted[n].clear();
   }
 
   for(int i=0; i!=m_nrfzv; ++i) {
     int n = rfzv_index[i]; rfzv_map[n] = 0;
-    rfzv_Sorted[n].erase(rfzv_Sorted[n].begin(),rfzv_Sorted[n].end());
+    rfzv_Sorted[n].clear();
   }
   m_state = 0;
   m_ns    = 0;
   m_nsaz  = 0;
   m_nsazv = 0;
   m_nr    = 0;
-  m_nrf   = 0;
   m_nrfz  = 0;
   m_nrfzv = 0;
 }
@@ -1232,10 +1219,10 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
     m_nOneSeeds = 0;
     m_mapOneSeeds.erase(m_mapOneSeeds.begin(), m_mapOneSeeds.end());
 	
-    float R  = (*r0)->radius(); if(R<m_r2min) continue; if(R>m_r2max) break;
+    float R  = (*r0)->radius(); 
 
     const Trk::SpacePoint* SP0 = (*r0)->spacepoint;
-    bool pix = true; if(SP0->clusterList().second) pix = false; if(!pix) break;
+    if(SP0->clusterList().second) break;
 
     const Trk::Surface* sur0 = (*r0)->sur();
     float               X    = (*r0)->x()  ;
@@ -1250,12 +1237,10 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
       for(r=rb[i]; r!=rbe[i]; ++r) {
 	
 	float Rb =(*r)->radius();  
-	if(Rb<m_r1min) {rb[i]=r; continue;}  if(Rb>m_r1max) break;
-
 	float dR = R-Rb; 
-	if(dR<m_drmin) break;
-
-	if(dR > m_drmax || (*r)->sur()==sur0) continue;
+	if(dR > m_drmax) {rb[i]=r; continue;}
+	if(dR < m_drmin) break;
+	if((*r)->sur()==sur0) continue;
 
 	float Tz = (Z-(*r)->z())/dR; 
 
@@ -1278,9 +1263,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
       for(r=rt[i]; r!=rte[i]; ++r) {
 	
 	float Rt =(*r)->radius();
-	float dR = Rt-R; if(dR<m_drmin || Rt<m_r3min) {rt[i]=r; continue;}
-	if(Rt>m_r3max || dR>m_drmax) break;
-
+	float dR = Rt-R; if(dR<m_drmin) {rt[i]=r; continue;}
+	if(dR>m_drmax) break;
 	if( (*r)->sur()==sur0) continue;
 
 	float Tz = ((*r)->z()-Z)/dR; 
@@ -1289,7 +1273,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
 
 	// Comparison with vertices Z coordinates
 	//
-	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rt,Tz)) continue;
+	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R ,Tz)) continue;
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
     }
@@ -1400,7 +1384,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
     m_nOneSeeds = 0;
     m_mapOneSeeds.erase(m_mapOneSeeds.begin(), m_mapOneSeeds.end());
 	
-    float R  = (*r0)->radius(); if(R<m_r2min) continue; if(R>m_r2max) break;
+    float R  = (*r0)->radius(); 
 
     const Trk::SpacePoint* SP0 = (*r0)->spacepoint;
     bool pix = true; if(SP0->clusterList().second) pix = false;
@@ -1418,12 +1402,12 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
       for(r=rb[i]; r!=rbe[i]; ++r) {
 	
 	float Rb =(*r)->radius();  
-	if(Rb<m_r1min) {rb[i]=r; continue;}  if(Rb>m_r1max) break;
 
 	float dR = R-Rb; 
 	if(dR<m_drmin) break;
+	if(dR > m_drmax) {rb[i]=r; continue;}
 
-	if(dR > m_drmax || (*r)->sur()==sur0              ) continue;
+	if((*r)->sur()==sur0) continue;
 	if(!pix && !(*r)->spacepoint->clusterList().second) continue;
 
 	float Tz = (Z-(*r)->z())/dR; 
@@ -1447,8 +1431,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
       for(r=rt[i]; r!=rte[i]; ++r) {
 	
 	float Rt =(*r)->radius();
-	float dR = Rt-R; if(dR<m_drmin || Rt<m_r3min) {rt[i]=r; continue;}
-	if(Rt>m_r3max || dR>m_drmax) break;
+	float dR = Rt-R; if(dR<m_drmin) {rt[i]=r; continue;}
+	if(dR>m_drmax) break;
 
 	if( (*r)->sur()==sur0) continue;
 
@@ -1458,7 +1442,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpTrigger
 
 	// Comparison with vertices Z coordinates
 	//
-	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rt,Tz)) continue;
+	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R,Tz)) continue;
 	
 	// Polar angle test
 	//
@@ -1582,7 +1566,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
     m_nOneSeeds = 0;
     m_mapOneSeeds.erase(m_mapOneSeeds.begin(), m_mapOneSeeds.end());
 	
-    float R  = (*r0)->radius(); if(R<m_r2min) continue; if(R>m_r2max) break;
+    float R  = (*r0)->radius(); 
 
     const Trk::SpacePoint* SP0 = (*r0)->spacepoint;
 
@@ -1600,12 +1584,11 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
       for(r=rb[i]; r!=rbe[i]; ++r) {
 	
 	float Rb =(*r)->radius();  
-	if(Rb<m_r1min) {rb[i]=r; continue;}  if(Rb>m_r1max) break;
+	float dR = R-Rb;
+ 	if(dR > m_drmax) {rb[i]=r; continue;}
+	if(dR < m_drmin) break;
 
-	float dR = R-Rb; 
-	if(dR<m_drmin) break;
-
-	if(dR > m_drmax || (*r)->sur()==sur0) continue;
+	if((*r)->sur()==sur0) continue;
 
 	if( !pix && !(*r)->spacepoint->clusterList().second) continue;
 	
@@ -1630,8 +1613,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
       for(r=rt[i]; r!=rte[i]; ++r) {
 	
 	float Rt =(*r)->radius();
-	float dR = Rt-R; if(dR<m_drmin || Rt<m_r3min) {rt[i]=r; continue;}
-	if(Rt>m_r3max || dR>m_drmax) break;
+	float dR = Rt-R; if(dR<m_drmin) {rt[i]=r; continue;}
+	if(dR > m_drmax) break;
 
 	if( (*r)->sur()==sur0) continue;
 
@@ -1641,7 +1624,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3SpNoVertex
 
 	// Comparison with vertices Z coordinates
 	//
-	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rt,Tz)) continue;
+	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R,Tz)) continue;
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
     }
