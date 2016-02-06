@@ -204,7 +204,7 @@ def TrigIDtrkMonitoringTool():
 			"HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
 			"HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_FTF",
 			"HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-			"HLT_tau.*idperf.*tracktwp:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
+			"HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
 			"HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3"
 			]
 		ToolSvc += tidatau;
