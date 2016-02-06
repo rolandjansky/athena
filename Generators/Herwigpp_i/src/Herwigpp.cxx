@@ -217,7 +217,7 @@ StatusCode Herwigpp::genInitialize() {
   // MPI parameters
   const string repo_intrkt = ThePEG::Repository::exec("get /Herwig/Shower/Evolver:IntrinsicPtGaussian", std::cout);
   ATH_MSG_INFO("Intrinsic kT: " + repo_intrkt + " GeV/c");
-  const string repo_ptmatch = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/KtCut:MinKT", std::cout);
+  const string repo_ptmatch = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/MPIHandler:pTmin0", std::cout);
   ATH_MSG_INFO("MPI matching pT0: " + repo_ptmatch + " GeV/c");
   const string repo_invrad = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/MPIHandler:InvRadius", std::cout);
   ATH_MSG_INFO("Inverse hadron radius: " + repo_invrad + " GeV**2");

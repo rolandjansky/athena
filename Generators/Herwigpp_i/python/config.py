@@ -15,12 +15,11 @@ set /Herwig/Shower/Evolver:IntrinsicPtGaussian %f*GeV
 
 ## Make PDF object
 def mkpdf_cmds(setname, localname):
-    """Create a named PDF as requested by arg e.g. pass 'MRST07lomod.LHgrid' for LO*,
+    """Create a named PDF as requested by arg e.g. pass 'MMHT2014lo68cl.LHpdf' for MMHT2014 LO,
     'MRSTMCal.LHgrid' to get MRST LO**, 'cteq6ll.LHpdf' to get the MC08 LO PDF, ..."""
     cmds = ""
     cmds += "## Create PDF set\n"
     cmds += "create ThePEG::LHAPDF /Herwig/Partons/%s ThePEGLHAPDF.so\n" % localname
-    cmds += "set /Herwig/Partons/%s:VerboseLevel 1\n" % localname
     cmds += "set /Herwig/Partons/%s:PDFName %s\n" % (localname, setname)
     cmds += "set /Herwig/Partons/%s:RemnantHandler /Herwig/Partons/HadronRemnants\n" % localname
     return cmds
@@ -269,9 +268,6 @@ set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBo
 create ThePEG::FixedCMSLuminosity /Herwig/Generators/FCMSLuminosity
 set /Herwig/EventHandlers/LHEHandler:LuminosityFunction /Herwig/Generators/FCMSLuminosity
 
-## According to H++ authors, without the following line the decay of heavy particles is
-## delayed until after the showering, which usually goes wrong somewhere.
-insert /Herwig/EventHandlers/LHEHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
 # Turn on QED radiation
 insert /Herwig/EventHandlers/LHEHandler:PostSubProcessHandlers[0] /Herwig/QEDRadiation/QEDRadiationHandler
 
@@ -515,9 +511,6 @@ cd /Herwig/EventHandlers
 ########################################################### 
 # A couple of commands from lhef_cmds which may be useful # 
 ########################################################### 
-## According to H++ authors, without the following line the decay of heavy particles is
-## delayed until after the showering, which usually goes wrong somewhere.
-insert /Herwig/EventHandlers/theLesHouchesHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
 #Include spin effects
 set /Herwig/EventHandlers/theLHReader:IncludeSpin Yes
 #Turn on QED radiation
@@ -707,10 +700,6 @@ def powheg_cmds():
 
 ## Set up Powheg truncated shower
 set /Herwig/Shower/Evolver:HardEmissionMode POWHEG
-
-## Use 2-loop alpha_s
-create Herwig::O2AlphaS /Herwig/AlphaQCD_O2
-set /Herwig/Generators/LHCGenerator:StandardModelParameters:QCD/RunningAlphaS /Herwig/AlphaQCD_O2
 
 """
 
