@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////////////////////
-//  Header file for class SiSpacePointsSeedMaker_HeavyIon
+//  Header file for class SiSpacePointsSeedMaker_ITK
 /////////////////////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 /////////////////////////////////////////////////////////////////////////////////
@@ -13,8 +13,8 @@
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SiSpacePointsSeedMaker_HeavyIon_H
-#define SiSpacePointsSeedMaker_HeavyIon_H
+#ifndef SiSpacePointsSeedMaker_ITK_H
+#define SiSpacePointsSeedMaker_ITK_H
 
 #include <list>
 #include "GaudiKernel/ServiceHandle.h"
@@ -26,15 +26,20 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
-#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
+#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
+#include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeedITK.h" 
 
 class MsgStream   ;
 class IBeamCondSvc;
 
+namespace Trk {
+  class IPRD_AssociationTool;
+}
+
 namespace InDet {
 
 
-  class SiSpacePointsSeedMaker_HeavyIon : 
+  class SiSpacePointsSeedMaker_ITK : 
     virtual public ISiSpacePointsSeedMaker, public AthAlgTool
     {
       ///////////////////////////////////////////////////////////////////
@@ -47,9 +52,9 @@ namespace InDet {
       // Standard tool methods
       ///////////////////////////////////////////////////////////////////
 
-      SiSpacePointsSeedMaker_HeavyIon
+      SiSpacePointsSeedMaker_ITK
 	(const std::string&,const std::string&,const IInterface*);
-      virtual ~SiSpacePointsSeedMaker_HeavyIon();
+      virtual ~SiSpacePointsSeedMaker_ITK();
       virtual StatusCode               initialize();
       virtual StatusCode               finalize  ();
 
@@ -62,7 +67,7 @@ namespace InDet {
 	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&);
       void newRegion
 	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&);
-     
+      
       ///////////////////////////////////////////////////////////////////
       // Methods to initilize different strategies of seeds production
       // with two space points with or without vertex constraint
@@ -105,17 +110,20 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Protected data and methods
       ///////////////////////////////////////////////////////////////////
-      
+  
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
       MagField::IMagFieldSvc*                m_fieldService       ;
-
+        
       IBeamCondSvc* p_beam                                        ;
       bool                        m_pixel                         ;
       bool                        m_sct                           ;
       bool                        m_endlist                       ;
       bool                        m_useOverlap                    ;
+      bool                        m_useassoTool                   ;
       bool                        m_trigger                       ;
-      bool                        m_izvertex                      ;
+      bool                        m_checketa                      ;
+      bool                        m_isvertex                      ;
+      bool                        m_dbm                           ;
       int                         m_outputlevel                   ;
       int                         m_nprint                        ;
       int                         m_state                         ;
@@ -123,7 +131,10 @@ namespace InDet {
       int                         m_mode                          ;
       int                         m_nlist                         ;
       int                         m_maxsize                       ;
+      int                         m_iteration                     ;
+      int                         m_iteration0                    ;
       unsigned int                m_maxNumberVertices             ;
+      float                       m_etamin, m_etamax              ;
       float                       m_r1min, m_r1minv               ;
       float                       m_r1max, m_r1maxv               ;
       float                       m_r2min, m_r2minv               ;
@@ -133,12 +144,16 @@ namespace InDet {
       float                       m_drmin, m_drminv               ;
       float                       m_drmax                         ;
       float                       m_rapcut                        ;
+      float                       m_dzdrmin0                      ;
+      float                       m_dzdrmax0                      ;
       float                       m_dzdrmin                       ;
       float                       m_dzdrmax                       ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
       float                       m_zminU                         ;
       float                       m_zmaxU                         ;
+      float                       m_zminB                         ;
+      float                       m_zmaxB                         ;
       float                       m_ftrig                         ;
       float                       m_ftrigW                        ;
       float                       r_rmax                          ;
@@ -148,27 +163,35 @@ namespace InDet {
       float                       m_diver                         ;
       float                       m_diverpps                      ;
       float                       m_diversss                      ;
+      float                       m_divermax                      ;
       float                       m_dazmax                        ;
       float                       m_ptmin                         ;
       float                       m_ipt                           ;
       float                       m_ipt2                          ;
       float                       m_COF                           ;
       float                       m_K                             ;
+      float                       m_ipt2K                         ;
+      float                       m_ipt2C                         ;
+      float                       m_COFK                          ;  
+      float                       m_umax                          ;
       int r_size                                                  ;
+      int r_first                                                 ;
       int rf_size                                                 ;
       int rfz_size                                                ;
-      std::list<InDet::SiSpacePointForSeed*>* r_Sorted            ;
-      std::list<InDet::SiSpacePointForSeed*>  rfz_Sorted [   583] ;
-      std::list<InDet::SiSpacePointForSeed*>  rfzv_Sorted[   300] ;
-      std::list<InDet::SiSpacePointForSeed*>  l_spforseed         ;
-      std::list<InDet::SiSpacePointForSeed*>::iterator i_spforseed; 
-      std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin     ;
+      std::list<InDet::SiSpacePointForSeedITK*>* r_Sorted            ;
+      std::list<InDet::SiSpacePointForSeedITK*>  rf_Sorted  [    53] ; 
+      std::list<InDet::SiSpacePointForSeedITK*>  rfz_Sorted [   583] ;
+      std::list<InDet::SiSpacePointForSeedITK*>  rfzv_Sorted[   300] ;
+      std::list<InDet::SiSpacePointForSeedITK*>  l_spforseed         ;
+      std::list<InDet::SiSpacePointForSeedITK*>::iterator i_spforseed; 
+      std::list<InDet::SiSpacePointForSeedITK*>::iterator m_rMin     ;
 
       int m_ns,m_nsaz,m_nsazv                                     ;
       int m_fNmax,m_fvNmax                                        ;
       int m_fNmin,m_fvNmin                                        ;
       int m_zMin                                                  ;
       int  m_nr     ; int* r_index   ; int* r_map                 ;
+      int  m_nrf    , rf_index   [ 53], rf_map   [ 53]            ;
       int  m_nrfz   , rfz_index  [583], rfz_map  [583]            ;
       int  m_nrfzv  , rfzv_index [300], rfzv_map [300]            ;
       int rfz_b[583],rfz_t[593],rfz_ib[583][9],rfz_it[583][9]     ;
@@ -181,24 +204,33 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
      
       int    m_maxsizeSP                                          ;                    
-      InDet::SiSpacePointForSeed** m_SP                           ;
+      InDet::SiSpacePointForSeedITK** m_SP                        ;
       float               *  m_Zo                                 ; 
       float               *  m_Tz                                 ;
       float               *  m_R                                  ;
       float               *  m_U                                  ;
       float               *  m_V                                  ;
+      float               *  m_X                                  ;
+      float               *  m_Y                                  ;
       float               *  m_Er                                 ;
 
-      std::list<InDet::SiSpacePointsSeed*>           l_seeds      ;
-      std::list<InDet::SiSpacePointsSeed*>::iterator i_seed       ; 
-      std::list<InDet::SiSpacePointsSeed*>::iterator i_seede      ;
+      InDet::SiSpacePointsSeed* m_seedOutput                      ;
 
-      std::multimap<float,InDet::SiSpacePointsSeed*> m_mapOneSeeds;
-      InDet::SiSpacePointsSeed*                      m_OneSeeds   ;
-      int                                            m_maxOneSize ;
-      int                                            m_nOneSeeds  ;
-      std::list<float>                               l_vertex     ;
- 
+      std::list<InDet::SiSpacePointsProSeedITK*>           l_seeds;
+      std::list<InDet::SiSpacePointsProSeedITK*>::iterator i_seed ; 
+      std::list<InDet::SiSpacePointsProSeedITK*>::iterator i_seede ;
+
+      std::multimap<float,InDet::SiSpacePointsProSeedITK*> m_seeds          ;
+      std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator m_seed ;
+
+      std::multimap<float,InDet::SiSpacePointsProSeedITK*> m_mapOneSeeds;
+      InDet::SiSpacePointsProSeedITK*                      m_OneSeeds   ;
+      int                                               m_maxOneSize ;
+      int                                               m_nOneSeeds  ;
+      int                                               m_fillOneSeeds;
+      std::set<float>                                   l_vertex     ;
+      std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>> m_CmSp; 
+
       ///////////////////////////////////////////////////////////////////
       // Beam geometry
       ///////////////////////////////////////////////////////////////////
@@ -219,6 +251,8 @@ namespace InDet {
       const SpacePointContainer*         m_spacepointsPixel       ;
       const SpacePointOverlapCollection* m_spacepointsOverlap     ;
 
+      ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool           ;
+
       ///////////////////////////////////////////////////////////////////
       // Protected methods
       ///////////////////////////////////////////////////////////////////
@@ -229,104 +263,113 @@ namespace InDet {
       void buildFrameWork()                                       ;
       void buildBeamFrameWork()                                   ;
 
-      SiSpacePointForSeed* newSpacePoint
+      SiSpacePointForSeedITK* newSpacePoint
 	(Trk::SpacePoint*const&)                                  ;
       void newSeed
-      (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-       const float&)                                              ; 
-      void newSeed
-      (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-       const Trk::SpacePoint*&,const float&)                      ;
+      (SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float)         ; 
 
       void newOneSeed
-      (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-       const Trk::SpacePoint*&,const float&,const float&)         ;
-      void fillSeeds()                                            ;
+	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,
+	 SiSpacePointForSeedITK*&,float,float)                       ;
 
+      void newOneSeedWithCurvaturesComparison
+	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
+
+      void fillSeeds()                                            ;
       void fillLists     ()                                       ;
       void erase         ()                                       ;
       void production2Sp ()                                       ;
       void production3Sp ()                                       ;
-      void production3Sp
-	(std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
+      void production3SpSSS
+	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 int,int,int&);
+      void production3SpPPP
+	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
       void production3SpTrigger
-	(std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
+	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
-     void production3SpNoVertex
-	(std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 int,int,int&);
-
+ 
       bool newVertices(const std::list<Trk::Vertex>&)             ;
       void findNext()                                             ;
       bool isZCompatible     (float&,float&,float&)               ;
-      float dZVertexMin(float&)                                   ;
       void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
+      bool isUsed(const Trk::SpacePoint*); 
+   
    };
 
-  MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeedMaker_HeavyIon&);
-  std::ostream& operator << (std::ostream&,const SiSpacePointsSeedMaker_HeavyIon&); 
+  MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeedMaker_ITK&);
+  std::ostream& operator << (std::ostream&,const SiSpacePointsSeedMaker_ITK&); 
 
   ///////////////////////////////////////////////////////////////////
   // Inline methods
   ///////////////////////////////////////////////////////////////////
 
-  inline const SiSpacePointsSeed* SiSpacePointsSeedMaker_HeavyIon::next()
+  inline const SiSpacePointsSeed* SiSpacePointsSeedMaker_ITK::next()
     {
-      if(i_seed==i_seede) {findNext(); if(i_seed==i_seede) return 0;} 
-      return(*i_seed++);
+      if(m_nspoint==3) {
+	do {
+	  if(i_seed==i_seede) {findNext(); if(i_seed==i_seede) return 0;} ++i_seed;
+	} 
+	while(!(*m_seed++).second->set3(*m_seedOutput));
+	return(m_seedOutput);	
+      }
+      else             {
+	if(i_seed==i_seede) {findNext(); if(i_seed==i_seede) return 0;} 
+	(*i_seed++)->set2(*m_seedOutput); return(m_seedOutput);
+      }
+      return 0;
     }
+  
 
-  inline bool SiSpacePointsSeedMaker_HeavyIon::isZCompatible  
+  inline bool SiSpacePointsSeedMaker_ITK::isZCompatible  
     (float& Zv,float& R,float& T)
     {
-      if(Zv < m_zmin || Zv > m_zmax) return false;
-      if(!m_izvertex               ) return true ;
+      if(Zv < m_zminU || Zv > m_zmaxU) return false;
+      if(!m_isvertex) return true;
 
-      std::list<float>::iterator v=l_vertex.begin(),ve=l_vertex.end(); 
+      std::set<float>::iterator v=l_vertex.begin(),ve=l_vertex.end(); 
 
-      float dZmin = fabs((*v)-Zv); ++v;
-
-      for(; v!=ve; ++v) {
-	float dZ = fabs((*v)-Zv); if(dZ<dZmin) dZmin=dZ;
+      float dZmin = fabs((*v)-Zv); 
+      for(++v; v!=ve; ++v) {
+	float dZ = fabs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
       }
       return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
-    }
-
-  inline float SiSpacePointsSeedMaker_HeavyIon::dZVertexMin(float& Z)
-    {
-      float dZm = 1.E10;
-      std::list<float>::iterator v=l_vertex.begin(),ve=l_vertex.end();
-
-      for(; v!=ve; ++v) {float dZ = fabs((*v)-Z); if(dZ<dZm) dZm = dZ;}
-      return dZm;
     }
 
   ///////////////////////////////////////////////////////////////////
   // New space point for seeds 
   ///////////////////////////////////////////////////////////////////
 
-  inline SiSpacePointForSeed* SiSpacePointsSeedMaker_HeavyIon::newSpacePoint
+  inline SiSpacePointForSeedITK* SiSpacePointsSeedMaker_ITK::newSpacePoint
     (Trk::SpacePoint*const& sp) 
     {
-      SiSpacePointForSeed* sps;
+      SiSpacePointForSeedITK* sps;
 
-      float r[3]; convertToBeamFrameWork(sp,r);
+      float r[15]; convertToBeamFrameWork(sp,r);
+
+      if(m_checketa) {
+
+	float z = (fabs(r[2])+m_zmax);
+	float x = r[0]*m_dzdrmin     ;
+	float y = r[1]*m_dzdrmin     ;
+	if((z*z )<(x*x+y*y)) return 0;
+      }
 
       if(i_spforseed!=l_spforseed.end()) {
 	sps = (*i_spforseed++); sps->set(sp,r); 
       }
       else                               {
-	l_spforseed.push_back((sps=new SiSpacePointForSeed(sp,r)));
+	l_spforseed.push_back((sps=new SiSpacePointForSeedITK(sp,r)));
 	i_spforseed = l_spforseed.end();	
       }
       
@@ -337,69 +380,36 @@ namespace InDet {
   // New 2 space points seeds 
   ///////////////////////////////////////////////////////////////////
 
-  inline void SiSpacePointsSeedMaker_HeavyIon::newSeed
-      (const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
-       const float& z) 
+  inline void SiSpacePointsSeedMaker_ITK::newSeed
+    (SiSpacePointForSeedITK*& p1,SiSpacePointForSeedITK*& p2, float z) 
     {
+      SiSpacePointForSeedITK* p3 = 0;
+
       if(i_seede!=l_seeds.end()) {
-	SiSpacePointsSeed* s = (*i_seede++);
-	s->erase     (  ); 
-	s->add       (p1); 
-	s->add       (p2); 
-	s->setZVertex(double(z));
+	SiSpacePointsProSeedITK* s = (*i_seede++);
+	s->set(p1,p2,p3,z);
       }
       else                  {
-	l_seeds.push_back(new SiSpacePointsSeed(p1,p2,z));
+	l_seeds.push_back(new SiSpacePointsProSeedITK(p1,p2,p3,z));
 	i_seede = l_seeds.end(); 
-      }
-    }
-
-  ///////////////////////////////////////////////////////////////////
-  // New 3 space points seeds 
-  ///////////////////////////////////////////////////////////////////
-
-  inline void SiSpacePointsSeedMaker_HeavyIon::newSeed
-      (const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
-       const Trk::SpacePoint*& p3,const float& z) 
-    {
-      if(i_seede!=l_seeds.end()) {
-	SiSpacePointsSeed* s = (*i_seede++);
-	s->erase     (  ); 
-	s->add       (p1); 
-	s->add       (p2); 
-	s->add       (p3); 
-	s->setZVertex(double(z));
-      }
-      else                  {
-	l_seeds.push_back(new SiSpacePointsSeed(p1,p2,p3,z));
-	i_seede = l_seeds.end(); 
-      }
-    }
-  
-  ///////////////////////////////////////////////////////////////////
-  // Fill seeds
-  ///////////////////////////////////////////////////////////////////
-
-  inline void SiSpacePointsSeedMaker_HeavyIon::fillSeeds ()
-    {
-      std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
-	l  = m_mapOneSeeds.begin(),
-	le = m_mapOneSeeds.end  ();
-
-      for(; l!=le; ++l) {
-
-	if(i_seede!=l_seeds.end()) {
-	  SiSpacePointsSeed* s = (*i_seede++);
-	  *s = *(*l).second;
-	}
-	else                  {
-	  l_seeds.push_back(new SiSpacePointsSeed(*(*l).second));
-	  i_seede = l_seeds.end(); 
-	}
       }
     }
   
 } // end of name space
 
-#endif // SiSpacePointsSeedMaker_HeavyIon_H
+///////////////////////////////////////////////////////////////////
+// Object-function for curvature seeds comparison
+///////////////////////////////////////////////////////////////////
+
+class comCurvatureITK  {
+public:
+  bool operator ()
+  (const std::pair<float,InDet::SiSpacePointForSeedITK*>& i1, 
+   const std::pair<float,InDet::SiSpacePointForSeedITK*>& i2)
+  {
+    return i1.first < i2.first;
+  }
+};
+
+#endif // SiSpacePointsSeedMaker_ITK_H
 
