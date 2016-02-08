@@ -64,7 +64,7 @@ class ArgumentParser:
                            "release":    ("rel(ease)",   "release", self.InterpretString, self.ShowWithArg, 
                                           'rel(ease)     [format: "release 15.1.*" ',""),
                            "projectTag": ("ptag",        "projecttag",self.InterpretString, self.ShowVariable, 
-                                          'ptag          [format: "ptag data08_cos,data08_cosmag,data09_cos", "ptag data08_cos*,data09_cos" (note: the projectTag in dataset name / denoted "filenamtTag" in COOL)]',"data08*,data09*,data10*,data11*,data12*,data13*,data14*,data15*,data16*"),
+                                          'ptag          [format: "ptag data08_cos,data08_cosmag,data09_cos", "ptag data08_cos*,data09_cos" (note: the projectTag in dataset name / denoted "filenamtTag" in COOL)]',"data0*,data1*"),
                            "partition":  ("p(artition)", "partition", self.InterpretString, self.ShowVariable, 
                                           'p(artition)   [format: "partition ATLAS"]', "ATLAS"),
                            "readyforphysics":  ("ready(forphysics)", "readyforphysics", self.InterpretString, self.ShowVariable, 
@@ -140,175 +140,12 @@ class ArgumentParser:
         #               or 'data10_7TeV.periodA-periodC' or 'data10_7TeV.periodA,data10_7TeV.periodB,...'
         # This is case sensitive !!
         """
+        arg = arg.split(None,1)[1] # remove keyword 'run'
 
-        pat_last   = re.compile("(?:l|la|las|last) (\d*)$")  # l(ast) NN runs
-        pat_number = re.compile("\d{5,8}[+-]?$")  # run number (5-8 digits), possibly followed by a + or -
-        pat_range  = re.compile("\d{5,8}-\d{5,8}$")  # range of run numbers (each 5-8 digits)
-        pat_short  = re.compile("(?:(?:\d{2})(\d{2})\.)?([a-zA-Z]+\d*)$")
-        pat_data   = re.compile("data(?P<year>\d{2})_.*\.period(?P<period>[a-zA-Z]+\d*)$") # form: data10_7TeV.periodA
+        from .AtlRunQueryInterpretDataPeriods import GetRuns
 
-        pshort     = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I)
-
-        pallyear   = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(periodAllYear)?$",re.I)
-
-
-        available_periods = []
-
-        def getCurrentYear():
-            from time import gmtime
-            return gmtime().tm_year - 2000
-
-        def printPeriods(periods):
-            print '\nAvailable periods:\n'
-            for i,x in enumerate(periods):
-                print x[1],"\t",
-                if (i+1)%4==0: print ""
-            sys.exit(0)
-
-        def getListOfPeriodsFromOrdinateRange(begin,end):
-            if begin>end: sys.exit(0)
-            list_of_periods = []
-            for p,p_name in sorted(available_periods):
-                if p[2]==0: continue # no special VdM or AllYear stuff
-                if p[2]%100==0: continue # no full periods
-                include = (p[2]>=begin and p[2]<=end)
-                if include: list_of_periods += [(p[0],p[1],p_name)]  # 
-                #print p,("--> include" if include else "")
-            return list_of_periods
-
-
-        def getDataPeriodsWithinRange( period_range ):
+        list_of_runs = GetRuns(arg)
                 
-            m1 = pshort.match(period_range[0])
-            m2 = pshort.match(period_range[1])
-
-            if m1==None or m2==None:
-                if m1==None: print "Invalid specification of begin of range",period_range[0]
-                if m2==None: print "Invalid specification of end of range",  period_range[1]
-                sys.exit(0)
-
-            m1 = m1.groupdict()
-            m2 = m2.groupdict()
-
-            # year
-            m1['year'] = int(m1['year']) if m1['year'] else getCurrentYear()
-            m2['year'] = int(m2['year']) if m2['year'] else m1['year']
-            # sub-period
-            m1['subperiod'] = int(m1['subperiod']) if m1['subperiod'] else 0
-            m2['subperiod'] = int(m2['subperiod']) if m2['subperiod'] else 99
-
-            print "Interpret run range: %r - %r" % (m1,m2)
-
-            # ordinate
-            p1c = 10000*m1['year'] + 100*(ord(m1['period'].upper())-65) + m1['subperiod']
-            p2c = 10000*m2['year'] + 100*(ord(m2['period'].upper())-65) + m2['subperiod']
-
-            return getListOfPeriodsFromOrdinateRange(p1c,p2c)
-
-
-        def getRunsFromPeriods(list_of_periods):
-            """list_of_periods:   periods for which run nr are returned, e.g [('10','B1'),('11','A'),...]"""
-            runlist = []
-            from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
-            for year, period, fname in list_of_periods:
-                runlist += ARQ_COMA.get_runs(period, 2000+int(year))
-                    
-            return runlist
-
-        arg = arg.split(None,1)[1]
-
-        # final result in here
-        list_of_runs = []
-                
-        # are their any commas?        
-        for tag in arg.split(','):
-
-            # last X runs pattern
-            m = pat_last.match(arg)
-            if m:
-                list_of_runs += [ "last%s" % m.group(1) ]
-                continue
-            
-            # run numbers
-            if pat_number.match(tag):
-                list_of_runs += [tag]
-                continue
-
-            # run number range
-            if pat_range.match(tag):
-                list_of_runs += [tag]
-                continue
-
-            from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
-            available_periods = ARQ_COMA.get_all_periods()
-
-            print "Available ", available_periods
-
-            if '-' in tag:
-                list_of_periods = getDataPeriodsWithinRange( tag.split('-') )
-                list_of_runs += getRunsFromPeriods(list_of_periods)
-                continue
-
-            #data12_8TeV.periodAllYear
-
-
-            m = pallyear.match(tag) # (?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(periodAllYear)?$
-            if m:
-                m = m.groupdict()
-                # year
-                year = int(m['year']) if m['year'] else getCurrentYear()
-
-                print "Interpret period: AllYear for %i" % (2000+year)
-
-                # ordinate
-                p1c = 10000*year
-                p2c = 10000*(year+1) - 1
-
-                list_of_periods = getListOfPeriodsFromOrdinateRange(p1c,p2c)
-
-                print list_of_periods
-
-                list_of_runs += getRunsFromPeriods(list_of_periods)
-                continue
-
-
-
-            
-            m = pshort.match(tag) # pshort : "(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I
-            if m:
-                m = m.groupdict()
-                # year
-                m['year'] = int(m['year']) if m['year'] else getCurrentYear()
-
-                #for x in available_periods:
-                #    print x
-
-                m['subperiod'] = int(m['subperiod']) if m['subperiod'] else 0
-
-                print "Interpret period: %r" % m
-
-                # ordinate
-                p1c = 10000*m['year'] + 100*(ord(m['period'].upper())-65) + m['subperiod']
-                if m['subperiod'] != 0:
-                    p2c = p1c
-                else:    
-                    p2c = p1c+99
-
-                list_of_periods = getListOfPeriodsFromOrdinateRange(p1c,p2c)
-
-
-                #if 'ALL' in period: period = 'AllYear'
-                list_of_runs += getRunsFromPeriods(list_of_periods)
-                continue
-
-            # backward compatible form: data10_7TeV.periodA
-            #m=pat_data.match(tag)
-            #if m:
-            #    year, period = m.groups()
-            #    list_of_runs += getRunsFromPeriods([(year,period,tag)])
-            #    continue
-
-
         if len(list_of_runs)==0:
             print "No runs matching pattern"
             sys.exit(0)
@@ -756,7 +593,7 @@ class ArgumentParser:
         tmpArgList = [arg.startswith('dqsum') or arg.startswith('dqpl') for arg in arglist]
         if any(tmpArgList):
             idx = tmpArgList.index(True)
-            arglist[idx+1:idx+1] = [ 'ready','lumi', 'lhc stablebeams', 'dq', 'ptag', 'trigrates L1_EM30', 'trigrates L1_EM5']
+            arglist[idx+1:idx+1] = [ 'ready','lumi', 'lhc stablebeams', 'dq', 'ptag', 'trigrates L1_EM30', 'trigrates L1_EM5', 'trigrates L1_EM12']
 
         # interpret argument list
         newarg = ""

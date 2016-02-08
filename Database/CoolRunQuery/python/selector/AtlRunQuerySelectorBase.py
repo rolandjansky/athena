@@ -497,7 +497,6 @@ class TimeBasedCondition(Condition):
             # now we have the first and last iov that overlap with that run: startiovindex, endiovindex
             lbindex = 0
             for iov,pl in iovpllist[startiovindex:endiovindex+1]:
-                print "A 1",iov,pl
                 iovstart = iov.startTime.time
                 iovend   = iov.endTime.time
                 endrun   = run.runNr
@@ -517,8 +516,6 @@ class TimeBasedCondition(Condition):
                 else:
                     endlb = lbindex+2 # +1 for lb-index->lb-number, +1 for closed interval
 
-                print "A 2",startlb,endlb
-
 
                 # append info of this IOV
                 lastIOV,lastpl=None,None
@@ -528,7 +525,6 @@ class TimeBasedCondition(Condition):
                     lastIOV.endTime.run = endrun
                     lastIOV.endTime.lb = endlb
                 else:
-                    print "A 3a",(IOVRange(runStart=run.runNr, lbStart=startlb, runEnd=endrun, lbEnd=endlb), pl) 
                     pld[run.runNr] += [(IOVRange(runStart=run.runNr, lbStart=startlb, runEnd=endrun, lbEnd=endlb), pl)] # in this case the end LB is inclusive
 
 

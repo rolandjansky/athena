@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 from CoolRunQuery.utils.AtlRunQueryIOV   import IOVTime, IOVRange
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, runsOnServer, GetRanges, SmartRangeCalulator
@@ -121,6 +120,9 @@ class OLCFillParamsCondition(TimeBasedCondition):
         return False
     
     def runAfterQuery(self,runlist):
+
+        import cPickle
+
         for k in self.ResultKey():
             with timer("olc afterquery blocks prepare for: %s" % k):
                 for run in runlist:
@@ -137,9 +139,12 @@ class OLCFillParamsCondition(TimeBasedCondition):
                             blocks += [ [v, entry.startlb, entry.endlb] ]
                     run.stats[k] = { "blocks" : blocks, "first" : run.data[k][0].value }
 
-
+        #f = open("olc.pickle", "w")
+        #cPickle.dump([run.data,run.stats],f)
+        #f.close()
+        
         with timer("olc afterquery rest"):
-            from CoolRunQuery.utils.AtlRunQueryUtils import UnpackBCID
+            from CoolRunQuery.utils.AtlRunQueryUtils import unpackRun1BCIDMask, unpackRun2BCIDMask
             for run in runlist:
 
                 if run.runNr < 151260: continue # OLC information was not in COOL before this run
@@ -148,11 +153,14 @@ class OLCFillParamsCondition(TimeBasedCondition):
                 xb1 = run.stats['olc:beam1bunches']['blocks']
                 xb2 = run.stats['olc:beam2bunches']['blocks']
                 xbc = run.stats['olc:collbunches']['blocks']
+                #print "JOERG XB1 ",xb1
+                #print "JOERG XB2 ",xb2
+                #print "JOERG XBC ",xbc
                 
                 # loop over BCID mask
                 bcidmask = run.stats['olc:bcidmask']['blocks']
                 for i in xrange(len(bcidmask)):
-                    (v,lbstart,lbend) = bcidmask[i]
+                    (bcidblob,lbstart,lbend) = bcidmask[i]
                     
                     # number of bunches
                     for nb1, b, e in xb1:
@@ -162,12 +170,20 @@ class OLCFillParamsCondition(TimeBasedCondition):
                     for nbc, b, e in xbc:
                         if lbstart>=b and lbstart<e: break
 
-                    # unpack BCID mask
-                    if len(v) == 2 * (nb1 + nb2 + nbc):
-                        beam1, beam2, beam12 = UnpackBCID( v, nb1, nb2, nbc )
+
+                    bcidBlobLength = len(bcidblob)
+                    if bcidBlobLength == 3564:
+                        # run 2
+                        beam1, beam2, beam12 = unpackRun2BCIDMask(bcidblob)
+                        #print "BC beam 1: %i, beam 2: %i, coll: %i" % (len(beam1), len(beam2), len(beam12))
                     else:
-                        print "WARNING, bcidMask inconsistent",nb1, nb2, nbc,"should add up to half of",len(v)
-                        beam1, beam2, beam12 = ([],[],[])
+                        # unpack BCID mask
+                        if len(bcidblob) == 2 * (nb1 + nb2 + nbc):
+                            beam1, beam2, beam12 = unpackRun1BCIDMask( bcidblob, nb1, nb2, nbc )
+                            #print "BC beam 1: %i, beam 2: %i, coll: %i" % (len(beam1), len(beam2), len(beam12))
+                        else:
+                            print "WARNING, bcidMask inconsistent",nb1, nb2, nbc,"should add up to half of",len(bcidblob)
+                            beam1, beam2, beam12 = ([],[],[])
 
                     # refill run stats
                     bcidmask[i] = ((nb1, nb2, nbc), (beam1, beam2, beam12), lbstart, lbend)
@@ -212,7 +228,7 @@ class OLCLBDataCondition(TimeBasedCondition):
 # moved from LUMINOSITY timestamp-based to LB-based folder
 #... class OLCLumiCondition(TimeBasedCondition):
 class OLCLumiCondition(RunLBBasedCondition):
-    def __init__(self, name, condition=[], channel=0):        
+    def __init__(self, name, condition=[], channel=0):
 
         self.condition = condition
         name, sep, channel = name.partition(' ')
@@ -237,7 +253,6 @@ class OLCLumiCondition(RunLBBasedCondition):
                     f = factoub[iu]
                     c = c.replace(u,'')
                     break
-            
             try:
                 if '+' in c:
                     c = c.replace('+','').strip()
@@ -252,7 +267,7 @@ class OLCLumiCondition(RunLBBasedCondition):
         self.complumi *= f # in ub-1
 
         super(OLCLumiCondition,self).__init__(name=name,
-                                              dbfolderkey='COOLONL_TRIGGER::/TRIGGER/LUMI/LBLESTONL',
+                                              dbfolderkey=( 'COOLONL_TRIGGER::/TRIGGER/LUMI/OnlPrefLumi' if self.isRun2() else 'COOLONL_TRIGGER::/TRIGGER/LUMI/LBLESTONL'),
                                               channelKeys = [(channel,'olc:lumi:%i' % (channel), 'LBAvInstLumi')])
         # -----------------------------------------------------------------------------------------------------------
         # old, timestamp based folder
@@ -366,12 +381,15 @@ class LuminositySelector(RunLBBasedCondition):
                                                 channelKeys = self._channelKeys)
 
         if lumi:
-            self.cutRange = GetRanges(lumi)        
+            self.cutRange = GetRanges(lumi)
             self.applySelection = True
 
     def addShowTag(self, tag):
         channel, condtag = self.__interpretTag(tag)
-        self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL'
+        if self.isRun2():
+            self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/OflPrefLumi'
+        else:
+            self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL'
         if condtag: self._dbfolderkey += "#" + condtag
         self._channelKeys = [(channel,'ofllumi:%i:%s' % (channel,condtag), 'LBAvInstLumi')]
 
@@ -380,11 +398,37 @@ class LuminositySelector(RunLBBasedCondition):
         self.setSchemaFolderTag(self._dbfolderkey)
         self.setChannelKeys(self._channelKeys)
 
+
     def __interpretTag(self, tag):
         # default settings
         channel = 0  # 'ATLAS_PREFERRED' algorithm
-#        condtag = "OflLumi-8TeV-002" # uses vdM scan calibration
-        condtag = "OflLumi-UPD2-004" # temporary
+        if self.isRun2():
+            import sys
+            from PyCool import cool
+            sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
+            try:
+                from AtlCoolBKLib import resolveAlias
+
+                cur = resolveAlias.getCurrent()
+                # cur = resolveAlias.getNext()
+                dbSvc = cool.DatabaseSvcFactory.databaseService()
+                
+                db = dbSvc.openDatabase('oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TRIGGER;dbname=CONDBR2',False)
+                
+                fld = db.getFolder('/TRIGGER/OFLLUMI/OflPrefLumi')
+                
+                updLumiTag = fld.resolveTag(cur.replace('*','ST'))
+            
+                condtag = updLumiTag
+            except ImportError, ex:
+                print "WARNING: ImportError, can not read conditions tag (likely an afs permission issue): ",ex
+                condtag = "OflPrefLumi-RUN2-UPD4-04"
+
+            print condtag
+
+        else:
+            condtag = "OflLumi-UPD2-006"
+            
         l = tag.split()
         if len(l) == 1:
             # format: "luminosity <channel_number>" OR "luminosity <COOL tag>"
@@ -396,8 +440,6 @@ class LuminositySelector(RunLBBasedCondition):
             except ValueError: channel = 0
             condtag = l[1]
         return channel, condtag
-
-
 
             
     def __str__(self):

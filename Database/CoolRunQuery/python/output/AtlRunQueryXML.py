@@ -73,6 +73,9 @@ def CreateRunStreamAndNeventsList( runlist ):
 
 
 def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, svnversion='Unknown'  ):
+    """
+    """
+
 
     with timer('create RunStreamAndNeventsList'):
 
@@ -227,6 +230,14 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
                 strsummdelm.appendChild(strelm)    
 
 
+    with timer('Save GRL'):
+
+        filename = '%s/%s' % (datapath, xmlfname)
+        #print "Writing",filename
+        xmlfile = open( filename, mode="w" )         
+        xmlfile.write( doc.toprettyxml('   ') )
+        xmlfile.close()
+
     with timer('Create HTML'):
 
         ####################################
@@ -234,12 +245,6 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
         ## create HTML
 
         ####################################    
-
-        filename = '%s/%s' % (datapath, xmlfname)
-        #print "Writing",filename
-        xmlfile = open( filename, mode="w" )         
-        xmlfile.write( doc.toprettyxml('   ') )
-        xmlfile.close()
 
         # provide also pretty html text output
         htmltext = ''
@@ -288,6 +293,12 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
             if nevts[0] > 0: eff = nevts[1]/float(nevts[0])*100.0
             htmltext += '<tr><td style=&quot;text-align:left&quot;><i>%s</i></td><td style=&quot;text-align:right&quot;>%s</td><td style=&quot;text-align:right&quot;>%s</td><td style=&quot;text-align:right&quot;>%.4g</td></tr>\n' % (stream, prettyNumber(nevts[0]),prettyNumber(nevts[1]),eff)
         htmltext += '</table>\n'
+
+    #print """========================================================
+    #%r
+    #===========================================================
+    #""" % htmltext
+
 
     # provide also text output
     return htmltext

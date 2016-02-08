@@ -675,19 +675,21 @@ class Run:
         # AMI
         s += '    <a href="https://ami.in2p3.fr/AMI/servlet/net.hep.atlas.Database.Bookkeeping.AMI.Servlet.Command?Converter=/AMIXmlToAMIProdHtml.xsl&Command=FormBrowseDatasetPerRun+-runNumber=%i" target="_blank" title="AMI reference for run %i"><font size="-3">AMI</font></a>,&nbsp;\n' % (self.runNr, self.runNr)
         # DQ
-        s += '    <a href="http://atlasdqm.web.cern.ch/atlasdqm/DQBrowser/makeMatrix.php?selection=All&run=%g&runup=&dbinstance=COMP200_SHIFTOFL&tag=HEAD" target="_blank" title="Browse detailed data quality entries for run %i (uses SHIFTOFL folder in COMP200 conditions database)"><font size="-3">DQ</font></a>,<br>\n' % (self.runNr, self.runNr)
+        s += '    <a href="https://atlasdqm.web.cern.ch/atlasdqm/DQBrowser/makeMatrix.php?selection=All&run=%i&runup=&dbinstance=COMP200_SHIFTOFL&tag=HEAD" target="_blank" title="Browse detailed data quality entries for run %i (uses SHIFTOFL folder in COMP200 conditions database)"><font size="-3">DQ</font></a>,<br>\n' % (self.runNr, self.runNr)
         # ELOG
         s += '    <a href="https://atlasop.cern.ch/elog/ATLAS/ATLAS/?mode=full&reverse=0&reverse=1&npp=20&ma=1&ya=2008&last=3064&subtext=%i&sall=0" target="_blank" title="Search for ELOG entries on run %i"><font size="-3">ELOG</font></a>,&nbsp;\n' % (self.runNr, self.runNr)
-        # DCS reference, format: http://atlas-dcs.cern.ch/navigation.php?date2=2009-07-26-10-12
+        # DCS reference, format: http://atlas-dcs.cern.ch/navigation.php?datestring=2009-07-26-10-12
         tbeg = time.strftime("%Y-%m-%d-%H-%M-%S", time.gmtime(self.sor/1.E9))
         t    = time.gmtime(self.eor/1.E9)
         tend = "%4i-%02i-%02i-%02i-%02i" % (t[0], t[1], t[2], t[3], t[4])
         s += '    <a href="http://atlas-dcs.cern.ch/navigation.php?date2=%s" target="_blank" title="DCS status at begin of run %i"><font size="-3">DCS:SoR</font></a>/' % (tbeg, self.runNr)
         s += '<a href="http://atlas-dcs.cern.ch/navigation.php?date2=%s" target="_blank" title="DCS status at end of run %i"><font size="-3">EoR</font></a>,&nbsp;\n  ' % (tend, self.runNr)
+        #s += '    <a href="https://atlas-dcs.cern.ch/navigation.php?date2=2008-09-29-19-01-42">DCS:SoR</font></a>/' % (tbeg, self.runNr)
+        #s += '<a href="https://atlas-dcs.cern.ch/navigation.php?date2=2008-09-30-08-17"><font size="-3">EoR</font></a>,&nbsp;\n  ' % (tend, self.runNr)
         # OKS
         # protect against missing OKS information
         if self.data['oks']:
-            s += '    <a href="http://cern.ch/atlas-project-tdaq-cc/cgi/getdata.sh?tdaq-03-00-01&oracle://atlas_oks/r&atlas_oks_archive&%i&%i&ATLAS" target="_blank" title="Download online configuration for run %i (slow download!)"><font size="-3">OKS</font></a>\n' % ( self.data['oks'][0].value + (self.runNr,) )
+             s += '    <a href="http://cern.ch/atlas-project-tdaq-cc/cgi/getdata.sh?tdaq-05-05-00&oracle://atlas_oks/r&atlas_oks_archive&%i&%i&ATLAS" target="_blank" title="Download online configuration for run %i"><font size="-3">OKS</font></a>\n' % ( self.data['oks'][0].value + (self.runNr,) )
         # lumi summary
         # typical address: https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/RunSummary/run142308_summary.html
         # OLD: fname = 'https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/RunSummary/run%i_summary.html' % (self.runNr)

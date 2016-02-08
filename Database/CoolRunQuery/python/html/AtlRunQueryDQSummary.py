@@ -57,6 +57,7 @@ def ComputeRunLumi(dic,run,lumiperlb):
         total += lumiperlb[l]
     return total
 
+
 def GetLBLumi(dic,run):
     global lumifolder
     global usenb
@@ -67,8 +68,10 @@ def GetLBLumi(dic,run):
         if not 'ofllumi' in k.ResultKey: continue
         lumifolder = k.ResultKey
     if lumifolder == '': return lumiperlb
+
     lbdic = dic[DataKey(lumifolder)][run]
     lbtime = dic[DataKey('#LB')][run][1]
+
     for i,item in enumerate(lbdic):
         for lb in range(int(item.startlb),int(item.endlb)):
             lumiperlb[lb] = 0.
@@ -88,11 +91,11 @@ def GetLBLiveFraction(dic,run):
         #trigrate = dic[DataKey('TriggerRates')][run][0].value['L1_EM5']
         trigrate = dic[DataKey('TriggerRates')][run][0].value[livetrigger]
         for item in trigrate:
-           #print '-----',run,item
-           livefraction[item[0]]= 0.
-           if float(item[1]) != 0: livefraction[item[0]] = float(item[3])/float(item[1])
+            (lb, tbp, tap, tav) = map(int, item)
+            livefraction[lb]= 0.
+            if tbp != 0: livefraction[lb] = float(tav)/tap
     except:
-        print "%s trigger not found - no live fraction computation"%livetrigger
+        print "%s trigger not found - no live fraction computation" % livetrigger
     return livefraction
 
 def GetLBReady(dic,run):
@@ -134,7 +137,6 @@ def MakePlot_SummaryLumiLoss(loss,colors,dicsum,name):
 
     # if no entry, print no plot
     if max == 0. : return
-    #print "DEBUG", max
 
     ## create frame
     t1 = "       Runs [%i-%i]"%(runs[0],runs[-1])
@@ -453,7 +455,7 @@ class DQSummary:
     @classmethod
     def makeHTML(cls, dic, dicsum, doPickle=True, doDQSummary=True, doDQPlots=True):
         """ method returns a string (unicode is fine) of html code, with out tag <div>...</div> """
-        
+
         #####################################################################
         # Jessica, your main code goes here                                 #
         # (note that all methods in the class are 'static' -> @classmethod  #
@@ -472,6 +474,10 @@ class DQSummary:
                 if 'data13' in ptag:
                     usenb = True
                     livetrigger = 'L1_EM5'
+                elif 'data15' in ptag or 'data16' in ptag or 'data17' in ptag or 'data18' in ptag:
+                    usenb = False
+                    livetrigger = 'L1_EM12'
+                    
             global unit
             unit = 'pb'
             if usenb: unit ='nb'
@@ -526,346 +532,355 @@ class DQSummary:
             columns = ['Run Info','ES1','BLK']
             global_systems = ['Calo','Tracking','Muon','Trigger & Lumi']
             columns += global_systems 
-            
-        ### create big results table ###
-        summarytable = '<div><table id="resulttable" class="resulttable" style="margin-left: 13px; margin-right: 13px;" >'
-        ### create first title row ###
-        summarytable += '<tr>'
-        summarytable += '<th colspan="1"></th>' # run info column
 
-        #summarytable += '<th colspan="2">Tier0 Reco Status</th>'
-        summarytable += '<th colspan="2">Missing Sign-Off</th>'
-            
-        summarytable += '<th colspan="%i">Defects in ATLAS Ready<br>'%len(global_systems)
-        summarytable += '<div style="font-size: xx-small; cursor: pointer;" onclick="toggle_dq(this)">[show tolerable]</div></th>'
-        summarytable += '</tr>'
-        
-        ### create subtitle row ###
-        summarytable += '<tr>'
-        #for item in columns: summarytable += '<th>%s</th>'%item.split(":")[0]
-        for item in columns: summarytable += '<th>%s</th>'%item
-        summarytable += '</tr>'
-        
-        ### loop over runs ###
-        for r,run in enumerate(dic[DataKey('Run')]):
 
-            ## Get list of ATLAS Ready LBs
-            global readylb
-            readylb = GetLBReady(dic,r)
+        with timer('Create summary results table'):
+            ### create big results table ###
+            summarytable = '<div><table id="resulttable" class="resulttable" style="margin-left: 13px; margin-right: 13px;" >'
+            ### create first title row ###
+            summarytable += '<tr>'
+            summarytable += '<th colspan="1"></th>' # run info column
 
-            ## If no ATLAS ready LB: skip the run
-            if len(readylb) == 0:
-                warning += '<center><font color="red">WARNING! Run %s has 0 ATLAS Ready LB</font></center><br>'%run
-                continue
+            #summarytable += '<th colspan="2">Tier0 Reco Status</th>'
+            summarytable += '<th colspan="2">Missing Sign-Off</th>'
 
-            ## Get lumi per LB and live fraction for the current run
-            lumiperlb = GetLBLumi(dic,r)
-            livefrac = GetLBLiveFraction(dic,r)
+            summarytable += '<th colspan="%i">Defects in ATLAS Ready<br>'%len(global_systems)
+            summarytable += '<div style="font-size: xx-small; cursor: pointer;" onclick="toggle_dq(this)">[show tolerable]</div></th>'
+            summarytable += '</tr>'
 
-            if len(lumiperlb) == 0:
-                warning += '<center><font color="red">WARNING! Run %s has no offline lumi info</font></center><br>'%run
-                continue
+            ### create subtitle row ###
+            summarytable += '<tr>'
+            #for item in columns: summarytable += '<th>%s</th>'%item.split(":")[0]
+            for item in columns: summarytable += '<th>%s</th>'%item
+            summarytable += '</tr>'
 
-            ## Correct lumi per LB with live fraction
-            #print 'DEBUG',run,len(lumiperlb),len(livefrac),len(readylb)
-            for l in lumiperlb:
-                # IF statement used when len(lumiperlb)!= len(livefrac)
-                if l not in readylb: continue
-                if l not in livefrac:
-                    print "--> Warning: live fraction not available for LB %i. Setting live fraction to 1."%l
-                else:
-                    lumiperlb[l]*=livefrac[l]
-                         
-            ## Initialize columns content for current run            
-            content = {}
-            for i,item in enumerate(columns):content[item]=''
-            
-            ## Retrieve and store run info
-            dp = '?'; ptag = dic[DataKey('Project tag')][r][0].value
-            year = '20'+ptag.split('_')[0][4:]
-            DP = ARQ_COMA.get_periods_for_run(run)
-            if len(DP)>0: dp=DP[0]
-            content['Run Info'] = '<b>%s</b>&nbsp;<font style="font-size:10px;">data period <b>%s</b></font><br>'%(str(run),dp)
+            totalNumberOfReadyLB = 0
 
-            ### In case some systems should be removed
-            tobeignored = ['ALFA','ZDC','LCD']
-            if 'data13' in ptag: tobeignored = []
+            ### loop over runs ###
+            for r,run in enumerate(dic[DataKey('Run')]):
 
-            ## useful links
-            target='target="blank"'
-            somelinks = '<font style="font-size:10px;color:#0000FF">'
-            somelinks += '<a href="https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/runBrowserReport.php?runs=%s&pn=%s&fnt=%s" %s>COMA</a>'%(run,dp,ptag,target)
-            somelinks += ', <a href="https://atlasdqm.web.cern.ch/atlasdqm/DQBrowser/makeMatrix.php?selection=All&run=%s&runup=&dbinstance=CONDBR2_DCS&tag=DEFAULT" %s>DCS</a>'%(run,target)
-            somelinks += ', <a href="https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/%s/run.py?run=%s" %s>DS</a>'%(year,run,target)
-            somelinks += ', <a href="https://atlasdqm.cern.ch/defectentry/?run=%s" %s>defects</a>'%(run,target)
-            somelinks += '<br><a href="https://atlasdqm.cern.ch/dqsignoff/%s/" %s>DQlogbook</a>'%(run,target)
-            somelinks += ', <a href="https://atlasdqm.cern.ch/webdisplay/tier0?lowrun=%s&highrun=%s&show_all=on" %s>DQWebDisplay</a>'%(run,run,target)
-            somelinks += '</font><br>'
+                ## Get list of ATLAS Ready LBs
+                global readylb
+                readylb = GetLBReady(dic,r)
+                totalNumberOfReadyLB += len(readylb)
 
-            content['Run Info'] += somelinks
-            
-            ## Start and End time
-            rundate = dic[DataKey('Start and endtime')][r].split(",")
-            tstart = time.strftime("%a, %d %b %Y %H:%M:%S",time.localtime(float(rundate[0])))
-            tend = time.strftime("%a, %d %b %Y %H:%M:%S",time.localtime(float(rundate[1])))
-            content['Run Info'] += '<font style="font-size:10px;">'
-            content['Run Info'] += '<br>Start:&nbsp;<font style="color:#4C7D7E;">%s</font>'%tstart
-            content['Run Info'] += '<br>End:&nbsp;<font style="color:#4C7D7E;">%s</font>'%tend
-            content['Run Info'] += '</font>'
-
-            #nevents = str(dic[DataKey('#Events')][r][0].value)
-            #content['Run Info'] += 'Recorded events: '+nevents+'<br>'
-            #content['Run Info'] += 'Number of LBs : '+dic[DataKey('#LB')][r][0]+'<br>'
-            #content['Run Info'] += 'LHC Fill : %s<br>'%(dic[DataKey('lhc:fillnumber')][r][0].value)+'<br>'
-
-            ## Add stable Beam / ATLAS Ready info in lhctable
-            lhctable = '<br><font style="font-size:10px;">'
-            lhctable += '<table><tr><td>'
-            lhctable += '<b>Stable&nbsp;Beam</b><br>%s'%'<br>'.join([ '%s-%s:&nbsp<font style="color:#4C7D7E">%s</font>'%(b.startlb,b.endlb,b.value) for b in dic[DataKey('lhc:stablebeams')][r]])
-            lhctable += '</td><td>'
-            lhctable += '<b>ATLAS&nbsp;Ready</b><br>%s'% '<br>'.join([ '%s-%s:&nbsp<font style="color:#4C7D7E">%s</font>'%(b.startlb,b.endlb,b.value) for b in dic[DataKey('Ready for physics')][r]])
-            lhctable += '</td></tr></table>'
-            lhctable += '</font>'
-            content['Run Info'] += lhctable
-
-            ## Add Total Lumi
-            lumitot = ComputeRunLumi(dic,r,lumiperlb)
-            dicsum[DataKey('TotalLumi')][0]+= lumitot
-            content['Run Info'] += '<font style="font-size:10px;">'
-            content['Run Info'] += 'Ready Recorded: <b>%.2f</b> %s<sup>-1</sup>'%(lumitot,unit)
-            content['Run Info'] += '</font><br>'
-                    
-            ## Retrieve DQ defects
-            defects = dic[DataKey('DQ')][r]
-            ## Select only primary flags
-            defects_primary = [d for d in defects if d.value.primary]  
-
-            ## Initialize list of affected LBs per detector/cp
-            ## Initialize lumi losses due to intolerable defects
-            for d in detectors:
-                detectors_lumiloss[d][run]= 0.
-                detectors_affectedLBs[d][run]=[]
-            for p in performances:
-                performances_lumiloss[p][run]=0.
-                performances_affectedLBs[p][run]=[]
-                
-            # Total per run
-            detectors_lumiloss['_TOTAL'][run]= 0.
-            detectors_affectedLBs['_TOTAL'][run]=[]
-            performances_lumiloss['_TOTAL'][run]= 0.
-            performances_affectedLBs['_TOTAL'][run]=[]
-            
-            # And the big sums
-            total_affectedLBs = []
-            GlobalNotReady = []; GlobalBusy = [];
-            
-            ## Store list of defects and affected LBs to print systems table
-            ListOfIntolerableDefects = {}; ListOfTolerableDefects = {};
-             
-            ## Loop over defects
-            for item in defects_primary:
-                defect = item.value.defect
-                comment = item.value.comment
-                user = item.value.user
-                startlb = item.startlb
-                endlb = item.endlb
-                tolerable = item.value.tolerable
-                system = MapToSystem(defect)
-
-                if 'GLOBAL_NOTREADY' in defect:
-                    GlobalNotReady += [ lb for lb in range(startlb,endlb)]
-                                    
-                if 'GLOBAL_BUSY' in defect:
-                    GlobalBusy += [ lb for lb in range(startlb,endlb) if lb in readylb]
-                                    
-                ## Missing Sign-Offs ##
-
-                ## FINAL sign-off
-                if 'UNCHECKED_FINAL' in defect: continue
-                
-                ## BULK sign-off
-                if 'BULK_UNCHECKED' in defect:
-                    short = defect.split('_UNCHECKED')[0]
-                    content['BLK']+='<font style="font-size:8px;font-weight:bold;">%s</font><br>'%short
-                    continue
-                ## ES sign-off
-                if 'UNCHECKED' in defect:
-                    short = defect.split('_UNCHECKED')[0]
-                    content['ES1']+='<font style="font-size:8px;font-weight:bold;">%s</font><br>'%short
+                ## If no ATLAS ready LB: skip the run
+                if len(readylb) == 0:
+                    warning += '<center><font color="red">WARNING! Run %s has 0 ATLAS Ready LB</font></center><br>'%run
                     continue
 
-                ## Some cross-checks 
-                if system =='':
-                    print 'run %s: this defect is fishy %s '%(run,defect)
-                    continue
-                    
-                ## Some cross-checks 
-                word = defect.split('_'); cpdet = word[0]
-                if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
-                if not cpdet in detectors and not cpdet in performances:
-                    print 'This system is not included: %s (%s)'%(cpdet,defect)
+                ## Get lumi per LB and live fraction for the current run
+                lumiperlb = GetLBLumi(dic,r)
+                livefrac = GetLBLiveFraction(dic,r)
+
+                if len(lumiperlb) == 0:
+                    warning += '<center><font color="red">WARNING! Run %s has no offline lumi info</font></center><br>'%run
                     continue
 
-               ## Store intolerable defects if in ATLAS Ready LBs only
-                if not tolerable:
-                    RangeDefect = [ lb for lb in range(startlb,endlb) if lb in readylb ]
-                    if len(RangeDefect)>0:
-                        if not defect in ListOfIntolerableDefects:
-                            ListOfIntolerableDefects[defect]= [[],'']
-                            ListOfIntolerableDefects[defect][0] = RangeDefect
-                            ListOfIntolerableDefects[defect][1] = user+':'+comment
-                        else:
-                            ListOfIntolerableDefects[defect][0]+= RangeDefect
-                            if comment not in ListOfIntolerableDefects[defect][1]:
-                                ListOfIntolerableDefects[defect][1]+= ' '+user+':'+comment
-                        # This is used to compute lumilosses
-                        # Here, we do not include systems "to be ignored"
+                ## Correct lumi per LB with live fraction
+                #print 'DEBUG',run,len(lumiperlb),len(livefrac),len(readylb)
+                for l in lumiperlb:
+                    # IF statement used when len(lumiperlb)!= len(livefrac)
+                    if l not in readylb: continue
+                    if l not in livefrac:
+                        print "--> Warning: live fraction not available for LB %i. Setting live fraction to 1."%l
+                    else:
+                        lumiperlb[l]*=livefrac[l]
+
+
+                ## Initialize columns content for current run            
+                content = {}
+                for i,item in enumerate(columns):content[item]=''
+
+                ## Retrieve and store run info
+                dp = '?'; ptag = dic[DataKey('Project tag')][r][0].value
+                year = '20'+ptag.split('_')[0][4:]
+                DP = ARQ_COMA.get_periods_for_run(run)
+                if len(DP)>0: dp=DP[0]
+                content['Run Info'] = '<b>%s</b>&nbsp;<font style="font-size:10px;">data period <b>%s</b></font><br>'%(str(run),dp)
+
+                ### In case some systems should be removed
+                tobeignored = ['ALFA','ZDC','LCD']
+                import re
+                if re.match('data1[3-9]', ptag[0:6]): tobeignored = []
+
+                ## useful links
+                target='target="blank"'
+                somelinks = '<font style="font-size:10px;color:#0000FF">'
+                somelinks += '<a href="https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/runBrowserReport.php?runs=%s&pn=%s&fnt=%s" %s>COMA</a>'%(run,dp,ptag,target)
+                somelinks += ', <a href="https://atlasdqm.web.cern.ch/atlasdqm/DQBrowser/makeMatrix.php?selection=All&run=%s&runup=&dbinstance=CONDBR2_DCS&tag=DEFAULT" %s>DCS</a>'%(run,target)
+                somelinks += ', <a href="https://atlas.web.cern.ch/Atlas/GROUPS/DATAPREPARATION/DataSummary/%s/run.py?run=%s" %s>DS</a>'%(year,run,target)
+                somelinks += ', <a href="https://atlasdqm.cern.ch/defectentry/?run=%s" %s>defects</a>'%(run,target)
+                somelinks += '<br><a href="https://atlasdqm.cern.ch/dqsignoff/%s/" %s>DQlogbook</a>'%(run,target)
+                somelinks += ', <a href="https://atlasdqm.cern.ch/webdisplay/tier0?lowrun=%s&highrun=%s&show_all=on" %s>DQWebDisplay</a>'%(run,run,target)
+                somelinks += '</font><br>'
+
+                content['Run Info'] += somelinks
+
+                ## Start and End time
+                rundate = dic[DataKey('Start and endtime')][r].split(",")
+                tstart = time.strftime("%a, %d %b %Y %H:%M:%S",time.localtime(float(rundate[0])))
+                tend = time.strftime("%a, %d %b %Y %H:%M:%S",time.localtime(float(rundate[1])))
+                content['Run Info'] += '<font style="font-size:10px;">'
+                content['Run Info'] += '<br>Start:&nbsp;<font style="color:#4C7D7E;">%s</font>'%tstart
+                content['Run Info'] += '<br>End:&nbsp;<font style="color:#4C7D7E;">%s</font>'%tend
+                content['Run Info'] += '</font>'
+
+                #nevents = str(dic[DataKey('#Events')][r][0].value)
+                #content['Run Info'] += 'Recorded events: '+nevents+'<br>'
+                #content['Run Info'] += 'Number of LBs : '+dic[DataKey('#LB')][r][0]+'<br>'
+                #content['Run Info'] += 'LHC Fill : %s<br>'%(dic[DataKey('lhc:fillnumber')][r][0].value)+'<br>'
+
+                ## Add stable Beam / ATLAS Ready info in lhctable
+                lhctable = '<br><font style="font-size:10px;">'
+                lhctable += '<table><tr><td>'
+                lhctable += '<b>Stable&nbsp;Beam</b><br>%s'%'<br>'.join([ '%s-%s:&nbsp<font style="color:#4C7D7E">%s</font>'%(b.startlb,b.endlb,b.value) for b in dic[DataKey('lhc:stablebeams')][r]])
+                lhctable += '</td><td>'
+                lhctable += '<b>ATLAS&nbsp;Ready</b><br>%s'% '<br>'.join([ '%s-%s:&nbsp<font style="color:#4C7D7E">%s</font>'%(b.startlb,b.endlb,b.value) for b in dic[DataKey('Ready for physics')][r]])
+                lhctable += '</td></tr></table>'
+                lhctable += '</font>'
+                content['Run Info'] += lhctable
+
+                ## Add Total Lumi
+                lumitot = ComputeRunLumi(dic,r,lumiperlb)
+
+                dicsum[DataKey('TotalLumi')][0]+= lumitot
+                content['Run Info'] += '<font style="font-size:10px;">'
+                content['Run Info'] += 'Ready Recorded: <b>%.2f</b> %s<sup>-1</sup>'%(lumitot,unit)
+                content['Run Info'] += '</font><br>'
+
+                ## Retrieve DQ defects
+                defects = dic[DataKey('DQ')][r]
+                ## Select only primary flags
+                defects_primary = [d for d in defects if d.value.primary]  
+
+                ## Initialize list of affected LBs per detector/cp
+                ## Initialize lumi losses due to intolerable defects
+                for d in detectors:
+                    detectors_lumiloss[d][run]= 0.
+                    detectors_affectedLBs[d][run]=[]
+                for p in performances:
+                    performances_lumiloss[p][run]=0.
+                    performances_affectedLBs[p][run]=[]
+
+                # Total per run
+                detectors_lumiloss['_TOTAL'][run]= 0.
+                detectors_affectedLBs['_TOTAL'][run]=[]
+                performances_lumiloss['_TOTAL'][run]= 0.
+                performances_affectedLBs['_TOTAL'][run]=[]
+
+                # And the big sums
+                total_affectedLBs = []
+                GlobalNotReady = []; GlobalBusy = [];
+
+                ## Store list of defects and affected LBs to print systems table
+                ListOfIntolerableDefects = {}; ListOfTolerableDefects = {};
+
+                ## Loop over defects
+                for item in defects_primary:
+                    defect = item.value.defect
+                    comment = item.value.comment
+                    user = item.value.user
+                    startlb = item.startlb
+                    endlb = item.endlb
+                    tolerable = item.value.tolerable
+                    system = MapToSystem(defect)
+
+                    if 'GLOBAL_NOTREADY' in defect:
+                        GlobalNotReady += [ lb for lb in range(startlb,endlb)]
+
+                    if 'GLOBAL_BUSY' in defect:
+                        GlobalBusy += [ lb for lb in range(startlb,endlb) if lb in readylb]
+
+                    ## Missing Sign-Offs ##
+
+                    ## FINAL sign-off
+                    if 'UNCHECKED_FINAL' in defect: continue
+
+                    ## BULK sign-off
+                    if 'BULK_UNCHECKED' in defect:
+                        short = defect.split('_UNCHECKED')[0]
+                        content['BLK']+='<font style="font-size:8px;font-weight:bold;">%s</font><br>'%short
+                        continue
+                    ## ES sign-off
+                    if 'UNCHECKED' in defect:
+                        short = defect.split('_UNCHECKED')[0]
+                        content['ES1']+='<font style="font-size:8px;font-weight:bold;">%s</font><br>'%short
+                        continue
+
+                    ## Some cross-checks 
+                    if system =='':
+                        print 'run %s: this defect is fishy %s '%(run,defect)
+                        continue
+
+                    ## Some cross-checks 
+                    word = defect.split('_'); cpdet = word[0]
+                    if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
+                    if not cpdet in detectors and not cpdet in performances:
+                        print 'This system is not included: %s (%s)'%(cpdet,defect)
+                        continue
+
+                    ## Store intolerable defects if in ATLAS Ready LBs only
+                    if not tolerable:
+                        RangeDefect = [ lb for lb in range(startlb,endlb) if lb in readylb ]
+                        if len(RangeDefect)>0:
+                            if not defect in ListOfIntolerableDefects:
+                                ListOfIntolerableDefects[defect]= [[],'']
+                                ListOfIntolerableDefects[defect][0] = RangeDefect
+                                ListOfIntolerableDefects[defect][1] = user+':'+comment
+                            else:
+                                ListOfIntolerableDefects[defect][0]+= RangeDefect
+                                if comment not in ListOfIntolerableDefects[defect][1]:
+                                    ListOfIntolerableDefects[defect][1]+= ' '+user+':'+comment
+                            # This is used to compute lumilosses
+                            # Here, we do not include systems "to be ignored"
+                            if cpdet in tobeignored: continue
+                            # Store list of affected LBs per detector/cp group
+                            # we can have a double counting of LBs if defects overlap - fixed later
+                            if cpdet in detectors: detectors_affectedLBs[cpdet][run]+=RangeDefect
+                            if cpdet in performances: performances_affectedLBs[cpdet][run]+=RangeDefect
+                            total_affectedLBs += RangeDefect
+
+                    ## Store tolerable defects
+                    else:
+                        RangeDefect = [ lb for lb in range(startlb,endlb) if lb in readylb]
+                        if len(RangeDefect)>0:
+                            if not defect in ListOfTolerableDefects:
+                                ListOfTolerableDefects[defect]= [[],'']
+                                ListOfTolerableDefects[defect][0]= RangeDefect
+                                ListOfTolerableDefects[defect][1]= '[%s]:%s '%(user,comment)
+                            else:
+                                ListOfTolerableDefects[defect][0]+= RangeDefect
+                                if comment not in ListOfTolerableDefects[defect][1]:
+                                    ListOfTolerableDefects[defect][1] += '[%s]:%s '%(user,comment)
+                ## end of defects loop ##
+
+                ## Create defects table for each system
+                for item in global_systems:
+                    content[item]='<table class="dqdefects">'
+
+                for item in ListOfIntolerableDefects:
+                    system = MapToSystem(item)
+                    if not system in global_systems: continue
+                    lbs = listify(ListOfIntolerableDefects[item][0])
+                    tip = ListOfIntolerableDefects[item][1]
+                    tipkey = "dqcomment_int_%s_%s"%(item,run)
+                    Run.addGlobalToolTip(tipkey,tip)
+                    content[system]+='<tr class="showTip %s" >'%(tipkey)
+                    content[system]+='<td class="intolerable">%s</td>'%(item)
+                    content[system]+='<td class="lb">%s</td>'%(lbs)
+                    content[system]+='</tr>'
+
+                for item in ListOfTolerableDefects:
+                    system =  MapToSystem(item)
+                    if not system in global_systems: continue
+                    lbs = listify(ListOfTolerableDefects[item][0])
+                    tip = ListOfTolerableDefects[item][1]
+                    tipkey = "dqcomment_tol_%s_%s"%(item,run)
+                    Run.addGlobalToolTip(tipkey,tip)
+                    content[system]+='<tr class="showTip %s tolerable" style="visibility:collapse;">'%(tipkey)
+                    content[system]+='<td>%s</td>'%(item)
+                    content[system]+='<td class="lb">%s</td>'%(lbs)
+                    content[system]+='</tr>'
+
+                ## close systems defects tables
+                for item in global_systems:
+                    content[item]+='</table><br>'
+
+                ## Add defects plots in each system column
+                thumbsize = 70
+                imgsize = 600
+                for sys in global_systems:
+                    tol = {}; int = {};
+                    for defect in ListOfTolerableDefects:
+                        # remove systems to be ignored from the plots
+                        word = defect.split('_'); cpdet = word[0]
+                        if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
                         if cpdet in tobeignored: continue
-                        # Store list of affected LBs per detector/cp group
-                        # we can have a double counting of LBs if defects overlap - fixed later
-                        if cpdet in detectors: detectors_affectedLBs[cpdet][run]+=RangeDefect
-                        if cpdet in performances: performances_affectedLBs[cpdet][run]+=RangeDefect
-                        total_affectedLBs += RangeDefect
+                        if sys==MapToSystem(defect): tol[defect]=ListOfTolerableDefects[defect][0]
+                    for defect in ListOfIntolerableDefects:
+                        # remove systems to be ignored from the plots
+                        word = defect.split('_'); cpdet = word[0]
+                        if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
+                        if cpdet in tobeignored: continue
+                        if sys==MapToSystem(defect): int[defect]=ListOfIntolerableDefects[defect][0]
 
-                ## Store tolerable defects
-                else:
-                    RangeDefect = [ lb for lb in range(startlb,endlb) if lb in readylb]
-                    if len(RangeDefect)>0:
-                        if not defect in ListOfTolerableDefects:
-                            ListOfTolerableDefects[defect]= [[],'']
-                            ListOfTolerableDefects[defect][0]= RangeDefect
-                            ListOfTolerableDefects[defect][1]= '[%s]:%s '%(user,comment)
-                        else:
-                            ListOfTolerableDefects[defect][0]+= RangeDefect
-                            if comment not in ListOfTolerableDefects[defect][1]:
-                                ListOfTolerableDefects[defect][1] += '[%s]:%s '%(user,comment)
-            ## end of defects loop ##
-            
-            ## Create defects table for each system
-            for item in global_systems:
-                content[item]='<table class="dqdefects">'
+                    hname = MakePlot_DefectsPerSystem(sys,int,tol,dic,r)
+                    for h in hname:
+                        if len(h)== 0 : continue
+                        title = "Click to zoom"
+                        wincontent = "<img src=&quot;%s&quot; height=%s/>"%(h,imgsize)
+                        openwin = "javascript:openLargeWindow('Print1','"
+                        openwin += "<!DOCTYPE html PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;>"
+                        openwin += "<html xmlns:&quot;my&quot;><head><title>Defects for run %s</title></head>"%run
+                        openwin += "<body style=&quot;background-color:#ffffff&quot;>%s</body></html>"%wincontent
+                        openwin += "')"
+                        content[sys]+='<a title="%s" href="%s" ><img src="%s" height=%s/></a>'%(title,openwin,h,thumbsize)
 
-            for item in ListOfIntolerableDefects:
-                system = MapToSystem(item)
-                if not system in global_systems: continue
-                lbs = listify(ListOfIntolerableDefects[item][0])
-                tip = ListOfIntolerableDefects[item][1]
-                tipkey = "dqcomment_int_%s_%s"%(item,run)
-                Run.addGlobalToolTip(tipkey,tip)
-                content[system]+='<tr class="showTip %s" >'%(tipkey)
-                content[system]+='<td class="intolerable">%s</td>'%(item)
-                content[system]+='<td class="lb">%s</td>'%(lbs)
-                content[system]+='</tr>'
+                ## Compute Global not ready ##
+                l = 0.;
+                for lb in GlobalNotReady: l += lumiperlb[lb]
+                dicsum[DataKey('TotalNotReady')] += l
+                content['Run Info'] += '<font style="font-size:10px;">'
+                content['Run Info'] += 'Global Not Ready: <b>%.2f</b> %s<sup>-1</sup>'%(l,unit)
+                content['Run Info'] += '</font><br>'
 
-            for item in ListOfTolerableDefects:
-                system =  MapToSystem(item)
-                if not system in global_systems: continue
-                lbs = listify(ListOfTolerableDefects[item][0])
-                tip = ListOfTolerableDefects[item][1]
-                tipkey = "dqcomment_tol_%s_%s"%(item,run)
-                Run.addGlobalToolTip(tipkey,tip)
-                content[system]+='<tr class="showTip %s tolerable" style="visibility:collapse;">'%(tipkey)
-                content[system]+='<td>%s</td>'%(item)
-                content[system]+='<td class="lb">%s</td>'%(lbs)
-                content[system]+='</tr>'
+                ## Compute Global Busy ##
+                l = 0.;
+                for lb in GlobalBusy: l += lumiperlb[lb]
+                dicsum[DataKey('TotalBusy')]+= l
+                content['Run Info'] += '<font style="font-size:10px;">'
+                content['Run Info'] += 'Global Busy: <b>%.2f</b> %s<sup>-1</sup>'%(l,unit)
+                content['Run Info'] += '</font><br>'
 
-            ## close systems defects tables
-            for item in global_systems:
-                content[item]+='</table><br>'
+                ## Compute cp/det lumilosses for current run
+                for d in detectors:
+                    if len(detectors_affectedLBs[d][run]) == 0: continue
+                    # Remove double counting (defects overlap)
+                    dll = list(set(detectors_affectedLBs[d][run]))
+                    detectors_affectedLBs['_TOTAL'][run]+= dll
+                    for lb in dll:
+                        detectors_lumiloss[d][run]+= lumiperlb[lb]
+                for p in performances:
+                    if len(performances_affectedLBs[p][run]) == 0: continue
+                    # Remove double counting (defects overlap)
+                    pll = list(set(performances_affectedLBs[p][run]))
+                    performances_affectedLBs['_TOTAL'][run]+= pll
+                    for lb in pll:
+                        performances_lumiloss[p][run]+= lumiperlb[lb]
 
-            ## Add defects plots in each system column
-            thumbsize = 70
-            imgsize = 600
-            for sys in global_systems:
-                tol = {}; int = {};
-                for defect in ListOfTolerableDefects:
-                    # remove systems to be ignored from the plots
-                    word = defect.split('_'); cpdet = word[0]
-                    if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
-                    if cpdet in tobeignored: continue
-                    if sys==MapToSystem(defect): tol[defect]=ListOfTolerableDefects[defect][0]
-                for defect in ListOfIntolerableDefects:
-                    # remove systems to be ignored from the plots
-                    word = defect.split('_'); cpdet = word[0]
-                    if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
-                    if cpdet in tobeignored: continue
-                    if sys==MapToSystem(defect): int[defect]=ListOfIntolerableDefects[defect][0]
+                ## Compute total Lumiloss for this run
+                ## Remove double counting (defects overlap)
+                detectors_affectedLBs['_TOTAL'][run]=list(set(detectors_affectedLBs['_TOTAL'][run]))
+                performances_affectedLBs['_TOTAL'][run]=list(set(performances_affectedLBs['_TOTAL'][run]))
+                total_affectedLBs = list(set(total_affectedLBs))
+                totallossperrun = 0. 
+                # Store the values
+                for lb in total_affectedLBs:
+                    totallossperrun += lumiperlb[lb]    
+                dicsum[DataKey('TotalLumi')][1] +=  totallossperrun
+                # Store the values
+                for lb in  detectors_affectedLBs['_TOTAL'][run]:
+                    detectors_lumiloss['_TOTAL'][run] +=  lumiperlb[lb]
+                # Store the values
+                for lb in  performances_affectedLBs['_TOTAL'][run]:
+                    performances_lumiloss['_TOTAL'][run] += lumiperlb[lb]
 
-                hname = MakePlot_DefectsPerSystem(sys,int,tol,dic,r)
-                for h in hname:
-                    if len(h)== 0 : continue
-                    title = "Click to zoom"
-                    wincontent = "<img src=&quot;%s&quot; height=%s/>"%(h,imgsize)
-                    openwin = "javascript:openLargeWindow('Print1','"
-                    openwin += "<!DOCTYPE html PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot;>"
-                    openwin += "<html xmlns:&quot;my&quot;><head><title>Defects for run %s</title></head>"%run
-                    openwin += "<body style=&quot;background-color:#ffffff&quot;>%s</body></html>"%wincontent
-                    openwin += "')"
-                    content[sys]+='<a title="%s" href="%s" ><img src="%s" height=%s/></a>'%(title,openwin,h,thumbsize)
+                ## Add Total LumiLoss in run info column
+                content['Run Info'] += '<font style="font-size:10px;">'
+                content['Run Info'] += 'DQ Lumi Loss: <b>%.2f</b> %s<sup>-1</sup>'%(totallossperrun,unit) 
+                content['Run Info'] += '</font><br>'
 
-            ## Compute Global not ready ##
-            l = 0.;
-            for lb in GlobalNotReady: l += lumiperlb[lb]
-            dicsum[DataKey('TotalNotReady')]+= l
-            content['Run Info'] += '<font style="font-size:10px;">'
-            content['Run Info'] += 'Global Not Ready: <b>%.2f</b> %s<sup>-1</sup>'%(l,unit)
-            content['Run Info'] += '</font><br>'
-            
-            ## Compute Global Busy ##
-            l = 0.;
-            for lb in GlobalBusy: l += lumiperlb[lb]
-            dicsum[DataKey('TotalBusy')]+= l
-            content['Run Info'] += '<font style="font-size:10px;">'
-            content['Run Info'] += 'Global Busy: <b>%.2f</b> %s<sup>-1</sup>'%(l,unit)
-            content['Run Info'] += '</font><br>'
-            
-            ## Compute cp/det lumilosses for current run
-            for d in detectors:
-                if len(detectors_affectedLBs[d][run]) == 0: continue
-                # Remove double counting (defects overlap)
-                dll = list(set(detectors_affectedLBs[d][run]))
-                detectors_affectedLBs['_TOTAL'][run]+= dll
-                for lb in dll:
-                    detectors_lumiloss[d][run]+= lumiperlb[lb]
-            for p in performances:
-                if len(performances_affectedLBs[p][run]) == 0: continue
-                # Remove double counting (defects overlap)
-                pll = list(set(performances_affectedLBs[p][run]))
-                performances_affectedLBs['_TOTAL'][run]+= pll
-                for lb in pll:
-                    performances_lumiloss[p][run]+= lumiperlb[lb]
+                ### Print run row ###
+                summarytable+='<tr class="out2">'
+                for item in columns: summarytable+='<td>%s</td>'%content[item]
+                summarytable+='</tr>'
 
-            ## Compute total Lumiloss for this run
-            ## Remove double counting (defects overlap)
-            detectors_affectedLBs['_TOTAL'][run]=list(set(detectors_affectedLBs['_TOTAL'][run]))
-            performances_affectedLBs['_TOTAL'][run]=list(set(performances_affectedLBs['_TOTAL'][run]))
-            total_affectedLBs = list(set(total_affectedLBs))
-            totallossperrun = 0. 
-            # Store the values
-            for lb in total_affectedLBs:
-                totallossperrun += lumiperlb[lb]    
-            dicsum[DataKey('TotalLumi')][1] +=  totallossperrun
-            # Store the values
-            for lb in  detectors_affectedLBs['_TOTAL'][run]:
-                detectors_lumiloss['_TOTAL'][run] +=  lumiperlb[lb]
-            # Store the values
-            for lb in  performances_affectedLBs['_TOTAL'][run]:
-                performances_lumiloss['_TOTAL'][run] += lumiperlb[lb]
+            ### end of run loop ###
+            summarytable += '</table></div><br>'            
+            ### end of results table ###
 
-            ## Add Total LumiLoss in run info column
-            content['Run Info'] += '<font style="font-size:10px;">'
-            content['Run Info'] += 'DQ Lumi Loss: <b>%.2f</b> %s<sup>-1</sup>'%(totallossperrun,unit) 
-            content['Run Info'] += '</font><br>'
 
-            ### Print run row ###
-            summarytable+='<tr class="out2">'
-            for item in columns: summarytable+='<td>%s</td>'%content[item]
-            summarytable+='</tr>'
-        
-        ### end of run loop ###
-        ### end of results table ###
-        summarytable += '</table></div><br>'            
-            
         ##########################
         ## Create Summary Plots ##
         ##########################
@@ -913,22 +928,32 @@ class DQSummary:
         ###########################
         ## Print Summary numbers ##
         ###########################
-        
+
+        totalLumiRecorded = dicsum[DataKey('TotalLumi')][0]
+        totalLumiLoss = dicsum[DataKey('TotalLumi')][1]
+        lumiLossFraction = (100. * totalLumiLoss / totalLumiRecorded) if totalLumiRecorded > 0 else 0
+
+
         print '+++++++++++++++++++++++++ Summary +++++++++++++++++++'
-        print '  Total Ready Recorded Luminosity: %.2f %s-1'%(dicsum[DataKey('TotalLumi')][0],unit)
-        print '  Total Luminosity Loss (ATLAS Ready) : %.2f %s-1'%(dicsum[DataKey('TotalLumi')][1],unit)
+        print '  Total Ready Recorded Luminosity: %.2f %s-1' % ( totalLumiRecorded, unit )
+        print '  Total Luminosity Loss (ATLAS Ready) : %.2f %s-1' % ( totalLumiLoss, unit )
         print '  Total Global Not Ready (Stable Beams): %.2f %s-1'%(dicsum[DataKey('TotalNotReady')],unit)
         print '  Total Global Busy (Stable Beams): %.2f %s-1'%(dicsum[DataKey('TotalBusy')],unit)
         print '+++++++++++++++++++++++++++++++++++++++++++++++++++++'
 
         global lumifolder
-        
-        summaryinfo = '<table align="center" style="font-size:80%;"><tr>'
-        summaryinfo +='<td> Total Luminosity Loss: <b>%.2f %s<sup>-1</sup></b> (%.2f%%)'%(dicsum[DataKey('TotalLumi')][1],unit,float(dicsum[DataKey('TotalLumi')][1])*100/float(dicsum[DataKey('TotalLumi')][0]))
-        summaryinfo +='<br>Excluded Systems: %s</td></tr>'%tobeignored
-        summaryinfo +='<tr><td style="font-size:70%%">using %s // %s</td></tr>'%(lumifolder.split(':')[2],livetrigger)
-        summaryinfo +='</table>'
-        
+
+        if totalNumberOfReadyLB>0:
+            summaryinfo =  '<table align="center" style="font-size:80%;"><tr>'
+            summaryinfo += '<td> Total Luminosity Loss: <b>%.2f %s<sup>-1</sup></b> (%.2f%%)' % ( totalLumiLoss, unit, lumiLossFraction )
+            summaryinfo += '<br>Excluded Systems: %s</td></tr>' % tobeignored
+            summaryinfo += '<tr><td style="font-size:70%%">using %s // %s</td></tr>'%(lumifolder.split(':')[2],livetrigger)
+            summaryinfo += '</table>'
+        else:
+            summaryinfo =  '<table align="center" style="font-size:80%;"><tr>'
+            summaryinfo += '<td> No ready lumi block </td>'
+            summaryinfo += '</tr></table>'
+
         #############################
         ## return web page content ##
         #############################
