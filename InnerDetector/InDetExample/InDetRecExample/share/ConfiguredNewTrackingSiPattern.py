@@ -61,6 +61,8 @@ class  ConfiguredNewTrackingSiPattern:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_LowMomentum as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
+         elif NewTrackingCuts.mode() == "SLHC":
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          else:
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
 
@@ -257,6 +259,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useNewStrategy = False,
                                                                     useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                                     useZBoundFinding = False)
+          if InDetFlags.doHeavyIon() :
+           InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
          
          else:
           InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
@@ -268,6 +272,9 @@ class  ConfiguredNewTrackingSiPattern:
                                                                     useNewStrategy = InDetFlags.useNewSiSPSeededTF() and NewTrackingCuts.mode() != "DBM",
                                                                     useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
                                                                     useZBoundFinding = NewTrackingCuts.doZBoundary() and NewTrackingCuts.mode() != "DBM")   
+
+          if InDetFlags.doHeavyIon() :
+           InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
