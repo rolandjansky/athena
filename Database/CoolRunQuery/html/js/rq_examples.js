@@ -32,37 +32,45 @@ function insertExamplesRunEvt() {
 <div class="Pad">\
   <table class="exampletable">\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;find run 90270-90350 and events 100000+ / show run and events&quot;);return false">find run 90270-90350 and events 100000+ / show run and events</td>\
-        <td class="cmt"><font color="red">Select</font> runs in given <font color="red">run number range</font> and min. <font color="red">number of events</font>, <br/> and <font color="red">show</font> runs and number of events for selected runs.</td>\
-      </tr>\
-      <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 and ev 100k+ / sh r and ev&quot;);return false">f r 90270-90350 and ev 100k+ / sh r and ev</td>\
-        <td class="cmt">Allowed <font color="red">abbreviations</font> &minus; same query as above; <br/> note that the <i>show</i> part could be dropped since same as default.</td>\
-      </tr>\
-      <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270+ and ev 100k- &quot;);return false">f r 90270+ and ev 100k- </td>\
-        <td class="cmt">Select all runs with run number >= 90270 and &lt; 100k events.</td>\
-      </tr>\
-      <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270,90275,90380+ and ev 100k-200k&quot;);return false">f r 90270,90275,90380 and ev 100k-200k</td>\
-        <td class="cmt">Select any of the given run numbers if number of events in given range.</td>\
-      </tr>\
-      <tr>\
         <td class="pgm" onClick="addColumn(&quot;f r last 10 / show all / nodef &quot;);return false">f r last 10 / show all / nodef </td>\
         <td class="cmt">Select <font color="red">last 10 runs</font>; same in short: <font color="red">f r l 10 / sh all / nodef</font>.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r data10_7TeV.periodC / sh ready&quot;);return false">f r data10_7TeV.periodC / sh ready </td>\
-        <td class="cmt">Select runs belonging to a given <font color="red">run period</font><br>(giving only "periodC" would use "data11_7TeV" as default)</td>\
+        <td class="pgm" onClick="addColumn(&quot;find run 267073-267385 and ready / show all&quot;);return false">find run 267073-267385 and ready / show all</td>\
+        <td class="cmt"><font color="red">Select</font> runs in given <font color="red">run number range</font> and ATLAS ready for data taking / show most relevant information for selected runs.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 2010.C / sh ready&quot;);return false">f r 2010.C / sh ready </td>\
-        <td class="cmt">Select runs belonging to a given <font color="red">run period</font><br>(giving only "C" would use "2011" as default)</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 and ready / sh r and ev&quot;);return false">f r 267073-267385 and ready / sh all</td>\
+        <td class="cmt">Allowed <font color="red">abbreviations</font> &minus; same query as above.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r periodA-periodC,periodD / sh ready&quot;);return false">f r periodA-periodC,periodD / sh ready </td>\
-        <td class="cmt">Select runs belonging to the given <font color="red">range of run periods</font> (only main letters a considered, so periodA-periodD, means use periods A,B,C,D, but not C1, C2, ...)</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267076+ and ready&quot;);return false">f r 267076+ and ready </td>\
+        <td class="cmt">Select all data runs for run 2.</td>\
       </tr>\
+      <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073,267148,267152,267162,267167,267385 &quot;);return false">f r 267073,267148,267152,267162,267167,267385</td>\
+        <td class="cmt">All runs of first week.</td>\
+      </tr>\
+      <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r data15_13TeV.A &quot;);return false">f r data15_13TeV.A </td> \
+        <td class="cmt">Select runs belonging to a given <font color="red">run period</font><br>(giving only "A" would use "data15_13TeV" as default)</td>\
+      </tr>\
+      <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A &quot;);return false">f r 2015.A </td>\
+        <td class="cmt">Shows ready lumiblocks.</td>\
+      </tr>\
+      <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.B-D&quot;);return false">f r 2015.B-D </td>\
+        <td class="cmt">Select runs belonging to the given <font color="red">range of run periods</font></td>\
+     </tr>\
+      <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.All&quot;);return false">f r 2015.All </td>\
+        <td class="cmt">Select runs of 2015 <font color="red">(takes time and might time out)</font></td>\
+     </tr>\
+      <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r data15_13TeV.All&quot;);return false">f r data15_13TeV.All </td>\
+        <td class="cmt">Select runs of 2015 with 13TeV <font color="red">(takes time and might time out)</font></td>\
+     </tr>\
   </table>\
 </div>';
 }
@@ -78,20 +86,16 @@ function insertExamplesTime() {
         <td class="cmt">Select runs that <font color="red">ended within the last 24h</font>; format examples: 5d, 1d = 24h, 5h, ... <br> extra option <font color="red">utc</font>, default is CEST (CERN local time)</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f t 10.9.2008-13.9.2008 / sh r and ev and t&quot;);return false">f t 10.9.2008-13.9.2008 / sh r and ev and t</td>\
-        <td class="cmt">Select runs with start/end dates within given <font color="red">time period</font>; format: DD.MM.YYYY.</td>\
+        <td class="pgm" onClick="addColumn(&quot;f t 3.6.2015-10.6.2015 / sh r and ev and t&quot;);return false">f t 3.6.2015-10.6.2015 /  sh r and ev and t</td>\
+        <td class="cmt">Select runs with start/end dates within given <font color="red">time period</font>; format: DD.MM.YYYY. This example is for the first week of run 2. </td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f t 13.9.2008+ / sh t&quot;);return false">f t 13.9.2008+ / sh t</td>\
-        <td class="cmt">Select all runs including and <u>after</u> Sep 13, 2008.</td>\
+        <td class="pgm" onClick="addColumn(&quot;f t 16.6.2015+ / sh t&quot;);return false">f 16.6.2015+ / sh t</td>\
+        <td class="cmt">Select all runs including and <u>after</u> Jun 16, 2015.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f t 13.9.2008- / sh t&quot;);return false">f t 13.9.2008- / sh t</td>\
-        <td class="cmt">Select all runs including and <u>before</u> Sep 13, 2008.</td>\
-      </tr>\
-      <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 89465-93000 and duration 2m+ / sh t and dur &quot;);return false">f r 89465-93000 and duration 2m+ / sh t and dur </td>\
-        <td class="cmt">Select runs that had a <font color="red">duration</font> of at least two minutes; <br/>\
+        <td class="pgm" onClick="addColumn(&quot;f t  last 48h and duration 30m+ / sh t and dur &quot;);return false">f t last 48h and duration 30m+ / sh t and dur </td>\
+        <td class="cmt">Select runs that had a <font color="red">duration</font> of at least thirty  minutes; <br/>\
           replace "m" by "h" and "s" for hours and seconds, respectively;<br>note: only integer numbers allowed! </td>\
       </tr>\
   </table>\
@@ -103,17 +107,17 @@ function insertExamplesDetectors() {
    var x = document.getElementById("exampleDetectors");
    x.innerHTML = '\
 <div class="Pad">\
-  <table class="exampletable">\
+ <table class="exampletable">\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 and det pix / sh r and ev and det&quot;);return false">f r 90270-90350 and det pix / sh r and ev and det</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 and det pix / sh r and ev and det&quot;);return false">f r 267073-267385  and det pix / sh r and ev and det</td>\
         <td class="cmt">Select runs with all Pixel in and show all <font color="red">participating detectors</font>.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90100-90150 and det any sct / sh r and ev and det&quot;);return false">f r 90100-90150 and det any sct / sh r and ev and det</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r  and det any sct / sh r and ev and det&quot;);return false">f r 267073-267385 and det any sct / sh r and ev and det</td>\
         <td class="cmt">Select runs with at least one SCT in and show all participating detectors.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 and det all / sh r and ev and det&quot;);return false">f r 90270-90350 and det all / sh r and ev and det</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 and det all / sh r and ev and det&quot;);return false">f r 267073-267385 and det all / sh r and ev and det</td>\
         <td class="cmt">Select runs with all detectors in; here <i>all</i> means the systems used during the 2008 combined data taking period, ie, not including for example CSC.</td>\
       </tr>\
       <tr>\
@@ -135,19 +139,19 @@ function insertExamplesStreams() {
 <div class="Pad">\
   <table class="exampletable">\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 / sh r and ev and st&quot;);return false">f r 90270-90350 / sh r and ev and st</td>\
-        <td class="cmt">Show <font color="red">all produced streams and events per stream</font> for selected runs.</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 / sh r and ev and st&quot;);return false">f r 267073-267385 / sh r and ev and st</td>\
+        <td class="cmt">Show <font color="red">all produced streams and events per stream</font> for selected runs. (For first week of run 2 in this example).</td>\
       </tr>\
       <tr>\
         <td class="pgm" onClick="addColumn(&quot;</td><td class="&quot;);return false"></td><td class="cmt">\
-          By placing the <font color="red">mouse over</font> the number of events of a stream one can display the <font color="red">stream overlaps</font> &minus; computed relative to the number of events in that stream. </td>\
+          By placing the mouse <font color="red"> over</font> the number of events of a stream, one can display the <font color="red">stream overlaps</font> &minus; computed relative to the number of events in that same stream. </td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 and st *IDCos* 10k+ and st *RPC* / sh st phy*,cal*&quot;);return false">f r 90270-90350 and st *IDCos* 10k+ and st *RPC* / sh st phy*,cal*</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 and st *Main* 100k+ / sh st phy*,cal*&quot;);return false">f r 267073-267385 and st *Main* 100k+ / sh st phy*,cal*</td>\
         <td class="cmt">Select runs where physics_IDCosmic stream has more than 10000 events and the RPC* stream is enabled, shows all physics and calibration streams. </td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90749-90785 and st *RPC* and st !physics_L1CaloEM / sh st phy*&quot;);return false">f r 90749-90785 and st *RPC* and st !physics_L1CaloEM / sh st phy*</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 and st *Datascouting* / sh st phy*&quot;);return false">f r 267073-267385 and st *Datascouting* / sh st phy*</td>\
         <td class="cmt">Select runs where a RPC stream but <font color="red">no physics_L1CaloEM </font> stream is written.</td>\
   </table>\
 </div>';
@@ -161,7 +165,7 @@ function insertExamplesMagnets() {
 <div class="Pad">\
   <table class="exampletable">\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 and mag s and not mag t / sh r and ev and mag&quot;);return false">f r 90270-90350 and mag s and not mag t / sh r and ev and mag</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 267073-267385 and mag s and not mag t / sh r and ev and mag&quot;);return false">f r 267073-267385 and mag s and not mag t / sh r and ev and mag</td>\
         <td class="cmt">Select runs with <font color="red">solenoid on and toroid off</font>.</td>\
       </tr>\
   </table>\
@@ -178,31 +182,27 @@ function insertExamplesDQ() {
 <div class="Pad">\
   <table class="exampletable">\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 2012.B6 / sh dqsum&quot;);return false">f r 2012.B6 / sh dqsum</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh dqsum&quot;);return false">f r 2015.A / sh dqsum</td>\
         <td class="cmt">Show <font color="red">data quality</font> summary: defects, plots and luminosity losses per system (restricted to LBs with ATLAS READY).</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 2011.C / sh dq&quot;);return false">f r 2011.C / sh dq</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh dq&quot;);return false">f r 2015.A/ sh dq</td>\
         <td class="cmt">Show <font color="red">data quality</font> defects (restricted to LBs with ATLAS READY).</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r B / sh dq #DetStatus-v08-pro07&quot;);return false">f r B / sh dq #DetStatus-v08-pro07</td>\
-        <td class="cmt">Show <font color="red">data quality </font> defects with COOL tag DetStatus-v08-pro07.</td>\
-      </tr>\
-      <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r A / sh r and dq det&quot;);return false">f r A / sh dq det</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh r and dq det&quot;);return false">f r 2015.A / sh dq det</td>\
         <td class="cmt">Show <font color="red">detector defects</font> in period A of current year.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 2010.G1 / sh dq TRIG_&quot;);return false">f r 2010.G1 / sh dq TRIG_</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh dq TRIG_&quot;);return false">f r 2015.A / sh dq TRIG_</td>\
         <td class="cmt">Show defects <font color="red">matching pattern</font>. Use &quot;pattern$&quot; for exact match of pattern</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r B1 and dq !CP_TAU #DetStatus-v08-pro07&quot;);return false">f r B1 and dq !CP_TAU #DetStatus-v08-pro07</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A and dq !CP_TAU &quot;);return false">f r 2015.A and dq !CP_TAU </td>\
         <td class="cmt">Select all lumiblocks in B1 that have <font color="red">no CP_TAU defect</font>. The specified defect has to match exactly, no wild cards.</td>\
       </tr>\
       <tr>\
-        <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 / sh r and dq pix,sct DQMFOFL&quot;);return false">f r 90270-90350 / sh r and dq pix,sct DQMFOFL</td>\
+        <td class="pgm" onClick="addColumn(&quot;f r 2015.A / sh r and dq pix,sct DQMFOFL&quot;);return false">f r 2015.A / sh r and dq pix,sct DQMFOFL</td>\
         <td class="cmt">Same as above for <font color="red">"DQMFOFL" folder</font>; \
           choices are: "SHIFTOFL", "SHIFTONL", "DQCALCOFL", "DQMFOFL", "DQMFONL", "DQMFONLLB", "DCSOFL", "TISUMM", "LBSUMM" [default: "SHIFTOFL"].</td>\
       </tr>\
@@ -226,6 +226,10 @@ function insertExamplesDQ() {
       <tr>\
         <td class="pgm" onClick="addColumn(&quot;f r 90270-90350 and dq any pix n.a. / sh dq pix&quot;);return false">f r 90270-90350 and dq any pix n.a. / sh dq pix</td>\
         <td class="cmt">Select runs where at least one Pix qualitity flag is unset. </td>\
+      </tr>\
+ <tr>\
+        <td class="pgm" onClick="addColumn(&quot;f r B / sh dq #DetStatus-v08-pro07&quot;);return false">f r B / sh dq #DetStatus-v08-pro07</td>\
+        <td class="cmt">Show <font color="red">data quality </font> defects with COOL tag DetStatus-v08-pro07.</td>\
       </tr>\
   </table>\
 </div>\
@@ -493,8 +497,11 @@ function insertExamplesOther() {
         <td class="pgm" onClick="addColumn(&quot;pileup 1e10 17 55 2 1&quot;);return false">pileup 1e10 17 55 2 1</td>\
         <td class="cmt">Compute <font color="red">pileup expectation</font>. The arguments are (in this order): <b>beam intensity</b> (number of protons), <b>transverse beam size</b> (microns), <b>cross section</b> (mb), <b>number of colliding bunches</b>, [<b>total number of triggered events in sample</b> (optional), default: 1]</td>\
       </tr>\
-      <tr>\
-  </table>\
+ </table>\
 </div>\
 ';
 }
+
+
+//insertExamples();
+

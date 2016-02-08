@@ -49,7 +49,12 @@ class Enumerate(object):
 
 def runsOnServer():
     hostname = os.getenv('HOSTNAME')
-    onserver = ( re.match('aiatlas.*\.cern\.ch',hostname) != None )
+    print "Execution on host: %r" % hostname 
+    if not hostname:
+        onserver = False
+    else:
+        onserver = ( re.match('aiatlas.*\.cern\.ch',hostname) != None )
+    print "Execution on server: %r" % onserver
     return onserver
 
 def importroot(batch=True):
@@ -401,11 +406,53 @@ def SmartRangeCalulator(runlist,singleRuns=False):
         rr = [[runlist[0].runNr,runlist[-1].runNr]]
     return rr
 
+# code from Eric Torrence
+# Optional argument to nval to specify number of values to read
+def bConvertList(b, nbyte=1, nval=1):
+    # routine to store an unsigned int (1, 2, 4 or 8 byte) in a blob
+    packopt=dict([[1,'B'],[2,'H'],[4,'f'],[8,'d']])
+    if nbyte in packopt:
+        # print 'bConvert - b:[', b[0:nbyte], '] nbyte:', nbyte, ' fmt:', packopt[nbyte], type(b)
+        fmt = '%d%s' % (nval, packopt[nbyte])
+        ival=struct.unpack(fmt, b[0:nval*nbyte])
+    else:
+        print 'bConvertList: Unrecognized pack option'
+        sys.exit()
+    return list(ival)
 
-def UnpackBCID(blob, nb1, nb2, nbc):
+
+def unpackRun1BCIDMask(blob, nb1, nb2, nbc):
     size = nb1+nb2+nbc
-    a = struct.unpack( size*'H', blob[:2*size])  
-    return a[0:nb1], a[nb1:nb1+nb2], a[nb1+nb2:] # beam1, beam2, coll
+    a = bConvertList(blob, 2, size)
+    beam1 = a[0:nb1]
+    beam2 = a[nb1:nb1+nb2]
+    coll = a[nb1+nb2:]
+    #print 'unpackRun1BCIDMask found:'
+    #print ' Beam1:', beam1
+    #print ' Beam2:', beam2
+    #print ' Coll: ', coll
+    return  beam1, beam2, coll
+
+
+def unpackRun2BCIDMask(blob):
+    beam1=[]
+    beam2=[]
+    coll=[]
+    rawData = bConvertList(blob, 1, 3564)
+    for i in range(3564):
+        val = rawData[i]
+        if val & 0x01:
+            beam1.append(i)
+        if val & 0x02: 
+            beam2.append(i)
+        if (val & 0x03) == 0x03:
+            coll.append(i)
+    #print 'unpackRun2BCIDMask found:'
+    #print ' Beam1:', beam1
+    #print ' Beam2:', beam2
+    #print ' Coll: ', coll
+    return beam1, beam2, coll
+
 
 
 def Poisson( n, mu ):

@@ -109,18 +109,25 @@ class ARQ_COMA:
     def get_all_periods(cls):
         if cls.all_periods != None: return cls.all_periods
         cls.all_periods = []
-        p = re.compile("(?P<period>(?P<periodletter>[A-Za-z]+)(?P<periodnumber>\d+)?)$")
+        p = re.compile("(?P<periodletter>[A-Za-z]+)(?P<periodnumber>\d+)?$")
         try:
             result = cls.get_periods(0, 0)
             for period, projectName in result:
-                m = p.match(period)
-                if not m: continue
                 year = int(projectName[4:6])
+                m = p.match(period)
+                if not m:
+                    print "Period '%s'does not match pattern  [A-Za-z]+\d+" % period
+                    continue
+
                 period_letter = m.group('periodletter')
                 period_number = int(m.group('periodnumber')) if m.group('periodnumber') else 0
-                if len(period_letter)!=1: pc = 0
-                else: pc = 10000*year + 100*(ord(period_letter.upper())-65) + period_number
-                cls.all_periods += [ ((year, period, pc), projectName+".period" + period) ]
+                if len(period_letter)!=1:
+                    pc = 0
+                else:
+                    pc = 10000*year + 100*(ord(period_letter.upper())-65) + period_number
+
+                cls.all_periods += [ ((year, period, pc, projectName), projectName+".period" + period) ]
+
             cls.all_periods.sort()
         except Exception, e:
             print e

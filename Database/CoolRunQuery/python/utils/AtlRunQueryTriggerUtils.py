@@ -31,7 +31,7 @@ def isTriggerRun2(run_number = None , smk = None , isRun2 = None ):
 
 
 def triggerDBAlias(run_number = None , smk = None, isRun2 = None ):
-    return "TRIGGERDB" if isTriggerRun2( run_number=run_number, smk=smk, isRun2 = isRun2) else "TRIGGERDBR1"
+    return "TRIGGERDB" if isTriggerRun2( run_number=run_number, smk=smk, isRun2 = isRun2) else "TRIGGERDB_RUN1"
 
 
 
