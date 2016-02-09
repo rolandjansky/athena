@@ -81,6 +81,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   //m_applyDupli,
   //m_maxToTForDupli(255),
   m_IBLabsent(true),
+  m_doITk(false),
   m_time_y_eq_zero(0.0),
   m_ComTime(NULL),
   m_HardScatterSplittingMode(0),
@@ -153,6 +154,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("ToTMinCut",          m_minToT,               "Minimum ToT cut (online cut)");
   declareProperty("ApplyDupli",         m_applyDupli,           "Duplicate low ToT hits");
   declareProperty("LowTOTduplication",  m_maxToTForDupli,       "ToT value below which the hit is duplicated");
+  declareProperty("doITk",              m_doITk,                "Phase-II upgrade ITk flag");
 
   //
   // random number stream name
@@ -169,10 +171,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("RDOforSPM",          m_doRDOforSPM,          "Create RDOs for special pixels");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
-  
-  //
-  // For ITk upgrade
-  declareProperty("doITk",              m_doITk=false,          "Phase-II upgrade ITk flag");
 }
 
 
@@ -185,7 +183,7 @@ StatusCode PixelDigitizationTool::initialize()
   //  
   // Print parameter values
 
- // check the input object name
+  // check the input object name
   if (m_inputObjectName=="") {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
     return StatusCode::FAILURE;
@@ -384,7 +382,15 @@ void PixelDigitizationTool::digitizeAllHits() {
           << m_detID->eta_module(chargedDiodes->identify() ) << " - "
           << m_detID->phi_module(chargedDiodes->identify() ) << " - "
           << " processing hit number " << hitcount        
-          );  
+          );
+
+    //if ( m_detID->barrel_ec(chargedDiodes->identify()) == 0 && m_detID->layer_disk(chargedDiodes->identify()) == 0 ) {
+    //  ATH_MSG_DEBUG ( "in digitize elements with hits in innermost barrel: eta - phi  "
+    //      << m_detID->eta_module(chargedDiodes->identify() ) << " - "
+    //      << m_detID->phi_module(chargedDiodes->identify() ) << " - "
+    //      << " processing hit number " << hitcount
+    //      );
+    //}
 
     // Have a flag to check if the module is present or not
     // Generally assume it is:
@@ -442,6 +448,14 @@ void PixelDigitizationTool::digitizeNonHits() {
               << "size: " << m_processedElements.size() 
               );  
         
+        //if ( m_detID->barrel_ec(element->identify()) == 0 && m_detID->layer_disk(element->identify()) == 0 ) {
+        //  ATH_MSG_DEBUG ( "in digitize of untouched elements in innermost barrel: eta - phi  "
+        //      << m_detID->eta_module(element->identify() ) << " - "
+        //      << m_detID->phi_module(element->identify() ) << " - "
+        //      << "size: " << m_processedElements.size()
+        //      );
+        //}
+
         // Have a flag to check if the module is present or not
         // Generally assume it is: 
         //          m_module_status = 0;     // module is present we assume
@@ -987,9 +1001,9 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   if ( barrel_ec == 0 ) {
     if ( m_doITk ) {
       // PixRegion = 0, 1, 2, 3 for the first four pixel barrel layers,
-      //             6 for the fifth pixel barrel layer (4 and 5 already taken)
+      //             6 for the fifth pixel barrel layer and higher (4 and 5 already taken)
       PixRegion = layer_disk;
-      if ( layer_disk == 4 ) PixRegion = 6;
+      if ( layer_disk >= 4 ) PixRegion = 6;
     }
     else {
       // PixRegion = 0, 1, 2, or 3 for IBL, BL, L1 or L2
@@ -999,16 +1013,12 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   }
   if ( barrel_ec == 2 || barrel_ec == -2 ) PixRegion = 4; // 4 for disks
   if ( barrel_ec == 4 || barrel_ec == -4 ) PixRegion = 5; // 5 for DBM
-  
+  ATH_MSG_DEBUG ( "doITk " << m_doITk << ", bec " << barrel_ec << ", layer " << layer_disk << ", PixRegion " << PixRegion );
+
   if ( PixRegion < 0 || (!m_doITk && PixRegion > 5) || PixRegion > 6 ) {
     ATH_MSG_ERROR ( "PixelDigitizationTool::createRDO() collection : " << " bad Barrel/EC or Layer/Disk " );
   }
 
-  m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);
-  ATH_MSG_DEBUG ( " ***** Overflow for IBL = " << m_overflowIBLToT );
-  
-  //
-  
   const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection->element())->design());
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   int maxFEI4SmallHit = 2;
@@ -1019,6 +1029,11 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   const int maxCol = p_design->columnsPerCircuit();
   std::vector < std::vector < int > > FEI4Map ( maxRow, std::vector < int > ( maxCol) );
   ATH_MSG_DEBUG ( "PixRegion = " << PixRegion << " MaxRow = " << maxRow << " MaxCol = " << maxCol);
+  
+  //
+  
+  m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);
+  ATH_MSG_DEBUG ( " ***** Overflow for IBL = " << m_overflowIBLToT );
   
   if ( m_overflowIBLToT == 14 ) maxFEI4SmallHit = 0;
   if ( m_overflowIBLToT == 15 ) maxFEI4SmallHit = 1;
@@ -1089,8 +1104,11 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
             << flag << "  "
             << PixRegion << " "
             );
-      if ( nToT > m_maxToT[PixRegion] ) continue; // skip hits with ToT exceeding LVL1 Latency
-      if ( nToT < m_minToT[PixRegion] ) continue; // skip hits with ToT less than ToT cut
+      
+      if (getReadoutTech(collection->element()) == FEI3) {
+        if ( nToT > m_maxToT.at(PixRegion) ) continue; // skip hits with ToT exceeding LVL1 Latency
+        if ( nToT < m_minToT.at(PixRegion) ) continue; // skip hits with ToT less than ToT cut
+      }
 
       //       float kToT= m_totparA + m_totparB / ( m_totparC + (*i_chargedDiode).second.charge() ) ;
       //       float kToTs  =  CLHEP::RandGaussZiggurat::shoot( m_rndmEngine, kToT ,  m_totparP1 + m_totparP2 * kToT ) ; 
@@ -1116,7 +1134,6 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       //  ATH_MSG_DEBUG ( "correct_readout_id != diodeID" );
       // }
       // Create hit only if bunch within the acceptance (not for IBL and DBM):
-      //     Do this for ITk as well
       
       if ( m_doITk || PixRegion != 0 ) {
         if ( bunch >= 0 && bunch < m_TimeSvc->getTimeBCN()) {
@@ -1147,8 +1164,8 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       // Duplication mechanism for FEI3 small hits :
       
       if ( !m_doITk && PixRegion != 0 && PixRegion != 5 ) {
-        if ( m_applyDupli[PixRegion]) {
-          if ( nToT <= m_maxToTForDupli[PixRegion] && bunch > 0 && bunch <= m_TimeSvc->getTimeBCN()) {
+        if ( m_applyDupli.at(PixRegion)) {
+          if ( nToT <= m_maxToTForDupli.at(PixRegion) && bunch > 0 && bunch <= m_TimeSvc->getTimeBCN()) {
 	    Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch-1, 0, bunch-1 );
             PixelRDOColl->push_back(p_rdo);
           }
@@ -1158,7 +1175,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   }
   // Copy mechanism for IBL small hits:
   
-  if ( !m_doITk && PixRegion == 0 && m_applyDupli[PixRegion] && nSmallHitsFEI4 > 0 ){
+  if ( !m_doITk && PixRegion == 0 && m_applyDupli.at(PixRegion) && nSmallHitsFEI4 > 0 ){
     bool recorded = false;
     //First case: Record small hits which are in the same Pixel Digital Region than a big hit:
     

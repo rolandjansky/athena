@@ -269,8 +269,9 @@ private:
    std::vector<int>          m_minToT;            /**< ToT cut */
    std::vector<bool>         m_applyDupli;        /**< Apply hit duplication */
    std::vector<int>          m_maxToTForDupli;    /**< Maximum ToT for hit duplication */
-   bool			     m_IBLabsent;
-  
+   bool                      m_IBLabsent;
+   bool                      m_doITk;
+
    double                    m_time_y_eq_zero;
    ComTime                  *m_ComTime;
 
@@ -283,12 +284,6 @@ private:
    //
    bool                      m_cosmics;              /**< cosmic run */
    bool                      m_useComTime;           /**< use ComTime for timing */
-
-   //
-   // ITk flag
-   //
-   bool                      m_doITk;
-   
 
    //
    // Conditions database options

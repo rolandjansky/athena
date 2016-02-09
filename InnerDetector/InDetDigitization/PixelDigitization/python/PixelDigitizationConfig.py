@@ -2,6 +2,7 @@
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
@@ -39,6 +40,7 @@ def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
         kwargs.setdefault("IblPlanarChargeTool","IblPlanarChargeTool")
         kwargs.setdefault("Ibl3DChargeTool","Ibl3DChargeTool")
     kwargs.setdefault("DBMChargeTool","DBMChargeTool") # No separate implementation when using Bichsel model
+    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
     return CfgMgr.SurfaceChargesTool(name, **kwargs)
 
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
@@ -193,6 +195,7 @@ def CalibSvc(name="CalibSvc", **kwargs):
 def PixelCellDiscriminator(name="PixelCellDiscriminator", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
     return CfgMgr.PixelCellDiscriminator(name, **kwargs)
 
 def PixelRandomDisabledCellGenerator(name="PixelRandomDisabledCellGenerator", **kwargs):
@@ -225,17 +228,27 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if jobproperties.Beam.beamType == "cosmics" :
         kwargs.setdefault("CosmicsRun", True)
         kwargs.setdefault("UseComTime", True)
+    elif GeometryFlags.isSLHC():
+        kwargs.setdefault("doITk", True)
+        LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
+        ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
+        ApplyDupli = [0, 0, 0, 0, 0, 0, 0]
+        LowTOTduplication = [0, 0, 0, 0, 0, 0, 0]
+        kwargs.setdefault("LVL1Latency", LVL1Latency)
+        kwargs.setdefault("ToTMinCut", ToTMinCut)
+        kwargs.setdefault("ApplyDupli", ApplyDupli)
+        kwargs.setdefault("LowTOTduplication", LowTOTduplication)
     else:
         # For LVL1Latency, ToTMinCut, ApplyDupli and LowTOTduplication, first component [0] is always for IBL, even for run 1 production.
 	# The order is IBL, BL, L1, L2, EC, DBM
 	# For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
         LVL1Latency = [16, 150, 255, 255, 255, 16]
-        kwargs.setdefault("LVL1Latency", LVL1Latency)
         ToTMinCut = [0, 4, 4, 4, 4, 0]
-        kwargs.setdefault("ToTMinCut", ToTMinCut)
         ApplyDupli = [True, True, True, True, True, True]
-        kwargs.setdefault("ApplyDupli", ApplyDupli)
         LowTOTduplication = [0, 7, 7, 7, 7, 0]
+        kwargs.setdefault("LVL1Latency", LVL1Latency)
+        kwargs.setdefault("ToTMinCut", ToTMinCut)
+        kwargs.setdefault("ApplyDupli", ApplyDupli)
         kwargs.setdefault("LowTOTduplication", LowTOTduplication)
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
