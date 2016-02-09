@@ -9,24 +9,18 @@
 // class header
 #include "Geant4TruthIncident.h"
 
-// ISF includes
-//#include "ISF_Event/ISFParticle.h"
+// Atlas G4 Helpers
+#include "MCTruth/EventInformation.h"
+#include "MCTruth/TrackBarcodeInfo.h"
+#include "MCTruth/TrackHelper.h"
+#include "MCTruth/TrackInformation.h"
+#include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
 #include "GaudiKernel/PhysicalConstants.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"
-
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruth/TrackBarcodeInfo.h"
-#include "MCTruth/TrackHelper.h"
-
-#include "MCTruth/EventInformation.h"
-#include "FadsActions/FadsTrackingAction.h"
-
 
 // Geant4 includes
 #include "G4Step.hh"
@@ -39,6 +33,9 @@
 #include "G4EmProcessSubType.hh"
 #include "G4DynamicParticle.hh"
 #include "G4PrimaryParticle.hh"
+
+#include "G4EventManager.hh"
+#include "G4Event.hh"
 
 /*
   Comments:
@@ -178,6 +175,7 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticleAfterIncident(Barcod
     TrackHelper       tHelper(track);
     TrackInformation *tInfo = tHelper.GetTrackInformation();
     if (tInfo) {
+      tInfo->SetParticle( m_parentParticleAfterIncident );
       int regenerationNr = tInfo->GetRegenerationNr();
       regenerationNr++;
       tInfo->SetRegenerationNr(regenerationNr);
@@ -232,11 +230,12 @@ void ISF::Geant4TruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode n
 
     // get parent if it exists in user info
     VTrackInformation *trackInfo=static_cast<VTrackInformation*>( curSecondary->GetUserInformation() );
-    const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : NULL;
+    const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : 0;
 
     // assume these G4Track don't have an information yet.
     TrackBarcodeInfo * bi = new TrackBarcodeInfo(newBarcode,parent);
 
+    // FIXME: doesn't that cause a memory leak if UserInformation already existed before?
     curSecondary->SetUserInformation(bi);
   }
 
@@ -260,31 +259,17 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::childParticle(unsigned short i,
 
   hepParticle = convert( thisChild );
 
-  const G4DynamicParticle *g4DynParticle  = thisChild->GetDynamicParticle();
-  G4PrimaryParticle       *g4PrimParticle = g4DynParticle ? g4DynParticle->GetPrimaryParticle() : 0;
+  // Normal situation - no parent particle
+  hepParticle->suggest_barcode( newBarcode );
 
-  if ( g4PrimParticle ) {
-    // This is a secondary that came from a parent particle
-    //  It seems like a good idea to get back at the parent particle
-    //  and from there use the gen particle.  But in the step *right* 
-    //  before this, the gen particles are all deleted, so this info   
-    //  is not actually available at this point.  If only.
-
-    // See if it should be stable
-    if ( g4PrimParticle->GetDaughter() ){
-      hepParticle->set_status(2);
-    }
-    // Now we know that we have to deal with the barcode specially
-    hepParticle->suggest_barcode( g4PrimParticle->GetTrackID() );
-
-  } else {
-    // Normal situation - no parent particle
-    hepParticle->suggest_barcode( newBarcode );
-  }
-  
-  // create new TrackInformation (with link to hepParticle)
+  // get last (parent) ISFParticle link
+  const G4Track *track = m_step->GetTrack();
+  VTrackInformation *trackInfo = static_cast<VTrackInformation*>( track->GetUserInformation() );
+  const ISF::ISFParticle* parentISP = (trackInfo) ? trackInfo->GetISFParticle() : 0;
+ 
+  // create new TrackInformation (with link to hepParticle and ISFParticle)
   // and attach it to G4Track
-  TrackInformation *ti = new TrackInformation(hepParticle);
+  TrackInformation *ti = new TrackInformation(hepParticle, parentISP);
   ti->SetRegenerationNr(0);
   ti->SetClassification(RegisteredSecondary);
 

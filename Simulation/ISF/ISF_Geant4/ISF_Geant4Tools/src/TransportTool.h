@@ -17,10 +17,12 @@
 
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
+#include "G4AtlasInterfaces/IPhysicsListTool.h"
+//#include "G4AtlasInterfaces/IUserAction.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
 
 #include <string>
 
-class AthenaStackingAction;
 class G4Event;
 class StoreGateSvc;
 class G4PrimaryParticle;
@@ -36,10 +38,6 @@ namespace HepMC {
   class GenParticle;
 }
 
-//namespace PyAthena {
-//  class Tool;
-//}
-
 namespace iGeant4
 {
 
@@ -52,10 +50,6 @@ namespace iGeant4
   */
 
   class G4AtlasRunManager;
-  class IPhysicsValidationUserAction;
-  class ITrackProcessorUserAction;
-  class IMCTruthUserAction;
-  class ISDActivateUserAction;
 
   class G4TransportTool : virtual public ITransportTool, public AthAlgTool
   {
@@ -85,6 +79,7 @@ namespace iGeant4
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp);
 
   private:
+
     G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
 
     G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
@@ -97,16 +92,16 @@ namespace iGeant4
     HepMC::GenEvent* genEvent() const;
 
     G4AtlasRunManager    * p_runMgr;
-    AthenaStackingAction * m_stackingAction;
+
+    ServiceHandle<G4UA::IUserActionSvc>    m_UASvc;
 
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-
     ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
-    ToolHandle<iGeant4::IPhysicsValidationUserAction> m_physicsValidationUserAction;
-    ToolHandle<iGeant4::ITrackProcessorUserAction> m_trackProcessorUserAction;
-    ToolHandle<iGeant4::IMCTruthUserAction> m_mcTruthUserAction;
-    ToolHandle<iGeant4::ISDActivateUserAction> m_sdActivateUserAction;
+    ToolHandle<IPhysicsListTool> m_physListTool;
+    //  ToolHandle<IUserAction> m_physicsValidationUserAction;
+    //  ToolHandle<IUserAction> m_trackProcessorUserAction;
+    //  ToolHandle<IUserAction> m_mcTruthUserAction;
 
     //ServiceHandle<ISF::IParticleBroker> m_particleBroker;
     //ToolHandle<ISF::IParticleHelper> m_particleHelper;
@@ -122,9 +117,8 @@ namespace iGeant4
 
     std::string m_mcEventCollectionName;
 
-    bool   m_KillAllNeutrinos;
-    double m_KillLowEPhotons;
     bool   m_releaseGeoModel;
+    bool   m_recordFlux;
     bool   m_quasiStableParticlesIncluded; //<! will quasi-stable
                                            //particles be included in
                                            //simulation

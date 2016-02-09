@@ -6,7 +6,7 @@
 #define ISF_Geant4Interfaces_MCTruthUserAction_H
 
 
-#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
+//#include "ISF_Geant4Interfaces/IMCTruthUserAction.h"
 
 #include <string>
 
@@ -14,8 +14,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "FadsActions/UserAction.h"
-#include "FadsActions/TrackingAction.h"
+//#include "FadsActions/UserAction.h"
+//#include "FadsActions/TrackingAction.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 
 // Atlas G4 Helpers
@@ -44,7 +46,7 @@ namespace iGeant4 {
 
   class ITransportTool;
 
-  class MCTruthUserAction : virtual public IMCTruthUserAction, public  FADS::UserAction, public FADS::TrackingAction, public AthAlgTool {
+  class MCTruthUserAction : public  UserActionBase {
 
  public:
     MCTruthUserAction(const std::string& type,
@@ -59,15 +61,19 @@ namespace iGeant4 {
     //void EndOfEventAction(const G4Event*);
     //void BeginOfRunAction(const G4Run*);
     //void EndOfRunAction(const G4Run*);
-    void PreUserTrackingAction(const G4Track* aTrack);
-    void PostUserTrackingAction(const G4Track* aTrack);
+    void PreTracking(const G4Track* aTrack);
+    void PostTracking(const G4Track* aTrack);
+
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
   private:
+
+    ServiceHandle<IUserActionSvc>    m_UASvc;
     SecondaryTracksHelper m_sHelper;
 
     /** the ISF truth service */
     ServiceHandle<ISF::ITruthSvc>    m_truthRecordSvc;
-    ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
+    ISF::ITruthSvc                   *m_truthRecordSvcQuick; //!< used for faster access
 
     const ISF::ISFParticle* m_isfParent;
 
@@ -75,6 +81,46 @@ namespace iGeant4 {
 
   };
 
-} // namespace iGeant4
+}
+
+#include "G4AtlasInterfaces/IPreTrackingAction.h"
+#include "G4AtlasInterfaces/IPostTrackingAction.h"
+#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "AthenaBaseComps/AthMessaging.h"
+
+namespace G4UA{
+  namespace iGeant4 {   
+    class MCTruthUserAction: 
+    public AthMessaging, public IPreTrackingAction,  public IPostTrackingAction, public IBeginRunAction
+    {
+      
+    public:
+      
+      struct Config
+      {
+	ServiceHandle<ISF::ITruthSvc> truthRecordSvc=ServiceHandle<ISF::ITruthSvc>("ISF_TruthRecordSvc", "MCTruthUserAction");
+	int ilevel=2;
+      };
+      
+      MCTruthUserAction(const Config& config);
+      virtual void preTracking(const G4Track*) override;
+      virtual void postTracking(const G4Track*) override;
+      virtual void beginOfRun(const G4Run*) override;
+
+    private:
+      Config m_config;
+      ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
+      SecondaryTracksHelper m_sHelper;
+      const ISF::ISFParticle* m_isfParent;
+
+
+    }; // class MCTruthUserAction
+  
+  } // namespace iGeant4  
+  
+} // namespace G4UA 
+  
 
 #endif // ISF_Geant4Interfaces_MCTruthUserAction_H
+
+

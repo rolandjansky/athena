@@ -4,29 +4,33 @@
 
 #include "ISF_Geant4Tools/G4AtlasRunManager.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-//#include "ISF_Geant4UserActions/TrackProcessor.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 
-#include "G4LogicalVolumeStore.hh"
-#include "G4StateManager.hh"
 #include "G4GeometryManager.hh"
-#include "G4UserRunAction.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4ParallelWorldScoringProcess.hh"
 #include "G4Run.hh"
 #include "G4RegionStore.hh"
+#include "G4ScoringManager.hh"
+#include "G4StateManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4UImanager.hh"
+#include "G4UserRunAction.hh"
 #include "G4Version.hh"
 
 //________________________________________________________________________
 iGeant4::G4AtlasRunManager::G4AtlasRunManager()
-  : G4RunManager(),
-    //  m_pl(0),
-    //  m_trackProcessorUserAction(0),
-    m_releaseGeo(false),
-    m_msg("G4AtlasRunManager"),
-    m_senDetTool("SensitiveDetectorMasterTool"),
-    m_fastSimTool("FastSimulationMasterTool")
+  : G4RunManager()
+  , m_msg("G4AtlasRunManager")
+  , m_releaseGeo(false)
+  , m_recordFlux(false)
+  , m_senDetTool("SensitiveDetectorMasterTool")
+  , m_fastSimTool("FastSimulationMasterTool")
+  , m_physListTool("PhysicsListToolBase")
 {
-  //m_trackProcessorUserAction=new iGeant4::TrackProcessor("ISG_G4TrackProcessor");
-  //std::cout<<"iGeant4::G4AtlasRunManager::G4AtlasRunManager() "<<this<<std::endl;
 }
 
 //________________________________________________________________________
@@ -40,11 +44,19 @@ iGeant4::G4AtlasRunManager* iGeant4::G4AtlasRunManager::GetG4AtlasRunManager()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::InitializeGeometry()
 {
-  G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-
   ATH_MSG_INFO( "iGeant4::G4AtlasRunManager::InitializeGeometry()" );
+  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  IDetectorGeometrySvc *detGeoSvc;
+  if (svcLocator->service("DetectorGeometrySvc",detGeoSvc,true).isFailure())
+    {
+      ATH_MSG_ERROR ( "Could not retrieve the DetectorGeometrySvc" );
+      G4ExceptionDescription description;
+      description << "InitializeGeometry: Failed to retrieve IDetectorGeometrySvc.";
+      G4Exception("G4AtlasRunManager", "CouldNotRetrieveDetGeoSvc", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
   ATH_MSG_INFO( "found lvs-size()==" << lvs->size() );
-
   G4LogicalVolumeStore::iterator volIt    = lvs->begin();
   G4LogicalVolumeStore::iterator volItEnd = lvs->end();
   for ( ; volIt!=volItEnd; ++volIt)
@@ -62,7 +74,7 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
           ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
         }
     }
-
+  G4RunManager::SetUserInitialization(detGeoSvc->GetDetectorConstruction());
   if (userDetector)
     {
       G4RunManager::InitializeGeometry();
@@ -72,6 +84,7 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
       ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
     }
 
+  // Geometry has been initialized.  Now get services to add some stuff to the geometry.
   if (m_senDetTool.retrieve().isFailure())
     {
       ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
@@ -103,6 +116,17 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
   kernel->InitializePhysics();
   physicsInitialized = true;
 
+  // Grab the physics list tool and set the extra options
+  if (m_physListTool.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR ( "Could not retrieve the physics list tool" );
+      G4ExceptionDescription description;
+      description << "InitializePhysics: Failed to retrieve IPhysicsListTool.";
+      G4Exception("G4AtlasRunManager", "CouldNotRetrievePLTool", FatalException, description);
+      abort(); // to keep Coverity happy
+    }
+  m_physListTool->SetPhysicsOptions();
+
   // Fast simulations last
   if (m_fastSimTool.retrieve().isFailure())
     {
@@ -119,7 +143,82 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
       G4Exception("G4AtlasRunManager", "FailedToInitializeFastSims", FatalException, description);
       abort(); // to keep Coverity happy
     }
-  //std::cout<<"*AS* run init iGeant4::G4AtlasRunManager::InitializePhysics() "<<std::endl;
+
+  if (m_recordFlux){
+    G4UImanager *ui = G4UImanager::GetUIpointer();
+    ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
+
+    G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+
+    if(!ScM) return;
+
+    //G4UImanager *ui=G4UImanager::GetUIpointer();
+
+    ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
+    //                        R  Z(-24 to 24)
+    ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
+    //                iR iZ
+    //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
+    ui->ApplyCommand("/score/mesh/nBin 120 480 1");
+
+    ui->ApplyCommand("/score/quantity/energyDeposit eDep");
+
+    ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
+    ui->ApplyCommand("/score/filter/particle photonFilter gamma");
+    // above 2 line crete tally for cell flux for gamma
+
+    ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
+    ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
+
+    ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
+    ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
+
+    ui->ApplyCommand("/score/quantity/doseDeposit dose");
+
+    ui->ApplyCommand("/score/close");
+    ui->ApplyCommand("/score/list");
+
+    G4int nPar = ScM->GetNumberOfMesh();
+
+    if(nPar<1) return;
+
+    G4ParticleTable::G4PTblDicIterator* particleIterator
+     = G4ParticleTable::GetParticleTable()->GetIterator();
+
+    for(G4int iw=0;iw<nPar;iw++)
+    {
+      G4VScoringMesh* mesh = ScM->GetMesh(iw);
+      G4VPhysicalVolume* pWorld
+         = G4TransportationManager::GetTransportationManager()
+           ->IsWorldExisting(ScM->GetWorldName(iw));
+      if(!pWorld)
+      {
+        pWorld = G4TransportationManager::GetTransportationManager()
+           ->GetParallelWorld(ScM->GetWorldName(iw));
+        pWorld->SetName(ScM->GetWorldName(iw));
+
+        G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
+          = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
+        theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
+
+        particleIterator->reset();
+        while( (*particleIterator)() ){
+          G4ParticleDefinition* particle = particleIterator->value();
+          G4ProcessManager* pmanager = particle->GetProcessManager();
+          if(pmanager)
+          {
+            pmanager->AddProcess(theParallelWorldScoringProcess);
+            pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
+            pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
+            pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
+          }
+        }
+      }
+
+      mesh->Construct(pWorld);
+    }
+  } // Do flux recording
+
   //  kernel->RunInitialization();
   RunInitialization();
   //std::cout<<"*AS* run init <<< "<<std::endl;
@@ -133,45 +232,12 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
 
-  //G4RegionStore* gs = G4RegionStore::GetInstance();
-  //std::cout<<"*AS* G4RegionStore "<< gs->size() <<std::endl;
-
-  //G4LogicalVolumeStore *lvs=G4LogicalVolumeStore::GetInstance();
-  //std::cout<<"*AS* G4LogicalVolumeStore "<< lvs->size() <<std::endl;
-
-  /*
-  // Release GeoModel Geometry if necessary
-  if (m_releaseGeo){
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  StoreGateSvc* detStore;
-  StatusCode sc=svcLocator->service("DetectorStore",detStore);
-  if (sc.isFailure()){
-  ATH_MSG_ERROR ( "G4AtlasRunManager could not access the detector store - PANIC!!!!" );
-  abort();
-  }
-
-  IGeoModelSvc* geoModel = 0;
-  StatusCode status=svcLocator->service("GeoModelSvc",geoModel);
-  if(status.isFailure()) {
-  ATH_MSG_WARNING (  " ----> Unable to retrieve GeoModelSvc" );
-  } else {
-  status = geoModel->clear();
-  if(status.isFailure()) {
-  ATH_MSG_WARNING (  " ----> GeoModelSvc::clear() failed" );
-  } else {
-  ATH_MSG_INFO ( " ----> GeoModelSvc::clear() succeeded " );
-  }
-  }
-  m_releaseGeo=false; // Don't do that again...
-  }
-  */
-
   currentEvent = event;
 
   eventManager->ProcessOneEvent(currentEvent);
   if (currentEvent->IsAborted())
     {
-      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Detector Simulation level" );
+      ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Detector Simulation level" );
       currentEvent=0;
       return true;
     }
@@ -179,7 +245,7 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   // *AS* AnalyzeEvent(currentEvent);
   if (currentEvent->IsAborted())
     {
-      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Analysis level" );
+      ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Analysis level" );
       currentEvent=0;
       return true;
     }
@@ -189,7 +255,7 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   bool abort=currentEvent->IsAborted();
   currentEvent = 0;
 
-  // std::cout<<" SimulateFADSEvent : done simulating one event "<<std::endl;
+  // std::cout<<" ProcessEvent : done simulating one event "<<std::endl;
   return abort;
 }
 

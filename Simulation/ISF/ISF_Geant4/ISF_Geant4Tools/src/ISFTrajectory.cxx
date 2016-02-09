@@ -19,7 +19,7 @@
 
 
 // Athena includes
-#include "FadsActions/TrackingAction.h"
+//#include "FadsActions/TrackingAction.h"
 
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackHelper.h"
@@ -76,8 +76,6 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       return;
     }
 
-    AtlasDetDescr::AtlasRegion geoID = AtlasDetDescr::fUndefinedAtlasRegion;
-
     // get parent particle
     TrackInformation* trackInfo = static_cast<TrackInformation*>(track->GetUserInformation());
     if (!trackInfo) {  std::cerr<<"ISFTrajectory::AppendStep ERROR NULL TrackInformation pointer!"<<std::endl; }
@@ -92,7 +90,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
     }
 
-    geoID=parent->nextGeoID();
+    AtlasDetDescr::AtlasRegion geoID = parent->nextGeoID();
 
     ISF::Geant4TruthIncident truth( aStep, geoID, numSecondaries, m_sHelper);
 
