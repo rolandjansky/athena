@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef ISF_FastCaloSimParamAction_H
 #define ISF_FastCaloSimParamAction_H
 
@@ -11,9 +10,8 @@
 #include <vector>
 
 // athena simulation includes
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // forward declarations in namespaces
 namespace ISF_FCS_Parametrization {
@@ -23,15 +21,14 @@ namespace HepMC {
   class GenParticle;
 }
 // forward declarations in global namespace
-//class StoreGateSvc;
 class LArVCalculator;
 class G4VSolid;
 class G4AffineTransform;
-class LArVHitMerger;
-class StoreGateSvc;
+class LArG4SimpleSD;
 class LArIdentifierConverter;
 class TileGeoG4SDCalc;
-
+class CaloDetDescrManager;
+class LArEM_ID;
   /**
    *
    *   @short Class for collecting G4 hit information
@@ -47,26 +44,27 @@ class TileGeoG4SDCalc;
    *
    */
 
-class FastCaloSimParamAction: public FADS::UserAction {
+class FastCaloSimParamAction: public UserActionBase {
 
  public:
 
   //! default constructor
-  FastCaloSimParamAction(std::string s);
+  FastCaloSimParamAction(const std::string& type, const std::string& name, const IInterface* parent);
 
   ~FastCaloSimParamAction();
 
   //! run code at begin of event
-  void BeginOfEventAction(const G4Event*);
+  virtual void BeginOfEvent(const G4Event*) override;
   //! run code at end of event
-  void EndOfEventAction(const G4Event*);
+  virtual void EndOfEvent(const G4Event*) override;
   //! run code at begin of run
-  void BeginOfRunAction(const G4Run*);
+  virtual void BeginOfRun(const G4Run*) override;
   //! run code at end of event
-  void EndOfRunAction(const G4Run*);
+  virtual void EndOfRun(const G4Run*) override;
   //! run code after each step
-  void SteppingAction(const G4Step*);
+  virtual void Step(const G4Step*) override;
 
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  private:
 
@@ -78,14 +76,14 @@ class FastCaloSimParamAction: public FADS::UserAction {
   G4VSolid* m_current_solid;
   G4AffineTransform* m_current_transform;
 
-  // calculators 
+  // calculators
   LArVCalculator* m_calculator_EMECIW_pos;            //!< pointer to EMEC inner wheel calculator
-  LArVCalculator* m_calculator_EMECIW_neg;            //!< pointer to EMEC inner wheel calculator                                           
+  LArVCalculator* m_calculator_EMECIW_neg;            //!< pointer to EMEC inner wheel calculator
 
   LArVCalculator* m_calculator_EMECOW_pos;            //!< pointer to EMEC outer wheel calculator
   LArVCalculator* m_calculator_EMECOW_neg;
 
-  //LArVCalculator* m_calculator_BIB; //!< BackInnerBarrette 
+  //LArVCalculator* m_calculator_BIB; //!< BackInnerBarrette
   LArVCalculator* m_calculator_BOB; //!< BackOuterBarrette
 
   LArVCalculator* m_calculator_EMB;
@@ -97,25 +95,111 @@ class FastCaloSimParamAction: public FADS::UserAction {
   LArVCalculator* m_calculator_EMEPS;
 
   //LArVCalculator* m_calculator_HECLocal;
-  TileGeoG4SDCalc* m_calculator_Tile;  
+  TileGeoG4SDCalc* m_calculator_Tile;
 
   // helper
-  LArIdentifierConverter* m_lar_helper;
-
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  StoreGateSvc_t m_storeGateSvc;                  //!< pointer to StoreGate service
-  StoreGateSvc* m_detStore;
-  //! return pointer to StoreGate service
-  StoreGateSvc_t storeGateSvc() const;
-  StoreGateSvc* detStoreSvc() const;
-
+  LArG4SimpleSD* m_lar_helper;
+  const LArEM_ID *m_lar_emID;
+  const CaloDetDescrManager* m_calo_dd_man;
 
   ISF_FCS_Parametrization::FCS_StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
   std::map<std::string,int> m_detectormap;
   std::set<std::string> m_unuseddetector;
   int m_ndetectors;
 
+  bool m_shift_lar_subhit;
+  bool m_shorten_lar_step;
+
 };
+
+#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4AtlasInterfaces/IEndRunAction.h"
+#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4AtlasInterfaces/ISteppingAction.h"
+
+
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+
+namespace G4UA{
+
+
+  class FastCaloSimParamAction:
+  public IBeginRunAction,  public IEndRunAction,  public IBeginEventAction,  public IEndEventAction,  public ISteppingAction
+  {
+    
+  public:
+    
+    struct Config
+    {
+      bool shift_lar_subhit=true;
+      bool shorten_lar_step=false;
+      
+    };
+    
+    FastCaloSimParamAction(const Config& config);
+    virtual void beginOfRun(const G4Run*) override;
+    virtual void endOfRun(const G4Run*) override;
+    virtual void beginOfEvent(const G4Event*) override;
+    virtual void endOfEvent(const G4Event*) override;
+    virtual void processStep(const G4Step*) override;
+  private:
+    Config m_config;
+    
+    typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+    /// Pointer to StoreGate (event store by default)
+    mutable StoreGateSvc_t m_evtStore;
+    /// Pointer to StoreGate (detector store by default)
+    mutable StoreGateSvc_t m_detStore;
+    
+    
+    /* data members */
+    
+    LArVCalculator* m_current_calculator;
+    TileGeoG4SDCalc* m_current_calculator_Tile;
+    
+    G4VSolid* m_current_solid;
+    G4AffineTransform* m_current_transform;
+    
+    // calculators
+    LArVCalculator* m_calculator_EMECIW_pos;            //!< pointer to EMEC inner wheel calculator
+    LArVCalculator* m_calculator_EMECIW_neg;            //!< pointer to EMEC inner wheel calculator
+    
+    LArVCalculator* m_calculator_EMECOW_pos;            //!< pointer to EMEC outer wheel calculator
+    LArVCalculator* m_calculator_EMECOW_neg;
+    
+    //LArVCalculator* m_calculator_BIB; //!< BackInnerBarrette
+    LArVCalculator* m_calculator_BOB; //!< BackOuterBarrette
+    
+    LArVCalculator* m_calculator_EMB;
+    LArVCalculator* m_calculator_FCAL1;
+    LArVCalculator* m_calculator_FCAL2;
+    LArVCalculator* m_calculator_FCAL3;
+    LArVCalculator* m_calculator_HEC;
+    LArVCalculator* m_calculator_EMBPS;             //!< calculators for presampler
+    LArVCalculator* m_calculator_EMEPS;
+    
+    //LArVCalculator* m_calculator_HECLocal;
+    TileGeoG4SDCalc* m_calculator_Tile;
+    
+    // helper
+    LArG4SimpleSD* m_lar_helper;
+    const LArEM_ID *m_lar_emID;
+    const CaloDetDescrManager* m_calo_dd_man;
+    
+    ISF_FCS_Parametrization::FCS_StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
+    std::map<std::string,int> m_detectormap;
+    std::set<std::string> m_unuseddetector;
+    int m_ndetectors;
+    
+    
+  }; // class FastCaloSimParamAction
+  
+  
+} // namespace G4UA 
+
+
 
 #endif
