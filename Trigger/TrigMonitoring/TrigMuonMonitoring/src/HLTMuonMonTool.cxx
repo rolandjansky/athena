@@ -70,11 +70,11 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   //construction of common parameters
   //declareProperty("foobar",     m_foobar=false);
   //  declareProperty("MuonSelectorTool",m_muonSelectorTool);  // YY added -> removed
-  declareProperty("HI_PP_KEY",m_HI_PP_Key=true);
   declareProperty("monitoring_muonNonIso", m_chainsGeneric);
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
   declareProperty("monitoring_muonEFFS", m_chainsEFFS);
+  
   //construction of muFast parameters
 
   //construction of muComb parameters
@@ -234,14 +234,8 @@ StatusCode HLTMuonMonTool::init()
   // v5 primary
   //m_histChainEFFS.push_back("muChainEFFS");
   //m_chainsEFFS.push_back("mu18_mu8noL1");
-  if(m_HI_PP_Key){
-	m_FS_pre_trigger = "HLT_mu4";
-  m_FS_pre_trigger_second = "HLT_mu10";
-  
-  }else{
- 	m_FS_pre_trigger = "HLT_mu18";
+  m_FS_pre_trigger = "HLT_mu18";
   m_FS_pre_trigger_second = "HLT_mu24_imedium";
-	}
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
 	if(ich > 0) continue;
 	m_histChainEFFS.push_back("muChainEFFS");
@@ -490,21 +484,10 @@ StatusCode HLTMuonMonTool::init()
   m_vectkwd.push_back("_all");
 
   // YY: pt range.
-  if(m_HI_PP_Key){
-    iSTDL = 45;  // 12 GeV
-    //iSTDL = 54;  // 15 GeV
-    iSTDH = 75; // 25 GeV
-    iMSL =  54;  // 15 GeV
-    iMSH =  75;  // 25 GeV
-  }else{
-    iSTDL = 91;  // 40 GeV
-    iSTDH = 120; // 100 GeV
-    iMSL = 105;  // 60 GeV
-    iMSH = 120;  // 100 GeV
- 	}
-  
-  
-  
+  iSTDL = 91;  // 40 GeV
+  iSTDH = 120; // 100 GeV
+  iMSL = 105;  // 60 GeV
+  iMSH = 120;  // 100 GeV
   /* iSTDL = 71;  // 22.5 GeV
   iSTDH = 100;  // 50 GeV
   iMSL = 91;  // 40 GeV

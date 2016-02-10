@@ -172,7 +172,6 @@ class HLTMuonMonTool : public IHLTMonTool
   int m_lumiblock;
   int m_event;
 
-  bool   m_HI_PP_Key;
   //flags for trigger decision
   std::vector<std::string> m_chainsRate;
 
@@ -380,6 +379,7 @@ class HLTMuonMonTool : public IHLTMonTool
   // isolation cut for ztp
   double m_ztp_ptcone30rel_cut;
   double m_ztp_EF_ptcone30rel_cut;
+
   //2d histos parameter
 
   static const int eta_cnbins = 26;
