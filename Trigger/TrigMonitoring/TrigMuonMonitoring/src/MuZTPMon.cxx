@@ -110,8 +110,6 @@ StatusCode HLTMuonMonTool::initMuZTPDQA()
       m_ztpptcut[it->first] = 65.;
     } else if(it->first.find("14")!=string::npos) {
       m_ztpptcut[it->first] = 16.;
-    } else if(m_HI_PP_Key &&it->first.find("10")!=string::npos){
-      m_ztpptcut[it->first] = 12.;
     } else {
       ATH_MSG_DEBUG("Did not auto-configure pT cut for Z TP trigger " << it->first << ", set to 20 GeV");
       m_ztpptcut[it->first] = 20.0;
@@ -133,38 +131,16 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       const bool isefisochain = (m_ztp_isomap[itmap->first] > 0);
 
       std::string histdirmuztp="HLT/MuonMon/MuZTP/"+itmap->second;
-      double xbins[3]= {0.,1.05,2.7};
-      double ptbins[5];
-      if(m_HI_PP_Key){
-        ptbins[0]=0;
-        ptbins[1]=15;
-        ptbins[2]=20;
-        ptbins[3]=25;
-        ptbins[4]=50;
-      }else{
-        ptbins[0]=0;
-        ptbins[1]=30;
-        ptbins[2]=50;
-        ptbins[3]=100;
-        ptbins[4]=500;
-      }
+      double xbins[3] = {0.,1.05,2.7};
+      double ptbins[5] = {0.,30.,50.,100.,500.};
       //mass
-      if(m_HI_PP_Key){
-       addHistogram( new TH1F(("muZTP_invmass_nomasswindow_" + itmap->second).c_str(), "Invariant mass", 20, 0.0, 5000.0 ), histdirmuztp );
-       addHistogram( new TH1F(("muZTP_invmass_" + itmap->second).c_str(), "Invariant mass", 20, 0.0, 5000.0 ), histdirmuztp );
+
+      addHistogram( new TH1F(("muZTP_invmass_nomasswindow_" + itmap->second).c_str(), "Invariant mass", 20, 0.0, 120000.0 ), histdirmuztp );
+      addHistogram( new TH1F(("muZTP_invmass_" + itmap->second).c_str(), "Invariant mass", 20, 0.0, 120000.0 ), histdirmuztp );
       //all probes
-       addHistogram( new TH1F(("muZTP_Pt_" + itmap->second).c_str(), "Probe muon p_{T}", 25, 0.0, 25.0 ), histdirmuztp );
-       addHistogram( new TH1F(("muZTP_Pt_EC_" + itmap->second).c_str(), "Probe muon p_{T} EC", 25, 0.0, 25.0 ), histdirmuztp );
-       addHistogram( new TH1F(("muZTP_Pt_B_" + itmap->second).c_str(), "Probe muon p_{T} B", 25, 0.0, 25.0 ), histdirmuztp );
-      
-      }else{
-       addHistogram( new TH1F(("muZTP_invmass_nomasswindow_" + itmap->second).c_str(), "Invariant mass", 20, 0.0, 120000.0 ), histdirmuztp );
-       addHistogram( new TH1F(("muZTP_invmass_" + itmap->second).c_str(), "Invariant mass", 20, 0.0, 120000.0 ), histdirmuztp );
-       //all probes
-       addHistogram( new TH1F(("muZTP_Pt_" + itmap->second).c_str(), "Probe muon p_{T}", 20, 0.0, 100.0 ), histdirmuztp );
-       addHistogram( new TH1F(("muZTP_Pt_EC_" + itmap->second).c_str(), "Probe muon p_{T} EC", 20, 0.0, 100.0 ), histdirmuztp );
-       addHistogram( new TH1F(("muZTP_Pt_B_" + itmap->second).c_str(), "Probe muon p_{T} B", 20, 0.0, 100.0 ), histdirmuztp );
-      }
+      addHistogram( new TH1F(("muZTP_Pt_" + itmap->second).c_str(), "Probe muon p_{T}", 20, 0.0, 100.0 ), histdirmuztp );
+      addHistogram( new TH1F(("muZTP_Pt_EC_" + itmap->second).c_str(), "Probe muon p_{T} EC", 20, 0.0, 100.0 ), histdirmuztp );
+      addHistogram( new TH1F(("muZTP_Pt_B_" + itmap->second).c_str(), "Probe muon p_{T} B", 20, 0.0, 100.0 ), histdirmuztp );
       addHistogram( new TH1F(("muZTP_Pt_4bins_" + itmap->second).c_str(), "Probe muon p_{T}", 4, ptbins ), histdirmuztp );
       addHistogram( new TH1F(("muZTP_Pt_B_4bins_" + itmap->second).c_str(), "Probe muon p_{T}", 4, ptbins ), histdirmuztp );
       addHistogram( new TH1F(("muZTP_Eta_" + itmap->second).c_str(), "Probe muon #eta", 20, -2.7, 2.7 ), histdirmuztp );
@@ -183,17 +159,9 @@ StatusCode HLTMuonMonTool::bookMuZTPDQA()
       level.push_back("EFL2");
       if(isefisochain) level.push_back("EFIso");
       for(unsigned int j=0;j<level.size();j++){
-	 if(m_HI_PP_Key){
-	   addHistogram( new TH1F(("muZTP_Pt_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 25, 0.0, 25.0 ), histdirmuztp );
-	addHistogram( new TH1F(("muZTP_Pt_EC_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} EC (fired "+level[j]+")").c_str(), 25, 0.0, 25.0 ), histdirmuztp );
-	addHistogram( new TH1F(("muZTP_Pt_B_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} B (fired "+level[j]+")").c_str(), 25, 0.0, 25.0 ), histdirmuztp );
-	 
-	 }else{
-           addHistogram( new TH1F(("muZTP_Pt_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
-	   addHistogram( new TH1F(("muZTP_Pt_EC_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} EC (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
-	   addHistogram( new TH1F(("muZTP_Pt_B_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} B (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
-	 }
-
+	addHistogram( new TH1F(("muZTP_Pt_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
+	addHistogram( new TH1F(("muZTP_Pt_EC_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} EC (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
+	addHistogram( new TH1F(("muZTP_Pt_B_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} B (fired "+level[j]+")").c_str(), 20, 0.0, 100.0 ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Pt_4bins_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 4, ptbins ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Pt_B_4bins_"+level[j]+"fired_" + itmap->second).c_str(), ("p_{T} (fired "+level[j]+")").c_str(), 4, ptbins ), histdirmuztp );
 	addHistogram( new TH1F(("muZTP_Eta_"+level[j]+"fired_" + itmap->second).c_str(), ("#eta (fired "+level[j]+")").c_str(), 20, -2.7, 2.7 ), histdirmuztp );
@@ -328,6 +296,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     ATH_MSG_INFO("VxPrimaryCandidate" << " Container Unavailable");
     return StatusCode::SUCCESS;
   }
+
   //REQUIREMENTS FOR GOOD PRIMARY VERTEX   
   bool HasGoodPV = false;
   xAOD::VertexContainer::const_iterator vertexIter;
@@ -371,8 +340,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 
       } else {
 	msg(MSG::INFO) << "Could not get TrigConf::HLTChain for " << chainname << ", won't process this event" << endreq;
-	//return StatusCode::SUCCESS;
-        continue;
+	return StatusCode::SUCCESS;
       }
     }
     // copy new map to the private one
@@ -462,20 +430,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	xAOD::MuonRoIContainer::const_iterator it = lvl1Roi->begin(); 
 	xAOD::MuonRoIContainer::const_iterator it_end = lvl1Roi->end(); 
 	for ( ; it != it_end ; ++it ) {
-	  if(m_HI_PP_Key){
-	    if (
-	      ("L1_MU0"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU0" || (*it)->thrName() == "MU4" || (*it)->thrName() == "MU6"|| (*it)->thrName() == "MU10"|| (*it)->thrName() == "MU11"|| (*it)->thrName() == "MU15"|| (*it)->thrName() == "MU20")) || 
-	      ("L1_MU4"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU4"|| (*it)->thrName() == "MU6"|| (*it)->thrName() == "MU10"|| (*it)->thrName() == "MU11"|| (*it)->thrName() == "MU15"|| (*it)->thrName() == "MU20" )) || 
-	      ("L1_MU6"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU6"|| (*it)->thrName() == "MU10"|| (*it)->thrName() == "MU11"|| (*it)->thrName() == "MU15"|| (*it)->thrName() == "MU20"))|| 
-	      ("L1_MU10"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU10"|| (*it)->thrName() == "MU11"|| (*it)->thrName() == "MU15"|| (*it)->thrName() == "MU20"))|| 
-	      ("L1_MU11"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU11"|| (*it)->thrName() == "MU15"|| (*it)->thrName() == "MU20"))
-	      ) {
-	    L1pt.push_back((*it)->thrValue());
-	    L1eta.push_back((*it)->eta());
-	    L1phi.push_back((*it)->phi());
-	  } 
-	 }else{
-	   if (
+	  if (
 	      ("L1_MU10"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU10" || (*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
 	      ("L1_MU15"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
 	      ("L1_MU20"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU20"))
@@ -483,8 +438,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    L1pt.push_back((*it)->thrValue());
 	    L1eta.push_back((*it)->eta());
 	    L1phi.push_back((*it)->phi());
-	  } 
-	 } 
+	  }  
 	}
       }
     }
@@ -604,6 +558,7 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 		  } else {
 		      ATH_MSG_DEBUG("ZTP EFsa none");
 		  }
+
 		
 		}
 
@@ -678,17 +633,15 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	  px = (muidCBMuon->p4()).Px();
 	  py = (muidCBMuon->p4()).Py();
 	  pz = (muidCBMuon->p4()).Pz();
-	  if(m_HI_PP_Key){
-	    if(pt < 1.0) continue;
-	  }else{
-	    if(pt < 10.0) continue;
-	  }
+
+	  if(pt < 10.0) continue;
+
 	  // isolation cut (sumpt / pt)
 	  float m_ptcone30;
 	  (*contItr)->isolation(m_ptcone30, xAOD::Iso::ptcone30); 
 
 	  if(m_ptcone30 / muidCBMuon->pt() > m_ztp_ptcone30rel_cut) continue;
-	  
+
 	  RecCBpt.push_back(pt);
 	  RecCBpx.push_back(px);
 	  RecCBpy.push_back(py);
@@ -740,11 +693,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	bool isEndcap = false;
 	if(fabs(probeeta) > 1.05) isEndcap = true;
 	bool masswindow = false;
-	if(m_HI_PP_Key){
-	if(fabs(invMass - 3097) < 300.0) masswindow = true;
-	}else{
 	if(fabs(invMass - 91187.6) < 12000.0) masswindow = true;
-	}
+	
 	if(masswindow){
 	  //all probes
 	  hist(("muZTP_invmass_" + itmap->second).c_str(), histdirmuztp)->Fill(invMass);
