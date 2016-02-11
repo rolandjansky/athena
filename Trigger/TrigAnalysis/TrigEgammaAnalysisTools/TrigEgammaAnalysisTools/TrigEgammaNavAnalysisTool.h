@@ -23,22 +23,10 @@ class TrigEgammaNavAnalysisTool : public TrigEgammaNavBaseTool,
     protected:
 
     private:
-
         /*! Method to book histograms for each trigger */
         void bookPerSignature(const std::string);
         /*! Method to book histograms for each MaM category */
         void bookPerCategory(const std::string);
-        void efficiency(const std::string,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-
-        
-        /*! Online persisted containers */
-        const xAOD::EventInfo *m_eventInfo;
-        const xAOD::ElectronContainer *m_onlElectrons;
-        const xAOD::PhotonContainer *m_onlPhotons;
-        const xAOD::TrigElectronContainer *m_trigElectrons;
-        const xAOD::CaloClusterContainer *m_caloClusters;
-        const xAOD::TrigEMClusterContainer *m_trigEMClusters;
-        const xAOD::EmTauRoIContainer *m_emTauRoI;
 
         unsigned int        m_eventCounter;
 };
