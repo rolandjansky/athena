@@ -59,7 +59,7 @@ StatusCode PixelModuleBuilder::queryInterface(const InterfaceID& riid, void** pp
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelModuleBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
+StatusCode PixelModuleBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 {  
   return StatusCode::SUCCESS;
 }
