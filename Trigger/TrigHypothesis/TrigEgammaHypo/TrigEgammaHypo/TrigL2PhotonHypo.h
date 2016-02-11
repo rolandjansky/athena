@@ -81,7 +81,7 @@ class TrigL2PhotonHypo : public HLT::HypoAlgo {
     float  m_detacluster; //!<  deta between track and L1 roI
     float  m_dphicluster; //!<  dphi between track and L1 roI
     
-    int  PassedCuts; //!< counter for candidates passing each cut
+    int  m_PassedCuts; //!< counter for candidates passing each cut
 
     // functions to retrieve monitored quantities
 

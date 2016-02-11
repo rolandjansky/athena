@@ -35,12 +35,12 @@ TrigL2CaloLayersHypo::TrigL2CaloLayersHypo(const std::string & name, ISvcLocator
   declareProperty("AbsoluteEnergyCut",         m_EnergyAbsCut);
 
   // declare monitoring histograms for all cut variables
-  declareMonitoredVariable("Eta", monEta);
-  declareMonitoredVariable("Phi", monPhi);
+  declareMonitoredVariable("Eta", m_monEta);
+  declareMonitoredVariable("Phi", m_monPhi);
   declareMonitoredVariable("Energy",m_Energy);
   declareMonitoredVariable("PreSampler_Energy",m_preSamp);
   declareMonitoredVariable("PreSampler_fracEnergy",m_preSampFrac);
-  declareMonitoredVariable("CutCounter", PassedCuts);
+  declareMonitoredVariable("CutCounter", m_PassedCuts);
   m_EnergyAbsCut.clear();
   m_EnergyFracCut.clear();
   for(int i=0;i<4;i++){
@@ -153,17 +153,17 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
 
   // get cluster
   const xAOD::TrigEMCluster* pClus = vectorOfClusters.front();
-  m_preSampFrac=m_preSamp=monEta=monPhi=m_Energy=-9999.0;
+  m_preSampFrac=m_preSamp=m_monEta=m_monPhi=m_Energy=-9999.0;
 
   if ( !pClus && (pClus->energy()>0.1) && (fabsf(pClus->eta())<2.1) ) {
     msg() << MSG::WARNING << "No EM cluster in RoI" << endreq;
     return HLT::OK;
   }
-  monEta = pClus->eta();
-  monPhi = pClus->phi();
+  m_monEta = pClus->eta();
+  m_monPhi = pClus->phi();
 
   // increment event counter 
-  PassedCuts++; //// the ROI at least contais the cluster
+  m_PassedCuts++; //// the ROI at least contais the cluster
 
   std::vector<double> fracs;
   for(int i=0;i<4;i++){
@@ -173,11 +173,11 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
   m_Energy = pClus->energy();
 
   if ( fracs[0] > m_EnergyFracCut[0] ) return HLT::OK;
-  PassedCuts++; //// 
+  m_PassedCuts++; //// 
   m_preSampFrac = fracs[0];
 
   if ( (pClus->energy( ((CaloSampling::CaloSample)0) ) + pClus->energy( ((CaloSampling::CaloSample)4) ) ) > m_EnergyAbsCut[0] ) return HLT::OK;
-  PassedCuts++; //// 
+  m_PassedCuts++; //// 
   m_preSamp = (fracs[0])*pClus->energy();
 
   // got this far => passed!
