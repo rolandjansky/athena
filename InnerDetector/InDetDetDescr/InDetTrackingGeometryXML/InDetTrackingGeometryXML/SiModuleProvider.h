@@ -50,9 +50,9 @@ namespace InDet {
 				  bool useDiscSurface = false ) const;
 
     // Get overlap descriptors
-    virtual Trk::OverlapDescriptor* getPlanarOverlapDescriptor() const;
-    virtual Trk::OverlapDescriptor* getDiscOverlapDescriptor() const;
-    virtual Trk::OverlapDescriptor* getDiscOverlapDescriptor(Trk::BinnedArray<Trk::Surface>* binnedArray, std::vector< Trk::BinUtility*>* subBinUtilities) const;
+    virtual Trk::OverlapDescriptor* getPlanarOverlapDescriptor(bool isPixel=true) const;
+    virtual Trk::OverlapDescriptor* getDiscOverlapDescriptor(bool isPixel = false) const;
+    virtual Trk::OverlapDescriptor* getDiscOverlapDescriptor(bool isPixel, Trk::BinnedArray<Trk::Surface>* binnedArray, std::vector< Trk::BinUtility*>* subBinUtilities) const;
 
     // Set neighbours
     virtual void setEtaNeighbours(Trk::TrkDetElementBase *elem, Trk::TrkDetElementBase* prev)     const;

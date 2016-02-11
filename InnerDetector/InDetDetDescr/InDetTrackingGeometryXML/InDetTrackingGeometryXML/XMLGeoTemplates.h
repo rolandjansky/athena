@@ -100,6 +100,7 @@ namespace InDet {
     double widthmin;         // Width min in mm
     double widthmax;         // Width max in mm
     double thickness;        // Thickness in mm (sensor + chip + hybrid thicknesses)
+    double thickness_sensor; // Thickness in mm (sensor only)
     double pitchEta;         // pixel pitch in mm
     double pitchPhi;         // pixel pitch in mm
   };

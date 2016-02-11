@@ -1,3 +1,24 @@
+2016-02-11 Sabine Elles
+	* Update moduel size : set to chip size without outer edges 
+	       in order to match the SiDetectorElement surface size 
+	* Fix inlined module Z position (based on sensor thickness not on module thickness)
+	* Tag as InDetTrackingGeometryXML-00-00-28
+
+2016-02-04 Eric Feng <Eric.Feng@cern.ch>
+	* Correcting bug in stereo angle in Strip endcap from [-40, 40] mrad to [-20, 20]:
+	  share/FourLayersNoStub_23-25-dev0_SCTEndcap.xml
+	* Tagged as InDetTrackingGeometryXML-00-00-27
+
+2016-02-04 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing identifiers and module phi position
+	* REMEMBER: You need to have InDetTrackingGeometryUtils to make it work
+        * tagged as InDetTrackingGeometryXML-00-00-26
+
+2016-02-03 Noemi Calace <noemi.calace@cern.ch>
+	* Adding the OverlapDescriptors
+	* You need to have InDetTrackingGeometryUtils to make it work
+        * tagged as InDetTrackingGeometryXML-00-00-25
+
 2016-01-31 Noemi Calace <noemi.calace@cern.ch>
 	* Changing Barrel description for IExtBrl4Ref layout
         * tagged as InDetTrackingGeometryXML-00-00-24

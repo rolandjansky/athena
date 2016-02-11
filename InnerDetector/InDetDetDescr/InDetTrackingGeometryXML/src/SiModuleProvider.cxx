@@ -11,6 +11,9 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementMap.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "InDetTrackingGeometryUtils/DiscOverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/PixelOverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/SCT_OverlapDescriptor.h"
 #include "TMath.h"
 
 InDet::SiModuleProvider::SiModuleProvider(const std::string& t, const std::string& n, const IInterface* p) :
@@ -42,7 +45,7 @@ StatusCode InDet::SiModuleProvider::initialize()
   if(detStore()->retrieve(detElementMap, "SiDetectorElementMap").isFailure())
     ATH_MSG_WARNING("Could not get SiDetectorElementMap");
   else
-    ATH_MSG_WARNING("SiDetectorElementMap retrieved from detstore");
+    ATH_MSG_INFO("SiDetectorElementMap retrieved from detstore");
 
   return StatusCode::SUCCESS;
 }
@@ -177,19 +180,20 @@ Amg::Transform3D InDet::SiModuleProvider::getTransform(double R, double dR, doub
   
 }
 
-Trk::OverlapDescriptor* InDet::SiModuleProvider::getDiscOverlapDescriptor() const
+
+Trk::OverlapDescriptor* InDet::SiModuleProvider::getDiscOverlapDescriptor(bool isPixel) const
 {
-  return 0;
+  return new InDet::DiscOverlapDescriptor(isPixel);
 }
 
-Trk::OverlapDescriptor* InDet::SiModuleProvider::getDiscOverlapDescriptor(Trk::BinnedArray<Trk::Surface>* /* binnedArray */, std::vector< Trk::BinUtility*>* /* subBinUtilities */) const
+Trk::OverlapDescriptor* InDet::SiModuleProvider::getDiscOverlapDescriptor(bool isPixel, Trk::BinnedArray<Trk::Surface>* binnedArray, std::vector< Trk::BinUtility*>* subBinUtilities) const
 {
-  return 0;
+  return new InDet::DiscOverlapDescriptor(isPixel,binnedArray,subBinUtilities);
 }
 
-Trk::OverlapDescriptor* InDet::SiModuleProvider::getPlanarOverlapDescriptor() const
+Trk::OverlapDescriptor* InDet::SiModuleProvider::getPlanarOverlapDescriptor(bool isPixel) const
 {
-  return 0;
+  return isPixel ? (Trk::OverlapDescriptor*) new InDet::PixelOverlapDescriptor() : (Trk::OverlapDescriptor*) new InDet::SCT_OverlapDescriptor();
 }
 
 void InDet::SiModuleProvider::setPhiNeighbours(Trk::TrkDetElementBase *elem, Trk::TrkDetElementBase* prev) const
