@@ -2,10 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TokenProcessor.h"
+#include "EvtRangeProcessor.h"
 #include "copy_file_icc_hack.h"
 #include "AthenaInterprocess/ProcessGroup.h"
 
+#include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEventShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -38,7 +39,7 @@ struct ShareEventHeader {
 };
 
 
-TokenProcessor::TokenProcessor(const std::string& type
+EvtRangeProcessor::EvtRangeProcessor(const std::string& type
 			       , const std::string& name
 			       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
@@ -46,6 +47,7 @@ TokenProcessor::TokenProcessor(const std::string& type
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
   , m_chronoStatSvc("ChronoStatSvc", name)
+  , m_evtSeek(0)
   , m_evtShare(0)
   , m_channel2Scatterer("")
   , m_channel2EvtSel("")
@@ -53,6 +55,7 @@ TokenProcessor::TokenProcessor(const std::string& type
   , m_sharedFailedPidQueue(0)
   , m_socketFactory(0)
   , m_socket2Scatterer(0)
+  , m_useTokenExtractor(false)
 {
   declareInterface<IAthenaMPTool>(this);
 
@@ -60,15 +63,16 @@ TokenProcessor::TokenProcessor(const std::string& type
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("Channel2Scatterer", m_channel2Scatterer);
   declareProperty("Channel2EvtSel", m_channel2EvtSel);
+  declareProperty("UseTokenExtractor",m_useTokenExtractor);
 
   m_subprocDirPrefix = "worker_";
 }
 
-TokenProcessor::~TokenProcessor()
+EvtRangeProcessor::~EvtRangeProcessor()
 {
 }
 
-StatusCode TokenProcessor::initialize()
+StatusCode EvtRangeProcessor::initialize()
 {
   msg(MSG::DEBUG) << "In initialize" << endreq;
   if(m_isPileup) {
@@ -83,10 +87,19 @@ StatusCode TokenProcessor::initialize()
   if(!sc.isSuccess())
     return sc;
 
-  sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-  if(sc.isFailure() || m_evtShare==0) {
-    msg(MSG::ERROR) << "Error retrieving IEventShare" << endreq;
-    return StatusCode::FAILURE;
+  if(m_useTokenExtractor) {
+    sc = serviceLocator()->service(m_evtSelName,m_evtShare);
+    if(sc.isFailure() || m_evtShare==0) {
+      ATH_MSG_ERROR("Error retrieving IEventShare");
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
+    if(sc.isFailure() || m_evtSeek==0) {
+      ATH_MSG_ERROR("Error retrieving IEventSeek");
+      return StatusCode::FAILURE;
+    }
   }
   
   sc = m_chronoStatSvc.retrieve();
@@ -98,13 +111,13 @@ StatusCode TokenProcessor::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TokenProcessor::finalize()
+StatusCode EvtRangeProcessor::finalize()
 {
   delete m_sharedRankQueue;
   return StatusCode::SUCCESS;
 }
 
-int TokenProcessor::makePool(int, int nprocs, const std::string& topdir)
+int EvtRangeProcessor::makePool(int, int nprocs, const std::string& topdir)
 {
   msg(MSG::DEBUG) << "In makePool " << getpid() << endreq;
 
@@ -123,7 +136,7 @@ int TokenProcessor::makePool(int, int nprocs, const std::string& topdir)
 
   // Create rank queue and fill it
   std::ostringstream rankQueueName;
-  rankQueueName << "TokenProcessor_RankQueue_" << getpid();
+  rankQueueName << "EvtRangeProcessor_RankQueue_" << getpid();
   m_sharedRankQueue = new AthenaInterprocess::SharedQueue(rankQueueName.str(),m_nprocs,sizeof(int));
   for(int i=0; i<m_nprocs; ++i)
     if(!m_sharedRankQueue->send_basic<int>(i)) {
@@ -141,7 +154,7 @@ int TokenProcessor::makePool(int, int nprocs, const std::string& topdir)
   return m_nprocs;
 }
 
-StatusCode TokenProcessor::exec()
+StatusCode EvtRangeProcessor::exec()
 {
   msg(MSG::DEBUG) << "In exec " << getpid() << endreq;
 
@@ -152,7 +165,7 @@ StatusCode TokenProcessor::exec()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TokenProcessor::wait_once(pid_t& pid)
+StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 {
   if(m_sharedFailedPidQueue==0) {
     if(detStore()->retrieve(m_sharedFailedPidQueue,"AthenaMPFailedPidQueue_"+m_randStr).isFailure()) {
@@ -170,7 +183,7 @@ StatusCode TokenProcessor::wait_once(pid_t& pid)
       return sc;
     }
 
-    // Send the pid to Token Scatterer
+    // Send the pid to Range Scatterer
     if(!m_sharedFailedPidQueue->send_basic<pid_t>(pid)) {
       msg(MSG::ERROR) << "Failed to send the failed PID to Token Scatterer" << endreq;
       return sc;
@@ -209,24 +222,25 @@ StatusCode TokenProcessor::wait_once(pid_t& pid)
   return sc;
 }
 
-void TokenProcessor::reportSubprocessStatuses()
+void EvtRangeProcessor::reportSubprocessStatuses()
 {
   msg(MSG::INFO) << "Statuses of event processors" << endreq;
   const std::vector<AthenaInterprocess::ProcessStatus>& statuses = m_processGroup->getStatuses();
   for(size_t i=0; i<statuses.size(); ++i) {
     // Get the number of events processed by this worker
     std::map<pid_t,int>::const_iterator it = m_nProcessedEvents.find(statuses[i].pid);
-    msg(MSG::INFO) << "*** Process PID=" << statuses[i].pid 
-		   << ". Status " << ((statuses[i].exitcode)?"FAILURE":"SUCCESS") 
-		   << ". Number of events processed: ";
+    std::ostringstream ostr;
     if(it==m_nProcessedEvents.end())
-      msg(MSG::INFO) << "N/A" << endreq;
+      ostr << "N/A";
     else
-      msg(MSG::INFO) << it->second << endreq;
+      ostr << it->second;
+    ATH_MSG_INFO("*** Process PID=" << statuses[i].pid 
+		 << ". Status " << ((statuses[i].exitcode)?"FAILURE":"SUCCESS")
+		 << ". Number of events processed: " << ostr.str());
   }
 }
 
-void TokenProcessor::subProcessLogs(std::vector<std::string>& filenames)
+void EvtRangeProcessor::subProcessLogs(std::vector<std::string>& filenames)
 {
   filenames.clear();
   for(int i=0; i<m_nprocs; ++i) {
@@ -238,13 +252,13 @@ void TokenProcessor::subProcessLogs(std::vector<std::string>& filenames)
   }
 }
 
-AthenaMP::AllWorkerOutputs_ptr TokenProcessor::generateOutputReport()
+AthenaMP::AllWorkerOutputs_ptr EvtRangeProcessor::generateOutputReport()
 {
   AthenaMP::AllWorkerOutputs_ptr jobOutputs(new AthenaMP::AllWorkerOutputs());
   return jobOutputs;
 }
 
-AthenaInterprocess::ScheduledWork* TokenProcessor::bootstrap_func()
+AthenaInterprocess::ScheduledWork* EvtRangeProcessor::bootstrap_func()
 {
   int* errcode = new int(1); // For now use 0 success, 1 failure
   AthenaInterprocess::ScheduledWork* outwork = new AthenaInterprocess::ScheduledWork;
@@ -304,13 +318,15 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::bootstrap_func()
   msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP event worker PID=" << getpid() << endreq;
 
   
-  // ________________________ Make Shared RAW Reader Client ________________________
-  if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
-    msg(MSG::ERROR) << "Failed to make the event selector a share client" << endreq;
-    return outwork;
-  }
-  else {
-    msg(MSG::DEBUG) << "Successfully made the event selector a share client" << endreq;
+  if(m_useTokenExtractor) {
+    // ________________________ Make Shared RAW Reader Client ________________________
+    if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
+      ATH_MSG_ERROR("Failed to make the event selector a share client");
+      return outwork;
+    }
+    else {
+      ATH_MSG_DEBUG("Successfully made the event selector a share client");
+    }
   }
 
   // ________________________ I/O reinit ________________________
@@ -363,7 +379,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::bootstrap_func()
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
+AthenaInterprocess::ScheduledWork* EvtRangeProcessor::exec_func()
 {
   msg(MSG::INFO) << "Exec function in the AthenaMP worker PID=" << getpid() << endreq;
 
@@ -380,9 +396,12 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
   msg(MSG::DEBUG) << "Created CLIENT socket to the Scatterer: " << m_channel2Scatterer.value() << endreq;
   std::ostringstream pidstr;
   pidstr << getpid();
-  std::string socket2EvtSelName = m_channel2EvtSel.value() + std::string("_") + pidstr.str();
-  yampl::ISocket* socket2EvtSel = m_socketFactory->createClientSocket(yampl::Channel(socket2EvtSelName,yampl::LOCAL_PIPE),yampl::COPY_DATA);
-  msg(MSG::DEBUG) << "Created CLIENT socket to the Tool: " << socket2EvtSelName << endreq;
+  yampl::ISocket* socket2EvtSel(0);
+  if(m_useTokenExtractor) {
+    std::string socket2EvtSelName = m_channel2EvtSel.value() + std::string("_") + pidstr.str();
+    socket2EvtSel = m_socketFactory->createClientSocket(yampl::Channel(socket2EvtSelName,yampl::LOCAL_PIPE),yampl::COPY_DATA);
+    ATH_MSG_INFO("Created CLIENT socket to the Tool: " << socket2EvtSelName);
+  }
 
   // Get the IncidentSvc
   IIncidentSvc* p_incidentSvc(0);
@@ -391,7 +410,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
     all_ok = false;
   }
 
-  // Construct a "welcome" message to be sent to the TokenScatterer
+  // Construct a "welcome" message to be sent to the EvtRangeScatterer
   std::string ping = pidstr.str() + std::string(" ready for event processing");
   void* message2scatterer = malloc(ping.size());
   memcpy(message2scatterer,ping.data(),ping.size());
@@ -400,7 +419,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
 
   while(all_ok) {
     // Get the response - list of tokens - from the scatterer. 
-    // The format of the response: | ResponseSize | RangeID, | evtToken[,evtToken] |
+    // The format of the response: | ResponseSize | RangeID, | evtEvtRange[,evtToken] |
     char *responseBuffer(0);
     ssize_t responseSize = m_socket2Scatterer->recv(responseBuffer);
     // If response size is 0 then break the loop
@@ -446,24 +465,38 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
       msg(MSG::DEBUG) << "Processing the Token : " << strToken << endreq;
       queueTokens.pop();
 
-      std::size_t num = strToken.size();
+      if(m_useTokenExtractor) {
+	ATH_MSG_INFO("Processing the Token : " << strToken);
 
-      ShareEventHeader evtH;
-      evtH.evtSeqNumber = eventNumber++;
-      evtH.fileSeqNumber = 0;
-      evtH.evtSize = num;
-      evtH.evtOffset = 0;
-      evtH.evtCoreStatusFlag = 0; // ???
-      evtH.evtTerm1 = *(static_cast<const uint32_t*>((const void*)strToken.data()) + num / sizeof(uint32_t) - 1);
-      evtH.evtTerm2 = *(static_cast<const uint32_t*>((const void*)strToken.data()) + num / sizeof(uint32_t) - 2);
+	std::size_t num = strToken.size();
 
-      int messageSize = num+sizeof(evtH);
-      void* message = malloc(messageSize);
-      memcpy(message,(void*)&evtH,sizeof(evtH));
-      memcpy((char*)message+sizeof(evtH),strToken.data(),num);
+	ShareEventHeader evtH;
+	evtH.evtSeqNumber = eventNumber++;
+	evtH.fileSeqNumber = 0;
+	evtH.evtSize = num;
+	evtH.evtOffset = 0;
+	evtH.evtCoreStatusFlag = 0; // ???
+	evtH.evtTerm1 = *(static_cast<const uint32_t*>((const void*)strToken.data()) + num / sizeof(uint32_t) - 1);
+	evtH.evtTerm2 = *(static_cast<const uint32_t*>((const void*)strToken.data()) + num / sizeof(uint32_t) - 2);
 
-      socket2EvtSel->send(message,num+sizeof(evtH));
-      msg(MSG::DEBUG) << "Message sent to the event selector" << endreq;
+	int messageSize = num+sizeof(evtH);
+	void* message = malloc(messageSize);
+	memcpy(message,(void*)&evtH,sizeof(evtH));
+	memcpy((char*)message+sizeof(evtH),strToken.data(),num);
+
+	socket2EvtSel->send(message,num+sizeof(evtH));
+	msg(MSG::DEBUG) << "Message sent to the event selector" << endreq;
+      }
+      else {
+	ATH_MSG_INFO("Seeking to event number " << strToken);
+	int evtNumber = std::atoi(strToken.c_str());
+	if(m_evtSeek->seek(evtNumber-1).isFailure()) {
+	  ATH_MSG_ERROR("Unable to seek to " << evtNumber);
+	  all_ok=false;
+	  break;
+	}
+	ATH_MSG_INFO("Seek successfull");
+      }
 
       // Process the event
       m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
@@ -478,10 +511,12 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
       }
       m_chronoStatSvc->chronoStop("AthenaMP_nextEvent"); 
 
-      // Get the response posted by the event selector
-      char *pong(0); // can be something else
-      socket2EvtSel->recv(pong);
-      msg(MSG::DEBUG) << "Event selector response received from the channel" << endreq;
+      if(m_useTokenExtractor) {
+	// Get the response posted by the event selector
+	char *pong(0); // can be something else
+	socket2EvtSel->recv(pong);
+	msg(MSG::DEBUG) << "Event selector response received from the channel" << endreq;
+      }
 
       if(!all_ok) break;
     } // Loop over tokens in the event range
@@ -554,7 +589,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::exec_func()
   return outwork;
 }
 
-AthenaInterprocess::ScheduledWork* TokenProcessor::fin_func()
+AthenaInterprocess::ScheduledWork* EvtRangeProcessor::fin_func()
 {
   msg(MSG::INFO) << "Fin function in the AthenaMP worker PID=" << getpid() << endreq;
 
@@ -602,7 +637,7 @@ AthenaInterprocess::ScheduledWork* TokenProcessor::fin_func()
   return outwork;
 }
 
-int TokenProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult, bool doFinalize)
+int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult* presult, bool doFinalize)
 {
   if(!presult) return 0;
   const AthenaInterprocess::ScheduledWork& output = presult->output;
@@ -666,7 +701,7 @@ int TokenProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResult*
   return 0;
 }
 
-StatusCode TokenProcessor::startProcess()
+StatusCode EvtRangeProcessor::startProcess()
 {
   m_nprocs++;
 

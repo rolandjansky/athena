@@ -13,6 +13,7 @@
 #include "boost/shared_ptr.hpp"
 #include <queue>
 
+class IEventSeek;
 class IEventShare;
 class IChronoStatSvc;
 namespace yampl {
@@ -20,14 +21,14 @@ namespace yampl {
   class ISocket;
 }
 
-class TokenProcessor : public AthenaMPToolBase
+class EvtRangeProcessor : public AthenaMPToolBase
 {
  public:
-  TokenProcessor(const std::string& type
-		 , const std::string& name
-		 , const IInterface* parent);
+  EvtRangeProcessor(const std::string& type
+		    , const std::string& name
+		    , const IInterface* parent);
 
-  virtual ~TokenProcessor();
+  virtual ~EvtRangeProcessor();
   
   StatusCode initialize();
   StatusCode finalize();
@@ -47,9 +48,9 @@ class TokenProcessor : public AthenaMPToolBase
   AthenaInterprocess::ScheduledWork* fin_func();
 
  private:
-  TokenProcessor();
-  TokenProcessor(const TokenProcessor&);
-  TokenProcessor& operator= (const TokenProcessor&);
+  EvtRangeProcessor();
+  EvtRangeProcessor(const EvtRangeProcessor&);
+  EvtRangeProcessor& operator= (const EvtRangeProcessor&);
 
   // Decode process results
   // 1. Store number of processed events for FUNC_EXEC
@@ -62,6 +63,7 @@ class TokenProcessor : public AthenaMPToolBase
   int  m_nEventsBeforeFork;
 
   ServiceHandle<IChronoStatSvc>     m_chronoStatSvc;
+  IEventSeek*                       m_evtSeek;
   IEventShare*                      m_evtShare;
 
   StringProperty                    m_channel2Scatterer;
@@ -76,6 +78,8 @@ class TokenProcessor : public AthenaMPToolBase
   yampl::ISocketFactory*            m_socketFactory;
   yampl::ISocket*                   m_socket2Scatterer;
   std::string                       m_outputFileReport;
+
+  bool m_useTokenExtractor;
 };
 
 #endif
