@@ -12,7 +12,6 @@
 
    @author Christos Anastopoulos
 */
-
 #include <string>
 #include <vector>
 #include "TEnv.h"
@@ -22,8 +21,6 @@ namespace AsgConfigHelper{
   std::vector<double> HelperDouble(const std::string& input,  TEnv& env);  
   std::vector<float> HelperFloat(const std::string& input,  TEnv& env);  
   std::vector<int> HelperInt(const std::string& input, TEnv& env);
-  bool strtof(const std::string& input, float& f); 
-
 }
 
 

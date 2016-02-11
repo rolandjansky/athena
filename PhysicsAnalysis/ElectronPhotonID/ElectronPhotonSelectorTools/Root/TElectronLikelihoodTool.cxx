@@ -26,6 +26,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   doRemoveTRTPIDAtHighEt(false),
   doSmoothBinInterpolation(false),
   useHighETLHBinning(false),
+  useOneExtraHighETLHBin(false),
   doPileupTransform(false),
   DiscMaxForPileupTransform(2.0),
   PileupMaxForPileupTransform(50),
@@ -46,6 +47,8 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   m_cutPositionTrackA0(-9),
   m_cutPositionTrackMatchEta(-9),
   m_cutPositionTrackMatchPhiRes(-9),
+  m_cutPositionWstotAtHighET(-9),
+  m_cutPositionEoverPAtHighET(-9),
   m_resultPosition_LH(-9)
 {
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
@@ -146,6 +149,13 @@ int Root::TElectronLikelihoodTool::initialize()
   m_cutPositionTrackMatchPhiRes = m_accept.addCut( "TrackMatchPhiRes", "Track match dphi in 2nd sampling, rescaled < Cut" );
   if ( m_cutPositionTrackMatchPhiRes < 0 ) sc = 0;
   
+  // Wstot
+  m_cutPositionWstotAtHighET = m_accept.addCut( "WstotAtHighET", "Above 125 GeV, Wstot < Cut" );
+  if ( m_cutPositionWstotAtHighET < 0 ) sc = 0;
+
+  // EoverP
+  m_cutPositionEoverPAtHighET = m_accept.addCut( "EoverPAtHighET", "Above 125 GeV, EoverP < Cut" );
+  if ( m_cutPositionEoverPAtHighET < 0 ) sc = 0;
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -220,12 +230,15 @@ int Root::TElectronLikelihoodTool::initialize()
 		    << "\n - (bool)doRemoveTRTPIDAtHighEt (yes/no)        : " << (doRemoveTRTPIDAtHighEt ? "yes" : "no")
 		    << "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
 		    << "\n - (bool)useHighETLHBinning (yes/no)            : " << (useHighETLHBinning ? "yes" : "no")
+		    << "\n - (bool)useOneExtraHighETLHBin(yes/no)         : " << (useOneExtraHighETLHBin ? "yes" : "no")
 		    << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
 		    << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
 		    << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
 		    << "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
 		    << "\n - (bool)CutDeltaEta (yes/no)                   : " << (CutDeltaEta.size() ? "yes" : "no")
 		    << "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
+		    << "\n - (bool)CutWstotAtHighET (yes/no)              : " << (CutWstotAtHighET.size() ? "yes" : "no")
+		    << "\n - (bool)CutEoverPAtHighET (yes/no)             : " << (CutEoverPAtHighET.size() ? "yes" : "no")
 		    );
     }
   return sc;
@@ -248,9 +261,9 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
           char binname[200];
           getBinName( binname, et_tmp, eta_tmp, ip, m_ipBinning );
           
-          //if (std::string(binname).find("1.37") != std::string::npos) 
-          //  continue;
-          
+	  if (((std::string(binname).find("2.37") != std::string::npos)) && (vstr.find("el_f3") != std::string::npos))
+	    continue;
+
 	  if (((std::string(binname).find("2.01") != std::string::npos) || (std::string(binname).find("2.37") != std::string::npos))
 	      && (vstr.find("TRT") != std::string::npos))
 	    continue;
@@ -308,7 +321,9 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
                                                             double eta, double eT,
                                                             int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
                                                             int nBlayer, int nBlayerOutliers, bool expectBlayer,
-                                                            int convBit, double d0, double deltaEta, double deltaphires, double ip
+							    int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
+                                                            int convBit, double d0, double deltaEta, double deltaphires, 
+                                                            double wstot, double EoverP, double ip
                                                             ) const
 {
   LikeEnum::LHAcceptVars_t vars;
@@ -323,10 +338,15 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
   vars.nBlayer         = nBlayer        ;
   vars.nBlayerOutliers = nBlayerOutliers;
   vars.expectBlayer    = expectBlayer   ;
+  vars.nNextToInnerMostLayer        = nNextToInnerMostLayer        ;
+  vars.nNextToInnerMostLayerOutliers = nNextToInnerMostLayerOutliers;
+  vars.expectNextToInnerMostLayer = expectNextToInnerMostLayer   ;
   vars.convBit         = convBit        ;
   vars.d0              = d0             ;
   vars.deltaEta        = deltaEta       ;
   vars.deltaphires     = deltaphires    ;
+  vars.wstot           = wstot          ;
+  vars.EoverP          = EoverP         ;
   vars.ip              = ip             ;
   
   return accept(vars);
@@ -350,6 +370,8 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   bool passTrackA0(true);
   bool passDeltaEta(true);
   bool passDeltaPhiRes(true);
+  bool passWstotAtHighET(true);
+  bool passEoverPAtHighET(true);
   
   if (fabs(vars_struct.eta) > 2.47) {
     ATH_MSG_DEBUG("This electron is fabs(eta)>2.47 Returning False.");
@@ -377,10 +399,18 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   }
 
   // blayer cut
-  if (CutBL.size() && vars_struct.expectBlayer) {
-    if(vars_struct.nBlayer + vars_struct.nBlayerOutliers < CutBL[etabin]) {
-      ATH_MSG_DEBUG("Likelihood macro: Blayer Failed." );
-      passNBlayer = false;
+  if (CutBL.size() ) {
+    if(vars_struct.expectBlayer) {
+      if(vars_struct.nBlayer + vars_struct.nBlayerOutliers < CutBL[etabin]) {
+	ATH_MSG_DEBUG("Likelihood macro: Inner most Blayer Failed." );
+	passNBlayer = false;
+      }
+    }  
+    else if(vars_struct.expectNextToInnerMostLayer) { // When we do not expect IBL but next to inner 
+      if(vars_struct.nNextToInnerMostLayer + vars_struct.nNextToInnerMostLayerOutliers < CutBL[etabin]) {
+	ATH_MSG_DEBUG("Likelihood macro: Next Inner Failed when not expecting." );
+	passNBlayer = false;
+      } 
     }
   }
   
@@ -457,7 +487,25 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
       passDeltaPhiRes = false;
     }
   }
-  
+
+  // Only do this above 125 GeV
+  if(vars_struct.eT > 125000.){
+    // wstot cut
+    if (CutWstotAtHighET.size()){
+      if ( fabs(vars_struct.wstot) > CutWstotAtHighET[etabin]){
+        ATH_MSG_DEBUG("Likelihood macro: wstot Failed.");
+        passWstotAtHighET = false;
+      }
+    }
+
+    // EoverP cut
+    if (CutEoverPAtHighET.size()){
+      if ( fabs(vars_struct.EoverP) > CutEoverPAtHighET[etabin]){
+        ATH_MSG_DEBUG("Likelihood macro: EoverP Failed.");
+        passEoverPAtHighET = false;
+      }
+    }
+  }
   
   
   // Set the individual cut bits in the return object
@@ -469,6 +517,8 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   m_accept.setCutResult( m_cutPositionTrackA0, passTrackA0 );  
   m_accept.setCutResult( m_cutPositionTrackMatchEta, passDeltaEta );  
   m_accept.setCutResult( m_cutPositionTrackMatchPhiRes, passDeltaPhiRes );  
+  m_accept.setCutResult( m_cutPositionWstotAtHighET, passWstotAtHighET );  
+  m_accept.setCutResult( m_cutPositionEoverPAtHighET, passEoverPAtHighET );  
   
   return m_accept;
 }
@@ -484,7 +534,7 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate( double eta, doubl
 {
 
   LikeEnum::LHCalcVars_t vars;
-  
+ 
   vars.eta         = eta        ;
   vars.eT          = eT         ;
   vars.f3          = f3         ;
@@ -799,6 +849,18 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) co
     }
     
     return nEtBins-1; // Return the last bin if > the last bin.
+  }
+  else if(useOneExtraHighETLHBin){
+    const unsigned int nEtBins = fnDiscEtBinsOneExtra;
+    const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,125*GeV,6000*GeV};
+
+    for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
+      if(eT < eTBins[eTBin])
+        return eTBin;
+    }
+    
+    return nEtBins-1; // Return the last bin if > the last bin.
+
   }
   else{
     const unsigned int nEtBins = fnDiscEtBinsOrig;

@@ -26,6 +26,29 @@
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
+#include "xAODEgamma/EgammaContainerFwd.h"
+
+//This will need to be copied over to EgammaEnums.h
+//under xAODEgamma
+//Plus Set/Get true Accessor methods when we have 
+//finalise the design.
+namespace xAOD {
+  namespace AmbiguityTool {
+    /// @name Ambiguity types
+    enum AmbiguityType {
+      electron = 0,
+      ambiguousTrackQoverPBetterThanVertexQoverP=1,
+      ambiguousTrackLowPt=2,
+      ambiguousTrackLowQoverP=3,
+      ambiguousTrackNoPixel =4,
+      ambiguousVertexQoverPBetterThanTrackQoverP=5,
+      photon=6,
+      unknown=7
+    };
+  }
+}
+
+
 
 class IEGammaAmbiguityTool : virtual public asg::IAsgTool
 {
@@ -39,6 +62,14 @@ public:
   /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown */
   virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
                                         const xAOD::Vertex* vx,
+                                        const xAOD::TrackParticle* tp, xAOD::AmbiguityTool::AmbiguityType& type) const = 0;
+
+  /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
+      Needed because of cliets
+      implementation calls method above
+   */
+  virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
+                                        const xAOD::Vertex* vx,
                                         const xAOD::TrackParticle* tp) const = 0;
 
   /** Redo the ambiguity resolution of central electrons and photons and return
@@ -50,7 +81,7 @@ public:
   virtual bool accept( const xAOD::Egamma& egamma, bool acceptAmbiguous = true) const = 0;
   
   /** Get overlapping egamma object given electron or photon */
-  virtual const xAOD::Egamma* getOverlappingObject( const xAOD::Egamma& egamma ) const = 0;
+  virtual const xAOD::Egamma* getOverlappingObject( const xAOD::Egamma& egamma,const xAOD::EgammaContainer* egammaContainer ) const = 0;
 
 }; // End: class definition
 
