@@ -60,7 +60,7 @@ StatusCode PixelDesignBuilder::queryInterface(const InterfaceID& riid, void** pp
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelDesignBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
+StatusCode PixelDesignBuilder::callBack(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 {  
   return StatusCode::SUCCESS;
 }
@@ -135,21 +135,38 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
   int readoutIndex = getChildValue_Index("FrontEndChip","name",-1,chipName);
   double phiPitch = getDouble( "FrontEndChip", readoutIndex,"pitchPhi");
   double etaPitch = getDouble( "FrontEndChip",  readoutIndex,"pitchEta");
+
+//   double etaPitchLong = getDouble( "FrontEndChip", readoutIndex,"pitchEtaLong",0,-1.);
+//   if(etaPitchLong<0) etaPitchLong = etaPitch;
+//   double etaPitchLongEnd = getDouble( "FrontEndChip", readoutIndex,"pitchEtaEnd",0,0.);
+
   double etaPitchLong = etaPitch;
-  double etaPitchLongEnd = 0.;
-  if (etaPitchLongEnd == 0) etaPitchLongEnd = etaPitchLong;
+  double etaPitchLongEnd = etaPitch;
 
   // rowsPerSensor = DesignNumChipsPhi() * (DesignNumRowsPerChip()+DesignNumEmptyRowsInGap()) - DesignNumEmptyRowsInGap();
   int rowsPerChip = getInt( "FrontEndChip",  readoutIndex,"rows"); 
   int emptyRows = 0;
   int rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows; // FIXME check that the matrix does the right thing
 
-  basics->msgStream()<<MSG::INFO<<"readout geo : ------------------------------------------------------------------------"<<endreq;
-  basics->msgStream()<<MSG::INFO<<"readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows<<endreq;
-
   int colsPerChip = getInt( "FrontEndChip",  readoutIndex,"columns");
   int readoutSide = 1;
   
+  // Add the gap between adjacent chips for RD53 chips
+  chipName.erase(std::remove(chipName.begin(),chipName.end(),' '),chipName.end());
+  if(chipName=="RD53"){
+    if(circuitsPhi>0){
+      rowsPerChip+=2*(circuitsPhi-1);
+      rowsPerSensor = circuitsPhi*rowsPerChip + (circuitsPhi-1)*emptyRows;
+    }
+    if(circuitsEta>0){
+      colsPerChip+=2*(circuitsEta-1);
+    }
+  }
+
+  basics->msgStream()<<MSG::INFO<<"readout geo : ------------------------------------------------------------------------"<<endreq;
+  basics->msgStream()<<MSG::INFO<<"readout geo : "<<chipName<<endreq;
+  basics->msgStream()<<MSG::INFO<<"readout geo : "<<moduleName<<" phi : "<<circuitsPhi<<" "<<rowsPerChip<<" empty "<<emptyRows<<endreq;
+
   basics->msgStream()<<MSG::INFO<<"readout geo : "<<moduleName<<" eta : "<<circuitsEta<<" "<<colsPerChip<<endreq;
   
   basics->msgStream()<<MSG::INFO<<"readout geo : "<< moduleName<<" "<< phiPitch<<" "<< etaPitch<<" "<< etaPitchLong<<" "<< etaPitchLongEnd<<" "<<
@@ -245,7 +262,6 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     
     int minRow = v_emptyrows[0];
     int maxRow = minRow;
-    
     
     for (int iConnect = 0; iConnect < emptyRows; iConnect++){
       minRow = std::min(minRow, v_emptyrows[iConnect]);
