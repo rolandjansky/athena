@@ -12,6 +12,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
+
 //#include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEgamma/Egamma.h"
@@ -22,21 +23,6 @@
 #include "TTree.h"
 #include <utility>
 
-// Trigger Information struct
-typedef struct _triginfo
-{
-    std::string trigName; //Trigger Name
-    std::string trigType; //Electron or Photon
-    std::string trigL1Item; //L1 item for HLT
-    std::string trigL1Type; //VHI
-    std::string trigPidType; //Loose, Medium, Tight, etc...
-    std::string trigPidDecorator; //Aux decoration
-    bool trigL1; // Level1 Trigger
-    bool trigPerf; // Performance chain
-    bool trigEtcut; // Et cut only chain
-    float trigThrHLT; // HLT Et threshold
-    float trigThrL1; // L1 Et threshold
-} TrigInfo;
 
 class ITrigEgammaAnalysisBaseTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(ITrigEgammaAnalysisBaseTool)

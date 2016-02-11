@@ -15,7 +15,6 @@
 TrigEgammaResolutionTool::
 TrigEgammaResolutionTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname) {
-    declareProperty("DetailedHistograms", m_detailedHists=false);
 }
 
 //**********************************************************************
@@ -272,16 +271,16 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     const float onl_eta=onl->eta();
     const float feta = fabs(onl_eta);
     val_off=off->eta();
-    if(val_off!=0.) hist1("eta")->Fill((onl_eta-val_off)/val_off);
+    if(val_off!=0.) hist1("res_eta")->Fill((onl_eta-val_off)/val_off);
     val_off=off->phi();
-    if(val_off!=0.) hist1("phi")->Fill((onl->phi()-val_off)/val_off);
+    if(val_off!=0.) hist1("res_phi")->Fill((onl->phi()-val_off)/val_off);
     if(xAOD::EgammaHelpers::isElectron(onl)){
         const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
         val_off=getTrack_pt(eloff);
-        if(val_off!=0.) hist1("pt")->Fill((getTrack_pt(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_pt")->Fill((getTrack_pt(elonl)-val_off)/val_off);
         val_off=getEt(eloff);
-        if(val_off!=0.) hist1("et")->Fill((getEt(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_et")->Fill((getEt(elonl)-val_off)/val_off);
         getOnlEt = getEt(elonl);
 
         val_off=getEt(eloff);
@@ -302,31 +301,31 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
         }
 
         val_off=getCaloTrackMatch_deltaEta1(eloff);
-        if(val_off!=0.) hist1("deta1")->Fill((getCaloTrackMatch_deltaEta1(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_deta1")->Fill((getCaloTrackMatch_deltaEta1(elonl)-val_off)/val_off);
         val_off=getCaloTrackMatch_deltaEta2(eloff);
-        hist1("deta2")->Fill((getCaloTrackMatch_deltaEta2(elonl)-val_off)/val_off);
+        hist1("res_deta2")->Fill((getCaloTrackMatch_deltaEta2(elonl)-val_off)/val_off);
         val_off=getCaloTrackMatch_deltaPhi2(eloff);
-        if(val_off!=0.) hist1("dphi2")->Fill((getCaloTrackMatch_deltaPhi2(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_dphi2")->Fill((getCaloTrackMatch_deltaPhi2(elonl)-val_off)/val_off);
         val_off=getCaloTrackMatch_deltaPhiRescaled2(eloff);
-        hist1("dphiresc")->Fill((getCaloTrackMatch_deltaPhiRescaled2(elonl)-val_off)/val_off);
+        hist1("res_dphiresc")->Fill((getCaloTrackMatch_deltaPhiRescaled2(elonl)-val_off)/val_off);
         val_off=getTrack_d0(eloff);
-        if(val_off!=0.) hist1("d0")->Fill((getTrack_d0(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_d0")->Fill((getTrack_d0(elonl)-val_off)/val_off);
         val_off=getD0sig(eloff);
-        if(val_off!=0.) hist1("d0sig")->Fill((getD0sig(elonl)-val_off)/val_off);
+        if(val_off!=0.) hist1("res_d0sig")->Fill((getD0sig(elonl)-val_off)/val_off);
         // More specific check of eprobHT value needed 
         val_off=getTrackSummaryFloat_eProbabilityHT(eloff);
-        if(val_off!=0.) hist1("eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off)/val_off);
-        hist1("npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
-        hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
+        if(val_off!=0.) hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl)-val_off)/val_off);
+        hist1("res_npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
+        hist1("res_nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
 
         // ptcone20 isolation
         val_off=getIsolation_ptcone20(eloff);
         if (val_off > 0.) {
-            hist1("ptcone20")->Fill((getIsolation_ptcone20(elonl)-val_off)/val_off);
+            hist1("res_ptcone20")->Fill((getIsolation_ptcone20(elonl)-val_off)/val_off);
             if (getEt(elonl) > 0. && getEt(eloff) > 0.) {
                 const float reliso_onl=getIsolation_ptcone20(elonl)/getEt(elonl);
                 const float reliso_off=getIsolation_ptcone20(eloff)/getEt(eloff);
-                hist1("ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
+                hist1("res_ptcone20_rel")->Fill((reliso_onl-reliso_off)/reliso_off);
                 hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
                         (reliso_onl-reliso_off)/reliso_off);
                 hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
@@ -341,7 +340,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     } else { 
         val_off=getCluster_et(off);
         if(val_off!=0.){
-            hist1("et")->Fill((getCluster_et(onl)-val_off)/val_off);
+            hist1("res_et")->Fill((getCluster_et(onl)-val_off)/val_off);
 
             hist2("res_etVsEta")->Fill(onl_eta,
                     (getCluster_et(onl)-val_off)/val_off);
@@ -349,7 +348,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
                     (getCluster_et(onl)-val_off)/val_off);
             const xAOD::Photon* phoff =static_cast<const xAOD::Photon*> (off);
             if(xAOD::EgammaHelpers::isConvertedPhoton(phoff)) {
-                hist1("et_cnv")->Fill((getCluster_et(onl)-val_off)/val_off);
+                hist1("res_et_cnv")->Fill((getCluster_et(onl)-val_off)/val_off);
                 hist2("res_cnv_etVsEta")->Fill(onl_eta,
                         (getCluster_et(onl)-val_off)/val_off);
                 hist2("res_cnv_etVsEt")->Fill( getCluster_et(onl)/1e3,
@@ -365,7 +364,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
                     hist1("res_cnv_etInEta3")->Fill((getCluster_et(onl)-val_off)/val_off);
             }
             else {
-                hist1("et_uncnv")->Fill((getCluster_et(onl)-val_off)/val_off);
+                hist1("res_et_uncnv")->Fill((getCluster_et(onl)-val_off)/val_off);
                 hist2("res_uncnv_etVsEta")->Fill(onl->eta(),
                         (getCluster_et(onl)-val_off)/val_off);
                 hist2("res_uncnv_etVsEt")->Fill( getCluster_et(onl)/1e3,
@@ -393,16 +392,16 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
 
     val_off=getShowerShape_e011(off);
-    if(val_off!=0.) hist1("e011")->Fill((getShowerShape_e011(onl)-val_off)/val_off);
+    if(val_off!=0.) hist1("res_e011")->Fill((getShowerShape_e011(onl)-val_off)/val_off);
     val_off=getShowerShape_e132(off);
-    if(val_off!=0.) hist1("e132")->Fill((getShowerShape_e132(onl)-val_off)/val_off);
+    if(val_off!=0.) hist1("res_e132")->Fill((getShowerShape_e132(onl)-val_off)/val_off);
     val_off=getShowerShape_e237(off);
-    if(val_off!=0.) hist1("e237")->Fill((getShowerShape_e237(onl)-val_off)/val_off);
+    if(val_off!=0.) hist1("res_e237")->Fill((getShowerShape_e237(onl)-val_off)/val_off);
     val_off=getShowerShape_e277(off);
-    if(val_off!=0.) hist1("e277")->Fill((getShowerShape_e277(onl)-val_off)/val_off);
+    if(val_off!=0.) hist1("res_e277")->Fill((getShowerShape_e277(onl)-val_off)/val_off);
     val_off=getShowerShape_ethad(off);
     if(val_off!=0.) {
-        hist1("ethad")->Fill((getShowerShape_ethad(onl)-val_off)/val_off);
+        hist1("res_ethad")->Fill((getShowerShape_ethad(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_ethadVsEta")->Fill(onl->eta(),
                     (getShowerShape_ethad(onl)-val_off)/val_off);
@@ -412,7 +411,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_ethad1(off);
     if(val_off!=0){
-        hist1("ethad1")->Fill((getShowerShape_ethad1(onl)-val_off)/val_off);
+        hist1("res_ethad1")->Fill((getShowerShape_ethad1(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_ethad1VsEta")->Fill(onl->eta(),
                     (getShowerShape_ethad1(onl)-val_off)/val_off);
@@ -422,7 +421,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_Rhad(off);
     if(val_off!=0.){
-        hist1("Rhad")->Fill((getShowerShape_Rhad(onl)-val_off)/val_off);
+        hist1("res_Rhad")->Fill((getShowerShape_Rhad(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_RhadVsEta")->Fill(onl->eta(),
                     (getShowerShape_Rhad(onl)-val_off)/val_off);
@@ -432,7 +431,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_Rhad1(off);
     if(val_off!=0.){
-        hist1("Rhad1")->Fill((getShowerShape_Rhad1(onl)-val_off)/val_off);
+        hist1("res_Rhad1")->Fill((getShowerShape_Rhad1(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_Rhad1VsEta")->Fill(onl->eta(),
                     (getShowerShape_Rhad1(onl)-val_off)/val_off);
@@ -442,7 +441,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_Reta(off);
     if(val_off!=0.){
-        hist1("Reta")->Fill((getShowerShape_Reta(onl)-val_off)/val_off);
+        hist1("res_Reta")->Fill((getShowerShape_Reta(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_RetaVsEta")->Fill(onl->eta(),
                     (getShowerShape_Reta(onl)-val_off)/val_off);
@@ -452,7 +451,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_Rphi(off);
     if(val_off!=0.){
-        hist1("Rphi")->Fill((getShowerShape_Rphi(onl)-val_off)/val_off);
+        hist1("res_Rphi")->Fill((getShowerShape_Rphi(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_RphiVsEta")->Fill(onl->eta(),
                     (getShowerShape_Rphi(onl)-val_off)/val_off);
@@ -462,7 +461,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_weta1(off);
     if(val_off!=0.){
-        hist1("weta1")->Fill((getShowerShape_weta1(onl)-val_off)/val_off);
+        hist1("res_weta1")->Fill((getShowerShape_weta1(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_weta1VsEta")->Fill(onl->eta(),
                     (getShowerShape_weta1(onl)-val_off)/val_off);
@@ -472,7 +471,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_weta2(off);
     if(val_off!=0.){
-        hist1("weta2")->Fill((getShowerShape_weta2(onl)-val_off)/val_off);
+        hist1("res_weta2")->Fill((getShowerShape_weta2(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_weta2VsEta")->Fill(onl->eta(),
                     (getShowerShape_weta2(onl)-val_off)/val_off);
@@ -482,7 +481,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_wtots1(off);
     if(val_off!=0.){
-        hist1("wtots1")->Fill((getShowerShape_wtots1(onl)-val_off)/val_off);
+        hist1("res_wtots1")->Fill((getShowerShape_wtots1(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_weta2VsEta")->Fill(onl->eta(),
                     (getShowerShape_wtots1(onl)-val_off)/val_off);
@@ -492,7 +491,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_f1(off);
     if(val_off!=0.){
-        hist1("f1")->Fill((getShowerShape_f1(onl)-val_off)/val_off);
+        hist1("res_f1")->Fill((getShowerShape_f1(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_f1VsEta")->Fill(onl->eta(),
                     (getShowerShape_f1(onl)-val_off)/val_off);
@@ -502,7 +501,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_f3(off);
     if(val_off!=0.){
-        hist1("f3")->Fill((getShowerShape_f3(onl)-val_off)/val_off);
+        hist1("res_f3")->Fill((getShowerShape_f3(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_f3VsEta")->Fill(onl->eta(),
                     (getShowerShape_f3(onl)-val_off)/val_off);
@@ -513,7 +512,7 @@ void TrigEgammaResolutionTool::fillHLTResolution(const std::string dir,const xAO
     }
     val_off=getShowerShape_Eratio(off);
     if(val_off!=0.){
-        hist1("eratio")->Fill((getShowerShape_Eratio(onl)-val_off)/val_off);
+        hist1("res_eratio")->Fill((getShowerShape_Eratio(onl)-val_off)/val_off);
         if (m_detailedHists ) {
             hist2("res_eratioVsEta")->Fill(onl->eta(),
                     (getShowerShape_Eratio(onl)-val_off)/val_off);
@@ -530,25 +529,25 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
     if(xAOD::EgammaHelpers::isElectron(onl)){
         const xAOD::Electron* elonl =static_cast<const xAOD::Electron*> (onl);
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
-        hist1("pt")->Fill((getTrack_pt(elonl)-getTrack_pt(eloff)));
-        hist1("et")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
+        hist1("res_pt")->Fill((getTrack_pt(elonl)-getTrack_pt(eloff)));
+        hist1("res_et")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
         
         const float onl_eta=onl->eta();
         const float feta = fabs(onl_eta);
         const float off_eta=off->eta();
-        hist1("eta")->Fill(onl_eta-off_eta);
-        hist1("phi")->Fill((elonl->phi()-eloff->phi()));
+        hist1("res_eta")->Fill(onl_eta-off_eta);
+        hist1("res_phi")->Fill((elonl->phi()-eloff->phi()));
 
         hist2("res_etVsEta")->Fill(elonl->trackParticle()->eta(),
                                    (getEt(elonl)-getEt(eloff)));
         hist2("res_etVsEt")->Fill( getEt(elonl)/1e3,
                                    (getEt(elonl)-getEt(eloff)));
 
-        hist1("ptcone20")->Fill(getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff));
+        hist1("res_ptcone20")->Fill(getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff));
 
         //ptcone20/pt
         if (getEt(elonl) > 0 && getEt(eloff) > 0) {
-          hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
+          hist1("res_ptcone20_rel")->Fill(getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
           hist2("res_ptcone20_relVsEta")->Fill(elonl->trackParticle()->eta(),
                                                getIsolation_ptcone20(elonl)/getEt(elonl)-getIsolation_ptcone20(eloff)/getEt(eloff));
           hist2("res_ptcone20_relVsEt")->Fill(getEt(elonl)/1e3,
@@ -559,10 +558,10 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
         //ptcone20
         hist2("res_ptcone20VsMu")->Fill(getAvgMu(),
                                         getIsolation_ptcone20(elonl)-getIsolation_ptcone20(eloff));
-        hist2("ptcone20_onVsOff")->Fill(getIsolation_ptcone20(eloff),
+        hist2("res_ptcone20_onVsOff")->Fill(getIsolation_ptcone20(eloff),
                                         getIsolation_ptcone20(elonl));
         if (getEt(elonl) > 0 && getEt(eloff) > 0) {
-          hist2("ptcone20_rel_onVsOff")->Fill(getIsolation_ptcone20(eloff)/getEt(eloff),
+          hist2("res_ptcone20_rel_onVsOff")->Fill(getIsolation_ptcone20(eloff)/getEt(eloff),
                                               getIsolation_ptcone20(elonl)/getEt(elonl));
         }
 
@@ -575,20 +574,20 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
 	else if( feta >= 1.8 && feta < 2.45 )
 	  hist1("res_etInEta3")->Fill((getEt(elonl)-getEt(eloff)));
         
-        hist1("deta1")->Fill((getCaloTrackMatch_deltaEta1(elonl)-getCaloTrackMatch_deltaEta1(eloff)));
-        hist1("deta2")->Fill((getCaloTrackMatch_deltaEta2(elonl)-getCaloTrackMatch_deltaEta2(eloff)));
-        hist1("dphi2")->Fill((getCaloTrackMatch_deltaPhi2(elonl)-getCaloTrackMatch_deltaPhi2(eloff)));
-        hist1("dphiresc")->Fill((getCaloTrackMatch_deltaPhiRescaled2(elonl)-getCaloTrackMatch_deltaPhiRescaled2(eloff)));
-        hist1("d0")->Fill((getTrack_d0(elonl)-getTrack_d0(eloff)));
-        hist1("d0sig")->Fill((getD0sig(elonl)-getD0sig(eloff)));
-        hist1("eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl) - getTrackSummaryFloat_eProbabilityHT(eloff)));
-        hist1("npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
-        hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
+        hist1("res_deta1")->Fill((getCaloTrackMatch_deltaEta1(elonl)-getCaloTrackMatch_deltaEta1(eloff)));
+        hist1("res_deta2")->Fill((getCaloTrackMatch_deltaEta2(elonl)-getCaloTrackMatch_deltaEta2(eloff)));
+        hist1("res_dphi2")->Fill((getCaloTrackMatch_deltaPhi2(elonl)-getCaloTrackMatch_deltaPhi2(eloff)));
+        hist1("res_dphiresc")->Fill((getCaloTrackMatch_deltaPhiRescaled2(elonl)-getCaloTrackMatch_deltaPhiRescaled2(eloff)));
+        hist1("res_d0")->Fill((getTrack_d0(elonl)-getTrack_d0(eloff)));
+        hist1("res_d0sig")->Fill((getD0sig(elonl)-getD0sig(eloff)));
+        hist1("res_eprobht")->Fill( (getTrackSummaryFloat_eProbabilityHT(elonl) - getTrackSummaryFloat_eProbabilityHT(eloff)));
+        hist1("res_npixhits")->Fill(getTrackSummary_numberOfPixelHits(elonl)-getTrackSummary_numberOfPixelHits(elonl));
+        hist1("res_nscthits")->Fill(getTrackSummary_numberOfSCTHits(elonl)-getTrackSummary_numberOfSCTHits(elonl));
     }
     else{ 
-      hist1("et")->Fill((getCluster_et(onl)-getCluster_et(off)));
-      hist1("eta")->Fill((onl->eta()-off->eta()));
-      hist1("phi")->Fill((onl->phi()-off->phi()));
+      hist1("res_et")->Fill((getCluster_et(onl)-getCluster_et(off)));
+      hist1("res_eta")->Fill((onl->eta()-off->eta()));
+      hist1("res_phi")->Fill((onl->phi()-off->phi()));
 
       hist2("res_etVsEta")->Fill(onl->eta(),
 				 (getCluster_et(onl)-getCluster_et(off)));
@@ -605,22 +604,22 @@ void TrigEgammaResolutionTool::fillHLTAbsResolution(const std::string dir,const 
 	hist1("res_etInEta3")->Fill((getCluster_et(onl)-getCluster_et(off)));
     }
     
-    hist1("e011")->Fill((getShowerShape_e011(onl)-getShowerShape_e011(off)));
-    hist1("e132")->Fill((getShowerShape_e132(onl)-getShowerShape_e132(off)));
-    hist1("e237")->Fill((getShowerShape_e237(onl)-getShowerShape_e237(off)));
-    hist1("e277")->Fill((getShowerShape_e277(onl)-getShowerShape_e277(off)));
-    hist1("ethad")->Fill((getShowerShape_ethad(onl)-getShowerShape_ethad(off)));
-    hist1("ethad1")->Fill((getShowerShape_ethad1(onl)-getShowerShape_ethad1(off)));
-    hist1("Rhad")->Fill((getShowerShape_Rhad(onl)-getShowerShape_Rhad(off)));
-    hist1("Rhad1")->Fill((getShowerShape_Rhad1(onl)-getShowerShape_Rhad1(off)));
-    hist1("Reta")->Fill((getShowerShape_Reta(onl)-getShowerShape_Reta(off)));
-    hist1("Rphi")->Fill((getShowerShape_Rphi(onl)-getShowerShape_Rphi(off)));
-    hist1("weta1")->Fill((getShowerShape_weta1(onl)-getShowerShape_weta1(off)));
-    hist1("weta2")->Fill((getShowerShape_weta2(onl)-getShowerShape_weta2(off)));
-    hist1("wtots1")->Fill((getShowerShape_wtots1(onl)-getShowerShape_wtots1(off)));
-    hist1("f1")->Fill((getShowerShape_f1(onl)-getShowerShape_f1(off)));
-    hist1("f3")->Fill((getShowerShape_f3(onl)-getShowerShape_f3(off)));
-    hist1("eratio")->Fill((getShowerShape_Eratio(onl)-getShowerShape_Eratio(off)));
+    hist1("res_e011")->Fill((getShowerShape_e011(onl)-getShowerShape_e011(off)));
+    hist1("res_e132")->Fill((getShowerShape_e132(onl)-getShowerShape_e132(off)));
+    hist1("res_e237")->Fill((getShowerShape_e237(onl)-getShowerShape_e237(off)));
+    hist1("res_e277")->Fill((getShowerShape_e277(onl)-getShowerShape_e277(off)));
+    hist1("res_ethad")->Fill((getShowerShape_ethad(onl)-getShowerShape_ethad(off)));
+    hist1("res_ethad1")->Fill((getShowerShape_ethad1(onl)-getShowerShape_ethad1(off)));
+    hist1("res_Rhad")->Fill((getShowerShape_Rhad(onl)-getShowerShape_Rhad(off)));
+    hist1("res_Rhad1")->Fill((getShowerShape_Rhad1(onl)-getShowerShape_Rhad1(off)));
+    hist1("res_Reta")->Fill((getShowerShape_Reta(onl)-getShowerShape_Reta(off)));
+    hist1("res_Rphi")->Fill((getShowerShape_Rphi(onl)-getShowerShape_Rphi(off)));
+    hist1("res_weta1")->Fill((getShowerShape_weta1(onl)-getShowerShape_weta1(off)));
+    hist1("res_weta2")->Fill((getShowerShape_weta2(onl)-getShowerShape_weta2(off)));
+    hist1("res_wtots1")->Fill((getShowerShape_wtots1(onl)-getShowerShape_wtots1(off)));
+    hist1("res_f1")->Fill((getShowerShape_f1(onl)-getShowerShape_f1(off)));
+    hist1("res_f3")->Fill((getShowerShape_f3(onl)-getShowerShape_f3(off)));
+    hist1("res_eratio")->Fill((getShowerShape_Eratio(onl)-getShowerShape_Eratio(off)));
 }
 
 void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const xAOD::TrigEMCluster *onl, const xAOD::Egamma *off){
@@ -634,16 +633,16 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
 
         val_off=getEt(eloff);
         if(val_off!=0.){
-            hist1("et")->Fill(((elonl->et())-val_off)/val_off);
+            hist1("res_et")->Fill(((elonl->et())-val_off)/val_off);
             hist2("res_etVsEta")->Fill(elonl->eta(),
                     ((elonl->et())-val_off)/val_off);
             hist2("res_etVsEt")->Fill( (elonl->et())/1e3,
                     ((elonl->et())-val_off)/val_off);
         }
         val_off=eloff->caloCluster()->eta();
-        if(val_off!=0.) hist1("eta")->Fill((elonl->eta()-val_off)/val_off);
+        if(val_off!=0.) hist1("res_eta")->Fill((elonl->eta()-val_off)/val_off);
         val_off=eloff->caloCluster()->phi();
-        if(val_off!=0.) hist1("phi")->Fill((elonl->phi()-val_off)/val_off);
+        if(val_off!=0.) hist1("res_phi")->Fill((elonl->phi()-val_off)/val_off);
 
 
         float elonl_ethad = elonl->energy( CaloSampling::HEC0 ); elonl_ethad += elonl->energy( CaloSampling::HEC1 );
@@ -654,7 +653,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         elonl_ethad /= TMath::CosH(elonl->eta() );
         val_off=getShowerShape_ethad(off);
         if(val_off!=0.){
-            hist1("ethad")->Fill((elonl_ethad-val_off)/val_off);
+            hist1("res_ethad")->Fill((elonl_ethad-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_ethadVsEta")->Fill(elonl->eta(),
                         (elonl_ethad-val_off)/val_off);
@@ -664,7 +663,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         }
         val_off=getShowerShape_ethad1(off);
         if(val_off!=0.){
-            hist1("ethad1")->Fill(( (onl->ehad1()/TMath::Abs(onl->eta()) )-val_off)/val_off);
+            hist1("res_ethad1")->Fill(( (onl->ehad1()/TMath::Abs(onl->eta()) )-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_ethad1VsEta")->Fill(elonl->eta(),
                         ( (elonl->ehad1()/TMath::Abs(onl->eta()) )-val_off)/val_off);
@@ -675,7 +674,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         float elonl_Rhad = elonl_ethad / onl->energy() ;
         val_off=getShowerShape_Rhad(off);
         if(val_off!=0.){
-            hist1("Rhad")->Fill(( elonl_Rhad-val_off)/val_off);
+            hist1("res_Rhad")->Fill(( elonl_Rhad-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_RhadVsEta")->Fill(elonl->eta(),
                         ( elonl_Rhad-val_off)/val_off);
@@ -686,7 +685,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         float elonl_Rhad1 = onl->ehad1() / onl->energy() ;
         val_off=getShowerShape_Rhad1(off);
         if(val_off!=0.){
-            hist1("Rhad1")->Fill(( elonl_Rhad1-val_off)/val_off);
+            hist1("res_Rhad1")->Fill(( elonl_Rhad1-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_Rhad1VsEta")->Fill(elonl->eta(),
                         ( elonl_Rhad1-val_off)/val_off);
@@ -698,7 +697,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         if ( fabsf ( onl->e277() ) > 0.01 ) onl_reta = onl->e237() / onl->e277();
         val_off=getShowerShape_Reta(off);
         if(val_off!=0.){
-            hist1("Reta")->Fill( (onl_reta -val_off)/val_off);
+            hist1("res_Reta")->Fill( (onl_reta -val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_RetaVsEta")->Fill(elonl->eta(),
                         ( onl_reta-val_off)/val_off);
@@ -708,7 +707,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         }
         val_off=getShowerShape_weta2(off);
         if(val_off!=0.){
-            hist1("weta2")->Fill(( (onl->weta2())-val_off)/val_off);
+            hist1("res_weta2")->Fill(( (onl->weta2())-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_weta2VsEta")->Fill(elonl->eta(),
                         ( (elonl->weta2())-val_off)/val_off);
@@ -721,7 +720,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         onl_f1 /= onl->energy();
         val_off=getShowerShape_f1(off);
         if(val_off!=0.){
-            hist1("f1")->Fill(( (onl_f1)-val_off)/val_off);
+            hist1("res_f1")->Fill(( (onl_f1)-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_f1VsEta")->Fill(elonl->eta(),
                         ( (onl_f1)-val_off)/val_off);
@@ -733,7 +732,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
         onl_f3 /= onl->energy();
         val_off=getShowerShape_f3(off);
         if(val_off!=0.){
-            hist1("f3")->Fill(( (onl_f3)-val_off)/val_off);
+            hist1("res_f3")->Fill(( (onl_f3)-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_f3VsEta")->Fill(elonl->eta(),
                         ( (onl_f3)-val_off)/val_off);
@@ -746,7 +745,7 @@ void TrigEgammaResolutionTool::fillL2CaloResolution(const std::string dir,const 
             onl_eratio = (onl->emaxs1() - onl->e2tsts1()) / (onl->emaxs1() + onl->e2tsts1());
         val_off=getShowerShape_Eratio(off);
         if(val_off!=0.){
-            hist1("eratio")->Fill(( (onl_eratio)-val_off)/val_off);
+            hist1("res_eratio")->Fill(( (onl_eratio)-val_off)/val_off);
             if (m_detailedHists ) {
                 hist2("res_eratioVsEta")->Fill(elonl->eta(),
                         ( (onl_eratio)-val_off)/val_off);

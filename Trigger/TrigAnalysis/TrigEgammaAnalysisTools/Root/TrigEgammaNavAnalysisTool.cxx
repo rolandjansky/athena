@@ -8,7 +8,7 @@ using namespace std;
 
 TrigEgammaNavAnalysisTool::TrigEgammaNavAnalysisTool( const std::string& myname ): TrigEgammaNavBaseTool(myname) 
 {
-  declareProperty("DirectoryPath",m_dir="Analysis");
+  
   declareProperty("IsEMLabels",m_labels);
   m_eventCounter=0;
 }
@@ -22,43 +22,26 @@ StatusCode TrigEgammaNavAnalysisTool::childInitialize(){
 }
 
 StatusCode TrigEgammaNavAnalysisTool::childBook(){
-
     ATH_MSG_DEBUG("Now configuring chains for analysis");
-    std::vector<std::string> selectElectronChains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*");
-    for (int j = 0; j < (int) selectElectronChains.size(); j++) {
-        ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
-    }
-    std::vector<std::string> selectPhotonChains  = tdt()->getListOfTriggers("HLT_g.*");
+    //Set the base directory from the plot()
+    m_dir=plot()->getBasePath();
+    std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
 
-    for (int i = 0; i < (int) m_trigInputList.size(); i++) {
-        std::string trigname = "";
-        if (!boost::starts_with(m_trigInputList[i], "L1" )) {
-            trigname = "HLT_"+m_trigInputList[i];
-        } else {
-            trigname = m_trigInputList[i];
+    for(const auto trigName:m_trigInputList){ 
+        if (std::find(chains.begin(), chains.end(), trigName) != chains.end()) {
+            if(plot()->getTrigInfoMap().count(trigName) != 0)
+                ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+            else 
+                m_trigList.push_back(trigName);
         }
-        for (int j = 0; j < (int) selectElectronChains.size(); j++) {
-            size_t found = trigname.find(selectElectronChains[j]);
-            if(found != std::string::npos) {
-                m_trigList.push_back(m_trigInputList[i]);
-                break;
-            }
-        }
-        for (int j = 0; j < (int) selectPhotonChains.size(); j++) {
-            std::string trigname = "HLT_"+m_trigInputList[i];
-            size_t found = trigname.find(selectPhotonChains[j]);
-            if(found != std::string::npos) {
-                m_trigList.push_back(m_trigInputList[i]);
-                break;
-            }
-        }
-        
     }
+
     // Container level kinematic histograms
-    addDirectory(m_dir+"/Counters");
+    addDirectory(m_dir+"/Expert/Event");
     const int nTrigger = (int) m_trigList.size();
-    
-    addHistogram(new TH1F("electrons", "Offline Electrons; ; N_{electrons}", 6, 1., 6));   
+   
+    std::string histname=m_anatype+"_electrons";
+    addHistogram(new TH1F(histname.c_str(), "Offline Electrons; ; N_{electrons}", 6, 1., 6));   
     std::vector<std::string> el_labels;
     el_labels.push_back("loose");
     el_labels.push_back("medium");
@@ -66,14 +49,20 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
     el_labels.push_back("lhloose");
     el_labels.push_back("lhmedium");
     el_labels.push_back("lhtight");
-    setLabels(plot()->hist1("electrons"),el_labels);
+    setLabels(plot()->hist1(histname),el_labels);
     
-    addHistogram(new TH1F("trigger_counts", "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
-    setLabels(plot()->hist1("trigger_counts"),m_trigList);
+    histname=m_anatype+"_trigger_counts";
+    if(nTrigger>0) {
+        addHistogram(new TH1F(histname.c_str(), "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
+        setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
+    }
    
-    for (int i = 0; i < (int) m_trigList.size(); i++) {
-        bookPerSignature(m_trigList[i]);
-        setTrigInfo(m_trigList[i]);
+    for (const auto trigger: m_trigList)
+            setTrigInfo(trigger);
+
+    if(plot()->book(getTrigInfoMap()).isFailure()) {
+        ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
+        return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -84,7 +73,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
     ATH_MSG_DEBUG("Executing TrigEgammaValidationTool");
     m_eventCounter++;
 
-    cd(m_dir+"/Counters");
+    cd(m_dir+"/Expert/Event");
     if( !TrigEgammaNavBaseTool::EventWiseSelection() ) {
         ATH_MSG_DEBUG("Unable to retrieve offline containers");
         return StatusCode::FAILURE;
@@ -98,9 +87,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
                 << " " << getTrigInfo(trigger).trigName); 
 
         // Trigger counts
-        cd(m_dir+"/Counters");
-        if(tdt()->isPassed("HLT_"+trigger)) hist1("trigger_counts")->AddBinContent(ilist+1);
-        
+        cd(m_dir+"/Expert/Event");
+        if(tdt()->isPassed(trigger)) hist1(m_anatype+"_trigger_counts")->AddBinContent(ilist+1);
         // Skip event if prescaled out 
         // Prescale cut has ill effects
         // if(tdt()->isPassedBits("HLT_"+trigger) & TrigDefs::EF_prescaled) continue;
@@ -114,7 +102,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         for( const auto& tool : m_tools) {
             // Set detail level from analysis tool each time
             tool->setDetail(getDetail()); 
-            if(tool->toolExecute(m_dir,info,m_objTEList).isFailure())
+            if(tool->toolExecute(m_dir+"/Expert",info,m_objTEList).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }
         ilist++;

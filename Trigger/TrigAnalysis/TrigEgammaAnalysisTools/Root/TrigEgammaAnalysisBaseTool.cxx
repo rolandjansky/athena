@@ -49,11 +49,11 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool",this),
-    m_plot("TrigEgammaPlotTool/TrigEgammaPlotTool"),
     m_lumiTool("LuminosityTool"),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
     declareProperty("MatchTool",m_matchTool);
+    declareProperty("PlotTool",m_plot);
     declareProperty("Tools", m_tools);
     declareProperty("ElectronKey",m_offElContKey="Electrons");
     declareProperty("PhotonKey",m_offPhContKey="Photons");
@@ -78,6 +78,9 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     bool b1 = ancestorPassed<xAOD::ElectronContainer>(t);
     (void)a; (void)b;
     (void)a1; (void)b1;
+    // Coverity fix
+    m_nGoodVtx=0;
+    m_nPileupPrimaryVtx=0;
 
     
 }
@@ -138,7 +141,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
         return StatusCode::FAILURE;
     }
 
-    for( const auto& tool : m_tools) {
+    /*for( const auto& tool : m_tools) {
         try {
             ATH_MSG_DEBUG("child Initialize " << tool->name());
             sc = tool->childInitialize();
@@ -150,7 +153,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
             return StatusCode::FAILURE;
         }
     
-    }
+    }*/
 
     return sc;
 }
@@ -296,7 +299,7 @@ void TrigEgammaAnalysisBaseTool::setTrigInfo(const std::string trigger){
     std::string pidname="";
     bool perf=false;
     bool etcut=false;
-    parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+    parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
 
     std::string l1item = "";
     if(isL1) l1item=trigger;
@@ -329,11 +332,12 @@ void TrigEgammaAnalysisBaseTool::parseTriggerName(const std::string trigger, std
         type = "electron"; // for now only electron L1 studies
     }
     else {
-
+        std::string hltinfo=trigger;
+        if(boost::contains(hltinfo,"HLT")) hltinfo.erase(0,4);
         std::string l1item = getL1Item(trigger);
-        ATH_MSG_DEBUG("Trigger L1item " << trigger << " " << l1item);
+        ATH_MSG_DEBUG("Trigger L1item " << trigger << " " << l1item << " " << hltinfo);
         std::vector<std::string> strs;
-        boost::split(strs,trigger,boost::is_any_of("_"));
+        boost::split(strs,hltinfo,boost::is_any_of("_"));
         for (std::vector<std::string>::iterator it = strs.begin(); it != strs.end(); ++it)
         {
             ATH_MSG_DEBUG("Trigger parse "  << *it);
@@ -393,8 +397,10 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
   p1trigger="";
   p2trigger="";
 
+  std::string hltinfo=trigger;
+  if(boost::contains(hltinfo,"HLT")) hltinfo.erase(0,4);
   std::vector<std::string> strs;
-  boost::split(strs,trigger,boost::is_any_of("_"));
+  boost::split(strs,hltinfo,boost::is_any_of("_"));
 
   if((strs.at(0))[0]=='2'){
     ((p1trigger+=((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_")+=strs.at(1);
@@ -417,7 +423,7 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
 
 void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     ATH_MSG_VERBOSE("Booking Path " << basePath);
-    if(plot()->book(basePath).isFailure()) ATH_MSG_ERROR("Unable to book histos for " << basePath); 
+    //if(plot()->book(basePath).isFailure()) ATH_MSG_ERROR("Unable to book histos for " << basePath); 
 }
 
 bool TrigEgammaAnalysisBaseTool::isIsolated(const xAOD::Electron *eg, const std::string isolation){
@@ -734,8 +740,7 @@ GETTER(deltaPhiRescaled3)
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){
-    if(boost::contains(trigger,"HLT")) trigger.erase(0,4);
-    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails("HLT_"+trigger);
+    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
     std::string L1_seed = "";
     if(trig_conf != NULL){
         ATH_MSG_DEBUG("TrigConf available");

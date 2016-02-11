@@ -29,6 +29,8 @@ private:
   void inefficiency(const std::string,const unsigned int, const unsigned int,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
   void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
 
+  void analyseIsEM(const xAOD::Electron *,const std::string,const std::bitset<4>);
+  void analyseIsEMLH(const xAOD::Electron *,const std::string,const std::bitset<4>);
   /*! Include more detailed histograms */
   bool m_detailedHists;
 };

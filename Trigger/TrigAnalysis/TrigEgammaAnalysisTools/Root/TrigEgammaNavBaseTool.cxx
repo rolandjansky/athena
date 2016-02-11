@@ -32,36 +32,26 @@ TrigEgammaNavBaseTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname),
     m_dir(myname)
 {
-  declareProperty("MVACalibTool"              , m_MVACalibTool              );
-  declareProperty("ApplyMVACalib"             , m_applyMVACalib=false       );
+  declareProperty("Analysis",m_anatype="Analysis");
   declareProperty("ElectronIsEMSelector"      , m_electronIsEMTool          );
   declareProperty("ElectronLikelihoodTool"    , m_electronLHTool            );
   declareProperty("TriggerList"               , m_trigInputList             );
-  declareProperty("CategoryList"              , m_categories                );
-  declareProperty("dR"                        , m_dR=0.07                   ); 
   declareProperty("PhotonPid"                 , m_photonPid = "Tight"       );
   declareProperty("doUnconverted"             , m_doUnconverted=false       );
   declareProperty("OfflineProbeIsolation"     , m_offProbeIsolation="Loose" );
   declareProperty("RemoveCrack"               , m_rmCrack=true                ); 
   declareProperty("ForceProbeIsolation"       , m_forceProbeIsolation=false   );
   declareProperty("ForcePidSelection"         , m_forcePidSelection=true      );
-
   declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); //new
   declareProperty("ForceFilterSelection"      , m_forceFilterSelection=false  ); //new
   declareProperty("ElectronFilterType"        , m_electronFilterType="Loose"  ); //new
   declareProperty("PhotonFilterType"          , m_photonFilterType="Loose"    ); //new
-
-  m_PidToolMap["Tight"] = 0;
-  m_PidToolMap["Medium"]= 1;
-  m_PidToolMap["Loose"] = 2;
 
   m_offElectrons=nullptr;
   m_offPhotons=nullptr;
   m_eventInfo=nullptr;
   m_truthContainer=nullptr;
   m_jets=nullptr;
-  // Maps should be static
-  // Make a wrapper function to set map and return value
     
 }
 
@@ -94,16 +84,6 @@ TrigEgammaNavBaseTool::childInitialize() {
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
         return StatusCode::FAILURE;
     }
-    if( (m_MVACalibTool.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
-        m_applyMVACalib = false;
-        m_MVACalibTool = ToolHandle<IegammaMVATool>();
-        return StatusCode::FAILURE; 
-    }
-    else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibTool);   
-    }
-   
 
     return StatusCode::SUCCESS;
 }
@@ -146,12 +126,12 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
     
     for(const auto& eg : *m_offElectrons ){
         ATH_MSG_DEBUG("ApplyElectronPid...");
-        if(ApplyElectronPid(eg,"Loose")) hist1("electrons")->AddBinContent(1);
-        if(ApplyElectronPid(eg,"Medium")) hist1("electrons")->AddBinContent(2);
-        if(ApplyElectronPid(eg,"Tight")) hist1("electrons")->AddBinContent(3); 
-        if(ApplyElectronPid(eg,"LHLoose")) hist1("electrons")->AddBinContent(4);
-        if(ApplyElectronPid(eg,"LHMedium")) hist1("electrons")->AddBinContent(5);
-        if(ApplyElectronPid(eg,"LHTight")) hist1("electrons")->AddBinContent(6); 
+        if(ApplyElectronPid(eg,"Loose")) hist1(m_anatype+"_electrons")->AddBinContent(1);
+        if(ApplyElectronPid(eg,"Medium")) hist1(m_anatype+"_electrons")->AddBinContent(2);
+        if(ApplyElectronPid(eg,"Tight")) hist1(m_anatype+"_electrons")->AddBinContent(3); 
+        if(ApplyElectronPid(eg,"LHLoose")) hist1(m_anatype+"_electrons")->AddBinContent(4);
+        if(ApplyElectronPid(eg,"LHMedium")) hist1(m_anatype+"_electrons")->AddBinContent(5);
+        if(ApplyElectronPid(eg,"LHTight")) hist1(m_anatype+"_electrons")->AddBinContent(6); 
     }
     
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   

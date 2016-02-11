@@ -11,6 +11,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IInterface.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaInfo.h"
 //#include "StoreGate/StoreGateSvc.h"
 
 #include "xAODEgamma/Egamma.h"
@@ -27,12 +28,13 @@ class ITrigEgammaPlotTool : virtual public asg::IAsgTool {
 public:
 
   virtual StatusCode initialize()=0;
-  virtual StatusCode book(const std::string)=0;
+  virtual StatusCode book(std::map<std::string,TrigInfo>)=0;
   virtual StatusCode execute()=0;
   virtual StatusCode finalize()=0;
   virtual void setParent(IHLTMonTool *)=0;
   virtual void setDetail(bool)=0;
   virtual void setAltBinning(bool)=0;
+  virtual std::string getBasePath()=0;
   virtual void cd(const std::string &dir)=0;
   virtual void addDirectory(const std::string &s)=0;
   virtual void addHistogram(TH1 *h, const std::string &dir = "")=0;
@@ -43,7 +45,7 @@ public:
   virtual TH2 *hist2(const std::string &histName, const std::string &dir = "")=0;
   virtual TTree *tree(const std::string &treeName, const std::string &dir = "")=0;
   virtual void setLabels(TH1* histo, const std::vector<std::string>& labels)=0;
-
+  virtual std::map<std::string,TrigInfo> getTrigInfoMap()=0;
 };
 
 #endif

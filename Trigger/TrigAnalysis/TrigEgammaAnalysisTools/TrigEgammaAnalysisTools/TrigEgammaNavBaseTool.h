@@ -77,22 +77,18 @@ protected:
 
   /*! Clears list of probes after each trigger item per event */
   void clearList(); 
-  /*! Dual-use tool for MVA calibration */
-  ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline object and matched TE */
   std::vector<std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> > m_objTEList;
   /*! List of triggers from menu */
   std::vector<std::string> m_trigInputList;
   /*! List of trigger categories for MaM */
-  std::vector<std::string> m_categories; 
+  //std::vector<std::string> m_categories; 
   /*! List of triggers to study */
   std::vector<std::string> m_trigList; 
-  /*! To apply MVA calibration -- TBD */
-  bool m_applyMVACalib; 
-  /*! dR matching between TE and offline probe */
-  float m_dR;
- /*! Directory name for each algorithm */
+  /*! Base Directory name for each algorithm */
   std::string m_dir;
+  /*! Directory name for each algorithm */
+  std::string m_anatype;
   /*! Photon pid word */
   std::string m_photonPid;
   /*! doUnconverted analysis */
@@ -117,9 +113,6 @@ private:
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
 
-  std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
-  //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 
-  //
   /*! Event Wise offline ElectronContainer Access and end iterator */
   const xAOD::ElectronContainer* m_offElectrons;
   /*! Event Wise offline PhotonContainer Access and end iterator */

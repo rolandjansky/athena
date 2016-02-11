@@ -37,8 +37,6 @@ TrigEgammaNavTPBaseTool::
 TrigEgammaNavTPBaseTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname)
 {
-  declareProperty("MVACalibTool", m_MVACalibTool);
-  declareProperty("ApplyMVACalib", m_applyMVACalib=false);
   declareProperty("ElectronIsEMSelector", m_electronIsEMTool);
   declareProperty("ElectronLikelihoodTool", m_electronLHTool);
   declareProperty("ZeeLowerMass",m_ZeeMassMin=80);
@@ -100,15 +98,6 @@ TrigEgammaNavTPBaseTool::childInitialize() {
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
         return StatusCode::FAILURE;
     }
-    if( (m_MVACalibTool.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
-        m_applyMVACalib = false;
-        m_MVACalibTool = ToolHandle<IegammaMVATool>();
-        return StatusCode::FAILURE; 
-    }
-    else {
-        ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibTool);   
-    }
     m_offProbeTightness = m_defaultProbeTightness;
 
     return StatusCode::SUCCESS;
@@ -142,20 +131,20 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
       }
     }// protection
 
-    hist1("CutCounter")->Fill("LAr",1);
+    hist1(m_anatype+"_CutCounter")->Fill("LAr",1);
     
     if ( (m_storeGate->retrieve(m_offElectrons,m_offElContKey)).isFailure() ){
       ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
 	    return false;
     }
-    hist1("CutCounter")->Fill("RetrieveElectrons",1);
+    hist1(m_anatype+"_CutCounter")->Fill("RetrieveElectrons",1);
     // Check Size of Electron Container
     if ( m_offElectrons->size() < 2 ) { // Not enough events for T&P
 	    ATH_MSG_DEBUG("Not enough Electrons for T&P");
 	    return false;
     }
 
-    hist1("CutCounter")->Fill("TwoElectrons",1);
+    hist1(m_anatype+"_CutCounter")->Fill("TwoElectrons",1);
     // get jet container of interest
 
     m_applyJetNearProbeSelection=true;
@@ -172,10 +161,8 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
     // missing more selections
     // check Minimal Trigger Requirements
     if ( !MinimalTriggerRequirement() ) return false;
-    hist1("CutCounter")->Fill("PassTrigger",1);
+    hist1(m_anatype+"_CutCounter")->Fill("PassTrigger",1);
 
-    // Lock containers
-    // m_offElectrons->getStore()->lock();
     return true;
 }
 
@@ -184,7 +171,7 @@ bool TrigEgammaNavTPBaseTool::MinimalTriggerRequirement(){
     
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList.at(ilist);
-        if ( tdt()->isPassed("HLT_"+tag) )
+        if ( tdt()->isPassed(tag) )
             return true;
     }
     return false; // nothing passed
@@ -198,14 +185,14 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
     for(const auto& elTag : *m_offElectrons){
         if( ! isTagElectron(elTag) ) continue;
         for(const auto& elProbe : *m_offElectrons){  // Dress the probes with updated Pid decision
-            hist1("ProbeCutCounter")->Fill("Electrons",1);
+            hist1(m_anatype+"_ProbeCutCounter")->Fill("Electrons",1);
             if(elProbe==elTag) continue;
-            hist1("ProbeCutCounter")->Fill("NotTag",1);
+            hist1(m_anatype+"_ProbeCutCounter")->Fill("NotTag",1);
             // Check opposite charge
             if(m_oppositeCharge && (elProbe->charge() == elTag->charge()) ) continue;
-            hist1("ProbeCutCounter")->Fill("OS",1);
+            hist1(m_anatype+"_ProbeCutCounter")->Fill("OS",1);
             if(!m_oppositeCharge && (elProbe->charge() != elTag->charge()) ) continue;
-            hist1("ProbeCutCounter")->Fill("SS",1);
+            hist1(m_anatype+"_ProbeCutCounter")->Fill("SS",1);
             ATH_MSG_DEBUG("Execute TandP BaseTool OS"); 
             if(m_doJpsiee){
 
@@ -233,15 +220,15 @@ void TrigEgammaNavTPBaseTool::executeTandP(){
                 ATH_MSG_DEBUG("tag and probe pair not in Z mass window");
                 continue;
             } else {
-                hist1("ProbeCutCounter")->Fill("ZMass",1);
+                hist1(m_anatype+"_ProbeCutCounter")->Fill("ZMass",1);
                 ATH_MSG_DEBUG("tag and probe pair in Z mass window");
                 // Probe available. Good Probe?
                 if(!isGoodProbeElectron(elProbe)) continue;
-                hist1("ProbeCutCounter")->Fill("GoodProbe",1);
+                hist1(m_anatype+"_ProbeCutCounter")->Fill("GoodProbe",1);
                 xAOD::Electron *selProbe = new xAOD::Electron(*elProbe);              
                 DressPid(selProbe);
                 m_probeElectrons.push_back(selProbe);
-                hist1("Mee")->Fill(tpPairMass/1.e3);
+                hist1(m_anatype+"_Mee")->Fill(tpPairMass/1.e3);
             }
         } // end of for in Probe
     } // end of for in Tags
@@ -280,7 +267,7 @@ void TrigEgammaNavTPBaseTool::clearDecorations(){
 
 bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
 
-    hist1("TagCutCounter")->Fill("Electrons",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("Electrons",1);
     // Tag the event
     // Require offline tight electron
     // Match to e24_tight1_L1EM20V
@@ -293,36 +280,36 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("No track Particle");
         return false;
     }
-    hist1("TagCutCounter")->Fill("HasTrack",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("HasTrack",1);
     ATH_MSG_DEBUG("Track pt " << trk->pt());
     const xAOD::CaloCluster *clus = el->caloCluster();
     if(!el->caloCluster()){
         ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
-    hist1("TagCutCounter")->Fill("HasCluster",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("HasCluster",1);
 
     ATH_MSG_DEBUG("Cluster E "<<clus->e());
     ATH_MSG_DEBUG("Selecting Tag Electron PID");
     if (!ApplyElectronPid(el, m_offTagTightness)) return false;
-    hist1("TagCutCounter")->Fill("GoodPid",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("GoodPid",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Et");
     //Require Et > 25 GeV
     if( !(el->e()/cosh(el->trackParticle()->eta())  > m_tagMinEt*GeV) ){
         return false;
     }
-    hist1("TagCutCounter")->Fill("Et",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("Et",1);
     ATH_MSG_DEBUG("Selecting Tag Electron Eta");
     //fiducial detector acceptance region
     float absEta = fabs(el->caloCluster()->etaBE(2));
     if ((absEta > 1.37 && absEta < 1.52) || absEta > 2.47) {
         return false;
     }
-    hist1("TagCutCounter")->Fill("Eta",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("Eta",1);
 
     ATH_MSG_DEBUG("Checking electron object quality");
     if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
-    hist1("TagCutCounter")->Fill("IsGoodOQ",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("IsGoodOQ",1);
 
     ATH_MSG_DEBUG("Selecting Tag Electron Decision");
     // Check matching to a given trigger
@@ -330,7 +317,7 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     bool tagPassed=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
       std::string tag = m_tagTrigList.at(ilist);
-      if(tdt()->isPassed("HLT_"+tag)){ 
+      if(tdt()->isPassed(tag)){ 
         if(m_doJpsiee){
           std::string p1trigger;
           std::string p2trigger;
@@ -350,19 +337,19 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("Failed tag trigger "); 
         return false;
     }
-    hist1("TagCutCounter")->Fill("PassTrigger",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("PassTrigger",1);
     ATH_MSG_DEBUG("Matching Tag Electron FC");
     bool tagMatched=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
         std::string tag = m_tagTrigList.at(ilist);
-        if( match()->match(el,"HLT_"+tag) )
+        if( match()->match(el,tag) )
                 tagMatched=true;
     }
     if(!tagMatched){
         ATH_MSG_DEBUG("Failed a match ");
         return false; // otherwise, someone matched!
     }
-    hist1("TagCutCounter")->Fill("MatchTrigger",1);
+    hist1(m_anatype+"_TagCutCounter")->Fill("MatchTrigger",1);
     ATH_MSG_DEBUG("Found a tag electron");
     return true;
 }
@@ -420,12 +407,12 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
         ATH_MSG_DEBUG("No track Particle");
         return false;
     }
-    hist1("ProbeCutCounter")->Fill("HasTrack",1);
+    hist1(m_anatype+"_ProbeCutCounter")->Fill("HasTrack",1);
     if(!el->caloCluster()){
         ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
-    hist1("ProbeCutCounter")->Fill("HasCluster",1);
+    hist1(m_anatype+"_ProbeCutCounter")->Fill("HasCluster",1);
     //fiducial detector acceptance region
     if(m_rmCrack){
         float absEta = fabs(el->caloCluster()->etaBE(2));
@@ -433,7 +420,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
             return false; 
         }
     }
-    hist1("ProbeCutCounter")->Fill("Eta",1);
+    hist1(m_anatype+"_ProbeCutCounter")->Fill("Eta",1);
     /*if( !(el->e()/cosh(el->trackParticle()->eta())  > (etthr-5.0)*GeV) ){
         return false;
     }
@@ -441,9 +428,9 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
 
     ATH_MSG_DEBUG("Checking electron object quality");
     if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
-    hist1("ProbeCutCounter")->Fill("IsGoodOQ",1);
+    hist1(m_anatype+"_ProbeCutCounter")->Fill("IsGoodOQ",1);
     //DressPid(el);
-    hist1("ProbeCutCounter")->Fill("GoodPid",1);
+    hist1(m_anatype+"_ProbeCutCounter")->Fill("GoodPid",1);
     if(m_applyJetNearProbeSelection){
         TLorentzVector probeCandidate;
         probeCandidate.SetPtEtaPhiE(el->pt(), el->trackParticle()->eta(), el->trackParticle()->phi(), el->e());
@@ -459,7 +446,7 @@ bool TrigEgammaNavTPBaseTool::isGoodProbeElectron(const xAOD::Electron *el){
             return false; 
         }
     }
-    hist1("ProbeCutCounter")->Fill("NearbyJet",1);
+    hist1(m_anatype+"_ProbeCutCounter")->Fill("NearbyJet",1);
     return true; // Good probe electron
 }
 

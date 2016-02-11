@@ -18,7 +18,6 @@
 EfficiencyTool::
 EfficiencyTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname) {
-    declareProperty("DetailedHistograms", m_detailedHists=false);
 }
 
 //**********************************************************************
@@ -43,6 +42,118 @@ StatusCode EfficiencyTool::childFinalize(){
   return StatusCode::SUCCESS;
 }
 
+void EfficiencyTool::analyseIsEMLH(const xAOD::Electron *eg, const std::string pid, const std::bitset<4> reco){
+
+    const std::string name1="IsEmLHFail"+pid;
+    const std::string pidword="isEMLH"+pid;
+    if(eg){
+        unsigned int isem = eg->selectionisEM(pidword);
+        float isolation=getIsolation_ptcone20(eg)/eg->pt();
+        for(int ii=0;ii<11;ii++){
+            if ( (isem>>ii) & 0x1 )
+                hist1(name1)->Fill(ii+0.5);
+        }
+    }
+}
+
+/************************************************************************************************************************************************    
+ * 32-bit isEM cut-based electron ID as defined here
+ * https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools/trunk/python/TrigEGammaPIDdefs.py
+ ClusterEtaRange_Electron        =  0"""  @brief cluster eta range """
+ ConversionMatch_Electron        =  1""" @brief matching to photon (not necessarily conversion--the name is historical) """
+ ClusterHadronicLeakage_Electron =  2""" @brief cluster leakage into the hadronic calorimeter """
+ ClusterMiddleEnergy_Electron    =  3""" @brief energy in 2nd sampling (e.g E277>0) """ 
+ ClusterMiddleEratio37_Electron  =  4""" @brief energy ratio in 2nd sampling (e.g E237/E277) """
+ ClusterMiddleEratio33_Electron  =  5""" @brief energy ratio in 2nd sampling (e.g E233/E237) """
+ ClusterMiddleWidth_Electron     =  6""" @brief width in the second sampling (e.g Weta2) """
+ ClusterBackEnergyFraction_Electron = 7""" @brief energy fraction in the third layer """ 
+ ClusterStripsEratio_Electron    =  8""" @brief fraction of energy found in 1st sampling (NB: not used in fact for electrons)"""
+ ClusterStripsDeltaEmax2_Electron = 9""" @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et) """
+ ClusterStripsDeltaE_Electron    = 10""" @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1) """
+ ClusterStripsWtot_Electron      = 11""" @brief shower width in 1st sampling """
+ ClusterStripsFracm_Electron     = 12""" @brief shower shape in shower core 1st sampling """
+ ClusterStripsWeta1c_Electron    = 13""" @brief shower width weighted by distance from the maximum one """
+ Empty                           = 14 Empty bit
+ ClusterStripsDEmaxs1_Electron   = 15""" @brief difference between max and 2nd max in strips """
+ TrackBlayer_Electron            = 16""" @brief B layer hit """
+ TrackPixel_Electron             = 17""" @brief number of Pixel hits """
+ TrackSi_Electron                = 18""" @brief number of Pixel and SCT hits """
+ TrackA0_Electron                = 19""" @brief distance of closet approach """
+ TrackMatchEta_Electron          = 20""" @brief eta difference between cluster and extrapolated track in the 1st sampling """
+ TrackMatchPhi_Electron          = 21""" @brief phi difference between cluster and extrapolated track in the 2nd sampling """
+ TrackMatchEoverP_Electron       = 22""" @brief energy-momentum match """
+ TrackTRTeProbabilityHT_Electron   = 23""" @brief Cut on the TRT eProbabilityHT_Electron """
+ TrackTRThits_Electron           = 24""" @brief number of TRT hits """
+ TrackTRTratio_Electron          = 25""" @brief ratio of high to all TRT hits for isolated electrons """
+ TrackTRTratio90_Electron        = 26""" @brief ratio of high to all TRT hits for non-isolated electrons """   
+ TrackA0Tight_Electron           = 27""" @brief distance of closet approach for tight selection """
+ TrackMatchEtaTight_Electron     = 28""" @brief eta difference between cluster and extrapolated track in the 1st sampling for tight selection """
+ Isolation_Electron              = 29""" @brief isolation """
+ ClusterIsolation_Electron       = 30""" @brief calorimetric isolation """
+ TrackIsolation_Electron         = 31""" @brief tracker isolation """
+ **************************************************************************************************************************************************/
+void EfficiencyTool::analyseIsEM(const xAOD::Electron *eg, const std::string pid,const std::bitset<4> reco){
+    //{"ShowerShape","TrkClus","Track","TRT","Track+TRT","TrkClus+Trk+TRT","Isolation","IsEM + Iso","Track+Cluster","Track Only","Cluster","PhotonCluster","No Object","Some object","Unknown","Total"};
+    const std::string name1="IsEmFail"+pid;
+    const std::string name2="IneffIsEm"+pid;
+    const std::string pidword="isEM"+pid;
+    // reco; //Electron, cluster, track, photon
+    if(eg){
+        bool cluster=false;
+        bool trkclus=false;
+        bool trk=false;
+        bool trt=false;
+        bool failisem=false; 
+        bool failiso=false;
+
+        unsigned int isem = eg->selectionisEM(pidword);
+        float isolation=getIsolation_ptcone20(eg)/eg->pt();
+        if(isolation>0.1) failiso=true;
+        for(int ii=0;ii<29;ii++){
+            if ( (isem>>ii) & 0x1 ){
+                failisem=true;
+                hist1(name1)->Fill(ii+0.5);
+                if(ii <= 15)
+                    if ( (isem>>ii) & 0x1 ) cluster=true;
+                if((ii >=16 && ii <= 19) || ii == 27)
+                    if ( (isem>>ii) & 0x1 ) trk=true;
+                if(ii == 20 || ii == 21 || ii == 22 || ii == 28)
+                    if ( (isem>>ii) & 0x1 ) trkclus=true;
+                if(ii >= 23 && ii <= 26)
+                    if ( (isem>>ii) & 0x1 ) trt=true;
+            }
+        }
+        if(failiso) hist1(name1)->Fill(31+0.5);
+
+        bool onlyclus= !trkclus && !trk && !trt && cluster && !failiso;
+        bool onlytrkclus= trkclus && !trk && !trt && !cluster && !failiso;
+        bool onlytrk= !trkclus && trk && !trt && !cluster && !failiso;
+        bool trktrt= !trkclus && trk && trt && !cluster && !failiso;
+        bool onlytrt= !trkclus && !trk && trt && !cluster && !failiso;
+        bool trkclustrktrt= trkclus && trk && trt && !cluster && !failiso;
+        bool onlyiso= !trkclus && !trk && !trt && !cluster && failiso;
+
+        if(onlyclus) hist1(name2)->Fill(0.5,1); // 0.5
+        else if(onlytrkclus) hist1(name2)->Fill(1.5,1);
+        else if(onlytrk) hist1(name2)->Fill(2.5,1);
+        else if(onlytrt) hist1(name2)->Fill(3.5,1);
+        else if(trktrt) hist1(name2)->Fill(4.5,1);
+        else if(trkclustrktrt) hist1(name2)->Fill(5.5,1);
+        else if(onlyiso) hist1(name2)->Fill(6.5,1);
+        else if(failisem || failiso) hist1(name2)->Fill(7.5,1); //Something failed
+        else hist1(name2)->Fill(13.5,1); // Unknown -- some combination failed
+    }
+    else if(!reco.test(0) && reco.test(1) && reco.test(2)) hist1(name2)->Fill(8.5,1); //Track and Cluster
+    else if(!reco.test(0) && !reco.test(1) && reco.test(2)) hist1(name2)->Fill(9.5,1); // No Cluster w/ track
+    else if(!reco.test(0) && reco.test(1) && !reco.test(2)) hist1(name2)->Fill(10.5,1); //Cluster Only
+    else if(!reco.test(0) && !reco.test(1) && !reco.test(2) && !reco.test(3)) hist1(name2)->Fill(12.5,1); // No object in RoI
+    else if(reco.test(1)||reco.test(2)||reco.test(3)) hist1(name2)->Fill(13.5,1);
+    else hist1(name2)->Fill(14.5,1);
+    
+    if(reco.test(3) && reco.test(1)) hist1(name2)->Fill(11.5,1); //Has cluster and photon --> should be same as cluster only?
+    hist1(name2)->Fill(15.5,1);
+}
+
 void EfficiencyTool::fillInefficiency(const std::string dir,const xAOD::Electron *selEF,const xAOD::Photon *selPh,const xAOD::CaloCluster *clus,const xAOD::TrackParticle *trk){
     cd(dir);
     ATH_MSG_DEBUG("REGTEST::Inefficiency");
@@ -65,89 +176,56 @@ void EfficiencyTool::fillInefficiency(const std::string dir,const xAOD::Electron
     if(selEF) hist1("eff_hltreco")->Fill("Electron",1);
     else hist1("eff_hltreco")->Fill("Electron",0);*/
 
+    std::vector<std::string> pidnames {"Loose","Medium","Tight"};
+   
+    std::bitset<4> reco; //Electron, cluster, track, photon
+    
+    if(selEF!=NULL) reco.set(0);
+    if(clus!=NULL) reco.set(1);
+    if(trk!=NULL) reco.set(2);
+    if(selPh!=NULL) reco.set(3);
+    for(const auto name:pidnames){
+        analyseIsEM(selEF,name,reco);
+        analyseIsEMLH(selEF,name,reco);
+    }
+    
     float lastbinIsEM=hist1("IsEmFailTight")->GetNbinsX()-1;
     float lastbinIsEMLH=hist1("IsEmLHFailTight")->GetNbinsX()-1;
-
-    hist1("IsEmFailTight")->Fill(lastbinIsEM+0.5);
-    hist1("IsEmFailMedium")->Fill(lastbinIsEM+0.5);
-    hist1("IsEmFailLoose")->Fill(lastbinIsEM+0.5);
-    hist1("IsEmLHFailTight")->Fill(lastbinIsEMLH+0.5);
-    hist1("IsEmLHFailMedium")->Fill(lastbinIsEMLH+0.5);
-    hist1("IsEmLHFailLoose")->Fill(lastbinIsEMLH+0.5);
+    for(const auto name:pidnames){
+        hist1("IsEmFail"+name)->Fill(lastbinIsEM+0.5);
+        hist1("IsEmLHFail"+name)->Fill(lastbinIsEMLH+0.5);
+    }
   
     if(selPh==NULL) ATH_MSG_DEBUG("fillIneffiency::No photon found!");
     if(selEF!=NULL){
         ATH_MSG_DEBUG("REGTEST::Inefficiency Electron pt, eta, phi "<< selEF->pt() << " " << selEF->eta() << " " << selEF->phi());
-
-        unsigned int loose = -99;
-        unsigned int medium= -99;
-        unsigned int tight = -99;
-        unsigned int lhloose = -99;
-        unsigned int lhmedium= -99;
-        unsigned int lhtight = -99;
-        selEF->selectionisEM(loose,"isEMLoose");
-        selEF->selectionisEM(medium,"isEMMedium");
-        selEF->selectionisEM(tight,"isEMTight");
-        selEF->selectionisEM(lhloose,"isEMLHLoose");
-        selEF->selectionisEM(lhmedium,"isEMLHMedium");
-        selEF->selectionisEM(lhtight,"isEMLHTight");
-
-        for(int ii=0;ii<32;ii++){
-            if ( (tight>>ii) & 0x1 ){
-                hist1("IsEmFailTight")->Fill(ii+0.5);
-            }
-            if ( (medium>>ii) & 0x1 ){
-                hist1("IsEmFailMedium")->Fill(ii+0.5);
-            }
-            if ( (loose>>ii) & 0x1 ){
-                hist1("IsEmFailLoose")->Fill(ii+0.5);
-            }
-        }
-        for(int ii=0;ii<8;ii++){
-            if ( (lhtight>>ii) & 0x1 ){
-                hist1("IsEmLHFailTight")->Fill(ii+0.5);
-            }
-            if ( (lhmedium>>ii) & 0x1 ){
-                hist1("IsEmLHFailMedium")->Fill(ii+0.5);
-            }
-            if ( (lhloose>>ii) & 0x1 ){
-                hist1("IsEmLHFailLoose")->Fill(ii+0.5);
-            }
-        }
-        
     }
     else {
         if(trk==NULL && clus!=NULL){
             ATH_MSG_DEBUG("fillInefficiency::No Electron, nearby cluster"); 
             // No electron candidate but we have photon
             // Do something for hasCluster
-            hist1("IsEmFailTight")->Fill( (lastbinIsEM-3) + 0.5);
-            hist1("IsEmFailMedium")->Fill( (lastbinIsEM-3) + 0.5);
-            hist1("IsEmFailLoose")->Fill( (lastbinIsEM-3) + 0.5);
-            hist1("IsEmLHFailTight")->Fill( (lastbinIsEMLH-3) + 0.5);
-            hist1("IsEmLHFailMedium")->Fill( (lastbinIsEMLH-3) + 0.5);
-            hist1("IsEmLHFailLoose")->Fill( (lastbinIsEMLH-3) + 0.5);
+            for(const auto name:pidnames){
+                hist1("IsEmFail"+name)->Fill( (lastbinIsEM-3) + 0.5);
+                hist1("IsEmLHFail"+name)->Fill( (lastbinIsEMLH-3) + 0.5);
+            }
         }
         if(clus==NULL && trk!=NULL){
             ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster"); 
             // No electron candidate but we have photon
             // Do something for hasCluster
-            hist1("IsEmFailTight")->Fill( (lastbinIsEM-2) + 0.5);
-            hist1("IsEmFailMedium")->Fill( (lastbinIsEM-2) + 0.5);
-            hist1("IsEmFailLoose")->Fill( (lastbinIsEM-2) + 0.5);
-            hist1("IsEmLHFailTight")->Fill( (lastbinIsEMLH-2) + 0.5);
-            hist1("IsEmLHFailMedium")->Fill( (lastbinIsEMLH-2) + 0.5);
-            hist1("IsEmLHFailLoose")->Fill( (lastbinIsEMLH-2) + 0.5);
+            for(const auto name:pidnames){
+                hist1("IsEmFail"+name)->Fill( (lastbinIsEM-2) + 0.5);
+                hist1("IsEmLHFail"+name)->Fill( (lastbinIsEMLH-2) + 0.5);
+            }
         }
         if(clus==NULL && trk==NULL){
             ATH_MSG_DEBUG("fillInefficiency::No Electron, no cluster"); 
             // Unknown failure
-            hist1("IsEmFailTight")->Fill( (lastbinIsEM-1) + 0.5);
-            hist1("IsEmFailMedium")->Fill( (lastbinIsEM-1) + 0.5);
-            hist1("IsEmFailLoose")->Fill( (lastbinIsEM-1) + 0.5);
-            hist1("IsEmLHFailTight")->Fill( (lastbinIsEMLH-1) + 0.5);
-            hist1("IsEmLHFailMedium")->Fill( (lastbinIsEMLH-1) + 0.5);
-            hist1("IsEmLHFailLoose")->Fill( (lastbinIsEMLH-1) + 0.5);
+            for(const auto name:pidnames){
+                hist1("IsEmFail"+name)->Fill( (lastbinIsEM-1) + 0.5);
+                hist1("IsEmLHFail"+name)->Fill( (lastbinIsEMLH-1) + 0.5);
+            }
         }
     }
     if(clus!=NULL) ATH_MSG_DEBUG("REGTEST::Inefficiency Cluster " << clus->et() << " " << clus->eta() << " " << clus->phi());
@@ -196,7 +274,7 @@ void EfficiencyTool::inefficiency(const std::string basePath,
     //const auto* L2Trk = getFeature<xAOD::TrackParticleContainer>(feat);
     //const auto* L2Trk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_FTF");
     //const auto* EFIDTrk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
-    //const auto* EFTrkIDTrig = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+    const auto* EFTrkIDTrig = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
     
 
     //xAOD::TrackParticleContainer *EFTrk=0;
@@ -210,12 +288,21 @@ void EfficiencyTool::inefficiency(const std::string basePath,
     bool passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
     bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat,"TrigEFCaloCalibFex");
     //bool passedEFTrkEFID = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
-    //bool passedEFTrkIDTrig = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+    bool passedEFTrkIDTrig = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
     //bool passedEFTrk = passedEFTrkEFID || passedEFTrkIDTrig;
     bool passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
 
     // Ensure L1 passes
     // And offline passes et cut
+
+
+    std::vector<std::string> pidnames {"Loose","Medium","Tight"};
+    if(passedEF){
+        for(const auto name:pidnames){
+            for(int ibin=0; ibin<hist1("IneffIsEm"+name)->GetNbinsX();ibin++)
+                hist1("IneffIsEm"+name)->Fill(ibin+0.5,0);
+        }
+    }
 
     if(passedL1Calo && et > etthr) {
         ATH_MSG_DEBUG("INEFF::Passed L1 and offline et");
@@ -252,24 +339,23 @@ void EfficiencyTool::inefficiency(const std::string basePath,
         }
         if(EFClus==NULL)    hist1("eff_triggerstep")->Fill("EFCaloCont",0);
         else             hist1("eff_triggerstep")->Fill("EFCaloCont",1);
-        /*if(passedEFTrk){
+        if(passedEFTrkIDTrig){
             ATH_MSG_DEBUG("INEFF:: Passes Track Hypo!");
             hist1("eff_triggerstep")->Fill("EFTrack",1);
-            //hist1("eff_triggerstep")->Fill("EFTrackCont",1);
         }
         else {
             //ATH_MSG_INFO("INEFF:: Fails Track Hypo!");
             //ATH_MSG_INFO("INEFF:: EFCalo result " << passedEFCalo);
             hist1("eff_triggerstep")->Fill("EFTrack",0);
         }
-        if(EFTrk==NULL){
+        if(EFTrkIDTrig==NULL){
             hist1("eff_triggerstep")->Fill("EFTrackCont",0);
-            ATH_MSG_WARNING("TRKTEST: NULL Track Container! Run, Event " << runNumber << " " << eventNumber);
+            ATH_MSG_DEBUG("TRKTEST: NULL Track Container! Run, Event " << runNumber << " " << eventNumber);
         }
         else{
             hist1("eff_triggerstep")->Fill("EFTrackCont",1);
-            ATH_MSG_DEBUG("TRKTEST: Container has " << EFTrk->size() << " ntracks");
-        }*/
+            ATH_MSG_DEBUG("TRKTEST: Container has " << EFTrkIDTrig->size() << " ntracks");
+        }
         if(passedEF){
             ATH_MSG_DEBUG("INEFF::Passes EF");
             hist1("eff_triggerstep")->Fill("HLT",1);
@@ -324,10 +410,10 @@ void EfficiencyTool::inefficiency(const std::string basePath,
                 ATH_MSG_DEBUG("Closest cluster dR " << dRmax);
             }
             else ATH_MSG_DEBUG("CaloCluster Container NULL");
-            /*dRmax=0.15;
-            if ( EFTrk != NULL ){
-                ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency " << EFTrk->size());
-                for(const auto& trk : *EFTrk){
+            dRmax=0.15;
+            if ( EFTrkIDTrig != NULL ){
+                ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency " << EFTrkIDTrig->size());
+                for(const auto& trk : *EFTrkIDTrig){
                     float dr=dR(eta,phi,trk->eta(),trk->phi());
                     if(dr<dRmax){
                         dRmax=dr;
@@ -336,7 +422,7 @@ void EfficiencyTool::inefficiency(const std::string basePath,
                 } // loop over EFPh
                 ATH_MSG_DEBUG("Closest track dR " << dRmax);
             } //FC exists
-            else ATH_MSG_DEBUG("TrackParticle Container NULL");*/
+            else ATH_MSG_DEBUG("TrackParticle Container NULL");
             if(EFClus==NULL){
                 hist1("eff_hltreco")->Fill("ClusterCont",0);
                 hist1("eff_hltreco")->Fill("Cluster",0);
@@ -355,14 +441,14 @@ void EfficiencyTool::inefficiency(const std::string basePath,
                 }
             }
 
-            /*if(EFTrk==NULL){
+            if(EFTrkIDTrig==NULL){
                 hist1("eff_hltreco")->Fill("TrackCont",0);
                 hist1("eff_hltreco")->Fill("Track",0);
                 hist1("eff_hltreco")->Fill("TrackMatch",0);
             }
             else{
                 hist1("eff_hltreco")->Fill("TrackCont",1);
-                if(EFTrk->size() > 0){
+                if(EFTrkIDTrig->size() > 0){
                     hist1("eff_hltreco")->Fill("Track",1);
                     if(selTrk) hist1("eff_hltreco")->Fill("TrackMatch",1);
                     else hist1("eff_hltreco")->Fill("TrackMatch",0);
@@ -371,7 +457,7 @@ void EfficiencyTool::inefficiency(const std::string basePath,
                     hist1("eff_hltreco")->Fill("Track",0);
                     hist1("eff_hltreco")->Fill("TrackMatch",0);
                 }
-            }*/
+            }
 
             if(EFPh==NULL){
                 hist1("eff_hltreco")->Fill("PhotonCont",0);

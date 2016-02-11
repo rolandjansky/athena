@@ -63,6 +63,7 @@ TrigEgammaEmulationTool( const std::string& myname )
   m_caloClusters=nullptr;
   m_trigEMClusters=nullptr;
   m_emTauRoI=nullptr;
+  m_eventCounter=0;
   // ******* For track isolation ********************************************
   declareProperty("TrackSelectionTool", m_inDetTrackSelectionTool);
   declareProperty("TrackIsolationTool", m_trackIsolationTool);

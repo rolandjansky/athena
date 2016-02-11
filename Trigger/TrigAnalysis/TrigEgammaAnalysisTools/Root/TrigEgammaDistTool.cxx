@@ -22,7 +22,6 @@
 TrigEgammaDistTool::
 TrigEgammaDistTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname) {
-    declareProperty("DetailedHistograms", m_detailedHists=false);
 }
 
 //**********************************************************************
@@ -92,7 +91,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
         const std::string l1trig=getL1Item(info.trigName);
         ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << info.trigName << " type " << info.trigType << l1trig);
         const auto fcl1 = (tdt()->features(l1trig, TrigDefs::alsoDeactivateTEs));
-        const auto fc = (tdt()->features("HLT_"+info.trigName, TrigDefs::alsoDeactivateTEs));
+        const auto fc = (tdt()->features(info.trigName, TrigDefs::alsoDeactivateTEs));
         const auto initRois = fcl1.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
         for(const auto feat : initRois){
@@ -254,36 +253,40 @@ void TrigEgammaDistTool::fillEFCalo(const std::string dir, const xAOD::CaloClust
 void TrigEgammaDistTool::fillL2Electron(const std::string dir, const xAOD::TrigElectron *el){
     cd(dir);
     if(!el) ATH_MSG_DEBUG("TrigElectron NULL");
-    hist1("et")->Fill(el->pt()/1.e3);
-    hist1("eta")->Fill(el->eta());
-    hist1("phi")->Fill(el->phi());
+    else {
+        hist1("et")->Fill(el->pt()/1.e3);
+        hist1("eta")->Fill(el->eta());
+        hist1("phi")->Fill(el->phi());
+    }
 
 }
 
 void TrigEgammaDistTool::fillL2Calo(const std::string dir, const xAOD::TrigEMCluster *emCluster){
     cd(dir);
     if(!emCluster) ATH_MSG_DEBUG("Online pointer fails"); 
-    hist1("et")->Fill(emCluster->et()/1.e3);
-    hist1("eta")->Fill(emCluster->eta());
-    hist1("phi")->Fill(emCluster->phi());
+    else{
+        hist1("et")->Fill(emCluster->et()/1.e3);
+        hist1("eta")->Fill(emCluster->eta());
+        hist1("phi")->Fill(emCluster->phi());
 
-    ATH_MSG_DEBUG("L2 Calo distributions.");
-    bool hasRings = false;
-    std::vector<float> ringsE;
-    hasRings = getTrigCaloRings(emCluster, ringsE );
-    if(hasRings){
-        hist2("ringer_etVsEta")->Fill(emCluster->eta(), emCluster->et()/1.e3);
-        ///Fill rings pdf for each ring
-        for(unsigned layer =0; layer < 7; ++layer){
-            unsigned minRing, maxRing;  std::string strLayer;
-            parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
-            cd(dir+"/rings_"+strLayer);
-            for(unsigned r=minRing; r<=maxRing; ++r){
-                std::stringstream ss;
-                ss << "ringer_ring#" << r;
-                hist1(ss.str())->Fill( ringsE.at(r) );
-            }///loop into rings
-        }///loop for each calo layer
+        ATH_MSG_DEBUG("L2 Calo distributions.");
+        bool hasRings = false;
+        std::vector<float> ringsE;
+        hasRings = getTrigCaloRings(emCluster, ringsE );
+        if(hasRings){
+            hist2("ringer_etVsEta")->Fill(emCluster->eta(), emCluster->et()/1.e3);
+            ///Fill rings pdf for each ring
+            for(unsigned layer =0; layer < 7; ++layer){
+                unsigned minRing, maxRing;  std::string strLayer;
+                parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
+                cd(dir+"/rings_"+strLayer);
+                for(unsigned r=minRing; r<=maxRing; ++r){
+                    std::stringstream ss;
+                    ss << "ringer_ring#" << r;
+                    hist1(ss.str())->Fill( ringsE.at(r) );
+                }///loop into rings
+            }///loop for each calo layer
+        }
     }
 }
 void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){

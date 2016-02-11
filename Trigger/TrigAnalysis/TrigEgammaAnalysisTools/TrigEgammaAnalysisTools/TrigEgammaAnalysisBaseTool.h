@@ -105,6 +105,7 @@ protected:
 
   void setTrigInfo(const std::string);
   TrigInfo getTrigInfo(const std::string);
+  std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
  
   float dR(const float, const float, const float, const float);
 

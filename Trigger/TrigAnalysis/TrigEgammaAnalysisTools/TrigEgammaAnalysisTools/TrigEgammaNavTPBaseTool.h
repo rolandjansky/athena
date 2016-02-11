@@ -82,8 +82,6 @@ protected:
   float GetPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*);
   /*! Calculate the displacement of the Jpsi vertex w.r.t. the primary vertex in the transverse plane */
   double simple_lxy(int ,double, double, double , double , double , double , double, double );
-  /*! Dual-use tool for MVA calibration */
-  ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of electron probes */
   std::vector<const xAOD::Electron*> m_probeElectrons;
   /*! vector of photon probes */
@@ -102,14 +100,12 @@ protected:
   float m_ZeeMassMin;
   /*! Zee upper mass cut */
   float m_ZeeMassMax;
-  /*! To apply MVA calibration -- TBD */
-  bool m_applyMVACalib; 
-  /*! dR matching between TE and offline probe */
-  // float m_dR; // Done in matching tool
   /*! Remove crack region for Probe default True */
   bool m_rmCrack;
   /*! Directory name for each algorithm */
   std::string m_dir;
+  /*! Directory name for each algorithm */
+  std::string m_anatype;
   
   const xAOD::EventInfo* m_eventInfo;
   const xAOD::TruthParticleContainer* m_truthContainer;

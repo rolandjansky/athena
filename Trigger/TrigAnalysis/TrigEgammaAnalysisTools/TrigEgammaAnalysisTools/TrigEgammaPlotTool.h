@@ -19,13 +19,14 @@ class TrigEgammaPlotTool
           ~TrigEgammaPlotTool() {};
 
           StatusCode initialize();
-          StatusCode book(const std::string dir);
+          StatusCode book(std::map<std::string,TrigInfo> trigInfo);
           StatusCode execute();
           StatusCode finalize();
           void setParent(IHLTMonTool *parent){ m_parent = parent;};
           void setDetail(bool doDetail){ m_detailedHists = doDetail; }
           void setAltBinning(bool doAltBins){ m_doJpsiee = doAltBins; }
-
+          std::string getBasePath() { return m_baseDir; }
+          std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
           // Set current MonGroup
           void cd(const std::string &dir);
 
@@ -58,14 +59,63 @@ class TrigEgammaPlotTool
 
           // Book-keeping the current mon group
           std::string m_currentDir;
+          std::string m_baseDir;
 
+          // Arrays for bin limits
+          int m_nEtbins;
+          int m_nEtabins;
+          int m_ndefaultEtbins; //2D
+          int m_ndefaultEtabins; //2D
+          int m_ncoarseEtbins; //2D
+          int m_ncoarseEtabins; //2D
+          std::vector<float> m_etbins;
+          std::vector<float> m_etabins;
+          std::vector<double> m_defaultEtbins;
+          std::vector<double> m_defaultEtabins;
+          std::vector<double> m_coarseEtbins;
+          std::vector<double> m_coarseEtabins;
+
+          //Strings for bin labels
+          std::vector<std::string> m_label_trigstep;
+          std::vector<std::string> m_label_hltobj;
+          std::vector<std::string> m_label_hltte;
+          std::vector<std::string> m_label_isem;
+
+          //Strings for shifter histograms
+          std::vector<std::string> m_effplots;
+          std::vector<std::string> m_distplots;
+          std::vector<std::string> m_resplots;
+          
+          /*! creates map of trigger name and TrigInfo struct */
+          std::map<std::string,TrigInfo> m_trigInfo;
+          /* **************************************************
+           * Menu Aware Monitoring Map category to trigger name 
+           * 1-1 mapping of category to trigger name
+           * **************************************************/
+          std::map<std::string,std::string> m_mam;
+          
           // Properties
           bool m_doJpsiee;
           bool m_detailedHists;
           
+          // Methods
+          void setBinning();
+
+          void copyArrayToVector(std::vector<float> vec,float arr[], int n); 
+          void copyArrayToVector(std::vector<double> vec,double arr[],int n); 
+          bool getCategoryFromTrigger(const std::string,std::string &);
           void getHistsFromPath(const std::vector<std::string> &pattern, const std::vector<std::string> &notpattern, std::map<std::string, TH1 *> &ret);
           std::string getPath(const std::string &histName, const std::string &dir = "");
+          void bookExpertHistos(const std::string dir);
+          void bookShifterHistos();
           void bookAnalysisHistos(const std::string dir);
+          void bookEfficiencyTProfile(const std::string dir);
+          void bookEfficiencyHistos(const std::string dir);
+          void bookEgammaDistributionHistos(const std::string dir);
+          void bookDistributionHistos(const std::string dir);
+          void bookResolutionHistos(const std::string dir);
+          void bookExpertResolutionHistos(const std::string dir);
+          void bookAbsResolutionHistos(const std::string dir);
           void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
   };
 #endif
