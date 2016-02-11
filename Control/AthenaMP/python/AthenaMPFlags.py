@@ -44,7 +44,7 @@ class Strategy(JobProperty):
     """ Switch to choose event scheduling strategy"""
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = ['SharedQueue','FileScheduling','SharedReader','TokenScatterer']    
+    allowedValues = ['SharedQueue','FileScheduling','SharedReader','EventService','RoundRobin']
     StoredValue = 'SharedQueue'
 
 class PreCountedEvents(JobProperty):
@@ -90,8 +90,8 @@ class EventRangeChannel(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'EventService_EventRanges'
 
-class TokenScattererCaching(JobProperty):
-    """ For the Event Service: flag for activating extra event caching by the TokenScatterer
+class EvtRangeScattererCaching(JobProperty):
+    """ For the Event Service: flag for activating extra event caching by the EvtRangeScatterer
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -110,6 +110,13 @@ class ChunkSize(JobProperty):
     statusOn = True
     allowedTypes = ['int']
     StoredValue  = 1
+
+class UseTokenExtractor(JobProperty):
+    """ Flag to indicate the usage of the Token Extractor in ES jobs
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
 
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
@@ -134,8 +141,9 @@ list_jobproperties = [
     EventsBeforeFork,
     EventRangeChannel,
     MemSamplingInterval,
-    TokenScattererCaching,
-    ChunkSize
+    EvtRangeScattererCaching,
+    ChunkSize,
+    UseTokenExtractor,
     ]
 
 for i in list_jobproperties:

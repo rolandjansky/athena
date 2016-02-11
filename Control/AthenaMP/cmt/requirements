@@ -5,11 +5,6 @@ author  Sebastien Binet <binet@cern.ch>
 ## For Athena policies: it has to be the first use statement
 use AtlasPolicy 	AtlasPolicy-*
 
-#aliases
-alias mpMon             mpMon.py
-alias mp_genevt_test    mp_genevt_test.py
-alias mp_basic_test     mp_basic_test.py
-
 ## make the library private so nobody can link against
 private
 
@@ -25,18 +20,8 @@ use PersistentDataModel PersistentDataModel-*   Database
 
 branches src src/components doc python share
 
-apply_pattern declare_joboptions files="tests"
+apply_pattern declare_joboptions files="AthenaMP_EventService.py"
 apply_pattern declare_python_modules files="*.py tests/*.py"
-
-apply_pattern declare_scripts files="\
- -s=$(AthenaMP_root)/share/tests \
- mpMon.py \
- mjMon.py \
- mp_genevt_test.py \
- mp_basic_test.py \
- flush_cache.py \
- extract_mp_stat.py \
-"
 
 library AthenaMP *.cxx components/*.cxx memory-profiler/getPss.cc
 apply_pattern component_library

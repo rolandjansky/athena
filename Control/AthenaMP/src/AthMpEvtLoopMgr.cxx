@@ -75,8 +75,8 @@ StatusCode AthMpEvtLoopMgr::initialize()
 {
   msg(MSG::DEBUG) << "in initialize() ... " << endreq;
 
-  if(m_strategy=="TokenScatterer" && m_nEventsBeforeFork!=0) {
-    msg(MSG::ERROR) << "The TokenScatterer strategy cannot run with non-zero value for EventsBeforeFork" << endreq;
+  if(m_strategy=="EventServive" && m_nEventsBeforeFork!=0) {
+    msg(MSG::ERROR) << "The EventServive strategy cannot run with non-zero value for EventsBeforeFork" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -160,9 +160,9 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     }
   }
 
-  // For the Event Service: create a queue for connecting TokenProcessor in the master with TokenScatterer subprocess
+  // For the Event Service: create a queue for connecting EvtRangeProcessor in the master with EvtRangeScatterer subprocess
   // The TokenProcessor master will be sending pid-s of failed processes to Token Scatterer
-  if(m_strategy=="TokenScatterer") {
+  if(m_strategy=="EventService") {
     AthenaInterprocess::SharedQueue* failedPidQueue = new AthenaInterprocess::SharedQueue("AthenaMPFailedPidQueue_"+randStream.str(),100,sizeof(pid_t));
     if(pDetStore->record(failedPidQueue,"AthenaMPFailedPidQueue_"+randStream.str()).isFailure()) {
       msg(MSG::FATAL) << "Unable to record the pointer to the Failed PID queue into Detector Store" << endreq;
