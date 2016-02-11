@@ -152,6 +152,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   // Gap between last barrel module and zpos that correspond to the radial escape of the stvae & services
   m_gapPlanarStave = 10.;
+  if(m_layer>1) m_gapPlanarStave = 4.;
   msg(MSG::INFO)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endreq;
   double zEndOfNBarrelModulePos = (m_barrelModuleNumber*m_barrelModule->Length()+m_barrelModuleGap*(m_barrelModuleNumber-1))*.5;
   m_staveSupport = new GeoPixelStaveSupportInclRef( getBasics(),
@@ -229,13 +230,13 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
   if(m_endcapModuleNumber>0)
     {
       HepGeom::Point3D<double> vDir_endcap(-cos(m_endcapInclAngle), sin(m_endcapInclAngle), 0.);
-      HepGeom::Point3D<double> vDirPerp_endcap(sin(m_endcapInclAngle), cos(m_endcapInclAngle), 0.);
+      HepGeom::Point3D<double> vDirPerp_endcap(-sin(m_endcapInclAngle), -cos(m_endcapInclAngle), 0.);
       HepGeom::Point3D<double> vDir_transition(-cos(m_transitionTiltAngle), sin(m_transitionTiltAngle), 0.);
       HepGeom::Point3D<double> vDirPerp_transition(sin(m_transitionTiltAngle), cos(m_transitionTiltAngle), 0.);
       
-      double EcModThick_chip= m_endcapModule->ThicknessP();
-      double EcModHalfLen = m_endcapModule->Length()*.5;
-      
+      double EcModThick_chip= m_endcapModule->getModuleSensorThick()*.5;
+      double EcModHalfLen = m_endcapModule->getModuleSensorLength()*.5;
+
       for(int iPos=0; iPos<m_endcapModuleNumber; iPos++)
 	{
 	  double xPos=m_barrelModule->ThicknessP();
@@ -916,10 +917,12 @@ void GeoPixelLadderInclRef:: BuildAndPlaceModuleService(std::vector<int> moduleN
 {
   
   double delta = .75;
-  double xshift = .35;
+  double xshift = .5;
   double ec_xshift = 0.;
   if(m_layer==1) 
-    { delta=.5; xshift = .95; ec_xshift = 1.2; }
+    { delta=.5; xshift = 1.05; ec_xshift = 1.3; }
+  else if(m_layer>1)
+    { xshift = .75; }
 
   double svcLength=zFinal-zInit;
   if(svcLength>0){

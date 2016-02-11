@@ -61,7 +61,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   double xOffset = staveDBHelper.getServiceOffsetX();
   double yOffset = staveDBHelper.getServiceOffsetY();
   double ec_xOffset = staveDBHelper.getServiceECOffsetX();
-  if(width<0.01) width = m_barrelModule.Width()*.8;
+  if(width<0.01) width = m_barrelModule.Width()*.7;
   m_svcRouting = staveDBHelper.getSvcRoutingPos();
 
   double endcapRadialPos=m_endcapMaxRadialPos;
@@ -84,6 +84,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
     m_thicknessN =  -xOffset + 0.5*thickness;
     m_length = length;
     m_width = width;
+    if(m_barrelModule.Width()>width) m_width = m_barrelModule.Width()+.01;
     
     m_thicknessP_barrel = m_thicknessP;
     m_thicknessP_endcap = m_thicknessP;
