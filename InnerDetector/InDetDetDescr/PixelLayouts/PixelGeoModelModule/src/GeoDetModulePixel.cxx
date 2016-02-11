@@ -98,15 +98,21 @@ void GeoDetModulePixel::preBuild()
   m_hybridThick =  getDouble("Module", m_moduleIndex, "hybridThickness", 0, 0.);
 
   //  chip sizes
-  m_chipWidth =   widthChip * getDouble("FrontEndChip", chipIndex, "chipWidth");
-  m_chipLength = lengthChip * getDouble("FrontEndChip", chipIndex, "chipLength");
+
+  double edgel = getDouble("FrontEndChip", chipIndex, "inlength");
+  //  double edgen = getDouble("FrontEndChip", chipIndex, "narrow");
+  double edgew = getDouble("FrontEndChip", chipIndex, "wide");
+
+  // MODULE sizes : chip sizes are set to the sizes defined in the XML files
+  //                edges are added to the sensor size (sensor are named board in this code)
+
+  m_chipWidth = widthChip * getDouble("FrontEndChip", chipIndex, "chipWidth")+(widthChip-1)*2.*edgew;
+  m_chipLength = lengthChip * getDouble("FrontEndChip", chipIndex, "chipLength")+(lengthChip-1)*2.*edgel;
   m_chipGap =  getDouble("FrontEndChip", chipIndex, "chipGap", 0, 0.);
 
   // sensor geometry
-  m_boardWidth = getDouble("ModuleGeo", geoModuleIndex, "sensorWidth", 0, -1.);
-  m_boardLength = getDouble("ModuleGeo", geoModuleIndex, "sensorLength", 0, -1.);
-  if(m_boardWidth<0) m_boardWidth = m_chipWidth;
-  if(m_boardLength<0) m_boardLength = m_chipLength;
+  m_boardWidth = m_chipWidth + 2.*edgew;
+  m_boardLength = m_chipLength + 2.*edgel;
 
   // Hybrid size
   m_hybridWidth = m_hybridLength = 0.;
@@ -127,7 +133,6 @@ void GeoDetModulePixel::preBuild()
   m_sensorMatName = getString("ModuleGeo", geoModuleIndex, "sensorMat", 0, "std::Silicon");
 
   TerminateXML();
-
 
   m_basics->msgStream()<<MSG::INFO<<"GeoDetModulePixel - Build module "<<moduleName<<"  "<<m_moduleIndex<<endreq;
   m_basics->msgStream()<<MSG::INFO<<"board  : "<<m_boardThick<<" "<<m_boardLength<<" "<<m_boardWidth<<endreq;
