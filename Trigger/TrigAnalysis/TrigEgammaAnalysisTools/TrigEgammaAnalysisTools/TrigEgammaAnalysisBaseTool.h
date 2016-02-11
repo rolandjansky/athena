@@ -10,10 +10,12 @@
 #include "AsgTools/AsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
+#include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 #include "LumiBlockComps/ILuminosityTool.h"
-
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -22,11 +24,14 @@
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 //#include "xAODCaloRings/RingSetContainer.h" 
 //#include "xAODCaloRings/CaloRingsContainer.h"
 //#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
 //class MonGroup;
+
+
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
   virtual public ITrigEgammaAnalysisBaseTool {
@@ -44,11 +49,8 @@ public:
   template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
   template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
   void setParent(IHLTMonTool *parent){ m_parent = parent;};
-
-  // Should be over-written
-  //StatusCode childInitialize()=0;
-  //StatusCode childExecute()=0;
-  //StatusCode childFinalize()=0;
+  void setPlotTool(ToolHandle<ITrigEgammaPlotTool> tool){m_plot=tool;}
+  void setDetail(bool detail){m_detailedHists=detail;}
 
   // Set current MonGroup
   void cd(const std::string &dir);
@@ -63,15 +65,28 @@ public:
   TH2 *hist2(const std::string &histName, const std::string &dir = "");
   TTree *tree(const std::string &treeName, const std::string &dir = "");
   void setLabels(TH1* histo, const std::vector<std::string>& labels);
-  void getHistsFromPath(const std::vector<std::string> &pattern, const std::vector<std::string> &notpattern, std::map<std::string, TH1 *> &ret);
-  std::string getPath(const std::string &histName, const std::string &dir = "");
+  
   virtual void print() const;
   
-  //void setParent(const IHLTMonTool *);
-
 private:
-  std::string m_msg;
   
+  /*! Property update handlers */
+  void updateDetail(Property& p);
+  void updateAltBinning(Property& p);
+  void updateOutputLevel(Property& p);
+
+  std::string m_msg;
+  /*! creates map of trigger name and TrigInfo struct */
+  std::map<std::string,TrigInfo> m_trigInfo;
+  /*! Include more detailed histograms */
+  bool m_detailedHists;
+  
+  // Properties
+  
+  ToolHandle<Trig::TrigDecisionTool> m_trigdec;
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
+  ToolHandle<ITrigEgammaPlotTool> m_plot;
+
 protected:
   // Methods
   /*! Simple setter to pick up correct probe PID for given trigger */
@@ -88,37 +103,9 @@ protected:
   /*! book common histograms for analysis */
   void bookAnalysisHistos(const std::string);
 
-  /*! fill kinematic histograms, et,eta,phi,lumi and efficiency */
-  void fillEfficiency(const std::string,bool,const float,const float,const float,const float,const float avgmu=0.,const float mass=0.);
-
-  void fillL2CaloResolution(const std::string, const xAOD::TrigEMCluster *,const xAOD::Egamma *);
-  void fillHLTResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
-  void fillHLTAbsResolution(const std::string, const xAOD::Egamma *,const xAOD::Egamma *);
-  void fillShowerShapes(const std::string, const xAOD::Egamma *); // Online and Offline fillers
-  void fillTracking(const std::string, const xAOD::Electron *); // Online and Offline fillers
-  void fillEFCalo(const std::string,const xAOD::CaloCluster *);
-  void fillL2Electron(const std::string,const xAOD::TrigElectron *);
-  void fillL2Calo(const std::string,const xAOD::TrigEMCluster *);
-  void fillL1Calo(const std::string,const xAOD::EmTauRoI *);
-  void fillL1CaloResolution(const std::string, const xAOD::EmTauRoI*, const xAOD::Egamma*);
-  void fillL1CaloAbsResolution(const std::string, const xAOD::EmTauRoI*, const xAOD::Egamma*);
-  /*! Inefficiency analysis */
-  void inefficiency(const std::string,const unsigned int, const unsigned int,const float,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void fillInefficiency(const std::string,const xAOD::Electron *,const xAOD::Photon *,const xAOD::CaloCluster *,const xAOD::TrackParticle *); 
- 
-  /*! Resolution methods */
-  void resolution(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void resolutionPhoton(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void resolutionElectron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void resolutionL2Photon(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void resolutionL2Electron(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
-  void resolutionEFCalo(const std::string,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj);
- 
-  /*! Distribution method */
-  void distribution(const std::string,const std::string,const std::string);
-
-  /*! Finalizes efficiency for kinematic histograms */
-  void finalizeEfficiency(std::string);
+  void setTrigInfo(const std::string);
+  TrigInfo getTrigInfo(const std::string);
+  std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
  
   float dR(const float, const float, const float, const float);
 
@@ -141,8 +128,22 @@ protected:
   /* trig rings and offline rings helper method for feature extraction from xaod */
   bool getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE );
   bool getTrigCaloRings( const xAOD::TrigEMCluster *emCluster, std::vector<float> &ringsE );
+  void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
+  const xAOD::TruthParticle* matchTruth(const xAOD::TruthParticleContainer *truthCont, const xAOD::Egamma *eg,
+                                        bool &Zfound,bool &Wfound);
 
+  /* calculate the number of primary vertex for each event*/
+  void calculatePileupPrimaryVertex();
+  int m_nGoodVtx; 
+  int m_nPileupPrimaryVtx;
 
+  /*! Retrieve ToolHandles */
+  ITrigEgammaPlotTool *plot(){return &*m_plot;}
+  Trig::TrigDecisionTool *tdt(){return &*m_trigdec;};
+  Trig::ITrigEgammaMatchingTool *match(){return &*m_matchTool;}
+
+  // Retrieve Properties
+  bool getDetail(){return m_detailedHists;}
   //Class Members
   // Athena services
   StoreGateSvc * m_storeGate;
@@ -150,26 +151,22 @@ protected:
   IHLTMonTool *m_parent;
 
   // ToolHandles
-  ToolHandle<Trig::TrigDecisionTool> m_trigdec;
-  ToolHandle<Trig::ITrigEgammaMatchingTool> m_matchTool;
+  ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools;
+
+  /*! enable luminosity tool. If is false, we will use primary vertex calc */
+  bool m_useLumiTool;
   /*! Offline Lumi tool */
   ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
   /*! Online Lumi tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
+  
   /*! Set Jpsiee */
   bool m_doJpsiee;
 
   
   // Infra-structure members
   std::string m_file;
-  std::set<std::string> m_mongroups; // MonGroups for T0
-  std::vector<std::string> m_dir; // maintain directories
-  std::map<std::string, TH1 *> m_hist1; // maintain histograms
-  std::map<std::string, TH2 *> m_hist2; // maintain histograms
-  std::map<std::string, TTree *> m_tree; // maintain trees
-
-  // Book-keeping the current mon group
-  std::string m_currentDir;
+  
   /*! String for offline container key */
   std::string m_offElContKey;
   /*! String for offline container key */
@@ -178,12 +175,13 @@ protected:
   std::vector<std::string> m_cutlabels;
   /*! IsEM Labels for histograms */
   std::vector<std::string> m_labels;
+  /*! isEMResultNames for offline */
+  std::vector<std::string> m_isemname;
+  /*! LHResultNames for offline */
+  std::vector<std::string> m_lhname;
+
   // Common data members
-  /*! creates map of category and triggers for each category */
-  //std::map<std::string,std::vector<std::string>> m_mamMap;
   //
-  //Include more detailed histograms
-  bool m_detailedHists;
   /*! default probe pid for trigitems that don't have pid in their name */
   std::string m_defaultProbePid;
 
@@ -265,8 +263,6 @@ protected:
 #define GETTER(_name_) float getTrackSummaryFloat_##_name_(const xAOD::Electron* eg);
       GETTER(eProbabilityComb)
       GETTER(eProbabilityHT)
-      GETTER(eProbabilityToT)
-      GETTER(eProbabilityBrem)
       GETTER(pixeldEdx)    
 #undef GETTER
 

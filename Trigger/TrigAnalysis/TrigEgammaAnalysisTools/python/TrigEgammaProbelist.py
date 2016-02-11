@@ -1,25 +1,63 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# this file contains the following probelist of triggers
+# this file contains the useful lists of triggers for quick configuration
+# and a default monitoring configuration
+# First set of lists useful for monitoring
+# Second set of lists useful for validation 
 #
-# probeListLowMidPtSupportingTriggers
-# probeListLowMidPtPhysicsTriggers
-# probeListHighPtSupportingTriggers
-# probeListHighPtPhysicsTriggers
-# probeListPhotonTriggers
-# probeListLHTriggers -- short lilst to compare with IsEM triggers
-# probeListIsEMTriggers
-# probeListAltL1Seeds -- compare with same triggers with nominal L1 seed
-# probeListPerfTriggers -- id performance triggers for ID tracking studies
-# probeListRun1TrkTriggers -- compare with same items without L2Star in name
-# probeListRun1PidTriggers -- compare with sames items without 1 in name
-# probeListAltSequence -- compare with same trigers without HLTCalo or L2EFCalo in name
-# probeListMisAlignmentTriggers -- comapre with same trigger without misalignment configuration in name
+# The final configuration should be placed in TrigEgammaMonitoring
+#
+# Create dictionary for MaM
+monitoring_mam = {'primary_single_ele':'HLT_e26_lhtight_iloose',
+        'primary_single_cut_ele':'HLT_e24_tight_iloose',
+    'primary_single_pho':'HLT_g120_loose'}
+
+# High pt electron triggers that cannot be monitored with TP Analysis
+monitoring_electron=['HLT_e60_lhmedium','HLT_e60_medium','HLT_e120_lhloose','HLT_e120_loose','HLT_e140_lhloose']
+
+# Full list of monitoring for photons
+monitoring_photon=[
+        'HLT_g25_loose',
+        'HLT_g35_loose',
+	"HLT_g25_medium",
+	"HLT_g35_medium",
+        'HLT_g20_tight',
+        'HLT_g120_loose',
+        'HLT_g140_loose']
+
+# Lowest single electron triggers for TP analysis
+monitoringTP_electron =['HLT_e24_lhmedium_L1EM18VH',
+    'HLT_e24_lhmedium_L1EM20VH',
+    'HLT_e24_medium_L1EM20VH',
+    'HLT_e24_lhmedium_iloose',
+    'HLT_e24_medium_iloose',
+    'HLT_e24_lhmedium_nod0_iloose',
+    'HLT_e24_lhtight_iloose',
+    'HLT_e24_tight_iloose',
+    'HLT_e26_lhtight_iloose',
+    'HLT_e26_lhtight_nod0_iloose',
+    'HLT_e26_lhtight_nod0_ivarloose',
+    'HLT_e26_lhtight_nod0_ringer_iloose',
+    'HLT_e26_lhtight_nod0_ringer_ivarloose',
+    'HLT_e28_lhtight_nod0_iloose',
+    ]
+
+#Zee TP triggers
+monitoringTP_electronZee = ['HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee','HLT_e26_lhtight_e15_etcut_Zee']
+
+#Jpsiee TP triggers
+monitoringTP_electronJpsiee = [
+         "HLT_e5_loose",
+         "HLT_e5_lhloose",
+         "HLT_e5_vloose",
+         "HLT_e5_lhvloose",]
 
 default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e24_lhmedium_iloose_L1EM20VH',
         'e24_lhtight_iloose',
+        'e24_lhtight_iloose_L1EM20VH',
         'e26_lhtight_iloose',
+        'e26_lhtight_smooth_iloose',
         'e60_lhmedium',
         'e120_lhloose',
         'e140_lhloose',
@@ -36,6 +74,7 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e24_medium_L1EM18VH',
         'e24_lhtight_L1EM20VH',
         'e24_tight_L1EM20VH',
+        'e24_lhmedium_L1EM20VHI',
         # Single photon
         'g120_loose',
         'g140_loose',
@@ -62,13 +101,13 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e60_lhmedium_nod0',
         'e60_lhmedium_cutd0dphideta',
         # Supporting trigger for background
-        'e24_vloose_L1EM18VH', 
-        'e24_vloose_L1EM20VH',  
-        'e24_lhvloose_L1EM18VH', 
-        'e24_lhvloose_L1EM20VH',  
-        'e26_lhvloose_L1EM20VH',
-        'e26_vloose_L1EM20VH',
-        'e60_lhvloose',
+        #'e24_vloose_L1EM18VH', 
+        #'e24_vloose_L1EM20VH',  
+        #'e24_lhvloose_L1EM18VH', 
+        #'e24_lhvloose_L1EM20VH',  
+        #'e26_lhvloose_L1EM20VH',
+        #'e26_vloose_L1EM20VH',
+        #'e60_lhvloose',
         # Rerun mode for diobject
         'e12_lhloose_L1EM10VH',
         'e15_lhloose_L1EM13VH',
@@ -80,36 +119,41 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e17_lhloose_L1EM15',
         'e13_etcut_trkcut',
 	# Rerun mode for photon
-        'g35_loose_L1EM15',
-        'g25_loose_L1EM15',
-        'g35_loose',
-        'g25_loose',
-	"g25_medium",
-	"g35_medium",
-        'g50_loose',
-        'g20_tight',
         # Performance and supporting triggers 
-        "g0_perf_L1EM3_EMPTY",
-        "e0_perf_L1EM3_EMPTY",
-        "e0_perf_L1EM15",
-        "g0_perf_L1EM15",
-        "g10_etcut",
-        "g10_loose",
-        "e5_etcut",
-        "e10_etcut_L1EM7",
-        "e5_lhloose_idperf",
-        "e5_loose_idperf",
-        "e5_loose_L2Star_idperf",
-        "e5_loose",
-        'e24_medium_idperf_L1EM20VH',
-        'e24_lhmedium_idperf_L1EM20VH',
-        'e25_etcut_L1EM15',
-        'e30_etcut_L1EM15',
-        'L1_EM18VH',
-        'L1_EM20VH',
-        'L1_EM20VHI',
+        #"g0_perf_L1EM3_EMPTY",
+        #"e0_perf_L1EM3_EMPTY",
+        #"e0_perf_L1EM15",
+        #"g0_perf_L1EM15",
+        #"g10_etcut",
+        #"g10_loose",
+        #"e5_etcut",
+        #"e10_etcut_L1EM7",
+        #"e5_lhloose_idperf",
+        #"e5_loose_idperf",
+        #"e5_loose_L2Star_idperf",
+        #"e5_loose",
+        #'e24_medium_idperf_L1EM20VH',
+        #'e24_lhmedium_idperf_L1EM20VH',
+        #'e25_etcut_L1EM15',
+        #'e30_etcut_L1EM15',
+        #'L1_EM18VH',
+        #'L1_EM20VH',
+        #'L1_EM20VHI',
        ]
 
+# probeListLowMidPtSupportingTriggers
+# probeListLowMidPtPhysicsTriggers
+# probeListHighPtSupportingTriggers
+# probeListHighPtPhysicsTriggers
+# probeListPhotonTriggers
+# probeListLHTriggers -- short lilst to compare with IsEM triggers
+# probeListIsEMTriggers
+# probeListAltL1Seeds -- compare with same triggers with nominal L1 seed
+# probeListPerfTriggers -- id performance triggers for ID tracking studies
+# probeListRun1TrkTriggers -- compare with same items without L2Star in name
+# probeListRun1PidTriggers -- compare with sames items without 1 in name
+# probeListAltSequence -- compare with same trigers without HLTCalo or L2EFCalo in name
+# probeListMisAlignmentTriggers -- comapre with same trigger without misalignment configuration in name
 # ProbeList 1 - Low/mid pt supporting triggers
 # Tools to Run
 # EmulationTool,Counts,Efficiency,Perf
