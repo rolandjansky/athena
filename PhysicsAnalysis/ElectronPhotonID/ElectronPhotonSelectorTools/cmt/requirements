@@ -15,8 +15,10 @@ use xAODTracking                xAODTracking-*          Event/xAOD
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODTracking                xAODTracking-*          Event/xAOD
+use CxxUtils                    CxxUtils-*              Control
 
 private
+use xAODCore			xAODCore-*		Event/xAOD
 use  GaudiInterface             GaudiInterface-*        External
 use  xAODCaloEvent              xAODCaloEvent-*         Event/xAOD
 use  PathResolver               PathResolver-*          Tools

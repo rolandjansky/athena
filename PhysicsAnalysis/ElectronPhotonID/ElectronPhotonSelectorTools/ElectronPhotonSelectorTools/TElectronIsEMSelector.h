@@ -88,6 +88,9 @@ namespace Root {
 				// number of B-layer hits
 				int nBL,
 				int nBLOutliers,
+				// number of next to inner most B-layer hits
+				int nNextToInnerMostLayer,
+				int nNextToInnerMostLayerOutliers,
 				// number of Pixel hits
 				int nPi,
 				int nPiOutliers,
@@ -110,7 +113,8 @@ namespace Root {
 				float deltaphi,
 				// E/p
 				double ep,
-				bool expectHitInBLayer) const;
+				bool expectHitInBLayer,
+				bool expectHitNextInBLayer) const;
 
     // calculate the isEM. (Used internally by accept)
     unsigned int calcIsEm(
@@ -151,6 +155,9 @@ namespace Root {
 			  // number of B-layer hits
 			  int nBL,
 			  int nBLOutliers,
+			  // number of next to inner most B-layer hits
+			  int nNextToInnerMostLayer,
+			  int nNextToInnerMostLayerOutliers,
 			  // number of Pixel hits
 			  int nPi,
 			  int nPiOutliers,
@@ -173,7 +180,8 @@ namespace Root {
 			  float deltaphi,
 			  // E/p
 			  double ep,
-			  bool expectHitInBLayer) const;
+			  bool expectHitInBLayer,
+			  bool expectHitNextInBLayer) const;
 
     // used internally by calcIsEm, but left public because it can be useful for users. Note that
     // it doesn't necessarily zero all the values that pass, so make sure that the input iflag
@@ -228,6 +236,9 @@ namespace Root {
 			  // number of B-layer hits
 			  int nBL,
 			  int nBLOutliers,
+			  // number of next to inner most B-layer hits
+			  int nNextToInnerMostLayer,
+			  int nNextToInnerMostLayerOutliers,
 			  // number of Pixel hits
 			  int nPi,
 			  int nPiOutliers,
@@ -251,6 +262,7 @@ namespace Root {
 			  // E/p
 			  double ep,
 			  bool expectHitInBLayer,
+			  bool expectHitNextInBLayer,
 			  unsigned int iflag) const;
 
 

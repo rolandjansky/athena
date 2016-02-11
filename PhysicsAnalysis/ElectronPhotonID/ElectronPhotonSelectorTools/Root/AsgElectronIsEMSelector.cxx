@@ -541,6 +541,9 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   // number of B-layer hits
   uint8_t nBL = 0;
   uint8_t nBLOutliers = 0;
+  // number of next to inner most B-layer hits
+  uint8_t nNextToInnerMostLayer = 0;
+  uint8_t nNextToInnerMostLayerOutliers = 0;
   // number of Pixel hits
   uint8_t nPi = 0;
   uint8_t nPiOutliers = 0;
@@ -555,14 +558,17 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   uint8_t nTRTOutliers = 0;
   uint8_t nTRTXenonHits = 0;
   uint8_t expectHitInBLayer = true;
+  uint8_t expectHitNextInBLayer = true;
   float   TRT_PID = 0.0; 
 
   bool allFound = true;
 
   allFound = allFound && t->summaryValue(nBL, xAOD::numberOfBLayerHits);
+  allFound = allFound && t->summaryValue(nNextToInnerMostLayer, xAOD::numberOfNextToInnermostPixelLayerHits);
   allFound = allFound && t->summaryValue(nPi, xAOD::numberOfPixelHits);
   allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
   allFound = allFound && t->summaryValue(nBLOutliers, xAOD::numberOfBLayerOutliers);
+  allFound = allFound && t->summaryValue(nNextToInnerMostLayerOutliers, xAOD::numberOfNextToInnermostPixelLayerOutliers);
   allFound = allFound && t->summaryValue(nPiOutliers, xAOD::numberOfPixelOutliers);
   allFound = allFound && t->summaryValue(nPiDeadSensors, xAOD::numberOfPixelDeadSensors);
   allFound = allFound && t->summaryValue(nSCTOutliers, xAOD::numberOfSCTOutliers); 
@@ -574,6 +580,8 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
   allFound = allFound && t->summaryValue(nTRTXenonHits, xAOD::numberOfTRTXenonHits);
   allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
   allFound = allFound && t->summaryValue(expectHitInBLayer, xAOD::expectBLayerHit);
+  allFound = allFound && t->summaryValue(expectHitNextInBLayer, xAOD::expectNextToInnermostPixelLayerHit);
+  
 
   const float trackd0 = fabsf(t->d0());
   
@@ -597,6 +605,8 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      et,
 			      nBL,
 			      nBLOutliers,
+			      nNextToInnerMostLayer,
+			      nNextToInnerMostLayerOutliers,
 			      nPi,
 			      nPiOutliers,
 			      nPiDeadSensors,
@@ -614,6 +624,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      deltaphi,
 			      ep,
 			      expectHitInBLayer,
+			      expectHitNextInBLayer,
 			      iflag);
 }
 //  LocalWords:  const el

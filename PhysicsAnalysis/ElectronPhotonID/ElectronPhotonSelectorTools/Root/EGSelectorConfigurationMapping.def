@@ -1,0 +1,64 @@
+#ifndef __EGSelectorConfigurationMapping__
+#define __EGSelectorConfigurationMapping__
+////////////////////////////////////////////////////////////////
+namespace{
+ //Map enums to tool names  
+  const std::map<EgammaSelectors::LHidentificationPoint,std::string> m_LHPointToName ={
+    DEFINE_PAIR(VeryLooseLHElectron),
+    DEFINE_PAIR(LooseLHElectron),
+    DEFINE_PAIR(MediumLHElectron),
+    DEFINE_PAIR(TightLHElectron)
+  };  
+  const std::map<EgammaSelectors::PhotonCutidentificationPoint,std::string> m_PhotonCutPointToName={
+    DEFINE_PAIR(LoosePhoton),
+    DEFINE_PAIR(MediumPhoton),
+    DEFINE_PAIR(TightPhoton)
+  };
+  const std::map<EgammaSelectors::ForwardElectronCutidentificationPoint,std::string> m_ForwardElectronCutPointToName={
+    DEFINE_PAIR(LooseForwardElectron),
+    DEFINE_PAIR(MediumForwardElectron),
+    DEFINE_PAIR(TightForwardElectron)
+  };
+  const std::map<EgammaSelectors::ElectronCutidentificationPoint,std::string> m_ElectronCutPointToName={
+    DEFINE_PAIR(LooseElectron),
+    DEFINE_PAIR(MediumElectron),
+    DEFINE_PAIR(TightElectron)
+  };
+  //----------------------------------------------------------
+  //This is the internal part , map enums to latest reccomendations
+  const std::map<EgammaSelectors::LHidentificationPoint,std::string> m_LHPointToConfFile ={
+    {EgammaSelectors::VeryLooseLHElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodVeryLooseOfflineConfig2015.conf"},
+    {EgammaSelectors::LooseLHElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf"},
+    {EgammaSelectors::LooseBLLHElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015_CutBL.conf"},
+    {EgammaSelectors::MediumLHElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodMediumOfflineConfig2015.conf"},
+    {EgammaSelectors::TightLHElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodTightOfflineConfig2015.conf"}
+  };
+  const std::map<EgammaSelectors::PhotonCutidentificationPoint,std::string> m_PhotonCutPointToConfFile={
+    {EgammaSelectors::LoosePhoton,"ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
+    {EgammaSelectors::MediumPhoton,"ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"},
+    {EgammaSelectors::TightPhoton,"ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"},
+  };
+  const std::map<EgammaSelectors::ForwardElectronCutidentificationPoint,std::string> m_ForwardElectronCutPointToConfFile={
+    {EgammaSelectors::LooseForwardElectron,"ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMLooseSelectorCutDefs.conf"},
+    {EgammaSelectors::MediumForwardElectron,"ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMMediumSelectorCutDefs.conf"},
+    {EgammaSelectors::TightForwardElectron,"ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMTightSelectorCutDefs.conf"},
+  };
+  const std::map<EgammaSelectors::ElectronCutidentificationPoint,std::string> m_ElectronCutPointToConfFile={
+    {EgammaSelectors::LooseElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"},
+    {EgammaSelectors::MediumElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"},
+    {EgammaSelectors::TightElectron,"ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"}
+  };
+  //----------------------------------------------------------
+  //Map enums to masks , needed for photons
+  const std::map<EgammaSelectors::LHidentificationPoint,unsigned int> m_LHPointToMask ={};
+  const std::map<EgammaSelectors::ForwardElectronCutidentificationPoint,unsigned int> m_ForwardElectronCutPointToMask ={};
+  const std::map<EgammaSelectors::ElectronCutidentificationPoint,unsigned int> m_ElectronCutPointToMask ={};
+  const std::map<EgammaSelectors::PhotonCutidentificationPoint,unsigned int> m_PhotonCutPointToMask ={
+    {EgammaSelectors::LoosePhoton,egammaPID::PhotonLoose},
+    {EgammaSelectors::MediumPhoton,egammaPID::PhotonMedium},
+    {EgammaSelectors::TightPhoton,egammaPID::PhotonTight},
+  };
+
+}
+////////////////////////////////////////////
+#endif

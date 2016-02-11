@@ -25,5 +25,7 @@
 #include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h" //For the LikelihoodEnums
 #include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h" // for python
+#include "ElectronPhotonSelectorTools/IEGSelectorConfiguration.h"
+#include "ElectronPhotonSelectorTools/EGSelectorConfiguration.h" 
 
 #endif
