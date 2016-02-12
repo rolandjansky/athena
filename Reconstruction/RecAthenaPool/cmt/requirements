@@ -35,11 +35,42 @@ apply_pattern poolcnv typesWithNamespace=$(recAthenaPool_poolCnvTypes) \
 
 macro_append RecAthenaPoolPoolCnv_shlibflags " $(RecAthenaPool_dict_linkopts)"
 
-macro        recAthenaPool_poolIoHdlrTypes ""
-# no ElementLink to Rec::MuonSpShowerContainer (yet?)
-#macro_append recAthenaPool_poolIoHdlrTypes "Rec::MuonSpShowerContainer "
-macro_append recAthenaPool_poolIoHdlrTypes "Analysis::MuonContainer "
+#macro        recAthenaPool_poolIoHdlrTypes ""
+## no ElementLink to Rec::MuonSpShowerContainer (yet?)
+##macro_append recAthenaPool_poolIoHdlrTypes "Rec::MuonSpShowerContainer "
+#macro_append recAthenaPool_poolIoHdlrTypes "Analysis::MuonContainer "
 
 #apply_pattern pooliohandler \
 #   typesWithNamespace=$(recAthenaPool_poolIoHdlrTypes) \
 #   handlerFiles="-s=${muonEvent_root}/muonEvent MuonCaloEnergyContainer.h MuonContainer.h"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_15.0.0" \
+   options="RecAthenaPool/RecTPCnv_15.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_15.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_15.0.0"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_15.6.1" \
+   options="RecAthenaPool/RecTPCnv_15.6.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_15.6.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_15.6.1"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_17.0.6" \
+   options="RecAthenaPool/RecTPCnv_17.0.6_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_17.0.6" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_17.0.6"
+
+apply_pattern athenarun_test \
+   name="RecTPCnv_18.0.0" \
+   options="RecAthenaPool/RecTPCnv_18.0.0_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh RecTPCnv_18.0.0" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh RecTPCnv_18.0.0"
+
