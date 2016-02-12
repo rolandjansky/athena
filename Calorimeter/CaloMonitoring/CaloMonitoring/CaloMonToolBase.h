@@ -27,7 +27,7 @@ class CaloMonToolBase : public ManagedMonitorToolBase {
  protected:
    int m_lb;
    bool m_passBeamBackgroundRemoval;
-   TH1I* h_EvtRejSumm;
+   TH1I* m_h_EvtRejSumm;
 
  private:
    // Handles on filtering tools

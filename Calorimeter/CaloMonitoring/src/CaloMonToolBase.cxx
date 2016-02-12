@@ -10,7 +10,9 @@
 
 CaloMonToolBase::CaloMonToolBase(const std::string& type, const std::string& name,const IInterface* parent) 
   :ManagedMonitorToolBase(type, name, parent),
-   h_EvtRejSumm(nullptr),
+   m_lb(0),
+   m_passBeamBackgroundRemoval(false),
+   m_h_EvtRejSumm(nullptr),
    m_BadLBTool("DQBadLBFilterTool"),
    m_ReadyFilterTool("DQAtlasReadyFilterTool")
  {
@@ -54,15 +56,15 @@ StatusCode CaloMonToolBase::initialize() {
 
 
 StatusCode CaloMonToolBase::bookBaseHists(MonGroup* group) {
-  h_EvtRejSumm  = new TH1I("nEvtsRejectByDifferentTool","Total Events: bin 1, ReadyFilterTool: 2, BadLBTool: 3, LArCollisionTime: 4, BeamBackground: 5, Trigger: 6, LArError: 7 ",7,1.,8.);
-  h_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
+  m_h_EvtRejSumm  = new TH1I("nEvtsRejectByDifferentTool","Total Events: bin 1, ReadyFilterTool: 2, BadLBTool: 3, LArCollisionTime: 4, BeamBackground: 5, Trigger: 6, LArError: 7 ",7,1.,8.);
+  m_h_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
 
-  const std::array<const char*,7> binLabels={"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackground", "Trigger","LArError"};
+  const std::array<const char*,7> binLabels={{"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackground", "Trigger","LArError"}};
 
   for (unsigned i=0;i<binLabels.size();++i) {
-    h_EvtRejSumm->GetXaxis()->SetBinLabel(i+1,binLabels[i]);
+    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(i+1,binLabels[i]);
   }
-  return group->regHist( h_EvtRejSumm );
+  return group->regHist( m_h_EvtRejSumm );
 }
 
 
@@ -71,7 +73,7 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
   // ATH_MSG_INFO("CaloCellVecMon::checkFilters() starts");
   StatusCode sc = StatusCode::SUCCESS;
 
-  h_EvtRejSumm->Fill(1); //Counter of all events seen
+  m_h_EvtRejSumm->Fill(1); //Counter of all events seen
 
   const xAOD::EventInfo* eventInfo;
   sc = evtStore()->retrieve(eventInfo);
@@ -83,22 +85,22 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
  
   if(m_useLArNoisyAlg && (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)) {
     ifPass = 0;
-    h_EvtRejSumm->Fill(7);
+    m_h_EvtRejSumm->Fill(7);
   }
-  //Fixme fill h_EvtRejSumm (define new value)
+  //Fixme fill m_h_EvtRejSumm (define new value)
 
    
   if (m_useReadyFilterTool) {
     if (!m_ReadyFilterTool->accept()) {
       ifPass = 0;
-      h_EvtRejSumm->Fill(2);
+      m_h_EvtRejSumm->Fill(2);
     }
   }
    
   if (m_useBadLBTool) {
     if (!m_BadLBTool->accept()) { 
       ifPass = 0;
-      h_EvtRejSumm->Fill(3);
+      m_h_EvtRejSumm->Fill(3);
     }
   }
   
@@ -110,7 +112,7 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
  else {
    if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10)  {
      ifPass = 0;
-     h_EvtRejSumm->Fill(4);
+     m_h_EvtRejSumm->Fill(4);
    }
  }
 
@@ -125,7 +127,7 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
      //   ATH_MSG_INFO("BeamBackgroundData is retrieved");
      if( beamBackgroundData->GetNumSegment() > 0 ) {
        m_passBeamBackgroundRemoval = false;
-       h_EvtRejSumm->Fill(5);
+       m_h_EvtRejSumm->Fill(5);
        ATH_MSG_DEBUG("Identified background event");
      }
    }

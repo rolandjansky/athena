@@ -22,6 +22,7 @@
 static const double Pi = TMath::Pi();
 
 using namespace CaloMonitoring;
+using namespace std;
 
 //
 CaloLayer::CaloLayer(const char* name,Partition partition, int layerNumber, Side side) {
