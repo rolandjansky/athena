@@ -17,6 +17,7 @@ PURPOSE:  Header file for class MissingETCnv
 // #include "RecTPCnv/MissingET_p1.h" //not needed here
 // #include "RecTPCnv/MissingET_p2.h" //not needed here
 #include "RecTPCnv/MissingET_p3.h"
+#include "MissingETEvent/MissingET.h"
 
 // Forward declaration
 

@@ -44,15 +44,15 @@ MuonCaloEnergyContainer* MuonCaloEnergyContainerCnv::createTransient()
   
   if ( compareClassGuid(tlp1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<MuonCaloEnergyContainer_tlp1> persObj( poolReadObject<MuonCaloEnergyContainer_tlp1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<MuonCaloEnergyContainer_tlp1> persObj( poolReadObject<MuonCaloEnergyContainer_tlp1>() );
     MuonCaloEnergyContainerCnv_tlp1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
   }
   else if ( compareClassGuid(p1_guid) ) {
 
-    // using auto_ptr ensures deletion of the persistent object
-    std::auto_ptr<MuonCaloEnergyContainer_p1> persObj( poolReadObject<MuonCaloEnergyContainer_p1>() );
+    // using unique_ptr ensures deletion of the persistent object
+    std::unique_ptr<MuonCaloEnergyContainer_p1> persObj( poolReadObject<MuonCaloEnergyContainer_p1>() );
     MuonCaloEnergyContainerCnv_p1 cnv;
     transObj = cnv.createTransient( persObj.get(), msg );
 
