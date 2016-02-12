@@ -23,7 +23,21 @@
 TRT_ByteStream_ConditionsSvc::TRT_ByteStream_ConditionsSvc( const std::string& name,
 							    ISvcLocator* pSvcLocator ) :
   AthService( name, pSvcLocator ),
-  m_evtStore("StoreGateSvc",name)
+  m_evtStore("StoreGateSvc",name),
+  m_num_l1id_errors(0),
+  m_num_bcid_errors(0),
+  m_num_missing_errors(0),
+  m_num_error_errors(0),
+  m_num_sid_errors(0),
+  m_num_robStatus_errors(0),
+  m_tot_num_l1id_errors(0),
+  m_tot_num_bcid_errors(0),
+  m_tot_num_missing_errors(0),
+  m_tot_num_error_errors(0),
+  m_tot_num_sid_errors(0),
+  m_tot_num_robStatus_errors(0),
+  m_IdCont(0),
+  m_cont(0) 
 {
   declareProperty( "writeBcidError", m_writeBCIDError = true );
   declareProperty( "writeL1idError", m_writeL1IDError = true );

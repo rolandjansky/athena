@@ -34,6 +34,12 @@ TRT_HWMappingSvc::TRT_HWMappingSvc( const std::string& name,
 				    ISvcLocator* pSvcLocator ) :
   AthService( name, pSvcLocator ),
   m_detStore("DetectorStore",name),
+  m_Barrel_HV_CoolChanNames(0),
+  m_EndcapA_HV_CoolChanNames(0),
+  m_EndcapC_HV_CoolChanNames(0),
+  m_Barrel_HV_CoolChanNums(0),
+  m_EndcapA_HV_CoolChanNums(0),
+  m_EndcapC_HV_CoolChanNums(0),
   m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc",name)
 {
   // Get properties from job options
