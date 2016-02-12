@@ -27,10 +27,10 @@ ROIMon::ROIMon( ComTime* comtime,float distance)
     m_tileMuDeltaEta(0),
     m_tileMuDeltaPhi(0)
 {
-  myComTime=comtime;
-  MaxDistance=distance;
-  theTime=-9999.;
-  theDistance=-9999.;
+  m_myComTime=comtime;
+  m_maxDistance=distance;
+  m_theTime=-9999.;
+  m_theDistance=-9999.;
 
 }
 
@@ -55,12 +55,12 @@ int ROIMon::Accept( Hep3Vector Point){
   Hep3Vector MuZeroPosition;
   Hep3Vector MuDirection;
   
-  MuZeroPosition =  myComTime->GetCounterPosition() ;
-  MuDirection =  myComTime->GetcosThetaDirection(); 
+  MuZeroPosition =  m_myComTime->GetCounterPosition() ;
+  MuDirection =  m_myComTime->GetcosThetaDirection(); 
   
-  if(myComTime->getTime()!=0 || MuZeroPosition.x()!=0 || MuZeroPosition.z()!=0  ) 
+  if(m_myComTime->getTime()!=0 || MuZeroPosition.x()!=0 || MuZeroPosition.z()!=0  ) 
     {
-      //m_tileComTime = myComTime->getTime();
+      //m_tileComTime = m_myComTime->getTime();
       
       //m_tileMuSinThetaCosPhi = MuDirection.x();
       //m_tileMuSinThetaSinPhi = MuDirection.y();
@@ -72,7 +72,7 @@ int ROIMon::Accept( Hep3Vector Point){
     }
 
 
-  //  theTime = m_tileComTime;
+  //  m_theTime = m_tileComTime;
   
   // extract distance of minimum approach==============
   // for instance see a bried sicussion at http://math.mit.edu/~djk/18_022/chapter02/example02.html
@@ -81,9 +81,9 @@ int ROIMon::Accept( Hep3Vector Point){
    // find orthogonal component of the point vector with respect to the line  
    Hep3Vector OrtVec=TranslateToOrigin - TranslateToOrigin.dot(MuDirection)*MuDirection;
    // its magnitude is the distance we need
-   theDistance=OrtVec.mag();
+   m_theDistance=OrtVec.mag();
   
-  if (theDistance<MaxDistance) accept=1;
+  if (m_theDistance<m_maxDistance) accept=1;
   return accept;
 }
 // TOTRY: need to change it and put accept in the constructor so that 
@@ -95,19 +95,19 @@ int ROIMon::AcceptTime(){
 // get info from TileMuFitter
 
   int accept=0;
-  double m_tileComTime =0.;
+  double tileComTime =0.;
   
   Hep3Vector MuZeroPosition;
   Hep3Vector MuDirection;
   
-  MuZeroPosition =  myComTime->GetCounterPosition() ;
-  MuDirection =  myComTime->GetcosThetaDirection(); 
+  MuZeroPosition =  m_myComTime->GetCounterPosition() ;
+  MuDirection =  m_myComTime->GetcosThetaDirection(); 
   
-  if(myComTime->getTime()!=0 || MuZeroPosition.x()!=0 || MuZeroPosition.z()!=0  ) 
+  if(m_myComTime->getTime()!=0 || MuZeroPosition.x()!=0 || MuZeroPosition.z()!=0  ) 
     {
-      m_tileComTime = myComTime->getTime();
+      tileComTime = m_myComTime->getTime();
     }
-  theTime = m_tileComTime;
+  m_theTime = tileComTime;
   return accept;
 }
 
@@ -115,11 +115,11 @@ int ROIMon::AcceptTime(){
 
 float ROIMon::GetDistance(Hep3Vector Point){
    /*int acceptance=*/this->Accept(Point);
-  return theDistance;
+  return m_theDistance;
 }
 
 float ROIMon::GetTime(){
    /*int acceptance=*/this->AcceptTime();
-  return theTime;
+  return m_theTime;
 }
 

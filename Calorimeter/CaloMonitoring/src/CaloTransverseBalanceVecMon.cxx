@@ -90,39 +90,39 @@ CaloTransverseBalanceVecMon::CaloTransverseBalanceVecMon(const std::string& type
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_userPhotonContainer(0),
     m_pMissing(0),
-    TheTransverseBalance_shift(0),
+    m_theTransverseBalance_shift(0),
     m_cutflow_j_1(0),
     m_cutflow_j_2(0),
     m_cutflow_j_3(0),
     m_TriggerCut(0),
-    h_photon_pt(0),
-    h_photon_eta(0),
-    h_photon_phi(0),
-    h_jet_pt_beforeoverlap(0),
-    h_jet_eta_beforeoverlap(0),
-    h_jet_phi_beforeoverlap(0),
-    h_jet_pt_afteroverlap(0),
-    h_jet_eta_afteroverlap(0),
-    h_jet_phi_afteroverlap(0),
-    h_njet_beforeoverlap(0),
-    h_njet_afteroverlap(0),
-    h_leadingJet_pt(0),
-    h_leadingJet_eta(0),
-    h_leadingJet_phi(0),
-    h_deltaPhi(0),
-    h2_ph_leadingJet_eta(0),
-    p_ptratioVsPhi_Barrel(0),
-    p_ptratioVsPhi_ECC(0),
-    p_ptratioVsPhi_ECA(0),
-    p_ptratioVsEta(0),
-    h2_ptratioVsPhi_Barrel(0),
-    h2_ptratioVsPhi_ECC(0),
-    h2_ptratioVsPhi_ECA(0),
-    h2_ptratioVsEta(0),
-    h_overlapped_ph_jet_ptratio(0),
-    h_pt_ratio(0),
-    h_leadingPh_MET_deltaPhi(0),
-    h2_leadingPh_MET_deltaPhiVsPt(0)
+    m_h_photon_pt(0),
+    m_h_photon_eta(0),
+    m_h_photon_phi(0),
+    m_h_jet_pt_beforeoverlap(0),
+    m_h_jet_eta_beforeoverlap(0),
+    m_h_jet_phi_beforeoverlap(0),
+    m_h_jet_pt_afteroverlap(0),
+    m_h_jet_eta_afteroverlap(0),
+    m_h_jet_phi_afteroverlap(0),
+    m_h_njet_beforeoverlap(0),
+    m_h_njet_afteroverlap(0),
+    m_h_leadingJet_pt(0),
+    m_h_leadingJet_eta(0),
+    m_h_leadingJet_phi(0),
+    m_h_deltaPhi(0),
+    m_h2_ph_leadingJet_eta(0),
+    m_p_ptratioVsPhi_Barrel(0),
+    m_p_ptratioVsPhi_ECC(0),
+    m_p_ptratioVsPhi_ECA(0),
+    m_p_ptratioVsEta(0),
+    m_h2_ptratioVsPhi_Barrel(0),
+    m_h2_ptratioVsPhi_ECC(0),
+    m_h2_ptratioVsPhi_ECA(0),
+    m_h2_ptratioVsEta(0),
+    m_h_overlapped_ph_jet_ptratio(0),
+    m_h_pt_ratio(0),
+    m_h_leadingPh_MET_deltaPhi(0),
+    m_h2_leadingPh_MET_deltaPhiVsPt(0)
 {
 
   // Time granularity options -  global by default
@@ -191,83 +191,83 @@ StatusCode CaloTransverseBalanceVecMon::bookHistograms(){
    if (m_triggerChainProp == "")  TheTrigger="NoTrigSel";
    else TheTrigger = m_triggerChainProp;
 
-   TheTransverseBalance_shift= new MonGroup( this, "/CaloMonitoring/TransverseBalance/", theinterval);
+   m_theTransverseBalance_shift= new MonGroup( this, "/CaloMonitoring/TransverseBalance/", theinterval);
 
    msg(MSG::DEBUG) << "in bookHistograms()" << endreq;
 
-   h_photon_pt    = new TH1F("h_photon_pt","h_photon_pt",100,0,100000);
-   h_photon_pt->GetXaxis()->SetTitle("pt(MeV)" );
-   h_photon_eta   = new TH1F("h_photon_eta","h_photon_eta",60,-3,3);
-   h_photon_phi   = new TH1F("h_photon_phi","h_photon_phi",70,-3.5,3.5);
-   h_jet_pt_beforeoverlap = new TH1F("jet_pt_beforeoverlap","jet_pt",250,0,1000*GeV);
-   h_jet_pt_beforeoverlap->SetXTitle("jet pt(MeV)"); 
-   h_jet_eta_beforeoverlap = new TH1F("h_jet_eta_beforeoverlap","jet_eta",60,-3,3);
-   h_jet_eta_beforeoverlap->SetXTitle("eta");
-   h_jet_phi_beforeoverlap = new TH1F("h_jet_phi_beforeoverlap","jet_phi",70,-3.5,3.5);
-   h_jet_phi_beforeoverlap->SetXTitle("phi"); 
-   h_jet_pt_afteroverlap = new TH1F("jet_pt_afteroverlap","jet_pt",250,0,1000*GeV);
-   h_jet_pt_afteroverlap->SetXTitle("jet pt(MeV)");
-   h_jet_eta_afteroverlap = new TH1F("h_jet_eta_afteroverlap","jet_eta",60,-3,3);
-   h_jet_eta_afteroverlap->SetXTitle("eta");
-   h_jet_phi_afteroverlap = new TH1F("h_jet_phi_afteroverlap","jet_phi",70,-3.5,3.5);
-   h_jet_phi_afteroverlap->SetXTitle("phi");
-   h_njet_beforeoverlap = new TH1I("njet_beforeoverlap","njet before overlap",20,0,20);
-   h_njet_beforeoverlap->SetXTitle("# of jet");
-   h_njet_afteroverlap = new TH1I("njet_afteroverlap","njet after overlap",20,0,20);
-   h_njet_afteroverlap->SetXTitle("# of jet");
-   h_leadingJet_pt = new TH1F("h_leadingJet_pt","h_leadingJet_pt",200,0,200*GeV);
-   h_leadingJet_pt->SetXTitle("leading jet pt");
-   h_leadingJet_eta = new TH1F("h_leadingJet_eta","h_leadingJet_eta",60,-3,3);
-   h_leadingJet_eta->SetXTitle("leading jet eta");
-   h_leadingJet_phi = new TH1F("h_leadingJet_phi","h_leadingJet_phi",70,-3.5,3.5);
-   h_leadingJet_phi->SetXTitle("leading jet phi");
+   m_h_photon_pt    = new TH1F("h_photon_pt","h_photon_pt",100,0,100000);
+   m_h_photon_pt->GetXaxis()->SetTitle("pt(MeV)" );
+   m_h_photon_eta   = new TH1F("h_photon_eta","h_photon_eta",60,-3,3);
+   m_h_photon_phi   = new TH1F("h_photon_phi","h_photon_phi",70,-3.5,3.5);
+   m_h_jet_pt_beforeoverlap = new TH1F("jet_pt_beforeoverlap","jet_pt",250,0,1000*GeV);
+   m_h_jet_pt_beforeoverlap->SetXTitle("jet pt(MeV)"); 
+   m_h_jet_eta_beforeoverlap = new TH1F("h_jet_eta_beforeoverlap","jet_eta",60,-3,3);
+   m_h_jet_eta_beforeoverlap->SetXTitle("eta");
+   m_h_jet_phi_beforeoverlap = new TH1F("h_jet_phi_beforeoverlap","jet_phi",70,-3.5,3.5);
+   m_h_jet_phi_beforeoverlap->SetXTitle("phi"); 
+   m_h_jet_pt_afteroverlap = new TH1F("jet_pt_afteroverlap","jet_pt",250,0,1000*GeV);
+   m_h_jet_pt_afteroverlap->SetXTitle("jet pt(MeV)");
+   m_h_jet_eta_afteroverlap = new TH1F("h_jet_eta_afteroverlap","jet_eta",60,-3,3);
+   m_h_jet_eta_afteroverlap->SetXTitle("eta");
+   m_h_jet_phi_afteroverlap = new TH1F("h_jet_phi_afteroverlap","jet_phi",70,-3.5,3.5);
+   m_h_jet_phi_afteroverlap->SetXTitle("phi");
+   m_h_njet_beforeoverlap = new TH1I("njet_beforeoverlap","njet before overlap",20,0,20);
+   m_h_njet_beforeoverlap->SetXTitle("# of jet");
+   m_h_njet_afteroverlap = new TH1I("njet_afteroverlap","njet after overlap",20,0,20);
+   m_h_njet_afteroverlap->SetXTitle("# of jet");
+   m_h_leadingJet_pt = new TH1F("h_leadingJet_pt","h_leadingJet_pt",200,0,200*GeV);
+   m_h_leadingJet_pt->SetXTitle("leading jet pt");
+   m_h_leadingJet_eta = new TH1F("h_leadingJet_eta","h_leadingJet_eta",60,-3,3);
+   m_h_leadingJet_eta->SetXTitle("leading jet eta");
+   m_h_leadingJet_phi = new TH1F("h_leadingJet_phi","h_leadingJet_phi",70,-3.5,3.5);
+   m_h_leadingJet_phi->SetXTitle("leading jet phi");
 
    // photon & jet
-   h_deltaPhi = new TH1F("h_deltaPhi","deltaPhi between ph and jet",40,0,4);
-   h_deltaPhi->SetXTitle("delta phi");
-   h2_ph_leadingJet_eta = new TH2F("h2_ph_leadingJet_eta","h2_ph_leadingJet_eta",80,-4,4,80,-4,4);
-   p_ptratioVsPhi_Barrel = new TProfile("p_ptratioVsPhi_Barrel","p_ptratioVsPhi_Barrel",30,-1.5,1.5);
-   p_ptratioVsPhi_ECC = new TProfile("p_ptratioVsPhi_ECC","p_ptratioVsPhi_ECC",20,1,3);
-   p_ptratioVsPhi_ECA = new TProfile("p_ptratioVsPhi_ECA","p_ptratioVsPhi_ECA",20,-3,-1);
-   p_ptratioVsEta = new TProfile("p_ptratioVsEta","p_ptratioVsEta",60,-3,3);
-   h2_ptratioVsPhi_Barrel = new TH2F("h2_ptratioVsPhi_Barrel","h2_ptratioVsPhi_Barrel",30,-1.5,1.5,30,0,3);
-   h2_ptratioVsPhi_ECA = new TH2F("h2_ptratioVsPhi_ECA","h2_ptratioVsPhi_ECA",20,-3,1,30,0,3);
-   h2_ptratioVsPhi_ECC = new TH2F("h2_ptratioVsPhi_ECC","h2_ptratioVsPhi_ECC",20,1,3,30,0,3);
-   h2_ptratioVsEta = new TH2F("h2_ptratioVsEta","h2_ptratioVsEta",60,-3,3,30,0,3);
-   h_overlapped_ph_jet_ptratio = new TH1F("h_overlapped_ph_jet_ptratio","h_overlapped_ph_jet_ptratio",20,0,2);
-   h_leadingPh_MET_deltaPhi = new TH1F("h_leadingPh_MET_deltaPhi","leadingPh_MET_deltaPhi",40,0,4);
-   h2_leadingPh_MET_deltaPhiVsPt = new TH2F("h2_leadingPh_MET_deltaPhiVsPt","leadingPh_MET_deltaPhiVsPt",100,0,200*GeV,40,0,4);
-   h_pt_ratio = new TH1F("h_pt_ratio","ph_pt/jet_pt",30,0,3);
-   h_pt_ratio->SetXTitle("pt ratio");
+   m_h_deltaPhi = new TH1F("h_deltaPhi","deltaPhi between ph and jet",40,0,4);
+   m_h_deltaPhi->SetXTitle("delta phi");
+   m_h2_ph_leadingJet_eta = new TH2F("h2_ph_leadingJet_eta","h2_ph_leadingJet_eta",80,-4,4,80,-4,4);
+   m_p_ptratioVsPhi_Barrel = new TProfile("p_ptratioVsPhi_Barrel","p_ptratioVsPhi_Barrel",30,-1.5,1.5);
+   m_p_ptratioVsPhi_ECC = new TProfile("p_ptratioVsPhi_ECC","p_ptratioVsPhi_ECC",20,1,3);
+   m_p_ptratioVsPhi_ECA = new TProfile("p_ptratioVsPhi_ECA","p_ptratioVsPhi_ECA",20,-3,-1);
+   m_p_ptratioVsEta = new TProfile("p_ptratioVsEta","p_ptratioVsEta",60,-3,3);
+   m_h2_ptratioVsPhi_Barrel = new TH2F("h2_ptratioVsPhi_Barrel","h2_ptratioVsPhi_Barrel",30,-1.5,1.5,30,0,3);
+   m_h2_ptratioVsPhi_ECA = new TH2F("h2_ptratioVsPhi_ECA","h2_ptratioVsPhi_ECA",20,-3,1,30,0,3);
+   m_h2_ptratioVsPhi_ECC = new TH2F("h2_ptratioVsPhi_ECC","h2_ptratioVsPhi_ECC",20,1,3,30,0,3);
+   m_h2_ptratioVsEta = new TH2F("h2_ptratioVsEta","h2_ptratioVsEta",60,-3,3,30,0,3);
+   m_h_overlapped_ph_jet_ptratio = new TH1F("h_overlapped_ph_jet_ptratio","h_overlapped_ph_jet_ptratio",20,0,2);
+   m_h_leadingPh_MET_deltaPhi = new TH1F("h_leadingPh_MET_deltaPhi","leadingPh_MET_deltaPhi",40,0,4);
+   m_h2_leadingPh_MET_deltaPhiVsPt = new TH2F("h2_leadingPh_MET_deltaPhiVsPt","leadingPh_MET_deltaPhiVsPt",100,0,200*GeV,40,0,4);
+   m_h_pt_ratio = new TH1F("h_pt_ratio","ph_pt/jet_pt",30,0,3);
+   m_h_pt_ratio->SetXTitle("pt ratio");
 
-   Plotregister(TheTransverseBalance_shift,h_photon_pt);
-   Plotregister(TheTransverseBalance_shift,h_photon_eta);
-   Plotregister(TheTransverseBalance_shift,h_photon_phi);
-   Plotregister(TheTransverseBalance_shift,h_jet_pt_beforeoverlap);
-   Plotregister(TheTransverseBalance_shift,h_jet_eta_beforeoverlap);
-   Plotregister(TheTransverseBalance_shift,h_jet_phi_beforeoverlap);
-   Plotregister(TheTransverseBalance_shift,h_jet_pt_afteroverlap);
-   Plotregister(TheTransverseBalance_shift,h_jet_eta_afteroverlap);
-   Plotregister(TheTransverseBalance_shift,h_jet_phi_afteroverlap);
-   Plotregister(TheTransverseBalance_shift,h_njet_beforeoverlap);
-   Plotregister(TheTransverseBalance_shift,h_njet_afteroverlap);
-   Plotregister(TheTransverseBalance_shift,h_leadingJet_pt);
-   Plotregister(TheTransverseBalance_shift,h_leadingJet_eta);
-   Plotregister(TheTransverseBalance_shift,h_leadingJet_phi);
-   Plotregister(TheTransverseBalance_shift,h_deltaPhi);
-   Plotregister(TheTransverseBalance_shift,h2_ph_leadingJet_eta);
-   Plotregister(TheTransverseBalance_shift,p_ptratioVsPhi_Barrel);
-   Plotregister(TheTransverseBalance_shift,p_ptratioVsPhi_ECC);
-   Plotregister(TheTransverseBalance_shift,p_ptratioVsPhi_ECA);
-   Plotregister(TheTransverseBalance_shift,p_ptratioVsEta);
-   Plotregister(TheTransverseBalance_shift,h2_ptratioVsPhi_Barrel);
-   Plotregister(TheTransverseBalance_shift,h2_ptratioVsPhi_ECC);
-   Plotregister(TheTransverseBalance_shift,h2_ptratioVsPhi_ECA);
-   Plotregister(TheTransverseBalance_shift,h2_ptratioVsEta);
-   Plotregister(TheTransverseBalance_shift,h_overlapped_ph_jet_ptratio);
-   Plotregister(TheTransverseBalance_shift,h_leadingPh_MET_deltaPhi);
-   Plotregister(TheTransverseBalance_shift,h2_leadingPh_MET_deltaPhiVsPt);
-   Plotregister(TheTransverseBalance_shift,h_pt_ratio);
+   Plotregister(m_theTransverseBalance_shift,m_h_photon_pt);
+   Plotregister(m_theTransverseBalance_shift,m_h_photon_eta);
+   Plotregister(m_theTransverseBalance_shift,m_h_photon_phi);
+   Plotregister(m_theTransverseBalance_shift,m_h_jet_pt_beforeoverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_jet_eta_beforeoverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_jet_phi_beforeoverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_jet_pt_afteroverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_jet_eta_afteroverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_jet_phi_afteroverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_njet_beforeoverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_njet_afteroverlap);
+   Plotregister(m_theTransverseBalance_shift,m_h_leadingJet_pt);
+   Plotregister(m_theTransverseBalance_shift,m_h_leadingJet_eta);
+   Plotregister(m_theTransverseBalance_shift,m_h_leadingJet_phi);
+   Plotregister(m_theTransverseBalance_shift,m_h_deltaPhi);
+   Plotregister(m_theTransverseBalance_shift,m_h2_ph_leadingJet_eta);
+   Plotregister(m_theTransverseBalance_shift,m_p_ptratioVsPhi_Barrel);
+   Plotregister(m_theTransverseBalance_shift,m_p_ptratioVsPhi_ECC);
+   Plotregister(m_theTransverseBalance_shift,m_p_ptratioVsPhi_ECA);
+   Plotregister(m_theTransverseBalance_shift,m_p_ptratioVsEta);
+   Plotregister(m_theTransverseBalance_shift,m_h2_ptratioVsPhi_Barrel);
+   Plotregister(m_theTransverseBalance_shift,m_h2_ptratioVsPhi_ECC);
+   Plotregister(m_theTransverseBalance_shift,m_h2_ptratioVsPhi_ECA);
+   Plotregister(m_theTransverseBalance_shift,m_h2_ptratioVsEta);
+   Plotregister(m_theTransverseBalance_shift,m_h_overlapped_ph_jet_ptratio);
+   Plotregister(m_theTransverseBalance_shift,m_h_leadingPh_MET_deltaPhi);
+   Plotregister(m_theTransverseBalance_shift,m_h2_leadingPh_MET_deltaPhiVsPt);
+   Plotregister(m_theTransverseBalance_shift,m_h_pt_ratio);
     
     
    return StatusCode::SUCCESS;
@@ -349,9 +349,9 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     if( !(fabs(ph_eta)<2.47 && (fabs(ph_eta)>=1.52 || fabs(ph_eta)<=1.37))) continue;
     if( !ph_isTight) continue;
     m_userPhotonContainer->push_back( *photonItr );
-    h_photon_pt->Fill(ph_pt);
-    h_photon_eta->Fill(ph_eta);
-    h_photon_phi->Fill(ph_phi);
+    m_h_photon_pt->Fill(ph_pt);
+    m_h_photon_eta->Fill(ph_eta);
+    m_h_photon_phi->Fill(ph_phi);
   }
   if(m_userPhotonContainer->size()==0) return StatusCode::SUCCESS;
   //find leading photon
@@ -375,9 +375,9 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     if(!j_cut2) continue;
     flag_j_2=true;
     njet_c_beforeoverlap++;
-    h_jet_pt_beforeoverlap->Fill(jet_pt);
-    h_jet_eta_beforeoverlap->Fill(jet_eta);
-    h_jet_phi_beforeoverlap->Fill(jet_phi);
+    m_h_jet_pt_beforeoverlap->Fill(jet_pt);
+    m_h_jet_eta_beforeoverlap->Fill(jet_eta);
+    m_h_jet_phi_beforeoverlap->Fill(jet_phi);
     bool flag_overlap=false;
     float GptJptRatio = (*leadingPhPr)->pt()/jet_pt;
     float ph_j_deltaR = deltaR(jet_eta,jet_phi,(*leadingPhPr)->eta(),(*leadingPhPr)->phi());
@@ -388,51 +388,51 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     if(flag_overlap) continue;
     flag_j_3 = true;
     njet_c_afteroverlap++;
-    h_jet_pt_afteroverlap->Fill(jet_pt);
-    h_jet_eta_afteroverlap->Fill(jet_eta);
-    h_jet_phi_afteroverlap->Fill(jet_phi);
+    m_h_jet_pt_afteroverlap->Fill(jet_pt);
+    m_h_jet_eta_afteroverlap->Fill(jet_eta);
+    m_h_jet_phi_afteroverlap->Fill(jet_phi);
     userJetContainer.push_back(*jetItr);
   }  
   if(flag_j_1) m_cutflow_j_1++;
   if(flag_j_2) m_cutflow_j_2++;
   if(flag_j_3) m_cutflow_j_3++;
-  h_njet_beforeoverlap->Fill(njet_c_beforeoverlap);
-  h_njet_afteroverlap->Fill(njet_c_afteroverlap);
+  m_h_njet_beforeoverlap->Fill(njet_c_beforeoverlap);
+  m_h_njet_afteroverlap->Fill(njet_c_afteroverlap);
   if(userJetContainer.size()==0) return StatusCode::SUCCESS;
   else if(userJetContainer.size()>1) 
           findleadingANDsubleadingjets(userJetContainer,leadingJetPr,subleadingJetPr);
        else leadingJetPr = userJetContainer.begin(); // only 1 jet in userJetContainer 
  if(userJetContainer.size()>0) {
-  h_leadingJet_pt ->Fill((*leadingJetPr)->pt());
-  h_leadingJet_eta ->Fill((*leadingJetPr)->eta());
-  h_leadingJet_phi->Fill((*leadingJetPr)->phi());
+  m_h_leadingJet_pt ->Fill((*leadingJetPr)->pt());
+  m_h_leadingJet_eta ->Fill((*leadingJetPr)->eta());
+  m_h_leadingJet_phi->Fill((*leadingJetPr)->phi());
  }
  // leading photon and leading jet study
  if(m_userPhotonContainer->size()>0 && userJetContainer.size()>0){
   float pt_ratio = (*leadingPhPr)->pt() / (*leadingJetPr)->pt(); 
-  h_pt_ratio ->Fill(pt_ratio);
+  m_h_pt_ratio ->Fill(pt_ratio);
   float ph_jet_deltaPhi = fabs((*leadingPhPr)->phi() - (*leadingJetPr)->phi());
   AdjustPhi(ph_jet_deltaPhi);
-  h_deltaPhi ->Fill(ph_jet_deltaPhi);
-  h2_ph_leadingJet_eta->Fill((*leadingPhPr)->eta(),(*leadingJetPr)->eta());
+  m_h_deltaPhi ->Fill(ph_jet_deltaPhi);
+  m_h2_ph_leadingJet_eta->Fill((*leadingPhPr)->eta(),(*leadingJetPr)->eta());
  if(fabs( (*leadingPhPr)->eta())<1.37){
-  p_ptratioVsPhi_Barrel->Fill((*leadingPhPr)->phi(),pt_ratio);
-  h2_ptratioVsPhi_Barrel->Fill((*leadingPhPr)->phi(),pt_ratio);
+  m_p_ptratioVsPhi_Barrel->Fill((*leadingPhPr)->phi(),pt_ratio);
+  m_h2_ptratioVsPhi_Barrel->Fill((*leadingPhPr)->phi(),pt_ratio);
  }   
  else if((*leadingPhPr)->eta()>1.52){
-        p_ptratioVsPhi_ECA ->Fill((*leadingPhPr)->phi(),pt_ratio);
-        h2_ptratioVsPhi_ECA->Fill((*leadingPhPr)->phi(),pt_ratio);
+        m_p_ptratioVsPhi_ECA ->Fill((*leadingPhPr)->phi(),pt_ratio);
+        m_h2_ptratioVsPhi_ECA->Fill((*leadingPhPr)->phi(),pt_ratio);
        }
       else {
-            p_ptratioVsPhi_ECC ->Fill((*leadingPhPr)->phi(),pt_ratio);
-            h2_ptratioVsPhi_ECC->Fill((*leadingPhPr)->phi(),pt_ratio);
+            m_p_ptratioVsPhi_ECC ->Fill((*leadingPhPr)->phi(),pt_ratio);
+            m_h2_ptratioVsPhi_ECC->Fill((*leadingPhPr)->phi(),pt_ratio);
            }
- p_ptratioVsEta->Fill((*leadingPhPr)->eta(),pt_ratio); 
- h2_ptratioVsEta->Fill((*leadingPhPr)->eta(),pt_ratio);
+ m_p_ptratioVsEta->Fill((*leadingPhPr)->eta(),pt_ratio); 
+ m_h2_ptratioVsEta->Fill((*leadingPhPr)->eta(),pt_ratio);
  float leadingPh_MET_deltaPhi = fabs(missingEt_phi- (*leadingPhPr)->phi());
   AdjustPhi(leadingPh_MET_deltaPhi);
-  h_leadingPh_MET_deltaPhi->Fill(leadingPh_MET_deltaPhi);
-  h2_leadingPh_MET_deltaPhiVsPt->Fill((*leadingPhPr)->pt(),leadingPh_MET_deltaPhi);
+  m_h_leadingPh_MET_deltaPhi->Fill(leadingPh_MET_deltaPhi);
+  m_h2_leadingPh_MET_deltaPhiVsPt->Fill((*leadingPhPr)->pt(),leadingPh_MET_deltaPhi);
  }
    
   return sc;
