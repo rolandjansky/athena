@@ -1,0 +1,41 @@
+package AtlasSimage
+
+use AtlasPolicy         AtlasPolicy-*
+use ExternalPolicy ExternalPolicy-* External
+
+macro AtlasSimage_native_version "2c958a61ea8b"
+macro AtlasSimage_lib "$(AtlasSimage_root)/$(CMTCONFIG)/lib"
+macro AtlasSimage_linkopts "-L$(AtlasSimage_lib) -lsimage"
+macro AtlasSimage_dir "$(AtlasSimage_root)/$(AtlasSimage_native_version)/$(AtlasSimage_system)"
+macro AtlasSimage_include "$(AtlasSimage_root)/$(CMTCONFIG)/include"
+
+include_dirs "$(AtlasSimage_include)
+
+private
+
+# the usual, tar; configure; make; make install cycle implemented as actions
+action external_unzip "(cd ../$(CMTCONFIG) ; /usr/bin/unzip ../src/Coin3D-simage-$(AtlasSimage_native_version).zip )"
+action external_configure "(cd ../$(CMTCONFIG)/Coin3D-simage-$(AtlasSimage_native_version); ./configure --prefix=$(AtlasSimage_root)/$(CMTCONFIG) )"
+action external_make_compile "(cd ../$(CMTCONFIG)/Coin3D-simage-$(AtlasSimage_native_version); make )"
+action external_make_install "(cd ../$(CMTCONFIG)/Coin3D-simage-$(AtlasSimage_native_version); make install )"
+
+# get dependencies of all actions correct, so all is done sequentially
+macro_append external_configure_dependencies " external_unzip "
+macro_append external_make_compile_dependencies " external_configure "
+macro_append external_make_install_dependencies " external_make_compile "
+macro_append external_make_postinstall_dependencies " external_make_install "
+
+# trigger the chain of actions
+macro_append constituents " external_make_install " 
+macro_append install_runtime_dependencies " external_make_install "
+end_private
+
+
+# install libraries
+apply_pattern generic_declare_for_link kind=runtime files='-s=../$(CMTCONFIG)/lib *.so' prefix='$(CMTCONFIG)/lib'
+
+
+# installation of non-standard directory structure for header files
+macro AtlasSoQt_export_paths "$(AtlasSimage_home)"
+
+
