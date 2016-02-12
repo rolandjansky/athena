@@ -40,5 +40,6 @@ public
 # Specify the needed ROOT components for cmake (transparent for CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
 
-library TRT_ConditionsServices *.cxx components/*.cxx
-apply_pattern component_library
+#library TRT_ConditionsServices *.cxx components/*.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files=*.cxx
