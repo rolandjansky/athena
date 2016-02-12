@@ -16,7 +16,8 @@ private
 use AtlasReflex   	AtlasReflex-*  		External -no_auto_imports
 use StoreGate		StoreGate-*		Control
 use InDetIdentifier	InDetIdentifier-*	InnerDetector/InDetDetDescr
-
+use GeoModelInterfaces  GeoModelInterfaces-*    DetectorDescription/GeoModel
+use GaudiInterface      GaudiInterface-*        External
 # Pattern to build the dict lib. User should create a single header
 # file: <package>Dict.h which includes all other .h files. See MissingETDict
 # A selection file must be created by hand. This file lists the
