@@ -8,6 +8,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 #ifdef ATHENAHIVE
 #  include "GaudiKernel/ContextSpecificPtr.h"
@@ -48,10 +50,21 @@ void SiHitIdHelper::Initialize() {
   bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
 
+  // determine which geometry is being used
+  // TODO: temporary solution, it is going to be replaced asap
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  IGeoModelSvc* geoModel;
+  StatusCode sc = svcLocator->service("GeoModelSvc", geoModel);
+  if (sc.isFailure()) {
+    std::cerr << "Could not locate GeoModelSvc" << endreq;
+  }
+  
+  bool isLOI_ECring  = geoModel->atlasVersion()=="ATLAS-P2-ITK-03-00-00";
+
   InitializeField("PixelSCT",0,1);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
-  if(!isSLHC)InitializeField("LayerDisk",0,20);
+  if(!isLOI_ECring) InitializeField("LayerDisk",0,20);
   else InitializeField("LayerDisk",0,50);
   if (isSLHC) InitializeField("EtaModule",-100,100);
   else InitializeField("EtaModule",-20,20);
