@@ -1,16 +1,45 @@
-cmake_minimum_required(VERSION 2.8)
-include(ExternalProject)
+# $Id: CMakeLists.txt 723544 2016-02-12 10:12:55Z krasznaa $
+#
+# CMake configuration file building the BLAS library as part of the project
+# build.
+#
 
-set(PROJECT External/AtlasBlas)
-set(VERSION 20070405)
+# The name of the package:
+atlas_subdir( AtlasBlas )
 
-message(STATUS "install ${PROJECT} to ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "install ${PROJECT} to ${PROJECT_INSTALL_DIR}")
+# In release recompilation mode finish here:
+if( ATLAS_RELEASE_MODE )
+   return()
+endif()
 
-ExternalProject_Add(AtlasBlas
-  URL ${CMAKE_CURRENT_SOURCE_DIR}/src/blas-${VERSION}.tar.gz
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}
-  INSTALL_COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/lib && cp ${CMAKE_CURRENT_BINARY_DIR}/src/AtlasBlas/libblas.so.3.0.3 ${CMAKE_INSTALL_PREFIX}/lib/libblas.so
-  CONFIGURE_COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/src/make.inc ${CMAKE_CURRENT_BINARY_DIR}/src/AtlasBlas
-  BUILD_COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/src/AtlasBlas && make -f ${CMAKE_CURRENT_BINARY_DIR}/src/AtlasBlas/Makefile FORTRAN=${CMAKE_Fortran_COMPILER} OPTS=-fpic
-)
+# Extend the CMAKE_Fortran_FLAGS variable with the build type specific
+# flags, as we only use that variable in setting up the make.inc file.
+if( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "" )
+   string( TOUPPER ${CMAKE_BUILD_TYPE} _type )
+   set( CMAKE_Fortran_FLAGS
+      "${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${_type}}" )
+   unset( _type )
+endif()
+
+# Configure BLAS's makefile:
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/cmake-make.inc.in
+   ${CMAKE_CURRENT_BINARY_DIR}/make.inc @ONLY )
+
+# Build BLAS for the build area:
+ExternalProject_Add( AtlasBlas
+   PREFIX ${CMAKE_BINARY_DIR}
+   URL ${CMAKE_CURRENT_SOURCE_DIR}/src/blas-20070405.tar.gz
+   CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy
+   ${CMAKE_CURRENT_BINARY_DIR}/make.inc make.inc
+   BUILD_IN_SOURCE 1
+   BUILD_COMMAND make
+   INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory
+   ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/lib
+   COMMAND ${CMAKE_COMMAND} -E copy libblas.a
+   ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/lib/
+   )
+add_dependencies( Package_AtlasBlas AtlasBlas )
+
+# Install BLAS:
+install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/lib/libblas.a
+   DESTINATION ${CMAKE_INSTALL_LIBDIR} OPTIONAL )
