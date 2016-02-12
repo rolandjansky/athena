@@ -18,6 +18,8 @@
 
 // RecTPCnv includes
 #include "RecTPCnv/CaloEnergy_p2.h"
+#include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "muonEvent/CaloEnergy.h"
 
 // Forward declaration
 class MsgStream;

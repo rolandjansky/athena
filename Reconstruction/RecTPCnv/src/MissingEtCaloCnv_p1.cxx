@@ -49,11 +49,9 @@ void MissingEtCaloCnv_p1::persToTrans(  const MissingEtCalo_p1* pers,
   trans->m_etSumCalo   = pers->m_etSumCalo; 
   trans->m_nCellsCalo  = pers->m_nCellsCalo;
   
-  if( &pers->m_met != 0)
   {
     // use the MissingET converter to convert from pers to trans 
     metCnv.persToTrans(&pers->m_met, trans, msg);
-      
   } 
   
     // for (unsigned int vi=0;vi<trans->m_exCalo.size();++vi)
