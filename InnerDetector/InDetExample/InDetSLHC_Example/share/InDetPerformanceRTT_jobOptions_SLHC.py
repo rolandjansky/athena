@@ -179,8 +179,8 @@ from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 SLHC_Flags.SLHC_Version = ''
 
 # ---- setup of pixel tool
-from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-pixelTool           = PixelDetectorTool()
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
 # --- turn off alignment
 pixelTool.Alignable = False
 

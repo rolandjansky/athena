@@ -126,7 +126,7 @@ SSctBrlLayer#0:LADDERTYPE 1
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#0:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
- SctBrlLayer#0:STEREOINNER -20  //--- To be checked.  Could also gain back a bit of z resolution with (0, 40) to (-40, 0)
+SSctBrlLayer#0:STEREOINNER -20  //--- To be checked.  Could also gain back a bit of z resolution with (0, 40) to (-40, 0)
 // Stereo of outer side (mrad). Only used if STAVELAYOUT is 1
 SSctBrlLayer#0:STEREOOUTER 20
 //NUMBER OF MODULES IN PHI [?] //--- fix this vs. R
@@ -135,13 +135,13 @@ SSctBrlLayer#0:SKISPERLAYER 28
 // Make this a factor 10 thinner than thickness in spreadsheet
 // and increase density by factor of 10.
 //INNER RADIUS OF SUPPORT CYLINDER (mm)
-SSctBrlServPerLayer#1:SUPPORTCYLINNERRAD 363.0
+SSctBrlServPerLayer#0:SUPPORTCYLINNERRAD 363.0
 //OUTER RADIUS OF SUPPORT CYLINDER (mm)
-SSctBrlServPerLayer#1:SUPPORTCYLOUTERRAD 383.0
+SSctBrlServPerLayer#0:SUPPORTCYLOUTERRAD 383.0
 //SUPPORT CYLINDER MATERIAL
-SSctBrlServPerLayer#1:SUPPORTCYLMATERIAL sct::CFiberSupport
+SSctBrlServPerLayer#0:SUPPORTCYLMATERIAL sct::CFiberSupport
 //FACTOR BY WHICH THE CF DENSITY IS INCREASED
-SSctBrlServPerLayer#1:MATSCALEFACTOR 0.45
+SSctBrlServPerLayer#0:MATSCALEFACTOR 0.45
 //SCT LAYER NUMBER (start from 0) 0
 
 /////////////////
@@ -192,7 +192,7 @@ SSctBrlLayer#2:TILT 10
 //MEASUREMENT TYPE (STEREO SIGN)
 SSctBrlLayer#2:STEREOSIGN -1
 //Ladder type (index in SctBrlLadder table)
-SSctBrlLayer#2:LADDERTYPE 1
+SSctBrlLayer#2:LADDERTYPE 0
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#2:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
@@ -226,7 +226,7 @@ SSctBrlLayer#3:TILT 10
 //MEASUREMENT TYPE (STEREO SIGN)
 SSctBrlLayer#3:STEREOSIGN 1
 //Ladder type (index in SctBrlLadder table)
-SSctBrlLayer#3:LADDERTYPE 1
+SSctBrlLayer#3:LADDERTYPE 0
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#3:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
@@ -1433,7 +1433,7 @@ SSctFwdGeneral:NUMWHEELS 6
 
 //Wheel: 0
 //SUPPORT DISC Z POSITION (mm)
-SSctFwdWheel#0:ZPOSITION 1512
+SSctFwdWheel#0:ZPOSITION 1517   // center = 1512 mm
 //SUPPORT DISC INNER RADIUS (mm)
 SSctFwdDiscSupport#0:INNERRADIUS 383.9  //--- can check whether a bit smaller than the silicon.  Can check the LOI material.
 //SUPPORT DISC MATERIAL
@@ -1450,7 +1450,7 @@ SSctFwdWheel#0:NUMRINGS 18  //--- Do rest of wheels later.
 
 //Wheel: 1
 //SUPPORT DISC Z POSITION (mm)
-SSctFwdWheel#1:ZPOSITION 1702
+SSctFwdWheel#1:ZPOSITION 1707   // center = 1702 mm
 //SUPPORT DISC INNER RADIUS (mm)
 SSctFwdDiscSupport#1:INNERRADIUS 383.9
 //SUPPORT DISC MATERIAL
@@ -1467,7 +1467,7 @@ SSctFwdWheel#1:NUMRINGS 18
 
 //Wheel: 2
 //SUPPORT DISC Z POSITION (mm)
-SSctFwdWheel#2:ZPOSITION 1952
+SSctFwdWheel#2:ZPOSITION 1957   // center = 1952 mm
 //SUPPORT DISC INNER RADIUS (mm)
 SSctFwdDiscSupport#2:INNERRADIUS 383.9
 //SUPPORT DISC MATERIAL
@@ -1484,7 +1484,7 @@ SSctFwdWheel#2:NUMRINGS 18
 
 //Wheel: 3
 //SUPPORT DISC Z POSITION (mm)
-SSctFwdWheel#3:ZPOSITION 2252
+SSctFwdWheel#3:ZPOSITION 2257   // center = 2252 mm
 //SUPPORT DISC INNER RADIUS (mm)
 SSctFwdDiscSupport#3:INNERRADIUS 383.9
 //SUPPORT DISC MATERIAL
@@ -1501,7 +1501,7 @@ SSctFwdWheel#3:NUMRINGS 18
 
 //Wheel: 4
 //SUPPORT DISC Z POSITION (mm)
-SSctFwdWheel#4:ZPOSITION 2602
+SSctFwdWheel#4:ZPOSITION 2607   // center = 2602 mm
 //SUPPORT DISC INNER RADIUS (mm)
 SSctFwdDiscSupport#4:INNERRADIUS 383.9
 //SUPPORT DISC MATERIAL
@@ -1518,7 +1518,7 @@ SSctFwdWheel#4:NUMRINGS 18
 
 //Wheel: 5
 //SUPPORT DISC Z POSITION (mm)
-SSctFwdWheel#5:ZPOSITION 3000
+SSctFwdWheel#5:ZPOSITION 3005   // center = 3000 mm
 //SUPPORT DISC INNER RADIUS (mm)
 SSctFwdDiscSupport#5:INNERRADIUS 383.9
 //SUPPORT DISC MATERIAL
@@ -1543,11 +1543,11 @@ SSctFwdGeneral:INTERMEDIATERADIUS 500
 //ENDCAP OUTER RADIUS (mm)
 SSctFwdGeneral:OUTERRADIUS 980
 //ENDCAP Z MIN (mm)
-SSctFwdGeneral:ZMIN 1326
+SSctFwdGeneral:ZMIN 1428   // Preserve inner buffer of (1415-1326=89)mm wrt innermost disc
 //ENDCAP Z INTERMEDIATE (mm)
-SSctFwdGeneral:ZINTERMEDIATE 1346
+SSctFwdGeneral:ZINTERMEDIATE 1448   // Keep 20mm higher than ZMIN
 //ENDCAP Z MAX (mm)
-SSctFwdGeneral:ZMAX 3200
+SSctFwdGeneral:ZMAX 3200   // Untouched since outermost ring position unchanged
 //
 //END OF FWD PARAMETERS
 //SCT_FWD_PARAMETERS_END 

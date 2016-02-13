@@ -64,6 +64,7 @@ if len(globalflags.ConditionsTag())!=0:
 
 from RecExConfig.RecFlags import rec
 rec.Commissioning=False
+rec.doTrigger=False
 
 from AthenaCommon.DetFlags import DetFlags 
 # --- switch on InnerDetector
@@ -167,8 +168,8 @@ from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 SLHC_Flags.SLHC_Version = ''
 
 # ---- setup of pixel tool
-from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-pixelTool           = PixelDetectorTool()
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
 # --- turn off alignment
 pixelTool.Alignable = False
 
@@ -217,3 +218,10 @@ ServiceMgr.PoolSvc.AttemptCatalogPatch=True
 # set the path variables consistently
 from InDetSLHC_Example.SLHC_Setup import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
+
+ServiceMgr.PixelOfflineCalibSvc.HDCFromCOOL = False 
+
+# If /Indet/IBLDist is available, InnerDetector/InDetDetDescr/InDetReadoutGeometry/src/InDetDetectorManager.cxx will try to perform alignment and lead to crash
+# InnerDetector/InDetConditions/InDetCondFolders/python/InDetAlignFolders.py configures /Indet/IBLDist
+from IOVDbSvc.CondDB import conddb
+conddb.blockFolder("/Indet/IBLDist")

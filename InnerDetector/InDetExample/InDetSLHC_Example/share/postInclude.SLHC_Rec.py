@@ -41,6 +41,6 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
     ToolSvc.InDetClusterMakerTool.UsePixelCalibCondDB = False
     
 # --- switch alignment for IBL geometry off (gives WARNING)
-from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-pixelTool           = PixelDetectorTool()
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
 pixelTool.Alignable = False
