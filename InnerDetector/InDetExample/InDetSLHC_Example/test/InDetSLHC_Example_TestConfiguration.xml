@@ -32,9 +32,9 @@
    </expectations>
 </TEST>
 
-<TEST name="AtlasG4_tf_SLHC_single_particle_sim" type="script" suite="InDetSLHC_Example">
+<TEST name="Sim_tf_SLHC_single_particle_sim" type="script" suite="InDetSLHC_Example">
       <options_atn>
-	AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.OverrideBFieldTag.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py'
+	Sim_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=test.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.OverrideBFieldTag.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --DataRunNumber 240000
       </options_atn>
       <timelimit>20</timelimit>
       <author>John Chapman</author>
@@ -47,7 +47,7 @@
 
 <TEST name="Digi_tf_SLHC_single_particle_digi" type="script" suite="InDetSLHC_Example">
       <options_atn>
-        Digi_tf.py --inputHITSFile=test.HITS.pool.root --outputRDOFile=test.RDO.pool.root --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
+        Digi_tf.py --inputHITSFile=test.HITS.pool.root --outputRDOFile=test.RDO.pool.root --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --DataRunNumber 240000
       </options_atn>
       <timelimit>20</timelimit>
       <author>John Chapman</author>
@@ -61,7 +61,7 @@
 <!-- InDet only Reco default -->
 
 <TEST name="Reco_tf_SLHC_single_particle_reco" type="script" suite="InDetSLHC_Example">
-  <options_atn>export TRF_ECHO=True; Reco_tf.py --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --inputRDOFile test.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile testESD.root --outputAODFile testAOD.root --maxEvents 10</options_atn>
+  <options_atn>export TRF_ECHO=True; Reco_tf.py --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --inputRDOFile test.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile testESD.root --outputAODFile testAOD.root --maxEvents 10</options_atn>
   <timelimit>30</timelimit>
   <author>John Chapman</author>
    <mailto> Susumu.Oda@cern.ch </mailto>
@@ -78,7 +78,7 @@
 	xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19.2.1_000001_200evt.pool.root $ATN_WORK_AREA;
 	xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc12_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.HITS.e1133_19.2.1_000001_50evt.pool.root $ATN_WORK_AREA;
 	export TRF_ECHO=True; 
-	Digi_tf.py --inputHITSFile=test.HITS.pool.root --outputRDOFile=test.RDO.pool.root --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.digitization_metadata_hacks.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --numberOfLowPtMinBias=49.8273 --numberOfHighPtMinBias=0.1727 --pileupInitialBunch=0 --pileupFinalBunch=0 --bunchSpacing=900 --inputLowPtMinbiasHitsFile=mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19.2.1_000001_200evt.pool.root --inputHighPtMinbiasHitsFile=mc12_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.HITS.e1133_19.2.1_000001_50evt.pool.root
+	Digi_tf.py --inputHITSFile=test.HITS.pool.root --outputRDOFile=test.RDO.pool.root --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.digitization_metadata_hacks.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --numberOfLowPtMinBias=79.7237 --numberOfHighPtMinBias=0.2763 --pileupInitialBunch=0 --pileupFinalBunch=0 --bunchSpacing=900 --inputLowPtMinbiasHitsFile=mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19.2.1_000001_200evt.pool.root --inputHighPtMinbiasHitsFile=mc12_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.HITS.e1133_19.2.1_000001_50evt.pool.root --DataRunNumber 240008
       </options_atn>
       <timelimit>30</timelimit>
       <author>John Chapman</author>
@@ -93,12 +93,12 @@
 
 <kv>
 
-  <kvtest name='AtlasG4ZeeJet_SLHC' enabled='true'>
+  <kvtest name='SimZeeJet_SLHC' enabled='true'>
     <release>ALL</release>
     <priority>20</priority>
     <kvsuite>InDetSLHC</kvsuite>
-    <trf>AtlasG4_tf.py</trf>
-    <desc>Z -> e e jet G4 event atlasG4 (InDetSLHC_Example)</desc>
+    <trf>Sim_tf.py</trf>
+    <desc>Z -> e e jet G4 event Simulation (InDetSLHC_Example)</desc>
     <author>Silvia Miglioranzi [Silvia.Miglioranzi@cern.ch],John Chapman [chapman@hep.phy.cam.ac.uk]</author>
     <inpath>${T_DATAPATH}/EvgenZeePyJT-${T_RELEASE}</inpath>
     <infile>${T_PREFIX}-EvgenZeePyJT-${T_RELEASE}.pool.root</infile>
@@ -107,7 +107,7 @@
     <outfile>${T_PREFIX}-SimulHITSZeeJetInDetSLHC-${T_RELEASE}.pool.root</outfile>
     <logfile>${T_PREFIX}-SimulHITSZeeJetInDetSLHC-${T_RELEASE}.log</logfile>
     <signature>
-      --inputEVNTFile="${T_INFILE}" --outputHITSFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.OverrideBFieldTag.py,KitValidation/kv_reflex.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py'
+      --inputEVNTFile="${T_INFILE}" --outputHITSFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --randomSeed=26741007 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.OverrideBFieldTag.py,KitValidation/kv_reflex.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --DataRunNumber 240000
     </signature>
     <copyfiles>
       ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml jobInfo.xml
@@ -129,7 +129,7 @@
     <outfile>${T_PREFIX}-DigitZeeJetInDetSLHC-${T_RELEASE}.pool.root</outfile>
     <logfile>${T_PREFIX}-DigitZeeJetInDetSLHC-${T_RELEASE}.log</logfile>
     <signature>
-      --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,KitValidation/kv_reflex.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
+      --inputHITSFile="${T_INFILE}" --outputRDOFile="${T_OUTFILE}" --maxEvents=10 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,KitValidation/kv_reflex.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --DataRunNumber 240000
     </signature>
     <copyfiles>
       ${T_OUTFILE} ${T_LOGFILE} PoolFileCatalog.xml metadata.xml
@@ -181,7 +181,7 @@
 	    <doc>SLHCSimulation</doc>
 	    <jobTransformJobName>chainSimLOISLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Sim_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=SLHCtest.LOI.HITS.pool.root --maxEvents=500 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]'
+	      Sim_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=SLHCtest.LOI.HITS.pool.root --maxEvents=500 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240000
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>medium</queue>
@@ -194,7 +194,7 @@
 	    <doc>SLHCDigitization</doc>
 	    <jobTransformJobName>chainDigiLOISLHCRTT</jobTransformJobName>
 	    <jobTransformCmd> 
-	      Digi_tf.py --inputHITSFile=SLHCtest.LOI.HITS.pool.root --outputRDOFile=SLHCtest.LOI.RDO.pool.root --maxEvents=500 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
+	      Digi_tf.py --inputHITSFile=SLHCtest.LOI.HITS.pool.root --outputRDOFile=SLHCtest.LOI.RDO.pool.root --maxEvents=500 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --DataRunNumber 240000
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -215,7 +215,7 @@
 	    <doc>SLHCReconstruction</doc>
 	    <jobTransformJobName>chainRecoLOISLHCRTT</jobTransformJobName>
 	    <jobTransformCmd> 
-	      Reco_tf.py --inputRDOFile=SLHCtest.LOI.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOI.ESD.pool.root --maxEvents=500  --geometryVersion=ATLAS-P2-ITK-01-00-00 --outputAODFile=SLHCtest.LOI.AOD.pool.root --conditionsTag=OFLCOND-MC12-ITK-27-00
+	      Reco_tf.py --inputRDOFile=SLHCtest.LOI.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOI.ESD.pool.root --maxEvents=500  --geometryVersion=ATLAS-P2-ITK-01-00-00 --outputAODFile=SLHCtest.LOI.AOD.pool.root --conditionsTag=OFLCOND-MC15c-SDR-06
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -243,7 +243,7 @@
 	    <doc>SLHCSimulation</doc>
 	    <jobTransformJobName>chainSimLOIVFSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      AtlasG4_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.evgen.EVNT.e1323_tid00851913_00/EVNT.00851913._001697.pool.root.1 --outputHITSFile=SLHCtest.LOIVF.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-01-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py'
+	      AtlasG4_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.evgen.EVNT.e1323_tid00851913_00/EVNT.00851913._001697.pool.root.1 --outputHITSFile=SLHCtest.LOIVF.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-01-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --DataRunNumber 240000
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>long</queue>
@@ -256,7 +256,7 @@
 	    <doc>SLHCDigitization</doc>
 	    <jobTransformJobName>chainDigiLOIVFSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Digi_tf.py --inputHITSFile=SLHCtest.LOIVF.HITS.pool.root --outputRDOFile=SLHCtest.LOIVF.RDO.pool.root --maxEvents=-1 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-01-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
+	      Digi_tf.py --inputHITSFile=SLHCtest.LOIVF.HITS.pool.root --outputRDOFile=SLHCtest.LOIVF.RDO.pool.root --maxEvents=-1 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-01-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --DataRunNumber 240000
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -277,7 +277,7 @@
 	    <doc>SLHCReconstruction</doc>
 	    <jobTransformJobName>chainRecoLOIVFSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Reco_tf.py --inputRDOFile=SLHCtest.LOIVF.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOIVF.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-02-01-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --outputAODFile=SLHCtest.LOIVF.AOD.pool.root --preExec 'BTaggingFlags.CalibrationTag="BTagCalibRUN12-08-05"'
+	      Reco_tf.py --inputRDOFile=SLHCtest.LOIVF.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOIVF.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-02-01-00 --conditionsTag=OFLCOND-MC15c-SDR-06 --outputAODFile=SLHCtest.LOIVF.AOD.pool.root
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -299,7 +299,7 @@
 	    <doc>SLHCPhysicsValidation</doc>
 	    <jobTransformJobName>chainPhysicsValidationLOIVFSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Reco_tf.py --inputAODFile SLHCtest.LOIVF.AOD.pool.root --geometryVersion ATLAS-P2-ITK-02-01-00 --conditionsTag OFLCOND-MC12-ITK-27-00 --outputNTUP_PHYSVALFile SLHCtest.LOIVF.PHYSVAL.root --validationFlags doBtag doElectron doExample doExotics doHSG6 doInDet doJet doMET doMuon doPFlow doPhoton doPrimaryTracking doSMZMet doSMZee doSecondaryTracking doTau --preInclude pval:InDetSLHC_Example/preInclude.SLHC.NoTRT.Ana.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py --outputFileValidation False
+	      Reco_tf.py --inputAODFile SLHCtest.LOIVF.AOD.pool.root --geometryVersion ATLAS-P2-ITK-02-01-00 --conditionsTag OFLCOND-MC15c-SDR-06 --outputNTUP_PHYSVALFile SLHCtest.LOIVF.PHYSVAL.root --validationFlags doBtag doElectron doExample doExotics doHSG6 doInDet doJet doMET doMuon doPFlow doPhoton doPrimaryTracking doSMZMet doSMZee doSecondaryTracking doTau --preInclude pval:InDetSLHC_Example/preInclude.SLHC.NoTRT.Ana.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py --outputFileValidation False
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -330,7 +330,7 @@
 	    <jobTransformJobName>chainSimRingSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
 	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
-	      Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.Ring.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-03-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber=195847
+	      Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.Ring.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoDBM.py' --geometryVersion=ATLAS-P2-ITK-03-00-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240014
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>long</queue>
@@ -343,8 +343,18 @@
 	    <doc>SLHCDigitization</doc>
 	    <jobTransformJobName>chainDigiRingSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000001.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000002.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000003.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000004.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000005.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000006.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000007.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000008.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000009.HITS.pool.root .; xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000010.HITS.pool.root .;xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.HITS.e1133_19235.ring_EXT0/high.000001.HITS.pool.root .; Digi_tf.py --inputHitsFile SLHCtest.Ring.HITS.pool.root --outputRDOFile SLHCtest.Ring.RDO.pool.root --LowPtMinbiasHitsFile ./low.0000*.HITS.pool.root --numberOfLowPtMinBias 139.5128 --HighPtMinbiasHitsFile high.000001.HITS.pool.root --numberOfHighPtMinBias 0.483448 --conditionsTag 'OFLCOND-MC12-ITK-27-00' --geometryVersion 'ATLAS-P2-ITK-03-00-00' --pileupFinalBunch 6 --DataRunNumber -1 --preInclude 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py,Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2012Config1_DigitConfig.py,RunDependentSimData/configLumi_user.py' --postInclude 'HITtoRDO:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' --preExec 'from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True); larRODFlags.NumberOfCollisions.set_Value_and_Lock(140);rec.doTrigger.set_Value_and_Lock(False);rec.Commissioning.set_Value_and_Lock(True);userRunLumiOverride={"run":195847, "lb":1, "starttstamp":1328040250, "mu":140.0};from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --postExec 'mergeMcEventCollTool=job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"];mergeMcEventCollTool.FirstXing=0;mergeMcEventCollTool.LastXing=0;mergeMcEventCollTool.DoSlimming=False;pixeldigi.EnableSpecialPixels=False;CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' --skipEvents 0 --maxEvents 5 --jobNumber 509 --digiSeedOffset1 509 --digiSeedOffset2 509
-<!-- from IOVDbSvc.CondDB import conddb;conddb.addMarkup("/TILE/OFL02/NOISE/SAMPLE","&lt;forceRunNumber&gt;222222&lt;/forceRunNumber&gt;") --> 
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000001.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000002.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000003.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000004.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000005.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000006.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000007.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000008.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000009.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.HITS.e1133_19235.ring_EXT0/low.000010.HITS.pool.root .;
+          xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/user.oda.mc12_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.HITS.e1133_19235.ring_EXT0/high.000001.HITS.pool.root .;
+          Digi_tf.py --inputHitsFile SLHCtest.Ring.HITS.pool.root --outputRDOFile SLHCtest.Ring.RDO.pool.root --LowPtMinbiasHitsFile ./low.0000*.HITS.pool.root --numberOfLowPtMinBias 139.5128 --HighPtMinbiasHitsFile high.000001.HITS.pool.root --numberOfHighPtMinBias 0.483448 --conditionsTag 'OFLCOND-MC15c-SDR-06' --geometryVersion 'ATLAS-P2-ITK-03-00-00' --pileupFinalBunch 6 --DataRunNumber 240014 --preInclude 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoDBM.py,Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2012Config1_DigitConfig.py,RunDependentSimData/configLumi_user.py' --postInclude 'HITtoRDO:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' --preExec 'from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True); larRODFlags.NumberOfCollisions.set_Value_and_Lock(140);rec.doTrigger.set_Value_and_Lock(False);rec.Commissioning.set_Value_and_Lock(True);userRunLumiOverride={"run":240014, "lb":1, "starttstamp":1410014000, "mu":140.0};from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --postExec 'mergeMcEventCollTool=job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"];mergeMcEventCollTool.FirstXing=0;mergeMcEventCollTool.LastXing=0;mergeMcEventCollTool.DoSlimming=False;pixeldigi.EnableSpecialPixels=False;CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' --skipEvents 0 --maxEvents 5 --jobNumber 509 --digiSeedOffset1 509 --digiSeedOffset2 509
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -365,8 +375,7 @@
 	    <doc>SLHCReconstruction</doc>
 	    <jobTransformJobName>chainRecoRingSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Reco_tf.py --maxEvents=-1 --inputRDOFile=SLHCtest.Ring.RDO.pool.root --outputESDFile=SLHCtest.Ring.ESD.pool.root --outputAODFile=SLHCtest.Ring.AOD.pool.root --DBRelease=current --conditionsTag=OFLCOND-MC12-ITK-27-00 --geometryVersion=ATLAS-P2-ITK-03-00-00 --autoConfiguration=everything --preInclude "RAWtoESD:InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py" "ESDtoAOD:InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py" --postInclude "all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py" "RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py" --preExec "all:from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True); larRODFlags.NumberOfCollisions.set_Value_and_Lock(140);rec.doTrigger.set_Value_and_Lock(False);rec.Commissioning.set_Value_and_Lock(True);" 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;BTaggingFlags.CalibrationTag="BTagCalibRUN12-08-05";' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];'
-<!-- from IOVDbSvc.CondDB import conddb;conddb.addMarkup("/TILE/OFL02/NOISE/SAMPLE","&lt;forceRunNumber&gt;222222&lt;/forceRunNumber&gt;");" "RAWtoESD:conddb.addMarkup("/TILE/OFL02/NOISE/CELL","&lt;forceRunNumber&gt;222222&lt;/forceRunNumber&gt;")' -->
+	      Reco_tf.py --maxEvents=-1 --inputRDOFile=SLHCtest.Ring.RDO.pool.root --outputESDFile=SLHCtest.Ring.ESD.pool.root --outputAODFile=SLHCtest.Ring.AOD.pool.root --DBRelease=current --conditionsTag=OFLCOND-MC15c-SDR-06 --geometryVersion=ATLAS-P2-ITK-03-00-00 --autoConfiguration=everything --preInclude "RAWtoESD:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoDBM.Reco.py" "ESDtoAOD:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoDBM.Reco.py" --postInclude "all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py" "RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py" --preExec "all:from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True); larRODFlags.NumberOfCollisions.set_Value_and_Lock(140);rec.doTrigger.set_Value_and_Lock(False);rec.Commissioning.set_Value_and_Lock(True);" 'RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False;' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];'
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -388,7 +397,7 @@
 	    <doc>SLHCPhysicsValidation</doc>
 	    <jobTransformJobName>chainPhysicsValidationRingSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Reco_tf.py --inputAODFile SLHCtest.Ring.AOD.pool.root --geometryVersion ATLAS-P2-ITK-03-00-00 --conditionsTag OFLCOND-MC12-ITK-27-00 --outputNTUP_PHYSVALFile SLHCtest.Ring.PHYSVAL.root --validationFlags doBtag doElectron doExample doExotics doHSG6 doInDet doJet doMET doMuon doPFlow doPhoton doPrimaryTracking doSMZMet doSMZee doSecondaryTracking doTau --preInclude pval:InDetSLHC_Example/preInclude.SLHC.NoTRT.Ana.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py --outputFileValidation False
+	      Reco_tf.py --inputAODFile SLHCtest.Ring.AOD.pool.root --geometryVersion ATLAS-P2-ITK-03-00-00 --conditionsTag OFLCOND-MC15c-SDR-06 --outputNTUP_PHYSVALFile SLHCtest.Ring.PHYSVAL.root --validationFlags doBtag doElectron doExample doExotics doHSG6 doInDet doJet doMET doMuon doPFlow doPhoton doPrimaryTracking doSMZMet doSMZee doSecondaryTracking doTau --preInclude pval:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoDBM.Ana.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py --outputFileValidation False
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -419,7 +428,7 @@
 	    <jobTransformJobName>chainSimsFCalSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
 	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
-	      ATHENA_PROC_NUMBER=3 Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.sFCal.HITS.pool.root --maxEvents=6 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-SFCAL-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]'
+	      ATHENA_PROC_NUMBER=3 Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.sFCal.HITS.pool.root --maxEvents=6 --skipEvents=0 --randomSeed=10 --preInclude='all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoDBM.py' --geometryVersion=ATLAS-P2-SFCAL-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='all:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240120
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>long</queue>
@@ -436,7 +445,7 @@
 	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.simul.HITS.e1133_s2638_tid05646683_00/HITS.05646683._000002.pool.root.1 .;
 	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.simul.HITS.e1133_s2638_tid05646683_00/HITS.05646683._000003.pool.root.1 .;
 	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.simul.HITS.e1133_s2638_tid05646691_00/HITS.05646691._000001.pool.root.1 .;
-	      Digi_tf.py --inputHITSFile SLHCtest.sFCal.HITS.pool.root --outputRDOFile SLHCtest.sFCal.RDO.pool.root --LowPtMinbiasHitsFile HITS.05646683._00000[1,2,3].pool.root.1 --numberOfLowPtMinBias 199.3040 --HighPtMinbiasHitsFile HITS.05646691._000001.pool.root.1 --numberOfHighPtMinBias 0.69064 --conditionsTag OFLCOND-MC12-ITK-S-29-200-25 --geometryVersion ATLAS-P2-SFCAL-01-00-00 --DataRunNumber 195847 --pileupFinalBunch 6 --preInclude InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py,Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2012Config1_DigitConfig.py,RunDependentSimData/configLumi_user.py --postInclude PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup.py --preExec 'from AthenaCommon.BeamFlags import jobproperties; jobproperties.Beam.bunchSpacing=25;from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(200);from CaloTools.CaloNoiseFlags import jobproperties;jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200.0*1.45/8*50/25);rec.doTrigger.set_Value_and_Lock(False);userRunLumiOverride={"run":195847, "lb":1, "starttstamp":1328040250, "mu":200.0};from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --postExec 'mergeMcEventCollTool=job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"];mergeMcEventCollTool.FirstXing=0;mergeMcEventCollTool.LastXing=0;mergeMcEventCollTool.DoSlimming=False;pixeldigi.EnableSpecialPixels=False;CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];conddb.addOverride("/LAR/Identifier/OnOffIdMap","LARIdentifierOnOffIdMap-SFCAL-000");conddb.addOverride("/LAR/Identifier/CalibIdMap","LARIdentifierCalibIdMap-SFCAL-000")' --skipEvents 0 --maxEvents 2 --digiSeedOffset1 50100 --digiSeedOffset2 50122 --jobNumber 123 --ignorePatterns='ALL ,LArTTCellMap , ERROR .*'
+          ATHENA_PROC_NUMBER=3 Digi_tf.py --inputHITSFile SLHCtest.sFCal.HITS.pool.root --outputRDOFile SLHCtest.sFCal.RDO.pool.root --LowPtMinbiasHitsFile HITS.05646683._00000[1,2,3].pool.root.1 --numberOfLowPtMinBias 199.3040 --HighPtMinbiasHitsFile HITS.05646691._000001.pool.root.1 --numberOfHighPtMinBias 0.69064 --conditionsTag OFLCOND-MC15c-SDR-06 --geometryVersion ATLAS-P2-SFCAL-01-00-00 --DataRunNumber 240120 --pileupFinalBunch 6 --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoDBM.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2012Config1_DigitConfig.py,RunDependentSimData/configLumi_user.py' --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' --preExec 'HITtoRDO:from AthenaCommon.BeamFlags import jobproperties; jobproperties.Beam.bunchSpacing=25;from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(200);from CaloTools.CaloNoiseFlags import jobproperties;jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200.0*1.45/8*50/25);rec.doTrigger.set_Value_and_Lock(False);userRunLumiOverride={"run":240120, "lb":1, "starttstamp":1410120000, "mu":200.0};from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --postExec 'HITtoRDO:mergeMcEventCollTool=job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"];mergeMcEventCollTool.FirstXing=0;mergeMcEventCollTool.LastXing=0;mergeMcEventCollTool.DoSlimming=False;pixeldigi.EnableSpecialPixels=False;CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];conddb.addOverride("/LAR/Identifier/OnOffIdMap","LARIdentifierOnOffIdMap-SFCAL-000");conddb.addOverride("/LAR/Identifier/CalibIdMap","LARIdentifierCalibIdMap-SFCAL-000")' --skipEvents 0 --maxEvents 2 --digiSeedOffset1 50100 --digiSeedOffset2 50122 --jobNumber 123 --ignorePatterns 'ALL ,LArTTCellMap , ERROR .*'
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -457,7 +466,7 @@
 	    <doc>SLHCReconstruction</doc>
 	    <jobTransformJobName>chainRecosFCalSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Reco_tf.py --inputRDOFile SLHCtest.sFCal.RDO.pool.root --outputESDFile SLHCtest.sFCal.ESD.pool.root --outputAODFile SLHCtest.sFCal.AOD.pool.root --geometryVersion 'all:ATLAS-P2-SFCAL-01-00-00' --conditionsTag 'all:OFLCOND-MC12-ITK-S-29-200-25' --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py' --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec 'all:from CaloTools.CaloNoiseFlags import jobproperties; jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200.0*1.45/8*50/25)' --postExec 'all:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/LAR/Identifier/OnOffIdMap","LARIdentifierOnOffIdMap-SFCAL-000");conddb.addOverride("/LAR/Identifier/CalibIdMap","LARIdentifierCalibIdMap-SFCAL-000")' 'RAWtoESD:xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD",WriteInTimePileUpTruth=True)' --ignorePatterns 'ALL ,LArTTCellMap , ERROR .*'
+	      ATHENA_PROC_NUMBER=3 Reco_tf.py --inputRDOFile SLHCtest.sFCal.RDO.pool.root --outputESDFile SLHCtest.sFCal.ESD.pool.root --outputAODFile SLHCtest.sFCal.AOD.pool.root --geometryVersion 'all:ATLAS-P2-SFCAL-01-00-00' --conditionsTag 'all:OFLCOND-MC15c-SDR-06' --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoDBM.Reco.py' --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec 'all:from CaloTools.CaloNoiseFlags import jobproperties; jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200.0*1.45/8*50/25)' --postExec 'all:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/LAR/Identifier/OnOffIdMap","LARIdentifierOnOffIdMap-SFCAL-000");conddb.addOverride("/LAR/Identifier/CalibIdMap","LARIdentifierCalibIdMap-SFCAL-000")' 'RAWtoESD:xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD",WriteInTimePileUpTruth=True)' --ignorePatterns 'ALL ,LArTTCellMap , ERROR .*'
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -484,7 +493,7 @@
 	    <doc>SLHCSimulation</doc>
 	    <jobTransformJobName>chainSimModSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd>
-	      Sim_tf.py --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile SLHCtest.Mod.HITS.pool.root --maxEvents 500 --skipEvents 0 --randomSeed 10 --preExec 'sim:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12";' --preInclude 'sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag OFLCOND-MC12-ITK-27-00 --postInclude sim:InDetSLHC_Example/postInclude.SLHC_Setup.py --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]'
+	      Sim_tf.py --inputEVNTFile /afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile SLHCtest.Mod.HITS.pool.root --maxEvents 500 --skipEvents 0 --randomSeed 10 --preExec 'sim:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12";' --preInclude 'sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag OFLCOND-MC15c-SDR-06 --postInclude sim:InDetSLHC_Example/postInclude.SLHC_Setup.py --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240000
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <queue>medium</queue>
@@ -497,7 +506,7 @@
 	    <doc>SLHCDigitization</doc>
 	    <jobTransformJobName>chainDigiModSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd> 
-	      Digi_tf.py --inputHITSFile SLHCtest.Mod.HITS.pool.root --outputRDOFile SLHCtest.Mod.RDO.pool.root --maxEvents -1 --skipEvents 0 --preExec 'HITtoRDO:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12";from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --preInclude HITtoRDO:InDetSLHC_Example/preInclude.SiliconOnly.py --geometryVersion ATLAS-P2-ITK-01-00-00 --conditionsTag OFLCOND-MC12-ITK-27-00 --postInclude HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py --digiSeedOffset1 111 --digiSeedOffset2 222
+	      Digi_tf.py --inputHITSFile SLHCtest.Mod.HITS.pool.root --outputRDOFile SLHCtest.Mod.RDO.pool.root --maxEvents -1 --skipEvents 0 --preExec 'HITtoRDO:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12";from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --preInclude HITtoRDO:InDetSLHC_Example/preInclude.SiliconOnly.py --geometryVersion ATLAS-P2-ITK-01-00-00 --conditionsTag OFLCOND-MC15c-SDR-06 --postInclude HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,PyJobTransforms/UseFrontier.py --digiSeedOffset1 111 --digiSeedOffset2 222 --DataRunNumber 240000
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -518,7 +527,7 @@
 	    <doc>SLHCReconstruction</doc>
 	    <jobTransformJobName>chainRecoModSLHCRTT</jobTransformJobName>
 	    <jobTransformCmd> 
-	      Reco_tf.py --inputRDOFile=SLHCtest.Mod.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.Mod.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-01-00-00 --outputAODFile=SLHCtest.Mod.AOD.pool.root --conditionsTag=OFLCOND-MC12-ITK-27-00 --preExec 'r2e:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12"' 'e2a:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12"' 
+	      Reco_tf.py --inputRDOFile=SLHCtest.Mod.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.Mod.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-01-00-00 --outputAODFile=SLHCtest.Mod.AOD.pool.root --conditionsTag=OFLCOND-MC15c-SDR-06 --preExec 'r2e:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12"' 'e2a:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.SLHC_Version="SLHC-23-24-dev12"' 
 	    </jobTransformCmd>
 	    <group>SLHCFCTTransform</group>
 	    <chaindataset_info>
@@ -537,7 +546,267 @@
 
       </sequential>
     </chain>
+    
+    <!-- Tests with ExtBrl32, ExtBrl4, IExtBrl4 added by Simon Viel for Release 20.20 -->
+    
+    <chain>
+      <chainName>SLHCChainTestExtBrl32</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimExtBrl32">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimExtBrl32SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+	      Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.ExtBrl32.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --geometryVersion=ATLAS-P2-ITK-05-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_32.py' --postInclude='sim:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_32.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.ExtBrl32.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigiExtBrl32">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigiExtBrl32SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Digi_tf.py --inputHITSFile=SLHCtest.ExtBrl32.HITS.pool.root --outputRDOFile=SLHCtest.ExtBrl32.RDO.pool.root --maxEvents=5 --skipEvents=0 --geometryVersion=ATLAS-P2-ITK-05-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_32.py' --postInclude='HITtoRDO:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_32.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.ExtBrl32.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.ExtBrl32.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecoExtBrl32">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecoExtBrl32SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Reco_tf.py --inputRDOFile=SLHCtest.ExtBrl32.RDO.pool.root --outputESDFile=SLHCtest.ExtBrl32.ESD.pool.root --outputAODFile=SLHCtest.ExtBrl32.AOD.pool.root --outputDAOD_IDTRKVALIDFile=SLHCtest.ExtBrl32.InDetDxAOD.pool.root --maxEvents=5 --geometryVersion=ATLAS-P2-ITK-05-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_32.py InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py --postInclude PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_32.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --preExec "r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True);InDetFlags.writeRDOs.set_Value_and_Lock(True)" 'ESDtoDPD:rec.doDPD.set_Value_and_Lock(True);rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' "from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags;InDetDxAODFlags.DumpUnassociatedHits.set_Value_and_Lock(False);InDetDxAODFlags.DumpPixelInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpPixelRdoInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctRdoInfo.set_Value_and_Lock(True)"
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.ExtBrl32.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.ExtBrl32.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.ExtBrl32.AOD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.ExtBrl32.InDetDxAOD.pool.root</chainfileout>
+	</chainElement>
+
+      </sequential>
+    </chain>    
+
+    <chain>
+      <chainName>SLHCChainTestExtBrl4</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimExtBrl4">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+	      Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.ExtBrl4.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=210 --geometryVersion=ATLAS-P2-ITK-06-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_4.py' --postInclude='sim:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_4.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.ExtBrl4.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigiExtBrl4">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigiExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Digi_tf.py --inputHITSFile=SLHCtest.ExtBrl4.HITS.pool.root --outputRDOFile=SLHCtest.ExtBrl4.RDO.pool.root --maxEvents=5 --skipEvents=0 --geometryVersion=ATLAS-P2-ITK-06-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_4.py' --postInclude='HITtoRDO:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_4.py' --digiSeedOffset1=211 --digiSeedOffset2=222 --doAllNoise=False --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.ExtBrl4.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.ExtBrl4.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecoExtBrl4">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecoExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Reco_tf.py --inputRDOFile=SLHCtest.ExtBrl4.RDO.pool.root --outputESDFile=SLHCtest.ExtBrl4.ESD.pool.root --outputAODFile=SLHCtest.ExtBrl4.AOD.pool.root --outputDAOD_IDTRKVALIDFile=SLHCtest.ExtBrl4.InDetDxAOD.pool.root --maxEvents=5 --geometryVersion=ATLAS-P2-ITK-06-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_4.py InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py --postInclude PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_4.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --preExec "r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True);InDetFlags.writeRDOs.set_Value_and_Lock(True)" 'ESDtoDPD:rec.doDPD.set_Value_and_Lock(True);rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' "from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags;InDetDxAODFlags.DumpUnassociatedHits.set_Value_and_Lock(False);InDetDxAODFlags.DumpPixelInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpPixelRdoInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctRdoInfo.set_Value_and_Lock(True)"
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.ExtBrl4.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.ExtBrl4.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.ExtBrl4.AOD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.ExtBrl4.InDetDxAOD.pool.root</chainfileout>
+	</chainElement>
+
+      </sequential>
+    </chain>    
+
+    <chain>
+      <chainName>SLHCChainTestIExtBrl4</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimIExtBrl4">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimIExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+	      Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.IExtBrl4.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=710 --geometryVersion=ATLAS-P2-ITK-07-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_IExtBrl_4.py' --postInclude='sim:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_IExtBrl_4.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.IExtBrl4.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigiIExtBrl4">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigiIExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Digi_tf.py --inputHITSFile=SLHCtest.IExtBrl4.HITS.pool.root --outputRDOFile=SLHCtest.IExtBrl4.RDO.pool.root --maxEvents=5 --skipEvents=0 --geometryVersion=ATLAS-P2-ITK-07-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_IExtBrl_4.py' --postInclude='HITtoRDO:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup_IExtBrl_4.py' --digiSeedOffset1=711 --digiSeedOffset2=722 --doAllNoise=False --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.IExtBrl4.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.IExtBrl4.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecoIExtBrl4">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecoIExtBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Reco_tf.py --inputRDOFile=SLHCtest.IExtBrl4.RDO.pool.root --outputESDFile=SLHCtest.IExtBrl4.ESD.pool.root --outputAODFile=SLHCtest.IExtBrl4.AOD.pool.root --outputDAOD_IDTRKVALIDFile=SLHCtest.IExtBrl4.InDetDxAOD.pool.root --maxEvents=5 --geometryVersion=ATLAS-P2-ITK-07-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py InDetSLHC_Example/preInclude.SLHC_Setup_IExtBrl_4.py InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py --postInclude PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_IExtBrl_4.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --preExec "r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True);InDetFlags.writeRDOs.set_Value_and_Lock(True)" 'ESDtoDPD:rec.doDPD.set_Value_and_Lock(True);rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' "from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags;InDetDxAODFlags.DumpUnassociatedHits.set_Value_and_Lock(False);InDetDxAODFlags.DumpPixelInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpPixelRdoInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctRdoInfo.set_Value_and_Lock(True)"
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.IExtBrl4.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.IExtBrl4.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.IExtBrl4.AOD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.IExtBrl4.InDetDxAOD.pool.root</chainfileout>
+	</chainElement>
+
+      </sequential>
+    </chain>    
+
+    <chain>
+      <chainName>SLHCChainTestInclBrl4</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimInclBrl4">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimInclBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+	      Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.InclBrl4.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=710 --geometryVersion=ATLAS-P2-ITK-08-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py' --postInclude='sim:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.InclBrl4.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigiInclBrl4">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigiInclBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Digi_tf.py --inputHITSFile=SLHCtest.InclBrl4.HITS.pool.root --outputRDOFile=SLHCtest.InclBrl4.RDO.pool.root --maxEvents=5 --skipEvents=0 --geometryVersion=ATLAS-P2-ITK-08-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py' --postInclude='HITtoRDO:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' --digiSeedOffset1=711 --digiSeedOffset2=722 --doAllNoise=False --DataRunNumber 240000
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.InclBrl4.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.InclBrl4.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecoInclBrl4">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecoInclBrl4SLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Reco_tf.py --inputRDOFile=SLHCtest.InclBrl4.RDO.pool.root --outputESDFile=SLHCtest.InclBrl4.ESD.pool.root --outputAODFile=SLHCtest.InclBrl4.AOD.pool.root --outputDAOD_IDTRKVALIDFile=SLHCtest.InclBrl4.InDetDxAOD.pool.root --maxEvents=5 --geometryVersion=ATLAS-P2-ITK-08-00-00 --conditionsTag=OFLCOND-MC12-ITK-27-00 --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py --postInclude PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --preExec "r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True);InDetFlags.writeRDOs.set_Value_and_Lock(True)" 'ESDtoDPD:rec.doDPD.set_Value_and_Lock(True);rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' "from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags;InDetDxAODFlags.DumpUnassociatedHits.set_Value_and_Lock(False);InDetDxAODFlags.DumpPixelInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpPixelRdoInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True);InDetDxAODFlags.DumpSctRdoInfo.set_Value_and_Lock(True)"
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.InclBrl4.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.InclBrl4.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.InclBrl4.AOD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.InclBrl4.InDetDxAOD.pool.root</chainfileout>
+	</chainElement>
+
+      </sequential>
+    </chain>    
+
   </jobList>
+
   <jobGroups>
     <jobGroup name="SLHCFCTTransform" parent="Transform">
       <keepFilePattern>*.root</keepFilePattern>
@@ -545,8 +814,8 @@
       <keepFilePattern>*.log</keepFilePattern>
       <keepFilePattern>log.*</keepFilePattern>
     </jobGroup>
-
   </jobGroups>
+
 </rtt>
 
 </unifiedTestConfiguration>

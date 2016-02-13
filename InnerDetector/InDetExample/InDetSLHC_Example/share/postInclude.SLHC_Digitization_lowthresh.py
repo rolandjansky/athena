@@ -8,13 +8,13 @@ else:
     else:
         raise AttributeError("AthenaPoolOutputStream not found")
 
+from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.CfgGetter import getService, getPublicTool
 if DetFlags.digitize.pixel_on():
     outStream.ItemList+=["SiHitCollection#PixelHits"]
     #disable some Pixel stuff
-    from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-    pixelTool =  PixelDetectorTool()
+    pixelTool = ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
     pixelTool.Alignable = False
     from Digitization.DigitizationFlags import digitizationFlags
     pixeldigi = None
@@ -44,12 +44,12 @@ if DetFlags.digitize.pixel_on():
         pixeldigi.UsePixMapCondDB = False
         pixeldigi.UsePixCondSum = False
         pixeldigi.DisableDistortions = True
-        #   adjustment for low threshold
-        # pixeldigi.DiscrThresh = 2000 # default 4100
-        # pixeldigi.IntimeThresh = 2500 # default 5000
-        # pixeldigi.ToTParE = -2000. # default -3561.25
+        ##   adjustment for low threshold
+        # pixeldigi.DiscrThresh = 600  # 2000   # default 4100
+        # pixeldigi.IntimeThresh = 600 # 2500   # default 5000
+        # pixeldigi.ToTParE = -600     # -2000. # default -3561.25
     else:
-        #From PixelDigitization-01-00-05 onwards configure tools directly
+        ## From PixelDigitization-01-00-05 onwards configure tools directly
         from AthenaCommon.CfgGetter import getService, getPublicTool
         calibSvc = getService("CalibSvc")
         calibSvc.UseCalibCondDB = False
@@ -60,10 +60,23 @@ if DetFlags.digitize.pixel_on():
         getPublicTool("DBMChargeTool").DisableDistortions = True
         getPublicTool("IblPlanarChargeTool").DisableDistortions = True
         getPublicTool("Ibl3DChargeTool").DisableDistortions = True
-        #   adjustment for low threshold
-        # calibSvc.DiscrThresh = 2000 # default 4100
-        # calibSvc.IntimeThresh = 2500 # default 5000
-        # calibSvc.ToTParE = -2000. # default -3561.25
+        ##   adjustment for low threshold
+        # calibSvc.DiscrThresh = 600   # 2000   # default 4100
+        # calibSvc.IntimeThresh = 600  # 2500   # default 5000
+        # calibSvc.ToTParE = -600      # -2000. # default -3561.25
+
+    ## Threshold settings are now in PixelCalibSvc
+    ServiceMgr.PixelCalibSvc.IntimeThresh    = 600
+    ServiceMgr.PixelCalibSvc.DiscrThresh     = 600
+    ServiceMgr.PixelCalibSvc.DiscrThreshVar  =  40
+    ServiceMgr.PixelCalibSvc.NoiseThresh     =  75
+
+    ## ITk chip values for charge calibration
+    #ServiceMgr.PixelCalibSvc.ToTParA       = ??
+    ServiceMgr.PixelCalibSvc.ToTParE        = -600
+    #ServiceMgr.PixelCalibSvc.ToTParC       = ??
+    #ServiceMgr.PixelCalibSvc.ToTParP1      = ??
+    #ServiceMgr.PixelCalibSvc.ToTParP2      = ??
 
     if hasattr(pixeldigi,'OfflineCalibSvc') :
        pixeldigi.OfflineCalibSvc=""

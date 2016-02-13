@@ -16,7 +16,9 @@ from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
-      
+
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
         # Only use local text file and dictionary if SLHC_Version set
         if (SLHC_Flags.SLHC_Version() and not (SLHC_Flags.SLHC_Version() == 'None')) : 
 
@@ -39,7 +41,6 @@ class SLHC_Setup :
             database_full_path_name = database_file_path+'/'+database_file
 
             # Pass text file name to GeometryDBSvc
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr,'InDetGeometryDBSvc'):
                 from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
                 svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
@@ -59,8 +60,7 @@ class SLHC_Setup :
             print 'SLHC_Setup: Geometry coming fully from database'
             
         # Alignments have to disabled for Pixels
-        from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-        pixelTool =  PixelDetectorTool()
+        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
         pixelTool.Alignable = False
 
         
