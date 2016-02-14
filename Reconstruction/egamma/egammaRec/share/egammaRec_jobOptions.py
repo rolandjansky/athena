@@ -76,16 +76,13 @@ if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.ega
 
 ####################################################################
 # Lock egamma containers
-#if rec.doESD():
-#    try:
-#        from egammaRec.egammaLocker import egammaLocker
-#        topSequence +=egammaLocker(name= "egLocker",
-#                                   doTruth=rec.doTruth(),
-#                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-#                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
-#                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-#                                   outputClusterKey=egammaKeys.outputClusterKey(),
-#                                   egammakeys=egammaKeysDict.outputs.items())
-#    except:
-#        treatException("Could not set up egammaLocker. Switched off !")
+if rec.doESD():
+    try:
+        from egammaRec.egammaRecConf import egammaLockCollections
+        topSequence += egammaLockCollections(name= "egammaLockCollection",
+                                             outputClusterKey=egammaKeys.outputClusterKey(),
+                                             outputForwardClusterKey=egammaKeys.outputFwdClusterKey(),
+                                             outputTopoSeededClusterKey=egammaKeys.outputTopoSeededClusterKey())
+    except:
+        treatException("Could not set up egammaLocker. Switched off !")
 
