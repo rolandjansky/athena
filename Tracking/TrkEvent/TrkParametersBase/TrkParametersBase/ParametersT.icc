@@ -231,7 +231,7 @@ namespace Trk
       m_covariance = rhs.covariance() ? new AmgSymMatrix(DIM)(*rhs.covariance()) : 0;
       m_position   = rhs.position();
       m_momentum   = rhs.momentum();
-      m_surface    = rhs.m_surface->clone();
+      m_surface    = (rhs.m_surface && rhs.m_surface->isFree()) ? rhs.m_surface->clone() : rhs.m_surface;
       m_chargeDef  = rhs.m_chargeDef;
     }
   
