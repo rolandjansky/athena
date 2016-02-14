@@ -91,6 +91,11 @@ def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll() 
 
+def mubphysics():
+    TriggerFlags.Slices_all_setOff()
+    TriggerFlags.MuonSlice.setAll()
+    TriggerFlags.BphysicsSlice.setAll()
+
 def minbiasEnhanced():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll()
@@ -145,6 +150,8 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(tauOnly)
     elif sliceName == 'minbias':
         GenerateMenu.overwriteSignaturesWith(minbiasOnly)
+    elif sliceName == 'mubphysics':
+        GenerateMenu.overwriteSignaturesWith(mubphysics)
     elif sliceName == 'minbiasEnhanced':
         GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)
     else:
