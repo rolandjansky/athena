@@ -673,6 +673,24 @@ IOVSvcTool::regProxy( const DataProxy *proxy, const std::string& key) {
   return StatusCode::SUCCESS;
 
 }
+
+
+namespace {
+
+
+template <class SET>
+void removeFromSet (IOVEntry* ent, SET& set)
+{
+  typename SET::iterator it;
+  while ((it = set.find(ent)) != set.end())
+    set.erase (it);
+}
+
+
+} // anonymous namespace
+
+
+
 ///
 /// replace a registered DataProxy with a new version
 ///
@@ -703,6 +721,22 @@ IOVSvcTool::replaceProxy( const SG::DataProxy *pOld,
     return StatusCode::FAILURE;
   }
   m_names[pNew]=tname + "[" + pNew->name() + "]";
+
+  if (pOld != pNew) {
+    std::map< const SG::DataProxy*, IOVEntry*>::iterator ent =
+      m_entries.find(pOld);
+    if (ent != m_entries.end()) {
+      removeFromSet (ent->second, m_startSet_Clock);
+      removeFromSet (ent->second, m_startSet_RE);
+      removeFromSet (ent->second, m_stopSet_Clock);
+      removeFromSet (ent->second, m_stopSet_RE);
+
+      setRange_impl (pNew, *ent->second->range());
+      delete ent->second;
+      m_entries.erase (ent);
+    }
+  }
+
   return (m_trigTree->replaceProxy(pOld, pNew) ?
 	  StatusCode::SUCCESS :
 	  StatusCode::FAILURE );
@@ -789,42 +823,14 @@ IOVSvcTool::preLoadDataTAD( const TransientAddress *tad_in ) {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-StatusCode 
-IOVSvcTool::setRange(const CLID& clid, const std::string& key, 
-		     IOVRange& iovr) {
-
-#ifndef NDEBUG
-  if (m_log.level() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "setRange()  for clid: " << clid << "  key: " << key 
-	  << "  in IOVrange:" << iovr << endreq;
-  }
-#endif
-
-  if (!iovr.start().isValid() || !iovr.stop().isValid()) {
-    m_log << MSG::ERROR << "IOVRange " << iovr << "is not valid. Start OK: " 
-	<< iovr.start().isValid() << " Stop OK: " << iovr.stop().isValid() 
-	<< " run/evt/time min/max " 
-	<< IOVTime::MINRUN << "/" << IOVTime::MAXRUN << " "
-	<< IOVTime::MINEVENT << "/" << IOVTime::MAXEVENT << " "
-	<< IOVTime::MINTIMESTAMP << "/" << IOVTime::MAXTIMESTAMP << " "
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
-
+void IOVSvcTool::setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr)
+{
   if (iovr.start().isTimestamp()) {
     p_startSet = &m_startSet_Clock;
     p_stopSet  = &m_stopSet_Clock;
   } else {
     p_startSet = &m_startSet_RE;
     p_stopSet  = &m_stopSet_RE;
-  }
-
-  DataProxy* proxy = p_cndSvc->proxy(clid,key);
-
-  if (proxy == 0) {
-    m_log << MSG::ERROR << "setRange: Could not locate proxy for "
-	  << fullProxyName(clid,key) << endreq;
-    return StatusCode::FAILURE;
   }
 
   IOVRange *range = new IOVRange(iovr);
@@ -843,7 +849,7 @@ IOVSvcTool::setRange(const CLID& clid, const std::string& key,
       }
 #endif
       delete range;
-      return StatusCode::SUCCESS;
+      return;
       // is this true? still in the start and stop sets? FIXME
     }
 
@@ -874,10 +880,42 @@ IOVSvcTool::setRange(const CLID& clid, const std::string& key,
 
   ent->setStartITR( p_startSet->insert( ent ) );
   ent->setStopITR(  p_stopSet->insert( ent ) );
+}
 
+
+StatusCode 
+IOVSvcTool::setRange(const CLID& clid, const std::string& key, 
+		     IOVRange& iovr)
+{
+
+#ifndef NDEBUG
+  if (m_log.level() <= MSG::DEBUG) {
+    m_log << MSG::DEBUG << "setRange()  for clid: " << clid << "  key: " << key 
+	  << "  in IOVrange:" << iovr << endreq;
+  }
+#endif
+
+  if (!iovr.start().isValid() || !iovr.stop().isValid()) {
+    m_log << MSG::ERROR << "IOVRange " << iovr << "is not valid. Start OK: " 
+	<< iovr.start().isValid() << " Stop OK: " << iovr.stop().isValid() 
+	<< " run/evt/time min/max " 
+	<< IOVTime::MINRUN << "/" << IOVTime::MAXRUN << " "
+	<< IOVTime::MINEVENT << "/" << IOVTime::MAXEVENT << " "
+	<< IOVTime::MINTIMESTAMP << "/" << IOVTime::MAXTIMESTAMP << " "
+	<< endreq;
+    return StatusCode::FAILURE;
+  }
+
+  DataProxy* proxy = p_cndSvc->proxy(clid,key);
+
+  if (proxy == 0) {
+    m_log << MSG::ERROR << "setRange: Could not locate proxy for "
+	  << fullProxyName(clid,key) << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  setRange_impl (proxy, iovr);
   return StatusCode::SUCCESS;
-
-
 }
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 

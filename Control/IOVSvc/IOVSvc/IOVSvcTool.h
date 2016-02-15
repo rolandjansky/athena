@@ -168,6 +168,7 @@ private:
   std::string fullProxyName( const SG::TransientAddress* ) const;
   std::string fullProxyName( const SG::DataProxy* ) const;
   std::string fullProxyName( const CLID&, const std::string& ) const;
+  void setRange_impl (const SG::DataProxy* proxy, IOVRange& iovr);
 
   std::string m_storeName;
 
