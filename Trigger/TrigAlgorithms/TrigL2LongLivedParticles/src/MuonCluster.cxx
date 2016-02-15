@@ -32,7 +32,7 @@
 using namespace std;
 
 MuonCluster::MuonCluster(const std::string& name, ISvcLocator* svc) 
-  : HLT::AllTEAlgo(name, svc), m_useCachedResult(false), m_clu_feature(0), m_cachedTE(0),
+  : HLT::AllTEAlgo(name, svc), m_useCachedResult(false),m_old_feature(0), m_clu_feature(0), m_cachedTE(0),
     mStoreGate("StoreGateSvc", this->name()) {
 
   mCluEta = 0.;
@@ -44,7 +44,8 @@ MuonCluster::MuonCluster(const std::string& name, ISvcLocator* svc)
   declareProperty("DeltaR",       mDeltaR=0.4,                    "radius of the muon cluster");
   declareProperty("DeltaRJet",    mDeltaRJet=0.7,                 "distance between jet and muon cluster");
   declareProperty("DeltaRTrk",    mDeltaRTrk=0.4,                 "distance between track and muon cluster");
-  declareProperty("MuonCluLabel", m_featureLabel = "MuonCluster", "label for the MuonCluster feature in the HLT Navigation");
+  declareProperty("MuonCluLabel", m_featureLabel = "MuonRoICluster", "label for the MuonCluster feature in the HLT Navigation, for the xAOD::TrigCompositeContainer");
+  declareProperty("MuonCluLabel_old", m_featureLabelOld = "MuonCluster", "label for the MuonCluster feature in the HLT Navigation, for the TrigMuonClusterFeature container");
   declareProperty("MinJetEt",     m_minJetEt = 30000.0,             "minimum Et (MeV) to consider a jet for isolation");
   declareProperty("PtMinID",      m_PtMinID = 5000.0,             "minimum Pt (MeV) for ID track");
 
@@ -142,7 +143,10 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
     // Only count mu as an input TE (for seeding relation of navigation structure)
     HLT::TEVec allTEs;
-    if ( (tes_in.size()>0) && (tes_in[0].size()>0) ) allTEs.push_back( tes_in[0][0] );
+    if ( (tes_in.size()>0) && (tes_in[0].size()>0) ){
+    	allTEs.push_back( tes_in[0][0] );
+    }
+    if( tes_in.size() > 1) allTEs.push_back(tes_in.at(1).front());
 
     // create output TE:
     // Create an output TE seeded by the inputs
@@ -161,10 +165,21 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   if (msgLvl() <= MSG::DEBUG) 
     msg() << MSG::DEBUG << "execHLTAlgorithm called" << endreq;
  
+  //Setup the composite container we will put the MuonRoICluster in
+  m_clu_feature = new xAOD::TrigCompositeContainer();
+  xAOD::TrigCompositeAuxContainer compAux;
+  m_clu_feature->setStore(&compAux);
+  
   // start monitoring
   beforeExecMonitors().ignore();
 
- 
+  //check to make sure we have all the input trigger elements!  
+  if ( (tes_in.size() < 2) ){
+	     msg() << MSG::ERROR << "input trigger element vector isn't the correct size! Aborting chain."
+	           << endreq;
+	     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
+  }
+  
   int i_cl=0;
   lvl1_muclu_roi muonClu[20];
   lvl1_muclu_roi muonClu0[20];
@@ -360,9 +375,19 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     msg() << MSG::DEBUG << "Accessing the ID track collection" << endreq;
 
   int ntrk = 0;
-
+  
+  if (msgLvl() <= MSG::DEBUG){
+  msg() << MSG::DEBUG << "there are: " << tes_in[0].size() << " trigger elements with track collections." <<
+		  " This should be equal to the number of MU10 RoIs" << std::endl;
+  }
+  
+  int nTEs = 0;
+  
   for (HLT::TEVec::const_iterator it = tes_in[0].begin();it != tes_in[0].end(); ++it) {
-
+	
+	nTEs++;
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "trigger element: " << nTEs  << " of tes_in[0] "<< endreq;
+		
     std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
     HLT::ErrorCode ect = getFeatures(*it,vectorOfTrackCollections, "InDetTrigTrackingxAODCnv_Muon_IDTrig");
     
@@ -413,22 +438,41 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   mNumTrk = ntrk;
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Found " << mNumTrk << " tracks around the Muon Cluster direction" << endreq;
+    msg() << MSG::DEBUG << "Found " << mNumTrk << " tracks around the Muon Cluster direction (inaccurate, often duplicate tracks in container)" << endreq;
   }
+  
   if (timerSvc()) mTimers[ITIMER_TRACKS]->stop();
 
   if (timerSvc()) mTimers[ITIMER_FINAL]->start();
 
   //WRITE FEATURE 
-  m_clu_feature = new TrigMuonClusterFeature(mCluEta,mCluPhi, mCluNum, mNumJet, mNumTrk);
+  m_old_feature = new TrigMuonClusterFeature(mCluEta,mCluPhi, mCluNum, mNumJet, mNumTrk);
     
   // finished now debugging
   if (msgLvl() <= MSG::DEBUG) {  
     msg() << MSG::DEBUG << "Create an output TE seeded by the input" << endreq;
   }
-  // Only count mu as an input TE (for seeding relation of navigation structure)
-  if ( (tes_in.size()>0) && (tes_in[0].size()>0) ) allTEs.push_back( tes_in[0][0] );
-
+  xAOD::TrigComposite *compClu = new xAOD::TrigComposite();
+  m_clu_feature->push_back(compClu); //add jets to the composite container
+  compClu->setName("Cluster");
+  compClu->setDetail( "nTrks", mNumTrk);
+  compClu->setDetail( "nJets", mNumJet);
+  compClu->setDetail( "ClusterEta", mCluEta);
+  compClu->setDetail( "ClusterPhi", mCluPhi);
+  compClu->setDetail( "nRoIs", mCluNum);
+  
+  
+  if ( (tes_in.size()>1) && (tes_in.at(0).size()>0) ){
+	  //add each muon RoI and its associated features (tracks)
+	  for(unsigned int iTE=0; iTE < tes_in.at(0).size(); iTE++){ allTEs.push_back( tes_in.at(0).at(iTE) ); }
+	  //add the jet container
+	  if( tes_in.at(1).size() > 0){ allTEs.push_back(tes_in.at(1).front());}
+  } else {
+	     msg() << MSG::ERROR << "input trigger element vector isn't the correct size! Aborting chain."
+	           << endreq;
+	     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE);
+  }
+  
   // create output TE:
   // Create an output TE seeded by the inputs
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
@@ -436,12 +480,18 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
   // save feature to output TE:
   HLT::ErrorCode hltStatus = attachFeature(outputTE, m_clu_feature, m_featureLabel);
+  HLT::ErrorCode hltStatusOld = attachFeature(outputTE, m_old_feature, m_featureLabelOld);
 
   if ( hltStatus != HLT::OK ) {
-     msg() << MSG::ERROR << "Write of TrigMuonCluster feature into outputTE failed"
+     msg() << MSG::ERROR << "Write of MuonRoICluster TrigCompositeContainer feature into outputTE failed"
            << endreq;
      return hltStatus;
   }
+  if (hltStatusOld != HLT::OK ) {
+     msg() << MSG::ERROR << "Write of MuonCluster TrigMuonCluster feature into outputTE failed"
+           << endreq;
+     return hltStatusOld;
+  }  
 
   if (timerSvc()) mTimers[ITIMER_FINAL]->stop();
 

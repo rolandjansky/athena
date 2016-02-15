@@ -25,6 +25,8 @@
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigMuonEvent/TrigMuonClusterFeature.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "xAODTrigger/TrigComposite.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 #define kMAX_ROI 20
 
@@ -65,7 +67,7 @@ public:
    *
    * This is used to reset the internal caching mechanism of this MuonCluster algorithm.
    */
-  HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_clu_feature = 0; m_cachedTE=0; return HLT::OK; }
+  HLT::ErrorCode hltEndEvent() { m_useCachedResult = false; m_old_feature = 0; m_clu_feature = 0; m_cachedTE=0; return HLT::OK; }
 
   // monitored quantities
   std::vector<double> m_RoiEta;
@@ -106,15 +108,16 @@ protected:
   /** Cut on Tracks */
   int mNumTrk;
 
-  /** output Muon Cluster Feature */
-  TrigMuonClusterFeature muonRoiCluster;
-
   /** calculcate the deltaR between two Rois */
   float DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator, lvl1_muclu_roi );
   float DeltaR(lvl1_muclu_roi , lvl1_muclu_roi );
+  
+  //Output parameters. Keep old container so we don't break Frozen Tier0. Should be removed in the future!
   std::string m_featureLabel; //!< label for the mucluster  feature in the HLT Navigation
+  std::string m_featureLabelOld; //!< label for the mucluster  feature in the HLT Navigation
   bool m_useCachedResult;          //!< internal caching: true when the hltExecute will run in cached mode
-  TrigMuonClusterFeature* m_clu_feature;    //!< internal caching: m_clu feature of the first execution
+  TrigMuonClusterFeature *m_old_feature;  //!< internal caching: m_old_feature of the first execution
+  xAOD::TrigCompositeContainer *m_clu_feature;    //!< internal caching: m_clu_feature of the first execution
   HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution
 
   // Services
