@@ -172,7 +172,7 @@ SCT_RodDecoder::finalize() {
   msg(MSG::INFO)<<"Number of SCT hits in ByteStream-> "<<m_nHits<<endreq;
   msg(MSG::INFO)<<"Number of SCT RDOs created->       "<<m_nRDOs<<endreq;
 
-  if (m_numMissingLinkHeader > 0) msg(MSG::ERROR)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
+  if (m_numMissingLinkHeader > 0) msg(MSG::WARNING)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
   
 
 
