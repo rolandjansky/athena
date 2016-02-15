@@ -412,7 +412,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       CHECK (bookEffHisto(m_nTrkGoodHisto, histGroupE[GENERAL], "nTrk good", "num Tracks good", 400, -0.5, 399.5));
     }
     if (m_superDetailed) {
-      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 1000, 1, 1001));
+      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 3000, 1, 3001));
       CHECK (bookEffHisto(m_effHashLumiB, histGroupE[GENERAL], "effHashCodeLumiBlock", "Modules efficiencies vs. lumi. block", 
             n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5, 1500, 1, 1501));
       m_badModMap = new TGraphErrors();
@@ -460,7 +460,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
 
           CHECK (bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub], 
                 effLumiName[isub] + i + "_" + j, "Efficiency vs LumiBlock of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
-                50,1,1001));//23.01.2015
+                150,1,3001));//23.01.2015
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
         }
@@ -504,7 +504,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       m_Eff_summaryHistoFirstBCID[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
 
-      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
+      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],150,1,3001));//20.01.2015
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
       m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -649,7 +649,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       CHECK (bookEffHisto(m_nTrkGoodHisto, histGroupE[GENERAL], "nTrk good", "num Tracks good", 400, -0.5, 399.5));
     }
     if (m_superDetailed) {
-      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 1000, 1, 1001));
+      CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 3000, 1, 3001));
       CHECK (bookEffHisto(m_effHashLumiB, histGroupE[GENERAL], "effHashCodeLumiBlock", "Modules efficiencies vs. lumi. block", 
             n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5, 1500, 1, 1501));
       m_badModMap = new TGraphErrors();
@@ -700,7 +700,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
 
           CHECK (bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub], 
                 effLumiName[isub] + i + "_" + j, "Efficiency vs LumiBlock" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
-                50,1,1001));//23.01.2015
+                150,1,3001));//23.01.2015
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
 
@@ -741,7 +741,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       m_Eff_summaryHisto[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHistoFirstBCID[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
-      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
+      CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],150,1,3001));//20.01.2015
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
       m_Eff_LumiBlockHisto[isub]->GetYaxis()->SetTitle("Efficiency");
 
@@ -1590,8 +1590,9 @@ Double_t SCTHitEffMonTool::getResidual(const Identifier& surfaceID,const Trk::Tr
         const Trk::PrepRawData * rioo(dynamic_cast<const Trk::PrepRawData*>(*rioIterator));   
         const Trk::RIO_OnTrack * rio(m_rotcreator->correct(*rioo, *trkParam));
         if (!m_residualPullCalculator.empty()) {
-          if(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased)==0)continue;
+	  //          if(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased)==0)continue;
           const Trk::ResidualPull * residualPull(m_residualPullCalculator->residualPull(rio, trkParam,Trk::ResidualPull::Unbiased));
+	  if(residualPull==0)continue;
           if (fabs(residualPull->residual()[Trk::loc1]) < fabs(trackHitResidual)) trackHitResidual = residualPull->residual()[Trk::loc1];
           delete residualPull;
         }
