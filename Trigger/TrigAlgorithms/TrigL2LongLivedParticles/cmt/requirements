@@ -10,6 +10,7 @@ use	TrigMuonEvent		TrigMuonEvent-*			Trigger/TrigEvent
 use	TrigInterfaces		TrigInterfaces-*		Trigger/TrigSteer
 use	TrigTimeAlgs		TrigTimeAlgs-*			Trigger/TrigTools
 use	TrigT1Interfaces	TrigT1Interfaces-*		Trigger/TrigT1
+use     xAODTrigger             xAODTrigger-*                   Event/xAOD
 
 # ============================================================================================
 private
