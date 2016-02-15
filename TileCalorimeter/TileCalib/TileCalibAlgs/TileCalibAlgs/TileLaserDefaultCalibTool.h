@@ -16,6 +16,8 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
 
+
+
 #define NDIODES 10
 #define NDIODES_LASER1 4
 #define NMONITORS 4
@@ -35,6 +37,7 @@ class TileHWID;
 class TFile;
 class RunningStat;
 class TileDCSSvc;
+class ITileStuckBitsProbsTool;
 
 class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTool
 {
@@ -66,6 +69,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
   ToolHandle<ITileBadChanTool>     m_tileBadChanTool;
   TileBeamInfoProvider *m_beamInfo;
+  ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
 
   ServiceHandle<TileDCSSvc>   m_tileDCSSvc; //!< Pointer to TileDCSSvc
 

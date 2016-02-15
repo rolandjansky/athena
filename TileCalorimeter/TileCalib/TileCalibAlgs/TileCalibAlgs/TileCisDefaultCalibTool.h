@@ -30,6 +30,7 @@ class TileCablingSvc;
 class TFile;
 class TileRawChannelContainer;
 class TMap;
+class ITileStuckBitsProbsTool;
 
 class TileCisDefaultCalibTool: public AthAlgTool
                              , virtual public ITileCalibTool {
@@ -85,6 +86,7 @@ class TileCisDefaultCalibTool: public AthAlgTool
     const TileCablingService* m_cabling;
     ServiceHandle<TileCablingSvc> m_cablingSvc;
     ToolHandle<TileBeamInfoProvider> m_beamPrv;
+    ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
 
     // jobOptions
     std::string m_rawChannelContainerName;
