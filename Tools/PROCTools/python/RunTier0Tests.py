@@ -10,18 +10,22 @@ import os
 import threading
 
 
-def RunCleanQTest(qtest,pwd,release):
+def RunCleanQTest(qtest,pwd,release,extraArg):
     q=qtest
-    print "Running clean \"Reco_tf.py --AMI "+q+"\""
-    cmd = "cd /tmp/${USER}; mkdir -p clean_run_"+q+" ; cd clean_run_"+q+"; source $AtlasSetup/scripts/asetup.sh "+release+",here  >& /dev/null ; Reco_tf.py --AMI="+q+" > "+q+".log 2>&1"
+    if q != "q221":
+        extraArg=""
+    print "Running clean \"Reco_tf.py --AMI "+q+" "+extraArg+"\""
+    cmd = "cd /tmp/${USER}; mkdir -p clean_run_"+q+" ; cd clean_run_"+q+"; source $AtlasSetup/scripts/asetup.sh "+release+",here  >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
     subprocess.call(cmd,shell=True)
     print "Finished clean \"Reco_tf.py --AMI "+q+"\""
     pass
 
-def RunPatchedQTest(qtest,pwd,release,theTestArea):
+def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg):
     q=qtest
-    print "Running patched \"Reco_tf.py --AMI "+q+"\""
-    cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" > "+q+".log 2>&1"
+    if q != "q221":
+        extraArg=""
+    print "Running patched \"Reco_tf.py --AMI "+q+" "+extraArg+"\""
+    cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
     subprocess.call(cmd,shell=True)
     print "Finished patched \"Reco_tf.py --AMI "+q+"\""
     pass
@@ -181,7 +185,6 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
 
         try:
             ref = int(subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[FieldNumber])
-            break
         except:
             print "No data available in "+ test_dir + "/log."+str(step)+" . Job failed."
             return  
@@ -190,7 +193,6 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
 
         try:
             test = int(subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[FieldNumber])
-            break
         except:
             print "No data available in run_"+q+"/log."+str(step)+" . Job failed."
             return
@@ -206,8 +208,8 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
                 _Test=False
     
                 print step+" : "+TestName
-                print "ref  "+ref+" "+MeasurementUnit
-                print "test "+test+" "+MeasurementUnit
+                print "ref  "+str(ref)+" "+str(MeasurementUnit)
+                print "test "+str(test)+" "+str(MeasurementUnit)
 
     if _Test:
         print "Passed!" 
@@ -219,6 +221,17 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
 
 ##########################################################################
 def main():
+
+    from optparse import OptionParser
+
+    parser=OptionParser(usage="\n ./RunTier0Test.py \n")
+    parser.add_option("-e","--extra"     ,type="string"       ,dest="extraArgs"        ,default=""    ,help="define addional args to pass e.g. --preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' ")
+    (options,args)=parser.parse_args()
+
+    extraArg = ""
+    if options.extraArgs == "MC_pp_v5":
+        extraArg = "--preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' "
+        
 
 ########### Is an ATLAS release setup?
     if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ:
@@ -253,11 +266,11 @@ def main():
 
 #Run clean and patched q-tests in parallel
             def mycleanqtest():
-                RunCleanQTest(q,mypwd,mysetup)
+                RunCleanQTest(q,mypwd,mysetup,extraArg)
                 pass
     
             def mypatchedqtest():
-                RunPatchedQTest(q,mypwd,mysetup,myTestArea)
+                RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg)
                 pass
             
             d1 = threading.Thread(target=mycleanqtest)
