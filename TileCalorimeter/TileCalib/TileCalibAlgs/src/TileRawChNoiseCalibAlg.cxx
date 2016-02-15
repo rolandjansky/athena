@@ -153,7 +153,7 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
 
   memset(ecell_av     ,0,          sizeof(ecell_av     ));
   memset(ecell_rms    ,0,          sizeof(ecell_rms    ));
-  memset(ecell_hash   ,0xFFFFFFFF, sizeof(ecell_hash   ));
+  memset(ecell_hash   ,0xFF,       sizeof(ecell_hash   ));
   memset(m_side       ,0,          sizeof(m_side       ));
   memset(m_phi        ,0,          sizeof(m_phi        ));
   memset(m_sample     ,0,          sizeof(m_sample     ));

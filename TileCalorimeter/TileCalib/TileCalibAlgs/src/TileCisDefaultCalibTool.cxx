@@ -4,6 +4,11 @@
 
 // Gaudi includes
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+
+#include "Identifier/HWIdentifier.h"
 
 // Athena includes
 #include "AthenaKernel/errorcheck.h"
@@ -15,6 +20,8 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingSvc.h"
+
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -36,6 +43,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   , m_tileHWID(0)
   , m_cabling(0)
   , m_cablingSvc("TileCablingSvc", name)
+  , m_stuckBitsProbs("")
   , scanMap(0)
   , scanMapRMS(0)
 {
@@ -58,6 +66,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
   declareProperty("DigitsContainer", m_DigitsContainerName = "TileDigitsCnt");
+  declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
 
 }
 
@@ -592,6 +601,14 @@ StatusCode TileCisDefaultCalibTool::writeNtuple(int runNumber, int runType, TFil
   t->Branch("nDigitalErrors", *nDigitalErrors, "nDigitalErrors[5][64][48][2]/I");
   t->Branch("chi2", *chi2, "chi2[5][64][48][2]/F");
   t->Branch("BitStatus", *BitStatus, "BitStatus[5][64][48][2][4]/s");
+
+  if (!m_stuckBitsProbs.empty()) {
+    if (m_stuckBitsProbs.retrieve().isFailure()) {
+      ATH_MSG_WARNING("Impossible to get ITileStuckBitsProbsTool and stuck bits probabilities!");
+    } else {
+      m_stuckBitsProbs->saveStuckBitsProbabilities(t);
+    }
+  }
 
   // Fill with current values (i.e. tree will have only one entry for this whole run)
   t->Fill();

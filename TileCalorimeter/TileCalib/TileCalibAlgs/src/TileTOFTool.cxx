@@ -211,7 +211,7 @@ StatusCode TileTOFTool::finalizeCalculations()
 // Calculation of time offsets wrt module 16 of each partition
 
    int n2[4][64] = {{0}};
-   memset( m_TimeCor, 0, sizeof(m_TimeCor)/sizeof(m_TimeCor[0][0]));
+   memset( m_TimeCor, 0, sizeof(m_TimeCor) );
 
   for(int s=0; s<4; s++){
 
