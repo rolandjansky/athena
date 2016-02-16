@@ -21,6 +21,7 @@
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoEllipticalTube.h"
+#include "GeoModelKernel/GeoTorus.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
@@ -43,6 +44,7 @@
 #include "G4ExtrudedSolid.hh"
 #include "G4TessellatedSolid.hh"
 #include "G4EllipticalTube.hh"
+#include "G4Torus.hh"
 #include "G4TriangularFacet.hh"
 #include "G4QuadrangularFacet.hh"
 #include "G4GenericTrap.hh"
@@ -406,6 +408,21 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
                                                         ,std::abs(theEltube->getZHalfLength()));
       theSolid = g4Eltube;
     }
+  //
+  // Torus
+  //
+  else if(geoShape->typeID() == GeoTorus::getClassTypeID() ) {
+    const GeoTorus* theTorus = dynamic_cast<const GeoTorus*> (geoShape);
+    if (0==theTorus) throw std::runtime_error("TypeID did not match cast for torus");
+    if (n.empty()) n="G4Torus";
+    
+    theSolid = new G4Torus(n,
+			   theTorus->getRMin(),
+			   theTorus->getRMax(),
+			   theTorus->getRTor(),
+			   theTorus->getSPhi(),
+			   theTorus->getDPhi());
+  }
   //
   // Generic Trap
   //

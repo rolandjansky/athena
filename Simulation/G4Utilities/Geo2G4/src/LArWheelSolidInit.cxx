@@ -80,7 +80,7 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
     G4Exception("LArWheelSolid", "UnknownSolidType", FatalException,
                 "Constructor: unknown LArWheelSolid_t");
   }
-  Calculator = new LArWheelCalculator(calc_type, zside);
+  m_Calculator = new LArWheelCalculator(calc_type, zside);
   const G4String bs_name = name + "-Bounding";
 #ifdef DEBUG_LARWHEELSOLID
   const char *venv = getenv("LARWHEELSOLID_VERBOSE");
@@ -88,7 +88,7 @@ LArWheelSolid::LArWheelSolid(const G4String& name, LArWheelSolid_t type,
 #endif
 
   // Initialize code that depends on wheel type:
-  FanHalfThickness = Calculator->GetFanHalfThickness();
+  FanHalfThickness = GetCalculator()->GetFanHalfThickness();
   FHTplusT = FanHalfThickness + Tolerance;
   FHTminusT = FanHalfThickness - Tolerance;
   switch(Type){
@@ -145,12 +145,12 @@ void LArWheelSolid::inner_solid_init(const G4String &bs_name)
 
 	G4double zPlane[2], rInner[2], rOuter[2];
 	zPlane[0] = 0.;
-	zPlane[1] = Calculator->GetWheelThickness();
+	zPlane[1] = GetCalculator()->GetWheelThickness();
 	G4double wheel_thickness = zPlane[1] - zPlane[0];
-	Calculator->GetWheelInnerRadius(rInner);
-	Calculator->GetWheelOuterRadius(rOuter);
+	GetCalculator()->GetWheelInnerRadius(rInner);
+	GetCalculator()->GetWheelOuterRadius(rOuter);
 	const G4double phi_min = PhiPosition - FanPhiAmplitude
-	                       - Calculator->GetFanStepOnPhi() * 2;
+	                       - GetCalculator()->GetFanStepOnPhi() * 2;
 
 	Zmin = zPlane[0]; Zmax = zPlane[1];
 	Rmin = rInner[0]; Rmax = rOuter[1];
@@ -162,17 +162,17 @@ void LArWheelSolid::inner_solid_init(const G4String &bs_name)
 
 	BoundingShape = BoundingPolycone;
 #ifdef LARWHEELSOLID_USE_FANBOUND
-	const G4double phi_size = (FanPhiAmplitude + Calculator->GetFanStepOnPhi() * 2) * 2;
+	const G4double phi_size = (FanPhiAmplitude + GetCalculator()->GetFanStepOnPhi() * 2) * 2;
 	FanBound = new G4Polycone(bs_name + "ofFan", phi_min, phi_size,
 	                          2, zPlane, rInner, rOuter);
 #endif
 	ATH_MSG_INFO(BoundingShape->GetName() + " is the BoundingShape");
 
-	const G4double half_wave_length = Calculator->GetHalfWaveLength();
-	const G4double sss = Calculator->GetStraightStartSection();
+	const G4double half_wave_length = GetCalculator()->GetHalfWaveLength();
+	const G4double sss = GetCalculator()->GetStraightStartSection();
 	Zsect.push_back(0.);
 	Zsect.push_back(sss + half_wave_length * 0.25);
-	const G4int num_fs = Calculator->GetNumberOfHalfWaves() + 1;
+	const G4int num_fs = GetCalculator()->GetNumberOfHalfWaves() + 1;
 	for(G4int i = 2; i < num_fs; i ++){
 		const G4double zi = half_wave_length * (i - 1) + sss;
 #if LARWHEELSOLID_ZSECT_MULT > 1
@@ -200,12 +200,12 @@ void LArWheelSolid::outer_solid_init(const G4String &bs_name)
 
 	G4double zPlane[3], rInner[3], rOuter[3];
 	zPlane[0] = 0.;
-	zPlane[2] = Calculator->GetWheelThickness();
+	zPlane[2] = GetCalculator()->GetWheelThickness();
 	G4double wheel_thickness = zPlane[2] - zPlane[0];
-	zPlane[1] = Calculator->GetWheelInnerRadius(rInner);
-	Calculator->GetWheelOuterRadius(rOuter);
+	zPlane[1] = GetCalculator()->GetWheelInnerRadius(rInner);
+	GetCalculator()->GetWheelOuterRadius(rOuter);
 	const G4double phi_min = PhiPosition - FanPhiAmplitude
-	                       - Calculator->GetFanStepOnPhi() * 2;
+	                       - GetCalculator()->GetFanStepOnPhi() * 2;
 
 	Zmin = zPlane[0]; Zmax = zPlane[2];
 	Rmin = rInner[0]; Rmax = rOuter[2];
@@ -216,17 +216,17 @@ void LArWheelSolid::outer_solid_init(const G4String &bs_name)
 	                                  3, zPlane, rInner, rOuter);
 	BoundingShape = BoundingPolycone;
 #ifdef LARWHEELSOLID_USE_FANBOUND
-	const G4double phi_size = (FanPhiAmplitude + Calculator->GetFanStepOnPhi() * 2) * 2;
+	const G4double phi_size = (FanPhiAmplitude + GetCalculator()->GetFanStepOnPhi() * 2) * 2;
 	FanBound = new G4Polycone(bs_name + "ofFan", phi_min, phi_size,
 	                          3, zPlane, rInner, rOuter);
 #endif
 	ATH_MSG_INFO(BoundingShape->GetName() + "is the BoundingShape");
 
-	const G4double half_wave_length = Calculator->GetHalfWaveLength();
-	const G4double sss = Calculator->GetStraightStartSection();
+	const G4double half_wave_length = GetCalculator()->GetHalfWaveLength();
+	const G4double sss = GetCalculator()->GetStraightStartSection();
 	Zsect.push_back(0.);
 	Zsect.push_back(sss + half_wave_length * 0.25);
-	const G4int num_fs = Calculator->GetNumberOfHalfWaves() + 1;
+	const G4int num_fs = GetCalculator()->GetNumberOfHalfWaves() + 1;
 	for(G4int i = 2; i < num_fs; i ++){
 		const G4double zi = half_wave_length * (i - 1) + sss;
 #if LARWHEELSOLID_ZSECT_MULT > 1
@@ -256,7 +256,7 @@ void LArWheelSolid::outer_solid_init(const G4String &bs_name)
 // and before BoundingShape creation
 void LArWheelSolid::set_phi_size(void)
 {
-	if(Calculator->GetisModule()){
+	if(GetCalculator()->GetisModule()){
 		MinPhi = PhiPosition - CLHEP::pi * (1. / 8.) - FanPhiAmplitude;
 		MaxPhi = PhiPosition + CLHEP::pi * (1. / 8.) + FanPhiAmplitude;
 	} else {

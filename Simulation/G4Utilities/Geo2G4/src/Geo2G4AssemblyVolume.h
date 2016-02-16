@@ -89,6 +89,7 @@ public:  // with description
                     G4ThreeVector& translationInMother,
                     G4RotationMatrix* pRotationInMother,
                     G4int copyNumBase = 0,
+                    G4bool ITkScheme = false,
                     G4bool surfCheck = false );
   //
   // Creates instance of an assembly volume inside the given mother volume.
@@ -96,6 +97,7 @@ public:  // with description
   void MakeImprint( G4LogicalVolume* pMotherLV,
                     G4Transform3D&   transformation,
                     G4int copyNumBase = 0,
+                    G4bool ITkScheme = false,
                     G4bool surfCheck = false );
   //
   // The same as previous Imprint() method, but takes complete 3D
@@ -139,6 +141,7 @@ private:
                     G4LogicalVolume*  pMotherLV,
                     G4Transform3D&    transformation,
                     G4int copyNumBase = 0,
+                    G4bool ITkScheme = false,
                     G4bool surfCheck = false );
   //
   // Function for placement of the given assembly in the given mother
