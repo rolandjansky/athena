@@ -138,6 +138,9 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeContainer#HLT_L1TopoMET',                         'BS ESD AODFULL AODSLIM',  'Steer'),  
     ('xAOD::TrigCompositeAuxContainer#HLT_L1TopoMETAux.',                  'BS ESD AODFULL AODSLIM',  'Steer'),  
 
+    ('xAOD::TrigCompositeContainer#HLT_MuonRoICluster',                   'BS ESD AODFULL AODSLIM',  'Combined'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_MuonRoIClusterAux.',            'BS ESD AODFULL AODSLIM',  'Combined'),
+
     ('xAOD::TrigCompositeContainer#HLT_MuonCalibrationStream', 		   'DS',	 	      'Muon'),
     ('xAOD::TrigCompositeAuxContainer#HLT_MuonCalibrationStreamAux.',      'DS', 		      'Muon'),
 
