@@ -31,7 +31,7 @@
 ExtParameterisedVolumeBuilder::ExtParameterisedVolumeBuilder(std::string n):
   VolumeBuilder(n),
   _getMatEther(true),
-  _matEther(0),m_msg(n)
+  _matEther(0),_matHypUr(0),m_msg(n)
 {
 }
 
@@ -137,6 +137,15 @@ LogicalVolume* ExtParameterisedVolumeBuilder::Build(const PVConstLink theGeoPhys
               else
                 assembly->MakeImprint(theG4LogVolume,theG4Position);
             }
+          else if(_matHypUr == theGeoPhysChild->getLogVol()->getMaterial())
+            {
+              Geo2G4AssemblyVolume* assembly = BuildAssembly(theGeoPhysChild);
+
+              if(Qint.isValid())
+                assembly->MakeImprint(theG4LogVolume,theG4Position,id,true);
+              else
+                assembly->MakeImprint(theG4LogVolume,theG4Position,0,true);
+            }
           else
             {
               nameChild = av.getName();
@@ -196,7 +205,8 @@ Geo2G4AssemblyVolume* ExtParameterisedVolumeBuilder::BuildAssembly(PVConstLink p
         + theGeoPhysChild->getLogVol()->getName() + ")";
 
       // Check if it is an assembly
-      if(_matEther == theGeoPhysChild->getLogVol()->getMaterial())
+      if(_matEther == theGeoPhysChild->getLogVol()->getMaterial() || 
+         _matHypUr == theGeoPhysChild->getLogVol()->getMaterial() )
         {
           // Build the child assembly
           if(!(theG4AssemblyChild = BuildAssembly(theGeoPhysChild))) return 0;
@@ -260,6 +270,7 @@ void ExtParameterisedVolumeBuilder::getMatEther() const
       }
       else {
         _matEther = theMaterialManager->getMaterial("special::Ether");
+        _matHypUr = theMaterialManager->getMaterial("special::HyperUranium");
       }
     }
   _getMatEther = false;

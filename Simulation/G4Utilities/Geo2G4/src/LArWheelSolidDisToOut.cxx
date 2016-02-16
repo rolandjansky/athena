@@ -183,6 +183,7 @@ G4double LArWheelSolid::DistanceToOut(const G4ThreeVector &inputP,
 				q.rotateZ(-phi0);
 				sn->set(q.x(), q.y(), 0.);
 				if(q.z() <= Zmid) sn->setZ(- q.perp() * m_fs->Amax);
+				sn->setMag(1.0);
 				*validNorm = true;
 				break;
 			default:
