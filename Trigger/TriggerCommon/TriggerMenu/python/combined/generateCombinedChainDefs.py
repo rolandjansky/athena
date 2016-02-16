@@ -121,9 +121,9 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
 
     from TrigJetHypo.TrigEFDPhiMetJetAllTEConfig import *
 
-    DPhiMetJet_Hypo = EFDPhiMetJet_Generic("EFDPhiMetJet_J"+str(JetThr).replace(".","")+"_DPhi"+str(DPhiCut).replace(".",""),
+    DPhiMetJet_Hypo = EFDPhiMetJet_Generic("EFDPhiMetJet_J"+str(JetThr).replace(".","")+"_"+str(maxJets)+"DPhi"+str(DPhiCut).replace(".",""),
                                            dPhiCut=DPhiCut, minJetEt=JetThr*1000,maxDPhiJets=maxJets)
-    
+
     ##Get only the last MET TE
     inputTEsEF = [] 
 
@@ -186,7 +186,7 @@ def _addTransverseMass(theChainDef,chainDicts,listOfChainDefs):
 
     from TrigEgammaHypo.TrigEFMtAllTEConfig import *
 
-    MT_Hypo = TrigEFMtAllTE_Generic("TrigEFMtAllTE_Mt"+str(MTCut).replace(".",""),
+    MT_Hypo = TrigEFMtAllTE_Generic("TrigEFMtAllTE_"+str(ElectronThr)+"Mt"+str(MTCut).replace(".",""),
                                     minMtCut=MTCut,maxNbElectrons=10,minElectronEt=ElectronThr)
     
     ##Get only the last MET TE

@@ -1075,7 +1075,7 @@ class ItemDef:
                 #LVL1MenuItem('L1_3J20_BTAG-MU6J25').setLogic( J20.x(3) & TOPO_0DR04_MU6ab_CJ25ab & physcond)
 
                 # ZH
-                if ('v6' in TriggerFlags.triggerMenuSetup()):
+                if ('MC_pp_v6' in TriggerFlags.triggerMenuSetup()): 
                     LVL1MenuItem('L1_DPHI-AJ20s2XE50'  ).setLogic( TOPO_10MINDPHI_AJ20s2_XE50    & physcond)
                     
                 LVL1MenuItem('L1_J40_DPHI-Js2XE50'  ).setLogic( J40 & TOPO_10MINDPHI_Js2_XE50    & physcond) 
@@ -1127,9 +1127,8 @@ class ItemDef:
                     LVL1MenuItem("L1_W-15DPHI-JXE-0"   ).setLogic( TOPO_15MINDPHI_AJj10s6_XE0 & physcond)
                     LVL1MenuItem("L1_W-05DPHI-EMXE-1"  ).setLogic( TOPO_05MINDPHI_EM12s6_XE0  & physcond)
                     LVL1MenuItem("L1_W-10DPHI-EMXE-0"  ).setLogic( TOPO_10MINDPHI_EM12s6_XE0  & physcond)
-                    LVL1MenuItem("L1_W-15DPHI-EMXE-0"  ).setLogic( TOPO_15MINDPHI_EM12s6_XE0  & physcond)
+
                     LVL1MenuItem("L1_W-05DPHI-EM15XE-1"  ).setLogic( TOPO_05MINDPHI_EM15s6_XE0  & physcond)
-                    LVL1MenuItem("L1_W-15DPHI-EM15XE-0"  ).setLogic( TOPO_15MINDPHI_EM15s6_XE0  & physcond)
                     LVL1MenuItem("L1_W-05RO-XEHT-0"    ).setLogic( TOPO_05RATIO_XE0_HT0_AJj15allETA49   & physcond)
                     LVL1MenuItem("L1_W-08RO-XEHT-0"    ).setLogic( TOPO_08RATIO_XE0_HT0_AJj15allETA49   & physcond)
                     LVL1MenuItem("L1_W-90RO2-XEHT-0"   ).setLogic( TOPO_90RATIO2_XE0_HT0_AJj15allETA49  & physcond)
@@ -1139,29 +1138,38 @@ class ItemDef:
                     LVL1MenuItem("L1_W-NOMATCH_W-05RO-XEEMHT").setLogic( TOPO_NOT_02MATCH_EM10s1_AJj15allETA49 & TOPO_05RATIO_XE0_SUM0_EM10s1_HT0_AJj15allETA49 & physcond)
                     LVL1MenuItem("L1_EM12_W-MT25").setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & physcond)
                     LVL1MenuItem("L1_EM12_W-MT30").setLogic( TOPO_30MT_EM12s6_XE0 & EM12 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT35").setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & physcond)
                     LVL1MenuItem("L1_EM15_W-MT35").setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE"            ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & XS30 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE"            ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & XS40 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM12s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE"  ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & TOPO_90RATIO2_XE0_HT0_AJj15allETA49 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE" ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & TOPO_250RATIO2_XE0_HT0_AJj15allETA49 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM12s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE" ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & TOPO_250RATIO2_XE0_HT0_AJj15allETA49 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM15s6_XE0 & physcond)
+                    
                     LVL1MenuItem("L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE" ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & TOPO_250RATIO2_XE0_HT0_AJj15allETA49 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM15s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE"            ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS60 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM15s6_XE0 & physcond)
                     LVL1MenuItem("L1_EM15_W-MT35_XS60_W-05DPHI-JXE-0_W-05DPHI-EM15XE"            ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS60 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM15s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE"            ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS40 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM15s6_XE0 & physcond)
                     LVL1MenuItem("L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE"            ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS40 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM15s6_XE0 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT35_XS50").setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & XS50 & physcond)
                     LVL1MenuItem("L1_EM15_W-MT35_XS60").setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS60 & physcond)
-                    LVL1MenuItem("L1_EM10VH_W-MT35_XS50").setLogic( TOPO_35MT_EM12s6_XE0 & EM10VH & XS50 & physcond)
+                    
                     LVL1MenuItem("L1_EM15VH_W-MT35_XS60").setLogic( TOPO_35MT_EM15s6_XE0 & EM15VH & XS60 & physcond)
                     LVL1MenuItem("L1_EM20VH_W-MT35_XS60").setLogic( TOPO_35MT_EM15s6_XE0 & EM20VH & XS60 & physcond)
                     LVL1MenuItem("L1_EM22VHI_W-MT35_XS40").setLogic( TOPO_35MT_EM15s6_XE0 & EM22VHI & XS40 & physcond)
+
+
+                    if ('MC_pp_v6' in TriggerFlags.triggerMenuSetup()):
+                        LVL1MenuItem("L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE"            ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & XS40 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM12s6_XE0 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT35").setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & physcond)                    
+                        LVL1MenuItem("L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE" ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & TOPO_250RATIO2_XE0_HT0_AJj15allETA49 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM12s6_XE0 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT35_XS50").setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & XS50 & physcond)
+                        LVL1MenuItem("L1_EM10VH_W-MT35_XS50").setLogic( TOPO_35MT_EM12s6_XE0 & EM10VH & XS50 & physcond)
+                        LVL1MenuItem("L1_W-15DPHI-EM15XE-0"  ).setLogic( TOPO_15MINDPHI_EM15s6_XE0  & physcond)
+                        LVL1MenuItem("L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE" ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & TOPO_250RATIO2_XE0_HT0_AJj15allETA49 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM15s6_XE0 & physcond)
+                        LVL1MenuItem("L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE"            ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS60 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM15s6_XE0 & physcond)
+                        LVL1MenuItem("L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE"            ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & XS40 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM15s6_XE0 & physcond)
+                        LVL1MenuItem("L1_W-15DPHI-EMXE-0"  ).setLogic( TOPO_15MINDPHI_EM12s6_XE0  & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE"            ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & XS30 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE"  ).setLogic( TOPO_35MT_EM12s6_XE0 & EM12 & TOPO_90RATIO2_XE0_HT0_AJj15allETA49 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & physcond)
                     # Old
-                    LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0" 	).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & TOPO_90RATIO2_XE0_HT0_AJj15allETA49 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30"           ).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & XS30 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20"           ).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & XS20 & physcond)
-                    LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE"                ).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0" 	).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & TOPO_90RATIO2_XE0_HT0_AJj15allETA49 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS30"           ).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & XS30 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20"           ).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & XS20 & physcond)
+                        LVL1MenuItem("L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE"                ).setLogic( TOPO_25MT_EM12s6_XE0 & EM12 & TOPO_15MINDPHI_AJj10s6_XE0 & TOPO_15MINDPHI_EM12s6_XE0 & physcond)
+                        
+                        
                     LVL1MenuItem("L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30"         ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM15s6_XE0 & XS30 & physcond)
                     LVL1MenuItem("L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE"              ).setLogic( TOPO_35MT_EM15s6_XE0 & EM15 & TOPO_05MINDPHI_AJj10s6_XE0 & TOPO_05MINDPHI_EM15s6_XE0 & physcond)
 
@@ -1281,7 +1289,7 @@ class ItemDef:
                 LVL1MenuItem('L1_TAU20-J20').setLogic( TOPO_1DISAMB_TAU20ab_J20ab & physcond)
                 LVL1MenuItem('L1_EM15-TAU12I').setLogic( TOPO_DISAMB_EM15abhi_TAU12abi & physcond)
                 LVL1MenuItem('L1_EM15TAU12I-J25').setLogic( TOPO_1DISAMB_EM15his2_TAU12abi_J25ab & physcond)
-                if '_v6' in TriggerFlags.triggerMenuSetup():
+                if 'MC_pp_v6' in TriggerFlags.triggerMenuSetup():
                     LVL1MenuItem('L1_DR-EM15TAU12I').setLogic( TOPO_DISAMB_0DR28_EM15his2_TAU12abi & physcond)
                 LVL1MenuItem('L1_DR-EM15TAU12I-J25').setLogic( TOPO_1DISAMB_J25ab_0DR28_EM15his2_TAU12abi & physcond)
                 LVL1MenuItem('L1_TAU20ITAU12I-J25').setLogic( TOPO_1DISAMB_TAU20abi_TAU12abi_J25ab & physcond)
@@ -1312,12 +1320,15 @@ class ItemDef:
                 if  '_v6' in TriggerFlags.triggerMenuSetup():
 # nominal L1-topo items
                     LVL1MenuItem('L1_BPH-1M19-2MU4_BPH-0DR34-2MU4'    ).setLogic( TOPO_1INVM19_2MU4ab & TOPO_0DR34_2MU4ab & physcond)           # 50% for Bs,J/psi,Upsi
-                    LVL1MenuItem('L1_BPH-2M8-2MU4_BPH-0DR15-2MU4'     ).setLogic( TOPO_2INVM8_2MU4ab & TOPO_0DR15_2MU4ab & physcond)            # 78% for Bs,J/psi
-                    LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_2MU4ab & physcond)           # 78% for Upsi
+                    if  'Physics' not in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_BPH-2M8-2MU4_BPH-0DR15-2MU4'     ).setLogic( TOPO_2INVM8_2MU4ab & TOPO_0DR15_2MU4ab & physcond)            # 78% for Bs,J/psi
+                        LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_2MU4ab & physcond)           # 78% for Upsi
                     LVL1MenuItem('L1_BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4' ).setLogic( TOPO_2INVM8_MU6ab_MU4ab & TOPO_0DR15_MU6ab_MU4ab & physcond)  # 86% for Bs,J/psi
-                    LVL1MenuItem('L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4').setLogic( TOPO_8INVM15_MU6ab_MU4ab & TOPO_0DR22_MU6ab_MU4ab & physcond) # 86% for Upsi
+                    if  'Physics' not in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4').setLogic( TOPO_8INVM15_MU6ab_MU4ab & TOPO_0DR22_MU6ab_MU4ab & physcond) # 86% for Upsi
                     LVL1MenuItem('L1_BPH-2M9-2MU6_BPH-2DR15-2MU6'     ).setLogic( TOPO_2INVM9_2MU6ab & TOPO_2DR15_2MU6ab & physcond)            # 96% for Bs,J/psi
-                    LVL1MenuItem('L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'    ).setLogic( TOPO_8INVM15_2MU6ab & TOPO_0DR22_2MU6ab & physcond)           # 96% for Upsi
+                    if  'Physics' not in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'    ).setLogic( TOPO_8INVM15_2MU6ab & TOPO_0DR22_2MU6ab & physcond)           # 96% for Upsi
 
 # Barrel and BarrelOnly items w/o topo selection
 #                    LVL1MenuItem('L1_CMU6_2CMU4').setLogic( TOPO_MULT_CMU4ab.x(2) & TOPO_MULT_CMU6ab & physcond) # MU6_2MU4_BarrelOnly
@@ -1327,11 +1338,14 @@ class ItemDef:
 
 # Barrel and BarrelOnly variants of L1Topo items
                     LVL1MenuItem('L1_BPH-1M19-2MU4-B_BPH-0DR34-2MU4'    ).setLogic( TOPO_1INVM19_CMU4ab_MU4ab & TOPO_0DR34_2MU4ab & physcond)               # 50% for Bs,J/psi,Upsi + OneBarrel
-                    LVL1MenuItem('L1_BPH-2M8-2MU4-B_BPH-0DR15-2MU4'     ).setLogic( TOPO_2INVM8_CMU4ab_MU4ab & TOPO_0DR15_2MU4ab & physcond)                # 78% for Bs,J/psi + OneBarrel
-                    LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_CMU4ab_MU4ab & physcond)               # 78% for Upsi + OneBarrel
+                    if  'Physics' not in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_BPH-2M8-2MU4-B_BPH-0DR15-2MU4'     ).setLogic( TOPO_2INVM8_CMU4ab_MU4ab & TOPO_0DR15_2MU4ab & physcond)                # 78% for Bs,J/psi + OneBarrel
+
+                        LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-B'    ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_CMU4ab_MU4ab & physcond)               # 78% for Upsi + OneBarrel
                     LVL1MenuItem('L1_BPH-1M19-2MU4-BO_BPH-0DR34-2MU4'   ).setLogic( TOPO_1INVM19_2CMU4ab & TOPO_0DR34_2MU4ab & physcond)                    # 50% for Bs,J/psi,Upsi + BarrelOnly
-                    LVL1MenuItem('L1_BPH-2M8-2MU4-BO_BPH-0DR15-2MU4'    ).setLogic( TOPO_2INVM8_2CMU4ab & TOPO_0DR15_2MU4ab & physcond)                     # 78% for Bs,J/psi + BarrelOnly
-                    LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-BO'   ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_2CMU4ab & physcond)                    # 78% for Upsi + BarrelOnly
+                    if  'Physics' not in TriggerFlags.triggerMenuSetup():
+                        LVL1MenuItem('L1_BPH-2M8-2MU4-BO_BPH-0DR15-2MU4'    ).setLogic( TOPO_2INVM8_2CMU4ab & TOPO_0DR15_2MU4ab & physcond)                     # 78% for Bs,J/psi + BarrelOnly
+                        LVL1MenuItem('L1_BPH-7M15-2MU4_BPH-0DR24-2MU4-BO'   ).setLogic( TOPO_7INVM15_2MU4ab & TOPO_0DR24_2CMU4ab & physcond)                    # 78% for Upsi + BarrelOnly
                     LVL1MenuItem('L1_BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4' ).setLogic( TOPO_2INVM8_ONEBARREL_MU6ab_MU4ab & TOPO_0DR15_MU6ab_MU4ab & physcond)  # 86% for Bs,J/psi + OneBarrel
 
                     LVL1MenuItem('L1_BPH-2M8-2MU4'       ).setLogic( TOPO_2INVM8_2MU4ab & physcond)                 # backup 71% for Bs,J/psi
@@ -1339,7 +1353,7 @@ class ItemDef:
                     LVL1MenuItem('L1_BPH-8M15-2MU6'      ).setLogic( TOPO_8INVM15_2MU6ab & physcond)                # backup 95% for Upsi
 #SX end ATR-12789
 
-                if '_v6' in TriggerFlags.triggerMenuSetup():                    
+                if 'MC_pp_v6' in TriggerFlags.triggerMenuSetup():                    
                     LVL1MenuItem('L1_LATEMU10_XE50').setLogic( TOPO_LATEMU10s1 & XE50 & physcond) 
                     LVL1MenuItem('L1_LATEMU10_J50').setLogic(  TOPO_LATEMU10s1 & J50 & physcond)  
                     LVL1MenuItem('L1_SC111').setLogic(  TOPO_SC111_CJ15abETA26 & physcond)

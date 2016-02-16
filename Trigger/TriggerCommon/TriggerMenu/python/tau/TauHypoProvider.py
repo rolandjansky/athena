@@ -118,7 +118,7 @@ class TauHypoProvider:
                 from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                 # Important Note: the pT cut here is an unused dummy
                 if criteria != 'cosmic':
-                    if strategy != 'tracktwo':
+                    if strategy != 'tracktwo' and strategy != 'FTK' and strategy != 'FTKRefit':
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)

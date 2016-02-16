@@ -10,6 +10,7 @@ monStreams = ['monitoring_random',
 
 physicsStreams = ['Main',
                   'Physics',
+                  'Background',
                   'DISCARD',
                   'Egamma', 
                   'Bphysics',
@@ -34,7 +35,7 @@ physicsStreams = ['Main',
                   'UPC',
                   ]
 
-calibStreams = ['Background', 
+calibStreams = [
                 'Tile', 
                 'L1CaloCalib',
                 'LArNoiseBurst',

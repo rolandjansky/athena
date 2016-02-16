@@ -100,7 +100,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       #   self.L2InputTE = self.L2InputTE.replace("L1_","")
       #   self.L2InputTE = self.L2InputTE.split("_")[0]
       #   self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
-      
+      #roi1 = 'HA8'
       if 'idcalib' in self.chainPart['purpose']:         
         if not 'HI_' in TriggerFlags.triggerMenuSetup():
           roi1 = 'HA8'
@@ -417,7 +417,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2sequenceList += [['', self.robWriter, 'L2_alfaid']]     
      self.L2signatureList += [[['L2_alfaid']]]
 
-
 #####################################################################
    def setupZDCPEBChains(self):
      from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
@@ -428,4 +427,5 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.robWriter = [zdcSubDetListWriter]            
      self.L2sequenceList += [['', self.robWriter, 'L2_zdc']]     
      self.L2signatureList += [[['L2_zdc']]]
+
 

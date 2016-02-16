@@ -136,13 +136,15 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
                 EFFex = EFMultiMuFex_Tau()
             EFHypo = EFMultiMuHypo_Tau()
         else :
+            L2Fex = None
+            L2Hypo = None
             if mult == 2 :
-                L2Fex = L2MultiMuFex_Tau2()
+                #L2Fex = L2MultiMuFex_Tau2()
                 EFFex = EFMultiMuFex_Tau2()
             else :
-                L2Fex = L2MultiMuFex_Tau()
+                #L2Fex = L2MultiMuFex_Tau()
                 EFFex = EFMultiMuFex_Tau()
-            L2Hypo = L2MultiMuHypo_Tau()
+            #L2Hypo = L2MultiMuHypo_Tau()
             EFHypo = EFMultiMuHypo_Tau()
 
     
@@ -339,15 +341,17 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
                 EFFex = EFMultiMuFex_Tau()
             EFHypo = EFMultiMuHypo_Tau()
         else :
-            from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
-            from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
+            L2Fex = None
+            L2Hypo = None
+            #from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
+            #from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
             if mult ==  2 :
-                L2Fex = L2MultiMuFex_Tau2()
+                #L2Fex = L2MultiMuFex_Tau2()
                 EFFex = EFMultiMuFex_Tau2()
             else :
-                L2Fex = L2MultiMuFex_Tau()
+                #L2Fex = L2MultiMuFex_Tau()
                 EFFex = EFMultiMuFex_Tau()
-            L2Hypo = L2MultiMuHypo_Tau()
+            #L2Hypo = L2MultiMuHypo_Tau()
             EFHypo = EFMultiMuHypo_Tau()
 
      

@@ -761,10 +761,11 @@ AllowedBeamspotChainIdentifiers = ['beamspot',]
 BeamspotChainParts = {
     'signature'      : ['Beamspot'],
     'chainPartName'  : '',
-    'L1item'       : '',
+    'L1item'         : '',
     'monType'        : AllowedBeamspotChainIdentifiers,
     'location'       : ['vtx'],
-    'addInfo'        : ['trkFS', 'allTE', 'activeTE'],
+#    'addInfo'        : ['trkFS','idperf'],
+    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
     'hypo'           : [],
     'l2IDAlg'        : ['L2StarB','trkfast','FTK'],
     'threshold'      : '',
