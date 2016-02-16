@@ -6,7 +6,7 @@ from AthenaCommon.Resilience import treatException
 if 'DetFlags' in dir():
    logRecExCommon_DetFlags.info("DetFlags already defined.by user : user should have fully configured it already! ")
 else:
-   
+
    include ("RecExCond/RecExCommon_GlobalFlags.py")
 
    # include DetFlags
@@ -17,7 +17,7 @@ else:
    # switch on dcs for all detectors
    try:
       # need AthenaCommon
-      DetFlags.dcs.all_setOn()   
+      DetFlags.dcs.all_setOn()
    except Exception:
       logRecExCommon_DetFlags.warning("could not set DetFlags.dcs")
       pass
@@ -46,10 +46,10 @@ else:
                DetFlags.makeRIO.SCT_setOn()
             if IsInInputFile('TRT_RDO_Container',InDetKeys.TRT_RDOs()):
                DetFlags.makeRIO.TRT_setOn()
-               
+
          DetFlags.readRIOPool.Muon_setOn()
-         
-   if rec.readRDO:      
+
+   if rec.readRDO:
       if  globalflags.InputFormat=='pool':
          DetFlags.readRDOPool.all_setOn()
          DetFlags.readRDOBS.all_setOff()
@@ -80,15 +80,21 @@ else:
       if not ('doWriteRDO' in dir() and  doWriteRDO) :
          DetFlags.makeRIO.Muon_setOn()
 
-   # switch off lucid stuff for now     
-   # DetFlags.Lucid_setOff()   
+   # If we're running on an Upgrade layout then we should make certain
+   # that the TRT is switched off!
+   from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+   if GeometryFlags.isSLHC():
+      DetFlags.TRT_setOff()
 
-   # switch off ZDC stuff for now     
-   # DetFlags.ZDC_setOff()   
+   # switch off lucid stuff for now
+   # DetFlags.Lucid_setOff()
+
+   # switch off ZDC stuff for now
+   # DetFlags.ZDC_setOff()
 
 
-   #DetFlags.ALFA_setOff()   
-   
+   #DetFlags.ALFA_setOff()
+
 #synch muon flags to detflags
 try:
    from MuonRecExample.MuonRecFlags import muonRecFlags
