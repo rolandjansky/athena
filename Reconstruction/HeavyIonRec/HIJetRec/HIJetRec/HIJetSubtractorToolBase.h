@@ -29,13 +29,14 @@ public:
   virtual ~HIJetSubtractorToolBase(){};
   inline float MinEnergyForMoments() const {return m_E_min_moment;};
   inline float MinEnergySigForMoments() const {return m_E_sig_moment;};
+  inline bool usesCells() const {return m_useCells;};
 private:
 
   /// %% FIX needs some cleanup
   float m_E_min_moment;
   float m_E_sig_moment;
   bool m_update_clusters;
-
+  bool m_useCells;
 
 protected:
   inline void SetMinEnergyForMoment(float min_E) {m_E_min_moment=min_E;};
@@ -44,9 +45,10 @@ protected:
 
   inline bool UpdateClusters() const {return m_update_clusters;};
 
-  bool inTowerBoundary(float eta0, float phi0, float eta, float phi) const;
   void setSubtractedEtaPhi(float E, float& eta, float& phi, float eta0, float phi0, float sig) const;
   
+
+  inline void setUseCells(bool v) {m_useCells=v;};
 
 };
 

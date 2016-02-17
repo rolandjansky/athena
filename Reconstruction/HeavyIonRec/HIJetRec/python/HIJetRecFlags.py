@@ -59,7 +59,7 @@ class ApplyOriginCorrection(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class ApplyEtaJESCalibration(JobProperty):
     """ Option to apply MC-derived calibration 
@@ -95,7 +95,7 @@ class DoCellBasedSubtraction(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class HarmonicsForSubtraction(JobProperty):
     """ List of flow harmonics applied to jet subtraction

@@ -34,7 +34,12 @@ def AppendOutputList(HIAODItemList=[]) :
     """Adds HIJetOutputList to the list passed in as an argument"""
 
     if HIJetFlags.WriteClusters() : AddToOutputList(HIJetFlags.HIClusterKey(),"xAOD::CaloClusterContainer")
-    #jet containers get added automatically by jet aod steering
+    from RecExConfig.RecFlags import rec
+    if not rec.doESD():
+        for R in HIJetFlags.AntiKtRValues() : 
+            AddToOutputList("AntiKt%dHIJets" % int(10*R))
+            if jetFlags.useTruth(): AddToOutputList("AntiKt%dTruthJets" % int(10*R))
+        AddToOutputList(HIJetFlags.TrackJetContainerName())
     HIAODItemList+=HIJetFlags.HIJetOutputList()
 
 
@@ -143,11 +148,12 @@ def ApplySubtractionToClusters(**kwargs) :
     else : mod_tool=GetNullModulator()
 
     from HIJetRec.HIJetRecConf import HIClusterSubtraction
-    theAlg=HIClusterSubtraction()
+    toolName='HIClusterSubtraction'
+    if 'name' in kwargs.keys() : toolName = kwargs['name']
+    theAlg=HIClusterSubtraction(toolName)
     theAlg.ClusterKey=cluster_key
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
-    theAlg.Subtractor=jtm.HIJetSubtractor
     theAlg.Modulator=mod_tool
 
     do_cluster_moments=False
@@ -212,10 +218,6 @@ def AddIteration(seed_container,shape_name, **kwargs) :
             mod_shape_name=BuildHarmonicName(out_shape_name,**kwargs)
             mod_tool=MakeModulatorTool(mod_shape_key,**kwargs)
 
-    if not hasattr(jtm,"HIJetSubtractor") : 
-        from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
-        cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
-        jtm.add(cell_subtr)
  
     assoc_name=jtm.HIJetDRAssociation.AssociationName
     from HIJetRec.HIJetRecConf import HIEventShapeJetIteration
@@ -330,8 +332,15 @@ def GetSubtractorTool(**kwargs) :
     elif HIJetFlags.DoCellBasedSubtraction() : useClusters=False
     else : useClusters=True
 
-    if useClusters : return jtm.HIJetClusterSubtractor
-    else : return jtm.HIJetCellSubtractor
-
+    if useClusters : 
+        if not hasattr(jtm,"HIJetClusterSubtractor") : 
+            from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+            jtm.add(HIJetClusterSubtractorTool("HIJetClusterSubtractor"))
+        return jtm.HIJetClusterSubtractor
+    else:
+        if not hasattr(jtm,"HIJetCellSubtractor") : 
+            from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+            jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
+        return jtm.HIJetCellSubtractor
 
     

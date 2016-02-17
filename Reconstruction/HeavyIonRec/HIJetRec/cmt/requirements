@@ -6,7 +6,6 @@ use AtlasPolicy		AtlasPolicy-*
 private
 use CxxUtils       	CxxUtils-*		Control
 use xAODCore            xAODCore-*              Event/xAOD
-use HIEventUtils	HIEventUtils-*		PhysicsAnalysis/HeavyIonPhys
 use PathResolver  	PathResolver-*		Tools
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Control/Navigation"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Event/NavFourMom"
@@ -17,6 +16,8 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloUtils"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Calorimeter/CaloInterface"
 
 public
+use HIEventUtils	HIEventUtils-*		PhysicsAnalysis/HeavyIonPhys
+use FourMomUtils	FourMomUtils-*		Event
 use GaudiInterface	GaudiInterface-* 	External
 use AtlasROOT           AtlasROOT-*             External
 use AsgTools            AsgTools-*              Control/AthToolSupport
