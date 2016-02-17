@@ -84,7 +84,7 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  SiChargedDiodeCollection& chargedDiodes,
 		  const InDetDD::SiDetectorElement &Module)
 {
-  const HepMcParticleLink McLink(phit->particleLink());
+  const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
@@ -159,7 +159,7 @@ StatusCode DBMChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       double ed=e1*this->electronHolePairsPerEnergy*nontrappingProbability*smearScale;
       
       //The following lines are adapted from SiDigitization's Inserter class
-      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->particleLink())));
+      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
     
       SiCellId diode = Module.cellIdOfPosition(scharge.position());
        
