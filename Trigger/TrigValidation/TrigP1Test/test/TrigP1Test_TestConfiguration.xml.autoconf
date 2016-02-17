@@ -23,7 +23,7 @@
     <!--
      **************************************************************************
      *
-     * This file defines these test suites   TrigP1HLTcore,TrigP1HLTCOS, TrigP1HLTMC, TrigP1HLTphysv5, TrigP1HLTvarious and TrigP1HLTmenus
+     * This file defines these test suites   TrigP1HLTcore,TrigP1HLTCOS, TrigP1HLTMC, TrigP1HLTphysv6, TrigP1HLTvarious and TrigP1HLTmenus
      * 
      * Note that for the summary html table to run  we need to have at least one test for
      * each suite.   This has been arranged in all projects,  but be carefully when editing 
@@ -172,14 +172,6 @@
             </expectations>
         </TEST>
         
-        <TEST name="HLT_mcV6_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV6_caf --rundir HLT_mcV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
         
         <TEST name="HLT_physicsV6_caf" type="script" suite="TrigP1HLTMC">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_caf --rundir HLT_physicsV6_caf --conf TrigP1Test.conf</options_atn>
@@ -211,14 +203,6 @@
             </expectations>
         </TEST>
 
-        <TEST name="HLT_mcV5" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV5 --rundir HLT_mcV5 --conf TrigP1Test.conf</options_atn>
-            <timelimit>40</timelimit>      
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
         
         <!-- ENABLE-IN-PROJECT-END -->
         <!-- end of MC chain of tests -->
@@ -305,14 +289,6 @@
             </expectations>
         </TEST>
 
-        <TEST name="HLT_physicsV5" type="script" suite="TrigP1HLTphysv6"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5 --rundir HLT_physicsV5 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
         
         
         <!-- ENABLE-IN-PROJECT-END --> 
