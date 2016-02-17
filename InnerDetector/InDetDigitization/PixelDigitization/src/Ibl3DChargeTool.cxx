@@ -195,7 +195,7 @@ StatusCode Ibl3DChargeTool::charge(const TimedHitPtr<SiHit> &phit,
           SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
           //ATH_MSG_INFO(" Si3D charge pos "<<chargePos<<"  ed  "<<ed);
           
-      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->particleLink())));
+      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
       SiCellId diode = Module.cellIdOfPosition(scharge.position());
       SiCharge charge = scharge.charge();
       if (diode.isValid()) {
