@@ -4,7 +4,7 @@ author ravitillo@lbl.gov
 
 use ExternalPolicy ExternalPolicy-00-* External
 
-macro yampl_native_version "1.0"
+macro yampl_native_version "1.1"
 
 macro yampl_home "${ATLAS_EXTERNAL}/yampl/${yampl_native_version}/${CMTCONFIG}"
 
@@ -14,9 +14,9 @@ macro yampl_bin  "${yampl_home}/bin"
 
 macro yampl_linkopts     "-L$(yampl_libs) -lyampl "
 path_remove LD_LIBRARY_PATH "${yampl_libs}"
-path_append LD_LIBRARY_PATH "${yampl_libs}"
+path_prepend LD_LIBRARY_PATH "${yampl_libs}"
 
 path_remove PATH "${yampl_bin}"
-path_append PATH "${yampl_bin}"
+path_prepend PATH "${yampl_bin}"
 
 macro yampl_export_paths "${yampl_home}"
