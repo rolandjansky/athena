@@ -12,36 +12,12 @@ macro CLHEP_home $(LCG_external)/clhep/$(CLHEP_ATLAS_specific_native_version)/$(
       target-gcc49 "${SITEROOT}/sw/lcg/external/clhep/$(CLHEP_ATLAS_specific_native_version)/$(LCG_system)"
 
 macro CLHEP_include "$(CLHEP_home)/include"
- 
+
 include_path none
 include_dirs $(CLHEP_home)/include
 
 macro CLHEP_linkopts "-L$(CLHEP_home)/lib  \
-       -lCLHEP-Cast-$(CLHEP_native_version) \
-       -lCLHEP-Evaluator-$(CLHEP_native_version) \
-       -lCLHEP-Exceptions-$(CLHEP_native_version) \
-       -lCLHEP-GenericFunctions-$(CLHEP_native_version) \
-       -lCLHEP-Geometry-$(CLHEP_native_version) \
-       -lCLHEP-Random-$(CLHEP_native_version) \
-       -lCLHEP-RandomObjects-$(CLHEP_native_version) \
-       -lCLHEP-RefCount-$(CLHEP_native_version)  \
-       -lCLHEP-Vector-$(CLHEP_native_version) \
-       -lCLHEP-Matrix-$(CLHEP_native_version)  " \
-      target-win " /LIBPATH:$(CLHEP_home)\lib \
-       CLHEP-Cast-$(CLHEP_native_version).lib \
-       CLHEP-Evaluator-$(CLHEP_native_version).lib \
-       CLHEP-Exceptions-$(CLHEP_native_version).lib \
-       CLHEP-GenericFunctions-$(CLHEP_native_version).lib \
-       CLHEP-Geometry-$(CLHEP_native_version).lib \
-       CLHEP-Random-$(CLHEP_native_version).lib \
-       CLHEP-RandomObjects-$(CLHEP_native_version).lib \
-       CLHEP-RefCount-$(CLHEP_native_version).lib \
-       CLHEP-Vector-$(CLHEP_native_version).lib \
-       CLHEP-Matrix-$(CLHEP_native_version).lib "
-
-macro_append CLHEP_linkopts "" \
-             HAS_HEPPDT&target-unix  " -lCLHEP-HepPDT-$(CLHEP_native_version) " \
-             HAS_HEPPDT&target-win   " libCLHEP-HepPDT-$(CLHEP_native_version).lib "
+       -lCLHEP-$(CLHEP_native_version)  "
 
 macro CLHEP_name "clhep"
 apply_pattern set_lib_path
