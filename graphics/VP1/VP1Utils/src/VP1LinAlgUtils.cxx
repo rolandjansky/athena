@@ -15,6 +15,7 @@
 #include "VP1Utils/VP1LinAlgUtils.h"
 #include "VP1Base/VP1Msg.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoTransform.h>
 
 

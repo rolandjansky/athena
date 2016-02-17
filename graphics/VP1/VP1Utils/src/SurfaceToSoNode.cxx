@@ -16,6 +16,7 @@
 #include "VP1Utils/SurfaceToSoNode.h"
 #include "VP1Utils/VP1LinAlgUtils.h"
 
+#include <Inventor/C/errors/debugerror.h>
 //#include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTransform.h>
