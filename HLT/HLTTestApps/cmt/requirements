@@ -30,18 +30,15 @@ apply_pattern generic_declare_for_link kind=python_libs1 \
         prefix=$(CMTCONFIG)/lib/python$(Python_version) \
         name=pyhlttestapps
         
-pattern declare_python_package \
-    apply_pattern generic_declare_for_link kind=python_package files='-s=../python <pyth_package>/*.py' prefix=python/<pyth_package> name=<name> ; \
-    private ; \
-    macro_append <package>_python_init_dependencies " install_<name>python_package " ; \
-    end_private
-
-apply_pattern declare_python_package pyth_package="HLTTestApps"
-apply_pattern declare_python_modules files="HLTTestApps/plugins"
+apply_pattern declare_python_modules files="HLTTestApps/*.py HLTTestApps/plugins"
 apply_pattern declare_scripts files="../python/scripts/*.py ../python/scripts/*.sh"
 
 macro_append install_pyhlttestappspython_libs1_dependencies " pyhlttestapps "
 
+# CMAKE hacks
+apply_pattern cmake_add_command command="find_package( Boost COMPONENTS filesystem thread system python )"
+apply_pattern cmake_add_command command="find_package( tdaq-common COMPONENTS CTPfragment hltinterface pyeformat_util )"
+apply_pattern cmake_add_command command="find_package( tdaq COMPONENTS dynlibs owl ipc )"
 
 # ATTENTION: Here there is some tricky bussiness with the linkage. TDAQ
 # projects use the libboost-*-mt.so variants and Offline don't. This causes

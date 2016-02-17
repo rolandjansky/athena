@@ -47,6 +47,8 @@ class infrastructure(object):
   def unconfigure(self):
     logging.info("Unconfiguring infrastructure")
     return True
+  def __del__(self):
+    pass
 
 class offline_infrastructure(infrastructure):
   NAME = 'offline infrastructure'
@@ -121,6 +123,7 @@ class infrastructure_transitions_test(unittest.TestCase):
     self.assertTrue(infrastruct.configure())
     self.assertTrue(infrastruct.connect())
     self.assertTrue(infrastruct.prepareForRun())
+    self.assertTrue(infrastruct.prepareWorker())
     self.assertTrue(infrastruct.run())
     self.assertTrue(infrastruct.stopRun())
     self.assertTrue(infrastruct.disconnect())
@@ -129,6 +132,7 @@ class infrastructure_transitions_test(unittest.TestCase):
     config = configuration(file_opt_spec, self.cli_args)
     infras = build_infrastructure(config)
     self._testInfrastructureTransitions(infras)
+    infras.__del__()
   def test_simple(self):
     self._testInfrastructureTransitions(self._dummy_infrastructure())
 
