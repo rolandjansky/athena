@@ -61,9 +61,9 @@ void test01()
 {
   SG::unordered_set<int> s;
 
-  const SG::unordered_set<int> &s_ref = s;
+  const SG::unordered_set<int> &sref = s;
 
-  s_ref.find(27);
+  sref.find(27);
 }  
 
 // libstdc++/23465
@@ -171,13 +171,14 @@ void test06()
 	  us1.insert(i);
 
 	us1.max_load_factor(lf);
+        double imaxload __attribute__((unused)) = 1. / us1.max_load_factor();
 
 	for (int i = 1; i <= 6561; i *= 81)
 	  {
 	    const size_type n = size * 81 / i;
 	    us1.rehash(n);
 	    VERIFY( us1.bucket_count() >
-                    static_cast<float>(us1.size()) / us1.max_load_factor() );
+                    static_cast<float>(us1.size()) * imaxload );
 	    VERIFY( us1.bucket_count() >= n );
 	  }
       }
