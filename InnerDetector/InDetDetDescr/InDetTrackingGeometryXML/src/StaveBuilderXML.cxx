@@ -11,7 +11,9 @@
 #include <InDetTrackingGeometryXML/XMLReaderSvc.h>
 #include "InDetTrackingGeometryXML/IModuleProvider.h"
 #include "InDetTrackingGeometryXML/StaveBuilderXML.h"
+#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkGeometryAlpine/AlpineStave.h"
+#include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "TMath.h"
 
@@ -79,7 +81,8 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
   int iphi    = istave + 1 + nstaves/2;
   if(istave*2+4>nstaves) iphi = istave + 1 - nstaves/2;
   double phistep = TMath::Pi()*2.0/nstaves;
-  double phi = -TMath::Pi()+istave*phistep+phistep/2.0 + phiOffset;
+  //double phi = -TMath::Pi()+istave*phistep+phistep/2.0 + phiOffset;
+  double phi = -TMath::Pi()+(istave+1)*phistep+phiOffset;
   Identifier id(0);
   IdentifierHash idhash(0);
 
@@ -151,6 +154,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     m_moduleProvider->setIdentifier(m_pixelCase,id,idhash,brl_ec,ilayer,iphi,ieta,0);
     Trk::TrkDetElementBase *elem = m_moduleProvider->getDetElement(id, idhash, plainModuleTmp, transform.translation(), transform, 
 								   m_pixelCase, isBarrel, isOuterMost,debug);
+    
+//     std::cout << "        -->  Barrel Plain Tilted Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//     std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
     stave->addPlainModule(elem,0);
     
     // No module at ieta==0 for even number of modules
@@ -192,6 +201,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     ATH_MSG_DEBUG("module width = " << moduletrans_width << " xshift = " << xshift);
     Trk::TrkDetElementBase *elem = m_moduleProvider->getDetElement(id, idhash, transModuleTmp, transform.translation(), transform, 
 								   m_pixelCase, isBarrel, isOuterMost, debug);
+    
+//     std::cout << "        -->  Barrel Transition Negative Tilted Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//     std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
 
     // add transition module - negative side
     stave->addPlainModule(elem,1); // insert at the beginning of the plain modules vector
@@ -217,6 +232,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     
     elem = m_moduleProvider->getDetElement(id, idhash, transModuleTmp, transform.translation(), transform, 
 					   m_pixelCase, isBarrel, isOuterMost, debug);
+    
+//     std::cout << "        -->  Barrel Transition Positive Tilted Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//     std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
 
     // add transition module - negative side
     stave->addPlainModule(elem,0); // insert at the end of the plain modules vector
@@ -248,6 +269,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     
     elem = m_moduleProvider->getDetElement(id, idhash, transModuleTmp, transform.translation(), transform, 
 					   m_pixelCase, isBarrel, isOuterMost, debug);
+    
+//     std::cout << "        -->  Barrel Mountain Transition Negative Tilted Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//     std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
 
     // add mountain transition module
     stave->addMountainNegModule(elem);
@@ -272,6 +299,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     
     elem = m_moduleProvider->getDetElement(id, idhash, transModuleTmp, transform.translation(), transform, 
 					 m_pixelCase, isBarrel,isOuterMost, debug);
+    
+//     std::cout << "        -->  Barrel Mountain Transition Positive Tilted Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//     std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
 
     // add mountain transition module
     stave->addMountainPosModule(elem);
@@ -293,7 +326,7 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
     InDet::ModuleTmp* mountModuleTmp = m_xmlReader->getModuleTemplate(staveTmp->alp_type);
     double modulealp_length = mountModuleTmp->length;
     //double modulealp_width = mountModuleTmp->widthmax;
-    double modulealp_thickness = mountModuleTmp->thickness;
+    double modulealp_thickness = mountModuleTmp->thickness_sensor;
     
     // loop over mountains positions // start at i=1, since i=0 is the transition mountain module
     for (unsigned int i=0;i<nmountains;i++){
@@ -322,7 +355,16 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
 
       elem = m_moduleProvider->getDetElement(id, idhash, mountModuleTmp, transform.translation(), transform, 
 					   m_pixelCase, isBarrel,isOuterMost, debug);
+      
+//       Amg::Transform3D transform_os = elem->transform();
+//       const Amg::Vector3D posModule = transform_os * Amg::Vector3D(0.,0.,0.);
+//       std::cout << "        -->  Barrel module gbl position - Layer" << ilayer<<" : "<<iphi<<" "<<ieta<<" : "<<posModule.x() << " "<<posModule.y()<<" "<<posModule.z()<<std::endl;
 
+//       std::cout << "        -->  Barrel Mountain Negative Tilted Element: " << std::endl;
+//       std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//       std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//       std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
       // add negative mountains modules to the stave
       stave->addMountainNegModule(elem);
     
@@ -340,7 +382,12 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
       m_xmlReader->computeRbounds(transform, mountModuleTmp, staveTmp->rMin, staveTmp->rMax);    
       elem = m_moduleProvider->getDetElement(id, idhash, mountModuleTmp, transform.translation(), transform, 
 					     m_pixelCase, isBarrel, isOuterMost, debug);
-
+      
+//       std::cout << "        -->  Barrel Mountain Positive Tilted Element: " << std::endl;
+//       std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//       std::cout << "        -->  Surface Center = " << elem->surface().center() << std::endl;
+//       std::cout << "        -->  Surface Phi = " << elem->surface().center().phi() << "     Eta = "<< elem->surface().center().eta() << std::endl;
+  
       // add positive mountains modules to the stave
       stave->addMountainPosModule(elem);
     

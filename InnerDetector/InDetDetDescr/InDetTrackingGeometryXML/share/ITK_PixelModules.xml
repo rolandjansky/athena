@@ -11,7 +11,7 @@
   <rows>336</rows>
   <columns>400</columns>
   <Edges>
-    <wide>1.0</wide>
+    <wide>0.1</wide>
     <narrow>0.1</narrow>
     <inlength>0.1</inlength>
   </Edges>
@@ -26,7 +26,7 @@
   <rows>672</rows>
   <columns>200</columns>
   <Edges>
-    <wide>1.0</wide>
+    <wide>0.1</wide>
     <narrow>0.1</narrow>
     <inlength>0.1</inlength>
   </Edges>

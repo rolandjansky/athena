@@ -362,7 +362,10 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
     else if( XMLString::equals(currentElement->getTagName(), TAG_length))     module->lengthChips    = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_widthmax))   module->widthMaxChips  = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_widthmin))   module->widthMinChips  = atof(getString(currentNode));
-    else if( XMLString::equals(currentElement->getTagName(), TAG_sensthickness))  module->thickness  += atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_sensthickness)){
+      module->thickness_sensor  = atof(getString(currentNode));
+      module->thickness  += atof(getString(currentNode));
+    }
     else if( XMLString::equals(currentElement->getTagName(), TAG_chipthickness))  module->thickness  += atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_hybdthickness))  module->thickness  += atof(getString(currentNode));
   } // End of loop on module node elements
@@ -692,19 +695,29 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
 
 void InDet::XMLReaderSvc::computeModuleSize(InDet::ModuleTmp *module)
 {
+
   if(module == 0) return;
   if(module->chip_type.size()==0) return;
+
   ChipTmp* chip = getChipTemplate(module->chip_type);
   module->length = module->lengthChips*chip->length+2*chip->edgel; 
   if(module->widthMinChips==0) module->widthMinChips = module->widthMaxChips;
   module->widthmin  = module->widthMinChips*chip->width+chip->edgew; 
   module->widthmax  = module->widthMaxChips*chip->width+chip->edgew; 
-  if(module->chip_type=="SingleChip"){
-    module->widthmin += chip->edgen;
-    module->widthmax += chip->edgen;
-  }else{
-    module->widthmin += chip->edgew;
-    module->widthmax += chip->edgew;
+
+  if(chip->name=="RD53") {
+    module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
+    module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
+    module->widthmin = module->widthmax;
+    }
+  else {
+    if(module->chip_type=="SingleChip"){
+      module->widthmin += chip->edgen;
+      module->widthmax += chip->edgen;
+    }else{
+      module->widthmin += chip->edgew;
+      module->widthmax += chip->edgew;
+    }
   }
 }
 

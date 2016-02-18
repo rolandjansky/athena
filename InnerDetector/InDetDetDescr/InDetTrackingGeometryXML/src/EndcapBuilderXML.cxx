@@ -203,8 +203,14 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
   Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D1D(*steerBinUtility,*subBinUtilities,cElements,centersOnModule);
  
   // prepare the overlap descriptor       
-  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor(binnedArray,subBinUtilities);
-
+  std::vector<Trk::BinUtility*>* BinUtils = new std::vector<Trk::BinUtility*>;
+  if (subBinUtilities) {
+    std::vector<Trk::BinUtility*>::iterator binIter = subBinUtilities->begin();
+    for ( ; binIter != subBinUtilities->end(); ++binIter)
+      BinUtils->push_back((*binIter)->clone());
+  }
+  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor(m_pixelCase,binnedArray,BinUtils);
+    
   // position & bounds of the disc layer
   double disc_thickness = std::fabs(zMax-zMin);
   double disc_pos = (zMax+zMin)*0.5;
@@ -304,7 +310,7 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
     Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D(*BinUtilityPhi, cElements,centersOnModule);
 
     // prepare the overlap descriptor       
-    Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor();
+    Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor(m_pixelCase);
 
     // create disc layer
     Trk::DiscLayer* layer = new Trk::DiscLayer(transf,
@@ -386,7 +392,15 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   // set identifiers variables
   int brl_ec = 2*side; // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
+
   int iphi   = isector;
+  
+  if (side>0 || !m_pixelCase) {
+    iphi = isector+1+nsectors/2;
+    if ( isector*2+4>nsectors)
+      iphi = isector+1-nsectors/2;
+  }
+  
   int ieta   = iring; 
   int ilayer = layerTmp->ilayer;
   bool isOuterMost = false; // JL -- needs to be fixed 
@@ -402,7 +416,8 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   // create the transform parameters
   double phistep = 2*TMath::Pi()/nsectors;
-  double phi = phistep*isector-TMath::Pi()+phistep/2.0 + mod0phioffset;
+  //double phi = phistep*isector-TMath::Pi()+phistep/2.0 + mod0phioffset;
+  double phi = phistep*(isector+1)-TMath::Pi()+ mod0phioffset;
 
   if(phi > TMath::Pi()) phi -= 2*TMath::Pi();
   if(phi < -TMath::Pi()) phi += 2*TMath::Pi();
@@ -424,6 +439,11 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   Trk::TrkDetElementBase* planElement = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule, 
 												   transform, m_pixelCase, isBarrel, isOuterMost, debug,
 												   useDisc, ring_rmin, ring_rmax, stereoO);
+  
+//   std::cout << "        -->  Endcap Element: " << std::endl;
+//   std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//   std::cout << "        -->  Surface Center = " << planElement->surface().center() << std::endl;
+//   std::cout << "        -->  Surface Phi = " << planElement->surface().center().phi() << "     Eta = "<< planElement->surface().center().eta() << std::endl;
 
   if (!planElement) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the Planar Detector Element.");
 
@@ -442,15 +462,19 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 													transform_os, m_pixelCase, isBarrel, isOuterMost,debug,
 													useDisc, ring_rmin, ring_rmax, stereoI);
     
+//     std::cout << "        -->  Other side Endcap Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 1" << std::endl;
+//     std::cout << "        -->  Surface Center = " << planElement_os->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << planElement_os->surface().center().phi() << "     Eta = "<< planElement_os->surface().center().eta() << std::endl;
+    
     m_moduleProvider->setFrontAndBackSides(planElement,planElement_os);
 
     if (!planElement_os) ATH_MSG_WARNING("Inside createDiscDetElement() --> Null pointer for the other side of Planar Detector Element.");
     
   }
-
-  centersOnModule.push_back(centerOnModule);
   
-  //delete module_material; 
+   centersOnModule.push_back(centerOnModule);
+
   return planElement;  
 }
 
@@ -469,6 +493,7 @@ Trk::BinnedArray<Trk::Surface>* InDet::EndcapBuilderXML::getBinnedArray1D(Trk::B
   for (unsigned int cEl = 0 ; Elem_Iter != cElements.end(); Elem_Iter++, cEl++) {
     const Trk::Surface* moduleSurface = &((*Elem_Iter)->surface());
     Amg::Vector3D orderPosition(centersOnModule.at(cEl));
+    
     // register the module surface
     Trk::SharedObject<const Trk::Surface> sharedSurface(moduleSurface,true);
     Trk::SurfaceOrderPosition surfaceOrder(sharedSurface, orderPosition);
@@ -476,6 +501,8 @@ Trk::BinnedArray<Trk::Surface>* InDet::EndcapBuilderXML::getBinnedArray1D(Trk::B
     
     ATH_MSG_DEBUG("Surface " << (*moduleSurface));
     //ATH_MSG_DEBUG("TransformHit = " << Amg::toString(Amg::CLHEPTransformToEigen((*Elem_Iter)->transformHit())));
+    ATH_MSG_DEBUG("Surface Phi = " << moduleSurface->center().phi() << "  Eta = " << moduleSurface->center().eta()  
+		  << "  Z = " << moduleSurface->center().z());
     ATH_MSG_DEBUG("Surface Phi = " << centersOnModule.at(cEl).phi() << "  Eta = " << centersOnModule.at(cEl).eta()  
 		  << "  Z = " << centersOnModule.at(cEl).z());
   }
@@ -487,7 +514,7 @@ Trk::BinnedArray<Trk::Surface>* InDet::EndcapBuilderXML::getBinnedArray1D(Trk::B
 
   // check the registered surfaces in the binned array
   const std::vector<const Trk::Surface*>& arraySurfaces = currentBinnedArray->arrayObjects();
-
+  
   // checking for :
   //   - empty surface bins
   //   - doubly filled bins

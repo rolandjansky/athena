@@ -8,7 +8,7 @@
     <BarrelModuleType> DoubleLength_RD53 </BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
-    <StaveSupportLength> 650 </StaveSupportLength>
+    <StaveSupportLength> 651 </StaveSupportLength>
   </PixelStave>
 
   <PixelStave>
@@ -19,7 +19,7 @@
     <BarrelModuleType>FourChip_RD53</BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
-    <StaveSupportLength> 1096 </StaveSupportLength>
+    <StaveSupportLength> 1097 </StaveSupportLength>
   </PixelStave>
 
   <PixelStave>
@@ -30,7 +30,7 @@
     <BarrelModuleType> FourChip_RD53 </BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
-    <StaveSupportLength> 731 </StaveSupportLength>
+    <StaveSupportLength> 732 </StaveSupportLength>
   </PixelStave>
 
   <PixelStave>
@@ -41,7 +41,7 @@
     <BarrelModuleType> FourChip_RD53 </BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
-    <StaveSupportLength> 731 </StaveSupportLength>
+    <StaveSupportLength> 732 </StaveSupportLength>
   </PixelStave>
 
   <PixelStave>
@@ -52,7 +52,7 @@
     <BarrelModuleType> FourChip_RD53 </BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
-    <StaveSupportLength> 731 </StaveSupportLength>
+    <StaveSupportLength> 732 </StaveSupportLength>
   </PixelStave>
 
 </PixelStaves>

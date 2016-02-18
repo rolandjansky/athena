@@ -194,7 +194,7 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   const Trk::LayerMaterialProperties* material = m_xmlReader->getHomogeneousMaterial(staveTmpList.at(0)->support_material);
   
   // prepare the active overlap descriptor       
-  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor();
+  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor(m_pixelCase);
 
   // create the active layer
   ATH_MSG_DEBUG("Create Trk::AlpineLayer ");
@@ -350,8 +350,8 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
   phiLowBound  -= halfPhiStep;
   phiHighBound += halfPhiStep;
 
-  ATH_MSG_INFO("Creating phi BinUtility with these parameters:");
-  ATH_MSG_INFO("halfPhiStep = " << halfPhiStep << "    phiHighBound = " << phiHighBound << "   phiLowBound = " << phiLowBound);
+  ATH_MSG_DEBUG("Creating phi BinUtility with these parameters:");
+  ATH_MSG_DEBUG("halfPhiStep = " << halfPhiStep << "    phiHighBound = " << phiHighBound << "   phiLowBound = " << phiLowBound);
   
   Trk::BinUtility* BinUtilityPhi = new Trk::BinUtility(nstaves,
  						       phiLowBound,
@@ -364,7 +364,7 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
  
 
   // prepare the overlap descriptor       
-  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor();
+  Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor(m_pixelCase);
 
   // prepare the material - suppose all staves have same support for now 
   // JL: --> Needs probably something smarter later on 
@@ -376,7 +376,14 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
 							   *material,
 							   layer_thickness,
 							   olDescriptor);
-
+  
+//   // get the subsurface array
+//   const Trk::SurfaceArray* surfArray = activeLayer->surfaceArray();
+//   if (surfArray) {
+//       const std::vector<const Trk::Surface*>& layerSurfaces = surfArray->arrayObjects();
+//       ATH_MSG_DEBUG(__PRETTY_FUNCTION__ << "   ---> has " << layerSurfaces.size() << " surfaces on the layer.");
+//   }
+ 
   // register the layer to the surfaces
   const std::vector<const Trk::Surface*>& layerSurfaces     = binnedArray->arrayObjects();
   registerSurfacesToLayer(layerSurfaces,*activeLayer);
@@ -452,7 +459,8 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
   double phimin    = -TMath::Pi();
   double phimax    =  TMath::Pi();
   double phistep   = (phimax-phimin)/double(nsectors);
-  double phi       = phimin+isector*phistep-phistep/2.0 + phiOffset;
+  //double phi       = phimin+isector*phistep-phistep/2.0 + phiOffset;
+  double phi       = phimin+(isector+1)*phistep + phiOffset;
   int ieta;
   if((nmodules%2)==0) { // even number of modules, no eta identifier 0
     ieta = iz - nmodules/2;     
@@ -496,6 +504,12 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
 
   Trk::TrkDetElementBase* planElement = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform.translation(), transform, 
 												   m_pixelCase, isBarrel, isOuterMost,debug);
+  
+//   std::cout << "        -->  Barrel Cylinder Element: " << std::endl;
+//   std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;
+//   std::cout << "        -->  Surface Center = " << planElement->surface().center() << std::endl;
+//   std::cout << "        -->  Surface Phi = " << planElement->surface().center().phi() << "     Eta = "<< planElement->surface().center().eta() << std::endl;
+    
 
   // use existing tools to compute layer bounds
   m_xmlReader->computeRbounds(transform, moduleTmp, staveTmp->rMin, staveTmp->rMax);
@@ -516,6 +530,13 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
     m_xmlReader->computeZbounds(transform_os, moduleTmp, staveTmp->active_halflength);
     Trk::TrkDetElementBase* planElement_os = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(id,idhash, moduleTmp, transform_os.translation(), transform_os, 
 													m_pixelCase, isBarrel, isOuterMost,debug);
+    
+//     std::cout << "        -->  Barrel Cylinder Element: " << std::endl;
+//     std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 1" << std::endl;
+//     std::cout << "        -->  Surface Center = " << planElement_os->surface().center() << std::endl;
+//     std::cout << "        -->  Surface Phi = " << planElement_os->surface().center().phi() << "     Eta = "<< planElement_os->surface().center().eta() << std::endl;
+    
+  
     m_moduleProvider->setFrontAndBackSides(planElement,planElement_os);
     
     if (!planElement_os) ATH_MSG_WARNING("Inside CylinderDetElement() --> Null pointer for the other side Planar Detector Element.");

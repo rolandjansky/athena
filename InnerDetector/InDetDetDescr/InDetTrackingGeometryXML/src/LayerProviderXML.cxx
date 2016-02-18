@@ -68,7 +68,7 @@ StatusCode InDet::LayerProviderXML::initialize()
   ATH_MSG_INFO("InDet::LayerProviderXML::initialize()");  
 
   if (m_xmlReader.retrieve().isSuccess()){
-    ATH_MSG_DEBUG("InDet::XMLReaderSvc successfully retrieved " << m_xmlReader );
+    ATH_MSG_INFO("InDet::XMLReaderSvc successfully retrieved " << m_xmlReader );
   } else {
     ATH_MSG_WARNING("InDet::XMLReaderSvc: Couldn't retrieve " << m_xmlReader );
     return StatusCode::FAILURE;
@@ -130,6 +130,16 @@ const std::vector< const Trk::Layer* > InDet::LayerProviderXML::centralLayers() 
     createSCTBarrel(layers);
     dumpRZ("SCT_Barrel");
   }
+  
+//   FOR DEBUGGING
+//   for (unsigned int ll = 0; ll< layers.size(); ll++) {
+//     // get the subsurface array
+//     const Trk::SurfaceArray* surfArray = layers.at(ll)->surfaceArray();
+//     if (surfArray) {
+//       const std::vector<const Trk::Surface*>& layerSurfaces = surfArray->arrayObjects();
+//       ATH_MSG_DEBUG(__PRETTY_FUNCTION__ << "   ---> has " << layerSurfaces.size() << " surfaces on the layer.");
+//     }
+//   }    
 
   return layers;
 } 
@@ -187,6 +197,7 @@ void InDet::LayerProviderXML::createPixelBarrel(std::vector< const Trk::Layer* >
 
   for(unsigned int itmp=0;itmp<nTemplates;itmp++) {
     Trk::CylinderLayer* layer = m_pixBarrelBuilder->createActiveLayer(itmp,m_startLayer,m_endLayer);
+    
     if(layer==0) {
       if(m_startLayer==0 && m_endLayer==-1) 
 	ATH_MSG_WARNING("Pixel cylinder for active layer template: " << itmp << " was not created");
@@ -206,6 +217,16 @@ void InDet::LayerProviderXML::createPixelBarrel(std::vector< const Trk::Layer* >
     // Save layer in vector
     cylinderLayers.push_back(layer);
   }
+
+//   FOR DEBUGGING
+//   for (unsigned int ll = 0; ll< cylinderLayers.size(); ll++) {
+//     // get the subsurface array
+//     const Trk::SurfaceArray* surfArray = cylinderLayers.at(ll)->surfaceArray();
+//     if (surfArray) {
+//       const std::vector<const Trk::Surface*>& layerSurfaces = surfArray->arrayObjects();
+//       ATH_MSG_DEBUG(__PRETTY_FUNCTION__ << "   ---> has " << layerSurfaces.size() << " surfaces on the layer.");
+//     }
+//   }  
 }
 
 void InDet::LayerProviderXML::createSCTBarrel(std::vector< const Trk::Layer* >& cylinderLayers) const
@@ -254,7 +275,7 @@ void InDet::LayerProviderXML::createPixelEndcap(std::vector< const Trk::Layer* >
       layerToCollections(isPixel, layers.at(il));
       discLayers.push_back(layers.at(il));
     }
-    ATH_MSG_INFO("        --> " <<  layers.size() << " DiscLayers created"); 
+    ATH_MSG_DEBUG("        --> " <<  layers.size() << " DiscLayers created"); 
   }
 }
 
@@ -275,7 +296,7 @@ void InDet::LayerProviderXML::createSCTEndcap(std::vector< const Trk::Layer* >& 
       layerToCollections(isPixel, layers.at(il));
       discLayers.push_back(layers.at(il));
     }
-    ATH_MSG_INFO("       --> " <<  layers.size() << " DiscLayers created"); 
+    ATH_MSG_DEBUG("       --> " <<  layers.size() << " DiscLayers created"); 
   }
 }
 
