@@ -382,6 +382,13 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
   double sigmaDeltaE_rad = eLoss->sigmaRad(); // rms and mean of steep exponential
   double depth = eLoss->length();
 
+// Eloss radiative protection
+
+  if(eLoss->meanRad()>100000.) {
+     deltaE_rad = 100000.;
+     sigmaDeltaE_rad = eLoss->sigmaRad()*100000./eLoss->meanRad();
+  }
+
   double sigmaPlusDeltaE = eLoss->sigmaPlusDeltaE();
   double sigmaMinusDeltaE = eLoss->sigmaMinusDeltaE();
 
