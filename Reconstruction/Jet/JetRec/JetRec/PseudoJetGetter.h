@@ -1,3 +1,5 @@
+// this file is -*- C++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -104,11 +106,14 @@ protected:  // data
   std::string m_label;              /// Label for the collection.
   bool m_skipNegativeEnergy;        /// Flag indicating to skip objects with E<0.
   double m_ghostscale;              /// Ghost scale factor.
+  bool m_negEnergyAsGhosts;         /// Flag indicating to treat objects with E<0 as ghosts  (usefull hor HI)
+
 
   // Cached flags.
   bool m_emtopo;                    /// True if inputs are EM-scale topo clusters.
 
 };
+
 
 #ifdef USE_BOOST_AUTO
 #include <boost/typeof/typeof.hpp>
@@ -121,7 +126,8 @@ append(const TList& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const 
   jet::IConstituentUserInfo::Index labidx = 0;
   if ( pli != 0 ) labidx = pli->index(m_label);
   else ATH_MSG_WARNING("Index-to-label map is not supplied.");
-  if ( m_ghostscale ) labidx = -labidx;
+  //if ( m_ghostscale ) labidx = -labidx;
+  if(!m_negEnergyAsGhosts && m_ghostscale) labidx = -labidx;
   ATH_MSG_DEBUG( "Ghost scale =  " << m_ghostscale << "; idx = " << labidx );
   
   /// Loop over input, buid CUI and PseudoJets
@@ -140,7 +146,7 @@ append(const TList& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const 
     }
     // Take momentum from IParticle.
     fastjet::PseudoJet psj(ppar->p4());
-    // Form EM scale, use uncalibrated four-vector.
+    // Form EM scale, use uncalibrated four-vector.1
     if ( m_emtopo ) {
       const xAOD::CaloCluster* pclu = dynamic_cast<const xAOD::CaloCluster*>(ppar);
       if ( pclu == 0 ) {
@@ -149,7 +155,13 @@ append(const TList& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const 
       }
       psj.reset(pclu->p4(xAOD::CaloCluster::UNCALIBRATED));
     }
-    if ( m_ghostscale ) psj *= m_ghostscale;
+
+    if( m_negEnergyAsGhosts) {
+      if (ppar->e() <= 0.0)  { // Important use the IParticle::e(), because IParticle::p4().e() might always be >0.
+        psj.reset_momentum(psj.px(), psj.py(), psj.pz(), std::abs( psj.e() )); // make sure e>0 in fastjet
+        psj *= m_ghostscale;
+      }
+    } else if ( m_ghostscale ) psj *= m_ghostscale;
 
     bool show = psjs.size() < 20;
     if ( show ) ATH_MSG_VERBOSE("index/label: " << labidx << "/" << m_label);

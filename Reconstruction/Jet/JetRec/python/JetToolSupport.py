@@ -245,7 +245,7 @@ class JetToolManager:
         srad = str(int(10*finder.JetRadius))
         bspec = salg + srad + sinp
         print self.prefix + "Scheduling btagging for " + bspec
-        btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, jet)
+        btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, bspec)
         print btagger
         self.add(btagger)
         outmods += [btagger]
