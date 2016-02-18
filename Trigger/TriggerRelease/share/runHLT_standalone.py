@@ -215,9 +215,6 @@ defaultOptions['setModifiers']=[#Common modifiers for MC and data
                                 'enable7BitL1TTStreaming',
                                 ]
 
-if setMenu in ['Physics_HI_v3','MC_HI_v3','L1_alfa_v2']:
-    defaultOptions['setModifiers'] += ['noPileupNoise']
-
 if setupForMC:  # MC modifiers
     defaultOptions['setModifiers']+=['BFieldFromDCS']
 else:           # More data modifiers

@@ -455,6 +455,10 @@ class noPileupNoise(_modifier):
         from CaloTools.CaloNoiseFlags import jobproperties
         jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
 
+        from AthenaCommon.AppMgr import ToolSvc
+        from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+        ToolSvc += TrigDataAccess(ApplyOffsetCorrection=False)
+
 class usePileupNoiseMu8(_modifier):
     """
     Enable pileup noise correction for fixed luminosity point (mu=8)
