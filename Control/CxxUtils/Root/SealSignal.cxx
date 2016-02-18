@@ -955,7 +955,7 @@ Signal::fatal (int sig, siginfo_t *info, void *x)
 const char *
 Signal::describe (int sig, int code)
 {
-    static struct { int sig; int code; const char *desc; } s_infos [] = {
+    static struct { int sig; int code; const char *desc; } infos [] = {
 #if HAVE_POSIX_SIGNALS
 	{ -1,	   SI_USER,	"user sent: kill, sigsend or raise" },
 # ifdef SI_KERNEL
@@ -1056,10 +1056,10 @@ Signal::describe (int sig, int code)
 	{ -1,      -1,		0 }
     };
 
-    for (unsigned i = 0; s_infos [i].desc; ++i)
-	if ((s_infos [i].sig == -1 || s_infos [i].sig == sig)
-	    && s_infos [i].code == code)
-	    return s_infos [i].desc;
+    for (unsigned i = 0; infos [i].desc; ++i)
+	if ((infos [i].sig == -1 || infos [i].sig == sig)
+	    && infos [i].code == code)
+	    return infos [i].desc;
 
     return "*unknown reason*";
 }
@@ -1506,3 +1506,13 @@ Signal::crashed (void)
 
 //} // namespace seal                             wlav
 } // namespace Athena                             wlav
+
+
+extern "C" {
+  /// Install fatal handler with default options.
+  /// This is meant to be easy to call from pyton via ctypes.
+  void CxxUtils_installFatalHandler()
+  {
+    Athena::Signal::handleFatal(nullptr, 1);
+  }
+}

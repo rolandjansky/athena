@@ -14,8 +14,8 @@
 // MD5 simple initialization method
 MD5::MD5()    {
   init();
-  memset (buffer, 0, sizeof(buffer));
-  memset (digest, 0, sizeof(digest));
+  memset (m_buffer, 0, sizeof(m_buffer));
+  memset (m_digest, 0, sizeof(m_digest));
 }
 
 // MD5 simple initialization method
@@ -30,23 +30,23 @@ MD5::MD5(unsigned char* buffer, unsigned long len)    {
 // context.
 void MD5::update (unsigned char *input, unsigned int input_length) {
   unsigned int idx, index, space;
-  if ( finalized ) {  // so we can't update!
+  if ( m_finalized ) {  // so we can't update!
     std::cerr << "MD5::update:  Can't update a finalized digest!" << std::endl;
     return;
   }
   // Compute number of bytes mod 64
-  index = (unsigned int)((count[0] >> 3) & 0x3F);
+  index = (unsigned int)((m_count[0] >> 3) & 0x3F);
   // Update number of bits
-  if (  (count[0] += ((unsigned int) input_length << 3))<((unsigned int) input_length << 3) )
-    count[1]++;
+  if (  (m_count[0] += ((unsigned int) input_length << 3))<((unsigned int) input_length << 3) )
+    m_count[1]++;
 
-  count[1] += ((unsigned int)input_length >> 29);
+  m_count[1] += ((unsigned int)input_length >> 29);
   space = 64 - index;  // how much space is left in buffer
   // Transform as many times as possible.
   if (input_length >= space) { // ie. we have enough to fill the buffer
     // fill the rest of the buffer and transform
-    memcpy (buffer + index, input, space);
-    transform (buffer);
+    memcpy (m_buffer + index, input, space);
+    transform (m_buffer);
     // now, transform each 64-byte piece of the input, bypassing the buffer
     for (idx = space; idx + 63 < input_length; idx += 64)
       transform (input+idx);
@@ -58,7 +58,7 @@ void MD5::update (unsigned char *input, unsigned int input_length) {
   }
 
   // and here we do the buffering:
-  memcpy(buffer+index, input+idx, input_length-idx);
+  memcpy(m_buffer+index, input+idx, input_length-idx);
 }
 
 // MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -71,28 +71,28 @@ void MD5::finalize ()     {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
-  if (finalized){
+  if (m_finalized){
     std::cerr << "MD5::finalize:  Already finalized this digest!" << std::endl;
     return;
   }
   // Save number of bits
-  encode (bits, count, 8);
+  encode (bits, m_count, 8);
   // Pad out to 56 mod 64.
-  index = (unsigned int) ((count[0] >> 3) & 0x3f);
+  index = (unsigned int) ((m_count[0] >> 3) & 0x3f);
   padLen = (index < 56) ? (56 - index) : (120 - index);
   update (PADDING, padLen);
   // Append length (before padding)
   update (bits, 8);
   // Store state in digest
-  encode (digest, state, 16);
+  encode (m_digest, m_state, 16);
   // Zeroize sensitive information
-  memset (buffer, 0, sizeof(*buffer));
-  finalized=1;
+  memset (m_buffer, 0, sizeof(*m_buffer));
+  m_finalized=1;
 }
 
 void MD5::raw_digest(unsigned char *s){
-  if (finalized){
-    memcpy(s, digest, 16);
+  if (m_finalized){
+    memcpy(s, m_digest, 16);
     return;
   }
   std::cerr << "MD5::raw_digest:  Can't get digest if you haven't "<<
@@ -101,35 +101,35 @@ void MD5::raw_digest(unsigned char *s){
 
 std::string MD5::hex_digest()   {
   char s[33];
-  if (!finalized){
+  if (!m_finalized){
     std::cerr << "MD5::hex_digest:  Can't get digest if you haven't "<<
       "finalized the digest!" <<std::endl;
     return "";
   }
   for (int i=0; i<16; i++)
-    sprintf(s+i*2, "%02x", digest[i]);
+    sprintf(s+i*2, "%02x", m_digest[i]);
   s[32]='\0';
   return s;
 }
 
 // PRIVATE METHODS:
 void MD5::init(){
-  finalized=0;  // we just started!
+  m_finalized=0;  // we just started!
   // Nothing counted, so count=0
-  count[0] = 0;
-  count[1] = 0;
+  m_count[0] = 0;
+  m_count[1] = 0;
   // Load magic initialization constants.
-  state[0] = 0x67452301;
-  state[1] = 0xefcdab89;
-  state[2] = 0x98badcfe;
-  state[3] = 0x10325476;
+  m_state[0] = 0x67452301;
+  m_state[1] = 0xefcdab89;
+  m_state[2] = 0x98badcfe;
+  m_state[3] = 0x10325476;
 }
 
 // MD5 basic transformation. Transforms state based on block.
 void MD5::transform (unsigned char* block){
-  unsigned int a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+  unsigned int a = m_state[0], b = m_state[1], c = m_state[2], d = m_state[3], x[16];
   decode (x, block, 64);
-  assert(!finalized);  // not just a user error, since the method is private
+  assert(!m_finalized);  // not just a user error, since the method is private
   /* Round 1                                     */
   FF (a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1  */
   FF (d, a, b, c, x[ 1], S12, 0xe8c7b756); /* 2  */
@@ -198,10 +198,10 @@ void MD5::transform (unsigned char* block){
   II (d, a, b, c, x[11], S42, 0xbd3af235); /* 62 */
   II (c, d, a, b, x[ 2], S43, 0x2ad7d2bb); /* 63 */
   II (b, c, d, a, x[ 9], S44, 0xeb86d391); /* 64 */
-  state[0] += a;
-  state[1] += b;
-  state[2] += c;
-  state[3] += d;
+  m_state[0] += a;
+  m_state[1] += b;
+  m_state[2] += c;
+  m_state[3] += d;
   // Zeroize sensitive information.
   memset ( (unsigned char *) x, 0, sizeof(x));
 }

@@ -80,11 +80,11 @@ class MD5 {
 
   private:
     // next, the private data:
-    unsigned int state[4];
-    unsigned int count[2];     // number of *bits*, mod 2^64
-    unsigned char buffer[64];   // input buffer
-    unsigned char digest[16];
-    unsigned char finalized;
+    unsigned int m_state[4];
+    unsigned int m_count[2];     // number of *bits*, mod 2^64
+    unsigned char m_buffer[64];   // input buffer
+    unsigned char m_digest[16];
+    unsigned char m_finalized;
 
     // last, the private methods, mostly static:
     void init             ();               // called by all constructors

@@ -28,7 +28,7 @@ struct tester
 
 double tester::pt() const
 {
-  return m_x/std::cosh(1.9025873924597605);
+  return m_x * (1. / std::cosh(1.9025873924597605));
 }
 
 

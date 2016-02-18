@@ -36,18 +36,18 @@
 
 namespace CxxUtils {
 
-template<typename _InputIterator, typename _OutputIterator,
-         typename _Predicate>
-_OutputIterator
-copy_if(_InputIterator __first, _InputIterator __last,
-	_OutputIterator __result, _Predicate __pred)
+template<typename InputIterator, typename OutputIterator,
+         typename Predicate>
+OutputIterator
+copy_if(InputIterator first, InputIterator last,
+	OutputIterator result, Predicate pred)
 {
-  for (; __first != __last; ++__first)
-    if (__pred(*__first)) {
-      *__result = *__first;
-      ++__result;
+  for (; first != last; ++first)
+    if (pred(*first)) {
+      *result = *first;
+      ++result;
     }
-  return __result;
+  return result;
 }
 
 }//> end CxxUtils namespace

@@ -16,6 +16,7 @@
 #include "CxxUtils/pointer_list.h"
 #include <vector>
 #include <cassert>
+#include <cstdlib>
 
 
 using namespace CxxUtils;
@@ -28,9 +29,11 @@ const size_t n_toerase = sizeof (toerase) / sizeof (toerase[0]);
 
 
 void testerase (pointer_list<>& l,
-                int nerase,
+                size_t nerase,
                 std::vector<int>& v)
 {
+  if (nerase >= n_toerase) std::abort();
+
   size_t sz = l.size();
   pointer_list<>::iterator it = l.begin();
   std::advance (it, toerase[nerase]);
@@ -42,7 +45,7 @@ void testerase (pointer_list<>& l,
   size_t i = 0;
   while (it != end) {
     bool skip = false;
-    for (int j=0; j <= nerase; j++) {
+    for (size_t j=0; j <= nerase; j++) {
       if (i == toerase[j]+j) {
         skip = true;
         break;
