@@ -920,15 +920,16 @@ void GeoPixelLadderInclRef:: BuildAndPlaceModuleService(std::vector<int> moduleN
   double xshift = .5;
   double ec_xshift = 0.;
   if(m_layer==1) 
-    { delta=.5; xshift = 1.05; ec_xshift = 1.3; }
+    { delta=.5; xshift = 2.; ec_xshift = 2.25; }
   else if(m_layer>1)
-    { xshift = .75; }
+    { xshift = 1.25; }
 
   double svcLength=zFinal-zInit;
   if(svcLength>0){
     double svcHalfThick = m_moduleSvcThickness*.5-0.001;
     double svcHalfWidth = m_barrelModule->Width()*delta*.5;
     double svcOffset = m_barrelModule->Width()*.5-svcHalfWidth;
+    if(locTilt<0) svcOffset = -svcOffset;
     double xPos_svc = 0.;
     if(type=="radial"){
       xPos_svc = (m_staveSupport->thicknessP_barrel()+m_staveSupport->thicknessP_endcap())*.5;

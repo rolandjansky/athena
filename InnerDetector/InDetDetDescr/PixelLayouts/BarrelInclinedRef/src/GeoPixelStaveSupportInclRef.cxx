@@ -60,6 +60,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   std::string matName = staveDBHelper.getStaveSupportMaterial();
   double xOffset = staveDBHelper.getServiceOffsetX();
   double yOffset = staveDBHelper.getServiceOffsetY();
+  if(m_barrelTilt<0) yOffset=-yOffset;
   double ec_xOffset = staveDBHelper.getServiceECOffsetX();
   if(width<0.01) width = m_barrelModule.Width()*.7;
   m_svcRouting = staveDBHelper.getSvcRoutingPos();
@@ -101,6 +102,12 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   
   const GeoShape * lastShape = 0;
 
+  double xOffset_stave = xOffset;
+  double yOffset_stave = yOffset;
+
+  xOffset=0.;
+  yOffset=0.;
+
   // central section
   double delta= m_planarGap;
   length =2.*(m_barrelZMax+delta);
@@ -132,9 +139,9 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,lastShape->volume());
   GeoLogVol* logVol = new GeoLogVol("StaveSupport",lastShape,material);
   
-  m_thicknessP =  xOffset + 0.5*thickness;
+  m_thicknessP =  xOffset_stave + 0.5*thickness;
   m_thicknessP_barrel = m_thicknessP;
-  m_thicknessN =  -xOffset + 0.5*thickness;
+  m_thicknessN =  -xOffset_stave + 0.5*thickness;
   m_length = staveDBHelper.getStaveSupportLength();
   m_width = width;
   
@@ -144,7 +151,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
 
   m_thicknessN_endcap = m_thicknessP_endcap-thickness;
 
-  m_transform = HepGeom::Translate3D(xOffset,yOffset,0);
+  m_transform = HepGeom::Translate3D(xOffset_stave,yOffset_stave,0);
 
   msg(MSG::DEBUG)<<"Complex stave sizes LxWxT: "<<m_length<<"  "<<m_width<<"  "<<m_thicknessN+m_thicknessP<<"   "<<matName<<endreq;
   

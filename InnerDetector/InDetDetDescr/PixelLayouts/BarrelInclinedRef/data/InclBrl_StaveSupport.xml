@@ -18,7 +18,7 @@
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
-    <ServiceOffsetX> .45 </ServiceOffsetX>
+    <ServiceOffsetX> .95 </ServiceOffsetX>
     <ServiceOffsetY> -1.5 </ServiceOffsetY>
   </PixelStaveGeo>
 
@@ -31,7 +31,7 @@
     <ServiceRouting>inner</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 27.4 </LadderWidth>
-    <ServiceOffsetX> .45 </ServiceOffsetX>
+    <ServiceOffsetX> .95 </ServiceOffsetX>
     <ServiceOffsetY> -1.5 </ServiceOffsetY>
     <ServiceECOffsetX> -1.2 </ServiceECOffsetX>
   </PixelStaveGeo>
