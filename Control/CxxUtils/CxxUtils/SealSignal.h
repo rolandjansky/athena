@@ -306,4 +306,13 @@ private:
 
 //} // namespace seal                             wlav
 } // namespace Athena                             wlav
+
+
+extern "C" {
+  /// Install fatal handler with default options.
+  /// This is meant to be easy to call from pyton via ctypes.
+  void CxxUtils_installFatalHandler();
+}
+
+
 #endif // CXXUTILS_SEAL_SIGNAL_H wlav SEAL_BASE_SIGNAL_H
