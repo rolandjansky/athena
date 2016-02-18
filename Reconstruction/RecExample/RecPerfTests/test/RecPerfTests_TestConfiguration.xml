@@ -35,7 +35,7 @@
 	  checkxAOD.py myEVNT.pool.root &gt; myEVNT.pool.root.checkfile.txt ;
 	  export userJobId="rtt_generation_mc15_pythia8evtgen_a14nnpdf23lo_jetjet_jz6w_13tev"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $CMTCONFIG`/${userJobId}; 
 	  perl -pi -e "s/leakperevt_evt11to50/leakperevt_evt11to100/g;" __log.txt
 	  perl -pi -e "s/leakperevt_evt51plus/leakperevt_evt101plus/g;" __log.txt
 	  gzip *txt; 
@@ -62,7 +62,7 @@
 	  checkxAOD.py myHITS.pool.root &gt; myHITS.pool.root.checkfile.txt ;
 	  export userJobId="rtt_simulation_mc_ttbarmuplusjets_7tev"; 
 	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $CMTCONFIG`/${userJobId}; 
 	  perl -pi -e "s/leakperevt_evt11to50/leakperevt_evt11to100/g;" __log.txt
 	  perl -pi -e "s/leakperevt_evt51plus/leakperevt_evt101plus/g;" __log.txt
 	  gzip *txt; 
