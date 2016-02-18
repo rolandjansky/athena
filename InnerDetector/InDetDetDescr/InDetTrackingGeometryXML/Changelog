@@ -1,3 +1,15 @@
+2016-02-18 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing tilt angle in the barrel region of inclined layouts
+	* tagged as InDetTrackingGeometryXML-00-00-32
+
+2016-02-17 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing tilt angle in the barrel region of inclined layouts
+	* tagged as InDetTrackingGeometryXML-00-00-30 and InDetTrackingGeometryXML-00-00-31
+
+2016-02-16 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing 5mm shift in FourLayersNoStub_23-25-dev0 layout
+	* tagged as InDetTrackingGeometryXML-00-00-29
+
 2016-02-11 Sabine Elles
 	* Update moduel size : set to chip size without outer edges 
 	       in order to match the SiDetectorElement surface size 
