@@ -145,9 +145,12 @@ class HLTSimulationGetter(Configured):
         ServiceMgr += RegSelSvcDefault()
 
         # Configure the Data Preparation for Calo
-        # This is a hack - configurables and toolhandles can be changed for next release
-        if TriggerFlags.doCalo():  
-            include('TrigT2CaloCommon/TrigDataAccessConfigured.py')
+        if TriggerFlags.doCalo():
+            try:
+                from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
+                ServiceMgr.ToolSvc += TrigDataAccess()
+            except ImportError:
+                include('TrigT2CaloCommon/TrigDataAccessConfigured.py')
         
         if TriggerFlags.doFTK():
             # FTK algorithm inclusions
