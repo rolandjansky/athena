@@ -1,0 +1,13 @@
+{
+	"gcc_config_version": {
+		"gcc48": "4.8.4",
+		"gcc49": "4.9.3",
+		"gcc52": "5.2.0"
+	},
+	"clang_config_version": {
+		"clang37": "3.7"
+	},
+	"icc_config_version": {
+		"icc13": "xe2013"
+	}
+}
