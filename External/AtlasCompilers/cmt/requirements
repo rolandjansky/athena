@@ -20,13 +20,15 @@ macro gcc_config_version   "4.3.6" \
       target-gcc49   "4.9.3"	\	  
       target-clang32 "4.6.3"    \
       target-clang33 "4.8.4"    \
+      target-clang37 "4.9.3"    \
       target-icc13   "4.8.4"
 
 macro clang_config_version   "2.8" \
       target-llvm29  "2.9" \
       target-clang30 "3.0" \
       target-clang32 "3.2" \
-      target-clang33 "3.3"
+      target-clang33 "3.3" \
+      target-clang37 "3.7" 
       
 macro icc_config_version  "11.1/072" \
       target-icc11 "11.1/072" \
