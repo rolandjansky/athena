@@ -24,7 +24,7 @@ TRandom3 myrand;
 
 class lbninfo{
 public:
-  lbninfo(): currentevent(0),nevt(0),magic(0),noalgps(-1),j40ps(-1) {}
+  lbninfo(): currentevent(0),nevt(0),magic(0),noalgps(-1),j40ps(-1),written_j40(0),written_no_j40(0) {}
 
   std::map<int,int> wantedmap;//map of nevent wanted by each stream
   std::map<int, std::vector<int> > streammap;//map of actual events to be written to each stream
@@ -34,6 +34,7 @@ public:
   int j40ps;//the HLT prescale of j40 trigger
   std::vector<int> trigmap;//whether the j40 trigger fired for each of the nevt events
   std::vector<int> trigevt;//event number for each of the nevt events, as taken from the trigfile, for cross-checking
+  int written_j40, written_no_j40;
 
   //makes the map of the event sequence to be written for each stream, based on the number of events wanted by each stream
   void makestreammap(){
@@ -274,6 +275,8 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::finalize() {
         continue;
       }
 
+      ATH_MSG_INFO(r->first<<" "<<l->first<<" wrote out "<<l->second.written_j40<<" j40 and "<<l->second.written_no_j40<<" non-j40 events");
+
       if (l->second.currentevent!=0){
         //check that we got all the events we were promised
         if (l->second.currentevent!=l->second.nevt){
@@ -355,14 +358,13 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
       }
     }
 
-    if (l.currentevent>=l.nevt) {
-      ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn);
+    if (l.currentevent>=l.nevt || ((unsigned int)l.currentevent)>l.trigmap.size()) {
+      ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn<<" with trigmap size "<<l.trigmap.size());
     }
 
     std::vector<int> streams= l.streammap[l.currentevent];//so at this point the first event is at index 0, last at nevt-1
     if (l.noalgps<0){ATH_MSG_INFO(lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams");}
     else{ATH_MSG_INFO(lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams and j40 is "<<l.trigmap[l.currentevent]);}
-    l.currentevent++;
 
     RawEvent* re =  const_cast<RawEvent*>(re_c);
     for (unsigned int s=0; s<streams.size(); ++s){
@@ -372,9 +374,12 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
           ATH_MSG_ERROR( " failed to write event to ByteStreamOutputSvc"<<streams[s]);
           return StatusCode::FAILURE ;
         }
+        if (l.trigmap[l.currentevent]) l.written_j40++; else l.written_no_j40++;
         ATH_MSG_INFO( " wrote event to ByteStreamOutputSvc"<<streams[s] );
       }
     }
+    l.currentevent++;
+
   }//m_usebnlmap
   else{
     RawEvent* re =  const_cast<RawEvent*>(re_c);

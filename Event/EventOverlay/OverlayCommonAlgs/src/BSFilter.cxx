@@ -38,7 +38,7 @@ StatusCode BSFilter::initialize()
   CHECK( m_trigConf.retrieve() );
 
   ////////////////////////////
-  if (m_filterfile!=""){
+  if (m_filterfile!="" && m_trigbit<0){
     FILE *vfile = fopen(m_filterfile.c_str(),"r");
     if (vfile){
       msg(MSG::INFO)<<"Opened filter file: "<<m_filterfile<<endreq;
@@ -198,7 +198,7 @@ StatusCode BSFilter::execute()
     }
     
 
-    if(item_fired_after_veto)    {
+    if(item_fired_after_veto && m_filterfile=="") {//don't bother to write out RAW if we're only running to make the trigs.txt file
       // assert(item_fired_before_veto); //or else how could it pass after veto??
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
