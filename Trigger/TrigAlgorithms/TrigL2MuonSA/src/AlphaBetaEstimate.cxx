@@ -33,7 +33,7 @@ TrigL2MuonSA::AlphaBetaEstimate::~AlphaBetaEstimate()
 StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*   p_roi,
 							 TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							 TrigL2MuonSA::TrackPattern& trackPattern,
-                                                         const TrigL2MuonSA::MuonRoad& muonRoad)
+                                                         const TrigL2MuonSA::MuonRoad& /*muonRoad*/)
 {
   const int MAX_STATION = 5;
   const double PHI_RANGE = 12./(CLHEP::pi/8.);
