@@ -89,7 +89,6 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
       rpcFitResult.slope_outer = 1.0/aw[2];
 
       for(int i=0;i<3;i++){
-	//	std::cout<<"GGG "<<i<<" : aw(R/Z) = "<<1.0/aw[i]<<" / bw = "<<bw[i]<<std::endl;
 	if(fabs(1.0/aw[i]) <= ZERO_LIMIT) rpcFitResult.isSuccess = false;
       }
     } else {

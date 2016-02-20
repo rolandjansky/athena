@@ -74,7 +74,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
   declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
   declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
-  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = false);
+  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = true);
 
   declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 

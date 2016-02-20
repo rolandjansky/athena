@@ -60,6 +60,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 
    // Get a message stream instance
    m_msg = new MsgStream( msgSvc(), name() );
+   msg().setLevel(MSG::INFO);
    msg() << MSG::DEBUG << "Initializing CscDataPreparator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
@@ -181,7 +182,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
   // Clustering
   std::vector<IdentifierHash> cscHashIDs_cluster;
   cscHashIDs_cluster.clear();
-  if( !cscHashIDs_decode.empty() ){
+  if(to_full_decode) cscHashIDs_decode.clear();
+  if( !cscHashIDs_decode.empty() || to_full_decode ){
     if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster ).isFailure() ){
       msg() << MSG::WARNING << "Problems when preparing CSC Clusters" << endreq;
     }
