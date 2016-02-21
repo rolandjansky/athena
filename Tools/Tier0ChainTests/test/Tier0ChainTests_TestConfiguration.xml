@@ -22,15 +22,15 @@
                         <!-- Heavy Ion Collisions Reconstruction job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00193321_highpt_HICollisions">
-                                <doc>RecoTrf on 2011 PbPb HardProbes stream (Run193321 LB192)</doc>
-                                <jobTransformJobName>Run00193321_highpt_HICollisions</jobTransformJobName>
+                            <jobTransform userJobId="Run00287281_express_HICollisions">
+                                <doc>RecoTrf on 2015 PbPb express stream (Run287281 LB124)</doc>
+                                <jobTransformJobName>Run00287281_express_HICollisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_HardProbes --lumiblock=192
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
-                                <batchWallTime>480</batchWallTime>
+                                <batchWallTime>240</batchWallTime>
                                 <castorSvcClass>t0atlas</castorSvcClass>
                                 
                                 <test>
@@ -42,7 +42,7 @@
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
-                                        <argvalue>Run00193321_highpt_HICollisions.summary.txt</argvalue>
+                                        <argvalue>Run00287281_express_HICollisions.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
@@ -57,11 +57,11 @@
                         <!-- Heavy Ion Collisions Reconstruction job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00193321_highpt_HICollisions_noHIST">
-                                <doc>RecoTrf noHIST on 2011 PbPb HardProbes stream (Run193321 LB192)</doc>
-                                <jobTransformJobName>Run00193321_highpt_HICollisions_noHIST</jobTransformJobName>
+                            <jobTransform userJobId="Run00287281_express_HICollisions_noHIST">
+                                <doc>RecoTrf noHIST on 2015 PbPb express stream (Run287281 LB124)</doc>
+                                <jobTransformJobName>Run00287281_express_HICollisions_noHIST</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_HardProbes --lumiblock=192 --dropHIST
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00287281 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00287281/express_express --lumiblock=124 --dropHIST
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -77,7 +77,7 @@
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
-                                        <argvalue>Run00193321_highpt_HICollisions_noHIST.summary.txt</argvalue>
+                                        <argvalue>Run00287281_express_HICollisions_noHIST.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
@@ -89,14 +89,14 @@
                             
                         </chainElement>
                         
-                        <!-- Heavy Ion Reconstruction on pp minbias collisions job -->
+                        <!-- Heavy Ion Reconstruction on pp 5 TeV reference run minbias collisions job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00267359_MinBias_Collisions_HIReco">
-                                <doc>HI RecoTrf on 2015 pp data, MinBias stream (Run267359 LB293)</doc>
-                                <jobTransformJobName>Run00267359_MinBias_Collisions_HIReco</jobTransformJobName>
+                            <jobTransform userJobId="Run00286411_MinBias_Collisions_HIReco">
+                                <doc>HI RecoTrf on 2015 pp 5 TeV data, MinBias stream (Run286411 LB660)</doc>
+                                <jobTransformJobName>Run00286411_MinBias_Collisions_HIReco</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00267359 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00267359/physics_MinBias --lumiblock=293
+                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=MinBias --runnum=00286411 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00286411/physics_MinBias --lumiblock=660
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -112,7 +112,7 @@
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
-                                        <argvalue>Run00267359_MinBias_Collisions_HIReco.summary.txt</argvalue>
+                                        <argvalue>Run00286411_MinBias_Collisions_HIReco.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
@@ -1159,7 +1159,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>2014_M-week_reco_noTrigger</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=CosmicMuons --runnum=00253010 --nfiles=1 --maxEvents=200 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00253010/physics_CosmicMuons/ --lumiblock=532 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger.set_Value_and_Lock(False);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;InDetFlags.ForceCoraCool=True;'" --ignorePatterns="'ToolSvc.InDetSCTRodDecoder.+ERROR.+Unknown.+offlineId.+for.+OnlineId|ToolSvc.InDetSCTRodDecoder.+ERROR.+SCT.+Missing.+Link.+Headers.+found'"
+                                    tct_recotrf.py --jobnum=0 --trigStream=CosmicMuons --runnum=00253010 --nfiles=1 --maxEvents=200 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00253010/physics_CosmicMuons/ --lumiblock=532 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger.set_Value_and_Lock(False);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;'" --ignorePatterns="'ToolSvc.InDetSCTRodDecoder.+ERROR.+Unknown.+offlineId.+for.+OnlineId|ToolSvc.InDetSCTRodDecoder.+ERROR.+SCT.+Missing.+Link.+Headers.+found'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
