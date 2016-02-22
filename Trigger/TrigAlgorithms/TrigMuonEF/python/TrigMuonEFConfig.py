@@ -458,7 +458,7 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
                                             ClustersInConeTool              = CaloClustersInConeTool,
                                             CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
                                             UseEMScale = True,
-                                            OutputLevel = 2)
+                                            OutputLevel = 3)
 
         self.CaloTopoClusterIsolationTool = CaloTopoIsolationTool()
 
