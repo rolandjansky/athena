@@ -109,38 +109,6 @@
     </Variable>
   </SortAlgo>
 
-  <SortAlgo type="ClusterSelect" name="TAUabi" output="TAUabi" algoId="1">
-    <Fixed>
-      <Input name="ClusterTobArray" value="TauTobArray"/>
-      <Output name="TobArrayOut" value="TAUabi"/>
-      <Generic name="InputWidth" value=":InputWidthTAU:"/>
-      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectTAU:"/>
-      <Generic name="OutputWidth" value=":OutputWidthSelectTAU:"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET" value="24"/>
-      <Parameter pos="1" name="IsoMask" value="2"/>
-      <Parameter pos="2" name="MinEta" value="0"/>
-      <Parameter pos="3" name="MaxEta" value="49"/>
-    </Variable>
-  </SortAlgo>
-
-  <SortAlgo type="ClusterSelect" name="EMabi" output="EMabi" algoId="2">
-    <Fixed>
-      <Input name="ClusterTobArray" value="EmTobArray"/>
-      <Output name="TobArrayOut" value="EMabi"/>
-      <Generic name="InputWidth" value=":InputWidthEM:"/>
-      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectEM:"/>
-      <Generic name="OutputWidth" value=":OutputWidthSelectEM:"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET" value="16"/>
-      <Parameter pos="1" name="IsoMask" value="2"/>
-      <Parameter pos="2" name="MinEta" value="0"/>
-      <Parameter pos="3" name="MaxEta" value="49"/>
-    </Variable>
-  </SortAlgo>
-
   <SortAlgo type="ClusterSelect" name="EMabhi" output="EMabhi" algoId="3">
     <Fixed>
       <Input name="ClusterTobArray" value="EmTobArray"/>
@@ -168,6 +136,38 @@
     <Variable>
       <Parameter pos="0" name="MinET" value="24"/>
       <Parameter pos="1" name="IsoMask" value="0"/>
+      <Parameter pos="2" name="MinEta" value="0"/>
+      <Parameter pos="3" name="MaxEta" value="49"/>
+    </Variable>
+  </SortAlgo>
+
+  <SortAlgo type="ClusterSelect" name="TAUabi" output="TAUabi" algoId="1">
+    <Fixed>
+      <Input name="ClusterTobArray" value="TauTobArray"/>
+      <Output name="TobArrayOut" value="TAUabi"/>
+      <Generic name="InputWidth" value=":InputWidthTAU:"/>
+      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectTAU:"/>
+      <Generic name="OutputWidth" value=":OutputWidthSelectTAU:"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET" value="24"/>
+      <Parameter pos="1" name="IsoMask" value="2"/>
+      <Parameter pos="2" name="MinEta" value="0"/>
+      <Parameter pos="3" name="MaxEta" value="49"/>
+    </Variable>
+  </SortAlgo>
+
+  <SortAlgo type="ClusterSelect" name="EMabi" output="EMabi" algoId="2">
+    <Fixed>
+      <Input name="ClusterTobArray" value="EmTobArray"/>
+      <Output name="TobArrayOut" value="EMabi"/>
+      <Generic name="InputWidth" value=":InputWidthEM:"/>
+      <Generic name="InputWidth1stStage" value=":InputWidth1stStageSelectEM:"/>
+      <Generic name="OutputWidth" value=":OutputWidthSelectEM:"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET" value="16"/>
+      <Parameter pos="1" name="IsoMask" value="2"/>
       <Parameter pos="2" name="MinEta" value="0"/>
       <Parameter pos="3" name="MaxEta" value="49"/>
     </Variable>
