@@ -24,6 +24,7 @@ TrigMuonEFFSRoiMaker::TrigMuonEFFSRoiMaker(const std::string & name, ISvcLocator
   declareProperty ("InvertRoI", m_doInvertRoI=false);
   declareProperty ("UseFSRoI" , m_useFS=true);  
   declareProperty ("CreateCrackRoI", m_createCrackRoI=false);
+  declareProperty ("CreateFSRoI", m_createFSroi=false);
   declareProperty ("RoISizeEta", m_roiSizeEta=0.1);
   declareProperty ("RoISizePhi", m_roiSizePhi=0.1);
   declareProperty ("RoILabel", m_roiLabel="");
@@ -53,6 +54,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltInitialize() {
     msg() << MSG::INFO << "Invert RoI = " << m_doInvertRoI << endreq;
     msg() << MSG::INFO << "Use FS RoI = " << m_useFS << endreq;
     msg() << MSG::INFO << "Create crack RoI = " << m_createCrackRoI << endreq;
+    msg() << MSG::INFO << "Create FS RoI = " << m_createFSroi << endreq;
   }
 
   if (m_classIDSvc.retrieve().isFailure()) {
@@ -81,6 +83,17 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
   m_nTrkIn=0;
   m_nRoIOut=0;
 
+  if(m_createFSroi){
+    ATH_MSG_DEBUG("creating full scan RoI");
+    TrigRoiDescriptor* roiFS = new TrigRoiDescriptor(0.0, -2.5, 2.5, 0.0, -M_PI, M_PI-0.0001);
+    HLT::TriggerElement* te = nullptr;
+    te = addRoI(output, nullptr ); 
+    te->setActiveState(true);
+    std::string key;
+    m_config->getNavigation()->attachFeature(te, roiFS, HLT::Navigation::ObjectCreatedByNew, key, m_roiLabel);
+    return HLT::OK;
+  }
+
   // we run after FS instance - so should only be one inputTE
   if (inputTEs.size() != 1) {
     msg() << MSG::ERROR << "Got more than one inputTE" << endreq;
@@ -97,6 +110,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
 
   //Create RoI centered around the crack in MS
   if (m_createCrackRoI) {
+
     TrigRoiDescriptor* newRoI = new TrigRoiDescriptor(0.0, -m_roiSizeEta, m_roiSizeEta, 0.0, -m_roiSizePhi, m_roiSizePhi);
     
     HLT::TriggerElement* outputTE = nullptr;
@@ -111,7 +125,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
     }
 
     outputTE->setActiveState(true);
-    ATH_MSG_DEBUG("Added RoI with eta, phi = " << 0.0 << ", " << 0.0<< ", outputTE = " << outputTE->getId());
+    ATH_MSG_DEBUG("RoI:" << *newRoI);
     return HLT::OK;
   }
 
