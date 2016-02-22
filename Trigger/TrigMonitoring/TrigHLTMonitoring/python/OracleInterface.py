@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# Author: Ben Smart (bsmart@cern.ch)
+# Authors: Ben Smart (bsmart@cern.ch) & Xanthe Hoad (xanthe.hoad@cern.ch)
 #
 
 import sys
@@ -701,7 +701,6 @@ class OracleInterface:
         # now our list of dictionaries should be complete, so we return it
         return return_list
 
-
     def check_if_mck_to_smk_link_exists_and_is_active(self,mck_id,smk):
         # return True of False, depending on whether this exact mck-smk link exists and is active
 
@@ -729,6 +728,32 @@ class OracleInterface:
             # no match has been found, so return False
             return False
 
+    def find_active_smk_to_mck_link(self,smk):
+        # returns details of link or an empty list depending on whether an smk link exists for this smk and is active
+
+        # construct the query
+        query = """SELECT * FROM """+self.directory+"""mck_to_smk_link \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK \
+        AND """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK """
+
+        # construct the dict of the input smk
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk
+        parameters_dict['ACTIVE_LINK'] = '1'
+
+        # perform the search
+        search_results = self.fetch(query,parameters_dict)
+
+        return search_results
+
+        # if there are results, return True
+        # otherwise return False
+        #if len(search_results) > 0:
+            # we have found a match, so return True
+            #return True
+        #else:
+            # no match has been found, so return False
+            #return False
 
     def deactivate_all_links_for_given_smk_except_for_given_mck(self,smk,input_mck_id):
         # for a given smk, deactivate all existing smk-mck links
@@ -744,6 +769,23 @@ class OracleInterface:
         # create dictionary of input parameter
         parameters_dict = {}
         parameters_dict['MCK_ID'] = input_mck_id
+        parameters_dict['SMK'] = smk
+        parameters_dict['ACTIVE_LINK'] = '0'
+
+        # insert this into the database
+        self.insert(query,parameters_dict)
+
+    def deactivate_all_links_for_given_smk(self,smk):
+        # for a given smk, deactivate all existing smk-mck links
+        # by setting smk_link_active_mck='0'
+
+        # make query to update links
+        query = """ UPDATE """+self.directory+"""mck_to_smk_link \
+        SET """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK """
+
+        # create dictionary of input parameter
+        parameters_dict = {}
         parameters_dict['SMK'] = smk
         parameters_dict['ACTIVE_LINK'] = '0'
 

@@ -87,15 +87,28 @@ class ToolInterrogator:
                 print "Skipping",tool.getName(),"as its name contains a scope resolution operator '::'."
                 continue
 
+            # OLD:
             # find if Trig and Monitoring are in the tool Dll name
             if "Trig" in tool.getDlls() and "Monitoring" in tool.getDlls():
                 mon_tools.append(tool.getName())
+            #
+            # NEW: 
+            # find if Trig and Monitoring are in the tool Dll name, or if the tool name contains both 'Mon' and either 'HLT' or 'Trig'
+            # (This change was made to catch TrigEgammaMonTool, which has 'TrigEgammaAnalysisTools' as its Dll name)
+            # FURTHER EDIT: extra if statemend added below (7 lines below here) to catch all TrigEgammaAnalysisTools, so we can just revert back to the previous 'OLD' if statement above
+            #if ( "Trig" in tool.getDlls() and "Monitoring" in tool.getDlls() ) or ( ("HLT" in tool.getName() or "Trig" in tool.getName()) and "Mon" in tool.getName() ):
+            #    mon_tools.append(tool.getName())
 
             # of if the tool Dll name is TrigInDetAnalysisExample, as is the case for the IDtrk tools
             if 'TrigInDetAnalysisExample' == tool.getDlls():
                 mon_tools.append(tool.getName())
+            # of if the tool Dll name is TrigEgammaAnalysisTools, as is the case for the Egamma tools
+            if 'TrigEgammaAnalysisTools' == tool.getDlls():
+                mon_tools.append(tool.getName())
+            
 
         # return the list of monitoring tools
+        print "mon_tools =",mon_tools
         return mon_tools
 
 
@@ -125,11 +138,13 @@ class ToolInterrogator:
         # the smck_config to fill and return
         smck_config = {}
 
-        # we first need to check whether this is the HLTEgammaMon or HLTEgammaDump tool
+        # we first need to check whether this is the HLTEgammaMon or HLTEgammaDump, or TrigEgammaMonTool tool
         if tool_ToolSvc_name == 'HLTEgammaMon':
             slice_name = 'Egamma'
         elif tool_ToolSvc_name == 'HLTEgammaDump':
             slice_name = 'Egamma_Dump'
+        elif tool_ToolSvc_name == 'TrigEgammaMonTool':
+            slice_name = 'Egamma'
         else:
             for key, value in self.packages_to_interrogate.PackagesToInterrogate.iteritems():
                 if value['Dll'] == tool_Dll:
@@ -139,6 +154,7 @@ class ToolInterrogator:
         if slice_name == '':
 
             #if not, return -1
+            print ""
             print "Additional info not found for ToolSvc tool ", tool_ToolSvc_name
             return -1
 
@@ -187,7 +203,7 @@ class ToolInterrogator:
     
         # then we check these properties
         for prop,value in tool_properties.iteritems():
-        
+            
             # does the tool really have this property?
             tool_property_truth = False
             exec "tool_property_truth = hasattr(ToolSvc.%s,prop)" % (tool_ToolSvc_name)
@@ -211,6 +227,11 @@ class ToolInterrogator:
                 # then skip this property
                 else:
                     continue
+
+            # GaudiKernel.GaudiHandles.PublicToolHandleArray objects are not storable, so skip them
+            # Little hack because MaM doesn't know what GaudiKernel is
+            if 'GaudiKernel.GaudiHandles.PublicToolHandleArray' in str(type(value)):
+                continue
     
             # test if this value is JSON serializable
             try:

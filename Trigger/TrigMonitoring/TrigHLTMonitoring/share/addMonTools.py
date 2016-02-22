@@ -164,15 +164,9 @@ if HLTMonFlags.doMaM:
 
     # set up menu-aware monitoring
     from TrigHLTMonitoring.MenuAwareMonitoring import MenuAwareMonitoring
-    mam = MenuAwareMonitoring()
+    #mam = MenuAwareMonitoring()
+    mam = MenuAwareMonitoring('ATLAS_CONF_TRIGGER_RUN2_R','TrigConfigRead2015','atlas_config','ATLAS_CONF_TRIGGER_RUN2')
 
-    # if dumping the tool configurations (as a .json file) has been requested, then do that here
-    if  HLTMonFlags.doMaM_ExtractAndDumpConfigs:
-
-        # set up all tools, get their configs, and dump them to HLTMonFlags.MaM_OutputJSON.StoredValue
-        mam.setup_all_local_tools()
-        mam.dump_local_config_to_json(HLTMonFlags.MaM_OutputJSON.StoredValue)
-        
     # if we are applying configurations to tools according to an MCK, then do that here
     if  HLTMonFlags.doMaM_ApplyMCK:
 
@@ -225,6 +219,14 @@ if HLTMonFlags.doMaM:
                         print "Using trigger Monitoring Configuration Key (MCK)",HLTMonFlags.MCK.StoredValue
                         mam.apply_mck( HLTMonFlags.MCK.StoredValue )
 
+    # if dumping the tool configurations (as a .json file) has been requested, then do that here
+    if  HLTMonFlags.doMaM_ExtractAndDumpConfigs:
+
+        # mam.setup_all_local_tools()         
+        # get updated configs for all tools, and dump them to HLTMonFlags.MaM_OutputJSON.StoredValue
+        mam.get_current_local_info()
+        mam.dump_local_config_to_json(HLTMonFlags.MaM_OutputJSON.StoredValue)
+
 ############################################
 
 HLTMonManager.FileKey = "GLOBAL"
@@ -235,3 +237,7 @@ print HLTMonManager;
 #----   End
 #---------------------------------------------------
 
+#try:
+#    print "ToolSvc.HLTMETMon.muon_pt_thresh",ToolSvc.HLTMETMon.muon_pt_thresh
+#except:
+#    print "HLTMETMon is not set up, cannot print value"

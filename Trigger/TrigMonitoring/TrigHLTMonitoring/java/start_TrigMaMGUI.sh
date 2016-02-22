@@ -10,6 +10,11 @@ echo "     For more info about Menu Aware Monitoring see"
 echo "     https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM"
 echo
 
+source /sw/atlas/AtlasSetup/scripts/asetup.sh p1hlt,20.2.3.2,gcc48
+
+CORAL_DBLOOKUP_PATH=/det/tdaq/hlt/mam/authentication/
+CORAL_AUTH_PATH=$CORAL_DBLOOKUP_PATH
+
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export MaMPythonFilesPath=${SCRIPTDIR%/*}/python
 

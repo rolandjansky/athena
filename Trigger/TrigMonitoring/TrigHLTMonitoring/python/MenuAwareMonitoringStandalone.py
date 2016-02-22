@@ -11,6 +11,8 @@ import subprocess
 from xml.dom import minidom
 # import oracle interaction class
 from OracleInterface import OracleInterface
+# import hash library for generating smck config hashes
+import hashlib
 # import json for converting configuration dictionaries into strings for hashing
 import json
 
@@ -24,12 +26,12 @@ class MenuAwareMonitoringStandalone:
     def __init__(self):
 
         # MaM code version
-        self.version = '1.2.3'
+        self.version = '1.2.7'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
 
-        # create oracle interaction object
+         # create oracle interaction object
         self.oi = OracleInterface()
 
         # holder for current user
@@ -85,11 +87,11 @@ class MenuAwareMonitoringStandalone:
                 user,pw = MenuAwareMonitoringStandalone._readAuthentication()[connectionSvc]
                 server = connectionSvc.split('/')[2]
                 directory = "ATLAS_CONF_TRIGGER_RUN2"
-                print "User %s, pw %s, server %s" % (user,pw,server)
+                #print "User %s, pw %s, server %s" % (user,pw,server)
                 # connect to oracle
                 #self.oi.connect_to_oracle(database_username,database_password,database_name)
                 self.oi.connect_to_oracle(user,pw,server,directory)
-                print "Got here"
+                #print "Got here"
                 # flag to record that we have connected
                 self.connected_to_oracle = True
 
@@ -226,6 +228,28 @@ class MenuAwareMonitoringStandalone:
         else:
             return input1
 
+    def __get_config_hash__(self,smck_config=""):
+        "Return a sha512 hash of the input SMCK configuration."
+
+        # if the input is not a string, make it one
+        if type(smck_config) is not str:
+            
+            # use json to turn the config into a string
+            smck_config_json = json.dumps(smck_config, ensure_ascii=True, sort_keys=True)
+
+        # else if it is a string
+        else:
+
+            # use input string as string to hash
+            print "__get_config_hash__ has been passed a string, rather than an smck_config dict. This is unexpected, so you are being notified in case something has gone wrong. If it has, please contact the author: Ben Smart bsmart@cern.ch"
+            print "input =",smck_config
+            smck_config_json = smck_config
+
+        # calculate hash
+        return_hash = hashlib.sha512(smck_config_json.encode()).hexdigest()
+
+        # return hash
+        return return_hash
 
     def __ask_for_comment__(self):
         "If running interactively, ask user for an upload comment."
@@ -438,7 +462,7 @@ class MenuAwareMonitoringStandalone:
                 print "No MCK to SMK link created."
                 return
             
-        if not self.oi.check_if_mck_id_exists(input_mck_id):
+        if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id is not 0):
             print "MCK",input_mck_id,"does not exist in database."
             print "No MCK to SMK link created."                
             return
@@ -453,6 +477,16 @@ class MenuAwareMonitoringStandalone:
 
             # info for user, and return
             print "SMK",input_smk,"linked to MCK",input_mck_id,"is already the active link for this SMK."
+            return
+
+        # check if there are any other active links for this smk
+        active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
+
+        if len(active_smk_to_mck_link_search_results) > 0:
+            # we have found an active link. Upload should not proceed for safety.
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print active_smk_to_mck_link_search_results
+            print "Deactivate this link first if you want to create a new link. You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI), but be sure this is what you want to do."
             return
 
         # get the current user for the creator
@@ -490,6 +524,30 @@ class MenuAwareMonitoringStandalone:
             print "An exception occurred:",sys.exc_info()[0],sys.exc_info()[1]
             print "Error in link upload."
 
+    def force_deactivate_all_links_for_smk(self,input_smk,GUI=False):
+        """Allows the user to clear all links for an smk, so that a new link can be created"""
+
+        # check if there are any other active links for this smk
+        active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
+
+        if len(active_smk_to_mck_link_search_results) > 0:
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print active_smk_to_mck_link_search_results
+        else:
+            print "SMK",input_smk,"is not linked to any MCK."
+            return
+
+        if GUI is False:
+            print "Will force deactivate all links for SMK",input_smk,". Do you really want to do this?"
+            user_input = raw_input("y/n: ")
+        
+            if user_input != 'y':
+                print "Aborted."
+                return
+
+        print "Force deactivating all links for SMK",input_smk,"..."
+        self.oi.deactivate_all_links_for_given_smk(input_smk)
+        print "All links deactivated."
 
     def __get_smck_id_from_smck_identifier__(self,smck_identifier,print_output_here=""):
         "Input can either be an SMCK_ID or an SMCK_TOOL_PATCH_VERSION. Output will be the the correct SMCK_ID."
@@ -543,6 +601,30 @@ class MenuAwareMonitoringStandalone:
                 # return smck_id
                 return smck_id
 
+    def get_smck_info_from_db(self,smck_identifier,print_output_here=""):
+        "Get an SMCK configuration from the Oracle database."
+
+        # check for empty print_output_here
+        # if it is found, use self.print_output
+        if print_output_here == "":
+            print_output_here = self.print_output
+
+        # translate smck_identifier into an smck_id
+        smck_id = self.__get_smck_id_from_smck_identifier__(smck_identifier)
+
+        # if an smck_id has not been found
+        if smck_id == -1:
+
+            # return -1, as no smck_info can be obtained
+            return -1
+        
+        else:
+
+            # get smck_info
+            smck_info = self.oi.read_smck_info_from_db(smck_id)
+
+            # return this smck_info
+            return smck_info
 
     def upload_mck(self,input_smck_list=[],comment="",print_output_here=""):
         """input_smck_list should be a list of SMCK, identified be either their SMCK_ID or SMCK_TOOL_PATCH_VERSION.

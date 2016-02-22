@@ -107,13 +107,17 @@ public class TrigMaMGUI extends JFrame {
             JPanel SMK_MCK_link_subpanel_2 = new JPanel(new FlowLayout(FlowLayout.CENTER,1,1));
             SMK_MCK_link_panel.add(SMK_MCK_link_subpanel_2);
             SMK_MCK_link_subpanel_2.add(SMK_MCK_link_button);
+	    final JCheckBox force_link_checkbox = new JCheckBox("Force link upload (only tick if certain you want to do this)");
+	    SMK_MCK_link_subpanel_2.add(force_link_checkbox);
             
             SMK_MCK_link_button.addActionListener(new ActionListener() {  
                 public void actionPerformed(ActionEvent e) {	
-                    try { SMK_ID = Integer.parseInt(SMK_ID_field.getText().trim()); }
-                    catch (NumberFormatException nfe) { GUI_messenger.append("\nBad SMK ID, must be an integer. "); SMK_ID = 0; }
+		    Boolean GoodValsFlag = true; //we have good MCK and SMK values unless they are found to be bad    
+                    
+		    try { SMK_ID = Integer.parseInt(SMK_ID_field.getText().trim()); }
+                    catch (NumberFormatException nfe) { GUI_messenger.append("\nBad SMK ID, must be an integer. "); GoodValsFlag = false; }
                     try { MCK_ID = Integer.parseInt(MCK_ID_field.getText().trim()); }
-                    catch (NumberFormatException nfe) { GUI_messenger.append("\nBad MCK ID, must be an integer. "); MCK_ID = 0; }
+                    catch (NumberFormatException nfe) { GUI_messenger.append("\nBad MCK ID, must be an integer. "); GoodValsFlag = false; }
                     MCK_SMK_link_comment = linkComment.getText();
                     
                     //Username = username_field.getText().trim();
@@ -124,9 +128,45 @@ public class TrigMaMGUI extends JFrame {
                         GUI_messenger.append("\nPlease add the database details.");
                     } else {*/
                     
-                    if ( !MCK_SMK_link_comment.contains("\"\"\"") && !MCK_SMK_link_comment.contains("'''") && !MCK_SMK_link_comment.contains("'") && !MCK_SMK_link_comment.matches("(.*)\"(.*)") && SMK_ID != 0 && MCK_ID != 0 ) {
+                    if ( !MCK_SMK_link_comment.contains("\"\"\"") && !MCK_SMK_link_comment.contains("'''") && !MCK_SMK_link_comment.contains("'") && !MCK_SMK_link_comment.matches("(.*)\"(.*)") && GoodValsFlag = true ) {
                         GUI_messenger.append("\nSMK " + SMK_ID + " and MCK " + MCK_ID +" are both integers, as required.");
-                        
+
+			if ( force_link_checkbox.isSelected() ) {
+			    
+			    Object[] options = {"Yes", "Cancel"};
+			    int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to overide any existing links to: \nSMK ID:"+SMK_ID+" and create a link to MCK ID: "+MCK_ID+"? \nPlease be sure you want to do this. If you are unsure, click 'Cancel'.",
+									    "Confirm SMK-MCK link override",
+									    JOptionPane.YES_NO_OPTION,
+									    JOptionPane.PLAIN_MESSAGE,
+									    null, options, options[1]);
+			    if (dialogResult == JOptionPane.YES_OPTION){
+				try {
+		
+                                    String link_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone();mam.force_deactivate_all_links_for_smk("+Integer.toString(SMK_ID)+",True);";
+				    ProcessBuilder submit_link = new ProcessBuilder("python", "-c", link_command);
+
+				    Process submit_link_proc = submit_link.start();
+				    
+				    InputStream link_stdout = submit_link_proc.getInputStream();
+				    InputStream link_stderr = submit_link_proc.getErrorStream();
+				    Thread link_threadOut = new Thread( new MyInputStreamSink( link_stdout, "out", GUI_messenger ));
+				    Thread link_threadErr = new Thread( new MyInputStreamSink( link_stderr, "err", null ));
+				    link_threadOut.setDaemon(true);
+				    link_threadErr.setDaemon(true);
+				    link_threadOut.setName( String.format("link_stdout reader" ));
+				    link_threadErr.setName( String.format("link_stderr reader" ));
+				    link_threadOut.start();
+				    link_threadErr.start();
+
+				} catch (IOException err) {
+				}
+			    }
+			    else if (dialogResult == JOptionPane.NO_OPTION){
+				GUI_messenger.append("\nForce upload cancelled.");
+				force_link_checkbox.setSelected(false);
+			    }
+			    
+			}
                         Object[] options = {"Yes", "Cancel"};
                         int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to link: \nSMK ID:"+SMK_ID+" with MCK ID: "+MCK_ID+"\nwith comment: "+MCK_SMK_link_comment, 
                                                                         "Confirm SMK-MCK link", 
@@ -159,9 +199,11 @@ public class TrigMaMGUI extends JFrame {
                         }
                         else if (dialogResult == JOptionPane.NO_OPTION){                        
                             GUI_messenger.append("\nLink upload cancelled.");    
-                        }    
-                    } else if ( MCK_SMK_link_comment.contains("\"") || MCK_SMK_link_comment.contains("\"\"\"") || MCK_SMK_link_comment.contains("'''") || MCK_SMK_link_comment.contains("'") || MCK_SMK_link_comment.matches("(.*)\"(.*)") ) {
+			    force_link_checkbox.setSelected(false);
+			}    
+			} else if ( MCK_SMK_link_comment.contains("\"") || MCK_SMK_link_comment.contains("\"\"\"") || MCK_SMK_link_comment.contains("'''") || MCK_SMK_link_comment.contains("'") || MCK_SMK_link_comment.matches("(.*)\"(.*)") ) {
                         GUI_messenger.append("\nComment contains \' or \", please remove these characters.");
+			force_link_checkbox.setSelected(false);
                     } }
             });
         }

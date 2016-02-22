@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# Author: Ben Smart (bsmart@cern.ch)
+# Authors: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch) 
 #
 
 import sys
@@ -36,7 +36,7 @@ class MenuAwareMonitoring:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.2.3'
+        self.version = '1.2.7'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
@@ -82,7 +82,8 @@ class MenuAwareMonitoring:
         self.__connect_to_oracle__(database_username,database_password,database_name,database_directory)
 
         # fill default global info (if available)
-        self.get_default_from_db()
+        if self.connected_to_oracle == True:
+            self.get_default_from_db()
 
         # print guide for user if this is an interactive session
         if self.__is_session_interactive__():
@@ -90,7 +91,7 @@ class MenuAwareMonitoring:
             # print guide for user
             # TODO
             print ""
-            print "Author of this code: Ben Smart (Ben.Smart@cern.ch)"
+            print "Authors of this code: Ben Smart (Ben.Smart@cern.ch), Xanthe Hoad (Xanthe.Hoad@cern.ch)"
             print "This is Menu-aware monitoring version",self.version
             print "Running in Athena release",self.current_athena_version
             print "You are",self.current_user
@@ -111,7 +112,7 @@ class MenuAwareMonitoring:
         else:
         
             # info for user
-            print "We are now connecting to the Oracle database"
+            print "We are now attempting to connect to the Oracle database"
 
             # try catch
             try:
@@ -125,10 +126,12 @@ class MenuAwareMonitoring:
             except:
 
                 # info for user
-                print "Error while connecting to Oracle database. Exiting."
-            
+                print "Error while connecting to Oracle database. Some functionality will not be available to you."
+                # just to be sure 
+                self.connected_to_oracle = False
+                                
                 # exit, otherwise the program will crash later when Oracle database features are required
-                sys.exit(1)
+                #sys.exit(1)
 
 
     def __disconnect_from_oracle__(self):
@@ -349,6 +352,10 @@ class MenuAwareMonitoring:
         """Get the MCK number (MCK_ID) of the default for this Athena version.
         If input_athena_version=='', the current Athena version is used."""
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # if no input Athena version is provided, then use the current version
         if input_athena_version == "":
             input_athena_version = self.current_athena_version
@@ -361,6 +368,10 @@ class MenuAwareMonitoring:
         """Prints default MCK number (MCK_ID) for an Athena version.
         If no Athena version is specified, the current Athena version being run in is used.
         All default information is made available in the <ThisVariable>.default_global_info dictionary."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -400,6 +411,10 @@ class MenuAwareMonitoring:
     def get_global_info_from_db(self,mck_id):
         "For an input MCK number (MCK_ID), get all related MCK and SMCK info, and return it as a dictionary."
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
         # get mck_info for this mck
         global_info = {}
         global_info['MONITORING_TOOL_DICT'] = {}
@@ -432,6 +447,10 @@ class MenuAwareMonitoring:
 
     def __get_smck_id_from_smck_identifier__(self,smck_identifier,print_output_here=""):
         "Input can either be an SMCK_ID or an SMCK_TOOL_PATCH_VERSION. Output will be the the correct SMCK_ID."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -485,6 +504,10 @@ class MenuAwareMonitoring:
 
     def get_smck_info_from_db(self,smck_identifier,print_output_here=""):
         "Get an SMCK configuration from the Oracle database."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -585,7 +608,11 @@ class MenuAwareMonitoring:
 
     def upload_default(self,comment="",athena_version="",user="",print_output_here=""):
         "Upload all current trigger-monitoring tool configurations as default for this Athena version."
-
+        
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -667,6 +694,10 @@ class MenuAwareMonitoring:
         """Upload local configuration for tool 'input1' as an SMCK.
         If input1=='local', then all local configuration changes wrt the default will be uploaded.
         Optional processing step and comment can be provided."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -796,6 +827,10 @@ class MenuAwareMonitoring:
     def upload_all_local_changes_as_smck(self,processing_step="",processing_stream="",comment="",athena_version="",user="",print_output_here=""):
         """Upload all local configuration changes wrt the default.
         Optional processing step, stream, and comment can be provided."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -963,6 +998,10 @@ class MenuAwareMonitoring:
         """input_smck_list should be a list of SMCK, identified be either their SMCK_ID or SMCK_TOOL_PATCH_VERSION.
         An MCK will be uploaded, linking to these SMCK.
         Optional comment can be provided."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1469,6 +1508,10 @@ class MenuAwareMonitoring:
     def __is_input_an_mck__(self,input1=""):
         "Is input1 a valid MCK_ID."
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # if the input is blank, then no, it's not an mck
         if input1 == "":
             return False
@@ -1487,6 +1530,10 @@ class MenuAwareMonitoring:
 
     def __is_input_an_smck__(self,input1="",print_output_here=""):
         "Is input1 a valid SMCK_ID or SMCK_TOOL_PATCH_VERSION."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1515,6 +1562,10 @@ class MenuAwareMonitoring:
         If diff_all==False (default), only items that are in both inputs, and different, will be returned.
         The inputs specify what things are to be diffed.
         The flags specify what kind of inputs the inputs are."""
+
+        if self.connected_to_oracle == False and ( input1.upper() != "LOCAL" or input2.upper() != "LOCAL" ):
+            print "You are not connected to the database, so this function is only available for use on local tools not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -1798,6 +1849,10 @@ class MenuAwareMonitoring:
     def print_database_schema(self):
         "Print the tables and entries in the current Oracle database."
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # get SQL table and column names
         database_column_list = self.oi.get_db_tables_and_columns()
 
@@ -1841,6 +1896,10 @@ class MenuAwareMonitoring:
         """Search the Oracle database for something.
         input1 is is what is to be searched for.
         flag1 specifies what kind of input input1 is."""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -2064,6 +2123,10 @@ class MenuAwareMonitoring:
     def apply_mck(self,input1="",print_output_here=""):
         "Apply an MCK to locally running tools."
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # check for empty print_output_here
         # if it is found, use self.print_output
         if print_output_here == "":
@@ -2089,6 +2152,10 @@ class MenuAwareMonitoring:
 
     def apply_smck(self,input1="",print_output_here=""):
         "Apply an SMCK to a locally running tool."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # check for empty print_output_here
         # if it is found, use self.print_output
@@ -2336,7 +2403,11 @@ class MenuAwareMonitoring:
         If no MCK is found, -1 is returned.
         If an MCK of 0 is returned, this is intended to signify 
         that the default tool configurations should be used."""
-        
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # get list of all mck_to_smk links
         mck_to_smk_links = []
         mck_to_smk_links = self.oi.get_all_mck_to_smk_links()
@@ -2360,6 +2431,10 @@ class MenuAwareMonitoring:
 
     def print_all_mck_to_smk_links(self):
         "Print all MCK to SMK links."
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
 
         # get list of all mck_to_smk links
         mck_to_smk_links = []
@@ -2428,6 +2503,10 @@ class MenuAwareMonitoring:
         then a new link will be created and made active.
         The origional link will be deactivated (but will remain in the database for posterity)."""
 
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+
         # is this session interactive?
         if self.__is_session_interactive__():
 
@@ -2473,7 +2552,7 @@ class MenuAwareMonitoring:
                 print "No MCK to SMK link created."
                 return
             
-        if not self.oi.check_if_mck_id_exists(input_mck_id):
+        if (not self.oi.check_if_mck_id_exists(input_mck_id)) and (input_mck_id is not 0):
             print "MCK",input_mck_id,"does not exist in database."
             print "No MCK to SMK link created."                
             return
@@ -2489,6 +2568,16 @@ class MenuAwareMonitoring:
             # info for user, and return
             print "SMK",input_smk,"linked to MCK",input_mck_id,"is already the active link for this SMK."
             return
+
+        # check if there are any other active links for this smk
+        active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
+
+        if len(active_smk_to_mck_link_search_results) > 0:
+            # we have found an active link. Upload should not proceed for safety.
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print active_smk_to_mck_link_search_results
+            print "Deactivate this link first if you want to create a new link. You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI), but be sure this is what you want to do."
+            return        
 
         # get the current user for the creator
         creator = self.current_user
@@ -2525,6 +2614,33 @@ class MenuAwareMonitoring:
             print "An exception occurred:",sys.exc_info()[0],sys.exc_info()[1]
             print "Error in link upload."
 
+    def force_deactivate_all_links_for_smk(self,input_smk,GUI=False):
+        """Allows the user to clear all links for an smk, so that a new link can be created"""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
+        # check if there are any other active links for this smk
+        active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
+
+        if len(active_smk_to_mck_link_search_results) > 0:
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print active_smk_to_mck_link_search_results
+        else:
+            print "SMK",input_smk,"is not linked to any MCK."
+            return
+        
+        print "Will force deactivate all links for SMK",input_smk,". Do you really want to do this?"
+        user_input = raw_input("y/n: ")
+        
+        if user_input != 'y':
+            print "Aborted."
+            return
+
+        print "Force deactivating all links for SMK",input_smk,"..."
+        self.oi.deactivate_all_links_for_given_smk(input_smk)
+        print "All links deactivated."
 
     def dump_local_config_to_json(self,output_json_filename="mam_configs.json",processing_step="",processing_stream="",comment="",default="",print_output_here=""):
         "All locally read-in trigger monitoring tool configurations are output to a json file."
@@ -2614,6 +2730,10 @@ class MenuAwareMonitoring:
         If you only want to load configurations from a json file, 
         but not immediately upload to the database, then consider instead calling 
         <ThisVariable>.load_local_config_from_json(input_json_filename)"""
+
+        if self.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
         
         # check for empty print_output_here
         # if it is found, use self.print_output
