@@ -14,7 +14,7 @@
 #include "TrigNavigation/TriggerElement.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 const char* InDetTrkRoiMaker::s_scanModeNames[InDetTrkRoiMaker::kNumberOfModes] = { "FullScan", "SeededScan", "HybridScan" };
 
@@ -43,7 +43,7 @@ TrigInDetTrack::AlgoId InDetTrkRoiMaker::seedsNameToEnum( const std::string& see
   else if (seedsName=="STRATEGY_C") algoId = TrigInDetTrack::STRATEGY_C_ID;
   else if (seedsName=="TRTXK")      algoId = TrigInDetTrack::TRTXKID;
   else if (seedsName=="TRTSEG")     algoId = TrigInDetTrack::TRTLUTID;
-
+  else if (seedsName=="FTF")        algoId = TrigInDetTrack::FTF;
   return algoId;
 }
 
@@ -66,7 +66,7 @@ std::string InDetTrkRoiMaker::getScanModeHelp() {
  * Constructor - set up the algorithm
  */
 InDetTrkRoiMaker::InDetTrkRoiMaker(const std::string & name, ISvcLocator* pSvcLocator) :
-  HLT::AllTEAlgo(name, pSvcLocator)
+  HLT::FexAlgo(name, pSvcLocator)
 {
   // ID algorithm to use as input
   declareProperty("FullScanMode", m_fullScanModeProperty="HybridScan", getScanModeHelp());
@@ -76,7 +76,7 @@ InDetTrkRoiMaker::InDetTrkRoiMaker(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("SeedsIDalgo", m_ID_algo_to_use="STRATEGY_F");
   // main track cuts
   declareProperty("SeedsEtaMax", m_EtaMaxTrk = 2.5, "Only use track seeds with |eta| <= SeedsEtaMax. Only used in modes \"SeededScan\" and \"HybridScan\"");
-  declareProperty("SeedsPtMin",  m_PtMinTrk = 3.0, "Only use track seeds with pT >= SeedsPtMin (GeV/c). Only used in modes \"SeededScan\" and \"HybridScan\"");
+  declareProperty("SeedsPtMin",  m_PtMinTrk = 5.0, "Only use track seeds with pT >= SeedsPtMin (GeV/c). Only used in modes \"SeededScan\" and \"HybridScan\"");
   //ID tracks quality parameters
   declareProperty("SeedsMaxAbsZ", m_ZMaxTrk=999999999.);
   declareProperty("SeedsMaxChi2",    m_Chi2MaxTrk=999999999.);
@@ -135,126 +135,125 @@ HLT::ErrorCode InDetTrkRoiMaker::hltFinalize() {
   return HLT::OK;
 }//hltFinalize
 
-HLT::ErrorCode InDetTrkRoiMaker::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {  
+HLT::ErrorCode InDetTrkRoiMaker::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {  
   // clear monitor variables
   beforeExecMonitors().ignore();
-    
+  outputTE->setActiveState(true);
+
   TrigRoiDescriptor* superRoI = new TrigRoiDescriptor(true); // create fullscan RoI
   //  superRoI->set_roiId(10000); /// do we need this ??
 
   if ( m_fullScanMode == kFullScan ) {
     ///    now use a standard TrigRoiDescriptor, these are not 
     ///    composite by default
-    ///    superRoI->setComposite(false); // so it will be treated as a full-scan
+        superRoI->setComposite(false); // so it will be treated as a full-scan
 
   } else if ( m_fullScanMode == kSeededScan || m_fullScanMode == kHybridScan ) {
-    superRoI->setComposite(true);
-    superRoI->manageConstituents(true);
-    if (inputTEs.size() != 1) {
-      ATH_MSG_WARNING("Got more than one inputTE");
-      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
-    }
-
-    std::vector<HLT::TriggerElement*>& inputTE = inputTEs.at(0);
-    ATH_MSG_INFO( "inputTE.size() " << inputTE.size() );
+        superRoI->setComposite(false);
+    //    superRoI->manageConstituents(true);
 
 
-    std::vector <const TrigInDetTrackCollection*> vectorOfTrackCollections;
-    if( HLT::OK != getFeatures(inputTE.front(),vectorOfTrackCollections, "") ) {
-      ATH_MSG_WARNING(" Failed to get InDetTrackCollections --> no match");
-      return HLT::MISSING_FEATURE;
-    }
+
+	//    std::vector <const TrigInDetTrackCollection*> vectorOfTrackCollections;
+	std::vector<const TrackCollection*> vectorOfTrackCollections;
+	if( HLT::OK != getFeatures(inputTE,vectorOfTrackCollections, "") ) {
+	  ATH_MSG_WARNING(" Failed to get InDetTrackCollections --> no match");
+	  return HLT::MISSING_FEATURE;
+	}
   
-    ATH_MSG_INFO(" Got " << vectorOfTrackCollections.size() << " InDetTrackCollections");
+	ATH_MSG_DEBUG(" Got InDetTrackCollections "<<vectorOfTrackCollections.size());
 
-    std::vector<const TrigInDetTrackCollection*>::iterator
-      theTrackColl = vectorOfTrackCollections.begin(),
-      endTrackColl = vectorOfTrackCollections.end();
+	std::vector<const TrackCollection*>::iterator
+	  theTrackColl = vectorOfTrackCollections.begin(),
+	  endTrackColl = vectorOfTrackCollections.end();
     
-    // Loop on container & create ROIs.
-    int nFound(0);
-    int nIDtracks(0);
-    for ( ; theTrackColl != endTrackColl;  ++theTrackColl ) {//Tracks Collections Loop
+	// Loop on container & create ROIs.
+	int nFound(0);
+	int nIDtracks(0);
+	for ( ; theTrackColl != endTrackColl;  ++theTrackColl ) {//Tracks Collections Loop
       
-      TrigInDetTrackCollection::const_iterator
-        track     = (*theTrackColl)->begin(),
-        lasttrack = (*theTrackColl)->end();
+	  TrackCollection::const_iterator
+	    track     = (*theTrackColl)->begin(),
+	    lasttrack = (*theTrackColl)->end();
       
-      for ( ; track != lasttrack; ++track ) {//Tracks Loop
-        
-        //Select tracks
-        if( (*track)->algorithmId() == m_seedsAlgoId ) {
-          ++nIDtracks;
+	  for ( ; track != lasttrack; ++track ) {//Tracks Loop
+	    ATH_MSG_INFO("here!!!");
+	    //Select tracks
+	    ++nIDtracks;
+	    
+	    if (!((*track)->perigeeParameters())) continue;   //Must have helix parameters
+	    double pt_id    = (*track)->perigeeParameters()->momentum().perp()*0.001; //in GeV/c
+	    double phi_id   = (*track)->perigeeParameters()->parameters()[Trk::phi0];
+	    double theta    = (*track)->perigeeParameters()->parameters()[Trk::theta] ;
+	    double eta_id   = -log(fabs(tan(theta*0.5)));
+	    
+	    // FIXME: MS what are the eta and phi resolutions? are these set correctly?
+	    //        Use these for the roi sizes
+	    // double deta_id = (*track)->perigeeParameters()->parameters()[Trk::eeta];
           
-          if (!((*track)->param())) continue;   //Must have helix parameters
-          double pt_id    = (*track)->param()->pT()*0.001; //in GeV/c
-          double phi_id   = (*track)->param()->phi0();
-          double eta_id   = (*track)->param()->eta();
-          
-          // FIXME: MS what are the eta and phi resolutions? are these set correctly?
-          //        Use these for the roi sizes
-          double dphi_id = (*track)->param()->ephi0();
-          double deta_id = (*track)->param()->eeta();
-          
-          double zPos_id  = (*track)->param()->z0();
-          double chi2_id  = (*track)->chi2();
-          int    npixh_id = (*track)->NPixelSpacePoints();
-          int    nscth_id = (*track)->NSCT_SpacePoints();
-          
-          ATH_MSG_DEBUG( "Found track: "
-          << m_ID_algo_to_use
-                         << "  with pt= " << pt_id
-                         << ", eta=" << eta_id
-                         << ", phi=" << phi_id
-                         << ", Zid=" << zPos_id
-                         << ", Chi2=" << chi2_id
-                         << ", NPix=" << npixh_id
-                         << ", NSCT=" << nscth_id
-          );
-          
-          // monitoring
-          m_ptTrkIn.push_back( std::abs(pt_id) );
-          m_etaTrkIn.push_back( eta_id );
-          m_phiTrkIn.push_back( phi_id );
-          
-          // track selection
-          if (std::abs(pt_id)   < m_PtMinTrk)       continue;
-          if (std::abs(eta_id)  > m_EtaMaxTrk)      continue;
-          if (std::abs(zPos_id) > m_ZMaxTrk)        continue;
-          if (chi2_id           > m_Chi2MaxTrk)     continue;
-          if (npixh_id          < m_NPIXhitMinTrk)  continue;
-          if (nscth_id          < m_NSCThitMinTrk)  continue;
-          
-          ++nFound;
+	    double zPos_id  = (*track)->perigeeParameters()->parameters()[Trk::z0];
+	    double chi2_id  = (*track)->fitQuality()->chiSquared();
+	    // int    npixh_id = (*track)->NPixelSpacePoints();
+	    // int    nscth_id = (*track)->NSCT_SpacePoints();
+	    Eigen::Matrix<double, 5, 5, 0, 5, 5> covMat = *( (*track)->perigeeParameters()->covariance());
+	    double dphi_id =  Amg::error(covMat,Trk::phi0);
+	    double dtheta_id = Amg::error(covMat,Trk::theta);
+	    double deta_id = 0.025;
+	    if(fabs(sin(theta))>0) deta_id = dtheta_id/sin(theta);
+	    //	    ATH_MSG_INFO("dphi: "<<dphi_id<<" deta: "<<deta_id);
+	    ATH_MSG_DEBUG( "Found track: "
+			   << m_ID_algo_to_use
+			   << "  with pt= " << pt_id
+			   << ", eta=" << eta_id
+			   << ", phi=" << phi_id
+			   << ", Zid=" << zPos_id
+			   << ", Chi2=" << chi2_id
+			   // << ", NPix=" << npixh_id
+			   // << ", NSCT=" << nscth_id
+			   );
+	    
+	    // monitoring
+	    m_ptTrkIn.push_back( std::abs(pt_id) );
+	    m_etaTrkIn.push_back( eta_id );
+	    m_phiTrkIn.push_back( phi_id );
+	    
+	    // track selection
+	    if (std::abs(pt_id)   < m_PtMinTrk)       continue;
+	    if (std::abs(eta_id)  > m_EtaMaxTrk)      continue;
+	    if (std::abs(zPos_id) > m_ZMaxTrk)        continue;
+	    if (chi2_id           > m_Chi2MaxTrk)     continue;
+	    // if (npixh_id          < m_NPIXhitMinTrk)  continue;
+	    // if (nscth_id          < m_NSCThitMinTrk)  continue;
+	    
+	    ++nFound;
 
-          TrigRoiDescriptor*  newRoi = createSingleTrigRoiDescriptor( eta_id, phi_id, 4*deta_id, 4*dphi_id, superRoI->roiId() + nFound );
-          superRoI->push_back( newRoi );
-          ATH_MSG_DEBUG("Added RoI from selected track: " << *newRoi );
+	    TrigRoiDescriptor*  newRoi = createSingleTrigRoiDescriptor( eta_id, phi_id, 4*deta_id, 4*dphi_id, superRoI->roiId() + nFound );
+	    superRoI->push_back( newRoi );
+	    ATH_MSG_DEBUG("Added RoI from selected track: " << *newRoi );
      
-          // difference w.r.t already found tracks
-          int n = m_etaRoiOut.size();
-          for ( int i = 0; i < n; ++i ) {
-            double dEta = eta_id - m_etaRoiOut[i];
-            double dPhi = phi_id - m_phiRoiOut[i];
-            // put phi in range -PI,PI
-            while ( dPhi  >  M_PI  ) dPhi -= 2*M_PI;
-            while ( dPhi <= -M_PI  ) dPhi += 2*M_PI;
-            double dR = std::sqrt( dEta*dEta + dPhi*dPhi );
-            m_dEtaTrkSel.push_back( dEta );
-            m_dPhiTrkSel.push_back( dPhi );
-            m_dRTrkSel.push_back( dR );
-            if ( dR > 0.0 ) m_logdRTrkSel.push_back( std::log10(dR) );
-          }
+	    // difference w.r.t already found tracks
+	    int n = m_etaRoiOut.size();
+	    for ( int i = 0; i < n; ++i ) {
+	      double dEta = eta_id - m_etaRoiOut[i];
+	      double dPhi = phi_id - m_phiRoiOut[i];
+	      // put phi in range -PI,PI
+	      while ( dPhi  >  M_PI  ) dPhi -= 2*M_PI;
+	      while ( dPhi <= -M_PI  ) dPhi += 2*M_PI;
+	      double dR = std::sqrt( dEta*dEta + dPhi*dPhi );
+	      m_dEtaTrkSel.push_back( dEta );
+	      m_dPhiTrkSel.push_back( dPhi );
+	      m_dRTrkSel.push_back( dR );
+	      if ( dR > 0.0 ) m_logdRTrkSel.push_back( std::log10(dR) );
+	    }
         
-          // monitoring
-          m_ptRoiOut.push_back( std::abs(pt_id) );
-          m_etaRoiOut.push_back( eta_id );	
-          m_phiRoiOut.push_back( phi_id );
-
+	    // monitoring
+	    m_ptRoiOut.push_back( std::abs(pt_id) );
+	    m_etaRoiOut.push_back( eta_id );	
+	    m_phiRoiOut.push_back( phi_id );
+	    
         
-        }//selection
-      }//Tracks loop
-    }//Track collections loop	      
+	  }//Tracks loop
+	}
 
     m_nTrksIn = nIDtracks;
     m_nRoiOut = nFound;
@@ -264,30 +263,32 @@ HLT::ErrorCode InDetTrkRoiMaker::hltExecute(std::vector<std::vector<HLT::Trigger
       m_nRoiToTrkRatio = 0.0;
     }
   
-    ATH_MSG_INFO("Made " << nFound << " ROIs from " << nIDtracks << m_ID_algo_to_use << " tracks.");
+    ATH_MSG_DEBUG("Made " << nFound << " ROIs from " << nIDtracks << m_ID_algo_to_use << " tracks.");
 
     if ( m_fullScanMode == kHybridScan ) {
       // add 2 eta regions outside of seeds range
       if ( m_EtaMaxTrk < m_fullEtaRange - 0.00001  ) {
         double etaCentral = 0.5 * std::abs(m_EtaMaxTrk + m_fullEtaRange);
         TrigRoiDescriptor* endcapPositive = new TrigRoiDescriptor( etaCentral, m_EtaMaxTrk, m_fullEtaRange, /* eta positive end-cap */
-                                                                   0, -M_PI, M_PI /* full phi range */ );
-        TrigRoiDescriptor* endcapNegative = new TrigRoiDescriptor( -etaCentral, -m_fullEtaRange, -m_EtaMaxTrk, /* eta negative end-cap */
-                                                                   0, -M_PI, M_PI /* full phi range */ );
-        superRoI->push_back( endcapPositive );
-        superRoI->push_back( endcapNegative );
+								   0., -M_PI+1e-6, M_PI-1e-6 /* full phi range */ ,0.,-255.,255.);
+        TrigRoiDescriptor* endcapNegative = new TrigRoiDescriptor( 0., -m_fullEtaRange, -m_EtaMaxTrk, /* eta negative end-cap */
+                                                                   0., -M_PI+1e-6, M_PI-1e-6 /* full phi range */,0.,-255.,255. );
 
-        ATH_MSG_DEBUG("Added RoI from positive end-cap: " << *endcapPositive );
-        ATH_MSG_DEBUG("Added RoI from negative end-cap: " << *endcapNegative );
+	superRoI->push_back( endcapPositive );
+	superRoI->push_back( endcapNegative );
+
+	ATH_MSG_DEBUG("Added RoI from positive end-cap: " << *endcapPositive );
+	ATH_MSG_DEBUG("Added RoI from negative end-cap: " << *endcapNegative );
       }
     } // if m_fullScanMode == kHybridScan
     
   } // if m_fullScanMode == kSeededScan || kHybridScan
   
   // add just one new outputTE with one TrigSuperRoI
-  HLT::TriggerElement* outputTE = addRoI(output, superRoI);
+  // outputTE = addRoI(0, superRoI);
+  //  for(auto roi : superRoI)
+  attachFeature(outputTE,superRoI,"forMSFS");
   outputTE->setActiveState(true);
-
   // fill monitor variables "by hand" because this is an allTE algo
   afterExecMonitors().ignore();
   return HLT::OK;  
@@ -303,7 +304,7 @@ TrigRoiDescriptor* InDetTrkRoiMaker::createSingleTrigRoiDescriptor( double eta, 
   if(maxphi <= -M_PI) maxphi += 2.0*M_PI;
   if(maxphi >   M_PI) maxphi -= 2.0*M_PI;
   double minEta = eta - std::abs(etaWidth);
-  double maxEta = eta + std::abs(etaWidth);
+    double maxEta = eta + std::abs(etaWidth);
 
   /// Oh no!! will setting the roiword and the l1id to 0 have any serious consequences?
   /// do we really need these identifiers? Does anything actually ever use them for 
