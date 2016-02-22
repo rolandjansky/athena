@@ -15,7 +15,6 @@ CREATED:  Jul 2007
 
 PURPOSE:  Persistent rapresentation of MissingEtTruth class
 ********************************************************************/
-#include "MissingETEvent/MissingET.h"
 #include "RecTPCnv/MissingET_p1.h"
 #include <vector>
 

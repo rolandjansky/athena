@@ -48,12 +48,8 @@ void MissingEtTruthCnv_p1::persToTrans( const MissingEtTruth_p1* pers,
   trans->m_eyTruth      = pers->m_eyTruth;
   trans->m_etSumTruth   = pers->m_etSumTruth;
   
-   if( &pers->m_met != 0)
-  {
-    // use the MissingET converter to convert from pers to trans 
-    metCnv.persToTrans(&pers->m_met, trans, msg);
-      
-  }  
+  // use the MissingET converter to convert from pers to trans 
+  metCnv.persToTrans(&pers->m_met, trans, msg);
   
     // for (unsigned int vi=0;vi<trans->m_exTruth.size();++vi)
     //      std::cout<<"IN  EtTruth ex: "<<trans->m_exTruth[vi]<<"\tey: "<<trans->m_eyTruth[vi]<<"\tet: "<<trans->m_etSumTruth[vi]<<std::endl;

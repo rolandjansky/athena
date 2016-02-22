@@ -12,9 +12,7 @@ PACKAGE:  offline/Reconstruction/RecTPCnv
 
 PURPOSE:  Persistent rapresentation of MissingET class
 ********************************************************************/
-
-#include "MissingETEvent/MissingEtRegions.h"
-#include "RecTPCnv/MissingEtRegions_p2.h"
+#include <vector>
 
 // forward declarations
 class MissingETCnv_p2;
