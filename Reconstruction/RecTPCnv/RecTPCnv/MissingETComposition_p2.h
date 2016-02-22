@@ -5,18 +5,17 @@
 #ifndef RECTPCNV_MISSINGETCOMPOSITION_P2_H
 #define RECTPCNV_MISSINGETCOMPOSITION_P2_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/Navigable_p2.h"
 
-// needed for the navigation weight
-#include "MissingETEvent/MissingETComposition.h"
-
   
+namespace  MissingETHandlers {
+   class Weight;
+}
+
 struct Weight_p1 {
-    Weight_p1() {  w[0]=0; w[1]=0; w[2]=0; statusWord=0;};
-    Weight_p1(const MissingETHandlers::Weight& we) { w[0]=we.wpx(); w[1]=we.wpy(); w[2]=we.wet(); statusWord=we.statusWord();};
+    Weight_p1() {  w[0]=0; w[1]=0; w[2]=0; statusWord=0; }
+    Weight_p1(const MissingETHandlers::Weight& we);
     float w[3];
     unsigned short int statusWord;
 };
@@ -31,7 +30,8 @@ class MissingETComposition_p2
   MissingETComposition_p2() { };
   virtual ~MissingETComposition_p2() { };
   
-  GeneratePersNavigableType_p2<MissingETComposition, Weight_p1>::type m_nav;
+  //GeneratePersNavigableType_p2<MissingETComposition, Weight_p1>::type m_nav;
+  Navigable_p2<unsigned int, Weight_p1>         m_nav;
 };
 
 #endif
