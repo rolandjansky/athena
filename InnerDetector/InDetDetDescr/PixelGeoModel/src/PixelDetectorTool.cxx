@@ -11,6 +11,7 @@
 #include "PixelGeoModel/PixelSwitches.h" 
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h" 
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "PixelGeoModel/PixelGeoModelAthenaComps.h"
@@ -381,22 +382,76 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
 
   StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
-    //standard alignment folder must be present!
-    std::string folderName = "/Indet/Align";
-    if (detStore->contains<AlignableTransformContainer>(folderName)) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
-      const DataHandle<AlignableTransformContainer> atc;
-      StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-      if(sctmp.isFailure()) {
-	 msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+
+    {  
+      std::string folderName = "/Indet/AlignL1/ID";
+      if (detStore->contains<CondAttrListCollection>(folderName)) {
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	const DataHandle<CondAttrListCollection> calc;
+	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	// We don't expect this to fail as we have already checked that the detstore contains the object.                           
+	if (ibltmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
       } else {
-	sc =  StatusCode::SUCCESS;
+	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+	//return StatusCode::FAILURE;
+      }
+
+      folderName = "/Indet/AlignL2/PIX";
+      if (detStore->contains<CondAttrListCollection>(folderName)) {
+	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	const DataHandle<CondAttrListCollection> calc;
+	StatusCode ibltmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	// We don't expect this to fail as we have already checked that the detstore contains the object.                           
+	if (ibltmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      } else {
+	msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+        //return StatusCode::FAILURE;
+      }
+
+      folderName = "/Indet/AlignL3";
+      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	const DataHandle<AlignableTransformContainer> atc;
+	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	if(sctmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      }
+      else {
+	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
+		      << folderName <<  endreq;
+	//return StatusCode::FAILURE;
       }
     }
-    else {
-      msg(MSG::ERROR) << "Unable to register callback on AlignableTransformContainer with folder " 
-		      << folderName << ", Alignment disabled!" << endreq;
-      return StatusCode::FAILURE;
+
+    
+    {
+      std::string folderName = "/Indet/Align";
+      if (detStore->contains<AlignableTransformContainer>(folderName)) {
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	const DataHandle<AlignableTransformContainer> atc;
+	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	if(sctmp.isFailure()) {
+	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	} else {
+	  sc =  StatusCode::SUCCESS;
+	}
+      }
+      else {
+	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " 
+			<< folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endreq;
+	//return StatusCode::FAILURE; 
+      }
     }
     
     if (m_tweakIBLDist) {
@@ -416,7 +471,7 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
 	// We don't return false, as it might be possible that we run an old configuration without new DB;
 	// Return a clear warning msg for now.
 	msg(MSG::WARNING) << "Unable to register callback on IBLDist with folder " << ibl_folderName <<endreq;
-	msg(MSG::WARNING) << "This might be OK, if no LB-IOV IBL-bowing DB is provided for this run " <<endreq;
+	msg(MSG::WARNING) << "This should not happen that  no LB-IOV IBL-bowing DB is provided for this run " <<endreq;
       }
     }// end of tweakIBLDist
 

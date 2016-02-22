@@ -18,7 +18,6 @@ class IGeoSubDetTool;
 class IInDetServMatBuilderTool;
 class IBLParameterSvc;
 
-
 namespace InDetDD {
   class PixelDetectorManager;
 }
