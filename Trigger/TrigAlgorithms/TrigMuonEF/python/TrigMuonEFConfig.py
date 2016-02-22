@@ -458,7 +458,7 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
                                             ClustersInConeTool              = CaloClustersInConeTool,
                                             CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
                                             UseEMScale = True,
-                                            OutputLevel = 2)
+                                            OutputLevel = 3)
 
         self.CaloTopoClusterIsolationTool = CaloTopoIsolationTool()
 
@@ -580,12 +580,12 @@ class TrigMuonEFTrackIsolationAnnulusConfig (TrigMuonEFTrackIsolation):
 
 def InDetTrkRoiMaker_Muon(name="InDetTrkRoiMaker_Muon",**kwargs):
     kwargs.setdefault("FullScanMode", "HybridScan")
-    kwargs.setdefault("SeedsIDalgo", "Stratety_F")
+    kwargs.setdefault("SeedsIDalgo", "FTF")
     kwargs.setdefault("SeedsEtaMax", 2.5)
-    kwargs.setdefault("SeedsPtMin", 3.0) # GeV
+    kwargs.setdefault("SeedsPtMin", 2.0) # GeV
     kwargs.setdefault("FullEtaRange", 3.0) # MS goes up to 2.7
     kwargs.setdefault("AthenaMonTools", [ InDetTrkRoiMakerMonitoring("Monitoring"),
-                                          TrigTimeHistToolConfig("Time", TimerHistLimits = [0, 10], NumberOfHistBins = 100) ] )
+                                          TrigTimeHistToolConfig("Time")] )
 
     return CfgMgr.InDetTrkRoiMaker(name,**kwargs)
 
@@ -608,6 +608,7 @@ class TrigMuonEFFSRoiMakerConfig(TrigMuonEFFSRoiMaker):
 
         self.MuonPtCut = 0.0
         self.OutputContName = "MuonEFInfo"
+        self.CreateFSRoI = False
         
         montool     = TrigMuonEFFSRoiMakerMonitoring()
         
@@ -647,8 +648,10 @@ class TrigMuonEFFSRoiMakerUnseededConfig(TrigMuonEFFSRoiMaker):
         self.OutputContName = "MuonEFInfo"
         self.CreateCrackRoI = True
 
+        from math import pi
+
         kwargs.setdefault("RoISizeEta", 0.2)
-        kwargs.setdefault("RoISizePhi", 3.15)
+        kwargs.setdefault("RoISizePhi", pi)
         kwargs.setdefault("RoILabel", "forID")
 
         self.RoISizeEta = kwargs["RoISizeEta"]
