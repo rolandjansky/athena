@@ -9,6 +9,18 @@
 #include <string>
 #include <iostream>
 using namespace std;
+
+std::string cleanLoc (const std::string& s)
+{
+  std::string pat = "/PathResolver/run/";
+  std::string::size_type pos = s.find (pat);
+  if (pos != std::string::npos) {
+    return s.substr (pos + pat.size(), std::string::npos);
+  }
+  return s;
+}
+
+
 int main ()
 {
   cout << "*** PathResolver_test starts ***" << endl;
@@ -17,14 +29,14 @@ int main ()
 
   fileLocation = PathResolver::find_file (filename, "DATAPATH", PathResolver::RecursiveSearch);
   std::cout << "filename " << filename << std::endl;
-  std::cout << "fileLocation " << fileLocation << std::endl;
+  std::cout << "fileLocation " << cleanLoc(fileLocation) << std::endl;
 
 
   filename = "B/a.txt";
   fileLocation = PathResolver::find_file (filename, "DATAPATH");
 
   std::cout << "filename " << filename << std::endl;
-  std::cout << "fileLocation " << fileLocation << std::endl;
+  std::cout << "fileLocation " << cleanLoc(fileLocation) << std::endl;
   cout << "*** PathResolver_test ends ***" << endl;
 
   return (0);

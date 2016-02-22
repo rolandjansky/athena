@@ -6,8 +6,9 @@
 #PathResolver.FindCalibFile("blah")
 
 
-import PyCintex
-PyCintex.loadDict('libPathResolverDict')
-FindCalibFile = PyCintex.gbl.PathResolverFindCalibFile
-FindCalibDirectory = PyCintex.gbl.PathResolverFindCalibDirectory
+import cppyy
+cppyy.loadDict('libPathResolver')
+cppyy.loadDict('libPathResolverDict') #why do we have to load both the library and the dict :-( To be fixed by ROOT...
+FindCalibFile = cppyy.gbl.PathResolverFindCalibFile
+FindCalibDirectory = cppyy.gbl.PathResolverFindCalibDirectory
 

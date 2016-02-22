@@ -35,8 +35,8 @@ bool PathResolver::m_setLevel=false;
 
 
 asg::AsgMessaging& PathResolver::asgMsg() {
-   static asg::AsgMessaging m_asgMsg("PathResolver");
-   return m_asgMsg;
+   static asg::AsgMessaging asgMsg("PathResolver");
+   return asgMsg;
 }
 
 //
@@ -119,6 +119,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       } else {
          msg(MSG::INFO) <<"Successfully downloaded " << fileToDownload << endreq;
          result = (locationToDownloadTo+"/"+file.string()).c_str();
+         gErrorIgnoreLevel=errLevel;
          return true;
       }
       gErrorIgnoreLevel=errLevel;
@@ -128,7 +129,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
      if(fp!=NULL) {
          locationToDownloadTo=*itr;
          std::fclose(fp);
-         std::remove((*itr+"/._pathresolver_dummy").c_str());
+         (void)std::remove((*itr+"/._pathresolver_dummy").c_str());
       }
    }
 
@@ -306,7 +307,7 @@ std::string PathResolverFindDataFile (const std::string& logical_file_name)
 
 std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 {
-  msg(MSG::INFO) << "Trying to locate " << logical_file_name << endreq;
+  msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endreq;
   if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endreq;
   //expand filename before finding .. 
   TString tmpString(logical_file_name);
@@ -321,7 +322,7 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 
 std::string PathResolver::find_calib_directory (const std::string& logical_file_name)
 {
-  msg(MSG::INFO) <<"Trying to locate " << logical_file_name << endreq;
+  msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endreq;
   if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endreq;
   //expand filename before finding 
   TString tmpString(logical_file_name);

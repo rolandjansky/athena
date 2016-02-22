@@ -3,5 +3,6 @@ PACKAGE_CXXFLAGS =
 PACKAGE_LDFLAGS  = 
 PACKAGE_PRELOAD  = Hist boost_filesystem
 PACKAGE_DEP	 = Asg_Boost CxxUtils AsgTools
+PACKAGE_REFLEX   = 1
 
 include $(ROOTCOREDIR)/Makefile-common
