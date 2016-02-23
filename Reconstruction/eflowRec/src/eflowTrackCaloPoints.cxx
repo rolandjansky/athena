@@ -29,12 +29,14 @@ double eflowTrackCaloPoints::defaultEta()  {return (double)m_defaultEtaPhiPair.f
 double eflowTrackCaloPoints::defaultPhi()  {return (double)m_defaultEtaPhiPair.second;}
 
 eflowTrackCaloPoints::eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk::TrackParameters*> trackParameters):
-  m_isEMBarrel(trackParameters.begin()->first == eflowCalo::EMB1), m_trackParameters(trackParameters) {
+  m_isEM1Barrel(trackParameters.begin()->first == eflowCalo::EMB1), m_trackParameters(trackParameters) {
 
   /* Fill etaPhiPositions map */
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator itPars = m_trackParameters.begin();
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*>::iterator endPars = m_trackParameters.end();
+  m_isEM2Barrel =false;
   for (; itPars != endPars; ++itPars) {
+    if (itPars->first == eflowCalo::EMB2) m_isEM2Barrel = true;
     setEtaPhi(itPars->first, parToPosition(itPars->second));
     m_positions[itPars->first] = parToPosition(itPars->second);
     m_directions[itPars->first] = parToDirection(itPars->second);
