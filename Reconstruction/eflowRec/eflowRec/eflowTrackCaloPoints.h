@@ -29,7 +29,7 @@ class eflowTrackCaloPoints {
  public:
 
   eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk::TrackParameters*> trackParameters);
-  eflowTrackCaloPoints() : m_isEMBarrel(false)  {}
+ eflowTrackCaloPoints() : m_isEM1Barrel(false), m_isEM2Barrel(false)  {}
   ~eflowTrackCaloPoints();
 
   const std::pair<float, float> operator[] (eflowCalo::LAYER layer) const;
@@ -59,14 +59,15 @@ class eflowTrackCaloPoints {
   Amg::Vector3D parToDirection(const Trk::TrackParameters* extrapolatedParameters);
   const Trk::TrackParameters* getParameters(eflowCalo::LAYER layer);
 
-  bool m_isEMBarrel;
+  bool m_isEM1Barrel;
+  bool m_isEM2Barrel;
 
  private:
 
   static const Amg::Vector3D m_nullVector;
 
-  inline eflowCalo::LAYER getEM2Layer() const { return m_isEMBarrel ? eflowCalo::EMB2 : eflowCalo::EME2; }
-  inline eflowCalo::LAYER getEM1Layer() const { return m_isEMBarrel ? eflowCalo::EMB1 : eflowCalo::EME1; }
+  inline eflowCalo::LAYER getEM2Layer() const { return m_isEM2Barrel ? eflowCalo::EMB2 : eflowCalo::EME2; }
+  inline eflowCalo::LAYER getEM1Layer() const { return m_isEM1Barrel ? eflowCalo::EMB1 : eflowCalo::EME1; }
 
 
   static const std::pair<float, float>  m_defaultEtaPhiPair;
