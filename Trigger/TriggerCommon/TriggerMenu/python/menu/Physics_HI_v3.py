@@ -20,6 +20,12 @@ def setupMenu():
     MinBiasStream="MinBias"
     UPCStream="UPC"
 
+    # Disable Calo offset correction for HI menus (ATR-13323)
+    from CaloTools.CaloNoiseFlags import jobproperties
+    jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
+    TriggerFlags.doCaloOffsetCorrection.set_Value_and_Lock(False)
+    log.info("Calo offset correction for HI trigger menu:%s" % TriggerFlags.doCaloOffsetCorrection)
+            
     # INPUT FORMAT FOR CHAINS:
     # ['chainName', 'L1itemforchain', [L1 items for chainParts], [stream], [groups], EBstep]
 

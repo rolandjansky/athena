@@ -126,26 +126,26 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau2
 
         if ('nscan' in chainDict['chainName'] ): # do not do L2
             L2Fex = None
             L2Hypo = None
             if mult == 2 :
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()            
             else :
                 EFFex = EFMultiMuFex_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
         else :
             L2Fex = None
             L2Hypo = None
             if mult == 2 :
-                #L2Fex = L2MultiMuFex_Tau2()
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()
             else :
-                #L2Fex = L2MultiMuFex_Tau()
                 EFFex = EFMultiMuFex_Tau()
-            #L2Hypo = L2MultiMuHypo_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
 
     
     elif (mtopo == 'bUpsi'):
@@ -329,6 +329,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             mult = mult + int(part['multiplicity'])
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Tau2
         from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau2
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
 
@@ -337,22 +338,19 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
             L2Hypo = None
             if mult ==  2 :
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()
             else :
                 EFFex = EFMultiMuFex_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
         else :
             L2Fex = None
             L2Hypo = None
-            #from TrigBphysHypo.TrigL2MultiMuFexConfig import L2MultiMuFex_Tau
-            #from TrigBphysHypo.TrigL2MultiMuHypoConfig import L2MultiMuHypo_Tau
             if mult ==  2 :
-                #L2Fex = L2MultiMuFex_Tau2()
                 EFFex = EFMultiMuFex_Tau2()
+                EFHypo = EFMultiMuHypo_Tau2()
             else :
-                #L2Fex = L2MultiMuFex_Tau()
                 EFFex = EFMultiMuFex_Tau()
-            #L2Hypo = L2MultiMuHypo_Tau()
-            EFHypo = EFMultiMuHypo_Tau()
+                EFHypo = EFMultiMuHypo_Tau()
 
      
     elif ('bDimu' in topoAlgs) & ('novtx' in topoAlgs) & ('noos' in topoAlgs) & ('noL2' in topoAlgs):

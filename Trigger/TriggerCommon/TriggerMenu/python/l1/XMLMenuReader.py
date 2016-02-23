@@ -86,9 +86,9 @@ def readMenuFromXML(l1menu, filename):
 
         ca = x.Cable
         thr.setCableInput()
-        print "x[bitnum]", x['bitnum']
-        print "type x[bitnum]", type(x['bitnum'])
-        print "x['type']", x['type']
+        #print "x[bitnum]", x['bitnum']
+        #print "type x[bitnum]", type(x['bitnum'])
+        #print "x['type']", x['type']
 
 
         # overwrite cable info with data from xml file

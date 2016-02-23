@@ -115,7 +115,7 @@ JetChainParts = {
                       '1i2c100m300TLA','1i2c300m500TLA','1i2c500m700TLA',
                       '1i2c100m8000TLA','1i2c200m8000TLA','0i1c500m900TLA','1i2c500m900TLA','1i2c600m800TLA'],
     'topo'         : AllowedTopos_jet,
-    'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf','boffperf', 'bmv2c2060', 'bmv2c2070', 'bmv2c2077', 'bmv2c2085'],
+    'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf','boffperf', 'bmv2c2040', 'bmv2c2050', 'bmv2c2060', 'bmv2c2070', 'bmv2c2077', 'bmv2c2085'],
     'bTracking'    : ['EFID','FTK','FTKVtx','FTKRefit'],
     'bConfig'      : ['split', 'hybrid', 'singlepass'],
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],

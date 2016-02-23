@@ -330,8 +330,6 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     # muon input TE to the hypo
     muonTE = theChainDef.signatureList[3]['listOfTriggerElements']
 
-    print "MEOW chain def", theChainDef.signatureList
-
     # =========================================================
     #check if jet or bjet to be matched & find hypothreshold
     chnameToMatch = chainDicts[0]['chainName'].split("_dr")[0]

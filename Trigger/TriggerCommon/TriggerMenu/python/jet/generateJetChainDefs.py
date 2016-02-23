@@ -35,9 +35,9 @@ def generateChainDefs(chainDict):
     
     jetgroup_chain = True
     chainName = chainDict['chainName']
-    print 'processing chain part 1 start', chainName
+    #print 'processing chain part 1 start', chainName
     theChainDef = generateHLTChainDef(chainDict)
-    print 'processing chain part 2 end', chainName
+    #print 'processing chain part 2 end', chainName
 
     listOfChainDicts = splitChainDict(chainDict)
 

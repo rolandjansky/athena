@@ -81,7 +81,9 @@ class GenerateMenu:
         self.chainDefs = []
         self.listOfErrorChainDefs = []
         self.signaturesOverwritten = False
-
+        self.L1Prescales = None
+        self.HLTPrescales = None
+        
         # flags
         self.doEgammaChains      = True
         self.doJetChains         = True
@@ -434,7 +436,7 @@ class GenerateMenu:
 
         for chainDict in chainDicts:
             chainDef = None
-            print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
+            #print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
 
             if (chainDict["signature"] == "Jet" or chainDict["signature"] == "HT") and (self.doJetChains or self.doBjetChains):
                 bjetchain = False
@@ -622,7 +624,7 @@ class GenerateMenu:
         #log.info('GenerateMenu: setupMenu: modifying menu according to the luminosity and prescaling setup')
      
         #(L1Prescales, HLTPrescales, streamConfig) = lumi(self.triggerPythonConfig)
-        (L1Prescales, HLTPrescales) = lumi(self.triggerPythonConfig)
+        (self.L1Prescales, self.HLTPrescales) = lumi(self.triggerPythonConfig)
         global _func_to_modify_signatures
         if _func_to_modify_signatures != None:
             log.info('GenerateMenu: setupMenu:  Modifying trigger signatures in TriggerFlags with %s' % \
@@ -636,7 +638,7 @@ class GenerateMenu:
         #log.info('GenerateMenu: setupMenu: Enabled signatures: '+str(sigs) )
         #log.info('GenerateMenu: setupMenu END ')
         #return (HLTPrescales, streamConfig)
-        return (HLTPrescales)
+        return (self.HLTPrescales)
 
         
 
@@ -1045,18 +1047,11 @@ class GenerateMenu:
         log.info('GenerateMenu: generate END')
 
 
-    def GetHLTPrescales(self) :
-        (L1Prescales, HLTPrescales) = lumi(self.triggerPythonConfig)
-        return HLTPrescales
-
-        
-    ##Note, when doing modification for this function, please, test with run_HLTstandalone
+    ##Note, when doing modification for this function, please, test with runHLT_standalone
     ##as this function is not called during simple XML generation
     def GetStreamTagForRerunChains(self):
         log.info('GenerateMenu.py:retrieve list of stream tags for rerun chain ')        
-        ##Fill the list of streams to be assigned to rerun chains
-        (HLTPrescales) = self.GetHLTPrescales()
-        list= getStreamTagForRerunChains(self.triggerPythonConfig, HLTPrescales)
+        list= getStreamTagForRerunChains(self.triggerPythonConfig, self.HLTPrescales)
         if not list:
             log.warning('no rerun chain with special stream')
 

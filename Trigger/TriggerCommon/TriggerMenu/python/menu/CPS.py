@@ -228,54 +228,42 @@ def defineCPSGroups():
         'RATE:CPS:HLT_e24_medium_idperf_L1EM20VH' :[ 'e24_medium_idperf_L1EM20VH',
                                                      'e24_lhmedium_idperf_L1EM20VH',],
         
-        'RATE:CPS:HLT_e24_vloose_L1EM18VH_3j20noL1' : ['e24_vloose_L1EM18VH_3j20noL1',
-                                                       'e24_lhvloose_L1EM18VH_3j20noL1',
-                                                       'e24_lhvloose_nod0_L1EM18VH_3j20noL1',],
+        'RATE:CPS:HLT_e24_lhvloose_L1EM18VH_3j20noL1' : ['e24_lhvloose_L1EM18VH_3j20noL1',
+                                                         'e24_lhvloose_nod0_L1EM18VH_3j20noL1',],
         
-        'RATE:CPS:HLT_e24_vloose_L1EM18VH_4j20noL1' :[ 'e24_vloose_L1EM18VH_4j20noL1',
-                                                       'e24_lhvloose_L1EM18VH_4j20noL1',
-                                                       'e24_lhvloose_nod0_L1EM18VH_4j20noL1',],
+        'RATE:CPS:HLT_e24_lhvloose_L1EM18VH_4j20noL1' : ['e24_lhvloose_L1EM18VH_4j20noL1',
+                                                         'e24_lhvloose_nod0_L1EM18VH_4j20noL1',],
         
-        'RATE:CPS:HLT_e24_vloose_L1EM18VH_5j15noL1' : ['e24_vloose_L1EM18VH_5j15noL1',
-                                                       'e24_lhvloose_L1EM18VH_5j15noL1',
-                                                       'e24_lhvloose_nod0_L1EM18VH_5j15noL1',],
+        'RATE:CPS:HLT_e24_lhvloose_L1EM18VH_5j15noL1' : ['e24_lhvloose_L1EM18VH_5j15noL1',
+                                                         'e24_lhvloose_nod0_L1EM18VH_5j15noL1',],
         
-        'RATE:CPS:HLT_e24_vloose_L1EM18VH_6j15noL1' : ['e24_vloose_L1EM18VH_6j15noL1',
-                                                       'e24_lhvloose_L1EM18VH_6j15noL1',
-                                                       'e24_lhvloose_nod0_L1EM18VH_6j15noL1',],
-        
-        'RATE:CPS:HLT_e24_vloose_L1EM20VH_3j20noL1' : ['e24_vloose_L1EM20VH_3j20noL1',
-                                                        'e24_lhvloose_L1EM20VH_3j20noL1',
-                                                        'e24_lhvloose_nod0_L1EM20VH_3j20noL1',],
-        
-        'RATE:CPS:HLT_e24_vloose_L1EM20VH_4j20noL1' :['e24_vloose_L1EM20VH_4j20noL1',
-                                                       'e24_lhvloose_L1EM20VH_4j20noL1',
-                                                       'e24_lhvloose_nod0_L1EM20VH_4j20noL1',],
-        
-        'RATE:CPS:HLT_e24_vloose_L1EM20VH_5j15noL1' : ['e24_vloose_L1EM20VH_5j15noL1',
-                                                       'e24_lhvloose_L1EM20VH_5j15noL1',
-                                                       'e24_lhvloose_nod0_L1EM20VH_5j15noL1',],
-        
-        'RATE:CPS:HLT_e24_vloose_L1EM20VH_6j15noL1' : ['e24_vloose_L1EM20VH_6j15noL1',
-                                                       'e24_lhvloose_L1EM20VH_6j15noL1',
-                                                       'e24_lhvloose_nod0_L1EM20VH_6j15noL1',],
-        
-        'RATE:CPS:HLT_e26_vloose_L1EM20VH_3j20noL1' : ['e26_vloose_L1EM20VH_3j20noL1',
-                                                       'e26_lhvloose_L1EM20VH_3j20noL1',
-                                                       'e26_lhvloose_nod0_L1EM20VH_3j20noL1',],
-        
-        'RATE:CPS:HLT_e26_vloose_L1EM20VH_4j20noL1' : ['e26_vloose_L1EM20VH_4j20noL1',
-                                                       'e26_lhvloose_L1EM20VH_4j20noL1',
-                                                       'e26_lhvloose_nod0_L1EM20VH_4j20noL1',],
-        
-        'RATE:CPS:HLT_e26_vloose_L1EM20VH_5j15noL1' : ['e26_vloose_L1EM20VH_5j15noL1',
-                                                       'e26_lhvloose_L1EM20VH_5j15noL1',
-                                                       'e26_lhvloose_nod0_L1EM20VH_5j15noL1',],
-        
-        'RATE:CPS:HLT_e26_vloose_L1EM20VH_6j15noL1' :[ 'e26_vloose_L1EM20VH_6j15noL1',
-                                                       'e26_lhvloose_L1EM20VH_6j15noL1',
-                                                       'e26_lhvloose_nod0_L1EM20VH_6j15noL1',],
-        
+        'RATE:CPS:HLT_e24_lhvloose_L1EM18VH_6j15noL1' : ['e24_lhvloose_L1EM18VH_6j15noL1',
+                                                         'e24_lhvloose_nod0_L1EM18VH_6j15noL1',],
+ 	       
+        'RATE:CPS:HLT_e24_lhvloose_L1EM20VH_3j20noL1' : ['e24_lhvloose_L1EM20VH_3j20noL1',
+                                                         'e24_lhvloose_nod0_L1EM20VH_3j20noL1',],
+      
+        'RATE:CPS:HLT_e24_lhvloose_L1EM20VH_4j20noL1' : ['e24_lhvloose_L1EM20VH_4j20noL1',
+                                                       	 'e24_lhvloose_nod0_L1EM20VH_4j20noL1',],
+      
+        'RATE:CPS:HLT_e24_lhvloose_L1EM20VH_5j15noL1' : ['e24_lhvloose_L1EM20VH_5j15noL1',
+                                                         'e24_lhvloose_nod0_L1EM20VH_5j15noL1',],
+      
+        'RATE:CPS:HLT_e24_lhvloose_L1EM20VH_6j15noL1' : ['e24_lhvloose_L1EM20VH_6j15noL1',
+                                                         'e24_lhvloose_nod0_L1EM20VH_6j15noL1',],
+      
+        'RATE:CPS:HLT_e26_lhvloose_L1EM20VH_3j20noL1' : ['e26_lhvloose_L1EM20VH_3j20noL1',
+                                                         'e26_lhvloose_nod0_L1EM20VH_3j20noL1',],
+      
+        'RATE:CPS:HLT_e26_lhvloose_L1EM20VH_4j20noL1' : ['e26_lhvloose_L1EM20VH_4j20noL1',
+                                                         'e26_lhvloose_nod0_L1EM20VH_4j20noL1',],
+      
+        'RATE:CPS:HLT_e26_lhvloose_L1EM20VH_5j15noL1' : ['e26_lhvloose_L1EM20VH_5j15noL1',
+                                                         'e26_lhvloose_nod0_L1EM20VH_5j15noL1',],
+      
+        'RATE:CPS:HLT_e26_lhvloose_L1EM20VH_6j15noL1' : ['e26_lhvloose_L1EM20VH_6j15noL1',
+                                                         'e26_lhvloose_nod0_L1EM20VH_6j15noL1',],
+      
         'RATE:CPS:HLT_e5_loose' : ['e5_loose',
                                    'e5_lhloose',],
         
@@ -846,6 +834,66 @@ def defineCPSGroups():
                                             'xe90_pueta_wEFMu_L1XE70_BGRP7',
                                             'xe90_pufit_wEFMu_L1XE70_BGRP7',
                                             ],}) 
+    if "v6" in TriggerFlags.triggerMenuSetup():
+     HLT_CPS_Groups.update({
+        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_3j20noL1' : ['e28_lhvloose_L1EM20VH_3j20noL1',
+                                                         'e28_lhvloose_nod0_L1EM20VH_3j20noL1',],
+      
+        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_4j20noL1' : ['e28_lhvloose_L1EM20VH_4j20noL1',
+                                                         'e28_lhvloose_nod0_L1EM20VH_4j20noL1',],
+      
+        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_5j15noL1' : ['e28_lhvloose_L1EM20VH_5j15noL1',
+                                                         'e28_lhvloose_nod0_L1EM20VH_5j15noL1',],
+      
+        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_6j15noL1' : ['e28_lhvloose_L1EM20VH_6j15noL1',
+                                                         'e28_lhvloose_nod0_L1EM20VH_6j15noL1',],
+
+        'RATE:CPS:HLT_3mu6_bDimu' : ['3mu6_bDimu',
+                                     '3mu6_bJpsi',
+                                     '3mu6_bTau', 
+                                     '3mu6_bUpsi',
+                                     ],
+
+#        'RATE:CPS:HLT_2mu6_bBmumu' :  ['2mu6_bBmumu',
+#                                       '2mu6_bBmumu_noL2',
+#                                       ],
+        
+        'RATE:CPS:HLT_2mu4_bBmumuX_L1BPH-1M19-2MU4-BO_BPH-0DR34-2MU4' : ['2mu4_bBmumuxv2_L1BPH-1M19-2MU4-B_BPH-0DR34-2MU4',
+                                                                         '2mu4_bBmumuxv2_noL2_L1BPH-1M19-2MU4-B_BPH-0DR34-2MU4',
+                                                                         ],
+
+#        'RATE:CPS:HLT_2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
+#                                                                          '2mu4_bJpsimumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
+#                                                                          '2mu4_bJpsimumu_noL2_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
+#                                                                          '2mu4_bJpsimumu_noL2_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
+#                                                                          ],
+
+#        'RATE:CPS:HLT_2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-BO' : ['2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-BO',
+#                                                                           '2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-B',
+#                                                                           ],
+
+#        'RATE:CPS:HLT_2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
+#                                                                       '2mu4_bBmumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
+#                                                                       ],
+
+        'RATE:CPS:HLT_2mu6_bBmumuX_noL2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6' : ['2mu6_bBmumuxv2_noL2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',             
+                                                                          '2mu6_bBmumux_BcmumuDsloose_noL2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 
+                                                                          ],
+
+        'RATE:CPS:HLT_2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6' :  ['2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
+                                                                        '2mu6_bJpsimumu_noL2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
+                                                                        ],
+        
+        'RATE:CPS:HLT_mu6_mu4_bJpsimumu_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4' : ['mu6_mu4_bJpsimumu_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4', 
+                                                                                'mu6_mu4_bJpsimumu_noL2_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4',
+                                                                                ],
+
+        'RATE:CPS:HLT_mu6_mu4_bBmumu_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4' : ['mu6_mu4_bBmumu_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4', 
+                                                                             'mu6_mu4_bBmumu_noL2_L1BPH-2M8-MU6MU4-B_BPH-0DR15-MU6MU4',
+                                                                             ],
+        
+        })
+
     return (HLT_CPS_Groups)
 
 def addCPS(triggerPythonConfig,signatureOverwritten):
