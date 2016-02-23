@@ -146,6 +146,11 @@ Barcode::VertexBarcode Barcode::ValidationBarcodeSvc::secondaryVertexBcOffset() 
 }
 
 
+/** Return the barcode increment for each generation of updated particles */
+Barcode::ParticleBarcode Barcode::ValidationBarcodeSvc::particleGenerationIncrement() const
+{
+  return m_particleGenerationIncrement;
+}
 
 
 /** Handle incident */

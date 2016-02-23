@@ -163,6 +163,13 @@ Barcode::VertexBarcode Barcode::GenericBarcodeSvc::secondaryVertexBcOffset() con
 }
 
 
+/** Return the barcode increment for each generation of updated particles */
+Barcode::ParticleBarcode Barcode::GenericBarcodeSvc::particleGenerationIncrement() const
+{
+  return m_particleRegenerationIncrement;
+}
+
+
 /** Handle incident */
 void Barcode::GenericBarcodeSvc::handle(const Incident& inc)
 {

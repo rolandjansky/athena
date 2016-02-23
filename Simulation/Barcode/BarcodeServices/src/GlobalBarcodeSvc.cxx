@@ -22,6 +22,7 @@ Barcode::GlobalBarcodeSvc::GlobalBarcodeSvc(const std::string& name,ISvcLocator*
   m_firstSecondary(200001),
   m_secondaryIncrement(1),
   m_curParticle(m_firstSecondary),
+  m_particleGenerationIncrement(1000000),
   m_doUnderOverflowChecks(true),
   m_encodePhysicsProcess(true)
 {
@@ -30,6 +31,7 @@ Barcode::GlobalBarcodeSvc::GlobalBarcodeSvc(const std::string& name,ISvcLocator*
   declareProperty("VertexIncrement"               ,  m_vertexIncrement=-1000000   );
   declareProperty("FirstSecondaryBarcode"         ,  m_firstSecondary=200001      );
   declareProperty("SecondaryIncrement"            ,  m_secondaryIncrement=1       );
+  declareProperty("ParticleGenerationIncrement"   ,  m_particleGenerationIncrement=1000000);
   declareProperty("DoUnderAndOverflowChecks"      ,  m_doUnderOverflowChecks=true );
   declareProperty("EncodePhysicsProcessInVertexBC",  m_encodePhysicsProcess=true  );
 }
@@ -148,6 +150,13 @@ Barcode::ParticleBarcode Barcode::GlobalBarcodeSvc::secondaryParticleBcOffset() 
 Barcode::VertexBarcode Barcode::GlobalBarcodeSvc::secondaryVertexBcOffset() const
 {
   return m_firstVertex;
+}
+
+
+/** Return the barcode increment for each generation of updated particles */
+Barcode::ParticleBarcode Barcode::GlobalBarcodeSvc::particleGenerationIncrement() const
+{
+  return m_particleGenerationIncrement;
 }
 
 
