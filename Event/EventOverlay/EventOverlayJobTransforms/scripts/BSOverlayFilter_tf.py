@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Transform for preparation of BS overlay
-# @version $Id: BSOverlayFilter_tf.py 695685 2015-09-18 16:46:57Z ahaas $ 
+# @version $Id: BSOverlayFilter_tf.py 725239 2016-02-20 01:03:49Z ahaas $ 
 
 import os.path
 import sys
@@ -39,7 +39,8 @@ def main():
 
 def getTransform():
     executorSet = set()
-    from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlayBSFilterArguments
+    from EventOverlayJobTransforms.overlayTransformUtils import addOverlayBSFilterSubstep, addOverlayBSFilterArguments, addOverlayBSTrigFilterSubstep
+    addOverlayBSTrigFilterSubstep(executorSet)
     addOverlayBSFilterSubstep(executorSet)
     trf = transform(executor = executorSet, description = 'Filter BS data based on trigger bit')
     addAthenaArguments(trf.parser)
