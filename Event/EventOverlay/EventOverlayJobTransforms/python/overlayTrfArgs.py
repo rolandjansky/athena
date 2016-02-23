@@ -18,27 +18,31 @@ def addOverlayChainOverrideArgs(parser):
 ## Add Overlay transform arguments to an argparse ArgumentParser
 def addOverlayBSFilterArgs(parser):
     parser.defineArgGroup('Overlay Filter', 'Overlay filter transform arguments')
-    parser.add_argument('--overlayConfigFile',
-                        type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'), #argFactory(argSubstep, defaultSubstep='overlayBSFilt'),
+    parser.add_argument('--inputBSCONFIGFile',
+                        type=argFactory(argFile, io='input', type='TAR', subtype='TAR_CONFIG'),
                         help='Input overlay configuration tarball file', group='Overlay Filter')
     parser.add_argument('--inputZeroBiasBSFile', nargs='+',
                         type=argFactory(argBSFile, io='input', type='BS', subtype='BS_ZeroBias'),
                         help='Input overlay BS file(s)', group='Overlay Filter')
     parser.add_argument('--inputFilterFile',
                         type=argFactory(argString),
-                        help='Input overlay BS filter file (for HI)', group='Overlay Filter')
+                        help='Input overlay BS filter file (or trigger file)', group='Overlay Filter')
     parser.add_argument('--lumiBlockMapFile',
-                        type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'),
+                        type=argFactory(argSubstep, defaultSubstep='overlayBSTrigFilt'),
                         help='Lumi block information file', group='Overlay Filter')
     parser.add_argument('--outputBS_SKIMFile', '--outputBSFile',
                         type=argFactory(argBSFile, io='output', type='BS', subtype='BS_SKIM'),
                         help='Output skimmed BS file', group='Overlay Filter')
-
+    parser.add_argument('--inputBS_SKIMFile', '--inputBSFile',
+                        type=argFactory(argBSFile, io='input', type='BS', subtype='BS_SKIM'),
+                        help='Input skimmed BS file', group='Overlay Filter')
+    parser.add_argument('--outputBS_TRIGSKIMFile', '--outputBSTRIGFile',
+                        type=argFactory(argBSFile, io='output', type='BS', subtype='BS_TRIGSKIM'),
+                        help='Output skimmed BS file', group='Overlay Filter')
 #    parser.add_argument('--eventIdFile',
 #                        type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'), help='The name of the file to write to for EventIdModifierSvc lines', group='Overlay Filter')
     parser.add_argument('--outputTXT_EVENTIDFile', default = 'events.txt',
                         type=argFactory(argFile, io = 'output', type='TXT', subtype='TXT_EVENTID'), help='The name of the file to write the EventIdModifierSvc config for the EVNTtoHITS step', group='Overlay Filter')
-    
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='Job number', group='Overlay Filter')
@@ -92,4 +96,7 @@ def addOverlayInputSimArgs(parser):
     parser.add_argument('--inputTXT_EVENTIDFile', nargs='+',
                     type=argFactory(argFile, io='input', type='TXT', subtype='TXT_EVENTID'),
                     help='The name of the file to read to configure the EventIdModifierSvc', group='EventOverlayInputSim')
+    parser.add_argument('--inputHITARFile',
+                    type=argFactory(argFile, io='input', type='TAR', subtype='TAR_CONFIG'),
+                    help='Input Heavy Ion vertex and filter tarball file', group='EventOverlayInputSim')
 

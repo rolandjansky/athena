@@ -5,15 +5,25 @@ BSFilterLog.info( '****************** STARTING BSFilter *****************' )
 BSFilterLog.info( '**** Transformation run arguments' )
 BSFilterLog.info( str(runArgs) )
 
+if hasattr( runArgs, 'trfSubstepName'):
+    if runArgs.trfSubstepName=="BSFilter" and hasattr(runArgs, 'InputLbnMapFile'):
+        delattr(runArgs, 'InputLbnMapFile')
+        BSFilterLog.info( '**** Transformation run arguments are now.... ' )
+        BSFilterLog.info( str(runArgs) )
+
 #---------------------------
 theApp.EvtMax = runArgs.maxEvents
+svcMgr.MessageSvc.infoLimit=100000
+svcMgr.MessageSvc.defaultLimit=100000
 
 from AthenaCommon.GlobalFlags  import globalflags
 globalflags.InputFormat = "bytestream"
 globalflags.DataSource = "data"
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput=runArgs.inputZeroBiasBSFile
-
+if hasattr( runArgs, 'inputZeroBiasBSFile'):
+    athenaCommonFlags.FilesInput=runArgs.inputZeroBiasBSFile
+else:
+    athenaCommonFlags.FilesInput=runArgs.inputBS_SKIMFile
 
 #---------------------------
 ## Run performance monitoring (memory logging)
@@ -28,8 +38,10 @@ BSFilterLog.info( '**** ByteStreamInputSvc configuration' )
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
 # ByteStreamInputSvc.FullFileName = open(runArgs.InputFileMapFile).readline().rstrip().split(',')
-ByteStreamInputSvc.FullFileName = runArgs.inputZeroBiasBSFile
-
+if hasattr( runArgs, 'inputZeroBiasBSFile'):
+    ByteStreamInputSvc.FullFileName=runArgs.inputZeroBiasBSFile
+else:
+    ByteStreamInputSvc.FullFileName=runArgs.inputBS_SKIMFile
 print ByteStreamInputSvc
 
 # ---------------------------
@@ -37,9 +49,11 @@ print ByteStreamInputSvc
 BSFilterLog.info( '**** ByteStreamOutputSvc configuration' )
 
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
-bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_SKIMFile)
+if hasattr( runArgs, 'outputBS_SKIMFile'):
+    bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_SKIMFile)
+else:
+    bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc",OutputDirectory='./',SimpleFileName=runArgs.outputBS_TRIGSKIMFile)
 svcMgr += bsOutputSvc
-
 print bsOutputSvc
 
 # ---------------------------
@@ -54,7 +68,8 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
 #svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult", "MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", 
+                                                  "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
 
 # https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TrigDecisionTool
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -72,7 +87,7 @@ cfg = TriggerConfigGetter()
 #trigDecWriter = WriteTrigDecision()
 
 # main alg
-from OverlayCommonAlgs.OverlayCommonAlgsConf import  BSFilter
+from OverlayCommonAlgs.OverlayCommonAlgsConf import BSFilter
 filAlg = BSFilter("BSFilter")
 topSequence += filAlg
 if hasattr( runArgs, "triggerBit"):
@@ -89,7 +104,7 @@ if hasattr(runArgs, 'outputTXT_EVENTIDFile'):
 else:
     filAlg.EventIdFile=""
 
-if hasattr( runArgs, "inputFilterFile"):
+if hasattr( runArgs, "inputFilterFile") and not hasattr( runArgs, 'InputLbnMapFile'): #don't filter if you're skimming using the map file
     filAlg.filterfile=runArgs.inputFilterFile # The thing made from the TAG files via "root -l -b -q HITAGprinter_run.C"
 else:
     filAlg.filterfile = ""
@@ -101,6 +116,8 @@ if hasattr( runArgs, 'InputLbnMapFile'):
     from OverlayCommonAlgs.OverlayCommonAlgsConf import ByteStreamMultipleOutputStreamCopyTool
     bsCopyTool = ByteStreamMultipleOutputStreamCopyTool("MultipleOutputStreamBSCopyTool")
     bsCopyTool.lbn_map_file = runArgs.InputLbnMapFile
+    if hasattr( runArgs, "inputFilterFile"): bsCopyTool.trigfile = runArgs.inputFilterFile
+    else: bsCopyTool.trigfile = ""
     bsCopyTool.NoutputSvc = 1
     bsCopyTool.ByteStreamOutputSvc0=bsOutputSvc
 else:
@@ -125,8 +142,11 @@ OutputStreamBSCopy.AcceptAlgs =["BSFilter"]
 print topSequence
 
 # ---------------------------
-# Post-include
-
+# Post-include/exec
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
+if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
+    for cmd in runArgs.postExec:
+        exec(cmd)
+
