@@ -18,6 +18,7 @@ def build(self):
     dir_util.copy_tree(self.sh.getcwd(), self.env['pkg_install_dir'])
     os.system('cd %s; patch -p0 < %s/cmt/placement-new.patch' % (self.env['pkg_install_dir'], self.pkg_root))
     os.system('cd %s; patch -p0 < %s/cmt/typedef-warnings.patch' % (self.env['pkg_install_dir'], self.pkg_root))
+    os.system('cd %s; patch -p0 < %s/cmt/register-warnings.patch' % (self.env['pkg_install_dir'], self.pkg_root))
     return
 
 def install(self):

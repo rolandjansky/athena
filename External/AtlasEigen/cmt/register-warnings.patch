@@ -1,0 +1,59 @@
+--- Eigen/src/Core/products/SelfadjointMatrixVector.h-orig	2015-06-06 15:13:16.000000001 +0200
++++ Eigen/src/Core/products/SelfadjointMatrixVector.h	2015-06-06 15:20:08.000000001 +0200
+@@ -71,8 +71,8 @@
+   for (Index j=FirstTriangular ? bound : 0;
+        j<(FirstTriangular ? size : bound);j+=2)
+   {
+-    register const Scalar* EIGEN_RESTRICT A0 = lhs + j*lhsStride;
+-    register const Scalar* EIGEN_RESTRICT A1 = lhs + (j+1)*lhsStride;
++    EIGEN_REGISTER const Scalar* EIGEN_RESTRICT A0 = lhs + j*lhsStride;
++    EIGEN_REGISTER const Scalar* EIGEN_RESTRICT A1 = lhs + (j+1)*lhsStride;
+ 
+     Scalar t0 = cjAlpha * rhs[j];
+     Packet ptmp0 = pset1<Packet>(t0);
+@@ -139,7 +139,7 @@
+   }
+   for (Index j=FirstTriangular ? 0 : bound;j<(FirstTriangular ? bound : size);j++)
+   {
+-    register const Scalar* EIGEN_RESTRICT A0 = lhs + j*lhsStride;
++    EIGEN_REGISTER const Scalar* EIGEN_RESTRICT A0 = lhs + j*lhsStride;
+ 
+     Scalar t1 = cjAlpha * rhs[j];
+     Scalar t2(0);
+--- Eigen/src/Core/arch/SSE/PacketMath.h-orig	2015-06-06 15:15:25.000000001 +0200
++++ Eigen/src/Core/arch/SSE/PacketMath.h	2015-06-06 15:18:56.000000001 +0200
+@@ -491,8 +491,8 @@
+   // for GCC (eg., it does not like using std::min after the pstore !!)
+   EIGEN_ALIGN16 int aux[4];
+   pstore(aux, a);
+-  register int aux0 = aux[0]<aux[1] ? aux[0] : aux[1];
+-  register int aux2 = aux[2]<aux[3] ? aux[2] : aux[3];
++  EIGEN_REGISTER int aux0 = aux[0]<aux[1] ? aux[0] : aux[1];
++  EIGEN_REGISTER int aux2 = aux[2]<aux[3] ? aux[2] : aux[3];
+   return aux0<aux2 ? aux0 : aux2;
+ }
+ 
+@@ -512,8 +512,8 @@
+   // for GCC (eg., it does not like using std::min after the pstore !!)
+   EIGEN_ALIGN16 int aux[4];
+   pstore(aux, a);
+-  register int aux0 = aux[0]>aux[1] ? aux[0] : aux[1];
+-  register int aux2 = aux[2]>aux[3] ? aux[2] : aux[3];
++  EIGEN_REGISTER int aux0 = aux[0]>aux[1] ? aux[0] : aux[1];
++  EIGEN_REGISTER int aux2 = aux[2]>aux[3] ? aux[2] : aux[3];
+   return aux0>aux2 ? aux0 : aux2;
+ }
+ 
+--- Eigen/src/Core/util/Macros.h-orig	2015-06-06 15:18:36.000000001 +0200
++++ Eigen/src/Core/util/Macros.h	2015-06-06 15:18:58.000000001 +0200
+@@ -407,4 +407,10 @@
+       const RHS \
+     >
+ 
++#ifdef __clang__
++# define EIGEN_REGISTER
++#else
++# define EIGEN_REGISTER register
++#endif
++
+ #endif // EIGEN_MACROS_H

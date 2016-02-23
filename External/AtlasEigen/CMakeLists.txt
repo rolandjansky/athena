@@ -1,20 +1,34 @@
-cmake_minimum_required(VERSION 2.8)
-include(ExternalProject)
+# $Id: CMakeLists.txt 725736 2016-02-23 15:03:37Z krasznaa $
+#
+# Package building Eigen as part of the offline software build.
+#
 
-set(PROJECT External/AtlasEigen)
-set(VERSION 3.1.3)
+# The name of the package:
+atlas_subdir( AtlasEigen )
 
+# In release recompilation mode stop here:
+if( ATLAS_RELEASE_MODE )
+   return()
+endif()
 
-message(STATUS "MESSAGE: install ${PROJECT} to ${CMAKE_INSTALL_PREFIX}")
+# Build Eigen for the build area:
+ExternalProject_Add( Eigen
+   PREFIX ${CMAKE_BINARY_DIR}
+   URL ${CMAKE_CURRENT_SOURCE_DIR}/src/eigen-3.1.3.tar.gz
+   INSTALL_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
+   PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmt/placement-new.patch
+   COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmt/typedef-warnings.patch
+   COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmt/register-warnings.patch
+   CMAKE_CACHE_ARGS
+   -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/build
+   LOG_CONFIGURE 1 )
+ExternalProject_Add_Step( Eigen buildinstall
+   COMMAND ${CMAKE_COMMAND} -E copy_directory
+   ${CMAKE_CURRENT_BINARY_DIR}/build/ <INSTALL_DIR>
+   COMMENT "Installing Eigen into the build area"
+   DEPENDEES install )
+add_dependencies( Package_AtlasEigen Eigen )
 
-ExternalProject_Add(AtlasEigen
-  URL ${CMAKE_CURRENT_SOURCE_DIR}/src/eigen-${VERSION}.tar.gz
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}
-  PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmt/placement-new.patch 
-             && patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmt/typedef-warnings.patch
-   
-  INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DFORTRAN=${CMAKE_Fortran_COMPILER}
-)
-
-
+# And now install it:
+install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/build/
+   DESTINATION . USE_SOURCE_PERMISSIONS )
