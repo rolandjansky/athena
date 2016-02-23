@@ -35,7 +35,7 @@ Barcode::LegacyBarcodeSvc::LegacyBarcodeSvc(const std::string& name,ISvcLocator*
 }
 
 
-Barcode::LegacyBarcodeSvc::~LegacyBarcodeSvc() 
+Barcode::LegacyBarcodeSvc::~LegacyBarcodeSvc()
 {
   delete m_bitcalculator;
 }
@@ -44,16 +44,14 @@ Barcode::LegacyBarcodeSvc::~LegacyBarcodeSvc()
 /** framework methods */
 StatusCode Barcode::LegacyBarcodeSvc::initialize()
 {
-  ATH_MSG_INFO ("initialize() ...");
+  ATH_MSG_VERBOSE ("initialize() ...");
 
-  if ( m_incidentSvc.retrieve().isFailure()){
-      ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
-      return StatusCode::FAILURE;
-  }
+  CHECK( m_incidentSvc.retrieve() );
+
   // register to the incident service: BeginEvent needed for refresh of counter
   m_incidentSvc->addListener( this, IncidentType::BeginEvent);
 
-  ATH_MSG_INFO ("initialize() successful");
+  ATH_MSG_VERBOSE ("initialize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -61,15 +59,17 @@ StatusCode Barcode::LegacyBarcodeSvc::initialize()
 /** Generate a new unique vertex barcode, based on the parent particle barcode and
     the physics process code causing the truth vertex*/
 Barcode::VertexBarcode Barcode::LegacyBarcodeSvc::newVertex( Barcode::ParticleBarcode /* parent */,
-                                                             Barcode::PhysicsProcessCode /* process */) {
+                                                             Barcode::PhysicsProcessCode /* process */)
+{
   m_currentVertex += m_vertexIncrement;
   // a naive underflog checking based on the fact that vertex
   // barcodes should never be positive
-  if ( m_doUnderOverflowChecks && (m_currentVertex > 0)) {
-    ATH_MSG_ERROR("LegacyBarcodeSvc::newVertex(...)"
-                  << " will return a vertex barcode greater than 0: "
-                  << m_currentVertex << ". Possibly Integer Underflow?");
-  }
+  if ( m_doUnderOverflowChecks && (m_currentVertex > 0))
+    {
+      ATH_MSG_ERROR("LegacyBarcodeSvc::newVertex(...)"
+                    << " will return a vertex barcode greater than 0: "
+                    << m_currentVertex << ". Possibly Integer Underflow?");
+    }
 
   return m_currentVertex;
 }
@@ -79,27 +79,30 @@ Barcode::VertexBarcode Barcode::LegacyBarcodeSvc::newVertex( Barcode::ParticleBa
     particle barcode and the process code of the physics process that created
     the secondary  */
 Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::newSecondary( Barcode::ParticleBarcode /* parentBC */,
-                                                                  Barcode::PhysicsProcessCode /* process */) {
+                                                                  Barcode::PhysicsProcessCode /* process */)
+{
   m_currentSecondary += m_secondaryIncrement;
   // a naive overflow checking based on the fact that particle
   // barcodes should never be negative
-  if ( m_doUnderOverflowChecks && (m_currentSecondary < 0)) {
-    ATH_MSG_DEBUG("LegacyBarcodeSvc::newSecondary(...)"
-                  << " will return a particle barcode of less than 0: "
-                  << m_currentSecondary << ". Reset to zero.");
-    
-    m_currentSecondary = Barcode::fUndefinedBarcode;
-  }
+  if ( m_doUnderOverflowChecks && (m_currentSecondary < 0))
+    {
+      ATH_MSG_DEBUG("LegacyBarcodeSvc::newSecondary(...)"
+                    << " will return a particle barcode of less than 0: "
+                    << m_currentSecondary << ". Reset to zero.");
+
+      m_currentSecondary = Barcode::fUndefinedBarcode;
+    }
 
   return m_currentSecondary;
 }
 
 
 /** Generate a common barcode which will be shared by all children
-    of the given parent barcode (used for child particles which are 
+    of the given parent barcode (used for child particles which are
     not stored in the mc truth event) */
 Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::sharedChildBarcode( Barcode::ParticleBarcode /* parentBC */,
-                                                                        Barcode::PhysicsProcessCode /* process */) {
+                                                                        Barcode::PhysicsProcessCode /* process */)
+{
   // concept of shared barcodes not present in MC12 yet
   return Barcode::fUndefinedBarcode;
 }
@@ -107,17 +110,18 @@ Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::sharedChildBarcode( Barcode:
 
 /** Update the given barcode (e.g. after an interaction) */
 Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::incrementBarcode( Barcode::ParticleBarcode old,
-                                                                      Barcode::PhysicsProcessCode /* process */) {
+                                                                      Barcode::PhysicsProcessCode /* process */)
+{
   Barcode::ParticleBarcode newBC = old + m_particleGenerationIncrement;
   // a naive overflow checking based on the fact that particle
   // barcodes should never be negative
-  if ( m_doUnderOverflowChecks && (newBC < 0)) {
-    ATH_MSG_DEBUG("LegacyBarcodeSvc::incrementBarcode('" << old << "')"
-                  << " will return a particle barcode of less than 0: "
-                  << newBC << ". Reset to zero.");
-    newBC = Barcode::fUndefinedBarcode;
-  }
-
+  if ( m_doUnderOverflowChecks && (newBC < 0))
+    {
+      ATH_MSG_DEBUG("LegacyBarcodeSvc::incrementBarcode('" << old << "')"
+                    << " will return a particle barcode of less than 0: "
+                    << newBC << ". Reset to zero.");
+      newBC = Barcode::fUndefinedBarcode;
+    }
   return newBC;
 }
 
@@ -142,21 +146,30 @@ Barcode::VertexBarcode Barcode::LegacyBarcodeSvc::secondaryVertexBcOffset() cons
 }
 
 
+/** Return the barcode increment for each generation of updated particles */
+Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::particleGenerationIncrement() const
+{
+  return m_particleGenerationIncrement;
+}
+
+
 /** Handle incident */
-void Barcode::LegacyBarcodeSvc::handle(const Incident& inc) {
-  if ( inc.type() == IncidentType::BeginEvent ) {
+void Barcode::LegacyBarcodeSvc::handle(const Incident& inc)
+{
+  if ( inc.type() == IncidentType::BeginEvent )
+    {
       ATH_MSG_VERBOSE("'BeginEvent' incident caught. Resetting Vertex and Particle barcode counters.");
       m_currentVertex    = m_firstVertex    - m_vertexIncrement;
       m_currentSecondary = m_firstSecondary - m_secondaryIncrement;
-  }
+    }
 }
 
 
 /** framework methods */
 StatusCode Barcode::LegacyBarcodeSvc::finalize()
 {
-  ATH_MSG_INFO ("finalize() ...");
-  ATH_MSG_INFO ("finalize() successful");
+  ATH_MSG_VERBOSE ("finalize() ...");
+  ATH_MSG_VERBOSE ("finalize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -164,13 +177,15 @@ StatusCode Barcode::LegacyBarcodeSvc::finalize()
 /** Query the interfaces. */
 StatusCode Barcode::LegacyBarcodeSvc::queryInterface(const InterfaceID& riid, void** ppvInterface){
 
- if ( IID_IBarcodeSvc == riid ) 
-    *ppvInterface = (IBarcodeSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
+  if ( IID_IBarcodeSvc == riid )
+    {
+      *ppvInterface = (IBarcodeSvc*)this;
+    }
+  else
+    {
+      // Interface is not directly available: try out a base class
+      return Service::queryInterface(riid, ppvInterface);
+    }
+  addRef();
+  return StatusCode::SUCCESS;
 }
-
