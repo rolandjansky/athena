@@ -90,12 +90,15 @@ if HIJetFlags.UseHITracks() :
 from JetRec.JetRecConf import PseudoJetGetter
 ClusterKey=HIJetFlags.HIClusterKey()
 
-jtm += PseudoJetGetter("get_HI",
-                       InputContainer = ClusterKey,
-                       Label = "LCTopo", #Label = "Tower",
-                       OutputContainer = "PseudoJet" + ClusterKey,
-                       SkipNegativeEnergy = True,
-                       GhostScale = 0.0)
+from HIJetRec.HIJetRecConf import HIClusterPseudoJetGetter
+jtm += HIClusterPseudoJetGetter("get_HI",
+                                InputContainer = ClusterKey,
+                                Label = "LCTopo", #Label = "Tower",
+                                OutputContainer = "PseudoJet" + ClusterKey,
+                                SkipNegativeEnergy = False,
+                                TreatNegativeEnergyAsGhost=True,
+                                GhostScale = 1.e-20
+                                )
 
 jtm += PseudoJetGetter("gakt4trackget_HI", 
                        InputContainer = HIJetFlags.TrackJetContainerName(),
@@ -162,20 +165,25 @@ discrim.MaxOverMeanCut=HIJetFlags.DCutMaxOverMean()
 discrim.MinimumETMaxCut=HIJetFlags.DCutMax()
 jtm.add(discrim)
 
-#helper tool to apply bkgr using cells
-from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
-cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
-jtm.add(cell_subtr)
-
 jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5] 
 
 hi_trk_modifiers=[assoc,max_over_mean,jtm.width]
 hi_modifiers = []
 
+#helper tool to apply bkgr using cells
+from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
+jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
+
+from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
+cl_subtr_tool=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
+cl_subtr_tool.ConfigDir='HIJetRec/'
+jtm.add(cl_subtr_tool)
+
+
 if HIJetFlags.ApplyOriginCorrection() : hi_modifiers +=  [jtm.jetorigincorr]
 if HIJetFlags.ApplyEtaJESCalibration() :
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4TopoEM',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
+    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4EMTopo',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
     jtm.add(calib_tool)
     hi_modifiers += [jtm.HICalibTool]
 hi_modifiers += [jtm.jetfilHI,jtm.jetsorter]

@@ -3,6 +3,7 @@
 */
 
 #include "HIClusterMaker.h"
+#include "HIJetRec/HIJetRecDefs.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -70,6 +71,8 @@ StatusCode HIClusterMaker::execute()
     float eta_cl=0;
     float phi_cl=0;
     float time_cl=0;
+    float E2_cl=0;
+    uint32_t samplingPattern=0;
     // std::vector<float> E_sampling(NUMSAMPLES,0);
     // std::vector<float> eta_sampling(NUMSAMPLES,0);
     // std::vector<float> phi_sampling(NUMSAMPLES,0);
@@ -102,35 +105,45 @@ StatusCode HIClusterMaker::execute()
       E_cl+=cell_E_w;
       eta_cl+=cell_E_w*(*cellItr)->eta();
       phi_cl+=cell_E_w*(*cellItr)->phi();
-
-      time_cl+=cell_E_w*(*cellItr)->time();
+      E2_cl+=cell_E_w*cell_E_w;
+      time_cl+=cell_E_w*cell_E_w*(*cellItr)->time();
 
       // unsigned int isample=0;
       // E_sampling[isample]+=cell_E_w;
       // eta_sampling[isample] =cell_E_w*(*cellItr)->eta();
       // phi_sampling[isample]+=cell_E_w*(*cellItr)->phi();
-
+      unsigned int sample = (CaloSampling::CaloSample) (*cellItr)->caloDDE()->getSampling();
+      samplingPattern |= (0x1U<<sample);
+    
     }//end cell loop
+
+    float eta0=(*towerItr)->eta();
+    float phi0=(*towerItr)->phi();
+
     if(E_cl < m_E_min_moment)
     {
-      eta_cl=(*towerItr)->eta();
-      phi_cl=(*towerItr)->phi();
-      time_cl=0;
-      //set time to zero?
+      eta_cl=eta0;
+      phi_cl=phi0;
     }
     else
     {
       eta_cl/=E_cl;
       phi_cl/=E_cl;
-      time_cl/=E_cl;
     }
-
     //phi moment does not respect wrap-around
     phi_cl=TVector2::Phi_mpi_pi(phi_cl);
+    if(!HIJetRec::inTowerBoundary(eta0,phi0,eta_cl,phi_cl))
+    {
+      eta_cl=eta0;
+      phi_cl=phi0;
+    }
+
+    if(E2_cl < 1e-8) time_cl=0.;
+    else time_cl/=E2_cl;
 
     //set initial tower position
-    cl->setEta0((*towerItr)->eta());
-    cl->setPhi0((*towerItr)->phi());
+    cl->setEta0(eta0);
+    cl->setPhi0(phi0);
 
     //set initial kinematics to be the same for all signal states
     //update upstream
@@ -149,11 +162,9 @@ StatusCode HIClusterMaker::execute()
     cl->setCalPhi(phi_cl);
     cl->setCalM(0);
 
-
-
     //extra info
     cl->setTime(time_cl);
-
+    cl->setSamplingPattern(samplingPattern);
     cl_container->push_back(cl);
 
     msg(MSG::VERBOSE) << std::setw(20) << "PUSHING CLUSTER"

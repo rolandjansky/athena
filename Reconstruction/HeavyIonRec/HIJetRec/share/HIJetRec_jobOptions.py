@@ -62,7 +62,7 @@ modulator0=iter0.Modulator
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
 #now iterate
-seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibTool,jtm.jetfilHISeeds],shallow=False) #add calib tool
+seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibTool,jtm.jetfilHISeeds],shallow=False)
 jtm.HIJetRecs+=[seeds1]
 iteration_dict=dict(suffix="iter1")
 if jetFlags.useTracks() and HIJetFlags.TrackJetSeeds() : iteration_dict['track_jet_seeds']=HIJetFlags.TrackJetContainerName()
@@ -71,13 +71,14 @@ iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKe
 HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
 modulator1=iter1.Modulator
 jtm.modulator=modulator1
-subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
 #apply subtraction to cluster constituents
 ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=ClusterKey, modulator=modulator1,CalculateMoments=True)
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
 
-#subtr_cl=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1,momentOnly=True,useClusters=True,moment_name="ClSubtr")
+#subtraction BEFORE iteration for moment
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
+#main subtractor
+subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]
