@@ -95,7 +95,7 @@ class DoCellBasedSubtraction(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class HarmonicsForSubtraction(JobProperty):
     """ List of flow harmonics applied to jet subtraction
