@@ -19,7 +19,10 @@ from TriggerMenu.menu.MenuUtils import *
 from JetDef import dump_chaindef
 from exc2string import exc2string2
 from TriggerMenu.menu.ChainDef import ErrorChainDef
-import os
+import os, inspect
+
+TrigEFJetMassDEta_Config = __import__("TrigJetHypo.TrigEFJetMassDEtaConfig",fromlist=[""])
+
 
 from  __builtin__ import any as b_any
 
@@ -132,12 +135,13 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonIsoB])
     
     # adding seq using jetTE and TE from seq above (MuonCluster fex)
-    theChainDef.addSequence([fexes_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
+#    theChainDef.addSequence([fexes_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
+    theChainDef.addSequence([fexes_l2_MuonCluster,hypos_l2_MuonCluster], [TEmuonIsoB, inputTEsEF], TEmuonClusterFex)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterFex])
 
-    # adding MuonCluster hypo
-    theChainDef.addSequence([hypos_l2_MuonCluster], TEmuonClusterFex, TEmuonClusterHypo)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterHypo])
+#    # adding MuonCluster hypo
+#    theChainDef.addSequence([hypos_l2_MuonCluster], TEmuonClusterFex, TEmuonClusterHypo)
+#    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonClusterHypo])
 
     return theChainDef
 
@@ -195,23 +199,48 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 ##########################################################################################
 def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
         
-    algoName = "jet"
-    for topo_item in topoAlgs:
-        algoName = algoName+"_"+topo_item
-        if 'deta' in topo_item:
-            detaCut=float(topo_item.split('deta')[1]) 
-        else:
-            logJet.debug("No deta threshold in topo definition, using default deta=99.")
-            detaCut = -99.
+    
+    jet_thresholds=[]
+    #Check what's the lowest jet threhsold used in the combined chains with deta
+    for ChainPart in chainDicts['chainParts']:
+        if  'Jet' in ChainPart['signature']:
+            jet_thresholds.append( int(ChainPart['threshold']))
+    if not jet_thresholds:
+        logJet.warning('Error in idenfifying the lowest threshold jet, all jets used for topo algorithm')    
 
+    for topo_item in topoAlgs:
         if 'invm' in topo_item:
             invmCut=float(topo_item.split('invm')[1]) 
         else:
             logJet.debug("No invm threshold in topo definition, using default invm = 0.")
             invmCut = 0.
 
-    from TrigJetHypo.TrigEFJetMassDEtaConfig import EFJetMassDEta
-    DEtaMjjJet_Hypo = EFJetMassDEta(algoName, mjj_cut=invmCut*GeV, deta_cut=detaCut)
+        if 'deta' in topo_item:
+            detaCut=(float(topo_item.split('deta')[1])/10.) 
+        else:
+            logJet.debug("No deta threshold in topo definition, using default deta=99.")
+            detaCut = -99.
+                
+
+    hypo='EFJetMassDEta'
+    for topo_item in topoAlgs:
+        algoName="jet"
+        if 'deta' in topo_item:
+            try:
+                min_thr= min(40,min(jet_thresholds))
+                hypo=('EFJetMassDEta2J%i' %(min_thr))
+                algoName="2jet%s" %(min_thr)
+            except:
+                hypo='EFJetMassDEta'
+        algoName +="_"+topo_item    
+    
+    logJet.debug("Configuration of EFJetMassDeta hypo for chain %s: Hypo %s, AlgoName: %s " %(chainDicts['chainName'],hypo,algoName))
+    try:
+        detamjjet_hypo = getattr(TrigEFJetMassDEta_Config,hypo ) 
+    except:  
+        logJet.error("Hypo %s does not exists" %(hypo))
+
+    DEtaMjjJet_Hypo = detamjjet_hypo(algoName, mjj_cut=invmCut*GeV, deta_cut=detaCut)
     
     chainName = "HLT_" + inputTEsEF[0] + "_"+ algoName
     theChainDef.addSequence([DEtaMjjJet_Hypo], inputTEsEF, chainName)

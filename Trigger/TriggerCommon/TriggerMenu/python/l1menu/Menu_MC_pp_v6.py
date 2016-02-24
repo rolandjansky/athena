@@ -88,8 +88,12 @@ def defineMenu():
         #'TE5', 'TE30', 'TE40', 'TE45', 'TE50', 'TE55', 'TE60', 'TE65',
         'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
 
-        # 8 x XE
-        'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
+        # 8 x XE (for standard XE)
+        'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
+        # 8 x XE (for restricted ETA XE: check ATR-13234 for any further change)
+        'XE10', 'XE20', 'XE25', 'XE30', 'XE65', 'XE75', 'XE150', 'XE300',
+
+        #'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
         #'XE35.0ETA24', 'XE40.0ETA24', 'XE45.0ETA24', 'XE50.0ETA24', 'XE55.0ETA24', 'XE60.0ETA24', 'XE70.0ETA24', 'XE80.0ETA24',
 
         # 8 x XS
@@ -456,8 +460,8 @@ def defineMenu():
         'L1_2J40_XE45', "L1_2J50_XE40", "L1_J40_XE60","L1_J40.0ETA25_XE50",
 
         # XE
-        "L1_XE10", "L1_XE20", "L1_XE25", "L1_XE30", "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
-        "L1_XE55", "L1_XE60", "L1_XE65", "L1_XE70", "L1_XE75", "L1_XE80", "L1_XE150", "L1_XE300",
+        "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
+        "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80",
         
         #XS
         'L1_XS20', 'L1_XS30', 'L1_XS40', 'L1_XS50', 'L1_XS60',
@@ -941,7 +945,6 @@ def defineMenu():
         'L1_XS30' : 153,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
-        "L1_XE10" : 156,
         'L1_TE20' : 374,
         'L1_TE30' : 157,
         'L1_TE40' : 158,
@@ -1162,7 +1165,6 @@ def defineMenu():
         'L1_MJJ-700' : 328,
         'L1_MJJ-400' : 329,
         #'L1_MJJ-350' : 330,
-        "L1_XE20" : 330,
         'L1_MJJ-300' : 331,
         'L1_MJJ-200' : 332,
         'L1_MJJ-100' : 333,
@@ -1231,13 +1233,7 @@ def defineMenu():
         'L1_EM24VHI'           : 392,
         'L1_LHCF_UNPAIRED_ISO' : 393,
         'L1_LHCF_EMPTY' : 394,
-        "L1_XE65": 395,
-        "L1_XE75":396,
-        "L1_XE150":397,
-        "L1_XE300":398, 
         'L1_EM8I_MU10'  : 399,
-        "L1_XE25"    :400,
-        "L1_XE30"    :401,
         "L1_EM15HI"    :402,
         "L1_MU6_3MU4"  :403,
         "L1_2MU6_3MU4" :404,

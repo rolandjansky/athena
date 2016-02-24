@@ -661,9 +661,12 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_MuonC
     theTrigL2SiTrackFinder_MuonC = TrigL2SiTrackFinder_MuonC()
 
+    from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    if "FTK" in self.chainPart['L2IDAlg']:
-      [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "FTK").getSequence()
+    if "FTKRefit" in self.chainPart['L2IDAlg']:
+      [trkfast, trkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["refit","PT"]).getSequence()
+    elif "FTK" in self.chainPart['L2IDAlg']:
+      [trkfast, trkprec] = TrigInDetFTKSequence("Muon","muon",sequenceFlavour=["PT"]).getSequence()
     else:
       [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
@@ -1234,15 +1237,18 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigMuonEF.TrigMuonEFConfig import TrigMuonEFRoiAggregatorConfig
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerMultiHypoConfig, TrigMuonEFCombinerHypoConfig
 
- 
+    name = 'Muon'
+    if "noComb" in self.chainPart['addInfo']:
+      name = 'Muon_noComb'
+    
     if len(self.allMuThrs) == 1:
-      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerHypoConfig('Muon', self.allMuThrs[0])
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerHypoConfig(name, self.allMuThrs[0])
       theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorHypoConfig('Muon', self.allMuThrs[0])      
     elif len(self.allMuThrs) == 2:
-      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1]) 
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0], self.allMuThrs[1]) 
       theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1])                                                      
     elif len(self.allMuThrs) == 3:
-      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig(name,self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
       theTrigMuonEFExtrapolatorMultiHypoConfig = TrigMuonEFExtrapolatorMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])                                    
     else:
       log.error("No TrigMuonEFCombinerHypo config yet for events with more than 3 muons")
@@ -1324,41 +1330,31 @@ class L2EFChain_mu(L2EFChainDef):
         self.EFsignatureList += [ [['EF_CB_NS_single']] ]
         self.EFsignatureList += [ [['EF_CB_NS']] ]
 
-    ########### TE renaming ##########
-    if self.chainPart['L1item']:
-      suffix = "_"+self.chainPart['L1item']
-      reccalibinfo = ''
-      if "l2msonly" in self.chainPart['reccalibInfo']:
-        reccalibinfo = '_l2ms'
-
+    nscanseed = self.chainPart['L1item']
+    l1seed = self.chainL1Item
 
     if "nscan03" in self.chainPart['FSinfo']:
       self.TErenamingDict = {
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
-        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
-        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
-        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName), 
-        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+reccalibinfo+"_"+self.chainName),
+        'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+        'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+        'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+        'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+        'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+'_'+nscanseed+'_'+l1seed),
       }
     if "nscan05" in self.chainPart['FSinfo']:
       if "noComb" in self.chainPart['addInfo']:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocutEF+cone+suffix+"_"+self.chainName),
-          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocutEF+cone+suffix+"_"+self.chainName),
-          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocutEF+cone+suffix+"_"+self.chainName), 
-          'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+'_noComb_'+nscanseed+'_'+l1seed),
           }
       else:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+suffix+"_"+self.chainName),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_NS': mergeRemovingOverlap('EF_NS_','SANShyp'+hypocut+'_'+hypocutEF+cone+'_'+nscanseed+'_'+l1seed),
           }
       
 
