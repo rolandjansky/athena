@@ -866,6 +866,7 @@ void egammaMVACalib::InitTree(TTree* tree, bool doNotify)
 
     m_input_tree->SetNotify(&m_notify_dispatcher);
   }
+  ATH_MSG_INFO("Init tree done");
 }
 
 TTreeFormula* egammaMVACalib::defineFormula(const TString & varName, const TString & expression, TTree *tree)
@@ -1134,7 +1135,7 @@ float egammaMVACalib::getMVAEnergy(int index /* = 0 */,
                                    ShiftType shift_type /* =NSHIFTCORRECTIONS */)
 {
   m_mvaOutput = getMVAOutput(index);
-  ATH_MSG_DEBUG("MVA = " << m_mvaOutput);
+  ATH_MSG_DEBUG("MVA output = " << m_mvaOutput);
   if (m_mvaOutput == 0.)
   {
     if (m_clusterEif0 && m_clusterFormula)
@@ -1152,11 +1153,14 @@ float egammaMVACalib::getMVAEnergy(int index /* = 0 */,
   else if (m_initialEnergy)
     energy = (*m_initialEnergy) * m_mvaOutput;
 
+  ATH_MSG_DEBUG("energy after MVA = " << energy);
+
   ShiftType shift_to_use = m_shiftType;
   if (shift_type != NSHIFTCORRECTIONS) shift_to_use = shift_type;
 
   egammaMVACalib::ReaderID key = getReaderID();
   float shift = getShift(energy / cosh(*m_eta), key, shift_to_use);
+  ATH_MSG_DEBUG("shift = " << shift);
   if (shift > 0.5)
     return energy / shift;
   ATH_MSG_WARNING("getMVAEnergy " << "Shift not applied (too small or negative value?)");
