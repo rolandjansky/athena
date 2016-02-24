@@ -26,7 +26,7 @@ namespace egammaMVACalibNmsp
       public:    
 	Node(int ivar, float val): m_var(ivar), m_val(val), m_left(0), m_right(0) {}
 	Node(TMVA::DecisionTreeNode *node);
-	virtual ~Node();
+        ~Node();
 	
 	float GetVal() const { return m_val; }
 	float GetVar() const { return m_var; }
