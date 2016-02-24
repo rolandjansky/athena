@@ -14,7 +14,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD --run AthenaTrigRDOtoESDAOD --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -26,7 +26,7 @@
             <options_atn>trigtest.pl --test AthenaTrigESD_HLTMonitoring --run AthenaTrigESD_HLTMonitoring --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>60</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -38,7 +38,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoBS --run AthenaTrigRDOtoBS --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -49,7 +49,7 @@
             <options_atn>trigtest.pl --test AthenaTrigBStoESD --run AthenaTrigBStoESD --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -61,7 +61,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoBS_MC --run AthenaTrigRDOtoBS_MC --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -73,7 +73,7 @@
             <options_atn>trigtest.pl --test AthenaTrigBStoESD_MC --run AthenaTrigBStoESD_MC --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -85,7 +85,7 @@
          <options_atn>trigtest.pl - -test MC_standalone - -run MC_standalone - -conf TrigAnalysisTest.conf</options_atn> 
          <timelimit>30</timelimit> 
          <author>TrigAnalysis validation</author> 
-	      		<project_exclude>AthAnalysisBase</project_exclude>
+	      		<project_exclude>AthAnalysis</project_exclude>
          <expectations> 
          <errorMessage>FAILURE </errorMessage> 
          <returnValue>0</returnValue> 
@@ -97,7 +97,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_Physics --run AthenaTrigRDOtoESDAOD_Physics --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -110,7 +110,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_MC --run AthenaTrigRDOtoESDAOD_MC --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -121,7 +121,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoTAG --run AthenaTrigRDOtoTAG --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -133,7 +133,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_Physics --run AthenaTrigRDOtoAOD_Physics --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -145,7 +145,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD --run AthenaTrigRDOtoAOD --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -157,7 +157,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_SLIM --run AthenaTrigRDOtoAOD_SLIM --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -170,7 +170,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDO_TDT --run AthenaTrigRDO_TDT --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -181,7 +181,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC --run AthenaTrigRDOtoAOD_MC --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -193,7 +193,7 @@
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
             <mailto> tbold@mail.cern.ch</mailto> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -205,7 +205,7 @@
             <options_atn>trigtest.pl --test AthenaTrigAOD_TrigEDMCheck --run AthenaTrigAOD_TrigEDMCheck --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -216,7 +216,7 @@
             <options_atn>trigtest.pl --test AthenaTrigAOD_TrigDecTool --run AthenaTrigAOD_TrigDecTool --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -228,7 +228,7 @@
             <timelimit>45</timelimit> 
             <author>TrigAnalysis validation</author> 
             <mailto> oleg.kuprash@cern.ch </mailto> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -240,7 +240,7 @@
             <timelimit>45</timelimit> 
             <author>TrigAnalysis validation</author> 
             <mailto> oleg.kuprash@cern.ch </mailto> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -251,7 +251,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoAOD_MC_pp_v6 --run AthenaTrigRDOtoAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -262,7 +262,7 @@
             <options_atn>trigtest.pl --test AthenaTrigRDOtoESDAOD_MC_pp_v6 --run AthenaTrigRDOtoESDAOD_MC_pp_v6 --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TrigAnalysis validation</author> 
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
@@ -295,7 +295,7 @@
             <prerequisite>tat_MC_Slim</prerequisite>
             <prerequisite>tat_MC_v6</prerequisite>
             <!--prerequisite>tat_PhysVal</prerequisite-->
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
@@ -306,7 +306,7 @@
             <timelimit>2</timelimit>
             <author>TrigAnalysis validation</author>
             <prerequisite>triganalysis_index0</prerequisite>
-            <project_exclude>AthAnalysisBase</project_exclude>
+            <project_exclude>AthAnalysis</project_exclude>
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
@@ -317,7 +317,7 @@
          <timelimit>2</timelimit>
          <author>TrigAnalysis validation</author>
          <prerequisite>triganalysis_index0</prerequisite>
-	      		<project_exclude>AthAnalysisBase</project_exclude>
+	      		<project_exclude>AthAnalysis</project_exclude>
          <expectations>
          <returnValue>0</returnValue>
          </expectations
