@@ -33,6 +33,8 @@ def configure(self):
     sh.chdir("%(pkg_build_dir)s/%(pkg_name)s%(pkg_ver)s" % self.env)
     # fix missing config file for clang
     os.system("sed -e 's#CPLUS = g++#CPLUS = clang++#g;s#CONLY = gcc#CONLY = clang#g' build/linux.gcc.inc > build/linux.clang.inc")
+
+    os.system('patch -p0 < %s/cmt/clang.patch' % self.pkg_root)
     
     cmd = [
         "make",

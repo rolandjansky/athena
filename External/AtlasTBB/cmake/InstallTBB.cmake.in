@@ -1,0 +1,25 @@
+# $Id: InstallTBB.cmake.in 725898 2016-02-24 13:10:11Z krasznaa $
+#
+# Script used in the installation of TBB into both the build and the
+# install area.
+#
+
+# Collect the libraries built:
+file( GLOB release_libs  @SOURCE_DIR@/build/*_release/lib* )
+file( GLOB debug_libs    @SOURCE_DIR@/build/*_debug/lib* )
+
+# Install the libraries:
+file( INSTALL ${release_libs}
+   DESTINATION @INSTALL_DIR@/@CMAKE_INSTALL_LIBDIR@
+   USE_SOURCE_PERMISSIONS )
+if( "@CMAKE_BUILD_TYPE@" STREQUAL "Debug" OR
+      "@CMAKE_BUILD_TYPE@" STREQUAL "RelWithDebInfo" )
+   file( INSTALL ${debug_libs}
+      DESTINATION @INSTALL_DIR@/@CMAKE_INSTALL_LIBDIR@
+      USE_SOURCE_PERMISSIONS )
+endif()
+
+# Install the headers:
+file( INSTALL @SOURCE_DIR@/include/
+   DESTINATION @INSTALL_DIR@/include
+   USE_SOURCE_PERMISSIONS )
