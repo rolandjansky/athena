@@ -123,6 +123,10 @@ namespace InDetDD {
     
       /** Access to module design, Casts to PixelModuleDesign */
       virtual const PixelModuleDesign * getPixelDesign(int i) const;
+
+      /** Process new IBLDist DB folder **/
+      bool processSpecialAlignment(const std::string &) const;
+
     
      private:  
     
@@ -149,7 +153,16 @@ namespace InDetDD {
       std::vector< AlignableTransformMap >                          m_higherAlignableTransforms;
       std::vector< ExtendedAlignableTransform *>                    m_alignableTransforms; 
       const PixelID*                                                m_idHelper;
-      
+
+      /** This variable switches the how the local alignment corrections are applied
+          If true they will be calcualted on top  of all of other corrections but in the default reference frame
+          If false they will be calcualted  on top  of all of other corrections but in the globally aligned reference frame    
+      */
+      bool                                                          m_isLogical;
+
+      // Helpful function for debugging of transforms
+      void printTransform(const Amg::Transform3D & tr) const;
+
     };
 
 } // namespace InDetDD

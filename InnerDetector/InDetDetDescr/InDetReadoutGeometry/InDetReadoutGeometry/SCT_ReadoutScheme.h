@@ -49,6 +49,9 @@ namespace InDetDD {
       
         // Assignment operator:
         SCT_ReadoutScheme &operator=(const SCT_ReadoutScheme &scheme);
+
+        void setDiodes(int numDiodes);
+        void setCells(int numReadoutCells);
       
         ///////////////////////////////////////////////////////////////////
         // Const methods:
@@ -101,6 +104,14 @@ namespace InDetDD {
 ///////////////////////////////////////////////////////////////////
 inline SCT_ReadoutScheme::~SCT_ReadoutScheme()
 {}
+
+inline void SCT_ReadoutScheme::setDiodes(int numDiodes) {
+  m_diodes = numDiodes;
+}
+
+inline void SCT_ReadoutScheme::setCells(int numReadoutCells) {
+  m_cells = numReadoutCells;
+}
 
 inline int SCT_ReadoutScheme::crystals() const
 {

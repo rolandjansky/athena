@@ -96,7 +96,8 @@ namespace InDetDD {
   
    @author Grant Gorfine
    - modified & maintained: Nick Styles, Andreas Salzburger
-   
+   - modified Nigel Hessey: get directions from the design instead of hard-wiring them   
+
   */  
 
   class SiDetectorElement : public Trk::TrkDetElementBase {
@@ -106,8 +107,6 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
     public:
     
-      enum Axis {xAxis=0, yAxis, zAxis};
-      enum SiliconAxis {hitDepth = xAxis, hitPhi = yAxis, hitEta = zAxis};
     
       /// Constructor:
       SiDetectorElement(const Identifier &id, 
@@ -635,7 +634,12 @@ namespace InDetDD {
       //
       // Cached values.
       //
-    
+      // Axes
+      SiDetectorDesign::Axis m_hitEta;
+      SiDetectorDesign::Axis m_hitPhi;
+      SiDetectorDesign::Axis m_hitDepth;
+	 
+
       // Directions of axes. These are true if the hit/simulation and reconstruction local frames are
       // in the same direction and false if they are opposite.
       mutable bool m_depthDirection; // Direction of depth axis. 

@@ -21,8 +21,10 @@ namespace InDetDD {
 
     SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
         : SiDetectorManager(detStore, "SCT"),
-        m_idHelper(0)
+        m_idHelper(0),
+        m_isLogical(false) // Change to true to change the definition of local module corrections
     {
+
         //  
         // Initialized the Identifier helper.
         //
@@ -86,11 +88,11 @@ namespace InDetDD {
 
 
     SiDetectorElement* SCT_DetectorManager::getDetectorElement(const Identifier & id) const
-    {  
+    {    
         // NB the id helpers implementation for getting a hash is not optimal.
         // Essentially does a binary search.
         // Make sure it is a wafer Id
-        Identifier waferId =  m_idHelper->wafer_id(id);
+        Identifier waferId =    m_idHelper->wafer_id(id);
         IdentifierHash idHash = m_idHelper->wafer_hash(waferId);
         if (idHash.is_valid()) {
             return m_elementCollection[idHash];
@@ -129,7 +131,7 @@ namespace InDetDD {
     void SCT_DetectorManager::addDetectorElement(SiDetectorElement * element)
     {
         IdentifierHash idHash = element->identifyHash();
-        if (idHash >=  m_elementCollection.size())
+        if (idHash >=    m_elementCollection.size())
             throw std::runtime_error("SCT_DetectorManager: Error adding detector element.");
         m_elementCollection[idHash] = element;
     }
@@ -195,10 +197,18 @@ namespace InDetDD {
                 const SiDetectorElement * element =  m_elementCollection[idHash];
                 if (!element) return false;
 
-                // Its a local transform
-                return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
+                // It's a local transform
 
-            } else {   
+                //See header file for definition of m_isLogical                  
+                if( m_isLogical ){
+                    //Ensure cache is up to date and use the alignment corrected local to global transform
+                    element->updateCache();
+                    return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta);
+                } else 
+                    //Use default local to global transform
+                    return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta);
+                
+            } else {     
                 // other not supported
                 msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
                 return false;
@@ -224,7 +234,14 @@ namespace InDetDD {
                 const SiDetectorElement * element =  m_elementCollection[idHash];
                 if (!element) return false;
                 // Its a local transform
-                return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta);
+                //See header file for definition of m_isLogical                  
+                if( m_isLogical ){
+                    //Ensure cache is up to date and use the alignment corrected local to global transform
+                    element->updateCache();
+                    return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->moduleTransform(), delta);
+                } else 
+                    //Use default local to global transform
+                    return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta);
 
             } else {
                 // other not supported
@@ -240,10 +257,10 @@ namespace InDetDD {
             }
 
             int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
-            if (index  >=  static_cast<int>(m_higherAlignableTransforms.size())) return false;
+            if (index    >=  static_cast<int>(m_higherAlignableTransforms.size())) return false;
 
             // We retrieve it from a map. 
-            AlignableTransformMap::const_iterator iter;    
+            AlignableTransformMap::const_iterator iter;      
             iter = m_higherAlignableTransforms[index].find(id);
             if (iter == m_higherAlignableTransforms[index].end()) return false;          
 
@@ -295,7 +312,7 @@ namespace InDetDD {
                 int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
                 if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1); 
                 m_higherAlignableTransforms[index][id] = new ExtendedAlignableTransform(transform, child);
-            }  
+            }    
         }
     }
 

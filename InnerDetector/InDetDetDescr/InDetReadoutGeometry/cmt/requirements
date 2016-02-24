@@ -8,6 +8,7 @@ use DetDescrConditions DetDescrConditions-* DetectorDescription/DetDescrCond
 use IdDictDetDescr     IdDictDetDescr-*     DetectorDescription
 use TRT_ConditionsData TRT_ConditionsData-* InnerDetector/InDetConditions
 use StoreGate	       StoreGate-*          Control
+use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 
 public
 
