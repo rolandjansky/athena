@@ -82,7 +82,7 @@ class MonitorToolBase : public AthAlgTool,
   // multiple StreamNames
   std::vector<std::string>            m_THistSvc_streamnameMapping;
   std::map<std::string,std::string>   m_map_THistSvc_streamnames;
-  bool setupStreamMap;
+  bool m_setupStreamMap;
   
   std::string m_THistSvc_refStream;
   

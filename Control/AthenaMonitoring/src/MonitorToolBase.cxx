@@ -32,7 +32,7 @@ MonitorToolBase::MonitorToolBase(const std::string & type,
     , m_rootsvc(0)
     , m_isBooked(false)
     , m_path("/stat")
-    , setupStreamMap(false)
+    , m_setupStreamMap(false)
     , m_LogFileName("my.default")
     , m_FormatString("")
     , m_preScale(1)
@@ -71,7 +71,7 @@ MonitorToolBase::getStreamName(unsigned int number, bool useDefault /* =true */ 
 {
   std::string str="empty"; // no trailing slash, histogram will be temporary
   
-  if( ! setupStreamMap)
+  if( ! m_setupStreamMap)
     if( ! this->setupOutputStreams().isSuccess())
       {
 	MsgStream log(msgSvc(), name ());
@@ -98,7 +98,7 @@ MonitorToolBase::getStreamName(std::string stream, bool useDefault /* = true */ 
 {
   std::string str="empty"; // no trailing slash, histogram will be temporary
   
-  if( ! setupStreamMap)
+  if( ! m_setupStreamMap)
     if( ! this->setupOutputStreams().isSuccess() )
       {
 	MsgStream log(msgSvc(), name ());
@@ -184,7 +184,7 @@ MonitorToolBase::setupOutputStreams(std::vector<std::string> Mapping
 	    << endreq;
     }
   // don't call again
-  setupStreamMap=true;
+  m_setupStreamMap=true;
   
   return StatusCode::SUCCESS;
 }
