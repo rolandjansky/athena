@@ -1292,12 +1292,12 @@ class L2EFChain_e(L2EFChainDef):
         # these can be made more configurable later (according to tracking algorithms etc...)
         if 'etcut' in self.chainPart['addInfo']:
 
-            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
+            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_EtCut
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
-            theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
+            theL2CaloHypo      = L2CaloHypo_EtCut("L2CaloHypo_e"+str(threshold)+"_EtCut",threshold ) 
             theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut_heavyIon",threshold);
             theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut_heavyIon",threshold) 
@@ -1326,7 +1326,7 @@ class L2EFChain_e(L2EFChainDef):
             logElectronDef.debug('chain suffix: %s', algoSuffix)
             #if 'mvt' in algoSuffix: 
             #    algoSuffix = algoSuffix.replace('mvt','')
-            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
+            from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_EtCut
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_ID
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID_HI
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_Iso
@@ -1337,7 +1337,7 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_All
             # L2 Calo
-            theL2CaloHypo =  L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold )
+            theL2CaloHypo =  L2CaloHypo_EtCut("L2CaloHypo_e"+str(threshold)+"_EtCut",threshold )
             
             # L2 Electron
             theL2ElectronHypo  = L2ElectronHypo_e_ID("TrigL2ElectronHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
