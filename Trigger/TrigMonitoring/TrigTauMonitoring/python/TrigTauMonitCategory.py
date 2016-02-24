@@ -13,3 +13,25 @@ monitoring_tau = [
                   'tau35_perf_tracktwo_tau25_perf_tracktwo',
                   'mu14_iloose_tau25_perf_tracktwo'
 	]
+
+monitoring_tau_cosmic = [
+    'tau1_cosmic_track_L1MU4_EMPTY',
+    'tau1_cosmic_ptonly_L1MU4_EMPTY',
+    'tau8_cosmic_ptonly',
+    'tau8_cosmic_track'
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
