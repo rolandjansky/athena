@@ -225,6 +225,8 @@ namespace TrigCostRootAnalysis {
     kNBunchGroups,
     kDoEBWeighting,
     kDoCPS,
+    kIgnoreNonPhysBunchGroups,
+    kNoLBRescaling,
     kPatternsInvert,
     kDirectlyApplyPrescales,
     kNoUpgradePileupScaling,
@@ -248,6 +250,7 @@ namespace TrigCostRootAnalysis {
     kTargetPeakMuAverage,
     kTargetPairedBunches,
     kDoNotLumiWeightUnbiased,
+    kPatternsExactMatch,
     kJIRA,
     kRunLumi,
     kRunLumiXML,
@@ -478,6 +481,8 @@ namespace TrigCostRootAnalysis {
   typedef std::vector< ConfVariableOptionPair_t >   VariableOptionVector_t; //!< Structure to hold a reference to what is stored in a DataStore
 
   typedef std::map< ConfKey_t, DataVariable* >::const_iterator VariableMapIt_t; //!< Internal use name to DataVariable pointer iterator typedef.
+
+  typedef std::map< CounterMap_t*, ConfKey_t > CounterMapType_t; // We iterate over a set of CounterMap_t, nice to know what kind of collection it was from
 
   typedef std::set<CounterBaseRates*>           CounterBaseRatesSet_t;
   typedef CounterBaseRatesSet_t::const_iterator CounterBaseRatesSetIt_t;

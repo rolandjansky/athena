@@ -127,6 +127,9 @@ namespace TrigCostRootAnalysis {
     static Int_t _isCPUPrediction;
     static Int_t _doUpgradeRatesScan = kFALSE;
     static Int_t _doNotLumiWeightUnbiased = kFALSE;
+    static Int_t _patternsExactMatch = kFALSE;
+    static Int_t _ignoreNonPhysBunchGroups = kFALSE;
+    static Int_t _noLBRescaling = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -157,7 +160,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-08-06";
+    std::string _version = "TrigCostRootAnalysis-00-08-11";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -258,6 +261,9 @@ namespace TrigCostRootAnalysis {
         {"isCPUPrediction",        no_argument,       &_isCPUPrediction,        1},
         {"doUpgradeRatesScan",     no_argument,       &_doUpgradeRatesScan,     1},
         {"doNotLumiWeightUnbiased",no_argument,       &_doNotLumiWeightUnbiased,1},
+        {"patternsExactMatch",     no_argument,       &_patternsExactMatch,     1},
+        {"ignoreNonPhyBunchGroups",no_argument,       &_ignoreNonPhysBunchGroups,1},
+        {"noLBRescaling",          no_argument,       &_noLBRescaling,          1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -330,7 +336,7 @@ namespace TrigCostRootAnalysis {
         if (std::string( _longOptions[_optionIndex].name ) == "help") {
           std::cout << "INFO: Trig Cost Root Analysis Program Usage:- " << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ OPERATING MODE ALIASES ~~~~~~~~~~~~~~~" << std::endl;
-          std::cout << "--costMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorAllChainSeqAlgs --monitorAllROS --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --outputModeStandard" << std::endl;
+          std::cout << "--costMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorAllChainSeqAlgs --monitorAllROS --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --ignoreNonPhyBunchGroups --outputModeStandard" << std::endl;
           std::cout << "--onlineMode\t\t\t\t\tAlias for: --cleanAll --summaryPerHLTConfig --summaryPerLumiBlock --monitorAllChainSeqAlg --monitorROS --monitorROBIN --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --outputModeStandard" << std::endl;
           std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --nLbPerHLTConfig=INT_MAX --outputModeStandard" << std::endl;
           std::cout << "--outputModeStandard\t\t\t\tAlias for: --doOutputHist --doOutputCSV --doOutputRatesGraph --doOutputRatesXML --doOutputMenus" << std::endl;
@@ -381,6 +387,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--lbBegin INT_MIN\t\t\t\tLowest value luminosity block from input to use." << std::endl;
           std::cout << "--lbEnd INT_MAX\t\t\t\t\tHighest value luminosity block from input to use." << std::endl;
           std::cout << "--jira\t\t\t\t\t\tLink to a bug report associated with this processing." << std::endl;
+          std::cout << "--useEBWeight\t\t\t\t\tApply precalculated weights to un-weight EnhancedBias data to MinimumBias data." << std::endl;
           std::cout << "--basicWeight "<< _basicWeight <<"\t\t\t\t\tBase event weight. Can be used to apply global scaling factor to run." << std::endl;
           std::cout << "--extrapolate8To13\t\t\t\tExperimental parameter! Attempt to evolve 8 TeV data/MC to 13 TeV based on HLT result." << std::endl;
           std::cout << "--extrapolate13To5\t\t\t\tExperimental parameter! Attempt to devolve 13 TeV data/MC to 5 TeV based on HLT result." << std::endl;
@@ -394,18 +401,20 @@ namespace TrigCostRootAnalysis {
           std::cout << "--nLbPerHLTConfig " << _nLbPerHLTConfig << "\t\t\t\tHow many LB to process per key summary, counted from the LB of the 1st event seen with this config." << std::endl;
           std::cout << "--nFullEventSummaries " << _maxNumberFullEvents << "\t\t\tMax number of events (picked at random) to save full executions records for." << std::endl;
           std::cout << "--defaultLBLength " << _defaultLBLength << "\t\t\t\tDefault lumi block length in seconds. Used as an approximate fallback for inputs without LB length data." << std::endl;
+          std::cout << "--noLBRescaling\t\t\t\tFlag to prevent the rescaling of the effective time per LB in EB runs based on the events processed and the known run size.";
           std::cout << "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed." << std::endl;
           std::cout << "--patternsOutput patt1 patt2 ...\t\tPatterns to match in names when saving results. Regex currently NOT supported. Partial matched allowed. Only entries which match will be included in the output." << std::endl;
-          std::cout << "--patternsInvert\t\t\t\tInvert the behaviour of --patternsMonitor and --patternsOutput to be a list of chains to explicitly exclude." << std::endl;
+          std::cout << "--patternsInvert\t\t\t\tInvert the behavior of --patternsMonitor and --patternsOutput to be a list of chains to explicitly exclude." << std::endl;
+          std::cout << "--patternsExactMatch\t\t\t\tUse exact string matching rather than the default fuzzy matching." << std::endl;
           std::cout << "--fullEvNumFilelist\t\t\t\tInput file list with one event number per line. If supplied, only HLT events matching will be used in Full Event Summaries." << std::endl;
           std::cout << "--isCPUPrediction\t\t\t\tIn this mode TrigCost assumes it's running on EnhancedBias data reprocessed with physics prescales and with the costmonitor chain unprescaled." << std::endl;
+          std::cout << "--ignoreNonPhyBunchGroups\t\t\tSet by default for costMode, non-physics bunch groups are given weight 0 and hence ignored. Only works if --useEBWeight is true";
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "--noMsgSuppression\t\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu/L1 XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu/L1 XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;
           std::cout << "--writeDummyPSXML\t\t\t\tGenerate a file Prescales.xml which contains all chains and can be edited to manually prescale the menu. Use the generated file with --prescaleXML1." << std::endl;
-          std::cout << "--useEBWeight\t\t\t\t\tApply precalculated weights to un-weight EnhancedBias data to MinimumBias data." << std::endl;
           std::cout << "--predictionLumi\t\t\t\tThe desired instantaneous luminosity to be predicted by this processing. In /cm2/s or in multiples of 1e30" << std::endl;
           std::cout << "--runLumi\t\t\t\t\tOverride the effective instantaneous luminosity of the Enhanced Bias data being used. In /cm2/s or in multiples of 1e30" << std::endl;
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
@@ -782,6 +791,7 @@ namespace TrigCostRootAnalysis {
       _monitorFullEvent = 1;
       _monitorEventProfile = 1;
       _outputModeStandard = 1;
+      _ignoreNonPhysBunchGroups = 1;
     }
 
     if (_onlineMode == kTRUE) {
@@ -1119,6 +1129,9 @@ namespace TrigCostRootAnalysis {
     set(kIgnoreRerun, 0, "IgnoreRerun", kUnlocked); 
     set(kDoNotLumiWeightUnbiased, _doNotLumiWeightUnbiased, "DoNotLumiWeightUnbiased");
     set(kJIRA, _jira, "JIRA");
+    set(kPatternsExactMatch, _patternsExactMatch, "PatternsExactMatch");
+    set(kIgnoreNonPhysBunchGroups, _ignoreNonPhysBunchGroups, "IgnoreNonPhyBunchgroups");
+    set(kNoLBRescaling, _noLBRescaling, "NoLBRescaling");
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
@@ -1651,6 +1664,7 @@ namespace TrigCostRootAnalysis {
    * Check if a vector of strings configuration contains a match to the given string.
    * Note: the pattern may match a sub-string, it does not need exactly equal one vector entry.
    * To be clear: the stored value must be a sub-string of _entry
+   * This behaviour can be changed based on the stored kPatternsExactMatch config
    * @param _key enum key for this config.
    * @param _entry The string to match.
    * @return kTRUE if the patter.
@@ -1664,9 +1678,12 @@ namespace TrigCostRootAnalysis {
     }
 
     for (UInt_t _i = 0; _i < m_settingsVecStr[_key].size(); ++_i) {
-      if ( _entry.find( m_settingsVecStr[_key].at(_i) ) != std::string::npos ) {
+      if ( m_settingsInt[kPatternsExactMatch] == 1 ) {
+        // This chain is exactly the correct name
+        if ( _entry == m_settingsVecStr[_key].at(_i) ) return kTRUE;
+      } else {
         // This chain contains the correct string name
-        return kTRUE;
+        if ( _entry.find( m_settingsVecStr[_key].at(_i) ) != std::string::npos ) return kTRUE;
       }
     }
     return kFALSE;

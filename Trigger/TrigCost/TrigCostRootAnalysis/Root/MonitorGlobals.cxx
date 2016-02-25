@@ -59,8 +59,10 @@ namespace TrigCostRootAnalysis {
       _counter->processEventCounter( 0, 0, _weight );
 
       // Also process the All LB counter, we give this the ID -1
-      getCounter( _counterMap, Config::config().getStr(kAllString), -1 )->processEventCounter( 0, 0, _weight );
-
+      // Don't want to do this if we're iterating over a single-LB collection
+      if (m_counterMapType[_counterMap] != kDoLumiBlockSummary) {
+        getCounter( _counterMap, Config::config().getStr(kAllString), -1 )->processEventCounter( 0, 0, _weight );
+      }
 
       endEvent(_weight);
 
@@ -69,7 +71,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Do we use this monitor for this particular mode? Try and keep things managable in terms of output created!
+   * Do we use this monitor for this particular mode? Try and keep things manageable in terms of output created!
    * Note these are currently hard-coded. We may want to make them configurable
    * @return If this monitor should be active for a given mode.
    */
@@ -88,7 +90,7 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorGlobals::saveOutput() {
 
-    // Now we're done, we want to additioanlly decorate these counters with their effective LB length, given how many
+    // Now we're done, we want to additionally decorate these counters with their effective LB length, given how many
     // events we saw vs. how many were were expecting to see
     // Loop over all my counter collections
     // TODO make a finalise loop and put me in it

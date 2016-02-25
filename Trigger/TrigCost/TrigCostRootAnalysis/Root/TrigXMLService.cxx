@@ -758,6 +758,11 @@ namespace TrigCostRootAnalysis {
     Float_t _eventWeight = m_idToWeightMap[_weightID];
     UInt_t  _eventBG     = m_idToBGMap[_weightID];
 
+    // Option to disable (weight = 0) events if they're not physics collisions
+    if (Config::config().getInt(kIgnoreNonPhysBunchGroups) == 1) {
+      if (_eventBG != 1) _eventWeight = 0.;
+    }
+
     static std::string _bgString = "BunchGroup";
     static std::string _ebString = "EventEBWeight";
     static std::string _rdString = "RandomOnline";
@@ -1007,7 +1012,7 @@ namespace TrigCostRootAnalysis {
         CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
         if (_counter->getStrDecoration(kDecType) == "L1") _hasL1 = kTRUE;
         else if (_counter->getStrDecoration(kDecType) == "L2") _hasL2 = kTRUE;
-        else if (_counter->getStrDecoration(kDecType) == "HLT") _hasHLT = kTRUE;
+        else if (_counter->getStrDecoration(kDecType) == "HLT" || _counter->getStrDecoration(kDecType) == "Chain") _hasHLT = kTRUE;
       }
 
       if (_hasL1) { //Add L1 data
