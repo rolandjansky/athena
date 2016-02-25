@@ -125,12 +125,7 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(Float_t prob1,Float_t prob2,const
   float phi1(trackParticle.phi());
   float phi2(particle.phi());
   float truthPhi(tp.phi());
-  //float cSquare1 = trackParticle.chiSquared();
-  //float cSquare2 = particle.chiSquared();
-  //float dof1 = trackParticle.numberDoF();
-  //float dof2 = particle.numberDoF();
-  //float csOverDoF1 = cSquare1 / dof1;
-  //float csOverDoF2 = cSquare2 / dof2;
+
   uint8_t iPixHoles, iSCTHoles;
   int pixHoles1 = 0;
   int sctHoles1 = 0;
@@ -139,29 +134,10 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(Float_t prob1,Float_t prob2,const
   int sctHoles2 = 0;
   int totalHoles2 =0;
 
-  //int truthCharge = tp.charge();
-  //int reco1Charge = trackParticle.charge();
-  //int reco2Charge = particle.charge();
-
   uint8_t iPixShared,  iSCTShared;                                                                                                                                                   
   int pixShared1 = 0;                                                                                                                                                                                            
   int pixShared2 = 0;                                                                                                                                                                                          
   int sctShared1 = 0;                                                                                                                                                                                             int sctShared2 = 0;
-  /*
-  uint8_t iPixHits,iSCTHits;
-  int pixHits1 = 0;
-  int sctHits1 = 0;
-  int pixHits2 = 0;
-  int sctHits2 = 0;
-  int totalHits1 = 0;
-  int totalHits2 = 0;
-  if (trackParticle.summaryValue(iPixHits,xAOD::numberOfPixelHits)) pixHits1 = iPixHits;
-  if (trackParticle.summaryValue(iSCTHits,xAOD::numberOfSCTHits)) sctHits1 = iSCTHits;
-  if (particle.summaryValue(iPixHits,xAOD::numberOfPixelHits)) pixHits2 = iPixHits;
-  if (particle.summaryValue(iSCTHits,xAOD::numberOfSCTHits)) sctHits2 = iSCTHits;
-  totalHits1 = pixHits1 + sctHits1;
-  totalHits2 = pixHits2 + sctHits2;
-  */
     
   if (trackParticle.summaryValue(iPixShared,xAOD::numberOfPixelSharedHits)) pixShared1 = iPixShared;
   if (trackParticle.summaryValue(iSCTShared,xAOD::numberOfSCTSharedHits)) sctShared1 = iSCTShared;
@@ -186,20 +162,12 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(Float_t prob1,Float_t prob2,const
 	m_duplicateLPixelvsSCTShared->Fill(pixShared2,sctShared2);
         m_duplicateHPTHoles->Fill(totalHoles1);
 
-
-
 	float deltaPT1 = pt1 - pt2;
 	float deltaEta1 = eta1 - eta2;
 	float deltaPhi1 = phi1 - phi2;
      
-
-
-	// pt1 - pt2 vs truth
 	m_duplicateDeltaPTvsTruthPT->Fill(truthPt,deltaPT1);
 	m_duplicateDeltaPTvsTruthPTZoomed->Fill(truthPt,deltaPT1);     
-
-
-
 
 	//resolution plots
 	float resHPT1 = pt1 - truthPt;
@@ -241,9 +209,6 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(Float_t prob1,Float_t prob2,const
     if( pt2 > pt1 || pt1 == pt2) 
       {    
 
-
-
-	
 	m_duplicateHPTHoles->Fill(totalHoles2);
 	m_duplicateLPTHoles->Fill(totalHoles1);
 	m_duplicateLPixelvsSCTShared->Fill(pixShared1,sctShared1);

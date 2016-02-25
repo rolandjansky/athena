@@ -1,4 +1,4 @@
-TH1F num_truthmatch_match "num_truthmatch_match" 10 0 10 "Num. matching truth" "Entries" default
+=TH1F num_truthmatch_match "num_truthmatch_match" 10 0 10 "Num. matching truth" "Entries" default
 TH1F nparticle "Number of Truth Particles" 200 0 2000 "Num. truth particles"  "Entries" default
 TH1F ntracksel "Number of Selected Tracks" 200 0 1000 "Num. tracks"  "Entries" default
 TH1F ntrack "Number of Tracks" 200 0 1000 "Num. tracks"  "Entries" default
@@ -227,27 +227,27 @@ TH1F truthPhiSpectrum "truth phi spectrum" 60 -3 3 "#phi" "Entries" default
 TH1F truthPtSpectrum "truth pt spectrum" 100 0. 100 "pt (GeV/c)" "Entries" default
 
 #HitContent plots
-TProfile HitContent_vs_eta_NBlayerHits "Number of B-Layer clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of B-layer clusters>" default
-TProfile HitContent_vs_eta_NPixelHits "Number of Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel clusters>" default
+TProfile HitContent_vs_eta_NBlayerHits "Number of B-Layer clusters" 80 -4 4 0 100 "#eta" "<Number of B-layer clusters>" default
+TProfile HitContent_vs_eta_NPixelHits "Number of Pixel clusters" 80 -4 4 0 100 "#eta" "<Number of Pixel clusters>" default
 TProfile HitContent_vs_eta_DBMHitsNeg "Number of DBM Clusters" 20 -3.8 -2.5 0 100 "#eta" "<Number of DBM clusters, - side>" default
 TProfile HitContent_vs_eta_DBMHitsPos "Number of DBM Clusters" 20 2.5 3.8 0 100 "#eta" "<Number of DBM Clusters, + side>" default
-TProfile HitContent_vs_eta_NPixelHoles "Number of Pixel Holes" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Holes>" default
-TProfile HitContent_vs_eta_NSCTHits "Number of SCT Clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Clusters>" default
-TProfile HitContent_vs_eta_NSCTHoles "Number of SCT Holes" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Holes>" default
-TProfile HitContent_vs_eta_NTRTHits "Number of TRT Clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT Hits>" default
-TProfile HitContent_vs_eta_NTRTHighThresholdHits "Number of TRT high threshold clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of High Thresh TRT Hits>" default
-TH1F truth_vs_eta_NBlayerHits "True Number of B-Layer clusters" 20 -2.5 2.5 0 100 "#eta" "<True Number of B-Layer clusters>" default
-TH1F BLayer_Efficiency "Cluster Effiency of B-Layer" 20 -2.5 2.5 0 1 "#eta" "<Cluster Efficiency>" default
-TProfile HitContent_vs_eta_NBlayerOutliers "Number of B-layer outliers"  20 -2.5 2.5 0 100 "#eta" "<Number of B-layer Outliers>" default
-TProfile HitContent_vs_eta_NBlayerSharedHits "Number of shared B-layer clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of B-layer Shared Hits>" default
-TProfile HitContent_vs_eta_NBLayerSplitHits "Number of split B-layer clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of B-layer Split Hits>" default
-TProfile HitContent_vs_eta_NPixelOutliers "Number of Pixel outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Outliers>" default
-TProfile HitContent_vs_eta_NPixelContribLayers "Number of contributed Pixel layers" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Layers>" default
-TProfile HitContent_vs_eta_NPixelSharedHits "Number of shared Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Shared Hits>" default
-TProfile HitContent_vs_eta_NPixelSplitHits "Number of split Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Split Hits>" default
-TProfile HitContent_vs_eta_NPixelGangedHits "Number of ganged Pixel clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of Pixel Ganged Hits>" default
-TProfile HitContent_vs_eta_NSCTOutliers "Number of SCT Outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Outliers>" default
-TProfile HitContent_vs_eta_NSCTDoubleHoles "Number of SCT double holes" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Double Holes>" default
-TProfile HitContent_vs_eta_NSCTSharedHits "Number of SCT Shared clusters" 20 -2.5 2.5 0 100 "#eta" "<Number of SCT Shared Hits>" default
-TProfile HitContent_vs_eta_NTRTOutliers "Number of TRT outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT Outliers>" default
-TProfile HitContent_vs_eta_NTRTHighThresholdOutliers "Number of TRT High Threshold outliers" 20 -2.5 2.5 0 100 "#eta" "<Number of TRT High Thresh Outliers>" default
+TProfile HitContent_vs_eta_NPixelHoles "Number of Pixel Holes" 80 -4 4 0 100 "#eta" "<Number of Pixel Holes>" default
+TProfile HitContent_vs_eta_NSCTHits "Number of SCT Clusters" 80 -4 4 0 100 "#eta" "<Number of SCT Clusters>" default
+TProfile HitContent_vs_eta_NSCTHoles "Number of SCT Holes" 80 -4 4 0 100 "#eta" "<Number of SCT Holes>" default
+TProfile HitContent_vs_eta_NTRTHits "Number of TRT Clusters" 80 -4 4 0 100 "#eta" "<Number of TRT Hits>" default
+TProfile HitContent_vs_eta_NTRTHighThresholdHits "Number of TRT high threshold clusters" 80 -4 4 0 100 "#eta" "<Number of High Thresh TRT Hits>" default
+TH1F truth_vs_eta_NBlayerHits "True Number of B-Layer clusters" 80 -4 4 0 100 "#eta" "<True Number of B-Layer clusters>" default
+TH1F BLayer_Efficiency "Cluster Effiency of B-Layer" 80 -4 4 0 1 "#eta" "<Cluster Efficiency>" default
+TProfile HitContent_vs_eta_NBlayerOutliers "Number of B-layer outliers"  80 -4 4 0 100 "#eta" "<Number of B-layer Outliers>" default
+TProfile HitContent_vs_eta_NBlayerSharedHits "Number of shared B-layer clusters" 80 -4 4 0 100 "#eta" "<Number of B-layer Shared Hits>" default
+TProfile HitContent_vs_eta_NBLayerSplitHits "Number of split B-layer clusters" 80 -4 4 0 100 "#eta" "<Number of B-layer Split Hits>" default
+TProfile HitContent_vs_eta_NPixelOutliers "Number of Pixel outliers" 80 -4 4 0 100 "#eta" "<Number of Pixel Outliers>" default
+TProfile HitContent_vs_eta_NPixelContribLayers "Number of contributed Pixel layers" 80 -4 4 0 100 "#eta" "<Number of Pixel Layers>" default
+TProfile HitContent_vs_eta_NPixelSharedHits "Number of shared Pixel clusters" 80 -4 4 0 100 "#eta" "<Number of Pixel Shared Hits>" default
+TProfile HitContent_vs_eta_NPixelSplitHits "Number of split Pixel clusters" 80 -4 4 0 100 "#eta" "<Number of Pixel Split Hits>" default
+TProfile HitContent_vs_eta_NPixelGangedHits "Number of ganged Pixel clusters" 80 -4 4 0 100 "#eta" "<Number of Pixel Ganged Hits>" default
+TProfile HitContent_vs_eta_NSCTOutliers "Number of SCT Outliers" 80 -4 4 0 100 "#eta" "<Number of SCT Outliers>" default
+TProfile HitContent_vs_eta_NSCTDoubleHoles "Number of SCT double holes" 80 -4 4 0 100 "#eta" "<Number of SCT Double Holes>" default
+TProfile HitContent_vs_eta_NSCTSharedHits "Number of SCT Shared clusters" 80 -4 4 0 100 "#eta" "<Number of SCT Shared Hits>" default
+TProfile HitContent_vs_eta_NTRTOutliers "Number of TRT outliers" 80 -4 4 0 100 "#eta" "<Number of TRT Outliers>" default
+TProfile HitContent_vs_eta_NTRTHighThresholdOutliers "Number of TRT High Threshold outliers" 80 -4 4 0 100 "#eta" "<Number of TRT High Thresh Outliers>" default

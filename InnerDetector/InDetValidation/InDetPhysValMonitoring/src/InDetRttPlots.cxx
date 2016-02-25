@@ -43,12 +43,12 @@ namespace { //utility functions used in this area - stolen from InDetPhysValMoni
   	}
   	return result;
   }
-  
+    
 // this has no business here - should be in a common header.  Soon to be replaced w/ TrackTruthSelectionTool
 // also not a nice way of configuring the eta cut..
   bool isPrimary( const xAOD::TruthParticle* tp, float max_eta )
   {
-    /*Logically, the way to make this configurable between Forward/Backward/Min_Bias tracking is
+    /* Logically, the way to make this configurable between Forward/Backward/Min_Bias tracking is
       with an appropriate if-statement setup.  For simplicity, place the common conditions, such as 
       eta or Pt cuts, in front of the if-block, to minimize repetition.    
     */
@@ -98,12 +98,14 @@ namespace { //utility functions used in this area - stolen from InDetPhysValMoni
     }
     return isPrimary( truth, max_eta );
   }
-  
+
+
 }//namespace
 
 
 InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir),
-    m_ptPlot(this,"Tracks/SelectedGoodTracks"),
+    
+		m_ptPlot(this,"Tracks/SelectedGoodTracks"),
     m_basicPlot(this, "Tracks/SelectedGoodTracks"),
     m_PtEtaPlots(this,"Tracks/SelectedGoodTracks","TrackParticle"),
     m_IPPlots(this,"Tracks/SelectedGoodTracks"),
@@ -124,7 +126,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):I
     m_vertexPlots(this,"Vertices/AllPrimaryVertices"),
     m_hardScatterVertexPlots(this,"Vertices/HardScatteringVertex"),
 									  //m_DuplicateTruth(this, "Tracks/SelectedGoodTrack"),
-    m_duplicatePlots(this,"Tracks/SelectedMatchedTracks"),
+    m_duplicatePlots(this,"Tracks/SelectedGoodTracks"),
 
     m_trkInJetPlot(this,"Tracks/SelectedGoodJetTracks"),
     m_trkInJetPlot_highPt(this,"Tracks/SelectedGoodHighPtJetTracks"),
@@ -142,10 +144,13 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):I
     m_trkInJetHitsFakeTracksPlots(this,"Tracks/SelectedFakeJetTracks"),
     m_trkInJetHitsMatchedTracksPlots(this,"Tracks/SelectedMatchedJetTracks"),
     m_trkInJetEffPlots(this, "Tracks/SelectedGoodJetTracks","Selected Good Tracks in Jets"),
-    m_trkInJetTrackTruthInfoPlots(this,"TruthInJet")
-{
-  m_moreJetPlots = false; // changed with setter function
+    m_trkInJetTrackTruthInfoPlots(this,"TruthInJet"),
+    m_specPlots(this,"Tracks/PreSelectionSpectrumPlots")
+                                                                              
 
+		{
+  m_moreJetPlots = false; // changed with setter function
+	m_ITkResPlots = false;
   //These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbThreshold = 0.8;
@@ -157,6 +162,12 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):I
     m_trkInJetResPlotsDr1020 = new InDetPerfPlot_res(this,"Tracks/SelectedGoodJetDr1020Tracks");
     m_trkInJetResPlotsDr2030 = new InDetPerfPlot_res(this,"Tracks/SelectedGoodJetDr2030Tracks");
   }
+	if(m_ITkResPlots){
+		//Resolutions for ITk
+		m_ITkResolutionPlotPrim = new InDetPerfPlot_resITk(this,"Tracks/SelectedMatchedTracks/Primary");
+		m_ITkResolutionPlotSecd = new InDetPerfPlot_resITk(this,"Tracks/SelectedMatchedTracks/Secondary");
+	}
+
   //m_trkInJetPlot_highPt.setJetPtRange( 450, 900 );
 }
 
@@ -166,12 +177,39 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle,const xAOD::TruthParticl
   //fill measurement bias, resolution, and pull plots
   m_resPlots.fill(particle, truthParticle); 
   m_basicPlot.fill(truthParticle);
+
+	//fill ITK resolutions (bias / resolutions)
+  if(m_ITkResPlots){
+		if (particle.isAvailable<float>(m_trackParticleTruthProbKey)) {
+	  	const float prob = particle.auxdata<float>(m_trackParticleTruthProbKey);
+			float barcode = truthParticle.barcode();
+	  	if (barcode < 200000 && barcode != 0 && prob > 0.5){
+				m_ITkResolutionPlotPrim->fill(particle,truthParticle);
+			}
+			else if (barcode >= 200000 && prob > 0.7) {
+				m_ITkResolutionPlotSecd->fill(particle,truthParticle);
+			}
+		}
+	}
   //Not sure that the following hitsMatchedTracksPlots does anything...
   float barcode = truthParticle.barcode();
   if (barcode < 100000 && barcode != 0) { //Not sure why the barcode limit is 100k instead of 200k...
     m_hitsMatchedTracksPlots.fill(particle);
   }
 }
+
+void
+InDetRttPlots::fillSpectrum(const xAOD::TrackParticle & trackParticle){
+  float prob = getMatchingProbability(trackParticle);
+  m_specPlots.fillSpectrum(trackParticle,prob);
+
+}
+
+void
+InDetRttPlots::fillSpectrum(const xAOD::TruthParticle & particle){
+  m_specPlots.fillSpectrum(particle);
+}
+
 
 void
 InDetRttPlots::fillSingleMatch(const xAOD::TrackParticle & trackParticle){
@@ -182,8 +220,6 @@ void
 InDetRttPlots::fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle & trackParticle,const xAOD::TrackParticle & particle, const xAOD::TruthParticle&  tp){
   m_duplicatePlots.fillTwoMatchDuplicate(prob1,prob2,trackParticle,particle,tp);
 }
-
-
 
 
 void 

@@ -41,40 +41,9 @@ private:
         TH2* m_duplicateLPTvsHPT;       
 	TH2* m_duplicateLEtavsHEta;     
 	TH2* m_duplicateLPhivsHPhi;
-
-
-	TH2* m_duplicateDeltaPTvsTruthEta;
 	TH2* m_duplicateDeltaPTvsTruthPT;
 	TH2* m_duplicateDeltaPTvsTruthPTZoomed;
 
-	TH2* m_duplicateDeltaPTvsTruthPhi;
-	TH2* m_duplicateDeltaPTvsDeltaEta;
-	TH2* m_duplicateDeltaPTvsDeltaPhi;
-
-	TH2* m_duplicateDeltaEtavsTruthPT;
-	TH2* m_duplicateDeltaEtavsTruthEta;
-	TH2* m_duplicateDeltaEtavsTruthPhi;
-	TH2* m_duplicateDeltaPhivsTruthPT;
-	TH2* m_duplicateDeltaPhivsTruthEta;
-	TH2* m_duplicateDeltaPhivsTruthPhi;
-
-	TH1* m_duplicatePT_BP1;
-	TH1* m_duplicateEta_BP1;
-	TH1* m_duplicatePhi_BP1;
-
-	TH1* m_duplicatePT_BP2;
-        TH1* m_duplicateEta_BP2;
-        TH1* m_duplicatePhi_BP2;
-
-	TH2* m_duplicateHPTvsTruthPT;
-	TH2* m_duplicateHPTvsTruthPTZoomed;
-
-	TH2* m_duplicateLPTvsTruthPT;
-	TH2* m_duplicateLPTvsTruthPTZoomed;
-	TH2* m_duplicateHEtavsTruthEta;
-	TH2* m_duplicateLEtavsTruthEta;
-	TH2* m_duplicateHPhivsTruthPhi;
-	TH2* m_duplicateLPhivsTruthPhi;
 
 	//spectrum plots
 
@@ -95,13 +64,7 @@ private:
 	TH1* m_duplicateResHPT;
 	TH1* m_duplicateResHEta;
 	TH1* m_duplicateResHPhi;
-	TH1* m_duplicateResHCharge;
-	TH1* m_duplicateResLCharge;
-	TH1* m_singleMatchResCharge;
 
-	TH1* m_duplicateLPTchisqdof;
-	TH1* m_duplicateHPTchisqdof;
-	TH1* m_singleMatchPTchisqdof;
 
 	TH1* m_duplicateLPTHoles;
 	TH1* m_duplicateHPTHoles;
@@ -113,13 +76,8 @@ private:
 	TH2* m_twoMatchLPixelvsSCTShared;
 	TH2* m_singleMatchPixelvsSCTShared;
 	
-	TH1*  m_singleMatchTotalHits;	
-	TH1*  m_duplicateLTotalHits;
-	TH1*  m_duplicateHTotalHits;
 
-	TH2* m_duplicateLPtChargevsHPtCharge;
-	TH2* m_duplicateLPtChargevsTruthPtCharge;
-	TH2* m_duplicateHPtChargevsTruthPtCharge;
+
 
 	///Histogram definition
 	IHistogramDefinitionSvc* m_histDefSvc;

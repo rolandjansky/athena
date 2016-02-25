@@ -4,7 +4,6 @@
 
 
 #include "InDetPerfPlot_HitDetailed.h"
-
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -26,7 +25,33 @@ void InDetPerfPlot_HitDetailed::setEtaBinning(int nbins, float eta_min, float et
 }
 
 void InDetPerfPlot_HitDetailed::initializePlots(){  
-  const bool prependDirectory(false);
+  book(n_vs_eta_BLayerHits,"HitContent_vs_eta_NBlayerHits");
+  book(n_vs_eta_PixelHits,"HitContent_vs_eta_NPixelHits");
+  book(n_vs_eta_DBMHitsNeg,"HitContent_vs_eta_DBMHitsNeg");
+  book(n_vs_eta_DBMHitsPos,"HitContent_vs_eta_DBMHitsPos");
+  book(n_vs_eta_PixelHoles,"HitContent_vs_eta_NPixelHoles");
+  book(n_vs_eta_SCTHits,"HitContent_vs_eta_NSCTHits");
+  book(n_vs_eta_SCTHoles,"HitContent_vs_eta_NSCTHoles");
+  book(n_vs_eta_TRTHits,"HitContent_vs_eta_NTRTHits"); 
+  book(n_vs_eta_TRTHighThresholdHits,"HitContent_vs_eta_NTRTHighThresholdHits");
+  book(tru_vs_eta_BLayer,"truth_vs_eta_NBlayerHits");
+  book(BLayer_efficiency,"BLayer_Efficiency");
+  if (m_iDetailLevel >= 100) {
+  book(n_vs_eta_BLayerOutliers,"HitContent_vs_eta_NBlayerOutliers");
+  book(n_vs_eta_BLayerSharedHits,"HitContent_vs_eta_NBlayerSharedHits");
+  book(n_vs_eta_BLayerSplitHits,"HitContent_vs_eta_NBLayerSplitHits");
+  book(n_vs_eta_PixelOutliers,"HitContent_vs_eta_NPixelOutliers");
+  book(n_vs_eta_PixelContribLayers,"HitContent_vs_eta_NPixelContribLayers");
+  book(n_vs_eta_PixelSharedHits,"HitContent_vs_eta_NPixelSharedHits");
+  book(n_vs_eta_PixelSplitHits,"HitContent_vs_eta_NPixelSplitHits");
+  book(n_vs_eta_PixelGangedHits,"HitContent_vs_eta_NPixelGangedHits");
+  book(n_vs_eta_SCTOutliers,"HitContent_vs_eta_NSCTOutliers");
+  book(n_vs_eta_SCTDoubleHoles,"HitContent_vs_eta_NSCTDoubleHoles");
+  book(n_vs_eta_SCTSharedHits,"HitContent_vs_eta_NSCTSharedHits");
+  book(n_vs_eta_TRTOutliers,"HitContent_vs_eta_NTRTOutliers");
+  book(n_vs_eta_TRTHighThresholdOutliers,"HitContent_vs_eta_NTRTHighThresholdOutliers");
+   }
+  /* const bool prependDirectory(false);
   n_vs_eta_BLayerHits = BookTProfile("HitContent_vs_eta_NBlayerHits", 
 				     "Number of B-Layer clusters;#eta;<Number of B-Layer clusters>",
 				     m_etaNBins, m_etaMin, m_etaMax, 0, 100, prependDirectory );
@@ -58,9 +83,7 @@ void InDetPerfPlot_HitDetailed::initializePlots(){
 			       "True Number of B-Layer clusters;#eta;<True Number of B-Layer clusters>",
 			       m_etaNBins, m_etaMin, m_etaMax, prependDirectory );
   BLayer_efficiency   = Book1D("BLayer Efficiency", n_vs_eta_BLayerHits, "Cluster Efficiency of B-Layer;#eta;<Cluster Efficiency>", prependDirectory);
-
-
-  //debug plots
+//debug plots
   if (m_iDetailLevel >= 100) {
     n_vs_eta_BLayerOutliers   = BookTProfile("HitContent_vs_eta_NBlayerOutliers",
 					     "Number of B-layer outliers;#eta;<Number of B-layer Outliers>", 
@@ -101,7 +124,8 @@ void InDetPerfPlot_HitDetailed::initializePlots(){
     n_vs_eta_TRTHighThresholdOutliers = BookTProfile("HitContent_vs_eta_NTRTHighThresholdOutliers",
 						     "Number of TRT High Threshold outliers;#eta;<Number of High Thresh TRT Outliers>", 
 						     m_etaNBins, m_etaMin, m_etaMax, 0, 100, prependDirectory );
-  }
+  }*/
+
 }
 
 void InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
@@ -138,15 +162,14 @@ void InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle& trk) {
     if (trk.summaryValue(iSCTShared,xAOD::numberOfSCTSharedHits)) n_vs_eta_SCTSharedHits->Fill(eta, iSCTShared);
     if (trk.summaryValue(iTRTOutliers,xAOD::numberOfTRTOutliers)) n_vs_eta_TRTOutliers->Fill(eta, iTRTOutliers);
     if (trk.summaryValue(iTRTHTOutliers,xAOD::numberOfTRTHighThresholdOutliers)) n_vs_eta_TRTHighThresholdOutliers->Fill(eta, iTRTHTOutliers);
-  }
-	
-}
+     }
+    }
 /*
 void InDetPerfPlot_HitDetailed::fillDenom(const xAOD::TruthParticle& truth) {
 
   float eta = truth.eta();
-  //uint8_t truBLayerHits(1);
-  //tru_vs_eta_BLayer->Fill(eta);
+  // uint8_t truBLayerHits(1);
+  // tru_vs_eta_BLayer->Fill(eta);
 
 }
 
@@ -154,10 +177,10 @@ void InDetPerfPlot_HitDetailed::fillDenom(const xAOD::TruthParticle& truth) {
 void InDetPerfPlot_HitDetailed::finalizePlots(){
   EfficiencyPurityCalculator calc;
 
-  //Whatever this is doing it is NOT getting the right efficiencies
-  //On the bright side, the x-axis is wrong in the same way as the good Eff plots,
-  //so we know now what is causing it.
-  //calc.calculateEfficiency(tru_vs_eta_BLayer, n_vs_eta_BLayerHits, BLayer_efficiency);
+  //  Whatever this is doing it is NOT getting the right efficiencies
+  // On the bright side, the x-axis is wrong in the same way as the good Eff plots,
+  // so we know now what is causing it.
+  // calc.calculateEfficiency(tru_vs_eta_BLayer, n_vs_eta_BLayerHits, BLayer_efficiency);
 
 
 }

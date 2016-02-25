@@ -89,8 +89,6 @@ InDetPhysValLargeD0Tool::InDetPhysValLargeD0Tool(const std::string & type, const
     m_onlyInsideOutTracks(false),
     m_truthSelectionTool("TrackTruthSelectionTool/TruthSelectionTool")
 {
-  declareInterface<IAsgSelectionTool>(this);
-
   declareProperty("TrackParticleContainerName", m_trkParticleName="InDetTrackParticles");
   declareProperty("TruthParticleContainerName", m_truthParticleName="TruthParticles");
   declareProperty("VertexContainerName", m_vertexContainerName="PrimaryVertices");
@@ -188,7 +186,7 @@ InDetPhysValLargeD0Tool::fillHistograms(){
 	  bool isStandardTrack = false;
 	  float bestMatch = 0;
           m_LargeD0Plots->fillTruth(*thisTruth);  //DENOMINATOR
-          //std::vector <pair<float, const xAOD::TrackParticle*> > prospects; //Vector of pairs: <truth_matching_probability, track> if prob > minProbEffLow (0.5)
+          std::vector <pair<float, const xAOD::TrackParticle*> > prospects; //Vector of pairs: <truth_matching_probability, track> if prob > minProbEffLow (0.5)
 	  
 	  if(m_LLP=="Gluino"){	    
 	    if( isLLP( thisTruth -> absPdgId()) &&  hasNoLLP( thisTruth ) ) {    
@@ -232,7 +230,7 @@ InDetPhysValLargeD0Tool::fillHistograms(){
 		float prob = getMatchingProbability(*thisTrack);
 		bestMatch=std::max(prob, bestMatch);
 		if (prob > minProbEffLow){
-		  //		  prospects.push_back(make_pair(prob, thisTrack));
+		  prospects.push_back(make_pair(prob, thisTrack));
 		  isReconstruted=true;		
 		  const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = thisTrack->patternRecoInfo();
 		  if (patternReco.test(49)) isStandardTrack = false;
@@ -244,20 +242,20 @@ InDetPhysValLargeD0Tool::fillHistograms(){
 	      m_LargeD0Plots->fillEfficiency(*thisTruth,isReconstruted,isStandardTrack);
 	    }
 	  }
-	  /*   
-	       int deg_count = prospects.size();
-	       if(bestMatch >= minProbEffHigh){
-	       ++num_truthmatch_match;
-	       const xAOD::TruthParticle * assoc_Truth = getTruthPtr(*prospects.at(0).second);
-	       if (!assoc_Truth) continue;
-	       m_LargeD0Plots->fill(*assoc_Truth); //This is filling truth-only plots, NUMERATOR & m_TrackTruthInfoPlots
-	       for(int i=0; i<deg_count; i++){
-	       if((prospects.at(i).first < bestMatch) and (prospects.at(i).first > minProbEffHigh)){
-	       //m_LargeD0Plots->fillDupTrack(prospects.at(i).second); //fill the duplicates plots w/ the tracks
-	       }
-	       }
-	       }
-	  */
+	  
+	  int deg_count = prospects.size();
+	  if(bestMatch >= minProbEffHigh){
+	    ++num_truthmatch_match;
+	    const xAOD::TruthParticle * assoc_Truth = getTruthPtr(*prospects.at(0).second);
+	    if (!assoc_Truth) continue;
+	    m_LargeD0Plots->fill(*assoc_Truth); //This is filling truth-only plots, NUMERATOR & m_TrackTruthInfoPlots
+	    for(int i=0; i<deg_count; i++){
+	      if((prospects.at(i).first < bestMatch) and (prospects.at(i).first > minProbEffHigh)){
+	      //m_LargeD0Plots->fillDupTrack(prospects.at(i).second); //fill the duplicates plots w/ the tracks
+	      }
+	    } // end of for loop
+	  } // end of bestMatch >= minProbEffHigh
+	  
 	}
       }//End of outer truthParticle loop
     }    //This is the end of the Nested Loop approach section
