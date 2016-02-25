@@ -31,8 +31,8 @@
  * Most of the LVL1 interface classes are put into this namespace, showing that
  * they're general LVL1 classes.
  *
- * $Revision: 470803 $
- * $Date: 2011-11-25 18:34:27 +0100 (Fri, 25 Nov 2011) $
+ * $Revision: 707787 $
+ * $Date: 2015-11-13 16:09:29 +0100 (Fri, 13 Nov 2015) $
  */
 namespace LVL1 {
 
@@ -45,14 +45,13 @@ namespace LVL1 {
     *
     * Simple class defining an eta--phi coordinate in the detector.
     *
-    * $Revision: 470803 $
-    * $Date: 2011-11-25 18:34:27 +0100 (Fri, 25 Nov 2011) $
+    * $Revision: 707787 $
+    * $Date: 2015-11-13 16:09:29 +0100 (Fri, 13 Nov 2015) $
     */
    class Coordinate {
 
    public:
       Coordinate( double phi, double eta );
-      Coordinate( const Coordinate & rhs );
       Coordinate();
       virtual ~Coordinate();
 

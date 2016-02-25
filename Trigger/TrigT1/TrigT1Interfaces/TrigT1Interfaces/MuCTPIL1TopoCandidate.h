@@ -41,7 +41,10 @@ namespace LVL1 {
 			   float etamax,    
 			   float phimin,    
 			   float phimax);
-     
+
+     // set the RoI word (done at a differnt stage of the simulation, hence the separate function
+     void setRoiWord( unsigned int roi);
+
      // getter functions
      std::string  getSectorName() const { return m_sectorName; }
      unsigned int getRoiID() const { return  m_roiID; }
@@ -57,6 +60,7 @@ namespace LVL1 {
      float getetamax() const { return m_etamax; }  
      float getphimin() const { return m_phimin; }  
      float getphimax() const { return m_phimax; }  
+     unsigned int getRoiWord() const { return m_roiWord; }  
 
      // formatted print for debugging 
      void print() const ;
@@ -78,6 +82,7 @@ namespace LVL1 {
      float m_etamax;         // eta max of this eta/phi box encoded
      float m_phimin;         // phi min of this eta/phi box encoded
      float m_phimax;         // phi max of this eta/phi box encoded
+     unsigned int m_roiWord; // 32 bit Roi Word as sent from MuCTPI to RoIB
 
 
    }; // class MuCTPIL1Topo

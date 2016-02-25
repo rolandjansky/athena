@@ -1,13 +1,14 @@
 
 #include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
 #include <iostream> 
+#include <iomanip>
 
 namespace LVL1 {
 
   MuCTPIL1TopoCandidate::MuCTPIL1TopoCandidate(): 
     m_sectorName(""), m_roiID(0),     
     m_bcid(0), m_ptThresholdID(0), m_ptL1TopoCode(0), m_ptValue(0), m_eta(0), m_phi(0), m_etacode(0), m_phicode(0), 
-    m_etamin(0), m_etamax(0), m_phimin(0), m_phimax(0) {}
+    m_etamin(0), m_etamax(0), m_phimin(0), m_phimax(0), m_roiWord(0) {}
 
   MuCTPIL1TopoCandidate::~MuCTPIL1TopoCandidate() {
 
@@ -42,6 +43,11 @@ namespace LVL1 {
     m_phimax =        phimax ;             
   }
 
+  void MuCTPIL1TopoCandidate::setRoiWord(unsigned int roi){
+    m_roiWord = roi;
+  } 
+
+
   void MuCTPIL1TopoCandidate::print() const {
     
     std::cout << "Sec: " <<  m_sectorName << ", RoI: " << m_roiID  << ", BCID: " << m_bcid << ", ThrIDX: " 
@@ -49,6 +55,7 @@ namespace LVL1 {
 	      << m_eta << ", phi: " << m_phi << ", etaCode: " << m_etacode << ", phiCode: " << m_phicode 
 	      << ", etaMin: " << m_etamin << ", etaMax: " << m_etamax
 	      << ", phiMin: " << m_phimin << ", phiMax: " << m_phimax
+	      << ", RoIWord: " << std::setw( 8 ) << std::setfill('0') << std::hex << m_roiWord << std::dec
 	      << std::endl;
 
   }

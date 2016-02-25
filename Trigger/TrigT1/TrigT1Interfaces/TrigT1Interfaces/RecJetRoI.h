@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecJetRoI.h 615360 2014-09-05 19:34:47Z watsona $
+// $Id: RecJetRoI.h 707787 2015-11-13 15:09:29Z fwinkl $
 /***************************************************************************
                          RecJetRoI.h  -  description
                             -------------------
@@ -56,6 +56,10 @@ namespace LVL1 {
       // destructor
       ~RecJetRoI();
 
+      // no copy or assignment allowed
+      RecJetRoI(RecJetRoI const&) = delete;
+      RecJetRoI& operator=(RecJetRoI const&) = delete;
+     
       /** returns roi word*/
       virtual unsigned int roiWord() const;
 
@@ -64,6 +68,18 @@ namespace LVL1 {
 
       /** returns eta coord of ROI */
       virtual double eta() const;
+      
+      /** returns JEP crate number */
+      virtual unsigned int crate() const;
+      
+      /** returns JEM number */
+      virtual unsigned int module() const;
+      
+      /** returns RoI frame number  */
+      virtual unsigned int frame() const;
+      
+      /** returns local coordinate within frame */
+      virtual unsigned int localcoord() const;
 
       /** returns roi ET in larger cluster. Only valid for Run 2 data.
           Will return highest threshold passed if called for Run 1 data. */
@@ -117,13 +133,13 @@ namespace LVL1 {
 
       /** this is the actual format of the data sent from
           the LVL1 hardware. */
-      unsigned long int m_roiWord;
+      unsigned long int m_roiWord { 0 };
       
       /** Store the RoI format version */
-      int m_version;
+      int m_version { 0 };
 
       /** Information on trigger thresholds passed by RoI */ 
-      unsigned long int m_thresholdMask;
+      unsigned long int m_thresholdMask { 0 };
       std::map< int, unsigned int > m_triggerThresholdValue;
       std::map< int, unsigned int > m_windowSize;
       
