@@ -29,6 +29,7 @@
 #include "InDetPerfPlot_fakes.h"
 #include "InDetPerfPlot_Eff.h"
 #include "InDetPerfPlot_hitResidual.h"
+#include "InDetPerfPlot_spectrum.h"
 #include "InDetPerfPlot_duplicate.h"
 
 #include "InDet_BadMatchRate.h"
@@ -44,6 +45,8 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
+#include "InDetPerfPlot_resITk.h"
+
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots:public InDetPlotBase {
 public:
@@ -56,6 +59,8 @@ public:
 	void fill(const xAOD::TrackParticle& particle);
 	///fill for things needing truth only
 	void fill(const xAOD::TruthParticle& particle);
+	void fillSpectrum(const xAOD::TrackParticle & trackParticle);
+	void fillSpectrum(const xAOD::TruthParticle & particle);
 	void fillSingleMatch(const xAOD::TrackParticle & trackParticle);
 	void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle & trackParticle,const xAOD::TrackParticle & particle, const xAOD::TruthParticle&  tp);
 	///fill for things needing all truth - not just the ones from the reco tracks
@@ -107,7 +112,9 @@ private:
 	InDetPerfPlot_hitResidual m_hitResidualPlot;
 	//InDetPerfPlot_pull m_pullPlots;
 	InDetPerfPlot_fakes m_fakePlots; //fakes vs eta etc, as per original RTT code
-	
+	//ITk resolutions
+	InDetPerfPlot_resITk *m_ITkResolutionPlotPrim;	
+	InDetPerfPlot_resITk *m_ITkResolutionPlotSecd;	
 
 	Trk::IDHitPlots m_hitsPlots;
 	Trk::IDHitPlots m_hitsMatchedTracksPlots;
@@ -119,12 +126,15 @@ private:
 	InDetPerfPlot_VertexContainer m_verticesPlots;
 	InDetPerfPlot_Vertex m_vertexPlots;
 	InDetPerfPlot_Vertex m_hardScatterVertexPlots;	
+
+	//	InDetPerfPlot_spectrum m_specPlots;
 	InDetPerfPlot_duplicate m_duplicatePlots;
 
 	//Set scripts to analyze the duplicates that appear
 	//InDetPerfPlot_trackDuplicates m_DuplicateTrack;
 
   bool m_moreJetPlots;
+	bool m_ITkResPlots;
 	InDetPerfPlot_TrkInJet  m_trkInJetPlot;
 	InDetPerfPlot_TrkInJet  m_trkInJetPlot_highPt;
 	InDetPerfPlot_Pt        m_trkInJetPtPlot;
@@ -145,6 +155,8 @@ private:
 	Trk::IDHitPlots         m_trkInJetHitsMatchedTracksPlots;
 	InDetPerfPlot_Eff       m_trkInJetEffPlots;
 	Trk::TruthInfoPlots     m_trkInJetTrackTruthInfoPlots;
+	InDetPerfPlot_spectrum m_specPlots;
+       
 
 	std::string m_trackParticleTruthProbKey;
 	float m_truthProbThreshold;

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 718465 2016-01-19 15:37:04Z sroe $
+# $Id: PhysVal_jobOptions.py 725644 2016-02-23 06:24:31Z mbaugh $
 
 # Set up the reading of the input xAOD:
 
@@ -10,9 +10,11 @@
 import getpass
 FNAME = "AOD.pool.root"
 if (getpass.getuser())=="mbaugh":
-  FNAME = "ESD.05297574._000081.pool.root.1"
+  FNAME = "ESD.Large.pool.root"
   print " Hello, Max"
 
+#FNAME = "ESD.05297574._000081.pool.root.1"
+#FNAME = "AOD.pool.root"
 include( "AthenaPython/iread_file.py" )
 
 
@@ -38,7 +40,7 @@ monMan.Environment         = "altprod"
 monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
-monMan.FileKey = "Mttbar_9Nov_v0"
+monMan.FileKey = "M_Zmumu_L"
 topSequence += monMan
 
 
@@ -60,18 +62,18 @@ monMan.AthenaMonTools += [tool1]
 
 
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator,usePixel = True,useSCT= True,CountDeadModulesAfterLastHit = True)
+InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, usePixel = True,useSCT= True, CountDeadModulesAfterLastHit = True)
 ToolSvc += InDetHoleSearchTool
 print InDetHoleSearchTool
 
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["Mttbar_9Nov_v0 DATAFILE='Mttbar_9Nov_v0.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["M_Zmumu_L DATAFILE='M_Zmumu_L.root' OPT='RECREATE'"]
 
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-theApp.EvtMax = 100
+theApp.EvtMax = -1

@@ -121,27 +121,10 @@ void InDetPerfPlot_hitResidual::initializePlots() {
 }
 
 void InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
-  //det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth
-	//typedef std::tuple<int,int,int, float, float, float, float, int> SingleResult_t;
-	//typedef std::vector<SingleResult_t> TrackResult_t;
-  //const bool hitDetailsAvailable= trkprt.isAvailable<TrackResult_t>("hitResiduals");
   const bool hitDetailsAvailable= trkprt.isAvailable<std::vector<int> >("hitResiduals_region");
   if (!hitDetailsAvailable){
      ATH_MSG_WARNING("The hit res plots dont see any data");
   } else {
-  /** tuple implementation , but no root dictionary for tuple
-    const TrackResult_t & result=trkprt.auxdata< TrackResult_t >("hitResiduals");
-    if (not result.empty()){
-    	for (const auto i:result){
-				const int det = std::get<0>(i);
-				const int region = std::get<1>(i);
-				//const int layer = std::get<2>(i);
-				const int width = std::get<7>(i);
-				const float residualLocX = std::get<3>(i);
-				const float pullLocX = std::get<4>(i);
-				const float residualLocY = std::get<5>(i);
-				const float pullLocY = std::get<6>(i);
-				**/
     const std::vector<int> &result_det = trkprt.auxdata< std::vector<int> >("hitResiduals_det");
 		if (!result_det.empty()) {
 			 const std::vector<int> & result_region=trkprt.auxdata< std::vector<int> >("hitResiduals_region");
@@ -160,8 +143,6 @@ void InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
 				 const float pullLocX = result_pullLocX.at(idx);
 				 const float residualLocY = result_residualLocY.at(idx);
 				 const float pullLocY = result_pullLocY.at(idx);
-
-				
 				if ((det == INVALID_DETECTOR) or (region==INVALID_REGION)) continue;
 				(m_residualx[det][region])->Fill(residualLocX);
 				if (not std::isnan(residualLocY)) (m_residualy[det][region])->Fill(residualLocY);

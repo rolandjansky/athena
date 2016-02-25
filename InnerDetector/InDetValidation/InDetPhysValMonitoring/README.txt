@@ -218,3 +218,9 @@ https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DCubeSoftware
 
      ... and verify that everything is now green in DCube, since rerunning should 
      perfectly reproduce the histograms.
+
+
+
+Use this command:
+
+    dcube.py -r Results/rtt/rel_4/dev/build/x86_64-slc6-gcc49-opt/offline/InDetPhysValMonitoring/IdPhysValTtbar/Mttbar_9Nov_v0.root -c ../Testdir/ref/IdPhysValTtbar/DCube_IdPhysValTtbar.xml Results/rtt/rel_4/dev/build/x86_64-slc6-gcc49-opt/offline/InDetPhysValMonitoring/IdPhysValTtbar/Mttbar_9Nov_v0.root

@@ -37,7 +37,7 @@ class IExtrapolator;
 ///class holding res plots for Inner Detector RTT Validation and implementing fill methods
 class InDetPerfPlot_res:public InDetPlotBase {
 public:
-  enum Param{D0, Z0, PHI, THETA, Z0SIN_THETA, QOVERP, NPARAMS};
+  enum Param{D0, Z0, PHI, THETA, Z0SIN_THETA, QOPT, NPARAMS};
   InDetPerfPlot_res(InDetPlotBase * pParent, const std::string & dirName);
 
   void fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt);
@@ -53,6 +53,8 @@ private:
   unsigned int m_PtBins;
   float m_PtMin, m_PtMax;
   double m_Pt_logmin, m_Pt_logmax;
+
+  double mean;
 
   std::string log_mode;
 
@@ -70,9 +72,10 @@ private:
   std::vector<TH1*> m_pullmeanPlots;
   std::vector<TH1*> m_pullwidthPlots;
 
-  std::vector<std::pair<std::string, float> > m_paramNames;
+  std::vector<std::pair<std::string, std::pair<float, int> > > m_paramNames;
 
   void initializePlots();
+  void Refinement(TH1D *temp, std::string width, int var, int j, const std::vector<TH1*>& tvec, const std::vector<TH1*>& rvec);
   void finalizePlots();
 
   std::string formName(const unsigned int p, std::string type, std::string dir = "") const;

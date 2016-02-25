@@ -98,6 +98,7 @@ private:
        InDetBasicPlot m_basicPlot_nonfake_ld0;
        InDetBasicPlot m_basicPlot_fake_st;
        InDetBasicPlot m_basicPlot_fake_ld0;
+       InDetBasicPlot m_basicPlot_truth;
 
        // pT plots
        InDetPerfPlot_Pt m_ptPlot_nonfake_st;
@@ -125,7 +126,6 @@ private:
        InDetPerfPlot_nTracks m_nTracks;
        InDetPerfPlot_res m_resPlots;
        InDetPerfPlot_hitResidual m_hitResidualPlot;
-       //InDetPerfPlot_pull m_pullPlots;
        InDetPerfPlot_HitDetailed m_hitsDetailedPlots;
        InDetPerfPlot_Eff m_effPlots;
        InDet_BadMatchRate m_BadMatchRate;
@@ -137,10 +137,8 @@ private:
        Trk::IDHitPlots m_hitsPlots;
        Trk::IDHitPlots m_hitsMatchedTracksPlots;
        Trk::IDHitPlots m_hitsFakeTracksPlots;
-       //InDetPerfPlot_fakes m_fakePlots; //fakes vs eta etc, as per original RTT code
 
        //Set scripts to analyze the duplicates that appear
-       //InDetPerfPlot_trackDuplicates m_DuplicateTrack;
 
        std::string m_trackParticleTruthProbKey;
        float m_truthProbThreshold;

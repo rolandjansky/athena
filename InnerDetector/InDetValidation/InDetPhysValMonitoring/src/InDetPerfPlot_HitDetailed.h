@@ -6,18 +6,19 @@
 #define INDETPERFPLOT_HITDETAILED_H
 
 #include "InDetPlotBase.h"
-#include "TProfile.h"
+//#include "TProfile.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTruth/TruthParticle.h"
 
 
-#include "TrkValHistUtils/ParamPlots.h"
+
+//#include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/EfficiencyPlots.h"
 #include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 
 class InDetPerfPlot_HitDetailed: public InDetPlotBase {
   public:
-    InDetPerfPlot_HitDetailed(InDetPlotBase *pParent, std::string sDir);
+  InDetPerfPlot_HitDetailed(InDetPlotBase *pParent, std::string sDir);
     void fill(const xAOD::TrackParticle& trk);
 
     //void fillDenom(const xAOD::TruthParticle& truth);
