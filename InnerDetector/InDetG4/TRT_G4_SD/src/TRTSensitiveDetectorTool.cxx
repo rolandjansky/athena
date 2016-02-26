@@ -24,5 +24,9 @@ G4VSensitiveDetector* TRTSensitiveDetectorTool::makeSD()
 
   ATH_MSG_DEBUG( "Initializing SD" );
   // Create a fresh SD
-  return new TRTSensitiveDetector(name(), m_outputCollectionNames[0]);
+  //Need to set message levels here as the settings are needed in the constructor...
+  int verboseLevel = 3;
+  if(msgLvl(MSG::VERBOSE))    { verboseLevel = 10; }
+  else if(msgLvl(MSG::DEBUG)) { verboseLevel = 5;  }
+  return new TRTSensitiveDetector(name(), m_outputCollectionNames[0], verboseLevel);
 }

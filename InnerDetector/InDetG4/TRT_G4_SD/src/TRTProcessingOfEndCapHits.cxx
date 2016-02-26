@@ -49,7 +49,7 @@ TRTProcessingOfEndCapHits::TRTProcessingOfEndCapHits
 
   printMessages = pParameters->GetInteger("PrintMessages"); //FIXME Obsolete?
 
-  if (verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfEndCapHits" << G4cout; }
+  if (verboseLevel>5) { G4cout << "##### Constructor TRTProcessingOfEndCapHits" << G4endl; }
 
   Initialize();
 
