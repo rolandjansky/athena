@@ -23,3 +23,8 @@ apply_pattern poolcnv \
 macro_append MuonConditionsAthenaPoolPoolCnvGen_dependencies " MuonConditionsAthenaPoolDict "
 apply_pattern lcgdict dict=MuonConditionsAthenaPool  selectionfile=selection.xml headerfiles="../MuonConditionsAthenaPool/MuonConditionsAthenaPoolDict.h"
 
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=RpcByteStreamErrorContainerCnv_p1
+macro_append RpcByteStreamErrorContainerCnv_p1_test_use_linkopts " -lMuonConditionsAthenaPoolPoolCnv "

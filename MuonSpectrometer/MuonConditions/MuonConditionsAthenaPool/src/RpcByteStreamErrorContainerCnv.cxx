@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonByteStreamErrors/RpcByteStreamErrorContainer.h"
-#undef private
-#undef protected
 #include "RpcByteStreamErrorContainerCnv.h"
 #include "MuonConditionsAthenaPool/MuonByteStreamErrors/RpcByteStreamErrorContainer_p1.h"
 #include "MuonConditionsAthenaPool/MuonByteStreamErrors/RpcByteStreamErrorContainerCnv_p1.h"
