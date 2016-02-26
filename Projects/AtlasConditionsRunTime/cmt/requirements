@@ -1,0 +1,32 @@
+package AtlasConditionsRunTime
+
+author David Quarrie <David.Quarrie@cern.ch>
+
+include_path none
+
+use AtlasCoreRunTime AtlasCoreRunTime-* -no_auto_imports
+
+macro use_JACE "JACE JACE-* External -no_auto_imports" \
+      noJava   ""
+use $(use_JACE)
+macro use_JavaJNI "JavaJNI JavaJNI-* External -no_auto_imports" \
+      noJava      ""
+use $(use_JavaJNI)
+macro use_Log4J "Log4J Log4J-* External -no_auto_imports" \
+      noJava    ""
+use $(use_Log4J)
+macro use_XercesJ "XercesJ XercesJ-* External -no_auto_imports" \
+      noJava      ""
+use $(use_XercesJ)
+
+# Eliminate false entries from MANPATH
+setup_script "$(EXTERNALPOLICYROOT)/cmt/cmt_setup_manpath"
+
+# Slim PATH if run-time environment setup as well as the "slim" tag
+macro atlascond_path "" \
+      slim           "$(EXTERNALPOLICYROOT)/cmt/cmt_slim_path"
+setup_script $(atlascond_path)
+
+private
+macro post_install_script "$(ATLASCOMMONPOLICYROOT)/scripts/setup_runtime_cache.sh"
+apply_pattern do_setup_runtime_cache
