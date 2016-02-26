@@ -7,6 +7,11 @@ def getPixelSensorSD(name="PixelSensorSD", **kwargs):
     kwargs.setdefault("OutputCollectionNames", ["PixelHits"])
     return CfgMgr.PixelSensorSDTool(name, **kwargs)
 
+def getPixelSensor_CTB(name="PixelSensor_CTB", **kwargs):
+    kwargs.setdefault("LogicalVolumeNames", ["Pixel::siBLayLog","Pixel::siLog"])
+    kwargs.setdefault("OutputCollectionNames", ["PixelHits"])
+    return CfgMgr.PixelSensorSDTool(name, **kwargs)
+
 def getDBMSensorSD(name="DBMSensorSD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Pixel::dbmDiamondLog"])
     kwargs.setdefault("OutputCollectionNames", ["DBMHits"])

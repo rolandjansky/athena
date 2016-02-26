@@ -12,9 +12,6 @@
 // For the SD itself
 #include "PixelSensorSD.h"
 
-// Athena headers
-#include "SimHelpers/DetectorGeometryHelper.h"
-
 // STL includes
 #include <exception>
 
@@ -30,17 +27,8 @@ PixelSensorSDTool::PixelSensorSDTool(const std::string& type, const std::string&
 
 G4VSensitiveDetector* PixelSensorSDTool::makeSD()
 {
-
   // Make sure the job has been set up properly
   ATH_MSG_DEBUG( "Initializing SD" );
-  DetectorGeometryHelper DGHelp;
-  if(  DGHelp.GeometryType("Pixel") == GeoModel ) {
-    ATH_MSG_DEBUG( "Pixel Geometry is from GeoModel" );
-  }
-  else {
-    ATH_MSG_ERROR( "Pixel Geometry is from pure G4. NOT SUPPORTED!" );
-    throw std::runtime_error("DoNotSupportPureG4Geometry");
-  }
 
   // Create a fresh SD
   return new PixelSensorSD(name(), m_outputCollectionNames[0]);
