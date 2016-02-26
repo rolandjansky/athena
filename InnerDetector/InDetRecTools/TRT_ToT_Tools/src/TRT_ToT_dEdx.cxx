@@ -134,55 +134,63 @@ std::vector<float> current_array_values = {};
 }else {
        ATH_MSG_ERROR ("Problem reading condDB object. -");
        return StatusCode::FAILURE;
-      }
-	  
- 		for (unsigned int ind=0; ind < 4; ++ind) {
-			Dedxcorrection::resolution[ind]=result_dict["resolution"][ind];
-		}
-		
-		for (unsigned int ind=0; ind < 4; ++ind) {
-			Dedxcorrection::resolution_e[ind]=result_dict["resolution_e"][ind];
-		}
+}
 
-		for (unsigned int ind=0; ind < 3240; ++ind) {
-			Dedxcorrection::para_long_corrRZ_MC[ind]=result_dict["para_long_corrRZ_MC"][ind];
-		}
-		
-		for (unsigned int ind=0; ind < 216; ++ind) {
-			Dedxcorrection::para_short_corrRZ_MC[ind]=result_dict["para_short_corrRZ_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 4; ++ind) {
+	Dedxcorrection::resolution[ind]=result_dict["resolution"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 630; ++ind) {
-			Dedxcorrection::para_long_corrRZL_MC[ind]=result_dict["para_long_corrRZL_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 4; ++ind) {
+	Dedxcorrection::resolution_e[ind]=result_dict["resolution_e"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 63; ++ind) {
-			Dedxcorrection::para_short_corrRZL_MC[ind]=result_dict["para_short_corrRZL_MC"][ind];
-		}
-		
-		for (unsigned int ind=0; ind < 252; ++ind) {
-			Dedxcorrection::para_end_corrRZL_MC[ind]=result_dict["para_end_corrRZL_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 3240; ++ind) {
+    Dedxcorrection::para_long_corrRZ_MC[ind]=result_dict["para_long_corrRZ_MC"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 3240; ++ind) {
-			Dedxcorrection::para_long_corrRZ[ind]=result_dict["para_long_corrRZ_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 216; ++ind) {
+	Dedxcorrection::para_short_corrRZ_MC[ind]=result_dict["para_short_corrRZ_MC"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 216; ++ind) {
-			Dedxcorrection::para_short_corrRZ[ind]=result_dict["para_short_corrRZ_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 630; ++ind) {
+	Dedxcorrection::para_long_corrRZL_MC[ind]=result_dict["para_long_corrRZL_MC"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 630; ++ind) {
-			Dedxcorrection::para_long_corrRZL_DATA[ind]=result_dict["para_long_corrRZL_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 63; ++ind) {
+	Dedxcorrection::para_short_corrRZL_MC[ind]=result_dict["para_short_corrRZL_MC"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 63; ++ind) {
-			Dedxcorrection::para_short_corrRZL_DATA[ind]=result_dict["para_short_corrRZL_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 252; ++ind) {
+	Dedxcorrection::para_end_corrRZL_MC[ind]=result_dict["para_end_corrRZL_MC"][ind];
+    }
 
-		for (unsigned int ind=0; ind < 252; ++ind) {
-			Dedxcorrection::para_end_corrRZL_DATA[ind]=result_dict["para_end_corrRZL_MC"][ind];
-		}
+    for (unsigned int ind=0; ind < 3240; ++ind) {
+	Dedxcorrection::para_long_corrRZ[ind]=result_dict["para_long_corrRZ_MC"][ind];
+    }
+
+    for (unsigned int ind=0; ind < 216; ++ind) {
+	Dedxcorrection::para_short_corrRZ[ind]=result_dict["para_short_corrRZ_MC"][ind];
+    }
+
+    for (unsigned int ind=0; ind < 630; ++ind) {
+	Dedxcorrection::para_long_corrRZL_DATA[ind]=result_dict["para_long_corrRZL_MC"][ind];
+    }
+
+    for (unsigned int ind=0; ind < 63; ++ind) {
+	Dedxcorrection::para_short_corrRZL_DATA[ind]=result_dict["para_short_corrRZL_MC"][ind];
+    }
+
+    for (unsigned int ind=0; ind < 252; ++ind) {
+	Dedxcorrection::para_end_corrRZL_DATA[ind]=result_dict["para_end_corrRZL_MC"][ind];
+    }
+
+    for (unsigned int ind=0; ind < 336; ++ind) {
+	Dedxcorrection::para_end_corrRZ[ind]=result_dict["para_end_corrRZ_MC"][ind];
+    }
+
+    for (unsigned int ind=0; ind < 336; ++ind) {
+	Dedxcorrection::para_end_corrRZ_MC[ind]=result_dict["para_end_corrRZ_MC"][ind];
+    }
 
     return StatusCode::SUCCESS;
 }
