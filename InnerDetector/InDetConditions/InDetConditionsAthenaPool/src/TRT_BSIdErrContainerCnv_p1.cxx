@@ -2,12 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetConditionsAthenaPool/TRT_BSIdErrContainer_p1.h"
 #include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
-#undef private
-#undef protected
 #include "TRT_BSIdErrContainerCnv_p1.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -17,12 +13,15 @@
 
 void TRT_BSIdErrContainerCnv_p1::transToPers(const TRT_BSIdErrContainer* transCont, TRT_BSIdErrContainer_p1* persCont, MsgStream & /* log */) 
 {
-  std::vector<std::pair<uint8_t, std::pair<uint32_t, uint8_t> >* >::const_iterator it = transCont->begin();
-  std::vector<std::pair<uint8_t, std::pair<uint32_t, uint8_t> >* >::const_iterator itEnd = transCont->end();
+  TRT_BSIdErrContainer::const_iterator it = transCont->begin();
+  TRT_BSIdErrContainer::const_iterator itEnd = transCont->end();
   (persCont->m_bsErrs).reserve(transCont->size());
 
   for (; it != itEnd; ++it) {
-    (persCont->m_bsErrs).push_back(*it);
+    // FIXME: Should change type of m_bsErrs, but don't want to cause possible
+    // back-compatibility problems.
+    std::pair<uint8_t, std::pair<uint32_t, uint8_t> >* ptr = const_cast<std::pair<uint8_t, std::pair<uint32_t, uint8_t> >*> (*it);
+    (persCont->m_bsErrs).push_back(ptr);
   }
   return;
 }
