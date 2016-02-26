@@ -40,12 +40,7 @@ SctSensor_CTB::SctSensor_CTB(const std::string& name, const std::string& hitColl
 
 void SctSensor_CTB::Initialize(G4HCofThisEvent *)
 {
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
