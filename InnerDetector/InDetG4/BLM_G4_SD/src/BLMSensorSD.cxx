@@ -35,12 +35,7 @@ BLMSensorSD::BLMSensorSD(const std::string& name, const std::string& hitCollecti
 // Initialize from G4 - necessary to new the write handle for now
 void BLMSensorSD::Initialize(G4HCofThisEvent *)
 {
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#endif
 }
 
 G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
