@@ -35,6 +35,7 @@
 #include "CollectionUtilities/ArgQual.h"
 #include "CollectionUtilities/CmdLineArgs2.h"
 #include "CollectionUtilities/Args2Container.h"
+#include <boost/scoped_array.hpp>
 
 #define corENDL coral::MessageStream::endmsg
 
@@ -403,7 +404,6 @@ bool Args2Container::evalArgs( int argc, const char *argv[] )
 }
 
 
-#include <boost/scoped_array.hpp>
 
 typedef std::basic_string<XMLCh> XercesString;
 

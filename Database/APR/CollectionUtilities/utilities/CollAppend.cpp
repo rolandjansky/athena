@@ -6,7 +6,7 @@
  * @file CollAppend.cpp
  * @brief Utility to copy and merge POOL collections - uses CollAppendBase class
  * @author Marcin.Nowak@cern.ch
- * $Id: CollAppend.cpp 458059 2011-09-09 13:52:47Z mnowak $ 
+ * $Id: CollAppend.cpp 726582 2016-02-27 11:23:37Z krasznaa $ 
  */
 
 #include "CollectionUtilities/CollAppendBase.h"

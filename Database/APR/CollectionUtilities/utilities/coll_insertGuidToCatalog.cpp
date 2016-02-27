@@ -21,32 +21,32 @@ public:
   void execute();
   void printSyntax();
 private:
-  const std::string executableName;
-  std::string technologyName;
-  std::string fcURL;
-  std::vector< std::string > fileNames;
-  std::string guid;
+  const std::string m_executableName;
+  std::string m_technologyName;
+  std::string m_fcURL;
+  std::vector< std::string > m_fileNames;
+  std::string m_guid;
 };
 
 InsertFileToCatalogApplication::InsertFileToCatalogApplication( int argc, char* argv[] ):
-  executableName( std::string( argv[0] ) ),
-  technologyName( "PoolCollection" ),
-  fcURL( "" ),
-  fileNames()
+  m_executableName( std::string( argv[0] ) ),
+  m_technologyName( "PoolCollection" ),
+  m_fcURL( "" ),
+  m_fileNames()
 {
   for ( int i = 1; i < argc; ++i )
-    fileNames.push_back( std::string( argv[i] ) );
+    m_fileNames.push_back( std::string( argv[i] ) );
 }
 
 bool
 InsertFileToCatalogApplication::parseArguments()
 {
   std::vector< std::string > theFiles;
-  std::vector< std::string > args = fileNames;
+  std::vector< std::string > args = m_fileNames;
   unsigned int excludedArgument = 0;
   Guid dummy;
   Guid::create(dummy);
-  guid = dummy.toString();
+  m_guid = dummy.toString();
   for ( unsigned int iArg = 0; iArg < args.size(); ++iArg ) {
     if ( iArg > 0 && iArg == excludedArgument )
       continue;
@@ -55,21 +55,21 @@ InsertFileToCatalogApplication::parseArguments()
       unsigned int nextArgumentIndex = iArg + 1;
       if ( nextArgumentIndex < args.size() ) {
         excludedArgument = nextArgumentIndex;
-        fcURL = args[nextArgumentIndex];
+        m_fcURL = args[nextArgumentIndex];
       }
     }
     else if ( arg == "-t" ) {
       unsigned int nextArgumentIndex = iArg + 1;
       if ( nextArgumentIndex < args.size() ) {
         excludedArgument = nextArgumentIndex;
-        technologyName = args[nextArgumentIndex];
+        m_technologyName = args[nextArgumentIndex];
       }
     }
     else if ( arg == "-g" ) {
       unsigned int nextArgumentIndex = iArg + 1;
       if ( nextArgumentIndex < args.size() ) {
         excludedArgument = nextArgumentIndex;
-        if (args[nextArgumentIndex].length()==36) guid = args[nextArgumentIndex];
+        if (args[nextArgumentIndex].length()==36) m_guid = args[nextArgumentIndex];
         else std::cout << "-g argument does not match needed GUID length" << std::endl;
       }
     }
@@ -84,8 +84,8 @@ InsertFileToCatalogApplication::parseArguments()
     std::cout << "Too many files, taking first only! " << std:: endl; 
     return false;
   }
-  fileNames.clear();
-  fileNames.push_back(theFiles[0]);
+  m_fileNames.clear();
+  m_fileNames.push_back(theFiles[0]);
 
 
   return true;
@@ -101,7 +101,7 @@ InsertFileToCatalogApplication::execute()
 
   // Open the file catalog and insert the pfn/fid/technology
   if ( allOK ) {
-    pool::URIParser p( fcURL );
+    pool::URIParser p( m_fcURL );
     p.parse();
     std::auto_ptr<pool::IFileCatalog> catalog( new pool::IFileCatalog );
     if ( ! catalog.get() ) 
@@ -110,7 +110,7 @@ InsertFileToCatalogApplication::execute()
     catalog->connect();
     catalog->start();
     
-    pool::PFNEntry entry( fileNames[0], guid, technologyName );
+    pool::PFNEntry entry( m_fileNames[0], m_guid, m_technologyName );
     pool::FCLeaf* leaf = 
       dynamic_cast< pool::FCLeaf* >( catalog->getWriteCatalog() );
     if (leaf)
@@ -123,7 +123,7 @@ InsertFileToCatalogApplication::execute()
 void
 InsertFileToCatalogApplication::printSyntax()
 {
-  std::cout << "Syntax : " << executableName << " [-u fileCatalog] [-t technologyType] [-g input guid] file" << std::endl;
+  std::cout << "Syntax : " << m_executableName << " [-u fileCatalog] [-t technologyType] [-g input guid] file" << std::endl;
 }
 
 
