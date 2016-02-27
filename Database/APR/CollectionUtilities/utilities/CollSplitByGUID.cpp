@@ -7,7 +7,7 @@
  * @brief Utility to list the file GUIDs used by a POOL collection and split the
  * collection into sub-collections by GUID
  * @author  Marcin.Nowak@cern.ch
- * $Id: CollSplitByGUID.cpp 458059 2011-09-09 13:52:47Z mnowak $
+ * $Id: CollSplitByGUID.cpp 726582 2016-02-27 11:23:37Z krasznaa $
  */
 
 #include "CollectionUtilities/CollSplitByGUIDBase.h"

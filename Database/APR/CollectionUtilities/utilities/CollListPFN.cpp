@@ -6,7 +6,7 @@
  * @file CollListPFN.cpp
  * @brief Utility to list the physical file names used by a POOL collection
  * @author K. Karr <Kristo.Karr@cern.ch>
- * $Id: CollListPFN.cpp 527111 2012-11-21 21:11:08Z gemmeren $
+ * $Id: CollListPFN.cpp 726582 2016-02-27 11:23:37Z krasznaa $
  */
 
 #include "PersistentDataModel/Token.h"
