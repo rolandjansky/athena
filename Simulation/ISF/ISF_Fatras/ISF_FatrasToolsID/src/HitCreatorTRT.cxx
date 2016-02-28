@@ -188,14 +188,6 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            ATH_MSG_VERBOSE("[ trthit ] Straw center : " << hitSurface.center());
            ATH_MSG_VERBOSE("[ trthit ] Entry / exit : " << sol1raw << ", " << sol2raw );
            
-           //!< @TODO: fill information, decide which one is pre/post step point
-           int trackID              = isp.barcode();
-           int pdgCode              = isp.pdgCode();
-           double mass               = isp.mass();
-           double mom2               = pars.momentum().mag2();
-           float  kineticEnergy      = sqrt(mom2+mass*mass)-mass;
-           float  energyDepositInKeV = 0.; // only used for TRT hits directly created by photons
-
            int barrel_endcap = 0;
            int ispos = 0;
            switch ( m_trtIdHelper->barrel_ec(hitId) ) {
@@ -212,6 +204,37 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            int layer     = m_trtIdHelper->straw_layer(hitId);
            int istraw    = m_trtIdHelper->straw(hitId);
                       
+	   //Checking that the positions in z are still within the straw otherwise moving them inside
+	   //(with a 1 per-mil safety, preventing from rounding issues later on)
+	   if (sol2raw.z() > hitTrtDetElement->strawLength()) {
+	     float x = 0.999*(hitTrtDetElement->strawLength()-lpoint1.z())/direc.z();
+	     sol2raw = Amg::Vector3D( (lpoint1 + x * direc) );
+	     ATH_MSG_VERBOSE("[ trthit ] Correcting exit to : " << sol2raw );
+	   }
+	   else if (sol2raw.z() < (0.-hitTrtDetElement->strawLength())) {
+	     float x = 0.999*(hitTrtDetElement->strawLength()+lpoint1.z())/direc.z();
+	     sol2raw = Amg::Vector3D( (lpoint1 - x * direc) );
+	     ATH_MSG_VERBOSE("[ trthit ] Correcting exit to : " << sol2raw );
+	   }
+	   if (sol1raw.z() > hitTrtDetElement->strawLength()) {
+	     float x = 0.999*(hitTrtDetElement->strawLength()-lpoint1.z())/direc.z();
+	     sol1raw = Amg::Vector3D( (lpoint1 + x * direc) );
+	     ATH_MSG_VERBOSE("[ trthit ] Correcting entry to : " << sol1raw );
+	   }
+	   else if (sol1raw.z() < (0.-hitTrtDetElement->strawLength())) {
+	     float x = 0.999*(hitTrtDetElement->strawLength()+lpoint1.z())/direc.z();
+	     sol1raw = Amg::Vector3D( (lpoint1 - x * direc) );
+	     ATH_MSG_VERBOSE("[ trthit ] Correcting entry to : " << sol1raw );
+	   }
+
+	//!< @TODO: fill information, decide which one is pre/post step point
+           int trackID              = isp.barcode();
+           int pdgCode              = isp.pdgCode();
+           double mass               = isp.mass();
+           double mom2               = pars.momentum().mag2();
+           float  kineticEnergy      = sqrt(mom2+mass*mass)-mass;
+           float  energyDepositInKeV = 0.; // only used for TRT hits directly created by photons
+
            TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
            int hitID = hitid_helper->buildHitId( barrel_endcap, ispos, ringwheel, phisector,layer,istraw);
            
