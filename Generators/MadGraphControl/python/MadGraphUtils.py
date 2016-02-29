@@ -93,28 +93,6 @@ def new_process(card_loc='proc_card_mg5.dat',grid_pack=None):
     return thedir
 
 
-#def get_default_runcard(isNLO=False):
-#    # Get the run card from the installation
-#    if isNLO:
-#        mglog.info('Fetching default NLO run_card.dat')
-#        if os.access(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat',os.R_OK):
-#            shutil.copy(os.environ['MADPATH']+'/Template/NLO/Cards/run_card.dat','run_card.SM.dat')
-#            return 'run_card.SM.dat'
-#        else:
-#            raise RuntimeError('Cannot find default NLO run_card.dat!')
-#    else:
-#        mglog.info('Fetching default LO run_card.dat')
-#        if os.access(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat',os.R_OK):
-#            shutil.copy(os.environ['MADPATH']+'/Template/LO/Cards/run_card.dat','run_card.SM.dat')
-#            return 'run_card.SM.dat'
-#        elif os.access(os.environ['MADPATH']+'/Template/Cards/run_card.dat',os.R_OK):
-#            shutil.copy(os.environ['MADPATH']+'/Template/Cards/run_card.dat','run_card.SM.dat')
-#            return 'run_card.SM.dat'
-#        else:
-#            raise RuntimeError('Cannot find default LO run_card.dat!')
-
-
-
 def get_default_runcard(proc_dir='PROC_mssm_0'):
     try:
         from __main__ import opts
@@ -168,7 +146,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             return
 
 
-    version = getMadGraphVersion() #DR: avoiding code duplication
+    version = getMadGraphVersion() # avoiding code duplication
 
     # If we need to get the cards...
     if run_card_loc is not None and not os.access(run_card_loc,os.R_OK):
@@ -442,7 +420,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
 
 
-
     if grid_pack:
 
 
@@ -482,7 +459,20 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 mglog.info('Tidying up complete!')
 
         else:
+
+
             ### NLO RUN ###
+
+            # In case a MadSpin card was specified setup MadSpin
+            if madspin_card_loc:
+                # modify run card for nevents 250
+                modify_run_card(settings={'nevents': 250})
+                # Generate some events -> trigger MadSpin code generation, compilation and setup (overweight estimation)
+                run = subprocess.Popen(['./bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+str(run_name)], stdin=subprocess.PIPE)
+                run.wait()
+                # The folders with the generated events and decayed events are removed when running from the gridpack
+
+
             gridpack_name=(run_name+'_gridpack.tar.gz')
             mglog.info('Creating gridpack (%s)...'%gridpack_name)
             
@@ -492,6 +482,9 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             tar = subprocess.Popen(['tar','czf',gridpack_name,gridpack_dir,'--exclude=lib/PDFsets']) 
             tar.wait() 
             os.rename(gridpack_dir,proc_dir) 
+
+
+
 
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
 
@@ -503,7 +496,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/unweighted_events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
             else:
                 shutil.move('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz')
-                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/unweighted_events.lhe.gz'))
+                mglog.info('Moving MadSpin events from %s to %s.'%('Events/'+run_name+'_decayed_1/events.lhe.gz','Events/'+run_name+'/events.lhe.gz'))
 
         else:
             mglog.error('MadSpin was run but can\'t find output folder %s.'%('Events/'+run_name+'_decayed_1/'))
@@ -516,11 +509,11 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         unzip = subprocess.Popen(['gunzip','Events/'+run_name+'/events.lhe.gz'])
         unzip.wait()
         
-        mglog.info('Moving file over to '+'/Events/'+run_name+'/unweighted_events.lhe')
+        mglog.info('Moving file over to '+'Events/'+run_name+'/unweighted_events.lhe')
         shutil.move('Events/'+run_name+'/events.lhe','Events/'+run_name+'/unweighted_events.lhe')
         
-        mglog.info('Re-zipping into dataset name '+'/Events/'+run_name+'/unweighted_events.lhe.gz')
-        rezip = subprocess.Popen(['gzip','/Events/'+run_name+'/unweighted_events.lhe'])
+        mglog.info('Re-zipping into dataset name '+'Events/'+run_name+'/unweighted_events.lhe.gz')
+        rezip = subprocess.Popen(['gzip','Events/'+run_name+'/unweighted_events.lhe'])
         rezip.wait()
         
     os.chdir(currdir)
@@ -542,9 +535,9 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     setupFastjet(isNLO, proc_dir=proc_dir)
 
     if param_card is not None:
-        #DR: only copy param_card if name of destination directory differs
-        if param_card != gridpack_dir + '/Cards/' + param_card.split('/')[-1]: #DR
-            shutil.copy( param_card , gridpack_dir+'/Cards' ) #DR
+        # only copy param_card if name of destination directory differs
+        if param_card != gridpack_dir + '/Cards/' + param_card.split('/')[-1]:
+            shutil.copy( param_card , gridpack_dir+'/Cards' )
         mglog.info( 'Moved param card into place: '+str(param_card) )
 
     # Work in progress...
@@ -571,7 +564,10 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
 
 
 
-
+    #Remove addmasses if it's there
+    if os.access(gridpack_dir+'/bin/internal/addmasses.py',os.R_OK):
+        os.remove(gridpack_dir+'/bin/internal/addmasses.py')
+        
     currdir=os.getcwd()
     
     if not isNLO:
@@ -684,6 +680,11 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             mglog.info('Removing %s/Events/%s directory from gridpack generation.'%(gridpack_dir,run_name))
             shutil.rmtree(gridpack_dir+'/Events/'+run_name)
     
+        # Delete events generated when setting up MadSpin during gridpack generation
+        if os.access(gridpack_dir+'/Events/'+run_name+'_decayed_1', os.F_OK):
+            mglog.info('Removing %s/Events/%s_decayed_1 directory from gridpack generation.'%(gridpack_dir,run_name))
+            shutil.rmtree(gridpack_dir+'/Events/'+run_name+'_decayed_1')
+
         mglog.info('For your information, ls of '+gridpack_dir+'/Events/:')
         mglog.info( sorted( os.listdir( gridpack_dir+'/Events/' ) ) )
     
@@ -742,7 +743,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
 
 def getMadGraphVersion():
 
-    #DR: also need to find out the version (copied from generate)
+    # also need to find out the version (copied from generate)
     madpath=os.environ['MADPATH']
     version=None    
     version_file = open(os.environ['MADPATH']+'/VERSION','r')
@@ -822,6 +823,9 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
     if not os.path.isdir(LHADATAPATH):
         mglog.error('LHAPDF data dir: %s is not accesible'%LHADATAPATH)
         return 1
+    if not os.path.isdir(LHAPATH):
+        mglog.error('LHAPDF path dir: %s is not accesible'%LHAPATH)
+        return 1
 
     # Dealing with LHAPDF (Only need to edit configuration file for 2.1.1 onwards)
     if int(version.split('.')[0]) >= 2 and ( int(version.split('.')[1]) > 1 or ( int(version.split('.')[1]) == 1 and int(version.split('.')[2]) > 0) ):
@@ -844,6 +848,7 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
             lhapdfconfig = os.getcwd()+'/lhapdf-config'
 
         mglog.info('lhapdf-config --version:      %s'%str(subprocess.Popen([lhapdfconfig, '--version'],stdout = subprocess.PIPE).stdout.read().strip()))
+        mglog.info('lhapdf-config --prefix:       %s'%str(subprocess.Popen([lhapdfconfig, '--prefix'],stdout = subprocess.PIPE).stdout.read().strip()))
         mglog.info('lhapdf-config --libdir:       %s'%str(subprocess.Popen([lhapdfconfig, '--libdir'],stdout = subprocess.PIPE).stdout.read().strip()))
         mglog.info('lhapdf-config --datadir:      %s'%str(subprocess.Popen([lhapdfconfig, '--datadir'],stdout = subprocess.PIPE).stdout.read().strip()))
         mglog.info('lhapdf-config --pdfsets-path: %s'%str(subprocess.Popen([lhapdfconfig, '--pdfsets-path'],stdout = subprocess.PIPE).stdout.read().strip()))
@@ -988,20 +993,33 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     except:
         pass
 
-
-    isNLO=is_NLO_run(proc_dir=proc_dir)
+    # NLO is not *really* the question here, we need to know if we should look for weighted or
+    #  unweighted events in the output directory.  MadSpin (above) only seems to give weighted
+    #  results for now?
+    #isNLO=is_NLO_run(proc_dir=proc_dir)
+    hasUnweighted = os.access(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz',os.R_OK)
 
     # Clean up in case a link or file was already there
     if os.path.exists(os.getcwd()+'/events.lhe'): os.remove(os.getcwd()+'/events.lhe')
 
     mglog.info('Unzipping generated events.')
-    unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'])
-    unzip.wait()
- 
-    mglog.info('Putting a copy in place for the transform.')
-    orig_input = open(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe','r')
-    mod_output = open(os.getcwd()+'/events.lhe','w')
+    if hasUnweighted:
+        unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/unweighted_events.lhe.gz'])
+        unzip.wait()
+    else:
+        unzip = subprocess.Popen(['gunzip',proc_dir+'/Events/'+run_name+'/events.lhe.gz'])
+        unzip.wait()
 
+    mglog.info('Putting a copy in place for the transform.')
+    if hasUnweighted:
+        orig_input = open(proc_dir+'/Events/'+run_name+'/unweighted_events.lhe','r')
+        mod_output = open(os.getcwd()+'/events.lhe','w')
+    else:
+        orig_input = open(proc_dir+'/Events/'+run_name+'/events.lhe','r')
+        mod_output = open(os.getcwd()+'/events.lhe','w')
+
+
+    #Removing empty lines in LHE
     nEmpty=0
     for line in orig_input.readlines():
         if line.strip():
@@ -1024,6 +1042,7 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
             final_file.close()
             shutil.copy(os.getcwd()+'/events.lhe.copy',os.getcwd()+'/events.lhe')
         mod_output2.close()
+
 
     # Actually move over the dataset - this first part is horrible...
     variables = {}
@@ -1205,6 +1224,8 @@ def get_variations( gentype , masses , syst_mod , xqcut = None ):
                 if masses['1000005']<xqcut*4.: xqcut = masses['1000005']*0.25
             if 'C' in gentype:
                 if masses['1000024']<xqcut*4.: xqcut = masses['1000024']*0.25
+            if 'D' in gentype:
+                if masses['2000001']<xqcut*4.: xqcut = masses['2000001']*0.25
         if syst_mod is not None and 'qup' in syst_mod.lower(): xqcut = xqcut*2.
         elif syst_mod is not None and 'qdown' in syst_mod.lower(): xqcut = xqcut*0.5
     mglog.info('For matching, will use xqcut of '+str(xqcut))
@@ -1292,7 +1313,7 @@ def SUSY_StrongSM_Generation(runArgs = None, gentype='SS',decaytype='direct',mas
     else:
        if getnewruncard==True:
            extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
-           build_run_card(run_card_old=get_default_runcard(),run_card_new='run_card.dat',xqcut=0,
+           build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
                                   nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
        else:
            build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
@@ -1410,7 +1431,7 @@ output -f
 
     # Grab the run card and move it into place
     extras = { 'ktdurham':xqcut , 'lhe_version':'2.0' , 'cut_decays':'F' , 'pdlabel':pdlabel , 'lhaid':lhaid , 'drjj':0.0 }
-    build_run_card(run_card_old=get_default_runcard(),run_card_new='run_card.dat',xqcut=0,
+    build_run_card(run_card_old=get_default_runcard(thedir),run_card_new='run_card.dat',xqcut=0,
                    nevts=nevts,rand_seed=rand_seed,beamEnergy=beamEnergy, scalefact=scalefact, alpsfact=alpsfact,extras=extras)
 
     # Generate events!
@@ -1614,6 +1635,43 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
     oldcard.close()
     newcard.close()
     return run_card_new
+
+# New helper function - this is a bit of duplication with build_run_card but modify_run_card
+# is a bit more lightweight. build_run_card could be rewritten to call modify_run_card
+# with the explicit arguments included in the dict.
+def modify_run_card(run_card='Cards/run_card.dat',
+                     run_card_backup='Cards/run_card_backup.dat',
+                     settings={}, delete_backup = False):
+    mglog.info('Modifying run card located at '+run_card+'.')
+    if delete_backup:
+        mglog.info('Deleting original run card.')
+    else:
+        mglog.info('Keeping backup of original run card at '+run_card_backup+'.')
+    print(settings)
+    if os.path.isfile(run_card_backup): os.unlink(run_card_backup) # delete old backup
+    os.rename(run_card, run_card_backup) # change name of original card
+
+    oldCard = open(run_card_backup, 'r')
+    newCard = open(run_card, 'w')
+    for line in iter(oldCard):
+        if not line.strip().startswith('#'): # line commented out
+            command = line.split('!', 1)[0]
+            comment = line.split('!', 1)[1] if '!' in line else ''
+            if '=' in command:
+                setting = command.split('=')[-1] #.strip()
+                stripped_setting = setting.strip()
+                oldValue = command.split('=')[0] #.strip()
+            if stripped_setting in settings:
+                line = oldValue.replace(oldValue.strip(), str(settings[stripped_setting]))+'='+setting
+                if comment != '': line += '  !' + comment
+                mglog.info('Setting '+stripped_setting+' = '+str(settings[stripped_setting])+'.')
+        newCard.write(line)
+
+    # close files
+    oldCard.close()
+    newCard.close()
+    mglog.info('Finished modification of run card.')
+    if delete_backup: os.unlink(run_card_backup)
 
 def print_cards():
     if os.access('proc_card_mg5.dat',os.R_OK):
