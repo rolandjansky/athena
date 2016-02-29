@@ -587,7 +587,7 @@ namespace InDetDD {
     }
 
 
-    bool TRT_DetectorManager::processSpecialAlignment(const std::string & key) const
+    bool TRT_DetectorManager::processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const
     {
         if(msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Processing TRT fine alignment." << endreq;
@@ -638,5 +638,69 @@ namespace InDetDD {
     {
         return m_conditions;
     }
+
+  // New global alignment filders
+  bool TRT_DetectorManager::processGlobalAlignment(const std::string & key, int level, FrameType frame) const
+  {
+
+    bool alignmentChange = false;
+
+    if(msgLvl(MSG::INFO))
+      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endreq;
+
+    Identifier ident=Identifier();
+    const CondAttrListCollection* atrlistcol=0;
+    if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
+      // loop over objects in collection
+      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+
+        const coral::AttributeList& atrlist=citr->second;
+	ident = getIdHelper()->module_id(atrlist["bec"].data<int>(),
+                                        atrlist["layer"].data<int>(),
+					atrlist["sector"].data<int>());
+
+	// Follow same definitions as in TRT_AlignDbSvc.cxx
+	CLHEP::Hep3Vector newtranslation(atrlist["Tx"].data<float>(),atrlist["Ty"].data<float>(),atrlist["Tz"].data<float>());
+	CLHEP::HepRotation newrotation;
+	newrotation.set(atrlist["phi"].data<float>(),atrlist["theta"].data<float>(),atrlist["psi"].data<float>());
+	HepGeom::Transform3D newtransform(newrotation, newtranslation);
+	
+        msg(MSG::DEBUG) << "New global DB -- channel: " << citr->first
+			<< " ,bec: "    << atrlist["bec"].data<int>()
+                        << " ,layer: "  << atrlist["layer"].data<int>()
+			<< " ,sector: " << atrlist["sector"].data<int>()
+                        << " ,Tx: "     << atrlist["Tx"].data<float>()
+                        << " ,Ty: "     << atrlist["Ty"].data<float>()
+                        << " ,Tz: "     << atrlist["Tz"].data<float>()
+                        << " ,phi: "    << atrlist["phi"].data<float>()
+                        << " ,theta: "  << atrlist["theta"].data<float>()
+                        << " ,psi: "    << atrlist["psi"].data<float>() << endreq;                                                                              
+
+	// Set the new transform; Will replace existing one with updated transform
+        bool status = setAlignableTransformDelta(level,
+                                                 ident,
+                                                 Amg::CLHEPTransformToEigen(newtransform),
+                                                 frame);
+
+        if (!status) {
+          if (msgLvl(MSG::DEBUG)) {
+            msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
+                            << getIdHelper()->show_to_string(ident)
+                            << " at level " << level << " for new global DB " << endreq;
+          }
+        }
+
+        alignmentChange = (alignmentChange || status);
+      }
+    }
+    else {
+      if (msgLvl(MSG::INFO))
+        msg(MSG::INFO) << "Cannot find new global align Container for key "
+                       << key << " - no new global alignment " << endreq;
+      return alignmentChange;
+    }
+    return alignmentChange;
+  }
+
 
 } // namespace InDetDD

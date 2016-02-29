@@ -125,8 +125,10 @@ namespace InDetDD {
       virtual const PixelModuleDesign * getPixelDesign(int i) const;
 
       /** Process new IBLDist DB folder **/
-      bool processSpecialAlignment(const std::string &) const;
+      bool processSpecialAlignment(const std::string &, InDetDD::AlignFolderType) const;
 
+      /** Process new global DB folders for L1 and L2 **/
+      bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
     
      private:  
     

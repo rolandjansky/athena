@@ -107,6 +107,9 @@ namespace InDetDD {
     
       /** Access to module design, casts to SCT_ModuleSideDesign */
       const SCT_ModuleSideDesign * getSCT_Design(int i) const;
+
+      /** Process new global DB folders for L1 and L2 **/
+      bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
     
     private:  
       /** implements the main alignment update for delta transforms in different frames,
