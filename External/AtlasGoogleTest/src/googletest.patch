@@ -1,0 +1,68 @@
+--- googletest/googletest/make/Makefile	2015-11-27 16:16:20.000000000 +0100
++++ googletest/googletest/make/Makefile.googletest	2015-12-02 11:05:07.338586884 +0100
+@@ -19,13 +19,15 @@
+ # Where to find user code.
+ USER_DIR = ../samples
+ 
++DESTDIR=
++
+ # Flags passed to the preprocessor.
+ # Set Google Test's header directory as a system directory, such that
+ # the compiler doesn't generate warnings in Google Test headers.
+ CPPFLAGS += -isystem $(GTEST_DIR)/include
+ 
+ # Flags passed to the C++ compiler.
+-CXXFLAGS += -g -Wall -Wextra -pthread
++CXXFLAGS += -Wall -Wextra -pthread -fPIC
+ 
+ # All tests produced by this Makefile.  Remember to add new tests you
+ # created to the list.
+@@ -38,12 +40,17 @@
+ 
+ # House-keeping build targets.
+ 
+-all : $(TESTS)
++all : $(TESTS) libgtest.so libgtest_main.so
++
++install : all
++	@if test ! -z $(DESTDIR) ; then cp -a libgtest.so $(DESTDIR) ; fi
++	@if test ! -z $(DESTDIR) ; then cp -a libgtest_main.so $(DESTDIR) ; fi
++	@if test ! -z $(DESTDIR) ; then echo "libgtest.so and libgtest_main.so copied to $(DESTDIR)" ; fi
+ 
+ clean :
+-	rm -f $(TESTS) gtest.a gtest_main.a *.o
++	rm -f $(TESTS) libgtest.so libgtest_main.so *.o
+ 
+-# Builds gtest.a and gtest_main.a.
++# Builds gtest.so and gtest_main.so.
+ 
+ # Usually you shouldn't tweak such internal variables, indicated by a
+ # trailing _.
+@@ -61,14 +68,14 @@
+ 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
+             $(GTEST_DIR)/src/gtest_main.cc
+ 
+-gtest.a : gtest-all.o
+-	$(AR) $(ARFLAGS) $@ $^
++libgtest.so : gtest-all.o
++	$(CXX) -shared $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
+ 
+-gtest_main.a : gtest-all.o gtest_main.o
+-	$(AR) $(ARFLAGS) $@ $^
++libgtest_main.so : gtest-all.o gtest_main.o
++	$(CXX) -shared $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
+ 
+-# Builds a sample test.  A test should link with either gtest.a or
+-# gtest_main.a, depending on whether it defines its own main()
++# Builds a sample test.  A test should link with either gtest.so or
++# gtest_main.so, depending on whether it defines its own main()
+ # function.
+ 
+ sample1.o : $(USER_DIR)/sample1.cc $(USER_DIR)/sample1.h $(GTEST_HEADERS)
+@@ -78,5 +85,5 @@
+                      $(USER_DIR)/sample1.h $(GTEST_HEADERS)
+ 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/sample1_unittest.cc
+ 
+-sample1_unittest : sample1.o sample1_unittest.o gtest_main.a
++sample1_unittest : sample1.o sample1_unittest.o libgtest_main.so
+ 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

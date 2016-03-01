@@ -1,0 +1,69 @@
+--- googletest/googlemock/make/Makefile	2015-11-27 16:16:20.000000000 +0100
++++ googletest/googlemock/make/Makefile.googlemock	2015-12-02 12:42:37.488292687 +0100
+@@ -17,7 +17,7 @@
+ # Points to the root of Google Test, relative to where this file is.
+ # Remember to tweak this if you move this file, or if you want to use
+ # a copy of Google Test at a different location.
+-GTEST_DIR = ../gtest
++GTEST_DIR = ../../googletest
+ 
+ # Points to the root of Google Mock, relative to where this file is.
+ # Remember to tweak this if you move this file.
+@@ -26,6 +26,8 @@
+ # Where to find user code.
+ USER_DIR = ../test
+ 
++DESTDIR=
++
+ # Flags passed to the preprocessor.
+ # Set Google Test and Google Mock's header directories as system
+ # directories, such that the compiler doesn't generate warnings in
+@@ -33,7 +35,7 @@
+ CPPFLAGS += -isystem $(GTEST_DIR)/include -isystem $(GMOCK_DIR)/include
+ 
+ # Flags passed to the C++ compiler.
+-CXXFLAGS += -g -Wall -Wextra -pthread
++CXXFLAGS += -Wall -Wextra -pthread -fPIC
+ 
+ # All tests produced by this Makefile.  Remember to add new tests you
+ # created to the list.
+@@ -53,10 +55,15 @@
+ 
+ # House-keeping build targets.
+ 
+-all : $(TESTS)
++all : $(TESTS) libgmock.so libgmock_main.so
++
++install : all
++	@if test ! -z $(DESTDIR) ; then cp -a libgmock.so $(DESTDIR) ; fi
++	@if test ! -z $(DESTDIR) ; then cp -a libgmock_main.so $(DESTDIR) ; fi
++	@if test ! -z $(DESTDIR) ; then echo "libgmock.so and libgmock_main.so copied to $(DESTDIR)" ; fi
+ 
+ clean :
+-	rm -f $(TESTS) gmock.a gmock_main.a *.o
++	rm -f $(TESTS) libgmock.so libgmock_main.so *.o
+ 
+ # Builds gmock.a and gmock_main.a.  These libraries contain both
+ # Google Mock and Google Test.  A test should link with either gmock.a
+@@ -86,16 +93,16 @@
+ 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) -I$(GMOCK_DIR) $(CXXFLAGS) \
+             -c $(GMOCK_DIR)/src/gmock_main.cc
+ 
+-gmock.a : gmock-all.o gtest-all.o
+-	$(AR) $(ARFLAGS) $@ $^
++libgmock.so : gmock-all.o gtest-all.o
++	$(CXX) -shared $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
+ 
+-gmock_main.a : gmock-all.o gtest-all.o gmock_main.o
+-	$(AR) $(ARFLAGS) $@ $^
++libgmock_main.so : gmock-all.o gtest-all.o gmock_main.o
++	$(CXX) -shared $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
+ 
+ # Builds a sample test.
+ 
+ gmock_test.o : $(USER_DIR)/gmock_test.cc $(GMOCK_HEADERS)
+ 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/gmock_test.cc
+ 
+-gmock_test : gmock_test.o gmock_main.a
++gmock_test : gmock_test.o libgmock_main.so
+ 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
