@@ -1,0 +1,52 @@
+package AtlasGoogleTest
+
+use AtlasPolicy         AtlasPolicy-*
+use ExternalPolicy ExternalPolicy-* External
+
+macro AtlasGoogleTest_native_version "1.7.0"
+
+macro AtlasGoogleTest_lib "$(AtlasGoogleTest_root)/$(CMTCONFIG)"
+
+macro AtlasGoogleTest_linkopts "-L$(AtlasGoogleTest_lib) -lgtest -lgtest_main -lgmock -lgmock_main"
+
+private
+
+# the usual, tar; configure; make; make install cycle implemented as actions
+#  here, one additional step is involved to get the include files installed
+#  into the location <package>_root
+
+action external_untar "(cd ../$(CMTCONFIG); tar xvfz ../src/googletest-$(AtlasGoogleTest_native_version).tar.gz )"
+action external_patch "(cd ../$(CMTCONFIG); patch -p0 < ../src/googletest.patch; patch -p0 < ../src/googlemock.patch )"
+action external_make_compile "(cd ../$(CMTCONFIG)/googletest/googletest/make; make CXXFLAGS='$(cppflags)' ; cd ../../googlemock/make; make CXXFLAGS='$(cppflags)' ; )"
+action external_make_install "(cd ../$(CMTCONFIG)/googletest/googletest/make; make DESTDIR=$(AtlasGoogleTest_root)/$(CMTCONFIG) install ; cd ../../googlemock/make; make DESTDIR=$(AtlasGoogleTest_root)/$(CMTCONFIG) install )"
+action external_make_postinstall "(cd ..; tar -C $(CMTCONFIG)/googletest/googletest/include/ -cf - gtest | tar xvf -; tar -C $(CMTCONFIG)/googletest/googlemock/include/ -cf - gmock | tar xvf -;  )"
+
+# get dependencies of all actions correct, so all is done sequentially
+macro_append external_patch_dependencies " external_untar "
+macro_append external_make_compile_dependencies " external_patch "
+macro_append external_make_install_dependencies " external_make_compile "
+macro_append external_make_postinstall_dependencies " external_make_install "
+
+apply_pattern install_non_standard_includes name=gtest package=AtlasGoogleTest
+apply_pattern install_non_standard_includes name=gmock package=AtlasGoogleTest
+
+# installation of non-standard directory structure for header files, here the structure
+#  is <package_root>/<package>/fastjet, it must be executed after the 'make install' step
+
+# trigger the chain of actions
+#macro_append constituents " external_untar"
+
+macro_append install_gtest_includes_dependencies " external_make_postinstall "
+macro_append install_gmock_includes_dependencies " external_make_postinstall "
+macro_append constituents " external_make_postinstall"
+
+
+
+# install libraries
+apply_pattern generic_declare_for_link kind=runtime files='-s=../$(CMTCONFIG) *.so' prefix='$(CMTCONFIG)/lib'
+macro_append install_runtime_dependencies " external_make_postinstall "
+
+end_private
+
+include_dirs "$(AtlasGoogleTest_include)"
+
