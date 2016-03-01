@@ -6,8 +6,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGen.h"
 #include <vector>
 
-using res = std::pair<std::vector<unsigned int>, bool>;
-using vec = std::vector<unsigned int>;
+using res = std::pair<std::vector<int>, bool>;
+using vec = std::vector<int>;
 
 TEST(CombinationsGenTester, n3k1) { 
   CombinationsGen gen(3,1);
@@ -43,6 +43,5 @@ TEST(CombinationsGenTester, n3k0) {
 }
 
 TEST(CombinationsGenTester, n3kgtn) { 
-  CombinationsGen gen(3,4);
-  EXPECT_FALSE(gen.next().second);
+  EXPECT_THROW (CombinationsGen gen(3,4), std::out_of_range);
 }
