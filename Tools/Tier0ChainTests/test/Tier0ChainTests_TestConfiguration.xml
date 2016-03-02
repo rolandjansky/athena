@@ -1121,74 +1121,6 @@
                         <!-- Reconstruction job, using latest castor collections -->
                         <chainElement>
                             
-                            <jobTransform userJobId="2014_M-week_reco">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>2014_M-week_reco</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=CosmicMuons --runnum=00253010 --nfiles=1 --maxEvents=200 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00253010/physics_CosmicMuons/ --lumiblock=532 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-03 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;'" --ignorePatterns="'ToolSvc.InDetSCTRodDecoder.+ERROR.+SCT.+Missing.+Link.+Headers.+found'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>2014_M-week_reco.summary.txt</argvalue> 
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                        </chainElement>
-                        
-                        <!-- Reconstruction job, using latest castor collections -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="2014_M-week_reco_noTrigger">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>2014_M-week_reco_noTrigger</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=CosmicMuons --runnum=00253010 --nfiles=1 --maxEvents=200 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00253010/physics_CosmicMuons/ --lumiblock=532 --autoConfiguration=everything --conditionsTag=CONDBR2-ES1PA-2014-01 --geometryVersion=ATLAS-R2-2015-02-00-00 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger.set_Value_and_Lock(False);from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doBphys=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;'" --ignorePatterns="'ToolSvc.InDetSCTRodDecoder.+ERROR.+Unknown.+offlineId.+for.+OnlineId|ToolSvc.InDetSCTRodDecoder.+ERROR.+SCT.+Missing.+Link.+Headers.+found'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>2014_M-week_reco_noTrigger.summary.txt</argvalue> 
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                        </chainElement>
-                        
-                        <!-- Reconstruction job, using latest castor collections -->
-                        <chainElement>
-                            
                             <jobTransform userJobId="2012_reco_wTrigger">
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>2012_reco_wTrigger</jobTransformJobName>
@@ -1252,6 +1184,42 @@
                                 
                             </jobTransform>
                         </chainElement>
+
+
+                        <!-- Reconstruction job, using latest castor collections -->
+                        <chainElement>
+                            
+                            <jobTransform userJobId="M11_cosmics">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>M11_cosmics</jobTransformJobName>
+                                <jobTransformCmd>
+				  tct_recotrf.py --jobnum=0 --AMI=x383 --nfiles=1 --maxEvents=50 --trigStream=Main --runnum=00289954 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00289954/physics_Main --lumiblock=844 --dropDESDs --dropDRAWs --dropNTUPs
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>M11_cosmics.summary.txt</argvalue> 
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                        </chainElement>
+
                         
                         <!-- Standard reco test job q220 -->
                         <chainElement>
