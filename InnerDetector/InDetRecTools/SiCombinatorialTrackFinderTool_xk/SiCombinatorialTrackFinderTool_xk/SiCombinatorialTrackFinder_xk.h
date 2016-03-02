@@ -130,8 +130,8 @@ namespace InDet{
       int                            m_cosmicTrack   ;  // Is it cosmic track (0 or 1)
       SiTrajectory_xk                m_trajectory    ;  // Track trajector
       std::string                    m_fieldmode     ;  // Mode of magnetic field
-      std::string                    m_pixelname     ;  // Name container with pixels 
-      std::string                    m_sctname       ;  // Name container with scts
+//      std::string                    m_pixelname     ;  // Name container with pixels 
+//      std::string                    m_sctname       ;  // Name container with scts
       std::string                    m_pixm          ;  // PIX manager   location
       std::string                    m_sctm          ;  // SCT manager   location
       std::string                    m_callbackString;
@@ -141,9 +141,10 @@ namespace InDet{
       bool                           m_pix           ;
       bool                           m_sct           ;
       bool                           m_simpleTrack   ;
+      bool                           m_heavyion      ;
 
-      const SiClusterContainer*      m_pixcontainer  ;
-      const SiClusterContainer*      m_sctcontainer  ;
+      SG::ReadHandle<InDet::SiClusterContainer>  m_pixcontainer  ;
+      SG::ReadHandle<InDet::SiClusterContainer>  m_sctcontainer  ;
       MagField::IMagFieldSvc*        m_fieldService  ;
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators

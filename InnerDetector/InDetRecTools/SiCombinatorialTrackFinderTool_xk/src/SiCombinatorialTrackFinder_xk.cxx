@@ -43,16 +43,19 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
     m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  ),
     m_updatortool("Trk::KalmanUpdator_xk/InDetPatternUpdator"  ),
     m_riocreator ("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator" ),
-    m_assoTool   ("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_assoTool   ("InDet::InDetPRD_AssociationToolGangedPixels"),
+    m_pixcontainer ("PixelClusters"),
+    m_sctcontainer ("SCT_Clusters")
 {
   m_usePIX      = true               ;
   m_useSCT      = true               ;
   m_simpleTrack = false              ;
+  m_heavyion    = false              ;
   m_sctm        = "SCT"              ;
   m_pixm        = "Pixel"            ;
   m_fieldmode   = "MapSolenoid"      ;
-  m_pixelname   = "PixelClusters"    ;
-  m_sctname     = "SCT_Clusters"     ;
+//  m_pixelname   = "PixelClusters"    ;
+//  m_sctname     = "SCT_Clusters"     ;
   m_inputseeds  = 0                  ;
   m_findtracks  = 0                  ;
   m_qualityCut  = 9.3                ;
@@ -65,8 +68,8 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("UpdatorTool"          ,m_updatortool        );
   declareProperty("RIOonTrackTool"       ,m_riocreator         );
   declareProperty("MagneticFieldMode"    ,m_fieldmode          );
-  declareProperty("PixelClusterContainer",m_pixelname          );
-  declareProperty("SCT_ClusterContainer" ,m_sctname            ); 
+  declareProperty("PixelClusterContainer",m_pixcontainer       );
+  declareProperty("SCT_ClusterContainer" ,m_sctcontainer       ); 
   declareProperty("AssosiationTool"      ,m_assoTool           );
   declareProperty("usePixel"             ,m_usePIX             );
   declareProperty("useSCT"               ,m_useSCT             );
@@ -252,10 +255,10 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions( MsgStream& out 
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
 
 
-  n     = 62-m_pixelname.size();
+  n     = 62-m_pixcontainer.name().size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
 
-  n     = 62-m_sctname.size();
+  n     = 62-m_sctcontainer.name().size();
   std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
 
   n     = 62-m_assoTool.type().size();
@@ -265,10 +268,10 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions( MsgStream& out 
      <<"-------------------|"
        <<std::endl;
   if(m_usePIX) {
-    out<<"| Pixel clusters location | "<<m_pixelname         <<s7<<std::endl;
+    out<<"| Pixel clusters location | "<<m_pixcontainer.name()      <<s7<<std::endl;
   }
   if(m_useSCT) {
-    out<<"| SCT   clusters location | "<<m_sctname           <<s8<<std::endl;
+    out<<"| SCT   clusters location | "<<m_sctcontainer.name()      <<s8<<std::endl;
   }
   out<<"| Tool for propagation    | "<<m_proptool   .type()<<s1<<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool.type()<<s4<<std::endl;
@@ -359,23 +362,28 @@ std::ostream& InDet::operator <<
 
 void InDet::SiCombinatorialTrackFinder_xk::newEvent()
 {
-  m_pix          = false;
-  m_sct          = false;
-  m_pixcontainer = 0    ;
-  m_sctcontainer = 0    ; 
+//  m_pix          = false;
+//  m_sct          = false;
+//  m_pixcontainer = 0    ;
+//  m_sctcontainer = 0    ; 
 
-  // Test is sct clusters collection for given event
-  //
-  if(m_usePIX) {
-    StatusCode sc = evtStore()->retrieve(m_pixcontainer,m_pixelname);
-    if(!sc.isFailure() && m_pixcontainer) m_pix = true;
-  }
-  // Test is sct clusters collection for given event
-  //
-  if(m_useSCT) {
-    StatusCode  sc = evtStore()->retrieve(m_sctcontainer,m_sctname);
-    if(!sc.isFailure() && m_sctcontainer) m_sct = true;
-  }
+//  // Test is sct clusters collection for given event
+//  //
+//  if(m_usePIX) {
+//    StatusCode sc = evtStore()->retrieve(m_pixcontainer,m_pixelname);
+//    if(!sc.isFailure() && m_pixcontainer) m_pix = true;
+//  }
+//  // Test is sct clusters collection for given event
+//  //
+//  if(m_useSCT) {
+//    StatusCode  sc = evtStore()->retrieve(m_sctcontainer,m_sctname);
+//    if(!sc.isFailure() && m_sctcontainer) m_sct = true;
+//  }
+
+//Adam - Migration to ReadHandle
+  m_pix = m_usePIX && m_pixcontainer.isValid();
+  m_sct = m_useSCT && m_sctcontainer.isValid();
+
 
   // Erase statistic information
   //
@@ -404,9 +412,16 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent
   //
   getTrackQualityCuts(Cuts);
 
-  if(info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic)) {
+  m_heavyion    = false;
+  m_cosmicTrack =     0;
+
+  if     (info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic)) {
     m_cosmicTrack = 1;
   }
+  else if(info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon)) {
+    m_heavyion = true;
+  }
+  m_tools.setHeavyIon(m_heavyion);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -605,30 +620,30 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
     if(!spacePointsToClusters(Sp,Cl)) return false; if(Sp.size()<=2) TWO = true;
   }
   else if(Gp.size() > 2) {
-    if(!m_trajectory.globalPositionsToClusters(m_pixcontainer,m_sctcontainer,Gp,DEL,PT,Cl)) return false;
+    if(!m_trajectory.globalPositionsToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Gp,DEL,PT,Cl)) return false;
   }
   else                   {
-    if(!m_trajectory.trackParametersToClusters(m_pixcontainer,m_sctcontainer,Tp,DEL,PT,Cl)) return false;
+    if(!m_trajectory.trackParametersToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,DEL,PT,Cl)) return false;
   }
   ++m_goodseeds;
 
   // Build initial trajectory
   //
   bool Qr;
-  bool Q = m_trajectory.initialize(m_pix,m_sct,m_pixcontainer,m_sctcontainer,Tp,Cl,DEL,Qr);
+  bool Q = m_trajectory.initialize(m_pix,m_sct,m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,Cl,DEL,Qr);
 
   if(!Q && Sp.size() < 2 && Gp.size() > 3) {
 
     Cl.clear();
-    if(!m_trajectory.trackParametersToClusters(m_pixcontainer,m_sctcontainer,Tp,DEL,PT,Cl)) return false;
-    if(!m_trajectory.initialize   (m_pix,m_sct,m_pixcontainer,m_sctcontainer,Tp,Cl,DEL,Qr)) return false;
+    if(!m_trajectory.trackParametersToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,DEL,PT,Cl)) return false;
+    if(!m_trajectory.initialize   (m_pix,m_sct,m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,Cl,DEL,Qr)) return false;
     Q=Qr=true;
   }
 
   if(!Qr) ++m_roadbug; if(!Q) return false;
   ++m_inittracks;
   bool pixseed = m_trajectory.isLastPixel();
-  int itmax    = 30; if(m_simpleTrack) itmax = 10; 
+  int itmax    = 30; if(m_simpleTrack) itmax = 10; if(m_heavyion) itmax = 50;
 
   // Track finding
   //
