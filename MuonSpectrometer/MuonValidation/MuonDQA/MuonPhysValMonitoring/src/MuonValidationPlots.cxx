@@ -118,7 +118,13 @@ void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu)
   //fill separate hists for each author
   for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
     if (mu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] )) {
-      //filter SilicionAssociatedForwardMuons 
+      if ((xAOD::Muon::Author)m_selectedAuthors[i]==(xAOD::Muon::CaloTag)) {
+	int ipar = 0;
+	if (mu.parameter(ipar, xAOD::Muon::CaloMuonIDTag)) {;} 
+	if (ipar<11) continue;
+      }
+
+      //filter SiliconAssociatedForwardMuons 
       if (mu.muonType()!=(xAOD::Muon::MuonType) xAOD::Muon::SiliconAssociatedForwardMuon) m_oRecoMuonPlots_perAuthor[i]->fill(mu);	     
     }
   }
@@ -156,7 +162,7 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
     m_oTruthRelatedMuonPlots->fill(*truthMu, *mu, MSTracks);
     //fill SiliconAssociatedForwardMuons
     for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_SiAssocFwrdMu.size();i++){
-      if (mu->muonType()==(xAOD::Muon::MuonType) xAOD::Muon::SiliconAssociatedForwardMuon) m_oTruthRelatedMuonPlots_SiAssocFwrdMu[i]->fill(*truthMu, *mu, MSTracks);	     
+      if (mu->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) m_oTruthRelatedMuonPlots_SiAssocFwrdMu[i]->fill(*truthMu, *mu, MSTracks);	     
     }
     
     //plots per quality
@@ -169,8 +175,13 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
     //plots per author
     for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
       if (mu->isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] )) {
+	if ((xAOD::Muon::Author)m_selectedAuthors[i] == xAOD::Muon::CaloTag) {
+	  int ipar = 0;
+	  if (mu->parameter(ipar, xAOD::Muon::CaloMuonIDTag)) {;} 
+	  if (ipar<11) continue;
+	}
 	//filter SilicionAssociatedForwardMuons 
-	if (mu->muonType()!=(xAOD::Muon::MuonType) xAOD::Muon::SiliconAssociatedForwardMuon) m_oTruthRelatedMuonPlots_perAuthor[i]->fill(*truthMu, *mu, MSTracks);	     
+	if (mu->muonType()!=xAOD::Muon::SiliconAssociatedForwardMuon) m_oTruthRelatedMuonPlots_perAuthor[i]->fill(*truthMu, *mu, MSTracks);	     
       }
     }    
   }
