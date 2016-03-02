@@ -104,6 +104,13 @@ namespace InDet {
       std::ostream& dump          (std::ostream& out) const;
 
     protected:
+
+              /**    @name Disallow default instantiation, copy, assignment */
+  //@{
+  SiSpacePointsSeedMaker_Cosmic() = delete;
+  SiSpacePointsSeedMaker_Cosmic(const SiSpacePointsSeedMaker_Cosmic&) = delete;
+  SiSpacePointsSeedMaker_Cosmic &operator=(const SiSpacePointsSeedMaker_Cosmic&) = delete;
+  //@}
       
       ///////////////////////////////////////////////////////////////////
       // Protected data and methods
@@ -183,12 +190,12 @@ namespace InDet {
       // Space points container
       ///////////////////////////////////////////////////////////////////
       
-      std::string                        m_spacepointsSCTname     ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
-      const SpacePointContainer*         m_spacepointsSCT         ;
-      const SpacePointContainer*         m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
+//      std::string                        m_spacepointsSCTname     ;
+//      std::string                        m_spacepointsPixelname   ;
+//      std::string                        m_spacepointsOverlapname ; 
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;
+      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap     ;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods

@@ -24,7 +24,10 @@
 InDet::SiSpacePointsSeedMaker_Trigger::SiSpacePointsSeedMaker_Trigger
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_fieldServiceHandle("AtlasFieldSvc",n)
+    m_fieldServiceHandle("AtlasFieldSvc",n),
+    m_spacepointsSCT("SCT_SpacePoints"),
+    m_spacepointsPixel("PixelSpacePoints"),
+    m_spacepointsOverlap("OverlapSpacePoints")
 {
 
   m_useOverlap= true    ;
@@ -77,13 +80,13 @@ InDet::SiSpacePointsSeedMaker_Trigger::SiSpacePointsSeedMaker_Trigger
   m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
   m_zbeam[0]  = 0.      ; m_zbeam[1]= 0.; m_zbeam[2]=0.; m_zbeam[3]=1.;
   
-  m_spacepointsSCTname     = "SCT_SpacePoints"   ;
-  m_spacepointsPixelname   = "PixelSpacePoints"  ;
-  m_spacepointsOverlapname = "OverlapSpacePoints"; 
+//  m_spacepointsSCTname     = "SCT_SpacePoints"   ;
+//  m_spacepointsPixelname   = "PixelSpacePoints"  ;
+//  m_spacepointsOverlapname = "OverlapSpacePoints"; 
   m_beamconditions         = "BeamCondSvc"       ;
-  m_spacepointsSCT         = 0                   ;
-  m_spacepointsPixel       = 0                   ;
-  m_spacepointsOverlap     = 0                   ;
+//  m_spacepointsSCT         = 0                   ;
+//  m_spacepointsPixel       = 0                   ;
+//  m_spacepointsOverlap     = 0                   ;
 
   declareInterface<ISiSpacePointsSeedMaker>(this);
 
@@ -116,9 +119,9 @@ InDet::SiSpacePointsSeedMaker_Trigger::SiSpacePointsSeedMaker_Trigger
   declareProperty("maxdImpactSSS"         ,m_diversss              );
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
   declareProperty("maxNumberVertices"     ,m_maxNumberVertices     );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixelname  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlapname);
+  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
+  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel      );
+  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap    );
   declareProperty("BeamConditionsService" ,m_beamconditions        ); 
   declareProperty("useOverlapSpCollection", m_useOverlap           );
   declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
@@ -228,10 +231,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
   //
   if(m_pixel) {
 
-    m_spacepointsPixel = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+//    m_spacepointsPixel = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
     
-    if(!sc.isFailure() && m_spacepointsPixel) {
+    if(m_spacepointsPixel.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
@@ -260,9 +263,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
   //
   if(m_sct) {
 
-    m_spacepointsSCT = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-    if(!sc.isFailure() && m_spacepointsSCT) {
+//    m_spacepointsSCT = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+
+    if(m_spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
@@ -290,9 +294,9 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
     //
     if(m_useOverlap) {
 
-      m_spacepointsOverlap = 0;
-      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-      if(!sc.isFailure() && m_spacepointsOverlap) {
+//      m_spacepointsOverlap = 0;
+//      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
+      if(m_spacepointsOverlap.isValid()) {
 	
 	SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
 	SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
@@ -342,10 +346,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
   //
   if(m_pixel && vPixel.size()) {
 
-    m_spacepointsPixel   = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+//    m_spacepointsPixel   = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
     
-    if(!sc.isFailure() && m_spacepointsPixel) {
+    if(m_spacepointsPixel.isValid()) {
 
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
 
@@ -378,10 +382,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
   //
   if(m_sct && vSCT.size()) {
 
-    m_spacepointsSCT     = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+//    m_spacepointsSCT     = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
 
-    if(!sc.isFailure() && m_spacepointsSCT) {
+    if(m_spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
 
@@ -554,11 +558,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_spacepointsPixelname.size();
+  int n = 42-m_spacepointsPixel.name().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 42-m_spacepointsSCTname.size();
+  n     = 42-m_spacepointsSCT.name().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlapname.size();
+  n     = 42-m_spacepointsOverlap.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 42-m_beamconditions.size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
@@ -566,11 +570,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Trigger::dumpConditions( MsgStream& out
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Pixel    space points   | "<<m_spacepointsPixelname <<s2
+  out<<"| Pixel    space points   | "<<m_spacepointsPixel.name() <<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCTname<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCT.name() <<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlapname<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name() <<s4
      <<std::endl;
   out<<"| BeamConditionsService   | "<<m_beamconditions<<s5
      <<std::endl;
@@ -829,7 +833,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::buildFrameWork()
   m_ipt2      = m_ipt*m_ipt                    ;
   m_K         = 0.                             ;
 
-  m_ns = m_nsaz = m_nsazv = m_nr = m_nrf = m_nrfz = m_nrfzv = 0;
+  m_ns = m_nsaz = m_nsazv = m_nr = m_nrfz = m_nrfzv = 0;
 
   // Build radius sorted containers
   //
@@ -849,8 +853,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::buildFrameWork()
   m_sF        = m_ptmin /60. ; if(m_sF    >sFmax ) m_sF    = sFmax  ; else if(m_sF < m_sFmin) m_sF = m_sFmin;
   m_fNmax     = int(pi2*m_sF); if(m_fNmax >=NFmax) m_fNmax = NFmax-1;
 
-  m_nrf   = 0; for(int i=0; i!= 53; ++i) {rf_index  [i]=0; rf_map  [i]=0;}
-
+ 
   // Build radius-azimuthal-Z sorted containers
   //
   m_nrfz  = 0; for(int i=0; i!=583; ++i) {rfz_index [i]=0; rfz_map [i]=0;}
@@ -1026,14 +1029,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::buildBeamFrameWork()
 
 void  InDet::SiSpacePointsSeedMaker_Trigger::convertToBeamFrameWork
 (Trk::SpacePoint*const& sp,float* r) 
-{
-  
-  float x = float(sp->globalPosition().x())-m_xbeam[0];
-  float y = float(sp->globalPosition().y())-m_ybeam[0];
-  float z = float(sp->globalPosition().z())-m_zbeam[0];
-  r[0]     = m_xbeam[1]*x+m_xbeam[2]*y+m_xbeam[3]*z;
-  r[1]     = m_ybeam[1]*x+m_ybeam[2]*y+m_ybeam[3]*z;
-  r[2]     = m_zbeam[1]*x+m_zbeam[2]*y+m_zbeam[3]*z;
+{ 
+  r[0] = float(sp->globalPosition().x())-m_xbeam[0];
+  r[1] = float(sp->globalPosition().y())-m_ybeam[0];
+  r[2] = float(sp->globalPosition().z())-m_zbeam[0];
 }
    
 ///////////////////////////////////////////////////////////////////
@@ -1056,7 +1055,6 @@ void InDet::SiSpacePointsSeedMaker_Trigger::fillLists()
       float F = (*r)->phi(); if(F<0.) F+=pi2;
 
       int   f = int(F*m_sF); f<0 ? f = m_fNmax : f>m_fNmax ? f = 0 : f=f;
-      rf_Sorted[f].push_back(*r); if(!rf_map[f]++) rf_index[m_nrf++] = f;
 
       int z; float Z = (*r)->z();
 
@@ -1092,29 +1090,23 @@ void InDet::SiSpacePointsSeedMaker_Trigger::erase()
 {
   for(int i=0; i!=m_nr;    ++i) {
     int n = r_index[i]; r_map[n] = 0;
-    r_Sorted[n].erase(r_Sorted[n].begin(),r_Sorted[n].end());
-  }
-
-  for(int i=0; i!=m_nrf;   ++i) {
-    int n = rf_index[i]; rf_map[n] = 0;
-    rf_Sorted[n].erase(rf_Sorted[n].begin(),rf_Sorted[n].end());
+    r_Sorted[n].clear();
   }
 
   for(int i=0; i!=m_nrfz;  ++i) {
     int n = rfz_index[i]; rfz_map[n] = 0;
-    rfz_Sorted[n].erase(rfz_Sorted[n].begin(),rfz_Sorted[n].end());
+    rfz_Sorted[n].clear();
   }
 
   for(int i=0; i!=m_nrfzv; ++i) {
     int n = rfzv_index[i]; rfzv_map[n] = 0;
-    rfzv_Sorted[n].erase(rfzv_Sorted[n].begin(),rfzv_Sorted[n].end());
+    rfzv_Sorted[n].clear();
   }
   m_state = 0;
   m_ns    = 0;
   m_nsaz  = 0;
   m_nsazv = 0;
   m_nr    = 0;
-  m_nrf   = 0;
   m_nrfz  = 0;
   m_nrfzv = 0;
 }

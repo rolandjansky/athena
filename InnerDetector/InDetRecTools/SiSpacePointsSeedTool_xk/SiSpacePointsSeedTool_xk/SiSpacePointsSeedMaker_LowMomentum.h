@@ -105,6 +105,14 @@ namespace InDet {
       std::ostream& dump          (std::ostream& out) const;
 
     protected:
+    
+    
+        /**    @name Disallow default instantiation, copy, assignment */
+  //@{
+  SiSpacePointsSeedMaker_LowMomentum() = delete;
+  SiSpacePointsSeedMaker_LowMomentum(const SiSpacePointsSeedMaker_LowMomentum&) = delete;
+  SiSpacePointsSeedMaker_LowMomentum &operator=(const SiSpacePointsSeedMaker_LowMomentum&) = delete;
+  //@}    
       
       ///////////////////////////////////////////////////////////////////
       // Protected data and methods
@@ -158,7 +166,6 @@ namespace InDet {
       int rf_size                                                 ;
       int rfz_size                                                ;
       std::list<InDet::SiSpacePointForSeed*>* r_Sorted            ;
-      std::list<InDet::SiSpacePointForSeed*>  rf_Sorted  [   20]  ; 
       std::list<InDet::SiSpacePointForSeed*>  rfz_Sorted [  220]  ;
       std::list<InDet::SiSpacePointForSeed*>  l_spforseed         ;
       std::list<InDet::SiSpacePointForSeed*>::iterator i_spforseed; 
@@ -169,7 +176,6 @@ namespace InDet {
       int m_fNmin                                                 ;
       int m_zMin                                                  ;
       int  m_nr     ; int* r_index   ; int* r_map                 ;
-      int  m_nrf    , rf_index   [ 20], rf_map   [ 20]            ;
       int  m_nrfz   , rfz_index  [220], rfz_map  [220]            ;
       int rfz_b[220],rfz_t[220],rfz_ib[220][9],rfz_it[220][9]     ;
       float m_sF                                                 ;
@@ -209,13 +215,13 @@ namespace InDet {
       // Space points container
       ///////////////////////////////////////////////////////////////////
       
-      std::string                        m_spacepointsSCTname     ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
+//      std::string                        m_spacepointsSCTname     ;
+//      std::string                        m_spacepointsPixelname   ;
+//      std::string                        m_spacepointsOverlapname ; 
       std::string                        m_beamconditions         ;
-      const SpacePointContainer*         m_spacepointsSCT         ;
-      const SpacePointContainer*         m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;
+      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap     ;
 
       ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool           ;
 
