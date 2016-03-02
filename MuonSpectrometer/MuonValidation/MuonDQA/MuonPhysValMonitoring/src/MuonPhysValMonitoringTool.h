@@ -29,8 +29,8 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
-#include "MuonResonanceTools/IMuonResonancePairingTool.h"
+//#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
+//#include "MuonResonanceTools/IMuonResonancePairingTool.h"
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -98,7 +98,6 @@ class MuonPhysValMonitoringTool
   void handleMuonL1Trigger(const xAOD::MuonRoI* TrigL1mu);
   void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAmu);
   void handleMuonL2Trigger(const xAOD::L2CombinedMuon* L2CBmu);
-  void handleMuonL2Trigger(const xAOD::L2IsoMuon* L2Isomu);
   
   void printMuonDebug(const xAOD::Muon* mu);
   void printMuonL1TriggerDebug(const xAOD::MuonRoI* TrigL1mu);
@@ -130,25 +129,26 @@ class MuonPhysValMonitoringTool
   std::string m_muonL1TrigName;
   std::string m_muonL2SAName;
   std::string m_muonL2CBName;
-  std::string m_muonL2IsoName;
   std::string m_muonEFCombTrigName;
   std::string m_trigDecisionKey;
-  std::vector<std::string> m_muonItems;
-  std::vector<std::string> m_L1Seed;
+
 
   // Configurable properties
   std::map<std::string,int> m_counterBits;
   std::vector<unsigned int> m_selectMuonAuthors;
+  std::vector<std::vector<std::string>> m_selectHLTMuonItems;
+  std::vector<std::string> m_muonItems;
+  std::vector<std::string> m_L1Seed;
+  std::vector<std::string> m_L1MuonItems;
+  int SelectedAuthor;
   std::vector<unsigned int> m_selectMuonCategories;  
   bool m_doMuonSegmentValidation;
   bool m_doMuonTrackValidation;
   bool m_doBinnedResolutionPlots;
-
   bool m_doTrigMuonValidation;
   bool m_doTrigMuonL1Validation;
   bool m_doTrigMuonL2Validation;
   bool m_doTrigMuonEFValidation;
-
   bool m_doMuonTree;
 
 
@@ -157,10 +157,9 @@ class MuonPhysValMonitoringTool
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-  //ToolHandle<Muon::MuonTrackSelectorTool> m_trackSelector;
   ToolHandle<Trk::ITrackSelectorTool> m_trackSelector;
-  ToolHandle<IMuonResonanceSelectionTool> m_muonResonanceSelectionTool;
-  ToolHandle<IMuonResonancePairingTool>   m_muonResonancePairingTool;
+  // ToolHandle<IMuonResonanceSelectionTool> m_muonResonanceSelectionTool;
+  // ToolHandle<IMuonResonancePairingTool>   m_muonResonancePairingTool;
 
  
   enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
@@ -169,6 +168,7 @@ class MuonPhysValMonitoringTool
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::IParticle* prt);
   bool passesAcceptanceCuts(const xAOD::IParticle* prt);
   float deltaR(const xAOD::IParticle* prt1, const xAOD::IParticle* prt2);
+  void SplitString(TString x, TString delim, std::vector<TString> &v);
   
   // Hists
   std::vector<MuonValidationPlots*> m_muonValidationPlots;
@@ -188,6 +188,10 @@ class MuonPhysValMonitoringTool
   TH1F* h_overview_reco_category;
   std::vector<TH1F*> h_overview_reco_authors;
 
+  TH1F *h_overview_Z_mass;
+  TH1F *h_overview_Z_mass_ME;
+  TH1F *h_overview_Z_mass_ID;
+
   std::vector<const xAOD::TruthParticle*> m_vMatchedTruthMuons;
   std::vector<const xAOD::Muon*> m_vMatchedMuons;
   std::vector<const xAOD::TrackParticle*> m_vMatchedMuonTracks;
@@ -202,14 +206,11 @@ class MuonPhysValMonitoringTool
   std::vector<const xAOD::L2StandAloneMuon*> m_vL2SAMuonsSelected;
   std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuons;
   std::vector<const xAOD::L2CombinedMuon*> m_vL2CBMuonsSelected;
-  std::vector<const xAOD::L2IsoMuon*> m_vL2IsoMuons;
-  std::vector<const xAOD::L2IsoMuon*> m_vL2IsoMuonsSelected;
-
   std::vector<const xAOD::Muon*> m_vRecoMuons;
   std::vector<const xAOD::Muon*> m_vRecoMuons_EffDen_CB;
   std::vector<const xAOD::Muon*> m_vRecoMuons_EffDen_MS;
   std::vector<const xAOD::Muon*> m_vRecoMuons_EffDen;
-  int SelectedAuthor;
+
 
   template<class T>
   const T* getContainer( const std::string & containerName);
