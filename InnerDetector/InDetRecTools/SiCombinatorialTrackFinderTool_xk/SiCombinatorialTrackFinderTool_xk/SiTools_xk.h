@@ -65,6 +65,7 @@ namespace InDet{
       const bool&                         multiTrack () const {return m_multitrack ;}
       const bool&                         bremNoise  () const {return m_bremnoise  ;}
       const bool&                         electron   () const {return m_electron   ;}
+      const bool&                         heavyion   () const {return m_heavyion   ;}
 
       void setTools
 	(Trk::IPatternParametersPropagator* ,
@@ -84,7 +85,7 @@ namespace InDet{
       void setAssociation(const int&);
       void setMultiTracks(const int,double);
       void setBremNoise  (bool,bool);
-
+      void setHeavyIon   (bool);
 
     protected:
       
@@ -114,6 +115,7 @@ namespace InDet{
       bool                            m_multitrack ;  // Do multi tracks
       bool                            m_bremnoise  ;  // Do brem noise
       bool                            m_electron   ;  // Do electron mode
+      bool                            m_heavyion   ;  // Is it heavy ion event
 
       ///////////////////////////////////////////////////////////////////
       // Methods
@@ -178,6 +180,7 @@ namespace InDet{
 	m_multitrack  = T.m_multitrack ; 
 	m_bremnoise   = T.m_bremnoise  ;
 	m_electron    = T.m_electron   ; 
+	m_heavyion    = T.m_heavyion   ;
       }
       return(*this);
     }
@@ -245,6 +248,10 @@ namespace InDet{
       m_electron  = E;
     }
 
+  inline void SiTools_xk::setHeavyIon(bool HI)
+  {
+    m_heavyion = HI;
+  }
 
 } // end of name space
 

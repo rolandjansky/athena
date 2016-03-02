@@ -62,24 +62,24 @@ namespace InDet{
 
       bool initialize
 	(bool,bool,
-	 const InDet::SiClusterContainer*                    &,
-	 const InDet::SiClusterContainer*                    &,
+	 const InDet::SiClusterContainer*                    ,
+	 const InDet::SiClusterContainer*                    ,
 	 const Trk::TrackParameters                          &,
 	 std::list<const InDet::SiCluster*>                  &,
 	 std::list<const InDet::SiDetElementBoundaryLink_xk*>&,
 	 bool                                                &);
 
       bool trackParametersToClusters
-	(const InDet::SiClusterContainer*                        &,
-	 const InDet::SiClusterContainer*                        &,
+	(const InDet::SiClusterContainer*                        ,
+	 const InDet::SiClusterContainer*                        ,
 	 const Trk::TrackParameters                              &,
 	 std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
 	 std::list<const InDet::SiCluster*>                      &);
       
       bool globalPositionsToClusters
- 	(const InDet::SiClusterContainer*                        &,
-	 const InDet::SiClusterContainer*                        &,
+ 	(const InDet::SiClusterContainer*                        ,
+	 const InDet::SiClusterContainer*                        ,
 	 const std::list<Amg::Vector3D>                          &,
 	 std::list<const InDet::SiDetElementBoundaryLink_xk*>    &,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&,
