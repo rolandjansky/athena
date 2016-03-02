@@ -21,7 +21,7 @@
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+//#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -32,14 +32,17 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   : AthAlgTool(t,n,p)                                        ,
     m_fieldServiceHandle("AtlasFieldSvc",n), 
     m_roadmaker   ("InDet::SiDetElementsRoadMaker_xk"    ),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk")
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
+    m_seedtrack   ("InDet::SeedToTrackConversionTool"    ),
+    m_caloCluster("InDetCaloClusterROIs"),
+    m_caloHad("InDetHadCaloClusterROIs")
 {
   m_fieldmode    = "MapSolenoid"      ;
   m_patternName  = "SiSPSeededFinder" ; 
   m_pix          = false              ;
   m_sct          = false              ;
-  m_usePix       = true              ;
-  m_useSct       = true              ;
+  m_usePix       = true               ;
+  m_useSct       = true               ;
   m_useassoTool  = false              ;
   m_cosmicTrack  = false              ;    
   m_simpleTrack  = false              ;
@@ -47,7 +50,9 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_useBremModel = false              ;
   m_useCaloSeeds = false              ;
   m_useHClusSeed = false              ;
-  m_useSSSfilter = true               ; 
+  m_useSSSfilter = true               ;
+  m_ITKGeomtry   = false              ;
+  m_heavyion     = false              ;
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
   m_xi2maxlink   = 200.               ;
@@ -55,7 +60,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_pTmin        = 500.               ;
   m_pTminBrem    = 1000.              ;
   m_pTminSSS     = 1000.              ;
-  m_distmax      = 20.                ;
+  m_distmax      = 5.                 ;
   m_nholesmax    = 2                  ;
   m_dholesmax    = 2                  ;
   m_nclusmin     = 6                  ;
@@ -67,14 +72,16 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_seedsfilter  = 2                  ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = .3                 ;
-  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
-  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
+  m_seedsegmentsWrite = false;
+//  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
+//  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
   m_beamconditions               = "BeamCondSvc"            ;
 
   declareInterface<ISiTrackMaker>(this);
 
   declareProperty("RoadTool"                ,m_roadmaker   );
   declareProperty("CombinatorialTrackFinder",m_tracksfinder);
+  declareProperty("SeedToTrackConversion"   ,m_seedtrack   );
   declareProperty("Xi2max"                  ,m_xi2max      );
   declareProperty("Xi2maxNoAdd"             ,m_xi2maxNoAdd );
   declareProperty("Xi2maxlink"              ,m_xi2maxlink  );
@@ -100,11 +107,13 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("doHadCaloSeedSSS"        ,m_useHClusSeed);
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
-  declareProperty("InputClusterContainerName"   ,m_inputClusterContainerName   );
-  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
+  declareProperty("InputClusterContainerName"   , m_caloCluster   );
+  declareProperty("InputHadClusterContainerName", m_caloHad );
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
   declareProperty("useSCT"                  , m_useSct);
   declareProperty("usePixel"                , m_usePix);
+  declareProperty("ITKGeometry"             , m_ITKGeomtry);
+  declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -160,13 +169,28 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endreq;
   }
 
+  // Get seed to track conversion tool
+  //
+  if(m_seedsegmentsWrite) {
+
+    if(m_seedtrack.retrieve().isFailure()) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedtrack << endreq;
+      return StatusCode::FAILURE;
+
+    } else {
+      msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endreq;
+    }
+  }
+
+  m_heavyion = false;
+
   // TrackpatternRecoInfo preparation 
   //
   if     (m_patternName == "SiSpacePointsSeedMaker_Cosmic"     )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic     );
   }
   else if(m_patternName == "SiSpacePointsSeedMaker_HeavyIon"   )  {
-    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon   ); 
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon   ); m_heavyion = true;
   }
   else if(m_patternName == "SiSpacePointsSeedMaker_LowMomentum")  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LowMomentum);
@@ -176,7 +200,10 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }     
   else if(m_patternName == "SiSpacePointsSeedMaker_ForwardTracks"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ForwardTracks    );
-  }     
+  }
+  else if(m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
+  } 
   else                                                            {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );
   } 
@@ -203,7 +230,7 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
   }
   
-  m_distmax = m_distmax*m_distmax; if(m_pTmin < 20.) m_pTmin = 20.;
+  if(m_pTmin < 20.) m_pTmin = 20.;
   return StatusCode::SUCCESS;
 }
 
@@ -370,12 +397,12 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
     m_caloR.clear();
     m_caloZ.clear();
 
-    const CaloClusterROI_Collection* calo = 0;    
-    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
+//    const CaloClusterROI_Collection* calo = 0;    
+//    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
  
-    if(sc == StatusCode::SUCCESS && calo) {
+    if(m_caloCluster.isValid()) {
 
-      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
+      CaloClusterROI_Collection::const_iterator c = m_caloCluster->begin(), ce = m_caloCluster->end();
 
       for(; c!=ce; ++c) {
         m_caloF.push_back( (*c)->globalPosition().phi ());
@@ -391,12 +418,12 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
     m_hadR.clear();
     m_hadZ.clear();
 
-    const CaloClusterROI_Collection* calo = 0;    
-    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
+//    const CaloClusterROI_Collection* calo = 0;    
+//    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
   
-    if(sc == StatusCode::SUCCESS && calo) {
+    if(m_caloHad.isValid()) {
 
-      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
+      CaloClusterROI_Collection::const_iterator c = m_caloHad->begin(), ce = m_caloHad->end();
 
       for(; c!=ce; ++c) {
         m_hadF.push_back( (*c)->globalPosition().phi ());
@@ -405,6 +432,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
      }
     }
   }
+  if(m_seedsegmentsWrite) m_seedtrack->newEvent(m_trackinfo,m_patternName);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -447,6 +475,9 @@ void InDet::SiTrackMaker_xk::endEvent()
 
   //correction to exclude memory fragmentation
   m_clusterTrack.clear();
+
+  // end event for seed to track tool
+  if(m_seedsegmentsWrite) m_seedtrack->endEvent();
  
   // Print event information 
   //
@@ -463,7 +494,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 (const std::list<const Trk::SpacePoint*>& Sp)
 {
   ++m_inputseeds;
-  m_tracks.erase(m_tracks.begin(),m_tracks.end());
+  m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
   
   bool good;  m_sss = false; 
@@ -516,6 +547,11 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
     }
   }
   m_findtracks+=m_tracks.size();
+
+  // Call seed to track execution
+  //
+  if(m_seedsegmentsWrite) m_seedtrack->executeSiSPSeedSegments(Tp,m_tracks.size(),Sp);
+
   delete Tp;
   return m_tracks;
 }
@@ -528,7 +564,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 (const Trk::TrackParameters& Tp,const std::list<Amg::Vector3D>& Gp)
 {
   ++m_inputseeds;
-  m_tracks.erase(m_tracks.begin(),m_tracks.end());
+  m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
 
   ++m_goodseeds;
@@ -787,7 +823,7 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
   if(!m_dbm) {
 
     while(d!=DE.end()) {
-      
+
       if     ((*d)->isPixel()) {if(!m_pix) {DE.erase(d++); continue;}}
       else if(   !m_sct      ) {            DE.erase(d++); continue; }
       ++d;
@@ -795,7 +831,14 @@ void InDet::SiTrackMaker_xk::detectorElementsSelection(std::list<const InDetDD::
   }
   else      {
     while(d!=DE.end()) {
-      if(!(*d)->isDBM())  {DE.erase(d++); continue;}
+
+      if(!(*d)->isDBM() ) {
+
+	if((*d)->isSCT() || (*d)->isEndcap())       {DE.erase(d++); continue;}
+	const Amg::Transform3D& T  = (*d)->surface().transform();	
+	if(T(0,3)*T(0,3)+T(1,3)*T(1,3) > (43.*43) ) {DE.erase(d++); continue;}
+
+      }
       ++d;
     }
   }
@@ -846,6 +889,8 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
   }
   if(trackseed.empty()) return true;
 
+  if(m_ITKGeomtry && n!=3 && n!=6) return false;
+ 
   std::multiset<const Trk::Track*>::iterator t = trackseed.begin(), te = trackseed.end();
 
   const Trk::Track* tr  = (*t)                             ;
@@ -862,15 +907,14 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
     unsigned int ns = tr->measurementsOnTrack()->size(); if(ns > nsm) nsm = ns;
   }
   if(nt == n) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;}
-  
-  if(nsm3 > 13 || t3 > 2) return false;
+
+  if(m_heavyion) {if(n==3 || t3 <=0) return true; return false;}
+
+  if( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
 
   if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
   if(t3 > 0) return false;
-
-  if(n==3 || n==6 || nsm < m_wrongcluster) return true;
-
-  return false;
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -940,50 +984,29 @@ bool InDet::SiTrackMaker_xk::globalPositions
 (const Trk::SpacePoint* s0,const Trk::SpacePoint* s1,const Trk::SpacePoint* s2,
  double* p0,double* p1,double* p2)
 {
-  double dir0[3],dir1[3];
 
   p0[0] = s0->globalPosition().x(); 
   p0[1] = s0->globalPosition().y();
   p0[2] = s0->globalPosition().z();
 
-  p1[0] = s1->globalPosition().x(); dir0[0] = p1[0]-p0[0];
-  p1[1] = s1->globalPosition().y(); dir0[1] = p1[1]-p0[1];
-  p1[2] = s1->globalPosition().z(); dir0[2] = p1[2]-p0[2];
+  p1[0] = s1->globalPosition().x(); 
+  p1[1] = s1->globalPosition().y(); 
+  p1[2] = s1->globalPosition().z(); 
 
-  p2[0] = s2->globalPosition().x(); dir1[0] = p2[0]-p1[0];
-  p2[1] = s2->globalPosition().y(); dir1[1] = p2[1]-p1[1];
-  p2[2] = s2->globalPosition().z(); dir1[2] = p2[2]-p1[2];
+  p2[0] = s2->globalPosition().x(); 
+  p2[1] = s2->globalPosition().y(); 
+  p2[2] = s2->globalPosition().z(); 
+ 
+  if(!s0->clusterList().second && !s1->clusterList().second && !s2->clusterList().second) return true;
 
-  if(s0->clusterList().second) {
+  double dir0[3],dir1[3],dir2[3]; 
 
-    double p[3] = {p0[0],p0[1],p0[2]}; globalPosition(s0,dir0     ,p0);
-    if(!m_cosmicTrack) {
-      double dx   = p0[0]-p[0];
-      double dy   = p0[1]-p[1];
-      double dz   = p0[2]-p[2];
-      if(dx*dx+dy*dy+dz*dz > m_distmax) return false;
-    }
-  }
-  if(s1->clusterList().second) {
+  globalDirections(p0,p1,p2,dir0,dir1,dir2);
 
-    double p[3] = {p1[0],p1[1],p1[2]}; globalPosition(s1,dir0,dir1,p1);
-    if(!m_cosmicTrack) {
-      double dx   = p1[0]-p[0];
-      double dy   = p1[1]-p[1];
-      double dz   = p1[2]-p[2];
-      if(dx*dx+dy*dy+dz*dz > m_distmax) return false;
-    }
-  }
-  if(s2->clusterList().second) {
-
-    double p[3] = {p2[0],p2[1],p2[2]}; globalPosition(s2,     dir1,p2);
-    if(!m_cosmicTrack) {
-      double dx   = p2[0]-p[0];
-      double dy   = p2[1]-p[1];
-      double dz   = p2[2]-p[2];
-      if(dx*dx+dy*dy+dz*dz > m_distmax) return false;
-    }
-  }
+  if(s0->clusterList().second && !globalPosition(s0,dir0,p0)) return false;
+  if(s1->clusterList().second && !globalPosition(s1,dir1,p1)) return false;
+  if(s2->clusterList().second && !globalPosition(s2,dir2,p2)) return false;
+  
   return true;
 }
 
@@ -991,101 +1014,49 @@ bool InDet::SiTrackMaker_xk::globalPositions
 // Calculation global position for space points
 ///////////////////////////////////////////////////////////////////
 
-void InDet::SiTrackMaker_xk::globalPosition
+bool InDet::SiTrackMaker_xk::globalPosition
 (const Trk::SpacePoint* sp, double* dir,double* p)
 {
   const Trk::PrepRawData*  c0  = sp->clusterList().first;
   const Trk::PrepRawData*  c1  = sp->clusterList().second;
-
-  const InDet::SiCluster* s0 = static_cast<const InDet::SiCluster*>(c0);
-  const InDet::SiCluster* s1 = static_cast<const InDet::SiCluster*>(c1);
-  if(!s0  || !s1 ) {p[0]=0.; p[1]=0.; p[2]=0.; return;}
-  const InDetDD::SiDetectorElement* de0 = s0->detectorElement();
-  const InDetDD::SiDetectorElement* de1 = s1->detectorElement();
-  if(!de0 || !de1) {p[0]=0.; p[1]=0.; p[2]=0.; return;}
+ 
+  const InDetDD::SiDetectorElement* de0 = static_cast<const InDet::SiCluster*>(c0)->detectorElement(); 
+  const InDetDD::SiDetectorElement* de1 = static_cast<const InDet::SiCluster*>(c1)->detectorElement(); 
 
   Amg::Vector2D localPos = c0->localPosition();  
-  std::pair<Amg::Vector3D,Amg::Vector3D> ends0
-    (de0->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0))); 
+  std::pair<Amg::Vector3D,Amg::Vector3D> e0
+    (de0->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0.))); 
  
   localPos = c1->localPosition();                
-  std::pair< Amg::Vector3D,Amg::Vector3D> ends1
-    (de1->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0))); 
+  std::pair<Amg::Vector3D,Amg::Vector3D> e1
+    (de1->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0.))); 
  
-  double r0[3] = {ends0.first .x()      ,ends0.first .y()      ,ends0.first .z()      };
-  double r1[3] = {ends1.first .x()      ,ends1.first .y()      ,ends1.first .z()      };
+  double a0[3] = {e0.second.x()-e0.first.x(), e0.second.y()-e0.first.y(), e0.second.z()-e0.first.z()};
+  double a1[3] = {e1.second.x()-e1.first.x(), e1.second.y()-e1.first.y(), e1.second.z()-e1.first.z()};
+  double dr[3] = {e1.first .x()-e0.first.x(), e1.first .y()-e0.first.y(), e1.first .z()-e0.first.z()};
+  
+  double d0    = m_distmax/sqrt(a0[0]*a0[0]+a0[1]*a0[1]+a0[2]*a0[2]);
 
-  double a0[3] = {ends0.second.x()-r0[0],ends0.second.y()-r0[1],ends0.second.z()-r0[2]};
-  double a1[3] = {ends1.second.x()-r1[0],ends1.second.y()-r1[1],ends1.second.z()-r1[2]};
-
-  // u = a1 x a
+  // u = a1 x dir and  v = a0 x dir
   //
   double u[3]  = {a1[1]*dir[2]-a1[2]*dir[1],a1[2]*dir[0]-a1[0]*dir[2],a1[0]*dir[1]-a1[1]*dir[0]};
+  double v[3]  = {a0[1]*dir[2]-a0[2]*dir[1],a0[2]*dir[0]-a0[0]*dir[2],a0[0]*dir[1]-a0[1]*dir[0]};
+
   double du    = a0[0]*u[0]+a0[1]*u[1]+a0[2]*u[2];
+  double dv    = a1[0]*v[0]+a1[1]*v[1]+a1[2]*v[2];
 
-  if(du!=0.) {
-    double step = ((r1[0]-r0[0])*u[0]+(r1[1]-r0[1])*u[1]+(r1[2]-r0[2])*u[2])/du;
-    p[0] = r0[0]+step*a0[0]; 
-    p[1] = r0[1]+step*a0[1]; 
-    p[2] = r0[2]+step*a0[2];
-    return;
-  }
-  p[0] = sp->globalPosition().x(); 
-  p[1] = sp->globalPosition().y();
-  p[2] = sp->globalPosition().z();
-}
+  if(du==0. || dv==0.) return false;
 
-///////////////////////////////////////////////////////////////////
-// Calculation global position for space points
-///////////////////////////////////////////////////////////////////
+  double s0 = (dr[0]*u[0]+dr[1]*u[1]+dr[2]*u[2])/du;
+  double s1 =-(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
 
-void InDet::SiTrackMaker_xk::globalPosition
-(const Trk::SpacePoint* sp, double* dir0,double* dir1,double* p)
-{
-  const Trk::PrepRawData*  c0  = sp->clusterList().first;
-  const Trk::PrepRawData*  c1  = sp->clusterList().second;
+  if(s0 < -d0 || s0 > 1.+d0 ||  s1 < -d0 || s1 > 1.+d0) return false;
 
-  const InDet::SiCluster* s0 = static_cast<const InDet::SiCluster*>(c0);
-  const InDet::SiCluster* s1 = static_cast<const InDet::SiCluster*>(c1);
+  p[0] = e0.first.x()+s0*a0[0]; 
+  p[1] = e0.first.y()+s0*a0[1]; 
+  p[2] = e0.first.z()+s0*a0[2];
 
-  const InDetDD::SiDetectorElement* de0 = s0->detectorElement();
-  const InDetDD::SiDetectorElement* de1 = s1->detectorElement();
-
-
-  Amg::Vector2D localPos = c0->localPosition();  
-  std::pair<Amg::Vector3D,Amg::Vector3D> ends0
-    (de0->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0))); 
- 
-  localPos = c1->localPosition();  
-  std::pair<Amg::Vector3D, Amg::Vector3D> ends1
-    (de1->endsOfStrip(InDetDD::SiLocalPosition(localPos.y(),localPos.x(),0))); 
- 
-  double r0[3] = {ends0.first .x()      ,ends0.first .y()      ,ends0.first .z()      };
-  double r1[3] = {ends1.first .x()      ,ends1.first .y()      ,ends1.first .z()      };
-
-  double a0[3] = {ends0.second.x()-r0[0],ends0.second.y()-r0[1],ends0.second.z()-r0[2]};
-  double a1[3] = {ends1.second.x()-r1[0],ends1.second.y()-r1[1],ends1.second.z()-r1[2]};
-
-  // u = a1 x a
-  //
-  double u[3]  = {a1[1]*dir0[2]-a1[2]*dir0[1],a1[2]*dir0[0]-a1[0]*dir0[2],a1[0]*dir0[1]-a1[1]*dir0[0]};
-  double v[3]  = {a1[1]*dir1[2]-a1[2]*dir1[1],a1[2]*dir1[0]-a1[0]*dir1[2],a1[0]*dir1[1]-a1[1]*dir1[0]};
-
-  double du    = (a0[0]*u[0]+a0[1]*u[1]+a0[2]*u[2]);
-  double dv    = (a0[0]*v[0]+a0[1]*v[1]+a0[2]*v[2]);
-
-  if(du!=0. && dv!=0.) {
-    double step0 = ((r1[0]-r0[0])*u[0]+(r1[1]-r0[1])*u[1]+(r1[2]-r0[2])*u[2])/du;
-    double step1 = ((r1[0]-r0[0])*v[0]+(r1[1]-r0[1])*v[1]+(r1[2]-r0[2])*v[2])/dv;
-    double step  = .5*(step0+step1);
-    p[0] = r0[0]+step*a0[0]; 
-    p[1] = r0[1]+step*a0[1]; 
-    p[2] = r0[2]+step*a0[2];
-    return;
-  }
-  p[0] = sp->globalPosition().x(); 
-  p[1] = sp->globalPosition().y();
-  p[2] = sp->globalPosition().z();
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1164,3 +1135,45 @@ bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s)
     static_cast<const InDetDD::SiDetectorElement*>(s->clusterList().first->detectorElement());
   return de && de->isDBM();
 }
+
+///////////////////////////////////////////////////////////////////
+// Calculation global direction for positions of space points
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiTrackMaker_xk::globalDirections
+(double* p0,double* p1,double* p2,double* d0,double* d1,double* d2)
+{
+  double x01 = p1[0]-p0[0]      ;
+  double y01 = p1[1]-p0[1]      ;
+  double x02 = p2[0]-p0[0]      ;
+  double y02 = p2[1]-p0[1]      ;
+
+  double d01 = x01*x01+y01*y01  ; 
+  double x1  = sqrt(d01)        ;
+  double u01 = 1./x1            ;
+  double a   = x01*u01          ; 
+  double b   = y01*u01          ;
+  double x2  = a*x02+b*y02      ;
+  double y2  = a*y02-b*x02      ;
+  double d02 = x2*x2+y2*y2      ;
+  double u02 = x2/d02           ;
+  double v02 = y2/d02           ;
+
+  double A0  =  v02 /(u02-u01)  ;
+  double B0  = 2.*(v02-A0*u02)  ;
+
+  double C2  = (1.-B0*y2)       ;
+  double S2  = (A0+B0*x2)       ;
+
+  double T   = (p2[2]-p0[2])/sqrt(d02);
+  double Se  = 1./sqrt(1.+T*T)        ;
+  double Ce  = Se*T                   ;
+  Se        /= sqrt(1.+A0*A0)         ;
+  double Sa  = Se*a                   ;
+  double Sb  = Se*b                   ;
+
+  d0[0] = Sa   -Sb*A0; d0[1]= Sa*A0+Sb   ; d0[2]=Ce;  
+  d1[0] = Sa   +Sb*A0; d1[1]= Sb   -Sa*A0; d1[2]=Ce;  
+  d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
+}
+

@@ -25,8 +25,10 @@
 #include "InDetRecToolInterfaces/ISiTrackMaker.h"
 #include "InDetRecToolInterfaces/ISiDetElementsRoadMaker.h" 
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
+#include "InDetRecToolInterfaces/ISeedToTrackConversionTool.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 class MsgStream;
 
@@ -85,6 +87,10 @@ namespace InDet{
 
     protected:
       
+      SiTrackMaker_xk() = delete;
+      SiTrackMaker_xk(const SiTrackMaker_xk&) =delete;
+      SiTrackMaker_xk &operator=(const SiTrackMaker_xk&) = delete;
+      
       ///////////////////////////////////////////////////////////////////
       // Protected Data
       ///////////////////////////////////////////////////////////////////
@@ -93,6 +99,7 @@ namespace InDet{
       MagField::IMagFieldSvc*                m_fieldService        ;
       ToolHandle<InDet::ISiDetElementsRoadMaker>     m_roadmaker   ;
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder;
+      ToolHandle<InDet::ISeedToTrackConversionTool>  m_seedtrack   ;
       IBeamCondSvc*                                  m_beam        ;
 
       int                            m_nprint        ;  // Kind output information
@@ -103,8 +110,10 @@ namespace InDet{
       unsigned int                   m_wrongcluster  ;  // Max lentgh of thtrack
       std::string                    m_fieldmode     ;  // Mode of magnetic field
       std::string                    m_patternName   ;  // Name of the pattern recognition
-      std::string         m_inputClusterContainerName;
-      std::string      m_inputHadClusterContainerName;
+//      std::string         m_inputClusterContainerName;
+//      std::string      m_inputHadClusterContainerName;
+      SG::ReadHandle<CaloClusterROI_Collection> m_caloCluster;
+      SG::ReadHandle<CaloClusterROI_Collection> m_caloHad;
       std::string                    m_beamconditions;
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix           ;
@@ -121,6 +130,9 @@ namespace InDet{
       bool                           m_useSSSfilter  ;
       bool                           m_useHClusSeed  ; // Hadronic Calorimeter Seeds 
       bool                           m_sss           ; // True if SSS seed without filter 
+      bool                           m_ITKGeomtry    ; // ITK geometry
+      bool                        m_seedsegmentsWrite; // Call seed to track conversion
+      bool                           m_heavyion      ; // Is it heavy ion events
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
       double                         m_xi2maxNoAdd   ; // max Xi2 for clusters
@@ -161,8 +173,8 @@ namespace InDet{
       bool globalPositions(const Trk::SpacePoint*,const Trk::SpacePoint*,const Trk::SpacePoint*,
 			   double*,double*,double*);
 
-      void globalPosition(const Trk::SpacePoint*,double*,double*);
-      void globalPosition(const Trk::SpacePoint*,double*,double*,double*);
+      bool globalPosition(const Trk::SpacePoint*,double*,double*);
+      void globalDirections(double*,double*,double*,double*,double*,double*);
       void setTrackQualityCuts();
       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
