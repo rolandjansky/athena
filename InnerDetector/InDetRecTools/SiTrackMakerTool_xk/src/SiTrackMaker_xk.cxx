@@ -21,7 +21,7 @@
 #include "SiTrackMakerTool_xk/SiTrackMaker_xk.h"
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+//#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -32,7 +32,10 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   : AthAlgTool(t,n,p)                                        ,
     m_fieldServiceHandle("AtlasFieldSvc",n), 
     m_roadmaker   ("InDet::SiDetElementsRoadMaker_xk"    ),
-    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk")
+    m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
+    m_seedtrack   ("InDet::SeedToTrackConversionTool"    ),
+    m_caloCluster("InDetCaloClusterROIs"),
+    m_caloHad("InDetHadCaloClusterROIs")
 {
   m_fieldmode    = "MapSolenoid"      ;
   m_patternName  = "SiSPSeededFinder" ; 
@@ -49,6 +52,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_useHClusSeed = false              ;
   m_useSSSfilter = true               ;
   m_ITKGeomtry   = false              ;
+  m_heavyion     = false              ;
   m_xi2max       = 15.                ;
   m_xi2maxNoAdd  = 35.                ;
   m_xi2maxlink   = 200.               ;
@@ -56,7 +60,7 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_pTmin        = 500.               ;
   m_pTminBrem    = 1000.              ;
   m_pTminSSS     = 1000.              ;
-  m_distmax      = 3.                 ;
+  m_distmax      = 5.                 ;
   m_nholesmax    = 2                  ;
   m_dholesmax    = 2                  ;
   m_nclusmin     = 6                  ;
@@ -68,14 +72,16 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_seedsfilter  = 2                  ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = .3                 ;
-  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
-  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
+  m_seedsegmentsWrite = false;
+//  m_inputClusterContainerName    = "InDetCaloClusterROIs"   ;
+//  m_inputHadClusterContainerName = "InDetHadCaloClusterROIs";
   m_beamconditions               = "BeamCondSvc"            ;
 
   declareInterface<ISiTrackMaker>(this);
 
   declareProperty("RoadTool"                ,m_roadmaker   );
   declareProperty("CombinatorialTrackFinder",m_tracksfinder);
+  declareProperty("SeedToTrackConversion"   ,m_seedtrack   );
   declareProperty("Xi2max"                  ,m_xi2max      );
   declareProperty("Xi2maxNoAdd"             ,m_xi2maxNoAdd );
   declareProperty("Xi2maxlink"              ,m_xi2maxlink  );
@@ -101,12 +107,13 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   declareProperty("doHadCaloSeedSSS"        ,m_useHClusSeed);
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
-  declareProperty("InputClusterContainerName"   ,m_inputClusterContainerName   );
-  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
+  declareProperty("InputClusterContainerName"   , m_caloCluster   );
+  declareProperty("InputHadClusterContainerName", m_caloHad );
   declareProperty("MagFieldSvc"             , m_fieldServiceHandle);
   declareProperty("useSCT"                  , m_useSct);
   declareProperty("usePixel"                , m_usePix);
   declareProperty("ITKGeometry"             , m_ITKGeomtry);
+  declareProperty("SeedSegmentsWrite"       , m_seedsegmentsWrite);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -162,13 +169,28 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endreq;
   }
 
+  // Get seed to track conversion tool
+  //
+  if(m_seedsegmentsWrite) {
+
+    if(m_seedtrack.retrieve().isFailure()) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedtrack << endreq;
+      return StatusCode::FAILURE;
+
+    } else {
+      msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endreq;
+    }
+  }
+
+  m_heavyion = false;
+
   // TrackpatternRecoInfo preparation 
   //
   if     (m_patternName == "SiSpacePointsSeedMaker_Cosmic"     )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic     );
   }
   else if(m_patternName == "SiSpacePointsSeedMaker_HeavyIon"   )  {
-    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon   ); 
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon   ); m_heavyion = true;
   }
   else if(m_patternName == "SiSpacePointsSeedMaker_LowMomentum")  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LowMomentum);
@@ -375,12 +397,12 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
     m_caloR.clear();
     m_caloZ.clear();
 
-    const CaloClusterROI_Collection* calo = 0;    
-    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
+//    const CaloClusterROI_Collection* calo = 0;    
+//    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
  
-    if(sc == StatusCode::SUCCESS && calo) {
+    if(m_caloCluster.isValid()) {
 
-      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
+      CaloClusterROI_Collection::const_iterator c = m_caloCluster->begin(), ce = m_caloCluster->end();
 
       for(; c!=ce; ++c) {
         m_caloF.push_back( (*c)->globalPosition().phi ());
@@ -396,12 +418,12 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
     m_hadR.clear();
     m_hadZ.clear();
 
-    const CaloClusterROI_Collection* calo = 0;    
-    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
+//    const CaloClusterROI_Collection* calo = 0;    
+//    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
   
-    if(sc == StatusCode::SUCCESS && calo) {
+    if(m_caloHad.isValid()) {
 
-      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
+      CaloClusterROI_Collection::const_iterator c = m_caloHad->begin(), ce = m_caloHad->end();
 
       for(; c!=ce; ++c) {
         m_hadF.push_back( (*c)->globalPosition().phi ());
@@ -410,6 +432,7 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
      }
     }
   }
+  if(m_seedsegmentsWrite) m_seedtrack->newEvent(m_trackinfo,m_patternName);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -452,6 +475,9 @@ void InDet::SiTrackMaker_xk::endEvent()
 
   //correction to exclude memory fragmentation
   m_clusterTrack.clear();
+
+  // end event for seed to track tool
+  if(m_seedsegmentsWrite) m_seedtrack->endEvent();
  
   // Print event information 
   //
@@ -468,7 +494,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 (const std::list<const Trk::SpacePoint*>& Sp)
 {
   ++m_inputseeds;
-  m_tracks.erase(m_tracks.begin(),m_tracks.end());
+  m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
   
   bool good;  m_sss = false; 
@@ -521,6 +547,11 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
     }
   }
   m_findtracks+=m_tracks.size();
+
+  // Call seed to track execution
+  //
+  if(m_seedsegmentsWrite) m_seedtrack->executeSiSPSeedSegments(Tp,m_tracks.size(),Sp);
+
   delete Tp;
   return m_tracks;
 }
@@ -533,7 +564,7 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 (const Trk::TrackParameters& Tp,const std::list<Amg::Vector3D>& Gp)
 {
   ++m_inputseeds;
-  m_tracks.erase(m_tracks.begin(),m_tracks.end());
+  m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
 
   ++m_goodseeds;
@@ -877,18 +908,13 @@ bool InDet::SiTrackMaker_xk::newSeed(const std::list<const Trk::SpacePoint*>& Sp
   }
   if(nt == n) {++t3; unsigned int ns =  tr->measurementsOnTrack()->size(); if(ns > nsm3) nsm3 = ns;}
 
-  if     (m_xi2max < 8.5) {
-    if(n==3 || t3 <=0) return true; return false;
-  }
+  if(m_heavyion) {if(n==3 || t3 <=0) return true; return false;}
 
   if( (m_ITKGeomtry && t3 > 0) || nsm3 > 13 || t3 > 2) return false;
 
   if( !m_cosmicTrack && n==3 && m_sct && (*Sp.begin())->r() > 43. ) return true;
   if(t3 > 0) return false;
-
-  if(n==3 || n==6 || nsm < m_wrongcluster) return true;
-
-  return false;
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1117,44 +1143,37 @@ bool InDet::SiTrackMaker_xk::isDBMSeeds(const Trk::SpacePoint* s)
 void InDet::SiTrackMaker_xk::globalDirections
 (double* p0,double* p1,double* p2,double* d0,double* d1,double* d2)
 {
-  double x01 = p1[0]-p0[0];
-  double y01 = p1[1]-p0[1];
-  double x02 = p2[0]-p0[0];
-  double y02 = p2[1]-p0[1];
+  double x01 = p1[0]-p0[0]      ;
+  double y01 = p1[1]-p0[1]      ;
+  double x02 = p2[0]-p0[0]      ;
+  double y02 = p2[1]-p0[1]      ;
 
-  double d01 = x01*x01+y01*y01   ; 
-  double x1  = sqrt(d01)         ;
-  double u01 = 1./x1             ;
-  double a   = x01*u01           ; 
-  double b   = y01*u01           ;
-  double x2  = a*x02+b*y02       ;
-  double y2  = a*y02-b*x02       ;
-  double d02 = x2*x2+y2*y2       ;
-  double d12 = (d02+d01)-2.*x1*x2;
+  double d01 = x01*x01+y01*y01  ; 
+  double x1  = sqrt(d01)        ;
+  double u01 = 1./x1            ;
+  double a   = x01*u01          ; 
+  double b   = y01*u01          ;
+  double x2  = a*x02+b*y02      ;
+  double y2  = a*y02-b*x02      ;
+  double d02 = x2*x2+y2*y2      ;
+  double u02 = x2/d02           ;
+  double v02 = y2/d02           ;
 
-  double u02 =     x2 /d02;
-  double v02 =     y2 /d02;
-  double u12 = (x2-x1)/d12;
-  double v12 =     y2 /d12;
+  double A0  =  v02 /(u02-u01)  ;
+  double B0  = 2.*(v02-A0*u02)  ;
 
-  double A0  =      v02 /(u02-u01);
-  double A1  =      v12 /(u12+u01);
-  double A2  = (v12-v02)/(u12-u02);
-
-  double C0  = 1./sqrt(1.+A0*A0)  ;
-  double C1  = 1./sqrt(1.+A1*A1)  ;
-  double C2  = 1./sqrt(1.+A2*A2)  ;
-  double S0  = A0*C0              ;
-  double S1  = A1*C1              ;
-  double S2  = A2*C2              ;
+  double C2  = (1.-B0*y2)       ;
+  double S2  = (A0+B0*x2)       ;
 
   double T   = (p2[2]-p0[2])/sqrt(d02);
   double Se  = 1./sqrt(1.+T*T)        ;
   double Ce  = Se*T                   ;
+  Se        /= sqrt(1.+A0*A0)         ;
   double Sa  = Se*a                   ;
   double Sb  = Se*b                   ;
 
-  d0[0] = Sa*C0-Sb*S0; d0[1]= Sa*S0+Sb*C0; d0[2]=Ce;  
-  d1[0] = Sa*C1-Sb*S1; d1[1]= Sa*S1+Sb*C1; d1[2]=Ce;  
+  d0[0] = Sa   -Sb*A0; d0[1]= Sa*A0+Sb   ; d0[2]=Ce;  
+  d1[0] = Sa   +Sb*A0; d1[1]= Sb   -Sa*A0; d1[2]=Ce;  
   d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
 }
+
