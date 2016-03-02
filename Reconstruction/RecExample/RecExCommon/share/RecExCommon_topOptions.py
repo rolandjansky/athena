@@ -1050,6 +1050,10 @@ if rec.doFileMetaData():
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
+        # Set up the filemetadata tool:
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",OutputLevel = 2 )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
         include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
