@@ -3,15 +3,15 @@ from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource()=='data':
   BTaggingFlags.CalibrationFolderRoot=BTaggingFlags.CalibrationFolderRoot.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
   connSchema="GLOBAL"
-  message = "#BTAG# accessing online conditions DB"
+  message = "#BTAG (AODFix)# accessing online conditions DB"
   if not athenaCommonFlags.isOnline():
     message = message + " (via offline replica)"
   print message
 else:
   connSchema="GLOBAL_OFL"
-  print "#BTAG# accessing offline conditions DB"
+  print "#BTAG (AODFix)# accessing offline conditions DB"
 
-print "#BTAG# running in reco mode -> btag calibration root folder is CalibrationFolderRoot =", BTaggingFlags.CalibrationFolderRoot
+print "#BTAG (AODFix)# running in trigger mode -> btag calibration root folder is CalibrationFolderRoot =", BTaggingFlags.CalibrationFolderRoot
 
 theFolders = []
 if BTaggingFlags.IP1D:
@@ -73,19 +73,19 @@ if "AntiKt4TopoEM" not in JetCollectionForCalib:
   JetCollectionForCalib+=["AntiKt4TopoEM"]
 
 from JetTagCalibration.JetTagCalibrationConf import Analysis__CalibrationBroker
-BTagCalibrationBrokerTool = Analysis__CalibrationBroker(
-  name = "BTagCalibrationBrokerTool",
+BTagCalibrationBrokerTool_AODFix = Analysis__CalibrationBroker(
+  name = "BTagCalibrationBrokerTool_AODFix",
   folderRoot = BTaggingFlags.CalibrationFolderRoot,
   folders = theFolders,
   channels = JetCollectionForCalib,
   channelAliases = BTaggingFlags.CalibrationChannelAliases,
-  shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,   
+  shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,
   OutputLevel = BTaggingFlags.OutputLevel
-)
-ToolSvc += BTagCalibrationBrokerTool
+  )
+ToolSvc += BTagCalibrationBrokerTool_AODFix
 theApp.Dlls+=['DetDescrCondExample','DetDescrCondTools']
 
-from IOVDbSvc.CondDB import conddb
+from IOVDbSvc.CondDB import conddb 
 
 # with new scheme, only one actual COOL folder:
 if BTaggingFlags.CalibrationSingleFolder:
@@ -109,5 +109,5 @@ for folder in theFolders:
         conddb.addFolder(connSchema,folder+" <tag>"+BTaggingFlags.CalibrationTag+"</tag>") 
 
 if BTaggingFlags.OutputLevel < 3: 
-  print BTagCalibrationBrokerTool
+  print BTagCalibrationBrokerTool_AODFix
 
