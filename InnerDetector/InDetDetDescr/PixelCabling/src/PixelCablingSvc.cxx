@@ -22,8 +22,8 @@
 
 // Tools to fill the cabling
 #include "GaudiKernel/IToolSvc.h"
-#include "PixelFillCablingData_Final.h"
-#include "PixelFillCablingData_CoralDB.h"
+
+#include "PixelFillCablingData.h"
 
 // for callback
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -40,14 +40,12 @@
 using namespace std;
 using eformat::helper::SourceIdentifier; 
 
-
 static unsigned int defaultColumnsPerFE_pix     = 18;   // number of columns per FE
 static unsigned int defaultRowsPerFE_pix        = 164;  // number of rows per FE
 static unsigned int defaultFEsPerHalfModule_pix = 8;    // number of FEs in a row
 //static unsigned int defaultColumnsPerFE_IBL     = 80;
 //static unsigned int defaultRowsPerFE_IBL        = 336;
 //static unsigned int defaultFEsPerHalfModule_IBL = 2;
-
 
 static const unsigned int defaultNumLayers = 4;      // number of barrel layers, incl IBL
 static const unsigned int defaultNumDisks = 3;       // number of disk layers
@@ -58,15 +56,16 @@ static const unsigned int defaultNumDisks = 3;       // number of disk layers
 
 PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     AthService(name,svc),
-    m_cablingTool("PixelFillCablingData_Final"),
+    m_cablingTool("PixelFillCablingData"),
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
+    m_idHelper(0),
+    m_cabling(0),
+    m_callback_calls(0),
     m_dataString(""),
     m_key("/PIXEL/ReadoutSpeed"),
     m_keyFEI4("/PIXEL/HitDiscCnfg"),
-    m_callback_calls(0),
-    m_idHelper(0),
-    m_cabling(0),
+    m_keyCabling("/PIXEL/CablingMap"),
     m_useIBLParameterSvc(true),
     m_IBLpresent(false),
     m_isHybrid(false),
@@ -76,14 +75,24 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_dbm_FEsPerHalfModule(0),
     m_eta_module_offset(0)
 {
-    declareProperty("MappingType", m_mappingType = "Final");
+    // "Final": use text file, "COOL": read from COOL
+    declareProperty("MappingType", m_mappingType = "COOL");
+    // Name of mapping file to use, if mappingType == Final
     declareProperty("MappingFile", m_final_mapping_file = "");
+    // NOT USED
     declareProperty("Bandwidth", m_bandwidth = 0);
+    // NOT USED
     declareProperty("Coral_Connectionstring", m_coraldbconnstring = "oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"); // used to configure CORAL based tool
+    // NOT USED
     declareProperty("DictionaryTag", m_dictTag="PIXEL");
+    // NOT USED
     declareProperty("ConnectivityTag", m_connTag="PIT-ALL-V39");
+    // Folder name for FE-I4 hit discriminator configuration
     declareProperty("KeyFEI4", m_keyFEI4 = "/PIXEL/HitDiscCnfg");
+    // Folder name for readout speed
     declareProperty("Key", m_key, "Key=/PIXEL/ReadoutSpeed");
+    // Folder name for cabling map
+    declareProperty("KeyCabling", m_keyCabling, "Key=/PIXEL/CablingMap");
 }
 
 
@@ -92,13 +101,16 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
 ////////////////////////
 PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc) :
     AthService(name,svc),
-    m_cablingTool("PixelFillCablingData_Final"),
+    m_cablingTool("PixelFillCablingData"),
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
-    m_dataString(""),m_key("/PIXEL/ReadoutSpeed"),
-    m_callback_calls(0),
     m_idHelper(0),
     m_cabling(0),
+    m_callback_calls(0),
+    m_dataString(""),
+    m_key("/PIXEL/ReadoutSpeed"),
+    m_keyFEI4("/PIXEL/HitDiscCnfg"),
+    m_keyCabling("/PIXEL/CablingMap"),
     m_useIBLParameterSvc(true),
     m_IBLpresent(false),
     m_isHybrid(false),
@@ -117,6 +129,7 @@ PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string
     m_connTag = other.m_connTag;
     m_key = other.m_key;
     m_keyFEI4 = other.m_keyFEI4;
+    m_keyCabling = other.m_keyCabling;
 }
 
 ////////////////////////
@@ -133,6 +146,7 @@ PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
         m_connTag = other.m_connTag;
         m_key = other.m_key;
         m_keyFEI4 = other.m_keyFEI4;
+        m_keyCabling = other.m_keyCabling;
     }
     return *this;
 }
@@ -154,14 +168,6 @@ StatusCode PixelCablingSvc::initialize( )
     StatusCode sc;
     msg(MSG::INFO) << "PixelCablingSvc::initialize" << endreq;
 
-    // Check that Identifiers are built as 64-bit
-#ifndef __IDENTIFIER_64BIT__
-    msg(MSG::ERROR) << "Not using 64-bit Identifiers - likely to cause undefined behaviour for IBL/DBM entries" << endreq;
-#else
-    msg(MSG::DEBUG) << "Using 64-bit Identifiers" << endreq;
-#endif
-
-
     // Get an Identifier helper object
     sc = m_detStore.retrieve();
     if(!sc.isSuccess()){
@@ -171,7 +177,6 @@ StatusCode PixelCablingSvc::initialize( )
     else {
         msg(MSG::DEBUG) << "DetectorStore service found" << endreq;
     }
-
 
 
     // Get the PixelID Helper
@@ -198,15 +203,6 @@ StatusCode PixelCablingSvc::initialize( )
     }
 
 
-    // Check if jobOptions set a specific mapping file
-    bool useMapFromOptions = false;
-    if (m_final_mapping_file != "") {
-        msg(MSG::INFO) << "Using mapping file from jobOptions" << endreq;
-        useMapFromOptions = true;
-    }
-
-
-
     // Get IBL and DBM properties from IBLParameterSvc
 
     // Set layout
@@ -214,43 +210,15 @@ StatusCode PixelCablingSvc::initialize( )
     m_isHybrid = m_IBLParameterSvc->contains3D();
     m_DBMpresent = m_IBLParameterSvc->containsDBM();
 
-
     // Get the values
     m_IBLParameterSvc->setCablingParameters(m_layer_columnsPerFE, m_layer_rowsPerFE, m_layer_FEsPerHalfModule,
                                             &m_dbm_columnsPerFE, &m_dbm_rowsPerFE, &m_dbm_FEsPerHalfModule);
-
-
-    // Set mapping file according to geometry
-    if (!useMapFromOptions) {
-
-        // Hybrid IBL with DBM
-        if (m_IBLpresent && m_isHybrid && m_DBMpresent) {
-            //m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat";
-            //m_final_mapping_file = "Pixels_Atlas_IdMapping_M7.dat";
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_Run2.dat";
-        }
-        // Homogeneous IBL with DBM
-        else if (m_IBLpresent && !m_isHybrid && m_DBMpresent) {
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL_DBM.dat";
-        }
-        // IBL but no DBM
-        else if (m_IBLpresent && !m_DBMpresent) {
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL.dat";
-        }
-        // No IBL, no DBM
-        else {
-            //m_final_mapping_file = "Pixels_Atlas_IdMapping.dat";
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_May08.dat";
-        }
-    }
 
 
     // Fill the columns/rows/FEsPerHalfModule vectors with remaining pixel values
     // m_layer_columns(rows)PerFE should be [IBL, PixLayer1, PixLayer2, PixLayer3]
 
     unsigned int numLayers = m_IBLpresent ? defaultNumLayers : (defaultNumLayers - 1);
-
-    msg(MSG::DEBUG) << "numLayers = " << numLayers << endreq;
 
     while (numLayers > m_layer_columnsPerFE.size()) {
         m_layer_columnsPerFE.push_back(defaultColumnsPerFE_pix);
@@ -302,58 +270,50 @@ StatusCode PixelCablingSvc::initialize( )
 #endif
 
 
+    // Get the cabling tool
+    if (m_cablingTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR("Cannot get PixelFillCablingData tool");
+        return StatusCode::FAILURE;
+    }
+    else ATH_MSG_INFO("PixelFillCablingData tool retrieved");
 
-    // Fill the cabling maps
 
-    std::string toolType;
-    msg(MSG::INFO) << "Mapping Type: " << m_mappingType << endreq;
-
-    if (m_mappingType == "Final") {
-        toolType = "PixelFillCablingData_Final";
-        msg(MSG::INFO) << "Using cabling from text file: " << m_final_mapping_file << endreq;
-
-        if (m_cablingTool.retrieve().isFailure()) {
-            msg(MSG::ERROR) << "Cannot get PixelFillCablingData_Final tool" << endreq;
-            return StatusCode::FAILURE;
-        }
-        else msg(MSG::INFO) << "PixelFillCablingData_Final tool retrieved" << endreq;
-
-        m_cablingTool->setMappingFile(m_final_mapping_file);
-        m_cabling = m_cablingTool->FillMaps();
-        if (m_cabling == NULL) {
-            msg(MSG::ERROR) << "PixelCabling FillMaps returned NULL" << endreq;
-            return StatusCode::FAILURE;
+    // Fill the cabling map
+    // Since COOL information is not available yet, fill the map from text
+    // file. Then, if mappingType == "COOL", a callback will be registered
+    // and the map is re-filled with the correct values. The correct 'fallback'
+    // file to use is set in SelectPixelMap.py, but in case it is for some reason
+    // empty, set a default. The contents of the map is anyways not important
+    // at this step. If mappingType == "Final", use only the provided mapping
+    // file and do not register a callback.
+    if (m_mappingType == "COOL") {
+        if (m_final_mapping_file.empty()) m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat";
+        ATH_MSG_DEBUG("Temporarily filling cabling map from " << m_final_mapping_file);
+    }
+    else if (m_mappingType == "Final") {
+        if (m_final_mapping_file.empty()) {
+            m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat";
+            ATH_MSG_INFO("Cabling map to be read from file, but no filename provided.");
+            ATH_MSG_INFO("Defaulting to " << m_final_mapping_file);
         }
     }
     else {
-        msg(MSG::ERROR) << "Cabling tool type not specified" << endreq;
+        ATH_MSG_FATAL("Unknown PixelCablingSvc configuration: " << m_mappingType);
         return StatusCode::FAILURE;
     }
+
+
+    m_cabling = m_cablingTool->fillMapFromFile(m_final_mapping_file);
+    if (m_cabling == NULL) {
+        ATH_MSG_ERROR("Filling pixel cabling from file \"" << m_final_mapping_file << "\" failed");
+        return StatusCode::FAILURE;
+    }
+
     m_context = m_idHelper->wafer_context();
 
 
-
-    // Cross check - test if number of modules read into the cabling
-    // map is equal to number of modules reported by IBLParameterSvc
-    // (to prevent running with incorrect mapping file)
-
-/*  Temporarily removed for M5, since not all IBL modules will be included
-    int mapSize = m_cabling->get_size_onoff();
-    int nModules = 1744;                                                    // number of pixel modules
-    if (m_IBLpresent) nModules += 14 * m_layer_FEsPerHalfModule[0].size();  // add number of IBL modules
-    if (m_DBMpresent) nModules += 24;                                       // add number of DBM modules
-
-    if (mapSize != nModules) {
-        msg(MSG::FATAL) << "Bad configuration - number of modules in cabling map "
-                        << "does not match the number reported by IBLParameterSvc" << endreq;
-        msg(MSG::INFO) << "Cabling map contains " << abs(mapSize-nModules) << " modules "
-                       << (mapSize > nModules ? "more" : "less") << " than expected, "
-                       << "indicating wrong cabling map w.r.t geometry" << endreq;
-        return StatusCode::FAILURE;
-    }
-*/
-
     // Register callback to ReadoutSpeed
+    // This has to be done before the callback to CablingMap.
     const DataHandle<AthenaAttributeList> attrlist_rs;
     if (m_detStore->contains<AthenaAttributeList>(m_key)) {
 
@@ -367,8 +327,8 @@ StatusCode PixelCablingSvc::initialize( )
         }
     }
     else {
-        ATH_MSG_INFO("Folder " << m_key << " not found, using default readoutspeed"
-                     << " values (all modules at SINGLE_40)");
+        ATH_MSG_WARNING("Folder " << m_key << " not found, using default readoutspeed"
+                        << " values (all modules at SINGLE_40)");
     }
 
     // Register callback to HitDiscCnfg
@@ -387,11 +347,36 @@ StatusCode PixelCablingSvc::initialize( )
             }
         }
         else {
-            ATH_MSG_INFO("Folder " << m_keyFEI4 << " not found, using default HitDiscCnfg"
-                         << " values (all FEs at HitDiscCnfg = 3)");
+            ATH_MSG_WARNING("Folder " << m_keyFEI4 << " not found, using default HitDiscCnfg"
+                            << " values (all FEs at HitDiscCnfg = 3)");
         }
     }
 
+
+    // Register callback to CablingMap
+    if (m_mappingType == "COOL") {
+
+        const DataHandle<AthenaAttributeList> attrlist_cabling;
+        if (m_detStore->contains<AthenaAttributeList>(m_keyCabling)) {
+
+            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack_FillCabling,
+                                    dynamic_cast<IPixelCablingSvc*>(this),
+                                    attrlist_cabling, m_keyCabling);
+
+            if (!sc.isSuccess()) {
+                ATH_MSG_FATAL("Unable to register CablingMap callback");
+                return StatusCode::FAILURE;
+            }
+        }
+        else {
+            m_mappingType = "Final";
+            ATH_MSG_WARNING("Folder " << m_keyCabling << " not found, defaulting to "
+                            << "mapping file: " << m_final_mapping_file);
+        }
+    }
+
+    // Testing
+    //ATH_MSG_INFO("DetStore: " << m_detStore->dump());
 
 
     return sc;
@@ -962,9 +947,8 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 
     m_callback_calls++;
 
-    ATH_MSG_INFO("                     -----   in  Callback   -----");
-    for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
-        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I<<"\n\t\t\t\t\t-----mtst-----\n");
+    for (std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
+        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
 
 
     const AthenaAttributeList* attrlist = 0;
@@ -977,6 +961,7 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
     if (msgLvl(MSG::DEBUG)) {
         ATH_MSG_DEBUG("AthenaAttributeList for " << m_key << ":");
         attrlist->print(std::cout);
+        ATH_MSG_DEBUG("");
     }
 
     const coral::Blob& blob=(*attrlist)["readoutspeed_per_ROD"].data<coral::Blob>();
@@ -1009,12 +994,15 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 
         pos = m_dataString.find("\n",pos) + 1;
     }
-    if (refill){
-        delete m_cabling;
-        m_cabling = m_cablingTool->FillMaps();
-        ATH_MSG_INFO("                     -----   refilled Pixel cabling maps  -----");
+    if (refill) {
+        // Refill here only if reading cabling map from text file,
+        // since the callback to CablingMap in COOL is done separately.
+        if (m_mappingType == "Final") {
+            m_cabling = m_cablingTool->fillMapFromFile(m_final_mapping_file);
+            ATH_MSG_INFO("Refilled cabling map due to change in readout speed");
+        }
     }
-    ATH_MSG_INFO("                     -----   DONE  Callback "<<m_callback_calls<<"  -----");
+    ATH_MSG_INFO("DONE Callback " << m_callback_calls);
 
     return StatusCode::SUCCESS;
 }
@@ -1029,10 +1017,8 @@ StatusCode PixelCablingSvc::IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS_P(I, ke
 
     m_callback_calls++;
 
-    ATH_MSG_INFO("                     -----   HitDiscCnfg callback   -----");
     for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
-        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I << "\n\t\t\t\t\t-----mtst-----\n");
-
+        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
 
 
     const AthenaAttributeList* attrlist = 0;
@@ -1043,13 +1029,13 @@ StatusCode PixelCablingSvc::IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS_P(I, ke
     }
 
     if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG("AthenaAttributeList for " << m_key << ":");
+        ATH_MSG_DEBUG("AthenaAttributeList for " << m_keyFEI4 << ":");
         attrlist->print(std::cout);
+        ATH_MSG_DEBUG("");
     }
 
     const coral::Blob& blob=(*attrlist)["HitDiscCnfgData"].data<coral::Blob>();
     const uint32_t* p = static_cast<const uint32_t*>(blob.startingAddress());
-
 
     uint32_t cooldata;
     unsigned int len = blob.size()/sizeof(uint32_t);
@@ -1093,7 +1079,6 @@ StatusCode PixelCablingSvc::IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS_P(I, ke
             }
         }
 
-
         // Update a single link, 0xHLDDRRRR
         else {
             ATH_MSG_DEBUG("Setting HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28)
@@ -1104,10 +1089,53 @@ StatusCode PixelCablingSvc::IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS_P(I, ke
 
     }
 
-    ATH_MSG_INFO("                     -----   DONE  Callback " << m_callback_calls << "  -----");
+    ATH_MSG_INFO("DONE Callback " << m_callback_calls);
 
     // Print map contents
     if (msgLvl(MSG::DEBUG)) m_cabling->printHitDiscCnfg();
+
+
+    return StatusCode::SUCCESS;
+}
+
+
+////////////////////////
+// callback for changing the pixel cabling map property
+////////////////////////
+StatusCode PixelCablingSvc::IOVCallBack_FillCabling(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+
+    m_callback_calls++;
+
+    for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
+        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
+
+
+
+    const AthenaAttributeList* attrlist = 0;
+    StatusCode sc = m_detStore->retrieve(attrlist, m_keyCabling);
+    if(!sc.isSuccess()){
+        ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
+        return StatusCode::FAILURE;
+    }
+
+    if (msgLvl(MSG::DEBUG)) {
+        ATH_MSG_DEBUG("AthenaAttributeList for " << m_keyCabling << ":");
+        attrlist->print(std::cout);
+        ATH_MSG_DEBUG("");
+    }
+
+    const coral::Blob& blob=(*attrlist)["CablingMapData"].data<coral::Blob>();
+    const char* p = static_cast<const char*>(blob.startingAddress());
+
+    m_cablingTool->fillMapFromCool(p);
+
+    if (!m_cablingTool) {
+        ATH_MSG_ERROR("Callback to CablingMap failed, map was not filled");
+        return StatusCode::FAILURE;
+    }
+    else ATH_MSG_INFO("Refilled cabling map");
+
+    ATH_MSG_INFO("DONE Callback " << m_callback_calls);
 
 
     return StatusCode::SUCCESS;
