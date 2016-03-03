@@ -40,7 +40,7 @@ class TauIDVarCalculator: virtual public TauDiscriToolBase
 
   std::string m_vertexContainerKey;
   int m_nVtx;
-  bool m_doTrigger;
+
 };
 
 #endif

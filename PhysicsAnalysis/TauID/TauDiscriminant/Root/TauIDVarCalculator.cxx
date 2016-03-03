@@ -16,34 +16,32 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauDiscriToolBase(name),
   m_vertexContainerKey("PrimaryVertices"),
-  m_nVtx(1),
-  m_doTrigger(false)
+  m_nVtx(1)
 {
   declareProperty("vertexContainerKey", m_vertexContainerKey);
-  declareProperty("doTrigger", m_doTrigger);
 }
 
 StatusCode TauIDVarCalculator::eventInitialize()
 {
-  //if(!m_doTrigger){
-  m_nVtx = int(LOW_NUMBER);
-  const xAOD::VertexContainer* vertexContainer = nullptr;
-  if( evtStore()->retrieve( vertexContainer, m_vertexContainerKey ).isFailure() ){
-    ATH_MSG_ERROR("VertexContainer with key " << m_vertexContainerKey << " could not be retrieved.");
-    return StatusCode::FAILURE;
-  }
-  if(vertexContainer){
-    m_nVtx = 0;
-    for( auto vertex : *vertexContainer ){
-      if(!vertex) continue;
-      int nTrackParticles = vertex->nTrackParticles();
-      if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
-	  (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
-	m_nVtx++;
+  if(!inTrigger()){
+    m_nVtx = int(LOW_NUMBER);
+    const xAOD::VertexContainer* vertexContainer = nullptr;
+    if( evtStore()->retrieve( vertexContainer, m_vertexContainerKey ).isFailure() ){
+      ATH_MSG_ERROR("VertexContainer with key " << m_vertexContainerKey << " could not be retrieved.");
+      return StatusCode::FAILURE;
+    }
+    if(vertexContainer){
+      m_nVtx = 0;
+      for( auto vertex : *vertexContainer ){
+	if(!vertex) continue;
+	int nTrackParticles = vertex->nTrackParticles();
+	if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
+	    (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
+	  m_nVtx++;
+	}
       }
     }
   }
-  //}
   
   return StatusCode::SUCCESS;
 }
@@ -60,17 +58,19 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
 
-  static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-  acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0.;
+  if(!inTrigger()){
+    static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
+    acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0.;
+  }
   
-  if(m_doTrigger){
+  if(inTrigger()){
     //for old trigger BDT:
     static SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
     acc_numWideTrk(tau) = tau.nWideTracks();
   }
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
-  if(m_doTrigger) return StatusCode::SUCCESS;
+  if(inTrigger()) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
   static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
