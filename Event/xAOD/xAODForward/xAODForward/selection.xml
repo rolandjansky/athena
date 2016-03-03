@@ -1,14 +1,17 @@
-<!-- $Id: selection.xml 708124 2015-11-16 13:24:22Z steinber $ -->
+<!-- $Id: selection.xml 712044 2015-12-02 07:14:06Z nozka $ -->
 <lcgdict>
 
   <!-- V1 dictionaries: -->
 
   <!-- ALFA -->
   <class name="xAOD::ALFAData_v1" />
-  <class name="xAOD::ALFADataContainer_v1"
-         id="8D245B28-F246-42D7-BD85-054A757D2A13" />
-  <class name="xAOD::ALFADataAuxContainer_v1"
-         id="7D575485-A862-404F-85D0-D66BFB39D680" />
+  <class name="xAOD::ALFADataContainer_v1" id="4D7F62C7-0D31-4226-9397-D911F89C5377" />
+  <class name="xAOD::ALFADataAuxContainer_v1" id="125fEA19-341D-44FD-9DC9-166F80403B43" />
+
+  <!-- AFP -->
+  <class name="xAOD::AFPData_v1" />
+  <class name="xAOD::AFPDataContainer_v1" id="8D245B28-F246-42D7-BD85-054A757D2A13" />
+  <class name="xAOD::AFPDataAuxContainer_v1" id="7D575485-A862-404F-85D0-D66BFB39D680" />
 
   <!-- ZDC -->
   <class name="xAOD::ZdcModule_v1" />
@@ -39,6 +42,15 @@
   <class name="ElementLink<xAOD::ALFADataContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::ALFADataContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::ALFADataContainer_v1> > >" />
+
+  <!-- Smart pointers to the V1 types: -->
+  <!-- AFP -->
+  <class name="DataLink<xAOD::AFPDataContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::AFPDataContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::AFPDataContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::AFPDataContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::AFPDataContainer_v1> > >" />
 
   <!-- ZDC -->
   <class name="DataLink<xAOD::ZdcModuleContainer_v1>" />

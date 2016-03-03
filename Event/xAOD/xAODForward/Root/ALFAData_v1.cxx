@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ALFAData_v1.cxx 693858 2015-09-09 10:30:15Z krasznaa $
+// $Id: ALFAData_v1.cxx 717508 2016-01-13 12:32:59Z nozka $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -18,10 +18,8 @@ namespace xAOD {
    }
 
    // LocRecEvCollection & LocRecODEvCollection
-   AUXSTORE_OBJECT_SETTER_AND_GETTER( ALFAData_v1, std::vector< int >,
-                                      detectorPartID, setDetectorPartID )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( ALFAData_v1, int, maxTrackCnt,
-                                         setMaxTrackCnt )
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( ALFAData_v1, std::vector< int >, detectorPartID, setDetectorPartID )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( ALFAData_v1, int, maxTrackCnt, setMaxTrackCnt )
    AUXSTORE_OBJECT_SETTER_AND_GETTER( ALFAData_v1, std::vector< float >,
                                       overU, setOverU )
    AUXSTORE_OBJECT_SETTER_AND_GETTER( ALFAData_v1, std::vector< float >,
