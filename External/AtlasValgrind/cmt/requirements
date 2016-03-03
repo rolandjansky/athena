@@ -22,7 +22,8 @@ macro AtlasValgrind_basesystem "$(LCG_basesystem)" \
       host-x86_64&host-slc5&target-gcc41 "x86_64-slc5-gcc41" \
       host-x86_64&host-slc5&target-gcc43 "x86_64-slc5-gcc43" \
       host-x86_64&host-slc5&target-gcc44 "x86_64-slc5-gcc44" \
-      host-x86_64&host-slc5&target-gcc45 "x86_64-slc5-gcc45"
+      host-x86_64&host-slc5&target-gcc45 "x86_64-slc5-gcc45" \
+      host-x86_64&host-slc6&target-clang "x86_64-slc6-gcc49"
 
 macro AtlasValgrind_system "$(AtlasValgrind_basesystem)-opt" \
       target-opt           "$(AtlasValgrind_basesystem)-opt" \
@@ -45,8 +46,13 @@ apply_pattern declare_runtime files="*.supp"
 ### kit-support ###
 #macro AtlasValgrind_export_paths $(AtlasValgrind_home)
 # export all 32/64 versions of valgrind for the kit.
+
+macro AtlasValgrind_config "$(CMTCONFIG)" \
+      host-x86_64&host-slc6&target-clang&target-opt "x86_64-slc6-gcc49-opt" \
+      host-x86_64&host-slc6&target-clang&target-dbg "x86_64-slc6-gcc49-dbg" \
+
 macro AtlasValgrind_export_paths "\
- $(LCG_external)/valgrind/$(AtlasValgrind_native_version)/$(CMTCONFIG) 
+ $(LCG_external)/valgrind/$(AtlasValgrind_native_version)/$(AtlasValgrind_config) 
 "
 
 ###################
