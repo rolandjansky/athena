@@ -33,28 +33,3 @@ def getMuonEntryRecordSD(name="MuonEntryRecord", **kwargs):
     kwargs.setdefault("SD_type", 1)
     kwargs.setdefault ('OutputCollectionNames', ['MuonEntryRecord'])
     return getTrackRecorderSD(name, **kwargs)
-
-def getTrackRecorderSD(name="TrackRecorderSD", **kwargs):
-    kwargs.setdefault("SD_type", 1)
-    kwargs.setdefault ('NoVolumes', True)
-    return CfgMgr.TrackRecorderSDTool(name, **kwargs)
-
-def getCaloEntryLayerSD(name="CaloEntryLayer", **kwargs):
-    #kwargs.setdefault("LogicalVolumeNames", ['IDET::IDET'])
-    kwargs.setdefault ('OutputCollectionNames', ['CaloEntryLayer'])
-    return getTrackRecorderSD(name, **kwargs)
-
-def getMuonEntryLayerSD(name="MuonEntryLayer", **kwargs):
-    #kwargs.setdefault("LogicalVolumeNames", ['CALO::CALO'])
-    kwargs.setdefault ('OutputCollectionNames', ['MuonEntryLayer'])
-    return getTrackRecorderSD(name, **kwargs)
-
-def getMuonExitLayerSD(name="MuonExitLayer", **kwargs):
-    #kwargs.setdefault("LogicalVolumeNames", ['MUONQ02::MUONQ02'])
-    kwargs.setdefault ('OutputCollectionNames', ['MuonExitLayer'])
-    return getTrackRecorderSD(name, **kwargs)
-
-def getLArFarUpstreamMaterialExitLayerSD(name="LArFarUpstreamMaterialExitLayer", **kwargs):
-    #kwargs.setdefault("LogicalVolumeNames", ['LARFARUPSTREAMMATERIAL::LARFARUPSTREAMMATERIAL'])
-    kwargs.setdefault ('OutputCollectionNames', ['LArFarUpstreamMaterialExitLayer'])
-    return getTrackRecorderSD(name, **kwargs)
