@@ -99,6 +99,11 @@ namespace InDet {
   private:
     // methods
 
+    SiTrackerSpacePointFinder() = delete;
+    SiTrackerSpacePointFinder(const SiTrackerSpacePointFinder&) =delete;
+    SiTrackerSpacePointFinder &operator=(const SiTrackerSpacePointFinder&) = delete;
+
+
     void addSCT_SpacePoints
       (const SCT_ClusterCollection* next, 
        SpacePointCollection* spacepointCollection); 
@@ -113,16 +118,15 @@ namespace InDet {
      const IdentifierHash& id2, double min1, double max1,
      double min2, double max2);
     
-    std::string intString(int n);
 
     // data members
-    std::string m_SCT_ClustersName;
-    std::string m_PixelsClustersName;
-    std::string m_spacePointsSCTName;
-    std::string m_spacePointsPixelName;
-    std::string m_spacePointsOverlapName;
-    const SCT_ClusterContainer*  m_Sct_clcontainer;
-    const PixelClusterContainer* m_Pixel_clcontainer;
+//    std::string m_SCT_ClustersName;
+//    std::string m_PixelsClustersName;
+//    std::string m_spacePointsSCTName;
+//    std::string m_spacePointsPixelName;
+//    std::string m_spacePointsOverlapName;
+    SG::ReadHandle<SCT_ClusterContainer>  m_Sct_clcontainer;
+    SG::ReadHandle<PixelClusterContainer> m_Pixel_clcontainer;
     bool m_selectPixels;
     bool m_selectSCTs;
     bool m_overlap;         // process all overlapping SCT pairs if true.
@@ -154,9 +158,9 @@ namespace InDet {
     const PixelID* m_idHelperPixel;
     SiElementPropertiesTable* m_properties;
     
-    SpacePointContainer* m_SpacePointContainer_SCT; 
-    SpacePointContainer* m_SpacePointContainerPixel; 
-    SpacePointOverlapCollection* m_spacepointoverlapCollection; 
+    SG::WriteHandle<SpacePointContainer> m_SpacePointContainer_SCT; 
+    SG::WriteHandle<SpacePointContainer> m_SpacePointContainerPixel; 
+    SG::WriteHandle<SpacePointOverlapCollection> m_spacepointoverlapCollection; 
 
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
   };

@@ -19,6 +19,7 @@ use GeoPrimitives        GeoPrimitives-*        DetectorDescription
 
 private
 
+use CxxUtils           CxxUtils-*               Control
 use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription
 use xAODEventInfo        xAODEventInfo-*           Event/xAOD
 use InDetBeamSpotService InDetBeamSpotService-*    InnerDetector/InDetConditions
