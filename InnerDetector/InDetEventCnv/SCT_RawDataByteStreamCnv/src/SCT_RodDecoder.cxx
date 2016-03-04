@@ -172,7 +172,7 @@ SCT_RodDecoder::finalize() {
   msg(MSG::INFO)<<"Number of SCT hits in ByteStream-> "<<m_nHits<<endreq;
   msg(MSG::INFO)<<"Number of SCT RDOs created->       "<<m_nRDOs<<endreq;
 
-  if (m_numMissingLinkHeader > 0) msg(MSG::ERROR)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
+  if (m_numMissingLinkHeader > 0) msg(MSG::WARNING)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
   
 
 
@@ -755,6 +755,9 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
       addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError);
     } else saved[strip] = rdoMade; 
   }
+
+  // Set this ROD as decoded in SCT_ByteStreamErrorSvc
+  m_byteStreamErrSvc->setDecodedROD(robid);
 
   if (sc.isFailure() and msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "One or more ByteStream errors found " << endreq;
   return sc;
