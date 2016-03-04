@@ -756,6 +756,9 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
     } else saved[strip] = rdoMade; 
   }
 
+  // Set this ROD as decoded in SCT_ByteStreamErrorSvc
+  m_byteStreamErrSvc->setDecodedROD(robid);
+
   if (sc.isFailure() and msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "One or more ByteStream errors found " << endreq;
   return sc;
 }
