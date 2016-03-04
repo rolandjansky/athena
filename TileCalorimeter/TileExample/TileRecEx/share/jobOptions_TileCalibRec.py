@@ -196,8 +196,11 @@ else:
                 Year = 2013            
             elif RunNumber < 248584:
                 Year = 2014
-            else:
+            elif RunNumber < 287952:
                 Year = 2015
+            else:
+                Year = 2016
+
 
             if 'RunStream' in dir():
                 if RunStream == 'l1calo' or RunStream == 'L1Calo':
@@ -239,8 +242,8 @@ if not 'RunFromLocal' in dir():
 
 def FindFile(path, runinput, filter):
 
-    run = str(runinput).zfill(7)
-    if len(filter)<1: filter='.'
+    run = str(runinput).zfill(7) if int(runinput) > 0 else str(runinput)
+    if len(filter) < 1: filter = '.'
 
     files = []
     fullname = []
@@ -702,8 +705,8 @@ else:
     # Set Global tag for IOVDbSvc
     if not 'CondDbTag' in dir():
         if RUN2:
-            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2015-10'
-            else:                        CondDbTag = 'CONDBR2-ES1PA-2015-08'
+            if 'UPD4' in dir() and UPD4: CondDbTag = 'CONDBR2-BLKPA-2016-05'
+            else:                        CondDbTag = 'CONDBR2-ES1PA-2015-11'
         else:
             if 'UPD4' in dir() and UPD4 and RunNumber > 141066: CondDbTag = 'COMCOND-BLKPA-RUN1-06'
             else:                                               CondDbTag = 'COMCOND-ES1PA-006-05'
@@ -1559,6 +1562,10 @@ if doTileCalib:
 
         # declare CIS tool(s) and set jobOptions if necessary
         TileCisTool = TileCisDefaultCalibTool()
+
+        if hasattr(ToolSvc, 'TileDigitsMon'):
+            TileCisTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
+
         TileCisTool.removePed = True
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileCisTool
@@ -1596,6 +1603,9 @@ if doTileCalib:
         TileLaserTool = TileLaserDefaultCalibTool()
         TileLaserTool.rawChannelContainer    = "TileRawChannelOpt2"
         TileLaserTool.laserObjContainer      = "TileLaserObj"
+
+        if hasattr(ToolSvc, 'TileDigitsMon'):
+            TileLaserTool.StuckBitsProbsTool = ToolSvc.TileDigitsMon
 
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TileLaserTool
