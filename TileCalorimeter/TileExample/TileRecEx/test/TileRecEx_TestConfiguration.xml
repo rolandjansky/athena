@@ -8,8 +8,10 @@
     <TEST name="Commissioning" type="athena" suite="CaloCosEx">
       <options_atn>TileRecEx/jobOptions_TileCommissioningAtn.py</options_atn>
       <timelimit>15</timelimit>
+<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch Sanya.Solodkov@cern.ch</mailto>
+-->
       <platform>x86_64</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -21,8 +23,10 @@
     <TEST name="Commissioning_32b" type="athena" suite="CaloCosEx">
       <options_atn> -c RunFromLocal=True TileRecEx/jobOptions_TileCommissioningAtn.py</options_atn>
       <timelimit>15</timelimit>
+<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch Sanya.Solodkov@cern.ch</mailto>
+-->
       <platform>i686</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -34,8 +38,10 @@
     <TEST name="Cosmic" type="athena" suite="CaloCosEx">
       <options_atn>TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
       <timelimit>25</timelimit>
+<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
+-->
       <platform>x86_64</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -47,8 +53,10 @@
     <TEST name="Cosmic_32b" type="athena" suite="CaloCosEx">
       <options_atn> -c RunFromLocal=True TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
       <timelimit>25</timelimit>
+<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
+-->
       <platform>i686</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
@@ -60,8 +68,10 @@
     <TEST name="Cosmic14" type="athena" suite="CaloCosEx">
       <options_atn> -c RunNumber=239908 TileRecEx/jobOptions_TileCosmicAtn.py</options_atn>
       <timelimit>25</timelimit>
+<!--
       <author>Luca Fiorini</author>
       <mailto>Siarhei.Harkusha@cern.ch, Sanya.Solodkov@cern.ch</mailto>
+-->
       <platform>x86_64</platform>
       <prescript>TileRecEx_links.sh</prescript>
       <package_atn>TileCalorimeter/TileExample/TileRecEx</package_atn>
