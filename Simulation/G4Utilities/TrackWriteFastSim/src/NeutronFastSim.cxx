@@ -12,12 +12,14 @@
 #include "G4EventManager.hh"
 #include "TrackWriteFastSim/TrackFastSimSD.h"
 
-NeutronFastSim::NeutronFastSim(const std::string& name, const std::string& fsSDname)
+NeutronFastSim::NeutronFastSim(const std::string& name, const std::string& fsSDname, const double etaCut, const double timeCut)
   : G4VFastSimulationModel(name)
   , m_Energy(5)
   , m_fsSD(0)
   , m_init(false)
   , m_fsSDname(fsSDname)
+  , m_etaCut(etaCut)
+  , m_timeCut(timeCut)
 {
 }
 
@@ -44,13 +46,13 @@ G4bool NeutronFastSim::ModelTrigger(const G4FastTrack& fastTrack)
 {
   // Trigger if the neutron energy is below our threshold or if the time is over 150 ns
   if (fastTrack.GetPrimaryTrack()->GetDefinition() == G4Neutron::NeutronDefinition() ){
-    return (m_Energy<0?true:fastTrack.GetPrimaryTrack()->GetKineticEnergy()<m_Energy) || fastTrack.GetPrimaryTrack()->GetGlobalTime()>150;
+    return (m_Energy<0?true:fastTrack.GetPrimaryTrack()->GetKineticEnergy()<m_Energy) || fastTrack.GetPrimaryTrack()->GetGlobalTime()>m_timeCut;
   }
 
   // Not a neutron... Pick it up if the primary had eta>6.0
   EventInformation *eventInfo=static_cast<EventInformation*>(G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
   HepMC::GenParticle *gp = eventInfo->GetCurrentPrimary();
-  if (fabs(gp->momentum().eta())>6.0 && gp->barcode()<200000){
+  if (fabs(gp->momentum().eta())>m_etaCut && gp->barcode()<200000){
     return true;
   } else {
     return false;

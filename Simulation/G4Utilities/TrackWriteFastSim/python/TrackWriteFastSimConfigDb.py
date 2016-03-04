@@ -5,9 +5,3 @@ addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getTrackFastSimSD",   "TrackF
 addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getNeutronFastSim",   "NeutronFastSim")
 addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getCosmicTRSD",       "CosmicRecord")
 addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getMuonEntryRecordSD","MuonEntryRecord")
-addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getCaloEntryLayerSD", "CaloEntryLayer")
-addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getMuonEntryLayerSD", "MuonEntryLayer")
-addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getMuonExitLayerSD",  "MuonExitLayer")
-addTool("TrackWriteFastSim.TrackWriteFastSimConfig.getLArFarUpstreamMaterialExitLayerSD", "LArFarUpstreamMaterialExitLayerSD")
-
-
