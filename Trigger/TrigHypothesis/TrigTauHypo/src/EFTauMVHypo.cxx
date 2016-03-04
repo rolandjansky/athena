@@ -45,6 +45,11 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("EtCalibMin",m_EtCalibMin  = -10000.);
   declareProperty("Level",     m_level       = -1);
   declareProperty("Method",    m_method      = 0);
+  declareProperty("Highpt",    m_highpt      = false);
+  declareProperty("HighptTrkThr", m_highpttrkthr      = 250000.);
+  declareProperty("HighptIDThr", m_highptidthr      = 330000.);
+  declareProperty("HighptJetThr", m_highptjetthr      = 410000.); 
+
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
   OneProngGraph=0;
   MultiProngGraph=0;
@@ -79,9 +84,10 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param EtCalib " << m_EtCalibMin <<endreq;
   msg() << MSG::INFO << " REGTEST: param Level " << m_level <<endreq;
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endreq;
+  msg() << MSG::INFO << " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr <<endreq;
   msg() << MSG::INFO << " REGTEST: ------ "<<endreq;
   
-  if( m_numTrackMin >  m_numTrackMax || m_level == -1)
+  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
     {
       msg() << MSG::ERROR << "EFTauMVHypo is uninitialized! " << endreq;
       return HLT::BAD_JOB_SETUP;
@@ -240,11 +246,20 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
       msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<m_numWideTrack <<endreq;
     }    
 
-    if (!( (m_numTrack >= m_numTrackMin) && (m_numTrack <= m_numTrackMax)))  continue;
-    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+    // turn off track selection at highpt
+    bool applyTrkSel(true);
+    if(m_highpt && (EFet > m_highpttrkthr*1e-3) ) applyTrkSel = false;
+
+    if(!(m_numTrack <= m_numTrackMax)) continue;
+    if(applyTrkSel) if( !( m_numTrack >= m_numTrackMin ) )  continue;
+    if(applyTrkSel) if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
    
     m_cutCounter++;
-    
+   
+    //loosen and turn off ID cut at highpt
+    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) m_level = 1; //works only for BDT, not llh
+    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) m_level = -1111;
+ 
     if(m_method == 1 || m_method == 0)
       {
 	double llh_cut = 11111.;     
