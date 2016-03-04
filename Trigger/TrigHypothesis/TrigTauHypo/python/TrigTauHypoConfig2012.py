@@ -51,6 +51,15 @@ class EFTauMVHypo (EFTauMVHypoBase):
         self.Method    = 2 #default bdt as of March 22
         setVarCut(self, var, val)
 
+class EFTauMVHypo_highpt (EFTauMVHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFTauMVHypo_highpt", var = [], val = []):
+        super(EFTauMVHypo_highpt, self).__init__(name)
+        self.NTrackMin = 1 #for all items
+        self.Method    = 2 #default bdt as of March 22
+        self.Highpt    = True
+        setVarCut(self, var, val)
+
 ## EFTauDiKaon
 class EFTauDiKaonHypoBase (EFTauDiKaonHypo):
     __slots__ = []
