@@ -24,12 +24,16 @@ import os
 import re
 
 if len(sys.argv) < 2:
-   print 'Syntax: text-xml-autoconf.py test.xml'
+   print 'Syntax: text-xml-autoconf.py test.xml [output.xml]'
    sys.exit(1)
 
-project = os.environ.get('AtlasProject','')
+output = sys.stdout
+if len(sys.argv)==3:
+   output = open(sys.argv[2],'w')
+   
+project = os.environ.get('AtlasProject',os.environ.get('NICOS_PROJECT_NAME',''))
 if len(project)==0:
-   print 'Cannot read $AtlasProject'
+   print 'Cannot read $AtlasProject or $NICOS_PROJECT_NAME'
    sys.exit(1)
    
 reDisable = re.compile(".*<\!--\s*DISABLE-IN-PROJECT-BEGIN:\s*(.*)-->")
@@ -54,5 +58,5 @@ for line in f:
       disable = False
       continue
 
-   if not disable: print line,
+   if not disable: output.write(line)
 
