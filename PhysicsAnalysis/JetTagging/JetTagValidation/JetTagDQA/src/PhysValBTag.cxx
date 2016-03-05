@@ -145,7 +145,8 @@ namespace JetTagDQA {
           (plot_i->second).fill(jet);
 
 	  if(!m_isData) {
-	    if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+	    //if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+	    if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::ConeFinalParton);
 	    else jet->getAttribute("TruthLabelID",label);
 	  }
 

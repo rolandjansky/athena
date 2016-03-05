@@ -118,7 +118,8 @@ namespace JetTagDQA{
 
 		int label(1000);
 
-		if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+		//if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+		if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::ConeFinalParton);
 		else jet->getAttribute("TruthLabelID",label);	
 			
  		//ANDREA --- Store tracking quantities
