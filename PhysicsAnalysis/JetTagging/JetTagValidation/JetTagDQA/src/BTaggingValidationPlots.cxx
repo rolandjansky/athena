@@ -48,6 +48,13 @@ namespace JetTagDQA{
 		m_pt  = Book1D("pt", "p_{T} of "+ m_sParticleType +"; p_{T} (GeV) ;Events", 100, 0., 1000);
 		m_eta = Book1D("eta", "#eta of " + m_sParticleType +";#eta; Events ", 200,-5,5.);
 		m_phi = Book1D("phi", "#varphi of " + m_sParticleType +";#varphi;Events ",128 ,-3.2,3.2);
+
+		//ANDREA --- Store tracking info
+		m_track_d0       = Book1D("d0", "d_{0} of BTagTrackToJetAssociator -> "+ m_sParticleType +"; d_{0} (mm) ;Events", 200, -2, 2);
+		m_track_z0       = Book1D("z0", "z_{0} of BTagTrackToJetAssociator -> "+ m_sParticleType +"; z_{0} (mm) ;Events", 200, -10, 10); 
+		m_track_sigd0	 = Book1D("d0Sig", "d_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; d_{0} / #sigma_{d_{0}} ;Events", 60, -3, 3);
+		m_track_sigz0    = Book1D("z0Sig", "z_{0} Significance of BTagTrackToJetAssociator -> "+ m_sParticleType +"; z_{0} / #sigma_{z_{0}} ;Events", 100, -0.5, 0.5);
+
 	}
 	
 	void BTaggingValidationPlots::fill(const xAOD::BTagging* btag){
@@ -111,9 +118,35 @@ namespace JetTagDQA{
 
 		int label(1000);
 
-		if(jet->isAvailable<int>("ConeTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+		//if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::JetFlavourLabelType::GAFinalHadron);
+		if(jet->isAvailable<int>("HadronConeExclTruthLabelID")) label = jetFlavourLabel(jet, xAOD::ConeFinalParton);
 		else jet->getAttribute("TruthLabelID",label);	
 			
+ 		//ANDREA --- Store tracking quantities
+		const xAOD::BTagging* bjet = jet->btagging();
+	
+ 		std::vector< ElementLink< xAOD::TrackParticleContainer > > assocTracks = bjet->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator");
+		for (unsigned int iT=0; iT<assocTracks.size(); iT++) {
+      			if (!assocTracks.at(iT).isValid()) continue;
+      			const xAOD::TrackParticle* tmpTrk= *(assocTracks.at(iT));	 	
+			double d0(1000), z0(1000), sigma_d0(1000), sigma_z0(1000);				
+			d0 	         = tmpTrk->d0();
+			z0 	         = tmpTrk->z0();
+			sigma_d0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(0)); 
+			sigma_z0         = sqrt(tmpTrk->definingParametersCovMatrixVec().at(2));
+			//std::cout<<"****************** d0 = "<< d0 <<" and sigma_d0 = "<< sigma_d0 <<std::endl;
+			if(sigma_d0<=0 || sigma_z0<=0) std::cout<<"********************** IP error = or < 0 !!!"<<std::cout;
+
+			if(label == 5) {
+				m_track_d0     ->Fill(d0);
+		  		m_track_z0     ->Fill(z0);
+				m_track_sigd0  ->Fill(d0/sigma_d0);
+				m_track_sigz0  ->Fill(z0/sigma_z0);
+			}
+		}	
+		//ANDREA --- Store tracking quantities
+
+
 		int nGTinSvx(1000);
 		int nIP3DTracks(1000);
 		int nGTinSvx0(1000);

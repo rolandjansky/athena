@@ -66,6 +66,13 @@ namespace JetTagDQA{
 	      	TH1* m_eta;
 	      	TH1* m_phi;
 
+		//ANDREA --- Store tranking info
+		TH1* m_track_d0;
+		TH1* m_track_z0;
+		TH1* m_track_sigd0;
+		TH1* m_track_sigz0;
+
+
 		std::vector<std::string> m_taggers;
 		std::map<std::string, int> m_truthLabels;
 		std::map<std::string, double> m_IP3D_workingPoints;
