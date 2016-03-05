@@ -63,7 +63,7 @@ class PixelFillCablingData : public AthAlgTool
    PixelCablingData* fillMapFromCool(const char* data);
 
    /** Function to fill the map by parsing input istream */
-   PixelCablingData* parseAndFill(std::iostream& instr);
+   PixelCablingData* parseAndFill(std::istream& instr);
 
    /** Return a pointer to the current map (i.e. current instance of PixelCablingData */
    PixelCablingData* getCabling() {return m_cabling;}

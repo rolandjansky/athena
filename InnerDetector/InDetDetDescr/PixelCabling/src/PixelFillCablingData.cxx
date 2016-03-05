@@ -95,7 +95,7 @@ PixelCablingData* PixelFillCablingData::fillMapFromFile(const std::string infile
       return NULL;
     }
 
-    std::fstream fin(filename.c_str());
+    std::ifstream fin(filename.c_str());
     if (!fin) return NULL;
 
     return parseAndFill(fin);
@@ -120,7 +120,7 @@ PixelCablingData* PixelFillCablingData::fillMapFromCool(const char* data)
 ////////////////////////
 // fill map from stream
 ////////////////////////
-PixelCablingData* PixelFillCablingData::parseAndFill(std::iostream &instr)
+PixelCablingData* PixelFillCablingData::parseAndFill(std::istream &instr)
 {
     // Get rid of the old map and create a new
     if (m_cabling) delete m_cabling;
