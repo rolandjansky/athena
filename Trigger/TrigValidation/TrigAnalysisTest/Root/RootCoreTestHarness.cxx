@@ -57,7 +57,7 @@ namespace TrigAnalysisTest {
     chain->Add(gSystem->Getenv("ROOTCORE_TEST_FILE"));
 
     // Init data access to the trigger
-    TEvent event(TEvent::kBranchAccess);
+    TEvent event(TEvent::kClassAccess);
     if (!event.readFrom(chain).isSuccess()) {
       return 1;
     }
