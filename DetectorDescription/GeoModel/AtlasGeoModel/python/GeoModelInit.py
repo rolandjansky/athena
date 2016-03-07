@@ -13,7 +13,8 @@ def _setupGeoModel():
             import DetDescrCnvSvc.DetStoreConfig
             svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
     except ImportError:
-        pass
+        import DetDescrCnvSvc.DetStoreConfig
+        svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
 
     # Conditions DB setup and TagInfo
     from IOVDbSvc.CondDB import conddb
