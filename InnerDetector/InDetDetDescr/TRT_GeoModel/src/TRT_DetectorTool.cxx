@@ -127,7 +127,8 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 
 	// Check if the new switches exists:
     //bool result = true;
-    try {
+    if ((m_doArgonMixture == 1) ||( m_doKryptonMixture == 1) ){
+     try {
       if(!switches->isFieldNull( "DOARGONMIXTURE")) {
         if      ( switches->getInt("DOARGONMIXTURE") == 0) m_doArgonMixture = 0;
         else if ( switches->getInt("DOARGONMIXTURE") == 1) m_doArgonMixture = 1;
@@ -141,12 +142,12 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
       } else {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOKRYPTONMIXTURE not available, m_doKryptonMixture= " << m_doKryptonMixture << endreq;
       }
-    }
-    catch(std::runtime_error& ex) {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
-     // result = false;
      }
-
+      catch(std::runtime_error& ex) {
+       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
+       // result = false;
+      }
+    }
     if (!switches->isFieldNull("VERSIONNAME")) {
       versionName                    	= switches->getString("VERSIONNAME");
     }
@@ -208,7 +209,7 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 					  m_overridedigversion,
 					  m_alignable,
 					  m_doArgonMixture,
-            m_doKryptonMixture
+					  m_doKryptonMixture
     );
     theTRTFactory.create(world);
     m_manager=theTRTFactory.getDetectorManager();
