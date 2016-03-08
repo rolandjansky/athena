@@ -15,10 +15,10 @@
 
 
 // set pointer to zero at start
-UserGamprt::USERGAMPRT* UserGamprt::_usergamprt =0;
+UserGamprt::USERGAMPRT* UserGamprt::s_usergamprt =0;
 
 // Constructor
-UserGamprt::UserGamprt() : _realdummy(-999.f) {
+UserGamprt::UserGamprt() : m_realdummy(-999.f) {
 }
 
 // Destructor
@@ -29,7 +29,7 @@ UserGamprt::~UserGamprt() {
 int& UserGamprt::ugused() {
   init(); // check COMMON is initialized
   
-  return _usergamprt->ugused;
+  return s_usergamprt->ugused;
 }
 
 
@@ -39,11 +39,11 @@ float& UserGamprt::userGamprt(int nt) {
 
   if( nt < 1 || nt > nmax()) 
     {
-      _realdummy = -999.f;
-      return _realdummy;
+      m_realdummy = -999.f;
+      return m_realdummy;
     }
 
-  return _usergamprt->usergamprt[nt-1];
+  return s_usergamprt->usergamprt[nt-1];
 }
 
 

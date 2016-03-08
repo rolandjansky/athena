@@ -6,5 +6,5 @@
 
 // initialise pointer
 void Fftaudet::init(void) {
-  if (!_fftaudet) _fftaudet = static_cast<TAUDET*>(fftaudet_address_());
+  if (!s_fftaudet) s_fftaudet = static_cast<TAUDET*>(fftaudet_address_());
 }

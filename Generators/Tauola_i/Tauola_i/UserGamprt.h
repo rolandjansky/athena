@@ -34,23 +34,23 @@ public:
 
   inline void init(); // inlined for speed of access (small function)
 
-  int nmax() const {return _nmax;}
+  int nmax() const {return s_nmax;}
 
 private: 
   // Lengths of array in USERGAMPRT common
-  static const int _nmax = 30 ; // Length of the array
+  static const int s_nmax = 30 ; // Length of the array
 
   struct USERGAMPRT;
   friend struct USERGAMPRT;
 
   struct USERGAMPRT {
     int ugused;
-    float usergamprt[_nmax];
+    float usergamprt[s_nmax];
   };
 
-  static USERGAMPRT* _usergamprt;
+  static USERGAMPRT* s_usergamprt;
 
-  float _realdummy;
+  float m_realdummy;
 
 };
 

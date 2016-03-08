@@ -1,7 +1,7 @@
 #include "Tauola_i/Fftau.h"
 
 // set pointer to zero at start
-Fftau::FFTAU* Fftau::_fftau =0;
+Fftau::FFTAU* Fftau::s_fftau =0;
 
 // Constructor
 Fftau::Fftau() 
@@ -16,37 +16,37 @@ Fftau::~Fftau()
 int& Fftau::ifpol() {
   init(); // check COMMON is initialized
   
-  return _fftau->ifpol;
+  return s_fftau->ifpol;
 }
 
 int& Fftau::ifradcor() {
   init(); // check COMMON is initialized
   
-  return _fftau->ifradcor;
+  return s_fftau->ifradcor;
 }
 
 int& Fftau::ifdmod() {
   init(); // check COMMON is initialized
   
-  return _fftau->ifdmod;
+  return s_fftau->ifdmod;
 }
 
 int& Fftau::ifjak1() {
   init(); // check COMMON is initialized
   
-  return _fftau->ifjak1;
+  return s_fftau->ifjak1;
 }
 
 int& Fftau::ifjak2() {
   init(); // check COMMON is initialized
   
-  return _fftau->ifjak2;
+  return s_fftau->ifjak2;
 }
 
 float& Fftau::ffphx() {
   init(); // check COMMON is initialized
   
-  return _fftau->ffphx;
+  return s_fftau->ffphx;
 }
 
 

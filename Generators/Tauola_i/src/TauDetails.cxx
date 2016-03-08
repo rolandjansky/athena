@@ -21,8 +21,8 @@
 #include "CLHEP/Geometry/Normal3D.h"
 
 //--------------------------------------------------------------------------
-TauDetails::TauDetails() : _verbose(false) {
-//TauDetails::TauDetails() : _verbose(true) {
+TauDetails::TauDetails() : m_verbose(false) {
+//TauDetails::TauDetails() : m_verbose(true) {
 }
 
 TauDetails::~TauDetails() {
@@ -39,16 +39,16 @@ Fftaudet& TauDetails::fftaudet() {
 bool
 TauDetails::clearNewEvent(int eventNumber) {
 
-  if (_verbose) std::cout << "TauDetails::clearNewEvent called" << std::endl;
+  if (m_verbose) std::cout << "TauDetails::clearNewEvent called" << std::endl;
 
   int evtnum = this->fftaudet().evtnum();
   if (eventNumber == evtnum) {
-    if (_verbose) std::cout << "TauDetails::clearNewEvent has already seen event " 
+    if (m_verbose) std::cout << "TauDetails::clearNewEvent has already seen event " 
 			    << evtnum << std::endl;
     return false;
   }
 
-  if (_verbose) std::cout << "TauDetails::clearNewEvent called for " << eventNumber 
+  if (m_verbose) std::cout << "TauDetails::clearNewEvent called for " << eventNumber 
 			  << " != " << evtnum << std::endl;
   this->clear();
   this->setEvent(eventNumber);
@@ -57,7 +57,7 @@ TauDetails::clearNewEvent(int eventNumber) {
 
 int
 TauDetails::setEvent(int eventNumber) {
-  if (_verbose) std::cout << "Taudetails::setEvent Event number now " 
+  if (m_verbose) std::cout << "Taudetails::setEvent Event number now " 
 			  << eventNumber << std::endl;
   return(this->fftaudet().evtnum() = eventNumber);
 }
@@ -76,7 +76,7 @@ TauDetails::savePythia(MsgStream& log, HepMC::GenEvent* evt) {
 
   // Fortran counts from 1...
   for (size_t i=1; i<= this->size(); i++) {
-    if (_verbose)
+    if (m_verbose)
     std::cout << ">>> " << i << " " 
     	      << this->fftaudet().itnp(i) << " " 
     	      << this->fftaudet().itjak(i) << " "
@@ -105,7 +105,7 @@ TauDetails::savePythia(MsgStream& log, HepMC::GenEvent* evt) {
 	log << MSG::WARNING << ">>> Couldn't find ending vertex for tau with barcode " 
 	    << barcode << "!" << endreq;
       } else {
-	if (_verbose)
+	if (m_verbose)
 	std::cout << ">>> Set vertex type to " << this->fftaudet().itjak(i) << std::endl;
 	v->set_id(this->fftaudet().itjak(i));
       }
@@ -144,12 +144,12 @@ TauDetails::saveHerwig(MsgStream& log, HepMC::GenEvent* evt) {
 
     if (dVertex->particles_out_size() <= 1) continue;
       
-    if (_verbose) (*ip)->print();
+    if (m_verbose) (*ip)->print();
     tauBarcode.push_back((*ip)->barcode());
  
   }
 
-  if (_verbose) std::cout << "TauDetails::saveHerwig found " << tauBarcode.size()
+  if (m_verbose) std::cout << "TauDetails::saveHerwig found " << tauBarcode.size()
 			  << " taus in HepMC" << std::endl;
 
   // Now, check that our counts match
@@ -162,7 +162,7 @@ TauDetails::saveHerwig(MsgStream& log, HepMC::GenEvent* evt) {
 
   // Fortran counts from 1...
   for (size_t i=1; i<= this->size(); i++) {
-    if (_verbose)
+    if (m_verbose)
     std::cout << ">>> " << i << " " 
     	      << this->fftaudet().itnp(i) << " " 
     	      << this->fftaudet().itjak(i) << " "
@@ -197,12 +197,12 @@ TauDetails::saveHerwig(MsgStream& log, HepMC::GenEvent* evt) {
 	log << MSG::WARNING << ">>> Couldn't find ending vertex for tau with barcode " 
 	    << barcode << "!" << endreq;
       } else {
-	if (_verbose)
+	if (m_verbose)
 	std::cout << ">>> Set vertex type to " << this->fftaudet().itjak(i) << std::endl;
 	v->set_id(this->fftaudet().itjak(i));
       }
 
-      if (_verbose) {
+      if (m_verbose) {
 	p->print();
 	v->print();
       }

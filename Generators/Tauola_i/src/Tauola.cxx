@@ -81,7 +81,7 @@ extern "C" {
 
 using HepMC::HEPEVT_Wrapper;
 
-Atlas_HEPEVT* Tauola::atlas_HEPEVT = new Atlas_HEPEVT();
+Atlas_HEPEVT* Tauola::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 // Declared static for re-use
 static hybridPartSet_t hybridPartSet;
@@ -265,8 +265,8 @@ StatusCode Tauola::genInitialize() {
   HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);
 
   // Set initial values for TauDetails
-  tauDetails.clear();
-  tauDetails.setEvent(-999);
+  m_tauDetails.clear();
+  m_tauDetails.setEvent(-999);
 
   return StatusCode::SUCCESS;
 }
@@ -595,7 +595,7 @@ StatusCode Tauola::callGenerator() {
       // Needed to allow Pythia to properly fill tau details here,
       // while allowing that another generator (Herwig) may have already
       // filled this before.
-      tauDetails.clearNewEvent(evt->event_number());
+      m_tauDetails.clearNewEvent(evt->event_number());
 
       //      ATH_MSG_DEBUG(" Event in the TDS printout before TAUOLA  \n" << evt->signal_process_id() << (int)TAUOLA << (int)TAUOLA_PHOTOS << (int)PHOTOS << (int)m_GenIndex);
       //      HEPEVT_Wrapper::print_hepevt();
@@ -701,7 +701,7 @@ StatusCode Tauola::genFinalize() {
 //---------------------------------------------------------------------------
 
 
-StatusCode Tauola::fillEvt(GenEvent* evt) {
+StatusCode Tauola::fillEvt(HepMC::GenEvent* evt) {
   ATH_MSG_DEBUG(" ATLAS TAUOLA Filling... " );
 
   //  if ( m_SuperIndex != Sherpa && m_SuperIndex != -999 ) {
@@ -731,18 +731,18 @@ StatusCode Tauola::fillEvt(GenEvent* evt) {
 
     // And fill extra details
     if (m_saveDetails) {
-      ATH_MSG_DEBUG(" Tauola::fillEvt - found " << tauDetails.size() << " taus for HERWIG");
+      ATH_MSG_DEBUG(" Tauola::fillEvt - found " << m_tauDetails.size() << " taus for HERWIG");
 
       // std::cout << "Tauola_i-D-VS-Number of taus to decay = " << m_numberOfTauToDecay << std::endl;
 
       if ( m_numberOfTauToDecay > 0 ) {
         MsgStream log(messageService(), name());
-        tauDetails.saveHerwig(log, evt);
+        m_tauDetails.saveHerwig(log, evt);
       }
 
       // clear the COMMON block "the hard way"
-      tauDetails.clear();
-      tauDetails.setEvent(-999);
+      m_tauDetails.clear();
+      m_tauDetails.setEvent(-999);
     }
   }
 
@@ -779,13 +779,13 @@ StatusCode Tauola::fillEvt(GenEvent* evt) {
       // which is the case for all scenarios except "SHERPA BLOB"
       if (m_saveDetails) {
         ATH_MSG_DEBUG("Tauola::fillEvt - found "
-                      << tauDetails.size() << " taus for PYTHIA, SINGLE or OTHER but SHERPA");
+                      << m_tauDetails.size() << " taus for PYTHIA, SINGLE or OTHER but SHERPA");
         MsgStream log(messageService(), name());
 
-        tauDetails.savePythia(log, evt);
+        m_tauDetails.savePythia(log, evt);
         // clear the COMMON block "the hard way"
-        tauDetails.clear();
-        tauDetails.setEvent(-999);
+        m_tauDetails.clear();
+        m_tauDetails.setEvent(-999);
       }
     }
 
@@ -842,8 +842,8 @@ StatusCode Tauola::restore_Atlas_HEPEVT(void) {
     }
 
   if(Ahep){
-    atlas_HEPEVT=(Atlas_HEPEVT*)Ahep;
-    atlas_HEPEVT->spill();
+    s_atlas_HEPEVT=(Atlas_HEPEVT*)Ahep;
+    s_atlas_HEPEVT->spill();
   }
   else
     status = StatusCode::FAILURE; // !!!!! It wasn't here
@@ -855,15 +855,15 @@ StatusCode Tauola::restore_Atlas_HEPEVT(void) {
 
 void Tauola::store_Atlas_HEPEVT(void)
 {
-  //std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->nhep()  << std::endl;
-  //std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->isthep(10)  << std::endl;
-  //std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->idhep(10)  << std::endl;
-  //std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->jmohep(1,10)  << std::endl;
-  //std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->jdahep(2,10)  << std::endl;
-  atlas_HEPEVT->fill();
+  //std::cout << "atlas_HEPEVT------" << s_atlas_HEPEVT->nhep()  << std::endl;
+  //std::cout << "atlas_HEPEVT------" << s_atlas_HEPEVT->isthep(10)  << std::endl;
+  //std::cout << "atlas_HEPEVT------" << s_atlas_HEPEVT->idhep(10)  << std::endl;
+  //std::cout << "atlas_HEPEVT------" << s_atlas_HEPEVT->jmohep(1,10)  << std::endl;
+  //std::cout << "atlas_HEPEVT------" << s_atlas_HEPEVT->jdahep(2,10)  << std::endl;
+  s_atlas_HEPEVT->fill();
 
   Atlas_HEPEVT* Ahep = new Atlas_HEPEVT();
-  *(Ahep)=*(atlas_HEPEVT);
+  *(Ahep)=*(s_atlas_HEPEVT);
   std::string keyid = "AtlasTauola";
 
   StatusCode status = evtStore()->record(Ahep, keyid);
@@ -874,7 +874,7 @@ void Tauola::store_Atlas_HEPEVT(void)
 //---------------------------------------------------------------------------
 
 
-StatusCode Tauola::sherpa_BLOB(GenEvent* evt) {
+StatusCode Tauola::sherpa_BLOB(HepMC::GenEvent* evt) {
   //---------------------------------------------------------------------------
   //
   //  Some remarks by V.S. (July 7, 2009): the code below is unable to

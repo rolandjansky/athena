@@ -38,7 +38,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode genFinalize();
-  virtual StatusCode fillEvt(GenEvent* evt);
+  virtual StatusCode fillEvt(HepMC::GenEvent* evt);
   StatusCode writeHepevt();
   
   // Accessors to TAUOLA COMMONS
@@ -97,7 +97,7 @@ protected:
   Ffinout m_ffinout;
 
   // tauola extra details
-  TauDetails tauDetails;
+  TauDetails m_tauDetails;
 
   // user GAMPRT
   UserGamprt m_usergamprt;
@@ -114,9 +114,9 @@ protected:
   
   StatusCode restore_Atlas_HEPEVT(void);
   
-  static Atlas_HEPEVT* atlas_HEPEVT;
+  static Atlas_HEPEVT* s_atlas_HEPEVT;
   
-  StatusCode sherpa_BLOB(GenEvent* evt);
+  StatusCode sherpa_BLOB(HepMC::GenEvent* evt);
   
   // Sherpa placeholder
   HepMC::GenEvent m_genEvt;
