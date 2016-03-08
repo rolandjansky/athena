@@ -227,7 +227,8 @@ StatusCode PixelCablingSvc::initialize( )
         if (m_IBLpresent && m_isHybrid && m_DBMpresent) {
             //m_final_mapping_file = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat";
             //m_final_mapping_file = "Pixels_Atlas_IdMapping_M7.dat";
-            m_final_mapping_file = "Pixels_Atlas_IdMapping_Run2.dat";
+            //m_final_mapping_file = "Pixels_Atlas_IdMapping_Run2.dat";
+            m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat";
         }
         // Homogeneous IBL with DBM
         else if (m_IBLpresent && !m_isHybrid && m_DBMpresent) {
