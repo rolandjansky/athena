@@ -3,7 +3,7 @@
 */
 
 #include "PixelGeoModel/PixelDetectorFactory.h"
-
+#include "StoreGate/StoreGateSvc.h"
 #include "PixelGeoModel/PixelSwitches.h" 
 
 // Envelope, as a starting point of the geometry
@@ -18,11 +18,15 @@
 #include "InDetReadoutGeometry/SiCommonItems.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "PixelGeoModel/OraclePixGeoManager.h"
 #include "PixelGeoModel/PixelGeoModelAthenaComps.h"
 
 #include "InDetIdentifier/PixelID.h"
+
+#include "DetDescrConditions/AlignableTransformContainer.h"
+
 
 using InDetDD::PixelDetectorManager; 
 using InDetDD::SiCommonItems; 
@@ -157,22 +161,47 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
   
   // Register the callbacks and keys and the level corresponding to the key.
   if (m_geometryManager->Alignable()) {
-    m_detectorManager->addFolder("/Indet/Align");
-    m_detectorManager->addChannel("/Indet/Align/ID",     2, InDetDD::global);
-    m_detectorManager->addChannel("/Indet/Align/PIX",    1, InDetDD::global);
-    m_detectorManager->addChannel("/Indet/Align/PIXB1",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB2",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB3",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXB4",  0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA1", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA2", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEA3", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC1", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC2", 0, InDetDD::local);
-    m_detectorManager->addChannel("/Indet/Align/PIXEC3", 0, InDetDD::local);
+
+    InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
+    m_detectorManager->addAlignFolderType(AlignFolder);
+
+    if (AlignFolder==InDetDD::static_run1){
+      m_detectorManager->addFolder("/Indet/Align");
+      m_detectorManager->addChannel("/Indet/Align/ID",     2, InDetDD::global);
+      m_detectorManager->addChannel("/Indet/Align/PIX",    1, InDetDD::global);
+      m_detectorManager->addChannel("/Indet/Align/PIXB1",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXB2",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXB3",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXB4",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXEA1", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXEA2", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXEA3", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXEC1", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXEC2", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/Align/PIXEC3", 0, InDetDD::local);
+    }
+    
+    if (AlignFolder==InDetDD::timedependent_run2){
+      m_detectorManager->addGlobalFolder("/Indet/AlignL1/ID");
+      m_detectorManager->addGlobalFolder("/Indet/AlignL2/PIX");
+      m_detectorManager->addChannel("/Indet/AlignL1/ID",     2, InDetDD::global);
+      m_detectorManager->addChannel("/Indet/AlignL2/PIX",    1, InDetDD::global);
+      m_detectorManager->addFolder("/Indet/AlignL3");
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXB1",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXB2",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXB3",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXB4",  0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXEA1", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXEA2", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXEA3", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXEC1", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXEC2", 0, InDetDD::local);
+      m_detectorManager->addChannel("/Indet/AlignL3/PIXEC3", 0, InDetDD::local);
+    }
 
     // This is the new LB-IOV sensitive IBL bowing DB
     m_detectorManager->addSpecialFolder("/Indet/IBLDist");
+
   }
 
   // Check that there are no missing elements.
@@ -336,3 +365,32 @@ PixelDetectorFactory::doChecks()
      msg(MSG::INFO) << "MaxHash                         : " << maxHash << endreq;
 
 }
+
+// Determine which alignment folders are loaded to decide if we register old or new folders
+InDetDD::AlignFolderType PixelDetectorFactory::getAlignFolderType() const
+{
+
+  bool static_folderStruct = false;
+  bool timedep_folderStruct = false;
+  if (detStore()->contains<CondAttrListCollection>("/Indet/AlignL1/ID") &&
+      detStore()->contains<CondAttrListCollection>("/Indet/AlignL2/PIX") &&
+      detStore()->contains<AlignableTransformContainer>("/Indet/AlignL3") ) timedep_folderStruct = true;
+
+  if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
+
+  if (static_folderStruct && !timedep_folderStruct){
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq; 
+    return InDetDD::static_run1;
+  }
+  else if (!static_folderStruct && timedep_folderStruct){
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    return InDetDD::timedependent_run2;
+  }
+  else if (static_folderStruct && timedep_folderStruct){
+    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");    
+  }
+  else return InDetDD::none;
+
+}
+
+
