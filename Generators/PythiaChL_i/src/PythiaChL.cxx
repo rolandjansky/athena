@@ -80,10 +80,8 @@ extern "C" {
 PythiaChL::PythiaChL(const std::string& name, ISvcLocator* pSvcLocator) 
   : Pythia(name, pSvcLocator) 
 {
+  m_AtlasDefaults = true;
   pythia_stream	= "PYTHIA_INIT";
-  declareProperty("SetAtlasDefaults", m_AtlasDefaults = true );
-  declareProperty("SusyInputFile",    m_read_Filesusy = " ");
-  declareProperty("PythiaCommand",    m_pythiaCommandVector);
 
   // ATLAS default tune
   m_Default_Tune_Name="ATLAS_20110002";
@@ -723,7 +721,7 @@ StatusCode PythiaChL::genFinalize() {
 //---------------------------------------------------------------------------
 
 
-StatusCode PythiaChL::fillEvt(GenEvent* evt) {
+StatusCode PythiaChL::fillEvt(HepMC::GenEvent* evt) {
   ATH_MSG_DEBUG("PYTHIACHL Atlas_HEPEVT Filling.");
   store_Atlas_HEPEVT();
 
