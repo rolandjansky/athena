@@ -88,8 +88,12 @@ else:
                 ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_M7.dat"
 
             # Run2 collisions:
-            elif (runNum >= 265797):
+            elif (runNum >= 265797 and runNum < 289350):
                 ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_Run2.dat"
+            
+            # 2016
+            elif (runNum >= 289350):
+                ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_2016.dat"
 
             else:
                 pass
