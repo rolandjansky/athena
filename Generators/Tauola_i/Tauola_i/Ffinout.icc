@@ -6,5 +6,5 @@
 
 // initialise pointer
 void Ffinout::init(void) {
-  if (!_ffinout) _ffinout = static_cast<INOUT*>(ffinout_address_());
+  if (!s_ffinout) s_ffinout = static_cast<INOUT*>(ffinout_address_());
 }

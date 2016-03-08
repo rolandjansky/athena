@@ -45,17 +45,17 @@ public:
   inline void init(); // inlined for speed of access (small function)
 
   // return common array lengths
-  int depthRel() const {return _depthRel;}
-  int depthPhep() const {return _depthPhep;}
-  int depthVhep() const {return _depthVhep;}
-  int lenNmxhep() const {return _lenNmxhep;}
+  int depthRel() const {return s_depthRel;}
+  int depthPhep() const {return s_depthPhep;}
+  int depthVhep() const {return s_depthVhep;}
+  int lenNmxhep() const {return s_lenNmxhep;}
 
 private: 
   // Lengths of array in HEPEVT common
-  static const int _depthRel = 2 ; // Relatives -Mother & Daughter
-  static const int _depthPhep = 5 ;
-  static const int _depthVhep = 4 ;
-  static const int _lenNmxhep = 10000 ;
+  static const int s_depthRel = 2 ; // Relatives -Mother & Daughter
+  static const int s_depthPhep = 5 ;
+  static const int s_depthVhep = 4 ;
+  static const int s_lenNmxhep = 10000 ;
 
   struct HEPEVT;
   friend struct HEPEVT;
@@ -63,20 +63,20 @@ private:
   struct HEPEVT {
     int nevhep;
     int nhep;
-    int isthep[_lenNmxhep];
-    int idhep[_lenNmxhep];
-    int jmohep[_lenNmxhep][_depthRel];
-    int jdahep[_lenNmxhep][_depthRel];
-    double phep[_lenNmxhep][_depthPhep];
-    double vhep[_lenNmxhep][_depthVhep];
+    int isthep[s_lenNmxhep];
+    int idhep[s_lenNmxhep];
+    int jmohep[s_lenNmxhep][s_depthRel];
+    int jdahep[s_lenNmxhep][s_depthRel];
+    double phep[s_lenNmxhep][s_depthPhep];
+    double vhep[s_lenNmxhep][s_depthVhep];
   };
 
-  int _dummy;
-  double _realdummy;
+  int m_dummy;
+  double m_realdummy;
 
-  static HEPEVT* _atlas_HEPEVT;
+  static HEPEVT* s_atlas_HEPEVT;
 
-  HEPEVT s_atlas_HEPEVT;
+  HEPEVT m_atlas_HEPEVT;
 
 };
 

@@ -6,12 +6,12 @@
 
 // initialise pointer
 void UserGamprt::init(void) {
-  if (!_usergamprt){
-    _usergamprt = static_cast<USERGAMPRT*>(usergamprt_address_());
+  if (!s_usergamprt){
+    s_usergamprt = static_cast<USERGAMPRT*>(usergamprt_address_());
     for(int i=0 ;i<nmax();i++){
-      _usergamprt->usergamprt[i]=0.;
+      s_usergamprt->usergamprt[i]=0.;
     }
-    _usergamprt->ugused=0;
+    s_usergamprt->ugused=0;
 
   }		
 }	
