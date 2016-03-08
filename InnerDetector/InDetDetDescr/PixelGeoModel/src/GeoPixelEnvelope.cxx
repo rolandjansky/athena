@@ -18,6 +18,7 @@
 #include "PixelGeoModel/GeoPixelFrame.h"
 #include "PixelGeoModel/GeoPixelOldFrame.h"
 #include "PixelGeoModel/GeoPixelIFlexServices.h"
+#include "PixelGeoModel/GeoPixelIBLFwdServices.h"
 #include "PixelGeoModel/DBM_Det.h"
 
 #include "InDetGeoModelUtils/VolumeBuilder.h"
@@ -168,7 +169,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     gmt_mgr->SetCurrentLD(0);
     if(gmt_mgr->ibl()&&gmt_mgr->IBLFlexAndWingDefined()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<7)
       {
-	
+	// Build IBL services from endblock to PP0
 	for(int iSection=1; iSection<4; iSection++)
 	  {
 
@@ -191,6 +192,28 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
 	    envelopePhys->add(xformFlexC);
 	    envelopePhys->add(flexPhys_C);
 	  }
+
+	// Build IBL fwd services (wavy shapes)
+	int iSection=2;
+	GeoPixelIBLFwdServices fwdSrv(iSection);
+	if(fwdSrv.isComplexShapeDefined()){
+	  
+	  fwdSrv.Build();
+	  
+	  GeoNameTag * tagFwdSvcA = new GeoNameTag("FwdSvc_A");
+	  GeoTransform *xformFwdSvcA = fwdSrv.getSupportTrfA();
+	  GeoPhysVol *svcPhys_A = fwdSrv.getSupportA();
+	  envelopePhys->add(tagFwdSvcA);
+	  envelopePhys->add(xformFwdSvcA);
+	  envelopePhys->add(svcPhys_A);
+	  
+	  GeoNameTag * tagFwdSvcC = new GeoNameTag("FwdSvc_C");
+	  GeoTransform *xformFwdSvcC = fwdSrv.getSupportTrfC();
+	  GeoPhysVol *svcPhys_C = fwdSrv.getSupportC();
+	  envelopePhys->add(tagFwdSvcC);
+	  envelopePhys->add(xformFwdSvcC);
+	  envelopePhys->add(svcPhys_C);
+	}
       }
   }
   

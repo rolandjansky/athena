@@ -28,9 +28,8 @@ use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
 use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
 use AthenaBaseComps	 AthenaBaseComps-*      Control
 
-
-
-
+macro FindGeoTorusFile "`find -L ${GeoModelKernel_include_dirs} -type f -name "GeoTorus.h" | wc -l`"
+macro lib_PixelGeoModel_pp_cppflags "-DGEOTORUS=${FindGeoTorusFile}" 
 
 library PixelGeoModel *.cxx components/*.cxx
 
