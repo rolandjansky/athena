@@ -21,6 +21,8 @@ macro Geant4_home "${SITEROOT}/atlas/offline/external/geant4/releases" \
 macro Geant4_native_version "geant4.10.1.patch01.atlasmt04"
 macro Geant4_export_paths "$(Geant4_home)/share/${Geant4_native_version}/include $(Geant4_home)/specific/$(CMTCONFIG)/${Geant4_native_version}/lib $(Geant4_home)/share/${Geant4_native_version}/data"
 macro Geant4_follow_symlinks "" PACK yes
+# Exclude, from distribution kit, separate debuginfo files (with suffix .dbg)
+macro Geant4_debuginfo_suffix "" PACK ".dbg"
 
 # Extra tag to mark that this is Geant4MT, comment this out for single
 # threaded G4 builds.
