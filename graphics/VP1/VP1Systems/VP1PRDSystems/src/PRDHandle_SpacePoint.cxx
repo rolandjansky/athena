@@ -18,6 +18,7 @@
 #include "VP1PRDSystems/PRDCollHandle_SpacePoints.h"
 #include "VP1Utils/HitsSoNodeManager.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 

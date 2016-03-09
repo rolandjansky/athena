@@ -10,6 +10,7 @@
 #include "VP1GuideLineSystems/InDetProjHelper.h"
 #include "VP1GuideLineSystems/InDetProjParams.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoTranslation.h>

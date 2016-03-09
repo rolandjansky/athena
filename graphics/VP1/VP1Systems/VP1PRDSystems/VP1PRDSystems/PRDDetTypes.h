@@ -10,7 +10,7 @@
 class PRDDetType {
 public:
   enum Type {
-    Pixel, SCT, TRT, CSC, RPC, TGC, MDT, SpacePoints, CSCstrip, MM, sTGC, Planar
+    Pixel, SCT, TRT, CSC, RPC, TGC, MDT, SpacePoints, CSCstrip, MM, sTGC
   };
   static QString typeToString(const Type&);
   static Type stringToType(const QString&str, bool & status);

@@ -41,8 +41,6 @@ public:
 
   virtual bool load();
 
-  bool loadPlanarClusters();
-
   PRDSysCommonData * common() const { return m_common; }
 
   //For use by the handles:
