@@ -9,7 +9,7 @@ use GaudiInterface      GaudiInterface-*      External
 use GeneratorModules    GeneratorModules-*    Generators
 use Pythia              Pythia-*              External
 use Lhapdf              Lhapdf-*              External
-use Lhef_i     		Lhef_i-*              Generators
+use Lhef_i              Lhef_i-*              Generators
 use AcerMC_i            AcerMC_i-*            Generators
 use Tauola_i            Tauola_i-*            Generators
 
@@ -33,6 +33,8 @@ macro_append  fflags "" Linux "  -fno-automatic "
 apply_tag notAsNeeded
 end_private
 
+# Added for cmake compatibility
+apply_pattern cmake_add_command command='add_definitions(-DPY6VERSION="${PYTHIA6_VERSION}")'
 
 #-------------------------------------------------------------------------
 # The Pythia Generator
@@ -101,8 +103,11 @@ macro_append PythiaLibFiles " PythiaDummies/fhsetflags.F"
 macro_append PythiaLibFiles " PythiaDummies/fhsetpara.F"
 
 apply_pattern named_dual_use_library library="Pythia_i" files=$(PythiaLibFiles)
-macro_append  Pythia_i_shlibflags  "$(HepMC_IO_linkopts)"
+macro_append  Pythia_i_shlibflags  " $(HepMC_IO_linkopts) "
 
 macro_append Pythia_i_cppflags '-DPY6VERSION=\"$(pythia_native_version)\" '
 
 apply_pattern declare_joboptions files="*.py"
+
+# Link the package explicitly against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

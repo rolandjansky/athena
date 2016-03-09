@@ -34,8 +34,8 @@ class Pypued
   int& iued(int n);
   double& rued(int n);
 
-  int lenIued() const {return _lenIued;}
-  int lenRued() const {return _lenRued;}
+  int lenIued() const {return s_lenIued;}
+  int lenRued() const {return s_lenRued;}
 
   //PYPUED* _pypued initialization
   inline void init();
@@ -43,8 +43,8 @@ class Pypued
   //private methods and members
  private: 
   
-  static const int _lenIued = 100;
-  static const int _lenRued = 100;
+  static const int s_lenIued = 100;
+  static const int s_lenRued = 100;
 
   //PYPUED common block declaration and members
   struct PYPUED;
@@ -52,14 +52,14 @@ class Pypued
 
   struct PYPUED
   {
-    int iued[_lenIued];
-    double rued[_lenRued];
+    int iued[s_lenIued];
+    double rued[s_lenRued];
   };
 
-  int _dummy;
-  double _realdummy;
+  int m_dummy;
+  double m_realdummy;
 
-  static PYPUED* _pypued;
+  static PYPUED* s_pypued;
 };
 
 #include "Pythia_i/Pypued.icc"

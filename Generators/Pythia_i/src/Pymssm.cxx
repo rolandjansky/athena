@@ -5,12 +5,12 @@
 #include "Pythia_i/Pymssm.h"
 #include <iostream>
 
-Pymssm::PYMSSM* Pymssm::_pymssm = 0;
+Pymssm::PYMSSM* Pymssm::s_pymssm = 0;
 
 Pymssm::Pymssm() 
   : 
-  _dummy(-999)
-  , _realdummy(-999.0) 
+  m_dummy(-999)
+  , m_realdummy(-999.0) 
 {
   init();
 }
@@ -20,23 +20,23 @@ Pymssm::~Pymssm()
 }
 
 int& Pymssm::imss(int n) {
-  if (n<0 || n>=_lenImss) {
+  if (n<0 || n>=s_lenImss) {
     std::cout
       << "Pymssm: attempt to read or write IMSS out of bounds" << std::endl;
-    _dummy=-999;
-    return _dummy;
+    m_dummy=-999;
+    return m_dummy;
   } else {
-    return _pymssm->imss[n]; // note the lack of a ``-1''. This is intentional.
+    return s_pymssm->imss[n]; // note the lack of a ``-1''. This is intentional.
   }
 }
 
 double& Pymssm::rmss(int n) {
-  if (n<0 || n>=_lenRmss) {
+  if (n<0 || n>=s_lenRmss) {
     std::cout
       << "Pymssm: attempt to read or write RMSS out of bounds" << std::endl;
-    _realdummy=-999.0;
-    return _realdummy;
+    m_realdummy=-999.0;
+    return m_realdummy;
   } else {
-    return _pymssm->rmss[n]; // note the lack of a ``-1''. This is intentional.
+    return s_pymssm->rmss[n]; // note the lack of a ``-1''. This is intentional.
   }
 }

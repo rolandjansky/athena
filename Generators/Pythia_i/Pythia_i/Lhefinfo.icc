@@ -7,8 +7,8 @@
 // initialise pointer
 void Lhefinfo::init() 
 {
-  if ( !_lhefinfo ) {
-    _lhefinfo = static_cast< LHEFINFO* >( lhefinfo_address_() );
+  if ( !s_lhefinfo ) {
+    s_lhefinfo = static_cast< LHEFINFO* >( lhefinfo_address_() );
   }
 }
 

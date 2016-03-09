@@ -14,13 +14,13 @@
 //#endif
 
 // set pointer to zero at start
-Pysubs::PYSUBS* Pysubs::_pysubs =0;
+Pysubs::PYSUBS* Pysubs::s_pysubs =0;
 
 // Constructor
 Pysubs::Pysubs() 
 {
-  _dummy=-999;
-  _realdummy=-999.;
+  m_dummy=-999;
+  m_realdummy=-999.;
 }
 
 // Destructor
@@ -31,17 +31,17 @@ Pysubs::~Pysubs()
 // access msel in common
 int& Pysubs::msel() {
   init(); // check COMMON is initialized
-  return _pysubs->msel;
+  return s_pysubs->msel;
 }
 
 // access msub in common
 int& Pysubs::msub(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenMsub()) {
-  _dummy = -999;
-  return _dummy;
+  m_dummy = -999;
+  return m_dummy;
   }
-  return _pysubs->msub[n-1];
+  return s_pysubs->msub[n-1];
 }
 
 // access kfin in common
@@ -51,19 +51,19 @@ int& Pysubs::kfin(int iside, int jflav) {
   if(std::abs(jflav) > half_lenKfin ||
      iside < 1 || iside > depthKfin())
  {
-  _dummy = -999;
-  return _dummy;
+  m_dummy = -999;
+  return m_dummy;
   }
-  return _pysubs->kfin[jflav+half_lenKfin][iside-1];
+  return s_pysubs->kfin[jflav+half_lenKfin][iside-1];
 }
 
 // access ckin in common
 double& Pysubs::ckin(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenCkin()) {
-  _realdummy = -999.;
-  return _realdummy;
+  m_realdummy = -999.;
+  return m_realdummy;
   }
-  return _pysubs->ckin[n-1];
+  return s_pysubs->ckin[n-1];
 }
 

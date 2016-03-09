@@ -41,30 +41,30 @@ public:
 
 private: 
 
-  static const int _sizeZmix = 4;
-  static const int _sizeUmix = 2;
-  static const int _sizeVmix = 2;
-  static const int _lenSmz = 4;
-  static const int _lenSmw = 2;
-  static const int _lenSfmix = 4;
-  static const int _widthSfmix = 16;
+  static const int s_sizeZmix = 4;
+  static const int s_sizeUmix = 2;
+  static const int s_sizeVmix = 2;
+  static const int s_lenSmz = 4;
+  static const int s_lenSmw = 2;
+  static const int s_lenSfmix = 4;
+  static const int s_widthSfmix = 16;
 
   struct PYSSMT;
   friend struct PYSSMT;
 
   struct PYSSMT {
-    double zmix[_sizeZmix][_sizeZmix];
-    double umix[_sizeUmix][_sizeUmix];
-    double vmix[_sizeVmix][_sizeVmix];
-    double smz[_lenSmz];
-    double smw[_lenSmw];
-    double sfmix[_lenSfmix][_widthSfmix];
+    double zmix[s_sizeZmix][s_sizeZmix];
+    double umix[s_sizeUmix][s_sizeUmix];
+    double vmix[s_sizeVmix][s_sizeVmix];
+    double smz[s_lenSmz];
+    double smw[s_lenSmw];
+    double sfmix[s_lenSfmix][s_widthSfmix];
   };
 
-  mutable int _dummy;
-  mutable double _realdummy;
+  mutable int m_dummy;
+  mutable double m_realdummy;
 
-  static PYSSMT const * _pyssmt;
+  static PYSSMT const * s_pyssmt;
 };
 
 #include "Pythia_i/Pyssmt.icc"

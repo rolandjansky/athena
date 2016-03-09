@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pymssm::init(void) {
-  if (!_pymssm) _pymssm = static_cast<PYMSSM*>(pymssm_address_());
+  if (!s_pymssm) s_pymssm = static_cast<PYMSSM*>(pymssm_address_());
 }
 

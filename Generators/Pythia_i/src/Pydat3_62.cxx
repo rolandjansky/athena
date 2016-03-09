@@ -14,13 +14,13 @@ extern "C" {
 #endif
 
 // set pointer to zero at start
-Pydat3::PYDAT3* Pydat3::_pydat3 =0;
+Pydat3::PYDAT3* Pydat3::s_pydat3 =0;
 
 // Constructor
 Pydat3::Pydat3() 
 {
-  _dummy = -999;
-  _realdummy = -999;
+  m_dummy = -999;
+  m_realdummy = -999;
 }
 
 // Destructor
@@ -34,10 +34,10 @@ int& Pydat3::mdcy(int kc, int i) {
   if( kc < 1 || kc > lenMdcy() ||
       i  < 1 || i  > depthMdcy())
  {
-  _dummy = -999;
-  return _dummy;
+  m_dummy = -999;
+  return m_dummy;
   }
-  return _pydat3->mdcy[i-1][kc-1];
+  return s_pydat3->mdcy[i-1][kc-1];
 }
 // access mdme in common
 int& Pydat3::mdme(int idc, int i) {
@@ -45,19 +45,19 @@ int& Pydat3::mdme(int idc, int i) {
   if( idc < 1 || idc > lenMdme() ||
       i  < 1 || i  > depthMdme())
  {
-  _dummy = -999;
-  return _dummy;
+  m_dummy = -999;
+  return m_dummy;
   }
-  return _pydat3->mdme[i-1][idc-1];
+  return s_pydat3->mdme[i-1][idc-1];
 }
 // access brat in common
 double& Pydat3::brat(int idc) {
   init(); // check COMMON is initialized
   if(idc < 1 || idc > lenBrat()) {
-  _realdummy = -999.;
-  return _realdummy;
+  m_realdummy = -999.;
+  return m_realdummy;
   }
-  return _pydat3->brat[idc-1];
+  return s_pydat3->brat[idc-1];
 
 }
 // access kfdp in common
@@ -66,9 +66,9 @@ int& Pydat3::kfdp(int idc, int kf) {
   if( idc < 1 || idc > lenKfdp() ||
       kf  < 1 || kf  > depthKfdp())
  {
-  _dummy = -999;
-  return _dummy;
+  m_dummy = -999;
+  return m_dummy;
   }
-  return _pydat3->kfdp[kf-1][idc-1];
+  return s_pydat3->kfdp[kf-1][idc-1];
 }
 

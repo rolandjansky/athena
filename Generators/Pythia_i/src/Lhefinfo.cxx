@@ -6,7 +6,7 @@
 #include "Pythia_i/Lhefinfo.h"
 
 // set pointer to zero at start
-Lhefinfo::LHEFINFO* Lhefinfo::_lhefinfo = 0;
+Lhefinfo::LHEFINFO* Lhefinfo::s_lhefinfo = 0;
 
 // Constructor
 Lhefinfo::Lhefinfo() 
@@ -19,42 +19,42 @@ Lhefinfo::~Lhefinfo()
 int& Lhefinfo::id1()
 {
   init();
-  return _lhefinfo->id1;
+  return s_lhefinfo->id1;
 }
 
 int& Lhefinfo::id2()
 {
   init();
-  return _lhefinfo->id2;
+  return s_lhefinfo->id2;
 }
 
 double& Lhefinfo::x1()
 {
   init();
-  return _lhefinfo->x1;
+  return s_lhefinfo->x1;
 }
 
 double& Lhefinfo::x2()
 {
   init();
-  return _lhefinfo->x2;
+  return s_lhefinfo->x2;
 }
 
 double& Lhefinfo::scalePdf()
 {
   init();
-  return _lhefinfo->scalePdf;
+  return s_lhefinfo->scalePdf;
 }
 
 double& Lhefinfo::xPdf1()
 {
   init();
-  return _lhefinfo->xPdf1;
+  return s_lhefinfo->xPdf1;
 }
 
 double& Lhefinfo::xPdf2()
 {
   init();
-  return _lhefinfo->xPdf2;
+  return s_lhefinfo->xPdf2;
 }
 

@@ -29,24 +29,24 @@ public:
   double& vint(int n);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int lenMint() const {return _lenMint;}
-  int lenVint() const {return _lenVint;}
+  int lenMint() const {return s_lenMint;}
+  int lenVint() const {return s_lenVint;}
 private: 
 
   // Lengths of MINT and VINT COMMONS
-  static const int _lenMint = 400;
-  static const int _lenVint = 400;
+  static const int s_lenMint = 400;
+  static const int s_lenVint = 400;
  
   struct PYINT1;
   friend struct PYINT1;
 
   struct PYINT1 {
-  int mint[_lenMint];
-  double vint[_lenVint];
+  int mint[s_lenMint];
+  double vint[s_lenVint];
   };        
-  int _dummy;
-  double _realdummy;
-  static PYINT1* _pyint1;
+  int m_dummy;
+  double m_realdummy;
+  static PYINT1* s_pyint1;
 };
 #include "Pythia_i/Pyint1.icc"
 #endif

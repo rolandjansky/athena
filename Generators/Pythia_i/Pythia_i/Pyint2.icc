@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pyint2::init(void) {
-  if (!_pyint2) _pyint2 = static_cast<PYINT2*>(pyint2_address_());
+  if (!s_pyint2) s_pyint2 = static_cast<PYINT2*>(pyint2_address_());
 }
 
