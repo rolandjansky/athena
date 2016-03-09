@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1GuideLineSystems/VP1TrackingVolumes.h"
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoCylinder.h>
