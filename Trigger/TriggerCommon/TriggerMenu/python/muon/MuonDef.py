@@ -38,7 +38,6 @@ class L2EFChain_mu(L2EFChainDef):
 
     self.chainPartName = self.chainPart['chainPartName']
     self.chainPartNameNoMult = self.chainPartName[1:] if self.mult > 1 else self.chainPartName
-
     self.L2InputTE = self.chainPartL1Item or self.chainL1Item
     if self.L2InputTE:      # cut of L1_, _EMPTY,..., & multiplicity
       self.L2InputTE = self.L2InputTE.replace("L1_","")
@@ -1343,12 +1342,13 @@ class L2EFChain_mu(L2EFChainDef):
       }
     if "nscan05" in self.chainPart['FSinfo']:
       if "noComb" in self.chainPart['addInfo']:
+        print "hi nils "+ self.chainPartL1Item +' ' + self.chainPartName
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
-          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
-          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
-          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
-          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed),
+          'EF_NS': mergeRemovingOverlap('EF_NS_', 'SANShyp'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
+          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
+          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
+          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
           'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+'_noComb_'+nscanseed+'_'+l1seed),
           }
       else:

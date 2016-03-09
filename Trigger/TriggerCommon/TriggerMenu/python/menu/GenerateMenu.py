@@ -258,7 +258,7 @@ class GenerateMenu:
         list(set(l1ItemsInHLTMenu))
         for l1ItemInL1Menu in l1ItemsInL1Menu:
             if not l1ItemInL1Menu in l1ItemsInHLTMenu:
-                log.warning('L1 item %s is not used by any HLT chain' % l1ItemInL1Menu)
+                log.info('L1 item %s is not used by any HLT chain' % l1ItemInL1Menu)
             
             
     def CheckIntraSignatureTopo(self,chainDicts):
@@ -957,7 +957,8 @@ class GenerateMenu:
 
 
         cpsMenus = ['Physics_pp_v5','Physics_pp_v6']
-        if TriggerFlags.triggerMenuSetup() in cpsMenus :
+        ##if TriggerFlags.triggerMenuSetup() in cpsMenus:
+        if TriggerFlags.triggerMenuSetup().find("pp_v")>=0:            
             log.info('Assigning CPS groups now')
             addCPS(self.triggerPythonConfig,self.signaturesOverwritten)
 

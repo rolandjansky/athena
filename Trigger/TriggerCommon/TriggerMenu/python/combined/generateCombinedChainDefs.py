@@ -348,8 +348,8 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     dzmatching = False
     drmatching = False
     for topo in chainDicts[0]['topo']:
-        if "dz" in topo: dzmatching == True
-        if "dr" in topo: drmatching == True
+        if "dz" in topo: dzmatching = True
+        if "dr" in topo: drmatching = True
     
         
     # obtain deltaR for Hypo configuration

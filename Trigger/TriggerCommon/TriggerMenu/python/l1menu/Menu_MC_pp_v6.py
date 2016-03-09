@@ -352,7 +352,7 @@ def defineMenu():
 
         # single EM
 
-        'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH', 'L1_EM10VH', 'L1_EM13VH', 'L1_EM15', 'L1_EM15HI','L1_EM15VH', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
+        'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH', 'L1_EM8I', 'L1_EM10VH', 'L1_EM13VH', 'L1_EM15','L1_EM15I', 'L1_EM15HI','L1_EM15VH', 'L1_EM18VH', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         'L1_EM22VHI_FIRSTEMPTY',
@@ -456,13 +456,13 @@ def defineMenu():
         #"L1_3J75",
         #"L1_4J30",
         "L1_6J15",
-        "L1_J75_3J20", "L1_J30.0ETA49_2J20.0ETA49",
+        "L1_J75_3J20", "L1_J30.0ETA49_2J20.0ETA49","L1_J40.0ETA25_2J15.31ETA49","L1_J40.0ETA25_2J25_J20.31ETA49",
         
         # multi jet central
         "L1_3J25.0ETA23", "L1_4J15.0ETA25", "L1_5J15.0ETA25", 
         
         # combined jet
-        "L1_2J15_XE55", "L1_J40_XE50", "L1_J75_XE40","L1_J30.0ETA49_XE50",
+        "L1_2J15_XE55", "L1_J40_XE50", "L1_J75_XE40", "L1_J75_XE50", "L1_J30.0ETA49_XE50",
         'L1_2J40_XE45', "L1_2J50_XE40", "L1_J40_XE60","L1_J40.0ETA25_XE50",
 
         # XE
@@ -932,6 +932,7 @@ def defineMenu():
         'L1_6J15' : 135,
         'L1_J75_3J20' : 136,
         'L1_J30.0ETA49_2J20.0ETA49' : 137,
+
         'L1_3J25.0ETA23' : 373,
         'L1_TE10' : 138,
         'L1_4J15.0ETA25' : 139,
@@ -939,6 +940,7 @@ def defineMenu():
         'L1_2J15_XE55' : 141,
         'L1_J40_XE50' : 142,
         'L1_J75_XE40' : 143,
+        'L1_J75_XE50' : 133,
         'L1_XE35' : 144,
         'L1_XE40' : 145,
         'L1_XE45' : 146,
@@ -956,9 +958,9 @@ def defineMenu():
         'L1_TE40' : 158,
         'L1_TE70' : 159,
         'L1_TE30.0ETA24' : 160,
-        'L1_MBTS_1' : 226,
-        'L1_MBTS_2' : 227,
-        'L1_MBTS_1_1' : 228,
+        'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
+        'L1_BCM_AC_CA_UNPAIRED_ISO' : 162,
+        'L1_BCM_AC_UNPAIRED_ISO' : 163,
         'L1_MBTS_1_EMPTY' : 164,
         'L1_MBTS_1_UNPAIRED_ISO' : 165,
         'L1_MBTS_2_EMPTY' : 166,
@@ -1005,7 +1007,11 @@ def defineMenu():
         'L1_BPH-2M8-2MU4' : 178,
         'L1_BPH-8M15-MU6MU4' : 179,
         'L1_BPH-8M15-2MU6' : 180,
-
+        'L1_J40.0ETA25_2J15.31ETA49' : 181,
+        'L1_J40.0ETA25_2J25_J20.31ETA49' : 182,
+        
+        'L1_EM8I' : 183,
+        'L1_EM15I': 184,
         
         'L1_MBTS_4_A' : 194,
         'L1_MBTS_4_C' : 195,
@@ -1039,9 +1045,11 @@ def defineMenu():
         'L1_BCM_AC_CA_BGRP0' : 223,
         'L1_BCM_Wide_EMPTY' : 224,
         'L1_BCM_Wide_UNPAIRED_ISO' : 225,
-        'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
-        'L1_BCM_AC_CA_UNPAIRED_ISO' : 162,
-        'L1_BCM_AC_UNPAIRED_ISO' : 163,
+        'L1_MBTS_1' : 226,
+        'L1_MBTS_2' : 227,
+        'L1_MBTS_1_1' : 228,
+        
+      
         'L1_BCM_CA_UNPAIRED_ISO' : 229,
         'L1_BCM_AC_UNPAIRED_NONISO' : 230,
         'L1_BCM_CA_UNPAIRED_NONISO' : 231,
