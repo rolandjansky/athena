@@ -14,6 +14,7 @@
 
 #include "VP1GuideLineSystems/VP1EtaCone.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoSeparator.h>
