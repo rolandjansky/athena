@@ -34,30 +34,30 @@ public:
   double& parj(int n);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int lenMstu() const {return _lenMstu;}
-  int lenParu() const {return _lenParu;}
-  int lenMstj() const {return _lenMstj;}
-  int lenParj() const {return _lenParj;}
+  int lenMstu() const {return s_lenMstu;}
+  int lenParu() const {return s_lenParu;}
+  int lenMstj() const {return s_lenMstj;}
+  int lenParj() const {return s_lenParj;}
 private: 
 
   // Lengths of MSTU and PARU COMMONS
-  static const int _lenMstu = 200;
-  static const int _lenParu = 200;
-  static const int _lenMstj = 200;
-  static const int _lenParj = 200;
+  static const int s_lenMstu = 200;
+  static const int s_lenParu = 200;
+  static const int s_lenMstj = 200;
+  static const int s_lenParj = 200;
 
   struct PYDAT1;
   friend struct PYDAT1;
 
   struct PYDAT1 {
-  int mstu[_lenMstu];
-  double paru[_lenParu];
-  int mstj[_lenMstj];
-  double parj[_lenParj];
+  int mstu[s_lenMstu];
+  double paru[s_lenParu];
+  int mstj[s_lenMstj];
+  double parj[s_lenParj];
   };
-  int _dummy;
-  double _realdummy;
-  static PYDAT1* _pydat1;
+  int m_dummy;
+  double m_realdummy;
+  static PYDAT1* s_pydat1;
 };
 
 #include "Pythia_i/Pydat1.icc"

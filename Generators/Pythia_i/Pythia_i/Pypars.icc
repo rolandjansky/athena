@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pypars::init(void) {
-  if (!_pypars) _pypars = static_cast<PYPARS*>(pypars_address_());
+  if (!s_pypars) s_pypars = static_cast<PYPARS*>(pypars_address_());
 }
 

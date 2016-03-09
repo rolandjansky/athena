@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pysubs::init(void) {
-  if (!_pysubs) _pysubs = static_cast<PYSUBS*>(pysubs_address_());
+  if (!s_pysubs) s_pysubs = static_cast<PYSUBS*>(pysubs_address_());
 }
 

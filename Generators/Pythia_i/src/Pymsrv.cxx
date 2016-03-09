@@ -5,12 +5,12 @@
 #include "Pythia_i/Pymsrv.h"
 #include <iostream>
 
-Pymsrv::PYMSRV* Pymsrv::_pymsrv = 0;
+Pymsrv::PYMSRV* Pymsrv::s_pymsrv = 0;
 
 Pymsrv::Pymsrv() 
   : 
-  _dummy(-999)
-  , _realdummy(-999.0) 
+  m_dummy(-999)
+  , m_realdummy(-999.0) 
 {
   init();
 }
@@ -26,11 +26,11 @@ double& Pymsrv::rvlam(int n) {
   if (i1<1 || i1>3 || i2<1 || i2>3 || i3<1 || i3>3) {
     std::cout
       << "Pymsrv: attempt to read or write RVLAM out of bounds" << std::endl;
-    _dummy=-999;
-    return _dummy;
+    m_dummy=-999;
+    return m_dummy;
   } else {
     std::cout << "Pymsrv: lambda indices " << i1 << " " << i2 << " " << i3 << std::endl;
-    return _pymsrv->rvlam[i3-1][i2-1][i1-1]; // note ``-1''. CLA, this way the indices work as expected.
+    return s_pymsrv->rvlam[i3-1][i2-1][i1-1]; // note ``-1''. CLA, this way the indices work as expected.
   }
 }
 
@@ -41,11 +41,11 @@ double& Pymsrv::rvlamp(int n) {
   if (i1<1 || i1>3 || i2<1 || i2>3 || i3<1 || i3>3) {
     std::cout
       << "Pymsrv: attempt to read or write RVLAMP out of bounds" << std::endl;
-    _dummy=-999;
-    return _dummy;
+    m_dummy=-999;
+    return m_dummy;
   } else {
     std::cout << "Pymsrv: lambda^prime indices " << i1 << " " << i2 << " " << i3 << std::endl;
-    return _pymsrv->rvlamp[i3-1][i2-1][i1-1]; // note ``-1''. CLA, this way the indices work as expected.
+    return s_pymsrv->rvlamp[i3-1][i2-1][i1-1]; // note ``-1''. CLA, this way the indices work as expected.
   }
 }
 
@@ -56,10 +56,10 @@ double& Pymsrv::rvlamb(int n) {
   if (i1<1 || i1>3 || i2<1 || i2>3 || i3<1 || i3>3) {
     std::cout
       << "Pymsrv: attempt to read or write RVLAMB out of bounds" << std::endl;
-    _dummy=-999;
-    return _dummy;
+    m_dummy=-999;
+    return m_dummy;
   } else {
     std::cout << "Pymsrv: lambda^doubelprime indices " << i1 << " " << i2 << " " << i3 << std::endl;
-    return _pymsrv->rvlamb[i3-1][i2-1][i1-1]; // note ``-1''. CLA, this way the indices work as expected.
+    return s_pymsrv->rvlamb[i3-1][i2-1][i1-1]; // note ``-1''. CLA, this way the indices work as expected.
   }
 }

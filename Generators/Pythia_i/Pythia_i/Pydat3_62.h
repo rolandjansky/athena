@@ -39,35 +39,35 @@ public:
   int& kfdp(int idc, int kf);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int lenMdcy() const {return _lenMdcy;}
-  int depthMdcy() const {return _depthMdcy;}
-  int lenMdme() const {return _lenMdme;}
-  int depthMdme() const {return _depthMdme;}
-  int lenBrat() const {return _lenBrat;}
-  int lenKfdp() const {return _lenKfdp;}
-  int depthKfdp() const {return _depthKfdp;}
+  int lenMdcy() const {return s_lenMdcy;}
+  int depthMdcy() const {return s_depthMdcy;}
+  int lenMdme() const {return s_lenMdme;}
+  int depthMdme() const {return s_depthMdme;}
+  int lenBrat() const {return s_lenBrat;}
+  int lenKfdp() const {return s_lenKfdp;}
+  int depthKfdp() const {return s_depthKfdp;}
 private: 
 
   // Lengths of array in PYDAT2 common
-  static const int _lenMdcy = 500;
-  static const int _depthMdcy = 3;
-  static const int _lenMdme = 8000;
-  static const int _depthMdme = 2;
-  static const int _lenBrat = 8000;
-  static const int _lenKfdp = 8000;
-  static const int _depthKfdp = 5;
+  static const int s_lenMdcy = 500;
+  static const int s_depthMdcy = 3;
+  static const int s_lenMdme = 8000;
+  static const int s_depthMdme = 2;
+  static const int s_lenBrat = 8000;
+  static const int s_lenKfdp = 8000;
+  static const int s_depthKfdp = 5;
 
   struct PYDAT3;
   friend struct PYDAT3;
   struct PYDAT3 {
-    int mdcy[_depthMdcy][_lenMdcy];
-    int mdme[_depthMdme][_lenMdme];
-    double brat[_lenBrat];
-    int kfdp[_depthKfdp][_lenKfdp];
+    int mdcy[s_depthMdcy][s_lenMdcy];
+    int mdme[s_depthMdme][s_lenMdme];
+    double brat[s_lenBrat];
+    int kfdp[s_depthKfdp][s_lenKfdp];
   };
-  int _dummy;
-  double _realdummy;
-  static PYDAT3* _pydat3;
+  int m_dummy;
+  double m_realdummy;
+  static PYDAT3* s_pydat3;
 };
 
 #include "Pythia_i/Pydat3.icc"

@@ -31,29 +31,29 @@ public:
   double& xsec(int n, int i);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int depthNgen() const {return _depthNgen;}
-  int lenNgen() const {return _lenNgen;}
-  int lenXsec() const {return _lenXsec;}
-  int depthXsec() const {return _depthXsec;}
+  int depthNgen() const {return s_depthNgen;}
+  int lenNgen() const {return s_lenNgen;}
+  int lenXsec() const {return s_lenXsec;}
+  int depthXsec() const {return s_depthXsec;}
 private: 
 
   // Lengths of NGENPD and NGEN COMMONS
-  static const int _lenNgen = 501;
-  static const int _depthNgen = 3; 
-  static const int _lenXsec = 501;
-  static const int _depthXsec = 3; 
+  static const int s_lenNgen = 501;
+  static const int s_depthNgen = 3; 
+  static const int s_lenXsec = 501;
+  static const int s_depthXsec = 3; 
 
   struct PYINT5;
   friend struct PYINT5;
 
   struct PYINT5 {
   int ngenpd;
-  int ngen[_depthNgen][_lenNgen];
-  double xsec[_depthXsec][_lenXsec];
+  int ngen[s_depthNgen][s_lenNgen];
+  double xsec[s_depthXsec][s_lenXsec];
   };
-  int _dummy;
-  double _realdummy;
-  static PYINT5* _pyint5;
+  int m_dummy;
+  double m_realdummy;
+  static PYINT5* s_pyint5;
 };
 
 #include "Pythia_i/Pyint5.icc"

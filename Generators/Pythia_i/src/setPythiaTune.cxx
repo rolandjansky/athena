@@ -37,10 +37,10 @@
 StatusCode Pythia::setPythiaTune()
 {
   // count # of function calls for one initialization step (inf. loop protection)
-   atlasTune_loop_prot++;
+   m_atlasTune_loop_prot++;
 
    //protect against looping; setPythiaTune calls atlasTune so in principle an infinite loop can occur (in case of core code blunder)
-   if (atlasTune_loop_prot>100)
+   if (m_atlasTune_loop_prot>100)
      {
        ATH_MSG_FATAL( "Got more than 100 calls of setPythiaTune() -> code errors, exit.");
        return StatusCode::FAILURE;       

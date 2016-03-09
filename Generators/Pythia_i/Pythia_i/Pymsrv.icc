@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pymsrv::init(void) {
-  if (!_pymsrv) _pymsrv = static_cast<PYMSRV*>(pymsrv_address_());
+  if (!s_pymsrv) s_pymsrv = static_cast<PYMSRV*>(pymsrv_address_());
 }
 

@@ -13,15 +13,6 @@ use Lhef_i              Lhef_i-*              Generators
 use AcerMC_i            AcerMC_i-*            Generators
 use Tauola_i            Tauola_i-*            Generators
 
-# Added by DRQ for cmake - transparent to CMT and avoids any checkreq errors
-#apply_pattern cmake_add_dependency package=Generators/CompHep_i
-#apply_pattern cmake_add_dependency package=Generators/Herwig_i
-#apply_pattern cmake_add_dependency package=Generators/HvGen_i
-#apply_pattern cmake_add_dependency package=Generators/Lhef_i
-#apply_pattern cmake_add_dependency package=Generators/Matchig_i
-#apply_pattern cmake_add_dependency package=Generators/MadCUP_i
-#apply_pattern cmake_add_dependency package=Generators/Protos_i
-
 private
 use GeneratorFortranCommon GeneratorFortranCommon-*    Generators
 use AtlasCLHEP          AtlasCLHEP-*          External
@@ -43,7 +34,7 @@ apply_tag notAsNeeded
 end_private
 
 # Added for cmake compatibility
-apply_pattern cmake_add_command command='add_definitions(-DPY6VERSION=\"${PYTHIA6_VERSION}\")'
+apply_pattern cmake_add_command command='add_definitions(-DPY6VERSION="${PYTHIA6_VERSION}")'
 
 #-------------------------------------------------------------------------
 # The Pythia Generator
@@ -117,3 +108,6 @@ macro_append  Pythia_i_shlibflags  " $(HepMC_IO_linkopts) "
 macro_append Pythia_i_cppflags '-DPY6VERSION=\"$(pythia_native_version)\" '
 
 apply_pattern declare_joboptions files="*.py"
+
+# Link the package explicitly against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
