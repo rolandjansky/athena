@@ -17,7 +17,6 @@
 #include "VP1Base/VP1Deserialise.h"
 
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "ISF_FatrasEvent/PlanarClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
@@ -195,54 +194,20 @@ bool PRDCollHandleBase::load() {
   }
 
   switch (d->detType){
-  case PRDDetType::TRT:   return d->actualLoad<InDet::TRT_DriftCircleContainer>();
-  case PRDDetType::Pixel: return d->actualLoad<InDet::PixelClusterContainer>();
-  case PRDDetType::SCT:   return d->actualLoad<InDet::SCT_ClusterContainer>();
-  case PRDDetType::CSC:   return d->actualLoad<Muon::CscPrepDataContainer>();
-  case PRDDetType::CSCstrip:   return d->actualLoad<Muon::CscStripPrepDataContainer>();
-  case PRDDetType::RPC:   return d->actualLoad<Muon::RpcPrepDataContainer>();
-  case PRDDetType::TGC:   return d->actualLoad<Muon::TgcPrepDataContainer>();
-  case PRDDetType::MDT:   return d->actualLoad<Muon::MdtPrepDataContainer>();
-  case PRDDetType::MM:    return d->actualLoad<Muon::MMPrepDataContainer>();
-  case PRDDetType::sTGC:  return d->actualLoad<Muon::sTgcPrepDataContainer>();
+    case PRDDetType::TRT:   return d->actualLoad<InDet::TRT_DriftCircleContainer>();
+    case PRDDetType::Pixel: return d->actualLoad<InDet::PixelClusterContainer>();
+    case PRDDetType::SCT:   return d->actualLoad<InDet::SCT_ClusterContainer>();
+    case PRDDetType::CSC:   return d->actualLoad<Muon::CscPrepDataContainer>();
+    case PRDDetType::CSCstrip:   return d->actualLoad<Muon::CscStripPrepDataContainer>();
+    case PRDDetType::RPC:   return d->actualLoad<Muon::RpcPrepDataContainer>();
+    case PRDDetType::TGC:   return d->actualLoad<Muon::TgcPrepDataContainer>();
+    case PRDDetType::MDT:   return d->actualLoad<Muon::MdtPrepDataContainer>();
+    case PRDDetType::MM:    return d->actualLoad<Muon::MMPrepDataContainer>();
+    case PRDDetType::sTGC:  return d->actualLoad<Muon::sTgcPrepDataContainer>();
     //SpacePoints implements their own load.
-  default:
-    return false;
-  }
-}
-
-//____________________________________________________________________
-bool PRDCollHandleBase::loadPlanarClusters() {
-  bool safeToLoad(false);
-  switch (d->detType){
-    case PRDDetType::TRT:
-    safeToLoad = VP1JobConfigInfo::hasTRTGeometry();
-    break;
-    case PRDDetType::Pixel:
-    safeToLoad = VP1JobConfigInfo::hasPixelGeometry();
-    break;
-    case PRDDetType::SCT:
-    safeToLoad = VP1JobConfigInfo::hasSCTGeometry();
-    break;
-    case PRDDetType::CSC:
-    case PRDDetType::CSCstrip:
-    case PRDDetType::RPC:
-    case PRDDetType::TGC:
-    case PRDDetType::MDT:
-    case PRDDetType::MM:
-    case PRDDetType::sTGC:
-    safeToLoad = VP1JobConfigInfo::hasMuonGeometry();
-    break;
     default:
-    safeToLoad = false;
-  }
-
-  if (!safeToLoad){
-    message("Required geometry not enabled in job.");
     return false;
   }
-
-  return d->actualLoad<iFatras::PlanarClusterContainer>();
 }
 
 //____________________________________________________________________

@@ -17,7 +17,6 @@ use  VP1Qt                      VP1Qt-*                         graphics/VP1
 use  VP1Utils                   VP1Utils-*                      graphics/VP1
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 
-use  ISF_FatrasEvent		ISF_FatrasEvent-*		Simulation/ISF/ISF_Fatras
 
 private
 use  AtlasCoinInventor          AtlasCoinInventor-*             External
@@ -38,7 +37,6 @@ use  VP1GuideLineSystems        VP1GuideLineSystems-*           graphics/VP1/VP1
 use  VP1HEPVis                  VP1HEPVis-*                     graphics/VP1
 use  EventPrimitives            EventPrimitives-*               Event
 
-use  ISF_FatrasDetDescrModel	ISF_FatrasDetDescrModel-*	Simulation/ISF/ISF_Fatras
 
 public
 
