@@ -55,7 +55,7 @@ extern "C" {
 // Instantiation of static data members
 IAtRndmGenSvc* Pyquench::m_AtRndmGenSvc_p;
 std::string    Pyquench::m_pythia_stream = "PYTHIA_INIT";
-Atlas_HEPEVT*  Pyquench::atlas_HEPEVT = new Atlas_HEPEVT();
+Atlas_HEPEVT*  Pyquench::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 
 //--------------------------------------------------------------------------
@@ -208,7 +208,7 @@ StatusCode Pyquench::genFinalize() {
 
 
 
-StatusCode Pyquench::fillEvt(GenEvent* evt)
+StatusCode Pyquench::fillEvt(HepMC::GenEvent* evt)
 {
   ATH_MSG_DEBUG(" PYTHIA Atlas_HEPEVT Filling.");
   store_Atlas_HEPEVT();
@@ -267,16 +267,16 @@ StatusCode Pyquench::fillEvt(GenEvent* evt)
 
 void Pyquench::store_Atlas_HEPEVT(void)
 {
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->nhep() );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->isthep(10) );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->idhep(10) );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->jmohep(1,10) );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->jdahep(2,10) );
+    ATH_MSG_DEBUG("atlas_HEPEVT------" << s_atlas_HEPEVT->nhep() );
+    ATH_MSG_DEBUG("atlas_HEPEVT------" << s_atlas_HEPEVT->isthep(10) );
+    ATH_MSG_DEBUG("atlas_HEPEVT------" << s_atlas_HEPEVT->idhep(10) );
+    ATH_MSG_DEBUG("atlas_HEPEVT------" << s_atlas_HEPEVT->jmohep(1,10) );
+    ATH_MSG_DEBUG("atlas_HEPEVT------" << s_atlas_HEPEVT->jdahep(2,10) );
 
-    atlas_HEPEVT->fill();
+    s_atlas_HEPEVT->fill();
 
     Atlas_HEPEVT* ahep = new Atlas_HEPEVT();
-    *(ahep) = *(atlas_HEPEVT);
+    *(ahep) = *(s_atlas_HEPEVT);
     static const std::string keyid = "Pythia";
     StatusCode sc = evtStore()->record(ahep, keyid);
     if (!sc.isSuccess())  ATH_MSG_WARNING("Could not record Atlas_HEPEVT");

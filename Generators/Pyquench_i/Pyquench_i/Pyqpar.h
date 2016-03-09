@@ -3,8 +3,8 @@
 */
 
 
-#ifndef __PYQPAR_H__
-#define __PYQPAR_H__
+#ifndef PYQUENCH_I_PYQPAR_H
+#define PYQUENCH_I_PYQPAR_H
 
 /* Pyquen common block definition
  /pyqpar/ T0u,tau0u,nfu,ienglu,ianglu
@@ -44,15 +44,15 @@ private:
 
     };
     void init(void);
-    static PYQPAR* _pyqpar;
+    static PYQPAR* s_pyqpar;
 };
 
 // set pointer to zero at start
-Pyqpar::PYQPAR* Pyqpar::_pyqpar =0;
+Pyqpar::PYQPAR* Pyqpar::s_pyqpar =0;
 
 inline void
 Pyqpar::init(void)
-{ if (!_pyqpar) _pyqpar = static_cast<PYQPAR*>(pyqpar_address_()); }
+{ if (!s_pyqpar) s_pyqpar = static_cast<PYQPAR*>(pyqpar_address_()); }
 
 // Constructor
 inline
@@ -68,35 +68,35 @@ inline double&
 Pyqpar::T0u	(void)
 {
     init();
-    return _pyqpar->T0u;
+    return s_pyqpar->T0u;
 }
 
 inline double&
 Pyqpar::tau0u	(void)
 {
     init();
-    return _pyqpar->tau0u;
+    return s_pyqpar->tau0u;
 }
 
 inline int&
 Pyqpar::nfu	(void)
 {
     init();
-    return _pyqpar->nfu;
+    return s_pyqpar->nfu;
 }
 
 inline int&
 Pyqpar::ienglu	(void)
 {
     init();
-    return _pyqpar->ienglu;
+    return s_pyqpar->ienglu;
 }
 
 inline int&
 Pyqpar::ianglu	(void)
 {
     init();
-    return _pyqpar->ianglu;
+    return s_pyqpar->ianglu;
 }
 
 
