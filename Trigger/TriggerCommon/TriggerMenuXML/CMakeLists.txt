@@ -14,28 +14,53 @@
 # Declare the package name:
 atlas_subdir( TriggerMenuXML )
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PRIVATE
+                          Trigger/TriggerCommon/TriggerJobOpts
+                          Trigger/TriggerCommon/TriggerMenu )
+
 # Function to build trigger menu:
-function ( atlas_build_trigger_menu menu)
-  # Get menu xml file names
-  execute_process ( COMMAND python -c "from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.triggerMenuSetup='${menu}';print ('%s %s %s' % (TF.outputLVL1configFile(),TF.outputL1TopoConfigFile(),TF.outputHLTconfigFile()))"
-    OUTPUT_VARIABLE stdout
-    OUTPUT_STRIP_TRAILING_WHITESPACE )
-  # Create list and prepend directory name
-  string (REPLACE " " ";" menu_files ${stdout})
-  foreach ( p ${menu_files} )
-    list( APPEND XMLs ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML/${p} )
-  endforeach()
-  # Command to build trigger menu
-  add_custom_command ( OUTPUT ${XMLs}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
-    COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh ${menu} ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
-    DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh )
-  # Create custom target and add it to package dependencies
-  add_custom_target ( build_menu_${menu} ALL SOURCES ${XMLs} )
-  add_dependencies ( Package_TriggerMenuXML build_menu_${menu} )
-  # Install files
-  install ( FILES ${XMLs}
-    DESTINATION ${CMAKE_INSTALL_XMLDIR}/TriggerMenuXML )
+function( atlas_build_trigger_menu menu )
+
+   # Command to build trigger menu
+   add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+      ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
+      COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+      ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh ${menu}
+      ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+      ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
+      ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuXML
+      COMMAND ${CMAKE_COMMAND} -E touch
+      ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
+      DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
+
+   # Create custom target and add it to package dependencies
+   add_custom_target( build_menu_${menu} ALL SOURCES
+      ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp )
+
+   # Install the generated XML files:
+   install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
+      DESTINATION ${CMAKE_INSTALL_XMLDIR}/TriggerMenuXML
+      USE_SOURCE_PERMISSIONS
+      FILES_MATCHING PATTERN "*.xml" )
+
+   # Create a target that will depend on all the other targets, and will
+   # print the "right message" at the end of the build. Notice that
+   # we can't rely on the Package_TriggerMenuXML target here, since
+   # the XML generation depends on all package targets being ready before
+   # it could start. So it would cause a circular dependency to make the
+   # menu targets be dependencies of the package target.
+   if( NOT TARGET TriggerMenuXMLMain )
+      add_custom_target( TriggerMenuXMLMain ALL
+         COMMAND ${CMAKE_COMMAND} -E echo
+         "TriggerMenuXML: Package build succeeded" )
+   endif()
+   add_dependencies( TriggerMenuXMLMain build_menu_${menu} )
+
 endfunction ( atlas_build_trigger_menu )
 
 # Install files from the package:
@@ -45,12 +70,12 @@ atlas_install_scripts( scripts/XMLDumperFromAthena.sh )
 atlas_install_xmls( data/*.xml )
 
 # List of menus to be created:
-atlas_build_trigger_menu ( Physics_pp_v6 )
-atlas_build_trigger_menu ( MC_pp_v6 )
-atlas_build_trigger_menu ( MC_pp_v6_loose_mc_prescale )
-atlas_build_trigger_menu ( MC_pp_v6_tight_mc_prescale )
-atlas_build_trigger_menu ( MC_pp_v6_tightperf_mc_prescale )
+atlas_build_trigger_menu( Physics_pp_v6 )
+atlas_build_trigger_menu( MC_pp_v6 )
+atlas_build_trigger_menu( MC_pp_v6_loose_mc_prescale )
+atlas_build_trigger_menu( MC_pp_v6_tight_mc_prescale )
+atlas_build_trigger_menu( MC_pp_v6_tightperf_mc_prescale )
 
-atlas_build_trigger_menu ( Physics_HI_v3 )
-atlas_build_trigger_menu ( MC_HI_v3 )
-atlas_build_trigger_menu ( MC_HI_v3_tight_mc_prescale )
+atlas_build_trigger_menu( Physics_HI_v3 )
+atlas_build_trigger_menu( MC_HI_v3 )
+atlas_build_trigger_menu( MC_HI_v3_tight_mc_prescale )

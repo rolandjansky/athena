@@ -22,7 +22,11 @@ uploadLog=TriggerMenuUpload.log
 doDBUpload="false"
 
 if [[ "$NICOS_ATLAS_RELEASE" != "" ]]; then
-    release=$NICOS_ATLAS_RELEASE
+    if [[ "$NICOS_ATLAS_ALT_RELEASE" != "None" ]]; then   # MIG nightlies
+        release=$NICOS_ATLAS_ALT_RELEASE
+    else
+        release=$NICOS_ATLAS_RELEASE
+    fi
     if [[ "$AtlasProject" != "AtlasP1HLT" && "$AtlasProject" != "AtlasCAFHLT" && "$AtlasProject" != "AtlasTestHLT" ]]; then
         #doDBUpload="true"     # Temporarily disabled due to sqlite slowness (Savannah #102038)
         # we upload the default menu
