@@ -3,12 +3,16 @@
 */
 
 #include "G4TruthStrategies/HadronicInteractionStrategy.h"
-#include "SimHelpers/StepHelper.h"
+
+#include "MCTruthBase/TruthStrategyUtils.h"
+//#include "SimHelpers/StepHelper.h"
+
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4TrackStatus.hh"
 #include "G4ProcessType.hh"
 #include "G4VProcess.hh"
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -17,57 +21,66 @@
 
 static HadronicInteractionStrategy Strategy("HadronicInteraction");
 
-HadronicInteractionStrategy::HadronicInteractionStrategy(const std::string n):
-			TruthStrategy(n)
+HadronicInteractionStrategy::HadronicInteractionStrategy(const std::string& n)
+  : TruthStrategy(n)
 {
-	double prim_thr = 100*CLHEP::MeV;
-	if(theTruthManager->GetTruthParameter("HadronicPrimaryMinEnergy")==0){
-	  log()<<MSG::INFO<<"HadronicPrimaryMinEnergy: setting default value of 100 MeV"<<std::endl;
-	  theTruthManager->SetTruthParameter("HadronicPrimaryMinEnergy",prim_thr);
-	}
-        double seco_thr = 100*CLHEP::MeV;
-        if(theTruthManager->GetTruthParameter("HadronicSecondaryMinEnergy")==0){
-          log()<<MSG::INFO<<"HadronicSecondaryMinEnergy: setting default value of 100 MeV"<<std::endl;  
-          theTruthManager->SetTruthParameter("HadronicSecondaryMinEnergy",seco_thr);
-        }
+  double prim_thr = 100*CLHEP::MeV;
+  if(theTruthManager->GetTruthParameter("HadronicPrimaryMinEnergy")==0){
+    log() << MSG::INFO << "HadronicPrimaryMinEnergy: "
+          << "setting default value of 100 MeV" << endreq;
+    theTruthManager->SetTruthParameter("HadronicPrimaryMinEnergy", prim_thr);
+  }
+  double seco_thr = 100*CLHEP::MeV;
+  if(theTruthManager->GetTruthParameter("HadronicSecondaryMinEnergy")==0){
+    log() << MSG::INFO << "HadronicSecondaryMinEnergy: "
+          << "setting default value of 100 MeV" << endreq;
+    theTruthManager->SetTruthParameter("HadronicSecondaryMinEnergy", seco_thr);
+  }
 }
 
 bool HadronicInteractionStrategy::AnalyzeVertex(const G4Step* aStep)
 {
-	static double eMinPrimary=theTruthManager->GetTruthParameter("HadronicPrimaryMinEnergy");
-	static double eMinSecondary=theTruthManager->GetTruthParameter("HadronicSecondaryMinEnergy");
-	
- 	static StepHelper sHelper;
- 	sHelper.SetStep(aStep);
-	G4ProcessType pType=sHelper.GetProcess()->GetProcessType();
-	if(fHadronic==pType)
-	{
+  static double eMinPrimary =
+    theTruthManager->GetTruthParameter("HadronicPrimaryMinEnergy");
+  static double eMinSecondary =
+    theTruthManager->GetTruthParameter("HadronicSecondaryMinEnergy");
 
-	        double trackKEner= aStep->GetPreStepPoint()->GetMomentum().perp();
-	        double secondaryMom = 0.;
-	        if (trackKEner<eMinPrimary){
-			// Check for de-excitation
-	                std::vector<G4Track*> tracks =theTruthManager->GetSecondaries();
-	                for (unsigned int i=0;i<tracks.size();i++){
-	                        double thisTrackKEner= tracks[i]->GetMomentum().perp();
-	                        if (thisTrackKEner>secondaryMom)secondaryMom=thisTrackKEner;
-	                }
-	                if (secondaryMom<eMinSecondary){
-	                	return true;
-	                }
-		}
-		G4TrackStatus tStatus=aStep->GetTrack()->GetTrackStatus();
-		std::vector<G4Track*> tracks =theTruthManager->GetSecondaries();
-		if (tStatus==fAlive)
-			theTruthManager->SaveSecondaryVertex(aStep->GetTrack(),
- 						             aStep->GetPostStepPoint(),
- 							     	 tracks);
-		else
-			theTruthManager->SaveSecondaryVertex(0,
- 						             aStep->GetPostStepPoint(),
- 							     	 tracks);
-		return true;
-	}
-		
-	return false;
+  // Thread-safety issue
+  //static StepHelper sHelper;
+  //sHelper.SetStep(aStep);
+  //G4ProcessType pType = sHelper.GetProcess()->GetProcessType();
+
+  G4ProcessType pType =
+    aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessType();
+
+  if(pType == fHadronic)
+  {
+    double trackKEner = aStep->GetPreStepPoint()->GetMomentum().perp();
+
+    // Get the list of secondaries in the current step
+    const auto& tracks = *aStep->GetSecondaryInCurrentStep();
+
+    // In this case, if the input track is below threshold, we will still save
+    // the vertex if at least one secondary is above the secondary threshold.
+    if (trackKEner < eMinPrimary){
+      // Check for de-excitation
+      double maxSecMom = 0.;
+      for (const auto track : tracks) {
+        double thisTrackKEner = track->GetMomentum().perp();
+        if (thisTrackKEner > maxSecMom) maxSecMom = thisTrackKEner;
+      }
+      // Bail if max secondary momentum is below threshold
+      if (maxSecMom < eMinSecondary){
+        return true;
+      }
+    }
+
+    G4TrackStatus tStatus = aStep->GetTrack()->GetTrackStatus();
+    G4Track* primTrack = (tStatus==fAlive) ? aStep->GetTrack() : nullptr;
+    TruthStrategyUtils::saveSecondaryVertex(primTrack, aStep->GetPostStepPoint(), tracks);
+
+    return true;
+  }
+
+  return false;
 }

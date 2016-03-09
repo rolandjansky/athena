@@ -3,67 +3,86 @@
 */
 
 #include "G4TruthStrategies/ComptonStrategy.h"
-#include "SimHelpers/StepHelper.h"
+
+#include "MCTruthBase/TruthStrategyUtils.h"
+
 #include "G4Step.hh"
 #include "G4Track.hh"
+#include "G4VProcess.hh"
+#include "G4EmProcessSubType.hh"
+
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
 static ComptonStrategy Strategy("Compton");
 
-ComptonStrategy::ComptonStrategy(const std::string n):
-			TruthStrategy(n)
+ComptonStrategy::ComptonStrategy(const std::string& n)
+  : TruthStrategy(n)
 {
-	double prim_thr = 100*CLHEP::MeV;
-	double seco_thr = 100*CLHEP::MeV;
+  double prim_thr = 100*CLHEP::MeV;
+  double seco_thr = 100*CLHEP::MeV;
 
-	// don't overwrite the values already in the strategy manager
-	if(theTruthManager->GetTruthParameter("ComptonPrimaryMinEnergy")==0){
-	  log()<<MSG::INFO<<"ComptonPrimaryMinEnergy: setting default value of 100 MeV"<<std::endl;  
-	  theTruthManager->SetTruthParameter("ComptonPrimaryMinEnergy",prim_thr);
-	}
-	if(theTruthManager->GetTruthParameter("ComptonSecondaryMinEnergy")==0){
-	  log()<<MSG::INFO<<"ComptonSecondaryMinEnergy: setting default value of 100 MeV"<<std::endl;  
-	  theTruthManager->SetTruthParameter("ComptonSecondaryMinEnergy",seco_thr);
-	}
+  // don't overwrite the values already in the strategy manager
+  if(theTruthManager->GetTruthParameter("ComptonPrimaryMinEnergy")==0){
+    log() << MSG::INFO << "ComptonPrimaryMinEnergy: setting default value of 100 MeV"
+          << endreq;
+    theTruthManager->SetTruthParameter("ComptonPrimaryMinEnergy", prim_thr);
+  }
+  if(theTruthManager->GetTruthParameter("ComptonSecondaryMinEnergy")==0){
+    log() << MSG::INFO << "ComptonSecondaryMinEnergy: setting default value of 100 MeV"
+          << endreq;
+    theTruthManager->SetTruthParameter("ComptonSecondaryMinEnergy", seco_thr);
+  }
 }
 
 bool ComptonStrategy::AnalyzeVertex(const G4Step* aStep)
 {
 
-	static StepHelper sHelper;
-	static double eMinPrimary=theTruthManager->GetTruthParameter("ComptonPrimaryMinEnergy");
-	static double eMinSecondary=theTruthManager->GetTruthParameter("ComptonSecondaryMinEnergy");
-	sHelper.SetStep(aStep);
-	G4int pSubType = sHelper.GetProcessSubType();
+  static double eMinPrimary =
+    theTruthManager->GetTruthParameter("ComptonPrimaryMinEnergy");
+  static double eMinSecondary =
+    theTruthManager->GetTruthParameter("ComptonSecondaryMinEnergy");
 
-	if(pSubType==fComptonScattering)
-	{
-                double trackKEner= aStep->GetPreStepPoint()->GetMomentum().perp();
-		if (trackKEner<eMinPrimary) return true;
+  // Thread-safety issue
+  //static StepHelper sHelper;
+  //sHelper.SetStep(aStep);
+  //G4int pSubType = sHelper.GetProcessSubType();
 
- 		std::vector<G4Track*> tracks =theTruthManager->GetSecondaries();
-		if (tracks.size() != 1) 
-		{	
-			int trackToUse=tracks.size()-1;
-			G4Track* temp=tracks[trackToUse];
-			tracks.clear();
-			tracks.push_back(temp);
-		}
-		if (tracks.size()!=1) log()<<MSG::WARNING<<" ComptonStrategy: something is VERY wrong then!"<<std::endl;
-                trackKEner= tracks[0]->GetMomentum().perp();
-		if (trackKEner<eMinSecondary) 
-		{
-			return true;
-		}
-		
-		// we register the vertex using TruthManager's appropriate method
-		theTruthManager->SaveSecondaryVertex(aStep->GetTrack(),
-					             aStep->GetPostStepPoint(),
-						     tracks);
-		return true;
-	}
-	else return false;
+  G4int pSubType =
+    aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessSubType();
+
+  if(pSubType==fComptonScattering)
+  {
+    // Check parent particle threshold
+    double trackKEner = aStep->GetPreStepPoint()->GetMomentum().perp();
+    if (trackKEner < eMinPrimary) return true;
+
+    // Get the list of secondaries in the current step
+    const auto& tracks = *aStep->GetSecondaryInCurrentStep();
+
+    // In the current implementation, we save only the first secondary on the
+    // list. It's not clear if there are ever more secondaries in this strategy,
+    // but to follow suit with BremsstrahlungStrategy we probably want to move
+    // to saving all secondaries that are above secondary threshold.
+    std::vector<const G4Track*> saveTracks;
+
+    // Assume vector ordering
+    assert( tracks.size() ); // optimized away in opt build
+    saveTracks.push_back( tracks[0] );
+
+    // Apply secondary threshold
+    trackKEner = saveTracks[0]->GetMomentum().perp();
+    if (trackKEner < eMinSecondary) return true;
+
+    // Save the vertex using TruthStrategyUtils
+    TruthStrategyUtils::saveSecondaryVertex(aStep->GetTrack(),
+                                            aStep->GetPostStepPoint(),
+                                            saveTracks);
+
+    return true;
+  }
+  else return false;
 }

@@ -9,7 +9,7 @@ private
 use AtlasCLHEP          AtlasCLHEP-*            External
 use Geant4              Geant4-*                External
 use MCTruth             MCTruth-*               Simulation/G4Sim
-use SimHelpers          SimHelpers-*            Simulation/G4Sim
+#use SimHelpers          SimHelpers-*            Simulation/G4Sim
 end_private
 
 include_dirs "$(G4TruthStrategies_root)"
