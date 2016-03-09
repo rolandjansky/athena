@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 // FIXME! Remove!
+#include <Inventor/C/errors/debugerror.h>
 #define protected public
 #include <Inventor/nodes/SoSelection.h>
 #undef protected
@@ -691,6 +692,22 @@ int TrackSystemController::currentSettingsVersion() const
 //____________________________________________________________________
 void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
 {
+	messageVerbose("TrackSystemController::actualSaveSettings()");
+
+	/*
+	 * NOTE!!! Important, about serialization:
+	 *
+	 * - order has to be the same between saving-reading
+	 *
+	 * See: http://www.mimec.org/node/348
+	 *
+	 */
+
+	messageDebug("Serialize - current version: "+QString::number( s.version() ));
+
+	// saving a string, which will be checked while restoring the values
+	s.save(QString("TrackSystemSettings"));
+
   //versions <= 3 saved an integer here
 
   //Display options: linewidth: 
@@ -700,26 +717,42 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   //Tracks base light model:
   // s.save(d->ui_col.checkBox_tracksUseBaseLightModel);//version 4+ GONE WITH VERSION 17 
 
-  //Display options - projections
-  s.save(d->ui_proj.checkBox_projections_indet);
-  s.save(d->ui_proj.checkBox_projections_muonchambers);
-  s.save(d->ui_proj.groupBox_projections_vertex); //v15
-  s.save(d->ui_proj.spinBox_projections_vertex);//v15
-  s.save(d->ui_proj.horizontalSlider_projections_vertex);//v15
-  // s.save(d->ui_col.checkBox_hideactualpaths); GONE WITH VERSION 17 
+	// --- Projections options ---
+	s.save(QString("Projections options"));
+	s.save(d->ui_proj.checkBox_projections_indet);
+	s.save(d->ui_proj.checkBox_projections_muonchambers);
+	s.save(d->ui_proj.groupBox_projections_vertex); //v15
+	s.save(d->ui_proj.spinBox_projections_vertex);//v15
+	s.save(d->ui_proj.horizontalSlider_projections_vertex);//v15
+	// s.save(d->ui_col.checkBox_hideactualpaths); GONE WITH VERSION 17
+	// ---------------------------
+
 
   //Display options - track tubes
   // s.save(d->ui_col.checkBox_trackTubes);//version 8+ GONE WITH VERSION 17 
   // s.save(d->ui_col.doubleSpinBox_trackTubesRadiusMM);//version 8+ GONE WITH VERSION 17 
 
   //Version <= 3 had bool here
+
+
+  // ----- Propagation options -----
+  s.save(QString("Propagation options"));
   s.save(d->ui_extrap.radioButton_none,
 		 d->ui_extrap.radioButton_helical,
 		 d->ui_extrap.radioButton_athenaExtrapolator);//version 4+
   s.save(d->ui_extrap.comboBox_propagator);//NB: We restore this in a slightly special way
+  // -----------------------------------
 
+
+
+
+  // ----- Interactions options -----
+  s.save(QString("Interactions options"));
   s.save(d->ui_int.lineEdit_fittedTrackCollName);//version 6+
   s.save(d->ui_int.comboBox_fitters);//version 6+
+  // -----------------------------------
+
+
 
   //Version <=2 had bool here
 
@@ -733,6 +766,8 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   //Display options - Truth tracks:
   s.save(d->ui_ascobjs.checkBox_truthtracks_display_points);
 
+  // --- Display options - Colours ---
+  s.save(QString("Colour options"));
   //Display options - Colour by pdg:
   s.save(d->ui_col.matButton_electrons);
   s.save(d->ui_col.matButton_muons);
@@ -753,7 +788,17 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   //Display options - Colour by momentum:
   s.save(d->ui_col.matButton_0GeV);//version 2+
   s.save(d->ui_col.matButton_15GeV);//version 2+
+  // -----------------------------------
 
+
+
+
+
+
+
+
+  // --- Cuts options ---
+  s.save(QString("Cuts options"));
   //Cuts - general:
   s.save(d->ui_cuts.checkBox_cut_minpt);
   s.save(d->ui_cuts.doubleSpinBox_cut_minpt_gev);
@@ -780,7 +825,15 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   s.save(d->ui_cuts.checkBox_cut_truthtracks_excludebarcode0);
 
   s.save(d->ui_cuts.checkBox_vertexAssociated);//Version 14+
+  // -----------------------------------
 
+
+
+
+
+
+  // --- Interactions options ---
+    s.save(QString("Interactions options"));
   //Interactions - selection mode:
   s.save(d->ui_int.radioButton_selmode_single,
 		 d->ui_int.radioButton_selmode_multitracks,
@@ -794,7 +847,13 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   s.save(d->ui_int.comboBox_fitterMode); // Version 12+
   s.save(d->ui_int.checkBox_removeOutliers);// Version 12+
   s.save(d->ui_int.comboBox_particleHypo);// Version 12+
+  // -----------------------------------
 
+
+
+
+  // --- AscObjs options ---
+    s.save(QString("AscObjs options"));
   //AscObjs - TSOS:
   s.save(d->ui_ascobjs.checkBox_materialeffectsontrack_forceposontrack);
   s.save(d->ui_ascobjs.checkBox_materialeffectsontrack_hideNoDE);
@@ -833,7 +892,13 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   s.save(d->ui_ascobjs.matButton_parerrors);
   s.save(d->ui_ascobjs.matButton_surfaces);
   s.save(d->ui_ascobjs.doubleSpinBox_measurements_shorttubes_scale);//Version 5+
+  // -----------------------------------
 
+
+
+
+  // ----- Colouring options -----
+  s.save(QString("Colouring options"));
   // Version 12
   s.save(d->ui_col.groupBox_labels);
   s.save(d->ui_col.horizontalSlider_labels_trkOffset);
@@ -846,20 +911,44 @@ void TrackSystemController::actualSaveSettings(VP1Serialise&s) const
   s.save(d->ui_col.checkBox_trkLabels_hits);
   s.save(d->ui_col.checkBox_trkLabels_fitQuality);
   s.save(d->ui_col.checkBox_trkLabels_direction);
-    
-  // Extrap options
-  s.save(d->ui_extrap.checkBox_ignoreMEoT);// Version 14
+  // --------------------------
+
+
+
+
+
+
+  // ----- Extrap options -----
+  s.save(QString("Extrapolator options"));
+  s.save(d->ui_extrap.checkBox_ignoreMEoT); // Version 14
   s.save(d->ui_extrap.checkBox_extendAllInDetTracks);
   s.save(d->ui_extrap.comboBox_extendAllInDetTracksToHere);
   s.save(d->ui_extrap.horizontalSlider_granularity);
-  s.save(d->ui_extrap.checkBox_maxRadius);
+  s.save(d->ui_extrap.checkBox_maxRadius); // Version 15
   s.save(d->ui_extrap.spinBox_maxRadiusValue);
+  // --------------------------
   
+
+  messageVerbose("TrackSystemController::actualSaveSettings() - DONE.");
+
 }
 
 //____________________________________________________________________
 void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
 {
+	messageDebug("TrackSystemController::actualRestoreSettings()");
+
+	/*
+		 * NOTE!!! Important, about serialization:
+		 *
+		 * - order has to be the same between saving-reading
+		 *
+		 * See: http://www.mimec.org/node/348
+		 *
+		 */
+
+	messageDebug("Deserialize - current version: "+QString::number( s.version() ));
+
   if (s.version()<0||s.version()>currentSettingsVersion()) {
     message("Warning: State data in .vp1 file has unsupported version ("+str(s.version())+")");
     return;
@@ -869,6 +958,16 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
     message("Warning: the VP1 GUI has changed since .vp1 file format version ("+str(s.version())+"), which means you will have lost the line thickness etc. settings formally found in the Colouring pop-up dialogue.");
   }
   
+  if (s.version()<17) {
+	  s.ignoreString();
+  } else {
+	  QString tt = s.restoreString();
+	  messageDebug("Check string: " + tt);
+	  if (tt != "TrackSystemSettings") {
+		  messageDebug("\n\nERROR!! Settings order does not match!!");
+		  return;
+	  }
+  }
 
   if (s.version()<=3)
     s.ignoreInt();
@@ -878,17 +977,21 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
   //   VP1QtInventorUtils::setValueLineWidthSlider(d->ui_col.horizontalSlider_trackWidth,s.restoreDouble());
   //   s.widgetHandled(d->ui_col.horizontalSlider_trackWidth);
   // }
-  if (s.version()<=17)
+  if (s.version()<17)
      s.ignoreInt(); //d->ui_col.horizontalSlider_trackWidth
 
   //Tracks base light model:
   // if (s.version()>=4)
   //   s.restore(d->ui_col.checkBox_tracksUseBaseLightModel);
-  if (s.version()<=17)
+  if (s.version()<17)
     s.ignoreBool(); //d->ui_col.checkBox_tracksUseBaseLightModel
   
 
-  //Display options - projections
+
+
+
+  // --- Projections options ---
+  if (s.version()>=17 &&  s.restoreString() != "Projections options") messageDebug("\n\nERROR! --> 'Projections options'");
   s.restore(d->ui_proj.checkBox_projections_indet);
   s.restore(d->ui_proj.checkBox_projections_muonchambers);
   if (s.version()>=15){
@@ -897,33 +1000,53 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
     s.restore(d->ui_proj.horizontalSlider_projections_vertex);
   }
   // s.restore(d->ui_col.checkBox_hideactualpaths);
-  if (s.version()<=17)
+  if (s.version()<17)
     s.ignoreBool(); //d->ui_col.checkBox_hideactualpaths  
+  // --------------------------------------
+
+
+
 
   //Display options - track tubes
   // if (s.version()>=8) {
   //   s.restore(d->ui_col.checkBox_trackTubes);
   //   s.restore(d->ui_col.doubleSpinBox_trackTubesRadiusMM);
   // }
-  if (s.version()<=17){
+  if (s.version()<17){
     s.ignoreBool(); //d->ui_col.checkBox_trackTubes  
     s.ignoreDouble(); //d->ui_col.doubleSpinBox_trackTubesRadiusMM  
   }
 
   if (s.version()<=3)
     s.ignoreBool();
+
+
+
+
+  // ----- Propagation options -----
+  if (s.version()>=17 && s.restoreString() != "Propagation options") messageDebug("\n\nERROR! --> 'Propagation options'");
   if (s.version()>=4)
     s.restore(d->ui_extrap.radioButton_none,
 	      d->ui_extrap.radioButton_helical,
 	      d->ui_extrap.radioButton_athenaExtrapolator);
   d->restoredLastPropagator = s.restoreString();
   s.widgetHandled(d->ui_extrap.comboBox_propagator);
+  // -----------------------------------
 
+
+
+
+  // ----- Interactions options -----
+  if (s.version()>=17 && s.restoreString() != "Interactions options") messageDebug("\n\nERROR! --> 'Interactions options'");
   if (s.version()>=6) {
     s.restore(d->ui_int.lineEdit_fittedTrackCollName);
     d->restoredLastFitter = s.restoreString();
     s.widgetHandled(d->ui_int.comboBox_fitters);
   }
+  // -----------------------------------
+
+
+
 
   if (s.version()<=2)
     s.ignoreBool();
@@ -946,6 +1069,9 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
   //Display options - Truth tracks:
   s.restore(d->ui_ascobjs.checkBox_truthtracks_display_points);
 
+
+  // --- Display options - Colours ---
+  if (s.version()>=17 && s.restoreString() != "Colour options") messageDebug("\n\nERROR! --> 'Colour options'");
   //Display options - Colour by pdg:
   s.restore(d->ui_col.matButton_electrons);
   s.restore(d->ui_col.matButton_muons);
@@ -957,7 +1083,6 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
   s.restore(d->ui_col.matButton_photons);
   s.restore(d->ui_col.matButton_neutrinos);
   s.restore(d->ui_col.matButton_otherneutrals);
-
   if (s.version()>=2) {
   //Display options - Colour by charge:
     s.restore(d->ui_col.matButton_charge_neg);
@@ -968,15 +1093,23 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
     s.restore(d->ui_col.matButton_0GeV);
     s.restore(d->ui_col.matButton_15GeV);
   }
+  // -----------------------------------
 
+
+
+
+
+  // --- Cuts options ---
+  if (s.version()>=17 && s.restoreString() != "Cuts options") messageDebug("\n\nERROR! --> 'Cuts options'");
   //Cuts - general:
   s.restore(d->ui_cuts.checkBox_cut_minpt);
   s.restore(d->ui_cuts.doubleSpinBox_cut_minpt_gev);
   s.restore(d->ui_cuts.checkBox_cut_maxpt);
   s.restore(d->ui_cuts.doubleSpinBox_cut_maxpt_gev);
+
   if (s.version()>=10) {
     s.restore(d->ui_cuts.comboBox_momtype);
-  } 
+  }
 
   if (s.version()>=7) {
     s.restore(d->ui_cuts.etaPhiCutWidget);
@@ -1006,7 +1139,14 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
   s.restore(d->ui_cuts.checkBox_cut_truthtracks_excludebarcode0);
 
   if (s.version()>=14) s.restore(d->ui_cuts.checkBox_vertexAssociated);
+  // -----------------------------------
 
+
+
+
+
+  // --- Interactions options ---
+  if (s.version()>=17 && s.restoreString() != "Interactions options") messageDebug("\n\nERROR! --> 'Interactions options'");
   //Interactions - selection mode:
   s.restore(d->ui_int.radioButton_selmode_single,
 		d->ui_int.radioButton_selmode_multitracks,
@@ -1022,7 +1162,16 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
     s.restore(d->ui_int.checkBox_removeOutliers);
     s.restore(d->ui_int.comboBox_particleHypo);
   }
+  // -----------------------------------
+
+
+
+
+
+
   
+  // --- AscObjs options ---
+  if (s.version()>=17 && s.restoreString() != "AscObjs options") messageDebug("\n\nERROR! --> 'AscObjs options'");
   //AscObjs - TSOS:
   s.restore(d->ui_ascobjs.checkBox_materialeffectsontrack_forceposontrack);
   s.restore(d->ui_ascobjs.checkBox_materialeffectsontrack_hideNoDE);
@@ -1066,9 +1215,19 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
   s.restore(d->ui_ascobjs.matButton_surfaces);
   if (s.version()>=5)
     s.restore(d->ui_ascobjs.doubleSpinBox_measurements_shorttubes_scale);
+  // -----------------------------------
+
+
+
+
+
 
   //Interactions - track fits:
   
+
+
+  // ----- Colouring options -----
+  if (s.version()>=17 && s.restoreString() != "Colouring options") messageDebug("\n\nERROR! --> 'Colouring options'");
   if (s.version()>=12){
     s.restore(d->ui_col.groupBox_labels);
     s.restore(d->ui_col.horizontalSlider_labels_trkOffset);
@@ -1085,19 +1244,29 @@ void TrackSystemController::actualRestoreSettings(VP1Deserialise& s)
     s.restore(d->ui_col.checkBox_trkLabels_direction);
   
   
-  // Extrap options Version 14
+
+
+
+  // ----- Extrap options -----
+  // Version 14
+  if (s.version()>=17 && s.restoreString() != "Extrapolator options") messageDebug("\n\nERROR! --> 'Extrapolator options'");
   if (s.version()>=14){
     s.restore(d->ui_extrap.checkBox_ignoreMEoT);
     s.restore(d->ui_extrap.checkBox_extendAllInDetTracks);
     s.restore(d->ui_extrap.comboBox_extendAllInDetTracksToHere); 
     s.restore(d->ui_extrap.horizontalSlider_granularity);
   }
-  
   // version 15
   if (s.version()>=15){
     s.restore(d->ui_extrap.checkBox_maxRadius);
     s.restore(d->ui_extrap.spinBox_maxRadiusValue);  
   }
+  // ------------------------------
+
+
+
+  messageDebug("TrackSystemController::actualRestoreSettings() - DONE.");
+
 }
 
 //____________________________________________________________________

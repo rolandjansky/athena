@@ -24,7 +24,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/AmgStringHelpers.h"
 
-
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoVertexProperty.h>

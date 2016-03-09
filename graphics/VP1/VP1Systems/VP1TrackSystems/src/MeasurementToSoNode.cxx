@@ -4,6 +4,7 @@
 
 #include "VP1TrackSystems/MeasurementToSoNode.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoSphere.h>
