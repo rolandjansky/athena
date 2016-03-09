@@ -30,3 +30,6 @@ apply_pattern dual_use_library files= " *.cxx *.f "
 #apply_pattern component_library
 macro_append  Pyquench_i_shlibflags  "$(HepMC_IO_linkopts)"
 apply_pattern declare_joboptions files="*.py"
+
+# Link the package explicitly against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
