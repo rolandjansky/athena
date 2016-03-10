@@ -199,7 +199,7 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
 		  float expectedPt = expectedEnergy/cosh(pcpf->eta());
 		  if (1.0 == weight) filler.fill(pcpf, pcpf->p4()*weight );
 		else{
-		  float secondWeight = expectedPt + weight*(ptrk->pt()-expectedPt)/ptrk->pt();
+		  float secondWeight = (expectedPt + weight*(ptrk->pt()-expectedPt))/ptrk->pt();
 		  filler.fill(pcpf, pcpf->p4()*secondWeight );
 		}
 		}
