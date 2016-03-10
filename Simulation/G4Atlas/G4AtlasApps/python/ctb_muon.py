@@ -45,7 +45,5 @@ muonsel.df.SetDy(4050.)
 muonsel.df.SetDz(2750.)
 muonsel_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(12250.,0.,0.)
 muonsel.df.MoveTo(muonsel_position)
-# sensitive detector:
-muonsel.add_SenDetector('MCTruth','TrackRecorderSD','MuonEntryRecord','MSEL')
 
 #=======================================================================

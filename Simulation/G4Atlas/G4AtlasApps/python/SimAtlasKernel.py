@@ -46,19 +46,22 @@ class AtlasSimSkeleton(SimSkeleton):
 
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_jobproperties :: starting')
 
+        ## Tidy up DBM DetFlags: temporary measure
+        DetFlags.DBM_setOff()
+
         ## Tidy up NSW DetFlags: temporary measure
-        if getattr(DetFlags, 'sTGC_setOff', None) != None and getattr(DetFlags, 'Micromegas_setOff', None) != None:
-            DetFlags.sTGC_setOff()
-            DetFlags.Micromegas_setOff()
-            if hasattr(simFlags, 'SimulateNewSmallWheel'):
-                if simFlags.SimulateNewSmallWheel():
-                    DetFlags.sTGC_setOn()
-                    DetFlags.Micromegas_setOn()
+        DetFlags.sTGC_setOff()
+        DetFlags.Micromegas_setOff()
+        if hasattr(simFlags, 'SimulateNewSmallWheel'):
+            if simFlags.SimulateNewSmallWheel():
+                DetFlags.sTGC_setOn()
+                DetFlags.Micromegas_setOn()
 
         ## Switch off tasks
         DetFlags.pileup.all_setOff()
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
+        DetFlags.overlay.all_setOff()
         DetFlags.readRDOPool.all_setOff()
         DetFlags.makeRIO.all_setOff()
         DetFlags.writeBS.all_setOff()
@@ -233,39 +236,22 @@ class AtlasSimSkeleton(SimSkeleton):
         ## Add configured GeoModelSvc to service manager
         ServiceMgr += gms
 
+        ## Explicitly create DetectorGeometrySvc - temporary fix
+        from AthenaCommon.CfgGetter import getService, getPublicTool
+        from AthenaCommon.AppMgr import ServiceMgr
+        ServiceMgr += getService('DetectorGeometrySvc')
+        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
+
         ## Run the geometry envelope setup earlier than GeoSD
-        self._do_GeoEnv()
+        self._do_GeoEnv() #TODO remove
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_external :: done')
 
 
     @classmethod
     def _do_GeoEnv(self):
-        """ Construct the bare envelopes for simulation
+        """ Construct the bare envelopes for simulation. OBSOLETE -  REMOVE
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoEnv :: starting')
-        ## ATLAS envelope volumes
-        from atlas_common import AtlasEnvelope
-        from G4AtlasApps.SimFlags import simFlags
-        atlasenv = AtlasEnvelope(simFlags.SimLayout.get_Value())
-        atlas = atlasenv.atlas
-
-        from atlas_common import MuonEnvelope
-        muonenv = MuonEnvelope(simFlags.SimLayout.get_Value())
-        muonq02 = muonenv.muonq02
-        if DetFlags.geometry.Muon_on():
-            AtlasG4Eng.G4Eng.add_DetFacility(muonq02, atlas)
-
-        from atlas_common import InDetEnvelope
-        idenv = InDetEnvelope()
-        idet = idenv.idet
-        if DetFlags.ID_on():
-            AtlasG4Eng.G4Eng.add_DetFacility(idet, atlas)
-
-        from atlas_common import CaloEnvelope
-        caloenv = CaloEnvelope(simFlags.SimLayout.get_Value())
-        calo = caloenv.calo
-        if DetFlags.Calo_on():
-            AtlasG4Eng.G4Eng.add_DetFacility(calo, atlas)
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoEnv :: done')
 
     @classmethod
@@ -273,132 +259,67 @@ class AtlasSimSkeleton(SimSkeleton):
         """
         User actions: TrackProcessor
         """
+        # this line to make sure that the default UAs are added to the list
+        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
 
         # only setup those user actions if running within ISF
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.ISFRun:
 
-          from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
-          from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-          actions = AtlasG4Eng.G4Eng.menu_UserActions()
-
-          ##hack to allow for different named Configurations of the UserActions
-          def UserActionPath(basename):
-               actionString=''
-               for t in ToolSvc.getAllChildren():
-                   if basename in t.getName():
-                       actionString = 'ToolSvc.'+t.getName()
-                       break
-               from G4AtlasApps import AtlasG4Eng
-               if ''==actionString:
-                   AtlasG4Eng.G4Eng.log.error('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
-                   raise SystemExit('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
-               else:
-                   AtlasG4Eng.G4Eng.log.info('ISF_AtlasSimSkeleton::do_UserActions: Found a ' + basename + ' instance called ' + actionString)
-               return actionString
-
-          # TrackProcessorUserAction
-          actionString = UserActionPath('TrackProcessorUserAction')
-          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add ISF_G4TrackProcessorUserAction instance called ' + actionString)
-          ISF_G4TrackProcessor = PyG4Atlas.UserAction('ISF_Geant4Tools',actionString,['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
-          actions.add_UserAction(ISF_G4TrackProcessor)
-
-          # MCTruthUserAction
-          actionString = UserActionPath('MCTruthUserAction')
-          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add ISF_MCTruthUserAction instance called ' + actionString)
-          ISF_MCTruthUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools',actionString,['Step'])
-          actions.add_UserAction(ISF_MCTruthUserAction)
-
-          # SDActivateUserAction : deactivates SD classes so Begin/EndOfEvent
-          # won't be called by G4 (called by SimHitSvc instead)
-          actionString = UserActionPath('SDActivateUserAction')
-          AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add SDActivateUserAction instance called ' + actionString)
-          ISF_SDActivateUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools',actionString,['BeginOfEvent','EndOfEvent'])
-          actions.add_UserAction(ISF_SDActivateUserAction)
-
+            from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
+            ##hack to allow for different named Configurations of the UserActions
+            def UserActionPath(basename):
+                actionString=''
+                for t in ToolSvc.getAllChildren():
+                    if basename in t.getName():
+                        actionString = t.getName()
+                        break
+                from G4AtlasApps import AtlasG4Eng
+                if ''==actionString:
+                    AtlasG4Eng.G4Eng.log.error('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
+                    raise SystemExit('ISF_AtlasSimSkeleton::do_UserActions: Could not find ' + basename + ' instance in ToolSvc!')
+                else:
+                    AtlasG4Eng.G4Eng.log.info('ISF_AtlasSimSkeleton::do_UserActions: Found a ' + basename + ' instance called ' + actionString)
+                return actionString
+            from AthenaCommon.CfgGetter import getPublicTool
+            UAStore.addSystemAction( getPublicTool(UserActionPath('MCTruthUserAction')),['BeginOfTracking','EndOfTracking'])
+            from ISF_Config.ISF_jobProperties import ISF_Flags
+            if ISF_Flags.ValidationMode.get_Value():
+                UAStore.addAction( getPublicTool(UserActionPath('PhysicsValidationUserAction')),['BeginOfRun','EndOfEvent','Step','BeginOfTracking','BeginOfEvent'])
+            UAStore.addAction( getPublicTool(UserActionPath('TrackProcessorUserAction')),['Step','BeginOfTracking','BeginOfEvent'])
 
     @classmethod
     def do_GeoSD(self):
         """ Configure the geometry and SD
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: starting')
-        ## Extra materials
-        import atlas_materials
         ## Different geometry-levels for rec envelopes depending into simFlags.SimLayout
         recenv_level = 2
-
-        ## Add cavern for cosmics layouts and cavern bg sim
-        from atlas_common import AtlasEnvelope
         from G4AtlasApps.SimFlags import simFlags
-        atlasenv = AtlasEnvelope(simFlags.SimLayout.get_Value())
-        atlas = atlasenv.atlas
+        from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() == 'cosmics' or \
-           (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-            ## Put in place cavern description for the two setups
-            from atlas_common import CosmicShortCut, AtlasCavernGeoModel
-            cavern = AtlasCavernGeoModel()
-            cavern.DeclarePhysReg()
-            AtlasG4Eng.G4Eng.add_DetFacility(cavern.world, cavern.world)
-            AtlasG4Eng.G4Eng.add_DetFacility(cavern.point1, cavern.world)
-            AtlasG4Eng.G4Eng.add_DetFacility(atlas, cavern.world)
-            if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR"):
-                cosmicSC = CosmicShortCut(not simFlags.ReadTR.statusOn)
-                AtlasG4Eng.G4Eng.add_DetFacility(cosmicSC.ttr_barrel, atlas)
+                (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
             recenv_level = 3
-            #atlas.df.RotateX(0.013196326794)
-        else:
-            AtlasG4Eng.G4Eng.add_DetFacility(atlas, atlas)
 
         # if this is an ISF run, allow the collections on store gate to be modified
         # by other algorithms (i.e. set them non-const)
-        from G4AtlasApps.SimFlags import simFlags
         allowSGMods = True if simFlags.ISFRun else False
 
         ## Get a handle to the RecEnv menu
-        if not  simFlags.ISFRun:
+        if not simFlags.ISFRun:
             menuRecordEnvelopes = AtlasG4Eng.G4Eng.menu_RecordEnvelope()
             from atlas_mctruth import RecordingEnvelopes
 
         ## Inner detector
         if DetFlags.ID_on():
-            idet = AtlasG4Eng.G4Eng.Dict_DetFacility["IDET"]
             if not simFlags.ISFRun:
                 rc = RecordingEnvelopes.AtlasCaloEntryLayer(recenv_level, allowSGMods)
                 menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
-            if DetFlags.geometry.pixel_on():
-                from atlas_idet import Pixel
-                pixel = Pixel(allowSGMods)
-                pixel._initSD()
-                pixel._initPR()
-                AtlasG4Eng.G4Eng.add_DetFacility(pixel.atlas_pixel, idet)
-            if DetFlags.geometry.SCT_on():
-                from atlas_idet import SCT
-                sct = SCT(allowSGMods)
-                sct._initSD()
-                sct._initPR()
-                AtlasG4Eng.G4Eng.add_DetFacility(sct.atlas_sct, idet)
             if DetFlags.geometry.TRT_on():
-                from atlas_idet import TRT
-                trt = TRT(allowSGMods)
-                trt._initSD()
-                trt._initPR()
-                AtlasG4Eng.G4Eng.add_DetFacility(trt.atlas_trt, idet)
-                trt._initTRTProcess()
-
-            ## Beam pipe
-            if DetFlags.bpipe_on():
-                from atlas_common import BeamPipe
-                atlasbeampipe = BeamPipe()
-                atlasbeampipe._initPR()
-                AtlasG4Eng.G4Eng.add_DetFacility(atlasbeampipe.beampipe, atlas)
-
-            from atlas_idet import IDetServicesMat
-            idetmat = IDetServicesMat()
-            AtlasG4Eng.G4Eng.add_DetFacility(idetmat.atlas_idetServMat, idet)
+                AtlasG4Eng.G4Eng.read_XML("TRgeomodelgeometry.xml") # FIXME need to find a better way to do this
 
         ## Calorimeters
         if DetFlags.Calo_on():
-            calo = AtlasG4Eng.G4Eng.Dict_DetFacility["CALO"]
             if not simFlags.ISFRun:
                 rc = RecordingEnvelopes.AtlasMuonEntryLayer(recenv_level, allowSGMods)
                 menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
@@ -406,122 +327,15 @@ class AtlasSimSkeleton(SimSkeleton):
             ## LAr
             if DetFlags.geometry.LAr_on():
                 from atlas_calo import PyLArG4RunControler
-                #Temporary protection to avoid branching for MC12
-                try:
-                    lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
-                except AttributeError:
-                    lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict')
-                from atlas_calo import LAr
-                LArDetector = LAr(allowSGMods)
-                ## Shower parameterization overrides the calibration hit flag
-                if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
-                   and simFlags.CalibrationRun.statusOn and simFlags.CalibrationRun.get_Value() in ['LAr','LAr+Tile','DeadLAr']:
-                    AtlasG4Eng.G4Eng.log.fatal('AtlasSimSkeleton._do_GeoSD :: You requested both calibration hits and frozen showers / parameterization in the LAr.')
-                    AtlasG4Eng.G4Eng.log.fatal('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
-                    AtlasG4Eng.G4Eng.log.fatal('  Please try again with a different value of simFlags.LArParameterization or simFlags.CalibrationRun ')
-                    raise RuntimeError('Configuration not allowed')
-                if simFlags.LArParameterization() > 0:
-                    LArDetector._initSD(0)
-                    LArDetector._initParameterization()
-                    AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_GeoSD :: you chose to activate shower parameterization to level %d', simFlags.LArParameterization())
-                    AtlasG4Eng.G4Eng.log.warning('AtlasSimSkeleton._do_GeoSD :: you chose to activate shower parameterization: switching off ALL calibration hits')
-                elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
-                ## As the default we select always no-parametrization
-                    if simFlags.CalibrationRun.statusOn:
-                        if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
-                            LArDetector._initSD(1)
-                        elif simFlags.CalibrationRun.get_Value() == 'DeadLAr':
-                            LArDetector._initSD(2)
-                    else:
-                        LArDetector._initSD(0)
-                    LArDetector._initPR()
-                AtlasG4Eng.G4Eng.add_DetFacility(LArDetector.atlas_lar, calo)
-
-            ## Tile
-            if DetFlags.geometry.Tile_on():
-                from atlas_calo import Tile
-                tile = Tile(allowSGMods)
-                tile._initSD()
-                AtlasG4Eng.G4Eng.add_DetFacility(tile.atlas_tile, calo)
-
-        ## LUCID
-        if DetFlags.geometry.Lucid_on():
-            from atlas_forward import Lucid
-            atlaslucid = Lucid()
-            atlaslucid._initSD()
-            AtlasG4Eng.G4Eng.add_DetFacility(atlaslucid.lucid, atlas)
-            atlaslucid._initOpProcess()
-
-        ## Forward Region
-        if simFlags.ForwardDetectors.statusOn:
-
-            # Construct the det facility
-            from atlas_forward import ForwardRegion
-            atlasForwardRegion = ForwardRegion()
-            fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
-            AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
-
-            if DetFlags.geometry.FwdRegion_on():
-                from AthenaCommon.CfgGetter import getPublicTool
-                from AthenaCommon.AppMgr import ToolSvc
-                ToolSvc += getPublicTool("ForwardRegionProperties")
-
-                from atlas_forward import FwdRegion
-                atlasFwdRegion = FwdRegion()
-                AtlasG4Eng.G4Eng.add_DetFacility(atlasFwdRegion.atlas_FwdRegion, fwdRegionEnvelope)
-
-            ## ZDC
-            if DetFlags.geometry.ZDC_on():
-                from atlas_forward import ZDC
-                atlasZDC = ZDC()
-                atlasZDC._initSD()
-                AtlasG4Eng.G4Eng.add_DetFacility(atlasZDC.atlas_ZDC, fwdRegionEnvelope)
-
-            ## ALFA
-            if DetFlags.geometry.ALFA_on():
-                from atlas_forward import ALFA
-                atlasalfa = ALFA()
-                atlasalfa._initSD()
-                AtlasG4Eng.G4Eng.add_DetFacility(atlasalfa.alfa, fwdRegionEnvelope)
-
-            # AFP
-            if DetFlags.geometry.AFP_on():
-                from atlas_forward import AFP
-                atlasAFP = AFP()
-                atlasAFP._initSD()
-                AtlasG4Eng.G4Eng.add_DetFacility(atlasAFP.AFP, fwdRegionEnvelope)
-                atlasAFP._initOpProcess()
+                lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
 
         ## Muon system
         if DetFlags.geometry.Muon_on():
-            muonq02 = AtlasG4Eng.G4Eng.Dict_DetFacility["MUONQ02"]
-            #AtlasG4Eng.G4Eng.add_DetFacility(muonq02, atlas)
-            from atlas_muon import Muon
-            muon = Muon(allowSGMods)
-            muon._initSD()
-            muon._initPR()
-            AtlasG4Eng.G4Eng.add_DetFacility(muon.atlas_muon, muonq02)
             if not simFlags.ISFRun:
                 rc = RecordingEnvelopes.AtlasMuonExitLayer(recenv_level, allowSGMods)
                 menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
 
-        if simFlags.StoppedParticleFile.statusOn:
-            theATLAS = AtlasG4Eng.G4Eng.Dict_DetFacility['Atlas'] #FIXME still needed?
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
-
-    @classmethod
-    def do_Physics(self):
-        """
-           Physics List from the simFlags.PhysicsList flag
-           with default cut of 1 mm.
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_Physics :: starting')
-        ## ATLAS physics list
-        from G4AtlasApps.SimFlags import simFlags
-        atlasPhysics = PyG4Atlas.PhysicsList(simFlags.PhysicsList.get_Value(), 1)
-        AtlasG4Eng.G4Eng.add_PhysicsList(atlasPhysics)
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_Physics :: done')
-
 
     @classmethod
     def do_MCtruth(self):
@@ -603,14 +417,14 @@ class AtlasSimSkeleton(SimSkeleton):
                 atlasfield.set_G4FieldTrackParameters('DeltaOneStep',       'BeamPipe::BeamPipe', 0.0001)
                 atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'BeamPipe::BeamPipe', 0.001)
                 atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'BeamPipe::BeamPipe', 0.00001)
-            if 'IDET' in AtlasG4Eng.G4Eng.Dict_DetFacility:
+            if DetFlags.ID_on():
                 AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_MagField :: Increasing IDET Tracking Precision')
                 atlasfield.add_Volume('IDET::IDET')
                 atlasfield.set_G4FieldTrackParameters('DeltaIntersection', 'IDET::IDET', 0.00001)
                 atlasfield.set_G4FieldTrackParameters('DeltaOneStep', 'IDET::IDET', 0.0001)
                 atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'IDET::IDET', 0.001)
                 atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'IDET::IDET', 0.00001)
-            if 'MUONQ02' in AtlasG4Eng.G4Eng.Dict_DetFacility:
+            if DetFlags.Muon_on():
                 AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_MagField :: Increasing MUONQ02 Tracking Precision')
                 atlasfield.add_Volume('MUONQ02::MUONQ02')
                 atlasfield.set_G4FieldTrackParameters('DeltaIntersection', 'MUONQ02::MUONQ02', 0.00000002)
@@ -674,53 +488,6 @@ class AtlasSimSkeleton(SimSkeleton):
                     if step_limitation is not None:
                         AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep('FwdRegion::ForwardRegionGeoModel', step_limitation)
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MagField :: done')
-
-    @classmethod
-    def _do_DefaultUserActions(self):
-        """
-        Default user actions: G4SimTimer, G4TrackCounter
-
-        Do not re-write this method. The memory and time
-        checkers must be on always.
-        """
-        import AtlasG4Eng,PyG4Atlas
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_DefaultUserActions :: starting')
-
-        from atlas_utilities import G4TrackCounter
-        actions = AtlasG4Eng.G4Eng.menu_UserActions()
-
-        from G4AtlasApps.SimFlags import simFlags
-        if not simFlags.ISFRun:
-            from atlas_utilities import G4SimTimer
-            actions.add_UserAction(G4SimTimer)
-
-        actions.add_UserAction(G4TrackCounter)
-        from G4AtlasApps.SimFlags import simFlags
-        if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.CavernBG.statusOn: # and not simFlags.ISFRun:
-            # Add a user action to save the perigees
-            cpAction = PyG4Atlas.UserAction('G4UserActions', 'CosmicPerigeeAction', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-            if simFlags.ISFRun:
-                cpAction.set_Properties({"allowMods":"1"})
-            else:
-                cpAction.set_Properties({"allowMods":"0"})
-            actions.add_UserAction(cpAction)
-        if simFlags.PhysicsList == 'QGSP_BERT_HP':
-            # Add a user action to get rid of low energy photons and do the looper killing for us
-            cpAction = PyG4Atlas.UserAction('G4UserActions', 'PhotonKiller', ['Step'])
-            actions.add_UserAction(cpAction)
-        if simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
-            # Add a user action to time wrap hits in the muon system
-            cpAction = PyG4Atlas.UserAction('G4UserActions', 'HitWrapper', ['EndOfEvent'])
-            actions.add_UserAction(cpAction)
-        if simFlags.StoppedParticleFile.statusOn:
-            # Add a user action to filter events with no stopping positions
-            positionAction = PyG4Atlas.UserAction('G4UserActions','StoppedParticleAction',['Step'])
-            actions.add_UserAction(positionAction)
-            filterAction = PyG4Atlas.UserAction('G4CosmicFilter','G4CosmicFilter',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
-            filterAction.set_Properties({'VolumeName':'StoppingPositions'})
-            actions.add_UserAction(filterAction)
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_DefaultUserActions :: done')
-
 
     @classmethod
     def _do_metadata(self):
@@ -832,7 +599,7 @@ class AtlasSimSkeleton(SimSkeleton):
 
             ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
             simDets = []
-            for det in ['pixel','SCT','TRT','BCM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
+            for det in ['pixel','SCT','TRT','BCM','DBM','Lucid','FwdRegion','ZDC','ALFA','AFP','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']:
                 attrname = det+"_on"
                 checkfn = getattr(DetFlags.geometry, attrname, None)
                 if checkfn is None:

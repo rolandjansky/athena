@@ -673,9 +673,9 @@ class CombinedScintillator:
         elif(eta>0.95):
           self.ctb_combinedscintillator_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(-2.0,0.0,0.0)
         self.ctb_combinedscintillator.df.MoveTo(self.ctb_combinedscintillator_position)
-        self.ctb_combinedscintillator.add_SenDetector('CombinedScintillator',\
-                           'CombinedScintillatorSD','CombinedScintillatorSD',\
-                                     'CombinedScintillator::CScintillatorLayer')
+        #self.ctb_combinedscintillator.add_SenDetector('CombinedScintillator',\
+        #                   'CombinedScintillatorSD','CombinedScintillatorSD',\
+        #                             'CombinedScintillator::CScintillatorLayer')
 
 
 class LArCrate:
@@ -722,10 +722,10 @@ class MuonWall:
             z=-zmax
         self.ctb_muonwall_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(r,0.0,z)
         self.ctb_muonwall.df.MoveTo(self.ctb_muonwall_position)
-        self.ctb_muonwall.add_SenDetector('MuonWall',\
-             'MuonWallSD','MuonWallSD','MuonWall::MuScintillatorLayer')
+        #self.ctb_muonwall.add_SenDetector('MuonWall',\
+        #     'MuonWallSD','MuonWallSD','MuonWall::MuScintillatorLayer')
         # We want it built at the first place
-        AtlasG4Eng.G4Eng._List_SenDetector_dependence.append('MuonWallSD')
+        #AtlasG4Eng.G4Eng._List_SenDetector_dependence.append('MuonWallSD')
 
 
 class PhantomCalorimeter:
@@ -744,8 +744,8 @@ class PhantomCalorimeter:
         self.ctb_phantomcalorimeter_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(1950.,0.,4350.)
         self.ctb_phantomcalorimeter.df.MoveTo(self.ctb_phantomcalorimeter_position)
         self.ctb_phantomcalorimeter.df.RotateY(math.radians(90.))
-        self.ctb_phantomcalorimeter.add_SenDetector('PhantomCalorimeter',\
-             'PhantomBarrelSD','PhantomBarrelSD','PhantomBarrel::ScintillatorLayer')
+        #self.ctb_phantomcalorimeter.add_SenDetector('PhantomCalorimeter',\
+        #     'PhantomBarrelSD','PhantomBarrelSD','PhantomBarrel::ScintillatorLayer')
 
 class LArTileAncillary:
     """

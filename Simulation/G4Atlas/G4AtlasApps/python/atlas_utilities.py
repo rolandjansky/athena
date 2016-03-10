@@ -3,21 +3,11 @@
 """
 Provide different utilities like:
 
-  G4SimTimer = UserAction from G4Utilities/G4UserActions.
-  G4TrackCounter = UserAction from G4Utilities/G4UserActions.
   MemorySnooper = process memory monitoring tool
   _frozen = a base class / metaclass for making objects immutable
 """
 
 __author__  = 'A. Dell`Acqua, M. Gallas, A. Di Simone'
-
-import PyG4Atlas, AtlasG4Eng
-
-
-## ATLAS UserActions
-G4SimTimer = PyG4Atlas.UserAction('G4UserActions', 'G4SimTimer', ['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun'])
-G4TrackCounter = PyG4Atlas.UserAction('G4UserActions', 'G4TrackCounter', ['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun'])
-
 
 ## ATLAS generic scintillator SD
 class ScintillatorSD(object):
@@ -34,18 +24,20 @@ class ScintillatorSD(object):
         provided here, example for the scintillator S1 the name is S1
         """
         self.List_Volumes=volume_list
+        import AtlasG4Eng
         AtlasG4Eng.G4Eng.load_Lib('G4AncillarySD')
         AtlasG4Eng.G4Eng.load_Dict('G4AncillarySDDict')
         SD_HChandler = AtlasG4Eng.G4Eng.gbl.ScintillatorSD_PyHandler()
-        SD = PyG4Atlas.SenDetector('G4AncillarySD', 'ScintillatorSD', 'ScintillatorSD') #FIXME SD to be migrated ATLASSIM-1752
-        # Make a ScintillatorSD hit collection and each associated volume has a
-        # collection name
-        for v_n in self.List_Volumes:
-            SD.add_Volume(v_n+"::"+v_n)
-            AtlasG4Eng.G4Eng.log.debug('atlas_utilities:: ScintillatorSD:_init: added the volume '+v_n)
-            SD_HChandler.BuildDescription(v_n, v_n, v_n, True)
-            AtlasG4Eng.G4Eng.log.debug('atlas_utilities:: ScintillatorSD:_init: added hit collection name '+v_n)
-        AtlasG4Eng.G4Eng.add_SenDetector(SD)
+        #import PyG4Atlas
+        ## SD = PyG4Atlas.SenDetector('G4AncillarySD', 'ScintillatorSD', 'ScintillatorSD') #FIXME SD to be migrated ATLASSIM-1752
+        ## # Make a ScintillatorSD hit collection and each associated volume has a
+        ## # collection name
+        ## for v_n in self.List_Volumes:
+        ##     SD.add_Volume(v_n+"::"+v_n)
+        ##     AtlasG4Eng.G4Eng.log.debug('atlas_utilities:: ScintillatorSD:_init: added the volume '+v_n)
+        ##     SD_HChandler.BuildDescription(v_n, v_n, v_n, True)
+        ##     AtlasG4Eng.G4Eng.log.debug('atlas_utilities:: ScintillatorSD:_init: added hit collection name '+v_n)
+        ## AtlasG4Eng.G4Eng.add_SenDetector(SD)
 
 
 ## Check memory
