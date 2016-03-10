@@ -15,7 +15,7 @@
 
 namespace FADS {
 
-  PhysicsListSteering::PhysicsListSteering():G4VUserPhysicsList(),theList(0),PList(0),m_neutronTimeCut(0),m_neutronEnergyCut(0),m_applyCuts(false)
+  PhysicsListSteering::PhysicsListSteering():G4VUserPhysicsList(),m_theList(0),m_PList(0),m_neutronTimeCut(0),m_neutronEnergyCut(0),m_applyCuts(false)
   {
     // std::cout<< " Physics List Steering being created now "<<std::endl;
   }
@@ -24,7 +24,7 @@ namespace FADS {
   {
     // std::cout<< " deleting PhysicsListSteering"<<std::endl;
     // std::cout<< " \ttrying deleting the actual list first!"<<std::endl;
-    if (PList) delete PList;
+    if (m_PList) delete m_PList;
     // std::cout<< " \tdone! terminating"<<std::endl;
   }
 
@@ -37,40 +37,40 @@ namespace FADS {
 
   void PhysicsListSteering::SetCuts()
   {
-    if (!PList)
+    if (!m_PList)
       {
-        std::cout<< "this is PhysicsListSteering::SetCuts: PList not set!!!!!"<<std::endl;
+        std::cout<< "this is PhysicsListSteering::SetCuts: m_PList not set!!!!!"<<std::endl;
         return;
       }
-    PList->SetCuts();
+    m_PList->SetCuts();
   }
 
   void PhysicsListSteering::ConstructProcess()
   {
     // std::cout<< "this is PhysicsListSteering::ConstructProcess"<<std::endl;
-    theList=PhysicsListCatalog::GetInstance()->currentPL;
-    if (!theList)
+    m_theList=PhysicsListCatalog::GetInstance()->m_currentPL;
+    if (!m_theList)
       std::cout<< "this is PhysicsListSteering: the List is not set!"<<std::endl;
     else
       {
-        theList->Construct();
-        PList=theList->GetPhysicsList();
+        m_theList->Construct();
+        m_PList=m_theList->GetPhysicsList();
 
         // this block replaces the standard PhysicsList's ConstructParticle
 
-        PList->ConstructParticle();
+        m_PList->ConstructParticle();
 
-        for (unsigned int i=0;i<userPhysics.size();i++)
-          userPhysics[i]->ConstructParticle();
+        for (unsigned int i=0;i<m_userPhysics.size();i++)
+          m_userPhysics[i]->ConstructParticle();
 
         InitializeProcessManager();
 
         // this block is for PhysicsList's ConstructProcess
 
-        PList->ConstructProcess();
+        m_PList->ConstructProcess();
 
-        for (unsigned int i=0;i<userPhysics.size();i++)
-          userPhysics[i]->ConstructProcess();
+        for (unsigned int i=0;i<m_userPhysics.size();i++)
+          m_userPhysics[i]->ConstructProcess();
       }
 
     if (m_neutronTimeCut)

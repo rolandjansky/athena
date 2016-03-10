@@ -5,12 +5,7 @@
 #ifndef FadsPhysicsList_H
 #define FadsPhysicsList_H
 
-#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
-#else
-#include <iostream.h>
-#endif
-
 #include <vector>
 #include <string>
 
@@ -22,12 +17,12 @@ namespace FADS {
 
   class FadsPhysicsList {
   private:
-    std::string name;
-    std::vector<std::string> theDescription;
+    std::string m_name;
+    std::vector<std::string> m_theDescription;
   protected:
-    double cutValue;
+    double m_cutValue;
   public:
-    void SetCutValue(double v) {cutValue=v;}
+    void SetCutValue(double v) {m_cutValue=v;}
     std::string GetName();
     FadsPhysicsList(std::string n);
     virtual ~FadsPhysicsList() {}

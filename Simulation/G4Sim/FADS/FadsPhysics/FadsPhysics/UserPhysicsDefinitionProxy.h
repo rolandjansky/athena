@@ -13,30 +13,30 @@
 template <class T>
 class UserPhysicsDefinitionProxy: public UserPhysicsDefinition {
 private:
-  T* thePhysicsDefinition;
+  T* m_thePhysicsDefinition;
 public:
   UserPhysicsDefinitionProxy(): UserPhysicsDefinition()
   {
-    std::cout<<" Proxy summoned:registering... "<<std::endl;
+    //std::cout<<" Proxy summoned:registering... "<<std::endl;
     Register();
-    std::cout<<" creating the user's process list"<<std::endl;
-    thePhysicsDefinition=new T;
+    //std::cout<<" creating the user's process list"<<std::endl;
+    m_thePhysicsDefinition=new T;
   }
   void Register()
   {
     FADS::PhysicsListCatalog *grm=FADS::PhysicsListCatalog::GetInstance();
     grm->RegisterPhysicsDefinition(this);
   }
-  void CreatePhysicsDefinition() {thePhysicsDefinition=new T;}
+  void CreatePhysicsDefinition() {m_thePhysicsDefinition=new T;}
   void ConstructParticle()
   {
-    if (!thePhysicsDefinition) CreatePhysicsDefinition();
-    thePhysicsDefinition->ConstructParticle();
+    if (!m_thePhysicsDefinition) CreatePhysicsDefinition();
+    m_thePhysicsDefinition->ConstructParticle();
   }
   void ConstructProcess()
   {
-    if (!thePhysicsDefinition) CreatePhysicsDefinition();
-    thePhysicsDefinition->ConstructProcess();
+    if (!m_thePhysicsDefinition) CreatePhysicsDefinition();
+    m_thePhysicsDefinition->ConstructProcess();
   }
 };
 

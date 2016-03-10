@@ -18,30 +18,30 @@ namespace FADS {
   class PhysicsListCatalog {
     friend class PhysicsListSteering;
   private:
-    PhysicsListSteering* theSteering;
-    PLCatalog thePhysicsLists;
-    static PhysicsListCatalog* thePointer;
+    PhysicsListSteering* m_theSteering;
+    PLCatalog m_thePhysicsLists;
+    static PhysicsListCatalog* s_thePointer;
     inline PhysicsListCatalog();
-    FadsPhysicsList *currentPL;
-    double defaultCutValue;
+    FadsPhysicsList *m_currentPL;
+    double m_defaultCutValue;
   public:
-    bool IsCutValueSet() {return defaultCutValue>0;}
-    void SetDefaultCutValue(double c) {defaultCutValue=c;}
-    double GetDefaultCutValue() {return defaultCutValue;}
+    bool IsCutValueSet() {return m_defaultCutValue>0;}
+    void SetDefaultCutValue(double c) {m_defaultCutValue=c;}
+    double GetDefaultCutValue() {return m_defaultCutValue;}
     void SetCurrentPhysicsList(FadsPhysicsList *pl)
     {
-      currentPL=pl;
-      if (defaultCutValue>0) currentPL->SetCutValue(defaultCutValue);
+      m_currentPL=pl;
+      if (m_defaultCutValue>0) m_currentPL->SetCutValue(m_defaultCutValue);
     }
-    FadsPhysicsList *GetCurrentPhysicsList() {return currentPL;}
+    FadsPhysicsList *GetCurrentPhysicsList() {return m_currentPL;}
     static PhysicsListCatalog* GetInstance();
     void RegisterPhysicsList(FadsPhysicsList *d);
     FadsPhysicsList *GetPhysicsListEntry(std::string name);
     void PrintAll();
-    G4VUserPhysicsList* GetMainPhysicsList() {return theSteering;}
+    G4VUserPhysicsList* GetMainPhysicsList() {return m_theSteering;}
     void RegisterPhysicsDefinition(UserPhysicsDefinition *p)
     {
-      theSteering->userPhysics.push_back(p);
+      m_theSteering->m_userPhysics.push_back(p);
     }
   };
 

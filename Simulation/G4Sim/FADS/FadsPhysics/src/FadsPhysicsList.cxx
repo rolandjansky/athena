@@ -9,18 +9,18 @@ namespace FADS {
 
   std::string FadsPhysicsList::GetName()
   {
-    return name;
+    return m_name;
   }
-  FadsPhysicsList::FadsPhysicsList(std::string n): name(n) , cutValue(-1.)
+  FadsPhysicsList::FadsPhysicsList(std::string n): m_name(n) , m_cutValue(-1.)
   {
-    // cout<<"c-tor called for "<<name<<endl;
+    // cout<<"c-tor called for "<<m_name<<endl;
     PhysicsListCatalog *plc=PhysicsListCatalog::GetInstance();
     // cout<<"Registering physics list "<<n<<" "<<endl;
     plc->RegisterPhysicsList(this);
   }
   void FadsPhysicsList::AddDescription(std::string s)
   {
-    theDescription.push_back(s);
+    m_theDescription.push_back(s);
   }
 
 } // end namespace

@@ -17,12 +17,12 @@ namespace FADS {
 
   class FactoryMadeList:public FadsPhysicsList {
    private:
-    G4VUserPhysicsList* thePhysicsList;
+    G4VUserPhysicsList* m_thePhysicsList;
    public:
 
-    G4VUserPhysicsList* GetPhysicsList() override final { return thePhysicsList; }
+    G4VUserPhysicsList* GetPhysicsList() override final { return m_thePhysicsList; }
 
-    FactoryMadeList(std::string n): FadsPhysicsList(n) , thePhysicsList(0) {}
+    FactoryMadeList(std::string n): FadsPhysicsList(n) , m_thePhysicsList(0) {}
 
     ~FactoryMadeList ()
     {
@@ -31,34 +31,34 @@ namespace FADS {
       // destructor, this causes a crash on termination and must be
       // commented out, waiting for a version which will not decide
       // what to do for us (ADA)
-      // if (thePhysicsList) delete thePhysicsList;
+      // if (m_thePhysicsList) delete m_thePhysicsList;
     }
 
     void ConstructParticle()
     {
-      if (!thePhysicsList) Construct();
-      thePhysicsList->ConstructParticle();
+      if (!m_thePhysicsList) Construct();
+      m_thePhysicsList->ConstructParticle();
     }
     void ConstructProcess()
     {
-      if (!thePhysicsList) Construct();
-      thePhysicsList->ConstructProcess();
+      if (!m_thePhysicsList) Construct();
+      m_thePhysicsList->ConstructProcess();
     }
     void SetCuts()
     {
-      if (!thePhysicsList) Construct();
-      thePhysicsList->SetCuts();
+      if (!m_thePhysicsList) Construct();
+      m_thePhysicsList->SetCuts();
     }
     void Construct()
     {
-      if (!thePhysicsList){
+      if (!m_thePhysicsList){
         G4PhysListFactory factory;
         if(GetName() != "" && factory.IsReferencePhysList(GetName())){
-          thePhysicsList = factory.GetReferencePhysList(GetName());
+          m_thePhysicsList = factory.GetReferencePhysList(GetName());
         } 
-        if (!thePhysicsList) throw "Physics list not found";
+        if (!m_thePhysicsList) throw "Physics list not found";
       }
-      if (cutValue>0) thePhysicsList->SetDefaultCutValue(cutValue);
+      if (m_cutValue>0) m_thePhysicsList->SetDefaultCutValue(m_cutValue);
     }
 
   };

@@ -35,9 +35,9 @@ namespace FADS {
     bool GetApplyCuts() const { return m_applyCuts; }
   private:
     PhysicsListSteering();
-    FadsPhysicsList* theList;
-    G4VUserPhysicsList* PList;
-    std::vector<UserPhysicsDefinition*> userPhysics;
+    FadsPhysicsList* m_theList;
+    G4VUserPhysicsList* m_PList;
+    std::vector<UserPhysicsDefinition*> m_userPhysics;
 
     double m_neutronTimeCut;
     double m_neutronEnergyCut;

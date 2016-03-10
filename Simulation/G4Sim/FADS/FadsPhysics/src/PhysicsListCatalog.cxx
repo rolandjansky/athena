@@ -8,37 +8,37 @@
 
 namespace FADS {
 
-  PhysicsListCatalog* PhysicsListCatalog::thePointer = 0;
+  PhysicsListCatalog* PhysicsListCatalog::s_thePointer = 0;
 
-  PhysicsListCatalog::PhysicsListCatalog(): currentPL(0),defaultCutValue(.7*CLHEP::mm)
+  PhysicsListCatalog::PhysicsListCatalog(): m_currentPL(0),m_defaultCutValue(.7*CLHEP::mm)
   {
-    theSteering = new PhysicsListSteering;
-    theSteering->theList=currentPL;
+    m_theSteering = new PhysicsListSteering;
+    m_theSteering->m_theList=m_currentPL;
   }
 
   PhysicsListCatalog* PhysicsListCatalog::GetInstance()
   {
-    if (!thePointer) thePointer=new PhysicsListCatalog;
-    return thePointer;
+    if (!s_thePointer) s_thePointer=new PhysicsListCatalog;
+    return s_thePointer;
   }
 
   void PhysicsListCatalog::RegisterPhysicsList(FadsPhysicsList *d)
   {
-    if (thePhysicsLists.find(d->GetName())!=thePhysicsLists.end()) {
+    if (m_thePhysicsLists.find(d->GetName())!=m_thePhysicsLists.end()) {
       std::cout<<"Redefining physics list "<<d->GetName()<<std::endl;
     } else {
-      thePhysicsLists[d->GetName()]=d;
+      m_thePhysicsLists[d->GetName()]=d;
     }
   }
 
   FadsPhysicsList* PhysicsListCatalog::GetPhysicsListEntry(std::string name)
   {
-    if (thePhysicsLists.find(name)==thePhysicsLists.end()) {
+    if (m_thePhysicsLists.find(name)==m_thePhysicsLists.end()) {
       std::cout << "Physics list " << name << " not found!" << std::endl;
       return 0;
     } else{
-      FadsPhysicsList* df=thePhysicsLists[name];
-      currentPL=df;
+      FadsPhysicsList* df=m_thePhysicsLists[name];
+      m_currentPL=df;
       return df;
     }
   }
@@ -46,9 +46,9 @@ namespace FADS {
   void PhysicsListCatalog::PrintAll()
   {
     std::cout << "Printing the list of pre-defined physics lists:" << std::endl;
-    std::cout << thePhysicsLists.size() << std::endl;
+    std::cout << m_thePhysicsLists.size() << std::endl;
     PLCatalog::const_iterator it;
-    for (it=thePhysicsLists.begin();it!=thePhysicsLists.end();it++) {
+    for (it=m_thePhysicsLists.begin();it!=m_thePhysicsLists.end();it++) {
       std::cout<<" --- Physics list "<<(*it).first<<std::endl;
     }
   }

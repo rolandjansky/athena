@@ -8,12 +8,7 @@
 #include "FadsPhysics/FadsPhysicsList.h"
 #include "G4VUserPhysicsList.hh"
 
-#ifdef HAVE_NEW_IOSTREAMS
 #include <iostream>
-#else
-#include <iostream.h>
-#endif
-
 #include <vector>
 #include <string>
 
@@ -21,16 +16,16 @@ namespace FADS {
 
   template <class T> class PhysicsListEntryT:public FadsPhysicsList {
   private:
-    G4VUserPhysicsList* thePhysicsList;
+    G4VUserPhysicsList* m_thePhysicsList;
   public:
     G4VUserPhysicsList* GetPhysicsList()
     {
-      return thePhysicsList;
+      return m_thePhysicsList;
     }
     PhysicsListEntryT<T>(std::string n): FadsPhysicsList(n)
     {
       // cout<<" this is the templated c-tor"<<endl;
-      thePhysicsList=0;
+      m_thePhysicsList=0;
     }
     ~PhysicsListEntryT ()
     {
@@ -39,29 +34,29 @@ namespace FADS {
       // destructor, this causes a crash on termination and must be
       // commented out, waiting for a version which will not decide
       // what to do for us (ADA)
-      // if (thePhysicsList) delete thePhysicsList;
+      // if (m_thePhysicsList) delete m_thePhysicsList;
     }
     void ConstructParticle()
     {
-      if (!thePhysicsList) Construct();
-      thePhysicsList->ConstructParticle();
+      if (!m_thePhysicsList) Construct();
+      m_thePhysicsList->ConstructParticle();
     }
     void ConstructProcess()
     {
-      if (!thePhysicsList) Construct();
-      thePhysicsList->ConstructProcess();
+      if (!m_thePhysicsList) Construct();
+      m_thePhysicsList->ConstructProcess();
     }
     void SetCuts()
     {
-      if (!thePhysicsList) Construct();
-      thePhysicsList->SetCuts();
+      if (!m_thePhysicsList) Construct();
+      m_thePhysicsList->SetCuts();
     }
     void Construct()
     {
-      if (!thePhysicsList) thePhysicsList=new T;
-      if (cutValue>0) thePhysicsList->SetDefaultCutValue(cutValue);
+      if (!m_thePhysicsList) m_thePhysicsList=new T;
+      if (m_cutValue>0) m_thePhysicsList->SetDefaultCutValue(m_cutValue);
       // cout<<"this is construct"<<endl;
-      // thePhysicsList->Construct();
+      // m_thePhysicsList->Construct();
     }
 
   };
