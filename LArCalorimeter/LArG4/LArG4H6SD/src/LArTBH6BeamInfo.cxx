@@ -2,18 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArTBH6BeamInfo.h"
+#include "LArTBH6BeamInfo.h"
 
 #include "HitManagement/AthenaHitsVector.h"
-
 #include "LArG4TBSimEvent/LArG4H6FrontHitCollection.h"
-#include "TBEvent/TBTrack.h"
-#include "TBEvent/TBEventInfo.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 // Gaudi Includes
 #include "GaudiKernel/SystemOfUnits.h"
+#include "StoreGate/DataHandle.h"
+#include "CxxUtils/make_unique.h" // For make unique
 
 using namespace Gaudi::Units;
 
@@ -22,12 +19,18 @@ LArTBH6BeamInfo::LArTBH6BeamInfo(const std::string& name, ISvcLocator* pSvcLocat
   m_Primary(true),
   m_pcode(999),
   m_cryoX(0.),
-  m_numEv(0)
+  m_numEv(0),
+  m_theEventInfo("TBEventInfo")
 {
    declareProperty("HitsContainer",m_HitsCollNames);
 //   m_HitsCollNames.push_back("LArTBFrontHitCollection");
    declareProperty("PrimaryTrackOnly",m_Primary);
    declareProperty("PrimaryParticle",m_pcode);
+
+  for (const auto &it : m_HitsCollNames){
+    m_hitcoll.push_back( SG::ReadHandle< AthenaHitsVector<LArG4H6FrontHit> >( it ) );
+  }
+
 }
 
 LArTBH6BeamInfo::~LArTBH6BeamInfo()
@@ -60,19 +63,8 @@ StatusCode LArTBH6BeamInfo::execute()
    CLHEP::Hep3Vector pos;
 
    if ( m_numEv == 0 ){
-      const TBEventInfo* theEventInfo;
-      if ( evtStore()->retrieve(theEventInfo,"TBEventInfo").isFailure() ) {
-         ATH_MSG_ERROR ( "cannot retrieve TBEventInfo from StoreGate" );
-         return StatusCode::FAILURE;
-      }
-      m_cryoX = theEventInfo->getCryoX();
+      m_cryoX = m_theEventInfo->getCryoX();
    }
-
-   typedef AthenaHitsVector<LArG4H6FrontHit> CONTAINER;
-   const DataHandle< CONTAINER > hitcoll ;
-
-   std::vector<std::string>::iterator it = m_HitsCollNames.begin();
-
 
    dVect v_x;
    dVect v_y;
@@ -82,61 +74,46 @@ StatusCode LArTBH6BeamInfo::execute()
    dVect v_ey;
 
 // loop hit containers
-   for (; it < m_HitsCollNames.end(); ++it) {
+   for (auto &it : m_hitcoll) {
 
-      ATH_MSG_DEBUG (" hit container name: "<< *it );
+      ATH_MSG_INFO (" hit container: "<< it->Name() <<" size: "<<it->size() );
 
-      if(StatusCode::SUCCESS == evtStore()->retrieve(hitcoll, *it) ) {
-
-        CONTAINER::const_iterator f_hit = hitcoll->begin();
-        CONTAINER::const_iterator l_hit = hitcoll->end();
-
-        ATH_MSG_INFO (" hit container: "<< *it <<" size: "<<hitcoll->size() );
-
-        for ( ; f_hit!=l_hit; ++f_hit) {
-            LArG4H6FrontHit* hit = (*f_hit) ;
-            // loop over hits, find track==0 and make a fit, store a TBTrack to StoreGate
-            if(hit->GetSC() > 0) continue; // scintilator hit
-            if(m_Primary) {
-              if(hit->GetTrackID() != 1) continue; // not a primary particle
-            } else {
-              if(hit->GetPcode() != m_pcode) continue; // not a beam particle
-            }
-            pos = hit->GetPos();
-            if(hit->GetX() > 0) { // X-coordinate
-               v_x.push_back(pos.x());
-               v_xz.push_back(pos.z()+21600.*mm);
-               v_ex.push_back(0.01);   // take the error from somewhere !!!
-            } else {
-               v_y.push_back(pos.y());
-               v_yz.push_back(pos.z()+21600.*mm);
-               v_ey.push_back(0.01);   // take the error from somewhere !!!
-            }
-        }
-
-      } else {
-          ATH_MSG_ERROR ( " unable to retrieve hit container: "<< *it );
+      for (const auto &hit : *it){
+          // loop over hits, find track==0 and make a fit, store a TBTrack to StoreGate
+          if(hit->GetSC() > 0) continue; // scintilator hit
+          if(m_Primary) {
+            if(hit->GetTrackID() != 1) continue; // not a primary particle
+          } else {
+            if(hit->GetPcode() != m_pcode) continue; // not a beam particle
+          }
+          pos = hit->GetPos();
+          if(hit->GetX() > 0) { // X-coordinate
+             v_x.push_back(pos.x());
+             v_xz.push_back(pos.z()+21600.*mm);
+             v_ex.push_back(0.01);   // take the error from somewhere !!!
+          } else {
+             v_y.push_back(pos.y());
+             v_yz.push_back(pos.z()+21600.*mm);
+             v_ey.push_back(0.01);   // take the error from somewhere !!!
+          }
       }
+
    }
 
    if(v_x.size() < 2 || v_y.size() < 2) { // Could not fit
       ATH_MSG_DEBUG ( "Could not fit, setting zero. "<<v_x.size()<<"/"<<v_y.size() );
-      TBTrack *track = new TBTrack(0,0);
-      track->setUintercept(0.);
-      track->setVintercept(0.);
-      track->setUslope(0.);
-      track->setVslope(0.);
-//      track->setResidualu(0, 0);
-//      track->setResidualv(0, 0);
-      track->setChi2_u(1000.);
-      track->setChi2_v(1000.);
-      track->setCryoHitu(0.);
-      track->setCryoHitv(0.);
-      track->setCryoHitw(30000.);
-
-      if ( evtStore()->record(track,"Track").isFailure( ) ) {
-        ATH_MSG_FATAL ( "Cannot record Track" );
-      }
+      m_track = CxxUtils::make_unique<TBTrack>(0,0);
+      m_track->setUintercept(0.);
+      m_track->setVintercept(0.);
+      m_track->setUslope(0.);
+      m_track->setVslope(0.);
+//      m_track->setResidualu(0, 0);
+//      m_track->setResidualv(0, 0);
+      m_track->setChi2_u(1000.);
+      m_track->setChi2_v(1000.);
+      m_track->setCryoHitu(0.);
+      m_track->setCryoHitv(0.);
+      m_track->setCryoHitw(30000.);
       return StatusCode::FAILURE;
    }
    // Now fit somehow
@@ -167,41 +144,36 @@ StatusCode LArTBH6BeamInfo::execute()
     ATH_MSG_DEBUG ( "Intercepts: "<<a1_x<<" "<<a1_y );
     ATH_MSG_DEBUG ( "Slopes: "<<a2_x<<" "<<a2_y );
 
-    TBTrack *track = new TBTrack(v_x.size(), v_y.size());
+    m_track = CxxUtils::make_unique<TBTrack>(v_x.size(), v_y.size());
 
-    track->setUintercept(a1_x);
-    track->setVintercept(a1_y);
-    track->setUslope(a2_x);
-    track->setVslope(a2_y);
+    m_track->setUintercept(a1_x);
+    m_track->setVintercept(a1_y);
+    m_track->setUslope(a2_x);
+    m_track->setVslope(a2_y);
 
     // Setting the residual for plane u //
     for(size_t i = 0; i < v_x.size(); ++i){
-      track->setResidualu(i, residual_x[i]);
+      m_track->setResidualu(i, residual_x[i]);
     }
 
     // Setting the residual for plane v //
     for(size_t i = 0; i < v_y.size(); ++i){
-      track->setResidualv(i, residual_y[i]);
+      m_track->setResidualv(i, residual_y[i]);
     }
 
     ATH_MSG_DEBUG ( "chi2 in X: " << chi2_x );
     ATH_MSG_DEBUG ( "chi2 in Y: " << chi2_y );
     ATH_MSG_DEBUG ( "Setting chi2s of track." );
 
-    track->setChi2_u(chi2_x);
-    track->setChi2_v(chi2_y);
+    m_track->setChi2_u(chi2_x);
+    m_track->setChi2_v(chi2_y);
 
     // Setting the cryo plane (30000 mm in TB coordinate)
-    track->setCryoHitu(a2_x*30000.+a1_x+m_cryoX);
-    track->setCryoHitv(a2_y*30000.+a1_y);
-    track->setCryoHitw(30000.);
+    m_track->setCryoHitu(a2_x*30000.+a1_x+m_cryoX);
+    m_track->setCryoHitv(a2_y*30000.+a1_y);
+    m_track->setCryoHitw(30000.);
 
-    if ( evtStore()->record(track,"Track").isFailure( ) ) {
-      ATH_MSG_FATAL ( "Cannot record Track" );
-      return StatusCode::FAILURE;
-    }
-
-  return  StatusCode::SUCCESS;
+    return  StatusCode::SUCCESS;
 }
 
 //****************************************************************************

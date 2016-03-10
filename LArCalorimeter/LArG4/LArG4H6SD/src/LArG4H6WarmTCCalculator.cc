@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArG4H6SD/LArG4H6WarmTCCalculator.h"
+#include "LArG4H6WarmTCCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 
@@ -146,4 +146,11 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
   if(m_isABS) m_addr *= -1;
   return true;
 }
+
+G4bool LArG4H6WarmTCCalculator::Process(const G4Step*, std::vector<LArHitData>&)
+{
+  std::cout << "Not implemented!" << std::endl;
+  throw;
+}
+
 
