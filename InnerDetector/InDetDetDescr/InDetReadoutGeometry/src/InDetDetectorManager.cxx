@@ -336,7 +336,7 @@ namespace InDetDD
     }
   
   // We provide a default implementation of any detector specific alignment.                                                                                 
-    bool InDetDetectorManager::processGlobalAlignment(const std::string &, int level, FrameType frame) const
+    bool InDetDetectorManager::processGlobalAlignment(const std::string &, int /*level*/, FrameType /*frame*/) const
     {
         return false;
     }

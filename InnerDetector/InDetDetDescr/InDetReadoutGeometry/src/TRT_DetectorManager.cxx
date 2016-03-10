@@ -587,7 +587,7 @@ namespace InDetDD {
     }
 
 
-    bool TRT_DetectorManager::processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const
+    bool TRT_DetectorManager::processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType /*dummy*/) const
     {
         if(msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Processing TRT fine alignment." << endreq;
