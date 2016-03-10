@@ -72,7 +72,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
     if (line.substr(0, 5) == "side=") {
       char side, charge, ctype[15];
       
-      if (sscanf(line.c_str(), "side=%c charge=%c %s", &side, &charge, ctype) != 3) {
+      if (sscanf(line.c_str(), "side=%c charge=%c %14s", &side, &charge, ctype) != 3) {
 	msg() << MSG::ERROR << "Invalid header line " << line_no << " in EndcapLUT file "
 	      << lut_fileName << endreq;
 	return StatusCode::FAILURE;
@@ -98,7 +98,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUT(std::string lut_fileName)
       
       int iEta, iPhi;
       double xcept, slope;
-      if (sscanf(line.c_str(), "%d %d %lf %lf", &iEta, &iPhi, &xcept, &slope) != 4) {
+      if (sscanf(line.c_str(), "%3d %3d %15lf %15lf", &iEta, &iPhi, &xcept, &slope) != 4) {
 	msg() << MSG::ERROR << "Invalid data line " << line_no << " in EndcapLUT file " << lut_fileName << endreq;
 	return StatusCode::FAILURE;
       }
