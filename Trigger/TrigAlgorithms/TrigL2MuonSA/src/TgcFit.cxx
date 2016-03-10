@@ -241,8 +241,8 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
 	 }
       }
    }
-   lowZ  = wirePoints[iLow].fX;
-   highZ = wirePoints[iHigh].fX;
+   if (iLow > -1 && iLow < (int)wirePoints.size()) lowZ  = wirePoints[iLow].fX;
+   if (iHigh > -1 && iHigh < (int)wirePoints.size()) highZ = wirePoints[iHigh].fX;
    Amg::Vector3D p1(wireStats.eval(lowZ), 0.0, lowZ);
    double phi = stripStats.eval(lowZ);
    if( phi >  CLHEP::pi ) phi -= CLHEP::pi*2;
