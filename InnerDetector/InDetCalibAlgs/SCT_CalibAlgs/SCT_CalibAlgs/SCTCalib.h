@@ -191,6 +191,7 @@ const;
   std::ofstream m_outROSummary;
   std::ofstream m_outEffSummary;
   std::ofstream m_outBSErrSummary;
+  std::ofstream m_outBSErrModule;
   std::ofstream m_outLASummary;
 
   // Properties configurable from jobO
@@ -213,6 +214,7 @@ const;
   BooleanProperty m_histBefore2010; // True if HIST is from 2009 or earlier
 
   BooleanProperty m_doHitMaps;
+  IntegerProperty m_nLbsMerged;
   BooleanProperty m_readHitMaps;
   BooleanProperty m_doBSErrors;
   BooleanProperty m_doNoisyStrip;
@@ -301,7 +303,9 @@ const;
   std::string m_noiseOccupancySummaryFile; // Output XML for summary of noise occupancy
   std::string m_rawOccupancySummaryFile;   // Output XML for summary of raw occupancy
   std::string m_efficiencySummaryFile;     // Output XML for summary of efficiency
+  std::string m_efficiencyModuleFile;      // Output XML for efficiency
   std::string m_BSErrorSummaryFile;        // Output XML for summary of BS Errors
+  std::string m_BSErrorModuleFile;        // Output XML for summary of BS Errors
   std::string m_LorentzAngleFile;        // Output XML for noise occupancy
   std::string m_LorentzAngleSummaryFile; // Output XML for summary of lorentz angle
 
@@ -363,7 +367,10 @@ const;
     return true;
   }
   std::string 
-  xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy);
+  xmlChannelNoiseOccDataString(const Identifier & waferId,  const float occupancy, const SCT_SerialNumber & serial);
+
+  std::string 
+  xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial);
   
   std::pair<int, bool> 
   getNumNoisyStrips( const Identifier& waferId ) const;
@@ -386,6 +393,8 @@ const;
                   const std::map< Identifier, std::set<Identifier> >& moduleListNew,
                   const std::map< Identifier, std::set<Identifier> >& moduleListRef,
                   const std::string& badStripsFile) const;
+  /* StatusCode  */
+  /* noisyStripsToSummaryXmlFake( const std::string& badStripsFile) const; */
   std::set<int> 
     getNoisyChips( const std::set<Identifier>& stripIdList ) const;
   //

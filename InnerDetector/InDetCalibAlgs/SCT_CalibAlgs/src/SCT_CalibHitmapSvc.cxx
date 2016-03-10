@@ -58,7 +58,7 @@ SCT_CalibHitmapSvc::initialize(){
 
 StatusCode 
 SCT_CalibHitmapSvc::finalize(){
-  msg(MSG::INFO) << "SCT_CalibHitmapSvc::finalize()"<<endreq;
+  msg(MSG::VERBOSE) << "SCT_CalibHitmapSvc::finalize()"<<endreq;
   if (m_sct_waferHash) delete m_sct_waferHash;
   if (m_sct_rdoGroupSize) delete m_sct_rdoGroupSize;
   if (m_sct_firstStrip) delete m_sct_firstStrip;
@@ -100,11 +100,14 @@ SCT_CalibHitmapSvc::book(){
     std::string histotitle = string( "SCT " ) + detectorNames[ bec2Index(bec) ] + string( " Hitmap: plane " ) + formattedPosition;
     std::string name=hitmapPaths[bec2Index(m_pSCTHelper->barrel_ec( waferId ))] + formattedPosition;
     TH1F* hitmapHisto_tmp = new TH1F( TString( formattedPosition ), TString( histotitle ), nbins, firstStrip-0.5, lastStrip+0.5 );
-    if( m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure() ) {
+
+    //cout<<name.c_str()<<endl;
+    if( m_thistSvc->regHist( name.c_str(), hitmapHisto_tmp ).isFailure()) {
       msg( MSG::ERROR ) << "Error in booking Hitmap histogram" << endreq;
     } else {
       m_phistoVector.push_back( hitmapHisto_tmp );
     }
+
   }
   return result;
 }
@@ -144,12 +147,17 @@ SCT_CalibHitmapSvc::read(const std::string & fileName){
 
 bool 
 SCT_CalibHitmapSvc::fill(const bool fromData){
+  //cout<<"fromData "<<fromData<<endl;
   if (fromData){
     return fillFromData(); 
   }
   bool result(true);
   //--- Number of events
   m_numberOfEventsHisto->Fill( 1 );
+  // both ways hshould give the same results
+  // int eventNumber = m_numberOfEventsHisto->GetBinContent(1);
+  //  int eventNumber = m_numberOfEventsHisto->GetEntries();
+
   //--- Fill hitmap
   const int MaxEntry = m_sct_waferHash->size();
   for( int i = 0; i != MaxEntry; ++i ) {
@@ -168,6 +176,7 @@ bool
 SCT_CalibHitmapSvc::fillFromData(){
   bool result(true);
   m_numberOfEventsHisto->Fill( 1 );
+  // unused int eventNumber = m_numberOfEventsHisto->GetEntries();
   const SCT_RDO_Container * prdoContainer(0);
   if (m_evtStore->retrieve(prdoContainer,"SCT_RDOs").isFailure() ) msg(MSG::ERROR) <<"Failed to retrieve the SCT RDO container"<<endreq;
   SCT_RDO_Container::const_iterator itr=prdoContainer->begin();
@@ -181,7 +190,7 @@ SCT_CalibHitmapSvc::fillFromData(){
     DataVector<SCT_RDORawData>::const_iterator rdoItr = SCT_Collection->begin();
     const DataVector<SCT_RDORawData>::const_iterator rdoEnd = SCT_Collection->end();
     for(;rdoItr != rdoEnd;++rdoItr){
-      int strip=(*rdoItr)->getStrip();
+      int strip=m_pSCTHelper->strip((*rdoItr)->identify());
       const int endStrip=(*rdoItr)->getGroupSize() + strip;
       for (;strip != endStrip;++strip){
         pThisHisto->Fill(strip); 

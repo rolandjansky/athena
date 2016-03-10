@@ -168,7 +168,7 @@ SCT_CalibHvSvc::fill(const bool fromData){
       tq[iq]=m_phvtripQueue[waferhash].front();
       m_phvtripQueue[waferhash].pop();
     }
-    if (tq[m_maxq-2]/m_maxtbins > limit && tq[m_maxq-3]/m_maxtbins > limit && tq[m_maxq-4]/m_maxtbins > limit){
+    if ((double)tq[m_maxq-2]/m_maxtbins > limit && tq[m_maxq-3]/m_maxtbins > limit && tq[m_maxq-4]/m_maxtbins > limit){
         // found a persistent trip/thing
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found a potential trip in SCT wafer "<< waferhash<<endreq;
             //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRIP: "<< waferhash<<" "<<time_stamp <<" "<< Event_number <<" "<< (numhits + tq[m_maxq-1] ) <<endreq;
