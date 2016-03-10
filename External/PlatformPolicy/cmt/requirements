@@ -283,6 +283,9 @@ tag x86_64-slc6-clang32-dbg   Linux slc6 64  clang32 gcc46 debug x86_64-slc6-cla
 tag x86_64-slc6-clang33-opt   Linux slc6 64  clang33 gcc48 opt   x86_64-slc6-clang33
 tag x86_64-slc6-clang33-dbg   Linux slc6 64  clang33 gcc48 debug x86_64-slc6-clang33
 
+tag x86_64-slc6-clang37-opt   Linux slc6 64  clang37 gcc49 opt   x86_64-slc6-clang337
+tag x86_64-slc6-clang37-dbg   Linux slc6 64  clang37 gcc49 debug x86_64-slc6-clang37
+
 tag x86_64-slc6-icc13-opt     Linux slc6 64  icc13 gcc46   opt   x86_64-slc5-icc13
 tag x86_64-slc6-icc13-dbg     Linux slc6 64  icc13 gcc46   debug x86_64-slc5-icc13
 
