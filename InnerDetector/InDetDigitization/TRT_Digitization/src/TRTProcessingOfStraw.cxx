@@ -289,6 +289,8 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                                           bool & m_alreadyPrintedPDGcodeWarning,
                                           double m_cosmicEventPhase, // const ComTime* m_ComTime,
                                           int strawGasType,
+					  bool emulationArflag,
+					  bool emulationKrflag,
                                           unsigned short & m_particleFlag )
 {
 
@@ -380,6 +382,14 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
           // The efficiency is different for Xe, Kr and Ar. Avoid fudging non-TR photons (TR is < 30 keV).
           // Also: for |eta|<0.5 apply parabolic scale; see "Parabolic Fudge" https://indico.cern.ch/event/304066/
           if ( energyDeposit<30.0 ) {
+
+	    double ArEmulationScaling_BA = 0.15;
+	    double ArEmulationScaling_EC = 0.28;
+
+	    // ROUGH GUESSES RIGHT NOW
+	    double KrEmulationScaling_BA = 0.20;
+	    double KrEmulationScaling_EC = 0.39;
+	    
             if (isBarrel) { // Barrel
               m_trEfficiencyBarrel = m_settings->trEfficiencyBarrel(strawGasType);
               double hitx = TRThitGlobalPos[0];
@@ -387,18 +397,34 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
               double hitz = TRThitGlobalPos[2];
               double hitEta = fabs(log(tan(0.5*atan2(sqrt(hitx*hitx+hity*hity),hitz))));
               if ( hitEta < 0.5 ) { m_trEfficiencyBarrel *= ( 0.833333+0.6666667*hitEta*hitEta ); }
+
+	      // scale down the TR efficiency if we are emulating
+	      if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*ArEmulationScaling_BA; }
+	      if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyBarrel = m_trEfficiencyBarrel*KrEmulationScaling_BA; }
+
               if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyBarrel ) continue; // Skip this photon
-            } else { // Endcap - no eta dependence here.
-                if (isECA) {
+            } // close if barrel
+	    else { // Endcap - no eta dependence here.
+	      if (isECA) {
                 m_trEfficiencyEndCapA = m_settings->trEfficiencyEndCapA(strawGasType);
+		
+		// scale down the TR efficiency if we are emulating
+		if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*ArEmulationScaling_EC; }
+		if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapA = m_trEfficiencyEndCapA*KrEmulationScaling_EC; }
+		
                 if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyEndCapA ) continue; // Skip this photon
-                }
-		if (isECB) {
+	      }
+	      if (isECB) {
                 m_trEfficiencyEndCapB = m_settings->trEfficiencyEndCapB(strawGasType);
+
+		// scale down the TR efficiency if we are emulating
+		if ( strawGasType == 0 && emulationArflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*ArEmulationScaling_EC; }
+		if ( strawGasType == 0 && emulationKrflag ) { m_trEfficiencyEndCapB = m_trEfficiencyEndCapB*KrEmulationScaling_EC; }
+		
                 if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyEndCapB ) continue; // Skip this photon
-                }
-            }
-          }
+	      }
+            } // close else (end caps)
+          } // energyDeposit < 30.0
 
 	  // Append this (usually highly energetic) cluster to the list:
 	  m_clusterlist.push_back(

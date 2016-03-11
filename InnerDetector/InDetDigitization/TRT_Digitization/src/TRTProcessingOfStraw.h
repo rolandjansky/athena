@@ -94,6 +94,8 @@ public:
 		     bool & m_alreadyPrintedPDGcodeWarning,
 		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
                      int strawGasType,
+		     bool emulationArflag,
+		     bool emulationKrflag,
                      unsigned short & m_particleFlag );
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
