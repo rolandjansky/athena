@@ -39,3 +39,5 @@ macro_append  QGSJet_i_shlibflags  " $(HepMC_IO_linkopts) "
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime_extras extras="qgsjet_crmc.param"
 
+# Link the package explicitly against HepMCfio:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

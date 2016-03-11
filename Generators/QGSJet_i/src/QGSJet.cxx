@@ -303,7 +303,7 @@ StatusCode QGSJet::genFinalize()
 }
 
 // ---------------------------------------------------------------------- 
-StatusCode QGSJet::fillEvt( GenEvent* evt ) 
+StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt ) 
 {
   //  ATH_MSG_INFO( " QGSJet Filling.\n" );
 
