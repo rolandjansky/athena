@@ -518,10 +518,16 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // according to what types of particles hit the straw.
     m_particleFlag=0;
 
+    // if StatusHT == 6 thats emulate argon, ==7 that's emulate krypton
+    bool emulateArFlag = m_sumSvc->getStatusHT(idStraw) == 6;
+    bool emulateKrFlag = m_sumSvc->getStatusHT(idStraw) == 7;
+
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_cosmicEventPhase, //m_ComTime,
                                        StrawGasType(idStraw),
+				       emulateArFlag,
+				       emulateKrFlag,
                                        m_particleFlag);
 
 
@@ -961,6 +967,11 @@ int TRTDigitizationTool::StrawGasType(Identifier& TRT_Identifier) const {
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
+    else if  ( stat==6 )            { strawGasType = 0; } // Xe
+    else if  ( stat==7 )            { strawGasType = 0; } // Xe
+    // stat==6 is emulate argon, make it xenon here,
+    // and emulate argon later with reduced TR eff.
+    // stat==7 is emulate krypton, make it xenon here too.
   }
   else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
   else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
