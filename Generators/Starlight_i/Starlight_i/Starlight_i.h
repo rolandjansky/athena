@@ -16,7 +16,7 @@
 //    passed to the simulation.
 //
 // AuthorList:
-//         Andrzej Olszewski, March 2015
+//         Andrzej Olszewski, January 2011
 
 #ifndef GENERATORMODULESSTARLIGHT_H
 #define GENERATORMODULESSTARLIGHT_H
@@ -58,8 +58,7 @@ protected:
     unsigned int m_beam1A;
     unsigned int m_beam2Z;
     unsigned int m_beam2A;
-    double       m_beam1Gamma; 
-    double       m_beam2Gamma; 
+    double       m_beamLorentzGamma; 
     double       m_maxW; 
     double       m_minW;
     unsigned int m_nmbWBins;
@@ -85,9 +84,6 @@ protected:
     double       m_maxPtInterference;
     int          m_nmbPtBinsInterference;
     double       m_ptBinWidthInterference; 
-    bool         m_xsecMethod;
-    int          m_nThreads;
-    bool         m_pythFullRec;
 
     // Commands to setup starlight
     CommandVector m_InitializeVector;
