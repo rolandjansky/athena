@@ -279,7 +279,8 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
      
       bool isArgonStraw = false;
       if (!m_TRTStrawSummarySvc.empty()) {
-         if (m_TRTStrawSummarySvc->getStatusHT(id) != TRTCond::StrawStatus::Good) {
+         if (m_TRTStrawSummarySvc->getStatusHT(id) == TRTCond::StrawStatus::Argon ||
+	     m_TRTStrawSummarySvc->getStatusHT(id) == TRTCond::StrawStatus::Dead ) {
             isArgonStraw = true;
          }
       }
