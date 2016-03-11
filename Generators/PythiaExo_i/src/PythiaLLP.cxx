@@ -93,7 +93,7 @@ using HepMC::IO_HEPEVT;
 // File scope declarations:-
 
 // set pointer to zero at start
-Atlas_HEPEVT*  PythiaLLP::atlas_HEPEVT = new Atlas_HEPEVT();
+Atlas_HEPEVT*  PythiaLLP::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 //--------------------------------------------------------------------------
 PythiaLLP::PythiaLLP(const std::string& name, 
@@ -1202,7 +1202,7 @@ StatusCode PythiaLLP::genFinalize() {
   return StatusCode::SUCCESS;
 }
 //---------------------------------------------------------------------------
-StatusCode PythiaLLP::fillEvt(GenEvent* evt) {
+StatusCode PythiaLLP::fillEvt(HepMC::GenEvent* evt) {
   //---------------------------------------------------------------------------
   //  MsgStream log(messageService(), name());
 
@@ -1321,16 +1321,16 @@ void
 PythiaLLP::store_Atlas_HEPEVT(void)
 {
 
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->nhep()  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->isthep(10)  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->idhep(10)  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->jmohep(1,10)  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->jdahep(2,10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->nhep()  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->isthep(10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->idhep(10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->jmohep(1,10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->jdahep(2,10)  << std::endl;
 
-  atlas_HEPEVT->fill();
+  s_atlas_HEPEVT->fill();
 
   Atlas_HEPEVT* Ahep = new Atlas_HEPEVT();
-  *(Ahep)=*(atlas_HEPEVT);
+  *(Ahep)=*(s_atlas_HEPEVT);
   static const std::string keyid = "Pythia";
   StatusCode sc = evtStore()->record(Ahep, keyid);
   if (!sc.isSuccess()) {

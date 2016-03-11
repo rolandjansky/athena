@@ -34,22 +34,22 @@ public:
   double& rrpy(int n);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int lenMrpy() const {return _lenMrpy;}
-  int lenRrpy() const {return _lenRrpy;}
+  int lenMrpy() const {return s_lenMrpy;}
+  int lenRrpy() const {return s_lenRrpy;}
 private: 
 
   // Lengths of array in PYDATR common
-  static const int _lenMrpy = 6;
-  static const int _lenRrpy = 100;
+  static const int s_lenMrpy = 6;
+  static const int s_lenRrpy = 100;
   struct PYDATR;
   friend struct PYDATR;
   struct PYDATR {
-  int mrpy[_lenMrpy];
-  double rrpy[_lenRrpy];
+  int mrpy[s_lenMrpy];
+  double rrpy[s_lenRrpy];
   };
-  int _dummy;
-  double _realdummy;
-  static PYDATR* _pydatr;
+  int m_dummy;
+  double m_realdummy;
+  static PYDATR* s_pydatr;
 };
 
 #include "PythiaExo_i/Pydatr.icc"

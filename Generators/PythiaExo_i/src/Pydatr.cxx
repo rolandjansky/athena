@@ -6,13 +6,13 @@
 #include "PythiaExo_i/Pydatr.h"
 
 // set pointer to zero at start
-Pydatr::PYDATR* Pydatr::_pydatr =0;
+Pydatr::PYDATR* Pydatr::s_pydatr =0;
 
 // Constructor
 Pydatr::Pydatr() 
 {
-  _dummy = -999;
-  _realdummy = -999.;
+  m_dummy = -999;
+  m_realdummy = -999.;
 }
 
 // Destructor
@@ -24,19 +24,19 @@ Pydatr::~Pydatr()
 int& Pydatr::mrpy(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenMrpy()) {
-  _dummy = -999;
-  return _dummy;
+  m_dummy = -999;
+  return m_dummy;
   }
-  return _pydatr->mrpy[n-1];
+  return s_pydatr->mrpy[n-1];
 }
 
 // access rrpy in common
 double& Pydatr::rrpy(int n) {
   init(); // check COMMON is initialized
   if(n < 1 || n > lenRrpy()) {
-  _realdummy = -999.;
-  return _realdummy;
+  m_realdummy = -999.;
+  return m_realdummy;
   }
-  return _pydatr->rrpy[n-1];
+  return s_pydatr->rrpy[n-1];
 }
 

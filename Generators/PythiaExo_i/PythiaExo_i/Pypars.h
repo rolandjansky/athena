@@ -34,29 +34,29 @@ public:
   double& pari(int n);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int lenMstp() const {return _lenMstp;}
-  int lenParp() const {return _lenParp;}
-  int lenMsti() const {return _lenMsti;}
-  int lenPari() const {return _lenPari;}
+  int lenMstp() const {return s_lenMstp;}
+  int lenParp() const {return s_lenParp;}
+  int lenMsti() const {return s_lenMsti;}
+  int lenPari() const {return s_lenPari;}
 private: 
 
   // Lengths of MSTU and PARU COMMONS
-  static const int _lenMstp = 200;
-  static const int _lenParp = 200;
-  static const int _lenMsti = 200;
-  static const int _lenPari = 200;
+  static const int s_lenMstp = 200;
+  static const int s_lenParp = 200;
+  static const int s_lenMsti = 200;
+  static const int s_lenPari = 200;
 
   struct PYPARS;
   friend struct PYPARS;
   struct PYPARS {
-  int mstp[_lenMstp];
-  double parp[_lenParp];
-  int msti[_lenMsti];
-  double pari[_lenPari];
+  int mstp[s_lenMstp];
+  double parp[s_lenParp];
+  int msti[s_lenMsti];
+  double pari[s_lenPari];
   };
-  int _dummy;
-  double _realdummy;
-  static PYPARS* _pypars;
+  int m_dummy;
+  double m_realdummy;
+  static PYPARS* s_pypars;
 };
 
 #include "PythiaExo_i/Pypars.icc"

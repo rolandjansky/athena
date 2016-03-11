@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pypevwt::init(void) {
-  if (!_pypevwt) _pypevwt = static_cast<PYPEVWT*>(pypevwt_address_());
+  if (!s_pypevwt) s_pypevwt = static_cast<PYPEVWT*>(pypevwt_address_());
 }
 

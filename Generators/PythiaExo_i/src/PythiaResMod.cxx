@@ -91,7 +91,7 @@ extern "C" {
 }
 
 
-Atlas_HEPEVT* PythiaResMod::atlas_HEPEVT = new Atlas_HEPEVT();
+Atlas_HEPEVT* PythiaResMod::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 
 //--------------------------------------------------------------------------
@@ -148,11 +148,11 @@ PythiaResMod::PythiaResMod(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("useAtlasPythiaTune08",  m_useAtlasPythiaTune08 = m_Default_useAtlasPythiaTune08);
   declareProperty("useNoAtlasPythiaParam", m_useNoAtlasPythiaParam = m_Default_useNoAtlasPythiaParam);
 
-  pygive_gen_cstr = 0;
-  pygive_init_cstr = 0;
-  pygive_gen_cstr = 0; 
+  m_pygive_gen_cstr = 0;
+  m_pygive_init_cstr = 0;
+  m_pygive_gen_cstr = 0; 
 
-  pygive_cstr = 0;
+  m_pygive_cstr = 0;
 
   m_win = 0.;
   m_msel = 0;
@@ -168,7 +168,7 @@ PythiaResMod::PythiaResMod(const std::string& name, ISvcLocator* pSvcLocator)
   m_RndmFileLength = 0;
   m_events = 0;
   m_ExternalProcess = 0;
-  atlasTune_loop_prot = 0;
+  m_atlasTune_loop_prot = 0;
 
 }
 //--------------------------------------------------------------------------
@@ -245,7 +245,7 @@ StatusCode PythiaResMod::genInitialize() {
   }
   PythiaResMod::pythia_stream	= "PYTHIA_INIT";
 
-  atlasTune_loop_prot=0;
+  m_atlasTune_loop_prot=0;
 
   // set up the input parameters to pyinit: these can be changed by the user
   m_frame  = "CMS   ";
@@ -306,10 +306,10 @@ StatusCode PythiaResMod::genInitialize() {
     }
   // set any Pythia parameters different from Pythia defaults
   // allow only one reset
-  if (atlasTune_loop_prot<2)
+  if (m_atlasTune_loop_prot<2)
     {
-      // atlasTune_loop_prot counts setPythiaTune() calls in setPythiaTune.cxx
-      sc=setPythiaTune();
+      // m_atlasTune_loop_prot counts setPythiaTune() calls in setPythiaTune.cxx
+      StatusCode sc=setPythiaTune();
       if ( sc.isFailure() )
 	{
 	  ATH_MSG_FATAL("ERROR returned from setPythiaTune, exit.");
@@ -329,8 +329,8 @@ StatusCode PythiaResMod::genInitialize() {
   //PYGIVE command parsing && call
   for (unsigned int i = 0; i < m_PygiveCommandVector.size(); i++)
     {
-      pygive_cstr = (m_PygiveCommandVector[i]).c_str();
-      pygive_(pygive_cstr,strlen(pygive_cstr));
+      m_pygive_cstr = (m_PygiveCommandVector[i]).c_str();
+      pygive_(m_pygive_cstr,strlen(m_pygive_cstr));
     }
 
   // Parse Commands and Set Values from Properties Service...
@@ -758,9 +758,9 @@ StatusCode PythiaResMod::genInitialize() {
 
 
   // write warning for non p-p collistion, strip white-spaces off beam and target strings
-  std::string m_beam_strp(beam); boost::trim(m_beam_strp);
-  std::string m_target_strp(target); boost::trim(m_target_strp);
-  if ((m_beam_strp!="P" && m_beam_strp!="P+" && m_beam_strp!="p" && m_beam_strp!="p+") || (m_target_strp!="P" && m_target_strp!="P+" && m_target_strp!="p" && m_target_strp!="p+"))
+  std::string beam_strp(beam); boost::trim(beam_strp);
+  std::string target_strp(target); boost::trim(target_strp);
+  if ((beam_strp!="P" && beam_strp!="P+" && beam_strp!="p" && beam_strp!="p+") || (target_strp!="P" && target_strp!="P+" && target_strp!="p" && target_strp!="p+"))
     {
       ATH_MSG_WARNING("PYINIT(FRAME,BEAM,TARGET,WIN) called from within ATHENA using parameters: ");
       ATH_MSG_WARNING("FRAME : "<< frame << ", BEAM : "<< beam <<", TARGET: "<< target<< ", WIN: "<< winval);
@@ -825,8 +825,8 @@ StatusCode PythiaResMod::genInitialize() {
       // query the requested parameter values:
       for (unsigned int i = 0; i < m_Param_Query_AfterInit.size(); i++) 
 	{
-	  pygive_init_cstr = (m_Param_Query_AfterInit[i]).c_str();
-	  pygive_(pygive_init_cstr,strlen(pygive_init_cstr));
+	  m_pygive_init_cstr = (m_Param_Query_AfterInit[i]).c_str();
+	  pygive_(m_pygive_init_cstr,strlen(m_pygive_init_cstr));
 	}
       //set MSTU(11) back to the default value
       this->pydat1().mstu(11)=tmp_m11;
@@ -893,8 +893,8 @@ StatusCode PythiaResMod::callGenerator() {
       int tmp_m11=this->pydat1().mstu(11); 
       int tmp_mode=3;
       parout_(&tmp_mode);      
-      pygive_gen_cstr = (m_Param_Query_AfterGen[i]).c_str();
-      pygive_(pygive_gen_cstr,strlen(pygive_gen_cstr));
+      m_pygive_gen_cstr = (m_Param_Query_AfterGen[i]).c_str();
+      pygive_(m_pygive_gen_cstr,strlen(m_pygive_gen_cstr));
       //set MSTU(11) back to the default value
       this->pydat1().mstu(11)=tmp_m11;
     }   
@@ -946,7 +946,7 @@ StatusCode PythiaResMod::genFinalize() {
 
 //---------------------------------------------------------------------------
 
-StatusCode PythiaResMod::fillEvt(GenEvent* evt) {
+StatusCode PythiaResMod::fillEvt(HepMC::GenEvent* evt) {
   ATH_MSG_DEBUG(" PYTHIA Atlas_HEPEVT Filling.");
   store_Atlas_HEPEVT();
 
@@ -1068,16 +1068,16 @@ void
 PythiaResMod::store_Atlas_HEPEVT()
 {
 
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->nhep() );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->isthep(10) );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->idhep(10) );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->jmohep(1,10) );
-    ATH_MSG_DEBUG("atlas_HEPEVT------" << atlas_HEPEVT->jdahep(2,10) );
+    ATH_MSG_DEBUG("s_atlas_HEPEVT------" << s_atlas_HEPEVT->nhep() );
+    ATH_MSG_DEBUG("s_atlas_HEPEVT------" << s_atlas_HEPEVT->isthep(10) );
+    ATH_MSG_DEBUG("s_atlas_HEPEVT------" << s_atlas_HEPEVT->idhep(10) );
+    ATH_MSG_DEBUG("s_atlas_HEPEVT------" << s_atlas_HEPEVT->jmohep(1,10) );
+    ATH_MSG_DEBUG("s_atlas_HEPEVT------" << s_atlas_HEPEVT->jdahep(2,10) );
 
-    atlas_HEPEVT->fill();
+    s_atlas_HEPEVT->fill();
 
     Atlas_HEPEVT* ahep = new Atlas_HEPEVT();
-    *(ahep) = *(atlas_HEPEVT);
+    *(ahep) = *(s_atlas_HEPEVT);
     static const std::string keyid = "Pythia";
     StatusCode sc = evtStore()->record(ahep, keyid);
     if (!sc.isSuccess()) {

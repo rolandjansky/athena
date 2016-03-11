@@ -34,38 +34,38 @@ public:
   int& icol(int n,int i,int j);
   inline void init(); // inlined for speed of access (small function)
   // return common array lengths
-  int lenIset() const {return _lenIset;}
-  int depthKfpr() const {return _depthKfpr;}
-  int lenKfpr() const {return _lenKfpr;}
-  int lenCoef() const {return _lenCoef;}
-  int depthCoef() const {return _depthCoef;}
-  int lenIcol() const {return _lenIcol;}
-  int depthIcol() const {return _depthIcol;}
-  int widthIcol() const {return _widthIcol;}
+  int lenIset() const {return s_lenIset;}
+  int depthKfpr() const {return s_depthKfpr;}
+  int lenKfpr() const {return s_lenKfpr;}
+  int lenCoef() const {return s_lenCoef;}
+  int depthCoef() const {return s_depthCoef;}
+  int lenIcol() const {return s_lenIcol;}
+  int depthIcol() const {return s_depthIcol;}
+  int widthIcol() const {return s_widthIcol;}
 private: 
 
   // Lengths of ISET and KFPR COMMONS
-  static const int _lenIset = 500;
-  static const int _lenKfpr = 500;
-  static const int _depthKfpr = 2; 
-  static const int _lenCoef = 500;
-  static const int _depthCoef = 20; 
-  static const int _lenIcol = 40;
-  static const int _depthIcol = 4; 
-  static const int _widthIcol = 2; 
+  static const int s_lenIset = 500;
+  static const int s_lenKfpr = 500;
+  static const int s_depthKfpr = 2; 
+  static const int s_lenCoef = 500;
+  static const int s_depthCoef = 20; 
+  static const int s_lenIcol = 40;
+  static const int s_depthIcol = 4; 
+  static const int s_widthIcol = 2; 
 
   struct PYINT2;
   friend struct PYINT2;
 
   struct PYINT2 {
-  int iset[_lenIset];
-  int kfpr[_depthKfpr][_lenKfpr];
-  double coef[_depthCoef][_lenCoef];
-  int icol[_widthIcol][_depthIcol][_lenIcol];
+  int iset[s_lenIset];
+  int kfpr[s_depthKfpr][s_lenKfpr];
+  double coef[s_depthCoef][s_lenCoef];
+  int icol[s_widthIcol][s_depthIcol][s_lenIcol];
   };
-  int _dummy;
-  double _realdummy;
-  static PYINT2* _pyint2;
+  int m_dummy;
+  double m_realdummy;
+  static PYINT2* s_pyint2;
 };
 
 #include "PythiaExo_i/Pyint2.icc"

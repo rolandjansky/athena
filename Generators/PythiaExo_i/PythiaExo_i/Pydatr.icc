@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pydatr::init(void) {
-  if (!_pydatr) _pydatr = static_cast<PYDATR*>(pydatr_address_());
+  if (!s_pydatr) s_pydatr = static_cast<PYDATR*>(pydatr_address_());
 }
 

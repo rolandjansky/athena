@@ -27,28 +27,28 @@ public:
   int& itcm(int n);
   double& rtcm(int n);
 
-  int lenItcm() const {return _lenItcm;}
-  int lenRtcm() const {return _lenRtcm;}
+  int lenItcm() const {return s_lenItcm;}
+  int lenRtcm() const {return s_lenRtcm;}
 
   inline void init();
 
 private: 
 
-  static const int _lenItcm = 100;
-  static const int _lenRtcm = 100;
+  static const int s_lenItcm = 100;
+  static const int s_lenRtcm = 100;
 
   struct PYTCSM;
   friend struct PYTCSM;
 
   struct PYTCSM {
-    int itcm[_lenItcm];
-    double rtcm[_lenRtcm];
+    int itcm[s_lenItcm];
+    double rtcm[s_lenRtcm];
   };
 
-  int _dummy;
-  double _realdummy;
+  int m_dummy;
+  double m_realdummy;
 
-  static PYTCSM* _pytcsm;
+  static PYTCSM* s_pytcsm;
 };
 
 #include "PythiaExo_i/Pytcsm.icc"

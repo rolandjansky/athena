@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pypued::init(void) {
-  if (!_pypued) _pypued = static_cast<PYPUED*>(pypued_address_());
+  if (!s_pypued) s_pypued = static_cast<PYPUED*>(pypued_address_());
 }
 

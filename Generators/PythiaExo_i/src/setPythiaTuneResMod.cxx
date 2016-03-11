@@ -22,10 +22,10 @@ carbon-copy of Pythia_i impl. for ResMod
 StatusCode PythiaResMod::setPythiaTune()
 {
   // count # of function calls for one initialization step (inf. loop protection)
-   atlasTune_loop_prot++;
+   m_atlasTune_loop_prot++;
 
    //protect against looping; setPythiaTune calls atlasTune so in principle an infinite loop can occur (in case of core code blunder)
-   if (atlasTune_loop_prot>100)
+   if (m_atlasTune_loop_prot>100)
      {
        ATH_MSG_FATAL( "Got more than 100 calls of setPythiaTune() -> code errors, exit.");
        return StatusCode::FAILURE;       
@@ -165,6 +165,6 @@ StatusCode PythiaResMod::setPythiaTune()
     }
   //-----------------------------------------------------------------------------------------
   // should meet a return condition before this  
-  ATH_MSG_WARNING ("setPythiaTune: No action by setPythiaTune, exit.");       
-  return StatusCode::SUCCESS;
+  //  ATH_MSG_WARNING ("setPythiaTune: No action by setPythiaTune, exit.");       
+  // return StatusCode::SUCCESS;
 }//end of setPythiaTune definition
