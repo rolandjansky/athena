@@ -29,7 +29,7 @@ class TrackRecordGenerator : public GenModule {
    TrackRecordGenerator(const std::string& name, ISvcLocator* pSvcLocator);
    virtual ~TrackRecordGenerator();
    virtual StatusCode callGenerator();
-   virtual StatusCode fillEvt(GenEvent* evt);
+   virtual StatusCode fillEvt(HepMC::GenEvent* evt);
  
  private:
  
