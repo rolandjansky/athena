@@ -121,9 +121,9 @@ AthenaBarCodeImpl::AthenaBarCodeImpl()
       if (!sc.isSuccess() || 0 == p_jobidsvc) {
         //FIXME
         //use uuid instead if service not available
-        JobID_t m_JobID;
-        uuid_generate(m_JobID);
-        m_defaultHash = AthenaBarCodeImpl::hashUUID((const char *) m_JobID);
+        JobID_t JobID;
+        uuid_generate(JobID);
+        m_defaultHash = AthenaBarCodeImpl::hashUUID((const char *) JobID);
         /*      std::cout << "Could not find JobIDSvc, using uuid directly"
 		<<"jobid "<<o.str()
 		<< std::endl;*/
@@ -291,8 +291,8 @@ AthenaBarCodeImpl::setBits(unsigned short startbit, unsigned short nbits,
 
     IMessageSvc *msgsvc = Athena::getMessageSvc();
     if (msgsvc) {
-      MsgStream m_msg(msgsvc, "AthenaBarCodeImpl");
-      m_msg << MSG::WARNING << "setBits::bit to be set:" << id
+      MsgStream msg(msgsvc, "AthenaBarCodeImpl");
+      msg << MSG::WARNING << "setBits::bit to be set:" << id
           << " is larger than limit:" << ((~tmp2) >> (TotalBits - nbits))
           << endreq;
     }

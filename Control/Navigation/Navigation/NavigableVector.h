@@ -84,11 +84,20 @@ public:
     ? *(m_store[i])
     : 0;
   }
-  const OBJCT* operator[](unsigned int i) const
+  const OBJCT* operator[](size_t i) const
   {
     return i < m_store.size()
     ? *(m_store[i])
     : 0;
+  }
+
+  // Return contained ElementLink directly.
+  const data_type& linkAt (size_t i) const
+  {
+    if (i < m_store.size())
+      return m_store[i];
+    static data_type null;
+    return null;
   }
 
   void push_back(data_type& theData)

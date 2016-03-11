@@ -208,6 +208,29 @@ Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
 						          );
 }
 
+// insert by index without check on multiple insertions
+// store is supplied explicitly.
+template<typename CONT, typename RPAR, typename COLL>
+void
+Navigable<CONT, RPAR, COLL>::insertElement(const CONT*
+					   ptrObjectContainer,
+					   external_index_type&
+					   refIndex,
+                                           IProxyDictWithPool* sg,
+					   const RPAR&
+					   refParameter,
+                                           size_t sizeHint)
+{
+  NavigationDefaults::DefaultChildColl<CONT, RPAR>::insert(
+						    this->getConstituents(),
+						    ptrObjectContainer,
+						    refIndex,
+                                                    sg,
+						    refParameter,
+                                                    sizeHint
+						          );
+}
+
 // insert by ElementLink without check on multiple insertions
 template<typename CONT, typename RPAR, typename COLL>
 void

@@ -208,6 +208,13 @@ class Navigable : virtual public INavigable
 		     external_index_type& theIndex,
 		     const RPAR&          objectParameter=RPAR(),
                      size_t               sizeHint = 0);
+  // insert element without checking if already in store: use index
+  // store is supplied explicitly.
+  void insertElement(const CONT*          objectContainer,
+		     external_index_type& theIndex,
+                     IProxyDictWithPool*  sg,
+		     const RPAR&          objectParameter=RPAR(),
+                     size_t               sizeHint = 0);
   // insert element without checking if already in store: use ElementLink.
   void insertElement(const ElementLink<CONT>& el,
 		     const RPAR&          objectParameter=RPAR(),

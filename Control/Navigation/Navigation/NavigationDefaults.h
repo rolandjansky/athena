@@ -176,6 +176,18 @@ namespace NavigationDefaults
         cont.emplace_back (*aChildContainer,anIndex, aPar);
       }
 
+      // insertion of ElementLink by object index
+      static void insert(type& cont, const CONT* aChildContainer,
+			 external_index_type& anIndex,
+                         IProxyDictWithPool* sg,
+			 const RPAR& aPar=RPAR(),
+                         size_t sizeHint = 0) 
+      {
+        if (sizeHint && cont.capacity() < sizeHint)
+          cont.reserve(sizeHint);
+        cont.emplace_back (*aChildContainer,anIndex, sg, aPar);
+      }
+
       // insertion of ElementLink by ElementLink
       static void insert(type& cont, 
 			 const ElementLink<CONT>* aLink,
