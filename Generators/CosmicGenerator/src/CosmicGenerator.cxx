@@ -62,8 +62,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include "TrackRecord/TrackRecordCollection.h"
-
 #include <limits>
 #include <cmath>
 #include <vector>
@@ -94,7 +92,6 @@ CosmicGenerator::CosmicGenerator(const std::string& name,
   m_mm  = 10;
   m_readfile = false;
   m_activeStore = 0;
-  p_msgSvc = 0;
 
   m_events = 0;
   m_rejected = 0;
@@ -112,9 +109,6 @@ CosmicGenerator::CosmicGenerator(const std::string& name,
   declareProperty("tmin",       m_tmin =0. );
   declareProperty("tmax",       m_tmax =0. );
 
-  declareProperty("stopped_tminus",      m_stopped_tminus =-25. );
-  declareProperty("stopped_tplus",       m_stopped_tplus =25. );
-
   declareProperty("IPx",  m_IPx =0. );
   declareProperty("IPy",  m_IPy =0. );
   declareProperty("IPz",  m_IPz =0. );
@@ -126,9 +120,6 @@ CosmicGenerator::CosmicGenerator(const std::string& name,
   declareProperty("SwapYZAxis", m_swapYZAxis = false);
   declareProperty("OptimizeForMuonEndCap", m_muonECOpt = false);
   declareProperty("ctcut",      m_ctcut =0.35 );
-  // declareProperty("ReadTTR",      m_readTTR =false );
-  declareProperty("ReadTR",      m_readTTR =false );
-  declareProperty("TRCollection" , m_recordName = "CosmicRecord" );
   declareProperty("PrintEvent", m_printEvent=10);
   declareProperty("PrintMod",   m_printMod=100);
   declareProperty("RMax",       m_rmax = 10000000. );
@@ -148,11 +139,6 @@ CosmicGenerator::CosmicGenerator(const std::string& name,
   declareProperty("pixelplane_maxx",m_pixelplanemaxx = 1150);
   declareProperty("pixelplane_maxz",m_pixelplanemaxz = 1650);
 
-  // Smearing of the initial position for tracks
-  declareProperty("TRSmearing", m_smearTR=-1, "Smear the initial position of the track by up to this amount");
-  declareProperty("TRPSmearing", m_smearTRp=-1, "Smear the momentum of the track by up to this amount");
-
-  declareProperty("StopParticles", m_stopParticles=false, "Stop the particles and make them decay within 25 ns");
 }
 
 //--------------------------------------------------------------------------
@@ -337,135 +323,6 @@ StatusCode CosmicGenerator::callGenerator() {
           exit(1);
           return StatusCode::FAILURE;
         }
-    } else if(m_readTTR){
-
-      //const DataHandle <TimedTrackRecordCollection> coll;
-      const DataHandle <TrackRecordCollection> coll;
-      CHECK( evtStore()->retrieve(coll,m_recordName) );
-      {
-
-        ATH_MSG_INFO("retrieved "<<coll->size()<<" TTR hits; will smear position by "<< (m_smearTR>0?m_smearTR:0.) <<" mm and momentum by "<< (m_smearTRp>0?m_smearTRp:0.) <<" radians");
-
-        for (auto iterTTR : *coll) {
-
-          const HepPDT::ParticleData* particle = particleData(abs(iterTTR.GetPDGCode()));
-          double mass = particle->mass().value();
-
-          double en = mass*mass+iterTTR.GetMomentum().x()*iterTTR.GetMomentum().x()+
-            iterTTR.GetMomentum().y()*iterTTR.GetMomentum().y()+
-            iterTTR.GetMomentum().z()*iterTTR.GetMomentum().z();
-
-          en=sqrt(en);
-
-          ATH_MSG_VERBOSE("Reading back TTR:\n pos is "<<iterTTR.GetPosition()
-                        <<"\n mom is "<<iterTTR.GetMomentum()
-                        <<"\n pdg is "<<iterTTR.GetPDGCode() );
-
-          CLHEP::HepLorentzVector particle4Position( iterTTR.GetPosition().x(),
-                               iterTTR.GetPosition().y(),
-                               iterTTR.GetPosition().z(),
-                               iterTTR.GetTime());
-
-          ATH_MSG_DEBUG( "Smearing position by up to " << m_smearTR << " mm and momentum by up to " << m_smearTRp << " radians" );
-          if (m_smearTR>0){
-            ATH_MSG_DEBUG( "Cosmic ray track was starting at " << particle4Position );
-
-            // if Z is maximal, move in X and Y; otherwise move in Z and "phi"
-            if ( particle4Position.z() == 22031 || particle4Position.z() == -22031 ){ //FIXME Hardcoded limits!
-              particle4Position.setX( particle4Position.x() + CLHEP::RandFlat::shoot(engine, -m_smearTR, m_smearTR) );
-              particle4Position.setY( particle4Position.y() + CLHEP::RandFlat::shoot(engine, -m_smearTR, m_smearTR) );
-            } else {
-              particle4Position.setZ( particle4Position.z() + CLHEP::RandFlat::shoot(engine, -m_smearTR, m_smearTR) );
-              double R = sqrt( pow( particle4Position.x(),2 ) + pow(particle4Position.y(),2 ) );
-              double dPhi = atan2( m_smearTR, R );
-              dPhi = CLHEP::RandFlat::shoot( engine, -dPhi, dPhi );
-              double theta = atan2( particle4Position.x() , particle4Position.y() );
-              particle4Position.setX( R*sin( theta + dPhi ) );
-              particle4Position.setY( R*cos( theta + dPhi ) );
-            }
-            ATH_MSG_DEBUG( "Shifted cosmic ray to " << particle4Position );
-          }
-          CLHEP::HepLorentzVector particle4Momentum( iterTTR.GetMomentum().x(),
-                               iterTTR.GetMomentum().y(),
-                               iterTTR.GetMomentum().z(),
-                               en );
-          if (m_smearTRp>0){
-
-            ATH_MSG_DEBUG( "Cosmic ray track momentum was " << particle4Momentum );
-
-            // Keep p - smear an angle, and then randomly spin that change in (0,2PI)
-            double dTheta = CLHEP::RandFlat::shoot(engine, 0, m_smearTRp);
-            double dPhi   = CLHEP::RandFlat::shoot(engine, 0, 2*M_PI);
-
-            // Need a perpendicular vector...
-            CLHEP::HepLorentzVector perpendicularMomentum( 1 , 0 , 0 , 0);
-            if ( particle4Momentum.x() != 0 ){
-              if (particle4Momentum.y() == 0){
-                perpendicularMomentum.setX( 0 );
-                perpendicularMomentum.setY( 1 );
-              } else {
-                perpendicularMomentum.setX( particle4Momentum.y() );
-                perpendicularMomentum.setY( particle4Momentum.x() );
-              }
-            }
-
-            // Now scale it based on dTheta
-            double tempP = pow(particle4Momentum.x(),2)+pow(particle4Momentum.y(),2)+pow(particle4Momentum.z(),2);
-            if ( tempP==0 ) {
-              ATH_MSG_DEBUG("Our initial momentum had zero magnitude!!");
-              perpendicularMomentum.setX(0);
-              perpendicularMomentum.setY(0);
-            } else if ( tan(dTheta) == 0 ){
-              ATH_MSG_DEBUG("Randomly deciding to keep the vector's direction...");
-              perpendicularMomentum.setX(0);
-              perpendicularMomentum.setY(0);
-            } else {
-              double scale = ( tempP ) * sin(dTheta) / ( pow(perpendicularMomentum.x(),2)+pow(perpendicularMomentum.y(),2) );
-              perpendicularMomentum.setX( perpendicularMomentum.x() * scale );
-              perpendicularMomentum.setY( perpendicularMomentum.y() * scale );
-
-              // Rotate perpendicularMomentum by dPhi around particle4Momentum
-              perpendicularMomentum.rotate( dPhi , particle4Momentum.vect() );
-            }
-            particle4Momentum.setX( particle4Momentum.x() + perpendicularMomentum.x() );
-            particle4Momentum.setY( particle4Momentum.y() + perpendicularMomentum.y() );
-            particle4Momentum.setZ( particle4Momentum.z() + perpendicularMomentum.z() );
-
-            // Rescale (very small effect, but want to include it)
-            double scale2 = tempP==0? 1 : (pow(particle4Momentum.x(),2)+pow(particle4Momentum.y(),2)+pow(particle4Momentum.z(),2)) / tempP;
-            particle4Momentum.setX( particle4Momentum.x() * scale2 );
-            particle4Momentum.setY( particle4Momentum.y() * scale2 );
-            particle4Momentum.setZ( particle4Momentum.z() * scale2 );
-            ATH_MSG_DEBUG( "Rotated the vector by " << perpendicularMomentum );
-            ATH_MSG_DEBUG( "And resulting momentum is " << particle4Momentum );
-          }
-          if (m_stopParticles){
-            ATH_MSG_DEBUG( "Will stop the track record where it is and give it mass " << mass );
-            particle4Momentum.setX(0);
-            particle4Momentum.setY(0);
-            particle4Momentum.setZ(0);
-            particle4Momentum.setT(mass);
-
-            double settime=CLHEP::RandFlat::shoot(engine,m_stopped_tminus, m_stopped_tplus);
-            ATH_MSG_DEBUG( "Setting particle time to something uniform between "<<m_stopped_tminus<<" and "<<m_stopped_tplus<<" ns : " << settime );
-            particle4Position.setT(settime*CLHEP::c_light); // ct in mm
-          }
-
-          m_fourPos.push_back( particle4Position );
-          m_fourMom.push_back( particle4Momentum );
-
-          m_pdgCode.push_back(iterTTR.GetPDGCode());
-          HepMC::Polarization thePolarization;
-          thePolarization.set_normal3d(HepGeom::Normal3D<double>(0,0,0));
-          m_polarization.push_back(thePolarization);
-
-          if (m_stopParticles){
-            ATH_MSG_DEBUG( "Only one per event!!" );
-            break;
-          }
-        }
-
-      }
     }
   else
     {
@@ -672,6 +529,11 @@ StatusCode CosmicGenerator::callGenerator() {
       m_pdgCode.push_back(charge*-13);
 
       const HepPDT::ParticleData* particle = particleData(abs(m_pdgCode.back()));
+      if (particle==nullptr){
+        ATH_MSG_FATAL( "Particle with PDG ID=" << abs(m_pdgCode.back()) << " returned a nullptr" );
+        return StatusCode::FAILURE;
+      }
+
       double mass = particle->mass().value();
 
       // Compute the kinematic values.  First, the vertex 4-vector:

@@ -70,7 +70,6 @@ in the vertical position (the way it is positioned in the ATLAS detector)
 #include <string>
 
 
-class StoreGateSvc;
 class ActiveStoreSvc;
 
 class CosmicGun;
@@ -83,7 +82,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode genFinalize();
-  virtual StatusCode fillEvt(GenEvent* evt);
+  virtual StatusCode fillEvt(HepMC::GenEvent* evt);
 
   CLHEP::HepLorentzVector generateVertex(void);
   CLHEP::HepLorentzVector generateVertexReweighted(void);
@@ -115,7 +114,6 @@ private:
   float m_mm;
 
   bool m_readfile;
-  bool m_readTTR;
   std::string m_infile;
   std::ifstream    m_ffile;
 
@@ -124,9 +122,6 @@ private:
   std::vector<CLHEP::HepLorentzVector> m_fourMom;
   CLHEP::Hep3Vector m_center;
   std::vector<HepMC::Polarization> m_polarization;
-
-  // Pointer to Athena MessageSvc.
-  IMessageSvc* p_msgSvc;
 
   // Energy dependent position cut for muons to reach the detector.
   bool exzCut(const CLHEP::Hep3Vector& pos,const CLHEP::HepLorentzVector& p); 
@@ -150,12 +145,6 @@ private:
   double m_rvertmax;
   double m_pixelplanemaxx;
   double m_pixelplanemaxz;
-
-  double m_smearTR;
-  double m_smearTRp;
-
-  std::string m_recordName;
-  bool m_stopParticles;
 };
 
 #endif
