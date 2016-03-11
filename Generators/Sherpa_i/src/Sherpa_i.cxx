@@ -103,7 +103,9 @@ StatusCode Sherpa_i::genInitialize(){
 StatusCode Sherpa_i::callGenerator() {
   ATH_MSG_DEBUG("Sherpa_i in callGenerator()");
 
-  p_sherpa->GenerateOneEvent();
+  do {
+    ATH_MSG_DEBUG("Trying to generate event with Sherpa");
+  } while (p_sherpa->GenerateOneEvent()==false);
   
   if (ATOOLS::rpa->gen.NumberOfGeneratedEvents()%1000==0) {
     ATH_MSG_INFO("Passed "<<ATOOLS::rpa->gen.NumberOfGeneratedEvents()<<" events.");

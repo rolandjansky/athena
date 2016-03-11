@@ -24,7 +24,7 @@ public:
   StatusCode genInitialize();
   StatusCode callGenerator();
   StatusCode genFinalize();
-  StatusCode fillEvt(GenEvent* evt);
+  StatusCode fillEvt(HepMC::GenEvent* evt);
   void getParameters(int &argc, char** &argv);
 
 protected:
