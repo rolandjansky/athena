@@ -82,7 +82,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode genFinalize();
-  virtual StatusCode fillEvt(GenEvent* evt);
+  virtual StatusCode fillEvt(HepMC::GenEvent* evt);
 
   CLHEP::HepLorentzVector generateVertex(void);
   CLHEP::HepLorentzVector generateVertexReweighted(void);
