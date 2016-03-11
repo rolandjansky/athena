@@ -265,7 +265,8 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       }
       
       if (m_useConditionsHTStatus) {
-         if (m_ConditionsSummary->getStatusHT(id) != TRTCond::StrawStatus::Good) {
+         if (m_ConditionsSummary->getStatusHT(id) == TRTCond::StrawStatus::Argon ||
+	     m_ConditionsSummary->getStatusHT(id) == TRTCond::StrawStatus::Dead ) {
             isArgonStraw = true;
          }
       }
