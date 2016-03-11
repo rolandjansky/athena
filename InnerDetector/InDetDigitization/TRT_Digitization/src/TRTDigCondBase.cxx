@@ -230,7 +230,8 @@ void TRTDigCondBase::setLvl (const std::string& lvl)
 //_____________________________________________________________________________
 int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
 
-  // TRT/Cond/StatusHT provides: enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) }
+  // TRT/Cond/StatusHT provides:
+  // enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) , EmulatedArgon(Xe, see below) }
   // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
   // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
 
@@ -242,8 +243,13 @@ int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
+    else if  ( stat==6 )            { strawGasType = 0; } // Xe
+    else if  ( stat==7 )            { strawGasType = 0; } // Xe
+    // stat==6 is emulate argon, make it xenon here,
+    // and emulate argon later with reduced TR eff.
     else { std::cout << "FATAL: TRTCond::StrawStatus, " << m_sumSvc->getStatusHT(TRT_Identifier)
-                     << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'" << std::endl;
+                     << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'"
+		     << ", or 'EmulateArgon(6)' or 'EmulateKrypton(7)'" << std::endl;
     }
   }
   else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
@@ -251,7 +257,7 @@ int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
   else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
 
   if ( strawGasType<0 || strawGasType>2 ) {
-      std::cout << "FATAL: strawGasType value " << strawGasType << " must be 0(Xe), 1(Kr) or 2(Ar)!" << std::endl;
+      std::cout << "FATAL: strawGasType value" << strawGasType << " must be 0(Xe), 1(Kr) or 2(Ar)!" << std::endl;
       throw std::exception();
   }
 
