@@ -33,7 +33,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode genFinalize();
-  virtual StatusCode fillEvt(GenEvent* evt);
+  virtual StatusCode fillEvt(HepMC::GenEvent* evt);
 
   // Accessors to PYTHIA COMMONS
   // reference to Pydat1, Pysubs and Pypars
@@ -135,7 +135,7 @@ protected:
   // I/O to HEPEVT
   void store_Atlas_HEPEVT(void);
 
-  static Atlas_HEPEVT* atlas_HEPEVT;
+  static Atlas_HEPEVT* s_atlas_HEPEVT;
 };
 
 

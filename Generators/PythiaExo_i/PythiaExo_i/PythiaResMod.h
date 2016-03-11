@@ -122,9 +122,9 @@ protected:
   std::string m_Tune_Name;  
 
   /// PYGIVE argument as C string
-  const char* pygive_cstr;
-  const char* pygive_init_cstr;
-  const char* pygive_gen_cstr;
+  const char* m_pygive_cstr;
+  const char* m_pygive_init_cstr;
+  const char* m_pygive_gen_cstr;
 
   /// @name Various input parameters
   //@{
@@ -247,7 +247,7 @@ protected:
   int  m_Tune_Index;
   std::string m_Tune_Type;
   // needed in tune setting for protection against tune-seting inf. loop
-  int atlasTune_loop_prot;
+  int m_atlasTune_loop_prot;
   //tune to be assumed by default and in cases of invalid TUNETYPE or TUNEINDEX when TUNETYPE=="ATLAS"
   std::string m_Default_Tune_Name, m_Default_Tune_Type; int m_Default_Tune_Index;
   // dummy starting tune string
@@ -275,11 +275,7 @@ protected:
   void store_Atlas_HEPEVT();
 
   /// TAUOLA HEPEVT
-  static Atlas_HEPEVT* atlas_HEPEVT;
-
-  /// Status code
-  StatusCode sc;
-
+  static Atlas_HEPEVT* s_atlas_HEPEVT;
 };
 
 

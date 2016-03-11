@@ -95,7 +95,7 @@ using HepMC::IO_HEPEVT;
 // File scope declarations:-
 
 // set pointer to zero at start
-Atlas_HEPEVT*  PythiaGS::atlas_HEPEVT = new Atlas_HEPEVT();
+Atlas_HEPEVT*  PythiaGS::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 //--------------------------------------------------------------------------
 PythiaGS::PythiaGS(const std::string& name, 
@@ -125,8 +125,8 @@ PythiaGS::PythiaGS(const std::string& name,
   m_randomseed=19780503;
   m_win=14000.;
 
-  sum_pari10=0.;
-  sum_w=0.;
+  m_sum_pari10=0.;
+  m_sum_w=0.;
 }
 //--------------------------------------------------------------------------
 PythiaGS::~PythiaGS(){
@@ -190,8 +190,8 @@ StatusCode PythiaGS::genInitialize() {
    msg(MSG::INFO)  << " PYTHIA INITIALISING.  \n"  << endreq;
   }
 
-  sum_pari10=0.;
-  sum_w=0.;
+  m_sum_pari10=0.;
+  m_sum_w=0.;
 
 /*  std::string datapath =  PathResolverFindDataFile ("PythiaExo_i/f2abs.dat");
   datapath = datapath.substr(0,datapath.length()-9);	
@@ -731,11 +731,11 @@ if(msgLvl(MSG::INFO)){
      msg(MSG::INFO) <<"Call PYSTAT at endRun with level " << *i << endreq;}
       pystat_(&(*i));
   }
-  std::cout << "MetaData: cross-section (nb)= " << 1000000. * this->pyint5().xsec(0,3)*sum_pari10/sum_w  << std::endl;
+  std::cout << "MetaData: cross-section (nb)= " << 1000000. * this->pyint5().xsec(0,3)*m_sum_pari10/m_sum_w  << std::endl;
   return StatusCode::SUCCESS;
 }
 //---------------------------------------------------------------------------
-StatusCode PythiaGS::fillEvt(GenEvent* evt) {
+StatusCode PythiaGS::fillEvt(HepMC::GenEvent* evt) {
   //---------------------------------------------------------------------------
   //  MsgStream log(messageService(), name());
   if(msgLvl(MSG::DEBUG)){
@@ -751,7 +751,7 @@ StatusCode PythiaGS::fillEvt(GenEvent* evt) {
   int pr_id = PYTHIA + m_ExternalProcess + this->pyint1().mint(1);
   if (m_ExternalProcess > 0) pr_id = PYTHIA + m_ExternalProcess;
   int gravev = 0;  // flag to distinguish QCD, BH and GS events
-  sum_w +=this->pypars().pari(10);
+  m_sum_w +=this->pypars().pari(10);
   if (this->pypars().msti(1) == 4) {  // weight set by BH generator
     this->pypars().pari(10) = 1.0/this->pypars().parp(200);
     gravev = 2;
@@ -762,7 +762,7 @@ StatusCode PythiaGS::fillEvt(GenEvent* evt) {
     wtgrav_(mymsti,wt,gravev);
     this->pypars().pari(10) = this->pypars().pari(10)*wt;
   } 
-   sum_pari10 +=this->pypars().pari(10);
+   m_sum_pari10 +=this->pypars().pari(10);
  
   evt->set_signal_process_id(pr_id);
   evt->set_random_states(m_seeds);
@@ -855,16 +855,16 @@ void
 PythiaGS::store_Atlas_HEPEVT(void)
 {
 
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->nhep()  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->isthep(10)  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->idhep(10)  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->jmohep(1,10)  << std::endl;
-//   std::cout << "atlas_HEPEVT------" << atlas_HEPEVT->jdahep(2,10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->nhep()  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->isthep(10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->idhep(10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->jmohep(1,10)  << std::endl;
+//   std::cout << "s_atlas_HEPEVT------" << s_atlas_HEPEVT->jdahep(2,10)  << std::endl;
 
-  atlas_HEPEVT->fill();
+  s_atlas_HEPEVT->fill();
 
   Atlas_HEPEVT* Ahep = new Atlas_HEPEVT();
-  *(Ahep)=*(atlas_HEPEVT);
+  *(Ahep)=*(s_atlas_HEPEVT);
   static const std::string keyid = "PythiaGS";
   StatusCode sc = evtStore() ->record(Ahep, keyid);
   if (!sc.isSuccess()) {

@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pydat2::init(void) {
-  if (!_pydat2) _pydat2 = static_cast<PYDAT2*>(pydat2_address_());
+  if (!s_pydat2) s_pydat2 = static_cast<PYDAT2*>(pydat2_address_());
 }
 

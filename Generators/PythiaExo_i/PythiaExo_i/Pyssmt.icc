@@ -6,6 +6,6 @@
 
 // initialise pointer
 void Pyssmt::init(void) {
-  if (!_pyssmt) _pyssmt = static_cast<PYSSMT*>(pyssmt_address_());
+  if (!s_pyssmt) s_pyssmt = static_cast<PYSSMT*>(pyssmt_address_());
 }
 
