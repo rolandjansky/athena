@@ -74,6 +74,8 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   std::vector<unsigned int> m_rodMap;
   bool passEventBurst;
   bool m_ArgonXenonSplitter;
+  enum GasType{ Xe=0,Ar=1,Kr=2 };
+
 
   const AtlasDetectorID * m_idHelper;
 
@@ -139,7 +141,6 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
   ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc;
 
-
   bool m_doDCS;
 
 
@@ -183,6 +184,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_hNumTrksDetPhi_B;//hNTrksvsPhi
   TProfile_LW* m_hNumHoTDetPhi_B;//hNumHoTPhi
   TProfile_LW* m_hAvgTroTDetPhi_B;//hAvgTrEdgeonTrack
+  TProfile_LW* m_hAvgTroTDetPhi_B_Ar;
   TH1F_LW* m_hNumSwLLWoT_B;//hLLHitsonTrk
   TProfile_LW* m_hStrawEffDetPhi_B;//hStrawEffDetPhi 
   TH1F_LW* m_hHitWMap_B;
@@ -194,7 +196,10 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH2F_LW* m_hrtRelation_B;//hrt
   TH1F_LW* m_hHLhitOnTrack_B;
   TH1F_LW* m_hHtoLRatioOnTrack_B;
+  TH1F_LW* m_hHtoLRatioOnTrack_B_Ar;
+  TH1F_LW* m_hHtoLRatioOnTrack_B_Xe;
   TH1F_LW* m_hWireToTrkPosition_B;//hWiretoTrkPosition
+  TH1F_LW* m_hWireToTrkPosition_B_Ar;
   TH1F_LW* m_hResVsDetPhi_B;
   TProfile* m_hNHitsperLB_B;
   TProfile* m_hNTrksperLB_B;
@@ -210,6 +215,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_hNumTrksDetPhi_E[2];//hNTrksvsPhi
   TProfile_LW* m_hNumHoTDetPhi_E[2];//hNumHoTPhi
   TProfile_LW* m_hAvgTroTDetPhi_E[2];//hAvgTrEdgeonTrack
+  TProfile_LW* m_hAvgTroTDetPhi_E_Ar[2];
   TH1F_LW* m_hNumSwLLWoT_E[2];//hLLHitsonTrk
   TProfile_LW* m_hStrawEffDetPhi_E[2];//hStrawEffDetPhi 
   TH1F_LW* m_hHitWMap_E[2];
@@ -221,7 +227,10 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH2F_LW* m_hrtRelation_E[2];//hrt
   TH1F_LW* m_hHLhitOnTrack_E[2];
   TH1F_LW* m_hHtoLRatioOnTrack_E[2];
+  TH1F_LW* m_hHtoLRatioOnTrack_E_Ar[2]; 
+  TH1F_LW* m_hHtoLRatioOnTrack_E_Xe[2];
   TH1F_LW* m_hWireToTrkPosition_E[2];//hWiretoTrkPosition
+  TH1F_LW* m_hWireToTrkPosition_E_Ar[2];
   TH1F_LW* m_hResVsDetPhi_E[2];
   TProfile* m_hNHitsperLB_E[2];
   TProfile* m_hNTrksperLB_E[2];
@@ -350,6 +359,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
    * Any straw with a High Threshold (HL) hit associated with a track.
    * This is a track level histogram
    */
+  TH1F_LW* m_hHitHWonTMapS[2][64];
+  //
+ 
   TH1F_LW* m_hHitHonTMapS[2][64];
 
   /** HL in time window on track: Straws
@@ -357,6 +369,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
    * This is a track level histogram.
    */
   TH1F_LW* m_hHtoLonTMapS[2][64]; //not filled
+
+  //
+  TH1F_LW* m_hHtoLWonTMapS[2][64]; //not filled
 
   /** Mean ToT (ns) on Track: Straws
    * Average Time over Threshold (ToT) from a straw hit associated with a track.
@@ -399,7 +414,9 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_hHitAonTMapC[2][64];
   TH1F_LW* m_hHitAWonTMapC[2][64];
   TH1F_LW* m_hHitHonTMapC[2][64];
+  TH1F_LW* m_hHitHWonTMapC[2][64];
   TH1F_LW* m_hHtoLonTMapC[2][64]; // not filled
+  TH1F_LW* m_hHtoLWonTMapC[2][64]; // 
   TProfile_LW* m_hHitToTonTMapC[2][64];
   TProfile_LW* m_hHitTronTwEPCMapC[2][64];
 
@@ -494,8 +511,11 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   float DriftTimeonTrkDistScale_B;
   float HLhitOnTrackScale_B;
   float HtoLRatioOnTrackScale_B;
+  float HtoLRatioOnTrackScale_B_Ar;
+  float HtoLRatioOnTrackScale_B_Xe;
   float NumSwLLWoTScale_B;
   float WireToTrkPositionScale_B;
+  float WireToTrkPositionScale_B_Ar;
   float TronTDistScale_B;
   float ResidualScale_B;
   float TimeResidualScale_B;
@@ -511,8 +531,11 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   float DriftTimeonTrkDistScale_E[2];
   float HLhitOnTrackScale_E[2];
   float HtoLRatioOnTrackScale_E[2];
+  float HtoLRatioOnTrackScale_E_Ar[2];
+  float HtoLRatioOnTrackScale_E_Xe[2];
   float NumSwLLWoTScale_E[2];
   float WireToTrkPositionScale_E[2];
+  float WireToTrkPositionScale_E_Ar[2];
   float TronTDistScale_E[2];
   float ResidualScale_E[2];
   float TimeResidualScale_E[2];
@@ -597,6 +620,32 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   const DataVector<Trk::Track> *m_trkCollectionEff;
 
   int strawNumberEndCap(int strawNumber, int strawLayerNumber, int LayerNumber, int phi_stack, int side);
+  /////////
+  //inline functions
+  ////////
+
+  //it is taking lots of time to compile ?
+
+  //Deciphers status HT to  GasType Enumerator 
+    inline GasType Straw_Gastype(int stat){
+    // getStatusHT returns enum {Undefined, Dead, Good, Xenon, Argon, Krypton}.
+    // Our representation of 'GasType' is 0:Xenon, 1:Argon, 2:Krypton
+    GasType Gas =Xe; // Xenon is default
+    if(m_ArgonXenonSplitter){
+      //      int stat=m_sumSvc->getStatusHT(TRT_Identifier);
+      if       ( stat==2 || stat==3 ) { Gas = Xe; } // Xe
+      else if  ( stat==1 || stat==4 ) { Gas = Ar; } // Ar
+      else if  ( stat==5 )            { Gas = Kr; } // Kr
+      else if  ( stat==6 )            { Gas = Xe; } // emulate Ar (so treat as Xe here)
+      else if  ( stat==7 )            { Gas = Xe; } // emulate Kr (so treat as Xe here)
+      else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!' or 6 or 7 for emulated types!");
+	throw std::exception();
+      }
+    }
+    return Gas;
+  }
+
+
 };
 
 #endif
