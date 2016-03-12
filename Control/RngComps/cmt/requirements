@@ -36,21 +36,21 @@ apply_pattern install_runtime
 use TestTools       TestTools-*          AtlasTest
 
 apply_pattern UnitTest_run unit_test=AtRndmGen \
-extrapatterns="//GP:|^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO"
+extrapatterns="//GP:|^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
 macro_append AtRndmGen_testlinkopts " -L../$(CMTCONFIG) -lRngComps"
 # Line numbers not right on x86_64?
 
 apply_pattern UnitTest_run unit_test=AtRanlux \
-extrapatterns="^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO"
+extrapatterns="^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
 macro_append AtRanlux_testlinkopts " -L../$(CMTCONFIG) -lRngComps"
 
 apply_pattern UnitTest_run unit_test=AtDSFMT \
-extrapatterns="^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO"
+extrapatterns="^IncidentSvc *DEBUG Adding .* listener|^JobOptionsSvc +INFO|DEBUG Property update for OutputLevel"
 macro_append AtDSFMT_testlinkopts " -L../$(CMTCONFIG) -lRngComps"
 
 apply_pattern athenarun_test name="TestSeedRunEvent" \
 pre_script="../cmt/setup.sh" \
 options="RngComps/TestSeedRunEvent.py" \
-post_script="post.sh TestSeedRunEvent $(q)SGAudSvc +INFO Finalizing|Py:Athena +INFO executing ROOT6Setup|SGAudSvc +INFO Initializing|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|DEBUG Calling destructor$(q)"
+post_script="post.sh TestSeedRunEvent $(q)SGAudSvc +INFO Finalizing|Py:Athena +INFO executing ROOT6Setup|SGAudSvc +INFO Initializing|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|DEBUG Calling destructor|DEBUG Property update for OutputLevel$(q)"
 
 end_private

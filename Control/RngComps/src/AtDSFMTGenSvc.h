@@ -9,7 +9,7 @@
  *  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/
  *  author (of wrapper) Michael Duehrssen
  *  
- *  $Id: AtDSFMTGenSvc.h 535391 2013-01-30 12:04:52Z binet $
+ *  $Id: AtDSFMTGenSvc.h 729159 2016-03-11 12:58:15Z krasznaa $
  */
 
 #include <map>

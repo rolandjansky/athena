@@ -98,6 +98,7 @@ AtRanluxGenSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode 
 AtRanluxGenSvc::initialize()
 {
+  ATH_CHECK( AthService::initialize() );
   ATH_MSG_INFO
     ("Initializing " << name()
      << " - package version " << PACKAGE_VERSION 
