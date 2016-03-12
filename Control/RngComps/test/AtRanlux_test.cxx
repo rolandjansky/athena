@@ -6,7 +6,7 @@
  * @brief  unit test for AtRanluxSvc
  *
  * @author Paolo Calafiura <pcalafiura@lbl.gov> -ATLAS Collaboration
- * $Id: AtRanlux_test.cxx 535391 2013-01-30 12:04:52Z binet $
+ * $Id: AtRanlux_test.cxx 729159 2016-03-11 12:58:15Z krasznaa $
  **/
 
 #undef NDEBUG

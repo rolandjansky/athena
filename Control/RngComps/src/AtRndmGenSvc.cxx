@@ -96,6 +96,7 @@ AtRndmGenSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode 
 AtRndmGenSvc::initialize()
 {
+  ATH_CHECK( AthService::initialize() );
   ATH_MSG_INFO
     ("Initializing " << name()
      << " - package version " << PACKAGE_VERSION 
