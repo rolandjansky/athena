@@ -34,6 +34,7 @@ public:
   virtual void setParent(IHLTMonTool *)=0;
   virtual void setDetail(bool)=0;
   virtual void setAltBinning(bool)=0;
+  virtual void setTP(bool)=0;
   virtual std::string getBasePath()=0;
   virtual void cd(const std::string &dir)=0;
   virtual void addDirectory(const std::string &s)=0;

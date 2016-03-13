@@ -24,6 +24,7 @@ class TrigEgammaPlotTool
           StatusCode finalize();
           void setParent(IHLTMonTool *parent){ m_parent = parent;};
           void setDetail(bool doDetail){ m_detailedHists = doDetail; }
+          void setTP(bool tp){ m_tp = tp; }
           void setAltBinning(bool doAltBins){ m_doJpsiee = doAltBins; }
           std::string getBasePath() { return m_baseDir; }
           std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
@@ -97,6 +98,7 @@ class TrigEgammaPlotTool
           // Properties
           bool m_doJpsiee;
           bool m_detailedHists;
+          bool m_tp;
           
           // Methods
           void setBinning();
@@ -106,15 +108,22 @@ class TrigEgammaPlotTool
           bool getCategoryFromTrigger(const std::string,std::string &);
           void getHistsFromPath(const std::vector<std::string> &pattern, const std::vector<std::string> &notpattern, std::map<std::string, TH1 *> &ret);
           std::string getPath(const std::string &histName, const std::string &dir = "");
-          void bookExpertHistos(const std::string dir);
+          void bookExpertHistos(TrigInfo);
+          void bookL1Histos(TrigInfo);
           void bookShifterHistos();
-          void bookAnalysisHistos(const std::string dir);
+          //void bookAnalysisHistos(const std::string dir);
           void bookEfficiencyTProfile(const std::string dir);
           void bookEfficiencyHistos(const std::string dir);
+          void bookEfficiency2DHistos(const std::string dir);
           void bookEgammaDistributionHistos(const std::string dir);
+          void bookElectronDistributionHistos(const std::string dir);
           void bookDistributionHistos(const std::string dir);
           void bookResolutionHistos(const std::string dir);
+          void bookElectronResolutionHistos(const std::string dir);
+          void bookElectronIsoResolutionHistos(const std::string dir);
+          void bookPhotonResolutionHistos(const std::string dir);
           void bookExpertResolutionHistos(const std::string dir);
+          void bookExpertL2CaloResolutionHistos(const std::string dir);
           void bookAbsResolutionHistos(const std::string dir);
           void parseCaloRingsLayers( unsigned layer, unsigned &minRing, unsigned &maxRing, std::string &caloLayerName);
   };

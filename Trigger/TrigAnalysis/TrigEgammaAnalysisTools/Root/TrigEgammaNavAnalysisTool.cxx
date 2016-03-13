@@ -102,6 +102,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         for( const auto& tool : m_tools) {
             // Set detail level from analysis tool each time
             tool->setDetail(getDetail()); 
+            tool->setTP(getTP()); 
             if(tool->toolExecute(m_dir+"/Expert",info,m_objTEList).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }
