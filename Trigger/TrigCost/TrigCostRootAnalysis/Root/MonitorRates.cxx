@@ -220,7 +220,7 @@ namespace TrigCostRootAnalysis {
           Info("MonitorRates::createL1Counters", "Preparing unique rates for %s", _chainName.c_str());
         }
       }
-    } // End unique rates
+    } // End unique rates counter minting
 
     // ##################################################################################################################
     // Create and add the L1 rates counters while also filling in the L1 items to the unique counters
@@ -298,7 +298,7 @@ namespace TrigCostRootAnalysis {
 
         const std::string _L1Name = TrigConfInterface::getLowerChainName(_chainName);
         if ( _L1Name == Config::config().getStr(kBlankString) ) {
-          Warning("MonitorRates::createHLTCounters", "Skipping Chain %s. No L1 seed. Unsupported.", _uniqueName.c_str());
+          if (Config::config().debug()) Warning("MonitorRates::createHLTCounters", "Skipping Chain %s. No L1 seed. Unsupported.", _uniqueName.c_str());
           continue;
         }
 
@@ -319,7 +319,7 @@ namespace TrigCostRootAnalysis {
         }
 
       }
-    } // End unique rates
+    } // End unique rates counter minting
 
     // ##################################################################################################################
     // STEP ONE: We populate the HLT items
@@ -346,7 +346,7 @@ namespace TrigCostRootAnalysis {
       // Currently veto HLT chains with no (see: all!) seeds
       const std::string _L1Name = TrigConfInterface::getLowerChainName(_chainName);
       if ( _L1Name == Config::config().getStr(kBlankString) ) {
-        Warning("MonitorRates::createHLTCounters", "Skipping Chain %s. No L1 seed. Unsupported.", _chainName.c_str());
+        if (Config::config().debug()) Warning("MonitorRates::createHLTCounters", "Skipping Chain %s. No L1 seed. Unsupported.", _chainName.c_str());
         continue;
       }
 
@@ -396,7 +396,20 @@ namespace TrigCostRootAnalysis {
             _thisChainsUniqueCounter->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
             continue; // I'm the unique counter for *this* chain - *don't* add me!
           }
-          _counter->addL2Item( _chainItemHLT );
+          // Chain *may* be part of a CPS group
+          RatesCPSGroup* _cpsGroup = nullptr;
+          const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
+          if (m_doCPS && _chainCPSGroup != "") {
+            CPSGroupMapIt_t _it = m_cpsGroups.find( _chainCPSGroup );
+            if (_it != m_cpsGroups.end()) _cpsGroup = _it->second;
+          }
+          // Add this chain to it, or if it's in a CPS group add the group.
+          // This will result in the CPS group being added multiple times, but it's a set of pointers so this is fine.
+          if (_cpsGroup != nullptr) {
+            _counter->addCPSItem( _cpsGroup );
+          } else {
+            _counter->addL2Item( _chainItemHLT );
+          }
         }
       }
 
@@ -461,12 +474,31 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorRates::createGroupCounters(CounterMap_t* _counterMap) {
 
+    // Debug - we will match the group name to CPS group pointers. Each CPS group can only be part of one group!
+    std::map<RatesCPSGroup*, std::string> _cpsToGroupName;
+
     for (UInt_t _i = 0; _i < TrigConfInterface::getChainN(); ++_i) {
       if (TrigConfInterface::getChainLevel(_i) == 1) continue; // Only HLT chains
       if ( checkPatternNameMonitor( TrigConfInterface::getChainName(_i), m_invertFilter ) == kFALSE ) continue;
 
       const Bool_t _isMain = TrigConfInterface::getChainIsMainStream(_i);
-      const std::vector<std::string> _chainGroups = TrigConfInterface::getChainRatesGroupNames(_i);
+      std::vector<std::string> _chainGroups = TrigConfInterface::getChainRatesGroupNames(_i);
+
+      RatesCPSGroup* _cpsGroup = nullptr;
+      const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
+      if (m_doCPS && _chainCPSGroup != "") {
+        CPSGroupMapIt_t _it = m_cpsGroups.find( _chainCPSGroup );
+        if (_it != m_cpsGroups.end()) _cpsGroup = _it->second;
+      }
+
+      // They are still groups, can still get their basic rate
+      if (m_doCPS == false && _chainCPSGroup != "") _chainGroups.push_back( _chainCPSGroup );
+
+      // Debug
+      // std::stringstream _ss;
+      // for (UInt_t _group = 0; _group < _chainGroups.size(); ++_group) _ss << _chainGroups.at(_group) << " ";
+      // _ss << TrigConfInterface::getChainCPSGroup(_i);
+      // Info("MonitorRates::createGroupCounters","Chain %s in groups: %s", TrigConfInterface::getChainName(_i).c_str(), _ss.str().c_str());
 
       for (UInt_t _group = 0; _group < _chainGroups.size(); ++_group) {
         std::string _chainGroup = _chainGroups.at(_group);
@@ -477,14 +509,6 @@ namespace TrigCostRootAnalysis {
           continue;
         }
         RatesChainItem* _chainItemHLT = _it->second;
-
-        // Chain *may* be part of a CPS group
-        RatesCPSGroup* _cpsGroup = nullptr;
-        const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
-        if (m_doCPS && _chainCPSGroup != "") {
-          CPSGroupMapIt_t _it = m_cpsGroups.find( _chainCPSGroup );
-          if (_it != m_cpsGroups.end()) _cpsGroup = _it->second;
-        }
 
         CounterRatesUnion* _ratesGroup = nullptr;
         // Do we have a counter for this group?
@@ -509,6 +533,15 @@ namespace TrigCostRootAnalysis {
         if (_cpsGroup != nullptr) {
           //Info("MonitorRates::createGroupCounters", "Group %s contains CPS sub-group %s", _chainGroup.c_str(), _chainCPSGroup.c_str());
           _ratesGroup->addCPSItem( _cpsGroup );
+          // This is validation of the assumptions we're going to be making in the weighting
+          if (_cpsToGroupName.count(_cpsGroup) == 1) {
+            if ( _cpsToGroupName[_cpsGroup] != _chainGroup) {
+              Error("MonitorRates::createGroups","UNSUPORTED USE OF CPS GROUP in more than one RATES group, chains in %s are in both %s and %s.", _chainCPSGroup.c_str(), _cpsToGroupName[_cpsGroup].c_str(), _chainGroup.c_str() );
+            }
+          } else {
+            _cpsToGroupName[_cpsGroup] = _chainGroup;
+          }
+          // End validation
           if (_group == 0) {
             m_globalRateHLTCounter->addCPSItem( _cpsGroup );
             if (_isMain) m_globalRatePhysicsMainCounter->addCPSItem( _cpsGroup );

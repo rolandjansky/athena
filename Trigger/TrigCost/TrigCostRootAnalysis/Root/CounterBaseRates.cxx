@@ -103,7 +103,7 @@ namespace TrigCostRootAnalysis {
     }
 
     // WEIGHTED Prescale
-    Float_t _weightPS = runWeight();
+    Double_t _weightPS = runWeight();
 
     if (!isZero( _weightPS )) {
       m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.

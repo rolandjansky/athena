@@ -421,6 +421,7 @@ namespace TrigCostRootAnalysis {
             m_chainCounter[_chainName] = stringToInt( _xml->GetNodeContent(_sigDetailsNode) );
           } else if (_detail == "prescale" || _detail == "chain_prescale") { // This is an alternate name
             m_chainPS[_chainName] = stringToDouble( _xml->GetNodeContent(_sigDetailsNode) );
+            //if ( isZero(m_chainPS[_chainName]) ) m_chainPS[_chainName] = -1.;
           } else if (_detail == "lower_chain_name") {
             // Later processing here does not expect any spaces, so remove them now. Pure comma separated list
             std::string _lower = _xml->GetNodeContent(_sigDetailsNode);

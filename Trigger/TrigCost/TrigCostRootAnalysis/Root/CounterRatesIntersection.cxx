@@ -75,10 +75,10 @@ namespace TrigCostRootAnalysis {
    * This only needs to be done once per trigger configuration.
    * Then we simply check that all L1 and L2 items passed raw and tot up their prescale weights.
    */
-  Float_t CounterRatesIntersection::runWeight() {
+  Double_t CounterRatesIntersection::runWeight() {
 
     if (m_redundanciesRemoved == kFALSE) removeRedundancies();
-    Float_t _w = 1.;
+    Double_t _w = 1.;
 
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);

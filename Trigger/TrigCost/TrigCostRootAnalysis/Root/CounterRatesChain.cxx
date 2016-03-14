@@ -80,7 +80,7 @@ namespace TrigCostRootAnalysis {
    * If this chain passes-raw at both the HLT and L1 levels, then calculate the effective weight from all prescale factors.
    * @return Event prescale weight for this chain 0 < PS weight < 1
    */
-  Float_t CounterRatesChain::runWeight() {
+  Double_t CounterRatesChain::runWeight() {
     // This is a sub-case of the ChainOR, however here we know we only have one chain at L2.
     // However, this chain may have been seeded by many L1's.
 

@@ -64,9 +64,10 @@ namespace TrigCostRootAnalysis {
 
     Double_t _lowestPS = 1e10;
     // Find lowest PS
-    for (const auto _item : m_items) if (_item->getPS() < _lowestPS) _lowestPS = _item->getPS();
+    for (const auto _item : m_items) if (_item->getPS() > 0 && _item->getPS() < _lowestPS) _lowestPS = _item->getPS();
 
-    if (_lowestPS <= 0.)  { // Disabled
+    if (_lowestPS <= 0. || _lowestPS >= 1e10)  { // Disabled
+      if (Config::config().debug()) Warning("RatesCPSGroup::calculateCPSFactor", "Disabling CPS group %s as all its chains are prescaled out.", getName().c_str());
       m_commonPSWeight = 0.;
       m_commonPS = -1;
       for (const auto _item : m_items) _item->setPSReduced( -1 );
@@ -74,7 +75,14 @@ namespace TrigCostRootAnalysis {
     // Set reduced PS
       m_commonPS = _lowestPS;
       m_commonPSWeight = 1. / m_commonPS; // Extra weight to apply coherently
-      for (const auto _item : m_items) _item->setPSReduced( _item->getPS() / _lowestPS );
+      for (const auto _item : m_items) {
+        if (_item->getPS() > 0) {
+          _item->setPSReduced( _item->getPS() / _lowestPS );
+        } else {
+          _item->setPSReduced( -1 );
+        }
+      }
+      if (Config::config().debug()) Info("RatesCPSGroup::calculateCPSFactor", "CPS group %s has common prescale factor: %f", getName().c_str(), m_commonPS);
     }
     //Info("RatesCPSGroup::calculateCPSFactor", "Debug, group %s has CPS weight %f", getName().c_str(), (Float_t) m_commonPSWeight);
   }

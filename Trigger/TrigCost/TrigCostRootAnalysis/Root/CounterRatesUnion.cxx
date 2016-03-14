@@ -127,7 +127,7 @@ namespace TrigCostRootAnalysis {
    * There are a few algorithms for the union of chains, with simpler algorithms for simpler topologies
    * @return Event prescale weight for this chain 0 < PS weight < 1
    */
-  Float_t CounterRatesUnion::runWeight() {
+  Double_t CounterRatesUnion::runWeight() {
     if (m_combinationClassification == kUnset) classify();
     if (m_cannotCompute == kTRUE) return 0.;
 
@@ -251,8 +251,8 @@ namespace TrigCostRootAnalysis {
   /**
    * This is the trivial case where we only have items at L1
    */
-  Float_t CounterRatesUnion::runWeight_OnlyL1() {
-    Float_t _w = 1.;
+  Double_t CounterRatesUnion::runWeight_OnlyL1() {
+    Double_t _w = 1.;
     for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
       RatesChainItem* _L1 = (*_L1It);
       _w *= (1. - _L1->getPassRawOverPS());
@@ -264,8 +264,8 @@ namespace TrigCostRootAnalysis {
    * This is the trivial parallel case where all L2s have one unique L1 chain
    * See Eq 37 of http://arxiv.org/abs/0901.4118
    */
-  Float_t CounterRatesUnion::runWeight_AllOneToOne() {
-    Float_t _w = 1.;
+  Double_t CounterRatesUnion::runWeight_AllOneToOne() {
+    Double_t _w = 1.;
 
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);
@@ -283,8 +283,8 @@ namespace TrigCostRootAnalysis {
    * L1 and L2 probabilities factorise.
    * See Eq 36 of http://arxiv.org/abs/0901.4118
    */
-  Float_t CounterRatesUnion::runWeight_AllToAll() {
-    Float_t _weightL2 = 1., _weightL1 = 1.;
+  Double_t CounterRatesUnion::runWeight_AllToAll() {
+    Double_t _weightL2 = 1., _weightL1 = 1.;
 
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);
@@ -307,48 +307,60 @@ namespace TrigCostRootAnalysis {
    * TODO split this off into a helper function
    * Any optimisation of this function can save a whole load of time
    */
-  Float_t CounterRatesUnion::runWeight_AllOneToMany() {
+  Double_t CounterRatesUnion::runWeight_AllOneToMany() {
 
-    Float_t _weightAllChains = 1.;
-    
+//  typedef std::set<RatesChainItem*>      ChainItemSet_t;
+
+    Double_t _weightAllChains = 1.;
+
+    // This can be cached on first call
+    if (m_l1ToProcess.size() == 0) {
+      m_l1ToProcess.insert( m_L1s.begin(), m_L1s.end() );
+      for (CPSGroupSetIt_t _CPSIt = m_cpsGroups.begin(); _CPSIt != m_cpsGroups.end(); ++_CPSIt) {
+        m_l1ToProcess.insert( (*_CPSIt)->getL1() );
+      }
+    }
+
     // First for all the single chains
-    for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
+    for (ChainItemSetIt_t _L1It = m_l1ToProcess.begin(); _L1It != m_l1ToProcess.end(); ++_L1It) {
       RatesChainItem* _L1 = (*_L1It);
-      Float_t _weightL1 = _L1->getPassRawOverPS();
+      
+      Double_t _weightL1 = _L1->getPassRawOverPS();
        //     Info("CounterRatesUnion::runWeight_AllOneToMany","L1 item  %s has weight %f", _L1->getName().c_str(),  _L1->getPassRawOverPS());
       if ( isZero(_weightL1) ) continue; // If L1 failed, no point looking at HLT
-      Float_t _weightL2 = 1.;
+
+      Double_t _weightL2 = 1.;
       for (ChainItemSetIt_t _L2It = _L1->getUpperStart(); _L2It != _L1->getUpperEnd(); ++_L2It) {
-        if ( m_L2s.count( (*_L2It) ) == 0 ) continue; //TODO - is this needed? Should be implicitly true
+        if ( m_L2s.count( (*_L2It) ) == 0 ) {
+          //Error("DBG", "Got a L2 which is not in the set of L2 to process?");
+          continue; //TODO - is this needed? (yes apparently) Should be implicitly true
+        }
         _weightL2 *= (1. - (*_L2It)->getPassRawOverPS());
         // Info("CounterRatesUnion::runWeight_AllOneToMany","L2 item  %s has weight %f", (*_L2It)->getName().c_str(),  (*_L2It)->getPassRawOverPS());
       }
-      Float_t _weightChain = _weightL1 * (1. - _weightL2);
-      _weightAllChains *= (1. - _weightChain);
-    }
 
-    // Now for the chains in a CPS group
-    for (CPSGroupSetIt_t _CPSIt = m_cpsGroups.begin(); _CPSIt != m_cpsGroups.end(); ++_CPSIt) {
-      // We know by definition that all the chains in a CPS group have the same L1 seed
-      RatesCPSGroup* _cpsGroup = (*_CPSIt);
-      RatesChainItem* _L1 = _cpsGroup->getL1();
-      Float_t _weightL1 = _L1->getPassRawOverPS();
-      if ( isZero(_weightL1) ) continue; // If L1 failed, no point looking at HLT
-      Float_t _weightL2 = 1.;
-      for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It) {
-        _weightL2 *= (1. - (*_L2It)->getPassRawOverPSReduced());
+      // What about any CPS group with this seed?
+      for (CPSGroupSetIt_t _CPSIt = m_cpsGroups.begin(); _CPSIt != m_cpsGroups.end(); ++_CPSIt) {
+        RatesCPSGroup* _cpsGroup = (*_CPSIt);
+        RatesChainItem* _L1cps = _cpsGroup->getL1();
+        if (_L1cps != _L1) continue; // MUST be the same L1 seed
+
+        //if it is the same L1 seed, do the CPS for these chains
+        Double_t _weightL2cps = 1.;
+        for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It) {
+          // TODO - If this is a group, then we only take CPS members which are also in this group
+          _weightL2cps *= (1. - (*_L2It)->getPassRawOverPSReduced());
+        }
+        _weightL2cps = (1. - _weightL2cps);
+        _weightL2cps *= _cpsGroup->getCommonWeight();
+
+        _weightL2 *= (1. - _weightL2cps);
       }
-      Float_t _weightCPSGroup = _weightL1 * (1. - _weightL2);
-      // If something passed at HLT, then we need to include the common weight
-      //if ( !isEqual(_weightL2, 1.) )
-       _weightCPSGroup *= _cpsGroup->getCommonWeight();
 
-      // Float_t _combWeightL2 = (1. - _weightL2);
-      // _combWeightL2 *= _cpsGroup->getCommonWeight();
-      // _combWeightL2 = (1. - _combWeightL2);
-      // // Need to also include the PS common to all the chains in the coherent group which is factored out of PSReduced
-      // Float_t _weightCPSGroup = (1. - _weightL1) * (1. - _combWeightL2); // TODO how should the common part come in?
-      _weightAllChains *= (1. - _weightCPSGroup);
+      _weightL2 = (1. - _weightL2);
+
+      Double_t _weightL1HLT = _weightL1 * _weightL2;
+      _weightAllChains *= (1. - _weightL1HLT);
     }
 
     return (1. - _weightAllChains);
@@ -363,7 +375,7 @@ namespace TrigCostRootAnalysis {
    * The probabilities do not factorise and must be evaluated in turn for each possible combinatoric
    * of the L1 items. See Eq 35 of http://arxiv.org/abs/0901.4118
    */
-  Float_t CounterRatesUnion::runWeight_ManyToMany() {
+  Double_t CounterRatesUnion::runWeight_ManyToMany() {
     assert( m_L1s.size() && m_L2s.size() );
 
     // We can speed up by pre-checking if any L2's passed, and return if not.

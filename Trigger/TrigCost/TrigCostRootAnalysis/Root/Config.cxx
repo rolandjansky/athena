@@ -1186,8 +1186,14 @@ namespace TrigCostRootAnalysis {
       set(kIsRootCore, 1, "IsRootCore");
       set(kDataDir, std::string(_env) + std::string("/data/TrigCostRootAnalysis/"), "DataDir" );
       if (getIsSet(kROSXMLName)) set(kROSXMLPath, getStr(kDataDir) + getStr(kROSXMLName));
-      if (getIsSet(kPrescaleXMLName1)) set(kPrescaleXMLPath1, getStr(kDataDir) + getStr(kPrescaleXMLName1));
-      if (getIsSet(kPrescaleXMLName2)) set(kPrescaleXMLPath2, getStr(kDataDir) + getStr(kPrescaleXMLName2));
+      if (getIsSet(kPrescaleXMLName1)) {
+        if (getStr(kPrescaleXMLName1).substr(0,1) == "/") set(kPrescaleXMLPath1, getStr(kPrescaleXMLName1));
+        else                                              set(kPrescaleXMLPath1, getStr(kDataDir) + getStr(kPrescaleXMLName1));
+       }
+      if (getIsSet(kPrescaleXMLName2)) {
+        if (getStr(kPrescaleXMLName2).substr(0,1) == "/") set(kPrescaleXMLPath2, getStr(kPrescaleXMLName2));
+        else                                              set(kPrescaleXMLPath2, getStr(kDataDir) + getStr(kPrescaleXMLName2));
+      }
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE

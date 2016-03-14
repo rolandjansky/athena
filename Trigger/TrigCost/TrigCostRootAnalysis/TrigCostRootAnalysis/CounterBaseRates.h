@@ -66,7 +66,7 @@ namespace TrigCostRootAnalysis {
 
     virtual void    finalise();
     virtual Float_t runDirect(Bool_t _usePrescale = kTRUE) = 0; // Pure virtual calls! Please override-me with appropriate trigger logic
-    virtual Float_t runWeight() = 0;
+    virtual Double_t runWeight() = 0;
 
   protected:
 
