@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+
+<atn></atn>
+
+<kv></kv>
+
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt" >
+  <rttContactPerson>Jacob M. Pasner</rttContactPerson>
+  <mailto>jake.pasner@cern.ch</mailto>
+
+  <jobList>
+    <chain>
+      <chainName>SLHCChainTestsFCal</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimsFCal">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimsFCalSLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105204.McAtNloJimmy_AUET2CT10_ttbar_allhad.evgen.EVNT.e2238_tid01485091_00/EVNT.01485091._001049.pool.root.1 .
+	      ATHENA_PROC_NUMBER=3 Sim_tf.py --inputEVNTFile=EVNT.01485091._001049.pool.root.1 --outputHITSFile=SLHCtest.sFCal.HITS.pool.root --maxEvents=6 --skipEvents=0 --randomSeed=10 --preInclude='all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoDBM.py' --geometryVersion=ATLAS-P2-SFCAL-01-00-00_VALIDATION --conditionsTag=OFLCOND-MC15c-SDR-06 --postInclude='all:InDetSLHC_Example/postInclude.SLHC_Setup.py' --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' --DataRunNumber 240120
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCal.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigisFCal">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigisFCalSLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.simul.HITS.e1133_s2638_tid05646683_00/HITS.05646683._000001.pool.root.1 .;
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.simul.HITS.e1133_s2638_tid05646683_00/HITS.05646683._000002.pool.root.1 .;
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.simul.HITS.e1133_s2638_tid05646683_00/HITS.05646683._000003.pool.root.1 .;
+	      xrdcp root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/HITSexample/mc15_14TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.simul.HITS.e1133_s2638_tid05646691_00/HITS.05646691._000001.pool.root.1 .;
+          ATHENA_PROC_NUMBER=3 Digi_tf.py --inputHITSFile SLHCtest.sFCal.HITS.pool.root --outputRDOFile SLHCtest.sFCal.RDO.pool.root --LowPtMinbiasHitsFile HITS.05646683._00000[1,2,3].pool.root.1 --numberOfLowPtMinBias 199.3040 --HighPtMinbiasHitsFile HITS.05646691._000001.pool.root.1 --numberOfHighPtMinBias 0.69064 --conditionsTag OFLCOND-MC15c-SDR-06 --geometryVersion ATLAS-P2-SFCAL-01-00-00 --DataRunNumber 240120 --pileupFinalBunch 6 --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoDBM.py' 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2012Config1_DigitConfig.py,RunDependentSimData/configLumi_user.py' --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' --preExec 'HITtoRDO:from AthenaCommon.BeamFlags import jobproperties; jobproperties.Beam.bunchSpacing=25;from LArROD.LArRODFlags import larRODFlags; larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.NumberOfCollisions.set_Value_and_Lock(200);from CaloTools.CaloNoiseFlags import jobproperties;jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200.0*1.45/8*50/25);rec.doTrigger.set_Value_and_Lock(False);userRunLumiOverride={"run":240120, "lb":1, "starttstamp":1410120000, "mu":200.0};from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];digitizationFlags.doInDetNoise.set_Value_and_Lock(False)' --postExec 'HITtoRDO:mergeMcEventCollTool=job.StandardPileUpToolsAlg.PileUpTools["MergeMcEventCollTool"];mergeMcEventCollTool.FirstXing=0;mergeMcEventCollTool.LastXing=0;mergeMcEventCollTool.DoSlimming=False;pixeldigi.EnableSpecialPixels=False;CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];conddb.addOverride("/LAR/Identifier/OnOffIdMap","LARIdentifierOnOffIdMap-SFCAL-000");conddb.addOverride("/LAR/Identifier/CalibIdMap","LARIdentifierCalibIdMap-SFCAL-000")' --skipEvents 0 --maxEvents 2 --digiSeedOffset1 50100 --digiSeedOffset2 50122 --jobNumber 123 --ignorePatterns 'ALL ,LArTTCellMap , ERROR .*'
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.sFCal.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCal.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecosFCal">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecosFCalSLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      ATHENA_PROC_NUMBER=3 Reco_tf.py --inputRDOFile SLHCtest.sFCal.RDO.pool.root --outputESDFile SLHCtest.sFCal.ESD.pool.root --outputAODFile SLHCtest.sFCal.AOD.pool.root --geometryVersion 'all:ATLAS-P2-SFCAL-01-00-00' --conditionsTag 'all:OFLCOND-MC15c-SDR-06' --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoDBM.Reco.py' --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec 'all:from CaloTools.CaloNoiseFlags import jobproperties; jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(200.0*1.45/8*50/25)' --postExec 'all:from IOVDbSvc.CondDB import conddb;conddb.addOverride("/LAR/Identifier/OnOffIdMap","LARIdentifierOnOffIdMap-SFCAL-000");conddb.addOverride("/LAR/Identifier/CalibIdMap","LARIdentifierCalibIdMap-SFCAL-000")' 'RAWtoESD:xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD",WriteInTimePileUpTruth=True)' --ignorePatterns 'ALL ,LArTTCellMap , ERROR .*'
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.sFCal.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.sFCal.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.sFCal.AOD.pool.root</chainfileout>
+	</chainElement>
+      </sequential>
+    </chain>
+  </jobList>
+  
+  <jobGroups>
+    <jobGroup name="SLHCFCTTransform" parent="Transform">
+      <keepFilePattern>*.root</keepFilePattern>
+      <keepFilePattern>*.pdf</keepFilePattern>
+      <keepFilePattern>*.log</keepFilePattern>
+      <keepFilePattern>log.*</keepFilePattern>
+    </jobGroup>
+
+  </jobGroups>
+
+</rtt>
+
+</unifiedTestConfiguration>
