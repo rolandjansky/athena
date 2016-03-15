@@ -302,10 +302,15 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    def use_looperkiller():
-        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-        lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
-    simFlags.InitFunctions.add_function("postInit", use_looperkiller)
+    # this configures the non-MT looperKiller
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+    # add default configurable
+    UAStore.addAction('LooperKiller',['Step'])
+    # this configures the MT ooperKiller
+    from G4UserActions import G4UserActionsConfig
+    try:
+        G4UserActionsConfig.addLooperKillerTool()
+    except AttributeError:
+        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")

@@ -210,3 +210,13 @@ def addHITSMergeArgs(parser):
     parser.add_argument('--inputLogsFile', nargs='+',
                         type=argFactory(argFile, io='input', runarg=True, type='log'),
                         help='Input Log files', group='HITSMerge_tf') ## FIXME need to add code to do the log file merging.
+
+## Add validation transform arguments
+def addHITSValidArgs(parser):
+    parser.defineArgGroup('SimValid_tf', 'SimValid_tf specific options')
+    parser.add_argument('--inputHITSFile', nargs = '+',
+                        type=argFactory(argPOOLFile, io='input'),
+                        help='Input HITS files', group='SimValid_tf')
+    parser.add_argument('--outputHIST_SIMFile', nargs = '+',
+                        type=argFactory(argFile, io='output'),
+                        help=' Output HIST_SIM files', group='SimValid_tf')

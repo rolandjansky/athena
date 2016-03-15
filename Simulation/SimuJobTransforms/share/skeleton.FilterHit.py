@@ -140,6 +140,7 @@ if releaseIsOlderThan(20,0):
 else:
     Stream1.ItemList += ["xAOD::JetContainer#*",
                          "xAOD::JetAuxContainer#*"]
+
 #BLM
 #Stream1.ItemList += ["SiHitCollection#BLMHits"] # not used in digi
 #BCM

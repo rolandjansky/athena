@@ -124,9 +124,6 @@ if 'DetFlags' not in dir():
 DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
 DetFlags.Truth_setOn()
 DetFlags.Forward_setOff() # Forward dets are off by default
-
-## Configure Forward Detector DetFlags based on command-line options
-from AthenaCommon.DetFlags import DetFlags
 if hasattr(runArgs, "AFPOn"):
     if runArgs.AFPOn:
         DetFlags.AFP_setOn()
@@ -220,10 +217,19 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-## Add G4 alg to alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
-
+# Add G4 alg to alg sequence
+try:
+    # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
+    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+    topSeq += PyG4AtlasAlg()
+except ImportError:
+    try:
+        # the hive version provides PyG4AtlasSvc
+        from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
+        svcMgr += PyG4AtlasSvc()
+    except ImportError:
+        atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
+        
 from PyJobTransforms.trfUtils import releaseIsOlderThan
 if releaseIsOlderThan(17,6):
     ## Random number configuration
@@ -271,10 +277,15 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    def use_looperkiller():
-        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-        lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
-    simFlags.InitFunctions.add_function("postInit", use_looperkiller)
+    # configure the non-MT looperkiller
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+    # add default configurable
+    UAStore.addAction('LooperKiller',['Step'])
+    # configure the MT looperkiller
+    from G4UserActions import G4UserActionsConfig
+    try:
+        G4UserActionsConfig.addLooperKillerTool()
+    except AttributeError:
+        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
