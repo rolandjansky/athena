@@ -315,8 +315,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     }
   }
 
-  bool setPersistent = true;
-  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC, setPersistent);
+  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC );
   if(parentAfterIncident) {
     ATH_MSG_VERBOSE ( "Parent After Incident: " << *parentAfterIncident);
     vtx->add_particle_out( parentAfterIncident );
@@ -348,7 +347,7 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
           abort();
         }
       }
-      HepMC::GenParticle *p = ti.childParticle(i, secBC, setPersistent);
+      HepMC::GenParticle *p = ti.childParticle(i, secBC );
       ATH_MSG_VERBOSE ( "Writing out " << i << "th child particle: " << *p);
       // add particle to vertex
       vtx->add_particle_out( p);
@@ -382,14 +381,14 @@ HepMC::GenVertex *ISF::HepMC_TruthSvc::createGenVertexFromTruthIncident( ISF::IT
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
   std::vector<double> weights(1);
-  weights[0] = static_cast<double>(parentBC);
+  Barcode::ParticleBarcode primaryBC = parentBC % m_barcodeSvcQuick->particleGenerationIncrement();
+  weights[0] = static_cast<double>( primaryBC );
 
   // Check for a previous end vertex on this particle.  If one existed, then we should put down next to this
   //  a new copy of the particle.  This is the agreed upon version of the quasi-stable particle truth, where
   //  the vertex at which we start Q-S simulation no longer conserves energy, but we keep both copies of the
   //  truth particles
-  bool setPersistent = true;
-  HepMC::GenParticle *parent = ti.parentParticle( setPersistent );
+  HepMC::GenParticle *parent = ti.parentParticle();
   if (!parent) {
     ATH_MSG_ERROR("Unable to write particle interaction to MC truth due to missing parent HepMC::GenParticle instance");
     abort();
