@@ -36,9 +36,6 @@ public:
 
 private:
    uint32_t reducedROBid(uint32_t);
-   int m_EventCounter;
-
-   RawEvent* m_re;
 
    StringProperty m_inSvcName;
    StringProperty m_outSvcName;
