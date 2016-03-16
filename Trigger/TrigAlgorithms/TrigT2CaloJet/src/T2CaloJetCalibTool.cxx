@@ -28,6 +28,8 @@ T2CaloJetCalibTool::T2CaloJetCalibTool(const std::string& type,
 				       const std::string& name,
 				       const IInterface* parent):
   T2CaloJetBaseTool(type, name, parent),
+  m_log(NULL),
+  m_outputLevel(0),
   m_t2JetCalibTool ("T2JetCalibTool",this),
   m_t2JetCorrToolTile1  ("T2JetCorrToolTile1" ,this),
   m_t2JetCorrToolFcal1  ("T2JetCorrToolFcal1" ,this),

@@ -10,7 +10,7 @@
 
 //------------------------------------------------
 Trig3MomentumMerger::Trig3MomentumMerger() :
-hashMap_(), gridsHandler_()
+m_hashMap(), m_gridsHandler()
 {
 }
 //------------------------------------------------
@@ -23,12 +23,12 @@ void resetCell(HashedTrig3Momentum &c)
 struct HashMatchCriterion
 {
   HashMatchCriterion(const u_int value, const EtaPhiSampleHash &hm):
-    hash_(value), hashMap_(hm) {};
+    hash_(value), m_hashMap(hm) {};
   bool operator() (const HashedTrig3Momentum &cell) {
     return hash_ == cell.hash();
   };
   u_int hash_;
-  EtaPhiSampleHash hashMap_;
+  EtaPhiSampleHash m_hashMap;
 };
 
 //------------------------------------------------
@@ -36,25 +36,25 @@ struct HashMatchCriterion
 struct CellMerger
 {
   CellMerger(const EtaPhiSampleHash &hm, GridsHandler &gridsHandler) :
-    hm_(hm), gridsHandler_(gridsHandler) {}
+    hm_(hm), m_gridsHandler(gridsHandler) {}
   void operator() (const Trig3Momentum &t3m) {
     u_int hash(hm_.hash(t3m));
     HashMatchCriterion hmc(hash, hm_);
-    Vmc &grid = gridsHandler_.grid(t3m.caloSample());
+    Vmc &grid = m_gridsHandler.grid(t3m.caloSample());
     Vmc::iterator mergeCell = find_if(grid.begin(), grid.end(), hmc);
     if(mergeCell != grid.end()) mergeCell->addE(t3m);
     else grid.push_back(HashedTrig3Momentum(t3m, hash));
   }
   EtaPhiSampleHash hm_;
-  GridsHandler &gridsHandler_;
+  GridsHandler &m_gridsHandler;
 };
 //------------------------------------------------
 bool Trig3MomentumMerger::mergeCells(const Vt3m &input, Vt3m &output)
 {
-  gridsHandler_.clearAllGrids();
-  CellMerger merger(hashMap_, gridsHandler_);
+  m_gridsHandler.clearAllGrids();
+  CellMerger merger(m_hashMap, m_gridsHandler);
   std::for_each(input.begin(), input.end(), merger);
-  gridsHandler_.appendAllGrids(output);
+  m_gridsHandler.appendAllGrids(output);
   return true;
 }
 //------------------------------------------------

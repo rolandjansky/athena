@@ -88,13 +88,13 @@ class T2L1CaloJetFullScanFastJetTool : public T2L1CaloJetFullScanBaseTool
   int m_inputType;
   
   TrigT2Jet* m_jet;
-  std::vector<float> l1_tower_information;
+  std::vector<float> m_l1_tower_information;
   
-  double etaMin;
-  double etaMax;
-  double phiMin;
-  double phiMax;
-  bool fullScan;
+  double m_etaMin;
+  double m_etaMax;
+  double m_phiMin;
+  double m_phiMax;
+  bool m_fullScan;
   
   
   ITrigTimerSvc *m_pTimerService;   // pointer to Timer Service
@@ -109,11 +109,11 @@ class T2L1CaloJetFullScanFastJetTool : public T2L1CaloJetFullScanBaseTool
   
   bool m_doTriggerTowers; // bool to switch to trigger towers mode, default mode is Jet Elements
   // fast jet
-  std::vector<fastjet::PseudoJet> particles;
-  fastjet::JetDefinition * jet_def;
+  std::vector<fastjet::PseudoJet> m_particles;
+  fastjet::JetDefinition * m_jet_def;
   //fastjet::ClusterSequence cs;
-  std::vector<fastjet::PseudoJet> jets;
-  std::vector<fastjet::PseudoJet> constituents;
+  std::vector<fastjet::PseudoJet> m_jets;
+  std::vector<fastjet::PseudoJet> m_constituents;
   
   // cleaning:
   float m_leadingCellFraction;

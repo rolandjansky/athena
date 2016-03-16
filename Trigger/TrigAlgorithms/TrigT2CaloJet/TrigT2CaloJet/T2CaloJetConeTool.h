@@ -46,8 +46,8 @@ class T2CaloJetConeTool : public T2CaloJetBaseTool
  private:
   int m_nIterations;  
   double m_coneRadius;
-  int niterations;
-  double etot_jet;
+  //int niterations;
+  //double etot_jet;
   //Cell check
   int m_inCone, m_outCone, m_totalCell;
   // cleaning:

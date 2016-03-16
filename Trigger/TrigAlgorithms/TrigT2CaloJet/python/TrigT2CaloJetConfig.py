@@ -32,7 +32,6 @@ from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import T2GSCalibTool
 
 from AthenaCommon.Constants import VERBOSE,DEBUG,INFO
 from AthenaPython import PyAthena # for L1.5 enums
-t2l1tools = PyAthena.T2L1Tools
 
 class  T2AllRoiUnpacking_test(T2AllRoiUnpacking):
     __slots__ = []
@@ -145,14 +144,14 @@ class T2CaloFastJet_CC (T2CaloFastJet):
         # here put your customizations
         self.doCleaning = True
         self.doT2L1Cleaning = False # do the regular cell-based cleaning
-        self.outputType = t2l1tools.A4CC
+        self.outputType = PyAthena.T2L1Tools.A4CC
 
 class T2CaloFastJet_CC_JESCalib (T2CaloFastJet_CC):
     __slots__ = []
     def __init__(self, name="T2CaloFastJet_CC_JESCalib"):
         super( T2CaloFastJet_CC_JESCalib, self ).__init__(name)
         # here put your customizations
-        self.outputType = t2l1tools.A4CC_JES
+        self.outputType = PyAthena.T2L1Tools.A4CC_JES
         # add in the calibration tool
         t2jescalibtool = T2JESCalibTool("T2JESCalibTool_Jet")
         t2jescalibtool.MinEtCut = 1 
@@ -176,13 +175,13 @@ class T2CaloFastJet_CC_JESCalib_L15 (T2CaloFastJet_CC_JESCalib):
     def __init__(self, name="T2CaloFastJet_CC_JESCalib_L15"):
         super( T2CaloFastJet_CC_JESCalib_L15, self ).__init__(name)
         # here put your customizations
-        self.inputType = t2l1tools.A4TT
+        self.inputType = PyAthena.T2L1Tools.A4TT
 class T2CaloFastJet_CC_JESCalib_L15had (T2CaloFastJet_CC_JESCalib):
     __slots__ = []
     def __init__(self, name="T2CaloFastJet_CC_JESCalib_L15had"):
         super( T2CaloFastJet_CC_JESCalib_L15had, self ).__init__(name)
         # here put your customizations
-        self.inputType = t2l1tools.A4TT_JES
+        self.inputType = PyAthena.T2L1Tools.A4TT_JES
 
         
 ## L1.5 FastJet FEXes
@@ -212,7 +211,7 @@ class T2CaloFastJet_Base (T2CaloFastJet):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.outputType = t2l1tools.A4JE
+        #self.outputType = PyAthena.T2L1Tools.A4JE
         
 #class T2CaloFastJet_a4JE_TowerCalib (T2CaloFastJet_Base):
     #__slots__ = []
@@ -221,8 +220,8 @@ class T2CaloFastJet_Base (T2CaloFastJet):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.inputType  = t2l1tools.CALIBRATED
-        #self.outputType = t2l1tools.A4JE_TC
+        #self.inputType  = PyAthena.T2L1Tools.CALIBRATED
+        #self.outputType = PyAthena.T2L1Tools.A4JE_TC
         
         
 #class T2CaloFastJet_a4JE_JESCalib (T2CaloFastJet_Base):
@@ -232,7 +231,7 @@ class T2CaloFastJet_Base (T2CaloFastJet):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.outputType = t2l1tools.A4JE_JES
+        #self.outputType = PyAthena.T2L1Tools.A4JE_JES
         
         ## add in the calibration tool
         #t2jescalibtool = T2JESCalibTool("T2JESCalibTool_Jet")
@@ -262,8 +261,8 @@ class T2CaloFastJet_Base (T2CaloFastJet):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.inputType  = t2l1tools.CALIBRATED
-        #self.outputType = t2l1tools.A4JE_TC_JES
+        #self.inputType  = PyAthena.T2L1Tools.CALIBRATED
+        #self.outputType = PyAthena.T2L1Tools.A4JE_TC_JES
         
         ## add in the calibration tool
         #t2jescalibtool = T2JESCalibTool("T2JESCalibTool_Jet")
@@ -294,7 +293,7 @@ class T2CaloFastJet_Base (T2CaloFastJet):
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
         #self.distanceParameter = 1.0
-        #self.outputType = t2l1tools.A10JE
+        #self.outputType = PyAthena.T2L1Tools.A10JE
         
 class T2CaloFastJet_a4JE (T2CaloFastJet_Base):
     __slots__ = []
@@ -303,9 +302,9 @@ class T2CaloFastJet_a4JE (T2CaloFastJet_Base):
         # here put your customizations
         self.doCleaning = True
         self.doT2L1Cleaning = True
-        self.outputType = t2l1tools.A4JE
+        self.outputType = PyAthena.T2L1Tools.A4JE
         self.writeMultipleOutputTEs = True
-        self.secondOutputType = t2l1tools.L2CONE
+        self.secondOutputType = PyAthena.T2L1Tools.L2CONE
 class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
     __slots__ = []
     def __init__(self, name="T2CaloFastJet_a10JE"):
@@ -313,10 +312,10 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         # here put your customizations
         self.doCleaning = True
         self.doT2L1Cleaning = True
-        self.outputType = t2l1tools.A10JE
+        self.outputType = PyAthena.T2L1Tools.A10JE
         self.distanceParameter = 1.0
         self.writeMultipleOutputTEs = True
-        self.secondOutputType = t2l1tools.L2CONE
+        self.secondOutputType = PyAthena.T2L1Tools.L2CONE
 ###############
 # All non-multiple output TE algorithms should not be used with current L1.5 L2 interface
 ###############
@@ -327,7 +326,7 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.outputType = t2l1tools.A4JE_PU_SUB
+        #self.outputType = PyAthena.T2L1Tools.A4JE_PU_SUB
         #self.doPileupSubtraction = True
 
 #class T2CaloFastJet_a4TT (T2CaloFastJet_Base):
@@ -337,7 +336,7 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.outputType = t2l1tools.A4TT
+        #self.outputType = PyAthena.T2L1Tools.A4TT
 
 #class T2CaloFastJet_a4TT_TowerCalib (T2CaloFastJet_Base):
     #__slots__ = []
@@ -346,8 +345,8 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.inputType  = t2l1tools.CALIBRATED
-        #self.outputType = t2l1tools.A4TT_TC
+        #self.inputType  = PyAthena.T2L1Tools.CALIBRATED
+        #self.outputType = PyAthena.T2L1Tools.A4TT_TC
         
         
 #class T2CaloFastJet_a4TT_JESCalib (T2CaloFastJet_Base):
@@ -357,7 +356,7 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.outputType = t2l1tools.A4TT_JES
+        #self.outputType = PyAthena.T2L1Tools.A4TT_JES
         
         ## add in the calibration tool
         #t2jescalibtool = T2JESCalibTool("T2JESCalibTool_Jet")
@@ -387,8 +386,8 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.inputType  = t2l1tools.CALIBRATED
-        #self.outputType = t2l1tools.A4TT_TC_JES
+        #self.inputType  = PyAthena.T2L1Tools.CALIBRATED
+        #self.outputType = PyAthena.T2L1Tools.A4TT_TC_JES
         
         ## add in the calibration tool
         #t2jescalibtool = T2JESCalibTool("T2JESCalibTool_Jet")
@@ -419,7 +418,7 @@ class T2CaloFastJet_a10JE (T2CaloFastJet_Base):
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
         #self.distanceParameter = 1.0
-        #self.outputType = t2l1tools.A10TT
+        #self.outputType = PyAthena.T2L1Tools.A10TT
         
         
 class T2CaloFastJet_a4TT (T2CaloFastJet_Base):
@@ -429,9 +428,9 @@ class T2CaloFastJet_a4TT (T2CaloFastJet_Base):
         # here put your customizations
         self.doCleaning = True
         self.doT2L1Cleaning = True
-        self.outputType = t2l1tools.A4TT
+        self.outputType = PyAthena.T2L1Tools.A4TT
         self.writeMultipleOutputTEs = True
-        self.secondOutputType = t2l1tools.L2CONE
+        self.secondOutputType = PyAthena.T2L1Tools.L2CONE
         
 class T2CaloFastJet_a10TT (T2CaloFastJet_Base):
     __slots__ = []
@@ -440,10 +439,10 @@ class T2CaloFastJet_a10TT (T2CaloFastJet_Base):
         # here put your customizations
         self.doCleaning = True
         self.doT2L1Cleaning = True
-        self.outputType = t2l1tools.A10TT
+        self.outputType = PyAthena.T2L1Tools.A10TT
         self.distanceParameter = 1.0
         self.writeMultipleOutputTEs = True
-        self.secondOutputType = t2l1tools.L2CONE
+        self.secondOutputType = PyAthena.T2L1Tools.L2CONE
 
 class T2CaloFastJet_a4TT_JESCalib (T2CaloFastJet_Base):
     __slots__ = []
@@ -452,7 +451,7 @@ class T2CaloFastJet_a4TT_JESCalib (T2CaloFastJet_Base):
         # here put your customizations
         self.doCleaning = True
         self.doT2L1Cleaning = True
-        self.outputType = t2l1tools.A4TT_JES
+        self.outputType = PyAthena.T2L1Tools.A4TT_JES
         self.pTmin = 10000. # here we could lower the pTmin cut so we can calibrate jets up.
         
         # add in the calibration tool
@@ -487,7 +486,7 @@ class T2CaloFastJet_a4TT_JESCalib (T2CaloFastJet_Base):
         self.T2JetTools = [t2l1calojetcalibtool,t2calojetcalibtool]      
         
         self.writeMultipleOutputTEs = True
-        self.secondOutputType = t2l1tools.L2CONE
+        self.secondOutputType = PyAthena.T2L1Tools.L2CONE
         
 #class T2CaloFastJet_a4TT_PileupSubtraction (T2CaloFastJet_Base):
     #__slots__ = []
@@ -496,7 +495,7 @@ class T2CaloFastJet_a4TT_JESCalib (T2CaloFastJet_Base):
         ## here put your customizations
         #self.doCleaning = True
         #self.doT2L1Cleaning = True
-        #self.outputType = t2l1tools.A4TT_PU_SUB
+        #self.outputType = PyAthena.T2L1Tools.A4TT_PU_SUB
         #self.doPileupSubtraction = True
         
 ## depreciated L1.5 FEXes
@@ -650,8 +649,9 @@ class T2CaloJetBase (T2CaloJet):
         # really the best thing to do would be for T2CaloJet
         # to determine the jet size *itself*, perhaps even on
         # a jet-by-jet basis
-        #self.EtaIDWidth = 0.2
-        #self.PhiIDWidth = 0.2
+        self.EtaIDWidth = 0.2
+        self.PhiIDWidth = 0.2
+
 
 ### Classes for non-calibrated L2 jets ####
 

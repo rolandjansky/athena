@@ -22,7 +22,7 @@
 
 T2CaloFastJet::T2CaloFastJet(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    cellMinEnergy_(0.),
+    m_cellMinEnergy(0.),
     m_tools(this),
     m_pTimerService(0),
     //m_total_timer(0),
@@ -32,10 +32,10 @@ T2CaloFastJet::T2CaloFastJet(const std::string & name, ISvcLocator* pSvcLocator)
     m_cleaning_timer(0),
     m_calibration_timer(0),
     m_RoI_timer(0),
-    jet_def(0),
-    cluster_sequence(0),
-    pu_cluster_sequence(0),
-    pu_area_cluster_sequence(0),
+    m_jet_def(0),
+    m_cluster_sequence(0),
+    m_pu_cluster_sequence(0),
+    m_pu_area_cluster_sequence(0),
     m_jet(0)
 {   
     // configurables
@@ -46,7 +46,7 @@ T2CaloFastJet::T2CaloFastJet(const std::string & name, ISvcLocator* pSvcLocator)
     declareProperty("inputType",               m_inputType = 1);
     declareProperty("outputType",              m_outputType = 1);
     declareProperty("T2JetTools",              m_tools, "list of Jet tools");
-    declareProperty("cellMinEnergy", cellMinEnergy_=0.0);
+    declareProperty("cellMinEnergy", m_cellMinEnergy=0.0);
     // cleaning:
     declareProperty("doCleaning",              m_doCleaning = false);
     declareProperty("doT2L1Cleaning",          m_doT2L1Cleaning = true);
@@ -130,25 +130,25 @@ HLT::ErrorCode T2CaloFastJet::hltInitialize()
     }    
     
     // initialise fast jet
-    particles.reserve(100);
-    constituents.reserve(100);
-    jets.reserve(100);
+    m_particles.reserve(100);
+    m_constituents.reserve(100);
+    m_jets.reserve(100);
     
     (*m_log) << MSG::INFO << "Setting up fastjet jet definition" << endreq;
-    jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, m_distanceParameter); // this should be made configurable in the future
+    m_jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, m_distanceParameter); // this should be made configurable in the future
     // dummy call to fast jet so it's internal initalize methods are set (and we don't print the banner during execute)
     (*m_log) << MSG::INFO << "Making dummy call to fast jet cluster sequence" << endreq;
-    particles.clear();
-    cluster_sequence = new fastjet::ClusterSequence(particles, *jet_def);
-    delete cluster_sequence;
+    m_particles.clear();
+    m_cluster_sequence = new fastjet::ClusterSequence(m_particles, *m_jet_def);
+    delete m_cluster_sequence;
     // pileup subtraction
     if (m_doPileupSubtraction) {
         (*m_log) << MSG::INFO << "Setting up fastjet pileup subtraction" << endreq;
         // define the jet algorithm
         double ktRadius(0.4);
-        pu_jet_def = new fastjet::JetDefinition(fastjet::kt_algorithm,ktRadius,fastjet::Best);
+        m_pu_jet_def = new fastjet::JetDefinition(fastjet::kt_algorithm,ktRadius,fastjet::Best);
          // define jet area algorithm
-        pu_area_def = new fastjet::AreaDefinition(fastjet::VoronoiAreaSpec(0.9));
+        m_pu_area_def = new fastjet::AreaDefinition(fastjet::VoronoiAreaSpec(0.9));
     }
     
     // cleaning
@@ -190,9 +190,9 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         m_RoI_timer->reset();
         //m_total_timer->start();
     }
-    particles.clear();
-    constituents.clear();
-    jets.clear();
+    m_particles.clear();
+    m_constituents.clear();
+    m_jets.clear();
     m_nJets = -99;
     m_nGrid = -99;
     //m_TotalTime = -99;
@@ -266,7 +266,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         } // end of loop on sub TEs
     } // end of loop on TEs
     
-    std::vector<Trig3Momentum>* grid = inputGrid->grid();
+    const std::vector<Trig3Momentum>* grid = inputGrid->grid();
     
 #ifndef NDEBUG
    if((*m_log).level() <= MSG::DEBUG){
@@ -294,7 +294,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         
         // now fill fast jet particles
         double energy(begin_grid->e());
-        if(energy<cellMinEnergy_) continue;
+        if(energy<m_cellMinEnergy) continue;
         double eta(begin_grid->eta());
         double phi(begin_grid->phi());
         double transverse_energy = energy/cosh(eta);
@@ -304,7 +304,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         
         fastjet::PseudoJet pseudo_jet( px, py, pz, energy);
         pseudo_jet.set_user_index(std::distance(begin_grid_fixed, begin_grid));
-        particles.push_back( pseudo_jet );
+        m_particles.push_back( pseudo_jet );
         
         jet_counter++;
     }
@@ -319,18 +319,18 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     }
 #endif        
     // run the clustering, extract the jets
-    cluster_sequence = 0;   
-    pu_cluster_sequence = 0;     
+    m_cluster_sequence = 0;   
+    m_pu_cluster_sequence = 0;     
     if (m_doPileupSubtraction){           
-        pu_cluster_sequence = new fastjet::ClusterSequenceArea(particles, *jet_def, *pu_area_def);
-        jets = fastjet::sorted_by_pt(pu_cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
+        m_pu_cluster_sequence = new fastjet::ClusterSequenceArea(m_particles, *m_jet_def, *m_pu_area_def);
+        m_jets = fastjet::sorted_by_pt(m_pu_cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
     } else {
-        cluster_sequence = new fastjet::ClusterSequence(particles, *jet_def);
-        jets = fastjet::sorted_by_pt(cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
+        m_cluster_sequence = new fastjet::ClusterSequence(m_particles, *m_jet_def);
+        m_jets = fastjet::sorted_by_pt(m_cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
     }
     
-    //std::reverse(jets.begin(),jets.end());  // sorted by increasing pt
-    m_nJets = jets.size();
+    //std::reverse(m_jets.begin(),m_jets.end());  // sorted by increasing pt
+    m_nJets = m_jets.size();
     if(doTiming()) m_fastjet_timer->stop();
     
     // pileup subtraction
@@ -341,20 +341,20 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             (*m_log) << MSG::DEBUG <<  "=== Performing pileup subtraction jet finding " << endreq;
         }
 #endif 
-        pu_area_cluster_sequence = 0;
-        pu_area_cluster_sequence = new fastjet::ClusterSequenceArea(particles, *pu_jet_def, *pu_area_def);
+        m_pu_area_cluster_sequence = 0;
+        m_pu_area_cluster_sequence = new fastjet::ClusterSequenceArea(m_particles, *m_pu_jet_def, *m_pu_area_def);
         // get rho in central eta range
-        rho = 0.;
-        sigma = 0.;
-        area = 0.;
+        m_rho = 0.;
+        m_sigma = 0.;
+        m_area = 0.;
         fastjet::RangeDefinition etaRange(-2.,2.);
-        pu_area_cluster_sequence->get_median_rho_and_sigma(etaRange,false,rho,sigma,area);
+        m_pu_area_cluster_sequence->get_median_rho_and_sigma(etaRange,false,m_rho,m_sigma,m_area);
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
             (*m_log) << MSG::DEBUG <<  "   completed pileup subtraction jet finding" << endreq;
-            (*m_log) << MSG::DEBUG <<  "   median rho:   " << rho << endreq;
-            (*m_log) << MSG::DEBUG <<  "   median sigma: " << sigma << endreq;
-            (*m_log) << MSG::DEBUG <<  "   area:         " << area << endreq;
+            (*m_log) << MSG::DEBUG <<  "   median rho:   " << m_rho << endreq;
+            (*m_log) << MSG::DEBUG <<  "   median sigma: " << m_sigma << endreq;
+            (*m_log) << MSG::DEBUG <<  "   area:         " << m_area << endreq;
             
         }
 #endif 
@@ -387,24 +387,24 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     // inspect the output jets, compute some cleaning variables then store
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG <<  "Found "<< jets.size() << " jets " << endreq;
-        if (jets.size()) (*m_log) << MSG::DEBUG <<  "== Resultant jets " << endreq;
+        (*m_log) << MSG::DEBUG <<  "Found "<< m_jets.size() << " jets " << endreq;
+        if (m_jets.size()) (*m_log) << MSG::DEBUG <<  "== Resultant jets " << endreq;
     }
 #endif
-    for (unsigned i = 0; i < jets.size(); ++i) {
+    for (unsigned i = 0; i < m_jets.size(); ++i) {
         if (m_doPileupSubtraction){
-            constituents = fastjet::sorted_by_pt(pu_cluster_sequence->constituents(jets[i]));
+            m_constituents = fastjet::sorted_by_pt(m_pu_cluster_sequence->constituents(m_jets[i]));
         } else {
-            constituents = fastjet::sorted_by_pt(cluster_sequence->constituents(jets[i]));
+            m_constituents = fastjet::sorted_by_pt(m_cluster_sequence->constituents(m_jets[i]));
         }
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
            (*m_log) << MSG::DEBUG << "  fastjet jet [" << i 
-                    << "]: Et: "            << jets[i].e()/cosh(jets[i].eta()) 
-                    << " MeV, eta: "        << jets[i].eta() 
-                    << ", phi: "            << jets[i].phi_std() 
-                    << ", rapidity: "       << jets[i].rapidity() 
-                    << ", n consituents: "  << constituents.size() << endreq;
+                    << "]: Et: "            << m_jets[i].e()/cosh(m_jets[i].eta()) 
+                    << " MeV, eta: "        << m_jets[i].eta() 
+                    << ", phi: "            << m_jets[i].phi_std() 
+                    << ", rapidity: "       << m_jets[i].rapidity() 
+                    << ", n consituents: "  << m_constituents.size() << endreq;
         }
 #endif
         // === pileup subtraction
@@ -412,13 +412,13 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         double et_offset = 0.;
         double e_offset = 0.;
         if (m_doPileupSubtraction){
-            double jet_area = pu_cluster_sequence->area(jets[i]);
-            et_offset = jet_area * rho;
-            e_offset = et_offset * cosh(jets[i].eta());
+            double jet_area = m_pu_cluster_sequence->area(m_jets[i]);
+            et_offset = jet_area * m_rho;
+            e_offset = et_offset * cosh(m_jets[i].eta());
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-               (*m_log) << MSG::DEBUG << "    - area: " << jet_area << ", offset (median rho * area): " << et_offset << endreq;
-               (*m_log) << MSG::DEBUG << "    - offset ET: " << (jets[i].e()/cosh(jets[i].eta())) - et_offset << ", e: " << jets[i].e()-e_offset << endreq;
+               (*m_log) << MSG::DEBUG << "    - area: " << jet_area << ", offset (median m_rho * m_area): " << et_offset << endreq;
+               (*m_log) << MSG::DEBUG << "    - offset ET: " << (m_jets[i].e()/cosh(m_jets[i].eta())) - et_offset << ", e: " << m_jets[i].e()-e_offset << endreq;
                
             }
 #endif
@@ -456,8 +456,8 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
                (*m_log) << MSG::DEBUG  << "  Computing cleaning variables "<< endreq;
             }
 #endif
-            for (unsigned ii = 0; ii < constituents.size(); ++ii){
-                int grid_id = constituents[ii].user_index();
+            for (unsigned ii = 0; ii < m_constituents.size(); ++ii){
+                int grid_id = m_constituents[ii].user_index();
                 Trig3Momentum grid_element = grid->at(grid_id);
 #ifndef NDEBUG
                 if((*m_log).level() <= MSG::DEBUG){
@@ -506,7 +506,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
                     eta += tmpE*grid_element.eta();
                     tmpPhi = grid_element.phi();      
                     
-                    tmpdPhi = tmpPhi - jets[i].phi_std();   // w.r.t Jet
+                    tmpdPhi = tmpPhi - m_jets[i].phi_std();   // w.r.t Jet
                     if (tmpdPhi > M_PI) tmpdPhi -= 2*M_PI;    
                     if (tmpdPhi < -1*M_PI) tmpdPhi += 2*M_PI; 
                     
@@ -569,7 +569,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             // -------------------------------------
             if(eThresh != 0) {
                 eta /= eThresh;
-                phi = dphi/eThresh + jets[i].phi_std(); // recover absolute value
+                phi = dphi/eThresh + m_jets[i].phi_std(); // recover absolute value
                 
                 // phi must be between -pi and pi :
                 if(phi > M_PI) phi -= 2.0* M_PI;
@@ -603,8 +603,8 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             // === cleaning completed
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "  - EM energy [MeV]:  " << em_energy  << ", (ET: " << em_energy/cosh(jets[i].eta())  << ")" << endreq;
-                (*m_log) << MSG::DEBUG  << "  - HAD energy [MeV]: " << had_energy << ", (ET: " << had_energy/cosh(jets[i].eta()) << ")" << endreq;
+                (*m_log) << MSG::DEBUG  << "  - EM energy [MeV]:  " << em_energy  << ", (ET: " << em_energy/cosh(m_jets[i].eta())  << ")" << endreq;
+                (*m_log) << MSG::DEBUG  << "  - HAD energy [MeV]: " << had_energy << ", (ET: " << had_energy/cosh(m_jets[i].eta()) << ")" << endreq;
                 (*m_log) << MSG::DEBUG  << "  - n leading cells:  " << nLeadingCells << endreq;
                 (*m_log) << MSG::DEBUG  << "  - EM fraction:      " << emf << endreq;
                 (*m_log) << MSG::DEBUG  << "  - HEC fraction:     " << hecf << endreq;
@@ -622,12 +622,12 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             if((*m_log).level() <= MSG::DEBUG)
                 (*m_log) << MSG::DEBUG  << "  Recording with offset energy" << endreq;
 #endif
-            m_jet->setE(jets[i].e() - e_offset);
+            m_jet->setE(m_jets[i].e() - e_offset);
         } else {
-            m_jet->setE(jets[i].e());
+            m_jet->setE(m_jets[i].e());
         }
-        m_jet->setEta(jets[i].eta());
-        m_jet->setPhi(jets[i].phi_std());  
+        m_jet->setEta(m_jets[i].eta());
+        m_jet->setPhi(m_jets[i].phi_std());  
         m_jet->setEem0(em_energy);
         m_jet->setEhad0(had_energy);
         // cleaning:
@@ -752,10 +752,10 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     
     // === post-execute admin
     if (m_doPileupSubtraction){
-        delete pu_cluster_sequence; 
-        delete pu_area_cluster_sequence; 
+        delete m_pu_cluster_sequence; 
+        delete m_pu_area_cluster_sequence; 
     } else {
-        delete cluster_sequence; 
+        delete m_cluster_sequence; 
     }
     if(doTiming()) {
         //m_total_timer->stop();
@@ -796,9 +796,9 @@ HLT::ErrorCode T2CaloFastJet::hltFinalize()
         (*m_log) << MSG::DEBUG << "Finalizing T2CaloFastJet FEX " << name() << endreq;
     
     delete m_log;
-    particles.clear();
-    jets.clear();
-    constituents.clear();
+    m_particles.clear();
+    m_jets.clear();
+    m_constituents.clear();
     m_et.clear();
     m_et_em.clear();
     m_et_had.clear();
@@ -810,13 +810,13 @@ HLT::ErrorCode T2CaloFastJet::hltFinalize()
     m_em_frac.clear();
     m_nLeadingTowers.clear();
     
-    if ( bool(jet_def) ){
-        delete jet_def;
+    if ( bool(m_jet_def) ){
+        delete m_jet_def;
     }
     
     if (m_doPileupSubtraction){
-        delete pu_jet_def;
-        delete pu_area_def;
+        delete m_pu_jet_def;
+        delete m_pu_area_def;
     }
     
           
