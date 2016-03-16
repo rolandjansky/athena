@@ -1018,6 +1018,7 @@ StatusCode EventSelectorByteStream::io_reinit() {
    }
    // all good... copy over.
    m_beginFileFired = false;
+   m_inputCollectionsProp = inputCollections;
    
    return(this->reinit());
 }
