@@ -157,7 +157,8 @@ class TruthParticleContainer : public DataVector<TruthParticle>
    *  this @c TruthParticleContainer is proxying.
    */
   void setGenEvent( const McEventCollection* mcColl, 
-		    const std::size_t genEventIdx ); 
+		    const std::size_t genEventIdx,
+                    IProxyDictWithPool* sg = nullptr); 
 
   /** Setup the persistent pointer toward the @c TruthEtIsolations
    */
@@ -166,7 +167,8 @@ class TruthParticleContainer : public DataVector<TruthParticle>
   /** Setup the persistent pointer toward the @c TruthEtIsolations
    */
   void setEtIsolations( const TruthEtIsolationsContainer* etIsolations,
-			const std::size_t etIsolationsIdx );
+			const std::size_t etIsolationsIdx,
+                        IProxyDictWithPool* sg = nullptr);
 
   /** Setup the dictionary of barcodes-to-TruthParticle
    */
@@ -271,10 +273,11 @@ TruthParticleContainer::setGenEvent( const ElementLink<McEventCollection>& genEv
 
 inline void
 TruthParticleContainer::setGenEvent( const McEventCollection* mcColl,
-				     const std::size_t genEvtIdx )
+				     const std::size_t genEvtIdx,
+                                     IProxyDictWithPool* sg /*= nullptr*/)
 {
   if ( 0 != mcColl && mcColl->size() > genEvtIdx ) {
-    m_genEvent.toIndexedElement( *mcColl, genEvtIdx );
+    m_genEvent.toIndexedElement( *mcColl, genEvtIdx, sg );
   }
 }
 
@@ -286,10 +289,11 @@ TruthParticleContainer::setEtIsolations( const ElementLink<TruthEtIsolationsCont
 
 inline void
 TruthParticleContainer::setEtIsolations( const TruthEtIsolationsContainer* etIsolations,
-					 const std::size_t etIsolationsIdx )
+					 const std::size_t etIsolationsIdx,
+                                         IProxyDictWithPool* sg /*= nullptr*/)
 {
   if ( 0 != etIsolations && etIsolations->size() > etIsolationsIdx ) {
-    m_etIsolations.toIndexedElement( *etIsolations, etIsolationsIdx );
+    m_etIsolations.toIndexedElement( *etIsolations, etIsolationsIdx, sg );
   }
 }
 
