@@ -46,6 +46,7 @@ def getTrackProcessorUserAction(name="ISFG4TrackProcessorUserAction", **kwargs):
 ### Specialized Versions
 def getFullG4TrackProcessorUserAction(name='FullG4TrackProcessorUserAction', **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
+    kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
     if jobproperties.Beam.beamType() == 'cosmics' or \
@@ -70,6 +71,8 @@ def getAFII_G4TrackProcessorUserAction(name='AFII_G4TrackProcessorUserAction', *
 ### Base Version
 def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('BarcodeSvc',               ISF_Flags.BarcodeService()     )
     kwargs.setdefault('TrackProcessorUserAction', 'ISFG4TrackProcessorUserAction')
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())

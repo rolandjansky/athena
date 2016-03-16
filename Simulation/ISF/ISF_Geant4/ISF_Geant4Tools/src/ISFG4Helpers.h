@@ -11,14 +11,19 @@
 // ISF Includes
 #include "ISF_Event/ISFParticle.h"
 
+// MCTruth includes
+#include "MCTruth/VTrackInformation.h"
+
 // forward declarations
 namespace HepMC {
   class GenParticle;
 }
 namespace ISF {
-  class ITruthBinding;
+  class TruthBinding;
 }
 class VTrackInformation;
+class TrackInformation;
+class EventInformation;
 class G4Track;
 
 namespace iGeant4 {
@@ -34,16 +39,12 @@ namespace iGeant4 {
     /** convert the given G4Track into an ISFParticle */
     static ISF::ISFParticle* convertG4TrackToISFParticle(const G4Track& aTrack,
                                                          const ISF::ISFParticle& parent,
-                                                         ISF::ITruthBinding* truth = nullptr);
+                                                         ISF::TruthBinding* truth = nullptr);
 
     /** convert the given G4Track into an ISFParticle */
     static ISF::ISFParticle* convertG4TrackToISFParticle(const G4Track& aTrack,
                                                          const ISF::DetRegionSvcIDPair& regionSimSvcPair,
-                                                         const HepMC::GenParticle* primaryTruthParticle,
-                                                         ISF::ITruthBinding* truth = nullptr);
-
-    /** get the ParticleBarcode corresponding to the given G4Track */
-    static Barcode::ParticleBarcode getParticleBarcode(const G4Track& aTrack);
+                                                         ISF::TruthBinding* truth = nullptr);
 
     /** return a valid UserInformation object of the G4Track for use within the ISF */
     static VTrackInformation* getISFTrackInfo(const G4Track& aTrack);
@@ -52,6 +53,16 @@ namespace iGeant4 {
     static void setG4TrackInfoFromBaseISFParticle( G4Track& aTrack,
                                                    const ISF::ISFParticle& baseIsp,
                                                    bool setReturnToISF=false );
+
+    /** attach a new TrackInformation object to the given new (!) G4Track
+     *  (the G4Track must not have a UserInformation object attached to it) */
+    static TrackInformation* attachTrackInfoToNewG4Track( G4Track& aTrack,
+                                     const ISF::ISFParticle& baseIsp,
+                                     TrackClassification classification,
+                                     HepMC::GenParticle *nonRegeneratedTruthParticle = nullptr);
+
+    /** return pointer to current EventInformation */
+    static EventInformation* getEventInformation();
 
   private:
 

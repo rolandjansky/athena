@@ -12,9 +12,11 @@
 // Geant4 includes
 #include "G4Track.hh"
 #include "G4ThreeVector.hh"
+#include "G4EventManager.hh"
+#include "G4Event.hh"
 
 // G4Atlas includes
-#include "MCTruth/VTrackInformation.h"
+#include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackInformation.h"
 
@@ -41,12 +43,11 @@ iGeant4::ISFG4Helpers::~ISFG4Helpers()
 ISF::ISFParticle*
 iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                    const ISF::ISFParticle& parent,
-                                                   ISF::ITruthBinding* truth)
+                                                   ISF::TruthBinding* truth)
 {
   const ISF::DetRegionSvcIDPair regionSimSvcPair( parent.nextGeoID(), parent.nextSimID() );
   return ISFG4Helpers::convertG4TrackToISFParticle( aTrack,
                                                     regionSimSvcPair,
-                                                    parent.getPrimaryTruthParticle(),
                                                     truth );
 }
 
@@ -54,8 +55,7 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
 ISF::ISFParticle*
 iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                    const ISF::DetRegionSvcIDPair& regionSimSvcPair,
-                                                   const HepMC::GenParticle* primaryTruthParticle,
-                                                   ISF::ITruthBinding* truth)
+                                                   ISF::TruthBinding* truth)
 {
   const G4ThreeVector& g4pos = aTrack.GetPosition();
   const double         gTime = aTrack.GetGlobalTime();
@@ -69,7 +69,8 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
   double charge  = particleDefinition.GetPDGCharge();
   int    pdgID   = particleDefinition.GetPDGEncoding();
 
-  Barcode::ParticleBarcode barcode = ISFG4Helpers::getParticleBarcode(aTrack);
+  auto* genParticle = (truth) ? truth->getTruthParticle(): nullptr;
+  Barcode::ParticleBarcode barcode = (genParticle) ? genParticle->barcode() : Barcode::fUndefinedBarcode;
 
   ISF::ISFParticle *isp = new ISF::ISFParticle( position,
                                                 momentum,
@@ -78,7 +79,6 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                 pdgID,
                                                 gTime,
                                                 regionSimSvcPair,
-                                                primaryTruthParticle,
                                                 barcode,
                                                 truth
                                                );
@@ -87,55 +87,57 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
 }
 
 
-/** get the ParticleBarcode corresponding to the given G4Track */
-Barcode::ParticleBarcode
-iGeant4::ISFG4Helpers::getParticleBarcode(const G4Track& aTrack)
-{
-  VTrackInformation* trackInfo = getISFTrackInfo(aTrack);
-
-  Barcode::ParticleBarcode barcode = (trackInfo) ? trackInfo->GetParticleBarcode() : Barcode::fUndefinedBarcode;
-
-  return barcode;
-}
-
-
 /** return a valid UserInformation object of the G4Track for use within the ISF */
 VTrackInformation *
 iGeant4::ISFG4Helpers::getISFTrackInfo(const G4Track& aTrack) 
 {
   VTrackInformation* trackInfo = static_cast<VTrackInformation*>(aTrack.GetUserInformation());
-  bool isValidInISF = trackInfo && (trackInfo->GetPrimaryHepMCParticle() || dynamic_cast<TrackBarcodeInfo*>(trackInfo));
-
-  return ( (isValidInISF) ? trackInfo : 0 );
+  return trackInfo;
 }
+
 
 /** link the given G4Track to the given ISFParticle */
-void
-iGeant4::ISFG4Helpers::setG4TrackInfoFromBaseISFParticle( G4Track& aTrack,
-                                                          const ISF::ISFParticle& baseIsp,
-                                                          bool setReturnToISF )
+TrackInformation*
+iGeant4::ISFG4Helpers::attachTrackInfoToNewG4Track( G4Track& aTrack,
+                                                    const ISF::ISFParticle& baseIsp,
+                                                    TrackClassification classification,
+                                                    HepMC::GenParticle *nonRegeneratedTruthParticle)
 {
-  G4VUserTrackInformation* g4TrackInfo = aTrack.GetUserInformation();
-  VTrackInformation*       trackInfo   = dynamic_cast<VTrackInformation*>( g4TrackInfo );
-
-
-  if (!trackInfo) {
-    // create and attach a new TrackInformation object to the G4Track
-
-    // NB: using a lightweight TrackBarcodeInfo instead of TrackInformation
-    //     possibly leads to an output change in the SiHitCollection_p2_BCMHits.m_id
-    HepMC::GenParticle* hepParticle = nullptr;
-    trackInfo = new TrackInformation( hepParticle, &baseIsp );
-    trackInfo->SetClassification( Secondary );
-    aTrack.SetUserInformation( trackInfo );
+  if ( aTrack.GetUserInformation() ) {
+    G4ExceptionDescription description;
+    description << G4String("ISFG4Helper::attachTrackInfoToNewG4Track: ")
+                << "Trying to attach new TrackInformation object to G4Track which already has a TrackUserInformation attached (trackID: "
+                << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
+                << ", parentID " << aTrack.GetParentID() << ")";
+    G4Exception("ISFG4Helpers::attachTrackInfoToNewG4Track", "TrackUserInformationAlreadyExists", FatalException, description);
+    return nullptr;
   }
 
-  auto hepPrimary = baseIsp.getPrimaryTruthParticle();
-  trackInfo->SetBaseISFParticle( &baseIsp );
-  trackInfo->SetPrimaryHepMCParticle( hepPrimary );
+  auto* truthBinding = baseIsp.getTruthBinding();
+  if ( !truthBinding ) {
+    G4ExceptionDescription description;
+    description << G4String("ISFG4Helper::attachTrackInfoToNewG4Track: ")
+                << "No TruthBinding present in base ISFParticle (trackID: "
+                << aTrack.GetTrackID() << ", track pos: "<<aTrack.GetPosition() << ", mom: "<<aTrack.GetMomentum()
+                << ", parentID " << aTrack.GetParentID() << ", ISFParticle: "<<baseIsp<<")";
+    G4Exception("ISFG4Helpers::attachTrackInfoToNewG4Track", "NoISFTruthBinding", FatalException, description);
+    return nullptr;
+  }
 
-  bool returnToISF = setReturnToISF | trackInfo->GetReturnedToISF();
-  trackInfo->SetReturnedToISF( returnToISF );
+  TrackInformation *trackInfo = new TrackInformation( nonRegeneratedTruthParticle, &baseIsp );
+  auto primaryTruthParticle   = truthBinding->getPrimaryTruthParticle();
 
-  return;
+  trackInfo->SetPrimaryHepMCParticle( primaryTruthParticle );
+  trackInfo->SetClassification( classification );
+  aTrack.SetUserInformation( trackInfo );
+
+  return trackInfo;
 }
+
+/** return pointer to current EventInformation */
+EventInformation*
+iGeant4::ISFG4Helpers::getEventInformation()
+{
+  return ( static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation()) );
+}
+

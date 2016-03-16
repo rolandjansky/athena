@@ -15,6 +15,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include "BarcodeInterfaces/Barcode.h"
+
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
 
@@ -25,10 +27,12 @@ class G4Event;
 class StoreGateSvc;
 class G4PrimaryParticle;
 
+namespace Barcode {
+  class IBarcodeSvc;
+}
+
 namespace ISF {
   class ISFParticle;
-  //class IParticleBroker;
-  //class IParticleHelper;
 }
 
 namespace HepMC {
@@ -102,16 +106,14 @@ namespace iGeant4
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
 
+    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
+    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
+
     ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
     ToolHandle<iGeant4::IPhysicsValidationUserAction> m_physicsValidationUserAction;
     ToolHandle<iGeant4::ITrackProcessorUserAction> m_trackProcessorUserAction;
     ToolHandle<iGeant4::IMCTruthUserAction> m_mcTruthUserAction;
     ToolHandle<iGeant4::ISDActivateUserAction> m_sdActivateUserAction;
-
-    //ServiceHandle<ISF::IParticleBroker> m_particleBroker;
-    //ToolHandle<ISF::IParticleHelper> m_particleHelper;
-
-    //ToolHandle<PyAthena::Tool> m_configTool;
 
     StoreGateSvc* m_storeGate;
 

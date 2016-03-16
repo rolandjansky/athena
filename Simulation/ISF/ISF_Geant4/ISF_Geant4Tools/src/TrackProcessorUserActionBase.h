@@ -10,6 +10,8 @@
 #include <string>
 
 // forward declarations
+class EventInformation;
+
 namespace HepMC {
   class GenParticle;
 }
@@ -36,16 +38,16 @@ namespace iGeant4 {
     void PreUserTrackingAction(const G4Track* aTrack);
     void PostUserTrackingAction(const G4Track* aTrack);
 
+  protected:
+    EventInformation                   *m_eventInfo;   //!< event-global G4 UserInformation
+
+  private:
     /** This method is called by TrackProcessorUserActionBase after the
      *  G4Track->ISFParticle association has been established for the current G4Track */
     virtual void ISFSteppingAction(const G4Step*, ISF::ISFParticle *curISP) = 0;
 
-  private:
     /** for keeping track of the currently processed G4Track and its corresponding ISFParticle */
-    int                                 m_curTrackID;  //!< the TrackID of the currently processed G4Track
-    const HepMC::GenParticle           *m_curPrimary;  //!< the primary particle causing the currently processed G4Track
-    ISF::ISFParticle                   *m_curISP;      //!< the corresponding ISFParticle to this G4Track
-
+    ISF::ISFParticle                   *m_curBaseISP;  //!< the corresponding ISFParticle to this G4Track
   };
 
 }
