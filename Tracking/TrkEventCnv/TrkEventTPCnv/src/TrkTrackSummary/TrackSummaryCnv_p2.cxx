@@ -2,15 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#define private public
-#define protected public
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummaryCnv_p2.h"
 
 void TrackSummaryCnv_p2::dbgPrint( const Trk::TrackSummary *t){
@@ -27,28 +21,32 @@ void TrackSummaryCnv_p2::dbgPrint( const Trk::TrackSummary *t){
     for (std::vector<float>::const_iterator i=t->m_eProbability.begin();i!=t->m_eProbability.end();i++) std::cout<<"\t "<<(*i);std::cout<<std::endl;
     
     if(t->m_indetTrackSummary){
-        std::cout << " m_indetTrackSummary->m_massdedx: "<< t->m_indetTrackSummary->m_massdedx;
-        std::cout << " std::vector m_indetTrackSummary->m_likelihoodspixeldedx size: "<< t->m_indetTrackSummary->m_likelihoodspixeldedx.size() <<std::endl;
-        for (std::vector<float>::const_iterator i=t->m_indetTrackSummary->m_likelihoodspixeldedx.begin();i!=t->m_indetTrackSummary->m_likelihoodspixeldedx.end();i++) std::cout<<"\t "<<(*i);std::cout<<std::endl;
+        std::cout << " m_indetTrackSummary->m_massdedx: "<< t->m_indetTrackSummary->massPixeldEdx();
+        std::cout << " std::vector m_indetTrackSummary->m_likelihoodspixeldedx size: "<< t->m_indetTrackSummary->likelihoodsPixeldEdx().size() <<std::endl;
+        for (float x : t->m_indetTrackSummary->likelihoodsPixeldEdx())
+           std::cout<<"\t "<<x;
+        std::cout<<std::endl;
     }
     
     if(t->m_muonTrackSummary){ 
-        std::cout << " m_muonTrackSummary->m_nscatterers: "<< t->m_muonTrackSummary->m_nscatterers <<std::endl;
-        std::cout << " m_muonTrackSummary->m_npseudoMeasurements: "<< t->m_muonTrackSummary->m_npseudoMeasurements <<std::endl;
-        std::cout << " std::vector m_muonTrackSummary->m_chamberHitSummary size: "<< t->m_muonTrackSummary->m_chamberHitSummary.size() <<std::endl;
-        for (size_t i=0;i<t->m_muonTrackSummary->m_chamberHitSummary.size();i++) {
-            std::cout<<"\t m_chId           "<<t->m_muonTrackSummary->m_chamberHitSummary[i].m_chId           <<std::endl;
-            std::cout<<"\t m_isMdt          "<<t->m_muonTrackSummary->m_chamberHitSummary[i].m_isMdt          <<std::endl;
-            std::cout<<"\t first.nhits      "<<t->m_muonTrackSummary->m_chamberHitSummary[i].first.nhits      <<std::endl;
-            std::cout<<"\t first.nholes     "<<t->m_muonTrackSummary->m_chamberHitSummary[i].first.nholes     <<std::endl;
-            std::cout<<"\t first.noutliers  "<<t->m_muonTrackSummary->m_chamberHitSummary[i].first.noutliers  <<std::endl;
-            std::cout<<"\t first.ndeltas    "<<t->m_muonTrackSummary->m_chamberHitSummary[i].first.ndeltas    <<std::endl;
-            std::cout<<"\t first.ncloseHits "<<t->m_muonTrackSummary->m_chamberHitSummary[i].first.ncloseHits <<std::endl;
-            std::cout<<"\t second.nhits     "<<t->m_muonTrackSummary->m_chamberHitSummary[i].second.nhits     <<std::endl;
-            std::cout<<"\t second.nholes    "<<t->m_muonTrackSummary->m_chamberHitSummary[i].second.nholes    <<std::endl;
-            std::cout<<"\t second.noutliers "<<t->m_muonTrackSummary->m_chamberHitSummary[i].second.noutliers <<std::endl;
-            std::cout<<"\t second.ndeltas   "<<t->m_muonTrackSummary->m_chamberHitSummary[i].second.ndeltas   <<std::endl;
-            std::cout<<"\t second.ncloseHits"<<t->m_muonTrackSummary->m_chamberHitSummary[i].second.ncloseHits <<std::endl;
+        std::cout << " m_muonTrackSummary->m_nscatterers: "<< t->m_muonTrackSummary->nscatterers() <<std::endl;
+        std::cout << " m_muonTrackSummary->m_npseudoMeasurements: "<< t->m_muonTrackSummary->npseudoMeasurements() <<std::endl;
+        std::cout << " std::vector m_muonTrackSummary->m_chamberHitSummary size: "<< t->m_muonTrackSummary->chamberHitSummary().size() <<std::endl;
+        for (const Trk::MuonTrackSummary::ChamberHitSummary& s : 
+               t->m_muonTrackSummary->chamberHitSummary())
+        {
+            std::cout<<"\t m_chId           "<<s.chamberId()        <<std::endl;
+            std::cout<<"\t m_isMdt          "<<s.isMdt()            <<std::endl;
+            std::cout<<"\t m_first.nhits      "<<s.mdtMl1().nhits     <<std::endl;
+            std::cout<<"\t m_first.nholes     "<<s.mdtMl1().nholes    <<std::endl;
+            std::cout<<"\t m_first.noutliers  "<<s.mdtMl1().noutliers <<std::endl;
+            std::cout<<"\t m_first.ndeltas    "<<s.mdtMl1().ndeltas   <<std::endl;
+            std::cout<<"\t m_first.ncloseHits "<<s.mdtMl1().ncloseHits<<std::endl;
+            std::cout<<"\t m_second.nhits     "<<s.mdtMl2().nhits     <<std::endl;
+            std::cout<<"\t m_second.nholes    "<<s.mdtMl2().nholes    <<std::endl;
+            std::cout<<"\t m_second.noutliers "<<s.mdtMl2().noutliers <<std::endl;
+            std::cout<<"\t m_second.ndeltas   "<<s.mdtMl2().ndeltas   <<std::endl;
+            std::cout<<"\t m_second.ncloseHits"<<s.mdtMl2().ncloseHits<<std::endl;
         }
     }
     
@@ -92,16 +90,16 @@ void TrackSummaryCnv_p2::persToTrans( const Trk::TrackSummary_p2 *persObj, Trk::
         for (size_t sc=0;  sc<size ; ++sc ){
             ts->m_chamberHitSummary[sc].m_chId = Identifier(*i); i++;
             ts->m_chamberHitSummary[sc].m_isMdt          =(*i);i++;
-            ts->m_chamberHitSummary[sc].first.nhits      =(*i);i++;
-            ts->m_chamberHitSummary[sc].first.nholes     =(*i);i++;
-            ts->m_chamberHitSummary[sc].first.noutliers  =(*i);i++;
-            ts->m_chamberHitSummary[sc].first.ndeltas    =(*i);i++;
-            ts->m_chamberHitSummary[sc].first.ncloseHits =(*i);i++;
-            ts->m_chamberHitSummary[sc].second.nhits     =(*i);i++;
-            ts->m_chamberHitSummary[sc].second.nholes    =(*i);i++;
-            ts->m_chamberHitSummary[sc].second.noutliers =(*i);i++;
-            ts->m_chamberHitSummary[sc].second.ndeltas   =(*i);i++;
-            ts->m_chamberHitSummary[sc].second.ncloseHits=(*i);i++;
+            ts->m_chamberHitSummary[sc].m_first.nhits      =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_first.nholes     =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_first.noutliers  =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_first.ndeltas    =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_first.ncloseHits =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_second.nhits     =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_second.nholes    =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_second.noutliers =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_second.ndeltas   =(*i);i++;
+            ts->m_chamberHitSummary[sc].m_second.ncloseHits=(*i);i++;
         }
         
         transObj->m_muonTrackSummary=ts;
@@ -139,19 +137,21 @@ void TrackSummaryCnv_p2::transToPers( const Trk::TrackSummary    *transObj, Trk:
         persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_nscatterers);
         persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_npseudoMeasurements);
 
-        for (size_t i=0; i<size ; ++i ){
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].m_chId.get_identifier32().get_compact() );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].m_isMdt  ); // these are just bits and should be compressed by us
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].first.nhits      );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].first.nholes     );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].first.noutliers  );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].first.ndeltas    );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].first.ncloseHits );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].second.nhits      );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].second.nholes     );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].second.noutliers  );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].second.ndeltas    );
-            persObj->m_muonTrackSummary.push_back(transObj->m_muonTrackSummary->m_chamberHitSummary[i].second.ncloseHits );
+        for (const Trk::MuonTrackSummary::ChamberHitSummary& s :
+               transObj->m_muonTrackSummary->chamberHitSummary())
+        {
+            persObj->m_muonTrackSummary.push_back(s.chamberId().get_identifier32().get_compact() );
+            persObj->m_muonTrackSummary.push_back(s.isMdt()  ); // these are just bits and should be compressed by us
+            persObj->m_muonTrackSummary.push_back(s.mdtMl1().nhits      );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl1().nholes     );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl1().noutliers  );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl1().ndeltas    );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl1().ncloseHits );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl2().nhits      );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl2().nholes     );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl2().noutliers  );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl2().ndeltas    );
+            persObj->m_muonTrackSummary.push_back(s.mdtMl2().ncloseHits );
         }
 
     }

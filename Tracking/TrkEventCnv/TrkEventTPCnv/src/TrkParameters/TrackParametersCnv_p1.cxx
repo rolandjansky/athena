@@ -9,12 +9,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkParameters/TrackParameters.h"
 #include "TrkParametersBase/ParametersBase.h"
-#undef private
-#undef protected
 
 #include "TrkEventTPCnv/TrkParameters/TrackParametersCnv_p1.h"
 

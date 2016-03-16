@@ -8,16 +8,11 @@
 //
 // ----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkDetDescrUtils/SharedObject.h"
-#undef private
-#undef protected
-
 #include "TrkSurfaces/NoBounds.h"
 #include "TrkEventTPCnv/TrkSurfaces/BoundSurfaceCnv_p1.h"
 #include <typeinfo>

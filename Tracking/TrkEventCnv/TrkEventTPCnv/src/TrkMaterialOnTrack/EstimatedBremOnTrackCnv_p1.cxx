@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkMaterialOnTrack/EstimatedBremOnTrackCnv_p1.h"
 
 void EstimatedBremOnTrackCnv_p1 :: persToTrans(
@@ -14,10 +11,12 @@ void EstimatedBremOnTrackCnv_p1 :: persToTrans(
    MsgStream& log) 
 {
    fillTransFromPStore( &m_mefBaseCnv, persObj->m_mefBase, transObj, log );
-   transObj->m_retainedEnFraction = persObj->m_retainedEnFraction;
-   transObj->m_sigmaRetainedEnFraction = persObj->m_sigmaRetEnFraction;
-   transObj->m_sigmaQoverPsquared = persObj->m_sigmaQoverPsquared;
-   transObj->m_bremSearchDirection = static_cast<Trk::SearchDirection>(persObj->m_direction);
+   *transObj = Trk::EstimatedBremOnTrack (transObj->thicknessInX0(),
+                                          persObj->m_retainedEnFraction,
+                                          persObj->m_sigmaRetEnFraction,
+                                          persObj->m_sigmaQoverPsquared,
+                                          transObj->associatedSurface(),
+                                          static_cast<Trk::SearchDirection>(persObj->m_direction));
 }
 
 void EstimatedBremOnTrackCnv_p1 :: transToPers(
@@ -26,10 +25,10 @@ void EstimatedBremOnTrackCnv_p1 :: transToPers(
    MsgStream& log) 
 {
   persObj->m_mefBase = baseToPersistent( &m_mefBaseCnv, transObj, log );
-  persObj->m_retainedEnFraction = (float)transObj->m_retainedEnFraction;
-  persObj->m_sigmaRetEnFraction = (float)transObj->m_sigmaRetainedEnFraction;
-  persObj->m_sigmaQoverPsquared = (float)transObj->m_sigmaQoverPsquared;
-  persObj->m_direction = static_cast<signed char>(transObj->m_bremSearchDirection);
+  persObj->m_retainedEnFraction = (float)transObj->retainedEnFraction();
+  persObj->m_sigmaRetEnFraction = (float)transObj->sigmaRetainedEnFraction();
+  persObj->m_sigmaQoverPsquared = (float)transObj->sigmaQoverPsquared();
+  persObj->m_direction = static_cast<signed char>(transObj->searchDirection());
 }
 
 

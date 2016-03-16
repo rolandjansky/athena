@@ -8,14 +8,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkParameters/TrackParameters.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkParameters/MeasuredAtaSurfaceCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
+#include "TrackParametersCovarianceCnv.h"
 #include <typeinfo>
 
 template< class SURFACE_CNV, class ATA_SURFACE >
@@ -27,11 +23,7 @@ persToTrans( const Trk::MeasuredAtaSurface_p1 *persObj, ATA_SURFACE *transObj, M
    m_surfaceCnv.persToTrans( persObj, transObj, log );
    Trk::ErrorMatrix dummy;
    this->fillTransFromPStore( &m_errorMxCnv, persObj->m_errorMatrix, &dummy, log );
-   if (!transObj->m_covariance || transObj->m_covariance->size() != 5) {
-     delete transObj->m_covariance;
-     transObj->m_covariance = new AmgSymMatrix(5);
-   }
-   EigenHelpers::vectorToEigenMatrix(dummy.values, *transObj->m_covariance, "MeasuredAtaSurfaceCnv_p1");
+   TrackParametersCovarianceCnv<ATA_SURFACE>::setCovariance (transObj, dummy);
 }
 
 

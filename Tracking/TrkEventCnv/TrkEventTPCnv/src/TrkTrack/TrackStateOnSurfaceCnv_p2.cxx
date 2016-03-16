@@ -8,12 +8,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParametersBase/ParametersT.h"
 #include "TrkParameters/TrackParameters.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkTrack/TrackStateOnSurfaceCnv_p2.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -25,21 +22,22 @@
 void TrackStateOnSurfaceCnv_p2::
 persToTrans( const Trk::TrackStateOnSurface_p2 *persObj, Trk::TrackStateOnSurface *transObj, MsgStream &log )
 {
-   //std::cout << "AW DEBUG TSoSCnv_p2::persToTrans() !!" << std::endl;
+  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = 0;
+  const Trk::MeasurementBase* meas =  createTransFromPStore( &measureCnv, persObj->m_measurementOnTrack, log );
 
-   ITPConverterFor<Trk::TrackParameters>	*paramsCnv = 0;
-   transObj->m_trackParameters = dynamic_cast<const Trk::TrackParameters*>(createTransFromPStore( &paramsCnv, persObj->m_trackParameters, log ));
+  ITPConverterFor<Trk::TrackParameters>	*paramsCnv = 0;
+  const Trk::TrackParameters* trackParameters = dynamic_cast<const Trk::TrackParameters*>(createTransFromPStore( &paramsCnv, persObj->m_trackParameters, log ));
 
-   transObj->m_fitQualityOnSurface = createTransFromPStore( &m_fitQCnv, persObj->m_fitQualityOnSurface, log );
+  const Trk::FitQualityOnSurface* fitQoS = createTransFromPStore( &m_fitQCnv, persObj->m_fitQualityOnSurface, log );
 
-   ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;
-   transObj->m_materialEffectsOnTrack = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
+  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;
+  const Trk::MaterialEffectsBase* materialEffects = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
 
-   ITPConverterFor<Trk::MeasurementBase>	*measureCnv = 0;
-   //log << MSG::INFO << " ->>->  persObj->m_measurementOnTrack=(" << persObj->m_measurementOnTrack.m_typeID << "," << persObj->m_measurementOnTrack.m_index << ")" << endreq;
-   transObj->m_measurementOnTrack =  createTransFromPStore( &measureCnv, persObj->m_measurementOnTrack, log );
-   //log << MSG::INFO << " ->>->  transObj->m_measurementOnTrack=" << (void*)(transObj->m_measurementOnTrack) << endreq;
-   transObj->m_typeFlags = persObj->m_typeFlags;
+  *transObj = Trk::TrackStateOnSurface (meas,
+                                        trackParameters,
+                                        fitQoS,
+                                        materialEffects,
+                                        persObj->m_typeFlags);
 }
 
 

@@ -40,6 +40,7 @@ use  VxVertex                   VxVertex-*                      Tracking/TrkEven
 private
 use  AthenaKernel               AthenaKernel-*                  Control
 use  CxxUtils                   CxxUtils-*                      Control
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
 use  TrkDetDescrUtils           TrkDetDescrUtils-*              Tracking/TrkDetDescr
 use  TrkTrackLink               TrkTrackLink-*                  Tracking/TrkEvent
@@ -108,3 +109,20 @@ apply_pattern lcgdict dict=OLD_TrkEventTPCnv  selectionfile=OLD_selection.xml he
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=FitQualityCnv_p1
+apply_pattern UnitTest_run unit_test=LocalDirectionCnv_p1
+apply_pattern UnitTest_run unit_test=LocalPositionCnv_p1
+apply_pattern UnitTest_run unit_test=LocalParametersCnv_p1
+apply_pattern UnitTest_run unit_test=ErrorMatrixCnv_p1
+apply_pattern UnitTest_run unit_test=TrackParametersCnv_p2
+apply_pattern UnitTest_run unit_test=SurfaceCnv_p2
+apply_pattern UnitTest_run unit_test=PseudoMeasurementOnTrackCnv_p2
+apply_pattern UnitTest_run unit_test=CompetingRIOsOnTrackCnv_p1
+apply_pattern UnitTest_run unit_test=TrackStateOnSurfaceCnv_p3
+apply_pattern UnitTest_run unit_test=EnergyLossCnv_p1
+apply_pattern UnitTest_run unit_test=MaterialEffectsBaseCnv_p2
+apply_pattern UnitTest_run unit_test=MaterialEffectsOnTrackCnv_p2
+apply_pattern UnitTest_run unit_test=TrackCnv_p4
+apply_pattern UnitTest_run unit_test=SegmentCnv_p1

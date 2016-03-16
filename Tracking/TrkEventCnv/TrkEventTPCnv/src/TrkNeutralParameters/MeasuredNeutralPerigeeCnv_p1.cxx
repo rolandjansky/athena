@@ -8,13 +8,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkNeutralParameters/NeutralParameters.h"
-#undef private
-#undef protected
 #include "TrkEventTPCnv/TrkNeutralParameters/MeasuredNeutralPerigeeCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
+#include "../TrkParameters/TrackParametersCovarianceCnv.h"
 
 void MeasuredNeutralPerigeeCnv_p1::persToTrans( const Trk::MeasuredPerigee_p1 *persObj,
 					 Trk::NeutralPerigee *transObj,
@@ -23,7 +20,7 @@ void MeasuredNeutralPerigeeCnv_p1::persToTrans( const Trk::MeasuredPerigee_p1 *p
    fillTransFromPStore( &m_perigeeConverter, persObj->m_perigee, transObj, log );
    Trk::ErrorMatrix dummy;
    fillTransFromPStore( &m_emConverter, persObj->m_errorMatrix, &dummy, log );
-   EigenHelpers::vectorToEigenMatrix(dummy.values, *transObj->m_covariance, "MeasuredNeutralAtaSurfaceCnv_p1");
+   TrackParametersCovarianceCnv<Trk::NeutralPerigee>::setCovariance (transObj, dummy);
 }
 
 void MeasuredNeutralPerigeeCnv_p1::transToPers( const Trk::NeutralPerigee * /**transObj*/,

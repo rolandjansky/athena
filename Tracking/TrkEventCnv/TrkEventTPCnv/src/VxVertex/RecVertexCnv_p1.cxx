@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "VxVertex/RecVertex.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/VxVertex/RecVertexCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
@@ -23,7 +18,6 @@ void  RecVertexCnv_p1::persToTrans(const Trk::RecVertex_p1 * persObj, Trk::RecVe
   fillTransFromPStore(&m_fitQualityConverter, persObj->m_fitQuality, &transObj->m_fitQuality, log);
 	
 //   std::cout<<"ILIJA read RecVertex p1  --- > "<<(*transObj)<<std::endl;
-  
 }
   
 void  RecVertexCnv_p1::transToPers(const Trk::RecVertex * transObj, Trk::RecVertex_p1 * persObj, MsgStream &log) 

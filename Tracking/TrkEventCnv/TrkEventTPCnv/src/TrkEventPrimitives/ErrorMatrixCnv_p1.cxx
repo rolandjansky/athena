@@ -8,12 +8,6 @@
 //
 //-----------------------------------------------------------------------------
 
-// #define private public
-// #define protected public
-// #include "TrkEventPrimitives/ErrorMatrix.h"
-// #undef private
-// #undef protected
-
 #include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"
 #include  <stdexcept>
 

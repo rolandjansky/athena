@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
-#undef private
 #include <typeinfo>
 #include <cmath>
 
@@ -35,15 +33,15 @@ void MaterialEffectsOnTrackCnv_p2 :: transToPers(
    MsgStream& log) 
 {
   persObj->m_mefBase = baseToPersistent( &m_mefBaseCnv, transObj, log );
-  if (transObj->m_scatteringAngles!=NULL) {
-    persObj->m_deltaPhi        = (float)transObj->m_scatteringAngles->deltaPhi();
-    persObj->m_deltaTheta      = (float)transObj->m_scatteringAngles->deltaTheta();
-    persObj->m_sigmaDeltaPhi   = (float)transObj->m_scatteringAngles->sigmaDeltaPhi();
-    persObj->m_sigmaDeltaTheta = (float)transObj->m_scatteringAngles->sigmaDeltaTheta();
+  if (transObj->scatteringAngles()!=NULL) {
+    persObj->m_deltaPhi        = (float)transObj->scatteringAngles()->deltaPhi();
+    persObj->m_deltaTheta      = (float)transObj->scatteringAngles()->deltaTheta();
+    persObj->m_sigmaDeltaPhi   = (float)transObj->scatteringAngles()->sigmaDeltaPhi();
+    persObj->m_sigmaDeltaTheta = (float)transObj->scatteringAngles()->sigmaDeltaTheta();
   }
   //  persObj->m_energyLoss = toPersistent( &m_elossCnv, transObj->m_energyLoss, log );  
 //  if (transObj->m_energyLoss!=0) std::cout<<"Ending MaterialEffectsOnTrackCnv_p2::transToPers: "<<(typeid(*(transObj->m_energyLoss))).name()<<std::endl;;
-  persObj->m_energyLoss = toPersistent( (ITPConverterFor<Trk::EnergyLoss>**)0, transObj->m_energyLoss, log );
+  persObj->m_energyLoss = toPersistent( (ITPConverterFor<Trk::EnergyLoss>**)0, transObj->energyLoss(), log );
 }
 
 

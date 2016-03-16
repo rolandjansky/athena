@@ -8,44 +8,35 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#undef private
-#undef protected
 #include "TrkEventTPCnv/VxVertex/VxCandidateCnv_p1.h"
 #include <iostream>
 void  VxCandidateCnv_p1::persToTrans(const Trk::VxCandidate_p1 * persObj, Trk::VxCandidate * transObj, MsgStream &log) {
-    
-    fillTransFromPStore(&m_recVertexConverter, persObj->m_recVertex, &transObj->m_recVertex, log);
-    m_vxTrkAtVrtCnv.persToTrans(&persObj->m_vxTrackAtVertex, &transObj->m_vxTrackAtVertex, log); 
-    
-    transObj->m_vertexType = static_cast<Trk::VertexType>(persObj->m_vertexType);
-    
-//     std::cout<<"m_recVertex:"<<transObj->m_recVertex<<std::endl;
-     
-//    std::vector<Trk::VxTrackAtVertex*>::iterator it=transObj->m_vxTrackAtVertex.begin();
-//    for (;it!=transObj->m_vxTrackAtVertex.end();++it)
-//        std::cout<<*(*it)<<std::endl;
- 
+
+  Trk::RecVertex vx;
+  fillTransFromPStore(&m_recVertexConverter, persObj->m_recVertex, &vx, log);
+  std::vector<Trk::VxTrackAtVertex*> trackAtVertex;
+  m_vxTrkAtVrtCnv.persToTrans(&persObj->m_vxTrackAtVertex, &trackAtVertex, log); 
+
+  *transObj = Trk::VxCandidate (std::move(vx),
+                                std::move (trackAtVertex));
+  transObj->setVertexType (static_cast<Trk::VertexType>(persObj->m_vertexType));
 }
 
 void  VxCandidateCnv_p1::transToPers(const Trk::VxCandidate * transObj, Trk::VxCandidate_p1 * persObj, MsgStream &log)
 {
- persObj->m_recVertex = toPersistent( &m_recVertexConverter, &(transObj->m_recVertex), log );
+  persObj->m_recVertex = toPersistent( &m_recVertexConverter, &(transObj->recVertex()), log );
  
  // get rid of the refitted perigees in case of primary and pileup vertex
- if (transObj->m_vertexType == Trk::PriVtx || transObj->m_vertexType == Trk::PileUp)
+
+  const std::vector<Trk::VxTrackAtVertex*>& trackAtVertex = *transObj->vxTrackAtVertex();
+  if (transObj->vertexType() == Trk::PriVtx || transObj->vertexType() == Trk::PileUp)
  {
-   for (std::vector<Trk::VxTrackAtVertex*>::const_iterator itr  = transObj->m_vxTrackAtVertex.begin();
-                                                           itr != transObj->m_vxTrackAtVertex.end()  ; itr++)
-   {
-     Trk::VxTrackAtVertex* tmp = (*itr);
-     delete tmp->m_perigeeAtVertex;
-     tmp->m_perigeeAtVertex = 0;
+   for (Trk::VxTrackAtVertex* t : trackAtVertex) {
+     t->setPerigeeAtVertex (static_cast<Trk::TrackParameters*>(nullptr));
    }
  }
- m_vxTrkAtVrtCnv.transToPers( &transObj->m_vxTrackAtVertex, &persObj->m_vxTrackAtVertex, log);
- persObj->m_vertexType = static_cast<int>(transObj->m_vertexType);
+ m_vxTrkAtVrtCnv.transToPers( &trackAtVertex, &persObj->m_vxTrackAtVertex, log);
+ persObj->m_vertexType = static_cast<int>(transObj->vertexType());
 }

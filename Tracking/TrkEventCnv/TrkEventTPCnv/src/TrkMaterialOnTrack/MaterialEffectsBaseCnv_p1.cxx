@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p1.h"
 #include "TrkSurfaces/Surface.h"
@@ -45,14 +42,14 @@ void MaterialEffectsBaseCnv_p1 :: transToPers(
    Trk :: MaterialEffectsBase_p1 *persObj,
    MsgStream& log) 
 {
-    persObj->m_tInX0              = (float)transObj->m_tInX0;
+    persObj->m_tInX0              = (float)transObj->thicknessInX0();
    // persObj->m_associatedSurface  = toPersistent( (ITPConverterFor<Trk::Surface>**)0, transObj->m_associatedSurface, log );
     persObj->m_typeFlags          = (short)transObj->m_typeFlags;
    
-   if (transObj->m_associatedSurface->isFree() ) // if this is a free surface, write it out 'as is'
-       persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, transObj->m_associatedSurface, log);
+   if (transObj->associatedSurface().isFree() ) // if this is a free surface, write it out 'as is'
+      persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, &transObj->associatedSurface(), log);
    else { // else, make it into a DetElementSurface, to allow the correct convertor to be called
-       Trk::DetElementSurface surf( *(transObj->m_associatedSurface) );
+       Trk::DetElementSurface surf( transObj->associatedSurface() );
        persObj->m_associatedSurface = toPersistent((ITPConverterFor<Trk::Surface>**)0, &surf, log );
    }
 }

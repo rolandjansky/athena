@@ -9,12 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkNeutralParameters/NeutralParameters.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkNeutralParameters/NeutralParametersCnv_p1.h"
 
 void NeutralParametersCnv_p1::persToTrans( const Trk :: TrackParameters_p1 *persObj,

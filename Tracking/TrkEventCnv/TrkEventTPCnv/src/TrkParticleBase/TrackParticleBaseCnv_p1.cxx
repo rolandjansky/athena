@@ -8,12 +8,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkTrack/TrackInfo.h"
-#undef private
-#undef protected
 #include "TrkEventTPCnv/TrkParticleBase/TrackParticleBaseCnv_p1.h"
 
 void  TrackParticleBaseCnv_p1::persToTrans(const Trk::TrackParticleBase_p1 * persObj, Trk::TrackParticleBase * transObj, MsgStream &log)

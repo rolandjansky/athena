@@ -39,6 +39,9 @@ public:
   
   SURFACE* createTransient( const Trk::Surface_p2 * persObj, MsgStream& log);
 
+  void setCnvToolName (const std::string& name)
+  { m_eventCnvTool.setTypeAndName(name); }
+
 private:
   ToolHandle<Trk::IEventCnvSuperTool>        m_eventCnvTool;    
 };

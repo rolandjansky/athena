@@ -9,10 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
 #include "TrkSurfaces/DiamondBounds.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkSurfaces/DiamondBoundsCnv_p1.h"
 
 void DiamondBoundsCnv_p1 :: persToTrans( const Trk :: DiamondBounds_p1 *persObj,

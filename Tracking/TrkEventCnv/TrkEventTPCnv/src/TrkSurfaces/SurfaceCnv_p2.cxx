@@ -8,8 +8,6 @@
 //
 // ----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -17,11 +15,9 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
+#include "CxxUtils/make_unique.h"
 
 template <class SURFACE>
 SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
@@ -35,12 +31,12 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     surface= const_cast<SURFACE*>(detSurf); // Needed to fulfill interface...
   } else {
     // Not Det element surface, so need to create surface & fill transform
-    surface=new SURFACE();
+    auto transform = CxxUtils::make_unique<Amg::Transform3D>();
+    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get() );
+    surface=new SURFACE(std::move(transform));
     // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";
     // for (auto v : persObj->m_transform)
     //     std::cout << v << ' ';
-    surface->m_transform = new Amg::Transform3D();
-    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *surface->m_transform );
   }  
   return surface;
 }
@@ -60,7 +56,7 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
   if (transObj->isFree() ) { 
     // if this is a free surface, write it out 'as is' 
     // - otherwise we're relying on the fact that the Identifier is there (and valid!) to reconstruct it on reading
-    EigenHelpers::eigenTransform3DToVector( *transObj->m_transform,persObj->m_transform );
+    EigenHelpers::eigenTransform3DToVector( *transObj->cachedTransform(),persObj->m_transform );
     
     // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers free surface with pers vector=[";
     // for (auto v : persObj->m_transform)

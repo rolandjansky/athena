@@ -18,7 +18,7 @@
  class V0CandidateCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::V0Candidate, Trk::V0Candidate_p1> {
   public:
    
-   V0CandidateCnv_p1() : m_v0HypothesisConverter(0) {}
+   V0CandidateCnv_p1() {}
 
    void  persToTrans(const Trk::V0Candidate_p1 * persObj, Trk::V0Candidate * transObj, MsgStream &log); 
    void  transToPers(const Trk::V0Candidate * transObj, Trk::V0Candidate_p1 * persObj, MsgStream &log);     
@@ -29,7 +29,7 @@
      
   private:
    
-   V0HypothesisCnv_p1 * m_v0HypothesisConverter;
+   //V0HypothesisCnv_p1 * m_v0HypothesisConverter;
    
   // typedef T_AthenaPoolTPPtrVectorCnv< std::vector<Trk::V0Hypothesis *>,
   //                                      std::vector<TPObjRef>,

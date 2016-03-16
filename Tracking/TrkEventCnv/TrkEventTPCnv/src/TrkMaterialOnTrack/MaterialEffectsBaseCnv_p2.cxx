@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p2.h"
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"
 #include "TrkSurfaces/Surface.h"
@@ -26,7 +23,7 @@ void MaterialEffectsBaseCnv_p2 :: transToPers(
   Trk :: MaterialEffectsBase_p1  *persObj,
   MsgStream& log) 
 {
-  persObj->m_tInX0              = (float)transObj->m_tInX0;
-  persObj->m_associatedSurface  = toPersistent( (ITPConverterFor<Trk::Surface>**)0, transObj->m_associatedSurface, log );
+  persObj->m_tInX0              = (float)transObj->thicknessInX0();
+  persObj->m_associatedSurface  = toPersistent( (ITPConverterFor<Trk::Surface>**)0, &transObj->associatedSurface(), log );
   persObj->m_typeFlags          = (short)transObj->m_typeFlags;
 }
