@@ -26,7 +26,6 @@ use HepPDT                      *                        LCG_Interfaces
 use InDetBeamSpotService        InDetBeamSpotService-*   InnerDetector/InDetConditions
 use ISF_Interfaces              ISF_Interfaces-*         Simulation/ISF/ISF_Core
 use ISF_Event                   ISF_Event-*              Simulation/ISF/ISF_Core
-use ISF_HepMC_Event             ISF_HepMC_Event-*        Simulation/ISF/ISF_HepMC
 use ISF_HepMC_Interfaces        ISF_HepMC_Interfaces-*   Simulation/ISF/ISF_HepMC
 use PathResolver                PathResolver-*           Tools
 use TruthUtils                  TruthUtils-*             Generators
