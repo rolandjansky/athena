@@ -8,15 +8,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SCT_Cluster.h"
-#undef private
-#undef protected
 
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p3.h"
+#include "CxxUtils/make_unique.h"
 
 SCT_ClusterCnv_p3::SCT_ClusterCnv_p3(const SCT_ID * sctid )
  :
@@ -24,80 +21,91 @@ SCT_ClusterCnv_p3::SCT_ClusterCnv_p3(const SCT_ID * sctid )
 {}
 
 
-void SCT_ClusterCnv_p3::
-persToTrans( const InDet::SCT_Cluster_p3 *persObj, InDet::SCT_Cluster *transObj, MsgStream &log) 
+InDet::SCT_Cluster
+SCT_ClusterCnv_p3::createSCT_Cluster (const InDet::SCT_Cluster_p3* persObj,
+                                      Identifier clusId,
+                                      const InDetDD::SiDetectorElement* detEl,
+                                      MsgStream& log)
 {
-//   if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "In SCT_Cluster::persToTrans" << endreq;
-  InDet::SiWidth *sw = new InDet::SiWidth();
-  m_swCnv.persToTrans(&persObj->m_width, sw, log);
-  transObj->m_width=*sw;
-  delete sw;
-  // Base class elements:
-  //
-
   // Local Position
-  transObj->m_localPos[Trk::locX] = persObj->m_localPos; 
-  transObj->m_localPos[Trk::locY] = 0.0;
+  Amg::Vector2D localPos;
+  localPos[Trk::locX] = persObj->m_localPos; 
+  localPos[Trk::locY] = 0;
 
-  transObj->setHitsInThirdTimeBin( persObj->m_hitsInThirdTimeBin ) ;
+  // List of Id of the cluster
+  std::vector<Identifier> rdoList;
+  rdoList.resize( persObj->m_rdoList.size() );
+  //Identifier::value_type id32 = transObj->identify().get_compact(); 
+  //Identifier id32 = transObj->identify(); 
+  std::vector<Identifier>::iterator tit = rdoList.begin();
+  for (std::vector<InDet::SCT_Cluster_p3::rdo_diff_type>::const_iterator it=persObj->m_rdoList.begin(); it != persObj->m_rdoList.end(); it++) {
+ 
+    *tit = Identifier(m_sctId2->strip_id_offset(clusId,*it) );
+    tit++;
+  }
   
+  InDet::SiWidth sw;
+  m_swCnv.persToTrans(&persObj->m_width, &sw, log);
 
   // Error matrix
-  Amg::MatrixX* cmat = new  Amg::MatrixX(2,2);
+  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(2,2);
   (*cmat)(0,0) = static_cast<double>(persObj->m_mat00);
   (*cmat)(1,0) = static_cast<double>(persObj->m_mat01);
   (*cmat)(0,1) = static_cast<double>(persObj->m_mat01);
   (*cmat)(1,1) = static_cast<double>(persObj->m_mat11);
-  transObj->m_localCovariance     = cmat;
 
-// List of Id of the cluster
-  transObj->m_rdoList.resize( persObj->m_rdoList.size() );
-  //Identifier::value_type id32 = transObj->identify().get_compact(); 
-  Identifier id32 = transObj->identify(); 
-  std::vector<Identifier>::iterator tit = transObj->m_rdoList.begin();
-  for (std::vector<InDet::SCT_Cluster_p3::rdo_diff_type>::const_iterator it=persObj->m_rdoList.begin(); it != persObj->m_rdoList.end(); it++) {
- 
-    //*tit = Identifier( *it+id32);
-    *tit = Identifier(m_sctId2->strip_id_offset(id32,*it) );
-    tit++;
-  }
-  
+  InDet::SCT_Cluster clus (clusId,
+                           localPos,
+                           std::move(rdoList),
+                           sw,
+                           detEl,
+                           std::move(cmat));
+  clus.setHitsInThirdTimeBin( persObj->m_hitsInThirdTimeBin ) ;
+  return clus;
+}
+
+
+void SCT_ClusterCnv_p3::
+persToTrans( const InDet::SCT_Cluster_p3 *persObj, InDet::SCT_Cluster *transObj, MsgStream &log) 
+{
+  Identifier clusId = transObj->identify();
+  *transObj = createSCT_Cluster (persObj, clusId, nullptr, log);
 }
 
 
 void SCT_ClusterCnv_p3::transToPers( const InDet::SCT_Cluster *transObj, InDet::SCT_Cluster_p3 *persObj, MsgStream &log )
 {
 //   if (log.level() <= MSG::VERBOSE) log << MSG::VERBOSE << "In SCT_Cluster::transToPers" << endreq;
-  const InDet::SiWidth *sw = &transObj->m_width;
+  const InDet::SiWidth *sw = &transObj->width();
   m_swCnv.transToPers(sw, &persObj->m_width, log);
 
   // base class:
   //
 
   // Local Position
-  persObj->m_localPos = transObj->m_localPos[Trk::locX];
+  persObj->m_localPos = transObj->localPosition()[Trk::locX];
   
   // cluster weight
   persObj->m_hitsInThirdTimeBin = transObj->hitsInThirdTimeBin();
   
 
   // Error Matrix
-  persObj->m_mat00 = (*transObj->m_localCovariance)(0,0);
-  persObj->m_mat01 = (*transObj->m_localCovariance)(0,1);
-  persObj->m_mat11 = (*transObj->m_localCovariance)(1,1);
+  persObj->m_mat00 = (transObj->localCovariance())(0,0);
+  persObj->m_mat01 = (transObj->localCovariance())(0,1);
+  persObj->m_mat11 = (transObj->localCovariance())(1,1);
 
   // List of Id of the cluster
-  persObj->m_rdoList.resize( transObj->m_rdoList.size() );
+  persObj->m_rdoList.resize( transObj->rdoList().size() );
   //Identifier::value_type id32 = transObj->identify().get_compact();
   Identifier id32 = transObj->identify();
   
   
   // convert the list of ID saved for the cluster
-  persObj->m_rdoList.resize(transObj->m_rdoList.size() );
+  persObj->m_rdoList.resize(transObj->rdoList().size() );
   std::vector<InDet::SCT_Cluster_p3::rdo_diff_type>::iterator pit = persObj->m_rdoList.begin(); 
   
   
-  for (std::vector<Identifier>::const_iterator it=transObj->m_rdoList.begin(); it != transObj->m_rdoList.end(); it++) {
+  for (std::vector<Identifier>::const_iterator it=transObj->rdoList().begin(); it != transObj->rdoList().end(); it++) {
 
     *pit = static_cast<InDet::SCT_Cluster_p3::rdo_diff_type>( m_sctId2->calc_offset(id32, *it) );
     pit++;

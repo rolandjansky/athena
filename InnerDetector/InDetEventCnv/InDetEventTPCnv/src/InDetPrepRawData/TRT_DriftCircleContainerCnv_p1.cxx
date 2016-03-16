@@ -2,19 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircle_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
-#undef private
-#undef protected
-
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleContainerCnv_p1.h"
+#include "AthenaKernel/errorcheck.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -111,7 +107,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
         // Create trans collection - is NOT owner of TRT_DriftCircle (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
-        Identifier collID(Identifier(pcoll.m_id));
+        //Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
         coll = new InDet::TRT_DriftCircleCollection(collIDHash);
         coll->setIdentifier(Identifier(pcoll.m_id));
@@ -156,46 +152,16 @@ InDet::TRT_DriftCircleContainer* InDet::TRT_DriftCircleContainerCnv_p1::createTr
     return(trans.release());
 }
 
-StatusCode InDet::TRT_DriftCircleContainerCnv_p1::initialize(MsgStream &log) {
+StatusCode InDet::TRT_DriftCircleContainerCnv_p1::initialize(MsgStream &/*log*/) {
    // Do not initialize again:
    m_isInitialized=true;
    
    // Get Storegate, ID helpers, and so on
    ISvcLocator* svcLocator = Gaudi::svcLocator();
-   // get StoreGate service
-   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
-      return StatusCode::FAILURE;
-   }
 
-   // get DetectorStore service
-   StoreGateSvc *detStore;
-   sc = svcLocator->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-      return StatusCode::FAILURE;
-   } 
-   //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
-   //   }
-
-   // Get the trt helper from the detector store
-   sc = detStore->retrieve(m_trtId, "TRT_ID");
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get TRT_ID helper !" << endreq;
-      return StatusCode::FAILURE;
-   } 
-   //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the TRT_ID helper." << endreq;
-   //   }
-
-   sc = detStore->retrieve(m_trtMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get TRT_DetectorDescription" << endreq;
-      return sc;
-   }
-
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   StoreGateSvc *detStore = nullptr;
+   CHECK( svcLocator->service("DetectorStore", detStore) );
+   CHECK( detStore->retrieve(m_trtId, "TRT_ID") );
+   CHECK( detStore->retrieve(m_trtMgr) );
    return StatusCode::SUCCESS;
 }

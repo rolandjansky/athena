@@ -2,15 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p2.h"
 #include "InDetEventTPCnv/PixelClusterContainer_p2.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#undef private
-#undef protected
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"

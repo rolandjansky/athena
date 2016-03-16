@@ -31,6 +31,12 @@ public:
   PixelClusterCnv_p3() {}
   PixelClusterCnv_p3( const PixelID * );
 
+  InDet::PixelCluster
+  createPixelCluster (const InDet::PixelCluster_p3* persObj,
+                      const Identifier& waferId,
+                      const InDetDD::SiDetectorElement* delEl,
+                      MsgStream &log);
+
   void persToTrans( const InDet::PixelCluster_p3 *, InDet::PixelCluster *, MsgStream & );
   void transToPers( const InDet::PixelCluster *, InDet::PixelCluster_p3 *, MsgStream & );
         

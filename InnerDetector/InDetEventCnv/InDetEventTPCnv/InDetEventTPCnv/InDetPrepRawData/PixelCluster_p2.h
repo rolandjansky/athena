@@ -11,35 +11,29 @@
 //
 //-----------------------------------------------------------------------------
 #include "SiWidth_p2.h"
-#include "Identifier/Identifier.h" 
+#include "Identifier/Identifier.h"
 namespace InDet
 {
-   class PixelCluster_p2
-    {
-   public:
+    class PixelCluster_p2 {
+    public:
    
-  #ifndef __IDENTIFIER_64BIT__
-    typedef short rdo_diff_type;
-  #else
-    typedef Identifier::diff_type rdo_diff_type;
-  #endif
+        typedef Identifier::diff_type rdo_diff_type;
 	 
-   
-      PixelCluster_p2() {}
+        PixelCluster_p2() {}
 
-      // replace this:
-      Identifier::value_type                    m_clusId; 
-      std::vector<rdo_diff_type>                m_rdoList;
-      float                                     m_localPosX;
-      float                                     m_localPosY;
-      float 					m_mat00;
-      float 					m_mat01;
-      float 					m_mat11;
-      float                                     m_omX;
-      float                                     m_omY;
+        // replace this:
+        Identifier::value_type                    m_clusId; 
+        std::vector<rdo_diff_type>                m_rdoList;
+        float                                     m_localPosX;
+        float                                     m_localPosY;
+        float 					m_mat00;
+        float 					m_mat01;
+        float 					m_mat11;
+        float                                     m_omX;
+        float                                     m_omY;
 
-      //SiWidth_p2
-      InDet::SiWidth_p2			m_width;
+        //SiWidth_p2
+        InDet::SiWidth_p2			m_width;
       
     };
 }

@@ -22,7 +22,7 @@ class TRT_DriftCircleContainer_p2
  public:
 /// Default constructor
   TRT_DriftCircleContainer_p2 ();
- private:
+  //private:
   std::vector<InDet::InDetPRD_Collection_p2>  m_collections;
   std::vector<InDet::TRT_DriftCircle_p2>      m_rawdata;
 // The delta identifiers of the PRD:

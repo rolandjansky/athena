@@ -8,12 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SCT_Cluster.h"
-#undef private
-#undef protected
-
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p1.h"
 
 void SCT_ClusterCnv_p1::

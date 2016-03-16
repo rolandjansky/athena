@@ -13,6 +13,7 @@
 #include "InDetEventTPCnv/TRT_DriftCircleContainer_p2.h"
 
 class TRT_ID;
+class StoreGateSvc;
 namespace InDetDD{ class TRT_DetectorManager;}
 
 class TRT_DriftCircleContainerCnv_p2 : public T_AthenaPoolTPCnvBase<InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleContainer_p2>

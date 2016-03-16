@@ -2,15 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p3.h"
 #include "InDetEventTPCnv/PixelClusterContainer_p3.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#undef private
-#undef protected
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
@@ -148,13 +144,11 @@ void  PixelClusterContainerCnv_p3::persToTrans(const InDet::PixelClusterContaine
         //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endreq;
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const InDet::PixelCluster_p3* pchan = &(persCont->m_rawdata[ichan + collBegin]);
-            InDet::PixelCluster* chan = new InDet::PixelCluster();
             // In preparation for 64-bit ids, set the initial cluster
             // id to the wafer id. Actual cluster id will be set in
             // the converter from diff.
-            chan->m_clusId = collID;
-            chanCnv.persToTrans(pchan, chan, log);
-            chan->m_detEl = de;
+            InDet::PixelCluster* chan = new InDet::PixelCluster
+              (chanCnv.createPixelCluster (pchan, collID, de, log));
 	    // DC Bugfix: Set the hash index!
             chan->setHashAndIndex(collIDHash, ichan);
             (*coll)[ichan] = chan;

@@ -68,8 +68,8 @@
     <class name="InDet::TRT_DriftCircleContainer_tlp1" id="42B48D79-AF4E-4D45-AAA9-A2BA5A033534" />
 
     <class name="InDet::PixelGangedClusterAmbiguities_p1" id="FE36CE7E-EADF-481F-A55A-26DA0030DFAA"/>
-<!--     <class name="uint32_t" /> -->
-<!--     <class name="std::vector<uint32_t>" />  -->
+<!--    <class name="uint32_t" /> -->
+<!--    <class name="std::vector<uint32_t>" />  -->
 <!--    <class name="std::pair<unsigned int,std::vector<unsigned int> >" />  -->
     <class name="std::vector< std::pair<unsigned int, std::vector<unsigned int> > >" /> 
 
@@ -81,13 +81,4 @@
     <class name="InDetLowBetaCandidate_tlp1" id="8C24589F-FBAA-4686-9254-B5C360A94733" />
     <class name="InDetLowBetaCandidate_p1" id="73F01124-41A4-4148-8B81-58CBA9716026"/>
     <class name="std::vector<InDetLowBetaCandidate_p1>" />
-    <class name="T_TPCnv<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>"/>
-    <class name="InDetLowBetaContainerCnv_tlp1"/>
-    <class name="AthenaPoolTopLevelTPConverter<InDetLowBetaContainerCnv_p1, InDetLowBetaContainer_tlp1>"/>
-    <class name="T_AthenaPoolTPCnvBase<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>"/>
-    <class name="T_AthenaPoolTPPolyCnvBase<InDet::InDetLowBetaContainer, InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>"/>
-    <class name="T_AthenaPoolTPAbstractPolyCnvBase<InDet::InDetLowBetaContainer, InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>"/>
-    <class name="ITPConverterFor<InDet::InDetLowBetaContainer>"/>
-    
-     
 </lcgdict>

@@ -1,0 +1,51 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/InDetEventTPCnv_test.txt
+JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/InDetEventTPCnv_test.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
+JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/InDetEventTPCnv_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
+                                          running on karma on Wed Dec 23 20:09:07 2015
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
+ApplicationMgr       INFO Application Manager Configured successfully
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 1225 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-00-00-00
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+INFO Initialize from dictionary cout 0
+ DEBUG (Re)initialize
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ DEBUG decode index and bit fields for each level: 
+ DEBUG indet     decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+ DEBUG trt       decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffffffffffff 59 2  3  indexes                     mode  both_bounded  
+ DEBUG bec       decode 1 vals -2,-1,1,2       mask/zero mask/shift/bits/offset 3   f9ffffffffffffff 57 2  5  indexes 0 1 0 2 3           mode  enumerated  
+ DEBUG phi_mod   decode 0 vals 0:31            mask/zero mask/shift/bits/offset 1f  fe0fffffffffffff 52 5  7  indexes                     mode  both_bounded  
+ DEBUG lay_wheel decode 0 vals 0:17            mask/zero mask/shift/bits/offset 1f  fff07fffffffffff 47 5  12 indexes                     mode  both_bounded  
+ DEBUG str_lay   decode 0 vals 0:29            mask/zero mask/shift/bits/offset 1f  ffff83ffffffffff 42 5  17 indexes                     mode  both_bounded  
+ DEBUG straw     decode 0 vals 0:28            mask/zero mask/shift/bits/offset 1f  fffffc1fffffffff 37 5  22 indexes                     mode  both_bounded  
+ DEBUG  TRT_ID::initialize_from_dict Set barrel field values: -1,1
+ DEBUG  TRT_ID::initialize_from_dict Found field values: InDet/TRT 2/3
+ DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
+ DEBUG TRT_ID::init_hashes  module hash max 1344
+ DEBUG TRT_ID::init_hashes  straw layer hash max 19008
+ DEBUG TRT_ID::init_hashes  straw hash max 424576
+ DEBUG  TRT_ID::initialize_from_dict 
+ DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
+ DEBUG Straw layer range -> 2/3/-1,1/0:31/0/0 | 2/3/-1,1/0:31/0/1:4 | 2/3/-1,1/0:31/0/5:9 | 2/3/-1,1/0:31/0/10:14 | 2/3/-1,1/0:31/0/15:17 | 2/3/-1,1/0:31/0/18 | 2/3/-1,1/0:31/1/0 | 2/3/-1,1/0:31/1/1:5 | 2/3/-1,1/0:31/1/6:10 | 2/3/-1,1/0:31/1/11:15 | 2/3/-1,1/0:31/1/16:20 | 2/3/-1,1/0:31/1/21:22 | 2/3/-1,1/0:31/1/23 | 2/3/-1,1/0:31/2/0 | 2/3/-1,1/0:31/2/1:4 | 2/3/-1,1/0:31/2/5:9 | 2/3/-1,1/0:31/2/10:14 | 2/3/-1,1/0:31/2/15:19 | 2/3/-1,1/0:31/2/20:24 | 2/3/-1,1/0:31/2/25:28 | 2/3/-1,1/0:31/2/29 | 2/3/-2,2/0:31/0:5/0:15 | 2/3/-2,2/0:31/6:13/0:7 | 2/3/-2,2/0:31/14:17/0:15
+ DEBUG Straw range -> 2/3/-1,1/0:31/0/0/0:14 | 2/3/-1,1/0:31/0/1:4/0:15 | 2/3/-1,1/0:31/0/5:9/0:16 | 2/3/-1,1/0:31/0/10:14/0:17 | 2/3/-1,1/0:31/0/15:17/0:18 | 2/3/-1,1/0:31/0/18/0:17 | 2/3/-1,1/0:31/1/0/0:18 | 2/3/-1,1/0:31/1/1:5/0:19 | 2/3/-1,1/0:31/1/6:10/0:20 | 2/3/-1,1/0:31/1/11:15/0:21 | 2/3/-1,1/0:31/1/16:20/0:22 | 2/3/-1,1/0:31/1/21:22/0:23 | 2/3/-1,1/0:31/1/23/0:22 | 2/3/-1,1/0:31/2/0/0:22 | 2/3/-1,1/0:31/2/1:4/0:23 | 2/3/-1,1/0:31/2/5:9/0:24 | 2/3/-1,1/0:31/2/10:14/0:25 | 2/3/-1,1/0:31/2/15:19/0:26 | 2/3/-1,1/0:31/2/20:24/0:27 | 2/3/-1,1/0:31/2/25:28/0:28 | 2/3/-1,1/0:31/2/29/0:27 | 2/3/-2,2/0:31/0:5/0:15/0:23 | 2/3/-2,2/0:31/6:13/0:7/0:23 | 2/3/-2,2/0:31/14:17/0:15/0:17
+test1

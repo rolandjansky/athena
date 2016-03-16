@@ -22,7 +22,7 @@ class PixelClusterContainer_p3
  public:
 /// Default constructor
   PixelClusterContainer_p3 ();
- private:
+  //private:
   std::vector<InDet::InDetPRD_Collection_p2>  m_collections;
   std::vector<InDet::PixelCluster_p3>      m_rawdata;
 };

@@ -6,7 +6,7 @@
 #define INDETPRD_COLLECTION_P1_H
 
 #include <vector>
-#include "Identifier/Identifier.h" 
+#include "Identifier/Identifier.h"
 
 namespace InDet{
 class InDetPRD_Collection_p1 
@@ -27,7 +27,7 @@ public:
     friend class SCT_ClusterContainerCnv_p1;
     friend class TRT_DriftCircleContainerCnv_p1;
     
-private:
+    //private:
   
     // Identifier of this collection
     unsigned int m_id;
