@@ -14,3 +14,7 @@ macro_append DataCollection_linkopts \
 path_remove PYTHONPATH "/tdaq-common/"
 path_append PYTHONPATH "$(tdaq-common_home)/installed/share/lib/python"
 path_append PYTHONPATH "$(tdaq-common_home)/installed/$(CMTCONFIG)/lib"
+
+path_remove ROOT_INCLUDE_PATH "/tdaq-common/"
+path_append ROOT_INCLUDE_PATH "$(tdaq-common_home)/installed/include"
+
