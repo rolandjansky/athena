@@ -31,7 +31,7 @@ class TrigInDetTrack_p2
      TrigInDetTrack_p2() {}
      friend class TrigInDetTrackCnv_p2;
 
- private:
+     //private:
 
      TrigInDetTrack::AlgoId m_algId;
      TPObjRef m_param;    //actual type is TrigInDetTrackFitPar*

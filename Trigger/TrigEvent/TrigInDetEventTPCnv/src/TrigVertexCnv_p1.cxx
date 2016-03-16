@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEventTPCnv/TrigVertex_p1.h"
-#undef private
-#undef protected
- 
 #include "TrigInDetEventTPCnv/TrigVertexCnv_p1.h"
 
 
@@ -105,8 +100,8 @@ void TrigVertexCnv_p1::transToPers( const TrigVertex    *transObj,
       m_trackInVertexVector.push_back(*iBeg);
     }
 
-    TrackInVertexVector::const_iterator iVBeg = m_trackInVertexVector.begin();
-    TrackInVertexVector::const_iterator iVEnd = m_trackInVertexVector.end();
+    //TrackInVertexVector::const_iterator iVBeg = m_trackInVertexVector.begin();
+    //TrackInVertexVector::const_iterator iVEnd = m_trackInVertexVector.end();
     
     m_TrigInDetTrackVectorCnv.transToPers( &m_trackInVertexVector, &(persObj->m_tracks), log);
     

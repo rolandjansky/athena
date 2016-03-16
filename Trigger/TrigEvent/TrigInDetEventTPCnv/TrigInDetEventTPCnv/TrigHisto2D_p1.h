@@ -19,7 +19,7 @@ class TrigHisto2D_p1 {
   TrigHisto2D_p1() : m_nbins_x(0), m_min_x(0.), m_max_x(0),
                      m_nbins_y(0), m_min_y(0.), m_max_y(0) {}
     
- private:
+  //private:
   std::vector<float> m_contents;
   unsigned int m_nbins_x;
   float m_min_x;

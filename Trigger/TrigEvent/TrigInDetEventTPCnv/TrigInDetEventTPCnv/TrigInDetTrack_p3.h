@@ -31,7 +31,7 @@ class TrigInDetTrack_p3
      TrigInDetTrack_p3() {}
      friend class TrigInDetTrackCnv_p3;
 
- private:
+     //private:
 
      TPObjRef m_param;    //actual type is TrigInDetTrackFitPar*
      TPObjRef m_endParam; //actual type is TrigInDetTrackFitPar*

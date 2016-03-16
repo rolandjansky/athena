@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigInDetEvent/TrigInDetTrack.h"
-#undef private
-#undef protected
-
 #include "TrigInDetEventTPCnv/TrigInDetTrackCnv_p5.h"
 #include "TrigInDetEventTPCnv/TrigInDetTrack_p5.h"
 
@@ -19,20 +14,24 @@ void TrigInDetTrackCnv_p5::persToTrans( const TrigInDetTrack_p5 *persObj, TrigIn
 
   // log << MSG::DEBUG << "TrigInDetTrackCnv_p5::persToTrans called " << endreq;
 
-  transObj->m_algId             = (TrigInDetTrack::AlgoId) persObj->m_allIntegers[0];
-  transObj->m_NStrawHits        = persObj->m_allIntegers[1];
-  transObj->m_NStraw            = persObj->m_allIntegers[2];
-  transObj->m_NStrawTime        = persObj->m_allIntegers[3];
-  transObj->m_NTRHits           = persObj->m_allIntegers[4];
-  transObj->m_NPixelSpacePoints = persObj->m_allIntegers[5];
-  transObj->m_NSCT_SpacePoints  = persObj->m_allIntegers[6];
-  transObj->m_HitPattern        = persObj->m_allIntegers[7];
+  transObj->algorithmId       ((TrigInDetTrack::AlgoId) persObj->m_allIntegers[0]);
+  transObj->StrawHits         (persObj->m_allIntegers[1]);
+  transObj->Straw             (persObj->m_allIntegers[2]);
+  transObj->StrawTime         (persObj->m_allIntegers[3]);
+  transObj->TRHits            (persObj->m_allIntegers[4]);
+  transObj->NPixelSpacePoints (persObj->m_allIntegers[5]);
+  transObj->NSCT_SpacePoints  (persObj->m_allIntegers[6]);
+  transObj->HitPattern        (persObj->m_allIntegers[7]);
 
-  transObj->m_chi2        = persObj->m_chi2;
-  transObj->m_param       = createTransFromPStore( &m_fpCnv, persObj->m_param, log );
-  transObj->m_endParam    = createTransFromPStore( &m_fpCnv, persObj->m_endParam, log );
-  transObj->m_rdoList.resize( persObj->m_rdoList.size() ); 
-  std::copy( persObj->m_rdoList.begin(), persObj->m_rdoList.end(), transObj->m_rdoList.begin() ); 
+  transObj->chi2              (persObj->m_chi2)       ;
+
+  transObj->param      (createTransFromPStore( &m_fpCnv, persObj->m_param, log ));
+  transObj->endParam   (createTransFromPStore( &m_fpCnv, persObj->m_endParam, log ));
+
+  std::vector<Identifier> rdoList;
+  rdoList.resize( persObj->m_rdoList.size() ); 
+  std::copy( persObj->m_rdoList.begin(), persObj->m_rdoList.end(), rdoList.begin() ); 
+  transObj->rdoList (std::move(rdoList));
 }
 
 //-----------------------------------------------------------------------------
@@ -42,25 +41,23 @@ void TrigInDetTrackCnv_p5::transToPers( const TrigInDetTrack *transObj, TrigInDe
 {
 
   // log << MSG::DEBUG << "TrigInDetTrackCnv_p5::transToPers called " << endreq;
-  persObj->m_allIntegers[0]= transObj->m_algId      ;
-  persObj->m_allIntegers[1]= transObj->m_NStrawHits ;
-  persObj->m_allIntegers[2]= transObj->m_NStraw     ;
-  persObj->m_allIntegers[3]= transObj->m_NStrawTime ;
-  persObj->m_allIntegers[4]= transObj->m_NTRHits    ;  
-  persObj->m_allIntegers[5]= transObj->m_NPixelSpacePoints;
-  persObj->m_allIntegers[6]= transObj->m_NSCT_SpacePoints;
-  persObj->m_allIntegers[7]= transObj->m_HitPattern;
+  persObj->m_allIntegers[0]= transObj->algorithmId()      ;
+  persObj->m_allIntegers[1]= transObj->NStrawHits() ;
+  persObj->m_allIntegers[2]= transObj->NStraw()     ;
+  persObj->m_allIntegers[3]= transObj->NStrawTime() ;
+  persObj->m_allIntegers[4]= transObj->NTRHits()    ;  
+  persObj->m_allIntegers[5]= transObj->NPixelSpacePoints();
+  persObj->m_allIntegers[6]= transObj->NSCT_SpacePoints();
+  persObj->m_allIntegers[7]= transObj->HitPattern();
 
+  persObj->m_chi2        = transObj->chi2()       ;
 
-  persObj->m_chi2        = transObj->m_chi2       ;
-  persObj->m_param       = toPersistent( &m_fpCnv, transObj->m_param, log );
-  persObj->m_endParam    = toPersistent( &m_fpCnv, transObj->m_endParam, log );
+  persObj->m_param       = toPersistent( &m_fpCnv, transObj->param(), log );
+  persObj->m_endParam    = toPersistent( &m_fpCnv, transObj->endParam(), log );
 
-  if( transObj->m_rdoList.size()!=0){
-      persObj->m_rdoList.resize( transObj->m_rdoList.size() );
-
-      unsigned int i=0; 
-      for( std::vector<Identifier>::const_iterator it = transObj->m_rdoList.begin(); it != transObj->m_rdoList.end();++it,++i) 
-          persObj->m_rdoList[i] =it->get_compact(); 
-  }
+  const std::vector<Identifier>& rdoList = transObj->rdoList();
+  persObj->m_rdoList.clear();
+  persObj->m_rdoList.reserve( rdoList.size() );
+  for (const Identifier& id : rdoList)
+    persObj->m_rdoList.push_back (id.get_compact());
 }

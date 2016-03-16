@@ -14,7 +14,7 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigSpacePointCounts_p4.h 365974 2011-05-16 12:01:04Z salvator $
+ * $Id: TrigSpacePointCounts_p4.h 722313 2016-02-07 18:30:57Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTS_P4_H
 #define TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTS_P4_H
@@ -30,7 +30,7 @@ class TrigSpacePointCounts_p4
   TrigSpacePointCounts_p4() {}
   virtual ~TrigSpacePointCounts_p4(){}
   
- private:
+  // private:
 
   TrigHisto2D_p1 m_allTheTrigHisto2D[3];
 //  TrigHisto2D_p1 m_pixelClusEndcapC;
