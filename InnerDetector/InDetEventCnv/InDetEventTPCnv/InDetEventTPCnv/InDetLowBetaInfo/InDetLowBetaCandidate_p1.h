@@ -5,13 +5,13 @@
 #ifndef InDetLowBetaCandidate_P1_H
 #define InDetLowBetaCandidate_P1_H
 
-#include<vector>
+#include <vector>
  class InDetLowBetaCandidate_p1
  {
   public:
    InDetLowBetaCandidate_p1()  {};
   
-  private:
+   //private:
  
    std::vector<float> m_data;
    int	m_TRTNLastBits;

@@ -11,7 +11,7 @@
 //
 //-----------------------------------------------------------------------------
 #include "SiWidth_p2.h"
-#include "Identifier/Identifier.h" 
+#include "Identifier/Identifier.h"
 namespace InDet
 {
    class PixelCluster_p3

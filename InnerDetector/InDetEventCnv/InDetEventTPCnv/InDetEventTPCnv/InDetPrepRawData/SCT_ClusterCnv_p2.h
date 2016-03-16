@@ -31,6 +31,12 @@ public:
   SCT_ClusterCnv_p2() {};
   SCT_ClusterCnv_p2( const SCT_ID * );
 
+  InDet::SCT_Cluster
+  createSCT_Cluster (const InDet::SCT_Cluster_p2* persObj,
+                     Identifier clusId,
+                     const InDetDD::SiDetectorElement* detEl,
+                     MsgStream& log);
+
   void persToTrans( const InDet::SCT_Cluster_p2 *, InDet::SCT_Cluster *, MsgStream & );
   void transToPers( const InDet::SCT_Cluster *, InDet::SCT_Cluster_p2 *, MsgStream & );
         

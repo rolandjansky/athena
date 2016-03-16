@@ -2,14 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#undef private
-#undef protected
-
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguities_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguitiesCnv_p1.h"
 #include "DataModel/tools/IdentContIndex.h"

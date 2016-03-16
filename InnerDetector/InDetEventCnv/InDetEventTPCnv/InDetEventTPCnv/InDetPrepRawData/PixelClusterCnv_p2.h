@@ -28,6 +28,11 @@ class PixelClusterCnv_p2
 public:
   PixelClusterCnv_p2() {}
 
+  InDet::PixelCluster
+  createPixelCluster (const InDet::PixelCluster_p2* persObj,
+                      const InDetDD::SiDetectorElement* delEl,
+                      MsgStream &log);
+
   void persToTrans( const InDet::PixelCluster_p2 *, InDet::PixelCluster *, MsgStream & );
   void transToPers( const InDet::PixelCluster *, InDet::PixelCluster_p2 *, MsgStream & );
         

@@ -25,7 +25,14 @@ class TRT_DriftCircleCnv_p2
 {
 public:
   TRT_DriftCircleCnv_p2()  {}
-  
+
+  InDet::TRT_DriftCircle
+  createTRT_DriftCircle( const InDet::TRT_DriftCircle_p2 *persObj,
+                         Identifier clusId,
+                         std::vector<Identifier>&& rdoList,
+                         const InDetDD::TRT_BaseElement* detEl,
+                         MsgStream &log);
+
   void persToTrans( const InDet::TRT_DriftCircle_p2 *persObj,
 		    InDet::TRT_DriftCircle    *transObj,
 		    MsgStream                   &log );

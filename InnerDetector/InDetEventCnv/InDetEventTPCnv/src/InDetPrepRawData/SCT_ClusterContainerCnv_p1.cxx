@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SiCluster_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
-#undef private
-#undef protected
-
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p1.h"
@@ -112,7 +107,7 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
         // Create trans collection - is NOT owner of SCT_Cluster (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
-        Identifier collID(Identifier(pcoll.m_id));
+        //Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
         coll = new InDet::SCT_ClusterCollection(collIDHash);
         coll->setIdentifier(Identifier(pcoll.m_id));

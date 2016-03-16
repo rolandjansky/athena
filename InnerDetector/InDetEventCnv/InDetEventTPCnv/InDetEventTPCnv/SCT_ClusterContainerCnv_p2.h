@@ -13,6 +13,7 @@
 #include "InDetEventTPCnv/SCT_ClusterContainer_p2.h"
 
 class SCT_ID;
+class StoreGateSvc;
 namespace InDetDD{ class SCT_DetectorManager;}
 
 class SCT_ClusterContainerCnv_p2 : public T_AthenaPoolTPCnvBase<InDet::SCT_ClusterContainer, InDet::SCT_ClusterContainer_p2>

@@ -8,13 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SiCluster.h"
-#undef private
-#undef protected
-
-
 #include "InDetEventTPCnv/InDetPrepRawData/SiClusterCnv_p1.h"
 
 
@@ -31,7 +25,7 @@ void SiClusterCnv_p1::transToPers( const InDet::SiCluster *transObj, InDet::SiCl
 {
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In SiCluster::transToPers" << endreq;
    persObj->m_rawData = baseToPersistent( &m_rawDataCnv, transObj, log );
-   persObj->m_width = toPersistent( &m_swCnv, &transObj->m_width, log );
+   persObj->m_width = toPersistent( &m_swCnv, &transObj->width(), log );
 }
 
 

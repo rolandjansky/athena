@@ -25,7 +25,7 @@ public:
     friend class SCT_ClusterContainerCnv_p2;
     friend class TRT_DriftCircleContainerCnv_p1;
     
-private:
+    //private:
   
     // Identifier distance of this collection from the previous one
     //    unsigned short m_idDelta;

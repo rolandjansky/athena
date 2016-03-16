@@ -8,21 +8,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SiWidth.h"
-#undef private
-#undef protected
-
 #include "InDetEventTPCnv/InDetPrepRawData/SiWidthCnv_p1.h"
 
 void SiWidthCnv_p1::persToTrans( const InDet::SiWidth_p1 *persObj,
 				 InDet::SiWidth *transObj,  MsgStream &log )
 {
 //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "in SiWidthCnv_p1::persToTrans" << endreq;
-   transObj->m_colrow[Trk::locX] = persObj->x; 
-   transObj->m_colrow[Trk::locY] = persObj->y;
-   fillTransFromPStore( &m_localPosCnv, persObj->m_phirzWidth, &transObj->m_phirzWidth, log );
+  transObj->setColumn (persObj->x);
+  transObj->setRow    (persObj->y);
+  Amg::Vector2D phirzwidth;
+  fillTransFromPStore( &m_localPosCnv, persObj->m_phirzWidth, &phirzwidth, log );
+  transObj->setPhirzWidth (phirzwidth);
 }
 
 
@@ -30,7 +27,7 @@ void SiWidthCnv_p1::transToPers( const InDet::SiWidth *transObj,
 				 InDet::SiWidth_p1 *persObj, MsgStream &log )
 {
 //     if (log.level() <= MSG::DEBUG) log<< MSG::DEBUG << "in SiWidthCnv_p1::transToPERS" << endreq;
-    persObj->x = (float) transObj->m_colrow[Trk::locX];
-    persObj->y = (float) transObj->m_colrow[Trk::locY];
-    persObj->m_phirzWidth = toPersistent( &m_localPosCnv, &transObj->m_phirzWidth, log );
+  persObj->x = (float) transObj->colRow()[Trk::locX];
+  persObj->y = (float) transObj->colRow()[Trk::locY];
+  persObj->m_phirzWidth = toPersistent( &m_localPosCnv, &transObj->widthPhiRZ(), log );
 }

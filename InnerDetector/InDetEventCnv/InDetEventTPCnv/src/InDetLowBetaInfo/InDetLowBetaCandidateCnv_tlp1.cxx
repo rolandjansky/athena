@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidateCnv_tlp1.h"
-#undef private
-#undef protected
 
 
 InDetLowBetaCandidateCnv_tlp1::InDetLowBetaCandidateCnv_tlp1() {

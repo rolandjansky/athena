@@ -24,7 +24,7 @@ class SCT_ClusterContainer_p2
  public:
 /// Default constructor
   SCT_ClusterContainer_p2 ();
- private:
+  //private:
   std::vector<InDet::InDetPRD_Collection_p2>  m_collections;
   std::vector<InDet::SCT_Cluster_p2>      m_rawdata;
 // The delta identifiers of the PRD:

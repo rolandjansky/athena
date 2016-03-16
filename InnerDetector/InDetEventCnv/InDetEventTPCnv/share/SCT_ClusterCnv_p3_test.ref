@@ -1,0 +1,32 @@
+SCT_ID               INFO Initialize from dictionary
+ DEBUG (Re)initialize
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ DEBUG decode index and bit fields for each level: 
+ DEBUG indet    decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+ DEBUG sct      decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffffffffffff 59 2  3  indexes                     mode  both_bounded  
+ DEBUG bec      decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   f9ffffffffffffff 57 2  5  indexes 0 0 1 0 2           mode  enumerated  
+ DEBUG lay_disk decode 0 vals 0:8             mask/zero mask/shift/bits/offset f   fe1fffffffffffff 53 4  7  indexes                     mode  both_bounded  
+ DEBUG phi_mod  decode 0 vals 0:55            mask/zero mask/shift/bits/offset 3f  ffe07fffffffffff 47 6  11 indexes                     mode  both_bounded  
+ DEBUG eta_mod  decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   ffff87ffffffffff 43 4  17 indexes                     mode  both_bounded  
+ DEBUG side     decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffbffffffffff 42 1  21 indexes                     mode  both_bounded  
+ DEBUG strip    decode 0 vals 0:767           mask/zero mask/shift/bits/offset 3ff fffffc00ffffffff 32 10 22 indexes                     mode  both_bounded  
+indet 1 2,4,5,7,10,11,12,13 7 1fffffffffffffff 61 3 0
+sct1 1:3 3 e7ffffffffffffff 59 2 3
+bec1 -2,0,2 3 f9ffffffffffffff 57 2 5
+lay_disk0 0:8 f fe1fffffffffffff 53 4 7
+phi_mod0 0:55 3f ffe07fffffffffff 47 6 11
+eta_mod1 -6:6 f ffff87ffffffffff 43 4 17
+side0 0:1 1 fffffbffffffffff 42 1 21
+strip0 0:767 3ff fffffc00ffffffff 32 10 22
+ DEBUG SCT_ID::initialize_from_dict Set barrel field values: 0
+ DEBUG SCT_ID::initialize_from_dict Found field values: SCT 2
+ DEBUG SCT_ID::init_neighbors 
+ INFO SCT_ID::initialize_from_dict 
+ DEBUG  Wafer range -> 2/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1
+ DEBUG Strip range -> 2/2/0/0/0:31/-6:-1/0:1/0:767 | 2/2/0/1/0:39/-6:-1/0:1/0:767 | 2/2/0/2/0:47/-6:-1/0:1/0:767 | 2/2/0/3/0:55/-6:-1/0:1/0:767 | 2/2/0/0/0:31/1:6/0:1/0:767 | 2/2/0/1/0:39/1:6/0:1/0:767 | 2/2/0/2/0:47/1:6/0:1/0:767 | 2/2/0/3/0:55/1:6/0:1/0:767 | 2/2/-2,2/0:8/0:51/0/0:1/0:767 | 2/2/-2,2/0/0:39/1/0:1/0:767 | 2/2/-2,2/1:5/0:39/1:2/0:1/0:767 | 2/2/-2,2/6:7/0:39/1/0:1/0:767
+test1

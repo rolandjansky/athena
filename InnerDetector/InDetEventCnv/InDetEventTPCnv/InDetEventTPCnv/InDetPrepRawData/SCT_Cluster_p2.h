@@ -18,12 +18,6 @@ namespace InDet
     {
    public:
    
- /* #ifndef __IDENTIFIER_64BIT__ */
- /*    typedef  short rdo_diff_type; */
- /* #else */
- /*    typedef Identifier::diff_type rdo_diff_type; */
- /* #endif  */
-
       // type used for channel id differences
       typedef  short rdo_diff_type;
 

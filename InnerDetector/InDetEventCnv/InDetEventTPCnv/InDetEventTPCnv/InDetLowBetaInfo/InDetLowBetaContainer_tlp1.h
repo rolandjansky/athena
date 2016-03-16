@@ -15,7 +15,7 @@ class InDetLowBetaContainer_tlp1
   InDetLowBetaContainer_tlp1() {}
   //  friend class InDetLowBetaContainerCnv_tlp1;
   
- private:
+  //private:
   std::vector<InDetLowBetaContainer_p1> m_lowBetaContainers;
   std::vector<InDetLowBetaCandidate_p1> m_lowBetaCandidate;
 };

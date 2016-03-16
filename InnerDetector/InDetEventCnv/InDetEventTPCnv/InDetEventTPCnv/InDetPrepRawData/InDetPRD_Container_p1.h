@@ -15,7 +15,7 @@ class InDetPRD_Container_p1
  public:
 /// Default constructor
   InDetPRD_Container_p1 ();
- private:
+  //private:
   std::vector<InDet::InDetPRD_Collection_p1>  m_collections;
   std::vector<TPObjRef>             m_PRD;
 };

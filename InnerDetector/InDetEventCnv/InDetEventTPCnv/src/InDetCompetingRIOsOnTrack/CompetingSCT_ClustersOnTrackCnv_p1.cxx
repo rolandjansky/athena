@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetCompetingRIOsOnTrack/CompetingSCT_ClustersOnTrack.h"
-#undef private
-#undef protected
 #include "InDetEventTPCnv/InDetCompetingRIOsOnTrack/CompetingSCT_ClustersOnTrackCnv_p1.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -17,18 +13,21 @@ CompetingSCT_ClustersOnTrackCnv_p1::persToTrans( const InDet::CompetingSCT_Clust
                                                        InDet::CompetingSCT_ClustersOnTrack *transObj, 
                                                        MsgStream &log )
 {
-   fillTransFromPStore( &m_cRotCnv, persObj->m_competingROT, transObj, log );
-   
+  
    std::vector< TPObjRef >::const_iterator  it = persObj->m_containedChildRots.begin(), 
                                             itE = persObj->m_containedChildRots.end();
                                             
-   transObj->m_containedChildRots = new std::vector< const InDet::SCT_ClusterOnTrack * >;
+   auto containedChildRots = new std::vector< const InDet::SCT_ClusterOnTrack * >;
    
    for (; it!=itE;it++) {
        ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
        const InDet::SCT_ClusterOnTrack* mcot = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(createTransFromPStore(&rotCnv, *it, log));
-       transObj->m_containedChildRots->push_back( mcot );
+       containedChildRots->push_back( mcot );
    }
+
+   *transObj = InDet::CompetingSCT_ClustersOnTrack (containedChildRots,
+                                                    nullptr);
+   fillTransFromPStore( &m_cRotCnv, persObj->m_competingROT, transObj, log );
 }
 
 void 
@@ -38,11 +37,9 @@ CompetingSCT_ClustersOnTrackCnv_p1::transToPers( const InDet::CompetingSCT_Clust
 {
     persObj->m_competingROT = baseToPersistent( &m_cRotCnv,  transObj, log );
 
-    std::vector< const InDet::SCT_ClusterOnTrack * >::const_iterator   it  = transObj->m_containedChildRots->begin(), 
-                                                                        itE = transObj->m_containedChildRots->end();    
-    for (; it!=itE;it++) {
+    for (const InDet::SCT_ClusterOnTrack* cl : transObj->containedROTs()) {
         ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
-        persObj->m_containedChildRots.push_back( toPersistent(&rotCnv, *it, log) );
+        persObj->m_containedChildRots.push_back( toPersistent(&rotCnv, cl, log) );
     }
 }
 

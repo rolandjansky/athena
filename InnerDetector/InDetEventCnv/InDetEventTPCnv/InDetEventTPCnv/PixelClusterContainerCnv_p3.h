@@ -13,6 +13,7 @@
 #include "InDetEventTPCnv/PixelClusterContainer_p3.h"
 
 class PixelID;
+class StoreGateSvc;
 namespace InDetDD{ class PixelDetectorManager;}
 
 class PixelClusterContainerCnv_p3 : public T_AthenaPoolTPCnvBase<InDet::PixelClusterContainer, InDet::PixelClusterContainer_p3>

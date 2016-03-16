@@ -34,7 +34,6 @@ class TRT_DriftCircleContainerCnv_p1 : public T_AthenaPoolTPCnvBase< InDet::TRT_
    virtual InDet::TRT_DriftCircleContainer* createTransient(const InDet::InDetPRD_Container_p1* persObj, MsgStream& log);
  private:
    const TRT_ID *m_trtId;
-   StoreGateSvc *m_storeGate;
    const InDetDD::TRT_DetectorManager* m_trtMgr;
    bool m_isInitialized;
    StatusCode initialize(MsgStream &log);

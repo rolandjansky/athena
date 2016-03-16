@@ -2,15 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_Cluster_p3.h"
 #include "InDetEventTPCnv/SCT_ClusterContainer_p3.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#undef private
-#undef protected
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -104,7 +100,7 @@ void SCT_ClusterContainerCnv_p3::transToPers(const InDet::SCT_ClusterContainer* 
             const InDet::SCT_Cluster* chan = dynamic_cast<const InDet::SCT_Cluster*>(collection[i]);
             chanCnv.transToPers(chan, pchan, log);
 
-	    persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->m_clusId );
+	    persCont->m_prdDeltaId[i+chanBegin]=m_sctId->calc_offset(collection.identify(), chan->identify() );
         }
     }
 
@@ -157,13 +153,13 @@ void  SCT_ClusterContainerCnv_p3::persToTrans(const InDet::SCT_ClusterContainer_
         //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endreq;
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const InDet::SCT_Cluster_p3* pchan = &(persCont->m_rawdata[ichan + collBegin]);
-            InDet::SCT_Cluster* chan = new InDet::SCT_Cluster();
             //chan->m_clusId=Identifier(collID.get_compact()+persCont->m_prdDeltaId[ichan + collBegin]);
-	    chan->m_clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
-            chanCnv.persToTrans(pchan, chan, log);
+	    Identifier clusId=m_sctId->strip_id_offset(coll->identify() , persCont->m_prdDeltaId[ichan + collBegin]);
+            InDet::SCT_Cluster* chan = new InDet::SCT_Cluster
+              (chanCnv.createSCT_Cluster (pchan, clusId, de, log));
+            
 	    //            chan->m_rdoList.resize(1);
             //            chan->m_rdoList[0]=chan->m_clusId;
-            chan->m_detEl = de;
             //DC Bugfix: Set the idhash for this channel
 	    chan->setHashAndIndex(collIDHash,ichan);
             (*coll)[ichan] = chan;

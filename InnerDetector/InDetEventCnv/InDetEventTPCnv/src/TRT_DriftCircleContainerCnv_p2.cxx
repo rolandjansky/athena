@@ -2,15 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircle_p2.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainer_p2.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#undef private
-#undef protected
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -109,7 +105,7 @@ void TRT_DriftCircleContainerCnv_p2::transToPers(const InDet::TRT_DriftCircleCon
             const InDet::TRT_DriftCircle* chan = dynamic_cast<const InDet::TRT_DriftCircle*>(collection[i]);
             chanCnv.transToPers(chan, pchan, log);
 	    //persCont->m_prdDeltaId[i+chanBegin]=chan->m_clusId.get_compact()-collection.identify().get_compact(); 
-	    persCont->m_prdDeltaId[i+chanBegin]=chan->m_clusId.get_identifier32().get_compact()-collection.identify().get_identifier32().get_compact();
+	    persCont->m_prdDeltaId[i+chanBegin]=chan->identify().get_identifier32().get_compact()-collection.identify().get_identifier32().get_compact();
 	}
     }
     //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " ***  Writing InDet::TRT_DriftCircleContainer" << endreq;
@@ -162,16 +158,18 @@ void  TRT_DriftCircleContainerCnv_p2::persToTrans(const InDet::TRT_DriftCircleCo
 	//	if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Reading collection with " << nchans << "Channels " << endreq;
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const InDet::TRT_DriftCircle_p2* pchan = &(persCont->m_rawdata[ichan + collBegin]);
-            InDet::TRT_DriftCircle* chan = new InDet::TRT_DriftCircle();
-            chanCnv.persToTrans(pchan, chan, log);
+            Identifier clusId=Identifier(collID.get_identifier32().get_compact()+persCont->m_prdDeltaId[ichan + collBegin]);
 
-            //chan->m_clusId=Identifier(collID.get_compact()+persCont->m_prdDeltaId[ichan + collBegin]);
-            chan->m_clusId=Identifier(collID.get_identifier32().get_compact()+persCont->m_prdDeltaId[ichan + collBegin]);
+            std::vector<Identifier> rdoList(1);
+            rdoList[0]=clusId;
 
+            InDet::TRT_DriftCircle* chan = new InDet::TRT_DriftCircle
+              (chanCnv.createTRT_DriftCircle (pchan,
+                                              clusId,
+                                              std::move(rdoList),
+                                              detEl,
+                                              log));
 
-	    chan->m_rdoList.resize(1);
-            chan->m_rdoList[0]=chan->m_clusId;
-            chan->m_detEl= detEl;
             // DC bugfix: set hash Id of the drift circle
 	    chan->setHashAndIndex(collIDHash,ichan);
             (*coll)[ichan] = chan;

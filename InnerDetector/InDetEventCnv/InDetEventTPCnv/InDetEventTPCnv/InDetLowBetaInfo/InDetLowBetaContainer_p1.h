@@ -6,7 +6,7 @@
 #define InDetLowBetaContainer_P1_H
 
 #include "AthenaPoolUtilities/TPObjRef.h"
-#include<vector>
+#include <vector>
 
 class InDetLowBetaContainer_p1 : public std::vector<TPObjRef> {
  public:
