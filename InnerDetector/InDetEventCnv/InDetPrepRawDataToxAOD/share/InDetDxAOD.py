@@ -296,6 +296,15 @@ if dumpLArCollisionTime:
             print lArCollisionTimeDecorator
             print lArCollisionTimeDecorator.properties()
 
+# Add decoration with truth parameters if running on simulation
+if isIdTrkDxAODSimulation:
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
+    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
+                                                                        TruthParticleContainerName = "TruthParticles",
+                                                                        DecorationPrefix = "")
+    ToolSvc += TruthDecor
+    augmentationTools.append(TruthDecor)
+    print TruthDecor
 
 #====================================================================
 # Skimming Tools
@@ -403,12 +412,15 @@ IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."
 
 # Add truth-related information
 if dumpTruthInfo:
-  IDTRKVALIDStream.AddItem("xAOD::TruthParticleContainer#*")
-  IDTRKVALIDStream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
-  IDTRKVALIDStream.AddItem("xAOD::TruthVertexContainer#*")
-  IDTRKVALIDStream.AddItem("xAOD::TruthVertexAuxContainer#*")
-  IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
-  IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthParticleContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
+    IDTRKVALIDStream.AddItem("xAOD::TruthVertexContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthVertexAuxContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
+    # add pseudo tracking in xAOD
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPseudoTrackParticles")
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetPseudoTrackParticlesAux."+excludedAuxData)
 
 # Add trigger information (including metadata)
 if dumpTriggerInfo:
