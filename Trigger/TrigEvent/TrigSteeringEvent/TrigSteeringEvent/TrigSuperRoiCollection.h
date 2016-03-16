@@ -7,7 +7,7 @@
 // #ifndef  TRIGSTEERINGEVENT_TRIGSUPERROICOLLECTION_H
 // #define  TRIGSTEERINGEVENT_TRIGSUPERROICOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/BaseInfo.h"
 
 #ifndef TRIGSTEERINGEVENT_TRIGSUPERROI_H

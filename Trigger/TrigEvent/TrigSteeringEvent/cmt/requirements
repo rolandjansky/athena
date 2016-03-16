@@ -2,22 +2,22 @@ package TrigSteeringEvent
 
 use AtlasPolicy         AtlasPolicy-*
 use CLIDSvc             CLIDSvc-*                Control
-use DataModel           DataModel-*              Control
 use GaudiInterface      GaudiInterface-*         External
 use SGTools             SGTools-*                Control
 use TrigConfHLTData     TrigConfHLTData-*        Trigger/TrigConfiguration
 
 use_ifndef pplist="XAOD_ANALYSIS" pkg="External/DataCollection"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigDataAccess/TrigSerializeResult"
-use_ifndef pplist="XAOD_ANALYSIS" pkg="DetectorDescription/RoiDescriptor"
+# use_ifndef pplist="XAOD_ANALYSIS" pkg="DetectorDescription/RoiDescriptor"
+use RoiDescriptor       RoiDescriptor-*          DetectorDescription
 
 use xAODCore		xAODCore-*		 Event/xAOD
 use AsgTools		AsgTools-*		 Control/AthToolSupport
 use AthContainers	AthContainers-*		 Control
 
-#library TrigSteeringEvent *.cxx
-#apply_pattern installed_library
-apply_pattern dual_use_library files="../Root/*.cxx ../src/*.cxx"
+library TrigSteeringEvent ../Root/*.cxx *.cxx
+apply_pattern installed_library
+#apply_pattern dual_use_library files="../Root/*.cxx ../src/*.cxx"
 
 macro_prepend TrigSteeringEvent_linkopts " $(notAsNeeded_linkopt)"
 macro_append  TrigSteeringEvent_linkopts " $(asNeeded_linkopt)"

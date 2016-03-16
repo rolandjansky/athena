@@ -5,7 +5,7 @@
 #pragma once
 #ifndef TRIGSTEERINGEVENT_TRIGOPERATIONALINFOCollection_H
 #define TRIGSTEERINGEVENT_TRIGOPERATIONALINFOCollection_H
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "SGTools/BaseInfo.h"
 
 #ifndef TRIGSTEERINGEVENT_TRIGOPERATIONALINFO_H
