@@ -46,7 +46,7 @@ class TrigVertexCnv_p2 : public T_AthenaPoolTPCnvBase<TrigVertex, TrigVertex_p2>
     }
   
   
- protected:
+  //protected:
   TrigInDetTrackCnv_p3    *m_TrigIDtrackCnv   ;
   
   typedef T_AthenaPoolTPPtrVectorCnv< TrackInVertexVector,

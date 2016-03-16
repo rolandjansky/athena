@@ -30,7 +30,7 @@ class TrigInDetTrackCollection_p1
   TrigInDetTrackCollection_p1() {}
   friend class TrigInDetTrackCollectionCnv_p1; 
 
- private:
+  //private:
 
   int m_RoI_ID;
 

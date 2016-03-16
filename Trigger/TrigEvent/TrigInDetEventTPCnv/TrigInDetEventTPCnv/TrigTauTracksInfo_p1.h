@@ -35,7 +35,7 @@ class TrigTauTracksInfo_p1
     {}
   virtual ~TrigTauTracksInfo_p1(){}
   
- private:
+  //private:
 
   int m_roiID;
   int m_nCoreTracks;

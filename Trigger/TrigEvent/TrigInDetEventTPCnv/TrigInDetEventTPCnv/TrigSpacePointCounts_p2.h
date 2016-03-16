@@ -30,7 +30,7 @@ class TrigSpacePointCounts_p2
   TrigSpacePointCounts_p2() {}
   virtual ~TrigSpacePointCounts_p2(){}
   
- private:
+  // private:
 
   TrigHisto2D_p1 m_pixelClusEndcapC;
   TrigHisto2D_p1 m_pixelClusBarrel;

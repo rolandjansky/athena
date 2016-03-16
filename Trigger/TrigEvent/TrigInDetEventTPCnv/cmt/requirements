@@ -28,6 +28,9 @@ use TrigCaloEventTPCnv	 TrigCaloEventTPCnv-*	 Trigger/TrigEvent
 #use TrackParticleTPCnv	TrackParticleTPCnv-*	Reconstruction
 
 private
+use GaudiInterface GaudiInterface-*  External
+use AtlasCLHEP     AtlasCLHEP-*      External
+use CxxUtils       CxxUtils-*        Control
 use IdDictParser   IdDictParser-*    DetectorDescription
 end_private
 
@@ -51,3 +54,30 @@ apply_pattern lcgdict dict=TrigInDetEventTPCnv \
   headerfiles="../TrigInDetEventTPCnv/TrigInDetEventTPCnvDict.h"
 
 end_private
+
+
+private
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=TrigHisto1DCnv_p1
+apply_pattern UnitTest_run unit_test=TrigHisto2DCnv_p1
+apply_pattern UnitTest_run unit_test=TrigInDetTrackCnv_p1
+apply_pattern UnitTest_run unit_test=TrigInDetTrackCnv_p2
+apply_pattern UnitTest_run unit_test=TrigInDetTrackCnv_p3
+apply_pattern UnitTest_run unit_test=TrigInDetTrackCnv_p4
+apply_pattern UnitTest_run unit_test=TrigInDetTrackCnv_p5
+apply_pattern UnitTest_run unit_test=TrigInDetTrackCollectionCnv_p1
+apply_pattern UnitTest_run unit_test=TrigInDetTrackFitParCnv_p1
+apply_pattern UnitTest_run unit_test=TrigInDetTrackFitParCnv_p2
+apply_pattern UnitTest_run unit_test=TrigInDetTrackFitParCnv_p3
+apply_pattern UnitTest_run unit_test=TrigSpacePointCountsCnv_p1
+apply_pattern UnitTest_run unit_test=TrigSpacePointCountsCnv_p2
+apply_pattern UnitTest_run unit_test=TrigSpacePointCountsCnv_p3
+apply_pattern UnitTest_run unit_test=TrigSpacePointCountsCnv_p4
+apply_pattern UnitTest_run unit_test=TrigTauTracksInfoCnv_p1
+apply_pattern UnitTest_run unit_test=TrigTauTracksInfoCnv_p2
+apply_pattern UnitTest_run unit_test=TrigTrackCountsCnv_p2
+apply_pattern UnitTest_run unit_test=TrigTrtHitCountsCnv_p1
+apply_pattern UnitTest_run unit_test=TrigTrtHitCountsCnv_p2
+apply_pattern UnitTest_run unit_test=TrigVertexCnv_p1
+apply_pattern UnitTest_run unit_test=TrigVertexCnv_p2
+apply_pattern UnitTest_run unit_test=TrigVertexCountsCnv_p1

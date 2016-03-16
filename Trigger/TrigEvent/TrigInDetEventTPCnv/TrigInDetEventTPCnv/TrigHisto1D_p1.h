@@ -18,7 +18,7 @@ class TrigHisto1D_p1 {
  public:
   TrigHisto1D_p1() : m_nbins_x(0), m_min_x(0.), m_max_x(0) {}
     
- private:
+  // private:
   std::vector<float> m_contents;
   unsigned int m_nbins_x;
   float m_min_x;

@@ -24,7 +24,7 @@
 //TrigHisto converter
 #include "TrigInDetEventTPCnv/TrigHisto2DCnv_p1.h"
 
-//TrigTrackCounts persistent class
+#include "TrigInDetEvent/TrigTrackCounts.h"
 #include "TrigInDetEventTPCnv/TrigTrackCounts_p2.h"
 
 class MsgStream;

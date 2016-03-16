@@ -31,7 +31,7 @@ class TrigSpacePointCounts_p1
   TrigSpacePointCounts_p1() {}
   virtual ~TrigSpacePointCounts_p1(){}
   
- protected:
+  //protected:
 
   int m_pixSPcnt; 
   int m_pixCL1cnt;

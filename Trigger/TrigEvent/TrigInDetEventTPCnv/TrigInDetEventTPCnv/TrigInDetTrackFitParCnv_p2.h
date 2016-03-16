@@ -40,7 +40,8 @@ class TrigInDetTrackFitParCnv_p2
                                         MsgStream            &log );
  private:
 	bool CholeskyDecomposition(double a[5][5], float L[5][5]);
-	bool restoreCovariance(const TrigInDetTrackFitPar_p2*, TrigInDetTrackFitPar*);
+        std::unique_ptr<std::vector<double> >
+	restoreCovariance(const TrigInDetTrackFitPar_p2*);
 	bool calculateSquareRoot(const TrigInDetTrackFitPar*, TrigInDetTrackFitPar_p2*);
 };
 

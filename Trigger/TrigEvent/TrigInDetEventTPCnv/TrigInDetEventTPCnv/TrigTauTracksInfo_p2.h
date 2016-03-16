@@ -32,7 +32,7 @@ class TrigTauTracksInfo_p2
   TrigTauTracksInfo_p2() {}
   virtual ~TrigTauTracksInfo_p2(){}
   
- private:
+  //private:
 
   int m_allTheInts[4];
 /*
