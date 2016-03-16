@@ -585,7 +585,7 @@ long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName
    ++m_fileCount;
 
    // enable sequentialReading if multiple files
-   if (m_sequential > 1) {
+   if (m_sequential) {
       bool test = setSequentialRead();
       if (!test) return -1;
    }
