@@ -11,7 +11,6 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 
 // Barcode
 #include "BarcodeInterfaces/IBarcodeSvc.h"
@@ -46,7 +45,7 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle(double x, double y, double
                                                       double pTime,
                                                       const ISFParticle &parent,
                                                       Barcode::ParticleBarcode bc,
-                                                      ITruthBinding* tBinding) const {
+                                                      TruthBinding* tBinding) const {
   return new ISF::ISFParticle( Amg::Vector3D(x,y,z),
                                Amg::Vector3D(px,py,pz),
                                pMass,
@@ -68,7 +67,7 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const Amg::Vector3D& x,
                                                        double pTime,
                                                        const ISFParticle &parent,
                                                        Barcode::ParticleBarcode bc,
-                                                       ITruthBinding* tBinding) const {
+                                                       TruthBinding* tBinding) const {
   return new ISF::ISFParticle( x,
                                p,
                                pMass,
@@ -89,7 +88,7 @@ ISF::ISFParticle* ISF::ParticleHelper::createParticle( const HepGeom::Point3D<do
                                                        double pTime,
                                                        const ISFParticle &parent,
                                                        Barcode::ParticleBarcode bc,
-                                                       ITruthBinding* tBinding) const {
+                                                       TruthBinding* tBinding) const {
   return createParticle( pos.x(), pos.y(), pos.z(),
                          mom.x(), mom.y(), mom.z(),
                          pMass,
@@ -115,7 +114,7 @@ ISF::ISFParticle* ISF::ParticleHelper::updatedParticle(const ISFParticle& origIs
                                origIsp.timeStamp()+deltaTime,
                                origIsp,
                                origIsp.barcode(),
-                               origIsp.truthBinding() ? origIsp.truthBinding()->clone() : 0);
+                               origIsp.getTruthBinding() ? new TruthBinding(*origIsp.getTruthBinding()) : nullptr);
 }
 
 /** Returns the Particle Stack, should register truth */
@@ -132,7 +131,7 @@ ISF::ISFParticle* ISF::ParticleHelper::updatedParticle(const ISFParticle& origIs
                                origIsp.timeStamp()+deltaTime,
                                origIsp,
                                origIsp.barcode(),
-                               origIsp.truthBinding() ? origIsp.truthBinding()->clone() : 0);
+                               origIsp.getTruthBinding() ? new TruthBinding(*origIsp.getTruthBinding()) : nullptr);
 }
 
 
