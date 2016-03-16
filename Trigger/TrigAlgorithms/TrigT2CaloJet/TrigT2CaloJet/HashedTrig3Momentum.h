@@ -26,14 +26,14 @@ class HashedTrig3Momentum : public Trig3Momentum {
   HashedTrig3Momentum();
   HashedTrig3Momentum(const Trig3Momentum &t3m,
 		      const u_int &hash);
-  u_int hash() const {return hash_;};
+  u_int hash() const {return m_hash;};
   void addE(const double &eta, const double &phi, const double &energy);
   void addE(const Trig3Momentum &t3m);
   void reset();
  private:
   void updateWeightedCoord(const double &eta, const double &phi, const double &energy);
  private:
-  u_int hash_;
+  u_int m_hash;
 };
 
 #endif

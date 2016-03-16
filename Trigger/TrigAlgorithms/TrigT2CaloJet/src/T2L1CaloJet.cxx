@@ -32,9 +32,10 @@ class ISvcLocator;
 T2L1CaloJet::T2L1CaloJet(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
     m_jet(0),
+    m_log(NULL),
     m_dataL1("LVL1BS__TrigT1CaloDataAccess/TrigT1CaloDataAccess",0),
-    m_jetL1Tools("LVL1::L1JetTools/L1JetTools",this),m_storedJEs(0)
-
+    m_jetL1Tools("LVL1::L1JetTools/L1JetTools",this),m_storedJEs(0),
+    m_retrievedJetTool(false)
 {
   declareProperty("TrigT1CaloDataAccess", m_dataL1, "L1 Calo Data Access");
   declareProperty("L1JetTool", m_jetL1Tools, "L1 Calo Jet Algorithm");
@@ -77,7 +78,7 @@ HLT::ErrorCode T2L1CaloJet::hltInitialize()
     (*m_log) << MSG::INFO << "Retrieved " << m_jetL1Tools << endreq;
   }
 
-  m_storedJEs = new DataVector<LVL1::JetElement>(SG::VIEW_ELEMENTS);
+  m_storedJEs = new ConstDataVector<DataVector<LVL1::JetElement> >(SG::VIEW_ELEMENTS);
   
 
   return HLT::OK;
@@ -214,7 +215,7 @@ HLT::ErrorCode T2L1CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   
   std::map<int, LVL1::JetInput*> jetInputs;  // This will have to be cleared after being used
   if (m_retrievedJetTool) {
-      m_jetL1Tools->mapJetInputs(m_storedJEs, &jetInputs);
+      m_jetL1Tools->mapJetInputs(m_storedJEs->asDataVector(), &jetInputs);
   }
   
   double roiPhi = (roiDescriptor)->phi();

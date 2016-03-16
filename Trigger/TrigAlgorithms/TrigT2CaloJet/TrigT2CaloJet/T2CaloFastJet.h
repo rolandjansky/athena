@@ -63,7 +63,7 @@ class T2CaloFastJet: public HLT::AllTEAlgo {
         int          m_inputType;
         int          m_outputType; 
         int          m_secondOutputType; // this is used to set a different RoI word for the subsequent algorithm
-        double cellMinEnergy_; //!< minimum cell energy required
+        double m_cellMinEnergy; //!< minimum cell energy required
         // Tools
         ToolHandleArray< T2CaloJetBaseTool > m_tools; // for calibration
         
@@ -83,15 +83,15 @@ class T2CaloFastJet: public HLT::AllTEAlgo {
         // fast jet
         double m_distanceParameter;
         double m_pTmin;
-        std::vector<fastjet::PseudoJet> particles;
-        fastjet::JetDefinition * jet_def;
-        std::vector<fastjet::PseudoJet> jets;
-        std::vector<fastjet::PseudoJet> constituents;
-        fastjet::ClusterSequence* cluster_sequence;
+        std::vector<fastjet::PseudoJet> m_particles;
+        fastjet::JetDefinition * m_jet_def;
+        std::vector<fastjet::PseudoJet> m_jets;
+        std::vector<fastjet::PseudoJet> m_constituents;
+        fastjet::ClusterSequence* m_cluster_sequence;
         
         // cleaning:
         bool m_doCleaning;
-        bool m_doT2L1Cleaning; // L1.5 jets do not have provenance, quality or time defined so a simpler cleaning must be applied
+        bool m_doT2L1Cleaning; // L1.5 m_jets do not have provenance, quality or time defined so a simpler cleaning must be applied
         float m_leadingCellFraction;
         int m_cellQualityThresholdLAr;
         std::vector<double> m_cellenergies;
@@ -105,13 +105,13 @@ class T2CaloFastJet: public HLT::AllTEAlgo {
         // pileup subtraction switch
         bool m_doPileupSubtraction;
         //double m_pu_distanceParameter;
-        fastjet::JetDefinition * pu_jet_def;
-        fastjet::AreaDefinition * pu_area_def;
-        fastjet::ClusterSequenceArea* pu_cluster_sequence;
-        fastjet::ClusterSequenceArea* pu_area_cluster_sequence;
-        double rho;
-        double sigma;
-        double area;
+        fastjet::JetDefinition * m_pu_jet_def;
+        fastjet::AreaDefinition * m_pu_area_def;
+        fastjet::ClusterSequenceArea* m_pu_cluster_sequence;
+        fastjet::ClusterSequenceArea* m_pu_area_cluster_sequence;
+        double m_rho;
+        double m_sigma;
+        double m_area;
         
         
         // Monitored Variables

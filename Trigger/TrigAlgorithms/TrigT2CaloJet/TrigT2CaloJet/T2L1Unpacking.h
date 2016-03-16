@@ -78,11 +78,11 @@ class T2L1Unpacking: public HLT::AllTEAlgo {
         bool m_retrievedJetTool;
 
 	/// no longer needed - the the RoiDescriptor directly !!
-        double etaMin;
-        double etaMax;
-        double phiMin;
-        double phiMax;
-        bool fullScan;
+        double m_etaMin;
+        double m_etaMax;
+        double m_phiMin;
+        double m_phiMax;
+        bool m_fullScan;
         
         // output
         TrigT2Jet     *m_jet;

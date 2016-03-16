@@ -18,6 +18,7 @@
 
 #include <string>
 #include "TrigInterfaces/FexAlgo.h"
+#include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class StoreGateSvc;
@@ -72,7 +73,7 @@ class T2L1CaloJet: public HLT::FexAlgo {
   std::vector<TrigTimer*> m_timer;
   ToolHandle< LVL1BS::ITrigT1CaloDataAccess > m_dataL1;
   ToolHandle< LVL1::IL1JetTools > m_jetL1Tools;
-  DataVector<LVL1::JetElement>* m_storedJEs;
+  ConstDataVector<DataVector<LVL1::JetElement> >* m_storedJEs;
   bool m_retrievedJetTool;
   
 

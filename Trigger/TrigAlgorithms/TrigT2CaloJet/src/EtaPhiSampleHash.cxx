@@ -23,44 +23,44 @@ EtaPhiSampleHash::EtaPhiSampleHash(const u_short &nEtaBins, const u_short &nPhiB
 				   double minEta, double maxEta,
 				   double minPhi, double maxPhi):
 
- minEta(minEta),
- maxEta(maxEta),
- minPhi(minPhi),
- maxPhi(maxPhi),
- nEtaBins(nEtaBins),
- nPhiBins(nPhiBins)
+ m_minEta(minEta),
+ m_maxEta(maxEta),
+ m_minPhi(minPhi),
+ m_maxPhi(maxPhi),
+ m_nEtaBins(nEtaBins),
+ m_nPhiBins(nPhiBins)
 {
   checkValues();
-  dEta = (maxEta-minEta)/ static_cast<double>(nEtaBins);
-  dPhi = (maxPhi-minPhi)/ static_cast<double>(nPhiBins);
-  invDeta = 1.0/dEta;
-  invDphi = 1.0/dPhi;
+  m_dEta = (m_maxEta-m_minEta)/ static_cast<double>(m_nEtaBins);
+  m_dPhi = (m_maxPhi-m_minPhi)/ static_cast<double>(m_nPhiBins);
+  m_invDeta = 1.0/m_dEta;
+  m_invDphi = 1.0/m_dPhi;
 }
 
 //------------------------------------------------
 void EtaPhiSampleHash::checkValues()
 {
   using namespace std;
-  if(nEtaBins >= kMaxNetaBins)
+  if(m_nEtaBins >= kMaxNetaBins)
     cerr<<"EtaPhiSampleHash: number of eta bins too large"
-	<<" ("<<nEtaBins<<" >= "<<kMaxNetaBins<<")"<<endl;
-  if(nPhiBins >= kMaxNphiBins)
+	<<" ("<<m_nEtaBins<<" >= "<<kMaxNetaBins<<")"<<endl;
+  if(m_nPhiBins >= kMaxNphiBins)
     cerr<<"EtaPhiSampleHash: number of phi bins too large"
-	<<" ("<<nPhiBins<<" >= "<<kMaxNphiBins<<")"<<endl;
+	<<" ("<<m_nPhiBins<<" >= "<<kMaxNphiBins<<")"<<endl;
 }
 //------------------------------------------------
 u_int EtaPhiSampleHash::hash(const double &eta, const double &phi,
 			     const  CaloSampling::CaloSample &sample) const
 {
   double rPhi = TVector2::Phi_mpi_pi(phi);
-  if(eta<minEta || eta>maxEta || rPhi<minPhi || rPhi>maxPhi){
+  if(eta<m_minEta || eta>m_maxEta || rPhi<m_minPhi || rPhi>m_maxPhi){
     std::cerr<<"EtaPhiSampleHash::hash("<<eta<<", phi, "<<sample<<")"<<std::endl
 	     <<"out of bounds: returning 0"<<std::endl;
     return 0;
   }
   return (sample & kSixBits) + 
-    ((int((eta-minEta)*invDeta) & kTenBits) <<  6) +
-    ((int((phi-minPhi)*invDphi) & kTenBits) << 16);
+    ((int((eta-m_minEta)*m_invDeta) & kTenBits) <<  6) +
+    ((int((phi-m_minPhi)*m_invDphi) & kTenBits) << 16);
 }
 //------------------------------------------------
 u_int EtaPhiSampleHash::hash(const Trig3Momentum &t3m) const
@@ -78,7 +78,7 @@ bool EtaPhiSampleHash::etaPhiSample(const u_int &hash, double &eta, double &phi,
 				    CaloSampling::CaloSample &sample) const
 {
   sample = static_cast< CaloSampling::CaloSample >(hash & kSixBits);
-  eta = minEta + dEta * ((hash >>  6) & kTenBits);
-  phi = minPhi + dPhi * ((hash >> 16) & kTenBits);
+  eta = m_minEta + m_dEta * ((hash >>  6) & kTenBits);
+  phi = m_minPhi + m_dPhi * ((hash >> 16) & kTenBits);
   return true;
 }

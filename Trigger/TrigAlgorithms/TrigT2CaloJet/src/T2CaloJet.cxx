@@ -50,6 +50,8 @@ T2CaloJet::T2CaloJet(const std::string & name, ISvcLocator* pSvcLocator)
   declareProperty("T2JetTools", m_tools, "list of Jet tools");
   declareProperty("clearJetGrid",m_clearJetGrid = true);
   declareProperty("fillLayerInfo",m_fillLayerInfo = false);
+  declareProperty("PhiIDWidth", m_phiIDWidth);
+  declareProperty("EtaIDWidth", m_etaIDWidth);
 
   declareMonitoredVariable("dR",  m_dR);
   declareMonitoredVariable("E",   m_e);
@@ -60,8 +62,6 @@ T2CaloJet::T2CaloJet(const std::string & name, ISvcLocator* pSvcLocator)
   declareMonitoredVariable("Ethad",m_ethad0);
   declareMonitoredVariable("Eta", m_eta);
   declareMonitoredVariable("Phi", m_phi);
-  declareMonitoredVariable("PhiIDWidth", m_phiIDWidth);
-  declareMonitoredVariable("EtaIDWidth", m_etaIDWidth);
   declareMonitoredVariable("ConversionErrors", m_conversionError);
   declareMonitoredVariable("AlgorithmErrors", m_algorithmError);
   m_roiEtaLimit = 4.8;
@@ -176,9 +176,9 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   const IRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode hltStatus;
 
-  const TrigRoiDescriptor* _roiDescriptor = 0;
-  hltStatus = getFeature(inputTE, _roiDescriptor);
-  roiDescriptor = _roiDescriptor;
+  const TrigRoiDescriptor* trigRoiDescriptor = 0;
+  hltStatus = getFeature(inputTE, trigRoiDescriptor);
+  roiDescriptor = trigRoiDescriptor;
 
 
   if ( hltStatus == HLT::OK ) {

@@ -56,14 +56,14 @@ public:
 private:
   void checkValues();
 private:
-  double minEta;
-  double maxEta;
-  double minPhi;
-  double maxPhi;
-  double dEta;
-  double dPhi;
-  double invDeta;
-  double invDphi;
-  u_short nEtaBins;
-  u_short nPhiBins;
+  double m_minEta;
+  double m_maxEta;
+  double m_minPhi;
+  double m_maxPhi;
+  double m_dEta;
+  double m_dPhi;
+  double m_invDeta;
+  double m_invDphi;
+  u_short m_nEtaBins;
+  u_short m_nPhiBins;
 };
