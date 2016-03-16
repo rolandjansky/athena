@@ -11,7 +11,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/HepMCHelper.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
+#include "ISF_Event/TruthBinding.h"
 
 // Trk
 #include "ISF_TrackingInterfaces/ITrkExtrapolator.h"
@@ -129,21 +129,25 @@ void ISF::ConeSimSelector::update(const ISFParticle& particle) {
   // check relatives if required
   if ( m_checkRelatives ) {
     // get the truth binding (as HepMC)
-    const HepMC_TruthBinding *truth = dynamic_cast<HepMC_TruthBinding*>( particle.truthBinding() );
+    const TruthBinding* truth = particle.getTruthBinding();
 
     if (truth) {
       // get GenParticle from truth binding
-      const HepMC::GenParticle &genParticle = truth->truthParticle();
+      const HepMC::GenParticle* genParticle = truth->getTruthParticle();
+      if (!genParticle) {
+        // cone conditions not fulfilled
+        return;
+      }
 
       // test whether any of the pdg codes is found in the genParticle history
-      const HepMC::GenParticle *relative = HepMCHelper::findRealtiveWithPDG( genParticle, m_relation, m_relatives);
+      const HepMC::GenParticle *relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
 
       if (relative) {
         ATH_MSG_VERBOSE("Current particle has valid relative particle:"
                         << " (pdg=" << relative->pdg_id() << ","
                         << " barcode=" << relative->barcode() << ")."
                         << " Will now check whether cone cuts apply" );
-      } 
+      }
       else {
         // cone conditions not fulfilled
         return;

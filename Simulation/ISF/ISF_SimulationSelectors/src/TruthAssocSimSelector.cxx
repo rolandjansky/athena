@@ -11,7 +11,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/HepMCHelper.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
+#include "ISF_Event/TruthBinding.h"
 
 /** Constructor **/
 ISF::TruthAssocSimSelector::TruthAssocSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 
@@ -66,27 +66,29 @@ StatusCode  ISF::TruthAssocSimSelector::finalize()
 
 bool  ISF::TruthAssocSimSelector::passSelectorCuts(const ISFParticle& particle) const {
   // get the truth binding (as HepMC)
-  const HepMC_TruthBinding *truth = dynamic_cast<HepMC_TruthBinding*>( particle.truthBinding() );
+  const TruthBinding* truth = particle.getTruthBinding();
   if (truth) {
     // get GenParticle from truth binding
-    const HepMC::GenParticle &genParticle = truth->truthParticle();
+    const HepMC::GenParticle* genParticle = truth->getTruthParticle();
 
-    // test whether any of the pdg codes is found in the genParticle history
-    const HepMC::GenParticle *relative = HepMCHelper::findRealtiveWithPDG( genParticle, m_relation, m_relatives);
+    if (genParticle) {
+      // test whether any of the pdg codes is found in the genParticle history
+      const HepMC::GenParticle* relative = HepMCHelper::findRealtiveWithPDG( *genParticle, m_relation, m_relatives);
 
-    // in case a relative was found
-    if (relative) {
-      // some output
-      ATH_MSG_VERBOSE("Particle (eta=" << particle.momentum().eta() << ", " 
-                      << " phi=" << particle.momentum().phi() << ","
-                      << " pdg=" << particle.pdgCode() << ","
-                      << " barcode=" << particle.barcode() << ")"
-                      << " passes due relative particle"
-                      << " (pdg=" << relative->pdg_id() << ","
-                      << " barcode=" << relative->barcode() << ")" );
-      // selector cuts passed
-      return true;
-    }
+      // in case a relative was found
+      if (relative) {
+        // some output
+        ATH_MSG_VERBOSE("Particle (eta=" << particle.momentum().eta() << ", " 
+                        << " phi=" << particle.momentum().phi() << ","
+                        << " pdg=" << particle.pdgCode() << ","
+                        << " barcode=" << particle.barcode() << ")"
+                        << " passes due relative particle"
+                        << " (pdg=" << relative->pdg_id() << ","
+                        << " barcode=" << relative->barcode() << ")" );
+        // selector cuts passed
+        return true;
+      } // found relative
+    } // genParticle present
   }
 
   // selector cuts not passed
