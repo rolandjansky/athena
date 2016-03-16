@@ -14,7 +14,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 
 // ISF_HepMC include
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
+#include "ISF_Event/TruthBinding.h"
 #include "ISF_HepMC_Interfaces/IGenEventManipulator.h"
 #include "ISF_HepMC_Interfaces/IGenParticleFilter.h"
 // barcode interfaces for bc creation
@@ -103,7 +103,7 @@ ISF::GenEventStackFiller::GenEventStackFiller(const std::string& t, const std::s
 
   // don't do hard scatter
   declareProperty( "DoHardScatter", m_doHardScatter = true,
-		   "Flag to turn off hard scatter for debugging of pileup" ); 
+                   "Flag to turn off hard scatter for debugging of pileup" ); 
 }
 
 
@@ -207,13 +207,13 @@ ISF::GenEventStackFiller::processSingleColl(ISF::ISFParticleContainer& particleC
 // addd by RJH process pileup mcevent collection
 StatusCode 
 ISF::GenEventStackFiller::processPileupColl(ISF::ISFParticleContainer& 
-					    particleColl) const
+                                            particleColl) const
 {
   // Retrieve pileup collecton from StoreGate
   const McEventCollection* inputCollection=0;
   if (evtStore()->retrieve(inputCollection,m_pileupMcEventCollection).isFailure()) {
     ATH_MSG_ERROR("Coould not retrieve " << m_pileupMcEventCollection << 
-		  "from StoreGateSvc");
+                  "from StoreGateSvc");
     return StatusCode::FAILURE;
   }
   // create copy
@@ -224,14 +224,14 @@ ISF::GenEventStackFiller::processPileupColl(ISF::ISFParticleContainer&
   // record this additional collection to Storegate
   bool allowMods(true);
   if (evtStore()->record(mcCollection, m_outputPileupMcEventCollection, 
-			 allowMods).isFailure()) {
+                         allowMods).isFailure()) {
     ATH_MSG_ERROR( "Could not record " << m_outputPileupMcEventCollection << 
-		   " to StoreGateSvc. Abort.");
+                   " to StoreGateSvc. Abort.");
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_DEBUG( "After adding pileup, particle collection has length " << 
-		 particleColl.size() );
+                 particleColl.size() );
   return StatusCode::SUCCESS;
 }
 
@@ -244,8 +244,8 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
   int bcPileupOffset = ( nPileupCounter>0 ? m_largestBc+1 : 0 ); 
 
   ATH_MSG_DEBUG("Starting mcEVentCollLooper for pileup " << nPileupCounter
-		<< " bcPileupOffset " << bcPileupOffset << " with "
-		<< particleColl.size() << " ISF particles");
+                << " bcPileupOffset " << bcPileupOffset << " with "
+                << particleColl.size() << " ISF particles");
 
   McEventCollection::iterator eventIt    = mcCollection->begin();
   McEventCollection::iterator eventItEnd = mcCollection->end();
@@ -300,17 +300,17 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       std::map< int , HepMC::GenParticle*, std::less<int> > pMap;
       
       for (HepMC::GenVertex::particle_iterator it=
-	     (*vert)->particles_begin(HepMC::children);
-	   it!=(*vert)->particles_end(HepMC::children);++it) {
-	int bc=(*it)->barcode();
-	pMap[bc]=(*it);
+             (*vert)->particles_begin(HepMC::children);
+           it!=(*vert)->particles_end(HepMC::children);++it) {
+        int bc=(*it)->barcode();
+        pMap[bc]=(*it);
       }
 
       if (m_doHardScatter || bcid==1) {
-	for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
+        for ( std::map<int,HepMC::GenParticle*,std::less<int> >::const_iterator it = pMap.begin(); it != pMap.end(); it++) {
 
-	  particles.push_back(it->second);
-	}
+          particles.push_back(it->second);
+        }
       }
     }
 
@@ -343,69 +343,69 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
       GenParticleFilters::const_iterator filterIt  = m_genParticleFilters.begin();
       GenParticleFilters::const_iterator filterEnd = m_genParticleFilters.end();
       for ( ; passFilter && filterIt!=filterEnd; ++filterIt) {
-	// determine if the particle passes current filter
-	passFilter = (*filterIt)->pass(*tParticle);
-	ATH_MSG_VERBOSE("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
-		     << (passFilter ? "true, will keep particle."
-			 : "false, will remove particle."));
-	ATH_MSG_VERBOSE("Particle: ("
-		     <<tParticle->momentum().px()<<", "
-		     <<tParticle->momentum().py()<<", "
-		     <<tParticle->momentum().pz()<<"), pdgCode: "
-		     <<tParticle->pdg_id() );
+        // determine if the particle passes current filter
+        passFilter = (*filterIt)->pass(*tParticle);
+        ATH_MSG_VERBOSE("GenParticleFilter '" << (*filterIt).typeAndName() << "' returned: "
+                     << (passFilter ? "true, will keep particle."
+                         : "false, will remove particle."));
+        ATH_MSG_VERBOSE("Particle: ("
+                     <<tParticle->momentum().px()<<", "
+                     <<tParticle->momentum().py()<<", "
+                     <<tParticle->momentum().pz()<<"), pdgCode: "
+                     <<tParticle->pdg_id() );
       }
       
       // if the GenParticleFilters were not passed
       //  -> skip particle
       if (!passFilter) {
-	
-	// remove the particle from the TruthEvent if requested
-	if (m_recordOnlySimulated) {
-	  // the production vertex
-	  HepMC::GenVertex *vtx = tParticle->production_vertex();
-	  if (vtx) {
-	    // remove particle from its production-vertex
-	    vtx->remove_particle( tParticle);
-	    
-	    // remove the vertex form the GenEvent if there
-	    // are no more particles emerging from it
-	    if ( vtx->particles_out_size()==0) {
-	      (**eventIt).remove_vertex( vtx);
-	      delete vtx;
-	    }
-	  }
-	  
-	  // remove particle from its end-vertex
-	  vtx = tParticle->end_vertex();
-	  if (vtx) vtx->remove_particle( tParticle);
-	  
-	  // destructor should automatically remove particle from GenEvent
-	  delete tParticle;
-	}
-	
-	// go to the next particle
-	continue;
+        
+        // remove the particle from the TruthEvent if requested
+        if (m_recordOnlySimulated) {
+          // the production vertex
+          HepMC::GenVertex *vtx = tParticle->production_vertex();
+          if (vtx) {
+            // remove particle from its production-vertex
+            vtx->remove_particle( tParticle);
+            
+            // remove the vertex form the GenEvent if there
+            // are no more particles emerging from it
+            if ( vtx->particles_out_size()==0) {
+              (**eventIt).remove_vertex( vtx);
+              delete vtx;
+            }
+          }
+          
+          // remove particle from its end-vertex
+          vtx = tParticle->end_vertex();
+          if (vtx) vtx->remove_particle( tParticle);
+          
+          // destructor should automatically remove particle from GenEvent
+          delete tParticle;
+        }
+        
+        // go to the next particle
+        continue;
       }
       
       ATH_MSG_VERBOSE( "GenParticle with Barcode '" << pBarcode
-		     << "' passed all cuts, adding it to the initial ISF particle list.");
+                     << "' passed all cuts, adding it to the initial ISF particle list.");
       
       // -> particle origin (TODO: add proper GeoID, collision/cosmics)
       DetRegionSvcIDPair origin( AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
       // -> truth binding
-      ISF::HepMC_TruthBinding* tBinding = new ISF::HepMC_TruthBinding(*tParticle);
+      ISF::TruthBinding* tBinding = new ISF::TruthBinding(tParticle);
       // -> 4-vectors: vertex, momentum
-      HepMC::GenVertex   *pVertex   = tParticle->production_vertex();
+      HepMC::GenVertex   *pVertex = tParticle->production_vertex();
       // setup the particle position...
-      HepGeom::Point3D<double> *pos = 0;
+      HepGeom::Point3D<double> *pos = nullptr;
       // ...based on the Vertex coordinates in the GenEvent
       if  (pVertex) {
-	const HepMC::ThreeVector vtxPos(pVertex->point3d());
-	pos = new HepGeom::Point3D<double>( vtxPos.x(), vtxPos.y(), vtxPos.z());
+        const HepMC::ThreeVector vtxPos(pVertex->point3d());
+        pos = new HepGeom::Point3D<double>( vtxPos.x(), vtxPos.y(), vtxPos.z());
       } else {
-	ATH_MSG_ERROR( "GenParticle with Barcode '" << pBarcode <<
-		       "' has an unset production_vertex, setting it to (0,0,0).");
-	pos = new HepGeom::Point3D<double>(0.,0.,0.);
+        ATH_MSG_ERROR( "GenParticle with Barcode '" << pBarcode <<
+                       "' has an unset production_vertex, setting it to (0,0,0).");
+        pos = new HepGeom::Point3D<double>(0.,0.,0.);
       }
       
       const HepMC::FourVector &pMomentum = tParticle->momentum();
@@ -419,42 +419,42 @@ ISF::GenEventStackFiller::mcEventCollLooper(ISF::ISFParticleContainer& particleC
 
       /*
       std::cout<<"GESF setting primary particle: momentum: ("
-	       << tParticle->momentum().x()<<","
-	       << tParticle->momentum().y()<<","
-	       << tParticle->momentum().z()<<")"
-	       <<", pdgCode="<< tParticle->pdg_id()
-	       <<", barcode="<< tParticle->barcode()
-	       <<std::endl; 
+               << tParticle->momentum().x()<<","
+               << tParticle->momentum().y()<<","
+               << tParticle->momentum().z()<<")"
+               <<", pdgCode="<< tParticle->pdg_id()
+               <<", barcode="<< tParticle->barcode()
+               <<std::endl; 
       */
 
       goodparticles.push_back(tParticle);
       
       HepGeom::Vector3D<double> mom(pMomentum.px(),pMomentum.py(),pMomentum.pz());
       ISF::ISFParticle* sParticle = new ISF::ISFParticle( *pos,
-							  mom,
-							  pMass,
-							  charge,
-							  pPdgId,
-							  pTime,
-							  origin,
-							  m_uniqueBc,
-							  tBinding );
+                                                           mom,
+                                                           pMass,
+                                                           charge,
+                                                           pPdgId,
+                                                           pTime,
+                                                           origin,
+                                                           m_uniqueBc,
+                                                           tBinding );
       
       // MB : need this (for now) to store extra barcode information
       Barcode::ParticleBarcode extrabc(Barcode::fUndefinedBarcode);
       sParticle->setUserInformation( new ISF::ParticleUserInformation() );
       if ( m_barcodeSvc->hasBitCalculator() ) {
-	// first gen-event in the list is the hard scatter.
-	// RJH - change thsi to use the pileupCounter parameter
-	if (nPileupCounter==0) { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,true); }
-	else { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,false); }
-	// bcid - RJH now set this above from signal-process-id of pileup
-	// int bcid = int( m_current_event_time / m_bunch_spacing );
-	m_barcodeSvc->getBitCalculator()->SetBCID(extrabc,bcid);
-	// parent pid
-	int absPDG = abs( pPdgId );
-	if (absPDG>=1024) { absPDG=0; } // MB : assigned 10 bits to parent PID
-	m_barcodeSvc->getBitCalculator()->SetPIDofParent(extrabc,absPDG);
+        // first gen-event in the list is the hard scatter.
+        // RJH - change thsi to use the pileupCounter parameter
+        if (nPileupCounter==0) { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,true); }
+        else { m_barcodeSvc->getBitCalculator()->SetHS(extrabc,false); }
+        // bcid - RJH now set this above from signal-process-id of pileup
+        // int bcid = int( m_current_event_time / m_bunch_spacing );
+        m_barcodeSvc->getBitCalculator()->SetBCID(extrabc,bcid);
+        // parent pid
+        int absPDG = abs( pPdgId );
+        if (absPDG>=1024) { absPDG=0; } // MB : assigned 10 bits to parent PID
+        m_barcodeSvc->getBitCalculator()->SetPIDofParent(extrabc,absPDG);
       }
       // and store the extra bc (for now this is done in the particle's user information
       sParticle->setExtraBC( extrabc );
