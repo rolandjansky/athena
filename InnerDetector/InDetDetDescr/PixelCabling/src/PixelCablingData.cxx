@@ -43,11 +43,13 @@ std::size_t hash_value(Identifier const& id) {
 ////////////////////////
 // constructor
 ////////////////////////
-PixelCablingData::PixelCablingData() {
+PixelCablingData::PixelCablingData() :
+    m_commonHitDiscCnfg(3)
+{
     m_allRods = new std::vector<uint32_t>;
     m_allRobs = new std::vector<uint32_t>;
 
-    m_commonHitDiscCnfg = 3;
+    //m_commonHitDiscCnfg = 3;
 }
 
 

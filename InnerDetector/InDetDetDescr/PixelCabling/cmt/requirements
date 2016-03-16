@@ -9,9 +9,9 @@ use AthenaKernel	 AthenaKernel-*		Control
 
 private
 use AtlasCOOL		 AtlasCOOL-*		External
-use AtlasCORAL		 AtlasCORAL-*           External
+#use AtlasCORAL		 AtlasCORAL-*           External
 use PathResolver         PathResolver-*         Tools
-use CoralDB		 CoralDB-*		Database
+#use CoralDB		 CoralDB-*		Database
 use AthenaBaseComps	 AthenaBaseComps-*      Control
 use InDetIdentifier 	 InDetIdentifier-* 	InnerDetector/InDetDetDescr
 use Identifier		 Identifier-*		DetectorDescription
@@ -19,7 +19,7 @@ use CLIDSvc            	 CLIDSvc-*              Control
 use StoreGate		 StoreGate-*		Control  
 use AthenaBaseComps      AthenaBaseComps-*      Control
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
-use RegistrationServices RegistrationServices-* Database
+#use RegistrationServices RegistrationServices-* Database
 use PixelGeoModel	 PixelGeoModel-*	InnerDetector/InDetDetDescr
 use AtlasBoost       AtlasBoost-*       External
 
