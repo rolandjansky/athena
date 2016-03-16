@@ -22,7 +22,6 @@ use AtlasHepMC                  AtlasHepMC-*            	External
 use StoreGate                   StoreGate-*             	Control
 
 use ISF_Event                   ISF_Event-*             	Simulation/ISF/ISF_Core
-use ISF_HepMC_Event             ISF_HepMC_Event-*       	Simulation/ISF/ISF_HepMC
 use NavFourMom                  NavFourMom-*            	Event
 use CaloEvent                   CaloEvent-*             	Calorimeter
 #use FastSimulationEvent         FastSimulationEvent-*   	Simulation/FastSimulation
