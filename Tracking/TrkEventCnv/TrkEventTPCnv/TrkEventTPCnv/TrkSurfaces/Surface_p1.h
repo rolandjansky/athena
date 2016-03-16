@@ -19,7 +19,7 @@ namespace Trk
    class Surface_p1
    {
   public:
-     Surface_p1() {}
+     Surface_p1() : m_associatedDetElementId(0) {}
 
 //     unsigned			m_associatedDetElementId;
      //Identifier::value_type	m_associatedDetElementId;

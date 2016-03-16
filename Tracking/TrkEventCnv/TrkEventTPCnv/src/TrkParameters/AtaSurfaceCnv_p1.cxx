@@ -8,11 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkParameters/TrackParameters.h"
-#undef private
-#undef protected
 
 
 #include "TrkEventTPCnv/TrkParameters/AtaSurfaceCnv_p1.h"

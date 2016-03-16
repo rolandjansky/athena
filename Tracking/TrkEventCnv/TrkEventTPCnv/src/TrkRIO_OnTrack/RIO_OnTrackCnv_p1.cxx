@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#define private public
-#define protected public
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 

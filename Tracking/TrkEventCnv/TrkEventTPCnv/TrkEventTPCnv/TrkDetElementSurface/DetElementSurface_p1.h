@@ -17,7 +17,7 @@ namespace Trk
 {
    class DetElementSurface_p1  {
   public:
-     DetElementSurface_p1() {}
+     DetElementSurface_p1():m_id{} {}
      //Identifier::value_type m_id;
      Identifier32::value_type m_id;
    };

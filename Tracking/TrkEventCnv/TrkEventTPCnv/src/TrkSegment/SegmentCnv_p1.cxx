@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#define private public
-#define protected public
 #include "TrkSegment/Segment.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkSegment/SegmentCnv_p1.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"

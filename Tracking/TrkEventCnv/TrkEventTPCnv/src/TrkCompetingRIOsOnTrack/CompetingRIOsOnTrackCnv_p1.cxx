@@ -3,12 +3,7 @@
 */
 
 
-#define private public
-#define protected public
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkCompetingRIOsOnTrack/CompetingRIOsOnTrackCnv_p1.h"
 #include <vector>
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
@@ -56,10 +51,6 @@ void CompetingRIOsOnTrackCnv_p1::transToPers( const Trk::CompetingRIOsOnTrack * 
     EigenHelpers::eigenMatrixToVector(pMat.values, transObj->m_localCovariance, "CompetingRIOsOnTrackCnv_p1");
     persObj->m_localErrorMatrix = toPersistent( &m_errorMxCnv, &pMat, log ); 
 
-    
-    for (std::vector<double>::const_iterator itr  = transObj->m_assignProb->begin() ; 
-                                             itr != transObj->m_assignProb->end()   ; ++itr)
-    {
-      persObj->m_assignProb.push_back((float)(*itr));
-    }
+    persObj->m_assignProb.assign (transObj->m_assignProb->begin(),
+                                  transObj->m_assignProb->end());
 }

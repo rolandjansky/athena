@@ -17,6 +17,23 @@
 
 #include <vector>
 
+namespace {
+
+class SetTransform3D : public HepGeom::Transform3D
+{
+public:
+  void setTransform (double XX, double XY, double XZ, double DX,
+                            double YX, double YY, double YZ, double DY,
+                            double ZX, double ZY, double ZZ, double DZ)
+  {
+    HepGeom::Transform3D::setTransform (XX, XY, XZ, DX,
+                                        YX, YY, YZ, DY,
+                                        ZX, ZY, ZZ, DZ);
+  }
+};
+
+}
+
 class CLHEPHelpers
 {
     public:
@@ -48,18 +65,19 @@ class CLHEPHelpers
         static void vectorToHepTransform3D( const T                     &vec,
                                                   HepGeom::Transform3D        &trans )
         {
-            trans.setTransform( vec[0],    // xx
-                                vec[1],    // xy
-                                vec[2],    // xz
-                                vec[3],    // dx
-                                vec[4],    // yx
-                                vec[5],    // yy
-                                vec[6],    // yz
-                                vec[7],    // dy
-                                vec[8],    // zx
-                                vec[9],    // zy
-                                vec[10],   // zz
-                                vec[11] ); // dz
+          static_cast<SetTransform3D&> (trans).setTransform (
+                                        vec[0],    // xx
+                                        vec[1],    // xy
+                                        vec[2],    // xz
+                                        vec[3],    // dx
+                                        vec[4],    // yx
+                                        vec[5],    // yy
+                                        vec[6],    // yz
+                                        vec[7],    // dy
+                                        vec[8],    // zx
+                                        vec[9],    // zy
+                                        vec[10],   // zz
+                                        vec[11] ); // dz
         }
 
         /** Convert HepGeom::BasicVector3D<double> to std :: vector<double> and vice versa*/

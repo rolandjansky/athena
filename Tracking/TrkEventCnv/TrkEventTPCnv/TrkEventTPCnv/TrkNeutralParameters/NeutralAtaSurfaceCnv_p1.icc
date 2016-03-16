@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrkEventTPCnv/TrkParameters/mungeZeroQOverP.h"
+
+
 //-----------------------------------------------------------------------------
 //
 // file:   NeutralAtaSurfaceCnv_p1.icc
@@ -14,34 +17,28 @@ NeutralAtaSurfaceCnv_p1< SURFACE_CNV, ATA_SURFACE >::
 persToTrans( const Trk::AtaSurface_p1 *persObj, ATA_SURFACE *transObj, MsgStream &log )
 {
    this->fillTransFromPStore( &m_paramCnv, persObj->m_parameters, transObj, log );
-   transObj->m_surface = this->createTransFromPStore( &m_surfaceCnv, persObj->m_assocSurface, log );
+
+   // Preserve previous behavior of tp converters.
+   bool waszero = false;
+   auto parms = transObj->parameters();
+   if (parms[Trk::qOverP] == 0) {
+     parms[Trk::qOverP] = 1;
+     waszero = true;
+   }
+
    ITPConverterFor<Trk::Surface>* surfaceCnv=0;
    const Trk::Surface* temp = this->createTransFromPStore( &surfaceCnv, persObj->m_assocSurface, log );
-   
    DetElementSurfaceCnv_p1* detElCnv = dynamic_cast<DetElementSurfaceCnv_p1*>(surfaceCnv); 
    if (detElCnv) {
        // have a DetElementSurface
        temp = detElCnv->createSurface(log);
    }
    
-   transObj->m_surface = dynamic_cast<const typename SURFACE_CNV::Trans_t*>(temp);
-   
-    if (transObj->m_surface!=NULL) {
-       if (transObj->m_parameters[Trk::qOverP] < 0.) transObj->m_chargeDefinition.flipSign();
-       // fill momentum & then position using the surface
-       double qop=transObj->m_parameters[Trk::qOverP];
-       
-       double p = qop != 0. ? (static_cast<double>(transObj->m_chargeDefinition))/qop : 1.;
-       double phi = transObj->m_parameters[Trk::phi];
-       double theta = transObj->m_parameters[Trk::theta];
-
-       transObj->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-                                                         p*sin(phi)*sin(theta),
-                                                         p*cos(theta));
-       transObj->m_surface->localToGlobal(transObj->localPosition(),
-                                transObj->m_momentum,
-                                transObj->m_position);  
-   }
+   Trk::SurfaceUniquePtrT<const typename SURFACE_CNV::Trans_t> surf
+     (static_cast<const typename SURFACE_CNV::Trans_t*>(temp));
+   *transObj = ATA_SURFACE (parms, std::move(surf));
+   if (waszero)
+     TrkEventTPCnv::mungeZeroQOverP (*transObj);
 }
 
 template< class SURFACE_CNV, class ATA_SURFACE >

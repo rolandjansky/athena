@@ -17,7 +17,7 @@ namespace Trk
    class MaterialEffectsOnTrack_p1
    {
   public:
-     MaterialEffectsOnTrack_p1() {}
+     MaterialEffectsOnTrack_p1():m_tInX0{},m_deltaP{},m_sigmaQoverPSquared{} {}
 
      double m_tInX0;
      double m_deltaP;

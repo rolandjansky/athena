@@ -24,7 +24,7 @@
 class VxCandidateCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::VxCandidate, Trk::VxCandidate_p1>
  {                            
   public:
-   VxCandidateCnv_p1():m_recVertexConverter(0), m_vxTrackAtVertexConverter(0) {}
+   VxCandidateCnv_p1():m_recVertexConverter(0) {}
   
 /**  
  * Conversion methods 
@@ -41,7 +41,7 @@ class VxCandidateCnv_p1 : public T_AthenaPoolTPCnvBase< Trk::VxCandidate, Trk::V
   private:
    
    RecVertexCnv_p1 * m_recVertexConverter;
-   VxTrackAtVertexCnv_p1 * m_vxTrackAtVertexConverter;
+   //VxTrackAtVertexCnv_p1 * m_vxTrackAtVertexConverter;
     typedef T_AthenaPoolTPPolyVectorCnv< std::vector<Trk::VxTrackAtVertex*>,
                                      std::vector<TPObjRef>,
                                      ITPConverterFor<Trk::VxTrackAtVertex> >   VxTrkAtVrtVectorCnv_p1;

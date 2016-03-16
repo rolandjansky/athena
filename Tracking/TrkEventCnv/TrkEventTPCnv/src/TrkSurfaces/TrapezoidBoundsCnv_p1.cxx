@@ -9,10 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
 #include "TrkSurfaces/TrapezoidBounds.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkSurfaces/TrapezoidBoundsCnv_p1.h"
 
 void TrapezoidBoundsCnv_p1 :: persToTrans( const Trk :: TrapezoidBounds_p1 *persObj,

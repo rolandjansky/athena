@@ -14,6 +14,7 @@
 #include "TrkSurfaces/Surface.h"
 #include <typeinfo>
 //#define debug true
+#include "TrkEventTPCnv/TrkParameters/mungeZeroQOverP.h"
 
 template< class SURFACE_CNV, class ATA_SURFACE >
 void
@@ -21,133 +22,28 @@ AtaSurfaceCnv_p1< SURFACE_CNV, ATA_SURFACE >::
 persToTrans( const Trk::AtaSurface_p1 *persObj, ATA_SURFACE *transObj, MsgStream &log )
 {
    this->fillTransFromPStore( &m_paramCnv, persObj->m_parameters, transObj, log );
-#ifdef debug
-   std::cout<<"\t Dumping info about the TPObjRef: topLevelCnvID, typeID = "
-            <<persObj->m_assocSurface.topLevelCnvID()<<","<<persObj->m_assocSurface.typeID()<<std::endl;
-#endif
+
+  // Preserve previous behavior of tp converters.
+  bool waszero = false;
+  auto parms = transObj->parameters();
+  if (parms[Trk::qOverP] == 0) {
+    parms[Trk::qOverP] = 1;
+    waszero = true;
+  }
+
    ITPConverterFor<Trk::Surface>* surfaceCnv=0;
    const Trk::Surface* temp = this->createTransFromPStore( &surfaceCnv, persObj->m_assocSurface, log );
-   
-#ifdef debug
-   if (temp)
-     std::cout<<"Created a surface of type "<<typeid(*temp).name()<<" with Identifier="<<temp->associatedDetectorElementIdentifier ()<<std::endl;
-    else
-      std::cout<<"temp=0"<<std::endl;
-#endif
-   DetElementSurfaceCnv_p1* detElCnv = dynamic_cast<DetElementSurfaceCnv_p1*>(surfaceCnv); 
-   if (detElCnv) {
-       // have a DetElementSurface
-       temp = detElCnv->createSurface(log);
-#ifdef debug
-       std::cout<<"Surface was retrieved from geometry and has Identifier="<<temp->associatedDetectorElementIdentifier ().getString()<<std::endl;
-       if (temp->associatedDetectorElementIdentifier ().is_valid()) std::cout<<"Surface Identifier is valid"<<std::endl;
-#endif
-   }
-   
-   transObj->m_surface = static_cast<const typename SURFACE_CNV::Trans_t*>(temp);
-   
-   // if (transObj->associatedSurface().associatedDetectorElementIdentifier ().is_valid()!=true) std::cout<<"2. Invalid Identifier!"<<std::endl;
-
-   // if (transObj->associatedSurface().isFree()) std::cout<<"Free surface!"<<std::endl;
-   // std::cout<<"surf->owner()"<<transObj->associatedSurface().owner()<<std::endl;
-#ifdef debug
-   const Trk::Surface& tmpSurface = transObj->associatedSurface();
-   std::cout<<tmpSurface<<std::endl;
-#endif
-   
-   if (transObj->m_surface==0 && temp!=0){
-        // if temp was zero, then there was nothing we could do in the first place. Try to fix in 
-        // TrkStateOnSurfaceCnv (see bug#34391)
-      static int numOfErrors=0;  
-      numOfErrors++;
-      if (numOfErrors<m_eventCnvTool->maxNumberOfErrors()){
-        log<<MSG::WARNING<<"AtaSurfaceCnv: Could not recreate Surface. Temp value:"<<temp<<endreq;
-        log<<MSG::VERBOSE<<(*temp)<<endreq;
-        if (numOfErrors==(m_eventCnvTool->maxNumberOfErrors()-1)) {
-          log<<MSG::WARNING<<"Maximum ("<<m_eventCnvTool->maxNumberOfErrors()<<") number of errors reached - suppressing further output."<<endreq;
-        }
-      }
-    }
-   
-    if (transObj->m_surface!=NULL) {
-       if (transObj->m_parameters[Trk::qOverP] < 0.) transObj->m_chargeDefinition.flipSign();
-       // fill momentum & then position using the surface
-       double qop=transObj->m_parameters[Trk::qOverP];
-       
-       double p = qop != 0. ? (static_cast<double>(transObj->m_chargeDefinition))/qop : 1.;
-       double phi = transObj->m_parameters[Trk::phi];
-       double theta = transObj->m_parameters[Trk::theta];
-
-       transObj->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-                                                         p*sin(phi)*sin(theta),
-                                                         p*cos(theta));
-       transObj->m_surface->localToGlobal(transObj->localPosition(),
-                                transObj->m_momentum,
-                                transObj->m_position);  
-   }
-#ifdef debug
-   std::cout<<"Global position of parameters = ("<<transObj->position()[0]<<", "<<transObj->position()[1]<<", "<<transObj->position()[2]<<")"<<std::endl;
-   const Amg::Transform3D& transf = transObj->m_surface->transform();
-   // std::cout<<"Transform of size ("<<transf.rows()<<", "<<transf.cols()<<") : "<<std::endl;
-   for (unsigned int i=0 ; i<3 ; ++i){
-     for (unsigned int j=0 ; j<4 ; ++j){
-       std::cout<<"\t"<<transf(i,j);
-     }
-     std::cout<<std::endl;
-   }
-#endif
-}
-
-// Specialisation for perigee, for bug#56790
-template< >
-void
-AtaSurfaceCnv_p1< StraightLineSurfaceCnv_p1, Trk::AtaStraightLine >::
-persToTrans( const Trk::AtaSurface_p1 *persObj, Trk::AtaStraightLine *transObj, MsgStream &log )
-{
-   fillTransFromPStore( &m_paramCnv, persObj->m_parameters, transObj, log );
-//    std::cout<<"\t Dumping info about the TPObjRef: topLevelCnvID, typeID = "
-//             <<persObj->m_assocSurface.topLevelCnvID()<<","<<persObj->m_assocSurface.typeID()<<std::endl;
-   ITPConverterFor<Trk::Surface>* surfaceCnv=0;
-   const Trk::Surface* temp = this->createTransFromPStore( &surfaceCnv, persObj->m_assocSurface, log );
-   
    DetElementSurfaceCnv_p1* detElCnv = dynamic_cast<DetElementSurfaceCnv_p1*>(surfaceCnv); 
    if (detElCnv) {
        // have a DetElementSurface
        temp = detElCnv->createSurface(log);
    }
-   
-   transObj->m_surface = dynamic_cast<const Trk::StraightLineSurface*>(temp);
-   
-   if (transObj->m_surface==0 && temp!=0){
-       static int numOfErrors=0;
-       numOfErrors++;
-       if (numOfErrors<m_eventCnvTool->maxNumberOfErrors()){
-           // if temp was zero, then there was nothing we could do in the first place. Try to fix in 
-           // TrkStateOnSurfaceCnv (see bug#34391)
-           log<<MSG::WARNING<<"AtaSurfaceCnv: Could not recreate Surface. Temp value:"<<temp<<endreq;
-           log<<MSG::VERBOSE<<(*temp)<<endreq;
-           if (numOfErrors==(m_eventCnvTool->maxNumberOfErrors()-1)) {
-               log<<MSG::WARNING<<"Maximum ("<<m_eventCnvTool->maxNumberOfErrors()<<") number of errors reached - suppressing further output."<<endreq;
-           }
-       }
-   }
-    
-    if (transObj->m_surface!=NULL) {
-       if (transObj->m_parameters[Trk::qOverP] < 0.) transObj->m_chargeDefinition.flipSign();
-       // fill momentum & then position using the surface
-       double qop=transObj->m_parameters[Trk::qOverP];
-       
-       double p = qop != 0. ? (static_cast<double>(transObj->m_chargeDefinition))/qop : 1.;
-       double phi = transObj->m_parameters[Trk::phi];
-       double theta = transObj->m_parameters[Trk::theta];
 
-       transObj->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-                                                         p*sin(phi)*sin(theta),
-                                                         p*cos(theta));
-       transObj->m_surface->localToGlobal(transObj->localPosition(),
-                                transObj->m_momentum,
-                                transObj->m_position);  
-   }
+   Trk::SurfaceUniquePtrT<const typename SURFACE_CNV::Trans_t> surf
+     (static_cast<const typename SURFACE_CNV::Trans_t*>(temp));
+   *transObj = ATA_SURFACE (parms, std::move (surf));
+   if (waszero)
+     TrkEventTPCnv::mungeZeroQOverP (*transObj);
 }
 
 template< >

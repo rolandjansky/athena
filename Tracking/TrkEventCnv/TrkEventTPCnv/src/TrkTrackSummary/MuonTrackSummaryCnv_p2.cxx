@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#define private public
-#define protected public
 #include "TrkTrackSummary/MuonTrackSummary.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkTrackSummary/MuonTrackSummaryCnv_p2.h"
 
 void MuonTrackSummaryCnv_p2::persToTrans( const Trk::MuonTrackSummary_p2 *persObj,
@@ -25,17 +19,17 @@ void MuonTrackSummaryCnv_p2::persToTrans( const Trk::MuonTrackSummary_p2 *persOb
         transObj->m_chamberHitSummary[i].m_isMdt           = persObj->m_isMdt[i];
                                                            
         transObj->m_chamberHitSummary[i].m_chId            = Identifier(persObj->m_data[j]);
-        transObj->m_chamberHitSummary[i].first.nhits       = persObj->m_data[j+1];
-        transObj->m_chamberHitSummary[i].first.nholes      = persObj->m_data[j+2];
-        transObj->m_chamberHitSummary[i].first.noutliers   = persObj->m_data[j+3];
-        transObj->m_chamberHitSummary[i].first.ndeltas     = persObj->m_data[j+4];
-        transObj->m_chamberHitSummary[i].first.ncloseHits  = persObj->m_data[j+5];
+        transObj->m_chamberHitSummary[i].m_first.nhits       = persObj->m_data[j+1];
+        transObj->m_chamberHitSummary[i].m_first.nholes      = persObj->m_data[j+2];
+        transObj->m_chamberHitSummary[i].m_first.noutliers   = persObj->m_data[j+3];
+        transObj->m_chamberHitSummary[i].m_first.ndeltas     = persObj->m_data[j+4];
+        transObj->m_chamberHitSummary[i].m_first.ncloseHits  = persObj->m_data[j+5];
 
-        transObj->m_chamberHitSummary[i].second.nhits      = persObj->m_data[j+6];
-        transObj->m_chamberHitSummary[i].second.nholes     = persObj->m_data[j+7];
-        transObj->m_chamberHitSummary[i].second.noutliers  = persObj->m_data[j+8];
-        transObj->m_chamberHitSummary[i].second.ndeltas    = persObj->m_data[j+9];
-        transObj->m_chamberHitSummary[i].second.ncloseHits = persObj->m_data[j+10];
+        transObj->m_chamberHitSummary[i].m_second.nhits      = persObj->m_data[j+6];
+        transObj->m_chamberHitSummary[i].m_second.nholes     = persObj->m_data[j+7];
+        transObj->m_chamberHitSummary[i].m_second.noutliers  = persObj->m_data[j+8];
+        transObj->m_chamberHitSummary[i].m_second.ndeltas    = persObj->m_data[j+9];
+        transObj->m_chamberHitSummary[i].m_second.ncloseHits = persObj->m_data[j+10];
     }
 }
 
@@ -53,21 +47,26 @@ void MuonTrackSummaryCnv_p2::transToPers( const Trk::MuonTrackSummary    *transO
                                         
     unsigned int i=0;
     unsigned int j=0;
-    for ( ; i<size ; ++i,j+=11 ){
-      persObj->m_isMdt[i]       = transObj->m_chamberHitSummary[i].m_isMdt  ;
+    for (const Trk::MuonTrackSummary::ChamberHitSummary& s :
+           transObj->chamberHitSummary())
+    {
+        persObj->m_isMdt[i]  = s.isMdt()  ;
 
-        persObj->m_data[j]   = transObj->m_chamberHitSummary[i].m_chId.get_identifier32().get_compact();   
+        persObj->m_data[j]   = s.chamberId().get_identifier32().get_compact();
                         
-        persObj->m_data[j+1] = transObj->m_chamberHitSummary[i].first.nhits      ;
-        persObj->m_data[j+2] = transObj->m_chamberHitSummary[i].first.nholes     ;
-        persObj->m_data[j+3] = transObj->m_chamberHitSummary[i].first.noutliers  ;
-        persObj->m_data[j+4] = transObj->m_chamberHitSummary[i].first.ndeltas    ;
-        persObj->m_data[j+5] = transObj->m_chamberHitSummary[i].first.ncloseHits ;
+        persObj->m_data[j+1] = s.mdtMl1().nhits      ;
+        persObj->m_data[j+2] = s.mdtMl1().nholes     ;
+        persObj->m_data[j+3] = s.mdtMl1().noutliers  ;
+        persObj->m_data[j+4] = s.mdtMl1().ndeltas    ;
+        persObj->m_data[j+5] = s.mdtMl1().ncloseHits ;
                         
-        persObj->m_data[j+6] = transObj->m_chamberHitSummary[i].second.nhits      ;
-        persObj->m_data[j+7] = transObj->m_chamberHitSummary[i].second.nholes     ;
-        persObj->m_data[j+8] = transObj->m_chamberHitSummary[i].second.noutliers  ;
-        persObj->m_data[j+9] = transObj->m_chamberHitSummary[i].second.ndeltas    ;
-        persObj->m_data[j+10] = transObj->m_chamberHitSummary[i].second.ncloseHits ;        
+        persObj->m_data[j+6] = s.mdtMl2().nhits      ;
+        persObj->m_data[j+7] = s.mdtMl2().nholes     ;
+        persObj->m_data[j+8] = s.mdtMl2().noutliers  ;
+        persObj->m_data[j+9] = s.mdtMl2().ndeltas    ;
+        persObj->m_data[j+10]= s.mdtMl2().ncloseHits ;        
+
+        ++i;
+        j += 11;
     }
 }

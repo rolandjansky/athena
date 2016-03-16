@@ -16,7 +16,7 @@ namespace Trk
    class RotatedTrapezoidBounds_p1
    {
   public:
-     RotatedTrapezoidBounds_p1() {}
+     RotatedTrapezoidBounds_p1() : m_halfX(0.0), m_minHalfY(0.0), m_maxHalfY(0.0), m_kappa(0.0), m_delta(0.0) {}
 
      float m_halfX;
      float m_minHalfY;

@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrkV0Vertex/V0Hypothesis.h"
-#undef private
-#undef protected
 #include "TrkEventTPCnv/TrkV0Vertex/V0HypothesisCnv_p1.h"
 
 

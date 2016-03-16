@@ -8,13 +8,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "TrkNeutralParameters/NeutralParameters.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkNeutralParameters/NeutralPerigeeCnv_p1.h"
+#include "TrkEventTPCnv/TrkParameters/mungeZeroQOverP.h"
 
 void NeutralPerigeeCnv_p1::persToTrans(    const Trk::Perigee_p1 *persObj,
                                     Trk::NeutralPerigee *transObj,
@@ -22,23 +18,19 @@ void NeutralPerigeeCnv_p1::persToTrans(    const Trk::Perigee_p1 *persObj,
 {
 
   fillTransFromPStore( &m_trackParametersCnv, persObj->m_parameters, transObj, log );
+   // Preserve previous behavior of tp converters.
+   bool waszero = false;
+   auto parms = transObj->parameters();
+   if (parms[Trk::qOverP] == 0) {
+     parms[Trk::qOverP] = 1;
+     waszero = true;
+   }
 
-  transObj->m_surface = createTransFromPStore( &m_perigeeSurfaceCnv, persObj->m_assocSurface, log );
-
-  double qop=transObj->m_parameters[Trk::qOverP];
-  if ( qop< 0.) transObj->m_chargeDefinition.flipSign();
-    // fill momentum & then position using the surface
-  double p = qop != 0. ? (static_cast<double>(transObj->m_chargeDefinition))/qop : 1.;
-  double phi = transObj->m_parameters[Trk::phi];
-  double theta = transObj->m_parameters[Trk::theta];
-
-  transObj->m_momentum = Amg::Vector3D(p*cos(phi)*sin(theta),
-    p*sin(phi)*sin(theta),
-    p*cos(theta));
-  transObj->m_surface->localToGlobal(transObj->localPosition(),
-    transObj->m_momentum,
-    transObj->m_position);
- //   transObj->m_localPosition = createTransFromPStore( &m_localPosCnv, persObj->m_localPos, log );
+   Trk::SurfaceUniquePtrT<const Trk::PerigeeSurface> surf
+    (createTransFromPStore( &m_perigeeSurfaceCnv, persObj->m_assocSurface, log ));
+  *transObj = Trk::NeutralPerigee (parms, std::move(surf));
+   if (waszero)
+     TrkEventTPCnv::mungeZeroQOverP (*transObj);
 }
 
 void NeutralPerigeeCnv_p1::transToPers(    const Trk::NeutralPerigee * /**transObj*/,

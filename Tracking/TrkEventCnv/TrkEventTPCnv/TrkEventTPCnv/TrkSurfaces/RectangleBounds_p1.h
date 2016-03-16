@@ -16,7 +16,7 @@ namespace Trk
    class RectangleBounds_p1
    {
   public:
-     RectangleBounds_p1() {}
+     RectangleBounds_p1() : m_halfX(0.0), m_halfY(0.0) {}
 
      #ifdef UseFloatsIn_RectangleBounds
      float m_halfX;

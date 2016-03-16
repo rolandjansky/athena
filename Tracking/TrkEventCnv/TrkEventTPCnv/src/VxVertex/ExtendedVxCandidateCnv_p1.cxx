@@ -8,11 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "VxVertex/ExtendedVxCandidate.h"
-#undef private
-#undef protected
 #include "TrkEventTPCnv/VxVertex/ExtendedVxCandidateCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 

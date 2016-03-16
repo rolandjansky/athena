@@ -19,7 +19,7 @@ namespace Trk
    class Surface_p2
    {
   public:
-     Surface_p2() {}
+     Surface_p2() : m_associatedDetElementId(0), m_surfaceType(0) {}
 
      Identifier32::value_type               m_associatedDetElementId;
      std::vector<float>                     m_transform;

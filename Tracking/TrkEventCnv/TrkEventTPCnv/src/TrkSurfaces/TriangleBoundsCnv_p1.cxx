@@ -9,12 +9,7 @@ void TriangleBoundsCnv_p1 :: persToTrans( const Trk :: TriangleBounds_p1 *persOb
                                                  Trk :: TriangleBounds    *transObj,
                                                  MsgStream                 & )
 {
-    transObj->m_boundValues.resize(persObj->m_vertices.size());
-    std::vector<std::pair<double,double> >::const_iterator it=persObj->m_vertices.begin(), itEnd=persObj->m_vertices.end();
-    for (;it!=itEnd;++it) {
-      transObj->m_boundValues.push_back(it->first);
-      transObj->m_boundValues.push_back(it->second);
-    }
+  *transObj = Trk::TriangleBounds (persObj->m_vertices);
 }
 
 void TriangleBoundsCnv_p1 :: transToPers( const Trk :: TriangleBounds    * /**transObj*/,

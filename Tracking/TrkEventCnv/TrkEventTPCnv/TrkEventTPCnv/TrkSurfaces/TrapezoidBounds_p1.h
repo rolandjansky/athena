@@ -16,7 +16,7 @@ namespace Trk
    class TrapezoidBounds_p1
    {
   public:
-     TrapezoidBounds_p1() {}
+     TrapezoidBounds_p1() : m_minHalfX(0.0), m_maxHalfX(0.0), m_halfY(0.0), m_alpha(0.0), m_beta(0.0) {}
 
      #ifdef UseFloatsIn_TrapezoidBounds
      float m_minHalfX;

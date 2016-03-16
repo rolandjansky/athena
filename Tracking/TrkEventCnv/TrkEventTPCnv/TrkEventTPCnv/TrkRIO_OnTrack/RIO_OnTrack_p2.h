@@ -14,7 +14,7 @@ namespace Trk
     class RIO_OnTrack_p2
     {
     public:
-        RIO_OnTrack_p2() {}
+        RIO_OnTrack_p2() : m_id(0) {}
 
         unsigned long long  m_id;
 

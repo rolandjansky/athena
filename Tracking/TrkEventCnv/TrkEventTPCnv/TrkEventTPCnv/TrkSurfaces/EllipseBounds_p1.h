@@ -13,7 +13,7 @@ namespace Trk {
 class EllipseBounds_p1 {
 public:
 /**Default Constructor*/
-    EllipseBounds_p1() {};  
+    EllipseBounds_p1() : m_rMinX(0.0), m_rMinY(0.0), m_rMaxX(0.0), m_rMaxY(0.0), m_avePhi(0.0), m_hPhiSec(0.0) {};  
 
     float m_rMinX;
     float m_rMinY;

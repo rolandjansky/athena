@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#define private public
-#define protected public
 #include "TrkTrackSummary/TrackSummary.h"
-#undef private
-#undef protected
-
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummaryCnv_p1.h"
 
 void TrackSummaryCnv_p1::persToTrans( const Trk::TrackSummary_p1 *persObj,

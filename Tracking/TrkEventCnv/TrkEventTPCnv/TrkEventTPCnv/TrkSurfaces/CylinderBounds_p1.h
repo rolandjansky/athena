@@ -16,7 +16,7 @@ namespace Trk
    class CylinderBounds_p1
    {
   public:
-     CylinderBounds_p1() {}
+     CylinderBounds_p1() : m_radius(0.0), m_averagePhi(0.0), m_halfPhiSector(0.0), m_halfZ(0.0) {}
             
      #ifdef UseFloatsIn_CylinderBounds
      float m_radius;

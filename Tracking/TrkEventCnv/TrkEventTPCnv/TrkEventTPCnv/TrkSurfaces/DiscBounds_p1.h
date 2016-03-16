@@ -16,7 +16,7 @@ namespace Trk
    class DiscBounds_p1
    {
   public:
-     DiscBounds_p1() {}
+     DiscBounds_p1() : m_rMin(0.0), m_rMax(0.0), m_avePhi(0.0), m_hPhiSec(0.0) {}
 
      #ifdef UseFloatsIn_DiscBounds
      float m_rMin;

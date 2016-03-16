@@ -13,14 +13,7 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
-#define private public
-#define protected public
-
 #include "TrkParameters/TrackParameters.h"
-
-#undef private
-#undef protected
-
 #include "TrackParametersCnv_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/BoundSurfaceCnv_p1.h"

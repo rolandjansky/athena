@@ -23,7 +23,7 @@ namespace Trk
  
   public:
   
-   V0Hypothesis_p1(){}
+   V0Hypothesis_p1() : m_positiveTrackID(0), m_negativeTrackID(0), m_constraintID(0) {}
  
 //extended VxCandidate itself
  

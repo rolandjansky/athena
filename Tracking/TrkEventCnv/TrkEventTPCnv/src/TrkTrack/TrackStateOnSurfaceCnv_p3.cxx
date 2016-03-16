@@ -8,12 +8,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParametersBase/ParametersT.h"
 #include "TrkParameters/TrackParameters.h"
-#undef private
-
 #include "TrkEventTPCnv/TrkTrack/TrackStateOnSurfaceCnv_p3.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -22,21 +19,30 @@
 void TrackStateOnSurfaceCnv_p3::
 persToTrans( const Trk::TrackStateOnSurface_p3 *persObj, Trk::TrackStateOnSurface *transObj, MsgStream &log )
 {
-   //std::cout << "AW DEBUG TSoSCnv_p2::persToTrans() !!" << std::endl;
+  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = 0;
+  const Trk::MeasurementBase* meas = createTransFromPStore( &measureCnv, persObj->m_measurementOnTrack, log );
 
-  //--- Parameters
   ITPConverter* dummy = topConverter ()->converterForType( typeid(Trk::TrackParameters));    
   if (!m_parametersCnv)  m_parametersCnv = dynamic_cast<TrackParametersCnv_p2*>(dummy); // FIXME - only in init?
-  transObj->m_trackParameters = dynamic_cast<const Trk::TrackParameters*>(createTransFromPStore( &m_parametersCnv, persObj->m_trackParameters, log ));
-  transObj->m_fitQualityOnSurface = createTransFromPStore( &m_fitQCnv, persObj->m_fitQualityOnSurface, log );
-  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;  
-  transObj->m_materialEffectsOnTrack = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
+  const Trk::TrackParameters* trackParameters = dynamic_cast<const Trk::TrackParameters*>(createTransFromPStore( &m_parametersCnv, persObj->m_trackParameters, log ));
 
-  ITPConverterFor<Trk::MeasurementBase>	*measureCnv = 0;
-  //log << MSG::INFO << " ->>->  persObj->m_measurementOnTrack=(" << persObj->m_measurementOnTrack.m_typeID << "," << persObj->m_measurementOnTrack.m_index << ")" << endreq;
-  transObj->m_measurementOnTrack =  createTransFromPStore( &measureCnv, persObj->m_measurementOnTrack, log );
-  //log << MSG::INFO << " ->>->  transObj->m_measurementOnTrack=" << (void*)(transObj->m_measurementOnTrack) << endreq;
-  transObj->m_typeFlags = persObj->m_typeFlags;
+  const Trk::FitQualityOnSurface* fitQoS = createTransFromPStore( &m_fitQCnv, persObj->m_fitQualityOnSurface, log );
+
+  ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;  
+  const Trk::MaterialEffectsBase* materialEffects = createTransFromPStore( &matBaseCnv, persObj->m_materialEffects, log );
+
+  // There were some tracks saved that violate the isSane test in
+  // TrackStateOnSurface.  If we were to pass materialEffects to this ctor
+  // then we would trip that assertion.  However, we want to preserve
+  // the previous behavior of the tp converters, which did allow reading
+  // such tracks.  So defer setting the material pointer until
+  // after the checks,
+  *transObj = Trk::TrackStateOnSurface (meas,
+                                        trackParameters,
+                                        fitQoS,
+                                        nullptr,
+                                        persObj->m_typeFlags);
+  transObj->m_materialEffectsOnTrack = materialEffects;
 }
 
 
@@ -46,15 +52,15 @@ transToPers( const Trk::TrackStateOnSurface *transObj, Trk::TrackStateOnSurface_
   //--- Parameters
   ITPConverter* dummy = topConverter ()->converterForType( typeid(Trk::TrackParameters));    
   if (!m_parametersCnv)  m_parametersCnv = dynamic_cast<TrackParametersCnv_p2*>(dummy); // FIXME - only in init?
-  persObj->m_trackParameters = toPersistent( &m_parametersCnv, transObj->m_trackParameters, log );
+  persObj->m_trackParameters = toPersistent( &m_parametersCnv, transObj->trackParameters(), log );
 
-  persObj->m_fitQualityOnSurface = toPersistent( &m_fitQCnv, transObj->m_fitQualityOnSurface, log );
+  persObj->m_fitQualityOnSurface = toPersistent( &m_fitQCnv, transObj->fitQualityOnSurface(), log );
 
   ITPConverterFor<Trk::MeasurementBase>  *measureCnv = 0;
-  persObj->m_measurementOnTrack = toPersistent( &measureCnv, transObj->m_measurementOnTrack, log );
+  persObj->m_measurementOnTrack = toPersistent( &measureCnv, transObj->measurementOnTrack(), log );
 
   ITPConverterFor<Trk::MaterialEffectsBase> *matBaseCnv = 0;  
   persObj->m_materialEffects = toPersistent( &matBaseCnv,
-                                            transObj->m_materialEffectsOnTrack, log );
-  persObj->m_typeFlags = transObj->m_typeFlags.to_ulong();
+                                             transObj->materialEffectsOnTrack(), log );
+  persObj->m_typeFlags = transObj->types().to_ulong();
 }

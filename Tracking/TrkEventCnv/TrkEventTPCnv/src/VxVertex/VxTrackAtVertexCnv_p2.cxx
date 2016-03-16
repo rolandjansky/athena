@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "VxVertex/VxTrackAtVertex.h"
-#undef private
-#undef protected
 #include "TrkEventTPCnv/VxVertex/VxTrackAtVertexCnv_p2.h"
 
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQuality_p1.h"
@@ -18,49 +14,36 @@
 
 #include "TrkParameters/TrackParameters.h"
 
-static FitQualityCnv_p1 m_fitQualityCnv;
+static FitQualityCnv_p1 fitQualityCnv;
 
 void VxTrackAtVertexCnv_p2::persToTrans (const Trk::VxTrackAtVertex_p2 * persObj, Trk::VxTrackAtVertex * transObj, MsgStream & log) {
       // std::cout<<"ILIJA read VxTrackAtVertexCnv_p2 "<<std::endl;
+
+  std::unique_ptr<Trk::ITrackLink> trackLink;
   if (persObj->m_typeOfLink == 0) {
     // m_elementLinkConverterForTrack.resetForCnv(persObj->m_origTrackNames); // for element link change - Gerhard !?
     Trk::LinkToTrack* tmpLink = new Trk::LinkToTrack;
-    transObj->m_trackOrParticleLink  = tmpLink;
+    trackLink  = std::unique_ptr<Trk::ITrackLink>(tmpLink);
     m_elementLinkConverterForTrack.persToTrans(&persObj->m_origTrack,tmpLink,log);
   } else if (persObj->m_typeOfLink == 1) {
     // m_elementLinkConverterForTrackParticle.resetForCnv(persObj->m_origTrackNames);
     Trk::LinkToTrackParticleBase * tmpLink = new Trk::LinkToTrackParticleBase;
-    transObj->m_trackOrParticleLink = tmpLink;
+    trackLink  = std::unique_ptr<Trk::ITrackLink>(tmpLink);
     m_elementLinkConverterForTrackParticle.persToTrans (  &persObj->m_origTrack, tmpLink, log);
   }
-  // log << "P2 persToTrans() Type of link is: " << persObj->m_typeOfLink << endreq;
-  // log << "link saved at: " << persObj->m_origTrackNames.m_names.front() 
-  //                          << "\tcontIndex: " << persObj->m_origTrack.m_contIndex 
-  //                          << "\telIndex : " << persObj->m_origTrack.m_elementIndex << endreq; 
 
- 
- // fillTransFromPStore( &m_fqCnv, persObj->m_fitQuality, &transObj->m_fitQuality, log );
- 
- m_fitQualityCnv.persToTrans(&persObj->m_fitQuality,  &transObj->m_fitQuality, log);
- 
-// transObj->m_fitQuality = *(createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log ));
- // Trk::FitQuality* qtmp = createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log);
- // if (qtmp){
- //   transObj->m_fitQuality  = *qtmp;
- //   delete qtmp;
- // } else 
- //    transObj->m_fitQuality = Trk::FitQuality();
+ Trk::FitQuality fitq;
+ fitQualityCnv.persToTrans(&persObj->m_fitQuality,  &fitq, log);
 
+ Trk::TrackParameters* perigeeAtVertex = createTransFromPStore(&m_paramsCnv, persObj->m_perigeeAtVertex,log );
 
- transObj->m_trkWeight	          = persObj->m_trkWeight; 
- transObj->m_VertexCompatibility  = persObj->m_VertexCompatibility;
- 
- // ITPConverterFor<Trk::ParametersBase> * paramsCnv = 0;
- // transObj->m_perigeeAtVertex      = dynamic_cast<Trk::TrackParameters*>(createTransFromPStore(&paramsCnv, persObj->m_perigeeAtVertex,log ));
- transObj->m_perigeeAtVertex      = createTransFromPStore(&m_paramsCnv, persObj->m_perigeeAtVertex,log );
- 
- // std::cout<<transObj->m_fitQuality<<std::endl;
-  
+ *transObj = Trk::VxTrackAtVertex(fitq.chiSquared(),
+                                  perigeeAtVertex,
+                                  static_cast<Trk::NeutralParameters*>(nullptr),
+                                  fitq.doubleNumberDoF());
+ transObj->setWeight (persObj->m_trkWeight);
+ transObj->setVtxCompatibility (persObj->m_VertexCompatibility);
+ transObj->setOrigTrackNoCache (trackLink.release());
 }
 
 void VxTrackAtVertexCnv_p2::transToPers (const Trk::VxTrackAtVertex * transObj, Trk::VxTrackAtVertex_p2 * persObj, MsgStream & log){
@@ -69,14 +52,15 @@ void VxTrackAtVertexCnv_p2::transToPers (const Trk::VxTrackAtVertex * transObj, 
     
   // persObj->m_fitQuality = toPersistent (&m_fqCnv, &(transObj->m_fitQuality), log);
   
-	m_fitQualityCnv.transToPers(&transObj->m_fitQuality,  &persObj->m_fitQuality, log);
+  const Trk::FitQuality fq = transObj->trackQuality();
+  fitQualityCnv.transToPers(&fq,  &persObj->m_fitQuality, log);
 	
-  persObj->m_trkWeight  = transObj->m_trkWeight;
-  persObj->m_VertexCompatibility = transObj->m_VertexCompatibility;
+  persObj->m_trkWeight  = transObj->weight();
+  persObj->m_VertexCompatibility = transObj->vtxCompatibility();
 
   // ITPConverterFor < Trk::ParametersBase > *paramsCnv = 0;
   // persObj->m_perigeeAtVertex = toPersistent (&paramsCnv, transObj->m_perigeeAtVertex, log);
-  persObj->m_perigeeAtVertex = toPersistent (&m_paramsCnv, transObj->m_perigeeAtVertex, log);
+  persObj->m_perigeeAtVertex = toPersistent (&m_paramsCnv, transObj->perigeeAtVertex(), log);
 
   Trk::LinkToTrack * trLink = dynamic_cast < Trk::LinkToTrack * >(const_cast <Trk::ITrackLink *>(transObj->trackOrParticleLink ()));
   if (trLink != 0) {

@@ -16,7 +16,7 @@ namespace Trk
    class DiamondBounds_p1
    {
   public:
-     DiamondBounds_p1() {}
+     DiamondBounds_p1() : m_minHalfX(0.0), m_medHalfX(0.0), m_maxHalfX(0.0), m_halfY1(0.0), m_halfY2(0.0), m_alpha1(0.0), m_alpha2(0.0) {}
 
      #ifdef UseFloatsIn_DiamondBounds
      float m_minHalfX;
