@@ -15,6 +15,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TString.h>
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
@@ -27,7 +28,7 @@ class CaloHitAna {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
-   TString         fFilename;
+   std::vector<TString> fFilename;
 
    //output structure
    TFile *m_Output;
@@ -87,7 +88,8 @@ public :
    std::vector<double>  *TTC_Angle3D;
    std::vector<double>  *TTC_AngleEta;
    //If this won't work, we will have to change it... (memory??)
-   std::vector<FCS_matchedcellvector> m_all_cells; //hm, make it a vector of (vector of FCS_matchedcell) and have it for all 1000 events at once in memory??
+   //std::vector<FCS_matchedcellvector> m_all_cells; //hm, make it a vector of (vector of FCS_matchedcell) and have it for all 1000 events at once in memory??
+   FCS_matchedcellvector m_all_cells; //keep it only for one event
 
    // List of branches
    TBranch        *b_HitX;   //!
@@ -142,7 +144,7 @@ public :
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
-   virtual void     Finish(std::vector<Int_t> settings, TString outputname="output_cells.root");
+   //virtual void     Finish(std::vector<Int_t> settings, TString outputname="output_cells.root");
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    
@@ -158,19 +160,29 @@ public :
 #ifdef CaloHitAna_cxx
 CaloHitAna::CaloHitAna(TString filename, TString outputname, std::vector<Int_t> settings, Float_t timingcut, Int_t debug, TTree *tree) : fChain(0) 
 {
-  fFilename= filename;
+   fFilename.clear();
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-   if (tree == 0) {
-     TFile *f = TFile::Open(filename,"READ");
-     TString dirname=filename;
-     dirname+=":/ISF_HitAnalysis";
-     TDirectory * dir = (TDirectory*)f->Get(dirname);
-     dir->GetObject("CaloHitAna",tree);
-
+   if (filename.Contains(",")){
+      // Unpack comma-separated name
+      TObjArray* array = filename.Tokenize(",");
+      for (int a=0;a<array->GetEntries();++a){
+         TString T = ((TObjString *)(array->At(a)))->String();
+         fFilename.push_back( T ); //((TString*)(*array->At(a)) );
+         std::cout << "Adding file " << (T) << std::endl; //*((TString*)array->At(a)) << std::endl;
+      } // Loop through tokenized names
+   } else {
+     std::cout << "Using file " << filename << std::endl;
+     fFilename.push_back(filename);
    }
-   //tree->Print();
-   Init(tree);
+
+   // Hook those files up into a tchain
+   TChain * c = new TChain("ISF_HitAnalysis/CaloHitAna");
+   for (auto f : fFilename){
+      c->Add(f);
+   }
+   Init(c);
+
    m_Settings = settings;
    m_Debug = debug;
    m_TimingCut = timingcut;

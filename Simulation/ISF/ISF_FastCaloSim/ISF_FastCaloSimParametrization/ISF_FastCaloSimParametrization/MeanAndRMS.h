@@ -9,24 +9,24 @@
 
 class MeanAndRMS {
 public :
-  MeanAndRMS():w(0),wx(0),wx2(0) {};
+  MeanAndRMS():m_w(0),m_wx(0),m_wx2(0) {};
   virtual ~MeanAndRMS() {};
    
-  MeanAndRMS& add(double xadd,double weight=1) {wx+=weight*xadd;wx2+=weight*xadd*xadd;w+=weight;return *this;};
+  MeanAndRMS& add(double xadd,double weight=1) {m_wx+=weight*xadd;m_wx2+=weight*xadd*xadd;m_w+=weight;return *this;};
   MeanAndRMS& operator+=(double xadd) {return add(xadd);};
   MeanAndRMS& operator-=(double xadd) {return add(-xadd);};
   
-  double sum_weight() const {return w;};
-  double mean()       const {if(w!=0) return wx/w; else return 0;};
-  double rms2()       const {double x=mean();return wx2/w - x*x;};
+  double sum_weight() const {return m_w;};
+  double mean()       const {if(m_w!=0) return m_wx/m_w; else return 0;};
+  double rms2()       const {double x=mean();return m_wx2/m_w - x*x;};
   double rms()        const {double r2=rms2();if(r2>=0) return sqrt(r2); else return 0;};
-  double mean_error() const {return rms()/sqrt(w);};
-  double rms_error()  const {return rms()/sqrt(2*w);};
+  double mean_error() const {return rms()/sqrt(m_w);};
+  double rms_error()  const {return rms()/sqrt(2*m_w);};
 
   operator double() const { return mean(); }
 protected:
-  double w;
-  double wx,wx2;
+  double m_w;
+  double m_wx,m_wx2;
 };
 
 #endif

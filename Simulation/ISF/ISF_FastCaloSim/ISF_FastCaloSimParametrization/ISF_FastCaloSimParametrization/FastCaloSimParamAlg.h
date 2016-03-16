@@ -49,7 +49,7 @@ class FastCaloSimParamAlg : public AthAlgorithm {
 
   void clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
 
-  const ISF_FCS_Parametrization::FCS_StepInfoCollection* getFCS_StepInfo();
+  ISF_FCS_Parametrization::FCS_StepInfoCollection* getFCS_StepInfo();
 
   ISF_FCS_Parametrization::FCS_StepInfoCollection* copyFCS_StepInfo(const ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
 

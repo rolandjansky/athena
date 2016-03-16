@@ -166,27 +166,27 @@ protected:
    std::vector< std::vector< CaloGeometryLookup* > > m_cells_in_regions;
 
    std::vector< bool > m_isCaloBarrel;
-   std::vector< double > min_eta_sample[2]; //[side][calosample]
-   std::vector< double > max_eta_sample[2]; //[side][calosample]
-   std::vector< FSmap< double , double > > rmid_map[2]; //[side][calosample]
-   std::vector< FSmap< double , double > > zmid_map[2]; //[side][calosample]
-   std::vector< FSmap< double , double > > rent_map[2]; //[side][calosample]
-   std::vector< FSmap< double , double > > zent_map[2]; //[side][calosample]
-   std::vector< FSmap< double , double > > rext_map[2]; //[side][calosample]
-   std::vector< FSmap< double , double > > zext_map[2]; //[side][calosample]
+   std::vector< double > m_min_eta_sample[2]; //[side][calosample]
+   std::vector< double > m_max_eta_sample[2]; //[side][calosample]
+   std::vector< FSmap< double , double > > m_rmid_map[2]; //[side][calosample]
+   std::vector< FSmap< double , double > > m_zmid_map[2]; //[side][calosample]
+   std::vector< FSmap< double , double > > m_rent_map[2]; //[side][calosample]
+   std::vector< FSmap< double , double > > m_zent_map[2]; //[side][calosample]
+   std::vector< FSmap< double , double > > m_rext_map[2]; //[side][calosample]
+   std::vector< FSmap< double , double > > m_zext_map[2]; //[side][calosample]
    
    bool m_dographs;
    std::vector< TGraphErrors* > m_graph_layers;
    
 /*
-   double  min_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
-   double  max_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
-   FSmap< double , double > rmid_map[2][MAX_SAMPLING]; //[side][calosample]
-   FSmap< double , double > zmid_map[2][MAX_SAMPLING]; //[side][calosample]
-   FSmap< double , double > rent_map[2][MAX_SAMPLING]; //[side][calosample]
-   FSmap< double , double > zent_map[2][MAX_SAMPLING]; //[side][calosample]
-   FSmap< double , double > rext_map[2][MAX_SAMPLING]; //[side][calosample]
-   FSmap< double , double > zext_map[2][MAX_SAMPLING]; //[side][calosample]
+   double  m_min_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
+   double  m_max_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
+   FSmap< double , double > m_rmid_map[2][MAX_SAMPLING]; //[side][calosample]
+   FSmap< double , double > m_zmid_map[2][MAX_SAMPLING]; //[side][calosample]
+   FSmap< double , double > m_rent_map[2][MAX_SAMPLING]; //[side][calosample]
+   FSmap< double , double > m_zent_map[2][MAX_SAMPLING]; //[side][calosample]
+   FSmap< double , double > m_rext_map[2][MAX_SAMPLING]; //[side][calosample]
+   FSmap< double , double > m_zext_map[2][MAX_SAMPLING]; //[side][calosample]
 */
 };
 

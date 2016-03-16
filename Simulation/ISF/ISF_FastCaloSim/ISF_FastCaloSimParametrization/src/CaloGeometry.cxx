@@ -436,14 +436,14 @@ CaloGeometry::CaloGeometry() : m_cells_in_sampling(MAX_SAMPLING),m_cells_in_samp
 {
   //TMVA::Tools::Instance();
   for(int i=0;i<2;++i) {
-    min_eta_sample[i].resize(MAX_SAMPLING); //[side][calosample]
-    max_eta_sample[i].resize(MAX_SAMPLING); //[side][calosample]
-    rmid_map[i].resize(MAX_SAMPLING); //[side][calosample]
-    zmid_map[i].resize(MAX_SAMPLING); //[side][calosample]
-    rent_map[i].resize(MAX_SAMPLING); //[side][calosample]
-    zent_map[i].resize(MAX_SAMPLING); //[side][calosample]
-    rext_map[i].resize(MAX_SAMPLING); //[side][calosample]
-    zext_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_min_eta_sample[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_max_eta_sample[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_rmid_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_zmid_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_rent_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_zent_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_rext_map[i].resize(MAX_SAMPLING); //[side][calosample]
+    m_zext_map[i].resize(MAX_SAMPLING); //[side][calosample]
   }
   m_graph_layers.resize(MAX_SAMPLING);
   for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
@@ -600,8 +600,8 @@ void CaloGeometry::InitRZmaps()
 
 
   for(int side=0;side<=1;++side) for(int sample=0;sample<MAX_SAMPLING;++sample) {
-    min_eta_sample[side][sample]=+1000;
-    max_eta_sample[side][sample]=-1000;
+    m_min_eta_sample[side][sample]=+1000;
+    m_max_eta_sample[side][sample]=-1000;
   }  
 
   for(t_cellmap::iterator calo_iter=m_cells.begin();calo_iter!=m_cells.end();++calo_iter) {
@@ -628,8 +628,8 @@ void CaloGeometry::InitRZmaps()
       
       double min_eta=theDDE->eta()-theDDE->deta()/2;
       double max_eta=theDDE->eta()+theDDE->deta()/2;
-      if(min_eta<min_eta_sample[side][sample]) min_eta_sample[side][sample]=min_eta;
-      if(max_eta>max_eta_sample[side][sample]) max_eta_sample[side][sample]=max_eta;
+      if(min_eta<m_min_eta_sample[side][sample]) m_min_eta_sample[side][sample]=min_eta;
+      if(max_eta>m_max_eta_sample[side][sample]) m_max_eta_sample[side][sample]=max_eta;
       
       if(rz_map_eta[side][sample].find(eta_raw)==rz_map_eta[side][sample].end()) {
         rz_map_eta [side][sample][eta_raw]=0;
@@ -672,15 +672,15 @@ void CaloGeometry::InitRZmaps()
           double rext=rz_map_rext[side][sample][eta_raw]/iter->second;
           double zext=rz_map_zext[side][sample][eta_raw]/iter->second;
           
-          rmid_map[side][sample][eta]=rmid;
-          zmid_map[side][sample][eta]=zmid;
-          rent_map[side][sample][eta]=rent;
-          zent_map[side][sample][eta]=zent;
-          rext_map[side][sample][eta]=rext;
-          zext_map[side][sample][eta]=zext;
+          m_rmid_map[side][sample][eta]=rmid;
+          m_zmid_map[side][sample][eta]=zmid;
+          m_rent_map[side][sample][eta]=rent;
+          m_zent_map[side][sample][eta]=zent;
+          m_rext_map[side][sample][eta]=rext;
+          m_zext_map[side][sample][eta]=zext;
         }
       }
-      //ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<rmid_map[side][sample].size());
+      //ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<m_rmid_map[side][sample].size());
     } else {
       //ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" is empty!!!");
     }
@@ -1005,8 +1005,8 @@ double CaloGeometry::deta(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  double mineta=min_eta_sample[side][sample];
-  double maxeta=max_eta_sample[side][sample];
+  double mineta=m_min_eta_sample[side][sample];
+  double maxeta=m_max_eta_sample[side][sample];
 
   if(eta<mineta)
   {
@@ -1031,8 +1031,8 @@ void CaloGeometry::minmaxeta(int sample,double eta,double& mineta,double& maxeta
   int side=0;
   if(eta>0) side=1;
   
-  mineta=min_eta_sample[side][sample];
-  maxeta=max_eta_sample[side][sample];
+  mineta=m_min_eta_sample[side][sample];
+  maxeta=m_max_eta_sample[side][sample];
 }
 
 double CaloGeometry::rmid(int sample,double eta) const 
@@ -1040,7 +1040,7 @@ double CaloGeometry::rmid(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  return rmid_map[side][sample].find_closest(eta)->second;
+  return m_rmid_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::zmid(int sample,double eta) const 
@@ -1048,7 +1048,7 @@ double CaloGeometry::zmid(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  return zmid_map[side][sample].find_closest(eta)->second;
+  return m_zmid_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rzmid(int sample,double eta) const
@@ -1056,8 +1056,8 @@ double CaloGeometry::rzmid(int sample,double eta) const
  int side=0;
  if(eta>0) side=1;
 	
- if(isCaloBarrel(sample)) return rmid_map[side][sample].find_closest(eta)->second;
- else                     return zmid_map[side][sample].find_closest(eta)->second;
+ if(isCaloBarrel(sample)) return m_rmid_map[side][sample].find_closest(eta)->second;
+ else                     return m_zmid_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rent(int sample,double eta) const 
@@ -1065,7 +1065,7 @@ double CaloGeometry::rent(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  return rent_map[side][sample].find_closest(eta)->second;
+  return m_rent_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::zent(int sample,double eta) const 
@@ -1073,7 +1073,7 @@ double CaloGeometry::zent(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  return zent_map[side][sample].find_closest(eta)->second;
+  return m_zent_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rzent(int sample,double eta) const
@@ -1081,8 +1081,8 @@ double CaloGeometry::rzent(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  if(isCaloBarrel(sample)) return rent_map[side][sample].find_closest(eta)->second;
-   else                    return zent_map[side][sample].find_closest(eta)->second;
+  if(isCaloBarrel(sample)) return m_rent_map[side][sample].find_closest(eta)->second;
+   else                    return m_zent_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rext(int sample,double eta) const 
@@ -1090,7 +1090,7 @@ double CaloGeometry::rext(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  return rext_map[side][sample].find_closest(eta)->second;
+  return m_rext_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::zext(int sample,double eta) const 
@@ -1098,7 +1098,7 @@ double CaloGeometry::zext(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  return zext_map[side][sample].find_closest(eta)->second;
+  return m_zext_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rzext(int sample,double eta) const
@@ -1106,8 +1106,8 @@ double CaloGeometry::rzext(int sample,double eta) const
   int side=0;
   if(eta>0) side=1;
 
-  if(isCaloBarrel(sample)) return rext_map[side][sample].find_closest(eta)->second;
-   else                    return zext_map[side][sample].find_closest(eta)->second;
+  if(isCaloBarrel(sample)) return m_rext_map[side][sample].find_closest(eta)->second;
+   else                    return m_zext_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rpos(int sample,double eta,int subpos) const
@@ -1115,9 +1115,9 @@ double CaloGeometry::rpos(int sample,double eta,int subpos) const
   int side=0;
   if(eta>0) side=1;
 
-  if(subpos==SUBPOS_ENT) return rent_map[side][sample].find_closest(eta)->second;
-  if(subpos==SUBPOS_EXT) return rext_map[side][sample].find_closest(eta)->second;
-  return rmid_map[side][sample].find_closest(eta)->second;
+  if(subpos==SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
+  if(subpos==SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
+  return m_rmid_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::zpos(int sample,double eta,int subpos) const
@@ -1125,9 +1125,9 @@ double CaloGeometry::zpos(int sample,double eta,int subpos) const
   int side=0;
   if(eta>0) side=1;
 
-  if(subpos==SUBPOS_ENT) return zent_map[side][sample].find_closest(eta)->second;
-  if(subpos==SUBPOS_EXT) return zext_map[side][sample].find_closest(eta)->second;
-  return zmid_map[side][sample].find_closest(eta)->second;
+  if(subpos==SUBPOS_ENT) return m_zent_map[side][sample].find_closest(eta)->second;
+  if(subpos==SUBPOS_EXT) return m_zext_map[side][sample].find_closest(eta)->second;
+  return m_zmid_map[side][sample].find_closest(eta)->second;
 }
 
 double CaloGeometry::rzpos(int sample,double eta,int subpos) const
@@ -1136,13 +1136,13 @@ double CaloGeometry::rzpos(int sample,double eta,int subpos) const
   if(eta>0) side=1;
  
   if(isCaloBarrel(sample)) {
-    if(subpos==SUBPOS_ENT) return rent_map[side][sample].find_closest(eta)->second;
-    if(subpos==SUBPOS_EXT) return rext_map[side][sample].find_closest(eta)->second;
-    return rmid_map[side][sample].find_closest(eta)->second;
+    if(subpos==SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
+    if(subpos==SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
+    return m_rmid_map[side][sample].find_closest(eta)->second;
   } else {
-    if(subpos==SUBPOS_ENT) return zent_map[side][sample].find_closest(eta)->second;
-    if(subpos==SUBPOS_EXT) return zext_map[side][sample].find_closest(eta)->second;
-    return zmid_map[side][sample].find_closest(eta)->second;
+    if(subpos==SUBPOS_ENT) return m_zent_map[side][sample].find_closest(eta)->second;
+    if(subpos==SUBPOS_EXT) return m_zext_map[side][sample].find_closest(eta)->second;
+    return m_zmid_map[side][sample].find_closest(eta)->second;
   }  
 }
 

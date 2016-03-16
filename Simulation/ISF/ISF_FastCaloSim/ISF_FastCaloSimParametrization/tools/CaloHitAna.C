@@ -95,8 +95,8 @@ void CaloHitAna::Loop()
 
    if (fChain == 0) return;
    ProcInfo_t procinfo;
-   Long64_t nentries = fChain->GetEntriesFast();
-   m_all_cells.resize(nentries);
+   Long64_t nentries = fChain->GetEntries();
+   //m_all_cells.resize(nentries);
    if(m_max_nentries>=0 && m_max_nentries<nentries) nentries=m_max_nentries;
 
    std::map<Long64_t, FCS_cell> cells; //read all objects and collect them by identifier (Long64_t)
@@ -109,11 +109,11 @@ void CaloHitAna::Loop()
    FCS_matchedcell one_matchedcell;
    FCS_truth one_truth;
 
-
    //From here: Loop over events:
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) 
      {
+       m_all_cells.m_vector.clear(); //delete cells vector before each event!
        Long64_t ientry = LoadTree(jentry);
        if (ientry < 0) break;
        nb = fChain->GetEntry(jentry);   nbytes += nb;
@@ -373,7 +373,9 @@ void CaloHitAna::Loop()
 	   cells.erase(it++);
 	   //std::cout <<"Insert matched object"<<std::endl;
 	   //push_back matched cell for event jentry
-	   m_all_cells[jentry].push_back(one_matchedcell);
+	   //m_all_cells[jentry].push_back(one_matchedcell);
+	   //now only for one event
+	   m_all_cells.push_back(one_matchedcell);
 	   //std::cout <<"Go next"<<std::endl;
 	 }
        //ok, cells should be empty, what about hits and g4hits?  
@@ -412,7 +414,8 @@ void CaloHitAna::Loop()
 	       one_matchedcell.g4hit.clear(); //important!
 	     }
 	   hits.erase(it++);
-	   m_all_cells[jentry].push_back(one_matchedcell);
+	   //m_all_cells[jentry].push_back(one_matchedcell);
+	   m_all_cells.push_back(one_matchedcell);
 	 }
        
        //ok, hits should be empty, what about g4hits?   
@@ -439,19 +442,23 @@ void CaloHitAna::Loop()
 	   one_matchedcell.g4hit = it->second;
 	   one_matchedcell.hit.clear(); //important!!
 	   g4hits.erase(it++);
-	   m_all_cells[jentry].push_back(one_matchedcell);
+	   //m_all_cells[jentry].push_back(one_matchedcell);
+	   m_all_cells.push_back(one_matchedcell);
 	 }
        if (m_Debug > 1) std::cout <<"ISF_HitAnalysis Check after g4hits: "<<cells.size()<<" "<<g4hits.size()<<" "<<hits.size()<<std::endl;
        //Final size for this event 
-       if (m_Debug > 1) std::cout <<"ISF_HitAnalysis Matched cells size: "<<m_all_cells[jentry].size()<<std::endl;
-       
+       if (m_Debug > 1) 
+	 {
+	   std::cout <<"ISF_HitAnalysis Matched cells size: "<<m_all_cells.size()<<std::endl;
+	 }
 
        //Can fill the output tree already here:     
        total_cell_e  = 0.0;
        total_hit_e   = 0.0;
        total_g4hit_e = 0.0;
 
-       oneeventcells = m_all_cells[jentry]; //This gets cells for particular event jentry (m_all_cells holds now all cells from all events (huge!)
+       //oneeventcells = m_all_cells[jentry]; //This gets cells for particular event jentry (m_all_cells holds now all cells from all events (huge!)
+       oneeventcells = m_all_cells;
        for (int j=0; j<MAX_LAYER-1; j++)
 	 {
 	   layercells[j].m_vector = oneeventcells.GetLayer(j);
@@ -523,6 +530,8 @@ void CaloHitAna::Loop()
    m_Output->Close();
 };
 
+/*
+//Outdated
 void CaloHitAna::Finish(std::vector<Int_t> settings, TString outputname)
 {
   //Not necessary to call now (it is done in Loop directly)
@@ -665,3 +674,4 @@ void CaloHitAna::Finish(std::vector<Int_t> settings, TString outputname)
    fout->Close();
    
 }
+*/

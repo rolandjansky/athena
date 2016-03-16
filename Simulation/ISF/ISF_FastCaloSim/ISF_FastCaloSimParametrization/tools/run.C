@@ -72,18 +72,18 @@ int main(int argc, char *argv[])
   std::cout <<std::endl;
   std::cout <<"Timing cut: "<<TimingCut<<std::endl;
   std::cout <<"Debug: "<<Debug<<std::endl;
-  TFile *ftest = TFile::Open(filename,"READ");
-  if (!ftest)
-    {
-      std::cout <<"File "<<filename<<"doesn't exist!"<<std::endl;
-      exit(1);
-    }
-  else
-    {
-      ftest->Close();
-    }
-  delete ftest;
-  std::cout <<std::endl;
+//  TFile *ftest = TFile::Open(filename,"READ");
+//  if (!ftest)
+//    {
+//      std::cout <<"File "<<filename<<"doesn't exist!"<<std::endl;
+//      exit(1);
+//    }
+//  else
+//    {
+//      ftest->Close();
+//    }
+//  delete ftest;
+//  std::cout <<std::endl;
   std::cout <<"Running"<<std::endl;
   run(filename, outputname, settings, TimingCut,Debug);
 

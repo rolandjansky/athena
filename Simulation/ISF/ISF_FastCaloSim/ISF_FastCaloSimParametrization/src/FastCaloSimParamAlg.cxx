@@ -95,7 +95,7 @@ struct SortByE{
 FastCaloSimParamAlg::FastCaloSimParamAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), m_calo_dd_man(0)
 {
-  declareProperty("Clusterize", m_clusterize = 2, "merge nearby hits");
+  declareProperty("Clusterize", m_clusterize = 3, "merge nearby hits");
   declareProperty("Truncate", m_truncate = 2,"truncate hits with t>1000ns (if >=2)"); 
   declareProperty("MaxDistance",   m_maxDistance = 50000.,
 		  "max distance squared after which the hits will be truncated");
@@ -163,7 +163,7 @@ StatusCode FastCaloSimParamAlg::initialize()
 
 StatusCode FastCaloSimParamAlg::execute()
 {
-  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES = getFCS_StepInfo();
+  ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES = getFCS_StepInfo();
   if (!eventStepsES) eventStepsES = new ISF_FCS_Parametrization::FCS_StepInfoCollection(); //create empty one if it doesn't exist!
   std::cout <<"ZH in FastCaloSimParamAlg execute: eventStep size: "<<eventStepsES->size()<<std::endl;
 
@@ -176,31 +176,41 @@ StatusCode FastCaloSimParamAlg::execute()
     {
       std::cout <<"ZH Particle: "<<theParticle->pdg_id()<<" rapidity: "<<theParticle->momentum().eta()<<" phi: "<<theParticle->momentum().phi()<<" E: "<<theParticle->momentum().e()<<std::endl;
     }
-  ISF_FCS_Parametrization::FCS_StepInfoCollection* MergeeventSteps;
-  MergeeventSteps = copyFCS_StepInfo(eventStepsES);
+  //ISF_FCS_Parametrization::FCS_StepInfoCollection* MergeeventSteps;
+  //MergeeventSteps = copyFCS_StepInfo(eventStepsES);
   //double etot = 0.;
   //for (ISF_FCS_Parametrization::FCS_StepInfoList::const_iterator iter = eventSteps->begin();iter != eventSteps->end();iter++) {
   //	  etot += (*iter)->dep();
   // }
   //std::cout << "ZH: Size of input shower: " << eventSteps->size() << std::endl;
   //Still might not need this...
-  truncate(MergeeventSteps);
-  if (m_clusterize)
-    {
-      clusterize(MergeeventSteps);
-    }
-  else
-    {
-      std::cout <<"ZH: FastCaloSimParamAlg: not merging nearby hits: "<<m_clusterize<<std::endl;
-    }
-  //clusterize(eventSteps);
-  std::cout << "Size after clusterization: " << MergeeventSteps->size() << std::endl;
-  StatusCode sc = evtStore()->record(MergeeventSteps,"ZHMergedEventSteps");
-  if (sc.isFailure()) 
-    {
-      std::cout<<"Coudn't resave merged collection "<<std::endl;
-      return 0;  
-    }
+  //truncate(MergeeventSteps);
+  //if (m_clusterize)
+  //  {
+  //    clusterize(MergeeventSteps);
+  //  }
+  //else
+  //  {
+  //    std::cout <<"ZH: FastCaloSimParamAlg: not merging nearby hits: "<<m_clusterize<<std::endl;
+  //  }
+ // std::cout << "Size after clusterization: " << MergeeventSteps->size() << std::endl;
+ // StatusCode sc = evtStore()->record(MergeeventSteps,"ZHMergedEventSteps");
+ // if (sc.isFailure())
+ //   {
+ //     std::cout<<"Coudn't resave merged collection "<<std::endl;
+ //     return 0;
+ //   }
+
+
+  truncate(eventStepsES);
+  clusterize(eventStepsES);
+  
+  //StatusCode sc = evtStore()->record(eventStepsES,"ZHMergedEventSteps");
+  //if (sc.isFailure()) 
+  //  {
+  //    std::cout<<"Coudn't resave merged collection "<<std::endl;
+  //    return 0;  
+  //  }
 
   return StatusCode::SUCCESS;
 }
@@ -218,10 +228,10 @@ const HepMC::GenParticle* FastCaloSimParamAlg::getParticleFromMC()
   return NULL;
 }
 
-const ISF_FCS_Parametrization::FCS_StepInfoCollection* FastCaloSimParamAlg::getFCS_StepInfo()
+ISF_FCS_Parametrization::FCS_StepInfoCollection* FastCaloSimParamAlg::getFCS_StepInfo()
 {
-  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
-  StatusCode sc = evtStore()->retrieve(eventStepsES, "ZHEventSteps");
+  ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
+  StatusCode sc = evtStore()->retrieve(eventStepsES, "ZHMergedEventSteps");
   if (sc.isFailure()) return NULL;
   
   return eventStepsES;
@@ -273,7 +283,7 @@ ISF_FCS_Parametrization::FCS_StepInfoList* FastCaloSimParamAlg::copyFCS_StepInfo
 
 void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo)
 {
-  std::cout <<"ZH FastCaloSimParamAlg initial clusterize size: "<<stepinfo->size()<<" will merge steps in the same cell which are less than dR and dT to each other"<<std::endl;          
+  msg(MSG::INFO) << "ZH FastCaloSimParamAlg initial clusterize size: "<<stepinfo->size()<<" will merge steps in the same cell which are less than dR and dT to each other"<<endmsg;
   double dsame, tsame; 
 
   double total_energy1 = 0;
@@ -283,61 +293,106 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
       total_energy1+=(*i1)->energy();
     }
   std::cout <<"ZH Check: total energy before clusterize "<<total_energy1<<std::endl;
-  if (m_clusterize == 2)
+  if (m_clusterize == 3)
     {
-      //don't split into cells 
-      std::sort(stepinfo->begin(), stepinfo->end(), SortByE());
-      auto it1 = stepinfo->begin();
-      while (it1 != stepinfo->end()){
-	// Get the limits for this cell - optimism!
-	if (m_calo_dd_man->get_element((*it1)->identify()))
-	  {
-	    //ignore invalid           
-	    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element( (*it1)->identify() )->getSampling();
-	    if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
-	      dsame = m_maxRadiusLAr;
-	      tsame = m_maxTimeLAr;
-	    } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
-	      dsame = m_maxRadiusHEC;
-	      tsame = m_maxTimeHEC;
-	    } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
-	      dsame = m_maxRadiusTile;
-	      tsame = m_maxTimeTile;
-	    } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
-	      dsame = m_maxRadiusFCAL;
-	      tsame = m_maxTimeFCAL;
-	    } else {
-	      dsame = m_maxRadius;
-	      tsame = m_maxTime;
-	    }
-	    // Look for other cells to merge
-
-	    auto it2=it1;
-	    while (it2!=stepinfo->end()){
-	      if (it2==it1 || // Don't merge a hit with itself
-		  (*it1)->identify()!=(*it2)->identify() || // Must have the same cell identifier
-		  (*it1)->diff2(**it2) >= dsame || // Too far away!
-		  fabs((*it1)->time() - (*it2)->time()) >= tsame ){ // Too distant in time!
-		++it2;
-		continue;
-	      }
-	      // Merge the hits
-	      **it1 += **it2;
-	      it2 = stepinfo->erase(it2);
-	      //std::cout <<"Remaining: "<<stepinfo->size()<<std::endl;
-	    }
-	  }
-	++it1; // while loop to avoid issues with end() being invalidated
+      //New code from Zach, merging in each cell separately
+      // Take ownership of all the elements and empty out the DataVector to start
+      std::vector< ISF_FCS_Parametrization::FCS_StepInfo* > tmp(stepinfo->size());
+      tmp.clear();
+      for (unsigned int an_info=0;an_info<stepinfo->size();++an_info){
+        ISF_FCS_Parametrization::FCS_StepInfo* empty_info_in = nullptr;
+        ISF_FCS_Parametrization::FCS_StepInfo* empty_info_out = nullptr;
+        stepinfo->swapElement(an_info,empty_info_in,empty_info_out);
+        tmp.push_back(empty_info_out);
       }
-      //      std::cout <<"ZH Check2: "<<stepinfo->size()<<std::endl;
-      for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin(); i1 != stepinfo->end(); ++i1)
-	{
-	  total_energy2+=(*i1)->energy();
-	}
+
+      // Sort the vector
+      std::cout << "ZM Sorting" << std::endl;
+      std::sort( tmp.begin() , tmp.end() , SortByE() );
+
+      // Build a map of identifiers to merge cells more efficiently than directly using the vector
+      std::cout << "ZM Making the map" << std::endl;
+      int map_size = 0;
+      std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > tmp_map;
+      static std::vector< ISF_FCS_Parametrization::FCS_StepInfo* > to_delete(stepinfo->size());
+      to_delete.clear();
+      for (auto it1 : tmp){
+        // Ignore invalid IDs
+        if (!m_calo_dd_man->get_element(it1->identify())) {
+          to_delete.push_back( it1 ); //delete also steps without identifier
+          continue;
+        }
+
+        // Get the appropriate merging limits
+        const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element( it1->identify() )->getSampling();
+        if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+          dsame = m_maxRadiusLAr;
+          tsame = m_maxTimeLAr;
+        } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+          dsame = m_maxRadiusHEC;
+          tsame = m_maxTimeHEC;
+        } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+          dsame = m_maxRadiusTile;
+          tsame = m_maxTimeTile;
+        } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+          dsame = m_maxRadiusFCAL;
+          tsame = m_maxTimeFCAL;
+        } else {
+          dsame = m_maxRadius;
+          tsame = m_maxTime;
+        }
+
+        // Look for other cells to merge
+        auto map_item = tmp_map.find( it1->identify() );
+        if (map_item==tmp_map.end()){
+          tmp_map[it1->identify()] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
+          tmp_map[it1->identify()]->push_back( it1 );
+          ++map_size;
+        } else {
+          bool match = false;
+          for (auto it2 : * map_item->second){
+            if ( it1->diff2( *it2 ) < dsame &&
+                 fabs(it1->time()-it2->time())<tsame ){
+              *it2 += *it1;
+              match = true;
+              to_delete.push_back( it1 );
+              break;
+            } // match
+          } // end of search for match in time and space
+          if (!match){
+            map_item->second->push_back( it1 );
+            ++map_size;
+          } // didn't match
+        } // ID already in the map
+
+      } // Fill up the map
+
+      stepinfo->clear();
+      stepinfo->reserve(map_size);
+
+      // Delete the guys we don't want
+      for (auto it : to_delete) delete it;
+      to_delete.clear();
+
+      // Refill the vector with the ones we do want
+      for (auto it : tmp_map){
+        for (auto a_s : * it.second){
+          stepinfo->push_back( a_s );
+        }
+        it.second->clear();
+        delete it.second;
+      } // Vector of IDs in the map
+
+      //std::cout <<"ZH Check2: "<<stepinfo->size()<<std::endl;
+      for (auto i1 : *stepinfo) {
+        total_energy2+=i1->energy();
+      }
 
     }
-  else if (m_clusterize == 3)
+  else if (m_clusterize == 4)
     {
+      std::cout <<"ZH DO NOT USE, leaks memory, use m_clusterize == 3 settings for now!"<<std::endl;
+
       //Try this if it will be faster: split to cells first
       //ISF_FCS_Parametrization::FCS_StepInfoCollection *rez = new ISF_FCS_Parametrization::FCS_StepInfoCollection();
       ISF_FCS_Parametrization::FCS_StepInfo *copy = NULL;
@@ -464,14 +519,15 @@ void FastCaloSimParamAlg::clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollec
 	    }
 	}
     }
-  std::cout <<"ZH Check: "<<stepinfo->size()<<" Total energy: "<<total_energy2<<std::endl;
+  std::cout <<"ZH Check: "<<stepinfo->size()<<" Total energy after clusterize: "<<total_energy2<<std::endl;
   
-  std::cout <<"ZH FastCaloSimParamAlg after clusterize: "<<stepinfo->size()<<std::endl;
+  //  std::cout <<"ZH FastCaloSimParamAlg after clusterize: "<<stepinfo->size()<<std::endl;
 }
 
 void FastCaloSimParamAlg::truncate(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo)
 {
-  std::cout <<"ZH FastCaloSimParamAlg initial truncate size: "<<stepinfo->size()<<" settings: "<<m_truncate<<std::endl;
+
+  msg(MSG::INFO)<<"ZH FastCaloSimParamAlg initial truncate size: "<<stepinfo->size()<<" settings: "<<m_truncate<<endmsg;
   if (m_truncate>0)
     {
       ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator i1 = stepinfo->begin();
@@ -484,7 +540,7 @@ void FastCaloSimParamAlg::truncate(ISF_FCS_Parametrization::FCS_StepInfoCollecti
 	  else
 	    ++i1;
 	}
-      std::cout <<"ZH FastCaloSimParamAlg after truncate size: "<<stepinfo->size()<<std::endl;
+      msg(MSG::INFO) <<"ZH FastCaloSimParamAlg after truncate size: "<<stepinfo->size()<<endmsg;
     }
 
   /*
