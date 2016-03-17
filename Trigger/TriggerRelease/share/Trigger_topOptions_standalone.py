@@ -196,6 +196,9 @@ try:
 except:
     log.error( 'failed to activate TrigConfigSvc ...')
 
+# Enable PSK/LB monitoring
+if 'doMonitoring' in svcMgr.HLTConfigSvc.getProperties():
+    svcMgr.HLTConfigSvc.doMonitoring = True
 
 log.info("configuring hlt")
 from TriggerJobOpts.HLTTriggerGetter import HLTSimulationGetter
