@@ -3,13 +3,14 @@
 */
 
 #include <set>
-#include "TrkTrack/TrackCollection.h"
+
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
+#include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
-
+#include "CxxUtils/make_unique.h"
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -28,16 +29,16 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000) 						       ,
   m_nfreeCut(1)                                                        ,
-  m_tracklocationOutput("SiSPSeededTracks")                            ,
-  m_tracklocationInput (" ")                                           ,
+  m_SpacePointsSCT("SCT_SpacePoints"),
+  m_SpacePointsPixel("PixelSpacePoints"),
+  m_inputTracks(" "),
+  m_outputTracks("SiSPSeededTracks"),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetSiZvertexMaker")       ,
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
   m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  )         
 {
-  m_spacepointsSCTname     = "SCT_SpacePoints" ;
-  m_spacepointsPixelname   = "PixelSpacePoints";
   m_beamconditions         = "BeamCondSvc"     ;
   m_beam                   = 0                 ;
   m_histsize               = 1400              ;
@@ -61,15 +62,15 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("SeedsTool"           ,m_seedsmaker          );
   declareProperty("ZvertexTool"         ,m_zvertexmaker        );
   declareProperty("TrackTool"           ,m_trackmaker          );
-  declareProperty("TracksLocation"      ,m_tracklocationOutput );
-  declareProperty("InputTracksLocation" ,m_tracklocationInput  );
+  declareProperty("TracksLocation"      ,m_outputTracks        );
+  declareProperty("InputTracksLocation" ,m_inputTracks         );
   declareProperty("useZvertexTool"      ,m_useZvertexTool      );
   declareProperty("maxNumberSeeds"      ,m_maxNumberSeeds      );
   declareProperty("useMBTSTimeDiff"     ,m_useMBTS             );
   declareProperty("maxNumberPIXsp"      ,m_maxPIXsp            );
   declareProperty("maxNumberSCTsp"      ,m_maxSCTsp            );
-  declareProperty("SpacePointsSCTName"  ,m_spacepointsSCTname  );
-  declareProperty("SpacePointsPixelName",m_spacepointsPixelname);
+  declareProperty("SpacePointsSCTName"  ,m_SpacePointsSCT      );
+  declareProperty("SpacePointsPixelName",m_SpacePointsPixel    );
   declareProperty("FreeClustersCut"     ,m_nfreeCut            );
   declareProperty("useNewStrategy"      ,m_useNewStrategy      );
   declareProperty("useZBoundFinding"    ,m_useZBoundaryFinding );
@@ -183,15 +184,10 @@ StatusCode InDet::SiSPSeededTrackFinder::execute()
 
 StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 { 
-  TrackCollection* foundTracks = new TrackCollection;
-
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
   // For HI events we can use MBTS information from calorimeter
   //
   if(!isGoodEvent()) {
-    StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-    if (s.isFailure() ) {
-      msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -246,42 +242,36 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   std::multimap<double,Trk::Track*>::iterator 
     q = qualityTrack.begin(), qe =qualityTrack.end(); 
 
-  for(; q!=qe; ++q) {++m_ntracks; foundTracks->push_back((*q).second);}
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
 
   m_nseedsTotal += m_nseeds ;
 
   ZVE == true ? ++m_neventsTotalV : ++m_neventsTotal;
 
-  if(ERR) {delete foundTracks; foundTracks = new TrackCollection;}
-  else    {m_ntracksTotal+=m_ntracks;                            }
+  if(ERR) { m_outputTracks->clear(); }
+  else    {m_ntracksTotal+=m_ntracks;}
 
   // Copy tracks found before from input to output collection
   //
-  if(m_tracklocationInput != " ") {
+  if(m_inputTracks.name() != " ") {
 
-    const TrackCollection*  inputTracks = 0;
 
-    StatusCode s = evtStore()->retrieve(inputTracks, m_tracklocationInput);
-    if (s.isFailure() || !inputTracks) {
-      if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
+    if(!m_inputTracks.isValid()){
+         if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
     }
     else {
 
-       TrackCollection::const_iterator t,te = inputTracks->end();
+       TrackCollection::const_iterator t,te = m_inputTracks->end();
 
-       for (t=inputTracks->begin(); t!=te; ++t) {
+       for (t=m_inputTracks->begin(); t!=te; ++t) {
 
-	 foundTracks->push_back( new Trk::Track(*(*t)) ); 
+	 m_outputTracks->push_back( new Trk::Track(*(*t)) ); 
        }
     }
   }
 
   // Save reconstructed tracks
   //
-  StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-  if (s.isFailure() ) {
-    msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-  }
 
   // Print common event information
   //
@@ -297,15 +287,11 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
 StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 { 
-  TrackCollection* foundTracks = new TrackCollection;
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
 
   // For HI events we can use MBTS information from calorimeter
   //
   if(!isGoodEvent()) {
-    StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-    if (s.isFailure() ) {
-      msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -384,42 +370,32 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   std::multimap<double,Trk::Track*>::iterator 
     q = qualityTrack.begin(), qe =qualityTrack.end(); 
 
-  for(; q!=qe; ++q) {++m_ntracks; foundTracks->push_back((*q).second);}
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
 
   m_nseedsTotal += m_nseeds ;
 
   ++m_neventsTotal;
 
-  if(ERR) {delete foundTracks; foundTracks = new TrackCollection;}
+  if(ERR) {m_outputTracks->clear();}
   else    {m_ntracksTotal+=m_ntracks;                            }
 
   // Copy tracks found before from input to output collection
   //
-  if(m_tracklocationInput != " ") {
+  if(m_inputTracks.name() != " ") {
 
-    const TrackCollection*  inputTracks = 0;
-
-    StatusCode s = evtStore()->retrieve(inputTracks, m_tracklocationInput);
-    if (s.isFailure() || !inputTracks) {
-      if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
+    if(!m_inputTracks.isValid()){
+         if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
     }
     else {
-
-       TrackCollection::const_iterator t,te = inputTracks->end();
-
-       for (t=inputTracks->begin(); t!=te; ++t) {
-
-	 foundTracks->push_back( new Trk::Track(*(*t)) ); 
+       TrackCollection::const_iterator t,te = m_inputTracks->end();
+       for (t=m_inputTracks->begin(); t!=te; ++t) {
+	 m_outputTracks->push_back( new Trk::Track(*(*t)) ); 
        }
     }
   }
 
   // Save reconstructed tracks
   //
-  StatusCode s = evtStore()->record(foundTracks,m_tracklocationOutput,false);
-  if (s.isFailure() ) {
-    msg(MSG::ERROR)<<"Could not save converted SiSPSeeded tracks" <<endreq;
-  }
 
   // Print common event information
   //
@@ -485,9 +461,9 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
   n     = 65-m_trackmaker.type().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_tracklocationOutput.size();
+  n     = 65-m_outputTracks.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_tracklocationInput.size();
+  n     = 65-m_inputTracks.name().size();
   std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
 
   std::string s5; 
@@ -507,9 +483,9 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
      <<std::endl;
   out<<"| Tool for space points seeded track      finding | "<<m_trackmaker.type()<<s3
      <<std::endl;
-  out<<"| Location of output tracks                       | "<<m_tracklocationOutput<<s4
+  out<<"| Location of output tracks                       | "<<m_outputTracks.name()<<s4
      <<std::endl;
-  out<<"| Location of input  tracks                       | "<<m_tracklocationInput<<s6
+  out<<"| Location of input  tracks                       | "<<m_inputTracks.name()<<s6
      <<std::endl;
   out<<"|----------------------------------------------------------------"
      <<"----------------------------------------------------|"
@@ -574,13 +550,10 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
   // Test total number pixels space points
   //
   unsigned int               nsp = 0;
-  const SpacePointContainer* con = 0;
 
-  sc  = evtStore()->retrieve(con,m_spacepointsPixelname);
-  if(!sc.isFailure() && con) {
-    
-    SpacePointContainer::const_iterator spc  =  con->begin();
-    SpacePointContainer::const_iterator spce =  con->end  ();
+   if(!m_SpacePointsPixel.isValid()){
+    SpacePointContainer::const_iterator spc  =  m_SpacePointsPixel->begin();
+    SpacePointContainer::const_iterator spce =  m_SpacePointsPixel->end  ();
     
     for(; spc!=spce; ++spc) nsp+=(*spc)->size();
 
@@ -593,13 +566,11 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
   // Test total number sct space points
   //
   nsp = 0;
-  con = 0;
-
-  sc  = evtStore()->retrieve(con,m_spacepointsSCTname);
-  if(!sc.isFailure() && con) {
+  
+  if(!m_SpacePointsSCT.isValid()) {
     
-    SpacePointContainer::const_iterator spc  =  con->begin();
-    SpacePointContainer::const_iterator spce =  con->end  ();
+    SpacePointContainer::const_iterator spc  =  m_SpacePointsSCT->begin();
+    SpacePointContainer::const_iterator spce =  m_SpacePointsSCT->end  ();
     
     for(; spc!=spce; ++spc) nsp+=(*spc)->size();
 

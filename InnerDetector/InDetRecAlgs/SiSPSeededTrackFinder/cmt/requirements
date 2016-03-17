@@ -9,6 +9,7 @@ use TrkTrack                     TrkTrack-*               Tracking/TrkEvent
 use TrkRIO_OnTrack               TrkRIO_OnTrack-*         Tracking/TrkEvent
 use TrkSpacePoint                TrkSpacePoint-*          Tracking/TrkEvent
 use TrkPatternParameters         TrkPatternParameters-*   Tracking/TrkEvent
+use CxxUtils           CxxUtils-*               Control
 
 public
 
@@ -20,6 +21,8 @@ use InDetBeamSpotService         InDetBeamSpotService-*   InnerDetector/InDetCon
 use TrkExInterfaces              TrkExInterfaces-*        Tracking/TrkExtrapolation
 use TrkGeometry                  TrkGeometry-*            Tracking/TrkDetDescr
 use TrkSurfaces                  TrkSurfaces-*            Tracking/TrkDetDescr 
+use StoreGate		    StoreGate-*               Control
+use TrkTrack                TrkTrack-*                Tracking/TrkEvent
 
 library SiSPSeededTrackFinder  *.cxx components/*.cxx
 apply_pattern component_library

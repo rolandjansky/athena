@@ -14,18 +14,21 @@
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
 
 // For new strategy reconstruction
-//
+#include "TrkTrack/TrackCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/PerigeeSurface.h" 
+#include "StoreGate/DataHandle.h"
 
+  class SpacePointContainer;
 namespace InDet {
 
 // forward declare of these interfaces does not work in opt build
 //   class ISiSpacePointsSeedMaker;
 //   class ISiZvertexMaker;
 //   class ISiTrackMaker; 
+
 
   // Class-algorithm for track finding in Pixels and SCT
   // initiated by space points seeds
@@ -80,10 +83,11 @@ namespace InDet {
       int                            m_maxPIXsp           ; // Max. number pixels space points
       int                            m_maxSCTsp           ; // Max. number sct    space points
       int                            m_nfreeCut           ; // Min number free clusters
-      std::string                    m_spacepointsPixelname;
-      std::string                    m_spacepointsSCTname  ;
-      std::string                    m_tracklocationOutput; // Name of output tracks location  
-      std::string                    m_tracklocationInput ; // Name of input  tracks location  
+
+      SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
+      SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
+      SG::ReadHandle<TrackCollection>     m_inputTracks     ;
+      SG::WriteHandle<TrackCollection>    m_outputTracks    ;
 
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
       ToolHandle< ISiZvertexMaker         > m_zvertexmaker  ;  // Space poins z-vertex maker
