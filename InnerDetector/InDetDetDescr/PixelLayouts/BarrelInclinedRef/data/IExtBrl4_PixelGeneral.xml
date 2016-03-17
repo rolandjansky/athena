@@ -14,7 +14,7 @@
 
   <PixelCommon>
      <RadiusMin> 33.001 </RadiusMin>
-     <RadiusMax> 361.751</RadiusMax>
+     <RadiusMax> 361.751 </RadiusMax>
      <HalfLength> 3405. </HalfLength>
   </PixelCommon>
 
@@ -29,7 +29,7 @@
 
   <PixelEndcapEnvelope>
      <Name>Endcap</Name>
-     <RadiusMin> 34.1 </RadiusMin>
+     <RadiusMin> 33.001 </RadiusMin>
      <RadiusMax> 340.99 </RadiusMax>
      <ZMin> 731.11 </ZMin>
      <ZMax> 3210. </ZMax>
