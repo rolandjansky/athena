@@ -19,7 +19,7 @@ TCS::JetAbbreviated::JetAbbreviated(const std::string & name) :
    defineParameter( "JetSize", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 49);
-//   m_jetsize = JetTOB::JS1;
+   m_jetsize = JetTOB::JS1;
 }
 
 

@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include <algorithm>
 #include "TH1F.h"
 
@@ -38,6 +39,17 @@ namespace {
       
       return round( 10 * dphi );
    }
+
+   unsigned int
+   calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      int dphiB = abs( tob1->phi() - tob2->phi() );
+      if(dphiB>32)
+         dphiB = 64 - dphiB; 
+
+      return dphiB ;
+   }
+
+
 }
 
 
@@ -66,14 +78,14 @@ TCS::MinDeltaPhiIncl2::initialize() {
    if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
    if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
 
-   for(int i=0; i<3; ++i) {
+   for(unsigned int i=0; i< numberOutputBits(); ++i) {
       p_DeltaPhiMin[i] = parameter("DeltaPhiMin", i).value();
    }
    p_MinET1 = parameter("MinET1").value();
    p_MinET2 = parameter("MinET2").value();
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
-   for(int i=0; i<3; ++i) {
+   for(unsigned int i=0; i< numberOutputBits(); ++i) {
       TRG_MSG_INFO("DeltaPhiMin"<<i<<"   : " << p_DeltaPhiMin[i]);
    }
    TRG_MSG_INFO("MinET1         : " << p_MinET1);
@@ -81,30 +93,101 @@ TCS::MinDeltaPhiIncl2::initialize() {
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
 
    // create strings for histogram names
-   ostringstream MyAcceptHist[numberOutputBits()];
-   ostringstream MyRejectHist[numberOutputBits()];
+   vector<ostringstream> MyAcceptHist(numberOutputBits());
+   vector<ostringstream> MyRejectHist(numberOutputBits());
    
-   for (unsigned int i=0;i<numberOutputBits();i++) {
+   for (unsigned int i=0;i< numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i]  << "MinDPhi2"; 
      MyRejectHist[i] << "Reject" << p_DeltaPhiMin[i]  << "MinDPhi2";
    }
 
    for (unsigned int i=0; i<numberOutputBits();i++) {
-     char MyTitle1[100];
-     char MyTitle2[100];
-     string Mys1 = MyAcceptHist[i].str();
-     string Mys2 = MyRejectHist[i].str();
-     std::strcpy(MyTitle1,Mys1.c_str());
-     std::strcpy(MyTitle2,Mys2.c_str());
-     
-     registerHist(m_histAcceptMinDPhi2[i] = new TH1F(MyTitle1,MyTitle1,100,0,3.5));
-     registerHist(m_histRejectMinDPhi2[i] = new TH1F(MyTitle2,MyTitle2,100,0,3.5));
+     const std::string& MyTitle1 = MyAcceptHist[i].str();
+     const std::string& MyTitle2 = MyRejectHist[i].str();
+       
+     registerHist(m_histAcceptMinDPhi2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,3.5));
+     registerHist(m_histRejectMinDPhi2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,3.5));
    }
 
    return StatusCode::SUCCESS;
 }
 
 
+
+TCS::StatusCode
+TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                            const std::vector<TCS::TOBArray *> & output,
+                            Decision & decison )
+{
+
+   // mindphi 
+   unsigned int mindphi = *min_element(begin(p_DeltaPhiMin),end(p_DeltaPhiMin));
+   bool firstphi = true;
+
+   // declare iterator for the tob with min dphi
+   TCS::TOBArray::const_iterator tobmin1,tobmin2;  
+      
+   if (input.size() == 2) {
+   
+      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
+           ++tob1)
+         {
+
+            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
+
+            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
+                 ++tob2) {
+
+               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+
+               // test DeltaPhiMin, DeltaPhiMax
+               unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
+
+               if (firstphi) {
+                  mindphi = deltaPhi;
+                  tobmin1=tob1;
+                  tobmin2=tob2;
+                  firstphi = false;
+               }
+
+               if ( deltaPhi < mindphi ) {
+                  
+                  mindphi = deltaPhi;
+                  tobmin1=tob1;
+                  tobmin2=tob2;
+
+               }
+
+            }
+         }
+
+      bool accept[3];
+      for(unsigned int i=0; i<numberOutputBits(); ++i) {
+         accept[i] = mindphi > p_DeltaPhiMin[i] ;
+         if( accept[i] ) {
+            decison.setBit(i, true);
+            output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
+	    m_histAcceptMinDPhi2[i]->Fill((float)mindphi/10.);
+
+            TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " mindphi = " << mindphi << "phi1= " << (*tobmin1)->phiDouble()<< "phi2= " <<(*tobmin2)->phiDouble() );
+         }
+	 else
+	   m_histRejectMinDPhi2[i]->Fill((float)mindphi/10.);
+
+         TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail"));
+      }
+
+
+   } else {
+
+      TCS_EXCEPTION("MinDeltaPhiIncl2 alg must have 2 inputs, but got " << input.size());
+
+   }
+
+   return TCS::StatusCode::SUCCESS;
+}
 
 TCS::StatusCode
 TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,

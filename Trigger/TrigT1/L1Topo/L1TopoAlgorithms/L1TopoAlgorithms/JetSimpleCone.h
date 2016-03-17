@@ -1,20 +1,17 @@
-//  DeltaEtaIncl1.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/16/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
+//  JetSimpleCone.h
 
-#ifndef __TopoCore__DeltaEtaIncl1__
-#define __TopoCore__DeltaEtaIncl1__
+#ifndef __TopoCore__JetSimpleCone__
+#define __TopoCore__JetSimpleCone__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class DeltaEtaIncl1 : public DecisionAlg {
+   class JetSimpleCone : public DecisionAlg {
    public:
-      DeltaEtaIncl1(const std::string & name);
-      virtual ~DeltaEtaIncl1();
+      JetSimpleCone(const std::string & name);
+      virtual ~JetSimpleCone();
 
       virtual StatusCode initialize();
 
@@ -28,16 +25,15 @@ namespace TCS {
       
 
    private:
-
       parType_t      p_NumberLeading1 = { 0 };
-      parType_t      p_NumberLeading2 = { 0 };
-      parType_t      p_DeltaEtaMin[4] = {0, 0, 0,0};
-      parType_t      p_DeltaEtaMax[4] = {0, 0, 0,0};
-      parType_t      p_MinET1[4] = { 0,0,0,0 };
-      parType_t      p_MinET2[4] = { 0,0,0,0 };
+      parType_t      p_R = { 10 };
+      parType_t      p_MinET = { 0 };
+      parType_t      p_EtaMin = { 0 };
+      parType_t      p_EtaMax = { 49 };
+      parType_t      p_SimpleCone[6] = { 0 , 0,0,0,0,0 };
 
-      TH1 * m_histAcceptDEta1[4] = {};
-      TH1 * m_histRejectDEta1[4] = {};
+      TH1 * m_histAcceptSimpleCone[6] = {};
+      TH1 * m_histRejectSimpleCone[6] = {};
 
    };
    

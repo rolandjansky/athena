@@ -104,6 +104,14 @@ TCS::RatioSum::initialize() {
    return StatusCode::SUCCESS;
 }
 
+TCS::StatusCode
+TCS::RatioSum::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
 
 
 TCS::StatusCode
@@ -114,7 +122,6 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=3) {
       TCS_EXCEPTION("RatioSum alg must have exactly 3 input lists, but got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
    unsigned int sumET = 0;

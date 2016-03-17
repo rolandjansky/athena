@@ -65,6 +65,14 @@ TCS::Ratio2::initialize() {
    return StatusCode::SUCCESS;
 }
 
+TCS::StatusCode
+TCS::Ratio2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
 
 
 TCS::StatusCode
@@ -75,7 +83,6 @@ TCS::Ratio2::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=2) {
       TCS_EXCEPTION("Ratio2 alg must have exactly 2 input lists, but got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
    unsigned int sumET = 0;

@@ -34,7 +34,6 @@ TCS::GenericArrayCreator::sort(const InputTOBArray & input, TOBArray & output) {
       foreach(const ClusterTOB * cluster, in) {
          output.push_back( GenericTOB(*cluster) );
       }
-      return StatusCode::SUCCESS;
    }
    catch(std::bad_cast bc) {
       try {

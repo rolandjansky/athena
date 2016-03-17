@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaEtaIncl2.h"
@@ -92,8 +93,8 @@ TCS::DeltaEtaIncl2::initialize() {
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
    // create strings for histogram names
-   ostringstream MyAcceptHist[numberOutputBits()];
-   ostringstream MyRejectHist[numberOutputBits()];
+   vector<ostringstream> MyAcceptHist(numberOutputBits());
+   vector<ostringstream> MyRejectHist(numberOutputBits());
    
    for (unsigned int i=0;i<numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaEtaMin[i] << "DEta"; 
@@ -101,21 +102,26 @@ TCS::DeltaEtaIncl2::initialize() {
    }
 
    for (unsigned int i=0; i<numberOutputBits();i++) {
-     char MyTitle1[100];
-     char MyTitle2[100];
-     string Mys1 = MyAcceptHist[i].str();
-     string Mys2 = MyRejectHist[i].str();
-     std::strcpy(MyTitle1,Mys1.c_str());
-     std::strcpy(MyTitle2,Mys2.c_str());
-     
-     registerHist(m_histAcceptDEta2[i] = new TH1F(MyTitle1,MyTitle1,100,0.,4.));
-     registerHist(m_histRejectDEta2[i] = new TH1F(MyTitle2,MyTitle2,100,0.,4.));
+
+     const std::string& MyTitle1 = MyAcceptHist[i].str();
+     const std::string& MyTitle2 = MyRejectHist[i].str();
+       
+     registerHist(m_histAcceptDEta2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0.,4.));
+     registerHist(m_histRejectDEta2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0.,4.));
    }
 
    
    return StatusCode::SUCCESS;
 }
 
+TCS::StatusCode
+TCS::DeltaEtaIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
 
 
 TCS::StatusCode

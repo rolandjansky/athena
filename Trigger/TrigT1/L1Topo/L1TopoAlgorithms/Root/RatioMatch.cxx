@@ -22,6 +22,7 @@ using namespace std;
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << name() << ":     "
 
+/* NOT USED
 namespace {
    unsigned int
    calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
@@ -34,6 +35,7 @@ namespace {
 
    }
 }
+*/
 
 
 TCS::RatioMatch::RatioMatch(const std::string & name) : DecisionAlg(name)
@@ -89,6 +91,14 @@ TCS::RatioMatch::initialize() {
 }
 
 
+TCS::StatusCode
+TCS::RatioMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
 
 TCS::StatusCode
 TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
@@ -98,7 +108,6 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size()!=2) {
       TCS_EXCEPTION("RatioMatch alg must have exactly 2 input lists, but got " << input.size());
-      return TCS::StatusCode::FAILURE;
    }
 
    unsigned int deltaR2 = 999;

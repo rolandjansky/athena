@@ -13,7 +13,12 @@
 #include "L1TopoAlgorithms/TransverseMassInclusive1.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+// Bitwise implementation utils
+#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
+#include "L1TopoSimulationUtils/Trigo.h"
+#include "L1TopoSimulationUtils/Hyperbolic.h"
 
+//
 REGISTER_ALG_TCS(TransverseMassInclusive1)
 
 using namespace std;
@@ -35,6 +40,18 @@ namespace {
       double tmass2 = 2*tob1->Et()*tob2->Et()*(1 - cosphi);
       return round( tmass2 );
    }
+
+   unsigned int
+   calcTMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(tob1->phi() - tob2->phi())));
+      TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
+      TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
+      TSU::L1TopoDataTypes<22,0> bit_tmass2 = 2*bit_Et1*bit_Et2*(1.  - bit_cosphi);
+      return int(bit_tmass2) ;
+     // end bitwise implementation
+   }
+                                                                        
+      
 }
 
 
@@ -93,6 +110,57 @@ TCS::TransverseMassInclusive1::initialize() {
 }
 
 
+
+TCS::StatusCode
+TCS::TransverseMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                             const std::vector<TCS::TOBArray *> & output,
+                             Decision & decison )
+{
+
+   if(input.size() == 2) { // 2 lists because one is always MET
+
+
+
+      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+           tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
+           ++tob1) 
+         {
+            
+            
+            for( TOBArray::const_iterator tob2 = input[1]->begin();
+                 tob2 != input[1]->end() ;
+                 ++tob2) {
+
+               // T Mass calculation
+             
+	       unsigned int tmass2 = calcTMassBW( *tob1, *tob2 );
+
+
+               bool accept[6];
+               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+
+		  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+
+                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+
+                  accept[i] = tmass2 >= p_TMassMin[i] ; // 
+                  if( accept[i] ) {
+                     decison.setBit(i, true);  
+                     output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                  }
+                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " tmass2 = " << tmass2);
+
+               }
+            }
+         }
+   } else {
+
+      TCS_EXCEPTION("TransverseMassInclusive1 alg must have either 1  inputs, but got " << input.size());
+
+   }
+   return TCS::StatusCode::SUCCESS;
+
+}
 
 TCS::StatusCode
 TCS::TransverseMassInclusive1::process( const std::vector<TCS::TOBArray const *> & input,

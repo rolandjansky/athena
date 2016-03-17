@@ -18,6 +18,11 @@ namespace TCS {
 
       virtual StatusCode initialize();
 
+      virtual StatusCode processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                                  const std::vector<TCS::TOBArray *> & output,
+                                  Decision & decison );
+      
+
       
       virtual StatusCode process( const std::vector<TCS::TOBArray const *> & input,
                                   const std::vector<TCS::TOBArray *> & output,

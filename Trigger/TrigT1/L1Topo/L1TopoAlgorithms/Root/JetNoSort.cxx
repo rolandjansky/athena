@@ -19,7 +19,7 @@ TCS::JetNoSort::JetNoSort(const std::string & name) :
    defineParameter( "InputWidth", 64 ); // for FW
    defineParameter( "OutputWidth", 64 );
    defineParameter( "JetSize", 2 );
-//   m_jetsize = JetTOB::JS1;
+   m_jetsize = JetTOB::JS1;
 }
 
 

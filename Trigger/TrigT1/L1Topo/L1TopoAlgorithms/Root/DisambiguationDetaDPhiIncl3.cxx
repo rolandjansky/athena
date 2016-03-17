@@ -3,8 +3,8 @@
  * Created by Joerg Stelzer / V Sorin on 9/16/14.
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  * 
- * @brief algorithm calculates the dR distance between objects in three lists, check EM vs TAU , if those not match
- * check agains 3rd object, passed if no match with 3rd
+ * @brief algorithm calculates the dR distance between objects in three lists, check first two with eta/phi differences, if pass
+ * check dR agains 3rd object, passed if no match with 3rd
  *
  * @param NumberLeading
 **********************************/
@@ -50,6 +50,29 @@ namespace {
       return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
 
    }
+
+   unsigned int
+   calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      int dphiB = abs( tob1->phi() - tob2->phi() );
+      if(dphiB>32)
+         dphiB = 64 - dphiB; 
+
+      return dphiB ;
+   }
+
+   unsigned int
+   calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+
+      int detaB = abs( tob1->eta() - tob2->eta() );
+      int dphiB = abs( tob1->phi() - tob2->phi() );
+      if(dphiB>32)
+         dphiB = 64 - dphiB;
+
+      unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
+      return bit_dr2;
+
+   }
+
 
 }
 
@@ -112,7 +135,7 @@ TCS::DisambiguationDetaDPhiIncl3::initialize() {
    p_DeltaEtaMax = parameter("DeltaEtaMax").value();
 
 
-   for(int i=0; i<2; ++i) {
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_DisambDR[i] = parameter("DisambDR", i).value();
    }
 
@@ -141,6 +164,80 @@ TCS::DisambiguationDetaDPhiIncl3::initialize() {
 }
 
 
+
+TCS::StatusCode
+TCS::DisambiguationDetaDPhiIncl3::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                             const std::vector<TCS::TOBArray *> & output,
+                             Decision & decision )
+{
+
+      
+   if( input.size() == 3) {
+
+      
+      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
+           ++tob1)
+         {
+
+            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
+            if( parType_t(fabs((*tob1)->eta())) > p_EtaMax1 ) continue; // Eta cut
+            if( parType_t(fabs((*tob1)->eta())) < p_EtaMin1 ) continue; // Eta cut
+
+            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
+                 ++tob2) {
+
+               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
+               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
+
+               // DeltaPhi cuts
+               unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
+               // DeltaEta cuts
+               unsigned int deltaEta = calcDeltaEta( *tob1, *tob2 );
+
+               if(deltaPhi > p_DeltaPhiMax || deltaEta > p_DeltaEtaMax) continue;
+               if (deltaEta < p_DeltaEtaMin &&  deltaPhi < p_DeltaPhiMin ) continue;
+     
+	       for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
+                 tob3 != input[2]->end() ;
+                 ++tob3) {
+
+                    if( parType_t((*tob3)->Et()) <= p_MinET3) continue; // ET cut
+                    if( parType_t(fabs((*tob3)->eta())) > p_EtaMax3 ) continue; // Eta cut
+                    if( parType_t(fabs((*tob3)->eta())) < p_EtaMin3 ) continue; // Eta cut
+               
+		    unsigned int deltaR13 = calcDeltaR2BW( *tob1, *tob3 );
+		    unsigned int deltaR23 = calcDeltaR2BW( *tob2, *tob3 );
+
+                    bool accept[3];
+                    for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                       accept[i] = deltaR13 > p_DisambDR[i] && deltaR23 > p_DisambDR[i] ;
+                       if( accept[i] ) {
+                         decision.setBit(i, true);
+                         output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                       }
+	               TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR13 = " << deltaR13 << " deltaR23 = " << deltaR23);
+
+                    }
+
+               }
+ 
+
+
+
+            }
+      }
+
+   } else {
+
+      TCS_EXCEPTION("DisambiguationDetaDPhiIncl3 alg must have  3 inputs, but got " << input.size());
+
+   }
+   return TCS::StatusCode::SUCCESS;
+
+}
 
 TCS::StatusCode
 TCS::DisambiguationDetaDPhiIncl3::process( const std::vector<TCS::TOBArray const *> & input,
