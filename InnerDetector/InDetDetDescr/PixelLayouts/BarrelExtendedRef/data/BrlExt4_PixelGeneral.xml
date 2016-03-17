@@ -33,7 +33,7 @@
      <RadiusMax> 340.99 </RadiusMax>
      <ZMin> 731.11 </ZMin>
      <ZMax> 3405. </ZMax>
-     <RadiusList> 34.1  149.9 340.99 </RadiusList>
+     <RadiusList> 34.1  149.9 340.99</RadiusList>
      <ZMinList> 1278 745.1 </ZMinList>
   </PixelEndcapEnvelope>
 
