@@ -13,27 +13,31 @@ Predefined routes : inner_PST, outer_IST & inner_IST  -> routing along PST or IS
 Routes by position : radius=... -> radial position
                      z=...      -> z position
 -->
+
+<!-- defines the different type of services (barrel + endcap modules) for each leayer -->
 <PixelBarrelSvcType>
   <layer>0</layer>
   <service>BarrelLayer_0</service>
 </PixelBarrelSvcType>
 <PixelBarrelSvcType>
   <layer>1</layer>
-  <service>BarrelLayer_0</service>
+  <service>BarrelLayer_1</service>
 </PixelBarrelSvcType>
 <PixelBarrelSvcType>
   <layer>2</layer>
-  <service>BarrelLayer_1</service>
+  <service>BarrelLayer_2</service>
 </PixelBarrelSvcType>
 <PixelBarrelSvcType>
   <layer>3</layer>
-  <service>BarrelLayer_1</service>
+  <service>BarrelLayer_3</service>
 </PixelBarrelSvcType>
 <PixelBarrelSvcType>
   <layer>4</layer>
-  <service>BarrelLayer_1</service>
+  <service>BarrelLayer_3</service>
 </PixelBarrelSvcType>
 
+<!-- Defines the BARREL service routes -->
+<!--    EOS params are not used yet -->
 <PixelSvcRoute>
   <layer>0 1 </layer>
   <type>barrel</type>
@@ -43,7 +47,6 @@ Routes by position : radius=... -> radial position
   <r> r_Layer r_Layer inner_IST inner_IST</r>
   <z> zMax_Layer zMax_AllLayer zMax_AllLayer zMax_IST</z>
 </PixelSvcRoute>
-
 
 <PixelSvcRoute>
   <layer>2 3 4 </layer>
@@ -55,10 +58,13 @@ Routes by position : radius=... -> radial position
   <z> zMax_Layer zMax_AllLayer zMax_AllLayer zMax_PST</z>
 </PixelSvcRoute>
 
+<!-- Defines the ECRing service routes -->
+<!--    From innermost to outermost ring layer -->
+<!--    EOS params are not used yet -->
 <PixelSvcRoute>
   <layer>14 17 22 25 29 32 35 39 41 44 48 50 54 57 59 63 64</layer>
   <type>endcap</type>
-  <service>EndcapRing</service>
+  <service>EndcapRing_0</service>
   <thickness> .5 </thickness> 
   <zgap> 3.</zgap>
   <r> rMin_Disc_14+2. rMax_Disc_14+.02 rMax_Disc_14+.02</r>
@@ -68,7 +74,7 @@ Routes by position : radius=... -> radial position
 <PixelSvcRoute>
   <layer>0 3 6 8 11 15 18 21 24 28 30 34 38 43 47 52 56 61 65</layer>
   <type>endcap</type>
-  <service>EndcapRing</service>
+  <service>EndcapRing_1</service>
   <thickness> .5 </thickness> 
   <zgap> 3.</zgap>
   <r> rMin_Disc_0+2. rMax_Disc_0+.02 rMax_Disc_0+.02</r>
@@ -78,7 +84,7 @@ Routes by position : radius=... -> radial position
 <PixelSvcRoute>
   <layer>1 5 9 12 16 19 23 27 31 36 40 46 51 55 60 66</layer>
   <type>endcap</type>
-  <service>EndcapRing</service>
+  <service>EndcapRing_1</service>
   <thickness> .5 </thickness> 
   <zgap> 3.</zgap>
   <r> rMin_Disc_1+2. rMax_Disc_1+.02 rMax_Disc_1+.02</r>
@@ -88,13 +94,12 @@ Routes by position : radius=... -> radial position
 <PixelSvcRoute>
   <layer>2 4 7 10 13 20 26 33 37 42 45 49 53 58 62 67</layer>
   <type>endcap</type>
-  <service>EndcapRing</service>
+  <service>EndcapRing_2</service>
   <thickness> .5 </thickness> 
   <zgap> 3.</zgap>
   <r> rMin_Disc_2+2. rMax_Disc_2+.02 rMax_Disc_2+.02</r>
   <z> z_Disc+5. z_Disc+5. zMax_PST</z>
 </PixelSvcRoute>
-
 
 <PixelBarrelEOScard>
 <name> EOS_pixel_layer</name>
@@ -104,39 +109,76 @@ Routes by position : radius=... -> radial position
 <LayerLengthTolerance> 1 </LayerLengthTolerance>
 </PixelBarrelEOScard>
 
-
+<!-- Describe the different cable & cooling service for a set of services -->
+<!-- CMDCLK and DCS are TP32, HV is HVTP36, LV is LVTP22 -->
 <ServiceSet>
   <name>BarrelLayer_0</name>
-  <Service>  LV_quad   /10_module  lin std::Copper  0.00175616  std::Aluminium  0.0029988   pix::Polyimide  0.0040334   Cu-clad_Al  </Service>
-  <Service>  HV   /10_module  lin std::Copper  0.000361386666667  std::Aluminium  0.0   pix::Polyimide  8.30666666667e-05   Cu  </Service>
-  <Service>  data   /5_module  lin std::Copper  0.000540586666667  std::Aluminium  0.0   pix::Polyimide  0.00226776666667   Cu  </Service>
-  <Service>  DCS1   /4_module  lin std::Copper  0.000552533333333  std::Aluminium  0.0009414   pix::Polyimide  0.00191193333333   Cu-clad_Al  </Service>
-  <Service>  DCS2   /1_stave  lin std::Copper  0.00022848  std::Aluminium  0.0   pix::Polyimide  5.32e-05   Cu  </Service>
-  <Service>  DCS3   /4_module  lin std::Copper  0.0018368  std::Aluminium  0.0   pix::Polyimide  0.00205566666667   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2 *2_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+  <Service>  data   *2_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /5_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /5_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /5_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 1.525 1.8 pix::CoolingFluid std::Titanium</Cooling>
 </ServiceSet>
-
 
 <ServiceSet>
   <name>BarrelLayer_1</name>
-  <Service>  LV_quad   /10_module  lin std::Copper  0.00175616  std::Aluminium  0.0029988   pix::Polyimide  0.0040334   Cu-clad_Al  </Service>
-  <Service>  HV   /10_module  lin std::Copper  0.000361386666667  std::Aluminium  0.0   pix::Polyimide  8.30666666667e-05   Cu  </Service>
-  <Service>  data   /5_module  lin std::Copper  0.000540586666667  std::Aluminium  0.0   pix::Polyimide  0.00226776666667   Cu  </Service>
-  <Service>  DCS1   /4_module  lin std::Copper  0.000552533333333  std::Aluminium  0.0009414   pix::Polyimide  0.00191193333333   Cu-clad_Al  </Service>
-  <Service>  DCS2   /1_stave  lin std::Copper  0.00022848  std::Aluminium  0.0   pix::Polyimide  5.32e-05   Cu  </Service>
-  <Service>  DCS3   /4_module  lin std::Copper  0.0018368  std::Aluminium  0.0   pix::Polyimide  0.00205566666667   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2 *2_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+  <Service>  data   *2_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /5_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /5_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /5_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
 </ServiceSet>
 
 <ServiceSet>
-  <name>EndcapRing</name>
-  <Service>  LV_quad   /10_module  lin std::Copper  0.00175616  std::Aluminium  0.0029988   pix::Polyimide  0.0040334   Cu-clad_Al  </Service>
-  <Service>  HV   /10_module  lin std::Copper  0.000361386666667  std::Aluminium  0.0   pix::Polyimide  8.30666666667e-05   Cu  </Service>
-  <Service>  data   /5_module  lin std::Copper  0.000540586666667  std::Aluminium  0.0   pix::Polyimide  0.00226776666667   Cu  </Service>
-  <Service>  DCS1   /4_module  lin std::Copper  0.000552533333333  std::Aluminium  0.0009414   pix::Polyimide  0.00191193333333   Cu-clad_Al  </Service>
-  <Service>  DCS2   /1_stave  lin std::Copper  0.00022848  std::Aluminium  0.0   pix::Polyimide  5.32e-05   Cu  </Service>
-  <Service>  DCS3   /4_module  lin std::Copper  0.0018368  std::Aluminium  0.0   pix::Polyimide  0.00205566666667   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2 *2_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+  <name>BarrelLayer_2</name>
+  <Service>  data   *2_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /6_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+</ServiceSet>
+
+<ServiceSet>
+  <name>BarrelLayer_3</name>
+  <Service>  data   /1_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /6_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+</ServiceSet>
+
+<ServiceSet>
+  <name>EndcapRing_0</name>
+  <Service>  data   *4_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /4_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /4_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /4_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+</ServiceSet>
+
+<ServiceSet>
+  <name>EndcapRing_1</name>
+  <Service>  data   *2_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /6_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+</ServiceSet>
+
+<ServiceSet>
+  <name>EndcapRing_2</name>
+  <Service>  data   /1_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /6_module  lin std::Copper  0.00022  std::Aluminium  0.00205   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
 </ServiceSet>
 
 </PixelRoutingServices>
