@@ -215,12 +215,19 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
     double mass            = particle.mass();
     double energy          = sqrt(mass*mass + mom.mag2());
 
+    // Use barcode of generation zero particle from truth binding if possible (reproduces legacy AtlasG4 behaviour).
+    // Use barcode assigend to ISFParticle only if no generation zero particle is present.
+    auto                truthBinding = particle.getTruthBinding();
+    auto generationZeroTruthParticle = truthBinding ? truthBinding->getGenerationZeroTruthParticle() : nullptr;
+    Barcode::ParticleBarcode barcode = generationZeroTruthParticle ? generationZeroTruthParticle->barcode()
+                                                                   : particle.barcode();
+
     m_collection[layerHit]->Emplace(particle.pdgCode(),
                                     energy,
                                     hepMom,
                                     hepPos,
                                     particle.timeStamp(),
-                                    particle.barcode(),
+                                    barcode,
                                     m_volumeName[layerHit] );
   }
 
