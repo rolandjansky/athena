@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include <algorithm>
 #include "TH1F.h"
 
@@ -92,8 +93,8 @@ TCS::MinDeltaPhiIncl2::initialize() {
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
 
    // create strings for histogram names
-   ostringstream MyAcceptHist[numberOutputBits()];
-   ostringstream MyRejectHist[numberOutputBits()];
+   vector<ostringstream> MyAcceptHist(numberOutputBits());
+   vector<ostringstream> MyRejectHist(numberOutputBits());
    
    for (unsigned int i=0;i< numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i]  << "MinDPhi2"; 

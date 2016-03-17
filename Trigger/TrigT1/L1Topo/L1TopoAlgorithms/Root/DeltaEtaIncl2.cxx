@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include "TH1F.h"
 
 #include "L1TopoAlgorithms/DeltaEtaIncl2.h"
@@ -92,8 +93,8 @@ TCS::DeltaEtaIncl2::initialize() {
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
    // create strings for histogram names
-   ostringstream MyAcceptHist[numberOutputBits()];
-   ostringstream MyRejectHist[numberOutputBits()];
+   vector<ostringstream> MyAcceptHist(numberOutputBits());
+   vector<ostringstream> MyRejectHist(numberOutputBits());
    
    for (unsigned int i=0;i<numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaEtaMin[i] << "DEta"; 
