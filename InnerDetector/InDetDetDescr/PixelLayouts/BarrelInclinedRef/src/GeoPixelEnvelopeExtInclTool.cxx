@@ -282,10 +282,16 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
   //   InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
   //   xMat.add(envelopePhys,"Pixel");
   
-  //  // reset BarrelEndcap value to zero
-  //  gmt_mgr->SetBarrel();
+  // //  // reset BarrelEndcap value to zero
+  // //  gmt_mgr->SetBarrel();
   
-  if(m_IDserviceTool) m_IDserviceTool->buildAndPlace("Pixel", envelopePhys);
+  // Place pixel envelope services - static and dynamic services
+  // if(m_IDserviceTool) m_IDserviceTool->buildAndPlace("Pixel", envelopePhys);
+  if(m_IDserviceTool){
+    double zOffset = 0.;
+    std::vector<std::string> svcList;    
+    m_IDserviceTool->buildAndPlace("P", envelopePhys, zOffset, svcList, true, true);
+  }
 
   return envelopePhys;
   
