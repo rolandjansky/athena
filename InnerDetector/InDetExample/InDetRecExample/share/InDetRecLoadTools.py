@@ -81,9 +81,11 @@ if InDetFlags.doPixelClusterSplitting():
         ToolSvc += NnClusterizationFactory
 
         # special setup for DVRetracking mode
-        if InDetFlags.doDVRetracking() :
+        # if InDetFlags.doDVRetracking() :
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
            # COOL binding
-           from IOVDbSvc.CondDB import conddb
+           # from IOVDbSvc.CondDB import conddb
            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
 
         print NnClusterizationFactory  

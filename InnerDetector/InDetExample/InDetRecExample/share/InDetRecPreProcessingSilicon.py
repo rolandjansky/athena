@@ -87,9 +87,6 @@ if InDetFlags.doPRDFormation():
                                                                  SplitOnlyOnBLayer                   = False,
                                                                  useBeamSpotInfo                     = useBeamConstraint)
 
-            # COOL binding
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
             
             ToolSvc += NnPixelClusterSplitter
             if (InDetFlags.doPrintConfigurables()):
