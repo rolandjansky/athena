@@ -5,7 +5,7 @@
 #                   tasks) 
 # detectors : ID = bpipe pixel SCT TRT BCM DBM
 #             Forward = Lucid ZDC ALFA AFP FwdRegion
-#             LAr = em HEC FCal 
+#             LAr = em HEC FCal HGTD 
 #             Calo = em HEC FCal Tile
 #             Muon = MDT CSC TGC RPC sTGC Micromegas
 #             Truth
@@ -81,6 +81,7 @@ class DetFlags:
             self._flag_HEC   = False
             self._flag_FCal  = False
             self._flag_Tile  = False
+            self._flag_HGTD  = False
             # Muon
             self._flag_MDT   = False
             self._flag_CSC   = False
@@ -160,6 +161,7 @@ class DetFlags:
             self.HEC_setOff()
             self.FCal_setOff()
             self.Tile_setOff()
+            self.HGTD_setOff()
         def LAr_setOn (self):
             self.em_setOn()
             self.HEC_setOn()
@@ -168,6 +170,7 @@ class DetFlags:
             self.em_setOff()
             self.HEC_setOff()
             self.FCal_setOff()
+            self.HGTD_setOff()
         def Muon_setOn (self):
             self.MDT_setOn()
             self.CSC_setOn()
@@ -380,6 +383,10 @@ class DetFlags:
         cls._setAllTask('Tile','setOn')
     def Tile_setOff (cls):
         cls._setAllTask('Tile','setOff')
+    def HGTD_setOn (cls):
+        cls._setAllTask('HGTD','setOn')
+    def HGTD_setOff (cls):
+        cls._setAllTask('HGTD','setOff')
 
     def MDT_setOn (cls):
         cls._setAllTask('MDT','setOn')
@@ -494,6 +501,8 @@ class DetFlags:
         return cls._anyTask_on('FCal')
     def Tile_on (cls):
         return cls._anyTask_on('Tile')
+    def HGTD_on (cls):
+        return cls._anyTask_on('HGTD')
 
     def MDT_on (cls):
         return cls._anyTask_on('MDT')
@@ -539,7 +548,7 @@ class DetFlags:
     def Print (cls):
         id  =["bpipe","pixel","SCT","TRT","BCM","DBM"]
         forward=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]
-        calo=["em","HEC","FCal","Tile"]
+        calo=["em","HEC","FCal","Tile","HGTD"]
         muon=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]
         truth=["Truth"]
         l1=["LVL1"]
@@ -605,6 +614,8 @@ class DetFlags:
     FCal_setOff  = classmethod(FCal_setOff)
     Tile_setOn   = classmethod(Tile_setOn)
     Tile_setOff  = classmethod(Tile_setOff)
+    HGTD_setOn   = classmethod(HGTD_setOn)
+    HGTD_setOff  = classmethod(HGTD_setOff)
     MDT_setOn    = classmethod(MDT_setOn)
     MDT_setOff   = classmethod(MDT_setOff)
     CSC_setOn    = classmethod(CSC_setOn)
@@ -654,6 +665,7 @@ class DetFlags:
     HEC_on       = classmethod(HEC_on)
     FCal_on      = classmethod(FCal_on)
     Tile_on      = classmethod(Tile_on)
+    HGTD_on      = classmethod(HGTD_on)
     MDT_on       = classmethod(MDT_on)
     CSC_on       = classmethod(CSC_on)
     TGC_on       = classmethod(TGC_on)
