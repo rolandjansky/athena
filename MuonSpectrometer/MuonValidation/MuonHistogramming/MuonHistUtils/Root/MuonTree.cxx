@@ -11,46 +11,46 @@ namespace Muon{
   MuonTree::MuonTree(PlotBase* pParent, std::string sDir):
     PlotBase(pParent, sDir),
     tree(NULL),
-    pCB(-999.),
-    pMS(-999.),
-    pMExtrapol(-999.),
-    pTruth(-999.),
-    pTruthMS(-999.),
-    etaCB(-999.),
-    etaMS(-999.),
-    etaMExtrapol(-999.),
-    etaTruth(-999.),
-    etaTruthMS(-999.),
-    phiCB(-999.),
-    phiMS(-999.),
-    phiMExtrapol(-999.),
-    phiTruth(-999.),
-    phiTruthMS(-999.),
-    elossMeasured(-999.)
+    m_pCB(-999.),
+    m_pMS(-999.),
+    m_pMExtrapol(-999.),
+    m_pTruth(-999.),
+    m_pTruthMS(-999.),
+    m_etaCB(-999.),
+    m_etaMS(-999.),
+    m_etaMExtrapol(-999.),
+    m_etaTruth(-999.),
+    m_etaTruthMS(-999.),
+    m_phiCB(-999.),
+    m_phiMS(-999.),
+    m_phiMExtrapol(-999.),
+    m_phiTruth(-999.),
+    m_phiTruthMS(-999.),
+    m_elossMeasured(-999.)
   {}
   
   void MuonTree::initializePlots()
   {
     tree = BookTree("MuonTree");
     
-    tree->Branch("pCB", &pCB, "pCB/F");
-    tree->Branch("pMS", &pMS, "pMS/F");
-    tree->Branch("pMExtrapol", &pMExtrapol, "pMExtrapol/F");
-    tree->Branch("pTruth", &pTruth, "pTruth/F");
-    tree->Branch("pTruthMS", &pTruthMS, "pTruthMS/F");
+    tree->Branch("pCB", &m_pCB, "pCB/F");
+    tree->Branch("pMS", &m_pMS, "pMS/F");
+    tree->Branch("pMExtrapol", &m_pMExtrapol, "pMExtrapol/F");
+    tree->Branch("pTruth", &m_pTruth, "pTruth/F");
+    tree->Branch("pTruthMS", &m_pTruthMS, "pTruthMS/F");
 
-    tree->Branch("etaCB", &etaCB, "etaCB/F");
-    tree->Branch("etaMS", &etaMS, "etaMS/F");
-    tree->Branch("etaMExtrapol", &etaMExtrapol, "etaMExtrapol/F");
-    tree->Branch("etaTruth", &etaTruth, "etaTruth/F");
-    tree->Branch("etaTruthMS", &etaTruthMS, "etaTruthMS/F");
-    tree->Branch("phiCB", &phiCB, "phiCB/F");
-    tree->Branch("phiMS", &phiMS, "phiMS/F");
-    tree->Branch("phiMExtrapol", &phiMExtrapol, "phiMExtrapol/F");
-    tree->Branch("phiTruth", &phiTruth, "phiTruth/F");
-    tree->Branch("phiTruthMS", &phiTruthMS, "phiTruthMS/F");
+    tree->Branch("etaCB", &m_etaCB, "etaCB/F");
+    tree->Branch("etaMS", &m_etaMS, "etaMS/F");
+    tree->Branch("etaMExtrapol", &m_etaMExtrapol, "etaMExtrapol/F");
+    tree->Branch("etaTruth", &m_etaTruth, "etaTruth/F");
+    tree->Branch("etaTruthMS", &m_etaTruthMS, "etaTruthMS/F");
+    tree->Branch("phiCB", &m_phiCB, "phiCB/F");
+    tree->Branch("phiMS", &m_phiMS, "phiMS/F");
+    tree->Branch("phiMExtrapol", &m_phiMExtrapol, "phiMExtrapol/F");
+    tree->Branch("phiTruth", &m_phiTruth, "phiTruth/F");
+    tree->Branch("phiTruthMS", &m_phiTruthMS, "phiTruthMS/F");
 
-    tree->Branch("elossMeasured", &elossMeasured, "elossMeasured/F");
+    tree->Branch("elossMeasured", &m_elossMeasured, "elossMeasured/F");
   }
 
   void MuonTree::fillTree(const xAOD::Muon& muon, const xAOD::TrackParticle* msTrk, const xAOD::TruthParticle& truthMu)
@@ -71,62 +71,62 @@ namespace Muon{
     if (muon.isAvailable< ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink") && (muon.auxdata<ElementLink<xAOD::TrackParticleContainer> >("extrapolatedMuonSpectrometerTrackParticleLink")).isValid()) correctEnum+=2; //check correct numbering in Muon.h
     const xAOD::TrackParticle* msExtrapTrk = muon.trackParticle((xAOD::Muon::TrackParticleType) correctEnum);
       
-    pTruth = truthMu.p4().P();
-    pCB = muPrimaryTrk->p4().P();
+    m_pTruth = truthMu.p4().P();
+    m_pCB = muPrimaryTrk->p4().P();
 
-    etaTruth = truthMu.p4().Eta();
-    etaCB = muPrimaryTrk->p4().Eta();
+    m_etaTruth = truthMu.p4().Eta();
+    m_etaCB = muPrimaryTrk->p4().Eta();
 
-    phiTruth = truthMu.p4().Phi();
-    phiCB = muPrimaryTrk->p4().Phi();
+    m_phiTruth = truthMu.p4().Phi();
+    m_phiCB = muPrimaryTrk->p4().Phi();
 
 
-    pMExtrapol = 0;
+    m_pMExtrapol = 0;
     if (msExtrapTrk) {
-      pMExtrapol = msExtrapTrk->p4().P();
-      etaMExtrapol = msExtrapTrk->p4().Eta();
-      phiMExtrapol = msExtrapTrk->p4().Phi();
+      m_pMExtrapol = msExtrapTrk->p4().P();
+      m_etaMExtrapol = msExtrapTrk->p4().Eta();
+      m_phiMExtrapol = msExtrapTrk->p4().Phi();
     }
     else{
-      pMExtrapol = -999;
-      etaMExtrapol = -999;
-      phiMExtrapol = -999;
+      m_pMExtrapol = -999;
+      m_etaMExtrapol = -999;
+      m_phiMExtrapol = -999;
     }
     //muon extrapolated
-    pMS = 0;
+    m_pMS = 0;
     if (msTrk) {
-      pMS = msTrk->p4().P(); //at muon spectrometer entry//@@@
-      etaMS = msTrk->p4().Eta(); //at muon spectrometer entry//@@@
-      phiMS = msTrk->p4().Phi(); //at muon spectrometer entry//@@@
+      m_pMS = msTrk->p4().P(); //at muon spectrometer entry//@@@
+      m_etaMS = msTrk->p4().Eta(); //at muon spectrometer entry//@@@
+      m_phiMS = msTrk->p4().Phi(); //at muon spectrometer entry//@@@
     }
     else{
-      pMS = -999; //at muon spectrometer entry//@@@
-      etaMS = -999; //at muon spectrometer entry//@@@
-      phiMS = -999; //at muon spectrometer entry//@@@
+      m_pMS = -999; //at muon spectrometer entry//@@@
+      m_etaMS = -999; //at muon spectrometer entry//@@@
+      m_phiMS = -999; //at muon spectrometer entry//@@@
     }
 
 #ifndef XAOD_ANALYSIS
     // measured E-loss
-    if (!muon.parameter(elossMeasured,xAOD::Muon::MeasEnergyLoss)) {
-      elossMeasured = -999.;
+    if (!muon.parameter(m_elossMeasured,xAOD::Muon::MeasEnergyLoss)) {
+      m_elossMeasured = -999.;
     }
 #endif // not XAOD_ANALYSIS
     
-    pTruthMS = 0; //p truth at MS entry
+    m_pTruthMS = 0; //p truth at MS entry
     if (truthMu.isAvailable<float>("MuonEntryLayer_px") &&
 	truthMu.isAvailable<float>("MuonEntryLayer_py") &&
 	truthMu.isAvailable<float>("MuonEntryLayer_pz") ) {
       TVector3 pvecTruthMS(truthMu.auxdata<float>("MuonEntryLayer_px"),
 			   truthMu.auxdata<float>("MuonEntryLayer_py"),
 			   truthMu.auxdata<float>("MuonEntryLayer_pz"));
-      pTruthMS = pvecTruthMS.Mag();
-      etaTruthMS = pvecTruthMS.Eta();
-      phiTruthMS = pvecTruthMS.Phi();
+      m_pTruthMS = pvecTruthMS.Mag();
+      m_etaTruthMS = pvecTruthMS.Eta();
+      m_phiTruthMS = pvecTruthMS.Phi();
     }
     else{
-      pTruth = -999;
-      etaTruth = -999;
-      phiTruth = -999;
+      m_pTruth = -999;
+      m_etaTruth = -999;
+      m_phiTruth = -999;
     }
 
     tree->Fill();
