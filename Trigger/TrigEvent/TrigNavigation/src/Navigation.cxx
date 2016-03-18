@@ -22,6 +22,7 @@ Navigation::Navigation(  const std::string& type, const std::string& name,
   : AthAlgTool(type, name, parent),
     m_serializerServiceHandle("TrigSerializeCnvSvc", name),
     m_storeGateHandle("StoreGateSvc", name),
+    m_clidSvc("ClassIDSvc", name),
     m_fullholderfactory(m_objectsKeyPrefix)
 {
 
@@ -42,7 +43,7 @@ Navigation::Navigation(  const std::string& type, const std::string& name,
   declareProperty("Dlls",  m_dlls, "Libraries to load (with trigger EDM)");
   declareProperty("ObjectsKeyPrefix", m_objectsKeyPrefix="HLT", "The prefix which all Trigger EDM objects will get, by default it is HLT");
   declareProperty("ObjectsIndexOffset", m_objectsIndexOffset=0, "The offset with which the objects idx is be shifted.");
-
+  declareProperty("ReadonlyHolders", m_readonly = false, "read only flag for holders (cannot create new feature containers");
   declareInterface<Navigation>(this);
 }
 
@@ -80,9 +81,10 @@ StatusCode Navigation::initialize() {
   }
   m_serializerSvc = m_serializerServiceHandle.operator->();
 
-  m_fullholderfactory.prepare(m_storeGate,m_serializerSvc);
+  m_fullholderfactory.prepare(m_storeGate,m_serializerSvc,m_readonly);
   m_holderfactory = &m_fullholderfactory;
 
+  CHECK(m_clidSvc.retrieve());
 
   // payload def
   if ( classKey2CLIDKey(m_classesToPayloadProperty,  m_classesToPayload).isFailure() ) {
@@ -150,11 +152,6 @@ Navigation::classKey2CLIDKey(const std::vector<std::string> property,
                              std::vector<std::pair<CLID,
                              std::string> >& decoded ) {
   // translate Class names into CLID numbers
-  IClassIDSvc* clidSvc;
-  if( service("ClassIDSvc", clidSvc).isFailure() ) {
-    (*m_log) << MSG::FATAL << "Unable to get pointer to CLIDSvc Service" << endreq;
-    return StatusCode::FAILURE;
-  }
 
   std::vector<std::string>::const_iterator it;
   for ( it = property.begin(); it != property.end(); ++it ) {
@@ -170,7 +167,7 @@ Navigation::classKey2CLIDKey(const std::vector<std::string> property,
       key = "";
     }
 
-    if ( clidSvc->getIDOfTypeName(type, clid).isFailure() ) {
+    if ( m_clidSvc->getIDOfTypeName(type, clid).isFailure() ) {
       (*m_log) << MSG::FATAL << "Unable to get CLID for class: " << *it
                << " check property" << endreq;
       return StatusCode::FAILURE;

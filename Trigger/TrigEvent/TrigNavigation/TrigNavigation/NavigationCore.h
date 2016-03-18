@@ -17,8 +17,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "DataModel/OwnershipPolicy.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/OwnershipPolicy.h"
+#include "AthContainers/DataVector.h"
 
 #include "StoreGate/StoreGateSvc.h"
 

@@ -35,10 +35,11 @@ IHolder::~IHolder() {
   if ( m_aux ) { delete m_aux; }
 }
 
-void IHolder::prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer) {
+void IHolder::prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly) {
   m_storeGate = sg;
   m_log = log;
   m_objectserializerSvc = objSerializer;
+  m_readonly = readonly;
 }
 
 bool IHolder::serialize(std::vector<uint32_t>& output)  const {

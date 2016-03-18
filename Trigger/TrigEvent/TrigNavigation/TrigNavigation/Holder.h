@@ -11,9 +11,9 @@
 
 #include "GaudiKernel/ClassID.h"
 
-#include "DataModel/OwnershipPolicy.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthContainers/OwnershipPolicy.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "SGTools/StorableConversions.h"
 
 #include "TrigNavigation/AccessProxy.h"
@@ -57,7 +57,7 @@ namespace HLTNavDetails {
      * @brief prepares this holder by setting messaging, StoreGate access and providing serializer
      */
     
-    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer);
+    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly);
     
     virtual bool syncWithSG(SG::OwnershipPolicy policy = SG::OWN_ELEMENTS) = 0;
 
@@ -149,6 +149,7 @@ namespace HLTNavDetails {
     std::string  m_label;          //!< label given to the objects in this holder (labels given at attachFeature)
     std::string  m_prefix;         //!< prefix for key given to the objects
     uint16_t     m_subTypeIndex;   //!< index to notify how many objects of given type we have (we need to record it in case of slimming will be done latter)
+    bool         m_readonly;     
     ITypeProxy*  m_aux;
   private:
     mutable std::ostringstream m_ostream; //!< used internally for keys generation
@@ -271,7 +272,7 @@ namespace HLTNavDetails {
     virtual std::string getUniqueKey(); // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
     virtual std::string getNextKey();   // this is backward compatibility for TrigCaloRec and TrigTauRec, whould be removed
 
-    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer);
+    virtual void prepare(MsgStream* log, HLT::AccessProxy* sg, IConversionSvc* objSerializer, bool readonly = false);
     virtual bool syncWithSG(SG::OwnershipPolicy policy=SG::OWN_ELEMENTS);
     virtual bool checkAndSetOwnership(SG::OwnershipPolicy policy);
 

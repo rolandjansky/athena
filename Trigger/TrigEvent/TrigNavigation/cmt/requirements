@@ -9,8 +9,8 @@ use  GaudiInterface             GaudiInterface-*                External
 use  CLIDSvc                    CLIDSvc-*                       Control
 use  StoreGate                  StoreGate-*                     Control
 use  SGTools                    SGTools-*                       Control
-use  DataModel                  DataModel-*                     Control
 use  AthContainers              AthContainers-*                 Control
+use  AthLinks                   AthLinks-*                      Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
