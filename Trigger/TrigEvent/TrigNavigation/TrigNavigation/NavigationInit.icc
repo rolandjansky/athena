@@ -11,7 +11,7 @@
 //#include "GaudiKernel/MsgStream.h"
 #include <boost/type_traits/is_same.hpp>
 
-#include "DataModel/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
 
@@ -84,16 +84,19 @@ template<typename T>
 struct ConstDVCompatible{
   typedef char yes[2];typedef char no[1];
 
-  template<typename X, X>
-  struct Help{
-  };
+  // ATR-13318
+  //  template<typename X, X>
+  //  struct Help{
+  //  };
 
   template<typename C>
-  static auto f(Help<decltype(&C::resize),&C::resize>*) -> yes&;
+  //  static auto f(Help<decltype(&C::resize),&C::resize>*) -> yes&;
+  static yes& f(decltype(&C::resize));
 
   template<typename C>
-  static auto f(...) -> no&;
-  
+  //  static auto f(...) -> no&;
+  static no& f(...);
+
   static const bool value = sizeof(f<T>(0)) == sizeof(yes);
 };
   

@@ -41,7 +41,7 @@ StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typ
   if ( ! base_holder ) REPORT_AND_STOP ("Holder can't create base holder" );
   
 
-  iholder->prepare(msglog, pStore,0);
+  iholder->prepare(msglog, pStore,0, false);
   if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
   
   END_TEST;

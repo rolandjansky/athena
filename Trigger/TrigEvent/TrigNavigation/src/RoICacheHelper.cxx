@@ -15,7 +15,23 @@
  *****************************************************************************/
 
 
+//#define PCI(__msg) std::cout << "-- caching info: " <<  __msg << std::endl;
+#define PCI(__msg) 
+
+
+
+
 using namespace HLT;
+/*
+void xx_print( const TriggerElement::FeatureVec& fe, const std::string& prefix) {  
+  TriggerElement::FeatureVec::const_iterator i;
+  for ( i = fe.begin(); i != fe.end(); ++i ) {
+    PCI (prefix << " " << *i );
+    //    log << prefix << " " << *i << endreq;
+  }
+}
+*/
+
 enum RoICacheHelper::CachingMode RoICacheHelper::s_cachingMode=RoICacheHelper::HistoryBased;
 
 bool RoICacheHelper::cache ( TriggerElement* te ) {
@@ -80,11 +96,14 @@ bool RoICacheHelper::isInputAccepted ( const TriggerElement* te ) {
 
 bool RoICacheHelper::needsExecution ( const TriggerElement* te ) {
   std::vector<class CacheEntry>::iterator it;
+  PCI( "needsExecution ? looking for caches" );
   it = find(m_caches.begin(), m_caches.end(), te);
   if ( m_caches.end() == it ) {
     m_caches.push_back( CacheEntry(te) );
+    PCI( "Execution needed" );
     return true;
   }
+  PCI( "Found appropriate cache - can avoid execution" );
   return false;
 }
 
@@ -108,6 +127,7 @@ bool RoICacheHelper::stopCaching( const TriggerElement* te ) {
     return false;
 
   cache.add(RoICacheHistory::instance().getFeatureCalls());
+
   /*
   // print the history
   std::vector<RoICacheHistory::Question>::const_iterator histIt;
@@ -159,26 +179,24 @@ void printObjects(MsgStream* mlog, const TriggerElement* cache, const TriggerEle
 bool RoICacheHelper::CacheEntry::operator== (const std::vector<TriggerElement*>& roite) const {
   return m_rois == std::set<const TriggerElement*>(roite.begin(), roite.end());
 }
-/*
-void xx_print( MsgStream& log, const TriggerElement::FeatureVec& fe, const std::string& prefix) {
-  
-  TriggerElement::FeatureVec::const_iterator i;
-  for ( i = fe.begin(); i != fe.end(); ++i ) {
-    log << MSG::DEBUG << prefix << " " << *i << endreq;
-  }
-}
-*/
+
 
 bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
-  if (s_cachingMode == None)
+  PCI("   Comparing this TE to the next cache entry")
+
+  if (s_cachingMode == None) {
+    PCI ( "caching disabled" );
     return false;
+  }
   
 
   // check if set of RoIs is identical
   const std::vector<TriggerElement*> &tvec = TrigNavStructure::getRoINodes(curr);
   if ( m_rois != std::set<const TriggerElement*>(tvec.begin(), tvec.end()) ) {
+    PCI ( "distinct set of RoIs" );
     return false;
   }
+  PCI ( "Seen this RoI already, checking further" );
   if ( s_cachingMode == RoIOnly )
     return true;
 
@@ -197,8 +215,10 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
   }
   
   // History based check
-  if ( s_cachingMode != HistoryBased )
+  if ( s_cachingMode != HistoryBased ) {
+    PCI ( "history based check is the last to try but the option is different" );
     return false;
+  }
   
   // No history... no future
   if(m_questions.empty()) {
@@ -238,6 +258,7 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
       const std::vector<TriggerElement*> &iwvec = TrigNavStructure::getDirectPredecessors(it->getWorkTE());
       if(iwvec.size() != 1 || iwvec[0] != it->getInitTE()) {
         // Should never happen - answers always come from single pred.
+	PCI("caching does not happen because of iwvec size !- 1 or init TE used");
         return false;
       }
       
@@ -245,6 +266,7 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
       navig->getFeatureAccessors(pvec[0], it->clid(), it->label(), it->issingle(), fvec, false, true);
     } else {
       // Previous history not unique (i.e. the navigaiton tree was traversed in some custom way in Fex)
+      PCI("previous history not unique");
       return false;
     }
 
@@ -257,48 +279,54 @@ bool RoICacheHelper::CacheEntry::operator== (const TriggerElement* curr) const {
         if ( fvec.empty() ) {
           continue;
         } else {
-          // Else we need running. In first pass Fex could not get this object while now can. Clearly it would do different thing now.
+          // Else we need running. In first pass Fex could not get this object while now can. Clearly it would do different result now.
+	  PCI("Now can get the object");
           return false;
         }
       } else {
-        if (fvec.empty())
+        if (fvec.empty()) {
+	  PCI("Object was available before but now is not");
           return false; // This is inverted situation, frist time we got answer, but not this case, again we need to to run.
-	
+	}
         // Now we need to do fancy check
-        // In first pass and now we got some answers (features found) we need to check if they would be the same ...
+        // In first pass and now we got some answers (features found). Now we need to check if they would be the same ...
         // but not compleetly, i.e. only as many objects as were of interest first time (i.e. one)
         if ( !std::equal(it->getAnswers().begin(), it->getAnswers().end(), fvec.begin()) ) {
+	  PCI("result of getFeature (i.e. single obj request) and currently available set of objects differ in content " << fvec.size() << " " <<  it->getAnswers().size());
+	  //	  xx_print(fvec, "questions");
+	  //	  xx_print(it->getAnswers(), "in cache");
           return false;
-          //	  MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
-          //	  	  log << MSG::DEBUG << "single history differs: " << fvec.size() << " " <<  it->getAnswers().size() << endreq;
-          //	  	  xx_print(log, fvec,             "questions");
-          //	  	  xx_print(log, it->getAnswers(), "in cache ");
+
         }
       }
     } else {
       // This is case for getFeature*s* (many features requested)
       // First of all need to check if the number of objects is the same.
       if( fvec.size() !=  it->getAnswers().size() ) {
-        //		MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
-        //		log << MSG::DEBUG << "history sizes incompatible this time: " << fvec.size() << " " <<  it->getAnswers().size() << endreq;
-        //		xx_print(log, fvec,             "questions");
-        //		xx_print(log, it->getAnswers(), "in cache ");
+	PCI("history of getFeatures (i.e. multiple objects) and currently available set of objects differ in size " << fvec.size() << " " <<  it->getAnswers().size());
+	//	xx_print(fvec, "questions");
+	//	xx_print(it->getAnswers(), "in cache");
+
         return false;
       }
       
       // if number of objects is the same we need to check if the answers (features) we obtain now woudl be the same as in first pass
       if ( fvec !=  it->getAnswers() ) {
-        //		MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
-        //		log << MSG::DEBUG << "history differs" << endreq;
-        //		xx_print(log, fvec,             "questions");
-        //		xx_print(log, it->getAnswers(), "in cache ");
+
+	PCI("result of getFeatures differs form the one available in the cache");
+	//	xx_print(fvec, "questions");
+	//	xx_print(it->getAnswers(), "in cache");
+
         return false;
       }
     }
+    PCI("Verification of that call against cached history sucessful");
+    //xx_print(fvec, "questions");
+    //    xx_print(it->getAnswers(), "in cache");
     
   }
-  //    MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
-  //    log << MSG::DEBUG << "history the same, yesss" << endreq;
-
-  return true;
+  //     MsgStream log(Athena::getMessageSvc(), "RoICacheHelper");
+  //     log << MSG::DEBUG << "history the same, yesss" << endreq;
+  PCI("          History is the same - can cache");	
+  return true; 
 }

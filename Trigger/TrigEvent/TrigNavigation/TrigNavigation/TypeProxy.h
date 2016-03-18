@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TypeProxy.h 610936 2014-08-08 14:17:56Z tbold $
+// $Id: TypeProxy.h 730592 2016-03-16 22:10:31Z tbold $
 #ifndef TRIGNAVIGATION_TYPEPROXY_H
 #define TRIGNAVIGATION_TYPEPROXY_H
 
@@ -36,8 +36,8 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 610936 $
-    * $Date: 2014-08-08 16:17:56 +0200 (Fri, 08 Aug 2014) $
+    * $Revision: 730592 $
+    * $Date: 2016-03-16 23:10:31 +0100 (Wed, 16 Mar 2016) $
     */
    class ITypeProxy {
 
@@ -103,9 +103,60 @@ namespace HLTNavDetails {
       const void* m_pointer; ///< Const pointer to the proxied object
       /// Does the proxied type inherit from SG::AuxVectorBase?
       bool m_isAuxVectorBase;
-
+     
    }; // class ITypeProxy
+  
+  /*
+   *  @short Typeless read-only AuxStore implementation of ITypeProxy
+   *
+   * @author Lukas Heinrich <lukas.heinrich@cern.ch>
+   *
+   */
+  class TypelessAuxProxy : public ITypeProxy {
+  public:
+    
+    virtual StatusCode create(){
+      REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't create new objects" << endreq;
+      return StatusCode::FAILURE;
+    }
+    virtual StatusCode reg( StoreGateSvc* , const std::string&  ){
+      REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't register new objects to SG" << endreq;
+      return StatusCode::FAILURE;
+    };
+    virtual StatusCode clear( StoreGateSvc*  ) {
+      REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't delete objects (because it didn't create any)" << endreq;
+      return StatusCode::FAILURE;
+    };
+    
+    virtual StatusCode sync( StoreGateSvc* sg, const std::string& key ){
+      REPORT_MESSAGE( MSG::INFO ) << "syncing a read-only Aux proxy with key " << key << endreq;
+      const SG::IAuxStore* aux = nullptr;
+      sg->retrieve(aux,key);
+      if(!aux){
+	REPORT_MESSAGE( MSG::ERROR ) << "syncing of read-only Aux proxy failed" << key << endreq;
+        return StatusCode::FAILURE;
+      }
+      auto nonconstaux = const_cast<SG::IAuxStore*>(aux);
+      m_ncPointer = nonconstaux;
+      m_pointer = aux;
 
+      REPORT_MESSAGE( MSG::INFO ) << "syncing of read-only Aux proxy succeeded" << key << endreq;
+
+      return StatusCode::SUCCESS;
+    }
+
+    virtual void syncTypeless(){
+      REPORT_MESSAGE( MSG::ERROR ) << "read-only Aux Proxy, syncing typeless" << endreq;
+    };
+    
+    virtual ITypeProxy* clone() const{
+      REPORT_MESSAGE( MSG::ERROR ) << "read-only Aux Proxy should be created by direct object creation, not via clone of static instance" << endreq;
+      return nullptr;
+    };
+
+
+
+  };
 
    /**
     *  @short Type specific implementation of ITypeProxy
@@ -113,8 +164,8 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 610936 $
-    * $Date: 2014-08-08 16:17:56 +0200 (Fri, 08 Aug 2014) $
+    * $Revision: 730592 $
+    * $Date: 2016-03-16 23:10:31 +0100 (Wed, 16 Mar 2016) $
     */
    template< class T >
    class TypeProxy : public ITypeProxy {
