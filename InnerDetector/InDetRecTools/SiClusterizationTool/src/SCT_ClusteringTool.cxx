@@ -41,7 +41,7 @@ namespace InDet{
   class strip_less_than{
   public:
     bool operator()(const SCT_RDORawData *rdo1,const SCT_RDORawData *rdo2){
-      return rdo1->getStrip() < rdo2->getStrip();
+      return rdo1->identify() < rdo2->identify();
     }
   };
 

@@ -154,8 +154,8 @@ namespace InDet {
 
 
         ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
-	ServiceHandle<IBLParameterSvc>                      m_IBLParameterSvc;        
-        bool						    m_emulateSplitter;      //!< don't split - only emulate the split    
+       ServiceHandle<IBLParameterSvc>                         m_IBLParameterSvc;        
+        bool						                        m_emulateSplitter;      //!< don't split - only emulate the split    
         unsigned int                                        m_minSplitSize;         //!< minimum split size, regulates also the cluster splitting
         unsigned int                                        m_maxSplitSize;         //!< minimum split size, regulates also the cluster splitting
         double                                              m_minSplitProbability;  //!< minimal split probability
@@ -177,7 +177,7 @@ namespace InDet {
         mutable unsigned int                                m_splitOrigClusters;    //!< statistics output
         mutable unsigned int                                m_splitProdClusters;    //!< statistics output
         mutable unsigned int                                m_largeClusters;        //!< statistics output
-        mutable int                                         m_overflowIBLToT;                                                                                          
+        mutable int                                                 m_overflowIBLToT;                                                                                          
         ServiceHandle<IPixelOfflineCalibSvc>                m_pixofflinecalibSvc;
         //ServiceHandle< StoreGateSvc >                       m_detStore;
         //const PixelID*                                      m_idHelper;
