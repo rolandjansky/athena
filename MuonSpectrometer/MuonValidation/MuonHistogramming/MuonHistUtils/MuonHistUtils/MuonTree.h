@@ -24,22 +24,22 @@ namespace Muon{
     void initializePlots();
 
   private:
-    float pCB;
-    float pMS;
-    float pMExtrapol;
-    float pTruth;
-    float pTruthMS;
-    float etaCB;
-    float etaMS;
-    float etaMExtrapol;
-    float etaTruth;
-    float etaTruthMS;
-    float phiCB;
-    float phiMS;
-    float phiMExtrapol;
-    float phiTruth;
-    float phiTruthMS;
-    float elossMeasured;
+    float m_pCB;
+    float m_pMS;
+    float m_pMExtrapol;
+    float m_pTruth;
+    float m_pTruthMS;
+    float m_etaCB;
+    float m_etaMS;
+    float m_etaMExtrapol;
+    float m_etaTruth;
+    float m_etaTruthMS;
+    float m_phiCB;
+    float m_phiMS;
+    float m_phiMExtrapol;
+    float m_phiTruth;
+    float m_phiTruthMS;
+    float m_elossMeasured;
 
   };
 

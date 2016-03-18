@@ -26,9 +26,10 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
   ,  nTrigEtaLayers(NULL)
   ,  nPrecisionHits_nTriggerHits(NULL)  
 
-  ,  B_MDT_nPhiLayers_phi(NULL)
-  ,  B_MDT_nPhiLayers_eta(NULL)
-  ,  B_MDT_zeroPhiLayers_eta_phi(NULL)
+  // ,  B_MDT_nPhiLayers_phi(NULL)
+  // ,  B_MDT_nPhiLayers_eta(NULL)
+  // ,  B_MDT_zeroPhiLayers_eta_phi(NULL)
+  // ,  B_MDT_withPhiLayers_eta_phi(NULL)
 
   ,  etaIndex(NULL)
   ,  sector(NULL)
@@ -70,10 +71,10 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
   nTrigEtaLayers = Book1D("nTrigEtaLayers","Segment eta trigger layers;#eta trigger layers;Entries",10,0,10);
   nPrecisionHits_nTriggerHits = Book2D("nPrecisionHits_nTriggerHits", "Number of MDT hits vs Tigger station hits; MDT hits; Trigger hits", 20, -0.5, 19.5, 20, -0.5, 19.5);
 
-  B_MDT_nPhiLayers_phi = Book2D("B_MDT_nPhiLayers_phi","(Barrel MDT) Segment phi layers per phi sector;phi sector;#phi Layers",16,0.5,16.5,10,0,5);
-  B_MDT_nPhiLayers_eta = Book2D("B_MDT_nPhiLayers_eta","(Barrel BDT) Segment phi layers per eta index;eta index;#phi Layers",17,-8.5,8.5,10,0,5);
-  B_MDT_zeroPhiLayers_eta_phi = Book2D("B_MDT_zeroPhiLayers_eta_phi","(Barrel MDT) phi sector & eta station without phi layers;#eta index;#phi sector",17,-8.5,8.5,16,0.5,16.5);
-  B_MDT_withPhiLayers_eta_phi = Book2D("B_MDT_withPhiLayers_eta_phi","(Barrel MDT) phi sector & eta station with >0 phi layers;#eta index;#phi sector",17,-8.5,8.5,16,0.5,16.5);
+  //B_MDT_nPhiLayers_phi = Book2D("B_MDT_nPhiLayers_phi","(Barrel MDT) Segment phi layers per phi sector;phi sector;#phi Layers",16,0.5,16.5,10,0,5);
+  //B_MDT_nPhiLayers_eta = Book2D("B_MDT_nPhiLayers_eta","(Barrel BDT) Segment phi layers per eta index;eta index;#phi Layers",17,-8.5,8.5,10,0,5);
+  //B_MDT_zeroPhiLayers_eta_phi = Book2D("B_MDT_zeroPhiLayers_eta_phi","(Barrel MDT) phi sector & eta station without phi layers;#eta index;#phi sector",17,-8.5,8.5,16,0.5,16.5);
+  //B_MDT_withPhiLayers_eta_phi = Book2D("B_MDT_withPhiLayers_eta_phi","(Barrel MDT) phi sector & eta station with >0 phi layers;#eta index;#phi sector",17,-8.5,8.5,16,0.5,16.5);
 
   etaIndex = Book1D("etaIndex","Segment #eta Index ;#eta index;Entries",21,-10.5,10.5);
   sector = Book1D("sector","Segment phi sector;#phi sector;Entries",16,0.5,16.5);
@@ -150,12 +151,12 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   nTrigEtaLayers->Fill(muSeg.nTrigEtaLayers());
   nPrecisionHits_nTriggerHits->Fill(muSeg.nPrecisionHits(), muSeg.nPhiLayers() + muSeg.nTrigEtaLayers()); ///@@@!!! phi hits not trigger hits (CSC?)
 
-  if (muSeg.technology()==Muon::MuonStationIndex::MDT && (muSeg.chamberIndex()>=Muon::MuonStationIndex::BIS && muSeg.chamberIndex()<=Muon::MuonStationIndex::BEE)){
-    B_MDT_nPhiLayers_phi->Fill(muSeg.sector(),muSeg.nPhiLayers());
-    B_MDT_nPhiLayers_eta->Fill(muSeg.etaIndex(),muSeg.nPhiLayers());
-    if (muSeg.nPhiLayers()==0) B_MDT_zeroPhiLayers_eta_phi->Fill(muSeg.etaIndex(),muSeg.sector());
-    else B_MDT_withPhiLayers_eta_phi->Fill(muSeg.etaIndex(),muSeg.sector());
-  }
+  // if (muSeg.technology()==Muon::MuonStationIndex::MDT && (muSeg.chamberIndex()>=Muon::MuonStationIndex::BIS && muSeg.chamberIndex()<=Muon::MuonStationIndex::BEE)){
+  //   B_MDT_nPhiLayers_phi->Fill(muSeg.sector(),muSeg.nPhiLayers());
+  //   B_MDT_nPhiLayers_eta->Fill(muSeg.etaIndex(),muSeg.nPhiLayers());
+  //   if (muSeg.nPhiLayers()==0) B_MDT_zeroPhiLayers_eta_phi->Fill(muSeg.etaIndex(),muSeg.sector());
+  //   else B_MDT_withPhiLayers_eta_phi->Fill(muSeg.etaIndex(),muSeg.sector());
+  // }
 
 
   int chIndex = muSeg.chamberIndex();
@@ -207,7 +208,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   //protect against cases with no hit information!
   if ( !(muSeg.px()) || !(muSeg.py()) || !(muSeg.pz()) ) return;
   if ( (muSeg.px()==0) || (muSeg.py()==0) || (muSeg.pz()==0) ) return; 
-
+  //set up direction vectors
   Amg::Vector3D globalPos(muSeg.x(),muSeg.y(),muSeg.z());
   float r = globalPos.perp();
   float z = globalPos.z();
@@ -217,6 +218,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
 
   Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
   float eta = globalDir.eta();
+  //if (globalDir.z() != 0 ) eta = atan2(globalDir.perp(), globalDir.z());//fix the global eta direction
   float phi = globalDir.phi();
   if (phi>myPi) phi-=2*myPi;
   etadir->Fill(eta);

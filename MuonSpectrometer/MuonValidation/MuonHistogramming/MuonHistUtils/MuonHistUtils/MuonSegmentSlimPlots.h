@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONHISTUTILS_MUONSEGMENTPLOTS_H
-#define MUONHISTUTILS_MUONSEGMENTPLOTS_H
+#ifndef MUONHISTUTILS_MUONSEGMENTSLIMPLOTS_H
+#define MUONHISTUTILS_MUONSEGMENTSLIMPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
 
@@ -15,10 +15,10 @@
 
 namespace Muon{
 
-class MuonSegmentPlots:public PlotBase {
+class MuonSegmentSlimPlots:public PlotBase {
     public:
-      MuonSegmentPlots(PlotBase* pParent, std::string sDir);
-      ~MuonSegmentPlots();
+      MuonSegmentSlimPlots(PlotBase* pParent, std::string sDir);
+      ~MuonSegmentSlimPlots();
 
       void fill(const xAOD::MuonSegment& muonSeg);
 
@@ -36,42 +36,20 @@ class MuonSegmentPlots:public PlotBase {
       TH1* nPrecisionHits;
       TH1* nPhiLayers;
       TH1* nTrigEtaLayers;
-      TH2* nPrecisionHits_nTriggerHits;
-
-      // TH2* B_MDT_nPhiLayers_phi;
-      // TH2* B_MDT_nPhiLayers_eta;
-      // TH2* B_MDT_zeroPhiLayers_eta_phi;
-      // TH2* B_MDT_withPhiLayers_eta_phi;
 
       TH1* etaIndex;
       TH1* sector;
-      //TH2* sector_perStation;
-            
-      TH2* xypos_barrel;
-      TH2* xypos_endcap;
-      TH2* rzpos_sectorSmall;
-      //TH2* rzpos_sectorSmall_splitY;
-      TH2* rzpos_sectorLarge;
-      //TH2* rzpos_sectorLarge_splitY;
-
       TH1* etadir;
       TH1* etadir_barrel;
       TH1* etadir_endcap;
       TH1* phidir;
-      TH1* etaphidir;
+      TH2* etaphidir;
 
       TH1* chamberIndex;
       TH2* chamberIndex_perSector;
       TH2* eff_chamberIndex_perSector_numerator;
       TH2* eff_chamberIndex_perSector_denominator;
       TH2* eff_chamberIndex_perSector;
-
-      //TH2* chamberIndex_dtheta;
-      std::vector<TH2*> sector_etaIndex;
-      std::vector<TH2*> sector_etaIndex_nPrechit;
-      std::vector<TH2*> sector_etaIndex_nTrighit;
-      std::vector<TH2*> eff_sector_etaIndex_nPrechit;
-      std::vector<TH2*> eff_sector_etaIndex_nTrighit;
 
       const float myPi = 3.14159;
       //const char *StationName[9] = {"BI", "BM", "BO", "BE", "EI", "EM", "EO", "EE", "CS"};//For filling in monitoring plots
