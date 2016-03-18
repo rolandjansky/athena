@@ -27,6 +27,9 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n), 
+    m_spacepointsSCT("SCT_SpacePoints"),
+    m_spacepointsPixel("PixelSpacePoints"),
+    m_spacepointsOverlap("OverlapSpacePoints"),
     m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
 {
 
@@ -86,13 +89,13 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
   m_zbeam[0]  = 0.      ; m_zbeam[1]= 0.; m_zbeam[2]=0.; m_zbeam[3]=1.;
   
-  m_spacepointsSCTname     = "SCT_SpacePoints"   ;
-  m_spacepointsPixelname   = "PixelSpacePoints"  ;
-  m_spacepointsOverlapname = "OverlapSpacePoints"; 
+//  m_spacepointsSCTname     = "SCT_SpacePoints"   ;
+//  m_spacepointsPixelname   = "PixelSpacePoints"  ;
+//  m_spacepointsOverlapname = "OverlapSpacePoints"; 
   m_beamconditions         = "BeamCondSvc"       ;
-  m_spacepointsSCT         = 0                   ;
-  m_spacepointsPixel       = 0                   ;
-  m_spacepointsOverlap     = 0                   ;
+//  m_spacepointsSCT         = 0                   ;
+//  m_spacepointsPixel       = 0                   ;
+//  m_spacepointsOverlap     = 0                   ;
 
   declareInterface<ISiSpacePointsSeedMaker>(this);
 
@@ -132,9 +135,9 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
 
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
   declareProperty("maxNumberVertices"     ,m_maxNumberVertices     );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixelname  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlapname);
+  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT    );
+  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel  );
+  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap);
   declareProperty("BeamConditionsService" ,m_beamconditions        ); 
   declareProperty("useOverlapSpCollection", m_useOverlap           );
   declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
@@ -185,7 +188,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   // Get beam geometry
   //
   p_beam = 0;
-  if(m_beamconditions!="") {
+  if(!m_beamconditions.empty()) {
     sc = service(m_beamconditions,p_beam);
   }
 
@@ -276,10 +279,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   r_first = 0;
   if(!m_dbm && m_pixel) {
 
-    m_spacepointsPixel = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+//    m_spacepointsPixel = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
 
-    if(!sc.isFailure() && m_spacepointsPixel) {
+    if(m_spacepointsPixel.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
@@ -316,9 +319,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   //
   if(!m_dbm && m_sct) {
 
-    m_spacepointsSCT = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-    if(!sc.isFailure() && m_spacepointsSCT) {
+//    m_spacepointsSCT = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+
+    if(m_spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
@@ -346,9 +350,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
     //
     if(m_useOverlap && !m_checketa) {
 
-      m_spacepointsOverlap = 0;
-      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-      if(!sc.isFailure() && m_spacepointsOverlap) {
+//      m_spacepointsOverlap = 0;
+//      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
+      if(m_spacepointsOverlap.isValid()) {
 	
 	SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
 	SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
@@ -372,10 +376,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(int iteration)
   //
   if(m_dbm) {
 
-    m_spacepointsPixel = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+//    m_spacepointsPixel = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
 
-    if(!sc.isFailure() && m_spacepointsPixel) {
+    if(m_spacepointsPixel.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
@@ -453,10 +457,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   //
   if(m_pixel && vPixel.size()) {
 
-    m_spacepointsPixel   = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+//    m_spacepointsPixel   = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
     
-    if(!sc.isFailure() && m_spacepointsPixel) {
+    if( m_spacepointsPixel.isValid() ) {
 
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
 
@@ -487,10 +491,10 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
   //
   if(m_sct && vSCT.size()) {
 
-    m_spacepointsSCT     = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+//    m_spacepointsSCT     = 0;
+//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
 
-    if(!sc.isFailure() && m_spacepointsSCT) {
+    if(m_spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
 
@@ -692,11 +696,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_spacepointsPixelname.size();
+  int n = 42-m_spacepointsPixel.name().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 42-m_spacepointsSCTname.size();
+  n     = 42-m_spacepointsSCT.name().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlapname.size();
+  n     = 42-m_spacepointsOverlap.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 42-m_beamconditions.size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
@@ -704,11 +708,11 @@ MsgStream& InDet::SiSpacePointsSeedMaker_ATLxk::dumpConditions( MsgStream& out )
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Pixel    space points   | "<<m_spacepointsPixelname <<s2
+  out<<"| Pixel    space points   | "<<m_spacepointsPixel.name() <<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCTname<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCT.name()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlapname<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name()<<s4
      <<std::endl;
   out<<"| BeamConditionsService   | "<<m_beamconditions<<s5
      <<std::endl;
@@ -1179,12 +1183,9 @@ void  InDet::SiSpacePointsSeedMaker_ATLxk::convertToBeamFrameWork
 (Trk::SpacePoint*const& sp,float* r) 
 {
   
-  float x = float(sp->globalPosition().x())-m_xbeam[0];
-  float y = float(sp->globalPosition().y())-m_ybeam[0];
-  float z = float(sp->globalPosition().z())-m_zbeam[0];
-  r[0]     = m_xbeam[1]*x+m_xbeam[2]*y+m_xbeam[3]*z;
-  r[1]     = m_ybeam[1]*x+m_ybeam[2]*y+m_ybeam[3]*z;
-  r[2]     = m_zbeam[1]*x+m_zbeam[2]*y+m_zbeam[3]*z;
+  r[0] = float(sp->globalPosition().x())-m_xbeam[0];
+  r[1] = float(sp->globalPosition().y())-m_ybeam[0];
+  r[2] = float(sp->globalPosition().z())-m_zbeam[0];
 }
    
 ///////////////////////////////////////////////////////////////////
@@ -1223,8 +1224,12 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
 
       // Azimuthal angle and Z-coordinate sort
       //
-      if(Z>0.) {Z < 250.? z=5 : z=6;}
-      else     {Z >-250.? z=5 : z=4;}
+      if(Z>0.) {
+	Z< 250.?z=5:Z< 450.?z=6:Z< 925.?z=7:Z< 1400.?z=8:Z< 2500.?z=9:z=10;
+      }
+      else     {
+	Z>-250.?z=5:Z>-450.?z=4:Z>-925.?z=3:Z>-1400.?z=2:Z>-2500.?z=1:z= 0;
+      }
 
       int n = f*11+z; ++m_nsaz;
       rfz_Sorted[n].push_back(*r); if(!rfz_map[n]++) rfz_index[m_nrfz++] = n;

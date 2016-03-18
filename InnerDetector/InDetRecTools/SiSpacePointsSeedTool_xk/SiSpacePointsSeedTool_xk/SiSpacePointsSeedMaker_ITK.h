@@ -157,6 +157,7 @@ namespace InDet {
       float                       m_ftrig                         ;
       float                       m_ftrigW                        ;
       float                       r_rmax                          ;
+      float                       r_rmin                          ;
       float                       r_rstep                         ;
       float                       m_dzver                         ;
       float                       m_dzdrver                       ;
@@ -241,13 +242,13 @@ namespace InDet {
       // Space points container
       ///////////////////////////////////////////////////////////////////
       
-      std::string                        m_spacepointsSCTname     ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
+//      std::string                        m_spacepointsSCTname     ;
+//      std::string                        m_spacepointsPixelname   ;
+//     std::string                        m_spacepointsOverlapname ; 
       std::string                        m_beamconditions         ;
-      const SpacePointContainer*         m_spacepointsSCT         ;
-      const SpacePointContainer*         m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;
+      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap     ;
 
       ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool           ;
 
