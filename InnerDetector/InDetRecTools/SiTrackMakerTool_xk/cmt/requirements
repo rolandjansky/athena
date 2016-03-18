@@ -5,7 +5,6 @@ author Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
 private
 
 use TrkRIO_OnTrack            TrkRIO_OnTrack-*            Tracking/TrkEvent
-use TrkCaloClusterROI         TrkCaloClusterROI-*         Tracking/TrkEvent
 use InDetPrepRawData          InDetPrepRawData-*          InnerDetector/InDetRecEvent
 use AthenaPoolUtilities       AthenaPoolUtilities-*       Database/AthenaPOOL
 
@@ -18,6 +17,7 @@ use MagFieldInterfaces *      MagneticField
 use InDetRecToolInterfaces    InDetRecToolInterfaces-*    InnerDetector/InDetRecTools
 use TrkGeometry               TrkGeometry-*               Tracking/TrkDetDescr
 use InDetBeamSpotService      InDetBeamSpotService-*      InnerDetector/InDetConditions 
+use TrkCaloClusterROI         TrkCaloClusterROI-*         Tracking/TrkEvent
 
 library SiTrackMakerTool_xk *.cxx components/*.cxx 
 apply_pattern component_library
