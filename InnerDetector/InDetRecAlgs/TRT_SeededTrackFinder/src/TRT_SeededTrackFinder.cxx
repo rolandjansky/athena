@@ -23,7 +23,7 @@
 
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/FitQuality.h"
-
+#include "CxxUtils/make_unique.h"
 using namespace std;
 //using CLHEP::HepVector;
 
@@ -38,10 +38,10 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
     m_trackmaker("InDet::TRT_SeededTrackFinderTool"),
     m_fitterTool("Trk::KalmanFitter/InDetTrackFitter"),
     m_trtExtension("InDet::TRT_TrackExtensionTool_xk"),
+    m_Segments("TRTSegments"),
+    m_outTracks("TRTSeededTracks"),
     m_iBeamCondSvc("BeamCondSvc",name)
 {
-  m_inseglocation    = "TRTSegments"                        ;
-  m_outtracklocation = "TRTSeededTracks"                    ;
   m_doRefit          = false                                ;       //Do a final careful refit of tracks
   m_doExtension      = false                                ;       //Find the track TRT extension
   m_rejectShortExten = false                                ;
@@ -52,8 +52,8 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
   declareProperty("TrackTool"                  ,m_trackmaker       ); //Back tracking tool
   declareProperty("RefitterTool"               ,m_fitterTool       ); //Track refit tool
   declareProperty("TrackExtensionTool"         ,m_trtExtension     ); //TRT track extension tool
-  declareProperty("InputSegmentsLocation"      ,m_inseglocation    ); //Input track collection
-  declareProperty("OutputTracksLocation"       ,m_outtracklocation ); //Output track collection
+  declareProperty("InputSegmentsLocation"      ,m_Segments         ); //Input track collection
+  declareProperty("OutputTracksLocation"       ,m_outTracks        ); //Output track collection
   declareProperty("FinalRefit"                 ,m_doRefit          ); //Do a final careful refit of tracks
   declareProperty("TrtExtension"               ,m_doExtension      ); //Find the TRT extension of the track
   declareProperty("RejectShortExtension"       ,m_rejectShortExten ); //Reject short extensions
@@ -156,7 +156,6 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 ///////////////////////////////////////////////////////////////////
 StatusCode InDet::TRT_SeededTrackFinder::execute()
 {
-  StatusCode sc;
 
   //Counters. See the include file for definitions
   m_nTrtSeg      = 0;
@@ -176,18 +175,14 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   // counter
   int nTrtSegCur = 0;
 
-  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
-  std::list<Trk::Track*> tempTracks;                           //Temporary track collection 
-
   // Retrieve segments from StoreGate
-  sc = evtStore()->retrieve(m_Segments,m_inseglocation);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL ("No segment with name " << m_inseglocation << " found in StoreGate!");
-    delete outTracks;
-    return sc;
+  if(!m_Segments.isValid()){
+    ATH_MSG_FATAL ("No segment with name " << m_Segments.name() << " found in StoreGate!");
+    return StatusCode::FAILURE;
   }else{
-    ATH_MSG_DEBUG ("Found segments collection " << m_inseglocation << " in StoreGate!");
+    ATH_MSG_DEBUG ("Found segments collection " << m_Segments.name() << " in StoreGate!");
   }
+
 
   // number of segments + statistics
   m_nTrtSeg = int(m_Segments->size());
@@ -199,7 +194,12 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   // Initialize the TRT seeded track tool's new event
   m_trackmaker  ->newEvent();
   m_trtExtension->newEvent();
+  
+//  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
+  m_outTracks = CxxUtils::make_unique<TrackCollection>();
 
+  std::vector<Trk::Track*> tempTracks;                           //Temporary track collection 
+  tempTracks.reserve(128);
   // loop over event
   ATH_MSG_DEBUG ("Begin looping over all TRT segments in the event");
   Trk::SegmentCollection::const_iterator iseg    = m_Segments->begin();
@@ -259,7 +259,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	    // statistics
             m_nBckTrk++; m_nBckTrkTrt++;
 	    // add track to output list
-	    outTracks->push_back(trtSeg);
+	    m_outTracks->push_back(trtSeg);
           }
           continue;
 
@@ -446,7 +446,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
                 m_nBckTrk++; m_nBckTrkTrt++;
 
 		// add it to output list
-		outTracks->push_back(trtSeg);
+		m_outTracks->push_back(trtSeg);
               }
 
 	    } else {
@@ -457,7 +457,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	      m_nBckTrk++; m_nBckTrkSi++;
 
 	      // add it to output list
-	      outTracks->push_back(globalTrackNew);
+	      m_outTracks->push_back(globalTrackNew);
             }
 	  }
         }
@@ -467,7 +467,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
   // further debugging of results
   if(m_doStat){
-    sc = Analyze(outTracks);
+    Analyze(m_outTracks.ptr());
   }
 
   // Update the total counters
@@ -485,16 +485,9 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   m_nBckTrkSiTotal    += m_nBckTrkSi;
   m_nBckTrkTotal      += m_nBckTrk;
 
-  ATH_MSG_DEBUG ("Saving tracks in container ");
-  sc = evtStore()->record(outTracks,m_outtracklocation,false);
-  if( sc.isFailure() ){
-    ATH_MSG_ERROR ("Could not save the reconstructed TRT seeded Si tracks!");
-  }
   
-  std::list<Trk::Track*>::const_iterator ittr    = tempTracks.begin();
-  std::list<Trk::Track*>::const_iterator ittrEnd = tempTracks.end();
-  for (; ittr != ittrEnd ; ++ittr){
-    delete (*ittr);
+  for (auto p : tempTracks){
+    delete p;
   }
   m_trackmaker->endEvent();
 
@@ -539,19 +532,19 @@ MsgStream& InDet::TRT_SeededTrackFinder::dumptools( MsgStream& out ) const
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
   n     = 65-m_trtExtension.type().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_inseglocation.size();
+  n     = 65-m_Segments.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_outtracklocation.size();
+  n     = 65-m_outTracks.name().size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
 
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
        <<std::endl;
-  out<<"| Tool for TRT seeded track finding | "<<m_trackmaker.type()   <<s1<<std::endl;
-  out<<"| Tool for final track refitting    | "<<m_fitterTool.type()   <<s2<<std::endl;
-  out<<"| Tool for TRT trac extension       | "<<m_trtExtension.type() <<s3<<std::endl;
-  out<<"| Location of input tracks          | "<<m_inseglocation       <<s4<<std::endl;
-  out<<"| Location of output tracks         | "<<m_outtracklocation    <<s5<<std::endl;
+  out<<"| Tool for TRT seeded track finding | "<<m_trackmaker.type()    <<s1<<std::endl;
+  out<<"| Tool for final track refitting    | "<<m_fitterTool.type()    <<s2<<std::endl;
+  out<<"| Tool for TRT trac extension       | "<<m_trtExtension.type()  <<s3<<std::endl;
+  out<<"| Location of input tracks          | "<<m_Segments.name()      <<s4<<std::endl;
+  out<<"| Location of output tracks         | "<<m_outTracks.name()     <<s5<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|"
       <<std::endl;
@@ -854,9 +847,8 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
 // Analysis of tracks
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
+void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
 {
-  StatusCode sc; 
 
   if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Analyzing tracks..." << endreq;}
 
@@ -907,5 +899,5 @@ StatusCode InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
     msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endreq;
   }
 
-  return StatusCode::SUCCESS;
 }
+
