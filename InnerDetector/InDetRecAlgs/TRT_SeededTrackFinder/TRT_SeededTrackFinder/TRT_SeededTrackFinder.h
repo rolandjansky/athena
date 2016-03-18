@@ -81,8 +81,6 @@ namespace InDet {
      
       int                                m_nprint           ;
       int                                m_ntracks          ;  /** Number of tracks found */
-      std::string                        m_inseglocation    ;  /** Name of input TRT segments location */
-      std::string                        m_outtracklocation ;  /** Name of output tracks location */
       bool                               m_doRefit          ;  /** Do final careful refit of tracks */
       bool                               m_doExtension      ;  /** Find the TRT extension of the Si track segment */
       bool                               m_rejectShortExten ;  /** use extension only if better than original track */
@@ -96,7 +94,9 @@ namespace InDet {
       ToolHandle<Trk::ITrackFitter>        m_fitterTool     ;  /** Refitting tool */
       ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension   ;  /** TRT track extension tool */
 
-      const Trk::SegmentCollection      *m_Segments         ;  /** TRT segments to use */
+      SG::ReadHandle<Trk::SegmentCollection> m_Segments     ;  /** TRT segments to use */
+      SG::WriteHandle<TrackCollection>       m_outTracks   ;
+
 
       ToolHandle<Trk::IExtrapolator>   m_extrapolator; //!< the extrapoator
       ServiceHandle<IBeamCondSvc>      m_iBeamCondSvc; //!< pointer to the beam condition service
@@ -149,7 +149,7 @@ namespace InDet {
       Trk::Track*                   segToTrack(const Trk::TrackSegment&);
 
       /** Do some statistics analysis at the end of each event */
-      StatusCode                    Analyze(TrackCollection*);
+      void                 Analyze(TrackCollection*);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

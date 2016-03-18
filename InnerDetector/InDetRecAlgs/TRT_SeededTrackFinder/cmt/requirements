@@ -7,6 +7,7 @@ private
 use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use TrkEventPrimitives           TrkEventPrimitives-*          Tracking/TrkEvent
 use InDetRIO_OnTrack             InDetRIO_OnTrack-*       InnerDetector/InDetRecEvent
+use CxxUtils           CxxUtils-*               Control
 
 public
 
