@@ -33,7 +33,7 @@ public:
   static bool actualInit(StoreGateSvc* detStore);
   static bool initialised;
 
-  static const GeoPVConstLink geoModelWorld;
+  static GeoPVConstLink geoModelWorld;
   static bool hasGeoModelExperiment;
   static bool hasPixelGeometry;
   static bool hasSCTGeometry;
@@ -51,7 +51,7 @@ public:
   static void turnOffAll();
 };
 
-const GeoPVConstLink VP1JobConfigInfo::Imp::geoModelWorld;
+GeoPVConstLink VP1JobConfigInfo::Imp::geoModelWorld;
 bool VP1JobConfigInfo::Imp::initialised = false;
 bool VP1JobConfigInfo::Imp::hasGeoModelExperiment = false;
 bool VP1JobConfigInfo::Imp::hasPixelGeometry = false;
