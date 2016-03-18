@@ -1,0 +1,91 @@
+package AtlasCoreRunTime
+
+author David Quarrie <David.Quarrie@cern.ch>
+
+include_path none
+
+use MinimalRunTime       MinimalRunTime-*       Control  -no_auto_imports
+
+macro use_Ant "Ant Ant-* External -no_auto_imports" \
+      noJava  ""
+use $(use_Ant)
+
+use AtlasAIDA            AtlasAIDA-*            External -no_auto_imports
+use AtlasBoost           AtlasBoost-*           External -no_auto_imports
+use AtlasCLHEP           AtlasCLHEP-*           External -no_auto_imports
+use AtlasCOOL            AtlasCOOL-*            External -no_auto_imports
+use AtlasCORAL           AtlasCORAL-*           External -no_auto_imports
+use AtlasCppUnit         AtlasCppUnit-*         External -no_auto_imports
+use AtlasDBRelease       AtlasDBRelease-*       External -no_auto_imports
+use AtlasDataArea        AtlasDataArea-*        External -no_auto_imports
+use AtlasEigen           AtlasEigen-*           External -no_auto_imports
+use AtlasExpat           AtlasExpat-*           External -no_auto_imports
+use AtlasExternalArea    AtlasExternalArea-*    External -no_auto_imports
+use AtlasGSL             AtlasGSL-*             External -no_auto_imports
+use AtlasGPerfTools      AtlasGPerfTools-*      External -no_auto_imports
+use AtlasMagField        AtlasMagField-*        External -no_auto_imports
+use AtlasMatplotlib      AtlasMatplotlib-*      External -no_auto_imports
+use AtlasMKL             AtlasMKL-*             External -no_auto_imports
+use AtlasOracle          AtlasOracle-*          External -no_auto_imports
+use AtlasPOOL            AtlasPOOL-*            External -no_auto_imports
+use AtlasPyROOT          AtlasPyROOT-*          External -no_auto_imports
+use AtlasPython          AtlasPython-*          External -no_auto_imports
+use AtlasRELAX           AtlasRELAX-*           External -no_auto_imports
+use AtlasROOT            AtlasROOT-*            External -no_auto_imports
+use AtlasReflex          AtlasReflex-*          External -no_auto_imports
+use AtlasSQLite          AtlasSQLite-*          External -no_auto_imports
+use AtlasValgrind        AtlasValgrind-*        External -no_auto_imports
+use yampl                yampl-*                External -no_auto_imports
+use PathResolver         PathResolver-*         Tools -no_auto_imports
+
+macro use_Axis "Axis Axis-* External -no_auto_imports" \
+      noJava   ""
+use $(use_Axis)
+macro use_CERNJava "CERNJavaInstallation CERNJavaInstallation-* External -no_auto_imports" \
+      noJava       ""
+use $(use_CERNJava) 
+use DataCollection       DataCollection-*       External -no_auto_imports
+use ExternalPolicy       ExternalPolicy-*       External -no_auto_imports
+use GaudiInterface       GaudiInterface-*       External -no_auto_imports
+macro use_JavaSDK "JavaSDK JavaSDK-* External -no_auto_imports" \
+      noJava      ""
+use $(use_JavaSDK)
+macro use_MMMySQL "MMMySQL MMMySQL-* External -no_auto_imports" \
+      noJava      ""
+use $(use_MMMySQL)
+#use MySQL                MySQL-*                External -no_auto_imports
+use pyAMI                pyAMI-*                External -no_auto_imports 
+
+# Setup LCG_Interfaces entries that aren't referenced by an equivalent ATLAS External/XXX entry
+# Most of these are actually in the DetCommon project as explicit overrides, but there isn't a
+# DetCommonRunTime package, which is why they are setup here.
+use pytools              *                      LCG_Interfaces -no_auto_imports
+use pyanalysis           *                      LCG_Interfaces -no_auto_imports
+
+### needed for pyparsing
+use pygraphics           *                      LCG_Interfaces -no_auto_imports
+
+# Eliminate false entries from MANPATH
+setup_script "$(EXTERNALPOLICYROOT)/cmt/cmt_setup_manpath"
+
+# Setup entries for the test area in the various path environment variables (PATH, PYTHONPATH etc.)
+# if a test area is setup but doesn't exist. This reverses the action of a GaudiPython cmtpath_pattern
+# which removes all non-existent directories from these environment variables (which in general is the
+# correct thing to do) but handles the use case where the developer creates the test area later, or
+# more commonly, the test area already exists but the InstallArea hasn't yet been created.
+
+macro setup_runtime_helper_script "$(ATLASCORERUNTIMEROOT)/cmt/setup_runtime_helper" \
+          no-setup-runtime-helper ""
+
+cmtpath_pattern \
+    setup_script $(setup_runtime_helper_script)
+
+# Slim PATH if run-time environment setup as well as the "slim" tag
+macro atlascore_path "" \
+      slim           "$(EXTERNALPOLICYROOT)/cmt/cmt_slim_path"
+setup_script $(atlascore_path)
+
+private
+macro post_install_script "$(ATLASCOMMONPOLICYROOT)/scripts/setup_runtime_cache.sh"
+apply_pattern do_setup_runtime_cache
+
