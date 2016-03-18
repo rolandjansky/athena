@@ -10,8 +10,8 @@
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "DataModel/ElementLinkVector.h"
-#include "DataModel/ConstDataVector.h"
+#include "AthLinks/ElementLinkVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "TestTools/initGaudi.h"
 

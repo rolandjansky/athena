@@ -60,7 +60,7 @@ HLT::BaseHolder* HLT::FullHolderFactory::fromSerialized(int version, const std::
 }
 
 HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::string& label, sub_index_type index) {
-  ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index);
+  ATH_MSG_DEBUG("createHolder: creating holder for CLID: " << clid  << " label: " << label << " and index: " << index << " readonly: " << m_readonly);
 
   if ( HLT::TypeMaps::holders().count(clid) == 0 ) {
     ATH_MSG_ERROR("createHolder: holder can't be done, no predefined storage found for CLID: " << clid);
@@ -75,9 +75,9 @@ HLT::BaseHolder* HLT::FullHolderFactory::createHolder(CLID clid, const std::stri
 
   ATH_MSG_DEBUG("preparing holder with msg: " << &msg() << " storegate: " << m_storeGate << " and prefix " << m_prefix);
 
-  holder->prepare(&msg(), m_storeGate, m_serializerSvc);
+  holder->prepare(&msg(), m_storeGate, m_serializerSvc, m_readonly);
   holder->setObjectsKeyPrefix(m_prefix);
-
+  
   ATH_MSG_DEBUG("createHolder: holder prepared " << *holder);
 
   return holder;

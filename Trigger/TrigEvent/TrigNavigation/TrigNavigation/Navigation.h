@@ -13,9 +13,6 @@
 #include <sstream>
 #include <iostream>
 
-//#include <boost/cstdint.hpp>
-//#include <stdint.h>
-
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,15 +20,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IConversionSvc.h"
 
-#include "DataModel/OwnershipPolicy.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthContainers/OwnershipPolicy.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLinkVector.h"
 
-// for 2 ways of performing serialization
 #include "StoreGate/StoreGateSvc.h"
-//#include "TrigSerializeResult/ITrigSerializerToolBase.h"
-//#include "TrigSerializeCnvSvc/TrigSerializeCnvSvc.h"
-//#include "TrigSerializeResult/StringSerializer.h"
 
 #include "TrigNavigation/NavigationCore.h"
 #include "TrigNavigation/TriggerElement.h"
@@ -45,9 +38,6 @@ static const InterfaceID IID_TrigNavigation("TrigNavigation", 1 , 0);
 
 
 namespace HLT {
-
-  
-
   /**
    * @brief The Navigation class, organizes TriggerElements into the tree structure.
    *
@@ -121,11 +111,8 @@ namespace HLT {
    *       of given type and same number of objects in each sub collection
    */
 
-
   class Navigation : public AthAlgTool, public NavigationCore {
-
   public:
-
     Navigation( const std::string& type,
                 const std::string& name,
                 const IInterface* parent );
@@ -137,9 +124,6 @@ namespace HLT {
 
     virtual StatusCode initialize();  //!< initialization, there JO are read,parsed
     virtual StatusCode finalize();    //!< finalization, as reset()
-
-
-
 
     /**
      * @brief attaches feature to given TriggerElement
@@ -155,29 +139,6 @@ namespace HLT {
     bool attachFeature( TriggerElement* te, const T* feature,
 			MemoryManagement, std::string& key,
 			const std::string& label="" );
-
-    //    template<class T>  bool attachFeature( TriggerElement* te, typename DataVector<T>::const_iterator begin,
-    //					   typename DataVector<T>::const_iterator end,
-    //					   MemoryManagement, std::string& key,
-    //					   const std::string& label="" );
-
-
-    /*
-     * brief attaches feature to given TriggerElement
-     * param te TriggerElement to which attach feature
-     * param feature is feature ptr to attach
-     * param label for additional marking of this feature
-     * warning WILL REMOVE IT, seems to be unusable, everyone can do the loop by him/herself
-     *
-     *   template<class T> bool attachFeatures( TriggerElement* te, const std::vector<T*>& features, const std::string& label="" );
-     */
-
-
-
-
-
-
-
 
     /**
      * @brief find all TriggerElements which have this object attached given feature
@@ -200,7 +161,6 @@ namespace HLT {
      */
     template<class T> const std::string getUniqueKey( const std::string& label = "" );
 
-    
   protected:
     Navigation(); //> not implemented
     Navigation (const Navigation&); //> not implemented
@@ -208,18 +168,13 @@ namespace HLT {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   private:
-    //////////////////////////////////////////////////////////////////////////////////////////////////////
-    // features holding classes
-    
-
     // private stuff of Navigation class
-    
-
     ServiceHandle<IConversionSvc>          m_serializerServiceHandle;
     ServiceHandle<StoreGateSvc>            m_storeGateHandle;
+    ServiceHandle<IClassIDSvc>             m_clidSvc; 
     std::vector<std::string>               m_dlls;
     FullHolderFactory                      m_fullholderfactory;
-    
+    bool                                   m_readonly;
     StatusCode classKey2CLIDKey(const std::vector<std::string> prop, std::vector<std::pair<CLID, std::string> >& decoded);
 
   };
