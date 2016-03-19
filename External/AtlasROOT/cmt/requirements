@@ -33,8 +33,6 @@ macro _rootCintexLibs "-lCintex" \
 macro rootCintexLibs "" \
         ROOTCintexLibs $(_rootCintexLibs)
 
-macro rootRFIOLibs "" \
-          ROOTRFIOLibs "-L$(ROOT_home)/lib -lRFIO" 
 macro rootMathLibs "" \
           ROOTMathLibs "-L$(ROOT_home)/lib  -lMathMore -lMinuit -lMinuit2 -lMatrix -lPhysics -lHistPainter -lHist -lRint"
 		  
@@ -59,6 +57,12 @@ macro rootNetLibs "" \
 macro rootEGLibs "" \
           ROOTEGLibs "-L$(ROOT_home)/lib -lEG"
 
+macro rootThreadLibs "" \
+          ROOTThreadLibs "-L$(ROOT_home)/lib -lThread"
+
+macro rootTreePlayerLibs "" \
+          ROOTTreePlayerLibs "-L$(ROOT_home)/lib -lTreePlayer"
+
 ## prevent people from messing around with CINT dictionaries:
 ##  ATLAS is using Reflex dictionaries, they don't mix well...
 macro rootSTLDictLibs "" \
@@ -67,7 +71,7 @@ macro rootSTLDictLibs "" \
 # default tag:
 apply_tag ROOTBasicLibs
 
-macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) $(rootTMVALibs) $(rootNetLibs) $(rootEGLibs) "
+macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) $(rootTMVALibs) $(rootNetLibs) $(rootEGLibs) $(rootThreadLibs) $(rootTreePlayerLibs) "
 
 # Define pattern for packages with root files which need root cint to
 # be run.
