@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 
 ISF::ISFParticle::ISFParticle(
   const Amg::Vector3D& pos,
@@ -18,7 +17,7 @@ ISF::ISFParticle::ISFParticle(
   double time,
   const ISFParticle &p,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position(pos),
  m_momentum(mom),
  m_mass(mass),
@@ -28,10 +27,9 @@ ISF::ISFParticle::ISFParticle(
  m_history(p.history()),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
- m_primaryTruthParticle(p.getPrimaryTruthParticle()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
 
 }
@@ -45,7 +43,7 @@ ISF::ISFParticle::ISFParticle(
   double time,
   const ISFParticle &p,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z()),
  m_momentum( mom.x(), mom.y(), mom.z()),
  m_mass(mass),
@@ -55,10 +53,9 @@ ISF::ISFParticle::ISFParticle(
  m_history(p.history()),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
- m_primaryTruthParticle(p.getPrimaryTruthParticle()),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
 
 }
@@ -71,9 +68,8 @@ ISF::ISFParticle::ISFParticle(
   int pdgCode,
   double time,
   const DetRegionSvcIDPair &origin,
-  const HepMC::GenParticle *primaryTruthParticle,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position(pos),
  m_momentum(mom),
  m_mass(mass),
@@ -83,10 +79,9 @@ ISF::ISFParticle::ISFParticle(
  m_history(1, origin),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
- m_primaryTruthParticle(primaryTruthParticle),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
 
 }
@@ -99,9 +94,8 @@ ISF::ISFParticle::ISFParticle(
   int pdgCode,
   double time,
   const DetRegionSvcIDPair &origin,
-  const HepMC::GenParticle *primaryTruthParticle,
   Barcode::ParticleBarcode barcode,
-  ITruthBinding* truth):
+  TruthBinding* truth):
  m_position( pos.x(), pos.y(), pos.z() ),
  m_momentum( mom.x(), mom.y(), mom.z() ),
  m_mass(mass),
@@ -111,10 +105,9 @@ ISF::ISFParticle::ISFParticle(
  m_history(1, origin),
  m_barcode(barcode),
  m_extraBarcode(Barcode::fUndefinedBarcode),
- m_primaryTruthParticle(primaryTruthParticle),
  m_truth(truth),
  m_order(ISF::DefaultParticleOrder),
- m_userInfo(0)
+ m_userInfo(nullptr)
 {
 
 }
@@ -129,11 +122,14 @@ ISF::ISFParticle::ISFParticle(const ISFParticle& isfp):
   m_history(isfp.history()),
   m_barcode(isfp.barcode()),
   m_extraBarcode(Barcode::fUndefinedBarcode),
-  m_truth(0),
+  m_truth(nullptr),
   m_order(ISF::DefaultParticleOrder),
-  m_userInfo(0)
+  m_userInfo(nullptr)
 {
-  if (isfp.truthBinding()) m_truth=isfp.truthBinding()->clone();
+  TruthBinding *truth = isfp.getTruthBinding();
+  if (truth) {
+      m_truth = new TruthBinding(*truth);
+  }
 }
 
 ISF::ISFParticle::~ISFParticle() {
@@ -156,10 +152,12 @@ ISF::ISFParticle& ISF::ISFParticle::operator=(const ISF::ISFParticle& rhs)
     m_extraBarcode = rhs.getExtraBC();
 
     delete m_truth;
-    m_truth=0;
+    m_truth=nullptr;
 
-    if (rhs.truthBinding()) m_truth=rhs.truthBinding()->clone();
-
+    TruthBinding *rhsTruth = rhs.getTruthBinding();
+    if (rhsTruth) {
+        m_truth = new TruthBinding(*rhsTruth);
+    }
   }
 
   return *this;

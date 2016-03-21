@@ -1,0 +1,43 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// this file contains all ITruthBinding inline methods
+
+namespace ISF {
+  /** constructor setting all truth particle pointers to the given particle */
+  TruthBinding::TruthBinding(HepMC::GenParticle* allTruthP) :
+    m_truthParticle(allTruthP),
+    m_primaryTruthParticle(allTruthP),
+    m_generationZeroTruthParticle(allTruthP) { }
+
+  /** constructor setting all truth particle pointers individually */
+  TruthBinding::TruthBinding(HepMC::GenParticle* truthP, HepMC::GenParticle* primaryTruthP, HepMC::GenParticle* genZeroTruthP) :
+    m_truthParticle(truthP),
+    m_primaryTruthParticle(primaryTruthP),
+    m_generationZeroTruthParticle(genZeroTruthP) { }
+
+  /** copy constructor */
+  TruthBinding::TruthBinding(TruthBinding &rhs) :
+    m_truthParticle(rhs.getTruthParticle()),
+    m_primaryTruthParticle(rhs.getPrimaryTruthParticle()),
+    m_generationZeroTruthParticle(rhs.getGenerationZeroTruthParticle()) { }
+
+  /** private constructor */
+  TruthBinding::TruthBinding() { }
+
+  /** destructor */
+  TruthBinding::~TruthBinding() { }
+
+   /** pointer to the particle in the simulation truth */
+  HepMC::GenParticle* TruthBinding::getTruthParticle() const { return m_truthParticle; }
+  void                TruthBinding::setTruthParticle(HepMC::GenParticle* p) { m_truthParticle = p; }
+
+  /** pointer to the primary particle in the simulation truth */
+  HepMC::GenParticle* TruthBinding::getPrimaryTruthParticle() const { return m_primaryTruthParticle; }
+
+  /** pointer to the simulation truth particle before any regeneration (eg. brem) */
+  HepMC::GenParticle* TruthBinding::getGenerationZeroTruthParticle() const { return m_generationZeroTruthParticle; }
+  void                TruthBinding::setGenerationZeroTruthParticle(HepMC::GenParticle* p) { m_generationZeroTruthParticle = p; }
+
+} // end ISF namespace

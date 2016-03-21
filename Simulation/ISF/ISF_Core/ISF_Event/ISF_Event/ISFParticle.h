@@ -11,8 +11,10 @@
 
 // Gaudi Kernel
 #include "GaudiKernel/MsgStream.h"
+// Barcode includes
+#include "BarcodeInterfaces/Barcode.h"
 // ISF include
-#include "ISF_Event/ITruthBinding.h"
+#include "ISF_Event/TruthBinding.h"
 #include "ISF_Event/SimSvcID.h"
 #include "ISF_Event/ParticleOrder.h"
 #include "ISF_Event/ParticleUserInformation.h"
@@ -23,8 +25,6 @@
 // CHLEP classes
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
-// HepMC
-#include "HepMC/GenParticle.h"
 
 namespace ISF {
 
@@ -53,7 +53,7 @@ namespace ISF {
                 double time,
                 const ISFParticle &parent,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                ITruthBinding* truth = 0 );
+                TruthBinding* truth = nullptr );
 
     /** CLHEP-compatible constructor */
     ISFParticle(const HepGeom::Point3D<double>& pos,
@@ -64,7 +64,7 @@ namespace ISF {
                 double time,
                 const ISFParticle &parent,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                ITruthBinding* truth = 0 );
+                TruthBinding* truth = nullptr );
 
     /** this constructor should only be used for event read-in */
     ISFParticle(const Amg::Vector3D& pos,
@@ -74,9 +74,8 @@ namespace ISF {
                 int pdgCode,
                 double time,
                 const DetRegionSvcIDPair &origin,
-                const HepMC::GenParticle *primaryTruthParticle,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                ITruthBinding* truth = 0 );
+                TruthBinding* truth = nullptr );
 
     /** CLHEP-compatible constructor (this constructor should only be used for event read-in) */
     ISFParticle(const HepGeom::Point3D<double>& pos,
@@ -86,9 +85,8 @@ namespace ISF {
                 int pdgCode,
                 double time,
                 const DetRegionSvcIDPair &origin,
-                const HepMC::GenParticle *primaryTruthParticle,
                 Barcode::ParticleBarcode barcode = Barcode::fUndefinedBarcode,
-                ITruthBinding* truth = 0 );
+                TruthBinding* truth = nullptr );
 
     /** Copy constructor */
     ISFParticle(const ISFParticle& isfp);
@@ -157,14 +155,9 @@ namespace ISF {
     /** set extra barcode */
     void setExtraBC(const Barcode::ParticleBarcode& bc);
 
-    /** pointer to the primary particle in the simulation truth */
-    const HepMC::GenParticle* getPrimaryTruthParticle() const;
-
     /** pointer to the simulation truth - optional, can be 0 */
-    ITruthBinding* truthBinding() const;
-
-    /** set the simulation truth */
-    void setTruthBinding(ITruthBinding *truth);
+    TruthBinding* getTruthBinding() const;
+    void          setTruthBinding(TruthBinding *truth);
 
     /** return the particle order (eg used to assure ID->Calo->MS simulation order) */
     ParticleOrder  getOrder() const;
@@ -191,8 +184,7 @@ namespace ISF {
     ParticleHistory              m_history;
     Barcode::ParticleBarcode     m_barcode;
     Barcode::ParticleBarcode     m_extraBarcode;
-    const HepMC::GenParticle*    m_primaryTruthParticle;  //!< pointer to corresponding primary (generator) particle
-    ITruthBinding*               m_truth;
+    TruthBinding*                m_truth;
     ParticleOrder                m_order;                 //!< particle simulation order
     mutable ParticleUserInformation *m_userInfo;          //!< user information stored with the ISFParticle
   };

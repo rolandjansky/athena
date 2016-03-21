@@ -61,7 +61,7 @@ namespace ISF {
     virtual int                       parentPdgCode() const = 0;
     /** Return the parent particle as a HepMC particle type
         (only called for particles that will enter the HepMC truth event) */
-    virtual HepMC::GenParticle*       parentParticle(bool setPersistent=false) const = 0;
+    virtual HepMC::GenParticle*       parentParticle() const = 0;
     /** Return the barcode of the parent particle */
     virtual Barcode::ParticleBarcode  parentBarcode() const = 0;
     /** Return the extra barcode of the parent particle */
@@ -70,8 +70,7 @@ namespace ISF {
     virtual bool                      parentSurvivesIncident() const = 0;
     /** Return the parent particle after the TruthIncident vertex (and assign
         a new barcode to it) */
-    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                                  bool setPersistent=false) = 0;
+    virtual HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) = 0;
 
     /** Return total number of child particles */
     inline unsigned short             numberOfChildren() const;
@@ -96,8 +95,7 @@ namespace ISF {
         Barcode to the simulator particle (only called for particles that will
         enter the HepMC truth event) */
     virtual HepMC::GenParticle*       childParticle(unsigned short index,
-                                                        Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode,
-                                                        bool setPersistent=false) const = 0;
+                                                    Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode) const = 0;
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
     /** Set the the extra barcode of all child particles to the given bc */
