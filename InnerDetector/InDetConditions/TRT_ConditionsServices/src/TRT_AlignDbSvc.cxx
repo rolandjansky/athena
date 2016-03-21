@@ -19,6 +19,9 @@
 
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "InDetReadoutGeometry/InDetDetectorManager.h"
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -28,6 +31,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoPrimitives/CLHEPtoEigenEulerAnglesConverters.h"
 
 TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),
@@ -38,13 +42,19 @@ TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocato
     m_alignroot("/TRT/Align"),
     m_alignString("AL"),
     par_alitextfile(""),
-    m_streamer("AthenaPoolOutputStreamTool/CondStream1")
+    m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
+    m_alignDBprefix("/TRT/Align/"),
+    m_dynamicDB(false),
+    m_forceUserDBConfig(false)
 {
   declareProperty("StreamTool",m_streamer);
+  declareProperty("alignroot",m_alignroot);
   declareProperty("alignTextFile",par_alitextfile);
   declareProperty("DetectorStore",m_detStore);
   declareProperty("TrtStrawAlignDbSvc",   m_trtStrawAlignDbSvc,"Service for interaction with the TRT straw alignment DB");
   declareProperty("alignString",m_alignString);
+  declareProperty("alignDBprefix",m_alignDBprefix);
+  declareProperty("forceUserDBConfig",m_forceUserDBConfig, "Set to true to override any DB auto-configuration");
 }
 
 //-------------------------------------------------------------------------
@@ -57,7 +67,7 @@ TRT_AlignDbSvc::~TRT_AlignDbSvc()
 StatusCode TRT_AlignDbSvc::initialize() 
 {
   msg(MSG::INFO) << " in initialize " << endreq;
-
+  
   // Get the DetectorStore
   if (StatusCode::SUCCESS!=m_detStore.retrieve()) {
     ATH_MSG_FATAL( "Couldn't retrieve " << m_detStore.name() );
@@ -90,15 +100,29 @@ StatusCode TRT_AlignDbSvc::initialize()
     else msg(MSG::INFO) << "found all TRT services " << endreq;
   }
 
+  if (m_trtman->m_alignfoldertype == InDetDD::timedependent_run2 && !m_forceUserDBConfig){
+    m_dynamicDB = true;
+    m_alignroot = "/TRT/AlignL2";                                                         
+    m_alignDBprefix = "/TRT/AlignL2/";
+  }
+  if (m_trtman->m_alignfoldertype == InDetDD::static_run1 && !m_forceUserDBConfig){
+    m_dynamicDB = false;
+    m_alignroot = "/TRT/Align";
+    m_alignDBprefix = "/TRT/Align/";
+  }
+
+
   // setup list of TDS objects from geometry description
   m_alignobjs.clear();
   m_alignchans.clear();
 
   // Include a level 1 alignment
   int ichan(0) ;
-  m_alignobjs.push_back("/TRT/Align/TRT");
-  msg(MSG::INFO) << "Adding key: /TRT/Align/TRT " << endreq;
-  m_alignchans.push_back(ichan++);
+  if (!m_dynamicDB){
+    m_alignobjs.push_back("/TRT/Align/TRT");
+    msg(MSG::INFO) << "Adding key: /TRT/Align/TRT --> We are using static DB folder scheme" << endreq;
+    m_alignchans.push_back(ichan++);
+  }
   
   //Check all detector elements in the present geometry setup
   for (iter=itermin;iter!=itermax;++iter) {
@@ -125,11 +149,13 @@ StatusCode TRT_AlignDbSvc::initialize()
     
     for(unsigned int i=0; i<14; ++i){
       std::string testA = "A"+intToString(i);
-      m_alignobjs.push_back("/TRT/Align/"+testA);
+      //m_alignobjs.push_back("/TRT/Align/"+testA);
+      m_alignobjs.push_back(m_alignDBprefix+testA);
       m_alignchans.push_back(ichan++);
       
       std::string testC = "C"+intToString(i);
-      m_alignobjs.push_back("/TRT/Align/"+testC);
+      //     m_alignobjs.push_back("/TRT/Align/"+testC);
+      m_alignobjs.push_back(m_alignDBprefix+testC);
       m_alignchans.push_back(ichan++);
     
     }
@@ -143,7 +169,8 @@ StatusCode TRT_AlignDbSvc::initialize()
       One can block this via: conddb.blockFolder("/TRT/Align") in the jobOptions
    */
   bool alignFolderExists = m_detStore->contains<AlignableTransformContainer>(m_alignroot) ;
-  
+  if (m_dynamicDB) alignFolderExists = ( alignFolderExists && m_detStore->contains<CondAttrListCollection>("/TRT/AlignL1/TRT"));
+
   /** This is the text files whence the constants.
   */
   bool alignTextFileExists = !par_alitextfile.empty();
@@ -168,7 +195,7 @@ StatusCode TRT_AlignDbSvc::initialize()
       msg(MSG::FATAL) << "Could not create and record new AlignableTransformContainer. Existing." << endreq ;
       return StatusCode::FAILURE ;
     }
-
+    
     /** Read the newly created objects */
     if(StatusCode::SUCCESS!=this->readAlignTextFile(par_alitextfile)) {
       msg(MSG::FATAL) << "Could not read alignment objects. Existing." << endreq;
@@ -300,10 +327,20 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 	printTransform(thisMess,trans);
       }
 
+
+      HepGeom::Transform3D transCLHEP  =  Amg::EigenTransformToCLHEP(trans);
+      CLHEP::HepRotation rot=transCLHEP.getRotation(); 
+      Amg::Vector3D eulerangles;
+      eulerangles[0] = rot.getPhi();
+      eulerangles[1] = rot.getTheta();
+      eulerangles[2] = rot.getPsi();
+
       Amg::Vector3D shift=trans.translation();
-      Amg::Vector3D eulerangles = trans.rotation().eulerAngles(2,1,2) ;
-      
-      if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C"){
+      //Matthias: was initially 2,1,2 --> this should be equivalent to complicated method above
+      //Amg::Vector3D eulerangles = trans.rotation().eulerAngles(2,0,2) ; 
+
+      if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C") ){
+
 	msg(MSG::INFO) << "   Write member: "
 		       << ident << " " << bec << " " << layer << " " << strawLayer << " "  << key << endreq; 
 	
@@ -319,7 +356,7 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 			<< shift.x() << " " << shift.y() << " " << shift.z() << " "
 		        << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
 			<< endreq;
-	
+
       }else{
 	//Need to validate this for writing out L1 Endcap alignments 
 	msg(MSG::INFO) << "   Write member: "
@@ -415,7 +452,7 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 	int bec(0),layer(0),sector(0),strawLayer(0);
 	double dx,dy,dz,phi,theta,psi;
 	
-	if(atname == "/TRT/Align/L2A" || atname == "/TRT/Align/L2C"){
+	if(atname == (m_alignDBprefix+"L2A") || atname == (m_alignDBprefix+"L2C") ){
 	  if( is >> bec >> layer >> strawLayer >> dx >> dy >> dz >> phi ) {
          CLHEP::Hep3Vector translation(dx, dy, dz);
          CLHEP::HepRotation rotation;
@@ -435,6 +472,13 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 				<< " bec,lay,sec,strawlay = " << bec << " " << layer << " " << sector << " " << std::endl;
 	    } else {
 	      pat->add(ident,HepGeom::Transform3D(rotation, translation));
+	      HepGeom::Transform3D testtrans = HepGeom::Transform3D(rotation, translation);
+	      if(msgLvl(MSG::DEBUG)){
+		std::string thisMess = atname+" for "+file;
+		printTransform(thisMess,Amg::CLHEPTransformToEigen(testtrans));
+	      }
+
+
 	      ++ntrans;
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Set transform: "
 						     << " [" << bec << "," << layer << ","  << strawLayer 
@@ -623,7 +667,7 @@ const Amg::Transform3D TRT_AlignDbSvc::getAlignmentTransformL2(Identifier const&
   int ring = getRingForStrawLayer(strawLayer);
 
   Identifier mid;
-  if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C")
+  if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C") )
     mid=m_trtid->layer_id(bec,0,layer,ring);
   else
     mid=m_trtid->module_id(bec,sector,layer);
@@ -688,7 +732,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier co
       int strawLayer=m_trtid->straw_layer(ident);
       int ring = getRingForStrawLayer(strawLayer);
       Identifier mid;
-      if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C"){
+      if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C") ){
 	mid =m_trtid->layer_id(bec,0,layer,ring);
       }else
 	mid =m_trtid->module_id(bec,sector,layer);
@@ -700,7 +744,6 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier co
           amgTransformCache.push_back(amgTransform);
           rc = amgTransform;
       }
-
 
       else
 	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Did not find the transform for " << m_trtid->show_to_string(mid) << endreq;
@@ -755,29 +798,40 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL1(Identifier ident, Amg::Transform3
   if(msgLvl(MSG::DEBUG)){
     printTransform("Transform in setAlignTransformL1",trans);
   }
-  
-  //does a folder exist corresponding to this identifier?
-  AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
-  if (!pat){
-    msg(MSG::FATAL) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endreq;
-    msg(MSG::FATAL) << "Failing ... " << endreq;
-    return StatusCode::FAILURE;
-  }
 
-  // make sure the identifier is a "subdetector identifier"
-  if( !(m_trtid->is_trt(ident)) ){
-    msg(MSG::FATAL) << "The identifier " << ident << " is not from the TRT " << endreq;
-    msg(MSG::FATAL) << "Failing ... " <<endreq;
-    return StatusCode::FAILURE;
+  // New additions for new global folder structure
+  // No ATs exist for levels 1 & 2 --> need alternative
+  if (m_dynamicDB){
+    if(!tweakGlobalFolder(ident, trans)) {
+      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
+      return StatusCode::FAILURE;
+    }
   }
+  else {
   
-  int bec=m_trtid->barrel_ec(ident);
-  Identifier mid=m_trtid->module_id(bec,0,0);
-  // update or add (mid,trans) pair
-  HepGeom::Transform3D clhepTrans = Amg::EigenTransformToCLHEP(trans);
-  if( !(pat->update(mid,clhepTrans)) ) {
-    pat->add(mid,clhepTrans);
-    pat->sortv() ;
+    //does a folder exist corresponding to this identifier?
+    AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
+    if (!pat){
+      msg(MSG::FATAL) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endreq;
+      msg(MSG::FATAL) << "Failing ... " << endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    // make sure the identifier is a "subdetector identifier"
+    if( !(m_trtid->is_trt(ident)) ){
+      msg(MSG::FATAL) << "The identifier " << ident << " is not from the TRT " << endreq;
+      msg(MSG::FATAL) << "Failing ... " <<endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    int bec=m_trtid->barrel_ec(ident);
+    Identifier mid=m_trtid->module_id(bec,0,0);
+    // update or add (mid,trans) pair
+    HepGeom::Transform3D clhepTrans = Amg::EigenTransformToCLHEP(trans);
+    if( !(pat->update(mid,clhepTrans)) ) {
+      pat->add(mid,clhepTrans);
+      pat->sortv() ;
+    }
   }
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL1" << endreq;
@@ -810,7 +864,7 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL2 (Identifier ident, Amg::Transform
 					 << " strawLayer= " << strawLayer << endreq;
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The translations are: x= " << trans(0,3) << " y= "<<trans(1,3) << " z= "<<trans(2,3) << endreq;
 
-  if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C")
+  if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C"))
     m_ident=m_trtid->layer_id(bec,0,layer,ring);    
   else
     m_ident=m_trtid->module_id(bec,sector,layer);
@@ -971,31 +1025,42 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transfor
   */
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL1" << endreq;
 
-  /** does a folder exist corresponding to this identifier? */
-  AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
-  if (!pat){
-    msg(MSG::WARNING) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endreq;
-    msg(MSG::WARNING) << "Failing ... " << endreq;
-    return StatusCode::FAILURE;
+  // New additions for new global folder structure                                                                                                                    
+  // No ATs exist for levels 1 & 2 --> need alternative                                                                                                               
+  if (m_dynamicDB){
+    if(!tweakGlobalFolder(ident, trans)) {
+      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
+      return StatusCode::FAILURE;
+    }
   }
-  
-  /** OK the key exists
-   make sure the identifier is a "subdetector identifier"
-  */
-  if( !(m_trtid->is_trt(ident)) ){
-    msg(MSG::WARNING) << "The identifier " << ident << " is not from the TRT " << endreq;
-    msg(MSG::WARNING) << "Failing ... " <<endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  int bec=m_trtid->barrel_ec(ident);
-  Identifier mid=m_trtid->module_id(bec,0,0);
-
-  /** multiply the additional transformation */
-  if( !(pat->tweak(mid,Amg::EigenTransformToCLHEP(trans))) ){
-    msg(MSG::WARNING) << "The Alignable transfor tweek failed for " << mid << endreq;
-    msg(MSG::WARNING) << "Failing ... " <<endreq;
-    return StatusCode::FAILURE;
+  else {
+    
+    /** does a folder exist corresponding to this identifier? */
+    AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
+    if (!pat){
+      msg(MSG::WARNING) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endreq;
+      msg(MSG::WARNING) << "Failing ... " << endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    /** OK the key exists
+	make sure the identifier is a "subdetector identifier"
+    */
+    if( !(m_trtid->is_trt(ident)) ){
+      msg(MSG::WARNING) << "The identifier " << ident << " is not from the TRT " << endreq;
+      msg(MSG::WARNING) << "Failing ... " <<endreq;
+      return StatusCode::FAILURE;
+    }
+    
+    int bec=m_trtid->barrel_ec(ident);
+    Identifier mid=m_trtid->module_id(bec,0,0);
+    
+    /** multiply the additional transformation */
+    if( !(pat->tweak(mid,Amg::EigenTransformToCLHEP(trans))) ){
+      msg(MSG::WARNING) << "The Alignable transfor tweek failed for " << mid << endreq;
+      msg(MSG::WARNING) << "Failing ... " <<endreq;
+      return StatusCode::FAILURE;
+    }
   }
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL1" << endreq;
@@ -1026,7 +1091,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transfor
   int strawLayer=m_trtid->straw_layer(ident);
   int ring = getRingForStrawLayer(strawLayer);
   Identifier mid;
-  if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C")
+  if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C"))
     mid = m_trtid->layer_id(bec,0,layer,ring);
   else
     mid = m_trtid->module_id(bec,sector,layer);
@@ -1200,9 +1265,10 @@ std::string TRT_AlignDbSvc::findkey(const Identifier& ident, std::string type) c
   */
   std::ostringstream result;
   if (!m_trtid->is_trt(ident)) return result.str();
-
+  
   if(type=="AL" || type=="ALold") {
-    result << "/TRT/Align/";
+    //    result << "/TRT/Align/";
+    result << m_alignDBprefix;
   } else if(type=="DF") {
     result << "/TRT/Calib/DF";
   } else return result.str();
@@ -1500,4 +1566,138 @@ void TRT_AlignDbSvc::printTransform(std::string thisName,  const Amg::Transform3
   std::cout << thisName << " " << transform(1,0) << " " << transform(1,1) << "  " << transform(1,2) << std::endl;
   std::cout << thisName << " " << transform(2,1) << " " << transform(2,1) << "  " << transform(2,2) << std::endl;
   return;
+}
+
+// write global DB to file
+StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
+  const {
+  std::ofstream* outfile=0;
+
+  if (m_dynamicDB){
+    ATH_MSG_DEBUG( "writeFile: Write GlobalFolder DB in text file: " << file );
+    outfile=new std::ofstream(file.c_str());
+    std::vector<std::string> folder_list = {"/TRT/AlignL1/TRT"};
+
+    for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); ++it){
+
+      *outfile << *it << std::endl;
+      const CondAttrListCollection* atrlistcol=0;
+      if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,*it)) {
+        // loop over objects in collection
+        for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
+
+          const coral::AttributeList& atrlist=citr->second;
+          *outfile  << atrlist["bec"].data<int>()
+                    << " "     << atrlist["layer"].data<int>()
+                    << " "     << atrlist["sector"].data<int>()
+                    << " "     << atrlist["Tx"].data<float>()
+                    << " "     << atrlist["Ty"].data<float>()
+                    << " "     << atrlist["Tz"].data<float>()
+                    << " "     << atrlist["phi"].data<float>()
+                    << " "     << atrlist["theta"].data<float>()
+                    << " "     << atrlist["psi"].data<float>() << std::endl;
+        }
+      }
+      else {
+        if (msgLvl(MSG::INFO)){
+          msg(MSG::INFO) << "Cannot find " << *it << " Container - cannot write DB in text file " << endreq;
+	  return StatusCode::FAILURE;
+	}
+      }
+    }
+    outfile->close();
+    delete outfile;
+    return StatusCode::SUCCESS;
+  }
+  else {
+    ATH_MSG_DEBUG( "writeFile: No dynamic Run2 DB structure is present --> skipping writing file " << file );
+    return StatusCode::SUCCESS;
+  }
+}
+
+
+
+
+StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ) {
+
+  // find transform key, then set appropriate transform
+  const CondAttrListCollection* atrlistcol1=0;
+  CondAttrListCollection* atrlistcol2=0;
+  bool result = false;
+  std::string key="/TRT/AlignL1/TRT";
+  int bec=m_trtid->barrel_ec(ident);
+  const unsigned int DBident=bec*1000;
+  // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
+
+  if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol1,key)) {
+    // loop over objects in collection
+    atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
+    if (atrlistcol1!=0){
+      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
+
+        const coral::AttributeList& atrlist=citr->second;
+	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
+
+        if(citr->first!=DBident) continue;
+        else {
+          msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
+			  << " ,bec: "    << atrlist2["bec"].data<int>()
+                          << " ,layer: "  << atrlist2["layer"].data<int>()
+			  << " ,sector: " << atrlist2["sector"].data<int>()
+                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
+                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
+                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
+                          << " ,phi: "    << atrlist2["phi"].data<float>()
+                          << " ,theta: "  << atrlist2["theta"].data<float>()
+                          << " ,psi: "    << atrlist2["psi"].data<float>() << endreq;
+
+
+          // Follow same definitions as in TRT_AlignDbSvc.cxx                                                                                               
+	  CLHEP::Hep3Vector  oldtranslation(atrlist2["Tx"].data<float>(),atrlist2["Ty"].data<float>(),atrlist2["Tz"].data<float>());
+	  CLHEP::HepRotation oldrotation;
+	  oldrotation.set(atrlist["phi"].data<float>(),atrlist["theta"].data<float>(),atrlist["psi"].data<float>());
+	  HepGeom::Transform3D oldtransform(oldrotation, oldtranslation);
+	  	  
+          // get the new transform
+	  //HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(trans)*oldtrans;
+	  Amg::Transform3D newtrans = trans*Amg::CLHEPTransformToEigen(oldtransform);
+
+          // Extract the values we need to write to DB
+	  Amg::Vector3D shift=newtrans.translation();
+	  Amg::Vector3D eulerangles = newtrans.rotation().eulerAngles(2,0,2) ;                     
+	  //CLHEP::HepRotation rot=newtrans.getRotation();                                                                                           
+          atrlist2["Tx"].data<float>() = shift.x();
+          atrlist2["Ty"].data<float>() = shift.y();
+          atrlist2["Tz"].data<float>() = shift.z();
+          atrlist2["phi"].data<float>()   = eulerangles[0]/CLHEP::mrad ;
+          atrlist2["theta"].data<float>() = eulerangles[1]/CLHEP::mrad ;
+          atrlist2["psi"].data<float>()   = eulerangles[2]/CLHEP::mrad ;
+
+	  result = true;
+	  msg(MSG::DEBUG) << "Tweak New global DB -- channel: " << citr->first
+			  << " ,bec: "    << atrlist2["bec"].data<int>()
+                          << " ,layer: "  << atrlist2["layer"].data<int>()
+                          << " ,sector: " << atrlist2["sector"].data<int>()
+                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
+                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
+                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
+                          << " ,phi: "    << atrlist2["phi"].data<float>()
+                          << " ,theta: "  << atrlist2["theta"].data<float>()
+                          << " ,psi: "    << atrlist2["psi"].data<float>() << endreq;
+
+        }
+      }
+    }
+    else {
+      ATH_MSG_ERROR("tweakGlobalFolder: cast fails for DBident " << DBident );
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    ATH_MSG_ERROR("tweakGlobalFolder: cannot retrieve CondAttrListCollection for key " << key );
+    return StatusCode::FAILURE;
+  }
+
+  if (result) return StatusCode::SUCCESS;
+  else return StatusCode::FAILURE;
 }

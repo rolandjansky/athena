@@ -3,7 +3,7 @@
 */
 
 #ifndef TRT_ALIGNDBSVC_H
-#define TRT_ALIGNDBSVC_H
+#define TRT_ALIGNDBSVC_H 
 
 /** @file TRT_AlignDbSvc.h
  * @brief a Service to manage TRT alignment conditions
@@ -65,7 +65,8 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   /** write AlignableTransforms to flat text file */
   StatusCode writeAlignTextFile(std::string file) const;
   StatusCode writeStrawAlignTextFile(std::string file) const;
-  
+  StatusCode writeGlobalFolderFile(std::string file) const;  
+
   /** read AlignableTransforms from text file into TDS */
   StatusCode readAlignTextFile(std::string file);
 
@@ -85,8 +86,11 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   const Amg::Transform3D getAlignmentTransform(const Identifier& ident, unsigned int level) const;
   const Amg::Transform3D* getAlignmentTransformPtr(const Identifier& ident, unsigned int level) const;
   
+  /** tweak L1 DB for global folders for an identifier */
+  StatusCode tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ); 
+
  private:  
-  
+
   /** set Level 1 AlignableTransform for an identifier */
   StatusCode setAlignTransformL1(Identifier ident, Amg::Transform3D trans);
   
@@ -159,6 +163,11 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   const DataHandle<AlignableTransformContainer> m_aligncontainerhandle;
   ToolHandle<IAthenaOutputStreamTool> m_streamer; //!< OutputStreamTool
   mutable std::vector<Amg::Transform3D*> amgTransformCache;
+
+  std::string m_alignDBprefix;  // Not very elegant hack to make more modular for DB modifications
+
+  bool m_dynamicDB;
+  bool m_forceUserDBConfig;     // DB folder scheme is auto-config now; This allows user override
 };
 
 inline StatusCode TRT_AlignDbSvc::queryInterface( const InterfaceID& riid, void** ppvIf )

@@ -351,7 +351,7 @@ void TRT_StrawNeighbourSvc::getAtlasIdentifier(int strawnumber, Identifier &outp
   int moduleType = m_trtid->layer_or_wheel(inputID);
 
   if (moduleType==0) {
-    for (unsigned int i=0; i<= m_layer_m1_acc.size();i++){
+    for (unsigned int i=0; i< m_layer_m1_acc.size();i++){
       if (((unsigned int)strawnumber)<=m_layer_m1_acc[i]) {
 	layer=i;
 	straw= m_layer_m1_acc[i]-strawnumber;
@@ -360,7 +360,7 @@ void TRT_StrawNeighbourSvc::getAtlasIdentifier(int strawnumber, Identifier &outp
     }
   }
   else if (moduleType==1) {
-    for (unsigned int i=0; i<= m_layer_m2_acc.size();i++){
+    for (unsigned int i=0; i< m_layer_m2_acc.size();i++){
       if (((unsigned int)strawnumber)<=m_layer_m2_acc[i]) {
 	layer=i;
 	straw= m_layer_m2_acc[i]-strawnumber;
@@ -369,7 +369,7 @@ void TRT_StrawNeighbourSvc::getAtlasIdentifier(int strawnumber, Identifier &outp
     }
   }
   else if (moduleType==2) {
-    for (unsigned int i=0; i<= m_layer_m3_acc.size();i++){
+    for (unsigned int i=0; i< m_layer_m3_acc.size();i++){
       if (((unsigned int)strawnumber)<=m_layer_m3_acc[i]) {
 	layer=i;
 	straw= m_layer_m3_acc[i]-strawnumber;
@@ -426,8 +426,7 @@ void TRT_StrawNeighbourSvc::getSocket(Identifier offlineID, int&socket){
   if ( !(abs(m_trtid->barrel_ec(offlineID))==1)) {
     msg(MSG::ERROR) << "Sorry, this only works for barrel"<<endreq;
     return;
-  }
-  else if ((abs(m_trtid->barrel_ec(offlineID)==1))){
+  }  else {
     
     
 
@@ -1019,7 +1018,7 @@ int TRT_StrawNeighbourSvc::strawNumber( Identifier id)
 	addToStrawNumberNext = addToStrawNumber+m_numberOfStraws[i];
       }
     while(strawLayerNumber(id)!=i-1);
-    
+    /*
     if(strawLayerNumber(id)%2==-10)
       {
 	strawNumber += addToStrawNumber;
@@ -1028,6 +1027,8 @@ int TRT_StrawNeighbourSvc::strawNumber( Identifier id)
       {
 	strawNumber = addToStrawNumberNext - strawNumber-1;
       }
+    */
+    strawNumber = addToStrawNumberNext - strawNumber-1;
     
     return strawNumber;
   }
