@@ -52,8 +52,6 @@
 * 
 * 1536 active supercells in the full HEC
 *
-* No disconnected channels defined for supercells.
-* 
 * </pre>
 */
 class LArHEC_SuperCell_ID

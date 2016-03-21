@@ -92,6 +92,7 @@ check_lar_neighbour_timing(IdDictMgr& idd)
     deltaElapsed = System::ellapsedTime( System::microSec ) - startOfElapsedTime ;
 
     float num     = hash_max*nloops;
+    float inv_num     = 1. / num;
     std::cout << "Empty loop " << std::endl;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
@@ -100,9 +101,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    float user    = (float)deltaUser/num;
-    float kernel  = (float)deltaKernel/num;
-    float elapsed = (float)deltaElapsed/num;
+    float user    = (float)deltaUser * inv_num;
+    float kernel  = (float)deltaKernel * inv_num;
+    float elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -148,9 +149,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -196,9 +197,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -238,9 +239,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -281,9 +282,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -324,9 +325,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -367,9 +368,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -410,9 +411,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -455,9 +456,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -501,9 +502,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -545,9 +546,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -571,6 +572,7 @@ check_lar_neighbour_timing(IdDictMgr& idd)
     nloops = 1000;
 
     float num_reg     = reg_hash_max*100*nloops;
+    float inv_num_reg     = 1. / num_reg;
 
     std::cout << "Number of region " <<  reg_hash_max
 	      << std::endl;
@@ -600,9 +602,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num_reg;
-    kernel  = (float)deltaKernel/num_reg;
-    elapsed = (float)deltaElapsed/num_reg;
+    user    = (float)deltaUser * inv_num_reg;
+    kernel  = (float)deltaKernel * inv_num_reg;
+    elapsed = (float)deltaElapsed * inv_num_reg;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num_reg << " " 
 	      << user << " " 
@@ -644,9 +646,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num_reg;
-    kernel  = (float)deltaKernel/num_reg;
-    elapsed = (float)deltaElapsed/num_reg;
+    user    = (float)deltaUser * inv_num_reg;
+    kernel  = (float)deltaKernel * inv_num_reg;
+    elapsed = (float)deltaElapsed * inv_num_reg;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num_reg << " " 
 	      << user << " " 
@@ -703,9 +705,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -755,9 +757,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -801,9 +803,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -848,9 +850,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -895,9 +897,9 @@ check_lar_neighbour_timing(IdDictMgr& idd)
 	      << deltaElapsed << " " 
 	      << n << " " 
 	      << std::endl;
-    user    = (float)deltaUser/num;
-    kernel  = (float)deltaKernel/num;
-    elapsed = (float)deltaElapsed/num;
+    user    = (float)deltaUser * inv_num;
+    kernel  = (float)deltaKernel * inv_num;
+    elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << num << " " 
 	      << user << " " 
@@ -1037,10 +1039,10 @@ check_lar_timing(IdDictMgr& idd)
 	      << deltaKernel << " "
 	      << deltaElapsed << " " 
 	      << std::endl;
-    float num     = n;
-    float user    = (float)deltaUser/num;
-    float kernel  = (float)deltaKernel/num;
-    float elapsed = (float)deltaElapsed/num;
+    float inv_num     = 1. / n;
+    float user    = (float)deltaUser * inv_num;
+    float kernel  = (float)deltaKernel * inv_num;
+    float elapsed = (float)deltaElapsed * inv_num;
     std::cout << "tries, user, kernel, elapsed " 
 	      << n << " " 
 	      << user << " " 
@@ -1229,127 +1231,6 @@ check_lar_em_decoding(IdDictMgr& idd)
     std::cout << "... which is ok " << std::endl;
 }
 
-static void check_lar_disc_em_decoding(IdDictMgr& idd)
-{
-    
-    std::cout << "=====================================>  check_lar_disc_em_decoding" << std::endl;
-    std::cout << "=====================================>  check_lar_disc_em_decoding" << std::endl;
-
-    LArEM_ID em_id;
-
-    bool voisins = em_id.do_neighbours();
-    std::cout << "voisins0 = " << voisins << std::endl;
-    em_id.set_do_neighbours(false);
-    voisins = em_id.do_neighbours();
-    std::cout << "voisins1 = " << voisins << std::endl;
-
-    if(em_id.initialize_from_dictionary (idd)) {
-	std::cout << "check_lar_disc_em_decoding - cannot init from dict" << std::endl;
-    }
-
-
-    // disconnected channels
-    std::vector<Identifier>::const_iterator itId = em_id.disc_em_begin();
-    std::vector<Identifier>::const_iterator itIdEnd = em_id.disc_em_end();
-  
-    int nChan=0;
-
-    bool error = false;
-  
-    for(; itId!=itIdEnd;++itId){
-
-	Identifier ch_id = *itId;
-	if(!em_id.is_connected(ch_id)) {
-	  nChan++;
-	  
-	    IdentifierHash hashId = em_id.disc_channel_hash(ch_id) ;
-	    bool ok = em_id.is_connected(hashId);
-	    if ( ok ) {
-		std::cout
-		    << " EM: pb with is_connected(hash): true in disc loop !!!"
-		    << "         ch_id = " <<  em_id.show_to_string(ch_id) 
-		    << "         hashId = " << hashId
-		    << std::endl;
-		error = true;
-	    }
-      
-	    Identifier ch_id2 = em_id.disc_channel_id(hashId);
-      
-	    if ( ch_id2 != ch_id ) {
-		std::cout
-		    << " EM: disc ch_id2 incorrect: " <<  em_id.show_to_string(ch_id2) 
-		    << "         should be " <<  em_id.show_to_string(ch_id) 
-		    << "           hashId = " << hashId
-		    << std::endl;
-		error = true;
-	    }
-
-	    IdentifierHash hashId2 = em_id.disc_channel_hash(ch_id);
-	    //	    IdentifierHash hashId3 = em_id.channel_hash(ch_id);
-	    //	    std::cout << "disc_hash, hash=" << hashId2 << " " << hashId3 << std::endl;
-	    if(hashId2<em_id.channel_hash_max()) {
-	      std::cout << " wrong disconnected hash index " << hashId2
-			<< " less than channel_hash_max " << em_id.channel_hash_max()
-			<< " for channel " <<   em_id.show_to_string(ch_id) << std::endl; 
-	      error=true;
-	    }
-      
-	    int bec  = em_id.barrel_ec(ch_id);
-	    int samp = em_id.sampling(ch_id);
-	    int reg  = em_id.region(ch_id);
-	    Identifier regId = em_id.disc_region_id (bec, samp, reg);
-
-	    int eta  = em_id.disc_eta(ch_id);
-	    int phi  = em_id.disc_phi(ch_id);
-      
-	    try{
-	      ok = em_id.is_connected (bec, samp, reg, eta, phi);
-	    }
-	    catch(LArID_Exception & except){
-	      std::cout << (std::string) except << std::endl ;
-	    }
-	    if ( ok ) {
-		std::cout
-		    << " EM: pb with is_connected: true in disc loop !!!"
-		    << "  bec,samp,reg,eta,phi= " << bec << " " << samp << " " << reg << " " << eta << " " << phi
-		    << std::endl;
-		error = true;
-	    }
-
-	    Identifier chanId = em_id.disc_channel_id (bec, samp, reg, eta, phi);
-	    if ( chanId != ch_id ) {
-		std::cout
-		    << "disc EM: chanId incorrect: " <<  em_id.show_to_string(chanId) 
-		    << "         should be " <<  em_id.show_to_string(ch_id) 
-		    << " input val of bec, samp, reg, eta, phi= " << bec << " " << samp << " " << reg << " " << eta << " " << phi
-		    << std::endl;
-		error = true;
-	    }
-
-	    /* essai pour Guillaume
-	    chanId = em_id.channel_id (bec, samp, reg, eta, phi);
-	    std::cout << "channelId= " << em_id.show_to_string(chanId) << std::endl;
-	    hashId = em_id.channel_hash(chanId) ;
-	    std::cout << "hashId= " << hashId << std::endl;
-	    */
-      
-	    Identifier chanId2 = em_id.channel_id (regId, eta, phi);
-	    if ( chanId2 != chanId ) {
-		std::cout << "disc EM: chanId2 incorrect: " <<  em_id.show_to_string(chanId2) 
-			  << "          should be " <<  em_id.show_to_string(chanId) 
-			  << "          regId     " <<  em_id.show_to_string(regId) 
-			  << " input val of bec, samp, reg, eta, phi= " << bec << " " << samp << " " << reg << " " << eta << " " << phi
-			  << std::endl;
-		error = true;
-	    }
-
-	}
-    }
-    if(!error) {
-      std::cout << "lar disc_em decoding tests ok, nChan=" << nChan << std::endl;
-    }
-}
-
 static void
 check_lar_hec_decoding(IdDictMgr& idd)
 {
@@ -1500,114 +1381,6 @@ check_lar_hec_decoding(IdDictMgr& idd)
     std::cout << "... which is ok " << std::endl;
 }
 
-static void check_lar_disc_hec_decoding(IdDictMgr& idd)
-{
-    
-    std::cout << "=====================================>  check_lar_disc_hec_decoding" << std::endl;
-    std::cout << "=====================================>  check_lar_disc_hec_decoding" << std::endl;
-
-    LArHEC_ID hec_id;
-
-    bool voisins = hec_id.do_neighbours();
-    std::cout << "voisins0 = " << voisins << std::endl;
-    hec_id.set_do_neighbours(false);
-    voisins = hec_id.do_neighbours();
-    std::cout << "voisins1 = " << voisins << std::endl;
-
-    if(hec_id.initialize_from_dictionary (idd)) {
-	std::cout << "check_lar_disc_hec_decoding - cannot init from dict" << std::endl;
-    }
-
-
-    // test of hash calculation
-    
-
-
-    // disconnected channels
-    std::vector<Identifier>::const_iterator itId = hec_id.disc_hec_begin();
-    std::vector<Identifier>::const_iterator itIdEnd = hec_id.disc_hec_end();
-  
-    int nChan=0;
-
-    bool error = false;
-  
-    for(; itId!=itIdEnd;++itId){
-
-	Identifier ch_id = *itId;
-	if(!hec_id.is_connected(ch_id)) {
-	    nChan++;
-      
-	    IdentifierHash hashId = hec_id.disc_channel_hash(ch_id) ;
-      
-	    bool ok = hec_id.is_connected(hashId);
-	    if ( ok ) {
-		std::cout
-		    << " HEC: pb with is_connected(hash): true in disc loop !!!"
-		    << "         ch_id = " <<  hec_id.show_to_string(ch_id) 
-		    << "         hashId = " << hashId
-		    << std::endl;
-		error = true;
-	    }
-      
-	    Identifier ch_id2 = hec_id.disc_channel_id(hashId);
-      
-	    if ( ch_id2 != ch_id ) {
-		std::cout
-		    << " HEC: disc ch_id2 incorrect: " <<  hec_id.show_to_string(ch_id2) 
-		    << "         should be " <<  hec_id.show_to_string(ch_id) 
-		    << "           hashId = " << hashId
-		    << std::endl;
-		error = true;
-	    }
-      
-	    int bec  = hec_id.pos_neg(ch_id);
-	    int samp = hec_id.sampling(ch_id);
-	    int reg  = hec_id.region(ch_id);
-	    Identifier regId = hec_id.disc_region_id (bec, samp, reg);
-
-	    int eta  = hec_id.disc_eta(ch_id);
-	    int phi  = hec_id.disc_phi(ch_id);
-      
-	    try{
-	      ok = hec_id.is_connected (bec, samp, reg, eta, phi);
-	    }
-	    catch(LArID_Exception & except){
-	      std::cout << (std::string) except << std::endl ;
-	    }
-	    if ( ok ) {
-		std::cout
-		    << " HEC: pb with is_connected: true in disc loop !!!"
-		    << "  bec,samp,reg,eta,phi= " << bec << " " << samp << " " << reg << " " << eta << " " << phi
-		    << std::endl;
-		error = true;
-	    }
-
-	    Identifier chanId = hec_id.disc_channel_id (bec, samp, reg, eta, phi);
-	    if ( chanId != ch_id ) {
-		std::cout
-		    << "disc HEC: chanId incorrect: " <<  hec_id.show_to_string(chanId) 
-		    << "         should be " <<  hec_id.show_to_string(ch_id) 
-		    << " input val of pn, samp, reg, eta, phi= " << bec << " " << samp << " " << reg << " " << eta << " " << phi
-		    << std::endl;
-		error = true;
-	    }
-      
-	    Identifier chanId2 = hec_id.channel_id (regId, eta, phi);
-	    if ( chanId2 != chanId ) {
-		std::cout << "disc HEC: chanId2 incorrect: " <<  hec_id.show_to_string(chanId2) 
-			  << "          should be " <<  hec_id.show_to_string(chanId) 
-			  << "          regId     " <<  hec_id.show_to_string(regId) 
-			  << " input val of pn, samp, reg, eta, phi= " << bec << " " << samp << " " << reg << " " << eta << " " << phi
-			  << std::endl;
-		error = true;
-	    }
-
-	}
-    }
-    if(!error) {
-      std::cout << "lar disc_hec decoding tests ok, nChan=" << nChan << std::endl;
-    }
-}
 
 static void
 check_lar_fcal_decoding(IdDictMgr& idd)
@@ -1895,113 +1668,6 @@ check_lar_fcal_decoding(IdDictMgr& idd)
     std::cout << "... which is ok " << std::endl;
 }
 
-static void check_lar_disc_fcal_decoding(IdDictMgr& idd)
-{
-    
-    std::cout << "=====================================>  check_lar_disc_fcal_decoding" << std::endl;
-    std::cout << "=====================================>  check_lar_disc_fcal_decoding" << std::endl;
-
-    LArFCAL_ID fcal_id;
-
-    bool voisins = fcal_id.do_neighbours();
-    std::cout << "voisins0 = " << voisins << std::endl;
-    fcal_id.set_do_neighbours(false);
-    voisins = fcal_id.do_neighbours();
-    std::cout << "voisins1 = " << voisins << std::endl;
-
-    if(fcal_id.initialize_from_dictionary (idd)) {
-	std::cout << "check_lar_disc_fcal_decoding - cannot init from dict" << std::endl;
-    }
-
-
-    // test of hash calculation
-    
-
-
-    // disconnected channels
-    std::vector<Identifier>::const_iterator itId = fcal_id.disc_fcal_begin();
-    std::vector<Identifier>::const_iterator itIdEnd = fcal_id.disc_fcal_end();
-  
-    int nChan=0;
-
-    bool error = false;
-  
-    for(; itId!=itIdEnd;++itId){
-
-	Identifier ch_id = *itId;
-	if(!fcal_id.is_connected(ch_id)) {
-	    nChan++;
-      
-	    IdentifierHash hashId = fcal_id.disc_channel_hash(ch_id) ;
-      
-	    bool ok = fcal_id.is_connected(hashId);
-	    if ( ok ) {
-		std::cout
-		    << " FCAL: pb with is_connected(hash): true in disc loop !!!"
-		    << "         ch_id = " <<  fcal_id.show_to_string(ch_id) 
-		    << "         hashId = " << hashId
-		    << std::endl;
-		error = true;
-	    }
-	    Identifier ch_id2 = fcal_id.disc_channel_id(hashId);
-      
-	    if ( ch_id2 != ch_id ) {
-		std::cout
-		    << " FCAL: disc ch_id2 incorrect: " <<  fcal_id.show_to_string(ch_id2) 
-		    << "         should be " <<  fcal_id.show_to_string(ch_id) 
-		    << "           hashId = " << hashId
-		    << std::endl;
-		error = true;
-	    }
-      
-	    int bec  = fcal_id.pos_neg(ch_id);
-	    int samp = fcal_id.module(ch_id);
-	    Identifier regId = fcal_id.disc_module_id (bec, samp);
-
-	    int eta  = fcal_id.disc_eta(ch_id);
-	    int phi  = fcal_id.disc_phi(ch_id);
-      
-	    try{
-	      ok = fcal_id.is_connected (bec, samp, eta, phi);
-	    }
-	    catch(LArID_Exception & except){
-	      std::cout << (std::string) except << std::endl ;
-	    }
-	    if ( ok ) {
-		std::cout
-		    << " FCAL: pb with is_connected: true in disc loop !!!"
-		    << "  bec,samp,eta,phi= " << bec << " " << samp << " " << eta << " " << phi
-		    << std::endl;
-		error = true;
-	    }
-
-	    Identifier chanId = fcal_id.disc_channel_id (bec, samp, eta, phi);
-	    if ( chanId != ch_id ) {
-		std::cout
-		    << "disc FCAL: chanId incorrect: " <<  fcal_id.show_to_string(chanId) 
-		    << "         should be " <<  fcal_id.show_to_string(ch_id) 
-		    << " input val of pn, mod, eta, phi= " << bec << " " << samp << " " << eta << " " << phi
-		    << std::endl;
-		error = true;
-	    }
-      
-	    Identifier chanId2 = fcal_id.channel_id (regId, eta, phi);
-	    if ( chanId2 != chanId ) {
-		std::cout << "disc FCAL: chanId2 incorrect: " <<  fcal_id.show_to_string(chanId2) 
-			  << "          should be " <<  fcal_id.show_to_string(chanId) 
-			  << "          modId     " <<  fcal_id.show_to_string(regId) 
-			  << " input val of pn, mod, eta, phi= " << bec << " " << samp << " " << eta << " " << phi
-			  << std::endl;
-		error = true;
-	    }
-
-	}
-    }
-    if(!error) {
-      std::cout << "lar disc_fcal decoding tests ok, nChan=" << nChan << std::endl;
-    }
-}
-
 
 static void check_lar_neighbour(IdDictMgr& idd)
 {
@@ -2157,10 +1823,10 @@ int main (int argc, char* argv[])
     // standard dict:
     //std::string lArIDFileName = "IdDictLArCalorimeter_DC3-05-Comm-01.xml";
     // For sLHC:
-    std::string lArIDFileName = "IdDictLArCalorimeter_sLHC-MiniFcal-00.xml";
+    // std::string lArIDFileName = "IdDictLArCalorimeter_sLHC-MiniFcal-00.xml";
     //    std::string lArIDFileName = "IdDictLArCalorimeter_H8_2004.xml";
     //    std::string lArIDFileName = "IdDictLArCalorimeter_H6_2004.xml";
-    parser.register_external_entity("LArCalorimeter", lArIDFileName); 
+    // parser.register_external_entity("LArCalorimeter", lArIDFileName); 
     std::string caloIDFileName = "IdDictCalorimeter_L1Onl.xml";  
     parser.register_external_entity("Calorimeter", caloIDFileName); 
     IdDictMgr& idd = parser.parse (argv[1]);  
@@ -2198,15 +1864,9 @@ int main (int argc, char* argv[])
 
     check_lar_em_decoding(idd);
 
-    check_lar_disc_em_decoding(idd);
-     
     check_lar_hec_decoding(idd);
 
-    check_lar_disc_hec_decoding(idd);
-
     check_lar_fcal_decoding(idd);
-
-    check_lar_disc_fcal_decoding(idd);
 
     check_lar_neighbour(idd);
 

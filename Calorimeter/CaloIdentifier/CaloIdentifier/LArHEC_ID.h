@@ -72,10 +72,6 @@
 * phi              [0,63]           Outer part, dphi=0.1
 * "                [0,31]           Inner part, dphi=0.2
 * 
-* 512 disconnected channels in the full HEC 
-* In the hash series, the disconnected channels are put at the end, after the connected channels.
-* channel_hash_min = 0 ; disc_channel_hash_min = channel_hash_max ;
-* 
 * </pre>
 *
 * @author started by RD Schaffer

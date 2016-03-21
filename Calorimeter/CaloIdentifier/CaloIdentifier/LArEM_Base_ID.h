@@ -50,61 +50,26 @@ public:
   /** Build a cell identifier from an expanded identifier. */
   Identifier channel_id (const ExpandedIdentifier& exp_id) const;
 				 
-  /** build a region identifier for a connected channel  */
+  /** build a region identifier */
   Identifier  region_id   	(int barrel_ec, int sampling, int region ) const;
 
-  /** build a cell identifier for a connected channel  */
+  /** build a cell identifier */
   Identifier  channel_id   	(int barrel_ec, int sampling, int region,
 				 int eta,       int phi )  const;
 
-  /** build a cell identifier for disconnected channels  */
-  Identifier  disc_channel_id (const ExpandedIdentifier& exp_id) const;
-
-  /** build a region identifier for disconnected channels  */
-  Identifier  disc_region_id   	(int barrel_ec, int sampling, int region ) const;
-
-  /** build a cell identifier for disconnected channels  */
-  Identifier  disc_channel_id   	(int barrel_ec, int sampling, int region,
-					 int eta,       int phi ) const;
-				 
-
   /** allows to know in which region is a channel/cell
-      -- valid for both kinds of channels (connected or not) */
+      -- valid for both kinds of channels */
   Identifier  region_id   	(const Identifier channelId) const ;
 
   /** allows to build a cell id starting from a region id (e.g. from descriptors) 
-      -- valid for both kinds of channels (connected or not) */
+      -- valid for both kinds of channels */
   Identifier  channel_id   	(const Identifier regionId,
 				 int eta,       int phi ) const;
 
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU cheap */
-  bool is_connected (const IdentifierHash hashId) const;
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU cheap */
-  bool is_connected (const Identifier channelId) const;
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU expensive */
-  bool is_connected (int barrel_ec, int sampling, int region, int eta, int phi)  const throw(LArID_Exception);
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU expensive */
-  bool is_disconnected (int barrel_ec, int sampling, int region, int eta, int phi)  const throw(LArID_Exception);
-
-  /** create hash id from connected channel id  */
+  /** create hash id from channel id  */
   IdentifierHash channel_hash (Identifier channelId) const;
-  /** create hash id from connected channel id  -- method NOT optimised, please use channel_hash() above */
+  /** create hash id from channel id  -- method NOT optimised, please use channel_hash() above */
   IdentifierHash channel_hash_binary_search (Identifier channelId) const;
-
-  /** create channel id from hash id (valid for all channels, connected + diconnected) */
-  Identifier disc_channel_id	(IdentifierHash disc_channel_hash_id) const;	
-
-  /** create hash id from disconnected channel id*/
-  IdentifierHash disc_channel_hash (Identifier disc_channel_id) const;
-
-  /** cell hash table max size (all channels: connected + disconnected) */
-  size_type     disc_channel_hash_max (void) const;
-  /** disconnected cell/channel hash table min index */
-  size_type     disc_channel_hash_min (void) const;
 
   /** Type for iterators over identifiers. */
   typedef std::vector<Identifier>::const_iterator id_iterator;
@@ -126,26 +91,19 @@ public:
   /** Range over full set of EM Identifiers. */
   id_range em_range () const;
 
-  /** begin iterator over full set of EM Identifiers for DISconnected channels (only) */
-  id_iterator disc_em_begin    (void) const;
-  /** end iterator over full set of EM Identifiers for disconnected channels (only) */
-  id_iterator disc_em_end      (void) const;
-  /** Range over full set of EM Identifiers for DISconnected channels (only) */
-  id_range disc_em_range () const;
-
-  /** provide access to connected channel id vector, accessed via hash */
+  /** provide access to channel id vector, accessed via hash */
   const std::vector<Identifier>& channel_ids() const;
 
-  /** test if the id belongs to the EM barrel -- valid for both connected and disconnected channels */
+  /** test if the id belongs to the EM barrel */
   bool	is_em_barrel   	(const Identifier id) const;
   
-  /** test if the id belongs to the EM Endcap -- valid for both connected and disconnected channels */
+  /** test if the id belongs to the EM Endcap */
   bool	is_em_endcap	(const Identifier id) const;
   
-  /** test if the id belongs to the EM Endcap inner wheel -- valid for both connected and disconnected channels */
+  /** test if the id belongs to the EM Endcap inner wheel */
   bool	is_em_endcap_inner	(const Identifier id) const;
   
-  /** test if the id belongs to the EM Endcap outer wheel -- valid for both connected and disconnected channels */
+  /** test if the id belongs to the EM Endcap outer wheel */
   bool	is_em_endcap_outer	(const Identifier id) const;
 
 
@@ -261,7 +219,6 @@ public:
    * "                0           inner wheel sampling 2 region 0  3.1   < eta < 3.2   - deta = 0.1
    * "                [0,9]       outer wheel sampling 3 region 0  1.5   < eta < 2.5   - deta = 0.1
    * 
-   *  -999 if disconnected channel
    * </pre> 
    */
   int         eta             (const Identifier id)const; 
@@ -308,7 +265,6 @@ public:
    * "                [0,31]      inner wheel sampling 2 region 0       - dphi = 0.2
    * "                [0,63]      outer wheel sampling 3 region 0       - dphi = 0.1
    * 
-   *   -999 if disconnected channel
    * </pre> 
    */
   int         phi             (const Identifier id)const;
@@ -331,11 +287,6 @@ public:
       @warning input = REGION ID !! */
   int phi_max(const Identifier regId) const;
   
-
-  /** eta index -- only for checks, since dummy for disconnected channels */
-  int         disc_eta             (const Identifier id)const; 
-  /** phi index -- only for checks, since dummy for disconnected channels */
-  int         disc_phi             (const Identifier id)const; 
 
   /** initialization from the identifier dictionary*/
   int initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
@@ -400,23 +351,13 @@ private:
   void  channel_id_checks   	(const Identifier regionId,
 				 int eta,       int phi ) const throw(LArID_Exception);
 
-  void  disc_region_id_checks   (int barrel_ec, int sampling, int region ) const throw(LArID_Exception);
-  void  disc_channel_id_checks  (int barrel_ec, int sampling, int region,
-				 int eta,       int phi ) const throw(LArID_Exception);
-  void  disc_channel_id_checks  (const Identifier regionId,
-				 int eta,       int phi ) const throw(LArID_Exception);
-
   /** create expanded Identifier from Identifier (return == 0 for OK) */
   virtual int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
-
-  int  get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
 
   int phi_min_init(const Identifier regId) const;
 
   int         initLevelsFromDict (const std::string& group_name);
   int         init_hashes(void) ;
-  int         init_disc_hashes(void) ;
-
 
   int   get_prevInPhi(const LArEM_region* emRegion, const unsigned int& index, const short int& nPhi, const unsigned int& minHash, 
 		      int& neighbourIndex, IdentifierHash* neighbList) const;
@@ -458,8 +399,6 @@ private:
 
   MultiRange                    m_full_region_range;
   MultiRange                    m_full_em_range;
-  MultiRange                    m_full_disc_region_range;
-  MultiRange                    m_full_disc_em_range;
 
   size_type                     m_em_region_index;
   size_type                     m_LAR_INDEX;
@@ -470,8 +409,6 @@ private:
   size_type                     m_ETA_INDEX;
   size_type                     m_PHI_INDEX;
   size_type                     m_SLAR_INDEX;
-
-  CaloIDHelper::HashGroup       m_disc_channels;
 
   IdDictFieldImplementation     m_lar_impl;
   IdDictFieldImplementation  	m_em_impl;
@@ -507,7 +444,6 @@ private:
 
   IdDictFieldImplementation  	m_bec_reg_impl;
 
-  std::vector<Identifier>       m_disc_region_vec;
   std::vector<LArEM_region*>    m_vecOfRegions;
   std::vector<unsigned>         m_cells;          // stores starting hash number of each region, regions are ordered by hash so this array is ordered as well
 

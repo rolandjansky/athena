@@ -91,6 +91,10 @@ check_cell_id_decoding(IdDictMgr& idd)
     int nFcal=0;
     int nTile=0;
 
+    int last_sub_calo = -999;
+    
+
+    
     IdentifierHash min=0;
     IdentifierHash max=0;
     std::cout << "Will Start the Loop" << std::endl;
@@ -177,6 +181,13 @@ check_cell_id_decoding(IdDictMgr& idd)
 	IdentifierHash hashId = calo_id->calo_cell_hash ( chId );
 	//	std::cout << "hashId = " << hashId << std::endl;
 
+
+        if (calo_id->sub_calo(chId) != last_sub_calo) {
+            std::cout << "New calo: chId = " << calo_id->show_to_string(chId) << " hash " << hashId << std::endl;
+            last_sub_calo = calo_id->sub_calo(chId);
+        }
+
+        
 	int subcalo1 = calo_id->sub_calo(hashId);
 	IdentifierHash min2=0;
 	IdentifierHash max2=0;
@@ -582,12 +593,14 @@ int main (int argc, char* argv[])
   
     IdDictParser parser;  
     std::string lArIDFileName = "IdDictLArCalorimeter_DC3-05-Comm-01.xml";
+    // std::string lArIDFileName = "IdDictLArCalorimeter_sLHC-LArMiniFcal-00.xml";
+    // std::string lArIDFileName = "IdDictLArCalorimeter_HGTD_01.xml";
     //    std::string lArIDFileName = "IdDictLArCalorimeter.xml";
     //    std::string lArIDFileName = "IdDictLArCalorimeter_H8_2004.xml";
     //    std::string lArIDFileName = "IdDictLArCalorimeter_H6_2004.xml";
     parser.register_external_entity("LArCalorimeter", lArIDFileName); 
     IdDictMgr& idd = parser.parse (argv[1]);  
-    std::cout << "got dict mgr " << std::endl;
+    std::cout << "got dict mgr for file " << lArIDFileName << std::endl;
 
     // Set some default file names for neighbours (RDS 12/2009):
     idd.add_metadata("FULLATLASNEIGHBORS",  "SuperCaloNeighbours-DC3-05-Comm-01.dat");  

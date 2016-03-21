@@ -32,8 +32,7 @@
   * 
   * Definition and range of values for the fields: <p>
   * <pre>
-  *             Connected channels :
-  *             ------------------
+  *
   * pos_neg = +/- 2 (A/C side)<br><br>
   *
   * module = [0] : Only one module <br><br>
@@ -43,13 +42,6 @@
   * phi = [0,phimax] : depends on layout <br><br>
   *
   * eta = [0,8] depends on layout ; <br>
-  *
-  *
-  *             Disconnected channels :
-  *             ------------------
-  * pos_neg = +/- 2 (A/C side)<br><br>
-  *
-  * no disconnected channels yet <br><br>
   *
   *
   * @author started by RD Schaffer
@@ -75,77 +67,41 @@ public:
       returns false if description is not available    */
   bool        is_initialized() const;
 
-  /** module identifier for a connected channel from ExpandedIdentifier  */
-  Identifier  module_id	(const ExpandedIdentifier& exp_id) const ;
+  /** module identifier for a channel from ExpandedIdentifier  */
+  Identifier  module_id (const ExpandedIdentifier& exp_id) const ;
 
-  /** cell identifier for a connected channel from ExpandedIdentifier */
+  /** cell identifier for a channel from ExpandedIdentifier */
   Identifier  channel_id (const ExpandedIdentifier& exp_id) const ;
 
-  /** build a module identifier for a connected channel  */
-  Identifier  module_id	( int pos_neg, int module ) const ;
+  /** build a module identifier for a channel  */
+  Identifier  module_id ( int pos_neg, int module ) const ;
 
-  /** build a cell identifier for a connected channel  */
+  /** build a cell identifier for a channel  */
   Identifier  channel_id( int pos_neg,  int module,  int depth,
-			  int eta,      int phi ) const ;
-
-  /** module identifier for a disconnected channel from ExpandedIdentifier  */
-  Identifier  disc_module_id	(const ExpandedIdentifier& exp_id) const ;
-
-  /** cell identifier for a disconnected channel from ExpandedIdentifier */
-  Identifier  disc_channel_id (const ExpandedIdentifier& exp_id) const ;
-
-  /** build a module identifier for disconnected channels  */
-  Identifier  disc_module_id	( int pos_neg, int module ) const ;
-
-  /** build a cell identifier for disconnected channels  */
-  Identifier  disc_channel_id( int pos_neg,  int module, int depth,
-			       int eta,      int phi ) const ;
+                          int eta,      int phi ) const ;
 
   /** allows to know in which region is a channel/cell
-      -- valid for both kinds of channels (connected or not) */
-  Identifier  module_id	(const Identifier id ) const;
+      -- valid for both kinds of channels */
+  Identifier  module_id (const Identifier id ) const;
      
   /** allows to build a channel id starting from a module id (e.g. from descriptors) 
-      -- valid for both kinds of channels (connected or not) */
+      -- valid for both kinds of channels */
   Identifier  channel_id( const Identifier moduleId, int depth,
-			  int eta, int phi) const ;
-			     
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU cheap */
-  bool is_connected (const IdentifierHash hashId) const;
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU cheap */
-  bool is_connected (const Identifier channelId) const;
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU expensive */
-  bool is_connected ( int pos_neg, int module, int depth, int eta, int phi )  const throw(LArID_Exception);
-  /** to disentangle between connected and disconnected channels 
-      this method is CPU expensive */
-  bool is_disconnected ( int pos_neg, int module, int depth, int eta, int phi )  const throw(LArID_Exception);
-
+                          int eta, int phi) const ;
+                             
   bool is_supercell (const Identifier channelId) const;
-				 
-    /** create module id from hash id (connected channels only)*/
-  Identifier module_id	(IdentifierHash module_hash_id) const;
+                                 
+    /** create module id from hash id */
+  Identifier module_id  (IdentifierHash module_hash_id) const;
 
     /** create hash id from module id*/
   IdentifierHash module_hash  (Identifier module_id) const;
 
-  /** create hash id from connected channel id  -- method NOT optimised, please use channel_hash() above */
+  /** create hash id from channel id  -- method NOT optimised, please use channel_hash() above */
   IdentifierHash channel_hash_binary_search (Identifier channelId) const;
-
-  /** create channel id from hash id  (all channels, connected + diconnected, together) */
-  Identifier disc_channel_id	(IdentifierHash disc_channel_hash_id) const;	
-
-    /** create hash id from disconnected channel id*/
-  IdentifierHash disc_channel_hash (Identifier disc_channelId) const;
 
   /**  region hash table max size */
   size_type     module_hash_max (void) const;
-  /** cell hash table max size (all channels: connected + disconnected) */
-  size_type     disc_channel_hash_max (void) const;
-  /** disconnected cell/channel hash table min index */
-  size_type     disc_channel_hash_min (void) const;
 
   /** Type for iterators over identifiers. */
   typedef std::vector<Identifier>::const_iterator id_iterator;
@@ -159,26 +115,12 @@ public:
   /** range over set of module Identifiers */
   id_range    mod_range    () const;
 
-  /** begin iterator over full set of Fcal Identifiers for connected channels */
+  /** begin iterator over full set of Fcal Identifiers for channels */
   id_iterator minifcal_begin    () const;
-  /** end iterator over full set of Fcal Identifiers for connected channels */
+  /** end iterator over full set of Fcal Identifiers for channels */
   id_iterator minifcal_end      () const;
-  /** range over full set of Fcal Identifiers for connected channels */
+  /** range over full set of Fcal Identifiers for channels */
   id_range    minifcal_range    () const;
-
-  /** begin iterator over full set of Fcal Identifiers for DISconnected channels */
-  id_iterator disc_minifcal_begin    () const;
-  /** end iterator over full set of Fcal Identifiers for DISconnected channels */
-  id_iterator disc_minifcal_end      () const;
-  /** range over full set of Fcal Identifiers for DISconnected channels */
-  id_range    disc_minifcal_range    () const;
-
-  /** begin iterator over full set of Fcal Identifiers for DISconnected modules */
-  id_iterator disc_mod_begin    () const;
-  /** end iterator over full set of Fcal Identifiers for DISconnected modules */
-  id_iterator disc_mod_end      () const;
-  /** range over full set of Fcal Identifiers for DISconnected modules */
-  id_range    disc_mod_range    () const;
 
   /** provide access to channel id vector, accessed via hash */
   const std::vector<Identifier>& channel_ids() const;
@@ -186,16 +128,16 @@ public:
   /** provide access to module id vector, accessed via hash */
   const std::vector<Identifier>& module_ids() const;
 
-			     
+                             
   /** pos_neg : +/- 2 (A/C side) */
   int         pos_neg         (const Identifier id)const; 
   /** module [0] */
   int         module          (const Identifier id)const;
-  /** depth [0,3], -999 if disconnected channel */
+  /** depth [0,3] */
   int         depth            (const Identifier id)const;
-  /** eta [0,63] module 1 ; [0,31] module 2 ; [0,15] module 3, -999 if disconnected channel */
+  /** eta [0,63] module 1 ; [0,31] module 2 ; [0,15] module 3 */
   int         eta             (const Identifier id)const;
-  /** phi [0,15], -999 if disconnected channel */
+  /** phi [0,15] */
   int         phi             (const Identifier id)const; 
 
   /** min value of eta index (-999 == failure) 
@@ -214,14 +156,8 @@ public:
   /** access to hashes for neighbours      return == 0 for neighbours found  <br>
       option = all2D, prevInSamp, nextInSamp, all3D <br>
                in 'nextInSamp', next means 'away from the centre of Atlas' <br>
-               in 'prevInSamp', prev means 'towards   the centre of Atlas' <br> 
-  Nota Bene = neighbours do not include diconnected channels */
+               in 'prevInSamp', prev means 'towards   the centre of Atlas' <br> */
   int    get_neighbours(const IdentifierHash id, const LArNeighbours::neighbourOption& option, std::vector<IdentifierHash>& neighbourList) const;
-
-  /** eta index -- only for checks, since dummy for disconnected channels */
-  int         disc_eta             (const Identifier id)const; 
-  /** phi index -- only for checks, since dummy for disconnected channels */
-  int         disc_phi             (const Identifier id)const; 
 
   /** context for modules --  method kept for backward compatibility. NOT optimised <br>
       access to IdContext's which define which levels of fields are contained in the id */
@@ -257,7 +193,7 @@ public:
 
 private:    
 
-	  
+          
   enum {NOT_VALID_HASH = 64000};
 
   int phi_min_init(const Identifier regId) const;
@@ -270,24 +206,16 @@ private:
 
   void  module_id_checks      ( int pos_neg, int module ) const throw(LArID_Exception);
   void  channel_id_checks     ( int pos_neg,  int module,
-				int depth,  int eta,      int phi ) const throw(LArID_Exception);
+                                int depth,  int eta,      int phi ) const throw(LArID_Exception);
   void  channel_id_checks     ( const Identifier moduleId,
-				int depth, int eta, int phi) const throw(LArID_Exception);
-  void  disc_module_id_checks      ( int pos_neg, int module ) const throw(LArID_Exception);
-  void  disc_channel_id_checks     ( int pos_neg,  int module,
-				     int depth,   int eta,      int phi ) const throw(LArID_Exception);
-  void  disc_channel_id_checks     ( const Identifier moduleId,
-				     int depth,  int eta, int phi) const throw(LArID_Exception);
-			     
+                                int depth, int eta, int phi) const throw(LArID_Exception);
+                             
   /** create expanded Identifier from Identifier (return == 0 for OK) */
   virtual int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
-  int  get_disc_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
-
 
   int         initLevelsFromDict(void) ;
 
   int         init_hashes(void) ;
-  int         init_disc_hashes(void) ;
 
   int         init_neighbors_from_file(std::string filename, std::vector<std::set<IdentifierHash> > &vec);
 
@@ -324,11 +252,6 @@ private:
   MultiRange                    m_full_channel_range;
   MultiRange                    m_full_module_range;
   MultiRange                    m_full_depth_range;
-  MultiRange                    m_full_disc_channel_range;
-  MultiRange                    m_full_disc_module_range;
-
-  CaloIDHelper::HashGroup       m_disc_channels;
-  CaloIDHelper::HashGroup       m_disc_modules;
 
   bool                          m_two_sym_sides;
 
@@ -337,14 +260,14 @@ private:
 
 
   IdDictFieldImplementation     m_lar_impl;
-  IdDictFieldImplementation  	m_fcal_impl;
-  IdDictFieldImplementation  	m_pn_impl;
-  IdDictFieldImplementation  	m_module_impl;
-  IdDictFieldImplementation  	m_depth_impl;
-  IdDictFieldImplementation  	m_eta_impl;
-  IdDictFieldImplementation  	m_phi_impl;
+  IdDictFieldImplementation     m_fcal_impl;
+  IdDictFieldImplementation     m_pn_impl;
+  IdDictFieldImplementation     m_module_impl;
+  IdDictFieldImplementation     m_depth_impl;
+  IdDictFieldImplementation     m_eta_impl;
+  IdDictFieldImplementation     m_phi_impl;
 
-  IdDictFieldImplementation  	m_pn_mod_impl;
+  IdDictFieldImplementation     m_pn_mod_impl;
 
 };
 
@@ -392,7 +315,7 @@ LArMiniFCAL_ID::module_id (int pos_neg, int module) const
 
     // Do checks 
     if(m_do_checks) {
-	module_id_checks ( pos_neg, module );
+        module_id_checks ( pos_neg, module );
     }
 
     // Pack fields independently
@@ -407,82 +330,18 @@ LArMiniFCAL_ID::module_id (int pos_neg, int module) const
 //----------------------------------------------------------------------------
 inline Identifier 
 LArMiniFCAL_ID::channel_id   ( int pos_neg, int module, int depth,
-			   int eta,     int phi ) const 
+                           int eta,     int phi ) const 
 {  
 
     // Do checks 
     if(m_do_checks) {
-	channel_id_checks( pos_neg, module, depth, eta, phi );
+        channel_id_checks( pos_neg, module, depth, eta, phi );
     }
 
     Identifier result(0);
     // Pack fields independently
     m_lar_impl.pack      (lar_field_value(),      result);
     m_fcal_impl.pack     (lar_fcal_field_value(), result);
-    m_pn_impl.pack       (pos_neg,                result);
-    m_module_impl.pack   (module,                 result);
-    m_depth_impl.pack    (depth,                  result);
-    m_eta_impl.pack      (eta,                    result);
-    m_phi_impl.pack      (phi,                    result);
-
-    return result;
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArMiniFCAL_ID::disc_module_id (const ExpandedIdentifier& exp_id) const 
-{
-  return this->disc_module_id   ( exp_id[m_POSNEG_INDEX],
-                                  exp_id[m_MODULE_INDEX] );
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArMiniFCAL_ID::disc_channel_id (const ExpandedIdentifier& exp_id) const 
-{
-  return this->disc_channel_id (exp_id[m_POSNEG_INDEX],
-                                exp_id[m_MODULE_INDEX], 
-                                exp_id[m_DEPTH_INDEX],
-                                exp_id[m_ETA_INDEX],
-                                exp_id[m_PHI_INDEX]);
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArMiniFCAL_ID::disc_module_id (int pos_neg, int module) const 
-{
-
-    // Do checks 
-    if(m_do_checks) {
-	disc_module_id_checks ( pos_neg, module );
-    }
-
-    Identifier result(0);
-
-    // Pack fields independently
-    m_lar_impl.pack      (lar_field_value(),      result);
-    m_fcal_impl.pack     (-3                    , result);
-    m_pn_impl.pack       (pos_neg,                result);
-    m_module_impl.pack   (module,                 result);
-
-    return result;
-}
-
-//----------------------------------------------------------------------------
-inline Identifier 
-LArMiniFCAL_ID::disc_channel_id   ( int pos_neg, int module,  int depth,
-				int eta,     int phi ) const 
-{  
-
-    // Do checks 
-    if(m_do_checks) {
-	disc_channel_id_checks( pos_neg, module, depth, eta, phi );
-    }
-
-    Identifier result(0);
-    // Pack fields independently
-    m_lar_impl.pack      (lar_field_value(),      result);
-    m_fcal_impl.pack     (-3                    , result);
     m_pn_impl.pack       (pos_neg,                result);
     m_module_impl.pack   (module,                 result);
     m_depth_impl.pack    (depth,                  result);
@@ -508,15 +367,11 @@ LArMiniFCAL_ID::module_id   ( const Identifier channelId ) const
 //----------------------------------------------------------------------------
 inline Identifier 
 LArMiniFCAL_ID::channel_id   ( const Identifier module_id, int depth,
-			   int eta,       int phi ) const 
+                           int eta,       int phi ) const 
 {
     // Do checks 
     if(m_do_checks) {
-      if(is_connected(module_id)) {
-	channel_id_checks( module_id, depth, eta, phi );
-      } else {
-	disc_channel_id_checks( module_id, depth, eta, phi );
-      }
+      channel_id_checks( module_id, depth, eta, phi );
     }
 
     Identifier result(module_id);
@@ -530,18 +385,6 @@ LArMiniFCAL_ID::channel_id   ( const Identifier module_id, int depth,
     m_phi_impl.pack      (phi, result);
 
     return result;
-}
-
-//----------------------------------------------------------------------------
-inline bool LArMiniFCAL_ID::is_connected(const IdentifierHash hashId) const
-{
-  return ( hashId < channels().hash_max() );
-}
-
-//----------------------------------------------------------------------------
-inline bool LArMiniFCAL_ID::is_connected(const Identifier channelId) const
-{
-    return ( m_fcal_impl.unpack(channelId) == 3 );
 }
 
 //----------------------------------------------------------------------------
@@ -563,46 +406,9 @@ inline IdentifierHash LArMiniFCAL_ID::channel_hash_binary_search  (Identifier ch
 }
 
 //----------------------------------------------------------------------------
-inline Identifier LArMiniFCAL_ID::disc_channel_id    (IdentifierHash disc_channel_hash_id) const
-{
-  if(disc_channel_hash_id < channels().hash_max()) {
-    return channel_id (disc_channel_hash_id);
-  }
-  else {
-    return m_disc_channels.id (disc_channel_hash_id - channels().hash_max());
-  }
-}
-
-//----------------------------------------------------------------------------
-inline IdentifierHash LArMiniFCAL_ID::disc_channel_hash (Identifier disc_channelId) const
-{
-  if (is_connected(disc_channelId)) {
-    return channel_hash (disc_channelId);
-  }
-  else {
-    IdentifierHash hash = m_disc_channels.hash (disc_channelId);
-    if (hash.is_valid())
-      hash += channels().hash_max();
-    return hash;
-  }
-}
-
-//----------------------------------------------------------------------------
 inline LArMiniFCAL_ID::size_type     LArMiniFCAL_ID::module_hash_max (void) const
 {
   return region_hash_max();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::size_type     LArMiniFCAL_ID::disc_channel_hash_max (void) const
-{
-  return channels().hash_max() + m_disc_channels.hash_max();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::size_type     LArMiniFCAL_ID::disc_channel_hash_min (void) const
-{
-  return channels().hash_max() ;
 }
 
 //----------------------------------------------------------------------------
@@ -642,42 +448,6 @@ inline LArMiniFCAL_ID::id_range LArMiniFCAL_ID::minifcal_range() const
 }
 
 //----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::id_iterator LArMiniFCAL_ID::disc_minifcal_begin    (void) const
-{
-  return m_disc_channels.begin();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::id_iterator LArMiniFCAL_ID::disc_minifcal_end      (void) const
-{
-  return m_disc_channels.end();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::id_range LArMiniFCAL_ID::disc_minifcal_range() const
-{
-  return m_disc_channels.range();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::id_iterator LArMiniFCAL_ID::disc_mod_begin    (void) const
-{
-  return m_disc_modules.begin();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::id_iterator LArMiniFCAL_ID::disc_mod_end      (void) const
-{
-  return m_disc_modules.end();
-}
-
-//----------------------------------------------------------------------------
-inline LArMiniFCAL_ID::id_range LArMiniFCAL_ID::disc_mod_range() const
-{
-  return m_disc_modules.range();
-}
-
-//----------------------------------------------------------------------------
 inline const std::vector<Identifier>& LArMiniFCAL_ID::channel_ids() const
 {
   return channels().ids();
@@ -704,24 +474,21 @@ inline int LArMiniFCAL_ID::module              (const Identifier id)const
 //----------------------------------------------------------------------------
 inline int LArMiniFCAL_ID::depth             (const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_depth_impl.unpack(id);
+  int result = m_depth_impl.unpack(id);
   return(result);
 }
 
 //----------------------------------------------------------------------------
 inline int LArMiniFCAL_ID::eta               (const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_eta_impl.unpack(id);
+  int result = m_eta_impl.unpack(id);
   return(result);
 }
 
 //----------------------------------------------------------------------------
 inline int LArMiniFCAL_ID::phi(const Identifier id)const
 {
-  int result = -999 ;
-  if(is_connected(id)) result = m_phi_impl.unpack(id);
+  int result = m_phi_impl.unpack(id);
   return(result);
 }
 
