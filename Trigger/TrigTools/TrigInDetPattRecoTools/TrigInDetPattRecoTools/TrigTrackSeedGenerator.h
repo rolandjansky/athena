@@ -148,7 +148,7 @@ public:
 } INTERNAL_SOA;
 
 
-typedef std::multimap<float, TrigInDetTriplet*, std::greater<float> > INTERNAL_TRIPLET_BUFFER;
+typedef std::multimap<float, TrigInDetTriplet, std::greater<float> > INTERNAL_TRIPLET_BUFFER;
 
 typedef class TrigTrackSeedGenerator {
 
@@ -159,7 +159,7 @@ typedef class TrigTrackSeedGenerator {
 
   void loadSpacePoints(const std::vector<TrigSiSpacePointBase>&);
   void createSeeds();
-  void getSeeds(std::vector<TrigInDetTriplet*>&);
+  void getSeeds(std::vector<TrigInDetTriplet>&);
 
 private:
 
