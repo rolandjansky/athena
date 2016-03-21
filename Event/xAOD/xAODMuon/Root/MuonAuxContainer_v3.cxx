@@ -120,6 +120,12 @@ namespace xAOD {
         AUX_VARIABLE(msInnerMatchDOF                );
         AUX_VARIABLE(msOuterMatchDOF                );
         AUX_VARIABLE(CaloMuonIDTag                  );
+	AUX_VARIABLE(d0_sa                          );
+	AUX_VARIABLE(z0_sa                          );
+	AUX_VARIABLE(phi0_sa                        );
+	AUX_VARIABLE(theta_sa                       );
+	AUX_VARIABLE(qOverP_sa                      );
+	AUX_VARIABLE(Eloss_sa                       );
    }
  
 } // namespace xAOD

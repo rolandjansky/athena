@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonAccessors_v1.icc 692982 2015-09-03 15:17:28Z emoyse $
+// $Id: MuonAccessors_v1.icc 731310 2016-03-21 01:15:58Z wleight $
 
 // System include(s):
 #include <iostream>
@@ -58,6 +58,12 @@ namespace xAOD {
         DEFINE_ACCESSOR( float, ParamEnergyLossSigmaPlus         );		
         DEFINE_ACCESSOR( float, ParamEnergyLossSigmaMinus        );		
         DEFINE_ACCESSOR( float, MeasEnergyLossSigma              );		
+	DEFINE_ACCESSOR( float, d0_sa                            );
+	DEFINE_ACCESSOR( float, z0_sa                            );
+	DEFINE_ACCESSOR( float, phi0_sa                          );
+	DEFINE_ACCESSOR( float, theta_sa                         );
+	DEFINE_ACCESSOR( float, qOverP_sa                        );
+	DEFINE_ACCESSOR( float, Eloss_sa                         );
       default:                  
          std::cerr << "xAOD::Muon::parameterAccessorV1 ERROR Unknown float ParamDef ("
                    << type << ") requested.";
@@ -75,9 +81,6 @@ namespace xAOD {
          DEFINE_ACCESSOR( int,   msInnerMatchDOF                  );
          DEFINE_ACCESSOR( int,   msOuterMatchDOF                  );
          DEFINE_ACCESSOR( int,   CaloMuonIDTag                    );
-         DEFINE_ACCESSOR( int,   NearbyHitsInner                  );
-         DEFINE_ACCESSOR( int,   NearbyHitsMiddle                 );
-         DEFINE_ACCESSOR( int,   NearbyHitsOuter                  );
        default:                  
           std::cerr << "xAOD::Muon::parameterAccessorV1 ERROR Unknown integer ParamDef ("
                     << type << ") requested." << std::endl;
