@@ -87,14 +87,16 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         ToolSvc += InDetBarrelBuilder
         ToolSvc += InDetEndcapBuilder
 
-        InDetEndcapBuilder.ModuleProvider = InDetModuleProvider
-        InDetEndcapBuilder.ModuleProvider = InDetModuleProvider
-        InDetBarrelBuilder.ModuleProvider = InDetModuleProvider
-        InDetStaveBuilder.ModuleProvider = InDetModuleProvider
-
-        InDetBarrelBuilder.StaveBuilder = InDetStaveBuilder
-
-
+        InDetStaveBuilder.ModuleProvider        = InDetModuleProvider
+        InDetBarrelBuilder.ModuleProvider       = InDetModuleProvider
+        InDetBarrelBuilder.StaveBuilder         = InDetStaveBuilder
+        InDetBarrelBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
+        InDetBarrelBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
+        InDetEndcapBuilder.ModuleProvider       = InDetModuleProvider
+        InDetEndcapBuilder.ModuleProvider       = InDetModuleProvider
+        InDetEndcapBuilder.EndcapLayerBinR      = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
+        InDetEndcapBuilder.EndcapLayerBinPhi    = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
+	
 ##         if doSCT :
 ##             InDetBarrelSCTLayerBuilder = InDet__BarrelBuilderXML(name='SCTBarrelBuilder')
 ##             InDetBarrelSCTLayerBuilder.StaveBuilder = InDetStaveBuilder

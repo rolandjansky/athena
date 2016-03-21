@@ -18,6 +18,7 @@
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
+#include "TrkGeometry/BinnedLayerMaterial.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TMath.h"
@@ -32,14 +33,21 @@ InDet::EndcapBuilderXML::EndcapBuilderXML(const std::string& t, const std::strin
   AthAlgTool(t,n,p),
   m_pixelCase(true),
   m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","InDetXMLReaderSvc"),
-  m_moduleProvider("InDet::SiModuleProvider/SiModuleProvider")
+  m_moduleProvider("InDet::SiModuleProvider/SiModuleProvider"),
+  m_endcapLayerBinsR(50),
+  m_endcapLayerBinsPhi(1),
+  m_customMaterial(false)
   //m_moduleProvider("iFatras::PlanarModuleProvider/PlanarModuleProvider"),
 {
   declareInterface<EndcapBuilderXML>(this);
 
-  declareProperty("PixelCase", m_pixelCase);
-  declareProperty("InDetXMLReader", m_xmlReader);
-  declareProperty("ModuleProvider", m_moduleProvider);
+  declareProperty("PixelCase",          m_pixelCase);
+  declareProperty("InDetXMLReader",     m_xmlReader);
+  declareProperty("ModuleProvider",     m_moduleProvider);
+  declareProperty("EndcapLayerBinR",    m_endcapLayerBinsR);
+  declareProperty("EndcapLayerBinPhi",  m_endcapLayerBinsPhi);
+  declareProperty("CustomMaterial",     m_customMaterial);
+
 }
 
 InDet::EndcapBuilderXML::~EndcapBuilderXML()
@@ -107,9 +115,6 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
   InDet::EndcapLayerTmp *layerTmp = getLayerTmp(itmpl);
   if(!layerTmp) return;
 
-  // prepare the passive material
-  const Trk::LayerMaterialProperties* disc_material = m_xmlReader->getHomogeneousMaterial(layerTmp->support_material);
-  
    // prepare vector to store disc elements
   std::vector<Trk::TrkDetElementBase*> cElements;
   
@@ -217,6 +222,9 @@ void InDet::EndcapBuilderXML::createActiveLayers(unsigned int itmpl, int side, i
 
   Amg::Transform3D*  transf = new Amg::Transform3D;
   (*transf) = Amg::Translation3D(0.,0.,disc_pos);
+  
+  // get the layer material from the helper method
+  const Trk::LayerMaterialProperties* disc_material = endcapLayerMaterial(rMin,rMax,layerTmp);
 
   // create disc layer
   Trk::DiscLayer* layer = new Trk::DiscLayer(transf,
@@ -253,9 +261,6 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
 
   ATH_MSG_DEBUG("Building Ring Layer " << itmpl << " '" << layerTmp->name << "' side " << side);
 
-  // prepare the passive material
-  const Trk::LayerMaterialProperties* disc_material = m_xmlReader->getHomogeneousMaterial(layerTmp->support_material);
-  
   // Loop over rings - create one discLayer per ring
   unsigned int nRings = layerTmp->ringpos.size();
   for(unsigned int iring = 0; iring < nRings; iring++){
@@ -311,6 +316,9 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
 
     // prepare the overlap descriptor       
     Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor(m_pixelCase);
+    
+    // get the layer material from the helper method
+    const Trk::LayerMaterialProperties* disc_material = endcapLayerMaterial(innerR,outerR,layerTmp);
 
     // create disc layer
     Trk::DiscLayer* layer = new Trk::DiscLayer(transf,
@@ -326,12 +334,13 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
 
     // store disc layer
     v_layers.push_back(layer);
+    
+    // cleanup
+    delete disc_material;
 
   } // end rings loop
    
-  // cleanup
-  delete disc_material;
-
+  
   return;
 }
 
@@ -687,3 +696,23 @@ void InDet::EndcapBuilderXML::registerSurfacesToLayer(const std::vector<const Tr
   }
   return;
 }
+
+const Trk::LayerMaterialProperties* InDet::EndcapBuilderXML::endcapLayerMaterial(double rMin, double rMax, InDet::EndcapLayerTmp* layerTmp, bool isActive) const
+{
+  if (m_customMaterial && layerTmp) return m_xmlReader->getHomogeneousMaterial(layerTmp->support_material);
+  
+  Trk::LayerMaterialProperties* layerMaterial = 0;
+  // --------------- material estimation ----------------------------------------------------------------
+
+  Trk::BinUtility layerBinUtilityR(m_endcapLayerBinsR,rMin,rMax,Trk::open, Trk::binR);
+  // -- material with 1D binning
+  if (m_endcapLayerBinsPhi==1 || isActive){
+    layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityR);
+  } else { // -- material with 2D binning
+    Trk::BinUtility layerBinUtilityPhi(m_endcapLayerBinsPhi,-TMath::Pi(),TMath::Pi(),Trk::closed,Trk::binPhi);
+    layerBinUtilityR += layerBinUtilityPhi;
+    layerMaterial     = new Trk::BinnedLayerMaterial(layerBinUtilityR);
+  } 
+  // --------------- material estimation ----------------------------------------------------------------
+  return layerMaterial;   
+}     

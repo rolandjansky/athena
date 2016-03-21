@@ -22,6 +22,7 @@ namespace Trk {
   class Surface;
   class TrkDetElementBase; 
   class Layer;
+  class LayerMaterialProperties;
 }
 
 namespace InDet {
@@ -76,12 +77,19 @@ namespace InDet {
     void setPhiNeighbors(std::vector<Trk::TrkDetElementBase*>& pElements, std::vector<Trk::TrkDetElementBase*>& cElements) const;
 
     void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
+    
+    const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz, InDet::StaveTmp* staveTmp, bool isActive = true) const;  //!< helper method to construct barrel material
 
     // properties
     bool  m_pixelCase; // flag for pixel/sct
     ServiceHandle<InDet::XMLReaderSvc>  m_xmlReader;
     ToolHandle<StaveBuilderXML> m_staveBuilder;
     ToolHandle<IModuleProvider> m_moduleProvider;
+    
+    size_t              m_barrelLayerBinsZ;               //!< Barrel bins for the material in z
+    size_t              m_barrelLayerBinsPhi;             //!< Barrel bins for the material in phi
+    bool		m_customMaterial;
+    
   };
 }
 

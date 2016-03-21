@@ -21,6 +21,7 @@
 #include "TrkGeometryAlpine/AlpineStave.h"
 #include "TrkGeometryAlpine/AlpineApproachDescriptor.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
+#include "TrkGeometry/BinnedLayerMaterial.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "TMath.h"
 #include <string>
@@ -37,14 +38,20 @@ InDet::BarrelBuilderXML::BarrelBuilderXML(const std::string& t, const std::strin
   m_pixelCase(true),
   m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","InDetXMLReaderSvc"),
   m_staveBuilder("InDet::StaveBuilderXML/StaveBuilderXML"),
-  m_moduleProvider("InDet::SiModuleProvider/SiModuleProvider")
+  m_moduleProvider("InDet::SiModuleProvider/SiModuleProvider"),
+  m_barrelLayerBinsZ(100),
+  m_barrelLayerBinsPhi(1),
+  m_customMaterial(false)
 {
   declareInterface<BarrelBuilderXML>(this);
 
-  declareProperty("PixelCase", m_pixelCase);
-  declareProperty("InDetXMLReader", m_xmlReader);
-  declareProperty("StaveBuilder", m_staveBuilder);
-  declareProperty("ModuleProvider", m_moduleProvider);
+  declareProperty("PixelCase",          m_pixelCase);
+  declareProperty("InDetXMLReader",     m_xmlReader);
+  declareProperty("StaveBuilder",       m_staveBuilder);
+  declareProperty("ModuleProvider",     m_moduleProvider);
+  declareProperty("BarrelLayerBinsZ",   m_barrelLayerBinsZ);
+  declareProperty("BarrelLayerBinsPhi", m_barrelLayerBinsPhi);
+  declareProperty("CustomMaterial",     m_customMaterial);
 }
 
 InDet::BarrelBuilderXML::~BarrelBuilderXML()
@@ -190,8 +197,8 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   // create the approach descriptor
   Trk::IApproachDescriptor *aDescriptor = new Trk::AlpineApproachDescriptor(aSurfaces,false); // false = no rebuild 
 
-  // create the passive material
-  const Trk::LayerMaterialProperties* material = m_xmlReader->getHomogeneousMaterial(staveTmpList.at(0)->support_material);
+  // create the material - suppose all staves have same support for now 
+  const Trk::LayerMaterialProperties* material = barrelLayerMaterial(bound_R, support_halfLength+zOffset,staveTmpList.at(0));
   
   // prepare the active overlap descriptor       
   Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor(m_pixelCase);
@@ -367,8 +374,7 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
   Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getPlanarOverlapDescriptor(m_pixelCase);
 
   // prepare the material - suppose all staves have same support for now 
-  // JL: --> Needs probably something smarter later on 
-  const Trk::LayerMaterialProperties* material = m_xmlReader->getHomogeneousMaterial(staveTmpList.at(0)->support_material);
+  const Trk::LayerMaterialProperties* material = barrelLayerMaterial(bound_R, active_halfLength,staveTmpList.at(0));
       
   // create layer
   Trk::CylinderLayer* activeLayer = new Trk::CylinderLayer(new Trk::CylinderBounds(bound_R,active_halfLength),
@@ -651,4 +657,27 @@ void InDet::BarrelBuilderXML::registerSurfacesToLayer(const std::vector<const Tr
     }
   }
   return;
+}
+
+const Trk::LayerMaterialProperties* InDet::BarrelBuilderXML::barrelLayerMaterial(double r, double hz, InDet::StaveTmp* staveTmp, bool isActive) const{
+
+  if (m_customMaterial && staveTmp) return m_xmlReader->getHomogeneousMaterial(staveTmp->support_material);
+  
+  Trk::LayerMaterialProperties* layerMaterial = 0;
+  // --------------- material estimation ----------------------------------------------------------------
+  // -- material with 1D binning
+  Trk::BinUtility layerBinUtilityZ(m_barrelLayerBinsZ, -hz, hz, Trk::open, Trk::binZ);
+  if (m_barrelLayerBinsPhi==1 || isActive){
+    layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityZ);
+  } else { // -- material with 2D binning
+    Trk::BinUtility layerBinUtilityRPhiZ(m_barrelLayerBinsPhi,
+                                         -r*TMath::Pi(), r*TMath::Pi(),
+                                         Trk::closed,
+                                         Trk::binRPhi);
+    layerBinUtilityRPhiZ += layerBinUtilityZ;                                                       
+    layerMaterial = new Trk::BinnedLayerMaterial(layerBinUtilityRPhiZ);
+  } 
+  // --------------- material estimation ----------------------------------------------------------------
+  return layerMaterial;   
+
 }

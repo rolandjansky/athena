@@ -23,6 +23,7 @@ namespace Trk {
   class Layer;
   class Surface;
   class TrkDetElementBase; 
+  class LayerMaterialProperties;
 }
 
 namespace InDet {
@@ -83,10 +84,17 @@ namespace InDet {
 
     void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
     
+    const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax, InDet::EndcapLayerTmp* layerTmp, bool isActive = true) const; //!< helper method to construct endcap material
+    
     // properties
     bool  m_pixelCase; // flag for pixel/sct
     ServiceHandle<InDet::XMLReaderSvc>  m_xmlReader;
     ToolHandle<IModuleProvider> m_moduleProvider;
+    
+    size_t              m_endcapLayerBinsR;               //!< Endcap bins for the material in r
+    size_t              m_endcapLayerBinsPhi;             //!< Endcap bins for the material in phi
+    bool		m_customMaterial;
+
   };
 }
 

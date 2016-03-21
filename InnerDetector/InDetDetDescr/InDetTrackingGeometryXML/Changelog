@@ -1,3 +1,9 @@
+2016-03-21 Noemi Calace <noemi.calace@cern.ch>
+	* Adding BinnedLayerMaterial to layers
+	* Adding custom material flag
+	* Adding segmentation for the material layers
+	* tagged as InDetTrackingGeometryXML-00-00-33
+
 2016-02-18 Noemi Calace <noemi.calace@cern.ch>
 	* Fixing tilt angle in the barrel region of inclined layouts
 	* tagged as InDetTrackingGeometryXML-00-00-32
