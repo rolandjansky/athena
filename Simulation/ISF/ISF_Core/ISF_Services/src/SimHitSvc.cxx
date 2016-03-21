@@ -13,9 +13,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "LArSimEvent/LArHitContainer.h" // For StoredLArHitContainers definition
 #include "SimHelpers/AthenaHitsCollectionHelper.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -68,7 +66,6 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_trtPileupHitCollectionName("PileupTRTUncompressedHits"),
   m_separateInDetPileupHits(false),
   m_simulateCalo(true),
-  m_storedContainers(nullptr),
   m_embHitCollectionName("LArHitEMB"),
   m_emecHitCollectionName("LArHitEMEC"),
   m_fcalHitCollectionName("LArHitFCAL"),
@@ -109,7 +106,6 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_muonExitLayerTrackCollectionName("MuonExitLayer"),
   m_cosmicPerigeeTracks(nullptr),
   m_cosmicPerigeeTrackCollectionName("CosmicPerigee"),
-  m_sd(0),
   m_senDetTool("SensitiveDetectorMasterTool"),
   m_fastSimTool("FastSimulationMasterTool")
 {
@@ -191,7 +187,6 @@ StatusCode ISF::SimHitSvc::initialize()
     }
 
   // Global containers
-  m_storedContainers = new StoredLArHitContainers();
   m_storedCalibContainers = new StoredLArCalibHitContainers();
 
   // setup for validation mode
@@ -207,7 +202,6 @@ StatusCode ISF::SimHitSvc::initialize()
 StatusCode ISF::SimHitSvc::finalize()
 {
   //FIXME really?!
-  m_storedContainers = new StoredLArHitContainers();
   m_storedCalibContainers = new StoredLArCalibHitContainers();
 
   return StatusCode::SUCCESS;
@@ -218,25 +212,6 @@ StatusCode ISF::SimHitSvc::initializeEvent()
 {
   ATH_MSG_DEBUG("initializing hit collections");
 
-  // call EndOfEvent for all SD classes
-  if (m_sd.empty())
-    {
-
-      FADS::SDStore* sdstore = FADS::SensitiveDetectorCatalog::GetSensitiveDetectorCatalog()->sdStore();
-      for (FADS::SDStore::iterator it=sdstore->begin(); it!=sdstore->end(); it++)
-        {
-          ATH_MSG_DEBUG("checking "<<(*it).first);
-          if ((*it).second->isActive())
-            {
-              m_sd.push_back((*it).second);
-            }
-        }
-    }
-
-  for (std::vector<FADS::FadsSensitiveDetector*>::iterator it=m_sd.begin(); it!=m_sd.end(); ++it)
-    {
-      (**it).Initialize(0);
-    }
   if(!m_senDetTool)
     {
       CHECK(m_senDetTool.retrieve());
@@ -255,16 +230,6 @@ StatusCode ISF::SimHitSvc::initializeEvent()
       m_pixPileupHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_pixPileupHitCollectionName);
       m_sctPileupHits = m_hitCollectionHelper->RetrieveNonconstCollection<SiHitCollection>(m_sctPileupHitCollectionName);
       m_trtPileupHits = m_hitCollectionHelper->RetrieveNonconstCollection<TRTUncompressedHitCollection>(m_trtPileupHitCollectionName);
-    }
-
-  // LAr Calorimeter
-  m_storedContainers->embHitCollection  = m_hitCollectionHelper->RetrieveNonconstCollection<LArHitContainer>(m_embHitCollectionName);
-  m_storedContainers->emecHitCollection = m_hitCollectionHelper->RetrieveNonconstCollection<LArHitContainer>(m_emecHitCollectionName);
-  m_storedContainers->fcalHitCollection = m_hitCollectionHelper->RetrieveNonconstCollection<LArHitContainer>(m_fcalHitCollectionName);
-  m_storedContainers->hecHitCollection  = m_hitCollectionHelper->RetrieveNonconstCollection<LArHitContainer>(m_hecHitCollectionName);
-  if(m_doMiniFcal)
-    {
-      m_storedContainers->miniFcalHitCollection = m_hitCollectionHelper->RetrieveNonconstCollection<LArHitContainer>(m_miniFcalHitCollectionName);
     }
 
   // LAr CaloCalibarationHit Containers
@@ -308,20 +273,14 @@ StatusCode ISF::SimHitSvc::initializeEvent()
 StatusCode ISF::SimHitSvc::releaseEvent()
 {
 
-  // call EndOfEvent for all SD classes
-  for (std::vector<FADS::FadsSensitiveDetector*>::iterator it=m_sd.begin(); it!=m_sd.end(); ++it)
-    {
-      (**it).EndOfEvent(0);
-    }
-
   if(!m_senDetTool)
     {
-      CHECK(m_senDetTool.retrieve().isFailure());
+      CHECK(m_senDetTool.retrieve());
     }
   CHECK(m_senDetTool->EndOfAthenaEvent());
   if(!m_fastSimTool)
     {
-      CHECK(m_fastSimTool.retrieve().isFailure());
+      CHECK(m_fastSimTool.retrieve());
     }
   CHECK(m_fastSimTool->EndOfAthenaEvent());
 
@@ -352,20 +311,6 @@ StatusCode ISF::SimHitSvc::releaseEvent()
       m_trtPileupHits=0;
     }
 
-  // LAr Calorimeter
-  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->embHitCollection);
-  m_storedContainers->embHitCollection=0;
-  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->emecHitCollection);
-  m_storedContainers->emecHitCollection=0;
-  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->fcalHitCollection);
-  m_storedContainers->fcalHitCollection=0;
-  m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->hecHitCollection);
-  m_storedContainers->hecHitCollection=0;
-  if(m_doMiniFcal)
-    {
-      m_hitCollectionHelper->SetConstCollection< LArHitContainer >(m_storedContainers->miniFcalHitCollection);
-      m_storedContainers->miniFcalHitCollection=0;
-    }
 
   // LAr CaloCalibarationHit Containers
   m_hitCollectionHelper->SetConstCollection< CaloCalibrationHitContainer >(m_storedCalibContainers->activeHitCollection);
@@ -554,7 +499,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
     // pixel hits
     SiHitCollection* pixHits=(ipileup==0) ? m_pixHits : m_pixPileupHits;
 
-    if (pixHits->size()) {
+    if (pixHits && pixHits->size()) {
       SiHitCollection::const_iterator ih=pixHits->begin();
       while (ih!=pixHits->end()) {
         m_type = 5;
@@ -578,7 +523,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
       }
     }
     SiHitCollection* sctHits=(ipileup==0) ? m_sctHits : m_sctPileupHits;
-    if (sctHits->size()) {
+    if (sctHits && sctHits->size()) {
       SiHitCollection::const_iterator ih=sctHits->begin();
       while (ih!=sctHits->end()) {
         m_type = 6;
@@ -602,7 +547,7 @@ void ISF::SimHitSvc::fillSimHitsTree()
       }
     }
     TRTUncompressedHitCollection* trtHits = (ipileup==0) ? m_trtHits : m_trtPileupHits;
-    if (trtHits->size()) {
+    if (trtHits && trtHits->size()) {
       TRTUncompressedHitCollection::const_iterator ih=trtHits->begin();
       while ( ih!=trtHits->end()) {
         m_type = 7;
