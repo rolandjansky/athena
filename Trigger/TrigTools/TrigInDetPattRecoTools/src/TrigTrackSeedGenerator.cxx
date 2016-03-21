@@ -37,9 +37,6 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
 }
 
 TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
-  for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
-    delete (*it).second;
-  }
   m_triplets.clear();
   delete m_pStore;
 }
@@ -72,10 +69,6 @@ void TrigTrackSeedGenerator::createSeeds() {
 
   float zMinus = m_settings.roiDescriptor->zedMinus() - m_zTol;
   float zPlus  = m_settings.roiDescriptor->zedPlus() + m_zTol;
-  
-  for(INTERNAL_TRIPLET_BUFFER::reverse_iterator it=m_triplets.rbegin();it!=m_triplets.rend();++it) {
-    delete (*it).second;
-  }
   m_triplets.clear();
 
   for(int phiIdx=0;phiIdx<m_settings.m_nMaxPhiSlice;phiIdx++) {
@@ -392,14 +385,13 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
         INTERNAL_TRIPLET_BUFFER::iterator it = output.begin();
         if( Q >= (*it).first) continue;
-        delete (*it).second;
         output.erase(it);
       }
 
-      TrigInDetTriplet* t = new TrigInDetTriplet(*m_SoA.m_sp[innIdx], *pS, *m_SoA.m_sp[outIdx], Q);
+      TrigInDetTriplet t = TrigInDetTriplet(*m_SoA.m_sp[innIdx], *pS, *m_SoA.m_sp[outIdx], Q);
 
 
-      output.insert(std::pair<double, TrigInDetTriplet*>(Q,t));
+      output.insert(std::pair<double, TrigInDetTriplet>(Q,t));
     }
   }
   m_SoA.clear();
@@ -409,19 +401,18 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 void TrigTrackSeedGenerator::storeTriplets(INTERNAL_TRIPLET_BUFFER& tripletMap) {
   for(INTERNAL_TRIPLET_BUFFER::iterator it=tripletMap.begin();it!=tripletMap.end();++it) {
     double Q = (*it).first;
-    if((*it).second->s3().isSCT()) {
-      Q += (*it).second->s1().isSCT() ? 1000.0 : 10000.0;
+    if((*it).second.s3().isSCT()) {
+      Q += (*it).second.s1().isSCT() ? 1000.0 : 10000.0;
     }
-    m_triplets.insert(std::pair<double, TrigInDetTriplet*>(Q, (*it).second));
+    m_triplets.insert(std::pair<double, TrigInDetTriplet>(Q, (*it).second));
   }
 }
 
-void TrigTrackSeedGenerator::getSeeds(std::vector<TrigInDetTriplet*>& vs) {
+void TrigTrackSeedGenerator::getSeeds(std::vector<TrigInDetTriplet>& vs) {
   vs.clear();
   vs.reserve(m_triplets.size());
   for(INTERNAL_TRIPLET_BUFFER::reverse_iterator it=m_triplets.rbegin();it!=m_triplets.rend();++it) {
     vs.push_back((*it).second);
-    (*it).second = NULL;//ownership transferred
   }
   m_triplets.clear();
 }
