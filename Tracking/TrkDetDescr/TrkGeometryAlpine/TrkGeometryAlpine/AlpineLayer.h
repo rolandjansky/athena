@@ -37,7 +37,7 @@ namespace Trk {
 
     virtual const Surface& surfaceOnApproach(const Amg::Vector3D& pos,
                                              const Amg::Vector3D& dir,
-                                             PropDirection pdir,
+                                             PropDirection pDir,
                                              const BoundaryCheck& bcheck,
                                              bool resolveSubSurfaces = 0,
                                              const ICompatibilityEstimator* ice = 0) const;
@@ -55,7 +55,7 @@ namespace Trk {
     // get compatible surfaces starting from charged parameters
     virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
 				      const TrackParameters& pars,
-				      PropDirection pdir,
+				      PropDirection pDir,
 				      const BoundaryCheck& bcheck,
 				      bool materialSurfacesOnly = true,
 				      const Surface* startSurface = 0,
@@ -65,7 +65,7 @@ namespace Trk {
     // get compatible surfaces starting from neutral parameters 
     virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
 				      const NeutralParameters& pars,
-				      PropDirection pdir,
+				      PropDirection pDir,
 				      const BoundaryCheck& bcheck,
 				      bool materialSurfacesOnly = true,
 				      const Surface* startSurface = 0,

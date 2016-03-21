@@ -17,6 +17,7 @@ Trk::AlpineLayer::AlpineLayer(CylinderBounds* cbounds,
 { 
   m_approachDescriptor = ad;
   m_surfaceArray = 0; 
+  if (m_approachDescriptor) m_approachDescriptor->registerLayer(*this);
 }
 
 Trk::AlpineLayer::~AlpineLayer()
@@ -80,14 +81,7 @@ size_t Trk::AlpineLayer::compatibleSurfaces(std::vector<Trk::SurfaceIntersection
   // check if you need to force the momentum direction
   bool fDirection = ( pDir == anyDirection ? false : true );
 
-  // check if you have to stop at the endSurface
   double maxPathLength = 10e10;
-  //if (endSurface){
-  //  // intersect the end surface
-  //  Intersection endInter = endSurface->straightLineIntersection(pos,dir,fDirection,bcheck);
-  //  if (endInter.valid)
-  //    maxPathLength = endInter.pathLength;
-  //}
 
   // Needed track parameters
   double phi_inner_track = mom.phi();
@@ -143,20 +137,77 @@ size_t Trk::AlpineLayer::compatibleSurfaces(std::vector<Trk::SurfaceIntersection
 
 // ALPINE NEUTRAL COMPATIBLE SURFACES
 size_t Trk::AlpineLayer::compatibleSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces,
-				      const Trk::NeutralParameters& ,
-				      Trk::PropDirection ,
-				      const Trk::BoundaryCheck& ,
-    				  bool /* materialSurfacesOnly */,
+				      const Trk::NeutralParameters& pars,
+				      Trk::PropDirection pDir,
+				      const Trk::BoundaryCheck& bcheck,
+				      bool ,
 				      const Trk::Surface* ,
-				      const Trk::Surface*,
+				      const Trk::Surface* ,
 				      const Trk::ICompatibilityEstimator* ) const
 {
   // Clear the vector, just in case
   cSurfaces.clear();
 
-  // To be implemented
-  
-  return 0;
+  // position and momentum/dir 
+  const Amg::Vector3D& pos = pars.position();
+  const Amg::Vector3D& mom = pars.momentum();
+  const Amg::Vector3D  dir = (pDir == oppositeMomentum) ? Amg::Vector3D(-1.*mom.unit()) : mom.unit();
+
+  // check if you need to force the momentum direction
+  bool fDirection = ( pDir == anyDirection ? false : true );
+
+  double maxPathLength = 10e10;
+
+  // Needed track parameters
+  double phi_inner_track = mom.phi();
+  double z_inner_track = pos.z();
+
+  double z_inner_layer = z_inner_track;
+  double z_outer_layer = z_inner_track;
+
+  // Get z inner and outer for layer
+  if(m_approachDescriptor) {
+
+    const Trk::ApproachSurfaces* aSurfaces = m_approachDescriptor->approachSurfaces(pos,dir);
+    int NaSurf = int(aSurfaces->size());
+
+    ///////////////////////////////////
+    // Outer Surface: aSurfaces->at(0); 
+    // Inner Surface: aSurfaces->at(1); 
+    ///////////////////////////////////
+
+    if(NaSurf>=1){
+      const Surface *layerOuterSurface = aSurfaces->at(0); 
+      Intersection layerOuterInter = layerOuterSurface->straightLineIntersection(pos,dir,fDirection,bcheck);
+      z_outer_layer = layerOuterInter.position.z();
+
+      //double r_outer_layer = layerOuterInter.position.perp();
+      //double r_inner_layer = pos.perp();
+      //std::cout << "DEBUG--- LAYER r_inner=" << r_inner_layer << " r_outer=" << r_outer_layer <<std::endl;
+    }
+  }
+
+  // Get compatible surfaces 
+  std::vector<const Trk::Surface*> testSurfacesLayer = getCompatibleSurfaces(phi_inner_track,z_inner_layer,z_outer_layer);
+
+  // Create SurfaceIntersection objects 
+  for(unsigned int is=0;is<testSurfacesLayer.size();is++) {
+    const Trk::Surface * tSurface = testSurfacesLayer.at(is);
+    if(tSurface==0) continue;
+    Intersection tsfInter = tSurface->straightLineIntersection(pos,dir,fDirection,bcheck);
+    // check if the intersection is valid and the maxPathLength has not been exceeded
+    if (tsfInter.valid && tsfInter.pathLength < maxPathLength ){
+      // resulting propDirection
+      PropDirection rDir = fDirection ? pDir : ( tsfInter.pathLength > 0 ? alongMomentum : oppositeMomentum );
+      // push back surfaces & direction 
+      cSurfaces.push_back(SurfaceIntersection(tsfInter,tSurface,rDir));
+    }
+  }
+
+  // now sort it 
+  std::sort(cSurfaces.begin(),cSurfaces.end());
+  // return vector size
+  return cSurfaces.size();
 }
 
 // GET COMPATIBLE SURFACES
