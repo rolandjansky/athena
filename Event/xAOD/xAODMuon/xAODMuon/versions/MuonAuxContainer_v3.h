@@ -158,6 +158,12 @@ namespace xAOD {
       std::vector< int >              msInnerMatchDOF                ;
       std::vector< int >              msOuterMatchDOF                ;
       std::vector< int >              CaloMuonIDTag                  ;
+      std::vector< float>             d0_sa                          ;
+      std::vector< float>             z0_sa                          ;
+      std::vector< float>             phi0_sa                        ;
+      std::vector< float>             theta_sa                       ;
+      std::vector< float>             qOverP_sa                      ;
+      std::vector< float>             Eloss_sa                       ;
       /// @}
  
    }; // class MuonAuxContainer_v3
