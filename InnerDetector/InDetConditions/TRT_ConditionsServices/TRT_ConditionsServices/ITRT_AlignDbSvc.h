@@ -37,6 +37,7 @@ class ITRT_AlignDbSvc: virtual public IService
   /** write AlignableTransforms to flat text file */
   virtual StatusCode writeAlignTextFile(std::string) const =0;
   virtual StatusCode writeStrawAlignTextFile(std::string file) const = 0;
+  virtual StatusCode writeGlobalFolderFile(std::string file) const = 0;
   
   /** read AlignableTransforms from text file into TDS */
   virtual StatusCode readAlignTextFile(std::string) =0;
