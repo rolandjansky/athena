@@ -89,7 +89,7 @@ protected:
   void showBarCodeInData(int, const std::vector<TrigSiSpacePointBase>&);
   int findBarCodeInTriplets(int, const std::vector<std::shared_ptr<TrigInDetTriplet>>&);
   void assignTripletBarCodes(const std::vector<std::shared_ptr<TrigInDetTriplet>>&, std::vector<int>&);
-  void assignTripletBarCodes(const std::vector<TrigInDetTriplet*>&, std::vector<int>&);
+  void assignTripletBarCodes(const std::vector<TrigInDetTriplet>&, std::vector<int>&);
   
  private:
 

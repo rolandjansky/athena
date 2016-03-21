@@ -564,7 +564,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
     seedGen.loadSpacePoints(convertedSpacePoints);
     seedGen.createSeeds();
-    std::vector<TrigInDetTriplet*> triplets;
+    std::vector<TrigInDetTriplet> triplets;
     seedGen.getSeeds(triplets);
     
     ATH_MSG_DEBUG("number of triplets: " << triplets.size());
@@ -602,11 +602,11 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     
     for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
       
-      TrigInDetTriplet* seed = triplets[tripletIdx];
+      TrigInDetTriplet seed = triplets[tripletIdx];
       
-      const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
-      const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
-      const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
+      const Trk::SpacePoint* osp1 = seed.s1().offlineSpacePoint();
+      const Trk::SpacePoint* osp2 = seed.s2().offlineSpacePoint();
+      const Trk::SpacePoint* osp3 = seed.s3().offlineSpacePoint();
       
       if(m_checkSeedRedundancy) {
       //check if clusters do not belong to any track
@@ -673,7 +673,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     }
 
     m_trackMaker->endEvent();
-    for(auto& seed : triplets) delete seed;
 
     //clone removal
     if(m_doCloneRemoval) {
@@ -954,13 +953,13 @@ void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<std::shared_pt
   }
 }
 
-void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<TrigInDetTriplet*>& vTR, std::vector<int>& vBar) {
+void TrigFastTrackFinder::assignTripletBarCodes(const std::vector<TrigInDetTriplet>& vTR, std::vector<int>& vBar) {
   int iTR=0;
   for(auto tr : vTR) {
-    bool good = (tr->s1().barCode() == tr->s2().barCode()) && (tr->s3().barCode() == tr->s2().barCode());
-    good = good && (tr->s1().barCode() > 0);
+    bool good = (tr.s1().barCode() == tr.s2().barCode()) && (tr.s3().barCode() == tr.s2().barCode());
+    good = good && (tr.s1().barCode() > 0);
     if(good) {
-      vBar[iTR] = tr->s1().barCode();
+      vBar[iTR] = tr.s1().barCode();
     }
     iTR++;
   }
