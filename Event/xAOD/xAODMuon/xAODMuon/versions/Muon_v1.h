@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.h 690346 2015-08-20 11:38:22Z emoyse $
+// $Id: Muon_v1.h 731310 2016-03-21 01:15:58Z wleight $
 #ifndef XAODMUON_VERSIONS_MUON_V1_H
 #define XAODMUON_VERSIONS_MUON_V1_H
 
@@ -168,36 +168,40 @@ namespace xAOD {
       momentumBalanceSignificance=3, //<! momentum balance significance
         
       /** MuTag parameters */
-      segmentDeltaEta , 
-      segmentDeltaPhi ,
-      segmentChi2OverDoF ,
+      segmentDeltaEta=4 , 
+      segmentDeltaPhi=5 ,
+      segmentChi2OverDoF=6 ,
       /** MuGirl parameter */
-      t0        ,
-      beta      ,
-      annBarrel ,
-      annEndCap ,
+      t0=7        ,
+      beta=8      ,
+      annBarrel=9 ,
+      annEndCap=10,
       /** common MuGirl and MuTag parameters */
-      innAngle ,
-      midAngle ,
-      msInnerMatchChi2, //!< The chi^2 for the match of Inner detector (ID) and standalone (SA) tracks at the entrance to the spectrometer (MS).
-      msInnerMatchDOF, //!< The 'degrees of freedom' (DOF) for the match of Inner detector (ID) and standalone (SA) tracks at the entrance to the spectrometer (MS).
-      msOuterMatchChi2, //!< The chi^2 for the match of Inner detector (ID) and standalone (SA) tracks at the exit of the spectrometer (MS).
-      msOuterMatchDOF, //!< The 'degrees of freedom' (DOF) for the match of Inner detector (ID) and standalone (SA) tracks at the exit of the spectrometer (MS).
-      meanDeltaADCCountsMDT, //!< Difference between mean number of ADC count for given track and mean number of ADC for all muons from DATA.
+      innAngle=11 ,
+      midAngle=12 ,
+      msInnerMatchChi2=13, //!< The chi^2 for the match of Inner detector (ID) and standalone (SA) tracks at the entrance to the spectrometer (MS).
+      msInnerMatchDOF=14, //!< The 'degrees of freedom' (DOF) for the match of Inner detector (ID) and standalone (SA) tracks at the entrance to the spectrometer (MS).
+      msOuterMatchChi2=15, //!< The chi^2 for the match of Inner detector (ID) and standalone (SA) tracks at the exit of the spectrometer (MS).
+      msOuterMatchDOF=16, //!< The 'degrees of freedom' (DOF) for the match of Inner detector (ID) and standalone (SA) tracks at the exit of the spectrometer (MS).
+      meanDeltaADCCountsMDT=17, //!< Difference between mean number of ADC count for given track and mean number of ADC for all muons from DATA.
       /** CaloMuon variables (EnergyLossType is stored separately and retrieved using energyLossType() */
-      CaloLRLikelihood, //!< Calo Muon ID likelihood
-      CaloMuonIDTag, //!< Calo Muon Identification tag
-      FSR_CandidateEnergy, //!< FSR candidate energy [MeV]
-      EnergyLoss, //!< Fitted energy loss (either param or meas depending on track isolation and calo meas) [Mev]
-      ParamEnergyLoss, //!< Parametrised energy loss [Mev]
-      MeasEnergyLoss, //!< Measured energy loss [Mev]
-      EnergyLossSigma, //!< Sigma of Measured or parametrised energy loss used in the track fit [Mev]
-      ParamEnergyLossSigmaPlus, //!< Sigma plus of Parametrised energy loss [Mev]
-      ParamEnergyLossSigmaMinus, //!< Sigma minus of Parametrised energy loss [Mev]
-      MeasEnergyLossSigma, //!< Sigma of Measured energy loss [Mev]
-      NearbyHitsInner,//!< Number of nearby (within a few cm) hits in the inner layer.
-      NearbyHitsMiddle,//!< Number of nearby (within a few cm) hits in the middle layer (including BEE and EES/L chambers).
-      NearbyHitsOuter//!< Number of nearby (within a few cm) hits in the outer layer nearby (within a few cm).
+      CaloLRLikelihood=18, //!< Calo Muon ID likelihood
+      CaloMuonIDTag=19, //!< Calo Muon Identification tag
+      FSR_CandidateEnergy=20, //!< FSR candidate energy [MeV]
+      EnergyLoss=21, //!< Fitted energy loss (either param or meas depending on track isolation and calo meas) [Mev]
+      ParamEnergyLoss=22, //!< Parametrised energy loss [Mev]
+      MeasEnergyLoss=23, //!< Measured energy loss [Mev]
+      EnergyLossSigma=24, //!< Sigma of Measured or parametrised energy loss used in the track fit [Mev]
+      ParamEnergyLossSigmaPlus=25, //!< Sigma plus of Parametrised energy loss [Mev]
+      ParamEnergyLossSigmaMinus=26, //!< Sigma minus of Parametrised energy loss [Mev]
+      MeasEnergyLossSigma=27, //!< Sigma of Measured energy loss [Mev]
+      /*Perigee parameters of the original (MS-only) extrapolated track*/
+      d0_sa=28,
+      z0_sa=29,
+      phi0_sa=30,
+      theta_sa=31,
+      qOverP_sa=32,
+      Eloss_sa=33
     };
         
     /// Get a parameter for this Muon - momentumBalanceSignificance for example 
