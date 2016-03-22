@@ -174,7 +174,7 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
-    if( iterBaseConstit == metMap->end() ) {
+    if( iterBaseConstit == base_met_map->end() ) {
       ATH_MSG_WARNING("Could not find base METComponent in MET Map!");
       return StatusCode::SUCCESS;
     }
@@ -195,7 +195,7 @@ namespace met {
       }
       // Only to debug nightly problem - switch to DEBUG : ASM 14/3/2016
       if(m_debug_counter < m_print_events) {
-        ATH_MSG_INFO("METRegion :: Adding MET term" << currentMetTerm->name() << 
+        ATH_MSG_DEBUG("METRegion :: Adding MET term" << currentMetTerm->name() << 
                      " for region [" << m_region_eta_values.at(index).first << "," << m_region_eta_values.at(index).second << "]" ); 
       }
       //
