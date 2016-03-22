@@ -64,6 +64,8 @@ namespace met{
       std::vector<std::string> m_region_names;
       std::vector<std::pair<float,float> > m_region_eta_values;
       std::map< std::pair<float,float>, xAOD::MissingET* > m_mapRangeToMET;
+      unsigned int m_debug_counter;
+      unsigned int m_print_events;
   };
 
 }

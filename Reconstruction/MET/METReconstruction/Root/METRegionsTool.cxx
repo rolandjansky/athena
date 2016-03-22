@@ -44,12 +44,17 @@ namespace met {
   ////////////////
   METRegionsTool::METRegionsTool(const std::string& name) :
     AsgTool(name),
-    METRefinerTool(name)
+    METRefinerTool(name),
+    m_region_values(0),
+    m_region_names(0),
+    m_region_eta_values(0),
+    m_debug_counter(0)
   {
     declareProperty( "InputMETContainer" , m_base_met_containerKey = ""  );
     declareProperty( "InputMETMap"       , m_base_met_mapKey       = ""  );
     declareProperty( "InputMETKey"       , m_base_met_inputKey     = ""  ); 
     declareProperty( "RegionValues"      , m_region_values               );
+    declareProperty( "PrintEvents"       , m_print_events          = 10  );
   }
 
   // Destructor
@@ -104,6 +109,14 @@ namespace met {
       std::pair<float, float> currentPair(eta_min,eta_max);
       m_region_eta_values.push_back(currentPair);
     }
+
+    // Only to debug nightly problem - switch to DEBUG : ASM 14/3/2016
+    for(unsigned int index=0; index < m_region_eta_values.size(); index++) {
+      ATH_MSG_INFO("METRegion " << m_region_names.at(index)  << 
+                   " is set w/ eta [" << m_region_eta_values.at(index).first << 
+                   "," << m_region_eta_values.at(index).second << "]");
+    } 
+    //
 
     return StatusCode::SUCCESS;
   }
@@ -161,7 +174,7 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
-    if( iterBaseConstit == metMap->end() ) {
+    if( iterBaseConstit == base_met_map->end() ) {
       ATH_MSG_WARNING("Could not find base METComponent in MET Map!");
       return StatusCode::SUCCESS;
     }
@@ -180,8 +193,15 @@ namespace met {
         ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET map" );
         MissingETComposition::add( metMap, metCont->back() );
       }
+      // Only to debug nightly problem - switch to DEBUG : ASM 14/3/2016
+      if(m_debug_counter < m_print_events) {
+        ATH_MSG_DEBUG("METRegion :: Adding MET term" << currentMetTerm->name() << 
+                     " for region [" << m_region_eta_values.at(index).first << "," << m_region_eta_values.at(index).second << "]" ); 
+      }
+      //
       m_mapRangeToMET.insert(std::pair<std::pair<float,float>,MissingET*>(m_region_eta_values.at(index),metCont->back()));
     }
+    m_debug_counter++; // Only to debug nightly problem - switch to DEBUG : ASM 14/3/2016 
 
     // Fill the MET terms and maps
     if(!(*iterBaseConstit)->empty()) {
@@ -189,14 +209,14 @@ namespace met {
       vector<const IParticle*> dummyList;
 
       for( vector<const IParticle*>::const_iterator iObj = objectList.begin(); iObj!=objectList.end(); ++iObj ) {
-	MissingETBase::Types::weight_t objWeight = (*iterBaseConstit)->weight(*iObj);
+	    MissingETBase::Types::weight_t objWeight = (*iterBaseConstit)->weight(*iObj);
         for(std::map< std::pair<float,float>, MissingET* >::iterator it=m_mapRangeToMET.begin();
             it!=m_mapRangeToMET.end(); ++it) {
             if( fabs((*iObj)->eta()) > it->first.first && fabs((*iObj)->eta()) < it->first.second ) {
               it->second->add((*iObj)->pt()*cos((*iObj)->phi())*objWeight.wpx(),
                               (*iObj)->pt()*sin((*iObj)->phi())*objWeight.wpy(),
                               (*iObj)->pt()*objWeight.wet());
-	      MissingETComposition::insert( metMap, it->second, *iObj, dummyList, objWeight );
+	          MissingETComposition::insert( metMap, it->second, *iObj, dummyList, objWeight );
             }
         } // end of loop over met terms
       } // end of loop over constituents
