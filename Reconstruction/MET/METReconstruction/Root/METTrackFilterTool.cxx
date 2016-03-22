@@ -228,12 +228,13 @@ namespace met {
 	  if(vx->vertexType()==VxType::PriVtx) {pv = vx;}
 	  vertices.push_back(vx);
 	}
-	ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z());
       } else{
 	ATH_MSG_WARNING("Event has no primary vertices");
 	return StatusCode::FAILURE;
       }
-      if(!pv) {
+      if(pv) {
+	ATH_MSG_DEBUG("Main primary vertex has z = " << pv->z());
+      } else {
 	ATH_MSG_WARNING("Did not find a primary vertex in the container.");
 	return StatusCode::FAILURE;
       }

@@ -185,6 +185,7 @@ def getRegions(config,suffix):
     tool.InputMETMap = 'METMap_'+suffix
     tool.InputMETKey = config.outputKey
     tool.RegionValues = [ 1.5, 3.2, 10 ]
+    tool.PrintEvents = 10 # Print info for first n events for debugging
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += tool
     return tool
