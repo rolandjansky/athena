@@ -11,7 +11,7 @@ use AtlasExternalArea          AtlasExternalArea-*     External
 
 #macro MCUtils_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/mcutils"
 macro MCUtils_home "$(LCG_external)/MCGenerators/mcutils"
-macro MCUtils_version "1.1.1"
+macro MCUtils_version "1.2.1"
 macro MCUtils_native_version "$(MCUtils_version)_lcgcmt$(LCG_config_version)"
 macro MCUtils_dir "$(MCUtils_home)/$(MCUtils_version)/$(LCG_ext_system)"
 
