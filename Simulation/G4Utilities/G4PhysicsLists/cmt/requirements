@@ -1,27 +1,21 @@
 package G4PhysicsLists
 
-author ADA <dellacqu@mail.cern.ch>
-author Andy Buckley <andy.buckley@cern.ch>
-
-branches src cmt
-
+public
 use AtlasPolicy       AtlasPolicy-*
+use Geant4            Geant4-*            External
 
 private
-use Geant4            Geant4-*            External
-use FadsPhysics       FadsPhysics-*       Simulation/G4Sim/FADS
 use GaudiInterface    GaudiInterface-*    External
 use AtlasCLHEP        AtlasCLHEP-*        External
 end_private
 
-include_dirs "$(G4PhysicsLists_root)" "$(G4PhysicsLists_root)/G4PhysicsLists"
+include_dirs "$(G4PhysicsLists_root)" "$(G4PhysicsLists_root)/G4PhysicsLists" "$(G4PhysicsLists_root)/src/MuBias"
 
 library G4PhysicsLists "../src/*.cc ../src/MuBias/*.cc"
 
-apply_pattern linked_library
+apply_pattern installed_library
 
 private
 
-## get rid of CLHEP_SQR_DEFINED
-macro_remove CLHEP_pp_cppflags "-DCLHEP_SQR_DEFINED "
 apply_pattern declare_runtime files="biasValues.txt"
+end_private

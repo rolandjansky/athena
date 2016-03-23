@@ -133,39 +133,39 @@ private:
 
 protected:
 
-  const G4ParticleDefinition* particle;
-  G4NistManager* nist;
-  G4double mass;
-  G4double rmass;
-  G4double cc;
-  G4double coeff;
-  G4double sqrte;
-  G4double bh;
-  G4double bh1;
-  G4double btf;
-  G4double btf1;
+  const G4ParticleDefinition* m_particle;
+  G4NistManager* m_nist;
+  G4double m_mass;
+  G4double m_rmass;
+  G4double m_cc;
+  G4double m_coeff;
+  G4double m_sqrte;
+  G4double m_bh;
+  G4double m_bh1;
+  G4double m_btf;
+  G4double m_btf1;
 
 private:
 
-  G4ParticleDefinition*       theGamma;
-  G4ParticleChangeForLoss*    fParticleChange;
+  G4ParticleDefinition*       m_theGamma;
+  G4ParticleChangeForLoss*    m_fParticleChange;
 
-  G4double lowestKinEnergy;
-  G4double minThreshold;
+  G4double m_lowestKinEnergy;
+  G4double m_minThreshold;
 
 //++++++++++++++++++++++++++++++++++++++++++++++
 // X-section bias factor (ADA 2011/04/27)
 //++++++++++++++++++++++++++++++++++++++++++++++
-  G4double biasFactor;
+  G4double m_biasFactor;
 
-  std::vector<G4DataVector*> partialSumSigma;
+  std::vector<G4DataVector*> m_partialSumSigma;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 inline void G4BiasedMuBremsstrahlungModel::SetLowestKineticEnergy(G4double e) 
 {
-  lowestKinEnergy = e;
+  m_lowestKinEnergy = e;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -173,12 +173,12 @@ inline void G4BiasedMuBremsstrahlungModel::SetLowestKineticEnergy(G4double e)
 inline
 void G4BiasedMuBremsstrahlungModel::SetParticle(const G4ParticleDefinition* p)
 {
-  if(!particle) {
-    particle = p;
-    mass = particle->GetPDGMass();
-    rmass=mass/CLHEP::electron_mass_c2 ;
-    cc=CLHEP::classic_electr_radius/rmass ;
-    coeff= 16.*CLHEP::fine_structure_const*cc*cc/3. ;
+  if(!m_particle) {
+    m_particle = p;
+    m_mass = m_particle->GetPDGMass();
+    m_rmass=m_mass/CLHEP::electron_mass_c2 ;
+    m_cc=CLHEP::classic_electr_radius/m_rmass ;
+    m_coeff= 16.*CLHEP::fine_structure_const*m_cc*m_cc/3. ;
   }
 }
 
@@ -186,7 +186,7 @@ inline void G4BiasedMuBremsstrahlungModel::SetBiasFactor(G4double x)
 {
 	std::cout<<" this is G4BiasedMuBremsstrahlungModel::SetBiasFactor - "<<
 		" bias factor "<<x<<std::endl;
-	biasFactor=x;
+	m_biasFactor=x;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

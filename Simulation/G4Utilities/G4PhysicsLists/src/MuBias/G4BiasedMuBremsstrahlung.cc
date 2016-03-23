@@ -54,7 +54,7 @@
 // 26-12-02 Secondary production moved to derived classes (V.Ivanchenko)
 // 08-08-03 STD substitute standard  (V.Ivanchenko)
 // 12-11-03 G4EnergyLossSTD -> G4EnergyLossProcess (V.Ivanchenko)
-// 10-02-04 Add lowestKinEnergy (V.Ivanchenko)
+// 10-02-04 Add m_lowestKinEnergy (V.Ivanchenko)
 // 17-08-04 Utilise mu+ tables for mu- (V.Ivanchenko)
 // 08-11-04 Migration to new interface of Store/Retrieve tables (V.Ivantchenko)
 // 08-04-05 Major optimisation of internal interfaces (V.Ivantchenko)
@@ -79,11 +79,11 @@ using namespace std;
 
 G4BiasedMuBremsstrahlung::G4BiasedMuBremsstrahlung(const G4String& name)
   : G4VEnergyLossProcess(name),
-    theParticle(0),
-    theBaseParticle(0),
-	biasFactor(1.),
-    lowestKinEnergy(1.*CLHEP::GeV),
-    isInitialised(false)
+    m_theParticle(0),
+    m_theBaseParticle(0),
+	m_biasFactor(1.),
+    m_lowestKinEnergy(1.*CLHEP::GeV),
+    m_isInitialised(false)
 {
   SetProcessSubType(fBremsstrahlung);
 }
@@ -106,7 +106,7 @@ G4double G4BiasedMuBremsstrahlung::MinPrimaryEnergy(const G4ParticleDefinition*,
 					      const G4Material*,
 					      G4double)
 {
-  return lowestKinEnergy;
+  return m_lowestKinEnergy;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -115,22 +115,22 @@ void G4BiasedMuBremsstrahlung::InitialiseEnergyLossProcess(
 				 const G4ParticleDefinition* part,
 				 const G4ParticleDefinition*)
 {
-  if(!isInitialised) {
+  if(!m_isInitialised) {
 
-    isInitialised = true;
+    m_isInitialised = true;
 
-    theParticle = part;
+    m_theParticle = part;
     SetSecondaryParticle(G4Gamma::Gamma());
     SetIonisation(false);
 
     G4BiasedMuBremsstrahlungModel* em = new G4BiasedMuBremsstrahlungModel();
-    em->SetLowestKineticEnergy(lowestKinEnergy);
+    em->SetLowestKineticEnergy(m_lowestKinEnergy);
 
     G4VEmFluctuationModel* fm = 0;
     em->SetLowEnergyLimit(MinKinEnergy());
     em->SetHighEnergyLimit(MaxKinEnergy());
 	
-	em->SetBiasFactor(biasFactor);
+	em->SetBiasFactor(m_biasFactor);
 	
     AddEmModel(1, em, fm);
   }
