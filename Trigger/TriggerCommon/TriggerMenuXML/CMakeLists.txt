@@ -22,8 +22,17 @@ atlas_depends_on_subdirs( PRIVATE
 # Function to build trigger menu:
 function( atlas_build_trigger_menu menu )
 
-   # Command to build trigger menu
+   # Command to build trigger menu. The idea is that ${menu}.stamp gets
+   # created as the last command, should the menu generation succeed. So
+   # that after a successful menu generation it wouldn't be attempted
+   # again. But in order for the installation step to not try to re-generate
+   # the menu in case it was the generation itself that failed, another
+   # stamp file, ${menu}.attempted.stamp is created as the first command.
+   # The menu is then only generated as part of the installation step if
+   # this ${menu}.attempted.stamp file doesn't even exist.
    add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
+      COMMAND ${CMAKE_COMMAND} -E touch
+      ${CMAKE_CURRENT_BINARY_DIR}/${menu}.attempted.stamp
       COMMAND ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}
       COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
@@ -42,7 +51,29 @@ function( atlas_build_trigger_menu menu )
    add_custom_target( build_menu_${menu} ALL SOURCES
       ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp )
 
-   # Install the generated XML files:
+   # In case the file generation failed, because it wasn't even attempted
+   # (failure in another package), then try to run the generation as part
+   # of the installation. Note that apparently chaining commands inside a
+   # single execute_process(...) call doesn't work correctly during installation
+   # for some reason. Hence it's taken apart into 3 separate calls.
+   install( CODE "if( NOT EXISTS
+                     ${CMAKE_CURRENT_BINARY_DIR}/${menu}.attempted.stamp )
+                     message( WARNING \"Generating trigger menu ${menu}\"
+                              \" during the installation\" )
+                     execute_process( COMMAND ${CMAKE_COMMAND} -E touch
+                        ${CMAKE_CURRENT_BINARY_DIR}/${menu}.attempted.stamp )
+                     execute_process(
+                        COMMAND ${CMAKE_COMMAND} -E make_directory
+                        ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} )
+                     execute_process(
+                        COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh
+                        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/XMLDumperFromAthena.sh
+                        ${menu} ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu} )
+                  endif()" )
+
+   # Install the generated XML files. Note that this installation rule is
+   # executed after the previous code. So by this time the files should be
+   # in place, if they could be produced.
    install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
       DESTINATION ${CMAKE_INSTALL_XMLDIR}/TriggerMenuXML
       USE_SOURCE_PERMISSIONS
