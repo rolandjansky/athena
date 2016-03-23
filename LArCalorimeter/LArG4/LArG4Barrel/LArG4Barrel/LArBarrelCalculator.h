@@ -105,18 +105,18 @@ private:
   std::string m_detectorName;
 
   // global EMBarrel dimensions
-  double s_etaMaxBarrel;
-  double s_zMinBarrel;
-  double s_zMaxBarrel;
+  double m_etaMaxBarrel;
+  double m_zMinBarrel;
+  double m_zMaxBarrel;
   // global Accordion dimensions
-  double s_rMinAccordion;
-  double s_rMaxAccordion;
+  double m_rMinAccordion;
+  double m_rMaxAccordion;
   // half thickness of absorber and electrode
-  double s_ThickAbs;
-  double s_ThickEle;
+  double m_ThickAbs;
+  double m_ThickEle;
   // GU 11/06/2003  total number of cells in phi
-  int s_NCellTot;
-  int s_NCellMax;
+  int m_NCellTot;
+  int m_NCellMax;
   // to handle small difference (mostly phi wrapping and +-z symmetry)
   // between atlas and test beam
   bool m_testbeam;

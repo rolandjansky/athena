@@ -8,16 +8,16 @@
 #include "G4Trap.hh"
 #include "LArG4Code/LArVG4DetectorParameters.h"
 
-LArStraightAbsorbers* LArStraightAbsorbers::m_instance=0;
+LArStraightAbsorbers* LArStraightAbsorbers::s_instance=0;
 
-PhysicalVolumeAccessor* LArStraightAbsorbers::theAbsorbers=0;
+PhysicalVolumeAccessor* LArStraightAbsorbers::s_theAbsorbers=0;
 
 LArStraightAbsorbers*  LArStraightAbsorbers::GetInstance(std::string strDetector)
 {
-  if (m_instance==0) {
-    m_instance = new LArStraightAbsorbers(strDetector);
+  if (s_instance==0) {
+    s_instance = new LArStraightAbsorbers(strDetector);
   }
-  return m_instance;
+  return s_instance;
 }
 
 
@@ -27,12 +27,12 @@ LArStraightAbsorbers::LArStraightAbsorbers(std::string strDetector)
         if (parameters->GetValue("LArEMBPhiAtCurvature",0)>0.)  m_parity=0;  // first wave goes up
         else                                                    m_parity=1;  // first wave goes down
 
-	if (theAbsorbers==0) {
+	if (s_theAbsorbers==0) {
            if (strDetector=="")
-	     theAbsorbers = new PhysicalVolumeAccessor("LAr::EMB::STAC",
+	     s_theAbsorbers = new PhysicalVolumeAccessor("LAr::EMB::STAC",
 						   "LAr::EMB::ThinAbs::Straight");
            else
-             theAbsorbers = new PhysicalVolumeAccessor(strDetector+"::LAr::EMB::STAC",
+             s_theAbsorbers = new PhysicalVolumeAccessor(strDetector+"::LAr::EMB::STAC",
                                                    strDetector+"::LAr::EMB::ThinAbs::Straight");
         }
         m_filled=false;
@@ -65,10 +65,10 @@ double LArStraightAbsorbers::XCentAbs(int stackid, int cellid)
       } 
       else {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=theAbsorbers->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4ThreeVector& tv=pv->GetTranslation();
-        const G4VPhysicalVolume *pv2=theAbsorbers->GetPhysicalVolume(1000000+id);
+        const G4VPhysicalVolume *pv2=s_theAbsorbers->GetPhysicalVolume(1000000+id);
 	if (!pv2) return tv.x();
         else {
           const G4ThreeVector& tv2=pv2->GetTranslation();
@@ -90,10 +90,10 @@ double LArStraightAbsorbers::YCentAbs(int stackid, int cellid)
       } 
       else {
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=theAbsorbers->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4ThreeVector& tv=pv->GetTranslation();
-        const G4VPhysicalVolume *pv2=theAbsorbers->GetPhysicalVolume(1000000+id);
+        const G4VPhysicalVolume *pv2=s_theAbsorbers->GetPhysicalVolume(1000000+id);
 	if (!pv2) return tv.y();
         else {
           const G4ThreeVector& tv2=pv2->GetTranslation();
@@ -113,7 +113,7 @@ double LArStraightAbsorbers::SlantAbs(int stackid, int cellid)
 {
   // both stackid and cellid start from 0 in the following code
 	int id=cellid+stackid*10000;
-	const G4VPhysicalVolume *pv=theAbsorbers->GetPhysicalVolume(id);
+	const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
         if (!pv) return 0.;
 	const G4RotationMatrix *rm=pv->GetRotation();
 	double Slant;
@@ -129,11 +129,11 @@ double LArStraightAbsorbers::HalfLength(int stackid, int cellid)
       }
       else {
         int id=cellid+stackid*10000; 
-        const G4VPhysicalVolume *pv=theAbsorbers->GetPhysicalVolume(id);
+        const G4VPhysicalVolume *pv=s_theAbsorbers->GetPhysicalVolume(id);
         if (!pv) return 0.;
         const G4LogicalVolume* lv = pv->GetLogicalVolume();
         const G4Trap* trap = (G4Trap*) lv->GetSolid();
-        const G4VPhysicalVolume *pv2=theAbsorbers->GetPhysicalVolume(1000000+id);
+        const G4VPhysicalVolume *pv2=s_theAbsorbers->GetPhysicalVolume(1000000+id);
         if (!pv2) return trap->GetYHalfLength1();
         else {
           const G4LogicalVolume* lv2 = pv2->GetLogicalVolume();

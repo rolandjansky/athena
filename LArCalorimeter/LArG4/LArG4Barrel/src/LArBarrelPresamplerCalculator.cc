@@ -52,8 +52,8 @@ LArBarrelPresamplerCalculator* LArBarrelPresamplerCalculator::GetCalculator()
 
 //=============================================================================
 LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
-  : IflCur(true)
-  , birksLaw(NULL)
+  : m_IflCur(true)
+  , m_birksLaw(NULL)
   , m_nhits(0)
   , m_detectorName("LArMgr")
   , m_testbeam(false)
@@ -69,10 +69,10 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
   //Inizialize the geometry calculator
   m_geometry = LArG4::BarrelPresampler::Geometry::GetInstance();
 
-  if (IflCur) 
+  if (m_IflCur) 
      std::cout << " LArBarrelPresamplerCalculator: start reading current maps" << std::endl;
 
-  if (IflCur) m_psmap = PsMap::GetPsMap();
+  if (m_IflCur) m_psmap = PsMap::GetPsMap();
   else m_psmap=0;
 
   // Get the out-of-time cut from the detector parameters routine.
@@ -97,14 +97,14 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
       if (IflBirks) {
         const double Birks_LAr_density = 1.396;
         const double Birks_k = barrelOptions->EMBBirksk();
-        birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+        m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
       }
     }
   }
 
-   if(birksLaw) {
+   if(m_birksLaw) {
      std::cout << " LArBarrelPresamplerCalculator: Birks' law ON " << std::endl;
-     std::cout << " LArBarrelPresamplerCalculator:   parameter k    " << birksLaw->k() << std::endl;
+     std::cout << " LArBarrelPresamplerCalculator:   parameter k    " << m_birksLaw->k() << std::endl;
    }
    else
      std::cout << " LArBarrelPresamplerCalculator: Birks' law OFF" << std::endl;
@@ -118,7 +118,7 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator()
 //==============================================================================
 LArBarrelPresamplerCalculator::~LArBarrelPresamplerCalculator()
 {
-  if (birksLaw)   delete birksLaw;
+  if (m_birksLaw)   delete m_birksLaw;
 }
 
 
@@ -163,7 +163,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
   const G4NavigationHistory* g4navigation = thisStepPoint->GetTouchable()->GetHistory();
   G4int ndep = g4navigation->GetDepth();
-  G4bool m_testbeam=false;
+  G4bool testbeam=false;
   G4int idep = -999;
 
 #ifdef DEBUGSTEP
@@ -174,7 +174,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
     for (G4int ii=0;ii<=ndep;ii++) {
       G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
       if (v1->GetName()=="LAr::Barrel::Presampler") idep=ii;    // half barrel
-      if (v1->GetName()=="LAr::TBBarrel::Cryostat::LAr") m_testbeam=true;  // TB or not ?
+      if (v1->GetName()=="LAr::TBBarrel::Cryostat::LAr") testbeam=true;  // TB or not ?
     }
   else
     for (G4int ii=0;ii<=ndep;ii++) {
@@ -183,7 +183,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
       std::cout << " Level,VolumeName " << ii << " " << v1->GetName() << std::endl;
 #endif
       if (v1->GetName()==G4String(m_detectorName+"::LAr::Barrel::Presampler")) idep=ii;   
-      if (v1->GetName()==G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr")) m_testbeam=true;  // TB or not ?
+      if (v1->GetName()==G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr")) testbeam=true;  // TB or not ?
     }
 
 #ifdef DEBUGSTEP
@@ -218,7 +218,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 //   otherwise 200 microns (dstep) division
 
   G4int nsub_step=1;
-  if (IflCur) nsub_step=(int) (thisStepLength/dstep) + 1;
+  if (m_IflCur) nsub_step=(int) (thisStepLength/dstep) + 1;
 // delta is fraction of step between two sub steps
   G4double delta=1./((double) nsub_step);
 #ifdef DEBUGSTEP
@@ -226,10 +226,10 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 #endif
 
   G4double energy = a_step->GetTotalEnergyDeposit();
-  if (birksLaw) {
+  if (m_birksLaw) {
      const double EField = 10. ; // 10 kV/cm electric field in presampler gap
      const double wholeStepLengthCm = a_step->GetStepLength() / CLHEP::cm;
-     energy = (*birksLaw)(energy, wholeStepLengthCm, EField);
+     energy = (*m_birksLaw)(energy, wholeStepLengthCm, EField);
   }
 
 // loop over sub steps
@@ -259,7 +259,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
 // compute cell identifier
       G4int zSide;
-      if (m_testbeam)
+      if (testbeam)
        zSide = 1;
       else
        zSide = ( startPoint.z() > 0.) ? 1 : -1;
@@ -292,7 +292,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
 // time computation is not necessarily correct for test beam
       G4double time;
-      if (m_testbeam)
+      if (testbeam)
       {
         time=0.;
       }
@@ -304,7 +304,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
       }
 
       G4double Current;
-      if (!IflCur)  {
+      if (!m_IflCur)  {
 // no charge collection   Current=E from Geant
          Current=energy;
       }

@@ -10,14 +10,14 @@
 
 class LArStraightElectrodes {
 private:
-	static PhysicalVolumeAccessor* theElectrodes;
+	static PhysicalVolumeAccessor* s_theElectrodes;
         double m_xcent[1024][14];
         double m_ycent[1024][14];
         double m_cosu[1024][14];
         double m_sinu[1024][14];
         double m_halflength[1024][14];
         bool m_filled;
-        static LArStraightElectrodes* m_instance;
+        static LArStraightElectrodes* s_instance;
         int m_parity;
 public:
 	static LArStraightElectrodes* GetInstance(std::string strDetector="") ;
