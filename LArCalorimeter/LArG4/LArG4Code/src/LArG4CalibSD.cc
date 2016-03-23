@@ -23,6 +23,11 @@ LArG4CalibSD::LArG4CalibSD(G4String a_name, LArG4::VCalibrationCalculator* calc,
   , m_calculator(calc)
   , m_numberInvalidHits(0)
   , m_doPID(doPID)
+  , m_larEmID (nullptr)
+  , m_larFcalID (nullptr)
+  , m_larHecID (nullptr)
+  , m_larMiniFcalID (nullptr)
+  , m_caloDmID (nullptr)
 {}
 
 LArG4CalibSD::~LArG4CalibSD()
