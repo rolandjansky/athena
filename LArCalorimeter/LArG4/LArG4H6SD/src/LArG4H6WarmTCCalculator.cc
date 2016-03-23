@@ -67,15 +67,15 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
   //
 //  G4cout<<"LArG4H6WarmTCCalculator::Local point: "<<pinLocal.x()<<" "<<pinLocal.y()<<" "<<pinLocal.z()<<std::endl;
 
-  G4int m_zSide;
-  G4int m_sampling;
-  G4int m_region;
-  G4int m_etaBin; 
-  G4int m_phiBin; 
+  G4int zSide;
+  G4int sampling;
+  G4int region;
+  G4int etaBin; 
+  G4int phiBin; 
  
-   m_zSide = 4;
-   if( p.z()<0.) m_zSide =-4; 
-   m_region = 0;
+   zSide = 4;
+   if( p.z()<0.) zSide =-4; 
+   region = 0;
 
   // We can extract our position from the copy number of depth and module
   // First have touchable
@@ -87,20 +87,20 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
 
   G4int gran;
 // Sampling Identifier
-  if(m_isABS) { m_sampling = copyModule; gran = 1; }
+  if(m_isABS) { sampling = copyModule; gran = 1; }
   else {
      switch(copyModule) {
         case 1:  { 
 		 gran = 1;
-		 if(m_isX)  m_sampling = copyModule; else m_sampling = copyModule + 1;
+		 if(m_isX)  sampling = copyModule; else sampling = copyModule + 1;
 		 break; 
 	         }
         case 2: case 3: { 
 	   	    gran = 2; 
-	  	    if(m_isX) m_sampling = 2*copyModule; else m_sampling = 2*copyModule - 1; 
+	  	    if(m_isX) sampling = 2*copyModule; else sampling = 2*copyModule - 1; 
 		    break; 
 		        }
-        default: { m_sampling = -1; gran = 0; break; }
+        default: { sampling = -1; gran = 0; break; }
      }
   }
   
@@ -112,13 +112,13 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
  double x_y = WTC_sci_y / 2;
  
   if(m_isX) {
-   m_etaBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
-   m_phiBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
+   etaBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
+   phiBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
   } else {
-   m_phiBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
-   m_etaBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
+   phiBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
+   etaBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
   }
-  m_region = 0;
+  region = 0;
 
 
 
@@ -126,8 +126,8 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
  /* 
   if(!m_isABS) {
      std::cout<<"LArG4H6WarmTCCalculator: "<<hitVolume<<" "<<copyModule<<" :  "<<pinLocal.x()<<" "<<pinLocal.y()<<std::endl;
-     std::cout <<"m_zSide = "<<m_zSide<<" , m_sampling = "<<m_sampling<<"  ,  m_region="<<m_region <<
-            " , m_phiBin="<<m_phiBin<< " ,  m_etaBin="<<m_etaBin <<std::endl;
+     std::cout <<"zSide = "<<zSide<<" , sampling = "<<sampling<<"  ,  region="<<region <<
+            " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
      std::cout<<m_energy<<" "<<m_time<<std::endl;
      std::cout<<m_isInTime<<" "<<m_isX<<" "<<m_isABS<<"   "<<this<<std::endl;
   }
@@ -135,14 +135,14 @@ G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
   
   m_identifier.clear();
   m_identifier << 10          // LArCalorimeter
-	       << m_zSide          
+	       << zSide          
 	       << 1
-	       << m_sampling
-	       << m_region
-	       << m_etaBin
-	       << m_phiBin;	       
+	       << sampling
+	       << region
+	       << etaBin
+	       << phiBin;	       
 
-  m_addr =  100*m_sampling+10*m_etaBin+m_phiBin;
+  m_addr =  100*sampling+10*etaBin+phiBin;
   if(m_isABS) m_addr *= -1;
   return true;
 }

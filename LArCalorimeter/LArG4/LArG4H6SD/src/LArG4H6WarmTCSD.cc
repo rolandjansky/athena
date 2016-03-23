@@ -106,9 +106,9 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
   //
   //  G4cout<<"LArTBEndcapWarmTCCalculator::Local point: "<<pinLocal.x()<<" "<<pinLocal.y()<<" "<<pinLocal.z()<<std::endl;
 
-  int m_sampling;
-  int m_etaBin;
-  int m_phiBin;
+  int sampling;
+  int etaBin;
+  int phiBin;
   int addr;
 
   // We can extract our position from the copy number of depth and module
@@ -121,20 +121,20 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
 
   G4int gran;
   // Sampling Identifier
-  if(m_isABS) { m_sampling = copyModule; gran = 1; }
+  if(m_isABS) { sampling = copyModule; gran = 1; }
   else {
     switch(copyModule) {
     case 1:  {
       gran = 1;
-      if(m_isX)  m_sampling = copyModule; else m_sampling = copyModule + 1;
+      if(m_isX)  sampling = copyModule; else sampling = copyModule + 1;
       break;
     }
     case 2: case 3: {
       gran = 2;
-      if(m_isX) m_sampling = 2*copyModule; else m_sampling = 2*copyModule - 1;
+      if(m_isX) sampling = 2*copyModule; else sampling = 2*copyModule - 1;
       break;
     }
-    default: { m_sampling = -1; gran = 0; break; }
+    default: { sampling = -1; gran = 0; break; }
     }
   }
 
@@ -145,14 +145,14 @@ G4bool LArG4H6WarmTCSD::ProcessHits(G4Step* aStep,G4TouchableHistory* ROhist)
   double x_y = WTC_sci_y / 2;
 
   if(m_isX) {
-    m_etaBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
-    m_phiBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
+    etaBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
+    phiBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
   } else {
-    m_phiBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
-    m_etaBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
+    phiBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
+    etaBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
   }
 
-  addr = 100*m_sampling+10*m_etaBin+m_phiBin;
+  addr = 100*sampling+10*etaBin+phiBin;
   if(m_isABS) addr *= -1;
 
 #ifdef DEBUG_ME

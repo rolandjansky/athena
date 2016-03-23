@@ -70,7 +70,7 @@ double LArTBH6TriggerTimeTool::larTime(){
   double e = 0;
   int n=0;
 
-  for(const auto &it : m_hitcoll){
+  for(auto &it : m_hitcoll){
 
     for(const auto &hit : *it){
       e += hit->energy();
