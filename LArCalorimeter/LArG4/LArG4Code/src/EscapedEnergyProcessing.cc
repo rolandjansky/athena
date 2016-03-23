@@ -4,7 +4,7 @@
 
 #include "LArG4Code/EscapedEnergyProcessing.h"
 #include "LArG4Code/LArG4CalibSD.h"
-#include "CaloG4Sim/CalibrationDefaultProcessing.h"
+
 
 // From Geant4 10.2
 #include "G4AtlasTools/G4MultiSensitiveDetector.hh"

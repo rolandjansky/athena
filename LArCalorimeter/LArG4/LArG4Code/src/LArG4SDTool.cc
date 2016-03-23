@@ -30,6 +30,11 @@ LArG4SDTool::LArG4SDTool(const std::string& type, const std::string& name, const
   , m_doPID(false)
   , m_timeBinType("Default")
   , m_timeBinWidth(2.5*CLHEP::ns)
+  , m_larEmID (nullptr)
+  , m_larFcalID (nullptr)
+  , m_larHecID (nullptr)
+  , m_larMiniFcalID (nullptr)
+  , m_caloDmID (nullptr)
 {
   declareProperty("ParticleID",m_doPID=false);
   declareProperty("TimeBinType",m_timeBinType);
@@ -41,6 +46,8 @@ StatusCode LArG4SDTool::initialize()
 {
   const CaloIdManager* caloIdManager=nullptr;
   CHECK( detStore()->retrieve(caloIdManager) );
+
+  // FIXME: why are we throwing from this method? Return StatusCode::FAILURE!
 
   m_larEmID = caloIdManager->getEM_ID();
   if(m_larEmID==0)
@@ -116,6 +123,9 @@ void LArG4SDTool::setupAllSDs(std::map<G4VSensitiveDetector*,std::vector<std::st
   } // Done going through all the SDs
 
 }
+
+// NOTE: there has GOT to be a non-custom solution to this!
+// How about POSIX glob? Or std regex?
 
 // Dear internet: thank you, you provide endless solutions to problems
 // A C program to match wild card characters

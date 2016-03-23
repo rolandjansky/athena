@@ -38,6 +38,10 @@ LArG4SimpleSD::LArG4SimpleSD(G4String a_name, StoreGateSvc* detStore)
   , m_numberInvalidHits(0)
   , m_timeBinType(LArG4SimpleSD::HitTimeBinDefault)
   , m_timeBinWidth(2.5*CLHEP::ns)
+  , m_larEmID (nullptr)
+  , m_larFcalID (nullptr)
+  , m_larHecID (nullptr)
+  , m_larMiniFcalID (nullptr)
 {
   // This should only be used when it's safe to do this retrieval
   const CaloIdManager* caloIdManager=nullptr;
