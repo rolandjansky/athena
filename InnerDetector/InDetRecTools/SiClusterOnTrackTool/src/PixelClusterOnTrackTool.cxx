@@ -919,7 +919,13 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
 
   std::vector<Amg::Vector2D> vectorOfPositions;
   
-  int numberOfSubclusters=1 + m_splitClusterMap->count( pixelPrepCluster ) ;
+  int numberOfSubclusters = 1 + m_splitClusterMap->count( pixelPrepCluster );
+    if(m_splitClusterMap->count( pixelPrepCluster )==0 && pixelPrepCluster->isSplit()) {
+      numberOfSubclusters = 2;
+  }
+   if(m_splitClusterMap->count( pixelPrepCluster )!=0 && !pixelPrepCluster->isSplit()) {
+      numberOfSubclusters = 1;
+  }    
   //now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
   const Trk::AtaPlane* parameters=dynamic_cast<const Trk::AtaPlane*>(&trackPar);
@@ -941,7 +947,7 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
   
   if (allLocalPositions.size()  == 0)
   {
-    ATH_MSG_DEBUG(" Cluster cannot be treated by NN. Giving back to default clusterization ");
+    ATH_MSG_DEBUG(" Cluster cannot be treated by NN. Giving back to default clusterization, too big: " << pixelPrepCluster->tooBigToBeSplit());
     return false;
   }
 
