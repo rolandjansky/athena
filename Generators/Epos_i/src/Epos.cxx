@@ -194,6 +194,7 @@ Epos::~Epos()
 StatusCode Epos::genInitialize() 
 {
   ATH_MSG_INFO( " CRMC INITIALISING.\n" );
+  ATH_MSG_INFO( "signal_rocess_id 101-ND, 105-DD, 102-CD, 103 AB->XB, 104 AB->AX \n");
 
   static const bool CREATEIFNOTTHERE = true;
   
@@ -212,7 +213,7 @@ StatusCode Epos::genInitialize()
 
   // set up initial values
 
-    std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
+  //   std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
 
     crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_paramFile.c_str() ); 
 
@@ -298,6 +299,14 @@ StatusCode Epos::genFinalize()
   
   xsigtot *= 1000000;         // [mb] to [nb] conversion
   cout << "MetaData: cross-section (nb) = " << xsigtot << endl;
+  xsigine *= 1000000;        //[mb] to [nb] conversion
+  cout << "MetaData: cross-section inelastic (cut + projectile diffraction)[nb] = " << xsigine << endl;
+     xsigela *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section elastic (includes target diffraction)[nb] = " << xsigela << endl;
+  xsigdd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section dd (nb) = " << xsigdd << endl;
+  xsigsd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section sd (nb) = " << xsigsd << endl;
 
   //  m_eposEventInfo.close();
 
@@ -305,7 +314,7 @@ StatusCode Epos::genFinalize()
 }
 
 // ---------------------------------------------------------------------- 
-StatusCode Epos::fillEvt( GenEvent* evt ) 
+StatusCode Epos::fillEvt( HepMC::GenEvent* evt ) 
 {
   //  ATH_MSG_INFO( " EPOS Filling.\n" );
 
@@ -365,6 +374,7 @@ StatusCode Epos::fillEvt( GenEvent* evt )
 		      evt->set_heavy_ion(ion);  
 
   //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
+  // Epos 1-ND, 2-DD, 3-CD, 4 AB->XB, -4 AB->AX translated into signal_proces_id 101-ND, 105 - DD, 102 - CD, 103 -AB->XB, 104 AB->AX
    int sig_id = -1;
    switch (int(c2evt_.typevt))
     {
@@ -381,9 +391,9 @@ StatusCode Epos::fillEvt( GenEvent* evt )
 
   evt->set_signal_process_id(sig_id);
 
-  /*  ATH_MSG_INFO( "Event Information : \n");
-  std::cout << " signal_process_id "<<evt->signal_process_id() << std::endl;
-  std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
+  //  ATH_MSG_INFO( "Event Information : \n");
+  // std::cout << " signal_process_id "<<evt->signal_process_id() << std::endl;
+  /*std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
   evt->print();
   std::cout << " print-out done " << std::endl;*/
 

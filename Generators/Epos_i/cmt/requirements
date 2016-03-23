@@ -39,3 +39,5 @@ macro_append  Epos_i_shlibflags  " $(HepMC_IO_linkopts) "
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime_extras extras="epos_crmc.param"
 
+# Add the HepMCfio library to the CMake link options:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
