@@ -20,8 +20,11 @@
 #include "boost/io/ios_state.hpp"
 #include <iomanip>
 
-LArGeoH62004SteppingAction::LArGeoH62004SteppingAction(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
-  m_ownOptions(false)
+LArGeoH62004SteppingAction::LArGeoH62004SteppingAction(const std::string& type, const std::string& name, const IInterface* parent)
+ : UserActionBase(type,name,parent),
+   m_largeoTB2004Options (nullptr),
+   m_ownOptions(false),
+   m_yTable(0)
 {
 
 }
@@ -35,7 +38,7 @@ StatusCode LArGeoH62004SteppingAction::initialize(){
     m_ownOptions = true;
   }
 
-  yTable = m_largeoTB2004Options->TableYPosition();
+  m_yTable = m_largeoTB2004Options->TableYPosition();
 
 
   return StatusCode::SUCCESS;
@@ -77,16 +80,16 @@ void LArGeoH62004SteppingAction::Step(const G4Step * theStep)
     //  if(trackid > 10 ) return;
     //  std::cout<<"LArGeoH62004SteppingAction: "<<trackid<<", part:  "<<theTrack->GetDefinition()->GetPDGEncoding()<<" : "<<xyz.x()<<" "<<xyz.y()<<" "<<xyz.z()<<std::endl;
     if( z <= 8015.) { // Veto scint. 8
-      if( xyz.x()*xyz.x() + (xyz.y() - yTable)*(xyz.y() - yTable) > 900. ) { 
+      if( xyz.x()*xyz.x() + (xyz.y() - m_yTable)*(xyz.y() - m_yTable) > 900. ) { 
         std::cout<<"Primary track in veto scint. H !!!!"<<std::endl;
-        std::cout<<"LArGeoH62004SteppingAction: "<<trackid<<", part:  "<<theTrack->GetDefinition()->GetPDGEncoding()<<" : "<<xyz.x()<<" "<<xyz.y()<<" - "<<yTable<<" "<<z<<std::endl;
+        std::cout<<"LArGeoH62004SteppingAction: "<<trackid<<", part:  "<<theTrack->GetDefinition()->GetPDGEncoding()<<" : "<<xyz.x()<<" "<<xyz.y()<<" - "<<m_yTable<<" "<<z<<std::endl;
         G4Exception("LArGeoH62004SteppingAction","CheckPrim",EventMustBeAborted,"Primary track in veto scintillator");
       }
     }
     if( z >= 9450. || ( z >= 9325. && z <= 9335.)) {  // Scint. 6,7
-      if(fabs(xyz.x()) > 35. || fabs(xyz.y() - yTable) > 35.) {
+      if(fabs(xyz.x()) > 35. || fabs(xyz.y() - m_yTable) > 35.) {
         std::cout<<"Primary track outside S2,3 !!!!"<<std::endl;
-        std::cout<<"LArGeoH62004SteppingAction: "<<trackid<<", part:  "<<theTrack->GetDefinition()->GetPDGEncoding()<<" : "<<xyz.x()<<" "<<xyz.y()<<" - "<<yTable<<" "<<z<<std::endl;
+        std::cout<<"LArGeoH62004SteppingAction: "<<trackid<<", part:  "<<theTrack->GetDefinition()->GetPDGEncoding()<<" : "<<xyz.x()<<" "<<xyz.y()<<" - "<<m_yTable<<" "<<z<<std::endl;
         G4Exception("LArGeoH62004SteppingAction","CheckPrim",EventMustBeAborted,"Primary track outside beam scintillators");
       }
     }

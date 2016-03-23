@@ -63,13 +63,13 @@ LArFCALH62004CalibCalculatorBase::LArFCALH62004CalibCalculatorBase()
 	
       }
 
-      ISvcLocator  *m_svcLocator = Gaudi::svcLocator();
+      ISvcLocator  *svcLocator = Gaudi::svcLocator();
       IRDBAccessSvc* rdbAccess;
       IGeoModelSvc * geoModel;
       
-      if(m_svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
+      if(svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
         throw std::runtime_error("Error in FCALConstruction, cannot access GeoModelSvc");
-      if(m_svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
+      if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
         throw std::runtime_error("Error in FCALConstruction, cannot access RDBAccessSvc");
       DecodeVersionKey larVersionKey(geoModel, "LAr");
 
