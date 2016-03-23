@@ -54,6 +54,7 @@ class VP1CC_GlobalCuts
   bool sideC;
   VP1Interval allowedEta;
   QList<VP1Interval> allowedPhi;
+  double clipRadius;
 };
 
 // ************* Enums *****************
@@ -180,11 +181,14 @@ class VP1CaloCell
   virtual void build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
-			      bool _outline) = 0;
+			      bool _outline, 
+            const VP1CC_GlobalCuts& ) = 0;
 
   double cellDepth(const QPair<bool,double>& scale, const double& energy)
   { return std::max(1.0*CLHEP::mm,scale.second*(scale.first?log(1+fabs(energy)):fabs(energy))); }
 
+  virtual bool isInsideClipVolume(const VP1CC_GlobalCuts&  globalCuts) ; // by default uses radius to determine this
+  
   // Remove 3D object(s) from scene
   virtual void remove3DObjects(VP1CC_SoNode2CCMap* _node2cc) = 0;
   
@@ -230,7 +234,8 @@ class VP1CC_LArEMB : public VP1CC_LAr
   virtual void build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
-			      bool _outline);
+			      bool _outline, 
+            const VP1CC_GlobalCuts& );
 
   std::vector<std::string> ToString(const CaloCell_ID*  calo_id, const std::string& extrainfos="");
 };
@@ -251,7 +256,8 @@ class VP1CC_LArEMECHEC : public VP1CC_LAr
   virtual void build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
-			      bool _outline);
+			      bool _outline, 
+            const VP1CC_GlobalCuts& );
 
   std::vector<std::string> ToString(const CaloCell_ID*  calo_id, const std::string& extrainfos="");
 
@@ -272,7 +278,8 @@ class VP1CC_LArFCAL : public VP1CC_LAr
   virtual void build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
-			      bool _outline);
+			      bool _outline, 
+            const VP1CC_GlobalCuts& );
 
   std::vector<std::string> ToString(const CaloCell_ID*  calo_id, const std::string& extrainfos="");
 
@@ -312,7 +319,10 @@ class VP1CC_TileBarEc : public VP1CC_Tile
   virtual void build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
-			      bool _outline);
+			      bool _outline, 
+            const VP1CC_GlobalCuts& );
+  
+  bool isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts);
 
   virtual void remove3DObjects(VP1CC_SoNode2CCMap* _node2cc);
 
@@ -347,8 +357,11 @@ class VP1CC_TileCrack : public VP1CC_Tile
   virtual void build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
-			      bool _outline);
+			      bool _outline, 
+            const VP1CC_GlobalCuts& );
 
+  bool isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts);
+  
   virtual void remove3DObjects(VP1CC_SoNode2CCMap* _node2cc);
 
   std::vector<std::string> ToString(const CaloCell_ID*  calo_id, const std::string& extrainfos="");
@@ -408,7 +421,8 @@ class VP1Mbts
   bool UpdateScene(VP1CC_MbtsScinInfoMap* _drawinfo,
 		   VP1CC_SoNode2MbtsMap* _node2mbts,
 		   double _energy,
-		   bool _outline);
+		   bool _outline, 
+       double clipRadius);
 
   // Print out cell information to the vector of strings
   std::vector<std::string> ToString();

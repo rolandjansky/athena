@@ -52,6 +52,7 @@
 // MBTS
 #include "VP1CaloSystems/VP1MbtsHelper.h"
 #include "VP1Base/VP1MaterialButton.h"
+#include "VP1Base/VP1CustomTourEditor.h"
 #include <stdexcept>
 
 
@@ -268,6 +269,8 @@ void VP1CaloCellSystem::Clockwork::BuildCellManagers()
 				it->second,SLOT(outlineUpdated(bool)));
 		connect(controller,SIGNAL(globalCutsChanged(VP1CC_GlobalCuts)),
 				it->second,SLOT(globalCutsUpdated(VP1CC_GlobalCuts)));
+		connect(controller->customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),
+				it->second,SLOT(clipVolumeRadiusChanged(double)));
 	}
 }
 
@@ -451,11 +454,16 @@ QWidget* VP1CaloCellSystem::buildController()
 			this,SLOT(energyMode()));
 
 	// Mbts
+  _clockwork->mbtsHelper->setController(_clockwork->controller);
 	connect(_clockwork->controller,SIGNAL(selectionMbtsChanged(VP1Interval)),
 			_clockwork->mbtsHelper,SLOT(selectionUpdated(VP1Interval)));
 	connect(_clockwork->controller,SIGNAL(showVolumeOutLinesChanged(bool)),
 			_clockwork->mbtsHelper,SLOT(outlineUpdate(bool)));
-
+  if (_clockwork->controller->customTourEditor()){
+    std::cout <<" Connecting to CVRC" <<std::endl;
+    connect(_clockwork->controller->customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),
+			_clockwork->mbtsHelper,SLOT(clipVolumeRadiusChanged(double)));
+  }
 	return _clockwork->controller;
 }
 

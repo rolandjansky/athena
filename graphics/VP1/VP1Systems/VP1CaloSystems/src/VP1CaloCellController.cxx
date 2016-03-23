@@ -1149,6 +1149,9 @@ VP1CC_GlobalCuts VP1CaloCellController::globalCuts() const
 	globalCuts.sideC = d->ui_cuts.chbxSideC->isChecked();
 	globalCuts.allowedEta = d->ui_cuts.wdgEtaPhiCut->allowedEta();
 	globalCuts.allowedPhi = d->ui_cuts.wdgEtaPhiCut->allowedPhi();
+  globalCuts.clipRadius = 10e9; 
+  // no easy way to get the 'current' value since we don't know where in the AnimationSequence we are. Need to rely on this being updated by connections.
+
 	return globalCuts;
 }
 

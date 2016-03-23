@@ -28,7 +28,7 @@ use TileIdentifier	 TileIdentifier-*	TileCalorimeter
 use LArTools             LArTools-*             LArCalorimeter
 use LArRawEvent          LArRawEvent-*          LArCalorimeter
 use LArIdentifier        LArIdentifier-*        LArCalorimeter
-use VP1Qwt               VP1Qwt-*               graphics/VP1
+use VP1Qwt               VP1Qwt-*               graphics/VP1 Â# Needed despite checkreq warning (get undefined symbol error otherwise)
 use GeoModelUtilities    GeoModelUtilities-*    DetectorDescription/GeoModel
 
 public

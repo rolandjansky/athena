@@ -64,6 +64,13 @@ double VP1CaloCell::energyToTransverse(const double& e) const
 
 bool VP1CaloCell::cutPassed(const VP1CC_GlobalCuts& globalCuts)
 {
+  // only do this if it's something significant
+  if (globalCuts.clipRadius<10e8){
+    if (!isInsideClipVolume(globalCuts)) return false;
+    // double radius = sqrt(m_caloCell->x()*m_caloCell->x() + m_caloCell->y()*m_caloCell->y() + m_caloCell->z()*m_caloCell->z());
+   
+  }
+  
   // Check side and Eta cut
   bool passed = (m_caloCell->eta()>=0 && globalCuts.sideA) 
     || (m_caloCell->eta()<0 && globalCuts.sideC);
@@ -82,6 +89,15 @@ bool VP1CaloCell::cutPassed(const VP1CC_GlobalCuts& globalCuts)
   return passed;
 }
 
+bool VP1CaloCell::isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts) {
+  const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
+  double radius = ddElement->r();
+  double z = ddElement->z();
+  double radialDistance = sqrt(radius*radius + z*z);
+  if (radialDistance < globalCuts.clipRadius ) return true;
+  return false;
+}
+
 void VP1CaloCell::updateScene(VP1CC_SoNode2CCMap* _node2cc,
 			      bool _useEt,
 			      const QPair<bool,double>& _scale,
@@ -89,7 +105,7 @@ void VP1CaloCell::updateScene(VP1CC_SoNode2CCMap* _node2cc,
 			      const VP1CC_GlobalCuts& globalCuts)
 {
   if(cutPassed(globalCuts))
-    build3DObjects(_node2cc,_useEt,_scale,_outline);
+    build3DObjects(_node2cc,_useEt,_scale,_outline, globalCuts);
   else
     remove3DObjects(_node2cc);
 }
@@ -150,7 +166,8 @@ VP1CC_LArEMB::~VP1CC_LArEMB()
 void VP1CC_LArEMB::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 				  bool _useEt,
 				  const QPair<bool,double>& _scale,
-				  bool _outline)
+				  bool _outline,
+          const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
   if(!m_hit){
@@ -169,8 +186,16 @@ void VP1CC_LArEMB::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double radius = ddElement->r();
   double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
+  double z = std::fabs(ddElement->z());
+  double radialDistance = sqrt(radius*radius + z*z);
+
+  double depth = cellDepth(_scale,energy);
+  depth = std::min(depth, std::fabs(globalCuts.clipRadius - radialDistance ) ) ;
+
+  // std::cout<<"z "<<ddElement->z()<<"\t radialDistance "<<radialDistance<<"\t clipRadius "<<globalCuts.clipRadius<<"\t depth "<<depth<<std::endl;
+
   m_hit->setParametersForBarrelEtaPhiCell( eta-deta,eta+deta,phi-dphi,phi+dphi,
-					   cellDepth(_scale,energy), radius, 0.9, 0.9 );
+					   depth, radius, 0.9, 0.9 );
   m_hit->drawEdgeLines = _outline;
 
   if(createNewHit) {
@@ -293,7 +318,8 @@ std::vector<std::string> VP1CC_LArEMECHEC::ToString(const CaloCell_ID*  calo_id,
 void VP1CC_LArEMECHEC::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 				      bool _useEt,
 				      const QPair<bool,double>& _scale,
-				      bool _outline)
+				      bool _outline,
+          const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
   if(!m_hit){
@@ -312,8 +338,11 @@ void VP1CC_LArEMECHEC::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double z  = ddElement->z();
   double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
+  double depth = cellDepth(_scale,energy);
+  depth = std::min(depth, std::fabs(globalCuts.clipRadius - z));
+
   m_hit->setParametersForEndCapEtaPhiCell( eta-deta,eta+deta,phi-dphi,phi+dphi,
-					   cellDepth(_scale,energy), z, 0.9, 0.9 );
+					   depth, z, 0.9, 0.9 );
   m_hit->drawEdgeLines = _outline;
 
   if(createNewHit) {
@@ -385,7 +414,8 @@ std::vector<std::string> VP1CC_LArFCAL::ToString(const CaloCell_ID*, const std::
 void VP1CC_LArFCAL::build3DObjects( VP1CC_SoNode2CCMap* _node2cc,
 				    bool _useEt,
 				    const QPair<bool,double>& _scale,
-				    bool _outline)
+				    bool _outline,
+          const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
   if(!m_hit) {
@@ -406,10 +436,13 @@ void VP1CC_LArFCAL::build3DObjects( VP1CC_SoNode2CCMap* _node2cc,
   double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
   double halfdepth(0.5*cellDepth(_scale,energy));
-  if(z>0)
-    m_hit->setParametersForBox( dx*0.9, dy*0.9, halfdepth,x,y,z-dz+halfdepth);
-  else
+  halfdepth = std::min(halfdepth, std::fabs(0.5 * (globalCuts.clipRadius - std::fabs(z))));
+  // std::cout<<"cellDepth: "<<0.5*cellDepth(_scale,energy)<<"\t halfdepth: "<<halfdepth<<"\t z "<<z<<"\t dz "<<dz<<std::endl;
+  if(z>0){
+    m_hit->setParametersForBox( dx*0.9, dy*0.9, halfdepth,x,y,z-dz+halfdepth);    
+  } else {
     m_hit->setParametersForBox( dx*0.9, dy*0.9, halfdepth,x,y,z+dz-halfdepth);
+  }
   m_hit->drawEdgeLines = _outline;
 
   if(createNewHit) {
@@ -563,7 +596,8 @@ int VP1CC_TileBarEc::GetFragChannel(const TileHWID* tile_hw_id,
 void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 				     bool _useEt,
 				     const QPair<bool,double>& _scale,
-				     bool _outline)
+				     bool _outline,
+          const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
   if(!m_hitUp){
@@ -585,11 +619,27 @@ void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double radius = ddElement->r();
   double dradius = ddElement->dr()*0.5;
 
+  double z = ddElement->z();
+  double minR = radius - dradius;
+  double radialDistance = sqrt(minR*minR + z*z);
+
+
+  double depth1 = cellDepth(_scale,energy1);
+  depth1 = std::min(depth1, std::fabs(globalCuts.clipRadius - radialDistance));
+  double depth2 = cellDepth(_scale,energy2);
+  depth2 = std::min(depth2, std::fabs(globalCuts.clipRadius - radialDistance));
+  // std::cout<<"VP1CC_TileBarEc clipRadius: "<<globalCuts.clipRadius<<"\t radius "<<radius<<"\t depth1 "
+ //           <<cellDepth(_scale,energy1)<<"\t depth2 "<<cellDepth(_scale,energy2)<<"\t cd1 "<<depth1<<"\t cd1 "<<depth1<<std::endl;
+ 
+  //double etaMin, double etaMax,
+  // double phiMin, double phiMax,
+  // double cellDepth, double cellDistance,
+  // double etasqueezefact, double phisqueezefact 
   m_hitUp->setParametersForBarrelEtaPhiCell(eta,eta+deta,phi-dphi,phi+dphi,
-					    cellDepth(_scale,energy2),radius-dradius,0.9,0.9);
+					    depth1,radius-dradius,0.9,0.9);
   m_hitUp->drawEdgeLines = _outline;
   m_hitDown->setParametersForBarrelEtaPhiCell(eta-deta,eta,phi-dphi,phi+dphi,
-					      cellDepth(_scale,energy1),radius-dradius,0.9,0.9);
+					      depth2,radius-dradius,0.9,0.9);
   m_hitDown->drawEdgeLines = _outline;
 
   if(createNewHit) {
@@ -599,6 +649,20 @@ void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
     m_helperDown->addNode(m_hitDown);
   }
 }
+
+bool VP1CC_TileBarEc::isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts) {
+  const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
+  double z = ddElement->z();
+  double radius = ddElement->r();
+  double dradius = ddElement->dr()*0.5;
+  double minR = radius - dradius;
+  
+  double radialDistance = sqrt(minR*minR + z*z);
+  
+  if ( radialDistance > globalCuts.clipRadius ) return false;
+  return true;
+}
+
 
 void VP1CC_TileBarEc::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
 {
@@ -798,7 +862,8 @@ int VP1CC_TileCrack::GetFragChannel( const TileHWID* tile_hw_id,
 void VP1CC_TileCrack::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 				     bool _useEt,
 				     const QPair<bool,double>& _scale,
-				     bool _outline)
+				     bool _outline,
+             const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
   if(!m_hit) {
@@ -815,8 +880,22 @@ void VP1CC_TileCrack::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double dz = ddElement->dz()*0.5;
   double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
+  double radius = ddElement->r();
+  double minZ = std::fabs(z)-dz;
+  double radialDistance = sqrt(radius*radius + minZ*minZ);
+
+  double depth = cellDepth(_scale,energy);
+  depth = std::min(depth, std::fabs(globalCuts.clipRadius - radialDistance));
+  // std::cout<<"z "<<z<<"\t dz "<<dz<<"\t r "<<ddElement->r()<<"\t clipRadius"<<globalCuts.clipRadius<<"\t depth "<<depth<<"\t cellDepth "<<cellDepth(_scale,energy)<<std::endl;
+  
+  // std::cout<<"VP1CC_TileCrack clipRadius: "<<globalCuts.clipRadius<<"\t radialDistance "<<radialDistance<<"\t depth "
+  //          <<cellDepth(_scale,energy)<<"\t cd1 "<<depth<<std::endl;
+  
+      
+  // double etaMin, double etaMax, double phiMin, double phiMax,
+  // double cellDepth, double cellDistance, double etasqueezefact, double phisqueezefact 
   m_hit->setParametersForEndCapEtaPhiCell( eta-deta,eta+deta,phi-dphi,phi+dphi,
-					   cellDepth(_scale,energy),z-dz,0.9,0.9);
+					   depth,z-dz,0.9,0.9);
   m_hit->drawEdgeLines = _outline;
 
   if(createNewHit) {
@@ -824,6 +903,19 @@ void VP1CC_TileCrack::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
     m_helper->addNode(m_hit);
   }
 }
+
+bool VP1CC_TileCrack::isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts) {
+  const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
+  double z = ddElement->z();
+  double dz = ddElement->dz()*0.5;
+  double radius = ddElement->r();
+  double minZ = std::fabs(z)-dz;
+  double radialDistance = sqrt(radius*radius + minZ*minZ);
+  
+  if ( radialDistance > globalCuts.clipRadius ) return false;
+  return true;
+}
+
 
 void VP1CC_TileCrack::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
 {
@@ -858,10 +950,16 @@ VP1Mbts::~VP1Mbts()
 bool VP1Mbts::UpdateScene(VP1CC_MbtsScinInfoMap* _drawinfo,
 			  VP1CC_SoNode2MbtsMap* _node2mbts,
 			  double _energy,
-			  bool _outline)
+			  bool _outline, 
+        double clipRadius)
 {
   // Draw object only when cell energy is above threshold
   if(m_cell->energy() < _energy)
+    return false;
+  
+  // FIXME!
+  // std::cout<<"clipRadius "<<clipRadius<<std::endl;
+  if (clipRadius < 350 )
     return false;
 
   // Decode cell identifier in order to find draw info - shape and transformation

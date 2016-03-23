@@ -57,6 +57,7 @@ class VP1CaloCellManager : public QObject
     void scaleUpdated(const QPair<bool,double>&);
     void outlineUpdated(const bool&);
     void globalCutsUpdated(const VP1CC_GlobalCuts&);
+    void clipVolumeRadiusChanged(double radius);
 
  private:
   // ------------ Private methods ------------

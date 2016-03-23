@@ -131,6 +131,15 @@ void VP1CaloCellManager::globalCutsUpdated(const VP1CC_GlobalCuts& new_cuts)
     it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
 }
 
+void VP1CaloCellManager::clipVolumeRadiusChanged(double radius)
+{
+  m_globalCuts.clipRadius=radius; // Adjust radius to match new value
+  for(VP1CCMultimapIterator it=m_firstDisplayedPos; it!=m_lastDisplayedPos; it++)
+    it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
+  for(VP1CCMultimapIterator it=m_firstDisplayedNeg; it!=m_lastDisplayedNeg; it++)
+    it->second->updateScene(m_node2cc,m_useEt,m_scale,m_outline,m_globalCuts);
+}
+
 // ----------------- Private methods ------------------------
 void VP1CaloCellManager::updateScene(VP1Interval newInterval, bool positive)
 {

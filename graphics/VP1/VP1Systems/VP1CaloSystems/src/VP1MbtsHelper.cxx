@@ -4,6 +4,8 @@
 
 #include "VP1CaloSystems/VP1MbtsHelper.h"
 #include "VP1CaloSystems/VP1CaloCells.h"
+#include "VP1CaloSystems/VP1CaloCellController.h"
+
 #include "VP1HEPVis/nodes/SoGenericBox.h"
 
 #include <Inventor/nodes/SoNode.h>
@@ -40,13 +42,16 @@ class VP1MbtsHelper::Clockwork
 
   // Separator helper
   SoSeparator* separator;
+  
+	VP1CaloCellController* controller;
 };
 
 
 VP1MbtsHelper::VP1MbtsHelper(bool outline):
   _clockwork(new Clockwork()),
-  m_outline(outline),                                                                        
-  m_run2Geo(false)                                                                           
+  m_outline(outline),
+  m_clipRadius(10e8),
+  m_run2Geo(false)
 {
   _clockwork->tiletb_id = 0;
   _clockwork->mbts_container = 0;
@@ -316,12 +321,23 @@ void VP1MbtsHelper::refreshGraph(const VP1Interval& interval)
   // Loop over all VP1Mbts elements
   if(!interval.isEmpty())
     for(size_t i=0; i<_clockwork->vp1_mbts.size(); i++)
-      _clockwork->vp1_mbts[i]->UpdateScene(&_clockwork->scinInfoMap, &_clockwork->node2mbtsMap, interval.lower(),m_outline);
+      _clockwork->vp1_mbts[i]->UpdateScene(&_clockwork->scinInfoMap, &_clockwork->node2mbtsMap, interval.lower(),m_outline, m_clipRadius);
+}
+
+void VP1MbtsHelper::setController( VP1CaloCellController* controller ){
+  _clockwork->controller = controller;
+}
+
+void VP1MbtsHelper::clipVolumeRadiusChanged(double radius)
+{
+  std::cout<<" clipVolumeRadiusChanged to "<<radius<<std::endl;
+  m_clipRadius=radius; // Adjust radius to match new value
+  refreshGraph(_clockwork->controller->selectionMbts());
 }
 
 std::vector<std::string> VP1MbtsHelper::userPickedNode(SoNode* pickedNode)
 {
-	std::cout << "VP1MbtsHelper::userPickedNode()..." << std::endl;
+  // std::cout << "VP1MbtsHelper::userPickedNode()..." << std::endl;
 
   std::vector<std::string> result;
   VP1CC_SoNode2MbtsMap::iterator it = _clockwork->node2mbtsMap.find(pickedNode);
