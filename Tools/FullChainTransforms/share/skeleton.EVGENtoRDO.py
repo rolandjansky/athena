@@ -123,7 +123,19 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
 
 ## Select detectors
 
-
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator = runArgs.simulator
+else:
+    ISF_Flags.Simulator = 'MC12G4'
+    
+from ISF_Config import FlagSetters
+FlagSetters.configureFlagsBase()
+## Check for any simulator-specific configuration
+configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+if configureFlags is not None:
+    configureFlags()
+        
 if 'DetFlags' not in dir():
     ## If you configure one det flag, you're responsible for configuring them all!
     from AthenaCommon.DetFlags import DetFlags
@@ -183,12 +195,32 @@ try:
 except:
     fast_chain_log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator = runArgs.simulator
+if hasattr(runArgs, 'truthStrategy'):
+    ISF_Flags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
+    ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
+    ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
+    ISF_Flags.TruthStrategy    = runArgs.truthStrategy
+    try:
+        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(runArgs.truthStrategy)
+    except RuntimeError:
+        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
+    except ImportError:
+        # Temporary back-compatibility
+        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
 else:
-    ISF_Flags.Simulator = 'MC12G4'
-
+    ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
+    ISF_Flags.TruthService     = 'ISF_TruthService'
+    ISF_Flags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
+    ISF_Flags.TruthStrategy    = 'MC12'
+    simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 #### *********** import ISF_Example code here **************** ####
 
 include("ISF_Config/ISF_ConfigJobInclude.py")
@@ -229,11 +261,17 @@ if hasattr(runArgs, "postSimExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    def use_looperkiller():
-        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-        lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
-    simFlags.InitFunctions.add_function("postInit", use_looperkiller)
+    try:
+        # Post UserAction Migration (ATLASSIM-1752)
+        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        UAStore.addAction('LooperKiller',['Step']) # add default configurable
+    except:
+        # Pre UserAction Migration
+        def use_looperkiller():
+            from G4AtlasApps import PyG4Atlas, AtlasG4Eng
+            lkAction = PyG4Atlas.UserAction('G4UserActions', 'LooperKiller', ['BeginOfRun', 'EndOfRun', 'BeginOfEvent', 'EndOfEvent', 'Step'])
+            AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(lkAction)
+        simFlags.InitFunctions.add_function("postInit", use_looperkiller)
 else:
     fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
