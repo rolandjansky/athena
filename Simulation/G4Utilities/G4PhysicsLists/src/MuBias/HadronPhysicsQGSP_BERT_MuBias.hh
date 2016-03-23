@@ -85,7 +85,7 @@ class G4HadronPhysicsQGSP_BERT_MuBias : public G4VPhysicsConstructor
     virtual void ConstructParticle();
     virtual void ConstructProcess();
 
-    void SetQuasiElastic(G4bool value) {QuasiElastic = value;}; 
+    void SetQuasiElastic(G4bool value) {m_QuasiElastic = value;}; 
 
   private:
     void CreateModels();
@@ -114,9 +114,9 @@ class G4HadronPhysicsQGSP_BERT_MuBias : public G4VPhysicsConstructor
       G4VCrossSectionDataSet * xsNeutronInelasticXS;
       G4VCrossSectionDataSet * xsNeutronCaptureXS;
     };
-    static G4ThreadLocal ThreadPrivate* tpdata;
+    static G4ThreadLocal ThreadPrivate* s_tpdata;
 
-    G4bool QuasiElastic;
+    G4bool m_QuasiElastic;
 };
 
 #endif

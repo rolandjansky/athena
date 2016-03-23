@@ -60,7 +60,7 @@
 // 08-08-03 STD substitute standard  (V.Ivanchenko)
 // 27-09-03 e+ set to be a secondary particle (V.Ivanchenko)
 // 12-11-03 G4EnergyLossSTD -> G4EnergyLossProcess (V.Ivanchenko)
-// 10-02-04 Add lowestKinEnergy (V.Ivanchenko)
+// 10-02-04 Add m_lowestKinEnergy (V.Ivanchenko)
 // 17-08-04 Utilise mu+ tables for mu- (V.Ivanchenko)
 // 08-11-04 Migration to new interface of Store/Retrieve tables (V.Ivantchenko)
 // 08-04-05 Major optimisation of internal interfaces (V.Ivantchenko)
@@ -86,12 +86,12 @@ using namespace std;
 
 G4BiasedMuPairProduction::G4BiasedMuPairProduction(const G4String& name)
   : G4VEnergyLossProcess(name),
-    theParticle(0),
-    theBaseParticle(0),
-    fParticleChange(0),
-    lowestKinEnergy(1.*CLHEP::GeV),
-    isInitialised(false),
-	biasFactor(1.)
+    m_theParticle(0),
+    m_theBaseParticle(0),
+    m_fParticleChange(0),
+    m_lowestKinEnergy(1.*CLHEP::GeV),
+    m_isInitialised(false),
+	m_biasFactor(1.)
 {
   SetProcessSubType(fPairProdByCharged);
 }
@@ -114,7 +114,7 @@ G4double G4BiasedMuPairProduction::MinPrimaryEnergy(const G4ParticleDefinition*,
 					      const G4Material*,
 					      G4double)
 {
-  return lowestKinEnergy;
+  return m_lowestKinEnergy;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -123,20 +123,20 @@ void G4BiasedMuPairProduction::InitialiseEnergyLossProcess(
                          const G4ParticleDefinition* part,
 			 const G4ParticleDefinition*)
 {
-  if (!isInitialised) {
-    isInitialised = true;
+  if (!m_isInitialised) {
+    m_isInitialised = true;
 
-    theParticle = part;
+    m_theParticle = part;
     SetSecondaryParticle(G4Positron::Positron());
     SetIonisation(false);
 
     G4BiasedMuPairProductionModel* em = new G4BiasedMuPairProductionModel();
-    em->SetLowestKineticEnergy(lowestKinEnergy);
+    em->SetLowestKineticEnergy(m_lowestKinEnergy);
     G4VEmFluctuationModel* fm = 0;
     em->SetLowEnergyLimit(MinKinEnergy());
     em->SetHighEnergyLimit(MaxKinEnergy());
 	
-	em->SetBiasFactor(biasFactor);
+	em->SetBiasFactor(m_biasFactor);
 	
     AddEmModel(1, em, fm);
   }

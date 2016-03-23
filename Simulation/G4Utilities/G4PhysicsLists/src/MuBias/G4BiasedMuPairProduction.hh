@@ -97,7 +97,7 @@ public:
   {
     std::cout<<" this is G4BiasedMuPairProduction::SetBiasFactor being called"<<
 		" with factor "<<x<<std::endl;
-  	biasFactor=x;
+  	m_biasFactor=x;
   }
 
 protected:
@@ -110,15 +110,15 @@ private:
   G4BiasedMuPairProduction & operator=(const G4BiasedMuPairProduction &right);
   G4BiasedMuPairProduction(const G4BiasedMuPairProduction&);
 
-  const G4ParticleDefinition* theParticle;
-  const G4ParticleDefinition* theBaseParticle;
+  const G4ParticleDefinition* m_theParticle;
+  const G4ParticleDefinition* m_theBaseParticle;
 
-  G4ParticleChangeForLoss*    fParticleChange;
+  G4ParticleChangeForLoss*    m_fParticleChange;
 
-  G4double                    lowestKinEnergy;
-  G4bool                      isInitialised;
+  G4double                    m_lowestKinEnergy;
+  G4bool                      m_isInitialised;
   
-  G4double biasFactor;
+  G4double m_biasFactor;
 
 };
 

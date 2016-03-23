@@ -10,13 +10,13 @@
 //#include "ElVariations/QGSP_BERT_Msc92.hh"
 
 AtlasPhysListFactory::AtlasPhysListFactory() 
-  : defName("QGSP_BERT_MuBias"),verbose(1)
+  : m_defName("QGSP_BERT_MuBias"),m_verbose(1)
 {
-  nlists = 1;
+  m_nlists = 1;
   G4String ss[1] = {
     "QGSP_BERT_MuBias"};
-  for(size_t i=0; i<nlists; ++i) {
-    listnames.push_back(ss[i]);
+  for(size_t i=0; i<m_nlists; ++i) {
+    m_listnames.push_back(ss[i]);
   }
 }
 
@@ -32,7 +32,7 @@ AtlasPhysListFactory::ReferencePhysList()
   if (path) {
     name = G4String(path);
   } else {
-    name = defName;
+    name = m_defName;
     G4cout << "### AtlasPhysListFactory WARNING: "
 	   << " environment variable PHYSLIST is not defined"
 	   << G4endl
@@ -46,12 +46,12 @@ AtlasPhysListFactory::ReferencePhysList()
 G4VModularPhysicsList* 
 AtlasPhysListFactory::GetReferencePhysList(const G4String& name)
 {
-  if(0 <++  verbose) {
+  if(0 <++  m_verbose) {
     G4cout << "AtlasPhysListFactory::GetReferencePhysList <" << name
 	   << G4endl;
   }
   G4VModularPhysicsList* p = 0;
-  if(name == "QGSP_BERT_MuBias")           {p = new QGSP_BERT_MuBias(verbose);}
+  if(name == "QGSP_BERT_MuBias")           {p = new QGSP_BERT_MuBias(m_verbose);}
   else {
     G4cout << "### AtlasPhysListFactory WARNING: "
 	   << "PhysicsList " << name << " is not known"
@@ -70,8 +70,8 @@ G4bool AtlasPhysListFactory::IsReferencePhysList(const G4String& name)
 {
   G4bool res = false;
 
-  for(size_t i=0; i<nlists; ++i) {
-    if(name == listnames[i]) {
+  for(size_t i=0; i<m_nlists; ++i) {
+    if(name == m_listnames[i]) {
       res = true;
       break;
     }
@@ -82,7 +82,7 @@ G4bool AtlasPhysListFactory::IsReferencePhysList(const G4String& name)
 const std::vector<G4String>& 
 AtlasPhysListFactory::AvailablePhysLists() const
 {
-  return listnames;
+  return m_listnames;
 }
 
 

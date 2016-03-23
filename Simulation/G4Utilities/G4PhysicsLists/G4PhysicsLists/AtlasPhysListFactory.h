@@ -28,14 +28,14 @@ public:
   const std::vector<G4String>& AvailablePhysLists() const;
   // list of avalable base Phys Lists
 
-  inline void SetVerbose(G4int val) { verbose = val; }
+  inline void SetVerbose(G4int val) { m_verbose = val; }
 
 private:
 
-  G4String defName;  
-  std::vector<G4String> listnames;
-  size_t nlists;
-  G4int verbose;
+  G4String m_defName;  
+  std::vector<G4String> m_listnames;
+  size_t m_nlists;
+  G4int m_verbose;
 };
 
 #endif

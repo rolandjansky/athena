@@ -71,8 +71,8 @@ public:
   virtual void ConstructProcess();
 
 private:
-  G4int  verbose;
-  biasValues biases;
+  G4int  m_verbose;
+  biasValues m_biases;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -156,7 +156,7 @@ G4_DECLARE_PHYSCONSTR_FACTORY(G4EmStandardPhysics_MuBias);
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4EmStandardPhysics_MuBias::G4EmStandardPhysics_MuBias(G4int ver)
-  : G4VPhysicsConstructor("G4EmStandard_MuBias"), verbose(ver)
+  : G4VPhysicsConstructor("G4EmStandard_MuBias"), m_verbose(ver)
 {
   G4LossTableManager::Instance();
   SetPhysicsType(bElectromagnetic);
@@ -165,7 +165,7 @@ G4EmStandardPhysics_MuBias::G4EmStandardPhysics_MuBias(G4int ver)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4EmStandardPhysics_MuBias::G4EmStandardPhysics_MuBias(G4int ver, const G4String&)
-  : G4VPhysicsConstructor("G4EmStandard_MuBias"), verbose(ver)
+  : G4VPhysicsConstructor("G4EmStandard_MuBias"), m_verbose(ver)
 {
   G4LossTableManager::Instance();
   SetPhysicsType(bElectromagnetic);
@@ -213,17 +213,17 @@ void G4EmStandardPhysics_MuBias::ConstructProcess()
 {
   G4cout<<" This is G4EmStandardPhysics_MuBias::ConstructProcess being "<<
       "run within QGSP_BERT_MuBias"<<G4endl;
-  readFile(biases);
-  if(verbose > 1) {
+  readFile(m_biases);
+  if(m_verbose > 1) {
     G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
   }
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // muon & hadron bremsstrahlung and pair production
   G4BiasedMuBremsstrahlung* mub=new G4BiasedMuBremsstrahlung;
-  mub->SetBiasFactor(biases.bremsBias);
+  mub->SetBiasFactor(m_biases.bremsBias);
   G4BiasedMuPairProduction* mup=new G4BiasedMuPairProduction;
-  mup->SetBiasFactor(biases.pairBias);
+  mup->SetBiasFactor(m_biases.pairBias);
   G4hBremsstrahlung* pib = new G4hBremsstrahlung();
   G4hPairProduction* pip = new G4hPairProduction();
   G4hBremsstrahlung* kb = new G4hBremsstrahlung();
@@ -389,7 +389,7 @@ void G4EmStandardPhysics_MuBias::ConstructProcess()
     }
   }
   G4EmProcessOptions opt;
-  opt.SetVerbose(verbose);
+  opt.SetVerbose(m_verbose);
   //  opt.SetApplyCuts(true);
   opt.SetPolarAngleLimit(CLHEP::pi);
 
