@@ -9,7 +9,7 @@
 #include "PathResolver/PathResolver.h"
 #endif
 
-AccMap* AccMap::thePointer=0;
+AccMap* AccMap::s_thePointer=0;
 
 AccMap::AccMap()
 {
@@ -52,7 +52,7 @@ AccMap::AccMap()
 //       std::cout << " try to open map " << fileLocation << std::endl;
        CurrMap* cm = new CurrMap(fileLocation,xnorm);
        int code=10*ifold+iregion;
-       theMap[code]=cm;
+       m_theMap[code]=cm;
 
 // add some rounding safety in edges of map
        m_xmin[ifold]=cm->GetXmin()+0.1;
@@ -75,7 +75,7 @@ AccMap::AccMap()
 //       std::cout << " try to open map " << fileLocation << std::endl;
        CurrMap* cm = new CurrMap(fileLocation,xnorm);
        int code=10*(20+istr)+iregion;
-       theMap[code]=cm;
+       m_theMap[code]=cm;
     }
   }
 
@@ -83,16 +83,16 @@ AccMap::AccMap()
 
 AccMap* AccMap::GetAccMap()
 {
-  if (thePointer==0) thePointer=new AccMap();
-  return thePointer;
+  if (s_thePointer==0) s_thePointer=new AccMap();
+  return s_thePointer;
 }
 
 void AccMap::Reset()
 {
-  curr_map::iterator it = theMap.begin();
-  while (it != theMap.end()) {
+  curr_map::iterator it = m_theMap.begin();
+  while (it != m_theMap.end()) {
     delete (*it).second;
-    theMap.erase(it++);
+    m_theMap.erase(it++);
   }
 }
 
@@ -115,8 +115,8 @@ void AccMap::SetMap(int ifold, int ielecregion)
  m_elecregion=ielecregion;
  int code=10*ifold+ielecregion;
 // std::cout << " code is " << code << std::endl;
- if (theMap.find(code) != theMap.end())
-     m_curr = theMap[code];
+ if (m_theMap.find(code) != m_theMap.end())
+     m_curr = m_theMap[code];
  else {
      std::cout << " Code " << code << " not found in map ..." << std::endl;
      m_curr=0;

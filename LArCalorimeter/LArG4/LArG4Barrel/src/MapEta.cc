@@ -16,7 +16,7 @@
 
 MapEta::MapEta(int isampling)
 {
- directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
+ m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
  m_nx=0;
  m_ny=0;
  m_init=0;
@@ -38,7 +38,7 @@ MapEta::~MapEta()
 
 void MapEta::SetDirectory(std::string dir)
 {
- directory=dir;
+ m_directory=dir;
 }
 
 void MapEta::Initialize(int isampling)
@@ -54,7 +54,7 @@ void MapEta::Initialize(int isampling)
   std::string fileLocation;
 #ifdef LARG4_STAND_ALONE
   // The stand-alone program expects to find the file via AFS.
-  fileLocation = directory + "/" + filename;
+  fileLocation = m_directory + "/" + filename;
 #else
   // In Athena, the PathResolver tool will find the file for us.
   std::cout << "filename " << filename << std::endl;

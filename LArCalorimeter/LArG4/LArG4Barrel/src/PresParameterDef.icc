@@ -15,111 +15,111 @@
 // default units : mm , deg.
 
 //  contraction factor 
-    cmm = (1-0.0026)*CLHEP::mm; 
+    m_cmm = (1-0.0026)*CLHEP::mm; 
 
 // Electrodes
 
-  smallLength = 275.6;
-  bigLength = 277.5;
-  anode_th = 0.330;
-  cathode_th = 0.270;
-  larheight = 13.;
+  m_smallLength = 275.6;
+  m_bigLength = 277.5;
+  m_anode_th = 0.330;
+  m_cathode_th = 0.270;
+  m_larheight = 13.;
  
  // modules para [Length,NAnodes,NCathodes,elec. inclinaison,Pitch,Pos0]
 
  // mod[#module#][ 0:length, 1:Number of Anodes, 2:number of cathodes, 
  // 3:Tilt of cells, 4:Pitch, 5:Position of the first cathode ]   
   
-  mod[0][0] = 286.4; 
-  mod[0][1] = 56;    
-  mod[0][2] = 56;
-  mod[0][3] = -25.;
-  mod[0][4] = 4.987;
-  mod[0][5] = 4.2;  
+  m_mod[0][0] = 286.4; 
+  m_mod[0][1] = 56;    
+  m_mod[0][2] = 56;
+  m_mod[0][3] = -25.;
+  m_mod[0][4] = 4.987;
+  m_mod[0][5] = 4.2;  
  
-  mod[1][0] = 295.74;  
-  mod[1][1] = 64;
-  mod[1][2] = 64;
-  mod[1][3] = -12.;
-  mod[1][4] = 4.621;
-  mod[1][5] = 0.3;
+  m_mod[1][0] = 295.74;  
+  m_mod[1][1] = 64;
+  m_mod[1][2] = 64;
+  m_mod[1][3] = -12.;
+  m_mod[1][4] = 4.621;
+  m_mod[1][5] = 0.3;
  
-  mod[2][0] = 321.1;
-  mod[2][1] = 72;
-  mod[2][2] = 72;
-  mod[2][3] = 0;
-  mod[2][4] = 4.46;
-  mod[2][5] = 0.9;
+  m_mod[2][0] = 321.1;
+  m_mod[2][1] = 72;
+  m_mod[2][2] = 72;
+  m_mod[2][3] = 0;
+  m_mod[2][4] = 4.46;
+  m_mod[2][5] = 0.9;
  
-  mod[3][0] = 356.8;
-  mod[3][1] = 80;
-  mod[3][2] = 80;
-  mod[3][3] = 0;
-  mod[3][4] = 4.46;
-  mod[3][5] = 0.9; 
+  m_mod[3][0] = 356.8;
+  m_mod[3][1] = 80;
+  m_mod[3][2] = 80;
+  m_mod[3][3] = 0;
+  m_mod[3][4] = 4.46;
+  m_mod[3][5] = 0.9; 
  
-  mod[4][0] = 404.8;
-  mod[4][1] = 88;
-  mod[4][2] = 88;
-  mod[4][3] = 0;
-  mod[4][4] = 4.6;
-  mod[4][5] = 0.9;
+  m_mod[4][0] = 404.8;
+  m_mod[4][1] = 88;
+  m_mod[4][2] = 88;
+  m_mod[4][3] = 0;
+  m_mod[4][4] = 4.6;
+  m_mod[4][5] = 0.9;
  
-  mod[5][0] = 478.4;
-  mod[5][1] = 104;
-  mod[5][2] = 104;
-  mod[5][3] = 0;
-  mod[5][4] = 4.6;
-  mod[5][5] = 0.95;
+  m_mod[5][0] = 478.4;
+  m_mod[5][1] = 104;
+  m_mod[5][2] = 104;
+  m_mod[5][3] = 0;
+  m_mod[5][4] = 4.6;
+  m_mod[5][5] = 0.95;
  
-  mod[6][0] = 563.2;
-  mod[6][1] = 128;
-  mod[6][2] = 128;
-  mod[6][3] = 0;
-  mod[6][4] = 4.4;
-  mod[6][5] = 1.05;
+  m_mod[6][0] = 563.2;
+  m_mod[6][1] = 128;
+  m_mod[6][2] = 128;
+  m_mod[6][3] = 0;
+  m_mod[6][4] = 4.4;
+  m_mod[6][5] = 1.05;
  
-  mod[7][0] = 380.6;
-  mod[7][1] = 86;
-  mod[7][2] = 87;
-  mod[7][3] = 0;
-  mod[7][4] = 4.4;
-  mod[7][5] = 0.95;
+  m_mod[7][0] = 380.6;
+  m_mod[7][1] = 86;
+  m_mod[7][2] = 87;
+  m_mod[7][3] = 0;
+  m_mod[7][4] = 4.4;
+  m_mod[7][5] = 0.95;
  
 // Prep., MB, .....
 
-  prep1_th = 1.;                 // bottom prepreg layer 
-  prep2_th = 4.5;               // top prepreg layer  
-  shell_th = 0.4;              // Protection Shell Thickness
-  mech_clear = 0.5;           // Bottom Mechanical clearence
-  prot_th = 0.5;             // Top protection Shell Thickness
-  rail_th = 8.6;            // Support bar Thickness
-  rail_pos = 22.;          // Lateral position from the edge
-  rail_width = 24.;       // Support bar width
+  m_prep1_th = 1.;                 // bottom prepreg layer 
+  m_prep2_th = 4.5;               // top prepreg layer  
+  m_shell_th = 0.4;              // Protection Shell Thickness
+  m_mech_clear = 0.5;           // Bottom Mechanical clearence
+  m_prot_th = 0.5;             // Top protection Shell Thickness
+  m_rail_th = 8.6;            // Support bar Thickness
+  m_rail_pos = 22.;          // Lateral position from the edge
+  m_rail_width = 24.;       // Support bar width
   
-  mb_th = 2.2;          // Mother Board Thickness
-  mb_width = 169.;     // Mother Board Width
-  mb_length = 3100.3; // Mother Board Length
+  m_mb_th = 2.2;          // Mother Board Thickness
+  m_mb_width = 169.;     // Mother Board Width
+  m_mb_length = 3100.3; // Mother Board Length
   
   // connectics
   
-    widthFront = 2.8;  // width at eta = 0. , width at etamax = MB_width 
-    heightIn = 1.5 ;  // Height at eta = 0.
-    heightOut = 5. ; // Height at etamax
+    m_widthFront = 2.8;  // width at eta = 0. , width at etamax = MB_width 
+    m_heightIn = 1.5 ;  // Height at eta = 0.
+    m_heightOut = 5. ; // Height at etamax
     
 // Presampler Mother Volume parameters
      
-    rMinPresamplerMother = 1385*CLHEP::mm;
-    rMaxPresamplerMother = 1447*CLHEP::mm - 0.001*CLHEP::mm;   // GU safety
+    m_rMinPresamplerMother = 1385*CLHEP::mm;
+    m_rMaxPresamplerMother = 1447*CLHEP::mm - 0.001*CLHEP::mm;   // GU safety
 // GU change length to avoid going outside mother volume
 //    PresamplerMother_length = 1582.5*CLHEP::mm;     
 //    PresamplerMother_length = 1550.0*CLHEP::mm;      
 // GU 5-Oct-2005,  reduce by 1mm to avoid clash
-    PresamplerMother_length = 1549.0*CLHEP::mm;      
-    nsectors = 32;  // number of sectors / half barrel 
-    nbsectors = 32;  // number of sectors to put in simulation
+    m_PresamplerMother_length = 1549.0*CLHEP::mm;      
+    m_nsectors = 32;  // number of sectors / half barrel 
+    m_nbsectors = 32;  // number of sectors to put in simulation
 
 // GU add phi min and phi span of overall volume
 
-    Phi_min = 0.*CLHEP::deg; 
-    Phi_span = 360.*CLHEP::deg;
+    m_Phi_min = 0.*CLHEP::deg; 
+    m_Phi_span = 360.*CLHEP::deg;

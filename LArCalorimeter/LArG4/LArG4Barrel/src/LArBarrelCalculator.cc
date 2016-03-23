@@ -114,15 +114,15 @@ LArBarrelCalculator::LArBarrelCalculator()
 
 // Main Barrel parameters
 // All the UNITS are implicitly the GEANT4 ONES e.g. mm, rad, etc ...
-  s_etaMaxBarrel = m_parameters->GetValue("LArEMBMaxEtaAcceptance");
-  s_zMinBarrel = m_parameters->GetValue("LArEMBfiducialMothZmin");
-  s_zMaxBarrel = m_parameters->GetValue("LArEMBfiducialMothZmax");
-  s_NCellMax   = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
-  s_rMinAccordion  =  m_parameters->GetValue("LArEMBRadiusInnerAccordion");
-  s_rMaxAccordion  = m_parameters->GetValue("LArEMBFiducialRmax"); 
+  m_etaMaxBarrel = m_parameters->GetValue("LArEMBMaxEtaAcceptance");
+  m_zMinBarrel = m_parameters->GetValue("LArEMBfiducialMothZmin");
+  m_zMaxBarrel = m_parameters->GetValue("LArEMBfiducialMothZmax");
+  m_NCellMax   = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  m_rMinAccordion  =  m_parameters->GetValue("LArEMBRadiusInnerAccordion");
+  m_rMaxAccordion  = m_parameters->GetValue("LArEMBFiducialRmax"); 
 
 // absorbers and electrodes thickness
-  s_ThickAbs = 0.5*( m_parameters->GetValue("LArEMBThickAbsGlue")
+  m_ThickAbs = 0.5*( m_parameters->GetValue("LArEMBThickAbsGlue")
                     +m_parameters->GetValue("LArEMBThickAbsIron")
                     +m_parameters->GetValue("LArEMBThickAbsLead"));
 
@@ -130,19 +130,19 @@ LArBarrelCalculator::LArBarrelCalculator()
                         +m_parameters->GetValue("LArEMBThinAbsIron")
                         +m_parameters->GetValue("LArEMBThinAbsLead"));
 
-  if (fabs(check-s_ThickAbs)>0.001) {
+  if (fabs(check-m_ThickAbs)>0.001) {
     std::cout << " LArBarrelCalculator: WARNING  THin and Thick Abs have difference thickness !" << std::endl;
   }
 
-  s_ThickEle= 0.5*( m_parameters->GetValue("LArEMBThickElecCopper")
+  m_ThickEle= 0.5*( m_parameters->GetValue("LArEMBThickElecCopper")
                    +m_parameters->GetValue("LArEMBThickElecKapton"));
 
 // === GU 11/06/2003   total number of cells in phi
 // to distinguish 1 module (testbeam case) from full Atlas
   m_testbeam=false;
-  s_NCellTot = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
-  if (s_NCellTot != 1024) {
-   s_NCellMax=1024;
+  m_NCellTot = (int) (m_parameters->GetValue("LArEMBnoOFPhysPhiCell"));
+  if (m_NCellTot != 1024) {
+   m_NCellMax=1024;
    m_testbeam=true;
   }
 // ===
@@ -165,15 +165,15 @@ LArBarrelCalculator::LArBarrelCalculator()
 // Initialize HV values
    InitHV();
 
-   std::cout << " LArBarrelCalculator: s_NCellMax       " << s_NCellMax << std::endl;
-   std::cout << " LArBarrelCalculator: s_NCellTot       " << s_NCellTot << std::endl;
-   std::cout << " LArBarrelCalculator: s_rMinAccordion  " << s_rMinAccordion << std::endl;
-   std::cout << " LArBarrelCalculator: s_rMaxAccordion  " << s_rMaxAccordion << std::endl;
-   std::cout << " LArBarrelCalculator: s_zMinBarrel     " << s_zMinBarrel << std::endl;
-   std::cout << " LArBarrelCalculator: s_zMaxBarrel     " << s_zMaxBarrel << std::endl;
-   std::cout << " LArBarrelCalculator: s_etaMaxBarrel   " << s_etaMaxBarrel << std::endl;
-   std::cout << " LArBarrelCalculator: s_ThickAbs       " << s_ThickAbs << std::endl;
-   std::cout << " LArBarrelCalculator: s_ThickEle       " << s_ThickEle << std::endl;
+   std::cout << " LArBarrelCalculator: m_NCellMax       " << m_NCellMax << std::endl;
+   std::cout << " LArBarrelCalculator: m_NCellTot       " << m_NCellTot << std::endl;
+   std::cout << " LArBarrelCalculator: m_rMinAccordion  " << m_rMinAccordion << std::endl;
+   std::cout << " LArBarrelCalculator: m_rMaxAccordion  " << m_rMaxAccordion << std::endl;
+   std::cout << " LArBarrelCalculator: m_zMinBarrel     " << m_zMinBarrel << std::endl;
+   std::cout << " LArBarrelCalculator: m_zMaxBarrel     " << m_zMaxBarrel << std::endl;
+   std::cout << " LArBarrelCalculator: m_etaMaxBarrel   " << m_etaMaxBarrel << std::endl;
+   std::cout << " LArBarrelCalculator: m_ThickAbs       " << m_ThickAbs << std::endl;
+   std::cout << " LArBarrelCalculator: m_ThickEle       " << m_ThickEle << std::endl;
    if(m_IflCur) std::cout <<" LArBarrelCalculator: Deposited Energy  dE/dX  Corrected ==> CURRENT Option ON"<<std::endl;
    else  std::cout << " LArBarrelCalculator: Crude Deposited Energy  dE/dX  NO CURRENT option"<< std::endl;
    if (m_IflCur && m_IflMapTrans) std::cout<<" LArBarrelCalculator: Compute effect of E field around eta=0.8 " << std::endl;
@@ -358,8 +358,8 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
     std::cout << "    local coordinates " << m_geometry->x0() << " " << m_geometry->y0() << std::endl;
 #endif
 
-    if (std::fabs(m_geometry->distElec())< s_ThickEle ||
-        std::fabs(m_geometry->distAbs()) < s_ThickAbs) {
+    if (std::fabs(m_geometry->distElec())< m_ThickEle ||
+        std::fabs(m_geometry->distAbs()) < m_ThickAbs) {
 #ifdef DEBUGSTEP
       std::cout << "   hit in absorber or electrode radius:" << radloc << std::endl;
 #endif
@@ -462,7 +462,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
 //  get current for elementary charge
        m_accmap->Map()->GetAll(xmap,ymap,&gap,&current0,&current1,&current2);
        G4double gap2=std::fabs(m_geometry->distElec())+std::fabs(m_geometry->distAbs())
-                    -s_ThickEle-s_ThickAbs;
+                    -m_ThickEle-m_ThickAbs;
 
 // in which HV cell are we ?
        int ipm,ielec,ieta,iside;
@@ -675,11 +675,11 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
 
 G4bool LArBarrelCalculator::FiducialCuts(G4double radloc,G4double zloc,G4double etaloc)
 {
-  if (radloc < s_rMinAccordion ||
-      radloc > s_rMaxAccordion ||
-      etaloc > s_etaMaxBarrel ||
-      zloc   < s_zMinBarrel ||
-      zloc   > s_zMaxBarrel)      return false;
+  if (radloc < m_rMinAccordion ||
+      radloc > m_rMaxAccordion ||
+      etaloc > m_etaMaxBarrel ||
+      zloc   < m_zMinBarrel ||
+      zloc   > m_zMaxBarrel)      return false;
    else                           return true;
 }
 

@@ -22,8 +22,8 @@ public:
 	const G4VPhysicalVolume* GetPhysicalVolume(int);
 	void SetPhysicalVolumeList(std::string);
 private:
-	G4LogicalVolume* theLogicalVolume;
-	PVMap thePhysicalVolumes;
+	G4LogicalVolume* m_theLogicalVolume;
+	PVMap m_thePhysicalVolumes;
 	G4LogicalVolume *GetLV(std::string);
 };
 
