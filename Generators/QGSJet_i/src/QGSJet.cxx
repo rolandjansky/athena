@@ -296,6 +296,14 @@ StatusCode QGSJet::genFinalize()
   
   xsigtot *= 1000000;         // [mb] to [nb] conversion
   cout << "MetaData: cross-section (nb) = " << xsigtot << endl;
+  xsigine *= 1000000;        //[mb] to [nb] conversion
+  cout << "MetaData: cross-section inelastic (cut + projectile diffraction)[nb] = " << xsigine << endl;
+     xsigela *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section elastic (includes target diffraction)[nb] = " << xsigela << endl;
+  xsigdd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section dd (nb) = " << xsigdd << endl;
+  xsigsd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section sd (nb) = " << xsigsd << endl;
 
   //  m_qgsjetEventInfo.close();
 
@@ -303,7 +311,7 @@ StatusCode QGSJet::genFinalize()
 }
 
 // ---------------------------------------------------------------------- 
-StatusCode QGSJet::fillEvt( GenEvent* evt ) 
+StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt ) 
 {
   //  ATH_MSG_INFO( " QGSJet Filling.\n" );
 
