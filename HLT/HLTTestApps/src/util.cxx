@@ -184,6 +184,14 @@ namespace
     std::vector<uint32_t> original_l1_info_TAV(buffer+2*number_of_words_tav, buffer+src_event.nlvl1_trigger_info());
 
     // get the l1 trigger info from the RoIB result (remade if L1 is rerun)
+
+    // use only the RoIB object in the transient store, do not try to remake it from persistent store and
+    // avoid any data collector call 
+    if ( !StoreGate::instance().transientContains<ROIB::RoIBResult>("RoIBResult") ) {
+      return ret; // if there is no RoIB object in SG there is nothing to do and rerunLVL1 can not be checked
+    }
+
+    // a transient object is available
     const DataHandle<ROIB::RoIBResult> dobj;
     StoreGate::instance().retrieve(dobj,"RoIBResult");
     if (!dobj.isValid()) { 
