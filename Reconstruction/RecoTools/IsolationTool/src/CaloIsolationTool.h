@@ -236,6 +236,21 @@ namespace xAOD {
       /** Property: Use cached caloExtension if avaliable. */
       bool m_useCaloExtensionCaching;
 
+      /** Property: Name of the central topocluster energy-density container. */
+      std::string m_tpEDCentral;
+     
+      /** Property: Name of the forward topocluster energy-density container. */
+      std::string m_tpEDForward;
+     
+      /** Property: Name of the central neutral energy flow energy-density container. */
+      std::string m_efEDCentral;
+     
+      /** Property: Name of the forward neutral energy flow energy-density container. */
+      std::string m_efEDForward;
+     
+      /** Property: The size of the coneCore core energy calculation. */
+      double m_coneCoreSize;
+
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
 

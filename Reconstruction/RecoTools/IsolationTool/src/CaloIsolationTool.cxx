@@ -71,6 +71,15 @@ namespace xAOD {
     declareProperty("EMCaloNums",  m_EMCaloNums,  "list of EM calo to treat");
     declareProperty("HadCaloNums", m_HadCaloNums, "list of Had calo to treat");
 
+    // Event shape containers
+    declareProperty("TopoClusterEDCentralContainer", m_tpEDCentral = "TopoClusterIsoCentralEventShape", "Name of TopoCluster ED Central");
+    declareProperty("TopoClusterEDForwardContainer", m_tpEDForward = "TopoClusterIsoForwardEventShape", "Name of TopoCluster ED Forward");
+    declareProperty("EFlowEDCentralContainer", m_efEDCentral = "NeutralParticleFlowIsoCentralEventShape", "Name of energy flow ED Central");
+    declareProperty("EFlowEDForwardContainer", m_efEDForward = "NeutralParticleFlowIsoForwardEventShape", "Name of energy flow ED Forward");
+
+    /// core correction cone size
+    declareProperty("coneCoreSize", m_coneCoreSize=0.1, "size of the coneCore core energy correction");
+
     // Choose whether TileGap3 cells are excluded 
     declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
     declareProperty("UseCaloExtensionCaching", m_useCaloExtensionCaching = true, "Use cached caloExtension if avaliable.");
@@ -540,7 +549,8 @@ namespace xAOD {
     }
 
     /// add coreCone if asked -- make sure it's the last one! or a better
-    const double coreConeDR = 0.1;
+//     const double coreConeDR = 0.1;
+    const double coreConeDR = m_coneCoreSize;
     bool doCoreCone = (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)));
     if(doCoreCone && maxConeSize<coreConeDR) maxConeSize = coreConeDR;
 
@@ -1164,14 +1174,10 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
   {
     // assume two densities for the time being
+    std::string esName = (fabs(eta) < 1.5) ? m_tpEDCentral : m_tpEDForward;
+    if(type == "PFlow") esName = (fabs(eta) < 1.5) ? m_efEDCentral : m_efEDForward;
+
     const EventShape* edShape;
-    std::string esName = (fabs(eta) < 1.5) ? "TopoClusterIsoCentralEventShape" : "TopoClusterIsoForwardEventShape";
-    if (type == "PFlow") {
-      if (fabs(eta) < 1.5) 
-	esName = "NeutralParticleFlowIsoCentralEventShape";
-      else
-	esName = "NeutralParticleFlowIsoForwardEventShape";
-    }
     if (evtStore()->retrieve(edShape,esName).isFailure()) {
       ATH_MSG_WARNING("Cannot retrieve density container " << esName << " for isolation correction. No ED correction");
       return false;
