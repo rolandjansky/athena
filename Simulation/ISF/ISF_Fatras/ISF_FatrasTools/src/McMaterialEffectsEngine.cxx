@@ -258,7 +258,7 @@ void iFatras::McMaterialEffectsEngine::multipleScatteringUpdate(const Trk::Track
     // the initial values
     double theta =  parameters[Trk::theta];
     double phi   =  parameters[Trk::phi];
-    double sinTheta   = (theta*theta > 10e-10) ? sin(theta) : 1.; 
+    double sinTheta   = (sin(theta)*sin(theta) > 10e-10) ? sin(theta) : 1.; 
     
     // sample them in an independent way
     double deltaTheta = m_projectionFactor*simTheta;
@@ -464,7 +464,10 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   const Trk::TrackParameters* parm = eCell.leadParameters;
     
   // path correction
-  double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum())));
+  double pathCorrection = m_layer->surfaceRepresentation().normal().dot(parm->momentum()) !=0 ?
+    fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum()))) : 1.;
+
+  if (!pathCorrection) return Trk::ExtrapolationCode::InProgress;
   
   // figure out if particle stopped in the layer and recalculate path limit
   int iStatus = 0;
@@ -504,7 +507,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   double E    = sqrt(p*p+m*m);
   
   // radiation and ionization preceed the presampled interaction (if any) 
-  
+
   if (m_eLoss || m_ms) {
     // the updatedParameters - first a deep copy
     AmgVector(5)      uParameters = parm->parameters();
@@ -537,6 +540,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	uParameters[Trk::qOverP] = parm->charge()/newP;
 	
       }
+
+      EX_MSG_VERBOSE(eCell.navigationStep, "eloss", "char", "E,deltaE:" <<E<<","<< eloss->deltaE() );
       
       // TODO straggling 
       
@@ -739,7 +744,10 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   const Trk::NeutralParameters* parm = eCell.leadParameters;
     
   // path correction
-  double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum())));
+  double pathCorrection = m_layer->surfaceRepresentation().normal().dot(parm->momentum()) !=0 ?
+    fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum()))) : 1.;
+
+  if (!pathCorrection) return Trk::ExtrapolationCode::InProgress;
   
   // figure out if particle stopped in the layer and recalculate path limit
   int iStatus = 0;
@@ -966,6 +974,7 @@ void iFatras::McMaterialEffectsEngine::radiate(const ISF::ISFParticle* parent, A
       recordBremPhotonLay(parent,eCell.time,p,deltaP,ePos,eDir,eCell.pHypothesis,dir,mFr);
       p *=z ;
 
+      EX_MSG_VERBOSE("", "radiate", "", "brem photon emitted " << deltaP<<":updated e momentum:"<< p   );
       // std::cout <<"brem photon emitted, momentum update:"<< p<<","<<path<<","<<pathLim<<",mat.fraction:"<<mFr<<std::endl; 
     }    
   }

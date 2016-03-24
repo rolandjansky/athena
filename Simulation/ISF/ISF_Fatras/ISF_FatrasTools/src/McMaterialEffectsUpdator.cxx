@@ -431,7 +431,8 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
   // recalculate if missing
   m_matProp = m_matProp ? m_matProp : m_layer->fullUpdateMaterialProperties(*parm);
-  double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),parm->momentum())); 
+  double pathCorrection = m_layer->surfaceRepresentation().normal().dot(parm->momentum()) !=0 ?
+    fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum()))) : 1.;
     
   // check if a bending correction has to be applied
   if (m_bendingCorrection) {
@@ -1558,7 +1559,9 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
 
     // decide if photon leaves the layer
     // amount of material to traverse      
-    double  pathCorrection = m_layer->surfaceRepresentation().pathCorrection(bremPhoton->position(),bremPhoton->momentum());
+    double pathCorrection = m_layer->surfaceRepresentation().normal().dot(bremPhoton->momentum()) !=0 ?
+      fabs(m_layer->surfaceRepresentation().pathCorrection(bremPhoton->position(),bremPhoton->momentum())) : 1.;
+
     double mTot = m_matProp->thicknessInX0()*pathCorrection*(1.-remMat); 
 
     if (mTot < pLim.x0Max) {  // release 
