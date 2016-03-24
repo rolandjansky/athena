@@ -64,8 +64,8 @@ MdtCalibDbAsciiTool::MdtCalibDbAsciiTool (const std::string& type,
     m_t0Spread(0),
     m_rtShift(0),
     m_log(0),
-    m_debug(false),
-    m_verbose(false)
+    m_debug(true),
+    m_verbose(true)
 {
 
   declareInterface< IMdtCalibDBTool >(this) ;
@@ -120,8 +120,8 @@ StatusCode MdtCalibDbAsciiTool::updateAddress(StoreID::type /*storeID*/, SG::Tra
 
 StatusCode MdtCalibDbAsciiTool::initialize() { 
   m_log = new MsgStream(msgSvc(), name());
-  m_debug = m_log->level() <= MSG::DEBUG;
-  m_verbose = m_log->level() <= MSG::VERBOSE;
+  m_debug = true;
+  m_verbose = true;
   if( m_debug ) *m_log << MSG::DEBUG << "Initializing " << endreq;
  
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
@@ -217,11 +217,9 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
 
 
 StatusCode MdtCalibDbAsciiTool::finalize() {
-  if(m_tubeData)
-    delete m_tubeData;
-  if(m_rtData)
-    delete m_rtData;
-  if(m_log!=NULL) delete m_log;
+  if(m_log!=NULL) {
+    delete m_log; m_log=0;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -242,8 +240,8 @@ StatusCode MdtCalibDbAsciiTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 
 StatusCode MdtCalibDbAsciiTool::defaultT0s() {
   // create collection
-  if (m_tubeData) {
-    delete m_tubeData;
+  if(m_tubeData) {
+    delete m_tubeData; m_tubeData=0;
   }
   m_tubeData = new MdtTubeCalibContainerCollection();
   m_tubeData->resize( m_mdtIdHelper->module_hash_max() );
@@ -355,7 +353,7 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s() {
       if( m_verbose ) *m_log << MSG::VERBOSE << " adding tubes at " << hash << " current size " << m_tubeData->size() << endreq;
     }else{
       *m_log << MSG::WARNING << " HashId out of range " << hash << " max " << m_tubeData->size() << endreq;
-    delete tubes;
+    delete tubes; tubes=0;
     }
    
   }
@@ -445,7 +443,7 @@ StatusCode MdtCalibDbAsciiTool::defaultRt() {
 
   // create collection 
   if(m_rtData) {
-    delete m_rtData;
+    delete m_rtData; m_rtData=0;
   }
   m_rtData = new MdtRtRelationCollection(); 
   m_rtData->resize(m_regionSvc->numberOfRtRegions());
@@ -474,7 +472,7 @@ StatusCode MdtCalibDbAsciiTool::defaultRt() {
 
       if( regionId >= m_rtData->size() ){
 	*m_log << MSG::WARNING << " regionHash out of range: " << regionId << " max " << m_rtData->size() << endreq;
-	delete rt;
+	delete rt; rt=0;
 	continue;
       }
       
@@ -559,7 +557,7 @@ StatusCode MdtCalibDbAsciiTool::defaultRt() {
 	  if( m_verbose ) *m_log<<MSG::VERBOSE << "  " << j << " " << t << "  " << rtRel->radius(t) << " " << resoRel->resolution(t) << endreq;
 	}
       }
-      delete rt;
+      delete rt; rt=0;
     
     }
   }
@@ -597,7 +595,7 @@ bool MdtCalibDbAsciiTool :: interpret_chamber_name(const std::string &nm, const 
   station=std::string(cutout, 0, uscore_pos);
 //get eta and phi
   std::string cutout2(cutout, uscore_pos+1);
-  if(sscanf(cutout2.c_str(), "%d_%d", &phi, &eta)!=2) return false;
+  if(sscanf(cutout2.c_str(), "%80d_%80d", &phi, &eta)!=2) return false;
   return true;	
 }
 
