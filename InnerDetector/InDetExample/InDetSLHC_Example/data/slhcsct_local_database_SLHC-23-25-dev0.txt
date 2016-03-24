@@ -120,7 +120,7 @@ SSctBrlLayer#0:RADIUS 405
 //TILT ANGLE IN PHI (degrees)
 SSctBrlLayer#0:TILT 10  //-- May switch from +10 to -10 for Lorentz angle of electron charge instead of hole charge.  Set carrier type to -1 for electron later.  Requires Mig9.
 //MEASUREMENT TYPE (STEREO SIGN)
-SSctBrlLayer#0:STEREOSIGN -1  //-- Nick will follow up.  Why does this alternate?
+SSctBrlLayer#0:STEREOSIGN -1  //-- Not used.
 //Ladder type (index in SctBrlLadder table)  //--- "normal" vs. stub-type layer; check for stub
 SSctBrlLayer#0:LADDERTYPE 1
 // Stave layout. 0 is module based. 1 is stave based
@@ -162,9 +162,9 @@ SSctBrlLayer#1:LADDERTYPE 1
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#1:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
-SSctBrlLayer#1:STEREOINNER 20
+SSctBrlLayer#1:STEREOINNER -20
 // Stereo of outer side (mrad). Only used if STAVELAYOUT is 1
-SSctBrlLayer#1:STEREOOUTER -20
+SSctBrlLayer#1:STEREOOUTER 20
 //NUMBER OF MODULES IN PHI [?]
 SSctBrlLayer#1:SKISPERLAYER 40
 
@@ -230,9 +230,9 @@ SSctBrlLayer#3:LADDERTYPE 0
 // Stave layout. 0 is module based. 1 is stave based
 SSctBrlLayer#3:STAVELAYOUT 1
 // Stereo of inner side (mrad). Only used if STAVELAYOUT is 1
-SSctBrlLayer#3:STEREOINNER 20
+SSctBrlLayer#3:STEREOINNER -20
 // Stereo of outer side (mrad). Only used if STAVELAYOUT is 1
-SSctBrlLayer#3:STEREOOUTER -20
+SSctBrlLayer#3:STEREOOUTER 20
 //NUMBER OF MODULES IN PHI
 SSctBrlLayer#3:SKISPERLAYER 72
 

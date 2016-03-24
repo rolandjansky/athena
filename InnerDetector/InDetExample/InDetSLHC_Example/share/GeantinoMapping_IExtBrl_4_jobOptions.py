@@ -4,12 +4,11 @@
 #		This job option runs the G4 simulation
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
-#
-# This job options requires Tracking/TrkG4Components/TrkG4UserActions-01-00-03.
+# 
+# written by Noemi Calace
+# This job options has been tested in rel 20.20  with Tracking/TrkG4Components/TrkG4UserActions-02-00-01
 # Modified version of Tracking/TrkG4Components/TrkG4UserActions/share/GeantinoMapping_jobOptions.py
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/UpgradeSimulationInnerTrackerMigrationRel20p3p3#Submission_of_jobs
-#
-__version__="$Revision: 621824 $"
+# adapted to IExtBrl4.0 layout
 #==============================================================
 
 #--- Algorithm sequence ---------------------------------------
@@ -42,7 +41,8 @@ if 'myRandomSeed2' not in dir() :
     myRandomSeed2 = int(random.uniform(0,time.time()))
 
 if 'myMaxEvent' not in dir() :
-    myMaxEvent = 1000
+    myMaxEvent = 20000
+#    myMaxEvent = 1000
 
 if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
@@ -79,7 +79,7 @@ SimFlags.SimLayout = myGeo
 SimFlags.EventFilter.set_Off()
 
 myMinEta = -6.0
-myMaxEta =  6.0
+myMaxEta = 6.0
 
 myPDG    = 999 # 999 = Geantinos, 13 = Muons
 

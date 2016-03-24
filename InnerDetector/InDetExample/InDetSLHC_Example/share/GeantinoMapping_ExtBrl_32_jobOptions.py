@@ -8,7 +8,7 @@
 # written by Noemi Calace
 # This job options has been tested in rel 20.20  with Tracking/TrkG4Components/TrkG4UserActions-02-00-01
 # Modified version of Tracking/TrkG4Components/TrkG4UserActions/share/GeantinoMapping_jobOptions.py
-# adapted to ExtBrl4.0 layout
+# adapted to ExtBrl3.2 layout
 #==============================================================
 
 #--- Algorithm sequence ---------------------------------------
@@ -48,7 +48,7 @@ if 'myPt' not in dir() :
     myPt = 'pt'  # values are 'p' or 'pt'
 
 if 'myGeo' not in dir() :
-    myGeo = 'ATLAS-P2-ITK-06-00-00_VALIDATION'
+    myGeo = 'ATLAS-P2-ITK-05-00-00_VALIDATION'
 
 print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' ', myRandomSeed2, ' offset - ', myRandomOffset
 
@@ -59,7 +59,7 @@ DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
-include("InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_4.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup_ExtBrl_32.py")
 
 # the global flags
 globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
@@ -142,6 +142,6 @@ MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_4.py")
+include("InDetSLHC_Example/postInclude.SLHC_Setup_ExtBrl_32.py")
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
 
