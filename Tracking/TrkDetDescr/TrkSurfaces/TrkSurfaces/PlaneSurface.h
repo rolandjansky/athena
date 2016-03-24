@@ -30,6 +30,7 @@ namespace Trk {
   class TrkDetElementBase;
   class RectangleBounds;
   class TriangleBounds;
+  class AnnulusBounds;
   class TrapezoidBounds;
   class RotatedTrapezoidBounds;
   class DiamondBounds;
@@ -91,6 +92,9 @@ namespace Trk {
       /** Constructor for Planes with provided TriangleBounds - ownership of bounds is passed*/
       PlaneSurface(Amg::Transform3D* htrans, TriangleBounds* rbounds);
       
+      /** Constructor for Planes with provided AnnulusBounds - ownership of bounds is passed*/
+      PlaneSurface(Amg::Transform3D* htrans, AnnulusBounds* rbounds);   
+   
       /** Constructor for Planes with provided TrapezoidBounds - ownership of bounds is passed*/
       PlaneSurface(Amg::Transform3D* htrans, TrapezoidBounds* rbounds);
       

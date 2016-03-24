@@ -10,6 +10,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TriangleBounds.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
@@ -97,6 +98,12 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double halephi, double
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double minhalephi, double maxhalephi, double haleta) :
   Trk::Surface(htrans),
   m_bounds(new Trk::TrapezoidBounds(minhalephi, maxhalephi, haleta))
+{}
+
+// construct annulus module with parameters
+Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* tbounds) :
+  Trk::Surface(htrans),
+  m_bounds(tbounds)
 {}
 
 // construct rectangle surface by giving RectangleBounds
