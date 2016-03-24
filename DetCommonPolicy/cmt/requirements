@@ -175,6 +175,9 @@ make_fragment install_header_files_header
 # in AtlasPolicy. If we don't do that, the one from LCG_Policy is used in most cases (depening on the order
 # of use statements in packages outside DetCommon)
 make_fragment install_includes_header
+# Need all headers for ROOT 6, see ATR-13684
+make_fragment install_root_include_path -header=install_root_include_path_header
+make_fragment install_root_include_path_header
 
 
 # install patterns for header files
@@ -186,7 +189,14 @@ pattern detcommon_header_installer ; \
     end_private ; \
     include_dirs ${<package>_include_dirs} ; \
     document install_header_files install_header_files ; \
-    include_path none
+    include_path none \
+    macro <package>_root_include_path "$(<package>_cmtpath)/$(<project>_installarea_prefix)/root-include-path" \
+        <project>_without_installarea "$(<PACKAGE>ROOT)" ; \
+    private ; \
+    macro <package>_root_include_path "$(<PACKAGE>ROOT)" ; \
+    end_private ; \
+    document install_root_include_path install_root_include_path ; \
+    document install_includes install_includes
 
 # ---------------------------------------------------------
 # the following is an exact copy from ExternalPolicy...
@@ -250,3 +260,6 @@ tag UnixStatic WithStatic
 macro library_fragment "library" WithStatic ""
 make_fragment $(library_fragment)
 make_fragment application
+
+macro_prepend cppflags " -D_GLIBCXX_USE_CXX11_ABI=0 "
+macro_prepend genreflex_options " -D_GLIBCXX_USE_CXX11_ABI=0 "
