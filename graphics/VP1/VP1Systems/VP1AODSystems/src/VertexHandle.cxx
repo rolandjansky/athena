@@ -26,6 +26,7 @@
 
 #include "VP1Utils/SurfaceToSoNode.h"
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <Inventor/nodes/SoSeparator.h>

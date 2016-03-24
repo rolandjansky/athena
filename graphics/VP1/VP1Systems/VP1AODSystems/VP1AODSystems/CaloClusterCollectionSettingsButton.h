@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef VP1AODSYSTEMS_JETCOLLSETTINGSBUTTON_H
-#define VP1AODSYSTEMS_JETCOLLSETTINGSBUTTON_H
+#ifndef VP1AODSYSTEMS_CALOCLUSTERCOLLSETTINGSBUTTON_H
+#define VP1AODSYSTEMS_CALOCLUSTERCOLLSETTINGSBUTTON_H
 
 #include "VP1Base/VP1CollectionSettingsButtonBase.h"
 #include "VP1AODSystems/AODSystemController.h"

@@ -21,6 +21,7 @@
 #include "VP1Utils/SoTools.h"
 
 //SoCoin
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
@@ -199,6 +200,14 @@ SoNode* IParticleHandle_Jet::nodes(){
 				d->m_jet->origin()->position().z());
 	}
 	 */
+  
+  const xAOD::Vertex * vtx; 
+  bool exists = d->m_jet->getAssociatedObject(xAOD::JetAttribute::OriginVertex, vtx);
+
+  if( exists && vtx ) {
+    origin.setValue(vtx->position().x(),vtx->position().y(),vtx->position().z());
+  }
+  
 
 	VP1Msg::messageVerbose("creating the shapes");
 

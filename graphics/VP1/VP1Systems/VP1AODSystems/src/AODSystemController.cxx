@@ -11,6 +11,7 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#include <Inventor/C/errors/debugerror.h>
 // FIXME! Remove!
 #define protected public
 #include <Inventor/nodes/SoSelection.h>

@@ -20,6 +20,7 @@
 #include "VP1Base/VP1Msg.h"
 
 //SoCoin
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>

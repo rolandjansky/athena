@@ -34,6 +34,7 @@
 
 
 // Coin3D
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoMaterial.h>
