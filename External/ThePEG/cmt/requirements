@@ -12,7 +12,7 @@ macro my_LCG_config_version "67c"
 #end_private
 #macro ThePEG_home "$(LCG_external)/MCGenerators/thepeg"
 macro ThePEG_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(my_LCG_config_version)/thepeg"
-macro ThePEG_version "2.0.0"
+macro ThePEG_version "2.0.1"
 # NOTE "a" added to the native version to ensure correct pcache build - to be removed by version update
 macro ThePEG_native_version "$(ThePEG_version)a_lcgcmt$(my_LCG_config_version)"
 macro ThePEG_system "$(LCG_ext_system)"
