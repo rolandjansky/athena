@@ -87,9 +87,9 @@ typedef std::map<int, unsigned int, std::less<int> > planeIndMap;
 
 LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(bool fullGeo):
   //  cryoEnvelopePhysical(NULL),
-  _fcalVisLimit(-1),
-  pAccessSvc(NULL),
-  geoModelSvc(NULL),
+  m_fcalVisLimit(-1),
+  m_pAccessSvc(NULL),
+  m_geoModelSvc(NULL),
   m_fullGeo(fullGeo)
 {
 
@@ -97,12 +97,12 @@ LArGeo::EndcapCryostatConstruction::EndcapCryostatConstruction(bool fullGeo):
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
   StatusCode sc;
-  sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
+  sc=svcLocator->service("RDBAccessSvc",m_pAccessSvc);
   if (sc != StatusCode::SUCCESS) {
     throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
   }
 
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
+  sc = svcLocator->service ("GeoModelSvc",m_geoModelSvc);
   if (sc != StatusCode::SUCCESS) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
@@ -175,19 +175,25 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   GeoMaterial *Polystyrene  = materialManager->getMaterial("std::Polystyrene");
   if (!Polystyrene) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Polystyrene is not found.");
 
+  GeoMaterial *Silicon  = materialManager->getMaterial("std::Silicon");
+  if (!Silicon) throw std::runtime_error("Error in EndcapCryostatConstruction, std::Silicon is not found.");
+
+  GeoMaterial *pixCable  = materialManager->getMaterial("pix::Cable");
+  if (!pixCable) throw std::runtime_error("Error in EndcapCryostatConstruction, pix::Cable is not found.");
+
   //                                                                                                 //
   //-------------------------------------------------------------------------------------------------//
 
-  std::string AtlasVersion = geoModelSvc->atlasVersion();
-  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
+  std::string AtlasVersion = m_geoModelSvc->atlasVersion();
+  std::string LArVersion = m_geoModelSvc->LAr_VersionOverride();
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-  IRDBRecordset_ptr cryoCylinders =  pAccessSvc->getRecordsetPtr("CryoCylinders",detectorKey, detectorNode);
-  IRDBRecordset_ptr larPosition  =  pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
+  IRDBRecordset_ptr cryoCylinders =  m_pAccessSvc->getRecordsetPtr("CryoCylinders",detectorKey, detectorNode);
+  IRDBRecordset_ptr larPosition  =  m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
   if (larPosition->size()==0 ) {
-    larPosition = pAccessSvc->getRecordsetPtr("LArPosition", "LArPosition-00");
+    larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition", "LArPosition-00");
     if (larPosition->size()==0 ) {
       throw std::runtime_error("Error, no lar position table in database!");
     }
@@ -196,11 +202,11 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 
 
-  if(cryoCylinders->size()==0) cryoCylinders = pAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
+  if(cryoCylinders->size()==0) cryoCylinders = m_pAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
 
   // Deal with Pcons
-  IRDBRecordset_ptr cryoPcons = pAccessSvc->getRecordsetPtr("CryoPcons",detectorKey, detectorNode);
-  if(cryoPcons->size()==0) cryoPcons = pAccessSvc->getRecordsetPtr("CryoPcons","CryoPcons-00");
+  IRDBRecordset_ptr cryoPcons = m_pAccessSvc->getRecordsetPtr("CryoPcons",detectorKey, detectorNode);
+  if(cryoPcons->size()==0) cryoPcons = m_pAccessSvc->getRecordsetPtr("CryoPcons","CryoPcons-00");
 
   planeIndMap cryoMotherPlanes, emhPlanes, fcalNosePlanes;
   std::vector<planeIndMap> brassPlugPlanesVect;
@@ -280,7 +286,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
   //  Extra cylinders
 
-  IRDBRecordset_ptr cryoExtraCyl = pAccessSvc->getRecordsetPtr("LArCones",detectorKey, detectorNode);
+  IRDBRecordset_ptr cryoExtraCyl = m_pAccessSvc->getRecordsetPtr("LArCones",detectorKey, detectorNode);
 
   if(m_fullGeo && cryoCylinders->size()>0){
     unsigned int nextra=cryoExtraCyl->size();
@@ -634,7 +640,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 
   // 13-Mar-2002 WGS: Place the FCAL detector inside the cryostat.
-  m_fcal->setFCALVisLimit(_fcalVisLimit);
+  m_fcal->setFCALVisLimit(m_fcalVisLimit);
   m_fcal->setFullGeo(m_fullGeo);
   {
     
@@ -681,7 +687,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   }
 
   //_________________________ Mini FCAL ___________________________________________________
-  if(pAccessSvc->getChildTag("MiniFcal",detectorKey, detectorNode)!="") {
+  if(m_pAccessSvc->getChildTag("MiniFcal",detectorKey, detectorNode)!="") {
     MiniFcalConstruction minifcal(bPos);
     GeoFullPhysVol* miniFcalEnvelope = minifcal.GetEnvelope();
     if(miniFcalEnvelope) {
@@ -691,13 +697,13 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
   }
 
   //__________________________ MBTS+moderator+JM tube _____________________________________
-  if(pAccessSvc->getChildTag("MBTS",detectorKey, detectorNode)!="") {
+  if(m_pAccessSvc->getChildTag("MBTS",detectorKey, detectorNode)!="") {
     // DB related stuff first
-    IRDBRecordset_ptr mbtsTubs   = pAccessSvc->getRecordsetPtr("MBTSTubs", detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsScin   = pAccessSvc->getRecordsetPtr("MBTSScin", detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsPcons  = pAccessSvc->getRecordsetPtr("MBTSPcons",detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsGen    = pAccessSvc->getRecordsetPtr("MBTSGen",  detectorKey, detectorNode);
-    IRDBRecordset_ptr mbtsTrds   = pAccessSvc->getRecordsetPtr("MBTSTrds", detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsTubs   = m_pAccessSvc->getRecordsetPtr("MBTSTubs", detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsScin   = m_pAccessSvc->getRecordsetPtr("MBTSScin", detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsPcons  = m_pAccessSvc->getRecordsetPtr("MBTSPcons",detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsGen    = m_pAccessSvc->getRecordsetPtr("MBTSGen",  detectorKey, detectorNode);
+    IRDBRecordset_ptr mbtsTrds   = m_pAccessSvc->getRecordsetPtr("MBTSTrds", detectorKey, detectorNode);
     
     double zposMM = 0.;
     std::map<std::string,unsigned> trdMap;  // Used in the new description only
@@ -997,7 +1003,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 	log << MSG::ERROR << "Unable to initialize TileTBID" << endreq;
       else {
 	// This recordset is need for calculating global Z positions of scintillators
-	IRDBRecordset_ptr larPosition = pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
+	IRDBRecordset_ptr larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
 	const IRDBRecord *posRec = GeoDBUtils::getTransformRecord(larPosition, "LARCRYO_EC_POS");
 	if(!posRec) throw std::runtime_error("Error, no lar position record in the database") ;
 	HepGeom::Transform3D xfPos = GeoDBUtils::getTransform(posRec);
@@ -1077,6 +1083,574 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
       } // TileTB Initialize
     } // if(bPos)
   }
+
+  //__________________________ HGTD+moderator+JM tube _____________________________________
+  std::string hgtdTag = m_pAccessSvc->getChildTag("HGTD",detectorKey, detectorNode);
+
+  // the new geometry
+  bool hgtdTiming    = (hgtdTag.find("Timing") != std::string::npos);
+  bool hgtdPreshower = (hgtdTag.find("Preshower") != std::string::npos);
+  if ( hgtdTiming || hgtdPreshower ) {
+    IRDBRecordset_ptr hgtdTubs   = m_pAccessSvc->getRecordsetPtr("HGTDTubs", detectorKey, detectorNode);
+    if(m_fullGeo) {    
+      double hgtdToleranceSmall = 0.0;
+      // get the info from the DB
+      IRDBRecordset::const_iterator first = hgtdTubs->begin();
+      IRDBRecordset::const_iterator last = hgtdTubs->end();
+      IRDBRecordset::const_iterator it;
+      // fill the names and the info
+      std::vector <std::string> hgtdName;
+      std::vector <double> hgtdRmin;
+      std::vector <double> hgtdRmax;
+      std::vector <double> hgtdDeltaZ;
+      std::vector <double> hgtdDeltaY;
+      std::vector <std::string> hgtdMaterial;
+      
+      // special treatment for mother since we need its position
+      double zposMM = 0.;
+
+      int iMother            = -1;
+      int iAbsorber          = -1;
+      int iInsulation        = -1;	
+      int iCooling           = -1;	
+      int iSensor            = -1;
+      int iGlue              = -1;
+      int iPCB               = -1;	
+      int iElectronics	     = -1;
+      int iHVKapton	     = -1;
+      int iMecTolElectronics = -1;
+      int imecTolCooling     = -1;
+      int iColdTubeCoat      = -1;
+      int iColdTube          = -1;
+      int iSupportStruct     = -1;
+      for(it=first; it!=last; it++) {
+	hgtdName.push_back((*it)->getString("TUBE"));
+	hgtdRmin.push_back((*it)->getDouble("RMIN"));
+	hgtdRmax.push_back((*it)->getDouble("RMAX"));
+	hgtdDeltaZ.push_back((*it)->getDouble("DZ"));
+	hgtdDeltaY.push_back((*it)->getDouble("DELTAY"));
+	hgtdMaterial.push_back((*it)->getString("MATERIAL"));
+	
+	std::string theName = hgtdName[hgtdName.size()-1];
+	if ( theName == "HGTD_mother" ) {
+	  zposMM = (*it)->getDouble("ZPOS");
+	  iMother = it - first;
+	}
+	else if ( theName == "Insulation" ) 
+	  iInsulation = it - first;	
+	else if ( theName == "Cooling" ) 
+	  iCooling           = it - first;	
+	else if ( theName == "Sensor" ) 
+	  iSensor            = it - first;
+	else if ( theName == "Glue" ) 
+	  iGlue              = it - first;
+	else if ( theName == "PCB" ) 
+	  iPCB               = it - first;	
+	else if ( theName == "Electronics" ) 
+	  iElectronics	     = it - first;
+	else if ( theName == "HVKapton" ) 
+	  iHVKapton	     = it - first;
+	else if ( theName == "MecTolElectronics" ) 
+	  iMecTolElectronics = it - first;
+	else if ( theName == "mecTolCooling" ) 
+	  imecTolCooling     = it - first;
+	else if ( theName == "ColdTubeCoat" ) 
+	  iColdTubeCoat      = it - first;
+	else if ( theName == "ColdTube" ) 
+	  iColdTube          = it - first;
+	else if ( theName == "SupportStruct" ) 
+	  iSupportStruct     = it - first;
+	else if ( theName == "Absorber" ) 
+	  iAbsorber  = it - first;
+      }
+      if(iMother       == -1 || iInsulation  == -1 || iCooling       == -1 || iSensor            == -1 || iGlue          == -1 || 
+	 iPCB          == -1 || iElectronics == -1 || iHVKapton      == -1 || iMecTolElectronics == -1 || imecTolCooling == -1 ||
+	 iColdTubeCoat == -1 || iColdTube    == -1 || iSupportStruct == -1)
+	throw std::runtime_error("Error in EndcapCryostatConstruction: unable to get all HGTD parameters from the database!");
+      if( hgtdPreshower && iAbsorber == -1 )
+	throw std::runtime_error("Error in EndcapCryostatConstruction: unable to get HGTD Absorber parameters from the database for the requested preshower!");
+      // now we have all values of the requested geometry
+      log << MSG::DEBUG << "HGTD mother volume at index " << iMother << endreq;
+      log << MSG::DEBUG << "HGTD volume i, name, rmin, rmax, DeltaZ, DeltaY and material " << endreq; 
+      for ( unsigned int i=0; i< hgtdName.size(); i++){
+	log << MSG::DEBUG << i << " " 
+	    << hgtdName[i] << " " 
+	    << hgtdRmin[i] << " " 
+	    << hgtdRmax[i] << " " 
+	    << hgtdDeltaZ[i] << " " 
+	    << hgtdDeltaY[i] << " " 
+	    << hgtdMaterial[i] << endreq; 
+      }
+      log << MSG::DEBUG << "z position of the mother " << zposMM << endreq; 
+      //
+      //HGTD Mother volume
+      //
+      GeoTube     *world_solid_hgtd    = new GeoTube(hgtdRmin[iMother],hgtdRmax[iMother],hgtdDeltaZ[iMother]);
+      GeoMaterial *material_world_hgtd = materialManager->getMaterial(hgtdMaterial[iMother]);
+      GeoLogVol   *world_logical_hgtd  = new GeoLogVol(hgtdName[iMother],world_solid_hgtd,material_world_hgtd);
+      GeoPhysVol  *world_physical_hgtd = new GeoPhysVol(world_logical_hgtd);
+      cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM)));
+      cryoMotherPhysical->add(world_physical_hgtd);
+      
+      std::vector<std::string> hgtdVolName;
+      std::vector<unsigned int> hgtdVolMap;
+      // construct the detectors from the back to the front
+      hgtdVolName.push_back("SupportStructHgtd1");     hgtdVolMap.push_back(iSupportStruct);
+      hgtdVolName.push_back("CoolingHgtd4");           hgtdVolMap.push_back(iCooling);
+      hgtdVolName.push_back("mecTolElectronicsHgtd3"); hgtdVolMap.push_back(iMecTolElectronics);
+      hgtdVolName.push_back("ElectronicsHgtd3");       hgtdVolMap.push_back(iElectronics);
+      hgtdVolName.push_back("PCBHgtd3");               hgtdVolMap.push_back(iPCB);
+      hgtdVolName.push_back("GlueHgtd3");              hgtdVolMap.push_back(iGlue);
+      hgtdVolName.push_back("HGTDSiSensor3");          hgtdVolMap.push_back(iSensor);
+      hgtdVolName.push_back("HVKaptonHgtd3");          hgtdVolMap.push_back(iHVKapton);
+      hgtdVolName.push_back("mecTolCoolingHgtd3");     hgtdVolMap.push_back(imecTolCooling);
+      hgtdVolName.push_back("CoolingHgtd3");           hgtdVolMap.push_back(iCooling);
+      if ( hgtdPreshower ) {
+	hgtdVolName.push_back("AbsorberHgtd2");          hgtdVolMap.push_back(iAbsorber);
+      }      
+      hgtdVolName.push_back("mecTolElectronicsHgtd2"); hgtdVolMap.push_back(iMecTolElectronics);
+      hgtdVolName.push_back("ElectronicsHgtd2");       hgtdVolMap.push_back(iElectronics);
+      hgtdVolName.push_back("PCBHgtd2");               hgtdVolMap.push_back(iPCB);
+      hgtdVolName.push_back("GlueHgtd2");              hgtdVolMap.push_back(iGlue);
+      hgtdVolName.push_back("HGTDSiSensor2");          hgtdVolMap.push_back(iSensor);
+      hgtdVolName.push_back("HVKaptonHgtd2");          hgtdVolMap.push_back(iHVKapton);
+      hgtdVolName.push_back("mecTolCoolingHgtd2");     hgtdVolMap.push_back(imecTolCooling);
+      hgtdVolName.push_back("CoolingHgtd2");           hgtdVolMap.push_back(iCooling);
+      if ( hgtdPreshower ) {
+	hgtdVolName.push_back("AbsorberHgtd1");          hgtdVolMap.push_back(iAbsorber);
+      }
+      hgtdVolName.push_back("mecTolElectronicsHgtd1"); hgtdVolMap.push_back(iMecTolElectronics);
+      hgtdVolName.push_back("ElectronicsHgtd1");       hgtdVolMap.push_back(iElectronics);
+      hgtdVolName.push_back("PCBHgtd1");               hgtdVolMap.push_back(iPCB);
+      hgtdVolName.push_back("GlueHgtd1");              hgtdVolMap.push_back(iGlue);
+      hgtdVolName.push_back("HGTDSiSensor1");          hgtdVolMap.push_back(iSensor);
+      hgtdVolName.push_back("HVKaptonHgtd1");          hgtdVolMap.push_back(iHVKapton);
+      hgtdVolName.push_back("mecTolCoolingHgtd1");     hgtdVolMap.push_back(imecTolCooling);
+      hgtdVolName.push_back("CoolingHgtd1");           hgtdVolMap.push_back(iCooling);
+      if ( hgtdPreshower ) {
+	hgtdVolName.push_back("AbsorberHgtd0");          hgtdVolMap.push_back(iAbsorber);
+      }
+      hgtdVolName.push_back("mecTolElectronicsHgtd0"); hgtdVolMap.push_back(iMecTolElectronics);
+      hgtdVolName.push_back("ElectronicsHgtd0");       hgtdVolMap.push_back(iElectronics);
+      hgtdVolName.push_back("PCBHgtd0");               hgtdVolMap.push_back(iPCB);
+      hgtdVolName.push_back("GlueHgtd0");              hgtdVolMap.push_back(iGlue);
+      hgtdVolName.push_back("HGTDSiSensor0");          hgtdVolMap.push_back(iSensor);
+      hgtdVolName.push_back("HVKaptonHgtd0");          hgtdVolMap.push_back(iHVKapton);
+      hgtdVolName.push_back("mecTolCoolingHgtd0");     hgtdVolMap.push_back(imecTolCooling);
+      hgtdVolName.push_back("CoolingHgtd0");           hgtdVolMap.push_back(iCooling);
+      hgtdVolName.push_back("SupportStructHgtd0");     hgtdVolMap.push_back(iSupportStruct);
+      hgtdVolName.push_back("InsulationHgtd0");        hgtdVolMap.push_back(iInsulation);
+      //
+      std::vector<GeoTube *> hgtdSolidVol;
+      std::vector<GeoLogVol *>   hgtdLogVol;
+      std::vector<GeoPhysVol *>  hgtdPhysVol;
+      std::vector<double>        hgtdLocalZPos;
+      std::vector<GeoMaterial *> hgtdGeoMaterial;
+      // build the volumes in the requested order
+      unsigned int index, indexCoolingVolume;
+      for(unsigned int ii = 0;ii<hgtdVolName.size();ii++) {
+	index     = hgtdVolMap[ii];
+	// get the material
+	hgtdGeoMaterial.push_back( materialManager->getMaterial(hgtdMaterial[index]) );
+	//Definition of all local z coordinates
+	if (ii== 0 ) 
+	  hgtdLocalZPos.push_back(hgtdDeltaZ[iMother] - hgtdDeltaZ[index] - hgtdToleranceSmall);
+	else
+	  hgtdLocalZPos.push_back(hgtdLocalZPos[ii-1] - hgtdDeltaZ[ hgtdVolMap[ii-1] ] - hgtdDeltaZ[index] - hgtdToleranceSmall);
+	//Definition of all solid related to HGTD
+	hgtdSolidVol.push_back( new GeoTube(hgtdRmin[index],hgtdRmax[index],hgtdDeltaZ[index]) );
+	//Definition of all logical volumes related to HGTD
+	hgtdLogVol.push_back( new GeoLogVol(hgtdVolName[ii],hgtdSolidVol[ii],hgtdGeoMaterial[ii]) );
+	//Definition of all physical volumes related to HGTD
+	hgtdPhysVol.push_back( new GeoPhysVol(hgtdLogVol[ii]) );
+	world_physical_hgtd->add(new GeoTransform(HepGeom::TranslateZ3D(hgtdLocalZPos[ii])));
+	world_physical_hgtd->add(hgtdPhysVol[ii]);
+	log << MSG::DEBUG 
+	    << "HGTD built volume " << std::setw(24) << hgtdMaterial[index] 
+	    << " at position " << std::setw(8) <<  hgtdLocalZPos[ii] 
+	    << " with Rmin " << std::setw(8) <<  hgtdRmin[index] 
+	    << " Rmax " << std::setw(8) <<  hgtdRmax[index] 
+	    << " DeltaZ " << std::setw(8) << hgtdDeltaZ[index] 
+	    << endreq;
+      }
+      log << MSG::DEBUG
+	  << "HGTD Mother DeltaZ " << std::setw(24) << hgtdDeltaZ[iMother] 
+	  << endreq;
+
+      //Build up the cooling system of HGTD
+      
+      // how many of the volumes to fill and at which index?
+      std::vector <unsigned int> cooling_hgtd_collection;
+      unsigned int nCoolingTubes = 0;
+      for (unsigned int i=0; i<hgtdVolMap.size(); i++ ) {
+	if ( (int) hgtdVolMap[i] == iCooling ) {
+	  nCoolingTubes += 1;
+	  cooling_hgtd_collection.push_back(i);
+	}
+      }
+      if ( nCoolingTubes <= 0 ) {
+	throw std::runtime_error("Error in EndcapCryostatConstruction: unable to get HGTD number of cooling tubes!");
+      }
+      log << MSG::DEBUG << "HGTD number of cooling volumes: " << nCoolingTubes << endreq; 
+
+      // count the number of cold tubes
+      // the first tube is at y=DeltaY/2
+      unsigned int nColdTubes = ((int) (hgtdRmax[iColdTube] - hgtdDeltaY[iColdTube]/2.)/hgtdDeltaY[iColdTube] + 1);
+      // now count the number of the tubes cut in half:
+      unsigned int nColdTubesHalf = ((int) (hgtdRmin[iColdTube] - hgtdDeltaY[iColdTube]/2.)/hgtdDeltaY[iColdTube] + 1);
+
+      log << MSG::DEBUG << "HGTD number of cold tubes " << nColdTubes << endreq;
+      log << MSG::DEBUG << "HGTD number of cold tubes halfs " << nColdTubesHalf << endreq;
+
+      // now the material
+      GeoMaterial *material_ColdTubeCoat_hgtd = materialManager->getMaterial(hgtdMaterial[iColdTubeCoat]);
+      GeoMaterial *material_ColdTube_hgtd     = materialManager->getMaterial(hgtdMaterial[iColdTube]);      
+
+      // position of the cold and coat tubes
+      double ycoord0 = hgtdDeltaY[iColdTubeCoat]/2.0;
+      std::vector<double> xcoord;
+      std::vector<double> ycoord;
+
+      std::vector <double> hgtdColdTubeCoatL;
+      std::vector <double> hgtdColdTubeL;
+
+      std::vector <std::string> hgtdColdTubeCoatName;
+      std::vector <std::string> hgtdColdTubeName;
+
+      double xOfTube, yOfTube, lengthMin, lengthMax, lengthOfTube;
+      // here we fill the calculations (positions, lengths) and names 
+      for(unsigned int ii = 0; ii<nColdTubes; ii++){
+	 
+	yOfTube = ycoord0 + hgtdDeltaY[iColdTubeCoat]*ii;
+	ycoord.push_back(yOfTube);
+	ycoord.push_back(-yOfTube);
+
+	if (ii < nColdTubesHalf ) {
+
+	  ycoord.push_back(yOfTube);
+	  ycoord.push_back(-yOfTube);
+
+	  lengthMax = (sqrt(hgtdRmax[iCooling]*hgtdRmax[iCooling] - (yOfTube+hgtdDeltaZ[iColdTubeCoat])*(yOfTube+hgtdDeltaZ[iColdTubeCoat])));
+	  lengthMin = (sqrt(hgtdRmin[iCooling]*hgtdRmin[iCooling] - (yOfTube-hgtdDeltaZ[iColdTubeCoat])*(yOfTube-hgtdDeltaZ[iColdTubeCoat])));
+
+	  xOfTube = lengthMin + (lengthMax - lengthMin)/2.0;
+	  xcoord.push_back(xOfTube);
+	  xcoord.push_back(xOfTube);
+	  xcoord.push_back(-xOfTube);
+	  xcoord.push_back(-xOfTube);
+
+	  lengthOfTube = lengthMax - lengthMin;
+	  hgtdColdTubeCoatL.push_back(lengthOfTube);
+	  hgtdColdTubeCoatL.push_back(lengthOfTube);
+	  hgtdColdTubeCoatL.push_back(lengthOfTube);
+	  hgtdColdTubeCoatL.push_back(lengthOfTube);
+
+	  hgtdColdTubeL.push_back(lengthOfTube);
+	  hgtdColdTubeL.push_back(lengthOfTube);
+	  hgtdColdTubeL.push_back(lengthOfTube);
+	  hgtdColdTubeL.push_back(lengthOfTube);
+
+	  hgtdColdTubeCoatName.push_back( hgtdName[iColdTubeCoat]+"UpR"+std::to_string(ii) );
+	  hgtdColdTubeCoatName.push_back( hgtdName[iColdTubeCoat]+"DownR"+std::to_string(ii) );
+	  hgtdColdTubeCoatName.push_back( hgtdName[iColdTubeCoat]+"UpL"+std::to_string(ii) );
+	  hgtdColdTubeCoatName.push_back( hgtdName[iColdTubeCoat]+"DownL"+std::to_string(ii) );
+	  
+	  hgtdColdTubeName.push_back( hgtdName[iColdTube]+"UpR"+std::to_string(ii) );
+	  hgtdColdTubeName.push_back( hgtdName[iColdTube]+"DownR"+std::to_string(ii) );
+	  hgtdColdTubeName.push_back( hgtdName[iColdTube]+"UpL"+ std::to_string(ii) );
+	  hgtdColdTubeName.push_back( hgtdName[iColdTube]+"DownL"+std::to_string(ii) );
+	  
+	}
+	else {
+	  xOfTube = 0.;
+	  xcoord.push_back(xOfTube);
+	  xcoord.push_back(xOfTube);
+
+	  lengthOfTube = 2*(sqrt(hgtdRmax[iCooling]*hgtdRmax[iCooling]-(yOfTube+hgtdDeltaZ[iColdTubeCoat])*(yOfTube+hgtdDeltaZ[iColdTubeCoat])));
+	  hgtdColdTubeCoatL.push_back(lengthOfTube);
+	  hgtdColdTubeCoatL.push_back(lengthOfTube);
+
+	  hgtdColdTubeL.push_back(lengthOfTube);
+	  hgtdColdTubeL.push_back(lengthOfTube);
+
+	  hgtdColdTubeCoatName.push_back( hgtdName[iColdTubeCoat]+"Up"+std::to_string(ii) );
+	  hgtdColdTubeCoatName.push_back( hgtdName[iColdTubeCoat]+"Down"+std::to_string(ii) );
+
+	  hgtdColdTubeName.push_back( hgtdName[iColdTube]+"Up"+std::to_string(ii) );
+	  hgtdColdTubeName.push_back( hgtdName[iColdTube]+"Down"+std::to_string(ii) );
+
+	}
+
+      }//  for(ii = 0;ii<nColdTubes;ii++){
+
+      log << MSG::DEBUG 
+	  << " index hgtdColdTubeCoatName hgtdColdTubeName xcoordinate ycoordinate LengthOfTube LengthOfCoat " << endreq;
+      for (unsigned int i=0; i < hgtdColdTubeName.size(); i++){
+	log << MSG::DEBUG 
+	    << "   " << i                       
+	    << "   " << hgtdColdTubeCoatName[i] 
+	    << "   " << hgtdColdTubeName[i]     
+	    << "   " << xcoord[i]               
+	    << "   " << ycoord[i]               
+	    << "   " << hgtdColdTubeL[i]        
+	    << "   " << hgtdColdTubeCoatL[i] 
+	    << endreq;
+      }
+
+      // the volumes
+      std::vector<GeoTube *>    hgtdColdTubeCoatSolidVol;
+      std::vector<GeoTube *>    hgtdColdTubeSolidVol;
+      std::vector<GeoLogVol *>  hgtdColdTubeCoatLogVol;
+      std::vector<GeoLogVol *>  hgtdColdTubeLogVol;
+      std::vector<GeoPhysVol *> hgtdColdTubeCoatPhysVol;
+      std::vector<GeoPhysVol *> hgtdColdTubePhysVol;
+
+      // now we install the volumes 
+      for(unsigned int ii = 0;ii < hgtdColdTubeName.size(); ii++){
+
+	hgtdColdTubeCoatSolidVol.push_back( new GeoTube(0.0,hgtdDeltaZ[iColdTubeCoat],hgtdColdTubeCoatL[ii]/2.0) );
+	hgtdColdTubeSolidVol.push_back(    new GeoTube(0.0,hgtdDeltaZ[iColdTube],hgtdColdTubeL[ii]/2.0) );
+	
+	// fill into all Cooling units
+	for(unsigned int jj = 0; jj < nCoolingTubes;jj++){
+	  // get the index for the cooling volume
+	  indexCoolingVolume = cooling_hgtd_collection[jj];
+	  // get the index of the last entry in the vectors
+	  index = hgtdColdTubeCoatLogVol.size();
+	  //Cold tube coating
+	  hgtdColdTubeCoatLogVol.push_back( new GeoLogVol(hgtdColdTubeCoatName[ii],hgtdColdTubeCoatSolidVol[ii],material_ColdTubeCoat_hgtd) );
+	  hgtdColdTubeCoatPhysVol.push_back( new GeoPhysVol(hgtdColdTubeCoatLogVol[index]) );
+	  // attach the coat to to the Cooling volume
+	  hgtdPhysVol[indexCoolingVolume]->add(new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotationY(M_PI/2), CLHEP::Hep3Vector(xcoord[ii],ycoord[ii],0.0))));
+	  hgtdPhysVol[indexCoolingVolume]->add(hgtdColdTubeCoatPhysVol[index]);
+	  //Cold tube
+	  hgtdColdTubeLogVol.push_back( new GeoLogVol(hgtdColdTubeName[ii],hgtdColdTubeSolidVol[ii],material_ColdTube_hgtd) );
+	  hgtdColdTubePhysVol.push_back( new GeoPhysVol(hgtdColdTubeLogVol[index]) );
+	  // attach the coat
+	  hgtdColdTubeCoatPhysVol[index]->add(new GeoTransform(HepGeom::TranslateZ3D(0.0)));
+	  hgtdColdTubeCoatPhysVol[index]->add(hgtdColdTubePhysVol[index]);
+
+	}//  for(jj = 0;jj<nCoolingL;jj++){
+      }//  for(ii = 0;ii<nColdTubes;ii++){
+      
+    } //end of fullgeo
+  }
+  // the simplified geometry
+  if( hgtdTag == "HGTD-01" || hgtdTag == "HGTD-02" ) {
+    // DB related stuff first
+    IRDBRecordset_ptr hgtdTubs   = m_pAccessSvc->getRecordsetPtr("HGTDTubs", detectorKey, detectorNode);
+
+    double zposMM = 0.;
+
+    // Build material geometry only if the FullGeo flag has been set
+    if(m_fullGeo) {
+      // Define iterators
+      IRDBRecordset::const_iterator itMother, itModerator, itTube=hgtdTubs->end(), itAbsorber=hgtdTubs->end(), itCooling, itSensor;
+      IRDBRecordset::const_iterator first = hgtdTubs->begin();
+      IRDBRecordset::const_iterator last = hgtdTubs->end();
+
+      // Mother volume
+      GeoPhysVol* pvMM = 0;    
+      
+      // ****
+      // In this description the Moderator and the JM tube are constructed as separate volumes (both of them are tubes)
+      // ****
+
+      for(; first!=last; first++) {
+	std::string strTubeName = (*first)->getString("TUBE");
+	
+	if(strTubeName == "HGTD_mother")
+	  itMother = first;
+	else if(strTubeName == "Moderator")
+	  itModerator = first;
+	else if(strTubeName == "JMTUBE")
+	  itTube = first;
+	else if(strTubeName == "Absorber")
+	  itAbsorber = first;
+	else if(strTubeName == "Cooling")
+	  itCooling = first;
+	else if(strTubeName == "Sensor")
+	  itSensor = first;
+      }
+      
+      // Build mother volume
+      double rminMM = (*itMother)->getDouble("RMIN")*CLHEP::mm; 
+      double rmaxMM = (*itMother)->getDouble("RMAX")*CLHEP::mm;
+      double dzMM = (*itMother)->getDouble("DZ")*CLHEP::mm;
+      zposMM = (*itMother)->getDouble("ZPOS")*CLHEP::mm;
+      
+      GeoMaterial *matMM  = materialManager->getMaterial((*itMother)->getString("MATERIAL"));
+      
+      GeoTube  *tubeMM = new GeoTube(rminMM,rmaxMM,dzMM);
+      
+      GeoTube *tubeJM=NULL;
+      const GeoShape *solidMM=NULL;
+      
+      // Add the absorber if found in the DD
+      bool IncludeWolfram=false;
+      double rminHGTDW = 0.;
+      double rmaxHGTDW = 0.;
+      double dzW = 0.;
+      GeoMaterial *matW(0);
+
+      if (itAbsorber!=hgtdTubs->end()){
+        rminHGTDW = (*itAbsorber)->getDouble("RMIN")*CLHEP::mm;
+        rmaxHGTDW = (*itAbsorber)->getDouble("RMAX")*CLHEP::mm;
+        dzW = (*itAbsorber)->getDouble("DZ")*CLHEP::mm;
+        matW  = materialManager->getMaterial((*itAbsorber)->getString("MATERIAL"));
+        IncludeWolfram=true;
+      }
+
+      // Read the Cooling and Sensor parameters
+      double rminDead = (*itCooling)->getDouble("RMIN")*CLHEP::mm; 
+      double rmaxDead = (*itCooling)->getDouble("RMAX")*CLHEP::mm;
+      double dzDead = (*itCooling)->getDouble("DZ")*CLHEP::mm;
+      GeoMaterial *matDead  = materialManager->getMaterial((*itCooling)->getString("MATERIAL"));
+      
+      double rminHGTD = (*itSensor)->getDouble("RMIN")*CLHEP::mm; 
+      double rmaxHGTD = (*itSensor)->getDouble("RMAX")*CLHEP::mm;
+      double dzSi = (*itSensor)->getDouble("DZ")*CLHEP::mm;
+      GeoMaterial *matSi  = materialManager->getMaterial((*itSensor)->getString("MATERIAL"));
+      
+      
+      if (itTube!=hgtdTubs->end()) {
+	double dzMod   = (*itTube)->getDouble("DZ")*CLHEP::mm;
+	double rMinMod = (*itTube)->getDouble("RMIN")*CLHEP::mm;
+	double rMaxMod = (*itTube)->getDouble("RMAX")*CLHEP::mm;
+	
+	// Segmentation of the GeoPcon into 2 volumes: HGTD and JM moderator
+	GeoPcon *pcon = new GeoPcon(0,2*M_PI);
+	
+	pcon->addPlane(-dzMM,rminHGTD,rmaxHGTD);
+	pcon->addPlane( dzMM,rminHGTD,rmaxHGTD);
+	
+	pcon->addPlane( dzMM,rMinMod,rMaxMod);
+	pcon->addPlane( dzMM+2*dzMod,rMinMod,rMaxMod);
+	
+	// tube for JM: moderator: rmax=179, rmin=130, dzMod=deltaZ/2. = 519 
+	tubeJM = new GeoTube(rMinMod,rMaxMod,dzMod);
+	solidMM=pcon;
+      }
+      
+      if (!solidMM){
+	solidMM = new GeoTube(rminMM,rmaxMM,dzMM); 
+      }
+      
+      GeoLogVol* lvMM = new GeoLogVol("HGTD_mother",solidMM,matMM);
+      pvMM = new GeoPhysVol(lvMM);
+      
+      // This transformation affects the position of the physical volume that follows
+      
+      cryoMotherPhysical->add(new GeoTransform(HepGeom::TranslateZ3D(zposMM)));
+      cryoMotherPhysical->add(pvMM);
+      
+      // Moderator cylinder
+      //double rminMod  = (*itModerator)->getDouble("RMIN")*CLHEP::mm; 
+      //double rmaxMod = (*itModerator)->getDouble("RMAX")*CLHEP::mm;
+      //double dzMod = (*itModerator)->getDouble("DZ")*CLHEP::mm;
+//      double zposMod = (*itModerator)->getDouble("ZPOS")*CLHEP::mm;
+      GeoMaterial *matMod  = materialManager->getMaterial((*itModerator)->getString("MATERIAL"));
+      
+      //GeoTube* solidMod = new GeoTube(rminMM,rmaxMM,dzMod);
+      //GeoLogVol* lvMod = new GeoLogVol("Moderator",solidMod, matMod);
+      //GeoPhysVol* pvMod = new GeoPhysVol(lvMod);
+      
+      //	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(zposMod)));
+      //	pvMM->add(pvMod);
+
+
+      GeoTube* solidSilicon = new GeoTube(rminHGTD,rmaxHGTD,dzSi);
+      GeoTube* solidDead = new GeoTube(rminDead,rmaxDead,dzDead);
+      
+      // First Silicon:
+      // dead material (cooling, support, etc)
+      GeoLogVol* lvDead1 = new GeoLogVol("HGTDdead1",solidDead, matDead);
+      GeoPhysVol* pvDead1 = new GeoPhysVol(lvDead1);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D( -(3*dzW+4*dzSi+3*dzDead))));
+      pvMM->add(pvDead1);      
+      // Active material
+      GeoLogVol* lvSilicon1 = new GeoLogVol("HGTDSiSensor0",solidSilicon, matSi);
+      GeoPhysVol* pvSilicon1 = new GeoPhysVol(lvSilicon1);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D( -(3*dzW+3*dzSi+2*dzDead))));
+      pvMM->add(pvSilicon1);      
+      
+      // Second Silicon:
+      // dead material (cooling, support, etc)
+      GeoLogVol* lvDead2 = new GeoLogVol("HGTDdead2",solidDead, matDead);
+      GeoPhysVol* pvDead2 = new GeoPhysVol(lvDead2);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D( -(dzW+2*dzSi+dzDead))));
+      pvMM->add(pvDead2);      
+      // Active material
+      GeoLogVol* lvSilicon2 = new GeoLogVol("HGTDSiSensor1",solidSilicon, matSi);
+      GeoPhysVol* pvSilicon2 = new GeoPhysVol(lvSilicon2);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D( -(dzW+dzSi))));
+      pvMM->add(pvSilicon2);      
+      
+      
+      // Third Silicon:
+      // dead material (cooling, support, etc)
+      GeoLogVol* lvDead3 = new GeoLogVol("HGTDdead3",solidDead, matDead);
+      GeoPhysVol* pvDead3 = new GeoPhysVol(lvDead3);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(dzW+dzDead)));
+      pvMM->add(pvDead3);      
+      // Active material
+      GeoLogVol* lvSilicon3 = new GeoLogVol("HGTDSiSensor2",solidSilicon, matSi);
+      GeoPhysVol* pvSilicon3 = new GeoPhysVol(lvSilicon3);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(dzW+2*dzDead+dzSi)));
+      pvMM->add(pvSilicon3);      
+      
+      // Forth Silicon:
+      // dead material (cooling, support, etc)
+      GeoLogVol* lvDead4 = new GeoLogVol("HGTDdead4",solidDead, matDead);
+      GeoPhysVol* pvDead4 = new GeoPhysVol(lvDead4);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(3*dzW+2*dzSi+3*dzDead)));
+      pvMM->add(pvDead4);      
+      // Active material
+      GeoLogVol* lvSilicon4 = new GeoLogVol("HGTDSiSensor3",solidSilicon, matSi);
+      GeoPhysVol* pvSilicon4 = new GeoPhysVol(lvSilicon4);
+      pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(3*dzW+4*dzDead+3*dzSi)));
+      pvMM->add(pvSilicon4);      
+      
+      
+      if(IncludeWolfram){
+	GeoTube* solidWolfram = new GeoTube(rminHGTDW,rmaxHGTDW,dzW);
+
+	// First Wolfram layer
+	GeoLogVol* lvWolfram1 = new GeoLogVol("Wolfram1",solidWolfram, matW);
+	GeoPhysVol* pvWolfram1 = new GeoPhysVol(lvWolfram1);
+	
+	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(-(2*dzW+2*dzSi+2*dzDead))));
+	pvMM->add(pvWolfram1);
+	
+	// Second Wolfram layer
+	GeoLogVol* lvWolfram2 = new GeoLogVol("Wolfram2",solidWolfram, matW);
+	GeoPhysVol* pvWolfram2 = new GeoPhysVol(lvWolfram2);
+	
+	// This one goes in the z center of the GeoPcon	 pvMM->add(new GeoTransform(HepGeom::TranslateZ3D()));
+	// 
+	pvMM->add(pvWolfram2);
+	
+	// Third Wolfram layer
+	GeoLogVol* lvWolfram3 = new GeoLogVol("Wolfram3",solidWolfram, matW);
+	GeoPhysVol* pvWolfram3 = new GeoPhysVol(lvWolfram3);
+	
+	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(2*dzW+2*dzSi+2*dzDead)));
+	pvMM->add(pvWolfram3);
+      }
+      
+      if (tubeJM) {
+	GeoLogVol* lvMod  = new GeoLogVol("ModeratorTube",tubeJM, matMod);
+	GeoPhysVol* pvMod = new GeoPhysVol(lvMod);
+	
+	pvMM->add(new GeoTransform(HepGeom::TranslateZ3D(tubeMM->getZHalfLength()+tubeJM->getZHalfLength())));
+	pvMM->add(pvMod);
+      }
+      tubeMM->ref();  tubeMM->unref();
+      
+    } // if(m_fullGeo)
+  } // if(pAccessSvc->getChildTag("HGTD",...
+
+
 
   // Build endcap electronics crates
   EndcapDMConstruction crateBuilder;
