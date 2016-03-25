@@ -14,8 +14,8 @@
 //
 //***************************************************************************************************
 
-#ifndef TILESIMALGS_TILEFITTER_H
-#define TILESIMALGS_TILEFITTER_H
+#ifndef TILERECUTILS_TILEFITTER_H
+#define TILERECUTILS_TILEFITTER_H
 
 #include "TileRecUtils/TileFilterResult.h"
 
@@ -24,9 +24,9 @@
 #include <CLHEP/Matrix/SymMatrix.h>
 #include <vector>
 
-using namespace CLHEP;
+//using namespace CLHEP;
 
-class StoreGateSvc;
+//class StoreGateSvc;
 
 class TileFitter
  {
@@ -34,36 +34,36 @@ class TileFitter
 
    // Constructor
    TileFitter();
-   TileFitter(bool debug, int nrow, int ncol, int index, HepMatrix& S, int Icon);
+   TileFitter(bool debug, int nRow, int nColumn, int index, CLHEP::HepMatrix& S, int Icon);
 
    // Destructor
    ~TileFitter();
 
-   int FitAmp(TileFilterResult &tResult, bool lDebug=false);
+   int fitAmp(TileFilterResult &tResult, bool lDebug=false);
    int getIndex();
-   std::vector<double>& getErrRef();
-   void PrintMat(HepMatrix &mat);
-   void PrintVec(HepVector &vec);
+   std::vector<double>& getErr();
+   void printMat(CLHEP::HepMatrix &mat);
+   void printVec(CLHEP::HepVector &vec);
 
  private:
 
-   int Iconstraint;     // >0 => include constraint on Ped; >1 => also pileups.
-   HepVector Camp;       // used for maxP fit with constraints only.
-   double Ped_const;
-   double F2_sigPed;
-   double F2_sigPile;
+   int m_iConstraint;     // >0 => include constraint on Ped; >1 => also pileups.
+   CLHEP::HepVector m_cAmp;       // used for maxP fit with constraints only.
+   double m_pedConst;
+   double m_sigPedF2;
+   double m_sigPileF2;
 
-   int ND;               // number of samples.
-   int NP;               // number of parameters in fit
-   int iconfig;          // number of this configuration.
-   std::vector<int> vconfig;  // vector of crossings for this configuration
-   HepMatrix SPD;      // NPxND matrix
+   int m_nSamples;               // number of samples.
+   int m_nParameters;               // number of parameters in fit
+   int m_iConfig;          // number of this configuration.
+   std::vector<int> m_vConfig;  // vector of crossings for this configuration
+   CLHEP::HepMatrix m_SPD;      // m_nParameters X m_nSamples matrix
    //   HepMatrix M;        // = SPD*SPDT
    //   HepMatrix MI;       // = M.inverse
-   HepMatrix MISPD;    // = MI*SPD
-   std::vector<double> ErrDiag;
+   CLHEP::HepMatrix m_MISPD;    // = MI*SPD
+   std::vector<double> m_errDiag;
  };
 
-#endif // TILERECALGS_TILEFITTER_H
+#endif // TILERECUTILS_TILEFITTER_H
 
 

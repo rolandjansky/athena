@@ -665,17 +665,17 @@ const TileDQstatus * TileBeamInfoProvider::getDQstatus() {
 // Implementation of TileDQstatus class
 //-----------------------------------------------------------------
 
-const int TileDQstatus::ch2dmuLB[48] = { 0, 0, 0, 0, 0, 0, 
+const int TileDQstatus::s_ch2dmuLB[48] = { 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
   0, 0, 0, 0 };
 
-const int TileDQstatus::ch2dmuEB[48] = { 0, 0, 0, 0, 0, 0, 
+const int TileDQstatus::s_ch2dmuEB[48] = { 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 2, 
   2, 2, 2, 2, 2, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 2, 2,
   2, 2, 2, 2 };
 
-const int TileDQstatus::ch2dmuEBspecial[48] = { 2, 2, 2, 1, 
+const int TileDQstatus::s_ch2dmuEBspecial[48] = { 2, 2, 2, 1, 
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   0, 2, 2, 2, 2, 2, 2, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
   2, 2, 2, 2, 2, 2 };  

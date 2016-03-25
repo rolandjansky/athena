@@ -2,18 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// small hack to enable datapool usage
-#define private public
-#define protected public
 #include "TileEvent/TileRawChannel.h"
-#undef private
-#undef protected
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 
 // Atlas includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Tile includes
@@ -123,14 +118,7 @@ TileRawChannel* TileRawChannelBuilderFlatFilter::rawChannel(const TileDigits* di
 
   DataPool<TileRawChannel> tileRchPool(m_dataPoollSize);
   TileRawChannel *rawCh = tileRchPool.nextElementPtr();
-  rawCh->m_adc_hwid = adcId;
-  rawCh->m_amplitude.resize(1);
-  rawCh->m_amplitude[0] = amplitude;
-  rawCh->m_time.resize(1);
-  rawCh->m_time[0] = time;
-  rawCh->m_quality.resize(1);
-  rawCh->m_quality[0] = 0.0;
-  rawCh->m_pedestal = 0.0; // default value in TileRawChannel constructor
+  rawCh->assign (adcId, amplitude, time, 0, 0);
 
   if (m_correctTime) {
     rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
@@ -392,8 +380,8 @@ double TileRawChannelBuilderFlatFilter::calculatePeak(const std::vector<float> &
 
     if (A < 0.0) {
       // amplitude at peak_pos is local maximim
-      tmax = peakPos - B / A / 2.;
-      peak = C - B * B / A / 4.;
+      tmax = peakPos - B / (A * 2.);
+      peak = C - B * B / (A * 4.);
     } 
     else if ( y_1 == y0 && y0 == y1 ) {
       // flat distribution, no peak at all

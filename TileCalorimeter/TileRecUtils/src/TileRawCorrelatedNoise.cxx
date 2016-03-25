@@ -23,17 +23,17 @@
 // #############################################################################
 TileRawCorrelatedNoise::TileRawCorrelatedNoise(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_TileDigitsInputContainer("TileDigitsCnt")
-  , m_TileDigitsOutputContainer("NewDigitsContainer")
+  , m_tileDigitsInputContainer("TileDigitsCnt")
+  , m_tileDigitsOutputContainer("NewDigitsContainer")
 {
 // #############################################################################
 
-  declareProperty("TileDigitsContainer",m_TileDigitsInputContainer);
-  declareProperty("TileDigitsOutputContainer",m_TileDigitsOutputContainer);
+  declareProperty("TileDigitsContainer",m_tileDigitsInputContainer);
+  declareProperty("TileDigitsOutputContainer",m_tileDigitsOutputContainer);
   declareProperty("nRMSThreshold", m_nRMS_threshold = 2.);
-  declareProperty("AlphaMatrixFilePrefix", m_AlphaMatrixFilePrefix  = "AlphaMatrix");
-  declareProperty("MeanFilePrefix", m_MeanFilePrefix  = "Mean");
-  declareProperty("Sample3RMSFilePrefix", m_Sample3RMSFilePrefix  = "RMS");
+  declareProperty("AlphaMatrixFilePrefix", m_alphaMatrixFilePrefix  = "AlphaMatrix");
+  declareProperty("MeanFilePrefix", m_meanFilePrefix  = "Mean");
+  declareProperty("Sample3RMSFilePrefix", m_sample3RMSFilePrefix  = "RMS");
   declareProperty("UseMeanFiles", m_useMeanFiles = true);
   declareProperty("PMTOrder", m_pmtOrder = false);
 }
@@ -77,7 +77,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
       else if (Ros == 3) sprintf(Rosstr, "EBA");
       else sprintf(Rosstr, "EBC");
 
-      sprintf(buff, "%s%s%02d.txt", m_AlphaMatrixFilePrefix.c_str(), Rosstr, Drawer + 1);
+      sprintf(buff, "%s%s%02d.txt", m_alphaMatrixFilePrefix.c_str(), Rosstr, Drawer + 1);
       std::string filestr(buff);
       std::string file = PathResolver::find_file(buff, "DATAPATH");
 //      ATH_MSG_INFO( "  buff=" << buff
@@ -134,7 +134,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
                 chcolumn = PmtToChannelExtendedBarrel[column] - 1;
               }
             }
-            AlphaMatrix[Ros - 1][Drawer][chline][chcolumn] = pippo;
+            m_alphaMatrix[Ros - 1][Drawer][chline][chcolumn] = pippo;
           }
         }
       }
@@ -158,7 +158,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
           sprintf(Rosstr, "EBA");
         else
           sprintf(Rosstr, "EBC");
-        sprintf(buff, "%s%s%02d.txt", m_MeanFilePrefix.c_str(), Rosstr, Drawer + 1);
+        sprintf(buff, "%s%s%02d.txt", m_meanFilePrefix.c_str(), Rosstr, Drawer + 1);
         std::string filestr(buff);
         std::string file = PathResolver::find_file(buff, "DATAPATH");
         if (file.size() == 0) {
@@ -208,7 +208,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
                 if (Ros < 3) chline = PmtToChannelBarrel[line] - 1;
                 else chline = PmtToChannelExtendedBarrel[line] - 1;
               }
-              MeanSamples[Ros - 1][Drawer][chline][Sample] = pippo;
+              m_meanSamples[Ros - 1][Drawer][chline][Sample] = pippo;
             }
           }
         }
@@ -223,7 +223,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
         for (int Channel = 0; Channel < 48; ++Channel) {
           for (int Sample = 0; Sample < nSamples; ++Sample) {
             //MeanSamples[Ros-1][Drawer][Channel][Sample]=50.;
-            MeanSamples[Ros - 1][Drawer][Channel][Sample] = -1.;
+            m_meanSamples[Ros - 1][Drawer][Channel][Sample] = -1.;
           }
         }
       }
@@ -241,7 +241,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
       else if (Ros == 3) sprintf(Rosstr, "EBA");
       else sprintf(Rosstr, "EBC");
 
-      sprintf(buff, "%s%s%02d.txt", m_Sample3RMSFilePrefix.c_str(), Rosstr, Drawer + 1);
+      sprintf(buff, "%s%s%02d.txt", m_sample3RMSFilePrefix.c_str(), Rosstr, Drawer + 1);
       std::string filestr(buff);
       std::string file = PathResolver::find_file(buff, "DATAPATH");
       if (file.size() == 0) {
@@ -272,10 +272,8 @@ StatusCode TileRawCorrelatedNoise::initialize() {
           // Check for comment lines
           if (*buff == '!' || *buff == '*') continue;
           // read value
-          int error = 0;
-          if ((word = strtok(buff, TOKENS)) == NULL) error = 1;
           double pippo;
-          if (error) pippo = 0.;
+          if ((word = strtok(buff, TOKENS)) == NULL) pippo = 0;
           else pippo = atof(word);
           // read value
           ATH_MSG_VERBOSE ( "elem is " << pippo );
@@ -285,7 +283,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
             if (Ros < 3) chline = PmtToChannelBarrel[line] - 1;
             else chline = PmtToChannelExtendedBarrel[line] - 1;
           }
-          Sample3RMS[Ros - 1][Drawer][chline] = pippo;
+          m_sample3RMS[Ros - 1][Drawer][chline] = pippo;
         }
       }
       fclose(rms_file);
@@ -303,12 +301,12 @@ StatusCode TileRawCorrelatedNoise::execute() {
 
   // get named TileDigitsContaner from TES
   const TileDigitsContainer *digiCnt;
-  if (evtStore()->retrieve(digiCnt, m_TileDigitsInputContainer).isFailure()) {
-    ATH_MSG_WARNING( "Can't retrieve TileDigitsContainer '" << m_TileDigitsInputContainer << "' from TDS" );
+  if (evtStore()->retrieve(digiCnt, m_tileDigitsInputContainer).isFailure()) {
+    ATH_MSG_WARNING( "Can't retrieve TileDigitsContainer '" << m_tileDigitsInputContainer << "' from TDS" );
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_TileDigitsInputContainer << "'" );
+  ATH_MSG_DEBUG( "Got TileDigitsContainer '" << m_tileDigitsInputContainer << "'" );
 
   const TileHWID* tileHWID;
   CHECK( detStore()->retrieve(tileHWID, "TileHWID") );
@@ -338,7 +336,7 @@ StatusCode TileRawCorrelatedNoise::execute() {
       double ped = tileInfo->DigitsPedLevel(adc_HWID);
       int nSamples = 7;
       for (int Sample = 0; Sample < nSamples; ++Sample) {
-        MeanSamples[Ros - 1][Drawer][Channel][Sample] = ped;
+        m_meanSamples[Ros - 1][Drawer][Channel][Sample] = ped;
       }
     }
   }
@@ -368,15 +366,15 @@ StatusCode TileRawCorrelatedNoise::execute() {
             if (OriginalDigits[Ros - 1][Drawer][jCh]) {
               if (Channel != jCh
                   && fabs(((OriginalDigits[Ros - 1][Drawer][jCh])->samples())[3]
-                          - MeanSamples[Ros - 1][Drawer][jCh][3])
-                      < m_nRMS_threshold * Sample3RMS[Ros - 1][Drawer][jCh]) {
+                          - m_meanSamples[Ros - 1][Drawer][jCh][3])
+                      < m_nRMS_threshold * m_sample3RMS[Ros - 1][Drawer][jCh]) {
 
                 for (int Sample = 0; Sample < nSamples; ++Sample)
                   NewSamples[Ros - 1][Drawer][Channel][Sample] =
                       NewSamples[Ros - 1][Drawer][Channel][Sample]
-                          - AlphaMatrix[Ros - 1][Drawer][Channel][jCh]
+                          - m_alphaMatrix[Ros - 1][Drawer][Channel][jCh]
                               * (((OriginalDigits[Ros - 1][Drawer][jCh])->samples())[Sample]
-                                  - MeanSamples[Ros - 1][Drawer][jCh][Sample]);
+                                  - m_meanSamples[Ros - 1][Drawer][jCh][Sample]);
               }
             }
           }
