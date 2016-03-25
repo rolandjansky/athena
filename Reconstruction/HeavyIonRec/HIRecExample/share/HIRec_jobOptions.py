@@ -14,19 +14,13 @@ print 'IN HEAVY ION REC'
 # from AthenaCommon.DetFlags import DetFlags
 # from HIRecExample.HIRecExampleFlags import jobproperties
 
-# if jobproperties.HIRecExampleFlags.ppMode or globalflags.DataSource == "data":
-#    jobproperties.HIRecExampleFlags.withHijingEventPars = False
-
-# # include reconstruction algorithms
-# # only in ESD step
-# from RecExConfig.RecFlags import rec
-# if rec.doESD :
-#   print "Including HI algorithms in ESD step"
-
 #   if jobproperties.HIRecExampleFlags.doHIEventView:
 #       include( "HIRecExample/HIEventView_jobOptions.py" )
 
+# include reconstruction algorithms
+# only in ESD step
 if rec.doESD:
+    print "Including HI algorithms in ESD step"
     if jobproperties.HIRecExampleFlags.doHIGlobal:
         include( "HIGlobal/HIGlobal_jobOptions.py" )
     
@@ -39,3 +33,5 @@ if rec.doESD:
 
 # if jobproperties.HIRecExampleFlags.doValidation:
 #       include( "HIValidation/HIValidation_jobOptions.py")
+
+

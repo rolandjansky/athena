@@ -70,7 +70,7 @@ class withHijingEventPars(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class ppMode(JobProperty):
     """ Indicates run on pp events with mostly pp default reco
