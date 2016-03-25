@@ -505,7 +505,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   double p    = parm->momentum().mag();
   double m    = m_particleMasses.mass[eCell.pHypothesis];
   double E    = sqrt(p*p+m*m);
-  
+
   // radiation and ionization preceed the presampled interaction (if any) 
 
   if (m_eLoss || m_ms) {
@@ -541,7 +541,7 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	
       }
 
-      EX_MSG_VERBOSE(eCell.navigationStep, "eloss", "char", "E,deltaE:" <<E<<","<< eloss->deltaE() );
+      EX_MSG_VERBOSE(eCell.navigationStep, "eloss", "char ", "E,deltaE:" <<E<<","<< eloss->deltaE() );
       
       // TODO straggling 
       
@@ -567,8 +567,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     }
     
     
-    if ( m_ms ) {
-      
+    if ( m_ms && m_thicknessInX0>0 ) {
+
       double simTheta = m_msSampler->simTheta(*m_matProp, p, dX0/m_thicknessInX0, eCell.pHypothesis);
       //do the update -> You need 2 evaluation of simTheta. The second one is used to calculate deltaphi in multipleScatteringUpdate
       multipleScatteringUpdate(*(eCell.leadParameters), uParameters, simTheta, 
