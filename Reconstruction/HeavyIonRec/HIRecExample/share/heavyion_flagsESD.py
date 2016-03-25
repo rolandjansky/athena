@@ -4,6 +4,7 @@ include.block ('HIRecExample/heavyion_flagsESD.py')
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
+from InDetRecExample.InDetJobProperties import InDetFlags
 from HIRecExample.HIRecExampleFlags import jobproperties
 from HIJetRec.HIJetRecFlags import jobproperties
 
@@ -26,6 +27,7 @@ if not jobproperties.HIRecExampleFlags.ppMode :
       # AO InDet 2015
       InDetFlags.cutLevel = 3
       InDetFlags.doSGDeletion = False
+      InDetFlags.perigeeExpression.set_Value_and_Lock('Vertex')
 
       from CaloRec.CaloRecFlags import jobproperties
       #need this eventually, but for now it breaks egamma isolation
