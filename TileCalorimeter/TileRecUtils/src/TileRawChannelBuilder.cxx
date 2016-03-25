@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #include "TileEvent/TileRawChannel.h"
-#undef private
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
@@ -29,16 +27,15 @@ const InterfaceID& TileRawChannelBuilder::interfaceID() {
   return IID_ITileRawChannelBuilder;
 }
 
-static const int nChMax = 48;
-static const int nDmuMax = 16;
-static int m_last_drawer;
-static bool m_bad_drawer;
-static int m_error[nChMax];
-static int m_dmuerr[nDmuMax];
+int TileRawChannelBuilder::s_error[MAX_CHANNELS] = {0};
+int TileRawChannelBuilder::s_dmuerr[MAX_DMUS] = {0};
+int TileRawChannelBuilder::s_lastDrawer = -1;
+bool TileRawChannelBuilder::s_badDrawer = false;
+
 
 void TileRawChannelBuilder::resetDrawer() {
-  m_last_drawer = -1;
-  m_bad_drawer = false;
+  s_lastDrawer = -1;
+  s_badDrawer = false;
 }
 
 void TileRawChannelBuilder::resetOverflows() {
@@ -84,16 +81,16 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   , m_RChSumH(0.0)
 {
   resetDrawer();
-  memset(m_error, 0, sizeof(m_error));
-  memset(m_dmuerr, 0, sizeof(m_dmuerr));
+  memset(s_error, 0, sizeof(s_error));
+  memset(s_dmuerr, 0, sizeof(s_dmuerr));
 
-  declareProperty("TileRawChannelContainer",m_TileRawChannelContainerID);
-  declareProperty("calibrateEnergy",m_calibrateEnergy = false);
-  declareProperty("correctTime",m_correctTime = false);
-  declareProperty("AmpMinForAmpCorrection",m_ampMinThresh = 15.0);
-  declareProperty("TimeMinForAmpCorrection",m_timeMinThresh = -25.0);
-  declareProperty("TimeMaxForAmpCorrection",m_timeMaxThresh =  25.0);
-  declareProperty("RunType",m_runType = 0);
+  declareProperty("TileRawChannelContainer", m_TileRawChannelContainerID);
+  declareProperty("calibrateEnergy", m_calibrateEnergy = false);
+  declareProperty("correctTime", m_correctTime = false);
+  declareProperty("AmpMinForAmpCorrection", m_ampMinThresh = 15.0);
+  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -25.0);
+  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh =  25.0);
+  declareProperty("RunType", m_runType = 0);
   declareProperty("BeamInfo", m_beamInfo);
   declareProperty("NoiseFilterTools", m_noiseFilterTools);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
@@ -255,28 +252,28 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
   int ros = (frag >> 8);
   int drawer = (frag & 0xff);
 
-  m_last_drawer = frag;
+  s_lastDrawer = frag;
 
-  memset(m_error, 0, sizeof(m_error));
-  memset(m_dmuerr, 0, sizeof(m_dmuerr));
+  memset(s_error, 0, sizeof(s_error));
+  memset(s_dmuerr, 0, sizeof(s_dmuerr));
   int nch = 0;
   bool bigain = DQstatus->isBiGain();
   if (!bigain) { // in bigain runs we don't have DQ status fragment
-    for (int ch = 0; ch < nChMax; ch += 3) {
+    for (int ch = 0; ch < MAX_CHANNELS; ch += 3) {
       if (!DQstatus->isAdcDQgood(ros, drawer, ch, 0)) {
-        m_error[ch + 2] = m_error[ch + 1] = m_error[ch] = -3;
-        m_dmuerr[ch / 3] = 3;
+        s_error[ch + 2] = s_error[ch + 1] = s_error[ch] = -3;
+        s_dmuerr[ch / 3] = 3;
         nch += 3;
       }
     }
   }
-  if (nch == nChMax) { // all bad - nothing to do
-    m_bad_drawer = true;
+  if (nch == MAX_CHANNELS) { // all bad - nothing to do
+    s_badDrawer = true;
     ATH_MSG_VERBOSE( "Drawer 0x" << MSG::hex << frag << MSG::dec
                     << " is bad - skipping bad patterns check " );
     return;
   } else {
-    m_bad_drawer = false;
+    s_badDrawer = false;
     ATH_MSG_VERBOSE(  "Drawer 0x" << MSG::hex << frag << MSG::dec
                     << " looking for bad patterns in digits" );
   }
@@ -294,7 +291,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
     int channel = m_tileHWID->channel(adcId);
     int gain = m_tileHWID->adc(adcId);
 
-    if (m_error[channel]) {
+    if (s_error[channel]) {
       ATH_MSG_VERBOSE( "BadCh " << ros
                         << "/" << drawer
                         << "/" << channel
@@ -306,9 +303,9 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
 
       if (err) {
 
-        m_error[channel] = err;
+        s_error[channel] = err;
         if (err > -5) {
-          ++m_dmuerr[channel / 3];
+          ++s_dmuerr[channel / 3];
           ++nchbad[channel / 24];
         }
 
@@ -338,7 +335,7 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
       } else {
         if (mindig < 0.01) err += 1;
         if (maxdig > 1022.99) err += 2;
-        if (err) m_error[channel] = err - 10;
+        if (err) s_error[channel] = err - 10;
       }
     }
   }
@@ -348,12 +345,12 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
 
   int ndmubad[2] = { 0, 0 };
   int dmu = 0;
-  for (; dmu < nDmuMax / 2; ++dmu) { // first half
-    if (m_dmuerr[dmu] > 1)
+  for (; dmu < MAX_DMUS / 2; ++dmu) { // first half
+    if (s_dmuerr[dmu] > 1)
       ++ndmubad[0]; // count DMUs with at least two bad channels
   }
-  for (; dmu < nDmuMax; ++dmu) { // second half
-    if (m_dmuerr[dmu] > 1)
+  for (; dmu < MAX_DMUS; ++dmu) { // second half
+    if (s_dmuerr[dmu] > 1)
       ++ndmubad[1]; // count DMUs with at least two bad channels
   }
 
@@ -375,17 +372,17 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
                           << " half" << endmsg;
         if (printall) {
           msg(MSG::VERBOSE) << "nDMuErr ";
-          for (int d = 0; d < nDmuMax; ++d) {
-            msg(MSG::VERBOSE) << " " << m_dmuerr[d];
+          for (int d = 0; d < MAX_DMUS; ++d) {
+            msg(MSG::VERBOSE) << " " << s_dmuerr[d];
           }
           msg(MSG::VERBOSE) << " total " << ndmubad[p] << " errors" << endmsg;
 
           msg(MSG::VERBOSE) << "ChErr ";
           int ch = 0;
-          while (ch < nChMax) {
-            msg(MSG::VERBOSE) << " " << m_error[ch++];
-            msg(MSG::VERBOSE) << " " << m_error[ch++];
-            msg(MSG::VERBOSE) << " " << m_error[ch++];
+          while (ch < MAX_CHANNELS) {
+            msg(MSG::VERBOSE) << " " << s_error[ch++];
+            msg(MSG::VERBOSE) << " " << s_error[ch++];
+            msg(MSG::VERBOSE) << " " << s_error[ch++];
             msg(MSG::VERBOSE) << "  ";
           }
 
@@ -394,11 +391,11 @@ void TileRawChannelBuilder::fill_drawer_errors(const TileDigitsCollection* coll)
           printall = false;
         }
       }
-      int ch = (p) ? nChMax / 2 : 0;
-      int chmax = (p) ? nChMax : nChMax / 2;
+      int ch = (p) ? MAX_CHANNELS / 2 : 0;
+      int chmax = (p) ? MAX_CHANNELS : MAX_CHANNELS / 2;
       for (; ch < chmax; ++ch) {
-        if (m_error[ch] == 0 || m_error[ch] < -5) { // channel was good before
-          m_error[ch] = -4;
+        if (s_error[ch] == 0 || s_error[ch] < -5) { // channel was good before
+          s_error[ch] = -4;
         }
       }
     }
@@ -435,7 +432,7 @@ const char * TileRawChannelBuilder::BadPatternName(float ped) {
       "14 - unknown error"
   };
   
-  return errname[std::min(24, std::max(0, int((ped + 500) / 10000.)))];
+  return errname[std::min(24, std::max(0, int((ped + 500) * 1e-4)))];
 }
 
     
@@ -443,7 +440,7 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
   int frag = coll->identify();
 
   // make sure that errror array is up-to-date
-  if (frag != m_last_drawer) {
+  if (frag != s_lastDrawer) {
     fill_drawer_errors(coll);
   }
 
@@ -454,13 +451,13 @@ void TileRawChannelBuilder::build(const TileDigitsCollection* coll) {
   for (; digitItr != lastDigit; ++digitItr) {
 
     TileRawChannel* rch = rawChannel((*digitItr));
-    int err = m_error[m_tileHWID->channel(rch->adc_HWID())];
+    int err = s_error[m_tileHWID->channel(rch->adc_HWID())];
 
     if (err) {
       if (err == -8 || err == -7) m_overflows.push_back(std::make_pair(rch, (*digitItr)));
       float ped = rch->pedestal() + 100000 + 10000 * err;
       rch->setPedestal(ped);
-      if (msgLvl(MSG::VERBOSE) && !m_bad_drawer) {
+      if (msgLvl(MSG::VERBOSE) && !s_badDrawer) {
         if (err < -5) {
           msg(MSG::VERBOSE) << "BadCh " << m_tileHWID->to_string(rch->adc_HWID())
                             << " warning = " << BadPatternName(ped) << endmsg;
@@ -528,12 +525,12 @@ StatusCode TileRawChannelBuilder::commitContainer() {
           ++dspItr;
         }
         if (dspItr != dspLast) {
-          float corr = (*dspItr)->m_pedestal;
+          float corr = (*dspItr)->pedestal();
           ATH_MSG_VERBOSE( "Ch "<<m_tileHWID->to_string(adc_id)
-                           <<" amp " << rch->m_amplitude[0] << " ped " << rch->m_pedestal 
+                           <<" amp " << rch->amplitude() << " ped " << rch->pedestal() 
                            << " corr " << corr );
-          rch->m_amplitude[0] -= corr;
-          rch->m_pedestal += corr;
+          rch->setAmplitude (rch->amplitude() - corr);
+          rch->setPedestal (rch->pedestal() + corr);
         } else {
           ATH_MSG_WARNING(" Problem in applying noise corrections " 
                         << " can not find channel in DSP container with HWID "
@@ -616,6 +613,30 @@ double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
 
   return corr;
 }
+
+
+// Time correction for shifted pulses by Tigran
+double TileRawChannelBuilder::correctTime(double phase, bool of2) {
+
+  double corrected = 0.0;
+  
+  if (of2) {
+    if(phase < 0)  {
+      corrected = (-0.00695743 + (0.0020673 - (0.0002976 + 0.00000361305 * phase) * phase) * phase) * phase;
+    } else {
+      corrected = (0.0130013 + (0.00128769 + (-0.000550218 + 0.00000755344 * phase) * phase) * phase) * phase;
+    }
+  } else {
+    if ( phase < 0) {
+      corrected = 0.07529 + (0.0144 + (0.006307 + (0.0003631 + 0.00000375547 * phase) * phase) * phase) * phase;
+    } else {
+      corrected = 0.00750759 + (-0.00731296 + (0.00570012 + (-0.000295357 + 0.00000578402 * phase) * phase) * phase) * phase;
+    }
+  }
+  return corrected;
+}
+
+
 
 int TileRawChannelBuilder::CorruptedData(int ros, int drawer, int channel, int gain,
     const std::vector<float> & digits, float &dmin, float &dmax) {

@@ -51,7 +51,7 @@ class MsgStream;
 #include "TileEvent/TileDigitsCollection.h"
 
 
-typedef std::vector<std::pair<TileRawChannel*, TileDigits*> > Overflows_t;
+typedef std::vector<std::pair<TileRawChannel*, const TileDigits*> > Overflows_t;
 
 class TileRawChannelBuilder: public AthAlgTool {
   public:
@@ -118,7 +118,9 @@ class TileRawChannelBuilder: public AthAlgTool {
      */
     static const InterfaceID& interfaceID();
 
-    static double correctAmp(double phase, bool of2=true); //!< Amplitude correction factor according to the time when using weights for tau=0 without iterations
+    static double correctAmp(double phase, bool of2 = true); //!< Amplitude correction factor according to the time when using weights for tau=0 without iterations
+
+    static double correctTime( double phase, bool of2 = true); //!< Time correction factor
 
     static int CorruptedData(int ros, int drawer, int channel, int gain,
         const std::vector<float> & digits, float &dmin, float &dmax);
@@ -131,6 +133,9 @@ class TileRawChannelBuilder: public AthAlgTool {
     std::string getTileRawChannelContainerID(void);
 
   protected:
+    // FIXME: Get rid of this abomination.
+    friend class TileHid2RESrcID;
+
     // properties
     std::string m_TileRawChannelContainerID;
 
@@ -147,6 +152,7 @@ class TileRawChannelBuilder: public AthAlgTool {
 
     // Should time be calibrated (delta added from laser run)
     bool m_correctTime;
+
 
     // Use DSP noise correction for incomplete containers
     bool m_useDSP;
@@ -186,6 +192,12 @@ class TileRawChannelBuilder: public AthAlgTool {
     Overflows_t m_overflows;
     int m_dataPoollSize;
 
+    static const int MAX_CHANNELS = 48;
+    static const int MAX_DMUS = 16;
+    static int s_error[MAX_CHANNELS];
+    static int s_dmuerr[MAX_DMUS];
+    static int s_lastDrawer;
+    static bool s_badDrawer;
 };
 
 #endif

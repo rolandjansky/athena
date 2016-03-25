@@ -2,19 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// small hack to enable datapool usage
-#define private public
-#define protected public
 #include "TileEvent/TileRawChannel.h"
-#undef private
-#undef protected
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 // Atlas includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Tile includes
@@ -47,19 +42,19 @@ const InterfaceID& TileRawChannelBuilderFitFilterCool::interfaceID( ) {
 TileRawChannelBuilderFitFilterCool::TileRawChannelBuilderFitFilterCool(const std::string& type,
     const std::string& name, const IInterface *parent)
   : TileRawChannelBuilder(type, name, parent)
-  , m_t0fit(0.0)
-  , m_ipeak0(0)
-  , m_min_time(0.0)
-  , m_max_time(0.0)
-  , m_min_tau(0)
-  , m_max_tau(0.0)
-  , m_pulsevar(0)
+  , m_t0Fit(0.0)
+  , m_iPeak0(0)
+  , m_minTime(0.0)
+  , m_maxTime(0.0)
+  , m_minTau(0)
+  , m_maxTau(0.0)
+  , m_pulseShapes(0)
   , m_tileToolPulseShape("TileCondToolPulseShape")
   , m_tileToolLeak100Shape("TileCondToolLeak100Shape")
   , m_tileToolLeak5p2Shape("TileCondToolLeak5p2Shape")
   , m_tileToolPulse5p2Shape("TileCondToolPulse5p2Shape")
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
-  , m_shapes(NULL)
+  , m_shapes(nullptr)
 {  
   //declare interfaces
   declareInterface< TileRawChannelBuilder >( this );
@@ -72,13 +67,13 @@ TileRawChannelBuilderFitFilterCool::TileRawChannelBuilderFitFilterCool(const std
   declareProperty("MaxIterate",m_maxIterate = 9);
   declareProperty("NoiseLowGain",m_noiseLow = 0.6);
   declareProperty("NoiseHighGain",m_noiseHigh = 1.5);
-  declareProperty("RMSChannelNoise",m_RMSChannelNoise = 3);
+  declareProperty("RMSChannelNoise",m_channelNoiseRMS = 3);
   declareProperty("ExtraSamplesLeft",m_extraSamplesLeft=0);   // increase window on left side
   declareProperty("ExtraSamplesRight",m_extraSamplesRight=0); // increase window on right side
-  declareProperty("SaturatedSampleError",m_SaturatedSampleError = 6.0);
-  declareProperty("ZeroSampleError",m_ZeroSampleError = 100.0);
-  declareProperty("NoiseThresholdRMS",m_NoiseThresholdRMS = 3.0);
-  declareProperty("MaxTimeFromPeak",m_MaxTimeFromPeak = 250.0);
+  declareProperty("SaturatedSampleError",m_saturatedSampleError = 6.0);
+  declareProperty("ZeroSampleError",m_zeroSampleError = 100.0);
+  declareProperty("NoiseThresholdRMS",m_noiseThresholdRMS = 3.0);
+  declareProperty("MaxTimeFromPeak",m_maxTimeFromPeak = 250.0);
   declareProperty("TileCondToolPulseShape" , m_tileToolPulseShape);
   declareProperty("TileCondToolLeak100Shape" , m_tileToolLeak100Shape);
   declareProperty("TileCondToolLeak5p2Shape" , m_tileToolLeak5p2Shape);
@@ -106,32 +101,32 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
   CHECK( TileRawChannelBuilder::initialize() );
   
   // Get pulse shapes from TileInfo
-  m_pulsevar = m_tileInfo->getPulseShapes();
+  m_pulseShapes = m_tileInfo->getPulseShapes();
 
   // Determine peak sample position 
   // peak sample position defines t=0 
-  m_ipeak0 = (int) (m_frameLength) / 2 + (m_frameLength % 2) - 1;
+  m_iPeak0 = (int) (m_frameLength) / 2 + (m_frameLength % 2) - 1;
 
   // Min and max time are now calculated based on m_framelength - i.e. on the
   // number of 25 ns samples read out. Don't forget t=0 corresponds to 
   // m_ipeak0-th sample
-  m_min_time = DTIME * (0 - m_ipeak0 - m_extraSamplesLeft);
-  m_max_time = DTIME * (m_frameLength - 1 - m_ipeak0 + m_extraSamplesRight);
+  m_minTime = DTIME * (0 - m_iPeak0 - m_extraSamplesLeft);
+  m_maxTime = DTIME * (m_frameLength - 1 - m_iPeak0 + m_extraSamplesRight);
   // maximal jump during one iteration
-  m_max_tau = (m_max_time - m_min_time);
-  m_min_tau = -m_max_tau;
+  m_maxTau = (m_maxTime - m_minTime);
+  m_minTau = -m_maxTau;
 
-  ATH_MSG_DEBUG( " ipeak0=" << m_ipeak0
-                << " min_time=" << m_min_time
-                << " max_time=" << m_max_time
-                << " min_tau=" << m_min_tau
-                << " max_tau=" << m_max_tau
-                << " physize=" << m_pulsevar->m_ylphys.size()
-                << " cissize=" << m_pulsevar->m_ylcis.size()
-                << " xpmin=" << m_pulsevar->m_tlphys[0]
-                << " xpmax=" << m_pulsevar->m_tlphys[MAX_LO_PULSE_PHYS - 1]
-                << " ypmin=" << m_pulsevar->m_ylphys[0]
-                << " ypmax=" << m_pulsevar->m_ylphys[MAX_LO_PULSE_PHYS - 1] );
+  ATH_MSG_DEBUG( " ipeak0=" << m_iPeak0
+                << " min_time=" << m_minTime
+                << " max_time=" << m_maxTime
+                << " min_tau=" << m_minTau
+                << " max_tau=" << m_maxTau
+                << " physize=" << m_pulseShapes->m_ylphys.size()
+                << " cissize=" << m_pulseShapes->m_ylcis.size()
+                << " xpmin=" << m_pulseShapes->m_tlphys[0]
+                << " xpmax=" << m_pulseShapes->m_tlphys[MAX_LO_PULSE_PHYS - 1]
+                << " ypmin=" << m_pulseShapes->m_ylphys[0]
+                << " ypmax=" << m_pulseShapes->m_ylphys[MAX_LO_PULSE_PHYS - 1] );
   
   //=== get TileCondToolPulseShape
   CHECK( m_tileToolPulseShape.retrieve() );
@@ -152,7 +147,7 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
   incSvc->addListener(this, "BeginRun");
 
   if (msgLvl(MSG::DEBUG)) {
-    if (m_RMSChannelNoise) {
+    if (m_channelNoiseRMS) {
       msg(MSG::DEBUG) << " noise for all channels from Conditions DB ";
       if (TileCablingService::getInstance()->getTestBeam())
         msg(MSG::DEBUG) << " rmsLow(LBA01/0) = " << m_tileInfo->DigitsPedSigma(TileID::LOWGAIN, 0, 20)
@@ -212,9 +207,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " yllas= " << m_shapes->m_yllas[i]
                           << " ydllas " << m_shapes->m_ydllas[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tllas= " << m_pulsevar->m_tllas[i]
-                          << " yllas= " << m_pulsevar->m_yllas[i]
-                          << " ydllas " << m_pulsevar->m_ydllas[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tllas= " << m_pulseShapes->m_tllas[i]
+                          << " yllas= " << m_pulseShapes->m_yllas[i]
+                          << " ydllas " << m_pulseShapes->m_ydllas[i] << endmsg;
         }
         phase += LAS_DT_LO;
       }
@@ -236,9 +231,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " yhlas= " << m_shapes->m_yhlas[i]
                           << " ydhlas " << m_shapes->m_ydhlas[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  thlas= " << m_pulsevar->m_thlas[i]
-                          << " yhlas= " << m_pulsevar->m_yhlas[i]
-                          << " ydhlas " << m_pulsevar->m_ydhlas[i] << endmsg;
+          msg(MSG::DEBUG) << " old  thlas= " << m_pulseShapes->m_thlas[i]
+                          << " yhlas= " << m_pulseShapes->m_yhlas[i]
+                          << " ydhlas " << m_pulseShapes->m_ydhlas[i] << endmsg;
         }
         phase += LAS_DT_HI;
       }
@@ -261,9 +256,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " ylphys= " << m_shapes->m_ylphys[i]
                           << " ydlphys " << m_shapes->m_ydlphys[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tlphys= " << m_pulsevar->m_tlphys[i]
-                          << " ylphys= " << m_pulsevar->m_ylphys[i]
-                          << " ydlphys " << m_pulsevar->m_ydlphys[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tlphys= " << m_pulseShapes->m_tlphys[i]
+                          << " ylphys= " << m_pulseShapes->m_ylphys[i]
+                          << " ydlphys " << m_pulseShapes->m_ydlphys[i] << endmsg;
         }
         phase += PHYS_DT_LO;
       }
@@ -285,9 +280,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " yhphys= " << m_shapes->m_yhphys[i]
                           << " ydhphys " << m_shapes->m_ydhphys[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  thphys= " << m_pulsevar->m_thphys[i]
-                          << " yhphys= " << m_pulsevar->m_yhphys[i]
-                          << " ydhphys " << m_pulsevar->m_ydhphys[i] << endmsg;
+          msg(MSG::DEBUG) << " old  thphys= " << m_pulseShapes->m_thphys[i]
+                          << " yhphys= " << m_pulseShapes->m_yhphys[i]
+                          << " ydhphys " << m_pulseShapes->m_ydhphys[i] << endmsg;
         }
         phase += PHYS_DT_HI;
       }
@@ -295,23 +290,23 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
       //================================================
       // Speedup for physics processing (max_iter=1):
       //  read initial pulse shapes into arrays
-      m_fnpar[0] = 0.0;
-      m_fnpar[1] = 0.0;
-      m_fnpar[2] = 1.0;
-      m_t0fit = 0.0;
+      m_fnParameters[0] = 0.0;
+      m_fnParameters[1] = 0.0;
+      m_fnParameters[2] = 1.0;
+      m_t0Fit = 0.0;
       
-      m_gphyslo.reserve(m_frameLength);
-      m_dgphyslo.reserve(m_frameLength);
-      m_gphyshi.reserve(m_frameLength);
-      m_dgphyshi.reserve(m_frameLength);
+      m_gPhysLo.reserve(m_frameLength);
+      m_dgPhysLo.reserve(m_frameLength);
+      m_gPhysHi.reserve(m_frameLength);
+      m_dgPhysHi.reserve(m_frameLength);
       
       double rsamp;
       for (int isamp = 0; isamp < m_frameLength; ++isamp) {
         rsamp = (isamp) * 1.0;
-        m_gphyslo.push_back(scaledpulse(rsamp, &(m_pulsevar->m_tlphys), &(m_pulsevar->m_ylphys)));
-        m_dgphyslo.push_back(pulse(rsamp, &(m_pulsevar->m_tdlphys), &(m_pulsevar->m_ydlphys)));
-        m_gphyshi.push_back(scaledpulse(rsamp, &(m_pulsevar->m_thphys), &(m_pulsevar->m_yhphys)));
-        m_dgphyshi.push_back(pulse(rsamp, &(m_pulsevar->m_tdhphys), &(m_pulsevar->m_ydhphys)));
+        m_gPhysLo.push_back(scaledPulse(rsamp, &(m_pulseShapes->m_tlphys), &(m_pulseShapes->m_ylphys)));
+        m_dgPhysLo.push_back(pulse(rsamp, &(m_pulseShapes->m_tdlphys), &(m_pulseShapes->m_ydlphys)));
+        m_gPhysHi.push_back(scaledPulse(rsamp, &(m_pulseShapes->m_thphys), &(m_pulseShapes->m_yhphys)));
+        m_dgPhysHi.push_back(pulse(rsamp, &(m_pulseShapes->m_tdhphys), &(m_pulseShapes->m_ydhphys)));
       }
     } else {
       ATH_MSG_ERROR( " Unknown run type "
@@ -343,9 +338,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " ylcis= " << m_shapes->m_ylcis[i]
                           << " ydlcis " << m_shapes->m_ydlcis[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tlcis= " << m_pulsevar->m_tlcis[i]
-                          << " ylcis= " << m_pulsevar->m_ylcis[i]
-                          << " ydlcis " << m_pulsevar->m_ydlcis[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tlcis= " << m_pulseShapes->m_tlcis[i]
+                          << " ylcis= " << m_pulseShapes->m_ylcis[i]
+                          << " ydlcis " << m_pulseShapes->m_ydlcis[i] << endmsg;
         }
         phase += CIS_DT_LO;
       }
@@ -368,9 +363,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " yhcis= " << m_shapes->m_yhcis[i]
                           << " ydhcis " << m_shapes->m_ydhcis[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  thcis= " << m_pulsevar->m_thcis[i]
-                          << " yhcis= " << m_pulsevar->m_yhcis[i]
-                          << " ydhcis " << m_pulsevar->m_ydhcis[i] << endmsg;
+          msg(MSG::DEBUG) << " old  thcis= " << m_pulseShapes->m_thcis[i]
+                          << " yhcis= " << m_pulseShapes->m_yhcis[i]
+                          << " ydhcis " << m_pulseShapes->m_ydhcis[i] << endmsg;
         }
         phase += CIS_DT_HI;
       }
@@ -394,9 +389,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " yslcis= " << m_shapes->m_yslcis[i]
                           << " ydslcis " << m_shapes->m_ydslcis[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tslcis= " << m_pulsevar->m_tslcis[i]
-                          << " yslcis= " << m_pulsevar->m_yslcis[i]
-                          << " ydslcis " << m_pulsevar->m_ydslcis[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tslcis= " << m_pulseShapes->m_tslcis[i]
+                          << " yslcis= " << m_pulseShapes->m_yslcis[i]
+                          << " ydslcis " << m_pulseShapes->m_ydslcis[i] << endmsg;
         }
         phase += CIS_DT_LO;
       }
@@ -419,9 +414,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " yshcis= " << m_shapes->m_yshcis[i]
                           << " ydshcis " << m_shapes->m_ydshcis[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tshcis= " << m_pulsevar->m_tshcis[i]
-                          << " yshcis= " << m_pulsevar->m_yshcis[i]
-                          << " ydshcis " << m_pulsevar->m_ydshcis[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tshcis= " << m_pulseShapes->m_tshcis[i]
+                          << " yshcis= " << m_pulseShapes->m_yshcis[i]
+                          << " ydshcis " << m_pulseShapes->m_ydshcis[i] << endmsg;
         }
         phase += CIS_DT_HI;
       }
@@ -445,9 +440,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " leaklo = " << m_shapes->m_leaklo[i]
                           << " dleaklo  " << m_shapes->m_dleaklo[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tleaklo= " << m_pulsevar->m_tleaklo[i]
-                          << " leaklo= " << m_pulsevar->m_leaklo[i]
-                          << " dleaklo " << m_pulsevar->m_dleaklo[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tleaklo= " << m_pulseShapes->m_tleaklo[i]
+                          << " leaklo= " << m_pulseShapes->m_leaklo[i]
+                          << " dleaklo " << m_pulseShapes->m_dleaklo[i] << endmsg;
         }
         phase += CIS_DT_LO;
       }
@@ -470,9 +465,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " leakhi= " << m_shapes->m_leakhi[i]
                           << " dleakhi " << m_shapes->m_dleakhi[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old tleakhi = " << m_pulsevar->m_tleakhi[i]
-                          << " leakhi= " << m_pulsevar->m_leakhi[i]
-                          << " dleakhi " << m_pulsevar->m_dleakhi[i] << endmsg;
+          msg(MSG::DEBUG) << " old tleakhi = " << m_pulseShapes->m_tleakhi[i]
+                          << " leakhi= " << m_pulseShapes->m_leakhi[i]
+                          << " dleakhi " << m_pulseShapes->m_dleakhi[i] << endmsg;
         }
         phase += CIS_DT_HI;
       }
@@ -496,9 +491,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " sleaklo = " << m_shapes->m_sleaklo[i]
                           << " dsleaklo " << m_shapes->m_dsleaklo[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old tsleaklo = " << m_pulsevar->m_tslcis[i]
-                          << " sleaklo= " << m_pulsevar->m_sleaklo[i]
-                          << " dsleaklo " << m_pulsevar->m_dsleaklo[i] << endmsg;
+          msg(MSG::DEBUG) << " old tsleaklo = " << m_pulseShapes->m_tslcis[i]
+                          << " sleaklo= " << m_pulseShapes->m_sleaklo[i]
+                          << " dsleaklo " << m_pulseShapes->m_dsleaklo[i] << endmsg;
         }
         phase += CIS_DT_LO;
       }
@@ -521,9 +516,9 @@ void TileRawChannelBuilderFitFilterCool::handle(const Incident& inc) {
                           << " sleakhi = " << m_shapes->m_sleakhi[i]
                           << " dsleakhi " << m_shapes->m_dsleakhi[i] << endmsg;
 
-          msg(MSG::DEBUG) << " old  tsleakhi= " << m_pulsevar->m_tsleakhi[i]
-                          << " sleakhi= " << m_pulsevar->m_sleakhi[i]
-                          << " dsleakhi " << m_pulsevar->m_dsleakhi[i] << endmsg;
+          msg(MSG::DEBUG) << " old  tsleakhi= " << m_pulseShapes->m_tsleakhi[i]
+                          << " sleakhi= " << m_pulseShapes->m_sleakhi[i]
+                          << " dsleakhi " << m_pulseShapes->m_dsleakhi[i] << endmsg;
         }
         phase += CIS_DT_HI;
       }
@@ -574,14 +569,11 @@ TileRawChannel* TileRawChannelBuilderFitFilterCool::rawChannel(const TileDigits*
 
   DataPool<TileRawChannel> tileRchPool(m_dataPoollSize);
   TileRawChannel *rawCh = tileRchPool.nextElementPtr();
-  rawCh->m_adc_hwid = adcId;
-  rawCh->m_amplitude.resize(1);
-  rawCh->m_amplitude[0] = amplitude;
-  rawCh->m_time.resize(1);
-  rawCh->m_time[0] = time;
-  rawCh->m_quality.resize(1);
-  rawCh->m_quality[0] = chi2;
-  rawCh->m_pedestal = pedestal;
+  rawCh->assign (adcId,
+                 amplitude,
+                 time,
+                 chi2,
+                 pedestal);
 
   if (m_correctTime && chi2 > 0) {
     rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
@@ -606,13 +598,13 @@ TileRawChannel* TileRawChannelBuilderFitFilterCool::rawChannel(const TileDigits*
  * using fitted pulse shape. Method uses HFITV.
  * @param samples TileDigits
  */
-void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, double &p_amplitude
-    , double &p_time, double &p_pedestal, double &p_chi2) {
+void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, double &amplitude
+    , double &time, double &pedestal, double &chi2) {
 
-  p_amplitude = 0.0;
-  p_time = 0.0;
-  p_pedestal = 0.0;
-  p_chi2 = MAX_CHI2;
+  amplitude = 0.0;
+  time = 0.0;
+  pedestal = 0.0;
+  chi2 = MAX_CHI2;
 
   const HWIdentifier adcId = digit->adc_HWID();
   int ros = m_tileHWID->ros(adcId);
@@ -624,36 +616,36 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   int noise_channel = (ros < 3) ? channel : channel + 48;
 
   if (igain == 0) {
-    switch (m_RMSChannelNoise) {
+    switch (m_channelNoiseRMS) {
       case 3:
         rms = m_tileInfo->DigitsPedSigma(adcId);
         if (rms > 0.0) break;
       case 2:
-        rms = m_pulsevar->m_noiseNkLo[noise_channel];
+        rms = m_pulseShapes->m_noiseNkLo[noise_channel];
         if (rms > 0.0) break;
       case 1:
-        rms = m_pulsevar->m_noiseOrigLo[noise_channel];
+        rms = m_pulseShapes->m_noiseOrigLo[noise_channel];
         if (rms > 0.0) break;
       default:
         rms = m_noiseLow;
     }
   } else if (igain == 1) {
-    switch (m_RMSChannelNoise) {
+    switch (m_channelNoiseRMS) {
       case 3:
         rms = m_tileInfo->DigitsPedSigma(adcId);
         if (rms > 0.0) break;
       case 2:
-        rms = m_pulsevar->m_noiseNkHi[noise_channel];
+        rms = m_pulseShapes->m_noiseNkHi[noise_channel];
         if (rms > 0.0) break;
       case 1:
-        rms = m_pulsevar->m_noiseOrigHi[noise_channel];
+        rms = m_pulseShapes->m_noiseOrigHi[noise_channel];
         if (rms > 0.0) break;
       default:
         rms = m_noiseHigh;
     }
   } else {
     // neither low nor hi-gain, (e.g. adder data)
-    p_chi2 = -1.0;
+    chi2 = -1.0;
     return;
   }
 
@@ -662,16 +654,16 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                    << " Channel=" << channel
                    << " gain=" << igain
                    << " RMS=" << rms
-                   << " RMSChNoise=" << m_RMSChannelNoise );
+                   << " RMSChNoise=" << m_channelNoiseRMS );
 
   // First sample to fit, number of samples to fit
   int ifit1 = 0;
   int nfit = std::min(m_frameLength, digit->NtimeSamples());
 
-  int ipeakMax = m_ipeak0;
-  int ipeakMin = m_ipeak0;
+  int ipeakMax = m_iPeak0;
+  int ipeakMin = m_iPeak0;
 
-  ATH_MSG_VERBOSE ( "ipeak0=" << m_ipeak0
+  ATH_MSG_VERBOSE ( "ipeak0=" << m_iPeak0
                    << " ifit1=" << ifit1
                    << " ifit2=" << ifit1 + nfit - 1
                    << " nfit=" << nfit
@@ -688,25 +680,25 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   double yvec[MAX_SAMPLES], eyvec[MAX_SAMPLES];
 
   bool no_signal = true;
-  p_pedestal = samples[0];
+  pedestal = samples[0];
   const double delta = 1.e-6;
 
   for (int isamp = 0; isamp < nfit; ++isamp) {
     int j = isamp + ifit1;
     xvec[isamp] = j;
     yvec0[isamp] = samples[j];
-    if (no_signal) no_signal = (fabs(samples[j] - p_pedestal) < delta);
+    if (no_signal) no_signal = (fabs(samples[j] - pedestal) < delta);
 
     // Check for saturated or zero samples and de-weight accordingly
     if ((yvec0[isamp] < SATURATED_ADC_VALUE) && (yvec0[isamp] > 0)) {
       eyvec[isamp] = rms;
     } else {
       if (yvec0[isamp] >= SATURATED_ADC_VALUE) {
-        eyvec[isamp] = m_SaturatedSampleError * rms;
+        eyvec[isamp] = m_saturatedSampleError * rms;
         ATH_MSG_VERBOSE ( "Saturated ADC value yvec0[" << isamp << "]=" << yvec0[isamp]
                          << " (MAX=" << SATURATED_ADC_VALUE << " ) RMS=" << eyvec[isamp] );
       } else { // must be yvec0[isamp]==0
-        eyvec[isamp] = m_ZeroSampleError * rms;
+        eyvec[isamp] = m_zeroSampleError * rms;
         ATH_MSG_VERBOSE ( "Zero ADC value yvec0[" << isamp << "]=" << yvec0[isamp]
                          << " RMS=" << eyvec[isamp] );
       }
@@ -739,24 +731,24 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   // Position of max sample compared to nominal peak position
   int delta_peak = 0;
   // Time offset in pulse functions
-  m_t0fit = 0.0;
+  m_t0Fit = 0.0;
   // Flag for fixed time in fit
   bool fixedTime = (m_maxIterate < 0);
   
   if (!fixedTime) {
-    if (maxsamp - pedg > m_NoiseThresholdRMS * rms) {
-      delta_peak = ipeakMax - m_ipeak0;  // Adjust initial phase guess,
-      m_t0fit = (delta_peak) * DTIME;       // positive amplitude
-    } else if (pedg - minsamp > m_NoiseThresholdRMS * rms) {
-      delta_peak = ipeakMin - m_ipeak0;       // Adjust initial phase guess,
-      m_t0fit = (delta_peak) * DTIME;     // negative amplitude
+    if (maxsamp - pedg > m_noiseThresholdRMS * rms) {
+      delta_peak = ipeakMax - m_iPeak0;  // Adjust initial phase guess,
+      m_t0Fit = (delta_peak) * DTIME;       // positive amplitude
+    } else if (pedg - minsamp > m_noiseThresholdRMS * rms) {
+      delta_peak = ipeakMin - m_iPeak0;       // Adjust initial phase guess,
+      m_t0Fit = (delta_peak) * DTIME;     // negative amplitude
     } else {
       fixedTime = true; // no signal above noise
-      m_t0fit = 0.0;    // fit with fixed time
+      m_t0Fit = 0.0;    // fit with fixed time
     }
   }
   
-  ATH_MSG_VERBOSE ( " initial value of t0fit=" << m_t0fit
+  ATH_MSG_VERBOSE ( " initial value of t0fit=" << m_t0Fit
                    << " ipeakMax=" << ipeakMax
                    << " ipeakMin=" << ipeakMin
                    << " fixedTime=" << ((fixedTime) ? "true" : "false") );
@@ -767,69 +759,69 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   if (m_idocis && ((m_cischan == -1) || (channel == m_cischan))) { // CIS pulse
     if (igain == 0) { // low gain
       if (m_capdaq > 10) { // 100 pF capacitor
-        tpulse = &(m_pulsevar->m_tlcis);
-        ypulse = &(m_pulsevar->m_ylcis);
-        tdpulse = &(m_pulsevar->m_tdlcis);
-        dpulse = &(m_pulsevar->m_ydlcis);
-        tleak = &(m_pulsevar->m_tleaklo);
-        yleak = &(m_pulsevar->m_leaklo);
-        tdleak = &(m_pulsevar->m_tdleaklo);
-        dleak = &(m_pulsevar->m_dleaklo);
+        tpulse = &(m_pulseShapes->m_tlcis);
+        ypulse = &(m_pulseShapes->m_ylcis);
+        tdpulse = &(m_pulseShapes->m_tdlcis);
+        dpulse = &(m_pulseShapes->m_ydlcis);
+        tleak = &(m_pulseShapes->m_tleaklo);
+        yleak = &(m_pulseShapes->m_leaklo);
+        tdleak = &(m_pulseShapes->m_tdleaklo);
+        dleak = &(m_pulseShapes->m_dleaklo);
       } else { // 5.2 pF capacitor
-        tpulse = &(m_pulsevar->m_tslcis);
-        ypulse = &(m_pulsevar->m_yslcis);
-        tdpulse = &(m_pulsevar->m_tdslcis);
-        dpulse = &(m_pulsevar->m_ydslcis);
-        tleak = &(m_pulsevar->m_tsleaklo);
-        yleak = &(m_pulsevar->m_sleaklo);
-        tdleak = &(m_pulsevar->m_tdsleaklo);
-        dleak = &(m_pulsevar->m_dsleaklo);
+        tpulse = &(m_pulseShapes->m_tslcis);
+        ypulse = &(m_pulseShapes->m_yslcis);
+        tdpulse = &(m_pulseShapes->m_tdslcis);
+        dpulse = &(m_pulseShapes->m_ydslcis);
+        tleak = &(m_pulseShapes->m_tsleaklo);
+        yleak = &(m_pulseShapes->m_sleaklo);
+        tdleak = &(m_pulseShapes->m_tdsleaklo);
+        dleak = &(m_pulseShapes->m_dsleaklo);
       }
     } else { // igain==1 => high-gain
       if (m_capdaq > 10) { // 100 pF capacitor
-        tpulse = &(m_pulsevar->m_thcis);
-        ypulse = &(m_pulsevar->m_yhcis);
-        tdpulse = &(m_pulsevar->m_tdhcis);
-        dpulse = &(m_pulsevar->m_ydhcis);
-        tleak = &(m_pulsevar->m_tleakhi);
-        yleak = &(m_pulsevar->m_leakhi);
-        tdleak = &(m_pulsevar->m_tdleakhi);
-        dleak = &(m_pulsevar->m_dleakhi);
+        tpulse = &(m_pulseShapes->m_thcis);
+        ypulse = &(m_pulseShapes->m_yhcis);
+        tdpulse = &(m_pulseShapes->m_tdhcis);
+        dpulse = &(m_pulseShapes->m_ydhcis);
+        tleak = &(m_pulseShapes->m_tleakhi);
+        yleak = &(m_pulseShapes->m_leakhi);
+        tdleak = &(m_pulseShapes->m_tdleakhi);
+        dleak = &(m_pulseShapes->m_dleakhi);
       } else { // 5.2 pF capacitor
-        tpulse = &(m_pulsevar->m_tshcis);
-        ypulse = &(m_pulsevar->m_yshcis);
-        tdpulse = &(m_pulsevar->m_tdshcis);
-        dpulse = &(m_pulsevar->m_ydshcis);
-        tleak = &(m_pulsevar->m_tsleakhi);
-        yleak = &(m_pulsevar->m_sleakhi);
-        tdleak = &(m_pulsevar->m_tdsleakhi);
-        dleak = &(m_pulsevar->m_dsleakhi);
+        tpulse = &(m_pulseShapes->m_tshcis);
+        ypulse = &(m_pulseShapes->m_yshcis);
+        tdpulse = &(m_pulseShapes->m_tdshcis);
+        dpulse = &(m_pulseShapes->m_ydshcis);
+        tleak = &(m_pulseShapes->m_tsleakhi);
+        yleak = &(m_pulseShapes->m_sleakhi);
+        tdleak = &(m_pulseShapes->m_tdsleakhi);
+        dleak = &(m_pulseShapes->m_dsleakhi);
       }
     }
   } else {
     if (m_idolas) { // laser pulse
       if (igain == 0) { // low gain
-        tpulse = &(m_pulsevar->m_tllas);
-        ypulse = &(m_pulsevar->m_yllas);
-        tdpulse = &(m_pulsevar->m_tdllas);
-        dpulse = &(m_pulsevar->m_ydllas);
+        tpulse = &(m_pulseShapes->m_tllas);
+        ypulse = &(m_pulseShapes->m_yllas);
+        tdpulse = &(m_pulseShapes->m_tdllas);
+        dpulse = &(m_pulseShapes->m_ydllas);
       } else { // igain==1 => high-gain
-        tpulse = &(m_pulsevar->m_thlas);
-        ypulse = &(m_pulsevar->m_yhlas);
-        tdpulse = &(m_pulsevar->m_tdhlas);
-        dpulse = &(m_pulsevar->m_ydhlas);
+        tpulse = &(m_pulseShapes->m_thlas);
+        ypulse = &(m_pulseShapes->m_yhlas);
+        tdpulse = &(m_pulseShapes->m_tdhlas);
+        dpulse = &(m_pulseShapes->m_ydhlas);
       }
     } else { // physics pulse
       if (igain == 0) { // low gain
-        tpulse = &(m_pulsevar->m_tlphys);
-        ypulse = &(m_pulsevar->m_ylphys);
-        tdpulse = &(m_pulsevar->m_tdlphys);
-        dpulse = &(m_pulsevar->m_ydlphys);
+        tpulse = &(m_pulseShapes->m_tlphys);
+        ypulse = &(m_pulseShapes->m_ylphys);
+        tdpulse = &(m_pulseShapes->m_tdlphys);
+        dpulse = &(m_pulseShapes->m_ydlphys);
       } else { // igain==1 => high-gain
-        tpulse = &(m_pulsevar->m_thphys);
-        ypulse = &(m_pulsevar->m_yhphys);
-        tdpulse = &(m_pulsevar->m_tdhphys);
-        dpulse = &(m_pulsevar->m_ydhphys);
+        tpulse = &(m_pulseShapes->m_thphys);
+        ypulse = &(m_pulseShapes->m_yhphys);
+        tdpulse = &(m_pulseShapes->m_tdhphys);
+        dpulse = &(m_pulseShapes->m_ydhphys);
       }
     }
   }
@@ -841,7 +833,7 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
   double fixtau = 0.0, fixped = 0.0, fixampl = 0.0, fixchi2 = MAX_CHI2;
   double leaktau = 0.0, leakped = 0.0, leakampl = 0.0, leakchi2 = MAX_CHI2;
   double cistau = 0.0, cisped = 0.0, cisampl = 0.0, cisatau = 0.0, cischi2 = MAX_CHI2;
-  double tau, ped, ampl, atau = 0.0, chi2 = MAX_CHI2, oldchi2 = MAX_CHI2 / 2;
+  double tau, ped, ampl, atau = 0.0, tempChi2 = MAX_CHI2, oldchi2 = MAX_CHI2 / 2;
 
   // number of iterations
   int niter = 0;
@@ -849,15 +841,15 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
     ++niter;
     ATH_MSG_VERBOSE ( "niter=" << niter << " maxIterate=" << m_maxIterate );
 
-    if (chi2 < oldchi2) oldchi2 = chi2; // best chi2 up to now
+    if (tempChi2 < oldchi2) oldchi2 = tempChi2; // best chi2 up to now
 
     // parameters for pulse shape functions
     // 0. phase
-    m_fnpar[0] = 0.0;
+    m_fnParameters[0] = 0.0;
     // 1. pedestal 
-    m_fnpar[1] = 0.0;
+    m_fnParameters[1] = 0.0;
     // 2. amplitude
-    m_fnpar[2] = 1.0;
+    m_fnParameters[2] = 1.0;
 
     // CIS events linear fit
     if (m_idocis && ((m_cischan == -1) || (channel == m_cischan))) {
@@ -870,7 +862,7 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         ATH_MSG_VERBOSE ( "Lo gain leakage xvec[" << isamp << "]=" << xvec[isamp] );
 
         leakage = pulse(xvec[isamp], tleak, yleak);
-        dleakage = deriv(xvec[isamp], tdleak, dleak);
+        dleakage = derivative(xvec[isamp], tdleak, dleak);
 
         // Samples with pedestal subtracted
         yvec[isamp] = yvec0[isamp] - pedg;
@@ -887,9 +879,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       if (fabs(slplp) > EPS_DG && !fixedTime) {
         leaktau = (sllp - sylp) / slplp;
         // Also have to check the range for leaktau
-        if (leaktau > m_max_tau)
-          leaktau = m_max_tau;
-        else if (leaktau < m_min_tau) leaktau = m_min_tau;
+        if (leaktau > m_maxTau)
+          leaktau = m_maxTau;
+        else if (leaktau < m_minTau) leaktau = m_minTau;
       } else {
         leaktau = 0.0;
       }
@@ -901,7 +893,7 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
       // CIS Part (B): using phase determined in part (A), 
       // subtract leakage pedestal and fit for amplitude, pedestal
-      m_fnpar[0] = leaktau;
+      m_fnParameters[0] = leaktau;
       sy = 0.0;
       sg = 0.0;
       syg = 0.0;
@@ -909,7 +901,7 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       serr = 0.0;
       for (int isamp = 0; isamp < nfit; ++isamp) {
         leakage = pulse(xvec[isamp], tleak, yleak);
-        gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+        gval = scaledPulse(xvec[isamp], tpulse, ypulse);
         yvec[isamp] = yvec0[isamp] - leakage;
 
         ATH_MSG_VERBOSE ( " yvec[" << isamp << "]=" << yvec[isamp]
@@ -936,11 +928,11 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       ATH_MSG_VERBOSE ( " Determine Chi2 for CIS leakage + pulse" );
       
       leakchi2 = 0.0;
-      m_fnpar[0] = leaktau;
-      m_fnpar[1] = leakped;
-      m_fnpar[2] = leakampl;
+      m_fnParameters[0] = leaktau;
+      m_fnParameters[1] = leakped;
+      m_fnParameters[2] = leakampl;
       for (int isamp = 0; isamp < nfit; ++isamp) {
-        gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+        gval = scaledPulse(xvec[isamp], tpulse, ypulse);
         leakage = pulse(xvec[isamp], tleak, yleak);
         xd = yvec0[isamp] - (gval + leakage);
         leakchi2 = leakchi2 + (xd * xd) / (eyvec[isamp] * eyvec[isamp]);
@@ -960,9 +952,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       
       // CIS Part C: Least-squares fit with 3 parameters for pulse+leakage
       if (!fixedTime) {
-        m_fnpar[0] = 0.0;
-        m_fnpar[1] = 0.0;
-        m_fnpar[2] = 0.0;
+        m_fnParameters[0] = 0.0;
+        m_fnParameters[1] = 0.0;
+        m_fnParameters[2] = 0.0;
         for (int isamp = 0; isamp < nfit; ++isamp) {
           leakage = pulse(xvec[isamp], tleak, yleak);
 
@@ -974,9 +966,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                           << " leakage=" << leakage
                           << " yvec[" << isamp << "]=" << yvec[isamp] );
         }
-        m_fnpar[0] = 0.0;
-        m_fnpar[1] = 0.0;
-        m_fnpar[2] = 1.0;
+        m_fnParameters[0] = 0.0;
+        m_fnParameters[1] = 0.0;
+        m_fnParameters[2] = 1.0;
         sy = 0.0;
         sg = 0.0;
         sgp = 0.0;
@@ -987,8 +979,8 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         sgpgp = 0.0;
         serr = 0.0;
         for (int isamp = 0; isamp < nfit; ++isamp) {
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
-          gpval = deriv(xvec[isamp], tdpulse, dpulse);
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
+          gpval = derivative(xvec[isamp], tdpulse, dpulse);
           err2 = eyvec[isamp] * eyvec[isamp];
           sy += yvec[isamp] / err2;
           sg += gval / err2;
@@ -1016,9 +1008,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
           if (fabs(cisampl) > EPS_DG) {
             cistau = cisatau / cisampl;
-            if (cistau > m_max_tau)
-              cistau = m_max_tau;
-            else if (cistau < m_min_tau) cistau = m_min_tau;
+            if (cistau > m_maxTau)
+              cistau = m_maxTau;
+            else if (cistau < m_minTau) cistau = m_minTau;
           } else {
             cistau = 0.0;
           }
@@ -1053,11 +1045,11 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
         // Determine Chi2 for pulse shape + leakage fit CIS Part C
         cischi2 = 0.0;
-        m_fnpar[0] = cistau;
-        m_fnpar[1] = cisped;
-        m_fnpar[2] = cisampl;
+        m_fnParameters[0] = cistau;
+        m_fnParameters[1] = cisped;
+        m_fnParameters[2] = cisampl;
         for (int isamp = 0; isamp < nfit; ++isamp) {
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
           leakage = pulse(xvec[isamp], tleak, yleak);
           // Subtract leakage from samples
           yvec[isamp] = yvec0[isamp] - leakage;
@@ -1080,12 +1072,12 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         tau = cistau;
         ped = cisped;
         ampl = cisampl;
-        chi2 = cischi2;
+        tempChi2 = cischi2;
       } else {
         tau = leaktau;
         ped = leakped;
         ampl = leakampl;
-        chi2 = leakchi2;
+        tempChi2 = leakchi2;
       }
     }
     // End of fit for CIS events
@@ -1094,8 +1086,8 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
       if (niter == 1) { /* For first iteration, also calculate 2-Parameter Fit
        for pedestal and amplitude */
-        double t0fit_old = m_t0fit;
-        m_t0fit = 0.0;
+        double t0fit_old = m_t0Fit;
+        m_t0Fit = 0.0;
 
         sy = 0.0;
         sg = 0.0;
@@ -1112,12 +1104,12 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
             else if (jsamp >= nfit) jsamp = nfit - 1;
 
             if (igain == 0) {
-              gval = m_gphyslo[jsamp];
+              gval = m_gPhysLo[jsamp];
             } else {
-              gval = m_gphyshi[jsamp];
+              gval = m_gPhysHi[jsamp];
             }
           } else {
-            gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+            gval = scaledPulse(xvec[isamp], tpulse, ypulse);
           }
           err2 = eyvec[isamp] * eyvec[isamp];
           sy += yvec0[isamp] / err2;
@@ -1142,12 +1134,12 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                           << ", fixampl = " << fixampl
                           << " fixped = " << fixped  );
         }
-        m_fnpar[0] = fixtau; /* 2-Par fit Calculate chi2 for physics events */
-        m_fnpar[1] = fixped;
-        m_fnpar[2] = fixampl;
+        m_fnParameters[0] = fixtau; /* 2-Par fit Calculate chi2 for physics events */
+        m_fnParameters[1] = fixped;
+        m_fnParameters[2] = fixampl;
         fixchi2 = 0.0;
         for (int isamp = 0; isamp < nfit; ++isamp) {
-          dc = yvec0[isamp] - scaledpulse(xvec[isamp], tpulse, ypulse);
+          dc = yvec0[isamp] - scaledPulse(xvec[isamp], tpulse, ypulse);
           fixchi2 = fixchi2 + (dc * dc) / (eyvec[isamp] * eyvec[isamp]);
           ATH_MSG_VERBOSE ( "   isamp= " << isamp
                            << " yvec0[" << isamp << "]= " << yvec0[isamp]
@@ -1157,20 +1149,20 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         fixchi2 = fixchi2 / (nfit - 2.0);
         ATH_MSG_VERBOSE ( "  fixchi2/(nfit-2.0)=" << fixchi2 << " nfit=" << nfit );
 
-        m_t0fit = t0fit_old;
+        m_t0Fit = t0fit_old;
 
         // restore initial parameters for pulse shape functions - to be used in 3-par fit
-        m_fnpar[0] = 0.0;
-        m_fnpar[1] = 0.0;
-        m_fnpar[2] = 1.0;
+        m_fnParameters[0] = 0.0;
+        m_fnParameters[1] = 0.0;
+        m_fnParameters[2] = 1.0;
       } /* end of 2-par fit in first iteration */
 
       if (fixedTime) {
-        m_t0fit = 0.0;
+        m_t0Fit = 0.0;
         tau = fixtau;
         ped = fixped;
         ampl = fixampl;
-        chi2 = oldchi2 = -fabs(fixchi2);
+        tempChi2 = oldchi2 = -fabs(fixchi2);
       } else {
 
         sy = 0.0;
@@ -1193,16 +1185,16 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
             else if (jsamp >= nfit) jsamp = nfit - 1;
 
             if (igain == 0) {       // igain ==0 => low-gain
-              gval = m_gphyslo[jsamp];
-              gpval = m_dgphyslo[jsamp];
+              gval = m_gPhysLo[jsamp];
+              gpval = m_dgPhysLo[jsamp];
             } else { 	          // must be igain==1 => high-gain
-              gval = m_gphyshi[jsamp];
-              gpval = m_dgphyshi[jsamp];
+              gval = m_gPhysHi[jsamp];
+              gpval = m_dgPhysHi[jsamp];
             }
           } else {
             // Use the respective function values
-            gval = scaledpulse(xvec[isamp], tpulse, ypulse);
-            gpval = deriv(xvec[isamp], tdpulse, dpulse);
+            gval = scaledPulse(xvec[isamp], tpulse, ypulse);
+            gpval = derivative(xvec[isamp], tdpulse, dpulse);
           }
 
           err2 = eyvec[isamp] * eyvec[isamp];
@@ -1243,9 +1235,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
           if (fabs(ampl) > EPS_DG) {
             // Time
             tau = atau / ampl;
-            if (tau > m_max_tau)
-              tau = m_max_tau;
-            else if (tau < m_min_tau) tau = m_min_tau;
+            if (tau > m_maxTau)
+              tau = m_maxTau;
+            else if (tau < m_minTau) tau = m_minTau;
           } else {
             tau = 0.0;
           }
@@ -1292,78 +1284,78 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                             << " tau=" << tau << endmsg;
         }
 
-        m_fnpar[0] = tau;
-        m_fnpar[1] = ped;
-        m_fnpar[2] = ampl;
+        m_fnParameters[0] = tau;
+        m_fnParameters[1] = ped;
+        m_fnParameters[2] = ampl;
 
-        chi2 = 0;
+        tempChi2 = 0;
         // Calculate chi2 for physics and laser events
         for (int isamp = 0; isamp < nfit; ++isamp) {
-          dc = yvec0[isamp] - scaledpulse(xvec[isamp], tpulse, ypulse);
-          chi2 = chi2 + (dc * dc) / (eyvec[isamp] * eyvec[isamp]);
+          dc = yvec0[isamp] - scaledPulse(xvec[isamp], tpulse, ypulse);
+          tempChi2 = tempChi2 + (dc * dc) / (eyvec[isamp] * eyvec[isamp]);
           ATH_MSG_VERBOSE ( " isamp=" << isamp
                             << " yvec0[" << isamp << "]=" << yvec0[isamp]
                             << " eyvec[" << isamp << "]=" << eyvec[isamp]
-                            << " dc=" << dc << " chi2=" << chi2 );
+                            << " dc=" << dc << " chi2=" << tempChi2 );
         }
-        chi2 = chi2 / (nfit - 3.0);
-        ATH_MSG_VERBOSE ( " chi2/(nfit-3.0)=" << chi2 << " nfit=" << nfit );
+        tempChi2 = tempChi2 / (nfit - 3.0);
+        ATH_MSG_VERBOSE ( " chi2/(nfit-3.0)=" << tempChi2 << " nfit=" << nfit );
       } // end if fixedTime
     } // end of physics and laser specific part
 
     if (msgLvl(MSG::VERBOSE))
-      msg(MSG::VERBOSE) << " t0fit: " << m_t0fit << ((tau < 0.0) ? " - " : " + ") << fabs(tau);
+      msg(MSG::VERBOSE) << " t0fit: " << m_t0Fit << ((tau < 0.0) ? " - " : " + ") << fabs(tau);
 
     // avoid infinite loop at the boundary
-    if (fabs(m_t0fit - m_max_time) < 0.001 && tau >= 0.0) { // trying to go outside max boudary second time
-      m_t0fit = fixtau + (m_min_time - fixtau) * niter / m_maxIterate; // jump to negative time
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " jumping to " << m_t0fit << endmsg;
-      chi2 = MAX_CHI2;
-    } else if (fabs(m_t0fit - m_min_time) < 0.001 && tau <= 0.0) { // trying to go outside min boudary second time
-      m_t0fit = fixtau + (m_max_time - fixtau) * niter / m_maxIterate; // jump to positive time
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " jumping to " << m_t0fit << endmsg;
-      chi2 = MAX_CHI2;
+    if (fabs(m_t0Fit - m_maxTime) < 0.001 && tau >= 0.0) { // trying to go outside max boudary second time
+      m_t0Fit = fixtau + (m_minTime - fixtau) * niter / m_maxIterate; // jump to negative time
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " jumping to " << m_t0Fit << endmsg;
+      tempChi2 = MAX_CHI2;
+    } else if (fabs(m_t0Fit - m_minTime) < 0.001 && tau <= 0.0) { // trying to go outside min boudary second time
+      m_t0Fit = fixtau + (m_maxTime - fixtau) * niter / m_maxIterate; // jump to positive time
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " jumping to " << m_t0Fit << endmsg;
+      tempChi2 = MAX_CHI2;
     } else {
 
       // Iteration with parameter for time 
-      m_t0fit += tau;
-      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " = " << m_t0fit << endmsg;
+      m_t0Fit += tau;
+      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " = " << m_t0Fit << endmsg;
 
       // Check if total time does not exceed the limits:
-      if (m_t0fit > m_max_time) {
-        m_t0fit = m_max_time;
-        chi2 = MAX_CHI2;
-      } else if (m_t0fit < m_min_time) {
-        m_t0fit = m_min_time;
-        chi2 = MAX_CHI2;
+      if (m_t0Fit > m_maxTime) {
+        m_t0Fit = m_maxTime;
+        tempChi2 = MAX_CHI2;
+      } else if (m_t0Fit < m_minTime) {
+        m_t0Fit = m_minTime;
+        tempChi2 = MAX_CHI2;
       }
     }
     
     // save values of the best iteration
-    if (chi2 < p_chi2) {
-      p_time = m_t0fit;
-      p_pedestal = ped;
-      p_amplitude = ampl;
-      p_chi2 = chi2;
+    if (tempChi2 < chi2) {
+      time = m_t0Fit;
+      pedestal = ped;
+      amplitude = ampl;
+      chi2 = tempChi2;
     }
 
-    if (!fixedTime && chi2 < MAX_CHI2 && fabs(tau) < EPS_DG) { // too small tau
-      if (m_t0fit > fixtau)
-        m_t0fit = fixtau + (m_min_time - fixtau) * niter / m_maxIterate; // jump to negative time
+    if (!fixedTime && tempChi2 < MAX_CHI2 && fabs(tau) < EPS_DG) { // too small tau
+      if (m_t0Fit > fixtau)
+        m_t0Fit = fixtau + (m_minTime - fixtau) * niter / m_maxIterate; // jump to negative time
       else
-        m_t0fit = fixtau + (m_max_time - fixtau) * niter / m_maxIterate; // jump to positive time
+        m_t0Fit = fixtau + (m_maxTime - fixtau) * niter / m_maxIterate; // jump to positive time
 
-      ATH_MSG_VERBOSE ( " too small tau - jump to " << m_t0fit );
+      ATH_MSG_VERBOSE ( " too small tau - jump to " << m_t0Fit );
     }
     
     ATH_MSG_VERBOSE ( " iter=" << niter
-                     << " t0fit=" << m_t0fit
+                     << " t0fit=" << m_t0Fit
                      << " phase=" << tau
                      << " ped=" << ped
                      << " ampl=" << ampl
-                     << " chi2=" << chi2 );
+                     << " chi2=" << tempChi2 );
 
-  } while (fabs(chi2 - oldchi2) > DELTA_CHI2 && (niter < m_maxIterate));
+  } while (fabs(tempChi2 - oldchi2) > DELTA_CHI2 && (niter < m_maxIterate));
   
   //NGO never use the 2par fit result if non-pedestal event was detected!
 //   if ((fabs(fixchi2) <= fabs(p_chi2)) && 
@@ -1380,24 +1372,24 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 // extrapolate the pulse shape beyond the region where it is known.
 
 // Do it only in case when at least last sample is beyond m_MaxTimeFromPeak:
-  if ((nfit - 1 - m_ipeak0) * DTIME > p_time + m_MaxTimeFromPeak) {
+  if ((nfit - 1 - m_iPeak0) * DTIME > time + m_maxTimeFromPeak) {
 
     ATH_MSG_VERBOSE ( "Result before last iteration:"
-                     << " Time=" << p_time
-                     << " Ped=" << p_pedestal
-                     << " Amplitude=" << p_amplitude
-                     << " Chi2=" << p_chi2);
+                     << " Time=" << time
+                     << " Ped=" << pedestal
+                     << " Amplitude=" << amplitude
+                     << " Chi2=" << chi2);
 
-    m_t0fit = p_time;
+    m_t0Fit = time;
     int nfit_real;
 
     // parameters for pulse shape functions
     // 0. phase
-    m_fnpar[0] = 0.0;
+    m_fnParameters[0] = 0.0;
     // 1. pedestal 
-    m_fnpar[1] = 0.0;
+    m_fnParameters[1] = 0.0;
     // 2. amplitude
-    m_fnpar[2] = 1.0;
+    m_fnParameters[2] = 1.0;
 
     // CIS events linear fit
     if (m_idocis && ((m_cischan == -1) || (channel == m_cischan))) {
@@ -1408,11 +1400,11 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         sylp = 0.0;
         slplp = 0.0;
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
           ATH_MSG_VERBOSE ( "Lo gain leakage xvec[" << isamp << "]=" << xvec[isamp] );
 
           leakage = pulse(xvec[isamp], tleak, yleak);
-          dleakage = deriv(xvec[isamp], tdleak, dleak);
+          dleakage = derivative(xvec[isamp], tdleak, dleak);
 
           // Samples with pedestal subtracted
           yvec[isamp] = yvec0[isamp] - pedg;
@@ -1429,9 +1421,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         if (fabs(slplp) > EPS_DG && !fixedTime) {
           leaktau = (sllp - sylp) / slplp;
           // Also have to check the range for leaktau
-          if (leaktau > m_max_tau)
-            leaktau = m_max_tau;
-          else if (leaktau < m_min_tau) leaktau = m_min_tau;
+          if (leaktau > m_maxTau)
+            leaktau = m_maxTau;
+          else if (leaktau < m_minTau) leaktau = m_minTau;
         } else {
           leaktau = 0.0;
         }
@@ -1443,16 +1435,16 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
         // CIS Part (B): using phase determined in part (A), 
         // subtract leakage pedestal and fit for amplitude, pedestal
-        m_fnpar[0] = leaktau;
+        m_fnParameters[0] = leaktau;
         sy = 0.0;
         sg = 0.0;
         syg = 0.0;
         sgg = 0.0;
         serr = 0.0;
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
           leakage = pulse(xvec[isamp], tleak, yleak);
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
           yvec[isamp] = yvec0[isamp] - leakage;
 
           ATH_MSG_VERBOSE ( " yvec[" << isamp << "]=" << yvec[isamp]
@@ -1480,13 +1472,13 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
         leakchi2 = 0.0;
         nfit_real = 0;
-        m_fnpar[0] = leaktau;
-        m_fnpar[1] = leakped;
-        m_fnpar[2] = leakampl;
+        m_fnParameters[0] = leaktau;
+        m_fnParameters[1] = leakped;
+        m_fnParameters[2] = leakampl;
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
           ++nfit_real;
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
           leakage = pulse(xvec[isamp], tleak, yleak);
           xd = yvec0[isamp] - (gval + leakage);
           leakchi2 = leakchi2 + (xd * xd) / (eyvec[isamp] * eyvec[isamp]);
@@ -1505,11 +1497,11 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                          << " leakchi2=" << leakchi2 );
 
         // CIS Part C: Least-squares fit with 3 parameters for pulse+leakage
-        m_fnpar[0] = 0.0;
-        m_fnpar[1] = 0.0;
-        m_fnpar[2] = 0.0;
+        m_fnParameters[0] = 0.0;
+        m_fnParameters[1] = 0.0;
+        m_fnParameters[2] = 0.0;
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
 
           leakage = pulse(xvec[isamp], tleak, yleak);
 
@@ -1521,9 +1513,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                            << " leakage=" << leakage
                            << " yvec[" << isamp << "]=" << yvec[isamp] );
         }
-        m_fnpar[0] = 0.0;
-        m_fnpar[1] = 0.0;
-        m_fnpar[2] = 1.0;
+        m_fnParameters[0] = 0.0;
+        m_fnParameters[1] = 0.0;
+        m_fnParameters[2] = 1.0;
         sy = 0.0;
         sg = 0.0;
         sgp = 0.0;
@@ -1534,9 +1526,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         sgpgp = 0.0;
         serr = 0.0;
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
-          gpval = deriv(xvec[isamp], tdpulse, dpulse);
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
+          gpval = derivative(xvec[isamp], tdpulse, dpulse);
           err2 = eyvec[isamp] * eyvec[isamp];
           sy += yvec[isamp] / err2;
           sg += gval / err2;
@@ -1564,9 +1556,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
 
           if (fabs(cisampl) > EPS_DG) {
             cistau = cisatau / cisampl;
-            if (cistau > m_max_tau)
-              cistau = m_max_tau;
-            else if (cistau < m_min_tau) cistau = m_min_tau;
+            if (cistau > m_maxTau)
+              cistau = m_maxTau;
+            else if (cistau < m_minTau) cistau = m_minTau;
           } else {
             cistau = 0.0;
           }
@@ -1602,13 +1594,13 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         // Determine Chi2 for pulse shape + leakage fit CIS 
         cischi2 = 0.0;
         nfit_real = 0;
-        m_fnpar[0] = cistau;
-        m_fnpar[1] = cisped;
-        m_fnpar[2] = cisampl;
+        m_fnParameters[0] = cistau;
+        m_fnParameters[1] = cisped;
+        m_fnParameters[2] = cisampl;
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
           ++nfit_real;
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
           leakage = pulse(xvec[isamp], tleak, yleak);
           // Subtract leakage from samples
           yvec[isamp] = yvec0[isamp] - leakage;
@@ -1630,12 +1622,12 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
           tau = cistau;
           ped = cisped;
           ampl = cisampl;
-          chi2 = cischi2;
+          tempChi2 = cischi2;
         } else {
           tau = leaktau;
           ped = leakped;
           ampl = leakampl;
-          chi2 = leakchi2;
+          tempChi2 = leakchi2;
         }
         // End of fit for CIS events
       }
@@ -1643,9 +1635,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
       if (!fixedTime) {
 
         // restore initial parameters for pulse shape functions - to be used in 3-par fit
-        m_fnpar[0] = 0.0;
-        m_fnpar[1] = 0.0;
-        m_fnpar[2] = 1.0;
+        m_fnParameters[0] = 0.0;
+        m_fnParameters[1] = 0.0;
+        m_fnParameters[2] = 1.0;
 
         sy = 0.0;
         sg = 0.0;
@@ -1658,10 +1650,10 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
         serr = 0.0;
 
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
           // Use the respective function values
-          gval = scaledpulse(xvec[isamp], tpulse, ypulse);
-          gpval = deriv(xvec[isamp], tdpulse, dpulse);
+          gval = scaledPulse(xvec[isamp], tpulse, ypulse);
+          gpval = derivative(xvec[isamp], tdpulse, dpulse);
 
           err2 = eyvec[isamp] * eyvec[isamp];
           sy += yvec0[isamp] / err2;
@@ -1701,9 +1693,9 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
           if (fabs(ampl) > EPS_DG) {
             // Time
             tau = atau / ampl;
-            if (tau > m_max_tau)
-              tau = m_max_tau;
-            else if (tau < m_min_tau) tau = m_min_tau;
+            if (tau > m_maxTau)
+              tau = m_maxTau;
+            else if (tau < m_minTau) tau = m_minTau;
           } else {
             tau = 0.0;
           }
@@ -1749,59 +1741,59 @@ void TileRawChannelBuilderFitFilterCool::pulseFit(const TileDigits *digit, doubl
                             << " tau=" << tau << endmsg;
         }
 
-        m_fnpar[0] = tau;
-        m_fnpar[1] = ped;
-        m_fnpar[2] = ampl;
+        m_fnParameters[0] = tau;
+        m_fnParameters[1] = ped;
+        m_fnParameters[2] = ampl;
 
-        chi2 = 0;
+        tempChi2 = 0;
         nfit_real = 0;
         // Calculate chi2 for physics and laser events
         for (int isamp = 0;
-            (isamp < nfit) && (DTIME * (isamp - m_ipeak0) - m_t0fit < m_MaxTimeFromPeak); ++isamp) {
+            (isamp < nfit) && (DTIME * (isamp - m_iPeak0) - m_t0Fit < m_maxTimeFromPeak); ++isamp) {
           ++nfit_real;
-          dc = yvec0[isamp] - scaledpulse(xvec[isamp], tpulse, ypulse);
-          chi2 = chi2 + (dc * dc) / (eyvec[isamp] * eyvec[isamp]);
+          dc = yvec0[isamp] - scaledPulse(xvec[isamp], tpulse, ypulse);
+          tempChi2 = tempChi2 + (dc * dc) / (eyvec[isamp] * eyvec[isamp]);
           ATH_MSG_VERBOSE ( " isamp=" << isamp
                            << " yvec0[" << isamp << "]=" << yvec0[isamp]
                            << " eyvec[" << isamp << "]=" << eyvec[isamp]
                            << " dc=" << dc
-                           << " chi2=" << chi2 );
+                           << " chi2=" << tempChi2 );
         }
-        chi2 = chi2 / (nfit_real - 3.0);
-        ATH_MSG_VERBOSE ( " chi2/(nfit_real-3.0)=" << chi2
+        tempChi2 = tempChi2 / (nfit_real - 3.0);
+        ATH_MSG_VERBOSE ( " chi2/(nfit_real-3.0)=" << tempChi2
                          << " nfit_real=" << nfit_real );
       } // end if fixedTime
     } // end of physics and laser specific part
 
     if (msgLvl(MSG::VERBOSE))
-      msg(MSG::VERBOSE) << " t0fit: " << m_t0fit << ((tau < 0.0) ? " - " : " + ") << fabs(tau);
+      msg(MSG::VERBOSE) << " t0fit: " << m_t0Fit << ((tau < 0.0) ? " - " : " + ") << fabs(tau);
     // Iteration with parameter for time 
-    m_t0fit += tau;
-    ATH_MSG_VERBOSE ( " = " << m_t0fit );
+    m_t0Fit += tau;
+    ATH_MSG_VERBOSE ( " = " << m_t0Fit );
 
     // Check if total time does not exceed the limits:
-    if (m_t0fit > m_max_time) {
-      m_t0fit = m_max_time;
-      chi2 = MAX_CHI2;
-    } else if (m_t0fit < m_min_time) {
-      m_t0fit = m_min_time;
-      chi2 = MAX_CHI2;
+    if (m_t0Fit > m_maxTime) {
+      m_t0Fit = m_maxTime;
+      tempChi2 = MAX_CHI2;
+    } else if (m_t0Fit < m_minTime) {
+      m_t0Fit = m_minTime;
+      tempChi2 = MAX_CHI2;
     }
 
-    if (chi2 < MAX_CHI2) {
-      p_time = m_t0fit;
-      p_pedestal = ped;
-      p_amplitude = ampl;
-      p_chi2 = chi2;
+    if (tempChi2 < MAX_CHI2) {
+      time = m_t0Fit;
+      pedestal = ped;
+      amplitude = ampl;
+      chi2 = tempChi2;
     } // otherwise using the previous iteration
     
   } // end if to use extra iteration
   
   ATH_MSG_VERBOSE ( "Result:"
-                   << " Time=" << p_time
-                   << " Ped=" << p_pedestal
-                   << " Amplitude=" << p_amplitude
-                   << " Chi2=" << p_chi2 );
+                   << " Time=" << time
+                   << " Ped=" << pedestal
+                   << " Amplitude=" << amplitude
+                   << " Chi2=" << chi2 );
 }
 
 
@@ -1819,7 +1811,7 @@ double TileRawChannelBuilderFitFilterCool::pulse(double x, const std::vector<dou
   double xpmin = xvec->at(0);
   double xpmax = xvec->at(size1);
 
-  double xp = (x - m_ipeak0) * DTIME - m_t0fit - m_fnpar[0];
+  double xp = (x - m_iPeak0) * DTIME - m_t0Fit - m_fnParameters[0];
 
   double val = 0.0;
   double tdiv = (xpmax - xpmin) / size1;
