@@ -39,7 +39,7 @@
 #include "TileEvent/TileCellContainer.h"
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
-#include "TileRecUtils/TileBeamInfoProvider.h"
+//#include "TileRecUtils/TileBeamInfoProvider.h"
 
 // forward declarations
 class TileID;
@@ -55,6 +55,8 @@ class ITileBadChanTool;
 class TileCondToolEmscale;
 class TileCondToolTiming;
 class ITileRawChannelTool;
+class TileBeamInfoProvider;
+class TileDQstatus;
 
 
 // C++ STL includes
@@ -134,6 +136,9 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     //static const InterfaceID& interfaceID() { return ICaloCellMakerTool; };
 
   protected:
+    // FIXME: Get rid of this abomination.
+    friend class TileHid2RESrcID;
+
     // properties
     std::string m_rawChannelContainer;
     std::string m_infoName;
@@ -162,7 +167,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     float m_minTime;              //!< minimum time for the PMTs in the cels
     float m_maxChi2;              //!< maximum chi2 for the PMTs in the cels
     float m_minChi2;              //!< minimum chi2 for the PMTs in the cels
-    bool m_thresholdNotSet;      //!< bool variable to check wether some threshold have been set
+    bool m_thresholdNotSet;      //!< bool variable to check whether some threshold have been set
     bool m_fullSizeCont;
     bool m_maskBadChannels;      //!< if true=> bad channels are masked
     bool m_fakeCrackCells;       //!< if true=> fake E3/E4 cells added
@@ -171,7 +176,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
-    const TileDQstatus* theDQstatus;
+    const TileDQstatus* m_DQstatus;
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
@@ -259,17 +264,9 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
           }
         }
 
-        DoubleVectorIterator(const DoubleVectorIterator& i)
-            : first(i.first), typ1(i.typ1), uni1(i.uni1), cut1(i.cut1), amp1(i.amp1), tim1(i.tim1), of21(i.of21)
-            , second(i.second), typ2(i.typ2), uni2(i.uni2), cut2(i.cut2), amp2(i.amp2), tim2(i.tim2), of22(i.of22)
-            , ptr( i.ptr), pos(i.pos), itr(i.itr) {
-        }
+        DoubleVectorIterator(const DoubleVectorIterator& i) = default;
+        DoubleVectorIterator& operator=(const DoubleVectorIterator& other) = default;
 
-        DoubleVectorIterator& operator=(const DoubleVectorIterator& i) {
-          first = i.first; typ1 = i.typ1; uni1 = i.uni1; cut1 = i.cut1; amp1 = i.amp1; tim1 = i.tim1; of21 = i.of21;
-          second = i.second; typ2 = i.typ2; uni2 = i.uni2; cut2 = i.cut2; amp2 = i.amp2; tim2 = i.tim2; of22 = i.of22;
-          ptr = i.ptr; pos = i.pos; itr = i.itr;
-        }
 
         bool operator!=(const DoubleVectorIterator& i) {
           if (pos != i.pos || itr != i.itr) return true;
@@ -325,7 +322,5 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     enum CELL_CHANNEL {E1_CHANNEL = 12};
     enum CELL_TOWER {E1_TOWER = 10};
 };
-
-#include "TileRecUtils/TileCellBuilder.icc"
 
 #endif

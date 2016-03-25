@@ -230,9 +230,9 @@ class TileDQstatus {
   /** Array of bit masks storing Double Strobe errors for all DMUs */
   short m_DoubleStrobeErrArray[5][64][2];
 
-  static const int ch2dmuLB[48];
-  static const int ch2dmuEB[48];
-  static const int ch2dmuEBspecial[48];
+  static const int s_ch2dmuLB[48];
+  static const int s_ch2dmuEB[48];
+  static const int s_ch2dmuEBspecial[48];
 };
 
 /**
@@ -335,13 +335,13 @@ int TileDQstatus::isChEmpty(int partition, int drawer, int ch) {
   
   switch (partition) {
     case 1:
-      return ch2dmuLB[ch];
+      return s_ch2dmuLB[ch];
     case 2:
-      return ch2dmuLB[ch];    
+      return s_ch2dmuLB[ch];    
     case 3:
-      return (drawer != 14) ? ch2dmuEB[ch] : ch2dmuEBspecial[ch];
+      return (drawer != 14) ? s_ch2dmuEB[ch] : s_ch2dmuEBspecial[ch];
     case 4:
-      return (drawer != 17) ? ch2dmuEB[ch] : ch2dmuEBspecial[ch];
+      return (drawer != 17) ? s_ch2dmuEB[ch] : s_ch2dmuEBspecial[ch];
     default:
       return 0;
   }  

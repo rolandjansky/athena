@@ -57,6 +57,14 @@ class doTileOpt2(JobProperty):
     StoredValue  = False
 
 #
+class doTileQIE(JobProperty):
+    """ Use QIE algorith for energy reconstruction
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+#
 class doTileOF1(JobProperty):
     """ Use Optimal Filtering (version 1) for energy reconstruction, using pedestals from the conditions DB
     """
@@ -123,6 +131,14 @@ class calibrateEnergy(JobProperty):
 #
 class correctTime(JobProperty):
     """ apply time correction using info from DB (for physics and unknown trigger types)
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+#
+class correctTimeNI(JobProperty):
+    """ apply time correction in Optimal filter without iterations
     """
     statusOn     = True
     allowedTypes = ['bool']
@@ -219,6 +235,7 @@ list_jobproperties = [
     doTileOpt,
     doTileOF1,
     doTileOpt2,
+    doTileQIE,
     doTileManyAmps,
     doTileMF,
     doTileOptATLAS,
@@ -227,6 +244,7 @@ list_jobproperties = [
     noiseFilter,
     calibrateEnergy,
     correctTime,
+    correctTimeNI,
     correctAmplitude,
     AmpMinForAmpCorrection,
     TimeMinForAmpCorrection,

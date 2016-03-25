@@ -14,20 +14,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// small hack to enable datapool usage
-#define private public
-#define protected public
 #include "TileEvent/TileRawChannel.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
-#undef private
-#undef protected
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Atlas includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 // Tile includes
@@ -44,7 +39,8 @@
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileOptFilterWeights.h"
 
-using namespace std;
+//using namespace std;
+#include <algorithm>
 
 //interface stuff
 static const InterfaceID IID_ITileRawChannelBuilderOpt2Filter("TileRawChannelBuilderOpt2Filter", 1, 0);
@@ -64,12 +60,12 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   , m_tileCondToolOfc("TileCondToolOfc")
   , m_tileCondToolOfcCool("TileCondToolOfcCool")
   , m_tileToolNoiseSample("TileCondToolNoiseSample")
-  , c_signal(0)
-  , c_negat(0)
-  , c_center(0)
-  , c_const(0)
-  , m_NSamp(0)
-  , m_t0Samp(0)
+  , m_nSignal(0)
+  , m_nNegative(0)
+  , m_nCenter(0)
+  , m_nConst(0)
+  , m_nSamples(0)
+  , m_t0SamplePosition(0)
   , m_maxTime(0.0)
   , m_minTime(0.0)
 {
@@ -87,13 +83,14 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareProperty("MaxIterations",m_maxIterations = 5);
   declareProperty("PedestalMode",m_pedestalMode = 17);
   declareProperty("TimeForConvergence",m_timeForConvergence = 0.5);
-  declareProperty("ConfTB",m_ConfTB = false);
+  declareProperty("ConfTB",m_confTB = false);
   declareProperty("OF2",m_of2 = true);
   declareProperty("Minus1Iteration",m_minus1Iter = false);
   declareProperty("AmplitudeCorrection",m_correctAmplitude = false);
-  declareProperty("BestPhase",m_bestphase = false);
-  declareProperty("OfcfromCool",m_ofcfromcool = false);
-  declareProperty("EmulateDSP",m_emulatedsp = false);
+  declareProperty("TimeCorrection", m_correctTimeNI = false);
+  declareProperty("BestPhase",m_bestPhase = false);
+  declareProperty("OfcfromCool",m_ofcFromCool = false);
+  declareProperty("EmulateDSP",m_emulateDsp = false);
 }
 
 
@@ -103,54 +100,57 @@ TileRawChannelBuilderOpt2Filter::~TileRawChannelBuilderOpt2Filter() {
 
 StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
 
-  ATH_MSG_INFO( "TileRawChannelBuilderOpt2Filter::initialize()" );
+  ATH_MSG_INFO( "initialize()" );
 
   m_rChType = TileFragHash::OptFilterOffline; // type for offline Opt Filter
 
   // init in superclass
   CHECK( TileRawChannelBuilder::initialize() );
 
-  
+  if (m_maxIterations != 1) m_correctTimeNI = false;
+
   // bits 12-15 - various options
+  // if (m_correctTimeNI)  m_bsflags |= 0x1000;
   if (m_correctAmplitude) m_bsflags |= 0x2000;
   if (m_maxIterations > 1) m_bsflags |= 0x4000;
-  if (m_bestphase) m_bsflags |= 0x8000;
+  if (m_bestPhase) m_bsflags |= 0x8000;
 
   ATH_MSG_DEBUG( " MaxIterations=" << m_maxIterations
-                << " PedestalMode=" << m_pedestalMode
-                << " TimeForConvergence=" << m_timeForConvergence
-                << " ConfTB=" << m_ConfTB
-                << " OF2=" << m_of2
-                << " Minus1Iteration=" << m_minus1Iter
-                << " AmplitudeCorrection=" << m_correctAmplitude
-                << " Best Phase " << m_bestphase );
+                 << " PedestalMode=" << m_pedestalMode
+                 << " TimeForConvergence=" << m_timeForConvergence
+                 << " ConfTB=" << m_confTB
+                 << " OF2=" << m_of2
+                 << " Minus1Iteration=" << m_minus1Iter
+                 << " AmplitudeCorrection=" << m_correctAmplitude
+                 << " TimeCorrection=" << m_correctTimeNI
+                 << " Best Phase " << m_bestPhase );
 
-  m_NSamp = m_tileInfo->NdigitSamples();
-  m_t0Samp = m_tileInfo->ItrigSample();
-  m_maxTime = 25 * (m_NSamp - m_t0Samp - 1);
-  m_minTime = -25 * m_t0Samp;
-  ATH_MSG_DEBUG(" NSamples=" << m_NSamp
-                << " T0Sample=" << m_t0Samp
+  m_nSamples = m_tileInfo->NdigitSamples();
+  m_t0SamplePosition = m_tileInfo->ItrigSample();
+  m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
+  m_minTime = -25 * m_t0SamplePosition;
+  ATH_MSG_DEBUG(" NSamples=" << m_nSamples
+                << " T0Sample=" << m_t0SamplePosition
                 << " minTime=" << m_minTime
                 << " maxTime=" << m_maxTime );
 
-  if (m_pedestalMode % 10 > 2 && m_NSamp != m_pedestalMode % 10) {
+  if (m_pedestalMode % 10 > 2 && m_nSamples != m_pedestalMode % 10) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Changing PedestalMode from " << m_pedestalMode;
-    m_pedestalMode = (m_pedestalMode / 10) * 10 + m_NSamp;
+    m_pedestalMode = (m_pedestalMode / 10) * 10 + m_nSamples;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " to " << m_pedestalMode << endmsg;
   }
 
 
-  if (m_NSamp != 7 && (m_pedestalMode == 71 || m_pedestalMode == 7621)) {
+  if (m_nSamples != 7 && (m_pedestalMode == 71 || m_pedestalMode == 7621)) {
     ATH_MSG_ERROR( "Incompatable pedestal mode [" << m_pedestalMode
-		   << "] and number of samples [" << m_NSamp << "]" );
+                   << "] and number of samples [" << m_nSamples << "]" );
     return StatusCode::FAILURE;
   }
 
-  c_signal = 0;
-  c_negat = 0;
-  c_center = 0;
-  c_const = 0;
+  m_nSignal = 0;
+  m_nNegative = 0;
+  m_nCenter = 0;
+  m_nConst = 0;
 
   const IGeoModelSvc *geoModel = 0;
   CHECK( service("GeoModelSvc", geoModel) );
@@ -172,7 +172,7 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
 
 StatusCode TileRawChannelBuilderOpt2Filter::geoInit(IOVSVC_CALLBACK_ARGS) {
   
-  if (m_ofcfromcool) {
+  if (m_ofcFromCool) {
     //=== get TileCondToolOfcCool
     CHECK( m_tileCondToolOfcCool.retrieve() );
   } else {
@@ -184,7 +184,7 @@ StatusCode TileRawChannelBuilderOpt2Filter::geoInit(IOVSVC_CALLBACK_ARGS) {
   CHECK( m_tileToolNoiseSample.retrieve() );
 
 
-  if (m_bestphase) {
+  if (m_bestPhase) {
     //=== get TileToolTiming
     CHECK( m_tileToolTiming.retrieve() );
   }
@@ -199,15 +199,15 @@ StatusCode TileRawChannelBuilderOpt2Filter::finalize() {
 
   if (msgLvl(MSG::VERBOSE)) {
     if (m_maxIterations == 1) { // Without iterations
-      msg(MSG::VERBOSE) << "Counters: Signal=" << c_signal
-                        << " Constant=" << c_const
-                        << " Total=" << c_signal + c_const << endmsg;
+      msg(MSG::VERBOSE) << "Counters: Signal=" << m_nSignal
+                        << " Constant=" << m_nConst
+                        << " Total=" << m_nSignal + m_nConst << endmsg;
     } else {
-      msg(MSG::VERBOSE) << "Counters: Signal=" << c_signal
-                        << " Negat=" << c_negat
-                        << " Center=" << c_center
-                        << " Constant=" << c_const
-                        << " Total=" << c_signal + c_negat + c_const + c_center << endmsg;
+      msg(MSG::VERBOSE) << "Counters: Signal=" << m_nSignal
+                        << " Negat=" << m_nNegative
+                        << " Center=" << m_nCenter
+                        << " Constant=" << m_nConst
+                        << " Total=" << m_nSignal + m_nNegative + m_nConst + m_nCenter << endmsg;
     }
   }
 
@@ -221,35 +221,37 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
 
   ++m_chCounter;
 
-  double OptFilterPed = 0., OptFilterEne = 0., OptFilterTime = 0., OptFilterChi2 = 0.;
-  OptFilterDigits = digits->samples();
+  double pedestal = 0.;
+  double energy = 0.;
+  double time = 0.;
+  double chi2 = 0.;
+  m_digits = digits->samples();
   const HWIdentifier adcId = digits->adc_HWID();
-  int OptFilterGain = m_tileHWID->adc(adcId);
+  int gain = m_tileHWID->adc(adcId);
   
   ATH_MSG_VERBOSE( "Building Raw Channel, with OptFilter, HWID:" << m_tileHWID->to_string(adcId)
-                  << " gain=" << OptFilterGain );
+                  << " gain=" << gain );
 
   int ros = m_tileHWID->ros(adcId);
   int drawer = m_tileHWID->drawer(adcId);
   int channel = m_tileHWID->channel(adcId);
-  OptFilterChi2 = Filter(ros, drawer, channel, OptFilterGain, OptFilterPed, OptFilterEne,
-      OptFilterTime);
+  chi2 = filter(ros, drawer, channel, gain, pedestal, energy, time);
   
   if (m_calibrateEnergy) {
-    OptFilterEne = m_tileInfo->CisCalib(adcId, OptFilterEne);
+    energy = m_tileInfo->CisCalib(adcId, energy);
   }
   
   if (msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE) << "Creating OptFilter RawChannel"
-                      << " a=" << OptFilterEne
-                      << " t=" << OptFilterTime
-                      << " ped=" << OptFilterPed
-                      << " q=" << OptFilterChi2 << endmsg;
+                      << " a=" << energy
+                      << " t=" << time
+                      << " ped=" << pedestal
+                      << " q=" << chi2 << endmsg;
 
     msg(MSG::VERBOSE) << "digits:";
 
-    for (unsigned int i = 0; i < OptFilterDigits.size(); ++i)
-      msg(MSG::VERBOSE) << " " << OptFilterDigits[i];
+    for (unsigned int i = 0; i < m_digits.size(); ++i)
+      msg(MSG::VERBOSE) << " " << m_digits[i];
 
     msg(MSG::VERBOSE) << " " << endmsg;
   }
@@ -258,68 +260,65 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
   // TileRawChannel *rawCh = new TileRawChannel(adcId,OptFilterEne,OptFilterTime,OptFilterChi2,OptFilterPed);
   DataPool<TileRawChannel> tileRchPool(m_dataPoollSize);
   TileRawChannel *rawCh = tileRchPool.nextElementPtr();
-  rawCh->m_adc_hwid = adcId;
-  rawCh->m_amplitude.resize(1);
-  rawCh->m_amplitude[0] = OptFilterEne;
-  rawCh->m_time.resize(1);
-  rawCh->m_time[0] = OptFilterTime;
-  rawCh->m_quality.resize(1);
-  rawCh->m_quality[0] = OptFilterChi2;
-  rawCh->m_pedestal = OptFilterPed;
+  rawCh->assign (adcId,
+                 energy,
+                 time,
+                 chi2,
+                 pedestal);
 
   if (m_correctTime
-      && (OptFilterTime != 0
-          && OptFilterTime < m_maxTime
-          && OptFilterTime > m_minTime)) {
+      && (time != 0
+          && time < m_maxTime
+          && time > m_minTime)) {
 
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, OptFilterTime));
+    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
 
   }
 
-  if (TileID::HIGHGAIN == OptFilterGain) {
+  if (TileID::HIGHGAIN == gain) {
     ++m_nChH;
-    m_RChSumH += OptFilterEne;
+    m_RChSumH += energy;
   } else {
     ++m_nChL;
-    m_RChSumL += OptFilterEne;
+    m_RChSumL += energy;
   }
   
   return rawCh;
 }
 
 
-float TileRawChannelBuilderOpt2Filter::FindMaxDigit() {
+int TileRawChannelBuilderOpt2Filter::findMaxDigitPosition() {
 
-  ATH_MSG_VERBOSE( "  TileRawChannelBuilderOpt2Filter::FindMaxDigit()" );
+  ATH_MSG_VERBOSE( "  findMaxDigitPosition()" );
 
-  int imaxdig = 0;
-  float maxdig = 0.;
+  int iMaxDigit = 0;
+  float maxDigit = 0.;
   bool saturated = false;
   
-  for (unsigned int i = 0; i < OptFilterDigits.size(); i++) {
-    if (OptFilterDigits[i] > 1022.99) saturated = true;
-    if (maxdig < OptFilterDigits[i]) {
-      maxdig = OptFilterDigits[i];
-      imaxdig = i;
+  for (unsigned int i = 0; i < m_digits.size(); i++) {
+    if (m_digits[i] > 1022.99) saturated = true;
+    if (maxDigit < m_digits[i]) {
+      maxDigit = m_digits[i];
+      iMaxDigit = i;
     }
   }
   
   if (msgLvl(MSG::VERBOSE)) {
-    for (unsigned int i = 0; i < OptFilterDigits.size(); i++) {
-      msg(MSG::VERBOSE) << " " << OptFilterDigits[i];
+    for (unsigned int i = 0; i < m_digits.size(); i++) {
+      msg(MSG::VERBOSE) << " " << m_digits[i];
     }
 
-    msg(MSG::VERBOSE) << "; Max: digit[" << imaxdig << "]=" << maxdig << endmsg;
+    msg(MSG::VERBOSE) << "; Max: digit[" << iMaxDigit << "]=" << maxDigit << endmsg;
 
     if (saturated)  msg(MSG::VERBOSE) << " Samples saturated" << endmsg;
   }
   
-  return imaxdig;
+  return iMaxDigit;
 }
 
 
-float TileRawChannelBuilderOpt2Filter::SetPedestal(int ros, int drawer, int channel, int gain) {
+float TileRawChannelBuilderOpt2Filter::setPedestal(int ros, int drawer, int channel, int gain) {
   float pedestal = 0.;
   
   switch (m_pedestalMode) {
@@ -328,169 +327,162 @@ float TileRawChannelBuilderOpt2Filter::SetPedestal(int ros, int drawer, int chan
       pedestal = m_tileToolNoiseSample->getPed(TileCalibUtils::getDrawerIdx(ros, drawer), channel, gain);
       break;
     case 7:
-      pedestal = OptFilterDigits[6];
+      pedestal = m_digits[6];
       break;
     case 9:
-      pedestal = OptFilterDigits[8];
+      pedestal = m_digits[8];
       break;
     case 12:
-      pedestal = .5 * (OptFilterDigits[0] + OptFilterDigits[1]);
+      pedestal = .5 * (m_digits[0] + m_digits[1]);
       break;
     case 17:
-      pedestal = .5 * (OptFilterDigits[0] + OptFilterDigits[6]);
+      pedestal = .5 * (m_digits[0] + m_digits[6]);
       break;
     case 19:
-      pedestal = .5 * (OptFilterDigits[0] + OptFilterDigits[8]);
+      pedestal = .5 * (m_digits[0] + m_digits[8]);
       break;
     case 71:
-      pedestal = std::min(OptFilterDigits[0], OptFilterDigits[6]);
+      pedestal = std::min(m_digits[0], m_digits[6]);
       break;
     case 7621:
-      pedestal = 0.5 * std::min(OptFilterDigits[0] + OptFilterDigits[1], OptFilterDigits[5] + OptFilterDigits[6]); 
+      pedestal = 0.5 * std::min(m_digits[0] + m_digits[1], m_digits[5] + m_digits[6]); 
       break;
     default:
-      pedestal = OptFilterDigits[0];
+      pedestal = m_digits[0];
       break;
   }
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "  TileRawChannelBuilderOpt2Filter::SetPedestal()" << endmsg;
-    msg(MSG::VERBOSE) << "      pedestal=" << pedestal << endmsg;
-  }
+  ATH_MSG_VERBOSE("setPedestal(): pedestal=" << pedestal);
   
   return pedestal;
 }
 
 
-double TileRawChannelBuilderOpt2Filter::Filter(int ros, int drawer, int channel
-    , int &OptFilterGain, double &OptFilterPed, double &OptFilterEne, double &OptFilterTime) {
+double TileRawChannelBuilderOpt2Filter::filter(int ros, int drawer, int channel
+    , int &gain, double &pedestal, double &amplitude, double &time) {
 
-  ATH_MSG_VERBOSE( "TileRawChannelBuilderOpt2Filter::Filter" );
+  ATH_MSG_VERBOSE( "filter()" );
 
-  OptFilterEne = 0.;
-  OptFilterTime = 0.;
-  double OptFilterChi2 = 0.;
+  amplitude = 0.;
+  time = 0.;
+  double chi2 = 0.;
 
-  std::vector<float>::const_iterator idig = OptFilterDigits.begin();
-  std::vector<float>::const_iterator iend = OptFilterDigits.end();
-  float mindig = (*idig);
-  float maxdig = mindig;
+  auto minMaxDigits = std::minmax_element(m_digits.begin(), m_digits.end());
+  float minDigit = *minMaxDigits.first;
+  float maxDigit = *minMaxDigits.second;
 
-  for (++idig; idig != iend; ++idig) {
-    float samp = (*idig);
-    if (samp < mindig)
-      mindig = samp;
-    else if (samp > maxdig) maxdig = samp;
-  }
-  
-  if (maxdig - mindig < 0.01) { // constant value in all samples
+  if (maxDigit - minDigit < 0.01) { // constant value in all samples
 
-    OptFilterPed = mindig;
-    OptFilterChi2 = 0.;
-    ATH_MSG_VERBOSE( "CASE NO SIGNAL: maxdig-mindig = " << maxdig << "-" << mindig
-                    << " = " << maxdig - mindig );
+    pedestal = minDigit;
+    chi2 = 0.;
+    ATH_MSG_VERBOSE( "CASE NO SIGNAL: maxdig-mindig = " << maxDigit << "-" << minDigit
+                    << " = " << maxDigit - minDigit );
 
-    c_const++;
+    m_nConst++;
 
   } else {
 
-    OptFilterPed = SetPedestal(ros, drawer, channel, OptFilterGain);
-    double OptFilterPha = 0.;
-    int niter = 0;
+    pedestal = setPedestal(ros, drawer, channel, gain);
+    double phase = 0.;
+    int nIterations = 0;
 
     if (m_maxIterations == 1) {  // Without iterations
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
       // AA 3.10.08 --- take best phase from COOL
-      if (m_bestphase) {
+      if (m_bestPhase) {
         // AS 19.11.09 - note minus sign here - time in DB is opposite to best phase 
-        OptFilterPha = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, OptFilterGain);
-        ATH_MSG_VERBOSE( "Best phase: " << OptFilterPha
+        phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+        ATH_MSG_VERBOSE( "Best phase: " << phase
                         << " drawerIdx " << drawerIdx
                         << " channel " << channel );
       }
       
-      OptFilterChi2 = Compute(ros, drawer, channel, OptFilterGain, OptFilterPed
-          , OptFilterEne, OptFilterTime, OptFilterPha);
+      chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
       // If weights for tau=0 are used, deviations are seen in the amplitude =>
       // function to correct the amplitude
       if (m_correctAmplitude
-          && OptFilterEne > m_ampMinThresh
-          && OptFilterTime > m_timeMinThresh
-          && OptFilterTime < m_timeMaxThresh) {
+          && amplitude > m_ampMinThresh
+          && time > m_timeMinThresh
+          && time < m_timeMaxThresh) {
 
-        OptFilterEne *= correctAmp(OptFilterTime, m_of2);
-        ATH_MSG_VERBOSE( "Amplitude corrected by " << correctAmp(OptFilterTime, m_of2)
-                        << " new amplitude is " << OptFilterEne );
+        amplitude *= correctAmp(time, m_of2);
+        ATH_MSG_VERBOSE( "Amplitude corrected by " << correctAmp(time, m_of2)
+                         << " new amplitude is " << amplitude );
       }
 
-      if (OptFilterTime > m_maxTime) OptFilterTime = m_maxTime;
-      if (OptFilterTime < m_minTime) OptFilterTime = m_minTime;
+      if (m_correctTimeNI ) {
+        ATH_MSG_VERBOSE( "Time " << time 
+                         << " is corrected by " << correctTime(time, m_of2)
+                         << ", new time is " << time + correctTime(time, m_of2));
 
-      c_signal++;
+        time += correctTime(time, m_of2);
+      }
+
+      if (time > m_maxTime) time = m_maxTime;
+      if (time < m_minTime) time = m_minTime;
+
+      m_nSignal++;
 
     } else { // With iterations => 3 cases defined for correct pedestal treatment
 
       // values used for pedestal-like events when iterations are performed
       const int sigma_hi = 5;
       const int sigma_lo = 3;
-      int sigma = (OptFilterGain) ? sigma_hi : sigma_lo;
-      int digits_size_1 = OptFilterDigits.size() - 1;
+      int sigma = (gain) ? sigma_hi : sigma_lo;
+      int digits_size_1 = m_digits.size() - 1;
 
       // Signal events: OF with iterations
-      if ((maxdig - OptFilterDigits[0] > sigma)
-          || (OptFilterDigits[0] - OptFilterDigits[digits_size_1] > 4 * sigma)) {
+      if ((maxDigit - m_digits[0] > sigma)
+          || (m_digits[0] - m_digits[digits_size_1] > 4 * sigma)) {
 
         ATH_MSG_VERBOSE( "CASE Signal: maxdig-OptFilterDigits[0]="
-                        << maxdig - OptFilterDigits[0]
+                        << maxDigit - m_digits[0]
                         << "   OptFilterDigits[0]-OptFilterDigits[ digits_size_1]="
-                        << OptFilterDigits[0] - OptFilterDigits[digits_size_1] );
+                        << m_digits[0] - m_digits[digits_size_1] );
 
-        niter = Iterator(ros, drawer, channel, OptFilterGain, OptFilterPed
-            , OptFilterEne, OptFilterTime, OptFilterChi2);
+        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2);
 
-        ATH_MSG_VERBOSE( "number of iterations= " << niter );
+        ATH_MSG_VERBOSE( "number of iterations= " << nIterations );
 
-        c_signal++;
-      } else if (OptFilterDigits[0] - mindig > sigma) { //Pedestal events: OF with negative iterations
+        m_nSignal++;
+      } else if (m_digits[0] - minDigit > sigma) { //Pedestal events: OF with negative iterations
 
         if (msgLvl(MSG::VERBOSE)) {
           msg(MSG::VERBOSE) << "CASE NEGATIVE: maxdig-OptFilterDigits[0]="
-                            << maxdig - OptFilterDigits[0]
+                            << maxDigit - m_digits[0]
                             << "   OptFilterDigits[0]-OptFilterDigits[digits_size_1]="
-                            << OptFilterDigits[0] - OptFilterDigits[digits_size_1] << endmsg;
+                            << m_digits[0] - m_digits[digits_size_1] << endmsg;
           msg(MSG::VERBOSE) << "OptFilterDigits[0]-mindig="
-                            << OptFilterDigits[0] - mindig << endmsg;
+                            << m_digits[0] - minDigit << endmsg;
         }
 
         for (int i = 0; i <= digits_size_1; i++)  // Mirror around pedestal
-          OptFilterDigits[i] = OptFilterPed - (OptFilterDigits[i] - OptFilterPed);
+          m_digits[i] = pedestal - (m_digits[i] - pedestal);
 
-        niter = Iterator(ros, drawer, channel, OptFilterGain, OptFilterPed
-            , OptFilterEne, OptFilterTime, OptFilterChi2);
+        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2);
 
-        OptFilterEne = -OptFilterEne;
+        amplitude = -amplitude;
 
-        c_negat++;
+        ++m_nNegative;
 
       } else { // Gaussian center: no iterations and phase=0
 
         if (msgLvl(MSG::VERBOSE)) {
           msg(MSG::VERBOSE) << "CASE CENTER: maxdig-OptFilterDigits[0]="
-                            << maxdig - OptFilterDigits[0]
+                            << maxDigit - m_digits[0]
                             << "   OptFilterDigits[0]-OptFilterDigits[digits_size_1]="
-                            << OptFilterDigits[0] - OptFilterDigits[digits_size_1] << endmsg;
+                            << m_digits[0] - m_digits[digits_size_1] << endmsg;
           msg(MSG::VERBOSE) << "OptFilterDigits[0]-mindig="
-                            << OptFilterDigits[0] - mindig
+                            << m_digits[0] - minDigit
                             << endmsg;
         }
         //	OptFilterTime=-100.;
 
-        OptFilterChi2 = Compute(ros, drawer, channel, OptFilterGain, OptFilterPed, OptFilterEne,
-            OptFilterTime, OptFilterPha);
+        chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
-        OptFilterTime = 0.;
-        c_center++;
+        time = 0.;
+        m_nCenter++;
 
       }
       
@@ -498,100 +490,99 @@ double TileRawChannelBuilderOpt2Filter::Filter(int ros, int drawer, int channel
 
   }
 
-  return OptFilterChi2;
+  return chi2;
 }
 
 
-int TileRawChannelBuilderOpt2Filter::Iterator(int ros, int drawer, int channel, int OptFilterGain,
-    double &OptFilterPed, double &OptFilterEne, double &OptFilterTime, double &OptFilterChi2) {
+int TileRawChannelBuilderOpt2Filter::iterate(int ros, int drawer, int channel, int gain,
+    double &pedestal, double &amplitude, double &time, double &chi2) {
 
-  ATH_MSG_VERBOSE( "TileRawChannelBuilderOpt2Filter::Iterator()" );
+  ATH_MSG_VERBOSE( "iterate()" );
 
-  int niter = 0;
-  double save_phase = 0.0;
-  double OptFilterPha = 0.0;
-  OptFilterTime = -1000.;
+  int nIterations = 0;
+  double savePhase = 0.0;
+  double phase = 0.0;
+  time = -1000.;
   
   // Mythic -1 iteration or DSP emulation case
-  if (m_minus1Iter || (m_emulatedsp && (m_maxIterations > 1)))
-    OptFilterPha = 25 * (m_t0Samp - FindMaxDigit());
+  if (m_minus1Iter || (m_emulateDsp && (m_maxIterations > 1)))
+    phase = 25 * (m_t0SamplePosition - findMaxDigitPosition());
 
-  while ((OptFilterTime > m_timeForConvergence
-          || OptFilterTime < (-1.) * m_timeForConvergence
-          || m_emulatedsp)
-         && niter < m_maxIterations) {
+  while ((time > m_timeForConvergence
+          || time < (-1.) * m_timeForConvergence
+          || m_emulateDsp)
+         && nIterations < m_maxIterations) {
 
-    OptFilterChi2 = Compute(ros, drawer, channel, OptFilterGain, OptFilterPed
-                            , OptFilterEne, OptFilterTime, OptFilterPha);
+    chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
-    save_phase = OptFilterPha;
+    savePhase = phase;
 
-    if (m_emulatedsp)
-      OptFilterPha -= round(OptFilterTime); // rounding phase to integer like in DSP
-    else if (m_ofcfromcool)
-      OptFilterPha -= round(OptFilterTime * 10.) / 10.; // rounding phase to 0.1 - OFC in DB are stored with 0.1ns steps
+    if (m_emulateDsp)
+      phase -= round(time); // rounding phase to integer like in DSP
+    else if (m_ofcFromCool)
+      phase -= round(time * 10.) / 10.; // rounding phase to 0.1 - OFC in DB are stored with 0.1ns steps
     else
-      OptFilterPha -= OptFilterTime; // no rounding at all for OFC on the fly
+      phase -= time; // no rounding at all for OFC on the fly
 
-    if (OptFilterPha > m_maxTime) OptFilterPha = m_maxTime;
-    if (OptFilterPha < m_minTime) OptFilterPha = m_minTime;
+    if (phase > m_maxTime) phase = m_maxTime;
+    if (phase < m_minTime) phase = m_minTime;
 
-    ++niter;
-    ATH_MSG_VERBOSE( " OptFilter computed with phase=" << save_phase
-                    << " Time=" << OptFilterTime
-                    << " END ITER=" << niter
-                    << " new phase=" << OptFilterPha
-                    << " chi2=" << OptFilterChi2
-                    << "  Amp=" << OptFilterEne );
+    ++nIterations;
+    ATH_MSG_VERBOSE( " OptFilter computed with phase=" << savePhase
+                    << " Time=" << time
+                    << " END ITER=" << nIterations
+                    << " new phase=" << phase
+                    << " chi2=" << chi2
+                    << "  Amp=" << amplitude );
   }
   
-  OptFilterTime -= save_phase;
-  if (OptFilterTime > m_maxTime) OptFilterTime = m_maxTime;
-  if (OptFilterTime < m_minTime) OptFilterTime = m_minTime;
+  time -= savePhase;
+  if (time > m_maxTime) time = m_maxTime;
+  if (time < m_minTime) time = m_minTime;
   
-  ATH_MSG_VERBOSE( "OptFilterEne=" << OptFilterEne
-                  << " Phase=" << save_phase
-                  << " Absolute Time=" << OptFilterTime );
+  ATH_MSG_VERBOSE( "OptFilterEne=" << amplitude
+                  << " Phase=" << savePhase
+                  << " Absolute Time=" << time );
 
-  return niter;
+  return nIterations;
 }
 
 
-double TileRawChannelBuilderOpt2Filter::Compute(int ros, int drawer, int channel, int OptFilterGain,
-    double &OptFilterPed, double &OptFilterEne, double &OptFilterTime, double OptFilterPha) {
+double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel, int gain,
+    double &pedestal, double &amplitude, double &time, double phase) {
 
- ATH_MSG_VERBOSE( "TileRawChannelBuilderOpt2Filter::Compute();"
+ ATH_MSG_VERBOSE( "compute();"
                  << " ros=" << ros
                  << " drawer="  << drawer
                  << " channel=" << channel
-                 << " gain=" << OptFilterGain );
+                 << " gain=" << gain );
 
-  int i = 0, digits_size = OptFilterDigits.size();
-  double OptFilterChi2 = 0.;
+  int i = 0, digits_size = m_digits.size();
+  double chi2 = 0.;
   double a[9];
   double b[9];
   double c[9];
   double g[9];
   double dg[9];
   
-  OptFilterEne = 0.;
-  OptFilterTime = 0.;
-  float phase = (float) OptFilterPha;
+  amplitude = 0.;
+  time = 0.;
+  float ofcPhase = (float) phase;
 
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
-  const TileOfcWeightsStruct* m_weights;
-  if (m_ofcfromcool) {
-    m_weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, OptFilterGain, phase, m_of2);
+  const TileOfcWeightsStruct* weights;
+  if (m_ofcFromCool) {
+    weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
   } else {
-    m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, OptFilterGain, phase, m_of2);
+    weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2);
   }
 
   for (i = 0; i < digits_size; ++i) {
-    a[i] = m_weights->w_a[i];
-    b[i] = m_weights->w_b[i];
-    g[i] = m_weights->g[i];
-    dg[i] = m_weights->dg[i];
-    if (m_of2) c[i] = m_weights->w_c[i]; // [OptFilterPha+100];
+    a[i] = weights->w_a[i];
+    b[i] = weights->w_b[i];
+    g[i] = weights->g[i];
+    dg[i] = weights->dg[i];
+    if (m_of2) c[i] = weights->w_c[i]; // [OptFilterPha+100];
   }
 
   // for DSP emulation
@@ -599,83 +590,83 @@ double TileRawChannelBuilderOpt2Filter::Compute(int ros, int drawer, int channel
   short b_int[9], bscale = 0;
   unsigned short scale = 0, round = 0, lut = 0;
   int slope_scale = 0;
-  int OptFilterEneDSP = 0, OptFilterTimeDSP = 0;
-  if (m_emulatedsp) {
-    OptFilterEneDSP = 0;
-    OptFilterTimeDSP = 0;
-    slope_scale = (int) truncf(log(pow(2., 15) - 1.) / log(2.));
-    calib_offset = (short) roundf(pow(2., slope_scale));
+  int dspEnergy = 0, dspTime = 0;
+  if (m_emulateDsp) {
+    dspEnergy = 0;
+    dspTime = 0;
+    slope_scale = (int) truncf(log(std::pow(2., 15) - 1.) / log(2.));
+    calib_offset = (short) roundf(std::pow(2., slope_scale));
     ofc2int(digits_size, a, a_int, ascale);
     ofc2int(digits_size, b, b_int, bscale);
     calib = ascale + slope_scale;
   }
   
-  ATH_MSG_VERBOSE( "OptFilterPha=" << OptFilterPha );
+  ATH_MSG_VERBOSE( "OptFilterPha=" << phase );
 
   if (m_of2) {
-    if (m_emulatedsp) {
-      OptFilterPed = OptFilterDigits[0];
+    if (m_emulateDsp) {
+      pedestal = m_digits[0];
       for (i = 0; i < digits_size; ++i) {
-        OptFilterEneDSP += a_int[i] * ((int) OptFilterDigits[i]);
-        OptFilterTimeDSP += b_int[i] * ((int) OptFilterDigits[i]);
-        OptFilterEne += a[i] * OptFilterDigits[i]; //aa temp
-        OptFilterTime += b[i] * OptFilterDigits[i]; //aa temp
+        dspEnergy += a_int[i] * ((int) m_digits[i]);
+        dspTime += b_int[i] * ((int) m_digits[i]);
+        amplitude += a[i] * m_digits[i]; //aa temp
+        time += b[i] * m_digits[i]; //aa temp
       }
     } else {
-      OptFilterPed = 0.;
+      pedestal = 0.;
       for (i = 0; i < digits_size; ++i) {
-        OptFilterEne += a[i] * OptFilterDigits[i];
-        OptFilterTime += b[i] * OptFilterDigits[i];
-        OptFilterPed += c[i] * OptFilterDigits[i];
+        amplitude += a[i] * m_digits[i];
+        time += b[i] * m_digits[i];
+        pedestal += c[i] * m_digits[i];
       }
     }
   } else {
-    if (m_emulatedsp) OptFilterPed = OptFilterDigits[0];
+    if (m_emulateDsp) pedestal = m_digits[0];
     for (i = 0; i < digits_size; ++i) {
-      OptFilterEne += a[i] * (OptFilterDigits[i] - OptFilterPed);
-      OptFilterTime += b[i] * (OptFilterDigits[i] - OptFilterPed);
+      amplitude += a[i] * (m_digits[i] - pedestal);
+      time += b[i] * (m_digits[i] - pedestal);
     }
   }
 
-  if (m_emulatedsp) {
+  if (m_emulateDsp) {
     round = 1 << (ascale - 2);
-    short OptFilterE2DSP = (unsigned short) ((OptFilterEneDSP + round) >> (ascale - 1));
-    size_t OptInd = abs(OptFilterE2DSP);
+    short e2Dsp = (unsigned short) ((dspEnergy + round) >> (ascale - 1));
+    size_t OptInd = abs(e2Dsp);
     if (OptInd >= (sizeof(lookup) / sizeof(short))) OptInd = 0;
     lut = lookup[OptInd];
     scale = bscale - 4 + lookup[0] - 9;
     round = 1 << (scale - 1);
-    //    int told=OptFilterTimeDSP;
-    OptFilterTimeDSP = (((OptFilterTimeDSP + 0x100) >> 9) * lut + round) >> scale;
+    //    int told=dspTime;
+    dspTime = (((dspTime + 0x100) >> 9) * lut + round) >> scale;
     //        printf(" 1 OptFilterTime %f OptFilterTimeDSP %d e2 %d round %d lut %d bscale %d scale %d told %d\n",OptFilterTime/OptFilterEne,OptFilterTimeDSP,OptFilterE2DSP,round,lut,bscale,scale,told);
-    OptFilterTime = OptFilterTimeDSP / 16.0;
+    time = dspTime / 16.0;
 
     //  printf(" 1 OptFilterEneDSP %d calib_offset  %d calib %d \n",OptFilterEneDSP,calib_offset,calib);
 
-    OptFilterEneDSP = (OptFilterEneDSP + 1024) >> 11;
+    dspEnergy = (dspEnergy + 1024) >> 11;
     //  printf(" 2 OptFilterEneDSP %d  \n",OptFilterEneDSP);
-    OptFilterEneDSP = (OptFilterEneDSP * calib_offset + (1 << (calib - 15 - 1))) >> (calib - 15);
+    dspEnergy = (dspEnergy * calib_offset + (1 << (calib - 15 - 1))) >> (calib - 15);
     //  printf(" 3 OptFilterEneDSP %d  \n",OptFilterEneDSP);
-    double goffset = (OptFilterGain == 0) ? 512 : 2048;
-    OptFilterEneDSP = (int) (OptFilterEneDSP + goffset);
-    OptFilterEne = (OptFilterEneDSP - goffset) / 16.;
+    double goffset = (gain == 0) ? 512 : 2048;
+    dspEnergy = (int) (dspEnergy + goffset);
+    amplitude = (dspEnergy - goffset) / 16.;
   }
 
-  bool goodEne = (fabs(OptFilterEne) > 1.0e-04);
-  if (goodEne) {
+  bool goodEnergy = (fabs(amplitude) > 1.0e-04);
+  if (goodEnergy) {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterEne=" << OptFilterEne << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << OptFilterTime << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterEne=" << amplitude << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << time << endmsg;
     }
-    if (!m_emulatedsp) OptFilterTime /= OptFilterEne;
+    if (!m_emulateDsp) time /= amplitude;
   } else {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterEne=" << OptFilterEne
+      msg(MSG::VERBOSE) << "OptFilterEne=" << amplitude
                         << "   ... assuming 0.0" << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << OptFilterTime
+      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << time
                         << "   ... assuming 0.0" << endmsg;
     }
-    OptFilterTime = OptFilterEne = 0.0;
+    time = amplitude = 0.0;
   }
   
   /* new QF in both cases now 02.2010 AA
@@ -689,44 +680,42 @@ double TileRawChannelBuilderOpt2Filter::Compute(int ros, int drawer, int channel
    } else {
    */
   for (i = 0; i < digits_size; ++i) {
-    double dqf = OptFilterDigits[i] - OptFilterEne * g[i] + OptFilterEne * OptFilterTime * dg[i]
-        - OptFilterPed;
-    OptFilterChi2 += dqf * dqf;
+    double dqf = m_digits[i] - amplitude * g[i] + amplitude * time * dg[i] - pedestal;
+    chi2 += dqf * dqf;
   }
-  OptFilterChi2 = sqrt(OptFilterChi2);
+  chi2 = sqrt(chi2);
   // new QF  }
   
   //  std::cout << "emulate " << m_emulatedsp << " OptFilterEne " << OptFilterEne << " OptFilterDigits[3]" << OptFilterDigits[3] << " OptFilterTime="<<OptFilterTime<<" OptFilterPed="<<OptFilterPed<<" OptFilterChi2="<<OptFilterChi2<<" g 3 " << g[3] << " dg 1 3 5 " << dg[1] << " " << dg[3] << " " << dg[5] <<std::endl;
-  if (fabs(OptFilterChi2) > 1.0e-04 || goodEne) {
+  if (fabs(chi2) > 1.0e-04 || goodEnergy) {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterTime=" << OptFilterTime << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterPed=" << OptFilterPed << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterChi2=" << OptFilterChi2 << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterTime=" << time << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterPed=" << pedestal << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterChi2=" << chi2 << endmsg;
     }
   } else {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterTime=" << OptFilterTime << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterPed=" << OptFilterPed << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterChi2=" << OptFilterChi2
+      msg(MSG::VERBOSE) << "OptFilterTime=" << time << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterPed=" << pedestal << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterChi2=" << chi2
                         << "   ... assuming 0.0" << endmsg;
     }
-    OptFilterChi2 = 0.0;
+    chi2 = 0.0;
   }
 
-  return OptFilterChi2;
+  return chi2;
 }
 
 
-void TileRawChannelBuilderOpt2Filter::ofc2int(int ndigits, double* w_off, short* w_int,
-    short &scale) {
+void TileRawChannelBuilderOpt2Filter::ofc2int(int nDigits, double* w_off, short* w_int, short &scale) {
   // Number of bits of the integer word (signed -1 )
-  int NumberBits = 16;
-  NumberBits = NumberBits - 1;
+  int numberBits = 16;
+  numberBits = numberBits - 1;
   
   // Get Absolute Maximum
   double max = -10000.;
   double sum = 0.;
-  for (int i = 0; i < ndigits; i++) {
+  for (int i = 0; i < nDigits; i++) {
     sum += w_off[i];
     if (fabs(w_off[i]) > max) max = fabs(w_off[i]);
     //    printf("idig = %d weight  = %f \n",i, w_off[i]);
@@ -735,12 +724,12 @@ void TileRawChannelBuilderOpt2Filter::ofc2int(int ndigits, double* w_off, short*
   
   // Get Scale at Maximum
   scale = 0;
-  if (max != 0) scale = (int) truncf(log((pow(2., NumberBits) - 1.) / max) / log(2.));
+  if (max != 0) scale = (int) truncf(log((std::pow(2., numberBits) - 1.) / max) / log(2.));
   
   // Convert to Integer the weights and the sum
-  for (int i = 0; i < ndigits; i++)
-    w_int[i] = (short) roundf(w_off[i] * pow(2., scale));
-  //aa  w_sum_dsp = (short) roundf(sum*pow(2.,scale));
+  for (int i = 0; i < nDigits; i++)
+    w_int[i] = (short) roundf(w_off[i] * std::pow(2., scale));
+  //aa  w_sum_dsp = (short) roundf(sum*std::pow(2.,scale));
   
 
 /* 
@@ -753,14 +742,14 @@ void TileRawChannelBuilderOpt2Filter::ofc2int(int ndigits, double* w_off, short*
 	  printf("\n        Offline              Off*Scale             Dsp/scale    Dsp      Scale  \n");
 	  printf("----------------------------------------------------------------------------------\n");
 	  printf("  %17.10f     %17.10f    %17.10f  0x%04X    %3d   \n",
-		 w_off[i],w_off[i]*pow(2.,scale), w_int[i]/pow(2.,scale),(unsigned int) w_int[i] ,scale);
+		 w_off[i],w_off[i]*std::pow(2.,scale), w_int[i]/std::pow(2.,scale),(unsigned int) w_int[i] ,scale);
 	} else {
 	  printf("  %17.10f     %17.10f    %17.10f  0x%04X   \n",
-		 w_off[i],w_off[i]*pow(2.,scale), w_int[i]/pow(2.,scale),(unsigned int)w_int[i]);
+		 w_off[i],w_off[i]*std::pow(2.,scale), w_int[i]/std::pow(2.,scale),(unsigned int)w_int[i]);
 	}
       }
     //aa    printf("  %17.10f     %17.10f    %17.10f  0x%04X     <- SUM\n",
-    //aa	   sum,sum*pow(2.,scale),w_sum_dsp/pow(2.,scale),(unsigned int)w_sum_dsp);
+    //aa	   sum,sum*std::pow(2.,scale),w_sum_dsp/std::pow(2.,scale),(unsigned int)w_sum_dsp);
   }
 */  
   return;

@@ -5,8 +5,8 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-#ifndef TILECELLNOISEFILTER_H
-#define TILECELLNOISEFILTER_H
+#ifndef TILERECUTILS_TILECELLNOISEFILTER_H
+#define TILERECUTILS_TILECELLNOISEFILTER_H
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -67,7 +67,7 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
 
     // derive a value of common-mode shift
     float getCMShift(int partition, int drawer, int channel) {
-      return m_commonmode[partition][drawer][channel / maxChannel];
+      return m_commonMode[partition][drawer][channel / s_maxChannel];
     }
 
     const TileID* m_tileID;   //!< Pointer to TileID
@@ -84,19 +84,19 @@ class TileCellNoiseFilter: public AthAlgTool, virtual public ICaloCellMakerTool 
     bool m_useTwoGaussNoise;
     bool m_useTileNoiseDB;
 
-    static const CaloCell_ID::SUBCALO m_caloIndex = CaloCell_ID::TILE;
+    static const CaloCell_ID::SUBCALO s_caloIndex = CaloCell_ID::TILE;
 
-    static const int maxPartition = 4; // LBA,LBC,EBA,EBC
-    static const int maxDrawer = 64;   // # of drawers per partition
-    static const int maxMOB = 4;       // # of motherboards per drawer
-    static const int maxChannel = 12;  // # of channels per motherboard
+    static const int s_maxPartition = 4; // LBA,LBC,EBA,EBC
+    static const int s_maxDrawer = 64;   // # of drawers per partition
+    static const int s_maxMOB = 4;       // # of motherboards per drawer
+    static const int s_maxChannel = 12;  // # of channels per motherboard
 
-    float m_commonmode[maxPartition][maxDrawer][maxMOB];
-    int m_nemptychan[maxPartition][maxDrawer][maxMOB];
-    int m_ngoodchan[maxPartition][maxDrawer][maxMOB];
+    float m_commonMode[s_maxPartition][s_maxDrawer][s_maxMOB];
+    int m_nEmptyChan[s_maxPartition][s_maxDrawer][s_maxMOB];
+    int m_nGoodChan[s_maxPartition][s_maxDrawer][s_maxMOB];
 
     float m_maxNoiseSigma;
 
 };
 
-#endif // TILECELLNOISEFILTER_H
+#endif // TILERECUTILS_TILECELLNOISEFILTER_H
