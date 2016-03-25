@@ -58,34 +58,39 @@ class TileRawChannelBuilderOptFilter: public TileRawChannelBuilder {
     static const InterfaceID& interfaceID();
 
   private:
-
-    double Filter(int, int, int, int &, double &, double &, double &); //!< Applies OF algorithm
-    float MaxDigDiff(); //!< Computes maximum difference between digits
-    float MaxDigit(); //!< Finds maximum digit value in the pulse
-    float FindMaxDigit();  //!< Finds maximum digit position in the pulse
-    bool Are3FF(); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
-    float SetPedestal(); //!< Sets pedestal estimation for OF1
-    int Iterator(int, int, int, int, double &, double &, double &, double &); //!< Apply the number of iterations needed for reconstruction by calling the Filter method
-    double Compute(int, int, int, int, double &, double &, double &, int); //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
-    void BuildPulseShape(std::vector<double> &m_pulseShape, std::vector<double> &m_pulseShapeX,
-        std::vector<double> &m_pulseShapeT, int dignum); //!< Builds pulse shapes
+    //!< Applies OF algorithm
+    double filter(int ros, int drawer, int channel, int &gain, double &pedestal, double &amplitude, double &time);
+    float findMaxDigitsDifference(); //!< Computes maximum difference between digits
+    float findMaxDigit(); //!< Finds maximum digit value in the pulse
+    int findMaxDigitPosition();  //!< Finds maximum digit position in the pulse
+    bool are3FF(); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
+    float setPedestal(); //!< Sets pedestal estimation for OF1
+    //!< Apply the number of iterations needed for reconstruction by calling the Filter method
+    int iterate(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time,
+        double &chi2);
+    //!< Computes A,time,ped using OF. If iterations are required, the Iterator method is used
+    double compute(int ros, int drawer, int channel, int gain, double &pedestal, double &amplitude, double &time,
+        int phase);
+    void buildPulseShape(std::vector<double> &pulseShape, std::vector<double> &pulseShapeY,
+        std::vector<double> &pulseShapeT, int dignum); //!< Builds pulse shapes
 
     int m_maxIterations; //!< maximum number of iteration to perform
     int m_pedestalMode;  //!< pedestal mode to use
-    bool m_ConfTB;       //!< use testbeam configuration
+    bool m_confTB;       //!< use testbeam configuration
     double m_timeForConvergence; //!< minimum time difference to quit iteration procedure
     bool m_of2;    //!< bool variable for OF method: true=> OF2;  false=> OF1
     bool m_minus1Iter;   //!< bool variable for whether to apply -1 iteration (initial phase guess)
     bool m_correctAmplitude; //!< If true, resulting amplitude is corrected when using weights for tau=0 without iteration
+    bool m_correctTimeNI; //!< If true, resulting time is corrected when using method  without iteration
 
-    int c_signal; //!< internal counters
-    int c_negat;  //!< internal counters
-    int c_center; //!< internal counters
+    int m_nSignal; //!< internal counters
+    int m_nNegative;  //!< internal counters
+    int m_nCenter; //!< internal counters
 
-    int m_NSamp;   //!< number of samples in the data
-    int m_t0Samp;  //!< position of peak sample = (m_NSamp-1)/2
-    double m_maxTime; //!< max allowed time = 25*(m_NSamp-1)/2
-    double m_minTime; //!< min allowed time = -25*(m_NSamp-1)/2
+    int m_nSamples;   //!< number of samples in the data
+    int m_t0SamplePosition;  //!< position of peak sample = (m_nSamp-1)/2
+    double m_maxTime; //!< max allowed time = 25*(m_nSamp-1)/2
+    double m_minTime; //!< min allowed time = -25*(m_nSamp-1)/2
 
     /*
      double a_phys_simp[2][9][25], b_phys_simp[2][9][25];
@@ -93,22 +98,22 @@ class TileRawChannelBuilderOptFilter: public TileRawChannelBuilder {
      double a_phys[4][64][48][2][9][25], b_phys[4][64][48][2][9][25];
      double a_cis[4][64][48][2][7][25], b_cis[4][64][48][2][7][25];
      */
-    std::vector<double> m_LpulseShape_cis;  //!< vector for low gain/CIS pulse shape
-    std::vector<double> m_HpulseShape_cis;  //!< vector for high gain/CIS pulse shape
-    std::vector<double> m_LpulseShape_phys; //!< vector for low gain/Physics pulse shape
-    std::vector<double> m_HpulseShape_phys; //!< vector for high gain/Physics pulse shape
+    std::vector<double> m_pulseShapeCisLG;  //!< vector for low gain/CIS pulse shape
+    std::vector<double> m_pulseShapeCisHG;  //!< vector for high gain/CIS pulse shape
+    std::vector<double> m_pulseShapePhysLG; //!< vector for low gain/Physics pulse shape
+    std::vector<double> m_pulseShapePhysHG; //!< vector for high gain/Physics pulse shape
 
-    std::vector<double> m_LdpulseShape_cis;  //!< vector for low gain/CIS pulse derivative
-    std::vector<double> m_HdpulseShape_cis;  //!< vector for high gain/CIS pulse derivative
-    std::vector<double> m_LdpulseShape_phys; //!< vector for low gain/Physics pulse derivative
-    std::vector<double> m_HdpulseShape_phys; //!< vector for high gain/Physics pulse derivative
+    std::vector<double> m_pulseShapeDerivativeCisLG;  //!< vector for low gain/CIS pulse derivative
+    std::vector<double> m_pulseShapeDerivativeCisHG;  //!< vector for high gain/CIS pulse derivative
+    std::vector<double> m_pulseShapeDerivativePhysLG; //!< vector for low gain/Physics pulse derivative
+    std::vector<double> m_pulseShapeDerivativePhysHG; //!< vector for high gain/Physics pulse derivative
 
     TilePulseShapesStruct* m_pulseShapes;       //!< structure for pulse shapes
 
     TileOptFilterWeightsStruct *m_weights;      //!< structure for OF weights
     //  TileOptFilterCorrelationStruct *m_correla;   //!< structure for pulse shapes
 
-    std::vector<float> OptFilterDigits;
+    std::vector<float> m_digits;
 };
 
 #endif

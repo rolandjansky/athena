@@ -29,7 +29,7 @@
 
 class TileHWID;
 class TileInfo;
-class TileFilterManager;
+//class TileFilterManager;
 
 class TileRawChannelBuilderMF: public TileRawChannelBuilder {
   public:
@@ -53,23 +53,23 @@ class TileRawChannelBuilderMF: public TileRawChannelBuilder {
     ToolHandle<ITileCondToolOfc> m_tileCondToolOfcCool;
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
 
-    bool Are3FF(float &dmin, float &dmax); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
+    bool are3FF(float &dmin, float &dmax); //!< Checks that all the samples are 0x3FF (as sent by the DSP when no data arrives)
 
     int m_maxIterations; //!< maximum number of iteration to perform
     bool m_correctAmplitude; //!< If true, resulting amplitude is corrected when using weights for tau=0 without iteration
     int m_pedestalMode;	  // -1 pedestal from conditions, 0 - fixed pedestal, 1 (default) pedestal from data
-    double m_defPedestal;  // use a fixed pedestal value
+    double m_defaultPedestal;  // use a fixed pedestal value
     int m_MF; // 0 - COF, 1 - MF (created for muon receiver board simulation)
-    int m_NSamp; //!< number of samples in the data
-    int m_t0Samp;  //!< position of peak sample = (m_NSamp-1)/2
-    double m_maxTime; //!< max allowed time = 25*(m_NSamp-1)/2
-    double m_minTime; //!< min allowed time = -25*(m_NSamp-1)/2
+    int m_nSamples; //!< number of samples in the data
+    int m_t0SamplePosition;  //!< position of peak sample = (m_nSamples-1)/2
+    double m_maxTime; //!< max allowed time = 25*(m_nSamples-1)/2
+    double m_minTime; //!< min allowed time = -25*(m_nSamples-1)/2
 
-    bool m_bestphase; // if true, use best phase from COOL DB in "fixed phase" mode (i.e., no iterations)
-    bool m_ofcfromcool; // if true, take OFCs from DB (no on-fly calculations)
+    bool m_bestPhase; // if true, use best phase from COOL DB in "fixed phase" mode (i.e., no iterations)
+    bool m_ofcFromCool; // if true, take OFCs from DB (no on-fly calculations)
     bool m_timeFromCOF; // if true, take time estimated from second step of COF
 
-    std::vector<float> digits;
+    std::vector<float> m_digits;
     int m_chPedCounter[5][64][48][2];
     float m_chPed[5][64][48][2];
 

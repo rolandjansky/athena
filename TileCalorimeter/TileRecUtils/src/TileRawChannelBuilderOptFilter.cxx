@@ -13,18 +13,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-// small hack to enable datapool usage
-#define private public
-#define protected public
 #include "TileEvent/TileRawChannel.h"
-#undef private
-#undef protected
 
 // Gaudi includes
 #include "GaudiKernel/Property.h"
 
 // Atlas includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/errorcheck.h"
 
 
@@ -38,9 +33,11 @@
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileOptFilterWeights.h"
 #include "TileConditions/TilePulseShapes.h"
+
 #include "CLHEP/Matrix/Matrix.h"
 
-using namespace std;
+
+#include <algorithm>
 
 //interface stuff
 static const InterfaceID IID_ITileRawChannelBuilderOptFilter("TileRawChannelBuilderOptFilter", 1, 0);
@@ -55,11 +52,11 @@ const InterfaceID& TileRawChannelBuilderOptFilter::interfaceID() {
 TileRawChannelBuilderOptFilter::TileRawChannelBuilderOptFilter(const std::string& type,
     const std::string& name, const IInterface *parent)
   : TileRawChannelBuilder(type, name, parent)
-  , c_signal(0)
-  , c_negat(0)
-  , c_center(0)
-  , m_NSamp(0)
-  , m_t0Samp(0)
+  , m_nSignal(0)
+  , m_nNegative(0)
+  , m_nCenter(0)
+  , m_nSamples(0)
+  , m_t0SamplePosition(0)
   , m_maxTime(0.0)
   , m_minTime(0.0)
   , m_pulseShapes(0)
@@ -72,14 +69,14 @@ TileRawChannelBuilderOptFilter::TileRawChannelBuilderOptFilter(const std::string
   m_TileRawChannelContainerID = "TileRawChannelOpt";
 
   //declare properties
-  declareProperty("MaxIterations",m_maxIterations = 5);
-  declareProperty("PedestalMode",m_pedestalMode = 17);
-  declareProperty("TimeForConvergence",m_timeForConvergence = 0.5);
-  declareProperty("ConfTB",m_ConfTB = false);
-  declareProperty("OF2",m_of2 = true);
-  declareProperty("Minus1Iteration",m_minus1Iter = false);
-  declareProperty("AmplitudeCorrection",m_correctAmplitude = false);
-
+  declareProperty("MaxIterations", m_maxIterations = 5);
+  declareProperty("PedestalMode", m_pedestalMode = 17);
+  declareProperty("TimeForConvergence", m_timeForConvergence = 0.5);
+  declareProperty("ConfTB", m_confTB = false);
+  declareProperty("OF2", m_of2 = true);
+  declareProperty("Minus1Iteration", m_minus1Iter = false);
+  declareProperty("AmplitudeCorrection", m_correctAmplitude = false);
+  declareProperty("TimeCorrection", m_correctTimeNI = false);
 }
 
 
@@ -89,37 +86,41 @@ TileRawChannelBuilderOptFilter::~TileRawChannelBuilderOptFilter() {
 
 StatusCode TileRawChannelBuilderOptFilter::initialize() {
 
-  ATH_MSG_INFO( "TileRawChannelBuilderOptFilter::initialize()" );
+  ATH_MSG_INFO( "initialize()" );
 
   m_rChType = TileFragHash::OptFilterOffline; // type for offline Opt Filter
 
   // init in superclass
   CHECK( TileRawChannelBuilder::initialize() );
 
+  if (m_maxIterations != 1) m_correctTimeNI = false;
+
   // bits 12-15 - various options
+  // if (m_correctTimeNI)  m_bsflags |= 0x1000;
   if (m_correctAmplitude) m_bsflags |= 0x2000;
   if (m_maxIterations > 1) m_bsflags |= 0x4000;
 
   ATH_MSG_DEBUG( " MaxIterations=" << m_maxIterations
-                << " PedestalMode=" << m_pedestalMode
-                << " TimeForConvergence=" << m_timeForConvergence
-                << " ConfTB=" << m_ConfTB
-                << " OF2=" << m_of2
-                << " Minus1Iteration=" << m_minus1Iter
-                << " AmplitudeCorrection=" << m_correctAmplitude );
+                 << " PedestalMode=" << m_pedestalMode
+                 << " TimeForConvergence=" << m_timeForConvergence
+                 << " ConfTB=" << m_confTB
+                 << " OF2=" << m_of2
+                 << " Minus1Iteration=" << m_minus1Iter
+                 << " AmplitudeCorrection=" << m_correctAmplitude 
+                 << " TimeCorrection=" << m_correctTimeNI);
 
-  m_NSamp = m_tileInfo->NdigitSamples();
-  m_t0Samp = m_tileInfo->ItrigSample();
-  m_maxTime = 25 * (m_NSamp - m_t0Samp - 1);
-  m_minTime = -25 * m_t0Samp;
-  ATH_MSG_DEBUG( " NSamples=" << m_NSamp
-                << " T0Sample=" << m_t0Samp
+  m_nSamples = m_tileInfo->NdigitSamples();
+  m_t0SamplePosition = m_tileInfo->ItrigSample();
+  m_maxTime = 25 * (m_nSamples - m_t0SamplePosition - 1);
+  m_minTime = -25 * m_t0SamplePosition;
+  ATH_MSG_DEBUG( " NSamples=" << m_nSamples
+                << " T0Sample=" << m_t0SamplePosition
                 << " minTime=" << m_minTime
                 << " maxTime=" << m_maxTime );
 
-  if (m_pedestalMode % 10 > 2 && m_NSamp != m_pedestalMode % 10) {
+  if (m_pedestalMode % 10 > 2 && m_nSamples != m_pedestalMode % 10) {
     int oldPedestalMode(m_pedestalMode);
-    m_pedestalMode = (m_pedestalMode / 10) * 10 + m_NSamp;
+    m_pedestalMode = (m_pedestalMode / 10) * 10 + m_nSamples;
     ATH_MSG_DEBUG( "Changing PedestalMode from " << oldPedestalMode
                   << " to " << m_pedestalMode );
   }
@@ -127,148 +128,138 @@ StatusCode TileRawChannelBuilderOptFilter::initialize() {
   //get pointer to pulse shapes build pulse shapes)
   m_pulseShapes = m_tileInfo->getPulseShapes();
 
-  vector<double> m_LpulseShapeX_cis, m_LpulseShapeT_cis;
-  vector<double> m_HpulseShapeX_cis, m_HpulseShapeT_cis;
-  vector<double> m_LpulseShapeX_phys, m_LpulseShapeT_phys;
-  vector<double> m_HpulseShapeX_phys, m_HpulseShapeT_phys;
+  std::vector<double> pulseShapeYCisLG = m_pulseShapes->m_ylcis;
+  std::vector<double> pulseShapeTCisLG = m_pulseShapes->m_tlcis;
+  std::vector<double> pulseShapeYCisHG = m_pulseShapes->m_yhcis;
+  std::vector<double> pulseShapeTCisHG = m_pulseShapes->m_thcis;
 
-  vector<double> m_LdpulseShapeX_cis, m_LdpulseShapeT_cis;
-  vector<double> m_HdpulseShapeX_cis, m_HdpulseShapeT_cis;
-  vector<double> m_LdpulseShapeX_phys, m_LdpulseShapeT_phys;
-  vector<double> m_HdpulseShapeX_phys, m_HdpulseShapeT_phys;
+  std::vector<double> pulseShapeYPhysLG = m_pulseShapes->m_ylphys;
+  std::vector<double> pulseShapeTPhysLG = m_pulseShapes->m_tlphys;
+  std::vector<double> pulseShapeYPhysHG = m_pulseShapes->m_yhphys;
+  std::vector<double> pulseShapeTPhysHG = m_pulseShapes->m_thphys;
 
-  m_LpulseShapeX_cis = m_pulseShapes->m_ylcis;
-  m_LpulseShapeT_cis = m_pulseShapes->m_tlcis;
-  m_HpulseShapeX_cis = m_pulseShapes->m_yhcis;
-  m_HpulseShapeT_cis = m_pulseShapes->m_thcis;
+  std::vector<double> pulseShapeDerivativeYCisLG = m_pulseShapes->m_ydlcis;
+  std::vector<double> pulseShapeDerivativeTCisLG = m_pulseShapes->m_tdlcis;
+  std::vector<double> pulseShapeDerivativeYCisHG = m_pulseShapes->m_ydhcis;
+  std::vector<double> pulseShapeDerivativeTCisHG = m_pulseShapes->m_tdhcis;
 
-  m_LpulseShapeX_phys = m_pulseShapes->m_ylphys;
-  m_LpulseShapeT_phys = m_pulseShapes->m_tlphys;
-  m_HpulseShapeX_phys = m_pulseShapes->m_yhphys;
-  m_HpulseShapeT_phys = m_pulseShapes->m_thphys;
-
-  m_LdpulseShapeX_cis = m_pulseShapes->m_ydlcis;
-  m_LdpulseShapeT_cis = m_pulseShapes->m_tdlcis;
-  m_HdpulseShapeX_cis = m_pulseShapes->m_ydhcis;
-  m_HdpulseShapeT_cis = m_pulseShapes->m_tdhcis;
-
-  m_LdpulseShapeX_phys = m_pulseShapes->m_ydlphys;
-  m_LdpulseShapeT_phys = m_pulseShapes->m_tdlphys;
-  m_HdpulseShapeX_phys = m_pulseShapes->m_ydhphys;
-  m_HdpulseShapeT_phys = m_pulseShapes->m_tdhphys;
+  std::vector<double> pulseShapeDerivativeYPhysLG = m_pulseShapes->m_ydlphys;
+  std::vector<double> pulseShapeDerivativeTPhysLG = m_pulseShapes->m_tdlphys;
+  std::vector<double> pulseShapeDerivativeYPhysHG = m_pulseShapes->m_ydhphys;
+  std::vector<double> pulseShapeDerivativeTPhysHG = m_pulseShapes->m_tdhphys;
 
   if (msgLvl(MSG::DEBUG)) {
 
-    msg(MSG::DEBUG) << " m_LpulseShapeX_cis.size()=" << m_LpulseShapeX_cis.size()
-                    << " m_HpulseShapeX_cis.size()=" << m_HpulseShapeX_cis.size()
-                    << " m_LpulseShapeX_phys.size()=" << m_LpulseShapeX_phys.size()
-                    << " m_HpulseShapeX_phys.size()=" << m_HpulseShapeX_phys.size()
-                    << " m_LdpulseShapeX_cis.size()=" << m_LdpulseShapeX_cis.size()
-                    << " m_HdpulseShapeX_cis.size()=" << m_HdpulseShapeX_cis.size()
-                    << " m_LdpulseShapeX_phys.size()=" << m_LdpulseShapeX_phys.size()
-                    << " m_HdpulseShapeX_phys.size()=" << m_HdpulseShapeX_phys.size() << endmsg;
+    msg(MSG::DEBUG) << " pulseShapeYCisLG.size()=" << pulseShapeYCisLG.size()
+                    << " pulseShapeYCisHG.size()=" << pulseShapeYCisHG.size()
+                    << " pulseShapeYPhysLG.size()=" << pulseShapeYPhysLG.size()
+                    << " pulseShapeYPhysHG.size()=" << pulseShapeYPhysHG.size()
+                    << " pulseShapeDerivativeYCisLG.size()=" << pulseShapeDerivativeYCisLG.size()
+                    << " pulseShapeDerivativeYCisHG.size()=" << pulseShapeDerivativeYCisHG.size()
+                    << " pulseShapeDerivativeYPhysLG.size()=" << pulseShapeDerivativeYPhysLG.size()
+                    << " pulseShapeDerivativeYPhysHG.size()=" << pulseShapeDerivativeYPhysHG.size() << endmsg;
 
 
     int N = 0;
-    for (unsigned int i = 0; i < m_LpulseShapeX_cis.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeYCisLG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_LpulseShapeT_cis[i] << std::setw(8) << std::setprecision(4)
-                      << m_LpulseShapeX_cis[i] << endmsg;
+                      << pulseShapeTCisLG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeYCisLG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_HpulseShapeX_cis.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeYCisHG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_HpulseShapeT_cis[i] << std::setw(8) << std::setprecision(4)
-                      << m_HpulseShapeX_cis[i] << endmsg;
+                      << pulseShapeTCisHG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeYCisHG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_LpulseShapeX_phys.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeYPhysLG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_LpulseShapeT_phys[i] << std::setw(8) << std::setprecision(4)
-                      << m_LpulseShapeX_phys[i] << endmsg;
+                      << pulseShapeTPhysLG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeYPhysLG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_HpulseShapeX_phys.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeYPhysHG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_HpulseShapeT_phys[i] << std::setw(8) << std::setprecision(4)
-                      << m_HpulseShapeX_phys[i] << endmsg;
+                      << pulseShapeTPhysHG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeYPhysHG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_LdpulseShapeX_cis.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeDerivativeYCisLG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                    << m_LdpulseShapeT_cis[i] << std::setw(8) << std::setprecision(4)
-                    << m_LdpulseShapeX_cis[i] << endmsg;
+                    << pulseShapeDerivativeTCisLG[i] << std::setw(8) << std::setprecision(4)
+                    << pulseShapeDerivativeYCisLG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_HdpulseShapeX_cis.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeDerivativeYCisHG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_HdpulseShapeT_cis[i] << std::setw(8) << std::setprecision(4)
-                      << m_HdpulseShapeX_cis[i] << endmsg;
+                      << pulseShapeDerivativeTCisHG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeDerivativeYCisHG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_LdpulseShapeX_phys.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeDerivativeYPhysLG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_LdpulseShapeT_phys[i] << std::setw(8) << std::setprecision(4)
-                      << m_LdpulseShapeX_phys[i] << endmsg;
+                      << pulseShapeDerivativeTPhysLG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeDerivativeYPhysLG[i] << endmsg;
 
     N = 0;
-    for (unsigned int i = 0; i < m_HdpulseShapeX_phys.size(); i++)
+    for (unsigned int i = 0; i < pulseShapeDerivativeYPhysHG.size(); i++)
       msg(MSG::DEBUG) << "N=" << ++N << std::setw(8) << std::setprecision(4)
-                      << m_HdpulseShapeT_phys[i] << std::setw(8) << std::setprecision(4)
-                      << m_HdpulseShapeX_phys[i] << endmsg;
+                      << pulseShapeDerivativeTPhysHG[i] << std::setw(8) << std::setprecision(4)
+                      << pulseShapeDerivativeYPhysHG[i] << endmsg;
   }
 
   //Build Pulse Shape (use the one in TileCalibAlgs?)
-  BuildPulseShape(m_LpulseShape_cis, m_LpulseShapeX_cis, m_LpulseShapeT_cis, 9);
-  BuildPulseShape(m_HpulseShape_cis, m_HpulseShapeX_cis, m_HpulseShapeT_cis, 9);
-  BuildPulseShape(m_LpulseShape_phys, m_LpulseShapeX_phys, m_LpulseShapeT_phys, 9);
-  BuildPulseShape(m_HpulseShape_phys, m_HpulseShapeX_phys, m_HpulseShapeT_phys, 9);
-  BuildPulseShape(m_LdpulseShape_cis, m_LdpulseShapeX_cis, m_LdpulseShapeT_cis, 9);
-  BuildPulseShape(m_HdpulseShape_cis, m_HdpulseShapeX_cis, m_HdpulseShapeT_cis, 9);
-  BuildPulseShape(m_LdpulseShape_phys, m_LdpulseShapeX_phys, m_LdpulseShapeT_phys, 9);
-  BuildPulseShape(m_HdpulseShape_phys, m_HdpulseShapeX_phys, m_HdpulseShapeT_phys, 9);
+  buildPulseShape(m_pulseShapeCisLG, pulseShapeYCisLG, pulseShapeTCisLG, 9);
+  buildPulseShape(m_pulseShapeCisHG, pulseShapeYCisHG, pulseShapeTCisHG, 9);
+  buildPulseShape(m_pulseShapePhysLG, pulseShapeYPhysLG, pulseShapeTPhysLG, 9);
+  buildPulseShape(m_pulseShapePhysHG, pulseShapeYPhysHG, pulseShapeTPhysHG, 9);
+  buildPulseShape(m_pulseShapeDerivativeCisLG, pulseShapeDerivativeYCisLG, pulseShapeDerivativeTCisLG, 9);
+  buildPulseShape(m_pulseShapeDerivativeCisHG, pulseShapeDerivativeYCisHG, pulseShapeDerivativeTCisHG, 9);
+  buildPulseShape(m_pulseShapeDerivativePhysLG, pulseShapeDerivativeYPhysLG, pulseShapeDerivativeTPhysLG, 9);
+  buildPulseShape(m_pulseShapeDerivativePhysHG, pulseShapeDerivativeYPhysHG, pulseShapeDerivativeTPhysHG, 9);
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "m_LpulseShape_cis.size()=" << m_LpulseShape_cis.size() << endmsg;
-    for (unsigned int i = 0; i < m_LpulseShape_cis.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_LpulseShape_cis[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapeCisLG.size()=" << m_pulseShapeCisLG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapeCisLG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapeCisLG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_HpulseShape_cis.size()=" << m_HpulseShape_cis.size() << endmsg;
-    for (unsigned int i = 0; i < m_HpulseShape_cis.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_HpulseShape_cis[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapeCisHG.size()=" << m_pulseShapeCisHG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapeCisHG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapeCisHG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_LpulseShape_phys.size()=" << m_LpulseShape_phys.size() << endmsg;
-    for (unsigned int i = 0; i < m_LpulseShape_phys.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_LpulseShape_phys[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapePhysLG.size()=" << m_pulseShapePhysLG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapePhysLG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapePhysLG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_HpulseShape_phys.size()=" << m_HpulseShape_phys.size() << endmsg;
-    for (unsigned int i = 0; i < m_HpulseShape_phys.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_HpulseShape_phys[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapePhysHG.size()=" << m_pulseShapePhysHG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapePhysHG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapePhysHG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_LdpulseShape_cis.size()=" << m_LdpulseShape_cis.size() << endmsg;
-    for (unsigned int i = 0; i < m_LdpulseShape_cis.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_LdpulseShape_cis[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapeDerivativeCisLG.size()=" << m_pulseShapeDerivativeCisLG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapeDerivativeCisLG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapeDerivativeCisLG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_HdpulseShape_cis.size()=" << m_HdpulseShape_cis.size() << endmsg;
-    for (unsigned int i = 0; i < m_HdpulseShape_cis.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_HdpulseShape_cis[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapeDerivativeCisHG.size()=" << m_pulseShapeDerivativeCisHG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapeDerivativeCisHG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapeDerivativeCisHG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_LdpulseShape_phys.size()=" << m_LdpulseShape_phys.size() << endmsg;
-    for (unsigned int i = 0; i < m_LdpulseShape_phys.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_LdpulseShape_phys[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapeDerivativePhysLG.size()=" << m_pulseShapeDerivativePhysLG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapeDerivativePhysLG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapeDerivativePhysLG[i] << endmsg;
 
-    msg(MSG::DEBUG) << "m_HdpulseShape_phys.size()=" << m_HdpulseShape_phys.size() << endmsg;
-    for (unsigned int i = 0; i < m_HdpulseShape_phys.size(); i++)
-      msg(MSG::DEBUG) << i << " " << m_HdpulseShape_phys[i] << endmsg;
+    msg(MSG::DEBUG) << "m_pulseShapeDerivativePhysHG.size()=" << m_pulseShapeDerivativePhysHG.size() << endmsg;
+    for (unsigned int i = 0; i < m_pulseShapeDerivativePhysHG.size(); i++)
+      msg(MSG::DEBUG) << i << " " << m_pulseShapeDerivativePhysHG[i] << endmsg;
   }
 
   //get pointer to weights (loaded by the InfoLoader in TileInfo, from TileOptFilterWeights)
   m_weights = m_tileInfo->getOptFilterWeights();
   ATH_MSG_DEBUG("Weights loaded" );
 
-  c_signal = 0;
-  c_negat = 0;
-  c_center = 0;
+  m_nSignal = 0;
+  m_nNegative = 0;
+  m_nCenter = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -276,9 +267,9 @@ StatusCode TileRawChannelBuilderOptFilter::initialize() {
 
 StatusCode TileRawChannelBuilderOptFilter::finalize() {
 
-  ATH_MSG_VERBOSE( "Counters: Signal=" << c_signal
-                  << " Negat=" << c_negat
-                  << " Center=" << c_center );
+  ATH_MSG_VERBOSE( "Counters: Signal=" << m_nSignal
+                  << " Negat=" << m_nNegative
+                  << " Center=" << m_nCenter );
 
   ATH_MSG_DEBUG( "Finalizing" );
 
@@ -289,39 +280,40 @@ StatusCode TileRawChannelBuilderOptFilter::finalize() {
 TileRawChannel * TileRawChannelBuilderOptFilter::rawChannel(const TileDigits* digits) {
   ++m_chCounter;
 
-  double OptFilterPed = 0., OptFilterEne = 0., OptFilterTime = 0., OptFilterChi2 = 0.;
-  OptFilterDigits = digits->samples();
+  double pedestal = 0.;
+  double amplitude = 0.;
+  double time = 0.;
+  double chi2 = 0.;
+  m_digits = digits->samples();
   const HWIdentifier adcId = digits->adc_HWID();
-  int OptFilterGain = m_tileHWID->adc(adcId);
+  int gain = m_tileHWID->adc(adcId);
 
   ATH_MSG_VERBOSE( "Building Raw Channel, with OptFilter, HWID:" << m_tileHWID->to_string(adcId)
-                  << " gain=" << OptFilterGain );
+                  << " gain=" << gain );
 
-  if (m_ConfTB) {  // Using old weights for CTB
+  if (m_confTB) {  // Using old weights for CTB
     int ros = m_tileHWID->ros(adcId);
     int drawer = m_tileHWID->drawer(adcId);
     int channel = m_tileHWID->channel(adcId);
-    OptFilterChi2 = Filter(ros, drawer, channel, OptFilterGain, OptFilterPed, OptFilterEne,
-        OptFilterTime);
+    chi2 = filter(ros, drawer, channel, gain, pedestal, amplitude, time);
 
   } else {  // Using weights obtained with delta correlation
-    OptFilterChi2 = Filter(1000, 1000, 1000, OptFilterGain, OptFilterPed, OptFilterEne,
-        OptFilterTime);
+    chi2 = filter(1000, 1000, 1000, gain, pedestal, amplitude, time);
   }
 
   if (m_calibrateEnergy) {
-    OptFilterEne = m_tileInfo->CisCalib(adcId, OptFilterEne);
+    amplitude = m_tileInfo->CisCalib(adcId, amplitude);
   }
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Creating OptFilter RawChannel a=" << OptFilterEne
-                      << " t=" << OptFilterTime
-                      << " ped=" << OptFilterPed
-                      << " q=" << OptFilterChi2 << endmsg;
+    msg(MSG::VERBOSE) << "Creating OptFilter RawChannel a=" << amplitude
+                      << " t=" << time
+                      << " ped=" << pedestal
+                      << " q=" << chi2 << endmsg;
 
     msg(MSG::VERBOSE) << "digits:";
-    for (unsigned int i = 0; i < OptFilterDigits.size(); ++i)
-      msg(MSG::VERBOSE) << " " << OptFilterDigits[i];
+    for (unsigned int i = 0; i < m_digits.size(); ++i)
+      msg(MSG::VERBOSE) << " " << m_digits[i];
 
     msg(MSG::VERBOSE) << " " << endmsg;
   }
@@ -331,258 +323,244 @@ TileRawChannel * TileRawChannelBuilderOptFilter::rawChannel(const TileDigits* di
 
   DataPool<TileRawChannel> tileRchPool(m_dataPoollSize);
   TileRawChannel *rawCh = tileRchPool.nextElementPtr();
-  rawCh->m_adc_hwid = adcId;
-  rawCh->m_amplitude.resize(1);
-  rawCh->m_amplitude[0] = OptFilterEne;
-  rawCh->m_time.resize(1);
-  rawCh->m_time[0] = OptFilterTime;
-  rawCh->m_quality.resize(1);
-  rawCh->m_quality[0] = OptFilterChi2;
-  rawCh->m_pedestal = OptFilterPed;
+  rawCh->assign (adcId,
+                 amplitude,
+                 time,
+                 chi2,
+                 pedestal);
 
   if (m_correctTime
-      && (OptFilterTime != 0 && OptFilterTime < m_maxTime && OptFilterTime > m_minTime)) {
+      && (time != 0 && time < m_maxTime && time > m_minTime)) {
 
-    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, OptFilterTime));
+    rawCh->insertTime(m_tileInfo->TimeCalib(adcId, time));
     ATH_MSG_VERBOSE( "Correcting time, new time=" << rawCh->time() );
 
   }
 
-  if (TileID::HIGHGAIN == OptFilterGain) {
+  if (TileID::HIGHGAIN == gain) {
     ++m_nChH;
-    m_RChSumH += OptFilterEne;
+    m_RChSumH += amplitude;
   } else {
     ++m_nChL;
-    m_RChSumL += OptFilterEne;
+    m_RChSumL += amplitude;
   }
 
   return rawCh;
 }
 
 
-float TileRawChannelBuilderOptFilter::FindMaxDigit() {
+int TileRawChannelBuilderOptFilter::findMaxDigitPosition() {
 
-  ATH_MSG_VERBOSE( "  TileRawChannelBuilderOptFilter::FindMaxDigit()" );
+  ATH_MSG_VERBOSE( "  findMaxDigitPosition()" );
 
-  int imaxdig = 0;
-  float maxdig = 0.;
+  int iMaxDigit = 0;
+  float maxDigit = 0.;
   bool saturated = false;
 
-  for (unsigned int i = 0; i < OptFilterDigits.size(); i++) {
-    if (OptFilterDigits[i] > 1022.99) saturated = true;
-    if (maxdig < OptFilterDigits[i]) {
-      maxdig = OptFilterDigits[i];
-      imaxdig = i;
+  for (unsigned int i = 0; i < m_digits.size(); i++) {
+    if (m_digits[i] > 1022.99) saturated = true;
+    if (maxDigit < m_digits[i]) {
+      maxDigit = m_digits[i];
+      iMaxDigit = i;
     }
   }
 
   if (msgLvl(MSG::VERBOSE)) {
-    for (unsigned int i = 0; i < OptFilterDigits.size(); i++) {
-      msg(MSG::VERBOSE) << " " << OptFilterDigits[i];
+    for (float digit : m_digits) {
+      msg(MSG::VERBOSE) << " " << digit;
     }
 
-    msg(MSG::VERBOSE) << "; Max: digit[" << imaxdig << "]=" << maxdig << endmsg;
+    msg(MSG::VERBOSE) << "; Max: digit[" << iMaxDigit << "]=" << maxDigit << endmsg;
 
     if (saturated) msg(MSG::VERBOSE) << " Samples saturated" << endmsg;
   }
 
-  return imaxdig;
+  return iMaxDigit;
 }
 
-float TileRawChannelBuilderOptFilter::MaxDigDiff() {
-  float leastdig = 1024.;
-  float maxdig = 0.;
+float TileRawChannelBuilderOptFilter::findMaxDigitsDifference() {
 
-  for (unsigned int i = 0; i < OptFilterDigits.size(); i++) {
-    if (leastdig > OptFilterDigits[i]) leastdig = OptFilterDigits[i];
-    if (maxdig < OptFilterDigits[i]) maxdig = OptFilterDigits[i];
-  }
+  auto minMaxDigits = std::minmax_element(m_digits.begin(), m_digits.end());
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "  TileRawChannelBuilderOptFilter::MaxDigDiff()" << endmsg;
-    msg(MSG::VERBOSE) << "      maxdig-leastdig=" << maxdig - leastdig << endmsg;
-  }
+  ATH_MSG_VERBOSE("  findMaxDigitsDifference(): maxDigit-leastDigit=" << *minMaxDigits.second - *minMaxDigits.first);
 
-  return maxdig - leastdig;
+  return *minMaxDigits.second - *minMaxDigits.first;
+
 }
 
 
-float TileRawChannelBuilderOptFilter::MaxDigit() {
-  float maxdig = 0.;
+float TileRawChannelBuilderOptFilter::findMaxDigit() {
 
-  for (unsigned int i = 0; i < OptFilterDigits.size(); i++)
-    if (maxdig < OptFilterDigits[i]) maxdig = OptFilterDigits[i];
+  auto maxDigit = std::max_element(m_digits.begin(), m_digits.end());
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "  TileRawChannelBuilderOptFilter::MaxDigit()" << endmsg;
-    msg(MSG::VERBOSE) << "      maxdig=" << maxdig << endmsg;
-  }
+  ATH_MSG_VERBOSE("findMaxDigit(): maxDigit=" << *maxDigit);
 
-  return maxdig;
+  return *maxDigit;
+
 }
 
 
-bool TileRawChannelBuilderOptFilter::Are3FF() {
+bool TileRawChannelBuilderOptFilter::are3FF() {
   bool allSaturated = true;
 
-  for (unsigned int i = 0; i < OptFilterDigits.size(); i++) {
-    allSaturated = allSaturated && (OptFilterDigits[i] > 1022.99);
+  for (float digit : m_digits) {
+    allSaturated = allSaturated && (digit > 1022.99);
   }
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "  TileRawChannelBuilderOptFilter::Are3FF()" << endmsg;
-    msg(MSG::VERBOSE) << "      allSat=" << allSaturated << endmsg;
-  }
+  ATH_MSG_VERBOSE("are3FF(): allSaturated=" << allSaturated);
 
   return allSaturated;
 }
 
 
-float TileRawChannelBuilderOptFilter::SetPedestal() {
+float TileRawChannelBuilderOptFilter::setPedestal() {
   float pedestal = 0.;
 
   switch (m_pedestalMode) {
     case 7:
-      pedestal = OptFilterDigits[6];
+      pedestal = m_digits[6];
       break;
     case 9:
-      pedestal = OptFilterDigits[8];
+      pedestal = m_digits[8];
       break;
     case 12:
-      pedestal = .5 * (OptFilterDigits[0] + OptFilterDigits[1]);
+      pedestal = .5 * (m_digits[0] + m_digits[1]);
       break;
     case 17:
-      pedestal = .5 * (OptFilterDigits[0] + OptFilterDigits[6]);
+      pedestal = .5 * (m_digits[0] + m_digits[6]);
       break;
      case 19:
-      pedestal = .5 * (OptFilterDigits[0] + OptFilterDigits[8]);
+      pedestal = .5 * (m_digits[0] + m_digits[8]);
       break;
     default:
-      pedestal = OptFilterDigits[0];
+      pedestal = m_digits[0];
       break;
   }
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "  TileRawChannelBuilderOptFilter::SetPedestal()" << endmsg;
-    msg(MSG::VERBOSE) << "      pedestal=" << pedestal << endmsg;
-  }
+  ATH_MSG_VERBOSE("setPedestal(): pedestal=" << pedestal);
 
   return pedestal;
 }
 
 
-double TileRawChannelBuilderOptFilter::Filter(int ros, int drawer, int channel
-    , int &OptFilterGain, double &OptFilterPed, double &OptFilterEne, double &OptFilterTime) {
+double TileRawChannelBuilderOptFilter::filter(int ros, int drawer, int channel
+    , int &gain, double &pedestal, double &amplitude, double &time) {
 
-  ATH_MSG_VERBOSE( "TileRawChannelBuilderOptFilter::Filter" );
+  ATH_MSG_VERBOSE( "Filter" );
 
-  OptFilterPed = SetPedestal();
-  OptFilterEne = 0.;
-  OptFilterTime = 0.;
-  int OptFilterPha = 0;
-  double OptFilterChi2 = 0.;
-  int /* imaxdig=FindMaxDigit(), */niter = 0, digits_size = OptFilterDigits.size();
-  float digdiff = MaxDigDiff();
-  float maxdig = MaxDigit();
-  float mindig = maxdig - digdiff;
+  pedestal = setPedestal();
+  amplitude = 0.;
+  time = 0.;
+  int phase = 0;
+  double chi2 = 0.;
+  int /* imaxdig=FindMaxDigit(), */nIterations = 0;
+  int digits_size = m_digits.size();
+  float digDiff = findMaxDigitsDifference();
+  float maxDigit = findMaxDigit();
+  float minDigit = maxDigit - digDiff;
 
   // values used for pedestal-like events when iterations are performed
   int sigma;
   int sigma_hi = 5;
   int sigma_lo = 3;
 
-  if (OptFilterGain == 0) sigma = sigma_lo;
+  if (gain == 0) sigma = sigma_lo;
   else sigma = sigma_hi;
 
-  if (Are3FF()) {
+  if (are3FF()) {
 
-    OptFilterGain = 0;
-    OptFilterPed = 0.;
-    OptFilterEne = 0.;
-    OptFilterTime = 0.;
-    if (digits_size > 0 && OptFilterDigits[0] > 2046.99)
-      OptFilterChi2 = 9999.;
+    gain = 0;
+    pedestal = 0.;
+    amplitude = 0.;
+    time = 0.;
+    if (digits_size > 0 && m_digits[0] > 2046.99)
+      chi2 = 9999.;
     else
-      OptFilterChi2 = 0.;
+      chi2 = 0.;
 
   } else {
 
     if (m_maxIterations == 1) {  // Without iterations
-      OptFilterChi2 = Compute(ros, drawer, channel, OptFilterGain, OptFilterPed
-                              , OptFilterEne, OptFilterTime, OptFilterPha);
+      chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
       // If weights for tau=0 are used, deviations are seen in the amplitude =>
       // function to correct the amplitude
       if (m_correctAmplitude
-          && OptFilterEne > m_ampMinThresh
-          && OptFilterTime > m_timeMinThresh
-          && OptFilterTime < m_timeMaxThresh) {
+          && amplitude > m_ampMinThresh
+          && time > m_timeMinThresh
+          && time < m_timeMaxThresh) {
 
-        OptFilterEne *= correctAmp(OptFilterTime, m_of2);
-        ATH_MSG_VERBOSE( "Amlitude corrected by " << correctAmp(OptFilterTime, m_of2)
-                        << " new amplitude is " << OptFilterEne );
+        amplitude *= correctAmp(time, m_of2);
+        ATH_MSG_VERBOSE( "Amlitude corrected by " << correctAmp(time, m_of2)
+                        << " new amplitude is " << amplitude );
       }
 
-      if (OptFilterTime > m_maxTime) OptFilterTime = m_maxTime;
-      if (OptFilterTime < m_minTime) OptFilterTime = m_minTime;
+      if (m_correctTimeNI ) {
+        ATH_MSG_VERBOSE( "Time " << time 
+                         << " is corrected by " << correctTime(time, m_of2)
+                         << ", new time is " << time + correctTime(time, m_of2));
+
+        time += correctTime(time, m_of2);
+      }
+
+
+      if (time > m_maxTime) time = m_maxTime;
+      if (time < m_minTime) time = m_minTime;
 
     } else { // With iterations => 3 cases defined for correct pedestal treatment
 
       // Signal events: OF with iterations
-      if ((maxdig - OptFilterDigits[0] > sigma)
-          || (OptFilterDigits[0] - OptFilterDigits[digits_size - 1] > 4 * sigma)) {
+      if ((maxDigit - m_digits[0] > sigma)
+          || (m_digits[0] - m_digits[digits_size - 1] > 4 * sigma)) {
 
         ATH_MSG_VERBOSE( "CASE Signal: maxdig-OptFilterDigits[0]="
-                        << maxdig - OptFilterDigits[0]
+                        << maxDigit - m_digits[0]
                         << "   OptFilterDigits[0]-OptFilterDigits[ digits_size-1]="
-                        << OptFilterDigits[0] - OptFilterDigits[digits_size - 1] );
+                        << m_digits[0] - m_digits[digits_size - 1] );
 
-        niter = Iterator(ros, drawer, channel, OptFilterGain, OptFilterPed, OptFilterEne,
-            OptFilterTime, OptFilterChi2);
+        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2);
 
-        ATH_MSG_VERBOSE( "number of iterations= " << niter );
+        ATH_MSG_VERBOSE( "number of iterations= " << nIterations );
 
-        c_signal++;
-      } else if (OptFilterDigits[0] - mindig > sigma) { //Pedestal events: OF with negative iterations
+        m_nSignal++;
+      } else if (m_digits[0] - minDigit > sigma) { //Pedestal events: OF with negative iterations
 
         if (msgLvl(MSG::VERBOSE)) {
           msg(MSG::VERBOSE) << "CASE NEGATIVE: maxdig-OptFilterDigits[0]="
-                            << maxdig - OptFilterDigits[0]
+                            << maxDigit - m_digits[0]
                             << "   OptFilterDigits[0]-OptFilterDigits[digits_size-1]="
-                            << OptFilterDigits[0] - OptFilterDigits[digits_size - 1] << endmsg;
+                            << m_digits[0] - m_digits[digits_size - 1] << endmsg;
 
           msg(MSG::VERBOSE) << "OptFilterDigits[0]-mindig="
-                            << OptFilterDigits[0] - mindig << endmsg;
+                            << m_digits[0] - minDigit << endmsg;
         }
 
         for (int i = 0; i < digits_size; i++)  // Mirror around pedestal
-          OptFilterDigits[i] = OptFilterPed - (OptFilterDigits[i] - OptFilterPed);
+          m_digits[i] = pedestal - (m_digits[i] - pedestal);
 
-        niter = Iterator(ros, drawer, channel, OptFilterGain, OptFilterPed
-                        , OptFilterEne, OptFilterTime, OptFilterChi2);
+        nIterations = iterate(ros, drawer, channel, gain, pedestal, amplitude, time, chi2);
 
-        OptFilterEne = -OptFilterEne;
+        amplitude = -amplitude;
 
-        c_negat++;
+        m_nNegative++;
 
       } else { // Gaussian center: no iterations and phase=0
 
         if (msgLvl(MSG::VERBOSE)) {
           msg(MSG::VERBOSE) << "CASE CENTER: maxdig-OptFilterDigits[0]="
-                            << maxdig - OptFilterDigits[0]
+                            << maxDigit - m_digits[0]
                             << "   OptFilterDigits[0]-OptFilterDigits[digits_size-1]="
-                            << OptFilterDigits[0] - OptFilterDigits[digits_size - 1] << endmsg;
+                            << m_digits[0] - m_digits[digits_size - 1] << endmsg;
 
           msg(MSG::VERBOSE) << "OptFilterDigits[0]-mindig="
-                            << OptFilterDigits[0] - mindig << endmsg;
+                            << m_digits[0] - minDigit << endmsg;
         }
         //	OptFilterTime=-100.;
 
-        OptFilterChi2 = Compute(ros, drawer, channel, OptFilterGain, OptFilterPed, OptFilterEne,
-            OptFilterTime, OptFilterPha);
+        chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, phase);
 
-        OptFilterTime = 0.;
-        c_center++;
+        time = 0.;
+        ++m_nCenter;
 
       }
 
@@ -590,206 +568,213 @@ double TileRawChannelBuilderOptFilter::Filter(int ros, int drawer, int channel
 
   }
 
-  return OptFilterChi2;
+  return chi2;
 }
 
 
-int TileRawChannelBuilderOptFilter::Iterator(int ros, int drawer, int channel, int OptFilterGain,
-    double &OptFilterPed, double &OptFilterEne, double &OptFilterTime, double &OptFilterChi2) {
+int TileRawChannelBuilderOptFilter::iterate(int ros, int drawer, int channel, int gain,
+    double &pedestal, double &amplitude, double &time, double &chi2) {
 
-  ATH_MSG_VERBOSE( "TileRawChannelBuilderOptFilter::Iterator()" );
+  ATH_MSG_VERBOSE( "iterate()" );
 
-  int niter = 0;
-  double save_phase = 0.0;
-  double OptFilterPha = 0.0;
-  OptFilterTime = -1000.;
+  int nIterations = 0;
+  double savePhase = 0.0;
+  double phase = 0.0;
+  time = -1000.;
 
   // Mythic -1 iteration
-  if (m_minus1Iter) OptFilterPha = 25 * (m_t0Samp - FindMaxDigit());
+  if (m_minus1Iter) phase = 25 * (m_t0SamplePosition - findMaxDigitPosition());
 
-  while ((OptFilterTime > m_timeForConvergence
-          || OptFilterTime < (-1.) * m_timeForConvergence)
-        && niter < m_maxIterations) {
+  while ((time > m_timeForConvergence
+          || time < (-1.) * m_timeForConvergence)
+        && nIterations < m_maxIterations) {
 
-    OptFilterChi2 = Compute(ros, drawer, channel, OptFilterGain, OptFilterPed
-                            , OptFilterEne, OptFilterTime, (int) OptFilterPha);
+    chi2 = compute(ros, drawer, channel, gain, pedestal, amplitude, time, (int) phase);
 
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << " OptFilter computed with phase=" << OptFilterPha
-                        << " Time=" << OptFilterTime;
+      msg(MSG::VERBOSE) << " OptFilter computed with phase=" << phase
+                        << " Time=" << time;
     }
 
-    save_phase = OptFilterPha;
+    savePhase = phase;
 
-    OptFilterPha -= round(OptFilterTime);
-    if (OptFilterPha > m_maxTime) OptFilterPha = m_maxTime;
-    if (OptFilterPha < m_minTime) OptFilterPha = m_minTime;
+    phase -= round(time);
+    if (phase > m_maxTime) phase = m_maxTime;
+    if (phase < m_minTime) phase = m_minTime;
 
-    niter++;
+    ++nIterations;
     if (msgLvl(MSG::VERBOSE)) {
-          msg(MSG::VERBOSE) << " END ITER=" << niter
-                            << " new phase=" << OptFilterPha
-                            << " chi2=" << OptFilterChi2
-                            << "  Amp=" << OptFilterEne << endmsg;
+          msg(MSG::VERBOSE) << " END ITER=" << nIterations
+                            << " new phase=" << phase
+                            << " chi2=" << chi2
+                            << "  Amp=" << amplitude << endmsg;
     }
   }
 
-  OptFilterTime -= save_phase;
-  if (OptFilterTime > m_maxTime) OptFilterTime = m_maxTime;
-  if (OptFilterTime < m_minTime) OptFilterTime = m_minTime;
+  time -= savePhase;
+  if (time > m_maxTime) time = m_maxTime;
+  if (time < m_minTime) time = m_minTime;
 
-  ATH_MSG_VERBOSE( "OptFilterEne=" << OptFilterEne
-                  << " Phase=" << save_phase
-                  << " Absolute Time=" << OptFilterTime );
+  ATH_MSG_VERBOSE( "OptFilterEne=" << amplitude
+                  << " Phase=" << savePhase
+                  << " Absolute Time=" << time );
 
-  return niter;
+  return nIterations;
 }
 
 
-double TileRawChannelBuilderOptFilter::Compute(int ros, int drawer, int channel, int OptFilterGain,
-    double &OptFilterPed, double &OptFilterEne, double &OptFilterTime, int OptFilterPha) {
+double TileRawChannelBuilderOptFilter::compute(int ros, int drawer, int channel, int gain,
+    double &pedestal, double &amplitude, double &time, int phase) {
 
-  ATH_MSG_VERBOSE( "TileRawChannelBuilderOptFilter::Compute(); ros=" << ros
+  ATH_MSG_VERBOSE( "compute(); ros=" << ros
                   << " drawer=" << drawer
                   << " channel=" << channel
-                  << " gain=" << OptFilterGain );
+                  << " gain=" << gain );
 
-  int i = 0, digits_size = OptFilterDigits.size();
-  double OptFilterChi2 = 0.;
+  int i = 0;
+  int digitsSize = m_digits.size();
+  double chi2 = 0.;
   double a[9];
   double b[9];
   double c[9];
   double g[9];
 
-  OptFilterEne = 0.;
-  OptFilterTime = 0.;
+  amplitude = 0.;
+  time = 0.;
 
   if (m_idocis) {
     for (i = 0; i < 7; ++i) { // 7 samples only
-      a[i] = m_weights->a_cis_simp[OptFilterGain][i][OptFilterPha + 100];
-      b[i] = m_weights->b_cis_simp[OptFilterGain][i][OptFilterPha + 100];
-      if (m_of2) c[i] = m_weights->c_cis_simp[OptFilterGain][i][OptFilterPha + 100];
+      a[i] = m_weights->a_cis_simp[gain][i][phase + 100];
+      b[i] = m_weights->b_cis_simp[gain][i][phase + 100];
+      if (m_of2) c[i] = m_weights->c_cis_simp[gain][i][phase + 100];
     }
   } else {
-    for (i = 0; i < digits_size; ++i) { // 7 or 9 samples
-      a[i] = m_weights->a_phys_simp[OptFilterGain][i][OptFilterPha + 100];
-      b[i] = m_weights->b_phys_simp[OptFilterGain][i][OptFilterPha + 100];
-      if (m_of2) c[i] = m_weights->c_phys_simp[OptFilterGain][i][OptFilterPha + 100];
+    for (i = 0; i < digitsSize; ++i) { // 7 or 9 samples
+      a[i] = m_weights->a_phys_simp[gain][i][phase + 100];
+      b[i] = m_weights->b_phys_simp[gain][i][phase + 100];
+      if (m_of2) c[i] = m_weights->c_phys_simp[gain][i][phase + 100];
     }
   }
 
-  if (m_idocis)
-    if (OptFilterGain == 0)
-      for (i = 0; i < digits_size; i++)
-        g[i] = m_LpulseShape_cis[(i - (digits_size - 9) / 2) * 25 + 100 + OptFilterPha];
-    else
-      for (i = 0; i < digits_size; i++)
-        g[i] = m_HpulseShape_cis[(i - (digits_size - 9) / 2) * 25 + 100 + OptFilterPha];
-  else if (OptFilterGain == 0)
-    for (i = 0; i < digits_size; i++)
-      g[i] = m_LpulseShape_phys[(i - (digits_size - 9) / 2) * 25 + 100 + OptFilterPha];
-  else
-    for (i = 0; i < digits_size; i++)
-      g[i] = m_HpulseShape_phys[(i - (digits_size - 9) / 2) * 25 + 100 + OptFilterPha];
+  if (m_idocis) {
+    if (gain == 0) {
+      for (i = 0; i < digitsSize; ++i) {
+        g[i] = m_pulseShapeCisLG[(i - (digitsSize - 9) / 2) * 25 + 100 + phase];
+      }
+    } else {
+      for (i = 0; i < digitsSize; ++i) {
+        g[i] = m_pulseShapeCisHG[(i - (digitsSize - 9) / 2) * 25 + 100 + phase];
+      }
+    }
+  } else if (gain == 0) {
+    for (i = 0; i < digitsSize; ++i) {
+      g[i] = m_pulseShapePhysLG[(i - (digitsSize - 9) / 2) * 25 + 100 + phase];
+    }
+  } else {
+    for (i = 0; i < digitsSize; ++i) {
+      g[i] = m_pulseShapePhysHG[(i - (digitsSize - 9) / 2) * 25 + 100 + phase];
+    }
+  }
 
-  ATH_MSG_VERBOSE( "OptFilterPha=" << OptFilterPha << ((m_idocis) ? " cis" : " ") );
+  ATH_MSG_VERBOSE( "OptFilterPha=" << phase << ((m_idocis) ? " cis" : " ") );
 
   if (m_of2) {
-    OptFilterPed = 0.;
-    for (i = 0; i < digits_size; i++) {
-      OptFilterEne += a[i] * OptFilterDigits[i];
-      OptFilterTime += b[i] * OptFilterDigits[i];
-      OptFilterPed += c[i] * OptFilterDigits[i];
+    pedestal = 0.;
+    for (i = 0; i < digitsSize; ++i) {
+      amplitude += a[i] * m_digits[i];
+      time += b[i] * m_digits[i];
+      pedestal += c[i] * m_digits[i];
     }
   } else {
-    for (i = 0; i < digits_size; i++) {
-      OptFilterEne += a[i] * (OptFilterDigits[i] - OptFilterPed);
-      OptFilterTime += b[i] * (OptFilterDigits[i] - OptFilterPed);
+    for (i = 0; i < digitsSize; ++i) {
+      amplitude += a[i] * (m_digits[i] - pedestal);
+      time += b[i] * (m_digits[i] - pedestal);
     }
   }
 
-  bool goodEne = (fabs(OptFilterEne) > 1.0e-04);
+  bool goodEne = (fabs(amplitude) > 1.0e-04);
   if (goodEne) {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterEne=" << OptFilterEne << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << OptFilterTime << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterEne=" << amplitude << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << time << endmsg;
     }
-    OptFilterTime /= OptFilterEne;
+    time /= amplitude;
   } else {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterEne=" << OptFilterEne
+      msg(MSG::VERBOSE) << "OptFilterEne=" << amplitude
                         << "   ... assuming 0.0" << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << OptFilterTime
+      msg(MSG::VERBOSE) << "OptFilterTime*OptFilterEne=" << time
                         << "   ... assuming 0.0" << endmsg;
     }
-    OptFilterTime = OptFilterEne = 0.0;
+    time = amplitude = 0.0;
   }
 
-  for (i = 0; i < digits_size; i++) {
-    if (OptFilterDigits[i] > 0)
-      OptFilterChi2 += 50 * fabs(OptFilterDigits[i] - (OptFilterEne * g[i] + OptFilterPed))
-          / OptFilterDigits[i];
+  for (i = 0; i < digitsSize; ++i) {
+    if (m_digits[i] > 0)
+      chi2 += 50 * fabs(m_digits[i] - (amplitude * g[i] + pedestal)) / m_digits[i];
     else
-      OptFilterChi2 += 50 * fabs(OptFilterDigits[i] - (OptFilterEne * g[i] + OptFilterPed)) / 1024.;
+      chi2 += 50 * fabs(m_digits[i] - (amplitude * g[i] + pedestal)) / 1024.;
   }
 
-  if (fabs(OptFilterChi2) > 1.0e-04 || goodEne) {
+  if (fabs(chi2) > 1.0e-04 || goodEne) {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterTime=" << OptFilterTime << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterPed=" << OptFilterPed << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterChi2=" << OptFilterChi2 << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterTime=" << time << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterPed=" << pedestal << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterChi2=" << chi2 << endmsg;
     }
   } else {
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "OptFilterTime=" << OptFilterTime << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterPed=" << OptFilterPed << endmsg;
-      msg(MSG::VERBOSE) << "OptFilterChi2=" << OptFilterChi2
+      msg(MSG::VERBOSE) << "OptFilterTime=" << time << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterPed=" << pedestal << endmsg;
+      msg(MSG::VERBOSE) << "OptFilterChi2=" << chi2
                         << "   ... assuming 0.0" << endmsg;
     }
-    OptFilterChi2 = 0.0;
+    chi2 = 0.0;
   }
 
-  return OptFilterChi2;
+  return chi2;
 }
 
 
-void TileRawChannelBuilderOptFilter::BuildPulseShape(vector<double> &m_pulseShape,
-    vector<double> &m_pulseShapeX, vector<double> &m_pulseShapeT, int dignum) {
+void TileRawChannelBuilderOptFilter::buildPulseShape(std::vector<double> &pulseShape,
+    std::vector<double> &pulseShapeY, std::vector<double> &pulseShapeT, int dignum) {
 
-  ATH_MSG_DEBUG( "TileRawChannelBuilderOptFilter::BuildPulseShape");
+  ATH_MSG_DEBUG( "buildPulseShape");
 
 //1: set m_pulseShape
   int shape_size = (dignum - 1) * 25 + 200;
-  m_pulseShape.resize(shape_size);
+  pulseShape.resize(shape_size);
   ATH_MSG_DEBUG( "Set dimension of m_pulseShape to shape_sie=" << shape_size);
 
 //2: scan m_pulseShapeT for: tmin, tmax, nt0 and size: m_pulseShapeX[nt0]=1.0;
-  int nt0 = 0, size;
-  double tmin = 10000., tmax = -10000.;
-  size = m_pulseShapeT.size();
+  int nt0 = 0;
+  int size = pulseShapeT.size();;
+  double tmin = 10000.;
+  double tmax = -10000.;
+
   for (int i = 0; i < size; i++) {
-    if (m_pulseShapeT[i] < tmin) tmin = m_pulseShapeT[i];
-    if (m_pulseShapeT[i] > tmax) tmax = m_pulseShapeT[i];
-    if (m_pulseShapeT[i] == 0) nt0 = i;
+    if (pulseShapeT[i] < tmin) tmin = pulseShapeT[i];
+    if (pulseShapeT[i] > tmax) tmax = pulseShapeT[i];
+    if (pulseShapeT[i] == 0) nt0 = i;
   }
 
-  ATH_MSG_DEBUG( "m_pulseShapeX & m_pulseShapeT size =" << size
+  ATH_MSG_DEBUG( "m_pulseShapeY & m_pulseShapeT size =" << size
                 << ", tmin=" << tmin
                 << ", tmax=" << tmax
                 << "  nt0=" << nt0
-                << " m_pulseShapeT[nt0]=" << m_pulseShapeT[nt0]
-                << " m_pulseShapeX[nt0]=" << m_pulseShapeX[nt0] );
+                << " m_pulseShapeT[nt0]=" << pulseShapeT[nt0]
+                << " m_pulseShapeY[nt0]=" << pulseShapeY[nt0] );
 
 //3: fill m_pulseShape
   bool exact;
   int nminn, nminp;
   double minn, minp, tdist;
-  m_pulseShape[(shape_size) / 2] = m_pulseShapeX[nt0];
+  pulseShape[(shape_size) / 2] = pulseShapeY[nt0];
 //  for (int i=1;i<(shape_size)/2+1;i++){
   for (int i = 1; i < (shape_size) / 2; i++) {
     // negative times: 0->(shape_size-1)/2
     if (-i < tmin)
-      m_pulseShape[(shape_size) / 2 - i] = 0.;
+      pulseShape[(shape_size) / 2 - i] = 0.;
     else {
       exact = false;
       minn = -10000.;
@@ -797,11 +782,11 @@ void TileRawChannelBuilderOptFilter::BuildPulseShape(vector<double> &m_pulseShap
       nminn = 0;
       nminp = size - 1;
       for (int j = 0; j < nt0 + 1 && !exact; j++) {
-        if (m_pulseShapeT[j] == double(-i)) {
-          m_pulseShape[(shape_size) / 2 - i] = m_pulseShapeX[j];
+        if (pulseShapeT[j] == double(-i)) {
+          pulseShape[(shape_size) / 2 - i] = pulseShapeY[j];
           exact = true;
         } else {
-          tdist = m_pulseShapeT[j] - double(-i);
+          tdist = pulseShapeT[j] - double(-i);
           if (tdist < 0. && tdist > minn) {
             minn = tdist;
             nminn = j;
@@ -815,28 +800,28 @@ void TileRawChannelBuilderOptFilter::BuildPulseShape(vector<double> &m_pulseShap
 
       if (exact) {
         ATH_MSG_VERBOSE( "exact value found for time=" << -i
-                        << " m_pulseShape=" << m_pulseShape[(shape_size) / 2 - i]);
+                        << " m_pulseShape=" << pulseShape[(shape_size) / 2 - i]);
       } else {
         ATH_MSG_VERBOSE( "exact value NOT found for time=" << -i
                         << " nminn=" << nminn
                         << " m_pulseShapeT="
-                        << m_pulseShapeT[nminn]
-                        << " m_pulseShapeX=" << m_pulseShapeX[nminn] << std::endl
+                        << pulseShapeT[nminn]
+                        << " m_pulseShapeY=" << pulseShapeY[nminn] << std::endl
                         << " nminp=" << nminp
                         << " m_pulseShapeT="
-                        << m_pulseShapeT[nminp]
-                        << " m_pulseShapeX=" << m_pulseShapeX[nminp]);
+                        << pulseShapeT[nminp]
+                        << " m_pulseShapeY=" << pulseShapeY[nminp]);
 
-        m_pulseShape[(shape_size) / 2 - i] = m_pulseShapeX[nminn]
-            + (m_pulseShapeX[nminp] - m_pulseShapeX[nminn])
-                / (m_pulseShapeT[nminp] - m_pulseShapeT[nminn]) * (-i - m_pulseShapeT[nminn]);
+        pulseShape[(shape_size) / 2 - i] = pulseShapeY[nminn]
+            + (pulseShapeY[nminp] - pulseShapeY[nminn])
+                / (pulseShapeT[nminp] - pulseShapeT[nminn]) * (-i - pulseShapeT[nminn]);
       }
 
     }
 
     // positive times: (shape_size-1)/2->shape_size
     if (i > tmax)
-      m_pulseShape[(shape_size) / 2 + i] = 0.;
+      pulseShape[(shape_size) / 2 + i] = 0.;
     else {
       exact = false;
       minn = -10000.;
@@ -844,11 +829,11 @@ void TileRawChannelBuilderOptFilter::BuildPulseShape(vector<double> &m_pulseShap
       nminn = 0;
       nminp = size;
       for (int j = nt0; j < size && !exact; j++) {
-        if (m_pulseShapeT[j] == double(i)) {
-          m_pulseShape[(shape_size) / 2 + i] = m_pulseShapeX[j];
+        if (pulseShapeT[j] == double(i)) {
+          pulseShape[(shape_size) / 2 + i] = pulseShapeY[j];
           exact = true;
         } else {
-          tdist = m_pulseShapeT[j] - double(i);
+          tdist = pulseShapeT[j] - double(i);
           if (tdist < 0) if (tdist > minn) {
             minn = tdist;
             nminn = j;
@@ -861,19 +846,19 @@ void TileRawChannelBuilderOptFilter::BuildPulseShape(vector<double> &m_pulseShap
       }
       if (exact) {
         ATH_MSG_VERBOSE( "exact value found for time=" << i
-                        << " m_pulseShape=" << m_pulseShape[(shape_size) / 2 + i]);
+                        << " m_pulseShape=" << pulseShape[(shape_size) / 2 + i]);
       } else {
         ATH_MSG_VERBOSE( "exact value NOT found for time=" << i
                         << " nminn=" << nminn
-                        << " m_pulseShapeT=" << m_pulseShapeT[nminn]
-                        << " m_pulseShapeX=" << m_pulseShapeX[nminn] << std::endl
+                        << " m_pulseShapeT=" << pulseShapeT[nminn]
+                        << " m_pulseShapeY=" << pulseShapeY[nminn] << std::endl
                         << " nminp=" << nminp
-                        << " m_pulseShapeT=" << m_pulseShapeT[nminp]
-                        << " m_pulseShapeX=" << m_pulseShapeX[nminp] );
+                        << " m_pulseShapeT=" << pulseShapeT[nminp]
+                        << " m_pulseShapeY=" << pulseShapeY[nminp] );
 
-        m_pulseShape[(shape_size) / 2 + i] = m_pulseShapeX[nminn]
-            + (m_pulseShapeX[nminp] - m_pulseShapeX[nminn])
-                / (m_pulseShapeT[nminp] - m_pulseShapeT[nminn]) * (i - m_pulseShapeT[nminn]);
+        pulseShape[(shape_size) / 2 + i] = pulseShapeY[nminn]
+            + (pulseShapeY[nminp] - pulseShapeY[nminn])
+                / (pulseShapeT[nminp] - pulseShapeT[nminn]) * (i - pulseShapeT[nminn]);
       }
     }
   }
