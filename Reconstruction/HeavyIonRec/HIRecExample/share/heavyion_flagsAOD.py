@@ -11,6 +11,13 @@ if not jobproperties.HIRecExampleFlags.ppMode:
   from JetRec.JetRecFlags import jetFlags
   jetFlags.Enabled = False
 
+  # AO InDet 2015
+  InDetFlags.cutLevel = 3
+  InDetFlags.doSGDeletion = False
+
+  # MC
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+  TriggerFlags.AODEDMSet.set_Value_and_Lock("AODFULL")
 
   from ParticleBuilderOptions.AODFlags import AODFlags
 

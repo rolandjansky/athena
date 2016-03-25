@@ -1,15 +1,15 @@
 #do not save AOD cells
 rec.doAODCaloCells =False
 
-# turn off pp pilup noise suppression
-from CaloTools.CaloNoiseFlags import jobproperties
-jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(0)
-      
 # turning off some monitoring
 if rec.doMonitoring() :
+    # 20.10.2015 failing (pp containers), turn off
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     DQMonFlags.doMissingEtMon.set_Value_and_Lock(False)
     DQMonFlags.doTauMon.set_Value_and_Lock(False)
+    # 20.01.2015 failing (pp containers), turn off
+    from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
+    HLTMonFlags.doTau.set_Value_and_Lock(False)
 
 #turn off some EventTags
 from RecExConfig.RecFlags import rec
