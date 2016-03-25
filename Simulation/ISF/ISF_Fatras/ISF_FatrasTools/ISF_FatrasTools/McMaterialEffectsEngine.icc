@@ -1,0 +1,50 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// McMaterialEffectsEngine.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+	
+#include "TrkExInterfaces/IMaterialEffectsEngine.h"
+#include "ISF_Event/ParticleClipboard.h"
+#include "TrkGeometry/Layer.h"
+#include <iostream>
+
+template <class T> Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::handleMaterialT( Trk::ExtrapolationCell<T>& eCell,
+	 	   			  						     Trk::PropDirection dir,
+											     Trk::MaterialUpdateStage matupstage) const 
+{
+  // get parent particle
+  const ISF::ISFParticle *isp = ISF::ParticleClipboard::getInstance().getParticle();
+  // something is seriously wrong if there is no parent particle
+  assert(isp);
+  m_isp = isp;
+
+  // the Extrapolator made sure that the layer is the lead layer && the parameters are the lead parameters
+  m_layer = eCell.leadLayer;
+  if (m_layer && eCell.leadParameters) {
+     // path correction		     
+     double pathCorrection = m_layer->surfaceRepresentation().pathCorrection(eCell.leadParameters->position(),dir*(eCell.leadParameters->momentum()));
+     // the relative direction wrt with the layer
+     Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
+     // multiply by the pre-and post-update factor
+     double mFactor = m_layer->layerMaterialProperties()->factor(rlDir, matupstage);
+     //EX_MSG_DEBUG(eCell.navigationStep, "Update", "char", "Update on layer with index " << m_layer->layerIndex().value() << " - corr factor = " << pathCorrection*mFactor); 
+
+     const Trk::MaterialProperties* materialProperties = m_layer->layerMaterialProperties()->fullMaterial(eCell.leadParameters->position());
+     if ( materialProperties && materialProperties->thicknessInX0()>0 ) {
+       m_matProp = materialProperties;
+       m_thicknessInX0 = mFactor*m_matProp->thicknessInX0();
+       m_thicknessInL0 = mFactor*m_matProp->thicknessInL0();
+
+       float mFraction=0.;   
+       return processMaterialOnLayer(isp,eCell,dir,mFraction);
+     }
+  }
+  return Trk::ExtrapolationCode::InProgress;
+}
+
+
+
+
