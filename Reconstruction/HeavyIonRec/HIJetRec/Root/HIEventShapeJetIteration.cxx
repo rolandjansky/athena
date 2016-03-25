@@ -171,6 +171,17 @@ void HIEventShapeJetIteration::updateShape(xAOD::HIEventShapeContainer* output_s
   }
   for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++) 
     m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,(*pItr));
+
+  if(!m_subtractor_tool->usesCells())
+  {
+    for(auto s : *output_shape)
+    {
+      float sum_et=s->et();
+      float sum_nc=0.;
+      if(sum_et!=0.) sum_nc=s->rho()*s->area()/sum_et;
+      s->setNCells(sum_nc);
+    }
+  }
 }
 
 StatusCode HIEventShapeJetIteration::fillModulatorShape(xAOD::HIEventShape* ms, const xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_eta_bins, unsigned int scheme) const

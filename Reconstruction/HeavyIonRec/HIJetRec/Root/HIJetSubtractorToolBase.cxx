@@ -3,9 +3,11 @@
 */
 
 #include "HIJetRec/HIJetSubtractorToolBase.h"
-#include "HIEventUtils/HIEventDefs.h"
+#include "HIJetRec/HIJetRecDefs.h"
+#include <TVector2.h>
 
-HIJetSubtractorToolBase::HIJetSubtractorToolBase(const std::string& myname) : asg::AsgTool(myname)
+HIJetSubtractorToolBase::HIJetSubtractorToolBase(const std::string& myname) : asg::AsgTool(myname),
+									      m_useCells(true)
 {
 #ifdef ASGTOOL_ATHENA
   //should not need this due to ASG_TOOL_CLASS macro since 
@@ -19,23 +21,19 @@ HIJetSubtractorToolBase::HIJetSubtractorToolBase(const std::string& myname) : as
 
 }
 
-bool HIJetSubtractorToolBase::inTowerBoundary(float eta0, float phi0, float eta, float phi) const
-{
-  if( 2.*std::abs(eta-eta0) > HI::TowerBins::getBinSizeEta() ) return false;
-  if( 2.*std::abs(phi-phi0) > HI::TowerBins::getBinSizePhi() ) return false;
-  return true;
-}
 
 void HIJetSubtractorToolBase::setSubtractedEtaPhi(float E, float& eta, float& phi, float eta0, float phi0, float sig) const
 {
-  if( E < MinEnergyForMoments() || ( (sig > 0) && sig < MinEnergySigForMoments() ) )
+  phi=TVector2::Phi_mpi_pi(phi);
+  if(!HIJetRec::inTowerBoundary(eta0,phi0,eta,phi))
   {
     eta=eta0;
     phi=phi0;
   }
-  else 
+  else if( E < MinEnergyForMoments() || ( (sig > 0) && sig < MinEnergySigForMoments() ) )
   {
-    if( 2.*std::abs(eta-eta0) > HI::TowerBins::getBinSizeEta() ) eta=eta0;
-    if( 2.*std::abs(phi-phi0) > HI::TowerBins::getBinSizePhi() ) phi=phi0;
+    eta=eta0;
+    phi=phi0;
   }
+
 }

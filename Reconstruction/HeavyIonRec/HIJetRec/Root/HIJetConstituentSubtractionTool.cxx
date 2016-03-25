@@ -27,14 +27,12 @@ HIJetConstituentSubtractionTool::HIJetConstituentSubtractionTool(const std::stri
 
 int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 {
-  ATH_MSG_DEBUG("In HI tool");
+
   float E_min=m_subtractor_tool->MinEnergyForMoments();
   //const jet::cellset_t & badcells = badCellMap.cells() ;
 
   //retrieve UE
-
   const xAOD::HIEventShapeContainer* shape=0;
-  
   if(EventShapeKey().compare("")==0) 
   {
     ATH_MSG_INFO("No HIEventShape specified, skipping tool.");
@@ -72,12 +70,13 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr) 
     {
-      if(shape)	m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulator_tool); //modifies p4_cl to be constituent 4-vector AFTER subtraction
+      m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulator_tool); //modifies p4_cl to be constituent 4-vector AFTER subtraction
       p4_subtr+=p4_cl;
-      const xAOD::CaloCluster* clc=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
-      xAOD::IParticle::FourMom_t p_temp=clc->p4(HIJetRec::unsubtractedClusterState());
-
-      p4_unsubtr+=p_temp;
+      if( msgLvl(MSG::DEBUG) ) 
+      {
+	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
+	p4_unsubtr+=cl->p4(HIJetRec::unsubtractedClusterState());
+      }
     }
     
     ATH_MSG_DEBUG("Subtracting" 
@@ -88,7 +87,6 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.E()*1e-3
 		  << std::setw(10) << std::setprecision(3) << p4_unsubtr.M()*1e-3
 		  << std::setw(12) << "After:"
-
 		  << std::setw(10) << std::setprecision(3) << p4_subtr.Pt()*1e-3
 		  << std::setw(10) << std::setprecision(3) << p4_subtr.Eta()
 		  << std::setw(10) << std::setprecision(3) << p4_subtr.Phi()

@@ -46,6 +46,7 @@ class IHISubtractorTool : virtual public asg::IAsgTool {
   virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) = 0;
   virtual float MinEnergyForMoments() const = 0;
 
+  virtual bool usesCells() const = 0;
 };
 
 #endif

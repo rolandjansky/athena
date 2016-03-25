@@ -59,7 +59,7 @@ class ApplyOriginCorrection(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class ApplyEtaJESCalibration(JobProperty):
     """ Option to apply MC-derived calibration 

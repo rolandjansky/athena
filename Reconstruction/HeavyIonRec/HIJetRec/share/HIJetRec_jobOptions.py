@@ -29,12 +29,19 @@ from  HIJetRec.HIJetRecTools import jtm
 if jetFlags.useTruth(): 
     for R in HIJetFlags.AntiKtRValues() : 
         tname="AntiKt%dTruthJets" % int(10*R)
+        collExists=False
         if tname in jtm.tools : continue
         if rec.readESD() :
             from RecExConfig.ObjKeyStore import objKeyStore
             inputcontent = objKeyStore['inputFile'].list()
-            if tname in inputcontent : continue
+            for t in inputcontent :
+                if tname in t:
+                    print 'Truth collection %s already exists, no need to rebuild it' % tname
+                    collExists=True
+                    break
+        if collExists: continue
         f=jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= HIJetFlags.TruthJetPtMin())
+        print 'Adding %s' %tname
         AddToOutputList(tname)
         jtm.HIJetRecs+=[f]
 
@@ -71,13 +78,14 @@ iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKe
 HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
 modulator1=iter1.Modulator
 jtm.modulator=modulator1
-subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
 #apply subtraction to cluster constituents
 ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=ClusterKey, modulator=modulator1,CalculateMoments=True)
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
 
-#subtr_cl=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1,momentOnly=True,useClusters=True,moment_name="ClSubtr")
+#subtraction BEFORE iteration for moment
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
+#main subtractor
+subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]

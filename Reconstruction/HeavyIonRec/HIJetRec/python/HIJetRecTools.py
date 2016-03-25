@@ -90,12 +90,15 @@ if HIJetFlags.UseHITracks() :
 from JetRec.JetRecConf import PseudoJetGetter
 ClusterKey=HIJetFlags.HIClusterKey()
 
-jtm += PseudoJetGetter("get_HI",
-                       InputContainer = ClusterKey,
-                       Label = "LCTopo", #Label = "Tower",
-                       OutputContainer = "PseudoJet" + ClusterKey,
-                       SkipNegativeEnergy = True,
-                       GhostScale = 0.0)
+from HIJetRec.HIJetRecConf import HIClusterPseudoJetGetter
+jtm += HIClusterPseudoJetGetter("get_HI",
+                                InputContainer = ClusterKey,
+                                Label = "LCTopo", #Label = "Tower",
+                                OutputContainer = "PseudoJet" + ClusterKey,
+                                SkipNegativeEnergy = False,
+                                TreatNegativeEnergyAsGhost=True,
+                                GhostScale = 1.e-20
+                                )
 
 jtm += PseudoJetGetter("gakt4trackget_HI", 
                        InputContainer = HIJetFlags.TrackJetContainerName(),
@@ -162,16 +165,12 @@ discrim.MaxOverMeanCut=HIJetFlags.DCutMaxOverMean()
 discrim.MinimumETMaxCut=HIJetFlags.DCutMax()
 jtm.add(discrim)
 
-#helper tool to apply bkgr using cells
-from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
-cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
-jtm.add(cell_subtr)
-
 jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5] 
 
 hi_trk_modifiers=[assoc,max_over_mean,jtm.width]
 hi_modifiers = []
 
+#helper tool to apply bkgr using cells
 from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
 jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
 
@@ -205,7 +204,5 @@ jtm.modifiersMap['HITrack']=hi_trk_modifiers
 
 assoc_name=assoc.AssociationName
 HIJetFinderDefaults=dict(ghostArea=0.0, ptminFilter= 5*Units.GeV)
-
-if not jetFlags.Enabled() : jtm.modifiersMap["truth"]=[]
 
 jtm.HIJetRecs=[]
