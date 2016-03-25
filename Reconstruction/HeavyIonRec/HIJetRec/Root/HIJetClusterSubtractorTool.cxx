@@ -20,6 +20,7 @@ HIJetClusterSubtractorTool::HIJetClusterSubtractorTool(const std::string& myname
 {
   declareProperty("InputFile",m_input_file="cluster.geo.root","File containing cluster geometric moments.");
   declareProperty("ConfigDir",m_config_dir="HIJetRec/","Directory containing configuration file.");
+  setUseCells(false);
 }
 
 void HIJetClusterSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, const xAOD::IParticle* cl_in, const xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& modulator)
@@ -29,7 +30,9 @@ void HIJetClusterSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom,
     if(initializeTool().isFailure()) return;
   }
   const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(cl_in);
-  xAOD::IParticle::FourMom_t p=cl->p4(HIJetRec::unsubtractedClusterState());
+  float E_unsubtr=cl->e(HIJetRec::unsubtractedClusterState());
+  float eta_unsubtr=cl->eta(HIJetRec::unsubtractedClusterState());
+  float phi_unsubtr=cl->phi(HIJetRec::unsubtractedClusterState());
 
   float E_subtr=0;
   float E_eta_subtr=0;
@@ -53,20 +56,20 @@ void HIJetClusterSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom,
     E_phi_subtr+=rho*getWeightPhi(eta0,phi0,sample);
   }
 
-  float energy_unsubtr=p.Energy();
-  float energy=energy_unsubtr-E_subtr;
+
+  float energy=E_unsubtr-E_subtr;
   float eta=eta0;
   float phi=phi0;
 
 
   if(energy!=0.)
   {
-    eta=p.Eta()+(p.Eta()*E_subtr-E_eta_subtr)/energy;
-    phi=p.Phi()+(p.Phi()*E_subtr-E_phi_subtr)/energy;
-    setSubtractedEtaPhi(energy,eta,phi,eta0,phi0,energy/E_subtr);
+    eta=eta_unsubtr+(eta_unsubtr*E_subtr-E_eta_subtr)/energy;
+    phi=phi_unsubtr+(phi_unsubtr*E_subtr-E_phi_subtr)/energy;
   }
+  setSubtractedEtaPhi(energy,eta,phi,eta0,phi0,energy/E_subtr);
   float ET=energy/std::cosh(eta);
-  subtr_mom.SetPxPyPzE(ET*std::cos(phi),ET*sin(phi),ET*std::sinh(eta),energy);
+  subtr_mom.SetPxPyPzE(ET*std::cos(phi),ET*std::sin(phi),ET*std::sinh(eta),energy);
 }
 
 void HIJetClusterSubtractorTool::UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl)
@@ -79,7 +82,7 @@ void HIJetClusterSubtractorTool::UpdateUsingCluster(xAOD::HIEventShapeContainer*
   }
   float eta0=cl->eta0();
   float phi0=cl->phi0();
-  float sgn=-1;
+
 
   for(unsigned int sample=0; sample<24; sample++)
   {
@@ -95,9 +98,9 @@ void HIJetClusterSubtractorTool::UpdateUsingCluster(xAOD::HIEventShapeContainer*
     float area_sf=1.;
     if(area_slice!=0.) area_sf-=area_cluster/area_slice;
     slice->setNCells( std::floor(area_sf*slice->nCells()) );
-    slice->setEt(slice->et()+sgn*ET);
+    slice->setEt(slice->et()-ET);
     slice->setArea(area_slice-area_cluster);
-    slice->setRho(slice->rho() + ET/area_cluster);
+    slice->setRho(slice->rho() - ET/area_cluster);
 
 
     for(unsigned int ih=0; ih<slice->etCos().size(); ih++)

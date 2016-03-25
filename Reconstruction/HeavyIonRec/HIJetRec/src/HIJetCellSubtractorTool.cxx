@@ -8,6 +8,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIJetRec/HIJetRecDefs.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 //forward class decl in base class.
 #include "HIJetRec/IHIUEModulatorTool.h"
 
@@ -47,17 +48,23 @@ void HIJetCellSubtractorTool::Subtract(xAOD::IParticle::FourMom_t& subtr_mom, co
     float geoWeight=cellIter.weight();
     float cell_E_w=(*cellIter)->energy()*geoWeight;
     cell_E_w-=rho*HICaloCellHelper::GetAreaEtaPhi(*cellIter)*geoWeight*std::cosh(eta0);
-    //unsigned int sample = (CaloSampling::CaloSample) (*cellIter)->caloDDE()->getSampling();
+
 
     E_cl+=cell_E_w;
     eta_cl+=cell_E_w*eta;
     phi_cl+=cell_E_w*phi;
      
   }
-  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl,eta0,phi0,E_cl/cl->altE());
+  if(E_cl!=0.)
+  {
+    eta_cl/=E_cl;
+    phi_cl/=E_cl;
+  }
+  //rare case E_cl==0 is also handled by setSubtractedEtaPhi
+  float E_unsubtr=cl->e(HIJetRec::unsubtractedClusterState());
+  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl,eta0,phi0,E_cl/E_unsubtr);
   float ET_cl=E_cl/std::cosh(eta_cl);
   subtr_mom.SetPxPyPzE(ET_cl*std::cos(phi_cl),ET_cl*std::sin(phi_cl),ET_cl*std::sinh(eta_cl),E_cl);
- 
 }
 
 void HIJetCellSubtractorTool::UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl)
@@ -140,7 +147,6 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
     float geoWeight=cellIter.weight();
     float cell_E_w=(*cellIter)->energy()*geoWeight;
     cell_E_w-=rho*HICaloCellHelper::GetAreaEtaPhi(*cellIter)*geoWeight*std::cosh(eta0);
-    //unsigned int sample = (CaloSampling::CaloSample) (*cellIter)->caloDDE()->getSampling();
 
     E_cl+=cell_E_w;
     eta_cl+=cell_E_w*eta;
@@ -148,14 +154,20 @@ void HIJetCellSubtractorTool::SubtractWithMoments(xAOD::CaloCluster* cl, const x
 
     E_sample[sample]+=cell_E_w;
   }
-  float delta_E=cl->p4(HIJetRec::unsubtractedClusterState()).E()-E_cl;
-  
-  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl,eta0,phi0,E_cl/delta_E);
 
-  cl->setRawE(E_cl);
-  cl->setRawEta(eta_cl);
-  cl->setRawPhi(phi_cl);
-  cl->setRawM(0);
+  if(E_cl!=0.)
+  {
+    eta_cl/=E_cl;
+    phi_cl/=E_cl;
+  }
+  //rare case E_cl==0 is also handled by setSubtractedEtaPhi
+  float E_unsubtr=cl->e(HIJetRec::unsubtractedClusterState());
+  setSubtractedEtaPhi(E_cl,eta_cl,phi_cl,eta0,phi0,E_cl/E_unsubtr);
+
+  float ET_cl=E_cl/std::cosh(eta_cl);
+  xAOD::IParticle::FourMom_t subtr_mom;
+  subtr_mom.SetPxPyPzE(ET_cl*std::cos(phi_cl),ET_cl*std::sin(phi_cl),ET_cl*std::sinh(eta_cl),E_cl);
+  HIJetRec::setClusterP4(subtr_mom,cl,HIJetRec::subtractedClusterState());
 
   cl->setSamplingPattern(samplingPattern);
   for(unsigned int isample=0; isample < E_sample.size(); isample++)
