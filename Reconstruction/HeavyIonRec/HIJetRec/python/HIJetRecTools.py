@@ -205,6 +205,4 @@ jtm.modifiersMap['HITrack']=hi_trk_modifiers
 assoc_name=assoc.AssociationName
 HIJetFinderDefaults=dict(ghostArea=0.0, ptminFilter= 5*Units.GeV)
 
-if not jetFlags.Enabled() : jtm.modifiersMap["truth"]=[]
-
 jtm.HIJetRecs=[]
