@@ -16,6 +16,7 @@
 #include "HIJetRec/HIJetDiscriminatorTool.h"
 #include "HIJetRec/HIJetSignificanceTool.h"
 #include "HIJetRec/HIUEModulatorTool.h"
+#include "HIJetRec/HIClusterPseudoJetGetter.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_ALGORITHM_FACTORY( HIClusterMaker )
@@ -33,6 +34,7 @@ DECLARE_TOOL_FACTORY(HIJetMaxOverMeanTool)
 DECLARE_TOOL_FACTORY(HIJetDiscriminatorTool)
 DECLARE_TOOL_FACTORY(HIJetSignificanceTool)
 DECLARE_TOOL_FACTORY(HIUEModulatorTool)
+DECLARE_TOOL_FACTORY(HIClusterPseudoJetGetter)
 
 DECLARE_FACTORY_ENTRIES( HIJetRec ) {
 #ifndef XAOD_ANALYSIS
@@ -48,4 +50,5 @@ DECLARE_FACTORY_ENTRIES( HIJetRec ) {
     DECLARE_TOOL(HIJetMaxOverMeanTool)
     DECLARE_TOOL(HIJetDiscriminatorTool)
     DECLARE_TOOL(HIUEModulatorTool)
+    DECLARE_TOOL(HIClusterPseudoJetGetter)
 }
