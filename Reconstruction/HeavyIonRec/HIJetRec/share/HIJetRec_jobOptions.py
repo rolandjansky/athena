@@ -29,12 +29,19 @@ from  HIJetRec.HIJetRecTools import jtm
 if jetFlags.useTruth(): 
     for R in HIJetFlags.AntiKtRValues() : 
         tname="AntiKt%dTruthJets" % int(10*R)
+        collExists=False
         if tname in jtm.tools : continue
         if rec.readESD() :
             from RecExConfig.ObjKeyStore import objKeyStore
             inputcontent = objKeyStore['inputFile'].list()
-            if tname in inputcontent : continue
+            for t in inputcontent :
+                if tname in t:
+                    print 'Truth collection %s already exists, no need to rebuild it' % tname
+                    collExists=True
+                    break
+        if collExists: continue
         f=jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= HIJetFlags.TruthJetPtMin())
+        print 'Adding %s' %tname
         AddToOutputList(tname)
         jtm.HIJetRecs+=[f]
 
