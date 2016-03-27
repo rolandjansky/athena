@@ -57,8 +57,8 @@ void test1()
   assert (test.stats().elts.free == 0);
   assert (test.stats().elts.total == 0);
 
-  SG::ArenaHandleBase test2 (0, 0);
   SG::ArenaHeader::defaultHeader()->setAllocVec (&vec);
+  SG::ArenaHandleBase test2 (0, 0);
   test2.reserve (10);
   assert (test2.stats().elts.inuse == 0);
   assert (test2.stats().elts.free == 1000);

@@ -121,6 +121,19 @@ void test1()
   SG::ArenaHeader head;
   TestAlloc::Params params;
   params.name = "foo";
+
+  // These are never used, but fully initialize anyway in order to avoid
+  // ubsan errors.
+  params.eltSize = 0;
+  params.minSize = 0;
+  params.nblock = 0;
+  params.linkOffset = 0;
+  params.constructor = nullptr;
+  params.destructor = nullptr;
+  params.clear = nullptr;
+  params.canReclear = false;
+  params.mustClear = false;
+
   TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(0),
                                                params));
   assert (hand.params().name == "foo");

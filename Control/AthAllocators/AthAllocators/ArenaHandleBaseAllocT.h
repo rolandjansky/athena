@@ -39,7 +39,7 @@ namespace SG {
  * (on which it is templated).  This implementation here is responsible
  * for registering the Allocator and handling its possible creation.
  *
- * A @c Handle holds an index which identifies the particular Allocator
+ * A @c Handle uses an index to identify the particular Allocator
  * class which it uses; the @c ArenaAllocatorRegistry class maps between
  * these indices and instances of @c ArenaAllocatorCreator, which are
  * capable of creating new @c Allocator instances.
@@ -143,8 +143,6 @@ public:
 protected:
   /**
    * @brief Return our current Allocator.
-   *
-   * (Note that the current Allocator may change; see @c Arena.h)
    */
   ALLOC* allocator() const;
 

@@ -31,10 +31,13 @@ namespace SG {
  *        See Arena.h for an overview of the arena-based memory allocators.
  *
  * A @em Handle is the interface the application uses to allocate memory.
- * It is templated on the type being allocated as well as on the
- * underlying Allocator.  A Handle does not refer to any particular
- * Allocator; rather, the one associated with the current Arena is the
- * one used.  (A new Allocator is automatically created if required.)
+ * A Handle is templated on the type being allocated as well as on the
+ * underlying Allocator.  When a Handle is constructed, it is associated
+ * with the Allocator associated with the Arena that is current at that time
+ * (a new Allocator is automatically created if required).  Therefore,
+ * a Handle should not be passed between threads, and Handle objects
+ * should not exist across any point where the current store/Arena
+ * may be changed.
  *
  * This particular Handle implementation does not call element constructors,
  * and calls destructors when elements are freed.  The @c allocate

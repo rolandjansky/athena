@@ -4,7 +4,7 @@
 
 // $Id: ArenaHeader.cxx 470529 2011-11-24 23:54:22Z ssnyder $
 /**
- * @file  AthAllocators/src//ArenaHeader.cxx
+ * @file  AthAllocators/src/ArenaHeader.cxx
  * @author scott snyder
  * @date May 2007
  * @brief Proxy for a group of Arenas.
@@ -24,11 +24,16 @@
 namespace SG {
 
 
+void null_allocvec_deleter (ArenaHeader::ArenaAllocVec_t*) {}
+
+
 /**
  * @brief Constructor.
  */
 ArenaHeader::ArenaHeader()
-  : m_allocvec (0),
+    // m_allocvec doesn't own the vectors to which it points.
+    // Need to pass in a dummy deleter to prevent them from being deleted.
+  : m_allocvec (null_allocvec_deleter),
     m_ownedAllocvec (0)
 {
 }
@@ -46,6 +51,9 @@ ArenaHeader::~ArenaHeader()
       delete (*m_ownedAllocvec)[i];
     delete m_ownedAllocvec;
   }
+
+  // We don't own this.
+  m_allocvec.release();
 }
 
 
@@ -59,8 +67,9 @@ ArenaHeader::~ArenaHeader()
 ArenaHeader::ArenaAllocVec_t*
 ArenaHeader::setAllocVec (ArenaAllocVec_t* allocvec)
 {
-  ArenaAllocVec_t* ret = m_allocvec;
-  m_allocvec = allocvec;
+  ArenaAllocVec_t* ret = m_allocvec.get();
+  m_allocvec.release();
+  m_allocvec.reset (allocvec);
   return ret;
 }
 
@@ -71,6 +80,7 @@ ArenaHeader::setAllocVec (ArenaAllocVec_t* allocvec)
  */
 void ArenaHeader::addArena (ArenaBase* a)
 {
+  std::lock_guard<std::mutex> lock (m_mutex);
   m_arenas.push_back (a);
 }
 
@@ -83,6 +93,7 @@ void ArenaHeader::addArena (ArenaBase* a)
  */
 void ArenaHeader::delArena (ArenaBase* a)
 {
+  std::lock_guard<std::mutex> lock (m_mutex);
   std::vector<ArenaBase*>::iterator it =
     std::find (m_arenas.begin(), m_arenas.end(), a);
   assert (it != m_arenas.end());
@@ -96,6 +107,7 @@ void ArenaHeader::delArena (ArenaBase* a)
  */
 void ArenaHeader::report (std::ostream& os) const
 {
+  std::lock_guard<std::mutex> lock (m_mutex);
   // All Allocators in the group.
   for (size_t i = 0; i < m_arenas.size(); i++) {
     os << "=== " << m_arenas[i]->name() << " ===" << std::endl;
@@ -140,7 +152,7 @@ std::string ArenaHeader::reportStr() const
  */
 void ArenaHeader::reset()
 {
-  if (m_allocvec) {
+  if (m_allocvec.get()) {
     for (size_t i = 0; i < m_allocvec->size(); i++) {
       if ((*m_allocvec)[i])
         (*m_allocvec)[i]->reset();
@@ -170,14 +182,15 @@ ArenaHeader* ArenaHeader::defaultHeader()
 ArenaAllocatorBase* ArenaHeader::makeAllocator (size_t i)
 {
   // If we don't have an Arena set, use the default one.
-  if (!m_allocvec) {
+  if (!m_allocvec.get()) {
+    std::lock_guard<std::mutex> lock (m_mutex);
 
     // Create the default Arena if needed.
     if (!m_ownedAllocvec)
       m_ownedAllocvec = new ArenaAllocVec_t;
 
     // Install the default Arena.
-    m_allocvec = m_ownedAllocvec;
+    m_allocvec.reset (m_ownedAllocvec);
 
     // See if the index is now in the default Arena.
     if (i < m_allocvec->size()) {

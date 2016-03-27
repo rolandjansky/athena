@@ -65,9 +65,12 @@
  *
  *   - A @em Handle is the interface the application uses to allocate memory.
  *     A Handle is templated on the type being allocated as well as on the
- *     underlying Allocator.  A Handle does not refer to any particular
- *     Allocator; rather, the one associated with the current Arena is the
- *     one used.  (A new Allocator is automatically created if required.)
+ *     underlying Allocator.  When a Handle is constructed, it is associated
+ *     with the Allocator associated with the Arena that is current at that time
+ *     (a new Allocator is automatically created if required).  Therefore,
+ *     a Handle should not be passed between threads, and Handle objects
+ *     should not exist across any point where the current store/Arena
+ *     may be changed.
  *     Multiple Handle implementations may be available, implementing
  *     different strategies for initializing the elements.
  *
@@ -156,10 +159,9 @@
  * with which it is created, as well as any optional creation
  * parameters for the @c Allocator.  The first time a given type
  * is seen, it is assigned an index the the @c Arena @c Allocator
- * vector.  This index is then stored in the @c Handle.  When the
- * @c Handle is used, this index is used to find the proper @c Allocator
- * in the current @c Arena.  (A new @c Allocator is created automatically
- * if needed.)  A @c Handle forwards the operations from the underlying
+ * vector.  When a @c Handle is created, it will look up the proper
+ * @c Allocator instance in the current @c Arena, creating it if needed.
+ * The @c Handle will then forward operations to the underlying
  * @c Allocator.  The library provides two @c Handle implementations:
  *
  *  - @c ArenaHandle: When this @c Handle is used, the element
@@ -192,7 +194,8 @@
  *
  *    ret Example::execute() {  ...
  *      SG::Arena::Push push (m_arena);
- *      MyObj* obj = m_handle.allocate();
+ *      SG::ArenaCachingHandle<MyObj, SG::ArenaPoolAllocator> handle;
+ *      MyObj* obj = handle.allocate();
  *      ...}
  *
  *    ret Example::newEvent() { ...

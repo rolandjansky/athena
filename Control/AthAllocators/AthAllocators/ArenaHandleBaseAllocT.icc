@@ -96,8 +96,6 @@ ArenaHandleBaseAllocT<ALLOC>::params() const
 /**
  * @brief Return our current Allocator.
  *
- * (Note that the current Allocator may change; see @c Arena.h)
- *
  * This is on the fast path for allocation.  It should be kept
  * simple and inline.
  */

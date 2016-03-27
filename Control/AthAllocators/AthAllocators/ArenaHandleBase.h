@@ -33,22 +33,21 @@ namespace SG {
  *
  * A @em Handle is the interface the application uses to allocate memory.
  * A Handle is templated on the type being allocated as well as on the
- * underlying Allocator.  A Handle does not refer to any particular
- * Allocator; rather, the one associated with the current Arena is the
- * one used.  (A new Allocator is automatically created if required.)
+ * underlying Allocator.  When a Handle is constructed, it is associated
+ * with the Allocator associated with the Arena that is current at that time
+ * (a new Allocator is automatically created if required).  Therefore,
+ * a Handle should not be passed between threads, and Handle objects
+ * should not exist across any point where the current store/Arena
+ * may be changed.
  * Multiple Handle implementations may be available, implementing
  * different strategies for initializing the elements.
  *
  * This class contains the parts of the Handle interface that do not
  * depend on the template parameters.
  *
- * The first time a given Handle type
- * is seen, it is assigned an index the the @c Arena @c Allocator
- * vector.  This index is then stored in the @c Handle.  When the
- * @c Handle is used, this index is used to find the proper @c Allocator
- * in the current @c Arena.  (A new @c Allocator is created automatically
- * if needed.)  A @c Handle forwards the operations from the underlying
- * @c Allocator.
+ * The first time a given Handle type is seen, it is assigned an index
+ * in the the the @c Arena @c Allocator vector.  A @c Handle forwards
+ * operations to the underlying @c Allocator.
  */
 class ArenaHandleBase
 {
@@ -125,11 +124,8 @@ protected:
 
 
 private:
-  /// The group of Arenas which this Handle may reference.
-  ArenaHeader* m_header;
-
-  /// The index of this Handle's Allocator type.
-  size_t m_index;
+  /// The associated allocator object.
+  ArenaAllocatorBase* m_allocator;
 };
 
 

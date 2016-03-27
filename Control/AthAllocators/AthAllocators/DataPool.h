@@ -8,6 +8,12 @@
  * @brief  a typed memory pool that saves time spent
  *         allocation small object. This is typically used
  *         by container such as DataVector and DataList
+ *
+ * Traditionally, these objects were declared as static, even after that
+ * was no longer needed due to the rewrite which based them on the Allocator
+ * classes.  However, declaring @c DataPool instances as static will
+ * cause thread-safety problems, and thus should no longer be done.
+ *
  * @author Srini Rajagopalan - ATLAS Collaboration
  *$Id: DataPool.h 470529 2011-11-24 23:54:22Z ssnyder $	
  */

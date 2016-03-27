@@ -26,7 +26,7 @@ namespace SG {
 inline
 ArenaAllocatorBase* ArenaHandleBase::baseAllocator() const
 {
-  return m_header->allocator (m_index);
+  return m_allocator;
 }
 
 

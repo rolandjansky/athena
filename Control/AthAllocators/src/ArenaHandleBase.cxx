@@ -26,12 +26,13 @@ namespace SG {
  * @param index The index of this Handle's Allocator type.
  */
 ArenaHandleBase::ArenaHandleBase (ArenaHeader* header, size_t index)
-  : m_header (header),
-    m_index (index)
 {
   // If the supplied header is null, use the global default.
-  if (!m_header)
-    m_header = ArenaHeader::defaultHeader();
+  if (!header)
+    header = ArenaHeader::defaultHeader();
+
+  // Get the allocator.
+  m_allocator = header->allocator (index);
 }
 
 

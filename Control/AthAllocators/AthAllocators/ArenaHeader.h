@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include <string>
 #include <iosfwd>
+#include <mutex>
+#include "boost/thread/tss.hpp"
 
 
 namespace SG {
@@ -148,7 +150,7 @@ private:
 
 
   /// Current vector of Allocators.
-  ArenaAllocVec_t* m_allocvec;
+  boost::thread_specific_ptr<ArenaAllocVec_t> m_allocvec;
 
   /// Vector of Allocators which are owned by this object.
   /// This constitutes the default Arena.
@@ -156,6 +158,9 @@ private:
 
   /// List of all Arenas in our group.
   std::vector<ArenaBase*>  m_arenas;
+
+  /// Mutex to protect access to m_ownedAllocvec and m_arenas.
+  mutable std::mutex m_mutex;
 };
 
 

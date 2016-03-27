@@ -27,7 +27,7 @@ namespace SG {
 inline
 ArenaAllocatorBase* ArenaHeader::allocator (size_t i)
 {
-  if (m_allocvec && i < m_allocvec->size()) {
+  if (m_allocvec.get() && i < m_allocvec->size()) {
     ArenaAllocatorBase* allocbase = (*m_allocvec)[i];
     if (allocbase) return allocbase;
   }
