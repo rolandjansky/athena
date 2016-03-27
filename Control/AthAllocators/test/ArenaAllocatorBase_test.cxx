@@ -24,7 +24,7 @@ public:
   Test() { ++testcount; }
   ~Test() { --testcount; }
 
-  int x;
+  int x = 0;
 };
 
 class Test2
