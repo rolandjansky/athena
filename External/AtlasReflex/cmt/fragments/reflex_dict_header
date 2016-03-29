@@ -1,15 +1,16 @@
 
-${CONSTITUENT} :: ${dict_dir}/${CONSTITUENT}DictEnd.stamp
+${CONSTITUENT} : ${dict_dir}/${CONSTITUENT}DictEnd.stamp ;
+
+${dict_dir}/${CONSTITUENT}DictReset.stamp : $(reflex_dict${dictionary}_selection_file) $(cmt_final_setup_${CONSTITUENT})
+	$(echo) "----- RESET Dictionary selection.xml file generation for ${dictionary} -----"
+	\rm -rf ${dict_dir}/${dictionary} && \rm -f ${dict_dir}/${dictionary}_selection.xml && mkdir -p ${dict_dir} && touch ${dict_dir}/${CONSTITUENT}DictReset.stamp
 
 #Begin: create dir and first part of required files
-${dict_dir}/${CONSTITUENT}DictBegin.stamp ::   $(reflex_dict${dictionary}_selection_file)  $(cmt_final_setup_${CONSTITUENT})
-	@echo "----- BEGIN Dictionary selection.xml file generation for ${dictionary} -----"
-	@echo "  Cleaning up ${dictionary}Dict-related generated files " 
-	@$(cleanup_silent) cd $(bin); /bin/rm -rf *${dictionary}Dict*.a
-	@if test -d ${dict_dir}/${dictionary} ; then echo "Remove ${dict_dir}/${dictionary}" ; /bin/rm -rf ${dict_dir}/${dictionary}*; fi
-	@echo "  Create ${dict_dir}" ; mkdir -p ${dict_dir}/${dictionary}; 
-	@echo "  Copy $(reflex_dict${dictionary}_selection_file) to ${dict_dir}/${dictionary}_selection.xml "
-	@grep -v "</lcgdict>" $(reflex_dict${dictionary}_selection_file) >| ${dict_dir}/${dictionary}_selection.xml 
+${dict_dir}/${CONSTITUENT}DictBegin.stamp : ${dict_dir}/${CONSTITUENT}DictReset.stamp
+	$(echo) "----- BEGIN Dictionary selection.xml file generation for ${dictionary} -----"
+	if test ! -d ${dict_dir}/${dictionary} ; then mkdir -p ${dict_dir}/${dictionary}; fi
+	$(echo) "  Copy $(reflex_dict${dictionary}_selection_file) to ${dict_dir}/${dictionary}_selection.xml "
+	$(silent)grep -v "</lcgdict>" $(reflex_dict${dictionary}_selection_file) >| ${dict_dir}/${dictionary}_selection.xml
 	@if test ! -z "${reflex_dict${dictionary}_navigables}" ; then \
 	    class_list=`echo '$(reflex_dict${dictionary}_navigables)' | sed -e "s/[ ][ ]*/' '/g" -e "s/^/'/"  -e "s/$$/'/" -e "s/''//g"`; \
 	    for class_name in $${class_list} ; do  \
@@ -52,10 +53,13 @@ ${dict_dir}/${CONSTITUENT}DictBegin.stamp ::   $(reflex_dict${dictionary}_select
                 cat ../$${package}/$${sel_name} >> ${dict_dir}/${dictionary}_selection.xml ; \
 	    done ; \
 	fi 
-	@echo "</lcgdict>" >> ${dict_dir}/${dictionary}_selection.xml 
-	@touch ${dict_dir}/${CONSTITUENT}DictBegin.stamp
+	$(silent)echo "</lcgdict>" >> ${dict_dir}/${dictionary}_selection.xml 
+	$(silent)touch ${dict_dir}/${CONSTITUENT}DictBegin.stamp
+
+${dict_dir}/${CONSTITUENT}Dict.stamp :
+	$(silent)touch ${dict_dir}/${CONSTITUENT}Dict.stamp
 
 #End: create final part of required files
-${dict_dir}/${CONSTITUENT}DictEnd.stamp :: ${dict_dir}/${CONSTITUENT}Dict.stamp
-	@echo "----- END Dictionary selection.xml file generation for ${dictionary} -----"
-	@touch ${dict_dir}/${CONSTITUENT}DictEnd.stamp
+${dict_dir}/${CONSTITUENT}DictEnd.stamp : ${dict_dir}/${CONSTITUENT}Dict.stamp
+	$(echo) "----- END Dictionary selection.xml file generation for ${dictionary} -----"
+	$(silent)touch ${dict_dir}/${CONSTITUENT}DictEnd.stamp

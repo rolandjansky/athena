@@ -1,6 +1,6 @@
 
 
-pcmFN := ${dict}Dict_${NAME}_gen_rdict.pcm
+pcmFN := ${libprefix}${dict}Dict_${NAME}_gen_rdict.pcm
 
 
 ${NAME}.install_lcgdict_pcms :  ${installDir}${pcmFN}
