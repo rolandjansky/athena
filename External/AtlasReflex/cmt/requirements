@@ -129,13 +129,15 @@ pattern lcgdict \
   macro reflex_dict<dict>_element_link_vectors " <elementLinkVectors> " ; \ 
   macro reflex_dict<dict>_opt_rootmap " --rootmap=<dict>Dict.dsomap --rootmap-lib=$(libprefix)<dict>Dict.$(shlibsuffix) " ; \
   macro reflex_dict<dict>_opt_pcm ""  \
-         ROOT_GE_6_00 " --multiDict -l$(dict_dir)/<dict>/<dict>Dict.$(shlibsuffix) " ; \
+         ROOT_GE_6_00 " --multiDict -l$(dict_dir)/<dict>/$(libprefix)<dict>Dict.$(shlibsuffix) " ; \
   macro reflex_dict<dict>_options " <options>  --select=$(dict_dir)/<dict>_selection.xml  -DNDEBUG $(reflex_dict<dict>_opt_rootmap) $(reflex_dict<dict>_opt_pcm) " ; \
 # reflex_dict_options_cppflags comes in from AtlasPolicy
   macro_append reflex_dict<dict>_options " $(reflex_dict_options_cppflags) " ; \
   macro_append reflex_dict<dict>_options "" \
                x86_64&&32          " --gccxmlopt=--gccxml-cxxflags --gccxmlopt=-m32" ; \
 #  macro_append reflex_dict<dict>_options " --no_membertypedefs " ; \
+  macro_append reflex_dict<dict>_options "" \
+         ROOT_GE_6_00 " --noIncludePaths " ; \
   macro <dict>Dict_shlibflags "$(componentshr_linkopts) $(use_linkopts) $(Reflex_linkopts) $(<package>_extra_shlibflags)" ; \
   apply_pattern generic_declare_for_link files='$(dict_dir)/<dict>/<dict>Dict.dsomap' prefix=$(tag)/lib name=<dict>Dict_ kind=<dict>dictrootmap ; \
   macro_append install_<dict>Dict_<dict>dictrootmap_dependencies " <dict>Gen " ; \
