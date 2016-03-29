@@ -154,6 +154,7 @@ class TileMBTSMonTool: public TileFatherMonTool {
     std::vector<bool> m_counterExist;
 
     bool m_useTrigger;
+    bool m_fillHistogramsPerMBTS;
 
     int32_t m_old_lumiblock;
 };

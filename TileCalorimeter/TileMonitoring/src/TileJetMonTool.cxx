@@ -118,20 +118,12 @@ StatusCode TileJetMonTool::initialize() {
   ATH_MSG_DEBUG("TileJetMonTool: Retrieved tile bad channel tool");
 
 
-  if (m_do_event_cleaning || m_do_jet_cleaning) {
+  if (m_do_jet_cleaning) {
     ATH_MSG_DEBUG("TileJetMonTool: initializing JVT updater");
 
-    IToolSvc *toolsvc;
-    StatusCode sc = service("ToolSvc",toolsvc);
-    if (StatusCode::SUCCESS != sc) {
-      ATH_MSG_ERROR("Unable to retrieve ToolSvc");
-      return StatusCode::FAILURE;
-    }
 #ifdef JVT
-    if (m_jvt.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve JVT");
-      return StatusCode::FAILURE;
-    }
+    CHECK(m_jvt.retrieve());
+
     ATH_MSG_DEBUG("TileJetMonTool: initialized JVT updater");
     
     ATH_MSG_DEBUG("TileJetMonTool: initializing JetCleaningTool");
@@ -141,10 +133,8 @@ StatusCode TileJetMonTool::initialize() {
        CHECK(m_cleaningTool->setProperty("DoUgly", false));
        CHECK(m_cleaningTool->initialize());
     */
-    if (m_cleaningTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Unable to retrieve Jet Cleaning Tool");
-      return StatusCode::FAILURE;
-    }
+    CHECK(m_cleaningTool.retrieve());
+
     ATH_MSG_DEBUG("TileJetMonTool: initialized JetCleaningTool");
 #endif
   }
@@ -315,7 +305,7 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
     // since these are single pmt cells
     Float_t xmin, xmax;
     for (unsigned int i = 0; i <= m_cell_ene_hg_up.size(); ++i) {
-      sprintf(indexnum, "%02d", i);
+      sprintf(indexnum, "%02u", i);
       m_TilePartCellTimeHG[p].push_back( book1F("CellTime/" + m_partname[p]
                                         , "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum
                                         , "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum, 600, -30.0, 30.0));
@@ -329,7 +319,7 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
     }
 
     for (unsigned int i = 0; i <= m_cell_ene_lg_up.size(); ++i) {
-      sprintf(indexnum, "%02d", i);
+      sprintf(indexnum, "%02u", i);
       m_TilePartCellTimeLG[p].push_back( book1F("CellTime/" + m_partname[p]
                                                 , "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum
                                                 , "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum, 600
@@ -347,7 +337,7 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
       
       for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 	
-        sprintf(chnum, "%02d", channel);
+        sprintf(chnum, "%02u", channel);
 	if (m_do_2dim_histos) {
 	  htitle = "Time in " + moduleName + "_ch_" + chnum + " vs lumiblock";
 	  /* TH2F histograms are too much in memory. Trying to book only 10 LB
@@ -692,12 +682,16 @@ bool TileJetMonTool::isGoodEvent() {
   ATH_MSG_DEBUG("TileJetMonTool::isGoodEvent()....");
   const EventInfo* eventInfo(NULL);
   CHECK(evtStore()->retrieve(eventInfo));
-  if (eventInfo->errorState(EventInfo::LAr)==EventInfo::Error) return(false);
-  if (eventInfo->errorState(EventInfo::Tile)==EventInfo::Error) return(false);
+  if (eventInfo->errorState(EventInfo::LAr) == EventInfo::Error) return(false);
+  if (eventInfo->errorState(EventInfo::Tile) == EventInfo::Error) return(false);
 
   /* see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2015#Event_Cleaning and 
      https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
   */
+
+#ifdef JVT
+  if (! m_do_jet_cleaning) return true;
+#endif
 
   const xAOD::JetContainer* jetContainer = evtStore()->tryConstRetrieve<xAOD::JetContainer>("AntiKt4EMTopoJets");
   if (!jetContainer) return true;
