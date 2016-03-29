@@ -23,7 +23,7 @@
 #include "CaloIdentifier/LArID_Exception.h"
 //#include "LArIdentifier/LArIdManager.h"
 //#include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
@@ -144,7 +144,6 @@ StatusCode initTTMap_Algo::initMap(){
   int nCell=0;
   int nNE=0;
   int nSkip=0;
-  int nDisc=0;
   LArTTCell d;
 
   // ....... init EM and HEC from hard coded mapping in LArCablingService
@@ -210,24 +209,11 @@ StatusCode initTTMap_Algo::initMap(){
 	    fcal=true;
 	    cell_det = 2;
 	    cell_samp = 0;
-	    // old bug concerning 2 disconnected channels (in hardcoded mapping)
-	    if(m_fcalHelper->is_connected(cellId)) {
-	      // FCAL sample==region
-	      cell_pn = m_fcalHelper->pos_neg(cellId);
-	      cell_reg = m_fcalHelper->module(cellId);
-	      cell_eta = m_fcalHelper->eta(cellId);
-	      cell_phi = m_fcalHelper->phi(cellId);
-	    } else {
-	      nDisc++;
-	      cell_pn = -2;
-	      cell_reg = 3;
-	      cell_eta = 15;
-	      cell_phi = 5;
-	      if(nDisc==2) {cell_phi = 13;}
-	      
-	      ATH_MSG_DEBUG ( "disc chan= " 
-                              << m_fcalHelper->show_to_string(cellId) );
-	    }
+            // FCAL sample==region
+            cell_pn = m_fcalHelper->pos_neg(cellId);
+            cell_reg = m_fcalHelper->module(cellId);
+            cell_eta = m_fcalHelper->eta(cellId);
+            cell_phi = m_fcalHelper->phi(cellId);
 	  } else {
 	    ATH_MSG_ERROR( "Cell not in EM, nor HEC, nor FCAL: "
                            << m_emHelper->show_to_string(cellId) 
@@ -318,13 +304,6 @@ StatusCode initTTMap_Algo::initMap(){
       t.region = module;
       t.eta = eta; 
       t.phi = phi;
-      // check that the id makes sense:
-      bool connected = m_fcalHelper->is_connected(t.pn,t.region,t.eta,t.phi); 
-      if(!connected) {
-	ATH_MSG_ERROR  ( "wrong dictionary ? cell not connected ! pn= "
-                         << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
-                         );
-      }
       
       // fields for the offline TT channel id
       int l1_pn=1; // A side
