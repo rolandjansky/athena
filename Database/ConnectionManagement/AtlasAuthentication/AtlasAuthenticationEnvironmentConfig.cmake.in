@@ -1,0 +1,15 @@
+# $Id: AtlasAuthenticationEnvironmentConfig.cmake.in 732717 2016-03-29 11:50:37Z krasznaa $
+#
+# This module is used to set up some environment variables for
+# using authentication correctly.
+#
+
+# Set the environment variables:
+set( ATLASAUTHENTICATIONENVIRONMENT_ENVIRONMENT
+   FORCESET CORAL_AUTH_PATH
+   \${@CMAKE_PROJECT_NAME@_DIR}/@CMAKE_INSTALL_XMLDIR@/AtlasAuthentication
+   FORCESET CORAL_DBLOOKUP_PATH
+   \${@CMAKE_PROJECT_NAME@_DIR}/@CMAKE_INSTALL_XMLDIR@/AtlasAuthentication )
+
+# Silently declare the module found:
+set( ATLASAUTHENTICATIONENVIRONMENT_FOUND TRUE )
