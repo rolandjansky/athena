@@ -82,8 +82,8 @@ setOutput(ps, "OutputChainDecisions", "ChainsPassingAfterPS")
 ps.OutputLevel=DEBUG
 topSequence += ps
 
-from ViewAlgs.ViewAlgsConf import DecisionAlg
-dropPrescaled = DecisionAlg("DropPrescaled")
+from ViewAlgs.ViewAlgsConf import MenuAlg
+dropPrescaled = MenuAlg("DropPrescaled")
 dropPrescaled.HypoDecisions = getOutput(fakeRoI, "OutputDecisions")
 dropPrescaled.InputChainDecisions = getOutput(ps,"OutputChainDecisions")
 setOutput(dropPrescaled, "OutputDecisions", "RelevantEMRoIs")
@@ -119,8 +119,8 @@ l2CaloHypo.Hypotheses = [cut3, cut7, cut10, cut12]
 topSequence += l2CaloHypo
 
 
-from ViewAlgs.ViewAlgsConf import DecisionAlg
-caloStep = DecisionAlg("CaloStep")
+from ViewAlgs.ViewAlgsConf import MenuAlg
+caloStep = MenuAlg("CaloStep")
 caloStep.HypoDecisions = l2CaloHypo.Output
 caloStep.InputChainDecisions = getOutput(dropPrescaled, "OutputChainDecisions")
 setOutput(caloStep, "OutputDecisions", "RelevantEMCaloRoIs")

@@ -3,24 +3,16 @@
 
 #include "../DumpDecisions.h"
 #include "../PrescaleDecision.h"
-#include "../DecisionAlg.h"
-#include "../MenuAlgView.h"
-#include "../CopyPassing.h"
+#include "../MenuAlg.h"
 
 
 DECLARE_ALGORITHM_FACTORY( DumpDecisions )
 DECLARE_ALGORITHM_FACTORY( PrescaleDecision )
-DECLARE_ALGORITHM_FACTORY( DecisionAlg )
-DECLARE_ALGORITHM_FACTORY( CopyPassing )
-
-DECLARE_NAMESPACE_ALGORITHM_FACTORY( AthViews,MenuAlgView )
+DECLARE_ALGORITHM_FACTORY( MenuAlg )
 
 DECLARE_FACTORY_ENTRIES( ViewAlgs )
 {
   DECLARE_ALGORITHM( DumpDecisions )
   DECLARE_ALGORITHM( PrescaleDecision )
-  DECLARE_ALGORITHM( DecisionAlg )
-  DECLARE_ALGORITHM( CopyPassing )
-  DECLARE_NAMESPACE_ALGORITHM( AthViews, MenuAlgView )
+  DECLARE_ALGORITHM( MenuAlg )
 }
-
