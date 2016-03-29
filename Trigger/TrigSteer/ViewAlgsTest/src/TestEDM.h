@@ -27,36 +27,6 @@ namespace TestEDM {
 }
 
 
-typedef xAOD::TrigComposite TestTrack;
-typedef xAOD::TrigCompositeContainer TestTrackContainer;
-typedef xAOD::TrigCompositeAuxContainer TestTrackAuxContainer;
-namespace TestEDM {
-  void setTrackPt(TestTrack*, float pt);
-  float getTrackPt(const TestTrack*);
-  
-  void setTrackEta(TestTrack*, float eta);
-  float getTrackEta(const TestTrack*);
-  
-  void setTrackPhi(TestTrack*, float phi);
-  float getTrackPhi(const TestTrack*);
-}
-
-
-
-
-template<class T>
-class DecoratedStatusCode {
-public:
-  DecoratedStatusCode(const StatusCode sc, const T& c)
-    : m_sc(sc), m_content(c) {}
-  StatusCode sc() const { return m_sc; }
-  const T& content() const { return m_content; }
-private:
-  StatusCode m_sc;
-  T m_content;
-};
-
-
 #endif
 
 

@@ -28,7 +28,7 @@ public:
 
   StatusCode initialize();
 
-  DecoratedStatusCode<bool> decision(const TestCluster *) const;
+  bool decision(const TestCluster *) const;
 
 private:
   float m_etThreshold;

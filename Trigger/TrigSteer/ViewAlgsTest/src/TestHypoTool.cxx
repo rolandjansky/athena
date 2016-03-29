@@ -15,7 +15,7 @@ TestHypoTool::TestHypoTool(const std::string& type, const std::string& name,  co
 StatusCode TestHypoTool::initialize() {
   return StatusCode::SUCCESS;
 }
-DecoratedStatusCode<bool> TestHypoTool::decision(const TestCluster * cl) const {
+bool TestHypoTool::decision(const TestCluster * cl) const {
   ATH_MSG_DEBUG("Et " << TestEDM::getClusterEt(cl) << " threshold " << m_etThreshold);
-  return DecoratedStatusCode<bool>(StatusCode::SUCCESS, TestEDM::getClusterEt(cl) > m_etThreshold);
+  return TestEDM::getClusterEt(cl) > m_etThreshold;
 }

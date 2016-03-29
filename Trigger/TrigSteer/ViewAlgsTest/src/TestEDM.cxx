@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "./TestEDM.h"
 namespace {
   void set(TestCluster* c, const char* n, float x ) {
@@ -39,29 +38,4 @@ namespace TestEDM {
   float getClusterPhi(const TestCluster* c) {
     return get(c, "phi");
   }
-
-
-  void setTrackPt(TestTrack* c, float pt) {
-    set(c, "pt", pt);
-  }
-  float getTrackPt(const TestTrack* c) {
-    return get(c, "pt");  
-  }
-  
-  void setTrackEta(TestTrack* c, float eta) {
-    set(c, "eta", eta);
-  }
-  float getTrackEta(const TestTrack* c) {
-    return get(c, "eta");  
-  }
-  
-  void setTrackPhi(TestTrack* c, float phi) {
-    set(c, "phi", phi);
-  }
-  float getTrackPhi(const TestTrack* c) {
-    return get(c, "phi");  
-  }
-
-
-
 }

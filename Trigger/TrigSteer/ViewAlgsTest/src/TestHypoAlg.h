@@ -27,8 +27,8 @@ public:
 private:
   ToolHandleArray<TestHypoTool> m_hypos;
   
-  SG::ReadHandle< xAOD::TrigCompositeContainer >     m_inputProxyContainer;
-  SG::WriteHandle< xAOD::TrigCompositeContainer >    m_output;
+  SG::ReadHandle< xAOD::TrigCompositeContainer > m_clusterProxyContainer;
+  SG::WriteHandle< xAOD::TrigCompositeContainer > m_output;
   SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_outputAux;
 };
 
