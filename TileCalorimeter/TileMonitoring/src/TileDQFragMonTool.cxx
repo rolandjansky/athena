@@ -82,19 +82,19 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   m_ErrorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 13
   m_ErrorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 14
   // corrupted data
-  m_ErrorsLabels.push_back("0 -> 1023");          // Error: NERR - 1 + 1
-  m_ErrorsLabels.push_back("Zeros");              // Error: NERR - 1 + 2
-  m_ErrorsLabels.push_back("Two 1023 + ped");     // Error: NERR - 1 + 3
-  m_ErrorsLabels.push_back("Jump 2 levels");      // Error: NERR - 1 + 4
-  m_ErrorsLabels.push_back("Single Up + ped");    // Error: NERR - 1 + 5
-  m_ErrorsLabels.push_back("Single Dn + ped");    // Error: NERR - 1 + 6
-  m_ErrorsLabels.push_back("Single Up + sig");    // Error: NERR - 1 + 7
-  m_ErrorsLabels.push_back("Single Dn + sig");    // Error: NERR - 1 + 8
-  m_ErrorsLabels.push_back("Ped>200 LG");         // Error: NERR - 1 + 9
-  m_ErrorsLabels.push_back("Single Dn LG_s0");    // Error: NERR - 1 + 10
-  m_ErrorsLabels.push_back("Single Dn LG_s6");    // Error: NERR - 1 + 11
-  m_ErrorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERR - 1 + 12
-  m_ErrorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERR - 1 + 13
+  m_ErrorsLabels.push_back("0 -> 1023");          // Error: NERROR - 1 + 1
+  m_ErrorsLabels.push_back("Zeros");              // Error: NERROR - 1 + 2
+  m_ErrorsLabels.push_back("Two 1023 + ped");     // Error: NERROR - 1 + 3
+  m_ErrorsLabels.push_back("Jump 2 levels");      // Error: NERROR - 1 + 4
+  m_ErrorsLabels.push_back("Single Up + ped");    // Error: NERROR - 1 + 5
+  m_ErrorsLabels.push_back("Single Dn + ped");    // Error: NERROR - 1 + 6
+  m_ErrorsLabels.push_back("Single Up + sig");    // Error: NERROR - 1 + 7
+  m_ErrorsLabels.push_back("Single Dn + sig");    // Error: NERROR - 1 + 8
+  m_ErrorsLabels.push_back("Ped>200 LG");         // Error: NERROR - 1 + 9
+  m_ErrorsLabels.push_back("Single Dn LG_s0");    // Error: NERROR - 1 + 10
+  m_ErrorsLabels.push_back("Single Dn LG_s6");    // Error: NERROR - 1 + 11
+  m_ErrorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERROR - 1 + 12
+  m_ErrorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERROR - 1 + 13
   
   m_PartitionsLabels.push_back("LBA");
   m_PartitionsLabels.push_back("LBC");
@@ -347,7 +347,7 @@ void TileDQFragMonTool::bookErrHist(int ros, int drawer) {
   histlbName = "FracTileDigiErrors"+moduleName;
  
    
-  m_hist_error[ros][drawer] = book2I("",histName.c_str(), histTitle.c_str(),16,0.0,16.0,NERR + NCORRUPTED,0.,NERR + NCORRUPTED);
+  m_hist_error[ros][drawer] = book2I("",histName.c_str(), histTitle.c_str(),16,0.0,16.0,NERROR + NCORRUPTED,0.,NERROR + NCORRUPTED);
   m_hist_error[ros][drawer]->GetXaxis()->SetTitle("DMU");
   SetBinLabel(m_hist_error[ros][drawer]->GetYaxis(),m_ErrorsLabels);  
 
@@ -630,7 +630,7 @@ void TileDQFragMonTool::fillBadDrawer() {
             if (jumps_corruption[partition][drawer][error] > 0u)
               for (unsigned int dmu = 0u; dmu < 16u; dmu++)
                 if (jumps_corruption[partition][drawer][error] & (1u << dmu))
-                  fillOneErrHist(partition, drawer, dmu, NERR + error);
+                  fillOneErrHist(partition, drawer, dmu, NERROR + error);
     }
   }
 }
@@ -772,7 +772,7 @@ void TileDQFragMonTool::updateHistograms() {
   for (int ros = 0; ros < 4; ros++) {  //loop over ros...
     for (int drawer = 0; drawer < 64; ++drawer) {
       for (int dmu = 0; dmu < NDMU; dmu++) {
-        Int_t bin = m_hist_error[ros][drawer]->FindBin(dmu, NERR - 3);
+        Int_t bin = m_hist_error[ros][drawer]->FindBin(dmu, NERROR - 3);
         if (m_hist_error[ros][drawer]->GetBinContent(bin) > 0)
           m_hist_error[ros][drawer]->SetBinContent(bin, m_UpdateTotal);
         m_hist_error[ros][drawer]->SetEntries(m_UpdateTotal);

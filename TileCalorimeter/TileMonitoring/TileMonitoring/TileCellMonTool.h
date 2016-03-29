@@ -133,6 +133,10 @@ class TileCellMonTool: public TileFatherMonTool {
 
     int m_cellsInPartition[5] = {1151, 1472, 1408, 1151, 5182}; // EBA, LBA, LBC, EBC, ALL
     bool m_fillTimeHistograms;
+    bool m_fillChannelTimeSampHistograms;
+    bool m_fillTimeAndEnergyDiffHistograms;
+    bool m_fillDigitizerTimeLBHistograms;
+    bool m_fillDigitizerEnergyLBHistograms;
 };
 
 #endif

@@ -48,6 +48,8 @@
 #include "TDirectory.h"
 #include "TAxis.h"
 
+#include "LWHists/LWHist.h"
+
 
 ///Base class for TileCal monitoring tools
 /*---------------------------------------------------------*/
@@ -59,6 +61,8 @@ TileFatherMonTool::TileFatherMonTool(const std::string & type, const std::string
   , m_evtBCID(0)
   , m_runNum(0)
   , m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
+  , m_fillHistogramsForL1Triggers{0,1,2,3,4,5,6,7}
+  , m_allowedL1TriggerBits(8, false)
 
 /*---------------------------------------------------------*/
 {
@@ -66,6 +70,7 @@ TileFatherMonTool::TileFatherMonTool(const std::string & type, const std::string
 
   declareProperty("MBTSCellContainerID", m_MBTSCellContainerID = "MBTSContainer");
   declareProperty("CellsContainerID" , m_cellsContainerID = "AllCalo"); //SG Cell Container
+  declareProperty("FillHistogramsForL1Triggers" , m_fillHistogramsForL1Triggers);
 
   // conversion from ROS index to partition index
   m_ros2partition[TileHWID::BEAM_ROS] = NumPart;
@@ -133,6 +138,11 @@ StatusCode TileFatherMonTool::initialize() {
 
   //done explicitly
   //ToolRootHistSvc();
+
+  for (unsigned int bit : m_fillHistogramsForL1Triggers) {
+    if (bit < 8) m_allowedL1TriggerBits[bit] = true;
+  }
+
 
   //SetBookStatus(false);
   CHECK(TilePaterMonTool::initialize());
@@ -251,7 +261,7 @@ void TileFatherMonTool::get_eventTrigs(uint32_t lvl1info) {
       m_eventTrigs.push_back(AnyTrig); //adding the AnyPhysTrig trigger
       for (int exp = 0; exp < Trig_b7; exp++) { // adding the phys triggers one by one
 
-        if ((lvl1info >> exp) & 1) m_eventTrigs.push_back(exp); // store active trigger
+        if (((lvl1info >> exp) & 1) and (m_allowedL1TriggerBits[exp])) m_eventTrigs.push_back(exp); // store active trigger
 
       }
     } else { //calibration event foramt is 0x0aaaaaaa
@@ -369,21 +379,22 @@ void TileFatherMonTool::checkIsCollision() {
 }
 
 //Generic Method to set the bin labels of an axis
-void TileFatherMonTool::SetBinLabel(TAxis* ax, const std::vector<std::string>& labelVec) {
-  unsigned int nb = labelVec.size();
-  for (unsigned int b = 0; b < nb; b++) {
-    ax->SetBinLabel(b + 1, (labelVec.at(b)).c_str());
+template<class T>
+void TileFatherMonTool::SetBinLabel(T* axis, const std::vector<std::string>& labels) {
+  unsigned int bin(1);
+  for (const std::string& label : labels) {
+    axis->SetBinLabel(bin, label.c_str());
+    ++bin;
   }
-
 }
 
 //Generic Method to set the bin labels of an axis
-void TileFatherMonTool::SetBinLabel(TAxis* ax, std::string * labelVec, int nb) {
-  if (nb < 0) return;
-  for (unsigned int b = 0; b < (unsigned int) nb; b++) {
-    ax->SetBinLabel(b + 1, (labelVec[b]).c_str());
+template<class T>
+void TileFatherMonTool::SetBinLabel(T* axis, const std::string* labels, int nLabels) {
+  if (nLabels < 0) return;
+  for (unsigned int bin = 1; bin <= (unsigned int) nLabels; ++bin) {
+    axis->SetBinLabel(bin, (labels[bin]).c_str());
   }
-
 }
 
 // Method to move bins of TProfile histogra,
@@ -402,12 +413,14 @@ void TileFatherMonTool::ShiftTprofile(TProfile* histo, int delta_lb) {
     histo->SetBinContent(i, content * entries);
     histo->SetBinError(i, content * sqrt(entries));
   }
-  for (; i <= 100; i++) // set rest to zero
-      {
+
+  for (; i <= 100; i++) { // set rest to zero
+     
     histo->SetBinEntries(i, 0.);
     histo->SetBinContent(i, 0.);
     histo->SetBinError(i, 0.);
   }
+
   histo->ResetStats();
   histo->SetEntries(total_entries);
 }
@@ -417,3 +430,8 @@ bool TileFatherMonTool::m_is_collision = false;
 unsigned int TileFatherMonTool::m_lastevent = 0;
 float TileFatherMonTool::m_time_difference = 999.;
 
+template void TileFatherMonTool::SetBinLabel<TAxis>(TAxis*, const std::vector<std::string>&);
+template void TileFatherMonTool::SetBinLabel<TAxis>(TAxis*, const std::string*, int);
+
+template void TileFatherMonTool::SetBinLabel<LWHist::LWHistAxis>(LWHist::LWHistAxis*, const std::vector<std::string>&);
+template void TileFatherMonTool::SetBinLabel<LWHist::LWHistAxis>(LWHist::LWHistAxis*, const std::string*, int);
