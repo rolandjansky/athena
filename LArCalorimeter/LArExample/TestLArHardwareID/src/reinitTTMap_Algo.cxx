@@ -246,14 +246,6 @@ StatusCode reinitTTMap_Algo::initMap(){
     t.region = module;
     t.eta = eta; 
     t.phi = phi;
-    // check that the id makes sense:
-    bool connected = m_fcalHelper->is_connected(t.pn,t.region,t.eta,t.phi); 
-    if(!connected) {
-      ATH_MSG_ERROR 
-        ( "wrong dictionary ? cell not connected ! pn= "
-	  << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
-	  );
-    }
     
     // fields for the offline TT channel id
     int l1_pn=1; // A side

@@ -31,7 +31,6 @@ class reinitTTMap_Algo : public AthAlgorithm {
   unsigned int m_begLB;
   unsigned int m_endLB;
 
-  StoreGateSvc*           m_detStore ;
   const LArFCAL_ID*       m_fcalHelper;
   IIOVRegistrationSvc*    m_regSvc;
   

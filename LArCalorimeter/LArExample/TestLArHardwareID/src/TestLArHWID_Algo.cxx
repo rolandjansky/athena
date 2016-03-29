@@ -25,8 +25,8 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArHVCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArHVCablingTool.h"
 
 /********************************************************/
 TestLArHWID_Algo::TestLArHWID_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -351,7 +351,7 @@ StatusCode TestLArHWID_Algo::execute(){
   // ===================================================================
   // Output files
   std::string l_version = m_emHelper->dictionaryVersion();
-  std::string m_Connected = "ALL";
+  std::string Connected = "ALL";
   ATH_MSG_INFO ( " Dictionary Version      = " << l_version );
   ATH_MSG_INFO ( " [INI] m_Detector        = " << m_Detector );
   ATH_MSG_INFO ( " [INI] m_SubDetector     = " << m_SubDetector );
@@ -360,7 +360,7 @@ StatusCode TestLArHWID_Algo::execute(){
   ATH_MSG_INFO ( " [INI] m_ElectrodeOffline= " << m_HVelectrodeToOffline );
   ATH_MSG_INFO ( " [INI] m_OnlineTest      = " << m_OnlineTest );
   ATH_MSG_INFO ( " [INI] m_OfflineTest     = " << m_OfflineTest );
-  ATH_MSG_INFO ( " [INI] m_Connected       = " << m_Connected  );
+  ATH_MSG_INFO ( " [INI] m_Connected       = " << Connected  );
 
   if(m_OnlineTest != "OFF" || m_OfflineTest != "OFF" || m_HighVoltage != "OFF" )
     {// Online or Offline Test ON 
@@ -3804,56 +3804,6 @@ StatusCode TestLArHWID_Algo::execute(){
 	fileError.close();
       }	
     
-    // =============================================================
-    // Dump of offline disconnected channels in ATLAS dictionary
-    // =============================================================
-    // 
-    // 
-    // =============================================================
-    // 
-    if( l_version=="H6TestBeam" ){
-      std::fstream fcalDiscDump;
-      std::fstream hecDiscDump;
-      std::fstream emecDiscDump;
-      hecDiscDump.open("HEC_DISCONNECTED.out",std::ios::out);
-      emecDiscDump.open("EMEC_DISCONNECTED.out",std::ios::out);
-      fcalDiscDump.open("FCAL_DISCONNECTED.out",std::ios::out);
-      // HEC
-      std::vector<Identifier>::const_iterator itId = m_hecHelper->disc_hec_begin();
-      std::vector<Identifier>::const_iterator itIdEnd = m_hecHelper->disc_hec_end();
-      for(; itId!=itIdEnd;++itId)
-	{ 
-	  const Identifier ch_id = *itId;
-	  hecDiscDump << "(hec) offline ID =" 
-		      << m_hecHelper->show_to_string(ch_id)
-		      << std::endl;
-	}
-      hecDiscDump.close();
-      // FCAL
-      itId = m_fcalHelper->disc_fcal_begin();
-      itIdEnd = m_fcalHelper->disc_fcal_end();
-      for(; itId!=itIdEnd;++itId)
-	{      
-	  const Identifier ch_id = *itId;
-	  fcalDiscDump << "(fcal) offline ID =" 
-		       << m_fcalHelper->show_to_string(ch_id)
-		       << std::endl;
-	}
-      fcalDiscDump.close();
-      // EMEC
-      itId = m_emHelper->disc_em_begin();
-      itIdEnd = m_emHelper->disc_em_end();
-      for(; itId!=itIdEnd;++itId)
-	{      
-	  const Identifier ch_id = *itId;
-	  if( m_emHelper->barrel_ec(ch_id) > 1 ){
-	    emecDiscDump << "(emec) offline ID =" 
-			 << m_emHelper->show_to_string(ch_id)
-			 << std::endl;
-	  }
-	}
-      emecDiscDump.close();
-    }
       // ===================================================
       // 
       //   H8TestBeam FEB IDS Online-wise loop (1) 
@@ -4295,7 +4245,7 @@ StatusCode TestLArHWID_Algo::execute(){
       std::string myDet="unknown";
       if( m_Detector == "ALL" || m_Detector == "EMB" || m_Detector == "EMEC" || m_Detector == "EM" ) 
 	{// if m_Detector == EM or EMB or EMEC
-	  if( m_Connected == "ON" || m_Connected == "ALL" ){
+	  if( Connected == "ON" || Connected == "ALL" ){
 	    // if m_connected == ON 
 	    std::vector<Identifier>::const_iterator itId = m_emHelper->em_begin();
 	    std::vector<Identifier>::const_iterator itIdEnd = m_emHelper->em_end();
@@ -4308,9 +4258,6 @@ StatusCode TestLArHWID_Algo::execute(){
 		ATH_MSG_VERBOSE( m_emHelper->show_to_string( ch_onl )
                                  <<"  "<< m_emHelper->show_to_string(ch_id) );
 		if( ch_id != id_test ) { 
-		  ATH_MSG_ERROR(" EM: Error in mapping for offline id= (is_connected ?) "
-                                << m_emHelper->show_to_string( ch_id ) 
-                                << " ( " << m_emHelper->is_connected(ch_id) << " ) "  );
 		  ATH_MSG_ERROR("online ID, returned offline ID= " 
                                 << m_emHelper->show_to_string(ch_onl) << ", " 
                                 << m_emHelper->show_to_string(id_test) );
@@ -4449,135 +4396,13 @@ StatusCode TestLArHWID_Algo::execute(){
 		}
 	      }
 	  }
-	  if( m_Connected == "OFF" || m_Connected == "ALL" ){
-	    // if m_Connected == OFF
-	    // Disconnected EM channels
-	    //--------------------------
-	    int nDiscOld=0;
-	    std::vector<Identifier>::const_iterator itId = m_emHelper->disc_em_begin();
-	    std::vector<Identifier>::const_iterator itIdEnd = m_emHelper->disc_em_end();
-	    for(; itId!=itIdEnd;++itId)
-	      {// Loop over EM disconnected channels
-		nATLASdisc++;
-		const Identifier ch_id = *itId;
-		HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
-		Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-		ATH_MSG_VERBOSE( m_emHelper->show_to_string( ch_onl )
-                                 <<"  "<< m_emHelper->show_to_string(ch_id) );
-		if( ch_id != id_test ) { 
-		  ATH_MSG_ERROR(" EM: Error in mapping for offline id= (is_connected ?) "
-                                << m_emHelper->show_to_string( ch_id ) 
-                                << " ( " << m_emHelper->is_connected(ch_id) << " ) "  );
-		  ATH_MSG_ERROR("online ID, returned offline ID= " 
-                                << m_emHelper->show_to_string(ch_onl) << ", " 
-                                << m_emHelper->show_to_string(id_test) );
-		  break ; 
-		}
-
-		// test hash and neighbours
-		IdentifierHash hashId=m_emHelper->disc_channel_hash(ch_id);
-		if(hashId<m_emHelper->channel_hash_max()) {
-		  ATH_MSG_ERROR
-                    ( " EM: pb with disc_channel_hash less than channel_hash_max"
-                      << "         ch_id = " <<  m_emHelper->show_to_string(ch_id) 
-                      << "         hashId = " << hashId );
-		}
-		/*
-		std::vector<IdentifierHash> neighbourList;
-		m_emHelper->get_neighbours(hashId, LArNeighbours::all3D, neighbourList);
-		std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-		std::vector<IdentifierHash>::iterator last=neighbourList.end();
-		int count=0;
-		for (;last!=first; first++){
-		  count++;
-		  log<<MSG::INFO 
-		     << "  neighbour disc EM = " << (*first).getString()
-		     << "  for cell hashId " << hashId 
-		     << "  id " << m_emHelper->show_to_string(ch_id) << endreq; 
-		}
-		//		log<<MSG::INFO << "number of neighbour for this disc cell= " << count << std::endl;
-		*/
-
-		// test is_connected as well
-		bool ok = m_emHelper->is_connected(hashId);
-		if ( ok ) {
-		  ATH_MSG_ERROR
-                    ( " EM: pb with is_connected(hash): true in disc loop !!!"
-                      << "         ch_id = " <<  m_emHelper->show_to_string(ch_id) 
-                      << "         hashId = " << hashId );
-		}
-
-		if( m_Detector == "EM" || m_Detector == "ALL" ){
-		  // EM disconnected channels
-		  nEMdisc++;
-		  if(nEMdisc==nDiscOld+1000){
-		    ATH_MSG_INFO ( "[ATLAS] processing EM disconnected offline channel ..# " 
-                                   << nEMdisc );
-		    nDiscOld=nEMdisc;
-		  }
-		}
-		if( m_Detector == "EMB" || m_Detector == "ALL"){
-		  if( m_emHelper->barrel_ec(ch_id) == -1 || 
-		      m_emHelper->barrel_ec(ch_id) == 1 ){
-		    // EMBARREL disconnected channels
-		    nEMBdisc++;
-		    if(nEMBdisc==nDiscOld+1000){
-		      ATH_MSG_INFO ( "[ATLAS] processing EMB disconnected offline channel ..# " 
-                                     << nEMBdisc );
-		      nDiscOld=nEMBdisc;
-		    }
-		    // Output...
-		    mychDisc="disconnected";
-		    myDet="(EMB)";
-		    fileEmbOff << " OfflineID= "
-			       << m_emHelper->show_to_string(ch_id) 
-			       << " Compact OfflineID= " 
-			       << ch_id.getString()
-			       << " OnlineID= " 
-			       << m_onlineHelper->show_to_string(ch_onl) 
-			       << " Compact OnlineID= "
-			       << ch_onl.getString()
-			       << " " << mychDisc << " " << myDet  
-			       << std::endl;
-		  }
-		}
-		if( m_Detector == "EMEC" || m_Detector == "ALL"){
-		  // EMEC disconnected channels
-		  if( m_emHelper->barrel_ec(ch_id)== -2 || 
-		      m_emHelper->barrel_ec(ch_id) == 2 || 
-		      m_emHelper->barrel_ec(ch_id) ==-3 || 
-		      m_emHelper->barrel_ec(ch_id) == 3 ){
-		    // if EMEC
-		    nEMECdisc++;
-		    if(nEMECdisc==nDiscOld+1000){
-		      ATH_MSG_INFO ( "[ATLAS] processing EMEC disconnected offline channel ..# " 
-                                     << nEMECdisc );
-		      nDiscOld=nEMECdisc;
-		    }
-		    // Output...
-		    myDet="(EMEC)";
-		    mychDisc="disconnected";
-		    fileEmecOff << " OfflineID= "
-				<< m_emHelper->show_to_string(ch_id) 
-				<< " Compact OfflineID= " 
-				<< ch_id.getString()
-				<< " OnlineID= " 
-				<< m_onlineHelper->show_to_string(ch_onl) 
-				<< " Compact OnlineID= "
-				<< ch_onl.getString()
-				<< " " << mychDisc << " " << myDet  
-				<< std::endl;
-		  }
-		}
-	      }
-	  }
 	}
       if(  m_Detector == "HEC" || m_Detector == "ALL" ) 
 	{
 	  // OFFLINE loop over all HEC channels
 
-	  if( m_Connected == "ON" || m_Connected == "ALL" ){
-	    // if m_Connected == ON
+	  if( Connected == "ON" || Connected == "ALL" ){
+	    // if Connected == ON
 	    // Offline : loop over connected HEC channels
 	    // ------------------------------------------
 	    std::vector<Identifier>::const_iterator itId = m_hecHelper->hec_begin();
@@ -4598,9 +4423,8 @@ StatusCode TestLArHWID_Algo::execute(){
 	      ATH_MSG_VERBOSE( m_hecHelper->show_to_string( ch_onl )
                                <<"  "<< m_hecHelper->show_to_string(ch_id) );
 	      if( ch_id != id_test ) { 
-		ATH_MSG_ERROR(" HEC: Error in mapping for offline id= (is_connected ?) "<< m_hecHelper->show_to_string( ch_id ) 
-                              << " ( " << m_hecHelper->is_connected(ch_id) << " ) " );
-		ATH_MSG_ERROR("online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) );
+                ATH_MSG_ERROR(" HEC: Error in mapping for offline id=  " << m_hecHelper->show_to_string( ch_id ) );
+                ATH_MSG_ERROR("online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) );
 		break ; 
 	      }
 
@@ -4629,66 +4453,13 @@ StatusCode TestLArHWID_Algo::execute(){
 			 << std::endl;	    
 	    }
 	  }
-	  // Offline : loop over disconnected HEC channels
-	  // ------------------------------------------
-	  if( m_Connected == "OFF" || m_Connected == "ALL" ){
-	    // if m_Connected == OFF
-	    std::vector<Identifier>::const_iterator itId = m_hecHelper->disc_hec_begin();
-	    std::vector<Identifier>::const_iterator itIdEnd = m_hecHelper->disc_hec_end();
-	    for(; itId!=itIdEnd;++itId){
-	      nHECdisc++;
-	      nATLASdisc++;
-	      if(nHECdisc==nch_old+100){
-		ATH_MSG_INFO ( "[ATLAS] processing HEC disconnected offline-channel ..# " 
-                               << nHECdisc );
-		nch_old=nHECdisc;
-	      }
-	      Identifier ch_id = *itId;
-	      HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
-	      Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-	      ATH_MSG_VERBOSE( m_hecHelper->show_to_string( ch_onl )
-                               <<"  "<< m_hecHelper->show_to_string(ch_id) );
-	      if( ch_id != id_test ) { 
-		ATH_MSG_ERROR(" HEC: Error in mapping for offline id= (is_connected ?) "<< m_hecHelper->show_to_string( ch_id ) 
-                              << " ( " << m_hecHelper->is_connected(ch_id) << " ) " );
-		ATH_MSG_ERROR("online ID, returned offline ID= " << m_hecHelper->show_to_string(ch_onl) << ", " << m_hecHelper->show_to_string(id_test) );
-		break ; 
-	      }
-
-	      // test hash and neighbours
-	      //IdentifierHash hashId=m_hecHelper->disc_channel_hash(ch_id);
-	      /*
-	      std::vector<IdentifierHash> neighbourList;
-	      m_hecHelper->get_neighbours(hashId, LArNeighbours::all3D, neighbourList);
-	      std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-	      std::vector<IdentifierHash>::iterator last=neighbourList.end();
-	      for (;last!=first; first++){
-                ATH_MSG_INFO ( "  neighbour disc HEC = " << (*first).getString() );
-	      }
-	      */
-
-	      // Output...
-	      mychDisc="disonnected";
-	      myDet="(HEC)";
-	      fileHecOff << " OfflineID= "
-			 << m_emHelper->show_to_string(ch_id) 
-			 << " Compact OfflineID= " 
-			 << ch_id.getString()
-			 << " OnlineID= " 
-			 << m_onlineHelper->show_to_string(ch_onl) 
-			 << " Compact OnlineID= "
-			 << ch_onl.getString()
-			 << " " << mychDisc << " " << myDet  
-			 << std::endl;	     
-	    }
-	  }
 	} // HEC channels
 
       if( m_Detector == "ALL" || m_Detector == "FCAL" ) {
 	// Offline : Loop over all FCAL channels
 	
-	if( m_Connected == "ON" || m_Connected == "ALL" ){
-	  // if m_Connected == ON
+	if( Connected == "ON" || Connected == "ALL" ){
+	  // if Connected == ON
 	  // Offline : Loop over disconnected FCAL channels
 	  // ---------------------------------
 	  nch_old = 0;
@@ -4710,10 +4481,8 @@ StatusCode TestLArHWID_Algo::execute(){
 	    ATH_MSG_VERBOSE(  m_fcalHelper->show_to_string( ch_onl ) 
                               <<"  "<< m_fcalHelper->show_to_string(ch_id) );
 	    if( ch_id != id_test ) { 
-	      ATH_MSG_ERROR(" FCAL: Error in mapping for offline id= (is_connected ?) "
-                            << m_fcalHelper->show_to_string( ch_id ) 
-                            << " ( " << m_fcalHelper->is_connected(ch_id) << " ) " );
-	      ATH_MSG_ERROR("online ID, returned offline ID= " 
+              ATH_MSG_ERROR(" FCAL: Error in mapping for offline id= " << m_fcalHelper->show_to_string( ch_id ));
+              ATH_MSG_ERROR("online ID, returned offline ID= " 
                             << m_fcalHelper->show_to_string(ch_onl) << ", " 
                             << m_fcalHelper->show_to_string(id_test) );
 	      break ; 
@@ -4731,64 +4500,6 @@ StatusCode TestLArHWID_Algo::execute(){
 	    
 	    // Output...
 	    mychDisc="Connected";
-	    myDet="(FCAL)";
-	    fileFcalOff << " OfflineID= "
-			<< m_emHelper->show_to_string(ch_id) 
-			<< " Compact OfflineID= " 
-			<< ch_id.getString()
-			<< " OnlineID= " 
-			<< m_onlineHelper->show_to_string(ch_onl) 
-			<< " Compact OnlineID= "
-			<< ch_onl.getString()
-			<< " " << mychDisc << " " << myDet  
-			<< std::endl;
-	  }
-	}
-	if( m_Connected == "OFF" || m_Connected == "ALL"){
-	  // if m_Connected == OFF
-	  // Offline : disconnected FCAL channels
-	  // ----------------------------------
-	  nFCALdisc=0;
-	  std::vector<Identifier>::const_iterator itId = m_fcalHelper->disc_fcal_begin();
-	  std::vector<Identifier>::const_iterator itIdEnd = m_fcalHelper->disc_fcal_end();
-	  for(; itId!=itIdEnd;++itId){
-	    nFCALdisc++;	    
-	    nATLASdisc++;
-	    Identifier ch_id = *itId;
-	    HWIdentifier ch_onl = m_cablingSvc->createSignalChannelID(ch_id) ; 
-	    Identifier id_test = m_cablingSvc->cnvToIdentifier( ch_onl ) ;
-	    ATH_MSG_VERBOSE(  m_fcalHelper->show_to_string( ch_onl )
-                              <<"  "<< m_fcalHelper->show_to_string(ch_id) );
-	    if( ch_id != id_test ) { 
-	      ATH_MSG_ERROR(" FCAL: Error in mapping for offline id= (is_connected ?) "
-                            << m_fcalHelper->show_to_string( ch_id ) 
-                            << " ( " << m_fcalHelper->is_connected(ch_id) << " ) " );
-	      ATH_MSG_ERROR("online ID, returned offline ID= " 
-                            << m_fcalHelper->show_to_string(ch_onl) << ", " 
-                            << m_fcalHelper->show_to_string(id_test) );
-	      break ; 
-	    }
-
-	    // test hash and neighbours
-	    //IdentifierHash hashId=m_fcalHelper->disc_channel_hash(ch_id);
-	    /*
-	    std::vector<IdentifierHash> neighbourList;
-	    m_fcalHelper->get_neighbours(hashId, LArNeighbours::all3D, neighbourList);
-	    std::vector<IdentifierHash>::iterator first=neighbourList.begin();
-	    std::vector<IdentifierHash>::iterator last=neighbourList.end();
-	    int count=0;
-	    for (;last!=first; first++){
-	      count++;
-	      log<<MSG::INFO 
-		 << "  neighbour disc FCAL = " << (*first).getString()
-		 << "  for cell hashId " << hashId 
-		 << "  id " << m_emHelper->show_to_string(ch_id) << endreq; 
-	    }
-	    //	    log<<MSG::INFO << "number of neighbour for this disc cell= " << count << std::endl;
-	    */
-	    
-	    // Output...
-	    mychDisc="disconnected";
 	    myDet="(FCAL)";
 	    fileFcalOff << " OfflineID= "
 			<< m_emHelper->show_to_string(ch_id) 
