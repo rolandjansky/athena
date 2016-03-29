@@ -32,7 +32,7 @@
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "LArIdentifier/LArIdManager.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 //
 // ........ Event Header Files:
@@ -514,18 +514,6 @@ StatusCode LArTTL1Maker::execute()
 
 	int specialCase=0;
 	bool skipCell=false;
-	//
-	// .... skip disconnected cells (normally not in the TT list) 
-	//
-	if(m_lvl1Helper->is_lar_em(cellId)) {
-	  if(!m_emHelper->is_connected(cellId)) skipCell=true;
-	} 
-	else if(m_lvl1Helper->is_lar_hec(cellId)) {
-	  if(!m_hecHelper->is_connected(cellId)) skipCell=true;
-	}
-	else if(m_lvl1Helper->is_lar_fcal(cellId)) {
-	  if(!m_fcalHelper->is_connected(cellId)) skipCell=true;
-	}
 	//
 	// ...  skip cells not summed up in LVL1 (end of barrel PS and 4th compartment of HEC)
 	//
