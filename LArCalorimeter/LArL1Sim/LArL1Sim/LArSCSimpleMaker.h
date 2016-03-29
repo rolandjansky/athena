@@ -17,7 +17,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 

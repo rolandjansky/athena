@@ -285,8 +285,8 @@ StatusCode LArTTL1Calib::execute()
       m_ntotem =  ttl1_container->size() ;
       m_nttem = indexem;
       for (int i=0; i<indexem; ++i) {
-	int deltaEta = abs(Ieta_mostE - m_Ietattem[i]);
-	int deltaPhi = abs(Lphi_mostE - m_Lphittem[i]);           // not quite 3x3
+	int deltaEta = std::abs(Ieta_mostE - m_Ietattem[i]);
+	int deltaPhi = std::abs(Lphi_mostE - m_Lphittem[i]);           // not quite 3x3
 	if(    (deltaEta <= 1 || deltaEta >= etaLim)                  // because phi granularity changes
 	       && (deltaPhi <= 1 || deltaPhi == phiMax_mostE) ) { // at eta=2.5 and 3.2
 	  m_n3x3em +=1;
@@ -304,8 +304,8 @@ StatusCode LArTTL1Calib::execute()
       m_ntothad =  ttl1_container->size() ;
       m_ntthad = indexhad;
       for (int i=0; i<indexhad; ++i) {
-	int deltaEta = abs( Ieta_mostE- m_Ietatthad[i]);
-	int deltaPhi = abs( Lphi_mostE- m_Lphitthad[i]);
+	int deltaEta = std::abs( Ieta_mostE- m_Ietatthad[i]);
+	int deltaPhi = std::abs( Lphi_mostE- m_Lphitthad[i]);
 	if(  (deltaEta <= 1 || deltaEta >=etaLim)
 	    && (deltaPhi <= 1 || deltaPhi == phiMax_mostE) ) {
 	  m_n3x3had +=1;
