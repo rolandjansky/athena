@@ -1,13 +1,9 @@
 
-${dict_dir}/${CONSTITUENT}Dict.stamp :: ${dict_dir}/${CONSTITUENT}DictBegin.stamp ${dict_dir}/${dictionary}/${NAME}.xml.stamp
-	@touch ${dict_dir}/${CONSTITUENT}Dict.stamp
+${dict_dir}/${CONSTITUENT}Dict.stamp : ${dict_dir}/${dictionary}/${NAME}.xml.stamp
 
-
-${CONSTITUENT} ::  ${dict_dir}/${dictionary}/${NAME}.xml.stamp
-
-${dict_dir}/${dictionary}/${NAME}.xml.stamp :: $(${NAME}_h_dependencies) $(reflex_dict${dictionary}_selection_file) ${dict_dir}/${CONSTITUENT}DictBegin.stamp
-	@$(silent) echo $@ ${NAME}_gen.h
-	@cat ${FULLNAME} >| ${dict_dir}/${dictionary}/${NAME}_gen.h
+${dict_dir}/${dictionary}/${NAME}.xml.stamp : $(${NAME}_h_dependencies) ${dict_dir}/${CONSTITUENT}DictBegin.stamp
+	$(echo) $@ ${NAME}_gen.h
+	cat ${FULLNAME} >| ${dict_dir}/${dictionary}/${NAME}_gen.h
 	@if test ! -z "${reflex_dict${dictionary}_navigables}" ; then \
 	    class_list=`echo '$(reflex_dict${dictionary}_navigables)' | sed -e "s/[ ][ ]*/' '/g" -e "s/^/'/"  -e "s/$$/'/" -e "s/''//g"`; \
             echo "class_list = $${class_list}";\
@@ -41,5 +37,5 @@ ${dict_dir}/${dictionary}/${NAME}.xml.stamp :: $(${NAME}_h_dependencies) $(refle
 	fi
         # using explicit dictionary source file name to work around root5.99 genreflex bug
 	$(silent) $(genreflex_cmd) ${dict_dir}/${dictionary}/${NAME}_gen.h -o ${dict_dir}/${dictionary}/${NAME}_gen.cpp $(reflex_dict${dictionary}_options) ${munged_reflex_dict_options} ${genreflex_options} $(${dictionary}_reflex_dict_options)  $(includes) $(use_pp_cppflags) 
-	@touch ${dict_dir}/${dictionary}/${NAME}.xml.stamp
+	$(silent)touch ${dict_dir}/${dictionary}/${NAME}.xml.stamp
 
