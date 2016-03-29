@@ -18,7 +18,7 @@ use PathResolver	PathResolver-*	        Tools
 use CaloIdentifier	CaloIdentifier-*	Calorimeter
 use CaloTriggerTool	CaloTriggerTool-*	Calorimeter
 use LArIdentifier	LArIdentifier-*	        LArCalorimeter
-use LArTools    	LArTools-*		LArCalorimeter
+use LArCabling    	LArCabling-*		LArCalorimeter
 end_private
 
 library TestLArHardwareID "*.cxx -s=../src/components *.cxx "
