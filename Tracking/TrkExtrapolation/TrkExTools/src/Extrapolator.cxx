@@ -3460,7 +3460,6 @@ void Trk::Extrapolator::overlapSearch(const IPropagator& prop,
        if (detParameters){     
          // retrive compatible subsurfaces
    std::vector<Trk::SurfaceIntersection> cSurfaces;
-   
    size_t ncSurfaces = lay.compatibleSurfaces(cSurfaces,*detParameters,Trk::anyDirection,bcheck,false);
             
    // import from StaticEngine.icc

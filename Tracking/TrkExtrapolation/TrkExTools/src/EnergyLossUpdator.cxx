@@ -41,7 +41,8 @@ Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string& t, const std::strin
   m_stragglingErrorScale(1.),
   m_mpvScale(0.98),
   m_mpvSigmaParametric(false),
-  m_detailedEloss(true)
+  m_detailedEloss(true),
+  m_optimalRadiation(true)
 {
    declareInterface<Trk::IEnergyLossUpdator>(this);
    // scale from outside
@@ -56,6 +57,7 @@ Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string& t, const std::strin
    declareProperty("UseParametricMpvError"      , m_mpvSigmaParametric);
    declareProperty("ScaleMostProbableValue"     , m_mpvScale);
    declareProperty("DetailedEloss"              , m_detailedEloss);
+   declareProperty("OptimalRadiation"           , m_optimalRadiation);
 }
 
 // destructor
@@ -348,6 +350,7 @@ double Trk::EnergyLossUpdator::dEdXBetheHeitler(const MaterialProperties& mat,
 }
 
 // public interface method
+
 Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, int & elossFlag) const {
 
 //
@@ -382,11 +385,11 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
   double sigmaDeltaE_rad = eLoss->sigmaRad(); // rms and mean of steep exponential
   double depth = eLoss->length();
 
-// Eloss radiative protection
+// Eloss radiative protection 
 
   if(eLoss->meanRad()>100000.) {
-     deltaE_rad = 100000.;
-     sigmaDeltaE_rad = eLoss->sigmaRad()*100000./eLoss->meanRad();
+    deltaE_rad = 100000.;
+    sigmaDeltaE_rad = eLoss->sigmaRad()*100000./eLoss->meanRad();
   }
 
   double sigmaPlusDeltaE = eLoss->sigmaPlusDeltaE();
@@ -394,21 +397,27 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 
   double MOP = deltaE_ioni - isign*3.59524*sigmaDeltaE_ioni;
 
+//  std::cout << " update Energyloss pCaloEntry " << pCaloEntry << " momentumError " << momentumError << " caloEnergy " << caloEnergy << std::endl;
+
 //  std::cout << " update Energyloss old deltaE " << deltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << std::endl;
 //
 // MOP shift due to ionization and radiation
 //   
   double MOPshift = isign*50*10000./pCaloEntry + isign*0.75*sqrt(sigmaDeltaE_ioni*sigmaDeltaE_rad);
+  double MOPshiftNoRad = isign*50*10000./pCaloEntry;
 //
 // define sigmas for Landau convoluted with exponential
 //
   double fracErad = sigmaDeltaE_rad + fabs(deltaE_rad)*pCaloEntry/(800000.+pCaloEntry);
   double sigmaL = sigmaDeltaE_ioni + fracErad/3.59524;
+  double sigmaLNoRad = sigmaDeltaE_ioni;
   double sigmaMinus = 1.02*sigmaDeltaE_ioni + 0.08*sigmaDeltaE_rad; 
   double sigmaPlus = 4.65*sigmaDeltaE_ioni + 1.16*sigmaDeltaE_rad;
-
+  double sigmaMinusNoRad = 1.02*sigmaDeltaE_ioni; 
+  double sigmaPlusNoRad = 4.65*sigmaDeltaE_ioni;
+//  std::cout << " Eloss error plus incl radiation " << sigmaPlus << " no radiation " << sigmaPlusNoRad << std::endl;
 //
-// Case where the measured Calorimeter energy is not available
+// Case where the measured Calorimeter energy is not available (e.g. low pT or not isolated)
 //
   
   if(caloEnergyError<=0) {
@@ -424,12 +433,32 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
     sigmaMinusDeltaE = sigmaMinus;
     sigmaPlusDeltaE  = sigmaPlus;
     sigmaDeltaE = sqrt(0.5*sigmaMinusDeltaE*sigmaMinusDeltaE+0.5*sigmaPlusDeltaE*sigmaPlusDeltaE);
-
+//  
+    if(m_optimalRadiation&&fabs(deltaE)<caloEnergy&&pCaloEntry>100000) {
+//
+// Calorimeter measurement can be used as veto to say there was no significant radiation
+//
+// In that case the Eloss is taken as the ionization Eloss
+// Use MOP after correction for landau tail (MOPshiftNoRad) and momentum resolution smearing (MOPreso) 
+//
+      xc = 0.87388*momentumError/(3.59524*sigmaLNoRad);
+      correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
+      MOPreso = isign*3.59524*sigmaLNoRad*correction;
+      deltaE = MOP + MOPshiftNoRad + MOPreso;
+      sigmaMinusDeltaE = sigmaMinusNoRad;
+      sigmaPlusDeltaE  = sigmaPlusNoRad; 
+      sigmaDeltaE      = sqrt(0.5*sigmaMinusDeltaE*sigmaMinusDeltaE+0.5*sigmaPlusDeltaE*sigmaPlusDeltaE);
+      
+    }
+//     std::cout << " updateEnergyLoss CaloEnergyError = 0 delta E " << deltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << std::endl; 
   } else {
 
     double sigmaPlusTot = sqrt(sigmaPlus*sigmaPlus+caloEnergyError*caloEnergyError);
+    if(m_optimalRadiation) sigmaPlusTot = sqrt(4.65*sigmaDeltaE_ioni*4.65*sigmaDeltaE_ioni+caloEnergyError*caloEnergyError);
+    double MOPtot = fabs(MOP + MOPshift);
+    if(m_optimalRadiation) MOPtot = fabs(MOP + MOPshiftNoRad); 
 
-    if(caloEnergy > fabs(MOP + MOPshift) + 2*sigmaPlusTot) {
+    if(caloEnergy > MOPtot + 2*sigmaPlusTot) {
 //
 // Use measured Calorimeter energy
 //
@@ -438,40 +467,47 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 //
       double scale_xc = 2.3;
       double xc = scale_xc*0.87388*momentumError/(3.59524*sigmaL);
+      if(m_optimalRadiation) xc = scale_xc*0.87388*momentumError/(3.59524*sigmaLNoRad); 
       double correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
       double MOPreso = 2.5*isign*3.59524*sigmaL*correction;
-      
+      if(m_optimalRadiation) MOPreso = 2.5*isign*3.59524*sigmaLNoRad*correction; 
       deltaE = isign*caloEnergy + MOPreso;
       sigmaMinusDeltaE = caloEnergyError + 0.08*sigmaDeltaE_rad;  
       sigmaPlusDeltaE  = caloEnergyError  + 1.16*sigmaDeltaE_rad;
+      if(m_optimalRadiation) {
+         sigmaMinusDeltaE = caloEnergyError;
+         sigmaPlusDeltaE = caloEnergyError;
+       } 
       sigmaDeltaE = sqrt(0.5*sigmaMinusDeltaE*sigmaMinusDeltaE+0.5*sigmaPlusDeltaE*sigmaPlusDeltaE);
       elossFlag = 1;
 //      std::cout << " updateEnergyLoss caloEnergy " <<  isign*caloEnergy << " shift " << MOPreso << " deltaE " << deltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << std::endl; 
+//      std::cout << " updateEnergyLoss CaloEnergy used delta E " << deltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << std::endl; 
 
     } else {
 
 // Use MOP after corrections
 
 //
-// MOPCalo is correction to MOP for Calorimeter energy cut
-//
-//      double xe = caloEnergyError/sigmaL;
-//      double MOPCalo = -isign*sigmaL*0.1*(1+xe)/(1+0.077*xe+0.077*xe*xe); // ranges from -0.1 sigmaL to 0.
-//
 // Shift of MOP due to momentum resolution smearing
 //
-//      double errorScale = sqrt(1./4.65/4.65 + caloEnergyError*caloEnergyError/(caloEnergyError*caloEnergyError+sigmaPlus*sigmaPlus)); // ranges from 1/4.65 to 1 
-      double errorScale = 1.;
-      double xc = 0.87388*momentumError/(3.59524*sigmaL*errorScale);
+      double xc = 0.87388*momentumError/(3.59524*sigmaL);
+      if(m_optimalRadiation) xc = 0.87388*momentumError/(3.59524*sigmaLNoRad);
       double correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
-      double MOPreso = isign*3.59524*sigmaL*errorScale*correction;
+      double MOPreso = isign*3.59524*sigmaL*correction;
+      if(m_optimalRadiation)  MOPreso = isign*3.59524*sigmaLNoRad*correction;
 // 
-// Use MOP after correction for radiation (MOPshift) and Calo cut (MOPCalo) and momentum resolution smearing (MOPreso) 
+// Use MOP after correction for landau tail (MOPshiftNoRad) and radiation (MOPshift) and momentum resolution smearing (MOPreso) 
 //
       deltaE = MOP + MOPshift + MOPreso;
+      if(m_optimalRadiation) deltaE = MOP + MOPshiftNoRad + MOPreso;
       sigmaMinusDeltaE = sigmaMinus;
-      sigmaPlusDeltaE = sigmaPlus*errorScale; 
+      sigmaPlusDeltaE  = sigmaPlus; 
+      if(m_optimalRadiation) {
+        sigmaMinusDeltaE = sigmaMinusNoRad;
+        sigmaPlusDeltaE  = sigmaPlusNoRad; 
+      }
       sigmaDeltaE = sqrt(0.5*sigmaMinusDeltaE*sigmaMinusDeltaE+0.5*sigmaPlusDeltaE*sigmaPlusDeltaE);
+//      std::cout << " updateEnergyLoss CaloEnergy NOT used delta E " << deltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << std::endl; 
 
    }
 
