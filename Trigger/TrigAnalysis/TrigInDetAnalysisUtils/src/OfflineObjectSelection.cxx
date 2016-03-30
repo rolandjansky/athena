@@ -5,6 +5,7 @@
 
 #ifdef  XAODTRACKING_TRACKPARTICLE_H
 
+  // xAOD offline electron selection
 bool TIDA::isGoodOffline(const xAOD::Electron& elec, const unsigned int selection) { // 0 take all; 1,4 tight; 2,5 medium; 3,6 loose; <4 cut based, >3 likelihood
   if (selection == 1)
     return elec.passSelection("Tight");
@@ -23,8 +24,40 @@ bool TIDA::isGoodOffline(const xAOD::Electron& elec, const unsigned int selectio
   return true; 
 }
 
-bool TIDA::isGoodOffline(const xAOD::Muon& /*muon*/ ) { return true; } 
-bool TIDA::isGoodOffline(const xAOD::TauJet& /*tau*/, bool /*doThreeProng*/, double /*tauEtCutOffline*/) { return true; }
+  // Currently no xAOD offline muon selection implemented
+bool TIDA::isGoodOffline(const xAOD::Muon& /*muon*/ ) { return true; }
+
+  // xAOD offline tau selection
+bool TIDA::isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng, double tauEtCutOffline, const unsigned int selection) { // 0 = take all, 1 = tight, 2 = medium, 3 = loose, any other unsigned int = no JetBDTSig requirement
+  if (selection == 0)
+    return true;
+	           
+  TLorentzVector TauTLV = tau.p4();
+  double eta_Tau = TauTLV.Eta();
+  if(fabs(eta_Tau) > 2.47) return false;
+  double et_Tau = TauTLV.Et();
+  if(et_Tau < tauEtCutOffline) return false;
+  int ntrack_Tau = tau.nTracks();
+  if(doThreeProng==false && ntrack_Tau!=1) return false;
+  else if(doThreeProng==true && ntrack_Tau!=3) return false;
+  // Could this selection just be replaced by a string that is passed in? Or an enumerate if the function is needed to be called when incrementing an int for the selection?
+  bool good_tau = false;
+  if (selection == 1)
+    good_tau = tau.isTau(xAOD::TauJetParameters::JetBDTSigTight);
+  else if (selection == 2)
+    good_tau = tau.isTau(xAOD::TauJetParameters::JetBDTSigMedium);
+  else if (selection == 3)
+    good_tau = tau.isTau(xAOD::TauJetParameters::JetBDTSigLoose);
+  else good_tau = true;
+  //bool not_a_electron = !( tauisTau(xAOD::TauJetParameters::EleBDTMedium) );
+  //bool not_a_muon = !( tauisTau(xAOD::TauJetParameters::MuonVeto) );
+  //bool best_tau = good_tau && not_a_electron && not_a_muon;
+  bool best_tau = good_tau;
+  if(!best_tau) return false;
+  else if(best_tau) return true;
+
+  return false; // Safeguard by defaulting to returning false if the rest of the method does not function correctly and this return point is reached
+}
 
 #else
 

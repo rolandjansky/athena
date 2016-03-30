@@ -18,7 +18,7 @@
 namespace TIDA {
   bool isGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0); 
   bool isGoodOffline(const xAOD::Muon& muon); 
-  bool isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0);
+  bool isGoodOffline(const xAOD::TauJet& tau, bool doThreeProng = false, double tauEtCutOffline = 0.0, const unsigned int selection = 0);
 }
 
 #else 
