@@ -18,7 +18,6 @@
 #include "TrkTrack/TrackCollection.h"
 //#include "TrigInDetPattRecoEvent/TrigFTK_TrackSeed.h"
 
-class StoreGateSvc;
 class IRoiDescriptor;
 class TrigFTK_TrackSeed;
 
@@ -43,7 +42,6 @@ public:
 private:
   
   std::string m_ftkTracksName;
-  StoreGateSvc* m_StoreGate;
   const TrackCollection* m_ftkTrackContainer;  
   
   StatusCode getTrackCollection();

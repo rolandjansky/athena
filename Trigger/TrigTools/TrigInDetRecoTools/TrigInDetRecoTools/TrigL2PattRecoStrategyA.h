@@ -16,7 +16,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 class TrigTimer;
-class StoreGateSvc;
 class IRegSelSvc;
 class ITrigRun1ZFinder;
 class IBeamCondSvc;
@@ -82,8 +81,6 @@ class TrigL2PattRecoStrategyA: public AthAlgTool, virtual public ITrigL2PattReco
   ToolHandle<ITrigHitFilter>  m_hitFilter;
   ToolHandle<ITrigL2DupTrackRemovalTool>  m_dupTrkRemoval;
  
-  StoreGateSvc*        m_StoreGate;
-
   bool m_timers;
   TrigTimer* m_totalTimer;
   TrigTimer* m_ZFinderTimer;
