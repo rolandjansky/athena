@@ -9,34 +9,34 @@
 def TrigEgammaMonitoringTool():
     from AthenaCommon.AppMgr import ToolSvc
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
-    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaPlotTool
+    from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import EfficiencyTool, ResolutionTool, DistTool, TrigEgammaPlotTool
 
     # Move the ProbeList into MonitCategory to keep all configuration in TrigEgammaMonitoring 
-    from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_mam, monitoring_electron, monitoring_photon 
-    from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron, monitoringTP_electronZee, monitoringTP_electronJpsiee 
+    from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_L1Calo, monitoring_electron, monitoringTP_electron, monitoring_ele_idperf 
+    from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_photon, monitoring_mam, monitoringTP_Jpsiee 
    
     #Define the base path for all histograms
     basePath = '/HLT/Egamma'
-    
+    # Define the outputLevel 
+    # WARNING only change for debugging
+    debugLevel=0
     #Configure the TrigEgammaPlotTool
     #MaM maps a category name (creates a directory) to a trigger (copies histos from trigger dir to category dir)
     #Efficiency,Distribution,Resolution -- list of plots to monitor for shifter MaM categories
-    PlotTool = TrigEgammaPlotTool.copy(name="TrigEgammaPlotTool",
+    HLTEgammaPlotTool = TrigEgammaPlotTool(name="HLTEgammaPlotTool",
             DirectoryPath=basePath,
             MaM=monitoring_mam,
             Efficiency=["eff_et","eff_eta","eff_mu"],
-            Distribution=["et","eta","d0","d0sig"],
-            Resolution=["res_et","res_eta","res_Rhad","res_Rphi","res_Reta"])
+            Distribution=["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2","eprobHT","npixhits","nscthits","ptvarcone20"],
+            Resolution=["res_et","res_Rhad","res_ptvarcone20","res_deta2"],
+            OutputLevel=debugLevel)
 
-    tagItems = ['HLT_e24_lhmedium_iloose_L1EM18VH',
-        'HLT_e24_lhmedium_iloose_L1EM20VH',
-        'HLT_e24_lhtight_iloose',
-        'HLT_e26_lhtight_iloose',
-        # Primary cut-based electron triggers
-        'HLT_e24_medium_iloose_L1EM18VH',
-        'HLT_e24_medium_iloose_L1EM20VH',
-        'HLT_e24_tight_iloose',
-        'HLT_e26_tight_iloose']
+    HLTEgammaEffTool = EfficiencyTool(name="HLTEgammaEffTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
+    HLTEgammaResTool = ResolutionTool(name="HLTEgammaResTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
+    HLTEgammaDistTool = DistTool(name="HLTEgammaDistTool",PlotTool=HLTEgammaPlotTool,OutputLevel=debugLevel)
+
+    tagItems = ['HLT_e26_lhtight_nod0',
+        'HLT_e26_lhtight_nod0_ivarloose']
 
     JpsitagItems = ['HLT_e5_tight_e4_etcut',
                     'HLT_e9_tight_e4_etcut',
@@ -54,41 +54,54 @@ def TrigEgammaMonitoringTool():
     # Currently these are found in TRigEgammProbelist
     # We should use the TrigEgammaMonitCategory to define lists 
     # Use the MaM categories from those lists
-    ElectronAnalysis = TrigEgammaNavAnalysisTool(name='NavElectronAnalysis',
+    ElectronAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaElectronAnalysis',
             Analysis='Electrons',
-            PlotTool=PlotTool,
-            TriggerList=monitoring_electron,
+            PlotTool=HLTEgammaPlotTool,
+            Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
+            TriggerList=monitoring_L1Calo+monitoring_electron,
             File="",
-            OutputLevel=0,DetailedHistograms=False)
-    PhotonAnalysis = TrigEgammaNavAnalysisTool(name='NavPhotonAnalysis',
+            OutputLevel=debugLevel,DetailedHistograms=False)
+    PhotonAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaPhotonAnalysis',
             Analysis='Photons',
-            PlotTool=PlotTool,
+            PlotTool=HLTEgammaPlotTool,
+            Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
             TriggerList=monitoring_photon,
             File="",
-            OutputLevel=0,DetailedHistograms=False)
-    TPAnalysis = TrigEgammaNavTPAnalysisTool(name='NavTPAnalysis',
+            OutputLevel=debugLevel,DetailedHistograms=False)
+    TPAnalysis = TrigEgammaNavTPAnalysisTool(name='HLTEgammaTPAnalysis',
             Analysis='Zee',
-            PlotTool=PlotTool,
-            TriggerList=monitoringTP_electron,
+            PlotTool=HLTEgammaPlotTool,
+            Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
+            TriggerList=monitoringTP_electron+monitoring_ele_idperf,
             File="",
             TagTriggerList=tagItems,
             RemoveCrack=False,
-            OutputLevel=0,DetailedHistograms=False)
+            OutputLevel=debugLevel,DetailedHistograms=False)
 
-    JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='NavTPJpsieeAnalysis',
+    JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='HLTEgammaTPJpsieeAnalysis',
                                                         Analysis='Jpsiee',
-                                                        PlotTool=PlotTool,
-                                                        TriggerList=monitoringTP_electronJpsiee,
+                                                        PlotTool=HLTEgammaPlotTool,
+                                                        Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
+                                                        TriggerList=monitoringTP_Jpsiee,
                                                         File="",
                                                         TagTriggerList= JpsitagItems)
+    
+    #ZeeTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='HLTEgammaTPZeeAnalysis',
+    #                                                    Analysis='ZeeTP',
+    #                                                    PlotTool=HLTEgammaPlotTool,
+    #                                                    Tools=[HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool],
+    #                                                    TriggerList=monitoring_Zee,
+    #                                                    File="",
+    #                                                    TPTrigger=True,
+    #                                                    TagTriggerList= tagItems)
 
     from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
     TrigEgammaMonTool = TrigEgammaMonTool( name = "HLTEgammaMon", 
             histoPathBase=basePath,
-            Tools=["TrigEgammaNavAnalysisTool/NavPhotonAnalysis",
-                    "TrigEgammaNavAnalysisTool/NavElectronAnalysis",
-                    "TrigEgammaNavTPAnalysisTool/NavTPAnalysis",
-                    "TrigEgammaNavTPAnalysisTool/NavTPJpsieeAnalysis"])
+            Tools=["TrigEgammaNavAnalysisTool/HLTEgammaPhotonAnalysis",
+                    "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis",
+                    "TrigEgammaNavTPAnalysisTool/HLTEgammaTPAnalysis",
+                    "TrigEgammaNavTPAnalysisTool/HLTEgammaTPJpsieeAnalysis"])
     ToolSvc += TrigEgammaMonTool
     list = ['TrigEgammaMonTool/HLTEgammaMon'];
     return list
