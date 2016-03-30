@@ -7,8 +7,8 @@ class TrigEFPhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigEFPhotonHypoValidationMonitoring, self).__init__(name)
         self.defineTarget( "Validation" )
 
-        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'has EMShower', 
-              'OldSet1','OldSet2','OldSet3']
+        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'Isolation', 
+              'Photon','OldSet2','OldSet3']
 
         labelsDescription = ''
         for c in cuts:
@@ -152,8 +152,8 @@ class TrigEFPhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigEFPhotonHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
-        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'has EMShower', 
-              'OldSet1','OldSet2','OldSet3']
+        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'Isolation', 
+              'Photon','OldSet2','OldSet3']
 
         labelsDescription = ''
         for c in cuts:
@@ -226,8 +226,8 @@ class TrigEFPhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigEFPhotonHypoCosmicMonitoring, self).__init__(name)
         self.defineTarget("Cosmic")
 
-        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'has EMShower', 
-              'OldSet1','OldSet2','OldSet3']
+        cuts=['Input','has egammaContainer','isEM','isEMTrig', 'has caloCluster', 'Cluster Et', 'Isolation', 
+              'Photon','OldSet2','OldSet3']
 
         labelsDescription = ''
         for c in cuts:

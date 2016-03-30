@@ -176,6 +176,12 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   const TrigRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor) ;
 
+  if ( fabs(roiDescriptor->eta() ) > 2.6 ) {
+      msg() << MSG::DEBUG << "The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" << endreq;
+      pass=false; // special case 
+      return HLT::OK; 
+  } 
+
   if (stat != HLT::OK) {
     if ( msgLvl() <= MSG::WARNING) {
       msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;

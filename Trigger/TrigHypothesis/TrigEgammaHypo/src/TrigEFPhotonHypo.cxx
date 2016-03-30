@@ -81,6 +81,12 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
 
   declareProperty("emEt",m_emEt = 0.*CLHEP::GeV);
   
+  //Isolation
+  declareProperty("ApplyIsolation", m_applyIsolation=false);
+  declareProperty("EtConeSizes",    m_EtConeSizes = 3);
+  declareProperty("RelEtConeCut",   m_RelEtConeCut);
+  declareProperty("EtConeCut",      m_EtConeCut);  
+  
   typedef const DataVector<xAOD::Photon> xAODPhotonDV_type; 
   // Cluster and ShowerShape Monitoring
   declareMonitoredCollection("Ph_E237",   *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getShowerShape_e237);
@@ -212,6 +218,27 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
   msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaPhotonCutIDToolName << endreq;
   //------------------------------------------------------------------------------
   
+  //Check Isolation Cone Sizes
+  if(m_applyIsolation){
+      if ( m_EtConeCut.size() != m_EtConeSizes ) {
+          ATH_MSG_ERROR(" m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes);
+          return StatusCode::FAILURE;
+      }
+      if ( m_RelEtConeCut.size() != m_EtConeSizes ) {
+          ATH_MSG_ERROR(" m_RelEtConeCut size is " <<  m_RelEtConeCut.size() << " but needs " << m_EtConeSizes);
+          return StatusCode::FAILURE;
+      }
+
+      //Define mapping between vector of Isolation Cone Sizes and variable names 
+      m_mapEtCone.insert(std::pair<int, string>(0, "topoetcone20")); 
+      m_mapEtCone.insert(std::pair<int, string>(1, "topoetcone30")); 
+      m_mapEtCone.insert(std::pair<int, string>(2, "topoetcone40"));
+      //
+      m_mapRelEtCone.insert(std::pair<int, string>(0, "topoetcone20/clus_et")); 
+      m_mapRelEtCone.insert(std::pair<int, string>(1, "topoetcone30/clus_et")); 
+      m_mapRelEtCone.insert(std::pair<int, string>(2, "topoetcone40/clus_et")); 
+
+  }//end of if(m_applyIsolation){
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG
 	  << "Initialization of TrigEFPhotonHypo completed successfully"
@@ -465,8 +492,97 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     }
     Ncand[5]++;
     
-    
-    Ncand[6]++;
+    //---------------------------------------------
+    //Isolation Cuts
+    //---------------------------------------------
+    if(!m_applyIsolation) {
+      //For CutCount monitoring histogram,to fill isolation bins when no isolation cut is applied
+      Ncand[6]++;//Abs. Etcone
+      Ncand[6]++;//Abs. Ptcone
+      Ncand[6]++;//Rel. Etcone
+      Ncand[6]++;//Rel. Ptcone
+    }
+    else{
+      ATH_MSG_DEBUG("Apply Isolation");
+	
+	//--Declare vectors of isolation variables for different cone sizes
+	std::vector<float>  EtCone;
+	//--Fill vectors of Absolute isolation variables for different cone sizes
+        float val_float=-99;
+        egIt->isolationValue(val_float,xAOD::Iso::topoetcone20);
+	EtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::topoetcone30);
+	EtCone.push_back(val_float);
+        egIt->isolationValue(val_float,xAOD::Iso::topoetcone40);
+	EtCone.push_back(val_float);
+	
+        //printout
+        ATH_MSG_DEBUG("Absolute Calo Isolation (vector size = " << EtCone.size() << ") :"); 
+        for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
+            ATH_MSG_DEBUG("***   " << m_mapEtCone[iConeSize]
+                    << ", Cut = " << m_EtConeCut[iConeSize] 		  
+                    << ", Value = " << EtCone[iConeSize]);
+        }
+	
+	//--Cut on Absolute Calo Isolation
+	bool absEtConeCut_ispassed = true;
+	for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
+	  //NB: -ve values in cut means DO NOT CUT
+	  if( ( m_EtConeCut[iConeSize] > 0.) && (EtCone[iConeSize] > m_EtConeCut[iConeSize])) {
+	    ATH_MSG_DEBUG("REGTEST Absolute Calo Isolation " << m_mapEtCone[iConeSize] << " NOT satisfied: "<< EtCone[iConeSize] << " > cut: " << m_EtConeCut[iConeSize]);
+	    absEtConeCut_ispassed = false;
+	    break;//skip remaining etcone sizes if one fails
+	  }
+	}
+	
+	if(!absEtConeCut_ispassed) continue;//if one isolation cut fails on one egamma object go to next egamma object
+	Ncand[6]++;//Abs. EtCone
+
+	//--Relative isolation
+	std::vector<float>  RelEtCone, RelPtCone;
+
+	//--Check that CaloCluster exists, if so use cluster ET as Denonimator in Relative Isolation
+	float clus_et=-9999.;
+	if(!clus) {
+	  ATH_MSG_INFO("CaloCluster dees NOT Exist, do NOT use Electron ET as Denominator in Relative Isolation");
+	} else{
+	  ATH_MSG_DEBUG("CaloCluster Exists, may use cluster ET as denominator in relative Isolation varariables");
+	  clus_et=clus->et();
+	}
+	
+	//--Fill vectors of Relative isolation variables for different cone sizes
+	for (std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++){
+	  if(clus_et > 0.) RelEtCone.push_back(EtCone[iConeSize]/clus_et);
+	  else RelEtCone.push_back(0.);
+	}
+	
+        //printout
+        ATH_MSG_DEBUG("Relative Calo Isolation (vector size = " << RelEtCone.size()<< ") :");
+        for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
+            ATH_MSG_DEBUG("***   " << m_mapRelEtCone[iConeSize] 
+                << ", Cut = "   << m_RelEtConeCut[iConeSize]
+                << ", Value = " << RelEtCone[iConeSize]);
+        }
+	
+	//--Cut on Relative Calo Isolation
+        bool relEtConeCut_ispassed = true;
+        for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
+            //NB: -ve values in cut means DO NOT CUT
+            if( ( m_RelEtConeCut[iConeSize] > 0.) && (RelEtCone[iConeSize] > m_RelEtConeCut[iConeSize])) {
+                ATH_MSG_DEBUG("REGTEST Relative Calo Isolation " << m_mapRelEtCone[iConeSize] << " NOT satisfied: "
+                        << RelEtCone[iConeSize] << " > cut: " << m_RelEtConeCut[iConeSize]);
+                relEtConeCut_ispassed = false;
+                break;//skip remaining etcone sizes if one fails
+            }
+        }
+	
+	if(!relEtConeCut_ispassed) continue;//if one isolation cut fails on one egamma object go to next egamma object
+	Ncand[7]++;//Rel. Etcone       
+    }
+	
+	
+    // At least 1 Photon passes selection
+    Ncand[8]++;
     pass = true;
     HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
   } // end of loop in egamma objects.
