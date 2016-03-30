@@ -9,9 +9,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <utility>
 
-class PixelID;
-class SCT_ID;
-class TRT_ID;
+class AtlasDetectorID;
 class Identifier;
 class IdentifierHash;
 class IdDictManager;
@@ -57,12 +55,12 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   /** @copydoc Trk::ITrkEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
   virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT );
   
-    /** Return the detectorElement associated with this Identifier*/
-    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash);
- 
-    /** Return the detectorElement associated with this Identifier*/
-    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
- 
+  /** Return the detectorElement associated with this Identifier*/
+  virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash);
+
+  /** Return the detectorElement associated with this Identifier*/
+  virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id);
+
   
   private:
 
@@ -82,11 +80,11 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   std::string  m_trtMgrLocation;                    //!< Location of sct Manager
   const InDetDD::TRT_DetectorManager*   m_trtMgr;   //!< TRT   Detector Manager
   bool m_setPrepRawDataLink;                        //!< if true, attempt to recreate link to PRD
-  
+
+
 //various id helpers
-  const PixelID  * m_pixelIDHelper; 
-  const SCT_ID   * m_sctIDHelper; 
-  const TRT_ID   * m_trtIDHelper; 
+  const AtlasDetectorID     * m_IDHelper; 
+
   
   // added to check TRT existence (SLHC geo check) 
   const IdDictManager * m_idDictMgr;
