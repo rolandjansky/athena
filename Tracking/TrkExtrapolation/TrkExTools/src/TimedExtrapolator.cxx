@@ -1804,7 +1804,8 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 	     ATH_MSG_VERBOSE( "  [+] Update may have killed neutral track - return." );
 	     m_parametersAtBoundary.resetBoundaryInformation();
 	     return returnParameters;
-	   }
+	   } else throwIntoGarbageBin(nextPar);
+
 	 } else {    // material layer without material ?
 	   ATH_MSG_VERBOSE( " boundary layer without material:"<<mb->layerIndex() );
          }
@@ -1870,7 +1871,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 	     ATH_MSG_VERBOSE( "  [+] Update may have killed neutral track - return." );
 	     m_parametersAtBoundary.resetBoundaryInformation();
 	     return returnParameters;
-         }
+         } else throwIntoGarbageBin(nextPar);
       
        } 
 

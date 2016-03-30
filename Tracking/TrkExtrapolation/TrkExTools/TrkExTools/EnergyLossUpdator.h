@@ -190,6 +190,7 @@ namespace Trk {
       double                  m_mpvScale;                  //!< a scalor that can be introduced for the MPV
       bool                    m_mpvSigmaParametric;        //!< take the (crude) parametric mpv sigma 
       bool                    m_detailedEloss;             //!< provide extended EnergyLoss info 
+      bool                    m_optimalRadiation;          //!< use calorimeter more optimal for radiation detection
 
       static double           s_ka_BetheBloch;          //!< KOverA factor in Bethe-Bloch equation [MeV*cm2/gram]
       static double           s_eulerConstant;          //!< the euler constant for mip calculations
