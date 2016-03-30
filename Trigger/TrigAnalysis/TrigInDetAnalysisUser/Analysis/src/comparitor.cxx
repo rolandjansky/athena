@@ -71,7 +71,8 @@ int usage(const std::string& name, int status) {
   s << "    -C,  --Cfiles       \t write C files also\n"; 
   s << "    -nw, --nowatermark  \t do not plot the release watermark\n"; 
   s << "         --nopng        \t do not print png files\n"; 
-  s << "         --deleteref    \t delete unused reference histograms\n"; 
+  s << "         --deleteref    \t delete unused reference histograms\n";
+  s << "    -xo, --xoffset      \t relative x offset for the key\n"; 
   s << "    -h,  --help         \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
@@ -128,6 +129,8 @@ int main(int argc, char** argv) {
   bool Cfile       = false;
 
   std::string configfile = "";
+
+  double xoffset = 0;
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
@@ -212,6 +215,10 @@ int main(int argc, char** argv) {
     else if ( arg=="-as" || arg=="--atlasstyle" ) { 
       atlasstyle = true;
     }
+    else if ( arg=="-xo" || arg=="--xoffset" ) { 
+      if ( ++i<argc ) xoffset=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    }
     else if ( arg.find("-")==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
       return usage(argv[0], -4);
@@ -254,8 +261,8 @@ int main(int argc, char** argv) {
   std::cout << "\tsuppress mean and rms stats: " << ( nostats ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress png output:         " << ( nopng ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
-  if ( usrlabels.size()>0 )    std::cout << "\tlabels:   " << usrlabels << std::endl;  
-  if ( taglabels.size()>0 ) std::cout << "\textra text:   " << taglabels << std::endl;  
+  if ( usrlabels.size()>0 )    std::cout << "\tlabels:       " << usrlabels << std::endl;  
+  if ( taglabels.size()>0 )    std::cout << "\textra text:   " << taglabels << std::endl;  
 
 
   if ( atlasstyle ) { 
@@ -625,6 +632,8 @@ int main(int argc, char** argv) {
       if ( ypos>0.5 ) ypos = 0.85; 
       else            ypos = 0.18;
     }
+
+    xpos += xoffset;
 
     /// calculate all the postions for the items in the legend
 
