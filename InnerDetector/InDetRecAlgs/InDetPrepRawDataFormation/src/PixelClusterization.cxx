@@ -12,7 +12,6 @@
 // Silicon trackers includes
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetPrepRawDataFormation/PixelClusterization.h"
-#include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/PixelRDORawData.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
@@ -22,41 +21,42 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 
-// TES includes
-#include "StoreGate/StoreClearedIncident.h"
 
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 
 // Gaudi includes
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "StoreGate/DataHandle.h"
+#include "CxxUtils/make_unique.h"
 
 
 namespace InDet{
   using namespace InDet;
-
+//    const SG::ReadHandle<PixelRDO_Container> p_rdoContainer(m_dataObjectName);
   // Constructor with parameters:
   PixelClusterization::PixelClusterization(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_clusteringTool("InDet::MergedPixelsTool"),
+  m_clusteringTool("InDet::MergedPixelsTool", this), //made private
   m_gangedAmbiguitiesFinder("InDet::PixelGangedAmbiguitiesFinder"),
-  m_dataObjectName("PixelRDOs"),	// RDO container
+  m_rdoContainer(),
+//  m_dataObjectName("PixelRDOs"),	// RDO container
   m_managerName("Pixel"),
-  m_clustersName("PixelClusters"),
-  m_page(0),
+//  m_clustersName("NOTTHISNOTTHIS"),
   m_idHelper(nullptr),
-  m_clusterContainer(nullptr),
-  m_manager(nullptr),
-  m_incSvc("IncidentSvc", name){  
+  m_clusterContainer(),
+  m_manager(nullptr) {  
     // Get parameter values from jobOptions file
-    declareProperty("DataObjectName",m_dataObjectName);
+    declareProperty("DataObjectName", m_rdoContainer = SG::ReadHandle<PixelRDO_Container>("PixelRDOs"), "Pixel RDOs");
     declareProperty("DetectorManagerName",m_managerName);
     declareProperty("clusteringTool", m_clusteringTool);
     declareProperty("gangedAmbiguitiesFinder", m_gangedAmbiguitiesFinder);
-    declareProperty("ClustersName",m_clustersName);
-    declareProperty("PageNumber",m_page);
+//    declareProperty("ClustersName",m_clustersName);
+    declareProperty("ClustersName", 
+                  m_clusterContainer = SG::WriteHandle<PixelClusterContainer>("PixelClusters"),
+                  "Pixel cluster container");
+    declareProperty("AmbiguitiesMap", 
+                  m_ambiguitiesMap = SG::WriteHandle<PixelGangedClusterAmbiguities>("PixelClusterAmbiguitiesMap"),
+                  "Ambiguity Map container");
     
     // error strategy <-- this is now in the MergedPixelTool
     //
@@ -99,109 +99,93 @@ namespace InDet{
       << m_managerName << endreq;
       return StatusCode::FAILURE;
     } 
-
+    ATH_MSG_INFO( "Container m_clusterContainer '" << m_clusterContainer.name() << "' set");
     ATH_MSG_DEBUG( "Pixel detector manager retrieved" );
 
     // Get the Pixel helper
-    if (detStore()->retrieve(m_idHelper,"PixelID").isFailure()) 
-      return (msg(MSG:: FATAL) << "Cannot retrieve ID helper!" << endreq), StatusCode::FAILURE;
-    
-    // declare the container:
-    m_clusterContainer = new PixelClusterContainer(m_idHelper->wafer_hash_max());
-    m_clusterContainer->addRef();
-    
-    // Register incident handler
-    if ( !m_incSvc.retrieve().isSuccess() ) {
-      msg(MSG:: WARNING) << "Unable to retrieve the IncidentSvc" << endreq;
-    } else {
-      m_incSvc->addListener(this,"StoreCleared");
+    if (detStore()->retrieve(m_idHelper,"PixelID").isFailure()) {
+      (msg(MSG:: FATAL) << "Cannot retrieve ID helper!" << endreq);
+      return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG( "Initialize done !" );
     return StatusCode::SUCCESS;
   }
   
-  void PixelClusterization::handle(const Incident& incident){
-    if (incident.type() == "StoreCleared" and m_clusterContainer) {
-      if (const StoreClearedIncident* inc = dynamic_cast<const StoreClearedIncident*> (&incident)){
-          if (inc->store() == &*evtStore()) m_clusterContainer->cleanup(); 
-      }
-    }
-  }
-  
   //----------------------------------------------------------------------------
   // Execute method:
   StatusCode PixelClusterization::execute() {
-    m_clusterContainer->cleanup();    
-    // register the IdentifiableContainer into StoreGate
-    StatusCode sc = evtStore()->record(m_clusterContainer,m_clustersName);
-    if (sc.isFailure()){
-      msg(MSG:: FATAL) << "Container " << m_clustersName<< "could not be recorded in StoreGate !"<< endreq;
+  
+//    ATH_MSG_INFO( "Container m_clusterContainer '" << m_clusterContainer.name() << "' set");
+    m_clusterContainer = CxxUtils::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max());
+    // declare the container:
+//    m_clusterContainer->addRef();
+    if (! m_clusterContainer.isValid() ){
+      msg(MSG:: FATAL) << "Container of type PixelClusterContainer could not be initialised !"<< endreq;
       return StatusCode::FAILURE;
     }else{
-      ATH_MSG_DEBUG( "Container '" << m_clustersName<< "' recorded in StoreGate" );
+      ATH_MSG_DEBUG( "Container '" << m_clusterContainer->name() << "' initialised" );
     }
-    // symlink the collection
-    SiClusterContainer* symSiContainer(0);
-    sc = evtStore()->symLink(m_clusterContainer,symSiContainer);
+    SiClusterContainer* symSiContainer = nullptr;
+    StatusCode sc = evtStore()->symLink(m_clusterContainer.cptr(), symSiContainer);
     if (sc.isFailure()) {
-      msg(MSG:: FATAL) << "Pixel clusters could not be symlinked in StoreGate !"<< endreq;
+      ATH_MSG_FATAL("Pixel clusters could not be symlinked in StoreGate !");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_DEBUG( "Pixel clusters '" << m_clustersName << "' symlinked in StoreGate");
+      ATH_MSG_DEBUG( "Pixel clusters '" << m_clusterContainer.name() << "' symlinked in StoreGate");
     }   
     ATH_MSG_DEBUG( "Creating the ganged ambiguities map");
-    std::unique_ptr<PixelGangedClusterAmbiguities> AmbiguitiesMap(new PixelGangedClusterAmbiguities());
-    const DataHandle<PixelRDO_Container> p_rdocontainer;
-    sc=evtStore()->retrieve(p_rdocontainer,m_dataObjectName);
-    if (sc.isFailure() ){
-      msg(MSG:: FATAL) << "Could not find the data object "<< m_dataObjectName << " !" << endreq;
+    m_ambiguitiesMap = CxxUtils::make_unique<PixelGangedClusterAmbiguities>();
+
+
+    if (!m_rdoContainer.isValid()){
+      msg(MSG:: FATAL) << "Could not find the data object "<< m_rdoContainer.name() << " !" << endreq;
       //    return StatusCode::FAILURE;
     } else {
-      ATH_MSG_DEBUG( "Data object " << m_dataObjectName << " found" );
-      p_rdocontainer->clID(); 	// anything to dereference the DataHandle
+      ATH_MSG_DEBUG( "Data object " << m_rdoContainer.name() << " found" );
+      m_rdoContainer->clID(); 	// anything to dereference the DataHandle
       // will trigger the converter
-      PixelRDO_Container::const_iterator rdoCollections      = p_rdocontainer->begin();
-      PixelRDO_Container::const_iterator rdoCollectionsEnd   = p_rdocontainer->end();
-      AtlasDetectorID detType;
+      PixelRDO_Container::const_iterator rdoCollections      = m_rdoContainer->begin();
+      PixelRDO_Container::const_iterator rdoCollectionsEnd   = m_rdoContainer->end();
+
+//Adam - detType  doesn't seem to be used ? needed?
+//      AtlasDetectorID detType;
+
+
       for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections){
         const COLLECTION* RDO_Collection(*rdoCollections);
-        if (!RDO_Collection) continue;
+        if (!RDO_Collection || RDO_Collection->empty()) continue;
 
-        if (RDO_Collection->size() != 0){
-          // Use one of the specific clustering AlgTools to make clusters
-          PixelClusterCollection* clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_manager,*m_idHelper);
-          if (clusterCollection){
-            if (clusterCollection->size() != 0) {
-              m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_manager,*AmbiguitiesMap);
-              // -me- new IDC does no longer register in Storegate if hash is used !
-              sc= m_clusterContainer->addCollection( clusterCollection, clusterCollection->identifyHash() );
-              if (sc.isFailure()){
-                msg(MSG:: ERROR) << "Failed to add Clusters to container"<< endreq;
-                return StatusCode::FAILURE;
-              }
-            } else {
-              // -me- clean up memory
-              delete (clusterCollection);
-            }
-          }
-        }
+        // Use one of the specific clustering AlgTools to make clusters
+        std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
+        if (clusterCollection && !clusterCollection->empty()){
+
+           m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*m_ambiguitiesMap);
+           // -me- new IDC does no longer register in Storegate if hash is used !
+           //Using get because I'm unsure of move semantec status
+           StatusCode sc = m_clusterContainer->addCollection( clusterCollection.get(), clusterCollection->identifyHash() );
+           if (sc.isFailure()){
+             msg(MSG:: ERROR) << "Failed to add Clusters to container"<< endreq;
+             return StatusCode::FAILURE;
+           }
+//           ATH_MSG_DEBUG(" PixelClusterCollection to write "<< clusterCollection->size());
+           clusterCollection.release();//Release ownership if sucessfully added to collection
+
+         }else{
+             ATH_MSG_DEBUG("No PixelClusterCollection to write");
+         }
       }
-      sc = evtStore()->setConst(m_clusterContainer);
-      if(sc.isFailure()){
-        msg(MSG:: WARNING) << "Set Const failed!" << endreq;
-        return sc;
+      if (m_clusterContainer.setConst().isFailure()){
+        ATH_MSG_FATAL("FAILED TO SET CONST");
+        return StatusCode::FAILURE;
       }
-      
-      if (msgLvl(MSG::DEBUG)) msg() << "Ambiguities map has " << AmbiguitiesMap->size() << " elements" << endreq;
-      //sc = evtStore()->record(std::move(AmbiguitiesMap),"PixelClusterAmbiguitiesMap",false);
-      const bool alreadyHaveMap(evtStore()->contains<PixelGangedClusterAmbiguities>("PixelClusterAmbiguitiesMap"));
-      sc = (not alreadyHaveMap) ? evtStore()->record(std::move(AmbiguitiesMap),"PixelClusterAmbiguitiesMap",false) : StatusCode::SUCCESS;
-      if (sc.isFailure()){
+
+      if (!m_ambiguitiesMap.isValid()){
         msg(MSG:: FATAL)<< "PixelClusterAmbiguitiesMap could not be recorded in StoreGate !"<< endreq;
         return StatusCode::FAILURE;
       }else{
         ATH_MSG_DEBUG( "PixelClusterAmbiguitiesMap recorded in StoreGate");
       }
+      
     }
     return StatusCode::SUCCESS;
   }
@@ -209,10 +193,6 @@ namespace InDet{
   // Finalize method:
   StatusCode PixelClusterization::finalize(){
     ATH_MSG_INFO( "PixelClusterization::finalize() " << PACKAGE_VERSION );
-    m_clusterContainer->cleanup();    
-    m_clusterContainer->release();
-    m_clusterContainer=nullptr;
-    m_incSvc->removeListener(this, "StoreCleared");
     return StatusCode::SUCCESS;
   }
   

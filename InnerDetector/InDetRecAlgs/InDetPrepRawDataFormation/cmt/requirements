@@ -10,11 +10,12 @@ use GaudiInterface       GaudiInterface-*       External
 use InDetPrepRawData     InDetPrepRawData-*     InnerDetector/InDetRecEvent
 use InDetRawData         InDetRawData-*         InnerDetector/InDetRawEvent
 use Identifier           Identifier-*           DetectorDescription
+use SiClusterizationTool    SiClusterizationTool-*    InnerDetector/InDetRecTools
 
 private
 use StoreGate		    StoreGate-*               Control
+use CxxUtils           CxxUtils-*               Control
 use AtlasDetDescr           AtlasDetDescr-*           DetectorDescription 
-use SiClusterizationTool    SiClusterizationTool-*    InnerDetector/InDetRecTools
 use InDetIdentifier         InDetIdentifier-*         InnerDetector/InDetDetDescr
 use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
 use TRT_DriftCircleTool     TRT_DriftCircleTool-*     InnerDetector/InDetRecTools

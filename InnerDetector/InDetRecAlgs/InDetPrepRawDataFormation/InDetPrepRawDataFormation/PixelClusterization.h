@@ -16,15 +16,17 @@
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 //InDet
 //can't fwd declare this, needed for typedef to Pixel_RDO_Container
+#include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
+#include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetRawData/InDetRawDataCollection.h"
+#include "InDetRawData/PixelRDO_Container.h"
 //
 
 
@@ -32,7 +34,6 @@
 // Fwd declarations
 class ISvcLocator;
 class StatusCode;
-class Incident;
 class PixelRDORawData;
 class PixelID;
 
@@ -52,8 +53,7 @@ namespace InDet {
  * The clustering algorithm is actually a private Tool in the
  * SiClusterizationTool package
  **/
-class PixelClusterization : public AthAlgorithm, 
-                            public IIncidentListener {
+class PixelClusterization : public AthAlgorithm {
 public:
   typedef InDetRawDataCollection<PixelRDORawData> COLLECTION;
   typedef InDetDD::SiDetectorManager SiDetectorManager;
@@ -66,31 +66,28 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode execute();
   virtual StatusCode finalize();
-   //@}
-                              
-  /// Incident listener method re-declared
-  virtual void handle( const Incident& incident );
-
-private:
   /**    @name Disallow default instantiation, copy, assignment */
   //@{
-  PixelClusterization();
-  PixelClusterization(const PixelClusterization&);
-  PixelClusterization &operator=(const PixelClusterization&);
   //@}
+  PixelClusterization() = delete;
+  PixelClusterization(const PixelClusterization&) = delete;
+  PixelClusterization &operator=(const PixelClusterization&) = delete;
+   //@}
                               
+private:
   ToolHandle< IPixelClusteringTool > m_clusteringTool;
   /// class to find out which clusters shares ganged pixels
   ToolHandle< PixelGangedAmbiguitiesFinder > m_gangedAmbiguitiesFinder; 
-  std::string m_dataObjectName;	           //!< RDO container name in StoreGate
-  std::string m_elementsObjectName;        //!< element collection name in StoreGate
+  SG::ReadHandle<PixelRDO_Container> m_rdoContainer;
+//  std::string m_dataObjectName;	           //!< RDO container name in StoreGate
+//  std::string m_elementsObjectName;        //!< element collection name in StoreGate
   std::string m_managerName; 		           //!< detector manager name in StoreGate
-  std::string m_clustersName; 
-  int m_page; 				                     //!< page number for hash function
+//  std::string m_clustersName; //REMOVE LATER
+//  int m_page; 			//REMOVE LATER	                     //!< page number for hash function
   const PixelID* m_idHelper;
-  PixelClusterContainer* m_clusterContainer;
+  SG::WriteHandle<PixelClusterContainer> m_clusterContainer;
+  SG::WriteHandle<PixelGangedClusterAmbiguities> m_ambiguitiesMap;
   const SiDetectorManager* m_manager;
-  ServiceHandle<IIncidentSvc> m_incSvc;
 };
 
 }//end of ns
