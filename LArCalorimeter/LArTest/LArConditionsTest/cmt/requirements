@@ -12,6 +12,7 @@ use LArElecCalib         LArElecCalib-*         LArCalorimeter
 use LArRawConditions     LArRawConditions-*     LArCalorimeter
 
 use LArRawUtils          LArRawUtils-*          LArCalorimeter
+use LArCabling           LArCabling-*           LArCalorimeter
 use LArTools             LArTools-*             LArCalorimeter
 use CaloInterface        CaloInterface-*           Calorimeter
 use Identifier Identifier-* DetectorDescription 
@@ -45,6 +46,7 @@ library LArConditionsTest \
 	LArCablingTest.cxx \
 	LArIdMapConvert.cxx \
 	LArShapeToSCShape.cxx\
+        LArOFCtoOFC.cxx\
 	LArFebRodMapConvert.cxx
 
 apply_pattern declare_joboptions files="*.py"

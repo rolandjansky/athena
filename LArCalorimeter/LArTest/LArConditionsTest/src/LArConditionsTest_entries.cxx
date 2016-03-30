@@ -13,6 +13,7 @@
 #include "LArConditionsTest/LArIdMapConvert.h"
 #include "LArConditionsTest/LArFebRodMapConvert.h"
 #include "LArConditionsTest/LArShapeToSCShape.h"
+#include "LArConditionsTest/LArOFCtoOFC.h"
 
 DECLARE_ALGORITHM_FACTORY( LArConditionsTestAlg )
 DECLARE_ALGORITHM_FACTORY( LArCondDataTest )
@@ -24,6 +25,7 @@ DECLARE_ALGORITHM_FACTORY ( LArCablingTest )
 DECLARE_ALGORITHM_FACTORY ( LArIdMapConvert )
 DECLARE_ALGORITHM_FACTORY ( LArFebRodMapConvert )
 DECLARE_ALGORITHM_FACTORY ( LArShapeToSCShape )
+DECLARE_ALGORITHM_FACTORY ( LArOFCtoOFC )
 
 
 DECLARE_FACTORY_ENTRIES( LArConditionsTest ) {
@@ -37,4 +39,5 @@ DECLARE_FACTORY_ENTRIES( LArConditionsTest ) {
   DECLARE_ALGORITHM (LArIdMapConvert)
   DECLARE_ALGORITHM (LArFebRodMapConvert)
   DECLARE_ALGORITHM (LArShapeToSCShape)
+  DECLARE_ALGORITHM (LArOFCtoOFC)
 }
