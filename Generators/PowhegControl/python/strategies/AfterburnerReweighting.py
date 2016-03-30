@@ -14,23 +14,16 @@ from ..utility import FileParser, RepeatingTimer
 def initialise_reweighting(configurator) :
   configurator.logger.info( 'Initialising PDF/scale variations' )
 
-  ## Construct and sanitise PDF list
-  if isinstance(configurator.PDF,list) :
-    configurator.PDF = map( int, configurator.PDF )
-  else :
-    configurator.PDF = [ configurator.PDF ]
-
-  ## Construct and sanitise scale lists
-  if isinstance(configurator.mu_F,list) and isinstance(configurator.mu_R,list) :
-    configurator.mu_F, configurator.mu_R = map( float, configurator.mu_F ), map( float, configurator.mu_R ) # sanitise input
-  else :
-    configurator.mu_F, configurator.mu_R = [ configurator.mu_F ], [ configurator.mu_R ]
+  # Construct and sanitise PDF and scale lists
+  configurator.PDF = map( int, configurator.PDF ) if isinstance(configurator.PDF,list) else [ configurator.PDF ]
+  configurator.mu_F = map( float, configurator.mu_F ) if isinstance(configurator.mu_F,list) else [ configurator.mu_F ]
+  configurator.mu_R = map( float, configurator.mu_R ) if isinstance(configurator.mu_R,list) else [ configurator.mu_R ]
   assert( len(configurator.mu_F) == len(configurator.mu_R) ), 'List of mu_F variations must be the same length as list of mu_R variations'
 
-  ## Construct nominal (assuming that it is first)
-  configurator.logger.info( 'Using PDF={0}, mu_F={1}, mu_R={2} as nominal sample'.format(configurator.PDF[0],configurator.mu_F[0],configurator.mu_R[0]) )
+  # Construct nominal (assuming that it is first)
+  configurator.logger.info( 'Using PDF={}, mu_F={}, mu_R={} as nominal sample'.format( configurator.PDF[0], configurator.mu_F[0], configurator.mu_R[0] ) )
 
-  ## Enable #rwgt information lines - these cause Pythia to crash if present in the final output
+  # Enable #rwgt information lines - these cause Pythia to crash if present in the final output
   FileParser('powheg.input').text_replace( 'storeinfo_rwgt 0', 'storeinfo_rwgt 1' )
   shutil.copy( 'powheg.input', 'powheg_nominal.input' )
 
@@ -48,21 +41,23 @@ def afterburner_reweighting(configurator) :
   # Construct scale/PDF variations (ignoring first entry)
   configurator.variations = [ ScalePDFWeightSpecifier( PDF=configurator.PDF[0], mu_F=configurator.mu_F[0], mu_R=configurator.mu_R[0], weight_ID=0, weight_description='nominal', group_combination_method='', group_description='nominal' ) ]
   for idx, (mu_F, mu_R) in enumerate( zip( configurator.mu_F[1:], configurator.mu_R[1:] ) ) :
-    configurator.variations.append( ScalePDFWeightSpecifier( PDF=configurator.PDF[0], mu_F=mu_F, mu_R=mu_R, weight_ID=1001+idx, weight_description='muR={0:E} muF={1:E}'.format(mu_R,mu_F), group_combination_method='envelope', group_description='scale_variation' ) )
+    configurator.variations.append( ScalePDFWeightSpecifier( PDF=configurator.PDF[0], mu_F=mu_F, mu_R=mu_R, weight_ID=1001+idx, weight_description='muR = {}, muF = {}'.format(mu_R,mu_F), group_combination_method='envelope', group_description='scale_variation' ) )
   for idx, PDF in enumerate( configurator.PDF[1:] ) :
-    configurator.variations.append( ScalePDFWeightSpecifier( PDF=PDF, mu_F=configurator.mu_F[0], mu_R=configurator.mu_R[0], weight_ID=2001+idx, weight_description='pdfset= {0:d}'.format(PDF), group_combination_method='hessian', group_description='PDF_variation' ) )
+    configurator.variations.append( ScalePDFWeightSpecifier( PDF=PDF, mu_F=configurator.mu_F[0], mu_R=configurator.mu_R[0], weight_ID=2001+idx, weight_description='PDF set = {0:d}'.format(PDF), group_combination_method='hessian', group_description='PDF_variation' ) )
 
   # Construct arbitrary variations
   weight_ID = 3001
-  for group_name, group_variations in configurator.reweight_groups.items() :
-    for variation_name in sorted( group_variations.keys() ) :
+  for group_name, group_variations in configurator.event_weight_groups.items() :
+    for variation_name in [ name for name in group_variations.keys() if not name == 'parameter_names' ] :
       configurator.variations.append( ArbitraryWeightSpecifier( parameter_settings=group_variations[variation_name], weight_ID=weight_ID, weight_description=variation_name, group_combination_method='none', group_description=group_name ) )
       weight_ID += 1
 
   # Iterate over variations: they are cast to int to mitigate vulnerability from shell=True
   for idx_variation, variation in enumerate( configurator.variations ) :
     if idx_variation == 0 : continue # skip nominal variation
-    configurator.logger.info( 'Now running weight variation {0}/{1}'.format(idx_variation, len(configurator.variations)-1) )
+    configurator.logger.info( 'Preparing to run weight variation {0}/{1}'.format(idx_variation, len(configurator.variations)-1) )
+    configurator.logger.info( '... weight name is:     {}'.format( variation.weight_description ) )
+    configurator.logger.info( '... weight index ID is: {}'.format( variation.weight_ID ) )
     shutil.copy( 'powheg_nominal.input', 'powheg.input' )
 
     # As the nominal process has already been run, turn on compute_rwgt
@@ -74,19 +69,28 @@ def afterburner_reweighting(configurator) :
 
     # Apply scale/PDF variation settings
     if isinstance( variation, ScalePDFWeightSpecifier ) :
-      FileParser('powheg.input').text_replace( 'lhans1 {0}'.format(configurator.PDF[0]), 'lhans1 {0}'.format(variation.PDF) )
-      FileParser('powheg.input').text_replace( 'lhans2 {0}'.format(configurator.PDF[0]), 'lhans2 {0}'.format(variation.PDF) )
-      FileParser('powheg.input').text_replace( 'facscfact {0}'.format(configurator.mu_F[0]), 'facscfact {0}'.format(variation.mu_F) )
-      FileParser('powheg.input').text_replace( 'renscfact {0}'.format(configurator.mu_R[0]), 'renscfact {0}'.format(variation.mu_R) )
+      configurator.logger.info( 'Weight variation type: scale/PDF' )
+      FileParser('powheg.input').text_replace( 'lhans1 {}'.format(configurator.PDF[0]), 'lhans1 {0}'.format(variation.PDF) )
+      FileParser('powheg.input').text_replace( 'lhans2 {}'.format(configurator.PDF[0]), 'lhans2 {0}'.format(variation.PDF) )
+      configurator.logger.info( '... setting PDF to {}'.format( variation.PDF ) )
+      FileParser('powheg.input').text_replace( 'facscfact {}'.format(configurator.mu_F[0]), 'facscfact {}'.format(variation.mu_F) )
+      configurator.logger.info( '... setting factorisation scale to {}'.format( variation.mu_F ) )
+      FileParser('powheg.input').text_replace( 'renscfact {}'.format(configurator.mu_R[0]), 'renscfact {}'.format(variation.mu_R) )
+      configurator.logger.info( '... setting renormalisation scale to {}'.format( variation.mu_R ) )
 
     # Apply arbitrary settings
     if isinstance( variation, ArbitraryWeightSpecifier ) :
+      configurator.logger.info( 'Weight variation type: user-defined weight group' )
       for (parameter,value) in variation.parameter_settings :
-        configurator.logger.info( 'Setting {0} to {1}'.format( parameter, value ) )
-        FileParser('powheg.input').text_replace( '{0}.*'.format(parameter), '{0} {1}'.format(parameter,value) )
+        try :
+          for powheg_parameter in configurator.configurable_to_parameters[parameter] :
+            FileParser('powheg.input').text_replace( '^{}.*'.format(powheg_parameter), '{} {}'.format(powheg_parameter,value) )
+          configurator.logger.info( '... setting {} to {}'.format( parameter, value ) )
+        except KeyError :
+          self.logger.warning( 'Parameter "{}" not recognised. Cannot reweight!'.format(parameter) )
 
     # Set reweighting metadata
-    FileParser('powheg.input').text_replace( "lhrwgt_descr \'nominal\'", "lhrwgt_descr \'{0}\'".format(variation.weight_description) )
+    FileParser('powheg.input').text_replace( "lhrwgt_descr \'nominal\'", "lhrwgt_descr \'{}\'".format(variation.weight_description) )
     FileParser('powheg.input').text_replace( "lhrwgt_id \'0\'", "lhrwgt_id \'{0}\'".format(variation.weight_ID) )
     FileParser('powheg.input').text_replace( "lhrwgt_group_combine \'none\'", "lhrwgt_group_combine \'{0}\'".format(variation.group_combination_method) )
     FileParser('powheg.input').text_replace( "lhrwgt_group_name \'none\'", "lhrwgt_group_name \'{0}\'".format(variation.group_description) )

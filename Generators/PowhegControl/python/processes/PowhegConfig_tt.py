@@ -22,7 +22,6 @@ class PowhegConfig_tt(PowhegConfig_base) :
     self._powheg_executable += '/hvq/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'fullrwgt', -1,                                   desc='(-1:Powheg default)' )
     self.add_parameter( 'mass_b', ATLASCommonParameters.mass_b,           desc='b quark mass in t decay', parameter='tdec/bmass' )
     self.add_parameter( 'mass_c', ATLASCommonParameters.mass_c,           desc='c quark mass', parameter='tdec/cmass' )
     self.add_parameter( 'mass_d', ATLASCommonParameters.mass_d,           desc='d quark mass', parameter='tdec/dmass' )

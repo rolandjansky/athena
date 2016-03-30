@@ -50,12 +50,16 @@ class AfterburnerNNLOReweighting :
 
     # Get reweighting file
     for NNLO_reweighting_file_name in self._NNLO_reweighting_inputs.values() :
-      if not os.path.isfile( NNLO_reweighting_file_name ) :
-        self._logger.info( 'Trying to acquire configuration file {0}'.format( NNLO_reweighting_file_name ) )
+      if os.path.isfile( NNLO_reweighting_file_name ) :
+        self._logger.info( 'Using local configuration file {}'.format( NNLO_reweighting_file_name ) )
+      else :
+        self._logger.info( 'Trying to acquire configuration file {}'.format( NNLO_reweighting_file_name ) )
         try :
-          shutil.copy( glob.glob( '{0}/../AuxFiles/*/{1}'.format( configurator.powheg_directory, NNLO_reweighting_file_name ) )[0], NNLO_reweighting_file_name )
+          shutil.copy( glob.glob( '{}/../AuxFiles/*/{}'.format( configurator.powheg_directory, NNLO_reweighting_file_name ) )[0], NNLO_reweighting_file_name )
         except OSError :
-          self._logger.warning( '{0} does not exist!'.format( NNLO_reweighting_file_name ) )
+          self._logger.warning( '{} does not exist!'.format( NNLO_reweighting_file_name ) )
+          self._logger.warning( '(1) if you generated this file then please ensure it is visible to Powheg on-the-fly.' )
+          self._logger.warning( '(2) if the twiki says this file is provided by Powheg on-the-fly, please submit a bug report.' )
 
 
   ## Run the NNLO executable
@@ -136,7 +140,7 @@ class AfterburnerNNLOReweighting :
       #     - compute new weight by reweighting the corresponding weights in the input file with the result from the nnlofile
       f.write( "<initrwgt>\n" )
       f.write( "<weightgroup name='NNLOPS'>\n" )
-      for idx, weight_ID, weight_description in NNLOPS_weight_descriptors :
+      for idx, weight_ID, weight_description in self._NNLO_weight_descriptors :
         f.write( "<weight id='{0}'> {1} </weight>\n".format( weight_ID, weight_description ) )
       f.write( "</weightgroup>\n" )
       f.write( "</initrwgt>\n" )

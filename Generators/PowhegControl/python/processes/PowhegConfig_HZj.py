@@ -18,12 +18,9 @@ class PowhegConfig_HZj(PowhegConfig_base) :
     super(PowhegConfig_HZj, self).__init__( runArgs, opts )
     self._powheg_executable += '/HZJ/pwhg_main'
 
-    ## Add process specific options
-    self.add_parameter( 'kappa_ghz', 1, desc='multiplicative kappa-factor of the Higgs-Z coupling' )
-
     ## Decorate with generic option sets
     self.add_parameter_set( 'generic scale' )
-    self.add_parameter_set( 'Higgs + vector boson' )
+    self.add_parameter_set( 'Higgs + vector boson', boson='Z' )
     self.add_parameter_set( 'Higgs + vector boson + jet' )
     self.add_parameter_set( 'Higgs properties' )
     self.add_parameter_set( 'MiNLO NNLL' )

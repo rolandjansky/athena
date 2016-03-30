@@ -27,6 +27,7 @@ from JacsingDecorator import *
 from LeptonMassDecorator import *
 from MassWindowDecorator import *
 from MiNLONLLDecorator import *
+from NLOEWDecorator import *
 from NNLOReweightingDecorator import *
 from OldDijDecorator import *
 from PDFReweightingDecorator import *

@@ -20,11 +20,10 @@ class PowhegConfig_HWj(PowhegConfig_base) :
 
     ## Add process specific options
     self.add_parameter( 'bornsuppfactW', -1, desc='(-1:Powheg default)' )
-    self.add_parameter( 'kappa_ghw',      1, desc='multiplicative kappa-factor of the Higgs-W coupling' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'generic scale' )
-    self.add_parameter_set( 'Higgs + vector boson' )
+    self.add_parameter_set( 'Higgs + vector boson', boson='W' )
     self.add_parameter_set( 'Higgs + vector boson + jet' )
     self.add_parameter_set( 'Higgs properties' )
     self.add_parameter_set( 'MiNLO NNLL' )

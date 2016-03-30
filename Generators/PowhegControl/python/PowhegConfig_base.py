@@ -8,7 +8,7 @@
 #           Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 
 #! /usr/bin/env python
-import glob, os, subprocess, time
+import collections, glob, math, os, subprocess, time
 import strategies
 from AthenaCommon import Logging
 from DecoratorFactory import decorate
@@ -45,7 +45,7 @@ class PowhegConfig_base(object) :
     self.__is_leading_order = LO_process
 
     ## Dictionary of named groups of event weights
-    self.reweight_groups = {}
+    self.__event_weight_groups = collections.OrderedDict()
     self.__enable_reweighting = False
 
     # This needs to be set so that Generate_trf finds an appropriate file format for showering
@@ -57,6 +57,7 @@ class PowhegConfig_base(object) :
     self.__configurable_parameters = {}
     self.__phantom_parameters = {}
     self.__run_card_decorators = []
+    self.configurable_to_parameters = collections.defaultdict(list)
 
     # Add universal functionality
     self.add_parameter_set( 'base' )
@@ -82,7 +83,7 @@ class PowhegConfig_base(object) :
     # Enable parallel mode if AthenaMP mode is enabled
     self.__n_cores = int( os.environ.pop('ATHENA_PROC_NUMBER',1) )
     if self.cores > 1 :
-      self.logger.info( 'This job is running with an athenaMP-like whole-node setup, requesting {0} cores'.format( self.cores ) )
+      self.logger.info( 'This job is running with an athenaMP-like whole-node setup, requesting {} cores'.format( self.cores ) )
       self.manyseeds = 1
       # Try to modify the transform opts to suppress athenaMP mode
       if hasattr(opts,'nprocs') :
@@ -107,18 +108,18 @@ class PowhegConfig_base(object) :
   def __generate_run_card(self) :
     # Check that event generation is correctly set up
     if (self.bornsuppfact > 0.0) and (self.bornktmin <= 0.0) :
-      self.logger.warning( 'These settings: bornsuppfact = {0} and bornktmin = {1} cannot be used to generate events!'.format(self.bornsuppfact,self.bornktmin) )
+      self.logger.warning( 'These settings: bornsuppfact = {} and bornktmin = {} cannot be used to generate events!'.format(self.bornsuppfact,self.bornktmin) )
       self.logger.warning( 'Only fixed-order distributions can be produced with these settings!' )
 
     # Scale-down number of events produced in each run if running in multicore mode
     if self.cores > 1 :
-      self.logger.info( 'Preparing to parallelise: running with {0} jobs'.format( self.cores ) )
-      self.nEvents_unscaled = self.nEvents
-      self.nEvents = int( 0.5 + float(self.nEvents) / self.cores )
-      self.ncall1 = int( 0.5 + float(self.ncall1) / self.cores )
-      self.ncall2 = int( 0.5 + float(self.ncall2) / self.cores )
-      self.nubound = int( 0.5 + float(self.nubound) / self.cores )
-      self.logger.info( 'Scaling number of events per job from {0} down to {1}'.format(self.nEvents_unscaled, self.nEvents) )
+      self.logger.info( 'Preparing to parallelise: running with {} jobs'.format( self.cores ) )
+      self.nEvents_unscaled = int(self.nEvents)
+      self.nEvents = int( math.ceil( float(self.nEvents_unscaled) / self.cores ) )
+      self.ncall1 = int( math.ceil( float(self.ncall1) / self.cores ) )
+      self.ncall2 = int( math.ceil( float(self.ncall2) / self.cores ) )
+      self.nubound = int( math.ceil( float(self.nubound) / self.cores ) )
+      self.logger.info( 'Scaling number of events per job from {} down to {}'.format(self.nEvents_unscaled, self.nEvents) )
 
     # Finalise registered decorators
     for run_card_decorator in self.run_card_decorators :
@@ -127,30 +128,30 @@ class PowhegConfig_base(object) :
     # Print list of configurable parameters for users
     self.logger.info( '** User configurable parameters for this process **' )
     self.logger.info( ':   Option name   : ATLAS default :  Current  : Description' )
-    for configurable_list in sorted( self.configurable_parameters.values()+self.phantom_parameters.values(), key=lambda x: x[0].lower() ) :
+    for (powheg_parameter,configurable_list) in sorted( self.configurable_parameters.items()+self.phantom_parameters.items(), key=lambda x: x[1][0].lower() ) :
       self.logger.info( ': {0:<15} : {1:>13} : {2:>9} : {3}'.format( configurable_list[0], configurable_list[1], getattr(self, configurable_list[0]), configurable_list[2] ) )
+      self.configurable_to_parameters[configurable_list[0]].append(powheg_parameter)
 
     # Add configurable parameters to fixed list
     [ self.fix_parameter( non_configurable_name=configurable_list[0], default=configurable_list[1], desc=configurable_list[2] ) for configurable_list in self.configurable_parameters.values() ]
 
     # Write out final runcard
-    self.logger.info( 'Writing Powheg runcard to {0}'.format( self.run_card_path ) )
+    self.logger.info( 'Writing Powheg runcard to {}'.format( self.run_card_path ) )
     with open( self.run_card_path, 'w' ) as f :
       for non_configurable_list in sorted( self.fixed_parameters, key=lambda x: x[0].lower() ) :
         name, value, default, desc = non_configurable_list
-        if 'lhrwgt' in name : value = '\'{0}\''.format( value ) # lhrwgt parameters need to be in quotes
+        if 'lhrwgt' in name : value = '\'{}\''.format( value ) # lhrwgt parameters need to be in quotes
         # Set starting value to first in list when multiple values are provided
         if isinstance(value,list) :
+          if name in sum( [ self.configurable_to_parameters[x] for x in ['PDF','mu_R','mu_F'] ], [] ) : self.__enable_reweighting = True
           value = value[0]
-          self.__enable_reweighting = True
-        output_line = '{0:<30}! [ATLAS default: {1}] {2}'.format( '{0} {1}'.format(name,value), default, desc )
-        f.write( '{0}\n'.format(output_line) )
+        f.write( '{0:<30}! [ATLAS default: {1}] {2}\n'.format( '{} {}'.format(name,value), default, desc ) )
         # Print warnings for specific parameters
         if name == 'bornsuppfact' and value > 0 :
           self.logger.warning( 'Born-level suppression is enabled: using this in conjunction with J-slicing may give problems.' )
 
     # Print final preparation message
-    self.logger.info( 'Using executable: {0}'.format( self._powheg_executable ) )
+    self.logger.info( 'Using executable: {}'.format( self._powheg_executable ) )
     return
 
 
@@ -158,7 +159,7 @@ class PowhegConfig_base(object) :
   def __generate_events(self) :
     # Initialise timer
     time_start = time.time()
-    self.logger.info( 'Starting Powheg LHEF event generation at {0}'.format( time.ctime( time_start ) ) )
+    self.logger.info( 'Starting Powheg LHEF event generation at {}'.format( time.ctime( time_start ) ) )
 
     # Setup heartbeat thread
     heartbeat = RepeatingTimer( 600., lambda: self.__emit_heartbeat( time.time() - time_start ) )
@@ -168,10 +169,12 @@ class PowhegConfig_base(object) :
 
     # Remove any existing .lhe files to avoid repeated events
     for LHE_file in glob.glob('*.lhe')+glob.glob('*.ev*ts') :
-      self.logger.warning( 'Removing existing LHE file: {0}'.format(LHE_file) )
+      self.logger.warning( 'Removing existing LHE file: {}'.format(LHE_file) )
       os.remove( LHE_file )
 
     # Run appropriate Powheg process and display generation output until finished
+    if not os.path.isfile( self._powheg_executable ) :
+      raise OSError( 'Powheg executable {} not found!'.format( self._powheg_executable ) )
     self.__run_generation_strategy()
 
     # Print timing information
@@ -181,11 +184,11 @@ class PowhegConfig_base(object) :
 
     # Concatenate output events if running in multicore mode
     if self.cores > 1 :
-      self.logger.info( 'Concatenating output LHE files: expecting {0}'.format( self.cores ) )
+      self.logger.info( 'Concatenating output LHE files: expecting {}'.format( self.cores ) )
       LHEHandler(self.logger).merge( 'pwgevents.lhe', sorted( glob.glob('pwgevents*.lhe') ) )
       subprocess.call( 'rm pwgevents-*.lhe 2> /dev/null', shell=True )
       # Unscale nEvents in case this is needed by afterburners
-      subprocess.call( 'sed -i "s/numevts.*/numevts {0}/g" powheg*.input'.format(self.nEvents_unscaled), shell=True )
+      subprocess.call( 'sed -i "s/numevts.*/numevts {}/g" powheg*.input'.format(self.nEvents_unscaled), shell=True )
 
     # Check for required output file
     if not os.path.isfile('pwgevents.lhe') :
@@ -195,24 +198,24 @@ class PowhegConfig_base(object) :
     # Run Powheg afterburners
     self.__run_afterburners()
     elapsed_time = time.time() - generation_end
-    self.logger.info( 'Running Powheg afterburners took {0}'.format( RepeatingTimer.human_readable_time_interval(elapsed_time) ) )
+    self.logger.info( 'Running Powheg afterburners took {}'.format( RepeatingTimer.human_readable_time_interval(elapsed_time) ) )
 
     # Move output to correctly named file
     try :
       os.rename( 'pwgevents.lhe', self.output_events_file_name )
-      self.logger.info( 'Moved pwgevents.lhe to {0}'.format(self.output_events_file_name) )
+      self.logger.info( 'Moved pwgevents.lhe to {}'.format(self.output_events_file_name) )
     except OSError :
       self.logger.warning( 'No output LHEF file found! Probably because the Powheg process was killed before finishing.' )
       raise RuntimeError( 'No output LHEF file produced by Powheg. Terminating job.' )
 
     # Tar events if LHE output is requested
     if self.output_tarball_name is not None :
-      self.logger.info( 'Tar-ing output events into {0}'.format(self.output_tarball_name) )
+      self.logger.info( 'Tar-ing output events into {}'.format(self.output_tarball_name) )
       [ self.logger.info(line) for line in subprocess.check_output( [ 'tar', 'cvzf', self.output_tarball_name, self.output_events_file_name ], stderr=subprocess.STDOUT ).splitlines() ]
 
     # Print finalisation message
     IntegrationGridTester.output_results( self.logger )
-    self.logger.info( 'Finished at {0}'.format( time.asctime() ) )
+    self.logger.info( 'Finished at {}'.format( time.asctime() ) )
 
     # Kill heartbeat thread
     heartbeat.cancel()
@@ -222,7 +225,7 @@ class PowhegConfig_base(object) :
   ## Run external Powheg process
   def __run_generation_strategy(self) :
     # Initialise reweighting
-    if self.__enable_reweighting :
+    if self.enable_reweighting :
       strategies.initialise_reweighting( self )
 
     # Run single core
@@ -243,7 +246,10 @@ class PowhegConfig_base(object) :
   ## Run external Powheg process
   def __run_afterburners(self) :
     # Run scale/PDF/arbitrary reweighting if requested
-    if self.__enable_reweighting :
+    if hasattr( self, '_PHOTOS_executable' ) and self.use_photos == 1 :
+      strategies.afterburner_PHOTOS( self )
+    # Run scale/PDF/arbitrary reweighting if requested
+    if self.enable_reweighting :
       strategies.afterburner_reweighting( self )
     # Run NNLOPS if requested
     if hasattr( self, 'NNLO_reweighting_inputs' ) and len(self.NNLO_reweighting_inputs) > 0 :
@@ -298,29 +304,36 @@ class PowhegConfig_base(object) :
 
 
   ## Add a new named group of event weights
-  #  @param group_name Name of the group of weights
-  #  @param parameter_set Names of the individual weights
-  def define_weight_group( self, group_name, weight_names ) :
-    self.logger.info( 'Defining new weight group {0} with {1} variations'.format( group_name, len(weight_names) ) )
-    self.reweight_groups[group_name] = {}
-    parameter_names, parameter_values = [], []
-    for parameter, ( name, default, desc ) in self.configurable_parameters.items() :
-      if isinstance( getattr(self,name), list ) :
-        if not name in [ 'PDF', 'mu_R', 'mu_F' ] : # these are treated separately
-          assert( len(weight_names) == len(getattr(self,name)) ), 'Number of parameter variations must be the same as the number of names provided'
-          parameter_names.append( parameter )
-          parameter_values.append( getattr(self,name) )
-    for idx, weight_name in enumerate( weight_names ) :
-      self.reweight_groups[group_name][weight_name] = [ [n,v[idx]] for n,v in zip(parameter_names,parameter_values) ]
+  #  @param group_name    Name of the group of weights
+  #  @param parameter_set Names of the parameters to vary
+  def define_event_weight_group( self, group_name, parameters_to_vary ) :
+    self.logger.info( 'Defining new weight group "{}" which alters {} parameters'.format( group_name, len(parameters_to_vary) ) )
+    for parameter_name in parameters_to_vary :
+      self.logger.info( '... {}'.format( parameter_name ) )
+    self.event_weight_groups[group_name] = collections.OrderedDict()
+    self.event_weight_groups[group_name]['parameter_names'] = parameters_to_vary
+    self.__enable_reweighting = True
+    return
+
+
+  ## Add a new event weight
+  #  @param group_name       Name of the group of weights that this weight belongs to
+  #  @param weight_name      Name of this event weight
+  #  @param parameter_values Values of the parameters
+  def add_weight_to_group( self, group_name, weight_name, parameter_values ) :
+    assert( len(parameter_values) == len( self.event_weight_groups[group_name]['parameter_names'] ) ), 'Expected {} parameter values but only {} were provided!'.format( len( self.event_weight_groups[group_name]['parameter_names'] ), len(parameter_values) )
+    self.event_weight_groups[group_name][weight_name] = []
+    for parameter_name, value in zip( self.event_weight_groups[group_name]['parameter_names'], parameter_values ) :
+      self.event_weight_groups[group_name][weight_name].append( (parameter_name, value) )
     return
 
 
   ## Output a heartbeat message
   #  @param duration Time interval in seconds between output messages
   def __emit_heartbeat(self, duration) :
-    message = 'Heartbeat: Powheg generation has been running for {0} in total'.format( RepeatingTimer.human_readable_time_interval(duration) )
+    message = 'Heartbeat: Powheg generation has been running for {} in total'.format( RepeatingTimer.human_readable_time_interval(duration) )
     self.logger.info( message )
-    with open( '{0}/eventLoopHeartBeat.txt'.format( self.__base_directory ), 'w' ) as f : f.write( message )
+    with open( '{}/eventLoopHeartBeat.txt'.format( self.__base_directory ), 'w' ) as f : f.write( message )
     return
 
 
@@ -354,6 +367,18 @@ class PowhegConfig_base(object) :
   @property
   def cores(self) :
     return self.__n_cores
+
+
+  ## Get whether reweighting needs to be enabled
+  @property
+  def enable_reweighting(self) :
+    return self.__enable_reweighting
+
+
+  ## Get ordered dictionary of event weight groups
+  @property
+  def event_weight_groups(self) :
+    return self.__event_weight_groups
 
 
   ## Get dictionary of non-configurable parameters: not visible to user but written to runcard
@@ -407,7 +432,7 @@ class PowhegConfig_base(object) :
   ## Get full path to runcard
   @property
   def run_card_path(self) :
-    return '{0}/powheg.input'.format( self.base_directory )
+    return '{}/powheg.input'.format( self.base_directory )
 
 
   ## Deprecated function - use generate() instead

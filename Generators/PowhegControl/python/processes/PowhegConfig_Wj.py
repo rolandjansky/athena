@@ -41,8 +41,8 @@ class PowhegConfig_Wj(PowhegConfig_base) :
 
 
     ## Set optimised integration parameters
-    self.ncall1   = 40000
-    self.ncall2   = 100000
+    self.ncall1   = 30000
+    self.ncall2   = 80000
     self.nubound  = 60000
     self.xupbound = 6
     self.foldx    = 5

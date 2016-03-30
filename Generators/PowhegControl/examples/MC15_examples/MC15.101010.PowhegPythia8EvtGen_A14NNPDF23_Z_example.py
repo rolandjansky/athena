@@ -15,6 +15,6 @@ include('MC15JobOptions/Pythia8_Powheg.py')
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 bb production with A14 NNPDF2.3 tune'
+evgenConfig.description = 'POWHEG+Pythia8 Z production with A14 NNPDF2.3 tune'
 evgenConfig.keywords    = [ 'SM', 'Z' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
