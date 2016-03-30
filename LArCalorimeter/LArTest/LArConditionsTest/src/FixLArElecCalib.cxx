@@ -63,7 +63,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -215,8 +215,9 @@ StatusCode FixLArElecCalib::fix1() {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-          ATH_MSG_DEBUG(" disconnected strip ");
- 	 id = em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+            // Removed disconnected channels: 03/2016 RDS   
+         //  ATH_MSG_DEBUG(" disconnected strip ");
+ 	 // id = em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = em_idhelper->channel_id(det,samp,reg,eta,0); 
 
@@ -599,8 +600,9 @@ StatusCode FixLArElecCalib::updateEMfSampl(const std::string& filename) {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-          ATH_MSG_INFO(" disconnected strip ");
- 	 id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+            // Removed disconnected channels: 03/2016 RDS   
+         //  ATH_MSG_INFO(" disconnected strip ");
+ 	 // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 
@@ -672,8 +674,9 @@ StatusCode FixLArElecCalib::updateEM_DACuAMeV(const std::string& filename) {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-          ATH_MSG_DEBUG(" disconnected strip ");
- 	 id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+            // Removed disconnected channels: 03/2016 RDS   
+         //  ATH_MSG_DEBUG(" disconnected strip ");
+ 	 // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
  	 id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 
@@ -918,8 +921,9 @@ StatusCode FixLArElecCalib::updateMinBias(const std::string& filename) {
 	Identifier id ; 
 	if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-           ATH_MSG_INFO(" disconnected strip ");
-	   id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+            // Removed disconnected channels: 03/2016 RDS   
+           // ATH_MSG_INFO(" disconnected strip ");
+	   // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
         }else
 	  {
 	    if (tp==1){
@@ -1223,8 +1227,9 @@ StatusCode FixLArElecCalib::ReadFile(const std::string& filename, bool EM, bool 
 	{
 	  if ( det==1 && samp==1 && reg==0 && eta==0 ){
 	   // eta=0 for strip, not connected, but keep it
-           ATH_MSG_DEBUG(" disconnected strip ");
-	   id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
+            // Removed disconnected channels: 03/2016 RDS   
+           // ATH_MSG_DEBUG(" disconnected strip ");
+	   // id = m_em_idhelper->disc_channel_id(det,samp,reg,eta,0); 
 	  }else
 	    id = m_em_idhelper->channel_id(det,samp,reg,eta,0); 
 	}else //HEC

@@ -177,9 +177,11 @@ StatusCode LArShapeToSCShape::execute()
       msg(MSG::ERROR) << "Expected" << nSamples << ", Shape:" << shape.size() << ", ShapeDer:" << shapeDer.size() << endreq;
       return StatusCode::FAILURE;
     }    
+#if 0
     if (nSamples==0)  {
       msg(MSG::WARNING) << "Cell " << cellId.get_identifier32().get_compact() << " size 0" << endreq;
     }
+#endif
     for (unsigned i=0;i<nSamples;++i) {
       pShape[scOnlHash*nSamples+i]=shape[i];
       pShapeDer[scOnlHash*nSamples+i]=shapeDer[i];

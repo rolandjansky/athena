@@ -20,7 +20,7 @@
 // #include "LArTools/LArFebRodMap.h"
 // #include "LArTools/LArOnOffIdMap.h"
 #include "LArRawUtils/LArRoI_Map.h" 
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
