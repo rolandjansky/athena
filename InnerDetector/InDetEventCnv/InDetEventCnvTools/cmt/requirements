@@ -14,7 +14,7 @@ use IdDictDetDescr       IdDictDetDescr-*          DetectorDescription
 use InDetRIO_OnTrack     InDetRIO_OnTrack-*        InnerDetector/InDetRecEvent
 use TrkPrepRawData       TrkPrepRawData-*          Tracking/TrkEvent
 use TrkRIO_OnTrack       TrkRIO_OnTrack-*          Tracking/TrkEvent
-use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription/AtlasDetDescr
+use AtlasDetDescr        AtlasDetDescr-*           DetectorDescription
 
 
 
