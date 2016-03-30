@@ -24,12 +24,14 @@
 //InDet
 // no forward declare (typedef?)
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-
+#include "InDetRawData/TRT_RDO_Container.h"
 //fwd declarations
 class StatusCode;
 class ISvcLocator;
+
 namespace InDet{
   class ITRT_DriftCircleTool;
+
 }
 
 namespace InDet{
@@ -51,11 +53,19 @@ namespace InDet{
     StatusCode finalize   ()  ;
     //@}
   private:
-    std::string                    m_trt_rdo_location   ;
-    std::string                    m_trt_rio_location   ;
-    std::string                    m_trt_mgr_location   ;
+  
+    /**    @name Disallow default instantiation, copy, assignment */
+    TRT_RIO_Maker() = delete;
+    TRT_RIO_Maker(const TRT_RIO_Maker&) = delete;
+    TRT_RIO_Maker &operator=(const TRT_RIO_Maker&) = delete;
+  
+    const TRT_ID* pTRTHelper;
+    SG::ReadHandle<TRT_RDO_Container> m_rdo_container;
+//    std::string                    m_trt_rdo_location   ;
+//    std::string                    m_trt_rio_location   ;
+    std::string                    m_trt_mgr_location   ; //REMOVE LATER
     ToolHandle< ITRT_DriftCircleTool > m_driftcircle_tool   ;
-    InDet::TRT_DriftCircleContainer* p_riocontainer       ;
+    SG::WriteHandle<InDet::TRT_DriftCircleContainer> m_riocontainer       ;
     int                            m_mode_rio_production;
     bool                           m_trtBadChannels;
   };

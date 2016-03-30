@@ -19,7 +19,6 @@
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -30,6 +29,7 @@
 #include "Identifier/Identifier.h"
 //Next contains a typedef so cannot be fwd declared
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 //tool/service handle template parameters
 
 
@@ -38,7 +38,6 @@ class SCT_ChannelStatusAlg;
 class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
-class Incident;
 class ISCT_FlaggedConditionSvc;
 
 class IInDetConditionsSvc;
@@ -55,8 +54,7 @@ namespace InDet {
  *    The class loops over an RDO grouping strips and creating collections of clusters, subsequently recorded in StoreGate
  *    Uses SCT_ConditionsServices to determine which strips to include.
  */
-class SCT_Clusterization : public AthAlgorithm,
-                           public IIncidentListener {
+class SCT_Clusterization : public AthAlgorithm {
 public:
   /// Constructor with parameters:
   SCT_Clusterization(const std::string &name,ISvcLocator *pSvcLocator);
@@ -71,27 +69,28 @@ public:
   virtual StatusCode finalize();
   //@}
 
-  /// Incident listener method re-declared
-  virtual void handle( const Incident& incident );
 
 private:
   /**    @name Disallow default instantiation, copy, assignment */
   //@{
-  SCT_Clusterization();
-  SCT_Clusterization(const SCT_Clusterization&);
-  SCT_Clusterization &operator=(const SCT_Clusterization&);
+  SCT_Clusterization() = delete;
+  SCT_Clusterization(const SCT_Clusterization&) = delete;
+  SCT_Clusterization &operator=(const SCT_Clusterization&) = delete;
   //@}
 
   ToolHandle< ISCT_ClusteringTool >        m_clusteringTool;       //!< Clustering algorithm
-  std::string                              m_dataObjectName;       //!< RDO container name in StoreGate
-  std::string                              m_managerName;          //!< Detector manager name in StoreGate
-  std::string                              m_clustersName; 	          
-  int                                      m_page; 	           //!< Page number for hash function
+//  std::string                              m_dataObjectName;       //!< RDO container name in StoreGate
+  std::string                              m_managerName;   //REMOVE LATER       //!< Detector manager name in StoreGate
+//  std::string                              m_clustersName; //REMOVE LATER	          
+//  int                                      m_page; //REMOVE LATER	           //!< Page number for hash function
   const SCT_ID*                            m_idHelper;
-  typedef std::map<Identifier, int>        IdMap_t;
-  IdMap_t                                  m_status;
-  IdentifierHash                           m_maxKey;
-  SCT_ClusterContainer*                    m_clusterContainer;
+//  typedef std::map<Identifier, int>        IdMap_t;//REMOVE LATER
+//  IdMap_t                                  m_status;//REMOVE LATER
+//  IdentifierHash                           m_maxKey;//REMOVE LATER
+
+
+  SG::ReadHandle<SCT_RDO_Container> m_rdoContainer; //(m_dataObjectName);
+  SG::WriteHandle<SCT_ClusterContainer>    m_clusterContainer;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
