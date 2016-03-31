@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
 
 #include "G4AtlasAlg/AthenaStackingAction.h"
 #include "MCTruth/PrimaryParticleInformation.h"
@@ -28,7 +26,13 @@
 
 // static AthenaStackingAction stacking;
 
-AthenaStackingAction::AthenaStackingAction(): ApplicationStackingAction(), p_killAllNeutrinos(false), p_stackEnergyCut(-1){}
+AthenaStackingAction::AthenaStackingAction(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent), p_killAllNeutrinos(false), p_stackEnergyCut(-1){
+
+  declareProperty("KillAllNeutrinos",p_killAllNeutrinos);
+  declareProperty("KillLowEPhotons",p_stackEnergyCut);
+
+
+}
 
 G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track* aTrack)
 {
@@ -68,27 +72,29 @@ G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track*
 		ppi=dynamic_cast
 			<PrimaryParticleInformation *> (pp->GetUserInformation());
 		if (ppi) {
-		        const ISF::ISFParticle* isp = ppi->GetISFParticle();
 			const HepMC::GenParticle *part=ppi->GetHepMCParticle();
-			if (part) {// OK, we got back to HepMC
-			  TrackInformation *ti=new TrackInformation(part);
-			  ti->SetRegenerationNr(0); 
-			  ti->SetISFParticle(isp);
-			  // regNr=0 and classify=Primary are default values anyway
-			  inT->SetUserInformation(ti);
-			  ti->SetClassification(Primary);
+			bool hasISFParticle = ppi->GetISFParticle()!=nullptr;
+			if (!hasISFParticle) {
+				// don't to anything
+				if (part) {
+				// OK, we got back to HepMC
+					TrackInformation *ti=new TrackInformation(part);
+					ti->SetRegenerationNr(0); 
+					// regNr=0 and classify=Primary are default values anyway
+					inT->SetUserInformation(ti);
+					ti->SetClassification(Primary);
 
-			}
-			else if (ppi->GetParticleBarcode()>=0) {
-			  // PrimaryParticleInformation should at least provide a barcode
-			  TrackBarcodeInfo *bi=new TrackBarcodeInfo(ppi->GetParticleBarcode());
-			  bi->SetISFParticle(isp);
-			  inT->SetUserInformation(bi);
-			}
-		}
+				}
+				else if (ppi->GetParticleBarcode()>=0) {
+					// PrimaryParticleInformation should at least provide a barcode
+					TrackBarcodeInfo *bi=new TrackBarcodeInfo(ppi->GetParticleBarcode());
+					inT->SetUserInformation(bi);
+				}
+			} // no ISFParticle attached
+		} // has PrimaryParticleInformation
 	}
 	else		// secondary track: see if it must be saved
-	{			
+	{
 
           // Time cut for particles stacking after a certain time...
           if (  p_stackEnergyCut > 0 &&
@@ -100,6 +106,16 @@ G4ClassificationOfNewTrack AthenaStackingAction::ClassifyNewTrack(const G4Track*
  	}
         return fUrgent;
 }
-void AthenaStackingAction::NewStage() {;}
-void AthenaStackingAction::PrepareNewEvent() {;}
 
+
+StatusCode AthenaStackingAction::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}
