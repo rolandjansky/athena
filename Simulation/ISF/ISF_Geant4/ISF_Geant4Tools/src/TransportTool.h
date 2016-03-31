@@ -15,30 +15,32 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include "BarcodeInterfaces/Barcode.h"
+
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
+#include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IUserAction.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
 
 #include <string>
 
-class AthenaStackingAction;
 class G4Event;
 class StoreGateSvc;
 class G4PrimaryParticle;
 
+namespace Barcode {
+  class IBarcodeSvc;
+}
+
 namespace ISF {
   class ISFParticle;
-  //class IParticleBroker;
-  //class IParticleHelper;
 }
 
 namespace HepMC {
   class GenEvent;
   class GenParticle;
 }
-
-//namespace PyAthena {
-//  class Tool;
-//}
 
 namespace iGeant4
 {
@@ -52,10 +54,6 @@ namespace iGeant4
   */
 
   class G4AtlasRunManager;
-  class IPhysicsValidationUserAction;
-  class ITrackProcessorUserAction;
-  class IMCTruthUserAction;
-  class ISDActivateUserAction;
 
   class G4TransportTool : virtual public ITransportTool, public AthAlgTool
   {
@@ -85,6 +83,7 @@ namespace iGeant4
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp);
 
   private:
+
     G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
 
     G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
@@ -97,21 +96,19 @@ namespace iGeant4
     HepMC::GenEvent* genEvent() const;
 
     G4AtlasRunManager    * p_runMgr;
-    AthenaStackingAction * m_stackingAction;
+
+    ServiceHandle<IUserActionSvc>    m_UASvc;
 
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
+    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
 
     ToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper;
-    ToolHandle<iGeant4::IPhysicsValidationUserAction> m_physicsValidationUserAction;
-    ToolHandle<iGeant4::ITrackProcessorUserAction> m_trackProcessorUserAction;
-    ToolHandle<iGeant4::IMCTruthUserAction> m_mcTruthUserAction;
-    ToolHandle<iGeant4::ISDActivateUserAction> m_sdActivateUserAction;
-
-    //ServiceHandle<ISF::IParticleBroker> m_particleBroker;
-    //ToolHandle<ISF::IParticleHelper> m_particleHelper;
-
-    //ToolHandle<PyAthena::Tool> m_configTool;
+    ToolHandle<IPhysicsListTool> m_physListTool;
+    ToolHandle<IUserAction> m_physicsValidationUserAction;
+    ToolHandle<IUserAction> m_trackProcessorUserAction;
+    ToolHandle<IUserAction> m_mcTruthUserAction;
 
     StoreGateSvc* m_storeGate;
 
@@ -122,9 +119,8 @@ namespace iGeant4
 
     std::string m_mcEventCollectionName;
 
-    bool   m_KillAllNeutrinos;
-    double m_KillLowEPhotons;
     bool   m_releaseGeoModel;
+    bool   m_recordFlux;
     bool   m_quasiStableParticlesIncluded; //<! will quasi-stable
                                            //particles be included in
                                            //simulation

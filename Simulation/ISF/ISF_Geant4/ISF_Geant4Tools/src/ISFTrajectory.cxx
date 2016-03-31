@@ -11,16 +11,18 @@
 
 // package includes
 #include "Geant4TruthIncident.h"
+#include "ISFG4Helpers.h"
 
 // ISF includes
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
-
+#include "ISF_Event/TruthBinding.h"
 
 // Athena includes
-#include "FadsActions/TrackingAction.h"
+//#include "FadsActions/TrackingAction.h"
 
+// MCTruth includes
+#include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/TrackHelper.h"
 
@@ -31,7 +33,7 @@
 
 iGeant4::ISFTrajectory::ISFTrajectory()
   : G4Trajectory()
-  , m_truthRecordSvcQuick(0)
+  , m_truthRecordSvcQuick(nullptr)
 {
 }
 
@@ -76,12 +78,19 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       return;
     }
 
-    // get parent particle
-    TrackInformation* trackInfo = static_cast<TrackInformation*>(track->GetUserInformation());
-    if (!trackInfo) {  std::cerr<<"ISFTrajectory::AppendStep ERROR NULL TrackInformation pointer!"<<std::endl; }
+    // get base ISFParticle
+    auto* trackInfo = ISFG4Helpers::getISFTrackInfo(*track);
+    if (!trackInfo) {
+      G4ExceptionDescription description;
+      description << G4String("AppendStep: ") + "No VTrackInformation associated with G4Track (trackID: "
+                  << track->GetTrackID() << ", track pos: "<<track->GetPosition() << ", mom: "<<track->GetMomentum()
+                  << ", parentID " << track->GetParentID() << ")";
+      G4Exception("iGeant4::ISFTrajectory", "NoVTrackInformation", FatalException, description);
+      return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+    }
 
-    ISF::ISFParticle* parent = const_cast<ISF::ISFParticle*>( (trackInfo) ? trackInfo->GetISFParticle() : 0 );
-    if (!parent) {
+    ISF::ISFParticle* baseIsp = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
+    if (!baseIsp) {
       G4ExceptionDescription description;
       description << G4String("AppendStep: ") + "NULL ISFParticle pointer for current G4Step (trackID "
                   << track->GetTrackID() << ", track pos: "<<track->GetPosition() << ", mom: "<<track->GetMomentum()
@@ -90,23 +99,24 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
     }
 
-    AtlasDetDescr::AtlasRegion geoID = parent->nextGeoID();
+    AtlasDetDescr::AtlasRegion geoID = baseIsp->nextGeoID();
 
-    ISF::Geant4TruthIncident truth( aStep, geoID, numSecondaries, m_sHelper);
+    auto* eventInfo = ISFG4Helpers::getEventInformation();
+    iGeant4::Geant4TruthIncident truth(aStep, geoID, numSecondaries, m_sHelper, eventInfo);
 
     if (m_truthRecordSvcQuick) {
       m_truthRecordSvcQuick->registerTruthIncident(truth);
 
       // read the TrackInformation to determine whether the G4Track was
       // returned to the ISF in this step
-      if ( trackInfo && trackInfo->GetReturnedToISF()==true ) {
+      if ( trackInfo->GetReturnedToISF()==true ) {
         // make sure that the TruthBinding of the ISFParticle points to the newest
-        // HepMC::GenParticle instance
-        HepMC::GenParticle *newGenPart = truth.parentParticleAfterIncident(Barcode::fUndefinedBarcode, false);
-        ISF::ITruthBinding *newTruthBinding = new ISF::HepMC_TruthBinding(*newGenPart);
-        parent->setTruthBinding( newTruthBinding );
-        Barcode::ParticleBarcode newBarcode = newGenPart->barcode();
-        parent->setBarcode( newBarcode );
+        // HepMC::GenParticle instance in case it got updated by the
+        // ITruthSvc::registerTruthIncident call above
+        auto* currentGenPart = eventInfo->GetCurrentlyTraced();
+        baseIsp->getTruthBinding()->setTruthParticle( currentGenPart );
+        Barcode::ParticleBarcode newBarcode = currentGenPart->barcode();
+        baseIsp->setBarcode( newBarcode );
       }
     }
     else {

@@ -23,13 +23,14 @@
 
 class G4Step;
 class G4Track;
+class EventInformation;
 
-namespace ISF {
+namespace iGeant4 {
 
 
   /** @class Geant4TruthIncident
 
-      @TODO: class description
+      ISF_Geant4 specific implementation of the ISF::ITruthIncident
 
       @author Andreas.Schaelicke@cern.ch
    */
@@ -39,9 +40,13 @@ namespace ISF {
 
    */
 
-  class Geant4TruthIncident : public ITruthIncident {
+  class Geant4TruthIncident : public ISF::ITruthIncident {
     public:
-      Geant4TruthIncident(const G4Step*, AtlasDetDescr::AtlasRegion geoID, int numChildren, SecondaryTracksHelper &sHelper);
+      Geant4TruthIncident( const G4Step*,
+                           AtlasDetDescr::AtlasRegion geoID,
+                           int numChildren,
+                           SecondaryTracksHelper& sHelper,
+                           EventInformation* eventInfo);
       virtual ~Geant4TruthIncident() {};
 
       /** Return HepMC position of the truth vertex */
@@ -66,8 +71,7 @@ namespace ISF {
       bool                      parentSurvivesIncident() const override final;
       /** Return the parent particle after the TruthIncident vertex (and give
           it a new barcode) */
-      HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                             bool setPersistent) override final;
+      HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) override final;
 
       /** Return p of the i-th child particle */
       const G4ThreeVector       childP(unsigned short index) const;
@@ -85,12 +89,11 @@ namespace ISF {
       // only called once accepted
 
       /** Return the parent particle as a HepMC particle type */
-      HepMC::GenParticle*       parentParticle(bool setPersistent) const override final;
+      HepMC::GenParticle*       parentParticle() const override final;
       /** Return the i-th child as a HepMC particle type and assign the given
           Barcode to the simulator particle */
       HepMC::GenParticle*       childParticle(unsigned short index,
-                                              Barcode::ParticleBarcode bc,
-                                              bool setPersistent) const override final;
+                                              Barcode::ParticleBarcode bc) const override final;
 
     private:
       Geant4TruthIncident();
@@ -106,11 +109,12 @@ namespace ISF {
       mutable HepMC::FourVector     m_position;
       const G4Step*                 m_step;
 
-      SecondaryTracksHelper        &m_sHelper;
+      SecondaryTracksHelper&        m_sHelper;
+      EventInformation*             m_eventInfo;
       mutable bool                  m_childrenPrepared;
       mutable std::vector<G4Track*> m_children;
 
-      HepMC::GenParticle           *m_parentParticleAfterIncident;
+      HepMC::GenParticle*           m_parentParticleAfterIncident;
    };
 
 }

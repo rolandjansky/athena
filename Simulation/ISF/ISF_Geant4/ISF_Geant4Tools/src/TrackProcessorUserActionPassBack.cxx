@@ -14,21 +14,17 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/EntryLayer.h"
-
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
 
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
-
-#include "MCTruth/EventInformation.h"
+// MCTruth includes
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
+#include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackInformation.h"
 #include "MCTruth/VTrackInformation.h"
 
@@ -49,9 +45,7 @@
 iGeant4::TrackProcessorUserActionPassBack::TrackProcessorUserActionPassBack(const std::string& type,
                                                             const std::string& name,
                                                             const IInterface* parent)
-  : ITrackProcessorUserAction(name),
-    TrackProcessorUserActionBase(name),
-    AthAlgTool(type,name,parent),
+  : TrackProcessorUserActionBase(type,name,parent),
     m_particleBroker("",name),
     m_particleBrokerQuick(0),
     m_geoIDSvc("",name),
@@ -61,8 +55,6 @@ iGeant4::TrackProcessorUserActionPassBack::TrackProcessorUserActionPassBack(cons
 {
 
   ATH_MSG_DEBUG("create TrackProcessorUserActionPassBack name: "<<name);
-
-  declareInterface<ITrackProcessorUserAction>(this);
 
   declareProperty("ParticleBroker", m_particleBroker, "ISF Particle Broker Svc");
   declareProperty("GeoIDSvc"      , m_geoIDSvc      , "ISF GeoID Svc"          );
@@ -199,8 +191,9 @@ void iGeant4::TrackProcessorUserActionPassBack::ISFSteppingAction(const G4Step* 
     ATH_MSG_DEBUG(" -> G4Track enters geoID = " << nextGeoID <<
                   " and is returned to ISF.");
 
-    ISF::ISFParticle *parent = curISP;
-    returnParticleToISF(aTrack, parent, nextGeoID);
+    const ISF::ISFParticle*    parent = curISP;
+    HepMC::GenParticle* truthParticle = m_eventInfo->GetCurrentlyTraced();
+    returnParticleToISF(aTrack, parent, truthParticle, nextGeoID);
   }
 
   //
@@ -208,7 +201,7 @@ void iGeant4::TrackProcessorUserActionPassBack::ISFSteppingAction(const G4Step* 
   //
   const std::vector<const G4Track*> *secondaryVector = aStep->GetSecondaryInCurrentStep();
   // loop over new secondaries
-  for ( const G4Track* aConstTrack_2nd : *secondaryVector ) {
+  for ( auto* aConstTrack_2nd : *secondaryVector ) {
     // get a non-const G4Track for current secondary (nasty!)
     G4Track *aTrack_2nd = const_cast<G4Track*>( aConstTrack_2nd );
 
@@ -235,8 +228,17 @@ void iGeant4::TrackProcessorUserActionPassBack::ISFSteppingAction(const G4Step* 
         // secondary particle is above kinetic energy threshold
         // -> return it to ISF
         ATH_MSG_DEBUG(" -> Secondary particle generated in this G4Step is returned to ISF.");
-        ISF::ISFParticle *parent = curISP;
-        returnParticleToISF(aTrack_2nd, parent, nextGeoID_2nd);
+
+        // attach TrackInformation instance to the new secondary G4Track
+        const ISF::ISFParticle *parent                  = curISP;
+        HepMC::GenParticle* generationZeroTruthParticle = nullptr;
+        ISFG4Helpers::attachTrackInfoToNewG4Track( *aTrack_2nd,
+                                                   *parent,
+                                                   Secondary,
+                                                   generationZeroTruthParticle );
+
+        HepMC::GenParticle* truthParticle = nullptr;
+        returnParticleToISF(aTrack_2nd, parent, truthParticle, nextGeoID_2nd);
       }
     }
 
@@ -245,76 +247,46 @@ void iGeant4::TrackProcessorUserActionPassBack::ISFSteppingAction(const G4Step* 
   return;
 }
 
-//_______________________________________________________________________
-HepMC::GenParticle* iGeant4::TrackProcessorUserActionPassBack::findMatchingDaughter(HepMC::GenParticle* parent, bool verbose=false) const {
-  // Add all necessary daughter particles
-  if(NULL==parent->end_vertex()) {
-    if(verbose) ATH_MSG_INFO ( "Number of daughters of "<<parent->barcode()<<": 0" );
-    return parent;
-  }
-  const int pdgID(parent->pdg_id());
-  for (HepMC::GenVertex::particles_out_const_iterator iter=parent->end_vertex()->particles_out_const_begin();
-       iter!=parent->end_vertex()->particles_out_const_end(); ++iter){
-    if (verbose) ATH_MSG_INFO ( "Daughter Particle of "<<parent->barcode()<<": " << **iter );
-    if(NULL==(*iter)->end_vertex()) {
-      if(verbose) ATH_MSG_INFO ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
-    }
-    else {
-      if(verbose) ATH_MSG_INFO ("Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
-    }
-    if (pdgID == (*iter)->pdg_id()) {
-      if (verbose) ATH_MSG_INFO ( "Look for daughters of Particle: " << (*iter)->barcode() );
-      return this->findMatchingDaughter(*iter, verbose);
-    }
-  }
-  if(!verbose) (void) this->findMatchingDaughter(parent, true);
-  else {  ATH_MSG_ERROR ( "No matching Daughter Particles." ); }
-  return parent;
-}
 
 //________________________________________________________________________
-ISF::ITruthBinding*
-iGeant4::TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack) const
+ISF::TruthBinding*
+iGeant4::TrackProcessorUserActionPassBack::newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const
 {
-  ISF::ITruthBinding* tBinding = 0;
-
-  VTrackInformation* trackInfo = ISFG4Helpers::getISFTrackInfo(*aTrack);
-
-  if (trackInfo) {
-    HepMC::GenParticle* genpart = const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
-    if (genpart) {
-      //find the last particle of this type in the decay chain - this is the one that we should pass back to ISF
-      genpart = this->findMatchingDaughter(genpart);
-      tBinding = new ISF::HepMC_TruthBinding(*genpart);
-      // particle should be already known to McTruth Tree
-      tBinding->setPersistency( true );
-    }
+  auto* trackInfo = ISFG4Helpers::getISFTrackInfo(*aTrack);
+  if (!trackInfo) {
+    G4ExceptionDescription description;
+    description << G4String("newTruthBinding: ") + "No TrackInformation associated with G4Track (trackID: "
+                << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
+                << ", parentID " << aTrack->GetParentID() << ")";
+    G4Exception("iGeant4::TrackProcessorUserActionPassBack", "NoTrackInformation", FatalException, description);
+    return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
+
+  HepMC::GenParticle*         primaryHepParticle = const_cast<HepMC::GenParticle*>(trackInfo->GetPrimaryHepMCParticle());
+  HepMC::GenParticle*  generationZeroHepParticle = const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
+  
+  ISF::TruthBinding* tBinding = new ISF::TruthBinding(truthParticle, primaryHepParticle, generationZeroHepParticle);
 
   return tBinding;
 }
 
 //________________________________________________________________________
 ISF::ISFParticle*
-iGeant4::TrackProcessorUserActionPassBack::attachNewISFParticle(G4Track* aTrack,
-                                                                const ISF::ISFParticle* parent,
-                                                                AtlasDetDescr::AtlasRegion  nextGeoID)
+iGeant4::TrackProcessorUserActionPassBack::newISFParticle(G4Track* aTrack,
+                                                          const ISF::ISFParticle* parentISP,
+                                                          HepMC::GenParticle* truthParticle,
+                                                          AtlasDetDescr::AtlasRegion  nextGeoID)
 {
-  ISF::ITruthBinding* tBinding = newTruthBinding(aTrack);
+  ISF::TruthBinding* tBinding = newTruthBinding(aTrack, truthParticle);
     
-  ISF::ISFParticle* isp = ISFG4Helpers::convertG4TrackToISFParticle( *aTrack, *parent, tBinding );
+  ISF::ISFParticle* isp = ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
+                                                                     *parentISP,
+                                                                     tBinding );
 
   if (nextGeoID!=AtlasDetDescr::fUndefinedAtlasRegion) {
     isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );
-    isp->setNextSimID( parent->nextSimID() );
+    isp->setNextSimID( parentISP->nextSimID() );
   }
-
-  // store new ISF particle in m_parentISPmap
-  if (aTrack->GetTrackStatus()==fAlive) {
-    int trackID  = aTrack->GetTrackID();
-    ATH_MSG_VERBOSE("Setting ISFParticle to "<<isp<<" for trackID "<<trackID<<" (from new ISFParticle)");
-    ISFG4Helpers::linkG4TrackToISFParticle( *aTrack, isp );
-  }  
 
   return isp;
 }
@@ -323,69 +295,24 @@ iGeant4::TrackProcessorUserActionPassBack::attachNewISFParticle(G4Track* aTrack,
 //________________________________________________________________________
 void
 iGeant4::TrackProcessorUserActionPassBack::returnParticleToISF( G4Track *aTrack,
-                                                        ISF::ISFParticle *parentISP,
-                                                        AtlasDetDescr::AtlasRegion nextGeoID )
+                                                                const ISF::ISFParticle* parentISP,
+                                                                HepMC::GenParticle* truthParticle,
+                                                                AtlasDetDescr::AtlasRegion nextGeoID )
 {
   // kill track inside G4
   aTrack->SetTrackStatus( fStopAndKill );
 
   // create new ISFParticle and attach it to current G4Track
-  ISF::ISFParticle *newISP = attachNewISFParticle(aTrack, parentISP, nextGeoID);
+  ISF::ISFParticle *newISP = newISFParticle( aTrack, parentISP, truthParticle, nextGeoID );
 
-  // flag the track to let code downstream know that this track was returned to ISF
-  VTrackInformation* trackInfo = dynamic_cast<VTrackInformation*>(aTrack->GetUserInformation());
-  if (!trackInfo) {
-    trackInfo = new TrackBarcodeInfo(Barcode::fUndefinedBarcode, newISP);
-    aTrack->SetUserInformation(trackInfo);
-  }
-  trackInfo->SetReturnedToISF(true);
-
+  // update TrackInformation
+  auto trackInfo = ISFG4Helpers::getISFTrackInfo(*aTrack);
+  trackInfo->SetReturnedToISF( true );
+  trackInfo->SetBaseISFParticle( newISP );
 
   // push the particle back to ISF
-  m_particleBroker->push(newISP, parentISP);
+  m_particleBrokerQuick->push(newISP, parentISP);
 
   return;
 }
 
-bool iGeant4::TrackProcessorUserActionPassBack::checkVolumeDepth( G4LogicalVolume * lv , int volLevel , int d ) {
-  if (lv==0) return false;
-  bool Cavern = false;
-
-  // Check the volumes rather explicitly
-  if ( lv->GetName() == "BeamPipe::BeamPipe" ||
-       lv->GetName() == "IDET::IDET" ||
-       lv->GetName() == "CALO::CALO" ||
-       lv->GetName() == "MUONQ02::MUONQ02" ||
-       lv->GetName() == "TTR_BARREL::TTR_BARREL" ){
-    if (d==volLevel){
-      ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
-    } else {
-      ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << d << " instead of depth " << volLevel);
-      throw "WrongDepth";
-    } // Check of volume level
-  } else if ( lv->GetName()=="BeamPipe::BeamPipeCentral" ){ // Things that are supposed to be one deeper
-    if (d==volLevel+1){
-      ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
-    } else {
-      ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << d << " instead of depth " << volLevel+1);
-      throw "WrongDepth";
-    } // Check of volume level
-  } else if ( lv->GetName().find("CavernInfra")!=std::string::npos ){ // Things that are supposed to be one shallower
-    if (d==volLevel-1){
-      Cavern=true;
-      ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
-      // Note: a number of volumes exist with "CavernInfra" in the name at the wrong depth, so we just need to
-      //   check that there's at least one at the right depth
-    } // Check of volume level
-  } // Check of volume name
-
-  // Going through the volume depth
-  for (int i=0; i<lv->GetNoDaughters(); ++i){
-    Cavern = Cavern || checkVolumeDepth( lv->GetDaughter(i)->GetLogicalVolume() , volLevel , d+1 );
-  }
-  if (d==0 && !Cavern && volLevel>1){
-    ATH_MSG_ERROR("No CavernInfra volume registered at depth " << volLevel-1);
-    throw "WrongDepth";
-  }
-  return Cavern;
-}
