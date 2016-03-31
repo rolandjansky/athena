@@ -123,7 +123,7 @@ Trk::TrkDetElementBase* iFatras::PlanarModuleProvider::getDetElement(const Ident
 {
   if(moduleTmp ==0) return 0;
 
-  double thickness    = moduleTmp->thickness;
+  double thickness    = moduleTmp->thickness_sensor;
   double lengthY      = moduleTmp->length; 
   double lengthXmin   = moduleTmp->widthmin; 
   double lengthXmax   = moduleTmp->widthmax;

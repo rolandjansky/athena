@@ -164,21 +164,29 @@ class CustomStagedInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBui
         barrelPixLayerBuilder = InDet__BarrelBuilderXML(name='PixelsBarrelBuilder')
         barrelPixLayerBuilder.StaveBuilder = staveBuilder
         barrelPixLayerBuilder.ModuleProvider = moduleProvider
+        barrelPixLayerBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
+        barrelPixLayerBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
         ToolSvc += barrelPixLayerBuilder
 
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__EndcapBuilderXML
         endcapPixLayerBuilder = InDet__EndcapBuilderXML(name='PixelsEndcapBuilder')
         endcapPixLayerBuilder.ModuleProvider = moduleProvider
+        endcapPixLayerBuilder.EndcapLayerBinR     = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
+        endcapPixLayerBuilder.EndcapLayerBinPhi   = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
         ToolSvc += endcapPixLayerBuilder 
 
         ###### Setup XML builders for SCT ######
         barrelSCTLayerBuilder = InDet__BarrelBuilderXML(name='SCTBarrelBuilder')
         barrelSCTLayerBuilder.StaveBuilder = staveBuilder
         barrelSCTLayerBuilder.ModuleProvider = moduleProvider
+        barrelSCTLayerBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
+        barrelSCTLayerBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
         ToolSvc += barrelSCTLayerBuilder
 
         endcapSCTLayerBuilder = InDet__EndcapBuilderXML(name='SCTEndcapBuilder')
         endcapSCTLayerBuilder.ModuleProvider = moduleProvider
+        endcapSCTLayerBuilder.EndcapLayerBinR     = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
+        endcapSCTLayerBuilder.EndcapLayerBinPhi   = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
         ToolSvc += endcapSCTLayerBuilder 
                  
         print "# XML Layout ########################################################"
