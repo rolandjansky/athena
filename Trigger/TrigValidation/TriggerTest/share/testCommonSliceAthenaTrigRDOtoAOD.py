@@ -38,12 +38,13 @@ TriggerModernConfig=True
 
 import os
 if os.environ['AtlasProject'] == 'AtlasP1HLT' or os.environ['AtlasProject'] == 'AtlasCAFHLT':
-    log.info("WARNING working within AtlasProject %s, will not write AOD/xAOD" % os.environ['AtlasProject'])
-    rec.doWriteAOD.set_Value_and_Lock(False)
-    rec.doWritexAOD.set_Value_and_Lock(False)
-    rec.doAOD.set_Value_and_Lock(False)
-    jp.Rec.doWriteAOD=False
-else:
+    log.info("WARNING working within AtlasProject %s, will not write out the real AOD/xAOD as would be produced by the actual Tier0/AtlasProdcution release" % os.environ['AtlasProject'])
+    #    log.info("WARNING working within AtlasProject %s, will not write AOD/xAOD" % os.environ['AtlasProject'])
+    #    rec.doWriteAOD.set_Value_and_Lock(False)
+    #    rec.doWritexAOD.set_Value_and_Lock(False)
+    #    rec.doAOD.set_Value_and_Lock(False)
+    #    jp.Rec.doWriteAOD=False
+    #else:
     rec.doWriteAOD.set_Value_and_Lock(True)
     rec.doWritexAOD.set_Value_and_Lock(True)
     rec.doAOD.set_Value_and_Lock(True)
