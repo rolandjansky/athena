@@ -202,7 +202,7 @@ void CaloHitAna::Loop()
        if (m_Debug > 1) std::cout <<"Reading G4hits";
        for (unsigned int g4hit_i = 0; g4hit_i <G4HitIdentifier->size(); g4hit_i++)
 	 {
-	   if ((*G4HitSampling)[g4hit_i] >=12 && (*G4HitSampling)[g4hit_i]<=20 && (*G4HitT)[g4hit_i]>m_TimingCut)
+	   if ((*G4HitSampling)[g4hit_i] >=0 && (*G4HitSampling)[g4hit_i]<=25 && (*G4HitT)[g4hit_i]>m_TimingCut)
 	     {
 	       if (m_Debug > 1) std::cout <<"Ignoring G4hit, time too large: "<<g4hit_i<<" time: "<<(*G4HitT)[g4hit_i]<<std::endl;
 	       continue;
@@ -270,7 +270,7 @@ void CaloHitAna::Loop()
        if (m_Debug > 1) std::cout <<"Reading detailed FCS hits "<< HitIdentifier->size()<<std::endl;
        for (unsigned int hit_i = 0; hit_i < HitIdentifier->size(); hit_i++)
 	 {
-	   if ((*HitSampling)[hit_i] >=12 && (*HitSampling)[hit_i]<=20 && (*HitT)[hit_i]>m_TimingCut)
+	   if ((*HitSampling)[hit_i] >=0 && (*HitSampling)[hit_i]<=25 && (*HitT)[hit_i]>m_TimingCut)
 	     {
 	       if (m_Debug > 1) std::cout <<"Ignoring FCS hit, time too large: "<<hit_i<<" time: "<<(*HitT)[hit_i]<<std::endl;
 	       continue;

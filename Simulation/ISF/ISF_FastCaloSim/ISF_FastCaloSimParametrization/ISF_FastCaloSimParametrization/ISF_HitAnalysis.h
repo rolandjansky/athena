@@ -18,14 +18,23 @@
 
 //#####################################
 #include "CaloDetDescr/ICaloCoordinateTool.h"
-#include "FSmap.h"
+#include "ISF_FastCaloSimParametrization/FSmap.h"
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "FastCaloSim_CaloCell_ID.h"
 #include "TrkParameters/TrackParameters.h"
 //#####################################
 
+#include "ISF_FastCaloSimParametrization/FastCaloSim_CaloCell_ID.h"
+#include "ISF_FastCaloSimParametrization/FastCaloSimCaloExtrapolation.h"
+#include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
+
+namespace Trk {
+  class TrackingVolume;
+}
+#include "TrkExInterfaces/ITimedExtrapolator.h" 
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
+class ICaloSurfaceHelper;
 
 #include <string>
 #include <Rtypes.h>
@@ -68,7 +77,13 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
-   bool get_calo_etaphi(const Trk::TrackParameters* params_on_surface,CaloCell_ID_FCS::CaloSample sample,double);
+   enum SUBPOS { SUBPOS_MID = 0, SUBPOS_ENT = 1, SUBPOS_EXT = 2}; //MID=middle, ENT=entrance, EXT=exit of cal layer
+   //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
+   bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,int sample,int subpos=SUBPOS_MID);
+   bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
+   bool rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, double cylR, double cylZ, Amg::Vector3D& pos, Amg::Vector3D& mom);  
+   
+   IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
  private:
 
@@ -133,16 +148,16 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const CaloDetDescrManager* m_calo_dd_man;
 
    //####################################################
-   double eta_calo_surf;
-   double phi_calo_surf;
-   double d_calo_surf;
-   double ptruth_eta;
-   double ptruth_phi;
-   double ptruth_e;
-   double ptruth_et;
-   double ptruth_pt;
-   double ptruth_p;
-   int pdgid;
+   double m_eta_calo_surf;
+   double m_phi_calo_surf;
+   double m_d_calo_surf;
+   double m_ptruth_eta;
+   double m_ptruth_phi;
+   double m_ptruth_e;
+   double m_ptruth_et;
+   double m_ptruth_pt;
+   double m_ptruth_p;
+   int m_pdgid;
    
    std::vector<std::vector<double> >* m_TTC_entrance_eta;
    std::vector<std::vector<double> >* m_TTC_entrance_phi;
@@ -159,67 +174,73 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<double>* m_TTC_Angle3D;
    std::vector<double>* m_TTC_AngleEta;
 
-   IExtrapolateToCaloTool*      m_etoCalo;
-   IExtrapolateToCaloTool*      m_etoCaloEntrance;
-   CaloDepthTool*               m_calodepth;
-   CaloDepthTool*               m_calodepthEntrance;
-   ICaloSurfaceBuilder*           m_calosurf;
-   ICaloSurfaceBuilder*           m_calosurf_entrance;
-   Trk::IExtrapolator*            m_extrapolator;
+   /** The new Extrapolator setup */
+   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
+   ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;
+   mutable const Trk::TrackingVolume*  m_caloEntrance;
+   std::string                         m_caloEntranceName; 
+   // extrapolation through Calo
+   std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
+   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
    ICaloCoordinateTool*           m_calo_tb_coord;
-   std::string                    m_extrapolatorName;
-   std::string                    m_extrapolatorInstanceName;
-   std::string                    m_calosurf_InstanceName;
-   std::string                    m_calosurf_entrance_InstanceName;
+   /** End new Extrapolator setup */
+
+   //IExtrapolateToCaloTool*      m_etoCalo;
+   //IExtrapolateToCaloTool*      m_etoCaloEntrance;
+   //CaloDepthTool*               m_calodepth;
+   //CaloDepthTool*               m_calodepthEntrance;
+   ///ICaloSurfaceBuilder*           m_calosurf;
+   //ICaloSurfaceBuilder*           m_calosurf_entrance;
+   //Trk::IExtrapolator*            m_extrapolator;
+   //std::string                    m_extrapolatorName;
+   //std::string                    m_extrapolatorInstanceName;
+   //std::string                    m_calosurf_InstanceName;
+   //std::string                    m_calosurf_entrance_InstanceName;
    
-   CaloCell_ID_FCS::CaloSample sample_calo_surf;
-   int                            m_n_surfacelist;
-   CaloCell_ID_FCS::CaloSample    m_surfacelist[CaloCell_ID_FCS::MaxSample];
-		
-   double deta(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   double rzmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   void   minmaxeta(CaloCell_ID_FCS::CaloSample sample,double eta,double& mineta,double& maxeta) const;
-   double rzent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   double rmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   double rent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   double zmid(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   double zent(CaloCell_ID_FCS::CaloSample sample,double eta) const;
-   void   CaloLocalPoint (const Trk::TrackParameters* parm,Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local);
+   CaloCell_ID_FCS::CaloSample    m_sample_calo_surf;
+   std::vector< CaloCell_ID_FCS::CaloSample > m_surfacelist;
    
-   const Trk::TrackParameters*    TrackSeenByCalo(ICaloSurfaceBuilder* m_calosurf,const Trk::TrackParameters* parm, const CaloCell_ID_FCS::CaloSample sample,const double offset, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local);
-   const Trk::TrackParameters*    TrackSeenByCalo_ID(const Trk::TrackParameters* parm, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local);
-   //const Trk::TrackParameters*    TrackSeenByCalo_ID(const Trk::TrackParameters* parm, HepGeom::Point3D<double>* pt_ctb, HepGeom::Point3D<double>* pt_local);
+   //CaloGeometryFromCaloDDM* m_CaloGeometry;
+   /** The FastCaloSimGeometryHelper tool */
+   ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
+
+   bool   isCaloBarrel(int sample) const;
+   double deta(int sample,double eta) const;
+   void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
+   double rzmid(int sample,double eta) const;
+   double rzent(int sample,double eta) const;
+   double rzext(int sample,double eta) const;
+   double rmid(int sample,double eta) const;
+   double rent(int sample,double eta) const;
+   double rext(int sample,double eta) const;
+   double zmid(int sample,double eta) const;
+   double zent(int sample,double eta) const;
+   double zext(int sample,double eta) const;
+   double rpos(int sample,double eta,int subpos=SUBPOS_MID) const;
+   double zpos(int sample,double eta,int subpos=SUBPOS_MID) const;
+   double rzpos(int sample,double eta,int subpos=SUBPOS_MID) const;
    
-   bool   layerCaloOK[CaloCell_ID_FCS::MaxSample];
-   double letaCalo[CaloCell_ID_FCS::MaxSample];
-   double lphiCalo[CaloCell_ID_FCS::MaxSample];
-   double lrCalo[CaloCell_ID_FCS::MaxSample];
-   double lzCalo[CaloCell_ID_FCS::MaxSample];
-   double dCalo[CaloCell_ID_FCS::MaxSample];
-   double distetaCaloBorder[CaloCell_ID_FCS::MaxSample];
+   bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample][3];
+   double m_letaCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_lphiCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_lrCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_lzCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_dCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample][3];
    
-   bool m_isCaloBarrel[CaloCell_ID_FCS::MaxSample];
-   bool isCaloBarrel(CaloCell_ID_FCS::CaloSample sample) const {return m_isCaloBarrel[sample];};
    
-   double  min_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-   double  max_eta_sample[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-   FSmap< double , double > rmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-   FSmap< double , double > zmid_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-   FSmap< double , double > rent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-   FSmap< double , double > zent_map[2][CaloCell_ID_FCS::MaxSample]; //[side][calosample]
-   
-   void extrapolate(const HepMC::GenParticle* part);
-   void extrapolate_to_ID(const HepMC::GenParticle* part);
+   void extrapolate(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
+   void extrapolate_to_ID(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
    
    HepPDT::ParticleDataTable*     m_particleDataTable;
-   
-   const Trk::TrackParameters* get_calo_surface(const Trk::Perigee& candidatePerigee,const double charge);
-   const Trk::TrackParameters* get_calo_surface_ID(const Trk::Perigee& candidatePerigee,double& eta_ID,double& phi_ID,double& r_ID,double& x_ID,double& y_ID,double& z_ID);
    
    double m_CaloBoundaryR;
    double m_CaloBoundaryZ;
    double m_calomargin;
    
+   std::string m_MC_DIGI_PARAM; 
+   std::string m_MC_SIM_PARAM;
+
    //###################################################################
  	  
 
