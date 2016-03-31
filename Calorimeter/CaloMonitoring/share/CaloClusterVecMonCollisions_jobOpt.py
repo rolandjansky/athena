@@ -64,7 +64,6 @@ CaloClusterMonNoTA = CaloClusterVecMon(
 
    useReadyFilterTool = tmp_useReadyFilterTool,
    ReadyFilterTool = monAtlasReadyFilterTool,
-
    useLArNoisyAlg = tmp_useLArNoisyAlg,
 
    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,

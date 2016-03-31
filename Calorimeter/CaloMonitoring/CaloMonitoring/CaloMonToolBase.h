@@ -37,6 +37,7 @@ class CaloMonToolBase : public ManagedMonitorToolBase {
   ToolHandle<IDQFilterTool> m_ReadyFilterTool;
 
   bool m_useLArNoisyAlg;
+  bool m_useTriggerFilter;
   bool m_useBeamBackgroundRemoval;
  
   std::string m_beamBackgroundKey;
