@@ -12,10 +12,12 @@
 #include "AtlasDetDescr/AtlasRegion.h"
 
 #include "ISF_Interfaces/IEntryLayerTool.h"
+#include "ISF_Interfaces/IGeoIDSvc.h"
 
 #include "ISF_Event/EntryLayer.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
 
@@ -26,7 +28,7 @@ class G4LogicalVolume;
 
 namespace iGeant4 {
 
-  class TrackProcessorUserActionFullG4: virtual public TrackProcessorUserActionBase, public AthAlgTool {
+  class TrackProcessorUserActionFullG4 final: public TrackProcessorUserActionBase {
 
   public:
     TrackProcessorUserActionFullG4(const std::string& type,
@@ -37,11 +39,10 @@ namespace iGeant4 {
     StatusCode initialize();
     StatusCode finalize();
 
+  private:
     /** Called by the base class after the G4Track->ISFParticle association
      *  has been established */
-    void ISFSteppingAction(const G4Step*, ISF::ISFParticle *curISP);
-
-  private:
+    void ISFSteppingAction(const G4Step*, ISF::ISFParticle *curISP) override final;
 
     ISF::EntryLayer entryLayer(const G4Step* aStep);
 
@@ -52,6 +53,10 @@ namespace iGeant4 {
     /** access to the ISF Entry Layer tool which is used to record entry-layer collections */
     ToolHandle<ISF::IEntryLayerTool>     m_entryLayerTool;      //!< athena tool handle
     ISF::IEntryLayerTool                *m_entryLayerToolQuick; //!< quickaccess avoiding gaudi ovehead
+
+    /** access to the central ISF GeoID serice*/
+    ServiceHandle<ISF::IGeoIDSvc>        m_geoIDSvc;      //!< athena service handle
+    ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
 
     bool m_hasCavern;
 

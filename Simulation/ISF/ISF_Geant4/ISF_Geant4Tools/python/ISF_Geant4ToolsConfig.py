@@ -2,12 +2,6 @@
 
 ## -----------------------------------------------------------------------------
 ### Base Version
-def getSDActivateUserAction(name='ISFSDActivateUserAction', **kwargs):
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
-    return iGeant4__SDActivateUserAction(name, **kwargs)
-
-## -----------------------------------------------------------------------------
-### Base Version
 def getMCTruthUserAction(name='ISFMCTruthUserAction', **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags
     kwargs.setdefault('TruthRecordSvc',  ISF_Flags.TruthService.get_Value())
@@ -46,6 +40,7 @@ def getTrackProcessorUserAction(name="ISFG4TrackProcessorUserAction", **kwargs):
 ### Specialized Versions
 def getFullG4TrackProcessorUserAction(name='FullG4TrackProcessorUserAction', **kwargs):
     kwargs.setdefault('EntryLayerTool', 'ISF_EntryLayerTool')
+    kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
     if jobproperties.Beam.beamType() == 'cosmics' or \
@@ -70,12 +65,13 @@ def getAFII_G4TrackProcessorUserAction(name='AFII_G4TrackProcessorUserAction', *
 ### Base Version
 def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('BarcodeSvc',               ISF_Flags.BarcodeService()     )
     kwargs.setdefault('TrackProcessorUserAction', 'ISFG4TrackProcessorUserAction')
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
     kwargs.setdefault('PhysicsValidationUserAction', 'ISFG4PhysicsValidationUserAction')
     kwargs.setdefault('MCTruthUserAction', 'ISFMCTruthUserAction')
-    kwargs.setdefault('SDActivateUserAction', 'ISFSDActivateUserAction')
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
     return iGeant4__G4TransportTool(name, **kwargs)
 ### Specialized Versions

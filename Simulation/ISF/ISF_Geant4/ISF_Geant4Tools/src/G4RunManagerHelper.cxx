@@ -12,9 +12,6 @@
 // package includes
 #include "G4DetectorConstruction.h"
 
-// Athena includes
-#include "FadsGeometry/FadsDetectorConstruction.h"
-
 // Geant4 includes
 #include "G4VUserPhysicsList.hh"
 #include "QGSP_BERT.hh"

@@ -13,10 +13,7 @@
 #include "Geant4TruthIncident.h"
 
 //ISF includes
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
-
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/ParticleClipboard.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
@@ -24,18 +21,15 @@
 
 //Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
-
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
-
+#include "MCTruth/EventInformation.h"
 #include "MCTruth/VTrackInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 // Geant4 includes
 #include "G4ParticleDefinition.hh"
 #include "G4DynamicParticle.hh"
 #include "G4TouchableHistory.hh"
+#include "G4Event.hh"
 #include "G4Step.hh"
 #include "G4TransportationManager.hh"
 
@@ -43,15 +37,14 @@
 #include "HepMC/GenVertex.h"
 // ROOT includes
 #include "TTree.h"
-
+// STL includes
 #include <iostream>
 
 iGeant4::PhysicsValidationUserAction::PhysicsValidationUserAction(const std::string& type,
                                                                   const std::string& name,
                                                                   const IInterface* parent)
-  : IPhysicsValidationUserAction(name),
-    AthAlgTool(type,name,parent),
-    m_sHelper(FADS::FadsTrackingAction::GetTrackingAction()->GetTrackingManager()),
+  : UserActionBase(type,name,parent),
+    m_UASvc("UserActionSvc",name),
     m_particleBroker("ISF::ParticleBroker/ISF_ParticleStackService",name),
     m_particleHelper("ISF::ParticleHelper/ISF_ParticleHelper"),
     m_geoIDSvc("ISF::GeoIDSvc/ISF_GeoIDSvc",name),
@@ -60,17 +53,18 @@ iGeant4::PhysicsValidationUserAction::PhysicsValidationUserAction(const std::str
     m_thistSvc("THistSvc",name),
     //m_validationStream("ISFMaterial"),
     m_validationStream("ISFG4SimKernel"),
-    m_idR(0.), m_idZ(0.),
-    m_caloRmean(0.),  m_caloZmean(0.),
-    m_muonRmean(0.), m_muonZmean(0.),
-    m_cavernRmean(0.),  m_cavernZmean(0.),
+    //Values taken from G4DetectorEnvelopes/EnvelopeGeometryManager.h
+    m_idR(1150.-1.e-5), m_idZ(3490.),
+    m_caloRmean(0.5*(40.+4250.)),  m_caloZmean(0.5*(3490.+6740.)),
+    m_muonRmean(0.5*(60.+30000.)), m_muonZmean(0.5*(6740.+30000.)),
+    m_cavernRmean(300000.0),  m_cavernZmean(300000.0),
     m_volumeOffset(1),
     m_minHistoryDepth(0)
 {
 
   ATH_MSG_DEBUG("create PhysicsValidationUserAction name: "<<name);
 
-  declareInterface<IPhysicsValidationUserAction>(this);
+  //declareInterface<IUserAction>(this);
 
   // validation output section
   declareProperty( "ValidationOutput",
@@ -85,6 +79,16 @@ iGeant4::PhysicsValidationUserAction::PhysicsValidationUserAction(const std::str
   declareProperty("ParticleBroker", m_particleBroker, "ISF Particle Broker Svc");
   declareProperty("ParticleHelper", m_particleHelper, "ISF Particle Helper"    );
   declareProperty("GeoIDSvc"      , m_geoIDSvc      , "ISF GeoID Svc"          );
+  declareProperty("UserActionSvc",m_UASvc);
+  declareProperty("ID_Rmax",m_idR);
+  declareProperty("ID_Zmax",m_idZ);
+  declareProperty("CaloRmean",m_caloRmean);
+  declareProperty("CaloZmean",m_caloZmean);
+  declareProperty("MuonRmean",m_muonRmean);
+  declareProperty("MuonZmean",m_muonZmean);
+  declareProperty("CavernRmean",m_cavernRmean);
+  declareProperty("CavernZmean",m_cavernZmean);
+
 }
 
 StatusCode iGeant4::PhysicsValidationUserAction::initialize()
@@ -110,6 +114,14 @@ StatusCode iGeant4::PhysicsValidationUserAction::initialize()
     return StatusCode::FAILURE;
   }
 
+  if (m_UASvc.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Could not retrieve UserActionSvc");
+    return StatusCode::FAILURE;
+  }
+
+
+  m_sHelper=SecondaryTracksHelper(m_UASvc->TrackingManager());
+
   m_geoIDSvcQuick = &(*m_geoIDSvc);
 
   // setup for validation mode
@@ -122,9 +134,9 @@ StatusCode iGeant4::PhysicsValidationUserAction::initialize()
       const std::string prefix = "/" + m_validationStream + "/"+ treeName;
       m_particles = new TTree( treeName, treeName );
       m_particles->Branch("pdg"       , &m_pdg    , "pdg/I"         );         // pdg id
-      m_particles->Branch("scIn"      , &m_scIn   , "scIn/I"         );        // input process  
-      m_particles->Branch("scOut"     , &m_scEnd  , "scOut/I"         );       // endpoint process 
-      m_particles->Branch("gen"       , &m_gen    , "gen/I"         );         // generation (0 for primary) 
+      m_particles->Branch("scIn"      , &m_scIn   , "scIn/I"         );        // input process
+      m_particles->Branch("scOut"     , &m_scEnd  , "scOut/I"         );       // endpoint process
+      m_particles->Branch("gen"       , &m_gen    , "gen/I"         );         // generation (0 for primary)
       m_particles->Branch("geoID"     , &m_geoID  , "geoID/I"         );       // subdetector id
       m_particles->Branch("pth"       , &m_pth     , "pth/F"            );     // input momentum polar angle
       m_particles->Branch("pph"       , &m_pph     , "pph/F"            );     // input momemtum azimuthal angle
@@ -134,13 +146,13 @@ StatusCode iGeant4::PhysicsValidationUserAction::initialize()
       m_particles->Branch("ionloss"     , &m_ionloss  , "ionloss/F"            );   // ionization eloss
       m_particles->Branch("wzOaTr"     , &m_wzOaTr  , "wzOaTr/F"            );      // zOverZtimesRho times dInX0
       m_particles->Branch("X0"        , &m_X0     , "X0/F"            );            // dInX0 (material thickness)
-      m_particles->Branch("L0"        , &m_L0     , "L0/F"            );            // dInL0  
+      m_particles->Branch("L0"        , &m_L0     , "L0/F"            );            // dInL0
       m_particles->Branch("wZ"        , &m_wZ     , "wZ/F"            );            // averageZ time dInX0
-      m_particles->Branch("dt"        , &m_dt     , "dt/F"            );            // time interval 
-      m_particles->Branch("thIn"      , &m_thIn   , "thIn/F"            );          // polar angle input position  
+      m_particles->Branch("dt"        , &m_dt     , "dt/F"            );            // time interval
+      m_particles->Branch("thIn"      , &m_thIn   , "thIn/F"            );          // polar angle input position
       m_particles->Branch("phIn"      , &m_phIn   , "phIn/F"            );          // azimuthal angle input position
       m_particles->Branch("dIn"       , &m_dIn    , "dIn/F"            );           // distance input position
-      m_particles->Branch("thEnd"     , &m_thEnd  , "thEnd/F"            );         // polar angle exit position 
+      m_particles->Branch("thEnd"     , &m_thEnd  , "thEnd/F"            );         // polar angle exit position
       m_particles->Branch("phEnd"     , &m_phEnd  , "phEnd/F"            );         // azimuthal angle exit position
       m_particles->Branch("dEnd"      , &m_dEnd   , "dEnd/F"            );          // distance exit position
 
@@ -188,7 +200,7 @@ StatusCode iGeant4::PhysicsValidationUserAction::finalize()
 }
 
 
-void iGeant4::PhysicsValidationUserAction::BeginOfRunAction(const G4Run*)
+void iGeant4::PhysicsValidationUserAction::BeginOfRun(const G4Run*)
 {
   // get the geometry manager and check how many layers are present.
   G4TransportationManager *transportationManager(G4TransportationManager::GetTransportationManager());
@@ -203,29 +215,8 @@ void iGeant4::PhysicsValidationUserAction::BeginOfRunAction(const G4Run*)
     }
 }
 
-void iGeant4::PhysicsValidationUserAction::EndOfRunAction(const G4Run*)
+void iGeant4::PhysicsValidationUserAction::BeginOfEvent(const G4Event*)
 {
-
-}
-
-void iGeant4::PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)
-{
-
-  EnvelopeGeometryManager* gm=EnvelopeGeometryManager::GetGeometryManager();
-
-  const double eps=1.e-5;
-
-  m_idR=gm->IdetOuterRadius()-eps;
-  m_idZ=gm->IdetMaxZ();
-
-  m_caloRmean=0.5*(gm->CaloInnerRadius()+gm->CaloOuterRadius());
-  m_caloZmean=0.5*(gm->IdetMaxZ()+gm->CaloMaxZ());
-
-  m_muonRmean=0.5*(gm->MuonInnerRadius()+gm->MuonOuterRadius());
-  m_muonZmean=0.5*(gm->MuonMaxZ()+gm->CaloMaxZ());
-
-  m_cavernRmean=300000.0;//FIXME - requires updates to EnvelopeGeometryManager
-  m_cavernZmean=300000.0;//FIXME - requires updates to EnvelopeGeometryManager
 
   ATH_MSG_VERBOSE("m_idRmax: "<<m_idR      <<", m_idZmax: "<<m_idZ);
   ATH_MSG_VERBOSE("m_caloR : "<<m_caloRmean<<", m_caloZ : "<<m_caloZmean);
@@ -233,13 +224,13 @@ void iGeant4::PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)
   ATH_MSG_VERBOSE("m_muonR : "<<m_cavernRmean<<", m_muonZ : "<<m_cavernZmean);
   ATH_MSG_VERBOSE("m_cavernR : "<<m_cavernRmean<<", m_cavernZ : "<<m_cavernZmean);
 
-  m_currentTrack = -1; 
+  m_currentTrack = -1;
   m_trackGenMap.clear();
   //m_idToStackParticleMap.clear();
 
 }
 
-void iGeant4::PhysicsValidationUserAction::EndOfEventAction(const G4Event*)
+void iGeant4::PhysicsValidationUserAction::EndOfEvent(const G4Event*)
 {
   m_X0=0.;
   m_L0=0.;
@@ -250,7 +241,7 @@ void iGeant4::PhysicsValidationUserAction::EndOfEventAction(const G4Event*)
 }
 
 
-void iGeant4::PhysicsValidationUserAction::SteppingAction(const G4Step* aStep)
+void iGeant4::PhysicsValidationUserAction::Step(const G4Step* aStep)
 {
   //std::cout<<"PhysicsValidationUserAction::SteppingAction"<<std::endl;
 
@@ -277,7 +268,7 @@ void iGeant4::PhysicsValidationUserAction::SteppingAction(const G4Step* aStep)
   //std::cout <<"processing track:"<< trackID<<":"<< mom.mag()<< std::endl;
 
   if (trackID != m_currentTrack) {     // for new G4Track only
- 
+
     m_pdg = track->GetDefinition()->GetPDGEncoding();
     const G4VProcess* creation = track->GetCreatorProcess();
     m_scIn = creation? creation->GetProcessSubType() : -1;
@@ -286,30 +277,30 @@ void iGeant4::PhysicsValidationUserAction::SteppingAction(const G4Step* aStep)
     HepMC::GenParticle* genpart= trackInfo ? const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle()):0;
     HepMC::GenVertex* vtx = genpart ? genpart->production_vertex() : 0;
     m_gen = genpart? 0 : -1;
-  
+
     if (genpart)  { // mc truth known
       while (genpart && vtx ) {
-	int pdgID=genpart->pdg_id();
-	HepMC::GenParticle* genmom = vtx->particles_in_size()>0 ? *(vtx->particles_in_const_begin()) : 0;
-	if ( genmom && pdgID!=genmom->pdg_id() ) m_gen++;
+        int pdgID=genpart->pdg_id();
+        HepMC::GenParticle* genmom = vtx->particles_in_size()>0 ? *(vtx->particles_in_const_begin()) : 0;
+        if ( genmom && pdgID!=genmom->pdg_id() ) m_gen++;
         else if (vtx->particles_out_size()>0 && genpart!=*(vtx->particles_out_const_begin())) m_gen++;
-	vtx = genmom ? genmom->production_vertex() : 0;
-        genpart = genmom; 
+        vtx = genmom ? genmom->production_vertex() : 0;
+        genpart = genmom;
       }
     } else {
-      // retrieve info from parent track 
-      int parentID=track->GetParentID();	
+      // retrieve info from parent track
+      int parentID=track->GetParentID();
       std::map<int, int>::iterator genIt = m_trackGenMap.find(parentID);
-      if ( genIt != m_trackGenMap.end()) m_gen = (genIt->second >= 0) ? genIt->second+1 : genIt->second-1;       
+      if ( genIt != m_trackGenMap.end()) m_gen = (genIt->second >= 0) ? genIt->second+1 : genIt->second-1;
     }
 
     if (m_trackGenMap.find(trackID)==m_trackGenMap.end())  m_trackGenMap[trackID]=m_gen;
 
     m_currentTrack=trackID;
- 
+
     m_radLength = 0.;
   }
- 
+
   AtlasDetDescr::AtlasRegion geoID = m_geoIDSvcQuick->identifyNextGeoID( pos.x(),
                                                                          pos.y(),
                                                                          pos.z(),
@@ -331,38 +322,39 @@ void iGeant4::PhysicsValidationUserAction::SteppingAction(const G4Step* aStep)
 
     if (l0>0.) {
       m_L0 += stepLength/l0;
-      // average Z/A over fraction of atoms rather than weight fraction 
+      // average Z/A over fraction of atoms rather than weight fraction
       // const G4double* fVec = preStep->GetMaterial()->GetFractionVector();      // mass fraction
       double totNA =  preStep->GetMaterial()->GetTotNbOfAtomsPerVolume();
       const G4ElementVector* eVec = preStep->GetMaterial()->GetElementVector();
       const G4double* atVector = preStep->GetMaterial() ->GetVecNbOfAtomsPerVolume();
       float mFactor =stepInX0* preStep->GetMaterial()->GetDensity();
-      
+
       float zOverA = 0.;    float frSum = 0.;
       for (unsigned int i=0; i<eVec->size(); i++) {
         float fEl = atVector ?  atVector[i]/totNA : 0.;
         m_wZ += stepInX0*fEl*((*eVec)[i]->GetZ());
         //std::cout <<"elements:"<<i<<","<<fVec[i]<<":"<<(*eVec)[i]->GetZ()<< ","<<m_wZ<<","<<m_wZ/m_X0<<std::endl;
         //m_wA += stepInX0*fVec[i]*((*eVec)[i]->GetA());
-        zOverA += fEl*((*eVec)[i]->GetZ())/((*eVec)[i]->GetA()); 
+        zOverA += fEl*((*eVec)[i]->GetZ())/((*eVec)[i]->GetA());
         frSum += fEl;
       }
       if (fabs(frSum-1.)>0.01)  ATH_MSG_DEBUG("G4 material description inconsistent, sum of element fractions:"<< frSum);
       m_wzOaTr += mFactor*zOverA;
     }
-    
+
   }
-  
+
 
     // save interaction info (if any)
     if ( process && process->GetProcessSubType()>0 && process->GetProcessSubType()!=91) {
-   
+
     float eloss = postStep->GetMomentum().mag()-preStep->GetMomentum().mag();
 
     if (process->GetProcessSubType()==2 ) m_ionloss+=eloss;
     if (process->GetProcessSubType()==3 ) m_radloss+=eloss;
 
-    ISF::Geant4TruthIncident truth( aStep, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper);
+    EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+    iGeant4::Geant4TruthIncident truth( aStep, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
     unsigned int nSec = truth.numberOfChildren();
     if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
       //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;
@@ -547,11 +539,11 @@ void iGeant4::PhysicsValidationUserAction::SteppingAction(const G4Step* aStep)
         m_dEnd=postStep->GetPosition().mag();
 
         m_particles->Fill();
-	m_X0 = 0.;
-	m_L0 = 0.;
-	m_wZ = 0.;
-	m_radloss = 0.;
-	m_ionloss = 0.;
+        m_X0 = 0.;
+        m_L0 = 0.;
+        m_wZ = 0.;
+        m_radloss = 0.;
+        m_ionloss = 0.;
         m_wzOaTr= 0.;
       }
       m_X0=0.;
@@ -559,11 +551,20 @@ void iGeant4::PhysicsValidationUserAction::SteppingAction(const G4Step* aStep)
   }
 }
 
-void iGeant4::PhysicsValidationUserAction::PostUserTrackingAction(const G4Track* /*aTrack*/)
-{
-}
-
-void iGeant4::PhysicsValidationUserAction::PreUserTrackingAction(const G4Track*)
+void iGeant4::PhysicsValidationUserAction::PreTracking(const G4Track*)
 {
   m_sHelper.ResetNrOfSecondaries();
+}
+
+
+StatusCode iGeant4::PhysicsValidationUserAction::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

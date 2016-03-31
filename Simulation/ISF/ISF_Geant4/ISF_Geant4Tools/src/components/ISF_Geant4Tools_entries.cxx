@@ -2,7 +2,6 @@
 #include "../TransportTool.h"
 #include "../TrackProcessorUserActionPassBack.h"
 #include "../TrackProcessorUserActionFullG4.h"
-#include "../SDActivateUserAction.h"
 #include "../MCTruthUserAction.h"
 #include "../PhysicsValidationUserAction.h"
 #include "../G4RunManagerHelper.h"
@@ -14,7 +13,6 @@
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , G4TransportTool            )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , TrackProcessorUserActionPassBack )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , TrackProcessorUserActionFullG4   )
-DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , SDActivateUserAction )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , MCTruthUserAction        )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , PhysicsValidationUserAction        )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , G4RunManagerHelper )
@@ -23,7 +21,6 @@ DECLARE_FACTORY_ENTRIES( ISF_Geant4Tools ) {
   DECLARE_NAMESPACE_TOOL ( iGeant4 , G4TransportTool            )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , TrackProcessorUserActionPassBack )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , TrackProcessorUserActionFullG4   )
-  DECLARE_NAMESPACE_TOOL ( iGeant4 , SDActivateUserAction )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , MCTruthUserAction        )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , PhysicsValidationUserAction        )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , G4RunManagerHelper )

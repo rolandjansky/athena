@@ -9,24 +9,21 @@
 // class header
 #include "Geant4TruthIncident.h"
 
-// ISF includes
-//#include "ISF_Event/ISFParticle.h"
+// package includes
+#include "ISFG4Helpers.h"
+
+// Atlas G4 Helpers
+#include "MCTruth/EventInformation.h"
+#include "MCTruth/TrackBarcodeInfo.h"
+#include "MCTruth/TrackHelper.h"
+#include "MCTruth/TrackInformation.h"
+#include "SimHelpers/SecondaryTracksHelper.h"
 
 // Units
 #include "GaudiKernel/PhysicalConstants.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"
-
-// Atlas G4 Helpers
-#include "SimHelpers/SecondaryTracksHelper.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruth/TrackBarcodeInfo.h"
-#include "MCTruth/TrackHelper.h"
-
-#include "MCTruth/EventInformation.h"
-#include "FadsActions/FadsTrackingAction.h"
-
 
 // Geant4 includes
 #include "G4Step.hh"
@@ -39,6 +36,9 @@
 #include "G4EmProcessSubType.hh"
 #include "G4DynamicParticle.hh"
 #include "G4PrimaryParticle.hh"
+
+#include "G4EventManager.hh"
+#include "G4Event.hh"
 
 /*
   Comments:
@@ -65,19 +65,24 @@
 */
 
 
-ISF::Geant4TruthIncident::Geant4TruthIncident(const G4Step *step, AtlasDetDescr::AtlasRegion geoID, int numChildren, SecondaryTracksHelper &sHelper) :
+iGeant4::Geant4TruthIncident::Geant4TruthIncident( const G4Step *step,
+                                               AtlasDetDescr::AtlasRegion geoID,
+                                               int numChildren,
+                                               SecondaryTracksHelper &sHelper,
+                                               EventInformation *eventInfo) :
   ITruthIncident(geoID, numChildren),
   m_positionSet(false),
   m_position(),
   m_step(step),
   m_sHelper( sHelper),
+  m_eventInfo(eventInfo),
   m_childrenPrepared(false),
   m_children(),
-  m_parentParticleAfterIncident(0)
+  m_parentParticleAfterIncident(nullptr)
 {
 }
 
-const HepMC::FourVector& ISF::Geant4TruthIncident::position() const {
+const HepMC::FourVector& iGeant4::Geant4TruthIncident::position() const {
   if (!m_positionSet) {
     // post step processes:
     const G4StepPoint *postStepPoint = m_step->GetPostStepPoint();
@@ -90,57 +95,49 @@ const HepMC::FourVector& ISF::Geant4TruthIncident::position() const {
   return m_position;
 }
 
-int ISF::Geant4TruthIncident::physicsProcessCategory() const {
+int iGeant4::Geant4TruthIncident::physicsProcessCategory() const {
   const G4VProcess *process = m_step->GetPostStepPoint()->GetProcessDefinedStep();
   // TODO: need to check that G4ProcessSubTypes Match Barcode::PhysicsProcessCode
   return process->GetProcessType();
 }
 
-Barcode::PhysicsProcessCode ISF::Geant4TruthIncident::physicsProcessCode() const {
+Barcode::PhysicsProcessCode iGeant4::Geant4TruthIncident::physicsProcessCode() const {
   const G4VProcess *process = m_step->GetPostStepPoint()->GetProcessDefinedStep();
   // TODO: need to check that G4ProcessSubTypes Match Barcode::PhysicsProcessCode
   return process->GetProcessSubType();
 }
 
-double ISF::Geant4TruthIncident::parentP2() const {
+double iGeant4::Geant4TruthIncident::parentP2() const {
   const G4ThreeVector & mom= m_step->GetPreStepPoint()->GetMomentum();
   return mom.mag2();
 }
 
-double ISF::Geant4TruthIncident::parentPt2() const {
+double iGeant4::Geant4TruthIncident::parentPt2() const {
   const G4ThreeVector & mom= m_step->GetPreStepPoint()->GetMomentum();
   return mom.perp2();
 }
 
-double ISF::Geant4TruthIncident::parentEkin() const {
+double iGeant4::Geant4TruthIncident::parentEkin() const {
   return (m_step->GetPreStepPoint()->GetKineticEnergy()/CLHEP::MeV);
 }
 
-int ISF::Geant4TruthIncident::parentPdgCode() const {
+int iGeant4::Geant4TruthIncident::parentPdgCode() const {
   return  m_step->GetTrack()->GetDefinition()->GetPDGEncoding();
 }
 
-Barcode::ParticleBarcode ISF::Geant4TruthIncident::parentBarcode() const {
-  const G4Track *track = m_step->GetTrack();
-  VTrackInformation *trackInfo=static_cast<VTrackInformation *>(track->GetUserInformation());
+Barcode::ParticleBarcode iGeant4::Geant4TruthIncident::parentBarcode() const {
+  auto parent = parentParticle();
 
-  if (trackInfo && (trackInfo->GetHepMCParticle() || dynamic_cast<TrackBarcodeInfo*>(trackInfo))) {
-    return trackInfo->GetParticleBarcode();
-  }
-  return Barcode::fUndefinedBarcode;
+  return (parent) ? parent->barcode() : Barcode::fUndefinedBarcode;
 }
 
-HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticle(bool /*setPersistent*/) const {
-  
-  EventInformation* evtInfo = static_cast<EventInformation*>
-    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-  
-  HepMC::GenParticle* hepParticle = evtInfo->GetCurrentlyTraced();
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::parentParticle() const {
+  HepMC::GenParticle* hepParticle = m_eventInfo->GetCurrentlyTraced();
 
   return hepParticle;
 }
 
-bool ISF::Geant4TruthIncident::parentSurvivesIncident() const { 
+bool iGeant4::Geant4TruthIncident::parentSurvivesIncident() const { 
   const G4Track *track = m_step->GetTrack();
 
   // check if particle is a alive in G4 or in ISF
@@ -151,13 +148,12 @@ bool ISF::Geant4TruthIncident::parentSurvivesIncident() const {
   }
 }
 
-HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticleAfterIncident(Barcode::ParticleBarcode newBarcode,
-                                                                           bool /*setPersistent*/ ) {
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::parentParticleAfterIncident(Barcode::ParticleBarcode newBarcode) {
   const G4Track *track = m_step->GetTrack();
 
   // check if particle is a alive in G4 or in ISF
   if ( !parentSurvivesIncident() ) {
-      return 0;
+    return nullptr;
   }
 
   // internally cache the HepMC representation of the parent particle
@@ -167,10 +163,7 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticleAfterIncident(Barcod
     // from G4DynamicParticle (which should be equivalent to postStep)
     m_parentParticleAfterIncident = convert(track);
     
-    EventInformation* evtInfo = static_cast<EventInformation*>
-      (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-    
-    evtInfo->SetCurrentlyTraced( m_parentParticleAfterIncident );
+    m_eventInfo->SetCurrentlyTraced( m_parentParticleAfterIncident );
     
     m_parentParticleAfterIncident->suggest_barcode( newBarcode );
 
@@ -178,7 +171,9 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticleAfterIncident(Barcod
     TrackHelper       tHelper(track);
     TrackInformation *tInfo = tHelper.GetTrackInformation();
     if (tInfo) {
-      tInfo->SetParticle( m_parentParticleAfterIncident );
+      // do NOT update the TrackInformation for regenerated particles!
+      // (most recent truth info is kept in EventInformation)
+      //tInfo->SetParticle( m_parentParticleAfterIncident );
       int regenerationNr = tInfo->GetRegenerationNr();
       regenerationNr++;
       tInfo->SetRegenerationNr(regenerationNr);
@@ -194,105 +189,101 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticleAfterIncident(Barcod
   return m_parentParticleAfterIncident;
 }
 
-double ISF::Geant4TruthIncident::childP2(unsigned short i) const {
+double iGeant4::Geant4TruthIncident::childP2(unsigned short i) const {
   prepareChildren();
   const G4ThreeVector & mom= m_children[i]->GetMomentum();
   return mom.mag2();
 }
 
-const G4ThreeVector ISF::Geant4TruthIncident::childP(unsigned short i) const {
+const G4ThreeVector iGeant4::Geant4TruthIncident::childP(unsigned short i) const {
   prepareChildren();
   const G4ThreeVector & mom= m_children[i]->GetMomentum();
   return mom;
 }
 
-double ISF::Geant4TruthIncident::childPt2(unsigned short i) const {
+double iGeant4::Geant4TruthIncident::childPt2(unsigned short i) const {
   prepareChildren();
   const G4ThreeVector & mom= m_children[i]->GetMomentum();
   return mom.perp2();
 }
 
-double ISF::Geant4TruthIncident::childEkin(unsigned short i) const {
+double iGeant4::Geant4TruthIncident::childEkin(unsigned short i) const {
   prepareChildren();
   return (m_children[i]->GetKineticEnergy()/CLHEP::MeV);
 }
 
-int ISF::Geant4TruthIncident::childPdgCode(unsigned short i) const {
+int iGeant4::Geant4TruthIncident::childPdgCode(unsigned short i) const {
   prepareChildren();
   return m_children[i]->GetDefinition()->GetPDGEncoding();
 }
 
-void ISF::Geant4TruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode newBarcode) {
+void iGeant4::Geant4TruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode newBarcode) {
 
   prepareChildren();
 
   unsigned short numChildren = numberOfChildren();
   for (unsigned short i=0; i<numChildren; i++) {
 
-    G4Track *curSecondary = m_children[i];
+    G4Track *curSecondaryTrack = m_children[i];
 
     // get parent if it exists in user info
-    VTrackInformation *trackInfo=static_cast<VTrackInformation*>( curSecondary->GetUserInformation() );
-    const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : 0;
+    auto* trackInfo = ISFG4Helpers::getISFTrackInfo( *curSecondaryTrack );
 
-    // assume these G4Track don't have an information yet.
-    TrackBarcodeInfo * bi = new TrackBarcodeInfo(newBarcode,parent);
+    // update present UserInformation
+    if (trackInfo) {
+      auto* hepParticle = const_cast<HepMC::GenParticle*>( trackInfo->GetHepMCParticle() );
 
-    // FIXME: doesn't that cause a memory leak if UserInformation already existed before?
-    curSecondary->SetUserInformation(bi);
+      if (hepParticle) {
+        hepParticle->suggest_barcode( newBarcode );
+      }
+
+    // attach new UserInformation
+    } else {
+      const ISF::ISFParticle* parent = trackInfo->GetBaseISFParticle();
+      TrackBarcodeInfo* bi = new TrackBarcodeInfo(newBarcode,parent);
+      curSecondaryTrack->SetUserInformation(bi);
+    }
   }
 
   return;
 }
 
-HepMC::GenParticle* ISF::Geant4TruthIncident::childParticle(unsigned short i,
-                                                            Barcode::ParticleBarcode newBarcode,
-                                                            bool /*setPersistent*/) const {
+
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i,
+                                                            Barcode::ParticleBarcode newBarcode) const {
   prepareChildren();
 
-  // return value
-  HepMC::GenParticle *hepParticle = 0;
-
   // the G4Track instance for the current child particle
-  G4Track          *thisChild = m_children[i];
+  G4Track* thisChildTrack = m_children[i];
 
   // NB: NOT checking if secondary is actually alive. Even with zero momentum,
   //     secondary could decay right away and create further particles which pass the
   //     truth strategies.
 
-  hepParticle = convert( thisChild );
+  HepMC::GenParticle* hepParticle = convert( thisChildTrack );
+  hepParticle->suggest_barcode( newBarcode );
 
-   // Normal situation - no parent particle
-   hepParticle->suggest_barcode( newBarcode );
-
-  // get last (parent) ISFParticle link
-  const G4Track *track = m_step->GetTrack();
-  VTrackInformation *trackInfo = static_cast<VTrackInformation*>( track->GetUserInformation() );
-  const ISF::ISFParticle* parentISP = (trackInfo) ? trackInfo->GetISFParticle() : 0;
- 
-  // create new TrackInformation (with link to hepParticle and ISFParticle)
-  // and attach it to G4Track
-  TrackInformation *ti = new TrackInformation(hepParticle, parentISP);
-  ti->SetRegenerationNr(0);
-  ti->SetClassification(RegisteredSecondary);
-
-  thisChild->SetUserInformation(ti);
+  TrackHelper tHelper(thisChildTrack);
+  TrackInformation *trackInfo = tHelper.GetTrackInformation();
+  trackInfo->SetParticle(hepParticle);
+  trackInfo->SetClassification(RegisteredSecondary);
+  trackInfo->SetRegenerationNr(0);
 
   return hepParticle;
 }
 
 
-bool ISF::Geant4TruthIncident::particleAlive(const G4Track *track) const {
+bool iGeant4::Geant4TruthIncident::particleAlive(const G4Track *track) const {
   G4TrackStatus  trackStatus = track->GetTrackStatus();
 
   if ( trackStatus!=fAlive ) {
     // parent does not exist in G4 anymore after this step
 
     // check whether the particle was returned to ISF
-    TrackInformation* trackInfo = dynamic_cast<TrackInformation*>( track->GetUserInformation() );
-    bool          returnedToISF = trackInfo ? trackInfo->GetReturnedToISF() : false;
+    auto*    trackInfo = ISFG4Helpers::getISFTrackInfo( *track );
+    bool returnedToISF = trackInfo ? trackInfo->GetReturnedToISF() : false;
     if ( !returnedToISF ) {
-      // return, since parent does not exist in ISF either after this step
+      // particle was not sent to ISF either
       return false;
     }
   }
@@ -301,7 +292,7 @@ bool ISF::Geant4TruthIncident::particleAlive(const G4Track *track) const {
 }
 
 
-HepMC::GenParticle* ISF::Geant4TruthIncident::convert(const G4Track *track) const {
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track) const {
 
   const G4ThreeVector & mom =  track->GetMomentum();
   const double energy =  track->GetTotalEnergy();
@@ -315,7 +306,7 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::convert(const G4Track *track) cons
 }
 
 
-void ISF::Geant4TruthIncident::prepareChildren() const {
+void iGeant4::Geant4TruthIncident::prepareChildren() const {
 
   if (!m_childrenPrepared) {
     // NB: m_children is *not* a pointer, therefore this calls
