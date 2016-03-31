@@ -126,16 +126,16 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_thistSvc(0)
    , m_calo_dd_man(0)
    //#####################
-   , eta_calo_surf(0)
-   , phi_calo_surf(0)
-   , d_calo_surf(0)
-   , ptruth_eta(0)
-   , ptruth_phi(0)
-   , ptruth_e(0)
-   , ptruth_et(0)
-   , ptruth_pt(0)
-   , ptruth_p(0)
-   , pdgid(0)
+   , m_eta_calo_surf(0)
+   , m_phi_calo_surf(0)
+   , m_d_calo_surf(0)
+   , m_ptruth_eta(0)
+   , m_ptruth_phi(0)
+   , m_ptruth_e(0)
+   , m_ptruth_et(0)
+   , m_ptruth_pt(0)
+   , m_ptruth_p(0)
+   , m_pdgid(0)
 
    //######################
    , m_TTC_entrance_eta(0)
@@ -158,8 +158,8 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_calo_tb_coord(0)
    , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
    , m_particleDataTable(0)
-   ,MC_DIGI_PARAM("/Digitization/Parameters")
-   ,MC_SIM_PARAM("/Simulation/Parameters")
+   ,m_MC_DIGI_PARAM("/Digitization/Parameters")
+   ,m_MC_SIM_PARAM("/Simulation/Parameters")
    
    //######################
 
@@ -190,8 +190,8 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
 
   declareProperty("CaloGeometryHelper",             m_CaloGeometryHelper );
   
-  declareProperty("MetaDataSim", MC_SIM_PARAM );
-  declareProperty("MetaDataDigi", MC_DIGI_PARAM );
+  declareProperty("MetaDataSim", m_MC_SIM_PARAM );
+  declareProperty("MetaDataDigi", m_MC_DIGI_PARAM );
 
   m_surfacelist.resize(0);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerB);
@@ -308,8 +308,8 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
   std::list< std::string >::const_iterator itr = keys.begin();
   std::list< std::string >::const_iterator end = keys.end();
   for( ; itr != end; ++itr ) {
-     if( *itr == MC_DIGI_PARAM ) run_update = true;
-     if( *itr == MC_SIM_PARAM ) run_update = true;
+     if( *itr == m_MC_DIGI_PARAM ) run_update = true;
+     if( *itr == m_MC_SIM_PARAM ) run_update = true;
      msg() << *itr;
   }
   msg() << endreq;
@@ -318,7 +318,7 @@ StatusCode ISF_HitAnalysis::updateMetaData( IOVSVC_CALLBACK_ARGS_P( I, keys ) ) 
   if( ! run_update ) return StatusCode::SUCCESS;
 
   const DataHandle< AthenaAttributeList > simParam;
-  if( detStore()->retrieve( simParam, MC_SIM_PARAM ).isFailure() ) {
+  if( detStore()->retrieve( simParam, m_MC_SIM_PARAM ).isFailure() ) {
     ATH_MSG_WARNING("Retrieving MC SIM metadata failed");
   } else {
     AthenaAttributeList::const_iterator attr_itr = simParam->begin();
@@ -385,24 +385,24 @@ StatusCode ISF_HitAnalysis::initialize() {
     }
   }  
 
-  if( detStore()->contains< AthenaAttributeList >( MC_DIGI_PARAM ) ) {
+  if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) ) {
     const DataHandle< AthenaAttributeList > aptr;
-    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,MC_DIGI_PARAM, true ).isFailure() ) {
-      ATH_MSG_ERROR( "Could not register callback for "<< MC_DIGI_PARAM );
+    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_DIGI_PARAM, true ).isFailure() ) {
+      ATH_MSG_ERROR( "Could not register callback for "<< m_MC_DIGI_PARAM );
       return StatusCode::FAILURE;
     }
   } else {
-    ATH_MSG_WARNING( "MetaData not found for "<< MC_DIGI_PARAM );
+    ATH_MSG_WARNING( "MetaData not found for "<< m_MC_DIGI_PARAM );
   }
   
-  if( detStore()->contains< AthenaAttributeList >( MC_SIM_PARAM ) ) {
+  if( detStore()->contains< AthenaAttributeList >( m_MC_SIM_PARAM ) ) {
     const DataHandle< AthenaAttributeList > aptr;
-    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,MC_SIM_PARAM, true ).isFailure() ) {
-      ATH_MSG_ERROR( "Could not register callback for "<< MC_SIM_PARAM );
+    if( detStore()->regFcn( &ISF_HitAnalysis::updateMetaData, this, aptr,m_MC_SIM_PARAM, true ).isFailure() ) {
+      ATH_MSG_ERROR( "Could not register callback for "<< m_MC_SIM_PARAM );
       return StatusCode::FAILURE;
     }
   } else {
-    ATH_MSG_WARNING( "MetaData not found for "<< MC_SIM_PARAM );
+    ATH_MSG_WARNING( "MetaData not found for "<< m_MC_SIM_PARAM );
   }
   
   // Get CaloGeometryHelper
@@ -526,10 +526,10 @@ StatusCode ISF_HitAnalysis::initialize() {
 StatusCode ISF_HitAnalysis::finalize() {
   ATH_MSG_INFO( "doing finalize()" );
 
-  TTree* m_geo = new TTree( m_geoModel->atlasVersion().c_str() , m_geoModel->atlasVersion().c_str() );
+  TTree* geo = new TTree( m_geoModel->atlasVersion().c_str() , m_geoModel->atlasVersion().c_str() );
   std::string fullNtupleName =  "/"+m_geoFileName+"/"+m_geoModel->atlasVersion(); 
-  StatusCode sc = m_thistSvc->regTree(fullNtupleName, m_geo); 
-  if (sc.isFailure() || !m_geo ) { 
+  StatusCode sc = m_thistSvc->regTree(fullNtupleName, geo); 
+  if (sc.isFailure() || !geo ) { 
     ATH_MSG_ERROR("Unable to register TTree: " << fullNtupleName); 
     return StatusCode::FAILURE;
   }
@@ -545,33 +545,33 @@ StatusCode ISF_HitAnalysis::finalize() {
   
   static GEOCELL geocell;  
   
-  if (m_geo){
+  if (geo){
     ATH_MSG_INFO("Successfull registered TTree: " << fullNtupleName); 
     //this actually creates the vector itself! And only if it succeeds! Note that the result is not checked! And the code is probably leaking memory in the end
-    //m_geo->Branch("cells", &geocell,"identifier/L:eta,phi,r,eta_raw,phi_raw,r_raw,x,y,z,x_raw,y_raw,z_raw/F:Deta,Dphi,Dr,Dx,Dy,Dz/F");
-    m_geo->Branch("identifier", &geocell.identifier,"identifier/L");
-    m_geo->Branch("calosample", &geocell.calosample,"calosample/I");
+    //geo->Branch("cells", &geocell,"identifier/L:eta,phi,r,eta_raw,phi_raw,r_raw,x,y,z,x_raw,y_raw,z_raw/F:Deta,Dphi,Dr,Dx,Dy,Dz/F");
+    geo->Branch("identifier", &geocell.identifier,"identifier/L");
+    geo->Branch("calosample", &geocell.calosample,"calosample/I");
 
-    m_geo->Branch("eta", &geocell.eta,"eta/F");
-    m_geo->Branch("phi", &geocell.phi,"phi/F");
-    m_geo->Branch("r", &geocell.r,"r/F");
-    m_geo->Branch("eta_raw", &geocell.eta_raw,"eta_raw/F");
-    m_geo->Branch("phi_raw", &geocell.phi_raw,"phi_raw/F");
-    m_geo->Branch("r_raw", &geocell.r_raw,"r_raw/F");
+    geo->Branch("eta", &geocell.eta,"eta/F");
+    geo->Branch("phi", &geocell.phi,"phi/F");
+    geo->Branch("r", &geocell.r,"r/F");
+    geo->Branch("eta_raw", &geocell.eta_raw,"eta_raw/F");
+    geo->Branch("phi_raw", &geocell.phi_raw,"phi_raw/F");
+    geo->Branch("r_raw", &geocell.r_raw,"r_raw/F");
 
-    m_geo->Branch("x", &geocell.x,"x/F");
-    m_geo->Branch("y", &geocell.y,"y/F");
-    m_geo->Branch("z", &geocell.z,"z/F");
-    m_geo->Branch("x_raw", &geocell.x_raw,"x_raw/F");
-    m_geo->Branch("y_raw", &geocell.y_raw,"y_raw/F");
-    m_geo->Branch("z_raw", &geocell.z_raw,"z_raw/F");
+    geo->Branch("x", &geocell.x,"x/F");
+    geo->Branch("y", &geocell.y,"y/F");
+    geo->Branch("z", &geocell.z,"z/F");
+    geo->Branch("x_raw", &geocell.x_raw,"x_raw/F");
+    geo->Branch("y_raw", &geocell.y_raw,"y_raw/F");
+    geo->Branch("z_raw", &geocell.z_raw,"z_raw/F");
 
-    m_geo->Branch("deta", &geocell.deta,"deta/F");
-    m_geo->Branch("dphi", &geocell.dphi,"dphi/F");
-    m_geo->Branch("dr", &geocell.dr,"dr/F");
-    m_geo->Branch("dx", &geocell.dx,"dx/F");
-    m_geo->Branch("dy", &geocell.dy,"dy/F");
-    m_geo->Branch("dz", &geocell.dz,"dz/F");
+    geo->Branch("deta", &geocell.deta,"deta/F");
+    geo->Branch("dphi", &geocell.dphi,"dphi/F");
+    geo->Branch("dr", &geocell.dr,"dr/F");
+    geo->Branch("dx", &geocell.dx,"dx/F");
+    geo->Branch("dy", &geocell.dy,"dy/F");
+    geo->Branch("dz", &geocell.dz,"dz/F");
   }
   
 
@@ -583,7 +583,7 @@ StatusCode ISF_HitAnalysis::finalize() {
         CaloCell_ID::CaloSample sample=theDDE->getSampling();
         //CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
         ++ncells;
-        if(m_geo) {
+        if(geo) {
           geocell.identifier=theDDE->identify().get_compact();
           geocell.calosample=sample;
 
@@ -608,7 +608,7 @@ StatusCode ISF_HitAnalysis::finalize() {
           geocell.dy=theDDE->dy();
           geocell.dz=theDDE->dz();
 
-          m_geo->Fill();
+          geo->Fill();
         }
       }  
     }
@@ -1148,12 +1148,12 @@ void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part,std::vector<Trk
 {
  ATH_MSG_DEBUG("Start extrapolate()");
 
- ptruth_eta=part->momentum().eta();
- ptruth_phi=part->momentum().phi();
- ptruth_e  =part->momentum().e();
- ptruth_pt =part->momentum().perp();
- ptruth_p  =part->momentum().rho();
- pdgid=part->pdg_id();
+ m_ptruth_eta=part->momentum().eta();
+ m_ptruth_phi=part->momentum().phi();
+ m_ptruth_e  =part->momentum().e();
+ m_ptruth_pt =part->momentum().perp();
+ m_ptruth_p  =part->momentum().rho();
+ m_pdgid=part->pdg_id();
  
  //////////////////////////////////////
  // Start calo extrapolation
@@ -1174,28 +1174,28 @@ void ISF_HitAnalysis::extrapolate(const HepMC::GenParticle* part,std::vector<Trk
  }
 
  // only continue if inside the calo
- if( fabs(eta_calo_surf)<6 )
+ if( fabs(m_eta_calo_surf)<6 )
  {
    // now try to extrpolate to all calo layers, that contain energy
-   ATH_MSG_DEBUG("Calo position for particle id "<<pdgid<<", trutheta= " << ptruth_eta <<", truthphi= "<<ptruth_phi<<", truthp="<<ptruth_p<<", truthpt="<<ptruth_pt);
+   ATH_MSG_DEBUG("Calo position for particle id "<<m_pdgid<<", trutheta= " << m_ptruth_eta <<", truthphi= "<<m_ptruth_phi<<", truthp="<<m_ptruth_p<<", truthpt="<<m_ptruth_pt);
    for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
      for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
-       letaCalo[sample][subpos]=-12345;
-       lphiCalo[sample][subpos]=-12345;
-       lrCalo[sample][subpos]=-12345;
-       lzCalo[sample][subpos]=-12345;
-       layerCaloOK[sample][subpos]=0;
-       //ATH_MSG_DEBUG("============= Getting Calo position for sample "<<sample<<" E/Etot="<<p.E_layer[sample]<<" ; in : eta= " << ptruth_eta);
+       m_letaCalo[sample][subpos]=-12345;
+       m_lphiCalo[sample][subpos]=-12345;
+       m_lrCalo[sample][subpos]=-12345;
+       m_lzCalo[sample][subpos]=-12345;
+       m_layerCaloOK[sample][subpos]=0;
+       //ATH_MSG_DEBUG("============= Getting Calo position for sample "<<sample<<" E/Etot="<<p.E_layer[sample]<<" ; in : eta= " << m_ptruth_eta);
        
        if(get_calo_etaphi(hitVector,sample,subpos)) {
-         ATH_MSG_DEBUG( "Result in sample "<<sample<<"."<<subpos<<": eta="<<letaCalo[sample][subpos]<<" phi="<<lphiCalo[sample][subpos]<<" r="<<lrCalo[sample][subpos]<<" z="<<lzCalo[sample][subpos]<<" (ok="<<layerCaloOK[sample][subpos]<<")");
-         eta_safe[subpos][sample]=letaCalo[sample][subpos];
-         phi_safe[subpos][sample]=lphiCalo[sample][subpos];
-         r_safe[subpos][sample]=lrCalo[sample][subpos];
-         z_safe[subpos][sample]=lzCalo[sample][subpos];
+         ATH_MSG_DEBUG( "Result in sample "<<sample<<"."<<subpos<<": eta="<<m_letaCalo[sample][subpos]<<" phi="<<m_lphiCalo[sample][subpos]<<" r="<<m_lrCalo[sample][subpos]<<" z="<<m_lzCalo[sample][subpos]<<" (ok="<<m_layerCaloOK[sample][subpos]<<")");
+         eta_safe[subpos][sample]=m_letaCalo[sample][subpos];
+         phi_safe[subpos][sample]=m_lphiCalo[sample][subpos];
+         r_safe[subpos][sample]=m_lrCalo[sample][subpos];
+         z_safe[subpos][sample]=m_lzCalo[sample][subpos];
        }
        else
-        ATH_MSG_DEBUG( "Extrapolation to sample "<<sample<<" failed (ok="<<layerCaloOK[sample][subpos]<<")");
+        ATH_MSG_DEBUG( "Extrapolation to sample "<<sample<<" failed (ok="<<m_layerCaloOK[sample][subpos]<<")");
       }
     }
  } //inside calo
@@ -1217,12 +1217,12 @@ void ISF_HitAnalysis::extrapolate_to_ID(const HepMC::GenParticle* part,std::vect
 {
  ATH_MSG_DEBUG("Start extrapolate_to_ID()");
 
- ptruth_eta=part->momentum().eta();
- ptruth_phi=part->momentum().phi();
- ptruth_e  =part->momentum().e();
- ptruth_pt =part->momentum().perp();
- ptruth_p  =part->momentum().rho();
- pdgid     =part->pdg_id();
+ m_ptruth_eta=part->momentum().eta();
+ m_ptruth_phi=part->momentum().phi();
+ m_ptruth_e  =part->momentum().e();
+ m_ptruth_pt =part->momentum().perp();
+ m_ptruth_p  =part->momentum().rho();
+ m_pdgid     =part->pdg_id();
  
  Amg::Vector3D hitpos(0,0,0);
  Amg::Vector3D hitmom(0,0,0);
@@ -1267,13 +1267,13 @@ void ISF_HitAnalysis::extrapolate_to_ID(const HepMC::GenParticle* part,std::vect
 //UPDATED
 bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int sample,int subpos)  
 {
-  layerCaloOK[sample][subpos]=false;
-  letaCalo[sample][subpos]=eta_calo_surf;
-  lphiCalo[sample][subpos]=phi_calo_surf;
-  lrCalo[sample][subpos] = rpos(sample,eta_calo_surf,subpos);
-  lzCalo[sample][subpos] = zpos(sample,eta_calo_surf,subpos);
-  double distsamp =deta(sample,eta_calo_surf);
-  double lrzpos =rzpos(sample,eta_calo_surf,subpos);
+  m_layerCaloOK[sample][subpos]=false;
+  m_letaCalo[sample][subpos]=m_eta_calo_surf;
+  m_lphiCalo[sample][subpos]=m_phi_calo_surf;
+  m_lrCalo[sample][subpos] = rpos(sample,m_eta_calo_surf,subpos);
+  m_lzCalo[sample][subpos] = zpos(sample,m_eta_calo_surf,subpos);
+  double distsamp =deta(sample,m_eta_calo_surf);
+  double lrzpos =rzpos(sample,m_eta_calo_surf,subpos);
   double hitdist=0;
   bool best_found=false;
   double best_target=0;
@@ -1316,19 +1316,19 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int 
     }
     double etaCalo = hitPos.eta();
     double phiCalo = hitPos.phi();
-    letaCalo[sample][subpos]=etaCalo;
-    lphiCalo[sample][subpos]=phiCalo;
-    lrCalo[sample][subpos] = hitPos.perp();
-    lzCalo[sample][subpos] = hitPos[Amg::z];
+    m_letaCalo[sample][subpos]=etaCalo;
+    m_lphiCalo[sample][subpos]=phiCalo;
+    m_lrCalo[sample][subpos] = hitPos.perp();
+    m_lzCalo[sample][subpos] = hitPos[Amg::z];
     hitdist=hitPos.mag();
-    layerCaloOK[sample][subpos]=true;
+    m_layerCaloOK[sample][subpos]=true;
     lrzpos=rzpos(sample,etaCalo,subpos);
     distsamp=deta(sample,etaCalo);
     best_found=true;
     ATH_MSG_DEBUG(" extrapol with layer hit: id="<<sid1<<" -> "<<sid2<<
                   " target r/z="<<best_target<<
                   " r1="<<hitPos1.perp()<<" z1="<<hitPos1[Amg::z]<<" r2="<<hitPos2.perp()<<" z2="<<hitPos2[Amg::z]<<
-                  " re="<<lrCalo[sample][subpos]<<" ze="<<lzCalo[sample][subpos]
+                  " re="<<m_lrCalo[sample][subpos]<<" ze="<<m_lzCalo[sample][subpos]
                   );
   } 
   if(!best_found) {
@@ -1391,14 +1391,14 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int 
                     " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
                     );
       if(best_found) {
-        letaCalo[sample][subpos]=best_hitPos.eta();
-        lphiCalo[sample][subpos]=best_hitPos.phi();
-        lrCalo[sample][subpos] = best_hitPos.perp();
-        lzCalo[sample][subpos] = best_hitPos[Amg::z];
+        m_letaCalo[sample][subpos]=best_hitPos.eta();
+        m_lphiCalo[sample][subpos]=best_hitPos.phi();
+        m_lrCalo[sample][subpos] = best_hitPos.perp();
+        m_lzCalo[sample][subpos] = best_hitPos[Amg::z];
         hitdist=best_hitPos.mag();
-        lrzpos=rzpos(sample,letaCalo[sample][subpos],subpos);
-        distsamp=deta(sample,letaCalo[sample][subpos]);
-        layerCaloOK[sample][subpos]=true;
+        lrzpos=rzpos(sample,m_letaCalo[sample][subpos],subpos);
+        distsamp=deta(sample,m_letaCalo[sample][subpos]);
+        m_layerCaloOK[sample][subpos]=true;
       }              
     } 
     if(best_found) {
@@ -1409,20 +1409,20 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, int 
     }                  
   }
   
-  if(isCaloBarrel(sample)) lrzpos*=cosh(letaCalo[sample][subpos]);
-   else                    lrzpos= fabs(lrzpos/tanh(letaCalo[sample][subpos]));
+  if(isCaloBarrel(sample)) lrzpos*=cosh(m_letaCalo[sample][subpos]);
+   else                    lrzpos= fabs(lrzpos/tanh(m_letaCalo[sample][subpos]));
 
-  dCalo[sample][subpos]=lrzpos;
-  distetaCaloBorder[sample][subpos]=distsamp;
+  m_dCalo[sample][subpos]=lrzpos;
+  m_distetaCaloBorder[sample][subpos]=distsamp;
 
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)<<"  Final par TTC sample "<<sample<<" subpos="<<subpos;
-    if(layerCaloOK[sample][subpos]) msg()<<" (good)";
+    if(m_layerCaloOK[sample][subpos]) msg()<<" (good)";
      else msg()<<" (bad)";
-    msg()<<" eta=" << letaCalo[sample][subpos] << "   phi=" << lphiCalo[sample][subpos] <<" dCalo="<<dCalo[sample][subpos]<<" dist(hit)="<<hitdist<< endreq;
+    msg()<<" eta=" << m_letaCalo[sample][subpos] << "   phi=" << m_lphiCalo[sample][subpos] <<" m_dCalo="<<m_dCalo[sample][subpos]<<" dist(hit)="<<hitdist<< endreq;
   } 
  
-  return layerCaloOK[sample][subpos];
+  return m_layerCaloOK[sample][subpos];
 }
 
 //UPDATED
@@ -1509,11 +1509,11 @@ bool ISF_HitAnalysis::rz_cylinder_get_calo_etaphi(std::vector<Trk::HitInfo>* hit
 /*
 bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, CaloCell_ID_FCS::CaloSample sample)  
 {
-  layerCaloOK[sample]=false;
-  letaCalo[sample]=eta_calo_surf;
-  lphiCalo[sample]=phi_calo_surf;
-  double distsamp =deta(sample,eta_calo_surf);
-  double rzmiddle =rzmid(sample,eta_calo_surf);
+  m_layerCaloOK[sample]=false;
+  m_letaCalo[sample]=m_eta_calo_surf;
+  m_lphiCalo[sample]=m_phi_calo_surf;
+  double distsamp =deta(sample,m_eta_calo_surf);
+  double rzmiddle =rzmid(sample,m_eta_calo_surf);
   double hitdist=0;
   bool best_found=false;
   double best_target=0;
@@ -1556,10 +1556,10 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, Calo
     }
     double etaCalo = hitPos.eta();
     double phiCalo = hitPos.phi();
-    letaCalo[sample]=etaCalo;
-    lphiCalo[sample]=phiCalo;
+    m_letaCalo[sample]=etaCalo;
+    m_lphiCalo[sample]=phiCalo;
     hitdist=hitPos.mag();
-    layerCaloOK[sample]=true;
+    m_layerCaloOK[sample]=true;
     rzmiddle=rzmid((CaloCell_ID_FCS::CaloSample)sample,etaCalo);
     distsamp=deta((CaloCell_ID_FCS::CaloSample)sample,etaCalo);
     best_found=true;
@@ -1629,12 +1629,12 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, Calo
                     " rb="<<best_hitPos.perp()<<" zb="<<best_hitPos[Amg::z]
                     );
       if(best_found) {
-        letaCalo[sample]=best_hitPos.eta();
-        lphiCalo[sample]=best_hitPos.phi();
+        m_letaCalo[sample]=best_hitPos.eta();
+        m_lphiCalo[sample]=best_hitPos.phi();
         hitdist=best_hitPos.mag();
-        rzmiddle=rzmid((CaloCell_ID_FCS::CaloSample)sample,letaCalo[sample]);
-        distsamp=deta((CaloCell_ID_FCS::CaloSample)sample,letaCalo[sample]);
-        layerCaloOK[sample]=true;
+        rzmiddle=rzmid((CaloCell_ID_FCS::CaloSample)sample,m_letaCalo[sample]);
+        distsamp=deta((CaloCell_ID_FCS::CaloSample)sample,m_letaCalo[sample]);
+        m_layerCaloOK[sample]=true;
       }              
     } 
     if(best_found) {
@@ -1645,20 +1645,20 @@ bool ISF_HitAnalysis::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector, Calo
     }                  
   }
   
-  if(isCaloBarrel((CaloCell_ID_FCS::CaloSample)sample)) rzmiddle*=cosh(letaCalo[sample]);
-   else                                                 rzmiddle= fabs(rzmiddle/tanh(letaCalo[sample]));
+  if(isCaloBarrel((CaloCell_ID_FCS::CaloSample)sample)) rzmiddle*=cosh(m_letaCalo[sample]);
+   else                                                 rzmiddle= fabs(rzmiddle/tanh(m_letaCalo[sample]));
 
-  dCalo[sample]=rzmiddle;
-  distetaCaloBorder[sample]=distsamp;
+  m_dCalo[sample]=rzmiddle;
+  m_distetaCaloBorder[sample]=distsamp;
 
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)<<"  Final par TTC sample "<<(int)sample;
-    if(layerCaloOK[sample]) msg()<<" (good)";
+    if(m_layerCaloOK[sample]) msg()<<" (good)";
      else msg()<<" (bad)";
-    msg()<<" eta=" << letaCalo[sample] << "   phi=" << lphiCalo[sample] <<" dCalo="<<dCalo[sample]<<" dist(hit)="<<hitdist<< endreq;
+    msg()<<" eta=" << m_letaCalo[sample] << "   phi=" << m_lphiCalo[sample] <<" m_dCalo="<<m_dCalo[sample]<<" dist(hit)="<<hitdist<< endreq;
   } 
  
-  return layerCaloOK[sample];
+  return m_layerCaloOK[sample];
 }
 */
 
@@ -1667,9 +1667,9 @@ bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
 {
   ATH_MSG_DEBUG("Start get_calo_surface()");
   m_sample_calo_surf=CaloCell_ID_FCS::noSample;
-  eta_calo_surf=-999;
-  phi_calo_surf=-999;
-  d_calo_surf=0;
+  m_eta_calo_surf=-999;
+  m_phi_calo_surf=-999;
+  m_d_calo_surf=0;
   double min_calo_surf_dist=1000;
 
   for(unsigned int i=0;i<m_surfacelist.size();++i) {
@@ -1691,15 +1691,15 @@ bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
       msg(MSG::DEBUG)<<" phi="<<phiCalo<<" dist="<<distsamp;
       if(distsamp<min_calo_surf_dist && min_calo_surf_dist>=0) {
         //hitVector is ordered in r, so if first surface was hit, keep it
-        eta_calo_surf=etaCalo;
-        phi_calo_surf=phiCalo;
+        m_eta_calo_surf=etaCalo;
+        m_phi_calo_surf=phiCalo;
         min_calo_surf_dist=distsamp;
         m_sample_calo_surf=sample;
-        d_calo_surf=rzent(sample,etaCalo);
-        msg(MSG::DEBUG)<<" r/z="<<d_calo_surf;
-        if(isCaloBarrel(sample)) d_calo_surf*=cosh(etaCalo);
-         else                    d_calo_surf= fabs(d_calo_surf/tanh(etaCalo));
-        msg(MSG::DEBUG)<<" d="<<d_calo_surf;
+        m_d_calo_surf=rzent(sample,etaCalo);
+        msg(MSG::DEBUG)<<" r/z="<<m_d_calo_surf;
+        if(isCaloBarrel(sample)) m_d_calo_surf*=cosh(etaCalo);
+        else                    m_d_calo_surf= fabs(m_d_calo_surf/tanh(etaCalo));
+        msg(MSG::DEBUG)<<" d="<<m_d_calo_surf;
         if(distsamp<0) {
           msg(MSG::DEBUG)<<endreq;
           break;
@@ -1719,18 +1719,18 @@ bool ISF_HitAnalysis::get_calo_surface(std::vector<Trk::HitInfo>* hitVector)
       return false;
     }
     Amg::Vector3D surface_hitPos = (*it).trackParms->position();
-    eta_calo_surf=surface_hitPos.eta();
-    phi_calo_surf=surface_hitPos.phi();
-    d_calo_surf=surface_hitPos.mag();
+    m_eta_calo_surf=surface_hitPos.eta();
+    m_phi_calo_surf=surface_hitPos.phi();
+    m_d_calo_surf=surface_hitPos.mag();
     
     double pT=(*it).trackParms->momentum().perp();
-    if(TMath::Abs(eta_calo_surf)>4.9 || pT<500 || (TMath::Abs(eta_calo_surf)>4 && pT<1000) ) {
-      ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" d="<<d_calo_surf<<" pT="<<pT);
+    if(TMath::Abs(m_eta_calo_surf)>4.9 || pT<500 || (TMath::Abs(m_eta_calo_surf)>4 && pT<1000) ) {
+      ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
     } else {  
-      ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" d="<<d_calo_surf<<" pT="<<pT);
+      ATH_MSG_WARNING("only entrance to calo entrance layer found, no surface : eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" d="<<m_d_calo_surf<<" pT="<<pT);
     }  
   } else {
-    ATH_MSG_DEBUG("entrance to calo surface : sample="<<m_sample_calo_surf<<" eta="<<eta_calo_surf<<" phi="<<phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<d_calo_surf);
+    ATH_MSG_DEBUG("entrance to calo surface : sample="<<m_sample_calo_surf<<" eta="<<m_eta_calo_surf<<" phi="<<m_phi_calo_surf<<" deta="<<min_calo_surf_dist<<" dsurf="<<m_d_calo_surf);
   }
   
   ATH_MSG_DEBUG("End get_calo_surface()");

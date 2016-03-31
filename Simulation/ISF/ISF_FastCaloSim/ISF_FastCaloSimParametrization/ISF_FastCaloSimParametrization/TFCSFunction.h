@@ -10,6 +10,7 @@
 class TFCSFunction {
   public:
     static TFCS1DFunction* Create(TH1* hist);
+    virtual ~TFCSFunction() {}
   private:
 
   ClassDef(TFCSFunction,1)  //TFCSFunction

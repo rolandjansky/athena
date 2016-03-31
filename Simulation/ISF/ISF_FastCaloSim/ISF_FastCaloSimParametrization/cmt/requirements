@@ -48,7 +48,6 @@ use ISF_Event                   ISF_Event-*                     Simulation/ISF/I
 use CaloEvent                   CaloEvent-*                     Calorimeter
 use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*          Simulation/ISF/ISF_FastCaloSim
 use ISF_FastCaloSimInterfaces   ISF_FastCaloSimInterfaces-*     Simulation/ISF/ISF_FastCaloSim
-use ISF_HepMC_Event             ISF_HepMC_Event-*               Simulation/ISF/ISF_HepMC
 
 ####################
 use CaloTrackingGeometry        CaloTrackingGeometry-*          Calorimeter

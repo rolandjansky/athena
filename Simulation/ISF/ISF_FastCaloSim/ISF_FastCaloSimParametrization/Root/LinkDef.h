@@ -3,7 +3,7 @@
 */
 
 #ifdef __CINT__
-#pragma link C++ class CaloSampling+;
+//#pragma link C++ class CaloSampling+;
 #pragma link C++ class TFCSExtrapolationState+;
 #pragma link C++ class TFCSTruthState+;
 #pragma link C++ class TFCSSimulationState+;

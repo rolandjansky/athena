@@ -13,7 +13,7 @@ TFCSPCAEnergyParametrization::TFCSPCAEnergyParametrization(const char* name, con
 {
 }
 
-void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* /*extrapol*/)
 {
   simulstate.set_Ebin(0);
   for(unsigned int i=0;i<CaloCell_ID_FCS::MaxSample;++i) simulstate.add_E(i,truth->Ekin()/CaloCell_ID_FCS::MaxSample);

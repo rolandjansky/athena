@@ -148,16 +148,16 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const CaloDetDescrManager* m_calo_dd_man;
 
    //####################################################
-   double eta_calo_surf;
-   double phi_calo_surf;
-   double d_calo_surf;
-   double ptruth_eta;
-   double ptruth_phi;
-   double ptruth_e;
-   double ptruth_et;
-   double ptruth_pt;
-   double ptruth_p;
-   int pdgid;
+   double m_eta_calo_surf;
+   double m_phi_calo_surf;
+   double m_d_calo_surf;
+   double m_ptruth_eta;
+   double m_ptruth_phi;
+   double m_ptruth_e;
+   double m_ptruth_et;
+   double m_ptruth_pt;
+   double m_ptruth_p;
+   int m_pdgid;
    
    std::vector<std::vector<double> >* m_TTC_entrance_eta;
    std::vector<std::vector<double> >* m_TTC_entrance_phi;
@@ -220,13 +220,13 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double zpos(int sample,double eta,int subpos=SUBPOS_MID) const;
    double rzpos(int sample,double eta,int subpos=SUBPOS_MID) const;
    
-   bool   layerCaloOK[CaloCell_ID_FCS::MaxSample][3];
-   double letaCalo[CaloCell_ID_FCS::MaxSample][3];
-   double lphiCalo[CaloCell_ID_FCS::MaxSample][3];
-   double lrCalo[CaloCell_ID_FCS::MaxSample][3];
-   double lzCalo[CaloCell_ID_FCS::MaxSample][3];
-   double dCalo[CaloCell_ID_FCS::MaxSample][3];
-   double distetaCaloBorder[CaloCell_ID_FCS::MaxSample][3];
+   bool   m_layerCaloOK[CaloCell_ID_FCS::MaxSample][3];
+   double m_letaCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_lphiCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_lrCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_lzCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_dCalo[CaloCell_ID_FCS::MaxSample][3];
+   double m_distetaCaloBorder[CaloCell_ID_FCS::MaxSample][3];
    
    
    void extrapolate(const HepMC::GenParticle* part,std::vector<Trk::HitInfo>* hitVector);
@@ -238,8 +238,8 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_CaloBoundaryZ;
    double m_calomargin;
    
-   std::string MC_DIGI_PARAM; 
-   std::string MC_SIM_PARAM;
+   std::string m_MC_DIGI_PARAM; 
+   std::string m_MC_SIM_PARAM;
 
    //###################################################################
  	  

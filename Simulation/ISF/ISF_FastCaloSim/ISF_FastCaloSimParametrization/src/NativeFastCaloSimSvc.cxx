@@ -16,8 +16,6 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleContainer.h"
-#include "ISF_Event/ITruthBinding.h"
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 // HepMC include needed for FastCaloSim
 #include "HepMC/GenParticle.h"
