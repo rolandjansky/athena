@@ -13,15 +13,15 @@ namespace ISF {
 
 class TrackBarcodeInfo: public VTrackInformation {
 public:
-        TrackBarcodeInfo(int bc, const ISF::ISFParticle* isp=0);
+        TrackBarcodeInfo(int bc, const ISF::ISFParticle* baseIsp=0);
 	int GetParticleBarcode() const;
-	const ISF::ISFParticle *GetISFParticle() const;
-	void SetISFParticle(const ISF::ISFParticle*);
+	const ISF::ISFParticle *GetBaseISFParticle() const;
+	void SetBaseISFParticle(const ISF::ISFParticle*);
 	void SetReturnedToISF(bool returned);
 	bool GetReturnedToISF() const;
 
 private:
-	const ISF::ISFParticle *theISFParticle;
+	const ISF::ISFParticle *theBaseISFParticle;
 	int barcode;
 	bool returnedToISF;
 };

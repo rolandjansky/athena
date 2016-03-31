@@ -20,18 +20,21 @@ namespace ISF {
 class VTrackInformation: public G4VUserTrackInformation {
 public:
 	VTrackInformation(TrackClassification tc=Primary);
+	const HepMC::GenParticle *GetPrimaryHepMCParticle() const;
+	void  SetPrimaryHepMCParticle(const HepMC::GenParticle*);
 	virtual const HepMC::GenParticle *GetHepMCParticle() const;
-	virtual const ISF::ISFParticle *GetISFParticle() const;
+	virtual const ISF::ISFParticle *GetBaseISFParticle() const;
 	virtual bool GetReturnedToISF() const;
-	virtual int GetParticleBarcode() const =0;
+	virtual int  GetParticleBarcode() const =0;
 	virtual void SetParticle(const HepMC::GenParticle*);
-	virtual void SetISFParticle(const ISF::ISFParticle*);
+	virtual void SetBaseISFParticle(const ISF::ISFParticle*);
 	virtual void SetReturnedToISF(bool) ;
 	virtual void Print() const {}
 	void SetClassification(TrackClassification tc) {classify=tc;}
 	TrackClassification GetClassification() {return classify;}
 private:
 	TrackClassification classify;
+	const HepMC::GenParticle *thePrimaryParticle;
 };
 
 #endif
