@@ -1,33 +1,33 @@
 package G4AtlasAlg
 
-author Andrea DellAcqua <dellacqu@mail.cern.ch>
-
-branches src cmt doc
-
+public
 use AtlasPolicy      AtlasPolicy-*
 use AthenaBaseComps  AthenaBaseComps-*   Control
 use AthenaKernel     AthenaKernel-*      Control
 use GaudiInterface   GaudiInterface-*    External
 use Geant4           Geant4-*            External
-use FadsActions      FadsActions-*       Simulation/G4Sim/FADS
+use G4AtlasTools     G4AtlasTools-*      Simulation/G4Atlas
 use FadsKinematics   FadsKinematics-*    Simulation/G4Sim/FADS
 use G4AtlasInterfaces G4AtlasInterfaces*   Simulation/G4Atlas
 
 private
+#use FadsActions      FadsActions-*       Simulation/G4Sim/FADS
 use AtlasHepMC       AtlasHepMC-*        External
-use MCTruth          MCTruth-*           Simulation/G4Sim
-use FadsGeometry     FadsGeometry-*      Simulation/G4Sim/FADS
-use FadsPhysics      FadsPhysics-*       Simulation/G4Sim/FADS
 use GeneratorObjects GeneratorObjects-*  Generators
+use MCTruth          MCTruth-*           Simulation/G4Sim
+use MCTruthBase      MCTruthBase-*       Simulation/G4Sim
 use SimHelpers       SimHelpers-*        Simulation/G4Sim
 use StoreGate        StoreGate-*         Control
 use SGTools          SGTools-*           Control
 use GeoModelInterfaces  GeoModelInterfaces-*       DetectorDescription/GeoModel
-use EventInfo        EventInfo-*         Event 
+use EventInfo        EventInfo-*         Event
 end_private
 
 # build a dual_use library
 apply_pattern dual_use_library files=*.cxx
+
+apply_pattern declare_python_modules files="*.py"
+
 
 #private
 #apply_pattern lcgdict dict=G4AtlasAlg \
