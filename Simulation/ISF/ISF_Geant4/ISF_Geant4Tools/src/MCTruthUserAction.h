@@ -37,11 +37,6 @@
      Thus it is defined as a AlgTool, to get these assigned easily via python.
 */
 
-namespace ISF {
-  class IParticleBroker;
-  class ISFParticle;
-}
-
 namespace iGeant4 {
 
   class ITransportTool;
@@ -74,8 +69,6 @@ namespace iGeant4 {
     /** the ISF truth service */
     ServiceHandle<ISF::ITruthSvc>    m_truthRecordSvc;
     ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
-
-    const ISF::ISFParticle* m_isfParent;
 
     int m_ilevel;                                // secondary saving level
 

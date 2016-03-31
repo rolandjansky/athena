@@ -21,7 +21,6 @@ use GeneratorObjects      GeneratorObjects-*      Generators
 use G4AtlasAlg            G4AtlasAlg-*            Simulation/G4Atlas
 use ISF_Event             ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_Geant4Interfaces  ISF_Geant4Interfaces-*  Simulation/ISF/ISF_Geant4
-use ISF_HepMC_Event       ISF_HepMC_Event-*       Simulation/ISF/ISF_HepMC
 use ISF_Interfaces        ISF_Interfaces-*        Simulation/ISF/ISF_Core
 use MCTruth               MCTruth-*               Simulation/G4Sim
 use SimHelpers            SimHelpers-*            Simulation/G4Sim

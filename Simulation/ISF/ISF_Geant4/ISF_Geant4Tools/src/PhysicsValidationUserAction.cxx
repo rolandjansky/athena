@@ -13,10 +13,7 @@
 #include "Geant4TruthIncident.h"
 
 //ISF includes
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
-
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/ParticleClipboard.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
@@ -24,6 +21,7 @@
 
 //Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
+#include "MCTruth/EventInformation.h"
 #include "MCTruth/VTrackInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 
@@ -31,6 +29,7 @@
 #include "G4ParticleDefinition.hh"
 #include "G4DynamicParticle.hh"
 #include "G4TouchableHistory.hh"
+#include "G4Event.hh"
 #include "G4Step.hh"
 #include "G4TransportationManager.hh"
 
@@ -354,7 +353,8 @@ void iGeant4::PhysicsValidationUserAction::Step(const G4Step* aStep)
     if (process->GetProcessSubType()==2 ) m_ionloss+=eloss;
     if (process->GetProcessSubType()==3 ) m_radloss+=eloss;
 
-    ISF::Geant4TruthIncident truth( aStep, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper);
+    EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+    iGeant4::Geant4TruthIncident truth( aStep, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
     unsigned int nSec = truth.numberOfChildren();
     if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
       //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;

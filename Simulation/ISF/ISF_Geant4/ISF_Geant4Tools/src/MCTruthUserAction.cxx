@@ -34,9 +34,9 @@ iGeant4::MCTruthUserAction::MCTruthUserAction(const std::string& type,
                                               const IInterface* parent)
   : UserActionBase(type,name,parent),
     m_UASvc("UserActionSvc",name),
+    m_sHelper(),
     m_truthRecordSvc("ISF_TruthRecordSvc", name),
-    m_truthRecordSvcQuick(0),
-    m_isfParent(0)
+    m_truthRecordSvcQuick(nullptr)
 {
 
   //declareInterface<IUserAction>(this);
@@ -83,7 +83,6 @@ void iGeant4::MCTruthUserAction::PreTracking(const G4Track* inTrack)
   //std::cout<<"in MCTruthUserAction::PreUserTrackingAction, m_ilevel="<<m_ilevel<<std::endl;
 
   //m_sHelper.ResetNrOfSecondaries();
-  m_isfParent = 0; 
     
   G4Track* inT = const_cast<G4Track*> (inTrack);
   TrackHelper trackHelper(inT);

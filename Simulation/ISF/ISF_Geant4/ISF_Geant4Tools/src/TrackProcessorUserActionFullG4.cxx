@@ -14,20 +14,14 @@
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_Event/ITruthBinding.h"
 #include "ISF_Event/EntryLayer.h"
-
-#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
 
 #include "ISF_Interfaces/IParticleBroker.h"
 
 // Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
 
-#include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/TrackInformation.h"
-#include "MCTruth/VTrackInformation.h"
 
 #include "SimHelpers/StepHelper.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -39,7 +33,6 @@
 #include "G4Step.hh"
 #include "G4TransportationManager.hh"
 #include "G4LogicalVolumeStore.hh"
-//#include "G4VPhysicalVolume.hh"
 
 #include <iostream>
 
@@ -48,13 +41,16 @@ iGeant4::TrackProcessorUserActionFullG4::TrackProcessorUserActionFullG4(const st
                                                                         const IInterface* parent)
   : TrackProcessorUserActionBase(type,name,parent),
     m_entryLayerTool(""),
-    m_entryLayerToolQuick(0),
+    m_entryLayerToolQuick(nullptr),
+    m_geoIDSvc("",name),
+    m_geoIDSvcQuick(nullptr),
     m_hasCavern(true)
 {
 
   ATH_MSG_DEBUG("create TrackProcessorUserActionFullG4 name: "<<name);
 
-  declareProperty("EntryLayerTool", m_entryLayerTool, "ISF Entry Layer Tool");
+  declareProperty("EntryLayerTool",   m_entryLayerTool,  "ISF Entry Layer Tool"                        );
+  declareProperty("GeoIDSvc",         m_geoIDSvc,        "ISF GeoIDService"                            );
   declareProperty("TruthVolumeLevel", m_truthVolLevel=1, "Level in geo hierarchy for the truth volumes");
 }
 
@@ -70,6 +66,13 @@ StatusCode iGeant4::TrackProcessorUserActionFullG4::initialize()
     m_entryLayerToolQuick = &(*m_entryLayerTool);
   }
 
+  if ( !m_geoIDSvc.empty() ) {
+    if ( m_geoIDSvc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve ISF GeoID Svc: " << m_geoIDSvc);
+      return StatusCode::FAILURE;
+    }
+    m_geoIDSvcQuick = &(*m_geoIDSvc);
+  }
 
   m_entryLayerMap["CALO::CALO"]       = m_truthVolLevel+1;
   m_entryLayerMap["MUONQ02::MUONQ02"] = m_truthVolLevel+1;
@@ -145,8 +148,10 @@ void iGeant4::TrackProcessorUserActionFullG4::ISFSteppingAction(const G4Step* aS
 
       ISF::ISFParticle *tmpISP = ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
                                                                             detRegionSimSvcPair,
-                                                                            0          // truthBinding
+                                                                            nullptr // truthBinding
                                                                            );
+      auto generationZeroBarcode = tHelp.GetBarcode();
+      tmpISP->setBarcode(generationZeroBarcode);
 
       tmpISP->setNextGeoID( nextGeoID );
 
@@ -216,26 +221,6 @@ iGeant4::TrackProcessorUserActionFullG4::entryLayer(const G4Step* aStep)
 AtlasDetDescr::AtlasRegion
 iGeant4::TrackProcessorUserActionFullG4::nextGeoId(const G4Step* aStep)
 {
-  // Static so that it will keep the value from the previous step
-  static AtlasDetDescr::AtlasRegion nextGeoID = m_truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
-  static const G4Track* aTrack = 0;
-  StepHelper step(aStep);
-
-  // Protect against being in a mother volume, then reset it to undefined if we don't know where we are
-  //  Since we start particles in the beampipe (for the most part) this will rarely result in returning
-  //  an undefined region answer; since G4 works on a stack rather than a queue, this is safe-ish
-  if (step.PostStepBranchDepth()<m_truthVolLevel){
-    if (m_truthVolLevel>1 &&
-        step.PostStepBranchDepth()>m_truthVolLevel-1 && m_hasCavern &&
-        step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra") ) nextGeoID = AtlasDetDescr::fAtlasCavern;
-    return nextGeoID;
-  }
-  if (aTrack != aStep->GetTrack()){
-    // First step with this track!
-    nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
-    aTrack = aStep->GetTrack();
-  } // Otherwise use the cached value via the static
-
   static G4LogicalVolume * BPholder=0 , * IDholder=0 , * CALOholder=0 , * MUholder=0 , * TTRholder=0 ;
   if (BPholder==0){ // Initialize
     m_hasCavern=false;
@@ -249,6 +234,42 @@ iGeant4::TrackProcessorUserActionFullG4::nextGeoId(const G4Step* aStep)
       else if ( (*lvs)[i]->GetName() == "TTR_BARREL::TTR_BARREL" ) TTRholder = (*lvs)[i];
     }
     checkVolumeDepth( G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume() , m_truthVolLevel );
+  }
+
+  // Static so that it will keep the value from the previous step
+  static AtlasDetDescr::AtlasRegion nextGeoID = m_truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
+  static const G4Track* aTrack = 0;
+  StepHelper step(aStep);
+
+  if (aTrack != aStep->GetTrack()) {
+    // First step with this track!
+    nextGeoID = AtlasDetDescr::fUndefinedAtlasRegion;
+    aTrack = aStep->GetTrack();
+  } // Otherwise use the cached value via the static
+
+  const G4StepPoint *postStep = aStep->GetPostStepPoint();
+
+  bool leavingG4World       = postStep->GetStepStatus()==fWorldBoundary;
+  bool simulatingCollisions = !m_hasCavern;
+  if ( simulatingCollisions && leavingG4World ) {
+      nextGeoID = AtlasDetDescr::fAtlasCavern;
+      return nextGeoID;
+  }
+
+  // If in mother volume, use the ISF_GeoIDSvc to resolve the geoID
+  if (step.PostStepBranchDepth()<m_truthVolLevel){
+    const G4ThreeVector     &postPos  = postStep->GetPosition();
+    //const G4ThreeVector     &postMom  = postStep->GetMomentum();
+    //nextGeoID = m_geoIDSvcQuick->identifyNextGeoID( postPos.x(),
+    //                                                postPos.y(),
+    //                                                postPos.z(),
+    //                                                postMom.x(),
+    //                                                postMom.y(),
+    //                                                postMom.z() );
+    nextGeoID = m_geoIDSvcQuick->identifyGeoID( postPos.x(),
+                                                postPos.y(),
+                                                postPos.z() );
+    return nextGeoID;
   }
 
   // Ordering inside out (most truth in the ID anyway...)
