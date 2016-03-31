@@ -205,7 +205,16 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
-
+        
+        <TEST name="Reco_tf_physicsV6_savedBS" type="script" suite="TrigP1HLTphysv6"> 
+            <options_atn>trigtest.pl --cleardir --test Reco_tf_physicsV6_savedBS --rundir Reco_tf_physicsV6_savedBS --conf TrigP1Test.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
         <TEST name="HLT_physicsV6_L1Topo_data" type="script" suite="TrigP1HLTphysv6"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_L1Topo_data --rundir HLT_physicsV6_L1Topo_data --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
