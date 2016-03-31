@@ -4,16 +4,27 @@
 
 #include "MCTruth/VTrackInformation.h"
 
-VTrackInformation::VTrackInformation(TrackClassification tc):classify(tc)
+VTrackInformation::VTrackInformation(TrackClassification tc):classify(tc),thePrimaryParticle(0)
 {
 }
+
+const HepMC::GenParticle* VTrackInformation::GetPrimaryHepMCParticle() const
+{
+  return thePrimaryParticle;
+}
+
+void VTrackInformation::SetPrimaryHepMCParticle(const HepMC::GenParticle* p)
+{
+  thePrimaryParticle=p;
+}
+
 
 const HepMC::GenParticle* VTrackInformation::GetHepMCParticle() const
 {
   return 0;
 }
 
-const ISF::ISFParticle* VTrackInformation::GetISFParticle() const
+const ISF::ISFParticle* VTrackInformation::GetBaseISFParticle() const
 {
   return 0;
 }
@@ -30,10 +41,10 @@ void VTrackInformation::SetParticle(const HepMC::GenParticle* /*p*/)
  
 }
 
-void VTrackInformation::SetISFParticle(const ISF::ISFParticle* /*p*/)
+void VTrackInformation::SetBaseISFParticle(const ISF::ISFParticle* /*p*/)
 {
   // you should not call this, perhaps throw an exception?
-  std::cerr<<"ERROR  VTrackInformation::SetISFParticle() not supported  "<<std::endl;
+  std::cerr<<"ERROR  VTrackInformation::SetBaseISFParticle() not supported  "<<std::endl;
  
 }
 

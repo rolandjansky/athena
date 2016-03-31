@@ -14,12 +14,12 @@ namespace ISF {
 class TrackInformation: public VTrackInformation {
 public:
 	TrackInformation();
-	TrackInformation(const HepMC::GenParticle*,const ISF::ISFParticle* isp=0);
+	TrackInformation(const HepMC::GenParticle*,const ISF::ISFParticle* baseIsp=0);
 	const HepMC::GenParticle *GetHepMCParticle() const;
-	const ISF::ISFParticle *GetISFParticle() const;
+	const ISF::ISFParticle *GetBaseISFParticle() const;
 	int GetParticleBarcode() const;
 	void SetParticle(const HepMC::GenParticle*);
-	void SetISFParticle(const ISF::ISFParticle*);
+	void SetBaseISFParticle(const ISF::ISFParticle*);
 	void SetReturnedToISF(bool returned) {returnedToISF=returned;};
 	bool GetReturnedToISF() const {return returnedToISF;};
 	void SetRegenerationNr(int i) {regenerationNr=i;};
@@ -27,7 +27,7 @@ public:
 private:
 	int regenerationNr;
 	const HepMC::GenParticle *theParticle;
-	const ISF::ISFParticle *theISFParticle;
+	const ISF::ISFParticle *theBaseISFParticle;
 	bool returnedToISF;
 };
 
