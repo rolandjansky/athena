@@ -52,7 +52,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
   if ConfInstance.checkFlagsUsingBTaggingFlags():
 
     #Jet collections
-    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt10LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets', 'AntiKt2TrackJets']
+    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets', 'AntiKt2TrackJets']
     from JetRec.JetRecFlags import jetFlags
     if jetFlags.useTruth():
       JetCollectionList += [ 'AntiKt10TruthWZJets', 'AntiKt4TruthWZJets' ]
