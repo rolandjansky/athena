@@ -77,8 +77,13 @@ int ISF::ISFTruthIncident::parentPdgCode() const {
   return m_parent.pdgCode();
 }
 
-HepMC::GenParticle* ISF::ISFTruthIncident::parentParticle(bool setPersistent) const {
-  return convert( &m_parent, setPersistent);
+HepMC::GenParticle* ISF::ISFTruthIncident::parentParticle() const {
+
+  if ( m_parent.getTruthBinding() ) {
+    return getHepMCTruthParticle(m_parent);
+  } else {
+    return updateHepMCTruthParticle(m_parent, &m_parent);
+  }
 }
 
 Barcode::ParticleBarcode ISF::ISFTruthIncident::parentBarcode() const {
@@ -90,24 +95,18 @@ Barcode::ParticleBarcode ISF::ISFTruthIncident::parentExtraBarcode() const {
 }
 
 bool ISF::ISFTruthIncident::parentSurvivesIncident() const {
-  if (m_killsPrimary == ISF::fKillsPrimary) {
-      return false;
-  } else {
-      return true;
-  }
+  return !(m_killsPrimary == ISF::fKillsPrimary);
 }
 
-HepMC::GenParticle* ISF::ISFTruthIncident::parentParticleAfterIncident(Barcode::ParticleBarcode newBC,
-                                                                        bool setPersistent) {
-  // if parent is killed in the interaction -> return 0
-  if (m_killsPrimary==ISF::fKillsPrimary) return 0;
+HepMC::GenParticle* ISF::ISFTruthIncident::parentParticleAfterIncident(Barcode::ParticleBarcode newBC) {
+  // if parent is killed in the interaction -> return nullptr
+  if (m_killsPrimary==ISF::fKillsPrimary) return nullptr;
 
-  // only update the parent particle, if it survived the interaction:
+  // only update the parent particle, if it survived the interaction
 
-  // set a new barcode
-  m_parent.setBarcode( newBC);
-  // return the updated parent particle
-  return parentParticle(setPersistent);
+  m_parent.setBarcode( newBC );
+
+  return updateHepMCTruthParticle(m_parent, &m_parent);
 }
 
 double ISF::ISFTruthIncident::childP2(unsigned short index) const {
@@ -128,8 +127,7 @@ int ISF::ISFTruthIncident::childPdgCode(unsigned short index) const {
 }
 
 HepMC::GenParticle* ISF::ISFTruthIncident::childParticle(unsigned short index,
-                                                             Barcode::ParticleBarcode bc,
-                                                             bool setPersistent) const {
+                                                         Barcode::ParticleBarcode bc) const {
   // the child particle
   ISF::ISFParticle *sec = m_children[index];
 
@@ -138,8 +136,7 @@ HepMC::GenParticle* ISF::ISFTruthIncident::childParticle(unsigned short index,
     sec->setBarcode( bc);
   }
 
-  // convert it to HepMC
-  return convert( sec, setPersistent);
+  return updateHepMCTruthParticle( *sec, &m_parent );
 }
 
 void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) {
@@ -179,29 +176,31 @@ void ISF::ISFTruthIncident::setChildExtraBarcode(unsigned short index, Barcode::
 }
 
 
-HepMC::GenParticle* ISF::ISFTruthIncident::convert( ISF::ISFParticle *particle,
-                                                    bool setPersistent ) const {
-  ITruthBinding *truth = particle->truthBinding();
-  // if truth binding exists -> try to retrieve a HepMC::GenParticle from it
-  if ( truth) {
-    truth->setPersistency( setPersistent);
-    // GenParticleTruth type gives a HepMC::GenParticle as truthParticle()
-    const GenParticleTruth *mctruth = dynamic_cast<const GenParticleTruth* >(truth);
-    if (mctruth) return &(mctruth->truthParticle());
+/** return attached truth particle */
+HepMC::GenParticle* ISF::ISFTruthIncident::getHepMCTruthParticle( const ISF::ISFParticle& particle ) const {
+  auto* truthBinding     = particle.getTruthBinding();
+  auto* hepTruthParticle = truthBinding ? truthBinding->getTruthParticle() : nullptr;
+
+  return hepTruthParticle;
+}
+
+
+/** convert ISFParticle to GenParticle and attach to ISFParticle's TruthBinding */
+HepMC::GenParticle* ISF::ISFTruthIncident::updateHepMCTruthParticle( ISF::ISFParticle& particle,
+                                                                     const ISF::ISFParticle* parent ) const {
+  auto* truthBinding     = particle.getTruthBinding();
+  auto* hepTruthParticle = ParticleHelper::convert( particle );
+
+  if (truthBinding) {
+    truthBinding->setTruthParticle(hepTruthParticle);
+  } else {
+    auto* parentTruthBinding = parent ? parent->getTruthBinding() : nullptr;
+    auto* hepPrimaryParticle = parentTruthBinding ? parentTruthBinding->getPrimaryTruthParticle() : nullptr;
+    auto* hepGenZeroParticle = hepTruthParticle;
+    truthBinding = new TruthBinding( hepTruthParticle, hepPrimaryParticle, hepGenZeroParticle );
+    particle.setTruthBinding(truthBinding);
   }
 
-  // HepMC::GenParticle not in TruthBinding -> create new HepMC::GenParticle
-  HepMC::GenParticle *hepParticle = ParticleHelper::convert( *particle );
-
-  hepParticle->suggest_barcode( particle->barcode());
-  // if no truth binding present, register the new GenParticle as TruthBinding
-  if ( !truth) {
-    truth = new GenParticleTruth(*hepParticle);
-    // TruthBindings created at this point will always be used (e.g. in McTruth Tree)
-    truth->setPersistency( setPersistent);
-    particle->setTruthBinding( truth);
-  }
-
-  return hepParticle;
+  return hepTruthParticle;
 }
 

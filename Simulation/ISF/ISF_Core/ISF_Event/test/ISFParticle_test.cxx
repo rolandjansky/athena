@@ -20,7 +20,7 @@ void testConstructors() {
     double time    = 923.;
     const ISF::DetRegionSvcIDPair origin( AtlasDetDescr::fAtlasCalo, 2 );
     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode;
-    ISF::ITruthBinding *truth = 0;
+    ISF::TruthBinding *truth = 0;
 
     //
     // Amg & origin
@@ -45,7 +45,7 @@ void testConstructors() {
     assert( 1       == history1.size()     );
     assert( origin  == history1[0]         );
     assert( bc      == isp1.barcode()      );
-    assert( truth   == isp1.truthBinding() );
+    assert( truth   == isp1.getTruthBinding() );
 
     //
     // Amg & parent
@@ -70,7 +70,7 @@ void testConstructors() {
     assert( 1       == history2.size()     );
     assert( origin  == history2[0]         );
     assert( bc      == isp2.barcode()      );
-    assert( truth   == isp2.truthBinding() );
+    assert( truth   == isp2.getTruthBinding() );
 
     //
     // HepGeom & parent
@@ -97,7 +97,7 @@ void testConstructors() {
     assert( 1       == history3.size()     );
     assert( origin  == history3[0]         );
     assert( bc      == isp3.barcode()      );
-    assert( truth   == isp3.truthBinding() );
+    assert( truth   == isp3.getTruthBinding() );
 
     //
     // HepGeom & origin
@@ -122,7 +122,7 @@ void testConstructors() {
     assert( 1       == history4.size()     );
     assert( origin  == history4[0]         );
     assert( bc      == isp4.barcode()      );
-    assert( truth   == isp4.truthBinding() );
+    assert( truth   == isp4.getTruthBinding() );
 }
 
 
