@@ -715,7 +715,6 @@ namespace MuonCombined {
   }
 
   void MuonCreatorTool::addCaloTag( xAOD::Muon& mu, const CaloTag* tag ) const {
-    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
     
     if (!tag){
       // init variables if necessary.
@@ -732,6 +731,7 @@ namespace MuonCombined {
       return; 
     }
     
+    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
     //if (!m_haveAddedCaloInformation){
     //mu.setParameter(static_cast<float>( tag->fsrCandidateEnergy() ), xAOD::Muon::FSR_CandidateEnergy);
     //std::cout<<"EJWM Adding Calo muon with elt="<<tag->energyLossType()<<std::endl;
