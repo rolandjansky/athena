@@ -22,7 +22,6 @@ use  L1TopoEvent                L1TopoEvent-*                   Trigger/TrigT1/L
 use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
 use  TrigT1CaloUtils            TrigT1CaloUtils-*               Trigger/TrigT1
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
-use  TrigT1Muctpi               TrigT1Muctpi-*                  Trigger/TrigT1
 end_private
 
 

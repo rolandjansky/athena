@@ -18,7 +18,7 @@
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
-#include "TrigT1Muctpi/IMuctpiSimTool.h"
+#include "TrigT1Interfaces/IMuctpiSimTool.h"
 
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "TrigT1Result/RoIBResult.h"
