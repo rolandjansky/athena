@@ -17,7 +17,7 @@
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
 
-HepMC::GenParticle* ISF::ParticleHelper::convert( ISF::ISFParticle &particle) {
+HepMC::GenParticle* ISF::ParticleHelper::convert( const ISF::ISFParticle &particle) {
 
   const Amg::Vector3D &mom = particle.momentum();
   double mass = particle.mass();
@@ -28,7 +28,10 @@ HepMC::GenParticle* ISF::ParticleHelper::convert( ISF::ISFParticle &particle) {
   HepMC::Flow flow;
   flow.set_icode( particle.barcode(), particle.getExtraBC() );
 
+  auto* hepParticle = new HepMC::GenParticle( fourMomentum, particle.pdgCode(), status, flow );
+  hepParticle->suggest_barcode( particle.barcode() );
+
   // return a newly created GenParticle
-  return new HepMC::GenParticle( fourMomentum, particle.pdgCode(), status, flow );
+  return hepParticle;
 }
 

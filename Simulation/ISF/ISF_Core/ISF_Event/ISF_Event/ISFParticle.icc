@@ -34,13 +34,12 @@ namespace ISF {
   // barcode methods
   //
   inline Barcode::ParticleBarcode ISFParticle::barcode() const { return m_barcode; }
-  inline void            ISFParticle::setBarcode(Barcode::ParticleBarcode bc)
-      { delete m_truth; m_truth=0 ; m_barcode = bc; } //!< new barcode invalidates truth -> delete it
+  inline void            ISFParticle::setBarcode(Barcode::ParticleBarcode bc) { m_barcode = bc; }
 
   // truth methods
   //
-  inline ITruthBinding* ISFParticle::truthBinding() const      { return m_truth; }
-  inline void  ISFParticle::setTruthBinding(ITruthBinding *truth) { m_truth = truth; }
+  inline TruthBinding* ISFParticle::getTruthBinding() const              { return m_truth; }
+  inline void          ISFParticle::setTruthBinding(TruthBinding *truth) { m_truth = truth; }
 
   // particle order methods
   //
