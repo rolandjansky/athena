@@ -34,6 +34,8 @@ use TileConditions       TileConditions-*      TileCalorimeter
 use TileEvent            TileEvent-*           TileCalorimeter
 use TileRecUtils         TileRecUtils-*        TileCalorimeter
 
+use LWHists              LWHists-*             Tools
+
 # added by Tomas Davidek to accommodate TileJetMonTool
 use JetUtils             JetUtils-*            Reconstruction/Jet
 use JetMomentTools 	 JetMomentTools-*      Reconstruction/Jet

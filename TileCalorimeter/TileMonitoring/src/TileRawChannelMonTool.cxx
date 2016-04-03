@@ -44,7 +44,7 @@ TileRawChannelMonTool::TileRawChannelMonTool(const std::string & type, const std
   , m_beamInfo("TileBeamInfoProvider")
   , m_cispar(0)
   , m_nEvents(0)
-  , m_CalibUnit(TileRawChannelUnit::Invalid)
+  , m_calibUnit(TileRawChannelUnit::Invalid)
   , m_drawHists(true)
 
 /*---------------------------------------------------------*/
@@ -96,8 +96,8 @@ StatusCode TileRawChannelMonTool::initialize()
 
   m_nEvents = 0;
 
-  memset(TimeCov, 0, sizeof(TimeCov));
-  memset(TimeCovCorr, 0, sizeof(TimeCovCorr));
+  memset(m_timeCov, 0, sizeof(m_timeCov));
+  memset(m_timeCovCorr, 0, sizeof(m_timeCovCorr));
 
   CHECK(TilePaterMonTool::initialize());
 
@@ -115,9 +115,9 @@ StatusCode TileRawChannelMonTool::bookHists()
   }
 
   if ((m_runType == LasRun) || (m_runType == PhysRun) || (m_runType == LedRun)) {
-    m_CalibUnit = TileRawChannelUnit::CesiumPicoCoulombs;
+    m_calibUnit = TileRawChannelUnit::CesiumPicoCoulombs;
   } else
-    m_CalibUnit = TileRawChannelUnit::PicoCoulombs;
+    m_calibUnit = TileRawChannelUnit::PicoCoulombs;
 
   if (m_bookAll) {
     for (int ros = 1; ros < 5; ++ros) {
@@ -197,9 +197,9 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
           histTitle = sStr.str();
 
           if (type < 2)
-            hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 101, -0.01, 2.01));
+            m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 101, -0.01, 2.01));
           else
-            hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 101, -101.0, 101.0));
+            m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 101, -101.0, 101.0));
         }
 
         if (m_book2D) {
@@ -226,15 +226,15 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
 
             switch (gn) {
               case 0: // low gain
-                hist2[ros][drawer][ch][gn & 1].push_back(
+                m_hist2[ros][drawer][ch][gn & 1].push_back(
                     book2S(subDir, histName, histTitle, 51, LowX_low2D[type], HighX_low2D[type], 160, LowY_low2D[type], HighY_low2D[type]));
                 break;
               case 1: // high gain
-                hist2[ros][drawer][ch][gn & 1].push_back(
+                m_hist2[ros][drawer][ch][gn & 1].push_back(
                     book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D[type], HighY_hi2D[type]));
                 break;
               default: // single gain mode
-                hist2[ros][drawer][ch][gn & 1].push_back(
+                m_hist2[ros][drawer][ch][gn & 1].push_back(
                     book2S(subDir, histName, histTitle, 51, LowX_hi2D[type], HighX_hi2D[type], 160, LowY_hi2D[type], HighY_hi2D[type]));
             }
           } //loop over type hist
@@ -253,27 +253,27 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
         if (m_runType == PedRun) {
           switch (gn) {
             case 0: // low gain
-              hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 101, -10.1, 10.1));
+              m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 101, -10.1, 10.1));
               break;
             case 1: // high gain
-              hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 101, -0.404, 0.404));
+              m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 101, -0.404, 0.404));
               break;
             default: // single gain mode
-              hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 101, -10.1, 10.1));
+              m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 101, -10.1, 10.1));
           }
         } else {
           switch (gn) {
             case 0: // low gain
-              hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 1101, -50.5, 1050.5));
+              m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 1101, -50.5, 1050.5));
               break;
             case 1: // high gain
-              hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 826, -1.01, 15.51));
+              m_hist1[ros][drawer][ch][gn].push_back(book1S(subDir, histName, histTitle, 826, -1.01, 15.51));
               break;
             default: // single gain mode
               if (m_runType == PhysRun) {
-                hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 206, -0.55, 20.05));
+                m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 206, -0.55, 20.05));
               } else {
-                hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 801, -0.5, 800.5));
+                m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 801, -0.5, 800.5));
               }
           }
         }
@@ -286,7 +286,7 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " CH " << ch << gain[3 + gn] << " time";
         histTitle = sStr.str();
 
-        hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 201, -100.5, 100.5));
+        m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 201, -100.5, 100.5));
         //Lukas
         sStr.str("");
         sStr << moduleName << "_ch_" << sCh << gain[gn] << "_time_corr";
@@ -296,7 +296,7 @@ void TileRawChannelMonTool::bookHists(int ros, int drawer)
         sStr << moduleName << " CH " << ch << gain[3 + gn] << " time_corr";
         histTitle = sStr.str();
 
-        hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 201, -100.5, 100.5));
+        m_hist1[ros][drawer][ch][gn & 1].push_back(book1S(subDir, histName, histTitle, 201, -100.5, 100.5));
         //Lukas
       }
     }
@@ -337,17 +337,17 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
 
     switch (gn) {
       case 0: // low gain
-        final_histdsp2[ros][drawer][gn].push_back(book2F(finalsubDir, finalhistName, finalhistTitle, 200, -45.1, 855.1, 16, 0., 16.));
+        m_finalHistDsp2[ros][drawer][gn].push_back(book2F(finalsubDir, finalhistName, finalhistTitle, 200, -45.1, 855.1, 16, 0., 16.));
         break;
       case 1: // high gain
-        final_histdsp2[ros][drawer][gn].push_back(book2F(finalsubDir, finalhistName, finalhistTitle, 150, -7.0, 12.0, 16, 0., 16.));
+        m_finalHistDsp2[ros][drawer][gn].push_back(book2F(finalsubDir, finalhistName, finalhistTitle, 150, -7.0, 12.0, 16, 0., 16.));
         break;
       default: // single gain mode
         if (m_runType == PhysRun) {
-          final_histdsp2[ros][drawer][gn & 1].push_back(book2F(subDir, finalhistName, finalhistTitle, 150, -7.005, 7.005, 16, 0., 16.));
+          m_finalHistDsp2[ros][drawer][gn & 1].push_back(book2F(subDir, finalhistName, finalhistTitle, 150, -7.005, 7.005, 16, 0., 16.));
 
         } else {
-          final_histdsp2[ros][drawer][gn & 1].push_back(book2F(subDir, finalhistName, finalhistTitle, 200, -45.1, 855.1, 16, 0., 16.));
+          m_finalHistDsp2[ros][drawer][gn & 1].push_back(book2F(subDir, finalhistName, finalhistTitle, 200, -45.1, 855.1, 16, 0., 16.));
         }
     }
 
@@ -374,16 +374,16 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
 
       switch (gn) {
         case 0: // low gain
-          histdsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 491, -50.5, 1049.34));
+          m_histDsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 491, -50.5, 1049.34));
           break;
         case 1: // high gain
-          histdsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 413, -1.01, 15.51));
+          m_histDsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 413, -1.01, 15.51));
           break;
         default: // single gain mode
           if (m_runType == PhysRun) {
-            histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 100, -0.55, 20.05));
+            m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 100, -0.55, 20.05));
           } else {
-            histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 200, -0.5, 800.5));
+            m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 200, -0.5, 800.5));
           }
       }
 
@@ -395,7 +395,7 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " Dsp Time";
       histTitle = sStr.str();
 
-      histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 101, -100.5, 100.5));
+      m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 101, -100.5, 100.5));
 
       sStr.str("");
       sStr << moduleName << "_ch_" << sCh << gain[gn] << "_dsp_chi2";
@@ -405,7 +405,7 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " Dsp Chi2";
       histTitle = sStr.str();
 
-      histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 16, -0.5, 15.5));
+      m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 16, -0.5, 15.5));
 
       sStr.str("");
       sStr << moduleName << "_ch_" << sCh << gain[gn] << "_dsp-fit_amp_diff";
@@ -417,16 +417,16 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
 
       switch (gn) {
         case 0: // low gain
-          histdsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
+          m_histDsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
           break;
         case 1: // high gain
-          histdsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
+          m_histDsp1[ros][drawer][ch][gn].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
           break;
         default: // single gain mode
           if (m_runType == PhysRun) {
-            histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
+            m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
           } else {
-            histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
+            m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
           }
       }
       sStr.str("");
@@ -437,7 +437,7 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
       sStr << moduleName << " CH " << ch << gain[3 + gn] << " Dsp-OF Time diff";
       histTitle = sStr.str();
 
-      histdsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 101, -2.02, 2.02));
+      m_histDsp1[ros][drawer][ch][gn & 1].push_back(book1F(subDir, histName, histTitle, 101, -2.02, 2.02));
 
       sStr.str("");
       sStr << moduleName << "_ch_" << sCh << gain[gn] << "_chi2_amp";
@@ -449,16 +449,16 @@ void TileRawChannelMonTool::bookDsp(int ros, int drawer)
 
       switch (gn) {
         case 0: // low gain
-          histdsp2[ros][drawer][ch][gn].push_back(book2F(subDir, histName, histTitle, 200, -45.1, 855.1, 16, 0., 16.));
+          m_histDsp2[ros][drawer][ch][gn].push_back(book2F(subDir, histName, histTitle, 200, -45.1, 855.1, 16, 0., 16.));
           break;
         case 1: // high gain
-          histdsp2[ros][drawer][ch][gn].push_back(book2F(subDir, histName, histTitle, 150, -7.0, 12.0, 16, 0., 16.));
+          m_histDsp2[ros][drawer][ch][gn].push_back(book2F(subDir, histName, histTitle, 150, -7.0, 12.0, 16, 0., 16.));
           break;
         default: // single gain mode
           if (m_runType == PhysRun) {
-            histdsp2[ros][drawer][ch][gn & 1].push_back(book2F(subDir, histName, histTitle, 150, -7.005, 7.005, 16, 0., 16.));
+            m_histDsp2[ros][drawer][ch][gn & 1].push_back(book2F(subDir, histName, histTitle, 150, -7.005, 7.005, 16, 0., 16.));
           } else {
-            histdsp2[ros][drawer][ch][gn & 1].push_back(book2F(subDir, histName, histTitle, 200, -45.1, 855.1, 16, 0., 16.));
+            m_histDsp2[ros][drawer][ch][gn & 1].push_back(book2F(subDir, histName, histTitle, 200, -45.1, 855.1, 16, 0., 16.));
           }
       }
 
@@ -501,12 +501,12 @@ StatusCode TileRawChannelMonTool::fillHists()
       int headsize = headerVec.size();
       if (headsize > 16) headsize = 16;
       for (int dmu = 0; dmu < headsize; dmu++) {
-        corrup[ros][drawer][0][dmu] = DMUheaderCheck(&headerVec, dmu);
-        corrup[ros][drawer][1][dmu] = DMUheaderCheck(&headerVec, dmu);
+        m_corrup[ros][drawer][0][dmu] = checkDmuHeader(&headerVec, dmu);
+        m_corrup[ros][drawer][1][dmu] = checkDmuHeader(&headerVec, dmu);
       }
       for (int dmu = headsize; dmu < 16; dmu++) {
-        corrup[ros][drawer][0][dmu] = false;
-        corrup[ros][drawer][1][dmu] = false;
+        m_corrup[ros][drawer][0][dmu] = false;
+        m_corrup[ros][drawer][1][dmu] = false;
       }
 
     }
@@ -546,7 +546,7 @@ StatusCode TileRawChannelMonTool::fillHists()
         int ros = m_tileHWID->ros(adc_id);
         int drawer = m_tileHWID->drawer(adc_id);
 
-        if (hist1[ros][drawer][0][0].size() == 0) {
+        if (m_hist1[ros][drawer][0][0].size() == 0) {
           //        m_bigain = (m_beamInfo->calibMode() == 1); // true if bi-gain run
           // we fill both high and low gain plots
           m_bigain = true;
@@ -570,12 +570,12 @@ StatusCode TileRawChannelMonTool::fillHists()
             int cap = (m_cispar[7] > 10) ? 0 : 1; // 100 pF or 5 pF
 
             double amp = rch->amplitude();
-            if (RChUnit != m_CalibUnit) {
+            if (RChUnit != m_calibUnit) {
               //Put everything in PicoCoulomb by default for all run types
               //For Laser and Physcs calibrate in CesiumPicoCoulomb for all channels,
               // but the MBTS channels, for which we keep the calibration in PicoCoulombCesium pC for consistency
               //(no Cs calibration is possible)
-              if (m_CalibUnit == TileRawChannelUnit::CesiumPicoCoulombs) {
+              if (m_calibUnit == TileRawChannelUnit::CesiumPicoCoulombs) {
                 if (ros < 3) //if LB then it's ok CesiumPicoCoulomb
                     {
                   amp = m_tileToolEmscale->channelCalib(drawerIdx, chan, adc, amp, RChUnit, TileRawChannelUnit::CesiumPicoCoulombs);
@@ -593,7 +593,7 @@ StatusCode TileRawChannelMonTool::fillHists()
                 }
               }  //close if on CesiumPicoCoulomb units
               else { //calibrate in PicoCoulomb
-                amp = m_tileToolEmscale->channelCalib(drawerIdx, chan, adc, amp, RChUnit, m_CalibUnit);
+                amp = m_tileToolEmscale->channelCalib(drawerIdx, chan, adc, amp, RChUnit, m_calibUnit);
               }
             } // no need to calibrate
 
@@ -602,7 +602,7 @@ StatusCode TileRawChannelMonTool::fillHists()
             double timeCorr = 0;	//Lukas
             tfitVec[chan + gain * 48] = time;
 
-            if (!corrup[ros][drawer][gain][chan / 3]) {
+            if (!m_corrup[ros][drawer][gain][chan / 3]) {
               if ((m_runType == CisRun) || (m_runType == CisRamp)) {
                 if (k == 0) {	//Lukas
                   double charge = 0.;
@@ -610,7 +610,7 @@ StatusCode TileRawChannelMonTool::fillHists()
                   double timeInj = m_cispar[5] * 0.104;
 
                   if (m_book2D) {
-                    hist2[ros][drawer][chan][gain][cap]->Fill(charge, amp);
+                    m_hist2[ros][drawer][chan][gain][cap]->Fill(charge, amp);
                   }
 
                   if (charge > 1.0) { //! ignore first step with charge ~0.5 pCb
@@ -627,10 +627,10 @@ StatusCode TileRawChannelMonTool::fillHists()
                       //! do nothing for timeinj near the time slice change
                     } else {
 
-                      hist1[ros][drawer][chan][gain][0 + cap]->Fill(ratio);
-                      hist1[ros][drawer][chan][gain][2 + cap]->Fill(time);
+                      m_hist1[ros][drawer][chan][gain][0 + cap]->Fill(ratio);
+                      m_hist1[ros][drawer][chan][gain][2 + cap]->Fill(time);
                       if (m_book2D) {
-                        hist2[ros][drawer][chan][gain][cap + 2]->Fill(timeInj, time);
+                        m_hist2[ros][drawer][chan][gain][cap + 2]->Fill(timeInj, time);
                       }
 
                       /*TimeCov[ros][drawer][chan][gain][cap][0] += timeInj;
@@ -638,24 +638,24 @@ StatusCode TileRawChannelMonTool::fillHists()
                        TimeCov[ros][drawer][chan][gain][cap][2] += time;
                        TimeCov[ros][drawer][chan][gain][cap][3] += time*time;
                        TimeCov[ros][drawer][chan][gain][cap][4] += timeInj*time;*/
-                      ++TimeCov[ros][drawer][chan][gain][cap][5];
+                      ++m_timeCov[ros][drawer][chan][gain][cap][5];
                     }
                   }
                 }		  //if k==0 //Lukas
               } else { // not CisRun
                 if (k == 0) { //Lukas
-                  hist1[ros][drawer][chan][gain][0]->Fill(amp, 1.0);
+                  m_hist1[ros][drawer][chan][gain][0]->Fill(amp, 1.0);
                   if (time != 0) { // we don't fill the time when it is exactly 0, which is a conventional value to say that it is not
                     // calculated when the difference between the max(samples)-min(samples)< threshold
-                    hist1[ros][drawer][chan][gain][1]->Fill(time, 1.0);
+                    m_hist1[ros][drawer][chan][gain][1]->Fill(time, 1.0);
                   }
 
-                  TimeCov[ros][drawer][chan][gain][0][0] += amp;
-                  TimeCov[ros][drawer][chan][gain][0][1] += amp * amp;
-                  TimeCov[ros][drawer][chan][gain][0][2] += time;
-                  TimeCov[ros][drawer][chan][gain][0][3] += time * time;
+                  m_timeCov[ros][drawer][chan][gain][0][0] += amp;
+                  m_timeCov[ros][drawer][chan][gain][0][1] += amp * amp;
+                  m_timeCov[ros][drawer][chan][gain][0][2] += time;
+                  m_timeCov[ros][drawer][chan][gain][0][3] += time * time;
                   //TimeCov[ros][drawer][chan][gain][0][4] += amp*time;
-                  ++TimeCov[ros][drawer][chan][gain][0][5];
+                  ++m_timeCov[ros][drawer][chan][gain][0][5];
                   /*
                    //Lukas
                    if((ros==3 && drawer==14 && (chan==12 || chan==13 || chan==18 || chan==19))||(ros==4 && drawer==17 && (chan==12 || chan==13 || chan==18 || chan==19))){
@@ -682,11 +682,11 @@ StatusCode TileRawChannelMonTool::fillHists()
                   if (isDisconnected(ros, drawer, chan) || amp < m_minAmpForCorrectedTime) continue;
 
                   timeCorr = time - avgTimePerPart[ros];			//Lukas
-                  hist1[ros][drawer][chan][gain][2]->Fill(timeCorr, 1.0);		//Lukas
+                  m_hist1[ros][drawer][chan][gain][2]->Fill(timeCorr, 1.0);		//Lukas
 
-                  TimeCovCorr[ros][drawer][chan][gain][0][0] += timeCorr;		//Lukas
-                  TimeCovCorr[ros][drawer][chan][gain][0][1] += timeCorr * timeCorr;		//Lukas
-                  ++TimeCovCorr[ros][drawer][chan][gain][0][2];			//Lukas
+                  m_timeCovCorr[ros][drawer][chan][gain][0][0] += timeCorr;		//Lukas
+                  m_timeCovCorr[ros][drawer][chan][gain][0][1] += timeCorr * timeCorr;		//Lukas
+                  ++m_timeCovCorr[ros][drawer][chan][gain][0][2];			//Lukas
 
                 }			//k==1 //Lukas
               } // end of nonCisRun
@@ -762,7 +762,7 @@ StatusCode TileRawChannelMonTool::fillDsp(std::map<int, std::vector<double> > &e
       int ros = m_tileHWID->ros(adc_id);
       int drawer = m_tileHWID->drawer(adc_id);
 
-      if (histdsp1[ros][drawer][0][0].size() == 0) {
+      if (m_histDsp1[ros][drawer][0][0].size() == 0) {
         m_bigain = true;
         bookDsp(ros, drawer);
       }
@@ -778,12 +778,12 @@ StatusCode TileRawChannelMonTool::fillDsp(std::map<int, std::vector<double> > &e
         unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
         if ((m_cispar[8] == 0) /* || ( m_cispar[8] == abs(m_cabling->channel2hole(ros,chan)) )*/
-             && !corrup[ros][drawer][gain][chan / 3]) { // channel is fired and not corrupted
+             && !m_corrup[ros][drawer][gain][chan / 3]) { // channel is fired and not corrupted
  
           double amp = rch->amplitude();
-          if (RChUnit != m_CalibUnit) {
-            if (m_CalibUnit != TileRawChannelUnit::CesiumPicoCoulombs) { //We put everythin in the same unit
-              amp = m_tileToolEmscale->channelCalib(drawerIdx, chan, adc, amp, RChUnit, m_CalibUnit);
+          if (RChUnit != m_calibUnit) {
+            if (m_calibUnit != TileRawChannelUnit::CesiumPicoCoulombs) { //We put everythin in the same unit
+              amp = m_tileToolEmscale->channelCalib(drawerIdx, chan, adc, amp, RChUnit, m_calibUnit);
             } else { // it is =TileRawChannelUnit::CesiumPicoCoulombs, careful with MBTS channels
               if (ros < 3) //if LB then it's ok CesiumPicoCoulomb
                   {
@@ -807,11 +807,11 @@ StatusCode TileRawChannelMonTool::fillDsp(std::map<int, std::vector<double> > &e
           double time = rch->time();
           double chi2 = rch->quality();
 
-          histdsp1[ros][drawer][chan][gain][Edsp]->Fill(amp, 1.0);
-          histdsp1[ros][drawer][chan][gain][Tdsp]->Fill(time, 1.0);
-          histdsp1[ros][drawer][chan][gain][chi2dsp]->Fill(chi2, 1.0);
-          histdsp2[ros][drawer][chan][gain][0]->Fill(amp, chi2, 1.0);
-          final_histdsp2[ros][drawer][gain][0]->Fill(amp, chi2, 1.0);
+          m_histDsp1[ros][drawer][chan][gain][Edsp]->Fill(amp, 1.0);
+          m_histDsp1[ros][drawer][chan][gain][Tdsp]->Fill(time, 1.0);
+          m_histDsp1[ros][drawer][chan][gain][chi2dsp]->Fill(chi2, 1.0);
+          m_histDsp2[ros][drawer][chan][gain][0]->Fill(amp, chi2, 1.0);
+          m_finalHistDsp2[ros][drawer][gain][0]->Fill(amp, chi2, 1.0);
 
           std::map<int, std::vector<double> >::iterator it = efitMap.find(ros * 100 + drawer);
           if (it != efitMap.end()) {
@@ -820,11 +820,11 @@ StatusCode TileRawChannelMonTool::fillDsp(std::map<int, std::vector<double> > &e
             double tfit = (*it).second.at(chan + gain * 48);
             //convert from pC to ADC counts
             if (TMath::Abs(efit) > m_efitThresh) { // fill the histogram only if the efit is above threshold
-              histdsp1[ros][drawer][chan][gain][Edsp_fit]->Fill((amp - efit) / efit, 1.0);
+              m_histDsp1[ros][drawer][chan][gain][Edsp_fit]->Fill((amp - efit) / efit, 1.0);
             }
 
             if (tfit != 0.) {
-              histdsp1[ros][drawer][chan][gain][Tdsp_fit]->Fill((time - tfit), 1.0);
+              m_histDsp1[ros][drawer][chan][gain][Tdsp_fit]->Fill((time - tfit), 1.0);
             }
 
           }
@@ -876,7 +876,7 @@ void TileRawChannelMonTool::bookSummaryHistograms(int ros, int drawer)
           sStr.str("");
           sStr << moduleName << gain[3 + gn] << HistName[3 + type] << CapName[2 + cap];
           histTitle = sStr.str();
-          final_hist1[ros][drawer][adc][cap].push_back(book1F(subDir, histName, histTitle, 48, 0, 48));
+          m_finalHist1[ros][drawer][adc][cap].push_back(book1F(subDir, histName, histTitle, 48, 0, 48));
         }
       } //end of loop over capacitors 
     } //end of loop over gn  
@@ -904,43 +904,43 @@ void TileRawChannelMonTool::bookSummaryHistograms(int ros, int drawer)
         //sStr << moduleName << gain[3+gn] << HistName[4+type];
         sStr << moduleName << gain[3 + gn] << HistName[5 + type];	//Lukas
         histTitle = sStr.str();
-        final_hist1[ros][drawer][adc][0].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
+        m_finalHist1[ros][drawer][adc][0].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
 
         std::string hTitle(histTitle);
 
         if (m_doLaserSummaryVsPMT && m_runType == LasRun) {
 
           hTitle += " (Even PMTs)";
-          summary_pmts[ros][drawer][adc][0].push_back(book1F(subDir + "/pmt", histName + "_pmt_even", hTitle, 49, -0.5, 48.5));
-          summary_pmts[ros][drawer][adc][0].back()->SetMarkerStyle(22);
-          summary_pmts[ros][drawer][adc][0].back()->SetMarkerColor(2);
-          summary_pmts[ros][drawer][adc][0].back()->SetMarkerSize(0.75);
+          m_summaryPmts[ros][drawer][adc][0].push_back(book1F(subDir + "/pmt", histName + "_pmt_even", hTitle, 49, -0.5, 48.5));
+          m_summaryPmts[ros][drawer][adc][0].back()->SetMarkerStyle(22);
+          m_summaryPmts[ros][drawer][adc][0].back()->SetMarkerColor(2);
+          m_summaryPmts[ros][drawer][adc][0].back()->SetMarkerSize(0.75);
 
           hTitle = histTitle;
           hTitle += " (Odd PMTs)";
-          summary_pmts[ros][drawer][adc][1].push_back(book1F(subDir + "/pmt", histName + "_pmt_odd", hTitle, 49, -0.5, 48.5));
-          summary_pmts[ros][drawer][adc][1].back()->SetMarkerStyle(23);
-          summary_pmts[ros][drawer][adc][1].back()->SetMarkerColor(4);
-          summary_pmts[ros][drawer][adc][1].back()->SetMarkerSize(0.75);
+          m_summaryPmts[ros][drawer][adc][1].push_back(book1F(subDir + "/pmt", histName + "_pmt_odd", hTitle, 49, -0.5, 48.5));
+          m_summaryPmts[ros][drawer][adc][1].back()->SetMarkerStyle(23);
+          m_summaryPmts[ros][drawer][adc][1].back()->SetMarkerColor(4);
+          m_summaryPmts[ros][drawer][adc][1].back()->SetMarkerSize(0.75);
 
-          if (ros < 3 && summary_pmts[0][drawer][adc][0].size() < (unsigned int)(type + 1)) {
+          if (ros < 3 && m_summaryPmts[0][drawer][adc][0].size() < (unsigned int)(type + 1)) {
 
             histName.replace(histName.begin(), histName.begin() + 3, "LB");
             histTitle.replace(histTitle.begin(), histTitle.begin() + 3, "LB");
             hTitle = histTitle;
 
             hTitle += " (LBA even PMTs + LBC odd PMTs: negative)";
-            summary_pmts[0][drawer][adc][0].push_back(book1F(subDir + "/pmt", histName + "_pmt_LBA-even_LBC-odd", hTitle, 97, -48.5, 48.5));
-            summary_pmts[0][drawer][adc][0].back()->SetMarkerStyle(22);
-            summary_pmts[0][drawer][adc][0].back()->SetMarkerColor(2);
-            summary_pmts[0][drawer][adc][0].back()->SetMarkerSize(0.75);
+            m_summaryPmts[0][drawer][adc][0].push_back(book1F(subDir + "/pmt", histName + "_pmt_LBA-even_LBC-odd", hTitle, 97, -48.5, 48.5));
+            m_summaryPmts[0][drawer][adc][0].back()->SetMarkerStyle(22);
+            m_summaryPmts[0][drawer][adc][0].back()->SetMarkerColor(2);
+            m_summaryPmts[0][drawer][adc][0].back()->SetMarkerSize(0.75);
 
             hTitle = histTitle;
             hTitle += " (LBA odd PMTs + LBC even PMTs: negative)";
-            summary_pmts[0][drawer][adc][1].push_back(book1F(subDir + "/pmt", histName + "_pmt_LBA-odd_LBC-even", hTitle, 97, -48.5, 48.5));
-            summary_pmts[0][drawer][adc][1].back()->SetMarkerStyle(23);
-            summary_pmts[0][drawer][adc][1].back()->SetMarkerColor(4);
-            summary_pmts[0][drawer][adc][1].back()->SetMarkerSize(0.75);
+            m_summaryPmts[0][drawer][adc][1].push_back(book1F(subDir + "/pmt", histName + "_pmt_LBA-odd_LBC-even", hTitle, 97, -48.5, 48.5));
+            m_summaryPmts[0][drawer][adc][1].back()->SetMarkerStyle(23);
+            m_summaryPmts[0][drawer][adc][1].back()->SetMarkerColor(4);
+            m_summaryPmts[0][drawer][adc][1].back()->SetMarkerSize(0.75);
           }
         }
       }
@@ -956,19 +956,19 @@ void TileRawChannelMonTool::resetSummaryHistograms()
 /*---------------------------------------------------------*/
 {
 
-  memset(TimeCov, 0, sizeof(TimeCov));
-  memset(TimeCovCorr, 0, sizeof(TimeCovCorr));
+  memset(m_timeCov, 0, sizeof(m_timeCov));
+  memset(m_timeCovCorr, 0, sizeof(m_timeCovCorr));
 
   int mingain = (m_bigain) ? 0 : 2;
   int maxgain = (m_bigain) ? 2 : 3;
 
   for (int ros = 1; ros < 5; ++ros) {
     for (int drawer = 0; drawer < 64; ++drawer) {
-      if (hist1[ros][drawer][0][0].size() != 0) {
+      if (m_hist1[ros][drawer][0][0].size() != 0) {
         for (int ch = 0; ch < 48; ++ch) {
           for (int gn = mingain; gn < maxgain; ++gn) {
-            for (auto h : hist1[ros][drawer][ch][gn]) h->Reset();
-            for (auto h : hist2[ros][drawer][ch][gn]) h->Reset();
+            for (auto h : m_hist1[ros][drawer][ch][gn]) h->Reset();
+            for (auto h : m_hist2[ros][drawer][ch][gn]) h->Reset();
           }
         }
       }
@@ -984,7 +984,7 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
 
   ATH_MSG_INFO("in fillFfinalHiststograms()");
 
-  memset(RangeQ, 0, sizeof(RangeQ));
+  memset(m_rangeQ, 0, sizeof(m_rangeQ));
 
   TF1 * fit_gaus = new TF1("g", "gaus");
 
@@ -996,7 +996,7 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
   if ((m_runType == CisRun) || (m_runType == CisRamp)) {
     for (int ros = 1; ros < 5; ++ros) {
       for (int drawer = 0; drawer < 64; ++drawer) {
-        if (hist1[ros][drawer][0][0].size() != 0) {
+        if (m_hist1[ros][drawer][0][0].size() != 0) {
           for (int gn = mingain; gn < maxgain; ++gn) {
 
             int adc = gn & 1;
@@ -1006,32 +1006,32 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
                 //                int pmt = abs(m_cabling->channel2hole(ros,ch)); // number in range [1,48]
 
                 TF1* polyfunc = 0;
-                if (m_book2D) polyfunc = GetTimeFitFunc(hist2[ros][drawer][ch][adc][cap + 2]);
+                if (m_book2D) polyfunc = GetTimeFitFunc(m_hist2[ros][drawer][ch][adc][cap + 2]);
                 if (polyfunc) {
-                  final_hist1[ros][drawer][adc][cap][0]->SetBinContent(ch + 1, polyfunc->GetParameter(1));
+                  m_finalHist1[ros][drawer][adc][cap][0]->SetBinContent(ch + 1, polyfunc->GetParameter(1));
                   if (polyfunc->GetParError(1) > 5) {
-                    final_hist1[ros][drawer][adc][cap][0]->SetBinError(ch + 1, 5.);
+                    m_finalHist1[ros][drawer][adc][cap][0]->SetBinError(ch + 1, 5.);
                   } else {
-                    final_hist1[ros][drawer][adc][cap][0]->SetBinError(ch + 1, polyfunc->GetParError(1));
+                    m_finalHist1[ros][drawer][adc][cap][0]->SetBinError(ch + 1, polyfunc->GetParError(1));
                   }
-                  final_hist1[ros][drawer][adc][cap][1]->SetBinContent(ch + 1, polyfunc->GetParameter(0));
+                  m_finalHist1[ros][drawer][adc][cap][1]->SetBinContent(ch + 1, polyfunc->GetParameter(0));
                   if (polyfunc->GetParError(0) > 5) {
-                    final_hist1[ros][drawer][adc][cap][1]->SetBinError(ch + 1, 5.);
+                    m_finalHist1[ros][drawer][adc][cap][1]->SetBinError(ch + 1, 5.);
                   } else {
-                    final_hist1[ros][drawer][adc][cap][1]->SetBinError(ch + 1, polyfunc->GetParError(0));
+                    m_finalHist1[ros][drawer][adc][cap][1]->SetBinError(ch + 1, polyfunc->GetParError(0));
                   }
 
                   delete polyfunc; //important!
                 }
 
                 else {
-                  final_hist1[ros][drawer][adc][cap][0]->SetBinContent(ch + 1, 0.);
-                  final_hist1[ros][drawer][adc][cap][0]->SetBinError(ch + 1, 0.);
-                  final_hist1[ros][drawer][adc][cap][1]->SetBinContent(ch + 1, 0.);
-                  final_hist1[ros][drawer][adc][cap][1]->SetBinError(ch + 1, 0.);
+                  m_finalHist1[ros][drawer][adc][cap][0]->SetBinContent(ch + 1, 0.);
+                  m_finalHist1[ros][drawer][adc][cap][0]->SetBinError(ch + 1, 0.);
+                  m_finalHist1[ros][drawer][adc][cap][1]->SetBinContent(ch + 1, 0.);
+                  m_finalHist1[ros][drawer][adc][cap][1]->SetBinError(ch + 1, 0.);
                 }
 
-                TH1S * hist = hist1[ros][drawer][ch][adc][cap];
+                TH1S * hist = m_hist1[ros][drawer][ch][adc][cap];
                 int nbins = hist->GetNbinsX();
                 int minbin = 1;
                 for (; minbin < nbins; ++minbin) {
@@ -1058,11 +1058,11 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
                 }
 
                 //std::cout << hist->GetName() <<" mean-xmin= "<< mean-xmin <<"\n";
-                RangeQ[adc][cap][0][ch] = mean;
-                RangeQ[adc][cap][1][ch] = std::max(0.0, mean - xmin);
-                RangeQ[adc][cap][2][ch] = std::max(0.0, xmax - mean);
+                m_rangeQ[adc][cap][0][ch] = mean;
+                m_rangeQ[adc][cap][1][ch] = std::max(0.0, mean - xmin);
+                m_rangeQ[adc][cap][2][ch] = std::max(0.0, xmax - mean);
 
-                final_hist1[ros][drawer][adc][cap][2]->SetBinContent(ch + 1, mean);
+                m_finalHist1[ros][drawer][adc][cap][2]->SetBinContent(ch + 1, mean);
               }
             } //end of loop over capacitors 
           } //end of loop over gn 
@@ -1079,7 +1079,7 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
 
     for (int ros = 1; ros < 5; ++ros) {
       for (int drawer = 0; drawer < 64; ++drawer) {
-        if (hist1[ros][drawer][0][0].size() != 0) {
+        if (m_hist1[ros][drawer][0][0].size() != 0) {
           for (int gn = mingain; gn < maxgain; ++gn) {
 
             int adc = gn & 1;
@@ -1089,15 +1089,15 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
 
               double Amp = 0.0, ErrA = 0.0, RMS = 0.0, ErrR = 0.0;
               double Time = 0.0, RMST = 0.0, Sigma = 0.0, ErrS = 0.0;
-              double NEvents = TimeCov[ros][drawer][ch][adc][0][5];
+              double NEvents = m_timeCov[ros][drawer][ch][adc][0][5];
 
               double TimeCorr = 0.0, RMSTCorr = 0.0;				//Lukas
-              double NEventsCorr = TimeCovCorr[ros][drawer][ch][adc][0][2];	//Lukas
+              double NEventsCorr = m_timeCovCorr[ros][drawer][ch][adc][0][2];	//Lukas
 
               if (NEvents > 0.0) {
 
-                Amp = TimeCov[ros][drawer][ch][adc][0][0] / NEvents;
-                RMS = TimeCov[ros][drawer][ch][adc][0][1] / NEvents - Amp * Amp;
+                Amp = m_timeCov[ros][drawer][ch][adc][0][0] / NEvents;
+                RMS = m_timeCov[ros][drawer][ch][adc][0][1] / NEvents - Amp * Amp;
                 if (RMS > 0.0) {
                   RMS = sqrt(RMS);
                   ErrA = RMS / sqrt(NEvents);
@@ -1106,8 +1106,8 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
                   RMS = 0.0;
                 }
 
-                Time = TimeCov[ros][drawer][ch][adc][0][2] / NEvents;
-                RMST = TimeCov[ros][drawer][ch][adc][0][3] / NEvents - Time * Time;
+                Time = m_timeCov[ros][drawer][ch][adc][0][2] / NEvents;
+                RMST = m_timeCov[ros][drawer][ch][adc][0][3] / NEvents - Time * Time;
                 if (RMST > 0.0) {
                   RMST = sqrt(RMST);
                 } else {
@@ -1117,8 +1117,8 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
 
               //Lukas
               if (NEventsCorr > 0.0) {
-                TimeCorr = TimeCovCorr[ros][drawer][ch][adc][0][0] / NEventsCorr;
-                RMSTCorr = TimeCovCorr[ros][drawer][ch][adc][0][1] / NEventsCorr - TimeCorr * TimeCorr;
+                TimeCorr = m_timeCovCorr[ros][drawer][ch][adc][0][0] / NEventsCorr;
+                RMSTCorr = m_timeCovCorr[ros][drawer][ch][adc][0][1] / NEventsCorr - TimeCorr * TimeCorr;
                 if (RMSTCorr > 0.0) {
                   RMSTCorr = sqrt(RMSTCorr);
                 } else {
@@ -1127,22 +1127,22 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
               }
               //Lukas
 
-              if (hist1[ros][drawer][ch][adc][0]->GetEntries() > 0) {
-                hist1[ros][drawer][ch][adc][0]->Fit("g", "NQ");
+              if (m_hist1[ros][drawer][ch][adc][0]->GetEntries() > 0) {
+                m_hist1[ros][drawer][ch][adc][0]->Fit("g", "NQ");
                 Sigma = fit_gaus->GetParameter(2);
                 ErrS = fit_gaus->GetParError(2);
               }
 
-              final_hist1[ros][drawer][adc][0][0]->SetBinContent(ch + 1, Amp);
-              final_hist1[ros][drawer][adc][0][0]->SetBinError(ch + 1, ErrA);
-              final_hist1[ros][drawer][adc][0][1]->SetBinContent(ch + 1, RMS);
-              final_hist1[ros][drawer][adc][0][1]->SetBinError(ch + 1, ErrR);
-              final_hist1[ros][drawer][adc][0][2]->SetBinContent(ch + 1, Sigma);
-              final_hist1[ros][drawer][adc][0][2]->SetBinError(ch + 1, ErrS);
-              final_hist1[ros][drawer][adc][0][3]->SetBinContent(ch + 1, Time);
-              final_hist1[ros][drawer][adc][0][3]->SetBinError(ch + 1, RMST);
-              final_hist1[ros][drawer][adc][0][4]->SetBinContent(ch + 1, TimeCorr);	//Lukas
-              final_hist1[ros][drawer][adc][0][4]->SetBinError(ch + 1, RMSTCorr);	//Lukas
+              m_finalHist1[ros][drawer][adc][0][0]->SetBinContent(ch + 1, Amp);
+              m_finalHist1[ros][drawer][adc][0][0]->SetBinError(ch + 1, ErrA);
+              m_finalHist1[ros][drawer][adc][0][1]->SetBinContent(ch + 1, RMS);
+              m_finalHist1[ros][drawer][adc][0][1]->SetBinError(ch + 1, ErrR);
+              m_finalHist1[ros][drawer][adc][0][2]->SetBinContent(ch + 1, Sigma);
+              m_finalHist1[ros][drawer][adc][0][2]->SetBinError(ch + 1, ErrS);
+              m_finalHist1[ros][drawer][adc][0][3]->SetBinContent(ch + 1, Time);
+              m_finalHist1[ros][drawer][adc][0][3]->SetBinError(ch + 1, RMST);
+              m_finalHist1[ros][drawer][adc][0][4]->SetBinContent(ch + 1, TimeCorr);	//Lukas
+              m_finalHist1[ros][drawer][adc][0][4]->SetBinError(ch + 1, RMSTCorr);	//Lukas
 
               if (m_doLaserSummaryVsPMT && m_runType == LasRun) {
 
@@ -1151,48 +1151,48 @@ StatusCode TileRawChannelMonTool::fillSummaryHistograms()
 
                 int fiber = (pmt % 2);
 
-                summary_pmts[ros][drawer][adc][fiber][0]->SetBinContent(pmt + 1, Amp);
-                summary_pmts[ros][drawer][adc][fiber][0]->SetBinError(pmt + 1, ErrA);
-                summary_pmts[ros][drawer][adc][fiber][1]->SetBinContent(pmt + 1, RMS);
-                summary_pmts[ros][drawer][adc][fiber][1]->SetBinError(pmt + 1, ErrR);
-                summary_pmts[ros][drawer][adc][fiber][2]->SetBinContent(pmt + 1, Sigma);
-                summary_pmts[ros][drawer][adc][fiber][2]->SetBinError(pmt + 1, ErrS);
-                summary_pmts[ros][drawer][adc][fiber][3]->SetBinContent(pmt + 1, Time);
-                summary_pmts[ros][drawer][adc][fiber][3]->SetBinError(pmt + 1, RMST);
-                summary_pmts[ros][drawer][adc][fiber][4]->SetBinContent(pmt + 1, TimeCorr);	//Lukas
-                summary_pmts[ros][drawer][adc][fiber][4]->SetBinError(pmt + 1, RMSTCorr);	//Lukas
+                m_summaryPmts[ros][drawer][adc][fiber][0]->SetBinContent(pmt + 1, Amp);
+                m_summaryPmts[ros][drawer][adc][fiber][0]->SetBinError(pmt + 1, ErrA);
+                m_summaryPmts[ros][drawer][adc][fiber][1]->SetBinContent(pmt + 1, RMS);
+                m_summaryPmts[ros][drawer][adc][fiber][1]->SetBinError(pmt + 1, ErrR);
+                m_summaryPmts[ros][drawer][adc][fiber][2]->SetBinContent(pmt + 1, Sigma);
+                m_summaryPmts[ros][drawer][adc][fiber][2]->SetBinError(pmt + 1, ErrS);
+                m_summaryPmts[ros][drawer][adc][fiber][3]->SetBinContent(pmt + 1, Time);
+                m_summaryPmts[ros][drawer][adc][fiber][3]->SetBinError(pmt + 1, RMST);
+                m_summaryPmts[ros][drawer][adc][fiber][4]->SetBinContent(pmt + 1, TimeCorr);	//Lukas
+                m_summaryPmts[ros][drawer][adc][fiber][4]->SetBinError(pmt + 1, RMSTCorr);	//Lukas
 
                 if (ros == 1) {
 
-                  int bin = summary_pmts[0][drawer][adc][fiber][0]->FindBin(pmt);
+                  int bin = m_summaryPmts[0][drawer][adc][fiber][0]->FindBin(pmt);
 
-                  summary_pmts[0][drawer][adc][fiber][0]->SetBinContent(bin, Amp);
-                  summary_pmts[0][drawer][adc][fiber][0]->SetBinError(bin, ErrA);
-                  summary_pmts[0][drawer][adc][fiber][1]->SetBinContent(bin, RMS);
-                  summary_pmts[0][drawer][adc][fiber][1]->SetBinError(bin, ErrR);
-                  summary_pmts[0][drawer][adc][fiber][2]->SetBinContent(bin, Sigma);
-                  summary_pmts[0][drawer][adc][fiber][2]->SetBinError(bin, ErrS);
-                  summary_pmts[0][drawer][adc][fiber][3]->SetBinContent(bin, Time);
-                  summary_pmts[0][drawer][adc][fiber][3]->SetBinError(bin, RMST);
-                  summary_pmts[0][drawer][adc][fiber][4]->SetBinContent(bin, TimeCorr);	//Lukas
-                  summary_pmts[0][drawer][adc][fiber][4]->SetBinError(bin, RMSTCorr);	//Lukas
+                  m_summaryPmts[0][drawer][adc][fiber][0]->SetBinContent(bin, Amp);
+                  m_summaryPmts[0][drawer][adc][fiber][0]->SetBinError(bin, ErrA);
+                  m_summaryPmts[0][drawer][adc][fiber][1]->SetBinContent(bin, RMS);
+                  m_summaryPmts[0][drawer][adc][fiber][1]->SetBinError(bin, ErrR);
+                  m_summaryPmts[0][drawer][adc][fiber][2]->SetBinContent(bin, Sigma);
+                  m_summaryPmts[0][drawer][adc][fiber][2]->SetBinError(bin, ErrS);
+                  m_summaryPmts[0][drawer][adc][fiber][3]->SetBinContent(bin, Time);
+                  m_summaryPmts[0][drawer][adc][fiber][3]->SetBinError(bin, RMST);
+                  m_summaryPmts[0][drawer][adc][fiber][4]->SetBinContent(bin, TimeCorr);	//Lukas
+                  m_summaryPmts[0][drawer][adc][fiber][4]->SetBinError(bin, RMSTCorr);	//Lukas
 
                 }
 
                 if (ros == 2) {
 
-                  int bin = summary_pmts[0][drawer][adc][1 - fiber][0]->FindBin(-pmt);
+                  int bin = m_summaryPmts[0][drawer][adc][1 - fiber][0]->FindBin(-pmt);
 
-                  summary_pmts[0][drawer][adc][1 - fiber][0]->SetBinContent(bin, Amp);
-                  summary_pmts[0][drawer][adc][1 - fiber][0]->SetBinError(bin, ErrA);
-                  summary_pmts[0][drawer][adc][1 - fiber][1]->SetBinContent(bin, RMS);
-                  summary_pmts[0][drawer][adc][1 - fiber][1]->SetBinError(bin, ErrR);
-                  summary_pmts[0][drawer][adc][1 - fiber][2]->SetBinContent(bin, Sigma);
-                  summary_pmts[0][drawer][adc][1 - fiber][2]->SetBinError(bin, ErrS);
-                  summary_pmts[0][drawer][adc][1 - fiber][3]->SetBinContent(bin, Time);
-                  summary_pmts[0][drawer][adc][1 - fiber][3]->SetBinError(bin, RMST);
-                  summary_pmts[0][drawer][adc][1 - fiber][4]->SetBinContent(bin, TimeCorr);	//Lukas
-                  summary_pmts[0][drawer][adc][1 - fiber][4]->SetBinError(bin, RMSTCorr);	//Lukas
+                  m_summaryPmts[0][drawer][adc][1 - fiber][0]->SetBinContent(bin, Amp);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][0]->SetBinError(bin, ErrA);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][1]->SetBinContent(bin, RMS);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][1]->SetBinError(bin, ErrR);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][2]->SetBinContent(bin, Sigma);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][2]->SetBinError(bin, ErrS);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][3]->SetBinContent(bin, Time);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][3]->SetBinError(bin, RMST);
+                  m_summaryPmts[0][drawer][adc][1 - fiber][4]->SetBinContent(bin, TimeCorr);	//Lukas
+                  m_summaryPmts[0][drawer][adc][1 - fiber][4]->SetBinError(bin, RMSTCorr);	//Lukas
 
                 }
               }
@@ -1230,7 +1230,7 @@ StatusCode TileRawChannelMonTool::finalHists()
   if (m_summaryUpdateFrequency == 0) {
     for (int ros = 1; ros < 5; ++ros) {
       for (int drawer = 0; drawer < 64; ++drawer) {
-        if (hist1[ros][drawer][0][0].size() != 0) {
+        if (m_hist1[ros][drawer][0][0].size() != 0) {
           bookSummaryHistograms(ros, drawer);
         }
       }
@@ -1249,7 +1249,7 @@ StatusCode TileRawChannelMonTool::finalDsp(int ros, int drawer)
 /*---------------------------------------------------------*/
 {
 
-  if (histdsp1[ros][drawer][0][0].size() != 0) {
+  if (m_histDsp1[ros][drawer][0][0].size() != 0) {
 
     ///get algorithm and number of iterations from bsflags
     const TileRawChannelContainer* RawChannelCntDsp;
@@ -1297,7 +1297,7 @@ StatusCode TileRawChannelMonTool::finalDsp(int ros, int drawer)
         sStr.str("");
         sStr << moduleName << gain[2 + gn] << HistName[3 + type] << alg_name[algorithm] << "-" << iter_name[iteration] << HistName[6 + type];
         histTitle = sStr.str();
-        final_histdsp1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
+        m_finalHistDsp1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 48, 0.0, 48.0));
       }
 
       //Create hbar histograms to be used in drawDsp
@@ -1308,7 +1308,7 @@ StatusCode TileRawChannelMonTool::finalDsp(int ros, int drawer)
       sStr << moduleName << gain[2 + gn] << " (DSP-" << alg_name[algorithm] << "-" << iter_name[iteration]
           << " - OFF-OF2-I) divided by OFF Amplitudes for all chans";
       histTitle = sStr.str();
-      hbardsp1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
+      m_hBarDsp1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 404, -1.01, 1.01));
 
       sStr.str("");
       sStr << moduleName << gain[gn] << "_dspfit_timehbar";
@@ -1316,28 +1316,28 @@ StatusCode TileRawChannelMonTool::finalDsp(int ros, int drawer)
       sStr.str("");
       sStr << moduleName << gain[2 + gn] << " (DSP-" << alg_name[algorithm] << "-" << iter_name[iteration] << " - OFF-OF2-I) Time for all chans";
       histTitle = sStr.str();
-      hbardsp1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 101, -2.02, 2.02));
+      m_hBarDsp1[ros][drawer][adc].push_back(book1F(subDir, histName, histTitle, 101, -2.02, 2.02));
 
       for (int ch = 0; ch < 48; ++ch) {
         //	int pmt = abs(m_cabling->channel2hole(ros,ch)); // number in range [1,48]
 
-        if (histdsp1[ros][drawer][ch][adc][Edsp_fit]->GetEntries() > 0) {
-          double dspmean = histdsp1[ros][drawer][ch][adc][Edsp]->GetMean();
-          double dsprms = histdsp1[ros][drawer][ch][adc][Edsp]->GetRMS();
-          double emean = histdsp1[ros][drawer][ch][adc][Edsp_fit]->GetMean();
-          double erms = histdsp1[ros][drawer][ch][adc][Edsp_fit]->GetRMS();
-          double tmean = histdsp1[ros][drawer][ch][adc][Tdsp_fit]->GetMean();
-          double trms = histdsp1[ros][drawer][ch][adc][Tdsp_fit]->GetRMS();
+        if (m_histDsp1[ros][drawer][ch][adc][Edsp_fit]->GetEntries() > 0) {
+          double dspmean = m_histDsp1[ros][drawer][ch][adc][Edsp]->GetMean();
+          double dsprms = m_histDsp1[ros][drawer][ch][adc][Edsp]->GetRMS();
+          double emean = m_histDsp1[ros][drawer][ch][adc][Edsp_fit]->GetMean();
+          double erms = m_histDsp1[ros][drawer][ch][adc][Edsp_fit]->GetRMS();
+          double tmean = m_histDsp1[ros][drawer][ch][adc][Tdsp_fit]->GetMean();
+          double trms = m_histDsp1[ros][drawer][ch][adc][Tdsp_fit]->GetRMS();
 
-          final_histdsp1[ros][drawer][adc][sumEdsp]->SetBinContent(ch + 1, dspmean);
-          final_histdsp1[ros][drawer][adc][sumEdsp]->SetBinError(ch + 1, dsprms);
-          final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetBinContent(ch + 1, emean);
-          final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetBinError(ch + 1, erms);
-          final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetBinContent(ch + 1, tmean);
-          final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetBinError(ch + 1, trms);
+          m_finalHistDsp1[ros][drawer][adc][sumEdsp]->SetBinContent(ch + 1, dspmean);
+          m_finalHistDsp1[ros][drawer][adc][sumEdsp]->SetBinError(ch + 1, dsprms);
+          m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetBinContent(ch + 1, emean);
+          m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetBinError(ch + 1, erms);
+          m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetBinContent(ch + 1, tmean);
+          m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetBinError(ch + 1, trms);
 
-          hbardsp1[ros][drawer][adc][sumEdsp_fit]->Add(histdsp1[ros][drawer][ch][adc][Edsp_fit]);
-          hbardsp1[ros][drawer][adc][sumTdsp_fit]->Add(histdsp1[ros][drawer][ch][adc][Tdsp_fit]);
+          m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->Add(m_histDsp1[ros][drawer][ch][adc][Edsp_fit]);
+          m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->Add(m_histDsp1[ros][drawer][ch][adc][Tdsp_fit]);
 
         }
       }
@@ -1422,18 +1422,18 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
           pad->SetGridx();
         }
 
-        TGraphAsymmErrors * final_Egraph = bookGraphAsymmErrors(subDir, graphName, graphTitle, 48, X_axis, RangeQ[adc][cap][0], X_errors, X_errors,
-            RangeQ[adc][cap][1], RangeQ[adc][cap][2]);
+        TGraphAsymmErrors * final_Egraph = bookGraphAsymmErrors(subDir, graphName, graphTitle, 48, X_axis, m_rangeQ[adc][cap][0], X_errors, X_errors,
+            m_rangeQ[adc][cap][1], m_rangeQ[adc][cap][2]);
         grapherrVec.push_back(final_Egraph);
 
-        final_hist1[ros][drawer][adc][cap][2]->SetStats(kFALSE);
-        final_hist1[ros][drawer][adc][cap][2]->SetMarkerStyle(21);
-        final_hist1[ros][drawer][adc][cap][2]->SetMarkerSize(ms);
-        final_hist1[ros][drawer][adc][cap][2]->SetLabelSize(0.06, "X");
-        final_hist1[ros][drawer][adc][cap][2]->SetLabelSize(0.06, "Y");
-        final_hist1[ros][drawer][adc][cap][2]->SetMaximum(2.2);
-        final_hist1[ros][drawer][adc][cap][2]->SetMinimum(-0.2);
-        if (do_plots) final_hist1[ros][drawer][adc][cap][2]->Draw("P0");
+        m_finalHist1[ros][drawer][adc][cap][2]->SetStats(kFALSE);
+        m_finalHist1[ros][drawer][adc][cap][2]->SetMarkerStyle(21);
+        m_finalHist1[ros][drawer][adc][cap][2]->SetMarkerSize(ms);
+        m_finalHist1[ros][drawer][adc][cap][2]->SetLabelSize(0.06, "X");
+        m_finalHist1[ros][drawer][adc][cap][2]->SetLabelSize(0.06, "Y");
+        m_finalHist1[ros][drawer][adc][cap][2]->SetMaximum(2.2);
+        m_finalHist1[ros][drawer][adc][cap][2]->SetMinimum(-0.2);
+        if (do_plots) m_finalHist1[ros][drawer][adc][cap][2]->Draw("P0");
 
         final_Egraph->SetMarkerStyle(21);
         final_Egraph->SetMarkerSize(ms);
@@ -1489,17 +1489,17 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
             pad->SetGridx();
           }
 
-          if (final_hist1[ros][drawer][adc][cap][type]->GetMaximum() < 0.9 * maxy[type])
-            final_hist1[ros][drawer][adc][cap][type]->SetMaximum(maxy[type]);
-          if (final_hist1[ros][drawer][adc][cap][type]->GetMinimum() > (miny[type] + 0.1 * TMath::Abs(miny[type])))
-            final_hist1[ros][drawer][adc][cap][type]->SetMinimum(miny[type]);
+          if (m_finalHist1[ros][drawer][adc][cap][type]->GetMaximum() < 0.9 * maxy[type])
+            m_finalHist1[ros][drawer][adc][cap][type]->SetMaximum(maxy[type]);
+          if (m_finalHist1[ros][drawer][adc][cap][type]->GetMinimum() > (miny[type] + 0.1 * TMath::Abs(miny[type])))
+            m_finalHist1[ros][drawer][adc][cap][type]->SetMinimum(miny[type]);
 
-          final_hist1[ros][drawer][adc][cap][type]->SetMarkerStyle(21);
-          final_hist1[ros][drawer][adc][cap][type]->SetMarkerSize(ms);
-          final_hist1[ros][drawer][adc][cap][type]->SetLabelSize(0.10, "X");
-          final_hist1[ros][drawer][adc][cap][type]->SetLabelSize(0.10, "Y");
+          m_finalHist1[ros][drawer][adc][cap][type]->SetMarkerStyle(21);
+          m_finalHist1[ros][drawer][adc][cap][type]->SetMarkerSize(ms);
+          m_finalHist1[ros][drawer][adc][cap][type]->SetLabelSize(0.10, "X");
+          m_finalHist1[ros][drawer][adc][cap][type]->SetLabelSize(0.10, "Y");
           if (do_plots) {
-            final_hist1[ros][drawer][adc][cap][type]->Draw("P0");
+            m_finalHist1[ros][drawer][adc][cap][type]->Draw("P0");
 
             line.SetLineColor(3);
             line.Draw();
@@ -1537,14 +1537,14 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
 
       for (int adc = 0; adc < maxgain; ++adc) {
 
-        double max0 = final_hist1[ros][drawer][adc][0][0]->GetMaximum();
-        double max1 = final_hist1[ros][drawer][adc][0][1]->GetMaximum();
-        double max2 = final_hist1[ros][drawer][adc][0][2]->GetMaximum();
-        double max3 = final_hist1[ros][drawer][adc][0][3]->GetMaximum();
-        double min0 = final_hist1[ros][drawer][adc][0][0]->GetMinimum();
-        double min1 = final_hist1[ros][drawer][adc][0][1]->GetMinimum();
-        double min2 = final_hist1[ros][drawer][adc][0][2]->GetMinimum();
-        double min3 = final_hist1[ros][drawer][adc][0][3]->GetMinimum();
+        double max0 = m_finalHist1[ros][drawer][adc][0][0]->GetMaximum();
+        double max1 = m_finalHist1[ros][drawer][adc][0][1]->GetMaximum();
+        double max2 = m_finalHist1[ros][drawer][adc][0][2]->GetMaximum();
+        double max3 = m_finalHist1[ros][drawer][adc][0][3]->GetMaximum();
+        double min0 = m_finalHist1[ros][drawer][adc][0][0]->GetMinimum();
+        double min1 = m_finalHist1[ros][drawer][adc][0][1]->GetMinimum();
+        double min2 = m_finalHist1[ros][drawer][adc][0][2]->GetMinimum();
+        double min3 = m_finalHist1[ros][drawer][adc][0][3]->GetMinimum();
 
         TVirtualPad * pad;
         if (do_plots) {
@@ -1553,15 +1553,15 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
           pad->SetGridx();
         }
 
-        if (max0 < 0.9 * maxy[adc]) final_hist1[ros][drawer][adc][0][0]->SetMaximum(maxy[adc]);
-        if (min0 > (miny[adc] + 0.1 * TMath::Abs(miny[adc]))) final_hist1[ros][drawer][adc][0][0]->SetMinimum(miny[adc]);
+        if (max0 < 0.9 * maxy[adc]) m_finalHist1[ros][drawer][adc][0][0]->SetMaximum(maxy[adc]);
+        if (min0 > (miny[adc] + 0.1 * TMath::Abs(miny[adc]))) m_finalHist1[ros][drawer][adc][0][0]->SetMinimum(miny[adc]);
 
-        final_hist1[ros][drawer][adc][0][0]->SetMarkerStyle(21);
-        final_hist1[ros][drawer][adc][0][0]->SetMarkerSize(ms);
-        final_hist1[ros][drawer][adc][0][0]->SetLabelSize(0.08, "X");
-        final_hist1[ros][drawer][adc][0][0]->SetLabelSize(0.08, "Y");
+        m_finalHist1[ros][drawer][adc][0][0]->SetMarkerStyle(21);
+        m_finalHist1[ros][drawer][adc][0][0]->SetMarkerSize(ms);
+        m_finalHist1[ros][drawer][adc][0][0]->SetLabelSize(0.08, "X");
+        m_finalHist1[ros][drawer][adc][0][0]->SetLabelSize(0.08, "Y");
         if (do_plots) {
-          final_hist1[ros][drawer][adc][0][0]->Draw("E0");
+          m_finalHist1[ros][drawer][adc][0][0]->Draw("E0");
         }
 
         if (do_plots) {
@@ -1573,39 +1573,39 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
         //     if (max2 > 5 * max1) max2 = 2 * max1; // don't put crazy fit results on plot
         if (max1 < maxy[2 + adc]) {
           if (max2 < maxy[2 + adc])
-            final_hist1[ros][drawer][adc][0][1]->SetMaximum(maxy[2 + adc]);
+            m_finalHist1[ros][drawer][adc][0][1]->SetMaximum(maxy[2 + adc]);
           else
-            final_hist1[ros][drawer][adc][0][1]->SetMaximum(max2);
+            m_finalHist1[ros][drawer][adc][0][1]->SetMaximum(max2);
         } else {
-          if (max1 < max2) final_hist1[ros][drawer][adc][0][1]->SetMaximum(max2);
+          if (max1 < max2) m_finalHist1[ros][drawer][adc][0][1]->SetMaximum(max2);
         }
 
         if (min1 > miny[2 + adc]) {
           if (min2 > miny[2 + adc])
-            final_hist1[ros][drawer][adc][0][1]->SetMinimum(miny[2 + adc]);
+            m_finalHist1[ros][drawer][adc][0][1]->SetMinimum(miny[2 + adc]);
           else
-            final_hist1[ros][drawer][adc][0][1]->SetMinimum(min2);
+            m_finalHist1[ros][drawer][adc][0][1]->SetMinimum(min2);
         } else {
-          if (min1 > min2) final_hist1[ros][drawer][adc][0][1]->SetMinimum(min2);
+          if (min1 > min2) m_finalHist1[ros][drawer][adc][0][1]->SetMinimum(min2);
         }
 
-        final_hist1[ros][drawer][adc][0][1]->SetMarkerStyle(21);
-        final_hist1[ros][drawer][adc][0][1]->SetMarkerSize(ms);
-        final_hist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "X");
-        final_hist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "Y");
+        m_finalHist1[ros][drawer][adc][0][1]->SetMarkerStyle(21);
+        m_finalHist1[ros][drawer][adc][0][1]->SetMarkerSize(ms);
+        m_finalHist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "X");
+        m_finalHist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "Y");
         if (do_plots) {
-          final_hist1[ros][drawer][adc][0][1]->Draw("P0");
+          m_finalHist1[ros][drawer][adc][0][1]->Draw("P0");
         }
 
-        final_hist1[ros][drawer][adc][0][2]->SetMaximum(final_hist1[ros][drawer][adc][0][1]->GetMaximum());
-        final_hist1[ros][drawer][adc][0][2]->SetMinimum(final_hist1[ros][drawer][adc][0][1]->GetMinimum());
-        final_hist1[ros][drawer][adc][0][2]->SetMarkerStyle(25);
-        final_hist1[ros][drawer][adc][0][2]->SetMarkerSize(ms);
-        final_hist1[ros][drawer][adc][0][2]->SetMarkerColor(4);
-        final_hist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "X");
-        final_hist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "Y");
+        m_finalHist1[ros][drawer][adc][0][2]->SetMaximum(m_finalHist1[ros][drawer][adc][0][1]->GetMaximum());
+        m_finalHist1[ros][drawer][adc][0][2]->SetMinimum(m_finalHist1[ros][drawer][adc][0][1]->GetMinimum());
+        m_finalHist1[ros][drawer][adc][0][2]->SetMarkerStyle(25);
+        m_finalHist1[ros][drawer][adc][0][2]->SetMarkerSize(ms);
+        m_finalHist1[ros][drawer][adc][0][2]->SetMarkerColor(4);
+        m_finalHist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "X");
+        m_finalHist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "Y");
         if (do_plots) {
-          final_hist1[ros][drawer][adc][0][2]->Draw("sameP0");
+          m_finalHist1[ros][drawer][adc][0][2]->Draw("sameP0");
         }
 
         if (do_plots) {
@@ -1614,15 +1614,15 @@ void TileRawChannelMonTool::drawHists(int ros, int drawer, std::string moduleNam
           pad->SetGridx();
         }
 
-        if (max3 < 0.9 * maxy[4 + adc]) final_hist1[ros][drawer][adc][0][3]->SetMaximum(maxy[4 + adc]);
-        if (min3 > (miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc]))) final_hist1[ros][drawer][adc][0][3]->SetMinimum(miny[4 + adc]);
+        if (max3 < 0.9 * maxy[4 + adc]) m_finalHist1[ros][drawer][adc][0][3]->SetMaximum(maxy[4 + adc]);
+        if (min3 > (miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc]))) m_finalHist1[ros][drawer][adc][0][3]->SetMinimum(miny[4 + adc]);
 
-        final_hist1[ros][drawer][adc][0][3]->SetMarkerStyle(21);
-        final_hist1[ros][drawer][adc][0][3]->SetMarkerSize(ms);
-        final_hist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "X");
-        final_hist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "Y");
+        m_finalHist1[ros][drawer][adc][0][3]->SetMarkerStyle(21);
+        m_finalHist1[ros][drawer][adc][0][3]->SetMarkerSize(ms);
+        m_finalHist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "X");
+        m_finalHist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "Y");
         if (do_plots) {
-          final_hist1[ros][drawer][adc][0][3]->Draw("E0");
+          m_finalHist1[ros][drawer][adc][0][3]->Draw("E0");
         }
 
       } //end of loop over gain
@@ -1666,12 +1666,12 @@ void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
   double norm[2] = { 1., 1 };
   for (int adc = 0; adc < maxgain; ++adc) {
 
-    double maxEdsp = final_histdsp1[ros][drawer][adc][sumEdsp_fit]->GetMaximum();
-    double minEdsp = final_histdsp1[ros][drawer][adc][sumEdsp_fit]->GetMinimum();
-    double maxTdsp = final_histdsp1[ros][drawer][adc][sumTdsp_fit]->GetMaximum();
-    double minTdsp = final_histdsp1[ros][drawer][adc][sumTdsp_fit]->GetMinimum();
-    double maxchidsp = final_histdsp2[ros][drawer][adc][0]->GetMaximum();
-    double minchidsp = final_histdsp2[ros][drawer][adc][0]->GetMinimum();
+    double maxEdsp = m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->GetMaximum();
+    double minEdsp = m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->GetMinimum();
+    double maxTdsp = m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->GetMaximum();
+    double minTdsp = m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->GetMinimum();
+    double maxchidsp = m_finalHistDsp2[ros][drawer][adc][0]->GetMaximum();
+    double minchidsp = m_finalHistDsp2[ros][drawer][adc][0]->GetMinimum();
 
     TVirtualPad * pad;
     if (do_plots) {
@@ -1680,26 +1680,26 @@ void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
       pad->SetGridx();
     }
 
-    if (maxEdsp < 0.9 * maxy[adc]) final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetMaximum(maxy[adc]);
-    if (minEdsp > miny[adc] + 0.1 * TMath::Abs(miny[adc])) final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetMinimum(miny[adc]);
+    if (maxEdsp < 0.9 * maxy[adc]) m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetMaximum(maxy[adc]);
+    if (minEdsp > miny[adc] + 0.1 * TMath::Abs(miny[adc])) m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetMinimum(miny[adc]);
 
-    final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetMarkerStyle(21);
-    final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetMarkerSize(ms);
-    final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetLabelSize(0.08, "X");
-    final_histdsp1[ros][drawer][adc][sumEdsp_fit]->SetLabelSize(0.08, "Y");
-    if (do_plots) final_histdsp1[ros][drawer][adc][sumEdsp_fit]->Draw("");
+    m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetMarkerStyle(21);
+    m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetMarkerSize(ms);
+    m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetLabelSize(0.08, "X");
+    m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->SetLabelSize(0.08, "Y");
+    if (do_plots) m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->Draw("");
 
     //Now we add the 1d histogram on the y-axis
-    if (hbardsp1[ros][drawer][adc][sumEdsp_fit]->GetMaximum() > 0.1) { //normalize the scale to get into the frame
-      norm[sumEdsp_fit] = 47. / hbardsp1[ros][drawer][adc][sumEdsp_fit]->GetMaximum();
+    if (m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->GetMaximum() > 0.1) { //normalize the scale to get into the frame
+      norm[sumEdsp_fit] = 47. / m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->GetMaximum();
     }
-    hbardsp1[ros][drawer][adc][sumEdsp_fit]->Scale(norm[sumEdsp_fit]);
+    m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->Scale(norm[sumEdsp_fit]);
     //hbardsp1[ros][drawer][adc][sumEdsp_fit]->SetFillStyle(3350);
-    hbardsp1[ros][drawer][adc][sumEdsp_fit]->SetFillColor(38);
+    m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->SetFillColor(38);
     if (do_plots) {
-      hbardsp1[ros][drawer][adc][sumEdsp_fit]->Draw("hbar,same");
+      m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->Draw("hbar,same");
 
-      final_histdsp1[ros][drawer][adc][sumEdsp_fit]->Draw("E0,same");
+      m_finalHistDsp1[ros][drawer][adc][sumEdsp_fit]->Draw("E0,same");
 
       line.Draw();
 
@@ -1708,25 +1708,25 @@ void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
       pad->SetGridx();
     }
 
-    if (maxTdsp < 0.9 * maxy[2 + adc]) final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetMaximum(maxy[2 + adc]);
-    if (minTdsp > miny[2 + adc] + 0.1 * TMath::Abs(miny[2 + adc])) final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetMinimum(miny[2 + adc]);
+    if (maxTdsp < 0.9 * maxy[2 + adc]) m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetMaximum(maxy[2 + adc]);
+    if (minTdsp > miny[2 + adc] + 0.1 * TMath::Abs(miny[2 + adc])) m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetMinimum(miny[2 + adc]);
 
-    final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetMarkerStyle(21);
-    final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetMarkerSize(ms);
-    final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetLabelSize(0.08, "X");
-    final_histdsp1[ros][drawer][adc][sumTdsp_fit]->SetLabelSize(0.08, "Y");
-    if (do_plots) final_histdsp1[ros][drawer][adc][sumTdsp_fit]->Draw("");
+    m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetMarkerStyle(21);
+    m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetMarkerSize(ms);
+    m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetLabelSize(0.08, "X");
+    m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->SetLabelSize(0.08, "Y");
+    if (do_plots) m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->Draw("");
 
-    if (hbardsp1[ros][drawer][adc][sumTdsp_fit]->GetMaximum() > 0.1) { //normalize the scale to get into the frame
-      norm[sumTdsp_fit] = 47. / hbardsp1[ros][drawer][adc][sumTdsp_fit]->GetMaximum();
+    if (m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->GetMaximum() > 0.1) { //normalize the scale to get into the frame
+      norm[sumTdsp_fit] = 47. / m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->GetMaximum();
     }
-    hbardsp1[ros][drawer][adc][sumTdsp_fit]->Scale(norm[sumTdsp_fit]);
+    m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->Scale(norm[sumTdsp_fit]);
     //      hbardsp1[ros][drawer][adc][sumTdsp_fit]->SetFillStyle(3350);
-    hbardsp1[ros][drawer][adc][sumTdsp_fit]->SetFillColor(38);
+    m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->SetFillColor(38);
     if (do_plots) {
-      hbardsp1[ros][drawer][adc][sumTdsp_fit]->Draw("hbar,same");
+      m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->Draw("hbar,same");
 
-      final_histdsp1[ros][drawer][adc][sumTdsp_fit]->Draw("E0,same");
+      m_finalHistDsp1[ros][drawer][adc][sumTdsp_fit]->Draw("E0,same");
 
       line.Draw();
 
@@ -1736,14 +1736,14 @@ void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
       pad->SetGridy();
     }
 
-    if (maxchidsp < 0.9 * maxy[4 + adc]) final_histdsp2[ros][drawer][adc][0]->SetMaximum(maxy[4 + adc]);
-    if (minchidsp > miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc])) final_histdsp2[ros][drawer][adc][0]->SetMinimum(miny[4 + adc]);
+    if (maxchidsp < 0.9 * maxy[4 + adc]) m_finalHistDsp2[ros][drawer][adc][0]->SetMaximum(maxy[4 + adc]);
+    if (minchidsp > miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc])) m_finalHistDsp2[ros][drawer][adc][0]->SetMinimum(miny[4 + adc]);
 
-    final_histdsp2[ros][drawer][adc][0]->SetLabelSize(0.08, "X");
-    final_histdsp2[ros][drawer][adc][0]->SetLabelSize(0.08, "Y");
+    m_finalHistDsp2[ros][drawer][adc][0]->SetLabelSize(0.08, "X");
+    m_finalHistDsp2[ros][drawer][adc][0]->SetLabelSize(0.08, "Y");
     if (do_plots) {
       gStyle->SetPalette(1);
-      final_histdsp2[ros][drawer][adc][0]->Draw("zcol");
+      m_finalHistDsp2[ros][drawer][adc][0]->Draw("zcol");
     }
 
   } //end of loop over gain
@@ -1760,8 +1760,8 @@ void TileRawChannelMonTool::drawDsp(int ros, int drawer, std::string moduleName)
   if (do_plots) delete Can;
 
   for (int adc = 0; adc < maxgain; ++adc) {
-    hbardsp1[ros][drawer][adc][sumEdsp_fit]->Scale(1 / norm[sumEdsp_fit]); //back to normal
-    hbardsp1[ros][drawer][adc][sumTdsp_fit]->Scale(1 / norm[sumTdsp_fit]); //back to normal
+    m_hBarDsp1[ros][drawer][adc][sumEdsp_fit]->Scale(1 / norm[sumEdsp_fit]); //back to normal
+    m_hBarDsp1[ros][drawer][adc][sumTdsp_fit]->Scale(1 / norm[sumTdsp_fit]); //back to normal
   }
 }
 
@@ -1875,16 +1875,16 @@ TF1* TileRawChannelMonTool::GetTimeFitFunc(TH2S* hist2d) {
   return 0;
 }
 /*---------------------------------------------------------*/
-bool TileRawChannelMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int dmu)
+bool TileRawChannelMonTool::checkDmuHeader(std::vector<uint32_t>* headerVec, int dmu)
 /*---------------------------------------------------------*/
 {
   bool err = false;
 
-  if (DMUheaderFormatCheck((*headerVec)[dmu])) {
+  if (checkDmuHeaderFormat((*headerVec)[dmu])) {
     err = true;
 
   }
-  if (DMUheaderParityCheck((*headerVec)[dmu])) {
+  if (checkDmuHeaderParity((*headerVec)[dmu])) {
     err = true;
 
   }
@@ -1946,13 +1946,13 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
 
     std::ostringstream hn;
     hn << "empty_" << g;
-    final_empty[g] = new TH1F(hn.str().c_str(), final_hist1[ros][drawer][g][0][0]->GetTitle(), 48, 0, 48);
+    final_empty[g] = new TH1F(hn.str().c_str(), m_finalHist1[ros][drawer][g][0][0]->GetTitle(), 48, 0, 48);
     hn.str("");
     hn << "odd_" << g;
-    final_odd[g] = new TH1F(hn.str().c_str(), final_hist1[ros][drawer][g][0][0]->GetTitle(), 48, 0, 48);
+    final_odd[g] = new TH1F(hn.str().c_str(), m_finalHist1[ros][drawer][g][0][0]->GetTitle(), 48, 0, 48);
     hn.str("");
     hn << "even_" << g;
-    final_even[g] = new TH1F(hn.str().c_str(), final_hist1[ros][drawer][g][0][0]->GetTitle(), 48, 0, 48);
+    final_even[g] = new TH1F(hn.str().c_str(), m_finalHist1[ros][drawer][g][0][0]->GetTitle(), 48, 0, 48);
 
     //---- Histograms for the ratio Var/Mean
     // titles...
@@ -1988,16 +1988,16 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
   // loop over the 2 gains values
   for (int adc = 0; adc < maxgain; ++adc) {
 
-    double max0 = final_hist1[ros][drawer][adc][0][0]->GetMaximum();
+    double max0 = m_finalHist1[ros][drawer][adc][0][0]->GetMaximum();
     //double max1 = final_hist1[ros][drawer][adc][0][1]->GetMaximum();
     //double max2 = final_hist1[ros][drawer][adc][0][2]->GetMaximum();
-    double max3 = final_hist1[ros][drawer][adc][0][3]->GetMaximum();
-    double max4 = final_hist1[ros][drawer][adc][0][4]->GetMaximum();	//Lukas
-    double min0 = final_hist1[ros][drawer][adc][0][0]->GetMinimum();
+    double max3 = m_finalHist1[ros][drawer][adc][0][3]->GetMaximum();
+    double max4 = m_finalHist1[ros][drawer][adc][0][4]->GetMaximum();	//Lukas
+    double min0 = m_finalHist1[ros][drawer][adc][0][0]->GetMinimum();
     //double min1 = final_hist1[ros][drawer][adc][0][1]->GetMinimum();
     //double min2 = final_hist1[ros][drawer][adc][0][2]->GetMinimum();
-    double min3 = final_hist1[ros][drawer][adc][0][3]->GetMinimum();
-    double min4 = final_hist1[ros][drawer][adc][0][4]->GetMinimum();	//Lukas
+    double min3 = m_finalHist1[ros][drawer][adc][0][3]->GetMinimum();
+    double min4 = m_finalHist1[ros][drawer][adc][0][4]->GetMinimum();	//Lukas
 
     if (max0 > 0.) {
       final_empty[adc]->SetMaximum(1.05 * max0);
@@ -2021,22 +2021,22 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
     double Kapa = 1.30e-3;
     for (int ch = 0; ch < 48; ++ch) {
       if (isDisconnected(ros, drawer, ch)) {
-        final_empty[adc]->SetBinContent(ch + 1, final_hist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1) + 0.01);
-        final_empty[adc]->SetBinError(ch + 1, final_hist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.01);
+        final_empty[adc]->SetBinContent(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1) + 0.01);
+        final_empty[adc]->SetBinError(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.01);
         pmtGain_empty[adc]->SetBinContent(ch + 1, 0.01);
         pmtGain_empty[adc]->SetBinError(ch + 1, 0.01);
       }
       // connected channels
       else {
-        double mean = final_hist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1);
-        double rms = final_hist1[ros][drawer][adc][0][1]->GetBinContent(ch + 1);
-        double dmean = final_hist1[ros][drawer][adc][0][0]->GetBinError(ch + 1);
-        double drms = final_hist1[ros][drawer][adc][0][1]->GetBinError(ch + 1);
+        double mean = m_finalHist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1);
+        double rms = m_finalHist1[ros][drawer][adc][0][1]->GetBinContent(ch + 1);
+        double dmean = m_finalHist1[ros][drawer][adc][0][0]->GetBinError(ch + 1);
+        double drms = m_finalHist1[ros][drawer][adc][0][1]->GetBinError(ch + 1);
         // even pmts
         int pmt = abs(m_cabling->channel2hole(ros, ch)); //extra safe: abs should not be necessary, because channels are connected.
         if (pmt % 2 == 0) {
-          final_even[adc]->SetBinContent(ch + 1, final_hist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1) + 0.001);
-          final_even[adc]->SetBinError(ch + 1, final_hist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.001);
+          final_even[adc]->SetBinContent(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1) + 0.001);
+          final_even[adc]->SetBinError(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.001);
 
           //			    if (bin!=0)
           //			      log<<MSG::DEBUG<<"["<<ros<<"]["<<drawer+1<<"]["<<adc<<"]["<< bin <<"] : mean="
@@ -2051,8 +2051,8 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
         }
         // odd pmts
         else {
-          final_odd[adc]->SetBinContent(ch + 1, final_hist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1) + 0.001);
-          final_odd[adc]->SetBinError(ch + 1, final_hist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.001);
+          final_odd[adc]->SetBinContent(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinContent(ch + 1) + 0.001);
+          final_odd[adc]->SetBinError(ch + 1, m_finalHist1[ros][drawer][adc][0][0]->GetBinError(ch + 1) + 0.001);
 
           // log<<MSG::DEBUG<<"["<<ros<<"]["<<drawer+1<<"]["<<adc<<"]["<< bin <<"] : mean="
           // << mean <<", var="<< rms*rms<<"\tVar/mean(corrected)="<< (rms*rms/mean) - Kapa*mean <<endreq;
@@ -2125,20 +2125,20 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
       pad->SetGridx();
     }
 
-    final_hist1[ros][drawer][adc][0][1]->SetMarkerStyle(21);
-    final_hist1[ros][drawer][adc][0][1]->SetMarkerSize(ms);
-    final_hist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "X");
-    final_hist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "Y");
-    if (do_plots) final_hist1[ros][drawer][adc][0][1]->Draw("P0");
+    m_finalHist1[ros][drawer][adc][0][1]->SetMarkerStyle(21);
+    m_finalHist1[ros][drawer][adc][0][1]->SetMarkerSize(ms);
+    m_finalHist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "X");
+    m_finalHist1[ros][drawer][adc][0][1]->SetLabelSize(0.08, "Y");
+    if (do_plots) m_finalHist1[ros][drawer][adc][0][1]->Draw("P0");
 
-    final_hist1[ros][drawer][adc][0][2]->SetMaximum(final_hist1[ros][drawer][adc][0][1]->GetMaximum());
-    final_hist1[ros][drawer][adc][0][2]->SetMinimum(final_hist1[ros][drawer][adc][0][1]->GetMinimum());
-    final_hist1[ros][drawer][adc][0][2]->SetMarkerStyle(25);
-    final_hist1[ros][drawer][adc][0][2]->SetMarkerSize(ms);
-    final_hist1[ros][drawer][adc][0][2]->SetMarkerColor(4);
-    final_hist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "X");
-    final_hist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "Y");
-    if (do_plots) final_hist1[ros][drawer][adc][0][2]->Draw("sameP0");
+    m_finalHist1[ros][drawer][adc][0][2]->SetMaximum(m_finalHist1[ros][drawer][adc][0][1]->GetMaximum());
+    m_finalHist1[ros][drawer][adc][0][2]->SetMinimum(m_finalHist1[ros][drawer][adc][0][1]->GetMinimum());
+    m_finalHist1[ros][drawer][adc][0][2]->SetMarkerStyle(25);
+    m_finalHist1[ros][drawer][adc][0][2]->SetMarkerSize(ms);
+    m_finalHist1[ros][drawer][adc][0][2]->SetMarkerColor(4);
+    m_finalHist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "X");
+    m_finalHist1[ros][drawer][adc][0][2]->SetLabelSize(0.08, "Y");
+    if (do_plots) m_finalHist1[ros][drawer][adc][0][2]->Draw("sameP0");
 
     // Select pads 7 and 8
     if (do_plots) {
@@ -2147,14 +2147,14 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
       pad->SetGridx();
     }
 
-    if (max3 < 0.9 * maxy[4 + adc]) final_hist1[ros][drawer][adc][0][3]->SetMaximum(maxy[4 + adc]);
-    if (min3 > miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc])) final_hist1[ros][drawer][adc][0][3]->SetMinimum(miny[4 + adc]);
+    if (max3 < 0.9 * maxy[4 + adc]) m_finalHist1[ros][drawer][adc][0][3]->SetMaximum(maxy[4 + adc]);
+    if (min3 > miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc])) m_finalHist1[ros][drawer][adc][0][3]->SetMinimum(miny[4 + adc]);
 
-    final_hist1[ros][drawer][adc][0][3]->SetMarkerStyle(21);
-    final_hist1[ros][drawer][adc][0][3]->SetMarkerSize(ms);
-    final_hist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "X");
-    final_hist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "Y");
-    final_hist1[ros][drawer][adc][0][3]->Draw("E0");
+    m_finalHist1[ros][drawer][adc][0][3]->SetMarkerStyle(21);
+    m_finalHist1[ros][drawer][adc][0][3]->SetMarkerSize(ms);
+    m_finalHist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "X");
+    m_finalHist1[ros][drawer][adc][0][3]->SetLabelSize(0.08, "Y");
+    m_finalHist1[ros][drawer][adc][0][3]->Draw("E0");
 
     //Lukas
     // Select pads 9 and 10
@@ -2164,14 +2164,14 @@ void TileRawChannelMonTool::LaserFancyPlotting(int ros, int drawer, int maxgain,
       pad->SetGridx();
     }
 
-    if (max4 < 0.9 * maxy[4 + adc]) final_hist1[ros][drawer][adc][0][4]->SetMaximum(maxy[4 + adc]);
-    if (min4 > miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc])) final_hist1[ros][drawer][adc][0][4]->SetMinimum(miny[4 + adc]);
+    if (max4 < 0.9 * maxy[4 + adc]) m_finalHist1[ros][drawer][adc][0][4]->SetMaximum(maxy[4 + adc]);
+    if (min4 > miny[4 + adc] + 0.1 * TMath::Abs(miny[4 + adc])) m_finalHist1[ros][drawer][adc][0][4]->SetMinimum(miny[4 + adc]);
 
-    final_hist1[ros][drawer][adc][0][4]->SetMarkerStyle(21);
-    final_hist1[ros][drawer][adc][0][4]->SetMarkerSize(ms);
-    final_hist1[ros][drawer][adc][0][4]->SetLabelSize(0.08, "X");
-    final_hist1[ros][drawer][adc][0][4]->SetLabelSize(0.08, "Y");
-    if (do_plots) final_hist1[ros][drawer][adc][0][4]->Draw("E0");
+    m_finalHist1[ros][drawer][adc][0][4]->SetMarkerStyle(21);
+    m_finalHist1[ros][drawer][adc][0][4]->SetMarkerSize(ms);
+    m_finalHist1[ros][drawer][adc][0][4]->SetLabelSize(0.08, "X");
+    m_finalHist1[ros][drawer][adc][0][4]->SetLabelSize(0.08, "Y");
+    if (do_plots) m_finalHist1[ros][drawer][adc][0][4]->Draw("E0");
     //Lukas
 
   }    //end of loop over gain

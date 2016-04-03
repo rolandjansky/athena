@@ -312,6 +312,7 @@ Int_t amp_vs_q(TString runno, TString filename, TString runtype, TString module,
     c_cis->Print(w_outfile);
   }
 
+  delete[] histo;
   return 0;
 }
 
@@ -507,6 +508,7 @@ Int_t ene_charge_ratio(TString runno, TString filename, TString runtype, TString
     } 	  
 
   }
+  delete[] histo;
   return 0;
 }
 
@@ -631,6 +633,7 @@ Int_t ene_charge_ratio(TString runno, TString filename, TString runtype, TString
     c_cis->Print(w_outfile);
   }
 
+  delete[] histo;
   return 0;
 }
 
@@ -794,6 +797,7 @@ Int_t time_vs_phase(TString runno,  TString filename, TString runtype, TString m
     }
 
   }
+  delete[] histo;
   return 0;
 }
 
@@ -904,5 +908,6 @@ Int_t time_vs_phase(TString runno, TString filename, TString runtype, TString mo
     c_cis->Print(w_outfile);
   }
 
+  delete[] histo;
   return 0;
 }

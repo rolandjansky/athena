@@ -11,6 +11,7 @@
 #include "TileMonitoring/TileRawChannelMonTool.h"
 #include "TileMonitoring/TileMBTSMonTool.h"
 #include "TileMonitoring/TileDQFragMonTool.h"
+#include "TileMonitoring/TileDQFragLWMonTool.h"
 #include "TileMonitoring/TileRODMonTool.h"
 #include "TileMonitoring/TileJetMonTool.h"
 #include "TileMonitoring/TileDigiNoiseMonTool.h"
@@ -35,6 +36,7 @@ DECLARE_TOOL_FACTORY(TileDigitsMonTool )
 DECLARE_TOOL_FACTORY(TileRawChannelMonTool )
 DECLARE_TOOL_FACTORY(TileMBTSMonTool )
 DECLARE_TOOL_FACTORY(TileDQFragMonTool )
+DECLARE_TOOL_FACTORY(TileDQFragLWMonTool )
 DECLARE_TOOL_FACTORY(TileRODMonTool )
 DECLARE_TOOL_FACTORY(TileJetMonTool )
 DECLARE_TOOL_FACTORY(TileDigiNoiseMonTool )

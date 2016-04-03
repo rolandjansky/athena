@@ -37,6 +37,9 @@
 #include "TString.h"
 #include "TDirectory.h"
 
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+
 
 /*---------------------------------------------------------*/
 // Methods registering historgrams
@@ -205,6 +208,7 @@ TH2F* TilePaterMonTool::book2F(std::string subdir, std::string nam, std::string 
   return hist;
 }
 
+
 TH2I* TilePaterMonTool::book2I(std::string subdir, std::string nam, std::string tit,
                                  int nx, double xmin, double xmax,
                                  int ny, double ymin, double ymax,
@@ -215,6 +219,7 @@ TH2I* TilePaterMonTool::book2I(std::string subdir, std::string nam, std::string 
   regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
   return hist;
 }
+
 
 TH2S * TilePaterMonTool::book2S(std::string subdir, std::string nam, std::string tit,
                                   int nx, double xmin, double xmax,
@@ -259,6 +264,16 @@ TProfile* TilePaterMonTool::bookProfile(std::string subdir, std::string nam, std
   return hist;
 }
 
+TProfile* TilePaterMonTool::bookProfile(std::string subdir, std::string nam, std::string tit,
+                                          int nx, const float* xbins,
+                                          Interval_t interval, MgmtAttr_t attribute,
+                                          std::string trigChain, std::string mergeAlgo)
+{
+  TProfile* hist = new TProfile(TString(nam), TString(tit), nx, xbins);
+  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
+  return hist;
+}
+
 TProfile2D* TilePaterMonTool::bookProfile2D(std::string subdir, std::string nam, std::string tit,
                                              int nx, double xmin, double xmax,
                                              int ny, double ymin, double ymax,
@@ -271,6 +286,31 @@ TProfile2D* TilePaterMonTool::bookProfile2D(std::string subdir, std::string nam,
   regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
   return hist;
 }
+
+
+TH2I_LW* TilePaterMonTool::book2ILW(std::string subdir, std::string nam, std::string tit,
+                                    int nx, double xmin, double xmax,
+                                    int ny, double ymin, double ymax,
+                                    Interval_t interval, MgmtAttr_t attribute,
+                                    std::string trigChain, std::string mergeAlgo)
+{
+  TH2I_LW* hist =  TH2I_LW::create(TString(nam), TString(tit), nx, xmin, xmax, ny, ymin, ymax);
+  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
+  return hist;
+}
+
+
+TProfile_LW* TilePaterMonTool::bookProfileLW(std::string subdir, std::string nam, std::string tit,
+                                             int nx, double xmin, double xmax,
+                                             double ymin, double ymax,
+                                             Interval_t interval, MgmtAttr_t attribute,
+                                             std::string trigChain, std::string mergeAlgo)
+{
+  TProfile_LW* hist = TProfile_LW::create(TString(nam), TString(tit), nx, xmin, xmax, ymin, ymax);
+  regHist(subdir, hist, interval, attribute, trigChain, mergeAlgo);
+  return hist;
+}
+
 
 /*-----------------------------------------------------------*/
 // Method booking TTree and TGraph and storing them in THistSvc
@@ -448,5 +488,6 @@ TMultiGraph* TilePaterMonTool::bookMultiGraph(std::string subdir, std::string na
   regGraph(subdir, (TGraph*) hist);
   return (TMultiGraph*) hist;
 }
+
 
 
