@@ -45,7 +45,7 @@ namespace Trk {
         FitQuality( const FitQuality& rhs);
         
         ///Assignment
-        FitQuality & operator=(const FitQuality& rhs) = default;
+        FitQuality & operator=(const FitQuality& /*rhs*/) = default;
 
         /** Destructor */
         virtual ~FitQuality();
