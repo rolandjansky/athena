@@ -101,6 +101,7 @@ TileMBTSMonTool::TileMBTSMonTool(	const std::string & type, const std::string & 
   declareProperty("readTrigger", m_readTrigger = true); // Switch for CTP config
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
   declareProperty("UseTrigger", m_useTrigger = true); // Switch for using trigger information
+  declareProperty("FillHistogramsPerMBTS", m_fillHistogramsPerMBTS = true); // Switch for using per MBTS histograms
 
   m_path = "/Tile/MBTS";
   m_numEvents = 0;
@@ -275,88 +276,243 @@ StatusCode TileMBTSMonTool::bookHistograms() {
   ATH_MSG_INFO( "Using path " << m_path );
   // Currently all levels of detail (LOD) are set to SHIFT.
   // This will be changed once multiple LODs can be written to the same ROOT file
-  for (int counter = 0; counter < 32; ++counter) {
-    if (m_counterExist[counter]) {
-      // Trigger
-      m_h_bcidPIT[counter] = book1S("Trigger", "DeltaBcidPIT_" + m_counterNames[counter], "MBTS BCID difference of PIT signal", 20, -9, 10);
-      m_h_bcidTBP[counter] = book1S("Trigger", "DeltaBcidTBP_" + m_counterNames[counter], "MBTS BCID difference of TBP signal", 20, -9, 10);
-      m_h_bcidTAP[counter] = book1S("Trigger", "DeltaBcidTAP_" + m_counterNames[counter], "MBTS BCID difference of TAP signal", 20, -9, 10);
-      m_h_bcidTAV[counter] = book1S("Trigger", "DeltaBcidTAV_" + m_counterNames[counter], "MBTS BCID difference of TAV signal", 20, -9, 10);
+  if (m_fillHistogramsPerMBTS) {
+    for (int counter = 0; counter < 32; ++counter) {
+      if (m_counterExist[counter]) {
+        // Trigger
+        if (m_useTrigger) {
+          m_h_bcidPIT[counter] = book1S("Trigger", "DeltaBcidPIT_" + m_counterNames[counter], "MBTS BCID difference of PIT signal", 20, -9, 10);
+          m_h_bcidPIT[counter]->GetXaxis()->SetTitle("Bunch crossings between PIT fire and L1Accept");
 
-      // Cell
-      m_h_energy[counter] = book1F("Cell", "Energy_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter], 400, -0.5, 10.);
-      
-      if (m_isOnline) {
-        m_h_energy_lb[counter] = bookProfile("Cell", "EnergyLB_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter] + " per lumiblock", 100, -99.5, 0.5);
-        m_h_energy_lb[counter]->GetXaxis()->SetTitle("Last LumiBlocks");
-        
-        for (int bin = 1; bin < 100; ++bin) {
-          m_h_energy_lb[counter]->SetBinContent(bin, 0);
-          m_h_energy_lb[counter]->SetBinEntries(bin, 1);
+          m_h_bcidTBP[counter] = book1S("Trigger", "DeltaBcidTBP_" + m_counterNames[counter], "MBTS BCID difference of TBP signal", 20, -9, 10);
+          m_h_bcidTBP[counter]->GetXaxis()->SetTitle("Bunch crossings between TBP fire and L1Accept");
+
+          m_h_bcidTAP[counter] = book1S("Trigger", "DeltaBcidTAP_" + m_counterNames[counter], "MBTS BCID difference of TAP signal", 20, -9, 10);
+          m_h_bcidTAP[counter]->GetXaxis()->SetTitle("Bunch crossings between TAP fire and L1Accept");
+
+          m_h_bcidTAV[counter] = book1S("Trigger", "DeltaBcidTAV_" + m_counterNames[counter], "MBTS BCID difference of TAV signal", 20, -9, 10);
+          m_h_bcidTAV[counter]->GetXaxis()->SetTitle("Bunch crossings between TAV fire and L1Accept");
+
+          m_h_energy_wTBP[counter] = book1F("Cell", "Energy_wTBP_" + m_counterNames[counter], 
+                                            "MBTS Energy with TBP fired of " + m_counterNames[counter], 400, -0.5, 10);
+          m_h_energy_wTBP[counter]->GetXaxis()->SetTitle("Energy (with Trigger) [pC]");
+
+          m_h_time_wTBP[counter] = book1F("Cell", "Time_wTBP_" + m_counterNames[counter], 
+                                          "MBTS Time with TBP fired of " + m_counterNames[counter], 100, -100, 100);
+          m_h_time_wTBP[counter]->GetXaxis()->SetTitle("Pulse Peak Time (with Trigger) [ns]");
+
+          m_h_efficiency[counter] = bookProfile("Cell", "Efficiency_" + m_counterNames[counter], 
+                                                "Efficiency of Lvl1 vs readout " + m_counterNames[counter], 400, -0.5, 10);
+          m_h_efficiency[counter]->GetXaxis()->SetTitle("Energy in Counter [pC]");
+          m_h_efficiency[counter]->GetYaxis()->SetTitle("Fraction of events w/ Trigger");
+          
+          m_h_pulseAvgTrig[counter] = bookProfile("Digit", "PulseAvgTrig_" + m_counterNames[counter], 
+                                                  "Avg Pulse shape (w/ Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
+          m_h_pulseAvgTrig[counter]->GetXaxis()->SetTitle("TileCal Digital Sample");
+          m_h_pulseAvgTrig[counter]->GetYaxis()->SetTitle("Average number of ADC counts");
           
         }
-        m_h_energy_lb[counter]->SetEntries(0);
-      }
-      
-      m_h_time[counter] = book1F("Cell", "Time_" + m_counterNames[counter], "MBTS Time of " + m_counterNames[counter], 100, -100, 100);
-      m_h_energy_wTBP[counter] = book1F("Cell", "Energy_wTBP_" + m_counterNames[counter], "MBTS Energy with TBP fired of " + m_counterNames[counter], 400, -0.5, 10);
-      m_h_time_wTBP[counter] = book1F("Cell", "Time_wTBP_" + m_counterNames[counter], "MBTS Time with TBP fired of " + m_counterNames[counter], 100, -100, 100);
-      m_h_efficiency[counter] = bookProfile("Cell", "Efficiency_" + m_counterNames[counter], "Efficiency of Lvl1 vs readout " + m_counterNames[counter], 400, -0.5, 10);
+        
+        // Cell
+        m_h_energy[counter] = book1F("Cell", "Energy_" + m_counterNames[counter], "MBTS Energy of " + m_counterNames[counter], 400, -0.5, 10.);
+        m_h_energy[counter]->GetXaxis()->SetTitle("Energy [pC]");
+        
+        if (m_isOnline) {
+          m_h_energy_lb[counter] = bookProfile("Cell", "EnergyLB_" + m_counterNames[counter], 
+                                               "MBTS Energy of " + m_counterNames[counter] + " per lumiblock", 100, -99.5, 0.5);
+          m_h_energy_lb[counter]->GetXaxis()->SetTitle("Last LumiBlocks");
+          
+          for (int bin = 1; bin < 100; ++bin) {
+            m_h_energy_lb[counter]->SetBinContent(bin, 0);
+            m_h_energy_lb[counter]->SetBinEntries(bin, 1);
+            
+          }
+          m_h_energy_lb[counter]->SetEntries(0);
+        }
+        
+        m_h_time[counter] = book1F("Cell", "Time_" + m_counterNames[counter], "MBTS Time of " + m_counterNames[counter], 100, -100, 100);
+        m_h_time[counter]->GetXaxis()->SetTitle("Time [ns]");
+        
+        // Digit
+        m_h_pedestal[counter] = book1F("Digit", "Ped_" + m_counterNames[counter], "MBTS Pedestal of " + m_counterNames[counter], 100, 20, 120);
+        m_h_pedestal[counter]->GetXaxis()->SetTitle("Channel pedestal in ADC counts");
 
-      // Digit
-      m_h_pedestal[counter] = book1F("Digit", "Ped_" + m_counterNames[counter], "MBTS Pedestal of " + m_counterNames[counter], 100, 20, 120);
-      m_h_hfNoise[counter] = book1F("Digit", "HFN_" + m_counterNames[counter], "MBTS High Frequency Noise of " + m_counterNames[counter], 100, 0, 5);
-      m_h_pulseAvgTrig[counter] = bookProfile("Digit", "PulseAvgTrig_" + m_counterNames[counter], "Avg Pulse shape (w/ Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
-      m_h_pulseAvgNoTrig[counter] = bookProfile("Digit", "PulseAvgNoTrig_" + m_counterNames[counter], "Avg Pulse shape (no Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
+        m_h_hfNoise[counter] = book1F("Digit", "HFN_" + m_counterNames[counter], "MBTS High Frequency Noise of " + m_counterNames[counter], 100, 0, 5);
+        m_h_hfNoise[counter]->GetXaxis()->SetTitle("Inter-sample RMS in ADC counts");
+        
+        m_h_pulseAvgNoTrig[counter] = bookProfile("Digit", "PulseAvgNoTrig_" + m_counterNames[counter], 
+                                                  "Avg Pulse shape (no Trigger) for digitized signals of " + m_counterNames[counter], 7, 0., 7.);
+        m_h_pulseAvgNoTrig[counter]->GetXaxis()->SetTitle("TileCal Digital Sample");
+        m_h_pulseAvgNoTrig[counter]->GetYaxis()->SetTitle("Average number of ADC counts");
+      }
     }
   }
+  
+  
 
   // Trigger
-  m_h_ctpPIT = book1S("Trigger", "PITs_Fired", "MBTS Trigger Inputs fired", 32, 0, 32);
-  m_h_ctpTBP = book1S("Trigger", "TBPs_Fired", "MBTS Triggers before prescale", 32, 0, 32);
-  m_h_ctpTAP = book1S("Trigger", "TAPs_Fired", "MBTS Triggers after prescale", 32, 0, 32);
-  m_h_ctpTAV = book1S("Trigger", "TAVs_Fired", "MBTS Triggers after veto", 32, 0, 32);
-  m_h_ctpPITwin = book1S("Trigger", "PITs_FiredWin", "MBTS Trigger Inputs fired in BC window", 32, 0, 32);
-  m_h_ctpTBPwin = book1S("Trigger", "TBPs_FiredWin", "MBTS Triggers before prescale in BC window", 32, 0, 32);
-  m_h_ctpTAPwin = book1S("Trigger", "TAPs_FiredWin", "MBTS Triggers after prescale in BC window", 32, 0, 32);
-  m_h_ctpTAVwin = book1S("Trigger", "TAVs_FiredWin", "MBTS Triggers after veto in BC window", 32, 0, 32);
-  m_h_sumPIT = book1S("Trigger", "PITs_Sum", "Sum of MBTS Trigger Inputs fired", 6, 0, 6);
-  m_h_sumTBP = book1S("Trigger", "TBPs_Sum", "Sum of MBTS Trigger before prescale", 6, 0, 6);
-  m_h_sumTAP = book1S("Trigger", "TAPs_Sum", "Sum of MBTS Trigger after prescale", 6, 0, 6);
-  m_h_sumTAV = book1S("Trigger", "TAVs_Sum", "Sum of MBTS Trigger after veto", 6, 0, 6);
-  m_h_coinPIT = book2S("Trigger", "CoinPIT", "Coincident PITs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_coinTBP = book2S("Trigger", "CoinTBP", "Coincident TBPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_coinTAP = book2S("Trigger", "CoinTAP", "Coincident TAPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_coinTAV = book2S("Trigger", "CoinTAV", "Coincident TAVs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
-  m_h_bcidPITsum = bookProfile("Trigger", "DeltaBcidPITsummary", "BCID difference of PIT from Event BCID", 32, 0, 32);
-  m_h_bcidTBPsum = bookProfile("Trigger", "DeltaBcidTBPsummary", "BCID difference of TBP from Event BCID", 32, 0, 32);
-  m_h_bcidTAPsum = bookProfile("Trigger", "DeltaBcidTAPsummary", "BCID difference of TAP from Event BCID", 32, 0, 32);
-  m_h_bcidTAVsum = bookProfile("Trigger", "DeltaBcidTAVsummary", "BCID difference of TAV from Event BCID", 32, 0, 32);
-  m_h_multiMapPITA = book2S("Trigger", "MultiMapPITA", "MBTS A-side multiplicities", 16, 0, 16, 16, 0, 16);
-  m_h_multiMapPITC = book2S("Trigger", "MultiMapPITC", "MBTS C-side multiplicities", 16, 0, 16, 16, 0, 16);
-  m_h_multiPerSide = book2S("Trigger", "MultiPerSide", "MBTS multiplicities per side", 16, 0, 16, 16, 0, 16);
-  m_h_bcidTriggerA = bookProfile("Trigger", "BCIDTriggerA", "Average number of MBTS triggers on A side as a function of BCID", 3565, 0, 3565);
-  m_h_bcidTriggerC = bookProfile("Trigger", "BCIDTriggerC", "Average number of MBTS triggers on C side as a function of BCID", 3565, 0, 3565);
+  if (m_useTrigger) {
+    m_h_ctpPIT = book1S("Trigger", "PITs_Fired", "MBTS Trigger Inputs fired", 32, 0, 32);
+    setBinLabels(m_h_ctpPIT, 1);
+
+    m_h_ctpTBP = book1S("Trigger", "TBPs_Fired", "MBTS Triggers before prescale", 32, 0, 32);
+    setBinLabels(m_h_ctpTBP, 1);
+
+    m_h_ctpTAP = book1S("Trigger", "TAPs_Fired", "MBTS Triggers after prescale", 32, 0, 32);
+    setBinLabels(m_h_ctpTAP, 1);
+
+    m_h_ctpTAV = book1S("Trigger", "TAVs_Fired", "MBTS Triggers after veto", 32, 0, 32);
+    setBinLabels(m_h_ctpTAV, 1);
+
+    m_h_ctpPITwin = book1S("Trigger", "PITs_FiredWin", "MBTS Trigger Inputs fired in BC window", 32, 0, 32);
+    setBinLabels(m_h_ctpPITwin, 1);
+
+    m_h_ctpTBPwin = book1S("Trigger", "TBPs_FiredWin", "MBTS Triggers before prescale in BC window", 32, 0, 32);
+    setBinLabels(m_h_ctpTBPwin, 1);
+
+    m_h_ctpTAPwin = book1S("Trigger", "TAPs_FiredWin", "MBTS Triggers after prescale in BC window", 32, 0, 32);
+    setBinLabels(m_h_ctpTAPwin, 1);
+
+    m_h_ctpTAVwin = book1S("Trigger", "TAVs_FiredWin", "MBTS Triggers after veto in BC window", 32, 0, 32);
+    setBinLabels(m_h_ctpTAVwin, 1);
+
+    m_h_sumPIT = book1S("Trigger", "PITs_Sum", "Sum of MBTS Trigger Inputs fired", 6, 0, 6);
+    setBinLabels(m_h_sumPIT, 2);
+
+    m_h_sumTBP = book1S("Trigger", "TBPs_Sum", "Sum of MBTS Trigger before prescale", 6, 0, 6);
+    setBinLabels(m_h_sumTBP, 2);
+
+    m_h_sumTAP = book1S("Trigger", "TAPs_Sum", "Sum of MBTS Trigger after prescale", 6, 0, 6);
+    setBinLabels(m_h_sumTAP, 2);
+
+    m_h_sumTAV = book1S("Trigger", "TAVs_Sum", "Sum of MBTS Trigger after veto", 6, 0, 6);
+    setBinLabels(m_h_sumTAV, 2);
+
+    m_h_coinPIT = book2S("Trigger", "CoinPIT", "Coincident PITs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+    setBinLabels(m_h_coinPIT, 1, true);
+
+    m_h_coinTBP = book2S("Trigger", "CoinTBP", "Coincident TBPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+    setBinLabels(m_h_coinTBP, 1, true);
+
+    m_h_coinTAP = book2S("Trigger", "CoinTAP", "Coincident TAPs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+    setBinLabels(m_h_coinTAP, 1, true);
+
+    m_h_coinTAV = book2S("Trigger", "CoinTAV", "Coincident TAVs fired between two MBTS counters", 32, 0, 32, 32, 0, 32);
+    setBinLabels(m_h_coinTAV, 1, true);
+
+    m_h_bcidPITsum = bookProfile("Trigger", "DeltaBcidPITsummary", "BCID difference of PIT from Event BCID", 32, 0, 32);
+    m_h_bcidPITsum->GetYaxis()->SetTitle("Avg deltaBCID");
+    setBinLabels((TH1*) m_h_bcidPITsum, 1);
+
+    m_h_bcidTBPsum = bookProfile("Trigger", "DeltaBcidTBPsummary", "BCID difference of TBP from Event BCID", 32, 0, 32);
+    m_h_bcidTBPsum->GetYaxis()->SetTitle("Avg deltaBCID");
+    setBinLabels((TH1*) m_h_bcidTBPsum, 1);
+
+    m_h_bcidTAPsum = bookProfile("Trigger", "DeltaBcidTAPsummary", "BCID difference of TAP from Event BCID", 32, 0, 32);
+    m_h_bcidTAPsum->GetYaxis()->SetTitle("Avg deltaBCID");
+    setBinLabels((TH1*) m_h_bcidTAPsum, 1);
+
+    m_h_bcidTAVsum = bookProfile("Trigger", "DeltaBcidTAVsummary", "BCID difference of TAV from Event BCID", 32, 0, 32);
+    m_h_bcidTAVsum->GetYaxis()->SetTitle("Avg deltaBCID");
+    setBinLabels((TH1*) m_h_bcidTAVsum, 1);
+
+    m_h_multiMapPITA = book2S("Trigger", "MultiMapPITA", "MBTS A-side multiplicities", 16, 0, 16, 16, 0, 16);
+    m_h_multiMapPITA->GetXaxis()->SetTitle("From summing counter bits");
+    m_h_multiMapPITA->GetYaxis()->SetTitle("From CTP multi. bits");
+
+    m_h_multiMapPITC = book2S("Trigger", "MultiMapPITC", "MBTS C-side multiplicities", 16, 0, 16, 16, 0, 16);
+    m_h_multiMapPITC->GetXaxis()->SetTitle("From summing counter bits");
+    m_h_multiMapPITC->GetYaxis()->SetTitle("From CTP multi. bits");
+
+    m_h_multiPerSide = book2S("Trigger", "MultiPerSide", "MBTS multiplicities per side", 16, 0, 16, 16, 0, 16);
+    m_h_multiPerSide->GetXaxis()->SetTitle("Number of A side triggers");
+    m_h_multiPerSide->GetYaxis()->SetTitle("Number of C side triggers");
+
+    m_h_bcidTriggerA = bookProfile("Trigger", "BCIDTriggerA", "Average number of MBTS triggers on A side as a function of BCID", 3565, 0, 3565);
+    m_h_bcidTriggerA->GetXaxis()->SetTitle("BCID");
+    m_h_bcidTriggerA->GetYaxis()->SetTitle("Average number of triggers on A side");
+
+    m_h_bcidTriggerC = bookProfile("Trigger", "BCIDTriggerC", "Average number of MBTS triggers on C side as a function of BCID", 3565, 0, 3565);
+    m_h_bcidTriggerC->GetXaxis()->SetTitle("BCID");
+    m_h_bcidTriggerC->GetYaxis()->SetTitle("Average number of triggers on C side");
+
+    m_h_sumEnergy_wTBP = bookProfile("Cell", "SummaryEnergy_wTBP", "Average MBTS Energy with Trigger", 32, 0, 32);
+
+    m_h_bcidEnergyA = bookProfile("Cell", "BCIDEnergyA", "Average MBTS Energy of entire A side as a function of BCID", 3565, 0, 3565);
+    m_h_bcidEnergyA->GetXaxis()->SetTitle("BCID");
+    m_h_bcidEnergyA->GetYaxis()->SetTitle("Average Energy (sum of 16 counters) [pC]");
+
+    m_h_bcidEnergyC = bookProfile("Cell", "BCIDEnergyC", "Average MBTS Energy of entire C side as a function of BCID", 3565, 0, 3565);
+    m_h_bcidEnergyC->GetXaxis()->SetTitle("BCID");
+    m_h_bcidEnergyC->GetYaxis()->SetTitle("Average Energy (sum of 16 counters) [pC]");
+
+  }
+
   // Cell
   m_h_occupancy = book1F("Cell", "Occupancy", "MBTS Occupancy", 32, 0, 32);
+  setBinLabels((TH1*) m_h_occupancy, 1);
+
   m_h_sumEnergy = bookProfile("Cell", "SummaryEnergy", "Average MBTS Energy", 32, 0, 32);
-  m_h_sumEnergy_wTBP = bookProfile("Cell", "SummaryEnergy_wTBP", "Average MBTS Energy with Trigger", 32, 0, 32);
+  m_h_sumEnergy->GetYaxis()->SetTitle("Average Energy [pC]");
+  setBinLabels((TH1*) m_h_sumEnergy, 1);
+
   m_h_sumTime = bookProfile("Cell", "SummaryTime", "Average MBTS Time (Energy above threshold)", 32, 0, 32);
+  m_h_sumTime->GetYaxis()->SetTitle("Average Time [ns]");
+  setBinLabels((TH1*) m_h_sumTime, 1);
+
   m_h_timeA = book1F("Cell", "Time_A", "Time MBTS on A side", 151, -75.5, 75.5);
+  m_h_timeA->GetXaxis()->SetTitle("Average Time [ns]");
+
   m_h_timeC = book1F("Cell", "Time_C", "Time MBTS on C side", 151, -75.5, 75.5);
+  m_h_timeC->GetXaxis()->SetTitle("Average Time [ns]");
+
   m_h_timeDiff = book1F("Cell", "TimeDiff_A-C", "Time Difference between MBTS on A and C side", 151, -75, 75);
+  m_h_timeDiff->GetXaxis()->SetTitle("Time difference, A-side - C-side [ns]");
+
   m_h_timeDiffLumi = book2F("Cell", "TimeDiff_A-C_LB", "Time Difference between MBTS on A and C side vs LumiBlock", 1500, -0.5, 1499.5, 151, -75, 75);
+  m_h_timeDiffLumi->GetXaxis()->SetTitle("Luminosity Block");
+  m_h_timeDiffLumi->GetYaxis()->SetTitle("Time difference, A-side - C-side [ns]");
+
   m_h_coinEnergyHits = book2S("Cell", "CoinEnergyHits", "Coincident Hits(energy) between two MBTS counters", 32, 0, 32, 32, 0, 32);
+  setBinLabels(m_h_coinEnergyHits, 1, true);
+
   //m_h_corrEnergy     = book2F("Cell","EnergyCorr","Energy Correlation between two MBTS counters",32,0,32,32,0,32);
+  //setBinLabels(m_h_corrEnergy,1,true);
+
   //m_h_corrEnergyTot  = book2F("Cell","EnergyCorrTot","Energy Correlation between two MBTS Areas",6,0,6,6,0,6);
-  m_h_bcidEnergyA = bookProfile("Cell", "BCIDEnergyA", "Average MBTS Energy of entire A side as a function of BCID", 3565, 0, 3565);
-  m_h_bcidEnergyC = bookProfile("Cell", "BCIDEnergyC", "Average MBTS Energy of entire C side as a function of BCID", 3565, 0, 3565);
+  //setBinLabels(m_h_corrEnergyTot,2,true);
+
+
   // Digit
-  m_h_sumPed = book2F("Digit", "SummaryPed", "Avg Pedestal for MBTS channels", 32, 0, 32, 100, 20, 120);
-  m_h_sumHFNoise = book2F("Digit", "SummaryHFNoise", "Avg High Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
-  m_h_sumLFNoise = book2F("Digit", "SummaryLFNoise", "Avg Low Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
+  // m_h_sumPed = book2F("Digit", "SummaryPed", "Avg Pedestal for MBTS channels", 32, 0, 32, 100, 20, 120);
+  // m_h_sumPed->GetYaxis()->SetTitle("Channel pedestal in ADC counts");
+  // m_h_sumPed->SetMarkerStyle(5);
+  // setBinLabels(m_h_sumPed, 1, false);
+
+
+  // m_h_sumHFNoise = book2F("Digit", "SummaryHFNoise", "Avg High Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
+  // m_h_sumHFNoise->GetYaxis()->SetTitle("Inter-sample RMS in ADC counts");
+  // m_h_sumHFNoise->SetMarkerStyle(5);
+  // setBinLabels(m_h_sumHFNoise, 1, false);
+
+  // m_h_sumLFNoise = book2F("Digit", "SummaryLFNoise", "Avg Low Freq Noise Level for MBTS channels", 32, 0, 32, 100, 0, 5);
+  // m_h_sumLFNoise->GetYaxis()->SetTitle("Inter-event RMS in ADC counts");
+  // m_h_sumLFNoise->SetMarkerStyle(5);
+  // setBinLabels(m_h_sumLFNoise, 1, false);
+
   // Error
   m_h_tileRdOutErr = book2S("Digit", "ReadOutErrors", "Tile Readout Errors for MBTS counters", 32, 0, 32, 10, 0, 10);
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(1, "General");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(2, "GlobCRC");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(3, "RodCRC");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(4, "FeCRC");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(5, "BCID");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(6, "HdrFormat");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(7, "HdrParity");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(8, "SmpFormat");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(9, "SmpParity");
+  m_h_tileRdOutErr->GetYaxis()->SetBinLabel(10, "MemParity");
+  setBinLabels(m_h_tileRdOutErr, 1, false);
 
   return StatusCode::SUCCESS;
 }
@@ -365,101 +521,6 @@ StatusCode TileMBTSMonTool::bookHistograms() {
 StatusCode TileMBTSMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG( "in fillHistograms()" );
-
-  if (m_numEvents == 0) { // Format Histograms
-    setBinLabels((TH1*) m_h_occupancy, 1);
-    setBinLabels((TH1*) m_h_sumEnergy, 1);
-    m_h_sumEnergy->GetYaxis()->SetTitle("Average Energy [pC]");
-    setBinLabels((TH1*) m_h_sumTime, 1);
-    m_h_sumTime->GetYaxis()->SetTitle("Average Time [ns]");
-    m_h_timeA->GetXaxis()->SetTitle("Average Time [ns]");
-    m_h_timeC->GetXaxis()->SetTitle("Average Time [ns]");
-    m_h_timeDiff->GetXaxis()->SetTitle("Time difference, A-side - C-side [ns]");
-    m_h_timeDiffLumi->GetXaxis()->SetTitle("Luminosity Block");
-    m_h_timeDiffLumi->GetYaxis()->SetTitle("Time difference, A-side - C-side [ns]");
-    setBinLabels(m_h_coinEnergyHits, 1, true);
-    //setBinLabels(m_h_corrEnergy,1,true);
-    setBinLabels(m_h_sumPed, 1, false);
-    setBinLabels(m_h_sumHFNoise, 1, false);
-    setBinLabels(m_h_sumLFNoise, 1, false);
-    setBinLabels(m_h_tileRdOutErr, 1, false);
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(1, "General");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(2, "GlobCRC");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(3, "RodCRC");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(4, "FeCRC");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(5, "BCID");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(6, "HdrFormat");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(7, "HdrParity");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(8, "SmpFormat");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(9, "SmpParity");
-    m_h_tileRdOutErr->GetYaxis()->SetBinLabel(10, "MemParity");
-    setBinLabels(m_h_ctpPIT, 1);
-    setBinLabels(m_h_ctpTBP, 1);
-    setBinLabels(m_h_ctpTAP, 1);
-    setBinLabels(m_h_ctpTAV, 1);
-    setBinLabels(m_h_ctpPITwin, 1);
-    setBinLabels(m_h_ctpTBPwin, 1);
-    setBinLabels(m_h_ctpTAPwin, 1);
-    setBinLabels(m_h_ctpTAVwin, 1);
-    setBinLabels(m_h_coinPIT, 1, true);
-    setBinLabels(m_h_coinTBP, 1, true);
-    setBinLabels(m_h_coinTAP, 1, true);
-    setBinLabels(m_h_coinTAV, 1, true);
-    setBinLabels(m_h_sumPIT, 2);
-    setBinLabels(m_h_sumTBP, 2);
-    setBinLabels(m_h_sumTAP, 2);
-    setBinLabels(m_h_sumTAV, 2);
-    setBinLabels((TH1*) m_h_bcidPITsum, 1);
-    setBinLabels((TH1*) m_h_bcidTBPsum, 1);
-    setBinLabels((TH1*) m_h_bcidTAPsum, 1);
-    setBinLabels((TH1*) m_h_bcidTAVsum, 1);
-    m_h_bcidPITsum->GetYaxis()->SetTitle("Avg deltaBCID");
-    m_h_bcidTBPsum->GetYaxis()->SetTitle("Avg deltaBCID");
-    m_h_bcidTAPsum->GetYaxis()->SetTitle("Avg deltaBCID");
-    m_h_bcidTAVsum->GetYaxis()->SetTitle("Avg deltaBCID");
-    m_h_multiMapPITA->GetXaxis()->SetTitle("From summing counter bits");
-    m_h_multiMapPITA->GetYaxis()->SetTitle("From CTP multi. bits");
-    m_h_multiMapPITC->GetXaxis()->SetTitle("From summing counter bits");
-    m_h_multiMapPITC->GetYaxis()->SetTitle("From CTP multi. bits");
-    m_h_multiPerSide->GetXaxis()->SetTitle("Number of A side triggers");
-    m_h_multiPerSide->GetYaxis()->SetTitle("Number of C side triggers");
-    //setBinLabels(m_h_corrEnergyTot,2,true);
-    m_h_sumPed->GetYaxis()->SetTitle("Channel pedestal in ADC counts");
-    m_h_sumHFNoise->GetYaxis()->SetTitle("Inter-sample RMS in ADC counts");
-    m_h_sumLFNoise->GetYaxis()->SetTitle("Inter-event RMS in ADC counts");
-    m_h_sumPed->SetMarkerStyle(5);
-    m_h_sumHFNoise->SetMarkerStyle(5);
-    m_h_sumLFNoise->SetMarkerStyle(5);
-    m_h_bcidEnergyA->GetXaxis()->SetTitle("BCID");
-    m_h_bcidEnergyA->GetYaxis()->SetTitle("Average Energy (sum of 16 counters) [pC]");
-    m_h_bcidEnergyC->GetXaxis()->SetTitle("BCID");
-    m_h_bcidEnergyC->GetYaxis()->SetTitle("Average Energy (sum of 16 counters) [pC]");
-    m_h_bcidTriggerA->GetXaxis()->SetTitle("BCID");
-    m_h_bcidTriggerA->GetYaxis()->SetTitle("Average number of triggers on A side");
-    m_h_bcidTriggerC->GetXaxis()->SetTitle("BCID");
-    m_h_bcidTriggerC->GetYaxis()->SetTitle("Average number of triggers on C side");
-
-    for (int counter = 0; counter < 32; counter++) {
-      if (m_counterExist[counter]) {
-        m_h_energy[counter]->GetXaxis()->SetTitle("Energy [pC]");
-        m_h_time[counter]->GetXaxis()->SetTitle("Time [ns]");
-        m_h_energy_wTBP[counter]->GetXaxis()->SetTitle("Energy (with Trigger) [pC]");
-        m_h_time_wTBP[counter]->GetXaxis()->SetTitle("Pulse Peak Time (with Trigger) [ns]");
-        m_h_efficiency[counter]->GetXaxis()->SetTitle("Energy in Counter [pC]");
-        m_h_efficiency[counter]->GetYaxis()->SetTitle("Fraction of events w/ Trigger");
-        m_h_pedestal[counter]->GetXaxis()->SetTitle("Channel pedestal in ADC counts");
-        m_h_hfNoise[counter]->GetXaxis()->SetTitle("Inter-sample RMS in ADC counts");
-        m_h_pulseAvgTrig[counter]->GetXaxis()->SetTitle("TileCal Digital Sample");
-        m_h_pulseAvgTrig[counter]->GetYaxis()->SetTitle("Average number of ADC counts");
-        m_h_pulseAvgNoTrig[counter]->GetXaxis()->SetTitle("TileCal Digital Sample");
-        m_h_pulseAvgNoTrig[counter]->GetYaxis()->SetTitle("Average number of ADC counts");
-        m_h_bcidPIT[counter]->GetXaxis()->SetTitle("Bunch crossings between PIT fire and L1Accept");
-        m_h_bcidTBP[counter]->GetXaxis()->SetTitle("Bunch crossings between TBP fire and L1Accept");
-        m_h_bcidTAP[counter]->GetXaxis()->SetTitle("Bunch crossings between TAP fire and L1Accept");
-        m_h_bcidTAV[counter]->GetXaxis()->SetTitle("Bunch crossings between TAV fire and L1Accept");
-      }
-    }
-  }
 
   memset(m_hasEnergyHit, false, sizeof(m_hasEnergyHit));
   memset(m_hasPIT, false, sizeof(m_hasPIT));
@@ -483,7 +544,6 @@ StatusCode TileMBTSMonTool::fillHistograms() {
     return StatusCode::SUCCESS;
   }
 
-	
 	
 	
   //=======================================================================
@@ -705,45 +765,60 @@ StatusCode TileMBTSMonTool::fillHistograms() {
       m_h_occupancy->Fill(counter, energy[counter]);
       m_h_sumEnergy->Fill(counter, energy[counter]);
       if (m_hasTBP[counter]) m_h_sumEnergy_wTBP->Fill(counter, energy[counter]);
-      m_h_energy[counter]->Fill(energy[counter], 1.0);
 
-      if (m_isOnline) {
+      if (m_fillHistogramsPerMBTS) {
 
-        int32_t current_lumiblock = getLumiBlock();
-        if(m_old_lumiblock == -1) {
-          m_old_lumiblock = current_lumiblock;
-        }
+        m_h_energy[counter]->Fill(energy[counter], 1.0);
         
-        if(m_old_lumiblock < current_lumiblock) {// move bins
-          int32_t delta_lumiblock = current_lumiblock - m_old_lumiblock;
-          for (int counter = 0; counter < 32; ++counter) {
-            if (m_counterExist[counter]) {
-
-              ShiftTprofile(m_h_energy_lb[counter], delta_lumiblock);
-
-              int last_bin = m_h_energy_lb[counter]->GetNbinsX();
-              for(int bin = last_bin - delta_lumiblock + 1; bin < last_bin; ++bin) {
-                m_h_energy_lb[counter]->SetBinContent(bin, 0);
-                m_h_energy_lb[counter]->SetBinEntries(bin, 1);
+        if (m_isOnline) {
+          
+          int32_t current_lumiblock = getLumiBlock();
+          if(m_old_lumiblock == -1) {
+            m_old_lumiblock = current_lumiblock;
+          }
+          
+          if(m_old_lumiblock < current_lumiblock) {// move bins
+            int32_t delta_lumiblock = current_lumiblock - m_old_lumiblock;
+            for (int counter = 0; counter < 32; ++counter) {
+              if (m_counterExist[counter]) {
+                
+                ShiftTprofile(m_h_energy_lb[counter], delta_lumiblock);
+                
+                int last_bin = m_h_energy_lb[counter]->GetNbinsX();
+                for(int bin = last_bin - delta_lumiblock + 1; bin < last_bin; ++bin) {
+                  m_h_energy_lb[counter]->SetBinContent(bin, 0);
+                  m_h_energy_lb[counter]->SetBinEntries(bin, 1);
+                }
               }
             }
+            m_old_lumiblock = current_lumiblock;
           }
-          m_old_lumiblock = current_lumiblock;
+          
+          m_h_energy_lb[counter]->Fill(0.0, energy[counter]);
         }
 
-        m_h_energy_lb[counter]->Fill(0.0, energy[counter]);
+        if (m_hasTBP[counter]) {
+          m_h_energy_wTBP[counter]->Fill(energy[counter], 1.0);
+          if (TMath::Abs(time[counter]) > 10e-4) m_h_time_wTBP[counter]->Fill(time[counter], 1.0);
+        }
       }
+
 
       if (counter < 16) bcidEnergyA += energy[counter];
       else bcidEnergyC += energy[counter];
 
       if (energy[counter] > m_energyCut[counter]) {
         m_hasEnergyHit[counter] = true;
-        m_h_time[counter]->Fill(time[counter], 1.0);
         m_h_sumTime->Fill(counter, time[counter]);
 
-        if (m_hasTBP[counter]) m_h_efficiency[counter]->Fill(energy[counter], 1.);
-        else m_h_efficiency[counter]->Fill(energy[counter], 0.);
+        if (m_fillHistogramsPerMBTS) {
+          m_h_time[counter]->Fill(time[counter], 1.0);
+          
+          if (m_useTrigger) {
+            if (m_hasTBP[counter]) m_h_efficiency[counter]->Fill(energy[counter], 1.);
+            else m_h_efficiency[counter]->Fill(energy[counter], 0.);
+          }
+        }
 
         if (counter < 16) {
           if (TMath::Abs(time[counter]) > 10e-4) {
@@ -759,10 +834,6 @@ StatusCode TileMBTSMonTool::fillHistograms() {
       } else
         m_hasEnergyHit[counter] = false;
 
-      if (m_hasTBP[counter]) {
-        m_h_energy_wTBP[counter]->Fill(energy[counter], 1.0);
-        if (TMath::Abs(time[counter]) > 10e-4) m_h_time_wTBP[counter]->Fill(time[counter], 1.0);
-      }
     } // end if cell not empty
   } // end Cell loop
 
@@ -838,43 +909,46 @@ StatusCode TileMBTSMonTool::fillHistograms() {
               if (theDQstatus->checkMemoryParityErr(ros, drawer, dmu, gain))
                 m_h_tileRdOutErr->Fill(counter, 9., 1); // 9 = Memory parity
 
-              double meansamp = 0;
-              double rmssamp = 0;
+              if (m_fillHistogramsPerMBTS) {
 
-              std::vector<float> vdigits = (*digitsItr)->samples();
-              unsigned int dsize = vdigits.size();
-              if (dsize > 0) {
-                double ped;
-                int maxSamp = 0;
-                int minSamp = 1023;
-                ped = vdigits[0];
-                for (unsigned int i = 0; i < dsize; ++i) {
-                  double dig = vdigits[i];
-                  meansamp += dig;
-                  rmssamp += dig * dig;
-                  if (static_cast<int>(dig) > maxSamp) maxSamp = static_cast<int>(dig);
-                  if (static_cast<int>(dig) < minSamp) minSamp = static_cast<int>(dig);
-                }
-
-                if ((maxSamp - minSamp) > 10) // if pulse, plot profile
-                    {
-                  if (m_hasTBP[counter]) {
-                    for (unsigned int i = 0; i < dsize; ++i)
-                      m_h_pulseAvgTrig[counter]->Fill(i, vdigits[i]);
-                  } else {
-                    for (unsigned int i = 0; i < dsize; ++i)
-                      m_h_pulseAvgNoTrig[counter]->Fill(i, vdigits[i]);
+                double meansamp = 0;
+                double rmssamp = 0;
+                
+                std::vector<float> vdigits = (*digitsItr)->samples();
+                unsigned int dsize = vdigits.size();
+                if (dsize > 0) {
+                  double ped;
+                  int maxSamp = 0;
+                  int minSamp = 1023;
+                  ped = vdigits[0];
+                  for (unsigned int i = 0; i < dsize; ++i) {
+                    double dig = vdigits[i];
+                    meansamp += dig;
+                    rmssamp += dig * dig;
+                    if (static_cast<int>(dig) > maxSamp) maxSamp = static_cast<int>(dig);
+                    if (static_cast<int>(dig) < minSamp) minSamp = static_cast<int>(dig);
                   }
-                }
+                  
+                  if ((maxSamp - minSamp) > 10) { // if pulse, plot profile
+                    
+                    if (m_hasTBP[counter]) {
+                      for (unsigned int i = 0; i < dsize; ++i)
+                        m_h_pulseAvgTrig[counter]->Fill(i, vdigits[i]);
+                    } else {
+                      for (unsigned int i = 0; i < dsize; ++i)
+                        m_h_pulseAvgNoTrig[counter]->Fill(i, vdigits[i]);
+                    }
+                  }
+                  
+                  meansamp /= dsize;
+                  rmssamp = rmssamp / dsize - meansamp * meansamp;
+                  rmssamp = (rmssamp > 0.0 && dsize > 1u) ? sqrt(rmssamp * dsize / (dsize - 1u)) : 0.0;
+                  
+                  m_h_pedestal[counter]->Fill(ped, 1.0);
+                  m_h_hfNoise[counter]->Fill(rmssamp, 1.0);
+                } // dsize > 0
 
-                meansamp /= dsize;
-                rmssamp = rmssamp / dsize - meansamp * meansamp;
-                rmssamp =
-                    (rmssamp > 0.0 && dsize > 1u) ? sqrt(rmssamp * dsize / (dsize - 1u)) : 0.0;
-
-                m_h_pedestal[counter]->Fill(ped, 1.0);
-                m_h_hfNoise[counter]->Fill(rmssamp, 1.0);
-              } // dsize > 0
+              }
 
               break;  // found MBTS in module
             }
@@ -925,18 +999,19 @@ StatusCode TileMBTSMonTool::fillHistograms() {
       if (m_hasPIT[counter_i] && m_hasPIT[counter_j]) {
         m_h_coinPIT->Fill(counter_i, counter_j);
       }
-
+      
       if (m_hasTBP[counter_i] && m_hasTBP[counter_j]) {
         m_h_coinTBP->Fill(counter_i, counter_j);
       }
-
+      
       if (m_hasTAP[counter_i] && m_hasTAP[counter_j]) {
         m_h_coinTAP->Fill(counter_i, counter_j);
       }
-
+      
       if (m_hasTAV[counter_i] && m_hasTAV[counter_j]) {
         m_h_coinTAV->Fill(counter_i, counter_j);
       }
+
     }
   }
   //// Fill for Area correlation

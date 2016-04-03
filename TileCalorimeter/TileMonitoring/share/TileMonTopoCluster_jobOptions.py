@@ -192,9 +192,7 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
         OOCCalib.getFullName(),
         OOCPi0Calib.getFullName(),
         DMCalib.getFullName()]
-    TileTopoCluster.KeepCorrectionToolAndContainerNames += [
-        LocalCalib.getFullName(),"TileTopoCluster"]
-#    CaloTopoCluster.KeepEachCorrection=True
+
     TileTopoCluster += LocalCalib
     TileTopoCluster += OOCCalib
     TileTopoCluster += OOCPi0Calib
