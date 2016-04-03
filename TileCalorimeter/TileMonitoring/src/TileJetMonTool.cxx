@@ -80,6 +80,7 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("do_2dim_histos", m_do_2dim_histos = false);
   declareProperty("do_enediff_histos", m_do_enediff_histos = false);
   declareProperty("enediff_threshold", m_enediff_threshold = 2000);
+  declareProperty("do_energy_profiles", m_do_energy_profiles = true);
   declareProperty("do_event_cleaning",m_do_event_cleaning = true);
   declareProperty("do_jet_cleaning",m_do_jet_cleaning = true);
 #ifdef JVT
@@ -289,6 +290,21 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
   m_cell_ene_lg_up.push_back(50000);
   m_cell_ene_lg_up.push_back(65000);
   m_cell_ene_lg_up.push_back(80000);
+
+  /*
+  float *ene_hg = (float*)malloc((m_cell_ene_hg_up.size()+2)*sizeof(float));
+  ene_hg[0] = -1000;
+  for (unsigned int i = 0; i <= m_cell_ene_hg_up.size(); ++i) {
+    ene_hg[i+1] = m_cell_ene_hg_up[i];
+  }
+  ene_hg[m_cell_ene_hg_up.size()+1] = 2*m_cell_ene_hg_up[m_cell_ene_hg_up.size()-1];
+  float *ene_lg = (float*)malloc((m_cell_ene_lg_up.size()+2)*sizeof(float));
+  ene_lg[0] = 0;
+  for (unsigned int i = 0; i <= m_cell_ene_lg_up.size(); ++i) {
+    ene_lg[i+1] = m_cell_ene_lg_up[i];
+  }
+  ene_lg[m_cell_ene_lg_up.size()+1] = 2*m_cell_ene_lg_up[m_cell_ene_lg_up.size()-1];
+  */
   //  TH2F *hist;
   for (int p = 0; p < NPART; ++p) {
     // first, create the total timing histograms for each partition
@@ -310,12 +326,15 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
                                         , "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum
                                         , "Cell_time_" + m_partname[p] + "_hg_slice_" + indexnum, 600, -30.0, 30.0));
 
-      xmin = (i == 0) ? -1000 : m_cell_ene_hg_up[i - 1];
-      xmax = (i < m_cell_ene_hg_up.size()) ? m_cell_ene_hg_up[i] : 2 * m_cell_ene_hg_up[m_cell_ene_hg_up.size() - 1];
+      if (! m_do_energy_profiles) {
+	//	xmin = ene_hg[i]; xmax = ene_hg[i+1];
+	xmin = (i == 0) ? -1000 : m_cell_ene_hg_up[i - 1];
+	xmax = (i < m_cell_ene_hg_up.size()) ? m_cell_ene_hg_up[i] : 2 * m_cell_ene_hg_up[m_cell_ene_hg_up.size() - 1];
 
-      m_TilePartCellEneHG[p].push_back( book1F("CellTime/" + m_partname[p]
-                                        , "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum
-                                        , "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum, 100, xmin, xmax));
+	m_TilePartCellEneHG[p].push_back( book1F("CellTime/" + m_partname[p]
+						 , "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum
+						 , "Cell_ene_" + m_partname[p] + "_hg_slice_" + indexnum, 100, xmin, xmax));
+      }
     }
 
     for (unsigned int i = 0; i <= m_cell_ene_lg_up.size(); ++i) {
@@ -324,14 +343,30 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
                                                 , "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum
                                                 , "Cell_time_" + m_partname[p] + "_lg_slice_" + indexnum, 600
                                                 , -30.0, 30.0));
-      xmin = (i == 0) ? 0 : m_cell_ene_lg_up[i - 1];
-      xmax = (i < m_cell_ene_lg_up.size()) ? m_cell_ene_lg_up[i] : 2 * m_cell_ene_lg_up[m_cell_ene_lg_up.size() - 1];
 
-      m_TilePartCellEneLG[p].push_back( book1F("CellTime/" + m_partname[p]
-                                       , "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum
-                                       , "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum, 100, xmin, xmax));
+      if (! m_do_energy_profiles) {
+	//	xmin = ene_lg[i]; xmax = ene_lg[i+1];
+	xmin = (i == 0) ? 0 : m_cell_ene_lg_up[i - 1];
+	xmax = (i < m_cell_ene_lg_up.size()) ? m_cell_ene_lg_up[i] : 2 * m_cell_ene_lg_up[m_cell_ene_lg_up.size() - 1];
+	m_TilePartCellEneLG[p].push_back( book1F("CellTime/" + m_partname[p]
+						 , "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum
+						 , "Cell_ene_" + m_partname[p] + "_lg_slice_" + indexnum, 100, xmin, xmax));
+      }
     }
     
+    if (m_do_energy_profiles) {
+      m_TilePartCellEneHGProf.push_back( bookProfile("CellTime/" + m_partname[p],
+						     "Cell_ene_" + m_partname[p] + "_hg_prof",
+						     "Cell_ene_" + m_partname[p] + "_hg_prof",
+						     m_cell_ene_hg_up.size()+1,
+						     -0.5,m_cell_ene_hg_up.size()+0.5));
+      m_TilePartCellEneLGProf.push_back( bookProfile("CellTime/" + m_partname[p],
+						     "Cell_ene_" + m_partname[p] + "_lg_prof",
+						     "Cell_ene_" + m_partname[p] + "_lg_prof",
+						     m_cell_ene_lg_up.size()+1,
+						     -0.5,m_cell_ene_lg_up.size()+0.5));
+    }      
+
     for (unsigned int m = 0; m < TileCalibUtils::MAX_DRAWER; ++m) {
       moduleName = TileCalibUtils::getDrawerString(p + 1, m);
       
@@ -388,7 +423,8 @@ StatusCode TileJetMonTool::bookTimeHistograms() {
     m_TilePartTimeDQ[p]->SetZTitle("Average Channel Time (ns)");
     m_TilePartTimeDQ[p]->SetOption("COLZ");    
   } // end-of-loop over partitions
-  
+  // delete ene_hg;
+  //  delete ene_lg;
   ATH_MSG_INFO( "All histograms booked " );
 
   return StatusCode::SUCCESS;
@@ -401,12 +437,18 @@ void TileJetMonTool::clearTimeHistograms() {
   m_TilePartTime.clear();
   m_TilePartTimeDQ.clear();
   m_TileEBTime_NoScint.clear();
+  if (m_do_energy_profiles) {
+    m_TilePartCellEneHGProf.clear();
+    m_TilePartCellEneLGProf.clear();
+  }
 
   for (int p = 0; p < NPART; ++p) {
     m_TilePartCellTimeHG[p].clear();
     m_TilePartCellTimeLG[p].clear();
-    m_TilePartCellEneHG[p].clear();
-    m_TilePartCellEneLG[p].clear();
+    if (! m_do_energy_profiles) {
+      m_TilePartCellEneHG[p].clear();
+      m_TilePartCellEneLG[p].clear();
+    }
     if (m_do_2dim_histos) {
       m_TileChanTime[p].clear();
     }
@@ -619,10 +661,18 @@ StatusCode TileJetMonTool::fillTimeHistograms(const xAOD::Jet& jet, uint32_t Lum
                                  << ", time: " << tilecell->time());
                   if (gain1 == 1) {
                     m_TilePartCellTimeHG[part1-1][index]->Fill(tilecell->time());
-                    m_TilePartCellEneHG[part1-1][index]->Fill(ene1+ene2);
+		    if (m_do_energy_profiles) {
+		      m_TilePartCellEneHGProf[part1-1]->Fill((float)index,ene1+ene2);
+		    } else {
+		      m_TilePartCellEneHG[part1-1][index]->Fill(ene1+ene2);
+		    }
                   } else {
                     m_TilePartCellTimeLG[part1-1][index]->Fill(tilecell->time());
-                    m_TilePartCellEneLG[part1-1][index]->Fill(ene1+ene2);
+		    if (m_do_energy_profiles) {
+		      m_TilePartCellEneLGProf[part1-1]->Fill((float)index,ene1+ene2);
+		    } else {
+		      m_TilePartCellEneLG[part1-1][index]->Fill(ene1+ene2);
+		    }
                   }
                 }
               }

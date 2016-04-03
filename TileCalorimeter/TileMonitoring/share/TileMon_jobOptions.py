@@ -117,6 +117,7 @@ if tileESDMon:
                                          , energyChanMin     = 2000
                                          , energyChanMax     = 4000
                                          , enediff_threshold = 2000
+                                         , do_energy_profiles= True
                                          , do_event_cleaning = True
                                          , do_jet_cleaning   = False
                                          # , useJVTTool        = jvt

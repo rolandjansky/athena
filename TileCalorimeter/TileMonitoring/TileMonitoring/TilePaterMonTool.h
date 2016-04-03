@@ -153,6 +153,10 @@ protected:
                         Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
                         std::string trigChain = "", std::string mergeAlgo = "");
 
+  TProfile* bookProfile(std::string dir, std::string nam, std::string tit, 
+                        int nx, const float* xbins, 
+                        Interval_t interval = run, MgmtAttr_t attribute = ATTRIB_MANAGED,
+                        std::string trigChain = "", std::string mergeAlgo = "");
   TProfile2D* bookProfile2D(std::string dir, std::string nam, std::string tit, 
                             int nx, double xmin, double xmax,
                             int ny, double ymin, double ymax,
