@@ -63,7 +63,7 @@ class ITRT_StrawStatusSummarySvc: virtual public IService
 
    virtual int  *getStwTotal()		= 0;	 
    virtual int **getStwLocal() 		= 0;
-
+   virtual int **getStwWheel()          = 0;
 };
 
 
