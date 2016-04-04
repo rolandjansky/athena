@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L1MuctpiTool.cxx 726773 2016-02-29 12:22:31Z wengler $
+// $Id: L1MuctpiTool.cxx 733326 2016-04-01 11:39:10Z wengler $
 
 // STL include(s):
 #include <iostream>
@@ -32,7 +32,7 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 
 // Inlcudes for the MuCTPI simulation
-#include "TrigT1Muctpi/L1MuctpiTool.h"
+#include "../Algorithms/L1MuctpiTool.h"
 #include "../Common/MuctpiSim.h"
 #include "../Common/Configuration.h"
 #include "../Logging/MsgWriter.h"

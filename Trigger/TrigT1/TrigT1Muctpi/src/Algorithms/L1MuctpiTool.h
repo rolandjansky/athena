@@ -6,7 +6,7 @@
 #define TRIGT1MUCTPI_L1MUCTPITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigT1Muctpi/IMuctpiSimTool.h"
+#include "TrigT1Interfaces/IMuctpiSimTool.h"
 #include <vector>
 #include <string>
 

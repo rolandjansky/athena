@@ -1,4 +1,4 @@
-// $Id: TrigT1Muctpi_entries.cxx 726107 2016-02-25 11:04:42Z wengler $
+// $Id: TrigT1Muctpi_entries.cxx 733326 2016-04-01 11:39:10Z wengler $
 
 // Gaudi include(s):
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -7,7 +7,7 @@
 #include "../Algorithms/L1Muctpi.h"
 #include "../Algorithms/L1MuctpiPatGen.h"
 #include "../Algorithms/L1MuctpiTestReadResults.h"
-#include "../TrigT1Muctpi/L1MuctpiTool.h"
+#include "../Algorithms/L1MuctpiTool.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( LVL1MUCTPI, L1Muctpi )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( LVL1MUCTPI, L1MuctpiPatGen )

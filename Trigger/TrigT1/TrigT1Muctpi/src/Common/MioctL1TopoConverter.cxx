@@ -25,6 +25,9 @@ namespace LVL1MUCTPI {
   LVL1::MuCTPIL1TopoCandidate MioctL1TopoConverter::convertToL1Topo(const MioctID& mioctModuleID, const Sector& sector, bool isFirstCandidate) {
     LVL1::MuCTPIL1TopoCandidate l1topoCand;
 
+    //check variable to make sure a match was found, otherwise issue warning
+    bool foundRoiMatch = false;
+
     // get access to the MuCTPI geometry and Pt encoding from Parser
     MuCTPiGeometry muctpiGeo = m_xmlParser.getMuCTPiGeometry(); 
     L1MuonPtEncoding  ptEnc = muctpiGeo.ptEncoding();
@@ -79,10 +82,13 @@ namespace LVL1MUCTPI {
     // Loop over the RoIs in this sector to find the right one and get the equivalent eta/phi etc
     for (  std::vector<MioctROIGeometry>::iterator it = mioctRoiGeo.begin(); it != mioctRoiGeo.end(); ++it) {
       if (it->roiid() == inputRoi){
+	foundRoiMatch =true;
 	thisRoi = (*it);
 	break;
       }
     }
+
+    if (!foundRoiMatch) REPORT_MSG(LVL1MUCTPI::WARNING,"No RoI match found for Sector: " << sector.getIDString() << "  RoI: " << inputRoi <<  " in MioctL1TopoConverter, returning 0 for eta/phi" << std::endl);
 
     // get the Pt encoding
     unsigned int ptCode = 0;
@@ -92,7 +98,7 @@ namespace LVL1MUCTPI {
     // Now fill all the information into the output object
     l1topoCand.setCandidateData(sector.getIDString(), inputRoi, sector.getBCID(), inputPt, ptCode, thresholdValue,
 				thisRoi.eta(), thisRoi.phi(), thisRoi.etacode(), thisRoi.phicode(),
-				thisRoi.etamin(), thisRoi.etamax(), thisRoi.phimin(), thisRoi.phimax() );
+				thisRoi.etamin(), thisRoi.etamax(), thisRoi.phimin(), thisRoi.phimax(), mioctModNumber );
 				
     return l1topoCand;
   }
