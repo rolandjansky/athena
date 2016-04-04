@@ -48,6 +48,7 @@
 
 #include "TrigBphysHypo/Constants.h"
 #include "BtrigUtils.h"
+#include "TrigBphysHelperUtilsTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticle.h"
@@ -60,6 +61,8 @@
 class StoreGateSvc;
 class TriggerElement;
 class CombinedMuonFeature;
+
+class TrigBphysHelperUtilsTool;
 
 class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
   
@@ -74,6 +77,8 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
   private:
     
     ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
+    
+    ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
     
     // Cuts and properties
     bool m_oppositeCharge;

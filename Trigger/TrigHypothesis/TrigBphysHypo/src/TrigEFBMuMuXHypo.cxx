@@ -285,7 +285,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
       else { // bD_to_Kstar, bS_to_Phi, lB_to_L, bC_to_Ds
         const xAOD::TrigBphys* trigPartX = (*bphysIter)->secondaryDecay();
         if(!trigPartX) {
-          if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No secondary decay pointer in Bphys particle of type " << (*bphysIter)->particleType() << endreq;
+          msg() << MSG::WARNING << "No secondary decay pointer in Bphys particle of type " << (*bphysIter)->particleType() << endreq;
         } else {
           float XMass = trigPartX->mass();
           float XChi2 = trigPartX->fitchi2();

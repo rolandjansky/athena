@@ -61,6 +61,8 @@ class TrigL2BMuMuHypo: public HLT::HypoAlgo  {
 
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
+    
+    bool m_acceptSameMuon;
 
 
   //Counters

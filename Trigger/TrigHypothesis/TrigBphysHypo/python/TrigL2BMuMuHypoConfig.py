@@ -9,6 +9,7 @@ class L2BMuMuHypo_1 (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 100.
@@ -32,6 +33,7 @@ class L2BMuMuHypo_Jpsi (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 2500.
@@ -79,6 +81,7 @@ class L2BMuMuHypo_Upsi (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 8000.
@@ -102,6 +105,7 @@ class L2BMuMuHypo_B (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 4000.
@@ -149,6 +153,7 @@ class L2BMuMuHypo_DiMu (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 1500.
@@ -264,6 +269,7 @@ class L2BMuMuHypo_DiMu_noVtx (TrigL2BMuMuHypo):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         self.LowerMassCut      = 1500.
