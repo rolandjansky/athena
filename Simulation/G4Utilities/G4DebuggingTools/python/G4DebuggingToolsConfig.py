@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr, Logging
+from AthenaCommon import CfgMgr
 from G4AtlasServices import G4AtlasServicesConfig
 
 def getVerboseSelectorTool(name="G4UA::VerboseSelectorTool", **kwargs):
@@ -37,28 +37,3 @@ def getHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool", **kwargs):
 
 def addHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool",system=False):
     G4AtlasServicesConfig.addAction(name,['BeginOfRun','Step'],system)
-
-def getStepNtupleTool(name="G4UA::StepNtupleTool", **kwargs):
-    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-    if concurrencyProps.ConcurrencyFlags.NumThreads() >1:
-        log=Logging.logging.getLogger(name)
-        log.fatal('Attempt to run '+name+' with more than one thread, which is not supported')
-        #from AthenaCommon.AppMgr import theApp
-        #theApp.exit(1)
-        return False
-
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__StepNtupleTool
-    return G4UA__StepNtupleTool(name, **kwargs)
-
-
-def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
-    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-
-    from G4AtlasApps.SimFlags import simFlags
-    # example custom configuration
-    if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
-            kwargs.setdefault(prop,value)
-
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__VolumeDebuggerTool
-    return G4UA__VolumeDebuggerTool(name, **kwargs)

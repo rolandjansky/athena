@@ -10,10 +10,10 @@ addTool("G4DebuggingTools.G4DebuggingToolsConf.EnergyConservationTest", "EnergyC
 addTool("G4DebuggingTools.G4DebuggingToolsConf.HyperspaceCatcher", "HyperspaceCatcher")
 
 
-addTool("G4DebuggingTools.G4DebuggingToolsConfig.getVolumeDebuggerTool", "G4UA::VolumeDebuggerTool")
+#addTool("G4DebuggingTools.G4DebuggingToolsConfig.getVolumeDebuggerTool", "G4UA::VolumeDebuggerTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getG4AtlantisDumperTool", "G4UA::G4AtlantisDumperTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getVerboseSelectorTool", "G4UA::VerboseSelectorTool")
-addTool("G4DebuggingTools.G4DebuggingToolsConfig.getStepNtupleTool", "G4UA::StepNtupleTool")
+#addTool("G4DebuggingTools.G4DebuggingToolsConfig.getStepNtupleTool", "G4UA::StepNtupleTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getEnergyConservationTestTool", "G4UA::EnergyConservationTestTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConfig.getHyperspaceCatcherTool", "G4UA::HyperspaceCatcherTool")
 addTool("G4DebuggingTools.G4DebuggingToolsConf.G4UA__CheckActivationTool", "G4UA::CheckActivationTool")
