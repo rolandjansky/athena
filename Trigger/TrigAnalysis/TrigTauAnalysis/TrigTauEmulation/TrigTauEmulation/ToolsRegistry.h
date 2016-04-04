@@ -2,8 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #ifndef TOOLSREGISTRY_TOOLSREGISTRY_H
 #define TOOLSREGISTRY_TOOLSREGISTRY_H
+
+#include <unordered_set>
+#include <type_traits>
 
 // Framework includes
 #include "AsgTools/AsgTool.h"
@@ -25,136 +29,146 @@
 #include "TrigTauEmulation/IHltTauSelectionTool.h"
 #include "TrigTauEmulation/HltTauSelectionTool.h"
 
-class ToolsRegistry : virtual public IToolsRegistry, virtual public asg::AsgTool
+#include "TrigTauEmulation/FastTrackSelectionTool.h"
 
+#include "TrigTauEmulation/ISelectionTool.h"
+#include "TrigTauEmulation/extension.h"
+
+using namespace bitpowder::lib;
+
+class ToolsRegistry : public ExtensionContainer<SelectionTool*>, virtual public IToolsRegistry, virtual public asg::AsgTool
 {
   ASG_TOOL_CLASS(ToolsRegistry, IToolsRegistry)
-  
- public:
-  
-  ToolsRegistry(const std::string& name);
+  //using ToolInitializeFunction = StatusCode (ToolsRegistry::*)(void); 
+  using ToolInitializeFunction = std::function< StatusCode(void) >;
 
-  ToolsRegistry(const ToolsRegistry& other);
+  public:
 
-  virtual ~ToolsRegistry() {};
+    ToolsRegistry(const std::string& name);
+    ToolsRegistry(const ToolsRegistry& other);
+
+    virtual ~ToolsRegistry();
+
+    /// Initialize the tool
+    virtual StatusCode initialize();
+
+    StatusCode initializeTool(const std::string &name);
+
+    const FastTrackSelectionTool* getFTFTool() { return m_ftf_tool; }
+
+    // simple map to make the naming of the ExtensionContainer more logical to the user
+    template <class T>
+    void addTool(const T& tool) {
+      addExtension(tool);
+    }
     
-  /// Initialize the tool
-  virtual StatusCode initialize();
+    template <class T>
+    unsigned int getNumberOfTools() {
+      auto c = this->selectExtensions<T>();
+      return std::distance(c.begin(), c.end());
+    }
 
-  ToolHandleArray<IEmTauSelectionTool> GetL1TauTools() {return m_l1tau_tools;}
-  ToolHandleArray<IEnergySumSelectionTool> GetL1XeTools() {return m_l1xe_tools;}
-  ToolHandleArray<IJetRoISelectionTool> GetL1JetTools() {return m_l1jet_tools;}
-  ToolHandleArray<IMuonRoISelectionTool> GetL1MuonTools() {return m_l1muon_tools;}
+    template <class T>
+    auto removeTool() -> decltype(this->removeExtension<T>()) {
+      return this->removeExtension<T>();
+    }
 
-  ToolHandleArray<IHltTauSelectionTool> GetHltTauTools() {return m_hlttau_tools;}
-  
-
- private:
-
-  ToolHandleArray<IEmTauSelectionTool> m_l1tau_tools;
-  ToolHandleArray<IEnergySumSelectionTool> m_l1xe_tools;
-  ToolHandleArray<IJetRoISelectionTool> m_l1jet_tools;
-  ToolHandleArray<IMuonRoISelectionTool> m_l1muon_tools;
-  ToolHandleArray<IHltTauSelectionTool> m_hlttau_tools;
-
-  bool m_recalculateBDTscore;
-
-  // Declaration of the tools themselves
-  // --> L1 JETS
-  JetRoISelectionTool* m_l1jet_tool_12;
-  JetRoISelectionTool* m_l1jet_tool_20;
-  JetRoISelectionTool* m_l1jet_tool_25;
-
-  // --> L1 TAU / ELE
-  EmTauSelectionTool* m_l1tau_tool_8; 
-  EmTauSelectionTool* m_l1tau_tool_12; 
-  EmTauSelectionTool* m_l1tau_tool_15; 
-  EmTauSelectionTool* m_l1tau_tool_20; 
-  EmTauSelectionTool* m_l1tau_tool_25; 
-  EmTauSelectionTool* m_l1tau_tool_30; 
-  EmTauSelectionTool* m_l1tau_tool_40; 
-  EmTauSelectionTool* m_l1tau_tool_60; 
-
-  EmTauSelectionTool* m_l1tau_tool_12IL; 
-  EmTauSelectionTool* m_l1tau_tool_12IM; 
-  EmTauSelectionTool* m_l1tau_tool_12IT; 
-
-  EmTauSelectionTool* m_l1tau_tool_20IL; 
-  EmTauSelectionTool* m_l1tau_tool_20IM; 
-  EmTauSelectionTool* m_l1tau_tool_20IT; 
-
-  EmTauSelectionTool* m_l1tau_tool_25IT; 
-
-  EmTauSelectionTool* m_l1ele_tool_15; 
-  EmTauSelectionTool* m_l1ele_tool_15HI; 
-
-  // --> L1 MET
-  EnergySumSelectionTool* m_l1xe_tool_35; 
-  EnergySumSelectionTool* m_l1xe_tool_40; 
-  EnergySumSelectionTool* m_l1xe_tool_45; 
-  EnergySumSelectionTool* m_l1xe_tool_50; 
-
-  // --> L1 MUONS
-  MuonRoISelectionTool* m_l1muon_tool_10;
-  MuonRoISelectionTool* m_l1muon_tool_20;
-
-  
-  // --> HLT TAUS
-  HltTauSelectionTool* m_hlttau_tool_25_perf_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_25_perf_calo;
-  HltTauSelectionTool* m_hlttau_tool_25_perf_tracktwocalo;
-  HltTauSelectionTool* m_hlttau_tool_25_perf_tracktwo;
-  
-  HltTauSelectionTool* m_hlttau_tool_25_idperf_tracktwo;
+    template <class T>
+    auto selectTools() -> decltype(this->selectExtensions<T>()) {
+      return this->selectExtensions<T>();
+    }
     
-  HltTauSelectionTool* m_hlttau_tool_25_loose1_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_25_loose1_calo;
-  HltTauSelectionTool* m_hlttau_tool_25_loose1_tracktwocalo;
-  HltTauSelectionTool* m_hlttau_tool_25_loose1_tracktwo;
+    template <class T>
+    auto selectToolsOfBaseType() -> decltype(this->selectExtensionsOfBaseType<T>()) {
+      return this->selectExtensionsOfBaseType<T>();
+    }
+    
+    ToolHandleArray<IEmTauSelectionTool> GetL1TauTools() { 
+      return m_l1tau_tools; 
+    }
+    ToolHandleArray<IEnergySumSelectionTool> GetL1XeTools() { return m_l1xe_tools; }
+    ToolHandleArray<IJetRoISelectionTool> GetL1JetTools() { return m_l1jet_tools; }
+    ToolHandleArray<IMuonRoISelectionTool> GetL1MuonTools() { return m_l1muon_tools; }
+    ToolHandleArray<IHltTauSelectionTool> GetHltTauTools() { return m_hlttau_tools; }
 
-  HltTauSelectionTool* m_hlttau_tool_25_medium1_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_25_medium1_calo;
-  HltTauSelectionTool* m_hlttau_tool_25_medium1_tracktwocalo;
-  HltTauSelectionTool* m_hlttau_tool_25_medium1_tracktwo;
+  private:
 
-  HltTauSelectionTool* m_hlttau_tool_25_medium1_mvonly;
+    ToolHandleArray<IEmTauSelectionTool> m_l1tau_tools;
+    ToolHandleArray<IEnergySumSelectionTool> m_l1xe_tools;
+    ToolHandleArray<IJetRoISelectionTool> m_l1jet_tools;
+    ToolHandleArray<IMuonRoISelectionTool> m_l1muon_tools;
+    ToolHandleArray<IHltTauSelectionTool> m_hlttau_tools;
 
-  HltTauSelectionTool* m_hlttau_tool_25_tight1_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_25_tight1_calo;
-  HltTauSelectionTool* m_hlttau_tool_25_tight1_tracktwocalo;
-  HltTauSelectionTool* m_hlttau_tool_25_tight1_tracktwo;
+    bool m_recalculateBDTscore;
 
-  HltTauSelectionTool* m_hlttau_tool_35_loose1_tracktwo;
-  HltTauSelectionTool* m_hlttau_tool_35_loose1_ptonly;
+    std::map<std::string, ToolInitializeFunction> m_initializeFunctions;
+    std::unordered_set<std::string> m_initializedToolNames;
 
-  HltTauSelectionTool* m_hlttau_tool_35_medium1_tracktwo;
-  HltTauSelectionTool* m_hlttau_tool_35_medium1_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_35_medium1_calo;
+    // FTF Ttool
+    FastTrackSelectionTool* m_ftf_tool;
 
-  HltTauSelectionTool* m_hlttau_tool_35_tight1_tracktwo;
-  HltTauSelectionTool* m_hlttau_tool_35_tight1_ptonly;
+    // L1 TAUS
+    StatusCode L1_J12();
+    StatusCode L1_J20();
+    StatusCode L1_J25();
+    StatusCode L1_TAU8();
+    StatusCode L1_TAU12();
+    StatusCode L1_TAU15();
+    StatusCode L1_TAU20();
+    StatusCode L1_TAU25();
+    StatusCode L1_TAU30();
+    StatusCode L1_TAU40();
+    StatusCode L1_TAU60();
+    StatusCode L1_TAU12IL();
+    StatusCode L1_TAU12IM();
+    StatusCode L1_TAU12IT();
+    StatusCode L1_TAU20IL();
+    StatusCode L1_TAU20IM();
+    StatusCode L1_TAU20IT();
+    StatusCode L1_TAU25IT();
+    StatusCode L1_EM15();
+    StatusCode L1_EM15HI();
+    StatusCode L1_XE35();
+    StatusCode L1_XE40();
+    StatusCode L1_XE45();
+    StatusCode L1_XE50();
+    StatusCode L1_MU10();
+    StatusCode L1_MU20();
 
-  HltTauSelectionTool* m_hlttau_tool_35_perf_tracktwo;
-  HltTauSelectionTool* m_hlttau_tool_35_perf_ptonly;
-
-  HltTauSelectionTool* m_hlttau_tool_80_medium1_calo;
-  HltTauSelectionTool* m_hlttau_tool_80_medium1_tracktwo;
-
-  HltTauSelectionTool* m_hlttau_tool_50_medium1_tracktwo;
-
-  HltTauSelectionTool* m_hlttau_tool_125_medium1_tracktwo;
-  HltTauSelectionTool* m_hlttau_tool_125_medium1_calo;
-  HltTauSelectionTool* m_hlttau_tool_125_perf_tracktwo;
-  HltTauSelectionTool* m_hlttau_tool_125_perf_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_160_medium1_tracktwo;
-
-
-  HltTauSelectionTool* m_hlttau_tool_5_perf_ptonly;
-  HltTauSelectionTool* m_hlttau_tool_0_perf_ptonly;         
-
-
-
+    // HLT TAUS
+    StatusCode HLT_tau0_perf_ptonly();
+    StatusCode HLT_tau5_perf_ptonly();
+    StatusCode HLT_tau25_perf_ptonly();
+    StatusCode HLT_tau25_perf_calo();
+    StatusCode HLT_tau25_perf_tracktwo();
+    StatusCode HLT_tau25_idperf_tracktwo();
+    StatusCode HLT_tau25_loose1_ptonly();
+    StatusCode HLT_tau25_loose1_calo();
+    StatusCode HLT_tau25_loose1_tracktwo();
+    StatusCode HLT_tau25_medium1_ptonly();
+    StatusCode HLT_tau25_medium1_calo();
+    StatusCode HLT_tau25_medium1_tracktwo();
+    StatusCode HLT_tau25_medium1_mvonly();
+    StatusCode HLT_tau25_tight1_ptonly();
+    StatusCode HLT_tau25_tight1_calo();
+    StatusCode HLT_tau25_tight1_tracktwo();
+    StatusCode HLT_tau35_loose1_tracktwo();
+    StatusCode HLT_tau35_loose1_ptonly();
+    StatusCode HLT_tau35_medium1_tracktwo();
+    StatusCode HLT_tau35_medium1_ptonly();
+    StatusCode HLT_tau35_medium1_calo();
+    StatusCode HLT_tau35_tight1_tracktwo();
+    StatusCode HLT_tau35_tight1_ptonly();
+    StatusCode HLT_tau35_perf_tracktwo();
+    StatusCode HLT_tau35_perf_ptonly();
+    StatusCode HLT_tau50_medium1_tracktwo();
+    StatusCode HLT_tau80_medium1_calo();
+    StatusCode HLT_tau80_medium1_tracktwo();
+    StatusCode HLT_tau125_medium1_tracktwo();
+    StatusCode HLT_tau125_medium1_calo();
+    StatusCode HLT_tau125_perf_tracktwo();
+    StatusCode HLT_tau125_perf_ptonly();
+    StatusCode HLT_tau160_medium1_tracktwo();
 };
-
 
 #endif

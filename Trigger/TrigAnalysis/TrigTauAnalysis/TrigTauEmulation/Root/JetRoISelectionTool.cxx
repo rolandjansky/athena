@@ -3,17 +3,14 @@
 */
 
 #include "TrigTauEmulation/JetRoISelectionTool.h"
+#include "TrigTauEmulation/MsgStream.h"
 
-// Default constructor
-JetRoISelectionTool::JetRoISelectionTool(const std::string& name) : asg::AsgTool(name)
-{
+JetRoISelectionTool::JetRoISelectionTool(const std::string& name) : Level1SelectionTool(name) {
   declareProperty("ClusterPt", m_roi_pt=25000., "cut on the JetRoI transverse energy");
   declareProperty("ClusterEta", m_roi_eta=3.2, "cut on the JetRoi |eta|");
-
 }
 
-// Copy constructor
-JetRoISelectionTool::JetRoISelectionTool(const JetRoISelectionTool& other) : asg::AsgTool(other.name() + "_copy")
+JetRoISelectionTool::JetRoISelectionTool(const JetRoISelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
 {}
 
 // Tool initialize
@@ -26,16 +23,22 @@ StatusCode JetRoISelectionTool::initialize()
 
 // Accept method
 const Root::TAccept& JetRoISelectionTool::accept(const xAOD::JetRoI& l1jet) const
-
 {
   m_accept.clear();
   m_accept.setCutResult("JetRoI", false);
 
-  if (fabs(l1jet.eta()) > m_roi_eta)
+  if (fabs(l1jet.eta()) > m_roi_eta) {
+    MY_MSG_DEBUG("reject L1: did not pass RoI eta cut");
     return m_accept;
+  }
 
-  if (l1jet.et8x8() <= m_roi_pt)
+  // if (l1jet.et8x8() <= m_roi_pt)
+  //   return m_accept;
+
+  if (l1jet.etLarge() <= m_roi_pt) {
+    MY_MSG_DEBUG("reject L1: did not pass RoI pT cut");
     return m_accept;
+  }
 
   m_accept.setCutResult("JetRoI", true);
   return m_accept;

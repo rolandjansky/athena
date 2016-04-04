@@ -8,10 +8,12 @@
 #include "AsgTools/IAsgTool.h"
 #include "PATCore/TAccept.h"
 
+#include "TrigTauEmulation/ILevel1SelectionTool.h"
+
 //EDM include
 #include "xAODTrigger/JetRoI.h"
 
-class IJetRoISelectionTool : public virtual asg::IAsgTool
+class IJetRoISelectionTool : public virtual ILevel1SelectionTool
 {
 
    ASG_TOOL_INTERFACE(IJetRoISelectionTool)
