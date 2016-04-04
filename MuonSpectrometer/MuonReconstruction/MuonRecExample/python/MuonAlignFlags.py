@@ -37,8 +37,9 @@ class MuonAlign(JobPropertyContainer):
             self.UseAlines = 'none'
             self.UseBlines = 'none'
             self.UseIlines = False
-            logMuon.info("No good alignment constants associated to Conditions Tag %r: UseAlines=%r UseBlines=%r UseIlines=%r",
-                         globalflags.ConditionsTag(),self.UseAlines(), self.UseBlines(), self.UseIlines())
+            self.UseAsBuilt = False
+            logMuon.info("No good alignment constants associated to Conditions Tag %r: UseAlines=%r UseBlines=%r UseIlines=%r UseAsBuilt=%r",
+                         globalflags.ConditionsTag(),self.UseAlines(), self.UseBlines(), self.UseIlines(), self.UseAsBuilt() )
 
         #
         # simulation, digitization and reconstruction 
@@ -48,15 +49,17 @@ class MuonAlign(JobPropertyContainer):
             setDefault(self.UseAlines, 'none')
             setDefault(self.UseBlines, 'none')
             setDefault(self.UseIlines, False)
-            logMuon.info("Running a reconstruction job on geant4 or a digitization job: UseAlines=%r UseBlines=%r UseIlines=%r",
-                         self.UseAlines(), self.UseBlines(), self.UseIlines())
+            setDefault(self.UseAsBuilt, False)
+            logMuon.info("Running a reconstruction job on geant4 or a digitization job: UseAlines=%r UseBlines=%r UseIlines=%r UseAsBuilt=%r",
+                         self.UseAlines(), self.UseBlines(), self.UseIlines(), self.UseAsBuilt())
         else:
             # here reconstruction or real data 
             setDefault(self.UseAlines, 'all')
             setDefault(self.UseBlines, 'all')
             setDefault(self.UseIlines, True)
-            logMuon.info("Running a reconstruction job on data: UseAlines=%r UseBlines=%r UseIlines=%r",
-                         self.UseAlines(), self.UseBlines(), self.UseIlines())
+            setDefault(self.UseAsBuilt, True)
+            logMuon.info("Running a reconstruction job on data: UseAlines=%r UseBlines=%r UseIlines=%r UseAsBuilt=%r",
+                         self.UseAlines(), self.UseBlines(), self.UseIlines(), self.UseAsBuilt())
 
 
 jobproperties.add_Container(MuonAlign)
@@ -85,6 +88,12 @@ class UseIlines(JobProperty):
 
 muonAlignFlags.add_JobProperty(UseIlines)
 
+class UseAsBuilt(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False 
+
+muonAlignFlags.add_JobProperty(UseAsBuilt)
 
 # at the end, set the defaults
 muonAlignFlags.setDefaults()

@@ -73,4 +73,16 @@ if muonAlignFlags.UseIlines:
         MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
         MuonDetectorTool.UseIlinesFromGM = False
         MuonAlignmentDbTool.ILinesFromCondDB = True
-        
+
+# here define if As-Built (MDT chamber alignment) are enabled
+if muonAlignFlags.UseAsBuilt:
+    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or \
+       'HLT' in globalflags.ConditionsTag() or conddb.isOnline :
+        logMuon.info("No MDT As-Built parameters applied.")
+        MuonDetectorTool.EnableMdtAsBuiltParameters = 0
+    else :
+        logMuon.info("Reading As-Built parameters from conditions database")
+        MuonDetectorTool.EnableMdtAsBuiltParameters = 1
+        #MuonAlignmentDbTool.AsBuiltFile = "clob_asbuilt_nominal.txt"
+        conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/MDT/ASBUILTPARAMS')
+        MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]

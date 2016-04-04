@@ -28,6 +28,11 @@ addTool( "MuonRecExample.MuonRecTools.MuonClusterOnTrackCreator", "MuonClusterOn
 
 addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreator", "MdtDriftCircleOnTrackCreator" )
 addTool( "MuonRecExample.MuonRecTools.MdtTubeHitOnTrackCreator", "MdtTubeHitOnTrackCreator" )
+addTool( "MuGirlNS::StauBetaTofTool","StauBetaTofTool")
+addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorStau","MdtDriftCircleOnTrackCreatorStau")
+
+addTool( "Muon::MuonPRDSelectionTool","MuonPRDSelectionTool")
+addTool( "Muon::MuonPRDSelectionTool","MuonPRDSelectionToolStau",MdtDriftCircleOnTrackCreator="MdtDriftCircleOnTrackCreatorStau")
 
 addTool( "MuonRecExample.MuonRecTools.AdjustableT0Tool", "AdjustableT0Tool" )
 

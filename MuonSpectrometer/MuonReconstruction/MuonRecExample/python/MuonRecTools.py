@@ -93,14 +93,19 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
         kwargs.setdefault("IsMC", False)
     else:
         kwargs.setdefault("IsMC", True)
-                        
-    from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
-    return Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
+                  
+    return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
 
-
+    
 def MdtTubeHitOnTrackCreator(name="MdtTubeHitOnTrackCreator",**kwargs):
     kwargs["CreateTubeHit"] = True
+    return MdtDriftCircleOnTrackCreator(name,**kwargs)
+
+def MdtDriftCircleOnTrackCreatorStau(name="MdtDriftCircleOnTrackCreatorStau",**kwargs ):
+    kwargs.setdefault("MuonTofTool", getPublicTool("StauBetaTofTool") )
+    kwargs.setdefault("TimingMode", 3 )
+    kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_t0fit') )
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
 
 
@@ -369,20 +374,17 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     kwargs.setdefault("OutputFittedT0", True)
     kwargs.setdefault("DCFitProvider", "MdtSegmentT0Fitter")
     #kwargs.setdefault("CurvedErrorScaling", False)
+    kwargs.setdefault("UsePreciseError", True)
+    kwargs.setdefault("SinAngleCut", 0.4)
 
     if (beamType == 'singlebeam' or beamType == 'cosmics'): 
         kwargs.setdefault("SinAngleCut", 0.9)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
         kwargs.setdefault("CurvedErrorScaling", False)
-        kwargs.setdefault("UsePreciseError", True)
-        kwargs.setdefault("PreciseErrorScale", 2.)
     elif globalflags.DataSource() == 'data': # collisions real data or simulation first data
-        kwargs.setdefault("SinAngleCut", 0.4)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
-        kwargs.setdefault("UsePreciseError", True)
-        kwargs.setdefault("PreciseErrorScale", 2.)
 
     if doSegmentT0Fit:
         kwargs.setdefault("MdtCreatorT0", "MdtDriftCircleOnTrackCreatorAdjustableT0")
