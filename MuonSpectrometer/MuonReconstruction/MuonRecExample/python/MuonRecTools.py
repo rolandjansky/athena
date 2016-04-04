@@ -375,6 +375,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     kwargs.setdefault("DCFitProvider", "MdtSegmentT0Fitter")
     #kwargs.setdefault("CurvedErrorScaling", False)
     kwargs.setdefault("UsePreciseError", True)
+    kwargs.setdefault("SinAngleCut", 0.4)
 
     if (beamType == 'singlebeam' or beamType == 'cosmics'): 
         kwargs.setdefault("SinAngleCut", 0.9)
