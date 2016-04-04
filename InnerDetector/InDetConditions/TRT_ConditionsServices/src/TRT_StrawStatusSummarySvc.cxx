@@ -61,8 +61,9 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
     // create arrays for alive straws
   m_stw_total = new int[7];
   m_stw_local = new int*[6];
-
+  m_stw_wheel = new int*[34];
   for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32];
+  for (int i=0; i<34; ++i) m_stw_wheel[i] = new int[32];
                           
   resetArrays();//RM moved to c'tor from initialize() to avoid coverity defects
 }
@@ -208,11 +209,11 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 
 StatusCode TRT_StrawStatusSummarySvc::finalize()
 {
+  for (int i=0; i<6 ; ++i) delete[] m_stw_local[i]; 
+  for (int i=0; i<34; ++i) delete[] m_stw_wheel[i];
   delete [] m_stw_total;
-  for (int i=0; i<6; ++i){
-  	delete[] m_stw_local[i]; 
-  }
   delete [] m_stw_local;
+  delete [] m_stw_wheel;
 
   msg(MSG::INFO) << " in finalize() " << endreq;
   return StatusCode::SUCCESS;
@@ -628,6 +629,8 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       int line   = 0; 
       int lineAr = 0; 
       int lineKr = 0; 
+      int lineEAr = 0; 
+      int lineEKr = 0; 
 
       while( ifsHT >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
         int level = TRTCond::ExpandedIdentifier::STRAW ;
@@ -651,13 +654,24 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
                 strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Krypton);
 		lineKr+=1;
        	}
+	else if (status == 6){ // EmulateArgon 
+                strawstatuscontainer->set(id,TRTCond::StrawStatus::EmulateArgon) ;
+                strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::EmulateArgon);
+		lineEAr+=1;
+       	}
+	else if (status == 7){ // EmulateKrypton 
+                strawstatuscontainer->set(id,TRTCond::StrawStatus::EmulateKrypton) ;
+                strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::EmulateKrypton);
+		lineEKr+=1;
+       	}
         else{
-		msg(MSG::FATAL) << " The HT Status: " << status << " IS NOT ACCEPTED, 4 for Argon, 5 for Kryptoon!! " << endreq;
+		msg(MSG::FATAL) << " The HT Status: " << status << " IS NOT ACCEPTED, 4 for Argon, 5 for Krypton!! " 
+				<< " Or 6 or 7 for emulated types!" << endreq;
 		return StatusCode::FAILURE;	
 	}
 	
       }
-     msg(MSG::INFO) << "HT Straw Status read from: "  << filename << " We read: " << line << " straws on it. Argon straws:  "<< lineAr << "  Krypton straws " << lineKr   << endreq;
+      msg(MSG::INFO) << "HT Straw Status read from: "  << filename << " We read: " << line << " straws on it. Argon straws:  "<< lineAr << "  Krypton straws " << lineKr  << " EmulateArgon " << lineEAr << " EmulateKrypton " << lineEKr << endreq;
     }
     
 
@@ -808,6 +822,11 @@ void TRT_StrawStatusSummarySvc::resetArrays(){
         m_stw_local[i][j]=0;
       }
     }
+    for (int i=0; i<34; ++i){
+      for (int j=0; j<32; ++j){
+        m_stw_wheel[i][j]=0;
+      }
+    }
   return;
 }
 
@@ -927,10 +946,12 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
       }
 
       int i_total = findArrayTotalIndex(det, lay);
+      int i_wheel = findArrayLocalWheelIndex(det, lay);
 
       m_stw_total[0]                        +=1;
       m_stw_total[i_total]                  +=1;
       m_stw_local[i_total-1][phi]           +=1;
+      m_stw_wheel[i_wheel][phi]             +=1;
 
     }//For
  }//For

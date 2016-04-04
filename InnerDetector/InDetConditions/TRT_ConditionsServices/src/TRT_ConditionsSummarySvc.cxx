@@ -20,7 +20,9 @@
 // Constructor
 TRT_ConditionsSummarySvc::TRT_ConditionsSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_svcCollection(name)
+  m_svcCollection(name),
+  m_manager(0),
+  m_trtid(0)
 {
   // Get properties from job options
   declareProperty( "ServiceList", m_svcCollection );

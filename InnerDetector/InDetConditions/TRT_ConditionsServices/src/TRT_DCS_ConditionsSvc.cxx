@@ -30,6 +30,10 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   m_evtStore("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
   m_mapSvc("TRT_HWMappingSvc",name),
+  m_Barrel_HV_COOLCont(0),
+  m_EndcapA_HV_COOLCont(0),
+  m_EndcapC_HV_COOLCont(0),
+  m_TRT_ID_Helper(0),
   m_numFlagRED(0),
   m_numFlagNOINFO(0),
   m_currentTimestamp(0),
@@ -347,16 +351,18 @@ StatusCode TRT_DCS_ConditionsSvc::finalize() {
     h_EndcapA_HVvalAvg->Scale(1./double(m_nEvts));
     h_EndcapC_HVvalAvg->Scale(1./double(m_nEvts));
     TFile* outFile = new TFile("TRT_DCS_Monitoring.root","RECREATE");
-    outFile->cd();
-    h_Barrel_nRED->Write();
-    h_Barrel_nNOINFO->Write();
-    h_Barrel_HVvalAvg->Write();
-    h_EndcapA_nRED->Write();
-    h_EndcapA_nNOINFO->Write();
-    h_EndcapA_HVvalAvg->Write();
-    h_EndcapC_nRED->Write();
-    h_EndcapC_nNOINFO->Write();
-    h_EndcapC_HVvalAvg->Write();
+    bool file = outFile->cd();
+    if (file){
+    	h_Barrel_nRED->Write();
+    	h_Barrel_nNOINFO->Write();
+    	h_Barrel_HVvalAvg->Write();
+    	h_EndcapA_nRED->Write();
+    	h_EndcapA_nNOINFO->Write();
+    	h_EndcapA_HVvalAvg->Write();
+    	h_EndcapC_nRED->Write();
+    	h_EndcapC_nNOINFO->Write();
+    	h_EndcapC_HVvalAvg->Write();
+    }
     outFile->Close();
   }
   return StatusCode::SUCCESS;
