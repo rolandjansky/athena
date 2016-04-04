@@ -317,6 +317,24 @@ class writeRDOs(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+# @brief Write out Muon MDT RDOs into a file (i.e. ESDs)
+class writeMdtRDOs(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+# @brief Write out Muon CSC RDOs into a file (i.e. ESDs)
+class writeCscRDOs(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+# @brief Write out Muon RPC RDOs into a file (i.e. ESDs)
+class writeRpcRDOs(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 # @brief Write out Muon exit layer and filter it
 class writeMuonExitLayer(JobProperty):
     statusOn=True

@@ -104,13 +104,20 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
          MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
          MuonESDList+=["MuonSimDataCollection#MM_SDO"]
 
-   if muonRecFlags.writeRDOs():
-      # Write out CSC, RPC, and MDT RDOs.
-      # I'm wondering if we should be doing something in MuonCnvExample to ensure we have the right
-      # configuration? See bug#59676
+   # commenting if-statement since mandatory for e.g. RPC calibration
+   # Write out CSC, RPC, and MDT RDOs.
+   # I'm wondering if we should be doing something in MuonCnvExample to ensure we have the right
+   # configuration? See bug#59676
+   if ( muonRecFlags.writeRDOs() or muonRecFlags.writeMdtRDOs() ):
       import MuonCnvExample.MuonCablingConfig
-      MuonESDList += [ "MdtCsmContainer#MDTCSM", "CscRawDataContainer#CSCRDO", "RpcPadContainer#RPCPAD"] 
-      
+      MuonESDList += [ "MdtCsmContainer#MDTCSM" ]
+   if ( muonRecFlags.writeRDOs() or muonRecFlags.writeCscRDOs() ):
+      import MuonCnvExample.MuonCablingConfig
+      MuonESDList += [ "CscRawDataContainer#CSCRDO" ] 
+   if ( muonRecFlags.writeRDOs() or muonRecFlags.writeRpcRDOs() ):
+      import MuonCnvExample.MuonCablingConfig
+      MuonESDList += [ "RpcPadContainer#RPCPAD" ] 
+
 # Muon Clusters
 #try:
 #   topSequence.StreamESD.ItemList += MuonESDList
