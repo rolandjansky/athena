@@ -32,50 +32,44 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream* log) :
       std::string::size_type iofs2=input.find(">",iofs1);
       std::string::size_type iofs3=input.find("/>",iofs1);
       if (iofs2!=std::string::npos && iofs2<iofs3) {
-	// found a closing >, so tag is standard <tag>value</tag> form
-	std::string tag=spaceStrip(input.substr(iofs1+1,iofs2-iofs1-1));
-	// now need to find the closing </tag>
-	std::string::size_type iofs4=input.find("</"+tag,iofs2+1);
-	if (iofs4!=std::string::npos) {
-	  // found closing tag, store tag and text
-	  m_keys[tag]=spaceStrip(input.substr(iofs2+1,iofs4-iofs2-1));
-	  // advance to the next part of the string, after '>' on closing tag
-	  iofs=input.find(">",iofs4)+1;
-	} else {
-	  *m_log << MSG::ERROR << 
-	    "Badly formed XML string, no closing tag for " << tag <<
-	    " in " << input << endreq;
-	  m_valid=false;
-	  iofs=std::string::npos;
-	}
+        // found a closing >, so tag is standard <tag>value</tag> form
+        std::string tag=spaceStrip(input.substr(iofs1+1,iofs2-iofs1-1));
+        // now need to find the closing </tag>
+        std::string::size_type iofs4=input.find("</"+tag,iofs2+1);
+        if (iofs4!=std::string::npos) {
+          // found closing tag, store tag and text
+          m_keys[tag]=spaceStrip(input.substr(iofs2+1,iofs4-iofs2-1));
+          // advance to the next part of the string, after '>' on closing tag
+          iofs=input.find(">",iofs4)+1;
+        } else {
+          *m_log << MSG::ERROR << 
+            "Badly formed XML string, no closing tag for " << tag <<
+            " in " << input << endreq;
+          m_valid=false;
+          iofs=std::string::npos;
+        }
       } else if (iofs3!=std::string::npos) {
-	// found a />, so tag is of form <tag values info/>
-	// find the end of the tag part to see if a value is present
-	std::string::size_type iofs4=input.find(" ",iofs1+1);
-	std::string value,tag;
-	if (iofs4!=std::string::npos && iofs4<iofs3) {
-	  value=spaceStrip(input.substr(iofs4,iofs3-iofs4));
-	  tag=spaceStrip(input.substr(iofs1+1,iofs4-iofs1-1));
-	} else if (iofs3!=std::string::npos) {
-	  tag=input.substr(iofs1+1,iofs3-iofs1-1);
+        // found a />, so tag is of form <tag values info/>
+        // find the end of the tag part to see if a value is present
+        std::string::size_type iofs4=input.find(" ",iofs1+1);
+        std::string value,tag;
+        if (iofs4!=std::string::npos && iofs4<iofs3) {
+          value=spaceStrip(input.substr(iofs4,iofs3-iofs4));
+          tag=spaceStrip(input.substr(iofs1+1,iofs4-iofs1-1));
+        } else {
+          tag=input.substr(iofs1+1,iofs3-iofs1-1);
           value="";
-	} else {
-	  *m_log << MSG::ERROR << 
-	    "Badly formed XML string, no closing tag for " << tag <<
-	    " in " << input << endreq;
-	  iofs=std::string::npos;
-	  m_valid=false;
-	}
+        }
         m_keys[tag]=spaceStrip(value);
-	// advance to next part of string after closing />
-	iofs=iofs3+2;
+        // advance to next part of string after closing />
+        iofs=iofs3+2;
       } else {
         // found a < but no closing >
         *m_log << MSG::ERROR << 
-	  "Badly formed XML string, no closing < in input " <<
-	  input << endreq;
-	iofs=std::string::npos;
-	m_valid=false;
+          "Badly formed XML string, no closing < in input " <<
+          input << endreq;
+        iofs=std::string::npos;
+        m_valid=false;
       }
     } else {
       // no more < in input, take the rest into 'outside' data slot
@@ -88,15 +82,15 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream* log) :
     *m_log << MSG::VERBOSE << 
       "parseXML processed input string: " << input << endreq;
     for (KeyValMap::const_iterator itr=m_keys.begin();
-	   itr!=m_keys.end();++itr) {
+         itr!=m_keys.end();++itr) {
       *m_log << MSG::VERBOSE << "Key: " << itr->first << " value:" << 
-	itr->second << endreq;
+        itr->second << endreq;
     }
   }
 }
 
 bool IOVDbParser::getKey(const std::string& key, const std::string& defvalue,
-			 std::string& value) const {
+                         std::string& value) const {
   // check if key is present in keyval, if so set value to it
   // if not set value to supplied default
   // return true or false depending on whether a matching key was found
@@ -151,12 +145,12 @@ unsigned IOVDbParser::applyOverrides(const IOVDbParser& other, MsgStream* log) {
     KeyValMap::iterator it=m_keys.find(otherKey);
     if (it==m_keys.end()) {
       *log << MSG::INFO << "Folder " << m_keys[""] << ", adding new key " << otherKey 
-	     << " with value " << otherValue << endreq; 
+           << " with value " << otherValue << endreq; 
       m_keys[otherKey]=otherValue;
     }
     else {
       *log << MSG::INFO << "Folder " << m_keys[""] << ", Key: " << otherKey 
-	     <<  "Overriding existing value " << m_keys[otherKey] << " to new value " << otherValue << endreq;
+           <<  "Overriding existing value " << m_keys[otherKey] << " to new value " << otherValue << endreq;
       it->second=otherValue;
     }
     ++keyCounter;
