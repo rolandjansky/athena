@@ -42,7 +42,7 @@ TrigConfData::printNameIdV(const string& indent) const {
       cout << " (id=" << id() << "/v=" << version() << ")";
    cout  << endl;
    if(comment()!="")
-      cout << indent << "Comment:    " << comment() << endl;
+      cout << indent << "Comment: " << comment() << endl;
 }
 
 

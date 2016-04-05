@@ -174,8 +174,8 @@ TriggerItem::setCondition(const string& logic,
 void
 TriggerItem::print(const std::string& indent, unsigned int detail) const {
    if(detail<3) {
-      cout << indent << "TriggerItem:"; 
-      printNameIdV(indent);
+      cout << indent << "TriggerItem ctpid = " << m_CtpId << "  "; 
+      printNameIdV();
    } else {
       cout << indent << "==================================" << endl; 
       cout << indent << "TriggerItem:"; 
