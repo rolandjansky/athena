@@ -77,7 +77,10 @@ L1TopoConfigOutputList::sort() {
    std::sort( m_triggerlines.begin(), m_triggerlines.end(), comp);
 }
 
-std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigOutputList &outputlist) {
+
+namespace TXC {
+
+std::ostream & operator<<(std::ostream &o, const L1TopoConfigOutputList &outputlist) {
 
    o << "Trigger lines (sorted by connectors):" << endl;
    for(const TXC::TriggerLine& trigger: outputlist.getTriggerLines()) {
@@ -92,8 +95,10 @@ std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigOutputList &ou
    return o;
 }
 
-std::ostream & operator<<(std::ostream &o, const TXC::TriggerLine &trigger) {
+std::ostream & operator<<(std::ostream &o, const TriggerLine &trigger) {
    o << trigger.counter() << " : " << trigger.name() << " [" << trigger.module() << "/" << trigger.fpga() << "/" << trigger.clock() << "/" << trigger.bit() << "]";
    return o;
 }
 
+
+} // namespace TXC

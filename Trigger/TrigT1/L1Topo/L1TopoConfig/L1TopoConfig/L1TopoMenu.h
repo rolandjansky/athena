@@ -91,7 +91,7 @@ namespace TXC {
 
       std::string m_name{""};
       std::string m_version{""};
-      unsigned int m_smk;
+       unsigned int m_smk{0};
 
       // vectors of menu objects
       std::vector<TXC::L1TopoConfigAlg> m_algos;

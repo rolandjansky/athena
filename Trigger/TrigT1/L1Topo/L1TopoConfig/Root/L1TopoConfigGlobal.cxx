@@ -19,8 +19,10 @@ void TXC::L1TopoConfigGlobal::addTopoConfigElement(const std::string & name, con
 void TXC::L1TopoConfigGlobal::addTopoConfigElement(const TopoConfigElement & config) {
    m_topoConfigElements.push_back(config);
 }
+
+namespace TXC {
     
-std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigGlobal & topoconfig) {
+std::ostream & operator<<(std::ostream &o, const L1TopoConfigGlobal & topoconfig) {
    o << "General configuration (<TopoConfig>):" << endl;
    for(const TXC::TopoConfigElement& ce : topoconfig.getTopoConfigs())
       o << "        " << ce.name << ": " << ce.value << endl;
@@ -28,3 +30,4 @@ std::ostream & operator<<(std::ostream &o, const TXC::L1TopoConfigGlobal & topoc
   return o;
 }
 
+} // namespace TXC
