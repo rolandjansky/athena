@@ -11,7 +11,7 @@
 #include "DBConnection.h"
 #include "CoolKernel/IFolder.h"
 #include "CoolKernel/RecordSpecification.h"
-#include "PersistencySvc/Placement.h"
+#include "PersistentDataModel/Placement.h"
 
 class FolderInfo {
  public:
@@ -52,10 +52,10 @@ class FolderInfo {
   int size() const;
   int period() const;
   const std::string tag() const;
-  pool::Placement* poolplace() const;
+  Placement* poolplace() const;
 
   // const set function (on mutable datamember)
-  void setpoolplace(pool::Placement* const poolplace) const;
+  void setpoolplace(Placement* const poolplace) const;
   
   void printSpec(const cool::IRecordSpecification& catrspec) const;
 
@@ -74,7 +74,7 @@ class FolderInfo {
   std::string m_tag;
   bool m_paytable;
 
-  mutable pool::Placement* m_poolplace;
+  mutable Placement* m_poolplace;
 
 };
 
@@ -89,8 +89,8 @@ inline int FolderInfo::size() const {return m_size;}
 inline int FolderInfo::period() const {return m_period;}
 inline const std::string FolderInfo::tag() const {return m_tag;}
 
-inline pool::Placement* FolderInfo::poolplace() const {return m_poolplace;}
-inline void FolderInfo::setpoolplace(pool::Placement* const poolplace) const {
+inline Placement* FolderInfo::poolplace() const {return m_poolplace;}
+inline void FolderInfo::setpoolplace(Placement* const poolplace) const {
   m_poolplace=poolplace; }
 
 // helper functions

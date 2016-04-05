@@ -42,7 +42,7 @@ apply_pattern poolcnv multChanTypes=" TestCoolRecPoolDataColl " files="-s=${Athe
 
 macro_append AthenaDBTestRecPoolCnv_dependencies " AthenaDBTestRecDataDict"
 
-application TestCoolRecWriter "-s=app *.cxx"
+application TestCoolRecWriter -s=app *.cxx
 macro_append TestCoolRecWriter_dependencies " AthenaDBTestRecLib"
 
 apply_pattern declare_joboptions files="*.py"
