@@ -97,3 +97,5 @@ static FADS::FactoryMadeList physlist_FTFP_BERT_lowEneutrons("FTFP_BERT_lowEneut
 static FADS::FactoryMadeList physlist_FTFP_BERT_noDiffraction("FTFP_BERT_noDiffraction");
 static FADS::FactoryMadeList physlist_FTFP_BERT_newElastic("FTFP_BERT_newElastic");
 
+#include "FTFP_BERT_ATL.hh"
+static FADS::PhysicsListEntryT<FTFP_BERT_ATL> physlist_FTFP_BERT_ATL("FTFP_BERT_ATL");
