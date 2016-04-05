@@ -64,13 +64,14 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_dzdrver   = .02     ;
   m_diver     = 10.     ;
   m_diverpps  =  1.7    ;
-  m_diversss  =  50     ;
+  m_diversss  =  20     ;
   m_divermax  =  20.    ;
   m_dazmax    = .02     ;
   r_rmax      = 1100.   ;
-  r_rmin      = 0.   ;
+  r_rmin      = 0.      ;
   m_umax      = 0.      ;
   r_rstep     =  2.     ;
+  m_dzmaxPPP  = 600.    ; 
   r_Sorted    = 0       ;
   r_index     = 0       ;
   r_map       = 0       ;    
@@ -100,6 +101,44 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
 //  m_spacepointsSCT         = 0                   ;
 //  m_spacepointsPixel       = 0                   ;
 //  m_spacepointsOverlap     = 0                   ;
+
+
+  ///////////////////////////////////////////////////////////////////
+  // Switches and cuts for ITK extended barrel: all turned OFF by default
+  ///////////////////////////////////////////////////////////////////
+  m_usePixelClusterCleanUp=false;              // switch to reject pixel clusters before seed search
+  m_usePixelClusterCleanUp_sizeZcutsB=false;   // sizeZ cuts for barrel
+  m_usePixelClusterCleanUp_sizePhicutsB=false; // size-phi cuts for barrel
+  m_usePixelClusterCleanUp_sizeZcutsE=false;   // sizeZ cuts for end-cap
+  m_usePixelClusterCleanUp_sizePhicutsE=false; // size-phi cuts for end-cap
+
+  m_pix_sizePhiCut=10; // cut on the size-phi of pixel clusters
+  m_pix_sizePhi2sizeZCut_p0B=3.5; // cut on size-phi/sizeZ of pixel clusters in barrel: p0/sizeZ-p1 
+  m_pix_sizePhi2sizeZCut_p1B=0.5; // cut on size-phi/sizeZ of pixel clusters in barrel: p0/sizeZ-p1 
+  m_pix_sizePhi2sizeZCut_p0E=3.0; // cut on size-phi/sizeZ of pixel clusters in end-cap: p0/sizeZ-p1 
+  m_pix_sizePhi2sizeZCut_p1E=0.5; // cut on size-phi/sizeZ of pixel clusters in end-cap: p0/sizeZ-p1 
+
+  m_useITKseedCuts=false;          // global switch to use special ITK cuts
+  m_useITKseedCuts_dR=false;       // cut to reject seeds with both links in the same barrel pixel layer
+  m_useITKseedCuts_PixHole=false;  // cut to reject seeds with Pixel hole
+  m_useITKseedCuts_SctHole=false;  // cut to reject seeds with SCT hole
+  m_useITKseedCuts_hit=false;      // cut to require bottom hit in barrel layer-0,1 if middle link is in layer-0 of endcap rings
+  m_useITKseedCuts_dSize=false;    // cut to reject pixel barrel hits if |sizeZ-predicted_sizeZ| is too large
+  m_useITKseedCuts_sizeDiff=false; // cut to reject pixel barrel hits if |sizeZ(layer-i)-sizeZ(layer-j)| is too large
+
+  m_Nsigma_clSizeZcut=4.0;         // size of the cut on the cluster sizeZ at cluster clean-up stage: |sizeZ-predicted|<m_Nsigma_clSizeZcut*sigma
+
+  parR_clSizeZ0cut[0][0]=2.62; parR_clSizeZ0cut[0][1]=1.82; parR_clSizeZ0cut[0][2]=1.42; parR_clSizeZ0cut[0][3]=1.31; parR_clSizeZ0cut[0][4]=1.27;    
+  parR_clSizeZ0cut[1][0]=0.26; parR_clSizeZ0cut[1][1]=0.17; parR_clSizeZ0cut[1][2]=0.096; parR_clSizeZ0cut[1][3]=0.054; parR_clSizeZ0cut[1][4]=0.015;    
+  parR_clSizeZ0cut[2][0]=0.094; parR_clSizeZ0cut[2][1]=0.060; parR_clSizeZ0cut[2][2]=0.0; parR_clSizeZ0cut[2][3]=0.0; parR_clSizeZ0cut[2][4]=0.0;    
+
+  parL_clSizeZ0cut[0]=3.2; parL_clSizeZ0cut[1]=1.9; parL_clSizeZ0cut[2]=1.2; parL_clSizeZ0cut[3]=1.1; parL_clSizeZ0cut[4]=1.1;    
+
+  parR_clSizeZcut[0][0]=1.25; parR_clSizeZcut[0][1]=1.25; parR_clSizeZcut[0][2]=1.25; parR_clSizeZcut[0][3]=1.25; parR_clSizeZcut[0][4]=1.25;
+  parR_clSizeZcut[1][0]=0.021; parR_clSizeZcut[1][1]=0.006; parR_clSizeZcut[1][2]=0.0; parR_clSizeZcut[1][3]=0.0; parR_clSizeZcut[1][4]=0.0;
+
+  parL_clSizeZcut[0]=1.5; parL_clSizeZcut[1]=1.25; parL_clSizeZcut[2]=1.25;  parL_clSizeZcut[3]=1.25; parL_clSizeZcut[4]=1.25;
+
 
   declareInterface<ISiSpacePointsSeedMaker>(this);
 
@@ -138,6 +177,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxdImpactSSS"         ,m_diversss              );
   declareProperty("maxdImpactForDecays"   ,m_divermax              );
   declareProperty("minSeedsQuality"       ,m_umax                  );
+  declareProperty("dZmaxForPPPSeeds"      ,m_dzmaxPPP              );
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
   declareProperty("maxNumberVertices"     ,m_maxNumberVertices     );
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
@@ -147,6 +187,32 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("useOverlapSpCollection",m_useOverlap            );
   declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
   declareProperty("MagFieldSvc"           ,m_fieldServiceHandle    );
+
+  ///////////////////////////////////////////////////////////////////
+  // Properties for special ITK extended barrel cuts
+  ///////////////////////////////////////////////////////////////////
+  declareProperty("usePixelClusterCleanUp",            m_usePixelClusterCleanUp);             
+  declareProperty("usePixelClusterCleanUpSizeZcutsB",  m_usePixelClusterCleanUp_sizeZcutsB);  
+  declareProperty("usePixelClusterCleanUpSizePhicutsB",m_usePixelClusterCleanUp_sizePhicutsB);
+  declareProperty("usePixelClusterCleanUpSizeZcutsE",  m_usePixelClusterCleanUp_sizeZcutsE);  
+  declareProperty("usePixelClusterCleanUpSizePhicutsE",m_usePixelClusterCleanUp_sizePhicutsE);
+  
+  declareProperty("PixSizePhiCut", m_pix_sizePhiCut); 
+  declareProperty("PixSizePhi2sizeZCutBp0", m_pix_sizePhi2sizeZCut_p0B); 
+  declareProperty("PixSizePhi2sizeZCutBp1", m_pix_sizePhi2sizeZCut_p1B); 
+  declareProperty("PixSizePhi2sizeZCutEp0", m_pix_sizePhi2sizeZCut_p0E); 
+  declareProperty("PixSizePhi2sizeZCutEp1", m_pix_sizePhi2sizeZCut_p1E); 
+
+  declareProperty("useITKseedCuts",          m_useITKseedCuts);          
+  declareProperty("useITKseedCutsDeltaR",    m_useITKseedCuts_dR);       
+  declareProperty("useITKseedCutsPixHole",   m_useITKseedCuts_PixHole);  
+  declareProperty("useITKseedCutsSctHole",   m_useITKseedCuts_SctHole);  
+  declareProperty("useITKseedCutsL01hit",    m_useITKseedCuts_hit);      
+  declareProperty("useITKseedCutsDeltaSize", m_useITKseedCuts_dSize);    
+  declareProperty("useITKseedCutsSizeDiff",  m_useITKseedCuts_sizeDiff); 
+
+  declareProperty("NsigmaClusSizeZcut", m_Nsigma_clSizeZcut);
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -306,6 +372,57 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
 	for(; sp != spe; ++sp) {
 
 	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin ) continue;
+
+	  ///////////////////////////////////////////////////////
+	  //  Cluster clean-up cuts for ITK extended barrel 
+	  ///////////////////////////////////////////////////////
+	  if(m_usePixelClusterCleanUp)
+	    {
+	      const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*sp)->clusterList().first);
+	      const InDet::PixelCluster* pixclust  = dynamic_cast<const InDet::PixelCluster*>((*sp)->clusterList().first);
+	      // apply cuts only to non-split and non-ganged clusters
+	      if(pixclust->isSplit()!=true && clust->gangedPixel()!=true) 
+		{
+		  const InDetDD::SiDetectorElement* de = clust ->detectorElement();
+		  const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
+		  double size_z= clust->width().z(); // in mm
+		  double size_phi= clust->width().phiR(); // in mm
+// 		  const double pitch_z= de->etaPitch(); // TODO: need to be checked, it might be average pitch (Active_length/number_of_cells)
+// 		  const double pitch_phi=de->phiPitch();
+		  const double pitch_z= module->etaPitch(); 
+		  const double pitch_phi=module->phiPitch();
+// 		  std::cout<<"------> Sasha checks: pitch_z="<<pitch_z<<"  pitch_phi="<<pitch_phi<<std::endl;
+		  if(de->isEndcap() && (m_usePixelClusterCleanUp_sizeZcutsE || m_usePixelClusterCleanUp_sizePhicutsE)) // cuts for disks go here
+		    {
+		      // removing obviously anomalous clusters
+		      if(m_usePixelClusterCleanUp_sizeZcutsE && size_z>m_pix_sizePhiCut*pitch_z) continue; // for end-cap use the same cut for sizeZ and size-Phi
+		      if(m_usePixelClusterCleanUp_sizePhicutsE)
+			{
+			  if(size_phi>m_pix_sizePhiCut*pitch_phi) continue;
+			  if(size_phi/size_z>m_pix_sizePhi2sizeZCut_p0E/size_z+m_pix_sizePhi2sizeZCut_p1E) continue;
+			}
+		    }
+		  if(de->isBarrel() && (m_usePixelClusterCleanUp_sizeZcutsB || m_usePixelClusterCleanUp_sizePhicutsB)) // cuts for barrel go here
+		    {
+ 		      if(m_usePixelClusterCleanUp_sizeZcutsB) 
+			{
+			  const PixelID* p_pixelId = static_cast<const PixelID*> (de->getIdHelper());
+			  Identifier id=de->identify();
+			  int layer_num=p_pixelId->layer_disk(id);
+
+			  if(ClusterCleanupSizeZCuts((*sp),size_phi,size_z,0.0,pitch_phi,pitch_z,de->thickness(),layer_num,m_Nsigma_clSizeZcut)==false) continue;
+			}
+		      // removing obviously anomalous clusters
+		      if(m_usePixelClusterCleanUp_sizePhicutsB)
+			{
+			  if(size_phi>m_pix_sizePhiCut*pitch_phi) continue;
+			  if(size_phi/size_z>m_pix_sizePhi2sizeZCut_p0B/size_z+m_pix_sizePhi2sizeZCut_p1B) continue;
+			}
+		    }
+
+		}
+	    }
+	  //---------- end of cluster clean-up cuts for ITK extended barrel
 
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); if(!sps) continue;
 
@@ -1479,6 +1596,62 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	// Comparison with vertices Z coordinates
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rb,Tz)) continue;
+
+	//===================================================
+	//------------ New cluster size checks for Extended Barrel ---------------
+	// accessing cluster information for bottom link
+
+	if(m_useITKseedCuts)
+	  {
+	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
+	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
+	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // bottom link
+	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // middle link
+
+ 	    // if middle link is in layer-0 of Pixel endcap rings, then require bottom link in layer-0,1 of Pixel barrel
+ 	    if(m_useITKseedCuts_hit && de0->isPixel() && de0->isEndcap())
+	      {
+		const PixelID* p_pixelId_b = static_cast<const PixelID*>(de->getIdHelper());
+		Identifier id_b=de->identify();
+		int layer_num_b=p_pixelId_b->layer_disk(id_b); // layer number for bottom link
+		const PixelID* p_pixelId_m = static_cast<const PixelID*>(de0->getIdHelper());
+		Identifier id_m=de0->identify();
+		int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
+		if(layer_num_m==0 && de->isPixel() && de->isBarrel() && layer_num_b>1) continue;
+	      } 
+
+	    // no check for pixel disks is implemented yet, to be considered in the future
+	    if(m_useITKseedCuts_dR && de0->isPixel() && de->isPixel() && de0->isBarrel() && de->isBarrel())
+	      {
+		const PixelID* p_pixelId_b = static_cast<const PixelID*>(de->getIdHelper());
+		Identifier id_b=de->identify();
+		int layer_num_b=p_pixelId_b->layer_disk(id_b); // layer number for bottom link
+		const PixelID* p_pixelId_m = static_cast<const PixelID*>(de0->getIdHelper());
+		Identifier id_m=de0->identify();
+		int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
+		if(abs(layer_num_m-layer_num_b)<1) continue; // middle and bottom links are in the same layer/disk, reject
+	      }
+
+	    if(m_useITKseedCuts_PixHole)
+	      {
+		// this check is only for the case when both links are in the Pixel barrel
+		// the case of the Pixel end-cap is to be considered later
+ 		if(de0->isPixel() && de->isPixel() && de0->isBarrel() && de->isBarrel())
+		  {
+		    const PixelID* p_pixelId_b = static_cast<const PixelID*>(de->getIdHelper());
+		    Identifier id_b=de->identify();
+		    int layer_num_b=p_pixelId_b->layer_disk(id_b); // layer number for bottom link
+		    const PixelID* p_pixelId_m = static_cast<const PixelID*>(de0->getIdHelper());
+		    Identifier id_m=de0->identify();
+		    int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
+		    if(abs(layer_num_m-layer_num_b)>1) continue; // middle and bottom links have a hole between them, reject
+		  }
+	      }
+	    if(ClusterSizeCuts((*r),(*r0),Zo)!=true) continue;
+	  }
+	//____________ end of new cluster size checks for  Extended barrel________________
+
+
 	m_SP[Nb] = (*r); if(++Nb==m_maxsizeSP) goto breakb;
       }
     }
@@ -1507,6 +1680,47 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	// Comparison with vertices Z coordinates
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R ,Tz)) continue;
+
+
+	// //===================================================
+	// //------------ New cluster size checks for Extended barrel ---------------
+	if(m_useITKseedCuts)
+	  {
+	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
+	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
+	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // middle link
+	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // top link
+
+	    if(m_useITKseedCuts_dR && de0->isPixel() && de->isPixel() && de0->isBarrel() && de->isBarrel())
+	      {
+		const PixelID* p_pixelId_m = static_cast<const PixelID*> (de->getIdHelper());
+		Identifier id_m=de->identify();
+		int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
+		const PixelID* p_pixelId_t = static_cast<const PixelID*> (de0->getIdHelper());
+		Identifier id_t=de0->identify();
+		int layer_num_t=p_pixelId_t->layer_disk(id_t); // layer number for top link
+		if(abs(layer_num_t-layer_num_m)<1) continue; // middle and top links are in the same layer/disk, reject		
+	      }
+
+	    if(m_useITKseedCuts_PixHole)
+	      {
+		// both links are in Pixel barrel or endcap
+		if(de0->isPixel() && de->isPixel() && (de0->isBarrel())==(de->isBarrel())) 
+		  {
+		    const PixelID* p_pixelId_m = static_cast<const PixelID*> (de->getIdHelper());
+		    Identifier id_m=de->identify();
+		    int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
+		    const PixelID* p_pixelId_t = static_cast<const PixelID*> (de0->getIdHelper());
+		    Identifier id_t=de0->identify();
+		    int layer_num_t=p_pixelId_t->layer_disk(id_t); // layer number for top link
+		    if(abs(layer_num_t-layer_num_m)>1) continue; // middle and top links have a hole between them, reject
+		  }
+	      }
+	    if(ClusterSizeCuts((*r0),(*r),Zo)!=true) continue;
+	  }
+	//------------------ end of cluster size checks
+
+
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
     }
@@ -1569,6 +1783,21 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	float B   = Vb-A*Ub                          ;
 	float B2  = B*B                              ;
 	if(B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
+
+	// >>>>>>>> New checks of compatibility of a cluster size for bottom cluster with a position 
+        // >>>>>>>> of top cluster
+
+	if(m_useITKseedCuts && (m_useITKseedCuts_dSize || m_useITKseedCuts_sizeDiff))
+	  {
+	    double dR= m_SP[t]->radius() - m_SP[b]->radius();
+	    double dz= m_SP[t]->z() - m_SP[b]->z();
+	    double Tz= fabs(dz)>0.0 ? dR/dz : 1000000.0;
+	    double Zo= m_SP[b]->z() - m_SP[b]->radius()/Tz;
+		
+	    if(ClusterSizeCuts(m_SP[b],m_SP[t],Zo)!=true) continue;
+
+	  }
+	//------------------ end of cluster size checks
 
 	float Im  = fabs((A-B*R)*R)                  ; 
 
@@ -1640,6 +1869,36 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	// Comparison with vertices Z coordinates
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rb,Tz)) continue;
+
+	//===================================================
+	//------------ Checks for holes go here ---------------
+	// accessing cluster information for bottom link
+
+	if(m_useITKseedCuts)
+	  {
+	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
+	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
+	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // bottom link
+	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // middle link
+
+	    if(m_useITKseedCuts_SctHole) 
+	      {
+		const SCT_ID* p_sctId_b = static_cast<const SCT_ID*>(de->getIdHelper());
+		Identifier id_b=de->identify();
+		int layer_num_b=p_sctId_b->layer_disk(id_b); // layer number for bottom link
+		const SCT_ID* p_sctId_m = static_cast<const SCT_ID*>(de0->getIdHelper());
+		Identifier id_m=de0->identify();
+		int layer_num_m=p_sctId_m->layer_disk(id_m); // layer number for middle link
+		// both links are in SCT 
+		if(de0->isSCT() && de->isSCT() && (de0->isBarrel())==(de->isBarrel())) 
+		  {
+		    if(abs(layer_num_b-layer_num_m)>1) continue; // bottom and middle links have hole in between: reject
+		  }		
+	      }
+	  }
+	//____________ end of checks for holes ________________
+
+
 	m_SP[Nb] = (*r); if(++Nb==m_maxsizeSP) goto breakb;
       }
     }
@@ -1667,6 +1926,34 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	// Comparison with vertices Z coordinates
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R ,Tz)) continue;
+
+	// //===================================================
+	// //------------ Checks for holes go here ---------------
+	if(m_useITKseedCuts)
+	  {
+	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
+	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
+	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // middle link
+	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // top link
+
+	    if(m_useITKseedCuts_SctHole) 
+	      {
+		const SCT_ID* p_sctId_m = static_cast<const SCT_ID*> (de->getIdHelper());
+		Identifier id_m=de->identify();
+		int layer_num_m=p_sctId_m->layer_disk(id_m); // layer number for middle link
+		const SCT_ID* p_sctId_t = static_cast<const SCT_ID*> (de0->getIdHelper());
+		Identifier id_t=de0->identify();
+		int layer_num_t=p_sctId_t->layer_disk(id_t); // layer number for top link
+		// both links are in SCT
+		if(de0->isSCT() && de->isSCT() && (de0->isBarrel())==(de->isBarrel())) 
+		  {
+		    if(abs(layer_num_m-layer_num_t)>1) continue; // top and middle links have hole in between: reject
+		  }		
+	      }
+	  }
+	//------------------ end of checks for holes
+
+
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
     }
@@ -2005,8 +2292,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
   const float dC = .00003;
 
   bool  pixb = !SPb->spacepoint->clusterList().second;
-  float ub   = SPb->quality()                        ;
-  float u0   = SP0->quality()                        ;
 
   std::sort(m_CmSp.begin(),m_CmSp.end(),comCurvatureITK());
   std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>>::iterator j,jn,i = m_CmSp.begin(),ie = m_CmSp.end(); jn=i; 
@@ -2014,10 +2299,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
   for(; i!=ie; ++i) {
 
     float u    = (*i).second->param(); 
-    float Im   = (*i).second->param();
 
     bool                pixt = !(*i).second->spacepoint->clusterList().second;
     
+    if(pixt && fabs(SPb->z() -(*i).second->z()) > m_dzmaxPPP) continue;  
+
     const Trk::Surface* Sui  = (*i).second->sur   ();
     float               Ri   = (*i).second->radius();  
     float               Ci1  =(*i).first-dC         ;
@@ -2049,11 +2335,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
       }
     }
     if(u > m_umax) continue;
-    if(pixb!=pixt) {
-      if(u > 0. || (u > ub && u > u0 && u > (*i).second->quality()) ) continue;
-    }
-
-    if(!pixb && Im > m_diversss && u > Im-500.) continue;
 
     newOneSeed(SPb,SP0,(*i).second,Zob,u);
   }
@@ -2100,4 +2381,217 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds ()
 
     m_seeds.insert(std::make_pair(w,s)); ++m_fillOneSeeds;
   }
+}
+
+//---------------------------------------------------------------------------
+// New methods to check cluster size compatibility; needed for ITK long barrel 
+double InDet::SiSpacePointsSeedMaker_ITK::predictedClusterLength(const InDet::SiSpacePointForSeedITK* sp, double thickness, float seed_zvx) {
+
+  double length=0.0;
+  double tanTheta= fabs(sp->z()-seed_zvx) > 0.0 ? sp->radius()/fabs(sp->z()-seed_zvx) : 1000000.0;
+
+  if(fabs(tanTheta)>0.0) length=thickness/fabs(tanTheta);
+
+  return length;
+}
+
+double InDet::SiSpacePointsSeedMaker_ITK::predictedClusterLength(const Trk::SpacePoint* sp, double thickness, float seed_zvx) {
+  double length=0.0;
+  const double z_cl=(sp->globalPosition()).z();
+  double tanTheta= fabs(z_cl-seed_zvx) > 0.0 ? sp->r()/fabs(z_cl-seed_zvx) : 1000000.0;
+
+  if(fabs(tanTheta)>0.0) length=thickness/fabs(tanTheta);
+  return length;
+}
+
+// this function checks is a particular cluster is close to chip boundary
+bool InDet::SiSpacePointsSeedMaker_ITK::isAwayFromChipBoundary(const InDet::SiSpacePointForSeedITK* sp, double size_phi, double size_z, double pitch_phi, double pitch_z) {
+  bool awayFromBoundary=true;
+
+  const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>(sp->spacepoint->clusterList().first);
+  const InDetDD::SiDetectorElement* de = clust->detectorElement();  
+  const PixelID* p_pixelId = static_cast<const PixelID*>(de->getIdHelper());
+  const InDet::PixelCluster* pixclust  = dynamic_cast<const InDet::PixelCluster*>(sp->spacepoint->clusterList().first);
+  Identifier id_cl=pixclust->identify();
+  const int cl_col_min=p_pixelId->eta_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+  const int cl_row_min=p_pixelId->phi_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+
+  if(cl_col_min==0) return false; // cluster startes at module boundary
+  const int cl_size_z=(int)rint(size_z/pitch_z);
+  const int cl_size_phi=(int)rint(size_phi/pitch_phi);
+  const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
+  const int n_cols=module->columns(); // this works
+  const int n_rows=module->rows();    // this works
+
+  if(cl_col_min+cl_size_z-1>=n_cols-1) return false;
+  if(cl_row_min+cl_size_phi-1>=n_rows-1) return false;
+
+  return awayFromBoundary;
+}
+
+bool InDet::SiSpacePointsSeedMaker_ITK::isAwayFromChipBoundary(const Trk::SpacePoint* sp, double size_phi, double size_z, double pitch_phi, double pitch_z) {
+  bool awayFromBoundary=true;
+
+  const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>(sp->clusterList().first);
+  const InDetDD::SiDetectorElement* de = clust->detectorElement();  
+  const PixelID* p_pixelId = static_cast<const PixelID*>(de->getIdHelper());
+  const InDet::PixelCluster* pixclust  = dynamic_cast<const InDet::PixelCluster*>(sp->clusterList().first);
+  Identifier id_cl=pixclust->identify();
+  const int cl_col_min=p_pixelId->eta_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+  const int cl_row_min=p_pixelId->phi_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+
+  if(cl_col_min==0) return false; // cluster startes at module boundary
+  const int cl_size_z=(int)rint(size_z/pitch_z);
+  const int cl_size_phi=(int)rint(size_phi/pitch_phi);
+  const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
+  const int n_cols=module->columns(); // this works
+  const int n_rows=module->rows();    // this works
+
+  if(cl_col_min+cl_size_z-1>=n_cols-1) return false;
+  if(cl_row_min+cl_size_phi-1>=n_rows-1) return false;
+
+  return awayFromBoundary;
+}
+
+
+
+int InDet::SiSpacePointsSeedMaker_ITK::deltaSize(double sizeZ, double predictedSize, double pixel_pitch)
+{
+  return (int)rint((sizeZ-predictedSize)/pixel_pitch);
+}
+
+
+// this function applies cluster size cuts to seed links
+bool InDet::SiSpacePointsSeedMaker_ITK::ClusterSizeCuts(const InDet::SiSpacePointForSeedITK* sp_low,const InDet::SiSpacePointForSeedITK* sp_high, const double z_seed)
+{
+  bool pass_cuts=true;
+
+  if(m_useITKseedCuts_dSize || m_useITKseedCuts_dSize)
+    {
+
+      const InDet::SiCluster* clust_lo  = dynamic_cast<const InDet::SiCluster*>(sp_low->spacepoint->clusterList().first);
+      const InDet::SiCluster* clust_up  = dynamic_cast<const InDet::SiCluster*>(sp_high->spacepoint->clusterList().first);
+      const InDetDD::SiDetectorElement* de_lo = clust_lo->detectorElement();   // lower link
+      const InDetDD::SiDetectorElement* de_up = clust_up->detectorElement(); // upper link
+
+      if(de_lo->isPixel() && de_lo->isBarrel() && clust_lo->gangedPixel()!=true) // lower link is in pixel barrel
+	{
+	  // obtain pitch for both lower and upper clusters
+	  // it might happen that different layers have different pitch
+	  const InDetDD::PixelModuleDesign* module_lo(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de_lo->design()));
+	  const double pitchZ_lo= module_lo->etaPitch(); 
+	  const double pitchPhi_lo= module_lo->phiPitch(); 
+	  double sizeZ_lo= clust_lo->width().z(); // in mm
+	  double sizePhi_lo= clust_lo->width().phiR(); // in mm
+	  // applying dSize cuts to a lower cluster
+	  if(m_useITKseedCuts_dSize)  
+	    {
+	      int delta=deltaSize(sizeZ_lo,predictedClusterLength(sp_low,de_lo->thickness(),z_seed),pitchZ_lo);
+	      if(isAwayFromChipBoundary(sp_low,sizePhi_lo,sizeZ_lo,pitchPhi_lo,pitchZ_lo)) // lower cluster is away from chip boundary
+		{
+		  const PixelID* p_pixelId = static_cast<const PixelID*> (de_lo->getIdHelper());
+		  Identifier id=de_lo->identify();
+		  int layer_num=p_pixelId->layer_disk(id);
+		  double eta= fabs(sp_low->z()-z_seed) > 0.0 ? -log(atan(sp_low->radius()/fabs(sp_low->z()-z_seed))/2.0) : 0.0;		  
+		  double right_rms=parR_clSizeZcut[0][layer_num] + parR_clSizeZcut[1][layer_num]*fabs(eta);		  
+		  double left_rms= parL_clSizeZcut[layer_num];
+		  if(layer_num<2 && fabs(eta)>2.5) right_rms=(3-layer_num)*right_rms;
+		  if(delta<0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*left_rms) return false;
+		  if(delta>0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*right_rms) return false;
+		}
+	      else // bottom cluster is close to chip boundary
+		{
+		  if(delta>4) return false; // bottom cluster is too large for this seed (to be tuned)
+		}
+	    }
+	  
+	  // only makes sense to check upper link if lower link is in Pixel barrel
+	  if(de_up->isBarrel() && de_up->isPixel() && clust_up->gangedPixel()!=true) // upper link is a barrel cluster
+	    {
+
+	      const InDetDD::PixelModuleDesign* module_up(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de_up->design()));
+	      const double pitchZ_up= module_up->etaPitch(); 
+	      const double pitchPhi_up= module_up->phiPitch(); 
+	      double sizeZ_up= clust_up->width().z(); // in mm
+	      double sizePhi_up= clust_up->width().phiR(); // in mm
+
+	      if(m_useITKseedCuts_dSize)
+		{
+		  int delta0=deltaSize(sizeZ_up,predictedClusterLength(sp_high,de_up->thickness(),z_seed),pitchZ_up);
+		  
+		  if(isAwayFromChipBoundary(sp_high,sizePhi_up,sizeZ_up,pitchPhi_up,pitchZ_up)) // middle cluster is away from chip boundary
+		    {
+
+		      const PixelID* p_pixelId = static_cast<const PixelID*> (de_up->getIdHelper());
+		      Identifier id=de_up->identify();
+		      int layer_num=p_pixelId->layer_disk(id);
+		      double eta= fabs(sp_high->z()-z_seed) > 0.0 ? -log(atan(sp_high->radius()/fabs(sp_high->z()-z_seed))/2.0) : 0.0;		  
+		      double right_rms=parR_clSizeZcut[0][layer_num] + parR_clSizeZcut[1][layer_num]*fabs(eta);		  
+		      double left_rms= parL_clSizeZcut[layer_num];
+		      if(layer_num<2 && fabs(eta)>2.5) right_rms=(3-layer_num)*right_rms;
+		      if(delta0<0 && fabs(1.0*delta0) > m_Nsigma_clSizeZcut*left_rms) return false;
+		      if(delta0>0 && fabs(1.0*delta0) > m_Nsigma_clSizeZcut*right_rms) return false;
+		    }
+		  else
+		    {
+		      if(delta0>4) return false; // middle cluster is too large for this seed (to be tuned)
+		    }
+		}
+
+	      if(m_useITKseedCuts_sizeDiff)
+		{
+		  //both clusters are away from chip boundaries
+		  if(isAwayFromChipBoundary(sp_low,sizePhi_lo,sizeZ_lo,pitchPhi_lo,pitchZ_lo) 
+		     && isAwayFromChipBoundary(sp_high,sizePhi_up,sizeZ_up,pitchPhi_up,pitchZ_up))
+		    {
+		      const float pitch=std::min(pitchZ_lo,pitchZ_up); // for now, pick smaller pitch
+		      const double delta_size=sizeZ_lo-sizeZ_up;
+		      if(de_lo->isInnermostPixelLayer()) 
+			{
+			  if(delta_size<-15.0*pitch || delta_size>20.0*pitch) return false;
+			}
+		      else if(de_lo->isNextToInnermostPixelLayer()) 
+			{
+			  if(delta_size<-5.0*pitch || delta_size>10.0*pitch) return false;
+			}
+		      else if(fabs(delta_size)>5.0*pitch) return false;
+		    }
+		}
+	    }	
+	}
+    }
+
+  return pass_cuts;
+}
+
+
+// this function applies cluster size cuts during the space point formation stage.
+bool InDet::SiSpacePointsSeedMaker_ITK::ClusterCleanupSizeZCuts(const Trk::SpacePoint* sp, const double sizePhi, const double sizeZ, const double zvx, 
+								const double pitch_phi, const double pitch_z, const double thickness, const int layerNum, const float Nsigma_clus) 
+{
+  bool pass_cuts=true;
+  // apply cuts only to clusters away from chip boundaries
+  if(isAwayFromChipBoundary(sp,sizePhi,sizeZ,pitch_phi,pitch_z) && layerNum>-1 && layerNum<5) 
+    {
+      int delta=deltaSize(sizeZ,predictedClusterLength(sp,thickness,zvx),pitch_z);
+      if(abs(delta)<5) return pass_cuts; // don't apply cuts if |dSize|<5 
+// these cuts are tuned on ITK step-1 samples (single muon sample)
+      double eta=fabs(sp->eta(zvx));
+      // double left_rms= eta>1.8 ? 3.0 : std::max(-0.4+1.88*eta,1.0); // These numbers need to be re-tuned/checked for the particular layout
+      float left_rms=parL_clSizeZ0cut[layerNum];
+      if(layerNum==0)
+	{
+	  const float p_left=std::max(-1.15+2.77*eta,1.0);
+	  left_rms= p_left<parL_clSizeZ0cut[layerNum] ? p_left : parL_clSizeZ0cut[layerNum];
+	}
+      if(layerNum==1)
+	{
+	  const float p_left=std::max(0.53+0.95*eta,1.0);
+	  left_rms= p_left<parL_clSizeZ0cut[layerNum] ? p_left : parL_clSizeZ0cut[layerNum];
+	}
+      float right_rms=parR_clSizeZ0cut[0][layerNum]+parR_clSizeZ0cut[1][layerNum]*eta+parR_clSizeZ0cut[2][layerNum]*eta*eta;
+      if(delta<0 && fabs(1.0*delta)>Nsigma_clus*left_rms) return false; // cluster is too small, reject
+      else if(delta>0 && 1.0*delta>Nsigma_clus*right_rms) return false; // clsuter is too large, reject
+    }
+  return pass_cuts;
 }
