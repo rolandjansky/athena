@@ -60,7 +60,7 @@ StatusCode XtoVVDecayFilterExtended::filterEvent() {
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ( abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == m_StatusParent) {
         bool isGrandParentOK = RunHistory(*pitr);
-	ATH_MSG_DEBUG(" Grand Parent is OK? " << isGrandParentOK);
+        ATH_MSG_DEBUG(" Grand Parent is OK? " << isGrandParentOK);
         if (!isGrandParentOK) continue;
         ++nGoodParent;
         HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
@@ -99,12 +99,21 @@ bool XtoVVDecayFilterExtended::RunHistory(HepMC::GenParticle *pitr) {
     return false;
   }
   int result = 999;
+
+  // Check if the first mother is ok
+  pitr = CheckGrandparent(pitr, result);
+  ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
+  if(fabs(pitr->pdg_id()) != m_PDGGrandParent && fabs(pitr->pdg_id()) != m_PDGParent) return false;
+  if (result == m_PDGGrandParent) return true;
+
   HepMC::GenParticle *pitr_current = (*firstMother);
   while ( result >= 0 ) {
     pitr_current = CheckGrandparent(pitr_current, result);
+    ATH_MSG_DEBUG("Pointer PDG ID: " << pitr->pdg_id());
+    if(fabs(pitr_current->pdg_id()) != m_PDGGrandParent && fabs(pitr_current->pdg_id()) != m_PDGParent) return false;
     if (result == m_PDGGrandParent) return true;
   }
-
+	
   return false;
 }
 
@@ -128,12 +137,22 @@ HepMC::GenParticle*  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::GenPartic
     return NULL;
   }
 
+  int n_mothers = 1;
+
   for (; thisMother != endMother; ++thisMother) {
-    if ( (*thisMother)->pdg_id() == m_PDGGrandParent ) { isGrandParentOK = true;   }
+    ATH_MSG_DEBUG("Now on this mother: " << (*thisMother)->pdg_id() << " " << n_mothers);
+    if ( (*thisMother)->pdg_id() != m_PDGGrandParent && fabs((*thisMother)->pdg_id()) != m_PDGParent)
+       break;
+    if ( (*thisMother)->pdg_id() == m_PDGGrandParent && n_mothers == 1) { isGrandParentOK = true; }
+    n_mothers++;
   }
 
-  if (isGrandParentOK) result = m_PDGGrandParent;
-  else result = 0;
+  if (isGrandParentOK) {
+    result = m_PDGGrandParent;
+  }
+  else {
+    result = 0;
+  }
   return (*firstMother);
 }
 
