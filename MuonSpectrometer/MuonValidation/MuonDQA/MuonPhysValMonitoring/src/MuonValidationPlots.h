@@ -15,7 +15,7 @@
 
 class MuonValidationPlots:public PlotBase {
   public:
-  MuonValidationPlots(PlotBase* pParent, std::string sDir, std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doMuonTree=false );
+  MuonValidationPlots(PlotBase* pParent, std::string sDir, std::vector<int> wps, std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doMuonTree=false );
 
     virtual ~MuonValidationPlots();
     void fill(const xAOD::Muon& mu);
@@ -23,6 +23,7 @@ class MuonValidationPlots:public PlotBase {
     void fill(const xAOD::TruthParticle& truthMu);
     void fill(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu, const xAOD::TrackParticleContainer* MSTracks);
 
+    std::vector<int> m_selectedWPs;	
     std::vector<unsigned int> m_selectedAuthors;
     std::vector<std::string> m_truthSelections;    
     

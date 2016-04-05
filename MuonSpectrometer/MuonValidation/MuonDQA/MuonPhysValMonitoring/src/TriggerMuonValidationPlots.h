@@ -27,6 +27,8 @@ class TriggerMuonValidationPlots:public PlotBase {
     void fill(const xAOD::L2CombinedMuon &L2CBmu);
     void fill(const xAOD::Muon& Trigmu);
     void fill(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu);
+    void fill(const xAOD::L2StandAloneMuon& L2SAmu, const xAOD::Muon& Recomu);
+    void fill(const xAOD::L2CombinedMuon& L2CBmu, const xAOD::Muon& Recomu);
     void fillNumEff(const xAOD::Muon& Trigmu, std::string selectedChain);
     void fillDenEff(const xAOD::Muon& Trigmu, std::string selectedChain);
     void fillNumL1Eff(const xAOD::Muon& Trigmu, std::string selectedChain);
@@ -42,7 +44,12 @@ class TriggerMuonValidationPlots:public PlotBase {
     L1TriggerMuonPlots* m_oL1TriggerMuonPlots;    
     std::vector<HLTriggerMuonPlots*> m_oEFTriggerMuonPlots;
     std::vector<HLTriggerMuonPlots*> m_oL2TriggerMuonPlots;
+    std::vector<Muon::ResoTriggerMuonPlots*> m_oEFTriggerMuonBarrelResolutionPlots;
+    std::vector<Muon::ResoTriggerMuonPlots*> m_oEFTriggerMuonEndcapsResolutionPlots;
     std::vector<Muon::ResoTriggerMuonPlots*> m_oEFTriggerMuonResolutionPlots;
+    std::vector<Muon::ResoTriggerMuonPlots*> m_oL2TriggerMuonBarrelResolutionPlots;
+    std::vector<Muon::ResoTriggerMuonPlots*> m_oL2TriggerMuonEndcapsResolutionPlots;
+    std::vector<Muon::ResoTriggerMuonPlots*> m_oL2TriggerMuonResolutionPlots;
     std::vector<TriggerEfficiencyPlots*> m_oL1TriggerChainEfficiencyPlots;
     std::vector<TriggerEfficiencyPlots*> m_oL1TriggerChainBarrelEfficiencyPlots;
     std::vector<TriggerEfficiencyPlots*> m_oL1TriggerChainEndcapsEfficiencyPlots;
@@ -56,6 +63,8 @@ class TriggerMuonValidationPlots:public PlotBase {
  private:
     void fillTriggerMuonPlots(const xAOD::Muon& Trigmu);
     void fillTriggerMuonPlots(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu);
+    void fillTriggerMuonPlots(const xAOD::L2StandAloneMuon &L2SAmu, const xAOD::Muon &Recomu);
+    void fillTriggerMuonPlots(const xAOD::L2CombinedMuon &L2CBmu, const xAOD::Muon &Recomu);
     void fillTriggerMuonPlots(const xAOD::MuonRoI& TrigL1mu);
     void fillTriggerMuonPlots(const xAOD::L2StandAloneMuon& L2SAmu);
     void fillTriggerMuonPlots(const xAOD::L2CombinedMuon& L2CBmu);

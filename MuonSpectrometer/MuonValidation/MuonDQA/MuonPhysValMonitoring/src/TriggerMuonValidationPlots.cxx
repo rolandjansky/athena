@@ -16,14 +16,24 @@ TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, std::s
 
 
   if (m_doTrigMuonL1Validation) m_oL1TriggerMuonPlots = new L1TriggerMuonPlots(this,"trigger/L1");
-  if (m_doTrigMuonL2Validation) m_oL2TriggerMuonPlots.push_back(new HLTriggerMuonPlots(this,"trigger/L2/StandAlone"));
-  if (m_doTrigMuonL2Validation) m_oL2TriggerMuonPlots.push_back(new HLTriggerMuonPlots(this,"trigger/L2/Combined"));
+  if (m_doTrigMuonL2Validation) {
+     m_oL2TriggerMuonPlots.push_back(new HLTriggerMuonPlots(this,"trigger/L2/StandAlone"));
+     m_oL2TriggerMuonPlots.push_back(new HLTriggerMuonPlots(this,"trigger/L2/Combined"));
+     m_oL2TriggerMuonBarrelResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/StandAlone/Resolution/BARREL/",""));
+     m_oL2TriggerMuonBarrelResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/Combined/Resolution/BARREL/",""));
+     m_oL2TriggerMuonEndcapsResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/StandAlone/Resolution/ENDCAPS/",""));
+     m_oL2TriggerMuonEndcapsResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/Combined/Resolution/ENDCAPS/",""));
+     m_oL2TriggerMuonResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/StandAlone/Resolution/WHOLE_DETECT/",""));
+     m_oL2TriggerMuonResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/L2/Combined/Resolution/WHOLE_DETECT/",""));
+  }
 
   //define a histogram class for each of the selected muon authors 
   for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
     std::string sAuthor = Muon::EnumDefs::toString( (xAOD::Muon::Author) m_selectedAuthors[i] );
     if (m_doTrigMuonEFValidation) m_oEFTriggerMuonPlots.push_back(new HLTriggerMuonPlots(this,"trigger/EF/"+sAuthor));
-    if (m_doTrigMuonEFValidation) m_oEFTriggerMuonResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/EF/"+sAuthor+"/Resolution/",""));
+    if (m_doTrigMuonEFValidation) m_oEFTriggerMuonBarrelResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/EF/"+sAuthor+"/Resolution/BARREL/",""));
+    if (m_doTrigMuonEFValidation) m_oEFTriggerMuonEndcapsResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/EF/"+sAuthor+"/Resolution/ENDCAPS/",""));
+    if (m_doTrigMuonEFValidation) m_oEFTriggerMuonResolutionPlots.push_back(new Muon::ResoTriggerMuonPlots(this, "trigger/EF/"+sAuthor+"/Resolution/WHOLE_DETECT/",""));
   }
 
   for (unsigned int i=0; i<m_L1MuonItems.size(); i++) {
@@ -47,15 +57,34 @@ TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, std::s
 
 TriggerMuonValidationPlots::~TriggerMuonValidationPlots()
 { 
+  if (m_doTrigMuonL1Validation) {
+       L1TriggerMuonPlots* L1TriggerMuonPlot = m_oL1TriggerMuonPlots;  
+       delete L1TriggerMuonPlot;
+       L1TriggerMuonPlot=0;
+  }
+
   if (m_doTrigMuonL2Validation) {
     for (unsigned int i=0; i<m_oL2TriggerMuonPlots.size(); i++) { 
        HLTriggerMuonPlots* L2TriggerMuonPlots = m_oL2TriggerMuonPlots[i];  
        delete L2TriggerMuonPlots;
        L2TriggerMuonPlots=0;
     }
-
+    for (unsigned int i=0; i<m_oL2TriggerMuonBarrelResolutionPlots.size(); i++) {  
+      Muon::ResoTriggerMuonPlots *L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonBarrelResolutionPlots[i];
+      delete L2TriggerMuonResoMuonPlots;
+      L2TriggerMuonResoMuonPlots=0;
+    }
+    for (unsigned int i=0; i<m_oL2TriggerMuonEndcapsResolutionPlots.size(); i++) {  
+      Muon::ResoTriggerMuonPlots *L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonEndcapsResolutionPlots[i];
+      delete L2TriggerMuonResoMuonPlots;
+      L2TriggerMuonResoMuonPlots=0;
+    }
+    for (unsigned int i=0; i<m_oL2TriggerMuonResolutionPlots.size(); i++) {  
+      Muon::ResoTriggerMuonPlots *L2TriggerMuonResoMuonPlots = m_oL2TriggerMuonResolutionPlots[i];
+      delete L2TriggerMuonResoMuonPlots;
+      L2TriggerMuonResoMuonPlots=0;
+    }
   }
-
   if (m_doTrigMuonEFValidation) {
     for (unsigned int i=0; i<m_oEFTriggerMuonPlots.size(); i++) {  
       HLTriggerMuonPlots *trigMuonPlots = m_oEFTriggerMuonPlots[i];
@@ -64,6 +93,16 @@ TriggerMuonValidationPlots::~TriggerMuonValidationPlots()
     }
     for (unsigned int i=0; i<m_oEFTriggerMuonResolutionPlots.size(); i++) {  
       Muon::ResoTriggerMuonPlots *EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonResolutionPlots[i];
+      delete EFTriggerMuonResoMuonPlots;
+      EFTriggerMuonResoMuonPlots=0;
+    }
+    for (unsigned int i=0; i<m_oEFTriggerMuonBarrelResolutionPlots.size(); i++) {  
+      Muon::ResoTriggerMuonPlots *EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonBarrelResolutionPlots[i];
+      delete EFTriggerMuonResoMuonPlots;
+      EFTriggerMuonResoMuonPlots=0;
+    }
+    for (unsigned int i=0; i<m_oEFTriggerMuonEndcapsResolutionPlots.size(); i++) {  
+      Muon::ResoTriggerMuonPlots *EFTriggerMuonResoMuonPlots = m_oEFTriggerMuonEndcapsResolutionPlots[i];
       delete EFTriggerMuonResoMuonPlots;
       EFTriggerMuonResoMuonPlots=0;
     }
@@ -145,22 +184,41 @@ void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::Muon &Trigmu) 
 void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::Muon &Trigmu, const xAOD::Muon &Recomu) {
   for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
     if (Trigmu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] )) {
-      //std::cout<<m_selectedAuthors[i]<<"*** Reco to be matched :  pt " << Recomu.pt() <<std::endl;
-      //std::cout<<m_selectedAuthors[i]<<"******************* EF :  pt " << Trigmu.pt() <<std::endl;
       //if (Trigmu.isAuthor( (xAOD::Muon::Author)m_selectedAuthors[i] ) || m_selectedAuthors[i]==xAOD::Muon::NumberOfMuonAuthors) {
       m_oEFTriggerMuonResolutionPlots[i]->fill(Trigmu, Recomu);
+      if(fabs(Recomu.eta())<1.05) m_oEFTriggerMuonBarrelResolutionPlots[i]->fill(Trigmu, Recomu);
+      if(fabs(Recomu.eta())>1.05) m_oEFTriggerMuonEndcapsResolutionPlots[i]->fill(Trigmu, Recomu);
     }
   }
 }
+
+void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::L2StandAloneMuon &L2SAmu, const xAOD::Muon &Recomu) {
+      m_oL2TriggerMuonResolutionPlots[0]->fill(L2SAmu, Recomu);
+      if(fabs(Recomu.eta())<1.05) m_oL2TriggerMuonBarrelResolutionPlots[0]->fill(L2SAmu, Recomu);
+      if(fabs(Recomu.eta())>1.05) m_oL2TriggerMuonEndcapsResolutionPlots[0]->fill(L2SAmu, Recomu);
+}
+
+void TriggerMuonValidationPlots::fillTriggerMuonPlots(const xAOD::L2CombinedMuon &L2CBmu, const xAOD::Muon &Recomu) {
+      m_oL2TriggerMuonResolutionPlots[1]->fill(L2CBmu, Recomu);
+      if(fabs(Recomu.eta())<1.05) m_oL2TriggerMuonBarrelResolutionPlots[1]->fill(L2CBmu, Recomu);
+      if(fabs(Recomu.eta())>1.05) m_oL2TriggerMuonEndcapsResolutionPlots[1]->fill(L2CBmu, Recomu);
+}
+
 
 void TriggerMuonValidationPlots::fill(const xAOD::Muon& Trigmu) {
   fillTriggerMuonPlots(Trigmu);
 }
 
 void TriggerMuonValidationPlots::fill(const xAOD::Muon& Trigmu, const xAOD::Muon& Recomu) {
-  //std::cout<<"*** Reco to be matched :  pt " << Recomu.pt() <<std::endl;
-  //std::cout<<"******************* EF :  pt " << Trigmu.pt() <<std::endl;
   fillTriggerMuonPlots(Trigmu, Recomu);
+}
+
+void TriggerMuonValidationPlots::fill(const xAOD::L2StandAloneMuon& L2SAmu, const xAOD::Muon& Recomu) {
+  fillTriggerMuonPlots(L2SAmu, Recomu);
+}
+
+void TriggerMuonValidationPlots::fill(const xAOD::L2CombinedMuon& L2CBmu, const xAOD::Muon& Recomu) {
+  fillTriggerMuonPlots(L2CBmu, Recomu);
 }
 
 void TriggerMuonValidationPlots::fill(const xAOD::MuonRoI& TrigL1mu) {

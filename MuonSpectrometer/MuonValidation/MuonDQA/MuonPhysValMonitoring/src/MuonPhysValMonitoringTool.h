@@ -29,8 +29,9 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-//#include "MuonResonanceTools/IMuonResonanceSelectionTool.h"
-//#include "MuonResonanceTools/IMuonResonancePairingTool.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
+
+
 
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -94,13 +95,16 @@ class MuonPhysValMonitoringTool
   void handleMuonTrack(const xAOD::TrackParticle* tp, xAOD::Muon::TrackParticleType type);
   void handleMuonSegment(const xAOD::MuonSegment* muSeg);
   void handleTruthMuonSegment(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
-  void handleMuonTrigger(  std::vector<const xAOD::Muon*> m_vEFMuonsSelected, std::vector<const xAOD::Muon*> m_vRecoMuons);
+
   void handleMuonL1Trigger(const xAOD::MuonRoI* TrigL1mu);
-  void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAmu);
-  void handleMuonL2Trigger(const xAOD::L2CombinedMuon* L2CBmu);
+  void handleMuonL2Trigger(const xAOD::L2StandAloneMuon* L2SAMu);
+  void handleMuonL2Trigger(const xAOD::L2CombinedMuon* L2CBMu);
+  void handleMuonTrigger(const xAOD::Muon* mu);
+  void L2SATriggerResolution();
+  void L2CBTriggerResolution();
+  void EFTriggerResolution();
   
   void printMuonDebug(const xAOD::Muon* mu);
-  void printMuonL1TriggerDebug(const xAOD::MuonRoI* TrigL1mu);
   void printTruthMuonDebug(const xAOD::TruthParticle* truthMu, const xAOD::Muon* mu);
   
   StatusCode bookValidationPlots(PlotBase& valPlots);
@@ -120,6 +124,7 @@ class MuonPhysValMonitoringTool
 
   // Containers
   std::string m_tracksName;
+  std::string m_fwdtracksName;
   std::string m_muonsName;
   std::string m_muonsTruthName;
   std::string m_muonTracksName;
@@ -130,11 +135,11 @@ class MuonPhysValMonitoringTool
   std::string m_muonL2SAName;
   std::string m_muonL2CBName;
   std::string m_muonEFCombTrigName;
-  std::string m_trigDecisionKey;
 
 
   // Configurable properties
   std::map<std::string,int> m_counterBits;
+  std::vector<int> m_selectMuonWPs;
   std::vector<unsigned int> m_selectMuonAuthors;
   std::vector<std::vector<std::string>> m_selectHLTMuonItems;
   std::vector<std::string> m_muonItems;
@@ -142,8 +147,6 @@ class MuonPhysValMonitoringTool
   std::vector<std::string> m_L1MuonItems;
   int SelectedAuthor;
   std::vector<unsigned int> m_selectMuonCategories;  
-  bool m_doMuonSegmentValidation;
-  bool m_doMuonTrackValidation;
   bool m_doBinnedResolutionPlots;
   bool m_doTrigMuonValidation;
   bool m_doTrigMuonL1Validation;
@@ -158,8 +161,8 @@ class MuonPhysValMonitoringTool
   ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   ToolHandle<Trk::ITrackSelectorTool> m_trackSelector;
-  // ToolHandle<IMuonResonanceSelectionTool> m_muonResonanceSelectionTool;
-  // ToolHandle<IMuonResonancePairingTool>   m_muonResonancePairingTool;
+  ToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+
 
  
   enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
@@ -177,6 +180,7 @@ class MuonPhysValMonitoringTool
   std::vector<MuonTrackValidationPlots*> m_muonMETrackValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonIDTrackValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonIDSelectedTrackValidationPlots;
+  std::vector<MuonTrackValidationPlots*> m_muonIDForwardTrackValidationPlots;
   std::vector<MuonSegmentValidationPlots*> m_muonSegmentValidationPlots;
   Muon::RecoMuonPlotOrganizer*       m_oUnmatchedRecoMuonPlots;
   Muon::TruthMuonPlotOrganizer*      m_oUnmatchedTruthMuonPlots;

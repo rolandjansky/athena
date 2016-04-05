@@ -8,8 +8,8 @@
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool /*doMuonTree*/):
-  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData)
+MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool /*doMuonTree*/):
+  PlotBase(pParent, sDir),  m_selectedWPs(wps), m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData)
 
 {
   if (!m_isData) {
@@ -34,9 +34,9 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
   m_oRecoMuonPlots = new Muon::RecoMuonPlotOrganizer(this, "reco/AllMuons", &allPlotCategories);
 
   //define a histogram class for each of the selected muon qualities
-  for(unsigned int i=0; i<Muon::EnumDefs::nMuonQualities(); i++) {
-    std::string sQuality = Muon::EnumDefs::toString( (xAOD::Muon::Quality) i);
-    m_oRecoMuonPlots_perQuality.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/"+sQuality, (sQuality=="Medium" || sQuality=="Tight")? &allPlotCategories: &selectedPlotCategories));
+   for (unsigned int i=0; i<m_selectedWPs.size(); i++) {
+     std::string sQuality = Muon::EnumDefs::toString( (xAOD::Muon::Quality) m_selectedWPs[i]);
+     m_oRecoMuonPlots_perQuality.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/"+sQuality, (sQuality=="Medium" || sQuality=="Tight")? &allPlotCategories: &selectedPlotCategories));
 
     if (!m_isData) {
       bool doBinnedPlots = false;
@@ -54,9 +54,7 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
 
   //define histogram class for SiliconAssociatedForwardMuons 
   m_oRecoMuonPlots_SiAssocFwrdMu.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/SiAssocForward", &selectedPlotCategories));  
-  m_oTruthRelatedMuonPlots_SiAssocFwrdMu.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/SiAssocForward", doBinnedResolutionPlots));
-  
-
+  if (!m_isData) m_oTruthRelatedMuonPlots_SiAssocFwrdMu.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/SiAssocForward", doBinnedResolutionPlots)); 
 
 }
 
@@ -110,8 +108,8 @@ void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu)
 	
   //fill separate hists for each muon quality
   xAOD::Muon::Quality muqual = mu.quality();
-  for (unsigned int i=0; i<Muon::EnumDefs::nMuonQualities(); i++) {    
-    if ( muqual <= (xAOD::Muon::Quality)i ) {
+  for (unsigned int i=0; i<m_selectedWPs.size(); i++) {
+    if ( muqual <= (xAOD::Muon::Quality)m_selectedWPs[i] ) {
       m_oRecoMuonPlots_perQuality[i]->fill(mu);
     }
   }
@@ -167,8 +165,8 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
     
     //plots per quality
     xAOD::Muon::Quality muqual = mu->quality();
-    for (unsigned int i=0; i<Muon::EnumDefs::nMuonQualities(); i++) {    
-      if ( muqual <= (xAOD::Muon::Quality)i ) {
+    for (unsigned int i=0; i<m_selectedWPs.size(); i++) {
+      if ( muqual <= (xAOD::Muon::Quality)m_selectedWPs[i] ) {
 	m_oTruthRelatedMuonPlots_perQuality[i]->fill(*truthMu, *mu, MSTracks);
       }
     }
