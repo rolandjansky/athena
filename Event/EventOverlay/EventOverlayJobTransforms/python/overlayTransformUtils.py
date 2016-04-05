@@ -2,7 +2,7 @@
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: overlayTransformUtils.py 725631 2016-02-23 01:42:05Z ahaas $
+#  @version $Id: overlayTransformUtils.py 733403 2016-04-01 18:38:53Z ahaas $
 
 import os
 import re
@@ -27,10 +27,10 @@ class BSJobSplitterExecutor(athenaExecutor):
         msg.info('Preparing for BSJobSplitterExecutor execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         #See if we need to unpack a TAR file
-        if 'inputHITARFile' in self.conf.argdict:
-            print "Untarring inputHITARFile", self.conf.argdict['inputHITARFile'].value
+        if 'hitarFile' in self.conf.argdict:
+            print "Untarring inputHITARFile", self.conf.argdict['hitarFile'].value
             try:
-                f=tarfile.open(name=self.conf.argdict['inputHITARFile'].value[0])
+                f=tarfile.open(name=self.conf.argdict['hitarFile'].value[0])
                 f.list()
                 f.extractall()
                 f.close()
@@ -186,7 +186,10 @@ def addOverlayBSTrigFilterSubstep(executorSet):
                                           perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BS_SKIM'], outData = ['BS_TRIGSKIM']))
 def addOverlayBSFilterSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'BSFilter', skeletonFile = 'EventOverlayJobTransforms/skeleton.BSOverlayFilter_tf.py', substep='overlayBSFilt',
-                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BSCONFIG','HITAR'], outData = ['BS_SKIM','TXT_EVENTID']))
+                                          perfMonFile = 'ntuple.pmon.gz', inData = ['ZeroBiasBS','BSCONFIG'], outData = ['BS_SKIM','TXT_EVENTID']))
+def addOverlayHITARMakerSubstep(executorSet):
+    executorSet.add(BSJobSplitterExecutor(name = 'HITARMaker', skeletonFile = 'EventOverlayJobTransforms/skeleton.HITARMaker_tf.py', substep='HITARMaker',
+                                          inData = ['TXT_EVENTID'], outData = ['TAR_CONFIG']))
 
 def addOverlay_PoolSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',

@@ -28,7 +28,7 @@ def addOverlayBSFilterArgs(parser):
                         type=argFactory(argString),
                         help='Input overlay BS filter file (or trigger file)', group='Overlay Filter')
     parser.add_argument('--lumiBlockMapFile',
-                        type=argFactory(argSubstep, defaultSubstep='overlayBSTrigFilt'),
+                        type=argFactory(argString),
                         help='Lumi block information file', group='Overlay Filter')
     parser.add_argument('--outputBS_SKIMFile', '--outputBSFile',
                         type=argFactory(argBSFile, io='output', type='BS', subtype='BS_SKIM'),
@@ -39,10 +39,15 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--outputBS_TRIGSKIMFile', '--outputBSTRIGFile',
                         type=argFactory(argBSFile, io='output', type='BS', subtype='BS_TRIGSKIM'),
                         help='Output skimmed BS file', group='Overlay Filter')
-#    parser.add_argument('--eventIdFile',
-#                        type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'), help='The name of the file to write to for EventIdModifierSvc lines', group='Overlay Filter')
-    parser.add_argument('--outputTXT_EVENTIDFile', default = 'events.txt',
-                        type=argFactory(argFile, io = 'output', type='TXT', subtype='TXT_EVENTID'), help='The name of the file to write the EventIdModifierSvc config for the EVNTtoHITS step', group='Overlay Filter')
+    parser.add_argument('--HIfiltervtxdirectory',
+                        type=argFactory(argString),
+                        help='The directory containing the filter/vtx.data.txt files for the HITAR creation during HI MinBias skimming', group='Overlay Filter')
+    parser.add_argument('--outputTXT_EVENTIDFile',
+                        type=argFactory(argFile, io = 'output', type='TXT', subtype='TXT_EVENTID'), 
+                        help='file for EventIdModifierSvc config for the EVNTtoHITS step', group='Overlay Filter')
+    parser.add_argument('--outputTAR_CONFIGFile',
+                        type=argFactory(argFile, io = 'output', type='TAR', subtype='TAR_CONFIG'), 
+                        help='Out TAR file of filter/vtx.data.txt files for the skimmed events', group='overlay Filter')
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='Job number', group='Overlay Filter')
@@ -52,6 +57,9 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--maxFilesPerSubjob',
                         type=argFactory(argSubstepInt, defaultSubstep='overlayBSFilt'),
                         help='Number of bytestream input files for each athena subjob', group='Overlay Filter')
+    parser.add_argument('--WriteRDOFileMetaData',
+                        type=argFactory(argBool), default = 'false',
+                        help='Write the /Digitization/Parameters/ metadata into the RDO file', group='Overlay Filter')
    
 # jobNumber=102
 # InputDataTarFile=/afs/cern.ch/work/e/efeld/overlay/prep/mytar.tar.gz
@@ -96,7 +104,7 @@ def addOverlayInputSimArgs(parser):
     parser.add_argument('--inputTXT_EVENTIDFile', nargs='+',
                     type=argFactory(argFile, io='input', type='TXT', subtype='TXT_EVENTID'),
                     help='The name of the file to read to configure the EventIdModifierSvc', group='EventOverlayInputSim')
-    parser.add_argument('--inputHITARFile',
+    parser.add_argument('--hitarFile',
                     type=argFactory(argFile, io='input', type='TAR', subtype='TAR_CONFIG'),
                     help='Input Heavy Ion vertex and filter tarball file', group='EventOverlayInputSim')
 
