@@ -571,10 +571,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
           m_sct_rdoGroupSize->push_back((*p_rdo)->getGroupSize());
           totalNumberOfStrips=totalNumberOfStrips+((*p_rdo)->getGroupSize());
 
-          //  SCT_ClusterStruct cluster;
-          m_sct_firstStrip->push_back((*p_rdo)->getStrip());
-
           Identifier SCT_Identifier = (*p_rdo)->identify();
+
+          //  SCT_ClusterStruct cluster;
+          m_sct_firstStrip->push_back(m_sctid->strip(SCT_Identifier));
+
           //Identifier wafer_id =  m_sctid->wafer_id(SCT_Identifier); 
  
           m_sct_layer->push_back(thisLayerDisk);
