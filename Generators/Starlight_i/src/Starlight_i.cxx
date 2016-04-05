@@ -9,6 +9,7 @@
 //
 // AuthorList:
 //   Andrzej Olszewski:  Initial Code January 2011
+//   Andrzej Olszewski:  Update for Starlight "r193" March 2016
 //
 // Random seed set via jo 
 // Random numbers not saved by atlas engine mechanism event by event.
@@ -55,7 +56,8 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
 	     m_beam1A(0),
 	     m_beam2Z(0),
 	     m_beam2A(0),
-	     m_beamLorentzGamma(0.),
+	     m_beam1Gamma(0.),
+	     m_beam2Gamma(0.),
 	     m_maxW(0.),
 	     m_minW(0.),
 	     m_nmbWBins(0),
@@ -71,16 +73,17 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
 	     m_nmbEventsTot(0),
 	     m_prodParticleId(0),
 	     m_randomSeed(0),
-	     m_outputFormat(0),
 	     m_beamBreakupMode(0),
 	     m_interferenceEnabled(false),
 	     m_interferenceStrength(0.),
 	     m_coherentProduction(false),
 	     m_incoherentFactor(0.),
-	     m_bford(0.),
 	     m_maxPtInterference(0.),
 	     m_nmbPtBinsInterference(0),
 	     m_ptBinWidthInterference(0),
+	     m_xsecMethod(0),
+	     m_nThreads(1),
+	     m_pythFullRec(0),
 	     m_storeGate(0)
 {
   declareProperty("Initialize",	m_InitializeVector);
@@ -136,9 +139,7 @@ StatusCode Starlight_i::genInitialize()
 
     // create the starlight object
     m_starlight = new starlight();
-    // give starlight the input parameters
-    m_starlight->setInputParameters(m_inputParameters);
-    // initialize starlight
+    // and initialize
     m_starlight->init();
 
     return StatusCode::SUCCESS;
@@ -256,28 +257,28 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 
 bool Starlight_i::set_user_params()
 {
-    // Set starlight user initialization parameters
+  // Set starlight user initialization parameters
+  MsgStream log(messageService(), name());
 
-    // write python starlight config parameters to tmp file
-    // if external config file not specified
-    if (m_configFileName.empty()) {
-      m_configFileName = "tmp.slight.in";
-      if (!prepare_params_file()) {
-	printWarn << 
-	  "problems initializing input parameters. cannot initialize starlight.";
-	return false;
-      }
-    }
-
-    // read input parameters from config file
-    m_inputParameters = new inputParameters();
-    if (!m_inputParameters->init(m_configFileName)) {
+  // write python starlight config parameters to tmp file
+  // if external config file not specified
+  if (m_configFileName.empty()) {
+    m_configFileName = "tmp.slight.in";
+    if (!prepare_params_file()) {
       printWarn << 
 	"problems initializing input parameters. cannot initialize starlight.";
       return false;
     }
-
-    return true;
+  }
+  
+  inputParametersInstance.configureFromFile(m_configFileName);
+  if (!inputParametersInstance.init()) {
+    log << MSG::WARNING
+	<< "problems initializing input parameters. cannot initialize starlight. " << endreq;
+    return false;
+  }
+  
+  return true;
 }
 
 bool Starlight_i::prepare_params_file()
@@ -308,9 +309,13 @@ bool Starlight_i::prepare_params_file()
 	{
 	  m_beam2A  = mystring.numpiece(2);
 	}
-	else if (myparam == "beamLorentzGamma")
+	else if (myparam == "beam1Gamma")
 	{
-	  m_beamLorentzGamma  = mystring.numpiece(2);
+	  m_beam1Gamma  = mystring.numpiece(2);
+	}
+	else if (myparam == "beam2Gamma")
+	{
+	  m_beam2Gamma  = mystring.numpiece(2);
 	}
 	else if (myparam == "maxW")
 	{
@@ -390,15 +395,11 @@ bool Starlight_i::prepare_params_file()
 	}
 	else if (myparam == "coherentProduction")
 	{
-	  m_coherentProduction  = mystring.numpiece(2);
+	  m_coherentProduction = mystring.numpiece(2);
 	}
 	else if (myparam == "incoherentFactor")
 	{
 	  m_incoherentFactor  = mystring.numpiece(2);
-	}
-	else if (myparam == "bford")
-	{
-	  m_bford  = mystring.numpiece(2);
 	}
 	else if (myparam == "maxPtInterference")
 	{
@@ -407,6 +408,18 @@ bool Starlight_i::prepare_params_file()
 	else if (myparam == "nmbPtBinsInterference")
 	{
 	  m_nmbPtBinsInterference  = mystring.numpiece(2);
+	}
+	else if (myparam == "xsecMethod")
+	{
+	  m_xsecMethod = mystring.numpiece(2);
+	}
+	else if (myparam == "nThreads")
+	{
+	  m_nThreads = mystring.numpiece(2);
+	}
+	else if (myparam == "pythFullRec")
+	{
+	  m_pythFullRec = mystring.numpiece(2);
 	}
 	else
 	{
@@ -424,7 +437,8 @@ bool Starlight_i::prepare_params_file()
     configFile << "BEAM_1_A = " << m_beam1A << std::endl;
     configFile << "BEAM_2_Z = " << m_beam2Z << std::endl; 
     configFile << "BEAM_2_A = " << m_beam2A << std::endl;
-    configFile << "BEAM_GAMMA = " << m_beamLorentzGamma << std::endl;
+    configFile << "BEAM_1_GAMMA = " << m_beam1Gamma << std::endl;
+    configFile << "BEAM_2_GAMMA = " << m_beam2Gamma << std::endl;
     configFile << "W_MAX = " << m_maxW << std::endl; 
     configFile << "W_MIN = " << m_minW << std::endl;
     configFile << "W_N_BINS = " << m_nmbWBins << std::endl;
@@ -440,15 +454,16 @@ bool Starlight_i::prepare_params_file()
     configFile << "N_EVENTS = " << m_nmbEventsTot << std::endl;
     configFile << "PROD_PID = " << m_prodParticleId << std::endl;
     configFile << "RND_SEED = " << m_randomSeed << std::endl;
-    configFile << "OUTPUT_FORMAT = " << m_outputFormat << std::endl;
     configFile << "BREAKUP_MODE = " << m_beamBreakupMode << std::endl;
     configFile << "INTERFERENCE = " << m_interferenceEnabled << std::endl;
     configFile << "IF_STRENGTH = " << m_interferenceStrength << std::endl;
-    configFile << "COHERENT = " << m_coherentProduction << std::endl;
-    configFile << "INCO_FACTOR = " << m_incoherentFactor << std::endl;
-    configFile << "BFORD = " << m_bford << std::endl;
     configFile << "INT_PT_MAX = " << m_maxPtInterference << std::endl;
     configFile << "INT_PT_N_BINS = " << m_nmbPtBinsInterference << std::endl;
+    configFile << "COHERENT = " << m_coherentProduction << std::endl;
+    configFile << "INCO_FACTOR = " << m_incoherentFactor << std::endl;
+    configFile << "XSEC_METHOD = " << m_xsecMethod << std::endl;
+    configFile << "N_THREADS = " << m_nThreads << std::endl;
+    configFile << "PYTHIA_FULL_EVENTRECORD = " << m_pythFullRec << std::endl;
 
     configFile.close();
     return true;
