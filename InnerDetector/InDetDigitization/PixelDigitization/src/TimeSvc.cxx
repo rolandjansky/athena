@@ -113,7 +113,7 @@ int TimeSvc::relativeBunch(const double threshold,
       double myTimeWalk    = -p0 -p1 * log(1. - threshold/totalCharge.charge());
 
       myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-     } 
+    } 
    
     double randomjitter  = CLHEP::RandFlat::shoot(m_rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
      

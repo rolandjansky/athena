@@ -41,7 +41,7 @@ class SurfaceChargesTool : public AthAlgTool {
 
 public:
   //Defines the Technology variable type, used for labeling the different tools.  
-  enum Technology {IBL3D,IBLPLANAR,PIXELEC,PIXELBARREL,DBM};
+  enum Technology {IBL3D,IBLPLANAR,PIXELEC,PIXELBARREL,DBM,RD53};
  
   // Constructor:
   SurfaceChargesTool( const std::string& type, const std::string& name,const IInterface* parent);
@@ -78,6 +78,10 @@ private:
   //eliminated and have getTechnology() become getTechnology(Module);
   InDetDD::SiDetectorElement * m_module;   
   bool m_IBLabsent;
+
+  //Phase-II upgrade ITk flag.
+  bool m_doITk; 
+
   /** Tool handles for the technology-specific tools for generating 
     * surface charges. 
     */ 
@@ -90,7 +94,7 @@ private:
   
   /** map connecting Technology to the relevant tool */
   std::map<Technology,SubChargesTool*> TechChargeTools; 
- 
+
  };
 
 
