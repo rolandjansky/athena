@@ -5,9 +5,11 @@ use AtlasPolicy AtlasPolicy-*
 use AtlasExternalArea AtlasExternalArea-* External
 use LCG_Configuration
 
+macro myLCG_config_version "67c"
 # Adapting stantard macros for export
-macro Starlight_home 	    "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/starlight"
-macro starlight_native_version "r43"
+#macro Starlight_home 	    "$(LCG_external)/MCGenerators/starlight"
+macro Starlight_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/starlight"
+macro starlight_native_version "r193"
 macro Starlight_native_version "$(starlight_native_version)_lcgcmt$(LCG_config_version)"
 
 macro Starlight_dir "$(Starlight_home)/$(starlight_native_version)/$(LCG_ext_system)" 
