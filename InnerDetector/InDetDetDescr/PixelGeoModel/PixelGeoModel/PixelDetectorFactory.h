@@ -9,6 +9,7 @@
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 // readout includes:
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 class PixelSwitches;
 class PixelGeometryManager;
@@ -30,6 +31,9 @@ class PixelDetectorFactory : public InDetDD::DetectorFactoryBase {
   
   // Access to the results:
   virtual const InDetDD::PixelDetectorManager * getDetectorManager() const;
+
+  // Determine which alignment folders are loaded to decide if we register old or new folders
+  virtual InDetDD::AlignFolderType getAlignFolderType() const;
 
  private:  
   

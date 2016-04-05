@@ -48,6 +48,7 @@ private:
   ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc; 
   bool m_dc1Geometry;
   bool m_alignable;
+  bool m_tweakIBLDist; // whether to tweak L3 transforms with IBLDist
   bool m_initialLayout;
   bool m_devVersion;
   bool m_buildDBM;
