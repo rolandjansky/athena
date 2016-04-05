@@ -220,7 +220,7 @@ namespace D3PD {
       m_doL1    = true;
       m_doROS   = false;
       m_doROSSum= false;
-      m_doRoI   = false;
+      m_doRoI   = true;
       m_doSeq   = false;
       m_doTE    = false;
       m_doDBKey = true;
