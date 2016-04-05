@@ -71,6 +71,9 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   declareProperty("CorrDBFolder",m_corrDBFolder="");
   declareProperty("usePixelDefaults",m_pixelDefaults);
   declareProperty("useSctDefaults",m_sctDefaults);
+
+  declareProperty("ITkLayout", m_itkLayout=false);
+
 }
 
 SiLorentzAngleSvc::~SiLorentzAngleSvc(){
@@ -420,7 +423,7 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
   bool is3D = false;
   int forceLorentzToZero = 1;
 
-  if(m_isPixel){
+  if(m_isPixel && !m_itkLayout){
     const PixelID * idHelper;
     if (m_detStore->retrieve(idHelper, "PixelID").isFailure()) {
       ATH_MSG_FATAL("Could not get Pixel ID helper" );

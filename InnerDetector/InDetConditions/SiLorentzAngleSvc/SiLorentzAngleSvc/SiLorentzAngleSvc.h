@@ -134,7 +134,7 @@ private:
   std::string              m_corrDBFolder;
   bool                     m_pixelDefaults;
   bool                     m_sctDefaults;
-
+  bool                     m_itkLayout;
 
   // needed services
   ServiceHandle<ISiliconConditionsSvc>   m_siConditionsSvc;
