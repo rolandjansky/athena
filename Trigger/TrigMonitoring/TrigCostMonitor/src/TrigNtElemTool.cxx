@@ -143,6 +143,10 @@ bool Trig::TrigNtElemTool::Fill(TrigMonEvent &event)
     ATH_MSG_WARNING("Failed to get HLT::Navigation pointer" );
     return false;
   } 
+
+  //TimM - change strategy, collect all 
+  ATH_MSG_DEBUG("Collecting RoI Data" );
+  FillAllRoI( m_navig->getInitialNode() );
   
   //
   // Make TrigMonTE for initial TriggerElement
@@ -166,10 +170,10 @@ bool Trig::TrigNtElemTool::Fill(TrigMonEvent &event)
     }
   }
 
+  ATH_MSG_DEBUG("Exporting RoIs, Size: " << m_Roi.size());
   for(RoiMap::iterator rit = m_Roi.begin(); rit != m_Roi.end(); ++rit) {
     RoiData &data = rit->second;
-    
-    if(data.roiValid && !data.roiMon.getWord().empty() && data.roiMon.getWord().front()) {
+    if(data.roiValid && data.roiMon.getRoiType() != TrigMonRoi::kNone) {
       event.add<TrigMonRoi>(data.roiMon);
     }
   }
@@ -263,7 +267,7 @@ TrigMonTE& Trig::TrigNtElemTool::MakeElem(const HLT::TriggerElement *hlt_te)
     //
     // Extract ROI data
     //
-    ReadRoiId(elem, hlt_te);
+    //ReadRoiId(elem, hlt_te); // TimM removed - RoI are collected differently now
     elem.setType(TrigMonTE::kROI);
   } else {
     //
@@ -290,12 +294,14 @@ TrigMonTE& Trig::TrigNtElemTool::MakeElem(const HLT::TriggerElement *hlt_te)
     //
     // Add RoiIds because we will erase links between trigger elements
     //
-    if(m_filterTE) {
-      const std::vector<HLT::TriggerElement *> &roi_vec = HLT::Navigation::getRoINodes(hlt_te);
-      for(unsigned int iroi = 0; iroi < roi_vec.size(); ++iroi) {
-        ReadRoiId(elem, roi_vec[iroi]);
-      }
-    }
+    // TimM - removed this for now while RoI strategy is updated
+    //
+    // if(m_filterTE) {
+    //   const std::vector<HLT::TriggerElement *> &roi_vec = HLT::Navigation::getRoINodes(hlt_te);
+    //   for(unsigned int iroi = 0; iroi < roi_vec.size(); ++iroi) {
+    //     ReadRoiId(elem, roi_vec[iroi]);
+    //   }
+    // }
   }
   
   //
@@ -416,151 +422,253 @@ bool Trig::TrigNtElemTool::PassFilter(TrigMonTE &elem) const
 }
 
 //---------------------------------------------------------------------------------------
-void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement *hlt_te)
+void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE UNUSED(&elem), const HLT::TriggerElement UNUSED(*hlt_te))
 {
-  //
-  // Extract all roi data from ROI node
-  //
-  if(!m_navig || !hlt_te) {
-    return;
-  }
-  
-  RoiMap::iterator rit = m_Roi.find(hlt_te);
-  if(rit == m_Roi.end()) {
-    //
-    // Attempt to read al possible roi sources
-    //
-    RoiData data;
 
-    m_navig -> getFeature<TrigRoiDescriptor>(hlt_te, data.roiHlt);
+//   //
+//   // Extract all roi data from ROI node
+//   //
+//   if(!m_navig || !hlt_te) {
+//     return;
+//   }
+
+  
+//   RoiMap::iterator rit = m_Roi.find(hlt_te);
+//   if(rit == m_Roi.end()) {
+//     //
+//     // Attempt to read al possible roi sources
+//     //
+//     RoiData data;
+
+//     m_navig -> getFeature<TrigRoiDescriptor>(hlt_te, data.roiHlt);
     
-    if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 || 
-      m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::HLT) {
-      //
-      // Get specialized roi
-      //
-      m_navig -> getFeature<LVL1::RecEmTauRoI> (hlt_te, data.roiEm);
-      m_navig -> getFeature<LVL1::RecJetRoI>   (hlt_te, data.roiJet);
-      m_navig -> getFeature<LVL1::RecMuonRoI>  (hlt_te, data.roiMuon);
-      m_navig -> getFeature<LVL1::RecEnergyRoI>(hlt_te, data.roiEnergy);
-      m_navig -> getFeature<LVL1::RecJetEtRoI> (hlt_te, data.roiJetEt);
+//     if(m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 || 
+//       m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::HLT) {
+//       //
+//       // Get specialized roi
+//       //
+//       m_navig -> getFeature<LVL1::RecEmTauRoI> (hlt_te, data.roiEm);
+//       m_navig -> getFeature<LVL1::RecJetRoI>   (hlt_te, data.roiJet);
+//       m_navig -> getFeature<LVL1::RecMuonRoI>  (hlt_te, data.roiMuon);
+//       m_navig -> getFeature<LVL1::RecEnergyRoI>(hlt_te, data.roiEnergy);
+//       m_navig -> getFeature<LVL1::RecJetEtRoI> (hlt_te, data.roiJetEt);
+//     }
+    
+//     //
+//     // Create RoI descriptor
+//     //
+//     if(data.roiHlt) {
+//       data.roiMon = TrigMonRoi(data.roiHlt->roiWord());
+//       data.roiValid = true;
+
+//       if(m_collectRoIData) {
+//         data.roiMon.addWord(0);
+//         data.roiMon.setRoiId(data.roiHlt->roiId());
+//         data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
+//         data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
+
+//         float _etaWidth = std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
+//         float _phiWidth = std::fabs( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ); // Wrap phi not needed here it seems
+//         data.roiMon.setRoIArea( _etaWidth, _phiWidth );
+  
+//         if(data.roiEm) {
+//           data.roiMon.setType(TrigMonRoi::kEmTau);
+//           data.roiMon.addVar( TrigMonVar(kRoIET, data.roiEm->et()) );
+//           data.roiMon.addVar( TrigMonVar(kRoIIsTau, (data.roiEm->roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType ? 1. : 0.)) ); // If false then is electron RoI
+//           data.roiMon.addVar( TrigMonVar(kRoIIsolationBits, (float) data.roiEm->isolation()) );
+//           // Check this bit pattern can be saved in a float
+//           if ( data.roiEm->isolation() != (unsigned int) data.roiMon.getVarVal().back()) {
+//             std::bitset<32> _a( data.roiEm->isolation() );
+//             std::bitset<32> _b( (unsigned int) data.roiMon.getVarVal().back() );
+//             ATH_MSG_WARNING("Encoding of EMTAU RoI isolation bits in a float failed, " << _a << " != " << _b );
+//           }
+// ATH_MSG_INFO("TC --- > ROI EMTAU E:" << data.roiEm->et() << " eta:" << data.roiHlt->etaPlus());
+//         }  
+//         if(data.roiJet) {
+//           data.roiMon.setType(TrigMonRoi::kJet);
+//           data.roiMon.addVar( TrigMonVar(kRoIET, data.roiJet->etSmall()) );
+//           data.roiMon.addVar( TrigMonVar(kRoIETLarge, data.roiJet->etLarge()) );
+// ATH_MSG_INFO("TC --- > ROI JET E:" << data.roiJet->etLarge() << " eta:" << data.roiHlt->etaPlus());
+//         }
+//         if(data.roiMuon) {
+//           data.roiMon.setType(TrigMonRoi::kMuon);
+//           data.roiMon.addVar( TrigMonVar(kRoIET, data.roiMuon->getThresholdValue()) );
+//           data.roiMon.addVar( TrigMonVar(kRoIMuonCharge, (float) data.roiMuon->candidateCharge()) );
+// ATH_MSG_INFO("TC --- > ROI MUON E:" << data.roiMuon->getThresholdValue() << " eta:" << data.roiHlt->etaPlus());
+//         }
+//       }
+//     } else if(data.roiEnergy) {
+//       // Use 0 word (see Lvl1Converter.cxx)
+//       data.roiMon = TrigMonRoi(data.roiEnergy->roiWord0());
+//       data.roiValid = true;
+
+//       if(m_collectRoIData) {
+//         data.roiMon.addWord(data.roiEnergy->roiWord1());
+//         data.roiMon.addWord(data.roiEnergy->roiWord2());
+//         data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
+//         data.roiMon.setType(TrigMonRoi::kEnergy);
+//         data.roiMon.setRoiId(Trig::getRoiId_Energy());
+//         data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorX,   data.roiEnergy->energyX()) );
+//         data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorY,   data.roiEnergy->energyY()) );
+//         data.roiMon.addVar( TrigMonVar(kRoIET,              data.roiEnergy->energyT()) );
+//         data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowX, (float) data.roiEnergy->overflowX()) );
+//         data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowY, (float) data.roiEnergy->overflowX()) );
+//         data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowT, (float) data.roiEnergy->overflowT()) );
+//         ATH_MSG_INFO("TC --- > ROI ET E:" << data.roiEnergy->energyT());
+
+//       }
+//     } else if(data.roiJetEt) {
+//       data.roiMon = TrigMonRoi(data.roiJetEt->roiWord());
+//       data.roiValid = true;
+
+//       if(m_collectRoIData) {
+//         data.roiMon.addWord(0);
+//         data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
+//         data.roiMon.setType(TrigMonRoi::kJetEt);
+//         data.roiMon.setRoiId(Trig::getRoiId_JetEt());
+//         ATH_MSG_INFO("TC --- > ROI ET-JET ");
+
+//       }
+//     } else {
+//       if(m_printDebug) {
+//         ATH_MSG_INFO("RoI TE without RoI descriptor: " << hlt_te->getId() );
+//         std::string str;
+//         m_navig->printASCIIArt(str, hlt_te);
+//         std::cout << str << std::endl;
+
+//         const std::vector<HLT::TriggerElement*> &stes = m_navig->getDirectSuccessors(hlt_te);
+//         for(unsigned int i = 0; i < stes.size(); ++i) {
+//           HLT::TriggerElement *te = stes[i];
+//           if(!te) continue;
+    
+//           std::string seqname = "unknown";
+//           if (m_Config) {
+//             std::vector<TrigConfSeq>::const_iterator sit = m_Config->findSeq(te->getId());
+//             if(sit != m_Config->end<TrigConfSeq>()) {
+//               seqname = sit->getName();
+//             }
+//           }
+    
+//           ATH_MSG_INFO("Successor TE: " << seqname << "/" << te->getId() );
+//         }
+//       }
+//     }
+
+//     // Save this roi
+//     rit = m_Roi.insert(RoiMap::value_type(hlt_te, data)).first;
+//   }
+    
+//   if(outputLevel() <= MSG::DEBUG) {
+    
+//     const TrigMonRoi &roi = rit->second.roiMon;
+//     float eta = -1999.0, phi = -1999.0;    
+    
+//     if(roi.getVarKey().size() > 1 && roi.getVarVal().size() > 1) {
+//       if(roi.getVarKey()[0] == kRoIEta) eta = roi.getVarVal()[0];
+//       if(roi.getVarKey()[1] == kRoIPhi) phi = roi.getVarVal()[1];
+//     }
+
+//     unsigned rword = 0;
+//     if(!roi.getWord().empty()) rword = roi.getWord().front();
+
+//     ATH_MSG_DEBUG("Filling TrigMonRoi: id, eta, phi, word: " << int(roi.getRoiId()) << ", " << eta << ", " << phi << ", " << rword );
+//   }
+
+//   //
+//   // Set RoiId
+//   //
+//   elem.addRoiId(rit->second.roiMon.getRoiId());
+}
+
+void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* _initialNode) {
+
+  const std::vector<HLT::TriggerElement*> _firstLevel = m_navig->getDirectSuccessors( _initialNode );
+  for (unsigned _te = 0; _te < _firstLevel.size(); ++_te) {
+
+    const HLT::TriggerElement* hlt_te = _firstLevel.at(_te);
+    if (m_navig -> isRoINode(hlt_te) == false) {
+      continue;
     }
-    
-    //
-    // Create RoI descriptor
-    //
+
+    RoiData data;
+    m_navig -> getFeature<TrigRoiDescriptor>(hlt_te, data.roiHlt);
+    m_navig -> getFeature<LVL1::RecEmTauRoI> (hlt_te, data.roiEm);
+    m_navig -> getFeature<LVL1::RecJetRoI>   (hlt_te, data.roiJet);
+    m_navig -> getFeature<LVL1::RecMuonRoI>  (hlt_te, data.roiMuon);
+    m_navig -> getFeature<LVL1::RecEnergyRoI>(hlt_te, data.roiEnergy);
+    m_navig -> getFeature<LVL1::RecJetEtRoI> (hlt_te, data.roiJetEt);
+
     if(data.roiHlt) {
       data.roiMon = TrigMonRoi(data.roiHlt->roiWord());
       data.roiValid = true;
+      data.roiMon.addWord(0);
+      data.roiMon.setRoiId(data.roiHlt->roiId());
+      data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
+      data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
+      float _etaWidth = std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
+      float _phiWidth = std::fabs( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ); // Wrap phi not needed here it seems
+      data.roiMon.setRoIArea( _etaWidth, _phiWidth );
 
-      if(m_collectRoIData) {
-        data.roiMon.addWord(0);
-        data.roiMon.setRoiId(data.roiHlt->roiId());
-        data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
-        data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
+      ATH_MSG_DEBUG("--- > New HLT RoI eta:" << data.roiHlt->etaPlus() << " id:" << data.roiHlt->roiId());
 
-        float _etaWidth = std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
-        float _phiWidth = std::fabs( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ); // Wrap phi not needed here it seems
-        data.roiMon.setRoIArea( _etaWidth, _phiWidth );
-  
-        if(data.roiEm) {
-          data.roiMon.setType(TrigMonRoi::kEmTau);
-          data.roiMon.addVar( TrigMonVar(kRoIET, data.roiEm->et()) );
-          data.roiMon.addVar( TrigMonVar(kRoIIsTau, (data.roiEm->roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType ? 1. : 0.)) ); // If false then is electron RoI
-          data.roiMon.addVar( TrigMonVar(kRoIIsolationBits, (float) data.roiEm->isolation()) );
-          // Check this bit pattern can be saved in a float
-          if ( data.roiEm->isolation() != (unsigned int) data.roiMon.getVarVal().back()) {
-            std::bitset<32> _a( data.roiEm->isolation() );
-            std::bitset<32> _b( (unsigned int) data.roiMon.getVarVal().back() );
-            ATH_MSG_WARNING("Encoding of EMTAU RoI isolation bits in a float failed, " << _a << " != " << _b );
-          }
-        }  
-        if(data.roiJet) {
-          data.roiMon.setType(TrigMonRoi::kJet);
-          data.roiMon.addVar( TrigMonVar(kRoIET, data.roiJet->etSmall()) );
-          data.roiMon.addVar( TrigMonVar(kRoIETLarge, data.roiJet->etLarge()) );
+      if(data.roiEm) {
+        data.roiMon.setType(TrigMonRoi::kEmTau);
+        data.roiMon.addVar( TrigMonVar(kRoIET, data.roiEm->et()) );
+        data.roiMon.addVar( TrigMonVar(kRoIIsTau, (data.roiEm->roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType ? 1. : 0.)) ); // If false then is electron RoI
+        data.roiMon.addVar( TrigMonVar(kRoIIsolationBits, (float) data.roiEm->isolation()) );
+        // Check this bit pattern can be saved in a float
+        if ( data.roiEm->isolation() != (unsigned int) data.roiMon.getVarVal().back()) {
+          std::bitset<32> _a( data.roiEm->isolation() );
+          std::bitset<32> _b( (unsigned int) data.roiMon.getVarVal().back() );
+          ATH_MSG_WARNING("Encoding of EMTAU RoI isolation bits in a float failed, " << _a << " != " << _b );
         }
-        if(data.roiMuon) {
-          data.roiMon.setType(TrigMonRoi::kMuon);
-          data.roiMon.addVar( TrigMonVar(kRoIET, data.roiMuon->getThresholdValue()) );
-          data.roiMon.addVar( TrigMonVar(kRoIMuonCharge, (float) data.roiMuon->candidateCharge()) );
-        }
+        ATH_MSG_DEBUG("----- > RoI is EMTAU ET:" << data.roiEm->et() << " isTau:" << (int)(data.roiEm->roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType) << " eta:" << data.roiHlt->etaPlus() << " id:" << data.roiHlt->roiId());
+      } else if(data.roiJet) {
+        data.roiMon.setType(TrigMonRoi::kJet);
+        data.roiMon.addVar( TrigMonVar(kRoIET, data.roiJet->etSmall()) );
+        data.roiMon.addVar( TrigMonVar(kRoIETLarge, data.roiJet->etLarge()) );
+        ATH_MSG_DEBUG("----- > RoI is JET ETLarge:" << data.roiJet->etLarge() << " eta:" << data.roiHlt->etaPlus() << " id:" << data.roiHlt->roiId());
+      } else if(data.roiMuon) {
+        data.roiMon.setType(TrigMonRoi::kMuon);
+        data.roiMon.addVar( TrigMonVar(kRoIET, data.roiMuon->getThresholdValue()) );
+        data.roiMon.addVar( TrigMonVar(kRoIMuonCharge, (float) data.roiMuon->candidateCharge()) );
+        ATH_MSG_DEBUG("----- > RoI is MUON ET:" << data.roiMuon->getThresholdValue() << " eta:" << data.roiHlt->etaPlus() << " id:" << data.roiHlt->roiId());
+      } else {
+        data.roiValid = false;
+        ATH_MSG_DEBUG("Got an UNKNOWN HLT RoI, not from a L1 source");
       }
     } else if(data.roiEnergy) {
       // Use 0 word (see Lvl1Converter.cxx)
       data.roiMon = TrigMonRoi(data.roiEnergy->roiWord0());
       data.roiValid = true;
-
-      if(m_collectRoIData) {
-        data.roiMon.addWord(data.roiEnergy->roiWord1());
-        data.roiMon.addWord(data.roiEnergy->roiWord2());
-        data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
-        data.roiMon.setType(TrigMonRoi::kEnergy);
-        data.roiMon.setRoiId(Trig::getRoiId_Energy());
-        data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorX,   data.roiEnergy->energyX()) );
-        data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorY,   data.roiEnergy->energyY()) );
-        data.roiMon.addVar( TrigMonVar(kRoIET,              data.roiEnergy->energyT()) );
-        data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowX, (float) data.roiEnergy->overflowX()) );
-        data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowY, (float) data.roiEnergy->overflowX()) );
-        data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowT, (float) data.roiEnergy->overflowT()) );
-      }
+      data.roiMon.addWord(0);
+      data.roiMon.setType(TrigMonRoi::kEnergy);
+      // data.roiMon.addWord(data.roiEnergy->roiWord1());
+      // data.roiMon.addWord(data.roiEnergy->roiWord2());
+      data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
+      data.roiMon.setRoiId(Trig::getRoiId_Energy());
+      data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorX,   data.roiEnergy->energyX()) );
+      data.roiMon.addVar( TrigMonVar(kRoIEnergyVectorY,   data.roiEnergy->energyY()) );
+      data.roiMon.addVar( TrigMonVar(kRoIET,              data.roiEnergy->energyT()) );
+      data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowX, (float) data.roiEnergy->overflowX()) );
+      data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowY, (float) data.roiEnergy->overflowX()) );
+      data.roiMon.addVar( TrigMonVar(kRoIEnergyOverflowT, (float) data.roiEnergy->overflowT()) );
+      ATH_MSG_DEBUG("--- > New Total Energy RoI ET:" << data.roiEnergy->energyT());
     } else if(data.roiJetEt) {
       data.roiMon = TrigMonRoi(data.roiJetEt->roiWord());
       data.roiValid = true;
-
-      if(m_collectRoIData) {
-        data.roiMon.addWord(0);
-        data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
-        data.roiMon.setType(TrigMonRoi::kJetEt);
-        data.roiMon.setRoiId(Trig::getRoiId_JetEt());
-      }
+      data.roiMon.addWord(0);
+      data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
+      data.roiMon.setType(TrigMonRoi::kJetEt);
+      data.roiMon.setRoiId(Trig::getRoiId_JetEt());
+      ATH_MSG_WARNING("--- > New JetET RoI. These should not be used any more, how did we find one?");
     } else {
-      if(m_printDebug) {
-        ATH_MSG_INFO("RoI TE without RoI descriptor: " << hlt_te->getId() );
-        std::string str;
-        m_navig->printASCIIArt(str, hlt_te);
-        std::cout << str << std::endl;
-
-        const std::vector<HLT::TriggerElement*> &stes = m_navig->getDirectSuccessors(hlt_te);
-        for(unsigned int i = 0; i < stes.size(); ++i) {
-          HLT::TriggerElement *te = stes[i];
-          if(!te) continue;
-    
-          std::string seqname = "unknown";
-          if (m_Config) {
-            std::vector<TrigConfSeq>::const_iterator sit = m_Config->findSeq(te->getId());
-            if(sit != m_Config->end<TrigConfSeq>()) {
-              seqname = sit->getName();
-            }
-          }
-    
-          ATH_MSG_INFO("Successor TE: " << seqname << "/" << te->getId() );
-        }
-      }
+      ATH_MSG_DEBUG("RoI TE without RoI descriptor id:" << hlt_te->getId() );
     }
 
-    // Save this roi
-    rit = m_Roi.insert(RoiMap::value_type(hlt_te, data)).first;
-  }
-    
-  if(outputLevel() <= MSG::DEBUG) {
-    
-    const TrigMonRoi &roi = rit->second.roiMon;
-    float eta = -1999.0, phi = -1999.0;    
-    
-    if(roi.getVarKey().size() > 1 && roi.getVarVal().size() > 1) {
-      if(roi.getVarKey()[0] == kRoIEta) eta = roi.getVarVal()[0];
-      if(roi.getVarKey()[1] == kRoIPhi) phi = roi.getVarVal()[1];
+    if (data.roiValid == true) {
+      m_Roi.insert(RoiMap::value_type(hlt_te, data)).first;
     }
-
-    unsigned rword = 0;
-    if(!roi.getWord().empty()) rword = roi.getWord().front();
-
-    ATH_MSG_DEBUG("Filling TrigMonRoi: id, eta, phi, word: " << int(roi.getRoiId()) << ", " << eta << ", " << phi << ", " << rword );
   }
 
-  //
-  // Set RoiId
-  //
-  elem.addRoiId(rit->second.roiMon.getRoiId());
 }
