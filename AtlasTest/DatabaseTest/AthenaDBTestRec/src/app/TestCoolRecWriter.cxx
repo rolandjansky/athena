@@ -14,12 +14,12 @@
 #include <sstream>
 
 //POOL includes for POOL object write
+#include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IPersistencySvcFactory.h"
 #include "PersistencySvc/IPersistencySvc.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
-#include "PersistencySvc/Placement.h"
 #include "PersistencySvc/ITransaction.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbReflex.h"
@@ -199,7 +199,7 @@ int TestCoolRecWriter::fillDB() {
     m_nrun=1;
     std::cout << "Writing single IOV for all runs" << std::endl;
   }
-  pool::Placement* placement=0;
+  Placement* placement=0;
 
   for (int irun=m_run0; irun<m_run0+m_nrun; ++irun) {
     std::cout << "Fill database for run " << irun << 
@@ -243,14 +243,14 @@ int TestCoolRecWriter::fillDB() {
 	if (placement==0 || (m_poolmode & 1)) {
   	  std::cout << "Setup POOL for folder " << folderi->name() << 
 	    std::endl;
-    	  placement=new pool::Placement;
+    	  placement=new Placement;
   	  std::ostringstream sfile;
 	  sfile << m_poolstem;
           if (m_poolmode & 1) sfile << fseq;
 	  if (m_poolmode & 2) sfile << "_run" << irun;
           sfile << ".root";
 	  std::cout << "Setup new POOL file: " << sfile.str() << std::endl;
- 	  placement->setDatabase(sfile.str(),pool::DatabaseSpecification::PFN);
+ 	  placement->setFileName(sfile.str());
 	  placement->setTechnology(pool::ROOTTREE_StorageType.type());
 	  placement->setContainerName("POOLContainer_TestCoolRecPoolData");
 	}
@@ -375,7 +375,7 @@ int TestCoolRecWriter::fillDB() {
       const FolderInfo* folderi=*ifold;
       if (m_usepool && folderi->poolplace()!=0 && (m_poolmode &2)) {
 	if ((m_poolmode & 1) || first) {
-	  pool::Placement* placement=folderi->poolplace();
+	  Placement* placement=folderi->poolplace();
 	  delete placement;
 	  folderi->setpoolplace(0);
 	} else {
