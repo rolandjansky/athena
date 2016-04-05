@@ -82,11 +82,13 @@ def fit(h, emin,emax):
     
     hdata = RooDataHist('hdata','hist', RooArgList(x), h);
     model.fitTo(hdata,RooFit.PrintLevel(-1),RooFit.Verbose(kFALSE));
-    frame = x.frame();
 
+    frame = x.frame();
+    model.paramOn(frame) ;
     hdata.plotOn(frame)
     model.plotOn(frame,RooFit.LineColor(ROOT.kRed))
     model.plotOn(frame,RooFit.Components('tailmodel'),RooFit.DrawOption('F'),RooFit.FillColor(ROOT.kOrange),RooFit.MoveToBack())
+    print "h="+h.GetTitle()+"   mean=",mean.getVal(),"+/-",mean.getError(),"    sigma=",sigma.getVal(),"+/-",sigma.getError()
     return mean.getVal(), mean.getError(), sigma.getVal(), sigma.getError(), frame
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
