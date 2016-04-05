@@ -32,7 +32,7 @@ IBLParameterSvc::IBLParameterSvc(const std::string& name,ISvcLocator* svc)
     m_disableAlignable(false),
     m_disableAllClusterSplitting(false),
     m_disableClusterMakerOfflineCalib(false),
-    m_disableDCS(false)
+    m_disableDCS(true)
 {
 	declareProperty("GeoModelSvc", m_geoModelSvc);
 	declareProperty("RDBAccessSvc",m_rdbAccessSvc);
