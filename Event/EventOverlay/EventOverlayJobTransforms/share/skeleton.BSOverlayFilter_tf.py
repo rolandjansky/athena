@@ -6,9 +6,9 @@ BSFilterLog.info( '**** Transformation run arguments' )
 BSFilterLog.info( str(runArgs) )
 
 if hasattr( runArgs, 'trfSubstepName'):
-    if runArgs.trfSubstepName=="BSFilter" and hasattr(runArgs, 'InputLbnMapFile'):
+    if runArgs.trfSubstepName=="BSFilter" and hasattr(runArgs, 'InputLbnMapFile') and hasattr( runArgs, "triggerBit"):
         delattr(runArgs, 'InputLbnMapFile')
-        BSFilterLog.info( '**** Transformation run arguments are now.... ' )
+        BSFilterLog.info( '**** Removed InputLbnMapFile argumnet: transformation run arguments are now...' )
         BSFilterLog.info( str(runArgs) )
 
 #---------------------------
@@ -71,34 +71,20 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", 
                                                   "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
 
-# https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TrigDecisionTool
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.configurationSourceList=['ds']
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-cfg = TriggerConfigGetter()
-#
-#from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#tdt.UseAODDecision=True
-#tdt.TrigDecisionKey = "TrigDecision"
-#ToolSvc += tdt
-#
-#from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-#trigDecWriter = WriteTrigDecision()
-
 # main alg
 from OverlayCommonAlgs.OverlayCommonAlgsConf import BSFilter
 filAlg = BSFilter("BSFilter")
 topSequence += filAlg
 if hasattr( runArgs, "triggerBit"):
     filAlg.TriggerBit = runArgs.triggerBit
+    #to get HLT info decoded
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    TriggerFlags.configurationSourceList=['ds']
+    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+    cfg = TriggerConfigGetter()
 else:
     filAlg.TriggerBit = -1
 
-#if hasattr(runArgs, 'eventIdFile'):
-#    filAlg.EventIdFile=runArgs.eventIdFile # The name of the file to write to for EventIdModifierSvc lines
-#else:
-#    filAlg.EventIdFile=""
 if hasattr(runArgs, 'outputTXT_EVENTIDFile'):
     filAlg.EventIdFile=runArgs.outputTXT_EVENTIDFile # The name of the file to write to for EventIdModifierSvc lines
 else:

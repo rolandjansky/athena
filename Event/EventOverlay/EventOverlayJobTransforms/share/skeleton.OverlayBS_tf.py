@@ -205,9 +205,11 @@ ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
 digitizationFlags.rndmSeedList.addtoService()
 digitizationFlags.rndmSeedList.printSeeds()
 
-# Write Digitization MetaData
-from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
-writeDigitizationMetadata()
+# Write Digitization MetaData if WriteRDOFileMetaData is set to true in jO (false by default)
+if hasattr(runArgs,"WriteRDOFileMetaData"):
+    if runArgs.WriteRDOFileMetaData:
+        from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
+        writeDigitizationMetadata()
 
 #================================================================
 print "overlay_trf: final outStream = ", outStream
