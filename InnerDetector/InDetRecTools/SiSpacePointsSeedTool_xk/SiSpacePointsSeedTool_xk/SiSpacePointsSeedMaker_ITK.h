@@ -26,11 +26,20 @@
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
+#include "InDetPrepRawData/PixelCluster.h" // needed for ITK long barrel  
+#include "InDetIdentifier/PixelID.h" // needed for ITK long barrel   
+#include "InDetIdentifier/SCT_ID.h" // needed for ITK long barrel   
+#include "InDetReadoutGeometry/PixelModuleDesign.h" // needed for ITK long barrel
+
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeedITK.h" 
 
 class MsgStream   ;
 class IBeamCondSvc;
+
+class PixelID; // needed for ITK long barrel  
+class SCT_ID; // needed for ITK long barrel
+class PixelModuleDesign; // needed for ITK long barrel  
 
 namespace Trk {
   class IPRD_AssociationTool;
@@ -175,6 +184,7 @@ namespace InDet {
       float                       m_ipt2C                         ;
       float                       m_COFK                          ;  
       float                       m_umax                          ;
+      float                       m_dzmaxPPP                      ;
       int r_size                                                  ;
       int r_first                                                 ;
       int rf_size                                                 ;
@@ -197,6 +207,35 @@ namespace InDet {
       int rfzv_n[300],rfzv_i[300][6]                              ;
       float m_sF                                                  ;
       float m_sFv                                                 ;
+
+      ///////////////////////////////////////////////////////////////////
+      // Switches and cuts for ITK extended barrel
+      ///////////////////////////////////////////////////////////////////
+      bool m_usePixelClusterCleanUp;              // switch to reject pixel clusters before seed search
+      bool m_usePixelClusterCleanUp_sizeZcutsB;   // sizeZ cuts for barrel
+      bool m_usePixelClusterCleanUp_sizePhicutsB; // size-phi cuts for barrel
+      bool m_usePixelClusterCleanUp_sizeZcutsE;   // sizeZ cuts for end-cap
+      bool m_usePixelClusterCleanUp_sizePhicutsE; // size-phi cuts for end-cap
+
+      int m_pix_sizePhiCut; // cut on the size-phi of pixel clusters
+      float m_pix_sizePhi2sizeZCut_p0B; // cut on size-phi/sizeZ of pixel clusters in barrel: p0/sizeZ-p1 
+      float m_pix_sizePhi2sizeZCut_p1B; // cut on size-phi/sizeZ of pixel clusters in barrel: p0/sizeZ-p1 
+      float m_pix_sizePhi2sizeZCut_p0E; // cut on size-phi/sizeZ of pixel clusters in end-cap: p0/sizeZ-p1 
+      float m_pix_sizePhi2sizeZCut_p1E; // cut on size-phi/sizeZ of pixel clusters in end-cap: p0/sizeZ-p1 
+
+      bool m_useITKseedCuts;          // global switch to use special ITK cuts
+      bool m_useITKseedCuts_dR;       // cut to reject seeds with both links in the same barrel pixel layer
+      bool m_useITKseedCuts_PixHole;  // cut to reject seeds with Pixel hole
+      bool m_useITKseedCuts_SctHole;  // cut to reject seeds with SCT hole
+      bool m_useITKseedCuts_hit;      // cut to require bottom hit in barrel layer-0,1 if middle link is in layer-0 of endcap rings
+      bool m_useITKseedCuts_dSize;    // cut to reject pixel barrel hits if |sizeZ-predicted_sizeZ| is too large
+      bool m_useITKseedCuts_sizeDiff; // cut to reject pixel barrel hits if |sizeZ(layer-i)-sizeZ(layer-j)| is too large
+
+      float m_Nsigma_clSizeZcut; // size of the cut on the cluster sizeZ at cluster clean-up stage: |sizeZ-predicted|<m_Nsigma_clSizeZcut*sigma 
+      float parR_clSizeZ0cut[3][5]; // right RMS for sizeZ-predicted_sizeZ(Z=0)
+      float parL_clSizeZ0cut[5]; // left RMS for sizeZ-predicted_sizeZ(Z=0)
+      float parR_clSizeZcut[2][5]; // right RMS for sizeZ-predicted_sizeZ(Z=Zvx)
+      float parL_clSizeZcut[5]; // left RMS for sizeZ-predicted_sizeZ(Z=Zvx)
 
       ///////////////////////////////////////////////////////////////////
       // Tables for 3 space points seeds search
@@ -303,6 +342,19 @@ namespace InDet {
       bool isZCompatible     (float&,float&,float&)               ;
       void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
       bool isUsed(const Trk::SpacePoint*); 
+
+      // new methods for ITK long barrel -------------------------------------
+      double predictedClusterLength(const InDet::SiSpacePointForSeedITK*,  double thickness, float seed_zvx);
+      double predictedClusterLength(const Trk::SpacePoint*,  double thickness, float seed_zvx);
+      int deltaSize(double sizeZ, double predictedSize, double pixel_pitch);
+      bool isAwayFromChipBoundary(const InDet::SiSpacePointForSeedITK* sp, double size_phi, double size_z, double pitch_phi, double pitch_z);
+      bool isAwayFromChipBoundary(const Trk::SpacePoint* sp, double size_phi, double size_z, double pitch_phi, double pitch_z);
+      bool ClusterSizeCuts(const InDet::SiSpacePointForSeedITK* sp_low,const InDet::SiSpacePointForSeedITK* sp_high, const double z_seed);
+/*       bool ClusterCleanupSizeZCuts(const InDet::SiSpacePointForSeed* sp, const double sizeZ, const double zvx,  */
+/* 				   const double pitch, const double thickness, const int layerNum, const float Nsigma_clus); */
+      bool ClusterCleanupSizeZCuts(const Trk::SpacePoint* sp, const double sizePhi, const double sizeZ, const double zvx, 
+				   const double pitch_phi, const double pitch_z, const double thickness, const int layerNum, const float Nsigma_clus);
+      //---------- end of new methods for ITK long barrel --------------------
    
    };
 

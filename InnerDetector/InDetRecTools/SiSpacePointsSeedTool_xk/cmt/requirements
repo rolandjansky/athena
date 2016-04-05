@@ -20,6 +20,8 @@ use InDetBeamSpotService   InDetBeamSpotService-*   InnerDetector/InDetCondition
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 use SiSpacePointsSeed      SiSpacePointsSeed-*      InnerDetector/InDetRecEvent
 
+use InDetIdentifier        InDetIdentifier-*        InnerDetector/InDetDetDescr
+
 library SiSpacePointsSeedTool_xk *.cxx components/*.cxx 
 apply_pattern component_library
 
