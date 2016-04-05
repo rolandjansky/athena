@@ -39,6 +39,7 @@ SurfaceChargesTool::SurfaceChargesTool(const std::string& type, const std::strin
   AthAlgTool(type,name,parent),
   m_module(0),
   m_IBLabsent(true),
+  m_doITk(false),
   m_PixelBarrelChargeTool("PixelBarrelChargeTool"),
   m_PixelECChargeTool("PixelECChargeTool"),
   m_DBMChargeTool("DBMChargeTool"),
@@ -52,7 +53,8 @@ SurfaceChargesTool::SurfaceChargesTool(const std::string& type, const std::strin
 	declareProperty("IblPlanarChargeTool", m_IblPlanarChargeTool,   "IblPlanarChargeTool");
 	declareProperty("Ibl3DChargeTool", m_Ibl3DChargeTool,   "Ibl3DChargeTool");
 	declareProperty("DBMChargeTool", m_DBMChargeTool,   "DBMChargeTool");
-}
+	declareProperty("doITk", m_doITk,   "Phase-II upgrade ITk flag");
+  }
 
 class DetCondCFloat;
 
@@ -138,6 +140,7 @@ StatusCode SurfaceChargesTool::initTools()
  storeTool(PIXELBARREL,&(*m_PixelBarrelChargeTool));
  storeTool(IBLPLANAR,&(*m_IblPlanarChargeTool));
  storeTool(IBL3D,&(*m_Ibl3DChargeTool));
+ storeTool(RD53,&(*m_IblPlanarChargeTool));  // Temporary, will likely need a dedicated ChargeTool
  return sc;
 
 }
@@ -145,12 +148,16 @@ StatusCode SurfaceChargesTool::initTools()
 //Returns the technology of the current module. The enum type Technology is defined in SurfaceChargesTool.h
 SurfaceChargesTool::Technology SurfaceChargesTool::getTechnology()
 {
+    //Upgrade
+        if (m_doITk) return RD53;
+
+    //Otherwise
 	const PixelID* pixelId = static_cast<const PixelID *>(m_module->getIdHelper());
 	PixelModuleDesign *design = (PixelModuleDesign*)(&(m_module->design()));
 	Identifier iden = m_module->identify();
 	int barrel_ec = pixelId->barrel_ec(iden);
 	int layer_disk = pixelId->layer_disk(iden);
-//Not including IBL	
+
 	if (barrel_ec == 4 || barrel_ec == -4) return DBM;
 	if (barrel_ec == 2 || barrel_ec == -2) return PIXELEC;
 	if (layer_disk>0) return PIXELBARREL;

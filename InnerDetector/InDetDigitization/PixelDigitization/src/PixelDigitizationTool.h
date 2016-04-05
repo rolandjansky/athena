@@ -220,7 +220,7 @@ private:
   
    virtual StatusCode createOutputContainers();
    StatusCode getNextEvent();
-   enum ReadoutTech {FEI3,FEI4};
+   enum ReadoutTech {FEI3,FEI4,RD53};
    ReadoutTech getReadoutTech(const InDetDD::SiDetectorElement *module);   
 
    PixelDigitizationTool();
@@ -269,8 +269,9 @@ private:
    std::vector<int>          m_minToT;            /**< ToT cut */
    std::vector<bool>         m_applyDupli;        /**< Apply hit duplication */
    std::vector<int>          m_maxToTForDupli;    /**< Maximum ToT for hit duplication */
-   bool			     m_IBLabsent;
-  
+   bool                      m_IBLabsent;
+   bool                      m_doITk;
+
    double                    m_time_y_eq_zero;
    ComTime                  *m_ComTime;
 
