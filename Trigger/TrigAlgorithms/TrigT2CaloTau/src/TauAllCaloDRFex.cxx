@@ -188,7 +188,7 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
 
 	  if (detectorID[is]==TTHEC) { 
 	    if (energyCell < -5e3) continue;
-	    if ((m_hecQualityCut!=0) && (((cell->quality())&&0xffff) > m_hecQualityCut) ) continue;
+	    if ((m_hecQualityCut!=0) && (((cell->quality())&0xffff) > m_hecQualityCut) ) continue;
 	  }
 	  energyEta += energyCell * etaCell ;
 	  
@@ -476,7 +476,7 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
       
       if (detectorID[is]==TTHEC) {
         if (energyCell < -5e3) continue;
-        if ((m_hecQualityCut!=0) && (((cell->quality())&&0xffff) > m_hecQualityCut) ) continue;
+        if ((m_hecQualityCut!=0) && (((cell->quality())&0xffff) > m_hecQualityCut) ) continue;
       }           
 
       if ( is < 4 ) {
