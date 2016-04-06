@@ -159,7 +159,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
       // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
       // This is not ideal... investigate why ID PV finding fails
       if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), "EFHistoPrmVtx") != HLT::OK) {
-        msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
+        msg() << MSG::DEBUG<< "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
       }
       else if (msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
@@ -309,7 +309,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 	//<< " which gives " << muontype == xAOD::Muon::MuonType::Combined 
 	<<  endreq;
 
-	if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
+	if(muontype != xAOD::Muon::MuonType::Combined) continue;
 
         muonEta = Muon->eta();
         muonPhi = Muon->phi();
@@ -505,7 +505,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::WARNING << "No primary vertex collection found" << endreq;
+    msg() << MSG::DEBUG << "No primary vertex collection found" << endreq;
     return HLT::ERROR;
   } 
   else {
