@@ -70,6 +70,17 @@ namespace InDet{
                               double predictedLocZ,
                               const Amg::Vector3D& predictedTrackDirection, 
                               const Trk::DriftCircleStatus status);
+
+      TRT_DriftCircleOnTrack( const ElementLinkToIDCTRT_DriftCircleContainer& RIO,
+                              const Trk::LocalParameters& driftRadius,
+                              const Amg::MatrixX& errDriftRadius, 
+                              IdentifierHash idDE,
+                              const Identifier& id,
+                              double predictedLocZ,
+                              float localAngle,
+                              const Trk::DriftCircleStatus status,
+                              bool highLevel,
+                              double timeOverThreshold);
 	
       /**Destructor */
       virtual ~TRT_DriftCircleOnTrack();
@@ -81,7 +92,7 @@ namespace InDet{
       @todo convention about z coordinate 
       - fullfills Trk::MeasurementBase interface
       */
-      const Amg::Vector3D& globalPosition() const;
+      const Amg::Vector3D& globalPosition() const final;
      
      /** returns the surface for the local to global transformation
       - fullfills Trk::MeasurementBase interface 
@@ -93,6 +104,7 @@ namespace InDet{
       - fullfills Trk::RIO_OnTrack interface
       */
       const TRT_DriftCircle* prepRawData() const;
+      const ElementLinkToIDCTRT_DriftCircleContainer& prepRawDataLink() const;
     
      /** returns the DE hashID
       - fullfills Trk::RIO_OnTrack interface
@@ -129,6 +141,9 @@ namespace InDet{
       virtual MsgStream&    dump( MsgStream& out ) const;	
       /**returns some information about this RIO_OnTrack.*/
       virtual std::ostream& dump( std::ostream& out ) const;
+
+      float localAngle() const;
+      float positionAlongWire() const;
 
     private:
     /** ONLY for use in custom convertor
@@ -182,6 +197,13 @@ namespace InDet{
     if (m_rio.isValid()) return m_rio.cachedElement();
     else return 0;
   }
+
+  inline
+  const ElementLinkToIDCTRT_DriftCircleContainer&
+  TRT_DriftCircleOnTrack::prepRawDataLink() const
+  {
+    return m_rio;
+  }
   
   inline IdentifierHash TRT_DriftCircleOnTrack::idDE() const
   { 
@@ -208,6 +230,15 @@ namespace InDet{
     return m_timeOverThreshold;
   }
 
+  inline float TRT_DriftCircleOnTrack::localAngle() const
+  {
+    return m_localAngle;
+  }
+
+  inline float TRT_DriftCircleOnTrack::positionAlongWire() const
+  {
+    return m_positionAlongWire;
+  }
 }
 
 #endif // TRKRIO_ONTRACK_TRT_DRIFTCIRCLEONTRACK_H
