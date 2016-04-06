@@ -137,7 +137,7 @@ class findTCTFiles:
         
         names = self._commonDirs.keys()
         for tctname in names:
-            if (tctname.startswith("LatestRun") or tctname.endswith("_MP") or tctname.endswith("IDCosmic0")):
+            if (tctname.startswith("LatestRun") or tctname.endswith("_MP") or tctname.endswith("IDCosmic0") or tctname.endswith("_PHYSVAL")):
                 print "skipping "+tctname
                 self._commonDirs.pop(tctname)
                 continue
