@@ -413,6 +413,7 @@ namespace TrigCostRootAnalysis {
     kMsgXMLWeight,
     kMsgXMLPrescale,
     kMsgUnknownDecoration,
+    kMsgDupeTOB,
     kMsgIllegalCharacters,
     kMsgZeroRate,
     kMsgLargeSteerTime,

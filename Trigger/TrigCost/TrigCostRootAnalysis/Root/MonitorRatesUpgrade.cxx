@@ -347,7 +347,9 @@ namespace TrigCostRootAnalysis {
     static Float_t _EMCountsPerGeV = Config::config().getInt(kUpgradeEMCountsPerGeV);
     static Float_t _JetCountsPerGeV = Config::config().getInt(kUpgradeJetCountsPerGeV);
     TOBAccumulator* _tobs = new TOBAccumulator();
+    Bool_t _hasE = kFALSE;
     for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) {
+      //Info("MonitorRatesUpgrade::getEventTOBs", "Processing TOB %i of %i", _r, (int) m_costData->getNRoIs()); 
       ConfKey_t _t = kNoneString;
       if      (m_costData->getIsRoINone(_r) == kTRUE) continue;
       else if (m_costData->getIsRoIMuon(_r) == kTRUE) _t = kMuonString;
@@ -358,26 +360,34 @@ namespace TrigCostRootAnalysis {
       else if (m_costData->getIsRoIJet(_r) == kTRUE) _t = kJetString;
       else if (m_costData->getIsRoIJetEt(_r) == kTRUE) continue;
       else if (m_costData->getIsRoIEnergy(_r) == kTRUE) {
+        //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type ENERGY");
         if (_tobs->HT() > 0 && m_costData->getRoIEt(_r) <= _tobs->HT()) continue; // Get the largest (full width)
+        _hasE = kTRUE;
         _tobs->set(m_costData->getRoIVectorEX(_r), m_costData->getRoIVectorEY(_r), m_costData->getRoIEt(_r));
         continue;
       }
+      //Info("MonitorRatesUpgrade::getEventTOBs", "   Is of type %s", Config::config().getName(_t).c_str());
       TOB _tob;
       _tob.m_eta  = m_costData->getRoIEta(_r);
       _tob.m_phi  = m_costData->getRoIPhi(_r);
       _tob.m_et   = m_costData->getRoIEt(_r);
       _tob.m_etLarge = m_costData->getRoIEtLarge(_r);
       _tob.m_iso  = m_costData->getRoIEmTauIsoBits(_r); // returns 0 for others
+      _tob.m_id   = m_costData->getRoIID(_r);
       _tob.m_type = _t;
       if (_t == kTauString || _t == kEmString) {
         _tob.m_et /= _EMCountsPerGeV; // Run 2 we have two counts per GeV for EM/TAU
       } else if (_t == kJetString) {
         _tob.m_et /= _JetCountsPerGeV; // Run 2 is still usually 1 count per GeV for jets
       }
+      if (_tobs->TOBs().find(_tob) != _tobs->TOBs().end() && Config::config().getDisplayMsg(kMsgDupeTOB) == kTRUE) {
+        Error("MonitorRatesUpgrade::getEventTOBs", "Event has multiple TOBs with ID %i\n%s", _tob.m_id, _tobs->print().c_str());
+      }
       _tobs->add( _tob );
     }
-    if (_tobs->HT() == 0 && Config::config().getDisplayMsg(kMsgNoTETOB) == kTRUE) {
-      Info("MonitorRatesUpgrade::getEventTOBs", " Warning - event has no ENERGY TOB");
+    if (_hasE == kFALSE && Config::config().getDisplayMsg(kMsgNoTETOB) == kTRUE) {
+      Error("MonitorRatesUpgrade::getEventTOBs", "Event has no ENERGY TOB(s). Total TOBs: %i\n%s", m_costData->getNRoIs(), _tobs->print().c_str());
+      for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) Info("MonitorRatesUpgrade::getEventTOBs", " TOB %i/%i of id %i", _r, (Int_t)m_costData->getNRoIs(), m_costData->getRoIID(_r));
     } 
     return _tobs;
   }
@@ -389,10 +399,20 @@ namespace TrigCostRootAnalysis {
       _types.insert("J"); _types.insert("MU");
       _types.insert("XE"); _types.insert("TE");
     }
-    const static std::string _validationItem = "L1_MU15";
-    Bool_t _checkTrigEmulation = kFALSE;
-    Bool_t _checkTrigOnline = kFALSE;
-    if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " ### TRIGGER EMULATION CHECK ###");
+    static std::vector<std::string> _validationItems;
+    if (_validationItems.size() == 0) {
+      _validationItems.push_back("L1_MU15");
+      _validationItems.push_back("L1_2MU10");
+      _validationItems.push_back("L1_EM15");
+      _validationItems.push_back("L1_TAU20");
+      _validationItems.push_back("L1_TE30");
+      _validationItems.push_back("L1_2EM10VH");
+    }
+    Int_t _checkTrigEmulation[10] = {0};
+    Int_t _checkTrigOnline[10] = {0};
+    if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " ###  ###  ###  ###  ###  ###  TRIGGER EMULATION CHECK  ###  ###  ###  ###  ###  ###");
+    if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " Event: %i TOBs, MET:(%.0f,%.0f)=%f HT:%f\n%s", (int)_this->TOBs().size(), _this->vX(), _this->vY(), _this->MET(), _this->HT(),_this->print().c_str());
+
     for (auto _type : _types) {
       if (_print) Info("MonitorRatesUpgrade::validateTriggerEmulation", " *** %s ***", _type.c_str());
       CounterMapIt_t _it = _counterMap->begin();
@@ -401,10 +421,10 @@ namespace TrigCostRootAnalysis {
         if ( _it->second->getName().find(_type) == std::string::npos ) continue;
         if ( _it->second->getName().substr(0,3) != "L1_" ) continue;
         if (isZero( ((CounterRatesChain*)(_it->second))->runWeight() ) == kTRUE) continue;
-        if (_it->second->getName() == _validationItem) _checkTrigEmulation = kTRUE;
+        for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) if (_it->second->getName() == _validationItems.at(_v)) _checkTrigEmulation[_v] = 1;
         _ssEmu << _it->second->getName() << ", ";
       }
-      if (_print && _ssEmu.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " >>> EMULATED PASS: %s", _ssEmu.str().c_str() );
+      if (_print && _ssEmu.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " ^^^ EMULATED PASS: %s", _ssEmu.str().c_str() );
       std::stringstream _ssOnline;
       for (UInt_t _c = 0; _c < m_costData->getNL1(); ++_c) {
         if (m_costData->getIsL1PassedBeforePrescale(_c) == kFALSE) continue;
@@ -412,15 +432,20 @@ namespace TrigCostRootAnalysis {
         const std::string _chainName = TrigConfInterface::getNameFromCtpId( _CTPID );
         if ( _chainName.find(_type) == std::string::npos ) continue;
         if ( _chainName.find("-") != std::string::npos ) continue;
-        if (_chainName == _validationItem) _checkTrigOnline = kTRUE;
+        for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) if (_chainName == _validationItems.at(_v)) _checkTrigOnline[_v] = kTRUE;
         _ssOnline << _chainName << ", ";
       }
-      if (_print && _ssOnline.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " <<< ONLINE PASS: %s", _ssOnline.str().c_str() );
+      if (_print && _ssOnline.str().size()) Info("MonitorRatesUpgrade::validateTriggerEmulation", " &&& ONLINE PASS: %s", _ssOnline.str().c_str() );
     }
-    if (_print == kFALSE && _checkTrigEmulation != _checkTrigOnline) {
-      Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-      Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!! FAILED TO VALIDATE %s !!!!!!!!!!!!!!!!!!!!\n%s", _validationItem.c_str(), _this->print().c_str() );
-      validateTriggerEmulation(_counterMap, _this, kTRUE);
+    if (_print == kFALSE ) {
+      for (UInt_t _v = 0; _v < _validationItems.size(); ++_v) {
+        if (_checkTrigEmulation[_v] != _checkTrigOnline[_v]) {
+          Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!!!!!!! %s !!!!!!!!!!!!!!!!!!!!!!!", _validationItems.at(_v).c_str() );
+          Info("MonitorRatesUpgrade::validateTriggerEmulation", " !!!!!!!!!!!!!!!!!!!! FAILED TO VALIDATE !!!!!!!!!!!!!!!!!!!!");
+          validateTriggerEmulation(_counterMap, _this, kTRUE);
+          break;
+        }
+      }
     }
   }
 
@@ -489,7 +514,7 @@ namespace TrigCostRootAnalysis {
       for (; _it != _counterMap->end(); ++_it) {
         _it->second->processEventCounter(0, 1, _weightUpgrade);
       }
-      //if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE);
+      if (m_upgradePileupScaling == kFALSE) validateTriggerEmulation(_counterMap, _thisEvent, kFALSE /*print*/);
     }
 
     for (const auto _chainItem : m_chainItemsL1) _chainItem.second->endEvent();

@@ -59,6 +59,7 @@ namespace TrigCostRootAnalysis {
     m_ratesOnly = Config::config().getIsSet(kRatesOnly);
     m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
     m_doNotLumiWeightUnbiased = (Bool_t) Config::config().getInt(kDoNotLumiWeightUnbiased);
+    m_pass = 0;
   }
 
   /**

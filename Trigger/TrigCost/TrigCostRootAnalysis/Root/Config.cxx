@@ -160,7 +160,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-08-11";
+    std::string _version = "TrigCostRootAnalysis-00-08-16";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -401,14 +401,14 @@ namespace TrigCostRootAnalysis {
           std::cout << "--nLbPerHLTConfig " << _nLbPerHLTConfig << "\t\t\t\tHow many LB to process per key summary, counted from the LB of the 1st event seen with this config." << std::endl;
           std::cout << "--nFullEventSummaries " << _maxNumberFullEvents << "\t\t\tMax number of events (picked at random) to save full executions records for." << std::endl;
           std::cout << "--defaultLBLength " << _defaultLBLength << "\t\t\t\tDefault lumi block length in seconds. Used as an approximate fallback for inputs without LB length data." << std::endl;
-          std::cout << "--noLBRescaling\t\t\t\tFlag to prevent the rescaling of the effective time per LB in EB runs based on the events processed and the known run size.";
+          std::cout << "--noLBRescaling\t\t\t\t\tFlag to prevent the rescaling of the effective time per LB in EB runs based on the events processed and the known run size." << std::endl;
           std::cout << "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed." << std::endl;
           std::cout << "--patternsOutput patt1 patt2 ...\t\tPatterns to match in names when saving results. Regex currently NOT supported. Partial matched allowed. Only entries which match will be included in the output." << std::endl;
           std::cout << "--patternsInvert\t\t\t\tInvert the behavior of --patternsMonitor and --patternsOutput to be a list of chains to explicitly exclude." << std::endl;
           std::cout << "--patternsExactMatch\t\t\t\tUse exact string matching rather than the default fuzzy matching." << std::endl;
           std::cout << "--fullEvNumFilelist\t\t\t\tInput file list with one event number per line. If supplied, only HLT events matching will be used in Full Event Summaries." << std::endl;
           std::cout << "--isCPUPrediction\t\t\t\tIn this mode TrigCost assumes it's running on EnhancedBias data reprocessed with physics prescales and with the costmonitor chain unprescaled." << std::endl;
-          std::cout << "--ignoreNonPhyBunchGroups\t\t\tSet by default for costMode, non-physics bunch groups are given weight 0 and hence ignored. Only works if --useEBWeight is true";
+          std::cout << "--ignoreNonPhyBunchGroups\t\t\tSet by default for costMode, non-physics bunch groups are given weight 0 and hence ignored. Only works if --useEBWeight is true" << std::endl;
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
           std::cout << "--noMsgSuppression\t\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
@@ -1263,6 +1263,7 @@ namespace TrigCostRootAnalysis {
     setDisplayMsg(kMsgNewUniqueCounter, 30, "Created new unique counter");
     setDisplayMsg(kMsgLumiScaling, 1, "No XML to do partial run scaling (only important if processing an EB run)");
     setDisplayMsg(kMsgNoTETOB, 5, "Event did not contain any Total Energy TOB");
+    setDisplayMsg(kMsgDupeTOB, 5, "Event contained multiple TOBs with the same ID");
 
     // Const strings literals to be referenced throughout
     set(kL0String,"L0");

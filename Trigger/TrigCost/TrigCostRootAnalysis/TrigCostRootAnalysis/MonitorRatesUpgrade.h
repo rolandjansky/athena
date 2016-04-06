@@ -48,8 +48,9 @@ namespace TrigCostRootAnalysis {
     Float_t m_et; //!< Energy/pT of RoI in counts
     Float_t m_etLarge; //!< For jet RoIs, second energy type
     Int_t m_iso; //!< Isolation bits of RoI (5 bits, menu dependent)
+    Int_t m_id; //!< Numeric ID 
   };
-  inline Bool_t operator<(const TOB& lhs, const TOB& rhs) { return lhs.m_et < rhs.m_et; }
+  inline Bool_t operator<(const TOB& lhs, const TOB& rhs) { return lhs.m_id < rhs.m_id; }
 
   /**
    * @class TOBAccumulator
@@ -65,6 +66,8 @@ namespace TrigCostRootAnalysis {
    public:
     TOBAccumulator() : m_vX(0), m_vY(0), m_HT(0) {}
     Float_t HT() { return m_HT; }
+    Float_t vX() { return m_vX; }
+    Float_t vY() { return m_vY; }
     Float_t MET() { return TMath::Sqrt((m_vX * m_vX) + (m_vY * m_vY)); }
     void set(Float_t _vX, Float_t _vY, Float_t _HT) { m_vX = _vX; m_vY = _vY; m_HT = _HT; }
     std::set<TOB>& TOBs() { return m_TOBs; } 

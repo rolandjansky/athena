@@ -34,6 +34,7 @@ namespace TrigCostRootAnalysis {
    * @param _item A HLT chain item which is part of this CPS group
    */
   void RatesCPSGroup::add(RatesChainItem* _item) {
+    assert(_item != nullptr);
     if (m_items.count(_item) == 1) return;
     m_items.insert( _item );
   }
@@ -45,8 +46,7 @@ namespace TrigCostRootAnalysis {
   void RatesCPSGroup::calculateCPSFactor() {
         // We expect more than one L2
     if (m_items.size() < 2) {
-      Error("RatesCPSGroup::calculateCPSFactor", "Expect two or more HLT chains to do CPS for %s", getName().c_str());
-      return;
+      Warning("RatesCPSGroup::calculateCPSFactor", "Expect two or more HLT chains to do CPS for %s", getName().c_str());
     }
     // We can only do this if all of our chains have the same L1 seed
     for (const auto _item : m_items) {

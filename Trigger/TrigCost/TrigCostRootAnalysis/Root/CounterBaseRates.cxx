@@ -41,8 +41,10 @@ namespace TrigCostRootAnalysis {
     m_cannotCompute(kFALSE),
     m_myUniqueCounter(0),
     m_globalRates(0),
+    m_lowerGlobalRates(0),
     m_doSacleByPS(0),
-    m_doDirectPS(0)
+    m_doDirectPS(0),
+    m_cachedWeight(0)
   {
 
       if (m_detailLevel == 0) m_dataStore.setHistogramming(kFALSE);
@@ -194,6 +196,7 @@ namespace TrigCostRootAnalysis {
    * @param _toAdd Add a L1 TriggerItem which is to be used by this rates counter.
    */
   void CounterBaseRates::addL1Item( RatesChainItem* _toAdd ) {
+    assert(_toAdd != nullptr);
     m_L1s.insert( _toAdd );
     // Add back-link
     _toAdd->addCounter( this );
@@ -203,7 +206,15 @@ namespace TrigCostRootAnalysis {
    * @param _toAdd Add a grouping of items in a CPS.
    */
   void CounterBaseRates::addCPSItem( RatesCPSGroup* _toAdd ) {
+    assert( _toAdd != nullptr);
     m_cpsGroups.insert( _toAdd );
+  }
+
+  /**
+   * @return Last calculated weight (cached).
+   */
+  Double_t CounterBaseRates::getLastWeight() {
+    return m_cachedWeight;
   }
 
   /**
@@ -220,9 +231,11 @@ namespace TrigCostRootAnalysis {
         return;
       }
     }
+    assert(_toAdd != nullptr);
     m_L2s.insert( _toAdd );
     _toAdd->addCounter( this ); // Add back-link
     for (ChainItemSetIt_t _lower = _toAdd->getLowerStart(); _lower != _toAdd->getLowerEnd(); ++_lower) {
+      assert((*_lower) != nullptr);
       m_L1s.insert( (*_lower) );
       //TODO do i need to add this counter to the L1s here? Don't think so
     }

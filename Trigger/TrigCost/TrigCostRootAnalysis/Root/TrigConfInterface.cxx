@@ -337,6 +337,7 @@ namespace TrigCostRootAnalysis {
    */
   Float_t TrigConfInterface::getPrescale( std::string _chainName ) {
     if ( getUsingNtuplePrescales() == kTRUE ) {
+      if (_chainName == Config::config().getStr(kAlwaysPassString)) return 1.;
       return getTCT()->GetPrescale( _chainName );
     } else {
       Error("TrigConfInterface::getPrescale", "XML based menu navigation not yet included.");

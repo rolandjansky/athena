@@ -95,11 +95,18 @@ namespace TrigCostRootAnalysis {
       // First we check that the one L2 passed
       if (_L2->getPassRaw() == kFALSE) return 0.;
 
-      // Calculate the additional weight from L1 items which passed the event
       Double_t _L1Weight = 1.;
-      for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
-        RatesChainItem* _L1 = (*_lowerIt);
-        _L1Weight *= ( 1. - _L1->getPassRawOverPS() );
+      if (_L2->getLower().size() == 0) { //if we are seeded off of everything, we ask the global rates pointer for this event's L1 weight
+
+        _L1Weight = (1. - m_lowerGlobalRates->getLastWeight() );
+
+      } else {  // Calculate the additional weight from L1 items which passed the event
+
+        for (ChainItemSetIt_t _lowerIt = _L2->getLowerStart(); _lowerIt != _L2->getLowerEnd(); ++_lowerIt) {
+          RatesChainItem* _L1 = (*_lowerIt);
+          _L1Weight *= ( 1. - _L1->getPassRawOverPS() );
+        }
+
       }
 
       return _L2->getPSWeight() * ( 1. - _L1Weight );

@@ -179,7 +179,7 @@ namespace TrigCostRootAnalysis {
    */
   Int_t TrigCostData::getRunNumber() const {
     MUTEX_ON
-    Int_t _R = m_trigCostObject->runNumber();
+    Int_t _R =  m_trigCostObject ? m_trigCostObject->runNumber() : 0;
     MUTEX_OFF
     return _R;
   }

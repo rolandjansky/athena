@@ -131,12 +131,13 @@ namespace TrigCostRootAnalysis {
     if (m_combinationClassification == kUnset) classify();
     if (m_cannotCompute == kTRUE) return 0.;
 
-    if      (m_combinationClassification == kAllOneToMany) return runWeight_AllOneToMany();
-    else if (m_combinationClassification == kOnlyL1) return runWeight_OnlyL1();
-    else if (m_combinationClassification == kAllToAll) return runWeight_AllToAll();
-    else if (m_combinationClassification == kAllOneToOne) return runWeight_AllOneToOne();
-    else if (m_combinationClassification == kManyToMany) return runWeight_ManyToMany();
-    return 0.;
+    if      (m_combinationClassification == kAllOneToMany) m_cachedWeight = runWeight_AllOneToMany();
+    else if (m_combinationClassification == kOnlyL1) m_cachedWeight = runWeight_OnlyL1();
+    else if (m_combinationClassification == kAllToAll) m_cachedWeight = runWeight_AllToAll();
+    else if (m_combinationClassification == kAllOneToOne) m_cachedWeight = runWeight_AllOneToOne();
+    else if (m_combinationClassification == kManyToMany) m_cachedWeight = runWeight_ManyToMany();
+    else m_cachedWeight = 0.;
+    return m_cachedWeight;
   }
 
   /**
@@ -235,10 +236,8 @@ namespace TrigCostRootAnalysis {
     }
 
     // Otherwise we have to use the general form
-    if (Config::config().debug()) {
-      Info("CounterRatesUnion::classify","Chain %s topology classified as Many-To-Many. NL1:%i. Computational complexity (2^NL1-1)=%i.",
-        getName().c_str(), (Int_t)m_L1s.size(), (UInt_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
-    }
+    Info("CounterRatesUnion::classify","Chain %s topology classified as Many-To-Many. NL1:%i. Computational complexity (2^NL1-1)=%i.",
+      getName().c_str(), (Int_t)m_L1s.size(), (UInt_t)(TMath::Power(2., (Double_t)m_L1s.size())-1) );
     if (m_L1s.size() > 20) { // 32 is the technical maximim - but the this is already impractical
       Error("CounterRatesUnion::classify","Cannot calculate rates union for this complexity, %s. Use fewer L1 seeds!!! Disabling this combination.", getName().c_str());
       m_cannotCompute = kTRUE;
@@ -256,6 +255,7 @@ namespace TrigCostRootAnalysis {
     for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
       RatesChainItem* _L1 = (*_L1It);
       _w *= (1. - _L1->getPassRawOverPS());
+      if (isZero(_w)) break; // If a PS=1 passes
     }
     return (1. - _w);
   }
@@ -273,6 +273,7 @@ namespace TrigCostRootAnalysis {
       assert( _L2->getLower().size() == 1);
 
       _w *= (1. - (_L2->getPassRawOverPS() * _L1->getPassRawOverPS()) );
+      if (isZero(_w)) break; // If a PS=1 passes
     }
 
     return (1. - _w);
@@ -289,11 +290,13 @@ namespace TrigCostRootAnalysis {
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);
       _weightL2 *= (1. - _L2->getPassRawOverPS());
+      if (isZero(_weightL2)) break; // If a PS=1 passes
     }
 
     for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
       RatesChainItem* _L1 = (*_L1It);
       _weightL1 *= (1. - _L1->getPassRawOverPS());
+      if (isZero(_weightL1)) break; // If a PS=1 passes
     }
 
     return (1. - _weightL1) * (1. - _weightL2);
@@ -336,6 +339,7 @@ namespace TrigCostRootAnalysis {
           continue; //TODO - is this needed? (yes apparently) Should be implicitly true
         }
         _weightL2 *= (1. - (*_L2It)->getPassRawOverPS());
+        if (isZero(_weightL2)) break; // If a PS=1 passes
         // Info("CounterRatesUnion::runWeight_AllOneToMany","L2 item  %s has weight %f", (*_L2It)->getName().c_str(),  (*_L2It)->getPassRawOverPS());
       }
 
@@ -350,6 +354,7 @@ namespace TrigCostRootAnalysis {
         for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It) {
           // TODO - If this is a group, then we only take CPS members which are also in this group
           _weightL2cps *= (1. - (*_L2It)->getPassRawOverPSReduced());
+          if (isZero(_weightL2cps)) break; // If a PS=1 passes
         }
         _weightL2cps = (1. - _weightL2cps);
         _weightL2cps *= _cpsGroup->getCommonWeight();

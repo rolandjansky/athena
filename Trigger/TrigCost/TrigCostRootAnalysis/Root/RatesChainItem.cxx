@@ -308,12 +308,12 @@ namespace TrigCostRootAnalysis {
     for (const TriggerCondition& _condition : getTriggerLogic()->conditions()) {
 
       if (_condition.m_type == kMissingEnergyString) {
-        if (_eventTOBs->MET() < _condition.m_thresh) {
+        if (_eventTOBs->MET() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break;
         } 
       } else if (_condition.m_type == kEnergyString) {
-        if (_eventTOBs->HT() < _condition.m_thresh) {
+        if (_eventTOBs->HT() <= _condition.m_thresh) {
           m_passRaw = kFALSE;
           break; 
         }
