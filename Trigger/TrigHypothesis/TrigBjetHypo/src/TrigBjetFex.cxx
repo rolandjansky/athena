@@ -458,7 +458,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::WARNING << "No primary vertex collection found" << endreq;
+    msg() << MSG::DEBUG << "No primary vertex collection found" << endreq;
     return HLT::ERROR;
   } 
   else {
@@ -848,7 +848,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   const TrigRoiDescriptor* roiDescriptor = 0;
 
   if (getFeature(outputTE, roiDescriptor, m_jetKey) == HLT::OK) {
-    if (msgLvl() <= MSG::DEBUG) {
+    if (msgLvl() <= MSG::DEBUG && roiDescriptor != 0) {
       msg() << MSG::DEBUG << "Using TE: " << "RoI id " << roiDescriptor->roiId()
 	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endreq;
     }
@@ -1040,11 +1040,11 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   if (m_histoPrmVtxAtEF) {   // PV from TrigT2HistoPrmVtx
 
     if (getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE, m_priVtxKey) != HLT::OK) {
-      msg() << MSG::WARNING << "No primary vertex collection retrieved with name " << m_priVtxKey << endreq;
+      msg() << MSG::DEBUG << "No primary vertex collection retrieved with name " << m_priVtxKey << endreq;
       // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
       // This is not ideal... investigate why ID PV finding fails
       if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE, "EFHistoPrmVtx") != HLT::OK) {
-	      msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
+	      msg() << MSG::DEBUG << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
       }
       else if (msgLvl() <= MSG::DEBUG) {
 	      msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
@@ -1127,7 +1127,8 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   
   for (unsigned int j = 0; j < m_totTracks; j++) {
     
-    const xAOD::TrackParticle* track = (*pointerToEFTrackCollections)[j];
+    const xAOD::TrackParticle* track = pointerToEFTrackCollections == nullptr ? nullptr : (*pointerToEFTrackCollections)[j];
+    if (track == nullptr) continue;
 
     m_mon_trk_a0.push_back(track->d0());
     m_mon_trk_z0.push_back(track->z0() + m_trigBjetPrmVtxInfo->zBeamSpot());
