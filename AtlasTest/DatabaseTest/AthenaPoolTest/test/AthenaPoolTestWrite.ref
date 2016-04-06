@@ -1,65 +1,40 @@
-Thu Jul 24 14:07:40 CEST 2014
+Thu Mar 24 19:17:49 CET 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-19.1.2] [x86_64-slc6-gcc47-opt] [19.X.0-VAL/rel_4] -- built on [2014-07-23 22:00]
+Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_2] -- built on [2016-03-21 22:42]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in CaloEventDict.so  is already in libISF_FastCaloSimParametrizationLib.so 
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestWrite.py"
 Py:Athena            INFO 'gbl.AthenaServices.SetFatalHandler(flag)' is DEPRECATED
 Py:Athena            INFO instead, please consider using:
 Py:Athena            INFO  svcMgr.CoreDumpSvc.FatalHandler = flag
-Py:ConfigurableDb    INFO Read module info for 4619 configurables from 19 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 5049 configurables from 10 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 10 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
-Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MboyEDMTool.MboyEDMToolConf - ['MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf']
+Py:ConfigurableDb WARNING   -TrigHLTJetHypo: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.py"
-['ByteStreamMetadataContainer#*', 'EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'AthenaPoolTestMap#*', 'AthenaPoolTestMatrix#*', 'FauxTriggerMap#*', 'IAthenaPoolTestCollection#*', 'PixelRDOElemLinkVec#*', 'TestGaudiProperty#*', 'TrigPath#*', 'dummy_A#*', 'dummy_E#*']
-['EventInfo#*', 'ByteStreamMetadataContainer#*', 'EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'AthenaPoolTestMap#*', 'AthenaPoolTestMatrix#*', 'FauxTriggerMap#*', 'IAthenaPoolTestCollection#*', 'PixelRDOElemLinkVec#*', 'TestGaudiProperty#*', 'TrigPath#*', 'dummy_A#*', 'dummy_E#*']
+['EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'AthenaPoolTestMap#*', 'AthenaPoolTestMatrix#*', 'FauxTriggerMap#*', 'IAthenaPoolTestCollection#*', 'PixelRDOElemLinkVec#*', 'TestGaudiProperty#*', 'TrigPath#*', 'dummy_A#*', 'dummy_E#*']
+['EventInfo#*', 'EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'AthenaPoolTestMap#*', 'AthenaPoolTestMatrix#*', 'FauxTriggerMap#*', 'IAthenaPoolTestCollection#*', 'PixelRDOElemLinkVec#*', 'TestGaudiProperty#*', 'TrigPath#*', 'dummy_A#*', 'dummy_E#*']
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
-                                          running on voatlas106.cern.ch on Thu Jul 24 14:07:42 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
+                                          running on lxplus0008.cern.ch on Thu Mar 24 19:17:57 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 StatusCodeSvc        INFO initialize
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
 HistogramPersis...WARNING Histograms saving not required.
-EventSelector       DEBUG Service base class initialized successfully
 EventSelector       DEBUG  McEventSelector Initialized Properly ... 
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
@@ -97,11 +72,6 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaP
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 13 14 15 16
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 14 15 16 17
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 15 16 17 18
-AthenaPoolTestD...  DEBUG Recorded col1
-AthenaPoolTestD...  DEBUG Recorded col2
-AthenaPoolTestD...  DEBUG Recorded col3
-AthenaPoolTestD...  DEBUG Recorded col4
-AthenaPoolTestD...  DEBUG Recorded col5
 AthenaPoolTestD...  DEBUG Registering matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -219,11 +189,9 @@ AthenaPoolTestD...  DEBUG i,c: 0 10
 AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
-AthenaPoolTestD...  DEBUG Wrote dummy_A class 
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
-AthenaPoolTestD...  DEBUG Wrote dummy_E class 
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0: 0.9876 weight 1: 1.9876 weight 2: 2.9876
 AthenaPoolTestD...  DEBUG Setting actual interatctions per crossing: 35.23 and ave: 169.41
@@ -291,7 +259,7 @@ AthenaPoolTestD...  DEBUG Time, index 25 0
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
-RootDatabase.open Success SimplePoolFile.root File version:53413
+RootDatabase.open Success SimplePoolFile.root File version:60414
 EventSelector       DEBUG ............. Next Event .............
 EventSelector       DEBUG ............. createAddress .............
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
@@ -326,11 +294,6 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaP
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 13 14 15 16
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 14 15 16 17
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 15 16 17 18
-AthenaPoolTestD...  DEBUG Recorded col1
-AthenaPoolTestD...  DEBUG Recorded col2
-AthenaPoolTestD...  DEBUG Recorded col3
-AthenaPoolTestD...  DEBUG Recorded col4
-AthenaPoolTestD...  DEBUG Recorded col5
 AthenaPoolTestD...  DEBUG Registering matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -448,11 +411,9 @@ AthenaPoolTestD...  DEBUG i,c: 0 10
 AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
-AthenaPoolTestD...  DEBUG Wrote dummy_A class 
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
-AthenaPoolTestD...  DEBUG Wrote dummy_E class 
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:5] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0: 0.9876 weight 1: 1.9876 weight 2: 2.9876
 AthenaPoolTestD...  DEBUG Setting actual interatctions per crossing: 35.23 and ave: 169.41
@@ -522,6 +483,7 @@ AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
 EventSelector       DEBUG ............. stop .............
 ApplicationMgr       INFO Application Manager Stopped successfully
+AthenaPoolTestD...  DEBUG Calling destructor
 EventSelector        INFO finalize
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully

@@ -14,8 +14,6 @@
  *
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "EventInfoReader.h"
 
 // Event includes
@@ -27,93 +25,45 @@
 // GeoModel
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
-// TES include
-#include "StoreGate/StoreGateSvc.h"
-
-// Gaudi includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
-
 // Constructor with parameters:
 EventInfoReader::EventInfoReader(const std::string &name, 
 				 ISvcLocator *pSvcLocator) :
-    Algorithm(name,pSvcLocator),
-    m_storeGate(0),
-    m_detStore(0),
-    m_geoModel(0)
+    AthAlgorithm(name,pSvcLocator),
+    m_geoModel("GeoModelSvc", name)
 {}
 
 // Initialize method:
 StatusCode EventInfoReader::initialize()
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "EventInfoReader::initialize()" << endreq;
-
-    // get StoreGate service
-    StatusCode sc = service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "StoreGate service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } else {}
-
-
-    // get DetectorStore service
-    sc = service("DetectorStore",m_detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "DetectorStore service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } 
-
-    // get GeoModel service
-     sc = service ("GeoModelSvc",m_geoModel);
-     if (sc.isFailure()) {
- 	log << MSG::ERROR << "GeoModelSvc not found !" << endreq;
- 	return StatusCode::FAILURE;
-     } else {
- 	log << MSG::DEBUG << " Found GeoModelSvc " << endreq;
-     }
-
+    ATH_MSG_INFO( "EventInfoReader::initialize()"  );
+    ATH_CHECK( m_geoModel.retrieve() );
     return StatusCode::SUCCESS;
 }
 
 // Execute method:
 StatusCode EventInfoReader::execute() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "EventInfoReader::execute()" << endreq;
+    ATH_MSG_DEBUG("EventInfoReader::execute()" );
 
     const EventInfo * evt = 0;
-    StatusCode sc = m_storeGate->retrieve( evt );
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR << "  Could not get event info" << endreq;      
- 	return StatusCode::FAILURE;
-    }
-    else {
- 	log << MSG::DEBUG << "Event ID: ["
- 	    << evt->event_ID()->run_number()   << ","
-            << evt->event_ID()->event_number() << ":"
- 	    << evt->event_ID()->time_stamp() << "] "
- 	    << endreq;
- 	log << MSG::DEBUG << "Event type: user type "
- 	    << evt->event_type()->user_type() << " weight "
- 	    << evt->event_type()->mc_event_weight() 
- 	    << endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve( evt ) );
+    ATH_MSG_DEBUG( "Event ID: ["
+                   << evt->event_ID()->run_number()   << ","
+                   << evt->event_ID()->event_number() << ":"
+                   << evt->event_ID()->time_stamp() << "] " );
+    ATH_MSG_DEBUG( "Event type: user type "
+                   << evt->event_type()->user_type() << " weight "
+                   << evt->event_type()->mc_event_weight()  );
  
 
     // Print out the tags found
-    log << MSG::DEBUG << "Tag pairs from EventInfo: "
-	<< endreq;
+    ATH_MSG_DEBUG("Tag pairs from EventInfo: " );
     EventType::NameTagPairVec pairs1;
     evt->event_type()->get_detdescr_tags(pairs1);
     for (unsigned int i = 0; i < pairs1.size(); ++i) {
 	std::string name = pairs1[i].first;
 	std::string tag  = pairs1[i].second;
-	log << MSG::DEBUG << name << " : "
-	    << tag
-	    << endreq;
+	ATH_MSG_DEBUG( name << " : " << tag );
     }
 
 
@@ -122,30 +72,22 @@ StatusCode EventInfoReader::execute()
 
     const TagInfo* tagInfo = 0;
     // Try to get tagInfo if there, otherwise create
-    sc = m_detStore->retrieve( tagInfo );
-    if (sc.isFailure()) {
-	log << MSG::DEBUG << "No TagInfo in DetectorStore - creating one" << endreq;
+    if (detStore()->retrieve( tagInfo ).isFailure()) {
+	ATH_MSG_DEBUG("No TagInfo in DetectorStore - creating one" );
 	tagInfo = new TagInfo();
     } 
     else {
-	log << MSG::DEBUG << "Retrieved TagInfo" << endreq;
+	ATH_MSG_DEBUG("Retrieved TagInfo" );
     } 
 
     // Dump out contents of TagInfo
-    log << MSG::DEBUG << "Tags from  TagInfo:" << endreq;
-    tagInfo->printTags(log);
+    ATH_MSG_DEBUG("Tags from  TagInfo:" );
+    tagInfo->printTags(msg());
     
     // Print out current Release version 
     std::string releaseVersion;
     tagInfo->findTag("AtlasRelease", releaseVersion);
-    log << MSG::DEBUG << "Found Release version from TagInfo: " 
-	<< releaseVersion << endreq;
-
-    // Print out input Release version 
-    //tagInfo->findInputTag("AtlasRelease", releaseVersion);
-    //log << MSG::DEBUG << "Found input AtlasRelease version from TagInfo: " 
-    //<< releaseVersion << endreq;
-
+    ATH_MSG_DEBUG( "Found Release version from TagInfo: "  << releaseVersion  );
 
     return StatusCode::SUCCESS;
 }
@@ -154,10 +96,7 @@ StatusCode EventInfoReader::execute()
 // Finalize method:
 StatusCode EventInfoReader::finalize() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "EventInfoReader::finalize()" << endreq;
-
+    ATH_MSG_INFO("EventInfoReader::finalize()" );
     return StatusCode::SUCCESS;
 }
 

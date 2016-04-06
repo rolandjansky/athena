@@ -1,67 +1,40 @@
-Thu Jul 24 14:07:55 CEST 2014
+Thu Mar 24 19:18:30 CET 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-19.1.2] [x86_64-slc6-gcc47-opt] [19.X.0-VAL/rel_4] -- built on [2014-07-23 22:00]
+Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_2] -- built on [2016-03-21 22:42]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in CaloEventDict.so  is already in libISF_FastCaloSimParametrizationLib.so 
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestStep2Write.py"
-Py:ConfigurableDb    INFO Read module info for 4619 configurables from 19 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 5049 configurables from 10 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 10 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
-Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MboyEDMTool.MboyEDMToolConf - ['MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf']
+Py:ConfigurableDb WARNING   -TrigHLTJetHypo: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.py"
-['ByteStreamMetadataContainer#*', 'EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'AthenaPoolTestMap#*', 'AthenaPoolTestMatrix#*', 'FauxTriggerMap#*', 'IAthenaPoolTestCollection#*', 'PixelRDOElemLinkVec#*', 'TestGaudiProperty#*', 'TrigPath#*', 'dummy_A#*', 'dummy_E#*']
+['EventInfo#*', 'EventStreamInfo#*', 'MergedEventInfo#*', 'PileUpEventInfo#*', 'AthenaPoolTestMap#*', 'AthenaPoolTestMatrix#*', 'FauxTriggerMap#*', 'IAthenaPoolTestCollection#*', 'PixelRDOElemLinkVec#*', 'TestGaudiProperty#*', 'TrigPath#*', 'dummy_A#*', 'dummy_E#*']
 ['EventInfo#*', 'EventInfo#*', 'IAthenaPoolTestCollection#AthenaPoolTestCollection_1', 'IAthenaPoolTestCollection#AthenaPoolTestCollection_2', 'IAthenaPoolTestCollection#AthenaPoolTestCollection_3', 'AthenaPoolTestMatrix#*']
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
-                                          running on voatlas106.cern.ch on Thu Jul 24 14:07:57 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
+                                          running on lxplus0008.cern.ch on Thu Mar 24 19:18:38 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 StatusCodeSvc        INFO initialize
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
-Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
-RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
-RootDatabase.open Success SimplePoolFile.root File version:53413
+RootDatabase.open Success SimplePoolFile.root File version:60414
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
-RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
-RootDatabase.open Success SimplePoolFile.root File version:53413
+RootDatabase.open Success SimplePoolFile.root File version:60414
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
 AthenaPoolTestD...  DEBUG Collection of A's
@@ -83,14 +56,12 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 23 24
 AthenaPoolTestD...  DEBUG AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
 AthenaPoolTestD...  DEBUG AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
 AthenaPoolTestD...  DEBUG AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
-AthenaPoolTestD...  DEBUG Retrieved col4
 AthenaPoolTestD...  DEBUG Collection of C's
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
-AthenaPoolTestD...  DEBUG Retrieved col5
 AthenaPoolTestD...  DEBUG Collection of D's
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
@@ -98,16 +69,13 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaP
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_1, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Recorded col1
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_2, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Recorded col2
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_3, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Recorded col3
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_0, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Registering matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -136,7 +104,7 @@ AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_1, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Registering matrix 2 AthenaPoolTestMatrix_1
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -165,7 +133,7 @@ AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_2, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Registering matrix 3 AthenaPoolTestMatrix_2
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -204,7 +172,7 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode,
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolMap, type AthenaPoolTestMap (CLID 153882669)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Dummy A: size B 5
 AthenaPoolTestD...  DEBUG Dummy B: size C 4
 AthenaPoolTestD...  DEBUG i,c: 0 10
@@ -232,14 +200,12 @@ AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
 StoreGateSvc      WARNING record_impl: you are recording an object with key Dummy_A, type dummy_A (CLID 153882670)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Wrote dummy_A class 
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 StoreGateSvc      WARNING record_impl: you are recording an object with key Dummy_E, type dummy_E (CLID 203377114)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Wrote dummy_E class 
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0: 0.9876 weight 1: 1.9876 weight 2: 2.9876
 AthenaPoolTestD...  DEBUG Setting actual interatctions per crossing: 35.23 and ave: 169.41
@@ -298,7 +264,7 @@ AthenaPoolTestD...  DEBUG Returned false for trying to set bit 29 for subDet 8
 AthenaPoolTestD...  DEBUG Setting error state: i, state 8 2
 AthenaPoolTestD...  DEBUG Subdet: 8 error state: Error 2
 StoreGateSvc      WARNING record_impl: you are recording an object with key OverlayEvent, type PileUpEventInfo (CLID 2102)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG PileUpEventInfo
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:12] 
 AthenaPoolTestD...  DEBUG [Run,Evt,Lumi,Time,BunchCross,DetMask] = [1,4294967296,14,12:13,15,0x1100000010,0x12,0x13]
@@ -309,7 +275,7 @@ AthenaPoolTestD...  DEBUG Time, index 25 0
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
-RootDatabase.open Success SimplePoolFile1.root File version:53413
+RootDatabase.open Success SimplePoolFile1.root File version:60414
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataWriter
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 1 2
@@ -330,14 +296,12 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestA::printWhoYouAre A - a, b 23 24
 AthenaPoolTestD...  DEBUG AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
 AthenaPoolTestD...  DEBUG AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
 AthenaPoolTestD...  DEBUG AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
-AthenaPoolTestD...  DEBUG Retrieved col4
 AthenaPoolTestD...  DEBUG Collection of C's
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
 AthenaPoolTestD...  DEBUG AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
-AthenaPoolTestD...  DEBUG Retrieved col5
 AthenaPoolTestD...  DEBUG Collection of D's
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
@@ -345,16 +309,13 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaP
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
 AthenaPoolTestD...  DEBUG AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_1, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Recorded col1
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_2, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Recorded col2
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestCollection_3, type IAthenaPoolTestCollection (CLID 1269286659)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Recorded col3
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_0, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Registering matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -383,7 +344,7 @@ AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_1, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Registering matrix 2 AthenaPoolTestMatrix_1
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -412,7 +373,7 @@ AthenaPoolTestD...  DEBUG   dx 0
 AthenaPoolTestD...  DEBUG   dy 0
 AthenaPoolTestD...  DEBUG   dz 0
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolTestMatrix_2, type AthenaPoolTestMatrix (CLID 153882668)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Registering matrix 3 AthenaPoolTestMatrix_2
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -451,7 +412,7 @@ AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 35  word 7  Deposits: (barCode,
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 40  word 8  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 AthenaPoolTestD...  DEBUG AthenaPoolTestMap: key 45  word 9  Deposits: (barCode, evtIndx, wgt) 0 10 20 1 11 21 2 12 22 3 13 23 4 14 24 5 15 25 6 16 26 7 17 27 8 18 28 9 19 29 
 StoreGateSvc      WARNING record_impl: you are recording an object with key AthenaPoolMap, type AthenaPoolTestMap (CLID 153882669)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Dummy A: size B 5
 AthenaPoolTestD...  DEBUG Dummy B: size C 4
 AthenaPoolTestD...  DEBUG i,c: 0 10
@@ -479,14 +440,12 @@ AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
 StoreGateSvc      WARNING record_impl: you are recording an object with key Dummy_A, type dummy_A (CLID 153882670)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Wrote dummy_A class 
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 StoreGateSvc      WARNING record_impl: you are recording an object with key Dummy_E, type dummy_E (CLID 203377114)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
-AthenaPoolTestD...  DEBUG Wrote dummy_E class 
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:5] 
 AthenaPoolTestD...  DEBUG Event type: user type McEvent weight 0: 0.9876 weight 1: 1.9876 weight 2: 2.9876
 AthenaPoolTestD...  DEBUG Setting actual interatctions per crossing: 35.23 and ave: 169.41
@@ -545,7 +504,7 @@ AthenaPoolTestD...  DEBUG Returned false for trying to set bit 29 for subDet 8
 AthenaPoolTestD...  DEBUG Setting error state: i, state 8 2
 AthenaPoolTestD...  DEBUG Subdet: 8 error state: Error 2
 StoreGateSvc      WARNING record_impl: you are recording an object with key OverlayEvent, type PileUpEventInfo (CLID 2102)
- There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use StoreGateSvc::overwrite method instead
+ There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated. Use SGImplSvc::overwrite method instead
 AthenaPoolTestD...  DEBUG PileUpEventInfo
 AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:12] 
 AthenaPoolTestD...  DEBUG [Run,Evt,Lumi,Time,BunchCross,DetMask] = [1,4294967297,14,12:13,15,0x1100000010,0x12,0x13]
@@ -557,10 +516,7 @@ AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:5]
 AthenaPoolTestD...  DEBUG Event type: user type McEvent
 AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
 ApplicationMgr       INFO Application Manager Stopped successfully
-FileMgr           WARNING At finalize, the following files remained open:
-name: "SimplePoolFile.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 0  ptr: 0x76d29c0  [o] [u]
-name: "SimplePoolFile.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 59  ptr: 0x76d3380  [o] [u]
-
+AthenaPoolTestD...  DEBUG Calling destructor
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"

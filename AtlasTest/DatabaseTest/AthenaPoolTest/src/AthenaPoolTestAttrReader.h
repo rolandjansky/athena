@@ -29,12 +29,11 @@ class StoreGateSvc;
 
 // INCLUDE HEADER FILES:
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/AlgFactory.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class EventSelectorAthenaPool;
 
-class AthenaPoolTestAttrReader : public Algorithm
+class AthenaPoolTestAttrReader : public AthAlgorithm
 {
 
 public:
@@ -53,12 +52,6 @@ public:
 
     /// Algorithm finalize at end of job
     virtual StatusCode finalize();
-
-private:
-
-    /// For a test: access to EventSelector to read back attribute
-    /// list
-    const EventSelectorAthenaPool* m_evtSel;
 
 };
 #endif

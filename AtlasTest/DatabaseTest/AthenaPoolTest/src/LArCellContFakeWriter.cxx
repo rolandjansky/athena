@@ -16,7 +16,6 @@
  */
 
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "LArCellContFakeWriter.h"
 
@@ -26,9 +25,6 @@
 // DetDescr includes
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-
-// TES include
-#include "StoreGate/StoreGateSvc.h"
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
@@ -43,8 +39,7 @@
 // Constructor with parameters:
 LArCellContFakeWriter::LArCellContFakeWriter(const std::string &name, 
 					     ISvcLocator *pSvcLocator) :
-    Algorithm(name,pSvcLocator),
-    m_storeGate(0),
+    AthAlgorithm(name,pSvcLocator),
     m_caloMgr(0),
     m_calocellId(0)
 {}
@@ -52,90 +47,32 @@ LArCellContFakeWriter::LArCellContFakeWriter(const std::string &name,
 // Initialize method:
 StatusCode LArCellContFakeWriter::initialize()
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "LArCellContFakeWriter::initialize()" << endreq;
-
-    // get StoreGate service
-    StatusCode sc=service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "StoreGate service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } else {}
-
-    // get DetectorStore service
-    StoreGateSvc * detStore;
-    sc=service("DetectorStore",detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "DetectorStore service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << " Found DetectorStore " << endreq;
-    }
-    
-    // Get the lar em helper from the detector store
-    sc = detStore->retrieve(m_calocellId, "CaloCell_ID");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Could not get CaloCell_ID helper !" << endreq;
-	return StatusCode::FAILURE;
-    } 
-    else {
-	log << MSG::DEBUG << " Found the CaloCell_ID helper. " << endreq;
-    }
-
-    // Get the lar dd mgr
-    sc = detStore->retrieve(m_caloMgr);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endreq;
-	return StatusCode::FAILURE;
-    }
-
+    ATH_MSG_INFO( "LArCellContFakeWriter::initialize()"  );
+    ATH_CHECK( detStore()->retrieve(m_calocellId, "CaloCell_ID") );
+    ATH_CHECK( detStore()->retrieve(m_caloMgr) );
     return StatusCode::SUCCESS;
 }
 
 // Execute method:
 StatusCode LArCellContFakeWriter::execute() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "LArCellContFakeWriter::execute()" << endreq;
+    ATH_MSG_DEBUG("LArCellContFakeWriter::execute()" );
 
     LArCellContFakeCreator creator;
 
     // Create container
+    MsgStream log(msgSvc(), name());
     CaloCellContainer* caloCont = creator.createCaloCellContainer(m_calocellId,
 								  m_caloMgr,
-								  log);
+								  msg());
         
     if (!caloCont) {
-	log << MSG::ERROR << "LarCont has not been created !" << endreq;
+	ATH_MSG_ERROR("LarCont has not been created !" );
 	return StatusCode::FAILURE;
     } 
 
     // register the cell container into StoreGate
-    StatusCode sc = m_storeGate->record(caloCont,"CaloCellCont1");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Container '" << "CaloCellCont" 
-	    << "' could not be registered in StoreGate !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "Container '" << "CaloCellCont"
-	    << "' registered in StoreGate" << endreq;
-    }
-
-    // Save symlink
-//     CaloCellContainer* caloColl=0;
-//     sc = m_storeGate->symLink(larCont,caloColl);
-//     if (sc != StatusCode::SUCCESS) {
-// 	log << MSG::ERROR 
-// 	    << "Error making symLink for CaloCellContainer in  TDS "
-// 	    << endreq;
-// 	return sc;
-//     } 
-//     else {
-// 	log << MSG::DEBUG << "Registered symlink to CaloCellContainer" << endreq;
-//     }
-
+    ATH_CHECK( evtStore()->record(caloCont,"CaloCellCont1") );
 
     printCells(caloCont);
 
@@ -145,9 +82,7 @@ StatusCode LArCellContFakeWriter::execute()
 // Print cells
 void LArCellContFakeWriter::printCells(const CaloCellContainer* caloCont) const
 {
-
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "LArCellContFakeWriter::printRDOs()" << endreq;
+    ATH_MSG_INFO("LArCellContFakeWriter::printRDOs()" );
 
     // loop on all cells
 
@@ -156,7 +91,7 @@ void LArCellContFakeWriter::printCells(const CaloCellContainer* caloCont) const
     
     for(; first != last; ++first) {
 	
-	log << MSG::DEBUG << "CaloCell: id "
+	ATH_MSG_DEBUG("CaloCell: id "
 	    << m_calocellId->show_to_string((*first)->ID())
 	    << " energy  " << (*first)->energy()
 	    << " time    " << (*first)->time()
@@ -165,20 +100,17 @@ void LArCellContFakeWriter::printCells(const CaloCellContainer* caloCont) const
 	    << std::setprecision(5)
 	    << " eta     " << (*first)->eta()
 	    << " phi     " << (*first)->phi()
-	    << endreq;
+	    );
     }
     
-    log << MSG::DEBUG << "LArCellContFakeWriter::printCells() end" << endreq;
-
+    ATH_MSG_DEBUG("LArCellContFakeWriter::printCells() end" );
 }
 
 
 // Finalize method:
 StatusCode LArCellContFakeWriter::finalize() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "LArCellContFakeWriter::finalize()" << endreq;
+    ATH_MSG_INFO("LArCellContFakeWriter::finalize()" );
 
     return StatusCode::SUCCESS;
 }

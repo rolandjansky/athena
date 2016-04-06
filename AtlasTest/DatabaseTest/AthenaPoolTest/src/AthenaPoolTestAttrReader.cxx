@@ -20,22 +20,9 @@
 
 #include "AthenaPoolTestAttrReader.h"
 
-// Gaudi
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-// Athena
-#include "StoreGate/StoreGateSvc.h"
-//#include "EventSelectorAthenaPool/EventSelectorAthenaPool.h"
-
-// AttributeList:
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-
-
 AthenaPoolTestAttrReader::AthenaPoolTestAttrReader(const std::string& name,
 					 ISvcLocator* pSvcLocator):
-    Algorithm(name, pSvcLocator)
+    AthAlgorithm(name,pSvcLocator)
 {}
 
 AthenaPoolTestAttrReader::~AthenaPoolTestAttrReader()
@@ -43,67 +30,13 @@ AthenaPoolTestAttrReader::~AthenaPoolTestAttrReader()
 
 StatusCode AthenaPoolTestAttrReader::initialize()
 {
-    MsgStream log( messageService(), name());
-
-//     StatusCode sc = service("EventSelector", m_evtSel);
-//     if (sc.isFailure())
-// 	{
-// 	    log << MSG::ERROR
-// 		<< "Unable to get pointer to AthenaPoolEventSelector"
-// 		<< endreq;
-// 	    return sc;
-// 	}
-
-
-//     IService* svc ;
-//     StatusCode sc = serviceLocator()->getService("EventSelector", svc);
-//     if (sc != StatusCode::SUCCESS ) {
-// 	log << MSG::ERROR 
-// 	    << " Cannot get EventSelector " 
-// 	    << endreq;
-// 	return sc ;
-//     }
- 
-
-//     m_evtSel = dynamic_cast<EventSelectorAthenaPool*> (svc);
-//     if(m_evtSel == 0 ) {
-// 	log << MSG::ERROR
-// 	    << "  Cannot cast to EventSelectorAthenaPool " 
-// 	    << endreq;
-// 	return StatusCode::FAILURE ;
-//      }
-//     else {
-// 	log << MSG::DEBUG << "Got EventSelectorAthenaPool " << endreq;
-//     }
-    
- 
-
     return StatusCode::SUCCESS; 
-      
 }
 
 StatusCode AthenaPoolTestAttrReader::execute()
 { 
-
-    StatusCode sc;
-
-    MsgStream log( messageService(), name() );   
-    log << MSG::DEBUG << "Executing AthenaPoolTestAttrReader" << endreq;
-   
-
-    // Create AttrList
-//     const AthenaAttributeList& attributes = m_evtSel->attributeList();
-//     pool::AttributeList::const_iterator first = attributes.begin();
-//     pool::AttributeList::const_iterator last  = attributes.end();
-//     for (; first != last; ++first) {
-// 	log << MSG::DEBUG << " name " << (*first).spec().name() 
-// 	    << " type " << (*first).spec().type_name() 
-// 	    << " value " << (*first).getValueAsString() << endreq;
-//     }
-
-				    
+    ATH_MSG_DEBUG("Executing AthenaPoolTestAttrReader");
     return StatusCode::SUCCESS;
-   
 }
 
 StatusCode AthenaPoolTestAttrReader::finalize() 

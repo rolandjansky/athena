@@ -25,16 +25,13 @@
  *
  */
 
-class StoreGateSvc;
-
 // INCLUDE HEADER FILES:
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/AlgFactory.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class AthenaAttributeList;
 
-class AthenaPoolTestAttrWriter : public Algorithm
+class AthenaPoolTestAttrWriter : public AthAlgorithm
 {
 
 public:
@@ -56,12 +53,8 @@ public:
 
 private:
 
-    /// Access to event store
-    StoreGateSvc*                      m_storeGate;
-
     /// Create attr list at intitialize and use each event
     AthenaAttributeList*               m_attributes;
 
 };
 #endif
-     

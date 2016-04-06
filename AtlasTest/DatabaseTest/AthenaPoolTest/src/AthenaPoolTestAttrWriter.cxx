@@ -25,17 +25,10 @@
 // AttributeList:
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/ListItem.h"
-#include "StoreGate/StoreGateSvc.h"
-
-
 AthenaPoolTestAttrWriter::AthenaPoolTestAttrWriter(const std::string& name,
 						   ISvcLocator* pSvcLocator)
     :
-    Algorithm(name, pSvcLocator)
+    AthAlgorithm(name, pSvcLocator), m_attributes(0)
 {}
 
 AthenaPoolTestAttrWriter::~AthenaPoolTestAttrWriter()
@@ -43,59 +36,39 @@ AthenaPoolTestAttrWriter::~AthenaPoolTestAttrWriter()
 
 StatusCode AthenaPoolTestAttrWriter::initialize()
 {
-  MsgStream log( messageService(), name());
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR
-          << "Unable to get pointer to StoreGate Service"
-          << endreq;
-      return sc;
-    }
 
     // Create AttrList
     try {
- 	log << MSG::DEBUG << "Try new attlist" << endreq;
+ 	ATH_MSG_DEBUG("Try new attlist" );
  	m_attributes = new AthenaAttributeList();
 	m_attributes->extend("Run",        "unsigned int" );
 	m_attributes->extend("Event",      "unsigned int" );
 	m_attributes->extend("IEvent",     "unsigned int");
 	m_attributes->extend("MissingET",  "float");
 	m_attributes->extend("electronPT", "float");
- 	log << MSG::DEBUG << "new attlist" << endreq;
+ 	ATH_MSG_DEBUG("new attlist" );
     } catch (std::exception e) {
- 	log << MSG::ERROR 
- 	    << "Caught exception from creation of AthenaAttributeList. Message: " 
+ 	ATH_MSG_ERROR("Caught exception from creation of AthenaAttributeList. Message: " 
  	    << e.what() 
- 	    << endreq;
+ 	    );
  	return (StatusCode::FAILURE);
     }
     m_attributes->addRef();
 
-    log << MSG::DEBUG << "After new att list" << endreq;
+    ATH_MSG_DEBUG("After new att list" );
 
     return StatusCode::SUCCESS; 
 }
 
 StatusCode AthenaPoolTestAttrWriter::execute()
 { 
-
-    StatusCode sc;
-
-    MsgStream log( messageService(), name() );   
-    log << MSG::DEBUG << "Executing AthenaPoolTestAttrWriter" << endreq;
+    ATH_MSG_DEBUG("Executing AthenaPoolTestAttrWriter" );
    
+    const EventInfo* eventInfo = nullptr;
+    ATH_CHECK(  evtStore()->retrieve(eventInfo) );
+    ATH_MSG_DEBUG( "Retrieved EventInfo"  );
 
-    const EventInfo* eventInfo;
-    sc = m_storeGate->retrieve(eventInfo);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Could not retrieve event info" << endreq;
-    }
-
-    log << MSG::DEBUG << "Retrieved EventInfo" << endreq;
-
-    EventID* myEventID=eventInfo->event_ID();
+    const EventID* myEventID=eventInfo->event_ID();
  
     // Create AttrList
     static unsigned int iEvent = 0;
@@ -110,36 +83,28 @@ StatusCode AthenaPoolTestAttrWriter::execute()
 	(*attributes)["MissingET"].setValue(7.0f*iEvent);
 	(*attributes)["electronPT"].setValue(5.0f*iEvent);
     } catch (std::exception e) {
-	log << MSG::ERROR 
-	    << "Caught exception from setValue for attributes. Message: " 
+	ATH_MSG_ERROR("Caught exception from setValue for attributes. Message: " 
 	    << e.what() 
-	    << endreq;
+	    );
 	return (StatusCode::FAILURE);
     }
 
-    log << MSG::DEBUG << "After create att" << endreq;
+    ATH_MSG_DEBUG("After create att" );
 
     coral::AttributeList::const_iterator first = attributes->begin();
     coral::AttributeList::const_iterator last  = attributes->end();
     for (; first != last; ++first) {
-	log << MSG::DEBUG << " name " << (*first).specification().name() 
-	    << " type " << (*first).specification().typeName() 
-	    << " value ";
 	std::stringstream str;
 	(*first).toOutputStream(str);
-	log << MSG::DEBUG << str << endreq;
+	ATH_MSG_DEBUG(" name " << (*first).specification().name() 
+                      << " type " << (*first).specification().typeName() 
+                      << " value ");
     }
 
-    log << MSG::DEBUG << "After iteration" << endreq;
+    ATH_MSG_DEBUG("After iteration" );
 
-    sc = m_storeGate->record(attributes, "SimpleTag");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Could not record attributes" << endreq;
-	return  StatusCode::FAILURE;
-    }
-
-    log << MSG::DEBUG << "End" << endreq;
-
+    ATH_CHECK(  evtStore()->record(attributes, "SimpleTag") );
+    ATH_MSG_DEBUG("End" );
     return StatusCode::SUCCESS;
    
 }

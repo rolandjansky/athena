@@ -33,17 +33,12 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/TriggerInfo.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include <algorithm>
 #include <sstream>
 
 AthenaPoolTestDataReader::AthenaPoolTestDataReader(const std::string& name,
-					 ISvcLocator* pSvcLocator):
-    Algorithm(name, pSvcLocator)
+                                                   ISvcLocator* pSvcLocator):
+    AthAlgorithm(name, pSvcLocator)
 {}
 
 AthenaPoolTestDataReader::~AthenaPoolTestDataReader()
@@ -51,27 +46,13 @@ AthenaPoolTestDataReader::~AthenaPoolTestDataReader()
 
 StatusCode AthenaPoolTestDataReader::initialize()
 {
-    MsgStream log( messageService(), name());
-
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure())
-	{
-	    log << MSG::ERROR
-		<< "Unable to get pointer to StoreGate Service"
-		<< endreq;
-	    return sc;
-	}
     return StatusCode::SUCCESS; 
-      
 }
 
 StatusCode AthenaPoolTestDataReader::execute()
 { 
 
-    StatusCode sc;
-
-    MsgStream log( messageService(), name() );   
-    log << MSG::DEBUG << "Executing AthenaPoolTestDataReader" << endreq;
+    ATH_MSG_DEBUG("Executing AthenaPoolTestDataReader" );
    
 
     // Retrieve collections
@@ -83,169 +64,116 @@ StatusCode AthenaPoolTestDataReader::execute()
     bool error = false;
     
     const IAthenaPoolTestCollection* col;
-    sc=m_storeGate->retrieve(col, "AthenaPoolTestCollection_1");
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve AthenaPoolTestCollection_1 object " 
-	    << endreq;
-	return sc;
-    }
-    else {
-	log << MSG::DEBUG << "Retrieved collection 1" <<  endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_1") );
     
-	
-    log << MSG::DEBUG << "Collection of A's" <<  endreq;
-    IAthenaPoolTestCollection::const_iterator it   = col->begin();
-    IAthenaPoolTestCollection::const_iterator last = col->end();
+        
+    ATH_MSG_DEBUG("Collection of A's" );
     int i = 0; 
-    for (; it != last; ++it, ++i) {
-	log << MSG::DEBUG << "Read:      " << (*it)->printWhoYouAre() <<  endreq;
-	AthenaPoolTestA data(i+1, i+2);
-	log << MSG::DEBUG << "Should be: " << data.printWhoYouAre() <<  endreq << endreq;
-	test1 = (*it)->printWhoYouAre();
-	test2 = data.printWhoYouAre();
-	if (test1 != test2) {
-	    log << MSG::ERROR << "Incorrect data:  in/out " << test1 << " " << test2 << endreq;
-	    error = true;
-	}
-	
+    for (const IAthenaPoolTestData* elt : *col) {
+      ATH_MSG_DEBUG( "Read:      " << elt->printWhoYouAre()  );
+      AthenaPoolTestA data(i+1, i+2);
+      ATH_MSG_DEBUG( "Should be: " << data.printWhoYouAre()  );
+      test1 = elt->printWhoYouAre();
+      test2 = data.printWhoYouAre();
+      if (test1 != test2) {
+        ATH_MSG_ERROR( "Incorrect data:  in/out " << test1 << " " << test2  );
+        error = true;
+      }
+      ++i;
     }
-				    
+                                    
 
     // B's only
  
-    sc=m_storeGate->retrieve(col, "AthenaPoolTestCollection_2");
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve AthenaPoolTestCollection_2 object " 
-	    << endreq;
-	return sc;
-    }
-    else {
-	log << MSG::DEBUG << "Retrieved collection 2" <<  endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_2") );
     
-    log << MSG::DEBUG << "Collection of B's" <<  endreq;
-    it   = col->begin();
-    last = col->end();
+    ATH_MSG_DEBUG("Collection of B's" );
     i = 0; 
-    for (; it != last; ++it, ++i) {
-	log << MSG::DEBUG << "Read:      " << (*it)->printWhoYouAre() <<  endreq;
+    for (const IAthenaPoolTestData* elt : *col) {
+        ATH_MSG_DEBUG( "Read:      " << elt->printWhoYouAre()  );
 	AthenaPoolTestB data(i+11, i+12);
-	log << MSG::DEBUG << "Should be: " << data.printWhoYouAre() <<  endreq << endreq;
-	test1 = (*it)->printWhoYouAre();
+	ATH_MSG_DEBUG( "Should be: " << data.printWhoYouAre()  );
+	test1 = elt->printWhoYouAre();
 	test2 = data.printWhoYouAre();
 	if (test1 != test2) {
-	    log << MSG::ERROR << "Incorrect data:  in/out " << test1 << " " << test2 << endreq;
+            ATH_MSG_ERROR( "Incorrect data:  in/out " << test1 << " " << test2  );
 	    error = true;
 	}
+        ++i;
     }
-				    
+                                    
 
     // A's and B's 
  
-    sc=m_storeGate->retrieve(col, "AthenaPoolTestCollection_3");
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve AthenaPoolTestCollection_3 object " 
-	    << endreq;
-	return sc;
-    }
-    else {
-	log << MSG::DEBUG << "Retrieved collection 3" <<  endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_3") );
 
-    log << MSG::DEBUG << "Collection of A's and B's" <<  endreq;
-    it   = col->begin();
-    last = col->end();
+    ATH_MSG_DEBUG("Collection of A's and B's" );
     i = 0; 
-    for (; it != last; ++it, ++i) {
-	log << MSG::DEBUG << "Read:      " << (*it)->printWhoYouAre() <<  endreq;
+    for (const IAthenaPoolTestData* elt : *col) {
+        ATH_MSG_DEBUG( "Read:      " << elt->printWhoYouAre()  );
 	if (i < 3) {
 	    AthenaPoolTestA data(i+21, i+22);
-	    log << MSG::DEBUG << "Should be: " << data.printWhoYouAre() <<  endreq << endreq;
-	    test1 = (*it)->printWhoYouAre();
+	    ATH_MSG_DEBUG( "Should be: " << data.printWhoYouAre()  );
+	    test1 = elt->printWhoYouAre();
 	    test2 = data.printWhoYouAre();
 	    if (test1 != test2) {
-		log << MSG::ERROR << "Incorrect data:  in/out " << test1 << " " << test2 << endreq;
+                ATH_MSG_ERROR( "Incorrect data:  in/out " << test1 << " " << test2  );
 		error = true;
 	    }
 	}
 	else {
 	    AthenaPoolTestB data(i+21, i+22);
-	    log << MSG::DEBUG << "Should be: " << data.printWhoYouAre() <<  endreq << endreq;
-	    test1 = (*it)->printWhoYouAre();
+	    ATH_MSG_DEBUG( "Should be: " << data.printWhoYouAre()  );
+	    test1 = elt->printWhoYouAre();
 	    test2 = data.printWhoYouAre();
 	    if (test1 != test2) {
-		log << MSG::ERROR << "Incorrect data:  in/out " << test1 << " " << test2 << endreq;
+                ATH_MSG_ERROR( "Incorrect data:  in/out " << test1 << " " << test2  );
 		error = true;
 	    }
 	}
+        ++i;
     }
 
 
     // C's only
  
-    sc=m_storeGate->retrieve(col, "AthenaPoolTestCollection_4");
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve AthenaPoolTestCollection_4 object " 
-	    << endreq;
-	return sc;
-    }
-    else {
-	log << MSG::DEBUG << "Retrieved collection 4" <<  endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_4") );
 
-    log << MSG::DEBUG << "Collection of C's" <<  endreq;
-    it   = col->begin();
-    last = col->end();
+    ATH_MSG_DEBUG("Collection of C's" );
     i = 0; 
-    for (; it != last; ++it, ++i) {
-	log << MSG::DEBUG << "Read:      " << (*it)->printWhoYouAre() <<  endreq;
+    for (const IAthenaPoolTestData* elt : *col) {
+        ATH_MSG_DEBUG( "Read:      " << elt->printWhoYouAre()  );
 	AthenaPoolTestC data(0, 0, i+3, i+4);
-	log << MSG::DEBUG << "Should be: " << data.printWhoYouAre() <<  endreq << endreq;
-	test1 = (*it)->printWhoYouAre();
+	ATH_MSG_DEBUG( "Should be: " << data.printWhoYouAre()  );
+	test1 = elt->printWhoYouAre();
 	test2 = data.printWhoYouAre();
 	if (test1 != test2) {
-	    log << MSG::ERROR << "Incorrect data:  in/out " << test1 << " " << test2 << endreq;
+            ATH_MSG_ERROR( "Incorrect data:  in/out " << test1 << " " << test2  );
 	    error = true;
 	}
-	
+        ++i;
     }
-				    
+                                    
 
     // D's only
  
-    sc=m_storeGate->retrieve(col, "AthenaPoolTestCollection_5");
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve AthenaPoolTestCollection_5 object " 
-	    << endreq;
-	return sc;
-    }
-    else {
-	log << MSG::DEBUG << "Retrieved collection 5" <<  endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(col, "AthenaPoolTestCollection_5") );
 
-    log << MSG::DEBUG << "Collection of D's" <<  endreq;
-    it   = col->begin();
-    last = col->end();
+    ATH_MSG_DEBUG("Collection of D's" );
     i = 0; 
-    for (; it != last; ++it, ++i) {
-	log << MSG::DEBUG << "Read:      " << (*it)->printWhoYouAre() <<  endreq;
+    for (const IAthenaPoolTestData* elt : *col) {
+        ATH_MSG_DEBUG( "Read:      " << elt->printWhoYouAre()  );
 	AthenaPoolTestD data(0, 0, i+13, i+14, i+15, i+16);
-	log << MSG::DEBUG << "Should be: " << data.printWhoYouAre() <<  endreq << endreq;
-	test1 = (*it)->printWhoYouAre();
+	ATH_MSG_DEBUG( "Should be: " << data.printWhoYouAre()  );
+	test1 = elt->printWhoYouAre();
 	test2 = data.printWhoYouAre();
 	if (test1 != test2) {
-	    log << MSG::ERROR << "Incorrect data:  in/out " << test1 << " " << test2 << endreq;
+            ATH_MSG_ERROR( "Incorrect data:  in/out " << test1 << " " << test2  );
 	    error = true;
 	}
-	
+	++i;
     }
-				    
+                                    
 
     // Test for CLHEP matrix
 
@@ -253,102 +181,96 @@ StatusCode AthenaPoolTestDataReader::execute()
     //bool readMatrix = false;
     bool readMatrix = true;
     if (readMatrix) {
-	const AthenaPoolTestMatrix* matrix;
-	for ( int i = 0; i < 3; ++i ) {
-	    std::stringstream stream;
-	    stream << "AthenaPoolTestMatrix_" << i;
-	    std::string key(stream.str());
-	    sc = m_storeGate->retrieve(matrix, key);
-	    if ( sc.isFailure() ) {
-		log << MSG::ERROR
-		    << "Could not retrieve " << key << " data object"
-		    << endreq;
-		return StatusCode::FAILURE;
-	    }
+        const AthenaPoolTestMatrix* matrix;
+        for ( int i = 0; i < 3; ++i ) {
+            std::stringstream stream;
+            stream << "AthenaPoolTestMatrix_" << i;
+            std::string key(stream.str());
+	    ATH_CHECK( evtStore()->retrieve(matrix, key) );
+            ATH_MSG_DEBUG("Retrieved matrix " << i + 1 << " " << key );
 
-	    
-	    log << MSG::DEBUG << "Retrieved matrix " << i + 1 << " " << key << endreq;
+            const HepGeom::Point3D<double>& point  = matrix->point();
+            const HepGeom::Point3D<double>& point1 = matrix->point1();
+            ATH_MSG_DEBUG("   Points (by value,by ptr) x,y,z : " 
+                          << point.x() << " " 
+                          << point.y() << " " 
+                          << point.z() << " " 
+                          << ", x,y,z " 
+                          << point1.x() << " " 
+                          << point1.y() << " " 
+                          << point1.z() << " ");
+            const CLHEP::HepMatrix& smallMatrix = matrix->smallMatrix();
+            ATH_MSG_DEBUG("   Small matrix : ( " << smallMatrix.num_row() << ", " << smallMatrix.num_col() << " ) " );
+            stream.clear();
+            stream << "   values: ";
+            for (int i = 0; i < smallMatrix.num_row(); ++i) {
+                for (int j = 0; j < smallMatrix.num_col(); ++ j) {
+                    stream << smallMatrix[i][j] << ", ";
+                }
+            }
+            ATH_MSG_VERBOSE(stream.str());
+            
+            const CLHEP::HepMatrix& bigMatrix = matrix->bigMatrix();
+            ATH_MSG_DEBUG("   Big matrix : ( " << bigMatrix.num_row() << ", " << bigMatrix.num_col() << " ) " );
+            stream.clear();
+            stream << "   values: ";
+            for (int i = 0; i < bigMatrix.num_row(); ++i) {
+                for (int j = 0; j < bigMatrix.num_col(); ++ j) {
+                    stream << bigMatrix[i][j] << ", ";
+                }
+            }
+            ATH_MSG_VERBOSE(stream.str());
+            ATH_MSG_DEBUG("   Other matrices : " );
+            for ( int ii = 0; ii < matrix->numberOfMatrices(); ++ii ) {
+                const CLHEP::HepMatrix& matrx = matrix->matrix( ii );
+                ATH_MSG_DEBUG("                  ( " << matrx.num_row() << ", " << matrx.num_col() << " ) " );
+                stream.clear();
+                stream << "   values: ";
+                for (int i = 0; i < matrx.num_row(); ++i) {
+                    for (int j = 0; j < matrx.num_col(); ++ j) {
+                        stream << matrx[i][j] << ", ";
+                    }
+                }
+                ATH_MSG_VERBOSE(stream.str());
+            }
 
-	    const HepGeom::Point3D<double>& point  = matrix->point();
-	    const HepGeom::Point3D<double>& point1 = matrix->point1();
-	    log << MSG::DEBUG << "   Points (by value,by ptr) x,y,z : " 
-		<< point.x() << " " 
-		<< point.y() << " " 
-		<< point.z() << " " 
-		<< ", x,y,z " 
-		<< point1.x() << " " 
-		<< point1.y() << " " 
-		<< point1.z() << " " 
-		<< endreq;
-	    const CLHEP::HepMatrix& smallMatrix = matrix->smallMatrix();
-	    log << MSG::DEBUG << "   Small matrix : ( " << smallMatrix.num_row() << ", " << smallMatrix.num_col() << " ) " << endreq;
-	    log << MSG::VERBOSE << "   values: ";
-	    for (int i = 0; i < smallMatrix.num_row(); ++i) {
-		for (int j = 0; j < smallMatrix.num_col(); ++ j) {
-		    log << MSG::VERBOSE << smallMatrix[i][j] << ", ";
-		}
-	    }
-	    log << MSG::VERBOSE << endreq;
-	    
-	    const CLHEP::HepMatrix& bigMatrix = matrix->bigMatrix();
-	    log << MSG::DEBUG << "   Big matrix : ( " << bigMatrix.num_row() << ", " << bigMatrix.num_col() << " ) " << endreq;
-	    log << MSG::VERBOSE << "   values: ";
-	    for (int i = 0; i < bigMatrix.num_row(); ++i) {
-		for (int j = 0; j < bigMatrix.num_col(); ++ j) {
-		    log << MSG::VERBOSE << bigMatrix[i][j] << ", ";
-		}
-	    }
-	    log << MSG::VERBOSE << endreq;
-	    log << MSG::DEBUG << "   Other matrices : " << endreq;
-	    for ( int ii = 0; ii < matrix->numberOfMatrices(); ++ii ) {
-		const CLHEP::HepMatrix& matrx = matrix->matrix( ii );
-		log << MSG::DEBUG << "                  ( " << matrx.num_row() << ", " << matrx.num_col() << " ) " << endreq;
-		log << MSG::VERBOSE << "   values: ";
-		for (int i = 0; i < matrx.num_row(); ++i) {
-		    for (int j = 0; j < matrx.num_col(); ++ j) {
-			log << MSG::VERBOSE << matrx[i][j] << ", ";
-		    }
-		}
-		log << MSG::VERBOSE << endreq;
-	    }
+            // print out matrix maps
+            AthenaPoolTestMatrix::matrixMaps_t mats = matrix->matrixMaps();
 
-	    // print out matrix maps
-	    AthenaPoolTestMatrix::matrixMaps_t mats = matrix->matrixMaps();
+            ATH_MSG_DEBUG("   Matrix maps : " << mats.size() );
+            std::map<unsigned int, CLHEP::HepMatrix>& mp0 = mats[0];
+            std::map<unsigned int, CLHEP::HepMatrix>& mp1 = mats[1];
+            std::map<unsigned int, CLHEP::HepMatrix>::const_iterator itmp =  mp0.begin();
+            ATH_MSG_DEBUG("   Key, row, column " << (*itmp).first << " " 
+                          << (*itmp).second.num_row() << ", " << (*itmp).second.num_col() );
+            ++itmp;
+            ATH_MSG_DEBUG("   Key, row, column " << (*itmp).first << " " 
+                          << (*itmp).second.num_row() << ", " << (*itmp).second.num_col() );
+            itmp =  mp1.begin();
+            ATH_MSG_DEBUG("   Key, row, column " << (*itmp).first << " " 
+                          << (*itmp).second.num_row() << ", " << (*itmp).second.num_col() );
+            ++itmp;
+            ATH_MSG_DEBUG("   Key, row, column " << (*itmp).first << " " 
+                          << (*itmp).second.num_row() << ", " << (*itmp).second.num_col() );
 
-	    log << MSG::DEBUG << "   Matrix maps : " << mats.size() << endreq;
-	    std::map<unsigned int, CLHEP::HepMatrix>& mp0 = mats[0];
-	    std::map<unsigned int, CLHEP::HepMatrix>& mp1 = mats[1];
-	    std::map<unsigned int, CLHEP::HepMatrix>::const_iterator itmp =  mp0.begin();
-	    log << MSG::DEBUG << "   Key, row, column " << (*itmp).first << " " 
-		<< (*itmp).second.num_row() << ", " << (*itmp).second.num_col() << endreq;
-	    ++itmp;
-	    log << MSG::DEBUG << "   Key, row, column " << (*itmp).first << " " 
-		<< (*itmp).second.num_row() << ", " << (*itmp).second.num_col() << endreq;
-	    itmp =  mp1.begin();
-	    log << MSG::DEBUG << "   Key, row, column " << (*itmp).first << " " 
-		<< (*itmp).second.num_row() << ", " << (*itmp).second.num_col() << endreq;
-	    ++itmp;
-	    log << MSG::DEBUG << "   Key, row, column " << (*itmp).first << " " 
-		<< (*itmp).second.num_row() << ", " << (*itmp).second.num_col() << endreq;
+            // Print out the transform:
+            ATH_MSG_DEBUG("   Matrix transform: " );
+            const HepGeom::Transform3D& trans  = matrix->trans();
+            ATH_MSG_DEBUG("   Matrix transform: " );
+            ATH_MSG_DEBUG("  xx " << trans(0,0) );
+            ATH_MSG_DEBUG("  xy " << trans(0,1)  );
+            ATH_MSG_DEBUG("  xz " << trans(0,2)  );
+            ATH_MSG_DEBUG("  yx " << trans(1,0)  );
+            ATH_MSG_DEBUG("  yy " << trans(1,1)  );
+            ATH_MSG_DEBUG("  yz " << trans(1,2)  );
+            ATH_MSG_DEBUG("  zx " << trans(2,0)  );
+            ATH_MSG_DEBUG("  zy " << trans(2,1)  );
+            ATH_MSG_DEBUG("  zz " << trans(2,2)  );
+            ATH_MSG_DEBUG("  dx " << trans(3,0)  );
+            ATH_MSG_DEBUG("  dy " << trans(3,1)  );
+            ATH_MSG_DEBUG("  dz " << trans(3,2)  );
 
-	    // Print out the transform:
-	    log << MSG::DEBUG << "   Matrix transform: " << endreq;
-	    const HepGeom::Transform3D& trans  = matrix->trans();
-	    log << MSG::DEBUG << "   Matrix transform: " << endreq;
-	    log << MSG::DEBUG << "  xx " << trans(0,0) << endreq;
-	    log << MSG::DEBUG << "  xy " << trans(0,1)  << endreq;
-	    log << MSG::DEBUG << "  xz " << trans(0,2)  << endreq;
-	    log << MSG::DEBUG << "  yx " << trans(1,0)  << endreq;
-	    log << MSG::DEBUG << "  yy " << trans(1,1)  << endreq;
-	    log << MSG::DEBUG << "  yz " << trans(1,2)  << endreq;
-	    log << MSG::DEBUG << "  zx " << trans(2,0)  << endreq;
-	    log << MSG::DEBUG << "  zy " << trans(2,1)  << endreq;
-	    log << MSG::DEBUG << "  zz " << trans(2,2)  << endreq;
-	    log << MSG::DEBUG << "  dx " << trans(3,0)  << endreq;
-	    log << MSG::DEBUG << "  dy " << trans(3,1)  << endreq;
-	    log << MSG::DEBUG << "  dz " << trans(3,2)  << endreq;
-
-	}
+        }
     }
     
 
@@ -357,91 +279,75 @@ StatusCode AthenaPoolTestDataReader::execute()
 
     bool readMap = true;
     const AthenaPoolTestMap* tmapPtr;
-    sc=m_storeGate->retrieve(tmapPtr, "AthenaPoolMap");
-    if (sc.isFailure()) {
-	log << MSG::ERROR
-	    << "Unable to retrieve AthenaPoolMap object " 
-	    << endreq;
-	readMap = false;
-//	return sc;
+    if (evtStore()->retrieve(tmapPtr, "AthenaPoolMap").isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve AthenaPoolMap object ");
+        readMap = false;
     }
     else {
-	log << MSG::DEBUG << "Retrieved AthenaPoolMap" <<  endreq;
+        ATH_MSG_DEBUG("Retrieved AthenaPoolMap" );
     }
 
     if (readMap) {
-	
-	const AthenaPoolTestMap& tmap    = *tmapPtr;
+        
+        const AthenaPoolTestMap& tmap    = *tmapPtr;
 
-	typedef AthenaPoolTestMapData::Deposit deposit_t;
-	typedef std::vector<deposit_t>         deposit_vec;
+        typedef AthenaPoolTestMapData::Deposit deposit_t;
+        typedef std::vector<deposit_t>         deposit_vec;
 
-	deposit_vec deposits;
+        deposit_vec deposits;
     
-	//deposit_t deposit;
+        //deposit_t deposit;
 
-	// Printout data
-	AthenaPoolTestMap::const_iterator itm  = tmap.begin();
-	AthenaPoolTestMap::const_iterator endm = tmap.end();
-	for (; itm != endm; ++itm) {
+        // Printout data
+        AthenaPoolTestMap::const_iterator itm  = tmap.begin();
+        AthenaPoolTestMap::const_iterator endm = tmap.end();
+        for (; itm != endm; ++itm) {
 
-	    log << MSG::DEBUG << "AthenaPoolTestMap: key " << (*itm).first 
-		<< "  word " << (*itm).second.word()
-		<< "  Deposits: (barCode, evtIndx, wgt) ";
+            std::stringstream stream;
+            stream << "AthenaPoolTestMap: key " << (*itm).first 
+                   << "  word " << (*itm).second.word()
+                   << "  Deposits: (barCode, evtIndx, wgt) ";
 
-	    deposits.clear();
-	    (*itm).second.deposits(deposits);
-	    for (unsigned int i = 0; i < deposits.size(); ++i) {
-		AthenaPoolTestMapDataLink& link = deposits[i].first;
-		log << MSG::DEBUG << link.barcode() << " " 
-		    << link.eventIndex() << " " 
-		    << deposits[i].second << " ";
-	    }
-	    log << MSG::DEBUG << endreq;
-	}
+            deposits.clear();
+            (*itm).second.deposits(deposits);
+            for (unsigned int i = 0; i < deposits.size(); ++i) {
+                AthenaPoolTestMapDataLink& link = deposits[i].first;
+                stream << link.barcode() << " " 
+                       << link.eventIndex() << " " 
+                       << deposits[i].second << " ";
+            }
+            ATH_MSG_DEBUG(stream.str());
+        }
     }
     
 
     // Read back dummy classes
     
     const dummy_A* dummyA;
-    sc = m_storeGate->retrieve(dummyA, "Dummy_A");
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR
- 	    << "Could not retrieve Dummy_A"
- 	    << endreq;
-// 	return StatusCode::FAILURE;
+    if (evtStore()->retrieve(dummyA, "Dummy_A").isFailure() ) {
+        ATH_MSG_ERROR("Could not retrieve Dummy_A");
     }
     else {
-	log << MSG::DEBUG << "Read back dummy_A class " << endreq;
+        ATH_MSG_DEBUG("Read back dummy_A class " );
     }
     const std::vector<dummy_B>& b = dummyA->dummy();
-    log << MSG::DEBUG << "Dummy A: size B " << b.size() << endreq;
+    ATH_MSG_DEBUG("Dummy A: size B " << b.size() );
     for (unsigned int i = 0; i < b.size(); ++i) {
-	const std::vector<dummy_C>& c = b[i].dummy();
-	log << MSG::DEBUG << "Dummy B: size C " << c.size() << endreq;
-	for (unsigned int j = 0; j < c.size(); ++j) {
-	    log << MSG::DEBUG << "i,c: " << j << " " << c[j].value() << endreq;
-	}
+        const std::vector<dummy_C>& c = b[i].dummy();
+        ATH_MSG_DEBUG("Dummy B: size C " << c.size() );
+        for (unsigned int j = 0; j < c.size(); ++j) {
+            ATH_MSG_DEBUG("i,c: " << j << " " << c[j].value() );
+        }
     }
     
     // dummy_E, D
 
     const dummy_E* dummyE;
-    sc = m_storeGate->retrieve(dummyE, "Dummy_E");
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR
- 	    << "Could not retrieve Dummy_E"
- 	    << endreq;
- 	return StatusCode::FAILURE;
-    }
-    else {
-	log << MSG::DEBUG << "Read back dummy_E class " << endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(dummyE, "Dummy_E") );
     const std::vector<const dummy_D*>& d = dummyE->dummy();
-    log << MSG::DEBUG << "Dummy E: size D " << d.size() << endreq;
+    ATH_MSG_DEBUG("Dummy E: size D " << d.size() );
     for (unsigned int i = 0; i < d.size(); ++i) {
-	log << MSG::DEBUG << "Dummy D: value " << d[i]->value() << endreq;
+        ATH_MSG_DEBUG("Dummy D: value " << d[i]->value() );
     }
 
 
@@ -449,153 +355,107 @@ StatusCode AthenaPoolTestDataReader::execute()
 
     // Normal EventInfo
     const EventInfo * evt = 0;
-    sc = m_storeGate->retrieve( evt, "McEventInfo" );
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR << "  Could not get event info" << endreq;      
- 	return StatusCode::FAILURE;
-    }
-    else {
- 	log << MSG::DEBUG << "Normal EventInfo"
- 	    << endreq;
- 	log << MSG::DEBUG << "Event ID: ["
-            << evt->event_ID()->event_number() << ":"
- 	    << evt->event_ID()->time_stamp() << "] "
- 	    << endreq;
- 	log << MSG::DEBUG << *(evt->event_ID())
- 	    << endreq;
- 	log << MSG::DEBUG << "Event type: user type "
- 	    << evt->event_type()->user_type();
-        for (unsigned int i = 0; i < evt->event_type()->n_mc_event_weights (); ++i) {
-            log << MSG::DEBUG << " weight " << i << ": " 
-                << evt->event_type()->mc_event_weight(i);
-        }
- 	log << MSG::DEBUG << endreq;
-
-        // Check interactions per crossing
-        log << MSG::DEBUG << "Actual interatctions per crossing: " 
-            << evt->actualInteractionsPerCrossing() << " and ave: " 
-            << evt->averageInteractionsPerCrossing() << endreq;
-
-        // We only loop up to Lumi and not nDets since Lumi is set separately
-        for (unsigned int i = 0; i < EventInfo::Lumi; ++i) {
-            log << MSG::DEBUG << "Subdet: " << i << " flags        " 
-                << MSG::hex << evt->eventFlags(EventInfo::EventFlagSubDet(i)) << MSG::dec << endreq;
-            EventInfo::EventFlagErrorState error = evt->errorState(EventInfo::EventFlagSubDet(i));
-            if (error == EventInfo::NotSet)
-                log << MSG::DEBUG << "Subdet: " << i << " error state: NotSet " << endreq;
-            else if (error == EventInfo::Warning)
-                log << MSG::DEBUG << "Subdet: " << i << " error state: Warning " << endreq;
-            else if (error == EventInfo::Error)
-                log << MSG::DEBUG << "Subdet: " << i << " error state: Error " << endreq;
-        }
+    ATH_CHECK( evtStore()->retrieve( evt, "McEventInfo" ) );
+    ATH_MSG_DEBUG( "Normal EventInfo" );
+    ATH_MSG_DEBUG( "Event ID: ["
+                   << evt->event_ID()->event_number() << ":"
+                   << evt->event_ID()->time_stamp() << "] " );
+    ATH_MSG_DEBUG( *(evt->event_ID()) );
+    {
+      std::stringstream stream;
+      stream << "Event type: user type "
+             << evt->event_type()->user_type();
+      for (unsigned int i = 0; i < evt->event_type()->n_mc_event_weights (); ++i)
+        stream<< " weight " << i << ": " << evt->event_type()->mc_event_weight(i);
+      ATH_MSG_DEBUG(stream.str());
     }
 
-//     Cannot have symlink to pileupeventinfo - would make two in SG
-//     and app mgr/event loop cannot handle more than one.
-//     // PileupInfo as EventInfo
-//     evt = 0;
-//     sc = m_storeGate->retrieve( evt, "OverlayEvent" );
-//     if ( sc.isFailure() ) {
-//  	log << MSG::INFO << "  Could not get pileup event info as event info" << endreq;      
-// // 	return StatusCode::FAILURE;
-//     }
-//     else {
-//  	log << MSG::DEBUG << "PileUpEventInfo as EventInfo"
-//  	    << endreq;
-//  	log << MSG::DEBUG << "Event ID: ["
-//  	    << evt->event_ID()->run_number()   << ","
-//  	    << evt->event_ID()->event_number() << ":"
-//  	    << evt->event_ID()->time_stamp() << "] "
-//  	    << endreq;
-//  	log << MSG::DEBUG << "Event type: user type "
-//  	    << evt->event_type()->user_type() 
-//  	    << endreq;
-//     }
+    // Check interactions per crossing
+    ATH_MSG_DEBUG( "Actual interatctions per crossing: " 
+                   << evt->actualInteractionsPerCrossing() << " and ave: " 
+                   << evt->averageInteractionsPerCrossing()  );
+
+    // We only loop up to Lumi and not nDets since Lumi is set separately
+    for (unsigned int i = 0; i < EventInfo::Lumi; ++i) {
+      ATH_MSG_DEBUG( "Subdet: " << i << " flags        " 
+                     << MSG::hex << evt->eventFlags(EventInfo::EventFlagSubDet(i)) << MSG::dec  );
+      EventInfo::EventFlagErrorState error = evt->errorState(EventInfo::EventFlagSubDet(i));
+      if (error == EventInfo::NotSet)
+        ATH_MSG_DEBUG( "Subdet: " << i << " error state: NotSet "  );
+      else if (error == EventInfo::Warning)
+        ATH_MSG_DEBUG( "Subdet: " << i << " error state: Warning "  );
+      else if (error == EventInfo::Error)
+        ATH_MSG_DEBUG( "Subdet: " << i << " error state: Error "  );
+    }
+    
 
     // PileupEventInfo as itself
     const PileUpEventInfo* pevt = 0;
-    sc = m_storeGate->retrieve( pevt, "OverlayEvent" );
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR << "  Could not get pileup event info" << endreq;      
- 	return StatusCode::FAILURE;
-    }
-    else {
- 	log << MSG::DEBUG << "PileUpEventInfo"
- 	    << endreq;
- 	log << MSG::DEBUG << "Event ID: ["
- 	    << pevt->event_ID()->run_number()   << ","
-            << pevt->event_ID()->event_number() << ":"
- 	    << pevt->event_ID()->time_stamp() << "] "
- 	    << endreq;
- 	log << MSG::DEBUG << *(pevt->event_ID())
- 	    << endreq;
- 	log << MSG::DEBUG << "Event type: user type "
- 	    << pevt->event_type()->user_type()
- 	    << endreq;
+    ATH_CHECK( evtStore()->retrieve( pevt, "OverlayEvent" ) );
+    ATH_MSG_DEBUG( "PileUpEventInfo" );
+    ATH_MSG_DEBUG( "Event ID: ["
+                   << pevt->event_ID()->run_number()   << ","
+                   << pevt->event_ID()->event_number() << ":"
+                   << pevt->event_ID()->time_stamp() << "] " );
+    ATH_MSG_DEBUG( *(pevt->event_ID()) );
+    ATH_MSG_DEBUG( "Event type: user type "
+                   << pevt->event_type()->user_type() );
 
-        log << MSG::DEBUG << "Trigger info: status " << pevt->trigger_info()->statusElement()
-            << " extLvl1ID " << pevt->trigger_info()->extendedLevel1ID()
-            << " lvl1Type  " << pevt->trigger_info()->level1TriggerType()
-            << " lvl1Info  ";
-        for (unsigned int i = 0; i < pevt->trigger_info()->level1TriggerInfo().size(); ++i) {
-            log << MSG::DEBUG << pevt->trigger_info()->level1TriggerInfo()[i] << " ";
-        }
-        log << MSG::DEBUG << "lvl2Info ";
-        for (unsigned int i = 0; i < pevt->trigger_info()->level2TriggerInfo().size(); ++i) {
-            log << MSG::DEBUG << pevt->trigger_info()->level2TriggerInfo()[i] << " ";
-        }
-        log << MSG::DEBUG << "EventFilterInfo ";
-        for (unsigned int i = 0; i < pevt->trigger_info()->eventFilterInfo().size(); ++i) {
-            log << MSG::DEBUG << pevt->trigger_info()->eventFilterInfo()[i] << " ";
-        }
-        log << MSG::DEBUG << "EventFilterInfo ";
-        for (unsigned int i = 0; i < pevt->trigger_info()->streamTags().size(); ++i) {
-            log << MSG::DEBUG << " i " << i << " name " << pevt->trigger_info()->streamTags()[i].name();
-            log << MSG::DEBUG << " type " << pevt->trigger_info()->streamTags()[i].type();
-            log << MSG::DEBUG << " ObeyLumi " << pevt->trigger_info()->streamTags()[i].obeysLumiblock();
-        }
-        log << MSG::DEBUG << endreq;
-
-
-
-	// Get normal event info as a sub-event info
-	log << MSG::DEBUG << "SubEventInfos"
-	    << endreq;
-	PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
-	PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
-	if (it == end) {
-	    log << MSG::DEBUG << "None found" << endreq;
-	}
-	for (; it != end; ++it) {
-	    const EventInfo* sevt = (*it).pSubEvt;
-	    log << MSG::DEBUG << "Time, index " 
-		<< (*it).time() << " " << (*it).index()
-		<< endreq;
-	    if (sevt) {
-		log << MSG::DEBUG << "Event ID: ["
-		    << sevt->event_ID()->run_number()   << ","
-                    << sevt->event_ID()->event_number() << ":"
-		    << sevt->event_ID()->time_stamp() << "] "
-		    << endreq;
-		log << MSG::DEBUG << "Event type: user type "
-		    << sevt->event_type()->user_type()
-		    << endreq;
-                log << MSG::DEBUG << "Pileup time, index type "
-                    << it->time() << " " << it->index()
-                    << endreq;
-	    }
-	    else {
-		log << MSG::DEBUG << "Subevent is null ptr "
-		    << endreq;
-	    }
-	}
+    {
+      std::stringstream stream;
+      stream << "Trigger info: status " << pevt->trigger_info()->statusElement()
+             << " extLvl1ID " << pevt->trigger_info()->extendedLevel1ID()
+             << " lvl1Type  " << pevt->trigger_info()->level1TriggerType()
+             << " lvl1Info  ";
+      for (unsigned int i = 0; i < pevt->trigger_info()->level1TriggerInfo().size(); ++i) {
+        stream << pevt->trigger_info()->level1TriggerInfo()[i] << " ";
+      }
+      stream << "lvl2Info ";
+      for (unsigned int i = 0; i < pevt->trigger_info()->level2TriggerInfo().size(); ++i) {
+        stream << pevt->trigger_info()->level2TriggerInfo()[i] << " ";
+      }
+      stream << "EventFilterInfo ";
+      for (unsigned int i = 0; i < pevt->trigger_info()->eventFilterInfo().size(); ++i) {
+        stream << pevt->trigger_info()->eventFilterInfo()[i] << " ";
+      }
+      stream << "EventFilterInfo ";
+      for (unsigned int i = 0; i < pevt->trigger_info()->streamTags().size(); ++i) {
+        stream << " i " << i << " name " << pevt->trigger_info()->streamTags()[i].name();
+        stream << " type " << pevt->trigger_info()->streamTags()[i].type();
+        stream << " ObeyLumi " << pevt->trigger_info()->streamTags()[i].obeysLumiblock();
+      }
+      ATH_MSG_DEBUG(stream.str());
     }
 
+    // Get normal event info as a sub-event info
+    ATH_MSG_DEBUG( "SubEventInfos" );
+    PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
+    PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
+    if (it == end) {
+      ATH_MSG_DEBUG( "None found"  );
+    }
+    for (; it != end; ++it) {
+      const EventInfo* sevt = (*it).pSubEvt;
+      ATH_MSG_DEBUG( "Time, index " 
+                     << (*it).time() << " " << (*it).index() );
+      if (sevt) {
+        ATH_MSG_DEBUG( "Event ID: ["
+                       << sevt->event_ID()->run_number()   << ","
+                       << sevt->event_ID()->event_number() << ":"
+                       << sevt->event_ID()->time_stamp() << "] " );
+        ATH_MSG_DEBUG( "Event type: user type "
+                       << sevt->event_type()->user_type() );
+        ATH_MSG_DEBUG( "Pileup time, index type "
+                       << it->time() << " " << it->index() );
+      }
+      else {
+        ATH_MSG_DEBUG( "Subevent is null ptr " );
+      }
+    }
 
     if (error) return (StatusCode::FAILURE);
-				    
+                                    
     return StatusCode::SUCCESS;
-   
 }
 
 StatusCode AthenaPoolTestDataReader::finalize() 

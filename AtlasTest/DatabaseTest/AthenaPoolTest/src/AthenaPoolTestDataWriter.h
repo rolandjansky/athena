@@ -29,10 +29,9 @@ class StoreGateSvc;
 
 // INCLUDE HEADER FILES:
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/AlgFactory.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class AthenaPoolTestDataWriter : public Algorithm
+class AthenaPoolTestDataWriter : public AthAlgorithm
 {
 
 public:
@@ -63,9 +62,5 @@ private:
     /// For partial create read first half of collections
     BooleanProperty m_readFirstHalf; 
 
-    /// Access to event store
-    StoreGateSvc*   m_storeGate;
-
 };
 #endif
-     
