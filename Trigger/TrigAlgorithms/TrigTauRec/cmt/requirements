@@ -36,7 +36,7 @@ use xAODTracking	xAODTracking-*		Event/xAOD
 
 # =====================================================================
 apply_pattern dual_use_library files=*.cxx
-apply_pattern declare_runtime_extras extras="*.txt *.xml *.sh *.cfg"
-apply_pattern declare_runtime files="*.root"	
+apply_pattern declare_runtime_extras extras="*.txt *.xml *.sh *.cfg ../share/*.root"
+#apply_pattern declare_runtime files="*.root"	
 apply_pattern declare_joboptions files="*.txt *.py"
 apply_pattern declare_python_modules files="*.py"
