@@ -18,6 +18,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "DataModel/ElementLink.h"
 
+class FakeTrackBuilder;
 namespace Trk {
   class Surface;
   class TrkDetElementBase;
@@ -87,6 +88,17 @@ namespace InDet {
                            bool isbroad=false
                          ); 
 	
+      PixelClusterOnTrack( const ElementLinkToIDCPixelClusterContainer& RIO,
+                           const Trk::LocalParameters& locpars, 
+                           const Amg::MatrixX& locerr, 
+                           const IdentifierHash& idDE,
+                           const Identifier& id,
+                           float energyLoss,
+                           bool isFake,
+                           bool hasClusterAmbiguity,
+                           bool isbroad
+                         ); 
+	
       /** Destructor: */
       virtual ~PixelClusterOnTrack();
 	
@@ -100,6 +112,8 @@ namespace InDet {
     /** returns the PrepRawData - is a SiCluster in this scope
       - fullfills Trk::RIO_OnTrack interface*/
       const PixelCluster* prepRawData() const;
+
+      const ElementLinkToIDCPixelClusterContainer& prepRawDataLink() const;
        
     /** returns the detector element, assoicated with the PRD of this class
       - fullfills Trk::RIO_OnTrack interface*/
@@ -125,6 +139,8 @@ namespace InDet {
       std::ostream& dump( std::ostream& out ) const;
 
     private:
+      friend class PixelClusterOnTrackCnv_p1;
+      friend class ::FakeTrackBuilder;
       /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
@@ -158,6 +174,11 @@ namespace InDet {
 
   }
     
+  inline const ElementLinkToIDCPixelClusterContainer&
+  PixelClusterOnTrack::prepRawDataLink() const
+  {
+    return m_rio;
+  }
     
   inline const InDetDD::SiDetectorElement* PixelClusterOnTrack::detectorElement() const
   { 

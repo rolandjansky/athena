@@ -51,6 +51,24 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
   delete lpos;
 }
 
+InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_ClusterContainer& RIO,
+                                               const Trk::LocalParameters& locpars, 
+                                               const Amg::MatrixX& locerr, 
+                                               IdentifierHash idDE,
+                                               const Identifier& id,
+                                               bool isbroad,
+                                               double positionAlongStrip)
+  : SiClusterOnTrack(locpars,
+                     locerr,
+                     idDE,
+                     id,
+                     isbroad),
+    m_rio (RIO),
+    m_detEl (nullptr),
+    m_positionAlongStrip (positionAlongStrip)
+{}
+
+
 // Destructor:
 InDet::SCT_ClusterOnTrack::~SCT_ClusterOnTrack()
 {}

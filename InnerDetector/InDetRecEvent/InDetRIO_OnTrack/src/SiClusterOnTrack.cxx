@@ -95,7 +95,8 @@ MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const
     Trk::RIO_OnTrack::dump(sl); 
 
     sl << "Global position (x,y,z) = (";
-    if ( &(this->globalPosition() )!=0 )
+    this->globalPosition();
+    if ( m_globalPosition !=0 )
     {
        sl  <<this->globalPosition().x()<<", "
                <<this->globalPosition().y()<<", "
@@ -114,7 +115,8 @@ std::ostream& InDet::SiClusterOnTrack::dump( std::ostream& sl ) const
     Trk::RIO_OnTrack::dump(sl); 
 
     sl << "Global position (x,y,z) = (";
-    if ( &(this->globalPosition() )!=0 )
+    this->globalPosition();
+    if ( m_globalPosition !=0 )
     {
         sl  <<this->globalPosition().x()<<", "
             <<this->globalPosition().y()<<", "

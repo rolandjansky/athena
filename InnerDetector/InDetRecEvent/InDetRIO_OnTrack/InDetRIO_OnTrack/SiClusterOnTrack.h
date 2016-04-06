@@ -12,6 +12,8 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "Identifier/IdentifierHash.h"
 
+class SiClusterOnTrackCnv_p1;
+
 namespace Trk 
 {
   class LocalParameters;
@@ -90,6 +92,8 @@ namespace InDet {
       virtual std::ostream& dump( std::ostream& out ) const;
 
     protected:
+      friend class ::SiClusterOnTrackCnv_p1;
+
       /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd)=0;

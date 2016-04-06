@@ -56,6 +56,28 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack(
   m_rio.setElement(RIO);
 }
 
+
+InDet::PixelClusterOnTrack::PixelClusterOnTrack
+  ( const ElementLinkToIDCPixelClusterContainer& RIO,
+    const Trk::LocalParameters& locpars, 
+    const Amg::MatrixX& locerr, 
+    const IdentifierHash& idDE,
+    const Identifier& id,
+    float energyLoss,
+    bool isFake,
+    bool hasClusterAmbiguity,
+    bool isbroad)
+ : InDet::SiClusterOnTrack(locpars, locerr, idDE, id, isbroad),
+  m_rio (RIO),
+  m_hasClusterAmbiguity (hasClusterAmbiguity),
+  m_isFake (isFake),
+  m_energyLoss (energyLoss),
+  m_detEl (nullptr)
+{
+}
+    
+
+
 // Destructor:
 InDet::PixelClusterOnTrack::~PixelClusterOnTrack()
 {}
