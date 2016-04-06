@@ -1,27 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-MuonTriggerContent = ['xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuTagIMO_EF',
-'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuonEFInfo',
-'xAOD::MuonContainer#HLT_xAOD__MuonContainer_eMuonEFInfo',
-'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuTagIMO_EFAux.',
-'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuonEFInfoAux.',
-'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_eMuonEFInfoAux.',
-'xAOD::MuonRoIContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuon',
-'xAOD::MuonRoIContainer#LVL1MuonRoIs',
-'MuonFeatureDetailsContainer#HLT_MuonFeatureDetailsContainer',
-'xAOD::L2CombinedMuonContainer#HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo',
-'xAOD::L2IsoMuonContainer#HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfo',
-'xAOD::L2CombinedMuonAuxContainer#HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfoAux.',
-'xAOD::MuonRoIAuxContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuonAux.',
-'xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.',
-'xAOD::L2StandAloneMuonContainer#HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo',
-'TrigMuonEFIsolationContainer#HLT_TrigMuonEFIsolationContainer_MuonEFIsolation',
-'TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuTagIMO_EF',
-'TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_MuonEFInfo',
-'TrigMuonEFInfoContainer#HLT_TrigMuonEFInfoContainer_eMuonEFInfo',
-'TrigMuonClusterFeatureContainer#HLT_TrigMuonClusterFeatureContainer_MuonCluster',
-'CosmicMuonCollection#HLT_CosmicMuonCollection_CosmicMuons',
-'xAOD::L2StandAloneMuonAuxContainer#HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfoAux.',
-'MdtTrackSegmentCollection#HLT_MdtTrackSegmentCollection_MDTsegments',
-'CombinedMuonFeatureContainer#HLT_CombinedMuonFeatureContainer',
-'MuonFeatureContainer#HLT_MuonFeatureContainer']
+MuonTriggerContent = [
+"HLT_xAOD__MuonContainer_MuonEFInfo",
+"HLT_xAOD__MuonContainer_MuonEFInfoAux.pt.eta.phi.muonType.author.inDetTrackParticleLink",
+"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFID",
+"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFIDAux.pt.eta.phi.d0.z0",
+"LVL1MuonRoIs",
+"LVL1MuonRoIsAux."
+]

@@ -6,8 +6,6 @@ CompulsoryContent = [
 "xAOD::TrigDecision#*",
 "xAOD::TrigDecisionAuxInfo#*",
 "xAOD::TrigConfKeys#*",
-"xAOD::TrigNavigation#*",
-"xAOD::TrigNavigationAuxInfo#*",
 "xAOD::EventShape#*",
 "xAOD::EventShapeAuxInfo#*"
 ]
