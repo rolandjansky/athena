@@ -1,0 +1,11 @@
+--- a/fastjet-config.in	2014-12-23 10:08:25.000000000 +0100
++++ b/fastjet-config.in	2015-05-19 12:54:42.915568845 +0200
+@@ -10,7 +10,7 @@
+ # the list of plugins is dynamic so we need the following
+ # line to deal with the static lib link
+ installationdir=@prefix@
+-prefix=@prefix@
++prefix=`readlink -f ${0%bin/fastjet-config}`
+ exec_prefix=@exec_prefix@
+ 
+ # print a usage message and exit
