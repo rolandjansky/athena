@@ -18,6 +18,8 @@
 
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
+#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
+#include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -332,6 +334,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
   }
 
   ATH_MSG_DEBUG("Adding detailed muon track summary");
+  ATH_MSG_DEBUG(track.info());
   // loop over track and get chamber Identifiers
   const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
   if( !states || states->empty() ){
@@ -398,7 +401,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  currentChamberPars = pars;
 	}
 	Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = 
-	  isFirst ? currentChamberSummary->first : currentChamberSummary->second;
+	  isFirst ? currentChamberSummary->m_first : currentChamberSummary->m_second;
 	++proj.nholes;
       }
       continue;
@@ -417,8 +420,21 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       continue;
     }
 
+    if(!pars){
+      ATH_MSG_DEBUG("measurement without pars");
+      continue;
+    }
+
+    Amg::Vector2D locPos;
+    if( !meas->associatedSurface().globalToLocal(pars->position(),pars->position(),locPos) ){
+      ATH_MSG_DEBUG(" localToGlobal failed !!!!! " );
+      continue;
+    }
+    bool inBounds = true;
+
     Identifier id;
     std::set<Identifier> layIds;
+    std::set<Identifier> goodLayIds; //holds mdt hits that have not been deweighted
 
     // check whether ROT
     const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
@@ -426,8 +442,28 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       id = rot->identify();
       if( !m_idHelperTool->isMuon(id) ) continue;
 
+      // bound checks
+      double tol1 = 100.;
+      double tol2 = 2*tol1;
+      if( !pseudo && m_idHelperTool->isMdt(id) ) tol1 = 5.;
+      // we need a special bound check for MDTs so we cast to SL surface
+      const Trk::StraightLineSurface* slSurf = dynamic_cast<const Trk::StraightLineSurface*>(&meas->associatedSurface());
+      if( slSurf ) {
+	// perform bound check only for second coordinate
+	inBounds = slSurf->bounds().insideLoc2(locPos,tol2);
+      }else{
+	inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
+      }
+
       Identifier layId =  m_idHelperTool->layerId( id );
       layIds.insert(layId);
+      const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
+      if(mdtdc){
+	MuonDriftCircleErrorStrategy errStrat=mdtdc->errorStrategy();
+	if(!errStrat.creationParameter(MuonDriftCircleErrorStrategy::FixedError) && !errStrat.creationParameter(MuonDriftCircleErrorStrategy::StationError)){
+	  goodLayIds.insert(layId);
+	}
+      }
     }else{
       const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
       if( crot ){
@@ -477,12 +513,11 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     }
 
     Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = 
-      isFirst ? currentChamberSummary->first : currentChamberSummary->second;
+      isFirst ? currentChamberSummary->m_first : currentChamberSummary->m_second;
 
     if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
 
       if( isMdt ){
-
 	if( pars ){
 	  double rDrift = fabs(meas->localParameters()[Trk::locR]);
 	  double rTrack = fabs(pars->parameters()[Trk::locR]);
@@ -497,7 +532,9 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
     }else{
       proj.nhits += layIds.size();
+      proj.ngoodHits += goodLayIds.size();
     } 
+    if(!inBounds && isMdt) proj.noutBounds++;
 
   } //end of for loop over Track State on Surfaces      
 
@@ -542,11 +579,11 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
   int nMisPhi = nphi - chamberHitSummary.phiProjection().nhits - chamberHitSummary.phiProjection().noutliers;
   int nholes  = chamberHitSummary.etaProjection().nholes + chamberHitSummary.phiProjection().nholes;
   if( nMisEta > 0 && nholes > 0 ){
-    chamberHitSummary.first.nholes = nMisEta;
+    chamberHitSummary.m_first.nholes = nMisEta;
     nholes -= nMisEta;
   }
   if( nMisPhi > 0 && nholes > 0 ){
-    chamberHitSummary.second.nholes = nholes;
+    chamberHitSummary.m_second.nholes = nholes;
     if( nholes != nMisPhi ) {
       ATH_MSG_WARNING("Inconsistent hole count: expected hits eta " << neta << " phi " << nphi 
                       << " hits eta " << chamberHitSummary.etaProjection().nhits + chamberHitSummary.etaProjection().noutliers 
@@ -588,6 +625,8 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
   }
   if ( !extrapolator ) return;
 
+  ATH_MSG_DEBUG("road hits for chamber "<<m_idHelperTool->toString(chamberHitSummary.chamberId()));
+
   //currently treating MDTs only
   if(!chamberHitSummary.isMdt()) return;
 
@@ -614,7 +653,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
     const Identifier& id = mdtPrd.identify();
 
     bool isFirst =  isFirstProjection(id);
-    Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = isFirst ? chamberHitSummary.first : chamberHitSummary.second;
+    Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = isFirst ? chamberHitSummary.m_first : chamberHitSummary.m_second;
 
     const Trk::Surface& surf = mdtPrd.detectorElement()->surface(id);
 
@@ -663,23 +702,23 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
   }
 
   //subtract the hits on the track in both projections:
-  chamberHitSummary.first.ncloseHits -= chamberHitSummary.first.nhits;
-  chamberHitSummary.second.ncloseHits -= chamberHitSummary.second.nhits;    
+  chamberHitSummary.m_first.ncloseHits -= chamberHitSummary.m_first.nhits;
+  chamberHitSummary.m_second.ncloseHits -= chamberHitSummary.m_second.nhits;    
 
-  if (chamberHitSummary.first.ncloseHits < 0) {
+  if (chamberHitSummary.m_first.ncloseHits < 0) {
     ATH_MSG_WARNING("Number of hits in road < 0 in first projection: "
-		    << chamberHitSummary.first.ncloseHits 
+		    << chamberHitSummary.m_first.ncloseHits 
 		    << ", setting = 0. (nhits in first projection = " 
-		    << chamberHitSummary.first.ncloseHits << ")" );
-    chamberHitSummary.first.ncloseHits = 0;
+		    << chamberHitSummary.m_first.ncloseHits << ")" );
+    chamberHitSummary.m_first.ncloseHits = 0;
   }
 
-  if (chamberHitSummary.second.ncloseHits < 0) {
+  if (chamberHitSummary.m_second.ncloseHits < 0) {
     ATH_MSG_WARNING("Number of hits in road < 0 in second projection: "
-		    << chamberHitSummary.second.ncloseHits
+		    << chamberHitSummary.m_second.ncloseHits
 		    << ", setting = 0. (nhits in second projection = "
-		    << chamberHitSummary.second.ncloseHits << ")" );
-    chamberHitSummary.second.ncloseHits = 0;
+		    << chamberHitSummary.m_second.ncloseHits << ")" );
+    chamberHitSummary.m_second.ncloseHits = 0;
   }
 }
 
