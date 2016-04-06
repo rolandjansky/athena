@@ -401,7 +401,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  currentChamberPars = pars;
 	}
 	Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = 
-	  isFirst ? currentChamberSummary->first : currentChamberSummary->second;
+	  isFirst ? currentChamberSummary->m_first : currentChamberSummary->m_second;
 	++proj.nholes;
       }
       continue;
@@ -460,8 +460,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
       if(mdtdc){
 	MuonDriftCircleErrorStrategy errStrat=mdtdc->errorStrategy();
-	if(!(errStrat.creationParameter(MuonDriftCircleErrorStrategy::BroadError) && errStrat.creationParameter(MuonDriftCircleErrorStrategy::FixedError))
-	   && !errStrat.creationParameter(MuonDriftCircleErrorStrategy::StationError)){
+	if(!errStrat.creationParameter(MuonDriftCircleErrorStrategy::FixedError) && !errStrat.creationParameter(MuonDriftCircleErrorStrategy::StationError)){
 	  goodLayIds.insert(layId);
 	}
       }
@@ -514,7 +513,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     }
 
     Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = 
-      isFirst ? currentChamberSummary->first : currentChamberSummary->second;
+      isFirst ? currentChamberSummary->m_first : currentChamberSummary->m_second;
 
     if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
 
@@ -580,11 +579,11 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
   int nMisPhi = nphi - chamberHitSummary.phiProjection().nhits - chamberHitSummary.phiProjection().noutliers;
   int nholes  = chamberHitSummary.etaProjection().nholes + chamberHitSummary.phiProjection().nholes;
   if( nMisEta > 0 && nholes > 0 ){
-    chamberHitSummary.first.nholes = nMisEta;
+    chamberHitSummary.m_first.nholes = nMisEta;
     nholes -= nMisEta;
   }
   if( nMisPhi > 0 && nholes > 0 ){
-    chamberHitSummary.second.nholes = nholes;
+    chamberHitSummary.m_second.nholes = nholes;
     if( nholes != nMisPhi ) {
       ATH_MSG_WARNING("Inconsistent hole count: expected hits eta " << neta << " phi " << nphi 
                       << " hits eta " << chamberHitSummary.etaProjection().nhits + chamberHitSummary.etaProjection().noutliers 
@@ -654,7 +653,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
     const Identifier& id = mdtPrd.identify();
 
     bool isFirst =  isFirstProjection(id);
-    Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = isFirst ? chamberHitSummary.first : chamberHitSummary.second;
+    Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = isFirst ? chamberHitSummary.m_first : chamberHitSummary.m_second;
 
     const Trk::Surface& surf = mdtPrd.detectorElement()->surface(id);
 
@@ -703,23 +702,23 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
   }
 
   //subtract the hits on the track in both projections:
-  chamberHitSummary.first.ncloseHits -= chamberHitSummary.first.nhits;
-  chamberHitSummary.second.ncloseHits -= chamberHitSummary.second.nhits;    
+  chamberHitSummary.m_first.ncloseHits -= chamberHitSummary.m_first.nhits;
+  chamberHitSummary.m_second.ncloseHits -= chamberHitSummary.m_second.nhits;    
 
-  if (chamberHitSummary.first.ncloseHits < 0) {
+  if (chamberHitSummary.m_first.ncloseHits < 0) {
     ATH_MSG_WARNING("Number of hits in road < 0 in first projection: "
-		    << chamberHitSummary.first.ncloseHits 
+		    << chamberHitSummary.m_first.ncloseHits 
 		    << ", setting = 0. (nhits in first projection = " 
-		    << chamberHitSummary.first.ncloseHits << ")" );
-    chamberHitSummary.first.ncloseHits = 0;
+		    << chamberHitSummary.m_first.ncloseHits << ")" );
+    chamberHitSummary.m_first.ncloseHits = 0;
   }
 
-  if (chamberHitSummary.second.ncloseHits < 0) {
+  if (chamberHitSummary.m_second.ncloseHits < 0) {
     ATH_MSG_WARNING("Number of hits in road < 0 in second projection: "
-		    << chamberHitSummary.second.ncloseHits
+		    << chamberHitSummary.m_second.ncloseHits
 		    << ", setting = 0. (nhits in second projection = "
-		    << chamberHitSummary.second.ncloseHits << ")" );
-    chamberHitSummary.second.ncloseHits = 0;
+		    << chamberHitSummary.m_second.ncloseHits << ")" );
+    chamberHitSummary.m_second.ncloseHits = 0;
   }
 }
 
