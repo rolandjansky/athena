@@ -58,14 +58,14 @@ public:
 
   HLT::ErrorCode getPrmVtxCollection(const TrigVertexCollection*&, const HLT::TriggerElement*);
   /** @brief To parametrize errors on track longitudinal impact parameter at LVL2. */
-  float getIP1DErr(float, float);
+//  float getIP1DErr(float, float);
   /** @brief To parametrize errors on track transverse impact parameter at LVL2. */
-  float getIP2DErr(float, float);
+//  float getIP2DErr(float, float);
 
   /** Flag to select tracking algorithm */
   std::string m_TrigTrackingAlgoLabel;
   /** Tracking algorithm ID: 1 SiTrack, 2 IDScan */
-  double      m_algo;
+//  double      m_algo;
 
   /**Monitoring : Ntracks */
   int             m_nCoreTracks;
