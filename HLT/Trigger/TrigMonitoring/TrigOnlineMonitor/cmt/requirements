@@ -25,7 +25,8 @@ use L1TopoRDO		  L1TopoRDO-*		   Trigger/TrigT1/L1Topo
 use L1TopoConfig	  L1TopoConfig-*	   Trigger/TrigT1/L1Topo
 use TrigSteering          TrigSteering-*           Trigger/TrigSteer
 use TrigT1Result          TrigT1Result-*           Trigger/TrigT1
-use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
+use TrigConfL1Data        TrigConfL1Data-*         Trigger/TrigConfiguration
+use TrigSteeringEvent     TrigSteeringEvent-*      Trigger/TrigEvent
 
 library TrigOnlineMonitor *.cxx -s=components *.cxx
 apply_pattern component_library

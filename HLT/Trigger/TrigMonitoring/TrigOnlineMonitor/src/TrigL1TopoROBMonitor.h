@@ -43,6 +43,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   StatusCode doCnvMon(bool);
   StatusCode doRawMon(bool);
   StatusCode doSimMon(bool);
+  StatusCode doWriteValData();
   StatusCode monitorROBs(const std::vector<uint32_t>&, bool);
   StatusCode monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& vFibreSizes, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& daqTobs);
   StatusCode bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, std::string extraName, std::string extraTitle);
@@ -56,10 +57,12 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   BooleanProperty m_doRawMon;
   BooleanProperty m_doCnvMon;
   BooleanProperty m_doSimMon;
+  BooleanProperty m_doWriteValData;
   UnsignedIntegerArrayProperty m_vDAQROBIDs;
   UnsignedIntegerArrayProperty m_vROIROBIDs;
   UnsignedIntegerProperty m_prescaleForDAQROBAccess;
   StringProperty m_simTopoCTPLocation;
+  StringProperty m_HltResultName;
   HLT::IScaler* m_scaler; //! prescale decision tool
   BooleanProperty m_useDetMask;
   std::map<unsigned int,unsigned int> m_allSIDLabelsToInts;

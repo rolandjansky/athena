@@ -36,6 +36,8 @@
 
 #include "TrigSteering/Scaler.h"
 #include "TrigSteering/PeriodicScaler.h"
+#include "TrigSteeringEvent/HLTResult.h"
+#include "TrigSteeringEvent/HLTExtraData.h"
 
 #include <algorithm>
 #include <vector>
@@ -103,10 +105,11 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   declareProperty("doRawMon", m_doRawMon = true, "enable L1Topo monitoring direct from ROB fragments");
   declareProperty("doCnvMon", m_doCnvMon = true, "enable L1Topo monitoring via converters");
   declareProperty("doSimMon", m_doSimMon = true, "enable L1Topo hardware vs simulation comparison");
+  declareProperty("doWriteValData", m_doWriteValData = true, "write L1Topo simulation/validation data into HLTResult"); 
   declareProperty("useDetMask", m_useDetMask = true, "only monitor if L1Topo is included in the event according to the detector mask; this can disable monitoring automatically in spite of other options");
-  declareProperty( "SimTopoCTPLocation", m_simTopoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of simulated topo decision output for CTP, defaults to default output key of L1TopoSimulation" );
+  declareProperty("SimTopoCTPLocation", m_simTopoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of simulated topo decision output for CTP, defaults to default output key of L1TopoSimulation" );
+  declareProperty("HLTResultName", m_HltResultName = "HLTResult_HLT", "StoreGate key of HLT result" );
 }
-
 
 StatusCode TrigL1TopoROBMonitor::initialize(){
   ATH_MSG_INFO ("initialize");
@@ -115,6 +118,7 @@ StatusCode TrigL1TopoROBMonitor::initialize(){
   ATH_MSG_DEBUG ( m_doRawMon );
   ATH_MSG_DEBUG ( m_doCnvMon );
   ATH_MSG_DEBUG ( m_doSimMon );
+  ATH_MSG_DEBUG ( m_doWriteValData );
   ATH_MSG_DEBUG ( m_useDetMask );
   ATH_MSG_DEBUG ( m_vDAQROBIDs );
   ATH_MSG_DEBUG ( m_vROIROBIDs );
@@ -189,7 +193,11 @@ StatusCode TrigL1TopoROBMonitor::execute() {
   if (m_doSimMon){
     CHECK( doSimMon(prescaleForDAQROBAccess) );
   }
-  
+ 
+  if (m_doWriteValData){
+    CHECK( doWriteValData() );
+  }
+ 
   return StatusCode::SUCCESS;
 }
 
@@ -765,6 +773,43 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
 
   return StatusCode::SUCCESS;
 
+}
+
+StatusCode TrigL1TopoROBMonitor::doWriteValData(){
+  ATH_MSG_DEBUG( "doWriteValData" );
+
+  // Retrieve HLTResuly
+  DataHandle<HLT::HLTResult> hltResult; ///! HLTResult object
+  if ( ! evtStore()->transientContains<HLT::HLTResult>(m_HltResultName.value()) ) {
+    ATH_MSG_INFO("Could not find HLTResult with key " << m_HltResultName.value() << "in SG." );
+  } else {
+    CHECK_RECOVERABLE( evtStore()->retrieve(hltResult,m_HltResultName.value()) );
+    if (!hltResult){
+      ATH_MSG_INFO( "Retrieve of HLT::HLTResult failed. No data are written to HLTResult" );
+      return StatusCode::RECOVERABLE;
+    }
+  }
+
+  // Retrieve L1Topo CTP simulated decision if present
+  const DataHandle< LVL1::FrontPanelCTP > simTopoCTP; ///! simulation output
+  if ( ! evtStore()->contains<LVL1::FrontPanelCTP>(m_simTopoCTPLocation.value()) ){
+    ATH_MSG_INFO("Could not find LVL1::FrontPanelCTP with key " << m_simTopoCTPLocation.value() << "in SG." );
+  } else {
+    CHECK_RECOVERABLE( evtStore()->retrieve(simTopoCTP,m_simTopoCTPLocation.value()) );
+    if (!simTopoCTP){
+      ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed. No data are written to HLTResult" );
+      return StatusCode::RECOVERABLE;
+    }
+  }
+
+  // Write the L1Topo simulation data into the HLTResult
+  hltResult->getExtraData().anonymous.push_back( 4 );                         // number of words to be written
+  hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord1(0) ); // L1Topo simulation words
+  hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord1(1) );
+  hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord2(0) );
+  hltResult->getExtraData().anonymous.push_back( simTopoCTP->cableWord2(1) );
+
+  return StatusCode::SUCCESS;
 }
 
 // compare two bitsets and histogram the differences
