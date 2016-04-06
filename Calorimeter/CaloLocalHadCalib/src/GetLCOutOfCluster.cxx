@@ -49,8 +49,8 @@ GetLCOutOfCluster::GetLCOutOfCluster(const std::string& name,
 {
  
   std::vector<Gaudi::Histo1DDef> dims(6);
-  dims[0] = Gaudi::Histo1DDef("side",-1.5,1.5,2);
-  dims[1] = Gaudi::Histo1DDef("|eta|",0.,5.,25);
+  dims[0] = Gaudi::Histo1DDef("side",-1.5,1.5,1);
+  dims[1] = Gaudi::Histo1DDef("|eta|",0.,5.,50);
   dims[2] = Gaudi::Histo1DDef("phi",-M_PI,M_PI,1);
   dims[3] = Gaudi::Histo1DDef("log10(E_clus (MeV))",log10(200),log10(1e6),14);
   dims[4] = Gaudi::Histo1DDef("log10(lambda_clus (mm))",0.0,4.0,14);
@@ -164,7 +164,7 @@ StatusCode GetLCOutOfCluster::initialize() {
     else if ( m_dimensions[idim].title() == "weight" )
       iweight = idim;
   }
-  if ( ilogE < 0 || ieta < 0 || iloglambda < 0 || iweight < 0 ) {
+  if ( ilogE < 0 || ieta < 0 || iloglambda < 0 || iweight < 0 || iside < 0 ) {
     msg(MSG::FATAL)
 	<< " Mandatory dimension log10E, |eta|, log10lambda or weight missing ..."
 	<< endreq;
@@ -318,6 +318,8 @@ StatusCode GetLCOutOfCluster::execute()
   }
 
   if ( eCalibTot > 0 ) {
+    const double inv_eCalibTot = 1. / eCalibTot;
+    const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
     clusIter = cc->begin();
     for( ;clusIter!=clusIterEnd;clusIter++) {
       const xAOD::CaloCluster * pClus = (*clusIter);
@@ -396,17 +398,17 @@ StatusCode GetLCOutOfCluster::execute()
 	    if (m_ooc[iO]) {
 	      double norm = 0.0;
 	      if ( m_NormalizationTypeNumber == GetLCDefs::LIN ) {
-		norm = etot/eCalibTot;
+		norm = etot*inv_eCalibTot;
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
 		if ( etot > 0 ) {
 		  // cluster has to have at least 1% of the calib hit E
-		  norm = log10(etot/eCalibTot)+2.0;
+		  norm = log10(etot*inv_eCalibTot)+2.0;
 		}
 	      }
 	      else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
 		if ( etot > 0 ) {
-		  norm = 1./nClusECalibGt0;
+		  norm = inv_nClusECalibGt0;
 		}
 	      }
 	      else {

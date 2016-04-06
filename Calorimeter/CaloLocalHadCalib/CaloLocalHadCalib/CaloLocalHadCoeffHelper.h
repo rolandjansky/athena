@@ -20,10 +20,10 @@ class CaloLocalHadCoeffHelper {
     virtual ~CaloLocalHadCoeffHelper();
 
     CaloLocalHadCoeff *InitDataFromFile(const char *fname);
-    void PrintData(const CaloLocalHadCoeff *m_data, std::ostream &fout);
-    void PrintData(const CaloLocalHadCoeff *m_data, const char *fname);
+    void PrintData(const CaloLocalHadCoeff *data, std::ostream &fout);
+    void PrintData(const CaloLocalHadCoeff *data, const char *fname);
 
-    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * m_coeff, std::string sname, int &m_indx) const;
+    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * coeff, std::string sname, int &indx) const;
 
   private:
     CaloLocalHadCoeff::LocalHadDimension *parse_dim(std::string &sLine);

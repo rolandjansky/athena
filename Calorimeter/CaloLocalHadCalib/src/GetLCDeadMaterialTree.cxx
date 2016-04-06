@@ -72,7 +72,7 @@ GetLCDeadMaterialTree::GetLCDeadMaterialTree(const std::string& name,
     m_doSaveCalibClusInfo(false),
     m_isTestbeam(false),
     m_energyMin(200*MeV),
-    m_energyMax(2*TeV),
+    //m_energyMax(2*TeV),
     m_calo_dd_man(0),
     m_calo_id(0)
 {
@@ -125,15 +125,15 @@ StatusCode GetLCDeadMaterialTree::initialize()
   /* ********************************************
   set list of valid moments
   ******************************************** */
-  moment_name_vector m_validNames;
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_EMB0"),xAOD::CaloCluster::ENG_CALIB_DEAD_EMB0));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_TILE0"),xAOD::CaloCluster::ENG_CALIB_DEAD_TILE0));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_TILEG3"),xAOD::CaloCluster::ENG_CALIB_DEAD_TILEG3));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_EME0"),xAOD::CaloCluster::ENG_CALIB_DEAD_EME0));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_HEC0"),xAOD::CaloCluster::ENG_CALIB_DEAD_HEC0));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_FCAL"),xAOD::CaloCluster::ENG_CALIB_DEAD_FCAL));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_LEAKAGE"),xAOD::CaloCluster::ENG_CALIB_DEAD_LEAKAGE));
-  m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_UNCLASS"),xAOD::CaloCluster::ENG_CALIB_DEAD_UNCLASS));
+  moment_name_vector validNames;
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_EMB0"),xAOD::CaloCluster::ENG_CALIB_DEAD_EMB0));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_TILE0"),xAOD::CaloCluster::ENG_CALIB_DEAD_TILE0));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_TILEG3"),xAOD::CaloCluster::ENG_CALIB_DEAD_TILEG3));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_EME0"),xAOD::CaloCluster::ENG_CALIB_DEAD_EME0));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_HEC0"),xAOD::CaloCluster::ENG_CALIB_DEAD_HEC0));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_FCAL"),xAOD::CaloCluster::ENG_CALIB_DEAD_FCAL));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_LEAKAGE"),xAOD::CaloCluster::ENG_CALIB_DEAD_LEAKAGE));
+  validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_UNCLASS"),xAOD::CaloCluster::ENG_CALIB_DEAD_UNCLASS));
 
   /* ********************************************
   initial coefficients
@@ -150,8 +150,8 @@ StatusCode GetLCDeadMaterialTree::initialize()
   // how we have to set correspondance between dead material areas and calibration moments
   m_momentForDMArea.resize( m_HadDMCoeff->getSizeAreaSet());
   for(int i_dm=0; i_dm<m_HadDMCoeff->getSizeAreaSet(); i_dm++){
-    moment_name_vector::const_iterator mVNameIter = m_validNames.begin(); 
-    moment_name_vector::const_iterator mVNameIterEnd = m_validNames.end();
+    moment_name_vector::const_iterator mVNameIter = validNames.begin(); 
+    moment_name_vector::const_iterator mVNameIterEnd = validNames.end();
     bool isValid(false);
     for(; mVNameIter!=mVNameIterEnd; mVNameIter++) {
       if ( m_HadDMCoeff->getArea(i_dm)->getTitle() == mVNameIter->first ) {

@@ -11,6 +11,9 @@ use AthenaBaseComps   AthenaBaseComps-*   Control
 use CaloGeoHelpers    CaloGeoHelpers-*    Calorimeter
 use xAODCaloEvent     xAODCaloEvent-*     Event/xAOD
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Gpad Graf)"
+
 apply_pattern component_library
 library CaloLocalHadCalib  *.cxx components/*.cxx
 

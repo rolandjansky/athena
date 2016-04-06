@@ -61,8 +61,8 @@ GetLCWeights::GetLCWeights(const std::string& name,
 {
  
   std::vector<Gaudi::Histo1DDef> dims(7);
-  dims[1] = Gaudi::Histo1DDef("side",-1.5,1.5,2);
-  dims[2] = Gaudi::Histo1DDef("|eta|",0.,1.6,8);
+  dims[1] = Gaudi::Histo1DDef("side",-1.5,1.5,1);
+  dims[2] = Gaudi::Histo1DDef("|eta|",0.,1.6,16);
   dims[3] = Gaudi::Histo1DDef("phi",-M_PI,M_PI,1);
   dims[4] = Gaudi::Histo1DDef("log10(E_clus (MeV))",log10(200),log10(1e6),14);
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-4.6,1.1,14);
@@ -77,7 +77,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-4.9,0.6,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("EME1",4.5,5.5,1);
-  dims[2] = Gaudi::Histo1DDef("|eta|",1.2,3.2,10);
+  dims[2] = Gaudi::Histo1DDef("|eta|",1.2,3.2,20);
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-4.5,1.7,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("EME2",5.5,6.5,1);
@@ -87,7 +87,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-4.5,1.0,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("HEC0",7.5,8.5,1);
-  dims[2] = Gaudi::Histo1DDef("|eta|",1.4,3.4,10);
+  dims[2] = Gaudi::Histo1DDef("|eta|",1.4,3.4,20);
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-4.8,0.6,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("HEC1",8.5,9.5,1);
@@ -100,7 +100,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-4.7,-0.2,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("TileBar0",11.5,12.5,1);
-  dims[2] = Gaudi::Histo1DDef("|eta|",0.,1.2,6);
+  dims[2] = Gaudi::Histo1DDef("|eta|",0.,1.2,12);
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-6,-1,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("TileBar1",12.5,13.5,1);
@@ -110,7 +110,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-7,-1.9,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("TileGap1",14.5,15.5,1);
-  dims[2] = Gaudi::Histo1DDef("|eta|",0.8,1.8,5);
+  dims[2] = Gaudi::Histo1DDef("|eta|",0.8,1.8,10);
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-6,-1,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("TileGap2",15.5,16.5,1);
@@ -126,7 +126,7 @@ GetLCWeights::GetLCWeights(const std::string& name,
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-7.2,-2.4,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("FCal1",20.5,21.5,1);
-  dims[2] = Gaudi::Histo1DDef("|eta|",2.8,5.0,11);
+  dims[2] = Gaudi::Histo1DDef("|eta|",2.8,5.0,22);
   dims[5] = Gaudi::Histo1DDef("log10(rho_cell (MeV/mm^3))",-3.5,2,14);
   mapinsert(dims);
   dims[0] = Gaudi::Histo1DDef("FCal2",21.5,22.5,1);
@@ -489,6 +489,8 @@ StatusCode GetLCWeights::execute()
   // sum of the cluster over the total calib hit energy
 
   if ( eCalibTot > 0 ) {
+    const double inv_eCalibTot = 1. / eCalibTot;
+    const double inv_nClusECalibGt0 = 1. / nClusECalibGt0;
     for (unsigned int j=0;j<cc->size();j++) {
       const xAOD::CaloCluster * pClus = cc->at(j);
       double eng = pClus->e();
@@ -582,17 +584,17 @@ StatusCode GetLCWeights::execute()
 		  if (m_weight[caloSample][iW] && theList && eCalibTot > 0) {
 		    double norm = 0.0;
 		    if ( m_NormalizationTypeNumber == GetLCDefs::LIN ) {
-		      norm = eCalib/eCalibTot;
+		      norm = eCalib * inv_eCalibTot;
 		    }
 		    else if ( m_NormalizationTypeNumber == GetLCDefs::LOG ) {
 		      if ( eCalib > 0 ) {
 			// cluster has to have at least 1% of the calib hit E
-			norm = log10(eCalib/eCalibTot)+2.0;
+			norm = log10(eCalib * inv_eCalibTot)+2.0;
 		      }
 		    }
 		    else if ( m_NormalizationTypeNumber == GetLCDefs::NCLUS ) {
 		      if ( eCalib > 0 ) {
-			norm = 1./nClusECalibGt0;
+			norm = inv_nClusECalibGt0;
 		      }
 		    }
 		    else {

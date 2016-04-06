@@ -75,7 +75,7 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     moment_name_vector m_validMoments;
 
 //     const DataHandle<CaloClusterContainer> pClusColl;
-    const DataHandle<xAOD::CaloClusterContainer> pClusColl ;
+    const DataHandle<xAOD::CaloClusterContainer> m_clusColl ;
 
     double m_distance_cut;
 
@@ -102,7 +102,8 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     int   m_nmoments;         // number of moments assigned to clusters we want to study
     int   m_nmomsums;         // ratio of moment assigned to cls0, cls1, cls2, cls_sum, non assigned
 //     int   m_nhitsums;         // number of histograms for calibration hits validation
-
+   
+    float m_truthPiEngFraction;
     bool m_isTestbeam;        // H6 testbeam flag
     bool m_doEngRecOverTruth;
     bool m_doEngTag;
@@ -113,6 +114,7 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     bool m_useRecoEfficiency;
     bool m_useGoodClus;
     bool m_doCalibHitsValidation;
+    bool m_usePionClusters;
 
     // ereco over truth after each step of calibration
     std::vector<std::vector<std::vector<TProfile *> > > m_engRecOverTruth_vs_eta;   // [ncluscoll][nnormtype][nenerbin]

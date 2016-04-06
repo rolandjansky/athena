@@ -64,7 +64,8 @@ class CaloHadDMCoeffFit {
         float p0, p1, s0, s1;
         std::string descr;
         FitData() : isOK(true), p0(0), p1(0), s0(0), s1(0), descr("def") {}
-        FitData(float _p0, float _s0, float _p1, float _s1) : isOK(true), p0(_p0), p1(_p1), s0(_s0), s1(_s1), descr("def") {}
+        FitData(float the_p0, float the_s0, float the_p1, float the_s1)
+          : isOK(true), p0(the_p0), p1(the_p1), s0(the_s0), s1(the_s1), descr("def") {}
         void getInverted(float &p0inv, float &s0inv, float &p1inv, float &s1inv)
         {
           p0inv=0.0; s0inv=0.0; p1inv=0.0; s1inv=0.0; 

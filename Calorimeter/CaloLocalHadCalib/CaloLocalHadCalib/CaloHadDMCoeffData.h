@@ -93,7 +93,7 @@ class CaloHadDMCoeffData {
     int PackClusterVars(int iClus, std::vector<float> &vars);
     TTree *MakeTree(const char *treename);
     void clear();
-    void SetClassificationType(int _type) {m_classify_type = _type;}
+    void SetClassificationType(int type) {m_classify_type = type;}
     void SetMaxEventsPerFile(int nev) {m_MaxEventsPerFile = nev;}
 };
 

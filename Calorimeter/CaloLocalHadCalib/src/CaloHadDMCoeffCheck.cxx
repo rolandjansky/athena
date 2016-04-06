@@ -138,20 +138,20 @@ int CaloHadDMCoeffCheck::process(CaloHadDMCoeffData *myData, CaloLocalHadCoeff *
     return 0;
   }
 
-  std::vector<std::vector<std::vector<CaloHadDMCoeffFit::PrepData *> > > m_ereco; // [sDM][m_netabin][m_nlogenerbin]
-  std::vector<std::vector<std::vector<CaloHadDMCoeffFit::PrepData *> > > m_etrue; // [sDM][m_netabin][m_nlogenerbin]
+  std::vector<std::vector<std::vector<CaloHadDMCoeffFit::PrepData *> > > ereco; // [sDM][m_netabin][m_nlogenerbin]
+  std::vector<std::vector<std::vector<CaloHadDMCoeffFit::PrepData *> > > etrue; // [sDM][m_netabin][m_nlogenerbin]
   int nArea = m_HadDMCoeff->getSizeAreaSet()+1;
-  m_ereco.resize(nArea);
-  m_etrue.resize(nArea);
+  ereco.resize(nArea);
+  etrue.resize(nArea);
   for(int i_area=0; i_area<nArea; i_area++){
-    m_ereco[i_area].resize(m_netabin);
-    m_etrue[i_area].resize(m_netabin);
+    ereco[i_area].resize(m_netabin);
+    etrue[i_area].resize(m_netabin);
     for(int i_eta=0; i_eta<m_netabin; i_eta++){
-      m_ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
-      m_etrue[i_area][i_eta].resize(m_nlogenerbin, 0);
+      ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
+      etrue[i_area][i_eta].resize(m_nlogenerbin, 0);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
-        m_ereco[i_area][i_eta][i_ener] = new CaloHadDMCoeffFit::PrepData();
-        m_etrue[i_area][i_eta][i_ener] = new CaloHadDMCoeffFit::PrepData();
+        ereco[i_area][i_eta][i_ener] = new CaloHadDMCoeffFit::PrepData();
+        etrue[i_area][i_eta][i_ener] = new CaloHadDMCoeffFit::PrepData();
       } // i_ener
     } // i_eta
   } // i_area
@@ -212,8 +212,8 @@ int CaloHadDMCoeffCheck::process(CaloHadDMCoeffData *myData, CaloLocalHadCoeff *
       }
     }
     for(int i_area=0; i_area<m_HadDMCoeff->getSizeAreaSet()+1; i_area++){
-      m_ereco[i_area][mc_etabin][mc_enerbin]->add(engDmRecSumClus[i_area]);
-      m_etrue[i_area][mc_etabin][mc_enerbin] -> add(engDmTrueSumClus[i_area]);
+      ereco[i_area][mc_etabin][mc_enerbin]->add(engDmRecSumClus[i_area]);
+      etrue[i_area][mc_etabin][mc_enerbin] -> add(engDmTrueSumClus[i_area]);
     }
   } // i_ev
 
@@ -231,8 +231,8 @@ int CaloHadDMCoeffCheck::process(CaloHadDMCoeffData *myData, CaloLocalHadCoeff *
       m_h2_etrue_vs_ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
       m_hp_etrue_vs_ereco[i_area][i_eta].resize(m_nlogenerbin, 0);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
-        float elimreco = m_ereco[i_area][i_eta][i_ener]->m_aver + 5.*sqrt(m_ereco[i_area][i_eta][i_ener]->m_rms);
-        float elimtrue = m_etrue[i_area][i_eta][i_ener]->m_aver + 5.*sqrt(m_etrue[i_area][i_eta][i_ener]->m_rms);
+        float elimreco = ereco[i_area][i_eta][i_ener]->m_aver + 5.*sqrt(ereco[i_area][i_eta][i_ener]->m_rms);
+        float elimtrue = etrue[i_area][i_eta][i_ener]->m_aver + 5.*sqrt(etrue[i_area][i_eta][i_ener]->m_rms);
         if(elimreco <=0.0) elimreco = 1.0;
         if(elimtrue <=0.0) elimtrue = 1.0;
 
@@ -460,8 +460,8 @@ void CaloHadDMCoeffCheck::make_report(std::string &sreport)
         h->SetMarkerColor(kRed);
         h->Draw("same");
         sprintf(str,"E = %3.1f-%3.1f GeV",
-            pow(10,m_logenermin+m_dlogener*i_ener_sel)/1000., 
-                pow(10,m_logenermin+m_dlogener*(i_ener_sel+1))/1000.);
+            pow(10,m_logenermin+m_dlogener*i_ener_sel)*1e-3, 
+                pow(10,m_logenermin+m_dlogener*(i_ener_sel+1))*1e-3);
         tex.SetTextSize(0.05);
         tex.DrawLatex(0.2,0.85,str);
         sprintf(str,"#eta = %3.1f-%3.1f",m_etamin+m_deta*i_eta_sel, m_etamin+m_deta*(i_eta_sel+1));
@@ -488,8 +488,8 @@ void CaloHadDMCoeffCheck::make_report(std::string &sreport)
 
       c1_pad1->cd();
       sprintf(str,"pdg:%d  E = %3.1f-%3.1f GeV",i_pdg,
-          pow(10,m_logenermin+m_dlogener*i_ener_sel)/1000., 
-           pow(10,m_logenermin+m_dlogener*(i_ener_sel+1))/1000.);
+          pow(10,m_logenermin+m_dlogener*i_ener_sel)*1e-3, 
+           pow(10,m_logenermin+m_dlogener*(i_ener_sel+1))*1e-3);
       tex.SetTextSize(0.12);
       tex.DrawLatex(0.1, 0.5, str);
       c1_pad2->cd();
@@ -525,8 +525,8 @@ void CaloHadDMCoeffCheck::make_report(std::string &sreport)
 
       c2_pad1->cd();
       sprintf(str,"pdg:%d  E = %3.1f-%3.1f GeV (resolution)",i_pdg,
-          pow(10,m_logenermin+m_dlogener*i_ener_sel)/1000., 
-           pow(10,m_logenermin+m_dlogener*(i_ener_sel+1))/1000.);
+          pow(10,m_logenermin+m_dlogener*i_ener_sel)*1e-3, 
+           pow(10,m_logenermin+m_dlogener*(i_ener_sel+1))*1e-3);
       tex.SetTextSize(0.12);
       tex.DrawLatex(0.1, 0.5, str);
       c2_pad2->cd();
@@ -669,32 +669,32 @@ int CaloHadDMCoeffCheck::GetRmsWithoutTails(const TH1F *pH, float &mean, float &
   float lim1 = mean - ths*rms;
   float lim2 = mean + ths*rms;
 
-  double m_sum(0);
-  double m_aver(0);
-  double m_rms(0);
-  double m_sw(0);
+  //double sum(0);
+  double d_aver(0);
+  double d_rms(0);
+  double d_sw(0);
   for(int i=1; i<=(int)pH->GetNbinsX(); i++){
     if( pH->GetBinCenter(i)>=lim1 && pH->GetBinCenter(i)<= lim2 ){
       float xx = pH->GetBinCenter(i);
       float w = pH->GetBinContent(i);
       if(w == 0) continue;
-      m_sum += xx;
-      m_rms = (m_sw/(m_sw+w))*(m_rms+(w/(m_sw+w))*(xx-m_aver)*(xx-m_aver));
-      m_aver = m_aver+(xx-m_aver)*w/(m_sw+w);
-      m_sw += w;
+      //sum += xx;
+      d_rms = (d_sw/(d_sw+w))*(d_rms+(w/(d_sw+w))*(xx-d_aver)*(xx-d_aver));
+      d_aver = d_aver+(xx-d_aver)*w/(d_sw+w);
+      d_sw += w;
     }
   }
-  if(m_rms==0) {
-    m_rms = pH->GetRMS();
+  if(d_rms==0) {
+    d_rms = pH->GetRMS();
   }else{
-    m_rms = sqrt(m_rms);
+    d_rms = sqrt(d_rms);
   }
 
-  if(m_aver==0) {
-    m_aver = pH->GetMean();
+  if(d_aver==0) {
+    d_aver = pH->GetMean();
   }
 
-  mean = m_aver;
-  rms = m_rms;
+  mean = d_aver;
+  rms = d_rms;
   return 0;
 }

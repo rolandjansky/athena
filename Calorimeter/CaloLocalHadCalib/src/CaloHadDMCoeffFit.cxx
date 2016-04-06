@@ -22,6 +22,7 @@
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
+#include "AthenaKernel/Units.h"
 #include <math.h>
 #include <iostream>
 #include <sstream>
@@ -29,7 +30,6 @@
 #include <algorithm>
 
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -50,7 +50,8 @@
 
 
 using CLHEP::HepLorentzVector;
-using CLHEP::MeV;
+using Athena::Units::MeV;
+using Athena::Units::GeV;
 
 
 
@@ -205,10 +206,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
     } // i_cls
   } // i_ev
   std::cout << "done" << std::endl;
-  std::vector<double > m_engDmOverClusLim;
-  m_engDmOverClusLim.resize(m_HadDMCoeff->getSizeCoeffSet(), 0.0);
+  std::vector<double > engDmOverClusLim;
+  engDmOverClusLim.resize(m_HadDMCoeff->getSizeCoeffSet(), 0.0);
   for(int i_size=0; i_size<m_HadDMCoeff->getSizeCoeffSet(); i_size++){
-    m_engDmOverClusLim[i_size] = m_engDmOverClus[i_size]->m_aver + 3.0*sqrt(m_engDmOverClus[i_size]->m_rms);
+    engDmOverClusLim[i_size] = m_engDmOverClus[i_size]->m_aver + 3.0*sqrt(m_engDmOverClus[i_size]->m_rms);
   }
 
   // --------------------------------------------------------------------------
@@ -251,10 +252,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
       TProfile2D *hp2=0;
       if(refbin == i_size) {
          std::cout << " creating histos:" << hname << " refbin:" << refbin << std::endl;
-        const CaloLocalHadCoeff::LocalHadDimension *m_dimEner = area->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
-        const CaloLocalHadCoeff::LocalHadDimension *m_dimLambda = area->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
+        const CaloLocalHadCoeff::LocalHadDimension *dimEner = area->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
+        const CaloLocalHadCoeff::LocalHadDimension *dimLambda = area->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
         sprintf(hname,"m_hp2_DmWeight_%d",i_size);
-        hp2 = new TProfile2D(hname, hname, m_dimEner->getNbins(), m_dimEner->getXmin(), m_dimEner->getXmax(), m_dimLambda->getNbins(), m_dimLambda->getXmin(), m_dimLambda->getXmax(), 0.0, m_weightMax);
+        hp2 = new TProfile2D(hname, hname, dimEner->getNbins(), dimEner->getXmin(), dimEner->getXmax(), dimLambda->getNbins(), dimLambda->getXmin(), dimLambda->getXmax(), 0.0, m_weightMax);
       }else{
         hp2 = m_hp2_DmWeight[refbin];
       }
@@ -380,12 +381,12 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
     const CaloLocalHadCoeff::LocalHadCoeff *old_pars = m_HadDMCoeff->getCoeff(i_size);
     CaloLocalHadCoeff::LocalHadCoeff pars = *old_pars;
 
-    std::vector<int > m_indexes; //  DIM_EMFRAC, DIM_SIDE, DIM_ETA, DIM_PHI, DIM_ENER, DIM_LAMBDA
-    m_HadDMCoeff->bin2indexes(i_size, m_indexes);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
-    float ener = m_dimEner->getXmin() + m_dimEner->getDx()*(m_indexes[CaloLocalHadCoeffHelper::DIM_ENER]);
-    float eta = m_dimEta->getXmin() + m_dimEta->getDx()*(m_indexes[CaloLocalHadCoeffHelper::DIM_ETA]+0.5);
+    std::vector<int > indexes; //  DIM_EMFRAC, DIM_SIDE, DIM_ETA, DIM_PHI, DIM_ENER, DIM_LAMBDA
+    m_HadDMCoeff->bin2indexes(i_size, indexes);
+    const CaloLocalHadCoeff::LocalHadDimension *dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
+    const CaloLocalHadCoeff::LocalHadDimension *dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
+    float ener = dimEner->getXmin() + dimEner->getDx()*(indexes[CaloLocalHadCoeffHelper::DIM_ENER]);
+    float eta = dimEta->getXmin() + dimEta->getDx()*(indexes[CaloLocalHadCoeffHelper::DIM_ETA]+0.5);
 
     if( dmArea->getType() == CaloLocalHadDefs::AREA_DMFIT){
       TF1 *fitFun = m_hp_DmVsPrep[i_size]->GetFunction("fitFun");
@@ -396,7 +397,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
         float s1 = fitFun->GetParError(1);
         m_FitData[i_size] = new FitData(p0, s0, p1, s1);
         // checking fit quality
-        if(fitFun->GetNDF() >= 2 && fitFun->GetChisquare()/fitFun->GetNDF() < 100. && p1 !=0.0  && p1>0.05) {
+        if(fitFun->GetNDF() >= 2 && fitFun->GetChisquare()/fitFun->GetNDF() < 100. && p1 !=0.0  && p1>0.2) {
         //if(fitFun->GetNDF() > 2 && fitFun->GetChisquare()/fitFun->GetNDF() < 15. && p1 !=0.0 && s1<fabs(p1) && p1>0.05) {
           m_FitData[i_size]->isOK = true;
           m_FitData[i_size]->descr = std::string("OK");
@@ -408,7 +409,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
           m_FitData[i_size]->isOK = false;
           m_FitData[i_size]->descr = std::string("failed");
           if(fitFun->GetNDF() < 2 || fitFun->GetChisquare()/fitFun->GetNDF() > 100.) m_FitData[i_size]->descr += std::string(" NDFCHI");
-          if(p1==0 || p1<0.05) m_FitData[i_size]->descr += std::string(" p1");
+          if(p1==0 || p1<0.2) m_FitData[i_size]->descr += std::string(" p1");
           //if(s1<fabs(p1)) m_FitData[i_size]->descr += std::string(" s1");
           std::cout << "i_size failed " <<  i_size << " " << m_FitData[i_size]->descr << std::endl;
         }
@@ -421,8 +422,8 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
 
 //       if(m_isTestbeam) {
 //         // setting coefficients for neutral pions in between emec and hec equal to coefficients of charged pions
-//         if(dmArea->getTitle() == "ENG_CALIB_DEAD_HEC0" && m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1) {
-//           std::vector<int > m_tmp = m_indexes;
+//         if(dmArea->getTitle() == "ENG_CALIB_DEAD_HEC0" && indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1) {
+//           std::vector<int > m_tmp = indexes;
 //           m_tmp[CaloLocalHadCoeffHelper::DIM_EMFRAC]=0;
 //           int n_area;
 //           for(n_area=0; n_area<m_HadDMCoeff->getSizeAreaSet(); n_area++){
@@ -440,10 +441,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
 
         // neutral pions doesn't reach the material  between emec-hec and emb-tile, so normally the fit is screwed there
         // let's set fit coefficients for neutral pions in this DM area equal to the charged pion 
-        if( m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && (dmArea->getTitle() == "ENG_CALIB_DEAD_HEC0" || dmArea->getTitle() == "ENG_CALIB_DEAD_TILE0" ) ) {
-          std::vector<int > m_tmp = m_indexes;
-          m_tmp[CaloLocalHadCoeffHelper::DIM_EMFRAC]=0;
-          int iBin = m_HadDMCoeff->getBin( n_area, m_tmp);
+        if( indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && (dmArea->getTitle() == "ENG_CALIB_DEAD_HEC0" || dmArea->getTitle() == "ENG_CALIB_DEAD_TILE0" ) ) {
+          std::vector<int > tmp = indexes;
+          tmp[CaloLocalHadCoeffHelper::DIM_EMFRAC]=0;
+          int iBin = m_HadDMCoeff->getBin( n_area, tmp);
           const CaloLocalHadCoeff::LocalHadCoeff *had_pars = new_data->getCoeff(iBin);
           pars[0] = (*had_pars)[0];
           pars[1] = (*had_pars)[1];
@@ -452,14 +453,14 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
           sprintf(str, "Afrom %d",iBin);
           m_FitData[i_size]->descr += std::string(str);
           //std::cout << "xxx A i_size:" << i_size << " iBin:" << iBin  << " " << m_FitData[i_size]->descr << std::endl;
-        }else if( m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && (dmArea->getTitle() == "ENG_CALIB_DEAD_TILEG3") ) {
+        }else if( indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && (dmArea->getTitle() == "ENG_CALIB_DEAD_TILEG3") ) {
           // For material before tile scintillator things are weared, in some eta regions neutral pions have good correlation
           // between signal in scintillator and dead material energy, in some eta regions correlation is absent. So we select here
           // following approach: if fit failed, take coefficients from charged pion data and use them for neutral
           if(!m_FitData[i_size]->isOK) {
-            std::vector<int > m_tmp = m_indexes;
-            m_tmp[CaloLocalHadCoeffHelper::DIM_EMFRAC]=0;
-            int iBin = m_HadDMCoeff->getBin( n_area, m_tmp);
+            std::vector<int > tmp = indexes;
+            tmp[CaloLocalHadCoeffHelper::DIM_EMFRAC]=0;
+            int iBin = m_HadDMCoeff->getBin( n_area, tmp);
             const CaloLocalHadCoeff::LocalHadCoeff *had_pars = new_data->getCoeff(iBin);
             pars[0] = (*had_pars)[0];
             pars[1] = (*had_pars)[1];
@@ -472,13 +473,13 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
         }else{
           // if fit went wrong, lets take fit results from neighboting eta bin
           if(!m_FitData[i_size]->isOK) {
-            std::vector<int > m_tmp = m_indexes;
-            if(m_tmp[CaloLocalHadCoeffHelper::DIM_ETA]>0) {
-              m_tmp[CaloLocalHadCoeffHelper::DIM_ETA] -= 1;
-            }else if(m_tmp[CaloLocalHadCoeffHelper::DIM_ETA]==0){
-              m_tmp[CaloLocalHadCoeffHelper::DIM_ETA] += 1;
+            std::vector<int > tmp = indexes;
+            if(tmp[CaloLocalHadCoeffHelper::DIM_ETA]>0) {
+              tmp[CaloLocalHadCoeffHelper::DIM_ETA] -= 1;
+            }else if(tmp[CaloLocalHadCoeffHelper::DIM_ETA]==0){
+              tmp[CaloLocalHadCoeffHelper::DIM_ETA] += 1;
             }
-            int iBin = m_HadDMCoeff->getBin( n_area, m_tmp);
+            int iBin = m_HadDMCoeff->getBin( n_area, tmp);
             const CaloLocalHadCoeff::LocalHadCoeff *had_pars = new_data->getCoeff(iBin);
             pars[0] = (*had_pars)[0];
             pars[1] = (*had_pars)[1];
@@ -498,17 +499,17 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
           double rcut = 0.92;
           if(m_isTestbeam){ // H6 testbeam
             rcut = 0.93;
-            if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 1)  rcut = 0.75;
+            if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 1)  rcut = 0.75;
 
-            if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==0 && ener < 4.69 && fabs(eta)>2.8) {
+            if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==0 && ener < 4.69 && fabs(eta)>2.8) {
               rcut = 0.85;
             }
-            if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && ener < 4.69 && fabs(eta)>3.0) {
+            if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && ener < 4.69 && fabs(eta)>3.0) {
               rcut = 0.85;
             }
           }else{ // atlas
             rcut = 0.95;
-            if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 1)  {
+            if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 1)  {
               rcut = 0.80;
               if(fabs(eta) > 1.44 && fabs(eta) < 1.56) {
                 rcut = 0.60;
@@ -530,11 +531,11 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
 //           if( m_h1_engDmOverClus[i_size]->GetEntries() > 0) {
 //             //double rcut = 0.99;
 //             double rcut = 0.93;
-//             if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==0 && ener < 4.69 ) {
+//             if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==0 && ener < 4.69 ) {
 //               //rcut = 0.88;
 //               rcut = 0.85;
 //             }
-//             if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 1)  {
+//             if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 1)  {
 //               //rcut = 0.79; //clsw=lin
 //               rcut = 0.85; //clsw=1.0
 //             }
@@ -549,11 +550,11 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
 //         }else{ // Atlas
 //           // simple average with weightMax rejection
 //           if( m_hp2_DmWeight[i_size]->GetEntries() > 0) {
-//             int binx = m_indexes[CaloLocalHadCoeffHelper::DIM_ENER] + 1;
-//             int biny = m_indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA] + 1;
+//             int binx = indexes[CaloLocalHadCoeffHelper::DIM_ENER] + 1;
+//             int biny = indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA] + 1;
 //             double w = m_hp2_DmWeight[i_size]->GetBinContent(binx, biny);
 //             // manual hack to decrease the level of correction
-//             if(m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && fabs(eta)>1.3 && fabs(eta)<1.7) {
+//             if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC]==1 && fabs(eta)>1.3 && fabs(eta)<1.7) {
 //               if(ener < 4.5){
 //                 w = w*0.78;
 //               }else{
@@ -612,20 +613,20 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
     const CaloLocalHadCoeff::LocalHadArea *dmArea = m_HadDMCoeff->getArea(i_dms);
     if( dmArea->getType() != CaloLocalHadDefs::AREA_DMFIT) continue;
 
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimFrac = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_EMFRAC);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimSide = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_SIDE);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimLambda = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimPhi = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_PHI);
+    const CaloLocalHadCoeff::LocalHadDimension *dimFrac = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_EMFRAC);
+    const CaloLocalHadCoeff::LocalHadDimension *dimSide = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_SIDE);
+    const CaloLocalHadCoeff::LocalHadDimension *dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
+    const CaloLocalHadCoeff::LocalHadDimension *dimLambda = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
+    const CaloLocalHadCoeff::LocalHadDimension *dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
+    const CaloLocalHadCoeff::LocalHadDimension *dimPhi = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_PHI);
 
     std::vector<int > v_indx;
     v_indx.resize(CaloLocalHadCoeffHelper::DIM_UNKNOWN, 0);
-    for(int i_frac=0; i_frac<m_dimFrac->getNbins(); i_frac++) {
-      for(int i_ener=0; i_ener<m_dimEner->getNbins(); i_ener++) {
-        for(int i_lambda=0; i_lambda<m_dimLambda->getNbins(); i_lambda++) {
-          for(int i_side=0; i_side<m_dimSide->getNbins(); i_side++) {
-            for(int i_phi=0; i_phi<m_dimPhi->getNbins(); i_phi++) {
+    for(int i_frac=0; i_frac<dimFrac->getNbins(); i_frac++) {
+      for(int i_ener=0; i_ener<dimEner->getNbins(); i_ener++) {
+        for(int i_lambda=0; i_lambda<dimLambda->getNbins(); i_lambda++) {
+          for(int i_side=0; i_side<dimSide->getNbins(); i_side++) {
+            for(int i_phi=0; i_phi<dimPhi->getNbins(); i_phi++) {
               v_indx[CaloLocalHadCoeffHelper::DIM_EMFRAC] = i_frac;
               v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
               v_indx[CaloLocalHadCoeffHelper::DIM_LAMBDA] = i_lambda;
@@ -637,14 +638,14 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                 TPad *pad2 = new TPad("p2ps","p2ps",0.0, 0.0, 1.0, 0.95); pad2->Draw();
                 // nice header with energy (in GeV) range on it
                 pad1->cd();
-                float ener1 = pow(10,m_dimEner->getXmin()+m_dimEner->getDx()*i_ener)/1000.;
-                float ener2 = pow(10,m_dimEner->getXmin()+m_dimEner->getDx()*(i_ener+1))/1000.;
+                float ener1 = pow(10,dimEner->getXmin()+dimEner->getDx()*i_ener)/GeV;
+                float ener2 = pow(10,dimEner->getXmin()+dimEner->getDx()*(i_ener+1))/GeV;
                 sprintf(str,"%s em:%d ener:%d> %5.1f-%6.1f phi:%d s:%d",dmArea->getTitle().c_str(),i_frac,i_ener, ener1, ener2, i_phi, i_side);
                 tex.SetTextSize(0.4);
                 tex.SetTextColor(kBlue);
                 tex.DrawTextNDC(0.05,0.1,str);
                 // number of pad's divisions to display all eta-histograms on one page
-                int ndiv = m_dimEta->getNbins();
+                int ndiv = dimEta->getNbins();
                 if(ndiv <=6){
                   pad2->Divide(2,3);
                 }else if(ndiv <=9){
@@ -658,7 +659,7 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                 } else {
                   pad2->Divide(6,6);
                 }
-                for(int i_eta=0; i_eta<m_dimEta->getNbins(); i_eta++){
+                for(int i_eta=0; i_eta<dimEta->getNbins(); i_eta++){
                   v_indx[CaloLocalHadCoeffHelper::DIM_ETA] = i_eta;
                   int iBin = m_HadDMCoeff->getBin(i_dms, v_indx);
                   if(iBin == -1) {
@@ -671,8 +672,8 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                   }else{
                     hh = m_hp_DmVsPrep[iBin];
                   }
-                  float eta1 = m_dimEta->getXmin() + m_dimEta->getDx()*i_eta;
-                  float eta2 = m_dimEta->getXmin() + m_dimEta->getDx()*(i_eta+1);
+                  float eta1 = dimEta->getXmin() + dimEta->getDx()*i_eta;
+                  float eta2 = dimEta->getXmin() + dimEta->getDx()*(i_eta+1);
                   pad2->cd(1+i_eta); gPad->SetGrid();
                   hh->GetXaxis()->SetNdivisions(508);
                   hh->GetYaxis()->SetNdivisions(508);
@@ -728,9 +729,9 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
       /* **************************************************
       as a function of energy
       ************************************************** */
-      for(int i_side=0; i_side<m_dimSide->getNbins(); i_side++){
+      for(int i_side=0; i_side<dimSide->getNbins(); i_side++){
         v_indx[CaloLocalHadCoeffHelper::DIM_SIDE] = i_side;
-        for(int i_phi=0; i_phi<m_dimPhi->getNbins(); i_phi++){
+        for(int i_phi=0; i_phi<dimPhi->getNbins(); i_phi++){
           v_indx[CaloLocalHadCoeffHelper::DIM_PHI] = i_phi;
           for(int i_par=0; i_par<2; i_par++){
             c1ps->Clear();
@@ -742,7 +743,7 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
             tex.SetTextSize(0.5); tex.SetTextColor(kBlue);
             tex.DrawTextNDC(0.05,0.1,str);
             // number of pad's divisions to display all eta-histograms on one page
-            int ndiv = m_dimEta->getNbins();
+            int ndiv = dimEta->getNbins();
             if(ndiv <=6){
               pad2->Divide(2,3);
             }else if(ndiv <=9){
@@ -756,10 +757,10 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
             } else {
               pad2->Divide(6,6);
             }
-            for(int i_eta=0; i_eta<m_dimEta->getNbins(); i_eta++){
+            for(int i_eta=0; i_eta<dimEta->getNbins(); i_eta++){
               v_indx[CaloLocalHadCoeffHelper::DIM_ETA] = i_eta;
-              TGraphErrors *gr = new TGraphErrors(m_dimEner->getNbins());
-              for(int i_ener=0; i_ener<m_dimEner->getNbins(); i_ener++) {
+              TGraphErrors *gr = new TGraphErrors(dimEner->getNbins());
+              for(int i_ener=0; i_ener<dimEner->getNbins(); i_ener++) {
                 v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
                 int iBin = m_HadDMCoeff->getBin(i_dms, v_indx);
                 float y(0), ye(0);
@@ -774,13 +775,13 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                     ye = s1inv;
                   }
                 }
-                gr->SetPoint(i_ener, m_dimEner->getXmin()+i_ener*m_dimEner->getDx(), y);
+                gr->SetPoint(i_ener, dimEner->getXmin()+i_ener*dimEner->getDx(), y);
                 gr->SetPointError(i_ener, 0.0, ye);
               } // i_ener
               pad2->cd(1+i_eta); gPad->SetGrid();
               gr->Draw("apl");
-              float eta1 = m_dimEta->getXmin() + m_dimEta->getDx()*i_eta;
-              float eta2 = m_dimEta->getXmin() + m_dimEta->getDx()*(i_eta+1);
+              float eta1 = dimEta->getXmin() + dimEta->getDx()*i_eta;
+              float eta2 = dimEta->getXmin() + dimEta->getDx()*(i_eta+1);
               tex.SetTextSize(0.095);
               tex.SetTextColor(kBlue);
               sprintf(str,"%4.2f-%4.2f  phibin:%d",eta1,eta2,i_phi);
@@ -802,21 +803,21 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
     const CaloLocalHadCoeff::LocalHadArea *dmArea = m_HadDMCoeff->getArea(i_dms);
     if( dmArea->getType() != CaloLocalHadDefs::AREA_DMLOOKUP) continue;
 
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimFrac = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_EMFRAC);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimSide = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_SIDE);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimLambda = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
-    const CaloLocalHadCoeff::LocalHadDimension *m_dimPhi = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_PHI);
+    const CaloLocalHadCoeff::LocalHadDimension *dimFrac = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_EMFRAC);
+    const CaloLocalHadCoeff::LocalHadDimension *dimSide = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_SIDE);
+    const CaloLocalHadCoeff::LocalHadDimension *dimEner = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
+    const CaloLocalHadCoeff::LocalHadDimension *dimLambda = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
+    const CaloLocalHadCoeff::LocalHadDimension *dimEta = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_ETA);
+    const CaloLocalHadCoeff::LocalHadDimension *dimPhi = dmArea->getDimension(CaloLocalHadCoeffHelper::DIM_PHI);
 
-    for(int i_frac=0; i_frac<m_dimFrac->getNbins(); i_frac++){
-      for(int i_side=0; i_side<m_dimSide->getNbins(); i_side++){
-        for(int i_phi=0; i_phi<m_dimPhi->getNbins(); i_phi++){
-          for(int i_eta=0; i_eta<m_dimEta->getNbins(); i_eta++){
+    for(int i_frac=0; i_frac<dimFrac->getNbins(); i_frac++){
+      for(int i_side=0; i_side<dimSide->getNbins(); i_side++){
+        for(int i_phi=0; i_phi<dimPhi->getNbins(); i_phi++){
+          for(int i_eta=0; i_eta<dimEta->getNbins(); i_eta++){
             // check if eta bin within region of interest
             bool ShowThisEta = false;
             for(int i=0; i<int(sizeof(etaRegions)/sizeof(float)/2); i++){
-              float xeta = m_dimEta->getXmin()+i_eta*m_dimEta->getDx();
+              float xeta = dimEta->getXmin()+i_eta*dimEta->getDx();
               if(xeta>=etaRegions[i][0] && xeta <= etaRegions[i][1]) {
                 ShowThisEta = true;
                 break;
@@ -834,25 +835,25 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
             // lets find bins for axes
             Double_t xx[100];
             bzero(xx,100*sizeof(Double_t));
-            for(int i_ener=0; i_ener<m_dimEner->getNbins()+1; i_ener++){
-              xx[i_ener] = m_dimEner->getXmin() + m_dimEner->getDx()*i_ener;
+            for(int i_ener=0; i_ener<dimEner->getNbins()+1; i_ener++){
+              xx[i_ener] = dimEner->getXmin() + dimEner->getDx()*i_ener;
             }
             Double_t yy[100];
             bzero(yy,100*sizeof(Double_t));
-            for(int i_lambda=0; i_lambda<m_dimLambda->getNbins()+1; i_lambda++){
-              yy[i_lambda] = m_dimLambda->getXmin() + m_dimLambda->getDx()*i_lambda;
+            for(int i_lambda=0; i_lambda<dimLambda->getNbins()+1; i_lambda++){
+              yy[i_lambda] = dimLambda->getXmin() + dimLambda->getDx()*i_lambda;
             }
             int nbins = 0;
             int ibin_min = m_HadDMCoeff->getBin(i_dms, v_indx);
-            v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = m_dimEner->getNbins() - 1;
-            v_indx[CaloLocalHadCoeffHelper::DIM_LAMBDA] = m_dimLambda->getNbins() - 1;
+            v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = dimEner->getNbins() - 1;
+            v_indx[CaloLocalHadCoeffHelper::DIM_LAMBDA] = dimLambda->getNbins() - 1;
             int ibin_max = m_HadDMCoeff->getBin(i_dms, v_indx);
             const int n_prof= 2;
             TH2F *hp2[n_prof];
             sprintf(hname,"%s dm:%d frac:%d eta:%d phi:%d indx:%d-%d<ecls>/<edm>",dmArea->getTitle().c_str(),i_dms, i_frac, i_eta, i_phi, ibin_min, ibin_max);
-            hp2[0] = new TH2F(hname, hname, m_dimEner->getNbins(), xx, m_dimLambda->getNbins(), yy);
+            hp2[0] = new TH2F(hname, hname, dimEner->getNbins(), xx, dimLambda->getNbins(), yy);
             sprintf(hname,"%s dm:%d frac:%d eta:%d phi:%d indx:%d-%d nev",dmArea->getTitle().c_str(),i_dms, i_frac, i_eta, i_phi, ibin_min, ibin_max);
-            hp2[1] = new TH2F(hname, hname, m_dimEner->getNbins(), xx, m_dimLambda->getNbins(), yy);
+            hp2[1] = new TH2F(hname, hname, dimEner->getNbins(), xx, dimLambda->getNbins(), yy);
             for(int i=0; i<n_prof; i++){
               hp2[i]->GetXaxis()->SetTitle("log10(E_{cls}(MeV))");
               hp2[i]->GetYaxis()->SetTitle("log10(#lambda)");
@@ -862,8 +863,8 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
             float hp_aver[n_prof];
             bzero(hp_aver,n_prof*sizeof(float));
             std::vector<std::pair<int, int> > v_occupancy;
-            for(int i_ener=0; i_ener<m_dimEner->getNbins(); i_ener++) {
-              for(int i_lambda=0; i_lambda<m_dimLambda->getNbins(); i_lambda++) {
+            for(int i_ener=0; i_ener<dimEner->getNbins(); i_ener++) {
+              for(int i_lambda=0; i_lambda<dimLambda->getNbins(); i_lambda++) {
                 v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
                 v_indx[CaloLocalHadCoeffHelper::DIM_LAMBDA] = i_lambda;
                 int iBin = m_HadDMCoeff->getBin(i_dms, v_indx);
@@ -872,10 +873,10 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                   exit(EXIT_FAILURE);
                 }
                 float x = m_engDmOverClus[iBin]->m_aver;
-                hp2[0]->Fill(m_dimEner->getXmin() + m_dimEner->getDx()*(i_ener+0.5), m_dimLambda->getXmin() + m_dimLambda->getDx()*(i_lambda+0.5), x);
+                hp2[0]->Fill(dimEner->getXmin() + dimEner->getDx()*(i_ener+0.5), dimLambda->getXmin() + dimLambda->getDx()*(i_lambda+0.5), x);
                 hp_aver[0] += x;
                 x = float(m_engDm[iBin]->size());
-                hp2[1]->Fill(m_dimEner->getXmin() + m_dimEner->getDx()*(i_ener+0.5), m_dimLambda->getXmin() + m_dimLambda->getDx()*(i_lambda+0.5), x );
+                hp2[1]->Fill(dimEner->getXmin() + dimEner->getDx()*(i_ener+0.5), dimLambda->getXmin() + dimLambda->getDx()*(i_lambda+0.5), x );
                 hp_aver[1] += x;
                 nbins ++;
                 std::pair<int, int> pp;
@@ -904,14 +905,14 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
             m_hp2_DmWeight[ibin_min]->SetMaximum(1.0);
             m_hp2_DmWeight[ibin_min]->Draw("colz");
             // drawing bin number for histograms
-            for(int i_ener=0; i_ener<m_dimEner->getNbins(); i_ener++) {
+            for(int i_ener=0; i_ener<dimEner->getNbins(); i_ener++) {
               v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;
               int iBin = m_HadDMCoeff->getBin(i_dms, v_indx);
               sprintf(str,"%d",iBin);
               TLatex tex;
               tex.SetTextSize(0.03);
               tex.SetTextAngle(90.);
-              tex.DrawLatex(m_dimEner->getXmin() + m_dimEner->getDx()*(i_ener+0.5), m_dimLambda->getXmax()-2.*m_dimLambda->getDx(), str);
+              tex.DrawLatex(dimEner->getXmin() + dimEner->getDx()*(i_ener+0.5), dimLambda->getXmax()-2.*dimLambda->getDx(), str);
             }
 
             // drawing spectras in selected cells
@@ -927,12 +928,12 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                 std::cout << "Undefined h1 for " << iBin << std::endl;
                 continue;
               }
-              std::vector<int > m_indexes;
-              m_HadDMCoeff->bin2indexes(iBin, m_indexes);
+              std::vector<int > indexes;
+              m_HadDMCoeff->bin2indexes(iBin, indexes);
               sprintf(str, "ibin:%d  frac:%d ener:%d lambda:%d eta:%d phi:%d",iBin,
-                      m_indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC], m_indexes[CaloLocalHadCoeffHelper::DIM_ENER], 
-                      m_indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA], m_indexes[CaloLocalHadCoeffHelper::DIM_ETA], 
-                      m_indexes[CaloLocalHadCoeffHelper::DIM_PHI]);
+                      indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC], indexes[CaloLocalHadCoeffHelper::DIM_ENER], 
+                      indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA], indexes[CaloLocalHadCoeffHelper::DIM_ETA], 
+                      indexes[CaloLocalHadCoeffHelper::DIM_PHI]);
               pad2->cd(3+i_spec);
               m_h1_engDmOverClus[iBin]->SetStats(1);
               m_h1_engDmOverClus[iBin]->SetTitle(str);
@@ -1034,6 +1035,7 @@ double CaloHadDMCoeffFit::ProfileRefiner(TProfile *pH, double ev_ratio)
   //<< " ev_ratio:" << ev_ratio
   //<< std::endl;
   double nev_in(0);
+  double inv_nevtot = nevtot ? 1. / nevtot : 1;
   for(int i=1; i<=pH->GetNbinsX(); i++){
     nev_in += pH->GetBinEntries(i);
     if(pH->GetBinEffectiveEntries(i)<2.0){
@@ -1044,7 +1046,7 @@ double CaloHadDMCoeffFit::ProfileRefiner(TProfile *pH, double ev_ratio)
     //std::cout << "yyy i:" << i << " bin_content:" << pH->GetBinContent(i) << " entries:" << pH->GetBinEntries(i)
     //<< " nev_in:" << nev_in << " nevtot:" << nevtot << " nev_in/nevtot:" << nev_in/nevtot
     //<< std::endl;
-    if(nev_in/nevtot > ev_ratio) {
+    if(nev_in*inv_nevtot > ev_ratio) {
       xLimRight=pH->GetBinCenter(i) + pH->GetBinWidth(i)/2.;
       //std::cout << "yyy i:" << i << " xLimRight:" << xLimRight << std::endl;
       break;
@@ -1068,10 +1070,11 @@ double CaloHadDMCoeffFit::GetAverageWithoutRightTail(TH1F *pH, double ev_ratio)
   double nevtot = pH->Integral();
   double nev = 0;
   if(nevtot != 0.0) {
+    const double inv_nevtot = 1. / nevtot;
     for(int i_bin = 0; i_bin <=nbinx; i_bin++){
       nev+= pH->GetBinContent(i_bin);
       
-      if( nev/nevtot >= ev_ratio){
+      if( nev*inv_nevtot >= ev_ratio){
         xLimRight = pH->GetBinCenter(i_bin) + pH->GetBinWidth(i_bin)/2.;
         break;
       }
@@ -1099,10 +1102,10 @@ int CaloHadDMCoeffFit::getFirstEnerLambdaBin(int ibin)
 {
   // DIM_EMFRAC, DIM_SIDE, DIM_ETA, DIM_PHI, DIM_ENER, DIM_LAMBDA
   const CaloLocalHadCoeff::LocalHadArea *dmArea = m_HadDMCoeff->getAreaFromBin(ibin);
-  std::vector<int > m_indexes;
-  m_HadDMCoeff->bin2indexes(ibin, m_indexes);
-  m_indexes[CaloLocalHadCoeffHelper::DIM_ENER]=0;
-  m_indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA]=0;
+  std::vector<int > indexes;
+  m_HadDMCoeff->bin2indexes(ibin, indexes);
+  indexes[CaloLocalHadCoeffHelper::DIM_ENER]=0;
+  indexes[CaloLocalHadCoeffHelper::DIM_LAMBDA]=0;
 
   int n_area;
   for(n_area=0; n_area<m_HadDMCoeff->getSizeAreaSet(); n_area++){
@@ -1110,7 +1113,7 @@ int CaloHadDMCoeffFit::getFirstEnerLambdaBin(int ibin)
       break;
     }
   }
-  int refbin = m_HadDMCoeff->getBin(n_area, m_indexes);
+  int refbin = m_HadDMCoeff->getBin(n_area, indexes);
   return refbin;
 }
 

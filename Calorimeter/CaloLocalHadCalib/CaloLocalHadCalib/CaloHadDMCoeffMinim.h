@@ -41,14 +41,14 @@ class CaloHadDMCoeffMinim {
         double      upperLim;
         double      value;
         double      error;
-        MinimPar(std::string _name, double _initVal, double _initErr,
-                   double _lowerLim, double _upperLim) 
-        : name(_name),
+        MinimPar(std::string the_name, double the_initVal, double the_initErr,
+                   double the_lowerLim, double the_upperLim) 
+        : name(the_name),
           fixIt(true),
-          initVal(_initVal),
-          initErr(_initErr),
-          lowerLim(_lowerLim),
-          upperLim(_upperLim),
+          initVal(the_initVal),
+          initErr(the_initErr),
+          lowerLim(the_lowerLim),
+          upperLim(the_upperLim),
           value(0.0),
           error(0.0)
         { }

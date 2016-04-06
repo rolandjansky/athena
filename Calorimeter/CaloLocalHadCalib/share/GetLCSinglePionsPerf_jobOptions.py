@@ -13,7 +13,7 @@ lcPerf = GetLCSinglePionsPerf("LocalHadPerformance")
 lcPerf.ClusterBasicCollName = "CaloTopoCluster"
 
 # collections names to study engReco wrt Truth after different correction steps
-lcPerf.ClusterCollectionNames = ["CaloTopoCluster", "CaloWTopoCluster", "CaloOOCTopoCluster", "CaloCalTopoCluster"]
+lcPerf.ClusterCollectionNames = ["CaloTopoCluster", "CaloWTopoCluster", "CaloOOCTopoCluster", "CaloCalTopoClusters"]
 #lcPerf.ClusterCollectionNames = ["CaloTopoCluster_EMAll", "CaloWTopoCluster_EMAll", "CaloOOCTopoCluster_EMAll", "CaloCalTopoCluster_EMAll"]
 #lcPerf.ClusterCollectionNames = ["CaloTopoCluster_HadAll", "CaloWTopoCluster_HadAll", "CaloOOCTopoCluster_HadAll", "CaloCalTopoCluster_HadAll"]
 
@@ -36,8 +36,9 @@ lcPerf.nphibin = 1
 lcPerf.logenermin = 2.0
 lcPerf.logenermax = 6.4
 lcPerf.nlogenerbin = 22
-lcPerf.isTestbeam = False
+lcPerf.isTestbeam = False 
 lcPerf.useGoodClus = False
+lcPerf.usePionClustersOnly = False
 lcPerf.useRecoEfficiency = False
 
 

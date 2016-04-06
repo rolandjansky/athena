@@ -94,7 +94,7 @@ class GetLCDeadMaterialTree : public AthAlgorithm {
     bool m_isTestbeam;        // H6 testbeam flag
 
     double m_energyMin;
-    double m_energyMax;
+    //double m_energyMax;
 
     typedef std::pair<std::string,xAOD::CaloCluster::MomentType> moment_name_pair;
     typedef std::vector<moment_name_pair> moment_name_vector;

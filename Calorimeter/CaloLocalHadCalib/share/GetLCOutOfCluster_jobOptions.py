@@ -17,7 +17,7 @@ GetLCO.OutputFileName = outFileNameLCO
 #
 #GetLCO.OutOfClusterDimensions = {
 #    'side': ('side',-1.5,1.5,1),
-#    '|eta|': ('|eta|',0.,5.,25),
+#    '|eta|': ('|eta|',0.,5.,50),
 #    'phi': ('phi',-m_pi,m_pi,1),
 #    'log10(E_clus (MeV))': ('log10(E_clus (MeV))',m_log10(200*MeV),m_log10(1*TeV),22),
 #    'log10(lambda_clus (mm))': ('log10(lambda_clus (mm))',0.0,4.0,20),
