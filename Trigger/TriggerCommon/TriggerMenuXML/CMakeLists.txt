@@ -22,6 +22,12 @@ atlas_depends_on_subdirs( PRIVATE
 # Function to build trigger menu:
 function( atlas_build_trigger_menu menu )
 
+   # Don't do anything in release recompilation dryrun mode. In all other
+   # modes, proceed as usual.
+   if( ATLAS_RELEASE_RECOMPILE_DRYRUN )
+      return()
+   endif()
+
    # Command to build trigger menu. The idea is that ${menu}.stamp gets
    # created as the last command, should the menu generation succeed. So
    # that after a successful menu generation it wouldn't be attempted
