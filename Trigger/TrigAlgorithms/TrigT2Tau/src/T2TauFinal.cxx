@@ -67,6 +67,11 @@ T2TauFinal::T2TauFinal(const std::string & name, ISvcLocator* pSvcLocator):
   declareMonitoredCustomVariable("DeltaPhiTkClust", new T2TauFinalMonOfDelta(*&myTrackColl,*&roiDescriptor,3) );
   
   declareProperty("updateRoiDescriptor", m_updateRoiDescriptor, "option to update RoiDescriptor after execution");
+
+  pTrackColl = 0;
+  myTrackColl = 0;
+  roiDescriptor = 0;
+ 
 }
 
 T2TauFinal::~T2TauFinal(){
