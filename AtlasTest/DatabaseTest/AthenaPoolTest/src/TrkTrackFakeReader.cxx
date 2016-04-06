@@ -41,12 +41,6 @@
 // TES include
 #include "StoreGate/StoreGateSvc.h"
 
-// Gaudi includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/SmartDataPtr.h"
-
 // test includes
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -60,54 +54,29 @@
 // Constructor with parameters:
 TrkTrackFakeReader::TrkTrackFakeReader(const std::string &name, 
 ISvcLocator *pSvcLocator) :
-Algorithm(name,pSvcLocator),
-  m_storeGate(0)
-
+  AthAlgorithm(name,pSvcLocator),
+  m_pixMgr(nullptr)
   {}
 
 // Initialize method:
 StatusCode TrkTrackFakeReader::initialize()
 {
-    // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "TrkTrackFakeReader::initialize()" << endreq;
-
-    // get DetectorStore service
-  StoreGateSvc* detStore;
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << " Found DetectorStore " << endreq;
-  }
-
-  sc = detStore->retrieve(m_pixMgr, m_pixMgrLocation);
-  if (sc.isFailure()) {
-    log<<MSG::ERROR<<"Could not get PixelDetectorDescription"<<endreq;
-    return sc;
-  }
-
+  ATH_MSG_INFO( "TrkTrackFakeReader::initialize()"  );
+  ATH_CHECK( detStore()->retrieve(m_pixMgr, m_pixMgrLocation) );
   return StatusCode::SUCCESS;
 }
 
 // Execute method:
 StatusCode TrkTrackFakeReader::execute() 
 {
-    // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TrkTrackFakeReader::execute()" << endreq;
+  ATH_MSG_DEBUG( "TrkTrackFakeReader::execute()"  );
 
   using namespace Trk;
   using namespace InDet;
 
     //Get tracks
-  const TrackCollection* tracks;
-  StatusCode sc=m_storeGate->retrieve(tracks,"Tracks");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Track Collection not be retrieved from StoreGate !" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  const TrackCollection* tracks = nullptr;
+  ATH_CHECK( evtStore()->retrieve(tracks,"Tracks") );
 
   for (TrackCollection::const_iterator it = tracks->begin(); it!=tracks->end(); ++it)
   {
@@ -124,10 +93,7 @@ StatusCode TrkTrackFakeReader::execute()
 // Finalize method:
 StatusCode TrkTrackFakeReader::finalize() 
 {
-    // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "TrkTrackFakeReader::finalize()" << endreq;
-
+  ATH_MSG_INFO( "TrkTrackFakeReader::finalize()"  );
   return StatusCode::SUCCESS;
 }
 
@@ -143,8 +109,7 @@ void TrkTrackFakeReader::compareTracks(const Trk::Track* ref, const Trk::Track* 
   if ( !(ref->fitQuality () && readTrk->fitQuality() 
     && ref->fitQuality()->chiSquared()==readTrk->fitQuality ()->chiSquared()
   && ref->fitQuality()->numberDoF()==readTrk->fitQuality ()->numberDoF())) {
-    log << MSG::WARNING << "Track fitqualities differ" << endreq;
-
+    ATH_MSG_WARNING( "Track fitqualities differ"  );
   } 
 }
 

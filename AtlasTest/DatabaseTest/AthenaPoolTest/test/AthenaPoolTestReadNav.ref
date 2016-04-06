@@ -1,154 +1,96 @@
-Thu Jul 24 14:08:02 CEST 2014
+Thu Mar 24 19:18:55 CET 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-19.1.2] [x86_64-slc6-gcc47-opt] [19.X.0-VAL/rel_4] -- built on [2014-07-23 22:00]
+Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_2] -- built on [2016-03-21 22:42]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in CaloEventDict.so  is already in libISF_FastCaloSimParametrizationLib.so 
+Py:Athena            INFO executing ROOT6Setup
+[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/AthenaPoolTestReadNav.py"
-Py:ConfigurableDb    INFO Read module info for 4619 configurables from 19 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 19 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 5049 configurables from 10 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 10 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -JetFilter: GeneratorFilters.GeneratorFiltersConf - ['JetRec.JetRecConf']
-Py:ConfigurableDb WARNING   -AdjT0__AdjustableT0Tool: MboyEDMTool.MboyEDMToolConf - ['MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf']
+Py:ConfigurableDb WARNING   -TrigHLTJetHypo: TrigHLTJetHypo.TrigHLTJetHypoConf - ['TrigJetHypo.TrigJetHypoConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v2r1)
-                                          running on voatlas106.cern.ch on Thu Jul 24 14:08:04 2014
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v3r4)
+                                          running on lxplus0008.cern.ch on Thu Mar 24 19:19:01 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 StatusCodeSvc        INFO initialize
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
-Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
-RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
-RootDatabase.open Success SimplePoolFile1.root File version:53413
+RootDatabase.open Success SimplePoolFile1.root File version:60414
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
-RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
-RootDatabase.open Success SimplePoolFile1.root File version:53413
+RootDatabase.open Success SimplePoolFile1.root File version:60414
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
-AthenaPoolTestD...  DEBUG Retrieved collection 1
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 2
 AthenaPoolTestD...  DEBUG Collection of B's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 3
 AthenaPoolTestD...  DEBUG Collection of A's and B's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
-RootDatabase.open Success SimplePoolFile.root File version:53413
-AthenaPoolTestD...  DEBUG Retrieved collection 4
+RootDatabase.open Success SimplePoolFile.root File version:60414
 AthenaPoolTestD...  DEBUG Collection of C's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 5
 AthenaPoolTestD...  DEBUG Collection of D's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -265,7 +207,6 @@ AthenaPoolTestD...  DEBUG i,c: 0 10
 AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
-AthenaPoolTestD...  DEBUG Read back dummy_E class 
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
@@ -298,99 +239,65 @@ AthenaPoolTestD...  DEBUG [Run,Evt,Lumi,Time,BunchCross,DetMask] = [1,4294967296
 AthenaPoolTestD...  DEBUG Event type: user type Overlaid
 AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
 AthenaPoolTestD...  DEBUG SubEventInfos
-AthenaPoolTestD...  DEBUG Time, index 25 0
-AthenaPoolTestD...  DEBUG Event ID: [1,4294967296:0] 
-AthenaPoolTestD...  DEBUG Event type: user type McEvent
-AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
+AthenaPoolTestD...  DEBUG None found
 AthenaPoolTestD...  DEBUG Executing AthenaPoolTestDataReader
-AthenaPoolTestD...  DEBUG Retrieved collection 1
 AthenaPoolTestD...  DEBUG Collection of A's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 1 2
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 1 2
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 2 3
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 2 3
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 3 4
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 3 4
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 4 5
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 4 5
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 5 6
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 5 6
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 2
 AthenaPoolTestD...  DEBUG Collection of B's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 11 12 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 12 13 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 13 14 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 14 15 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 15 16 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 3
 AthenaPoolTestD...  DEBUG Collection of A's and B's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 21 22
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 21 22
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 22 23
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 22 23
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestA::printWhoYouAre A - a, b 23 24
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestA::printWhoYouAre A - a, b 23 24
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 24 25 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 25 26 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestB::printWhoYouAre B - c, d 26 27 fa, da 7 13
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 4
 AthenaPoolTestD...  DEBUG Collection of C's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 3 4
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 4 5
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 5 6
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 6 7
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 7 8
-AthenaPoolTestD...  DEBUG 
-AthenaPoolTestD...  DEBUG Retrieved collection 5
 AthenaPoolTestD...  DEBUG Collection of D's
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 15 16 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 13 14
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 16 17 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 14 15
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 17 18 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 15 16
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 18 19 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 16 17
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Read:      AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
 AthenaPoolTestD...  DEBUG Should be: AthenaPoolTestD::printWhoYouAre D - e, f 19 20 AthenaPoolTestC::printWhoYouAre C - a, b, c, d 0 0 17 18
-AthenaPoolTestD...  DEBUG 
 AthenaPoolTestD...  DEBUG Retrieved matrix 1 AthenaPoolTestMatrix_0
 AthenaPoolTestD...  DEBUG    Points (by value,by ptr) x,y,z : 1 2 3 , x,y,z 4 5 6 
 AthenaPoolTestD...  DEBUG    Small matrix : ( 4, 4 ) 
@@ -507,7 +414,6 @@ AthenaPoolTestD...  DEBUG i,c: 0 10
 AthenaPoolTestD...  DEBUG i,c: 1 10
 AthenaPoolTestD...  DEBUG i,c: 2 10
 AthenaPoolTestD...  DEBUG i,c: 3 10
-AthenaPoolTestD...  DEBUG Read back dummy_E class 
 AthenaPoolTestD...  DEBUG Dummy E: size D 2
 AthenaPoolTestD...  DEBUG Dummy D: value 10
 AthenaPoolTestD...  DEBUG Dummy D: value 10
@@ -540,15 +446,9 @@ AthenaPoolTestD...  DEBUG [Run,Evt,Lumi,Time,BunchCross,DetMask] = [1,4294967297
 AthenaPoolTestD...  DEBUG Event type: user type Overlaid
 AthenaPoolTestD...  DEBUG Trigger info: status 7 extLvl1ID 8 lvl1Type  9 lvl1Info  14 15 lvl2Info 10 11 EventFilterInfo 12 13 EventFilterInfo  i 0 name StreamA type TypeA ObeyLumi 1 i 1 name StreamB type TypeB ObeyLumi 0
 AthenaPoolTestD...  DEBUG SubEventInfos
-AthenaPoolTestD...  DEBUG Time, index 25 0
-AthenaPoolTestD...  DEBUG Event ID: [1,4294967297:5] 
-AthenaPoolTestD...  DEBUG Event type: user type McEvent
-AthenaPoolTestD...  DEBUG Pileup time, index type 25 0
+AthenaPoolTestD...  DEBUG None found
 ApplicationMgr       INFO Application Manager Stopped successfully
-FileMgr           WARNING At finalize, the following files remained open:
-name: "SimplePoolFile1.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 0  ptr: 0x73ca9c0  [o] [u]
-name: "SimplePoolFile1.root"  tech: ROOT  desc: TAG  flags: READ  i_flags: READ  Fd: 59  ptr: 0x73cb380  [o] [u]
-
+AthenaPoolTestD...  DEBUG Calling destructor
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"

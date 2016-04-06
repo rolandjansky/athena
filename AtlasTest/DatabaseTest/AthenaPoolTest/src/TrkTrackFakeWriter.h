@@ -25,19 +25,18 @@
 */
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "FakeTrackBuilder.h"
-class StoreGateSvc;
 class PixelID;
 class SCT_ID;
 class TRT_ID;
 
 
-class TrkTrackFakeWriter : public Algorithm {
+class TrkTrackFakeWriter : public AthAlgorithm {
 
     ///////////////////////////////////////////////////////////////////
     // Public methods:
@@ -76,7 +75,6 @@ private:
 private:
 
     /// Access to event store
-    StoreGateSvc *m_storeGate;
     std::string  m_pixMgrLocation;                    //!< Location of pixel Manager 
     const InDetDD::PixelDetectorManager*  m_pixMgr;   //!< Detector Manager
     unsigned int m_eventcounter;

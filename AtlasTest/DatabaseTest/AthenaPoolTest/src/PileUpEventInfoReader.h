@@ -23,18 +23,14 @@
  *
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
-class StoreGateSvc;
 class IGeoModelSvc;
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-class PileUpEventInfoReader : public Algorithm {
+class PileUpEventInfoReader : public AthAlgorithm {
 public:
 
     /// Algorithm constructor
@@ -62,19 +58,7 @@ private:
 
     /// Avoid use of copy operator
     PileUpEventInfoReader &operator=(const PileUpEventInfoReader&);
-  
-    ///////////////////////////////////////////////////////////////////
-    // Private data:
-    ///////////////////////////////////////////////////////////////////
-private:
-
-    /// Access to event store
-    StoreGateSvc* m_storeGate;
-
 };
 
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // SRC_PILEUPEVENTINFOREADER_H

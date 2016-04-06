@@ -24,19 +24,14 @@
  */
 
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class StoreGateSvc;
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-class PileUpEventInfoWriter : public Algorithm,
+class PileUpEventInfoWriter : public AthAlgorithm,
 			      virtual public IIncidentListener
 {
 public:
@@ -70,19 +65,7 @@ private:
 
     /// Avoid use of copy operator
     PileUpEventInfoWriter &operator=(const PileUpEventInfoWriter&);
-  
-    ///////////////////////////////////////////////////////////////////
-    // Private data:
-    ///////////////////////////////////////////////////////////////////
-private:
-
-    /// Access to event store
-    StoreGateSvc*   m_storeGate;
-
 };
 
-
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // SRC_PILEUPEVENTINFOWRITER_H

@@ -25,20 +25,16 @@
  *
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
-class StoreGateSvc;
 class CaloDetDescrManager;
 class CaloCell_ID;
 class CaloCellContainer;
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-class LArCellContFakeReader : public Algorithm {
+class LArCellContFakeReader : public AthAlgorithm {
 public:
 
     /// Algorithm constructor
@@ -74,9 +70,6 @@ private:
 
     /// Print out cell info
     void printCells(const CaloCellContainer* larCont) const;
-
-    /// Access to event store
-    StoreGateSvc *              m_storeGate;
 
     /// Need DD mgr to create cells
     const CaloDetDescrManager* 	m_caloMgr;

@@ -13,7 +13,6 @@
  *
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "PileUpEventInfoWriter.h"
 
@@ -24,41 +23,20 @@
 #include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/PileUpTimeEventIndex.h"
 
-// TES include
-#include "StoreGate/StoreGateSvc.h"
-
-// Gaudi includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
 // Constructor with parameters:
 PileUpEventInfoWriter::PileUpEventInfoWriter(const std::string &name, 
-				 ISvcLocator *pSvcLocator) :
-    Algorithm(name,pSvcLocator),
-    m_storeGate(0)
+                                             ISvcLocator *pSvcLocator) :
+    AthAlgorithm(name,pSvcLocator)
 {}
 
 // Initialize method:
 StatusCode PileUpEventInfoWriter::initialize()
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-
-    // get StoreGate service
-    StatusCode sc = service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "StoreGate service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } 
-
     // Set to be listener for end of event
-    IIncidentSvc* incSvc;
-    sc = service("IncidentSvc",incSvc);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
-	return sc;
-    }
+    IIncidentSvc* incSvc = nullptr;
+    ATH_CHECK( service("IncidentSvc",incSvc) );
     long int pri=100;
     incSvc->addListener( this, "EndEvent", pri);
 
@@ -68,28 +46,18 @@ StatusCode PileUpEventInfoWriter::initialize()
 // Execute method:
 StatusCode PileUpEventInfoWriter::execute() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "PileUpEventInfoWriter::execute() - do nothing" << endreq;
+    ATH_MSG_DEBUG("PileUpEventInfoWriter::execute() - do nothing" );
 
     // Write a PileupEventInfo
 
     const EventInfo * evt = 0;
-    StatusCode sc = m_storeGate->retrieve( evt, "McEventInfo" );
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR << "  Could not get event info" << endreq;      
- 	return StatusCode::FAILURE;
-    }
-    else {
- 	log << MSG::DEBUG << "Event ID: ["
- 	    << evt->event_ID()->run_number()   << ","
-            << evt->event_ID()->event_number() << ":"
- 	    << evt->event_ID()->time_stamp() << "] "
- 	    << endreq;
- 	log << MSG::DEBUG << "Event type: user type "
- 	    << evt->event_type()->user_type()
- 	    << endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve( evt, "McEventInfo" ) );
+    ATH_MSG_DEBUG( "Event ID: ["
+                   << evt->event_ID()->run_number()   << ","
+                   << evt->event_ID()->event_number() << ":"
+                   << evt->event_ID()->time_stamp() << "] " );
+    ATH_MSG_DEBUG( "Event type: user type "
+                   << evt->event_type()->user_type() );
 
     EventID* pOvrID = new EventID(evt->event_ID()->run_number(),
 				  evt->event_ID()->event_number());
@@ -97,85 +65,45 @@ StatusCode PileUpEventInfoWriter::execute()
     pOvrEt->set_user_type("Overlaid"); //FIXME
 
     PileUpEventInfo* pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt);
-//    EventInfo* pOverEventSym = pOverEvent;
-    //  register as sub event of the overlaid
-    //pOverEvent->addSubEvt(0.0, evt, m_origStream.store());
-//    pOverEvent->addSubEvt(0.0, evt, m_storeGate);
-//    pOverEvent->addSubEvt(0.0, 0, m_storeGate);
-    pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal, evt, m_storeGate);
-    //FIXME (Davide) root 4 does not link a symlink, need to copy
-//     const EventInfo* pDeepCopy = new const EventInfo(*evt);
-//     if( !(p_SGOver->record(pDeepCopy, "MyEvent")).isSuccess() )  {
-// 	log << MSG::ERROR
-// 	    << "Error recording overlayed event object" << endreq;
-// 	return StatusCode::FAILURE;
-//     } 
+    pOverEvent->addSubEvt(0, PileUpTimeEventIndex::Signal, evt, &*evtStore());
 
     PileUpEventInfo* pevt = pOverEvent;
     
-    log << MSG::DEBUG << "PileUpEventInfo"
-	<< endreq;
-    log << MSG::DEBUG << "Event ID: ["
-	<< pevt->event_ID()->run_number()   << ","
-        << pevt->event_ID()->event_number() << ":"
-	<< pevt->event_ID()->time_stamp() << "] "
-	<< endreq;
-    log << MSG::DEBUG << "Event type: user type "
-	<< pevt->event_type()->user_type()
-	<< endreq;
-
+    ATH_MSG_DEBUG("PileUpEventInfo");
+    ATH_MSG_DEBUG("Event ID: ["
+                  << pevt->event_ID()->run_number()   << ","
+                  << pevt->event_ID()->event_number() << ":"
+                  << pevt->event_ID()->time_stamp() << "] ");
+    ATH_MSG_DEBUG("Event type: user type "
+                  << pevt->event_type()->user_type());
 
     // Get normal event info as a sub-event info
-    log << MSG::DEBUG << "SubEventInfos"
-	<< endreq;
+    ATH_MSG_DEBUG("SubEventInfos");
     PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
     PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
     if (it == end) {
-	log << MSG::DEBUG << "None found" << endreq;
+	ATH_MSG_DEBUG("None found" );
     }
     for (; it != end; ++it) {
 	const EventInfo* sevt = (*it).pSubEvt;
-	log << MSG::DEBUG << "Time, index " 
-	    << (*it).time() << " " << (*it).index()
-	    << endreq;
+	ATH_MSG_DEBUG("Time, index " 
+                      << (*it).time() << " " << (*it).index());
 	if (sevt) {
-	    log << MSG::DEBUG << "Event ID: ["
-		<< sevt->event_ID()->run_number()   << ","
-                << sevt->event_ID()->event_number() << ":"
-		<< sevt->event_ID()->time_stamp() << "] "
-		<< endreq;
-	    log << MSG::DEBUG << "Event type: user type "
-		<< sevt->event_type()->user_type()
-		<< endreq;
+	    ATH_MSG_DEBUG("Event ID: ["
+                          << sevt->event_ID()->run_number()   << ","
+                          << sevt->event_ID()->event_number() << ":"
+                          << sevt->event_ID()->time_stamp() << "] ");
+	    ATH_MSG_DEBUG("Event type: user type "
+                          << sevt->event_type()->user_type());
 	}
 	else {
-	    log << MSG::DEBUG << "Subevent is null ptr "
-		<< endreq;
+	    ATH_MSG_DEBUG("Subevent is null ptr ");
 	}
     }
 
-    if( !(m_storeGate->record(pOverEvent, "OverlayEvent")).isSuccess() )  {
- 	log << MSG::ERROR
- 	    << "Error recording overlayed event object" << endreq;
- 	return StatusCode::FAILURE;
-    } 
-    else {
- 	log << MSG::DEBUG << "Wrote PileUpEventInfo "
- 	    << endreq;
-    }
+    ATH_CHECK( evtStore()->record(pOverEvent, "OverlayEvent") );
+    ATH_MSG_DEBUG( "Wrote PileUpEventInfo " );
      
-    //FIXME (Davide) root 4 does not link a symlink, need to copy
-//     if( !(m_storeGate->symLink(pOverEvent, pOverEventSym)).isSuccess() )  {
-// 	log << MSG::ERROR
-// 	    << "Error symlinking overlayed event object" << endreq;
-// 	return StatusCode::FAILURE;
-//     } 
-//     else {
-//  	log << MSG::DEBUG << "Symlinked PileUpEventInfo to EventInfo "
-//  	    << endreq;
-//     }
-    
-    
     return StatusCode::SUCCESS;
 }
 
@@ -183,12 +111,8 @@ StatusCode PileUpEventInfoWriter::execute()
 /// incident service handle for EndEvent
 void PileUpEventInfoWriter::handle(const Incident& inc) {
 
-
-    // Get the messaging service, print where you are
-    MsgStream log(messageService(), name());
-
-    log << MSG::DEBUG << "entering handle(), incidence type " << inc.type()
-	<< " from " << inc.source() << endreq;
+    ATH_MSG_DEBUG("entering handle(), incidence type " << inc.type()
+                  << " from " << inc.source() );
 
     // Only call fillIOV for EndEvent incident
     if (inc.type() != "EndEvent") return;
@@ -197,25 +121,22 @@ void PileUpEventInfoWriter::handle(const Incident& inc) {
 
     // PileupEventInfo as itself
     const PileUpEventInfo* pevt = 0;
-    StatusCode sc = m_storeGate->retrieve( pevt, "OverlayEvent" );
-    if ( sc.isFailure() ) {
- 	log << MSG::ERROR << "  Could not get pileup event info" << endreq;      
+    if (evtStore()->retrieve( pevt ).isFailure() ) {
+ 	ATH_MSG_ERROR("  Could not get pileup event info" );      
 	throw GaudiException("PileUpEventInfoWriter::handle Could not get pileup event info", 
 			     "PileUpEventInfoWriter", 0);
     }
     else {
-	sc = m_storeGate->remove(pevt);
-	if ( sc.isFailure() ) {
-	    log << MSG::ERROR << "  Could not remove pileup event info" << endreq;      
-	throw GaudiException("PileUpEventInfoWriter::handle Could not remove pileup event info", 
-			     "PileUpEventInfoWriter", 0);
+        if (evtStore()->remove(pevt).isFailure() ) {
+	    ATH_MSG_ERROR("  Could not remove pileup event info" );      
+            throw GaudiException("PileUpEventInfoWriter::handle Could not remove pileup event info", 
+                                 "PileUpEventInfoWriter", 0);
 	}
 	else {
-	    log << MSG::DEBUG << "Removed PileUpEventInfo/OverlayEvent: "
-		<< endreq;
+	    ATH_MSG_DEBUG("Removed PileUpEventInfo/OverlayEvent: " );
 	}
     }
-    log << MSG::DEBUG << "end event handle" << endreq;
+    ATH_MSG_DEBUG("end event handle" );
 
 }
 
@@ -223,10 +144,7 @@ void PileUpEventInfoWriter::handle(const Incident& inc) {
 // Finalize method:
 StatusCode PileUpEventInfoWriter::finalize() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "PileUpEventInfoWriter::finalize()" << endreq;
-
+    ATH_MSG_DEBUG("PileUpEventInfoWriter::finalize()" );
     return StatusCode::SUCCESS;
 }
 

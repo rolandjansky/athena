@@ -1,6 +1,6 @@
 #!/bin/sh -xv
 #
- echo "Starting pre_check.sh"
+# echo "Starting pre_check.sh"
 #Cleaning
 #echo "## cleaning"
 test=$1
@@ -12,11 +12,11 @@ if [ -n "${test2}" ]
     /bin/rm -f ${test2}
 fi
 #
-echo "## setting up environment "
-# source ../cmt/setup.sh
-echo "## ready to run"
-echo $CMTPATH
-echo $JOBOPTSEARCHPATH
+#echo "## setting up environment "
+## source ../cmt/setup.sh
+#echo "## ready to run"
+#echo $CMTPATH
+#echo $JOBOPTSEARCHPATH
 
 # Turn off pool verbose printing
 export POOL_OUTMSG_LEVEL=4

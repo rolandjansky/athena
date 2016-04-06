@@ -76,7 +76,7 @@ LArCellContFakeCreator::createCaloCellContainer(const CaloCell_ID* calocellId,
 
 	    Identifier     id         = calocellId->cell_id (0, 1, 1, 0, eta, phi);
 	    IdentifierHash idHash     = calocellId->calo_cell_hash (id);
-	    CaloDetDescrElement* elem = caloMgr->get_element (idHash);
+	    const CaloDetDescrElement* elem = caloMgr->get_element (idHash);
 	    
 	    //log << MSG::DEBUG << "Found elem" << elem << endreq;
 

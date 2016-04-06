@@ -40,15 +40,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 //#include "InDetDetDescr/InDet_DetDescrManager.h"
 
-// TES include
-#include "StoreGate/StoreGateSvc.h"
-
-// Gaudi includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/SmartDataPtr.h"
-
 // test includes
 #include "InDetRawDataFakeCreator.h"
 
@@ -57,8 +48,7 @@
 // Constructor with parameters:
 InDetRawDataFakeReader::InDetRawDataFakeReader(const std::string &name, 
 				       ISvcLocator *pSvcLocator) :
-    Algorithm(name,pSvcLocator),
-    m_storeGate(0),
+    AthAlgorithm(name,pSvcLocator),
     m_pixelId(0),
     m_sctId(0),
     m_trtId(0)
@@ -68,66 +58,20 @@ InDetRawDataFakeReader::InDetRawDataFakeReader(const std::string &name,
 // Initialize method:
 StatusCode InDetRawDataFakeReader::initialize()
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "InDetRawDataFakeReader::initialize()" << endreq;
+    ATH_MSG_INFO("InDetRawDataFakeReader::initialize()" );
 
-    // get StoreGate service
-    StatusCode sc=service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "StoreGate service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } else {}
-
-    // get DetectorStore service
-    StoreGateSvc* detStore;
-    sc=service("DetectorStore",detStore);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "DetectorStore service not found !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << " Found DetectorStore " << endreq;
-    }
-    
     // Get the pixel helper from the detector store
     const DataHandle<PixelID> pixel_id;
-    sc = detStore->retrieve(pixel_id, "PixelID");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Could not get PixelID helper !" << endreq;
-	return StatusCode::FAILURE;
-    } 
-    else {
-	log << MSG::DEBUG << " Found the PixelID helper. " << endreq;
-    }
-
+    ATH_CHECK( detStore()->retrieve(pixel_id, "PixelID") );
     m_pixelId = pixel_id;
 
-    // Get the sct helper from the detector store
     const DataHandle<SCT_ID> sctId;
-    sc = detStore->retrieve(sctId, "SCT_ID");
-    if (sc.isFailure()) {
-  	log << MSG::ERROR << "Could not get SCT_ID helper !" << endreq;
-  	return StatusCode::FAILURE;
-    } 
-    else {
-  	log << MSG::DEBUG << " Found the SCT_ID helper. " << endreq;
-    }
-
+    ATH_CHECK( detStore()->retrieve(sctId, "SCT_ID") );
     m_sctId = sctId;
 
-    // Get the trt helper from the detector store
     const DataHandle<TRT_ID> trtId;
-    sc = detStore->retrieve(trtId, "TRT_ID");
-    if (sc.isFailure()) {
-  	log << MSG::ERROR << "Could not get TRT_ID helper !" << endreq;
-  	return StatusCode::FAILURE;
-    } 
-    else {
-  	log << MSG::DEBUG << " Found the TRT_ID helper. " << endreq;
-    }
-
+    ATH_CHECK(  detStore()->retrieve(trtId, "TRT_ID") );
     m_trtId = trtId;
-
 
     return StatusCode::SUCCESS;
 }
@@ -135,90 +79,37 @@ StatusCode InDetRawDataFakeReader::initialize()
 // Execute method:
 StatusCode InDetRawDataFakeReader::execute() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "InDetRawDataFakeReader::execute()" << endreq;
+    ATH_MSG_DEBUG("InDetRawDataFakeReader::execute()" );
 
-    // Check pixel
-    StatusCode sc = checkPixel();
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Failed pixel check. " << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "Pixel check OK " << endreq;
-    }
-
-    // Check sct
-    sc = checkSCT();
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Failed SCT check. " << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "SCT check OK " << endreq;
-    }
-
-    // Check TRT
-    sc = checkTRT();
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Failed trt check. " << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "TRT check OK " << endreq;
-    }
-
-    
+    ATH_CHECK( checkPixel() );
+    ATH_CHECK( checkSCT() );
+    ATH_CHECK( checkTRT() );
     return StatusCode::SUCCESS;
 }
 
 StatusCode InDetRawDataFakeReader::checkPixel() const
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "InDetRawDataFakeReader::checkPixel()" << endreq;
+    ATH_MSG_DEBUG("InDetRawDataFakeReader::checkPixel()" );
 
-    // retieve the Pixel IdentifiableContainer each event
-    const PixelRDO_Container* pixCont;
-    StatusCode sc=m_storeGate->retrieve(pixCont,"PixelRDOs");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Container '" << "PixelRDOs" 
-	    << "' could not be retrieved from StoreGate !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "Container '" << "PixelRDOs"
-	    << "' retrieved from StoreGate" << endreq;
-    }
+    const PixelRDO_Container* pixCont = nullptr;
+    ATH_CHECK( evtStore()->retrieve(pixCont,"PixelRDOs") );
 
-  
     // loop on all RDO collections read in and check them
     int nmatch = 0;
     bool error = false;
     InDetRawDataFakeCreator creator;
     IdContext cntx = m_pixelId->wafer_context();
 
-    log << MSG::DEBUG << "PixelRDO_Container size " 
-	<< pixCont->size() << " "
-	<< endreq;
+    ATH_MSG_DEBUG("PixelRDO_Container size " 
+	<< pixCont->size() << " " );
 
     // Check for non-zero length of container
     if (pixCont->begin() == pixCont->end()) {
-	log << MSG::ERROR << "Container '" << "PixelRDOs" 
-	    << "' is EMPTY !" << endreq;
+	ATH_MSG_ERROR("Container '" << "PixelRDOs" << "' is EMPTY !" );
 	return StatusCode::FAILURE;
     }
 
 
-     // Retrieve the digits by class, not by name
-//      const DataHandle<InDetRawDataCollection<Pixel1RawData> > rdoCollectionsBegin;
-//      const DataHandle<InDetRawDataCollection<Pixel1RawData> > rdoCollectionsEnd;
-//      sc = m_storeGate->retrieve(rdoCollectionsBegin, rdoCollectionsEnd);
-//      if (sc.isFailure()) {
-//  	log << MSG::WARNING << "Could not find the RDOs"<< endreq;
-//  	return StatusCode::FAILURE;
-//      }
-//      else {
-//  	log << MSG::DEBUG << "Retrieved pixel collections from SG"<< endreq;
-//      }
-     
 
     // loop on all rdo collections. 
 //     for(; rdoCollectionsBegin!=rdoCollectionsEnd; ++rdoCollectionsBegin) {
@@ -229,23 +120,24 @@ StatusCode InDetRawDataFakeReader::checkPixel() const
 	const InDetRawDataCollection<PixelRDORawData>* RDO_Collection(&(**it));
 //	const InDetRawDataCollection<Pixel1RawData>* RDO_Collection(&(*rdoCollectionsBegin.cptr()));
 
-	log << MSG::DEBUG << "Read RDO collection: size, ids " 
+	ATH_MSG_DEBUG("Read RDO collection: size, ids " 
 	    << RDO_Collection->size() << " "
 	    << m_pixelId->show_to_string(RDO_Collection->identify(), &cntx) << " " 
-	    << MSG::hex << (unsigned int)RDO_Collection->identifyHash() << MSG::dec << endreq;
+	    << MSG::hex << (unsigned int)RDO_Collection->identifyHash() << MSG::dec );
 
 	// create a new pixel RDO collection
+        MsgStream log(msgSvc(), name());
 	const InDetRawDataCollection<PixelRDORawData> *rdocoll = 
-	    creator.createPixelRawDataColl(RDO_Collection->identifyHash(), m_pixelId, log);
+          creator.createPixelRawDataColl(RDO_Collection->identifyHash(), m_pixelId, msg());
 
-	log << MSG::DEBUG << "Test RDO collection: size, ids " 
+	ATH_MSG_DEBUG("Test RDO collection: size, ids " 
 	    << rdocoll->size() << " "
 	    << m_pixelId->show_to_string(rdocoll->identify(), &cntx) << " " 
-	    << MSG::hex << (unsigned int)rdocoll->identifyHash() << MSG::dec << endreq;
+	    << MSG::hex << (unsigned int)rdocoll->identifyHash() << MSG::dec );
 
 
 	// Use one of the specific clustering AlgTools to make clusters
-	typedef InDetRawDataCollection<Pixel1RawData> RDO1_Collection_type;
+	//typedef InDetRawDataCollection<Pixel1RawData> RDO1_Collection_type;
 	typedef InDetRawDataCollection<PixelRDORawData> RDO_Collection_type;
 
 	// loop on all RDOs
@@ -260,19 +152,19 @@ StatusCode InDetRawDataFakeReader::checkPixel() const
 	    if (((*nextRDO)->identify() != (*nextRDO1)->identify()) ||
 		((*nextRDO)->getWord() != (*nextRDO1)->getWord())) {
 		
-		log << MSG::ERROR << "RDO's do NOT match: ids, word " 
+		ATH_MSG_ERROR("RDO's do NOT match: ids, word " 
 		    << m_pixelId->show_to_string((*nextRDO)->identify()) << " " 
 		    << m_pixelId->show_to_string((*nextRDO1)->identify()) << " " 
 		    << MSG::hex << (*nextRDO)->getWord() << " "
 		    << MSG::hex << (*nextRDO1)->getWord() << " "
-		    << endreq;
+		    );
 		error = true;
 	    }
 	    else {
 		nmatch++;
 	    }
 	}
-	log << MSG::DEBUG << "Matching RDOs " << nmatch << endreq;
+	ATH_MSG_DEBUG("Matching RDOs " << nmatch );
     
 	delete rdocoll;
     }
@@ -281,31 +173,25 @@ StatusCode InDetRawDataFakeReader::checkPixel() const
 
     // Retrive the element link vector
     const PixelRDOElemLinkVec* linkVec = 0;
-    sc = m_storeGate->retrieve(linkVec, "PixelRDOELs");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "PixelRDOElemLinkVec could not be retrieved from StoreGate !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "PixelRDOElemLinkVec retrieved from StoreGate" << endreq;
-    }
+    ATH_CHECK( evtStore()->retrieve(linkVec, "PixelRDOELs") );
     
-    log << MSG::DEBUG << "PixelRDOElemLinkVec found with "
+    ATH_MSG_DEBUG("PixelRDOElemLinkVec found with "
         << linkVec->pixelRDOs().size() 
-        << "  RDOs " << endreq;
+        << "  RDOs " );
     for(unsigned int i = 0; i < linkVec->pixelRDOs().size(); ++i) {
         // Print out rdos from element link
 	PixelRDOElemLinkVec::elem_type rdo  = linkVec->pixelRDOs()[i];
         PixelRDORawData* ncrdo = const_cast<PixelRDORawData*>(*rdo);
-        log << MSG::DEBUG << "RDO ID=" << m_pixelId->show_to_string((*rdo)->identify());
-        log << MSG::DEBUG << "RDO ToT=" << ncrdo->getToT() << endreq;
+        ATH_MSG_DEBUG("RDO ID=" << m_pixelId->show_to_string((*rdo)->identify())
+                      << "RDO ToT=" << ncrdo->getToT() );
     }
 
 
     if (error) {
-	log << MSG::INFO << "ERROR reading and checking Pixel RDO collections  " << endreq;
+	ATH_MSG_INFO("ERROR reading and checking Pixel RDO collections  " );
     }
     else {
-	log << MSG::INFO << "Successfully read and checked Pixel RDO collections  " << endreq;
+	ATH_MSG_INFO("Successfully read and checked Pixel RDO collections  " );
     }
     
     return StatusCode::SUCCESS;
@@ -313,23 +199,10 @@ StatusCode InDetRawDataFakeReader::checkPixel() const
 
 StatusCode InDetRawDataFakeReader::checkSCT() const
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "InDetRawDataFakeReader::execute()" << endreq;
+    ATH_MSG_DEBUG("InDetRawDataFakeReader::execute()" );
 
-
-    // retieve the SCT IdentifiableContainer each event
-    const SCT_RDO_Container* sctCont;
-    StatusCode sc=m_storeGate->retrieve(sctCont,"SCT_RDOs");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Container '" << "SCT_RDOs" 
-	    << "' could not be retrieved from StoreGate !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "Container '" << "SCT_RDOs"
-	    << "' retrieved from StoreGate" << endreq;
-    }
-
+    const SCT_RDO_Container* sctCont = nullptr;
+    ATH_CHECK( evtStore()->retrieve(sctCont,"SCT_RDOs") );
   
     // loop on all RDO collections read in and check them
     int nmatch = 0;
@@ -337,14 +210,12 @@ StatusCode InDetRawDataFakeReader::checkSCT() const
     InDetRawDataFakeCreator creator;
     IdContext cntx = m_sctId->wafer_context();
 
-    log << MSG::DEBUG << "SCT_RDO_Container size " 
-	<< sctCont->size() << " "
-	<< endreq;
+    ATH_MSG_DEBUG("SCT_RDO_Container size " 
+	<< sctCont->size() << " "	);
 
     // Check for non-zero length of container
     if (sctCont->begin() == sctCont->end()) {
-	log << MSG::ERROR << "Container '" << "SCT_RDOs" 
-	    << "' is EMPTY !" << endreq;
+	ATH_MSG_ERROR("Container '" << "SCT_RDOs" << "' is EMPTY !" );
 	return StatusCode::FAILURE;
     }
 
@@ -353,19 +224,20 @@ StatusCode InDetRawDataFakeReader::checkSCT() const
 
 	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection(&(**it));
 
-	log << MSG::DEBUG << "Read RDO collection: size, ids " 
+	ATH_MSG_DEBUG("Read RDO collection: size, ids " 
 	    << RDO_Collection->size() << " "
 	    << m_sctId->show_to_string(RDO_Collection->identify(), &cntx) << " " 
-	    << MSG::hex << (unsigned int)RDO_Collection->identifyHash() << MSG::dec << endreq;
+	    << MSG::hex << (unsigned int)RDO_Collection->identifyHash() << MSG::dec );
 
 	// create a new sct RDO collection
+        MsgStream log(msgSvc(), name());
 	const InDetRawDataCollection<SCT_RDORawData> *rdocoll = 
-	    creator.createSCT_RawDataColl(RDO_Collection->identifyHash(), m_sctId, log);
+          creator.createSCT_RawDataColl(RDO_Collection->identifyHash(), m_sctId, msg());
 
-	log << MSG::DEBUG << "Test RDO collection: size, ids " 
+	ATH_MSG_DEBUG("Test RDO collection: size, ids " 
 	    << rdocoll->size() << " "
 	    << m_sctId->show_to_string(rdocoll->identify(), &cntx) << " " 
-	    << MSG::hex << (unsigned int)rdocoll->identifyHash() << MSG::dec << endreq;
+	    << MSG::hex << (unsigned int)rdocoll->identifyHash() << MSG::dec );
 
 
 	// Use one of the specific clustering AlgTools to make clusters
@@ -379,35 +251,32 @@ StatusCode InDetRawDataFakeReader::checkSCT() const
 	for(; nextRDO!=lastRDO && nextRDO1!=lastRDO1 ; ++nextRDO, ++nextRDO1) {
 	    // Look for match
 	    if (((*nextRDO)->identify() != (*nextRDO1)->identify()) ||
-		((*nextRDO)->getGroupSize() != (*nextRDO1)->getGroupSize()) ||
-		((*nextRDO)->getStrip() != (*nextRDO1)->getStrip())) {
+		((*nextRDO)->getGroupSize() != (*nextRDO1)->getGroupSize())) {
 		
-		log << MSG::ERROR << "RDO's do NOT match: ids, group, strip " 
+		ATH_MSG_ERROR("RDO's do NOT match: ids, group, strip " 
 		    << m_sctId->show_to_string((*nextRDO)->identify()) << " " 
 		    << m_sctId->show_to_string((*nextRDO1)->identify()) << " " 
 		    << MSG::hex 
 		    << (*nextRDO)->getGroupSize() << " "
 		    << (*nextRDO1)->getGroupSize() << " "
-		    << (*nextRDO)->getStrip() << " "
-		    << (*nextRDO1)->getStrip() << " "
 		    << MSG::dec
-		    << endreq;
+		    );
 		error = true;
 	    }
 	    else {
 		nmatch++;
 	    }
 	}
-	log << MSG::DEBUG << "Matching RDOs " << nmatch << endreq;
+	ATH_MSG_DEBUG("Matching RDOs " << nmatch );
     
 	delete rdocoll;
     }
 
     if (error) {
-	log << MSG::INFO << "ERROR reading and checking SCT RDO collections  " << endreq;
+	ATH_MSG_INFO("ERROR reading and checking SCT RDO collections  " );
     }
     else {
-	log << MSG::INFO << "Successfully read and checked SCT RDO collections  " << endreq;
+	ATH_MSG_INFO("Successfully read and checked SCT RDO collections  " );
     }
     
     return StatusCode::SUCCESS;
@@ -415,23 +284,10 @@ StatusCode InDetRawDataFakeReader::checkSCT() const
 
 StatusCode InDetRawDataFakeReader::checkTRT() const
 { 
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "InDetRawDataFakeReader::execute()" << endreq;
+    ATH_MSG_DEBUG("InDetRawDataFakeReader::execute()" );
 
-
-    // retieve the TRT IdentifiableContainer each event
-    const TRT_RDO_Container* trtCont;
-    StatusCode sc=m_storeGate->retrieve(trtCont,"TRT_RDOs");
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Container '" << "TRT_RDOs" 
-	    << "' could not be retrieved from StoreGate !" << endreq;
-	return StatusCode::FAILURE;
-    } else {
-	log << MSG::DEBUG << "Container '" << "TRT_RDOs"
-	    << "' retrieved from StoreGate" << endreq;
-    }
-
+    const TRT_RDO_Container* trtCont = nullptr;
+    ATH_CHECK( evtStore()->retrieve(trtCont,"TRT_RDOs") );
   
     // loop on all RDO collections read in and check them
     int nmatch = 0;
@@ -439,14 +295,13 @@ StatusCode InDetRawDataFakeReader::checkTRT() const
     InDetRawDataFakeCreator creator;
     IdContext cntx = m_trtId->straw_layer_context();
 
-    log << MSG::DEBUG << "TRT_RDO_Container size " 
-	<< trtCont->size() << " "
-	<< endreq;
+    ATH_MSG_DEBUG("TRT_RDO_Container size " 
+	<< trtCont->size() << " " );
 
     // Check for non-zero length of container
     if (trtCont->begin() == trtCont->end()) {
-	log << MSG::ERROR << "Container '" << "TRT_RDOs" 
-	    << "' is EMPTY !" << endreq;
+	ATH_MSG_ERROR("Container '" << "TRT_RDOs" 
+	    << "' is EMPTY !" );
 	return StatusCode::FAILURE;
     }
 
@@ -455,19 +310,20 @@ StatusCode InDetRawDataFakeReader::checkTRT() const
 
 	const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(&(**it));
 
-	log << MSG::DEBUG << "Read RDO collection: size, ids " 
+	ATH_MSG_DEBUG("Read RDO collection: size, ids " 
 	    << RDO_Collection->size() << " "
 	    << m_trtId->show_to_string(RDO_Collection->identify(), &cntx) << " " 
-	    << MSG::hex << (unsigned int)RDO_Collection->identifyHash() << MSG::dec << endreq;
+	    << MSG::hex << (unsigned int)RDO_Collection->identifyHash() << MSG::dec );
 
 	// create a new trt RDO collection
+        MsgStream log(msgSvc(), name());
 	const InDetRawDataCollection<TRT_RDORawData> *rdocoll = 
-	    creator.createTRT_RawDataColl(RDO_Collection->identifyHash(), m_trtId, log);
+          creator.createTRT_RawDataColl(RDO_Collection->identifyHash(), m_trtId, msg());
 
-	log << MSG::DEBUG << "Test RDO collection: size, ids " 
+	ATH_MSG_DEBUG("Test RDO collection: size, ids " 
 	    << rdocoll->size() << " "
 	    << m_trtId->show_to_string(rdocoll->identify(), &cntx) << " " 
-	    << MSG::hex << (unsigned int)rdocoll->identifyHash() << MSG::dec << endreq;
+	    << MSG::hex << (unsigned int)rdocoll->identifyHash() << MSG::dec );
 
 
 	// Use one of the specific clustering AlgTools to make clusters
@@ -485,7 +341,7 @@ StatusCode InDetRawDataFakeReader::checkTRT() const
 		((*nextRDO)->timeOverThreshold() != (*nextRDO1)->timeOverThreshold()) ||
 		((*nextRDO)->driftTimeBin() != (*nextRDO1)->driftTimeBin())) {
 		
-		log << MSG::ERROR << "RDO's do NOT match: ids, highlvl, TOT, drift " 
+		ATH_MSG_ERROR("RDO's do NOT match: ids, highlvl, TOT, drift " 
 		    << m_trtId->show_to_string((*nextRDO)->identify()) << " " 
 		    << m_trtId->show_to_string((*nextRDO1)->identify()) << " " 
 		    << MSG::hex 
@@ -496,23 +352,23 @@ StatusCode InDetRawDataFakeReader::checkTRT() const
 		    << (*nextRDO)->driftTimeBin() << " "
 		    << (*nextRDO1)->driftTimeBin() << " "
 		    << MSG::dec
-		    << endreq;
+		    );
 		error = true;
 	    }
 	    else {
 		nmatch++;
 	    }
 	}
-	log << MSG::DEBUG << "Matching RDOs " << nmatch << endreq;
+	ATH_MSG_DEBUG("Matching RDOs " << nmatch );
     
 	delete rdocoll;
     }
 
     if (error) {
-	log << MSG::INFO << "ERROR reading and checking TRT RDO collections  " << endreq;
+	ATH_MSG_INFO("ERROR reading and checking TRT RDO collections  " );
     }
     else {
-	log << MSG::INFO << "Successfully read and checked TRT RDO collections  " << endreq;
+	ATH_MSG_INFO("Successfully read and checked TRT RDO collections  " );
     }
     
     return StatusCode::SUCCESS;
@@ -524,10 +380,7 @@ StatusCode InDetRawDataFakeReader::checkTRT() const
 // Finalize method:
 StatusCode InDetRawDataFakeReader::finalize() 
 {
-    // Get the messaging service, print where you are
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "InDetRawDataFakeReader::finalize()" << endreq;
-
+    ATH_MSG_INFO("InDetRawDataFakeReader::finalize()" );
     return StatusCode::SUCCESS;
 }
 
