@@ -19,7 +19,7 @@
               <doc></doc>
               <jobTransformJobName>MC12_2011_Legacy_OverlayChain_tf</jobTransformJobName>
               <jobTransformCmd>
-                OverlayChain_tf.py --inputZeroBiasBSFile 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/user.haastyle.BSmultipleselector.GRL.test9_EXT0.merge.32430.test12.120127073036/user.haastyle.101200.EXT5._00001.Zerobias1327678194q.bit-1.stream5.RAW' --outputBS_SKIMFile 'simpledummy.RAW' --outputRDOFile testRTT.RDO.pool.root  --triggerBit 240 --skipEvents 0 --maxEvents 5 --DataRunNumber 2011 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_tid454603_00/EVNT.454603._000006.pool.root.1 --outputHITSFile testRTT.HITS.pool.root --randomSeed 123456789 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag COMCOND-BLKPA-006-11 --physicsList QGSP_BERT --digiSeedOffset1=211 --digiSeedOffset2=122 --samplingFractionDbTag QGSP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G494-DetailedAbs- --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py' --preExec 'from CaloRec.CaloCellFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("5samples1phase")' --postExec 'from IOVDbSvc.CondDB import conddb;conddb.addOverride("/Indet/IBLDist","IBLDist-NULL")'
+                OverlayChain_tf.py --inputZeroBiasBSFile 'root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/user.haastyle.BSmultipleselector.GRL.test9_EXT0.merge.32430.test12.120127073036/user.haastyle.101200.EXT5._00001.Zerobias1327678194q.bit-1.stream5.RAW' --outputRDOFile testRTT.RDO.pool.root  --triggerBit 240 --skipEvents 0 --maxEvents 5 --DataRunNumber 2011 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc11_7TeV.105200.T1_McAtNlo_Jimmy.evgen.EVNT.e835_tid454603_00/EVNT.454603._000006.pool.root.1 --outputHITSFile testRTT.HITS.pool.root --randomSeed 123456789 --geometryVersion ATLAS-GEO-20-00-01 --conditionsTag COMCOND-BLKPA-006-11 --physicsList QGSP_BERT --digiSeedOffset1=211 --digiSeedOffset2=122 --samplingFractionDbTag QGSP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G494-DetailedAbs- --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py' --preExec 'from CaloRec.CaloCellFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("5samples1phase")' --postExec 'from IOVDbSvc.CondDB import conddb;conddb.addOverride("/Indet/IBLDist","IBLDist-NULL")'
               </jobTransformCmd>
               <group>Overlay_JobTransforms</group>
               <queue>long</queue>
@@ -190,7 +190,7 @@
               <doc></doc>
               <jobTransformJobName>MC15_2012_pp_OverlayChain_tf</jobTransformJobName>
               <jobTransformCmd>
-                OverlayChain_tf.py --inputZeroBiasBSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/group.dataprep.BSmultipleselector.GRL.test12p3_EXT0.merge.test3/group.dataprep.122036_100300.EXT0._00001.Zerobias1346848305_test12p3_dataset0.bit-1.stream0.RAW --outputBS_SKIMFile 'simpledummy.RAW' --outputRDOFile testRTT.RDO.pool.root --triggerBit 240 --skipEvents 10 --maxEvents 5 --DataRunNumber 2012 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc12_8TeV.147807.PowhegPythia8_AU2CT10_Zmumu.evgen.EVNT.e1169/EVNT.756384._001055.pool.root.1 --outputHITSFile testRTT.HITS.pool.root --randomSeed 123456789 --geometryVersion ATLAS-R1-2012-03-00-00 --conditionsTag COMCOND-BLKPA-RUN1-08 --physicsList QGSP_BERT --digiSeedOffset1=211 --digiSeedOffset2=122 --samplingFractionDbTag QGSP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G494-DetailedAbs- --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py' --preExec 'from CaloRec.CaloCellFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("5samples1phase")'
+                OverlayChain_tf.py --inputZeroBiasBSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/group.dataprep.BSmultipleselector.GRL.test12p3_EXT0.merge.test3/group.dataprep.122036_100300.EXT0._00001.Zerobias1346848305_test12p3_dataset0.bit-1.stream0.RAW --outputRDOFile testRTT.RDO.pool.root --triggerBit 240 --skipEvents 10 --maxEvents 5 --DataRunNumber 2012 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc12_8TeV.147807.PowhegPythia8_AU2CT10_Zmumu.evgen.EVNT.e1169/EVNT.756384._001055.pool.root.1 --outputHITSFile testRTT.HITS.pool.root --randomSeed 123456789 --geometryVersion ATLAS-R1-2012-03-00-00 --conditionsTag COMCOND-BLKPA-RUN1-08 --physicsList QGSP_BERT --digiSeedOffset1=211 --digiSeedOffset2=122 --samplingFractionDbTag QGSP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G494-DetailedAbs- --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_BLKPA-006-11.py' --preExec 'from CaloRec.CaloCellFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from LArConditionsCommon.LArCondFlags import larCondFlags;larCondFlags.OFCShapeFolder.set_Value_and_Lock("5samples1phase")'
               </jobTransformCmd>
               <group>Overlay_JobTransforms</group>
               <queue>long</queue>
@@ -359,7 +359,7 @@
               <doc></doc>
               <jobTransformJobName>MC15_2015_Legacy_OverlayChain_tf</jobTransformJobName>
               <jobTransformCmd>
-		OverlayChain_tf.py --inputZeroBiasBSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/data15_13TeV.00278748.physics_ZeroBias.merge.RAW/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1 --DataRunNumber 2015 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc15_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.evgen.EVNT.e4032/EVNT.05685490._000002.pool.root.1 --outputBS_SKIMFile 'simpledummy.RAW' --outputRDOFile testRTT.RDO.pool.root --outputHITSFile testRTT.HITS.pool.root --triggerBit 240 --skipEvents 0 --maxEvents 5 --randomSeed 123456789 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag CONDBR2-BLKPA-2015-12 --physicsList QGSP_BERT --digiSeedOffset1=211 --digiSeedOffset2=122 --samplingFractionDbTag FTFP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G496-19213- --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py'
+		OverlayChain_tf.py --inputZeroBiasBSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/data15_13TeV.00278748.physics_ZeroBias.merge.RAW/data15_13TeV.00278748.physics_ZeroBias.merge.RAW._lb0384._SFO-ALL._0001.1 --DataRunNumber 2015 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc15_13TeV.147407.PowhegPythia8_AZNLO_Zmumu.evgen.EVNT.e4032/EVNT.05685490._000002.pool.root.1 --outputRDOFile testRTT.RDO.pool.root --outputHITSFile testRTT.HITS.pool.root --triggerBit 240 --skipEvents 0 --maxEvents 5 --randomSeed 123456789 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag CONDBR2-BLKPA-2015-12 --physicsList QGSP_BERT --digiSeedOffset1=211 --digiSeedOffset2=122 --samplingFractionDbTag FTFP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G496-19213- --preInclude 'sim:EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --preExec 'from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4);from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py'
               </jobTransformCmd>
               <group>Overlay_JobTransforms</group>
               <queue>long</queue>
@@ -530,7 +530,7 @@
               <doc></doc>
               <jobTransformJobName>MC15_HI_Legacy_OverlayChain_tf</jobTransformJobName>
               <jobTransformCmd>
-             OverlayChain_tf.py --checkEventCount False --inputZeroBiasBSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/data15_hi.00286711.physics_MinBiasOverlay.daq.RAW/data15_hi.00286711.physics_MinBiasOverlay.daq.RAW._lb0178._SFO-4._0001.data --outputBS_SKIMFile simpledummy.RAW --outputRDOFile HItest.RDO.pool.root --triggerBit -1 --skipEvents 0 --maxEvents 10 --ignoreErrors True --DataRunNumber 2015 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc15_13TeV.422011.ParticleGun_single_mu_Pt100.evgen.EVNT.e4459/EVNT.06603958._000026.pool.root.1 --outputHITSFile HItest.HITS.pool.root --randomSeed 123456789 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag CONDBR2-BLKPA-2015-17 --physicsList QGSP_BERT --samplingFractionDbTag FTFP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G496-19213- --digiRndmSvc AtRanluxGenSvc --preInclude 'sim:EventOverlayJobTransforms/g4runnumber2.py,EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py,SimulationJobOptions/preInclude.AbortedEventsFlaggedNotDropped.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' --postExec 'sim:from AthenaCommon.CfgGetter import getPublicTool; vt=getPublicTool("ISF_VertexPositionFromFile");vt.VertexPositionsFile="vtx.data.txt";from OverlayCommonAlgs.OverlayFlags import overlayFlags;vt.RunAndEventNumbersFile=overlayFlags.EventIDTextFile();ToolSvc.ISF_GenEventVertexPositioner.VertexShifters=[vt]' 'overlayBS:pileUpEventLoopMgr.MaxMinBiasCollPerXing=0' --preExec 'sim:simFlags.RandomSvc="AtDSFMTGenSvc";from AthenaCommon.JobProperties import jobproperties; jobproperties.ISF_jobProperties.VertexPositionFromFile.set_Value_and_Lock(True)' 'overlayBS:from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useFcalHighGain.set_Value_and_Lock(True);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4); from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' --inputFilterFile filter.data.txt --inputHITARFile /afs/cern.ch/work/t/tkharlam/public/Overlay_HI_RTT/filterdataset.tar
+             OverlayChain_tf.py --checkEventCount False --inputZeroBiasBSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/data15_hi.00286711.physics_MinBiasOverlay.daq.RAW/data15_hi.00286711.physics_MinBiasOverlay.daq.RAW._lb0178._SFO-4._0001.data --outputRDOFile HItest.RDO.pool.root --triggerBit -1 --skipEvents 0 --maxEvents 10 --ignoreErrors True --DataRunNumber 2015 --inputEVNTFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/overlay/mc15_13TeV.422011.ParticleGun_single_mu_Pt100.evgen.EVNT.e4459/EVNT.06603958._000026.pool.root.1 --outputHITSFile HItest.HITS.pool.root --randomSeed 123456789 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag CONDBR2-BLKPA-2015-17 --physicsList QGSP_BERT --samplingFractionDbTag FTFP_BERT_BIRK --fSampltag LARElecCalibMCfSampl-G496-19213- --digiRndmSvc AtRanluxGenSvc --preInclude 'sim:EventOverlayJobTransforms/g4runnumber2.py,EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/magfield.py,SimulationJobOptions/preInclude.AbortedEventsFlaggedNotDropped.py' 'overlayBS:EventOverlayJobTransforms/custom.py' --postInclude 'sim:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign.py,EventOverlayJobTransforms/g4runnumber.py' 'overlayBS:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py' --postExec 'sim:from AthenaCommon.CfgGetter import getPublicTool; vt=getPublicTool("ISF_VertexPositionFromFile");vt.VertexPositionsFile="vtx.data.txt";from OverlayCommonAlgs.OverlayFlags import overlayFlags;vt.RunAndEventNumbersFile=overlayFlags.EventIDTextFile();ToolSvc.ISF_GenEventVertexPositioner.VertexShifters=[vt]' 'overlayBS:pileUpEventLoopMgr.MaxMinBiasCollPerXing=0' --preExec 'sim:simFlags.RandomSvc="AtDSFMTGenSvc";from AthenaCommon.JobProperties import jobproperties; jobproperties.ISF_jobProperties.VertexPositionFromFile.set_Value_and_Lock(True)' 'overlayBS:from LArDigitization.LArDigitizationFlags import jobproperties;jobproperties.LArDigitizationFlags.useFcalHighGain.set_Value_and_Lock(True);from LArROD.LArRODFlags import larRODFlags;larRODFlags.nSamples.set_Value_and_Lock(4); from LArConditionsCommon.LArCondFlags import larCondFlags; larCondFlags.OFCShapeFolder.set_Value_and_Lock("4samples1phase")' --inputFilterFile filter.data.txt --hitarFile /afs/cern.ch/work/t/tkharlam/public/Overlay_HI_RTT/filterdataset.tar
               </jobTransformCmd>
               <group>Overlay_JobTransforms</group>
               <queue>long</queue>
@@ -626,7 +626,7 @@
                   <doc>Reco of MC+Data overlay fot HI</doc>
                   <jobTransformJobName>MC15_HI_Legacy_Reco_tf</jobTransformJobName>
                   <jobTransformCmd>
-		    Reco_tf.py --maxEvents -1 --inputRDOFile HItest.RDO.pool.root --outputESDFile HItest.ESD.pool.root --outputAODFile HItest.AOD.pool.root --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' --postExec 'r2e:from AthenaCommon import CfgGetter;CfgGetter.getPublicTool("LArCellBuilderFromLArRawChannelTool").RawChannelsName = "LArRawChannels_FromDigits"' --preExec 'all:rec.doHeavyIon.set_Value_and_Lock(True);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);muonRecFlags.writeSDOs=True' 'r2e:from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);rec.doTrigger=False;jobproperties.Beam.energy.set_Value_and_Lock(2510000.0)'             
+		    Reco_tf.py --maxEvents -1 --inputRDOFile HItest.RDO.pool.root --outputESDFile HItest.ESD.pool.root --outputAODFile HItest.AOD.pool.root --preInclude 'EventOverlayJobTransforms/custom.py,EventOverlayJobTransforms/recotrfpre.py' --postInclude 'r2e:EventOverlayJobTransforms/Rt_override_CONDBR2-BLKPA-2015-12.py,EventOverlayJobTransforms/muAlign_reco.py' --postExec 'r2e:from AthenaCommon import CfgGetter;CfgGetter.getPublicTool("LArCellBuilderFromLArRawChannelTool").RawChannelsName = "LArRawChannels_FromDigits";ToolSvc.MuidRefitTool.DeweightEEL1C05=True;ToolSvc.OutwardsRefitTool.DeweightEEL1C05=True' --preExec 'all:rec.doHeavyIon.set_Value_and_Lock(True);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);muonRecFlags.writeSDOs=True' 'r2e:rec.doTrigger=False;jobproperties.Beam.energy.set_Value_and_Lock(2510000.0)'             
                   </jobTransformCmd>
                   <group>Overlay_JobTransforms</group>
                   <chaindataset_info>
@@ -908,8 +908,65 @@
 		<jobGroupName>RTT:Top</jobGroupName>
 		<testidentifier>CheckFileRunner0</testidentifier>
 	      </testToRemove>
+            </jobTransform>  
+            </chainElement>
+
+	    <chainElement>
+	      <jobTransform userJobId="MC15_HIMinBiasSkimming_Legacy_BSOverlayFilter_tf">
+              <doc>Trigger Filtering with tar input file</doc>
+              <jobTransformJobName>MC15_HIMinBiasSkimming_Legacy_BSOverlayFilter_tf</jobTransformJobName>
+              <jobTransformCmd>
+		BSOverlayFilter_tf.py --maxEvents 100 --jobNumber 287 --inputBSCONFIGFile /afs/cern.ch/user/a/ahaas/public/overlay/lists/stream0_2015_HI_1.tar.gz --inputFileValidation False --outputBS_SKIMFile HIskim.RAW --outputTAR_CONFIGFile HITAR.tar.gz --HIfiltervtxdirectory /eos/atlas/atlascerngroupdisk/phys-hi/DataOverlay2015 --triggerBit -1
+		rm -f *.RAW
+              </jobTransformCmd>
+              <group>Overlay_JobTransforms</group>
+              <queue>long</queue>
+	      <!-- BSFilter log file tests -->
+	      <test position="1">
+		<modulename>RttLibraryTools</modulename>
+		<testname>FileGrepper</testname>
+		<outputFile>fileGrepper_BSFilter_results.txt</outputFile>
+		<testidentifier>SkipFileGrepper</testidentifier>
+		<arg>
+                  <argname>inputFile</argname>
+                  <argvalue>log.BSFilter</argvalue>
+                </arg>
+                <arg>
+                  <fileGrepperArgs>
+		    <fileGrepperSearchPattern>
+		      <fileGrepperPattern>Events processed: 100</fileGrepperPattern>
+                    </fileGrepperSearchPattern>
+		    <fileGrepperSearchPattern>
+		      <fileGrepperPattern>leaving with code 0: "successful run"</fileGrepperPattern>
+		    </fileGrepperSearchPattern>
+                  </fileGrepperArgs>
+                </arg>
+                <keepFilePattern>fileGrepper_BSFilter_results.txt</keepFilePattern>
+	      </test>
+	      <!-- BSTrigFilter log file tests -->
+	      <test position="2">
+		<modulename>RttLibraryTools</modulename>
+		<testname>FileGrepper</testname>
+		<outputFile>fileGrepper_HITARMaker_results.txt</outputFile>
+		<testidentifier>SkipFileGrepper</testidentifier>
+		<arg>
+                  <argname>inputFile</argname>
+                  <argvalue>log.HITARMaker</argvalue>
+                </arg>
+                <arg>
+                  <fileGrepperArgs>
+                    <fileGrepperSearchPattern>
+		      <fileGrepperPattern>leaving with code 0: "successful run"</fileGrepperPattern>
+		  </fileGrepperSearchPattern>
+                  </fileGrepperArgs>
+                </arg>
+		<keepFilePattern>fileGrepper_HITARMaker_results.txt</keepFilePattern>
+	      </test>
+	      <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	      </testToRemove>
             </jobTransform>
-  
             </chainElement>
           </parallel>
         </sequential>
