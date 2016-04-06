@@ -114,11 +114,18 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
     
     if _name in cached_instances:
         return cached_instances[_name]
+
+
+##    calibFileName = "TES2015_LC_online.root"
+    calibFileName = "TES2016_LC_online.root"
+    if caloOnly == True :
+##        calibFileName = "TES2015_LC_online.root"
+        calibFileName = "TES2016_LC_online_inc.root"
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
                                     #calibrationFile = "EnergyCalibrationLC2012_retuned.root",
-                                    calibrationFile = "TES2015_LC_online.root",
+                                    calibrationFile = calibFileName,
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis)
 
