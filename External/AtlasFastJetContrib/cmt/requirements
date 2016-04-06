@@ -7,7 +7,7 @@ use ExternalPolicy ExternalPolicy-* External
 
 use AtlasFastJet AtlasFastJet-* External
 
-macro AtlasFastJetContrib_native_version "1.014"
+macro AtlasFastJetContrib_native_version "1.022"
 
 macro AtlasFastJetContrib_lib "$(AtlasFastJetContrib_root)/$(CMTCONFIG)/lib"
 
