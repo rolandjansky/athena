@@ -25,8 +25,7 @@
 std::ostream&
 operator<<(std::ostream& o, const McEventCollection& in)
 {
-  std::ios  state(NULL);
-  state.copyfmt(o);
+  boost::io::ios_flags_saver ifs(o);
   o << "# GenEvents: " << in.size() << '\n';
   int count(0);
   for (McEventCollection::const_iterator evt = in.begin(); evt != in.end(); ++evt) {
@@ -41,7 +40,6 @@ operator<<(std::ostream& o, const McEventCollection& in)
                                  (*p)->momentum().e());
       o << "Track " << std::setw(3) << iTrk << " pdgId " << std::setw(5) << (*p)->pdg_id() << " barcode " << std::setw(6) << (*p)->barcode()
         << " 4-mom ( " << std::setprecision(7) << std::setw(10) << fv.px() << " , " << std::setw(10) <<  fv.py() << " , " << std::setw(10) << fv.pz() << ") pt " << fv.perp() << '\n';
-      o.copyfmt(state);
     }
   }
   return o;

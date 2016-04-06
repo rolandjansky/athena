@@ -104,8 +104,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::WARNING << "Could not retrieve EventInfo from Data store "<< endreq;  
   }
 
-  const EventInfo* data2EvtInfo = 0;
-  if (m_storeGateData2->retrieve(data2EvtInfo).isSuccess() ) {
+  const EventInfo* data2EvtInfo = m_storeGateData2->tryConstRetrieve<EventInfo>();
+  if (data2EvtInfo) {
     log << MSG::INFO
 	<< "Got EventInfo from Data2 store: " 
 	<< " event " << data2EvtInfo->event_ID()->event_number() 
@@ -123,7 +123,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " errorstate lar " << data2EvtInfo->errorState(EventInfo::LAr)
 	<< " from store " << m_storeGateData2->name() << endreq;    
   } else {
-    log << MSG::WARNING << "Could not retrieve EventInfo from Data2 store "<< endreq;  
+    log << MSG::INFO << "Could not retrieve EventInfo from Data2 store "<< endreq;  
   }
   
   const EventInfo* outEvtInfo = 0;
