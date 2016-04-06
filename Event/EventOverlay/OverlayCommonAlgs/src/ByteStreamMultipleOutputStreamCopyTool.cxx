@@ -358,7 +358,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
       }
     }
 
-    if (l.currentevent>=l.nevt || ((unsigned int)l.currentevent)>l.trigmap.size()) {
+    if (l.currentevent>=l.nevt || ((unsigned int)l.currentevent)>l.trigmap.size() && l.noalgps>0) {
       ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn<<" with trigmap size "<<l.trigmap.size());
     }
 
@@ -374,7 +374,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
           ATH_MSG_ERROR( " failed to write event to ByteStreamOutputSvc"<<streams[s]);
           return StatusCode::FAILURE ;
         }
-        if (l.trigmap[l.currentevent]) l.written_j40++; else l.written_no_j40++;
+        if (l.noalgps>0){ if (l.trigmap[l.currentevent]) l.written_j40++; else l.written_no_j40++; }
         ATH_MSG_INFO( " wrote event to ByteStreamOutputSvc"<<streams[s] );
       }
     }
