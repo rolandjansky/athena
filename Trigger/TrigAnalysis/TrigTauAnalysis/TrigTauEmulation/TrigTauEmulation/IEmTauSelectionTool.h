@@ -7,22 +7,19 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "PATCore/TAccept.h"
+#include "TrigTauEmulation/ILevel1SelectionTool.h"
 
 //EDM include
 #include "xAODTrigger/EmTauRoI.h"
 
-class IEmTauSelectionTool : public virtual asg::IAsgTool
+class IEmTauSelectionTool : public virtual ILevel1SelectionTool
 {
-
    ASG_TOOL_INTERFACE(IEmTauSelectionTool)
     
  public:
 
-
   virtual const Root::TAccept& accept(const xAOD::EmTauRoI& l1tau) const = 0;
-
   virtual ~IEmTauSelectionTool() {};
-
 
 };
 

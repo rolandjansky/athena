@@ -18,6 +18,7 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTracking/TrackParticle.h"
+#include "TrigTauEmulation/DecoratedHltTau.h"
 
 // fwd declarations
 
@@ -33,28 +34,48 @@ class IHltEmulationTool : virtual public asg::IAsgTool
 
   /// virtual destructor
   virtual ~IHltEmulationTool() {};
+ 
+  virtual StatusCode execute(const xAOD::EmTauRoIContainer* l1taus,
+               const xAOD::JetRoIContainer* l1jets,
+               const xAOD::MuonRoIContainer* l1muons,
+               const xAOD::EnergySumRoI* l1xe,
+               const std::vector<DecoratedHltTau>& hlt_taus) = 0;
 
-  virtual StatusCode execute(const xAOD::EmTauRoIContainer* l1taus, 
-			     const xAOD::JetRoIContainer* l1jets,
-			     const xAOD::MuonRoIContainer* l1muons,
-			     const xAOD::EnergySumRoI* l1xe,
-			     const xAOD::TauJetContainer* hlt_taus,
-			     const DataVector<xAOD::TrackParticle>* fast_tracks) = 0;
 
-  virtual StatusCode calculate(const xAOD::TauJetContainer* hlt_taus,
-			       const xAOD::EmTauRoIContainer* l1taus,
-			       const DataVector<xAOD::TrackParticle> * fast_tracks) = 0;
+  //virtual StatusCode execute(const xAOD::EmTauRoIContainer* l1taus, 
+				 //const xAOD::JetRoIContainer* l1jets,
+				 //const xAOD::MuonRoIContainer* l1muons,
+				 //const xAOD::EnergySumRoI* l1xe,
+				 //const xAOD::TauJetContainer* hlt_taus,
+				 //const DataVector<xAOD::TrackParticle>* preselTracksIso,
+				 //const DataVector<xAOD::TrackParticle>* preselTracksCore) = 0;
 
-  virtual StatusCode execute(const xAOD::EmTauRoIContainer* l1taus, 
-			     const xAOD::JetRoIContainer* l1jets,
-			     const xAOD::MuonRoIContainer* l1muons,
-			     const xAOD::EnergySumRoI* l1xe,
-			     const xAOD::TauJetContainer* hlt_taus,
-			     const xAOD::TauJetContainer* presel_taus) = 0;
+  //virtual StatusCode execute(const xAOD::EmTauRoIContainer* l1taus, 
+				 //const xAOD::JetRoIContainer* l1jets,
+				 //const xAOD::MuonRoIContainer* l1muons,
+				 //const xAOD::EnergySumRoI* l1xe,
+				 //const xAOD::TauJetContainer* hlt_taus,
+				 //const DataVector<xAOD::TrackParticle>* fast_tracks) = 0;
 
-  virtual StatusCode calculate(const xAOD::TauJetContainer* hlt_taus,
-			       const xAOD::TauJetContainer* presel_taus,
-			       const xAOD::EmTauRoIContainer* l1taus) = 0;
+  //virtual StatusCode calculate(const xAOD::TauJetContainer* hlt_taus,
+				   //const xAOD::EmTauRoIContainer* l1taus,
+				   //const DataVector<xAOD::TrackParticle> * fast_tracks) = 0;
+  
+  //virtual StatusCode calculate(const xAOD::TauJetContainer* hlt_taus,
+				   //const xAOD::EmTauRoIContainer* l1taus,
+				   //const DataVector<xAOD::TrackParticle> * preselTracksIso,
+				   //const DataVector<xAOD::TrackParticle> * preselTracksCore) = 0;
+
+  //virtual StatusCode execute(const xAOD::EmTauRoIContainer* l1taus, 
+				 //const xAOD::JetRoIContainer* l1jets,
+				 //const xAOD::MuonRoIContainer* l1muons,
+				 //const xAOD::EnergySumRoI* l1xe,
+				 //const xAOD::TauJetContainer* hlt_taus,
+				 //const xAOD::TauJetContainer* presel_taus) = 0;
+
+  //virtual StatusCode calculate(const xAOD::TauJetContainer* hlt_taus,
+				   //const xAOD::TauJetContainer* presel_taus,
+				   //const xAOD::EmTauRoIContainer* l1taus) = 0;
 
   virtual bool decision(const std::string & chain_name) = 0;
 

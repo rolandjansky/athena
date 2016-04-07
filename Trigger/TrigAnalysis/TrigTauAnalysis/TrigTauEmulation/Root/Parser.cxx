@@ -2,7 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #include "TrigTauEmulation/Parser.h"
+#include "TrigTauEmulation/MsgStream.h"
 
 // Default constructor
 Parser::Parser(const std::string& name) : asg::AsgTool(name)
@@ -64,7 +66,7 @@ bool Parser::parse_chain_name(const std::string & chain_name)
       list_RoI.push_back(L1chain_nonTOPO);
     }
   }
-  
+
   for(unsigned int ii = 0; ii < list_RoI.size(); ii++){
     std::string L1_trig_object = list_RoI.at(ii);
     int num_objects = 1; //default
@@ -97,10 +99,10 @@ bool Parser::parse_chain_name(const std::string & chain_name)
       if(OLR_object == "") OLR_object = "NULL";
       TOPO_object_3 = OLR_object;
       if(L1chain_TOPO.find("_")!=std::string::npos){
-	L1chain_TOPO = L1chain_TOPO.substr(0,L1chain_TOPO.rfind("_")).c_str(); // takes care of L1_DR-MU10TAU12I_TAU12I-J25 style names
+        L1chain_TOPO = L1chain_TOPO.substr(0,L1chain_TOPO.rfind("_")).c_str(); // takes care of L1_DR-MU10TAU12I_TAU12I-J25 style names
       }
       else{
-	L1chain_TOPO = L1chain_TOPO.substr(0,L1chain_TOPO.rfind("-")).c_str();
+        L1chain_TOPO = L1chain_TOPO.substr(0,L1chain_TOPO.rfind("-")).c_str();
       }
     }
     // now break up the topo part of the name into constituents 
@@ -127,9 +129,9 @@ bool Parser::parse_chain_name(const std::string & chain_name)
     for (unsigned int i = 0; i < m_TOPO_items.size(); i++) {
       std::string item_name = m_TOPO_items[i];
       if(item_name.find("TAU")!=std::string::npos && item_name.find("I")!=std::string::npos)
-	item_name = item_name + "M";
+        item_name = item_name + "M";
       if(item_name.find("EM")!=std::string::npos)
-	item_name = item_name + "HI";
+        item_name = item_name + "HI";
       m_TOPO_items[i] = item_name;
       if(item_name!="NULL")m_all_items.push_back(item_name);
     }
@@ -150,49 +152,51 @@ int Parser::get_pass_number(const std::string & item_name)
   if (search != m_nonTOPO_items.end())
     return m_nonTOPO_items[item_name];
   else
-    ATH_MSG_WARNING(item_name << " is not in the map of items"); 
+    MY_MSG_WARNING(item_name << " is not in the map of items"); 
     return -1;
 }
 
 
 std::map<std::string, int> Parser::get_items(const std::string & type)
 {
-  if (type == "")
+  if (type == "") {
     return m_nonTOPO_items;
-  else {
-    std::map<std::string, int> selected_items;
-    for (auto const &it : m_nonTOPO_items) {
-      std::size_t found = (it.first).find(type);
-      if (found != std::string::npos)
-	selected_items[it.first] = it.second;
+  } 
+
+  std::map<std::string, int> selected_items;
+  for (auto const &it : m_nonTOPO_items) {
+    std::size_t found = (it.first).find(type);
+    if (found != std::string::npos) {
+      selected_items[it.first] = it.second;
     }
-    return selected_items;
   }
+  return selected_items;
 
 }
 
 std::vector<std::string> Parser::get_tool_names(const std::string & type)
 {
-  if (type == "")
+  if (type == "") {
     return m_all_items;
-  else {
-    std::vector<std::string> selected_items;
-    for (auto const &it : m_all_items) {
-      std::size_t found = it.find(type);
-      if (found != std::string::npos)
-	selected_items.push_back(it);
-    }
-    return selected_items;
   }
+
+  std::vector<std::string> selected_items;
+  for (auto const &it : m_all_items) {
+    std::size_t found = it.find(type);
+    if (found != std::string::npos)
+      selected_items.push_back(it);
+  }
+  return selected_items;
 }
 
 std::vector<std::string> Parser::get_vec_items(const std::string & type)
 {
-  if (type == "TOPO")
+  if (type == "TOPO") {
     // selects only vector of the topo items
     return m_TOPO_items;
-  else
-    return m_all_items;
+  }
+
+  return m_all_items;
 
 }
 
@@ -205,28 +209,32 @@ bool Parser::check_TOPO_type(const std::string & TOPO_type)
   else if(TOPO_type == "OLR")
     return m_is_OLR;
   else{
-    ATH_MSG_WARNING("Undefined TOPO requirement" << TOPO_type); 
+    MY_MSG_WARNING("Undefined TOPO requirement" << TOPO_type); 
     return 0;
   }
 }
 
 std::string Parser::return_TOPO_object_string()
 {
-  if(m_is_DR)
-    if (m_is_OLR)
+  if(m_is_DR) {
+    if (m_is_OLR) {
       return "DR-" + m_TOPO_items[0] + m_TOPO_items[1] + "-" + m_TOPO_items[2];
-    else
+    } else {
       return "DR-" + m_TOPO_object_name;
-  else if(m_is_BOX)
-    if (m_is_OLR)
+    }
+  } else if(m_is_BOX) {
+    if (m_is_OLR) {
       return "BOX-" + m_TOPO_items[0] + m_TOPO_items[1] + "-" + m_TOPO_items[2];
-    else
+    } else {
       return "BOX-" + m_TOPO_object_name;
-  else if(m_is_OLR) {
-    if (m_TOPO_items[0] == "NULL")
+    }
+  } else if(m_is_OLR) {
+    if (m_TOPO_items[0] == "NULL") {
       return m_TOPO_items[1] + "-" + m_TOPO_items[2];
-    else
+    } else {
       return m_TOPO_items[0] + m_TOPO_items[1] + "-" + m_TOPO_items[2];
-  } else
+    }
+  } else {
     return "";
+  }
 }

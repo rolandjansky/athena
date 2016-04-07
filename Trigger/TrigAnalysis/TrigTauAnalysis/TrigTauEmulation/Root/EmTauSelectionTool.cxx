@@ -5,7 +5,7 @@
 #include "TrigTauEmulation/EmTauSelectionTool.h"
 
 // Default constructor
-EmTauSelectionTool::EmTauSelectionTool(const std::string& name) : asg::AsgTool(name)
+EmTauSelectionTool::EmTauSelectionTool(const std::string& name) : Level1SelectionTool(name)
 {
   declareProperty("ClusterPt", m_roi_pt_cut=12000., "cut on the EmTauRoI transverse energy");
   declareProperty("ClusterEta", m_roi_eta_cut=2.5, "cut on the EmTauRoi |eta|");
@@ -23,7 +23,7 @@ EmTauSelectionTool::EmTauSelectionTool(const std::string& name) : asg::AsgTool(n
 }
 
 // Copy constructor
-EmTauSelectionTool::EmTauSelectionTool(const EmTauSelectionTool& other) : asg::AsgTool(other.name() + "_copy")
+EmTauSelectionTool::EmTauSelectionTool(const EmTauSelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
 {}
 
 // Tool initialize
@@ -45,19 +45,29 @@ const Root::TAccept& EmTauSelectionTool::accept(const xAOD::EmTauRoI& l1tau) con
   //   return m_accept;
 
   double roi_pt = m_use_emclus ? l1tau.emClus() : l1tau.tauClus();
-  if (roi_pt <= m_roi_pt_cut)
+  //std::cout << "=> testing L1 cut" << std::endl;
+  if (roi_pt <= m_roi_pt_cut) {
+    //std::cout << "reject L1: did not pass pT cut (" << roi_pt << " <= " << m_roi_pt_cut <<  ")" << std::endl;
     return m_accept;
+  }
 
-  if (!pass_isolation(l1tau))
+  if (!pass_isolation(l1tau)) {
+    //std::cout << "reject L1: did not pass isolation cut" << std::endl;
     return m_accept;
+  }
 
-  if (!pass_hadronic_leakage(l1tau))
+  if (!pass_hadronic_leakage(l1tau)) {
+    //std::cout << "reject L1: did not pass hadronic leakage" << std::endl;
     return m_accept;
+  }
 
   int roi_type = m_use_emclus ? xAOD::EmTauRoI::EMRoIWord : xAOD::EmTauRoI::TauRoIWord;
-  if (l1tau.roiType() != roi_type)
+  if (l1tau.roiType() != roi_type) {
+    //std::cout << "reject L1: did not pass RoI type cut" << std::endl;
     return m_accept;
+  }
 
+  //std::cout << "PASSED L1 CUTS" << std::endl;
   m_accept.setCutResult("EmTauRoI", true);
   return m_accept;
 }

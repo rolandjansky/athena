@@ -8,6 +8,7 @@
 #include "AsgTools/AsgTool.h"
 
 #include "TrigTauEmulation/IHltL1MatchingTool.h"
+#include "TrigTauEmulation/DecoratedHltTau.h"
 
 class HltL1MatchingTool : public virtual IHltL1MatchingTool, public asg::AsgTool
 
@@ -24,6 +25,7 @@ class HltL1MatchingTool : public virtual IHltL1MatchingTool, public asg::AsgTool
   virtual StatusCode initialize();
 
   virtual StatusCode execute(const xAOD::TauJetContainer * hlt_taus, const xAOD::EmTauRoIContainer * l1_taus);
+  virtual StatusCode execute(const std::vector<DecoratedHltTau>& hlt_taus, const xAOD::EmTauRoIContainer * l1_taus);
 
 
  private:

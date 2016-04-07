@@ -8,6 +8,8 @@
 #include "TrigTauEmulation/EnergySumSelectionTool.h"
 #include "TrigTauEmulation/JetRoISelectionTool.h"
 #include "TrigTauEmulation/HltTauSelectionTool.h"
+#include "TrigTauEmulation/FastTrackSelectionTool.h"
+
 
 #include "../TTETestAlg.h"
 
@@ -20,6 +22,7 @@ DECLARE_TOOL_FACTORY( EnergySumSelectionTool )
 DECLARE_TOOL_FACTORY( HltTauSelectionTool )
 DECLARE_ALGORITHM_FACTORY( TTETestAlg )
 DECLARE_TOOL_FACTORY( EmTauSelectionTool )
+DECLARE_TOOL_FACTORY( FastTrackSelectionTool )
 
 DECLARE_FACTORY_ENTRIES( TrigTauEmulation ) 
 {
@@ -31,5 +34,7 @@ DECLARE_FACTORY_ENTRIES( TrigTauEmulation )
   DECLARE_TOOL( EnergySumSelectionTool );
   DECLARE_TOOL( HltTauSelectionTool );
   DECLARE_ALGORITHM( TTETestAlg );
-  DECLARE_TOOL( EmTauSelectionTool )
+  DECLARE_TOOL( EmTauSelectionTool );
+  DECLARE_TOOL( FastTrackSelectionTool );
+
 }
