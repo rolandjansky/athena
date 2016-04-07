@@ -26,8 +26,7 @@ using namespace std;
 TrigGenericMonitoringTool::TrigGenericMonitoringTool(const std::string & type, 
 						     const std::string & name,
 						     const IInterface* parent)
-  : TrigMonitorToolBase(type, name, parent),
-    m_log(msgSvc(), name)
+  : TrigMonitorToolBase(type, name, parent)
 { 
   declareProperty("Histograms", m_histograms, "Definitions of histograms");
   declareInterface<IMonitorToolBase>(this);
@@ -36,37 +35,24 @@ TrigGenericMonitoringTool::TrigGenericMonitoringTool(const std::string & type,
 TrigGenericMonitoringTool::~TrigGenericMonitoringTool() {
 }
 
-StatusCode TrigGenericMonitoringTool::initialize() {
-  if ( TrigMonitorToolBase::initialize().isFailure() )
-    return StatusCode::FAILURE;
-
-  m_log.setLevel(outputLevel());
-  return StatusCode::SUCCESS;
-}
 
 StatusCode TrigGenericMonitoringTool::bookHists() {
 
-  if (outputLevel()<=MSG::DEBUG) {
-    m_log << MSG::DEBUG << "bookHists" << endreq;
-  }
+  ATH_MSG_DEBUG("bookHists");
   
   // Clear private members (bookHists can be called multiple times)
   m_fillers.clear();
 
-
-  if (!service("THistSvc", m_rootHistSvc).isSuccess()) {
-    m_log << MSG::ERROR << "Unable to locate THistSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(service("THistSvc", m_rootHistSvc));
   
   m_algo = dynamic_cast<const IMonitoredAlgo*>(parent());
   if ( !m_algo ) {
-    m_log << MSG::WARNING << "Attached to algorithm which is not of type IMonitoredAlgo" << endreq;
+    ATH_MSG_WARNING("Attached to algorithm which is not of type IMonitoredAlgo");
     return StatusCode::FAILURE;
   }
   const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
   if (parentAlg==0) {
-    m_log << MSG::ERROR << "Cannot retrieve INamedInterface of parent algorithm" << endreq;
+    ATH_MSG_ERROR("Cannot retrieve INamedInterface of parent algorithm");
     return StatusCode::FAILURE;
   }
   
@@ -82,12 +68,12 @@ StatusCode TrigGenericMonitoringTool::bookHists() {
   for (vector<string>::const_iterator citem = m_histograms.begin(); citem != m_histograms.end(); ++citem ) {
     HistogramDef def = parseJobOptHistogram(*citem);
     if ( ! def.ok || createFiller(def).isFailure() ) {
-      m_log << MSG::DEBUG << "Demand to monitor variable(s): " << def.name  << " can't be satisfied"  << endreq;       
+      ATH_MSG_DEBUG("Demand to monitor variable(s): " << def.name  << " can't be satisfied");
     }
   }
 
   if ( m_fillers.empty() ) {
-    m_log << MSG::ERROR << "No variables to be monitored, detach this tool, it will save time" << endreq;
+    ATH_MSG_ERROR("No variables to be monitored, detach this tool, it will save time");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -117,17 +103,13 @@ void TrigGenericMonitoringTool::setLabels(TH1* histo, const std::vector<std::str
     for ( int i = 0; i < std::min( (int)labels.size(), (int)histo->GetNbinsX() ); ++i ) {
       int bin = i+1;
       histo->GetXaxis()->SetBinLabel(bin, labels[i].c_str());
-      if (outputLevel()<=MSG::DEBUG) {
-        m_log << MSG::DEBUG << "setting label X" <<  labels[i] << " for bin " << bin << endreq;
-      }
+      ATH_MSG_DEBUG("setting label X" <<  labels[i] << " for bin " << bin);
     }
 
     for ( int i = (int)histo->GetNbinsX(); i < std::min( (int)labels.size(), (int)histo->GetNbinsX()+(int)histo->GetNbinsY() ); ++i ) {
       int bin = i+1-(int)histo->GetNbinsX();
       histo->GetYaxis()->SetBinLabel(bin, labels[i].c_str());
-      if (outputLevel()<=MSG::DEBUG) {
-        m_log << MSG::DEBUG << "setting label Y" <<  labels[i] << " for bin " << bin << endreq;
-      }
+      ATH_MSG_DEBUG("setting label Y" <<  labels[i] << " for bin " << bin);
     }
   }
 }
@@ -199,8 +181,8 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
   
   
   if (histo == 0 ) {
-    m_log << MSG::WARNING << "Can not create yet histogram of type: " << def.type << endreq;
-    m_log << MSG::WARNING << "Try one of: TH1F,TH1D,TH1I,TH2F,TH2D,TH2I, TProfile" << endreq;
+    ATH_MSG_WARNING("Can not create yet histogram of type: " << def.type);
+    ATH_MSG_WARNING("Try one of: TH1F,TH1D,TH1I,TH2F,TH2D,TH2I, TProfile");
     return StatusCode::FAILURE;
   }
 
@@ -218,46 +200,49 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
     if ( varIt != m_algo->variables().end() ) {
       
       if ( def.opt.find("kCumulative") != std::string::npos ) {
-        if (outputLevel()<=MSG::DEBUG) m_log << MSG::DEBUG << "Variable: " << def.name << " from parent algorithm: "
-                                             << m_parentName << " will be histogrammed in Cummulative histogram" << endreq;
-	HistogramFiller* f = new CumulativeHistogramFiller1D(histo1D, varIt->second);
-	m_fillers.push_back(f);
-      } else if (def.opt.find("kVecUO") != std::string::npos) {
-	if (outputLevel()<=MSG::DEBUG) m_log << MSG::DEBUG << "Variable: " << def.name << " from parent algorithm: "
-                                             << m_parentName << " will be added to histogram" << endreq;
-	if (unsigned(histo1D->GetNbinsX()+2) != varIt->second->size()) 
-	  m_log << MSG::WARNING << "Variable: " << def.name << " from parent algorithm: " << m_parentName 
-		 << " has different dimension: " << varIt->second->size() 
-		 << " than hisogram: " << histo1D->GetNbinsX()
-		 << " booked for it and kVecUO options is requested (variable has to accomodate Under/Overflows too)" <<  endreq;
+        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
+                      << m_parentName << " will be histogrammed in Cummulative histogram");
+        HistogramFiller* f = new CumulativeHistogramFiller1D(histo1D, varIt->second);
+        m_fillers.push_back(f);
+      } 
+      else if (def.opt.find("kVecUO") != std::string::npos) {
+        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
+                      << m_parentName << " will be added to histogram");
+        if (unsigned(histo1D->GetNbinsX()+2) != varIt->second->size()) 
+          ATH_MSG_WARNING("Variable: " << def.name << " from parent algorithm: " << m_parentName 
+                          << " has different dimension: " << varIt->second->size() 
+                          << " than hisogram: " << histo1D->GetNbinsX()
+                          << " booked for it and kVecUO options is requested (variable has to accomodate Under/Overflows too)");
 
       	HistogramFiller* f = new VecHistogramFiller1DWithOverflows(histo1D, varIt->second);
-	m_fillers.push_back(f);
-
-      } else if (def.opt.find("kVec") != std::string::npos) {
-	if (outputLevel()<=MSG::DEBUG) m_log << MSG::DEBUG << "Variable: " << def.name << " from parent algorithm: "
-                                             << m_parentName << " will be added to histogram" << endreq;
-	if (unsigned(histo1D->GetNbinsX()) != varIt->second->size()) 
-	  m_log << MSG::WARNING << "Variable: " << def.name << " from parent algorithm: " << m_parentName 
-		 << " has different dimension: " << varIt->second->size() 
-		 << " than hisogram: " << histo1D->GetNbinsX()
-		 << " booked for it and kVec options is requested" <<  endreq;
+        m_fillers.push_back(f);
+        
+      } 
+      else if (def.opt.find("kVec") != std::string::npos) {
+        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: "
+                      << m_parentName << " will be added to histogram");
+        if (unsigned(histo1D->GetNbinsX()) != varIt->second->size()) 
+          ATH_MSG_WARNING("Variable: " << def.name << " from parent algorithm: " << m_parentName 
+                          << " has different dimension: " << varIt->second->size() 
+                          << " than hisogram: " << histo1D->GetNbinsX()
+                          << " booked for it and kVec options is requested");
        
-	HistogramFiller* f = new VecHistogramFiller1D(histo1D, varIt->second);
-	m_fillers.push_back(f);
+        HistogramFiller* f = new VecHistogramFiller1D(histo1D, varIt->second);
+        m_fillers.push_back(f);
  
-      } else {
-	if (outputLevel()<=MSG::DEBUG) m_log << MSG::DEBUG << "Variable: " << def.name << " from parent algorithm: " << m_parentName
-                                             <<  " will be histogrammed" << endreq;
-	HistogramFiller* f = new HistogramFiller1D(histo1D, varIt->second);
-	m_fillers.push_back(f);
+      } 
+      else {
+        ATH_MSG_DEBUG("Variable: " << def.name << " from parent algorithm: " << m_parentName
+                      <<  " will be histogrammed");
+        HistogramFiller* f = new HistogramFiller1D(histo1D, varIt->second);
+        m_fillers.push_back(f);
       }
     } else {
-      m_log << MSG::WARNING << "Variable: " << def.name << " not exported by parent algorithm: " << m_parentName  << " this are available:" << endreq;
+      ATH_MSG_WARNING("Variable: " << def.name << " not exported by parent algorithm: " << m_parentName  << " this are available:");
       for ( varIt = m_algo->variables().begin(); varIt != m_algo->variables().end(); ++varIt) {
-	m_log << MSG::WARNING << varIt->first << " ";	
+        msg() << MSG::WARNING << varIt->first << " ";	
       }
-      m_log << MSG::WARNING << endreq;
+      msg() << MSG::WARNING << endreq;
       
       return StatusCode::FAILURE;
     }
@@ -267,21 +252,21 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
     var2It = m_algo->variables().find(def.name[1]);
     
     if ( var1It != m_algo->variables().end() && var2It != m_algo->variables().end() ) {
-      if (outputLevel()<=MSG::DEBUG) m_log << MSG::DEBUG << "Variables: " << def.name[0] << "," << def.name[1]
-                                           << " from parent algorithm: " << m_parentName
-                                           << " will be histogrammed in 2D histogram" << endreq;      
+      ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1]
+                    << " from parent algorithm: " << m_parentName
+                    << " will be histogrammed in 2D histogram");
       if (histo2D)
-	m_fillers.push_back(new HistogramFiller2D(histo2D, var1It->second, var2It->second));
-      else {
-	
-	m_fillers.push_back(new HistogramFillerProfile(histoProfile, var1It->second, var2It->second));
+        m_fillers.push_back(new HistogramFiller2D(histo2D, var1It->second, var2It->second));
+      else {       
+        m_fillers.push_back(new HistogramFillerProfile(histoProfile, var1It->second, var2It->second));
       }
-    } else {
-      m_log << MSG::WARNING << "Variables: " << def.name[0] << "," << def.name[1] << " not exported by parent algorithm: " << m_parentName << endreq;
+    } 
+    else {
+      ATH_MSG_WARNING("Variables: " << def.name[0] << "," << def.name[1] << " not exported by parent algorithm: " << m_parentName);
       for ( var1It = m_algo->variables().begin(); var1It != m_algo->variables().end(); ++var1It) {
-	m_log << MSG::WARNING << var1It->first << " ";	
+        msg() << MSG::WARNING << var1It->first << " ";	
       }
-      m_log << MSG::WARNING << endreq;
+      msg() << MSG::WARNING << endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -292,11 +277,11 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
 
   if ( def.opt.find("kLBN") != std::string::npos ) {
     if ( histogramCategory[def.path]->regHist(histoLBN).isFailure() ) {
-      m_log << MSG::WARNING << "LBN Histogram for variable: " << def.name << " for parent algorithm: " << m_parentName << " can't be booked" << endreq;   
+      ATH_MSG_WARNING("LBN Histogram for variable: " << def.name << " for parent algorithm: " << m_parentName << " can't be booked");   
     }
   } else {
     if ( histogramCategory[def.path]->regHist(histo).isFailure() ) {
-      m_log << MSG::WARNING << "Histogram for variable: " << def.name << " for parent algorithm: " << m_parentName << " can't be booked" << endreq;   
+      ATH_MSG_WARNING("Histogram for variable: " << def.name << " for parent algorithm: " << m_parentName << " can't be booked");
     }
   }
   
@@ -304,7 +289,6 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
   }
 
 StatusCode TrigGenericMonitoringTool::fillHists() {
-  //  m_log << MSG::DEBUG << "fillHists" << endreq;
   unsigned fills(0);
   std::vector<HistogramFiller*>::iterator i;
   for( i = m_fillers.begin(); i != m_fillers.end(); ++i ) {
@@ -312,9 +296,7 @@ StatusCode TrigGenericMonitoringTool::fillHists() {
   }
 
   // Can be useful for debugging, in case one suspects a monitored container with ever increasing size
-  if (outputLevel()<=MSG::DEBUG) {
-    m_log << MSG::DEBUG << fills << " histogram fills done" << endreq;
-  }
+  ATH_MSG_DEBUG(fills << " histogram fills done");
   
   return StatusCode::SUCCESS;
 }
@@ -339,15 +321,16 @@ StatusCode TrigGenericMonitoringTool::finalHists() {
 }
 
 
-//wm: new parser
 const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJobOptHistogram(const std::string& histDef) {
+  /* Parse histogram defintion
+     Example:
+     1D: "EXPERT, TH1I, Name, Title;Alias, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
+  */
 
-  if (outputLevel()<=MSG::DEBUG) {
-    m_log << MSG::DEBUG << "parseJobOptHistogram(\"" << histDef << "\")" << endreq;
-  }
+  ATH_MSG_DEBUG("parseJobOptHistogram(\"" << histDef << "\")");
   
   // convert histogram definition string to an array of strings
-  vector<string> histProperty;
+  list<string> histProperty;
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer_t;
   boost::char_separator<char> sep(","); 
   tokenizer_t tokens(histDef, sep);
@@ -358,7 +341,7 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   } 
   // return value
   HistogramDef histPar;
-  vector<string>::iterator itr = histProperty.begin();
+  list<string>::iterator itr = histProperty.begin();
   
   // stream
   string word = (*itr);
@@ -366,7 +349,7 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   //if (word.find("EXPERT") != string::npos || word.find("SHIFT") != string::npos) {
   if (word == "EXPERT" || word == "SHIFT" || word == "DEBUG" || word == "RUNSTAT" ) {
     histPar.path = word;
-    histProperty.erase(itr);
+    itr = histProperty.erase(itr);
   }
   else
     histPar.path = "EXPERT";
@@ -378,15 +361,15 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   if (histProperty.size() < 5) return histPar;   
   
   histPar.type = (*itr);
-  histProperty.erase(itr);
+  itr = histProperty.erase(itr);
 
-    
+  
 
   histPar.name.push_back(*itr);
-  histProperty.erase(itr);
+  itr = histProperty.erase(itr);
   if (histPar.type.find("TH2") == 0 || histPar.type == "TProfile") {
     histPar.name.push_back(*itr);
-    histProperty.erase(itr);
+    itr = histProperty.erase(itr);
   }
 
 
@@ -404,42 +387,42 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   }
 
   histPar.title = (*itr);
-  histProperty.erase(itr);
+  itr = histProperty.erase(itr);
   
   if (histProperty.size() < 2) {
-    m_log << MSG::WARNING << histPar.alias << warning << "NOT enough parameters for defining 1-D histogram" << endreq;
+    ATH_MSG_WARNING(histPar.alias << warning << "NOT enough parameters for defining 1-D histogram");
     return histPar;   
   }
   
   try {
     histPar.xbins = boost::lexical_cast<int>(*itr);
-    histProperty.erase(itr);
+    itr = histProperty.erase(itr);
   }
   catch (boost::bad_lexical_cast&) {
-    m_log << MSG::WARNING << histPar.alias << warning << "int expected for xbins while got"  << histProperty << endreq;
+    ATH_MSG_WARNING(histPar.alias << warning << "int expected for xbins while got"  << histProperty);
     return histPar;
   }
   
   if (histProperty.size() < 2) {
-    m_log << MSG::WARNING << histPar.name[0] << warning << "xmin and xmax expected" << endreq;
+    ATH_MSG_WARNING(histPar.name[0] << warning << "xmin and xmax expected");
     return histPar;
   }
   
   try {
     histPar.xmin = boost::lexical_cast<double>(*itr);
-    histProperty.erase(itr);
+    itr = histProperty.erase(itr);
   }
   catch (boost::bad_lexical_cast&) {
-    m_log << MSG::WARNING << histPar.name[0] << warning << "double expected for xmin" << endreq;
+    ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for xmin");
     return histPar;
   }
   
   try {
     histPar.xmax = boost::lexical_cast<double>(*itr);
-    histProperty.erase(itr);
+    itr = histProperty.erase(itr);
   }
   catch (boost::bad_lexical_cast&) {
-    m_log << MSG::WARNING << histPar.name[0] << warning << "double expected for xmax" << endreq;
+    ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for xmax");
     return histPar;
   }
   
@@ -447,39 +430,39 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   
   if (histPar.type.find("TH2") == 0) {
     if (histProperty.size() < 2) {
-      m_log << MSG::WARNING << histPar.name[0] << warning << "y-axis definition expected for TH2" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "y-axis definition expected for TH2");
       return histPar;
     }
     
     try {
       histPar.ybins = boost::lexical_cast<int>(*itr);
-      histProperty.erase(itr);
+      itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-      m_log << MSG::WARNING << histPar.name[0] << warning << "int expected for ybins" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "int expected for ybins");
       return histPar;
     }
     
     if (histProperty.size() < 2) {
-      m_log << MSG::WARNING << histPar.name[0] << warning << "ymin and ymax expected" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "ymin and ymax expected");
       return histPar;
     }
     
     try {
       histPar.ymin = boost::lexical_cast<double>(*itr);
-      histProperty.erase(itr);
+      itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-      m_log << MSG::WARNING << histPar.name[0] << warning << "double expected for ymin" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymin");
       return histPar;
     }
     
     try {
       histPar.ymax = boost::lexical_cast<double>(*itr);
-      histProperty.erase(itr);
+      itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-      m_log << MSG::WARNING << histPar.name[0] << warning << "double expected for ymax" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymax");
       return histPar;
     }
   } //-end of TH2
@@ -487,19 +470,19 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
     // limited y-range
     try {
       histPar.ymin = boost::lexical_cast<double>(*itr);
-      histProperty.erase(itr);
+      itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-      m_log  <<  MSG::WARNING  <<  histPar.name[0] << warning << "double expected for ymin of TProfile" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymin of TProfile");
       return histPar;
     }
     
     try {
       histPar.ymax = boost::lexical_cast<double>(*itr);
-      histProperty.erase(itr);
+      itr = histProperty.erase(itr);
     }
     catch (boost::bad_lexical_cast&) {
-      m_log << MSG::WARNING << histPar.name[0] << warning << "double expected for ymax of TProfile" << endreq;
+      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymax of TProfile");
       return histPar;
     }
     histPar.ybins = 0; // not used

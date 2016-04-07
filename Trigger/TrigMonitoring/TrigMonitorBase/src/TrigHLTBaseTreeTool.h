@@ -33,7 +33,6 @@ class TrigHLTBaseTreeTool : public TrigMonitorToolBase {
 			const IInterface* parent);
     virtual ~TrigHLTBaseTreeTool();
 
-    StatusCode initialize();
     StatusCode bookHists();
     StatusCode fillHists();
     StatusCode finalHists();

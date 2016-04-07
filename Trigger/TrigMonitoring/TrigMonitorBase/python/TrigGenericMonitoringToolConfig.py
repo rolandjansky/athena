@@ -12,19 +12,14 @@ def defineHistogram(varname, type='TH1F', path='EXPERT',
     Note that defaults are compleetly unreasonable. The tile is intentionally made annoying.
     For histogras types supported and allowed paths have a look at TrigGenericMonitoringTool documentation.
     """
-#     coded = path + ', ' + type + ', '\
-#             + varname + ', ' + title + ', '\
-#             + str(xbins) + ', ' + str(xmin) + ', ' + str(xmax) + ', '
-#     if ybins is not None:
-#         coded +=  str(ybins) + ', ' + str(ymin) + ', ' + str(ymax) + ', ' 
-#     if labels is not None:
-#         coded += labels+', '
-#     coded += opt
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
     if ybins is not None:
         coded += ",%d, %f, %f" % (ybins, ymin, ymax)
     if labels is not None:
-        coded += ",%s " % labels
+        labels = labels.strip()   # remove spurious white-spaces
+        if len(labels)>0:
+            if labels[-1]!=':': labels += ':'  # C++ parser expects at least one ":"
+            coded += ",%s " % labels
     coded += ", %s" % opt
     
 
