@@ -35,7 +35,7 @@ if which("prun") is None:
     sys.exit()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--bin", type=str, default='tautriggeremulationtool.cxx')
+parser.add_argument("--bin", type=str, default='emulate_level1.cxx')
 parser.add_argument("--inDS", metavar="NAME", type=str, default="", help="name of dataset to use", required=True)
 parser.add_argument("--outDS", metavar="NAME", type=str, default="", help="name of output dataset", required=True)
 parser.add_argument("--nFiles", metavar="N", type=int, default=0,

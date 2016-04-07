@@ -14,6 +14,7 @@
 #include "TrigTauEmulation/HltEmulationTool.h"
 #include "TrigTauEmulation/ToolsRegistry.h"
 #include "TrigTauEmulation/EmTauSelectionTool.h"
+#include "TrigTauEmulation/FastTrackSelectionTool.h"
 #include "TrigTauEmulation/Level1TopoSelectionTool.h"
 #include "TrigTauEmulation/TrigTauORLTool.h"
 

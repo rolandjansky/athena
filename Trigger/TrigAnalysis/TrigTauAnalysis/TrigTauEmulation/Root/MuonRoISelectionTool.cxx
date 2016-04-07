@@ -2,10 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #include "TrigTauEmulation/MuonRoISelectionTool.h"
 
 // Default constructor MuonRoISelectionTool
-MuonRoISelectionTool::MuonRoISelectionTool(const std::string& name) : asg::AsgTool(name)
+MuonRoISelectionTool::MuonRoISelectionTool(const std::string& name) : Level1SelectionTool(name)
 {
   declareProperty("ClusterPt", m_roi_pt=10000., "cut on the MuonRoI transverse energy");
   declareProperty("ClusterEta", m_roi_eta=2.5, "cut on the MuonRoi |eta|");
@@ -13,7 +14,7 @@ MuonRoISelectionTool::MuonRoISelectionTool(const std::string& name) : asg::AsgTo
 }
 
 // Copy constructor
-MuonRoISelectionTool::MuonRoISelectionTool(const MuonRoISelectionTool& other) : asg::AsgTool(other.name() + "_copy")
+MuonRoISelectionTool::MuonRoISelectionTool(const MuonRoISelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
 {}
 
 // Tool initialize

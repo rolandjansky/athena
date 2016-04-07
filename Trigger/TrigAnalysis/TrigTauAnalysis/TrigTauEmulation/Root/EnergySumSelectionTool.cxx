@@ -5,14 +5,13 @@
 #include "TrigTauEmulation/EnergySumSelectionTool.h"
 #include <TMath.h>
 // Default constructor
-EnergySumSelectionTool::EnergySumSelectionTool(const std::string& name) : asg::AsgTool(name)
+EnergySumSelectionTool::EnergySumSelectionTool(const std::string& name) : Level1SelectionTool(name)
 {
   declareProperty("XE_cut", m_MET_cut=0., "cut on the EnergySumRoI transverse energy");
-
 }
 
 // Copy constructor
-EnergySumSelectionTool::EnergySumSelectionTool(const EnergySumSelectionTool& other) : asg::AsgTool(other.name() + "_copy")
+EnergySumSelectionTool::EnergySumSelectionTool(const EnergySumSelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
 {}
 
 // Tool initialize

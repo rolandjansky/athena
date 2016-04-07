@@ -2,8 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTauEmulation/HltChain.h"
+// vim: ts=2 sw=2
 
+#include "TrigTauEmulation/HltChain.h"
+#include "TrigTauEmulation/HltItem.h"
 
 std::map<std::string, HltChain> HltParsing::chains() 
 
@@ -16,7 +18,7 @@ std::map<std::string, HltChain> HltParsing::chains()
   // tracktwo chains
   ch["HLT_tau25_perf_tracktwo"]= HltChain({
       HltItem("tau25_perf_tracktwo", "TAU12IM")}, "TAU12IM");
-  
+
   ch["HLT_tau25_idperf_tracktwo"]= HltChain({
       HltItem("tau25_idperf_tracktwo", "TAU12")}, "TAU12");
 
@@ -42,7 +44,7 @@ std::map<std::string, HltChain> HltParsing::chains()
       HltItem("tau25_tight1_tracktwo", "TAU12IM")}, "TAU12IM");
 
   ch["HLT_tau35_perf_tracktwo"]= HltChain({
-      HltItem("tau35_perf_tracktwo", "TAU12IM")}, "TAU12IM");
+      HltItem("tau35_perf_tracktwo", "TAU20IM")}, "TAU20IM");
 
   ch["HLT_tau35_loose1_tracktwo"] = HltChain({
       HltItem("tau35_loose1_tracktwo", "TAU20IM")}, "TAU20IM");
@@ -101,6 +103,9 @@ std::map<std::string, HltChain> HltParsing::chains()
   ch["HLT_tau25_medium1_mvonly"]= HltChain({
       HltItem("tau25_medium1_mvonly", "TAU12IM")}, "TAU12IM");
 
+  ch["HLT_tau35_perf_ptonly"]= HltChain({
+      HltItem("tau35_perf_ptonly", "TAU20IM")}, "TAU20IM");
+
   ch["HLT_tau35_loose1_ptonly"]= HltChain({
       HltItem("tau35_loose1_ptonly", "TAU20IM")}, "TAU20IM");
 
@@ -110,55 +115,55 @@ std::map<std::string, HltChain> HltParsing::chains()
   // Tau + MET
   ch["HLT_tau35_medium1_tracktwo_xe70_L1XE45"] = HltChain({
       HltItem("tau35_medium1_tracktwo", "TAU20IM"),
-	HltItem("xe70", "XE45")}, "TAU20IM_2J20_XE45");
-  
+      HltItem("xe70", "XE45")}, "TAU20IM_2J20_XE45");
+
 
   // e + tau
   ch["HLT_e17_medium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25"] = HltChain({
       HltItem("e17_medium", "EM15HI"),
-	HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "DR-EM15TAU12I-J25");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "DR-EM15TAU12I-J25");
 
   ch["HLT_e17_lhmedium_tau25_medium1_tracktwo"] = HltChain({
       HltItem("e17_lhmedium", "EM15HI"), 
-	HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "EM15HI_2TAU12IM_J25_3J12");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "EM15HI_2TAU12IM_J25_3J12");
 
   ch["HLT_e17_medium_tau25_medium1_tracktwo_xe50"] = HltChain({
       HltItem("e17_medium", "EM15HI"),
-	HltItem("tau25_medium1_tracktwo", "TAU12IM"),
-	HltItem("xe50", "XE35")}, "EM15HI_2TAU12IM_XE35");
-  
+      HltItem("tau25_medium1_tracktwo", "TAU12IM"),
+      HltItem("xe50", "XE35")}, "EM15HI_2TAU12IM_XE35");
+
   // e + tau + met
   ch["HLT_e17_lhmedium_tau25_medium1_tracktwo_xe50"] = HltChain({
       HltItem("e17_lhmedium", "EM15HI"),
-	HltItem("tau25_medium1_tracktwo", "TAU12IM"),
-	HltItem("xe50", "XE35")}, "EM15HI_2TAU12IM_XE35");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM"),
+      HltItem("xe50", "XE35")}, "EM15HI_2TAU12IM_XE35");
 
- 
+
 
   // mu + tau triggers
   ch["HLT_mu14_tau25_medium1_tracktwo"] = HltChain({
       HltItem("mu14", "MU10"),
-	HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "MU10_TAU12IM_J25_2J12");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "MU10_TAU12IM_J25_2J12");
 
   ch["HLT_mu14_tau35_medium1_tracktwo"] = HltChain({
       HltItem("mu14", "MU10"),
-	HltItem("tau35_medium1_tracktwo", "TAU20IM")}, "MU10_TAU20IM_J25_2J12");
+      HltItem("tau35_medium1_tracktwo", "TAU20IM")}, "MU10_TAU20IM_J25_2J12");
 
   ch["HLT_mu14_tau35_medium1_tracktwo_L1TAU20"] = HltChain({
-	HltItem("mu14", "MU10"),
-	  HltItem("tau35_medium1_tracktwo", "TAU20")}, "MU10_TAU20");
-  
+      HltItem("mu14", "MU10"),
+      HltItem("tau35_medium1_tracktwo", "TAU20")}, "MU10_TAU20");
+
   ch["HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12-J25"] = HltChain({
       HltItem("mu14", "MU10"), 
-	HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "DR-MU10TAU12I_TAU12-J25");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "DR-MU10TAU12I_TAU12-J25");
 
   ch["HLT_mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I"] = HltChain({
       HltItem("mu14", "MU10"), 
-	HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "DR-MU10TAU12I");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "DR-MU10TAU12I");
 
   ch["HLT_mu14_tau25_medium1_tracktwo_L1MU10_TAU12I-J25"] = HltChain({
       HltItem("mu14", "MU10"),
-	HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "MU10_TAU12I-J25");
+      HltItem("tau25_medium1_tracktwo", "TAU12IM")}, "MU10_TAU12I-J25");
 
   // HLT_mu14_iloose is not in the MC15 menu ...
   // HLT_mu14_iloose_tau25_medium1_tracktwo
@@ -167,16 +172,16 @@ std::map<std::string, HltChain> HltParsing::chains()
   // mu + tau + met trigger
   ch["HLT_mu14_tau25_medium1_tracktwo_xe50"] = HltChain({
       HltItem("mu14", "MU10"),
-	HltItem("tau25_medium1_tracktwo", "TAU12IM"),
-	HltItem("xe50", "XE35")}, "MU10_TAU12IM_XE35"); 
+      HltItem("tau25_medium1_tracktwo", "TAU12IM"),
+      HltItem("xe50", "XE35")}, "MU10_TAU12IM_XE35"); 
   // HLT_mu14_iloose_tau25_medium1_tracktwo_xe50
 
 
   // di-tau triggers
   ch["HLT_tau35_loose1_tracktwo_tau25_loose1_tracktwo"] = HltChain({
       HltItem("tau35_loose1_tracktwo", "TAU20IM"),
-	HltItem("tau25_loose1_tracktwo", "TAU12IM")}, "TAU20IM_2TAU12IM_J25_2J20_3J12");
- 
+      HltItem("tau25_loose1_tracktwo", "TAU12IM")}, "TAU20IM_2TAU12IM_J25_2J20_3J12");
+
 
   return ch;
 
