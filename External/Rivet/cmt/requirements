@@ -13,10 +13,11 @@ use YODA                       YODA-*                  External
 ## Uncomment line below to test with Rivet installation in /afs/.cern.ch
 #macro LCG_ROOT "/afs/.cern.ch/sw/lcg"
 #macro LCG_external "$(LCG_ROOT)/external"
+#macro myLCG_config_version "67c"
 
-#macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(LCG_config_version)/rivet"
+#macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(myLCG_config_version)/rivet"
 macro Rivet_home "$(LCG_external)/MCGenerators/rivet"
-macro Rivet_version "2.3.0"
+macro Rivet_version "2.4.1"
 macro Rivet_native_version "$(Rivet_version)_lcgcmt$(LCG_config_version)"
 macro Rivet_dir "$(Rivet_home)/$(Rivet_version)/$(LCG_ext_system)"
 macro Rivet_lib "$(Rivet_dir)/lib"
@@ -47,6 +48,9 @@ apply_pattern generic_declare_for_link kind=python_modules \
   files='-s=$(Rivet_python) * *.py *.so' prefix="$(CMTCONFIG)/lib/python$(Python_version)" name=rivet_pymodules
 path_prepend PYTHONPATH "$(Rivet_python)"
 
+## Set paths to find default plugins and data files
+path_append RIVET_ANALYSIS_PATH "$(Rivet_share)"
+
 ## Set TeX environment for Rivet plotting
 set colon ':'
 path_prepend TEXMFHOME "$(Rivet_texmf)"
@@ -60,5 +64,3 @@ path_append TEXINPUTS $colon
 path_append LATEXINPUTS $colon
 
 macro Rivet_pp_cppflags "-isystem $(Rivet_dir)/include "
-
-
