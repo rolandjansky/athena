@@ -132,39 +132,6 @@ const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet *hlttau, con
 
 }
 
-  // --> This method does not work since we need both core and iso FTF tracks to emulate / to be removed
-const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> * tracks) const {
-
-  m_accept.clear();
-  m_accept.setCutResult("HltTau", false);
-
-// #ifdef ASGTOOL_STANDALONE
-//   if (m_recalculateBDTscore) {
-//     MY_MSG_INFO("Recalculating BDT score for HLT tau " << hlttau);
-
-//     m_tauIDTool->operator->()->applyDiscriminant(*(const_cast<xAOD::TauJet*>(hlttau)) ).ignore();
-//     MY_MSG_INFO("tau BDT score = " << hlttau->discriminant(xAOD::TauJetParameters::BDTJetScore));
-//   }
-// #endif
-
-  // if (not m_calopresel->accept(hlttau)) {
-  //   return m_accept;
-  // }
-
-  // if (not m_ftk->accept(hlttau, tracks)) {
-  //   //std::cout << "NOT ACCEPTING M_FTK" << std::endl;
-  //   return m_accept;
-  // }
-
-  // if (not m_tauid->accept(hlttau)) {
-  //   return m_accept;
-  // }
-
-  // m_accept.setCutResult("HltTau", true);
-  return m_accept;
-
-}
-
 const Root::TAccept& HltTauSelectionTool::accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer * presel_taus) const {
 
   m_accept.clear();

@@ -35,7 +35,6 @@ class HltTauSelectionTool : public virtual IHltTauSelectionTool, public Selectio
     virtual StatusCode initialize();
 
     virtual const Root::TAccept& accept(const DecoratedHltTau& hlttau) const;
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> * tracks) const;
     virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const;
     virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer * presel_taus) const;
 

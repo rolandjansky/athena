@@ -24,7 +24,6 @@ class IHltTauSelectionTool : public virtual ISelectionTool
   public:
 
     virtual const Root::TAccept& accept(const DecoratedHltTau& hlttau) const = 0; 
-    virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> * tracks) const = 0;
     virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const DataVector<xAOD::TrackParticle> *preselTracksIso, const DataVector<xAOD::TrackParticle> *preselTracksCore) const = 0;
     virtual const Root::TAccept& accept(const xAOD::TauJet * hlttau, const xAOD::TauJetContainer* presel_taus) const = 0;
 

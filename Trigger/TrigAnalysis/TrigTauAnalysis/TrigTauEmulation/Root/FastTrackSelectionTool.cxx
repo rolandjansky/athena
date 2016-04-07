@@ -176,7 +176,7 @@ const Root::TAccept& FastTrackSelectionTool::accept(const xAOD::TauJet *hlt_tau,
   if (preselTracksCore->size() == 0)
     return m_accept;
 
-  const xAOD::TrackParticle* coreLeadingTrack = findCoreLeadingTrack(preselTracksCore);
+  //const xAOD::TrackParticle* coreLeadingTrack = findCoreLeadingTrack(preselTracksCore);
   
   MY_MSG_DEBUG("Size of TauCore = " << preselTracksCore->size());
   MY_MSG_DEBUG("Size of TauIso = " << preselTracksIso->size());
