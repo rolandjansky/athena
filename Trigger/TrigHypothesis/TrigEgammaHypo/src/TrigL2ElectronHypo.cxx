@@ -61,6 +61,7 @@ TrigL2ElectronHypo::TrigL2ElectronHypo(const std::string & name, ISvcLocator* pS
   declareMonitoredCollection("CaloTrackEoverP",*dvec_cast(&m_egamma_container),&xAOD::TrigElectron::etOverPt);
   declareMonitoredCollection("CaloEta",*dvec_cast(&m_egamma_container),&xAOD::TrigElectron::caloEta);
   declareMonitoredCollection("CaloPhi",*dvec_cast(&m_egamma_container),&xAOD::TrigElectron::caloPhi);
+  m_egamma_container = nullptr;
 }
 
 

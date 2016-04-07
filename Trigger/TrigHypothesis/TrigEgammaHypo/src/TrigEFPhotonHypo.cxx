@@ -135,7 +135,8 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   //Initialize pointers
   m_totalTimer = nullptr;
   m_timerPIDTool_Ele = nullptr;
-  m_timerPIDTool_Pho = nullptr; 
+  m_timerPIDTool_Pho = nullptr;
+  m_EgammaContainer = nullptr;
 }
 
 void TrigEFPhotonHypo::prepareMonitoringVars() {
@@ -270,6 +271,8 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   m_EgammaContainer = 0;
   m_NofPassedCuts=-1;
+  m_NofPassedCutsIsEM=-1; 
+  m_NofPassedCutsIsEMTrig=-1; 
   
 
 
@@ -331,13 +334,6 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-  
-  
-  // adding TrigPassFlags for isEM bits
-  const unsigned int flagSize = 32;
-
-  // temporarily disable the TrigPassFlags until xAOD format is sorted out
-  TrigPassFlags* isEMFlags = 0; //HLT::makeTrigPassFlags(m_EgammaContainer, flagSize);
   
   //counters for each cut
   int Ncand[10];
@@ -443,11 +439,6 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
           for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
               m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
           }
-
-          // Set the isEM flag for this egamma object
-          if(isEMFlags)
-             HLT::setFlag(isEMFlags, egIt, m_EgammaContainer, HLT::AsFlag(isEMTrig, flagSize) );
-
 
           if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
               if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST IsEM = " << std::hex << isEMTrig 
@@ -597,13 +588,6 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // store TrigPassBits result
   if ( attachBits(outputTE, passBits) != HLT::OK ) {
     msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
-  }
-
-  // store TrigPassFlags result
-  if(isEMFlags) {
-     if ( attachFlags(outputTE, isEMFlags, "isEM") != HLT::OK ) {
-        msg() << MSG::ERROR << "Could not store isEM flags! " << endreq;
-     }
   }
 
   // Time total TrigEFPhotonHypo execution time.

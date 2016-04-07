@@ -174,29 +174,23 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 
   ///////////// get RoI descriptor ///////////////////////////////////////////////////////
   const TrigRoiDescriptor* roiDescriptor = 0;
-  HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor) ;
+  if (getFeature(outputTE, roiDescriptor) != HLT::OK) roiDescriptor = 0;
 
+  if ( !roiDescriptor ) {
+    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
+    return HLT::NAV_ERROR;
+  }
+  
   if ( fabs(roiDescriptor->eta() ) > 2.6 ) {
-      msg() << MSG::DEBUG << "The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now" << endreq;
+      ATH_MSG_DEBUG("The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now");
       pass=false; // special case 
       return HLT::OK; 
   } 
 
-  if (stat != HLT::OK) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
-    }    
-    return stat;
-  }
-
-  if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG 
-	<< "Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId()
-	<< "; RoI ID = "   << roiDescriptor->roiId()
-	<< ": Eta = "      << roiDescriptor->eta()
-	<< ", Phi = "      << roiDescriptor->phi()
-	<< endreq;
-  }
+  ATH_MSG_DEBUG( "Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId()
+          << "; RoI ID = "   << roiDescriptor->roiId()
+          << ": Eta = "      << roiDescriptor->eta()
+          << ", Phi = "      << roiDescriptor->phi());
 
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
@@ -206,19 +200,15 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   
   // retrieve TrigEMCluster from the TE: must retrieve vector first
   std::vector< const xAOD::TrigEMCluster* > vectorOfClusters;  
-  stat = getFeatures( outputTE, vectorOfClusters );
+  HLT::ErrorCode stat = getFeatures( outputTE, vectorOfClusters );
 
   if ( stat != HLT::OK ) {
-    if ( msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Failed to get TrigEMClusters" << endreq;
- 
-    return HLT::OK;
+      ATH_MSG_WARNING("Failed to get TrigEMClusters");
+      return HLT::OK;
   }
 
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Found vector with " << vectorOfClusters.size() 
-	<< " TrigEMClusters" << endreq;
-  }
+  ATH_MSG_DEBUG("Found vector with " << vectorOfClusters.size() << " TrigEMClusters");
+	
   
   // should be only 1 cluster, normally!
   if (vectorOfClusters.size() != 1) {

@@ -68,6 +68,9 @@ TrigL2ElectronFex::TrigL2ElectronFex(const std::string & name, ISvcLocator* pSvc
   declareMonitoredCollection("CaloTrackdEta",*dvec_cast(&m_trigElecColl),&xAOD::TrigElectron::trkClusDeta);
   declareMonitoredCollection("CaloTrackdPhi",*dvec_cast(&m_trigElecColl),&xAOD::TrigElectron::trkClusDphi);
   declareMonitoredCollection("CaloTrackEoverP",*dvec_cast(&m_trigElecColl),&xAOD::TrigElectron::etOverPt);
+
+  // initialize error counter
+  m_extrapolator_failed = 0;
 }
 
 
@@ -169,9 +172,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   if (getFeature(inputTE, roiDescriptor) != HLT::OK) roiDescriptor = 0;
 
   if ( !roiDescriptor ) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
-    }
+    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
     return HLT::NAV_ERROR;
   }
   
@@ -179,22 +180,15 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   const TrigRoiDescriptor* initialRoI = 0;
   if (getFeature(inputTE,  initialRoI, "initialRoI") != HLT::OK) {
     initialRoI = roiDescriptor;
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "Initial RoI was not found for this Trigger Element! " << endreq;
-    }
+    ATH_MSG_WARNING("Initial RoI was not found for this Trigger Element! ");
   }
-  
-  
-  if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG
-	  << "Using inputTE("<< inputTE <<")->getId(): " << inputTE->getId()
-	  << "; RoI ID = "   << roiDescriptor->roiId()
-      //	  << "; RoI word="   << roiDescriptor->roiWord()
-	  << "; RoI word="   << initialRoI->roiWord()
-	  << ": Eta = "      << roiDescriptor->eta()
-	  << ", Phi = "      << roiDescriptor->phi()
-	  << endreq;
-  }
+
+
+  ATH_MSG_DEBUG("Using inputTE("<< inputTE <<")->getId(): " << inputTE->getId()
+          << "; RoI ID = "   << roiDescriptor->roiId()
+          << "; RoI word="   << initialRoI->roiWord()
+          << ": Eta = "      << roiDescriptor->eta()
+          << ", Phi = "      << roiDescriptor->phi());
   
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();

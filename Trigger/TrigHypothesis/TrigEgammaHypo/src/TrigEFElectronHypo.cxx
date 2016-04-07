@@ -170,7 +170,9 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   prepareMonitoringVars();
   //Initialize pointers 
   m_totalTimer = nullptr;
-  m_timerPIDTool = nullptr; 
+  m_timerPIDTool = nullptr;
+  m_EgammaContainer = nullptr;
+
 
 }
 
@@ -367,6 +369,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   m_EgammaContainer = 0;
   m_NofPassedCuts=-1;
+  m_NofPassedCutsIsEM=-1;
+  m_NofPassedCutsIsEMTrig=-1;
   m_a0.clear();
   m_lhval.clear();
   m_avgmu.clear();
@@ -431,13 +435,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
   TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
-  
-   // adding TrigPassFlags for isEM bits - JTC Oct 2011
-  const unsigned int flagSize = 32;
-  //std::cout << "TPF " << name() << " (in ::hltExecute()): size of m_EgammaContainer" << m_EgammaContainer->size() << std::endl;
-
-  // temporarily disable the TrigPassFlags until xAOD format is sorted out
-  TrigPassFlags* isEMFlags = 0; // HLT::makeTrigPassFlags(m_EgammaContainer, flagSize);
 
   //counters for each cut
   int Ncand[10];
@@ -552,9 +549,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
             m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
         }
-
-        if(isEMFlags)
-           HLT::setFlag(isEMFlags, egIt, m_EgammaContainer, HLT::AsFlag(isEMTrig, flagSize) ); 
 
         //Apply cut from LH selector 
         if(m_useAthElectronLHIDSelector){
@@ -718,14 +712,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 	float trkIso_ele_pt=-9999.;
 	float ele_clus_pt=-9999.;
 	float ele_trk_pt=-9999.;
-	if(!clus) {
-	  
-	  if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "CaloCluster dees NOT Exist, do NOT use Electron ET as Denominator in Relative Isolation"  << endreq;	
-	} else{
-	  
-	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "CaloCluster Exists, may use cluster ET as denominator in relative Isolation varariables"  << endreq;
-	  ele_clus_pt=clus->et();
-	}
+        
+        // Cluster must exist set the et from cluster
+        ele_clus_pt=clus->et();
 
 	//--Check that TrackParticle exists, if so use track ET as Denonimator in Relative Isolation
 	if(!(egIt->trackParticle())) {
@@ -848,13 +837,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   if ( attachBits(outputTE, passBits) != HLT::OK ) {
     msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
   }
-   // store TrigPassFlags result
-  if(isEMFlags) {
-     if ( attachFlags(outputTE, isEMFlags, "isEM") != HLT::OK ) {
-        msg() << MSG::ERROR << "Could not store isEM flags! " << endreq;
-     }
-  }
-
 
   // Time total TrigEFElectronHypo execution time.
   // -------------------------------------
