@@ -17,13 +17,9 @@ PURPOSE:  temporary class to store the trigger decision
 // INCLUDE HEADER FILES:
 
 #include "TrigSteeringEvent/TriggerDecision.h"
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
+#include <string>
 
 //  END OF HEADER FILES INCLUDE
 

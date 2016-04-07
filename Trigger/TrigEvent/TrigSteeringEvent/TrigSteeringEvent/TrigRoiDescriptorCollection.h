@@ -3,12 +3,16 @@
 */
 
 #pragma once
-#ifndef XAOD_ANALYSIS
+//#ifndef XAOD_ANALYSIS
 // #ifndef TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
-// #define TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
+#define TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+// #include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
+// #include "SGTools/BaseInfo.h"
+
+#include "xAODCore/CLASS_DEF.h"
+#include "xAODCore/BaseInfo.h"
 
 #ifndef TRIGSTEERINGEVENT_TRIGROIDESCRIPTOR_H
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -28,4 +32,4 @@ SG_BASE(TrigRoiDescriptorCollection, DataVector<TrigRoiDescriptor>);
 
 // #endif /// #ifndef TRIGSTEERINGEVENT_TRIGROIDESCRIPTORCOLLECTION_H
 
-#endif //XAOD_ANALYSIS
+//#endif //XAOD_ANALYSIS
