@@ -94,10 +94,12 @@ namespace InDet
     std::string m_SQLiteTag;              //!< tag name for the ConditionsDB
     std::string m_outputAlignFile;        //!< filename for the textfile with final alignment constants
     std::string m_outIBLDistFile;         //!< filename for the textfile with final IBLDist params 
+    std::string m_outGlobalFolderFile;    //!< filename for the textfile with final GlobalFolder constants
     bool        m_writeTextFile;          //!< flag whether to write out the final constants into text file
     bool        m_writeOldConstants;      //!< flag whether to write out the initial constants into text file
     std::string m_oldIBLDistFile;         //!< filename for the textfile with initial IBLDist params           
     std::string m_oldAlignFile;           //!< filename for the textfile with initial alignment constants
+    std::string m_oldGlobalFolderFile;    //!< filename for the textfile with initial GlobalFolder constants
     bool        m_updateConstants;        //!< flag whether to update the constants
 
     ToolHandle<IInDetAlignDBTool>        m_IDAlignDBTool;
