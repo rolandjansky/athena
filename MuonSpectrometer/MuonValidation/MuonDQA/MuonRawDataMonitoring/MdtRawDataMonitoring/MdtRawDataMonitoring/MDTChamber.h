@@ -27,17 +27,12 @@ class MDTChamber {
   TH1F_LW* mdttdccut_ML2;
   TH1F_LW* mdtadc_onSegm_ML1;
   TH1F_LW* mdtadc_onSegm_ML2;
-  TH1F_LW* mdttdccut_RPCtrig_ML1;
-  TH1F_LW* mdttdccut_TGCtrig_ML1;
-  TH1F_LW* mdttdccut_RPCtrig_ML2;
-  TH1F_LW* mdttdccut_TGCtrig_ML2;
+
   TH1F_LW* mdtadc;
   TH2F_LW* mdttdcadc;
-  TH1F_LW* mdtmultil;
   TH1F_LW* mdtlayer;
   TH1F_LW* mdttube;
-  TH1F_LW* mdttube_bkgrd;
-  TH1F_LW* mdttube_fornoise;
+
   TH1F_LW* mdttube_masked;
   TH1F_LW* mdtmezz;
 
@@ -49,6 +44,17 @@ class MDTChamber {
   TH2F_LW* mdt_DRvsDRerr;
   TH2F_LW* mdt_DRvsSegD;
 
+  //remove unused plots to reduce memory consumption
+/*  
+  TH1F_LW* mdttdccut_RPCtrig_ML1;
+  TH1F_LW* mdttdccut_TGCtrig_ML1;
+  TH1F_LW* mdttdccut_RPCtrig_ML2;
+  TH1F_LW* mdttdccut_TGCtrig_ML2;
+  TH1F_LW* mdttube_bkgrd;
+  TH1F_LW* mdttube_fornoise;
+  TH1F_LW* mdtmultil;
+*/
+  
   //  MonGroup * mdtprd_expert; 
 
   // TH2F* mdthitspermultilayer[3][3];
