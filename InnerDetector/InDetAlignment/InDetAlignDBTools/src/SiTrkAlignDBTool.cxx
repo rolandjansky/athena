@@ -42,10 +42,12 @@ SiTrkAlignDBTool::SiTrkAlignDBTool(const std::string & type, const std::string &
    , m_SQLiteTag("test_tag")
    , m_outputAlignFile("OutputSiAlignment.txt")
    , m_outIBLDistFile("OutputIBLDist.txt")
+   , m_outGlobalFolderFile("OutputSiGlobalFolder.txt")
    , m_writeTextFile(true)
    , m_writeOldConstants(false)
    , m_oldAlignFile("OldSiAlignment.txt")
    , m_oldIBLDistFile("OldIBLDist.txt")
+   , m_oldGlobalFolderFile("OldSiGlobalFolder.txt")
    , m_updateConstants(true)
    , m_IDAlignDBTool("InDetAlignDBTool")
    , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
@@ -69,10 +71,12 @@ SiTrkAlignDBTool::SiTrkAlignDBTool(const std::string & type, const std::string &
   declareProperty("SQLiteTag",         m_SQLiteTag);
   declareProperty("OutputTextFile",    m_outputAlignFile);
   declareProperty("OutputIBLDistFile", m_outIBLDistFile);
+  declareProperty("OutputGlobalFolderFile",m_outGlobalFolderFile);
   declareProperty("WriteTextFile",     m_writeTextFile);
   declareProperty("WriteOldConstants", m_writeOldConstants);
   declareProperty("OldAlignFile",      m_oldAlignFile);
   declareProperty("OldIBLDistFile",    m_oldIBLDistFile);
+  declareProperty("OldGlobalFolderFile",m_oldGlobalFolderFile);
   declareProperty("UpdateConstants",   m_updateConstants);
   declareProperty("WriteAsL3",         m_writeAsL3);
 
@@ -388,6 +392,7 @@ void SiTrkAlignDBTool::writeAlignPar()
     ATH_MSG_INFO("Writing old Silicon alignment constants to file "<<m_oldAlignFile);
     m_IDAlignDBTool->writeFile(false, m_oldAlignFile);
     m_IDAlignDBTool->writeIBLDistFile(m_oldIBLDistFile);
+    m_IDAlignDBTool->writeGlobalFolderFile(m_oldGlobalFolderFile);
   }
 
   // now update the DB
@@ -398,6 +403,7 @@ void SiTrkAlignDBTool::writeAlignPar()
     ATH_MSG_INFO("Writing Silicon alignment constants to file "<<m_outputAlignFile);
     m_IDAlignDBTool->writeFile(false, m_outputAlignFile);
     m_IDAlignDBTool->writeIBLDistFile(m_outIBLDistFile);
+    m_IDAlignDBTool->writeGlobalFolderFile(m_outGlobalFolderFile);
   }
 
   return;
