@@ -128,17 +128,17 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putLine(h,15,80,15,106);
 
     //Draw TickMarks
-    for(int i = 0; i != 118; i +=2){
+    for(int i = 0; i < 59; i +=1){
       TLine* l = new TLine(0,i,0.55,i);
       //      l->SetLineColor(kRed);
       h->GetListOfFunctions()->Add(l);
     }
     for(int i = 0; i != 18; ++i){
-      TLine* l = new TLine(i,0,i,0.55/17*112);
+      TLine* l = new TLine(i,0,i,0.55/17*58);
       //      l->SetLineColor(kRed);
       h->GetListOfFunctions()->Add(l);
     }
-    TLine* lx = new TLine(0,0,0,116);
+    TLine* lx = new TLine(0,0,0,58);
     TLine* ly = new TLine(0,0,17,0);
     lx->SetLineColor(kBlack);
     ly->SetLineColor(kBlack);
@@ -212,18 +212,18 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
     putBox(h, 11, 64, 12, 96); putLine(h, 11, 64, 11, 96); putLine(h, 12, 96, 11, 96);				       
 
     //Draw TickMarks
-    for(int i = 0; i != 130; i +=2){
+    for(int i = 0; i < 65; i ++){
       TLine* l = new TLine(0,i,0.55*12/17,i);
       //      l->SetLineColor(kRed);
       h->GetListOfFunctions()->Add(l);
     }
     for(int i = 0; i != 13; ++i){
-      TLine* l = new TLine(i,0,i,0.55/17*128);
+      TLine* l = new TLine(i,0,i,0.55/17*64);
       //      l->SetLineColor(kRed);
       h->GetListOfFunctions()->Add(l);
     }
 
-    putLine(h, 0, 0, 0, 112);
+    putLine(h, 0, 0, 0, 64);
     putLine(h, 0, 0, 12, 0);
 
   }
@@ -288,6 +288,10 @@ StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* &h, string &xAxis){
     else if(iphi%2==0) h->Fill(eta_s,phi_s+",1",0);
   }
 
+  if(xAxis == "BEA" || xAxis == "BEC" || xAxis == "EMA" || xAxis == "EMC" || xAxis == "EOA" || xAxis == "EOC" ){
+	  h->GetXaxis()->FindBin(".");
+  }
+  
   h->LabelsDeflate("X");
   h->LabelsDeflate("Y");
   h->Reset();
@@ -424,19 +428,34 @@ StatusCode  MdtRawDataValAlg::binMdtRegional( TH2* &h, string &xAxis){
     putLine(h, 0, 20, 1, 20);
   }
 
+  if(xAxis=="BEA" || xAxis == "BEC"){
+	putBox(h, 2, 0, 3, 16);
+	putLine(h, 2, 0, 2, 16);
+  }
+
+  if(xAxis == "EMA" || xAxis == "EMC"){
+		putBox(h, 5, 0, 6, 64);
+		putLine(h, 5, 0, 5, 64);
+  }
+  
+  if( xAxis == "EOA" || xAxis == "EOC"){
+		putBox(h, 6, 0, 7, 64);
+		putLine(h, 6, 0, 6, 64);
+  }
+  
   if(xAxis.substr(0,2) == "EE" || xAxis.substr(0,2) == "BI" || xAxis.substr(0,2) == "EI" || xAxis.substr(0,2) == "BM" || xAxis.substr(0,2) == "BO"){
     //Draw TickMarks
-    for(int i = 0; i != h->GetNbinsY()*2+2; i +=2){
+    for(int i = 0; i != h->GetNbinsY()+1; i++){
       TLine* l = new TLine(0,i,0.55*h->GetNbinsX()/17,i);
       h->GetListOfFunctions()->Add(l);
     }
     for(int i = 0; i != h->GetNbinsX()+1; ++i){
-      TLine* l = new TLine(i,0,i,0.55/17*h->GetNbinsY()*2);
+      TLine* l = new TLine(i,0,i,0.55/17*h->GetNbinsY());
       h->GetListOfFunctions()->Add(l);
     }
     
     TLine* lx = new TLine(0,0,h->GetNbinsX(),0);
-    TLine* ly = new TLine(0,0,0,h->GetNbinsY()*2);
+    TLine* ly = new TLine(0,0,0,h->GetNbinsY());
     lx->SetLineColor(kBlack);
     ly->SetLineColor(kBlack);
     h->GetListOfFunctions()->Add(lx);
@@ -1030,7 +1049,7 @@ StatusCode MdtRawDataValAlg::GetEventNum(){
 }
 
 void MdtRawDataValAlg::putBox(TH2* h, float x1, float y1, float x2, float y2){
-    TBox* box = new TBox(x1, y1, x2, y2);
+    TBox* box = new TBox(x1, y1*0.5, x2, y2*0.5);
 //     box->SetFillColor(kGray+1);
 //     box->SetLineColor(kGray+1);
 //     box->SetFillStyle(3013);
@@ -1046,7 +1065,7 @@ void MdtRawDataValAlg::putBox(TH2* h, float x1, float y1, float x2, float y2){
 }
 
 void MdtRawDataValAlg::putLine(TH2* h, float x1, float y1, float x2, float y2, Color_t c){
-    TLine* line = new TLine(x1, y1, x2, y2);
+    TLine* line = new TLine(x1, y1*0.5, x2, y2*0.5);
     line->SetLineColor(c);
 
     (h->GetListOfFunctions())->Add(line);    
@@ -1253,7 +1272,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB(TH2* &h, int region, int layer){
       h->GetYaxis()->SetBinLabel(67,"BO5");
       h->GetYaxis()->SetBinLabel(83,"BO6");
       h->GetYaxis()->SetBinLabel(99,"BO7,8");
-      //      h->GetYaxis()->SetBinLabel(101,"BO8");
+      // h->GetYaxis()->SetBinLabel(101,"BO8");
       h->GetYaxis()->SetBinLabel(103,"BE1");
       h->GetYaxis()->SetBinLabel(111,"BE2");
       //Add lines
