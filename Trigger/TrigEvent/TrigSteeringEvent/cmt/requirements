@@ -25,7 +25,9 @@ macro_append  TrigSteeringEvent_linkopts " $(asNeeded_linkopt)"
 use AthenaKernel        AthenaKernel-*           Control
 
 private
-use xAODTrigger         xAODTrigger-*            Event/xAOD 
+#use xAODTrigger         xAODTrigger-*            Event/xAOD 
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Event/xAOD/xAODTrigger"
+
 use AtlasReflex         AtlasReflex-*            External -no_auto_import
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigDataAccess/TrigSerializeUtils"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigT1/TrigT1Interfaces"
@@ -58,7 +60,7 @@ apply_pattern $(sercnvpatternname) typesWithNamespace="LVL1::RecJetRoI LVL1::Rec
                                          RecEnergyRoI.h RecJetEtRoI.h RecMuonRoI.h \
 					 -s=${xAODTrigger_root}/xAODTrigger TrigCompositeContainer.h TrigCompositeAuxContainer.h"
 
-apply_pattern sercnv \
+apply_pattern $(sercnvpatternname) \
 libtag="xAOD" \
 typesWithNamespace="xAOD::TrigPassBits xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer" \
 files="-s=${xAODTrigger_root}/xAODTrigger TrigPassBitsContainer.h TrigPassBitsAuxContainer.h"
