@@ -2,12 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 // Interface class of TauTriggerEmulationTool
 
 // author Quentin Buat <quentin.buat@no.spam.cern.ch>
 #ifndef LEVEL1EMULATIONTOOL_ILEVEL1EMULATIONTOOL_H
 #define LEVEL1EMULATIONTOOL_ILEVEL1EMULATIONTOOL_H
 
+#include <set>
 
 #include "PATInterfaces/CorrectionCode.h"
 #include "AsgTools/IAsgTool.h"
@@ -39,10 +41,18 @@ namespace TrigTauEmul {
 				   const xAOD::EnergySumRoI* l1xe) = 0;
       
       virtual bool decision(const std::string & chain_name) = 0;
-      
+
+      virtual void GetChains() = 0;
+      virtual StatusCode removeUnusedTools(const std::set<std::string>& usedTools) = 0;
+
       virtual std::vector<std::string> GetL1Chains() = 0;
 
-      virtual void PrintCounters() = 0;
+      virtual StatusCode PrintReport(const xAOD::EmTauRoIContainer* l1taus, 
+				     const xAOD::JetRoIContainer* l1jets,
+				     const xAOD::MuonRoIContainer* l1muons,
+				     const xAOD::EnergySumRoI* l1xe) = 0;
+
+      virtual StatusCode PrintCounters() = 0;
       
     };
 }

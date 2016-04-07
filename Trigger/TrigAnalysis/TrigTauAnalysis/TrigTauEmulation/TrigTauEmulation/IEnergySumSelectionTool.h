@@ -8,10 +8,12 @@
 #include "AsgTools/IAsgTool.h"
 #include "PATCore/TAccept.h"
 
+#include "TrigTauEmulation/ILevel1SelectionTool.h"
+
 //EDM include
 #include "xAODTrigger/EnergySumRoI.h"
 
-class IEnergySumSelectionTool : public virtual asg::IAsgTool
+class IEnergySumSelectionTool : public virtual ILevel1SelectionTool
 {
 
    ASG_TOOL_INTERFACE(IEnergySumSelectionTool)

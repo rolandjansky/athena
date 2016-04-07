@@ -16,9 +16,9 @@ use TrigDecisionTool    TrigDecisionTool-*      Trigger/TrigAnalysis
 use xAODTau             xAODTau-*               Event/xAOD
 use xAODTrigger         xAODTrigger-*           Event/xAOD  
 use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 
 private
-use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 end_private
 
@@ -26,7 +26,6 @@ private
 use GaudiInterface      GaudiInterface-*        External       
 use AthenaBaseComps     AthenaBaseComps-*       Control
 use AthContainers       AthContainers-*         Control
-use TrigConfxAOD        TrigConfxAOD-*          Trigger/TrigConfiguration
 end_private
 
 

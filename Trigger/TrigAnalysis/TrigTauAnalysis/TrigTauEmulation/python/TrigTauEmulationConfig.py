@@ -122,11 +122,11 @@ from TrigTauEmulation.TrigTauEmulationConf import TrigTauEmul__Level1EmulationTo
 def get_level1_emulator(name, l1_chains):
     emulator = TrigTauEmul__Level1EmulationTool(
         name=name,
-        l1_chains=l1_chains,
-        EmTauTools=EmTauTools,
-        JetTools=JetTools,
-        XeTools=XeTools,
-        MuonTools=MuonTools)
+        l1_chains=l1_chains)
+        #EmTauTools=EmTauTools,
+        #JetTools=JetTools,
+        #XeTools=XeTools,
+        #MuonTools=MuonTools
     return emulator
 
 

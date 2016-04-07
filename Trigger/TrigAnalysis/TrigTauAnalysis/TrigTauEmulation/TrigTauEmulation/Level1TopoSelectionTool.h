@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #ifndef LEVEL1TOPOSELECTIONTOOL_H
 #define LEVEL1TOPOSELECTIONTOOL_H
 
@@ -10,9 +11,9 @@
 
 // Local includes
 #include "TrigTauEmulation/ILevel1TopoSelectionTool.h"
+#include "TrigTauEmulation/Level1SelectionTool.h"
 
-class Level1TopoSelectionTool : public virtual ILevel1TopoSelectionTool, public asg::AsgTool
-
+class Level1TopoSelectionTool : public virtual ILevel1TopoSelectionTool, public Level1SelectionTool
 {
 
   ASG_TOOL_CLASS(Level1TopoSelectionTool, ILevel1TopoSelectionTool)
