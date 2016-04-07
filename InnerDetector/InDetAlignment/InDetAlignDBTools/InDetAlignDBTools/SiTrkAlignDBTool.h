@@ -76,11 +76,13 @@ namespace InDet
     
     void updateSiL0asL1(Identifier idL0, const Amg::Transform3D & transform);
     
-    void updateAsL3(const Trk::AlignModule * module, const Amg::Transform3D & transform);
+    void updateAsL3(const Trk::AlignModule * module, const Amg::Transform3D & transform, double);
     
     void printTransform(const Amg::Transform3D & tr) const;
     
     void updateAsL2(const Trk::AlignModule * module, const Amg::Transform3D & transform, const int);
+
+    void updateAsL16(const Trk::AlignModule * module, double);
     
     virtual Identifier GetL1L2fromL3Identifier( const Identifier& ident , const int& level) const ;
 
@@ -91,9 +93,13 @@ namespace InDet
     bool        m_writeSQLFile;           //!< flag wether to write out .db file or not (file is not needed in parallel jobs)
     std::string m_SQLiteTag;              //!< tag name for the ConditionsDB
     std::string m_outputAlignFile;        //!< filename for the textfile with final alignment constants
+    std::string m_outIBLDistFile;         //!< filename for the textfile with final IBLDist params 
+    std::string m_outGlobalFolderFile;    //!< filename for the textfile with final GlobalFolder constants
     bool        m_writeTextFile;          //!< flag whether to write out the final constants into text file
     bool        m_writeOldConstants;      //!< flag whether to write out the initial constants into text file
+    std::string m_oldIBLDistFile;         //!< filename for the textfile with initial IBLDist params           
     std::string m_oldAlignFile;           //!< filename for the textfile with initial alignment constants
+    std::string m_oldGlobalFolderFile;    //!< filename for the textfile with initial GlobalFolder constants
     bool        m_updateConstants;        //!< flag whether to update the constants
 
     ToolHandle<IInDetAlignDBTool>        m_IDAlignDBTool;
@@ -122,6 +128,7 @@ namespace InDet
 
     bool m_writeAsL3;
     bool m_writeAsL2;
+    bool m_writeAsL16;
 
   }; // end class
 
