@@ -38,6 +38,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h" // 15/06/2015 T.Saito
 
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
@@ -139,6 +140,8 @@ private:
 
   ServiceHandle<StoreGateSvc> m_sgSvc;
   ActiveStoreSvc*             m_activeStore;
+
+  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; // 27/05/2015 T.Saito
   
   /** Record MmDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
@@ -204,6 +207,7 @@ private:
   StripsResponse *m_StripsResponse;
   float m_qThreshold, m_diffusSigma, m_LogitundinalDiffusSigma, m_driftGap, m_driftVelocity, m_crossTalk1, m_crossTalk2;
   float m_qThresholdForTrigger;
+  std::string m_gasFileName; // 27/05/2015 T.Saito
 
   // ElectronicsResponse stuff...
   ElectronicsResponse *m_ElectronicsResponse;

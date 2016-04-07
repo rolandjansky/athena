@@ -24,9 +24,6 @@
 #include "MM_Digitization/MmDigitToolInput.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
-#include "MuonReadoutGeometry/NSWenumeration.h"
-#include "MuonReadoutGeometry/NSWgeometry.h"
- 
 //Gaudi - Core
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
@@ -63,6 +60,9 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExponential.h"
 
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "MuonAGDDDescription/MMDetectorHelper.h"
+
 //ROOT
 #include "TH1.h"
 #include "TTree.h"
@@ -79,6 +79,7 @@ using namespace MuonGM;
 MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent)
   : PileUpToolBase(type, name, parent)
   , m_sgSvc("StoreGateSvc", name)
+  , m_magFieldSvc("AtlasFieldSvc",name) // 28/05/2015 T.Saito
   , m_digitContainer(NULL)
   , m_sdoContainer(NULL)
   , m_digitTool("MM_Response_DigitTool", this)
@@ -120,6 +121,8 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   declareProperty("DigitizationTool",    m_digitTool,          "Tool which handle the digitization process");
   declareProperty("MCStore",             m_sgSvc,              "help");
 
+  declareProperty("MagFieldSvc",         m_magFieldSvc,        "Magnetic Field Service"); // 28/05/2015 T.Saito
+
   //Object names                         
   declareProperty("InputObjectName",     m_inputObjectName     =  "MicromegasSensitiveDetector");
   declareProperty("OutputObjectName",    m_outputObjectName    =  "MM_DIGITS");
@@ -152,7 +155,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   // crosstalk of neighbor strips, it's 6%
   declareProperty("crossTalk2",		     m_crossTalk2 = 0.0); 
   declareProperty("qThresholdForTrigger",    m_qThresholdForTrigger = 1.0); 
-  
+  declareProperty("GasFileName",             m_gasFileName = "ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
   // Constants vars for the ElectronicsResponse
   declareProperty("alpha",                   m_alpha = 2.5);
   declareProperty("RC",                      m_RC = 20.);
@@ -174,6 +177,7 @@ StatusCode MmDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
   ATH_MSG_DEBUG ( "MCStore                " << m_sgSvc               );
+  ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         ); // 28/05/2015 T.Saito
   ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
   ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
   ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputObjectName    );
@@ -188,6 +192,7 @@ StatusCode MmDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "DriftVelocity          " << m_driftVelocity       );  
   ATH_MSG_DEBUG ( "crossTalk1             " << m_crossTalk1 	     );        
   ATH_MSG_DEBUG ( "crossTalk2             " << m_crossTalk2 	     ); 
+  ATH_MSG_DEBUG ( "GasFileName            " << m_gasFileName 	     ); // 28/05/2015 T.Saito
   ATH_MSG_INFO ( "ValidationSetup         " << m_validationSetup     );
   ATH_MSG_INFO ( "EnergyThreshold         " << m_energyThreshold     );
   
@@ -244,6 +249,14 @@ StatusCode MmDigitizationTool::initialize() {
     return status;
   }
    
+  //--- magnetic field service  28/05/2015 T.Saito
+  if (m_magFieldSvc.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG ( "Retrieved MagFieldSvc." );
+  //---
+
   // check the input object name
   if (m_inputObjectName=="") {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
@@ -319,6 +332,7 @@ StatusCode MmDigitizationTool::initialize() {
   m_StripsResponse->set_driftVelocity(m_driftVelocity); 
   m_StripsResponse->set_crossTalk1(m_crossTalk1);
   m_StripsResponse->set_crossTalk2(m_crossTalk2);
+  m_StripsResponse->loadGasFile(m_gasFileName); // 27/05/2015 T.Saito
  
   m_ElectronicsResponse = new ElectronicsResponse(); 
   m_ElectronicsResponse->set_alpha(m_alpha);
@@ -582,6 +596,8 @@ StatusCode MmDigitizationTool::finalize() {
   m_digitContainer->release();
   
   if (m_saveInternalHistos) {
+    TDirectory*backup=gDirectory; // 15/06/2015 T.Saito
+    m_file->cd(); // 15/06/2015 T.Saito
     m_ntuple->Write();
     m_AngleDistr->Write();
     m_AbsAngleDistr->Write();
@@ -589,6 +605,7 @@ StatusCode MmDigitizationTool::finalize() {
     m_ClusterLength->Write();
     m_gasGap->Write();
     m_gasGapDir->Write();
+    gDirectory=backup; // 15/06/2015 T.Saito
     m_file->Close();
   }
   return StatusCode::SUCCESS;
@@ -760,6 +777,19 @@ StatusCode MmDigitizationTool::doDigitization() {
 	continue;
       }
  
+      m_n_Station_side = muonHelper->GetSide(simId);
+      m_n_Station_eta = muonHelper->GetZSector(simId);
+      m_n_Station_phi = muonHelper->GetPhiSector(simId);
+      m_n_Station_multilayer = muonHelper->GetMultiLayer(simId);
+      m_n_Station_layer = muonHelper->GetLayer(simId);
+
+      // Get MM_READOUT from MMDetectorDescription
+      char side = m_idHelper->stationEta(layid) < 0 ? 'C' : 'A';
+      MMDetectorHelper aHelper;
+      MMDetectorDescription* mm = aHelper.Get_MMDetector(stName[2], abs(m_idHelper->stationEta(layid)),
+                                                         m_idHelper->stationPhi(layid), m_idHelper->multilayer(layid), side);
+      MMReadoutParameters roParam = mm->GetReadoutParameters();
+
       // surface
       const Trk::PlaneSurface& surf = detEl->surface(layid);
 
@@ -768,9 +798,13 @@ StatusCode MmDigitizationTool::doDigitization() {
       const Amg::Vector3D GloDire(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
       Trk::LocalDirection locDire;
       surf.globalToLocalDirection(GloDire, locDire);
-      float inAngle_XZ = fabs( locDire.angleXZ() / CLHEP::degree);
+      //      float inAngle_XZ = fabs( locDire.angleXZ() / CLHEP::degree); // 19/08/2015 T.Saito
+      float inAngle_XZ =  locDire.angleXZ() / CLHEP::degree; // 19/08/2015 T.Saito
+      if(inAngle_XZ < 0.0) inAngle_XZ += 180;// 19/08/2015 T.Saito
       inAngle_XZ = 90. - inAngle_XZ ;
-      //      inAngle_XZ = MM_READOUT [muonHelper->GetLayer(simId)-1]*inAngle_XZ ;
+      //---------- ! This had been commented out.      
+      inAngle_XZ = (roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)*inAngle_XZ ;// 20150604 T.Saito
+      //---------- 1
       ATH_MSG_DEBUG(" At eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) <<  "\n IncomingAngle: " <<  locDire.angleXZ() / CLHEP::degree << "\n inAngle_XZ, " << inAngle_XZ << " , " << inAngle_XZ * CLHEP::degree << "   ..   "  << CLHEP::degree );
  
       // compute hit position within the detector element/surfaces
@@ -784,7 +818,7 @@ StatusCode MmDigitizationTool::doDigitization() {
       // double gasGapThickness = detEl->getDesign(layid)->gasGapThickness();
       
       Amg::Vector3D locdir(0., 0., 0.);
-      if (MM_READOUT[m_idHelper->gasGap(layid)-1]==1) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
+      if ((roParam.stereoAngel).at(m_idHelper->gasGap(layid)-1)==1) locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
       else locdir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
 	
       double scale, scaletop;
@@ -809,12 +843,6 @@ StatusCode MmDigitizationTool::doDigitization() {
       if( fabs(hitOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface " << hitOnSurface );
       if( fabs(hitAfterTimeShiftOnSurface.z()) > 0.1 ) ATH_MSG_WARNING("bad propagation to surface after time shift " << hitAfterTimeShiftOnSurface );
       
-      m_n_Station_side = muonHelper->GetSide(simId);
-      m_n_Station_eta = muonHelper->GetZSector(simId); 
-      m_n_Station_phi = muonHelper->GetPhiSector(simId);
-      m_n_Station_multilayer = muonHelper->GetMultiLayer(simId);
-      m_n_Station_layer = muonHelper->GetLayer(simId); 
- 
       if(hit.kineticEnergy()<m_energyThreshold && abs(hit.particleEncoding())==11) {
       	exitcode = 5;
       	m_ntuple->Fill();
@@ -829,7 +857,7 @@ StatusCode MmDigitizationTool::doDigitization() {
       }
   		
       m_gasGap->Fill(m_n_Station_layer);
-      m_gasGapDir->Fill(MM_READOUT [m_n_Station_layer-1]);
+      m_gasGapDir->Fill((roParam.stereoAngel).at(m_n_Station_layer-1));
       
       int stripNumber = detEl->stripNumber(posOnSurf,layid);
       int LastStripNumber = detEl->stripNumber(posOnTopSurf, layid);
@@ -875,9 +903,19 @@ StatusCode MmDigitizationTool::doDigitization() {
       const Identifier elemId = m_idHelper -> elementID(DigitId); //
       // ATH_MSG_DEBUG( "executeDigi() - element identifier is: " << m_idHelper->show_to_string(elemId) ); 
 
+      //--------------- 27/05/2015 T.Saito
+      Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
+      Amg::Vector3D bxyz;
+      m_magFieldSvc->getField(&hitOnSurfaceGlobal, &bxyz);
+      // B-field in local cordinate, X ~ #strip, increasing to outer R, Z ~ global Z but positive to IP
+      Amg::Vector3D bxyzLocal = surf.transform().inverse()*bxyz-surf.transform().inverse()*Amg::Vector3D(0,0,0);
+      if((roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)) bxyzLocal = Amg::Vector3D(bxyzLocal.x(), -bxyzLocal.y(), -bxyzLocal.z() ); // 04062015 T.Saito
+      //--------------- 27/05/2015 T.Saito
+
       //store local hit position + sign
       // ATH_MSG_DEBUG( " MmDigitToolInput create... " );
-      const MmDigitToolInput StripdigitInput(stripNumber, distToChannel, inAngle_XZ, 0., detEl->numberOfStrips(layid)); 
+      const MmDigitToolInput StripdigitInput(stripNumber, distToChannel, inAngle_XZ, bxyzLocal, detEl->numberOfStrips(layid)); // 28/05/2015 T.Saito
+      //      const MmDigitToolInput StripdigitInput(stripNumber, distToChannel, inAngle_XZ, 0., detEl->numberOfStrips(layid)); 
       m_AngleDistr->Fill(inAngle_XZ);
       m_AbsAngleDistr->Fill(fabs(inAngle_XZ));
   
@@ -907,9 +945,9 @@ StatusCode MmDigitizationTool::doDigitization() {
 	Amg::Vector2D tmpPos (posOnSurf.x()+ (StripsResponse_stripPos[i] - stripNumber )*0.425 , posOnSurf.y());
 	//ATH_MSG_DEBUG( " For: " << i<< " we have :" << StripsResponse_stripPos[i] << "   ?   "<< mmChannelDes->channelNumber(tmpPos) << " with charge: " << StripsResponse_stripCharge[i] << " time: " << StripsResponse_stripTime[i] << " timeForTrig: " << firstTimeFound);
       }
-      m_n_strip_multiplicity_2 = MM_READOUT [muonHelper->GetLayer(simId)-1]*StripsResponse_stripPos[StripsResponse_stripPos.size()-1] - (-MM_READOUT [muonHelper->GetLayer(simId)-1])*StripsResponse_stripPos[0];
+      m_n_strip_multiplicity_2 = (roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1)*StripsResponse_stripPos[StripsResponse_stripPos.size()-1] - (-(roParam.stereoAngel).at(muonHelper->GetLayer(simId)-1))*StripsResponse_stripPos[0];
 			
-      //ATH_MSG_DEBUG("Final: MM_READOUT ["<< m_n_Station_layer-1 <<"] "<< MM_READOUT [m_n_Station_layer-1] << "  ??  " << m_n_strip_multiplicity << " from " <<  stripNumber << " to " << LastStripNumber << " while: " << StripsResponse_stripPos[0] << " to " << StripsResponse_stripPos[StripsResponse_stripPos.size()-1]);
+      //ATH_MSG_DEBUG("Final: MM_READOUT ["<< m_n_Station_layer-1 <<"] "<<(roParam.stereoAngel).at(m_n_Station_layer-1) << "  ??  " << m_n_strip_multiplicity << " from " <<  stripNumber << " to " << LastStripNumber << " while: " << StripsResponse_stripPos[0] << " to " << StripsResponse_stripPos[StripsResponse_stripPos.size()-1]);
       
       StripdigitOutput.set_StripForTrigger(StripsResponse_stripPos[posForTrigger]);
       StripdigitOutput.set_StripTimeForTrigger(StripsResponse_stripTime[posForTrigger]);

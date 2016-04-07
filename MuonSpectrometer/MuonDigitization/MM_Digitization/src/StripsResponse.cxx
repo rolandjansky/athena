@@ -11,15 +11,21 @@
 /// PROJECTS
 #include "MM_Digitization/StripsResponse.h"
 #include "GaudiKernel/MsgStream.h"
+
+#include "MM_Digitization/GarfieldGas.h" // 27/05/2015 T.Saito
+#include "PathResolver/PathResolver.h"// 27/05/2015 T.Saito
 /*******************************************************************************/
 StripsResponse::StripsResponse():
   qThreshold(0.001), 
   diffusSigma(0.360/10.),
   LogitundinalDiffusSigma(0.190/10.),
-  pitch(0.500),
+  //  pitch(0.400), // 10/2/2015 T.Saito
+  //  pitch(0.500), // 20/08/2015
+  pitch(0.500), // 20/08/2015
   stripwidth(pitch - 0.0),
   polya(0),
   conv_gaus(0),
+  gas(0), // 28/05/2015 T.Saito
   driftGap(5.128),
   driftVelocity(0.047),
   nstrip(0),
@@ -42,6 +48,22 @@ StripsResponse::StripsResponse():
 {
   clearValues();
   initializationFrom();
+}
+/*******************************************************************************/
+// 28/05/2015 T.Saito
+void StripsResponse::loadGasFile(std::string fileName){
+  Athena::MsgStreamMember log("StripsResponse::loadGasFile"); 
+  std::string fileWithPath = PathResolver::find_file (fileName, "DATAPATH");
+  if (fileWithPath == "") {
+    log << MSG::FATAL << "StripResponse::loadGasFile(): Could not find file " << fileName << endreq;
+    exit(1);
+  }
+  bool ok = gas->LoadGasFile(fileWithPath);
+  if(!ok){
+    log << MSG::FATAL << "StripResponse::loadGasFile(): Could not load file " << fileName << endreq;
+    exit(1);
+  }
+  gas->PrintGas();
 }
 /*******************************************************************************/
 void StripsResponse::initHistos()
@@ -67,6 +89,13 @@ void StripsResponse::clearValues()
   if (conv_gaus !=0) delete conv_gaus;
   if (polya !=0) delete polya;
   if (gRandom_loc !=0) delete gRandom_loc;
+  //-- 28/05/2015 T.Saito
+  if (gas !=0) {
+    delete gas;
+    gas=0;
+  }
+  //--------------------
+
 }
 /*******************************************************************************/
 void StripsResponse::initializationFrom()
@@ -79,6 +108,8 @@ void StripsResponse::initializationFrom()
   initFunctions();
   randomNum = new TRandom3(1);
   randomNum->SetSeed(1);
+
+  gas = new GarfieldGas(); // 28/05/2015 T.Saito
 
   Athena::MsgStreamMember log("StripsResponse::initializationFrom");
   log << MSG::DEBUG << "StripsResponse::initializationFrom set values" << endreq;
@@ -119,8 +150,21 @@ MmDigitToolOutput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiI
   Athena::MsgStreamMember log("StripsResponse::GetResponceFrom"); 
   log << MSG::DEBUG << "\t \t StripsResponse::GetResponceFrom start " << endreq;
 
+  //-------------- 28/05/2015 T.Saito
+  Lorentz_Angle = 0.0;
+  Amg::Vector3D b = digiInput.magneticField()*1e+3;//kT->T
+  double ez=600.;//V/cm
+  double vx,vy,vz;//X:#strip(radius,increasing to outer) Z:z(positive to IP)
+  bool ok = gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz); 
+  if(!ok){
+    log << MSG::INFO << "StripsResponse::GetResponceFrom failed to get drift velocity" << endreq;
+  }
+  Lorentz_Angle = atan2(vx,-vz)*180./TMath::Pi();// positive to outer strips
+  //------------------------
+
   /// Reduce internal calls of functions
-  calculateResponceFrom(digiInput.positionWithinStrip() , digiInput.stripIDLocal() , digiInput.incomingAngle() , digiInput.stripMaxID() );
+  calculateResponceFrom(digiInput.positionWithinStrip() , digiInput.stripIDLocal() , digiInput.incomingAngle() , digiInput.stripMaxID()); // 3/2/2015 T.Saito
+  //  calculateResponceFrom(digiInput.positionWithinStrip() , digiInput.stripIDLocal() , digiInput.incomingAngle() , digiInput.stripMaxID() );
   
   log << MSG::DEBUG << "\t \t StripsResponse::GetResponceFrom MmDigitToolOutput create " << endreq;
   /// ToDo: include loop for calculating Trigger study vars
@@ -131,16 +175,17 @@ MmDigitToolOutput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiI
   return tmp;
 }
 /*******************************************************************************/
-void StripsResponse::calculateResponceFrom(const float & hitx, const int & stripID, const float & thetaD, const int & stripMaxID) /// <-------- stripID!!!
+void StripsResponse::calculateResponceFrom(const float & hitx, const int & stripID, const float & thetaD, const int & stripMaxID) /// <-------- stripID!!! // 3/2/2015 T.Saito
+//void StripsResponse::calculateResponceFrom(const float & hitx, const int & stripID, const float & thetaD, const int & stripMaxID) /// <-------- stripID!!!
 {
   Athena::MsgStreamMember log("StripsResponse::calculateResponceFrom"); 
   log << MSG::DEBUG << "\t \t StripsResponse::calculateResponceFrom start " << endreq;
   finalNumberofStrip.clear();
   finalqStrip.clear();
   finaltStrip.clear();
-  crossTalk1=0.0;
-  crossTalk2=0.0;
-  Lorentz_Angle = 0.0;
+  crossTalk1=0.0; 
+  crossTalk2=0.0; 
+  Lorentz_Angle = 0.0; 
   log << MSG::DEBUG << "\t \t StripsResponse::calculateResponceFrom call whichStrips " << endreq;
   whichStrips(hitx, stripID, thetaD, stripMaxID);
 }
@@ -149,6 +194,9 @@ void StripsResponse::calculateResponceFrom(const float & hitx, const int & strip
 // calculate the strips that got fired, charge and time. Assume any angle thetaD....
 //==================================================================================================
 void StripsResponse::whichStrips(const float & hitx, const int & stripID, const float & thetaD, const int & stripMaxID){
+
+
+  pitch = get_stripWidth(); // 20/08/2015
 
   dimClusters=7000; //dimClusters=total number of collisions
   MaxPrimaryIons = 300; 
