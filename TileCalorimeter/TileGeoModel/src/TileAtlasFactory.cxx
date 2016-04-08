@@ -1722,23 +1722,17 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
       if((EnvType == 4) || (EnvType == 5)){
 
-        bool Ifd4 = false, Ifc10 = false, Ifgap = false, Ifcrack = false;
-        int Id4 = false, Ic10 = false, Igap = false, Icrack = false;
+        int Id4 = ModType%100;
+        int Ic10 = (ModType/100)%100;
+        int Igap = (ModType/10000)%100;
+        int Icrack = (ModType/1000000)%100;
 
-        Id4 = int(fmod(ModType,10));
-        Ic10 = int(fmod(ModType/100,100));
-        Igap = int(fmod(ModType/10000,100));
-        Icrack = int(fmod(ModType/1000000,100));
+        bool Ifd4    = ( Id4 != 0);
+        bool Ifc10   = ( Ic10 != 0);
+        bool Ifgap   = ( Igap != 0);
+        bool Ifcrack = ( Icrack != 0);
 
-        Ifd4    |= ( Id4 != 0);
-        Ifc10   |= ( Ic10 != 0);
-        Ifgap   |= ( Igap != 0);
-        Ifcrack |= ( Icrack != 0);
-
-	
-	bool Ifspecialgirder = false;
-	if (Ifd4)
-	  Ifspecialgirder |= (Id4 == 7);
+	bool Ifspecialgirder = (Id4 == 7);
 
 	if(m_log->level()<=MSG::DEBUG)
 	  (*m_log) << MSG::DEBUG <<" ITC : EnvType "<<EnvType<<" Size = "<<dbManager->GetModTypeSize()

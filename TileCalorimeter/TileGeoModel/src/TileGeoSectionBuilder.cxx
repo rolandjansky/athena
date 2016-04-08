@@ -202,7 +202,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
   //---------------------Girder-----------------------------------------
  
-  int Id4 = int(fmod(m_dbManager->GetModType(),10));
+  int Id4 = m_dbManager->GetModType()%100;
   double thicknessGirderMother = 0.0;
   double specialModuleZShift = 0.0; 
 
