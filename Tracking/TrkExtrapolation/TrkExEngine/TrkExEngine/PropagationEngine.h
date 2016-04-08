@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 // Trk
 #include "TrkExInterfaces/IPropagationEngine.h"
-#include "TrkExEngine/ExtrapolationMacros.h"
+#include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExUtils/ExtrapolationCell.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParameters/TrackParameters.h"
@@ -56,7 +56,7 @@ namespace Trk {
                                           const Surface& sf,
                                           PropDirection dir=alongMomentum,
                                           BoundaryCheck bcheck = true,
-                                          bool returnCurvilinear = true) const;                                                                                         
+                                          bool returnCurvilinear = true) const;  
 
       /** resolve the boundary situation - for neutral particles */
       virtual ExtrapolationCode propagate(ExCellNeutral& enCell,

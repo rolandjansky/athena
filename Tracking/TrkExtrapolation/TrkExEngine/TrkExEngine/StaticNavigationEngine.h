@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 // Trk
 #include "TrkExInterfaces/INavigationEngine.h"
-#include "TrkExEngine/ExtrapolationMacros.h"
+#include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExUtils/ExtrapolationCell.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
@@ -88,7 +88,7 @@ namespace Trk {
 
 inline const Trk::TrackingGeometry& StaticNavigationEngine::trackingGeometry() const throw (GaudiException) {
     if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
-        ATH_MSG_ERROR("Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
+        EX_MSG_FATAL("", "updateGeo", "", "Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
         throw GaudiException("StaticNavigationEngine", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);
     }
     return (*m_trackingGeometry);

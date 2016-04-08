@@ -36,33 +36,32 @@ Trk::StaticEngine::~StaticEngine()
 // the interface method initialize
 StatusCode Trk::StaticEngine::initialize()
 {
-    EX_MSG_INFO( "init", "initialize()" );
-    
     if (m_propagationEngine.retrieve().isFailure()){
-        EX_MSG_FATAL( "init", "failed to retrieve propagation engine '"<< m_propagationEngine << "'. Aborting." );
+        EX_MSG_FATAL("", "initialize", "", "failed to retrieve propagation engine '"<< m_propagationEngine << "'. Aborting." );
         return StatusCode::FAILURE;
     } else 
-        EX_MSG_INFO( "init", "successfully  propagation engine '" << m_propagationEngine << "'." );
+        EX_MSG_DEBUG("", "initialize", "", "successfully  propagation engine '" << m_propagationEngine << "'." );
     
     if (m_navigationEngine.retrieve().isFailure()){
-        EX_MSG_FATAL( "init", "failed to retrieve navigation engine '"<< m_navigationEngine << "'. Aborting." );
+        EX_MSG_FATAL("", "initialize", "", "failed to retrieve navigation engine '"<< m_navigationEngine << "'. Aborting." );
         return StatusCode::FAILURE;
     } else 
-        EX_MSG_INFO( "init", "successfully retrieved '" << m_navigationEngine << "'." );
+        EX_MSG_DEBUG("", "initialize", "", "successfully retrieved '" << m_navigationEngine << "'." );
             
     if (m_materialEffectsEngine.retrieve().isFailure()){
-        EX_MSG_FATAL( "init", "failed to retrieve material effect engine '"<< m_materialEffectsEngine << "'. Aborting." );
+        EX_MSG_FATAL("", "initialize", "", "failed to retrieve material effect engine '"<< m_materialEffectsEngine << "'. Aborting." );
         return StatusCode::FAILURE;
     } else 
-        EX_MSG_INFO( "init", "successfully retrieved '" << m_materialEffectsEngine << "'." );
+        EX_MSG_DEBUG("", "initialize", "", "successfully retrieved '" << m_materialEffectsEngine << "'." );
     
+    EX_MSG_DEBUG("", "initialize", "", "successful." );
     return StatusCode::SUCCESS;
 }    
 
 // the interface method finalize
 StatusCode Trk::StaticEngine::finalize()
 {    
-    ATH_MSG_INFO( "finalize() successful" );    
+    EX_MSG_DEBUG("", "finalize", "", "successful." );
     return StatusCode::SUCCESS;
 }
 
@@ -70,15 +69,12 @@ StatusCode Trk::StaticEngine::finalize()
 /** charged extrapolation */
 Trk::ExtrapolationCode Trk::StaticEngine::extrapolate(ExCellCharged& ecCharged,
                                            const Surface* sf,
-                                           PropDirection dir,
                                            BoundaryCheck bcheck) const
-{ return extrapolateT<TrackParameters>(ecCharged,sf,dir,bcheck); }
+{ return extrapolateT<TrackParameters>(ecCharged,sf,ecCharged.propDirection,bcheck); }
 
 
 /** neutral extrapolation */
 Trk::ExtrapolationCode Trk::StaticEngine::extrapolate(ExCellNeutral& ecNeutral,
                                            const Surface* sf,
-                                           PropDirection dir,
                                            BoundaryCheck bcheck) const
-{ return extrapolateT<NeutralParameters>(ecNeutral,sf,dir,bcheck); }
-                                           
+{ return extrapolateT<NeutralParameters>(ecNeutral,sf,ecNeutral.propDirection,bcheck); }

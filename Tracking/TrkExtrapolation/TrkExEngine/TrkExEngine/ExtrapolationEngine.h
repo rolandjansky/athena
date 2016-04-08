@@ -16,7 +16,7 @@
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
-#include "TrkExEngine/ExtrapolationMacros.h"
+#include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExUtils/ExtrapolationCell.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
@@ -26,7 +26,8 @@
 namespace Trk {
   
   class TrackingGeometry;
-  
+  class IPropagationEngine;    
+
   /** @class ExtrapolationEngine 
       
       Master extrapolation engine for extrapolation through the TrackingGeometry,
@@ -62,13 +63,11 @@ namespace Trk {
         /** charged extrapolation - public interface */
         virtual ExtrapolationCode extrapolate(ExCellCharged& ecCharged,
                                               const Surface* sf = 0,
-                                              PropDirection dir=alongMomentum,
                                               BoundaryCheck bcheck = true) const;
 
         /** neutral extrapolation - public interface */
         virtual ExtrapolationCode extrapolate(ExCellNeutral& ecNeutral,
                                               const Surface* sf = 0,
-                                              PropDirection dir=alongMomentum,
                                               BoundaryCheck bcheck = true) const;
                          
                          
@@ -99,9 +98,10 @@ namespace Trk {
         std::string                                         m_trackingGeometryName;      //!< Name of the TrackingGeometry as given in Detector Store
         
         //!< the tool handle array for static / dense / detached
-        ToolHandleArray<IExtrapolationEngine>               m_extrapolationEngines;
-        std::vector<const IExtrapolationEngine*>            m_eeAccessor;     
-                                             
+        ToolHandleArray<IExtrapolationEngine>               m_extrapolationEngines;      //!< the extrapolation engines for retrieval
+        ToolHandle<IPropagationEngine>                      m_propagationEngine;         //!< the used propagation engine for navigation initialization
+        std::vector<const IExtrapolationEngine*>            m_eeAccessor;                //!< the extrapolation engines for 
+
         //!< forces a global search for the initialization, allows to switch TrackingGeometries in one job
         bool                                                m_forceSearchInit; 
     
@@ -113,7 +113,7 @@ namespace Trk {
 
   inline const Trk::TrackingGeometry& ExtrapolationEngine::trackingGeometry() const throw (GaudiException) {
       if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
-          ATH_MSG_ERROR("Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
+          EX_MSG_FATAL("", "updateGeo", "", "Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
           throw GaudiException("ExtrapolationEngine", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);
       }
       return (*m_trackingGeometry);

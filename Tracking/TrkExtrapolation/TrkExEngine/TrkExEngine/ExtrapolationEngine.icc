@@ -11,6 +11,7 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
+#include "TrkExInterfaces/IPropagationEngine.h"
 #include <iostream>
 #include <iomanip>
 
@@ -20,19 +21,21 @@ template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::extrapolateT
                                                                                  Trk::BoundaryCheck bcheck) const
 {
                                                               
-    EX_MSG_DEBUG(++eCell.navigationStep, "starting extrapolation sequence."); 
+    EX_MSG_DEBUG(eCell.navigationStep, "extrapolate", "", "starting extrapolation sequence."); 
     // initialize the navigation
     Trk::ExtrapolationCode eCode = initNavigation<T>(eCell,sf,dir);
-    EX_MSG_VERBOSE(eCell.navigationStep, "initialize navigation return code : " << eCode.toString() );
+    EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "", "initialize navigation with return code : " << eCode.toString() );
     // main loop over volumes 
     while (eCell.leadVolume && eCode == Trk::ExtrapolationCode::InProgress ){
+        // give output that you are in the master volume loop
+        EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "loop", "processing volume : " << eCell.leadVolume->volumeName() );
         // get the appropriate IExtrapolationEngine
         const Trk::IExtrapolationEngine* iee = m_eeAccessor[eCell.leadVolume->geometryType()];
-        eCode = iee ? iee->extrapolate(eCell, sf, dir, bcheck) : Trk::ExtrapolationCode::FailureConfiguration;
+        eCode = iee ? iee->extrapolate(eCell, sf, bcheck) : Trk::ExtrapolationCode::FailureConfiguration;
         // give a message about what you have
-        EX_MSG_VERBOSE(eCell.navigationStep, "returned from volume return code : " << eCode.toString() );
+        EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "", "returned from volume with return code : " << eCode.toString() );
     }
-    EX_MSG_DEBUG(eCell.navigationStep, "extrapolation finished return code : " << eCode.toString() );
+    EX_MSG_DEBUG(eCell.navigationStep, "extrapolate", "", "extrapolation finished with return code : " << eCode.toString() );
     // before you return, finalize: sets the leadParameters to endParameters and empties the garbage bin
     eCell.finalize(eCode);
     // return the code                                                               
@@ -48,12 +51,16 @@ template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::initNavigati
     //
     // this is the global initialization, it only associated direct objects
     // detailed navigation search needs to be done by the sub engines (since they know best)
-    EX_MSG_DEBUG(++eCell.navigationStep, "initialize the navigation stream."); 
+    EX_MSG_DEBUG(++eCell.navigationStep, "navigation", "", "initialize the navigation stream."); 
+    // initialization of the navigation requires that leadParameters to be the startParameters
+    eCell.leadParameters = eCell.startParameters;
+    // now check the tracking geometry and retrieve it if not existing
     if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
-	    EX_MSG_WARNING(eCell.navigationStep, "could not retrieve TrackingGeometry. Stopping."); 
-            return Trk::ExtrapolationCode::FailureConfiguration;
+	    EX_MSG_WARNING(eCell.navigationStep, "navigation", "", "could not retrieve geometry. Stopping."); 
+        // configuration error
+        return Trk::ExtrapolationCode::FailureConfiguration;
     } else
-      EX_MSG_DEBUG("navi", "successfully retrieved TrackingGeometry.");    
+      EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "geometry ready to use.");    
     // ---------- START initialization -----------------------------------------------------------------------------------------
     // initialize the start parameters - try association first
     eCell.startLayer  = eCell.startLayer ? eCell.startLayer : eCell.leadParameters->associatedSurface().associatedLayer();
@@ -62,42 +69,60 @@ template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::initNavigati
     // bail out of the start volume can not be resolved
     if (!eCell.startVolume) return Trk::ExtrapolationCode::FailureNavigation;
     // screen output
-    EX_MSG_VERBOSE( eCell.navigationStep, "start volume termined as '" << eCell.startVolume->volumeName() << "'." );
-    // check if the parameters are on a volume boundary - @TODO identify this case by something like eCell.leadParameters->associatedSurface().isBoundary()
+    EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "start volume termined as : " << eCell.startVolume->volumeName() );
+    // check if the parameters are on a volume boundary 
+    // - @TODO identify this case by something like eCell.leadParameters->associatedSurface().isBoundary()
     if ( eCell.startVolume->onVolumeBoundary(*eCell.startParameters) ){
         // re-evaluate the volume by stepping out of the volume
-        EX_MSG_VERBOSE( eCell.navigationStep, "parameters are on volume boundary, stepping out of this TrackingVolume." );
+        EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "parameters are on volume boundary, stepping out of this volume." );
         // stepping by one unit out of the volume
         eCell.startVolume = m_trackingGeometry->lowestTrackingVolume(eCell.leadParameters->position()+dir*eCell.leadParameters->momentum().unit());
-        // 
-        EX_MSG_VERBOSE( eCell.navigationStep, "start volume re-evaluated as '" << eCell.startVolume->volumeName() << "'." );
+        // screen output 
+        EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "start volume re-evaluated as : " << eCell.startVolume->volumeName());
     }
     eCell.startLayer     = eCell.startLayer ? eCell.startLayer : eCell.startVolume->associatedLayer(eCell.leadParameters->position());
+    if (eCell.startLayer)
+       EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "start layer termined with index : " << eCell.startLayer->layerIndex());
     // now you can assign the lead volume    
     eCell.leadVolume     = eCell.startVolume;  
+    eCell.setRadialDirection();      
     // ---------- END initialization -----------------------------------------------------------------------------------------
     if (sf){
       // keep track of the end surface    
       eCell.endSurface = sf;
+      // re-evaluate the radial direction if the end surface is given
+      // should not happen in FATRAS extrapolation mode
+      if ( !eCell.checkConfigurationMode(Trk::ExtrapolationMode::FATRAS) )
+          eCell.setRadialDirection();
       // trying association via the layer : associated layer of material layer 
       eCell.endLayer  = sf ? ( sf->associatedLayer() ? sf->associatedLayer() : sf->materialLayer() ) : 0;    
       eCell.endVolume = eCell.endLayer ? eCell.endLayer->enclosingTrackingVolume() : 0;
       // check if you found layer and volume
       if (!eCell.endVolume){
-          EX_MSG_VERBOSE( eCell.navigationStep, "end volume needs to be determinded by surface intersection." );
-          // make a straight line intersection
-          Trk::Intersection sfI = (dir == Trk::alongMomentum) ?
-                 sf->straightLineIntersection(eCell.leadParameters->position(), eCell.leadParameters->momentum().unit(), true) :
-                 sf->straightLineIntersection(eCell.leadParameters->position(), -1*(eCell.leadParameters->momentum().unit()), true);
-          // use this to find endVolume and endLayer
-          eCell.endVolume = trackingGeometry().lowestTrackingVolume(sfI.position);                 
-          eCell.endLayer  = eCell.endLayer ? eCell.endLayer : trackingGeometry().associatedLayer(sfI.position);
+          EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "end volume needs to be determinded by surface intersection." );
+          // use a propagation to find the endVolume and endLayer
+          // - @TODO can be opmisied (straiht line for high momentum - use directly )
+          Trk::ExtrapolationCell<T> navCell(*eCell.leadParameters, dir);
+          navCell.addConfigurationMode(Trk::ExtrapolationMode::Direct);
+          // screen output
+          Trk::ExtrapolationCode eCode = m_propagationEngine->propagate(navCell,*eCell.endSurface,Trk::anyDirection,true,eCell.navigationCurvilinear);
+          // check for sucess to the destination
+          CHECK_ECODE_SUCCESS_NODEST(navCell, eCode);
+          // screen output 
+          EX_MSG_VERBOSE (eCell.navigationStep, "navigation", "", "found endVolume and andLayer through propagation - return code : " << eCode.toString() );
+          // take the lead parameters to find end volume and end layer
+	  eCell.endVolume = trackingGeometry().lowestTrackingVolume(navCell.endParameters->position());
+	  eCell.endLayer  = trackingGeometry().associatedLayer(navCell.endParameters->position());
+	  // memory cleanup
+          delete navCell.endParameters;
       } 
       // check the final end volume configuraiton - screen output
       if (eCell.endVolume)
-          EX_MSG_VERBOSE( eCell.navigationStep, "end volume termined as '" << eCell.endVolume->volumeName() << "'." );
+          EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "end volume termined as : " << eCell.endVolume->volumeName());
+      if (eCell.endLayer)
+          EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "end layer termined with index : " << eCell.endLayer->layerIndex());
     } else 
-        EX_MSG_VERBOSE( eCell.navigationStep, "no destination surface nor end volume provided, extrapolaiton has to stop on other means." );
+        EX_MSG_VERBOSE( eCell.navigationStep, "navigation", "", "no destination surface nor end volume provided, extrapolaiton has to stop on other means." );
     // return the progress call
     return Trk::ExtrapolationCode::InProgress;                                                          
                                                               

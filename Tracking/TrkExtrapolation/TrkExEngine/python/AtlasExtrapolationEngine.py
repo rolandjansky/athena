@@ -98,6 +98,7 @@ class AtlasExtrapolationEngine( ExEngine ):
         # call the base class constructor
         ExEngine.__init__(self, name=nameprefix+'Extrapolation',\
                           ExtrapolationEngines   = [ StaticExtrapolator ], \
+                          PropagationEngine      = StaticPropagator, \
                           TrackingGeometrySvc    = AtlasTrackingGeometrySvc, \
                           OutputPrefix           = '[ME] - ', \
                           OutputPostfix          = ' - ')

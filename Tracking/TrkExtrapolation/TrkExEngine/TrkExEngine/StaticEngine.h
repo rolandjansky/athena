@@ -19,8 +19,8 @@
 #include "GaudiKernel/ToolHandle.h"
 // Trk
 #include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExUtils/ExtrapolationCell.h"
-#include "TrkExEngine/ExtrapolationMacros.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 
@@ -78,14 +78,12 @@ namespace Trk {
         /** charged extrapolation - public interface */
         virtual ExtrapolationCode extrapolate(ExCellCharged& ecCharged,
                                               const Surface* sf = 0,
-                                              PropDirection dir=alongMomentum,
                                               BoundaryCheck bcheck = true) const;
 
 
         /** neutral extrapolation - public interface */
         virtual ExtrapolationCode extrapolate(ExCellNeutral& ecNeutral,
                                               const Surface* sf = 0,
-                                              PropDirection dir=alongMomentum,
                                               BoundaryCheck bcheck = true) const;
                          
         /** define for which GeometrySignature this extrapolator is valid - this is GLOBAL */
