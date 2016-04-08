@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: FileMetaData_v1.h 685184 2015-07-23 20:25:43Z cranshaw $
+// $Id: FileMetaData_v1.h 685186 2015-07-23 20:31:42Z cranshaw $
 #ifndef XAODMETADATA_VERSIONS_FILEMETADATA_V1_H
 #define XAODMETADATA_VERSIONS_FILEMETADATA_V1_H
 
@@ -25,8 +25,8 @@ namespace xAOD {
    ///
    /// @param Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 685184 $
-   /// $Date: 2015-07-23 22:25:43 +0200 (Thu, 23 Jul 2015) $
+   /// $Revision: 685186 $
+   /// $Date: 2015-07-23 22:31:42 +0200 (Thu, 23 Jul 2015) $
    ///
    class FileMetaData_v1 : public SG::AuxElement {
 

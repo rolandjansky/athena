@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 761521 2016-07-13 07:27:10Z krasznaa $
 ################################################################################
 # Package: xAODMetaData
 ################################################################################
@@ -7,30 +6,32 @@
 atlas_subdir( xAODMetaData )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Event/xAOD/xAODCore )
+atlas_depends_on_subdirs( PUBLIC
+                          Control/AthContainers
+                          Event/xAOD/xAODCore
+                          PRIVATE
+                          AtlasTest/TestTools )
+
+# External dependencies:
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( xAODMetaData
-   xAODMetaData/*.h xAODMetaData/version/*.h Root/*.h Root/*.cxx
-   PUBLIC_HEADERS xAODMetaData
-   LINK_LIBRARIES AthContainers xAODCore )
+                   Root/*.cxx
+                   PUBLIC_HEADERS xAODMetaData
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthContainers xAODCore
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_dictionary( xAODMetaDataDict
-   xAODMetaData/xAODMetaDataDict.h
-   xAODMetaData/selection.xml
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMetaData )
+                      xAODMetaData/xAODMetaDataDict.h
+                      xAODMetaData/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore TestTools xAODMetaData )
 
-# Test(s) in the package:
 atlas_add_test( ut_xAODFileMetaData_MetaDataType_test
-   SOURCES test/ut_xAODFileMetaData_MetaDataType_test.cxx
-   LINK_LIBRARIES xAODMetaData )
+                SOURCES
+                test/ut_xAODFileMetaData_MetaDataType_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore TestTools xAODMetaData )
 
-atlas_add_test( ut_xaodmetadata_filemetadata_eq_test
-   SOURCES test/ut_xaodmetadata_filemetadata_eq_test.cxx
-   LINK_LIBRARIES xAODMetaData )
-
-# Generate CLIDs from the library:
-atlas_generate_cliddb( xAODMetaData )

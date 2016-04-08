@@ -1,5 +1,5 @@
 package xAODMetaData
-# $Id: requirements 761521 2016-07-13 07:27:10Z krasznaa $
+# $Id: requirements 670159 2015-05-27 12:00:04Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -25,5 +25,3 @@ apply_pattern lcgdict dict=xAODMetaData selectionfile=selection.xml \
 # Build the unit test(s) of the package:
 use TestTools     TestTools-*     AtlasTest
 apply_pattern UnitTest_run unit_test=ut_xAODFileMetaData_MetaDataType
-
-apply_pattern do_genCLIDDB library=xAODMetaData
