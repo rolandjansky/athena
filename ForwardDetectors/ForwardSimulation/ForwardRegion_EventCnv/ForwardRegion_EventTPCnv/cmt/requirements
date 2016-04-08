@@ -4,11 +4,7 @@ author  Thomas Keck <thomas.keck@cern.ch>
 
 
 use AtlasPolicy          AtlasPolicy-*  
-use AtlasCLHEP           AtlasCLHEP-*           External
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
-use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
-#use DataModel            DataModel-*            Control
-#use DataModelAthenaPool   DataModelAthenaPool-*   Control
 
 use ForwardRegion_SimEv     ForwardRegion_SimEv-*   ForwardDetectors/ForwardSimulation
 

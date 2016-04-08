@@ -5,11 +5,6 @@
 #ifndef SimulationHit_p1_h
 #define SimulationHit_p1_h
 
-#include "CLHEP/Vector/ThreeVector.h"
-#include "ForwardRegion_SimEv/SimulationHit.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
-//#include "GeneratorObjectsTPCnv/HepMcParticleLink_p1.h"
-
 class SimulationHit_p1
 {
  public:

@@ -5,7 +5,6 @@
 #ifndef SimulationHitCollection_p1_h
 #define SimulationHitCollection_p1_h
 
-//#include "AthenaPoolUtilities/TPObjRef.h"
 #include "ForwardRegion_EventTPCnv/SimulationHit_p1.h"
 
 #include <vector>
