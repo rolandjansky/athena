@@ -11,8 +11,8 @@ ALFA_RawDataContainer_PERS* ALFA_RawDataContainerCnv::createPersistent(ALFA_RawD
   MsgStream log(msgSvc(), "ALFA_RawDataContainerCnv");
 if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In ALFA_RawDataContainerCnv::createPersistent" << endreq;
 
-ALFA_RawDataContainerCnv_p1 m_TPConverter;
-ALFA_RawDataContainer_PERS* persCont = m_TPConverter.createPersistent(transCont, log);
+ALFA_RawDataContainerCnv_p1 TPConverter;
+ALFA_RawDataContainer_PERS* persCont = TPConverter.createPersistent(transCont, log);
 
 if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Wrote persistent BCM RDO Container with " << persCont->size() << " entries" << endreq;
  return persCont;
@@ -26,7 +26,7 @@ if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In ALFA_RawDataContainerCnv::
 
 // std::cout << "Container, bello cago P->T " << std::endl;
 
- ALFA_RawDataContainerCnv_p1 m_TPConverter_p1;
+ ALFA_RawDataContainerCnv_p1 TPConverter_p1;
  ALFA_RawDataContainer* transCont(0);
 
 static const pool::Guid p1_guid("0C023583-E3D4-4C7D-9B20-B6B2A1018D2F");
@@ -35,7 +35,7 @@ if (this->compareClassGuid(p1_guid)) {
 
      std::auto_ptr< ALFA_RawDataContainer_p1 > persCont(poolReadObject< ALFA_RawDataContainer_p1 >());
 
-     transCont = m_TPConverter_p1.createTransient(persCont.get(), log);
+     transCont = TPConverter_p1.createTransient(persCont.get(), log);
   }
   else throw std::runtime_error("Unsupported persistent version of Data container");
 
