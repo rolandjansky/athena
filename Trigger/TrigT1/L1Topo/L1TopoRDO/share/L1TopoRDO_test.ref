@@ -1,8 +1,8 @@
 ** test1: L1Topo::Header decoding **
 L1Topo::Header created from word 0xc0460023
 ** test2: L1Topo::Header encoding **
-L1Topo::Header encoded word 0xc0420034
-L1Topo::Header     ref word 0xc0420034
+L1Topo::Header encoded word 0xc0420039
+L1Topo::Header     ref word 0xc0420039
 ** test3: L1Topo::Header decode+encode **
 L1Topo::Header  decoded from word 0xc0460023
 L1Topo::Header re-encoded to word 0xc0460023
@@ -10,6 +10,200 @@ L1Topo::Header re-encoded to word 0xc0460023
 ** test5: L1Topo::L1TopoTOB encoding **
 L1Topo::L1TopoTOB created from word 0x83001037
 ** test6: L1Topo::L1TopoTOB decoding **
+** test6: L1Topo::L1TopoTOB decoding **
+test params: ctp_signal 0x4 overflow_bits 0x80 trigger_bits 0xff
+  test pattern: CRC error_bits 00000
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00000 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840080ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00000 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00001
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00001 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840180ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00001 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00010
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00010 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840280ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00010 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00011
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00011 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840380ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00011 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00100
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00100 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840480ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00100 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00101
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00101 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840580ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00101 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00110
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00110 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840680ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00110 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 00111
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00111 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840780ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00111 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01000
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01000 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840880ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01000 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01001
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01001 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840980ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01001 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01010
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01010 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840a80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01010 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01011
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01011 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840b80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01011 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01100
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01100 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840c80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01100 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01101
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01101 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840d80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01101 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01110
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01110 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840e80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01110 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 01111
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01111 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x840f80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b01111 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10000
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10000 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841080ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10000 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10001
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10001 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841180ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10001 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10010
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10010 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841280ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10010 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10011
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10011 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841380ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10011 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10100
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10100 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841480ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10100 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10101
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10101 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841580ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10101 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10110
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10110 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841680ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10110 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 10111
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10111 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841780ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b10111 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11000
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11000 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841880ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11000 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11001
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11001 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841980ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11001 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11010
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11010 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841a80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11010 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11011
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11011 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841b80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11011 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11100
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11100 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841c80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11100 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11101
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11101 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841d80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11101 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11110
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11110 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841e80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11110 overflow bits 0b10000000 trigger bits 0b11111111
+
+  test pattern: CRC error_bits 11111
+test TOB from pattern:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11111 overflow bits 0b10000000 trigger bits 0b11111111
+
+ test word: 0x841f80ff
+test TOB from word:      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 0 ) CRC error bits 0b11111 overflow bits 0b10000000 trigger bits 0b11111111
+
 ** test7: L1Topo::L1TopoTOB encode+decode **
 L1Topo::L1TopoTOB encoded from word 0x82000112
 L1Topo::L1TopoTOB decoded   to word 0x82000112
@@ -20,27 +214,27 @@ L1TopoRDO:
      Errors: []
      Status words:
      Data words:
-     0x80000100      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) overflow bits 0b00000001 trigger bits 0b00000000
-     0x81000201      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) overflow bits 0b00000010 trigger bits 0b00000001
-     0x82000330      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) overflow bits 0b00000011 trigger bits 0b00110000
-     0x83000402      L1Topo TOB:  ctp_signal 0x3 ( index 1 clock 1 fpga 0 ) overflow bits 0b00000100 trigger bits 0b00000010
-     0x88000510      L1Topo TOB:  ctp_signal 0x8 ( index 0 clock 0 fpga 1 ) overflow bits 0b00000101 trigger bits 0b00010000
-     0x890006f6      L1Topo TOB:  ctp_signal 0x9 ( index 1 clock 0 fpga 1 ) overflow bits 0b00000110 trigger bits 0b11110110
-     0x8a0007b0      L1Topo TOB:  ctp_signal 0xa ( index 0 clock 1 fpga 1 ) overflow bits 0b00000111 trigger bits 0b10110000
-     0x8b000800      L1Topo TOB:  ctp_signal 0xb ( index 1 clock 1 fpga 1 ) overflow bits 0b00001000 trigger bits 0b00000000
+     0x80000100      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00000001 trigger bits 0b00000000
+     0x81000201      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00000010 trigger bits 0b00000001
+     0x82000330      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00000011 trigger bits 0b00110000
+     0x83000402      L1Topo TOB:  ctp_signal 0x3 ( index 1 clock 1 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00000100 trigger bits 0b00000010
+     0x88000510      L1Topo TOB:  ctp_signal 0x8 ( index 0 clock 0 fpga 1 ) CRC error bits 0b00000 overflow bits 0b00000101 trigger bits 0b00010000
+     0x890006f6      L1Topo TOB:  ctp_signal 0x9 ( index 1 clock 0 fpga 1 ) CRC error bits 0b00000 overflow bits 0b00000110 trigger bits 0b11110110
+     0x8a0007b0      L1Topo TOB:  ctp_signal 0xa ( index 0 clock 1 fpga 1 ) CRC error bits 0b00000 overflow bits 0b00000111 trigger bits 0b10110000
+     0x8b000800      L1Topo TOB:  ctp_signal 0xb ( index 1 clock 1 fpga 1 ) CRC error bits 0b00000 overflow bits 0b00001000 trigger bits 0b00000000
 L1TopoRDO:
      SourceID: 0x00910090 ROI
      Errors: []
      Status words:
      Data words:
-     0x800010d1      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) overflow bits 0b00010000 trigger bits 0b11010001
-     0x810020ab      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) overflow bits 0b00100000 trigger bits 0b10101011
-     0x82003002      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) overflow bits 0b00110000 trigger bits 0b00000010
-     0x83004028      L1Topo TOB:  ctp_signal 0x3 ( index 1 clock 1 fpga 0 ) overflow bits 0b01000000 trigger bits 0b00101000
-     0x88005000      L1Topo TOB:  ctp_signal 0x8 ( index 0 clock 0 fpga 1 ) overflow bits 0b01010000 trigger bits 0b00000000
-     0x89006083      L1Topo TOB:  ctp_signal 0x9 ( index 1 clock 0 fpga 1 ) overflow bits 0b01100000 trigger bits 0b10000011
-     0x8a007045      L1Topo TOB:  ctp_signal 0xa ( index 0 clock 1 fpga 1 ) overflow bits 0b01110000 trigger bits 0b01000101
-     0x8b008079      L1Topo TOB:  ctp_signal 0xb ( index 1 clock 1 fpga 1 ) overflow bits 0b10000000 trigger bits 0b01111001
+     0x800010d1      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00010000 trigger bits 0b11010001
+     0x810020ab      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00100000 trigger bits 0b10101011
+     0x82003002      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) CRC error bits 0b00000 overflow bits 0b00110000 trigger bits 0b00000010
+     0x83004028      L1Topo TOB:  ctp_signal 0x3 ( index 1 clock 1 fpga 0 ) CRC error bits 0b00000 overflow bits 0b01000000 trigger bits 0b00101000
+     0x88005000      L1Topo TOB:  ctp_signal 0x8 ( index 0 clock 0 fpga 1 ) CRC error bits 0b00000 overflow bits 0b01010000 trigger bits 0b00000000
+     0x89006083      L1Topo TOB:  ctp_signal 0x9 ( index 1 clock 0 fpga 1 ) CRC error bits 0b00000 overflow bits 0b01100000 trigger bits 0b10000011
+     0x8a007045      L1Topo TOB:  ctp_signal 0xa ( index 0 clock 1 fpga 1 ) CRC error bits 0b00000 overflow bits 0b01110000 trigger bits 0b01000101
+     0x8b008079      L1Topo TOB:  ctp_signal 0xb ( index 1 clock 1 fpga 1 ) CRC error bits 0b00000 overflow bits 0b10000000 trigger bits 0b01111001
 Trigger decision bits:
   ref 01101010100001110010000000100010010011001100010101010001000010010101010100010100100010110000000000000000000010010000101000000000
  test 01101010100001110010000000100010010011001100010101010001000010010101010100010100100010110000000000000000000010010000101000000000
