@@ -2,13 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HI_HIEVENTSHAPESUMMARYUTILS_H__
-#define __HI_HIEVENTSHAPESUMMARYUTILS_H__
+#ifndef HI_HIEVENTSHAPESUMMARYUTILS_H
+#define HI_HIEVENTSHAPESUMMARYUTILS_H
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "xAODHIEvent/HIEventShape.h"
 #include <functional>
 #include <vector>
+#include <set>
 
 namespace HI
 {

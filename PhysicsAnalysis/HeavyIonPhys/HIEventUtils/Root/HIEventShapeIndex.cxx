@@ -120,12 +120,12 @@ unsigned int HIEventShapeIndex::setBinning(HIEventShapeIndex::BinningScheme sche
       auto mItr=m_edges.emplace_hint(m_edges.end(),layer,std::vector<range_index_t>(2*num_eta_bins,range_index_t()));
       for(unsigned int k=0; k<num_eta_bins; k++)
       {
-	mItr->second[k].eta_min=-emax+k*deta;
-	mItr->second[k].eta_max=-emax+k*deta+deta;
-	mItr->second[k].index=k+index;
-	mItr->second[k+num_eta_bins].eta_min=emin+k*deta;
-	mItr->second[k+num_eta_bins].eta_max=emin+k*deta+deta;
-	mItr->second[k+num_eta_bins].index=k+num_eta_bins+index;
+	mItr->second[k].eta_min=roundToTenth(-emax+k*deta);
+	mItr->second[k].eta_max=roundToTenth(-emax+k*deta+deta);
+	mItr->second[k].index=roundToTenth(k+index);
+	mItr->second[k+num_eta_bins].eta_min=roundToTenth(emin+k*deta);
+	mItr->second[k+num_eta_bins].eta_max=roundToTenth(emin+k*deta+deta);
+	mItr->second[k+num_eta_bins].index=roundToTenth(k+num_eta_bins+index);
       }
       index+=2*num_eta_bins;
     }
@@ -143,17 +143,31 @@ unsigned int HIEventShapeIndex::getIndexFromBin(unsigned int ebin, int layer) co
 unsigned int HIEventShapeIndex::getIndex_Internal(float eta, int layer, bool etaIndex) const
 {
   auto mItr=getLayer(layer);
-
   const std::vector<range_index_t>& vec=mItr->second;
   unsigned int vsize=vec.size();
-  unsigned int pIndex=0;
 
-  for(; pIndex < vsize; pIndex++)
+  if(vsize==0)
+  {
+    std::cerr << "Layer " << layer << " has no range in calorimeter" << std::endl;
+    throw std::range_error("Bad binning request");
+    return 0;
+  }
+
+  float eta_c=eta;
+  float abs_eta=std::abs(eta);
+  float rmin=HICaloRange::getRange().getRangeMin(layer);
+  float rmax=HICaloRange::getRange().getRangeMax(layer);
+  if(abs_eta < rmin) eta_c=rmin-std::copysign(1e-2,eta);
+  else if(abs_eta > rmax) eta_c=rmax-std::copysign(1e-2,eta);
+
+  unsigned int pIndex=0;
+  for(; pIndex < vsize-1; pIndex++)
   {
     const range_index_t& p=vec.at(pIndex);
-    if(p(eta)) break;
+    if(p(eta_c)) break;
   }
-  return (etaIndex) ? pIndex :  vec[pIndex].index;
+  return (etaIndex) ? pIndex : vec.at(pIndex).index;
+  
 }
 
 
