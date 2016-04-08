@@ -1,0 +1,25 @@
+package TrkExSolenoidalIntersector
+
+author			Alan Poppleton <Alan.Poppleton@cern.ch>
+
+private
+use EventPrimitives		EventPrimitives-*		Event
+use TrkParameters		TrkParameters-*			Tracking/TrkEvent
+use TrkSurfaces			TrkSurfaces-*			Tracking/TrkDetDescr
+
+public
+use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps		AthenaBaseComps-*		Control
+use GaudiInterface		GaudiInterface-*		External
+use GeoPrimitives		GeoPrimitives-*			DetectorDescription
+use MagFieldInterfaces		MagFieldInterfaces-*		MagneticField
+use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
+use TrkExUtils			TrkExUtils-*			Tracking/TrkExtrapolation
+
+library TrkExSolenoidalIntersector	SolenoidalIntersector.cxx	\
+					SolenoidParametrization.cxx	\
+					components/*.cxx
+
+apply_pattern component_library
+
+private
