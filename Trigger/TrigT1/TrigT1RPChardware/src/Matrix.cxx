@@ -208,7 +208,7 @@ void Matrix::initRPCpointers() {
 // initialize the rpcdata structure
 //
 for(ubit16 i=0;i<2;i++) {
- datarpc[i]='\0';
+ datarpc[i]=0;
 }//end-of-for(i
 }//end-of-Matrix::initRPCpointers
 //-----------------------------------------------------------------------//
@@ -216,14 +216,14 @@ void Matrix::initPointers() {
 //
 // initialize the Configuration pointers
 //
-chdly = '\0';  // pointer to channel delays
-width = '\0';  // pointer to pulse widths
-locDi = '\0';  // pointer to local Coincidence Direction
-kRead = '\0';  // pointer to threshold pattern for readout
-roads = '\0';  // pointer to the road Matrix settings
-major = '\0';  // pointer to the majority
-overl = '\0';  // pointer to the overlapping channel list
-geome = '\0';  // pointer to "geometry"
+chdly = 0;  // pointer to channel delays
+width = 0;  // pointer to pulse widths
+locDi = 0;  // pointer to local Coincidence Direction
+kRead = 0;  // pointer to threshold pattern for readout
+roads = 0;  // pointer to the road Matrix settings
+major = 0;  // pointer to the majority
+overl = 0;  // pointer to the overlapping channel list
+geome = 0;  // pointer to "geometry"
 }//end-of-Matrix::initPointers
 //-----------------------------------------------------------------------//
 void  Matrix::initDat() {
@@ -803,7 +803,7 @@ ubit16 addGroupMax=0;
 ////////////////////////////////////////////////////////////
 locDi=l;      // local coincidence direction              //
 width=p;      // pulse width                              //
-chdly='\0';   // delay                                    //
+chdly=0;   // delay                                    //
 kRead=k;      // k-readout address                        //
 roads=r;      // programmed coincidence window address    //
 major=m;      // programmed majority address              //
@@ -2065,7 +2065,7 @@ ubit16 i;
 ubit16 df=19;
 rpcdata *rpcpnt;
 //
-if(this) {
+//if(this) {
  DISP<<"======================="<<endl
      <<"||   Matrix Display  ||"<<endl
      <<"======================="<<endl
@@ -2120,12 +2120,12 @@ if(matrixDebug&1<<(df+3)) {
  disp_CMAreg(3); //display the trigger registers
 }
 //
-} else {
- DISP<<"======================="<<endl
-     <<"||    Matrix EMPTY   ||"<<endl
-     <<"======================="<<endl;
- DISP_DEBUG;
-}//end-of-Matrix::display
+//} else {
+// DISP<<"======================="<<endl
+//     <<"||    Matrix EMPTY   ||"<<endl
+//     <<"======================="<<endl;
+// DISP_DEBUG;
+//}//end-of-Matrix::display
 }//end-of-method display
 //------------------------------------------------------------------------//
 void Matrix::show_attributes () {
@@ -2213,7 +2213,7 @@ ubit16 n, j, k;
 #else
     // put your gcc 2.95 specific code here
     char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
+    for (int i=0;i<5000;++i) buffer[i] = 0;
     __osstream* strdisp = new __osstream(buffer,5000);
 #endif
 //
@@ -2251,7 +2251,7 @@ ubit16 j;
 #else
     // put your gcc 2.95 specific code here
     char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
+    for (int i=0;i<5000;++i) buffer[i] = 0;
     __osstream* strdisp = new __osstream(buffer,5000);
 #endif
 //
@@ -2298,7 +2298,7 @@ void Matrix::dispWind (ubit16 thres) {
 #else
     // put your gcc 2.95 specific code here
     char buffer[5000];
-    for (int i=0;i<5000;++i) buffer[i] = '\0';
+    for (int i=0;i<5000;++i) buffer[i] = 0;
     __osstream* strdisp(buffer,5000);
 #endif
 
