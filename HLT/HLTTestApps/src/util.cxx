@@ -265,6 +265,7 @@ namespace
     /** CTP ROD */
     // Default CTP minor version word
     uint16_t minorVersion = 0x0004; // default minor CTP version
+    bool minorVersionFromRDO(0);
     if (dobj->cTPResult().TAV().size() == 8) { minorVersion = 0x0003; } // CTP version for Run 1
     // DAQ
     // get the l1 CTP_RDO which was remade
@@ -281,6 +282,7 @@ namespace
       uint16_t ctpVer = dobj_ctp_rdo->getCTPVersionNumber();
       ctpVer <<= ctpVersion.getCTPFormatVersionShift();
       minorVersion = addWords + l1a + ctpVer;
+      minorVersionFromRDO = 1;
       // payload data
       std::vector<uint32_t> ctpDAQRod;
       ctpDAQRod.reserve(dobj_ctp_rdo->getDataWords().size());
@@ -296,6 +298,7 @@ namespace
 	  if(copied == 0 || copied != ctpDAQRob.size_word()) {
 	    boost::format msg("Copy failed for DAQ CTP Rob: words copied: %s words expected %s");
 	    msg % copied, ctpDAQRob.size_word();
+	    throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	  }
       }
     }
@@ -309,12 +312,13 @@ namespace
 	 (original_RoIB_Robs[eformat::TDAQ_CTP].size() == 1)) {
 	eformat::write::ROBFragment ctpRob(original_RoIB_Robs[eformat::TDAQ_CTP][0]);
 	ctpRob.rod_data(ctpRod.size(),ctpRod.data());
-	ctpRob.rod_minor_version(minorVersion); // reuse minor version of DAQ CTP ROB or default version
+	if (minorVersionFromRDO) ctpRob.rod_minor_version(minorVersion); // reuse minor version of DAQ CTP ROB
 	l1_robs[ ctpRob.source_id() ] = new uint32_t[ctpRob.size_word()];
 	auto copied = eformat::write::copy(*ctpRob.bind(), l1_robs[ ctpRob.source_id() ], ctpRob.size_word());
 	if(copied == 0 || copied != ctpRob.size_word()) {
 	  boost::format msg("Copy failed for RoIB CTP Rob: words copied: %s words expected %s");
 	  msg % copied, ctpRob.size_word() ;
+	  throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	}
     }
 
@@ -339,6 +343,7 @@ namespace
 	  if(copied == 0 || copied != muCTPIDAQRob.size_word()) {
 	    boost::format msg("Copy failed for DAQ muCTPI Rob: words copied: %s words expected %s");
 	    msg % copied, muCTPIDAQRob.size_word();
+	    throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	  }
       }
     } 
@@ -356,6 +361,7 @@ namespace
 	if(copied == 0 || copied != muCTPIRob.size_word()) {
 	  boost::format msg("Copy failed for RoIB muCTPI Rob: words copied: %s words expected %s");
 	  msg % copied, muCTPIRob.size_word() ;
+	  throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	}
     }
 
@@ -375,6 +381,7 @@ namespace
 	if(copied == 0 || copied != jetEnergyRob.size_word()) {
 	  boost::format msg("Copy failed for RoIB JET/Energy Rob: words copied: %s words expected %s");
 	  msg % copied, jetEnergyRob.size_word() ;
+	  throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	}
       }
     }
@@ -395,6 +402,7 @@ namespace
 	if(copied == 0 || copied != eMTauRob.size_word()) {
 	  boost::format msg("Copy failed for RoIB EM/Tau Rob: words copied: %s words expected %s");
 	  msg % copied, eMTauRob.size_word() ;
+	  throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	}
       }
     }
@@ -415,6 +423,7 @@ namespace
 	if(copied == 0 || copied != l1TopoRob.size_word()) {
 	  boost::format msg("Copy failed for RoIB L1 Topo Rob: words copied: %s words expected %s");
 	  msg % copied, l1TopoRob.size_word() ;
+	  throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	}
       }
     }
@@ -429,6 +438,7 @@ namespace
 	if(copied == 0 || copied != l1TopoRob.size_word()) {
 	  boost::format msg("Copy failed for RoIB (empty) L1 Topo Rob: words copied: %s words expected %s");
 	  msg % copied, l1TopoRob.size_word() ;
+	  throw(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
 	}
       }
     }

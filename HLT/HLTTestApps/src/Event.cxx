@@ -62,6 +62,8 @@ using std::find;
 
 namespace
 {
+
+#pragma GCC diagnostic ignored "-Wunused-function"
   void debug_warn_no_rob(uint32_t l1id, uint32_t robid)
   {
     if(ers::debug_level() > 0)
@@ -71,6 +73,7 @@ namespace
     }
   }
 
+#pragma GCC diagnostic ignored "-Wunused-function"
   void debug_out_robinfos(const std::vector<hltinterface::DCM_ROBInfo>& data)
   {
     if(ers::debug_level() >= 2)
