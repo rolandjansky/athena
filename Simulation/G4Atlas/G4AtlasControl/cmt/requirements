@@ -1,45 +1,36 @@
 package G4AtlasControl
 
-version G4AtlasControl-00-00-01
-
-branches src cmt
-
+public
 use AtlasPolicy         AtlasPolicy-*
 
-use Geant4	Geant4-*	External
-
-use FadsGeometry	FadsGeometry-* 		Simulation/G4Sim/FADS
-use FadsField		FadsField-*		Simulation/G4Sim/FADS
-use FadsMaterial	FadsMaterial-*		Simulation/G4Sim/FADS
-use GaudiInterface      GaudiInterface-*     External
+use FadsField           FadsField-*             Simulation/G4Sim/FADS
+use GaudiInterface      GaudiInterface-*        External
 
 private
-use AtlasCLHEP			AtlasCLHEP-*			External
-use G4AtlasAlg      G4AtlasAlg-*        Simulation/G4Atlas
-use FadsActions         FadsActions-*           Simulation/G4Sim/FADS
+use AtlasCLHEP          AtlasCLHEP-*            External
+use Geant4              Geant4-*                External
+use G4AtlasAlg          G4AtlasAlg-*            Simulation/G4Atlas
 use FadsKinematics      FadsKinematics-*        Simulation/G4Sim/FADS
 use FadsPackageLoader   FadsPackageLoader-*     Simulation/G4Sim/FADS
-use FadsPhysics         FadsPhysics-*           Simulation/G4Sim/FADS
-use FadsRun             FadsRun-*               Simulation/G4Sim/FADS
-use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
 use FadsUtilities       FadsUtilities-*         Simulation/G4Sim/FADS
 use FadsXMLParser       FadsXMLParser-*         Simulation/G4Sim/FADS
 use G4Field             G4Field-*               Simulation/G4Utilities
 
-use MCTruth             MCTruth-*               Simulation/G4Sim
-use PathResolver	PathResolver-*		Tools
+use MCTruthBase         MCTruthBase-*           Simulation/G4Sim
+use PathResolver        PathResolver-*          Tools
 end_private
 
 ####include_dirs "$(G4AtlasControl_root)"
- 
+
 library G4AtlasControl *.cxx
 apply_pattern installed_library
 
-private 
+private
 
-use AtlasReflex 	AtlasReflex-*		External
+use AtlasReflex         AtlasReflex-*           External
 
 apply_pattern lcgdict dict=G4AtlasControl \
                 headerfiles="../G4AtlasControl/G4AtlasControlDict.h" \
                 selectionfile=selection.xml
 macro_prepend G4AtlasControlDict_shlibflags " -lG4AtlasControl "
+end_private

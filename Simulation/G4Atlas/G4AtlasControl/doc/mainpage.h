@@ -28,7 +28,6 @@ The classes in this package are:
  - PhysicsMenu : An interface for modifying the physics list to be used during G4 simulation
  - PhysicsRegionProxy : An interface for dealing with physics regions in G4
  - RandomNrMenu : An interface for dealing with random numbers during the simulation
- - SenDetectorMenu : An interface for dealing with sensitive detectors applied to the detector during simulation
  - SimControl : One interface to rule them all
 
 @ref used_G4AtlasControl
