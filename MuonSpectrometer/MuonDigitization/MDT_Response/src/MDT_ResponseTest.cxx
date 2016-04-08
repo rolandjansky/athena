@@ -15,6 +15,8 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <errno.h>
+#include <limits.h>
 
 // random generator
 CLHEP::RanluxEngine ranEngine;
@@ -74,21 +76,23 @@ void generateEvents( int eventMax ) {
 
 int main(int argc, char* argv[] ){
 
-  int eventMax = 20000,error;
-  char str[]="";
-  //if( argc > 1 ) eventMax = atoi(argv[1]);
-   if( argc > 1 ) {
-     error=sscanf(argv[1],"%s",str);    
-     if(error==EOF){
-     std::cout<<"Invalid parameter! Quit now!"<<std::endl;
-     exit(1);	
-     }	
-    int tempMax = atoi(str);
-    //int tempMax = atoi(argv[1]);     
-    // Perform sanity check on tempMax, e.g. check it is positive 
-    // (since it is subsequently used as upper loop bound) 
+  int eventMax = 20000;
+  if( argc > 1 ) {
+    char *endptr;
+    errno = 0;
+    long convArg = strtol(argv[1], &endptr, 0);
+    if(errno == ERANGE || *endptr != '\0' || argv[1] == endptr) {
+      std::cout<<"Invalid parameter! Quit now!"<<std::endl;
+      exit(1);
+    }
+    // Only needed if sizeof(int) < sizeof(long)
+    if(convArg < INT_MIN || convArg > INT_MAX) {
+      std::cout<<"Invalid parameter! Quit now!"<<std::endl;
+      exit(1);
+    }
+    int tempMax = (int) convArg;
     if (tempMax > 0) eventMax = tempMax; 
-    } 
+  } 
   
   std::cout << " Starting simulation of MDT_response, events " << eventMax << std::endl;
 

@@ -10,6 +10,9 @@ private
 use AtlasROOT   AtlasROOT-*  External
 end_private
 
+# Specify required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
 library  MDT_Response ../src/Amplifier.cxx ../src/MDT_Response.cxx
 apply_pattern installed_library
 
