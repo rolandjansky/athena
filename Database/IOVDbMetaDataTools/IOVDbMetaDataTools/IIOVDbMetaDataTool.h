@@ -15,9 +15,7 @@
  */
 
 #ifndef IOVDBMETADATATOOL_IIOVDBMETADATATOOL_H
-# define IOVDBMETADATATOOL_IIOVDBMETADATATOOL_
-
-//<<<<<< INCLUDES                                                       >>>>>>
+# define IOVDBMETADATATOOL_IIOVDBMETADATATOOL_H
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
@@ -74,7 +72,4 @@ public:
 };
 
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
-
-#endif // IOVDBMETADATATOOL_IIOVDBMETADATATOOL_
+#endif // IOVDBMETADATATOOL_IIOVDBMETADATATOOL_H
