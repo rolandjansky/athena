@@ -537,10 +537,7 @@ namespace InDet{
     //Calculate ROBs needed - this code should be shared with hltExecute to avoid slightly different requests
     const TrigRoiDescriptor* roi = 0;
 
-    if (getFeature(inputTE, roi, "forID") != HLT::OK || roi == 0)
-      getFeature(inputTE, roi);
-
-    if ( roi==NULL ){
+    if (getFeature(inputTE, roi) != HLT::OK || roi == 0){
       ATH_MSG_WARNING( "REGTEST / Failed to find RoiDescriptor" );
       return HLT::NAV_ERROR;
     }

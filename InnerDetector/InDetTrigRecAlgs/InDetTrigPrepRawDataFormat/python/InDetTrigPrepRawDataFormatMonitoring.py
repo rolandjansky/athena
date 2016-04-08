@@ -37,7 +37,7 @@ class SctTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('SctBSErr',
                                          type='TH1F',
                                          title="SCT BS decoding errors", 
-                                         xbins = 20, xmin=0., xmax=20,
+                                         xbins = 15, xmin=0., xmax=20,
                                          labels='ByteStreamParseError: TimeOutError: BCIDError: LVL1IDError: PreambleError: FormatterError: TrailerError: TrailerOverflowError: HeaderTrailerLimitError: ABCDError: RawError: MaskedLink: RODClockError: TruncatedROD: ROBFragmentError'
                                          ) ]
 
@@ -83,7 +83,7 @@ class PixelTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('PixBSErr',
                                          type='TH1F',
                                          title="Pix BS decoding errors", 
-                                         xbins = 20, xmin=0., xmax=20,
+                                         xbins = 10, xmin=0., xmax=20,
                                          labels='TimeOut=0: BCID=1: LVL1ID=2: Preamble=3: Trailer=4: Flagged=5: DisableFE=6: ROD=7: Decoding=8: Invalid=9'
                                          )]
 
@@ -122,7 +122,7 @@ class TrtTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('TrtBsErr',
                                          type='TH1F',
                                          title="TRT BS decoding errors", 
-                                         xbins = 20, xmin=0., xmax=20,
+                                         xbins = 6, xmin=0., xmax=20,
                                          labels='BCIDError: L1IDError: MISSINGError: ERRORError: SIDError: RobStatusError'
                                          )]
 
