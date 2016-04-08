@@ -12,24 +12,23 @@
 # needs be set before the include, since several
 # secondary flags are configured according to that one
 #
-#   1) Specify the input in here
-#      - One file
-#PoolInput = ["/afs/cern.ch/work/s/sthenkel/work/testarea/20.1.0.6/MCsets/valid1.167824.Sherpa_CT10_ZmumuMassiveCBPt280_500_BFilter.recon.ESD.e3099_s1982_s1964_r6006_tid04628773_00/ESD.04628773._000033.pool.root.1"]
-#PoolInput = ["/afs/cern.ch/user/s/sthenkel/eos/atlas/user/s/sthenkel/MC/valid3.147407.PowhegPythia8_AZNLO_Zmumu.recon.ESD.e3099_s2578_r6588_tid05292497_00/ESD.05292497._000150.pool.root.1"]
-#   2) Feed files when executing the script
-if 'inputFiles' in dir():
-  print inputFiles
-PoolInput = inputFiles
 
+PoolInput = []
+for line in open("inputfiles.txt"):
+  line = line.strip()
+  PoolInput.append(line)
 
 # number of event to process
-EvtMax=-1
+EvtMax= -1
 SkipEvents = 0
+
+
+
+# DetFlags modifications are best set here (uncomment RecExCommon_flags first)
 
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AlgSequence import AthSequencer
-
 job = AlgSequence()
 seq = AthSequencer("AthFilterSeq")
 
@@ -46,17 +45,13 @@ if useGRL:
 # END GRL
 ###############
 
-# DetFlags modifications are best set here (uncomment RecExCommon_flags first)
-#from PerfMonComps.PerfMonFlags import jobproperties as pmjp
-#pmjp.PerfMonFlags.doFastMon=True
-
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput=PoolInput
 athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-14")
+globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-11")
 globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-01-00")
 
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -66,6 +61,7 @@ GeoModelSvc.IgnoreTagDifference = True
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration=['everything']
 rec.doAOD.set_Value_and_Lock(False)
+rec.doESD.set_Value_and_Lock(False)
 rec.doESD.set_Value_and_Lock(False) # uncomment if rec.do not run ESD making algorithms
 rec.doWriteESD.set_Value_and_Lock(False) # uncomment if rec.do not write ESD
 rec.doAOD.set_Value_and_Lock(False) # uncomment if rec.do not run AOD making algorithms
@@ -85,41 +81,38 @@ rec.doTau.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(False)
 rec.doTruth.set_Value_and_Lock(False)
 
-#rec.doMonitoring.set_Value_and_Lock(True)
-#from AthenaMonitoring.DQMonFlags import DQMonFlags
-#DQMonFlags.doInDetPerfMon.set_Value_and_Lock(True)
-
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 include ("RecExCond/RecExCommon_flags.py")
 # switch off ID, calo, or muons
 DetFlags.ID_setOn()
-#DetFlags.Calo_setOn()
+#DetFlags.Calo_setOn() # test
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
-
+#DetFlags.TRT_setOff()
+# AOD fix?
 #DetFlags.makeRIO.Calo_setOff()
 #DetFlags.detdescr.Calo_setOn()
 
 
-
 from IOVDbSvc.CondDB import conddb
-inputCollections = ["/afs/cern.ch/user/s/sthenkel/work/Performance/Alignment/WORK_ATHENA/20.1.X-VAL_WeakMode/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/Iter1_AlignmentConstants.root"]
-readPool = False
-conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
-conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
-
+inputCollections = ["/afs/cern.ch/user/w/wdicleme/private/testarea/20.1.5.12/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/Iter2_AlignmentConstants.root"]
+#inputCollections = ["/afs/cern.ch/user/m/mdanning/hias/public/13TeV/20.1.5.8/run_DCSfix/DCS_L2fixedThenL27_andL3/Iter3/Iter0_AlignmentConstants.root"]
+readPool  = True
+#conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
+#conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
 
 if readPool :
   conddb.blockFolder("/Indet/Align")
   conddb.blockFolder("/TRT/Align")
+#	conddb.blockFolder("/TRT/Calib/DX")
   from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
   from AthenaCommon.AppMgr import ServiceMgr
   ServiceMgr += CondProxyProvider()
   ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-  # set this to the file containing AlignableTransform objects
+# set this to the file containing AlignableTransform objects
   ServiceMgr.CondProxyProvider.InputCollections += inputCollections
   ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
   print ServiceMgr.CondProxyProvider
@@ -128,32 +121,34 @@ if readPool :
   ServiceMgr.IOVSvc.preLoadData=True
   ServiceMgr.IOVSvc.OutputLevel=INFO
 
-include ("InDetRecExample/InDetRecConditionsAccess.py")
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+
 print svcMgr.IOVDbSvc
 
+
+#print SkipEvents
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-
-ServiceMgr.THistSvc.Output += ["ZmumuValidation DATAFILE='ZmumuValidationOut.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["eoverpValidation DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["eoverpValidation2 DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
 include ("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
+from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonEoverP
+funIDPerfMonEoverP = IDPerfMonEoverP(name = 'IDPerfMonEoverP',
+                                     ReFitterTool = ElectronRefitterTool,
+                                     ReFitterTool2 = ElectronRefitterTool2,
+                                     InputElectronContainerName = "Electrons",
+                                     InputJetContainerName = "AntiKt4LCTopoJets",
+                                     RefittedElectronTrackContainer1 = GSFTrackCollection,
+                                     RefittedElectronTrackContainer2 = DNATrackCollection,
+                                     RefitTracks = True,
+                                     isDATA = True,
+                                     FillDetailedTree = False,
+                                     OutputLevel = INFO)
 
-from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
-iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
-                                     ReFitterTool1 = MuonRefitterTool,
-                                     ReFitterTool2 = MuonRefitterTool2,
-				     OutputTracksName =  "SelectedMuons",
-				     isMC = False,
-				     doIsoSelection = False,
-                                     OutputLevel= DEBUG)
 
 
-job += iDPerfMonZmumu
 
-#trackCollections = ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
-#StoreGateSvc = Service("StoreGateSvc")
-#StoreGateSvc.Dump = True
-#include ("InDetPerformanceMonitoring/TrackMonitoring.py")
+job += funIDPerfMonEoverP

@@ -14,13 +14,15 @@
 #
 
 
-from glob import glob
-PoolInput = glob("/afs/cern.ch/work/a/amorley/testarea/eOverP/data12_8TeV.00208631.physics_Egamma.merge.AOD.f472_m1208/*")
-PoolInput = ["/tmp/amorley/data12_8TeV.00204954.physics_Egamma.recon.DESD_ZEE.r4065_p1346_r4065_tid01110148_00/DESD_ZEE.01110148._000010.pool.root.1"]
-
+#from glob import glob
+#PoolInput = ["root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_13TeV/physics_Main/00270588/data15_13TeV.00270588.physics_Main.merge.DESDM_EGZ.f610_m1453_f610_m1462/data15_13TeV.00270588.physics_Main.merge.DESDM_EGZ.f610_m1453_f610_m1462._0001.1"]
+PoolInput = []
+for line in open("data15_13TeV.00271595.DESDM_EGZ.txt"):#"data15_13TeV.00267639.AOD.txt"):
+  line = line.strip()
+  PoolInput.append(line)
 
 # number of event to process
-EvtMax= 10
+EvtMax= -1
 SkipEvents = 0
 
 
@@ -30,30 +32,21 @@ SkipEvents = 0
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.AlgSequence import AthSequencer
+job = AlgSequence()
+seq = AthSequencer("AthFilterSeq")
 
-if not rec.doTruth():
-  from GoodRunsLists.GoodRunsListsConf import *
-  grlTool =  GoodRunsListSelectorTool("GoodRunsTool")
-  grlTool.GoodRunsListVec  =   ['data11_7TeV.periodAllYear_DetStatus-v18-pro08-04_CoolRunQuery-00-03-98_Eg_standard.xml']
-  grlTool.EventSelectorMode = True
-  grlTool.PassThrough     = False
-  grlTool.OutputLevel = DEBUG
-  print grlTool
-#    GoodRunsListSelectorTool.OutputLevel = DEBUG
-#
-#    ## use grlb algorithm for event selection
-  #AthenaEventLoopMgr=Service("AthenaEventLoopMgr")
-  #AthenaEventLoopMgr.PreSelectTools+=[grlTool]
-#  ToolSvc += grlTool
-  #print AthenaEventLoopMgr
-  #seq = AthSequencer("AthFilterSeq")
-  #from GoodRunsListsUser.GoodRunsListsUserConf import *
-  #seq += GRLTriggerSelectorAlg( "GRLFilterInWenuStream",
-  #                                      OutputLevel       = INFO,
-  #                                      GoodRunsListArray = [ 'eg_standard_7TeV' ] )
+###############
+# GRL
+###############
 
+useGRL = False
 
+if useGRL:
+  include("InDetPerformanceMonitoring/jobOptions_useGRL.py")
 
+###############
+# END GRL
+###############
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput=PoolInput
@@ -61,19 +54,16 @@ athenaCommonFlags.EvtMax = EvtMax
 athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
-#globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-REPPST-007-08")
-globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-BLKPA-006-07")
+globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-09")
+globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-R2-2015-03-01-00")
 
-
-#globalflags.DetDescrVersion.set_Value_and_Lock("ATLAS-GEO-16-00-01")
-#from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
-#GeoModelSvc = GeoModelSvc()
-#GeoModelSvc.IgnoreTagDifference = True
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.IgnoreTagDifference = True
 
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration=['everything']
 rec.doAOD.set_Value_and_Lock(False)
-rec.doESD.set_Value_and_Lock(False)
 rec.doESD.set_Value_and_Lock(False) # uncomment if rec.do not run ESD making algorithms
 rec.doWriteESD.set_Value_and_Lock(False) # uncomment if rec.do not write ESD
 rec.doAOD.set_Value_and_Lock(False) # uncomment if rec.do not run AOD making algorithms
@@ -81,10 +71,10 @@ rec.doWriteAOD.set_Value_and_Lock(False) # uncomment if rec.do not write AOD
 rec.doWriteTAG.set_Value_and_Lock(False) # uncomment if rec.do not write TAG
 rec.doCBNT.set_Value_and_Lock(False)
 rec.doPerfMon.set_Value_and_Lock(False)
-rec.doInDet.set_Value_and_Lock(False)
-rec.doTile.set_Value_and_Lock(True)
-rec.doLArg.set_Value_and_Lock(True)
-rec.doCalo.set_Value_and_Lock(True)
+rec.doInDet.set_Value_and_Lock(True)
+rec.doTile.set_Value_and_Lock(False)
+rec.doLArg.set_Value_and_Lock(False)
+rec.doCalo.set_Value_and_Lock(False)
 rec.doMuon.set_Value_and_Lock(False)
 rec.doMuonCombined.set_Value_and_Lock(False)
 rec.doEgamma.set_Value_and_Lock(False)
@@ -99,43 +89,39 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 include ("RecExCond/RecExCommon_flags.py")
 # switch off ID, calo, or muons
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+#DetFlags.Calo_setOn() # test
+DetFlags.Calo_setOff()
 DetFlags.Muon_setOn()
 #DetFlags.Tile_setOff()
 #DetFlags.TRT_setOff()
+# AOD fix?
+#DetFlags.makeRIO.Calo_setOff()
+#DetFlags.detdescr.Calo_setOn()
 
-inputCollections = ["Iter4_AlignmentConstants.root"]
-
-readPool  = False
 
 from IOVDbSvc.CondDB import conddb
-#conddb.addOverride('/Indet/Align', 'InDetAlign_Repro2012_d0z0p_constrained')
-#conddb.addOverride('/TRT/Align',   'TRTAlign_Repro2012_d0z0p_constrained')
+inputCollections = []#["Iter4_AlignmentConstants.root"]
+#inputCollections = ["/afs/cern.ch/user/m/mdanning/hias/public/13TeV/20.1.5.8/run_DCSfix/DCS_L2fixedThenL27_andL3/Iter3/Iter0_AlignmentConstants.root"]
+readPool  = False
+conddb.addOverride('/Indet/Align', 'InDetAlign-RUN2-25NS')
+conddb.addOverride('/TRT/Align',   'TRTAlign-RUN2-25NS')
 
-
-#conddb.addOverride('/Indet/Align', 'InDetAlign_EoverPv2.3_2011_E')
-#conddb.addOverride('/TRT/Align', 'TRTAlign_EoverPv2_2011_E')
-#conddb.addOverride('/TRT/Calib/DX','TRTCalibDX_EoverPv3.1_2011_E')
-
-
-#conddb.addOverride('/GLOBAL/InsituPerf/EGamma/Resolutions','EGammaRes-0-0-2')
-conddb.addOverride('/Indet/TrkErrorScaling','IndetTrkErrorScaling_nominal')
 if readPool :
-	conddb.blockFolder("/Indet/Align")
-	conddb.blockFolder("/TRT/Align")
+  conddb.blockFolder("/Indet/Align")
+  conddb.blockFolder("/TRT/Align")
 #	conddb.blockFolder("/TRT/Calib/DX")
-	from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
-	from AthenaCommon.AppMgr import ServiceMgr
-	ServiceMgr += CondProxyProvider()
-	ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
-	# set this to the file containing AlignableTransform objects
-	ServiceMgr.CondProxyProvider.InputCollections += inputCollections
-	ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
-	print ServiceMgr.CondProxyProvider
-	# this preload causes callbacks for read in objects to be activated,
-	# allowing GeoModel to pick up the transforms
-	ServiceMgr.IOVSvc.preLoadData=True
-	ServiceMgr.IOVSvc.OutputLevel=INFO
+  from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
+  from AthenaCommon.AppMgr import ServiceMgr
+  ServiceMgr += CondProxyProvider()
+  ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
+# set this to the file containing AlignableTransform objects
+  ServiceMgr.CondProxyProvider.InputCollections += inputCollections
+  ServiceMgr.CondProxyProvider.OutputLevel=DEBUG
+  print ServiceMgr.CondProxyProvider
+  # this preload causes callbacks for read in objects to be activated,
+  # allowing GeoModel to pick up the transforms
+  ServiceMgr.IOVSvc.preLoadData=True
+  ServiceMgr.IOVSvc.OutputLevel=INFO
 
 
 # main jobOption
@@ -155,13 +141,14 @@ from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonE
 funIDPerfMonEoverP = IDPerfMonEoverP(name = 'IDPerfMonEoverP',
                                      ReFitterTool = ElectronRefitterTool,
                                      ReFitterTool2 = ElectronRefitterTool2,
-                                     InputElectronContainerName = "ElectronCollection",
-                                     InputJetContainerName = "AntiKt4TopoEMJets",
+                                     InputElectronContainerName = "Electrons",
+                                     InputJetContainerName = "AntiKt4LCTopoJets",
                                      RefittedElectronTrackContainer1 = GSFTrackCollection,
                                      RefittedElectronTrackContainer2 = DNATrackCollection,
                                      RefitTracks = True,
                                      isDATA = True,
-                                     OutputLevel =3)
+                                     FillDetailedTree = True,
+                                     OutputLevel = INFO)
 
 
 
