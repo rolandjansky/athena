@@ -155,7 +155,7 @@ const HepGeom::Transform3D & GeoVFullPhysVol::getDefAbsoluteTransform () const
   //------------------------------------------------------------------------------------------------//     
   if (!m_absPosInfo)
     m_absPosInfo = new GeoAbsPositionInfo ();
-    if (!m_absPosInfo->getDefAbsTransform ())
+  if (!m_absPosInfo->getDefAbsTransform ())
     {
 
 

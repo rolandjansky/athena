@@ -2080,9 +2080,8 @@ GeoPolyhedronTorus::GeoPolyhedronTorus (double rmin,
   int np1 = GetNumberOfRotationSteps ();
   int np2 = rmin < perMillion ? 1 : np1;
 
-  double *zz, *rr;
-  zz = new double[np1 + np2];
-  rr = new double[np1 + np2];
+  std::vector<double> rr (np1+np2, 0);
+  std::vector<double> zz (np1+np2, 0);
 
   double a = 2 * M_PI / np1;
   double cosa, sina;
@@ -2107,11 +2106,8 @@ GeoPolyhedronTorus::GeoPolyhedronTorus (double rmin,
 
   //   R O T A T E    P O L Y L I N E S
 
-  RotateAroundZ (0, phi, dphi, -np1, -np2, zz, rr, -1, -1);
+  RotateAroundZ (0, phi, dphi, -np1, -np2, zz.data(), rr.data(), -1, -1);
   SetReferences ();
-
-  delete[]zz;
-  delete[]rr;
 }
 
 GeoPolyhedronTorus::~GeoPolyhedronTorus ()
