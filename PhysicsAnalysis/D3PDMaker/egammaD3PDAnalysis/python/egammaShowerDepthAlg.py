@@ -11,10 +11,14 @@
 
 from egammaD3PDAnalysis import egammaD3PDAnalysisConf
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
+from AthenaCommon.GlobalFlags   import globalflags
 
 def egammaShowerDepthAlg (name, **kwin):
     # Set up database access.
-    folder  = '/CALO/CaloSwClusterCorrections/calhits'
+    if globalflags.DataSource() == 'data':    
+        folder  = '/CALO/CaloSwClusterCorrections/calhits'
+    else:
+        folder  = '/CALO/Ofl/CaloSwClusterCorrections/calhits'
     tag = D3PDMakerFlags.EgammaShowerDepthTag()
     if not tag:
         tag = '@GLOBAL'
