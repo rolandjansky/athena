@@ -24,7 +24,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 
   /* for (unsigned int i = 0; i<1000; ++i) { */
   /*   //std::cout<<" aaa "<<std::endl; */
-  /*   msg(MSG::VERBOSE) << "try to increase cpu time "<<log(pow(((double)i+1.)/999.,3))<<endmsg; */
+  /*   msg(MSG::VERBOSE) << "try to increase cpu time "<<log(pow(((double)i+1.)/999.,3))<<endreq; */
   /* } */
 
   // m_bench.point(1);
@@ -44,7 +44,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 
   //if (size > 0  && msgLvl(MSG::INFO) ) {
   if (size > 0  && msgLvl(MSG::VERBOSE) ) {
-    msg(MSG::VERBOSE) << "The size of this ROD-read is " << size << endmsg;
+    msg(MSG::VERBOSE) << "The size of this ROD-read is " << size << endreq;
     int  decoded             ;
     int iSLh = -1;
     char decoded_char[1000]  ;
@@ -73,9 +73,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	}
         
       //      msg(MSG::INFO) << "word " << i <<" = "<< MSG::hex << p[i] << MSG::dec 
-      //			<< " " << MSG::hex << decoded << MSG::dec << " " << decoded_char << endmsg;
+      //			<< " " << MSG::hex << decoded << MSG::dec << " " << decoded_char << endreq;
       msg(MSG::VERBOSE) << "word " << i <<" = "<< MSG::hex << p[i] << MSG::dec 
-      		<< " " << MSG::hex << decoded << MSG::dec << " " << decoded_char << endmsg;
+      		<< " " << MSG::hex << decoded << MSG::dec << " " << decoded_char << endreq;
     }
   }
   int nwInCM = 0;
@@ -89,7 +89,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
     
     
     
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "The source ID is: " << MSG::hex << sourceId << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "The source ID is: " << MSG::hex << sourceId << endreq;
     
   // retrieve the sector logic container
   RpcSectorLogicContainer* sectorLogicContainer = 
@@ -119,12 +119,12 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	  Identifier myPadOfflineId = (*it).second->identify();
 	  IdentifierHash myPadHashOfflineId =  (*it).second->identifyHash();	    
 	  msg(MSG::VERBOSE) << "The offline ID requested for conversion are "
-			    << m_pRpcIdHelper->show_to_string(myPadOfflineId)<<" hash version "<< (int)myPadHashOfflineId << endmsg;
+			    << m_pRpcIdHelper->show_to_string(myPadOfflineId)<<" hash version "<< (int)myPadHashOfflineId << endreq;
 	}
     }  
   else if (msgLvl(MSG::DEBUG ))
     {
-      msg(MSG::DEBUG)<<"N. of pads requested for conversion = "<<vmap.size()<<endmsg;
+      msg(MSG::DEBUG)<<"N. of pads requested for conversion = "<<vmap.size()<<endreq;
     }
   bool isSLHeader    =false;
   bool isSLSubHeader =false;
@@ -172,12 +172,12 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
       
       msg(MSG::DEBUG) << "subDetectorID = 0x" 
 		      << MSG::hex << subDetectorID << MSG::dec 
-		      << endmsg;
+		      << endreq;
       
       msg(MSG::DEBUG) << "rodID = 0x" << MSG::hex
-		      << rodId << MSG::dec << endmsg;
+		      << rodId << MSG::dec << endreq;
       msg(MSG::DEBUG) << "The side is " << side 
-		      << endmsg;
+		      << endreq;
     }
     
   //RpcSectorLogic* sl;
@@ -293,16 +293,14 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
         
         msg(MSG::VERBOSE)  << i << " -->current data word is " 
 			   << MSG::hex << currentWord << MSG::dec
-			   << decoded_char << " RecFieldROS,PAD,SL  "<<recFieldROS<<" "<<recFieldPAD<<" "<<recFieldSL<<endmsg;
+			   << decoded_char << " RecFieldROS,PAD,SL  "<<recFieldROS<<" "<<recFieldPAD<<" "<<recFieldSL<<endreq;
         
       }
       
       //we must start with an RX Header:  
       if (i==0 && (!isRXHeader)) 
 	{
-	  ATH_MSG_WARNING("Bad data from RPC ROD 0x" << MSG::hex << rodId << MSG::dec
-      << ". RX header not found at ROB fragment begin. Skipping this ROB fragment.");
-    return StatusCode::SUCCESS; //continue decoding data from other ROBs
+	  msg(MSG::ERROR)<<"RX header not found at ROB fragment begin"<<endreq;
 	  //bsErrCheck_errorInRXHeader = true;
 	}
 
@@ -317,8 +315,8 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
  
         if (msgLvl(MSG::VERBOSE) )
 	  {
-	    msg(MSG::VERBOSE)  << " this is a RX Header " << endmsg;
-	    msg(MSG::VERBOSE) <<" Sector ID="    <<RXROS.RXid()<<endmsg;
+	    msg(MSG::VERBOSE)  << " this is a RX Header " << endreq;
+	    msg(MSG::VERBOSE) <<" Sector ID="    <<RXROS.RXid()<<endreq;
 	  }
         
         // get the sector id according to the new format
@@ -340,12 +338,12 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
             sector=40;
             sectorForCabling=8;
           }
-	  if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)  << "Here a change !!! RXid, sectorForCabling, sector = "<<rxid<<" "<<sectorForCabling<<" "<<sector<<endmsg;
+	  if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)  << "Here a change !!! RXid, sectorForCabling, sector = "<<rxid<<" "<<sectorForCabling<<" "<<sector<<endreq;
         }
         else if ( (rodId==4 || rodId==2) && (m_specialROBNumber > 0)) {
           sector=40;
           sectorForCabling=8;
-	  if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)  << "Here a change !!! RXid, sectorForCabling, sector = "<<rxid<<" "<<sectorForCabling<<" "<<sector<<endmsg;
+	  if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE)  << "Here a change !!! RXid, sectorForCabling, sector = "<<rxid<<" "<<sectorForCabling<<" "<<sector<<endreq;
         }     
         
 
@@ -389,14 +387,14 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
             
 	      msg(MSG::VERBOSE) 
 		<< " Number of data words in SectorLogicReadOut= "
-		<< SLBodyWords << endmsg;  
+		<< SLBodyWords << endreq;  
 	      msg(MSG::VERBOSE) 
-		<< " TEST SL: "<< foundSL << endmsg;
+		<< " TEST SL: "<< foundSL << endreq;
             
 	      // Print out a raw dump of the SL fragment 
 	      for(unsigned short j=0; j<SLBodyWords; j++) {
 		msg(MSG::VERBOSE) << " SL data word " << j << " : " << MSG::hex
-				  << SLBuff[j] << MSG::dec << endmsg;
+				  << SLBuff[j] << MSG::dec << endreq;
 	      }
 	    }
           
@@ -470,7 +468,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
                 if (!outputHeaderFound) {
                   rowinBcid = 999;
                   if (msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) 
-					       << "ERROR: outputSLHeader missing !!" << endmsg;
+					       << "ERROR: outputSLHeader missing !!" << endreq;
                 }
                 else {
                   if (SLROS.isOutputDecoded()) {
@@ -574,9 +572,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 
           side = (sector<32) ? 0:1; // 0 = side C[z<0], 1 = side A[z>0]
           uint16_t sectorLogic = sector-side*32; // range is 0-31
-	  //if (sector==22 || sector==23 || sector==26 || sector==27) msg(MSG::INFO) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<"  PadID/Sector "<<PadID<<"/"<<sector<<" need to get from cabling padOfflineId"<<endmsg;
+	  //if (sector==22 || sector==23 || sector==26 || sector==27) msg(MSG::INFO) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<"  PadID/Sector "<<PadID<<"/"<<sector<<" need to get from cabling padOfflineId"<<endreq;
 	  //else 
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<"  PadID/Sector "<<PadID<<"/"<<sector<<" need to get from cabling padOfflineId"<<endmsg;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Decoding Pad Header - side,sectorLogic= "<<side<<" "<<sectorLogic<<"  PadID/Sector "<<PadID<<"/"<<sector<<" need to get from cabling padOfflineId"<<endreq;
 
           // get the offline ID of the pad
           if(!m_cabling->giveOffflineID(side,sectorLogic,PadID,padOfflineId))
@@ -584,12 +582,12 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					  << "Cannot retrieve the OfflineID for the PAD n. " 
 					  << PadID << " at side " << side << " and  sector " 
-					  << sectorLogic << endmsg;
+					  << sectorLogic << endreq;
 	    } else {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					<< "PadOfflineId " << m_pRpcIdHelper->show_to_string(padOfflineId)
 					<< " associated to PAD n. " << PadID << " at side " 
-					<< side << " and  sectorLogic " << sectorLogic << endmsg; 
+					<< side << " and  sectorLogic " << sectorLogic << endreq; 
           }
           
           // check if it's the pad to convert
@@ -603,7 +601,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 					<< " match found with ID " 
 					<< m_pRpcIdHelper->show_to_string(thisPadOfflineId)
 					<< " requested for the conversion; return this collection with hash " << thisPadHashOfflineId
-					<< endmsg; 
+					<< endreq; 
             
             foundPad = true;
             
@@ -619,7 +617,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	      if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					  << " match NOT found with ID "  
 					  << m_pRpcIdHelper->show_to_string(thisPadOfflineId)
-					  << " requested for the conversion" << endmsg;  
+					  << " requested for the conversion" << endreq;  
 	    }
           
         }
@@ -633,7 +631,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
             thisv->setBcId(PDROS.bcid());
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					<< "Found the subheader, setting bcid to: " << PDROS.bcid() 
-					<< endmsg;
+					<< endreq;
           }
         }
 	else 
@@ -644,19 +642,19 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
         
         if (recField == 'P') {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-				      << "Found the prefooter" << endmsg;
+				      << "Found the prefooter" << endreq;
           if (foundPad) thisv->setStatus(PDROS.status());
           
           if ( currentWord&0x0fff ) {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)
 					<< "Pad Busy status not zero ! value: " << MSG::hex
-					<< (currentWord & 0x0fff) << MSG::dec << endmsg;
+					<< (currentWord & 0x0fff) << MSG::dec << endreq;
           }
         }
         
         if(recField == 'F') {
 	  if (msgLvl(MSG::VERBOSE)) {
-	    msg(MSG::VERBOSE) << " Pad Footer " << endmsg;
+	    msg(MSG::VERBOSE) << " Pad Footer " << endreq;
 	  }
 	  if (PDROS.errorCode()!=0) 
 	    {
@@ -683,7 +681,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	      /* if (!(PadID>3&&sector%2>0))
 		 {
 		 msg(MSG::VERBOSE) 
-		 << "Found Last sector Data Fragment ????  PadID=("<<PadID<<")<=3 || sector="<<sector<<" is odd"<< endmsg;  
+		 << "Found Last sector Data Fragment ????  PadID=("<<PadID<<")<=3 || sector="<<sector<<" is odd"<< endreq;  
 		 return StatusCode::SUCCESS;
                  }
 	      */
@@ -695,12 +693,12 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	if (msgLvl(MSG::VERBOSE))
 	  {          
 	    msg(MSG::VERBOSE) 
-	      << " current word "<< MSG::hex << currentWord << MSG::dec << endmsg;
+	      << " current word "<< MSG::hex << currentWord << MSG::dec << endreq;
           
 	    msg(MSG::VERBOSE) 
-	      << " ==isPADFragment= " << isPADFragment << endmsg;
+	      << " ==isPADFragment= " << isPADFragment << endreq;
 	    msg(MSG::VERBOSE) 
-	      << " calling pushword: " << MSG::hex << currentWord << MSG::dec << endmsg;
+	      << " calling pushword: " << MSG::hex << currentWord << MSG::dec << endreq;
 	  }
         
 	// here scrolling all PAD/CM fragments until a CM footer is found (foundCM>0 when a CM footer is found)
@@ -712,9 +710,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
         
 	if(foundCM==1) { // corresponds to CM footer found - all CM words stored in myRPC
           
-	  //if (sector==22 || sector==23 || sector==26 || sector==27)  msg(MSG::INFO)<< " in PadID/Sector "<<PadID<<"/"<<sector<<" CM footer found: n. of words in CM including Footer "<<nwInCM<<myRPC.CMFragment() << endmsg;
+	  //if (sector==22 || sector==23 || sector==26 || sector==27)  msg(MSG::INFO)<< " in PadID/Sector "<<PadID<<"/"<<sector<<" CM footer found: n. of words in CM including Footer "<<nwInCM<<myRPC.CMFragment() << endreq;
 	  //else 
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " in PadID/Sector "<<PadID<<"/"<<sector<< " CM footer found: n. of words in CM including Footer "<<nwInCM<<myRPC.CMFragment() << endmsg;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " in PadID/Sector "<<PadID<<"/"<<sector<< " CM footer found: n. of words in CM including Footer "<<nwInCM<<myRPC.CMFragment() << endreq;
           
 	  // If the pad is the good one, add the CMs to the container   
 	  if (foundPad) {
@@ -728,7 +726,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	    if ((sectorForCabling==21||sectorForCabling==22||sectorForCabling==25||sectorForCabling==26)&& 
 		(PadID==2||PadID==4||PadID==5||PadID==7)&& 
 		cmaId>=4)   cmaId=cmaId-4; 
-	    //msg(MSG::DEBUG) << "sector, Pad, cmaid : "<< sectorForCabling << ", " << PadID << ", " <<  cmaId << endmsg; 	    
+	    //msg(MSG::DEBUG) << "sector, Pad, cmaid : "<< sectorForCabling << ", " << PadID << ", " <<  cmaId << endreq; 	    
 	    uint16_t fel1id = matrixROS.fel1id();
             
 	    matrixROS = matrix->getSubHeader();
@@ -736,11 +734,11 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 
 	    //if (sector==22 || sector==23 || sector==26 || sector==27)  msg(MSG::INFO) 
 	    //<< "Creating a new CM, cmaId=" << cmaId << " fel1id=" << fel1id
-	    //<< " febcid=" << febcid <<" in PadID/Sector "<<PadID<<"/"<<sector<<endmsg;
+	    //<< " febcid=" << febcid <<" in PadID/Sector "<<PadID<<"/"<<sector<<endreq;
 	    //else 
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
 					<< "Creating a new CM, cmaId=" << cmaId << " fel1id=" << fel1id
-					<< " febcid=" << febcid <<" in PadID/Sector "<<PadID<<"/"<<sector<<endmsg;
+					<< " febcid=" << febcid <<" in PadID/Sector "<<PadID<<"/"<<sector<<endreq;
             
 	    // Create the new cm
 	    RpcCoinMatrix * coinMatrix = new RpcCoinMatrix (padOfflineId,cmaId,fel1id,febcid);
@@ -811,9 +809,9 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	// here check pad condition errors (Niko)
 	int decoded = (p[i] & 0xf000)>> 12 ;
 	msg(MSG::DEBUG) << "WHEN looking for errors in pad fragment ---- word " << i <<" = "<< MSG::hex << p[i] << MSG::dec 
-			  << " " << MSG::hex << decoded << MSG::dec << endmsg;
+			  << " " << MSG::hex << decoded << MSG::dec << endreq;
 	if (decoded<0x4) msg(MSG::INFO) << "Unexpected word WHEN looking for errors in pad fragment ---- word " << i <<" = "<< MSG::hex << p[i] << MSG::dec 
-			  << " " << MSG::hex << decoded << MSG::dec << endmsg;
+			  << " " << MSG::hex << decoded << MSG::dec << endreq;
 
 	*/
 

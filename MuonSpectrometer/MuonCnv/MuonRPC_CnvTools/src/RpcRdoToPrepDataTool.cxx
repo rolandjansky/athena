@@ -49,9 +49,9 @@ using namespace Trk;
 Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const std::string& name,
 						  const IInterface* parent ) 
   : AthAlgTool( type, name, parent ),
-    //m_factor(0.0),
-    //m_rpcOffset(0),
-    //m_print_prepData(0),                  //!< if 1 write a summary at the collections found
+    m_factor(0.0),
+    m_rpcOffset(0),
+    m_print_prepData(0),                  //!< if 1 write a summary at the collections found
     m_etaphi_coincidenceTime(0.),         //!< time for phi*eta coincidence 
     m_overlap_timeTolerance(0.),          //!< tolerance of the timing calibration 
     m_processingData(false),              //!< data or MC 
@@ -62,12 +62,6 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_timeShift(0.),                      //!< any global time shift ?!
     m_useBStoRdoTool(false),              //!< true if running trigger (EF) on BS input
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
-    m_muonMgr(nullptr),
-    m_rpcHelper(nullptr),
-    m_rpcPrepDataContainer(nullptr),
-    m_rpcCoinDataContainer(nullptr),
-    m_rpcCabling(nullptr),
-
     //m_padHashIdHelper(0),
     m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder"),
@@ -112,29 +106,29 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
 
   // perform necessary one-off initialization
 
-  msg (MSG::INFO) <<"package version = "<<PACKAGE_VERSION<<endmsg;
+  msg (MSG::INFO) <<"package version = "<<PACKAGE_VERSION<<endreq;
 
-  msg (MSG::INFO) <<"properties are "<<endmsg;
-  msg (MSG::INFO) <<"processingData                     "<<m_processingData <<endmsg;
-  msg (MSG::INFO) <<"produceRpcCoinDatafromTriggerWords "<<m_producePRDfromTriggerWords <<endmsg;
-  msg (MSG::INFO) <<"reduceCablingOverlap               "<<m_reduceCablingOverlap <<endmsg;
-  msg (MSG::INFO) <<"solvePhiAmbiguities                "<<m_solvePhiAmbiguities  <<endmsg;
-  msg (MSG::INFO) <<"timeShift                          "<<m_timeShift  <<endmsg;
+  msg (MSG::INFO) <<"properties are "<<endreq;
+  msg (MSG::INFO) <<"processingData                     "<<m_processingData <<endreq;
+  msg (MSG::INFO) <<"produceRpcCoinDatafromTriggerWords "<<m_producePRDfromTriggerWords <<endreq;
+  msg (MSG::INFO) <<"reduceCablingOverlap               "<<m_reduceCablingOverlap <<endreq;
+  msg (MSG::INFO) <<"solvePhiAmbiguities                "<<m_solvePhiAmbiguities  <<endreq;
+  msg (MSG::INFO) <<"timeShift                          "<<m_timeShift  <<endreq;
   if (m_solvePhiAmbiguities && (!m_reduceCablingOverlap)) {
-    msg (MSG::WARNING) << "Inconsistent setting of properties (solvePhiAmbiguities entails reduceCablingOverlap)"<<endmsg;
-    msg (MSG::WARNING) << "Resetting reduceCablingOverlap to true "<<endmsg;
+    msg (MSG::WARNING) << "Inconsistent setting of properties (solvePhiAmbiguities entails reduceCablingOverlap)"<<endreq;
+    msg (MSG::WARNING) << "Resetting reduceCablingOverlap to true "<<endreq;
     m_reduceCablingOverlap  = true;
   }
-  msg (MSG::INFO) <<"etaphi_coincidenceTime             "<<m_etaphi_coincidenceTime<<endmsg;
-  msg (MSG::INFO) <<"overlap_timeTolerance              "<<m_overlap_timeTolerance <<endmsg;
-  msg (MSG::INFO) <<"Correct prd time from cool db      "<<m_RPCInfoFromDb         <<endmsg;
+  msg (MSG::INFO) <<"etaphi_coincidenceTime             "<<m_etaphi_coincidenceTime<<endreq;
+  msg (MSG::INFO) <<"overlap_timeTolerance              "<<m_overlap_timeTolerance <<endreq;
+  msg (MSG::INFO) <<"Correct prd time from cool db      "<<m_RPCInfoFromDb         <<endreq;
   
   StatusCode sc;
   
   /// get the detector descriptor manager
   sc = detStore()->retrieve( m_muonMgr );
   if (sc.isFailure()) {
-    msg (MSG::FATAL) << " Cannot retrieve the MuonDetectorManager " << endmsg;
+    msg (MSG::FATAL) << " Cannot retrieve the MuonDetectorManager " << endreq;
     return sc;
   }
   else ATH_MSG_VERBOSE(" MuonDetectorManager retrieved");
@@ -142,17 +136,17 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   
   // Get RpcRawDataProviderTool
   if (m_rawDataProviderTool.retrieve().isFailure()) {
-    msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
+    msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endreq;
     return StatusCode::FAILURE;
   } else
-    msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+    msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endreq;
   
   // Get RpcRdoDecoderTool
   if (m_rpcRdoDecoderTool.retrieve().isFailure()) {
-    msg (MSG::FATAL) << "Failed to retrieve " << m_rpcRdoDecoderTool << endmsg;
+    msg (MSG::FATAL) << "Failed to retrieve " << m_rpcRdoDecoderTool << endreq;
     return StatusCode::FAILURE;
   } else
-    msg (MSG::INFO) << "Retrieved Tool " << m_rpcRdoDecoderTool << endmsg;
+    msg (MSG::INFO) << "Retrieved Tool " << m_rpcRdoDecoderTool << endreq;
   
 
   /// init rpcidhelper 
@@ -166,7 +160,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
     m_rpcPrepDataContainer = new RpcPrepDataContainer(m_rpcHelper->module_hash_max());
   } catch(std::bad_alloc) {
     msg (MSG::FATAL)
-      << "Could not create a new RPC PrepRawData container!"<< endmsg;
+      << "Could not create a new RPC PrepRawData container!"<< endreq;
     return StatusCode::FAILURE;
   }
   m_rpcPrepDataContainer->addRef();
@@ -179,7 +173,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
       m_rpcCoinDataContainer = new RpcCoinDataContainer(m_rpcHelper->module_hash_max());
     } catch(std::bad_alloc) {
       msg (MSG::FATAL)
-	<< "Could not create a new RPC TrigCoinData container!"<< endmsg;
+	<< "Could not create a new RPC TrigCoinData container!"<< endreq;
       return StatusCode::FAILURE;
     }
     m_rpcCoinDataContainer->addRef();
@@ -190,25 +184,25 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   const IRPCcablingServerSvc* RpcCabGet = 0;
   sc = service("RPCcablingServerSvc", RpcCabGet);
   if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
+    msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endreq;
     return StatusCode::FAILURE;
   }
   else ATH_MSG_VERBOSE(" RPCcablingServerSvc retrieved");
   
   sc = RpcCabGet->giveCabling(m_rpcCabling);
   if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
+    msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endreq;
     m_rpcCabling = 0;
     return StatusCode::FAILURE;
   } 
   else {
     //ATH_MSG_VERBOSE(" RPCcablingSvc obtained ");
-    msg (MSG::VERBOSE) << "RPCcablingSvc obtained: " << (dynamic_cast<const Service*>(m_rpcCabling))->name() << endmsg;
+    msg (MSG::VERBOSE) << "RPCcablingSvc obtained: " << (dynamic_cast<const Service*>(m_rpcCabling))->name() << endreq;
   }
   
   std::string svcName=m_rpcCabling->rpcCabSvcType();
   
-  msg(MSG::INFO)<<"Rpc Cabling Svc name is "<<svcName<<endmsg;
+  msg(MSG::INFO)<<"Rpc Cabling Svc name is "<<svcName<<endreq;
   
   // LBTAG 29/01/10: case RPCcabling or RPCcablingSim
   if (svcName.find("sim")!=std::string::npos) {
@@ -309,7 +303,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
         msg(MSG::VERBOSE) << "The list of offline collection hash ids to be decoded: ";
         for (auto itHashId=idVectToBeDecoded.begin(); itHashId!=idVectToBeDecoded.end(); ++itHashId)
           msg(MSG::VERBOSE) << (int)*itHashId << " ";
-        msg(MSG::VERBOSE) << endmsg;
+        msg(MSG::VERBOSE) << endreq;
       }
     }
   }
@@ -341,14 +335,14 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     // ask RpcRawDataProviderTool to decode the list of robs and to fill the rdo IDC
     if (sizeVectorRequested == 0) {
       if (m_rawDataProviderTool->convert().isFailure()) {
-	msg (MSG::FATAL) << "BS conversion into RDOs failed" << endmsg;
+	msg (MSG::FATAL) << "BS conversion into RDOs failed" << endreq;
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG("BS conversion into RDOs for the entire event done !");
     }
     else {
       if (m_rawDataProviderTool->convert(rdoHashVec).isFailure()) {
-	msg (MSG::FATAL) << "BS conversion into RDOs failed" << endmsg;
+	msg (MSG::FATAL) << "BS conversion into RDOs failed" << endreq;
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG("BS conversion into RDOs for the selected collections done !");
@@ -358,7 +352,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   status = evtStore()->retrieve( rdoContainer, "RPCPAD" );
   if (status.isFailure()) {
-    msg (MSG::WARNING) << "Retrieval of Rpc RDO container failed ! no RPCPAD in the Event Store" << endmsg;
+    msg (MSG::WARNING) << "Retrieval of Rpc RDO container failed ! no RPCPAD in the Event Store" << endreq;
     return StatusCode::SUCCESS;                                        
   }                                                                
   ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
@@ -382,8 +376,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     int nEtaPrepRawData =0;
     if (processingphiview) m_ambiguousCollections.clear();
     if (msgLvl(MSG::DEBUG)) {
-      if (processingetaview) msg (MSG::DEBUG) <<"*** Processing eta view "<<endmsg;
-      else msg (MSG::DEBUG) <<"*** Processing phi view "<<endmsg;
+      if (processingetaview) msg (MSG::DEBUG) <<"*** Processing eta view "<<endreq;
+      else msg (MSG::DEBUG) <<"*** Processing phi view "<<endreq;
     }
     
     const RpcPad* rdoColl;
@@ -454,11 +448,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
           idVectToBeDecoded.push_back(*itAmbiColl);
           m_decodedOfflineHashIds.insert(*itAmbiColl);
         }
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
         StatusCode sc = m_rpcCabling->giveRDO_fromPRD(idVectToBeDecoded, rdoHashVec);
         if (StatusCode::SUCCESS != sc) return sc;
         if (m_rawDataProviderTool->convert(rdoHashVec).isFailure()) {
-          msg (MSG::FATAL) << "BS conversion into RDOs failed" << endmsg;
+          msg (MSG::FATAL) << "BS conversion into RDOs failed" << endreq;
           return StatusCode::FAILURE;
         }
         ATH_MSG_DEBUG("BS conversion into RDOs for the selected collections done !");
@@ -555,7 +549,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
       if (msgLvl(MSG::VERBOSE)) {
         msg(MSG::VERBOSE) << "The list of ROB Ids to be decoded: ";
         for (uint32_t robid : robIdsToBeDecoded) msg(MSG::VERBOSE) << "0x" << MSG::hex << robid << MSG::dec << " ";
-        msg(MSG::VERBOSE) << endmsg;
+        msg(MSG::VERBOSE) << endreq;
       }
   }
   
@@ -711,8 +705,8 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
 //___________________________________________________________________________
 void Muon::RpcRdoToPrepDataTool::printInputRdo()
 {
-  msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
-  msg (MSG::INFO) << "***************** Listing RpcPad Collections --- i.e. input RDO ****************************************" << endmsg;
+  msg (MSG::INFO) << "********************************************************************************************************" << endreq;
+  msg (MSG::INFO) << "***************** Listing RpcPad Collections --- i.e. input RDO ****************************************" << endreq;
   
   /// RPC context
   IdContext rpcContext = m_rpcHelper->module_context();
@@ -720,17 +714,17 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
   const RpcPadContainer* rdoContainer;
   StatusCode status = evtStore()->retrieve( rdoContainer, "RPCPAD" );
   if (status.isFailure()) {
-    msg (MSG::WARNING) << "Retrieval of Rpc RDO container for debugging purposes failed !" << endmsg;
+    msg (MSG::WARNING) << "Retrieval of Rpc RDO container for debugging purposes failed !" << endreq;
     return;
   }                                                                
   
-  if (rdoContainer->size() <= 0)msg (MSG::INFO) << "No RpcPad collections found" << endmsg;
+  if (rdoContainer->size() <= 0)msg (MSG::INFO) << "No RpcPad collections found" << endreq;
   
   int ncoll = 0;
   int ictphi = 0;
   int icteta = 0;
   int icttrg = 0;
-  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
   
   int ipad = 0;
   const RpcPad * rdoColl;
@@ -748,7 +742,7 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
     Identifier rdoId;
     int  code = m_rpcHelper->get_id(rpcHashId, rdoId, &rpcContext);
     if  (code != 0) 
-      msg (MSG::INFO) <<" A problem in hash -> id conversion for hashId= "<<(int)rpcHashId<<endmsg;
+      msg (MSG::INFO) <<" A problem in hash -> id conversion for hashId= "<<(int)rpcHashId<<endreq;
     std::string extIdstring = m_rpcHelper->show_to_string(rdoId);
     ATH_MSG_INFO("*** Offine HashId = "<<static_cast<unsigned int>(rpcHashId)<<" extended = "<<extIdstring);
 
@@ -773,11 +767,11 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
 	  if (m_processingData) {
 	    etaview = false;
 	  }
-	  //        msg (MSG::INFO) << " eta view = "<<etaview<<endmsg;
+	  //        msg (MSG::INFO) << " eta view = "<<etaview<<endreq;
 	}
 	
 	else {
-	  //msg (MSG::INFO) << " eta view = "<<etaview<<endmsg;
+	  //msg (MSG::INFO) << " eta view = "<<etaview<<endreq;
 	}
       }
       else {
@@ -788,10 +782,10 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
 	  if (m_processingData) {
 	    etaview = false;
 	  }
-	  //msg (MSG::INFO) << " eta view = "<<etaview<<endmsg;
+	  //msg (MSG::INFO) << " eta view = "<<etaview<<endreq;
 	}
 	else {
-	  //msg (MSG::INFO) << " eta view = "<<etaview<<endmsg;
+	  //msg (MSG::INFO) << " eta view = "<<etaview<<endreq;
 	}
       }
       ATH_MSG_INFO("*** CM online Id "
@@ -803,7 +797,7 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
       RpcCoinMatrix::const_iterator itD_e = (*itCM)->end();
       int idata = 0;
       if (itD == itD_e) {
-	msg (MSG::INFO) << "Empty CM"<<endmsg;
+	msg (MSG::INFO) << "Empty CM"<<endreq;
       }
       for (; itD != itD_e ; ++itD) {
 	idata++;
@@ -813,7 +807,7 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
 	  msg (MSG::INFO) <<"***** RpcFiredChannel: bcid "<<rpcChan->bcid()<<" time "
 			  <<rpcChan->time()<<" ijk "<<rpcChan->ijk();
 	  if (rpcChan->ijk()<7)  msg() <<" ch "<<rpcChan->channel();
-	  msg() <<endmsg;
+	  msg() <<endreq;
 	  if (rpcChan->ijk()==6) ++ictrg;
 	}
       }// end loop over hits 
@@ -827,17 +821,17 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
 		  <<ncoll <<" Collections / "
 		  <<icttrg<<" trigger hits / "
 		  <<ictphi<<" phi hits / "
-		  <<icteta<<" eta hits "<<endmsg;
-  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+		  <<icteta<<" eta hits "<<endreq;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
 }
 
 void Muon::RpcRdoToPrepDataTool::printPrepData()
 {
-  msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
-  msg (MSG::INFO) << "***************** Listing RpcPrepData collections content **********************************************" << endmsg;
+  msg (MSG::INFO) << "********************************************************************************************************" << endreq;
+  msg (MSG::INFO) << "***************** Listing RpcPrepData collections content **********************************************" << endreq;
   
-  if (m_rpcPrepDataContainer->size() <= 0)msg (MSG::INFO) << "No RpcPrepRawData collections found" << endmsg;
-  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endmsg;
+  if (m_rpcPrepDataContainer->size() <= 0)msg (MSG::INFO) << "No RpcPrepRawData collections found" << endreq;
+  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endreq;
   
   int ncoll = 0;
   int ict = 0;
@@ -845,14 +839,14 @@ void Muon::RpcRdoToPrepDataTool::printPrepData()
   int ictamb = 0;
   int icteta = 0;
   int icttrg = 0;
-  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
   for (IdentifiableContainer<Muon::RpcPrepDataCollection>::const_iterator rpcColli = m_rpcPrepDataContainer->begin();
        rpcColli!=m_rpcPrepDataContainer->end(); ++rpcColli) {
 
     const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
         
     if ( rpcColl->size() > 0 ) {
-      msg (MSG::INFO) <<"PrepData Collection ID "<<m_rpcHelper->show_to_string(rpcColl->identify())<<endmsg;
+      msg (MSG::INFO) <<"PrepData Collection ID "<<m_rpcHelper->show_to_string(rpcColl->identify())<<endreq;
       RpcPrepDataCollection::const_iterator it_rpcPrepData;
       int icc = 0;
       int iccphi = 0;
@@ -881,22 +875,22 @@ void Muon::RpcRdoToPrepDataTool::printPrepData()
 	msg (MSG::INFO) <<ict<<" in this coll. "<<icc<<" prepData id = "
 			<<m_rpcHelper->show_to_string((*it_rpcPrepData)->identify())
 			<<" time "<<(*it_rpcPrepData)->time()/*<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()*/
-			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endmsg;
+			<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endreq;
       }
       ncoll++;
       msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
 	//                <<icctrg<<" trigger hits / "
 		      <<iccphi<<" phi hits / "
-		      <<icceta<<" eta hits "<<endmsg;
-      msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+		      <<icceta<<" eta hits "<<endreq;
+      msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
     }
   }
   msg (MSG::INFO) <<"*** Event  Summary: "
 		  <<ncoll <<" Collections / "
 		  <<icttrg<<" trigger hits / "
 		  <<ictphi<<" phi hits / "
-		  <<icteta<<" eta hits "<<endmsg;
-  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+		  <<icteta<<" eta hits "<<endreq;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
   
   // and now coincidence data 
   printCoinData();
@@ -904,11 +898,11 @@ void Muon::RpcRdoToPrepDataTool::printPrepData()
 
 void Muon::RpcRdoToPrepDataTool::printCoinData()
 {
-  msg (MSG::INFO) << "********************************************************************************************************" << endmsg;
-  msg (MSG::INFO) << "***************** Listing RpcCoinData collections content **********************************************" << endmsg;
+  msg (MSG::INFO) << "********************************************************************************************************" << endreq;
+  msg (MSG::INFO) << "***************** Listing RpcCoinData collections content **********************************************" << endreq;
   
-  if (m_rpcCoinDataContainer->size() <= 0)msg (MSG::INFO) << "No RpcCoinData collections found" << endmsg;
-  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endmsg;
+  if (m_rpcCoinDataContainer->size() <= 0)msg (MSG::INFO) << "No RpcCoinData collections found" << endreq;
+  //else msg (MSG::INFO) << "Number of RpcPrepRawData collections found in this event is "<< << endreq;
   
   int ncoll = 0;
   int ict = 0;
@@ -918,14 +912,14 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
   int ictphihc = 0;
   int ictetalc = 0;
   int ictetahc = 0;
-  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
   for (IdentifiableContainer<Muon::RpcCoinDataCollection>::const_iterator rpcColli = m_rpcCoinDataContainer->begin();
        rpcColli!=m_rpcCoinDataContainer->end(); ++rpcColli) {
 
         const Muon::RpcCoinDataCollection* rpcColl = *rpcColli;
         
         if ( rpcColl->size() > 0 ) {	  
-	  msg (MSG::INFO) <<"CoinData Collection ID "<<m_rpcHelper->show_to_string(rpcColl->identify())<<endmsg;
+	  msg (MSG::INFO) <<"CoinData Collection ID "<<m_rpcHelper->show_to_string(rpcColl->identify())<<endreq;
 	  RpcCoinDataCollection::const_iterator it_rpcCoinData;
 	  int icc = 0;
 	  int iccphi = 0;
@@ -978,7 +972,7 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
 			    <<(*it_rpcCoinData)->parentCmId()<<"/"<<(*it_rpcCoinData)->parentPadId()<<"/"<<(*it_rpcCoinData)->parentSectorId()<<"/"
 			    <<" isLowPtCoin/HighPtCoin/LowPtInputToHighPt "
 			    <<(*it_rpcCoinData)->isLowPtCoin() <<"/"<<(*it_rpcCoinData)->isHighPtCoin() <<"/"<<(*it_rpcCoinData)->isLowPtInputToHighPtCm() 
-			    <<endmsg;
+			    <<endreq;
 	  }
 	  ncoll++;
 	  msg (MSG::INFO) <<"*** Collection "<<ncoll<<" Summary: "
@@ -989,8 +983,8 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
 			  <<iccphihc<<" phi highPt / "
 			  <<iccetalc<<" eta lowPt / "
 			  <<iccetahc<<" eta highPt coincidences  "
-			  <<endmsg;
-	  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+			  <<endreq;
+	  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
         }
   }
   msg (MSG::INFO) <<"*** Event  Summary: "
@@ -1001,8 +995,8 @@ void Muon::RpcRdoToPrepDataTool::printCoinData()
 		  <<ictphihc<<" phi highPt / "
 		  <<ictetalc<<" eta lowPt / "
 		  <<ictetahc<<" eta highPt coincidences  "
-		  <<endmsg;
-  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endmsg;
+		  <<endreq;
+  msg (MSG::INFO) <<"--------------------------------------------------------------------------------------------"<<endreq;
 }
 
 
@@ -1101,7 +1095,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	msg (MSG::DEBUG) <<"RpcFiredChannel: bcid "<<rpcChan->bcid()<<" time "
 			 <<rpcChan->time()<<" ijk "<<rpcChan->ijk();
 	if (rpcChan->ijk()<7)  msg() <<" ch "<<rpcChan->channel();
-	msg() <<endmsg;
+	msg() <<endreq;
       }
 
       // check if trigger hit             
@@ -1126,7 +1120,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
       time += (double)m_timeShift;
       
       if (digitVec==NULL) {
-	msg (MSG::ERROR) << "Error in the RPC RDO decoder " << endmsg;
+	msg (MSG::ERROR) << "Error in the RPC RDO decoder " << endreq;
 	return StatusCode::RECOVERABLE;
       }
       
@@ -1145,7 +1139,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	//                             m_log << MSG::VERBOSE
 	//                                 << "STARTOFWHILE - NotFinished = "<< notFinished
 	//                                 <<" unsolvedAmbiguity = "<<unsolvedAmbiguity<<" processingphiview "<<processingphiview
-	//                                 <<" digitVec of size "<<digitVec->size()<<endmsg;
+	//                                 <<" digitVec of size "<<digitVec->size()<<endreq;
 	// Loop on the digits corresponding to the fired channel
 	std::vector<Identifier>::iterator itVec   = digitVec->begin();
 	std::vector<Identifier>::iterator itVec_e = digitVec->end();
@@ -1167,23 +1161,23 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 			     << "context begin_index = " << rpcContext.begin_index()
 			     << " context end_index  = " << rpcContext.end_index()
 			     << " the identifier is "
-			     << endmsg;
+			     << endreq;
 	    parentId.show();
 	  }
 	  // SS 14/10/2008 try this (doesn't change unseeded behaviour)
 	  //                     if ( !isRequested(idVect, rpcHashId) ) {
-	  //                         if (m_debug) m_log << MSG::DEBUG << "this offline identifier does not belong to the selection of collections requested - skip "<<endmsg;
+	  //                         if (m_debug) m_log << MSG::DEBUG << "this offline identifier does not belong to the selection of collections requested - skip "<<endreq;
 	  //                         continue;
 	  //                     }
 	  if ( msgLvl (MSG::DEBUG) ) {	    
 	    msg (MSG::DEBUG) << "CM Hit decoded into offline Id " 
 			     << m_rpcHelper->show_to_string(channelId) 
-			     << " time "<<time<<endmsg; 
+			     << " time "<<time<<endreq; 
 	    msg (MSG::DEBUG) << "           Parent collection   " 
 			     << m_rpcHelper->show_to_string(parentId)
 			     << " oldID = "<<m_rpcHelper->show_to_string(oldId)
 			     << " oldIDtrg = "<<m_rpcHelper->show_to_string(oldIdTrg)
-			     << endmsg;
+			     << endreq;
 	  }
 	  bool hasAMatchingEtaHit = 0;
 	  // current collection has Id "parentId"; get it from the container !
@@ -1195,7 +1189,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 			    <<static_cast<unsigned int>(rpcHashId)<<" in COINDATA container at "<<m_rpcCoinDataContainer);
 	      collectionTrg =
 		Muon::IDC_Helper::getCollection<RpcCoinDataContainer, RpcIdHelper>(parentId, m_rpcCoinDataContainer, m_rpcHelper, msg());
-	      if ( collectionTrg ==0 ) msg (MSG::WARNING) <<"Failed to get/create RpcCoinData collection"<<endmsg;
+	      if ( collectionTrg ==0 ) msg (MSG::WARNING) <<"Failed to get/create RpcCoinData collection"<<endreq;
 	      oldIdTrg = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldIDtrg to current parentID = "<<m_rpcHelper->show_to_string(oldIdTrg));
 	    }
@@ -1225,7 +1219,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
              <<m_rpcHelper->show_to_string(collection->identify()));
            }
 	      }
-	      else msg (MSG::WARNING) <<"Failed to get/create RpcPrepData collection"<<endmsg;
+	      else msg (MSG::WARNING) <<"Failed to get/create RpcPrepData collection"<<endreq;
 	      oldId = parentId;
 	      ATH_MSG_DEBUG(" Resetting oldID to current parentID = "
 			    <<m_rpcHelper->show_to_string(oldId));
@@ -1238,7 +1232,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 	  bool duplicate = false;
 	  if (reduceCablOvl_thisHit) {	    
 	    if (collection->begin()!=collection->end()) {                        
-	      RpcPrepDataCollection::iterator it_rpcPrepData;
+	      RpcPrepDataCollection::const_iterator it_rpcPrepData;
 	      int icc = 0;
 	      ATH_MSG_VERBOSE("Check for duplicates in coll. with size "<<collection->size());
 	      int current_dbphi = 0;
@@ -1311,7 +1305,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 		<< "nMatchingEtaHits = "
 		<<nMatchingEtaHits
 		<<" hasAMatchingEtaHit = "
-		<<hasAMatchingEtaHit<<endmsg;
+		<<hasAMatchingEtaHit<<endreq;
 	  }
                     
 	  if (!duplicate) {
@@ -1349,7 +1343,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 		hasAMatchingEtaHit = false;
 		duplicate          = false;
 		msg (MSG::WARNING) <<"Detector Element not found for Identifier from the cabling service <"
-				   <<m_rpcHelper->show_to_string(channelId)<<">  =>>ignore this hit"<<endmsg;
+				   <<m_rpcHelper->show_to_string(channelId)<<">  =>>ignore this hit"<<endreq;
 		continue;
 	      }
 	      else if (!descriptor->containsId(channelId)) {
@@ -1362,7 +1356,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 		else
 		  msg (MSG::WARNING) <<"Identifier from the cabling service <"
 				     <<m_rpcHelper->show_to_string(channelId)<<"> inconsistent with the geometry of detector element <"
-				     <<m_rpcHelper->show_to_string(descriptor->identify())<<">  =>>ignore this hit"<<endmsg;
+				     <<m_rpcHelper->show_to_string(descriptor->identify())<<">  =>>ignore this hit"<<endreq;
 		continue;
 	      }
               
@@ -1517,7 +1511,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
     m_rpcPrepDataContainer->cleanup();
     if (m_producePRDfromTriggerWords){
       if (evtStore()->contains<Muon::RpcCoinDataContainer>(m_outputCollectionLocation)) {
-	msg( MSG::FATAL) <<"Muon::RpcPrepDataContainer not found while Muon::RpcCoinDataContainer found in Event Store"<<endmsg;
+	msg( MSG::FATAL) <<"Muon::RpcPrepDataContainer not found while Muon::RpcCoinDataContainer found in Event Store"<<endreq;
 	return StatusCode::FAILURE;
       }
       // clean up also the trigger hit container
@@ -1526,7 +1520,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
     /// record the container in storeGate
     StatusCode status = evtStore()->record(m_rpcPrepDataContainer,m_outputCollectionLocation);
     if (status.isFailure()) {
-      msg (MSG::FATAL) << "Could not record container of RPC PrepData at " << m_outputCollectionLocation << endmsg;
+      msg (MSG::FATAL) << "Could not record container of RPC PrepData at " << m_outputCollectionLocation << endreq;
       return status;
     }
     else ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_outputCollectionLocation);
@@ -1538,7 +1532,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       // record the rpc hit container 
       StatusCode status = evtStore()->record(m_rpcCoinDataContainer,m_trgOutputCollectionLocation);
       if (status.isFailure()) {
-        msg (MSG::FATAL) << "Could not record container of RPC CoinData at " << m_trgOutputCollectionLocation << endmsg;
+        msg (MSG::FATAL) << "Could not record container of RPC CoinData at " << m_trgOutputCollectionLocation << endreq;
         return status;
       }
       else 
@@ -1592,7 +1586,7 @@ void Muon::RpcRdoToPrepDataTool::processTriggerHitHypothesis(RpcCoinMatrix::cons
         if (highPtCm) cmtype = " in high pT CM ";
         msg( MSG::VERBOSE ) 
           <<"This hit: ijk = "<<rpcChan->ijk()<<cmtype<<" bcid is "<<rpcChan->bcid()
-          <<" time is "<<rpcChan->time()<<" ch "<<rpcChan->channel()<<endmsg;
+          <<" time is "<<rpcChan->time()<<" ch "<<rpcChan->channel()<<endreq;
       }
       RpcCoinMatrix::const_iterator itDnext =   itD+1;
       while (itDnext != itD_end) {
@@ -1601,7 +1595,7 @@ void Muon::RpcRdoToPrepDataTool::processTriggerHitHypothesis(RpcCoinMatrix::cons
           msg( MSG::VERBOSE ) 
             <<"Next hit: ijk = "<<rpcChanNext->ijk()<<cmtype<<" bcid is "<<rpcChan->bcid()
             <<" time is "<<rpcChanNext->time();
-          if (rpcChanNext->ijk()<7)  msg() <<" ch "<<rpcChanNext->channel()<<endmsg;
+          if (rpcChanNext->ijk()<7)  msg() <<" ch "<<rpcChanNext->channel()<<endreq;
         }
         if (rpcChanNext->ijk()==7) {        
           ATH_MSG_VERBOSE("next has ijk=7 ");
@@ -1611,7 +1605,7 @@ void Muon::RpcRdoToPrepDataTool::processTriggerHitHypothesis(RpcCoinMatrix::cons
             overlap   = rpcChanNext->ovl();
           }
           else {
-            msg( MSG::WARNING )<<"ijk =7 after a ijk = 6 BUT bdid/tick don't match - will not assign threshold/overlap "<<endmsg;
+            msg( MSG::WARNING )<<"ijk =7 after a ijk = 6 BUT bdid/tick don't match - will not assign threshold/overlap "<<endreq;
           }
           break;
         }
@@ -1623,7 +1617,7 @@ void Muon::RpcRdoToPrepDataTool::processTriggerHitHypothesis(RpcCoinMatrix::cons
           }
           else {
             msg( MSG::WARNING )
-              <<"RPC cm hit with ijk = 6 not followed by ijk = 6 or 7 - will not assign threshold / overlap"<<endmsg;
+              <<"RPC cm hit with ijk = 6 not followed by ijk = 6 or 7 - will not assign threshold / overlap"<<endreq;
             break;
           }       
         }

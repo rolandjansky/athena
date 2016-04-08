@@ -48,26 +48,26 @@ StatusCode Muon::RpcPadContByteStreamTool::initialize() {
    StatusCode sc = AlgTool::initialize(); 
 
    if (StatusCode::SUCCESS !=sc) {
-     msg(MSG::ERROR) << " Base class initialisation failed " << endmsg;
+     msg(MSG::ERROR) << " Base class initialisation failed " << endreq;
      return StatusCode::FAILURE; 
    }  
   
   const IRPCcablingServerSvc* RpcCabGet = 0;
   
   if (StatusCode::SUCCESS != service("RPCcablingServerSvc", RpcCabGet,true)) {
-    msg(MSG::ERROR) << " Can't get RPCcablingServerSvc " << endmsg;
+    msg(MSG::ERROR) << " Can't get RPCcablingServerSvc " << endreq;
     return StatusCode::FAILURE; 
   }
    
   if (StatusCode::SUCCESS != RpcCabGet->giveCabling(m_cabling)) {
-    msg(MSG::ERROR) << " Can't get RPCcablingSvc from Server" << endmsg;
+    msg(MSG::ERROR) << " Can't get RPCcablingSvc from Server" << endreq;
     return StatusCode::FAILURE; 
   }  
 
 //   StoreGateSvc * detStore;
 //   StatusCode status = service("DetectorStore", detStore);
 //   if (status.isFailure()) {
-//     msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
+//     msg(MSG::FATAL) << "DetectorStore service not found !" << endreq;
 //     return StatusCode::FAILURE;
 //   } else {}
  
@@ -75,11 +75,11 @@ StatusCode Muon::RpcPadContByteStreamTool::initialize() {
   const RpcIdHelper* rpc_id;
   StatusCode status = detStore()->retrieve(rpc_id, "RPCIDHELPER");
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get RpcIdHelper !" << endmsg;
+    msg(MSG::FATAL) << "Could not get RpcIdHelper !" << endreq;
     return StatusCode::FAILURE;
   } 
   else {
-    msg(MSG::DEBUG) << " Found the RpcIdHelper. " << endmsg;
+    msg(MSG::DEBUG) << " Found the RpcIdHelper. " << endreq;
   }
  
   m_hid2re.set(m_cabling, rpc_id);
@@ -108,7 +108,7 @@ StatusCode Muon::RpcPadContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
 
    std::map<uint32_t, RpcROD_Encoder> mapEncoder; 
 
-   //log <<MSG::DEBUG<<" number of collections "<< cont->size() << endmsg;
+   //log <<MSG::DEBUG<<" number of collections "<< cont->size() << endreq;
    for( ; it_coll!=it_coll_end;++it_coll) {
       const RpcPad* coll = (*it_coll);
 
