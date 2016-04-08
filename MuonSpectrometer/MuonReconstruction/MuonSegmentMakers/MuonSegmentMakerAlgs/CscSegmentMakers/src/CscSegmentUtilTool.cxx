@@ -95,10 +95,11 @@ namespace {
 // Constructor.
 CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent),
+  : AthAlgTool(type,name,parent), m_gm(0), m_phelper(0), 
     m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
     m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_storeGateSvc(0)
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
