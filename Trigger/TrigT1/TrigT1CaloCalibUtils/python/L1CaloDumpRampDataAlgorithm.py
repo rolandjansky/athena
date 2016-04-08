@@ -7,6 +7,9 @@ from PyKernel import PyKernel
 import scipy
 import sys,traceback
 
+# vscharf 20150519: This algorithm doesn't work with release 20.1.X-VAL due to
+# memory management issues between ROOT and python. Replaced by
+# TrigT1CaloCalibUtils/L1CaloDumpRampData
 class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
     """ Test reading back in conditions data. """
     def __init__(self, name="L1CaloDumpRampDataAlgorithm"):

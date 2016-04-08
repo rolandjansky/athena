@@ -2,41 +2,48 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigT1CaloCalibUtils/L1CaloRampMaker.h"
+
 #include <fstream>
+#include <utility> // make_pair
 
 #include "AthenaKernel/errorcheck.h"
 
-#include "TrigT1CaloCalibUtils/L1CaloRampMaker.h"
-// #include "TrigT1CaloCalibTools/L1CaloCells2TriggerTowers.h"
-
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "CaloEvent/CaloCellContainer.h"
+#include "CaloEvent/CaloCell.h"
 
+#include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
+#include "TrigT1CaloCalibToolInterfaces/IL1CaloxAODOfflineTriggerTowerTools.h"
+
+#include "TrigT1CaloCalibConditions/L1CaloPprConditionsRun2.h"
 #include "TrigT1CaloCalibConditions/L1CaloRampData.h"
 #include "TrigT1CaloCalibConditions/L1CaloRampDataContainer.h"
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
-// #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
-// #include "TrigT1CaloCalibToolInterfaces/IL1CaloLArTowerEnergy.h"
 
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloLArTowerEnergy.h"
-#include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+
+// temporary includes to work around limitations in L1CaloxAODOfflineTriggerTowerTools
+#include "TrigT1CaloUtils/TriggerTowerKey.h"
+#include "TrigT1CaloEvent/TriggerTower.h"
+
+#include "xAODTrigL1Calo/TriggerTower.h"
+
+// define Accessors
+namespace {
+xAOD::TriggerTower::ConstAccessor<float> ttCellsEnergy("CaloCellEnergy");
+xAOD::TriggerTower::ConstAccessor<float> ttCellsET("CaloCellET");
+}
 
 L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_triggerTowerCollectionName("TriggerTowers"),
-    m_caloCellContainerName("AllCalo"),
-    m_l1CaloCells2TriggerTowersToolName("L1CaloCells2TriggerTowers"),
+    m_triggerTowerContainerName(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation),
     m_outputFolderName("/L1CaloRampMaker/L1CaloRampDataContainer"),
     m_gainStrategyFolder("/TRIGGER/Receivers/Conditions/Strategy"),
     m_doLAr(false),
@@ -51,24 +58,18 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     m_nSteps(9),
     m_fadcSaturationCut(963),
     m_tileSaturationCut(150.),
-    m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool"),
-    m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider"),
+    m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
+    m_xAODTTTools("LVL1::L1CaloxAODOfflineTriggerTowerTools/L1CaloxAODOfflineTriggerTowerTools"),
+    m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
+    m_condSvc("L1CaloCondSvc", name),
     m_nEvent(1),
     m_firstEvent(true),
-    m_storeGate(0),
-    m_detStore(0),
-    m_condSvc(0),
-    m_lvl1Helper(0),
-    m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
-    m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
-    m_rampDataContainer(0),
-    m_pprLutContainer(0),
-    m_pprDisabledChannelContainer(0),
-    m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy")
+    m_lvl1Helper(nullptr),
+    m_rampDataContainer(nullptr),
+    m_pprLutContainer(nullptr),
+    m_pprDisabledChannelContainer(nullptr)
 {
-    declareProperty("TriggerTowerCollectionName", m_triggerTowerCollectionName);
-    declareProperty("CaloCellContainerName", m_caloCellContainerName);
-    declareProperty("L1CaloCells2TriggerTowersToolName", m_l1CaloCells2TriggerTowersToolName);
+    declareProperty("TriggerTowerCollectionName", m_triggerTowerContainerName);
     declareProperty("OutputFolderName", m_outputFolderName);
     declareProperty("GainStrategyFolder", m_gainStrategyFolder);
     declareProperty("DoLAr", m_doLAr);
@@ -84,186 +85,88 @@ L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocat
     declareProperty("FADCSaturationCut", m_fadcSaturationCut);
     declareProperty("TileSaturationCut", m_tileSaturationCut);
     declareProperty("L1TriggerTowerTool", m_ttTool);
-    declareProperty("TileBeamInfoProvider", m_beamInfo);
     declareProperty("SpecialChannelRange", m_specialChannelRange);
 }
 
-L1CaloRampMaker::~L1CaloRampMaker() 
+L1CaloRampMaker::~L1CaloRampMaker()
 {
 }
 
 StatusCode L1CaloRampMaker::initialize()
 {
-    StatusCode sc;
-    
-    sc = service("StoreGateSvc", m_storeGate);
-    if(sc.isFailure()) {
-        ATH_MSG_FATAL( "Cannot access StoreGateSvc!" );
-        return sc;
-    }
+    CHECK(m_condSvc.retrieve());
 
-    sc = service("DetectorStore", m_detStore);
-    if(sc.isFailure()) {
-        ATH_MSG_FATAL( "Cannot access DetectorStore!" );
-        return sc;
-    }
-    
-    sc = service("L1CaloCondSvc", m_condSvc);
-    if(sc.isFailure()) {
-        ATH_MSG_FATAL( "Cannot access L1CaloCondSvc!" );
-        return sc;
-    }
-
-    const CaloIdManager *caloMgr;
-    sc = m_detStore->retrieve(caloMgr);
-    if(sc.isFailure()) {
-	ATH_MSG_FATAL( "Cannot retrieve CaloIdManager from DetectorStore." );
-	return sc;
-    }
+    const CaloIdManager *caloMgr = nullptr;
+    CHECK(detStore()->retrieve(caloMgr));
     m_lvl1Helper = caloMgr->getLVL1_ID();
     if(!m_lvl1Helper) {
-	ATH_MSG_FATAL( "Cannot access CaloLVL1_ID helper." );
-	return StatusCode::FAILURE;
+        ATH_MSG_FATAL( "Cannot access CaloLVL1_ID helper." );
+        return StatusCode::FAILURE;
     }
 
-    sc = m_cells2tt.retrieve();
-    if(sc.isFailure()){
-      ATH_MSG_FATAL( "Cannot retrieve L1CaloCells2TriggerTowers" );
-     return sc;
-    }
-
-    sc = m_larEnergy.retrieve();
-    if(sc.isFailure()){
-      ATH_MSG_FATAL( "Cannot retrieve L1CaloLArTowerEnergy" );
-     return sc;
-    }
-
-    sc = m_jmTools.retrieve();
-    if(sc.isFailure()){
-      ATH_MSG_FATAL( "Cannot retrieve L1CaloOfflineTriggerTowerTools" );
-     return sc;
-    }    
-    
-//     IToolSvc *toolSvc;
-//     IAlgTool* algTool;
-//     sc = service("ToolSvc", toolSvc);
-//     if(sc.isFailure()) {
-// 	ATH_MSG_FATAL( "Cannot retrieve ToolSvc." );
-// 	return sc;
-//     }
-
-//     sc = toolSvc->retrieveTool("L1CaloCells2TriggerTowers", algTool);
-//     m_cells2tt = dynamic_cast<L1CaloCells2TriggerTowers*>(algTool);
-//     if(sc.isFailure() || !m_cells2tt) {
-// 	ATH_MSG_FATAL( "Cannot retrieve L1CaloCells2TriggerTowers from ToolSvc." );
-// 	return sc;
-//     }
-
-//     sc = toolSvc->retrieveTool("L1CaloLArTowerEnergy", algTool);
-//     m_larEnergy = dynamic_cast<L1CaloLArTowerEnergy*>(algTool);
-//     if(sc.isFailure() || !m_larEnergy) {
-//         ATH_MSG_FATAL( "Cannot retrieve L1CaloLArTowerEnergy from ToolSvc." );
-//         return StatusCode::FAILURE;
-//     }
-
-//     sc = toolSvc->retrieveTool("TriggerTowerTools",algTool);
-//     m_jmTools = dynamic_cast<TriggerTowerTools*>(algTool);
-//     if(sc.isFailure() || !m_jmTools) {
-//         ATH_MSG_FATAL( "Could not retrieve TriggerTowerTools" );
-// 	return sc;
-//     }
+    CHECK(m_ttTool.retrieve());
+    CHECK(m_xAODTTTools.retrieve());
+    CHECK(m_jmTools.retrieve());
 
     // setup access to Calib1 folder of L1CALO database
-    m_pprLutContainerFolderMap.insert(
-	 std::pair<L1CaloPprLutContainer::eCoolFolders, std::string>(L1CaloPprLutContainer::ePprLutChanCalib,
-								     "/TRIGGER/L1Calo/V1/Calibration/Calib1/PprChanCalib"));
-    m_pprDisabledChannelContainerFolderMap.insert(std::pair<L1CaloPprDisabledChannelContainer::eCoolFolders, std::string>(L1CaloPprDisabledChannelContainer::ePpmDeadChannels, "/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"));
-    m_pprDisabledChannelContainerFolderMap.insert(std::pair<L1CaloPprDisabledChannelContainer::eCoolFolders, std::string>(L1CaloPprDisabledChannelContainer::ePprChanCalib, "/TRIGGER/L1Calo/V1/Calibration/Calib1/PprChanCalib"));
-    m_pprDisabledChannelContainerFolderMap.insert(std::pair<L1CaloPprDisabledChannelContainer::eCoolFolders, std::string>(L1CaloPprDisabledChannelContainer::eDisabledTowers, "/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"));
+    m_pprLutContainerFolderMap.insert(std::make_pair(L1CaloPprConditionsContainerRun2::ePprChanCalib, "/TRIGGER/L1Calo/V2/Calibration/Calib1/PprChanCalib"));
+    m_pprLutContainerFolderMap.insert(std::make_pair(L1CaloPprConditionsContainerRun2::ePprChanDefaults, "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"));
+    // m_pprDisabledChannelContainerFolderMap.insert(std::make_pair(L1CaloPprDisabledChannelContainer::ePpmDeadChannels,
+    //                                                              "/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"));
+    // m_pprDisabledChannelContainerFolderMap.insert(std::make_pair(L1CaloPprDisabledChannelContainer::ePprChanCalib,
+    //                                                              "/TRIGGER/L1Calo/V1/Calibration/Calib1/PprChanCalib"));
+    // m_pprDisabledChannelContainerFolderMap.insert(std::make_pair(L1CaloPprDisabledChannelContainer::eDisabledTowers,
+    //                                                              "/TRIGGER/L1Calo/V1/Conditions/DisabledTowers"));
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode L1CaloRampMaker::execute()
 {
-
     // Skip spurious events
-
     unsigned int wantedEvents = m_nEventsPerStep*m_nSteps;
     if (m_nEvent > wantedEvents) {
         if (m_nEvent == wantedEvents+1) {
-	    ATH_MSG_INFO( "Processed " << wantedEvents
-	          << " events, skipping the rest" );
+            ATH_MSG_INFO( "Processed " << wantedEvents
+                  << " events, skipping the rest" );
         }
-	++m_nEvent;
+        ++m_nEvent;
         return StatusCode::SUCCESS;
     }
-    unsigned int evtNumber = 0;
-    const EventInfo* evInfo = 0; 
-    const EventID* evID = 0;
-    StatusCode sc = m_storeGate->retrieve(evInfo);
-    if (sc.isFailure()) {
-        ATH_MSG_WARNING( "No EventInfo found" );
-    } else {
-        evID = evInfo->event_ID();
-        if (evID) evtNumber = evID->event_number();
-    }
-    if (evtNumber == 0 && m_nEvent > 1) { // Only allow event 0 as first event
+
+    const xAOD::EventInfo* eventInfo = nullptr;
+    CHECK(evtStore()->retrieve(eventInfo));
+    if (eventInfo->eventNumber() == 0 && m_nEvent > 1) {
+      // Only allow event 0 as first event
         ATH_MSG_WARNING( "Skipping spurious event number 0" );
 	return StatusCode::SUCCESS;
     }
 
-
-    const TriggerTowerCollection *triggerTowerCollection(0);
-    sc = m_storeGate->retrieve(triggerTowerCollection, m_triggerTowerCollectionName);
+    const xAOD::TriggerTowerContainer *tts = nullptr;
+    auto sc = evtStore()->retrieve(tts, m_triggerTowerContainerName);
     if(!sc.isSuccess()) {
         ATH_MSG_ERROR( "Cannot retrieve TriggerTowerCollection '"
-              << m_triggerTowerCollectionName << "' from StoreGate." );
+                       << m_triggerTowerContainerName << "' from StoreGate." );
         return StatusCode::RECOVERABLE;
     }
 
-    const CaloCellContainer *caloCellContainer(0);
-    sc = m_storeGate->retrieve(caloCellContainer, m_caloCellContainerName);
-    if(!sc.isSuccess()) {
-	ATH_MSG_ERROR( "Cannot retrieve CaloCellContainer '" << m_caloCellContainerName
-	    << "'." );
-	return StatusCode::RECOVERABLE;
-    }
+    // init trigger tower to cell mapping
+    CHECK(m_xAODTTTools->initCaloCells());
 
-    // init trigger tower to cell mapping - needed each event?
-    // not needed - done by m_larEnergy-->init...
-    if(!m_cells2tt->initCaloCellsTriggerTowers(*caloCellContainer)) {
-        ATH_MSG_ERROR( "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer '"
-              << m_caloCellContainerName << "." );
-        return StatusCode::RECOVERABLE;
-    }
-
+    // CHECK(m_condSvc->retrieve(m_pprLutContainer, m_pprLutContainerFolderMap));
+    // CHECK(m_condSvc->retrieve(m_pprDisabledChannelContainer, m_pprDisabledChannelContainerFolderMap));
+    
     // access L1CaloPPrLutContinaer
     // since no key is given, we will override the default lookup
     // to the folder specified in initialize (i.e. the .../Calib1/PprChanCalib version)
-    CHECK( m_condSvc->retrieve(m_pprLutContainer,
-			       m_pprLutContainerFolderMap) );
-    CHECK (m_condSvc->retrieve(m_pprDisabledChannelContainer,
-			       m_pprDisabledChannelContainerFolderMap) );
-
-    // init larTowerEnergy tool
-    /*
-    if(!m_larEnergy->initL1CaloLArTowerEnergy(*caloCellContainer, *triggerTowerCollection)) {
-        ATH_MSG_ERROR( "Can not initialize L1CaloLArTowerEnergy with CaloCellContainer '"
-              << m_caloCellContainerName
-              << " and TriggerTowerCollection "
-              << m_triggerTowerCollectionName
-              << "." );
-        return StatusCode::RECOVERABLE;
-    }
-    */
+    CHECK(m_condSvc->retrieve(m_pprLutContainer, m_pprLutContainerFolderMap));
+    CHECK(m_ttTool->retrieveConditions());
 
     if(m_firstEvent) {
-      unsigned int runNumber = 0;
-      if (evID) runNumber = evID->run_number();
+      unsigned int runNumber = eventInfo->runNumber();
       std::string gainStrategy("");
       const CondAttrListCollection* gainStrategyColl = 0;
-      sc = m_detStore->retrieve(gainStrategyColl, m_gainStrategyFolder);
+      sc = detStore()->retrieve(gainStrategyColl, m_gainStrategyFolder);
       if(sc.isSuccess()) {
         CondAttrListCollection::const_iterator itr  = gainStrategyColl->begin();
 	CondAttrListCollection::const_iterator itrE = gainStrategyColl->end();
@@ -294,18 +197,15 @@ StatusCode L1CaloRampMaker::execute()
         if (runNumber == 223074) newStrategy = "GainOne";
         if (runNumber == 223075) newStrategy = "GainOne";
         if (newStrategy != "") {
-          ATH_MSG_INFO( "Changing Gain Strategy to " << newStrategy
-                             );
+          ATH_MSG_INFO( "Changing Gain Strategy to " << newStrategy);
           gainStrategy = newStrategy;
         }
 	if (gainStrategy != "" && consistent) {
 	  m_isGain1 = (gainStrategy.find("GainOne") != std::string::npos);
 	  m_isOvEmb = (gainStrategy.find("OvEmb") != std::string::npos);
 	  m_isOvEmec = (gainStrategy.find("OvEmec") != std::string::npos);
-	  m_isFcalLowEta = (gainStrategy.find("FcalLowEta") != 
-	                                                    std::string::npos);
-	  m_isFcalHighEta = (gainStrategy.find("FcalHighEta") !=
-	                                                    std::string::npos);
+	  m_isFcalLowEta = (gainStrategy.find("FcalLowEta") != std::string::npos);
+	  m_isFcalHighEta = (gainStrategy.find("FcalHighEta") != std::string::npos);
 	} else if (gainStrategy == "") {
 	  ATH_MSG_WARNING( "Gain Strategy collection empty" );
 	} else {
@@ -315,94 +215,50 @@ StatusCode L1CaloRampMaker::execute()
         ATH_MSG_WARNING( "No Gain Strategy collection found" );
       }
       ATH_MSG_INFO( "isGain1 = "         << m_isGain1
-                         << ", isOvEmb = "       << m_isOvEmb
-                         << ", isOvEmec = "      << m_isOvEmec
-                         << ", isFcalLowEta = "  << m_isFcalLowEta
-                         << ", isFcalHighEta = " << m_isFcalHighEta );
+                    << ", isOvEmb = "       << m_isOvEmb
+                    << ", isOvEmec = "      << m_isOvEmec
+                    << ", isFcalLowEta = "  << m_isFcalLowEta
+                    << ", isFcalHighEta = " << m_isFcalHighEta );
 
-      //unsigned int runNumber = 0;
-      //if (evID) runNumber = evID->run_number();
-
-      setupRampDataContainer(triggerTowerCollection);
+      setupRampDataContainer(tts);
       m_rampDataContainer->setRunNumber(runNumber);
       m_rampDataContainer->setGainStrategy(gainStrategy);
       m_firstEvent = false;
     }
 
-    LVL1::TriggerTower *tt;
-    TriggerTowerCollection::const_iterator p_itTT = triggerTowerCollection->begin();
-    TriggerTowerCollection::const_iterator p_itTTEnd = triggerTowerCollection->end();
-    Identifier id;
-    unsigned int coolId;
-    std::vector<int>::const_iterator max;
-    std::map<int, int>::iterator m_specialChannelIt,
-      m_specialChannelRangeEnd(m_specialChannelRange.end());
-    double caloEnergy, level1Energy;
+    auto m_specialChannelRangeEnd = m_specialChannelRange.end();
     bool nextStep = (m_nEvent % m_nEventsPerStep == 0);
-    bool isSaturated(false);
+    for(auto *tt : *tts) {
+        // skip saturated towers
+        if(tt->isJepSaturated()) continue;
 
-    for(;p_itTT != p_itTTEnd; ++p_itTT) {
-        tt = *p_itTT;
+        // isSaturated flag is not enough to check - test FADC for saturation, too
+        auto max = std::max_element(tt->adc().begin(), tt->adc().end());
+        if(*max >= m_fadcSaturationCut) continue;
 
-        // electromagnetic sampling
-	isSaturated = tt->isEMSaturated();
-	if(!isSaturated) {
-	    // isSaturated flag is not enough to check - test FADC for saturation, too
-	    max = std::max_element(tt->emADC().begin(), tt->emADC().end());
-	    if(*max >= m_fadcSaturationCut) isSaturated = true; // take ~ 2 times pedestal safety margin
-	}
-        if(m_doLAr && !isSaturated) {
-            id = m_ttTool->identifier(tt->eta(), tt->phi(), 0);
-            coolId = m_ttTool->channelID(id).id();
+        // skip disabled channels
+        if(m_ttTool->disabledChannel(tt->coolId())) continue;
 
-            if(!m_ttTool->disabledChannel(coolId)) {
-		if(m_checkProvenance) checkProvenance(id, coolId);
-                level1Energy = getTriggerTowerEnergy(tt->emADC(), id, coolId, tt->eta());
-		caloEnergy = getCaloEnergy(id, tt);
+        bool isTile = m_xAODTTTools->isTile(*tt);
 
-		// see if we have a special channel and cut on level1 energy
-		m_specialChannelIt = m_specialChannelRange.find(coolId);
-		if(m_specialChannelIt == m_specialChannelRangeEnd || level1Energy < m_specialChannelIt->second) {
-		    m_rampDataContainer->rampData(coolId)->addData(caloEnergy, level1Energy);
-		} else {
-		    // make sure we don't accidently miss the threshold again
-		    m_specialChannelIt->second = -1000;
-		}
-		if(nextStep) m_rampDataContainer->rampData(coolId)->nextStep();
+        if((m_doLAr && !isTile) || (m_doTile && isTile)) {
+            if(m_checkProvenance) checkProvenance(tt);
+            double level1Energy = getTriggerTowerEnergy(tt);
+            double caloEnergy = getCaloEnergy(tt);
+
+            // cut on 150 GeV ADC for Tile, lots of saturating calibration signals
+            if(isTile && level1Energy > m_tileSaturationCut) continue;
+
+            // see if we have a special channel and cut on level1 energy
+            auto m_specialChannelIt = m_specialChannelRange.find(tt->coolId());
+            if(m_specialChannelIt == m_specialChannelRangeEnd || level1Energy < m_specialChannelIt->second) {
+              ATH_MSG_DEBUG("Adding Energy for " << tt->coolId() << ":" << caloEnergy << " vs. " << level1Energy);
+              m_rampDataContainer->rampData(tt->coolId())->addData(caloEnergy, level1Energy);
+            } else {
+                // make sure we don't accidently miss the threshold again
+                m_specialChannelIt->second = -1000;
             }
-        }
-
-        // hadronic sampling
-	if(tt->isHadSaturated()) {
-	    continue;
-	} else {
-	    // isSaturated flag is not enough to check - test FADC for saturation, too
-	    max = std::max_element(tt->hadADC().begin(), tt->hadADC().end());
-	    if(*max >= m_fadcSaturationCut) continue; // take ~ 2 times pedestal safety margin
-	}
- 
-        id = m_ttTool->identifier(tt->eta(), tt->phi(), 1);
-        coolId = m_ttTool->channelID(id).id();
-
-	if(m_ttTool->disabledChannel(coolId)) continue;
-
-	if(m_checkProvenance) checkProvenance(id, coolId);
-        if((m_doTile && m_lvl1Helper->is_tile(id)) || (m_doLAr && !m_lvl1Helper->is_tile(id))) {
-	   caloEnergy = getCaloEnergy(id, tt);
-           level1Energy = getTriggerTowerEnergy(tt->hadADC(), id, coolId, tt->eta());
-
-	   // cut on 150 GeV ADC for Tile, lots of saturating calibration signals
-	   if(m_lvl1Helper->is_tile(id) && level1Energy > m_tileSaturationCut) continue;
-	   
-	   // see if we have a special channel and cut on level1 energy
-	   m_specialChannelIt = m_specialChannelRange.find(coolId);
-	   if(m_specialChannelIt == m_specialChannelRangeEnd || level1Energy < m_specialChannelIt->second) {
-	       m_rampDataContainer->rampData(coolId)->addData(caloEnergy, level1Energy);
-	   } else {
-	       // make sure we don't accidently miss the threshold again
-	       m_specialChannelIt->second = -1000;
-	   }
-           if(nextStep) m_rampDataContainer->rampData(coolId)->nextStep();
+            if(nextStep) m_rampDataContainer->rampData(tt->coolId())->nextStep();
         }
     }
 
@@ -411,72 +267,51 @@ StatusCode L1CaloRampMaker::execute()
     return StatusCode::SUCCESS;
 }
 
-void L1CaloRampMaker::setupRampDataContainer(const TriggerTowerCollection* triggerTowerCollection)
+void L1CaloRampMaker::setupRampDataContainer(const xAOD::TriggerTowerContainer* tts)
 {
-    m_rampDataContainer = new L1CaloRampDataContainer();
-    
-    TriggerTowerCollection::const_iterator p_itTT = triggerTowerCollection->begin();
-    TriggerTowerCollection::const_iterator p_itTTEnd = triggerTowerCollection->end();
-    L1CaloRampData rd;
-    unsigned int coolId;
-    for(;p_itTT != p_itTTEnd; ++p_itTT) {
-        if(m_doLAr) {
-            // layer 0 is always LAr
-            coolId = m_ttTool->channelID((*p_itTT)->eta(), (*p_itTT)->phi(), 0).id();
-            m_rampDataContainer->addRampData(coolId, rd);
+    m_rampDataContainer.reset(new L1CaloRampDataContainer());
 
-            if(!m_lvl1Helper->is_tile(m_ttTool->identifier((*p_itTT)->eta(), (*p_itTT)->phi(), 1))) {
-                coolId = m_ttTool->channelID((*p_itTT)->eta(), (*p_itTT)->phi(), 1).id();
-                m_rampDataContainer->addRampData(coolId, rd);
-            }
-        }
-        
-        if(m_doTile && m_lvl1Helper->is_tile(m_ttTool->identifier((*p_itTT)->eta(), (*p_itTT)->phi(), 1))) {
-            // layer 1 in barrel region is tile
-            coolId = m_ttTool->channelID((*p_itTT)->eta(), (*p_itTT)->phi(), 1).id();
-            m_rampDataContainer->addRampData(coolId, rd);
-        }
-    }            
+    L1CaloRampData rd;
+    for(auto* tt: *tts) {
+      bool isTile = m_xAODTTTools->isTile(*tt);
+      if((m_doLAr && !isTile) || (m_doTile && isTile)) {
+        m_rampDataContainer->addRampData(tt->coolId(), rd);
+      }
+    }
 }
 
-// return E_T of cells comprising the trigger tower with @c id
-double L1CaloRampMaker::getCaloEnergy(const Identifier& id, const LVL1::TriggerTower* tt)
+// return E_T of cells comprising the trigger tower @c tt
+double L1CaloRampMaker::getCaloEnergy(const xAOD::TriggerTower* tt)
 {
     double et(0.);
-    double eta = tt->eta();
-    if (m_lvl1Helper->is_fcal(id)) {
-	if (m_lvl1Helper->sampling(id) == 0) { // em
-            et = m_jmTools->emTTCellsEt(tt);
+    auto id = m_ttTool->identifier(tt->eta(), tt->phi(), tt->sampling());
+
+    if(m_lvl1Helper->is_fcal(id)) {
+	if(tt->sampling() == 0) { // fcal em - use decorated value
+            et = ttCellsET(*tt);
 	} else {          // had
-	    std::vector<float> etRec = m_jmTools->hadTTCellsEtByReceiver(tt);
+            LVL1::TriggerTowerKey K(tt->phi(), tt->eta());
+            LVL1::TriggerTower T(tt->phi(), tt->eta(), K.ttKey(tt->phi(), tt->eta()));
+	    std::vector<float> etRec = m_jmTools->hadTTCellsEtByReceiver(&T);
 	    if (etRec.size() == 2) {
 	        if      (m_isFcalLowEta)  et = etRec[0];
 		else if (m_isFcalHighEta) et = etRec[1];
 	        else                      et = etRec[0] + etRec[1];
             } else if (etRec.size() == 1) et = etRec[0];
-	    //double etall = m_jmTools->hadTTCellsEt(tt);
-	    //std::cout << "Fcal eta/phi: " << eta << "/" << tt->phi() << " receivers = " << etRec.size()
-	    //          << " et = " << et <<  " etall = " << etall << std::endl;
         }
     } else {
-	if (m_lvl1Helper->is_barrel_end(id) && (m_isOvEmb || m_isOvEmec)) {
-	    std::vector<float> energyRec = m_jmTools->emTTCellsEnergyByReceiver(tt);
+	if(m_lvl1Helper->is_barrel_end(id) && (m_isOvEmb || m_isOvEmec)) {
+            LVL1::TriggerTowerKey K(tt->phi(), tt->eta());
+            LVL1::TriggerTower T(tt->phi(), tt->eta(), K.ttKey(tt->phi(), tt->eta()));
+	    std::vector<float> energyRec = m_jmTools->emTTCellsEnergyByReceiver(&T);
 	    if (energyRec.size() == 2) {
 	        double energy(0.);
 		if (m_isOvEmec) energy = energyRec[0];
 		else            energy = energyRec[1];
-		et = energy / std::cosh(eta);
-		//std::cout << "Et at eta/phi: " << eta << "/" << tt->phi() << " is " << et
-		//          << " Et other: " << ((eta > 0.) ? energyRec[1] : energyRec[0])/std::cosh(eta)
-                //          << " Et all: " << m_larEnergy->EtLArg(id);
-            //} else et = m_larEnergy->EtLArg(id);
-            } else et = energyRec[0] / std::cosh(eta);
+		et = energy / std::cosh(tt->eta());
+            } else et = energyRec[0] / std::cosh(tt->eta());
 	} else {
-	    //if (m_lvl1Helper->is_tile(id)) {
-	    if (m_lvl1Helper->is_tile(id) || m_lvl1Helper->is_hec(id)) {
-	        et = m_jmTools->hadTTCellsEnergy(tt) / std::cosh(eta);
-	    //} else et = m_larEnergy->EtLArg(id); // includes missing FEB correction
-	    } else et = m_jmTools->emTTCellsEnergy(tt) / std::cosh(eta);
+            et = ttCellsEnergy(*tt) / std::cosh(tt->eta());
 	}
     }
     return et;
@@ -484,32 +319,36 @@ double L1CaloRampMaker::getCaloEnergy(const Identifier& id, const LVL1::TriggerT
 
 // calculate trigger tower E_T from adc values
 // if run is with gain 1 loaded, need special treatment of E_T for HEC and TILE
-double L1CaloRampMaker::getTriggerTowerEnergy(const std::vector<int>& adc, const Identifier& id, unsigned int coolId, double eta) {
+double L1CaloRampMaker::getTriggerTowerEnergy(const xAOD::TriggerTower* tt) {
     // calibration is against ADC energy "(adc peak value - pedestal) / 4"
+    auto max = std::max_element(tt->adc().begin(), tt->adc().end());
 
-    std::vector<int>::const_iterator max = std::max_element(adc.begin(), adc.end());
-    const L1CaloPprLut *pprLut = m_pprLutContainer->pprLut(coolId);
-    double energy = (*max - int(pprLut->pedValue())) * 0.25;
+    const L1CaloPprConditionsRun2 *pprConditions = m_pprLutContainer->pprConditions(tt->coolId());
+    if(!pprConditions) {
+        ATH_MSG_WARNING("Empty PPrConditions for 0x "
+                        << std::hex << tt->coolId() << std::dec << "!");
+        return 0.;
+    }
+
+    double energy = (*max - int(pprConditions->pedValue())) * 0.25;
     if (energy < 0.) energy = 0.;
-    //if (m_lvl1Helper->is_barrel_end(id)) {
-    //    std::cout << " TT Et: " << energy << " maxADC: " << *max << " pedVal: " << pprLut->pedValue() << std::endl;
-    //}
 
     // no corrections if gain is set correctly
     if(!m_isGain1) return energy;
-    
+
     // correct hec and tile if gain 1
+    auto id = m_ttTool->identifier(tt->eta(), tt->phi(), tt->sampling());
     if(m_lvl1Helper->is_hec(id)) {
-        energy /= std::cosh(eta);
-        if(fabs(eta) > 2.5) {
+        energy /= std::cosh(tt->eta());
+        if(fabs(tt->eta()) > 2.5) {
             energy *= 10.;
-        } else if(fabs(eta) > 1.9) {
+        } else if(fabs(tt->eta()) > 1.9) {
             energy *= 5.;
         } else {
             energy *= 3.125;
         }
     } else if(m_lvl1Helper->is_tile(id)) {
-        energy /= std::cosh(eta);
+        energy /= std::cosh(tt->eta());
     }
 
     return energy;
@@ -517,35 +356,26 @@ double L1CaloRampMaker::getTriggerTowerEnergy(const std::vector<int>& adc, const
 
 // function fills a map of cooldid -> (number of cells failing quality, avg. cell timing)
 // used for fcal debugging
-void L1CaloRampMaker::checkProvenance(const Identifier& ttId, unsigned int coolId) {
-    const std::vector<const CaloCell*>& cells(m_cells2tt->caloCells(ttId));
-    unsigned int s(cells.size());
-    std::map<unsigned int, std::pair<unsigned int, double> >::iterator it;
-    for(unsigned int i = 0; i < s; ++i) {
-	it = m_mapBadOFCIteration.find(coolId);
+void L1CaloRampMaker::checkProvenance(const xAOD::TriggerTower* tt) {
+    const std::vector<const CaloCell*>& cells(m_xAODTTTools->getCaloCells(*tt));
+    double oneOverNCells = 1./double(cells.size());
+    for(const auto *cell : cells) {
+	auto it = m_mapBadOFCIteration.find(tt->coolId());
 	if(it == m_mapBadOFCIteration.end()) {
-	    m_mapBadOFCIteration.insert(
-              std::pair<unsigned int, std::pair<unsigned int, double> >(coolId,
-			std::pair<unsigned int, double>(!((cells[i])->provenance() & 0x100),
-							(cells[i]->time()/double(s)))));
+	    m_mapBadOFCIteration.insert(std::make_pair(tt->coolId(), std::make_pair(!(cell->provenance() & 0x100),
+                                                                                    (cell->time()*oneOverNCells))));
 	    continue;
 	}
-	if(!((cells[i])->provenance() & 0x100)) {
+	if(!(cell->provenance() & 0x100)) {
 	    it->second.first += 1;
 	}
-	it->second.second += (cells[i]->time()/double(s));
+	it->second.second += (cell->time()*oneOverNCells);
     }
 }
 
 StatusCode L1CaloRampMaker::finalize()
 {
-    StatusCode sc;
-
-    sc = m_detStore->record(m_rampDataContainer, m_outputFolderName);
-    if(sc.isFailure()) {
-        ATH_MSG_FATAL( "Cannot record L1CaloRampDataContainer in DetectorStore" );
-        return sc;
-    }
+    CHECK(detStore()->record(std::move(m_rampDataContainer), m_outputFolderName));
 
     if(m_checkProvenance) {
 	std::ofstream bad_ofciter("bad-ofciter.txt");
