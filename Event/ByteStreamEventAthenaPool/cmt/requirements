@@ -1,0 +1,14 @@
+package ByteStreamEventAthenaPool
+
+use AtlasPolicy          AtlasPolicy-*
+
+use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
+
+apply_pattern poolcnv \
+    files="-s=${ByteStreamData_root}/ByteStreamData ByteStreamMetadataContainer.h \
+"
+private
+
+use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
+use ByteStreamData       ByteStreamData-*           Event
+use ByteStreamEventTPCnv ByteStreamEventTPCnv-*     Event
