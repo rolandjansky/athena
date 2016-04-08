@@ -230,7 +230,7 @@ void T2IDTauIPHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float p
 //      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
   } else {
 
-    double rc = fabs(pt)*15.0/(9.0*1.042);
+    double rc = fabs(pt)*(15.0/(9.0*1.042));
     
     double xc = (fabs(d0)-spt*sd0*rc)*cos(phi0+M_PI/2*sd0) - xBeamSpot;
     double yc = (fabs(d0)-spt*sd0*rc)*sin(phi0+M_PI/2*sd0) - yBeamSpot;
@@ -245,8 +245,9 @@ void T2IDTauIPHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float p
       xd01 = 0; yd01 = rc+yc;
       xd02 = 0; yd02 = -rc+yc; 
     } else {
-      xd01 = xc+yc/xc*yc+sqrt(pow((xc+yc/xc*yc),2)-xc*xc-yc*yc+rc*rc); yd01 = yc/xc*xd01;
-      xd02 = xc+yc/xc*yc-sqrt(pow((xc+yc/xc*yc),2)-xc*xc-yc*yc+rc*rc); yd02 = yc/xc*xd02;
+      const double yc_xc = yc / xc;
+      xd01 = xc+yc_xc*yc+sqrt(pow((xc+yc_xc*yc),2)-xc*xc-yc*yc+rc*rc); yd01 = yc_xc*xd01;
+      xd02 = xc+yc_xc*yc-sqrt(pow((xc+yc_xc*yc),2)-xc*xc-yc*yc+rc*rc); yd02 = yc_xc*xd02;
     }
 
     double r1 = sqrt(xd01*xd01+yd01*yd01);
@@ -271,7 +272,7 @@ void T2IDTauIPHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float p
 
     double theta=2*atan2(exp(-eta),1);
     double theta_save=theta;
-    theta = theta - (1+spt)/2*M_PI;
+    theta = theta - (1+spt)*(M_PI/2);
     if (theta>0) theta = theta_save;
 
     double deltaz0= -spt*rc/tan(theta)*phiCorr(phiCorr(newphi)-phiCorr(phi0));

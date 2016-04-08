@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _T2IDTAU_H_
-#define  _T2IDTAU_H_
+#ifndef TRIGT2IDTAU_T2IDTAU_H
+#define TRIGT2IDTAU_T2IDTAU_H
 // ********************************************************************
 // 
 // NAME:     T2IDTau.h
@@ -94,7 +94,7 @@ public:
   std::vector<float> m_mon_trk_alloweddZ0;
 
   /** @brief Pointer to IPHelper class. */
-  T2IDTauIPHelper* m_IPHelper;
+  //T2IDTauIPHelper* m_IPHelper;
   
 };
 
@@ -102,4 +102,4 @@ public:
 
 
 
-#endif //  _T2IDTAU_H_
+#endif //  TRIGT2IDTAU_T2IDTAU_H

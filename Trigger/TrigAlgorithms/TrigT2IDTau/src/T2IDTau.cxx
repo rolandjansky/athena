@@ -406,7 +406,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
   m_sumPtCore   = pTrackInfo->scalarPtSumCore();
 
   if(m_nCoreTracks>0) m_sumPtRatio = pTrackInfo->scalarPtSumIso()/pTrackInfo->scalarPtSumCore();
-  else                m_sumPtRatio = pTrackInfo->scalarPtSumIso()/40000.; // assume 40 GeV is average candidate.
+  else                m_sumPtRatio = pTrackInfo->scalarPtSumIso()*(1./40000.); // assume 40 GeV is average candidate.
   
   // Reach this point successfully   
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: always accept RoI " << endreq;
@@ -507,7 +507,7 @@ HLT::ErrorCode T2IDTau::getPrmVtxCollection(const TrigVertexCollection*& pointer
    if (m_algo == 1) {
      float pt = fabs(param);
      float p0 = 0.023, p1=27, p2=1.48;
-     float sd014 = sqrt(p0*p0 + std::pow((float)(p1/14000.),p2));
+     float sd014 = sqrt(p0*p0 + std::pow((float)(p1*(1./14000.)),p2));
 
      sd0 = sqrt(p0*p0 + std::pow((float)(p1/pt),p2));
 
