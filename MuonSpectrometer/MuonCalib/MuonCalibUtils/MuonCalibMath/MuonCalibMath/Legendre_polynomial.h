@@ -45,7 +45,7 @@ This class is a monoton/singleton object.
   class Legendre_polynomial {
 
   private:
-    static Legendre_polynomial *polynomial_pointer; //!< pointer to the monoton
+    static Legendre_polynomial *s_polynomial_pointer; //!< pointer to the monoton
     Legendre_polynomial(void); //!< constructor
 
   public:
@@ -54,7 +54,7 @@ This class is a monoton/singleton object.
     static Legendre_polynomial * get_Legendre_polynomial(void);
 
     /** get the value of the Legendre polynomial of order m_order at x */
-    inline double value(const int & m_order,
+    inline double value(const int & order,
 			   const double & x) const;
 
   };

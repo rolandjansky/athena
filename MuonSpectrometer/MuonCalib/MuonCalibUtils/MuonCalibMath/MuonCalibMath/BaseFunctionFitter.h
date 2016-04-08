@@ -54,20 +54,20 @@ a set of sample points.
     Amg::VectorX m_b; //!< m_A*m_alpha = m_b;
 
     // private methods //
-    inline void m_init(void); //!< default initialization method
+    inline void init(void); //!< default initialization method
     /** initialization method: 
 	the number of fit parameters (coefficients) is set to nb_coefficients */
-    inline void m_init(const int & nb_coefficients); 
+    inline void init(const int & nb_coefficients); 
 
   public:
     // Constructors
     /** default constructor, the number of fit parameters will be set to 5 */
     BaseFunctionFitter(void) {
-      m_init();
+      init();
     } 
     /** constructor, the number of fit parameters is set to nb_coefficients */
     BaseFunctionFitter(const int & nb_coefficients) {
-      m_init(nb_coefficients);
+      init(nb_coefficients);
     }				
 
     // Methods

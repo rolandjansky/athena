@@ -28,10 +28,10 @@ using namespace std;
 //*****************************************************************************
 
 //:::::::::::::::::::
-//:: METHOD m_init ::
+//:: METHOD init ::
 //:::::::::::::::::::
 
-void PolygonBase::m_init(const std::vector<double> & x) {
+void PolygonBase::init(const std::vector<double> & x) {
 
 ///////////////////////////////
 // CHECK FOR CORRECT FILLING //

@@ -31,7 +31,7 @@ This class provides a sample point for the BaseFunctionFitter.
 
     triplet[2] = error of the x2 coordinate of the sample point
     */
-    inline void m_init(double triplet[3]);
+    inline void init(double triplet[3]);
 
     /** initialization method, 
 
@@ -41,7 +41,7 @@ This class provides a sample point for the BaseFunctionFitter.
 
     msigma = error of the x2 coordinate of the sample point
     */
-    inline void m_init(const double & mx1, const double & mx2,
+    inline void init(const double & mx1, const double & mx2,
 		       const double & msigma); 
 
   public:
@@ -58,7 +58,7 @@ This class provides a sample point for the BaseFunctionFitter.
     triplet[2] = error of the x2 coordinate of the sample point
     */
     SamplePoint(double triplet[3]) {
-      m_init(triplet);
+      init(triplet);
     }
 
     /** constructor,
@@ -71,7 +71,7 @@ This class provides a sample point for the BaseFunctionFitter.
     */
     SamplePoint(const double & mx1, const double & mx2,
 		const double & msigma) {
-      m_init(mx1, mx2, msigma);
+      init(mx1, mx2, msigma);
     }
 
     // Methods
