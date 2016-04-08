@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  
+  <atn>
+    <TEST name="ReleaseTests" type="script" suite="Examples">
+      <options_atn>
+	${ATN_PACKAGE}/bin/testSelectionXML.py
+      </options_atn>
+      <timelimit>60</timelimit>
+      <author>Rolf Seuster</author>
+      <prescript>rm -f $ATN_WORK_AREA/*</prescript>
+      <expectations>
+	<returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+  </atn>
+  
+</unifiedTestConfiguration>
