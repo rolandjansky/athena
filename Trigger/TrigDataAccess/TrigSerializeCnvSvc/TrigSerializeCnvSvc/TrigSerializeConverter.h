@@ -38,8 +38,8 @@ class CnvFactory;
  * @author Lukas Heinrich lukas.heinrich@cern.ch
  */
 
-namespace SG{struct AuxElement;}
-namespace SG{struct IAuxStore;}
+namespace SG{class AuxElement;}
+namespace SG{class IAuxStore;}
 
 
 template<typename T>

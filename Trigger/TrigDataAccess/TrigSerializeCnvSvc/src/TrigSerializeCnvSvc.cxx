@@ -28,8 +28,8 @@ StatusCode TrigSerializeCnvSvc::initialize(){
 
 long int
 TrigSerializeCnvSvc::storageType() {
-  static long _type(0x51);
-  return _type;
+  static long type(0x51);
+  return type;
 }
 
 long int TrigSerializeCnvSvc::repSvcType() const {
