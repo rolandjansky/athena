@@ -5,6 +5,7 @@
 #include "MuonAGDDBase/AGDDMicromegas.h"
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDKernel/AGDDVolume.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -26,7 +27,7 @@
 using MuonGM::MYSQL;
 
 AGDDMicromegas::AGDDMicromegas(std::string s): 
-	MMDetectorDescription(s),AGDDVolume(s)
+	MMDetectorDescription(s),AGDDVolume(s,true)
 {
 	current=this;
 	Register();

@@ -41,4 +41,6 @@ void sTGC_readoutHandler::ElementHandle()
     sTGC->roParameters.StripsInBandsLayer4 = getAttributeAsIntVector ("StripsInBandsLayer4", ret);
     sTGC->roParameters.nWireGroups         = getAttributeAsIntVector ("nWireGroups", ret);
     sTGC->roParameters.firstWireGroup      = getAttributeAsIntVector ("firstWireGroup", ret);
+    sTGC->roParameters.leftmostPadColumn   = getAttributeAsIntVector ("leftmostPadColumn", ret);
+    sTGC->roParameters.rightmostPadColumn  = getAttributeAsIntVector ("rightmostPadColumn", ret);
 }

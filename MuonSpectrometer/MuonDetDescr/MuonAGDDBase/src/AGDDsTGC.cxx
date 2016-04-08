@@ -7,6 +7,7 @@
 #include "MuonAGDDBase/AGDDsTGC.h"
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
+#include "AGDDKernel/AGDDVolume.h"
 
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShape.h"
@@ -30,7 +31,7 @@ using MuonGM::MYSQL;
 
 
 AGDDsTGC::AGDDsTGC(std::string s):
-    sTGCDetectorDescription(s),AGDDVolume(s)
+    sTGCDetectorDescription(s),AGDDVolume(s,true)
 {
     current=this;
     Register();
