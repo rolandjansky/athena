@@ -81,8 +81,10 @@ StatusCode TauIDPileupCorrection::fillCalibMap( const std::string& fullPath, std
       if(form==0){
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,2)	
 	TF1* f1 = dynamic_cast<TF1*> (obj); // TF2 public TF1 in any case
-	form = dynamic_cast<TFormula*> (f1->GetFormula()->Clone());
-	delete f1;
+	if(f1){
+	  form = dynamic_cast<TFormula*> (f1->GetFormula()->Clone());
+	  delete f1;
+	}
 #endif
       }
       if(form==0) delete obj;
