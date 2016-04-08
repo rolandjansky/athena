@@ -37,10 +37,10 @@ public:
     TileHit( const TileSimHit * hitInp );
 
     /** @brief Constructor for single hit without time binning */
-    TileHit(Identifier & id, float energy=0.0, float time=0.0); 
+    TileHit(const Identifier & id, float energy=0.0, float time=0.0); 
 
     /** @brief Constructor with time rounding to the center of nearest deltaT bin */
-    TileHit(Identifier & id, float energy, float time, float deltaT); 
+    TileHit(const Identifier & id, float energy, float time, float deltaT); 
 
     /** @brief Default destructor */
     ~TileHit() { }
