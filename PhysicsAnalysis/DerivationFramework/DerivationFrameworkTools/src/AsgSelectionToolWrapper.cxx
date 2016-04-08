@@ -55,7 +55,7 @@ namespace DerivationFramework {
         return StatusCode::FAILURE;
     }
     // Decorator
-    SG::AuxElement::Decorator< int > decorator(m_sgName);
+    SG::AuxElement::Decorator< char > decorator(m_sgName);
     
     // Write mask for each element and record to SG for subsequent selection
     for (xAOD::IParticleContainer::const_iterator pItr = particles->begin(); pItr!=particles->end(); ++pItr) {
