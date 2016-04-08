@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfMetadataTool.cxx 729020 2016-03-10 17:55:29Z tamartin $
+// $Id: TrigConfMetadataTool.cxx 739036 2016-04-08 20:32:07Z ssnyder $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -379,7 +379,7 @@ namespace D3PD {
          }
          
          /// Save Chain and Sig details
-         int _TEIndex = 0;
+         int TEIndex = 0;
          const std::vector<TrigConfChain> configChains = tmc->getVec<TrigConfChain>();
          *m_chainN               = configChains.size();
          /// variables for CHAIN
@@ -456,9 +456,9 @@ namespace D3PD {
                (m_chainSigLogic           ->at(i)).at(j) = configChainSigs.at(j).getLogic();
                (m_chainSigLabel           ->at(i)).at(j) = configChainSigs.at(j).getLabel();
                // We shall not go deeper than vector<vector<int> >, so store this vector<int> "up one level"
-               // and make a note of its position in the branch (_TEIndex)
+               // and make a note of its position in the branch (TEIndex)
                (m_chainSigOutputTEn       ->at(i)).at(j) = configChainSigs.at(j).getOutputTEs().size();
-               (m_chainSigOutputTEIndex   ->at(i)).at(j) = _TEIndex++;
+               (m_chainSigOutputTEIndex   ->at(i)).at(j) = TEIndex++;
                m_chainSigOutputTEs        ->push_back( configChainSigs.at(j).getOutputTEs() ); //Direct vector fetch
             }      
          }
