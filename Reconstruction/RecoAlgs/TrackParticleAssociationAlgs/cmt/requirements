@@ -12,6 +12,7 @@ use xAODAssociations    xAODAssociations-*   Event/xAOD
 use RecoToolInterfaces  RecoToolInterfaces-* Reconstruction/RecoTools
 use TrkToolInterfaces   TrkToolInterfaces-*  Tracking/TrkTools
 use TrackToCalo         TrackToCalo-*        Reconstruction/RecoTools
+use CaloUtils           CaloUtils-*          Calorimeter
 
 end_private
 
