@@ -25,8 +25,7 @@ struct MdtCalibrationSvcSettings {
   MdtCalibrationSvcSettings() :
     windowSetting(1),windowLowerBound(dummyTimeWindow),windowUpperBound(dummyTimeWindow),
     doTof(true),doProp(true),doTemp(false),doField(false),
-    doWireSag(false),doSlew(false),doBkg(false)
-    {
+    doWireSag(false),doSlew(false),doBkg(false) {
     }  
 
   /** Initialization function.

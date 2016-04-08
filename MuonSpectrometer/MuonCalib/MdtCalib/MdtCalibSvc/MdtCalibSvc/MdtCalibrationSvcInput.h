@@ -27,15 +27,14 @@ namespace Trk {
 struct MdtCalibrationSvcInput {
   MdtCalibrationSvcInput() :
     tof(0.),triggerOffset(0.),pointOfClosestApproach(0),trackDirection(0),
-    nominalWireSurface(0),wireSurface(0) 
-  {
+    nominalWireSurface(0),wireSurface(0) {
   }  
   double tof;
   double triggerOffset;
-  const Amg::Vector3D*      pointOfClosestApproach;
-  const Amg::Vector3D*      trackDirection;
-  const Trk::StraightLineSurface* nominalWireSurface;
-  const Trk::StraightLineSurface* wireSurface;
+  const Amg::Vector3D *pointOfClosestApproach;
+  const Amg::Vector3D *trackDirection;
+  const Trk::StraightLineSurface *nominalWireSurface;
+  const Trk::StraightLineSurface *wireSurface;
 };
 
 #endif

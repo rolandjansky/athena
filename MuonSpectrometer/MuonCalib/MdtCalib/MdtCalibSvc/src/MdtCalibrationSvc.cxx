@@ -101,8 +101,7 @@ MdtCalibrationSvc::Imp::Imp(std::string name)
 
 
 MdtCalibrationSvc::MdtCalibrationSvc(const std::string& name,ISvcLocator* sl)
-  : AthService(name,sl)
-{
+  : AthService(name,sl) {
   m_imp = new MdtCalibrationSvc::Imp(name);
   // settable properties
   declareProperty("TimeWindowLowerBound",m_imp->settings.windowLowerBound );
@@ -126,20 +125,17 @@ MdtCalibrationSvc::~MdtCalibrationSvc() {
 }
 
 // queryInterface 
-StatusCode MdtCalibrationSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
-{ 
-  if ( interfaceID().versionMatch(riid) ) 
-    { 
-      *ppvIF = dynamic_cast<MdtCalibrationSvc*>(this); 
-    } else { 
+StatusCode MdtCalibrationSvc::queryInterface(const InterfaceID& riid, void** ppvIF) { 
+  if ( interfaceID().versionMatch(riid) ) { 
+    *ppvIF = dynamic_cast<MdtCalibrationSvc*>(this); 
+  } else { 
     return AthService::queryInterface(riid, ppvIF); 
   }
   addRef();
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtCalibrationSvc::initialize()
-{ 
+StatusCode MdtCalibrationSvc::initialize() { 
   ATH_MSG_DEBUG( "Initializing" ); 
   if( AthService::initialize().isFailure() ) return StatusCode::FAILURE;
 
@@ -189,7 +185,7 @@ StatusCode MdtCalibrationSvc::initialize()
 
 
   return StatusCode::SUCCESS;
-}
+}  //end MdtCalibrationSvc::initialize
 
 StatusCode MdtCalibrationSvc::finalize() { 
   ATH_MSG_DEBUG( "Finalizing " );
@@ -270,7 +266,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
   double adcCal(1.);
 
   // access t0 for the given tube
-  if ( data.tubeCalib ){
+  if ( data.tubeCalib ) {
 
     const int ml    = m_imp->m_mdtIdHelper->multilayer(id)-1;
     const int layer = m_imp->m_mdtIdHelper->tubeLayer(id)-1;
@@ -413,8 +409,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit& hit,
 
   
   return calibOk;
-}
-
+}  //end MdtCalibrationSvc::driftRadiusFromTime
 
 // + TWIN TUBES
 bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
@@ -456,16 +451,14 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
   const Identifier& idSecond = secondHit.identify();
   const MuonGM::MdtReadoutElement* geo = hit.geometry();
   const MuonGM::MdtReadoutElement* geoSecond = secondHit.geometry();
-  if(!geo)
-    {
-      ATH_MSG_WARNING( "Geometry not set for fisrt hit" );
-      return false;
-    }
-  if(!geoSecond)
-    {
-      ATH_MSG_WARNING( "Geometry not set for second hit" );
-      return false;
-    }
+  if(!geo) {
+    ATH_MSG_WARNING( "Geometry not set for fisrt hit" );
+    return false;
+  }
+  if(!geoSecond) {
+    ATH_MSG_WARNING( "Geometry not set for second hit" );
+    return false;
+  }
   // get calibration constants from DbSvc
   MuonCalib::MdtFullCalibData data = m_imp->m_dbSvc->getCalibration( geo->collectionHash(), geo->detectorElementHash() ); 
   MuonCalib::MdtFullCalibData dataSecond = m_imp->m_dbSvc->getCalibration( geoSecond->collectionHash(), geoSecond->detectorElementHash() ); 
@@ -570,8 +563,7 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
     //prompthit_tdc = hit.tdcCount(); prompthit_adc = adcCal; 
     //twinhit_tdc = secondHit.tdcCount(); twinhit_adc = adcCalSecond; 
     secondDigitIsPrompt = false;
-  }
-  else if (driftTimeSecond <= driftTime){ 
+  } else if (driftTimeSecond <= driftTime){ 
     prompthit_id = idSecond; 
     prompthit_geo = geoSecond;  
     twin_timedif = driftTime - driftTimeSecond; 
@@ -673,9 +665,7 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit& hit,
   secondHit.setSigma2LocXtwin( errZTwin*errZTwin );
 
   return true;
-}
-
-// - TWIN TUBES
+}  //end MdtCalibrationSvc::twinPositionFromTwinHits
 
 double MdtCalibrationSvc::tdcBinSize() {
   return 25.0 / 32.0;  // exact number: (1000.0/40.08)/32.0 
@@ -701,13 +691,15 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
       hit.setSlewingTime(slew_time);
     }
     
-    // bField corrections
     if( settings.doField && corrections->bField()){
       if( inputData.trackDirection && inputData.pointOfClosestApproach ) {
         Amg::Transform3D gToStation = hit.geometry()->GlobalToAmdbLRSTransform();
         double BGXYZ[3];
-        m_magFieldSvc->getField(inputData.pointOfClosestApproach->data(), BGXYZ);
-	for (int i=0; i<3; i++) BGXYZ[i] *= 0.001; // convert to Tesla 
+	double xyz[3] = { (*inputData.pointOfClosestApproach)(0), 
+			  (*inputData.pointOfClosestApproach)(1), 
+			  (*inputData.pointOfClosestApproach)(2) };
+        m_magFieldSvc->getField(xyz, BGXYZ);
+	for (int i=0; i<3; i++) BGXYZ[i] *= 1000.; // convert kT to Tesla 
         Amg::Vector3D B_global(BGXYZ[0], BGXYZ[1], BGXYZ[2]);
         Amg::Vector3D B_loc(gToStation.linear()*B_global);
         double Bpar = B_loc.x();
@@ -717,17 +709,14 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
         hit.setBFieldPerp(Bper);
         hit.setBFieldPara(Bpar); 
         if( m_verbose ) *m_log << MSG::VERBOSE << "doing b-field correction" << endreq;
-        if(hit.bFieldPara() != MdtCalibHit::kNoValue && hit.bFieldPerp() != MdtCalibHit::kNoValue)
-          {
-            hit.setLorentzTime(corrections->bField()->correction( hit.driftTime(), hit.bFieldPara(),  hit.bFieldPerp() ));
-          }
-        else
-          {
-            hit.setLorentzTime(0);
-          }
+        if(hit.bFieldPara() != MdtCalibHit::kNoValue && hit.bFieldPerp() != MdtCalibHit::kNoValue) {
+	  hit.setLorentzTime(corrections->bField()->correction( hit.driftTime(), hit.bFieldPara(),  hit.bFieldPerp() ));
+	} else {
+	  hit.setLorentzTime(0);
+	}
         corTime -= hit.lorentzTime();
-      }
-    }    
+      }   
+    }   
     
     // temperature corrections
     // NOTE: Use this temporarily for ML dependent scaling. 
@@ -743,16 +732,13 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
       corTime += hit.TemperatureTime();
     }*/
     
-    if( settings.doTemp && rt && rt->HasTmaxDiff())
-    	{
-	float scle_time=MuonCalib::RtScaleFunction(hit.driftTime(), m_mdtIdHelper->multilayer(hit.identify())==2, *rt);
-	hit.setTemperatureTime(scle_time);
-	corTime-=scle_time;
-	}
-    else
-    	{
-	hit.setTemperatureTime(0);
-	}
+    if( settings.doTemp && rt && rt->HasTmaxDiff()) {
+      float scle_time=MuonCalib::RtScaleFunction(hit.driftTime(), m_mdtIdHelper->multilayer(hit.identify())==2, *rt);
+      hit.setTemperatureTime(scle_time);
+      corTime-=scle_time;
+    } else {
+      hit.setTemperatureTime(0);
+    }
     
     // background corrections
     if ( settings.doBkg && corrections->background() ){
@@ -914,41 +900,33 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit& hit,
   hit.setDriftTime(hit.driftTime() + corTime);
 
   return corTime;
-}
+}  //end MdtCalibrationSvc::Imp::applyCorrections
 
-Muon::MdtDriftCircleStatus MdtCalibrationSvc::driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation* rtRelation, const MdtCalibrationSvcSettings& settings )
-{
-  if( settings.timeWindowUpperBound() < 0. || settings.timeWindowLowerBound() < 0. )
-    {
+Muon::MdtDriftCircleStatus MdtCalibrationSvc::driftTimeStatus( double driftTime, const MuonCalib::MdtRtRelation* rtRelation, const MdtCalibrationSvcSettings& settings ) {
+  if( settings.timeWindowUpperBound() < 0. || settings.timeWindowLowerBound() < 0. ) {
       ATH_MSG_WARNING( " Unphysical time window detected, both ranges should be positive: " 
 		       << " lower bound " << settings.timeWindowLowerBound()
 		       << " upper bound " << settings.timeWindowUpperBound() );
-    }
+  }
   
-  if( rtRelation && rtRelation->rt() )
-    {
-      if( driftTime < rtRelation->rt()->tLower() - settings.timeWindowLowerBound() )
-        {
-          // Will this produce too much output from ROT creators?
-          if ( m_imp->m_verbose )
-            ATH_MSG_VERBOSE( " drift time outside time window "
-			   << driftTime << ". Mininum time = "
-			   << rtRelation->rt()->tLower() - settings.timeWindowLowerBound() );
-          return Muon::MdtStatusBeforeSpectrum;
-        }
-      else if( driftTime > rtRelation->rt()->tUpper() + settings.timeWindowUpperBound()  )
-        {
-          if ( m_imp->m_verbose )
-            ATH_MSG_VERBOSE( " drift time outside time window "
-			   << driftTime << ". Maximum time  = "
-			   << rtRelation->rt()->tUpper() + settings.timeWindowUpperBound() );
-          return Muon::MdtStatusAfterSpectrum;
-        }
+  if( rtRelation && rtRelation->rt() ) {
+    if( driftTime < rtRelation->rt()->tLower() - settings.timeWindowLowerBound() ) {
+      // Will this produce too much output from ROT creators?
+      if ( m_imp->m_verbose )
+	ATH_MSG_VERBOSE( " drift time outside time window "
+			 << driftTime << ". Mininum time = "
+			 << rtRelation->rt()->tLower() - settings.timeWindowLowerBound() );
+      return Muon::MdtStatusBeforeSpectrum;
+    } else if( driftTime > rtRelation->rt()->tUpper() + settings.timeWindowUpperBound()  ) {
+      if ( m_imp->m_verbose )
+	ATH_MSG_VERBOSE( " drift time outside time window "
+			 << driftTime << ". Maximum time  = "
+			 << rtRelation->rt()->tUpper() + settings.timeWindowUpperBound() );
+      return Muon::MdtStatusAfterSpectrum;
     }
-  else
-    {
-      ATH_MSG_WARNING( "No valid rt relation supplied for driftTimeStatus method" );
-      return Muon::MdtStatusUnDefined; 
-    }
+  } else {
+    ATH_MSG_WARNING( "No valid rt relation supplied for driftTimeStatus method" );
+    return Muon::MdtStatusUnDefined; 
+  }
   return Muon::MdtStatusDriftTime;
-}
+}  //end MdtCalibrationSvc::driftTimeStatus

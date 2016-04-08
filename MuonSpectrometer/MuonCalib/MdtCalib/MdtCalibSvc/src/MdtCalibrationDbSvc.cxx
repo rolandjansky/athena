@@ -54,8 +54,7 @@ MdtCalibrationDbSvc::MdtCalibrationDbSvc(const std::string& n,ISvcLocator* sl)
 MdtCalibrationDbSvc::~MdtCalibrationDbSvc() {}
 
 // queryInterface 
-StatusCode MdtCalibrationDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
-{
+StatusCode MdtCalibrationDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF) {
   if ( interfaceID().versionMatch(riid) ) { 
     *ppvIF = dynamic_cast<MdtCalibrationDbSvc*>(this); 
   } else {
@@ -65,8 +64,7 @@ StatusCode MdtCalibrationDbSvc::queryInterface(const InterfaceID& riid, void** p
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtCalibrationDbSvc::initialize()
-{
+StatusCode MdtCalibrationDbSvc::initialize() {
   if( AthService::initialize().isFailure() ) return StatusCode::FAILURE;
 
   if ( m_regionSvc.retrieve().isFailure() ) {
@@ -112,10 +110,9 @@ StatusCode MdtCalibrationDbSvc::initialize()
   }
     
   return StatusCode::SUCCESS;
-}
+}  //end MdtCalibrationDbSvc::initialize
 
-StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys))
-{
+StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
   ATH_MSG_DEBUG( "LoadCalibration has been triggered for the following keys " );                                                                                 
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
@@ -132,16 +129,14 @@ StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys))
     }
   }
   return StatusCode::SUCCESS;
-}
+}  //end MdtCalibrationDbSvc::LoadCalibration
 
-StatusCode MdtCalibrationDbSvc::loadTube(IOVSVC_CALLBACK_ARGS) 
-{ 
+StatusCode MdtCalibrationDbSvc::loadTube(IOVSVC_CALLBACK_ARGS) { 
   ATH_MSG_DEBUG( "In loadTube " );  
   return m_detStore->retrieve(m_tubeData, m_tubeDataLocation);
 }
 
-StatusCode MdtCalibrationDbSvc::loadRt(IOVSVC_CALLBACK_ARGS) 
-{
+StatusCode MdtCalibrationDbSvc::loadRt(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_DEBUG( "In loadRt " );  
   if( m_detStore->retrieve(m_rtData, m_rtDataLocation).isFailure() ) return StatusCode::FAILURE;
   // corrections are still missing...
@@ -152,19 +147,17 @@ StatusCode MdtCalibrationDbSvc::loadRt(IOVSVC_CALLBACK_ARGS)
   m_corData = new MdtCorFuncSetCollection();
   m_corData->resize(m_rtData->size());
   ATH_MSG_DEBUG( "Initializing " << m_corData->size() << " b-field functions" );
-  for (unsigned int i=0; i < m_corData->size(); i++)
-    {
-      (*m_corData)[i] = new MuonCalib::MdtCorFuncSet();
-      if (m_create_b_field_function) initialize_B_correction((*m_corData)[i], (*m_rtData)[i]);
-      if (m_createWireSagFunction)   initializeSagCorrection((*m_corData)[i]);
-      if (m_createSlewingFunction)   (*m_corData)[i]->setSlewing(new MuonCalib::MdtSlewCorFuncHardcoded(MuonCalib::CalibFunc::ParVec()));
-    }
+  for (unsigned int i=0; i < m_corData->size(); i++) {
+    (*m_corData)[i] = new MuonCalib::MdtCorFuncSet();
+    if (m_create_b_field_function) initialize_B_correction((*m_corData)[i], (*m_rtData)[i]);
+    if (m_createWireSagFunction)   initializeSagCorrection((*m_corData)[i]);
+    if (m_createSlewingFunction)   (*m_corData)[i]->setSlewing(new MuonCalib::MdtSlewCorFuncHardcoded(MuonCalib::CalibFunc::ParVec()));
+  }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtCalibrationDbSvc::finalize() 
-{
+StatusCode MdtCalibrationDbSvc::finalize()  {
   if( m_corData ) delete m_corData;
   return AthService::finalize();
 }
@@ -234,8 +227,7 @@ const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const Ide
   return getRtCalibration( hash );
 }
 
-const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const IdentifierHash& hash ) const 
-{
+const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const IdentifierHash& hash ) const {
   // check whether there are cached rt's
   if( !m_rtData ) {
     ATH_MSG_WARNING( "No rt-calibrations loaded"  );
@@ -257,8 +249,7 @@ const MuonCalib::MdtRtRelation* MdtCalibrationDbSvc::getRtCalibration( const Ide
   return 0;
 }
 
-const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const Identifier& idt ) const
-{
+const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const Identifier& idt ) const {
   Identifier id = m_mdtIdHelper->elementID( idt );
 
   MdtBasicRegionHash hash;
@@ -268,8 +259,7 @@ const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContain
   return getTubeCalibContainer( hash );
 }
 
-const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const IdentifierHash& hash ) const 
-{
+const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContainer( const IdentifierHash& hash ) const {
 
   if( !m_tubeData ) return 0;
 
@@ -280,8 +270,7 @@ const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbSvc::getTubeCalibContain
   return 0;
 }
 
-const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Identifier& idt ) const
-{
+const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Identifier& idt ) const {
   Identifier id = m_mdtIdHelper->elementID( idt );
 
   MdtBasicRegionHash hash;
@@ -291,8 +280,7 @@ const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Iden
   return getCorFunctions( hash );
 }
 
-const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const IdentifierHash& hash ) const 
-{
+const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const IdentifierHash& hash ) const {
   // check whether there are cached rt's
   if( !m_corData ) return 0;
 
@@ -310,13 +298,11 @@ const MuonCalib::MdtCorFuncSet* MdtCalibrationDbSvc::getCorFunctions( const Iden
 }
 
 void MdtCalibrationDbSvc::initialize_B_correction(MuonCalib::MdtCorFuncSet* funcSet,
-                                                  const MuonCalib::MdtRtRelation* rt_rel)
-{
-  if (rt_rel==NULL)
-    {
-      funcSet->setBField(NULL);
-      return;
-    }
+                                                  const MuonCalib::MdtRtRelation* rt_rel) {
+  if (rt_rel==NULL) {
+    funcSet->setBField(NULL);
+    return;
+  }
   ATH_MSG_VERBOSE( "initialize_B_correction..." );
   std::vector<double> corr_params(2);
   corr_params[0] = 3080.0; // high voltage
@@ -324,8 +310,7 @@ void MdtCalibrationDbSvc::initialize_B_correction(MuonCalib::MdtCorFuncSet* func
   funcSet->setBField(new MuonCalib::BFieldCorFunc(std::string("medium"), corr_params, rt_rel->rt()));
 }
 
-void MdtCalibrationDbSvc::initializeSagCorrection(MuonCalib::MdtCorFuncSet* funcSet)
-{
+void MdtCalibrationDbSvc::initializeSagCorrection(MuonCalib::MdtCorFuncSet* funcSet) {
   ATH_MSG_VERBOSE( "initializeSagCorrection..." );
   std::vector<double> corr_params(0);
   funcSet->wireSag(new MuonCalib::WireSagCorFunc(corr_params));
