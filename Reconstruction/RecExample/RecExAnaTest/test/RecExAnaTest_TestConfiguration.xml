@@ -1,0 +1,451 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  
+  <atn>
+    
+    <TEST name="aaaempty" type="athena" suite="aaaempty">
+      <options_atn>-c "rec.doDetailedAuditor=True ; rec.doNameAuditor=True " RecExRecoTest/RecExRecoTest_RTT_empty.py</options_atn>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    <TEST name="all_notrig" type="athena" suite="all_notrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExAnaTest/RecExAnaTest_RTT_notrigger.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+      <prescript>RecExCommon_links.sh</prescript>
+    </TEST>
+    
+    <TEST name="all_notrig_fpe" type="athena" suite="all_notrig_fpe">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5 ; doFloatingPointException=True ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " RecExAnaTest/RecExAnaTest_RTT_notrigger.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_all" type="athena" suite="all">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExAnaTest/RecExAnaTest_RTT_all.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+    </TEST>
+    
+    <TEST name="all_drop-and-reload" type="athena" suite="all_drop-and-reload">
+      <options_atn> --drop-and-reload -c "jp.AthenaCommonFlags.EvtMax=5 ; " RecExAnaTest/RecExAnaTest_RTT_all.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f jobOptions.py</prescript>
+    </TEST>
+    
+    <TEST name="all_fpe" type="athena" suite="all_fpe">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5 ; doFloatingPointException=True ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " RecExAnaTest/RecExAnaTest_RTT_all.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+    </TEST>
+    
+    <TEST name="notrig0_esd" type="athena" suite="reconotrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_esd.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+    </TEST>
+    
+    <TEST name="notrig1_esdtoaod" type="athena" suite="reconotrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExCommon/esdtoaod.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+    </TEST>
+    
+    
+    <TEST name="notrig2_aodtotag" type="athena" suite="reconotrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExCommon/aodtotag.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+    </TEST>
+    
+    <TEST name="notrig3_tagtoaod" type="athena" suite="reconotrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5;rec.doDetailedAuditor=True;jp.AthenaCommonFlags.PoolInputQuery='(EventNumber == 2 || EventNumber == 4)'; rec.doNameAuditor=True" RecExCommon/tagtoaod.py </options_atn>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_std0_esd" type="athena" suite="recowithtrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExTrigTest/RecExTrigTest_RTT_esdtrigger.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_std1_esdtoaod" type="athena" suite="recowithtrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExCommon/esdtoaod.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+    </TEST>
+    
+    
+    <TEST name="RECOSHIFT_std2_aodtotag" type="athena" suite="recowithtrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py RecExCommon/aodtotag.py</options_atn>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+    </TEST>
+    
+    <!-- <TEST name="RECOSHIFT_std3_aodtoD3PD" type="athena" suite="recowithtrig"> -->
+    <!--   <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ; rec.doNameAuditor=True " AthenaCommon/MemTraceInclude.py D3PDMakerConfig/AODToEgammaD3PD.py</options_atn> -->
+    <!--   <author> Xiaohu Sun </author> -->
+    <!--   <mailto> atlas.rig@cern.ch </mailto> -->
+    <!-- </TEST> -->
+    
+    <TEST name="RECOSHIFT_std3_tagtoaod" type="athena" suite="recowithtrig">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5;jp.AthenaCommonFlags.PoolInputQuery='(EventNumber == 22003 || EventNumber == 22023)' ; rec.doDetailedAuditor=True ; rec.doNameAuditor=True" RecExCommon/tagtoaod.py </options_atn>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_bs0_rdotobs" type="athena" suite="recobs">
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5; rec.doDetailedAuditor=True ;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1'] " AthenaCommon/MemTraceInclude.py RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/rdotobs.py</options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+      <prescript>RecExCommon_links.sh</prescript>
+      <prescript>rm -f $ATN_WORK_AREA/*.pool.root</prescript>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_bs1_bstoesd" type="athena" suite="recobs">
+      <options_atn> -c "rec.AutoConfiguration=['everything']; jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doTruth=False " RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/bstoesd.py </options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_bs2_esdtoaod" type="athena" suite="recobs">
+      <options_atn> -c "rec.AutoConfiguration=['everything']; jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ; rec.doTruth=False ; rec.doNameAuditor=True " RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/esdtoaod.py </options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_bs3_aodtotag" type="athena" suite="recobs">
+      <options_atn> -c "rec.AutoConfiguration=['everything']; jp.AthenaCommonFlags.EvtMax=5 ; rec.doDetailedAuditor=True ;  rec.doTruth=False ; rec.doNameAuditor=True " RecExRecoTest/RecExRecoTest_RTT_common.py RecExCommon/aodtotag.py </options_atn>
+      <timelimit>30</timelimit>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_bs4_tagtoaod" type="athena" suite="recobs">
+      <options_atn> -c "rec.AutoConfiguration=['everything'];jp.AthenaCommonFlags.EvtMax=5;jp.AthenaCommonFlags.PoolInputQuery='(EventNumber == 2 || EventNumber == 4)'; rec.doDetailedAuditor=True ;  rec.doTruth=False ; rec.doNameAuditor=True " RecExCommon/tagtoaod.py </options_atn>
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_qtest_run1" type="script" suite="qtests">
+      <options_atn>qtest_run1.sh</options_atn>
+      <timelimit>20</timelimit> 
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+    </TEST>
+    
+    <TEST name="RECOSHIFT_qtest_run2" type="script" suite="qtests">
+      <options_atn>qtest_run2.sh</options_atn>
+      <timelimit>20</timelimit> 
+      <author> Xiaohu Sun </author>
+      <mailto> atlas.rig@cern.ch </mailto>
+      <platform>opt</platform>
+    </TEST>
+    
+  </atn>
+  
+  <kv/>
+  
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+    
+    <rttContactPerson>Xiaohu Sun (Xiaohu.Sun@cern.ch)</rttContactPerson>
+    <mailto>atlas.rig@cern.ch</mailto>
+    <refRelease>10.0.0</refRelease>
+    
+    <jobList>      
+      
+      <classification>
+	<displayClass>OfflineValidation</displayClass>
+	<displayProcess>Reco</displayProcess>
+	<displayComponent>Det-Combined</displayComponent>
+      </classification>
+      
+      <athena userJobId="mc12_all_fpeAna">
+	<doc> Run all reco on default file with floating point exception enabled </doc>
+	<displayName>RecExAnaTest_RTT_mc11_all_fpe</displayName>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;doFloatingPointException=True;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExAnaTest_RTT_all</options>
+	<group>RecExAna</group>
+	<queue>medium</queue>
+      </athena>
+      
+      <athena userJobId="mc12_all_notriggerAna">
+	<doc> Run reco without trigger </doc>
+	<displayName>RecExAnaTest_RTT_mc11_all_notrigger</displayName>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExAnaTest_RTT_notrigger</options>
+	<group>RecExAna</group>
+	<queue>medium</queue>
+      </athena>
+      
+      <athena userJobId="mc12_all_nopersAna">
+	<doc> Run reco without persistency  </doc>
+	<displayName>RecExAnaTest_RTT_mc11_all_nopers</displayName>
+	<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]</commandLineFlags>
+	<options>RecExAnaTest_RTT_nopers</options>
+	<group>RecExAna</group>
+	<queue>medium</queue>
+      </athena>
+      
+      <chain>
+        <chainName>RecExAnaTest_RTT_notrig_steps_mc12</chainName>
+	<sequential>
+	  
+	  <chainElement>
+            <athena userJobId="mc12_chain_withouttrigger_RDOtoESD">
+	      <doc>Chain without trigger configuration for mc12 RDO->ESD</doc>
+	      <displayName>RecExAnaTest_RTT_notrig_steps_mc12_RDOtoESD</displayName>
+	      <commandLineFlags>
+		jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDOutput="RecExAnaTest_notrig_steps_mc12_ESD.pool.root";jp.AthenaCommonFlags.FilesInput=["root://eosatlas///eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+	      </commandLineFlags>
+	      <options>RecExRecoTest/RecExRecoTest_RTT_esd</options>
+	      <group>RecExAna</group>
+	      <queue>medium</queue>
+            </athena>
+            <chainfileout>RecExAnaTest_notrig_steps_mc12_ESD.pool.root</chainfileout>
+	  </chainElement>
+	  
+	  <chainElement>
+            <athena userJobId="mc12_chain_withouttrigger_ESDtoAOD">
+	      <doc> Chain without trigger configuration for mc12 ESD->AOD</doc>
+	      <displayName>RecExAnaTest_RTT_notrig_steps_mc12_ESDtoAOD</displayName>
+	      <commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDInput=["RecExAnaTest_notrig_steps_mc12_ESD.pool.root"];jp.AthenaCommonFlags.PoolAODOutput="RecExAnaTest_notrig_steps_mc12_AOD.pool.root"</commandLineFlags>
+	      <options>RecExAnaTest/esdtoaod_RTT</options>
+	      <group>RecExAna</group>
+	      <queue>medium</queue>
+	      <chaindataset_info>
+		<dc2/>
+		<chaindatasetName>RecExAnaTest_notrig_steps_mc12_ESD.pool.root</chaindatasetName>
+		<dataset_info>
+		  <dc2 />
+		  <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_notrig_steps_mc12/RecExAnaTest_notrig_steps_mc12_ESD.pool.root</datasetName>
+		</dataset_info>
+	      </chaindataset_info>
+	      <athenaCommonFlags />
+            </athena>
+            <chainfileout>RecExAnaTest_notrig_steps_mc12_AOD.pool.root</chainfileout>
+            <chainfileout>PoolFileCatalog.xml</chainfileout>
+	  </chainElement>
+	  
+	    <chainElement>
+	      <athena userJobId="mc12_chain_withouttrigger_AODtoTAG">
+		<doc> Chain without trigger configuration for mc12 AOD->TAG</doc>
+		<displayName>RecExAnaTest_RTT_notrig_steps_mc12_AODtoTAG</displayName>
+		<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolTAGOutput="RecExAnaTest_notrig_steps_mc12_TAG.pool.root"</commandLineFlags>
+		<options>RecExAnaTest/aodtotag_RTT</options>
+		<group>RecExAna</group>
+		<queue>medium</queue>
+		<chaindataset_info>
+		  <dc2/>
+		  <chaindatasetName>RecExAnaTest_notrig_steps_mc12_AOD.pool.root</chaindatasetName>
+		  <dataset_info>
+		    <dc2 />
+		    <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_notrig_steps_mc12/RecExAnaTest_notrig_steps_mc12_AOD.pool.root</datasetName>
+		  </dataset_info>
+		</chaindataset_info>
+		<athenaCommonFlags />
+	      </athena>
+	      <chainfileout>RecExAnaTest_notrig_steps_mc12_TAG.pool.root</chainfileout>
+	    </chainElement>
+	    
+	  <chainElement>
+            <jobTransform userJobId="mc12_chain_withouttrigger_TAGtoAOD">
+	      <doc>Chain without trigger configuration for mc12 TAG->AOD</doc>
+	      <jobTransformJobName>displayName>RecExAnaTest_RTT_notrig_steps_mc12_TAGtoAOD</jobTransformJobName>
+	      <jobTransformCmd>
+		pool_insertFileToCatalog.py RecExAnaTest_notrig_steps_mc12_AOD.pool.root; athena.py -c 'jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput.set_Value_and_Lock(["RecExAnaTest_notrig_steps_mc12_TAG.pool.root"])' RecExCommon/tagtoaod.py
+	      </jobTransformCmd>
+	      <group>RecExAna</group>
+	      <chaindataset_info>
+		<dc2/>
+		<chaindatasetName>RecExAnaTest_notrig_steps_mc12_AOD.pool.root</chaindatasetName>
+		<dataset_info>
+		  <dc2 />
+		  <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_notrig_steps_mc12/RecExAnaTest_notrig_steps_mc12_AOD.pool.root</datasetName>
+		</dataset_info>
+	      </chaindataset_info>
+	      <chaindataset_info>
+		<dc2/>
+		<chaindatasetName>RecExAnaTest_notrig_steps_mc12_TAG.pool.root</chaindatasetName>
+		<dataset_info>
+		  <dc2 />
+		  <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_notrig_steps_mc12/RecExAnaTest_notrig_steps_mc12_TAG.pool.root</datasetName>
+		</dataset_info>
+	      </chaindataset_info>
+            </jobTransform>
+	  </chainElement>
+	  
+	</sequential>     
+      </chain>
+      
+      <chain>
+        <chainName>RecExAnaTest_RTT_prod_steps_mc12</chainName>
+	<sequential>
+	  
+	  <chainElement>
+            <athena userJobId="mc12_chain_prod_RDOtoESD">
+	      <doc>Chain in prod configuration for mc12 RDO->ESD</doc>
+	      <displayName>RecExAnaTest_RTT_prod_steps_mc12_RDOtoESD</displayName>
+	      <commandLineFlags>
+		jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolESDOutput="RecExAnaTest_prod_steps_mc12_ESD.pool.root";jp.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1"]
+	      </commandLineFlags>
+	      <options>RecExTrigTest/RecExTrigTest_RTT_esdprod</options>
+	      <group>RecExAna</group>
+	      <queue>medium</queue>
+            </athena>
+            <chainfileout>RecExAnaTest_prod_steps_mc12_ESD.pool.root</chainfileout>
+	  </chainElement>
+	  
+	  <chainElement>
+            <athena userJobId="mc12_chain_prod_ESDtoAOD">
+	      <doc> Chain in prod configuration for mc12 ESD->AOD</doc>
+	      <displayName>RecExAnaTest_RTT_prod_steps_mc12_ESDtoAOD</displayName>
+	      <commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolAODOutput="RecExAnaTest_prod_steps_mc12_AOD.pool.root"</commandLineFlags>
+	      <options>RecExAnaTest/esdtoaod_RTT</options>
+	      <group>RecExAna</group>
+	      <queue>medium</queue>
+	      <chaindataset_info>
+		<dc2/>
+		<chaindatasetName>RecExAnaTest_prod_steps_mc12_ESD.pool.root</chaindatasetName>
+		<dataset_info>
+		  <dc2 />
+		  <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_prod_steps_mc12/RecExAnaTest_prod_steps_mc12_ESD.pool.root</datasetName>
+		</dataset_info>
+	      </chaindataset_info>
+	      <athenaCommonFlags />
+            </athena>
+            <chainfileout>RecExAnaTest_prod_steps_mc12_AOD.pool.root</chainfileout>
+            <chainfileout>PoolFileCatalog.xml</chainfileout>
+	  </chainElement>
+	  
+	    <chainElement>
+	      <athena userJobId="mc12_chain_prod_AODtoTAG">
+		<doc> Chain in prod configuration for mc12 AOD->TAG</doc>
+		<displayName>RecExAnaTest_RTT_prod_steps_mc12_AODtoTAG</displayName>
+		<commandLineFlags>jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.PoolTAGOutput="RecExAnaTest_prod_steps_mc12_TAG.pool.root"</commandLineFlags>
+		<options>RecExAnaTest/aodtotag_RTT</options>
+		<group>RecExAna</group>
+		<queue>medium</queue>
+		<chaindataset_info>
+		  <dc2/>
+		  <chaindatasetName>RecExAnaTest_prod_steps_mc12_AOD.pool.root</chaindatasetName>
+		  <dataset_info>
+		    <dc2 />
+		    <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_prod_steps_mc12/RecExAnaTest_prod_steps_mc12_AOD.pool.root</datasetName>
+		  </dataset_info>
+		</chaindataset_info>
+		<athenaCommonFlags />
+	      </athena>
+	      <chainfileout>RecExAnaTest_prod_steps_mc12_TAG.pool.root</chainfileout>
+	    </chainElement>
+	    
+	    <chainElement>
+            <jobTransform userJobId="mc12_chain_prod_TAGtoAOD">
+	      <doc> Chain in prod configuration for mc12 TAG->AOD</doc>
+	      <jobTransformJobName>RecExAnaTest_RTT_prod_steps_mc12_TAGtoAOD</jobTransformJobName>
+	      <jobTransformCmd>
+		pool_insertFileToCatalog.py RecExAnaTest_prod_steps_mc12_AOD.pool.root;athena.py -c 'jp.AthenaCommonFlags.EvtMax=300;jp.AthenaCommonFlags.FilesInput.set_Value_and_Lock(["RecExAnaTest_prod_steps_mc12_TAG.pool.root"])' RecExCommon/tagtoaod.py
+	      </jobTransformCmd>
+	      <group>RecExAna</group>
+	      <chaindataset_info>
+		<dc2/>
+		<chaindatasetName>RecExAnaTest_prod_steps_mc12_AOD.pool.root</chaindatasetName>
+		<dataset_info>
+		  <dc2 />
+		  <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_prod_steps_mc12/RecExAnaTest_prod_steps_mc12_AOD.pool.root</datasetName>
+		</dataset_info>
+	      </chaindataset_info>
+	      <chaindataset_info>
+		<dc2/>
+		<chaindatasetName>RecExAnaTest_prod_steps_mc12_TAG.pool.root</chaindatasetName>
+		<dataset_info>
+		  <dc2 />
+		  <datasetName>/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/devval/x86_64-slc5-gcc43-opt/AtlasProduction/Reconstruction/RecExample/RecExAnaTest/RecExAnaTest_RTT_prod_steps_mc12/RecExAnaTest_prod_steps_mc12_TAG.pool.root</datasetName>
+		</dataset_info>
+	      </chaindataset_info>
+            </jobTransform>
+	  </chainElement>
+	    
+	</sequential>
+      </chain>
+      
+    </jobList>
+    
+    <jobGroups>
+      
+      <jobGroup name="RecExAna" parent="Transform">
+	<keepFilePattern>web/*</keepFilePattern>
+	<keepFilePattern>web/data/*</keepFilePattern>
+	<keepFilePattern>*.txt</keepFilePattern>
+	<keepFilePattern>*.bz2</keepFilePattern>
+	<keepFilePattern>*_log.bz2</keepFilePattern>
+	
+	<auxFilePattern>PostProcessRecoRTTTests.py</auxFilePattern>
+	
+	<action position="1" runInAtlasEnv="yes">
+          <modulename>PostProcessRecoRTTTests</modulename>
+          <testname>PostProcessRecoRTTTests</testname>
+	</action>
+	
+      </jobGroup>
+      
+      <jobGroup name="RecExAna_memleak" parent="Transform">
+        <keepFilePattern>web/*</keepFilePattern>
+        <keepFilePattern>web/data/*</keepFilePattern>
+        <keepFilePattern>*.txt</keepFilePattern>
+        <keepFilePattern>*.bz2</keepFilePattern>
+	<keepFilePattern>*_log.bz2</keepFilePattern> 
+	
+	<auxFilePattern>run_memleak_reat.sh</auxFilePattern>
+	<auxFilePattern>slurpRecoRTTTests.pl</auxFilePattern>
+        <auxFilePattern>PostProcessIgprofWeb.py</auxFilePattern>
+        <auxFilePattern>PostProcessRecoRTTTests.py</auxFilePattern>
+	
+	<action position="1" runInAtlasEnv="yes">
+	  <modulename>PostProcessRecoRTTTests</modulename>
+	  <testname>PostProcessRecoRTTTests</testname>
+	</action>
+	
+      </jobGroup>
+    </jobGroups>
+    
+  </rtt>
+</unifiedTestConfiguration>
+
