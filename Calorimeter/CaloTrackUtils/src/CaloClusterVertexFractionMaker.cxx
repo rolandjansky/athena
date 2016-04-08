@@ -60,14 +60,21 @@ CaloClusterVertexFractionMaker::~CaloClusterVertexFractionMaker()
 
 StatusCode CaloClusterVertexFractionMaker::initialize()
 {
-  ATH_MSG_INFO( "Initializing " << name()  );
-  ATH_MSG_INFO( "Only considering clusters with |eta| < " << m_maxClusterEta << "\tdRMatchMax Cluster-Track = " << m_dRMatchMax  );
+  msg(MSG::INFO) << "Initializing " << name() << endreq;
+  msg(MSG::INFO) << "Only considering clusters with |eta| < " << m_maxClusterEta << "\tdRMatchMax Cluster-Track = " << m_dRMatchMax << endreq;
 
   m_dR2MatchMax = m_dRMatchMax*m_dRMatchMax;
 
   /* Get the extrapolator */
-  ATH_CHECK( m_extrapolator.retrieve() );
-  ATH_MSG_INFO( "Retrieved tool " << m_extrapolator  );
+  if ( m_extrapolator.retrieve().isFailure() )
+  {
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    return StatusCode::FAILURE;
+  }
+  else
+  {
+    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+  }
 
   // a surface at the entrance to the calorimeter
 //   HepGeom::TranslateZ3D* translateAlongPositiveZ = new HepGeom::TranslateZ3D(m_CALO_INNER_Z);
@@ -87,21 +94,19 @@ StatusCode CaloClusterVertexFractionMaker::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
-                                        xAOD::CaloClusterContainer* caloClusterContainer) const
+StatusCode CaloClusterVertexFractionMaker::execute(xAOD::CaloClusterContainer* caloClusterContainer)
 {
   const VxContainer* primcontainer(0);
   if ( evtStore()->contains<VxContainer> ( m_vxContainerName ) )
   {
     if ( evtStore()->retrieve ( primcontainer, m_vxContainerName ).isFailure() )
     {
-      ATH_MSG_WARNING( "Could not retrieve collection " << m_vxContainerName << " in StoreGate, but contains<> says it is there."  );
+      if (msgLvl(MSG::WARNING)) msg() << "Could not retrieve collection " << m_vxContainerName << " in StoreGate, but contains<> says it is there." << endreq;
       return false;
     }
   } else {
-    ATH_MSG_WARNING( "No collection " << m_vxContainerName << " in StoreGate."  );
-    return false;
+      msg(MSG::WARNING) << "No collection " << m_vxContainerName << " in StoreGate." << endreq;
+      return false;
   }
 
   // loop over vertices, extrapolate tracks to calo, remember num tracks per vertex (for cluster vertex fraction calculation later)
@@ -144,10 +149,12 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
           if (trackParameters_atCaloEntrance!=0) {
             m_trkParticleEta_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().eta());
             m_trkParticlePhi_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().phi());
-            ATH_MSG_DEBUG( "At calo entrance R(1150mm) " << *trackParameters_atCaloEntrance  );
-            ATH_MSG_DEBUG( "TrkParticle eta/phi/pt[GeV] at calo " << trackParameters_atCaloEntrance->position().eta() << "\t"
-                           << trackParameters_atCaloEntrance->position().phi() << "\t"
-                           << trackParameters_atCaloEntrance->position().perp()/1.e3  );
+            if (msgLvl(MSG::DEBUG)) {
+              msg() << "At calo entrance R(1150mm) " << *trackParameters_atCaloEntrance << endreq;
+              msg() << "TrkParticle eta/phi/pt[GeV] at calo " << trackParameters_atCaloEntrance->position().eta() << "\t"
+                                                              << trackParameters_atCaloEntrance->position().phi() << "\t"
+                                                              << trackParameters_atCaloEntrance->position().perp()/1.e3 << endreq;
+            }
             delete trackParameters_atCaloEntrance;
           } else {
             m_trkParticleEta_atCaloEntrance->push_back(999.);
@@ -238,8 +245,7 @@ StatusCode CaloClusterVertexFractionMaker::finalize()
   return StatusCode::SUCCESS;
 }
 
-double CaloClusterVertexFractionMaker::calculateDPhi(double phi1, double phi2) const
-{
+double CaloClusterVertexFractionMaker::calculateDPhi(double phi1, double phi2) {
   double dPhi = fabs(phi1 - phi2);
   if (dPhi > M_PI) dPhi = 2.*M_PI - dPhi;
 //   if (dPhi > 3.1415926535897931) dPhi = 6.2831853071795862 - dPhi;
