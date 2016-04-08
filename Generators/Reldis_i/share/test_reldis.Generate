@@ -1,0 +1,2 @@
+Generate_trf.py ecmEnergy=0 runNumber=105200 firstEvent=1 maxEvents=10 randomSeed=54298752 jobConfig=Reldis_i/MC12.Reldis.py outputEVNTFile=MC12.Reldis.evgen.pool.root inputGeneratorFile=NONE inputGenConfFile=NONE
+
