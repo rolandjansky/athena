@@ -48,12 +48,13 @@ InDetBeamSpotRooFit::InDetBeamSpotRooFit( const InDetBeamSpotRooFit& rhs ) :
 {}
 
 StatusCode InDetBeamSpotRooFit::initialize() {
-  ATH_MSG_DEBUG( "In initialize" );
+  msg().setLevel( outputLevel() );
+  msg(MSG::DEBUG) << "In initialize" << endreq;
   return StatusCode::SUCCESS;
 }
 
 StatusCode InDetBeamSpotRooFit::finalize() {
-  ATH_MSG_DEBUG( "In finalize");
+  msg(MSG::DEBUG) << "In finalize" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -170,7 +171,7 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
   std::string combinedCutString = m_vtxCutString + std::string(" && ") + rmsCutString;
   const char *combinedCut = (const char*)combinedCutString.c_str();
 
-  ATH_MSG_INFO( "combinedCut = "<<combinedCut );
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"combinedCut = "<<combinedCut<<endreq;
   
 
   //Convert these numbers to strings, then concatenate the strings
@@ -183,8 +184,9 @@ InDetBeamSpotRooFit::FitStatus InDetBeamSpotRooFit::fit(std::vector< BeamSpot::V
   r->Print();
   m_nUsed = rfData.reduce(Cut(combinedCut))->numEntries();
 
-  ATH_MSG_INFO( "A total of " << m_vertexCount << " vertices passed pre-selection. Of which "
-			           << rfData.reduce(Cut(combinedCut))->numEntries()<<" vertices will be used in the ML fit.") ;
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) 
+			   << "A total of " << m_vertexCount << " vertices passed pre-selection. Of which "
+			   << rfData.reduce(Cut(combinedCut))->numEntries()<<" vertices will be used in the ML fit."<<endreq;
 
 
   if ( r->edm() <= 10e-04 && r->covQual() == 3){

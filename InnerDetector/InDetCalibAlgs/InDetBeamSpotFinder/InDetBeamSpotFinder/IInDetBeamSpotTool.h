@@ -31,7 +31,6 @@ namespace BeamSpot {
 namespace BeamSpot{
   struct Event {
     unsigned int pileup, runNumber, lumiBlock, bcid;
-    unsigned long long eventNumber, eventTime, eventTime_NS; 
     std::vector<BeamSpot::VrtHolder> vertices;
   };
 }

@@ -29,21 +29,21 @@ InDet::InDetBeamSpotReader::InDetBeamSpotReader(const std::string& name, ISvcLoc
 
 
 StatusCode InDet::InDetBeamSpotReader::initialize() {
-  ATH_MSG_DEBUG( "in initialize()" );
+  msg(MSG::DEBUG) << "in initialize()" << endreq;
   
  
   if ( m_toolSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_toolSvc );
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_toolSvc << endreq;
     return StatusCode::FAILURE;
   } else 
-    ATH_MSG_INFO( "Retrieved service " << m_toolSvc );
+    msg(MSG::INFO) << "Retrieved service " << m_toolSvc << endreq;
 
 
   if ( m_beamSpotSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_beamSpotSvc );
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_beamSpotSvc << endreq;
     return StatusCode::FAILURE;
   } else 
-    ATH_MSG_INFO( "Retrieved service " << m_beamSpotSvc );
+    msg(MSG::INFO) << "Retrieved service " << m_beamSpotSvc << endreq;
   
   
   return StatusCode::SUCCESS;
@@ -51,31 +51,36 @@ StatusCode InDet::InDetBeamSpotReader::initialize() {
 
 StatusCode InDet::InDetBeamSpotReader::execute(){
  
-  ATH_MSG_DEBUG( "in execute()");
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endreq;
 
   //get the set of 
   const DataHandle<EventInfo> eventInfo;
   if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
-    ATH_MSG_ERROR( "Cannot get event info." );
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot get event info." << endreq;
     return StatusCode::FAILURE;
   }
   EventID* eventID = eventInfo->event_ID();
-    ATH_MSG_INFO( "In event " << (*eventID) );
-    ATH_MSG_INFO("BeamSpot Position: \n "
-		   << m_beamSpotSvc->beamPos() );
-    ATH_MSG_INFO("BeamSpot Sigma\n\t"
+  if (msgLvl(MSG::INFO)) {
+    msg(MSG::INFO) << "In event " << (*eventID) << endreq;
+    
+    msg(MSG::INFO) <<"BeamSpot Position: \n "
+		   << m_beamSpotSvc->beamPos() << endreq;
+    msg(MSG::INFO) <<"BeamSpot Sigma\n\t"
 		   << m_beamSpotSvc->beamSigma(0) << "\n\t"
 		   << m_beamSpotSvc->beamSigma(1) << "\n\t"
-		   << m_beamSpotSvc->beamSigma(2) << "\n\t");
-    ATH_MSG_INFO("BeamSpot Tilt\n\t"
+		   << m_beamSpotSvc->beamSigma(2) << "\n\t" 
+		   << endreq;
+    msg(MSG::INFO) <<"BeamSpot Tilt\n\t"
 		   << m_beamSpotSvc->beamTilt(0) << "\n\t"
-		   << m_beamSpotSvc->beamTilt(1) << "\n\t");
-    ATH_MSG_INFO("Beamspot position at PV z-position");
+		   << m_beamSpotSvc->beamTilt(1) << "\n\t"
+		   << endreq;
+    msg(MSG::INFO) <<"Beamspot position at PV z-position" << endreq;
+  }
 
   const VxContainer* importedVxContainer =0;
   static const std::string m_containerName = "VxPrimaryCandidate";
   if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,m_containerName)){
-    ATH_MSG_ERROR( "No " << m_containerName << " found in StoreGate" );
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "No " << m_containerName << " found in StoreGate" << endreq;
     return StatusCode::FAILURE;
   }
   //get list of PVs
@@ -83,16 +88,16 @@ StatusCode InDet::InDetBeamSpotReader::execute(){
   for(vtxItr=importedVxContainer->begin(); 
       vtxItr!=importedVxContainer->end(); ++vtxItr) {
     if (static_cast<int>((*vtxItr)->vxTrackAtVertex()->size())==0) continue;
-    if (msgLvl(MSG::INFO)) ATH_MSG_INFO("PV position:  " 
-				 << (*vtxItr)->recVertex().position() );
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"PV position:  " 
+				 << (*vtxItr)->recVertex().position()<< endreq;
     double z = (*vtxItr)->recVertex().position().z();
-    if (msgLvl(MSG::INFO)) ATH_MSG_INFO("\n\t"
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) <<"\n\t"
 	  << m_beamSpotSvc->beamPos()(0) 
       + (z - m_beamSpotSvc->beamPos()(2))
       *m_beamSpotSvc->beamTilt(0) << "\n\t"
 	  << m_beamSpotSvc->beamPos()(1)
       + (z - m_beamSpotSvc->beamPos()(2))
-      *m_beamSpotSvc->beamTilt(1) );
+      *m_beamSpotSvc->beamTilt(1) << endreq;
   }
   
   return StatusCode::SUCCESS;
@@ -101,7 +106,7 @@ StatusCode InDet::InDetBeamSpotReader::execute(){
 
 
 StatusCode InDet::InDetBeamSpotReader::finalize() {
-  ATH_MSG_DEBUG( "in finalize()" );
+  msg(MSG::DEBUG) << "in finalize()" << endreq;
 
   return StatusCode::SUCCESS;
 }

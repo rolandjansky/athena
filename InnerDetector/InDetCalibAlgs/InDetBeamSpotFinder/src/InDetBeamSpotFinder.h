@@ -68,7 +68,6 @@ namespace InDet {
       double x,y,z,vxx,vxy,vyy,vzz;
       xAOD::VxType::VertexType vType;
       unsigned int run, lb, bcid, pileup, nTracks;
-      unsigned long long eventNumber, eventTime, eventTime_NS;
       bool passed, valid;
     };
 
@@ -135,8 +134,6 @@ namespace InDet {
     //std::map<BeamSpot::ID, long> m_nEvents;
     unsigned int m_pileupMin;
     unsigned int m_pileupMax;
-   
-    unsigned long m_secondsPerFit; 
    };
 }//end namespace 
 
