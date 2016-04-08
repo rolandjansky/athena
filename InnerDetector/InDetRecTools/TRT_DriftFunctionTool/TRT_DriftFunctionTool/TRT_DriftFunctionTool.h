@@ -69,7 +69,7 @@ public:
   /** Returns drift radius in mm and t0 in ns
    *  The radius is truncated so it belongs to [0,2]mm.
    *  isOK is false if there is no t0 or the drifttime is non-valid */
-  double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK) const;
+  double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word=0) const;
 
   /** Returns drift radius for MC.
    *  the inpout time in ns has t0 subtracted */
@@ -79,7 +79,7 @@ public:
   double approxDriftTime(double driftradius) const;
 
   /** Time-dependent error of drift radius in mm */
-  double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10) const;  
+  double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const;  
 
   /** Returns time over threshold correction to the drift time (ns) */
   double driftTimeToTCorrection(double tot, Identifier id) const;
@@ -101,6 +101,7 @@ private:
   
   /** Tool to fetch data from database */
   ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc;
+  ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc2;
 
   /** Service to report incidents (begin run, begin event) */
   ServiceHandle< IIncidentSvc > m_IncidentSvc;
@@ -119,6 +120,7 @@ private:
 
   bool m_isdata;                       //!< flag for real data
   bool m_ismc;                         //!< flag for mc
+  bool m_isoverlay;                    //!< flag for overlay
   bool m_istestbeam;                   //!< flag for CTB data or mc
 
   bool m_allow_data_mc_override;       //!< treat mc as data or vice versa

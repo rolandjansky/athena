@@ -29,13 +29,13 @@ class ITRT_DriftFunctionTool : virtual public IAlgTool {
 
   virtual double rawTime(int tdcvalue) const = 0;
 
-  virtual double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK) const = 0;
+  virtual double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word=0) const = 0;
 
   virtual double driftRadius(double drifttime) const = 0;
 
   virtual double approxDriftTime(double driftradius) const = 0;
 
-  virtual double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10) const = 0;  
+  virtual double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const = 0;  
 
   virtual double driftTimeToTCorrection(double tot, Identifier id) const = 0;
 
