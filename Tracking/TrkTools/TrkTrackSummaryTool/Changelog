@@ -1,0 +1,466 @@
+2015-10-06 Goetz Gaycken
+	* Removed debug flags.
+
+2015-10-02 Goetz Gaycken
+        * resolve ATLASRECTS-2045: add TRT dE/dx and number of hits used
+	  for the dE/dx value to the track summary as electron probability
+	  and summary information.
+
+2015-06-27 Miriam Diamond
+	* add DBM
+	* tagged as TrkTrackSummaryTool-01-02-06
+	
+2014-12-22 Nick Styles
+	* Fix to split hit on layer intialisation
+	* Tagged as TrkTrackSummaryTool-01-02-05
+
+2014-12-17 Nick Styles
+	* Update new method to also re-fill expected hit info
+	* Tagged as TrkTrackSummaryTool-01-02-04
+
+2014-12-09 Nick Styles
+	* Method to just update specific info as needed
+	* Tagged as TrkTrackSummaryTool-01-02-03
+
+2014-12-01 Nick Styles
+	* Fill overflow clusters
+	* Tagged as TrkTrackSummaryTool-01-02-02
+
+2014-12-01 Anthony Morley
+        * Ensure that the split hit counters are set to 0
+        * tag TrkTrackSummaryTool-01-02-01
+
+2014-10-21 Nick Styles <nicholas.styles -at- cern.ch>
+	* Added extra info for Run2
+	* tagged as TrkTrackSummaryTool-01-02-00
+
+2014-03-30 Andreas Salzburger < Andreas.Salzburger -at- cern.ch >
+        * new updateSharedHits
+        * tag TrkTrackSummaryTool-01-00-01
+
+2013-08-21 Niels van Eldik
+        * move to Eigen
+        * tag TrkTrackSummaryTool-01-00-00
+
+2012-07-26 Markus Juengst
+        * Fix for access of TRT straw status 
+        * tag TrkTrackSummaryTool-00-24-02
+
+2012-01-17 Jahred Adelman
+	* For TRT gas / xenon
+	* tag TrkTrackSummaryTool-00-24-01
+
+2012-01-17 Edward.Moyse@cern.ch
+	* Added numberOfCscUnspoiltEtaHits
+	* tag TrkTrackSummaryTool-00-24-00
+
+2011-04-12 Markus Elsing
+	* changes for interface to ID pattern track handling
+	* tag TrkTrackSummaryTool-00-23-11
+
+2010-10-28 Edward.Moyse@cern.ch
+	* src/TrackSummaryTool.cxx: bug #73179: c++0x fixes for TrkTrackSummaryTool
+	* tag TrkTrackSummaryTool-00-23-10
+
+2010-09-30 Markus Elsing
+	* TestBlayer in summary
+	* Change order in summary computation
+	* use Helper again to call HoleSearch (+TestBLayer) 
+	* tag TrkTrackSummaryTool-00-23-09
+
+2010-08-30 Thijs Cornelissen
+	* Fill number of pixel outliers
+	* tag TrkTrackSummaryTool-00-23-08
+
+2010-07-06 Antonio Limosani
+	* Configure Hole Search tool to be aware of Pixel and SCT state
+	* Fix bug 68869
+	* tag TrkTrackSummaryTool-00-23-07
+
+2010-06-22 Thijs Cornelissen
+	* Fill InDetTrackSummary
+	* tag TrkTrackSummaryTool-00-23-06
+
+2010-06-16 Thijs Cornelissen
+	* src/TrackSummaryTool.cxx: Fill number of hits used for dEdx
+	* tag TrkTrackSummaryTool-00-23-05
+
+2010-04-19 Thijs Cornelissen
+	* Fix crash due to auto-retrieval
+	* tag TrkTrackSummaryTool-00-23-04
+
+2010-04-18 Thijs Cornelissen
+	* Corrections for pixel dEdx (float instead of int)
+	* tagged as TrkTrackSummaryTool-00-23-03
+
+2010-04-12 Thijs Cornelissen
+	* src/TrackSummaryTool.cxx: Fill pixel dEdx information
+	* tagged as TrkTrackSummaryTool-00-23-02
+
+2009-09-05 Wolfgang Liebig
+        * src/TrackSummaryTool.cxx: apply stricter limit on chi2 values in calculation of chi2-on-surface variance
+        * avoids FPE in addition to fixing origin of large chi2 values (GlobalChi2Fitter)
+        * tagged as TrkTrackSummaryTool-00-23-01 and 00-22-08-branch series
+
+2009-07-28 Niels van Eldik
+	* adding option to add MuonTrackSummary
+	* tagged as TrkTrackSummaryTool-00-23-00
+
+2009-06-27 Edward.Moyse@cern.ch
+	* src/TrackSummaryTool.cxx: init muon hole counts to zero if there's a muon since we always try to fill them.
+	* tagged as TrkTrackSummaryTool-00-22-08
+
+2009-06-20 Markus Elsing
+	* message cleanup
+	* tagged as TrkTrackSummaryTool-00-22-07
+
+2009-06-04  David Rousseau  <droussea@lxbuild084.cern.ch>
+
+	* AtlasTrackSummaryTool.py no more print Configurable
+
+2009-06-04 Edward.Moyse@cern.ch
+	* src/TrackSummaryTool.cxx: Count MDT holes
+
+2009-04-29 Edward.Moyse@cern.ch
+	* src/TrackSummaryTool.cxx: gcc43 fixes (bug#47844) + make code more consistent
+	* Tagged TrkTrackSummaryTool-00-22-05
+
+2009-03-04 Edward.Moyse@cern.ch
+	* src/TrackSummaryTool.cxx: fixed typo with updateTrack() leaking memory (bug#47691), and gcc43 warnings
+	* Tagged TrkTrackSummaryTool-00-22-04
+
+2009-02-23 Edward.Moyse@cern.ch
+	* python/AtlasTrackSummaryTool.py: Sebastien Binet's changes from bug#47211 (import ToolSvc from AthenaCommon.AppMgr)
+	* src/TrackSummaryTool.cxx: compilation fix(!)
+	* Tagged TrkTrackSummaryTool-00-22-02
+
+2009-02-19 Edward.Moyse@cern.ch
+	* Code cleanup - refactored long method into two
+	* New method to return correct helper tool
+	* New ITrackSummaryHelperTool interface
+	* Fixes for bug#38415
+	* Tagged TrkTrackSummaryTool-00-22-00
+
+2009-02-10 Andreas Wildauer
+	* fixed typo in python/AtlasTrackSummary jobO
+	TrkTrackSummaryTool-00-21-14
+
+2009-01-20 Wolfgang Liebig
+        * stop use of insufficient msg() call
+        * fix requirements after checkreq WARNING
+        * further optimise includes and fwd-declarations
+        TrkTrackSummaryTool-00-21-13
+
+2009-01-09 Markus Elsing
+        * put py back in
+        TrkTrackSummaryTool-00-21-12
+
+2009-01-07 Markus Elsing
+        * cleanup
+        TrkTrackSummaryTool-00-21-11
+
+2008-10-31 Kirill Prokofiev
+        * Fixes for TarckInfo
+        TrkTrackSummaryTool-00-21-10
+
+2008-07-25 Thijs Cornelissen
+	* Fix another FPE
+	TrkTrackSummaryTool-00-21-09
+
+2008-06-04 Thijs Cornelissen
+	* Fix FPE
+	TrkTrackSummaryTool-00-21-08
+
+2008-06-02 Thijs Cornelissen
+	* Extend summary (dead sensors, spoilt hits)
+	TrkTrackSummaryTool-00-21-07
+
+2008-03-11 Markus Elsing
+	* set default to -1 not to -999
+	TrkTrackSummaryTool-00-21-06
+
+2008-03-11 Andreas Wildauer
+	* fixed mem leak in tracksummarytool
+	TrkTrackSummaryTool-00-21-05
+
+2008-03-09 Markus Elsing
+	* further changes for summary caching 
+	TrkTrackSummaryTool-00-21-04
+
+2008-03-08 Markus Elsing
+	* Modify debug output for summary caching
+	TrkTrackSummaryTool-00-21-02
+
+2008-03-05 Andreas Wildauer
+	* forgot to clone the tracksummary before return
+	  (which results in double delete)
+	TrkTrackSummaryTool-00-21-01
+
+2008-03-04 Andreas Wildauer
+	* activated caching of tracksummary in track
+	TrkTrackSummaryTool-00-21-00
+
+2008-03-01 Markus Elsing
+        * Ganged flag and fixes in init
+         TrkTrackSummaryTool-00-20-13
+
+2008-02-25 Andreas Wildauer
+        * tagged Troels electron pid update as
+          TrkTrackSummaryTool-00-20-12
+
+2007-11-20 Andreas Wildauer
+	* fixed division by 0 (Savannah: 31424)
+        * fixed req file: no jobO
+	* tagged TrkTrackSummaryTool-00-20-11
+
+2007-08-17 Martin Siebel <Martin.Siebel@CERN.ch>
+	* bugfix: Logic in Tool retrieval
+	* tagged TrkTrackSummaryTool-00-20-10
+
+2007-08-16 Martin Siebel <Martin.Siebel@CERN.ch>
+	* bugfix: swith for MuonHoleSearch activation
+	* tagged TrkTrackSummaryTool-00-20-09
+
+2007-08-14 Andreas Wildauer
+	* bugfix in jobO due to changes in holesearch tool
+	* tagged TrkTrackSummaryTool-00-20-07
+
+2007-07-26 Martin Siebel <Martin.Siebel@CERN.ch>
+	* adapted to new ITrackHoleSearchTool
+	* tagged  TrkTrackSummaryTool-00-20-06
+
+2007-07-26 Martin Siebel <Martin.Siebel@CERN.ch>
+	* introduced TrackHoleSearchTool
+	* tagged  TrkTrackSummaryTool-00-20-05
+
+2007-04-12 Andreas Wildauer
+	* move to configurables:
+          o removed jobO wrapper (no clients anymore)
+	* tagged as TrkTrackSummaryTool-00-20-04
+
+2007-04-12 Martin Siebel <Martin.Siebel@CERN.ch>
+	* clarification of error message
+	* tagged  TrkTrackSummaryTool-00-20-03
+
+2007-04-12 Andreas Wildauer
+	* added a python module: AtlasTrackSummaryTool.py which can be used
+	  to setup a TrackSummaryTool (including the tools it needs)
+	* default settings are as used in InDetRecExample ...
+	* is needed for some clients (b-tagging e.g. when they run on AOD)
+	* TrkTrackSummaryTool-00-20-02
+
+2007-04-04 Martin Siebel <Martin.Siebel@CERN.ch>
+	* removal of m_loadMuonHelper
+	* removal of queries on m_xyHelper == 0
+        * use ToolHandle.empty() instead
+ 	* TrkTrackSummaryTool-00-20-01
+
+2007-03-14 Martin Siebel <Martin.Siebel@CERN.ch>
+	* cleanup, moved code to helper tool
+ 	* TrkTrackSummaryTool-00-20-00
+
+2007-02-13 Martin Siebel <Martin.Siebel@CERN.ch>
+	* bugfix
+	* tagged TrkTrackSummaryTool-00-19-12
+
+2007-02-18 Markus Elsing
+        * Frist cleanup of migrated code, still many problems 
+        * old style configurables now a wrapper
+
+2007-02-14 Andreas Wildauer
+        * migration to configurables
+        * kept jobOs (backward compatible I hope)
+	* jobOs has MANY clients in the muons
+	* IMPORTANT: access of muon helper tool has to be migrated by muon people (Ed?)
+
+2007-02-13 Martin Siebel <Martin.Siebel@CERN.ch>
+	* included TrackParameters header
+	* tagged TrkTrackSummaryTool-00-19-06
+
+2007-02-12 David Quarrie <David.Quarrie@cern.ch>
+	* cmt/requirements: Make this a dual_use_library since clients
+	require access to the typeinfo from TrkTrackSummaryTool
+
+2007-01-29 Martin Siebel <Martin.Siebel@CERN.ch>
+	* supppress init of Pixel TrkSumData if no Pixel is there
+	* tagged TrkTrackSummaryTool-00-19-04
+
+2007-01-26 David Quarrie <David.Quarrie@cern.ch>
+	* Remove existsObjFactory check because Gaudi v19 doesn't support 
+	it. We'll revisit this again later
+
+2006-12-20 Edward.Moyse@cern.ch
+	* Set all MS hole values to zero. 
+	* Improve ID holesearch error message. 
+	* Protection for crash in delete of hits on track
+	* tagged TrkTrackSummaryTool-00-19-02
+
+2006-12-19 Edward.Moyse@cern.ch
+	* removed forced output level
+	* delete CompFunc (memory leak)
+	* added Property for Muon helper tool
+
+2006-12-18 Edward.Moyse@cern.ch
+	* fixed bug when retrieve of Muon helper tool fails
+	* tagged TrkTrackSummaryTool-00-19-01
+
+2006-12-11 Martin Siebel <Martin.Siebel@CERN.ch>
+	* re-entered reset of hole information
+	* tagged TrkTrackSummaryTool-00-19-00
+
+2006-11-28 Ed Moyse
+	* do muon hole search
+
+2006-11-23 Martin Siebel <Martin.Siebel@CERN.ch>
+	* initialised numberOfBLayerOutliers
+	* tagged TrkTrackSummaryTool-00-18-14
+	
+2006-11-22 Martin Siebel <Martin.Siebel@CERN.ch>
+	* passed particleHypothesis to performHoleSearchStepWise
+	* tagged TrkTrackSummaryTool-00-18-13
+
+2006-09-27 Martin Siebel <Martin.Siebel@CERN.ch>
+	* added sigma(chi2OnSurface) to TrackSummary
+	* tagged TrkTrackSummaryTool-00-18-11
+
+2006-08-03 Martin.Siebel@CERN.ch
+	* added createSummaryNoHoleSearch method to TrackSummaryTool
+	* tagged 00-18-10
+
+2006-05-12 Martin.Siebel@CERN.ch
+	* memory leak removed
+	
+2006-05-09 Martin.Siebel@CERN.ch
+	* code cleanup: 
+	  - removed old hole-search code
+	  - removed navigator, propagator and extrapolator from code  
+	* removed navigator, propagator, extrapolator setup from .py
+
+2006-04-25 Martin.Siebel@CERN.ch
+	* init clean-up
+
+2006-04-20 Martin Siebel@CERN.ch
+	* adapted to new TSOS sorting function
+	* excluded outliers from Stepwise Holesearch
+
+2006-03-31 Martin.Siebel@CERN.ch
+	* added method performHoleSearchStepWise
+	* removed propagator from extrapolation call
+
+2006-03-22 Wolfgang Liebig <http://consult.cern.ch/xwho/people/54608>
+        * changed strategy of track analysis to work on TrackStateOnSurface
+        * use changed interface of helper tools
+        * allow CompetingRIOs in analysed tracks
+        * make the package a component_library
+        * tag as TrkTrackSummaryTool-00-16-00
+
+2005-12-15 Andreas Salzburger <Andreas.Salzburger@cern.ch>
+        * fixed memory leak in cleanup of holes-on-track search
+        * fixed new include path to TrkToolInterfaces
+        * tagged 00-15-01
+
+2005-12-15 Edward.Moyse@cern.ch
+        * moved helper tool interface to TrkToolInterfaces	
+	* fixed include
+	* tagged 00-15-00
+
+2005-12-08 Edward.Moyse@cern.ch
+        * gcc 3.4 fixes
+        * tagged 00-14-16
+
+2005-11-22 Edward.Moyse@cern.ch
+        * add shared-hits functionality
+
+2005-07-07 Edward Moyse  <edward.moyse@cern.ch>
+	changes for new track
+        tagged 00-14-00
+
+2005-06-28 Edward Moyse  <edward.moyse@cern.ch>
+	fixed jobOptions to try to load Helpers
+	check to see if DLLs loaded before attempting to load tools
+        tagged 00-13-02
+
+2005-05-10 Edward Moyse  <edward.moyse@cern.ch>
+	removed SiTrackerDetectorManager forward declaration
+        tagged 00-13-00
+
+2005-03-07 Edward Moyse  <edward.moyse@cern.ch>
+	only load extrap, nav etc. if doHoles=true
+        tagged 00-12-02
+
+2005-02-26 Edward Moyse  <edward.moyse@cern.ch>
+	fixed requirements file
+        tagged 00-12-01
+
+2005-02-22 Edward Moyse  <edward.moyse@cern.ch>
+	add holes on track search
+        tagged 00-12-00
+
+2005-01-18 Edward Moyse  <edward.moyse@cern.ch>
+	fixed requirement file
+        tagged 00-11-01
+
+2005-01-13 Edward Moyse  <edward.moyse@cern.ch>
+	fill new hit pattern
+	tagged 00-11-00
+
+2004-12-08 Edward Moyse <edward.moyse@cern.ch>
+	Uses the new InDet and Muon helper tools, removing dependencies.
+        tagged 00-10-00
+
+2004-11-29 Edward Moyse <edward.moyse@cern.ch>
+        fills the muon ID helpers, and reorganised the code a bit for the eventual move to using two AlgTools.
+        tagged 00-09-01
+
+2004-11-09 Edward Moyse <edward.moyse@cern.ch>
+	added the muon code from Niels
+        tagged 00-09-00
+
+2004-10-13 Edward Moyse <edward.moyse@cern.ch>
+        Added extra checks for muon tracks
+        tagged 00-08-03
+
+2004-09-29 Edward Moyse <edward.moyse@cern.ch>
+	Fixed bug! Thanks Davide
+        tagged 00-08-02
+
+2004-09-13 Edward Moyse 
+<edward.moyse@cern.ch>
+        tagged 00-08-01
+	'hacked; to work with InDet migration. Proper solution more complex so this will do for now.
+
+2004-07-23 Edward Moyse <edward.moyse@cern.ch>
+        tagged 00-08-00
+	added assert to catch segfault
+
+2004-07-20 Edward Moyse <edward.moyse@cern.ch>
+        tagged 00-07-04
+	work with persistified tracks (i.e. no prd) and with TRT.
+
+2004-07-15 Edward Moyse <edward.moyse@cern.ch>
+        tagged 00-07-01
+	OOPS. Typo in an assert! Sorry everyone.
+
+2004-07-14 Edward Moyse <edward.moyse@cern.ch>
+        tagged 00-07-00
+        work with new TRT_DriftCircleOnTrack
+
+2004-07-13 Edward Moyse <edward.moyse@cern.ch>
+        tagged 00-05-00
+	work with new ROT
+
+2004-06-21 Edward Moyse <edward.moyse@cern.ch>
+        tagged 00-04-00
+	updated reqs for new Track
+
+2004-06-21 Edward Moyse <edward.moyse@cern.ch>
+	tagged 00-03-00
+	added high level TRT
+
+2004-06-11 Edward Moyse <edward.moyse@cern.ch>
+        Added b-layer, sct, trt info
+	tagged 00-02-00
+
+2004-06-03 Edward Moyse <edward.moyse@cern.ch>
+	created!
+
