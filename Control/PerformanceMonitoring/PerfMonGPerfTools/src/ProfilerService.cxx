@@ -2,10 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ProfilerService.cxx 491793 2012-03-30 08:26:39Z krasznaa $
+// $Id: ProfilerService.cxx 634362 2014-12-08 09:11:10Z dquarrie $
 
 // GPT include(s):
+#ifdef ATLAS_CMAKE
 #include <google/profiler.h>
+#else
+#include <gperftools/profiler.h>
+#endif
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"

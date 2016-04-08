@@ -1,4 +1,4 @@
-# $Id: DisablePerfMon_jobOFragment.py 496380 2012-04-18 12:28:09Z ritsch $
+# $Id: DisablePerfMon_jobOFragment.py 631453 2014-11-27 09:26:40Z will $
 #
 # This jobO fragment is used when setting up the profiling of an Athena job
 # to turn off PerfMon. The PerfMon code can in some cases interfere with
@@ -11,7 +11,12 @@ include.block( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 # Disable PerfMon as much as we can:
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False )
-from RecExConfig.RecFlags import rec
-rec.doPerfMon.set_Value_and_Lock( False )
-rec.doDetailedPerfMon.set_Value_and_Lock( False )
-rec.doSemiDetailedPerfMon.set_Value_and_Lock( False )
+
+#this is in a try block because AthAnalysisBase doesn't come with RecExConfig
+try:
+    from RecExConfig.RecFlags import rec
+    rec.doPerfMon.set_Value_and_Lock( False )
+    rec.doDetailedPerfMon.set_Value_and_Lock( False )
+    rec.doSemiDetailedPerfMon.set_Value_and_Lock( False )
+except ImportError:
+    pass
