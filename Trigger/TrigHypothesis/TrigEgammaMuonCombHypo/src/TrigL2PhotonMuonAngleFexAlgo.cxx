@@ -66,7 +66,7 @@ HLT::ErrorCode TrigL2PhotonMuonAngleFexAlgo::hltInitialize()
 HLT::ErrorCode TrigL2PhotonMuonAngleFexAlgo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endmsg;
+    msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -80,10 +80,10 @@ HLT::ErrorCode TrigL2PhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   
   // sanity checks
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigL2PhotonMuonAngleFexAlgo::hltExecute" << endmsg;
+    msg() << MSG::DEBUG << "Running TrigL2PhotonMuonAngleFexAlgo::hltExecute" << endreq;
 
 if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endmsg;
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -104,18 +104,18 @@ if ( inputTE.size() != 2 ) {
         {
 	  
 	  if ( msgLvl() <= MSG::WARNING) {
-	    msg() << MSG::WARNING << "Failed to get TrigPhoton collection" << endmsg;
+	    msg() << MSG::WARNING << "Failed to get TrigPhoton collection" << endreq;
 	  }
 	  return HLT::MISSING_FEATURE;
 	}
       else{
 	if ( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG  << "TrigPhoton collection successfully retrieved" << endmsg; 	
+	  msg() << MSG::DEBUG  << "TrigPhoton collection successfully retrieved" << endreq; 	
 			} 
       
     }else{
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG  << "TrigPhoton collection successfully retrieved" << endmsg; 	
+      msg() << MSG::DEBUG  << "TrigPhoton collection successfully retrieved" << endreq; 	
   }
   // retrieving muons
   if ( getFeatures(te1, muonContainer1) != HLT::OK || muonContainer1.size() == 0)
@@ -124,18 +124,18 @@ if ( inputTE.size() != 2 ) {
         {
 	  
 	  if ( msgLvl() <= MSG::WARNING) {
-	    msg() << MSG::WARNING << "Failed to get MuonCombinedFeature collection" << endmsg;
+	    msg() << MSG::WARNING << "Failed to get MuonCombinedFeature collection" << endreq;
 	  }
 	  return HLT::MISSING_FEATURE;
 	}
       else{
 	if ( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endmsg; 	
+	  msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endreq; 	
       } 
       
     }else{
 	if ( msgLvl() <= MSG::DEBUG )
-	  msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endmsg; 	
+	  msg() << MSG::DEBUG  << "MuonCombinedFeature collection successfully retrieved" << endreq; 	
   }
 
   // now we have 2 bunches of leptons and we need to find out whether they can form topological combination
@@ -145,25 +145,25 @@ if ( inputTE.size() != 2 ) {
   for ( photon1 = photonContainer1->begin(); photon1 != photonContainer1->end(); ++photon1 ) {
     if((*photon1)==0)
       {
-	msg() << MSG::WARNING << "Null pointer in TrigPhotonContainer. Skipping." << endmsg;
+	msg() << MSG::WARNING << "Null pointer in TrigPhotonContainer. Skipping." << endreq;
 	continue;	
       }
     if ( !(*photon1)->isValid() ) 
       {
-	msg() << MSG::DEBUG << "Photon is not valid" << endmsg;
+	msg() << MSG::DEBUG << "Photon is not valid" << endreq;
 	continue;	
       }
     for ( muon1 = muonContainer1.begin(); muon1 != muonContainer1.end(); ++muon1 ) {
       if((*muon1)==0)
 	{
-	  msg() << MSG::WARNING << "Null pointer in CombinedMuonFeature vector. Skipping." << endmsg;
+	  msg() << MSG::WARNING << "Null pointer in CombinedMuonFeature vector. Skipping." << endreq;
 	  continue;	
 	}
       
       if((*muon1)->IDTrack()==0)
 	{
 	  if(msgLvl() <= MSG::DEBUG) {
-	    msg() << MSG::DEBUG << "Null pointer to IDTrack from muon. Skipping." << endmsg;
+	    msg() << MSG::DEBUG << "Null pointer to IDTrack from muon. Skipping." << endreq;
 	  }
 	  continue;	
 	}
@@ -172,19 +172,19 @@ if ( inputTE.size() != 2 ) {
   
       
       if(msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "New combination:" << endmsg; 
+	msg() << MSG::VERBOSE << "New combination:" << endreq; 
 	msg() << MSG::VERBOSE << "1st TrigPhoton: addr=" << (*photon1)
 	      << ((*photon1)->isValid() ? "(valid" : "(not valid")
 	      << ") RoI id="<< (*photon1)->roiId()
 	      << "; pt="    << (*photon1)->pt()  
 	      << "; eta="   << (*photon1)->eta() 
 	      << "; phi="   << (*photon1)->phi() 
-	      << endmsg;
+	      << endreq;
 	msg() << MSG::VERBOSE << "1st CombinedMuonFeature: addr=" << (*muon1)
           << " pt=" << 1/(*muon1)->ptq() << " trkAddr=" << (*muon1)->IDTrack() 
           << " " << *(*muon1)
           << "; Zvtx =" << (*muon1)->IDTrack()->param()->z0() << "+-" << (*muon1)->IDTrack()->param()->ez0()
-          << endmsg;
+          << endreq;
       }
       EgMuTopoInfo->SetRoiWord((*photon1)->roiId());
       EgMuTopoInfo->SetElecValid(true);    
@@ -208,7 +208,7 @@ if ( inputTE.size() != 2 ) {
       if(msgLvl() <= MSG::DEBUG){
 	msg() << MSG::DEBUG << "Created following object: "
 	      << (*EgMuTopoInfo)
-	      << endmsg;
+	      << endreq;
       }
 	
      
@@ -219,13 +219,13 @@ if ( inputTE.size() != 2 ) {
 
   HLT::ErrorCode hltStatus =  attachFeature(outputTE, egMuTopoColl, "L2_PhotonMuonTopoFEX"); 
   if (hltStatus != HLT::OK ){
-    msg() << MSG::WARNING << "Write of ElectronMuonTopoInfo container to  outputTE failed" << endmsg;
+    msg() << MSG::WARNING << "Write of ElectronMuonTopoInfo container to  outputTE failed" << endreq;
     for(ElectronMuonTopoInfoContainer::iterator itr = egMuTopoColl->begin(); itr!=egMuTopoColl->end() ; ++itr)
       delete *itr;
     delete egMuTopoColl;
     return hltStatus;
   }else{
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "successfully recorded L2_PhotonMuonTopoFEX" << endmsg;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "successfully recorded L2_PhotonMuonTopoFEX" << endreq;
   }
 
   // set output TriggerElement true if good combination

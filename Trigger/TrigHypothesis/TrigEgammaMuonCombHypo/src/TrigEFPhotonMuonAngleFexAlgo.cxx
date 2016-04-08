@@ -59,7 +59,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltInitialize()
 {
   
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization:" << endmsg;
+    msg() << MSG::DEBUG << "Initialization:" << endreq;
   }
 
  
@@ -70,7 +70,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltInitialize()
 HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endmsg;
+    msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -84,10 +84,10 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   bool debug =  msgLvl() <= MSG::DEBUG;
 
   // sanity checks
-  if ( debug )  msg() << MSG::DEBUG << "Running TrigEFPhotonMuonAngleFexAlgo" << endmsg;
+  if ( debug )  msg() << MSG::DEBUG << "Running TrigEFPhotonMuonAngleFexAlgo" << endreq;
   
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endmsg;
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -101,11 +101,11 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK || roiDescriptor1==0 || roiDescriptor2==0) {
       if ( msgLvl() <= MSG::DEBUG) {
-	msg() <<  MSG::DEBUG << "No RoIDescriptors for this Trigger Elements! " << endmsg;
+	msg() <<  MSG::DEBUG << "No RoIDescriptors for this Trigger Elements! " << endreq;
       }
     } else {
       if ( debug )
-	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endmsg;
+	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
     }
   }
   
@@ -119,21 +119,21 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
         {
 	  
 	  if ( msgLvl() <= MSG::WARNING) 
-	    msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer collection" << endmsg;	  
+	    msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer collection" << endreq;	  
 	  return HLT::MISSING_FEATURE;
 	}
       else{
 	if ( debug )
-	  msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved" << endmsg; 	
+	  msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved" << endreq; 	
       } 
       
     }else{
     if ( debug )
-      msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved" << endmsg; 	
+      msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved" << endreq; 	
   }
 
   if (vectorEgammaContainers.size() < 1) {
-    msg() << MSG::DEBUG << " empty xAOD::PhotonContainer from the trigger element" << endmsg;
+    msg() << MSG::DEBUG << " empty xAOD::PhotonContainer from the trigger element" << endreq;
     return HLT::OK;
   }  
   const xAOD::PhotonContainer* photonContainer1 = vectorEgammaContainers.back();;
@@ -148,17 +148,17 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
       if(getFeature(te2, MuEFTracksEF) != HLT::OK  || MuEFTracksEF == 0) 
         {	  
 	  if ( msgLvl() <= MSG::WARNING) 
-	    msg() << MSG::WARNING << "Failed to get EF MuidTrackContainer" << endmsg;
+	    msg() << MSG::WARNING << "Failed to get EF MuidTrackContainer" << endreq;
 	  return HLT::MISSING_FEATURE;
 	}
       else{
 	if ( debug )
-	  msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endmsg; 	
+	  msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq; 	
       } 
       
     }else{
     if ( debug )
-      msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endmsg; 	
+      msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq; 	
   }	
   
   
@@ -169,7 +169,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   xAOD::PhotonContainer::const_iterator photon1;
   xAOD::MuonContainer::const_iterator muon;
   if(msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "Size of photon container: " << photonContainer1->size() << " size of muon container " << MuEFTracksEF->size() << endmsg; 
+	msg() << MSG::VERBOSE << "Size of photon container: " << photonContainer1->size() << " size of muon container " << MuEFTracksEF->size() << endreq; 
    }
   int mu_count,el_count;
   mu_count=el_count=0; 
@@ -184,13 +184,13 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
     
     if((*photon1)==0)
       {
-	msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endmsg;
+	msg() << MSG::WARNING << "Null pointer in egammaContainer. Skipping." << endreq;
 	continue;	
       }
     const xAOD::CaloCluster* clus = (*photon1)->caloCluster();
     if(!clus) {
       if(debug)
-	msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endmsg;
+	msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endreq;
       continue;
     }
 
@@ -198,17 +198,17 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
       mu_count++;
       if((*muon)==0)
 	{
-	  msg() << MSG::WARNING << "Null pointer in MuonContainer. Skipping." << endmsg;
+	  msg() << MSG::WARNING << "Null pointer in MuonContainer. Skipping." << endreq;
 	  continue;	
 	}
       const xAOD::TrackParticle* muon1 = (*muon)->trackParticle(xAOD::Muon::CombinedTrackParticle);
       if (!muon1) {
-	if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endmsg;
+	if (debug) msg() << MSG::DEBUG << "No CombinedTrackParticle found." << endreq;
 	continue;
       }
       if(msgLvl() <= MSG::VERBOSE) {
 	mu_count++;
-	msg() << MSG::VERBOSE << "Processing photon no. " << el_count << " and muon no. " << mu_count << endmsg; 
+	msg() << MSG::VERBOSE << "Processing photon no. " << el_count << " and muon no. " << mu_count << endreq; 
       }
       
 
@@ -217,18 +217,18 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
       float mu_phi =  muon1->phi();
       
       if(msgLvl() <= MSG::VERBOSE) {
-	msg() << MSG::VERBOSE << "New combination:" << endmsg; 
+	msg() << MSG::VERBOSE << "New combination:" << endreq; 
 	msg() << MSG::VERBOSE << "egammaPhoton: addr=" << (*photon1) 
 	      << "  et="    << clus->e()/cosh(clus->eta())  
 	      << "; eta="   << clus->eta() 
 	      << "; phi="   << clus->phi() 
-	      << endmsg;	      
+	      << endreq;	      
 	msg() << MSG::VERBOSE << "muon: addr=" << muon1 
 	      << "  et="    << muon1->pt()  
 	      << "; eta="   << muon1->eta()                 
 	      << "; phi="   << mu_phi
 	      << "; charge=" << muon1->charge()
-	      << endmsg;
+	      << endreq;
       }
 
        
@@ -254,7 +254,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
       if(debug){
 	msg() << MSG::DEBUG << "Created following object: "
 	      << (*EgMuTopoInfo)
-	      << endmsg;
+	      << endreq;
       }
 
       egMuTopoColl->push_back(EgMuTopoInfo);
@@ -265,13 +265,13 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
   
   HLT::ErrorCode hltStatus =  attachFeature(outputTE, egMuTopoColl, "HLT_PhotonMuonTopoFEX"); 
   if (hltStatus != HLT::OK ){
-    msg() << MSG::WARNING << "Write of ElectronMuonTopoInfo container to  outputTE failed" << endmsg;
+    msg() << MSG::WARNING << "Write of ElectronMuonTopoInfo container to  outputTE failed" << endreq;
     for(ElectronMuonTopoInfoContainer::iterator itr = egMuTopoColl->begin(); itr!=egMuTopoColl->end() ; ++itr)
       delete *itr;
     delete egMuTopoColl;
     return hltStatus;
   }else{
-    if(debug) msg() << MSG::DEBUG << "successfully recorded EF_PhotonMuonTopoFEX" << endmsg;
+    if(debug) msg() << MSG::DEBUG << "successfully recorded EF_PhotonMuonTopoFEX" << endreq;
   }
   
   return HLT::OK;    

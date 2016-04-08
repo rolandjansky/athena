@@ -78,23 +78,23 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltInitialize()
 {
   
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::DEBUG << "Initialization:" << endmsg;
+    msg() << MSG::DEBUG << "Initialization:" << endreq;
   }
 
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
     msg() << MSG::DEBUG << "AcceptAll            = " 
-	<< (m_acceptAll==true ? "True" : "False") << endmsg; 
-    msg() << MSG::DEBUG << "Input Collection has label " << m_inputLabel << endmsg;
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
-    msg() << MSG::DEBUG << "DeltaRRange         = <" << m_MinDR << " - " << m_MaxDR << " >" << endmsg;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
+	<< (m_acceptAll==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "Input Collection has label " << m_inputLabel << endreq;
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
+    msg() << MSG::DEBUG << "DeltaRRange         = <" << m_MinDR << " - " << m_MaxDR << " >" << endreq;
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
     msg() << MSG::DEBUG << "OppositeCharge       = " 
-	  << (m_oppositeCharge==true ? "True" : "False") << endmsg; 
+	  << (m_oppositeCharge==true ? "True" : "False") << endreq; 
     msg() << MSG::DEBUG << "CommonVertex         = " 
-	  << (m_commonVertex==true ? "True" : "False") << endmsg; 
+	  << (m_commonVertex==true ? "True" : "False") << endreq; 
     
   }
   
@@ -105,7 +105,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltInitialize()
 HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltFinalize()
 {
  if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endmsg;
+    msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -126,19 +126,19 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
   
   if ( getFeature(outputTE, EgMuTopoInfoColl, m_inputLabel ) != HLT::OK || EgMuTopoInfoColl==0) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No mass information found for this trigger element woth label " << m_inputLabel << endmsg;
+      msg() <<  MSG::WARNING << "No mass information found for this trigger element woth label " << m_inputLabel << endreq;
     }
     return HLT::MISSING_FEATURE;  
   } else {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG  << "ElectronMuonTopoInfoContainer successfully retrieved" << endmsg;
+      msg() << MSG::DEBUG  << "ElectronMuonTopoInfoContainer successfully retrieved" << endreq;
   }
   
     
   
    if(m_acceptAll){
 	pass = true;  
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Force accept! pass = " << pass << endmsg;
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Force accept! pass = " << pass << endreq;
 	return HLT::OK;    
    }
  
@@ -147,7 +147,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
       m_monCut = 1;
       
     if(msgLvl() <= MSG::VERBOSE) {
-	  msg() << MSG::VERBOSE << "Got electronMuonTopoInfoCollection of the length " <<  EgMuTopoInfoColl->size() << endmsg;
+	  msg() << MSG::VERBOSE << "Got electronMuonTopoInfoCollection of the length " <<  EgMuTopoInfoColl->size() << endreq;
 	}  
   
 	ElectronMuonTopoInfoContainer::const_iterator egMuTopoInfo;
@@ -159,7 +159,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 		oppositeCharge = (*egMuTopoInfo)->OppositeCharge();
 		VX_state = (*egMuTopoInfo)->VertexState(); 
 		if ( msgLvl() <= MSG::DEBUG ){
-			msg() << MSG::DEBUG  << "Object no. " << egMuTopoInfo - EgMuTopoInfoColl->begin() << ": Reading in mass and distance information from address " << (*egMuTopoInfo) << "; " << *(*egMuTopoInfo) << endmsg;
+			msg() << MSG::DEBUG  << "Object no. " << egMuTopoInfo - EgMuTopoInfoColl->begin() << ": Reading in mass and distance information from address " << (*egMuTopoInfo) << "; " << *(*egMuTopoInfo) << endreq;
 		}	
     
 	
@@ -174,13 +174,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	  {
 			if(msgLvl() <= MSG::VERBOSE) {
 				msg() << MSG::VERBOSE << "Combination did not pass opposite charge cut" 
-				<<  endmsg;
+				<<  endreq;
 			}
 			continue;	
 	  }else{
 			if(msgLvl() <= MSG::VERBOSE) {
 				msg() << MSG::VERBOSE << "Combination passed opposite charge cut" 
-				<<  endmsg;
+				<<  endreq;
 			}
 	  
 	  }
@@ -194,13 +194,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 		  {
 			if(msgLvl() <= MSG::VERBOSE) {
 				msg() << MSG::VERBOSE << "Combination does not form common vertex." 
-				<<  endmsg;
+				<<  endreq;
 			}
 			continue;
 		  }else{
 			if(msgLvl() <= MSG::VERBOSE) {
 				msg() << MSG::DEBUG << "Combination passed common vertex cut with state " << VX_state
-				<< endmsg; 
+				<< endreq; 
 			}
 		  }	
 	   
@@ -210,13 +210,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	  if(dphi > m_MaxDPhi) {
 		  if(msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE << "Combination failed dPhi cut: " 
-	    	<< dphi << " larger than " << m_MaxDPhi <<  endmsg;
+	    	<< dphi << " larger than " << m_MaxDPhi <<  endreq;
 	  }
 		continue;
      }else{
 		if(msgLvl() <= MSG::VERBOSE) {
 		msg() << MSG::DEBUG << "Combination passed delta phi cut: " 
-			<< dphi << " less than or equal to " << m_MaxDPhi <<  endmsg;
+			<< dphi << " less than or equal to " << m_MaxDPhi <<  endreq;
 		  }
 	 m_monDPhiAccepted=dphi;
 	
@@ -228,13 +228,13 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
       if(dr > m_MaxDR || dr < m_MinDR) {
 		  if(msgLvl() <= MSG::VERBOSE) {
 	    msg() << MSG::VERBOSE << "Combination failed dR cut: " 
-	    	<< dr << " outside < " << m_MinDR << "," << m_MaxDR << ">" << endmsg;
+	    	<< dr << " outside < " << m_MinDR << "," << m_MaxDR << ">" << endreq;
 	  }
 		continue;
      }else{
 		if(msgLvl() <= MSG::VERBOSE) {
 		msg() << MSG::DEBUG << "Combination passed delta R cut: " 
-		<< dr << " inside < " << m_MinDR << "," << m_MaxDR << ">" << endmsg;		  }
+		<< dr << " inside < " << m_MinDR << "," << m_MaxDR << ">" << endreq;		  }
 	 m_monDRAccepted=dr;
 	
 	 }
@@ -247,7 +247,7 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	if(msgLvl() <= MSG::VERBOSE) {
 	  msg() << MSG::VERBOSE << "Combination failed mass cut: " 
 		<< mass << " not in [" << m_lowerMassCut << "," 
-		<< m_upperMassCut << "]" << endmsg;
+		<< m_upperMassCut << "]" << endreq;
 	}
 	continue;
 	 } else {
@@ -258,16 +258,16 @@ HLT::ErrorCode TrigL2ElectronMuonAngleHypo::hltExecute(const HLT::TriggerElement
 	if(msgLvl() <= MSG::VERBOSE) {
 	  msg() << MSG::VERBOSE << "Combination passed mass cut: " 
 		<< m_lowerMassCut << " < " << mass << " < " 
-		<< m_upperMassCut << endmsg;	     
+		<< m_upperMassCut << endreq;	     
 	  msg() << MSG::DEBUG << "Good combination found! Memu=" 
-		<< mass << " CLHEP::MeV" << endmsg;
+		<< mass << " CLHEP::MeV" << endreq;
 	}
       }
       
   }//end of loop over egMuTopoInfo objects
   
   
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endreq;
   return HLT::OK;    
 
 }
