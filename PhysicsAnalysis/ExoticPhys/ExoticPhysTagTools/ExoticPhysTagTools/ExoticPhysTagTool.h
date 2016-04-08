@@ -15,8 +15,7 @@ Purpose : build the ExoticPhys Tag object - AnalysisTag.h.
           For example encoding the results of hypotheses on different channels
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -25,7 +24,7 @@ Purpose : build the ExoticPhys Tag object - AnalysisTag.h.
 /** Interface ID for ExoticPhysTagTool*/  
 static const InterfaceID IID_ExoticPhysTagTool("ExoticPhysTagTool", 1, 0);
 
-class ExoticPhysTagTool : public AlgTool {
+class ExoticPhysTagTool : public AthAlgTool {
 
 public:
   
@@ -52,10 +51,6 @@ private:
   /** Properties */
   std::string m_jetContainerName;
   double m_jetPtCut;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // EXOTICPHYSTAGTOOL_H
