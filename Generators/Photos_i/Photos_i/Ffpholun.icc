@@ -6,5 +6,5 @@
 
 // initialise pointer
 void Ffpholun::init(void) {
-  if (!_ffpholun) _ffpholun = static_cast<PHOLUN*>(ffpholun_address_());
+  if (!s_ffpholun) s_ffpholun = static_cast<PHOLUN*>(ffpholun_address_());
 }

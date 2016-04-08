@@ -6,5 +6,5 @@
 
 // initialise pointer
 void Ffphot::init(void) {
-  if (!_ffphot) _ffphot = static_cast<FFPHOT*>(ffphot_address_());
+  if (!s_ffphot) s_ffphot = static_cast<FFPHOT*>(ffphot_address_());
 }

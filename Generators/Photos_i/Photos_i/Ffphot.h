@@ -56,7 +56,7 @@ private:
     int iftops;
   };
 
-  static FFPHOT* _ffphot;
+  static FFPHOT* s_ffphot;
 };
 
 #include "Photos_i/Ffphot.icc"

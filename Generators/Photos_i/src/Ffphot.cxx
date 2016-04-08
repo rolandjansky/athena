@@ -1,7 +1,7 @@
 #include "Photos_i/Ffphot.h"
 
 // set pointer to zero at start
-Ffphot::FFPHOT* Ffphot::_ffphot =0;
+Ffphot::FFPHOT* Ffphot::s_ffphot =0;
 
 // Constructor
 Ffphot::Ffphot() 
@@ -16,49 +16,49 @@ Ffphot::~Ffphot()
 int& Ffphot::ifpmode() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ifpmode;
+  return s_ffphot->ifpmode;
 }
 
 float& Ffphot::ffphcut() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ffphcut;
+  return s_ffphot->ffphcut;
 }
 
 float& Ffphot::ffalpha() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ffalpha;
+  return s_ffphot->ffalpha;
 }
 
 int& Ffphot::ifinter() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ifinter;
+  return s_ffphot->ifinter;
 }
 
 int& Ffphot::ifsec() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ifsec;
+  return s_ffphot->ifsec;
 }
 
 int& Ffphot::ifitre() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ifitre;
+  return s_ffphot->ifitre;
 }
 
 int& Ffphot::ifiexp() {
   init(); // check COMMON is initialized
   
-  return _ffphot->ifiexp;
+  return s_ffphot->ifiexp;
 }
 
 int& Ffphot::iftops() {
   init(); // check COMMON is initialized
   
-  return _ffphot->iftops;
+  return s_ffphot->iftops;
 }
 
 

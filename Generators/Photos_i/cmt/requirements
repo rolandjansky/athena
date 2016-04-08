@@ -24,3 +24,6 @@ end_private
 apply_pattern dual_use_library files="Photos.cxx Ffpholun.cxx Ffphot.cxx gffpholun.F gffphot.F"
 macro_append  Photos_i_shlibflags  " $(phot_lopts) $(HepMC_IO_linkopts) "
 apply_pattern declare_joboptions files="*.txt *.py"
+
+# Link the package explicitly against HepMCfio with CMake:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"
