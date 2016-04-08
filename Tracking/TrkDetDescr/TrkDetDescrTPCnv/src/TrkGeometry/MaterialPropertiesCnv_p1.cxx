@@ -6,13 +6,8 @@
 // MaterialPropertiesCnv_p1.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#define private public
-#define protected public
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/MaterialProperties.h"
-#undef private
-#undef protected
-
 #include "TrkDetDescrTPCnv/TrkGeometry/MaterialPropertiesCnv_p1.h"
 
 void MaterialPropertiesCnv_p1::persToTrans( const Trk::MaterialProperties_p1 *persObj,

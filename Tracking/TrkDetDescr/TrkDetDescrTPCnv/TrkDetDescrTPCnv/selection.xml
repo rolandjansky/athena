@@ -5,10 +5,6 @@
     <class name="Trk::MaterialStepCollection_p1" id="DF8A7FA8-693F-44E0-A5E5-F9907B8B429E" />
     <class name="std::vector<Trk::MaterialStepCollection_p1>" />
     
-    <class name="std::vector<float>"/>
-    <class name="std::vector<unsigned char>"/>
-    <class name="std::vector< std::vector<unsigned char> >"/>
-    <class name="std::vector< std::vector< std::vector<unsigned char> > >"/>
     <class name="std::pair< unsigned char, unsigned char >"/>
     <class name="std::vector< std::pair<unsigned char, unsigned char> > "/>
     <class name="std::vector< std::vector<std::pair<unsigned char, unsigned char> > > "/>
