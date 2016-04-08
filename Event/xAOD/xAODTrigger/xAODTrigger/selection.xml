@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 703368 2015-10-27 08:45:13Z krasznaa $ -->
+<!-- $Id: selection.xml 710006 2015-11-23 21:01:29Z sutt $ -->
 <lcgdict>
 
    <!-- The byte stream auxiliary container, v1: -->
@@ -104,6 +104,12 @@
           id="3CB1DCCD-2B78-4E15-AC09-D75B228A29AA" />
    <class name="xAOD::TrigCompositeAuxContainer_v1"
           id="171EB8B8-A777-47D9-94A9-33B2482E2AAF" />
+
+   <!-- RoiDescriptorStore_v1 dictionaries: -->
+   <class name="xAOD::RoiDescriptorStore_v1"
+          id="882822c8-906a-11e5-87f4-02163e010d8c" />
+   <class name="xAOD::RoiDescriptorStoreAuxInfo_v1"
+          id="8aa7eae2-906a-11e5-a100-02163e010d8c" />
 
    <!-- Extra types used by TrigComposite: -->
    <class name="std::vector<std::vector<std::string> >" />
