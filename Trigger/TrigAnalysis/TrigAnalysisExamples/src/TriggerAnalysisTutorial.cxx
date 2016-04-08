@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.cxx 664438 2015-05-01 20:40:30Z ssnyder $
+// $Id: TriggerAnalysisTutorial.cxx 723125 2016-02-10 15:37:04Z ssnyder $
 
 // System include(s):
 #include <iomanip>
@@ -13,6 +13,7 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/Units.h"
 
 // TrigDecisionTool include(s):
 #include "TrigDecisionTool/ChainGroup.h"
@@ -37,6 +38,8 @@
 
 // Local include(s):
 #include "TriggerAnalysisTutorial.h"
+
+using Athena::Units::GeV;
 
 TriggerAnalysisTutorial::TriggerAnalysisTutorial( const std::string &name,
                                                   ISvcLocator *pSvcLocator)
@@ -425,7 +428,7 @@ StatusCode TriggerAnalysisTutorial::zeeTriggerAnalysis( const std::string& chain
    while( comb.get( electronPair ) ) {
       const Electron* el1 = electronPair[ 0 ];
       const Electron* el2 = electronPair[ 1 ];
-      double zmass = ( el1->hlv() + el2->hlv() ).m() / CLHEP::GeV;
+      double zmass = ( el1->hlv() + el2->hlv() ).m() / GeV;
 
       m_MZ->push_back( zmass );
       if( el1->pt() > el2->pt() ) {
