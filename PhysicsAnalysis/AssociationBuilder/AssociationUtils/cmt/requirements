@@ -1,0 +1,50 @@
+package AssociationUtils
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+author Sebastien Binet     <binet@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+
+use EventKernel		EventKernel-*    	Event
+
+branches AssociationUtils src doc share run
+
+library AssociationUtils *.cxx
+
+apply_pattern installed_library
+
+#############
+# unit tests
+#
+private
+
+use TestPolicy 		TestPolicy-*              -no_auto_imports
+use TestTools           TestTools-*     AtlasTest -no_auto_imports
+
+use AthContainers       AthContainers-*         Control
+use AthLinks            AthLinks-*              Control
+use Navigation    	Navigation-*   	        Control -no_auto_imports
+#use DataModel		DataModel-*		Control -no_auto_imports
+use CLIDSvc		CLIDSvc-*		Control -no_auto_imports
+use AtlasBoost		AtlasBoost-*		External -no_auto_imports
+use FourMom		FourMom-*		Event -no_auto_imports
+use FourMomUtils        FourMomUtils-*          Event
+
+macro        cppUnit_deltaROverlapFilterTest_imports ""
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=StoreGate"
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=Navigation"
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=DataModel"
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=AtlasBoost"
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=CLIDSvc"
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=FourMom"
+macro_append cppUnit_deltaROverlapFilterTest_imports " -import=FourMomUtils"
+
+apply_pattern CppUnit name=cppUnit_deltaROverlapFilterTest \
+ files="-s=${AssociationUtils_root}/test DeltaROverlapFilter_CppUnit.cxx" \
+ imports=$(cppUnit_deltaROverlapFilterTest_imports)
+
+end_private
+
+
+
+
