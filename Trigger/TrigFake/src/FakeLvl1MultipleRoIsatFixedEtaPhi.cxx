@@ -59,7 +59,6 @@ Modified :
 FakeLvl1MultipleRoIsatFixedEtaPhi::FakeLvl1MultipleRoIsatFixedEtaPhi(const std::string& name, const std::string& type,
 						   const IInterface* parent)
   : HLT::LvlConverter(name, type, parent), 
-    m_log(0),
     m_roiId(0),
     instance(""),
     m_lvl1ID(1)
@@ -95,80 +94,73 @@ FakeLvl1MultipleRoIsatFixedEtaPhi::~FakeLvl1MultipleRoIsatFixedEtaPhi()
 
 HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltInitialize()
 {
-
-  m_log = new MsgStream ( msgSvc(), name() );
-
-
-
-  // MSGStream object to output messages from your algorithm
-
   // check that the vectors for emRoi are the same length
-  if (m_emRoiPhi.size() != m_emRoiEta.size() || m_emRoiPhi.size() != m_emRoiLabel.size()) {    (*m_log) << MSG::FATAL << " problem configuring EMROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_emRoiEta.size()  << "  label "<<m_emRoiLabel.size()  <<endreq;
+  if (m_emRoiPhi.size() != m_emRoiEta.size() || m_emRoiPhi.size() != m_emRoiLabel.size()) {    msg() << MSG::FATAL << " problem configuring EMROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_emRoiEta.size()  << "  label "<<m_emRoiLabel.size()  <<endreq;
   return HLT::BAD_JOB_SETUP;
   }
-  if (m_emRoiPhi.size() == 0) (*m_log) << MSG::INFO << " Not forming any fake EMROIs" << endreq;
+  if (m_emRoiPhi.size() == 0) msg() << MSG::INFO << " Not forming any fake EMROIs" << endreq;
 
   for (size_t em=0;em<m_emRoiPhi.size();em++){
     if ( m_emRoiPhi.at(em) <= M_PI && m_emRoiPhi.at(em) >= -M_PI ) {
-      (*m_log) << MSG::INFO << " Forming fake EMROI with name " << m_emRoiLabel.at(em)  <<" at phi =  " <<
+      msg() << MSG::INFO << " Forming fake EMROI with name " << m_emRoiLabel.at(em)  <<" at phi =  " <<
         m_emRoiPhi.at(em) << " eta = "  << m_emRoiEta.at(em) << endreq;
     } else {
-      (*m_log) << MSG::INFO << " Not forming fake EMROI " <<m_emRoiLabel.at(em)  << " phi out of range"<< endreq;
+      msg() << MSG::INFO << " Not forming fake EMROI " <<m_emRoiLabel.at(em)  << " phi out of range"<< endreq;
     }
   }
 
   // check that the vectors for tauRoi are the same length
   if (m_tauRoiPhi.size() != m_tauRoiEta.size() || m_tauRoiPhi.size() != m_tauRoiLabel.size()) {
-    (*m_log) << MSG::FATAL << " problem configuring TAUROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_tauRoiEta.size()  << "  label "<< m_tauRoiLabel.size()  <<endreq;
+    msg() << MSG::FATAL << " problem configuring TAUROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_tauRoiEta.size()  << "  label "<< m_tauRoiLabel.size()  <<endreq;
     return HLT::BAD_JOB_SETUP;
   }
-  if (m_tauRoiPhi.size() == 0) (*m_log) << MSG::INFO << " Not forming any fake TAUROIs" <<
+  if (m_tauRoiPhi.size() == 0) msg() << MSG::INFO << " Not forming any fake TAUROIs" <<
 endreq;
   for (size_t tau=0;tau<m_tauRoiPhi.size();tau++){
     if ( m_tauRoiPhi.at(tau) <= M_PI && m_tauRoiPhi.at(tau) >= -M_PI ) {
-      (*m_log) << MSG::INFO << " Forming fake TAUROI with name " << m_tauRoiLabel.at(tau)
+      msg() << MSG::INFO << " Forming fake TAUROI with name " << m_tauRoiLabel.at(tau)
 << " at phi =  " <<
         m_tauRoiPhi.at(tau) << " eta = "  << m_tauRoiEta.at(tau) << endreq;
     } else {
-      (*m_log) << MSG::INFO << " Not forming fake TAUROI " <<m_tauRoiLabel.at(tau)  << " phi out of range"<< endreq;
+      msg() << MSG::INFO << " Not forming fake TAUROI " <<m_tauRoiLabel.at(tau)  << " phi out of range"<< endreq;
     }
   }
   // check that the vectors for muonRoi are the same length
   if (m_muonRoiPhi.size() != m_muonRoiEta.size() || m_muonRoiPhi.size() != m_muonRoiLabel.size()) {
-    (*m_log) << MSG::FATAL << " problem configuring MUONROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_muonRoiEta.size()  << "  label "<< m_muonRoiLabel.size()  <<endreq;
+    msg() << MSG::FATAL << " problem configuring MUONROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_muonRoiEta.size()  << "  label "<< m_muonRoiLabel.size()  <<endreq;
     return HLT::BAD_JOB_SETUP;
   }
-  if (m_muonRoiPhi.size() == 0) (*m_log) << MSG::INFO << " Not forming any fake MUONROIs" << endreq;
+  if (m_muonRoiPhi.size() == 0) msg() << MSG::INFO << " Not forming any fake MUONROIs" << endreq;
 
   // print out the MUONROIs that will be created...
   for (size_t mu=0;mu<m_muonRoiPhi.size();mu++){
     if ( m_muonRoiPhi.at(mu) <= M_PI && m_muonRoiPhi.at(mu) >= -M_PI ) {
-      (*m_log) << MSG::INFO << " Forming fake MUONROI " <<mu<< " with name " << m_muonRoiLabel.at(mu)  << "  at phi =  " <<
+      msg() << MSG::INFO << " Forming fake MUONROI " <<mu<< " with name " << m_muonRoiLabel.at(mu)  << "  at phi =  " <<
         m_muonRoiPhi.at(mu) << " eta = "   << m_muonRoiEta.at(mu) << endreq;
     } else {
-      (*m_log) << MSG::INFO << " Not forming fake MUONROI " <<mu << "phi out of range " <<endreq;
+      msg() << MSG::INFO << " Not forming fake MUONROI " <<mu << "phi out of range " <<endreq;
     }
   }
 
 
   // check that the vectors for jetRoi are the same length
   if (m_jetRoiPhi.size() != m_jetRoiEta.size() || m_jetRoiPhi.size() != m_jetRoiLabel.size()) {
-    (*m_log) << MSG::FATAL << " problem configuring JETROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_jetRoiEta.size()  << "  label "<< m_jetRoiLabel.size()  <<endreq;
+    msg() << MSG::FATAL << " problem configuring JETROI sizes of Phi, Eta, Label vectors different, phi " << m_muonRoiPhi.size()  << "  eta " << m_jetRoiEta.size()  << "  label "<< m_jetRoiLabel.size()  <<endreq;
     return HLT::BAD_JOB_SETUP;
   }
-  if (m_jetRoiPhi.size() == 0) (*m_log) << MSG::INFO << " Not forming any fake JETROIs" <<
+  if (m_jetRoiPhi.size() == 0) msg() << MSG::INFO << " Not forming any fake JETROIs" <<
 endreq;
   for (size_t j=0;j<m_jetRoiPhi.size();j++){
     if ( m_jetRoiPhi.at(j) <= M_PI && m_jetRoiPhi.at(j) >= -M_PI ) {
-      (*m_log) << MSG::INFO << " Forming fake JETROI with name " << m_jetRoiLabel.at(j)  << "  at phi =  " <<
+      msg() << MSG::INFO << " Forming fake JETROI with name " << m_jetRoiLabel.at(j)  << "  at phi =  " <<
         m_jetRoiPhi.at(j) << " eta = "  <<  m_jetRoiEta.at(j) << endreq;
     } else {
-      (*m_log) << MSG::INFO << " Not forming fake JETROI " <<m_jetRoiLabel.at(j)  << " phi out of range "<< endreq;
+      msg() << MSG::INFO << " Not forming fake JETROI " <<m_jetRoiLabel.at(j)  << " phi out of range "<< endreq;
     }
   }
 
 
-  (*m_log) << MSG::INFO << name() << ": Initialization completed successfully" << endreq;
+  msg() << MSG::INFO << name() << ": Initialization completed successfully" << endreq;
 
   return HLT::OK;
 }
@@ -183,10 +175,10 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
 
 
 
-  (*m_log) << MSG::DEBUG << "Executing FakeLvl1MultipleRoIsatFixedEtaPhi" << endreq;
+  msg() << MSG::DEBUG << "Executing FakeLvl1MultipleRoIsatFixedEtaPhi" << endreq;
 
   // activate all configured chains:
-  (*m_log) << MSG::DEBUG << "activating all configured chains." << endreq;
+  msg() << MSG::DEBUG << "activating all configured chains." << endreq;
 
   for (std::vector<HLT::SteeringChain*>::const_iterator it = m_configuredChains->begin();
        it != m_configuredChains->end(); ++it) {
@@ -198,7 +190,7 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
   }
 
   HLT::TriggerElement* initialTE = m_config->getNavigation()->getInitialNode();
-  (*m_log) << MSG::DEBUG << "initial Navigation node created." << endreq;
+  msg() << MSG::DEBUG << "initial Navigation node created." << endreq;
 
   // set Lvl1 ID in AlgoConfig:
   m_config->setLvl1Id(m_lvl1ID);
@@ -223,7 +215,7 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
       TrigConf::HLTTriggerElement::getId(m_emRoiLabel.at(em).c_str(), teId);
       m_config->getNavigation()->addNode(roiTE, teId);
       
-      (*m_log) << MSG::DEBUG << "created "<< m_emRoiLabel.at(em) << endreq;
+      msg() << MSG::DEBUG << "created "<< m_emRoiLabel.at(em) << endreq;
     }
   }
   
@@ -242,7 +234,7 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
       unsigned int teId;
       TrigConf::HLTTriggerElement::getId(m_tauRoiLabel.at(t).c_str(), teId);
       m_config->getNavigation()->addNode(roiTE, teId);
-      (*m_log) << MSG::DEBUG << "created" << m_tauRoiLabel.at(t) << endreq;
+      msg() << MSG::DEBUG << "created" << m_tauRoiLabel.at(t) << endreq;
     }
   }
 
@@ -261,7 +253,7 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
     unsigned int teId;
     TrigConf::HLTTriggerElement::getId(m_muonRoiLabel.at(m).c_str(), teId);
     m_config->getNavigation()->addNode(roiTE, teId);
-    (*m_log) << MSG::DEBUG << "created"<< m_muonRoiLabel.at(m) << endreq;
+    msg() << MSG::DEBUG << "created"<< m_muonRoiLabel.at(m) << endreq;
     }
   }
 
@@ -281,7 +273,7 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
       unsigned int teId;
       TrigConf::HLTTriggerElement::getId(m_jetRoiLabel.at(j).c_str(), teId);
       m_config->getNavigation()->addNode(roiTE, teId);
-    (*m_log) << MSG::DEBUG << "created " << m_jetRoiLabel.at(j) << endreq;
+    msg() << MSG::DEBUG << "created " << m_jetRoiLabel.at(j) << endreq;
     }
   }
 
@@ -294,6 +286,5 @@ HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltExecute( std::vector<HLT::S
 
 HLT::ErrorCode FakeLvl1MultipleRoIsatFixedEtaPhi::hltFinalize() 
 { 
-  delete m_log; m_log = 0;
   return HLT::OK; 
 }

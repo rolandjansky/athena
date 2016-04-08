@@ -23,10 +23,6 @@ Modified :
 #include <vector>
 #include <utility>
 // INCLUDE GAUDI HEADER FILES:
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ISvcLocator.h"
-
 
 # include "CLHEP/Units/SystemOfUnits.h"
 
@@ -59,7 +55,6 @@ Modified :
 FakeLvl1RoIatFixedEtaPhi::FakeLvl1RoIatFixedEtaPhi(const std::string& name, const std::string& type,
 						   const IInterface* parent)
   : HLT::LvlConverter(name, type, parent), 
-    m_log(0),
     m_roiId(0),
     m_tauRoiPhi(99.),
     m_tauRoiEta(0.),
@@ -103,51 +98,43 @@ FakeLvl1RoIatFixedEtaPhi::~FakeLvl1RoIatFixedEtaPhi()
 
 HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltInitialize()
 {
-
-  m_log = new MsgStream ( msgSvc(), name() );
-
-
-
-  // MSGStream object to output messages from your algorithm
-
-
-  (*m_log) << MSG::INFO << " FakeLvl1RoIatFixedEtaPhi creating the following RoI:  " << endreq;
+  msg() << MSG::INFO << " FakeLvl1RoIatFixedEtaPhi creating the following RoI:  " << endreq;
   if ( m_emRoiPhi <= M_PI && m_emRoiPhi >= -M_PI ) {
-    (*m_log) << MSG::INFO << " Forming fake EMROI with name " << m_emRoiLabel  << " at phi =  " <<
+    msg() << MSG::INFO << " Forming fake EMROI with name " << m_emRoiLabel  << " at phi =  " <<
       m_emRoiPhi << " eta = "  << m_emRoiEta << endreq;
 
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake EMROI" << endreq;
+    msg() << MSG::INFO << " Not forming fake EMROI" << endreq;
   }
 
   if ( m_tauRoiPhi <= M_PI && m_tauRoiPhi >= -M_PI ) {
-    (*m_log) << MSG::INFO << " Forming fake TAUROI with name " << m_tauRoiLabel  << " at phi =  " <<
+    msg() << MSG::INFO << " Forming fake TAUROI with name " << m_tauRoiLabel  << " at phi =  " <<
       m_tauRoiPhi << " eta = "  << m_tauRoiEta << endreq;
 
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake TAUROI" << endreq;
+    msg() << MSG::INFO << " Not forming fake TAUROI" << endreq;
   }
 
 
 
   if ( m_muonRoiPhi <= M_PI && m_muonRoiPhi >= -M_PI ) {
-    (*m_log) << MSG::INFO << " Forming fake MUONROI with name " << m_muonRoiLabel  << "  at phi =  " <<
+    msg() << MSG::INFO << " Forming fake MUONROI with name " << m_muonRoiLabel  << "  at phi =  " <<
       m_muonRoiPhi << " eta = "   << m_muonRoiEta << endreq;
 
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake MUONROI" << endreq;
+    msg() << MSG::INFO << " Not forming fake MUONROI" << endreq;
   }
 
 
   if ( m_jetRoiPhi <= M_PI && m_jetRoiPhi >= -M_PI ) {
-    (*m_log) << MSG::INFO << " Forming fake JETROI with name " << m_jetRoiLabel  << "  at phi =  " <<
+    msg() << MSG::INFO << " Forming fake JETROI with name " << m_jetRoiLabel  << "  at phi =  " <<
       m_jetRoiPhi << " eta = "  <<  m_jetRoiEta << endreq;
 
   } else {
-    (*m_log) << MSG::INFO << " Not forming fake JETROI" << endreq;
+    msg() << MSG::INFO << " Not forming fake JETROI" << endreq;
   }
 
-  (*m_log) << MSG::INFO << name() << ": Initialization completed successfully" << endreq;
+  msg() << MSG::INFO << name() << ": Initialization completed successfully" << endreq;
 
   return HLT::OK;
 }
@@ -162,10 +149,10 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
 
 
 
-  (*m_log) << MSG::DEBUG << "Executing FakeLvl1RoIatFixedEtaPhi" << endreq;
+  msg() << MSG::DEBUG << "Executing FakeLvl1RoIatFixedEtaPhi" << endreq;
 
   // activate all configured chains:
-  (*m_log) << MSG::DEBUG << "activating all configured chains." << endreq;
+  msg() << MSG::DEBUG << "activating all configured chains." << endreq;
 
   for (std::vector<HLT::SteeringChain*>::const_iterator it = m_configuredChains->begin();
        it != m_configuredChains->end(); ++it) {
@@ -177,7 +164,7 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
   }
 
   HLT::TriggerElement* initialTE = m_config->getNavigation()->getInitialNode();
-  (*m_log) << MSG::DEBUG << "initial Navigation node created." << endreq;
+  msg() << MSG::DEBUG << "initial Navigation node created." << endreq;
 
   // set Lvl1 ID in AlgoConfig:
   m_config->setLvl1Id(m_lvl1ID);
@@ -203,7 +190,7 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
     TrigConf::HLTTriggerElement::getId(m_emRoiLabel.c_str(), teId);
     m_config->getNavigation()->addNode(roiTE, teId);
 
-    (*m_log) << MSG::DEBUG << "created "<< m_emRoiLabel << endreq;
+    msg() << MSG::DEBUG << "created "<< m_emRoiLabel << endreq;
   }
 
   if ( m_tauRoiPhi <= M_PI && m_tauRoiPhi >= -M_PI ) {
@@ -224,7 +211,7 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
     unsigned int teId;
     TrigConf::HLTTriggerElement::getId(m_tauRoiLabel.c_str(), teId);
     m_config->getNavigation()->addNode(roiTE, teId);
-    (*m_log) << MSG::DEBUG << "created" << m_tauRoiLabel << endreq;
+    msg() << MSG::DEBUG << "created" << m_tauRoiLabel << endreq;
   }
 
   if ( m_muonRoiPhi <= M_PI && m_muonRoiPhi >= -M_PI ) {
@@ -246,7 +233,7 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
     unsigned int teId;
     TrigConf::HLTTriggerElement::getId(m_muonRoiLabel.c_str(), teId);
     m_config->getNavigation()->addNode(roiTE, teId);
-    (*m_log) << MSG::DEBUG << "created"<< m_muonRoiLabel << endreq;
+    msg() << MSG::DEBUG << "created"<< m_muonRoiLabel << endreq;
 
   }
 
@@ -266,7 +253,7 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
     unsigned int teId;
     TrigConf::HLTTriggerElement::getId(m_jetRoiLabel.c_str(), teId);
     m_config->getNavigation()->addNode(roiTE, teId);
-    (*m_log) << MSG::DEBUG << "created " << m_jetRoiLabel << endreq;
+    msg() << MSG::DEBUG << "created " << m_jetRoiLabel << endreq;
   }
 
   m_lvl1ID++;
@@ -278,6 +265,5 @@ HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltExecute( std::vector<HLT::SteeringCh
 
 HLT::ErrorCode FakeLvl1RoIatFixedEtaPhi::hltFinalize() 
 { 
-  delete m_log; m_log = 0;
   return HLT::OK; 
 }
