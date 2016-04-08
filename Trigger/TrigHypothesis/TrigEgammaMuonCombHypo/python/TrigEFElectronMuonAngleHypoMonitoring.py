@@ -39,7 +39,7 @@ class TrigEFElectronMuonAngleOnlineHypoMonitoring(TrigGenericMonitoringToolConfi
         self.defineTarget("Online")
 
         self.Histograms += [ defineHistogram('cut', type='TH1F', title="Cut counter",
-                                            xbins=8, xmin=-0.5, xmax=7.5, opt="kCumulative", labels=labelsDescription) ]
+                                            xbins=7, xmin=-0.5, xmax=7.5, opt="kCumulative", labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('dPhiOfAll', type='TH1F', title="Lepton dPhi: all",
                                              xbins=50, xmin=0., xmax=5.0) ]
         self.Histograms += [ defineHistogram('dROfAll', type='TH1F', title="Lepton dR: all",
@@ -87,7 +87,7 @@ class TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo(TrigGenericMonitor
         self.defineTarget("Validation")
 
         self.Histograms += [ defineHistogram('cut', type='TH1F', title="Cut counter",
-                                             xbins=8, xmin=-0.5, xmax=7.5, opt="kCumulative", labels=labelsDescription) ]
+                                             xbins=7, xmin=-0.5, xmax=7.5, opt="kCumulative", labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('dPhiOfAccepted', type='TH1F', title="Lepton dPhi in accepted combinations",
                                              xbins=50, xmin=0., xmax=2.5) ]
         self.Histograms += [ defineHistogram('dPhiOfAll', type='TH1F', title="Lepton dPhi: all",
