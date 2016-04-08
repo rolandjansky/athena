@@ -64,15 +64,15 @@ private:
       int       ierrstat;
     };
 
-    static HIMAIN1* _himain1;
+    static HIMAIN1* s_himain1;
 };
 
 // set pointer to zero at start
-HiMain1::HIMAIN1* HiMain1::_himain1 =0;
+HiMain1::HIMAIN1* HiMain1::s_himain1 =0;
 
 inline void
 HiMain1::init(void)
-{ if (!_himain1) _himain1 = static_cast<HIMAIN1*>(himain1_address_()); }
+{ if (!s_himain1) s_himain1 = static_cast<HIMAIN1*>(himain1_address_()); }
 
 // Constructor
 inline
@@ -88,70 +88,70 @@ inline int&
 HiMain1::natt	(void)
 {
     init();
-    return _himain1->natt;
+    return s_himain1->natt;
 }
 
 inline float&
 HiMain1::eatt	(void)
 {
     init();
-    return _himain1->eatt;
+    return s_himain1->eatt;
 }
 
 inline int&
 HiMain1::jatt	(void)
 {
     init();
-    return _himain1->jatt;
+    return s_himain1->jatt;
 }
 
 inline int&
 HiMain1::nt	(void)
 {
     init();
-    return _himain1->nt;
+    return s_himain1->nt;
 }
 
 inline int&
 HiMain1::np	(void)
 {
     init();
-    return _himain1->np;
+    return s_himain1->np;
 }
 
 inline int&
 HiMain1::n0	(void)
 {
     init();
-    return _himain1->n0;
+    return s_himain1->n0;
 }
 
 inline int&
 HiMain1::n01	(void)
 {
     init();
-    return _himain1->n01;
+    return s_himain1->n01;
 }
 
 inline int&
 HiMain1::n10	(void)
 {
     init();
-    return _himain1->n10;
+    return s_himain1->n10;
 }
 
 inline int&
 HiMain1::n11	(void)
 {
     init();
-    return _himain1->n11;
+    return s_himain1->n11;
 }
 
 inline int&
 HiMain1::ierrstat (void)
 {
     init();
-    return _himain1->ierrstat;
+    return s_himain1->ierrstat;
 }
 
 #endif

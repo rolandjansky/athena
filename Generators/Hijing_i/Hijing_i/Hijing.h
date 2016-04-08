@@ -51,7 +51,7 @@ public:
     virtual StatusCode	genInitialize	();
     virtual StatusCode 	callGenerator	();
     virtual StatusCode 	genFinalize	();
-    virtual StatusCode 	fillEvt		(GenEvent* evt);
+    virtual StatusCode 	fillEvt		(HepMC::GenEvent* evt);
     virtual CLHEP::HepLorentzVector randomizeVertex();
 
 protected:

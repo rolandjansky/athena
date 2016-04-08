@@ -28,16 +28,16 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	lenI() const {return _lenI;}
-    inline int	lenJ() const {return _lenJ;}
-    inline int	lenK() const {return _lenK;}
+    inline int	lenI() const {return s_lenI;}
+    inline int	lenJ() const {return s_lenJ;}
+    inline int	lenK() const {return s_lenK;}
 
 private: 
 
     // Lengths of array in HiMain2 common
-    static const int _lenI	= 900;
-    static const int _lenJ	= 2;
-    static const int _lenK	= 5;
+    static const int s_lenI	= 900;
+    static const int s_lenJ	= 2;
+    static const int s_lenK	= 5;
 
     struct HIJJET4;
     friend struct HIJJET4;
@@ -45,30 +45,30 @@ private:
     struct HIJJET4
     {
 	int    	ndr;
-	int	iadr	[_lenJ][_lenI];
-	int    	kfdr	[_lenI];
-	float  	pdr	[_lenK][_lenI];
-	float  	vdr	[_lenK][_lenI];
+	int	iadr	[s_lenJ][s_lenI];
+	int    	kfdr	[s_lenI];
+	float  	pdr	[s_lenK][s_lenI];
+	float  	vdr	[s_lenK][s_lenI];
     };
 
-    int  _dummy;
-    float  _realdummy;
+    int  m_dummy;
+    float  m_realdummy;
 
-    static HIJJET4* _hijjet4;
+    static HIJJET4* s_hijjet4;
 };
 
 // set pointer to zero at start
-HijJet4::HIJJET4* HijJet4::_hijjet4 =0;
+HijJet4::HIJJET4* HijJet4::s_hijjet4 =0;
 
 inline void
 HijJet4::init(void)
-{ if (!_hijjet4) _hijjet4 = static_cast<HIJJET4*>(hijjet4_address_()); }
+{ if (!s_hijjet4) s_hijjet4 = static_cast<HIJJET4*>(hijjet4_address_()); }
 
 // Constructor
 inline
 HijJet4::HijJet4()
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 // Destructor
@@ -80,7 +80,7 @@ inline int&
 HijJet4::ndr	(void)
 {
     init(); // check COMMON is initialized
-    return _hijjet4->ndr;
+    return s_hijjet4->ndr;
 }
 
 inline int&
@@ -88,17 +88,17 @@ HijJet4::iadr	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	j < 1 || j > lenJ() ) return _dummy;
+	j < 1 || j > lenJ() ) return m_dummy;
 
-    return _hijjet4->iadr[j-1][i-1];
+    return s_hijjet4->iadr[j-1][i-1];
 }
 
 inline int&
 HijJet4::kfdr    (int i)
 {
     init(); // check COMMON is initialized
-    if(i < 1 || i > lenI()) return _dummy;
-    return _hijjet4->kfdr[i-1];
+    if(i < 1 || i > lenI()) return m_dummy;
+    return s_hijjet4->kfdr[i-1];
 }
 
 inline float&
@@ -106,9 +106,9 @@ HijJet4::pdr	(int i, int k)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	k < 1 || k > lenK() ) return _realdummy;
+	k < 1 || k > lenK() ) return m_realdummy;
 
-    return _hijjet4->pdr[k-1][i-1];
+    return s_hijjet4->pdr[k-1][i-1];
 }
 
 
@@ -117,9 +117,9 @@ HijJet4::vdr	(int i, int k)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > lenI() ||
-	k < 1 || k > lenK() ) return _realdummy;
+	k < 1 || k > lenK() ) return m_realdummy;
 
-    return _hijjet4->vdr[k-1][i-1];
+    return s_hijjet4->vdr[k-1][i-1];
 }
 
 #endif
