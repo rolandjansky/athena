@@ -56,16 +56,18 @@ class DetDescrDBEnvelopeSvc : public IEnvelopeDefSvc, virtual public AthService 
     /** retrieve and store the (r,z) values locally for the given DB node.
         if there are problems with retrieving this from DDDB,
         try the fallback approach if allowed */
-    RZPairVector *retrieveRZBoundaryOptionalFallback( std::string &dbNode,
-                                                    FallbackDoubleVector   &r,
-                                                    FallbackDoubleVector   &z);
+    StatusCode retrieveRZBoundaryOptionalFallback( std::string           &dbNode,
+                                                   FallbackDoubleVector  &r,
+                                                   FallbackDoubleVector  &z,
+                                                   RZPairVector          &rzVec);
 
     /** retrieve and store the (r,z) values locally for the given DB node */
-    RZPairVector *retrieveRZBoundary( std::string &node);
+    StatusCode retrieveRZBoundary( std::string &node, RZPairVector &rzVec);
 
     /** use the fallback approach (python arguments) to set the (r,z) values */
-    RZPairVector *fallbackRZBoundary( FallbackDoubleVector   &r,
-                                    FallbackDoubleVector   &z);
+    StatusCode fallbackRZBoundary( FallbackDoubleVector  &r,
+                                   FallbackDoubleVector  &z,
+                                   RZPairVector          &rzVec);
 
     /** enable fallback solution:
      *  @return true if fallback mode is allowed, false if no fallback allowed */
