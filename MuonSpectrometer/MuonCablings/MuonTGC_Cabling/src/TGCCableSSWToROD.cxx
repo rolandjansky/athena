@@ -28,14 +28,18 @@ TGCCableSSWToROD::TGCCableSSWToROD (const TGCCableSSWToROD& right)
   : TGCCable(TGCCable::SSWToROD),
     database(0)
 {
-  database = new TGCDatabaseSLBToROD(*dynamic_cast<TGCDatabaseSLBToROD*>(right.database));
+  TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.database);
+  if(mypointer) database = new TGCDatabaseSLBToROD(*mypointer);
+  else database = 0;
 }
 
 TGCCableSSWToROD& TGCCableSSWToROD::operator=(const TGCCableSSWToROD& right)
 {
   if (this != &right) {
     delete database;
-    database = new TGCDatabaseSLBToROD(*dynamic_cast<TGCDatabaseSLBToROD*>(right.database));
+    TGCDatabaseSLBToROD* mypointer = dynamic_cast<TGCDatabaseSLBToROD*>(right.database);
+    if(mypointer) database = new TGCDatabaseSLBToROD(*mypointer);
+    else database = 0;
   }
   return *this;
 }
