@@ -1,0 +1,30 @@
+package Photospp_i
+
+author James Monk <jmonk@hep.ucl.ac.uk>
+
+use     AtlasPolicy         AtlasPolicy-*
+use     Photospp            Photospp-*            External
+#use     GeneratorModules    GeneratorModules-*    Generators
+use     AthenaBaseComps     AthenaBaseComps-*     Control
+use     GaudiInterface      GaudiInterface-*      External
+
+private
+
+use     GeneratorObjects    GeneratorObjects-*    Generators
+use     GaudiInterface      GaudiInterface-*      External
+#use     AtlasHepMC          AtlasHepMC-*          External
+use     AtlasCLHEP          AtlasCLHEP-*          External
+use     AthenaKernel        AthenaKernel-*        Control
+
+macro_append fflags "" Linux ""
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the allowUndefined tag
+#apply_tag allowUndefined
+apply_tag notAsNeeded
+end_private
+
+apply_pattern named_dual_use_library library="Photospp_i" files="Photospp_i.cxx"
+apply_pattern declare_joboptions files="*.py"
+
