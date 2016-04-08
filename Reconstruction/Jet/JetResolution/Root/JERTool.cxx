@@ -44,7 +44,12 @@ namespace
 
     // Take ownership of histograms from ROOT.
     if(T::Class()->InheritsFrom("TH1")){
+      // This cast is invalid for non hist-types, hence the dynamic cast
+      // is needed to make this compile generically. Coverity then spits
+      // a warning if we don't actually test the result. Could probably
+      // make this cleaner with some fancy template footwork, but meh.
       TH1* h = dynamic_cast<TH1*>(obj);
+      if(h == nullptr) return StatusCode::FAILURE;
       h->SetDirectory(0);
     }
 
@@ -239,10 +244,13 @@ StatusCode JERTool::loadJERInputs()
 //-----------------------------------------------------------------------------
 double JERTool::getRelResolutionMC(const xAOD::Jet* jet)
 {
-  //hard-coded for now, put in graphs for next iteration, less error-prone
-  double noise[m_nEtaBins]; //7 eta bins
-  double stochastic[m_nEtaBins]; //7 eta bins
-  double constant[m_nEtaBins]; //7 eta bins
+  // Hard-coded for now, put in graphs for next iteration, less error-prone
+  // TODO: These give uninitialized value warnings in coverity.
+  // I'm trying to fix them by giving an empty initializer list,
+  // which should initialize all values to zero.
+  double noise[m_nEtaBins] = {}; //7 eta bins
+  double stochastic[m_nEtaBins] = {}; //7 eta bins
+  double constant[m_nEtaBins] = {}; //7 eta bins
 
   double jerMC = 0.;
 

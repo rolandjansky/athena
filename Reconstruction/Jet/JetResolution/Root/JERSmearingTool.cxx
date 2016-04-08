@@ -47,7 +47,8 @@ static const CP::SystematicSet fullSysts = {
 JERSmearingTool::JERSmearingTool(const std::string& name)
   : asg::AsgTool(name),
     m_jerTool("JERTool/JERTool"),
-    m_userSeed(0)
+    m_userSeed(0),
+    m_sysConfig(nullptr)
 {
   // Property for setting the tool handle directly
   declareProperty("JERTool", m_jerTool);
@@ -78,7 +79,8 @@ JERSmearingTool::JERSmearingTool(const JERSmearingTool& other)
     m_jerToolName(other.m_jerToolName),
     m_applyNominalSmearing(other.m_applyNominalSmearing),
     m_rand(other.m_rand),
-    m_userSeed(other.m_userSeed)
+    m_userSeed(other.m_userSeed),
+    m_sysConfig(nullptr)
 {}
 
 //-----------------------------------------------------------------------------

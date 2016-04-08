@@ -45,6 +45,9 @@ class JERTool : public virtual IJERTool,
     /// Copy constructor needed for reflex dictionary generation in Athena
     JERTool(const JERTool&);
 
+    /// We shouldn't need assignment, but regardless it isn't implemented.
+    JERTool& operator=(const JERTool&) = delete;
+
     /// Destructor
     ~JERTool();
 

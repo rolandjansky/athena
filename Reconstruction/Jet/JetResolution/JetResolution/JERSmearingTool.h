@@ -45,6 +45,9 @@ class JERSmearingTool : public IJERSmearingTool,
     /// Copy constructor for reflex in Athena
     JERSmearingTool(const JERSmearingTool& other);
 
+    /// We shouldn't need assignment; regardless, it's not implemented
+    JERSmearingTool& operator=(const JERSmearingTool&) = delete;
+
     /// @name Methods implementing the asg::IAsgTool interface
     /// @{
 
