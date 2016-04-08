@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<atn>
+
+   <TEST name="test_pyathena_base" type="script" suite="PyAthena">
+      <package_atn>AtlasTest/PyAthenaTests</package_atn>
+      <options_atn>utest_pyathena_base.py</options_atn>
+      <timelimit>10</timelimit>
+      <author> Sebastien Binet </author>
+      <mailto> binet@cern.ch</mailto>
+      <expectations>
+         <successMessage>OK</successMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+
+   <!-- <TEST name="test_pyathena_thinner" type="script" suite="PyAthena"> -->
+   <!--    <package_atn>AtlasTest/PyAthenaTests</package_atn> -->
+   <!--    <options_atn>utest_pyathena_pythinner.py</options_atn> -->
+   <!--    <timelimit>40</timelimit> -->
+   <!--    <author> Sebastien Binet </author> -->
+   <!--    <mailto> binet@cern.ch</mailto> -->
+   <!--    <expectations> -->
+   <!--       <successMessage>OK</successMessage> -->
+   <!--       <returnValue>0</returnValue> -->
+   <!--    </expectations> -->
+   <!-- </TEST> -->
+
+   <!-- <TEST name="test_pyathena_trigdec" type="script" suite="PyAthena"> -->
+   <!--    <package_atn>AtlasTest/PyAthenaTests</package_atn> -->
+   <!--    <options_atn>utest_pyathena_pytrigdec.py</options_atn> -->
+   <!--    <timelimit>10</timelimit> -->
+   <!--    <author> Sebastien Binet </author> -->
+   <!--    <mailto> binet@cern.ch</mailto> -->
+   <!--    <expectations> -->
+   <!--       <successMessage>OK</successMessage> -->
+   <!--       <returnValue>0</returnValue> -->
+   <!--    </expectations> -->
+   <!-- </TEST> -->
+
+   <!-- <TEST name="test_pyathena_clusters" type="script" suite="PyAthena"> -->
+   <!--    <package_atn>AtlasTest/PyAthenaTests</package_atn> -->
+   <!--    <options_atn>utest_pyathena_pyclusters.py</options_atn> -->
+   <!--    <timelimit>10</timelimit> -->
+   <!--    <author> Sebastien Binet </author> -->
+   <!--    <mailto> binet@cern.ch</mailto> -->
+   <!--    <expectations> -->
+   <!--       <successMessage>OK</successMessage> -->
+   <!--       <returnValue>0</returnValue> -->
+   <!--    </expectations> -->
+   <!-- </TEST> -->
+
+   <!-- <TEST name="test_pyathena_pyfdr" type="script" suite="PyAthena"> -->
+   <!--    <package_atn>AtlasTest/PyAthenaTests</package_atn> -->
+   <!--    <options_atn>utest_pyathena_pyfdr.py</options_atn> -->
+   <!--    <timelimit>10</timelimit> -->
+   <!--    <author> Sebastien Binet </author> -->
+   <!--    <mailto> binet@cern.ch</mailto> -->
+   <!--    <expectations> -->
+   <!--       <successMessage>OK</successMessage> -->
+   <!--       <returnValue>0</returnValue> -->
+   <!--    </expectations> -->
+   <!-- </TEST> -->
+
+   <!-- <TEST name="pyutils.athfile" type="script" suite="pyutils"> -->
+   <!--    <package_atn>AtlasTest/PyAthenaTests</package_atn> -->
+   <!--    <options_atn>python -c 'import PyUtils.AthFile.tests as af; af.main()'</options_atn> -->
+   <!--    <timelimit>50</timelimit> -->
+   <!--    <author> Sebastien Binet </author> -->
+   <!--    <mailto> binet@cern.ch </mailto> -->
+   <!--    <expectations> -->
+   <!--       <successMessage>OK</successMessage> -->
+   <!--       <returnValue>0</returnValue> -->
+   <!--    </expectations> -->
+   <!-- </TEST> -->
+
+</atn>

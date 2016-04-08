@@ -1,0 +1,234 @@
+Py:ClusterExAlg      INFO ==> initialize
+Py:ClusterExAlg      INFO reading clusters from ['CaloCalTopoCluster']
+Py:ClusterExAlg      INFO ==> execute
+Py:ClusterExAlg      INFO event #0 has 475 clusters
+Py:ClusterExAlg      INFO cluster #  0 has energy    6.087
+Py:ClusterExAlg      INFO cluster #  0 has moment #201 with value 1112.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #202 with value 8960.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #501 with value  219.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #601 with value    0.490
+Py:ClusterExAlg      INFO cluster #  0 has moment #602 with value    0.539
+Py:ClusterExAlg      INFO cluster #  0 has moment #702 with value    0.562
+Py:ClusterExAlg      INFO cluster #  0 has moment #804 with value    1.016
+Py:ClusterExAlg      INFO cluster #  0 has moment #806 with value    0.000
+Py:ClusterExAlg      INFO cluster #100 has energy    4.201
+Py:ClusterExAlg      INFO cluster #100 has moment #201 with value 2752.000
+Py:ClusterExAlg      INFO cluster #100 has moment #202 with value 62464.000
+Py:ClusterExAlg      INFO cluster #100 has moment #501 with value  620.000
+Py:ClusterExAlg      INFO cluster #100 has moment #601 with value    0.801
+Py:ClusterExAlg      INFO cluster #100 has moment #602 with value    0.957
+Py:ClusterExAlg      INFO cluster #100 has moment #702 with value    0.165
+Py:ClusterExAlg      INFO cluster #100 has moment #804 with value    0.002
+Py:ClusterExAlg      INFO cluster #100 has moment #806 with value    0.221
+Py:ClusterExAlg      INFO cluster #200 has energy    3.900
+Py:ClusterExAlg      INFO cluster #200 has moment #201 with value 1200.000
+Py:ClusterExAlg      INFO cluster #200 has moment #202 with value 1464.000
+Py:ClusterExAlg      INFO cluster #200 has moment #501 with value  225.000
+Py:ClusterExAlg      INFO cluster #200 has moment #601 with value    0.676
+Py:ClusterExAlg      INFO cluster #200 has moment #602 with value    0.322
+Py:ClusterExAlg      INFO cluster #200 has moment #702 with value    0.158
+Py:ClusterExAlg      INFO cluster #200 has moment #804 with value    0.002
+Py:ClusterExAlg      INFO cluster #200 has moment #806 with value    0.301
+Py:ClusterExAlg      INFO cluster #300 has energy    3.104
+Py:ClusterExAlg      INFO cluster #300 has moment #201 with value  644.000
+Py:ClusterExAlg      INFO cluster #300 has moment #202 with value 38144.000
+Py:ClusterExAlg      INFO cluster #300 has moment #501 with value  296.000
+Py:ClusterExAlg      INFO cluster #300 has moment #601 with value    0.602
+Py:ClusterExAlg      INFO cluster #300 has moment #602 with value    0.395
+Py:ClusterExAlg      INFO cluster #300 has moment #702 with value    0.134
+Py:ClusterExAlg      INFO cluster #300 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #300 has moment #806 with value    0.746
+Py:ClusterExAlg      INFO cluster #400 has energy    2.676
+Py:ClusterExAlg      INFO cluster #400 has moment #201 with value  724.000
+Py:ClusterExAlg      INFO cluster #400 has moment #202 with value 11584.000
+Py:ClusterExAlg      INFO cluster #400 has moment #501 with value  272.000
+Py:ClusterExAlg      INFO cluster #400 has moment #601 with value    0.543
+Py:ClusterExAlg      INFO cluster #400 has moment #602 with value    0.605
+Py:ClusterExAlg      INFO cluster #400 has moment #702 with value    0.264
+Py:ClusterExAlg      INFO cluster #400 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #400 has moment #806 with value    0.938
+Py:ClusterExAlg      INFO ==> execute
+Py:ClusterExAlg      INFO event #1 has 431 clusters
+Py:ClusterExAlg      INFO cluster #  0 has energy    4.475
+Py:ClusterExAlg      INFO cluster #  0 has moment #201 with value 5472.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #202 with value 247808.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #501 with value  692.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #601 with value    0.863
+Py:ClusterExAlg      INFO cluster #  0 has moment #602 with value    0.570
+Py:ClusterExAlg      INFO cluster #  0 has moment #702 with value    0.418
+Py:ClusterExAlg      INFO cluster #  0 has moment #804 with value    0.002
+Py:ClusterExAlg      INFO cluster #  0 has moment #806 with value    0.387
+Py:ClusterExAlg      INFO cluster #100 has energy    3.614
+Py:ClusterExAlg      INFO cluster #100 has moment #201 with value 5216.000
+Py:ClusterExAlg      INFO cluster #100 has moment #202 with value 51456.000
+Py:ClusterExAlg      INFO cluster #100 has moment #501 with value  446.000
+Py:ClusterExAlg      INFO cluster #100 has moment #601 with value    0.891
+Py:ClusterExAlg      INFO cluster #100 has moment #602 with value    0.812
+Py:ClusterExAlg      INFO cluster #100 has moment #702 with value    0.109
+Py:ClusterExAlg      INFO cluster #100 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #100 has moment #806 with value    0.660
+Py:ClusterExAlg      INFO cluster #200 has energy    3.364
+Py:ClusterExAlg      INFO cluster #200 has moment #201 with value 1232.000
+Py:ClusterExAlg      INFO cluster #200 has moment #202 with value 1616.000
+Py:ClusterExAlg      INFO cluster #200 has moment #501 with value  206.000
+Py:ClusterExAlg      INFO cluster #200 has moment #601 with value    0.467
+Py:ClusterExAlg      INFO cluster #200 has moment #602 with value    0.177
+Py:ClusterExAlg      INFO cluster #200 has moment #702 with value    0.629
+Py:ClusterExAlg      INFO cluster #200 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #200 has moment #806 with value    0.064
+Py:ClusterExAlg      INFO cluster #300 has energy    2.916
+Py:ClusterExAlg      INFO cluster #300 has moment #201 with value  860.000
+Py:ClusterExAlg      INFO cluster #300 has moment #202 with value 8768.000
+Py:ClusterExAlg      INFO cluster #300 has moment #501 with value  165.000
+Py:ClusterExAlg      INFO cluster #300 has moment #601 with value    0.445
+Py:ClusterExAlg      INFO cluster #300 has moment #602 with value    0.342
+Py:ClusterExAlg      INFO cluster #300 has moment #702 with value    0.439
+Py:ClusterExAlg      INFO cluster #300 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #300 has moment #806 with value    1.000
+Py:ClusterExAlg      INFO cluster #400 has energy    2.145
+Py:ClusterExAlg      INFO cluster #400 has moment #201 with value 1168.000
+Py:ClusterExAlg      INFO cluster #400 has moment #202 with value 8704.000
+Py:ClusterExAlg      INFO cluster #400 has moment #501 with value  113.500
+Py:ClusterExAlg      INFO cluster #400 has moment #601 with value    0.590
+Py:ClusterExAlg      INFO cluster #400 has moment #602 with value    0.455
+Py:ClusterExAlg      INFO cluster #400 has moment #702 with value    0.264
+Py:ClusterExAlg      INFO cluster #400 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #400 has moment #806 with value    1.000
+Py:ClusterExAlg      INFO ==> execute
+Py:ClusterExAlg      INFO event #2 has 505 clusters
+Py:ClusterExAlg      INFO cluster #  0 has energy    5.016
+Py:ClusterExAlg      INFO cluster #  0 has moment #201 with value 4928.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #202 with value 49664.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #501 with value  229.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #601 with value    0.930
+Py:ClusterExAlg      INFO cluster #  0 has moment #602 with value    0.945
+Py:ClusterExAlg      INFO cluster #  0 has moment #702 with value    0.119
+Py:ClusterExAlg      INFO cluster #  0 has moment #804 with value    0.005
+Py:ClusterExAlg      INFO cluster #  0 has moment #806 with value    0.049
+Py:ClusterExAlg      INFO cluster #100 has energy    3.030
+Py:ClusterExAlg      INFO cluster #100 has moment #201 with value 2064.000
+Py:ClusterExAlg      INFO cluster #100 has moment #202 with value 8896.000
+Py:ClusterExAlg      INFO cluster #100 has moment #501 with value  302.000
+Py:ClusterExAlg      INFO cluster #100 has moment #601 with value    0.660
+Py:ClusterExAlg      INFO cluster #100 has moment #602 with value    0.613
+Py:ClusterExAlg      INFO cluster #100 has moment #702 with value    0.279
+Py:ClusterExAlg      INFO cluster #100 has moment #804 with value    0.000
+Py:ClusterExAlg      INFO cluster #100 has moment #806 with value    1.000
+Py:ClusterExAlg      INFO cluster #200 has energy    2.738
+Py:ClusterExAlg      INFO cluster #200 has moment #201 with value 5280.000
+Py:ClusterExAlg      INFO cluster #200 has moment #202 with value 1168.000
+Py:ClusterExAlg      INFO cluster #200 has moment #501 with value  225.000
+Py:ClusterExAlg      INFO cluster #200 has moment #601 with value    0.000
+Py:ClusterExAlg      INFO cluster #200 has moment #602 with value    0.000
+Py:ClusterExAlg      INFO cluster #200 has moment #702 with value    0.961
+Py:ClusterExAlg      INFO cluster #200 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #200 has moment #806 with value    0.750
+Py:ClusterExAlg      INFO cluster #300 has energy    3.015
+Py:ClusterExAlg      INFO cluster #300 has moment #201 with value 1176.000
+Py:ClusterExAlg      INFO cluster #300 has moment #202 with value 4800.000
+Py:ClusterExAlg      INFO cluster #300 has moment #501 with value  246.000
+Py:ClusterExAlg      INFO cluster #300 has moment #601 with value    0.648
+Py:ClusterExAlg      INFO cluster #300 has moment #602 with value    0.566
+Py:ClusterExAlg      INFO cluster #300 has moment #702 with value    0.199
+Py:ClusterExAlg      INFO cluster #300 has moment #804 with value    0.000
+Py:ClusterExAlg      INFO cluster #300 has moment #806 with value    0.906
+Py:ClusterExAlg      INFO cluster #400 has energy    2.340
+Py:ClusterExAlg      INFO cluster #400 has moment #201 with value 4544.000
+Py:ClusterExAlg      INFO cluster #400 has moment #202 with value 44288.000
+Py:ClusterExAlg      INFO cluster #400 has moment #501 with value 1024.000
+Py:ClusterExAlg      INFO cluster #400 has moment #601 with value    0.789
+Py:ClusterExAlg      INFO cluster #400 has moment #602 with value    0.283
+Py:ClusterExAlg      INFO cluster #400 has moment #702 with value    0.465
+Py:ClusterExAlg      INFO cluster #400 has moment #804 with value    0.000
+Py:ClusterExAlg      INFO cluster #400 has moment #806 with value    0.766
+Py:ClusterExAlg      INFO cluster #500 has energy   -2.099
+Py:ClusterExAlg      INFO cluster #500 has moment #201 with value 5056.000
+Py:ClusterExAlg      INFO cluster #500 has moment #202 with value 5280.000
+Py:ClusterExAlg      INFO cluster #500 has moment #501 with value   53.000
+Py:ClusterExAlg      INFO cluster #500 has moment #601 with value    0.523
+Py:ClusterExAlg      INFO cluster #500 has moment #602 with value    0.379
+Py:ClusterExAlg      INFO cluster #500 has moment #702 with value    0.586
+Py:ClusterExAlg      INFO cluster #500 has moment #804 with value    0.000
+Py:ClusterExAlg      INFO cluster #500 has moment #806 with value    1.000
+Py:ClusterExAlg      INFO ==> execute
+Py:ClusterExAlg      INFO event #3 has 349 clusters
+Py:ClusterExAlg      INFO cluster #  0 has energy    4.824
+Py:ClusterExAlg      INFO cluster #  0 has moment #201 with value 1416.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #202 with value 12672.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #501 with value  218.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #601 with value    0.559
+Py:ClusterExAlg      INFO cluster #  0 has moment #602 with value    0.637
+Py:ClusterExAlg      INFO cluster #  0 has moment #702 with value    0.346
+Py:ClusterExAlg      INFO cluster #  0 has moment #804 with value    0.030
+Py:ClusterExAlg      INFO cluster #  0 has moment #806 with value    0.879
+Py:ClusterExAlg      INFO cluster #100 has energy    4.052
+Py:ClusterExAlg      INFO cluster #100 has moment #201 with value  820.000
+Py:ClusterExAlg      INFO cluster #100 has moment #202 with value 17792.000
+Py:ClusterExAlg      INFO cluster #100 has moment #501 with value  251.000
+Py:ClusterExAlg      INFO cluster #100 has moment #601 with value    0.471
+Py:ClusterExAlg      INFO cluster #100 has moment #602 with value    0.793
+Py:ClusterExAlg      INFO cluster #100 has moment #702 with value    0.281
+Py:ClusterExAlg      INFO cluster #100 has moment #804 with value    0.003
+Py:ClusterExAlg      INFO cluster #100 has moment #806 with value    0.297
+Py:ClusterExAlg      INFO cluster #200 has energy    3.466
+Py:ClusterExAlg      INFO cluster #200 has moment #201 with value  968.000
+Py:ClusterExAlg      INFO cluster #200 has moment #202 with value 13632.000
+Py:ClusterExAlg      INFO cluster #200 has moment #501 with value 1208.000
+Py:ClusterExAlg      INFO cluster #200 has moment #601 with value    0.586
+Py:ClusterExAlg      INFO cluster #200 has moment #602 with value    0.785
+Py:ClusterExAlg      INFO cluster #200 has moment #702 with value    0.201
+Py:ClusterExAlg      INFO cluster #200 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #200 has moment #806 with value    0.402
+Py:ClusterExAlg      INFO cluster #300 has energy    3.033
+Py:ClusterExAlg      INFO cluster #300 has moment #201 with value  672.000
+Py:ClusterExAlg      INFO cluster #300 has moment #202 with value 15808.000
+Py:ClusterExAlg      INFO cluster #300 has moment #501 with value  280.000
+Py:ClusterExAlg      INFO cluster #300 has moment #601 with value    0.451
+Py:ClusterExAlg      INFO cluster #300 has moment #602 with value    0.547
+Py:ClusterExAlg      INFO cluster #300 has moment #702 with value    0.285
+Py:ClusterExAlg      INFO cluster #300 has moment #804 with value    0.000
+Py:ClusterExAlg      INFO cluster #300 has moment #806 with value    0.195
+Py:ClusterExAlg      INFO ==> execute
+Py:ClusterExAlg      INFO event #4 has 358 clusters
+Py:ClusterExAlg      INFO cluster #  0 has energy    5.157
+Py:ClusterExAlg      INFO cluster #  0 has moment #201 with value 9344.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #202 with value 236544.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #501 with value  660.000
+Py:ClusterExAlg      INFO cluster #  0 has moment #601 with value    0.957
+Py:ClusterExAlg      INFO cluster #  0 has moment #602 with value    0.785
+Py:ClusterExAlg      INFO cluster #  0 has moment #702 with value    0.196
+Py:ClusterExAlg      INFO cluster #  0 has moment #804 with value    0.007
+Py:ClusterExAlg      INFO cluster #  0 has moment #806 with value    0.738
+Py:ClusterExAlg      INFO cluster #100 has energy    4.261
+Py:ClusterExAlg      INFO cluster #100 has moment #201 with value  306.000
+Py:ClusterExAlg      INFO cluster #100 has moment #202 with value 16640.000
+Py:ClusterExAlg      INFO cluster #100 has moment #501 with value    0.000
+Py:ClusterExAlg      INFO cluster #100 has moment #601 with value    0.271
+Py:ClusterExAlg      INFO cluster #100 has moment #602 with value    0.797
+Py:ClusterExAlg      INFO cluster #100 has moment #702 with value    0.248
+Py:ClusterExAlg      INFO cluster #100 has moment #804 with value    0.028
+Py:ClusterExAlg      INFO cluster #100 has moment #806 with value    0.002
+Py:ClusterExAlg      INFO cluster #200 has energy    3.973
+Py:ClusterExAlg      INFO cluster #200 has moment #201 with value  418.000
+Py:ClusterExAlg      INFO cluster #200 has moment #202 with value 113152.000
+Py:ClusterExAlg      INFO cluster #200 has moment #501 with value  540.000
+Py:ClusterExAlg      INFO cluster #200 has moment #601 with value    0.346
+Py:ClusterExAlg      INFO cluster #200 has moment #602 with value    0.934
+Py:ClusterExAlg      INFO cluster #200 has moment #702 with value    0.208
+Py:ClusterExAlg      INFO cluster #200 has moment #804 with value    0.006
+Py:ClusterExAlg      INFO cluster #200 has moment #806 with value    0.216
+Py:ClusterExAlg      INFO cluster #300 has energy    3.093
+Py:ClusterExAlg      INFO cluster #300 has moment #201 with value 1272.000
+Py:ClusterExAlg      INFO cluster #300 has moment #202 with value 48896.000
+Py:ClusterExAlg      INFO cluster #300 has moment #501 with value  700.000
+Py:ClusterExAlg      INFO cluster #300 has moment #601 with value    0.637
+Py:ClusterExAlg      INFO cluster #300 has moment #602 with value    0.930
+Py:ClusterExAlg      INFO cluster #300 has moment #702 with value    0.203
+Py:ClusterExAlg      INFO cluster #300 has moment #804 with value    0.001
+Py:ClusterExAlg      INFO cluster #300 has moment #806 with value    0.277
+Py:ClusterExAlg      INFO ==> finalize
+Py:ClusterExAlg      INFO === analyzed [4] events ===
+Py:ClusterExAlg      INFO  <cluster ene> =    2.970 MeV
+Py:ClusterExAlg      INFO           rms  =    1.261 MeV
+Py:ClusterExAlg      INFO  <cluster eta> =   -0.058
+Py:ClusterExAlg      INFO           rms  =    2.400
