@@ -408,7 +408,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    if (childZposition > 0.) {
 	      tilePositiveExtendedBarrel             = tileExtendedTrackingVolume;
 	      tilePositiveExtendedBarrelBounds       = *tileExtendedBounds;
-              tileExtendedBoundsUsed = true;
+              // tileExtendedBoundsUsed = true; - this line is not needed, we copy everything from *tileExtendedBounds to tilePositiveExtendedBarrelBounds
 	    } else { 
 	      tileNegativeExtendedBarrel             = tileExtendedTrackingVolume;
 	    }
