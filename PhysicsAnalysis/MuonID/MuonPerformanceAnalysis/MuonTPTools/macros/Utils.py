@@ -3,7 +3,6 @@
 import math, ROOT
 import inspect
 from array import array 
-import HistoDefs
 
 
 ## use PrintFrame() for debugging
@@ -23,7 +22,7 @@ def CalcEff (probes,matches):
     h = matches[0]
     dh = matches[1]
     #print "++++++++++++++++++ got %.4f +/- %.4f trials, %.5f / %.4f matches"%(t,dt,h,dh)
-    if t <= 0:
+    if t == 0:
         return [1.0,1.0]
         #t = 1
     m = t - h
@@ -42,7 +41,7 @@ def CalcEffAsym (probes,matches):
     h = matches[0]
     dh = matches[1]
     #print "++++++++++++++++++ got %.4f +/- %.4f trials, %.5f / %.4f matches"%(t,dt,h,dh)
-    if t <= 0:
+    if t == 0:
         return [1.0,0.0,1.0]
         #t = 1
     m = t - h
@@ -56,12 +55,6 @@ def CalcEffAsym (probes,matches):
     N = t
     if N == 0.:
         N = 1.
-    if eff < 0:
-        eff = 0
-    #print "---"
-    #print N 
-    #print 4.*eff*(1.-eff)/N+1./N**2
-    #print "---"
     sigmaPos = (2.*eff+1./N+math.sqrt(4.*eff*(1.-eff)/N+1./N**2))/(2.+2./N)-eff
     sigmaNeg = (2.*eff+1./N-math.sqrt(4.*eff*(1.-eff)/N+1./N**2))/(2.+2./N)-eff
 
@@ -79,11 +72,7 @@ def EffDivide (num,den,eff):
             
     if eff.InheritsFrom("TGraphAsymmErrors"):
         for i in range (0, nbinsNum):
-                
             effiAsym = CalcEffAsym([den.GetBinContent(i),den.GetBinError(i)], [num.GetBinContent(i),num.GetBinError(i)])
-            if "Truth" in num.GetName():
-                #print "Truth eff %s / %s bin %i D / N / e = %.2f/%.2f/%.2f"%(num.GetName(),den.GetName(), i,den.GetBinContent(i),num.GetBinContent(i),effiAsym[0])
-                pass
             eff.SetPoint(eff.GetN(),num.GetBinCenter(i),effiAsym[0])
             #print "bin %s: up: %s, down: %s"%(i, effiAsym[1], effiAsym[2])
             eff.SetPointEYhigh(eff.GetN()-1, effiAsym[1])
@@ -99,51 +88,19 @@ def EffDivide (num,den,eff):
 ## Some utility methods for algebra in root
 def PolyDivide (num,den,ratio):
     nbins = GetNbins(num)
-    for i in range (0, nbins):
+    for i in range (1, nbins):
         if 0.!=den.GetBinContent(i):
-            #print 'num: %s pm %s; den: %s pm %s'%(num.GetBinContent(i),num.GetBinError(i),den.GetBinContent(i),den.GetBinError(i))
-            #print 'ratio %s pm %s'%(num.GetBinContent(i)/den.GetBinContent(i),math.sqrt((num.GetBinError(i)/den.GetBinContent(i))**2.+(den.GetBinError(i)*num.GetBinContent(i)/den.GetBinContent(i)**2.)**2.))
             ratio.SetBinContent(i,num.GetBinContent(i)/den.GetBinContent(i))
             ratio.SetBinError(i,math.sqrt((num.GetBinError(i)/den.GetBinContent(i))**2.+(den.GetBinError(i)*num.GetBinContent(i)/den.GetBinContent(i)**2.)**2.))
         else:
-            ratio.SetBinContent(i,1.)
-            ratio.SetBinError(i,1.)
+            ratio.SetBinContent(i,0.)
+            ratio.SetBinError(i,0.)
 
 def PolyMultiply (fac1,fac2,res):
-    #print fac1, fac2
     nbins = GetNbins(fac1)
-    for i in range (0, nbins):
-        #print fac1.GetBinContent(i), fac1.GetBinError(i)
-        #print fac2.GetBinContent(i), fac2.GetBinError(i)
-        #print math.sqrt((fac2.GetBinError(i)*fac1.GetBinContent(i))**2.+(fac1.GetBinError(i)*fac2.GetBinContent(i))**2.)
+    for i in range (1, nbins):
         res.SetBinContent(i,fac1.GetBinContent(i)*fac2.GetBinContent(i))
         res.SetBinError(i,math.sqrt((fac2.GetBinError(i)*fac1.GetBinContent(i))**2.+(fac1.GetBinError(i)*fac2.GetBinContent(i))**2.))
-        
-def PolyAdd (add1,add2,total,weight=1.):
-    nbins = GetNbins(add1)
-    for i in range (0, nbins):
-        total.SetBinContent(i,add1.GetBinContent(i)+weight*add2.GetBinContent(i))
-        total.SetBinError(i,math.sqrt(add1.GetBinError(i)**2+weight*add2.GetBinError(i)**2))
-        
-def PolySubtract (subfrom,subthis,difference):
-    nbins = GetNbins(subfrom)
-    for i in range (0, nbins):
-        difference.SetBinContent(i,subfrom.GetBinContent(i)-subthis.GetBinContent(i))
-        difference.SetBinError(i,math.sqrt(subfrom.GetBinError(i)**2+subthis.GetBinError(i)**2))
-        
-def PolyScale (histo,scale):
-    nbins = GetNbins(histo)
-    for i in range (0, nbins):
-        #print histo.GetBinContent(i)*scale
-        #print histo.GetBinError(i)
-        #print histo.GetBinError(i)*scale
-        histo.SetBinContent(i,histo.GetBinContent(i)*scale)
-        histo.SetBinError(i,histo.GetBinError(i)*scale)
-        
-def SetPolyErrors (histo):
-    nbins = GetNbins(histo)
-    for i in range (0, nbins):
-        histo.SetBinError(i,math.sqrt(histo.GetBinContent(i)))
         
 def GraphDivide (num,den,ratio):
     nPoints = GetNbins(num)
@@ -153,9 +110,9 @@ def GraphDivide (num,den,ratio):
             ratio.SetPointEYhigh(i,math.sqrt((num.GetErrorYhigh(i)/den.GetY()[i])**2.+(den.GetErrorYhigh(i)*num.GetY()[i]/den.GetY()[i]**2.)**2.))
             ratio.SetPointEYlow(i,math.sqrt((num.GetErrorYlow(i)/den.GetY()[i])**2.+(den.GetErrorYlow(i)*num.GetY()[i]/den.GetY()[i]**2.)**2.))
         else:
-            ratio.SetPoint(i,num.GetX()[i],1.)
+            ratio.SetPoint(i,num.GetX()[i],0.)
             ratio.SetPointEYhigh(i,0.)
-            ratio.SetPointEYlow(i,1.)
+            ratio.SetPointEYlow(i,0.)
     
 def GraphMultiply (fac1,fac2,res):
     nPoints = GetNbins(fac1)
@@ -180,24 +137,19 @@ def GetNbins(histo):
 
     return nbins
 
-def ConvertTGraphAsymmErrors(graph,var):
+def ConvertTGraphAsymmErrors(graph):
     nPoints = GetNbins(graph)
-    histo = HistoDefs.initHisto(var)[0]
+    binCenters = []
+    for i in range (0, nPoints):
+        binCenters.append(graph.GetX()[i])
+        
+    histo = ROOT.TH1F(graph.GetName(),graph.GetName(),len(binCenters)-1,array("f",binCenters))
     histo.SetDirectory(0)
     
-    if not nPoints == GetNbins(histo):
-        print nPoints, GetNbins(histo)
-    #binCenters = []
-    #for i in range (0, nPoints):
-        #binCenters.append(graph.GetX()[i])
-        
-    #histo = ROOT.TH1F(graph.GetName(),graph.GetName(),len(binCenters)-1,array("f",binCenters))
-    #histo.SetDirectory(0)
-    
     for i in range (0, nPoints):
-        histo.SetBinContent(histo.GetXaxis().FindBin(graph.GetX()[i]),graph.GetY()[i])
+        histo.SetBinContent(i,graph.GetY()[i])
         maxError = max(graph.GetErrorYhigh(i),graph.GetErrorYlow(i))
-        histo.SetBinError(histo.GetXaxis().FindBin(graph.GetX()[i]),maxError)
+        histo.SetBinError(i,maxError)
     return histo
     
 
@@ -254,12 +206,12 @@ def add_in_quadrature(hist_add_to, hist_add_this):
         if hist_add_to.InheritsFrom("TGraphAsymmErrors"):
             sys = hist_add_to.GetY()[k]
             add_sys = hist_add_this.GetY()[k]
-            sys = math.sqrt(sys*sys+add_sys*add_sys)
+            sys = ROOT.sqrt(sys*sys+add_sys*add_sys)
             hist_add_to.SetPoint(k,hist_add_to.GetX()[k],sys)
         else:
             sys = hist_add_to.GetBinContent(k)
             add_sys = hist_add_this.GetBinContent(k)
-            sys = math.sqrt(sys*sys+add_sys*add_sys)
+            sys = ROOT.sqrt(sys*sys+add_sys*add_sys)
             hist_add_to.SetBinContent(k,sys)
         
 def CopyEtaBins(hist):
@@ -268,9 +220,7 @@ def CopyEtaBins(hist):
     #print nbins
     
     if hist.InheritsFrom("TGraphAsymmErrors"):
-        #print 'TODO: CopyEtaBins for graphs'
-        #print
-        pass
+        print 'TODO: CopyEtaBins for graphs'
     else:
         # fineEtaPhiBinning has 352 bins (22 eta bins, 16 phi bins each)
         # abseta >= 1.05 and abseta < 1.37 -> etabin = -6*16 (negative eta), etabin = 5*16 (positive eta)
