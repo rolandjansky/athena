@@ -27,6 +27,7 @@ namespace Trk {
     m_mass(0.),
     m_energyFraction(0.),
     m_energyTrkInJet(0.),
+    m_dstToMatLayer(1000.),
     m_n2trackvertices(0){}
 
   VxSecVKalVertexInfo::VxSecVKalVertexInfo(const std::vector<xAOD::Vertex*> & vertices,
@@ -36,6 +37,7 @@ namespace Trk {
     m_mass(mass),
     m_energyFraction(energyFraction),
     m_energyTrkInJet(energyTrkInJet),
+    m_dstToMatLayer(1000.),
     m_n2trackvertices(n2trackvertices)
   {
     std::vector<const Trk::TrackParticleBase*>::const_iterator badTracksBegin=badTracks.begin();
@@ -57,6 +59,7 @@ namespace Trk {
     m_mass(mass),
     m_energyFraction(energyFraction),
     m_energyTrkInJet(energyTrkInJet),
+    m_dstToMatLayer(1000.),
     m_n2trackvertices(n2trackvertices)
   {
     std::vector<const xAOD::IParticle*>::const_iterator badTracksBegin=badTracks.begin();
@@ -77,6 +80,7 @@ namespace Trk {
     m_mass(rhs.m_mass),
     m_energyFraction(rhs.m_energyFraction),
     m_energyTrkInJet(rhs.m_energyTrkInJet),
+    m_dstToMatLayer(rhs.m_dstToMatLayer),
     m_n2trackvertices(rhs.m_n2trackvertices),
     m_badTracksTP(rhs.m_badTracksTP),
     m_badTracksIP(rhs.m_badTracksIP)
@@ -89,6 +93,7 @@ namespace Trk {
       m_mass=rhs.m_mass;
       m_energyFraction=rhs.m_energyFraction;
       m_energyTrkInJet=rhs.m_energyTrkInJet;
+      m_dstToMatLayer=rhs.m_dstToMatLayer,
       m_n2trackvertices=rhs.m_n2trackvertices;
       m_badTracksTP=rhs.m_badTracksTP;
       m_badTracksIP=rhs.m_badTracksIP;

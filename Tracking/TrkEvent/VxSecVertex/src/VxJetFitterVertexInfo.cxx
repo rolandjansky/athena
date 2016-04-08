@@ -59,7 +59,7 @@ namespace Trk {
   }
   
 
-  VxJetFitterVertexInfo VxJetFitterVertexInfo::operator= (const VxJetFitterVertexInfo & rhs) {
+  VxJetFitterVertexInfo & VxJetFitterVertexInfo::operator= (const VxJetFitterVertexInfo & rhs) {
     if (this!=&rhs) {
 
       m_verticesJF.clear();
@@ -80,8 +80,8 @@ namespace Trk {
       }   
       m_twoTrackVerticesInJet=rhs.m_twoTrackVerticesInJet?new Trk::TwoTrackVerticesInJet(*rhs.m_twoTrackVerticesInJet):0;
       m_selectedTracksInJet=rhs.m_selectedTracksInJet?new Trk::SelectedTracksInJet(*rhs.m_selectedTracksInJet):0;
+      m_SVOwnership=true;    
     }
-    m_SVOwnership=true;    
     return *this;
   }
   

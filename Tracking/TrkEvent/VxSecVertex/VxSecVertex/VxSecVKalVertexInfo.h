@@ -77,6 +77,11 @@ namespace Trk {
     /* get energy of all tracks in jet */
     double energyTrkInJet() const;
 
+    /* get minimal distance to any material layer */
+    double dstToMatLay() const;
+    /* set minimal distance to any material layer  */
+    void setDstToMatLay(double) const;
+
     /* get n2trackvertices */
     int n2trackvertices() const;
 
@@ -98,6 +103,7 @@ namespace Trk {
     double m_mass;
     double m_energyFraction;
     double m_energyTrkInJet;
+    mutable double m_dstToMatLayer;
     int m_n2trackvertices;
     std::vector<ElementLink<Trk::TrackParticleBaseCollection> > m_badTracksTP;
     std::vector<ElementLink<xAOD::IParticleContainer> >         m_badTracksIP;
@@ -115,6 +121,14 @@ namespace Trk {
 
   inline double VxSecVKalVertexInfo::energyTrkInJet() const {
     return m_energyTrkInJet;
+  }
+
+  inline double VxSecVKalVertexInfo::dstToMatLay() const {
+    return m_dstToMatLayer;
+  }
+
+  inline void VxSecVKalVertexInfo::setDstToMatLay(double Value) const {
+    m_dstToMatLayer=Value;
   }
   
   inline int VxSecVKalVertexInfo::n2trackvertices() const {

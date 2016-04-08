@@ -55,7 +55,7 @@ namespace Trk {
     virtual VxJetFitterVertexInfo* clone() const;
 	
     /* assignment operator */
-    VxJetFitterVertexInfo operator= (const VxJetFitterVertexInfo &);
+    VxJetFitterVertexInfo & operator= (const VxJetFitterVertexInfo &);
     
     /* destructor */
     virtual ~VxJetFitterVertexInfo();
