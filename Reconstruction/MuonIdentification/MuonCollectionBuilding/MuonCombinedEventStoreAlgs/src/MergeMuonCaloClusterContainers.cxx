@@ -6,23 +6,15 @@
 // MergeCaloClusterContainers.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-//CaloEvent -- this merging business was some kind of emergency
-#define protected public
-#define private public
 #include "CaloEvent/CaloClusterNavigable.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellLinkContainer.h"
-#undef private
-#undef protected
 
 //this
 #include "MergeMuonCaloClusterContainers.h"
 
-//muonEvent
-#define private public
 #include "muonEvent/MuonContainer.h"
 #include "muonEvent/Muon.h"
-#undef private
 
 /////////////////////////////////////////////////////////////////
 // Constructor
@@ -107,7 +99,10 @@ StatusCode Rec::MergeMuonCaloClusterContainers::execute() {
 //  CaloCluster *cluster;
 //  muonCaloClusterContainerSource->swapElement(i, NULL, cluster);
       muonCaloClusterContainerTarget->push_back( (*muonCaloClusterContainerSource)[i] );
-      (*muonCaloClusterContainerSource)[i]->m_cellLink.setStorableObject( *muonCaloCellLinkContainerTarget, true );
+      ElementLink<CaloCellLinkContainer> el =
+        (*muonCaloClusterContainerSource)[i]->cellLink();
+      el.setStorableObject( *muonCaloCellLinkContainerTarget, true );
+      (*muonCaloClusterContainerSource)[i]->resetCellLink (el);
     }
 
 /*	std::cout<<"Own policies:"<<std::endl;
@@ -129,8 +124,9 @@ StatusCode Rec::MergeMuonCaloClusterContainers::execute() {
 	    }
 	  if (clusters_in_muon[i][count])
 	    {
-//        muon -> update_clusterContainer(muonCaloClusterContainerTarget);
-	      muon->m_cluster.setStorableObject(* muonCaloClusterContainerTarget, true);
+              ElementLink<CaloClusterContainer> el = muon->clusterLink();
+              el.setStorableObject(* muonCaloClusterContainerTarget, true);
+	      muon->set_cluster (el);
 	    }
 	  if(!muon->clusterLink().isValid() && had_good_cluster_link)	
 	    {
