@@ -8,6 +8,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "eflowEvent/eflowObjectContainer.h"
 #include "eflowEventTPCnv/eflowObjectContainer_p3.h"
+#include "eflowEventTPCnv/eflowObjectCnv_p3.h"
 
 class MsgStream;
 class eflowObject;
