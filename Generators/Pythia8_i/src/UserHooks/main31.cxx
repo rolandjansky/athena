@@ -27,14 +27,14 @@ namespace Pythia8{
     main31() : m_nFinal("Main31:NFinal", 2),
     m_pTHardMode("Main31:pTHard", 2),
     m_pTDefMode("Main31:pTdef", 1),
-    vetoMode(1), vetoCount(3),
-    pTemtMode(0),
-    emittedMode(0),
-    MPIvetoMode(0),
-    pThard(0), pTMPI(0),
-    accepted(0),
-    nAcceptSeq(0),
-    nISRveto(0), nFSRveto(0) {};
+    m_vetoMode(1), m_vetoCount(3),
+    m_pTemtMode(0),
+    m_emittedMode(0),
+    m_MPIvetoMode(0),
+    m_pThard(0), m_pTMPI(0),
+    m_accepted(0),
+    m_nAcceptSeq(0),
+    m_nISRveto(0), m_nFSRveto(0) {};
     ~main31() {}
     
     //--------------------------------------------------------------------------
@@ -271,10 +271,10 @@ namespace Pythia8{
     
     //--------------------------------------------------------------------------
     
-    // Extraction of pThard based on the incoming event.
+    // Extraction of m_pThard based on the incoming event.
     // Assume that all the final-state particles are in a continuous block
     // at the end of the event and the final entry is the POWHEG emission.
-    // If there is no POWHEG emission, then pThard is set to Qfac.
+    // If there is no POWHEG emission, then m_pThard is set to Qfac.
     
     bool canVetoMPIStep()    { return true; }
     int  numberVetoMPIStep() { return 1; }
@@ -303,38 +303,38 @@ namespace Pythia8{
       bool isEmt = (count == m_nFinal(settingsPtr)) ? false : true;
       int  iEmt  = (isEmt) ? e.size() - 1 : -1;
       
-      // If there is no radiation or if pThardMode is 0 then set pThard to QRen.
+      // If there is no radiation or if pThardMode is 0 then set m_pThard to QRen.
       if (!isEmt || m_pTHardMode(settingsPtr) == 0) {
-        pThard = infoPtr->QRen();
+        m_pThard = infoPtr->QRen();
         
         // If pThardMode is 1 then the pT of the POWHEG emission is checked against
         // all other incoming and outgoing partons, with the minimal value taken
       } else if (m_pTHardMode(settingsPtr) == 1) {
-        pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
+        m_pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
         
         // If pThardMode is 2, then the pT of all final-state partons is checked
         // against all other incoming and outgoing partons, with the minimal value
         // taken
       } else if (m_pTHardMode(settingsPtr) == 2) {
-        pThard = pTcalc(e, -1, -1, -1, -1, -1);
+        m_pThard = pTcalc(e, -1, -1, -1, -1, -1);
         
       }
       
       // Find MPI veto pT if necessary
-      if (MPIvetoMode == 1) {
-        pTMPI = (isEmt) ? pTsum / 2. : pT1;
+      if (m_MPIvetoMode == 1) {
+        m_pTMPI = (isEmt) ? pTsum / 2. : pT1;
       }
       
 #ifdef DBGOUTPUT
       cout << "doVetoMPIStep: QRen = " << infoPtr->QRen()
-      << ", pThard = " << pThard << endl << endl;
+      << ", m_pThard = " << m_pThard << endl << endl;
 #endif
       
-//      std::cout<<"vetoScale = "<<pThard<<std::endl;
+//      std::cout<<"vetoScale = "<<m_pThard<<std::endl;
       
       // Initialise other variables
-      accepted   = false;
-      nAcceptSeq = nISRveto = nFSRveto = 0;
+      m_accepted   = false;
+      m_nAcceptSeq = m_nISRveto = m_nFSRveto = 0;
       
       // Do not veto the event
       return false;
@@ -344,13 +344,13 @@ namespace Pythia8{
     
     // ISR veto
     
-    bool canVetoISREmission() { return (vetoMode == 0) ? false : true; }
+    bool canVetoISREmission() { return (m_vetoMode == 0) ? false : true; }
     bool doVetoISREmission(int, const Event &e, int iSys) {
       // Must be radiation from the hard system
       if (iSys != 0) return false;
       
-      // If we already have accepted 'vetoCount' emissions in a row, do nothing
-      if (vetoMode == 1 && nAcceptSeq >= vetoCount) return false;
+      // If we already have m_accepted 'm_vetoCount' emissions in a row, do nothing
+      if (m_vetoMode == 1 && m_nAcceptSeq >= m_vetoCount) return false;
       
       // Pythia radiator after, emitted and recoiler after.
       int iRadAft = -1, iEmt = -1, iRecAft = -1;
@@ -366,30 +366,30 @@ namespace Pythia8{
         exit(1);
       }
       
-      // pTemtMode == 0: pT of emitted w.r.t. radiator
-      // pTemtMode == 1: min(pT of emitted w.r.t. all incoming/outgoing)
-      // pTemtMode == 2: min(pT of all outgoing w.r.t. all incoming/outgoing)
-      int xSR      = (pTemtMode == 0) ? 0       : -1;
-      int i        = (pTemtMode == 0) ? iRadAft : -1;
-      int j        = (pTemtMode != 2) ? iEmt    : -1;
+      // m_pTemtMode == 0: pT of emitted w.r.t. radiator
+      // m_pTemtMode == 1: min(pT of emitted w.r.t. all incoming/outgoing)
+      // m_pTemtMode == 2: min(pT of all outgoing w.r.t. all incoming/outgoing)
+      int xSR      = (m_pTemtMode == 0) ? 0       : -1;
+      int i        = (m_pTemtMode == 0) ? iRadAft : -1;
+      int j        = (m_pTemtMode != 2) ? iEmt    : -1;
       int k        = -1;
-      int r        = (pTemtMode == 0) ? iRecAft : -1;
+      int r        = (m_pTemtMode == 0) ? iRecAft : -1;
       double pTemt = pTcalc(e, i, j, k, r, xSR);
       
 #ifdef DBGOUTPUT
       cout << "doVetoISREmission: pTemt = " << pTemt << endl << endl;
 #endif
       
-      // Veto if pTemt > pThard
-      if (pTemt > pThard) {
-        nAcceptSeq = 0;
-        nISRveto++;
+      // Veto if pTemt > m_pThard
+      if (pTemt > m_pThard) {
+        m_nAcceptSeq = 0;
+        m_nISRveto++;
         return true;
       }
       
-      // Else mark that an emission has been accepted and continue
-      nAcceptSeq++;
-      accepted = true;
+      // Else mark that an emission has been m_accepted and continue
+      m_nAcceptSeq++;
+      m_accepted = true;
       return false;
     }
     
@@ -397,13 +397,13 @@ namespace Pythia8{
     
     // FSR veto
     
-    bool canVetoFSREmission() { return (vetoMode == 0) ? false : true; }
+    bool canVetoFSREmission() { return (m_vetoMode == 0) ? false : true; }
     bool doVetoFSREmission(int, const Event &e, int iSys, bool) {
       // Must be radiation from the hard system
       if (iSys != 0) return false;
       
-      // If we already have accepted 'vetoCount' emissions in a row, do nothing
-      if (vetoMode == 1 && nAcceptSeq >= vetoCount) return false;
+      // If we already have m_accepted 'm_vetoCount' emissions in a row, do nothing
+      if (m_vetoMode == 1 && m_nAcceptSeq >= m_vetoCount) return false;
       
       // Pythia radiator (before and after), emitted and recoiler (after)
       int iRecAft = e.size() - 1;
@@ -417,37 +417,37 @@ namespace Pythia8{
         exit(1);
       }
       
-      // Behaviour based on pTemtMode:
+      // Behaviour based on m_pTemtMode:
       //  0 - pT of emitted w.r.t. radiator before
       //  1 - min(pT of emitted w.r.t. all incoming/outgoing)
       //  2 - min(pT of all outgoing w.r.t. all incoming/outgoing)
-      int xSR = (pTemtMode == 0) ? 1       : -1;
-      int i   = (pTemtMode == 0) ? iRadBef : -1;
-      int k   = (pTemtMode == 0) ? iRadAft : -1;
-      int r   = (pTemtMode == 0) ? iRecAft : -1;
+      int xSR = (m_pTemtMode == 0) ? 1       : -1;
+      int i   = (m_pTemtMode == 0) ? iRadBef : -1;
+      int k   = (m_pTemtMode == 0) ? iRadAft : -1;
+      int r   = (m_pTemtMode == 0) ? iRecAft : -1;
       
-      // When pTemtMode is 0 or 1, iEmt has been selected
+      // When m_pTemtMode is 0 or 1, iEmt has been selected
       double pTemt = 0.;
-      if (pTemtMode == 0 || pTemtMode == 1) {
-        // Which parton is emitted, based on emittedMode:
+      if (m_pTemtMode == 0 || m_pTemtMode == 1) {
+        // Which parton is emitted, based on m_emittedMode:
         //  0 - Pythia definition of emitted
         //  1 - Pythia definition of radiated after emission
         //  2 - Random selection of emitted or radiated after emission
         //  3 - Try both emitted and radiated after emission
         int j = iRadAft;
-        if (emittedMode == 0 || (emittedMode == 2 && rndmPtr->flat() < 0.5)) j++;
+        if (m_emittedMode == 0 || (m_emittedMode == 2 && rndmPtr->flat() < 0.5)) j++;
         
         for (int jLoop = 0; jLoop < 2; jLoop++) {
           if      (jLoop == 0) pTemt = pTcalc(e, i, j, k, r, xSR);
           else if (jLoop == 1) pTemt = min(pTemt, pTcalc(e, i, j, k, r, xSR));
           
-          // For emittedMode == 3, have tried iRadAft, now try iEmt
-          if (emittedMode != 3) break;
+          // For m_emittedMode == 3, have tried iRadAft, now try iEmt
+          if (m_emittedMode != 3) break;
           if (k != -1) swap(j, k); else j = iEmt;
         }
         
-        // If pTemtMode is 2, then try all final-state partons as emitted
-      } else if (pTemtMode == 2) {
+        // If m_pTemtMode is 2, then try all final-state partons as emitted
+      } else if (m_pTemtMode == 2) {
         pTemt = pTcalc(e, i, -1, k, r, xSR);
         
       }
@@ -456,16 +456,16 @@ namespace Pythia8{
       cout << "doVetoFSREmission: pTemt = " << pTemt << endl << endl;
 #endif
       
-      // Veto if pTemt > pThard
-      if (pTemt > pThard) {
-        nAcceptSeq = 0;
-        nFSRveto++;
+      // Veto if pTemt > m_pThard
+      if (pTemt > m_pThard) {
+        m_nAcceptSeq = 0;
+        m_nFSRveto++;
         return true;
       }
       
-      // Else mark that an emission has been accepted and continue
-      nAcceptSeq++;
-      accepted = true;
+      // Else mark that an emission has been m_accepted and continue
+      m_nAcceptSeq++;
+      m_accepted = true;
       return false;
     }
     
@@ -473,13 +473,13 @@ namespace Pythia8{
     
     // MPI veto
     
-    bool canVetoMPIEmission() { return (MPIvetoMode == 0) ? false : true; }
+    bool canVetoMPIEmission() { return (m_MPIvetoMode == 0) ? false : true; }
     bool doVetoMPIEmission(int, const Event &e) {
-      if (MPIvetoMode == 1) {
-        if (e[e.size() - 1].pT() > pTMPI) {
+      if (m_MPIvetoMode == 1) {
+        if (e[e.size() - 1].pT() > m_pTMPI) {
 #ifdef DBGOUTPUT
           cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
-          << ", pTMPI = " << pTMPI << endl << endl;
+          << ", m_pTMPI = " << m_pTMPI << endl << endl;
 #endif
           return true;
         }
@@ -491,8 +491,8 @@ namespace Pythia8{
     
     // Functions to return information
     
-    int    getNISRveto() { return nISRveto; }
-    int    getNFSRveto() { return nFSRveto; }
+    int    getNISRveto() { return m_nISRveto; }
+    int    getNFSRveto() { return m_nFSRveto; }
     
   private:
     
@@ -500,14 +500,14 @@ namespace Pythia8{
     Pythia8_UserHooks::UserSetting<int> m_pTHardMode;
     Pythia8_UserHooks::UserSetting<int> m_pTDefMode;
     
-    int  vetoMode, vetoCount, pTemtMode,
-    emittedMode, MPIvetoMode;
-    double pThard, pTMPI;
-    bool   accepted;
-    // The number of accepted emissions (in a row)
-    int nAcceptSeq;
+    int  m_vetoMode, m_vetoCount, m_pTemtMode,
+    m_emittedMode, m_MPIvetoMode;
+    double m_pThard, m_pTMPI;
+    bool   m_accepted;
+    // The number of m_accepted emissions (in a row)
+    int m_nAcceptSeq;
     // Statistics on vetos
-    unsigned long int nISRveto, nFSRveto;
+    unsigned long int m_nISRveto, m_nFSRveto;
     
   };
 }

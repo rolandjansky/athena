@@ -15,6 +15,7 @@ private
 use    GaudiInterface      GaudiInterface-*      External
 ###use    AtlasHepMC          AtlasHepMC-*          External
 use    GeneratorObjects    GeneratorObjects-*    Generators
+use    PathResolver        PathResolver-*        Tools
 
 macro_append Pythia8_i_pp_cppflags ' -DPY8VERSION=\"$(Pythia8_version)\" '
 macro_append fflags "" Linux ""
