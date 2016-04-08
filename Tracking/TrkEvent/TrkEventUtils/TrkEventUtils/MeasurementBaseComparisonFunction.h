@@ -84,6 +84,16 @@ namespace Trk {
       delete m_direction;
     }
                
+    MeasurementBaseComparisonFunction &operator=(MeasurementBaseComparisonFunction &MCF) {
+      if (this != &MCF) {
+        delete m_point;
+        m_point = (MCF.m_point ? new  Amg::Vector3D(*MCF.m_point) : 0);
+        delete m_direction;
+        m_direction = (MCF.m_direction  ? new  Amg::Vector3D(*MCF.m_direction) : 0);
+        m_radius=(MCF.m_radius);
+      }
+      return *this;
+    }
     /** The comparison function defining in what case a PRD is 'smaller' than
         a second one */
     bool operator() (const Trk::MeasurementBase* one,

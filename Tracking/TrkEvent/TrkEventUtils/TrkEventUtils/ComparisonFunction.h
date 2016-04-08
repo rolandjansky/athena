@@ -69,6 +69,17 @@ namespace Trk {
           delete m_point;
           delete m_line;
         }
+
+        ComparisonFunction &operator=(const ComparisonFunction& cpf) {
+          if (this != &cpf) {
+            delete m_point;
+            m_point=(cpf.m_point ? new Amg::Vector3D(*cpf.m_point) : 0);
+            delete m_line;
+            m_line=(cpf.m_line  ? new Amg::Vector3D(*cpf.m_line) : 0);
+            m_radius=(cpf.m_radius);
+          }
+          return *this;
+        }
                        
         bool operator() (const T* one, const T* two) const {                 
                 if (!m_point && !m_line){

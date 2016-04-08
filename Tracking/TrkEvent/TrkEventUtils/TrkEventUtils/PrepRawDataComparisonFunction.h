@@ -65,6 +65,16 @@ namespace Trk {
       delete m_direction;
     }
 
+    PrepRawDataComparisonFunction &operator=(const PrepRawDataComparisonFunction& PCF) {
+      if (this != &PCF) {
+        delete m_point;
+        m_point=(PCF.m_point ? new Amg::Vector3D(*PCF.m_point) : 0);
+        delete m_direction;
+        m_direction=(PCF.m_direction  ? new Amg::Vector3D(*PCF.m_direction) : 0); 
+      }
+      return *this;
+    }
+
     /** The comparison function defining in what case a PRD is 'smaller' than
         a second one */
     bool operator() (const Trk::PrepRawData* one,
