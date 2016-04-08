@@ -184,7 +184,7 @@ namespace MuGirlNS {
 
     // Pointers to input/output containers, collections and helpers
     MuGirlNS::SegmentManager*           m_pSegmentManager;           /**< The MuGirl segment manager */
-    const xAOD::TrackParticleContainer* m_pInDetParticleContainer;   /**< Input: DataVector of Inner Detector Track Particles */
+    //const xAOD::TrackParticleContainer* m_pInDetParticleContainer;   /**< Input: DataVector of Inner Detector Track Particles */
     const xAOD::CaloClusterContainer*   m_pClusCollection;           /**< Input: Datavector of Calo Energy Clusters */
     NTuple::Tuple*                      m_pCandNTuple;               /**< Pointer to the MuGirl ntuple */
 

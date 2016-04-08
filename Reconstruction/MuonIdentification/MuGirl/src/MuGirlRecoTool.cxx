@@ -286,11 +286,13 @@ StatusCode MuGirlRecoTool::MuGirlReco(const InDetCandidateCollection& InDetSeeds
            get the extrapolation to the MS entry
         */
         const Trk::CaloExtension* extension = 0;
-        if (!m_caloExtensionTool.empty() && (!m_caloExtensionTool->caloExtension(tp_id, extension) ||
-                extension->caloLayerIntersections().empty())) {
-            ATH_MSG_DEBUG("Not seen by calo");
-            continue;
-        }
+
+	if (m_caloExtensionTool.empty()) continue;
+	if (!m_caloExtensionTool->caloExtension(tp_id, extension)) continue;
+	if (!extension) continue; 
+	if (!extension->muonEntryLayerIntersection() && extension->caloLayerIntersections().empty()) continue;
+	
+	ATH_MSG_DEBUG("Seen by calo");
 
         // if available use muon entry intersection
         if (extension->muonEntryLayerIntersection()) {
@@ -755,7 +757,7 @@ StatusCode MuGirlRecoTool::processHoughData()
                     int MuGirl_region = (hough_region == 1) ? 0 : 1;
 
                     // the computation of MuGirl distance requires the Hough hits
-                    int MuGirl_distance = 4;
+                    int MuGirl_distance = 0;
 
                     ATH_MSG_DEBUG("----------------------------- Maxim. " << maximum
                             << " -----------------------------");
@@ -766,7 +768,7 @@ StatusCode MuGirlRecoTool::processHoughData()
                     float max_refPos;
                     float max_posMin;
                     float max_posMax;
-                    int dummy;
+                    int dummy = 0;
                     max->hough->pars(max->binposmin, dummy, max_refPos, max_posMin);
                     max->hough->pars(max->binposmax, dummy, max_refPos, max_posMax);
 
@@ -819,8 +821,13 @@ StatusCode MuGirlRecoTool::processHoughData()
                         }
 
                         // set MuGirl_distance
+			//         MuGirl     HoughTransformTool
+			// BI      0          0
+			// BM      1          2
+			// BO      2          3
+			// BEE     3          1
                         if (MuGirl_distance >= 1) MuGirl_distance++;
-                        if (MuGirl_distance == 4) MuGirl_distance = 1;
+                        if (MuGirl_distance >= 4) MuGirl_distance = 1;//since det_lay_id 0-4. 
                         /** Old check done when the region index was not handled within the MuonIdhelper package.
                         // check consistency with MuGirl indices for every hits
                         if ( (MuGirl_distance==0 && (region!=0&&region!=4&&region!=9))  ||
