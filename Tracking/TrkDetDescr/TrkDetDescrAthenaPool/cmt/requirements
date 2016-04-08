@@ -18,7 +18,7 @@ use AthenaPoolUtilities   AthenaPoolUtilities-*      Database/AthenaPOOL
 
 #use AthenaPoolCnvSvc      AthenaPoolCnvSvc-00-*      Database/AthenaPOOL
 
-apply_pattern poolcnv files="-s=$(TrkGeometry_root)/TrkGeometry MaterialStepCollection.h LayerMaterialMap.h ElementTable.h"
+apply_pattern poolcnv files="-s=${TrkGeometry_root}/TrkGeometry MaterialStepCollection.h LayerMaterialMap.h ElementTable.h"
 
 private
 #macro cppdebugflags '$(cppdebugflags_s)'
