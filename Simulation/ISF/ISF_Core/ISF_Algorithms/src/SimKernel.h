@@ -13,8 +13,6 @@
 #include <string>
 
 // FrameWork includes
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -23,13 +21,9 @@
 // ISF includes
 #include "ISF_Event/SimSvcID.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
-#include "ISF_Interfaces/IInputConverter.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
-
-// McEventCollection
-#include "GeneratorObjects/McEventCollection.h"
 
 // forward declarations
 namespace PMonUtils {
@@ -76,7 +70,7 @@ namespace ISF {
   class SimKernel : public AthAlgorithm {
 
   public:
-    /** Constructor with parameters */
+    //** Constructor with parameters */
     SimKernel( const std::string& name, ISvcLocator* pSvcLocator );
 
     /** Destructor */
@@ -92,20 +86,25 @@ namespace ISF {
   private:
     StatusCode initSimSvcs( SimSelectorToolArray &simSelectorTools);
 
-    /** Convert input generator particles to ISFParticles and copy input
-        generator truth collection into output simulation truth collection */
-    StatusCode prepareInput(SG::ReadHandle<McEventCollection>& inputTruth,
-                            SG::WriteHandle<McEventCollection>& outputTruth,
-                            ISFParticleContainer& simParticles,
-                            bool isPileup=false) const;
-
-
-    /** Input/output truth collections and input conversion */
-    SG::ReadHandle<McEventCollection>    m_inputHardScatterEvgen; //!< input hard scatter collection
-    SG::ReadHandle<McEventCollection>    m_inputPileupEvgen;      //!< input pileup collection
-    SG::WriteHandle<McEventCollection>   m_outputHardScatterTruth;//!< output hard scatter truth collection
-    SG::WriteHandle<McEventCollection>   m_outputPileupTruth;     //!< output pileup truth collection
-    ServiceHandle<IInputConverter>       m_inputConverter;        //!< input->ISFParticle converter
+    /** Validation output with histogram service */
+    bool                                 m_validationOutput; //!< turn validation mode on/off
+    ServiceHandle<ITHistSvc>             m_thistSvc;         //!< the histogram service
+    std::string                          m_validationStream; //!< validation THist stream name
+    /** Validation output TTree (+variables) */
+    TTree                               *m_t_simParticles;   //!< ROOT tree containing simulated particles
+    float                                m_val_x;            //!< particle x coordinate
+    float                                m_val_y;            //!< particle y coordinate
+    float                                m_val_z;            //!< particle z coordinate
+    float                                m_val_p;            //!< particle momentum
+    float                                m_val_px;
+    float                                m_val_py;
+    float                                m_val_pz;
+    float                                m_val_meta;
+    float                                m_val_peta;
+    int                                  m_val_pdg;          //!< particle PDG code
+    int                                  m_val_simID;
+    int                                  m_val_geoID;
+    short                                m_val_sc;           //!< StatusCode returned from Simulator
 
     /** Central particle broker service */
     ServiceHandle<IParticleBroker>       m_particleBroker;
@@ -132,6 +131,10 @@ namespace ISF {
 
     /** keep track of the number of events processed */
     unsigned int                         m_numISFEvents;
+
+    /** Screen output refinement */
+    std::string                          m_screenOutputPrefix;
+    std::string                          m_screenEmptyPrefix;
 
     /** CPU Benchmarking */
     bool                                 m_doCPUMon;    //!< whether we use PMonUtils or not
