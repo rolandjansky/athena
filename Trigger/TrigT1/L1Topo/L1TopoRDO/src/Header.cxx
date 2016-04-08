@@ -22,12 +22,12 @@ namespace L1Topo {
     m_bcn = signedBCN(m_bcn_sign, m_bcn_offset);
   }
 
-  /* See https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.3.xlsx */
+  /* See https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.9.xlsx */
 
   void Header::decode(){
     // assert (L1Topo::blockType(m_word)==L1Topo::BlockTypes::HEADER);
-    m_bcn_sign = m_word & 0x1;
-    m_bcn_offset = (m_word>>1) & 0x7;
+    m_bcn_offset = m_word & 0x7;
+    m_bcn_sign = (m_word>>3) & 0x1;
     m_last_block = (m_word>>4) & 0x1;
     m_fpga = (m_word >> 5 ) & 0x1;
     m_payload_crc = (m_word>>8) & 0xff;
@@ -38,8 +38,8 @@ namespace L1Topo {
 
   void Header::encode(){
     m_word = static_cast<int>(L1Topo::BlockTypes::HEADER) << 28;
-    m_word |= m_bcn_sign & 0x1;
-    m_word |= (m_bcn_offset & 0x7) << 1;
+    m_word |= (m_bcn_offset & 0x7);
+    m_word |= (m_bcn_sign & 0x1) << 3;
     m_word |= (m_last_block & 0x1) << 4;
     m_word |= (m_fpga & 0x1) << 5;
     m_word |= (m_payload_crc & 0xff) << 8;
