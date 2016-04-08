@@ -64,7 +64,7 @@ namespace D3PD {
 
       const Rec::TrackParticleContainer* m_tr;
       int m_eventNumber;
-      std::map< const Rec::TrackParticle*, std::vector<Identifier> > trackParticleMap;
+      std::map< const Rec::TrackParticle*, std::vector<Identifier> > m_trackParticleMap;
 
       // StoreGate keys
       std::string m_TrackParticleContainer;
@@ -72,7 +72,7 @@ namespace D3PD {
 
       std::vector<const Rec::TrackParticle* >::const_iterator m_pItr;
       std::vector<const Rec::TrackParticle* >::const_iterator m_pEnd;
-      std::vector<const Rec::TrackParticle* > trackParticleForAssoc;
+      std::vector<const Rec::TrackParticle* > m_trackParticleForAssoc;
 
 
       // NTuple variables 

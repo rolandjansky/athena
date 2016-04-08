@@ -63,7 +63,7 @@ namespace D3PD {
     // Should be using Getter tools intead of StoreGate
     // -- Tracks
 
-    trackParticleForAssoc.clear();
+    m_trackParticleForAssoc.clear();
   
     StatusCode sc = StatusCode::SUCCESS;
 
@@ -81,7 +81,7 @@ namespace D3PD {
 
       m_eventNumber = eventNumber;
      
-      trackParticleMap.clear();
+      m_trackParticleMap.clear();
 
       sc = evtStore()->retrieve(m_tr, m_TrackParticleContainer);
       if(sc.isFailure() || !m_tr) {
@@ -142,7 +142,7 @@ namespace D3PD {
 	    } // clus
 	  } // TSoS loop
 
-	  trackParticleMap.insert(std::pair<const Rec::TrackParticle*, std::vector<Identifier> >(*trItr,pixelClusterIdentifier));
+	  m_trackParticleMap.insert(std::pair<const Rec::TrackParticle*, std::vector<Identifier> >(*trItr,pixelClusterIdentifier));
 
 	} // track loop 
       } // if trackParticle is properly retrieved
@@ -152,17 +152,17 @@ namespace D3PD {
 
     Identifier clusterId = cluster.identify();
 
-    std::map< const Rec::TrackParticle*, std::vector<Identifier> >::const_iterator mapIt = trackParticleMap.begin();
-    for( ; mapIt!=trackParticleMap.end(); mapIt++){
+    std::map< const Rec::TrackParticle*, std::vector<Identifier> >::const_iterator mapIt = m_trackParticleMap.begin();
+    for( ; mapIt!=m_trackParticleMap.end(); mapIt++){
 
 
       if ( find(mapIt->second.begin(),mapIt->second.end(),clusterId)!= mapIt->second.end() ){
-	trackParticleForAssoc.push_back(mapIt->first);
+	m_trackParticleForAssoc.push_back(mapIt->first);
       }
     }
 
-    m_pItr = trackParticleForAssoc.begin();
-    m_pEnd = trackParticleForAssoc.end();
+    m_pItr = m_trackParticleForAssoc.begin();
+    m_pEnd = m_trackParticleForAssoc.end();
       
     REPORT_MESSAGE (MSG::DEBUG) << "LeavingReset";
 
@@ -175,8 +175,8 @@ namespace D3PD {
 
     if(m_pItr==m_pEnd){
 
-      //trackParticleMap.clear();
-      //trackParticleForAssoc.clear();
+      //m_trackParticleMap.clear();
+      //m_trackParticleForAssoc.clear();
       //m_tr=0;
 
       return 0;

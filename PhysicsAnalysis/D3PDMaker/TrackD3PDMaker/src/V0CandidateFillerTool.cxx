@@ -157,7 +157,7 @@ StatusCode V0CandidateFillerTool::fill (const Trk::V0Candidate& /*theV0Candidate
     *m_totalFlightDistance =( -1.*flightVector.mag() );
   }
 
-  *m_properDecayTime      = ( 1.0e12 / c_speed * ksMassPDG / ksMomentumVector.mag() * (*m_totalFlightDistance)/1000.0 );
+  *m_properDecayTime      = ( (1.0e12 / (1000 * c_speed)) * ksMassPDG / ksMomentumVector.mag() * (*m_totalFlightDistance));
   *m_properFlightDist     = ( ksMassPDG /  ksMomentumVector.mag() * (*m_totalFlightDistance) ); // mm
 
 
@@ -205,7 +205,7 @@ StatusCode V0CandidateFillerTool::fill (const Trk::V0Candidate& /*theV0Candidate
     *m_totalFlightDistance_BS =( -1.*flightVector.mag() );
   }
 
-  *m_properDecayTime_BS      = ( 1.0e12 / c_speed * ksMassPDG / ksMomentumVector.mag() * (*m_totalFlightDistance_BS)/1000.0 );
+  *m_properDecayTime_BS      = ( (1.0e12 / 1000 / c_speed) * ksMassPDG / ksMomentumVector.mag() * (*m_totalFlightDistance_BS) );
   *m_properFlightDist_BS     = ( ksMassPDG /  ksMomentumVector.mag() * (*m_totalFlightDistance_BS) ); // mm
 
 

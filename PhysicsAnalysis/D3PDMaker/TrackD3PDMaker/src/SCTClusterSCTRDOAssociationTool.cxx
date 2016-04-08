@@ -76,7 +76,7 @@ StatusCode SCTClusterSCTRDOAssociationTool::invalidate(StatusCode sc){
 StatusCode SCTClusterSCTRDOAssociationTool::reset (const  InDet::SCT_Cluster& p)
 {
 
-  sctRDOForAssociation.clear();
+  m_sctRDOForAssociation.clear();
 
  
   int clusterModuleID = 0; 
@@ -159,14 +159,14 @@ StatusCode SCTClusterSCTRDOAssociationTool::reset (const  InDet::SCT_Cluster& p)
       Identifier rdoIdentity = mIt2->first;
       std::vector<Identifier>::iterator posIt =   find(sctClusterIdentifier.begin(),sctClusterIdentifier.end(),rdoIdentity);
       if ( posIt != sctClusterIdentifier.end() ){
-	sctRDOForAssociation.push_back(mIt2->second);
+	m_sctRDOForAssociation.push_back(mIt2->second);
       }
     }
     // end of global map loop 
 
 
-  m_rdoItr = sctRDOForAssociation.begin(); //sct::vector<cont InDet::SCT_Cluster>::const_iterator 
-  m_rdoEnd = sctRDOForAssociation.end(); 
+  m_rdoItr = m_sctRDOForAssociation.begin(); //sct::vector<cont InDet::SCT_Cluster>::const_iterator 
+  m_rdoEnd = m_sctRDOForAssociation.end(); 
 
 
   return StatusCode::SUCCESS;

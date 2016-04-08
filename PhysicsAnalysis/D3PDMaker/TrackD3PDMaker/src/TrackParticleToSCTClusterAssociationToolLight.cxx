@@ -45,7 +45,7 @@ StatusCode TrackParticleToSCTClusterAssociationToolLight::initialize(){
 StatusCode TrackParticleToSCTClusterAssociationToolLight::reset (const Rec::TrackParticle& p)
 {
 
-  sctClusterForAssociation.clear();
+  m_sctClusterForAssociation.clear();
 
   const Trk::Track *track = p.originalTrack();
   if(!track){
@@ -79,15 +79,15 @@ StatusCode TrackParticleToSCTClusterAssociationToolLight::reset (const Rec::Trac
       if (RawDataClus!=0){
 	if (RawDataClus->detectorElement()->isSCT()){
 	
-	  sctClusterForAssociation.push_back(*it);
+	  m_sctClusterForAssociation.push_back(*it);
 
 	}
       }
     } // if (clus)
   }
  
-  m_clusItr = sctClusterForAssociation.begin(); //sct::vector<cont InDet::SCT_Cluster>::const_iterator 
-  m_clusEnd = sctClusterForAssociation.end(); 
+  m_clusItr = m_sctClusterForAssociation.begin(); //sct::vector<cont InDet::SCT_Cluster>::const_iterator 
+  m_clusEnd = m_sctClusterForAssociation.end(); 
 
   return StatusCode::SUCCESS;
 }

@@ -159,16 +159,16 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
   m_locThetaOldNotCor = 0;
   */
 
-  pixelClusterForAssociation.clear();
+  m_pixelClusterForAssociation.clear();
 
-  const InDet::PixelClusterContainer* m_riocont; 
+  const InDet::PixelClusterContainer* riocont; 
   if(!evtStore()->contains<InDet::PixelClusterContainer>("PixelClusters")){ 
 
 	REPORT_MESSAGE (MSG::WARNING) << "No pixel clusters....";
 
   } 
   else {
-    StatusCode sc = evtStore()->retrieve(m_riocont, "PixelClusters");
+    StatusCode sc = evtStore()->retrieve(riocont, "PixelClusters");
     if(sc.isFailure()) {
       	REPORT_MESSAGE (MSG::WARNING) << "Could not get clusters....";
     }
@@ -215,7 +215,7 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
 
           pixelClusterIdentifier.push_back(pixelClusterID);
 
-          pixelClusterForAssociation.push_back(*it);
+          m_pixelClusterForAssociation.push_back(*it);
 
           REPORT_MESSAGE (MSG::DEBUG) << "(2)TESTASSOC TSoS-Type is: "<<   (*it)->types().to_ulong();
 
@@ -224,8 +224,8 @@ StatusCode TrackParticleToPixelClusterAssociationTool::reset (const  Rec::TrackP
     }
   }
 
-  m_clusItr = pixelClusterForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
-  m_clusEnd = pixelClusterForAssociation.end(); 
+  m_clusItr = m_pixelClusterForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
+  m_clusEnd = m_pixelClusterForAssociation.end(); 
 
   return StatusCode::SUCCESS;
 }
@@ -471,8 +471,9 @@ const InDet::PixelCluster* TrackParticleToPixelClusterAssociationTool::next()
               float trkphicomp = (float)mytrack.dot(myphiax);
               float trknormcomp = (float)mytrack.dot(mynormal);
               if (fabs(trknormcomp*1e07)>0 ){
-                *m_locPhi = (float)atan(trkphicomp/trknormcomp); 
-                *m_locTheta = (float)atan(trketacomp/trknormcomp); 
+                const double inv_trknormcomp = 1. / trknormcomp;
+                *m_locPhi = (float)atan(trkphicomp * inv_trknormcomp); 
+                *m_locTheta = (float)atan(trketacomp * inv_trknormcomp); 
               }
             }
           }

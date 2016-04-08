@@ -113,7 +113,7 @@ private:
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelId;
 
-  std::vector<const Trk::TrackStateOnSurface*> pixelClusterForAssociation; 
+  std::vector<const Trk::TrackStateOnSurface*> m_pixelClusterForAssociation; 
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator m_clusItr;
   std::vector<const Trk::TrackStateOnSurface*>::const_iterator m_clusEnd;
 
@@ -139,7 +139,7 @@ private:
   int                   *m_isCompetingRIO;
   int                   *m_sizePhi;
   int			*m_ToT;
-  int                   *m_sideModule;
+  //int                   *m_sideModule;
   float                 *m_locPhi;
   float                 *m_locTheta;
   float 		*m_Pt;

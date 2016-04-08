@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRACK3PDMAKER_PIXELRDOFILLERTOOL_H
+#ifndef TRACKD3PDMAKER_PIXELRDOFILLERTOOL_H
 #define TRACKD3PDMAKER_PIXELRDOFILLERTOOL_H
  
 #include "D3PDMakerUtils/BlockFillerTool.h"
@@ -66,3 +66,4 @@ class PixelRDOFillerTool
 } // namespace D3PD
  
 #endif // not TRACKD3PDMAKER_PIXELRDOFILLERTOOL_H
+

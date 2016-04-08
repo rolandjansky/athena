@@ -129,7 +129,7 @@ private:
   std::vector<const SCT_RDORawData* >::const_iterator m_rdoEnd;
 
 
-  std::vector<const SCT_RDORawData*> sctRDOForAssociation;
+  std::vector<const SCT_RDORawData*> m_sctRDOForAssociation;
 
 
 }; // class SCTClusterSCTRDOAssociationTool

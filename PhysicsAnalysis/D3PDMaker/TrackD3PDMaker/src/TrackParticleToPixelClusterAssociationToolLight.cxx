@@ -45,7 +45,7 @@ StatusCode TrackParticleToPixelClusterAssociationToolLight::initialize(){
 StatusCode TrackParticleToPixelClusterAssociationToolLight::reset (const Rec::TrackParticle& p)
 {
 
-  pixelClusterForAssociation.clear();
+  m_pixelClusterForAssociation.clear();
 
   const Trk::Track *track = p.originalTrack();
   if(!track){
@@ -79,15 +79,15 @@ StatusCode TrackParticleToPixelClusterAssociationToolLight::reset (const Rec::Tr
       if (RawDataClus!=0){
         if (RawDataClus->detectorElement()->isPixel()){
   
-          pixelClusterForAssociation.push_back(*it);
+          m_pixelClusterForAssociation.push_back(*it);
 
         }
       }
     } // if (clus)
   }
  
-  m_clusItr = pixelClusterForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
-  m_clusEnd = pixelClusterForAssociation.end(); 
+  m_clusItr = m_pixelClusterForAssociation.begin(); //pixel::vector<cont InDet::PixelCluster>::const_iterator 
+  m_clusEnd = m_pixelClusterForAssociation.end(); 
 
   return StatusCode::SUCCESS;
 }

@@ -291,8 +291,9 @@ StatusCode ClusterAssocFillerTool::fill (const Trk::TrackStateOnSurface& tso)
 	      float trkphicomp = (float)mytrack.dot(myphiax);
 	      float trknormcomp = (float)mytrack.dot(mynormal);
 	      if (fabs(trknormcomp*1e07)>0 ){
-		*m_locPhi = (float)atan(trkphicomp/trknormcomp); //(float)atan2(trkphicomp,trknormcomp);
-		*m_locTheta = (float)atan(trketacomp/trknormcomp); //(float)atan2(trketacomp,trknormcomp);
+                const double inv_trknormcomp = 1. / trknormcomp;
+		*m_locPhi = (float)atan(trkphicomp * inv_trknormcomp); //(float)atan2(trkphicomp,trknormcomp);
+		*m_locTheta = (float)atan(trketacomp * inv_trknormcomp); //(float)atan2(trketacomp,trknormcomp);
 	      }
 	      
 	      /* Old...
