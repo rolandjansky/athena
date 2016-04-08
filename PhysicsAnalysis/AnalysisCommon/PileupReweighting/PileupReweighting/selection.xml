@@ -1,4 +1,5 @@
  <lcgdict>      
+      <namespace name="CP"/>
         <class name="CP::PileupReweightingTool" />
         <class name="CP::IPileupReweightingTool" />
 </lcgdict> 

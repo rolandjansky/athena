@@ -14,6 +14,9 @@
 #include "PileupReweighting/IPileupReweightingTool.h"
 #include "PileupReweighting/TPileupReweighting.h"
 
+#include "AsgTools/ToolHandle.h"
+#include "PATInterfaces/IWeightTool.h"
+
 namespace CP {
 
    /// Implementation of the PileupReweighting tool
@@ -21,13 +24,36 @@ namespace CP {
    /// @author Will Buttinger
    ///
 
-   class PileupReweightingTool : public virtual IPileupReweightingTool,
-                             public asg::AsgTool, public Root::TPileupReweighting {
+   class PileupReweightingTool : 
+                             public asg::AsgTool, public virtual CP::TPileupReweighting,public virtual IPileupReweightingTool {
 
       /// Create a proper constructor for Athena
       ASG_TOOL_CLASS( PileupReweightingTool, CP::IPileupReweightingTool )
 
    public:
+
+      /// Get a random lumiblock number for the given run number 
+      virtual UInt_t GetRandomLumiBlockNumber(UInt_t runNumber) { return m_activeTool->GetRandomLumiBlockNumber(runNumber); }
+      /// Get the integrated luminosity (in pb-1) between start and end run (inclusive)
+      virtual Double_t GetIntegratedLumi(UInt_t start, UInt_t end)  { return m_activeTool->GetIntegratedLumi(start, end); }
+      /// Total lumi (in pb-1) for a given trigger combination .. leave blank for the unprescaled
+      virtual Double_t GetIntegratedLumi(const TString& trigger="")  { return m_activeTool->GetIntegratedLumi(trigger); }
+      /** similar to above, but for only the given mcRunNumber/periodNumber */
+      virtual Double_t GetIntegratedLumi(Int_t periodNumber, UInt_t start, UInt_t end)  { return m_activeTool->GetIntegratedLumi(periodNumber, start, end); }
+      /** return fraction of lumi assigned to periodNumber (or mcRunNumber) that is between start and end data run numbers*/
+      virtual Double_t GetIntegratedLumiFraction(Int_t periodNumber, UInt_t start, UInt_t end)  { return m_activeTool->GetIntegratedLumiFraction(periodNumber, start, end); }
+      /** return fraction of lumi assigned to periodNumber (or mcRunNumber) with given mu, that is between start and end data run numbers*/
+      virtual Double_t GetIntegratedLumiFraction(Int_t periodNumber, Double_t mu, UInt_t start, UInt_t end) { return m_activeTool->GetIntegratedLumiFraction(periodNumber, mu, start, end); }
+      /// use these methods when generating config files 
+      virtual Int_t AddPeriod(Int_t periodNumber, UInt_t start, UInt_t end)  { return m_activeTool->AddPeriod(periodNumber, start, end); }
+      virtual Int_t SetBinning(Int_t nbinsx, Double_t* xbins, Int_t nbinsy=0, Double_t* ybins=0)  { return m_activeTool->SetBinning(nbinsx, xbins, nbinsy, ybins); }
+      virtual Int_t SetUniformBinning(Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy=0, Double_t ylow=0, Double_t yup=0)  { return m_activeTool->SetUniformBinning(nbinsx, xlow, xup, nbinsy, ylow, yup); }
+      virtual Int_t SetBinning(TH1* hist)  { return m_activeTool->SetBinning(hist); }
+      /// helpful alternative to using the EventBookkeepers info ... assuming you made your PRW Config file!!
+      virtual Double_t GetSumOfEventWeights(Int_t channel)  { return m_activeTool->GetSumOfEventWeights(channel); }
+      virtual Double_t GetNumberOfEvents(Int_t channel)  { return m_activeTool->GetNumberOfEvents(channel) ; }
+
+
       /// Constructor for standalone usage
       PileupReweightingTool( const std::string& name );
 
@@ -37,43 +63,77 @@ namespace CP {
       /// Finalize - can call the WriteToFile for us
       virtual StatusCode finalize();
 
-      /// Uses Input and Output properties to get and decorate an eventinfo object
-      virtual StatusCode execute();
-
       /// Decorates with: 
-      /// MC: PileupWeight , RandomRunNumber, RandomLumiBlockNumber 
-      /// Data: data weights from trigger expressions you've specified 
-      virtual void apply ( const xAOD::EventInfo* eventInfo );
+      /// MC: PileupWeight (CombinedWeight[*UnrepresentedDataWeight if action=2]), RandomRunNumber, RandomLumiBlockNumber 
+      /// Data: corrected_averageInteractionsPerCrossing
+      /// mu_dependent says if the mu_dependency should be used for random run numbers or the data weights. You will get random run numbers of 0 for events with zero pileup weight
+      virtual StatusCode apply ( const xAOD::EventInfo& eventInfo, bool mu_dependent=true );
 
-      /// Get the dataWeight used to 'unprescale' data collected from a given trigger combination
-      virtual double dataWeight ( const xAOD::EventInfo* eventInfo, TString trigger, bool mu_dependent=true );
+      /// Return combined pileup weight
+      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo );
+
+      /// Same as above, but for a 'custom weight' variable
+      virtual float getCombinedWeight( const xAOD::EventInfo& eventInfo,Double_t x, Double_t y=0. );
+
+      /// return the prw hash used for fast updates of weights at the post-processing level ... see the share/makeWeightTree.C script for usage
+      virtual ULong64_t getPRWHash( const xAOD::EventInfo& eventInfo );
+
+      /// Get the mu of a lumiblock ... needed to 'correct' the number in datasets
+      virtual float getLumiBlockMu( const xAOD::EventInfo& eventInfo );
+      /// Get the integrated lumi of a lumiblock (in pb-1)
+      virtual double getLumiBlockIntegratedLumi(const xAOD::EventInfo& eventInfo);
+
+      /// When using UnrepresentedDataAction=2, you may want to apply this additional weight to ensure sum of weights are preserved
+      virtual float getUnrepresentedDataWeight( const xAOD::EventInfo& eventInfo );
+   
+      /// Get the dataWeight used to 'unprescale' data collected from a given trigger combination. mu_dependency is recommended to be true
+      virtual float getDataWeight( const xAOD::EventInfo& eventInfo, const TString& trigger, bool mu_dependent=true );
+   
+      /// Get a random run number for this MC event, using mu-dependent randomization by default ... jetetmiss seem to like it muchly
+      virtual int getRandomRunNumber( const xAOD::EventInfo& eventInfo , bool mu_dependent=true);
+   
+      /// Call this method once per event when in config file generating mode and you want standard mu reweighting
+      virtual int fill( const xAOD::EventInfo& eventInfo );
+   
+      /// Use this method if you want to do a generic reweighting instead
+      virtual int fill( const xAOD::EventInfo& eventInfo, Double_t x, Double_t y=0.);
+
+      /// Get pointer to the underlying tool - expert use only. Will require #include "PileupReweighting/TPileupReweighting.h"
+      virtual CP::TPileupReweighting* expert() { return m_activeTool; }
 
 
-      /// Get pointer to the underlying tool - expert use only
-      virtual Root::TPileupReweighting* get() { return this; }
 
+      /// The ISystematicsTool methods 
+      bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
+      CP::SystematicSet affectingSystematics() const;
+      CP::SystematicSet recommendedSystematics() const;
+      CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
+
+#ifndef XAOD_STANDALONE
+      void updateHandler(Property& /*p*/);
+#endif
 
    private:
+      std::string m_configStream;
       bool m_inConfigMode;
-      //Root::TPileupReweighting* m_tool;
+      CP::TPileupReweighting *m_upTool, *m_downTool; //systematic variation instances for the reweighting
+
+      double m_upVariation; double m_downVariation;
+      CP::SystematicVariation m_systUp, m_systDown;
+      CP::TPileupReweighting* m_activeTool; //defaults to this
 
       std::vector<std::string> m_prwFiles;
       std::vector<std::string> m_lumicalcFiles;
-      std::vector<std::string> m_lumicalcTriggers;
-
-      std::vector<std::string> m_dataWeightTriggers;
-      bool m_useMuDependent;
 
       std::string m_prefix;
-      std::string m_inputKey, m_outputKey;
 
-      int m_unrepdataAction;
       int m_defaultChannel;
-      double m_dataScaleFactor;
       std::string m_usePeriodConfig;
+      std::map<int, bool> m_doneConfigs;
 
+      bool m_noWeightsMode;
 
-      void checkInit(const xAOD::EventInfo* eventInfo);
+      ToolHandle<IWeightTool> m_weightTool;
 
       // MN:  this prevents ROOT dict generator from complaining about lack of ClassDef()
       // Note: inheriting from TObject and not having ClassDef makes this class unsuitable for I/O

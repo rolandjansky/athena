@@ -7,8 +7,6 @@
 #ifndef __TPILEUPREWEIGHTING__
 #define __TPILEUPREWEIGHTING__
 
-#define PILEUPREWEIGHTINGVERSION 3 //useful maybe for other packages to detect with. Each release I'll try to remember to increment this
-
 /**
    @class TPileupReweighting
    @brief Tool to get the calculated MC pileup weight. Also does custom weights and other useful stuff.
@@ -46,7 +44,8 @@ class TTree;
 class TFile;
 
 
-namespace Root {
+
+namespace CP {
   class TPileupReweighting : public TNamed {
 
   public: 
@@ -58,50 +57,60 @@ namespace Root {
 
 
   public:
-      /** Initialize this class once before the event loop starts 
-          If distribution information is provided, it is assumed to be 
-          for the standard pileup reweighting */
-      Int_t initialize(const TString dataRootFileName="",
-                    const TString dataRootHistName="",
-                    const TString mcRootFileName="",
-                    const TString mcRootHistName="", int runNumber=0, int channel=0);
 
-      Int_t Initialize();
+      /** use a hardcoded period configuration */
+      Int_t UsePeriodConfig(const TString configName);
+      /** Add a histogram binning config. To modify the pileup histo binning, use "pileup" as name */
+      Int_t SetBinning(Int_t nbinsx, Double_t* xbins, Int_t nbinsy=0, Double_t* ybins=0);
+      Int_t SetUniformBinning(Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy=0, Double_t ylow=0, Double_t yup=0);
+      Int_t SetBinning(TH1* hist);
 
-      //-------------------------------------------------------------
-      //Bonus method for retrieving the int lumi in each data period
-      //the MuonEfficiencyCorrections package wants this
-      //-------------------------------------------------------------
-      std::vector<Double_t> getIntegratedLumiVector();
+      /** Set which channel should be used as a default when specific mc channel distributions cannot be found */
+      /** default channels can now be assigned for each mc run number .. mcRunNumber=-1 is the global default */
+      void SetDefaultChannel(Int_t channel, Int_t mcRunNumber=-1);
+      Int_t GetDefaultChannel(Int_t mcRunNumber=-1);
 
-      /** total luminosity loaded and accepted by the tool (in inverse pb) */
-      Double_t GetIntegratedLumi(TString trigger="");
+      /** total luminosity loaded and accepted by the tool (in inverse pb) */ 
+      Double_t GetIntegratedLumi(const TString& trigger="");
       /** totalMC maps should also hold the total number of entries for each channel */
       inline Double_t GetNumberOfEvents(Int_t channel) {
-         std::map<Int_t, Double_t>& tMap = globalNumberOfEntries["pileup"];
-         if(tMap.find(channel)==tMap.end()) {
+         Period* global = m_periods[-1];
+         if(!global) return 0;
+         if(global->numberOfEntries.find(channel)==global->numberOfEntries.end()) {
             Error("GetNumberOfEvents", "Unknown channel: %d",channel);
             return 0;
          }
-         return tMap[channel];
+         return global->numberOfEntries[channel];
       }
       inline Double_t GetSumOfEventWeights(Int_t channel) {
-         std::map<Int_t, Double_t>& tMap = globalTotals["pileup"];
-         if(tMap.find(channel)==tMap.end()) {
+         Period* global = m_periods[-1];
+         if(!global) return 0;
+         if(global->sumOfWeights.find(channel)==global->sumOfWeights.end()) {
             Error("GetSumOfEventWeights", "Unknown channel: %d",channel);
             return 0;
          }
-         return tMap[channel];
+         return global->sumOfWeights[channel];
       }
+
+      /** Combine two period numbers. Histos are merged and the first number will be redirected to the second (the second is created if it doesn't exist) */
+      void RemapPeriod(Int_t periodNumber1, Int_t periodNumber2);
+
+      
       /** return fraction of lumi assigned to periodNumber (or mcRunNumber) that is between start and end data run numbers*/
       Double_t GetIntegratedLumiFraction(Int_t periodNumber, UInt_t start, UInt_t end);
       /** return fraction of lumi assigned to periodNumber (or mcRunNumber) with given mu, that is between start and end data run numbers*/
       Double_t GetIntegratedLumiFraction(Int_t periodNumber, Double_t mu, UInt_t start, UInt_t end);
 
       /** get the amount of integrated lumi between the two given runs */
-      Double_t GetIntegratedLumi(UInt_t start, UInt_t end);
+      inline Double_t GetIntegratedLumi(UInt_t start, UInt_t end) {    return GetIntegratedLumi(-1,start,end); }
       /** similar to above, but for only the given mcRunNumber/periodNumber */
       Double_t GetIntegratedLumi(Int_t periodNumber, UInt_t start, UInt_t end);
+
+      /** get integrated lumi for specific run and lumiblock number .. comes from the 'unprescaled lumi', and is in pb*/
+      Double_t GetLumiBlockIntegratedLumi(Int_t runNumber, UInt_t lb);
+
+      /** get the lumiblock mu, useful for 'updating' the mu coming from data to account for new lumitags */
+      Float_t GetLumiBlockMu(Int_t runNumber, UInt_t lb);
 
       //-----------------------------------------------------
       //General Tool Configuring methods
@@ -110,80 +119,66 @@ namespace Root {
       inline void DisableWarnings(Bool_t in) { m_SetWarnings = !in;}
       /** Indicate if additional debugging information should be output */
       inline void EnableDebugging(Bool_t in) { m_debugging = in;}
-      /** Set which channel should be used as a default when specific mc channel distributions cannot be found */
-      inline void SetDefaultChannel(Int_t channel) { m_defaultChannel=channel;}
-      /** default channels can now be assigned for each mc run number */
-      inline void SetDefaultChannelByMCRunNumber(Int_t channel, Int_t mcRunNumber) { m_defaultChannelsByMCRunNumber[mcRunNumber]=channel; }
-      Int_t GetDefaultChannel(Int_t mcRunNumber=0);
+
       /** Set how to handle configurations where some of your data has no corresponding mc to describe it 
           0=Default (Throw exception), 1=Subtract lumi from normalizations (i.e. discard data), 2=keep lumi and continue*/
       inline void SetUnrepresentedDataAction(Int_t action, Double_t tolerance=0.05) {
-         if(action<0 || action>2) {
+         if(action<0 || action>3) {
             Fatal("SetUnrepresentedDataAction","Set action=%d - I'm afraid I can't let you do that, Dave",action);
             throw std::runtime_error("Throwing 2001");
          } 
          m_unrepresentedDataAction=action;
          m_unrepDataTolerance=tolerance; //applicable for action=2 mode. Default is 5%
       }
+      /** return the unrepresented data fraction in a given channel .. when using action=2, you will want to scale up all MC events by 1/(1-unrepFraction) to account for missed data */
+      Double_t GetUnrepresentedDataFraction(Int_t periodNumber,Int_t channel);
+      inline Float_t GetUnrepresentedDataWeight(Int_t periodNumber,Int_t channel) { 
+         if(m_unrepresentedDataAction!=2) {
+            Warning("GetUnrepresentedDataWeight","You should not be applying this weight unless the UnrepresentedDataAction=2");
+         }
+         return 1./(1. - GetUnrepresentedDataFraction(periodNumber,channel));
+      }
+      //-----------------------------------------------------
+      //Methods to veto data in Action=1 mode
+      //-----------------------------------------------------
+      Bool_t IsUnrepresentedData(Int_t runNumber, Float_t x, Float_t y=0.);
+
       /** Should the tool ignore period assignments encoded in config file */
       inline void IgnoreConfigFilePeriods(Bool_t in) { m_ignoreFilePeriods=in; }
 
       /** Assign an mc RunNumber to a data period */
-      Int_t AddPeriod(Int_t runNumber, UInt_t start, UInt_t end);
-      /** Get the PeriodNumber of the given runNumber,start and end. If not found, returns -1 */
-      Int_t GetPeriodNumber(Int_t runNumber, UInt_t start, UInt_t end);
+      Int_t AddPeriod(Int_t periodNumber, UInt_t start, UInt_t end);
       /** Get the first period number with the data run number contained - assume all periods are disconnected for this to be useful */
       Int_t GetFirstFoundPeriodNumber(UInt_t runNumber);
-      /** Alternative method where you give it the mcRunNumber and the 'data' runNumber */
-      Int_t GetPeriodNumber(Int_t mcRunNumber, UInt_t runNumber);
-      /** use a hardcoded period configuration */
-      Int_t UsePeriodConfig(const TString configName);
-      /** Add a histogram binning config. To modify the pileup histo binning, use "pileup" as name */
-      Int_t AddBinning(const TString weightName,Int_t nbinsx, Double_t* xbins);
-      Int_t AddBinning(const TString weightName,Int_t nbinsx, Double_t xlow, Double_t xup);
-      Int_t AddBinning(const TString weightName,Int_t nbinsx, Double_t xlow, Double_t xup, Int_t nbinsy, Double_t ylow, Double_t yup);
-      Int_t AddBinning(const TString weightName,TH1* hist);
 
-      /** Combine two mc RunNumbers. Histos are merged and the second number will be redirected to the first */
-      void MergeMCRunNumbers(Int_t runNumber1, Int_t runNumber2, Int_t newRunNumber=0);
+
+
       /** Scale the LumiMetaData mu values by this factor */
-      void SetDataScaleFactors(Float_t x,Float_t y=1., Float_t z=1.) { m_dataScaleFactorX=x;m_dataScaleFactorY=y;m_dataScaleFactorZ=z; }
-      void SetMCScaleFactors(Float_t x,Float_t y=1.,Float_t z=1.) { m_mcScaleFactorX=x;m_mcScaleFactorY=y;m_mcScaleFactorZ=z;}
+      inline void SetDataScaleFactors(Float_t x,Float_t y=1.) { m_dataScaleFactorX=x;m_dataScaleFactorY=y; }
+      inline void SetMCScaleFactors(Float_t x,Float_t y=1.) { m_mcScaleFactorX=x;m_mcScaleFactorY=y;}
+
+
 
       //-----------------------------------------------------
-      //Methods to load config files or histograms
+      //Methods to load config files
       //-----------------------------------------------------
       Int_t AddConfigFile(const TString fileName);
       Int_t AddLumiCalcFile(const TString fileName, const TString trigger="None");
       Int_t AddMetaDataFile(const TString fileName,const TString channelBranchName="mc_channel_number");
 
-      Int_t AddDistribution(TH1* hist, const TString weightName, Int_t runNumber, Int_t channelNumber);
-      Int_t AddDistribution(TH1* hist, Int_t runNumber, Int_t channelNumber);
-      Int_t AddDistributionFromFile(const TString fileName, const TString histName, const TString weightName, Int_t runNumber=0, Int_t channelNumber=0);
-      Int_t AddDistributionFromFile(const TString fileName, const TString histName, Int_t runNumber=0, Int_t channelNumber=0);
+      /** Initialize this class once before the event loop starts 
+          If distribution information is provided, it is assumed to be 
+          for the standard pileup reweighting */
+      Int_t Initialize();
+
 
       //-----------------------------------------------------
       //Methods to get the various weights
       //-----------------------------------------------------
-      Float_t GetCombinedWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber,Float_t x,Float_t y=0., Float_t z=0.);
-      Float_t GetPeriodWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber);
-      Float_t GetPrimaryWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber,Float_t x);
-      Float_t GetSecondaryWeight(const TString weightName, Int_t periodNumber, Int_t channelNumber,Float_t x, Float_t y);
-
-
-      //inline methods for above methods with the default "pileup" weight
-      inline Float_t GetCombinedWeight(Int_t periodNumber, Int_t channelNumber,Float_t x, Float_t y=0., Float_t z=0.) {
-         return GetCombinedWeight("pileup",periodNumber,channelNumber,x,y,z);
-      }
-      inline Float_t GetPeriodWeight(Int_t periodNumber, Int_t channelNumber) {
-         return GetPeriodWeight("pileup",periodNumber,channelNumber);
-      }
-      inline Float_t GetPrimaryWeight(Int_t periodNumber, Int_t channelNumber,Float_t x) {
-         return GetPrimaryWeight("pileup",periodNumber,channelNumber,x);
-      }
-      inline Float_t GetSecondaryWeight(Int_t periodNumber, Int_t channelNumber,Float_t x, Float_t y) {
-         return GetSecondaryWeight("pileup",periodNumber,channelNumber,x,y);
-      }
+      Float_t GetCombinedWeight(Int_t periodNumber, Int_t channelNumber,Float_t x,Float_t y=0.);
+      Float_t GetPeriodWeight(Int_t periodNumber, Int_t channelNumber);
+      Float_t GetPrimaryWeight(Int_t periodNumber, Int_t channelNumber,Float_t x);
+      Float_t GetSecondaryWeight(Int_t periodNumber, Int_t channelNumber,Float_t x,Float_t y);
 
       //-----------------------------------------------------
       //Methods to work with the metadata
@@ -207,17 +202,16 @@ namespace Root {
       //-----------------------------------------------------
       //Methods to generate config files
       //-----------------------------------------------------
-      Int_t Fill(const TString weightName,Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y=0., Float_t z=0.);
-      Int_t Fill(Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y=0., Float_t z=0.);
+      Int_t Fill(Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y=0.);
       Int_t WriteToFile(const TString filename=""); //if no name given, will use tool name
       Int_t WriteToFile(TFile* outFile);
 
-      //-----------------------------------------------------
-      //Methods to veto data in Action=1 mode
-      //-----------------------------------------------------
-      Bool_t IsUnrepresentedData(const TString weightName, Int_t runNumber, Float_t x, Float_t y=0., Float_t z=0.);
-      Bool_t IsUnrepresentedData(Int_t runNumber, Float_t x, Float_t y=0., Float_t z=0.);
 
+      //
+      //Methods used to do the prwTree - for fast recalculation of prw weights when processing ntuples
+      //
+      ULong64_t GetPRWHash(Int_t periodNumber, Int_t channelNumber, Float_t x, Float_t y=0.);
+      Bool_t MakeWeightTree(TString channelNumbers, TString outFile, TString hashBranch="PRWHash", TString weightBranch="PileupWeight");
 
       //-----------------------------------------------------
       //RandomDataPeriod functionality stuff
@@ -226,9 +220,8 @@ namespace Root {
       void SetRandomSeed(int seed) {m_random3->SetSeed(seed);}
       int GetRandomSeed() {return m_random3->GetSeed();}
       /** Gets a random data run number according to the integrated lumi distribution associated to this mcRunNumber */
+      /** allows use of custom reweighting config files  */
       UInt_t GetRandomRunNumber(Int_t mcRunNumber);
-      /** Similar to above method, but allows use of custom reweighting config files .. using weightName='pileup' has same behaviour as above */
-      UInt_t GetRandomRunNumber(Int_t mcRunNumber, TString weightName);
       /** Get random run number according to integrated lumi distribution for the given mu value (uses the binning of the mu histogram) */
       UInt_t GetRandomRunNumber(Int_t mcRunNumber, Double_t mu);
       /** Get random period number from the sub-periods assigned to this run number */
@@ -241,75 +234,56 @@ namespace Root {
       //Methods for PROOF cluster merging of generated histos
       //-----------------------------------------------------
       Int_t Merge(TCollection *coll);
-      std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > >& GetInputHistograms() { return m_inputHistograms;}
+      //*std::map<Int_t,std::map<Int_t, TH1*> > & GetInputHistograms() { return m_inputHistograms;}
 
 
       //-----------------------------------------------------
       //Methods to inspect the input and weighting histograms
       //-----------------------------------------------------
-      TH1* GetInputHistogram(const TString weightName, Int_t channelNumber, Int_t runNumber) {
-         if(m_inputHistograms.find(weightName)==m_inputHistograms.end()||
-            m_inputHistograms[weightName].find(channelNumber)==m_inputHistograms[weightName].end()||
-            m_inputHistograms[weightName][channelNumber].find(runNumber)==m_inputHistograms[weightName][channelNumber].end()) {
+      TH1* GetInputHistogram(Int_t channelNumber, Int_t periodNumber) {
+         if(m_periods.find(periodNumber)==m_periods.end()||
+            m_periods[periodNumber]->inputHists.find(channelNumber)==m_periods[periodNumber]->inputHists.end()) {
             return 0;
          }
-         return m_inputHistograms[weightName][channelNumber][runNumber];
+         return m_periods[periodNumber]->inputHists[channelNumber];
       }
 
-      TH1D* GetPrimaryDistribution(const TString weightName, Int_t channelNumber, Int_t periodNumber) {
-         if(primaryDistributions.find(weightName)==primaryDistributions.end()||
-            primaryDistributions[weightName].find(channelNumber)==primaryDistributions[weightName].end()||
-            primaryDistributions[weightName][channelNumber].find(periodNumber)==primaryDistributions[weightName][channelNumber].end()) {
+      TH1D* GetPrimaryDistribution(Int_t channelNumber, Int_t periodNumber) {
+         if(m_periods.find(periodNumber)==m_periods.end()||
+            m_periods[periodNumber]->primaryHists.find(channelNumber)==m_periods[periodNumber]->primaryHists.end()) {
             return 0;
          }
-         return primaryDistributions[weightName][channelNumber][periodNumber];
-      }
-
-      TH2D* GetSecondaryDistribution(const TString weightName, Int_t channelNumber, Int_t periodNumber) {
-         if(secondaryDistributions.find(weightName)==secondaryDistributions.end()||
-            secondaryDistributions[weightName].find(channelNumber)==secondaryDistributions[weightName].end()||
-            secondaryDistributions[weightName][channelNumber].find(periodNumber)==secondaryDistributions[weightName][channelNumber].end()) {
-            return 0;
-         }
-         return secondaryDistributions[weightName][channelNumber][periodNumber];
+         return m_periods[periodNumber]->primaryHists[channelNumber];
       }
 
       TH1D* GetPrimaryTriggerDistribution(const TString trigger, Int_t periodNumber) {
-         if(m_triggerPrimaryDistributions.find(trigger)==m_triggerPrimaryDistributions.end()||
-            m_triggerPrimaryDistributions[trigger].find(periodNumber)==m_triggerPrimaryDistributions[trigger].end()) {
+         if(m_periods.find(periodNumber)==m_periods.end()||
+            m_periods[periodNumber]->triggerHists.find(trigger)==m_periods[periodNumber]->triggerHists.end()) {
             return 0;
          }
-         return m_triggerPrimaryDistributions[trigger][periodNumber];
+         return m_periods[periodNumber]->triggerHists[trigger];
       }
 
       /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
       Double_t GetDataWeight(Int_t runNumber, TString trigger, Double_t x);
-      Double_t GetDataWeight(Int_t runNumber, TString trigger); //version without mu dependence
+      Double_t GetDataWeight(Int_t runNumber, TString trigger);//version without mu dependence
 
 
       // other methods 
       Bool_t IsInitialized() { return m_isInitialized; }
 
-      //-----------------------------------------------------
-      //Depricated methods
-      //-----------------------------------------------------
-      /** Add a data distribution histogram or ttree (do this after mc) */
-      void AddDataDistribution(const TString& dataRootFileName,const TString& dataRootHistName, int runNumber=0);
-      /** Add a mc distribution histogram or ttree */
-      void AddMCDistribution(const TString& mcRootFileName,const TString& mcRootHistName, int runNumber=0, int channel=0);
-      /** Add a custom data distribution histogram or ttree (do this after mc) */
-      void AddCustomDataDistribution(const TString& customRootFileName,const TString& customRootHistName, TString customName="", int runNumber=0);
-      /** Add a custom mc distribution histogram or ttree */
-      void AddCustomMCDistribution(const TString& customRootFileName,const TString& customRootHistName, TString customName="", int runNumber=0, int channel=0);
-      Float_t getPileupWeight( float mu, int runNumber=0, int channel=0 );
+      Int_t AddDistribution(TH1* hist, Int_t runNumber, Int_t channelNumber);
 
-  private:
+  protected:
+      Int_t GetNearestGoodBin(Int_t thisMCRunNumber, Int_t bin);
+      Int_t IsBadBin(Int_t thisMCRunNumber, Int_t bin);
 
-      TH1* CloneEmptyHistogram(const TString weightName, Int_t runNumber, Int_t channelNumber);
+
+      TH1* CloneEmptyHistogram(Int_t runNumber, Int_t channelNumber);
       /** Normalize histograms */
       void normalizeHistogram(TH1* histo);
       void AddDistributionTree(TTree *tree, TFile *file);
-      Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
+      //*Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
 
       void CalculatePrescaledLuminosityHistograms(const TString trigger);
 
@@ -317,84 +291,34 @@ namespace Root {
       Bool_t m_SetWarnings;
       Bool_t m_debugging;
       Bool_t m_countingMode;
-      Int_t m_defaultChannel;
       Int_t m_unrepresentedDataAction;
-      Bool_t m_isInitialized;
-      Bool_t m_lumiVectorIsLoaded;
-      Float_t m_dataScaleFactorX;Float_t m_dataScaleFactorY;Float_t m_dataScaleFactorZ;
-      Float_t m_mcScaleFactorX;Float_t m_mcScaleFactorY;Float_t m_mcScaleFactorZ;
+      Bool_t m_isInitialized;Bool_t m_lumiVectorIsLoaded;
+      Float_t m_dataScaleFactorX;Float_t m_dataScaleFactorY;
+      Float_t m_mcScaleFactorX;Float_t m_mcScaleFactorY;
       Int_t m_nextPeriodNumber;
       Bool_t m_ignoreFilePeriods;
       TTree *m_metadatatree;
       Double_t m_unrepDataTolerance;
       Bool_t m_doGlobalDataWeight; //used in GetDataWeight to flag mu-independent version
+      Int_t m_lumicalcRunNumberOffset; //used for 'faking' a lumicalc file for run2
 
-      //-----------------------------------------------------
-      //Bonus method members
-      //-----------------------------------------------------
-      std::vector<Double_t> m_integratedLumiVector;
+      /** map storing the lumicalc file locations - used when building DataPileupWeights */
+      std::map<TString,TString> m_lumicalcFiles;
 
       //-----------------------------------------------------
       //Shared private data members
       //-----------------------------------------------------
-      /** Map from mc RunNumber to (periodNumber,[start,end]) period definitions. One mc runNumber can have many disconnected periods */
-      std::map<Int_t,std::map<Int_t, std::pair<UInt_t,UInt_t> > > m_periods;
-      /** Quick map back from periodNumber to mcRunNumber */
-      std::map<Int_t,Int_t> m_periodToMCRun;
-      /** Map of empty histograms to use for custom weights. Also holds the standard pileup histogram in "pileup" */
-      std::map<TString, TH1*> m_emptyHistograms;
-      /** Remappings of mc run numbers. Used through the MergeMCRunNumbers method */
-      std::map<Int_t,Int_t> m_mcRemappings;
-      std::map<Int_t,std::map<Int_t,Int_t> > m_mcMerges;
 
-      //-----------------------------------------------------
-      //The standard pileup private members
-      //-----------------------------------------------------
-      /** [weightName,channelNumber] -> total (N,L,D) */
-      std::map<TString, std::map<Int_t, Double_t> > globalTotals;
-      /** [weightName,channelNumber,periodNumber] -> total (N_A,L_A,D_A) */
-      std::map<TString, std::map<Int_t, std::map<Int_t, Double_t> > > periodTotals;
-      /** [weightName,channelNumber,periodNumber] -> 1D distribution */
-      std::map<TString, std::map<Int_t, std::map<Int_t, TH1D*> > > primaryDistributions;
-      /** [weightName,channelNumber,periodNumber] -> 2D distribution */
-      std::map<TString, std::map<Int_t, std::map<Int_t, TH2D*> > > secondaryDistributions;
 
-      /** [weightName,channelNumber] -> NumberOfEntries from histograms */
-      std::map<TString, std::map<Int_t, Double_t> > globalNumberOfEntries;
 
-      //data is stored in channel=-1
-      std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > > m_inputHistograms;
+      /** the empty histogram used for this weight... effectively holds the configuration of the binning */
+      TH1* m_emptyHistogram; 
 
-      //[trigger,runNumber] -> lumicalc derived histograms used to weight data to account for prescaling, based on mu
-      std::map<TString, std::map<Int_t, TH1*> > m_triggerInputHistograms;
-      //[trigger,periodNumber] -> assembled into the individual periods
-      std::map<TString, std::map<Int_t, TH1D*> > m_triggerPrimaryDistributions;
+
 
       /** channel metadata map */
       std::map<TString, std::map<Int_t, Double_t> > m_metadata; 
 
-      //-----------------------------------------------------
-      //RandomDataPeriod functionality stuff
-      //numbers generated seperately for each mc period
-      //-----------------------------------------------------
-      TRandom3 *m_random3;
-      /** Integrated lumi in each run, split in to the different mc periods: [weightName,mcRunNumber,runNumber]->lumi */
-      std::map<TString, std::map<Int_t, std::map<UInt_t, Double_t> > > dataPeriodRunTotals;
-      /** Integrated lumi in each run for each bin of the different mc periods: [weightName, binNumber, mcRunNumber, runNumber]->lumi*/
-#ifndef __MAKECINT__ //this map is too deep for rootcint to handle
-      std::map<TString, std::map<UInt_t, std::map<Int_t, std::map<UInt_t, Double_t> > > > dataPeriodBinnedRunTotals;
-#endif
-      /** [weightName,datarunnum,binnum] -> badbin flag */
-      std::map<TString, std::map<Int_t, std::map<Int_t, Bool_t> > > m_badbins;
-
-      /** mapping for default channels by mc run number - introduced for mc12a/b combined functionality */
-      std::map<Int_t,Int_t> m_defaultChannelsByMCRunNumber;
-
-      /** lumi in each lumiblock in each run loaded. used for GetRandomLumiBlockNumber */
-      std::map<UInt_t, std::map<UInt_t, Double_t> > m_lumiByRunAndLbn;
-
-      /** map storing the lumicalc file locations - used when building DataPileupWeights */
-      std::map<TString,TString> m_lumicalcFiles;
 
       struct CompositeTrigger {
          int op;
@@ -422,7 +346,62 @@ namespace Root {
 
       CompositeTrigger* makeTrigger(TString s);
 
-      ClassDef(TPileupReweighting,1)
+public:
+      inline void PrintPeriods() { for(auto p : m_periods) {std::cout << p.first << " -> "; p.second->print("");} }
+      struct Period {
+         Period(Int_t _id, UInt_t _start, UInt_t _end, Int_t _defaultChannel) : id(_id),start(_start),end(_end),defaultChannel(_defaultChannel) {};
+         Int_t id;
+         UInt_t start;
+         UInt_t end;
+         Int_t defaultChannel;
+         std::map<Int_t, Int_t> inputBinRedirect;
+         std::map<Int_t, Double_t> unrepData; //indexed by channel number
+         std::vector<Period*> subPeriods; 
+         std::vector<UInt_t> runNumbers; //populated with runNumbers that actually had some data available
+         std::map<Int_t, TH1*> inputHists;
+         std::map<Int_t, Double_t> sumOfWeights; 
+         std::map<Int_t, Int_t> numberOfEntries;
+         std::map<Int_t, TH1D*> primaryHists; //normalized histograms, indexed by channelNumber. -1 holds the data
+         std::map<Int_t, TH2D*> secondaryHists; //semi-normalized histograms, only used in 2D reweighting
+         std::map<TString, TH1D*> triggerHists; //unnormalized ... i.e. integral should be equal to the lumi! ... should really only be filled in the channel=-1 case (i.e. data)
+         bool contains(unsigned int runNumber) {
+            if(runNumber >= start && runNumber <= end) return true;
+            for(auto p : subPeriods) if(p->contains(runNumber)) return true;
+            return false;
+         };
+         void SetDefaultChannel(Int_t channel) {
+            defaultChannel=channel;
+            for(auto p : subPeriods) p->SetDefaultChannel(channel);
+         };
+         void print(const char* prefix) { 
+            std::cout << prefix << id << "[" << start << "," << end << "] : ";
+            for(auto hist : inputHists) std::cout << hist.first << " , ";
+            std::cout << std::endl;
+            for(auto p : subPeriods) p->print(TString::Format(" %s",prefix).Data()); };
+      };
+      struct Run {
+         std::map<TString,TH1*> inputHists; //key is the 'trigger' 
+         std::map<Int_t,Double_t> badBins; 
+         Double_t lumi; //total data in run
+         std::map<UInt_t, std::pair<Double_t,Double_t> > lumiByLbn; //key=lbn, value = <lumi,mu>
+         TH1D* muDist; //mu distribution for this run
+      };
+protected:
+      std::map<Int_t, Period*> m_periods; //periods mapped by id. -1 = the "global" period (0->9999999). Uses a pointer so can easily implement remap as two entries pointing at same period
+      std::map<UInt_t, Run> m_runs; //runs mapped by runNumber
+
+      std::map<Int_t, Double_t> unrepDataByChannel; // -1 holds the total unrepData!
+
+      std::string m_prwFilesPathPrefix;
+
+      //-----------------------------------------------------
+      //RandomDataPeriod functionality stuff
+      //numbers generated seperately for each mc period
+      //-----------------------------------------------------
+      TRandom3 *m_random3;
+
+public:
+      ClassDef(TPileupReweighting,0)
 
 
   }; // End: class definition
