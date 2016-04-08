@@ -26,76 +26,76 @@ EventNtWriter::EventNtWriter(std::string name, const MdtIdHelper* mdtId,
   m_file->cd();
   m_tree= new TTree("Segments","Segments");
 
-  m_tree->Branch("nmdt",&nmdt,"nmdt/I");
-  m_tree->Branch("mdtt",&mdtt,"mdtt[nmdt]/F");
-  m_tree->Branch("mdtr",&mdtr,"mdtr[nmdt]/F");
-  m_tree->Branch("mdtdr",&mdtdr,"mdtdr[nmdt]/F");
-  m_tree->Branch("mdtx",&mdtx,"mdtx[nmdt]/F");
-  m_tree->Branch("mdty",&mdty,"mdty[nmdt]/F");
-  m_tree->Branch("mdtz",&mdtz,"mdtz[nmdt]/F");
-  m_tree->Branch("mdtgx",&mdtgx,"mdtgx[nmdt]/F");
-  m_tree->Branch("mdtgy",&mdtgy,"mdtgy[nmdt]/F");
-  m_tree->Branch("mdtgz",&mdtgz,"mdtgz[nmdt]/F");
-  m_tree->Branch("mdtid",&mdtid,"mdtid[nmdt]/I");
-  m_tree->Branch("mdtpatid",&mdtpatid,"mdtpatid[nmdt]/I");
-  m_tree->Branch("mdtsegid",&mdtsegid,"mdtsegid[nmdt]/I");
+  m_tree->Branch("nmdt",&m_nmdt,"nmdt/I");
+  m_tree->Branch("mdtt",&m_mdtt,"mdtt[nmdt]/F");
+  m_tree->Branch("mdtr",&m_mdtr,"mdtr[nmdt]/F");
+  m_tree->Branch("mdtdr",&m_mdtdr,"mdtdr[nmdt]/F");
+  m_tree->Branch("mdtx",&m_mdtx,"mdtx[nmdt]/F");
+  m_tree->Branch("mdty",&m_mdty,"mdty[nmdt]/F");
+  m_tree->Branch("mdtz",&m_mdtz,"mdtz[nmdt]/F");
+  m_tree->Branch("mdtgx",&m_mdtgx,"mdtgx[nmdt]/F");
+  m_tree->Branch("mdtgy",&m_mdtgy,"mdtgy[nmdt]/F");
+  m_tree->Branch("mdtgz",&m_mdtgz,"mdtgz[nmdt]/F");
+  m_tree->Branch("mdtid",&m_mdtid,"mdtid[nmdt]/I");
+  m_tree->Branch("mdtpatid",&m_mdtpatid,"mdtpatid[nmdt]/I");
+  m_tree->Branch("mdtsegid",&m_mdtsegid,"mdtsegid[nmdt]/I");
 
-  m_tree->Branch("ntrig",&ntrig,"ntrig/I");
-  m_tree->Branch("trigerr",&trigerr,"trigerr[ntrig]/F");
-  m_tree->Branch("trigx",&trigx,"trigx[ntrig]/F");
-  m_tree->Branch("trigy",&trigy,"trigy[ntrig]/F");
-  m_tree->Branch("trigz",&trigz,"trigz[ntrig]/F");
-  m_tree->Branch("triggx",&triggx,"triggx[ntrig]/F");
-  m_tree->Branch("triggy",&triggy,"triggy[ntrig]/F");
-  m_tree->Branch("triggz",&triggz,"triggz[ntrig]/F");
-  m_tree->Branch("trigid",&trigid,"trigud[ntrig]/I");
-  m_tree->Branch("trigpatid",&trigpatid,"trigsegid[ntrig]/I");
-  m_tree->Branch("trigsegid",&trigsegid,"trigsegid[ntrig]/I");
+  m_tree->Branch("ntrig",&m_ntrig,"ntrig/I");
+  m_tree->Branch("trigerr",&m_trigerr,"trigerr[m_ntrig]/F");
+  m_tree->Branch("trigx",&m_trigx,"trigx[m_ntrig]/F");
+  m_tree->Branch("trigy",&m_trigy,"trigy[m_ntrig]/F");
+  m_tree->Branch("trigz",&m_trigz,"trigz[m_ntrig]/F");
+  m_tree->Branch("triggx",&m_triggx,"triggx[m_ntrig]/F");
+  m_tree->Branch("triggy",&m_triggy,"triggy[m_ntrig]/F");
+  m_tree->Branch("triggz",&m_triggz,"triggz[m_ntrig]/F");
+  m_tree->Branch("trigid",&m_trigid,"trigud[m_ntrig]/I");
+  m_tree->Branch("trigpatid",&m_trigpatid,"trigsegid[m_ntrig]/I");
+  m_tree->Branch("trigsegid",&m_trigsegid,"trigsegid[m_ntrig]/I");
 
-  m_tree->Branch("nseg",&nseg,"nseg/I");
-  m_tree->Branch("segid",&segid,"segid[nseg]/I");
-  m_tree->Branch("seggeo",&seggeo,"seggeo[nseg]/I");
-  m_tree->Branch("seggeotd",&seggeotd,"seggeotd[nseg]/F");
-  m_tree->Branch("seggeots",&seggeots,"seggeots[nseg]/F");
-  m_tree->Branch("seggeold",&seggeold,"seggeold[nseg]/F");
-  m_tree->Branch("seggeoft0y",&seggeoft0y,"seggeoft0y[nseg]/F");
-  m_tree->Branch("seggeoft0z",&seggeoft0z,"seggeoft0z[nseg]/F");
-  m_tree->Branch("seggeoft1y",&seggeoft1y,"seggeoft1y[nseg]/F");
-  m_tree->Branch("seggeoft1z",&seggeoft1z,"seggeoft1z[nseg]/F");
-  m_tree->Branch("segid1",&segid1,"segid1[nseg]/I");
-  m_tree->Branch("seggeo1",&seggeo1,"seggeo1[nseg]/I");
-  m_tree->Branch("seggeotd1",&seggeotd1,"seggeotd1[nseg]/F");
-  m_tree->Branch("seggeots1",&seggeots1,"seggeots1[nseg]/F");
-  m_tree->Branch("seggeold1",&seggeold1,"seggeold1[nseg]/F");
-  m_tree->Branch("seggeoft0y1",&seggeoft0y1,"seggeoft0y1[nseg]/F");
-  m_tree->Branch("seggeoft0z1",&seggeoft0z1,"seggeoft0z1[nseg]/F");
-  m_tree->Branch("seggeoft1y1",&seggeoft1y1,"seggeoft1y1[nseg]/F");
-  m_tree->Branch("seggeoft1z1",&seggeoft1z1,"seggeoft1z1[nseg]/F");
-  m_tree->Branch("segx",&segx,"segx[nseg]/F");
-  m_tree->Branch("segy",&segy,"segy[nseg]/F");
-  m_tree->Branch("segz",&segz,"segz[nseg]/F");
-  m_tree->Branch("seggx",&seggx,"seggx[nseg]/F");
-  m_tree->Branch("seggy",&seggy,"seggy[nseg]/F");
-  m_tree->Branch("seggz",&seggz,"seggz[nseg]/F");
-  m_tree->Branch("segdx",&segdx,"segdx[nseg]/F");
-  m_tree->Branch("segdy",&segdy,"segdy[nseg]/F");
-  m_tree->Branch("segdz",&segdz,"segdz[nseg]/F");
-  m_tree->Branch("segdgx",&segdgx,"segdgx[nseg]/F");
-  m_tree->Branch("segdgy",&segdgy,"segdgy[nseg]/F");
-  m_tree->Branch("segdgz",&segdgz,"segdgz[nseg]/F");
-  m_tree->Branch("segpatid",&segpatid,"segpatid[nseg]/I");
+  m_tree->Branch("nseg",&m_nseg,"nseg/I");
+  m_tree->Branch("segid",&m_segid,"segid[m_nseg]/I");
+  m_tree->Branch("seggeo",&m_seggeo,"seggeo[m_nseg]/I");
+  m_tree->Branch("seggeotd",&m_seggeotd,"seggeotd[m_nseg]/F");
+  m_tree->Branch("seggeots",&m_seggeots,"seggeots[m_nseg]/F");
+  m_tree->Branch("seggeold",&m_seggeold,"seggeold[m_nseg]/F");
+  m_tree->Branch("seggeoft0y",&m_seggeoft0y,"seggeoft0y[m_nseg]/F");
+  m_tree->Branch("seggeoft0z",&m_seggeoft0z,"seggeoft0z[m_nseg]/F");
+  m_tree->Branch("seggeoft1y",&m_seggeoft1y,"seggeoft1y[m_nseg]/F");
+  m_tree->Branch("seggeoft1z",&m_seggeoft1z,"seggeoft1z[m_nseg]/F");
+  m_tree->Branch("segid1",&m_segid1,"segid1[m_nseg]/I");
+  m_tree->Branch("seggeo1",&m_seggeo1,"seggeo1[m_nseg]/I");
+  m_tree->Branch("seggeotd1",&m_seggeotd1,"seggeotd1[m_nseg]/F");
+  m_tree->Branch("seggeots1",&m_seggeots1,"seggeots1[m_nseg]/F");
+  m_tree->Branch("seggeold1",&m_seggeold1,"seggeold1[m_nseg]/F");
+  m_tree->Branch("seggeoft0y1",&m_seggeoft0y1,"seggeoft0y1[m_nseg]/F");
+  m_tree->Branch("seggeoft0z1",&m_seggeoft0z1,"seggeoft0z1[m_nseg]/F");
+  m_tree->Branch("seggeoft1y1",&m_seggeoft1y1,"seggeoft1y1[m_nseg]/F");
+  m_tree->Branch("seggeoft1z1",&m_seggeoft1z1,"seggeoft1z1[m_nseg]/F");
+  m_tree->Branch("segx",&m_segx,"segx[m_nseg]/F");
+  m_tree->Branch("segy",&m_segy,"segy[m_nseg]/F");
+  m_tree->Branch("segz",&m_segz,"segz[m_nseg]/F");
+  m_tree->Branch("seggx",&m_seggx,"seggx[m_nseg]/F");
+  m_tree->Branch("seggy",&m_seggy,"seggy[m_nseg]/F");
+  m_tree->Branch("seggz",&m_seggz,"seggz[m_nseg]/F");
+  m_tree->Branch("segdx",&m_segdx,"segdx[m_nseg]/F");
+  m_tree->Branch("segdy",&m_segdy,"segdy[m_nseg]/F");
+  m_tree->Branch("segdz",&m_segdz,"segdz[m_nseg]/F");
+  m_tree->Branch("segdgx",&m_segdgx,"segdgx[m_nseg]/F");
+  m_tree->Branch("segdgy",&m_segdgy,"segdgy[m_nseg]/F");
+  m_tree->Branch("segdgz",&m_segdgz,"segdgz[m_nseg]/F");
+  m_tree->Branch("segpatid",&m_segpatid,"segpatid[m_nseg]/I");
 
-  m_tree->Branch("npat",&npat,"npat/I");
-  m_tree->Branch("patgx",&patgx,"patgx[npat]/F");
-  m_tree->Branch("patgy",&patgy,"patgy[npat]/F");
-  m_tree->Branch("patgz",&patgz,"patgz[npat]/F");
-  m_tree->Branch("patdgx",&patdgx,"patdgx[npat]/F");
-  m_tree->Branch("patdgy",&patdgy,"patdgy[npat]/F");
-  m_tree->Branch("patdgz",&patdgz,"patdgz[npat]/F");
-  nmdt = 0;
-  ntrig = 0;
-  nseg = 0;
-  npat = 0;
+  m_tree->Branch("npat",&m_npat,"npat/I");
+  m_tree->Branch("patgx",&m_patgx,"patgx[npat]/F");
+  m_tree->Branch("patgy",&m_patgy,"patgy[npat]/F");
+  m_tree->Branch("patgz",&m_patgz,"patgz[npat]/F");
+  m_tree->Branch("patdgx",&m_patdgx,"patdgx[npat]/F");
+  m_tree->Branch("patdgy",&m_patdgy,"patdgy[npat]/F");
+  m_tree->Branch("patdgz",&m_patdgz,"patdgz[npat]/F");
+  m_nmdt = 0;
+  m_ntrig = 0;
+  m_nseg = 0;
+  m_npat = 0;
 }
 
 void EventNtWriter::close()
@@ -110,10 +110,10 @@ void EventNtWriter::close()
 void EventNtWriter::endEvent()
 {
   m_tree->Fill();
-  nmdt = 0;
-  ntrig = 0;
-  nseg = 0;
-  npat = 0;
+  m_nmdt = 0;
+  m_ntrig = 0;
+  m_nseg = 0;
+  m_npat = 0;
 }
 
 void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, const Muon::MuonPatternCombination* pattern, bool hasPhi )
@@ -134,14 +134,14 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
     pgdir = pattern->chamberData().front().intersectDirection();
   }
 
-  if( npat < 10 ){
-     patgx[npat] = pgpos.x();
-     patgy[npat] = pgpos.y();
-     patgz[npat] = pgpos.z();
-     patdgx[npat] = pgdir.x();
-     patdgy[npat] = pgdir.y();
-     patdgz[npat] = pgdir.z();    
-     ++npat;
+  if( m_npat < 10 ){
+     m_patgx[m_npat] = pgpos.x();
+     m_patgy[m_npat] = pgpos.y();
+     m_patgz[m_npat] = pgpos.z();
+     m_patdgx[m_npat] = pgdir.x();
+     m_patdgy[m_npat] = pgdir.y();
+     m_patdgz[m_npat] = pgdir.z();    
+     ++m_npat;
   }else{
     //std::cout << " to many patterns " << std::endl;
   }
@@ -180,7 +180,7 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
       }
 
       
-      if( nseg < 50 ){
+      if( m_nseg < 50 ){
 	int seg_id = -1;
 	int seg_geo = -1;
 	double tubeDist = 0;
@@ -239,22 +239,22 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
 	  seg_id = 1000000*isBarrel+10000*name+100*(50+eta)+phi;
 // 	  std::cout << " seg_id " << seg_id << std::endl;
 	}
-	segid[nseg] = seg_id;
-	seggeo[nseg] = seg_geo;
-	seggeotd[nseg] = tubeDist;
-	seggeots[nseg] = tubeStage;
-	seggeold[nseg] = layDist;
+	m_segid[m_nseg] = seg_id;
+	m_seggeo[m_nseg] = seg_geo;
+	m_seggeotd[m_nseg] = tubeDist;
+	m_seggeots[m_nseg] = tubeStage;
+	m_seggeold[m_nseg] = layDist;
 //  	std::cout << " - tubeDist " << tubeDist
 // 		  << " tubeStage " << tubeStage 
 // 		  << " ldist " << layDist << std::endl;
 	
-	seggeoft0y[nseg] = firstTubeMl0.y();
-	seggeoft0z[nseg] = firstTubeMl0.z();
-	seggeoft1y[nseg] = firstTubeMl1.y();
-	seggeoft1z[nseg] = firstTubeMl1.z();
+	m_seggeoft0y[m_nseg] = firstTubeMl0.y();
+	m_seggeoft0z[m_nseg] = firstTubeMl0.z();
+	m_seggeoft1y[m_nseg] = firstTubeMl1.y();
+	m_seggeoft1z[m_nseg] = firstTubeMl1.z();
 	
 	//  ----------------- check if hits from more than one chamber are present
-	segid1[nseg] = -1;
+	m_segid1[m_nseg] = -1;
 	Muon::MuonPatternSegmentMaker::MdtIt mmit = mvec.begin();
 	Muon::MuonPatternSegmentMaker::MdtIt mmit_end = mvec.end();
 	for( ; mmit!=mmit_end;++mmit){
@@ -323,39 +323,39 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
 	      seg_id = 100000*isBarrel+10000*name+100*(50+eta)+phi;
 // 	      std::cout << " seg_id " << seg_id << std::endl;
 	    }
-	    segid1[nseg] = seg_id;
-	    seggeo1[nseg] = seg_geo;
-	    seggeotd1[nseg] = tubeDist;
-	    seggeots1[nseg] = tubeStage;
-	    seggeold1[nseg] = layDist;
+	    m_segid1[m_nseg] = seg_id;
+	    m_seggeo1[m_nseg] = seg_geo;
+	    m_seggeotd1[m_nseg] = tubeDist;
+	    m_seggeots1[m_nseg] = tubeStage;
+	    m_seggeold1[m_nseg] = layDist;
 // 	    std::cout << " - tubeDist " << tubeDist
 // 		      << " tubeStage " << tubeStage 
 // 		      << " ldist " << layDist << std::endl;
 	    
-	    seggeoft0y1[nseg] = firstTubeMl0.y();
-	    seggeoft0z1[nseg] = firstTubeMl0.z();
-	    seggeoft1y1[nseg] = firstTubeMl1.y();
-	    seggeoft1z1[nseg] = firstTubeMl1.z();
+	    m_seggeoft0y1[m_nseg] = firstTubeMl0.y();
+	    m_seggeoft0z1[m_nseg] = firstTubeMl0.z();
+	    m_seggeoft1y1[m_nseg] = firstTubeMl1.y();
+	    m_seggeoft1z1[m_nseg] = firstTubeMl1.z();
 	  }
 	}
 
 	// --------
 
 
-	segx[nseg] = plpos.x();
-	segy[nseg] = plpos.y();
-	segz[nseg] = plpos.z();
-	segdx[nseg] = pldir.x();
-	segdy[nseg] = pldir.y();
-	segdz[nseg] = pldir.z();
-	seggx[nseg] = pgpos.x();
-	seggy[nseg] = pgpos.y();
-	seggz[nseg] = pgpos.z();
-	segdgx[nseg] = pgdir.x();
-	segdgy[nseg] = pgdir.y();
-	segdgz[nseg] = pgdir.z();
-	segpatid[nseg] = npat-1;
-	++nseg;
+	m_segx[m_nseg] = plpos.x();
+	m_segy[m_nseg] = plpos.y();
+	m_segz[m_nseg] = plpos.z();
+	m_segdx[m_nseg] = pldir.x();
+	m_segdy[m_nseg] = pldir.y();
+	m_segdz[m_nseg] = pldir.z();
+	m_seggx[m_nseg] = pgpos.x();
+	m_seggy[m_nseg] = pgpos.y();
+	m_seggz[m_nseg] = pgpos.z();
+	m_segdgx[m_nseg] = pgdir.x();
+	m_segdgy[m_nseg] = pgdir.y();
+	m_segdgz[m_nseg] = pgdir.z();
+	m_segpatid[m_nseg] = m_npat - 1;
+	++m_nseg;
       }else{
 // 	std::cout << " to many segments " << std::endl;
       }
@@ -364,7 +364,7 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
       Muon::MuonPatternSegmentMaker::ClusterIt cit_end = rotRegion.clusters.end();
       for( ; cit!=cit_end;++cit ){
 	
-	if( ntrig < 500 ){
+	if( m_ntrig < 500 ){
 	  Identifier id = (*cit)->identify();
 	  int clid(-1);
 	  int eta = 0;
@@ -387,17 +387,17 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
 
 	  Amg::Vector3D gpos = (*cit)->globalPosition();
 	  Amg::Vector3D lpos = gToStation*gpos;
-	  trigerr[ntrig] = std::sqrt((*cit)->localCovariance()(0,0));
-	  trigx[ntrig] = lpos.x();
-	  trigy[ntrig] = lpos.y();
-	  trigz[ntrig] = lpos.z();
-	  triggx[ntrig] = gpos.x();
-	  triggy[ntrig] = gpos.y();
-	  triggz[ntrig] = gpos.z();
-	  trigid[ntrig] = clid;
-	  trigpatid[ntrig] = npat - 1;
-	  trigsegid[ntrig] = nseg - 1;
-	  ++ntrig;
+	  m_trigerr[m_ntrig] = std::sqrt((*cit)->localCovariance()(0,0));
+	  m_trigx[m_ntrig] = lpos.x();
+	  m_trigy[m_ntrig] = lpos.y();
+	  m_trigz[m_ntrig] = lpos.z();
+	  m_triggx[m_ntrig] = gpos.x();
+	  m_triggy[m_ntrig] = gpos.y();
+	  m_triggz[m_ntrig] = gpos.z();
+	  m_trigid[m_ntrig] = clid;
+	  m_trigpatid[m_ntrig] = m_npat - 1;
+	  m_trigsegid[m_ntrig] = m_nseg - 1;
+	  ++m_ntrig;
 	}else{
 // 	  std::cout << " Too many trigger hits " << std::endl;
 	}
@@ -407,7 +407,7 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
       Muon::MuonPatternSegmentMaker::MdtIt mmit_end = mvec.end();
       for( ; mmit!=mmit_end;++mmit){
 	
-	if( nmdt < 500 ){
+	if( m_nmdt < 500 ){
 	  Identifier id = (*mmit)->identify();
 
 	  int mdt_id = -1;
@@ -421,19 +421,19 @@ void EventNtWriter::fill( Muon::MuonPatternSegmentMaker::ROTsPerRegion& rots, co
 	  }
 	  Amg::Vector3D gpos = (*mmit)->globalPosition();
 	  Amg::Vector3D lpos = gToStation*gpos;
-	  mdtt[nmdt] = 0.;
-	  mdtr[nmdt] = (*mmit)->localParameters()[Trk::locR];
-	  mdtdr[nmdt] = sqrt((*mmit)->localCovariance()(Trk::locR,Trk::locR))*errorScaleFactor;
-	  mdtx[nmdt] = lpos.x();
-	  mdty[nmdt] = lpos.y();
-	  mdtz[nmdt] = lpos.z();
-	  mdtgx[nmdt] = gpos.x();
-	  mdtgy[nmdt] = gpos.y();
-	  mdtgz[nmdt] = gpos.z();
-	  mdtid[nmdt] = mdt_id;
-	  mdtpatid[nmdt] = npat -1;
-	  mdtsegid[nmdt] = nseg -1;
-	  ++nmdt;
+	  m_mdtt[m_nmdt] = 0.;
+	  m_mdtr[m_nmdt] = (*mmit)->localParameters()[Trk::locR];
+	  m_mdtdr[m_nmdt] = sqrt((*mmit)->localCovariance()(Trk::locR,Trk::locR))*errorScaleFactor;
+	  m_mdtx[m_nmdt] = lpos.x();
+	  m_mdty[m_nmdt] = lpos.y();
+	  m_mdtz[m_nmdt] = lpos.z();
+	  m_mdtgx[m_nmdt] = gpos.x();
+	  m_mdtgy[m_nmdt] = gpos.y();
+	  m_mdtgz[m_nmdt] = gpos.z();
+	  m_mdtid[m_nmdt] = mdt_id;
+	  m_mdtpatid[m_nmdt] = m_npat - 1;
+	  m_mdtsegid[m_nmdt] = m_nseg - 1;
+	  ++m_nmdt;
 	}else{
 // 	  std::cout << " to many mdt hits " << std::endl;
 	}
