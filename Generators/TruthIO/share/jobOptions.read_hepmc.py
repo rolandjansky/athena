@@ -16,7 +16,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 #--------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 job=AlgSequence()
-from ReadHepMCFromFile.ReadHepMCFromFileConf import HepMCReadFromFile
+from TruthIO.TruthIOConf import HepMCReadFromFile
 job += HepMCReadFromFile()
 
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )

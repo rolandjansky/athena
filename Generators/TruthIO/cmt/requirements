@@ -25,3 +25,6 @@ library TruthIO *.cxx *.F -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
+
+# Link the package explicitly against the HepMCfio library:
+apply_pattern cmake_add_command command="find_package(HepMC COMPONENTS HepMC HepMCfio)"

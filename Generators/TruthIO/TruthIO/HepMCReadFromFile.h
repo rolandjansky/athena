@@ -9,6 +9,8 @@
 #include "HepMC/IO_GenEvent.h"
 #include <memory>
 
+class StoreGateSvc;
+
 class HepMCReadFromFile : public GenBase {
 public:
 
@@ -20,6 +22,8 @@ private:
 
   std::string m_input_file;
   int m_event_number;
+  
+  StoreGateSvc* m_sgSvc;
 
   std::auto_ptr<HepMC::IO_GenEvent> m_hepmcio;
 };
