@@ -40,7 +40,19 @@ class RegSelModule : public ZRObject {
 public:
 
   RegSelModule();
+  /// constructor for a rectangular detector element for 
+  /// backwards compatability
   RegSelModule(double zmin,   double zmax, 
+	       double rmin,   double rmax, 
+	       double phimin, double phimax, 
+	       int layer, 
+	       int detector, 
+	       uint32_t       robid=0, 
+	       IdentifierHash hashid=0);
+
+  /// constructor for new trapezoidal detector elements
+  RegSelModule(double zmin,   double zmax, 
+	       double z2min,  double z2max, 
 	       double rmin,   double rmax, 
 	       double phimin, double phimax, 
 	       int layer, 

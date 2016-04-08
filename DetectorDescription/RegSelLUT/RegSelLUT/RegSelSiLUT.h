@@ -47,7 +47,7 @@
 class RegSelSiLUT : public RegSelName {
 
 public:
-  typedef enum { UNDEF, PIXEL, SCT, TRT } DET;
+  typedef enum { UNDEF, PIXEL, SCT, TRT, FTK } DET;
   
   RegSelSiLUT() : m_ID(UNDEF) { } 
   RegSelSiLUT(DET id);
