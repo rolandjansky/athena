@@ -32,7 +32,10 @@
 // GeneratorObjectsTPCnv includes
 #include "GeneratorObjectsTPCnv/McEventCollection_p4.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+
 // Forward declaration
+class IHepMCWeightSvc; 
 class MsgStream;
 namespace HepMC { struct DataPool; }
 
@@ -139,6 +142,7 @@ class McEventCollectionCnv_p4 : public T_AthenaPoolTPCnvBase<
  protected:
 
   bool m_isPileup;
+  ServiceHandle<IHepMCWeightSvc> m_hepMCWeightSvc; 
 };
 
 ///////////////////////////////////////////////////////////////////

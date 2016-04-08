@@ -19,6 +19,8 @@
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p4.h"
 #include "HepMcDataPool.h"
 
+#include "HepMCWeightSvc/IHepMCWeightSvc.h"
+
 namespace
 {
   // helper method to compute the number of particles and vertices in a
@@ -50,12 +52,12 @@ namespace
 
 McEventCollectionCnv_p4::McEventCollectionCnv_p4() :
   Base_t( ),
-  m_isPileup(false)
+  m_isPileup(false),m_hepMCWeightSvc("HepMCWeightSvc","McEventCollectionCnv_p4")
 {}
 
 McEventCollectionCnv_p4::McEventCollectionCnv_p4( const McEventCollectionCnv_p4& rhs ) :
   Base_t( rhs ),
-  m_isPileup(false)
+  m_isPileup(false),m_hepMCWeightSvc("HepMCWeightSvc","McEventCollectionCnv_p4")
 {}
 
 McEventCollectionCnv_p4&
@@ -64,6 +66,7 @@ McEventCollectionCnv_p4::operator=( const McEventCollectionCnv_p4& rhs )
   if ( this != &rhs ) {
     Base_t::operator=( rhs );
     m_isPileup=rhs.m_isPileup;
+    m_hepMCWeightSvc = rhs.m_hepMCWeightSvc;
   }
   return *this;
 }
@@ -136,6 +139,8 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
       genEvt->m_random_states         = persEvt.m_randomStates;
       genEvt->m_vertex_barcodes.clear();
       genEvt->m_particle_barcodes.clear();
+      //restore weight names from the dedicated svc (which was keeping them in metadata for efficiency)
+      genEvt->m_weights.m_names = m_hepMCWeightSvc->weightNames();
 
       // pdfinfo restore
       delete genEvt->m_pdf_info; genEvt->m_pdf_info = 0;
@@ -228,6 +233,8 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
       const int signalProcessVtx = genEvt->m_signal_process_vertex
         ? genEvt->m_signal_process_vertex->barcode()
         : 0;
+      //save the weight names to metadata via the HepMCWeightSvc
+      m_hepMCWeightSvc->setWeightNames( genEvt->m_weights.m_names ).ignore(); 
       persObj->m_genEvents.
         push_back( GenEvent_p4( genEvt->m_signal_process_id,
                                 genEvt->m_event_number,

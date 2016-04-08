@@ -16,7 +16,7 @@ private
 use AthenaKernel     AthenaKernel-*        Control
 use AthAllocators    AthAllocators-*       Control
 
-use EvgenProdTools  EvgenProdTools-* Generators
+use HepMCWeightSvc  HepMCWeightSvc-* Generators
 
 end_private
 
