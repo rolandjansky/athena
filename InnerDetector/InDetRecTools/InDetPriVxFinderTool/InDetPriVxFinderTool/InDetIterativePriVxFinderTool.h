@@ -13,17 +13,7 @@
  * vertex finding tool, which uses the Adaptive Vertex 
  * Fitter to reject outliers not belonging to the primary 
  * vertex interaction.
- * 
- * ------------------------------------------------------
- * Changes:
  *
- * David Shope <david.richard.shope@cern.ch> (2016-04-26)
- *
- * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
- *
- *   findVertex will now always return an xAOD::VertexContainer,
- *   even when using a TrackCollection or a TrackParticleBaseCollection
- *   as input.
  *
  ***************************************************************************/
 
@@ -43,6 +33,7 @@
  * Forward declarations 
  */
  
+class VxContainer;
 class IBeamCondSvc;
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -52,8 +43,10 @@ class IBeamCondSvc;
 namespace Trk
 {
  class IVertexFitter;
+ class VxCandidate;
  class Track;
  class TrackParticleBase;
+ class RecVertex;
  class ITrackLink;
  class IVertexSeedFinder;
  class IImpactPoint3dEstimator;
@@ -94,27 +87,27 @@ public:
     * a VxContainer.
     */
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
+   VxContainer* findVertex(const TrackCollection* trackTES);//by GP: deleted const before VxContainer*
+   VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trackTES);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>  findVertex(const xAOD::TrackParticleContainer* trackParticles);
 
    StatusCode finalize();
    
  private:
+   
+   VxContainer* findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const;
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const;
-
-   void removeCompatibleTracks(xAOD::Vertex * myxAODVertex,
+   void removeCompatibleTracks(Trk::VxCandidate * myVxCandidate,
                                std::vector<const Trk::TrackParameters*> & perigeesToFit,
                                std::vector<Trk::ITrackLink*> & seedTracks) const;
-
+   
    void removeAllFrom(std::vector<const Trk::TrackParameters*> & perigeesToFit,
                       std::vector<Trk::ITrackLink*> & seedTracks) const;
 
    double compatibility(const Trk::TrackParameters& measPerigee,
-                        const xAOD::Vertex & vertex) const;
+                        const Trk::RecVertex & vertex) const;
 
-   void countTracksAndNdf(xAOD::Vertex * myxAODVertex,
+   void countTracksAndNdf(Trk::VxCandidate * myVxCandidate,
                           double & ndf, int & ntracks) const;
 
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
@@ -142,13 +135,13 @@ public:
    bool m_doMaxTracksCut; 
    unsigned int m_maxTracks;
 
-   void SGError(std::string errService);
+   void m_SGError(std::string errService);
 
    /**
     * Internal method to print the parameters setting
     */
 
-   virtual void printParameterSettings();
+   virtual void m_printParameterSettings();
  
 
 
