@@ -43,66 +43,80 @@ namespace {
     return ( abs(truthPart->pdgId()) == 13) ;        
   }
 
-
-
-
-  // This part is copied and adapted from PhysicsAnalysis/D3PDMaker/TruthD3PDMaker/trunk/src/TruthJetFilterTool.cxx
-  bool isWZDecay(const xAOD::TruthParticle* p, std::vector<const xAOD::TruthParticle*> wzLeptons, double photonCone2) {
+  bool isWZDecay(const xAOD::TruthParticle* p) {
     int pdg_id = abs(p->pdgId() );
-
-    if(! p->hasProdVtx() ) return false;
+    int mom_pdg_id = pdg_id;
     const xAOD::TruthVertex* vprod = p->prodVtx();
     const xAOD::TruthVertex*oldVprod = vprod;
-         
-    if (vprod && vprod->nIncomingParticles() > 0) {
-      int mom_pdg_id = pdg_id;
-      //int mom_barcode = barcode;
-      // Ascend decay chain looking for when actual decay occurs (not jsut evolution of particle)
-      while (pdg_id == mom_pdg_id) {
-        const xAOD::TruthParticle* mother = vprod->incomingParticle(0) ;
-        if (mother) {
-          mom_pdg_id = abs(mother->pdgId());
-          //mom_barcode = mother->barcode();
-        } else break;
-        if (pdg_id != mom_pdg_id) break;
+    //int mom_barcode = barcode;
+    // Ascend decay chain looking for when actual decay occurs (not jsut evolution of particle)
+    while (pdg_id == mom_pdg_id) {
+      const xAOD::TruthParticle* mother = vprod->incomingParticle(0) ;
+      if (mother) {
+	mom_pdg_id = abs(mother->pdgId());
+	//mom_barcode = mother->barcode();
+      } else break;
+      if (pdg_id != mom_pdg_id) break;
         
-        // Protect against strange infinite reference in sherpa samples
-        if(!mother->hasProdVtx()) break;
-        if(oldVprod==mother->prodVtx())  break;
-        oldVprod = vprod;        
-        vprod = mother->prodVtx();
-        if (!vprod || vprod->nIncomingParticles() == 0) break;
-      } // End while loop
+      // Protect against strange infinite reference in sherpa samples
+      if(!mother->hasProdVtx()) break;
+      if(oldVprod==mother->prodVtx())  break;
+      oldVprod = vprod;        
+      vprod = mother->prodVtx();
+      if (!vprod || vprod->nIncomingParticles() == 0) break;
+    } // End while loop
 
       // The following vertex-based identification of W/Z's is needed for SHERPA
       // samples where the W/Z particle is not explicitly in the particle record.
       // At this point if we have a valid vertex, it should be a true decay vertex.
       // If it is a W or Z then two of those decay products should be lepton/neutrino
-      int nDecay=0;
-      // Prompt W/Z's should come from a vertex with more than one incoming particle
-      // This suppresses fave Z's from conversions
-      if (vprod && vprod->nIncomingParticles() >1)
-        {
-          //std::cout << "Looping over vertex daughters: "<< vprod->particles_out_size() << std::endl;
-          for( const auto& elTruth : vprod->outgoingParticleLinks() ){
-            if((abs((*elTruth)->pdgId())>10 && abs((*elTruth)->pdgId())<17) ) nDecay++;
-          }
-        }
+    int nDecay=0;
+    // Prompt W/Z's should come from a vertex with more than one incoming particle
+    // This suppresses fave Z's from conversions
+    if (vprod && vprod->nIncomingParticles() >1)
+      {
+	//std::cout << "Looping over vertex daughters: "<< vprod->particles_out_size() << std::endl;
+	for( const auto& elTruth : vprod->outgoingParticleLinks() ){
+	  if((abs((*elTruth)->pdgId())>10 && abs((*elTruth)->pdgId())<17) ) nDecay++;
+	}
+      }
+
+    bool isWZ = (nDecay==2);
+    return (mom_pdg_id == 23 || mom_pdg_id == 24 || isWZ);
+  }
 
 
-      bool isWZ = (nDecay==2);
-      if (mom_pdg_id == 23 || mom_pdg_id == 24 || isWZ) { // paricle decends from W or Z
+  // This part is copied and adapted from PhysicsAnalysis/D3PDMaker/TruthD3PDMaker/trunk/src/TruthJetFilterTool.cxx
+  bool isWZDecay(const xAOD::TruthParticle* p, std::vector<const xAOD::TruthParticle*>& wzLeptons, double photonCone2) {
+    int pdg_id = abs(p->pdgId() );
+
+    if(! p->hasProdVtx() ) return false;
+    const xAOD::TruthVertex* vprod = p->prodVtx();
+         
+    if (vprod && vprod->nIncomingParticles() > 0) {
+      if (isWZDecay(p)) { // paricle decends from W or Z
         //  Save lepton reference for comparison to FSR photons (only for muons and electrons)
-        if(p->status()==1 && (  (pdg_id==11) || (pdg_id==13) ) ) wzLeptons.push_back(p);
-        //if(p->status()==1 && (abs(p->pdgId())==11 || abs(p->pdgId())==13) ) std::cout << "WZParticle found pdgId: " << p->pdgId() << " status: " << status << std::endl;
+        if(p->status()==1 && (  (pdg_id==11) || (pdg_id==13) ) ) {
+	  wzLeptons.push_back(p);
+	  // std::cout << "isWZDecay found pdgId: " << pdg_id << " status: " << p->status() << std::endl;
+	  // std::cout << "isWZDecay: have " << wzLeptons.size() << " W/Z leptons" << std::endl;
+	}
  
         // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
         if( pdg_id == 22 && photonCone2>0)
           {
-            //if(p->status()==1 && (abs(p->pdgId())==22) ) std::cout << "WZParticle found pdgId: " << p->pdgId()y << " status: " << status << std::endl;
+            if(p->status()==1 && (abs(p->pdgId())==22) ) {
+	      // std::cout << "isWZDecay: found pdgId: " << p->pdgId() << " status: " << p->status() << std::endl;
+	      // std::cout << "isWZDecay: have " << wzLeptons.size() << " W/Z leptons" << std::endl;
+	    }
             for( auto lep: wzLeptons) {
               double deltaR2 = jet::JetDistances::deltaR2(*p, *lep);
-              if( deltaR2 < photonCone2 ) return true;
+	      // std::cout << "Photon/lepton dR = " << sqrt(deltaR2) << std::endl;
+              if( deltaR2 < photonCone2 ) {
+		// std::cout << "  isWZDecay: Killed a photon with pt " << p->pt()
+		// 	  << " near to a " << lep->pdgId() << " with pt " << lep->pt() << std::endl;
+		return true;
+	      }
             }
           }
         else // not a photon so exclude
@@ -131,7 +145,9 @@ namespace {
     
     for( const auto& elParent : prod->incomingParticleLinks() ){
       int parentId = (*elParent)->pdgId();
-      if(abs(parentId) == 15) {
+      if(abs(parentId) == 15 && isWZDecay(*elParent)) {
+	// std::cout << "isLeptonFromTau: particle " << pdg << " with pt " << part->pt()
+	// 	  << " has tau parent!" << std::endl;
         return true; // Has tau parent
       }
 
@@ -256,7 +272,7 @@ bool JetTruthParticleSelectorTool::selector(const xAOD::TruthParticle* truthPart
     break;
   case NoWZDecay:
     result = ( isStable(truthPart) && passKinematics(truthPart) &&
-               !isWZDecay(truthPart, m_wzLeptons, m_wzPhotonCone) &&
+               !isWZDecay(truthPart, m_wzLeptons, m_wzPhotonCone*m_wzPhotonCone) &&
                !isLeptonFromTau(truthPart) );
     break;
   default:
