@@ -12,10 +12,10 @@ use CaloDetDescr        CaloDetDescr-*                  Calorimeter
 use AthenaPoolUtilities	AthenaPoolUtilities-*	        Database/AthenaPOOL
 use Identifier          Identifier-*                    DetectorDescription
 use AthenaBaseComps     AthenaBaseComps-*	        Control
+use xAODEventInfo       xAODEventInfo-*                 Event/xAOD
 
 private
 use AtlasCORAL          AtlasCORAL-*                    External
-use EventInfo		EventInfo-*			Event
 end_private
 
 library CaloCondBlobAlgs *.cxx -s=components *.cxx

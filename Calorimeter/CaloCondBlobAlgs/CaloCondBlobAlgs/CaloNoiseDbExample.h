@@ -35,7 +35,7 @@
 #include <map>
 
 class StoreGateSvc;
-class EventInfo;
+#include "xAODEventInfo/EventInfo.h"
 class CaloCondBlobFlt;
 class Identifier; 
 class CaloIdManager;
@@ -66,7 +66,7 @@ class CaloNoiseDbExample: public AthAlgorithm
   virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
   
   //=== non-property members
-  const EventInfo*          m_evt;
+  const xAOD::EventInfo*    m_evt;
   //
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const CaloCell_ID*       m_calo_id;

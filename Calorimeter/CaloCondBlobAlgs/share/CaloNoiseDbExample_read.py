@@ -27,6 +27,8 @@ DetFlags.Tile_setOn()
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence+=xAODMaker__EventInfoCnvAlg()
 
 # Get a handle to the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

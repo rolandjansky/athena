@@ -11,10 +11,6 @@
 //=== Gaudi includes
 #include "GaudiKernel/MsgStream.h"
 
-//=== Event Info 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 //=== AttributeList
 #include "CoralBase/Blob.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -79,10 +75,10 @@ CaloNoiseDbExample::execute()
   
   //=== print run/evt/lbn/time info for each event
   ATH_CHECK( evtStore()->retrieve(m_evt) );
-  ATH_MSG_DEBUG ( "Event: [" << m_evt->event_ID()->run_number()
-                  << "," << m_evt->event_ID()->event_number()
-                  << "," << m_evt->event_ID()->lumi_block()
-                  << ":" << m_evt->event_ID()->time_stamp()
+  ATH_MSG_DEBUG ( "Event: [" << m_evt->runNumber()
+                  << "," << m_evt->eventNumber()
+                  << "," << m_evt->lumiBlock()
+                  << ":" << m_evt->timeStamp()
                   << "]" );
   
 
