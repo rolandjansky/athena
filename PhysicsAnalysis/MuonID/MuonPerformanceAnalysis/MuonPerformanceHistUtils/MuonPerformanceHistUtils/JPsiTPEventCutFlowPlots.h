@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ZMUMUTPEVENTCUTFLOWPLOTS_H
-#define ZMUMUTPEVENTCUTFLOWPLOTS_H
+#ifndef JPSITPEVENTCUTFLOWPLOTS_H
+#define JPSITPEVENTCUTFLOWPLOTS_H
 
 #include "MuonPerformanceHistUtils/MuonTPCutFlowBase.h"
 #include "TrkValHistUtils/PlotBase.h"
 
-class ZmumuTPEventCutFlowPlots: public MuonTPCutFlowBase {
+class JPsiTPEventCutFlowPlots: public MuonTPCutFlowBase {
  public:
-	ZmumuTPEventCutFlowPlots(PlotBase* pParent, std::string sDir);
+	JPsiTPEventCutFlowPlots(PlotBase* pParent, std::string sDir);
 
  private:
 
@@ -20,4 +20,4 @@ class ZmumuTPEventCutFlowPlots: public MuonTPCutFlowBase {
 
 };
 
-#endif		// ZMUMUTPEVENTCUTFLOWPLOTS_H
+#endif		// JPSITPEVENTCUTFLOWPLOTS_H

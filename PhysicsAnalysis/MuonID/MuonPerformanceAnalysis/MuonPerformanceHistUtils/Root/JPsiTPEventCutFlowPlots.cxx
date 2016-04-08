@@ -3,19 +3,21 @@
 */
 
 /*
- * ZmumuBasicTPEfficiencyPlots.cxx
+ * JPsiMuonTPSelectionTool.cxx
  *
- *  Created on: Sep 2, 2014
- *      Author: goblirsc
+ *  Created on: Dec 22, 2014
+ *  Adapted for J/Psi by Maximiliano Sioli
+ *
  */
 
-#include "MuonPerformanceHistUtils/ZmumuTPEventCutFlowPlots.h"
+#include "MuonPerformanceHistUtils/JPsiTPEventCutFlowPlots.h"
 
-ZmumuTPEventCutFlowPlots::ZmumuTPEventCutFlowPlots(PlotBase* pParent, std::string sDir)
+JPsiTPEventCutFlowPlots::JPsiTPEventCutFlowPlots(PlotBase* pParent, std::string sDir)
   : MuonTPCutFlowBase (pParent, sDir) {
 
     std::vector<std::string> main_cf_steps;
     main_cf_steps.push_back("Processed");
+    main_cf_steps.push_back("GRL");
     main_cf_steps.push_back("Trigger");
     main_cf_steps.push_back("HaveTag");
     main_cf_steps.push_back("HaveProbe");

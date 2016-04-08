@@ -13,11 +13,11 @@
 #endif
 #include "xAODEventInfo/EventInfo.h"
 
+#include <iostream>
 
 void MuonResonancePlots::initializePlots(){
-
+  std::cout<<"booking MuonResonancePlots"<<std::endl;
   BookPlots();
-
 }
 
 void MuonResonancePlots::setBinning(std::map<std::string, std::vector<double> > bins ){ m_binning=bins;}
@@ -142,6 +142,15 @@ void MuonResonancePlots::BookPlots(){
 }
 
 void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, int trk){
+
+  if(trk==0 && ( !mu1st.trackParticle(xAOD::Muon::CombinedTrackParticle) 
+		 || !mu2nd.trackParticle(xAOD::Muon::CombinedTrackParticle) ) ) return;
+  
+  if(trk==1 && ( !mu1st.trackParticle(xAOD::Muon::InnerDetectorTrackParticle) 
+		 || !mu2nd.trackParticle(xAOD::Muon::InnerDetectorTrackParticle) ) ) return;
+
+  if(trk==2 && ( !mu1st.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) 
+		 || !mu2nd.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) ) ) return;
   
   TLorentzVector V,l1,l2;
   l1 = sortedPair(getTrackTLV(mu1st, trk), getTrackTLV(mu2nd, trk)).first;
@@ -159,72 +168,72 @@ void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, 
 
   // bool do_print = false;
   // if(do_print) PrintVectors(l1, l2, V, l1_truth, l2_truth, V_truth, trk, w);
-  
+
   // Filling histos 
   Fill1D( mu_1stAuthor, int(mu1st.author()), w);
   Fill1D( mu_2ndAuthor, int(mu2nd.author()), w);
-  
-  Fill1D( mu_1stPt,  l1.Pt(), w);
-  Fill1D( mu_2ndPt,  l2.Pt(), w);
-  Fill1D( mu_avPt,   (l1.Pt()+l2.Pt())*0.5, w);
+
+  Fill1D( mu_1stPt,  l1.Pt()/fGeV, w);
+  Fill1D( mu_2ndPt,  l2.Pt()/fGeV, w);
+  Fill1D( mu_avPt,   (l1.Pt()+l2.Pt())*0.5/fGeV, w);
   Fill1D( mu_1stPhi, l1.Phi(), w);
   Fill1D( mu_2ndPhi, l2.Phi(), w);
   Fill1D( mu_1stEta, l1.Eta(), w);
   Fill1D( mu_2ndEta, l2.Eta(), w);
-  
-  Fill1D( Mmumu, V.M(), w);
-  Fill1D( Z_pt,  V.Pt(), w);
-  Fill1D( Z_phi, V.Phi(), w);
- 
-  Fill2D( h_Zpt_mu_1stPt,    l1.Pt(),  V.Pt(), w);
-  Fill2D( h_mu_1stPt_1stPhi, l1.Phi(), l1.Pt(), w);
-  Fill2D( h_mu_2ndPt_2ndPhi, l2.Phi(), l2.Pt(), w);    
-  Fill2D( h_Zpt_mu_avPt,     (l1.Pt()+l2.Pt())*0.5, V.Pt(), w); 
 
-  Fill2D( h_Zm_1stPhi,  l1.Phi(), V.M(), w);
-  Fill2D( h_Zm_2ndPhi,  l2.Phi(), V.M(), w);
-  Fill2D( h_Zm_1stEta,  l1.Eta(), V.M(), w);
-  Fill2D( h_Zm_2ndEta,  l2.Eta(), V.M(), w);
-  Fill2D( h_Zm_1stPt,   l1.Pt(),  V.M(), w);
-  Fill2D( h_Zm_2ndPt,   l2.Pt(),  V.M(), w);
-  Fill2D( h_Zm_mu_avPt, (l1.Pt()+l2.Pt())*0.5, V.M(), w);
-  Fill2D( h_Zm_Pexp,    p_star(l1, l2), V.M(), w);
-  
-  Fill2D( h_Zm_1stPhi_truth,  l1.Phi(), V_truth.M(), w);
-  Fill2D( h_Zm_2ndPhi_truth,  l2.Phi(), V_truth.M(), w);
-  Fill2D( h_Zm_1stEta_truth,  l1.Eta(), V_truth.M(), w);
-  Fill2D( h_Zm_2ndEta_truth,  l2.Eta(), V_truth.M(), w);
-  Fill2D( h_Zm_1stPt_truth,   l1.Pt(),  V_truth.M(), w);
-  Fill2D( h_Zm_2ndPt_truth,   l2.Pt(),  V_truth.M(), w);  
-  Fill2D( h_Zm_mu_avPt_truth, (l1.Pt()+l2.Pt())*0.5, V_truth.M(), w);
-  Fill2D( h_Zm_Pexp_truth,    p_star(l1,l2), V_truth.M(), w); 
- 
-  Fill2D( Res_mu_1stPt_2D,  l1_truth.Pt(),  l1.Pt()-l1_truth.Pt(), w); 
-  Fill2D( Res_mu_2ndPt_2D,  l2_truth.Pt(),  l2.Pt()-l2_truth.Pt(), w);
-  Fill2D( Res_mu_1stPhi_2D, l1_truth.Phi(), l1.Phi()-l1_truth.Phi(), w);
-  Fill2D( Res_mu_2ndPhi_2D, l2_truth.Phi(), l2.Phi()-l2_truth.Phi(), w);
-  Fill2D( Res_mu_1stEta_2D, l1_truth.Eta(), l1.Eta()-l1_truth.Eta(), w);
-  Fill2D( Res_mu_2ndEta_2D, l2_truth.Eta(), l2.Eta()-l2_truth.Eta(), w);
-  
-  Fill2D( Res_Zm_2D,      V_truth.M(),   V.M()-V_truth.M(), w);
-  Fill2D( Res_Zm_Eta_2D,  l1.Eta(),      V.M()-V_truth.M(), w);
-  Fill2D( Res_Zm_Phi_2D,  l1.Phi(),      V.M()-V_truth.M(), w);
-  Fill2D( Res_Zm_Pt_2D,   l1.Pt(),       V.M()-V_truth.M(), w);
-  Fill2D( Res_Zm_Pexp_2D, p_star(l1,l2), V.M()-V_truth.M(), w);
-  Fill2D( Res_Zpt_2D,     V_truth.Pt(),  V.Pt()-V_truth.Pt(), w); 
-  Fill2D( Res_Zphi_2D,    V_truth.Phi(), V.Phi()-V_truth.Phi(), w);
-   
+  Fill1D( Mmumu, V.M()/fGeV, w);
+  Fill1D( Z_pt,  V.Pt()/fGeV, w);
+  Fill1D( Z_phi, V.Phi(), w);
+
+  Fill2D( h_Zpt_mu_1stPt,    l1.Pt()/fGeV,  V.Pt()/fGeV, w);
+  Fill2D( h_mu_1stPt_1stPhi, l1.Phi(),      l1.Pt()/fGeV, w);
+  Fill2D( h_mu_2ndPt_2ndPhi, l2.Phi(),      l2.Pt()/fGeV, w);    
+  Fill2D( h_Zpt_mu_avPt,     (l1.Pt()+l2.Pt())*0.5/fGeV, V.Pt()/fGeV, w); 
+
+  Fill2D( h_Zm_1stPhi,  l1.Phi(), V.M()/fGeV, w);
+  Fill2D( h_Zm_2ndPhi,  l2.Phi(), V.M()/fGeV, w);
+  Fill2D( h_Zm_1stEta,  l1.Eta(), V.M()/fGeV, w);
+  Fill2D( h_Zm_2ndEta,  l2.Eta(), V.M()/fGeV, w);
+  Fill2D( h_Zm_1stPt,   l1.Pt()/fGeV,  V.M()/fGeV, w);
+  Fill2D( h_Zm_2ndPt,   l2.Pt()/fGeV,  V.M()/fGeV, w);
+  Fill2D( h_Zm_mu_avPt, (l1.Pt()+l2.Pt())*0.5/fGeV, V.M()/fGeV, w);
+  Fill2D( h_Zm_Pexp,    p_star(l1, l2),             V.M()/fGeV, w);
+
+  Fill2D( h_Zm_1stPhi_truth,  l1.Phi(), V_truth.M()/fGeV, w);
+  Fill2D( h_Zm_2ndPhi_truth,  l2.Phi(), V_truth.M()/fGeV, w);
+  Fill2D( h_Zm_1stEta_truth,  l1.Eta(), V_truth.M()/fGeV, w);
+  Fill2D( h_Zm_2ndEta_truth,  l2.Eta(), V_truth.M()/fGeV, w);
+  Fill2D( h_Zm_1stPt_truth,   l1.Pt()/fGeV,               V_truth.M()/fGeV, w);
+  Fill2D( h_Zm_2ndPt_truth,   l2.Pt()/fGeV,               V_truth.M()/fGeV, w);  
+  Fill2D( h_Zm_mu_avPt_truth, (l1.Pt()+l2.Pt())*0.5/fGeV, V_truth.M()/fGeV, w);
+  Fill2D( h_Zm_Pexp_truth,    p_star(l1,l2),              V_truth.M()/fGeV, w); 
+
+  Fill2D( Res_mu_1stPt_2D,  l1_truth.Pt()/fGeV,  l1.Pt()-l1_truth.Pt()/fGeV, w); 
+  Fill2D( Res_mu_2ndPt_2D,  l2_truth.Pt()/fGeV,  l2.Pt()-l2_truth.Pt()/fGeV, w);
+  Fill2D( Res_mu_1stPhi_2D, l1_truth.Phi(),      l1.Phi()-l1_truth.Phi(), w);
+  Fill2D( Res_mu_2ndPhi_2D, l2_truth.Phi(),      l2.Phi()-l2_truth.Phi(), w);
+  Fill2D( Res_mu_1stEta_2D, l1_truth.Eta(),      l1.Eta()-l1_truth.Eta(), w);
+  Fill2D( Res_mu_2ndEta_2D, l2_truth.Eta(),      l2.Eta()-l2_truth.Eta(), w);
+
+  Fill2D( Res_Zm_2D,      V_truth.M()/fGeV,   (V.M()-V_truth.M())/fGeV, w);
+  Fill2D( Res_Zm_Eta_2D,  l1.Eta(),           (V.M()-V_truth.M())/fGeV, w);
+  Fill2D( Res_Zm_Phi_2D,  l1.Phi(),           (V.M()-V_truth.M())/fGeV, w);
+  Fill2D( Res_Zm_Pt_2D,   l1.Pt()/fGeV,       (V.M()-V_truth.M())/fGeV, w);
+  Fill2D( Res_Zm_Pexp_2D, p_star(l1,l2),      (V.M()-V_truth.M())/fGeV, w);
+  Fill2D( Res_Zpt_2D,     V_truth.Pt()/fGeV,  (V.Pt()-V_truth.Pt())/fGeV, w); 
+  Fill2D( Res_Zphi_2D,    V_truth.Phi(),      V.Phi()-V_truth.Phi(), w);
+
   FillTwice( ChiSquared, getChiSquared(mu1st,trk), getChiSquared(mu2nd,trk), w); 
-  FillTwice( p_pTRUE, deltaPt(l1, l1_truth), deltaPt(l2, l2_truth), w); 
-  FillTwice( pID_pME, deltaPt(getTrackTLV(mu1st, 1), getTrackTLV(mu1st, 2)), deltaPt(getTrackTLV(mu2nd, 1), getTrackTLV(mu2nd, 2)), w); 
-  
-  Fill2D( Z_m_etaphi,        l1.Eta(), l1.Phi(),   V.M());
-  Fill2D( DeltaZ_m_etaphi,   l1.Eta(), l1.Phi(),  (V.M()-M0())/M0());
-  Fill2D( DeltaZ_m_q_etaphi, l1.Eta(), l1.Phi(),   mu1st.charge()*(V.M()-M0())/M0()); 
-  Fill2D( p_pTRUE_etapt,     l1.Eta(), l1.Pt(),    deltaPt(l1, l1_truth) );
-  Fill2D( p_pTRUE_etapt,     l2.Eta(), l2.Pt(),    deltaPt(l2, l2_truth) ); 
-  Fill2D( p_pTRUE_etaphi,    l1.Eta(), l1.Phi(),   deltaPt(l1, l1_truth) );
-  Fill2D( p_pTRUE_etaphi,    l2.Eta(), l2.Phi(),   deltaPt(l2, l2_truth) );
+  FillTwice( p_pTRUE,    deltaPt(l1, l1_truth),    deltaPt(l2, l2_truth), w); 
+  FillTwice( pID_pME,    deltaPt(getTrackTLV(mu1st, 1), getTrackTLV(mu1st, 2)), deltaPt(getTrackTLV(mu2nd, 1), getTrackTLV(mu2nd, 2)), w); 
+
+  Fill2D( Z_m_etaphi,        l1.Eta(), l1.Phi(),        V.M()/fGeV);
+  Fill2D( DeltaZ_m_etaphi,   l1.Eta(), l1.Phi(),        (V.M()-M0())/M0());
+  Fill2D( DeltaZ_m_q_etaphi, l1.Eta(), l1.Phi(),        mu1st.charge()*(V.M()-M0())/M0()); 
+  Fill2D( p_pTRUE_etapt,     l1.Eta(), l1.Pt()/fGeV,    deltaPt(l1, l1_truth) );
+  Fill2D( p_pTRUE_etapt,     l2.Eta(), l2.Pt()/fGeV,    deltaPt(l2, l2_truth) ); 
+  Fill2D( p_pTRUE_etaphi,    l1.Eta(), l1.Phi(),        deltaPt(l1, l1_truth) );
+  Fill2D( p_pTRUE_etaphi,    l2.Eta(), l2.Phi(),        deltaPt(l2, l2_truth) );
   
   return;
 }
@@ -234,18 +243,10 @@ void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, 
 const xAOD::TruthParticle* MuonResonancePlots::findTruthMuon(const xAOD::Muon& mu){
   
   const xAOD::TruthParticle *truthMu = 0;
-  const xAOD::TrackParticle* tp  = const_cast<xAOD::TrackParticle*>(mu.primaryTrackParticle());
-  
-  if( mu.muonType() == xAOD::Muon::Combined && !tp )
-    tp = const_cast<xAOD::TrackParticle*>((*mu.inDetTrackParticleLink()));
-  
-  if(tp){
-    typedef ElementLink< xAOD::TruthParticleContainer > MuonLink;
-    if(!tp->isAvailable< MuonLink >("truthParticleLink")) return truthMu;
-    MuonLink truthLink = tp->auxdata< MuonLink >("truthParticleLink");
-    if(!truthLink.isValid() ) return truthMu;
-    truthMu = (*truthLink);  
-  }
+  if(!mu.isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink")) return truthMu;
+  ElementLink<xAOD::TruthParticleContainer> link = mu.auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink");
+  if(!link.isValid()) return truthMu;
+  truthMu = (*link);  
   return truthMu;
 }
 
@@ -255,17 +256,21 @@ TLorentzVector MuonResonancePlots::getTrackTLV(const xAOD::Muon& mu, int type){
   TLorentzVector v;
   const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);
   const xAOD::TrackParticle *id_ = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-  const xAOD::TrackParticle* me_ = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
-  if(!cb_ || !id_ || !me_) return v;
+  const xAOD::TrackParticle *me_ = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+  if(type>-1 && (!cb_ || !id_ || !me_)) return v;
 
-  float pt_id = id_->pt();
-  float pt_me = me_->pt();
-  if(mu.isAvailable< float >("InnerDetectorPt")) pt_id = mu.auxdata< float >("InnerDetectorPt");
-  if(mu.isAvailable< float >("MuonSpectrometerPt")) pt_me = mu.auxdata< float >("MuonSpectrometerPt"); 
+  if(id_ && me_) {
+    float pt_id = id_->pt();
+    float pt_me = me_->pt();
+    if(mu.isAvailable< float >("InnerDetectorPt")) pt_id = mu.auxdata< float >("InnerDetectorPt");
+    if(mu.isAvailable< float >("MuonSpectrometerPt")) pt_me = mu.auxdata< float >("MuonSpectrometerPt"); 
 
-  if(type==0) v.SetPtEtaPhiM(mu.pt(), cb_->eta(), cb_->phi(), cb_->m());
-  if(type==1) v.SetPtEtaPhiM(pt_id, cb_->eta(), cb_->phi(), cb_->m());
-  if(type==2) v.SetPtEtaPhiM(pt_me, cb_->eta(), cb_->phi(), cb_->m());
+    if(type==1)  v.SetPtEtaPhiM( pt_id,     id_->eta(), id_->phi(), id_->m() );
+    if(type==2)  v.SetPtEtaPhiM( pt_me,     me_->eta(), me_->phi(), me_->m() );
+  }
+
+  if(type==-1) v.SetPtEtaPhiM( mu.pt(),   mu.eta(),   mu.phi(),   mu.m()   );
+  if(type==0)  v.SetPtEtaPhiM( cb_->pt(), cb_->eta(), cb_->phi(), cb_->m() );
 
   return v;
 }
@@ -319,15 +324,16 @@ float MuonResonancePlots::deltaPt(TLorentzVector v1, TLorentzVector v2){
 
 // function to return Chi² / DoF
 float MuonResonancePlots::getChiSquared(const xAOD::Muon& mu, int type){
-  
+
   const xAOD::TrackParticle *cb_ = mu.trackParticle(xAOD::Muon::CombinedTrackParticle);
   const xAOD::TrackParticle *id_ = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   const xAOD::TrackParticle* me_ = mu.trackParticle(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
-  if(!cb_ || !id_ || !me_) return 0;
+  if(type>-1 && (!cb_ || !id_ || !me_)) return 0;
 
-  if(type==0) return cb_->chiSquared()/cb_->numberDoF();
-  if(type==1) return id_->chiSquared()/id_->numberDoF();
-  if(type==2) return me_->chiSquared()/id_->numberDoF();
+  if(type==-1 && mu.primaryTrackParticle()) return mu.primaryTrackParticle()->chiSquared()/mu.primaryTrackParticle()->numberDoF();
+  if(type==0)  return cb_->chiSquared()/cb_->numberDoF();
+  if(type==1)  return id_->chiSquared()/id_->numberDoF();
+  if(type==2)  return me_->chiSquared()/id_->numberDoF();
   else return 0;
 }
 

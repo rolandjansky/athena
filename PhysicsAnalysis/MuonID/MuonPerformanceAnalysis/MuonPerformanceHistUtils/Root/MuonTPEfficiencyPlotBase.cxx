@@ -14,69 +14,71 @@
 #include "TEfficiency.h"
 
 MuonTPEfficiencyPlotBase::MuonTPEfficiencyPlotBase(PlotBase* pParent, std::string sDir, bool isMatched, bool ApplySF)
-	  : PlotBase(pParent, sDir),
-	    m_isMatched(isMatched),
-	    m_apply_SF(ApplySF), 
-	    m_doAsymmErrors (false)
-	{}
-void MuonTPEfficiencyPlotBase::fill(Probe& ){
+: PlotBase(pParent, sDir),
+m_isMatched(isMatched),
+m_apply_SF(ApplySF), 
+m_doAsymmErrors (false)
+{}
 
+void MuonTPEfficiencyPlotBase::fill(Probe& ){
 }
 
 void MuonTPEfficiencyPlotBase::EffiDivide(MuonTPEfficiencyPlotBase* trials, MuonTPEfficiencyPlotBase* matches){
-	// default: if not defined by the user try a generic approach that should always work
-
-	std::vector<HistData> hd_trials = trials->retrieveBookedHistograms();
-	std::vector<HistData> hd_matches = matches->retrieveBookedHistograms();
-	std::vector<HistData> hd_effi = this->retrieveBookedHistograms();
+    // default: if not defined by the user try a generic approach that should always work
+    
+    std::vector<HistData> hd_trials = trials->retrieveBookedHistograms();
+    std::vector<HistData> hd_matches = matches->retrieveBookedHistograms();
+    std::vector<HistData> hd_effi = this->retrieveBookedHistograms();
     std::vector<std::pair <TGraph*,  std::string > > hd_effi_graphs = this->retrieveBookedGraphs();
-
-	for (size_t i = 0; i < hd_effi.size();++i){
-		EffiDivide(hd_trials[i].first, hd_matches[i].first,hd_effi[i].first);
-        if (m_doAsymmErrors) EffiDivide(hd_trials[i].first, hd_matches[i].first,dynamic_cast <TGraphAsymmErrors*>(hd_effi_graphs[i].first));
+    
+    for (size_t i = 0; i < hd_effi.size();++i){
+	EffiDivide(hd_trials[i].first, hd_matches[i].first,hd_effi[i].first);
+	if (m_doAsymmErrors && hd_effi_graphs.size()>i && hd_effi_graphs[i].first){
+	    TGraphAsymmErrors* hd_effi_graph = dynamic_cast <TGraphAsymmErrors*>(hd_effi_graphs[i].first);
+	    if (hd_effi_graph) EffiDivide(hd_trials[i].first, hd_matches[i].first,hd_effi_graph);
 	}
+    }
 }
 
 void MuonTPEfficiencyPlotBase::EffiDivide(TH1* trials, TH1* matches, TH1* eff){
-
-	TH1D* trials_1d = dynamic_cast<TH1D*>(trials);
-	TH2D* trials_2d = dynamic_cast<TH2D*>(trials);
-	if (trials_1d){
-		for (int ibin = 0; ibin < trials_1d->GetNbinsX()+2;++ibin){
-			EffiDivide(ibin, trials,matches,eff);
-		}
+    
+    TH1D* trials_1d = dynamic_cast<TH1D*>(trials);
+    TH2D* trials_2d = dynamic_cast<TH2D*>(trials);
+    if (trials_1d){
+	for (int ibin = 0; ibin < trials_1d->GetNbinsX()+2;++ibin){
+	    EffiDivide(ibin, trials,matches,eff);
 	}
-	else if (trials_2d){
-		for (int ibin = 0; ibin < (trials_2d->GetNbinsX()+2)*(trials_2d->GetNbinsY()+2);++ibin){
-			EffiDivide(ibin, trials,matches,eff);
-		}
+    }
+    else if (trials_2d){
+	for (int ibin = 0; ibin < (trials_2d->GetNbinsX()+2)*(trials_2d->GetNbinsY()+2);++ibin){
+	    EffiDivide(ibin, trials,matches,eff);
 	}
+    }
 }
+
 void MuonTPEfficiencyPlotBase::EffiDivide (TH1* trials, TH1* matches, TGraphAsymmErrors* effi) {
     
     TH1D* trials_1d = dynamic_cast<TH1D*>(trials);
     TH1D* matches_1d = dynamic_cast<TH1D*>(matches);
     if (!trials_1d) return;       
     effi->Divide(matches_1d, trials_1d, "cp");        
-   
-        
 }
 
-
 void MuonTPEfficiencyPlotBase::EffiDivide(int ibin, TH1* trials, TH1* matches, TH1* eff){
-
-	double den = trials->GetBinContent(ibin);
-	double dden = trials->GetBinError(ibin);
-
-	double num = matches->GetBinContent(ibin);
-	double dnum = matches->GetBinError(ibin);
-	
-	effResult res = CalcEff (den, num, dden, dnum);
-
-	eff->SetBinContent(ibin,res.first);
+    
+    double den = trials->GetBinContent(ibin);
+    double dden = trials->GetBinError(ibin);
+    
+    double num = matches->GetBinContent(ibin);
+    double dnum = matches->GetBinError(ibin);
+    
+    effResult res = CalcEff (den, num, dden, dnum);
+    
+    eff->SetBinContent(ibin,res.first);
     //  Symmetrize the errors for the TH1* case
     eff->SetBinError(ibin,(res.second.first  + res.second.second)/2.); 
 }
+
 MuonTPEfficiencyPlotBase::effResult MuonTPEfficiencyPlotBase::CalcEff (double den,  double num,  double ,  double ) {
     
     static double gamma = 1.0 - 0.683;
@@ -88,16 +90,16 @@ MuonTPEfficiencyPlotBase::effResult MuonTPEfficiencyPlotBase::CalcEff (double de
     double dEff_down = 1;
     
     if (den > 0) {
-        Eff = num / den;
-        
-        if ( num > 0 && den-num > 0) {
-            
-          double F_lo = ROOT::Math::fdistribution_quantile(alfa_lo, 2*num, 2*(den-num+1.));
-          double F_hi = ROOT::Math::fdistribution_quantile(1. - alfa_hi, 2*(num+1.), 2*(den-num));
-
-          dEff_down = Eff - (num * F_lo)/(den - num + 1. + num * F_lo);
-          dEff_up = ((num + 1.) * F_hi)/((den - num) + (num+1.)*F_hi) - Eff;        
-        }
+	Eff = num / den;
+	
+	if ( num > 0 && den-num > 0) {
+	    
+	    double F_lo = ROOT::Math::fdistribution_quantile(alfa_lo, 2*num, 2*(den-num+1.));
+	    double F_hi = ROOT::Math::fdistribution_quantile(1. - alfa_hi, 2*(num+1.), 2*(den-num));
+	    
+	    dEff_down = Eff - (num * F_lo)/(den - num + 1. + num * F_lo);
+	    dEff_up = ((num + 1.) * F_hi)/((den - num) + (num+1.)*F_hi) - Eff;        
+	}
     }
     
     return std::make_pair (Eff,  std::make_pair (dEff_up,  dEff_down));
@@ -152,7 +154,6 @@ TGraphAsymmErrors* MuonTPEfficiencyPlotBase::BookGraphAsymmErrors(const std::str
     std::string prefix = "";
     if (prependDir) {
         prefix = m_sDirectory;
-        std::replace( prefix.begin(), prefix.end(), '/', '_');
     }
     TGraphAsymmErrors* graph = new TGraphAsymmErrors();
     graph->SetName((prefix + name2).c_str());

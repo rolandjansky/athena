@@ -70,18 +70,23 @@ class MuonResonancePlots: public PlotBase {
     DeltaZ_m_etaphi(NULL),
     DeltaZ_m_q_etaphi(NULL),
     p_pTRUE_etapt(NULL),
-    p_pTRUE_etaphi(NULL)
+    p_pTRUE_etaphi(NULL),
+    suffix(""),  
+    prefix(""),
+    fGeV(1.0)
+
   {;}
 
   TString selitool;
   const double M_pdg[3] = {91187.6, 3096.6, 9460.3};
   const double Pi = TMath::Pi();
 
+  void useGeV(bool u){if (u) fGeV=1000.0; else fGeV=1.0;}
   void setSuffix(std::string suff){suffix=suff;};
   void setPrefix(std::string pref){prefix=pref;};
   void setBinning(std::map< std::string,std::vector<double> >);
   void BookPlots();
-  void fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, int trk);
+  void fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, int trk=-1);
   float M0();
   float p_star(TLorentzVector v1, TLorentzVector v2);
   float deltaPt(TLorentzVector v1, TLorentzVector v2);
@@ -95,7 +100,6 @@ class MuonResonancePlots: public PlotBase {
   void PrintVectors(TLorentzVector l1, TLorentzVector l2, TLorentzVector V,
 		    TLorentzVector l1_truth, TLorentzVector l2_truth, TLorentzVector V_truth, int type, float weight);
   
-
   //Histograms
   TH1* mu_1stAuthor;
   TH1* mu_2ndAuthor;
@@ -172,6 +176,8 @@ class MuonResonancePlots: public PlotBase {
   void initializePlots();
   std::string suffix;
   std::string prefix;
+  float fGeV;
+
   void Binning1D(TH1*& histo,std::string hname);
   void Binning2D(TH2*& histo,std::string hname);
   void Fill1D(TH1*& histo, float x, float w);
