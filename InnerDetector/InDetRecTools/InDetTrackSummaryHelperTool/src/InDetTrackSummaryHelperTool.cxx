@@ -24,6 +24,8 @@
 #include "TrkParameters/TrackParameters.h"
 #include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 
+#include <cassert>
+
 //==========================================================================
 InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    const std::string& t,
@@ -167,42 +169,53 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	 if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)){
 	   information[Trk::numberOfNextToInnermostPixelLayerOutliers]++;
 	 }
-      } else {
+      }
+      else {
          
          bool hitIsSplit(false);
 
-         information[Trk::numberOfPixelHits]++;
-         if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
-	 if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
-	 if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
-         // check to see if there's an ambiguity with the ganged cluster.
-         const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
-         if ( !pix ) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast pixel RoT to PixelClusterOnTrack!"<<endreq;
-         } else {
-            const InDet::PixelCluster* pixPrd = pix->prepRawData();
-            if ( pixPrd && pixPrd->isSplit() ){ information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
-            if ( pixPrd && m_pixelId->is_blayer(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
-	    if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0 && pixPrd->isSplit() ) information[Trk::numberOfInnermostLayerSplitHits]++;
-	    if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1 && pixPrd->isSplit() ) information[Trk::numberOfNextToInnermostLayerSplitHits]++;
-            if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
-            if ( pix->hasClusterAmbiguity() ) {
-               information[Trk::numberOfGangedPixels]++;
-               if (pix->isFake() ) 
-                  information[Trk::numberOfGangedFlaggedFakes]++;
-            }
+         if (m_pixelId->is_dbm(id)) {
+           int offset = static_cast<int> (Trk::DBM0); //get int value of first DBM layer
+           offset    += m_pixelId->layer_disk(id);
+           hitPattern.set(offset);
+           information[Trk::numberOfDBMHits]++;
          }
 
-         if ( ( m_pixelId->is_barrel(id) ) ) {
-            int offset = m_pixelId->layer_disk(id); 
-            if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
-            hitPattern.set(offset); // assumes numbered consecutively
-         } else {
-            int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc
-            offset    += m_pixelId->layer_disk(id);
-            if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
-            hitPattern.set(offset); // assumes numbered consecutively
-         }
+	 else {
+	   information[Trk::numberOfPixelHits]++;
+	   if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
+	   if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
+	   if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
+	   // check to see if there's an ambiguity with the ganged cluster.
+	   const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
+	   if ( !pix ) {
+	     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast pixel RoT to PixelClusterOnTrack!"<<endreq;
+	   } else {
+	     const InDet::PixelCluster* pixPrd = pix->prepRawData();
+	     if ( pixPrd && pixPrd->isSplit() ){ information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
+	     if ( pixPrd && m_pixelId->is_blayer(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
+	     if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0 && pixPrd->isSplit() ) information[Trk::numberOfInnermostLayerSplitHits]++;
+	     if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1 && pixPrd->isSplit() ) information[Trk::numberOfNextToInnermostLayerSplitHits]++;
+	     if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
+	     if ( pix->hasClusterAmbiguity() ) {
+               information[Trk::numberOfGangedPixels]++;
+               if (pix->isFake() ) 
+		 information[Trk::numberOfGangedFlaggedFakes]++;
+	     }
+	   }
+
+	   if ( ( m_pixelId->is_barrel(id) ) ) { 
+	     int offset = m_pixelId->layer_disk(id);  
+	     if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++; 
+	     hitPattern.set(offset); // assumes numbered consecutively 
+	   } 
+	   else { 
+	     int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc 
+	     offset    += m_pixelId->layer_disk(id); 
+	     if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++; 
+	     hitPattern.set(offset); // assumes numbered consecutively 
+	   }
+	 } 
 
          if (m_doSharedHits) {
            // If we are running the TIDE ambi don't count split hits as shared 
@@ -295,7 +308,11 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
          if ( !trtDriftCircle ) {
             if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
          } else {
-            if ( trtDriftCircle->highLevel()==true && !isArgonStraw) information[Trk::numberOfTRTHighThresholdHits]++;
+           if ( trtDriftCircle->highLevel()==true ) {
+             if (!isArgonStraw) information[Trk::numberOfTRTHighThresholdHits]++;
+             assert (Trk::numberOfTRTHighThresholdHitsTotal<information.size());
+             information[Trk::numberOfTRTHighThresholdHitsTotal]++;
+           }
          }
       }
    }
@@ -307,7 +324,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
        information[Trk::numberOfTRTSharedHits]++;
      }
    }
-
+   
    return;
 }
 
