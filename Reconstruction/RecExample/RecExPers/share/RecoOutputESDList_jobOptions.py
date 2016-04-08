@@ -91,6 +91,11 @@ if DetFlags.detdescr.ID_on():
                      "InDetEsd",
                      items = InDetESDList
                      )
+# FTK 
+if DetFlags.detdescr.FTK_on():
+    protectedInclude ("FTK_RecExample/WriteFTK_ESD.py") 
+    fullESDList += CfgItemList( "FTKEsd", items = FtkESDList )
+
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     protectedInclude ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
@@ -107,8 +112,10 @@ if DetFlags.detdescr.Lucid_on():
 
 #ZDC
 if DetFlags.detdescr.ZDC_on():
-    fullESDList += CfgItemList("ZDC", items = ["ZdcDigitsCollection#ZdcDigitsCollection","ZdcRawChannelCollection#ZdcRawChannelCollection"])
-
+    fullESDList += CfgItemList("ZDC", items = ["xAOD::TriggerTowerContainer#ZdcTriggerTowers",
+                                               "xAOD::TriggerTowerAuxContainer#ZdcTriggerTowersAux.",
+                                               "xAOD::ZdcModuleContainer#ZdcModules",
+                                               "xAOD::ZdcModuleAuxContainer#ZdcModulesAux."])
 
 if DetFlags.detdescr.ALFA_on():
     protectedInclude("ForwardRec/ALFARec_OuputItemList_jobOptions.py")
