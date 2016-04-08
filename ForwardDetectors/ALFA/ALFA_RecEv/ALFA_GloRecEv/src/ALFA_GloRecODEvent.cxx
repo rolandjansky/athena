@@ -6,7 +6,13 @@
 
 
 // Default constructor needed by athenaroot/athenapool
-ALFA_GloRecODEvent::ALFA_GloRecODEvent() {}
+ALFA_GloRecODEvent::ALFA_GloRecODEvent()
+{
+	m_pot_num = 0;
+	m_side    = 0;
+	m_y       = 0.0;
+	m_y_slope = 0.0;
+}
 
 // destructor
 ALFA_GloRecODEvent::~ALFA_GloRecODEvent() {}

@@ -7,7 +7,16 @@
 
 
 // Default constructor needed by athenaroot/athenapool
-ALFA_GloRecEvent::ALFA_GloRecEvent() {}
+ALFA_GloRecEvent::ALFA_GloRecEvent()
+{
+	m_arm             = 0;
+	m_x               = 0.0;
+	m_y               = 0.0;
+	m_x_slope         = 0.0;
+	m_y_slope         = 0.0;
+	m_near_LocRecCorr = 0;
+	m_far_LocRecCorr  = 0;
+}
 
 // destructor
 ALFA_GloRecEvent::~ALFA_GloRecEvent() {}
