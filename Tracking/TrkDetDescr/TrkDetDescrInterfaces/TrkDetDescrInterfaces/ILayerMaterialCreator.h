@@ -19,7 +19,6 @@ namespace Trk {
 
   class LayerMaterialProperties;
   class LayerMaterialRecord;
-  class Layer;
   
   /** Interface ID for ILayerMaterialCreators*/  
   static const InterfaceID IID_ILayerMaterialCreator("ILayerMaterialCreator", 1, 0);
@@ -41,7 +40,10 @@ namespace Trk {
       static const InterfaceID& interfaceID() { return IID_ILayerMaterialCreator; }
       
       /** process the material properties */
-      virtual const LayerMaterialProperties* createLayerMaterial(const Layer& lay, const LayerMaterialRecord& lmr) const = 0;
+      virtual const LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const = 0;
+      
+      /** create layer material properties from layer material properties */
+      virtual const LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const = 0;
       
       /** the name of the created material map */
       const std::string& layerMaterialName() const { m_layerMaterialFullName=(m_layerMaterialDirectory+m_layerMaterialName); return m_layerMaterialFullName; }
