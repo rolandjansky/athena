@@ -52,7 +52,7 @@ namespace Muon {
     typedef DataVector<std::pair<IdentifierHash, int> >::const_iterator rpcErrorIterator;
 
     RpcByteStreamErrorContainer();
-    RpcByteStreamErrorContainer( DataVector<std::pair<IdentifierHash, int> > errorVector );
+    RpcByteStreamErrorContainer( const DataVector<std::pair<IdentifierHash, int> > & errorVector );
     ~RpcByteStreamErrorContainer();
 
     void clear(); 

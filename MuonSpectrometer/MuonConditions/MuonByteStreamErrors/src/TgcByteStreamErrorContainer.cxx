@@ -10,7 +10,7 @@ namespace Muon {
 TgcByteStreamErrorContainer::TgcByteStreamErrorContainer( ) 
 {}
 
-TgcByteStreamErrorContainer::TgcByteStreamErrorContainer( DataVector< std::pair < IdentifierHash, int > > inputVector ) 
+TgcByteStreamErrorContainer::TgcByteStreamErrorContainer( const DataVector< std::pair < IdentifierHash, int > > & inputVector ) 
     :
     m_errorVector (inputVector) 
 {}

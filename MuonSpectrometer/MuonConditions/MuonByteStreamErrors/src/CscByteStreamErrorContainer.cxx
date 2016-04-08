@@ -10,7 +10,7 @@ namespace Muon {
 CscByteStreamErrorContainer::CscByteStreamErrorContainer( ) 
 {}
 
-CscByteStreamErrorContainer::CscByteStreamErrorContainer( DataVector< std::pair < IdentifierHash, int > > inputVector ) 
+CscByteStreamErrorContainer::CscByteStreamErrorContainer( const DataVector< std::pair < IdentifierHash, int > > & inputVector ) 
     :
     m_errorVector (inputVector) 
 {}

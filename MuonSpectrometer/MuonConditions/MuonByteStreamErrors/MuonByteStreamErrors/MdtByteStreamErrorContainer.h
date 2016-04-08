@@ -29,7 +29,7 @@ namespace Muon {
   {
   public: 
     MdtByteStreamErrorContainer();
-    MdtByteStreamErrorContainer( DataVector<std::pair<IdentifierHash, int> > errorVector );
+    MdtByteStreamErrorContainer( const DataVector<std::pair<IdentifierHash, int> > & errorVector );
     ~MdtByteStreamErrorContainer();
 
     void addError(IdentifierHash, int); 

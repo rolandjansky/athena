@@ -10,7 +10,7 @@ namespace Muon {
 RpcByteStreamErrorContainer::RpcByteStreamErrorContainer( ) 
 {}
 
-RpcByteStreamErrorContainer::RpcByteStreamErrorContainer( DataVector< std::pair < IdentifierHash, int > > inputVector ) 
+RpcByteStreamErrorContainer::RpcByteStreamErrorContainer( const DataVector< std::pair < IdentifierHash, int > > & inputVector ) 
     :
     m_errorVector (inputVector) 
 {}
@@ -44,8 +44,10 @@ int RpcByteStreamErrorContainer::getError(IdentifierHash idh) const
   for (;myIt!=myItE;++myIt)
     {
       IdentifierHash myPadId = (*myIt)->first;
-      if (myPadId==idh) errorCode= (*myIt)->second;
-      break;
+      if (myPadId==idh) {
+        errorCode= (*myIt)->second;
+        break;
+      }
     }  
   
   return errorCode; 

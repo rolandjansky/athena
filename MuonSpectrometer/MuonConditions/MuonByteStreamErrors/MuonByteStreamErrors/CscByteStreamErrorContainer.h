@@ -30,7 +30,7 @@ namespace Muon {
   {
   public: 
     CscByteStreamErrorContainer();
-    CscByteStreamErrorContainer( DataVector<std::pair<IdentifierHash, int> > errorVector );
+    CscByteStreamErrorContainer( const DataVector<std::pair<IdentifierHash, int> > & errorVector );
     ~CscByteStreamErrorContainer();
 
     void addError(IdentifierHash, int); 
