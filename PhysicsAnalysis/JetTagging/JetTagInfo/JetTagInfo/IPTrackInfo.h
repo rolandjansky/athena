@@ -20,7 +20,13 @@ namespace Analysis {
       IPTrackInfo();
       IPTrackInfo(const Rec::TrackParticleContainer* coll, 
                   const Rec::TrackParticle* trk,
-		  TrackGrade grade, bool isFromV0,
+		  const TrackGrade& grade,
+                  bool isFromV0,
+                  double d0val, double d0sig,
+                  double z0val, double z0sig);
+      IPTrackInfo(const ElementLink<Rec::TrackParticleContainer>& track,
+		  const TrackGrade& grade,
+                  bool isFromV0,
                   double d0val, double d0sig,
                   double z0val, double z0sig);
       virtual ~IPTrackInfo();
@@ -29,7 +35,9 @@ namespace Analysis {
       inline void setTrackProbJP(double p) { m_trackProbJP = p; }
       inline void setTrackProbJPneg(double p) { m_trackProbJPneg = p; }
       const Rec::TrackParticle* track() const;
-      inline TrackGrade trackGrade() const { return m_trackGrade; } 
+      inline const ElementLink<Rec::TrackParticleContainer>& trackLink() const
+      { return m_track; }
+      inline const TrackGrade& trackGrade() const { return m_trackGrade; } 
       inline bool isFromV0() const { return m_isFromV0; }
       inline double d0Value() const { return m_valD0wrtPV; } 
       inline double d0Significance() const { return m_sigD0wrtPV; } 

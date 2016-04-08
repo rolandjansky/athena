@@ -19,8 +19,10 @@ namespace Analysis {
       inline SVTrackInfo();
       inline SVTrackInfo(const Rec::TrackParticleContainer* coll, 
 			 const Rec::TrackParticle* trk);
+      inline SVTrackInfo(const ElementLink<Rec::TrackParticleContainer>& track);
       inline virtual ~SVTrackInfo() {}
       inline const Rec::TrackParticle* track() const;
+      inline const ElementLink<Rec::TrackParticleContainer>& trackLink() const;
     private:
       ElementLink<Rec::TrackParticleContainer> m_track;
   };
@@ -35,12 +37,22 @@ namespace Analysis {
     }
   }
 
+  SVTrackInfo::SVTrackInfo(const ElementLink<Rec::TrackParticleContainer>& track)
+    : m_track (track)
+  {
+  }
+
   const Rec::TrackParticle* SVTrackInfo::track() const {
     if( m_track.isValid() ) {
       return *(m_track);
     } else {
       return 0;
     }
+  }
+
+  const ElementLink<Rec::TrackParticleContainer>& SVTrackInfo::trackLink() const
+  {
+    return m_track;
   }
 
 }

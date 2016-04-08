@@ -26,11 +26,11 @@ IPTrackInfo::IPTrackInfo() :
 }
 
 IPTrackInfo::IPTrackInfo(const Rec::TrackParticleContainer* coll, 
-                                   const Rec::TrackParticle* trk,
-				   TrackGrade grade,
-				   bool isFromV0,
-				   double d0val, double d0sig,
-                                   double z0val, double z0sig)
+                         const Rec::TrackParticle* trk,
+                         const TrackGrade& grade,
+                         bool isFromV0,
+                         double d0val, double d0sig,
+                         double z0val, double z0sig)
   : m_trackWeight2D(0),
     m_trackWeight3D(0),
     m_trackProbJP(0),
@@ -46,6 +46,25 @@ IPTrackInfo::IPTrackInfo(const Rec::TrackParticleContainer* coll,
 	m_sigD0wrtPV = d0sig;
 	m_valZ0wrtPV = z0val;
 	m_sigZ0wrtPV = z0sig;
+}
+	
+IPTrackInfo::IPTrackInfo(const ElementLink<Rec::TrackParticleContainer>& track,
+                         const TrackGrade& grade,
+                         bool isFromV0,
+                         double d0val, double d0sig,
+                         double z0val, double z0sig)
+  : m_track (track),
+    m_trackGrade (grade),
+    m_isFromV0 (isFromV0),
+    m_valD0wrtPV (d0val),
+    m_sigD0wrtPV (d0sig),
+    m_valZ0wrtPV (z0val),
+    m_sigZ0wrtPV (z0sig),
+    m_trackWeight2D(0),
+    m_trackWeight3D(0),
+    m_trackProbJP(0),
+    m_trackProbJPneg(0)
+{
 }
 	
 IPTrackInfo::~IPTrackInfo() {

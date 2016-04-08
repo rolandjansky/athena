@@ -21,7 +21,7 @@ namespace Analysis
     virtual ~MSVVtxInfo();
 
     /** Set methods */
-    void setRecSvx(Trk::RecVertex); 
+    void setRecSvx(const Trk::RecVertex&); 
     void setMass(float);   
     void setPt(float);
     void setEta(float);
@@ -52,7 +52,7 @@ namespace Analysis
   
   }; // End class
   
-  inline void MSVVtxInfo::setRecSvx(Trk::RecVertex gl) {m_recsvx   = gl;}
+  inline void MSVVtxInfo::setRecSvx(const Trk::RecVertex& gl) {m_recsvx   = gl;}
   inline void MSVVtxInfo::setMass(float mass)          {m_masssvx  = mass;}
   inline void MSVVtxInfo::setPt(float pt)          {m_ptsvx  = pt;}
   inline void MSVVtxInfo::setEta(float eta)          {m_etasvx  = eta;}
