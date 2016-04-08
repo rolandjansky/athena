@@ -251,13 +251,9 @@ MsgStream& Muon::MdtDriftCircleOnTrack::dump( MsgStream&    stream) const
     stream << "DriftTime: "<<m_driftTime<<std::endl;
     stream << "Status: "<<m_status<<std::endl;
     stream << "Global position (x,y,z) = (";
-    if ( &(this->globalPosition() )!=0 ){
-        stream  <<this->globalPosition().x()<<", "
-                <<this->globalPosition().y()<<", "
-                <<this->globalPosition().z()<<")"<<std::endl;
-    } else {
-        stream<<"NULL!), "<<std::endl;
-    }
+    stream  <<this->globalPosition().x()<<", "
+            <<this->globalPosition().y()<<", "
+            <<this->globalPosition().z()<<")"<<std::endl;
 
     if (m_saggedSurface!=0) {
         stream << "Sagged surface: "<<(*m_saggedSurface)<<std::endl;

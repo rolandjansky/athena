@@ -56,6 +56,15 @@ namespace Muon
 		       double positionAlongStrip
 		       );
 
+    // Alternate constructor that doesn't dereference the RIO link.
+    sTgcClusterOnTrack(
+                     const ElementLinkToIDC_STGC_Container& RIO,
+                     const Trk::LocalParameters& locpos,
+                     const Amg::MatrixX& locerr,
+                     const Identifier& id,
+                     const MuonGM::sTgcReadoutElement* detEl,
+                     double positionAlongStrip);
+
     /** @brief Destructor*/
     virtual ~sTgcClusterOnTrack();
 
