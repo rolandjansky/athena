@@ -12,6 +12,12 @@
 
 using std::string;
 using std::runtime_error;
+using Analysis::JetTagInfo_tlp1;
+using Analysis::JetTagInfoCnv_tlp1;
+using Analysis::JetTagInfo_tlp2;
+using Analysis::JetTagInfoCnv_tlp2;
+using Analysis::JetTagInfo_tlp3;
+using Analysis::JetTagInfoCnv_tlp3;
 
 /// Init our base class.
 JetTagInfoCnv::JetTagInfoCnv (ISvcLocator *loc)
