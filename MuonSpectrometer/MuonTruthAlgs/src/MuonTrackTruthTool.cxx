@@ -42,22 +42,17 @@ namespace Muon {
       m_detMgr(0),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_truthTrajectoryBuilder("Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder"),
-      m_log(0)
+      m_truthTrajectoryBuilder("Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder")
   {
     declareInterface<IMuonTrackTruthTool>(this);
 
-    declareProperty("MDT_SDO_Container",          m_MDT_SimDataMapName = "MDT_SDO" );
     declareProperty("CSC_SDO_Container",          m_CSC_SimDataMapName = "CSC_SDO" );
-    declareProperty("RPC_SDO_Container",          m_RPC_SimDataMapName = "RPC_SDO" );
-    declareProperty("TGC_SDO_Container",          m_TGC_SimDataMapName = "TGC_SDO" );
-    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName = "STGC_SDO" );
-    declareProperty("MM_SDO_Container",           m_MM_SimDataMapName = "MM_SDO" );
     declareProperty("DoSummary",                  m_doSummary = false );
     declareProperty("ManipulateBarCode",          m_manipulateBarCode = false );
     declareProperty("MinHits",                    m_minHits = 4 );
     declareProperty("MatchAllParticles",          m_matchAllParticles = true );
-
+    declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
+    m_simDataMapNames = { "MDT_SDO", "RPC_SDO", "TGC_SDO", "STGC_SDO", "MM_SDO" };
   }
 
 
@@ -66,69 +61,28 @@ namespace Muon {
 
   StatusCode MuonTrackTruthTool::initialize()
   {
-    
-    m_log = new MsgStream(msgSvc(),name());
-    m_debug = m_log->level() <= MSG::DEBUG;
-    m_verbose = m_log->level() <= MSG::VERBOSE;
+    ATH_CHECK(detStore()->retrieve( m_detMgr ));
+    ATH_CHECK(m_idHelperTool.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_truthTrajectoryBuilder.retrieve());
 
-    StatusCode sc = AlgTool::initialize(); 
-    if ( sc.isFailure() ) return sc;
-
-    sc=service("StoreGateSvc",m_storeGate);
-    if (sc.isFailure()) {
-      *m_log << MSG::ERROR << "StoreGate service not found !" << endreq;
-      return sc;
-    } 
-    
-    StoreGateSvc* detStore=0;
-    sc = serviceLocator()->service("DetectorStore", detStore);
-    
-    if( sc.isFailure() ){
-      *m_log << MSG::ERROR << " Could not get DetectorStore " << endreq;
-      return StatusCode::FAILURE;
-    }
-
-    sc = detStore->retrieve( m_detMgr );
-    if ( sc.isFailure() ) {
-      *m_log << MSG::WARNING << " Cannot retrieve MuonDetDescrMgr " << endreq;
-      //return StatusCode::FAILURE;
-    }
-
-    sc = m_idHelperTool.retrieve();
-    if (sc.isSuccess()){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_idHelperTool << endreq;
+    // add muons 
+    if( m_pdgsToBeConsidered.value().empty() ){
+      m_selectedPdgs.insert(13);
+      m_selectedPdgs.insert(-13);
     }else{
-      *m_log<<MSG::ERROR<<"Could not get " << m_idHelperTool <<endreq; 
-      return sc;
+      // add pdgs
+      for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
+      msg(MSG::DEBUG) << " PDG codes used for matching";
+      for( auto val : m_selectedPdgs ) msg(MSG::DEBUG) << " " << val;
+      msg(MSG::DEBUG) << endreq;
     }
-    
-    if( m_debug ){
-      sc = m_printer.retrieve();
-      if (sc.isSuccess()){
-	*m_log<<MSG::DEBUG << "Retrieved " << m_printer << endreq;
-      }else{
-	*m_log<<MSG::ERROR<<"Could not get " << m_printer <<endreq; 
-	return sc;
-      }
-    }
-
-    sc = m_truthTrajectoryBuilder.retrieve();
-    if (sc.isSuccess()){
-      *m_log<<MSG::DEBUG << "Retrieved " << m_truthTrajectoryBuilder << endreq;
-    }else{
-      *m_log<<MSG::ERROR<<"Could not get " << m_truthTrajectoryBuilder <<endreq; 
-      return sc;
-    }
-
     return StatusCode::SUCCESS;
   }
 
   StatusCode MuonTrackTruthTool::finalize()
   {
-    delete m_log;
-    StatusCode sc = AlgTool::finalize(); 
-    if( sc.isFailure() ) return StatusCode::FAILURE;
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   int MuonTrackTruthTool::manipulateBarCode( int barcode ) const {
@@ -206,46 +160,46 @@ namespace Muon {
 
     const TrackRecordCollection* truthTrackCol = getTruthTrackCollection();
     if( !truthTrackCol ) {
-      *m_log << MSG::WARNING << " failed to retrieve TrackRecordCollection " << endreq;
+      ATH_MSG_WARNING(" failed to retrieve TrackRecordCollection ");
       return m_truthTree;
     }
 
     if( truthTrackCol->empty() ) {
-      *m_log << MSG::WARNING << " TrackRecordCollection is empty " << endreq;
+      ATH_MSG_WARNING(" TrackRecordCollection is empty ");
       return m_truthTree;
     }
 
     const McEventCollection* mcEventCollection = 0;
     std::string mcLocation = "TruthEvent";
     const HepMC::GenEvent*    genEvent = 0;
-    if ( m_storeGate->contains<McEventCollection>(mcLocation) ) {
-      if( m_storeGate->retrieve(mcEventCollection,mcLocation ).isSuccess() ){
+    if ( evtStore()->contains<McEventCollection>(mcLocation) ) {
+      if( evtStore()->retrieve(mcEventCollection,mcLocation ).isSuccess() ){
 	if( !mcEventCollection->empty() ) {
-	  if( m_debug ) *m_log << MSG::VERBOSE << "McEventCollection retrieved at location " << mcLocation << " size " << mcEventCollection->size() << endreq;
+	  ATH_MSG_VERBOSE( "McEventCollection retrieved at location " << mcLocation << " size " << mcEventCollection->size());
 	  if( mcEventCollection->size() == 1 ) genEvent = mcEventCollection ->front();
 	}
       }
     }
     
-    if( m_debug ) *m_log << MSG::VERBOSE << " creating truth tree from track record " << truthTrackCol->size() << endreq;
+    ATH_MSG_VERBOSE(" creating truth tree from track record " << truthTrackCol->size());
 
     TrackRecordConstIterator tr_it = truthTrackCol->begin();
     TrackRecordConstIterator tr_it_end = truthTrackCol->end();
     for(;tr_it!=tr_it_end; ++tr_it){
       int PDGCode( (*tr_it).GetPDGCode() ) ;
-//       int barcode( manipulateBarCode( (*tr_it).GetBarCode()) );	
+      //       int barcode( manipulateBarCode( (*tr_it).GetBarCode()) );	
       int barcode = (*tr_it).GetBarCode();	
-      if( !m_matchAllParticles && abs(PDGCode) != 13 ) {
-	if( m_debug ) *m_log << MSG::VERBOSE << " discarding truth track: pdg " <<  PDGCode << "  barcode " << barcode << endreq;
+      if( !m_matchAllParticles && !selectPdg(PDGCode) ) {
+	ATH_MSG_VERBOSE(" discarding truth track: pdg " <<  PDGCode << "  barcode " << barcode);
 	continue;
       }
 
       // check whether barcode is already in, skip if that is the case
       if( m_barcodeMap.count(barcode) ){
-	if( m_debug ) *m_log << MSG::VERBOSE << " barcode " << barcode << " already in map, final state barcode " << m_barcodeMap[barcode] << endreq;	  
+	ATH_MSG_VERBOSE(" barcode " << barcode << " already in map, final state barcode " << m_barcodeMap[barcode]);	  
 	continue;
       }
-      if( m_debug ) *m_log << MSG::VERBOSE << " found new particle with pdgid " << PDGCode << " in truth record, barcode " << barcode << endreq;
+      ATH_MSG_VERBOSE(" found new particle with pdgid " << PDGCode << " in truth record, barcode " << barcode);
 
       TruthTrajectory* truthTrajectory = 0;
       // associate the muon truth with the gen event info
@@ -259,13 +213,15 @@ namespace Muon {
 	    // always use barcode of the 'final' particle in chain in map
 	    barcode = truthTrajectory->front()->barcode();
 	    
-	    if( m_debug ) {
-	      *m_log << MSG::VERBOSE << " found GenParticle: size " 
-		     << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
-		     << " p " << truthTrajectory->front()->momentum().rho();
-	      if( truthTrajectory->front()->production_vertex() ) *m_log << " vertex: r  " << truthTrajectory->front()->production_vertex()->point3d().perp() 
-									 << " z " << truthTrajectory->front()->production_vertex()->point3d().z();
-	      *m_log << endreq;
+	    if( msgLvl(MSG::VERBOSE) ) {
+	      msg(MSG::VERBOSE) << MSG::VERBOSE << " found GenParticle: size " 
+                                << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
+                                << " p " << truthTrajectory->front()->momentum().rho();
+	      if( truthTrajectory->front()->production_vertex() ) {
+                msg(MSG::VERBOSE) << " vertex: r  " << truthTrajectory->front()->production_vertex()->point3d().perp() 
+                                  << " z " << truthTrajectory->front()->production_vertex()->point3d().z();
+              }
+	      msg(MSG::VERBOSE) << endreq;
 	    }
 	    
 	    // now collect all barcodes beloning to this TruthTrajectory
@@ -273,25 +229,23 @@ namespace Muon {
 	    std::vector<HepMcParticleLink>::const_iterator pit_end = truthTrajectory->end();
 	    for( ;pit!=pit_end;++pit ){
 	      int code = (*pit)->barcode();
-		
-	      if( m_verbose ) {
-		if( code != barcode ) {
-		  *m_log << MSG::VERBOSE << "  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
-			 << " p " << (*pit)->momentum().rho();
-		  if( (*pit)->production_vertex() ) *m_log << " vertex: r  " << (*pit)->production_vertex()->point3d().perp() 
-							   << " z " << (*pit)->production_vertex()->point3d().z();
-
-		  *m_log << endreq;
-		}
+              
+              if( msgLvl(MSG::VERBOSE) && code != barcode ) {
+                msg(MSG::VERBOSE) << "  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
+                                  << " p " << (*pit)->momentum().rho();
+                if( (*pit)->production_vertex() ) msg(MSG::VERBOSE) << " vertex: r  " << (*pit)->production_vertex()->point3d().perp() 
+                                                                    << " z " << (*pit)->production_vertex()->point3d().z();
+                
+                msg(MSG::VERBOSE) << endreq;
 		// sanity check 
-		if( m_barcodeMap.count(code) ) *m_log << "  pre-existing barcode " << code << endreq;
+		if( m_barcodeMap.count(code) ) ATH_MSG_VERBOSE("  pre-existing barcode " << code);
 	      }
 		
 	      // enter barcode
 	      m_barcodeMap[code] = barcode;
 	    }
 	  }else{
-	    *m_log << MSG::WARNING << " empty truth trajectory " << barcode << endreq;
+	    ATH_MSG_WARNING(" empty truth trajectory " << barcode);
 	  }
 	}
       }else{
@@ -300,7 +254,7 @@ namespace Muon {
       }
       
       if( m_truthTree.count(barcode) ) {
-	*m_log << MSG::WARNING << " found muon barcode twice in truth record: " << barcode << endreq;
+	ATH_MSG_WARNING(" found muon barcode twice in truth record: " << barcode);
 	continue;
       }
 	
@@ -309,50 +263,12 @@ namespace Muon {
       entry.truthTrajectory = truthTrajectory;
       m_truthTrajectoriesToBeDeleted.push_back(truthTrajectory);
     }
-
-    const MuonSimDataCollection* mdtSimDataMap = retrieveTruthCollection( m_MDT_SimDataMapName );
-    if( !mdtSimDataMap) {
-      *m_log << MSG::WARNING << " failed to retrieve MuonSimDataCollection: " << m_MDT_SimDataMapName << endreq;
-    }else{
-      addSimDataToTree(*mdtSimDataMap);
+    
+    // add sim data collections
+    for( const auto& name : m_simDataMapNames ){
+      addSimDataToTree(name);
     }
-
-    const CscSimDataCollection* cscSimDataMap = retrieveCscTruthCollection( m_CSC_SimDataMapName );
-    if( !cscSimDataMap) {
-      *m_log << MSG::WARNING << " failed to retrieve CSCSimDataCollection: " << m_CSC_SimDataMapName << endreq;
-    }else{
-      addSimDataToTree(*cscSimDataMap);
-    }
-    const MuonSimDataCollection* rpcSimDataMap = retrieveTruthCollection( m_RPC_SimDataMapName );
-    if( !rpcSimDataMap) {
-      *m_log << MSG::WARNING << " failed to retrieve MuonSimDataCollection: " << m_RPC_SimDataMapName << endreq;
-    }else{
-      addSimDataToTree(*rpcSimDataMap);
-    }
-    const MuonSimDataCollection* tgcSimDataMap = retrieveTruthCollection( m_TGC_SimDataMapName );
-    if( !tgcSimDataMap) {
-      *m_log << MSG::WARNING << " failed to retrieve MuonSimDataCollection: " << m_TGC_SimDataMapName << endreq;
-    }else{
-      addSimDataToTree(*tgcSimDataMap);
-    }
-
-    if( m_storeGate->contains<MuonSimDataCollection>(m_STGC_SimDataMapName) ) {
-      const MuonSimDataCollection* stgcSimDataMap = retrieveTruthCollection( m_STGC_SimDataMapName );
-      if( !stgcSimDataMap) {
-	*m_log << MSG::WARNING << " failed to retrieve MuonSimDataCollection: " << m_STGC_SimDataMapName << endreq;
-      }else{
-	addSimDataToTree(*stgcSimDataMap);
-      }
-    }
-
-    if( m_storeGate->contains<MuonSimDataCollection>(m_MM_SimDataMapName) ) {
-      const MuonSimDataCollection* mmSimDataMap = retrieveTruthCollection( m_MM_SimDataMapName );
-      if( !mmSimDataMap) {
-	*m_log << MSG::WARNING << " failed to retrieve MuonSimDataCollection: " << m_MM_SimDataMapName << endreq;
-      }else{
-	addSimDataToTree(*mmSimDataMap);
-      }
-    }
+    addCscSimDataToTree(m_CSC_SimDataMapName);
 
     unsigned int ngood(0);
     std::vector<int> badBarcodes;
@@ -366,15 +282,15 @@ namespace Muon {
       if(  nhits < m_minHits ) erase = true;
       
       if( erase ){
-	if( m_verbose ) *m_log << MSG::VERBOSE << " Erasing entry: barcode " << it->second.truthTrack->GetBarCode() 
-			       << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()) << " hits " << nhits << endreq;
+	ATH_MSG_VERBOSE(" Erasing entry: barcode " << it->second.truthTrack->GetBarCode() 
+                        << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()) << " hits " << nhits);
 	badBarcodes.push_back(it->first);
 	//m_truthTree.erase(it);
 	//it = m_truthTree.begin();
       }else{
 	++ngood;
-	if( m_verbose ) *m_log << MSG::VERBOSE << " Keeping entry: barcode " << it->second.truthTrack->GetBarCode() 
-			       << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()) << " hits " << nhits << endreq;
+	ATH_MSG_VERBOSE(" Keeping entry: barcode " << it->second.truthTrack->GetBarCode() 
+                        << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode()) << " hits " << nhits);
       }
     }
     
@@ -383,30 +299,29 @@ namespace Muon {
     for( ;badIt!=badIt_end;++badIt ) m_truthTree.erase(*badIt);
 
     if( ngood != m_truthTree.size() ){
-      *m_log << MSG::WARNING << " Problem cleaning map: size " << m_truthTree.size() << " accepted entries " << ngood << endreq;
+      ATH_MSG_WARNING(" Problem cleaning map: size " << m_truthTree.size() << " accepted entries " << ngood);
     }
     
     
-    if( m_doSummary || m_log->level() <= MSG::DEBUG ){
-      *m_log << MSG::INFO << " summarizing truth tree: number of particles " << m_truthTree.size()  << endreq;
+    if( m_doSummary || msgLvl(MSG::DEBUG) ){
+      msg(MSG::INFO) << " summarizing truth tree: number of particles " << m_truthTree.size()  << endreq;
       TruthTreeIt it = m_truthTree.begin();
       TruthTreeIt it_end = m_truthTree.end();
       for( ;it!=it_end;++it ){
-	if( !it->second.truthTrack ) *m_log << " no TrackRecord ";
+	if( !it->second.truthTrack ) msg(MSG::INFO) << " no TrackRecord ";
 	else{
-	  *m_log << " PDG " << it->second.truthTrack->GetPDGCode() << " barcode " << it->second.truthTrack->GetBarCode() 
-		 << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode());
-	  if( abs(it->second.truthTrack->GetPDGCode()) != 13 ) *m_log << " NoMuon ";
+	  msg(MSG::INFO) << " PDG " << it->second.truthTrack->GetPDGCode() << " barcode " << it->second.truthTrack->GetBarCode() 
+                         << " manip " << manipulateBarCode(it->second.truthTrack->GetBarCode());
 	}
-	if( !it->second.mdtHits.empty() )  *m_log << " mdt  " << it->second.mdtHits.size();
-	if( !it->second.rpcHits.empty() )  *m_log << " rpc  " << it->second.rpcHits.size();
-	if( !it->second.tgcHits.empty() )  *m_log << " tgc  " << it->second.tgcHits.size();
-	if( !it->second.cscHits.empty() )  *m_log << " csc  " << it->second.cscHits.size();
-	if( !it->second.stgcHits.empty() ) *m_log << " stgc " << it->second.stgcHits.size();
-	if( !it->second.mmHits.empty() )   *m_log << " mm   " << it->second.mmHits.size();
+	if( !it->second.mdtHits.empty() )  msg(MSG::INFO) << " mdt  " << it->second.mdtHits.size();
+	if( !it->second.rpcHits.empty() )  msg(MSG::INFO) << " rpc  " << it->second.rpcHits.size();
+	if( !it->second.tgcHits.empty() )  msg(MSG::INFO) << " tgc  " << it->second.tgcHits.size();
+	if( !it->second.cscHits.empty() )  msg(MSG::INFO) << " csc  " << it->second.cscHits.size();
+	if( !it->second.stgcHits.empty() ) msg(MSG::INFO) << " stgc " << it->second.stgcHits.size();
+	if( !it->second.mmHits.empty() )   msg(MSG::INFO) << " mm   " << it->second.mmHits.size();
 	if( it->second.mdtHits.empty() && it->second.rpcHits.empty() && it->second.tgcHits.empty() && 
-	    it->second.cscHits.empty() && it->second.stgcHits.empty()  && it->second.mmHits.empty() ) *m_log <<" no hits ";
-	*m_log << endreq;
+	    it->second.cscHits.empty() && it->second.stgcHits.empty()  && it->second.mmHits.empty() ) msg(MSG::INFO) <<" no hits ";
+	msg(MSG::INFO) << endreq;
       }
     }
 
@@ -414,11 +329,19 @@ namespace Muon {
   }
 
 
-  void MuonTrackTruthTool::addSimDataToTree( const MuonSimDataCollection& simDataCol ) const {
+  void MuonTrackTruthTool::addSimDataToTree( const std::string& name ) const {
+
+    if( !evtStore()->contains<MuonSimDataCollection>(name) ) return;
+
+    const MuonSimDataCollection* simDataCol = retrieveTruthCollection( name );
+    if( !simDataCol) {
+      ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << name );
+      return;
+    }
 
     // loop over sim collection and check whether identifiers are on track
-    MuonSimDataCollection::const_iterator it = simDataCol.begin();
-    MuonSimDataCollection::const_iterator it_end = simDataCol.end();
+    MuonSimDataCollection::const_iterator it = simDataCol->begin();
+    MuonSimDataCollection::const_iterator it_end = simDataCol->end();
     for( ;it!=it_end;++it ){
 
       Identifier id = it->first;
@@ -427,11 +350,11 @@ namespace Muon {
       std::vector<MuonSimData::Deposit>::const_iterator dit = it->second.getdeposits().begin();
       std::vector<MuonSimData::Deposit>::const_iterator dit_end = it->second.getdeposits().end();
       for( ;dit!=dit_end;++dit ){
-// 	int barcodeIn = manipulateBarCode(dit->first.barcode());
+        // 	int barcodeIn = manipulateBarCode(dit->first.barcode());
         int barcodeIn = dit->first.barcode();
 	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
 	if( bit == m_barcodeMap.end() ){
-	  if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcodeIn << endreq;
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcodeIn);
 	  continue;
 	}
 	// replace barcode with barcode from map
@@ -439,66 +362,74 @@ namespace Muon {
 
 	TruthTreeIt eit = m_truthTree.find(barcode);
 	if( eit == m_truthTree.end() ){
-	  if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcode << endreq;
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcode);
 	  continue;
 	}
 
 	if( m_idHelperTool->isMdt(id) ){
 	  if( m_detMgr && !m_detMgr->getMdtReadoutElement(id) ) {
-	    if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
-				   << "   barcode " << barcode << endreq;
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+                             << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.mdtHits.insert(*it);
 	}else if( m_idHelperTool->isRpc(id) ){
 	  if( m_detMgr && !m_detMgr->getRpcReadoutElement(id) ) {
-	    if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
-				   << "   barcode " << barcode << endreq;
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+                             << "   barcode " << barcode);
 	    continue;
 	  }
 	  
 	  if( m_idHelperTool->stationIndex(id) == MuonStationIndex::BO && m_idHelperTool->rpcIdHelper().doubletR(id) == 2 ){
-	    if( m_debug ) *m_log << MSG::VERBOSE << " Discarding non existing RPC hit " << m_idHelperTool->toString(id) << endreq;
+	    ATH_MSG_VERBOSE(" Discarding non existing RPC hit " << m_idHelperTool->toString(id));
 	    continue;
 	  }
 	  
 	  eit->second.rpcHits.insert(*it);
 	}else if( m_idHelperTool->isTgc(id) ) {
 	  if( m_detMgr && !m_detMgr->getTgcReadoutElement(id) ) {
-	    if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
-				   << "   barcode " << barcode << endreq;
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+                             << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.tgcHits.insert(*it);
 	}else if( m_idHelperTool->issTgc(id) ) {
 	  if( m_detMgr && !m_detMgr->getsTgcReadoutElement(id) ) {
-	    if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
-				   << "   barcode " << barcode << endreq;
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+                             << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.stgcHits.insert(*it);
 	}else if( m_idHelperTool->isMM(id) ) {
 	  if( m_detMgr && !m_detMgr->getMMReadoutElement(id) ) {
-	    if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
-				   << "   barcode " << barcode << endreq;
+	    ATH_MSG_VERBOSE( " discarding: no detEl " << "  " << m_idHelperTool->toString(id) 
+                             << "   barcode " << barcode);
 	    continue;
 	  }
 	  eit->second.mmHits.insert(*it);
 	}
-	if( m_verbose ){
-	  *m_log << MSG::VERBOSE <<  " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
-	  if( barcode != barcodeIn ) *m_log << " hit barcode " << barcodeIn;
-	  *m_log << endreq;
+        if( msgLvl(MSG::VERBOSE) ){
+          msg(MSG::VERBOSE) << MSG::VERBOSE <<  " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
+	  if( barcode != barcodeIn ) msg(MSG::VERBOSE) << " hit barcode " << barcodeIn;
+	  msg(MSG::VERBOSE) << endreq;
 	}
       }
     }    
   }
 
-  void MuonTrackTruthTool::addSimDataToTree( const CscSimDataCollection& simDataCol ) const {
+  void MuonTrackTruthTool::addCscSimDataToTree( const std::string& name ) const {
+
+    if( !evtStore()->contains<CscSimDataCollection>(name) ) return;
+
+    const CscSimDataCollection* simDataCol = retrieveCscTruthCollection( name );
+    if( !simDataCol) {
+      ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << name);
+      return;
+    }
 
     // loop over sim collection and check whether identifiers are on track
-    CscSimDataCollection::const_iterator it = simDataCol.begin();
-    CscSimDataCollection::const_iterator it_end = simDataCol.end();
+    CscSimDataCollection::const_iterator it = simDataCol->begin();
+    CscSimDataCollection::const_iterator it_end = simDataCol->end();
     for( ;it!=it_end;++it ){
 
       Identifier id = it->first;
@@ -511,7 +442,7 @@ namespace Muon {
 	int barcodeIn = manipulateBarCode(dit->first.barcode());
 	std::map<int,int>::iterator bit = m_barcodeMap.find(barcodeIn);
 	if( bit == m_barcodeMap.end() ){
-	  if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcodeIn << endreq;
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcodeIn);
 	  continue;
 	}
 	// replace barcode with barcode from map
@@ -519,107 +450,56 @@ namespace Muon {
 
 	TruthTreeIt eit = m_truthTree.find(barcode);
 	if( eit == m_truthTree.end() ){
-	  if( m_verbose ) *m_log << MSG::VERBOSE <<  " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcode << endreq;
+	  ATH_MSG_VERBOSE( " discarding " << "  " << m_idHelperTool->toString(id) << "   barcode " << barcode);
 	  continue;
-	}else{
+	}
 
-	  if( m_verbose ){
-	    *m_log << MSG::VERBOSE <<  " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
-	    if( barcode != barcodeIn ) *m_log << " hit barcode " << barcodeIn;
-	    *m_log << endreq;
-	  }
-	  if( m_idHelperTool->isCsc(id) ) eit->second.cscHits.insert(*it);
-	  else{
-	    *m_log << MSG::WARNING << " CscSimData object without CSC identifier " << m_idHelperTool->toString(id) << endreq;
-	  }
-	}	
+        if( msgLvl(MSG::VERBOSE) ){
+          msg(MSG::VERBOSE) << " adding hit " << m_idHelperTool->toString(id) << "   barcode " << barcode;
+          if( barcode != barcodeIn ) msg(MSG::VERBOSE) << " hit barcode " << barcodeIn;
+          msg(MSG::VERBOSE) << endreq;
+        }
+        eit->second.cscHits.insert(*it);
       }
     }    
   }
 
 
   const TrackRecordCollection* MuonTrackTruthTool::getTruthTrackCollection() const {
-
+    
     const TrackRecordCollection* truthCollection = 0;
-    std::string location = "CosmicRecord";
-    if ( m_storeGate->contains<TrackRecordCollection>(location) ) {
-      if( m_storeGate->retrieve(truthCollection,location ).isSuccess() ){
-	if( !truthCollection->empty() ) {
-	  if( m_debug ) *m_log << MSG::VERBOSE << "TrackRecordCollection retrieved at location " << location << endreq;
-	  return truthCollection;
-	}
+    std::vector<std::string> locations = { "MuonEntryLayerFilter" };
+    for( const auto& location : locations ){
+      if ( evtStore()->contains<TrackRecordCollection>(location) && evtStore()->retrieve(truthCollection,location ).isSuccess() && !truthCollection->empty() ) {
+        ATH_MSG_VERBOSE("TrackRecordCollection retrieved at location " << location);
+        return truthCollection;
       }
-      if( m_debug ) *m_log << MSG::VERBOSE << "location " << location << " discarded" << endreq;
+      ATH_MSG_VERBOSE("location " << location << " discarded");
     }
-
-    location = "MuonEntryLayer";
-    if ( m_storeGate->contains<TrackRecordCollection>(location) ) {
-      if( m_storeGate->retrieve(truthCollection,location ).isSuccess() ){
-	if( !truthCollection->empty() ) {
-	  if( m_debug ) *m_log << MSG::VERBOSE << "TrackRecordCollection retrieved at location " << location << endreq;
-	  return truthCollection;
-	}
-      }
-      if( m_debug ) *m_log << MSG::VERBOSE << "location " << location << " discarded" << endreq;
-    }
-
-    location = "MuonEntryLayerFilter";
-    if ( m_storeGate->contains<TrackRecordCollection>(location) ) {
-      if( m_storeGate->retrieve(truthCollection,location ).isSuccess() ){
-	if( !truthCollection->empty() ) {
-	  if( m_debug ) *m_log << MSG::VERBOSE << "TrackRecordCollection retrieved at location " << location << endreq;
-	  return truthCollection;
-	}
-      }
-      if( m_debug ) *m_log << MSG::VERBOSE << "location " << location << " discarded" << endreq;
-    }
-
-    location ="MuonEntryRecord";
-    if ( m_storeGate->contains<TrackRecordCollection>(location) ) {
-      if( m_storeGate->retrieve(truthCollection,location ).isFailure() ){
-	if( !truthCollection->empty() ) {
-	  if( m_debug ) *m_log << MSG::VERBOSE << "TrackRecordCollection retrieved at location " << location << endreq;
-	  return truthCollection;
-	}
-      }
-      if( m_debug ) *m_log << MSG::VERBOSE << "location " << location << " discarded" << endreq;
-    }
-
-    location ="MuonExitRecord";
-    if ( m_storeGate->contains<TrackRecordCollection>(location) ) {
-      if( m_storeGate->retrieve(truthCollection,location ).isFailure() ){
-	if( !truthCollection->empty() ) {
-	  if( m_debug ) *m_log << MSG::VERBOSE << "TrackRecordCollection retrieved at location " << location << endreq;
-	  return truthCollection;
-	}
-      }
-      if( m_debug ) *m_log << MSG::VERBOSE << "location " << location << " discarded" << endreq;
-    }
-
     return truthCollection;
   }
   
   const MuonSimDataCollection* MuonTrackTruthTool::retrieveTruthCollection( std::string colName ) const {
     // Retrieve SDO map for this event
-    if(!m_storeGate->contains<MuonSimDataCollection>(colName)) return 0;
+    if(!evtStore()->contains<MuonSimDataCollection>(colName)) return 0;
 
     const MuonSimDataCollection* truthCol(0);
-    if(!m_storeGate->retrieve(truthCol, colName).isSuccess()) {
-      if( m_debug ) *m_log << MSG::VERBOSE << "Could NOT find the MuonSimDataMap map key = "<< colName << endreq;
+    if(!evtStore()->retrieve(truthCol, colName).isSuccess()) {
+      ATH_MSG_VERBOSE("Could NOT find the MuonSimDataMap map key = "<< colName);
     }	else {
-      if( m_debug ) *m_log << MSG::VERBOSE << "Retrieved MuonSimDataCollection for key = " << colName << endreq;
+      ATH_MSG_VERBOSE("Retrieved MuonSimDataCollection for key = " << colName);
     }
     return truthCol;
   }
 
   const CscSimDataCollection* MuonTrackTruthTool::retrieveCscTruthCollection( std::string colName ) const {
-        // Retrieve SDO map for this event
-    if(!m_storeGate->contains<CscSimDataCollection>(colName)) return 0;
+    // Retrieve SDO map for this event
+    if(!evtStore()->contains<CscSimDataCollection>(colName)) return 0;
     const CscSimDataCollection* truthCol(0);
-    if(!m_storeGate->retrieve(truthCol, colName).isSuccess()) {
-      if( m_debug ) *m_log << MSG::VERBOSE << "Could NOT find the CscSimDataMap map key = "<< colName << endreq;
+    if(!evtStore()->retrieve(truthCol, colName).isSuccess()) {
+      ATH_MSG_VERBOSE("Could NOT find the CscSimDataMap map key = "<< colName);
     }	else {
-      if( m_debug ) *m_log << MSG::VERBOSE << "Retrieved CscSimDataCollection for key = " << colName << endreq;
+      ATH_MSG_VERBOSE("Retrieved CscSimDataCollection for key = " << colName);
     }
     return truthCol;
   }
@@ -649,7 +529,7 @@ namespace Muon {
 	const Trk::RIO_OnTrack* rot = 0;
 	rotExtractor.extract(rot,meas);
 	if( !rot ) {
-	  if( !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas) ) *m_log << MSG::WARNING << " Could not get rot from measurement " << endreq;
+	  if( !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas) ) ATH_MSG_WARNING(" Could not get rot from measurement ");
 	  continue;
 	}
 	Identifier id = rot->identify();
@@ -682,11 +562,11 @@ namespace Muon {
 
       MuonTrackTruth trackTruth = getTruth(measurements,tit->second,restrictedTruth);
       unsigned int nmatchedHits = trackTruth.numberOfMatchedHits();
-      if( m_debug ) *m_log << MSG::DEBUG << " performed truth match for particle with barcode: " << tit->first << " overlap " << nmatchedHits 
-			   << " fraction  "<< (double)nmatchedHits/(double)nhits<< endreq;
+      ATH_MSG_DEBUG(" performed truth match for particle with barcode: " << tit->first << " overlap " << nmatchedHits 
+                    << " fraction  "<< (double)nmatchedHits/(double)nhits);
       if( nmatchedHits > 0 && nmatchedHits > nmatchedHitsBest ){
-	bestMatch = trackTruth;
-	nmatchedHitsBest = nmatchedHits;
+        bestMatch = trackTruth;
+        nmatchedHitsBest = nmatchedHits;
       }
     }
     
@@ -694,7 +574,7 @@ namespace Muon {
   }
 
   MuonTrackTruth MuonTrackTruthTool::getTruth( const std::vector<const Trk::MeasurementBase*>& measurements,
-					       TruthTreeEntry& truthEntry, bool restrictedTruth ) const {
+                                               TruthTreeEntry& truthEntry, bool restrictedTruth ) const {
     
     Trk::RoT_Extractor rotExtractor;
     MuonTrackTruth trackTruth;
@@ -708,31 +588,31 @@ namespace Muon {
       // check whether state is a measurement
       const Trk::MeasurementBase* meas = *mit;
       if( !meas ){	
-	continue;
+        continue;
       }
 
       const Trk::RIO_OnTrack* rot = 0;
       rotExtractor.extract(rot,meas);
       if( !rot ) {
-	if( !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas) ) *m_log << MSG::WARNING << " Could not get rot from measurement " << endreq;
-	continue;
+        if( !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(meas) ) ATH_MSG_WARNING(" Could not get rot from measurement ");
+        continue;
       }
       Identifier id = rot->identify();
       if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
 
             
       if( m_idHelperTool->isMdt(id) ){
-	addMdtTruth( trackTruth.mdts, id, *meas, truthEntry.mdtHits );
+        addMdtTruth( trackTruth.mdts, id, *meas, truthEntry.mdtHits );
       }else if( m_idHelperTool->isCsc(id) ){
-	addClusterTruth( trackTruth.cscs, id, *meas, truthEntry.cscHits );
+        addClusterTruth( trackTruth.cscs, id, *meas, truthEntry.cscHits );
       }else if( m_idHelperTool->isRpc(id) ){
-	addClusterTruth( trackTruth.rpcs, id, *meas, truthEntry.rpcHits );
+        addClusterTruth( trackTruth.rpcs, id, *meas, truthEntry.rpcHits );
       }else if( m_idHelperTool->isTgc(id) ){
-	addClusterTruth( trackTruth.tgcs, id, *meas, truthEntry.tgcHits );
+        addClusterTruth( trackTruth.tgcs, id, *meas, truthEntry.tgcHits );
       }else if( m_idHelperTool->issTgc(id) ){
-	addClusterTruth( trackTruth.stgcs, id, *meas, truthEntry.stgcHits );
+        addClusterTruth( trackTruth.stgcs, id, *meas, truthEntry.stgcHits );
       }else if( m_idHelperTool->isMM(id) ){
-	addClusterTruth( trackTruth.mms, id, *meas, truthEntry.mmHits );
+        addClusterTruth( trackTruth.mms, id, *meas, truthEntry.mmHits );
       }
     }
 
@@ -748,7 +628,7 @@ namespace Muon {
   }
 
   void MuonTrackTruthTool::addMissedHits( MuonTechnologyTruth& truth, const std::set<Identifier>& ids, const std::set<Identifier>& chids, 
-					  const MuonSimDataCollection& simCol, bool restrictedTruth ) const {
+                                          const MuonSimDataCollection& simCol, bool restrictedTruth ) const {
     
     // loop over sim collection and check whether identifiers are on track
     MuonSimDataCollection::const_iterator it = simCol.begin();
@@ -771,16 +651,16 @@ namespace Muon {
       std::vector<MuonSimData::Deposit>::const_iterator dit = it->second.getdeposits().begin();
       std::vector<MuonSimData::Deposit>::const_iterator dit_end = it->second.getdeposits().end();
       for( ;dit!=dit_end;++dit ){
-	truth.missedHits.insert(id);
-	// only fill a missed chamber if the chamber had no hits
-	if( !chamberHasHits ) truth.missedChambers.insert(chid);
+        truth.missedHits.insert(id);
+        // only fill a missed chamber if the chamber had no hits
+        if( !chamberHasHits ) truth.missedChambers.insert(chid);
 	
       }
     }
   }
 
   void MuonTrackTruthTool::addMissedHits( MuonTechnologyTruth& truth, const std::set<Identifier>& ids, const std::set<Identifier>& chids,
-					  const CscSimDataCollection& simCol, bool restrictedTruth ) const {
+                                          const CscSimDataCollection& simCol, bool restrictedTruth ) const {
     
     // loop over sim collection and check whether identifiers are on track
     CscSimDataCollection::const_iterator it = simCol.begin();
@@ -801,19 +681,19 @@ namespace Muon {
       std::vector<CscSimData::Deposit>::const_iterator dit = it->second.getdeposits().begin();
       std::vector<CscSimData::Deposit>::const_iterator dit_end = it->second.getdeposits().end();
       for( ;dit!=dit_end;++dit ){
-	truth.missedHits.insert(id);
-	// only fill a missed chamber if the chamber had no hits
-	if( !chamberHasHits ) truth.missedChambers.insert(chid);
+        truth.missedHits.insert(id);
+        // only fill a missed chamber if the chamber had no hits
+        if( !chamberHasHits ) truth.missedChambers.insert(chid);
       }
     }
   }
 
   void MuonTrackTruthTool::addMdtTruth( MuonTechnologyTruth& truth, const Identifier& id, const Trk::MeasurementBase& meas, 
-					const MuonSimDataCollection& simCol ) const {
+                                        const MuonSimDataCollection& simCol ) const {
 
     const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(&meas);
     if( !mdt ){
-      *m_log << MSG::WARNING << " dynamic_cast to MdtDriftCircleOnTrack failed for measurement with id " << m_idHelperTool->toString(id) << endreq;
+      ATH_MSG_WARNING(" dynamic_cast to MdtDriftCircleOnTrack failed for measurement with id " << m_idHelperTool->toString(id));
       return;
     }
     
@@ -835,17 +715,17 @@ namespace Muon {
       // check whether SDO and hit have same sign, don't check sign if drift radius < 0.3 mm as it will be badly determined
       double checkSign = fabs(mdt->driftRadius()) > 0.3 ? radius*mdt->driftRadius() : 1;
       if( checkSign >= 0 ) {
-	truth.matchedHits.insert(id);
-	truth.matchedChambers.insert(chid);
+        truth.matchedHits.insert(id);
+        truth.matchedChambers.insert(chid);
       }else{
-	truth.wrongHits.insert(id);
-	truth.wrongChambers.insert(chid);
+        truth.wrongHits.insert(id);
+        truth.wrongChambers.insert(chid);
       }
     }
   }
 
   void MuonTrackTruthTool::addClusterTruth( MuonTechnologyTruth& truth, const Identifier& id, const Trk::MeasurementBase& meas, 
-					    const MuonSimDataCollection& simCol ) const {
+                                            const MuonSimDataCollection& simCol ) const {
     
     Identifier layid = m_idHelperTool->layerId(id);
     Identifier chid = m_idHelperTool->chamberId(id);
@@ -856,14 +736,14 @@ namespace Muon {
     const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(&meas);
     if( crot ){
       for( unsigned int i=0;i<crot->numberOfContainedROTs();++i){
-	const MuonClusterOnTrack* cluster = &crot->rioOnTrack(i);
-	if( !cluster ) continue;
-	// find SimData corresponding to identifier
-	it = simCol.find(cluster->identify());
-	if( it != simCol.end() ) {
-	  goodCluster = true;
-	  break;
-	}
+        const MuonClusterOnTrack* cluster = &crot->rioOnTrack(i);
+        if( !cluster ) continue;
+        // find SimData corresponding to identifier
+        it = simCol.find(cluster->identify());
+        if( it != simCol.end() ) {
+          goodCluster = true;
+          break;
+        }
       }
     }else{
       // find SimData corresponding to identifier
@@ -886,7 +766,7 @@ namespace Muon {
   }
 
   void MuonTrackTruthTool::addClusterTruth( MuonTechnologyTruth& truth, const Identifier& id, const Trk::MeasurementBase& /*meas*/, 
-					    const CscSimDataCollection& simCol ) const {
+                                            const CscSimDataCollection& simCol ) const {
 
     Identifier layid = m_idHelperTool->layerId(id);
     Identifier chid = m_idHelperTool->chamberId(id);
