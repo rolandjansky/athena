@@ -1,0 +1,32 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// 
+//   Inline file for class SimpleScintillatorHit
+//
+// Author Andrea Di Simone
+///////////////////////////////////////////////////////////////////
+
+  
+inline int SimpleScintillatorHit::GetParticleEncoding() const
+{ return m_particleEncoding; }
+  
+inline float SimpleScintillatorHit::GetKineticEnergy() const
+{ return m_kineticEnergy; }
+  
+inline float SimpleScintillatorHit::GetEnergyDeposit() const
+{ return m_energyDeposit; }
+  
+inline CLHEP::Hep3Vector SimpleScintillatorHit::GetPosition() const
+{ return m_position; }
+
+inline float SimpleScintillatorHit::GetGlobalTime() const
+{ return m_globalTime; }
+
+inline int SimpleScintillatorHit::GetCopyNo() const
+{ return m_copyNo; }
+
+inline const HepMcParticleLink& SimpleScintillatorHit::particleLink() const
+{ return m_partLink; }

@@ -1,0 +1,64 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// ScintillatorHit.h
+//   Inline file for class ScintillatorHit
+//
+// Author Thomas Kittelmann <kittel@nbi.dk>
+///////////////////////////////////////////////////////////////////
+
+inline int ScintillatorHit::GetVolNumber() const
+{ return m_volNumber; }
+  
+inline int ScintillatorHit::GetParticleEncoding() const
+{ return m_particleEncoding; }
+  
+inline float ScintillatorHit::GetKineticEnergy() const
+{ return m_kineticEnergy; }
+  
+inline float ScintillatorHit::GetEnergyDeposit() const
+{ return m_energyDeposit; }
+  
+inline float ScintillatorHit::GetPreStepX() const
+{ return m_preStepX; }
+
+inline float ScintillatorHit::GetPreStepY() const
+{ return m_preStepY; }
+
+inline float ScintillatorHit::GetPreStepZ() const
+{ return m_preStepZ; }
+
+inline float ScintillatorHit::GetPostStepX() const
+{ return m_postStepX; }
+  
+inline float ScintillatorHit::GetPostStepY() const
+{ return m_postStepY; }
+  
+inline float ScintillatorHit::GetPostStepZ() const
+{ return m_postStepZ; }
+
+inline float ScintillatorHit::GetGlobalPreStepX() const
+{ return m_globalPreStepX; }
+
+inline float ScintillatorHit::GetGlobalPreStepY() const
+{ return m_globalPreStepY; }
+
+inline float ScintillatorHit::GetGlobalPreStepZ() const
+{ return m_globalPreStepZ; }
+
+inline float ScintillatorHit::GetGlobalPostStepX() const
+{ return m_globalPostStepX; }
+  
+inline float ScintillatorHit::GetGlobalPostStepY() const
+{ return m_globalPostStepY; }
+  
+inline float ScintillatorHit::GetGlobalPostStepZ() const
+{ return m_globalPostStepZ; }
+
+inline float ScintillatorHit::GetGlobalTime() const
+{ return m_globalTime; }
+
+inline const HepMcParticleLink& ScintillatorHit::particleLink() const
+{ return m_partLink; }
