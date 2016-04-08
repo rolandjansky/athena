@@ -21,12 +21,18 @@ use xAODJet         	xAODJet-*         	Event/xAOD
 #use xAODCaloEvent   	xAODCaloEvent-*   	Event/xAOD
 use xAODEgamma          xAODEgamma-*            Event/xAOD 
 use xAODMuon            xAODMuon-*              Event/xAOD 
-#use xAODTau             xAODTau-*               Event/xAOD 
+use xAODTau             xAODTau-*               Event/xAOD 
 use xAODMissingET       xAODMissingET-*         Event/xAOD 
 use xAODTracking        xAODTracking-*          Event/xAOD 
 use xAODJet		 xAODJet-*		 Event/xAOD
 use xAODMuon             xAODMuon-*              Event/xAOD
 use xAODEgamma           xAODEgamma-*            Event/xAOD
+use METInterface        METInterface-*          Reconstruction/MET
+use ElectronPhotonSelectorTools          ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use MuonSelectorTools         MuonSelectorTools-*         PhysicsAnalysis/MuonID
+use TauAnalysisTools TauAnalysisTools-* PhysicsAnalysis/TauID
+use JetInterface	 JetInterface-*		Reconstruction/Jet
+use AsgTools		 AsgTools-*		Control/AthToolSupport
 end_private
 
 ##
