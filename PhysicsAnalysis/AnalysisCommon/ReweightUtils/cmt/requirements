@@ -1,20 +1,44 @@
 package ReweightUtils
 
-author Fabian Kohn (fkohn@cern.ch)
+author Olivier Arnaez (olivier.arnaez@cern.ch)
 
 use AtlasPolicy                 AtlasPolicy-*
 
 use AtlasROOT			AtlasROOT-*			External
 
-# Specify the required ROOT components for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist MathCore)"
+public
+use  AsgTools                   AsgTools-*                      Control/AthToolSupport
+use  PATInterfaces              PATInterfaces-*                 PhysicsAnalysis/AnalysisCommon
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 
-library ReweightUtils "../Root/*.cxx"
-apply_pattern installed_library
+private
+use  GaudiInterface             GaudiInterface-*                External
+use  xAODParticleEvent          xAODParticleEvent-*             Event/xAOD
 
-apply_tag  ROOTBasicLibs
-apply_tag  ROOTMathLibs
-apply_tag  ROOTGraphicsLibs
+public
+branches python src src/components Root share
 
-apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h ../Root/LinkDef.h"          headers_lib=ReweightUtils
+## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
+#library ReweightUtils *.cxx components/*.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx Root/*.cxx src/*.cxx components/*.cxx"
+
+#this pattern will allow the 'include' function of joboptions to find the *.py files in the share directory
+apply_pattern declare_joboptions files="*.py"
+#this pattern will install any *.py files in the python directory.
+apply_pattern declare_python_modules files="*.py"
+
+private
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=ReweightUtils selectionfile=selection.xml headerfiles="../ReweightUtils/ReweightUtilsDict.h"
+end_private
+
+
+
+#apply_tag  ROOTBasicLibs
+#apply_tag  ROOTMathLibs
+#apply_tag  ROOTGraphicsLibs
+
+#apply_pattern have_root_headers  root_headers="APReweightBase.h APReweight.h APReweight2D.h APReweight3D.h APReweightND.h APWeightEntry.h APWeightHist.h APEvtWeight.h APWeightSum.h APWeightSumEnsemble.h ../Root/LinkDef.h"          headers_lib=ReweightUtils
+
 

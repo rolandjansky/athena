@@ -1,8 +1,11 @@
 PACKAGE          = ReweightUtils
 PACKAGE_PRELOAD  = Hist
-PACKAGE_CXXFLAGS = 
+PACKAGE_CXXFLAGS =
 PACKAGE_LDFLAGS  =
-PACKAGE_BINFLAGS = 
-PACKAGE_DEP      = 
+PACKAGE_BINFLAGS =
+PACKAGE_DEP      = AsgTools PATInterfaces xAODBase xAODEventInfo xAODParticleEvent 
+PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX   = 0
+PACKAGE_CLEAN    = Root/definitions.h Root/locals.h python/__init__.py
 
 include $(ROOTCOREDIR)/Makefile-common
