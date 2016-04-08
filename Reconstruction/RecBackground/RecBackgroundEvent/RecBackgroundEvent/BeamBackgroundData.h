@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BeamBackgroundData.h 589193 2014-03-25 00:13:52Z tsulaia $
+// $Id: BeamBackgroundData.h 659084 2015-04-06 03:39:10Z ssnyder $
 #ifndef RECBACKGROUNDEVENT_BEAMBACKGROUNDDATA
 #define RECBACKGROUNDEVENT_BEAMBACKGROUNDDATA
 
@@ -22,13 +22,32 @@
  *
  * @author David Salek <David.Salek@cern.ch>
  *
- * $Revision: 589193 $
- * $Date: 2014-03-25 01:13:52 +0100 (Tue, 25 Mar 2014) $
+ * $Revision: 659084 $
+ * $Date: 2015-04-06 05:39:10 +0200 (Mon, 06 Apr 2015) $
  */
 class BeamBackgroundData
 {
 public:
-  BeamBackgroundData() {};
+  BeamBackgroundData() :
+  m_decision(0),
+  m_numSegment(0),
+  m_numSegmentEarly(0),
+  m_numSegmentACNoTime(0),
+  m_numSegmentAC(0),
+  m_numMatched(0),
+  m_numNoTimeLoose(0),
+  m_numNoTimeMedium(0),
+  m_numNoTimeTight(0),
+  m_numOneSidedLoose(0),
+  m_numOneSidedMedium(0),
+  m_numOneSidedTight(0),
+  m_numTwoSidedNoTime(0),
+  m_numTwoSided(0),
+  m_numClusterShape(0),
+  m_numJet(0),
+  m_direction(0)
+  {}
+
   ~BeamBackgroundData() {};
 
   // decision bits
