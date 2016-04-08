@@ -1905,6 +1905,7 @@ MuidMatchMaker::indetCandidates (std::vector<IndetMatchCandidate*>&     candidat
           
         // check both tracks belong to same eta,phi region
         const Trk::Perigee* indetPerigee        = m_trackQuery->outgoingPerigee(**indet);
+        if(!indetPerigee) continue;
         double indetEta                         = indetPerigee->momentum().eta();
         double deltaEta                         = fabs(muonEta - indetEta);
         double deltaPhi                         = muonPhi - indetPerigee->parameters()[Trk::phi];
