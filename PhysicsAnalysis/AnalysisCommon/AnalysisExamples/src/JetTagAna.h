@@ -253,8 +253,8 @@ class JetTagAna : public AthAlgorithm {
   // tag ntuple variables:
   static const int m_maxjet = 80;
  
-  int m_eventNumber;
-  int m_runNumber;
+  //int m_eventNumber;
+  //int m_runNumber;
 
   //
   int   m_njet;
@@ -285,7 +285,7 @@ class JetTagAna : public AthAlgorithm {
   //
   double getTotWeight(double,double);
   const HepMC::GenParticle* getTruth(const Rec::TrackParticle* myTrackParticle,const TrackParticleTruthCollection* mcpartTES,const Rec::TrackParticleContainer* trackTES);
-  const HepPDT::ParticleDataTable* m_particleTable;
+  //const HepPDT::ParticleDataTable* m_particleTable;
 
 };
 

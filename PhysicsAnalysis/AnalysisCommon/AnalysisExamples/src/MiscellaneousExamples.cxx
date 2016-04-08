@@ -38,7 +38,7 @@ bool selectParticle(MiscellaneousExamples *self, const ParticleVect &jj);
 
 /// some user defined constants
 static const double mW         = 80.4*CLHEP::GeV;
-static const double topMass    = 175.0*CLHEP::GeV;
+//static const double topMass    = 175.0*CLHEP::GeV;
 
 using namespace Analysis;
 

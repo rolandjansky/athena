@@ -232,8 +232,6 @@ JetTagAna::JetTagAna(const std::string& name,
     m_h_rej_upur_ET(),
     m_h_rej_upur_eta(),
     m_h_rej_upur_phi(),
-    m_eventNumber(0),
-    m_runNumber(0),
     m_njet(0),
     m_jet_phi(),
     m_jet_eta(),
@@ -261,8 +259,7 @@ JetTagAna::JetTagAna(const std::string& name,
     m_ntrackj(),
     m_nmuonj(),
     p_nt1(nullptr),
-    m_UseTupleSET(false),
-    m_particleTable(nullptr)
+    m_UseTupleSET(false)
 {
   declareProperty("JetContainer", m_particleJetContainerName = "Cone4H1TowerJets");
   declareProperty("MCParticleContainer", m_truthParticleContainerName = "SpclMC");
@@ -824,7 +821,7 @@ StatusCode JetTagAna::execute() {
 		 << " weight2D= " << wi2D
 		 << " weight3D= " << wi3D
 		 << " probJetProb= " << piJP
-		 << " grade= " << (std::string)grd
+                              << " grade= " << grd.gradeString()
                               << (vzero ? " fromV0 " : "") );
 	    if(trk) {
 	      ATH_MSG_VERBOSE ( " track pT= " << trk->pt()
