@@ -25,12 +25,12 @@ ITPConverter::converterNotFound( const std::type_info& converterType,
 				 MsgStream& log )
 {
    log << MSG::ERROR << ">>>>>> in parent TP converter " << typeid(*this).name()
-       << ": could not find matching TP converter for type " << typeName << endmsg;
+       << ": could not find matching TP converter for type " << typeName << endreq;
    if( c ) {
       log << MSG::ERROR << " - found incompatible converter of type "
-	  << typeid(*c).name() << endmsg;
+	  << typeid(*c).name() << endreq;
    }
-   log << MSG::ERROR << "  Converter handle type was " << converterType.name() << endmsg;
+   log << MSG::ERROR << "  Converter handle type was " << converterType.name() << endreq;
    errorHandler();
 }
 
@@ -43,14 +43,14 @@ ITPConverter::converterNotFound( unsigned typeID,
 				 MsgStream& log )
 {
    log << MSG::ERROR << ">>>>>> in parent TP converter " <<  typeid(*this).name()
-       << "   requested TP converter for TP type ID " << typeID << " not found " << endmsg;
+       << "   requested TP converter for TP type ID " << typeID << " not found " << endreq;
    if( c ) {
       log << MSG::ERROR << " - found converter " <<  typeid(*c).name()
           << " for " << c->transientTInfo().name()
           << " with an incompatible base type " << c->transBaseTInfo().name()
-          << endmsg;
+          << endreq;
    }
-   log << MSG::ERROR << "  Converter handle type was " << reqCnvTypeName <<  endmsg;
+   log << MSG::ERROR << "  Converter handle type was " << reqCnvTypeName <<  endreq;
    errorHandler();
 }
 
