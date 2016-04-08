@@ -16,35 +16,6 @@ topSeq+=FTK_RDO_CreatorAlgo
 
 #FTK_RDO_CreatorAlgo = Algorithm( "FTK_RDO_CreatorAlgo",  OutputLevel=VERBOSE)
 
-# Map path
-from PyJobTransforms.trfUtils import findFile
-import os.path
-print runArgs
-if hasattr(runArgs, 'pmap_path'):
-    if os.path.exists(runArgs.pmap_path) :
-        FTK_RDO_CreatorAlgo.pmap_path = runArgs.pmap_path
-    else :
-        stdpath = findFile(os.environ['DATAPATH'], 'ftk_configuration/map_files/' + runArgs.pmap_path)
-        if not os.path.exists(stdpath) :
-            raise RuntimeError, 'PMAP %s file not find' % runArgs.pmap_path
-        FTK_RDO_CreatorAlgo.pmap_path = stdpath
-else:
-    raise RuntimeError, "PMAP wasn't not set. Abort"
-
-#FTK_RDO_CreatorAlgo.useStandalone   = True
-#FTK_RDO_CreatorAlgo.SingleProces    = True
-#FTK_RDO_CreatorAlgo.doMerging       = False
-
-FTK_RDO_CreatorAlgo.NBanks        = 1
-FTK_RDO_CreatorAlgo.NSubRegions     = 1
-###Set Hit Warrior parameter
-FTK_RDO_CreatorAlgo.HitWarrior      = 2  # Default 2
-FTK_RDO_CreatorAlgo.KeepRejected    = 0  # >0 enable HW debug feature
-if hasattr(runArgs,"FTKOldFormat") :
-   FTK_RDO_CreatorAlgo.mergeTrackBName = "FTKBankMerged"
-else :
-   FTK_RDO_CreatorAlgo.mergeTrackBName = "FTKMergedTracksStream"
-
 # Set the input FTK tracks file here
 if hasattr(runArgs, 'inputNTUP_FTKFile'):
     FTK_RDO_CreatorAlgo.mergedTrackPaths = runArgs.inputNTUP_FTKFile

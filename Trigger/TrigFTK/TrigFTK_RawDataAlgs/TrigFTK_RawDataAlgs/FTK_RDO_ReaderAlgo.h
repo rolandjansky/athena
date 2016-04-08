@@ -14,12 +14,13 @@
 
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
-
+#include "TrkEventPrimitives/VertexType.h"
 #include <vector>
 #include <string>
 #include <map>
 
 #include "TH1D.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 class FTK_RDO_ReaderAlgo: public AthAlgorithm {
@@ -31,6 +32,10 @@ public:
   StatusCode finalize();
 
 private:
+
+  std::string strVertexType( const Trk::VertexType vxtype);
+  std::string strVertexType( const xAOD::VxType::VertexType vxtype);
+  
 
   /// Tools and services ///
   ITHistSvc*    rootHistSvc;
@@ -52,6 +57,7 @@ private:
   //  std::string m_TrackParticleCollectionName;
   bool m_getRefitTrackParticles; 
   //  std::string m_refitTrackParticleCollectionName;
+  bool m_getRawVxVertex; 
   bool m_getVxVertex; 
   //  std::string m_VxContainerName;
   bool m_getRefitVxVertex; 
@@ -72,7 +78,7 @@ private:
   TH1D* h_FTK_RawTrack_phi;
   TH1D* h_FTK_RawTrack_d0;
   TH1D* h_FTK_RawTrack_z0;
-  TH1D* h_FTK_RawTrack_curv;
+  TH1D* h_FTK_RawTrack_invPt;
   TH1D* h_FTK_RawTrack_cot;
   TH1D* h_FTK_RawTrack_eta;
   TH1D* h_FTK_RawTrack_nPix;
@@ -82,7 +88,7 @@ private:
   TH1D* h_Track_phi;
   TH1D* h_Track_d0;
   TH1D* h_Track_z0;
-  TH1D* h_Track_curv;
+  TH1D* h_Track_invPt;
   TH1D* h_Track_cot;
   TH1D* h_Track_eta;
   TH1D* h_Track_nPix;
@@ -92,7 +98,7 @@ private:
   TH1D* h_refitTrack_phi;
   TH1D* h_refitTrack_d0;
   TH1D* h_refitTrack_z0;
-  TH1D* h_refitTrack_curv;
+  TH1D* h_refitTrack_invPt;
   TH1D* h_refitTrack_cot;
   TH1D* h_refitTrack_eta;
   TH1D* h_refitTrack_nPix;
