@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMenuWriter.cxx 648306 2015-02-19 19:44:19Z stelzer $
+// $Id: xAODMenuWriter.cxx 717661 2016-01-14 08:16:47Z tbold $
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -160,8 +160,8 @@ namespace TrigConf {
          m_trigConf->ctpConfig()->menu().items().begin();
       TrigConf::ItemContainer::const_iterator item_end =
          m_trigConf->ctpConfig()->menu().items().end();
-      std::vector< int > prescales =
-         m_trigConf->ctpConfig()->prescaleSet().prescales();
+      std::vector< float > prescales =
+         m_trigConf->ctpConfig()->prescaleSet().prescales_float();
       for( ; item_itr != item_end; ++item_itr ) {
 
          // Extract the information:

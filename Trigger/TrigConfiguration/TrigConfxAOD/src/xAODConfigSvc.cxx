@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODConfigSvc.cxx 631651 2014-11-27 18:33:16Z lheinric $
+// $Id: xAODConfigSvc.cxx 674242 2015-06-11 08:22:06Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Incident.h"
@@ -308,20 +308,15 @@ namespace TrigConf {
          }
       }
 
+      // Let the user know what happened:
+      ATH_MSG_DEBUG( "Loaded trigger configuration metadata container" );
+
       // A little sanity check:
       if( ! m_tmc->size() ) {
-         if( m_stopOnFailure ) {
-            REPORT_MESSAGE( MSG::FATAL )
-               << "No trigger configurations are available on the input";
-            return StatusCode::FAILURE;
-         } else {
-            ATH_MSG_INFO( "No valid xAOD::TriggerMenuContainer is available" );
-            return StatusCode::SUCCESS;
-         }
+         ATH_MSG_WARNING( "No trigger configurations are available on "
+                          "the input" );
+         return StatusCode::SUCCESS;
       }
-
-      // Let the user know what happened:
-      ATH_MSG_INFO( "Loaded trigger configuration metadata container" );
 
       // Point the menu pointer to the first element by default:
       m_menu = m_tmc->at( 0 );
@@ -352,7 +347,7 @@ namespace TrigConf {
       }
 
       // Check if we have the correct menu already:
-      if( xAODKeysMatch( keys, m_menu ) ) {
+      if( m_menu && xAODKeysMatch( keys, m_menu ) ) {
          return StatusCode::SUCCESS;
       }
 
