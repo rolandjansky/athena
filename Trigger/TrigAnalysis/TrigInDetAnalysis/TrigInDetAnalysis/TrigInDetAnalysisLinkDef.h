@@ -1,4 +1,4 @@
-#if defined(__CLING__) || defined( __MAKECINT__)
+#ifdef __MAKECINT__
 #pragma link C++ namespace TIDA;
 #pragma link C++ class TIDA::Vertex+;
 #pragma link C++ class TIDA::Roi+;

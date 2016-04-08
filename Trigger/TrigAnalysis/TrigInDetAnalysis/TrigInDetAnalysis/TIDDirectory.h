@@ -29,18 +29,10 @@ class TIDDirectory {
 
 public:
   
-  //  TIDDirectory() : mHAddState(true), mDAddState(true), mPop(0), mDir(0) { } 
+  TIDDirectory() : mHAddState(true), mDAddState(true), mPop(0), mDir(0) { } 
 
-  TIDDirectory(const std::string& n="") : 
-    mname(n), mPop(gDirectory), mDir(0) { 
-    
-    if ( n=="" ) { 
-      mDir = gDirectory;
-      return;
-    }
+  TIDDirectory(const std::string& n) : mPop(gDirectory), mDir(0) { 
 
-    
-    
     if ( n.find("/")==std::string::npos ) { 
       /// only create directory if it doesn't already exist      
       mDir = gDirectory->GetDirectory(n.c_str());
@@ -89,8 +81,6 @@ public:
   void disable() {  }
   void restore() {  }
 
-  std::string name() const { return mname; }
-
  protected:
   
   std::string chop( std::string& s1, const std::string s2="/" ) { 
@@ -105,10 +95,8 @@ public:
 
  protected:
 
-  //  bool        mHAddState;
-  //  bool        mDAddState;
-
-  std::string mname;
+  bool        mHAddState;
+  bool        mDAddState;
 
   TDirectory* mPop;
   TDirectory* mDir;

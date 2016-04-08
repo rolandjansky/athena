@@ -172,6 +172,14 @@ public:
   //  double etaMinus() const { return m_etaMinus; }   //!< gets eta at z-zwidth
 
   /// operators
+  TIDARoiDescriptor& operator=(const TIDARoiDescriptor& a) {
+    if (this != &a) {
+      *this = a;   // ???
+      m_params = a.params();
+      m_rois   = a.m_rois;
+    }
+    return *this;
+  }
 
 
   bool operator==( const TIDARoiDescriptor& b ) {
