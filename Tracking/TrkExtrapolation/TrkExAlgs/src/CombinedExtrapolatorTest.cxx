@@ -63,18 +63,18 @@ Trk::CombinedExtrapolatorTest::~CombinedExtrapolatorTest()
 StatusCode Trk::CombinedExtrapolatorTest::initialize()
 {
   // Code entered here will be executed once at program start.
-  msg(MSG::INFO) << " initialize()" << endmsg;
+  msg(MSG::INFO) << " initialize()" << endreq;
 
   // Get Extrapolator from ToolService   
   if (m_extrapolator.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve Tool " << m_extrapolator << ". Exiting."<<endmsg;
+        msg(MSG::FATAL) << "Could not retrieve Tool " << m_extrapolator << ". Exiting."<<endreq;
         return StatusCode::FAILURE;
   }
   
   m_gaussDist = new Rndm::Numbers(randSvc(), Rndm::Gauss(0.,1.));
   m_flatDist  = new Rndm::Numbers(randSvc(), Rndm::Flat(0.,1.));
 
-  msg(MSG::INFO) << "initialize() successful in " << endmsg;
+  msg(MSG::INFO) << "initialize() successful in " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -90,17 +90,17 @@ StatusCode Trk::CombinedExtrapolatorTest::finalize()
 
 StatusCode Trk::CombinedExtrapolatorTest::execute()
 {
-  msg(MSG::INFO) << " execute()" << endmsg;
+  msg(MSG::INFO) << " execute()" << endreq;
 
   // retrieve outer boundary
   if (!m_outerBoundary) {
     m_trackingGeometry = m_extrapolator->trackingGeometry();
     m_outerBoundary = m_trackingGeometry->highestTrackingVolume();
     if (!m_outerBoundary) {
-      msg(MSG::FATAL) << "Could not retrieve geometry boundary  from " << m_extrapolator << ". Exiting."<<endmsg;
+      msg(MSG::FATAL) << "Could not retrieve geometry boundary  from " << m_extrapolator << ". Exiting."<<endreq;
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << " boundary retrieved " << endmsg;
+    msg(MSG::INFO) << " boundary retrieved " << endreq;
   }
   
   // generate with random number generator
@@ -128,12 +128,12 @@ StatusCode Trk::CombinedExtrapolatorTest::execute()
 										   (Trk::ParticleHypothesis)m_particleType);
 
   if (!destParameters || !m_extrapolator->trackingGeometry()->atVolumeBoundary(destParameters->position(),m_outerBoundary,0.001) ) {
-    msg(MSG::ERROR) << " extrapolation to outer boundary failed for input parameters: " << initialPerigee.parameters() << endmsg;
+    msg(MSG::ERROR) << " extrapolation to outer boundary failed for input parameters: " << initialPerigee.parameters() << endreq;
 
   } else {
     // forward extrapolation ok
-    msg(MSG::INFO) << " outer boundary reached at: " << destParameters->position().perp() <<","<<destParameters->position().z() << endmsg;
-     msg(MSG::INFO) << "cov matrix:"<< destParameters->covariance() << endmsg;
+    msg(MSG::INFO) << " outer boundary reached at: " << destParameters->position().perp() <<","<<destParameters->position().z() << endreq;
+     msg(MSG::INFO) << "cov matrix:"<< destParameters->covariance() << endreq;
  
     const Trk::TrackParameters* peri = m_extrapolator->extrapolate(*destParameters,
 								   pSf, 
@@ -141,11 +141,11 @@ StatusCode Trk::CombinedExtrapolatorTest::execute()
 								   false,
 								   (Trk::ParticleHypothesis)m_particleType);
     if ( peri) {
-      msg(MSG::INFO) << " extrapolation to perigee:input: " << initialPerigee.parameters() << endmsg;
-      msg(MSG::INFO) << " extrapolation to perigee:output: " << peri->parameters() << endmsg;
-       msg(MSG::INFO) << "cov matrix:"<< peri->covariance() << endmsg;
+      msg(MSG::INFO) << " extrapolation to perigee:input: " << initialPerigee.parameters() << endreq;
+      msg(MSG::INFO) << " extrapolation to perigee:output: " << peri->parameters() << endreq;
+       msg(MSG::INFO) << "cov matrix:"<< peri->covariance() << endreq;
     } else {
-      msg(MSG::ERROR) << " extrapolation to perigee failed for input parameters: " << destParameters->parameters() << endmsg;
+      msg(MSG::ERROR) << " extrapolation to perigee failed for input parameters: " << destParameters->parameters() << endreq;
     }
     delete peri;
   }
