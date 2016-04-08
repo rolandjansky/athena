@@ -239,7 +239,7 @@ class DefectsDBVirtualDefectsMixin(object):
         return logics
 
     def get_intolerable_defects(self, old_primary_only=True,
-                                exclude=['TIGHT', 'PHYS_.*']):
+                                exclude=['TIGHT', 'IDTIGHT', 'PHYS_.*']):
         """
         Returns primary defects that are depended on by a virtual defect
         if old_primary_only == True, only return those depended on by a

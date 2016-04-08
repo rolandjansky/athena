@@ -111,7 +111,7 @@ class DefectsDBTagsMixin(object):
         if self._tag.defects == "HEAD": return "HEAD"
         try:
             return self.defects_folder.resolveTag(self._tag.defects)
-        except RuntimeError: 
+        except Exception: 
             if self._read_only:
                 raise InvalidDefectTagError(self._tag.defects)
             # assume user knows what they're doing (e.g. writing to fresh tag)
@@ -125,7 +125,7 @@ class DefectsDBTagsMixin(object):
         if self._tag.logic == "HEAD": return "HEAD"
         try:
             return self.defect_logic_folder.resolveTag(self._tag.logic)
-        except RuntimeError:
+        except Exception:
             if self._read_only:
                 raise InvalidLogicTagError(self._tag.logic)
             # assume user knows what they're doing (e.g. writing to fresh tag)
