@@ -73,7 +73,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       int*                                       m_histogram     ;
-      double*                                    m_z_histogram   ;
+      double*                                    z_histogram     ;
       int                                        m_outputlevel   ;
       int                                        m_nprint        ;
       int                                        m_nspoint       ;
