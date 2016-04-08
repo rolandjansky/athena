@@ -8,6 +8,7 @@ macro CLHEP_native_version "2.2.0.4"
 
 # overwrite with fixed location, needed for newer LCGs
 macro CLHEP_home "${SITEROOT}/sw/lcg/external/clhep/$(CLHEP_native_version)/$(LCG_system)"
+macro CLHEP_include "$(CLHEP_home)/include"
 
 include_path none
 include_dirs $(CLHEP_home)/include
@@ -17,5 +18,6 @@ macro CLHEP_linkopts "-L$(CLHEP_home)/lib  \
 
 macro CLHEP_name "clhep"
 apply_pattern set_lib_path
+apply_pattern set_root_include_path
 
 macro CLHEP_export_paths "$(CLHEP_home)/include $(CLHEP_home)/lib"
