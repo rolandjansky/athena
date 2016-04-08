@@ -51,22 +51,22 @@ private:
       int         ipr;
     };
 
-    int _dummy;
-    float _realdummy;
-    static HYIPAR* _hyipar;
+    int m_dummy;
+    float m_realdummy;
+    static HYIPAR* s_hyipar;
 };
 
 // set pointer to zero at start
-HyiPar::HYIPAR* HyiPar::_hyipar =0;
+HyiPar::HYIPAR* HyiPar::s_hyipar =0;
 
 inline void
 HyiPar::initf(void)
-{ if (!_hyipar) _hyipar = static_cast<HYIPAR*>(hyipar_address_()); }
+{ if (!s_hyipar) s_hyipar = static_cast<HYIPAR*>(hyipar_address_()); }
 
 inline 
 HyiPar::HyiPar() 
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 inline 
@@ -77,76 +77,76 @@ inline double&
 HyiPar::bminh   (void)
 {
   initf();
-  return _hyipar->bminh;
+  return s_hyipar->bminh;
 }
 
 inline double&
 HyiPar::bmaxh   (void)
 {
   initf();
-  return _hyipar->bmaxh;
+  return s_hyipar->bmaxh;
 }
 
 inline double&
 HyiPar::AW   (void)
 {
   initf();
-  return _hyipar->AW;
+  return s_hyipar->AW;
 }
 
 inline double&
 HyiPar::RA   (void)
 {
   initf();
-  return _hyipar->RA;
+  return s_hyipar->RA;
 }
 
 inline double&
 HyiPar::npar0   (void)
 {
   initf();
-  return _hyipar->npar0;
+  return s_hyipar->npar0;
 }
 
 inline double&
 HyiPar::nbco0   (void)
 {
   initf();
-  return _hyipar->nbco0;
+  return s_hyipar->nbco0;
 }
 
 inline double&
 HyiPar::Apb   (void)
 {
   initf();
-  return _hyipar->Apb;
+  return s_hyipar->Apb;
 }
 
 inline double&
 HyiPar::Rpb   (void)
 {
   initf();
-  return _hyipar->Rpb;
+  return s_hyipar->Rpb;
 }
 
 inline int&
 HyiPar::np   (void)
 {
   initf();
-  return _hyipar->np;
+  return s_hyipar->np;
 }
 
 inline int&
 HyiPar::init   (void)
 {
   initf();
-  return _hyipar->init;
+  return s_hyipar->init;
 }
 
 inline int&
 HyiPar::ipr   (void)
 {
   initf();
-  return _hyipar->ipr;
+  return s_hyipar->ipr;
 }
 #endif

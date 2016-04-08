@@ -26,22 +26,22 @@ public:
     void	init	(void);
 
     // return common array lengths
-    inline int	leniKhj() const {return _leniKhj;}
-    inline int	lenjKhj() const {return _lenjKhj;}
-    inline int	leniPhj() const {return _leniPhj;}
-    inline int	lenjPhj() const {return _lenjPhj;}
-    inline int	leniVhj() const {return _leniVhj;}
-    inline int	lenjVhj() const {return _lenjVhj;}
+    inline int	leniKhj() const {return s_leniKhj;}
+    inline int	lenjKhj() const {return s_lenjKhj;}
+    inline int	leniPhj() const {return s_leniPhj;}
+    inline int	lenjPhj() const {return s_lenjPhj;}
+    inline int	leniVhj() const {return s_leniVhj;}
+    inline int	lenjVhj() const {return s_lenjVhj;}
 
 private: 
 
     // Lengths of array in HyJets common
-    static const int _leniKhj	= 150000;
-    static const int _lenjKhj	= 5;
-    static const int _leniPhj	= 150000;
-    static const int _lenjPhj	= 5;
-    static const int _leniVhj	= 150000;
-    static const int _lenjVhj	= 5;
+    static const int s_leniKhj	= 150000;
+    static const int s_lenjKhj	= 5;
+    static const int s_leniPhj	= 150000;
+    static const int s_lenjPhj	= 5;
+    static const int s_leniVhj	= 150000;
+    static const int s_lenjVhj	= 5;
 
     struct HYJETS;
     friend struct HYJETS;
@@ -50,29 +50,29 @@ private:
     {
 	int  	nhj;
 	int  	nhp;
-	int  	khj[_lenjKhj][_leniKhj];
-	double  phj[_lenjPhj][_leniPhj];
-	double  vhj[_lenjVhj][_leniVhj];
+	int  	khj[s_lenjKhj][s_leniKhj];
+	double  phj[s_lenjPhj][s_leniPhj];
+	double  vhj[s_lenjVhj][s_leniVhj];
     };
 
-    int  _dummy;
-    double  _realdummy;
+    int  m_dummy;
+    double  m_realdummy;
     
-    static HYJETS* _hyjets;
+    static HYJETS* s_hyjets;
 };
 
 // set pointer to zero at start
-HyJets::HYJETS* HyJets::_hyjets =0;
+HyJets::HYJETS* HyJets::s_hyjets =0;
 
 inline void
 HyJets::init(void)
-{ if (!_hyjets) _hyjets = static_cast<HYJETS*>(hyjets_address_()); }
+{ if (!s_hyjets) s_hyjets = static_cast<HYJETS*>(hyjets_address_()); }
 
 // Constructor
 inline
 HyJets::HyJets()
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 // Destructor
@@ -84,14 +84,14 @@ inline int&
 HyJets::nhj (void)
 {
   init();
-  return _hyjets->nhj;
+  return s_hyjets->nhj;
 }
 
 inline int&
 HyJets::nhp (void)
 {
   init();
-  return _hyjets->nhp;
+  return s_hyjets->nhp;
 }
 
 inline int&
@@ -99,9 +99,9 @@ HyJets::khj	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > leniKhj() ||
-	j < 1 || j > lenjKhj() ) return _dummy;
+	j < 1 || j > lenjKhj() ) return m_dummy;
 
-    return _hyjets->khj[j-1][i-1];
+    return s_hyjets->khj[j-1][i-1];
 }
 
 inline double&
@@ -109,9 +109,9 @@ HyJets::phj	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > leniPhj() ||
-	j < 1 || j > lenjPhj() ) return _realdummy;
+	j < 1 || j > lenjPhj() ) return m_realdummy;
 
-    return _hyjets->phj[j-1][i-1];
+    return s_hyjets->phj[j-1][i-1];
 }
 
 inline double&
@@ -119,9 +119,9 @@ HyJets::vhj	(int i, int j)
 {
     init(); // check COMMON is initialized
     if( i < 1 || i > leniVhj() ||
-	j < 1 || j > lenjVhj() ) return _realdummy;
+	j < 1 || j > lenjVhj() ) return m_realdummy;
 
-    return _hyjets->vhj[j-1][i-1];
+    return s_hyjets->vhj[j-1][i-1];
 }
 
 #endif

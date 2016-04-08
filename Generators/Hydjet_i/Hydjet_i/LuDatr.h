@@ -23,40 +23,40 @@ public:
     void 	init	(void);
 
     // return common array lengths
-    inline int lenMrlu() const {return _lenMrlu;}
-    inline int lenRrlu() const {return _lenRrlu;}
+    inline int lenMrlu() const {return s_lenMrlu;}
+    inline int lenRrlu() const {return s_lenRrlu;}
 
 private: 
 
     // Lengths of the COMMONS
-    static const int _lenMrlu = 6;
-    static const int _lenRrlu = 100;
+    static const int s_lenMrlu = 6;
+    static const int s_lenRrlu = 100;
 
     struct LUDATR;
     friend struct LUDATR;
 
     struct LUDATR
     {
-	int 	mrlu[_lenMrlu];
-	float	rrlu[_lenRrlu];
+	int 	mrlu[s_lenMrlu];
+	float	rrlu[s_lenRrlu];
     };
 
-    int _dummy;
-    float _realdummy;
-    static LUDATR* _ludatr;
+    int m_dummy;
+    float m_realdummy;
+    static LUDATR* s_ludatr;
 };
 
 // set pointer to zero at start
-LuDatr::LUDATR* LuDatr::_ludatr =0;
+LuDatr::LUDATR* LuDatr::s_ludatr =0;
 
 inline void
 LuDatr::init(void)
-{ if (!_ludatr) _ludatr = static_cast<LUDATR*>(ludatr_address_()); }
+{ if (!s_ludatr) s_ludatr = static_cast<LUDATR*>(ludatr_address_()); }
 
 inline 
 LuDatr::LuDatr() 
-    : _dummy		(-999),
-      _realdummy	(-999.)
+    : m_dummy		(-999),
+      m_realdummy	(-999.)
 {}
 
 inline 
@@ -67,16 +67,16 @@ inline int&
 LuDatr::mrlu	(int n)
 {
     init(); // check COMMON is initialized
-    if(n < 1 || n > lenMrlu()) return _dummy;
-    return _ludatr->mrlu[n-1];
+    if(n < 1 || n > lenMrlu()) return m_dummy;
+    return s_ludatr->mrlu[n-1];
 }
 
 inline float&
 LuDatr::rrlu	(int n)
 {
     init(); // check COMMON is initialized
-    if(n < 1 || n > lenRrlu()) return _realdummy;
-    return _ludatr->rrlu[n-1];
+    if(n < 1 || n > lenRrlu()) return m_realdummy;
+    return s_ludatr->rrlu[n-1];
 }
 
 #endif

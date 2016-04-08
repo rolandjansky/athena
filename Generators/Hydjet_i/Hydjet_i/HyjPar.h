@@ -41,15 +41,15 @@ private:
       int         njet;
     };
 
-    static HYJPAR* _hyjpar;
+    static HYJPAR* s_hyjpar;
 };
 
 // set pointer to zero at start
-HyjPar::HYJPAR* HyjPar::_hyjpar =0;
+HyjPar::HYJPAR* HyjPar::s_hyjpar =0;
 
 inline void
 HyjPar::init(void)
-{ if (!_hyjpar) _hyjpar = static_cast<HYJPAR*>(hyjpar_address_()); }
+{ if (!s_hyjpar) s_hyjpar = static_cast<HYJPAR*>(hyjpar_address_()); }
 
 // Constructor
 inline
@@ -65,42 +65,42 @@ inline double&
 HyjPar::ptmin	(void)
 {
     init();
-    return _hyjpar->ptmin;
+    return s_hyjpar->ptmin;
 }
 
 inline double&
 HyjPar::sigin	(void)
 {
     init();
-    return _hyjpar->sigin;
+    return s_hyjpar->sigin;
 }
 
 inline double&
 HyjPar::sigjet	(void)
 {
     init();
-    return _hyjpar->sigjet;
+    return s_hyjpar->sigjet;
 }
 
 inline int&
 HyjPar::nhsel	(void)
 {
     init();
-    return _hyjpar->nhsel;
+    return s_hyjpar->nhsel;
 }
 
 inline int&
 HyjPar::ishad	(void)
 {
     init();
-    return _hyjpar->ishad;
+    return s_hyjpar->ishad;
 }
 
 inline int&
 HyjPar::njet	(void)
 {
     init();
-    return _hyjpar->njet;
+    return s_hyjpar->njet;
 }
 
 #endif

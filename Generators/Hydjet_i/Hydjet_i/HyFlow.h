@@ -37,15 +37,15 @@ private:
       double  	fpart;
     };
 
-    static HYFLOW* _hyflow;
+    static HYFLOW* s_hyflow;
 };
 
 // set pointer to zero at start
-HyFlow::HYFLOW* HyFlow::_hyflow =0;
+HyFlow::HYFLOW* HyFlow::s_hyflow =0;
 
 inline void
 HyFlow::init(void)
-{ if (!_hyflow) _hyflow = static_cast<HYFLOW*>(hyflow_address_()); }
+{ if (!s_hyflow) s_hyflow = static_cast<HYFLOW*>(hyflow_address_()); }
 
 // Constructor
 inline
@@ -61,28 +61,28 @@ inline double&
 HyFlow::ytfl	(void)
 {
     init();
-    return _hyflow->ytfl;
+    return s_hyflow->ytfl;
 }
 
 inline double&
 HyFlow::ylfl	(void)
 {
     init();
-    return _hyflow->ylfl;
+    return s_hyflow->ylfl;
 }
 
 inline double&
 HyFlow::tf	(void)
 {
     init();
-    return _hyflow->tf;
+    return s_hyflow->tf;
 }
 
 inline double&
 HyFlow::fpart	(void)
 {
     init();
-    return _hyflow->fpart;
+    return s_hyflow->fpart;
 }
 
 #endif
