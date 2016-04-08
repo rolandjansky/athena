@@ -11,6 +11,7 @@
 #define TRKEXRUNGEKUTTAINTERSECTOR_RUNGEKUTTAINTERSECTOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -36,58 +37,60 @@ public:
     StatusCode			finalize();
 
     /**IIntersector interface method for general Surface type */
-    const TrackSurfaceIntersection*		intersectSurface(const Surface&		surface,
-						 const TrackSurfaceIntersection*	trackIntersection,
-						 const double      	qOverP);
+    const TrackSurfaceIntersection*		intersectSurface (const Surface&			surface,
+								  const TrackSurfaceIntersection*	trackIntersection,
+								  const double				qOverP);
 	                                     
     /**IIntersector interface method for specific Surface type : PerigeeSurface */
-    const TrackSurfaceIntersection*		approachPerigeeSurface(const PerigeeSurface&	surface,
-						       const TrackSurfaceIntersection*	trackIntersection,
-						       const double      	qOverP);
+    const TrackSurfaceIntersection*		approachPerigeeSurface (const PerigeeSurface&		surface,
+									const TrackSurfaceIntersection*	trackIntersection,
+									const double			qOverP);
 	
     /**IIntersector interface method for specific Surface type : StraightLineSurface */
-    const TrackSurfaceIntersection*		approachStraightLineSurface(const StraightLineSurface& surface,
-							    const TrackSurfaceIntersection*	trackIntersection,
-							    const double      	qOverP);
+    const TrackSurfaceIntersection*		approachStraightLineSurface (const StraightLineSurface&		surface,
+									     const TrackSurfaceIntersection*	trackIntersection,
+									     const double			qOverP);
               
     /**IIntersector interface method for specific Surface type : CylinderSurface */
-    const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface& surface,
-							  const TrackSurfaceIntersection*	trackIntersection,
-							  const double      	qOverP);
+    const TrackSurfaceIntersection*		intersectCylinderSurface (const CylinderSurface&		surface,
+									  const TrackSurfaceIntersection*	trackIntersection,
+									  const double				qOverP);
 
     /**IIntersector interface method for specific Surface type : DiscSurface */
-    const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&	surface,
-						      const TrackSurfaceIntersection*	trackIntersection,
-						      const double      	qOverP);
+    const TrackSurfaceIntersection*		intersectDiscSurface (const DiscSurface&		surface,
+								      const TrackSurfaceIntersection*	trackIntersection,
+								      const double			qOverP);
 
     /**IIntersector interface method for specific Surface type : PlaneSurface */
-    const TrackSurfaceIntersection*		intersectPlaneSurface(const PlaneSurface&	surface,
-						      const TrackSurfaceIntersection*	trackIntersection,
-						      const double      	qOverP);
+    const TrackSurfaceIntersection*		intersectPlaneSurface (const PlaneSurface&		surface,
+								       const TrackSurfaceIntersection*	trackIntersection,
+								       const double			qOverP);
  
     /**IIntersector interface method for validity check over a particular extrapolation range */
-    bool			isValid(Amg::Vector3D	/*startPosition*/,
-					Amg::Vector3D	/*endPosition*/) const
+    bool					isValid (Amg::Vector3D	/*startPosition*/,
+							 Amg::Vector3D	/*endPosition*/) const
    	{ return true; }
 	
 private:
 
     // private methods
-    void		assignStepLength (void);
-    void		distanceToCylinder (const double		cylinderRadius,
-					    const double		offsetRadius, 
-					    const Amg::Vector3D&	offset);
-    void		distanceToDisc (const double discZ);
-    void		distanceToLine (const Amg::Vector3D&	linePosition,
-					const Amg::Vector3D&	lineDirection);
-    void		distanceToPlane (const Amg::Vector3D&	planePosition,
-					 const Amg::Vector3D&	planeNormal);
-    Amg::Vector3D	field (const Amg::Vector3D& point) const;
-    bool		notTrapped (void);
-    void		setCache (const TrackSurfaceIntersection*	trackIntersection,
-				  const double		qOverP);
-    void		shortStep (void);
-    void		step (void);
+    void				assignStepLength (void);
+    void				debugFailure (const Surface&	surface);
+    void				distanceToCylinder (const double		cylinderRadius,
+							    const double		offsetRadius, 
+							    const Amg::Vector3D&	offset);
+    void				distanceToDisc (const double discZ);
+    void				distanceToLine (const Amg::Vector3D&	linePosition,
+							const Amg::Vector3D&	lineDirection);
+    void				distanceToPlane (const Amg::Vector3D&	planePosition,
+							 const Amg::Vector3D&	planeNormal);
+    Amg::Vector3D			field (const Amg::Vector3D&	point) const;
+    bool				notTrapped (void);
+    const TrackSurfaceIntersection*	newIntersection (const Surface&	surface);
+    void				setCache (const TrackSurfaceIntersection*	trackIntersection,
+						  const double				qOverP);
+    void				shortStep (void);
+    void				step (void);
 
     // field access:
     ServiceHandle<MagField::IMagFieldSvc>	m_magFieldSvc;
@@ -96,26 +99,27 @@ private:
     bool					m_productionMode;
     
     // some precalculated constants:
-    const double       		m_caloR0;
-    const double       		m_caloR1;
-    const double       		m_caloR2;
-    const double       		m_caloR3;
-    const double       		m_caloR4;
-    const double       		m_caloZ0;
-    const double       		m_caloZ1;
-    const double       		m_caloZ2;
-    const double       		m_caloZ3;
-    const double       		m_inDetR0;
-    const double       		m_inDetR1;
-    const double       		m_inDetR2;
-    const double       		m_inDetZ0;
-    const double       		m_inDetZ1;
-    const double       		m_inDetZ2;
-    const double       		m_momentumThreshold;
-    const double       		m_muonR0;
+    const double		m_caloR0;
+    const double		m_caloR1;
+    const double		m_caloR2;
+    const double		m_caloR3;
+    const double		m_caloR4;
+    const double		m_caloZ0;
+    const double		m_caloZ1;
+    const double		m_caloZ2;
+    const double		m_caloZ3;
+    const double		m_inDetR0;
+    const double		m_inDetR1;
+    const double		m_inDetR2;
+    const double		m_inDetZ0;
+    const double		m_inDetZ1;
+    const double		m_inDetZ2;
+    const double		m_momentumThreshold;
+    const double		m_momentumWarnThreshold;
+    const double		m_muonR0;
     const double       		m_muonZ0;
-    double       		m_shortStepMax;
-    const double       		m_shortStepMin;
+    double			m_shortStepMax;
+    const double		m_shortStepMin;
     const double		m_solenoidR ;
     const double		m_solenoidZ;
     double			m_stepMax0;
@@ -143,23 +147,25 @@ private:
     double			m_cOverP;
     Amg::Vector3D		m_direction;
     double			m_distance;
-    Amg::Vector3D	       	m_fieldValue;
+    Amg::Vector3D		m_fieldValue;
     unsigned			m_intersectionNumber;
-    int				m_maxSteps;
+    unsigned long long		m_maxSteps;
     double			m_pathLength;
     Amg::Vector3D		m_position;
     double			m_previousDistance;
     double			m_qOverP;
     double			m_rCurrent;
+    double			m_rStart;
     double			m_sinTheta;
-    double       		m_stepLength;
+    double			m_stepLength;
     bool			m_trapped;
+    double			m_zStart;
 
     // counters
-    int				m_countExtrapolations;
-    int				m_countShortStep;
-    int				m_countStep;
-    int				m_countStepReduction;    
+    unsigned long long		m_countExtrapolations;
+    unsigned long long		m_countShortStep;
+    unsigned long long		m_countStep;
+    unsigned long long		m_countStepReduction;    
 };
 
 //<<<<<< INLINE PRIVATE MEMBER FUNCTIONS                                >>>>>>
@@ -220,9 +226,30 @@ RungeKuttaIntersector::field (const Amg::Vector3D& position) const
     return field;
 }
     
+inline const TrackSurfaceIntersection*
+RungeKuttaIntersector::newIntersection (const Surface& surface)
+{
+    // ensure intersection is valid (ie. on surface)
+    Intersection SLIntersect				= surface.straightLineIntersection(m_position, m_direction, false, false);
+    if (SLIntersect.valid)
+    {
+	const TrackSurfaceIntersection* intersection	= new TrackSurfaceIntersection(SLIntersect.position,
+										       m_direction,
+										       m_pathLength);
+	m_intersectionNumber				= intersection->serialNumber();
+	return intersection;
+    }
+
+    // invalid: take care to invalidate cache!
+    m_intersectionNumber = 0;
+    if (msgLvl(MSG::DEBUG))	debugFailure (surface);
+
+    return 0;
+}
+
 inline void
 RungeKuttaIntersector::setCache (const TrackSurfaceIntersection*	trackIntersection,
-				 const double		qOverP)
+				 const double				qOverP)
 {
     if (trackIntersection->serialNumber() == m_intersectionNumber
 	&& qOverP == m_qOverP)		return;
@@ -232,10 +259,12 @@ RungeKuttaIntersector::setCache (const TrackSurfaceIntersection*	trackIntersecti
     m_fieldValue	= field(m_position);
     m_pathLength	= trackIntersection->pathlength();
     m_qOverP		= qOverP;
-    m_cOverP		= CLHEP::c_light*qOverP;
+    m_cOverP		= Gaudi::Units::c_light*qOverP;
     m_rCurrent		= m_position.perp();
+    m_rStart		= m_rCurrent;
     m_sinTheta		= m_direction.perp();
     m_trapped		= false;
+    m_zStart		= m_position.z();
     ++m_countExtrapolations;
 }
    
