@@ -87,8 +87,12 @@ HelloWorld.RobId = {
 #    for calibration StreamTags optionally a list of Robs and/or sub detectors for PEB can be specified
 #          (stream name, stream type, obeys lumi block, [list of Robs], [list of sub detectors])
 #
-HelloWorld.ConfiguredStreamTags = [['MyPhysicStream1','physics','true'],['MyDebugStream1','debug','false'],
-                                   ['MyCalibStream1','calibration','false','[0x42002a, 0x42002b]','[0x41,0x42]']
+HelloWorld.ConfiguredStreamTags = [
+                                   ['MyPhysicStream1','physics','true'],
+                                   ['MyDebugStream1','debug','false'],
+                                   ['MyCalibStream1','calibration','false','[0x42002a, 0x42002b]','[0x41,0x42]'],
+                                   ['DataScouting_05_Muon','calibration','false','[0x7c0005]'],
+                                   ['DataScouting_13_Jet','calibration','true','[0x7c000d]']
                                    ]
 #
 #--- specify accepted chain numbers

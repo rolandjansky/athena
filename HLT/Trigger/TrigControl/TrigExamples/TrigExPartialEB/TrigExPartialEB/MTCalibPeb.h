@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
@@ -15,11 +14,10 @@
 #include <set>
 
 /////////////////////////////////////////////////////////////////////////////
-class StoreGateSvc;
 class IROBDataProviderSvc;
 class StreamTag;
 
-class MTCalibPeb:public Algorithm {
+class MTCalibPeb:public AthAlgorithm {
 public:
   MTCalibPeb(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -27,9 +25,7 @@ public:
   StatusCode finalize();
   
 private:
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Reference to StoreGateSvc;
-  StoreGateSvc_t          m_storeGateSvc;
+  static std::string s_dataScoutingResultName;
   
   typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
   /// Reference to the ROBDataProviderSvc service
