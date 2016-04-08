@@ -143,8 +143,8 @@ class CaloClusterVecMon : public CaloMonToolBase {
    // mult-threshold cluster hists
    TH2F*       m_clus_etaphi_Et_thresh[MAX_E];
    TProfile2D* m_etaphi_thresh_avgEt[MAX_E];
-   TH2F*       m_EMclus_etaphi_Et_thresh[MAX_E];
-   TH2F*       m_EMclus_etaVsPhi[MAX_E];
+//   TH2F*       m_EMclus_etaphi_Et_thresh[MAX_E];
+//   TH2F*       m_EMclus_etaVsPhi[MAX_E];
    TH1F*       m_clus_eta[MAX_E];
    TH1F*       m_clus_phi[MAX_E][3];
    TH1F*       m_clus_eta_Et[MAX_E]; // km add

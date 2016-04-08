@@ -27,7 +27,7 @@ class CaloMonToolBase : public ManagedMonitorToolBase {
  protected:
    int m_lb;
    bool m_passBeamBackgroundRemoval;
-   TH1I* h_EvtRejSumm;
+   TH1I* m_h_EvtRejSumm;
 
  private:
    // Handles on filtering tools
@@ -37,6 +37,7 @@ class CaloMonToolBase : public ManagedMonitorToolBase {
   ToolHandle<IDQFilterTool> m_ReadyFilterTool;
 
   bool m_useLArNoisyAlg;
+  //bool m_useTriggerFilter;
   bool m_useBeamBackgroundRemoval;
  
   std::string m_beamBackgroundKey;

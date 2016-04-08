@@ -20,6 +20,9 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "CaloEvent/CaloCell.h"
+#include "AthenaKernel/Units.h"
+
+using Athena::Units::GeV;
 
 CaloTowerVecMon::CaloTowerVecMon(const std::string& type, 
 				 const std::string& name,
@@ -254,29 +257,29 @@ StatusCode CaloTowerVecMon::checkTimeGran(bool isNewEventsBlock, bool isNewLumiB
     }
     //... check if it is low statistics interval
     else if (m_timeGran.compare("lowStat") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=lowStat;
     }
     //... or medium statistics
     else if (m_timeGran.compare("medStat") ==0) {
-      isNewTimeGran=newMedStatInterval;
+      isNewTimeGran=newMedStatIntervalFlag();
       theinterval=medStat;
     }
     else if (m_timeGran.compare("higStat") ==0){
-      isNewTimeGran=newHigStatInterval;
+      isNewTimeGran=newHigStatIntervalFlag();
       theinterval=higStat;
     }
     else if (m_timeGran.compare("fill") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=fill;
     }
     else if (m_timeGran.compare("all") ==0){
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=all;
     }
     // if it is not global, but it is something else stick to medium stat
     else  {
-      isNewTimeGran=newLowStatInterval;
+      isNewTimeGran=newLowStatIntervalFlag();
       theinterval=medStat;
     }
   }
@@ -752,7 +755,7 @@ void CaloTowerVecMon::fillTwrPreHists(const CaloTowerContainer* towerCont ){
 void CaloTowerVecMon::fillCellHists(const CaloTower* twr){
   float etaTwr = twr->eta();
   float phiTwr = twr->phi();
-  float eTwr = twr->energy()/1000.;
+  float eTwr = twr->energy()/GeV;
   CaloTower::cell_iterator cellIter = twr->cell_begin();
   CaloTower::cell_iterator cellIterEnd = twr->cell_end();
   int cellcount=0;
@@ -761,7 +764,7 @@ void CaloTowerVecMon::fillCellHists(const CaloTower* twr){
   for ( ;cellIter !=cellIterEnd;cellIter++) {
     ++cellcount;
     const CaloCell* cell= (*cellIter);
-    float EnergyCell=cell->energy()/1000.;
+    float EnergyCell=cell->energy()/GeV;
     if (cellcount == 1 || fabs(EnergyCell) > fabs(maxCellEnergy)) {
       maxCellEnergy= EnergyCell;
     }
@@ -783,9 +786,9 @@ void CaloTowerVecMon::fillCellHists(const CaloTower* twr){
 }
 
 void CaloTowerVecMon::fillNothrEnHists(const CaloTower* twr){
-    float eTwr = twr->energy()/1000.;
+    float eTwr = twr->energy()/GeV;
     float etaTwr = twr->eta();
-    float etTwr = twr->et()/1000.;
+    float etTwr = twr->et()/GeV;
 
     m_twr_e->Fill(eTwr,1.);
     if (eTwr > 0.)  m_postwr_e_thresh->Fill(eTwr,1.); 
@@ -805,8 +808,8 @@ void CaloTowerVecMon::fillNothrEnHists(const CaloTower* twr){
 }
 
 void CaloTowerVecMon::fillMuthrHists(const CaloTower* twr){
-    float eTwr = twr->energy()/1000.;
-    float etTwr = twr->et()/1000.;
+    float eTwr = twr->energy()/GeV;
+    float etTwr = twr->et()/GeV;
     float etaTwr = twr->eta();
     float phiTwr = twr->phi();
     int ncellsTwr = twr->getNumberOfCells(); 
@@ -863,7 +866,7 @@ void CaloTowerVecMon::initTwrStat(){
 void CaloTowerVecMon::fillTwrStat(const CaloTower* twr){
     float etaTwr = twr->eta();
     float phiTwr = twr->phi();
-    float eTwr = twr->energy()/1000.;
+    float eTwr = twr->energy()/GeV;
     float etTwr = eTwr/cosh(etaTwr);
     int ncellsTwr = twr->getNumberOfCells();
 

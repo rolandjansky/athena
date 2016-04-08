@@ -61,17 +61,6 @@ else:
 tmp_useElectronicNoiseOnly = FALSE
 tmp_useTwoGaus = TRUE
 
-if DQMonFlags.monManEnvironment() == 'online':
-   tmp_useBeamBackgroundRemoval = FALSE
-else:
-   tmp_useBeamBackgroundRemoval = TRUE
-
-if not (rec.triggerStream()=='CosmicCalo'):
-  tmp_useBeamBackgroundRemoval = FALSE
-  print "not CosmicCalo stream"
-
-print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
-
 tmp_useTrigger = TRUE
 if 'DQMonFlags' in dir():
    if not DQMonFlags.useTrigger:
@@ -101,7 +90,7 @@ CaloCellMonCosmics = CaloCellVecMon(
     useTwoGaus = tmp_useTwoGaus,
 
     CaloNoiseTool=theCaloNoiseTool,
-    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
+    useBeamBackgroundRemoval = False,
 
     useTrigger          = tmp_useTrigger,
     rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5",
