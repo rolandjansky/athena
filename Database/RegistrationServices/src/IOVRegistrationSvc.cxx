@@ -462,15 +462,15 @@ StatusCode IOVRegistrationSvc::registerIOV( const std::string& typeName,
           << " typename: "     << typeName << " - tag: " << tag;
     if (spec_key.empty())
       {
-	msg() << " key: *empty* " << endmsg;
+	msg() << " key: *empty* " << endreq;
       }
     else
       {
-	msg() << " spec_key " << spec_key << endmsg;
+	msg() << " spec_key " << spec_key << endreq;
       }
     msg() << " - begin time: "   << start
           << " - end time: "     << stop
-          << endmsg;
+          << endreq;
   
     // Check validity of start/stop
     if(start.isBoth() || stop.isBoth() || 
@@ -758,9 +758,9 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
                            << "data  " << address_data);
 	    return( StatusCode::FAILURE);
 	}
-	msg() << MSG::DEBUG <<"split address: " << saddr << endmsg
-              << "  hdr:  " << address_header << endmsg
-              << "  data: " << address_data << endmsg;
+	msg() << MSG::DEBUG <<"split address: " << saddr << endreq
+              << "  hdr:  " << address_header << endreq
+              << "  data: " << address_data << endreq;
 				
 
 	if(createFolders) {
@@ -843,7 +843,7 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 		    for (unsigned int i = 0; i < symlinkTypes.size(); ++i) {
                       msg() << MSG::ERROR << symlinkTypes[i] << " ";
 		    }
-		    msg() << MSG::ERROR << endmsg;
+		    msg() << MSG::ERROR << endreq;
 		    return( StatusCode::FAILURE);
 		}
 		else {
@@ -952,7 +952,13 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	    if (m_payloadTable)
               ATH_MSG_INFO ("Creating separate payload table for "
                             << local_folder);
+	    // use old or new ABI. New ABI:
+#if defined(COOL290) && defined(COOL290VP)
 	    cool::FolderSpecification folderSpec(version,payloadSpec,cool::PayloadMode::SEPARATEPAYLOAD);
+#else
+	    // old ABI:
+	    cool::FolderSpecification folderSpec(version,payloadSpec,m_payloadTable);
+#endif
 	    folder = db->createFolder(local_folder,folderSpec,
                   mergedNames,true); 
             ATH_MSG_DEBUG ("Creation of CondDBFolder " << 

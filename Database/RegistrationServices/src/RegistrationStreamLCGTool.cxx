@@ -195,7 +195,7 @@ RegistrationStreamLCGTool::initCollection()
         // Can override by new entry in local dblookup.xml if needed
        if(connection.size() == 0) {
            msg(MSG::WARNING) << "No connection string provided for relational collection access, "
-                 << "will try using default alias TAGDB" << endmsg;
+                 << "will try using default alias TAGDB" << endreq;
            connection = "TAGDB";
 	}
 	// Check that the connection string is ok
@@ -204,7 +204,7 @@ RegistrationStreamLCGTool::initCollection()
             msg(MSG::WARNING)
                   << "Database connectionString did not begin with \"mysql:\" or \"oracle:\""
                   << ", ASSUMING alias and passing"
-                  << endmsg;
+                  << endreq;
 	    //return(StatusCode::FAILURE);
 	}
     }
@@ -213,14 +213,14 @@ RegistrationStreamLCGTool::initCollection()
 	msg(MSG::ERROR) << "RegStream<x>.CollectionType must be one of: "
 	                << "ExplicitROOT (default), ExplicitMySQL, ExplicitMySQLlt or ExplicitRAL. Found: " 
 	                << m_collectionType
-	                << endmsg;
+	                << endreq;
 	return(StatusCode::FAILURE);
     }
 
     // CollectionName must be non-empty
     if (m_outputCollection.value().size() == 0) {
 	msg(MSG::ERROR) << "RegStream<y>.CollectionName must be provided " 
-	    << endmsg;
+	    << endreq;
 	return(StatusCode::FAILURE);
     }
 
@@ -229,7 +229,7 @@ RegistrationStreamLCGTool::initCollection()
     if (m_openMode.value() == "READ") {
 	msg(MSG::ERROR) << "RegStream<x>.CollectionOpenMode cannot be READ. "
 	    << "Possible values are: CREATE, CREATE_AND_OVERWRITE (default), or UPDATE " 
-	    << endmsg;
+	    << endreq;
 	return(StatusCode::FAILURE);
     }
     else if (m_openMode.value() == "CREATE") {
@@ -244,7 +244,7 @@ RegistrationStreamLCGTool::initCollection()
     else {
 	msg(MSG::ERROR) << "Invalide RegStream<x>.CollectionOpenMode. "
 	    << "Possible values are: CREATE, CREATE_AND_OVERWRITE (default), or UPDATE " 
-	    << endmsg;
+	    << endreq;
 	return(StatusCode::FAILURE);
     }
     
@@ -265,7 +265,7 @@ RegistrationStreamLCGTool::initCollection()
        catch (pool::Exception& e) {
            msg(MSG::ERROR) << "::initCollection: Caught exception from Pool collection creation. Message: " 
                            << e.what()
-                           << endmsg;
+                           << endreq;
            return(StatusCode::FAILURE);
        }
        if (m_collection==0) {
@@ -498,7 +498,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
                }
                catch (pool::Exception e) {
                    msg(MSG::ERROR) << "Unable to add column " << name 
-                                   << " to " << m_collection->description().name() << endmsg;
+                                   << " to " << m_collection->description().name() << endreq;
                }
             }
             if (m_primKeyAtts.size()>0) {
@@ -545,7 +545,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
               msg(MSG::ERROR) << " Failed to set Token "
                   << ir->second << " for provenance stage "
 	          << ir->first 
-		  << " error: " << e.what() << endmsg;
+		  << " error: " << e.what() << endreq;
            }
         }
 
@@ -673,7 +673,7 @@ void RegistrationStreamLCGTool::dumpAttribute(const coral::Attribute& attrib) co
                           << " year " << value->year()
                           << " month " << value->month()
                           << " day " << value->day()
-                          << endmsg;
+                          << endreq;
     }
     else if ( type == typeid(coral::TimeStamp) ) {
         const coral::TimeStamp* value = 
@@ -688,7 +688,7 @@ void RegistrationStreamLCGTool::dumpAttribute(const coral::Attribute& attrib) co
                           << " minute " << value->minute()
                           << " second " << value->second()
                           << " nanosecond " << value->nanosecond()
-                          << endmsg;
+                          << endreq;
     }
     else
     {

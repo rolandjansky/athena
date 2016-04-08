@@ -244,7 +244,7 @@ RegistrationStreamTagTool::fillAtt(std::vector< std::pair<std::string, std::stri
                      catch (pool::Exception e) {
                         msg(MSG::ERROR) << "Unable to add column " << name 
                                           << " to " << m_collection->description().name() 
-                                          << " due to " << e.what() << endmsg;
+                                          << " due to " << e.what() << endreq;
                      }
                   }
                }
@@ -256,7 +256,7 @@ RegistrationStreamTagTool::fillAtt(std::vector< std::pair<std::string, std::stri
                   catch (pool::Exception e) {
                      msg(MSG::ERROR) << "Unable to add column " << name 
                                        << " to " << m_collection->description().name() 
-                                       << " due to " << e.what() << endmsg;
+                                       << " due to " << e.what() << endreq;
                   }
                }
             }
@@ -306,7 +306,7 @@ RegistrationStreamTagTool::fillAtt(std::vector< std::pair<std::string, std::stri
               msg(MSG::ERROR) << " Failed to set Token "
                   << ir->second << " for provenance stage "
 	          << ir->first 
-		  << " error: " << e.what() << endmsg;
+		  << " error: " << e.what() << endreq;
            }
         }
 
@@ -315,7 +315,7 @@ RegistrationStreamTagTool::fillAtt(std::vector< std::pair<std::string, std::stri
     } catch (pool::Exception e) {
         msg(MSG::ERROR) 
 	    << "Caught exception from collection add of Pool attributes. Message: " 
-  	    << e.what() << endmsg;
+  	    << e.what() << endreq;
 	return(StatusCode::FAILURE);
     }
 
