@@ -485,7 +485,7 @@ dqm_algorithms::OccupancyHoleFinder::getMDTChamberNameByCrate(int biny, std::str
 		etaStat = (biny+1)/2;
 		phiStat =  2*(biny - 2*etaStat) + 7;
     }
-  } else if(crate.substr(0,2) == "B" && crate.substr(2,2) == "03"){
+  } else if(crate.substr(0,1) == "B" && crate.substr(2,2) == "03"){
 	int cOffset = 0;
 	if (crate.substr(1,1) == "C"){ cOffset = 1;}
 	if( (biny-71 + cOffset) > 0) { // BOS
