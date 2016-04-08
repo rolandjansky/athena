@@ -24,6 +24,7 @@ NOTE: Derived class for container XXXContainer must define
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/Units.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -52,8 +53,6 @@ class SelectorBase : public AthAlgorithm {
 
  protected:
 
-  StoreGateSvc*   m_pSG;
-  MsgStream* mLog;
   std::string m_inputKey;
   std::string m_inselectedKey;
   std::string m_selectedKey;
@@ -79,8 +78,6 @@ class SelectorBase : public AthAlgorithm {
 template<class Derived>
     SelectorBase<Derived>::SelectorBase(const std::string& name, ISvcLocator* pSvcLocator)
       : AthAlgorithm(name, pSvcLocator),
-        m_pSG(0),
-        mLog(0),
         m_gensel(false),
         m_genlink(false)
 {
@@ -103,51 +100,38 @@ template<class Derived>
 template<class Derived>
     StatusCode SelectorBase<Derived>::initialize()
 {
-  mLog=new MsgStream(messageService(), name());
   m_genlink=true;
   m_gensel=true;
-  (*mLog) <<MSG::INFO <<"Initializing Selector " <<name() <<endreq;
+  ATH_MSG_INFO("Initializing Selector " <<name()  );
   if(m_inputKey==std::string("NONE")) m_nogood=true;
   if(m_selectedKey==std::string("NONE")) m_gensel=false;
   if(m_inselectedKey!=std::string("NONE")) m_inSel=true;
   if(m_linksKey==std::string("NONE") ) m_genlink=false;
   if(m_inlinksKey!=std::string("NONE")) m_inLink=true;
 
-  (*mLog) << MSG::INFO << "InputKey="<<m_inputKey.c_str()<<", OutSelectedParticlesKey="<<m_selectedKey.c_str()
-	  <<", InSelectedParticlesKey="<<m_inselectedKey.c_str()
-	  <<", InParticlesLinksKey="<<m_inlinksKey.c_str()
-	  <<", OutParticleLinksKey="<<m_linksKey.c_str()<<endreq;
-  (*mLog)<< MSG::INFO<<", PtMin="<<m_ptmin;
-  (*mLog)<< MSG::INFO<<", PtMax="<<m_ptmax;
-  (*mLog)<< MSG::INFO<<", EtaMin="<<m_etamin;
-  (*mLog)<< MSG::INFO<<", EtaMax="<<m_etamax;
-  (*mLog)<< MSG::INFO<<", AbsEtaMin="<<m_absetamin;
-  (*mLog)<< MSG::INFO<<", AbsEtaMax="<<m_absetamax;
-  (*mLog)<< MSG::INFO<<", SelectAll="<<m_all;
-  if(m_all) (*mLog)<< MSG::INFO<<"  All items will be accepted";
-  (*mLog)<< MSG::INFO<<endreq;
+  ATH_MSG_INFO( "InputKey="<<m_inputKey.c_str()<<", OutSelectedParticlesKey="<<m_selectedKey.c_str()
+                <<", InSelectedParticlesKey="<<m_inselectedKey.c_str()
+                <<", InParticlesLinksKey="<<m_inlinksKey.c_str()
+                <<", OutParticleLinksKey="<<m_linksKey.c_str() );
+  ATH_MSG_INFO(", PtMin="<<m_ptmin
+               << MSG::INFO<<", PtMax="<<m_ptmax
+               << MSG::INFO<<", EtaMin="<<m_etamin
+               << MSG::INFO<<", EtaMax="<<m_etamax
+               << MSG::INFO<<", AbsEtaMin="<<m_absetamin
+               << MSG::INFO<<", AbsEtaMax="<<m_absetamax
+               << MSG::INFO<<", SelectAll="<<m_all  );
+  if(m_all) ATH_MSG_INFO("  All items will be accepted"  );
   
   m_nogood=m_nogood && (!m_genlink && !m_gensel); 
   if(m_nogood){
-      (*mLog) << MSG::FATAL << "Must supply names for InputKey, OutSelectedParticlesKey and/or OutParticleLinksKey" 
-	      << endreq;
+    ATH_MSG_FATAL( "Must supply names for InputKey, OutSelectedParticlesKey and/or OutParticleLinksKey" );
   }
   m_nogood=m_inSel && m_inLink;
   if(m_nogood){
-      (*mLog) << MSG::FATAL << "Cannot have both InSelectedParticlesKey and InParticlesLinksKey, must chose one" 
-	      << endreq;
+    ATH_MSG_FATAL( "Cannot have both InSelectedParticlesKey and InParticlesLinksKey, must chose one" );
   }
 
-  // Get a SG pointer:
-  if (StatusCode::FAILURE == service("StoreGateSvc", m_pSG) ) {
-    (*mLog) << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  if(m_nogood) return StatusCode::FAILURE;
-
-  (*mLog) << MSG::INFO << "Created StoreGate pointer m_pSG" << endreq;
-  (*mLog) <<MSG::INFO <<"Done Initializing " <<name() <<endreq;
+  ATH_MSG_INFO("Done Initializing " <<name()  );
   return StatusCode::SUCCESS;
 }
 
@@ -158,80 +142,57 @@ template<class Derived>
     //typedef typename Derived::Contained Contained;
     typedef typename Derived::Links Links;
 
-    StatusCode sc;
-
-    (*mLog) <<MSG::DEBUG <<std::endl <<endreq;
-    (*mLog) <<MSG::DEBUG <<"Executing Selector " <<name() <<endreq;
-    sc=userExecute();
-    if( sc.isFailure()) return sc;
+    ATH_MSG_DEBUG(std::endl  );
+    ATH_MSG_DEBUG("Executing Selector " <<name()  );
+    ATH_CHECK( userExecute() );
     const Container* particles = 0;
     const SelectedParticles* inselparts=0;
     const Links* inlinks=0;
     if(m_inSel){
-	sc = m_pSG->retrieve(inselparts,m_inselectedKey);
-	if(  sc.isFailure()) {
-	    (*mLog) << MSG::ERROR
-		    << "Could not retrieve InSelectedParticles with name "
-		    << m_inselectedKey		    << endreq;
-	    return sc;
-	}    
+      ATH_CHECK( evtStore()->retrieve(inselparts,m_inselectedKey) );
     }
     if(m_inLink){
-	sc = m_pSG->retrieve(inlinks,m_inlinksKey);
-	if(  sc.isFailure()) {
-	    (*mLog) << MSG::ERROR
-		    << "Could not retrieve InParticleLinks with name "
-		    << m_inlinksKey
-		    << endreq;
-	    return sc;
-	}    
+      ATH_CHECK( evtStore()->retrieve(inlinks,m_inlinksKey) );
     }
 
-    sc = m_pSG->retrieve(particles,m_inputKey);
-    if(  sc.isFailure() || particles==0) {
-	(*mLog) << MSG::ERROR
-		<< "Could not retrieve Container with name "
-		<< m_inputKey
-		<< endreq;
-	return sc;
-    }
+    ATH_CHECK( evtStore()->retrieve(particles,m_inputKey) );
     int npart=particles->size();
-    (*mLog)<< MSG::DEBUG<<" >>>> got Container,  no. of particles="<<npart<<endreq;
+    ATH_MSG_DEBUG(" >>>> got Container,  no. of particles="<<npart );
 
     SelectedParticles* selparts=0;
     if(m_gensel){
 	//   SelectedParticles option
         selparts=new SelectedParticles();
-	(*mLog)<< MSG::DEBUG<<" >>>> Generate SelectedParticles";
-	if(m_pSG->record(selparts,m_selectedKey).isFailure()) return StatusCode::FAILURE;
+	ATH_MSG_DEBUG(" >>>> Generate SelectedParticles" );
+	ATH_CHECK(evtStore()->record(selparts,m_selectedKey) );
 	typename Container::const_iterator ipItr = particles->begin();
 	typename Container::const_iterator ipEnd = particles->end();
 	int npart=particles->size();
 	selparts->SetMaxBits(npart);
 	unsigned ipart=0;
 	if(!m_inLink){
-	    if(m_inSel) (*mLog)<< MSG::DEBUG<<" using InSelectedParticles("<<m_inselectedKey
-			       <<"), no. particles="<<inselparts->numGood()
-			       <<" <<<"<<endreq;
-	    else (*mLog)<< MSG::DEBUG<<" looping over whole Container <<<"<<endreq;
+          if(m_inSel) ATH_MSG_DEBUG(" using InSelectedParticles("<<m_inselectedKey
+                                    <<"), no. particles="<<inselparts->numGood()
+                                    <<" <<<" );
+          else ATH_MSG_DEBUG(" looping over whole Container <<<" );
 	    for(; ipItr != ipEnd; ++ipItr) {
 		if(m_inSel && !inselparts->isGood(ipart)){
-		    (*mLog) << MSG::DEBUG<<" rejected ipart="<<ipart<<endreq;
+                    ATH_MSG_DEBUG(" rejected ipart="<<ipart );
 		    ipart++;
 		    continue;
 		}
 		if( m_all || static_cast<Derived*>(this)->accept(*ipItr)){
 		    selparts->SetBit(ipart);
-		    (*mLog)<< MSG::DEBUG<<" accepted ipart="<<ipart<<endreq;
-		}else (*mLog) << MSG::DEBUG<<" rejected ipart="<<ipart<<endreq;
+		    ATH_MSG_DEBUG(" accepted ipart="<<ipart );
+		}else ATH_MSG_DEBUG(" rejected ipart="<<ipart );
 		ipart++;
 	    }
 	}else{
 	    // loop over input links
 	    typename Links::const_iterator ilItr = inlinks->begin();
 	    typename Links::const_iterator ilEnd = inlinks->end();
-	    (*mLog)<< MSG::DEBUG<<" using input  ParticleLinks ("<<m_inlinksKey<<"), no. of particles="
-		   <<inlinks->size()<<"  <<<<<"<<endreq;
+	    ATH_MSG_DEBUG(" using input  ParticleLinks ("<<m_inlinksKey<<"), no. of particles="
+                          <<inlinks->size()<<"  <<<<<" );
 	    int ipart=0;
 	    for(; ilItr != ilEnd; ++ilItr) {
 		ipart=(*ilItr).index();
@@ -239,18 +200,18 @@ template<class Derived>
 		//Contained* part=const_cast<Contained *>(cpart);
 		if( m_all || static_cast<Derived*>(this)->accept(*ilItr) ){
 		    selparts->SetBit(ipart);
-		    (*mLog)<< MSG::DEBUG<<" accepted ipart="<<ipart<<endreq;
-		}else (*mLog) << MSG::DEBUG<<" rejected ipart="<<ipart<<endreq;
+		    ATH_MSG_DEBUG(" accepted ipart="<<ipart );
+		}else ATH_MSG_DEBUG(" rejected ipart="<<ipart );
 	    }
 	}
-	(*mLog)<< MSG::DEBUG<<" SelectedParticles bits: "<<selparts->displayBits()<<endreq;
+	ATH_MSG_DEBUG(" SelectedParticles bits: "<<selparts->displayBits() );
     } // end of SelectedParticles option
 
     //  ParticleLinks option
     if(m_genlink){
-	(*mLog)<< MSG::DEBUG<<" >>>> Generate ParticleLinks";
+      ATH_MSG_DEBUG(" >>>> Generate ParticleLinks" );
 	Links* links=new Links();
-	if(m_pSG->record(links,m_linksKey).isFailure()) return StatusCode::FAILURE;
+	ATH_CHECK( evtStore()->record(links,m_linksKey) );
 
 	if(m_gensel){
 	    // selection already done, selparts filled
@@ -264,13 +225,13 @@ template<class Derived>
 		}
 		ipart++;
 	    }
-	    return sc;
+	    return StatusCode::SUCCESS;
 	}
 	if(m_inLink){
 	    typename Links::const_iterator ilItr = inlinks->begin();
 	    typename Links::const_iterator ilEnd = inlinks->end();
-	    (*mLog)<< MSG::DEBUG<<" using input  ParticleLinks ("<<m_inlinksKey<<"), no. of particles="
-		   <<inlinks->size()<<"  <<<<<"<<endreq;
+	    ATH_MSG_DEBUG(" using input  ParticleLinks ("<<m_inlinksKey<<"), no. of particles="
+                          <<inlinks->size()<<"  <<<<<" );
 	    unsigned ipart=0;
 	    for(; ilItr != ilEnd; ++ilItr) {
 		ipart=(*ilItr).index();
@@ -278,40 +239,39 @@ template<class Derived>
 		//Contained* part=const_cast<Contained *>(cpart);
 		if(  m_all || static_cast<Derived*>(this)->accept(*ilItr) ){
 		    links->push_back(*ilItr);
-		    (*mLog)<< MSG::DEBUG<<" accepted ipart="<<ipart<<endreq;
-		}else (*mLog) << MSG::DEBUG<<" rejected ipart="<<ipart<<endreq;
+		    ATH_MSG_DEBUG(" accepted ipart="<<ipart );
+		}else ATH_MSG_DEBUG(" rejected ipart="<<ipart );
 	    }
 	}else{
-	    if(m_inSel) (*mLog)<< MSG::DEBUG<<" using InSelectedParticles("<<m_inselectedKey
-			       <<"), no. particles="<<inselparts->numGood()
-			       <<" <<<"<<endreq;
-	    else (*mLog)<< MSG::DEBUG<<" looping over whole Container <<<"<<endreq;
+          if(m_inSel) ATH_MSG_DEBUG(" using InSelectedParticles("<<m_inselectedKey
+                                    <<"), no. particles="<<inselparts->numGood()
+                                    <<" <<<" );
+          else ATH_MSG_DEBUG(" looping over whole Container <<<" );
 	    typename Container::const_iterator ipItr = particles->begin();
 	    typename Container::const_iterator ipEnd = particles->end();
 	    unsigned ipart=0;
 	    for(; ipItr != ipEnd; ++ipItr) {
 		if(m_inSel && !inselparts->isGood(ipart)){
-		    (*mLog) << MSG::DEBUG<<" rejected ipart="<<ipart<<endreq;
+                    ATH_MSG_DEBUG(" rejected ipart="<<ipart );
 		    ipart++;
 		    continue;
 		}
 		if(  m_all || static_cast<Derived*>(this)->accept(*ipItr) ){
 		    ElementLink<Container> el(*particles,ipart);
 		    links->push_back(el);
-		    //(*mLog)<< MSG::DEBUG<<" accepted ipart="<<ipart<<", pt="<<(*particles)[ipart]->pt()/1000.<<endreq;
-		    (*mLog)<< MSG::DEBUG<<" accepted ipart="<<ipart<<", pt="<<(*el)->pt()/1000.0<<endreq;
-		}else (*mLog) << MSG::DEBUG<<" rejected ipart="<<ipart<<endreq;
+		    ATH_MSG_DEBUG(" accepted ipart="<<ipart<<", pt="<<(*el)->pt()/Athena::Units::GeV );
+		}else ATH_MSG_DEBUG(" rejected ipart="<<ipart );
 		ipart++;
 	    }
 	}
     } // end of ParticleLinks option
-    return sc;
+    return StatusCode::SUCCESS;
 }
 
 template<class Derived>
     StatusCode  SelectorBase<Derived>::finalize() {
 
-  (*mLog) << MSG::INFO << "Finalizing Selector " << name() << endreq;
+  ATH_MSG_INFO( "Finalizing Selector " << name()  );
 
   return StatusCode::SUCCESS;
 }

@@ -32,7 +32,7 @@ public:
              const IInterface* parent )
     : AthAlgTool( type, name, parent ),
       AraAlgToolWrapper< ISelectorCore > ( type, name, parent )  
-  {AthAlgTool::declareInterface< ISelectorCore >(this); };
+  {/*AthAlgTool::declareInterface< ISelectorCore >(this);*/}
 
 };
 

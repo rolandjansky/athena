@@ -19,7 +19,7 @@ public:
                    const IInterface* parent )
     : AthAlgTool( type, name, parent ),
       AraAlgToolWrapper< ContainerFilterCore > ( type, name, parent )  
-  {AthAlgTool::declareInterface< ContainerFilterCore >(this); };
+  {/*AthAlgTool::declareInterface< ContainerFilterCore >(this);*/}
 
 };
 

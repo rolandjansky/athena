@@ -32,7 +32,7 @@ public:
                       const IInterface* parent )
     : AthAlgTool( type, name, parent ),
       AraAlgToolWrapper< ElectronIDSelectorCore > ( type, name, parent )  
-  {AthAlgTool::declareInterface< ElectronIDSelectorCore >(this); };
+  {/*AthAlgTool::declareInterface< ElectronIDSelectorCore >(this);*/}
 
 };
 
