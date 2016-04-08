@@ -8,28 +8,61 @@
 
 
 #Specify input file.
-if not "pandaJob" in globals() and not  "FNAME" in globals():
-    include ('MuonPerformanceAlgs/Zmumu_19.0.2.1.py')
-else:
+
+#InputAODList = []
+#if not "pandaJob" in globals() and not  "FNAME" in globals():
+
+
+
+from AthenaCommon.AppMgr import ServiceMgr
+import AthenaPoolCnvSvc.ReadAthenaPool
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+
+
+if 'FILELIST' in globals():
+        #FILELIST="filelist.txt"
+    print "running with local file list %s"%FILELIST
+
+    import os
+
+    if os.path.isfile(FILELIST):
+      with open(FILELIST,'r') as input:
+          InputAODList=[bla for bla in input.read().split("\n") if bla != ""and not '#' in bla ]
+          acf.FilesInput = InputAODList
+          ServiceMgr.EventSelector.InputCollections = InputAODList
+
+elif 'FNAME' in globals():
+    print "running with manually specified input file %s"%FNAME
     InputAODList=[FNAME]
+    acf.FilesInput = InputAODList
+    ServiceMgr.EventSelector.InputCollections = InputAODList
+    
+#else:
+    #print "Neither FNAME nor FILELIST specified - if we are not on the grid, this might go wrong..."
 
+#if not "pandaJob" in globals() and not  "FNAME" in globals():
+    #if not 'FILELIST' in globals():
+        #FILELIST="filelist.txt"
+    #print "running with file list %s"%FILELIST
 
-#include ('PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs/share/Sample_Valid3_147407_e3099_s2578_r6588.py')
+    #with open(FILELIST,'r') as input:
+        #InputAODList=[bla for bla in input.read().split("\n") if bla != ""and not '#' in bla ]
+
+#else:
+    #InputAODList=[FNAME]
 
 
 #--------------------------------------------------------------
 # Input stream
 #--------------------------------------------------------------
 
-from AthenaCommon.AppMgr import ServiceMgr
-import AthenaPoolCnvSvc.ReadAthenaPool
-ServiceMgr.EventSelector.InputCollections = InputAODList
 
 print ServiceMgr.EventSelector.InputCollections
+if len(ServiceMgr.EventSelector.InputCollections) == 0:
+    print "Empty input collection - are you running locally without FNAME or FILELIST set? This may go horribly wrong..."
+    
+    
 
-
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
-acf.FilesInput = InputAODList
 
 #--------------------------------------------------------------
 # Reduce the event loop spam a bit
@@ -72,75 +105,9 @@ include ("MuonPerformanceAlgs/RecExCommon_for_TP.py")
 # Allow messge service more than default 500 lines.
 ServiceMgr.MessageSvc.infoLimit = 20000
 
-# Full job is a list of algorithms
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
+# Configure Muon TP tools
+from MuonPerformanceAlgs import MuonTPAnalysis
+MuonTPAnalysis.MuonTPConfig('muontp.root',doPlots=True,doEff=True)
 
 
-include ('MuonPerformanceAlgs/ZmumuTPAnalysis.py')
-include ('MuonPerformanceAlgs/ZmumuTPIsolationAnalysis.py')
-include ('MuonPerformanceAlgs/ZmumuTPTrigAnalysis.py')
-
-# now we can add the TP analysis/es itself/themselves :)
-
-############## Zmumu T&P Configuration ########################
-do_Zmumu_RecoEff_TagProbe      = True # this is for Z->mumu, reco eff. You can add your own analysis in a similar way.
-do_Zmumu_IsolationEff_TagProbe = True # this is for Z->mumu, isolation eff. You can add your own analysis in a similar way.
-do_Zmumu_Trigger_TagProbe      = True  # this is for Z->mumu, Trigger eff.
-
-##### General analysis options
-writeNtuple = True                     # Write an ntuple on top of the histos - for detailed studies, but increases output file size
-doEtaSlices = False
-doClosure   = False
-doDRSys     = False
-doValid     = False
-
-
-# Add utilities (tool, upstream algorithms) we need
-AddIsolationTools()
-AddTrigDecisionTool()
-AddTrigMatchingTool()
-AddMuonSelectionTool()
-
-
-##### Reco eff analysis options
-if do_Zmumu_RecoEff_TagProbe:
-	writeNtuple = True                    
-	doEtaSlices = False
-	doClosure   = False
-	doDRSys     = True
-	doValid     = True
-	AddZmumuTPAnalysis(doEtaSlices,writeNtuple,doClosure,doDRSys,doValid)      
-###############################################################
-
-
-##### Isolation eff analysis options
-if do_Zmumu_IsolationEff_TagProbe: 
-    doEtaSlices = False
-    doClosure   = False
-    doDRSys     = True
-    doValid     = True
-    AddZmumuTPIsolationAnalysis(doEtaSlices,writeNtuple,doClosure,doDRSys)
-    pass
-###############################################################
-
-
-##### Trigger analysis options
-if do_Zmumu_Trigger_TagProbe:
-        doTriggerL1  = True
-        doTriggerL2  = False
-        doTriggerEF  = False
-        doTriggerHLT = True
-        doEtaSlices  = True
-        doDRSys      = False
-        AddTriggerTPAnalysis(doEtaSlices,writeNtuple,doClosure,doDRSys,doL1=doTriggerL1,doL2=doTriggerL2,doEF=doTriggerEF,doHLT=doTriggerHLT)
-###############################################################
-
-print ToolSvc
-print job
-print ServiceMgr
-# Add HistSvc
-from GaudiSvc.GaudiSvcConf import THistSvc
-ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["MUONTP DATAFILE='muontp.root' OPT='RECREATE'"]
 
