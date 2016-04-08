@@ -83,33 +83,33 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
   sc =  m_assoTool.retrieve();
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
       return StatusCode::FAILURE;
     } 
   else
-    msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
 
   // Get segment selector tool
   //
   if(m_parameterization){
     if(m_selectortool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endmsg;
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_selectortool <<endreq;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endreq;
     }
   }
 
   sc = detStore()->retrieve(m_detID, "SiliconID" );
   if (sc.isFailure()) 
     {
-      msg(MSG::FATAL) << "Could not get SiliconID "<<endmsg;
+      msg(MSG::FATAL) << "Could not get SiliconID "<<endreq;
       return sc;
     }
   else
-    msg(MSG::DEBUG) << "Found SiliconID"<<endmsg;
+    msg(MSG::DEBUG) << "Found SiliconID"<<endreq;
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
   return StatusCode::SUCCESS;
 }
 

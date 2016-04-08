@@ -19,8 +19,7 @@
 #include <map>
 #include <vector>
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkValInterfaces/ITrkObserverTool.h"
-#include "TrkParameters/TrackParameters.h"
+
 
 class SiliconID;
 class Identifier;
@@ -41,6 +40,7 @@ namespace InDet
       
   */  
   class ITrtDriftCircleCutTool;
+
   class InDetDenseEnvAmbiTrackSelectionTool : virtual public Trk::IAmbiTrackSelectionTool,
                                               virtual public IIncidentListener, 
                                               public AthAlgTool
@@ -86,8 +86,7 @@ namespace InDet
      
       struct TrackHitDetails
       {  
-        bool  isPatternTrack        ;
-        bool  inROI                 ;
+        bool  isPatternTrack;
         bool  thishasblayer         ; //Track has a hit in the b-layer
         bool  hassharedblayer       ; //Track has a shared it in the b-layer
         bool  hassharedpixel        ; //Track has a shared pixel hit
@@ -119,7 +118,6 @@ namespace InDet
         TrackHitDetails()
         {          
           isPatternTrack    = true;
-          inROI             = false;
           thishasblayer     = false;   
           hassharedblayer   = false;
           hassharedpixel    = false;
@@ -150,7 +148,7 @@ namespace InDet
         
         int totalSiHits()
         { 
-          return numUnused + numPixelDeadSensor + numSCTDeadSensor + numSplitSharedPix + numSplitSharedSCT + (inROI ? numShared/2 : 0) ;
+          return numUnused + numPixelDeadSensor + numSCTDeadSensor + numSplitSharedPix + numSplitSharedSCT/2;
         };
         
         void dumpInfo()
@@ -184,34 +182,7 @@ namespace InDet
           std::cout << "Weighted shared " << numWeightedShared << std::endl;
         };
       };
-
-	struct lessTrkTrack {
-          bool operator() (const Trk::Track* x, const Trk::Track* y) const
-          {
-            if(ATH_UNLIKELY(!x and !y))
-              return false;
-            if(ATH_UNLIKELY(!x))
-              return true;
-            if(ATH_UNLIKELY(!y))
-              return false;
-            if(ATH_UNLIKELY(!x->trackParameters()  and !y->trackParameters()))
-              return false;
-            if(ATH_UNLIKELY(!x->trackParameters() && x->trackParameters()->size() <= 0) )
-              return true;
-            if(ATH_UNLIKELY(!y->trackParameters() && y->trackParameters()->size() <= 0) )
-              return false;
-            return fabs( (*x->trackParameters())[0]->parameters()[Trk::qOverP]) < fabs( (*y->trackParameters())[0]->parameters()[Trk::qOverP]) ;
-          }
-      };
-
-
-
-
-
-
-
-
- 
+     
       struct TSoS_Details
       {
         unsigned int        nTSoS;
@@ -221,8 +192,8 @@ namespace InDet
         std::vector<float>  splitProb1;                             // The Probablilty that the cluster on that surface is from 2 tracks
         std::vector<float>  splitProb2;                             // The Probablilty that the cluster on that surface is from 3 or more tracks
         std::vector<const Trk::RIO_OnTrack*> RIO;                   // The cluster on track
-        std::multimap<const Trk::Track*, int, lessTrkTrack >  overlappingTracks;   // The tracks that overlap with the current track
-        std::multimap< int, const Trk::Track*> tracksSharingHit;    // The tracks that overlap with the current track
+        std::multimap<const Trk::Track*, int >  overlappingTracks;   // The tracks that overlap with the current track
+        std::multimap< int, const Trk::Track* > tracksSharingHit;    // The tracks that overlap with the current track
 
         TSoS_Details()
         {
@@ -242,8 +213,8 @@ namespace InDet
         
         int findIndexOfPreviousMeasurement( int currentIndex )
         {
-          int indexPreviousMeasurement = currentIndex-1;
-          while(indexPreviousMeasurement >= 0){
+	        int indexPreviousMeasurement = currentIndex-1;
+			    while(indexPreviousMeasurement >= 0){
             if( type[indexPreviousMeasurement] != OtherTsos ){
                break;
             } else {
@@ -270,11 +241,8 @@ namespace InDet
       
       /** Check if the cluster is compatible with a hadronic cluster*/
       bool isHadCaloCompatible(const Trk::TrackParameters& Tp) const;      
-
-      /** Check if the cluster is compatible with a EM cluster*/
-      bool isEmCaloCompatible(const Trk::TrackParameters& Tp) const;      
       
-      /** Fill hadronic & EM cluster map*/
+      /** Fill hadronic cluster map*/
       void newEvent();
       
       /** Returns the number of track that use that hit already
@@ -284,17 +252,7 @@ namespace InDet
           
         */
       int checkOtherTracksValidity(const Trk::RIO_OnTrack*,bool isSplitable, int& maxiShared, int& maxothernpixel, bool& maxotherhasblayer, bool& failMinHits) const;
-
-
-      /** Returns the Trackparameters of the two tracks on the n'th TrackStateOnSurface of the first track*/
-      std::pair< const Trk::TrackParameters* , const Trk::TrackParameters* > 
-         getOverlapTrackParameters(int n, const Trk::Track* track1, const Trk::Track* track2, int numSplitSharedPix ) const;
-
-      /** Check if two sets of track paremeters are compatible with being from a the same low mass particle decay. 
-          It is assumed that the track parmeters are on the same surface.*/
-      bool isNearbyTrackCandidate(const Trk::TrackParameters* paraA, const Trk::TrackParameters* paraB) const;
-
-
+      
       /**Association tool - used to work out which (if any) PRDs are shared between 
        tracks*/
       ToolHandle<Trk::IPRD_AssociationTool> m_assoTool;
@@ -307,9 +265,6 @@ namespace InDet
       
       /**atlas id helper*/
       const SiliconID* m_detID;
-      
-      /**Observer tool      This tool is used to observe the tracks and their 'score' */
-      ToolHandle<Trk::ITrkObserverTool> m_observerTool;
       
       /** some cut values */
       int m_minHits;                // Min Number of hits on track            
@@ -345,30 +300,10 @@ namespace InDet
       std::vector<double>   m_hadE;
       std::vector<double>   m_hadR;
       std::vector<double>   m_hadZ;
-
-
-      bool  m_useEmClusSeed;
-      float m_minPtEm;
-      float m_phiWidthEm;
-      float m_etaWidthEm;
-
-      std::string m_inputEmClusterContainerName;
-      std::vector<double>   m_emF;
-      std::vector<double>   m_emE;
-      std::vector<double>   m_emR;
-      std::vector<double>   m_emZ;
-
       bool                  m_mapFilled;
-            
-      //Track Pair Selection
-      bool  m_doPairSelection;
-      float m_minPairTrackPt;
-      float m_pairDeltaX;
-      float m_pairDeltaY;
-      float m_pairDeltaPhi;
-      float m_pairDeltaEta;
-
-      bool m_monitorTracks; // to track observeration/monitoring (default is false)
+       
+      // Counters  
+      //mutable int 
       
     }; 
 } // end of namespace
