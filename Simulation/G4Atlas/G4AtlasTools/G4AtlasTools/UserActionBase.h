@@ -8,47 +8,69 @@
 // Base classes
 #include "G4AtlasInterfaces/IUserAction.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include <stdexcept>
+#include <iostream>
+
+#include "G4EventManager.hh"
+#include "G4TrackingManager.hh"
+#include "G4StackManager.hh"
+#include "G4SteppingManager.hh"
 
 class UserActionBase : virtual public IUserAction , public AthAlgTool {
  public:
   // Standard constructor and destructor
   UserActionBase(const std::string& type, const std::string& name, const IInterface *parent);
-  ~UserActionBase() {};
+  virtual ~UserActionBase() {};//std::cout<<"in UAB dtor"<<std::endl;};
 
   // Base class methods from IUserAction
 
+  virtual void BeginOfRun (const G4Run*) override {throw std::runtime_error("Action "+name()+"is scheduled for BeginOfRun, but no implementation is provided. Check your configuration.");};
+  virtual void EndOfRun (const G4Run*) override {throw std::runtime_error("Action "+name()+" is scheduled for EndOfRun, but no implementation is provided. Check your configuration.");};
 
-  virtual void BeginOfRun (const G4Run*) override {};
-  virtual void EndOfRun (const G4Run*) override {};
+  virtual void BeginOfEvent (const G4Event*) override {throw std::runtime_error("Action "+name()+" is scheduled for BeginOfEvent, but no implementation is provided. Check your configuration.");};
+  virtual void EndOfEvent (const G4Event*) override {throw std::runtime_error("Action "+name()+" is scheduled for EndOfEvent, but no implementation is provided. Check your configuration.");};
 
-  virtual void BeginOfEvent (const G4Event*) override {};
-  virtual void EndOfEvent (const G4Event*) override {};
+  virtual void Step (const G4Step*) override {throw std::runtime_error("Action "+name()+" is scheduled for Stepping, but no implementation is provided. Check your configuration.");};
 
-  virtual void Step (const G4Step*) override {};
+  virtual void PreTracking (const G4Track*) override {throw std::runtime_error("Action "+name()+" is scheduled for PreTracking, but no implementation is provided. Check your configuration.");};
+  virtual void PostTracking (const G4Track*) override {throw std::runtime_error("Action "+name()+" is scheduled for PostTracking, but no implementation is provided. Check your configuration.");};
 
-  virtual void PreTracking (const G4Track*) override {};
-  virtual void PostTracking (const G4Track*) override {};
+  /** interface for the stacking action */
+  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track*) override {return fUrgent;};
+  virtual void NewStage() override {throw std::runtime_error("Action "+name()+" is scheduled for NewStage, but no implementation is provided. Check your configuration.");};
+  virtual void PrepareNewEvent() override {throw std::runtime_error("Action "+name()+" is scheduled for PrepareNewEvent, but no implementation is provided. Check your configuration.");};
 
-  virtual std::vector< G4AtlasUA::Role> Roles() override {return m_roles;};
+  //  virtual std::vector< G4AtlasUA::Role> Roles() override {};
 
-  //  virtual  G4AtlasUA::Priority Priority() override {return m_priority;};
-  // virtual void SetPriority( G4AtlasUA::Priority pri) override {m_priority=pri;};
+  virtual void AddRole( G4AtlasUA::Role, unsigned int order ) override final;
+  virtual void printRoles() override final;
 
-  // virtual  G4AtlasUA::Priority Priority(G4AtlasUA::Role theRole) override;
-  //virtual void SetPriority(G4AtlasUA::Priority, G4AtlasUA::Role) override;
+  virtual std::vector<std::string > GetRegions() override final {return m_regions;};
 
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
 
-  virtual void AddRole( G4AtlasUA::Role);
+  virtual void setManagers(G4EventManager* em, G4TrackingManager* tm, G4StackManager* stam, G4SteppingManager* stem){
+    fpEventManager=em;
+    stackManager=stam;
+    fpSteppingManager=stem;
+    fpTrackingManager=tm;
+  };
 
  private:
 
-  std::vector< G4AtlasUA::Role> m_roles; ///!< The roles of this action
+  // private pointers to main G4 managers
+  // these are passed by the UserActionService after registration of the actions to the G4RunManager
+  G4EventManager* fpEventManager;
+  G4StackManager* stackManager;
+  G4SteppingManager* fpSteppingManager;
+  G4TrackingManager* fpTrackingManager;
 
-  //  G4AtlasUA::Priority m_priority; ///!< The global priority of this action
-
-  //  std::map< G4AtlasUA::Role,  G4AtlasUA::Priority> m_priorities; ///!< placeholder for role-specific priorities
-
+  std::map< G4AtlasUA::Role, unsigned int> m_roles; ///!< The roles of this action
+  std::vector<std::string> m_regions; ///!< stepping actions can be activated only in some specific region
 
 };
+
+
+
 
 #endif

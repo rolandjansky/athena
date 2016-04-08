@@ -20,6 +20,9 @@
 #include <vector>
 #include <thread>
 
+class G4LogicalVolume;
+class G4VSensitiveDetector;
+
 class SensitiveDetectorBase : virtual public ISensitiveDetector , public AthAlgTool {
  public:
   /// Basic constructor and destructor
@@ -51,6 +54,9 @@ class SensitiveDetectorBase : virtual public ISensitiveDetector , public AthAlgT
   std::vector<std::string> m_volumeNames; ///!< All the volumes to which this SD is assigned
   std::vector<std::string> m_outputCollectionNames; ///!< Names of all output collections written out by this SD.
   bool m_noVolumes;                       //!< This SensitiveDetector has no volumes associated with it.
+
+  // Method stolen from G4VUserDetectorConstruction in G4 10.2
+  void SetSensitiveDetector(G4LogicalVolume*, G4VSensitiveDetector*) const;
 
  private:
 
