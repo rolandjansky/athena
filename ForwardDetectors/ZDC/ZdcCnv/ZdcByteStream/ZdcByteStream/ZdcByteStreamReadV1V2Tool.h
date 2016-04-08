@@ -52,7 +52,7 @@ namespace LVL1BS {
 }// end namespace
 
 // instead let's use their stupid namespace
-using namespace LVL1BS;
+//using namespace LVL1BS;
 // ===========================================================================
 
 // ===========================================================================

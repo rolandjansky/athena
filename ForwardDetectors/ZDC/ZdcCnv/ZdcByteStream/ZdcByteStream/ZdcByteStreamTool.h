@@ -92,11 +92,11 @@ private:
 	void printVec(const std::vector<int>& vec) const;
 
 	/// Sub_block header version
-	int m_version;
+	//int m_version;
 	/// Data compression format
 	int m_dataFormat;
 	/// Compression version
-	int m_compVers;
+	//int m_compVers;
 	/// Compression statistics print flag
 	int m_printCompStats;
 	/// Number of channels per module (may not all be used)
@@ -104,7 +104,7 @@ private:
 	/// Number of crates
 	int m_crates;
 	/// Number of modules per crate (may not all exist)
-	int m_modules;
+	//int m_modules;
 	/// Number of slinks per crate when writing out bytestream
 	int m_slinks;
 	/// Default number of LUT slices in simulation

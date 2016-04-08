@@ -73,7 +73,7 @@ ZdcByteStreamCnv::~ZdcByteStreamCnv()
 //==================================================================================================
 const CLID& ZdcByteStreamCnv::classID()
 {
-  std::cout << "In ZdcByteStreamCnv::classID()" << std::endl;
+  //std::cout << "In ZdcByteStreamCnv::classID()" << std::endl;
   return ClassID_traits<ZdcDigitsCollection>::ID();
   //return ClassID_traits<xAOD::TriggerTowerContainer>::ID();
 }

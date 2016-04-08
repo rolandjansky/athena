@@ -48,8 +48,8 @@ class ZdcL1CaloErrorByteStreamTool : public AthAlgTool {
 
    // Maps of accumulated errors
    typedef std::map<uint32_t, unsigned int> ErrorMap;
-   ErrorMap robMap;
-   ErrorMap rodMap;
+   ErrorMap m_robMap;
+   ErrorMap m_rodMap;
 
 };
 

@@ -762,6 +762,10 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmCompressedR4V1_() {
         }
 
       }
+
+      if (minIndex < 0)
+        return StatusCode::FAILURE;
+
        // Next get the ADC related quantities (all encodings).
       adcVal = getPpmAdcSamplesR4_(encoding, minIndex);
       // Finally get the pedestal correction.
@@ -977,7 +981,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::addTriggerTowerV2_(
     const std::vector<int16_t>& pedCor,
     const std::vector<uint8_t>& pedEn) {
 
-  int layer = 0;
+  //int layer = 0;
   int error = 0;
   double eta = 0.;
   double phi = 0.;

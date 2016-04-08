@@ -65,8 +65,8 @@ StatusCode ZdcL1CaloErrorByteStreamTool::finalize()
 void ZdcL1CaloErrorByteStreamTool::robError(const uint32_t robid,
                                          const unsigned int err)
 {
-  if (err && robMap.find(robid) == robMap.end()) {
-    robMap.insert(std::make_pair(robid, err));
+  if (err && m_robMap.find(robid) == m_robMap.end()) {
+    m_robMap.insert(std::make_pair(robid, err));
   }
   return;
 }
@@ -76,8 +76,8 @@ void ZdcL1CaloErrorByteStreamTool::robError(const uint32_t robid,
 void ZdcL1CaloErrorByteStreamTool::rodError(const uint32_t robid,
                                          const unsigned int err)
 {
-  if (err && rodMap.find(robid) == rodMap.end()) {
-    rodMap.insert(std::make_pair(robid, err));
+  if (err && m_rodMap.find(robid) == m_rodMap.end()) {
+    m_rodMap.insert(std::make_pair(robid, err));
   }
   return;
 }
@@ -87,22 +87,22 @@ void ZdcL1CaloErrorByteStreamTool::rodError(const uint32_t robid,
 StatusCode ZdcL1CaloErrorByteStreamTool::errors(std::vector<unsigned int>*
                                                                  const errColl)
 {
-  if (!robMap.empty() || !rodMap.empty()) {
-    errColl->push_back(robMap.size());
-    ErrorMap::const_iterator iter  = robMap.begin();
-    ErrorMap::const_iterator iterE = robMap.end();
+  if (!m_robMap.empty() || !m_rodMap.empty()) {
+    errColl->push_back(m_robMap.size());
+    ErrorMap::const_iterator iter  = m_robMap.begin();
+    ErrorMap::const_iterator iterE = m_robMap.end();
     for (; iter != iterE; ++iter) {
       errColl->push_back(iter->first);
       errColl->push_back(iter->second);
     }
-    robMap.clear();
-    iter  = rodMap.begin();
-    iterE = rodMap.end();
+    m_robMap.clear();
+    iter  = m_rodMap.begin();
+    iterE = m_rodMap.end();
     for (; iter != iterE; ++iter) {
       errColl->push_back(iter->first);
       errColl->push_back(iter->second);
     }
-    rodMap.clear();
+    m_rodMap.clear();
   }
   return StatusCode::SUCCESS;
 }
