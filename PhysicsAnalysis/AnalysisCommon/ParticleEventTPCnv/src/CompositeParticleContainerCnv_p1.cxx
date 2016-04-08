@@ -9,8 +9,7 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-// DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // ParticleEvent includes
 #define private public

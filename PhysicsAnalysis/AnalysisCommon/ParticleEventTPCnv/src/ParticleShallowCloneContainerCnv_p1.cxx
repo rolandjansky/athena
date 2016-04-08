@@ -9,8 +9,7 @@
 // Author: Karsten Koeneke - February 2013
 /////////////////////////////////////////////////////////////////// 
 
-// DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // ParticleEvent includes
 #define private public

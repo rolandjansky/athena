@@ -13,11 +13,7 @@
 // STL includes
 
 // ParticleEvent includes
-#define private public
-#define protected public
 #include "ParticleEvent/Neutrino.h"
-#undef private
-#undef protected
 
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4ImplPxPyPzECnv_p1.h"

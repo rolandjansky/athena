@@ -21,7 +21,9 @@
 
 // Forward declaration
 class MsgStream;
-class ParticleShallowClone;
+namespace Analysis {
+  class ParticleShallowClone;
+}
 
 class ParticleShallowCloneCnv_p1 
   : public T_AthenaPoolTPCnvBase<Analysis::ParticleShallowClone, ParticleShallowClone_p1>

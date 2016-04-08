@@ -8,16 +8,19 @@ use AtlasPolicy 	AtlasPolicy-*
 use AtlasReflex         AtlasReflex-*               External
 use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*          Database/AthenaPOOL
 
-use DataModel           DataModel-*                 Control
+use AthLinks            AthLinks-*                  Control
 use DataModelAthenaPool	DataModelAthenaPool-*       Control
-use EventCommonTPCnv    EventCommonTPCnv-*	       Event
+use EventCommonTPCnv    EventCommonTPCnv-*	    Event
 use GaudiInterface      GaudiInterface-*            External
 use ParticleEvent       ParticleEvent-*             PhysicsAnalysis/AnalysisCommon
 use Particle            Particle-*                  Reconstruction
 
 
 private
+use CxxUtils            CxxUtils-*                  Control
 use AthenaKernel        AthenaKernel-*              Control
+use AthAllocators       AthAllocators-*             Control
+use SGTools             SGTools-*                   Control
 use VxVertex            VxVertex-*                  Tracking/TrkEvent
 end_private
 
@@ -31,3 +34,19 @@ apply_pattern tpcnv_library
 # of transient classes
 apply_pattern lcgdict dict=ParticleEventTPCnv  selectionfile=selection.xml  headerfiles="../ParticleEventTPCnv/ParticleEventTPCnvDict.h"
 
+
+use TestTools      TestTools-*         AtlasTest 
+apply_pattern UnitTest_run unit_test=CompositeParticleCnv_p1
+apply_pattern UnitTest_run unit_test=CompositeParticleContainerCnv_p1
+apply_pattern UnitTest_run unit_test=INav4MomToTrackParticleAssocsCnv_p1
+apply_pattern UnitTest_run unit_test=NeutrinoCnv_p1
+apply_pattern UnitTest_run unit_test=NeutrinoCnv_p2
+apply_pattern UnitTest_run unit_test=NeutrinoContainerCnv_p1
+apply_pattern UnitTest_run unit_test=NeutrinoContainerCnv_p2
+apply_pattern UnitTest_run unit_test=ParticleBaseCnv_p1
+apply_pattern UnitTest_run unit_test=ParticleBaseCnv_p2
+apply_pattern UnitTest_run unit_test=ParticleBaseLinksCnv_p1
+apply_pattern UnitTest_run unit_test=ParticleShallowCloneCnv_p1
+apply_pattern UnitTest_run unit_test=ParticleShallowCloneContainerCnv_p1
+apply_pattern UnitTest_run unit_test=SelectedParticlesCnv_p1
+apply_pattern UnitTest_run unit_test=TrackParticleAssocsCnv_p1
