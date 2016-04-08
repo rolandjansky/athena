@@ -219,11 +219,6 @@ public:
     /// does nothing.
     Identifier pixel_id_from_shortened(Identifier32::value_type val) const;
 
-    /// Create a (fixed format) legacy pixel channel id from a
-    /// normal pixel channel id.  If compiled in 32-bit mode, this
-    /// method does nothing.  Return invalid id if a field overflows.
-    Identifier32 shorten_pixel_id(const Identifier& id) const;
-
     /// Return the lowest bit position used in the channel id.
     int                 base_bit        (void) const;
 
@@ -255,15 +250,9 @@ public:
 
 private:
 
-#ifndef __IDENTIFIER_64BIT__
-    enum {NOT_VALID_HASH        = 64000,
-          MAX_BIT               = 0x80000000,
-          BITS32                = 0xFFFFFFFF };
-#else /* __IDENTIFIER_64BIT__ */
     enum {NOT_VALID_HASH        = 64000,
           MAX_BIT               = Identifier::MAX_BIT,
           BITS32                = Identifier::ALL_BITS };
-#endif /* __IDENTIFIER_64BIT__ */
 
     typedef std::vector<Identifier>     id_vec;
     typedef id_vec::const_iterator      id_vec_it;
@@ -369,19 +358,9 @@ PixelID::wafer_id ( int barrel_ec,
 inline Identifier  
 PixelID::wafer_id ( const Identifier& pixel_id ) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    Identifier result((Identifier::value_type)0);
-
-    // Pixel id is missing top two levels, so we pack them and copy in
-    // the rest of the fields from the pixel_id
-    m_indet_impl.pack    (indet_field_value(), result);
-    m_pixel_impl.pack    (pixel_field_value(), result);
-    result |= (m_bec_eta_mod_impl.unpack(pixel_id) << m_eta_mod_impl.shift());
-#else /* __IDENTIFIER_64BIT__ */
     Identifier result(pixel_id);
     m_phi_index_impl.reset      (result);
     m_eta_index_impl.reset      (result);
-#endif /* __IDENTIFIER_64BIT__ */
     return (result);
 }
 
@@ -414,25 +393,9 @@ PixelID::pixel_id ( int barrel_ec,
                     int phi_index,
                     int eta_index) const
 {
-    // For pixel id, we skip the first two levels and pack the rest
-    // into the 32 bits. This is needed because 36 bits is needed for
-    // all packed fields. To distinguish this id from others, we do
-    // two things:
-    //   1) Prefix with bit 32 set
-    //   2) Add 1 to eta_index to assure a non-zero value in lower bits
-    //  
 
     // Build identifier
     Identifier result((Identifier::value_type)0);
-#ifndef __IDENTIFIER_64BIT__
-    m_bec_shift_impl.pack      (barrel_ec,   result);
-    m_lay_disk_shift_impl.pack (layer_disk,  result);
-    m_phi_mod_shift_impl.pack  (phi_module,  result);
-    m_eta_mod_shift_impl.pack  (eta_module,  result);
-    m_phi_index_impl.pack      (phi_index,   result);
-    m_eta_index_impl.pack      (eta_index+1, result);
-    result |= MAX_BIT;
-#else /* __IDENTIFIER_64BIT__ */
     m_indet_impl.pack          (indet_field_value(), result);
     m_pixel_impl.pack          (pixel_field_value(), result);
     m_bec_impl.pack            (barrel_ec,   result);
@@ -441,7 +404,6 @@ PixelID::pixel_id ( int barrel_ec,
     m_eta_mod_impl.pack        (eta_module,  result);
     m_phi_index_impl.pack      (phi_index,   result);
     m_eta_index_impl.pack      (eta_index,   result);
-#endif /* __IDENTIFIER_64BIT__ */
 
     if(m_do_checks) {
 
@@ -463,23 +425,12 @@ inline Identifier
 PixelID::pixel_id       (const ExpandedIdentifier& id) const
 {
     Identifier result;
-#ifndef __IDENTIFIER_64BIT__
-    if (m_ETA_INDEX_INDEX < id.fields()) {
-        result = pixel_id(id[m_BARREL_EC_INDEX],
-                          id[m_LAYER_DISK_INDEX],
-                          id[m_PHI_MODULE_INDEX],
-                          id[m_ETA_MODULE_INDEX],
-                          id[m_PHI_INDEX_INDEX],
-                          id[m_ETA_INDEX_INDEX]);
-    }
-#else /* __IDENTIFIER_64BIT__ */
     result = pixel_id(id[m_BARREL_EC_INDEX],
                       id[m_LAYER_DISK_INDEX],
                       id[m_PHI_MODULE_INDEX],
                       id[m_ETA_MODULE_INDEX],
                       id[m_PHI_INDEX_INDEX],
                       id[m_ETA_INDEX_INDEX]);
-#endif /* __IDENTIFIER_64BIT__ */
 
     if(m_do_checks) {
         pixel_id_checks (id[m_BARREL_EC_INDEX],
@@ -501,24 +452,11 @@ PixelID::pixel_id ( const Identifier& wafer_id,
                     int phi_index,
                     int eta_index) const
 {
-#ifdef __IDENTIFIER_64BIT__
     Identifier result(wafer_id);
     m_phi_index_impl.reset     (result);
     m_eta_index_impl.reset     (result);
     m_phi_index_impl.pack      (phi_index,   result);
     m_eta_index_impl.pack      (eta_index, result);
-#else /* __IDENTIFIER_64BIT__ */
-    // Extract fields bec to eta_module, shift up by bec offset - 1,
-    // reset and then add in the phi/eta index
-    Identifier::value_type result_value = wafer_id.get_compact() << (m_bec_impl.bits_offset() - 1);
-    //Identifier result(wafer_id << (m_bec_impl.bits_offset() - 1));
-    Identifier result(result_value);
-    m_phi_index_impl.reset     (result);
-    m_eta_index_impl.reset     (result);
-    m_phi_index_impl.pack      (phi_index,   result);
-    m_eta_index_impl.pack      (eta_index+1, result);
-    result |= MAX_BIT;
-#endif /* __IDENTIFIER_64BIT__ */
     return (result);
 }
 
@@ -526,7 +464,6 @@ PixelID::pixel_id ( const Identifier& wafer_id,
 inline Identifier
 PixelID::pixel_id ( Identifier::value_type val ) const
 {
-#ifdef __IDENTIFIER_64BIT__
     // a pixel channel id has bit 31 set, and low 8 bits > 0.
     // This could also have been shifted up by 32 bits.
 
@@ -551,10 +488,6 @@ PixelID::pixel_id ( Identifier::value_type val ) const
     }
     return Identifier(val); // genuine 64-bit pixel channel id
 
-#else /* __IDENTIFIER_64BIT__ */
-    // 32-bit mode:  just return the original value in the identifier
-    return Identifier(val);
-#endif /* __IDENTIFIER_64BIT__ */
 }
 
 //----------------------------------------------------------------------------
@@ -575,7 +508,6 @@ PixelID::is_shortened_pixel_id(const Identifier32& id) const
 inline bool
 PixelID::is_shortened_pixel_id(const Identifier& id) const
 {
-#ifdef __IDENTIFIER_64BIT__
   Identifier::value_type val = id.get_compact();
   Identifier32::value_type valshort;
   // first test if value is contained in one half or the other
@@ -589,16 +521,12 @@ PixelID::is_shortened_pixel_id(const Identifier& id) const
     return false;
   }
   return is_shortened_pixel_id(valshort);
-#else /* __IDENTIFIER_64BIT__ */
-  return is_shortened_pixel_id(id.get_compact());
-#endif /* __IDENTIFIER_64BIT__ */
 }
 
 //----------------------------------------------------------------------------
 inline Identifier
 PixelID::pixel_id_from_shortened(Identifier32::value_type val) const
 {
-#ifdef __IDENTIFIER_64BIT__
   int bec_val[4] = { -2, 0, 2, -999 }; // CHECK decodings
   int bec = bec_val[(val >> 29) & 0x03];
   if (bec < -2) return Identifier();
@@ -609,40 +537,6 @@ PixelID::pixel_id_from_shortened(Identifier32::value_type val) const
                    /* eta_mod */   (((val >> 17) & 0x0f) + m_ETA_MODULE_OFFSET),
                    /* phi_index */ ((val >>  8) & 0x1ff),
                    /* eta_index */ ((val      ) & 0xff) - 1 );
-#else /* __IDENTIFIER_64BIT__ */
-  return Identifier(val);
-#endif /* __IDENTIFIER_64BIT__ */
-}
-
-//----------------------------------------------------------------------------
-inline Identifier32
-PixelID::shorten_pixel_id(const Identifier& id) const
-{
-#ifdef __IDENTIFIER_64BIT__
-  Identifier32 invalid;
-  int bec    = barrel_ec(id);
-  int ld     = layer_disk(id);
-  int phimod = phi_module(id);
-  int etamod = eta_module(id);
-  int phiidx = phi_index(id);
-  int etaidx = eta_index(id) + 1;
-  /* bec requires re-encoding.  Assume -2,0,2 -> 0,1,2.  CHECK! */
-  if (bec == -2) bec = 0;
-  else if (bec == 0) bec = 1;
-  else if (bec == 2) bec = 2;
-  else return invalid; // bad barrel_ec value
-  if (ld >> 2) return invalid; // out of range
-  if (phimod >> 6) return invalid;
-  if (etamod >> 4) return invalid;
-  if (phiidx >> 9) return invalid;
-  if (etaidx >> 8) return invalid;
-  Identifier32::value_type val = (bec << 29) | (ld << 27) |
-                                 (phimod << 21) | (etamod << 17) |
-                                 (phiidx << 8) | etaidx;
-  return Identifier32(val);
-#else /* __IDENTIFIER_64BIT__ */
-  return id.get_identifier32();
-#endif /* __IDENTIFIER_64BIT__ */
 }
 
 //----------------------------------------------------------------------------
@@ -667,14 +561,10 @@ PixelID::pixel_id_offset(const Identifier& base,
 inline int
 PixelID::base_bit ( void ) const
 {
-#ifdef __IDENTIFIER_64BIT__
   int base = static_cast<int>(m_eta_index_impl.shift()); // lowest field base
   return (base > 32) ? 32 : base;
   // max base is 32 so we can still read old strip id's and differences
   // from non-SLHC releases.
-#else
-  return 0;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -699,78 +589,32 @@ PixelID::pixel_context  (void) const
 inline bool     
 PixelID::is_barrel      (const Identifier& id) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    // extract the barrel_ec field and test it
-
-    // Check if it is pixel id
-    //if((MAX_BIT & id) == MAX_BIT) {
-    if(id.extract(0, MAX_BIT) == MAX_BIT) {
-        return (m_barrel_field.match(m_bec_shift_impl.unpack(id)));
-    }
-    else {
-#endif
-        // Normal unshifted id
-        return (m_barrel_field.match(m_bec_impl.unpack(id)));
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
+    // Normal unshifted id
+    return (m_barrel_field.match(m_bec_impl.unpack(id)));
 }
 
 //----------------------------------------------------------------------------
 inline bool
 PixelID::is_dbm (const Identifier& id) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    // extract the barrel_ec field and test it
-
-    // Check if it is pixel id
-    //if((MAX_BIT & id) == MAX_BIT) {
-    if(id.extract(0, MAX_BIT) == MAX_BIT) {
-        return (m_dbm_field.match(m_bec_shift_impl.unpack(id)));
-    }
-    else {
-#endif
-        // Normal unshifted id
-        return (m_dbm_field.match(m_bec_impl.unpack(id)));
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
+    // Normal unshifted id
+    return (m_dbm_field.match(m_bec_impl.unpack(id)));
 }
 
 //----------------------------------------------------------------------------
 inline int         
 PixelID::barrel_ec       (const Identifier& id) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    // Check if it is pixel id - shifted
-    if(id.extract(0, MAX_BIT) == MAX_BIT) {
-        return (m_bec_shift_impl.unpack(id));
-    }
-    else {
-#endif
-        // Normal unshifted id
-        return (m_bec_impl.unpack(id));
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
+    // Normal unshifted id
+    return (m_bec_impl.unpack(id));
 }
 
 //----------------------------------------------------------------------------
 inline int         
 PixelID::layer_disk      (const Identifier& id) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    // Check if it is pixel id - shifted
-    if(id.extract(0, MAX_BIT) == MAX_BIT) {
-        return (m_lay_disk_shift_impl.unpack(id));
-    }
-    else {
-#endif
-        // Normal unshifted id
-        return (m_lay_disk_impl.unpack(id));
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
+    // Normal unshifted id
+    return (m_lay_disk_impl.unpack(id));
 }
 
 //----------------------------------------------------------------------------
@@ -790,36 +634,16 @@ PixelID::is_blayer       (const Identifier& id) const
 inline int         
 PixelID::phi_module      (const Identifier& id) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    // Check if it is pixel id - shifted
-    if(id.extract(0, MAX_BIT) == MAX_BIT) {
-        return (m_phi_mod_shift_impl.unpack(id));
-    }
-    else {
-#endif
-        // Normal unshifted id
-        return (m_phi_mod_impl.unpack(id));
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
+    // Normal unshifted id
+    return (m_phi_mod_impl.unpack(id));
 }
 
 //----------------------------------------------------------------------------
 inline int         
 PixelID::eta_module            (const Identifier& id) const
 {
-#ifndef __IDENTIFIER_64BIT__
-    // Check if it is pixel id - shifted
-    if(id.extract(0, MAX_BIT) == MAX_BIT) {
-        return (m_eta_mod_shift_impl.unpack(id));
-    }
-    else {
-#endif
-        // Normal unshifted id
-        return (m_eta_mod_impl.unpack(id));
-#ifndef __IDENTIFIER_64BIT__
-    }
-#endif
+    // Normal unshifted id
+    return (m_eta_mod_impl.unpack(id));
 }
 
 //----------------------------------------------------------------------------
@@ -833,12 +657,7 @@ PixelID::phi_index            (const Identifier& id) const
 inline int         
 PixelID::eta_index              (const Identifier& id) const
 {
-#ifdef __IDENTIFIER_64BIT__
     return (m_eta_index_impl.unpack(id));
-#else
-    // Subtract 1 for special manipulations to identifier pixel ids
-    return (m_eta_index_impl.unpack(id) - 1);
-#endif
 }
 
 #endif // INDETIDENTIFIER_PIXELID_H

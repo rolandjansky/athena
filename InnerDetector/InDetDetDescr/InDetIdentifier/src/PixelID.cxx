@@ -842,38 +842,8 @@ PixelID::initLevelsFromDict(void)
     m_lay_disk_impl   = region.m_implementation[m_LAYER_DISK_INDEX]; 
     m_phi_mod_impl    = region.m_implementation[m_PHI_MODULE_INDEX]; 
     m_eta_mod_impl    = region.m_implementation[m_ETA_MODULE_INDEX]; 
-#ifdef __IDENTIFIER_64BIT__
     m_phi_index_impl  = region.m_implementation[m_PHI_INDEX_INDEX]; 
     m_eta_index_impl  = region.m_implementation[m_ETA_INDEX_INDEX]; 
-#else /* __IDENTIFIER_64BIT__ */
-    // shifted impls
-    m_bec_shift_impl = m_bec_impl;
-    m_bec_shift_impl.set_bits(m_bec_impl.bits(), 1);
-    m_lay_disk_shift_impl = m_lay_disk_impl;
-    m_lay_disk_shift_impl.set_bits(m_lay_disk_impl.bits(), 
-                                   m_bec_shift_impl.bits() + m_bec_shift_impl.bits_offset());
-    m_phi_mod_shift_impl = m_phi_mod_impl;
-    m_phi_mod_shift_impl.set_bits(m_phi_mod_impl.bits(), 
-                                  m_lay_disk_shift_impl.bits() + m_lay_disk_shift_impl.bits_offset());
-    m_eta_mod_shift_impl = m_eta_mod_impl;
-    m_eta_mod_shift_impl.set_bits(m_eta_mod_impl.bits(), 
-                                  m_phi_mod_shift_impl.bits() + m_phi_mod_shift_impl.bits_offset());
-
-    m_phi_index_impl  = region.m_implementation[m_PHI_INDEX_INDEX]; 
-    m_phi_index_impl.set_bits(m_phi_index_impl.bits(), 
-                              m_eta_mod_shift_impl.bits() + m_eta_mod_shift_impl.bits_offset());
-
-    m_eta_index_impl  = region.m_implementation[m_ETA_INDEX_INDEX]; 
-    m_eta_index_impl.set_bits(m_eta_index_impl.bits(), 
-                              m_phi_index_impl.bits() + m_phi_index_impl.bits_offset());
-
-    // From bec to eta_module with 0 offset
-    m_bec_eta_mod_impl.set_bits(m_bec_impl.bits() + 
-                                m_lay_disk_impl.bits() + 
-                                m_phi_mod_impl.bits() + 
-                                m_eta_mod_impl.bits(),
-                                1);
-#endif /* __IDENTIFIER_64BIT__ */
 
     if(m_msgSvc) {
         log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
@@ -1061,15 +1031,8 @@ PixelID::get_expanded_id        (const Identifier& id,
            << phi_module(id)
            << eta_module(id);
     if(!context || context->end_index() == m_ETA_INDEX_INDEX) {
-#ifndef __IDENTIFIER_64BIT__
-        // Must have max bit to be able to decode phi/eta index
-        if(id.extract(0, MAX_BIT) == MAX_BIT) {
-#endif
-            exp_id << phi_index(id)
-                   << eta_index(id);
-#ifndef __IDENTIFIER_64BIT__
-        }
-#endif
+        exp_id << phi_index(id)
+               << eta_index(id);
     }
 }
 

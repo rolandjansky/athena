@@ -663,14 +663,10 @@ SCT_ID::strip_id_offset(const Identifier& base,
 inline int
 SCT_ID::base_bit ( void ) const
 {
-#ifdef __IDENTIFIER_64BIT__
   int base = static_cast<int>(m_strip_impl.shift()); // lowest field base
   return (base > 32) ? 32 : base;
   // max base is 32 so we can still read old strip id's and differences
   // from non-SLHC releases.
-#else
-  return 0;
-#endif
 }
 
 //----------------------------------------------------------------------------
