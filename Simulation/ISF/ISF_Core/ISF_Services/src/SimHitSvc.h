@@ -14,7 +14,6 @@
 
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
 
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "InDetSimEvent/SiHitCollection.h"
@@ -36,19 +35,13 @@
 
 class IdentifierHash;
 class AthenaHitsCollectionHelper;
-class StoredLArHitContainers;
 class StoredLArCalibHitContainers;
-class SensitiveDetectorEntry;
 
 namespace InDetDD {
   class SiDetectorManager;
   class TRT_DetectorManager;
 }
 
-namespace FADS {
-  class FadsSensitiveDetector;
-
-}
 // THistogram service
 class ITHistSvc;
 // ROOT forward declarations
@@ -148,7 +141,6 @@ namespace ISF {
 
     //Calorimeter
     bool                                                         m_simulateCalo;
-    StoredLArHitContainers*                                      m_storedContainers;
     std::string                                                  m_embHitCollectionName;
     std::string                                                  m_emecHitCollectionName;
     std::string                                                  m_fcalHitCollectionName;
@@ -196,7 +188,6 @@ namespace ISF {
     TrackRecordCollection*                                         m_cosmicPerigeeTracks;
     std::string                                                    m_cosmicPerigeeTrackCollectionName;
 
-    std::vector<FADS::FadsSensitiveDetector*> m_sd;
     ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
     ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 

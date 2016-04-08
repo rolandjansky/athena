@@ -504,18 +504,16 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::finalizeEvent() {
 
 
 /** add a new particle to the stack and link it to its parent */
-void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const ISFParticle* parentPtr) {
-  // this call does not make much sense if no particle is provided
+void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const ISFParticle *parentPtr) {
+  // this call does not make much sense with no given particle
   assert(particlePtr);
 
   ISFParticle &particle = *particlePtr;
 
-  // set extraBC for daughter to parent extraBC (may be overwritten later by a better extraBC)
   if (parentPtr) {
     Barcode::ParticleBarcode extrabc = parentPtr->getExtraBC();
     particle.setExtraBC( extrabc );
   }
-
 
   // get the particle's next geoID
   AtlasDetDescr::AtlasRegion geoID = particle.nextGeoID();
@@ -536,7 +534,8 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
     if ( validEntryLayer(layer) ) {
       fillPosValTree( m_t_entryLayerPos[layer], particle);
     }
-  } // <--- end validation output
+  }
+  // <--- end validation output
 
   // validation mode: check whether the particle position corresponds to the GeoID given
   // by the particle itself
@@ -549,10 +548,18 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
     }
   }
 
+  // only process particles with well defined geoID
+  if ( !validAtlasRegion( geoID) ) {
+    ATH_MSG_ERROR( m_screenOutputPrefix << "Trying to push particle onto the stack with unknown geoID=" << geoID
+                   << ". Dropping this particle.");
+    delete particlePtr;
+    return;
+  }
+
   // (*) let the Selectors select the particle
   //       - if a Selector selects a particle -> it is pushed onto the active stack
   //       - if it is not selected -> particle is dropped (deleted)
-  selectAndStore( particlePtr);
+  selectAndStore( particlePtr );
 }
 
 /** Get vectors of ISF particles from the broker */
