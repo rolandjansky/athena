@@ -20,3 +20,4 @@ public
 library MuonPtCalibNtupleMaker *.cxx -s=components *.cxx
 apply_pattern component_library
 apply_pattern declare_joboptions files="../share/*.py"
+apply_pattern declare_python_modules files="*.py"
