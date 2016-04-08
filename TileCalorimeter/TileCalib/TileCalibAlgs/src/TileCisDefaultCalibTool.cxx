@@ -4,6 +4,11 @@
 
 // Gaudi includes
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+
+#include "Identifier/HWIdentifier.h"
 
 // Athena includes
 #include "AthenaKernel/errorcheck.h"
@@ -15,6 +20,8 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingSvc.h"
+
+#include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -36,8 +43,9 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
   , m_tileHWID(0)
   , m_cabling(0)
   , m_cablingSvc("TileCablingSvc", name)
-  , scanMap(0)
-  , scanMapRMS(0)
+  , m_stuckBitsProbs("")
+  , m_scanMap(0)
+  , m_scanMapRMS(0)
 {
   declareInterface<ITileCalibTool>(this);
 
@@ -58,6 +66,7 @@ TileCisDefaultCalibTool::TileCisDefaultCalibTool(const std::string& type, const 
 
   declareProperty("doSampleChecking", m_doSampleChecking = true); // do sample checking by default
   declareProperty("DigitsContainer", m_DigitsContainerName = "TileDigitsCnt");
+  declareProperty("StuckBitsProbsTool", m_stuckBitsProbs);
 
 }
 
@@ -68,19 +77,19 @@ StatusCode TileCisDefaultCalibTool::initialize() {
   ATH_MSG_INFO( "initialize()" );
 
   // Initialize arrays for results
-  memset(calib, 0, sizeof(calib));
-  memset(qflag, 0, sizeof(qflag));
-  memset(nDAC, 0, sizeof(nDAC));
-  memset(nDigitalErrors, 0, sizeof(nDigitalErrors));
-  memset(chi2, 0, sizeof(chi2));
+  memset(m_calib, 0, sizeof(m_calib));
+  memset(m_qflag, 0, sizeof(m_qflag));
+  memset(m_nDAC, 0, sizeof(m_nDAC));
+  memset(m_nDigitalErrors, 0, sizeof(m_nDigitalErrors));
+  memset(m_chi2, 0, sizeof(m_chi2));
 
   // Initialize sample check arrays
-  memset(edgeSample, 0, sizeof(edgeSample));
-  memset(nextToEdgeSample, 0, sizeof(nextToEdgeSample));
+  memset(m_edgeSample, 0, sizeof(m_edgeSample));
+  memset(m_nextToEdgeSample, 0, sizeof(m_nextToEdgeSample));
 
-  memset(SampleBit, 0, sizeof(SampleBit));
-  memset(BitStatus, 0, sizeof(BitStatus));
-  memset(NumSamp, 0, sizeof(NumSamp));
+  memset(m_SampleBit, 0, sizeof(m_SampleBit));
+  memset(m_BitStatus, 0, sizeof(m_BitStatus));
+  memset(m_NumSamp, 0, sizeof(m_NumSamp));
 
   // get beam info tool
   CHECK( m_beamPrv.retrieve() );
@@ -263,7 +272,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
             for(unsigned int sampNum = 0; sampNum < theDigits.size(); sampNum++) {
 
               // Count the total number of samples taken by an ADC
-              NumSamp[ros][drawer][chan][gain] += 1;
+              m_NumSamp[ros][drawer][chan][gain] += 1;
               int k = 0;
               int quotient = theDigits[sampNum];
               
@@ -271,7 +280,7 @@ StatusCode TileCisDefaultCalibTool::execute() {
               while(quotient!=0) {
                 if((quotient % 2) == 1) {
                   // If the bit is one, store info in the array
-                  SampleBit[ros][drawer][chan][gain][k] += 1;
+                  m_SampleBit[ros][drawer][chan][gain][k] += 1;
                 }
                 
                 quotient = quotient / 2;
@@ -303,9 +312,9 @@ StatusCode TileCisDefaultCalibTool::execute() {
             }
 
             if (maxSampNum == 1 || maxSampNum == 7) {
-              edgeSample[ros][drawer][chan][gain] = 1;
+              m_edgeSample[ros][drawer][chan][gain] = 1;
             } else if (maxSampNum == 2 || maxSampNum == 6) {
-              nextToEdgeSample[ros][drawer][chan][gain] = 1;
+              m_nextToEdgeSample[ros][drawer][chan][gain] = 1;
             }
 
           } // end digits iterator
@@ -352,8 +361,8 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
   TF1 *fslope = new TF1("fslope", "[0]*x", 0, 1000);
 
   //  scanList = new TList();
-  scanMap = new TMap(20000, 1);
-  scanMapRMS = new TMap(20000, 1);
+  m_scanMap = new TMap(20000, 1);
+  m_scanMapRMS = new TMap(20000, 1);
 
   // iterators over adc maps
   TAdcDoubleMapIter adcIter(m_MeanMap.begin());
@@ -377,23 +386,27 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
 
     // find number of points in graph for this adc
     npt = MeanDacMap->size();
-    nDAC[ros][drawer][chan][gain] = npt;
+    m_nDAC[ros][drawer][chan][gain] = npt;
     gr = new TGraphErrors(npt);
     grrms = new TGraphErrors(npt);
 
     if (npt == 0) {
+      // Arms of conditional identical; prevent coverity warning.
+#if 0
       if (gain == 0) {
-        calib[ros][drawer][chan][gain] = 0; //c_defaultLoCalib;
-      } else {
-        calib[ros][drawer][chan][gain] = 0; //c_defaultHiCalib;
+        m_calib[ros][drawer][chan][gain] = 0; //c_defaultLoCalib;
+      } else
+#endif
+      {
+        m_calib[ros][drawer][chan][gain] = 0; //c_defaultHiCalib;
       }
-      chi2[ros][drawer][chan][gain] = 0.0;
+      m_chi2[ros][drawer][chan][gain] = 0.0;
       ATH_MSG_DEBUG( "npt==0 for adc channel "
                     << ros << "   " << drawer << "   " << chan << "   " << gain );
     } else {
 
       // update quality flag: adc channel is included in run
-      setBit(includedBit, qflag[ros][drawer][chan][gain]);
+      setBit(includedBit, m_qflag[ros][drawer][chan][gain]);
 
       // iterator over dacs
       TDACDoubleMapIter dacIter((*MeanDacMap).begin());
@@ -468,26 +481,26 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
         gr->Fit("fslope", "q", "", m_linfitMinHi, m_linfitMaxHi);
       }
 
-      nDigitalErrors[ros][drawer][chan][gain] = ndigerr;
+      m_nDigitalErrors[ros][drawer][chan][gain] = ndigerr;
 
       // Set this bit if there aren't any digital errors
       if (ndigerr == 0) {
-        setBit(digiErrorBit, qflag[ros][drawer][chan][gain]);
+        setBit(digiErrorBit, m_qflag[ros][drawer][chan][gain]);
       }
 
-      calib[ros][drawer][chan][gain] = fslope->GetParameter(0);
+      m_calib[ros][drawer][chan][gain] = fslope->GetParameter(0);
       if (fslope->GetNDF() == 0)
-        chi2[ros][drawer][chan][gain] = 0.0;
+        m_chi2[ros][drawer][chan][gain] = 0.0;
       else
-        chi2[ros][drawer][chan][gain] = fslope->GetChisquare() / fslope->GetNDF();
+        m_chi2[ros][drawer][chan][gain] = fslope->GetChisquare() / fslope->GetNDF();
 
       // Set this bit if there is a good Chi2 probability
       if (TMath::Prob(fslope->GetChisquare(), fslope->GetNDF()) > 2 * pow(10, -6)) {
-        setBit(probChi2Bit, qflag[ros][drawer][chan][gain]);
+        setBit(probChi2Bit, m_qflag[ros][drawer][chan][gain]);
       }
 
       // update quality flag if calibration is successful
-      if (!badPts && fslope->GetNDF() > 0) setBit(calibratedBit, qflag[ros][drawer][chan][gain]);
+      if (!badPts && fslope->GetNDF() > 0) setBit(calibratedBit, m_qflag[ros][drawer][chan][gain]);
 
       // update quality flag if calibration is within 5% of nominal
       // saved for legacy support
@@ -495,7 +508,7 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
         ratio = (fslope->GetParameter(0) / c_defaultLoCalib);
       else
         ratio = (fslope->GetParameter(0) / c_defaultHiCalib);
-      if (ratio > 0.95 && ratio < 1.05) setBit(rangeBit, qflag[ros][drawer][chan][gain]);
+      if (ratio > 0.95 && ratio < 1.05) setBit(rangeBit, m_qflag[ros][drawer][chan][gain]);
 
       // update quality flag if calibration if the probability of this calibration
       // constant, given a 1.6% gaussian-sigma of the calibration constants, is greater
@@ -511,18 +524,18 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
         ratio = (fslope->GetParameter(0) / 1.295);
       else
         ratio = (fslope->GetParameter(0) / 81.454);
-      if (ratio > 0.9378 && ratio < 1.0623) setBit(probBit, qflag[ros][drawer][chan][gain]);
+      if (ratio > 0.9378 && ratio < 1.0623) setBit(probBit, m_qflag[ros][drawer][chan][gain]);
 
       // If the maximum response in the fit range is less than 600 ADC counts, then
       // all the response in most likely noise
       if (maxPointInFitRange > 600) {
-        setBit(noiseBit, qflag[ros][drawer][chan][gain]);
+        setBit(noiseBit, m_qflag[ros][drawer][chan][gain]);
       }
 
       // RMS criteria.  If any collection of injections at a fixed-charge has
       // an RMS less than 5 ADC counts, then set this bit.
       if (maxRMS < 5.0) {
-        setBit(injRMSBit, qflag[ros][drawer][chan][gain]);
+        setBit(injRMSBit, m_qflag[ros][drawer][chan][gain]);
       }
 
       // set the sample check bits
@@ -530,13 +543,13 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
       // this bit is set if there were no events found in the fit range  
       // with the maximum sample value in the first or last sample 
 
-      if (edgeSample[ros][drawer][chan][gain] == 0) {
-        setBit(edgeSamp, qflag[ros][drawer][chan][gain]);
+      if (m_edgeSample[ros][drawer][chan][gain] == 0) {
+        setBit(edgeSamp, m_qflag[ros][drawer][chan][gain]);
       }
       // this bit is set if there were no events found in the fit range 
       // with the maximum sample value in the second or sixth sample 
-      if (nextToEdgeSample[ros][drawer][chan][gain] == 0) {
-        setBit(nextToEdgeSamp, qflag[ros][drawer][chan][gain]);
+      if (m_nextToEdgeSample[ros][drawer][chan][gain] == 0) {
+        setBit(nextToEdgeSamp, m_qflag[ros][drawer][chan][gain]);
       }
  
       // Determine failure/passing of StuckBit quality flag
@@ -545,36 +558,36 @@ StatusCode TileCisDefaultCalibTool::finalizeCalculations() {
       int NoStuckBit = 1; 
       for(int i = 0; i < 10; i++) {
         // If a bit is stuck at zero...
-        if(SampleBit[ros][drawer][chan][gain][i] == 0  && (NumSamp[ros][drawer][chan][gain] != 0)) {
-          // write information to BitStatus array of shorts
+        if(m_SampleBit[ros][drawer][chan][gain][i] == 0  && (m_NumSamp[ros][drawer][chan][gain] != 0)) {
+          // write information to m_BitStatus array of shorts
           // each bit in short corresponds to a bit in an adc
           // with 6 short bits left over
-          BitStatus[ros][drawer][chan][gain][0] += pow(2, i);
+          m_BitStatus[ros][drawer][chan][gain][0] += pow(2, i);
           NoStuckBit = 0;
           ATH_MSG_DEBUG( "\n\nBIT STUCK AT ZERO: "
                   << ros << "   " << drawer << "   " << chan << "   " << gain <<  " " << i << "\n");
 
         }
        // Same for a bit stuck at one
-        else if (SampleBit[ros][drawer][chan][gain][i] == NumSamp[ros][drawer][chan][gain] && (NumSamp[ros][drawer][chan][gain] != 0)) {
-          BitStatus[ros][drawer][chan][gain][1] += pow(2, i);
+        else if (m_SampleBit[ros][drawer][chan][gain][i] == m_NumSamp[ros][drawer][chan][gain] && (m_NumSamp[ros][drawer][chan][gain] != 0)) {
+          m_BitStatus[ros][drawer][chan][gain][1] += pow(2, i);
           NoStuckBit = 0;
           ATH_MSG_DEBUG( "\n\nBIT STUCK AT ONE: "
                   << ros << "   " << drawer << "   " << chan << "   " << gain <<  " " << i << "\n");
         }
       } //end bit loop
       
-      // If no stuck bits are found, this adc passes StuckBit qflag
+      // If no stuck bits are found, this adc passes StuckBit m_qflag
       if(NoStuckBit) {
-        setBit(stuckbitBit, qflag[ros][drawer][chan][gain]);
+        setBit(stuckbitBit, m_qflag[ros][drawer][chan][gain]);
       }
 
       gr->SetName("scan_" + arrayString(ros, drawer, chan, gain));
       grrms->SetName("scan_" + arrayString(ros, drawer, chan, gain));
 
       //scanList->Add(gr);
-      scanMap->Add(new TObjString("scan" + arrayString(ros, drawer, chan, gain)), gr);
-      scanMapRMS->Add(new TObjString("scan" + arrayString(ros, drawer, chan, gain)), grrms);
+      m_scanMap->Add(new TObjString("scan" + arrayString(ros, drawer, chan, gain)), gr);
+      m_scanMapRMS->Add(new TObjString("scan" + arrayString(ros, drawer, chan, gain)), grrms);
     }
   }
   return StatusCode::SUCCESS;
@@ -586,12 +599,20 @@ StatusCode TileCisDefaultCalibTool::writeNtuple(int runNumber, int runType, TFil
 
   TTree *t = new TTree(m_ntupleID.c_str(), "TileCalib-Ntuple");
   t->Branch("RunNumber", &runNumber, "runNo/I");
-  t->Branch("calib", *calib, "calib[5][64][48][2]/F");
-  t->Branch("qflag", *qflag, "qflag[5][64][48][2]/I");
-  t->Branch("nDAC", *nDAC, "nDAC[5][64][48][2]/I");
-  t->Branch("nDigitalErrors", *nDigitalErrors, "nDigitalErrors[5][64][48][2]/I");
-  t->Branch("chi2", *chi2, "chi2[5][64][48][2]/F");
-  t->Branch("BitStatus", *BitStatus, "BitStatus[5][64][48][2][4]/s");
+  t->Branch("calib", *m_calib, "calib[5][64][48][2]/F");
+  t->Branch("qflag", *m_qflag, "qflag[5][64][48][2]/I");
+  t->Branch("nDAC", *m_nDAC, "nDAC[5][64][48][2]/I");
+  t->Branch("nDigitalErrors", *m_nDigitalErrors, "nDigitalErrors[5][64][48][2]/I");
+  t->Branch("chi2", *m_chi2, "chi2[5][64][48][2]/F");
+  t->Branch("BitStatus", *m_BitStatus, "BitStatus[5][64][48][2][4]/s");
+
+  if (!m_stuckBitsProbs.empty()) {
+    if (m_stuckBitsProbs.retrieve().isFailure()) {
+      ATH_MSG_WARNING("Impossible to get ITileStuckBitsProbsTool and stuck bits probabilities!");
+    } else {
+      m_stuckBitsProbs->saveStuckBitsProbabilities(t);
+    }
+  }
 
   // Fill with current values (i.e. tree will have only one entry for this whole run)
   t->Fill();
@@ -599,8 +620,8 @@ StatusCode TileCisDefaultCalibTool::writeNtuple(int runNumber, int runType, TFil
 
   // Save graphs for all calibrated adc channels
   //  scanList->Write("cisScans",TObject::kSingleKey);
-  scanMap->Write("cisScans", TObject::kSingleKey);
-  scanMapRMS->Write("cisScansRMS", TObject::kSingleKey);
+  m_scanMap->Write("cisScans", TObject::kSingleKey);
+  m_scanMapRMS->Write("cisScansRMS", TObject::kSingleKey);
 
   return StatusCode::SUCCESS;
 }
