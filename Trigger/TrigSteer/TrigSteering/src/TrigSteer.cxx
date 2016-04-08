@@ -808,6 +808,16 @@ void TrigSteer::runChains(bool secondPass) {
   int  step = 0; //just for debug: follow numeration of signature counters: starts from 1 (but currentStep in chains starts from 0)
   bool doEBbyChain = false;
 
+  if(m_config -> getSteeringOPILevel() > 0) {
+    // Create new chain step OPI as before
+    TrigOperationalInfo *steer_opi = new TrigOperationalInfo();
+    std::string key;
+    m_config -> getNavigation() -> attachFeature(m_config -> getNavigation() -> getInitialNode(),
+                                                 steer_opi, HLT::Navigation::ObjectCreatedByNew, key, 
+                                                 "OPI_extended"+m_config->getInstance());
+    m_config -> setSteeringOPI(steer_opi);
+  }
+
   while ( chainsStillActive && noError ) {
     step++;
     if (msgLvl(MSG::DEBUG)) {

@@ -128,7 +128,7 @@ eg6.OutputLevel = defaultOutputLevel
 from AthenaCommon.SystemOfUnits import *
 eg7 =  PESA__dummyAlgoHLTErrorCode('eg7')
 eg7.HLTErrorCode = "CONTINUE UNKNOWN UNKNOWN"
-eg7.BurnTimeAndCheckTimeout = 10 * Units.s
+eg7.BurnTimeAndCheckTimeout = 1. * Units.second
 eg7.OutputLevel = defaultOutputLevel
 
 menu.addSequence("EM15i" , [Fex1, eg1], "em25unmapped" )
