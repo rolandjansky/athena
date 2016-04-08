@@ -72,7 +72,7 @@ SGAudSvc::SGAudSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
 ///////////////
 SGAudSvc::~SGAudSvc()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
+  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -85,17 +85,17 @@ SGAudSvc::initialize() {
   // initialize MsgStream
   m_msg.setLevel( m_outputLevel.value() );
 
-  m_msg << MSG::INFO  << "Initializing " << name() << "..."  << endmsg;
+  m_msg << MSG::INFO  << "Initializing " << name() << "..."  << endreq;
   
   if ( AthService::initialize().isFailure() ) {
-    m_msg << MSG::ERROR  << "Could not intialize base class !!"  << endmsg;
+    m_msg << MSG::ERROR  << "Could not intialize base class !!"  << endreq;
     return StatusCode::FAILURE;
   }
 
   static const bool CREATEIF(true);
   
   if ( service("AlgContextSvc",p_algCtxSvc,CREATEIF).isFailure() ) {
-    m_msg << MSG::ERROR << "Unable to retrieve the AlgContextSvc" << endmsg;
+    m_msg << MSG::ERROR << "Unable to retrieve the AlgContextSvc" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -117,7 +117,7 @@ SGAudSvc::initialize() {
   // Set to be listener for end-of-event
   ServiceHandle<IIncidentSvc> incSvc( "IncidentSvc", this->name() );
   if ( !incSvc.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR << "Unable to get the IncidentSvc" << endmsg;
+    m_msg << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
     return StatusCode::FAILURE;
   }
   incSvc->addListener( this, IncidentType::BeginRun );
@@ -132,14 +132,14 @@ SGAudSvc::initialize() {
 StatusCode 
 SGAudSvc::finalize() {
 
-  m_msg << MSG::INFO << "Finalizing " << name() <<"..."<< endmsg;
+  m_msg << MSG::INFO << "Finalizing " << name() <<"..."<< endreq;
   
   if (m_vAlg.size()==0) {
-    m_msg << MSG::WARNING<<"No data gathered. This might be because you did not run over at least 3 events."<<endmsg;
+    m_msg << MSG::WARNING<<"No data gathered. This might be because you did not run over at least 3 events."<<endreq;
     return StatusCode::SUCCESS;
   }
   
-  m_msg << MSG::INFO<<"Writing output to: "<<m_outFileName<<endmsg;
+  m_msg << MSG::INFO<<"Writing output to: "<<m_outFileName<<endreq;
   std::ofstream f( m_outFileName.c_str() );
   
   f << "Algs: " << m_vAlg.size() << std::endl;
@@ -214,9 +214,9 @@ void
 SGAudSvc::handle( const Incident& inc )
 {
   if ( m_msg.level() <= MSG::VERBOSE ) {
-    m_msg << MSG::VERBOSE << "Entering handle(): " << endmsg
-	  << "  Incidence type: " << inc.type()   << endmsg
-	  << "            from: " << inc.source() << endmsg;
+    m_msg << MSG::VERBOSE << "Entering handle(): " << endreq
+	  << "  Incidence type: " << inc.type()   << endreq
+	  << "            from: " << inc.source() << endreq;
   }
 
   if (inc.type() == IncidentType::BeginEvent) {
