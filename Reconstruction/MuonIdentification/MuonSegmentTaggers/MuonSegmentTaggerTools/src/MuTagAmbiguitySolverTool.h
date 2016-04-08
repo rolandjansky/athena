@@ -65,8 +65,9 @@ class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, publi
   bool m_hitOverlapMatching; //!< check hit overlap of segments in ambi solving
   bool m_slOverlapMatching; //!< for segments in a SL overlap in the same station layer, check whether from same particle
   bool m_rejectOuterEndcap; //!< reject Endcap Outer one station layer tags (without EI or EM)  
+  bool m_rejectMatchPhi; //!< reject one station tags with phi hits and a fabs(MatchPhi = minPullPhi) > 3 
 };
-bool m_rejectMatchPhi; //!< reject one station tags with phi hits and a fabs(MatchPhi = minPullPhi) > 3 
+
 
 
 #endif //MuTagAmbiguitySolverTool_H

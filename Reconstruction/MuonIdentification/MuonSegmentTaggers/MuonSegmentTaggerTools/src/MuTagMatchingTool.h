@@ -161,26 +161,26 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
 
    const Trk::TrackingGeometry *m_trackingGeometry;
 
-   double GLOBAL_THETA_CUT;
-   double GLOBAL_PHI_CUT;
-   double GLOBAL_R_CUT;
+   double m_GLOBAL_THETA_CUT;
+   double m_GLOBAL_PHI_CUT;
+   double m_GLOBAL_R_CUT;
 
-   double MATCH_THETA;
-   double MATCH_PHI;
-   double MATCH_THETAANGLE;
-   double MATCH_PHIANGLE;
+   double m_MATCH_THETA;
+   double m_MATCH_PHI;
+   double m_MATCH_THETAANGLE;
+   double m_MATCH_PHIANGLE;
 
-   double ERROR_EX_POS_CUT;
-   double ERROR_EX_ANGLE_CUT;
+   double m_ERROR_EX_POS_CUT;
+   double m_ERROR_EX_ANGLE_CUT;
 
    bool m_doDistCut;
-   double DIST_POS;
-   double DIST_ANGLE;
+   double m_DIST_POS;
+   double m_DIST_ANGLE;
 
-   double SAFE_THETA;
-   double SAFE_PHI;
-   double SAFE_THETAANGLE;
-   double SAFE_PHIANGLE;
+   double m_SAFE_THETA;
+   double m_SAFE_PHI;
+   double m_SAFE_THETAANGLE;
+   double m_SAFE_PHIANGLE;
 
    double m_chamberPullCut;
    double m_combinedPullCut;
