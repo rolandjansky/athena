@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE SIGNATURE_LIST SYSTEM "signaturelist.dtd">
+
+<SIGNATURE_LIST>
+
+<SIGNATURE signature_id="trttrack" prescale="1" forced_accept="0">
+      <TRIGGERELEMENT te_name="trttrack" />
+</SIGNATURE>
+
+<SIGNATURE signature_id="t2calo" prescale="1" forced_accept="0">
+      <TRIGGERELEMENT te_name="calocluster" />
+</SIGNATURE>
+
+
+</SIGNATURE_LIST>                 

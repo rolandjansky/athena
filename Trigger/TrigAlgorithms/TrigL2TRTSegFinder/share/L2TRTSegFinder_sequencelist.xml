@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<!DOCTYPE SEQUENCE_LIST SYSTEM "sequencelist.dtd">
+
+<SEQUENCE_LIST>
+
+<SEQUENCE level="L2" input="EMTAUROI" algorithm="TrigL2TRTSegFinder/L2TRTSegFinder/param"
+output="trttrack" />
+
+</SEQUENCE_LIST>
+
+
+
+
+

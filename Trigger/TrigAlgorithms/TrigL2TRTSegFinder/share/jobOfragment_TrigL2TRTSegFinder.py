@@ -1,0 +1,20 @@
+theApp.Dlls   += [ "InDetLegacyCnvTools" ]
+theApp.Dlls += [ "TrigL2TRTSegFinder" ]
+L2TRTSegFinder_param_L2 = Algorithm( "L2TRTSegFinder_param_L2" )
+L2TRTSegFinder_param_L2.         PrintLevelDetector  =-3     # Print level for tracks
+L2TRTSegFinder_param_L2.         PrintLevelClusters  =-3     # Print level for clusters
+L2TRTSegFinder_param_L2.         PrintLevelTracks  =[-3,3]     # Print level for tracks
+L2TRTSegFinder_param_L2.TRTClusterRatio    = .7      ;  # min.ratio TRTcluster to crossed staws
+L2TRTSegFinder_param_L2.TRTuseDriftTime    = TRUE    ;  # use drift time TRT information
+L2TRTSegFinder_param_L2.TRTTimeStrawRatio  = .5      ;  # min.ratio time-straw/straw
+L2TRTSegFinder_param_L2.         MinNumberOfTRTClusters = 9
+L2TRTSegFinder_param_L2.         TRTClusterRatio        = 0.7
+L2TRTSegFinder_param_L2.         TRTMinRecPt            = 500 #MeV
+L2TRTSegFinder_param_L2.UseTruthMC = 0  #can use MC truth ONLY IN TRANSIENT ByteStream mode!!!
+L2TRTSegFinder_param_L2.TRTTruthLocation = "InDet_PRD_PRDT_Map" # TRT truth location
+L2TRTSegFinder_param_L2.MagFieldAthena        = "MagFieldAthenaSvc"           # Magnetic field location
+L2TRTSegFinder_param_L2.MagneticFieldService  = 4                             # Magnetic field service
+L2TRTSegFinder_param_L2.MagneticField         = [0.,0.,20.]                   # Uniform magnetic field
+L2TRTSegFinder_param_L2.TestBeam              = FALSE         # Is it  test beam?
+L2TRTSegFinder_param_L2.UseSCT = False                  # Full xKalman reconstruction (Method=4)
+L2TRTSegFinder_param_L2.Convert2TrkTrack = False        # Convert xKalman tracks to TrkTracks
