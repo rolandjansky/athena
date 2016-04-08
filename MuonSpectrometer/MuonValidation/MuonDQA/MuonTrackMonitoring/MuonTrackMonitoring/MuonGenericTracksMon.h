@@ -110,7 +110,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   //std::vector<RecoMuonPlots*>         m_oRecoMuonForwPlots;
   //std::vector<RecoMuonPlots*>         m_oRecoMuonCaloPlots;
   std::vector<RecoPhysPlots*>         m_oRecoPhysPlots;
-  std::vector<RecoVertexPlots*>         m_oRecoVertexPlots;
+  std::vector<RecoVertexPlots*>       m_oRecoVertexPlots;
 
   
  protected:

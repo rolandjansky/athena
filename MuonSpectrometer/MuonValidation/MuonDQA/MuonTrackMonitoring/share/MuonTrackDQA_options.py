@@ -6,7 +6,7 @@ muTrackMonMan = AthenaMonManager(name="MuonTrackMonManager",
                                  FileKey             = DQMonFlags.monManFileKey(),
                                  Environment         = DQMonFlags.monManEnvironment(),
                                  DataType            = DQMonFlags.monManDataType(),
-                                 OutputLevel         = muonOutputLevel)
+                                 OutputLevel         = WARNING)
 
 from RecExConfig.RecFlags import rec as recFlags
 from MuonRecExample import MuonRecTools
