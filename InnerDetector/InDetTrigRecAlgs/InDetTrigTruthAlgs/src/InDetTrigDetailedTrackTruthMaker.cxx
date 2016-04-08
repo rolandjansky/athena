@@ -54,20 +54,20 @@ InDetTrigDetailedTrackTruthMaker::InDetTrigDetailedTrackTruthMaker(const std::st
 HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltInitialize() {
 
   if(!m_doTruth) {
-    msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endmsg;
+    msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endreq;
     return HLT::OK;
   }
 
-  msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker::initialize()" << endmsg;
+  msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker::initialize()" << endreq;
   
   //----------------
   if (m_truthTool.retrieve().isFailure()) {
-    msg() << MSG::ERROR << "Cannot retrieve tool " << endmsg;
+    msg() << MSG::ERROR << "Cannot retrieve tool " << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
   
-  msg() << MSG::INFO << "Initialization successful" << endmsg;
+  msg() << MSG::INFO << "Initialization successful" << endreq;
 
   //----------------
   return HLT::OK;
@@ -77,11 +77,11 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltInitialize() {
 HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltFinalize() {
 
   if(!m_doTruth) {
-    msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endmsg;
+    msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endreq;
     return HLT::OK;
   }
 
-  msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker finalized" << endmsg;
+  msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker finalized" << endreq;
   return HLT::OK;
 }
 // -----------------------------------------------------------------------------------------------------
@@ -96,13 +96,13 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltExecute(const HLT::TriggerEl
   
   if(!m_doTruth) {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endmsg;
+      msg() << MSG::DEBUG << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endreq;
     return HLT::OK;
   }
   
   
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "InDetTrigDetailedTrackTruthMaker::execHLTAlgorithm()" << endmsg;
+    msg() << MSG::DEBUG << "InDetTrigDetailedTrackTruthMaker::execHLTAlgorithm()" << endreq;
   
   //----------------------------------------------------------------------
   // Trigger specific part: navigate throw the trigger element to get the
@@ -111,21 +111,21 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltExecute(const HLT::TriggerEl
   const TrackCollection* tracks = 0;
   
   if ( HLT::OK != getFeature(outputTE, tracks) ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
     return HLT::NAV_ERROR;
   }
   
   if(!tracks){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endmsg;
+      msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
     
     return HLT::OK; 
   } else {
     if(outputLevel <= MSG::VERBOSE)
-      msg() << MSG::VERBOSE << " Input track collection has size " << tracks->size() << endmsg;
+      msg() << MSG::VERBOSE << " Input track collection has size " << tracks->size() << endreq;
     if ( tracks->size() == 0 ) {
       if(outputLevel <= MSG::DEBUG)
-        msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
+        msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
       return HLT::OK; 
     }
   }
@@ -133,19 +133,19 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltExecute(const HLT::TriggerEl
   m_numTruthTracks = tracks->size();
   if (outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "REGTEST: Retrieved input track collection with "
-          << m_numTruthTracks << " tracks. " << endmsg;
+          << m_numTruthTracks << " tracks. " << endreq;
   
   //----------------------------------------------------------------
   // Retrieve prep raw data truth
   std::vector<const PRD_MultiTruthCollection*> vectorPRDCollections;
   std::string key;
   if ( HLT::OK != getFeatures(outputTE, vectorPRDCollections) ) {
-    msg() << MSG::ERROR << " Input PRDT collections could not be found " << endmsg;
+    msg() << MSG::ERROR << " Input PRDT collections could not be found " << endreq;
   }
 
   m_numPRDs = vectorPRDCollections.size();
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " Got " << vectorPRDCollections.size() << " PRD collections." << endmsg;
+    msg() << MSG::DEBUG << " Got " << vectorPRDCollections.size() << " PRD collections." << endreq;
   
   std::vector<const PRD_MultiTruthCollection*> prdCollectionVector(vectorPRDCollections.size());
   
@@ -159,14 +159,14 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltExecute(const HLT::TriggerEl
     if(!prdCollectionVector[i] || prdCollectionVector[i]->size() <=0){
       if(outputLevel <= MSG::DEBUG)
 	msg() <<  MSG::DEBUG
-	      << "Failed to retrieve input PRD Collection from the TE" << endmsg;
+	      << "Failed to retrieve input PRD Collection from the TE" << endreq;
     }
     else{
       if (outputLevel <= MSG::DEBUG){
 	msg() << MSG::DEBUG << "REGTEST: Retrieved "
 	      << i+1 << " input PRD collection with "
 	      << prdCollectionVector[i]->size() << " clusters." 
-	      << endmsg;
+	      << endreq;
 	m_numPRDClusters.push_back(prdCollectionVector[i]->size());
 
       }
@@ -180,12 +180,12 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltExecute(const HLT::TriggerEl
   
   //  Attach resolved tracks to the trigger element.
   if ( HLT::OK !=  attachFeature(outputTE, dttc, name() ) ) {
-    msg() << MSG::ERROR << "Could not attache feature to the TE" << endmsg;
+    msg() << MSG::ERROR << "Could not attache feature to the TE" << endreq;
   }
   
   if(outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "DetailedTrackTruthCollection is registered in StoreGate, size="
-	  << dttc->size() << endmsg;
+	  << dttc->size() << endreq;
   
   // Convert DetailedTruthCollection to TrackTruthCollection
   TrackTruthCollection *out = new TrackTruthCollection(dttc->trackCollectionLink());
@@ -194,12 +194,12 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltExecute(const HLT::TriggerEl
   
   //  Attach resolved tracks to the trigger element.
   if ( HLT::OK !=  attachFeature(outputTE, out, name()) ) {
-    msg() << MSG::ERROR << "Could not attache feature to the TE" << endmsg;
+    msg() << MSG::ERROR << "Could not attache feature to the TE" << endreq;
   }
   
   if(outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "TrackTruthCollection is registered in StoreGate" 
-	  << " size=" << out->size() << endmsg;
+	  << " size=" << out->size() << endreq;
   
   
   return HLT::OK;
