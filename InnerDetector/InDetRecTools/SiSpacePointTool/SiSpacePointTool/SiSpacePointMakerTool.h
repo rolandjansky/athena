@@ -70,12 +70,15 @@ namespace InDet{
 
 	private:
 		double m_stripLengthTolerance;
+		double m_SCTgapParameter;
+		double m_stripLengthGapTolerance;
 
 		// option to use closest approach of SCT strips as position for SpacePoint 
 		bool m_usePerpProj;
 
 		std::vector<Trk::SpacePoint*> m_tmpSpacePoints;
 		const SCT_ID* m_idHelper; 
+		double offset(const InDetDD::SiDetectorElement *element1, const InDetDD::SiDetectorElement *element2);
 
   };
 }
