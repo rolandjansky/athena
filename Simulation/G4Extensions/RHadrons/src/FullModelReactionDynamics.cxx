@@ -48,7 +48,7 @@
 // logging stopped 1997
 // J. Allison, 17-Jun-99:  Replaced a min function to get correct behaviour on DEC.
 
-#include "RHadrons/FullModelReactionDynamics.hh"
+#include "FullModelReactionDynamics.hh"
 #include "G4AntiProton.hh"
 #include "G4AntiNeutron.hh"
 #include "Randomize.hh"

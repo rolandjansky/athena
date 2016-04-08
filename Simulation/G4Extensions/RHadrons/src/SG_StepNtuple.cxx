@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RHadrons/SG_StepNtuple.h"
+#include "SG_StepNtuple.h"
 #include <iostream>
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -11,28 +11,24 @@
 #include "SimHelpers/ServiceAccessor.h"
 #include "G4Step.hh"
 #include "G4Event.hh"
-#include "GaudiKernel/MsgStream.h"
 
-static SG_StepNtuple sg_sntp("SG_StepNtuple");
 
-void SG_StepNtuple::BeginOfEventAction(const G4Event*){
+void SG_StepNtuple::BeginOfEvent(const G4Event*){
   m_nsteps=0;
   rhid=0;//the rhadron index (either the first or second rhadon, usually)
   nevents++; m_evtid=nevents;//since it gets cleared out after every fill...
 }
-void SG_StepNtuple::EndOfEventAction(const G4Event*){
-  StatusCode status = ntupleSvc()->writeRecord("/NTUPLES/FILE1/StepNtuple/10");
+
+void SG_StepNtuple::EndOfEvent(const G4Event*){
+
+  if(! ntupleSvc()->writeRecord("/NTUPLES/FILE1/StepNtuple/10").isSuccess())
+    ATH_MSG_ERROR( " failed to write record for this event" );
+    
   //this also seems to zero out all the arrays... so beware!
-
-  MsgStream log(msgSvc(), "StepNtuple");
-  if (!status.isSuccess() ) log<<MSG::ERROR<<"problem!!"<<endreq;
+ 
 }
 
-void SG_StepNtuple::EndOfRunAction(const G4Run*){
-  std::cout<<"StepNtuple : EndOfRunAction"<<std::endl;
-}
-
-void SG_StepNtuple::SteppingAction(const G4Step* aStep){
+void SG_StepNtuple::Step(const G4Step* aStep){
   if(m_nsteps<50000){
     int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
     bool rhad=false;
@@ -132,48 +128,49 @@ void SG_StepNtuple::SteppingAction(const G4Step* aStep){
 
 }
 
-void SG_StepNtuple::BeginOfRunAction(const G4Run*){
-  std::cout<<"StepNtuple : BeginOfRunAction"<<std::endl;
-  MsgStream log(msgSvc(), "StepNtuple");
+StatusCode SG_StepNtuple::initialize(){
+
   NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
+
   SmartDataPtr<NTuple::Directory>
     ntdir(ntupleSvc(),"/NTUPLES/FILE1/StepNtuple");
+
   if ( !ntdir ) ntdir = ntupleSvc()->createDirectory(file1,"StepNtuple");
   //if ( !ntdir ) log << MSG::ERROR << " failed to get ntuple directory" << endreq;
   NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/StepNtuple/10");
   if ( !nt ) {    // Check if already booked
     nt = ntupleSvc()->book (ntdir.ptr(), 10,CLID_ColumnWiseTuple, "GEANT4 Step NTuple");
     if ( nt ) {
-      log << MSG::INFO << "booked step ntuple " << endreq;
-      StatusCode status = nt->addItem ("nstep", m_nsteps,0 ,50000) ;// WARNING!! Force limit to 50k tracks
-      status = nt->addItem ("pdg", m_nsteps, m_pdg);
-      status = nt->addItem ("charge", m_nsteps, m_charge);
-      status = nt->addItem ("mass", m_nsteps, m_mass);
-      status = nt->addItem ("baryon", m_nsteps, m_baryon);
-      status = nt->addItem ("x1", m_nsteps, m_x1);
-      status = nt->addItem ("y1", m_nsteps, m_y1);
-      status = nt->addItem ("z1", m_nsteps, m_z1);
-      status = nt->addItem ("t1", m_nsteps, m_t1);
-      status = nt->addItem ("x2", m_nsteps, m_x2);
-      status = nt->addItem ("y2", m_nsteps, m_y2);
-      status = nt->addItem ("z2", m_nsteps, m_z2);
-      status = nt->addItem ("t2", m_nsteps, m_t2);
-      status = nt->addItem ("dep", m_nsteps, m_dep);
-      status = nt->addItem ("ke1", m_nsteps, m_ke1);
-      status = nt->addItem ("ke2", m_nsteps, m_ke2);
-      status = nt->addItem ("rh", m_nsteps, m_rh);
-      status = nt->addItem ("rhid", m_nsteps, m_rhid);
-      status = nt->addItem ("step", m_nsteps, m_step);
-      status = nt->addItem ("pt1", m_nsteps, m_pt1);
-      status = nt->addItem ("pt2", m_nsteps, m_pt2);
-      status = nt->addItem ("minA",m_nsteps, m_minA);
-      status = nt->addItem ("v2",m_nsteps, m_v2);
-      status = nt->addItem ("vthresh",m_nsteps, m_vthresh);
-      status = nt->addItem ("vbelowthresh",m_nsteps, m_vbelowthresh);
-      status = nt->addItem ("evtid", m_evtid);
-      if (!status.isSuccess() ) log<<MSG::ERROR<<"problem!!"<<endreq;
+      ATH_MSG_INFO("booked step ntuple ");
+      CHECK(nt->addItem ("nstep", m_nsteps,0 ,50000)) ;// WARNING!! Force limit to 50k tracks
+      CHECK(nt->addItem ("pdg", m_nsteps, m_pdg));
+      CHECK(nt->addItem ("charge", m_nsteps, m_charge));
+      CHECK(nt->addItem ("mass", m_nsteps, m_mass));
+      CHECK(nt->addItem ("baryon", m_nsteps, m_baryon));
+      CHECK(nt->addItem ("x1", m_nsteps, m_x1));
+      CHECK(nt->addItem ("y1", m_nsteps, m_y1));
+      CHECK(nt->addItem ("z1", m_nsteps, m_z1));
+      CHECK(nt->addItem ("t1", m_nsteps, m_t1));
+      CHECK(nt->addItem ("x2", m_nsteps, m_x2));
+      CHECK(nt->addItem ("y2", m_nsteps, m_y2));
+      CHECK(nt->addItem ("z2", m_nsteps, m_z2));
+      CHECK(nt->addItem ("t2", m_nsteps, m_t2));
+      CHECK(nt->addItem ("dep", m_nsteps, m_dep));
+      CHECK(nt->addItem ("ke1", m_nsteps, m_ke1));
+      CHECK(nt->addItem ("ke2", m_nsteps, m_ke2));
+      CHECK(nt->addItem ("rh", m_nsteps, m_rh));
+      CHECK(nt->addItem ("rhid", m_nsteps, m_rhid));
+      CHECK(nt->addItem ("step", m_nsteps, m_step));
+      CHECK(nt->addItem ("pt1", m_nsteps, m_pt1));
+      CHECK(nt->addItem ("pt2", m_nsteps, m_pt2));
+      CHECK(nt->addItem ("minA",m_nsteps, m_minA));
+      CHECK(nt->addItem ("v2",m_nsteps, m_v2));
+      CHECK(nt->addItem ("vthresh",m_nsteps, m_vthresh));
+      CHECK(nt->addItem ("vbelowthresh",m_nsteps, m_vbelowthresh));
+      CHECK(nt->addItem ("evtid", m_evtid));
     }
-    else log << MSG::ERROR << "Could not book step ntuple!! " << endreq;
+
+    else ATH_MSG_ERROR("Could not book step ntuple!! ");
   }
 
   //set initial values
@@ -230,6 +227,9 @@ void SG_StepNtuple::BeginOfRunAction(const G4Run*){
   //adding the stau by pdg_id
   rhs.insert(1000015);
   assert(rhs.size()==43);
+
+  return StatusCode::SUCCESS;
+
 }
 
 bool SG_StepNtuple::isSUSYParticle(const int id) const
@@ -244,4 +244,17 @@ bool SG_StepNtuple::isSUSYParticle(const int id) const
       id==1093114 || id==1093122 || id==1093214 || id==1093224 || id==1093314 || id==1093324 || id==1093334)
     return true;
   return false;
+}
+
+
+StatusCode SG_StepNtuple::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }
