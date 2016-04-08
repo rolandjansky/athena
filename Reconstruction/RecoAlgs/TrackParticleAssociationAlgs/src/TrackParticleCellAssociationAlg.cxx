@@ -14,7 +14,7 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "TrackToCalo/CrossedCaloCellHelper.h"
-
+#include "CaloUtils/CaloClusterStoreHelper.h"
 
 TrackParticleCellAssociationAlg::TrackParticleCellAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
@@ -59,12 +59,11 @@ StatusCode TrackParticleCellAssociationAlg::execute()
   std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations";
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::CaloClusterContainer* xaod = new xAOD::CaloClusterContainer();
-  ATH_CHECK( evtStore()->record( xaod, clusterContainerName ) );
-
-  xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-  ATH_CHECK( evtStore()->record( aux, clusterContainerName + "Aux." ) );
-  xaod->setStore( aux );
+  xAOD::CaloClusterContainer* xaod = CaloClusterStoreHelper::makeContainer(&(*evtStore()),clusterContainerName,msg());
+  if ( !xaod ) {
+    ATH_MSG_WARNING ("makeContainer failed");
+    return StatusCode::SUCCESS;
+  }
   ATH_MSG_DEBUG( "Recorded CaloClusterContainer with key: " << clusterContainerName );    
 
   // Create the xAOD container and its auxiliary store:
@@ -127,6 +126,10 @@ StatusCode TrackParticleCellAssociationAlg::execute()
   }
 
   ATH_MSG_DEBUG(" Total number of selected tracks: " << ntracks );
+
+  if (CaloClusterStoreHelper::finalizeClusters(&(*evtStore()), xaod,clusterContainerName,msg()).isFailure() ) 
+    ATH_MSG_WARNING("finalizeClusters failed");
+
   return StatusCode::SUCCESS;
 }
 
