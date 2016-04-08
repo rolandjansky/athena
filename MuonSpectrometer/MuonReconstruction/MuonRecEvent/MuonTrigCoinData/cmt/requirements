@@ -25,10 +25,10 @@ library MuonTrigCoinData *.cxx
 apply_pattern installed_library
 
 private
-#use AtlasReflex      AtlasReflex-*      External -no_auto_imports
+use AtlasReflex      AtlasReflex-*      External -no_auto_imports
 
-#apply_pattern lcgdict dict=MuonTrigCoinData selectionfile=selection.xml \
-#	headerfiles=" ../MuonTrigCoinData/MuonCoinDataDict.h"
+apply_pattern lcgdict dict=MuonTrigCoinData selectionfile=selection.xml \
+	headerfiles=" ../MuonTrigCoinData/MuonCoinDataDict.h"
 
 private
 #macro cppdebugflags '$(cppdebugflags_s)'

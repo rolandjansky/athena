@@ -30,6 +30,9 @@ class TgcCoinDataContainerCnv;
 
 namespace Muon
 {
+  class TgcCoinDataContainerCnv_p1;
+  class TgcCoinDataContainerCnv_p2;
+  class TgcCoinDataContainerCnv_p3;
 
   class TgcCoinData {
 
@@ -39,6 +42,9 @@ namespace Muon
   public:
 
     friend class ::TgcCoinDataContainerCnv;
+    friend class Muon::TgcCoinDataContainerCnv_p1;
+    friend class Muon::TgcCoinDataContainerCnv_p2;
+    friend class Muon::TgcCoinDataContainerCnv_p3;
 
     typedef enum {
       TYPE_TRACKLET,
@@ -80,7 +86,13 @@ namespace Muon
 		 const double widthOut,
 		 const int delta, 
 		 const int sub,
-                 const int inner);
+                 const int inner,
+                 const int roi = 0,
+                 const int pt = 0,
+                 const int trackletIdStrip = 0,
+                 const Amg::MatrixX* errMat = nullptr,
+                 const bool isPositiveDeltaR = false,
+                 const bool veto = false);
 
     //for TYPE_TRACKLET_EIFI 
     TgcCoinData( const Identifier& channelIdIn,
@@ -126,6 +138,7 @@ namespace Muon
 
 
       void setHashAndIndex(unsigned short collHash, unsigned short objIndex);
+      void setHashAndIndex(unsigned int indexAndHash);
       const IdentContIndex& getHashAndIndex() const;
 
       /** return offlineID on TGC1(HIPT) or TGC2(TRACKLET) */
@@ -163,6 +176,9 @@ namespace Muon
 
       /** return Local position of track on TGC3 */
       const Amg::Vector2D &posOut() const;
+
+      /** Test to see if the error matrix is present. */
+      bool hasErrMat() const;
 
       /** return 2d width of ROI for SL: errMat[0][0]==(width for R), errMat[1][1]==(width for phi) */
       const Amg::MatrixX &errMat() const;
@@ -265,6 +281,11 @@ namespace Muon
       m_indexAndHash.setObjIndex(objIndex);
     }
 
+  inline void TgcCoinData::setHashAndIndex(unsigned int indexAndHash)
+    {
+      m_indexAndHash.setHashAndIndex(indexAndHash);
+    }
+
   inline const IdentContIndex& TgcCoinData::getHashAndIndex() const
     {
       return m_indexAndHash;
@@ -294,6 +315,8 @@ namespace Muon
 
   inline const Amg::Vector2D& TgcCoinData::posOut() const{ return *m_posOut; }
 
+  inline bool TgcCoinData::hasErrMat() const{ return m_errMat != nullptr; }
+  
   inline const Amg::MatrixX& TgcCoinData::errMat() const{ return *m_errMat; }
 
   inline double TgcCoinData::widthIn() const{ return m_widthIn; }
