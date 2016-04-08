@@ -47,6 +47,14 @@ namespace FSim {
         materialEffects(matE),
         position(pos)
        {}
+
+       EnergyDeposit& operator=(const EnergyDeposit& rhs) {
+         if (&rhs==this) return *this;
+         sample = rhs.sample;
+         materialEffects = rhs.materialEffects ? rhs.materialEffects->clone() : 0;
+         position = rhs.position;
+         return *this;
+       }
        
        ~EnergyDeposit()
        { delete materialEffects; }
