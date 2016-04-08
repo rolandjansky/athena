@@ -316,6 +316,14 @@ public:
     const_iterator(const const_iterator& iter) 
       : m_store(iter.m_store), m_actual(iter.m_actual) { }
 
+    const_iterator operator=(const const_iterator& iter) {
+      if(&iter != this) { 
+        m_store = iter.m_store;
+        m_actual = iter.m_actual;
+      }
+      return *this;
+    }
+
     // increment
     const_iterator operator++()
     {
