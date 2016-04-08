@@ -38,7 +38,8 @@ StatusCode LArClusterCollisionTimeAlg::initialize()
 StatusCode LArClusterCollisionTimeAlg::finalize()
   {
    
-    ATH_MSG_INFO( m_nCollEvt << "/" << m_nEvt << " Events found to be collision events with at least one cluster in each EM endcap."  );
+    msg(MSG::INFO) << m_nCollEvt << "/" << m_nEvt << " Events found to be collision events with at least one cluster in each EM endcap." << endreq;
+
     ATH_MSG_DEBUG ("LArClusterCollisionTimeAlg finalize()");
     return StatusCode::SUCCESS; 
   }
@@ -76,7 +77,12 @@ StatusCode LArClusterCollisionTimeAlg::execute() {
   m_nEvt++;
   
   const xAOD::CaloClusterContainer* cluster_container=0;
-  ATH_CHECK( evtStore()->retrieve(cluster_container, m_clusterContainerName) );
+  StatusCode sc=evtStore()->retrieve(cluster_container, m_clusterContainerName);
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Failed to retreive xAOD::CaloClusterCollection with name " <<  m_clusterContainerName << endreq;
+    return sc;
+  }
+   
 
   std::vector<const xAOD::CaloCluster*> clustersEMECA,clustersEMECC;
 
