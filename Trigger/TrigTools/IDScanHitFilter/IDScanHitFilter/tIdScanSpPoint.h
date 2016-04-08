@@ -30,7 +30,7 @@ template<class SpacePointClass> class tIdScanSpPoint
 {
  public:
 
-  tIdScanSpPoint( SpacePointClass* spPtr, double eta ) :
+  tIdScanSpPoint( const SpacePointClass* spPtr, double eta ) :
     m_commonSP(spPtr),
     m_eta(eta)
     { };
@@ -60,7 +60,7 @@ template<class SpacePointClass> class tIdScanSpPoint
 
  private:
   
-  SpacePointClass* m_commonSP;
+  const SpacePointClass* m_commonSP;
 
   double   m_eta;
   double   m_rotatedPhi;

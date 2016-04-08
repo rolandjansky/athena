@@ -123,7 +123,7 @@ StatusCode IDScanHitFilter::finalize()
 
 
   //Luke: edit this to take recoTracks as an input pointer, passed by reference 
-void IDScanHitFilter::findTracks( std::vector<TrigSiSpacePoint* > spVec, TrigInDetTrackCollection& recoTracks, 
+void IDScanHitFilter::findTracks( std::vector<const TrigSiSpacePoint* > spVec, TrigInDetTrackCollection& recoTracks, 
 	                          const IRoiDescriptor* RoI, double zVertex,
 				  double shiftx=0, double shifty=0,
 				  const int missing_layers=0 )
