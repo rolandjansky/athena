@@ -26,7 +26,7 @@ ToolSvc += thexAODElectronRetriever
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODMissingETRetriever
 thexAODMissingETRetriever = JiveXML__xAODMissingETRetriever (name = "xAODMissingETRetriever")
 #thexAODMissingETRetriever.StoreGateKey = "MET_RefFinal"
-thexAODMissingETRetriever.FavouriteMETCollection="MET_Reference_AntiKt4EMTopo"
+thexAODMissingETRetriever.FavouriteMETCollection="MET_Reference_AntiKt4LCTopo"
 ## If this list is not set, all other collections will be retrieved
 thexAODMissingETRetriever.OtherMETCollections=["MET_Calo","MET_LocHadTopo","MET_Core_AntiKt4LCTopo"]
 #### to request all collections:
@@ -50,7 +50,7 @@ from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODJetRetriever
 thexAODJetRetriever = JiveXML__xAODJetRetriever (name = "xAODJetRetriever")
 thexAODJetRetriever.FavouriteJetCollection="AntiKt4EMTopoJets"
 ## If this list is not set, all other collections will be retrieved
-#thexAODJetRetriever.OtherJetCollections=["AntiKt4LCTopoJets", "CamKt12LCTopoJets", "Kt4EMTopoJets", "Kt4LCTopoJets", "AntiKt4TruthJets", "AntiKt10LCTopoJets"]
+thexAODJetRetriever.OtherJetCollections=["AntiKt4LCTopoJets", "CamKt12LCTopoJets", "Kt4EMTopoJets", "Kt4LCTopoJets", "AntiKt4TruthJets", "AntiKt10LCTopoJets"]
 #thexAODJetRetriever.OutputLevel = VERBOSE
 ToolSvc += thexAODJetRetriever
 

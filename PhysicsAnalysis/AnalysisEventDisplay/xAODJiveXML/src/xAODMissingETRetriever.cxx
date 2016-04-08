@@ -4,8 +4,7 @@
 
 #include "xAODJiveXML/xAODMissingETRetriever.h"
 
-#include "AthenaKernel/Units.h"
-using Athena::Units::GeV;
+#include "CLHEP/Units/SystemOfUnits.h"
 
 namespace JiveXML {
 
@@ -24,7 +23,7 @@ namespace JiveXML {
    *
    **/
   xAODMissingETRetriever::xAODMissingETRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), m_typeName("ETMis"){
+    AthAlgTool(type,name,parent), typeName("ETMis"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -44,40 +43,40 @@ namespace JiveXML {
    */
   StatusCode xAODMissingETRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
     const DataHandle<xAOD::MissingETContainer> iterator, end;
     const xAOD::MissingETContainer* MissingETs;
 
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
     StatusCode sc = evtStore()->retrieve(MissingETs, m_sgKeyFavourite);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
     }else{
       DataMap data = getData(MissingETs);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey+"_xAOD", &data).isFailure()){ //suffix can be removed later
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") MissingET retrieved" << endmsg;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") MissingET retrieved" << endreq;
       }
     }
  
     if ( m_otherKeys.empty() ) {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
-         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for MET collection" << endmsg;
+         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for MET collection" << endreq;
 //        return false;
       }
       
       for (; iterator!=end; iterator++) {
 	  if (iterator.key()!=m_sgKeyFavourite) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD_MET retrieved" << endmsg;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD_MET retrieved" << endreq;
 	    }
 	}
       }
@@ -88,12 +87,12 @@ namespace JiveXML {
         if ( !evtStore()->contains<xAOD::MissingETContainer>( (*keyIter) ) ){ continue; } // skip if not in SG
 	StatusCode sc = evtStore()->retrieve( MissingETs, (*keyIter) );
 	if (!sc.isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
           DataMap data = getData(MissingETs);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter)+"_xAOD", &data).isFailure()){
-	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
 	  }else{
-	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
 	  }
 	}
       }
@@ -109,17 +108,17 @@ namespace JiveXML {
    */
   const DataMap xAODMissingETRetriever::getData(const xAOD::MissingETContainer* metCont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
 
-    DataMap DataMap;
+    DataMap m_DataMap;
 
     DataVect etx; etx.reserve(metCont->size());
     DataVect ety; ety.reserve(metCont->size());
     DataVect et; et.reserve(metCont->size());
 
-    float mpx = 0.;
-    float mpy = 0.;
-    float sumet = 0.;
+    float m_mpx = 0.;
+    float m_mpy = 0.;
+    float m_sumet = 0.;
 
     xAOD::MissingETContainer::const_iterator metItr  = metCont->begin();
     xAOD::MissingETContainer::const_iterator metItrE = metCont->end();
@@ -128,38 +127,38 @@ namespace JiveXML {
     // out of the ~9 values within each MET container ('final')
 
     for (; metItr != metItrE; ++metItr) {
-	sumet = (*metItr)->sumet()/GeV;
-    	mpx = (*metItr)->mpx()/GeV;
-       	mpy = (*metItr)->mpy()/GeV;
+	m_sumet = (*metItr)->sumet()/CLHEP::GeV;
+    	m_mpx = (*metItr)->mpx()/CLHEP::GeV;
+       	m_mpy = (*metItr)->mpy()/CLHEP::GeV;
  
 	if (msgLvl(MSG::DEBUG)) {
-	   msg(MSG::DEBUG) << "  Components: MissingET [GeV] mpx= "  << (*metItr)->mpx()/GeV
-		<< ", mpy= " << (*metItr)->mpy()/GeV
-		<< ", sumet= " << (*metItr)->sumet()/GeV << endmsg;
+	   msg(MSG::DEBUG) << "  Components: MissingET [GeV] mpx= "  << (*metItr)->mpx()/CLHEP::GeV
+		<< ", mpy= " << (*metItr)->mpy()/CLHEP::GeV
+		<< ", sumet= " << (*metItr)->sumet()/CLHEP::GeV << endreq;
 
 	}
     } // end MissingETIterator 
 
     if (msgLvl(MSG::DEBUG)) {
-	   msg(MSG::DEBUG) << "  FINAL: MissingET [GeV] mpx= "  << mpx
-		<< ", mpy= " << mpy << ", sumet= " << sumet << endmsg;
+	   msg(MSG::DEBUG) << "  FINAL: MissingET [GeV] mpx= "  << m_mpx
+		<< ", mpy= " << m_mpy << ", sumet= " << m_sumet << endreq;
     }
 
-    etx.push_back(DataType( mpx ));
-    ety.push_back(DataType( mpy ));
-    et.push_back(DataType( sumet ));
+    etx.push_back(DataType( m_mpx ));
+    ety.push_back(DataType( m_mpy ));
+    et.push_back(DataType( m_sumet ));
 
     // four-vectors
-    DataMap["et"] = et;
-    DataMap["etx"] = etx;
-    DataMap["ety"] = ety;
+    m_DataMap["et"] = et;
+    m_DataMap["etx"] = etx;
+    m_DataMap["ety"] = ety;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << et.size() << " entries"<< endmsg;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << et.size() << " entries"<< endreq;
     }
 
     //All collections retrieved okay
-    return DataMap;
+    return m_DataMap;
 
   } // retrieve
 

@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           graphics/JiveXML
                           PRIVATE
-                          Control/AthenaKernel
                           Calorimeter/CaloGeoHelpers
                           Event/xAOD/xAODBTagging
                           Event/xAOD/xAODTracking )
