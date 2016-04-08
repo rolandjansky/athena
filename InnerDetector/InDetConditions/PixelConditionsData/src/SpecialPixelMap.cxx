@@ -126,14 +126,14 @@ void ModuleSpecialPixelMap::print(int component,
 
   //print header
 
-  log << MSG::INFO << " " << endmsg;
-  if(moduleID>-1)log << MSG::INFO << "ModuleSpecialPixelMap for module " << moduleID << ":" << endmsg;
+  log << MSG::INFO << " " << endreq;
+  if(moduleID>-1)log << MSG::INFO << "ModuleSpecialPixelMap for module " << moduleID << ":" << endreq;
   log << MSG::INFO << "Offline ID [system,subsystem,endcap/barrel,layer/disk,phi,eta] : ["
-      << system << ',' << subSystem << ',' << component << ',' << layer << ',' << phi << ',' << eta << ']' << endmsg;
+      << system << ',' << subSystem << ',' << component << ',' << layer << ',' << phi << ',' << eta << ']' << endreq;
   log << MSG::INFO << "Module status: ";
   log.width(10);
-  log << m_module_status << endmsg;
-  log << MSG::INFO << " " << endmsg;
+  log << m_module_status << endreq;
+  log << MSG::INFO << " " << endreq;
 
   bool print_chip_status = false;
   bool print_column_pair_status = false;
@@ -154,7 +154,7 @@ void ModuleSpecialPixelMap::print(int component,
     if(print_chip_status){
       log <<MSG::INFO << "Chip number:       ";
       for(int i = mch-1; i>mch/2-1; i--)log<<i<<"         "; 
-      log<< endmsg;
+      log<< endreq;
 
       log << MSG::INFO << "Chip status:  ";
       for(int i = mch-1; i > mch/2-1; i--){
@@ -166,8 +166,8 @@ void ModuleSpecialPixelMap::print(int component,
 	  log << 0 << " ";
 	}
       }
-      log << endmsg;
-      log << MSG::INFO << " " << endmsg;
+      log << endreq;
+      log << MSG::INFO << " " << endreq;
       
       if(print_column_pair_status){
 	log << MSG::INFO << "Column pairs: ";
@@ -180,7 +180,7 @@ void ModuleSpecialPixelMap::print(int component,
 	    log << 0 << " ";
 	  }
 	}
-	log << endmsg;
+	log << endreq;
 	log << MSG::INFO << "pairs 0 to "<<mch/2<<"  ";
 	for(int i = mch-1; i > mch/2-1; i--){
 	  log.width(10);
@@ -191,7 +191,7 @@ void ModuleSpecialPixelMap::print(int component,
 	    log << 0 << " ";
 	  }
 	}
-	log << endmsg;
+	log << endreq;
 	for(int j = 2; j < mcolumns/2; j++){
 	  log << MSG::INFO << "              ";
 	  for(int i = mch-1; i > mch/2-1; i--){
@@ -203,9 +203,9 @@ void ModuleSpecialPixelMap::print(int component,
 	      log << 0 << " ";
 	    }
 	  }
-	  log << endmsg;
+	  log << endreq;
 	}
-	log << MSG::INFO << " " << endmsg;
+	log << MSG::INFO << " " << endreq;
 	
 	
 	log << MSG::INFO << "Column pairs: ";
@@ -218,7 +218,7 @@ void ModuleSpecialPixelMap::print(int component,
 	    log << 0 << " ";
 	  }
 	}
-	log << endmsg;
+	log << endreq;
 	log << MSG::INFO << "pairs 0 to "<<mch/2<<"  ";
 	for(int i = 0; i < mch/2; i++){
 	  log.width(10);
@@ -229,7 +229,7 @@ void ModuleSpecialPixelMap::print(int component,
 	    log << 0 << " ";
 	  }
 	}
-	log << endmsg;
+	log << endreq;
 	for(int j = 2; j < mcolumns/2; j++){
 	  log << MSG::INFO << "              ";
 	  for(int i = 0; i < mch/2; i++){
@@ -241,13 +241,13 @@ void ModuleSpecialPixelMap::print(int component,
 	      log << 0 << " ";
 	    }
 	  }
-	  log << endmsg;
+	  log << endreq;
 	}
-	log << MSG::INFO << " " << endmsg;
+	log << MSG::INFO << " " << endreq;
       }
       else{
-	log << MSG::INFO << "No special column pairs on this module" << endmsg;
-	log << MSG::INFO << " " << endmsg;
+	log << MSG::INFO << "No special column pairs on this module" << endreq;
+	log << MSG::INFO << " " << endreq;
       }
       
       log << MSG::INFO << "Chip status:  ";
@@ -260,16 +260,16 @@ void ModuleSpecialPixelMap::print(int component,
 	  log << 0 << " ";
 	}
       }
-      log << endmsg;
+      log << endreq;
       log << MSG::INFO << "Chip number:           ";
       for(int i = 0; i<mch/2; ++i)log<<i<<"          ";
-      log<< endmsg;
-      log << MSG::INFO << " " << endmsg;
-      log << MSG::INFO << " " << endmsg;
+      log<< endreq;
+      log << MSG::INFO << " " << endreq;
+      log << MSG::INFO << " " << endreq;
     }
     else{
-      log << MSG::INFO << "No special chips and/or column pairs on this module" << endmsg;
-      log << MSG::INFO << " " << endmsg;
+      log << MSG::INFO << "No special chips and/or column pairs on this module" << endreq;
+      log << MSG::INFO << " " << endreq;
     }
     
     //print map
@@ -301,10 +301,10 @@ void ModuleSpecialPixelMap::print(int component,
 	  log << statusBit;
 	  if(!(i%4)) log << ' ';
 	}
-	log << endmsg;
+	log << endreq;
       }
       else{
-	log << " status: " << pixel->second << endmsg;
+	log << " status: " << pixel->second << endreq;
       }
     }
   }
@@ -313,7 +313,7 @@ void ModuleSpecialPixelMap::print(int component,
     if(print_chip_status){
       log<<MSG::INFO << "Chip number:          ";
       for(int i =0; i<mch; ++i)log<<i<<"          "; 
-      log<<endmsg;
+      log<<endreq;
       log <<MSG::INFO << "Chip status:  ";
       for(int i = 0; i < (int)mch; i++){
 	log.width(10);
@@ -324,12 +324,12 @@ void ModuleSpecialPixelMap::print(int component,
 	  log << 0 << " ";
 	}
       }
-      log << endmsg;
-      log <<MSG::INFO << " " << endmsg;
+      log << endreq;
+      log <<MSG::INFO << " " << endreq;
 
       if(print_column_pair_status){
 	log <<MSG::INFO <<"Column pairs 0 to  "<<mcolumns/2<<" ";
-	log << endmsg;
+	log << endreq;
 	for(int j = 0; j<mcolumns/2; ++j){
 	  for(int i = 0; i < (int)mch; i++){
 	    log.width(10);
@@ -340,20 +340,20 @@ void ModuleSpecialPixelMap::print(int component,
 	      log << 0 << " ";
 	    }
 	  }
-	  log << endmsg;
+	  log << endreq;
 	}
 
-	log << " " << endmsg;
+	log << " " << endreq;
 
       }
       else{
-	log << "No special column pairs on this module" << endmsg;
-	log << " " << endmsg;
+	log << "No special column pairs on this module" << endreq;
+	log << " " << endreq;
       }
     }
     else{
-      log << "No special chips and/or column pairs on this module" << endmsg;
-      log << " " << endmsg;
+      log << "No special chips and/or column pairs on this module" << endreq;
+      log << " " << endreq;
     }
     //print map
 
@@ -383,10 +383,10 @@ void ModuleSpecialPixelMap::print(int component,
 	  log << statusBit;
 	  if(!(i%4)) log << ' ';
 	}
-	log << endmsg;
+	log << endreq;
       }
       else{
-	log << " status: " << pixel->second << endmsg;
+	log << " status: " << pixel->second << endreq;
       }
     }
     //
