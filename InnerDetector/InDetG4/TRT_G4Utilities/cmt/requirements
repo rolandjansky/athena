@@ -24,4 +24,4 @@ apply_pattern installed_library
 apply_pattern install_runtime
 
 apply_pattern declare_runtime extras="TRT_G4Utilities_management.txt \
-                                      TRT_G4Utilities_geometry.txt
+                                      TRT_G4Utilities_geometry.txt"
