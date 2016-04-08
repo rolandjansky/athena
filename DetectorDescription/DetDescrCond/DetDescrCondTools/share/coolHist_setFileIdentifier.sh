@@ -18,7 +18,7 @@ echo Generated GUID is $GUID
 # create a temporary file with the ROOT commands
 MYFILE=/tmp/coolHist_setFileIdentifier_$$.C
 cat > $MYFILE <<EOF
-void coolHist_setFileIdentifier_$$(TString& file, TString& guid) {
+void coolHist_setFileIdentifier_$$(const char* file, const char* guid) {
   cout << "Record GUID " << guid << " in file " << file << endl;
   TFile* myfile=new TFile(file,"UPDATE");
   if (myfile!=0) {
