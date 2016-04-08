@@ -4,6 +4,8 @@
 
 #include "MSVertexUtils/TrackletSegment.h"
 
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
+
 TrackletSegment::TrackletSegment() {
   m_chamber=999;  m_cham_eta=999;  m_cham_phi=999;  m_alpha=-999;  m_dalpha=-999;  m_rErr=-999;
   m_zErr=-999;  m_chmid=0;  m_mdts.clear();  m_pattern=0;  m_isCombined=false;

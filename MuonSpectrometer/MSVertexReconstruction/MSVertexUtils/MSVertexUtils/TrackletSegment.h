@@ -7,10 +7,11 @@
 
 #include <vector>
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoAdaptors/GeoMuonHits.h"
 #include "TMath.h"
 
-
+namespace Muon{
+  class MdtPrepData;
+}
 
 ///New segment class for single ML segments
 class TrackletSegment {

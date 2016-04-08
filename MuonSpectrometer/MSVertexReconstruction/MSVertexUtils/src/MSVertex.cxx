@@ -68,6 +68,25 @@ MSVertex::~MSVertex() {
   m_tracks.clear();
 }
 
+MSVertex& MSVertex::operator= (const MSVertex& msvx) {
+
+  if (this != &msvx) {
+    m_author = msvx.getAuthor();
+    m_position = msvx.getPosition();
+    m_chi2prob = msvx.getChi2Probability();
+    m_chi2 = msvx.getChi2();
+    m_nMDT = msvx.getNMDT();
+    m_nRPC = msvx.getNRPC();
+    m_nTGC = msvx.getNTGC();
+    
+    for (std::vector<xAOD::TrackParticle*>::const_iterator i = msvx.getTracks()->begin();
+	 i != msvx.getTracks()->end(); ++i) {
+      m_tracks.push_back( new xAOD::TrackParticle( **i ) );
+    }
+  }
+  return *this;
+}
+
 MSVertex* MSVertex::clone() {
   std::vector<xAOD::TrackParticle*> trk; 
   for (std::vector<xAOD::TrackParticle*>::iterator i = m_tracks.begin(); i != m_tracks.end(); ++i) { 

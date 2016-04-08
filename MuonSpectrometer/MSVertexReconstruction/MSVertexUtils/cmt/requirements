@@ -5,10 +5,13 @@ author Daniel Ventura <ventura@cern.ch>
 use AtlasPolicy			  AtlasPolicy-*
 use AtlasROOT                     AtlasROOT-*                   External
 use GaudiInterface                GaudiInterface-*              External
-use GeoAdaptors                   GeoAdaptors-*                 DetectorDescription/GeoModel
 use GeoPrimitives                 GeoPrimitives-*               DetectorDescription
+use EventPrimitives               EventPrimitives-*             Event
 use xAODTracking                  xAODTracking-*                Event/xAOD
 
+private
+use MuonPrepRawData     MuonPrepRawData-*                 MuonSpectrometer/MuonReconstruction/MuonRecEvent
+end_private
 
 library  MSVertexUtils ../src/*.cxx
 

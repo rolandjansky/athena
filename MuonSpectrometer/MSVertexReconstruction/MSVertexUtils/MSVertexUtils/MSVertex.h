@@ -19,6 +19,7 @@ class MSVertex {
   MSVertex(const MSVertex&);
   MSVertex(int, const Amg::Vector3D&, float, float, int, int, int);
   MSVertex(int, const Amg::Vector3D&, const std::vector<xAOD::TrackParticle*>&, float, float, int, int, int);
+  MSVertex& operator= (const MSVertex& msvx);
 
   virtual ~MSVertex();
 

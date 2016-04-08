@@ -8,7 +8,7 @@
 #include <vector>
 #include "MSVertexUtils/TrackletSegment.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "GeoAdaptors/GeoMuonHits.h"
+#include "EventPrimitives/EventPrimitives.h"
 
 
 //HV Track Class
