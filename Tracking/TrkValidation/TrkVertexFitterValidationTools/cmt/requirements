@@ -1,0 +1,32 @@
+package TrkVertexFitterValidationTools
+
+author Tatjana Lenz <Tatjana.Lenz@cern.ch>
+
+use AthenaBaseComps         AthenaBaseComps-*             Control
+use AtlasPolicy             AtlasPolicy-*
+use GaudiInterface          GaudiInterface-*              External
+use TrkVertexFitterValidationInterfaces	TrkVertexFitterValidationInterfaces-*     Tracking/TrkValidation
+
+private
+use EventPrimitives         EventPrimitives-*             Event
+use AtlasCLHEP              AtlasCLHEP-*                  External
+use AtlasROOT               AtlasROOT-*                   External
+use GeneratorObjects        GeneratorObjects-*            Generators
+use xAODEventInfo           xAODEventInfo-*               Event/xAOD
+use AtlasHepMC              AtlasHepMC-*                  External
+#####################################
+#Tracking
+#####################################
+use TrkTruthData            TrkTruthData-*                Tracking/TrkEvent
+use TrkTrack                TrkTrack-*                    Tracking/TrkEvent
+use VxVertex                VxVertex-*                    Tracking/TrkEvent
+
+public
+library TrkVertexFitterValidationTools *.cxx components/*.cxx
+apply_pattern component_library
+
+#apply_pattern declare_non_standard_include name=doc
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
