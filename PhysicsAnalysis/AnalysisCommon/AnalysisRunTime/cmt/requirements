@@ -1,0 +1,43 @@
+package AnalysisRunTime
+
+author David Quarrie      <David.Quarrie@cern.ch>
+
+# This package sets up the runtime environment for an Athena-based
+# application.
+
+include_path none
+
+#---------------------------------------------------------------------
+# This line is necessary to ensure that the Atlas policies and patterns
+# are enforced and available. It also sets up the correct CMTPATH for
+# Gaudi & LCGCMT etc.
+use AtlasPolicy AtlasPolicy-* -no_auto_imports
+
+#---------------------------------------------------------------------
+# Setup the minimal environment for Athena
+use MinimalRunTime  MinimalRunTime-*  Control  -no_auto_imports
+use RDBAccessSvc        RDBAccessSvc-*  Database/AthenaPOOL
+
+#---------------------------------------------------------------------
+# Setup the minimal environment for PhysicsAnalysis
+use AnalysisTriggerEventAthenaPool AnalysisTriggerEventAthenaPool-* PhysicsAnalysis/AnalysisTrigger -no_auto_imports
+use AthenaSealSvc                  AthenaSealSvc-*                  Control                         -no_auto_imports
+use EventSelectorAthenaPool        EventSelectorAthenaPool-*        Database/AthenaPOOL             -no_auto_imports
+use InDetEventAthenaPool           InDetEventAthenaPool-*           InnerDetector/InDetEventCnv     -no_auto_imports
+use LArAthenaPool                  LArAthenaPool-*                  LArCalorimeter/LArCnv           -no_auto_imports
+use ParticleEventAthenaPool        ParticleEventAthenaPool-*        PhysicsAnalysis/AnalysisCommon  -no_auto_imports
+use RecAthenaPool                  RecAthenaPool-*                  Reconstruction                  -no_auto_imports
+use EventAthenaPool                EventAthenaPool-*                Event                           -no_auto_imports
+use GeneratorObjectsAthenaPool     GeneratorObjectsAthenaPool-*     Generators                      -no_auto_imports
+use TileEventAthenaPool            TileEventAthenaPool-*            TileCalorimeter/TileSvc         -no_auto_imports
+use TrkEventAthenaPool             TrkEventAthenaPool-*             Tracking/TrkEventCnv            -no_auto_imports
+use McParticleEventAthenaPool      McParticleEventAthenaPool-*      PhysicsAnalysis/TruthParticleID -no_auto_imports
+use InDetEventAthenaPool	   InDetEventAthenaPool-*	    InnerDetector/InDetEventCnv     -no_auto_imports
+
+# Setup for PyROOT
+use AtlasPyROOT  AtlasPyROOT-*  External  -no_auto_imports
+use RootHistCnv  v*                       -no_auto_imports
+
+# Setup for DF and Oracle, needed for ESD production
+use DataCollection       DataCollection-*        External  -no_auto_imports
+use AtlasOracle          AtlasOracle-*           External  -no_auto_imports
