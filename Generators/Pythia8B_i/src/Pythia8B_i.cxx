@@ -397,7 +397,7 @@ StatusCode Pythia8B_i::genFinalize(){
     
     ATH_MSG_INFO(">>> Pythia8B_i from genFinalize");
     
-    Pythia8_i::m_pythia.statistics(this->msgLvl(MSG::DEBUG));
+    Pythia8_i::m_pythia.stat();
     
     Pythia8::Info info = Pythia8_i::m_pythia.info;
     double xs = info.sigmaGen();// in mb

@@ -2,15 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
 // ======================================================================
 // UserSelections
 // James.Catmore@cern.ch
 // This file replaces the old "user_finsel" where arbitrary selections
 // can be made. There is a single bool method which takes
 // (a) a string to point the code to the appropriate selection
-// (b) a vector of doubles which can be used to specify cuts
-// Additional code can be included, as with "BsJpsiPhiAngles.h" below
+// (b) a vector of doubles which can be used to specify cuts 
+// Additional code can be included, as with "BsJpsiPhiAngles.h" below  
 // ======================================================================
 #include "CLHEP/Vector/LorentzVector.h"
 #include "Pythia8B_i/BsJpsiPhiAngles.h"
@@ -56,19 +55,19 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
 	double &time = x[0];
 	//  double &timeErr    = x[1]; // pico seconds
 	double &tagprob = x[4]; // 0. anti-particle, 0.5 no tag, 1.0 particle
-
+	
   // Calculate A perpendicular from the other parameters
   double Ap = 0;
   if ( 1. - As*As - A0*A0 - Al*Al >= 0 ) Ap = sqrt(1. - As*As - A0*A0 - Al*Al);
 
   // The tabulated function is Sum of: A[i] * ( B1[i] +/- B2[i] ) * C[i]
-
+	
   double A[10], B1[10], B2[10], C[10];
-
+	
   // Define A cells
   double sinphiS = sin(phiS);
   double cosphiS = cos(phiS);
-
+	
   A[0] = 0.5 * A0*A0;
   A[1] = 0.5 * Al*Al;
   A[2] = 0.5 * Ap*Ap;
@@ -81,7 +80,7 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
   A[9] = As*A0;
 
 
-
+	
   // Define B cells
   double gammaH  = GammaS - DeltaGamma/2.;
   double gammaL  = GammaS + DeltaGamma/2.;
@@ -90,17 +89,17 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
   double norm1 = (1./(tauL*(1.+cosphiS) + tauH*(1.-cosphiS)));
   double norm2 = (1./(tauL*(1.-cosphiS) + tauH*(1.+cosphiS)));
   double norm3 = (1./sqrt((tauL-tauH)*(tauL-tauH)*sinphiS*sinphiS+4.*tauL*tauH));
-
+ 
   double ExpGSSinMT = 0.0;
   double ExpGSCosMT = 0.0;
 
-
+ 
 
     // Calculate convolution of exp(-gammaL * time) with a gaussian. Not convoluted if sigma == 0.
     double ExpGL = exp(-time * gammaL);
 
-    // Calculate convolution of exp(-gammaH * time) with a gaussian. Not convoluted if sigma == 0.
-    double ExpGH = exp(-time * gammaH);
+    // Calculate convolution of exp(-gammaH * time) with a gaussian. Not convoluted if sigma == 0.		
+    double ExpGH = exp(-time * gammaH);	
 
     B1[0] = ( (1. + cosphiS) * ExpGL + (1. - cosphiS) * ExpGH ) * norm1;
     B1[1] = B1[0];
@@ -113,12 +112,12 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
     B1[8] = B1[2];
     B1[9] = 0.5 * sinphiS * sin(delta_s) * (ExpGH - ExpGL) * norm3;
 
-
+  
 
 
 
   // Tagged analysis
-  if( fabs(tagprob - 0.5) > 1e-6 ){
+  if( fabs(tagprob - 0.5) > 1e-6 ){   
 
 
     ExpGSSinMT = exp(-time * GammaS) * sin(DeltaM * time);
@@ -172,7 +171,7 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
       C[6] = 2. / 3. * sinsqthetal; //(1. - sinsqtheta * cossqphi);
       C[7] = 1. / 3. * sqrt(6.) * sinthetak * sin2thetal * coschi; //sinpsi * sinsqtheta * sin2phi;
       C[8] = 1. / 3. * sqrt(6.) * sinthetak * sin2thetal * sinchi; //sinpsi * sin2theta * cosphi;
-      C[9] = 4. / 3. * sqrt(3.) * costhetak * sinsqthetal; // cospsi * (1. - sinsqtheta * cossqphi);
+      C[9] = 4. / 3. * sqrt(3.) * costhetak * sinsqthetal; // cospsi * (1. - sinsqtheta * cossqphi); 
 
     }
     else {
@@ -193,7 +192,7 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
       double sinsqphi     = sinphi * sinphi;
       double sin2phi      = sin(2. * phi);
       double sinpsi       = sqrt(1. - cospsi*cospsi);
-
+  		
       C[0] = 2. * cossqpsi * (1. - sinsqtheta * cossqphi);
       C[1] = sinsqpsi * (1.-sinsqtheta * sinsqphi);
       C[2] = sinsqpsi * sinsqtheta;
@@ -207,20 +206,20 @@ double BsJpsiPhi_PDF(double *m_params, double *x, bool useHelicity) {
 
     }
 
-
-
-  // Sum the tabulated formula
+  
+	
+  // Sum the tabulated formula	
   double Wplus  = 0;
   double Wminus = 0;
-
-
+	
+	
   for ( int i=0; i<10; ++i ) {
 
     Wplus  += A[i] * ( B1[i] + B2[i] ) * C[i];
     Wminus += A[i] * ( B1[i] - B2[i] ) * C[i];
 
   }
-
+	
   double value = tagprob * Wplus + (1. - tagprob) * Wminus;
 	if (value < 0)
 		value = 0;
@@ -267,17 +266,26 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 	// goes to a J/psi
 
 	else if (userString == "BJPSIINCLUSIVE" && event.size() > 0) {
+		int chargeConj = 1;
+		if (userVars.size()==0) {
+			ATH_MSG_INFO("User selection BJPSIINCLUSIVE with B-state");
+		}
+		if (userVars.size()>0) {
+			if (userVars.size()>1) ATH_MSG_WARNING("User selection BJPSIINCLUSIVE with more than one argument! Check job options");
+			if (userVars.at(0)>0) ATH_MSG_DEBUG("User selection BJPSIINCLUSIVE with B-state");
+			if (userVars.at(0)<0) {ATH_MSG_DEBUG("User selection BJPSIINCLUSIVE with anti-B-state"); chargeConj = -1;}
+		}		
 
 		// B-decay codes which can go to charmonium
 		std::vector<int> bToCharmoniaCodes;
-		bToCharmoniaCodes.push_back(511);
-		bToCharmoniaCodes.push_back(521);
-		bToCharmoniaCodes.push_back(531);
-		bToCharmoniaCodes.push_back(541);
-		bToCharmoniaCodes.push_back(-5122);
-		bToCharmoniaCodes.push_back(-5132);
-		bToCharmoniaCodes.push_back(-5232);
-		bToCharmoniaCodes.push_back(-5332);
+		bToCharmoniaCodes.push_back(511*chargeConj);
+		bToCharmoniaCodes.push_back(521*chargeConj);
+		bToCharmoniaCodes.push_back(531*chargeConj);
+		bToCharmoniaCodes.push_back(541*chargeConj);
+		bToCharmoniaCodes.push_back(-5122*chargeConj);
+		bToCharmoniaCodes.push_back(-5132*chargeConj);
+		bToCharmoniaCodes.push_back(-5232*chargeConj);
+		bToCharmoniaCodes.push_back(-5332*chargeConj);
 
 		int eventSize = event.size();
 
@@ -481,9 +489,9 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			ATH_MSG_INFO("correct lifetime " << gentauCorrect);
 		}
 		const double Bstau = p_Bs.tau() / correctionfactor;
+		double prob1 = 1000;
 
-		// Set probability from PDFs
-		double prob1 = 0.0;
+		//PUT PDFS HERE
 		if (userString == "BJPSIPHI_TRANS") {
 			double x[5];
 			x[0] = Bstau;
@@ -491,6 +499,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			x[2] = angles.thetaKfix();
 			x[3] = angles.phitrfix();
 			x[4] = userVars[2];
+
 			prob1 = BsJpsiPhi_PDF(&userVars[3], x, false);
 		} else if (userString == "BJPSIPHI_HEL") {
 			double x[5];
@@ -499,6 +508,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			x[2] = angles.thetaKfix();
 			x[3] = angles.chifix();
 			x[4] = userVars[2];
+
 			prob1 = BsJpsiPhi_PDF(&userVars[3], x, true);
 		}
 
@@ -664,7 +674,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 			ATH_MSG_INFO("correct lifetime " << gentauCorrect);
 		}
 		const double Bdtau = p_Bd.tau() / correctionfactor;
-		double prob1(0.0);
+		double prob1;
 
 		//PUT PDFS HERE
 
