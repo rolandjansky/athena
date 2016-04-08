@@ -69,8 +69,9 @@ StatusCode TileHitsTestTool::processEvent() {
 
     Identifier pmt_id = (*i_hit).identify();
     Identifier cell_id = m_tileID->cell_id(pmt_id);
-    const CaloDetDescrElement* ddElement = (m_tileID->is_tile_aux(cell_id)) ? 0 : m_tileMgr->get_cell_element(cell_id);
-    if(ddElement) // skip E4' cells which are not yet described in TileDetDescrManager. ATLASSIM-1835
+
+    const CaloDetDescrElement *ddElement = m_tileMgr->get_cell_element(cell_id);
+    if(ddElement) // skip E4' cells which are not yet described in TileDetDescrManager.
       {
         double eta = ddElement->eta();
         double phi = ddElement->phi();
@@ -109,8 +110,8 @@ StatusCode TileHitsTestTool::processEvent() {
         {
           Identifier pmt_id=i_hit->identify();
           Identifier cell_id=m_tileID->cell_id(pmt_id);
-          const CaloDetDescrElement* ddElement = (m_tileID->is_tile_aux(cell_id)) ? 0 : m_tileMgr->get_cell_element(cell_id);
-          if(ddElement) // skip E4' cells which are not yet described in TileDetDescrManager. ATLASSIM-1835
+          const CaloDetDescrElement *ddElement=m_tileMgr->get_cell_element(cell_id);
+          if(ddElement) // skip E4' cells which are not yet described in TileDetDescrManager.
             {
               double eta=ddElement->eta();
               double phi=ddElement->phi();

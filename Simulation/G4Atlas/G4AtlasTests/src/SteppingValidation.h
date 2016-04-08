@@ -5,7 +5,7 @@
 #ifndef SteppingValidation_H
 #define SteppingValidation_H
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include "SimTestToolBase.h"
 
 #include <string>
@@ -17,13 +17,13 @@ class G4Track;
 
 // User action to do some basic step-based validation of G4
 
-class SteppingValidation: public FADS::UserAction, public SimTestToolBase {
+class SteppingValidation final: public UserActionBase, public SimTestHisto {
 
   public:
    // Constructor
    SteppingValidation(const std::string& type, const std::string& name, const IInterface* parent)
-     : FADS::UserAction(name)
-     , SimTestToolBase(type,name,parent)
+     : UserActionBase(type,name,parent)
+     , SimTestHisto()
      , m_stepL(0),m_stepProc(0),m_mscAngle(0),m_stepELoss(0),m_secE(0)
      , m_latPhi(0),m_latEta(0),m_EvsR(0)
      , m_prim(0),m_sec(0)
@@ -31,17 +31,15 @@ class SteppingValidation: public FADS::UserAction, public SimTestToolBase {
     {}
 
    // User Action functions
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+   virtual void BeginOfEvent(const G4Event*) override;
+   virtual void EndOfEvent(const G4Event*) override;
+   virtual void Step(const G4Step*) override;
 
-   // Sim Test Tool functions
-   StatusCode initialize();
-   StatusCode processEvent();
-
-  private:
+   virtual StatusCode initialize() override;
+   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+   
+   
+ private:
    TH1 *m_stepL, *m_stepProc, *m_mscAngle, *m_stepELoss, *m_secE, *m_latPhi, *m_latEta;
    TH2 *m_EvsR;
    G4Track *m_prim, *m_sec;
