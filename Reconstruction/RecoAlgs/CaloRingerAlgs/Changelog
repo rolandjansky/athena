@@ -1,0 +1,93 @@
+2016-02-07  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Updated RTT reference files to match nightlies.
+	*  Tagged as CaloRingerAlgs-00-00-15.
+
+2016-01-22  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Updated RTT reference files.
+	*  Tagged as CaloRingerAlgs-00-00-14.
+
+2016-01-11  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Reverted changes on requirements file.
+	*  Tagged as CaloRingerAlgs-00-00-13.
+
+2016-01-11  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Small fix on max events.
+	*  Tagged as CaloRingerAlgs-00-00-12.
+
+2016-01-08  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Added more files to RTT workarea and updated comparison files.
+	*  Tagged as CaloRingerAlgs-00-00-11.
+
+2015-12-16  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Set RTT job to run on medium size queue.
+	*  Tagged as CaloRingerAlgs-00-00-10.
+
+2015-12-12 Werner Freund <wsfreund@cern.ch>
+
+	*  Updated RTT JO.
+	*  Fixed bug on MetaDataWriter when running with only one of the builders.
+	*  Tagged as CaloRingerAlgs-00-00-09.
+
+2015-12-09 Werner Freund <wsfreund@cern.ch>
+
+	*  Fixed typo on RTT configuration.
+	*  Separed MetaData configuration from MainAlgorithm. MetaData can now be
+	added to AlgSequence to dump Ringer configuration to output file even if
+	MainAlg is not running by adding CaloRinger_in2out.py shared joboption.
+	*  Added master flag to control Ringer verbosity.
+	*  Fixed ignoreExistingDataObject flag.
+	*  Tagged as CaloRingerAlgs-00-00-08.
+
+2015-12-02  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Configured RTT to compare CaloRings and Neural Network outputs.
+	*  Tagged as CaloRingerAlgs-00-00-07.
+
+2015-11-11  Werner Freund  <wsfreund@cern.ch>
+	*  Added shared joboption for dumping ringer containers from ESD/xAOD files
+	to new ESD/xAOD files.
+	*	 Still need to add metadata information on new ESD/xAOD files dumped
+	without runing Ringer reconstruction.
+	*  Tagged as CaloRingerAlgs-00-00-06.
+
+2015-10-29  Nicolas Bulla <nbullacr@cern.ch>
+
+	*  Added phi division capability for the rings description.
+	*  Added RTT skept for testing rings description. Naive test for this
+	commit.
+	*  Tagged as CaloRingerAlgs-00-00-05.
+
+2015-09-17  Nicolas Bulla <nicolas.bulla.cruz@cern.ch>
+
+	*  Added asymetric rings configuration.
+	*  Tagged as CaloRingerAlgs-00-00-04.
+
+2015-06-02  Werner Freund  <wsfreund@cern.ch>
+
+	*  Fixed ringer metadata not being added if selectors were disabled.
+	*  Added flag to enable/disable writing ringer information to output
+	file.
+	*  Tagged as CaloRingerAlgs-00-00-03.
+
+2015-05-29  Werner Freund  <wsfreund@cern.ch>
+
+	*  Fixed small configuration bug where it wasn't postponing
+		egammaLocker.
+	*  Updated shared standalone joboption template.
+	*  Tagged as CaloRingerAlgs-00-00-02.
+
+2015-05-28  Werner Freund  <wsfreund@cern.ch>
+
+	*  Improved metadata for xAOD->xAOD step.
+	*  Tagged as CaloRingerAlgs-00-00-01.
+
+2015-05-18  Werner Freund  <wsfreund@cern.ch>
+
+	* Creation of package CaloRingerAlgs
+	* Not tagging yet, waiting framework to be fully compatible with metadata.
