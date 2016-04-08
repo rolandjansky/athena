@@ -34,10 +34,10 @@ public:
   virtual StatusCode postInitialize();
 
   /// Called at the beginning of execute
-  virtual StatusCode preNext() const;
+  virtual StatusCode preNext();
 
   /// Called at the end of execute
-  virtual StatusCode postNext() const;
+  virtual StatusCode postNext();
 
   /// Called at the beginning of finalize
   virtual StatusCode preFinalize();
