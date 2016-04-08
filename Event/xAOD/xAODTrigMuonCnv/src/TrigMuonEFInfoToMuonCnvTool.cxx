@@ -61,7 +61,7 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::finalize() {
 StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfo(const TrigMuonEFInfo& efinfo,
                                              xAOD::MuonContainer& muoncontainer,
                                              xAOD::TrackParticleContainer* combParticleContainer,
-                                             xAOD::TrackParticleContainer* extrapParticleContainer) const {
+                                             xAOD::TrackParticleContainer* extrapParticleContainer) {
 
     ATH_MSG_DEBUG("Start conversion of TrigMuonEFInfo, n(muons) to convert = " << efinfo.TrackContainer()->size());
     const int nmuin = muoncontainer.size();
@@ -143,10 +143,7 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfo(const TrigMuonEFIn
                     // This code assumes that the tracks in the xAOD EF ID track container are in the same order as in the Rec::TrackParticle container
                     // Same assumption was made in the offline code, 
                     ElementLink<xAOD::TrackParticleContainer> newLink;
-                    std::string name = m_inDetTrackParticles;
-                    if (name.empty())
-                      name = oldLink.dataID();
-                    newLink.resetWithKeyAndIndex(  name, oldLink.index() );
+                    newLink.resetWithKeyAndIndex(  m_inDetTrackParticles, oldLink.index() );
                     if(newLink.isValid()) ATH_MSG_VERBOSE("Successfully created element link to ID xAOD track particle");
                     else ATH_MSG_WARNING("Created an invalid element link to ID xAOD track particle");
                         
@@ -170,7 +167,7 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfo(const TrigMuonEFIn
 StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfoContainer(const TrigMuonEFInfoContainer& efinfocont,
                                                   xAOD::MuonContainer& muoncontainer,
                                                   xAOD::TrackParticleContainer* combParticleContainer,
-                                                  xAOD::TrackParticleContainer* extrapParticleContainer) const {
+                                                  xAOD::TrackParticleContainer* extrapParticleContainer) {
     //loop on TrigMunEFInfo objects and convert them
     for(auto efinfo : efinfocont) {
         StatusCode sc = convertTrigMuonEFInfo( *efinfo, muoncontainer, combParticleContainer, extrapParticleContainer );
@@ -183,7 +180,7 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFInfoContainer(const Tri
 /**
  * Fill xAOD::TrackParticle with values from TrigMuonEFTrack
  */
-StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFTrack(const TrigMuonEFTrack& eftrack, xAOD::TrackParticle& trackpart) const {
+StatusCode TrigMuonEFInfoToMuonCnvTool::convertTrigMuonEFTrack(const TrigMuonEFTrack& eftrack, xAOD::TrackParticle& trackpart) {
     double p = 0.0001;
     const double charge = eftrack.charge();
     if( std::abs(eftrack.p()) < p ) {

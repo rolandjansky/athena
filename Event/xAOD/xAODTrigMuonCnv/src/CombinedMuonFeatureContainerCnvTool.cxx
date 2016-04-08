@@ -40,7 +40,7 @@ namespace xAODMaker {
 
     
     StatusCode CombinedMuonFeatureContainerCnvTool::convert( const CombinedMuonFeatureContainer* aod,
-                                            xAOD::L2CombinedMuonContainer* xaod ) const {
+                                            xAOD::L2CombinedMuonContainer* xaod ) {
         
         if (!aod) {
             ATH_MSG_ERROR( "Null pointer for input containter" );

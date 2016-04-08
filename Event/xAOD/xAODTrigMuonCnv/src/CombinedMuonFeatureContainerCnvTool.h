@@ -36,11 +36,11 @@ namespace xAODMaker {
                             const IInterface* parent );
         
         /// Function initialising the tool
-        virtual StatusCode initialize() override;
+        virtual StatusCode initialize();
         
         /// Function that fills an existing xAOD::TrigMuonContainer
         virtual StatusCode convert(const CombinedMuonFeatureContainer * aod,
-                                   xAOD::L2CombinedMuonContainer* xaod ) const override;
+                                   xAOD::L2CombinedMuonContainer* xaod );
         
     private:
         ToolHandle< ICombinedMuonFeatureCnvTool > m_cnvTool; // does the actual conversions
