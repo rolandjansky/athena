@@ -132,6 +132,9 @@ public:
 
    bool m_reassignTracksAfterFirstFit;
 
+   bool m_doMaxTracksCut; 
+   unsigned int m_maxTracks;
+
    void m_SGError(std::string errService);
 
    /**

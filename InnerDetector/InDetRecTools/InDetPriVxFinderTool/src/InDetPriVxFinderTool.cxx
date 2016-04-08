@@ -534,10 +534,9 @@ namespace InDet
   
 //   std::cout<<"Starting the main part of the finding "<<std::endl;
    
-//---- Constraint vertex section: if enabled in jobOptions a constraint is assigned --//
-    Amg::Vector3D vtx ( 0.,0.,0. );
-    Trk::Vertex vertex ( vtx ); //for fit() we need Trk::Vertex or Trk::RecVertex
-    std::vector<Trk::VxTrackAtVertex*> * trkAtVtx;
+//---- Constraint vertex section: if enabled in jobOptions a constraint is assigned --//    
+    Trk::Vertex vertex ( Amg::Vector3D ( 0.,0.,0. )  ); //for fit() we need Trk::Vertex or Trk::RecVertex
+    std::vector<Trk::VxTrackAtVertex*> * trkAtVtx=nullptr;
 
 // Finding hot spots of z0's in case of pile up.
     std::vector<const Trk::TrackParameters*> zTracks;
@@ -594,10 +593,9 @@ namespace InDet
 //	  std::cout<< "non-zero vx candidate!"<<std::endl;
 	  
 /* Get the vertex position */
-          vtx=myVxCandidate->recVertex().position();
-//	  std::cout<< "position: "<<vtx <<std::endl;
+//	  std::cout<< "position: "<< myVxCandidate->recVertex().position() <<std::endl;
 	  
-          Trk::Vertex vertex ( vtx );
+          Trk::Vertex vertex ( myVxCandidate->recVertex().position()  );
           trkAtVtx=myVxCandidate->vxTrackAtVertex();
 //	  std::cout<< "number of fitted tracks"<< trkAtVtx->size()<< std::endl;
 	  
@@ -656,7 +654,6 @@ namespace InDet
 
 	    if(myVxCandidate)
 	    {
-             vtx=myVxCandidate->recVertex().position();
              trkAtVtx=myVxCandidate->vxTrackAtVertex();
 	    }   
           }//end of chi2 cut method 1       
@@ -688,9 +685,8 @@ namespace InDet
 	       
 	      if(myVxCandidate)
 	      {
-               vtx = myVxCandidate->recVertex().position();
                trkAtVtx = myVxCandidate->vxTrackAtVertex();
-				
+		
 //re-soring tracks to avoid gaps
                m_sortTracksInChi2 ( indexOfSortedChi2, myVxCandidate );
 	      }else{
