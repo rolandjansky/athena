@@ -14,9 +14,8 @@
 /** @class MemoryAlg
     
 Several of the memory algs can be scheduled.
-# Each one saves memory consumption (VMem, VMemPeak, RSS, RSSPeak)
-Each one saves memory consumption (VMem, RSS, mallinfo)
-to the vector.
+Each one saves memory consumption (VMem, RSS and shared pages from /proc/<pid>/statm)
+measured in bytes to the vector.
 
 @author Rolf Seuster <seuster AT cern.ch>
 */
@@ -44,7 +43,7 @@ class MemoryAlg : public AthAlgorithm
   /** member variables for algorithm properties: */
   std::string  m_memoryObjOutputName;
 
-  bool m_usetcmalloc;
+  unsigned long m_pagesize;
   };
 
 #endif 
