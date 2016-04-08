@@ -1593,7 +1593,7 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
     //************ SHIFTER ************* //
     addMonGroup(new MonGroup(this,m_base_path_shifter+"/"+path,run));
     
-    addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[GeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
+    addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
     addHistogram( new TH1F(Form("%s_%s_eta",pref,name) ,      Form("%s_%s_eta;#eta(#mu#mu);Candidates",pref,detTitle) ,     30, m_eta_min,m_eta_max) );
     addHistogram( new TH1F(Form("%s_%s_dR",pref,name) ,       Form("%s_%s_dR;dR(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_dr_min,m_dr_max) );
     
@@ -1608,7 +1608,7 @@ void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,cons
         addHistogram( new TH1F(Form("%s_%s_dphi",pref,name) ,     Form("%s_%s_dphi;d#phi(#mu_{1,2});Candidates",pref,detTitle) ,     32, m_dphi_min,m_dphi_max) );
         addHistogram( new TH1F(Form("%s_%s_deta",pref,name) ,     Form("%s_%s_deta;d#eta(#mu_{1,2});Candidates",pref,detTitle) ,     30, m_deta_min,m_deta_max) );
         addHistogram( new TH1F(Form("%s_%s_pTsum",pref,name) ,    Form("%s_%s_pTsum;#Sigmap_{T}(#mu_{1,2})[GeV];Candidates",pref,detTitle) ,    nptmumus,ptmumus) );
-        addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[GeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
+        addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[MeV];Candidates",pref,detTitle) ,    200, m_oniamass_min,m_oniamass_max) );
         addHistogram( new TH1F(Form("%s_%s_fitchi2",pref,name) ,  Form("%s_%s_fitchi2;#chi^{2}(#mu#mu);Candidates",pref,detTitle) ,    50, 0.,20.) );
     }
 
