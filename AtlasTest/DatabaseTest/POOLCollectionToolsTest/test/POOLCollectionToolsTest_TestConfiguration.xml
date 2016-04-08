@@ -78,30 +78,6 @@
       </expectations>
    </TEST>
 
-   <TEST name="tagMerge" type="script" suite="POOLCollectionToolsTest-Event">
-      <doc>Check script for merging tag files 1-1 (Atlas POOL). Straight. Should work.</doc>
-      <classification>
-       <displayClass>OfflineValidation</displayClass>
-       <displayProcess>Database</displayProcess>
-       <displayComponent>Atlas-POOL</displayComponent>
-      </classification>
-      <options_atn>${ATN_PACKAGE}/test/run_tagMerge</options_atn>
-      <timelimit>15</timelimit>
-      <author>JackCranshaw</author>
-      <mailto>cranshaw@anl.gov</mailto>
-      <expectations>
-         <errorMessage>Exception: </errorMessage>
-         <errorMessage>ERROR </errorMessage>
-         <errorMessage>ERROR: </errorMessage>
-         <errorMessage>Error: </errorMessage>
-         <errorMessage>Exception </errorMessage>
-         <successMessage>1 total events </successMessage>
-         <successMessage>Metadata entries: 15</successMessage>
-         <successMessage>OK</successMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
    <TEST name="ListFileGUID" type="script" suite="POOLCollectionToolsTest-Event">
       <doc>Check POOL tool for dumping GUID's`</doc>
       <classification>
