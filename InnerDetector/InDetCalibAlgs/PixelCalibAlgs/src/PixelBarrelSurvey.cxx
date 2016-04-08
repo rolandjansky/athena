@@ -53,23 +53,23 @@ PixelBarrelSurvey::PixelBarrelSurvey(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode PixelBarrelSurvey::initialize(){
 
-  msg(MSG::INFO) << "initialize()" << endmsg;
+  msg(MSG::INFO) << "initialize()" << endreq;
 
   std::string managerName("Pixel");
   if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixmgr,managerName) ) {
-    msg(MSG::FATAL) << "PixelDetectorManager not found" << endmsg;
+    msg(MSG::FATAL) << "PixelDetectorManager not found" << endreq;
     return StatusCode::FAILURE;
   }
 
   if( StatusCode::SUCCESS!= detStore()->retrieve( m_pixelID, "PixelID" ) ){
-    msg(MSG::FATAL) << "Unable to retrieve pixel ID helper" << endmsg;
+    msg(MSG::FATAL) << "Unable to retrieve pixel ID helper" << endreq;
     return StatusCode::FAILURE;
   }
 
   /*
   if (StatusCode::SUCCESS!=
       p_toolsvc->retrieveTool("InDetAlignDBTool",p_iddbtool)) {
-      msg(MSG::FATAL) << "InDetAlignDBTool not found" << endmsg;
+      msg(MSG::FATAL) << "InDetAlignDBTool not found" << endreq;
     return StatusCode::FAILURE;
   }
   p_iddbtool->createDB();
@@ -77,26 +77,26 @@ StatusCode PixelBarrelSurvey::initialize(){
   // Load the map for production module <-> Athena ID conversion
   std::string file_name = PathResolver::find_file (m_mappingDataFile, "DATAPATH");
   if (file_name.size()==0) {
-    msg(MSG::FATAL) << "Mapping File: " << m_mappingDataFile << " not found!" << endmsg;
+    msg(MSG::FATAL) << "Mapping File: " << m_mappingDataFile << " not found!" << endreq;
     return StatusCode::FAILURE;
   } 
 
   int sc = PixelConvert::ReadMap(file_name);
   if ( sc ) {
-    msg(MSG::FATAL) << "Error in accessing file " << file_name << endmsg;
+    msg(MSG::FATAL) << "Error in accessing file " << file_name << endreq;
     return StatusCode::FAILURE;
   }
 
   // Load the container for the survey transform
   file_name = PathResolver::find_file (m_surveyDataFile, "DATAPATH");
   if (file_name.size()==0) {
-    msg(MSG::FATAL) << "Survey File: " << m_surveyDataFile << " not found!" << endmsg;
+    msg(MSG::FATAL) << "Survey File: " << m_surveyDataFile << " not found!" << endreq;
     return StatusCode::FAILURE;
   } 
 
   std::ifstream in(file_name.c_str());
   if ( !in.good() ) {
-    msg(MSG::FATAL) << "Error in opening file " << file_name << endmsg;
+    msg(MSG::FATAL) << "Error in opening file " << file_name << endreq;
     return StatusCode::FAILURE;
   }
   PixelBarrelSurveyUtils::StaveStruct *stave;
@@ -106,14 +106,14 @@ StatusCode PixelBarrelSurvey::initialize(){
   }
   if ( in.bad() ) msg(MSG::ERROR) << "Error reading file " << file_name;
   else msg(MSG::INFO) << "Reached end of file " << file_name;
-  msg() << " after " << m_staves.size() << " staves" << endmsg;
+  msg() << " after " << m_staves.size() << " staves" << endreq;
   in.close();
 
   m_transforms = new AlignableTransform(m_tag);
   m_distorsions = new DetCondCFloat(m_distosize,m_tag);
 
   if ( !m_transforms || !m_distorsions ) {
-    msg(MSG::FATAL) << "Unable to initialize transform objects" << endmsg;
+    msg(MSG::FATAL) << "Unable to initialize transform objects" << endreq;
   }
 
   return StatusCode::SUCCESS;
@@ -124,7 +124,7 @@ StatusCode PixelBarrelSurvey::initialize(){
 StatusCode PixelBarrelSurvey::execute() {
 
 // Part 1: Get the messaging service, print where you are
-  if(msgLvl(MSG::INFO)) msg() << "execute()" << endmsg;
+  if(msgLvl(MSG::INFO)) msg() << "execute()" << endreq;
   
 // Part 2: Print out the different levels of messages
   std::vector<PixelBarrelSurveyUtils::StaveStruct>::iterator theStave=m_staves.begin();
@@ -162,7 +162,7 @@ StatusCode PixelBarrelSurvey::execute() {
     }
     theStave++;
   }
-  delete[] disto;
+  delete disto;
   
   m_transforms->sortv();
 
@@ -173,7 +173,7 @@ StatusCode PixelBarrelSurvey::execute() {
 
 StatusCode PixelBarrelSurvey::finalize() {
 
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  msg(MSG::INFO) << "finalize()" << endreq;
 
   std::ofstream outfile(m_outputDataFile.c_str());
   outfile.precision(7);

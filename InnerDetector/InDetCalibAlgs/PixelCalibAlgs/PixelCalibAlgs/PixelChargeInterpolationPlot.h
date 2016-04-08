@@ -15,8 +15,6 @@ namespace PixelCalib{
 
 class PixelChargeInterpolationParameters;
 
-class PixelChargeInterpolationPlot;
-
 class PixelChargeInterpolationPlot{
 
 public :

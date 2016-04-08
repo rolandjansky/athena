@@ -16,7 +16,6 @@ namespace PixelCalib{
 class PixelChargeInterpolationCalibration;
 class PixelChargeInterpolationValidation;
 
-class OfflineCalibrationLoop;
 
 class OfflineCalibrationLoop: public PixelNtupleTracks {
 

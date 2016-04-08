@@ -16,8 +16,6 @@ template <class ht> class MultiHisto;
 
 namespace PixelCalib{
 
-class PixelResidualHistograms;
-
 class PixelResidualHistograms{
 
 public:

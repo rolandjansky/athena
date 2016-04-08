@@ -383,7 +383,6 @@ void PixelClusterOnTrackErrorPlot::DrawAxis(float y1, float y2, float x1, float 
 		axtitle = "#eta_{i}";
 		divider = m_histogramsX->size();
 	}
-  if (!axbins) { return; }
 
 	float stdtextsize = 0.05;
 	int stdfont = 42;

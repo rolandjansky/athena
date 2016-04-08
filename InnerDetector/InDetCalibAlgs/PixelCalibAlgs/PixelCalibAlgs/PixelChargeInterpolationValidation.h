@@ -15,8 +15,6 @@ namespace PixelCalib{
 class PixelResidualHistograms;
 class PixelChargeInterpolationParameters;
 
-class PixelChargeInterpolationValidation;
-
 class PixelChargeInterpolationValidation{
 
 public:

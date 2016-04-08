@@ -17,8 +17,6 @@ class PixelChargeInterpolationHistograms;
 class PixelChargeInterpolationPlot;
 class PixelChargeInterpolationParameters;
 
-class PixelChargeInterpolationCalibration;
-
 class PixelChargeInterpolationCalibration{
 
 public :
