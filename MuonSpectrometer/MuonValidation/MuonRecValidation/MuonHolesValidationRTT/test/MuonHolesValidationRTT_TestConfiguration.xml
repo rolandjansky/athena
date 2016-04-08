@@ -1,0 +1,357 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+   <rttContactPerson>Giuseppe Salamanna (Giuseppe.Salamanna@cern.ch)</rttContactPerson>
+   <mailto>Giuseppe.Salamanna@cern.ch</mailto>
+   <refRelease>13.0.10</refRelease>
+   
+   <jobList>       
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Det-Muon</displayComponent>
+      </classification>
+
+      <athena userJobId="MuonHolesValidationRTT_ZMuMu">
+         <doc>Tests hole search in the muon spectrometer with Muonboy, Z-->mumu with pile-up SF5 sample</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-CSC-01-02-00"</commandLineFlags>
+         <options>MuonRec_myTopOptions_mboy.py</options>
+         <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonHolesValidationRTT</package>
+         <group>MuonHolesValidationRTT-Mboy-zmumu-sf05-csc-01-02-00</group>
+         <queue>long</queue>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00001.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00002.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00003.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00004.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00005.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00006.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00007.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00008.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00009.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00010.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="MuonHolesValidationRTT_JPsiMuMu">
+	<doc>Tests hole search in the muon spectrometer with Muonboy, Jpsi-->mumu sample</doc>
+        <commandLineFlags>DetDescrVersion="ATLAS-CSC-01-02-00"</commandLineFlags>
+        <options>MuonRec_myTopOptions_mboy.py</options>
+        <group>MuonHolesValidationRTT-Mboy-Jpsi-csc-01-02-00</group>
+        <queue>long</queue>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00001.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00002.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00003.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00004.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00005.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00006.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00007.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00008.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00009.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00010.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00011.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00012.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00013.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00014.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00015.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00016.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00017.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00018.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00019.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00020.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00021.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00022.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00023.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00024.pool.root.3</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00025.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00026.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00027.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00028.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00029.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00030.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00031.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00032.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00033.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00034.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00035.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00036.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00037.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00038.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00039.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00040.pool.root.1</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00041.pool.root.2</dataset>
+        <dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00042.pool.root.2</dataset>
+      </athena>
+
+      <athena userJobId="MuonHolesValidationRTT_SingleMU_pt100">
+         <doc>Tests hole search in the muon spectrometer with Muonboy, pt=100GeV single mu sample</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-GEO-02-00-00"</commandLineFlags>
+         <options>MuonRec_myTopOptions_mboy.py</options>
+         <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonHolesValidationRTT</package>
+         <group>MuonHolesValidationRTT-Mboy-singleMu100gev-geo-02-00-00</group>
+         <queue>long</queue>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00001.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00002.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00003.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00004.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00005.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00006.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00007.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00008.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00009.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00010.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00011.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00012.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00013.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00014.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00015.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00016.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00017.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00018.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00019.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00020.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00021.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00022.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00023.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00024.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00025.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00026.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00027.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00028.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00029.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00030.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00031.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00032.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00033.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00034.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00035.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00036.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00037.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00038.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00039.pool.root</dataset>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00040.pool.root</dataset>
+      </athena>
+
+      <athena userJobId="MuonHolesValidationRTT_T1">
+	 <doc>Tests hole search in the muon spectrometer with Mboy, T1 sample</doc>
+	 <commandLineFlags>DetDescrVersion="ATLAS-GEO-02-01-00"</commandLineFlags>
+         <options>MuonRec_myTopOptions_mboy.py</options>
+         <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonHolesValidationRTT</package>
+         <group>MuonHolesValidationRTT-Mboy-ttbar-geo-02-01-00</group>
+         <queue>long</queue>
+	 <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00001.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00002.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00003.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00004.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00005.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00006.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00007.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00008.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00009.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00010.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00011.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00012.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00013.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00014.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00015.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00016.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00017.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00018.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00019.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00020.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="MuonHolesValidationRTT_ZMuMu_PileUp">
+         <doc>Tests hole search in the muon spectrometer with Moore, Z-->mumu with pile-up SF5 sample</doc>
+         <commandLineFlags>DetDescrVersion="ATLAS-CSC-01-02-00"</commandLineFlags>
+         <options>MuonRec_myTopOptions_moore.py</options>
+         <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonHolesValidationRTT</package>
+         <group>MuonHolesValidationRTT-Momu-zmumu-sf05-csc-01-02-00</group>
+         <queue>long</queue>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00001.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00002.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00003.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00004.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00005.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00006.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00007.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00008.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00009.pool.root.1</dataset>
+         <dataset>/castor/cern.ch/user/r/rtt/RTTdata/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605/pile1sf05_misal1_csc11.005145.PythiaZmumu.digit.RDO.v12000605_tid008668._00010.pool.root.1</dataset>
+      </athena>
+
+      <athena userJobId="MuonHolesValidationRTT_Moore_JSpiMuMu">
+	<doc>Tests hole search in the muon spectrometer with Moore, Jpsi-->mumu sample</doc>
+	<commandLineFlags>DetDescrVersion="ATLAS-CSC-01-02-00"</commandLineFlags>
+	<options>MuonRec_myTopOptions_moore.py</options>
+	<group>MuonHolesValidationRTT-Moore-Jpsi-csc-01-02-00</group>
+	<queue>long</queue>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00001.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00002.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00003.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00004.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00005.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00006.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00007.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00008.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00009.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00010.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00011.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00012.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00013.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00014.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00015.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00016.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00017.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00018.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00019.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00020.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00021.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00022.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00023.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00024.pool.root.3</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00025.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00026.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00027.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00028.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00029.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00030.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00031.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00032.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00033.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00034.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00035.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00036.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00037.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00038.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00039.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00040.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00041.pool.root.2</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/dq2/misal1_mc12/RDO/misal1_mc12.017504.Pythia_directJpsimu4mu4.digit.RDO.v12000702_tid015083/RDO.015083._00042.pool.root.2</dataset>
+      </athena>
+
+      <athena userJobId="MuonHolesValidationRTT_Moore_singleMu_pt100">
+	<doc>Tests hole search in the muon spectrometer with Moore, pt=100GeV single mu sample</doc>
+	<commandLineFlags>DetDescrVersion="ATLAS-GEO-02-00-00"</commandLineFlags>
+	<options>MuonRec_myTopOptions_moore.py</options>
+	<package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonHolesValidationRTT</package>
+	<group>MuonHolesValidationRTT-Moore-singleMu100gev-geo-02-00-00</group>
+	<queue>long</queue>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00001.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00002.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00003.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00004.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00005.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00006.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00007.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00008.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00009.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00010.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00011.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00012.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00013.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00014.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00015.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00016.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00017.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00018.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00019.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00020.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00021.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00022.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00023.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00024.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00025.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00026.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00027.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00028.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00029.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00030.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00031.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00032.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00033.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00034.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00035.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00036.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00037.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00038.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00039.pool.root</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/muon/140400/ATLAS-GEO-02-00-00/Muon100GeV/digit/job1/rdo/Muon100GeV.ATLAS-GEO-02-00-00.RDO.v140400._00040.pool.root</dataset>
+      </athena>
+      <athena userJobId="MuonHolesValidationRTT_Moore_T1">
+	<doc>Tests hole search in the muon spectrometer with Moore, T1 sample</doc>
+	<commandLineFlags>DetDescrVersion="ATLAS-GEO-02-01-00"</commandLineFlags>
+	<options>MuonRec_myTopOptions_moore.py</options>
+	<package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonHolesValidationRTT</package>
+	<group>MuonHolesValidationRTT-Moore-ttbar-geo-02-01-00</group>
+	<queue>long</queue>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00001.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00002.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00003.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00004.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00005.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00006.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00007.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00008.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00009.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00010.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00011.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00012.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00013.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00014.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00015.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00016.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00017.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00018.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00019.pool.root.1</dataset>
+	<dataset>/castor/cern.ch/grid/atlas/atlasgroupdisk/proj-sit/willocq/valid3.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s483/RDO.027327._00020.pool.root.1</dataset>
+      </athena>
+   </jobList> 
+
+   <jobGroups> 
+      <jobGroup name="AthenaMuonHolesValidationRTT-Mboy-zmumu-sf05-csc-01-02-00" parent="Athena">
+          <keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+          <keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup> 
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Mboy-Jpsi-csc-01-02-00" parent="Athena">
+          <keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+          <keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup>
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Mboy-singleMu100gev-geo-02-00-00" parent="Athena">
+          <keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+          <keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup> 
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Mboy-ttbar-geo-02-01-00" parent="Athena">
+	<keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+	<keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup> 
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Momu-zmumu-sf05-csc-01-02-00" parent="Athena">
+          <keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+          <keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup> 
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Moore-Jpsi-csc-01-02-00" parent="Athena">
+          <keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+          <keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup>
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Moore-singleMu100gev-geo-02-00-00" parent="Athena">
+          <keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+          <keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup> 
+
+      <jobGroup name="AthenaMuonHolesValidationRTT-Moore-ttbar-geo-02-01-00" parent="Athena">
+	<keepFilePattern displayColor="blue">CalibrationNtuple.root</keepFilePattern>
+	<keepFilePattern>TrackAnalysis.root</keepFilePattern>
+      </jobGroup> 
+
+   </jobGroups>
+
+</rtt>
+</unifiedTestConfiguration>
