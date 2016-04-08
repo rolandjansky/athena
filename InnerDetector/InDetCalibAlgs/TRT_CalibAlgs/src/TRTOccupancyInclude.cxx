@@ -42,7 +42,7 @@ StatusCode TRTOccupancyInclude::initialize()
 
 StatusCode TRTOccupancyInclude::execute()
 {
-  msg(MSG::DEBUG) << "execute()" << endmsg;
+  msg(MSG::DEBUG) << "execute()" << endreq;
 
   const xAOD::EventInfo* eventInfo = 0;
   if (evtStore()->retrieve(eventInfo).isFailure()) {
@@ -82,6 +82,6 @@ StatusCode TRTOccupancyInclude::execute()
 
 StatusCode TRTOccupancyInclude::finalize()
 {
-  msg(MSG::INFO) << "finalise()" << endmsg;
+  msg(MSG::INFO) << "finalise()" << endreq;
   return StatusCode::SUCCESS;
 }

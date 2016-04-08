@@ -85,47 +85,47 @@ StatusCode InDet::TRT_StrawStatus::initialize()
     
     StatusCode sc = detStore()->retrieve(m_TRTHelper, "TRT_ID");
     if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endmsg;
+        msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endreq;
         return sc;        
     } else {
-        msg(MSG::INFO) << "retrieved m_TRTHelper " << m_TRTHelper << endmsg;  
+        msg(MSG::INFO) << "retrieved m_TRTHelper " << m_TRTHelper << endreq;  
     }
     
     sc = m_TRTStrawNeighbourSvc.retrieve() ;
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Could not find TRTStrawNeighbourSvc " << endmsg;    
+        msg(MSG::ERROR) << "Could not find TRTStrawNeighbourSvc " << endreq;    
         return sc;
     } else {
-        msg(MSG::INFO) << "retrieved TRTStrawNeighbourSvc " << m_TRTStrawNeighbourSvc << endmsg;
+        msg(MSG::INFO) << "retrieved TRTStrawNeighbourSvc " << m_TRTStrawNeighbourSvc << endreq;
     }
     
     if ( m_trt_hole_finder.retrieve().isFailure() ){
         ATH_MSG_FATAL( "Failed to retrieve the TRTTrackHoleSearchTool." );
         return StatusCode::FAILURE;
     } else {
-        msg(MSG::INFO) << "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder << endmsg;
+        msg(MSG::INFO) << "retrieved TRTTrackHoleSearchTool " << m_trt_hole_finder << endreq;
     }       
    if(m_updator.retrieve().isFailure()) {
 	   ATH_MSG_FATAL( "Could not retrieve measurement updator tool." );
 	   return StatusCode::FAILURE;
 	} else {
-		msg(MSG::INFO) << "retrieved Trk::KalmanUpdator to calculate unbiased track states " << m_updator << endmsg; 
+		msg(MSG::INFO) << "retrieved Trk::KalmanUpdator to calculate unbiased track states " << m_updator << endreq; 
 	}
     sc = m_mapSvc.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Failed to retrieve m_mapSvc." << endmsg;
+        msg(MSG::ERROR) << "Failed to retrieve m_mapSvc." << endreq;
            return sc;
     } else {
-        msg(MSG::INFO) << "retrieved m_mapSvc " << m_mapSvc << endmsg;
+        msg(MSG::INFO) << "retrieved m_mapSvc " << m_mapSvc << endreq;
     }
     sc = m_DCSSvc.retrieve();
         if (sc.isFailure()){
-        msg(MSG::ERROR) << "Failed to retrieve m_DCSSvc" << endmsg;
+        msg(MSG::ERROR) << "Failed to retrieve m_DCSSvc" << endreq;
         return sc;
     } else {
-        msg(MSG::INFO) << "retrieved m_DCSSvc " << m_DCSSvc << endmsg;
+        msg(MSG::INFO) << "retrieved m_DCSSvc " << m_DCSSvc << endreq;
     }
-    msg(MSG::INFO) << "initialize() successful in " << name() << ", retrieved: ..., locR_cut = " << m_locR_cut << " mm." << endmsg;
+    msg(MSG::INFO) << "initialize() successful in " << name() << ", retrieved: ..., locR_cut = " << m_locR_cut << " mm." << endreq;
     return sc;
 }
 
@@ -144,7 +144,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
     const xAOD::EventInfo *eventInfo = 0;
     StatusCode sc = evtStore()->retrieve(eventInfo); 
     if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Unable to retrieve Event Info " << endmsg;
+        msg(MSG::ERROR) << "Unable to retrieve Event Info " << endreq;
         return sc;
     } 
     int runNumber = (int) eventInfo->runNumber();  
@@ -156,13 +156,13 @@ StatusCode InDet::TRT_StrawStatus::execute(){
     const TRT_RDO_Container* rdoContainer; // container of all TRT hits
     sc = evtStore()->retrieve(rdoContainer, "TRT_RDOs");
     if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "no TRT_RDO container available " << endmsg;
+        msg(MSG::ERROR) << "no TRT_RDO container available " << endreq;
         return sc;
     }
     const DataVector<Trk::Track> *trkCollection; // track collection
     sc = evtStore()->retrieve( trkCollection, m_tracksName );
     if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not find Tracks Collection: " << m_tracksName << endmsg;
+        msg(MSG::ERROR) << "Could not find Tracks Collection: " << m_tracksName << endreq;
         return sc;
     }   
     
@@ -170,7 +170,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
     
     const VxContainer* vxContainer(0); // require at least one primary vertex with at least three tracks
     sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate");
-    if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endmsg; 
+    if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endreq; 
     } else {
         int countVertices(0);
         for (VxContainer::const_iterator it = vxContainer->begin() ; it != vxContainer->end() ; ++it ) {
@@ -189,12 +189,12 @@ StatusCode InDet::TRT_StrawStatus::execute(){
             }
         }
         if (countRDOhitsInEvent>100000) {
-            if (msgLvl(MSG::INFO)) msg() << "N RDO hits in event greater than 100000: " << countRDOhitsInEvent << ", exiting" << endmsg;
+            if (msgLvl(MSG::INFO)) msg() << "N RDO hits in event greater than 100000: " << countRDOhitsInEvent << ", exiting" << endreq;
             return sc;
         }
         
         if (trkCollection->size() > 10) {
-            if (msgLvl(MSG::INFO)) msg() << "N tracks greater than 10: " << trkCollection->size() << ", exiting" << endmsg;
+            if (msgLvl(MSG::INFO)) msg() << "N tracks greater than 10: " << trkCollection->size() << ", exiting" << endreq;
             return sc;
         }
     }
@@ -209,15 +209,15 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         const Trk::Track *track = *trackIt;
         //=== select track
         const Trk::Perigee* perigee = (*trackIt)->perigeeParameters();
-        if ( perigee == 0 ) { msg(MSG::ERROR) << "Trk::Perigee missing" << endmsg; continue; }
+        if ( perigee == 0 ) { msg(MSG::ERROR) << "Trk::Perigee missing" << endreq; continue; }
         if ( fabs(perigee->pT())/CLHEP::GeV < 1. ) continue; // 1 GeV pT cut
         
         const DataVector<const Trk::TrackStateOnSurface>* trackStates = (**trackIt).trackStateOnSurfaces();
-        if ( trackStates == 0 ) { msg(MSG::ERROR) << "Trk::TrackStateOnSurface empty" << endmsg; continue; }
+        if ( trackStates == 0 ) { msg(MSG::ERROR) << "Trk::TrackStateOnSurface empty" << endreq; continue; }
         
         int n_pixel_hits(0), n_sct_hits(0), n_trt_hits(0);  // count hits, require minimal number of all hits 
         for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); trackStatesIt++ ) {
-            if ( *trackStatesIt == 0 ) { msg(MSG::ERROR) << "*trackStatesIt == 0" << endmsg; continue; }
+            if ( *trackStatesIt == 0 ) { msg(MSG::ERROR) << "*trackStatesIt == 0" << endreq; continue; }
 
             if ( !((*trackStatesIt)->type(Trk::TrackStateOnSurface::Measurement)) ) continue; // this skips outliers
             
@@ -233,7 +233,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         
         for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = trackStates->begin(); trackStatesIt != trackStates->end(); trackStatesIt++ ) {
             
-            if ( *trackStatesIt == 0 ) { msg(MSG::ERROR) << "*trackStatesIt == 0" << endmsg; continue; }
+            if ( *trackStatesIt == 0 ) { msg(MSG::ERROR) << "*trackStatesIt == 0" << endreq; continue; }
 
             if ( !((*trackStatesIt)->type(Trk::TrackStateOnSurface::Measurement)) ) continue; // this skips outliers
 
@@ -248,7 +248,7 @@ StatusCode InDet::TRT_StrawStatus::execute(){
 			if ( fabs(unbiased_locR) > m_locR_cut ) continue; // same cut as the default hole search cut
     
             const InDet::TRT_DriftCircle *driftCircle = driftCircleOnTrack->prepRawData();
-            if ( driftCircle == 0 ) { msg(MSG::ERROR) << "driftCircle == 0" << endmsg; continue; }
+            if ( driftCircle == 0 ) { msg(MSG::ERROR) << "driftCircle == 0" << endreq; continue; }
             
             Identifier id = driftCircle->identify();
             int index[6]; myStrawIndex(id, index); // side, layer, phi, straw_layer, straw_within_layer, straw_index
@@ -263,13 +263,13 @@ StatusCode InDet::TRT_StrawStatus::execute(){
         if ( holes==0 ) continue; // no holes found
         for ( DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStatesIt = holes->begin(); trackStatesIt != holes->end(); trackStatesIt++ ) {
             
-            if ( !(*trackStatesIt)->type(   Trk::TrackStateOnSurface::Hole  )  ) { msg(MSG::ERROR) << "m_trt_hole_finder returned something that is not a hole" << endmsg; continue; }
+            if ( !(*trackStatesIt)->type(   Trk::TrackStateOnSurface::Hole  )  ) { msg(MSG::ERROR) << "m_trt_hole_finder returned something that is not a hole" << endreq; continue; }
             
             const Trk::TrackParameters* track_parameters = (*trackStatesIt)->trackParameters();
-            if (!track_parameters) { msg(MSG::WARNING) << "m_trt_hole_finder track_parameters missing" << endmsg; continue; }
+            if (!track_parameters) { msg(MSG::WARNING) << "m_trt_hole_finder track_parameters missing" << endreq; continue; }
             
             Identifier id = track_parameters->associatedSurface().associatedDetectorElementIdentifier();
-            if ( !(m_TRTHelper->is_trt(id)) ) { msg(MSG::ERROR) << "m_trt_hole_finder returned something that is not a TRT hole" << endmsg; continue; }
+            if ( !(m_TRTHelper->is_trt(id)) ) { msg(MSG::ERROR) << "m_trt_hole_finder returned something that is not a TRT hole" << endreq; continue; }
 
             // add se same 1.4 mm locR selection, in case it is not on by default 
             if ( fabs( track_parameters->parameters()[Trk::locR] ) > m_locR_cut ) continue;
@@ -357,7 +357,7 @@ void InDet::TRT_StrawStatus::clear() {
 }
 
 void InDet::TRT_StrawStatus::reportResults() {
-    msg(MSG::INFO) << "InDet::TRT_StrawStatus::reportResults() for " << m_nEvents << " events." << endmsg;
+    msg(MSG::INFO) << "InDet::TRT_StrawStatus::reportResults() for " << m_nEvents << " events." << endreq;
     char fileName[300]; sprintf(fileName, "%s.%07d_newFormat.txt", m_fileName.c_str(), m_runNumber);
     FILE *f = fopen(fileName, "w");
     fprintf(f, "%d %d %d %d %d %d %d %d %d \n", 0, 0, 0, 0, 0, 0, 0, 0, m_nEvents);
@@ -373,7 +373,7 @@ void InDet::TRT_StrawStatus::reportResults() {
 }  
 
 void InDet::TRT_StrawStatus::printDetailedInformation() {
-    msg(MSG::INFO) << "InDet::TRT_StrawStatus::printDetailedInformation() " << endmsg;
+    msg(MSG::INFO) << "InDet::TRT_StrawStatus::printDetailedInformation() " << endreq;
     char fileName[300]; sprintf(fileName, "%s.%07d_printDetailedInformation.txt", m_fileName.c_str(), m_runNumber);
     FILE *f = fopen(fileName, "w");
     for (std::vector<Identifier>::const_iterator it = m_TRTHelper->straw_layer_begin(); it != m_TRTHelper->straw_layer_end(); it++  ) {
@@ -386,9 +386,9 @@ void InDet::TRT_StrawStatus::printDetailedInformation() {
             m_TRTStrawNeighbourSvc->getPad(id, HVpad);
             static int printStatusCount(0);
             if (!printStatusCount) {
-                msg(MSG::INFO) << "if the code crashes on the next line, there is a problem with m_TRTStrawStatusSummarySvc not being loaded " << endmsg;
-                msg(MSG::INFO) << "in that case, running with reco turned on normally solves the problem, know of no better solution at the moment" << endmsg;
-                                msg(MSG::INFO) << "if you do not need the detailed print information, you can also just set printDetailedInformation to 0 to avoid this crash" << endmsg; 
+                msg(MSG::INFO) << "if the code crashes on the next line, there is a problem with m_TRTStrawStatusSummarySvc not being loaded " << endreq;
+                msg(MSG::INFO) << "in that case, running with reco turned on normally solves the problem, know of no better solution at the moment" << endreq;
+                                msg(MSG::INFO) << "if you do not need the detailed print information, you can also just set printDetailedInformation to 0 to avoid this crash" << endreq; 
                 printStatusCount++;
             }
             int status = m_TRTStrawStatusSummarySvc->get_status( id );  

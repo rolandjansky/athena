@@ -72,27 +72,27 @@ TRTCalibrationMgr::~TRTCalibrationMgr(void)
 
 StatusCode TRTCalibrationMgr::initialize()
 {
-  msg(MSG::INFO) << "initialize()" << endmsg;
+  msg(MSG::INFO) << "initialize()" << endreq;
 
   if (m_docalibrate) {
     if( !m_TRTCalibTools.size() || m_TRTCalibTools.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Cannot get Calibration tool " << m_TRTCalibTools << endmsg;
+      msg(MSG::FATAL) << "Cannot get Calibration tool " << m_TRTCalibTools << endreq;
       return StatusCode::FAILURE;
     } 
   } else {
     if( !m_TrackInfoTools.size() || m_TrackInfoTools.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Cannot get TrackInfo filler tool " << m_TrackInfoTools << endmsg;
+      msg(MSG::FATAL) << "Cannot get TrackInfo filler tool " << m_TrackInfoTools << endreq;
       return StatusCode::FAILURE;
     }
   }
   
   if( !m_FitTools.size() || m_FitTools.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Cannot get Fit tools " << m_FitTools << endmsg;
+    msg(MSG::FATAL) << "Cannot get Fit tools " << m_FitTools << endreq;
     return StatusCode::FAILURE;
   }
 
   if(m_trackFitter.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackFitter << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackFitter << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -100,19 +100,19 @@ StatusCode TRTCalibrationMgr::initialize()
   msg(MSG::INFO) << "Tracks from Trk::Track collection(s):";
   for (unsigned int i=0;i<m_TrkCollections.size();i++)
     msg(MSG::INFO) << "\n\t" << m_TrkCollections[i];
-  msg(MSG::INFO) << endmsg;
+  msg(MSG::INFO) << endreq;
 
      // Get the Track Selector Tool
   if ( !m_trackSelector.empty() ) {
       StatusCode sc = m_trackSelector.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are written to the ntuple) "<< endmsg;
-        msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endmsg;
+        msg(MSG::FATAL) << "Could not retrieve "<< m_trackSelector <<" (to select the tracks which are written to the ntuple) "<< endreq;
+        msg(MSG::INFO) << "Set the ToolHandle to None if track selection is supposed to be disabled" << endreq;
         return sc;
       }
    }
 
-   msg(MSG::INFO) <<"Track Selector retrieved" << endmsg;
+   msg(MSG::INFO) <<"Track Selector retrieved" << endreq;
 
 
   m_ntrk=0;
@@ -126,7 +126,7 @@ StatusCode TRTCalibrationMgr::execute()
 {
   
   if (m_docalibrate){
-    msg(MSG::INFO) << "skipping execute() calibrating instead" << endmsg;
+    msg(MSG::INFO) << "skipping execute() calibrating instead" << endreq;
     m_TRTCalibTools[0]->calibrate();
     return StatusCode::SUCCESS;
   }
@@ -140,13 +140,13 @@ StatusCode TRTCalibrationMgr::execute()
 /*
   const VxContainer* vxContainer(0);
   StatusCode sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate");
-  if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endmsg; }
+  if ( sc.isFailure() ) { msg(MSG::ERROR) << "vertex container missing!" << endreq; }
   else {
     int countVertices(0);
     for (VxContainer::const_iterator it = vxContainer->begin() ; it != vxContainer->end() ; ++it ) {
       if ( (*it)->vxTrackAtVertex()->size() >= 3 ) countVertices++;
     }
-    if (countVertices < 1) {msg(MSG::INFO) << "no vertices found" << endmsg;}// return sc;}
+    if (countVertices < 1) {msg(MSG::INFO) << "no vertices found" << endreq;}// return sc;}
   }
 */
 
@@ -164,13 +164,13 @@ StatusCode TRTCalibrationMgr::execute()
     }
   }
   if (countVertices < 1) {
-        msg(MSG::INFO) << "no vertices found" << endmsg;
+        msg(MSG::INFO) << "no vertices found" << endreq;
         return StatusCode::SUCCESS;
   }
 
   // get event info pointer
   if ((evtStore()->retrieve(m_EventInfo)).isFailure()) {
-    msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endmsg;
+    msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -185,7 +185,7 @@ StatusCode TRTCalibrationMgr::execute()
   ComTime* theComTime(0);
   StatusCode sc = evtStore()->retrieve(theComTime, "TRT_Phase");
   if(sc.isFailure()){
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ComTime object not found with name TRT_Phase !!!" << endmsg;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ComTime object not found with name TRT_Phase !!!" << endreq;
     eventPhase = -1;//invalid, reject track 
   }
   
@@ -194,7 +194,7 @@ StatusCode TRTCalibrationMgr::execute()
   }
   
   if(eventPhase==0) {
-    msg(MSG::INFO) << "no skipping event, event phase = 0" << endmsg; 
+    msg(MSG::INFO) << "no skipping event, event phase = 0" << endreq; 
 //    return StatusCode::SUCCESS;
   }
 
@@ -209,20 +209,20 @@ StatusCode TRTCalibrationMgr::execute()
       //      if (trks->size()>100){
       
       if(trks->size()<3) {
-	msg(MSG::INFO) << "skipping event, it contains only " << trks->size() << " tracks (less than 3)" << endmsg; 
+	msg(MSG::INFO) << "skipping event, it contains only " << trks->size() << " tracks (less than 3)" << endreq; 
 	return StatusCode::SUCCESS;
       }
 
 
       if(trks->size()>m_max_ntrk) {
-	        msg(MSG::INFO) << "skipping event, it contains " << trks->size() << " tracks, more than max: " << m_max_ntrk  << endmsg;
+	        msg(MSG::INFO) << "skipping event, it contains " << trks->size() << " tracks, more than max: " << m_max_ntrk  << endreq;
 	        return StatusCode::SUCCESS;
       }
 
       for (t=trks->begin();t!=trks->end();++t) {
-	        //msg(MSG::INFO) << "Tracks seees "  << endmsg;
+	        //msg(MSG::INFO) << "Tracks seees "  << endreq;
         if ( m_trackSelector->decision(*(*t), 0)) {
-	        //msg(MSG::INFO) << "Tracks ACCEPTED "  << endmsg;
+	        //msg(MSG::INFO) << "Tracks ACCEPTED "  << endreq;
    	   m_ntrk++;
 	   aTrack=*t;
 	
@@ -240,7 +240,7 @@ StatusCode TRTCalibrationMgr::execute()
 	     at[TRT::Track::event]=m_EventInfo->eventNumber();
 	     at[TRT::Track::trackNumber]=m_ntrk;
 	     if (msgLvl(MSG::DEBUG)) msg() << "  Track " << m_ntrk << " accepted Info: run="
-					   << at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endmsg;
+					   << at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endreq;
 	     for (unsigned int j=0;j<m_TrackInfoTools.size();j++)
 	       if (!m_TrackInfoTools[j]->fill(aTrack,&at)) break;
 	    if(m_dorefit)
@@ -260,7 +260,7 @@ StatusCode TRTCalibrationMgr::execute()
 
 StatusCode TRTCalibrationMgr::finalize()
 {
-  msg(MSG::INFO) << "finalise()" << endmsg;
+  msg(MSG::INFO) << "finalise()" << endreq;
   std::cout << "CALIBSTAT CM_TRKS: " << m_ntrk << std::endl;
   
   //argh this is insane ...
@@ -270,7 +270,7 @@ StatusCode TRTCalibrationMgr::finalize()
   std::vector<IdentifierProfileHistogram*> histograms;
   for (unsigned int j=0;j<m_TrackInfoTools.size();j++)
     if ((m_TrackInfoTools[j]->finalize()).isFailure()){
-      msg(MSG::FATAL) << "Error calling TrackInfo tool finalize " << endmsg;
+      msg(MSG::FATAL) << "Error calling TrackInfo tool finalize " << endreq;
       return StatusCode::FAILURE;
     }
   
