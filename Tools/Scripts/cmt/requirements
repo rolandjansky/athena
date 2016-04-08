@@ -22,7 +22,6 @@ use AtlasPolicy AtlasPolicy-*
 apply_pattern declare_scripts files="get_joboptions get_files \
   lookup_local_joboptions.sh \
   lookup_joboptions.sh lookup_scripts.sh lookup_xmls.sh lookup_data.sh \
-#  setup_completion.zsh setup_completion.tcsh setup_completion.bash \
    checkDbgSymbols.sh"
 
 # Source the tab completion script for jobOptions and other files
