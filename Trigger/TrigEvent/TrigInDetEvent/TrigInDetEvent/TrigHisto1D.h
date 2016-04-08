@@ -30,22 +30,25 @@ class TrigHisto1D: public TrigHisto {
   TrigHisto1D(unsigned int nbins_x, float min_x, float max_x);
 
   /** Constructor used by TrigHisto2D */
-  TrigHisto1D(unsigned int nbins_x, float min_x, float max_x, std::vector<float> contents);
+  TrigHisto1D(unsigned int nbins_x, float min_x, float max_x,
+              const std::vector<float>& contents);
 
   /** Destructor */
   virtual ~TrigHisto1D(void);
 
   /** Copy Constructor */
   TrigHisto1D(const TrigHisto1D& trigHisto);
+  TrigHisto1D(TrigHisto1D&& trigHisto);
 
   /** Assignment operator */
   TrigHisto1D& operator=(const TrigHisto1D& trigHisto);
+  TrigHisto1D& operator=(TrigHisto1D&& trigHisto);
 
   /** Fill a 1D histogram. */
   void fill(float value_x, float weight);
 
   /** Sum the number of entries within the cut range */
-  double sumEntries(float value_x, int cutType);
+  double sumEntries(float value_x, int cutType) const;
 
 };
 

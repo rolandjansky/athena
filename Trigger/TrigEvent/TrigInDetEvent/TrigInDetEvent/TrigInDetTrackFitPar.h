@@ -159,9 +159,55 @@ class TrigInDetTrackFitPar {
       } 
     }
 
+  /** Copy constructor. */
+  TrigInDetTrackFitPar (const TrigInDetTrackFitPar& rhs)
+    : m_a0 (rhs.m_a0),
+      m_phi0 (rhs.m_phi0),
+      m_z0 (rhs.m_z0),
+      m_eta (rhs.m_eta),
+      m_pT (rhs.m_pT),
+      m_ea0 (rhs.m_ea0),
+      m_ephi0 (rhs.m_ephi0),
+      m_ez0 (rhs.m_ez0),
+      m_eeta (rhs.m_eeta),
+      m_epT (rhs.m_epT),
+      m_surfaceType (rhs.m_surfaceType),
+      m_surfaceCoordinate (rhs.m_surfaceCoordinate)
+  {
+    if (rhs.m_cov)
+      m_cov = new std::vector<double> (*rhs.m_cov);
+    else
+      m_cov = nullptr;
+  }
+
+  /** Move assignment. */
+  TrigInDetTrackFitPar& operator= (TrigInDetTrackFitPar&& rhs)
+  {
+    if (this != &rhs) {
+      m_a0 = rhs.m_a0;
+      m_phi0 = rhs.m_phi0;
+      m_z0 = rhs.m_z0;
+      m_eta = rhs.m_eta;
+      m_pT = rhs.m_pT;
+      m_ea0 = rhs.m_ea0;
+      m_ephi0 = rhs.m_ephi0;
+      m_ez0 = rhs.m_ez0;
+      m_eeta = rhs.m_eeta;
+      m_epT = rhs.m_epT;
+      m_surfaceType = rhs.m_surfaceType;
+      m_surfaceCoordinate = rhs.m_surfaceCoordinate;
+
+      delete m_cov;
+      m_cov = rhs.m_cov;
+      rhs.m_cov = nullptr;
+    }
+    return *this;
+  }
+  
   /** Destructor */
   ~TrigInDetTrackFitPar() {if(m_cov) delete m_cov;}
-  
+
+
   // Methods to set data members
   /** Setter: transverse impact parameter */
   void a0  ( const double a0   )         { m_a0    = a0;    }

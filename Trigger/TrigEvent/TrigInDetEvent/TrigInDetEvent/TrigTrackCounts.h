@@ -22,18 +22,18 @@ public:
   TrigTrackCounts();
 
   /** Standard constructor used by FEX algorithms. */ 
-  TrigTrackCounts(TrigHisto2D z0_pt,
-		  TrigHisto2D eta_phi);
-  
-  /** Copy Constructor */
-  TrigTrackCounts(const TrigTrackCounts& trigTrackCounts);
+  TrigTrackCounts(const TrigHisto2D& z0_pt,
+		  const TrigHisto2D& eta_phi);
+
+  TrigTrackCounts(TrigHisto2D&& z0_pt,
+		  TrigHisto2D&& eta_phi);
   
   /** Destructor */
   ~TrigTrackCounts();
 
-  TrigHisto2D z0_pt(void) const;
+  const TrigHisto2D& z0_pt(void) const;
 
-  TrigHisto2D eta_phi(void) const;
+  const TrigHisto2D& eta_phi(void) const;
   
 private:
  

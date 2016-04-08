@@ -30,41 +30,47 @@ class TrigHisto2D: public TrigHisto {
   /** Standard constructor used by FEX algorithms. */ 
   TrigHisto2D(unsigned int nbins_x, float min_x, float max_x,
 	      unsigned int nbins_y, float min_y, float max_y);
-  
+
+  TrigHisto2D(unsigned int nbins_x, float min_x, float max_x,
+              unsigned int nbins_y, float min_y, float max_y,
+              const std::vector<float>& contents);
+
   /** Destructor */
   virtual ~TrigHisto2D(void);
   
   /** Copy Constructor */
   TrigHisto2D(const TrigHisto2D& trigHisto);
+  TrigHisto2D(TrigHisto2D&& trigHisto);
   
   /** Assignment operator */
   TrigHisto2D& operator=(const TrigHisto2D& trigHisto);
+  TrigHisto2D& operator=(TrigHisto2D&& trigHisto);
   
   /** Fill a 2D histogram */
   void fill(float value_x, float value_y, float weight);
   
   /** Sum the number of entries within the cut range */
-  double sumEntries(float value_x, float value_y, int cutType);
+  double sumEntries(float value_x, float value_y, int cutType) const;
 
   /** Collapse the y-axis and return a profile from the x-axis */
-  TrigHisto1D profileX(void);
+  TrigHisto1D profileX(void) const;
 
   /** Collapse the x-axis and return a profile from the y-axis */
-  TrigHisto1D profileY(void);
+  TrigHisto1D profileY(void) const;
 
   /** Return the number of bins along the y-axis, not 
   * including the under and overflow. */
-  unsigned int nbins_y(void) {
+  unsigned int nbins_y(void) const {
     return m_nbins_y;
   }
 
   /** Return the minimum along the y-axis. */
-  float min_y(void) {
+  float min_y(void) const {
     return m_min_y;
   }
 
   /** Return the maximum along the y-axis. */
-  float max_y(void) {
+  float max_y(void) const {
     return m_max_y;
   }
   

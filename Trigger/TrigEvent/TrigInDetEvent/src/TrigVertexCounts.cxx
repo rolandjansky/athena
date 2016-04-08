@@ -11,16 +11,20 @@ TrigVertexCounts::TrigVertexCounts(): m_vtxNtrks(),
 
 //---------------------------------------------------------------
 
-TrigVertexCounts::TrigVertexCounts(std::vector<unsigned int> vtxNtrks,
-				   std::vector<float> vtxTrkPtSqSum): m_vtxNtrks(vtxNtrks),
-						                      m_vtxTrkPtSqSum(vtxTrkPtSqSum) {
+TrigVertexCounts::TrigVertexCounts(const std::vector<unsigned int>& vtxNtrks,
+				   const std::vector<float>& vtxTrkPtSqSum)
+  : m_vtxNtrks(vtxNtrks),
+    m_vtxTrkPtSqSum(vtxTrkPtSqSum)
+{
 }
 
 //---------------------------------------------------------------
 
-TrigVertexCounts::TrigVertexCounts(const TrigVertexCounts& trigTrackCounts) {
-  m_vtxNtrks = trigTrackCounts.m_vtxNtrks;
-  m_vtxTrkPtSqSum = trigTrackCounts.m_vtxTrkPtSqSum;
+TrigVertexCounts::TrigVertexCounts(std::vector<unsigned int>&& vtxNtrks,
+				   std::vector<float>&& vtxTrkPtSqSum)
+  : m_vtxNtrks(std::move(vtxNtrks)),
+    m_vtxTrkPtSqSum(std::move(vtxTrkPtSqSum))
+{
 }
 
 //---------------------------------------------------------------

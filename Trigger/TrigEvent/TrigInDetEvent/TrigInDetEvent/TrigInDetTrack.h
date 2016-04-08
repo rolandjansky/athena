@@ -86,7 +86,7 @@ class TrigInDetTrack {
       m_NPixelSpacePoints=0;
       m_NSCT_SpacePoints=0;
       m_HitPattern=0;
-      m_fillSiHitInfo();
+      fillSiHitInfo();
     }
 
   // Constructor with a list of DriftCircles
@@ -130,7 +130,7 @@ class TrigInDetTrack {
 
   void siSpacePoints ( std::vector<const TrigSiSpacePoint*>* spacePoints ) {
     m_siSpacePoints = spacePoints;
-    m_fillSiHitInfo();
+    fillSiHitInfo();
   }
   void trtDriftCircles(std::vector<const InDet::TRT_DriftCircle*>* driftCircles) {
     m_trtDriftCircles = driftCircles;
@@ -176,6 +176,11 @@ class TrigInDetTrack {
     return m_rdoList;
   }
 
+  void rdoList (std::vector<Identifier>&& l)
+  {
+    m_rdoList = std::move (l);
+  }
+
   void eraseRdoList() {
     m_rdoList.clear();
   }
@@ -197,7 +202,7 @@ class TrigInDetTrack {
   long    m_HitPattern;
   std::vector<const TrigSiSpacePoint*>* m_siSpacePoints;
   std::vector<const InDet::TRT_DriftCircle*>* m_trtDriftCircles;  
-  void m_fillSiHitInfo();
+  void fillSiHitInfo();
 
   std::vector<Identifier> m_rdoList;
 };
