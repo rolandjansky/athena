@@ -8,49 +8,45 @@
 ##=============================================================================
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
-from RecExConfig.RecoFunctions import ItemInList, ItemInListStartsWith,AddValidItemToList,RemoveValidItemFromList
+from RecExConfig.RecoFunctions import ItemInListStartsWith
 
 from AthenaCommon.Logging import logging
 
 logAutoConfiguration = logging.getLogger( 'AutoConfiguration' )
 
-KnownCosmicsProjects=["data08_calocomm","data08_muoncomm","data08_cos","data08_cosmag","data08_idcomm",
-                      "data09_cos","data09_cosmag","data09_idcomm","EO_NOISE","data09_calocomm","data09_muoncomm","data09_calophys",
-                      "data10_muoncomm","data10_idcomm","data10_larcomm","data10_tilecomm","data10_calocomm","data10_calib","data10_cos",
-                      "data11_calib","data11_calocomm","data11_cos","data11_idcomm","data11_larcomm","data11_muoncomm","data11_tilecomm",
-                      "data12_calib","data12_calocomm","data12_cos","data12_idcomm","data12_larcomm","data12_muoncomm","data12_tilecomm",
-                      "data13_calib","data13_calocomm","data13_cos","data13_idcomm","data13_larcomm","data13_muoncomm","data13_tilecomm",
-                      "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14_tilecomm",
-                      "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
-                      ]
+KnownCosmicsProjects=frozenset(["data08_calocomm","data08_muoncomm","data08_cos","data08_cosmag","data08_idcomm",
+                                "data09_cos","data09_cosmag","data09_idcomm","EO_NOISE","data09_calocomm","data09_muoncomm","data09_calophys",
+                                "data10_muoncomm","data10_idcomm","data10_larcomm","data10_tilecomm","data10_calocomm","data10_calib","data10_cos",
+                                "data11_calib","data11_calocomm","data11_cos","data11_idcomm","data11_larcomm","data11_muoncomm","data11_tilecomm",
+                                "data12_calib","data12_calocomm","data12_cos","data12_idcomm","data12_larcomm","data12_muoncomm","data12_tilecomm",
+                                "data13_calib","data13_calocomm","data13_cos","data13_idcomm","data13_larcomm","data13_muoncomm","data13_tilecomm",
+                                "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14_tilecomm",
+                                "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
+                                "data16_calib","data16_calocomm","data16_cos","data16_idcomm","data16_larcomm","data16_muoncomm","data16_tilecomm"
+                                ])
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
-Known1BeamProjects=["data08_1beam","data08_1beammag",
-                    "data09_1beam","data09_1beammag",
-                    "data10_1beam","data10_1beammag",
-                    ]
+Known1BeamProjects=frozenset(["data08_1beam","data08_1beammag",
+                              "data09_1beam","data09_1beammag",
+                              "data10_1beam","data10_1beammag",
+                              ])
 
-KnownCollisionsProjects=["data08","data08_coll900","data09","data09_coll900","data09_900GeV","data09_2TeV",
-                         "data10_900GeV","data10_2TeV","data10_7TeV","data10_10TeV","data10_comm",
-                         "data11_7TeV","data11_8TeV","data11_2p76TeV","data11_comm","data11_900GeV","data11_1beam","data11_hip", 
-                         "data12_8TeV","data12_comm","mc12_8TeV","IS_SIMULATION","data12_1beam","data12_900GeV",
-                         "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
-                         "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV"
-                         ]
+KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_coll900","data09_900GeV","data09_2TeV",
+                                   "data10_900GeV","data10_2TeV","data10_7TeV","data10_10TeV","data10_comm",
+                                   "data11_7TeV","data11_8TeV","data11_2p76TeV","data11_comm","data11_900GeV","data11_1beam","data11_hip", 
+                                   "data12_8TeV","data12_comm","mc12_8TeV","IS_SIMULATION","data12_1beam","data12_900GeV",
+                                   "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
+                                   "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV",
+                                   "data16_comm","data16_13TeV","data16_900GeV","data16_1beam"
+                                   ])
 
-KnownHeavyIonProjects=["data10_hi","data11_hi","data15_hi"]
+KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi"])
 
-KnownHeavyIonProtonProjects=["data12_hip","data13_hip"]
+KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip"])
 
-KnownTestProjects=["data_test"]
+KnownTestProjects=frozenset(["data_test"])
 
-KnownProjects=[]
-AddValidItemToList(KnownCosmicsProjects,KnownProjects)
-AddValidItemToList(Known1BeamProjects,KnownProjects)
-AddValidItemToList(KnownCollisionsProjects,KnownProjects)
-AddValidItemToList(KnownHeavyIonProjects,KnownProjects)
-AddValidItemToList(KnownHeavyIonProtonProjects,KnownProjects)
-AddValidItemToList(KnownTestProjects,KnownProjects)
+KnownProjects=KnownCosmicsProjects | Known1BeamProjects | KnownCollisionsProjects | KnownHeavyIonProjects | KnownHeavyIonProtonProjects | KnownTestProjects
 
 fullSolenoidCurrent=7730.0
 fullToroidCurrent=20500.0
@@ -246,12 +242,14 @@ def ConfigureGeo():
 
     from RecExConfig.InputFilePeeker import inputFileSummary
     if inputFileSummary['file_type']=='bs':
-        geo='ATLAS-GEO-20-00-01'
+        geo="ATLAS-R2-2015-03-01-00" #geo='ATLAS-GEO-20-00-01'
         project=GetProjectName()
+        if "data12" in project:
+            geo="ATLAS-R1-2012-03-00-00"
         if "data11" in project:
-            geo='ATLAS-GEO-18-01-01'
+            geo="ATLAS-R1-2011-02-00-00"  #'ATLAS-GEO-18-01-01'
         if "data10" in project or "data09" in project or "data08" in project:
-            geo='ATLAS-GEO-16-00-01'
+            geo="ATLAS-R1-2010-02-00-00" #geo='ATLAS-GEO-16-00-01'
         if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
             try: geo = inputFileSummary['geometry']
             except: logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with geometry. Probably an old file.")
@@ -308,7 +306,7 @@ def GetProjectName():
         logAutoConfiguration.info("Success! GetProjectName() found a project named %s"%project)
     else:
         project=rec.projectName()
-    if not ItemInList(project,KnownProjects):
+    if not project in KnownProjects:
         logAutoConfiguration.warning("Project '%s' is not part of the KnownProjects list."%project)
         #print KnownProjects
 
@@ -335,12 +333,12 @@ def ConfigureBeamType():
         
     if BeamType==None:
         project=GetProjectName()
-        if ItemInList(project,KnownCosmicsProjects): BeamType='cosmics'
-        elif ItemInList(project,KnownTestProjects): BeamType='cosmics'
-        elif ItemInList(project,Known1BeamProjects): BeamType='singlebeam'
-        elif ItemInList(project,KnownCollisionsProjects): BeamType='collisions'
-        elif ItemInList(project,KnownHeavyIonProjects): BeamType='collisions'
-        elif ItemInList(project,KnownHeavyIonProtonProjects): BeamType='collisions'
+        if project in KnownCosmicsProjects: BeamType='cosmics'
+        elif project in KnownTestProjects: BeamType='cosmics'
+        elif project in Known1BeamProjects: BeamType='singlebeam'
+        elif project in KnownCollisionsProjects: BeamType='collisions'
+        elif project in KnownHeavyIonProjects: BeamType='collisions'
+        elif project in KnownHeavyIonProtonProjects: BeamType='collisions'
     # special treatment for online, set to collisions if undefined
     if BeamType==None:
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -360,11 +358,11 @@ def ConfigureBeamType():
     #Note: HeavyIon and HIP (HeavyIon - proton) are mutually exclusive
     if not rec.doHeavyIon.is_locked() and not rec.doHIP.is_locked():
         project=GetProjectName()
-        if ItemInList(project,KnownHeavyIonProjects):
+        if project in KnownHeavyIonProjects:
             rec.doHeavyIon.set_Value_and_Lock(True)
             rec.doHIP.set_Value_and_Lock(False)
             logAutoConfiguration.info("Set rec.doHeavyIon=True based on project tag '%s'" % project)
-        elif ItemInList(project,KnownHeavyIonProtonProjects):
+        elif project in KnownHeavyIonProtonProjects:
             rec.doHeavyIon.set_Value_and_Lock(False)
             rec.doHIP.set_Value_and_Lock(True)
             logAutoConfiguration.info("Set rec.doHIP=True based on project tag '%s'" % project)
@@ -442,11 +440,14 @@ def ConfigureBeamEnergy():
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('GeV','',1))/2 * 1000.
                 elif 'TeV' in projectName:
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
+                    if '5TeV' in projectName:
+                        beamEnergy=2510000.
                 elif projectName.endswith("_hi") or projectName.endswith("_hip"):
                     #beamEnergy=1380000. # 1.38 TeV (=3.5 TeV * (Z=82/A=208))
                     # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
-                    beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
+                    #beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
                     # Pb (p) Beam energy in p-Pb collisions in 2012 will be 1.577 (4) TeV.
+                    beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208))
                 else:
                     logAutoConfiguration.warning("Could not auto-configure beam energy based on project name: %s" , projectName)
                     return
@@ -674,123 +675,39 @@ def ConfigureTriggerStream():
     return
 
 
-def ConfigureConditionsTag(conditionsTagPrefix,conditionsTagSuffix):
-    from AthenaCommon.BFieldFlags import jobproperties
+def ConfigureConditionsTag():
     if globalflags.ConditionsTag.is_locked():
         logAutoConfiguration.info("conditionsTag is locked to value: '%s'."%globalflags.ConditionsTag())
         return
     
     from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type'] == 'pool':
-
-        if conditionsTagPrefix!=None and conditionsTagSuffix!=None:
-            try: 
-                ConfigureConditionsTagName(conditionsTagPrefix,conditionsTagSuffix)
-            except:
-                logAutoConfiguration.warning("ConditionsTag could not be auto-configured based on input pre- and suffix!!! ")
-        else:
-            try: 
-                globalflags.ConditionsTag.set_Value_and_Lock(inputFileSummary['conditions_tag'])
-                logAutoConfiguration.info("Auto-configured ConditionsTag '%s' from inputFileSummary ",globalflags.ConditionsTag())
-            except:
-                logAutoConfiguration.warning("ConditionsTag could not be auto-configured no info stored in inputFileSummary!!!")
-
-            
-    elif inputFileSummary['file_type'] == 'bs' and inputFileSummary['evt_type'][0]=='IS_SIMULATION':
-        cond="OFLCOND-SIM-00-00-00"
-        try:
-            cond=inputFileSummary['conditions_tag']
+    if inputFileSummary['file_type'] == 'pool' or inputFileSummary['file_type'] == 'bs' and inputFileSummary['evt_type'][0]=='IS_SIMULATION':
+        try: 
+            globalflags.ConditionsTag.set_Value_and_Lock(inputFileSummary['conditions_tag'])
+            logAutoConfiguration.info("Auto-configured ConditionsTag '%s' from inputFileSummary ",globalflags.ConditionsTag())
         except:
-            logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with conditions_tag !")
-        globalflags.ConditionsTag.set_Value_and_Lock(cond)
-        logAutoConfiguration.info("Set conditionsTag to '%s'"%cond)
-    elif inputFileSummary['file_type'] == 'bs' and inputFileSummary['evt_type'][0]=='IS_DATA':
-        ConfigureConditionsTagName(conditionsTagPrefix,conditionsTagSuffix)  
-    else:
-        raise RuntimeError("Don't know how to configure conditionsTag for file_type: %s"%inputFileSummary['file_type'])
-    return
+            logAutoConfiguration.error("ConditionsTag could not be auto-configured no info stored in inputFileSummary!!!")
+            #logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with conditions_tag !")
 
 
-
-def ConfigureConditionsTagName(conditionsTagPrefix,conditionsTagSuffix):
-
-    # setting a default conditions tag name   
-    if conditionsTagPrefix==None:
-        conditionsTagPrefix='COMCOND-'
-        
-        # Online Reconstruction setup
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        if athenaCommonFlags.isOnline():
-            conditionsTagPrefix+='HLTP'
-        else:
-            conditionsTagPrefix+='BLKP'
-
-    if conditionsTagSuffix is None:
-        #2012 way of running: No mag-field dependency
-        if athenaCommonFlags.isOnline():
-            conditionsTagSuffix="-004-01"
-        else:
-            conditionsTagSuffix="A-006-01"
-    else:
-                
-        # auto configuring beamtype and magnetic field charakter in conditions tag name    
-        MagField=''            
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        if not athenaCommonFlags.isOnline():
-            from AthenaCommon.BFieldFlags import jobproperties        
-            # Setting character for magnetig field setup in conditions tag
-            #configuring conditionsTag based on magnetic field status
-            ConfigureField()
-            #define toroid/solenoid on/off
-        
-            toroidOn=(jobproperties.BField.barrelToroidOn() and jobproperties.BField.endcapToroidOn())
-            solenoidOn=jobproperties.BField.solenoidOn()
-        
-            #consistency check...
-            if jobproperties.BField.barrelToroidOn()==False and jobproperties.BField.endcapToroidOn()==True:
-                raise RuntimeError("Don't know how to configure conditionsTag when barrelToroid==False and endcapToroidOn==True")
-            if jobproperties.BField.barrelToroidOn()==True and jobproperties.BField.endcapToroidOn()==False:
-                raise RuntimeError("Don't know how to configure conditionsTag when barrelToroid==True and endcapToroidOn==False")
-        
-        
-            if toroidOn==True and solenoidOn==True:     MagField='ST'
-            elif toroidOn==False and solenoidOn==True:  MagField='S' 
-            elif toroidOn==True and solenoidOn==False:  MagField='T' 
-            elif toroidOn==False and solenoidOn==False: MagField='' 
-            else:
-                raise RuntimeError("Logic error!!")
-        
-            conditionsTagPrefix+=MagField
+            pass
         pass
-    pass
-
-    condName=conditionsTagPrefix+conditionsTagSuffix
-    globalflags.ConditionsTag.set_Value_and_Lock(condName)
-    logAutoConfiguration.info("Auto-configured conditionsTag '%s'."%globalflags.ConditionsTag())
+    else: #Regular data files 
+        try:
+            year=int(rec.projectName()[4:6])
+        except:
+            logAutoConfiguration.warning("Failed to extract year from project tag "+ projectName+". Guessing 2015")
+            year=15
+        if (year<14): #Run1
+            globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-BLKPA-RUN1-09")
+            logAutoConfiguration.info("Found run 1 input bytestream file, autoconfigure conditions tag to '%s'"%globalflags.ConditionsTag())
+        else:
+            globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-17")
+            logAutoConfiguration.info("Found run 2 input bytestream file, autoconfigure conditions tag to '%s'"%globalflags.ConditionsTag())
+            pass
+        pass
     return
 
-
-
-
-def ConfigureConditionsTagESDtoESD():
-    if globalflags.ConditionsTag.is_locked():
-        logAutoConfiguration.error("conditionsTag was locked to '%s'. This is not expected.",globalflags.ConditionsTag())
-    
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary['file_type'] == 'pool':
-        oldTag=inputFileSummary['conditions_tag']
-        if oldTag=='COMCOND-REPC-002-10': newTag='COMCOND-REPC-004-00'
-        elif oldTag=='COMCOND-REPC-002-11': newTag='COMCOND-REPC-004-01'
-        elif oldTag=='COMCOND-REPC-002-12': newTag='COMCOND-REPC-004-02'
-        elif oldTag=='COMCOND-REPC-002-13': newTag='COMCOND-REPC-004-03'
-        elif oldTag.startswith('COMCOND-REPC-004-'): newTag=oldTag
-        else: raise RuntimeError("Don't know how to configure conditionsTag for input conditionsTag '%s'"%oldTag)
-        globalflags.ConditionsTag.set_Value_and_Lock(newTag)
-    else:
-        raise RuntimeError("file_type is %s but ConfigureConditionsTagESDtoESD is only defined for pool inputs"%inputFileSummary['file_type'])
-
-    logAutoConfiguration.info("ConditionsTag set to: '%s'"%globalflags.ConditionsTag())
-    return
 
 def ConfigureFieldAndGeoESDtoESD():
     from RecExConfig.InputFilePeeker import inputFileSummary
@@ -904,90 +821,63 @@ def ConfigureSimulationOrRealData():
     return
 
 def ConfigureFromListOfKeys(l):
-    allDefaultKeys=['ProjectName','RealOrSim','FieldAndGeo','BeamType','ConditionsTag','DoTruth','InputType','BeamEnergy','LumiFlags','TriggerStream']
-    if l.__contains__('everything'):
-        l.remove('everything')
-        AddValidItemToList(allDefaultKeys,l)
+    keys=set(l)
+    allDefaultKeys=frozenset(('ProjectName','RealOrSim','FieldAndGeo','BeamType','ConditionsTag','DoTruth','InputType','BeamEnergy','LumiFlags','TriggerStream'))
+    if 'everything' in keys:
+        keys.remove('everything')
+        keys |= allDefaultKeys;
         logAutoConfiguration.info("Auto-configuration key 'everything' requested. All default keys will be used.")
 
     logAutoConfiguration.info("Auto-configuration will procede according to the following keys:")
-    logAutoConfiguration.info(l.__str__())
+    logAutoConfiguration.info(keys.__str__())
 
     ######################################################################
     # Auto-configure according to requested keys, in a pre-defined order #
     ######################################################################
-    if ItemInList("ProjectName",l):  #has to be before BeamType        
+    if "ProjectName" in keys:  #has to be before BeamType        
         rec.projectName=GetProjectName()
 
-    if ItemInList("BeamType",l):  #has to be before RealOrSim (DC: not yet, but maybe in the future?)
+    if "BeamType" in keys:  #has to be before RealOrSim (DC: not yet, but maybe in the future?)
         ConfigureBeamType()
 
-    if ItemInList("RealOrSim",l):
+    if "RealOrSim" in keys:
         ConfigureSimulationOrRealData()
     
-    if ItemInList("TriggerStream",l): #has to be before ConditionsTag
+    if "TriggerStream" in keys: 
         ConfigureTriggerStream()                
 
-    if ItemInList("ConditionsTag",l) or ItemInListStartsWith('ConditionsTag=',l):
-        conditionsTagPrefix=None
-        conditionsTagSuffix=None
-        # check if the conditions tag has to be set for re-processing
-        if ItemInList("Repro",l):
-            l.remove('Repro')
-            conditionsTagPrefix='COMCOND-REPP'
-            conditionsTagSuffix='-006-00'
-        # check if the conditions tag suffix is set by user
-        for key in l:
-            if key.startswith('ConditionsTag='):
-                l.remove(key)
-                try:
-                    temp_string=key.split('=')[1].split('*')
-                    conditionsTagPrefix=temp_string[0]
-                    conditionsTagSuffix=temp_string[1]
-                except:
-                    raise RuntimeError("Syntax error, unable to auto-configure ConditionsTag %s!! (use syntax like: COMCOND-ES1P*-002-00" %key )
-                    
-        # configure conditions tag finally
-        ConfigureConditionsTag(conditionsTagPrefix,conditionsTagSuffix)
-            
+    if "ConditionsTag" in keys:
+        ConfigureConditionsTag()
         
-    if ItemInList("FieldAndGeo",l):
+    if "FieldAndGeo" in keys:
         ConfigureFieldAndGeo()
 
-    if ItemInList("Field",l):
+    if "Field" in keys:
         ConfigureField()
 
-    if ItemInList("Geo",l):
+    if "Geo" in keys:
         ConfigureGeo()
 
-    if ItemInList("DoTruth",l):
+    if "DoTruth" in keys:
         ConfigureDoTruth()
 
-    if ItemInList("InputType",l):
+    if "InputType" in keys:
         ConfigureInputType()
         
-    if ItemInList("BeamEnergy",l):
+    if "BeamEnergy" in keys:
         ConfigureBeamEnergy()
         
-    if ItemInList("LumiFlags",l):
+    if "LumiFlags" in keys:
         ConfigureLumiFlags()
 
-    if ItemInList("ConditionsTagESDToESD",l):
-        ConfigureConditionsTagESDtoESD()
-
-    if ItemInList("FieldAndGeoESDToESD",l):
+    if "FieldAndGeoESDToESD" in keys:
         ConfigureFieldAndGeoESDtoESD()
 
     #Final sanity check...
-    for key in l:
-        if not ItemInList(key,allDefaultKeys):
+    for key in keys:
+        if not key in allDefaultKeys:
             #these special keys are allowed to not be allDefaultKeys, however check for conflicts
-
-            if key=="ConditionsTagESDToESD":
-                if ItemInList("ConditionsTag",l):
-                    raise RuntimeError("Auto-configure either ConditionsTag or ConditionsTagESDToESD, but doing both is not allowed.")
-                pass
-            elif key=="FieldAndGeoESDToESD":
+            if key=="FieldAndGeoESDToESD":
                 if ItemInList("FieldAndGeo",l):
                     raise RuntimeError("Auto-configure either FieldAndGeo or FieldAndGeoESDtoESD, but doing both is not allowed.")
                 pass
