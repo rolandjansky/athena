@@ -13,7 +13,7 @@ ISF_FatrasFlags.OutputLevelGeneral = INFO
 #--------------------------------------------------------------
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.SkipEvents=0
-athenaCommonFlags.EvtMax=2
+athenaCommonFlags.EvtMax=10
 athenaCommonFlags.PoolHitsInput=["Hits.pool.root"]
 athenaCommonFlags.PoolRDOOutput="DigitizationOutput.pool.root"
 
@@ -41,7 +41,7 @@ globalflags.DetDescrVersion='ATLAS-PX-ITK-00-00-00'
 # DetFlags. Use to turn on/off individual subdetector or LVL1 trigger
 #--------------------------------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.ID_setOff()
+DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.detdescr.Muon_setOff()
@@ -141,9 +141,9 @@ topSequence = AlgSequence()
 
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.CheckSmear=True
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.OutputLevel=OutputLevel
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=10.0*micrometer
+#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=10.0*micrometer
 #topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=0.0*micrometer
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=55.0*micrometer
+#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=55.0*micrometer
 #topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=0.0*micrometer
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.TrackingGeometrySvc = AtlasTrackingGeometrySvc
 topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.UseCustomGeometry = True
@@ -156,7 +156,7 @@ topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.PRD_TruthPlanarCo
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.CheckSmear=True
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.SmearPixel = False
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.OutputLevel=OutputLevel
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 70.0*micrometer
+#topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 70.0*micrometer
 #topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 0.0*micrometer
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.TrackingGeometrySvc = AtlasTrackingGeometrySvc
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.UseCustomGeometry = True

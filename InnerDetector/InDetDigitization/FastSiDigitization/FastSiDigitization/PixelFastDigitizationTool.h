@@ -23,7 +23,8 @@
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "FastSiDigitization/IPixelFastDigitizationTool.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -80,8 +81,8 @@ public:
   StatusCode initialize();
   StatusCode prepareEvent(unsigned int);
   StatusCode processBunchXing( int bunchXing,
-                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents );
   StatusCode processAllSubEvents();
   StatusCode mergeEvent();
   StatusCode digitize();

@@ -22,8 +22,10 @@ use  PileUpTools                        PileUpTools-*                   Control
 use  PixelConditionsTools               PixelConditionsTools-*          InnerDetector/InDetConditions
 use  SiClusterizationTool               SiClusterizationTool-*          InnerDetector/InDetRecTools
 use  SiPropertiesSvc                    SiPropertiesSvc-*               InnerDetector/InDetConditions
+use  StoreGate                          StoreGate-*                     Control
 use  TrkEventTPCnv                      TrkEventTPCnv-*                 Tracking/TrkEventCnv
 use  TrkTruthData                       TrkTruthData-*                  Tracking/TrkEvent
+use  xAODEventInfo                      xAODEventInfo-*                 Event/xAOD
 
 #
 # Setup component library
@@ -40,6 +42,7 @@ use  AtlasCLHEP                         AtlasCLHEP-*                    External
 use  AtlasCLHEP_RandomGenerators        AtlasCLHEP_RandomGenerators-*   Simulation/Tools
 use  AtlasHepMC                         AtlasHepMC-*                    External
 use  AtlasROOT                          AtlasROOT-*                     External
+use  CxxUtils                           CxxUtils-*                      Control
 use  GeneratorObjects                   GeneratorObjects-*              Generators
 use  Identifier                         Identifier-*                    DetectorDescription
 use  InDetIdentifier                    InDetIdentifier-*               InnerDetector/InDetDetDescr

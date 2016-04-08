@@ -41,7 +41,7 @@ globalflags.DetDescrVersion='ATLAS-PX-ITK-00-00-00'
 # DetFlags. Use to turn on/off individual subdetector or LVL1 trigger
 #--------------------------------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
-DetFlags.ID_setOff()
+DetFlags.ID_setOn()
 DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 DetFlags.LVL1_setOff()
@@ -131,6 +131,6 @@ topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlana
 ##topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
 #topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
 
-from VP1Algs.VP1AlgsConf import VP1Alg 
-topSequence += VP1Alg()
+#from VP1Algs.VP1AlgsConf import VP1Alg 
+#topSequence += VP1Alg()
 

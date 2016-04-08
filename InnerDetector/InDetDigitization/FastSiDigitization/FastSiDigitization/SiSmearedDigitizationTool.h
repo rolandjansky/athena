@@ -11,8 +11,8 @@
 // Top algorithm class for Pixel fast smeared digitization
 ///////////////////////////////////////////////////////////////////
 
-#ifndef SISMEAREDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
-#define SISMEAREDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
+#ifndef FASTSIDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
+#define FASTSIDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
 
@@ -22,7 +22,8 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "FastSiDigitization/ISiSmearedDigitizationTool.h"
 #include <string>
@@ -75,7 +76,7 @@ namespace Trk {
 
 }
 
-class SiSmearedDigitizationTool : virtual public PileUpToolBase, 
+class SiSmearedDigitizationTool : virtual public PileUpToolBase,
   virtual public ISiSmearedDigitizationTool
 {
 
@@ -83,27 +84,27 @@ public:
 
    /** Constructor with parameters */
   SiSmearedDigitizationTool(
-			       const std::string& type,
-			       const std::string& name,
-			       const IInterface* parent
-			       );
-  
-  
+                               const std::string& type,
+                               const std::string& name,
+                               const IInterface* parent
+                               );
+
+
   StatusCode initialize();
   StatusCode prepareEvent(unsigned int);
   StatusCode processBunchXing( int bunchXing,
-			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-			       PileUpEventInfo::SubEvent::const_iterator eSubEvents ); 
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents );
   StatusCode processAllSubEvents();
   StatusCode mergeEvent();
 
   typedef std::multimap<IdentifierHash, const InDet::PixelCluster*> Pixel_detElement_RIO_map;
-  typedef std::multimap<IdentifierHash, const iFatras::PlanarCluster*> Planar_detElement_RIO_map;  
+  typedef std::multimap<IdentifierHash, const iFatras::PlanarCluster*> Planar_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;
-  StatusCode mergeClusters(Pixel_detElement_RIO_map * cluster_map); 
-  StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map); 
-  StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map); 
-     
+  StatusCode mergeClusters(Pixel_detElement_RIO_map * cluster_map);
+  StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map);
+  StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map);
+
   StatusCode digitize();
   StatusCode createAndStoreRIOs();
   StatusCode retrieveTruth();
@@ -111,46 +112,46 @@ public:
 
   template<typename CLUSTER>
     double calculateDistance(CLUSTER * clusterA, CLUSTER * clusterB);
-  
+
   template<typename CLUSTER>
     double calculateSigma(CLUSTER * clusterA, CLUSTER * clusterB);
-  
+
   template<typename CLUSTER>
     ClusterInfo calculateNewCluster(CLUSTER * clusterA, CLUSTER * clusterB);
 
-  template<typename CLUSTER> 
-    StatusCode FillTruthMap(PRD_MultiTruthCollection*, CLUSTER*, TimedHitPtr<SiHit>); 
-  
+  template<typename CLUSTER>
+    StatusCode FillTruthMap(PRD_MultiTruthCollection*, CLUSTER*, TimedHitPtr<SiHit>);
+
  private:
-  
-  TimedHitCollection<SiHit>* m_thpcsi;      
+
+  TimedHitCollection<SiHit>* m_thpcsi;
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;             //!< Random number service
-  
+
   const InDetDD::PixelDetectorManager* m_manager_pix;
   const InDetDD::SCT_DetectorManager* m_manager_sct;
-  
+
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper
   const SCT_ID* m_sct_ID;                             //!< Handle to the ID helper
-  
+
   CLHEP::HepRandomEngine*           m_randomEngine;
   std::string                m_randomEngineName;         //!< Name of the random number stream
-  
+
   mutable float m_pitch_X;
   mutable float m_pitch_Y;
 
   bool m_merge;
   double m_nSigma;
-  
+
   bool m_useDiscSurface;
-  
+
   InDet::PixelClusterContainer*  m_pixelClusterContainer;               //!< the PixelClusterContainer
-  
+
   InDet::SCT_ClusterContainer*  m_sctClusterContainer;               //!< the SCT_ClusterContainer
 
   iFatras::PlanarClusterContainer*  m_planarClusterContainer;               //!< the SCT_ClusterContainer
 
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
-    
+
   PRD_MultiTruthCollection* m_pixelPrdTruth;
   std::string               m_prdTruthNamePixel;
 
@@ -159,13 +160,13 @@ public:
 
   PRD_MultiTruthCollection* m_planarPrdTruth;
   std::string               m_prdTruthNamePlanar;
-  
+
   SiHitCollection* m_simHitColl;
-  std::string      m_inputObjectName;     //! name of the sub event  hit collections. 
-  
+  std::string      m_inputObjectName;     //! name of the sub event  hit collections.
+
   std::vector<std::pair<unsigned int, int> > m_seen;
   std::list<SiHitCollection*> m_siHitCollList;
-  
+
   Pixel_detElement_RIO_map* m_pixelClusterMap;
 
   Planar_detElement_RIO_map* m_planarClusterMap;
@@ -173,12 +174,12 @@ public:
   SCT_detElement_RIO_map* m_sctClusterMap;
 
   bool m_SmearPixel;
-  
+
   bool m_emulateAtlas;
-  
+
   iFatras::IdHashDetElementCollection*                    m_detElementMap;
   std::string                                    m_detElementMapName;
-    
+
   std::string                           m_pixel_SiClustersName;
   std::string                           m_Sct_SiClustersName;
   std::string                           m_planar_SiClustersName;
@@ -186,7 +187,7 @@ public:
   bool       m_checkSmear;
 
   ITHistSvc* m_thistSvc;
-  TFile*              m_outputFile;  //!< the root file 
+  TFile*              m_outputFile;  //!< the root file
   TTree*              m_currentTree; //!< the tree to store information from pixel and SCT (before and after smearing)
 
   double           m_x_pixel;
@@ -229,10 +230,10 @@ public:
 
   SiSmearedDigitizationTool();
   SiSmearedDigitizationTool(const SiSmearedDigitizationTool&);
-  
+
   SiSmearedDigitizationTool& operator=(const SiSmearedDigitizationTool&);
-   
-   
+
+
 };
 
 #endif // SISMEAREDDDIGITIZATION_SISMEAREDDIGITIZATIONTOOL_H
