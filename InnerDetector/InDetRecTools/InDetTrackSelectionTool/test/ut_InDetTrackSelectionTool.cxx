@@ -38,6 +38,8 @@ bool passTightPrimary( const TrackParticle& trk, const xAOD::Vertex* vtx = nullp
 bool passLooseMuon( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passLooseElectron( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
+bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
+bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 uint8_t getSum(const TrackParticle&, xAOD::SummaryType);
 void dumpTrack( const TrackParticle& );
 
@@ -61,7 +63,7 @@ int main( int argc, char* argv[] ) {
    // Initialise the application:
    ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(xAOD::Init( APP_NAME )) );
 
-   vector<string> cutLevels = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias"};
+   vector<string> cutLevels = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias", "HILoose", "HITight"};
    map<string, tool_ptr> selTools;
    map<string, bool (*)(const TrackParticle&, const xAOD::Vertex*)> cutFuncs;
 
@@ -81,6 +83,8 @@ int main( int argc, char* argv[] ) {
    FUNC_HELP( LooseMuon );
    FUNC_HELP( LooseElectron );
    FUNC_HELP( MinBias );
+   FUNC_HELP( HILoose );
+   FUNC_HELP( HITight );
 #undef FUNC_HELP
 
    // Open the input file:
@@ -282,6 +286,67 @@ bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx )
 
   return true;
 }
+
+bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx )
+{
+  if (std::fabs(trk.eta()) > 2.5) return false;
+  bool expectIBL = getSum(trk, xAOD::expectInnermostPixelLayerHit);
+  bool expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
+  uint8_t nIBL = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
+  uint8_t nBL = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
+  if (expectIBL) {
+    if (nIBL < 1) return false;
+  } else {
+    if (expectBL && nBL < 1) return false;
+  }
+
+  uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
+  if (nPixHits < 1) return false;
+  uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
+  auto pt = trk.pt()*1e-3;
+  if (pt >= 0.4 && nSctHits < 6) return false;
+  else if (pt >= 0.3 && nSctHits < 4) return false;
+  else if (nSctHits < 2) return false;
+  
+  if (std::fabs(trk.d0()) > 1.5) return false;
+  if (vtx != nullptr) {
+    if (std::fabs(trk.z0() + trk.vz() - vtx->z())*std::sin(trk.theta()) > 1.5) return false;
+  }
+
+  return true;
+}
+
+bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx )
+{
+  if (std::fabs(trk.eta()) > 2.5) return false;
+  bool expectIBL = getSum(trk, xAOD::expectInnermostPixelLayerHit);
+  bool expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
+  uint8_t nIBL = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
+  uint8_t nBL = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
+  if (expectIBL) {
+    if (nIBL < 1) return false;
+  } else {
+    if (expectBL && nBL < 1) return false;
+  }
+
+  uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
+  if (nPixHits < 2) return false;
+  uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
+  auto pt = trk.pt()*1e-3;
+  if (pt >= 0.4 && nSctHits < 8) return false;
+  else if (pt >= 0.3 && nSctHits < 6) return false;
+  else if (nSctHits < 4) return false;
+  
+  if (std::fabs(trk.d0()) > 1.0) return false;
+  if (vtx != nullptr) {
+    if (std::fabs(trk.z0() + trk.vz() - vtx->z())*std::sin(trk.theta()) > 1.0) return false;
+  }
+
+  if (trk.chiSquared() / trk.numberDoF() > 6.0) return false;
+  
+  return true;
+}
+
 
 uint8_t getSum( const TrackParticle& trk, xAOD::SummaryType sumType )
 {
