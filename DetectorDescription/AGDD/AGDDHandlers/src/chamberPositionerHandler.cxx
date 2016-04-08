@@ -3,9 +3,8 @@
 */
 
 #include "AGDDHandlers/chamberPositionerHandler.h"
+#include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
-#include "AGDDKernel/AGDDVolumeStore.h"
-#include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include <iostream>
 
@@ -22,8 +21,9 @@ void chamberPositionerHandler::ElementHandle()
 {
 	std::string volume=getAttributeAsString("volume");
 	
-	AGDDVolume* theVol=AGDDVolumeStore::GetVolumeStore()->GetVolume(volume);
-	AGDDDetector* mCham=dynamic_cast<AGDDDetector*>(theVol);
+	//AGDDVolume* theVol=AGDDVolumeStore::GetVolumeStore()->GetVolume(volume);
+	
+	AGDDDetector* mCham=(AGDDDetectorStore::GetDetectorStore())->GetDetector(volume);
 	std::string subType;
 	if (!mCham) 
 	{
@@ -53,7 +53,7 @@ void chamberPositionerHandler::ElementHandle()
 
 	if (iSectors.size()!= (unsigned int) iWedge) throw;
 	
-	// std::cout<<" =============>> this is chamberPositionerHandler::ElementHandle() "<<theVol->GetName()<<" "<<subType<<std::endl;
+	// std::cout<<" =============>> this is chamberPositionerHandler::ElementHandle() "<<volume<<" "<<subType<<std::endl;
 	
  	for (int i=0;i<iWedge;i++)
  	{

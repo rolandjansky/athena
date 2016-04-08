@@ -15,9 +15,9 @@ class snake_pointHandler:public XMLHandler {
 public:
 	snake_pointHandler(std::string);
 	void ElementHandle();
-	static CLHEP::Hep3Vector CurrentPoint() {return point;}
+	static CLHEP::Hep3Vector CurrentPoint() {return s_point;}
 private:
-	static CLHEP::Hep3Vector point;
+	static CLHEP::Hep3Vector s_point;
 };
 
 #endif

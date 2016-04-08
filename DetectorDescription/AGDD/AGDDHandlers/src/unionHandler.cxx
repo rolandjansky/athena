@@ -10,6 +10,8 @@
 #include "AGDDKernel/AGDDVolumeStore.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
 
+using namespace xercesc;
+
 unionHandler::unionHandler(std::string s):XMLHandler(s)
 {
 //	std::cout<<"Creating handler for composition"<<std::endl;
