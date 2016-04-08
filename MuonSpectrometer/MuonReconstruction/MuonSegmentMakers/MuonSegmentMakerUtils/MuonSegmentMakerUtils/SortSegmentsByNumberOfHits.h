@@ -24,6 +24,9 @@ namespace Muon {
       const Trk::FitQuality* fq2 = seg2->fitQuality();
       if( !fq1 && fq2 ) return false;
       if( fq1  && !fq2 ) return true;
+      if( !fq1 && !fq2 ) {
+        return true;
+      }
 
       if( fq1->numberDoF() > fq2->numberDoF() ) return true;
       if( fq1->numberDoF() < fq2->numberDoF() ) return false;
