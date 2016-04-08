@@ -27,7 +27,7 @@
 #include "ISF_Event/ISFParticleVector.h"
 
 // Barcode
-#include "BarcodeEvent/PhysicsProcessCode.h"
+#include "BarcodeInterfaces/PhysicsProcessCode.h"
 
 #ifndef MAXHADINTCHILDREN
 #define MAXHADINTCHILDREN 20

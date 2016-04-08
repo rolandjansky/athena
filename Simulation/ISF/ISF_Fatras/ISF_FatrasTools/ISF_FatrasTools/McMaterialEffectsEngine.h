@@ -30,7 +30,7 @@
 #include "ISF_Event/ISFParticleVector.h"
 
 // Barcode
-#include "BarcodeEvent/PhysicsProcessCode.h"
+#include "BarcodeInterfaces/PhysicsProcessCode.h"
 
 class StoreGateSvc;
 

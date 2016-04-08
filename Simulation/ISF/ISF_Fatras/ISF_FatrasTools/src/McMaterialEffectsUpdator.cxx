@@ -431,8 +431,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
   // recalculate if missing
   m_matProp = m_matProp ? m_matProp : m_layer->fullUpdateMaterialProperties(*parm);
-  double pathCorrection = m_layer->surfaceRepresentation().normal().dot(parm->momentum()) !=0 ?
-    fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),dir*(parm->momentum()))) : 1.;
+  double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),parm->momentum())); 
     
   // check if a bending correction has to be applied
   if (m_bendingCorrection) {
@@ -478,7 +477,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   int iStatus = 0;
   double dX0 = (1.-matFraction)*pathCorrection*m_matProp->thicknessInX0();
 
-  if (!m_matProp || particle==Trk::geantino || particle==Trk::nonInteracting || dX0==0.) {   
+  if (!m_matProp || particle==Trk::geantino || particle==Trk::nonInteracting ) {   
     // non-interacting - pass them back
     pathLim.updateMat(dX0,m_matProp->averageZ(),dInL0);
 
@@ -538,7 +537,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   AmgVector(5) updatedParameters(parm->parameters());  
   const Trk::TrackParameters* updated = 0;
 
-  if ( m_eLoss && particle==Trk::electron && dX0>0.) {
+  if ( m_eLoss && particle==Trk::electron ) {
 
     double matTot =  (1-matFraction)*pathCorrection*m_matProp->thicknessInX0();
     Amg::Vector3D edir = parm->momentum().unit(); 
@@ -552,10 +551,10 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     matFraction += dX0/pathCorrection/m_matProp->thicknessInX0();  
   }
 
-  if ( isp->charge()!=0 && dX0>0.) {
+  if ( isp->charge()!=0 ) {
     if ( m_eLoss ) ionize(*parm, updatedParameters, dX0, dir, particle );
 
-    if ( m_ms  && m_matProp->thicknessInX0()>0.) {
+    if ( m_ms ) {
 
       double sigmaMSproj = (m_use_msUpdator && m_msUpdator ) ?
 	sqrt(m_msUpdator->sigmaSquare(*m_matProp, p, dX0/m_matProp->thicknessInX0(), particle)) : msSigma(dX0,p,particle);
@@ -964,7 +963,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::update(double tim
     m_deltaP = deltaP;
   }
   
-  if (m_ms && matprop.x0()>0 ){
+  if (m_ms){
     // get the projected scattering angle
     double sigmaMSproj   = (m_use_msUpdator && m_msUpdator) ? sqrt(m_msUpdator->sigmaSquare(matprop, p, pathCorrection, particle)) : 
                                                               msSigma(pathCorrection*matprop.thicknessInX0(),p,particle); 
@@ -1559,9 +1558,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
 
     // decide if photon leaves the layer
     // amount of material to traverse      
-    double pathCorrection = m_layer->surfaceRepresentation().normal().dot(bremPhoton->momentum()) !=0 ?
-      fabs(m_layer->surfaceRepresentation().pathCorrection(bremPhoton->position(),bremPhoton->momentum())) : 1.;
-
+    double  pathCorrection = m_layer->surfaceRepresentation().pathCorrection(bremPhoton->position(),bremPhoton->momentum());
     double mTot = m_matProp->thicknessInX0()*pathCorrection*(1.-remMat); 
 
     if (mTot < pLim.x0Max) {  // release 

@@ -137,7 +137,7 @@ StatusCode iFatras::PhysicsValidationTool::finalize()
 /** new transport tool */
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 const Trk::ExtrapolationCell<Trk::TrackParameters>& ec,
-							 Trk::ExtrapolationCode ecode) const {
+							 Trk::ExtrapolationCode ecode) {
 
   m_p     = isp.momentum().mag();
   m_ionloss = ec.eLoss ? ec.eLoss->meanIoni() : 0.;
@@ -175,7 +175,7 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 /** new transport tool */
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 const Trk::ExtrapolationCell<Trk::NeutralParameters>& ec,
-							 Trk::ExtrapolationCode ecode) const {
+							 Trk::ExtrapolationCode ecode) {
 
   m_p     = isp.momentum().mag();
   m_ionloss = 0.;
@@ -214,7 +214,7 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle& isp, 
 							 int endProcess,
 							 const Trk::TrackParameters* ePar,
-							 double time, double dX0 ) const {
+							 double time, double dX0 ) {
 
   m_pdg = isp.pdgCode();
   m_scIn = isp.getUserInformation()? isp.getUserInformation()->process() : 0;      // assume primary track
@@ -254,7 +254,7 @@ void iFatras::PhysicsValidationTool::saveISFParticleInfo(const ISF::ISFParticle&
 
 }
 
-void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) const { 
+void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) { 
 
   // ISF particle info ( common )
 
@@ -273,7 +273,7 @@ void iFatras::PhysicsValidationTool::saveInfo(const ISF::ISFParticle& isp) const
 }
 
 void iFatras::PhysicsValidationTool::saveISFVertexInfo(int process,Amg::Vector3D vertex,const ISF::ISFParticle& parent,Amg::Vector3D primIn,
-						       Amg::Vector3D* primOut, const ISF::ISFParticleVector children) const {
+						       Amg::Vector3D* primOut, const ISF::ISFParticleVector children) {
 
   m_process = process;
   unsigned int nSec = children.size();
