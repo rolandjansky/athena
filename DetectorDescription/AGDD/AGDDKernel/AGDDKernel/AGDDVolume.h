@@ -12,7 +12,7 @@
 
 class AGDDVolume {
 public:
-	AGDDVolume(std::string);
+	AGDDVolume(std::string s, bool v=false);
 	virtual ~AGDDVolume() {}
 	std::string GetName() {return name;}
 	void SetMaterial(std::string n) {material=n;}
@@ -28,9 +28,12 @@ public:
 	void SetSolid(void *p) {theSolid=p;}
 	void SetVolume(void *p) {theVolume=p;}
 	void SetColor(std::string c) {color=c;}
+	void IsSensitiveVolume(bool v); 
+	bool IsSensitiveVolume() {return isSensitive;}
 	std::string GetColor() {return color;}
 	std::string GetMaterial() {return material;}
 protected:
+ 
 	std::string name;
 	std::string material;
 	std::vector<AGDDPositioner*> theDaughters;
@@ -40,6 +43,8 @@ protected:
 	
 	void* theSolid;
 	void* theVolume;
+
+	bool isSensitive;
 };
 
 #endif

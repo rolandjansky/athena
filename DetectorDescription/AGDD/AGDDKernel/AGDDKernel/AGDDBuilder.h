@@ -29,7 +29,7 @@ class AGDDUbeam;
 class AGDDBuilder {
 public:
 	// constructor
-	AGDDBuilder() {theBuilder=this;}
+	AGDDBuilder() {s_theBuilder=this;}
 	virtual ~AGDDBuilder() {}
 	// elements & materials 
 	virtual void CreateElements()=0;
@@ -59,9 +59,9 @@ public:
 	virtual void BuildFromSection(std::string)=0;
 	virtual void BuildFromVolume(std::string)=0;
 
-    static AGDDBuilder* CurrentBuilder() {return theBuilder;}
+    static AGDDBuilder* CurrentBuilder() {return s_theBuilder;}
 private:
-    static AGDDBuilder* theBuilder;
+    static AGDDBuilder* s_theBuilder;
 };
 
 #endif
