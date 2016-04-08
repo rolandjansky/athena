@@ -12,6 +12,9 @@ use AtlasCLHEP       AtlasCLHEP-*          External
 use AtlasHepMC       AtlasHepMC-*          External
 private
 
+# Specify a dependency against the ROOT mincern library for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS minicern)"
+
 macro useCernlibCavernBkg "" target-darwin "AtlasCERNLIB AtlasCERNLIB-* External"
 use $(useCernlibCavernBkg)
 end_private
@@ -22,6 +25,9 @@ apply_pattern dual_use_library files="GenerateCavernBkg.cxx \
 				       gbkgout.F \
                        cavbkg.F \
                        atlrgeom.F"
+
+# Add the vdist function to the list of files in the library for cmake (transparent to CMT)
+apply_pattern cmake_add_generated_files library=CavernBkgGeneratorLib files=src/vdist.F
 
 apply_pattern declare_joboptions files="*.py"
 

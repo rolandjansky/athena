@@ -39,35 +39,35 @@ std::ostream& operator << ( std::ostream& os, const MuonBackgroundEventParser& e
 MuonBackgroundEventParser::MuonBackgroundEventParser ( void ) {
   m_eventNumber = 0; m_pdgId=0; m_string="";
   for( int i=0 ;i< 50 ; i++)
-    pdgId[i] =  0 ;
-  pdgId[1]  =    22;  // photon 
-  pdgId[2]  =   -11;  // positron
-  pdgId[3]  =    11;  // electron
-  pdgId[5]  =   -13;  // mu+
-  pdgId[6]  =    13;  // mu-
-  pdgId[7]  =   111;  // pi0
-  pdgId[8]  =   211;  // pi+
-  pdgId[9]  =  -211;  // pi-
-  pdgId[10] =   130;  // K0_L
-  pdgId[13] =  2112;  // neutron
-  pdgId[14] =  2212;  // proton
-  pdgId[25] = -2112;  // anti-neutron
+    m_pdgIdTable[i] =  0 ;
+  m_pdgIdTable[1]  =    22;  // photon 
+  m_pdgIdTable[2]  =   -11;  // positron
+  m_pdgIdTable[3]  =    11;  // electron
+  m_pdgIdTable[5]  =   -13;  // mu+
+  m_pdgIdTable[6]  =    13;  // mu-
+  m_pdgIdTable[7]  =   111;  // pi0
+  m_pdgIdTable[8]  =   211;  // pi+
+  m_pdgIdTable[9]  =  -211;  // pi-
+  m_pdgIdTable[10] =   130;  // K0_L
+  m_pdgIdTable[13] =  2112;  // neutron
+  m_pdgIdTable[14] =  2212;  // proton
+  m_pdgIdTable[25] = -2112;  // anti-neutron
 
 
   for( int i=0 ;i< 50 ; i++)
-    mass[i]  = 0.0;
-  mass[1]  = 0.0;             // photon 
-  mass[2]  = 5.10998902e-01;  // positron
-  mass[3]  = 5.10998902e-01;  // electron
-  mass[5]  = 1.05658357e+02;  // mu+
-  mass[6]  = 1.05658357e+02;  // mu-
-  mass[7]  = 1.349766e+02;    // pi0
-  mass[8]  = 1.3957018e+02;   // pi+
-  mass[9]  = 1.3957018e+02;   // pi-
-  mass[10] = 4.97672e+02;     // K0_L
-  mass[13] = 9.3956533e+02;   // neutron
-  mass[14] = 9.3827200e+02;   // proton
-  mass[25] = 9.3956533e+02;   // anti-neutron
+    m_mass[i]  = 0.0;
+  m_mass[1]  = 0.0;             // photon 
+  m_mass[2]  = 5.10998902e-01;  // positron
+  m_mass[3]  = 5.10998902e-01;  // electron
+  m_mass[5]  = 1.05658357e+02;  // mu+
+  m_mass[6]  = 1.05658357e+02;  // mu-
+  m_mass[7]  = 1.349766e+02;    // pi0
+  m_mass[8]  = 1.3957018e+02;   // pi+
+  m_mass[9]  = 1.3957018e+02;   // pi-
+  m_mass[10] = 4.97672e+02;     // K0_L
+  m_mass[13] = 9.3956533e+02;   // neutron
+  m_mass[14] = 9.3827200e+02;   // proton
+  m_mass[25] = 9.3956533e+02;   // anti-neutron
 
 }
 
@@ -83,7 +83,7 @@ std::istream& MuonBackgroundEventParser::read( std::istream& is )
     is >> m_eventNumber >> id >> time >> vert >> px1 >> py1 >> pz1 >> p;
 
     //
-    // Convert G3 particle ID to PDG one; determine particle mass
+    // Convert G3 particle ID to PDG one; determine particle m_mass
     //
     m_pdgId     = convertG3ToPdg( id );
     double mass = getMass( id );
@@ -147,7 +147,7 @@ int MuonBackgroundEventParser::convertG3ToPdg( int g3Id ) const
   if( g3Id < 0 || g3Id > 49)
     return 0;
   
-  return pdgId[ g3Id ];
+  return m_pdgIdTable[ g3Id ];
 }  
 
 
@@ -157,5 +157,5 @@ double MuonBackgroundEventParser::getMass( int g3Id ) const
     return 0.0;
 
   
-  return mass[ g3Id ];
+  return m_mass[ g3Id ];
 }  

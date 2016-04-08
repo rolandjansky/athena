@@ -42,8 +42,8 @@ class MuonBackgroundEventParser
     friend std::ostream& operator << ( std::ostream& os, const MuonBackgroundEventParser& evt );
 
 
-    int pdgId[50];
-    double mass[50];
+    int m_pdgIdTable[50];
+    double m_mass[50];
 
 };
 
