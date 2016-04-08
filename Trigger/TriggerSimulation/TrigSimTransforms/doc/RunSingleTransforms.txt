@@ -1,0 +1,68 @@
+========================
+
+      PREPARATION
+
+========================
+
+# setup AtlasProduction release
+
+asetup 17.2.1.4
+cmt co Trigger/TriggerSimulation/TrigSimTransforms
+cd Trigger/TriggerSimulation/TrigSimTransforms/cmt
+make
+
+# then pick an arbitrary place to work
+
+mkdir -p develop
+cd develop
+
+# get the transforms (they are symlinked, so you can edit directly)
+
+getLegacySimulationTransforms.sh
+
+
+========================
+
+      RUNNING
+
+========================
+
+# now we can run any of the transforms, as long as the input is available
+
+
+------------------------
+   Digitization
+------------------------
+## input:
+# always available on afs
+
+## run:
+./runLegacySimulation_digitization.sh [outputdir]
+
+
+------------------------
+   RDO -> BS
+------------------------
+## input:
+ln -sf digitization/digiRDO.pool.root 
+# or 
+ln -sf /afs/cern.ch/work/s/stelzer/LegacySimWorkareaForWernerJoerg/digitizedRDO/digiRDO.pool.root
+
+## run:
+./runLegacySimulation_rdo2bs.sh [outputdir]
+
+## checking the ROD versions
+ipython printRODVersions.py rdobs/digiBS.data
+
+
+------------------------
+   Trigger Simulation
+------------------------
+## input:
+mv rdobs rdobs_success
+ln -sf rdobs_success/digiBS.data 
+
+## run:
+./runLegacySimulation_trigsim.sh [outputdir]
+
+

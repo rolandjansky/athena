@@ -1,0 +1,27 @@
+========================
+
+      PREPARATION
+
+========================
+
+# setup MC production release (currently still using a nightly)
+
+asetup MCProd,17.7.X.Y.Z-VAL,gcc46,Sun 
+pkgco.py -A TrigSimTransforms
+(cd Trigger/TriggerSimulation/TrigSimTransforms/cmt; make)
+
+
+# then pick an arbitrary place to work and link the file
+
+mkdir -p combined
+cd combined
+ln -sf /afs/cern.ch/work/s/stelzer/LegacySimWorkareaForWernerJoerg/digitizedRDO/digiRDO.pool.root
+
+========================
+
+      RUNNING
+
+========================
+
+runLegacySimulation_combined.sh
+

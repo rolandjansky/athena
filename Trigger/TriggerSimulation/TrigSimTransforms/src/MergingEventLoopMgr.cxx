@@ -65,11 +65,11 @@
  * Define some dummy class in some protected/controled namespace to avoid
  * clashing with the intended behaviour of the function.
  */
-namespace TrigSim {
-    namespace Backdoor {
-        class DSfromSG; // DetectoreStore from StoreGate
-    }
-}
+// namespace TrigSim {
+//     namespace Backdoor {
+//         class DSfromSG; // DetectoreStore from StoreGate
+//     }
+// }
 /*
  * I found the following templated function suitable:
  * 
@@ -80,10 +80,10 @@ namespace TrigSim {
  * In the function definition one can of cause access private data members, but
  * we will still have to respect the function prototype:
  */
-template <>
-TrigSim::Backdoor::DSfromSG* StoreGateSvc::retrieve<TrigSim::Backdoor::DSfromSG>() {
-    return (TrigSim::Backdoor::DSfromSG *) m_pStore;
-}
+// template <>
+// TrigSim::Backdoor::DSfromSG* StoreGateSvc::retrieve<TrigSim::Backdoor::DSfromSG>() {
+//   return (TrigSim::Backdoor::DSfromSG *) m_pStore;
+// }
 /*
  * Usage will be:
  *
@@ -471,10 +471,11 @@ namespace TrigSim {
              *       but for current purposes, events lines up nicely
              */
 
-            if(pPrimEvt->event_ID()->event_number() != pSecEvt->event_ID()->event_number()
+            if( pPrimEvt == 0 || pSecEvt == 0
+                || pPrimEvt->event_ID()->event_number() != pSecEvt->event_ID()->event_number()
                 || pPrimEvt->event_ID()->run_number() != pSecEvt->event_ID()->run_number()) {
 
-                m_log << MSG::ERROR << "EventInfo for primary and secondary differs. This scenario has NOT been counted for (yet)."
+                m_log << MSG::ERROR << "EventInfo for primary and secondary differs or could not be retreived. This scenario has NOT been counted for (yet)."
                       << endreq;
                 sc = StatusCode::FAILURE;
                 break;
@@ -655,10 +656,9 @@ namespace TrigSim {
                 /*
                  * Get DataStore handles
                  */
-                SG::DataStore *primDataStore = (SG::DataStore *)m_primEvtStore->retrieve<Backdoor::DSfromSG>();
-                SG::DataStore *secDataStore  = (SG::DataStore *)m_secEvtStore->retrieve<Backdoor::DSfromSG>();
+                // SG::DataStore *primDataStore = (SG::DataStore *)m_primEvtStore->retrieve<Backdoor::DSfromSG>();
+                // SG::DataStore *secDataStore  = (SG::DataStore *)m_secEvtStore->retrieve<Backdoor::DSfromSG>();
 
-            
 
                 /*
                  * Setup sharing of the primary proxies
@@ -674,7 +674,8 @@ namespace TrigSim {
                               //<< " Proxy is " << (it->second->isValid() ? "" : "NOT ") << "valid"
                               << endreq;
 
-                        sc = secDataStore->addToStore(it->second->address()->clID(), it->second);
+			// sc = secDataStore->addToStore(it->second->address()->clID(), it->second);
+                        sc = m_secEvtStore->addToStore(it->second->address()->clID(), it->second);
 
                         if(sc.isFailure()) break;
                     }
@@ -697,7 +698,8 @@ namespace TrigSim {
                               //<< " Proxy is " << (it->second->isValid() ? "" : "NOT ") << "valid"
                               << endreq;
 
-                        sc = primDataStore->addToStore(it->second->address()->clID(), it->second);
+			// sc = primDataStore->addToStore(it->second->address()->clID(), it->second);
+                        sc = m_primEvtStore->addToStore(it->second->address()->clID(), it->second);
 
                         if(sc.isFailure()) break;
                     }
