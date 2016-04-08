@@ -30,6 +30,9 @@ class TH1D;
 class TH1D_LW;
 class TH2D_LW;
 class TProfile_LW;
+const int Nsamp = 7;
+const int Nmod = 4;
+const int Nside = 2;
 
 class HIMonitoringZdcTool : public ManagedMonitorToolBase
 {
@@ -47,67 +50,31 @@ class HIMonitoringZdcTool : public ManagedMonitorToolBase
 
       
 	  void book_hist();
-	  
-	  
-   private:
-      
-      /// histograms 
-   
-  TH1D_LW* A_hamp_module0 ;
-	TH1D_LW* A_hamp_module1 ;
-	TH1D_LW* A_hamp_module2 ;
-	TH1D_LW* A_hamp_module3 ;
-	TH1D_LW* A_hamp_sum; 
-	TH1D_LW* A_hampG0_module0 ;
-	TH1D_LW* A_hampG0_module1 ;
-	TH1D_LW* A_hampG0_module2 ;
-	TH1D_LW* A_hampG0_module3 ;
-	TH1D_LW* A_hampG0_sum; 
-	TH1D_LW* A_hampG1_module0 ;
-	TH1D_LW* A_hampG1_module1 ;
-	TH1D_LW* A_hampG1_module2 ;
-	TH1D_LW* A_hampG1_module3 ;
-	TH1D_LW* A_hampG1_sum;
-	TH1D_LW* C_hamp_module0 ;
-	TH1D_LW* C_hamp_module1 ;
-	TH1D_LW* C_hamp_module2 ;
-	TH1D_LW* C_hamp_module3 ;
-	TH1D_LW* C_hamp_sum; 
-	TH1D_LW* C_hampG0_module0; 
-	TH1D_LW* C_hampG0_module1 ;
-	TH1D_LW* C_hampG0_module2 ;
-	TH1D_LW* C_hampG0_module3 ;
-	TH1D_LW* C_hampG0_sum; 
-	TH1D_LW* C_hampG1_module0 ;
-	TH1D_LW* C_hampG1_module1 ;
-	TH1D_LW* C_hampG1_module2 ;
-	TH1D_LW* C_hampG1_module3 ;
-	TH1D_LW* C_hampG1_sum;
-	TH1D_LW* A_htime_module0 ;
-	TH1D_LW* A_htime_module1 ;
-	TH1D_LW* A_htime_module2 ;
-	TH1D_LW* A_htime_module3 ;
-	TH1D_LW* A_htimeG0_module0;
-	TH1D_LW* A_htimeG0_module1;
-	TH1D_LW* A_htimeG0_module2;
-	TH1D_LW* A_htimeG0_module3;
-	TH1D_LW* A_htimeG1_module0;
-	TH1D_LW* A_htimeG1_module1;
-	TH1D_LW* A_htimeG1_module2;
-	TH1D_LW* A_htimeG1_module3;
-	TH1D_LW* C_htime_module0 ;
-	TH1D_LW* C_htime_module1 ;
-	TH1D_LW* C_htime_module2 ;
-	TH1D_LW* C_htime_module3 ;
-	TH1D_LW* C_htimeG0_module0;
-	TH1D_LW* C_htimeG0_module1;
-	TH1D_LW* C_htimeG0_module2;
-	TH1D_LW* C_htimeG0_module3;
-	TH1D_LW* C_htimeG1_module0;
-	TH1D_LW* C_htimeG1_module1;
-	TH1D_LW* C_htimeG1_module2;
-	TH1D_LW* C_htimeG1_module3;
-	TH1D_LW* hside;
+
+
+	 private:
+		double AEM, AHAD1, AHAD2, AHAD3;
+		double CEM, CHAD1, CHAD2, CHAD3;
+		double G0AEM, G0AHAD1, G0AHAD2, G0AHAD3;
+		double G0CEM, G0CHAD1, G0CHAD2, G0CHAD3;
+		double G1AEM, G1AHAD1, G1AHAD2, G1AHAD3;
+		double G1CEM, G1CHAD1, G1CHAD2, G1CHAD3;
+		double SumSideA, SumSideC;
+
+
+		/// histograms 
+
+	TH1D_LW* hamp[Nmod][Nside];
+		TH1D_LW* hampG0[Nmod][Nside];
+		TH1D_LW* hampG1[Nmod][Nside];
+		TH1D_LW* hSumSideAmp[Nside];
+		TH1D_LW* hSumSideAmpG0[Nside];
+		TH1D_LW* hSumSideAmpG1[Nside];
+		TH2D_LW* hEM_HAD1[Nside];
+		TH2D_LW* hHAD1_HAD2[Nside];
+		TH2D_LW* hHAD2_HAD3[Nside];
+		TH2D_LW* hSideAC;
+
 	    
 };
 
