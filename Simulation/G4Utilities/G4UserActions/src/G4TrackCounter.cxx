@@ -6,21 +6,16 @@
 #include "MCTruth/TrackHelper.h"
 #include <iostream>
 
-static G4TrackCounter ts1("G4TrackCounter");
+//static G4TrackCounter ts1("G4TrackCounter");
 
-void G4TrackCounter::BeginOfEventAction(const G4Event*)
+void G4TrackCounter::BeginOfEvent(const G4Event*)
 {
 	nevts++;
 	ATH_MSG_DEBUG("increasing nevts to "<<nevts);
 }
 
-void G4TrackCounter::EndOfEventAction(const G4Event*)
-{;}
 
-void G4TrackCounter::BeginOfRunAction(const G4Run*)
-{;}
-
-void G4TrackCounter::EndOfRunAction(const G4Run*)
+void G4TrackCounter::EndOfRun(const G4Run*)
 {
   if (nevts>0){
     avtracks=ntracks/(double)nevts;
@@ -40,13 +35,8 @@ void G4TrackCounter::EndOfRunAction(const G4Run*)
   ATH_MSG_INFO("*****************************************************");
 }
 
-void G4TrackCounter::SteppingAction(const G4Step*)
-{;}
 
-void G4TrackCounter::PostUserTrackingAction(const G4Track*)
-{;}
-
-void G4TrackCounter::PreUserTrackingAction(const G4Track* aTrack)
+void G4TrackCounter::PreTracking(const G4Track* aTrack)
 {
 
   ntracks_tot++;
@@ -60,4 +50,22 @@ void G4TrackCounter::PreUserTrackingAction(const G4Track* aTrack)
 
   if(aTrack->GetKineticEnergy()>50) ntracks_en++;
 
+}
+
+StatusCode G4TrackCounter::initialize()
+{
+	return StatusCode::SUCCESS;
+}
+
+
+StatusCode G4TrackCounter::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

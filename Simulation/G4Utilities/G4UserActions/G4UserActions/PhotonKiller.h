@@ -5,22 +5,22 @@
 #ifndef PhotonKiller_H
 #define PhotonKiller_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
 #include <string>
 
-class PhotonKiller: public FADS::ActionsBase , public FADS::UserAction {
+class PhotonKiller final: public UserActionBase {
+  
+ public:
+ PhotonKiller(const std::string& type, const std::string& name, const IInterface* parent): UserActionBase(type,name,parent){};
 
-  public:
-   PhotonKiller(std::string s): FADS::ActionsBase(s),FADS::UserAction(s) { }
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
-
-  private:
-
+  virtual void Step(const G4Step*) override;
+  
+  virtual StatusCode initialize() override;
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+  
+ private:
+  
 };
 
 #endif

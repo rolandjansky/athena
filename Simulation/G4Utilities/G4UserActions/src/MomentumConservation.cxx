@@ -10,11 +10,7 @@
 //#include "G4FourVector.hh"
 #include <iostream>
 
-// Static instance
-static MomentumConservation _momconsv("MomentumConservation");
-
-
-void MomentumConservation::EndOfEventAction(const G4Event* anEvent) {
+void MomentumConservation::EndOfEvent(const G4Event* anEvent) {
   // Energy conservation:
 
   // Get energy of primaries
@@ -50,7 +46,7 @@ void MomentumConservation::EndOfEventAction(const G4Event* anEvent) {
 }
 
 
-void MomentumConservation::SteppingAction(const G4Step* aStep) {
+void MomentumConservation::Step(const G4Step* aStep) {
   if (aStep->GetPostStepPoint()->GetPhysicalVolume() != 0) {
     const double edep = aStep->GetTotalEnergyDeposit();
     _sum_edep += edep;
@@ -59,4 +55,16 @@ void MomentumConservation::SteppingAction(const G4Step* aStep) {
     const double eesc = aStep->GetPostStepPoint()->GetTotalEnergy();
     _sum_eesc += eesc;
   }
+}
+
+StatusCode MomentumConservation::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

@@ -6,14 +6,13 @@
 #include <iostream>
 #include <iomanip>
 
-static G4SimTimer ts1("G4SimTimer");
 
-void G4SimTimer::BeginOfEventAction(const G4Event*)
+void G4SimTimer::BeginOfEvent(const G4Event*)
 {
 	nrOfEntries++;
 	eventTimer->Start();
 }
-void G4SimTimer::EndOfEventAction(const G4Event*)
+void G4SimTimer::EndOfEvent(const G4Event*)
 {
 	eventTimer->Stop();
 	eventTime=eventTimer->GetUserElapsed()+eventTimer->GetSystemElapsed();
@@ -24,25 +23,22 @@ void G4SimTimer::EndOfEventAction(const G4Event*)
 	ATH_MSG_INFO("\t Event nr. "<<nrOfEntries<<" took " << std::setprecision(4) << eventTime << " s. New average " << 
                std::setprecision(4) << averageTimePerEvent()<<" +- "<<std::setprecision(4) << Sigma());
 }
-void G4SimTimer::BeginOfRunAction(const G4Run*)
+void G4SimTimer::BeginOfRun(const G4Run*)
 {
 	runTimer->Start();
 }
-void G4SimTimer::EndOfRunAction(const G4Run*)
+void G4SimTimer::EndOfRun(const G4Run*)
 {
 	runTimer->Stop();
 	runTime=runTimer->GetUserElapsed()+runTimer->GetSystemElapsed();
-	ATH_MSG_INFO("*****************************************"<<std::endl<<
-	             "**                                     **"<<std::endl<<
-			     "    End of run - time spent is "<<std::setprecision(4) << runTime<<std::endl<<
-    	         "    Average time per event was "<<std::setprecision(4) << averageTimePerEvent()<<" +- "<< std::setprecision(4) << Sigma()<<std::endl<<
-		   		 "**                                     **"<<std::endl<<
-		   		 "*****************************************");
+	ATH_MSG_INFO("*****************************************");
+	ATH_MSG_INFO("**                                     **");
+	ATH_MSG_INFO("    End of run - time spent is "<<std::setprecision(4) << runTime);
+	ATH_MSG_INFO("    Average time per event was "<<std::setprecision(4) << averageTimePerEvent()<<" +- "<< std::setprecision(4) << Sigma());
+	ATH_MSG_INFO("**                                     **");
+	ATH_MSG_INFO("*****************************************");
 }
-void G4SimTimer::SteppingAction(const G4Step*)
-{
 
-}
 double G4SimTimer::averageTimePerEvent()
 {
 	if (nrOfEntries<2) return -1;
@@ -53,4 +49,22 @@ double G4SimTimer::Sigma()
 {
 	if (nrOfEntries<3) return -1;
 	return sqrt((accumulatedEventTimeSquared/(nrOfEntries-1)-averageTimePerEvent()*averageTimePerEvent())/(nrOfEntries-2));
+}
+
+StatusCode G4SimTimer::initialize()
+{
+	return StatusCode::SUCCESS;
+}
+
+
+StatusCode G4SimTimer::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

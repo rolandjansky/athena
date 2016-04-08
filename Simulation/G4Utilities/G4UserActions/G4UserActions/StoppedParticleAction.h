@@ -5,22 +5,25 @@
 #ifndef StoppedParticleAction_h
 #define StoppedParticleAction_h
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 class TrackFastSimSD;
 
-class StoppedParticleAction: public FADS::ActionsBase , public FADS::UserAction
-{
+class StoppedParticleAction final: public UserActionBase {
  public:
-  StoppedParticleAction(std::string name) : FADS::ActionsBase(name) , FADS::UserAction(name) , m_fsSD(0) , m_init(false) {}
-  void BeginOfEventAction(const G4Event*);
-  void EndOfEventAction(const G4Event*);
-  void BeginOfRunAction(const G4Run*);
-  void EndOfRunAction(const G4Run*);
-  void SteppingAction(const G4Step*);
+ StoppedParticleAction(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
+    m_fsSD(0) , m_init(false) {}
+
+  virtual void Step(const G4Step*) override;
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  protected: 
+
   bool isSUSYParticle(const int) const;
   TrackFastSimSD * m_fsSD;  
   bool m_init;

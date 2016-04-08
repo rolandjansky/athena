@@ -14,59 +14,53 @@
 #include "G4Step.hh"
 #include "G4TrackVector.hh"
 
-#include "G4DetectorEnvelopes/EnvelopeGeometryManager.h"
-
-static FastIDKiller fidk("FastIDKiller");
-
-void FastIDKiller::BeginOfEventAction(const G4Event*)
+FastIDKiller::FastIDKiller(const std::string& type, const std::string& name, const IInterface* parent):
+  UserActionBase(type,name,parent),
+  m_energyCut(100000000.),
+  m_killCount(0),
+  m_init(false),
+  m_idR(1150.),
+  m_idZ(3490.)
 {
-  if (!m_init) doInit();
+  declareProperty("EnergyCut", m_energyCut);
+  declareProperty("R",m_idR);
+  declareProperty("Z",m_idZ);
 }
 
 
-void FastIDKiller::EndOfEventAction(const G4Event*)
-{;}
-
-
-void FastIDKiller::BeginOfRunAction(const G4Run*)
+void FastIDKiller::BeginOfRun(const G4Run*)
 {
   ATH_MSG_INFO( "Including the Fast Inner Detector Killer." << std::endl
-            << "\t This piece of code will kill all particles leaving the" << std::endl
-            << "\t inner detector region (which should be defined in your" << std::endl
-            << "\t job options) except those satisfying certain criteria." << std::endl
-            << "\t (e/gamma will not be killed above " << m_energyCut/1000. << " GeV." );
-  if (!m_init) doInit();
+                << "\t This piece of code will kill all particles leaving the" << std::endl
+                << "\t inner detector region (which should be defined in your" << std::endl
+                << "\t job options) except those satisfying certain criteria." << std::endl
+                << "\t (e/gamma will not be killed above " << m_energyCut/1000. << " GeV." );
+  doInit();
 }
 
 
-void FastIDKiller::EndOfRunAction(const G4Run*)
+StatusCode FastIDKiller::finalize()
 {
   ATH_MSG_INFO( "Fast Inner Detector Killer killed " << m_killCount << " particles during this run." );
+  return StatusCode::SUCCESS;
 }
 
 
 void FastIDKiller::doInit()
 {
-  EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
-  m_idR = gm->IdetOuterRadius();
-  m_idZ = gm->IdetMaxZ();
-
-  if(theProperties.find("R")!=theProperties.end()){
-    m_idR = atof(theProperties["R"].c_str());
-    ATH_MSG_DEBUG("FastIDKiller: R specified as "<<m_idR);
-  };
-  if(theProperties.find("Z")!=theProperties.end()){
-    m_idZ = atof(theProperties["Z"].c_str());
-    ATH_MSG_DEBUG("FastIDKiller: Z specified as "<<m_idZ);
-  };
-
+  //FIXME need a nice way of getting the maximum size of the ID envelope in R and Z.
+  // EnvelopeGeometryManager *gm=EnvelopeGeometryManager::GetGeometryManager();
+  // if(m_idR==0.)
+  //   m_idR = gm->IdetOuterRadius();
+  // if(m_idZ==0.)
+  //   m_idZ = gm->IdetMaxZ();
   ATH_MSG_INFO( "Fast ID Killer initialized with radius " << m_idR << " and Z " << m_idZ);
 
   m_init=true;
 }
 
 
-void FastIDKiller::SteppingAction(const G4Step* aStep)
+void FastIDKiller::Step(const G4Step* aStep)
 {
   if (msgLvl(MSG::VERBOSE)){
     ATH_MSG_DEBUG( " ===================================================== " );
@@ -88,46 +82,44 @@ void FastIDKiller::SteppingAction(const G4Step* aStep)
 
     if ( !aStep->GetPostStepPoint() ||
          !aStep->GetPreStepPoint() )
-    {
+      {
         ATH_MSG_ERROR( " One of the pointers was null!  This should never happen!!!" );
         throw "Null position pointer";
-    }
+      }
   }
 
   if ( aStep->GetPreStepPoint()->GetPosition().rho() > m_idR ||
        aStep->GetPreStepPoint()->GetPosition().z() > m_idZ ||
        aStep->GetPreStepPoint()->GetPosition().z() < -m_idZ
-     )
-  {
-    return; // We started outside the ID envelope
-  }
+       )
+    {
+      return; // We started outside the ID envelope
+    }
 
   if ( aStep->GetPostStepPoint()->GetPosition().rho() < m_idR &&
        aStep->GetPostStepPoint()->GetPosition().z() < m_idZ &&
        aStep->GetPostStepPoint()->GetPosition().z() > -m_idZ
-     )
-  {
-    return; // We finished inside the ID envelope
-  }
+       )
+    {
+      return; // We finished inside the ID envelope
+    }
 
   // Otherwise we have a non-muon that started inside and ended outside the ID envelope!  KILL IT!
 
-  if (msgLvl(MSG::VERBOSE)){
-    ATH_MSG_VERBOSE( " We have a " << aStep->GetTrack()->GetDefinition()->GetParticleName()
-              << " going from " << std::endl
-              << " ----> " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName()
-              << " to "
-              << aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName()
-              << std::endl
-              << " with attributes: " << std::endl
-              << " Energy: " << aStep->GetTrack()->GetTotalEnergy()
-              << " Eta: " << aStep->GetTrack()->GetMomentum ().getEta()
-              << " Pt: " << aStep->GetTrack()->GetMomentum ().perp()
-              << " and at coordinates: " << std::endl
-              << " R: " << aStep->GetPostStepPoint()->GetPosition().rho()
-              << " Z: " << aStep->GetPostStepPoint()->GetPosition().z()
-              << " Phi: " << aStep->GetPostStepPoint()->GetPosition().phi() );
-  }
+  ATH_MSG_VERBOSE( " We have a " << aStep->GetTrack()->GetDefinition()->GetParticleName()
+                   << " going from " << std::endl
+                   << " ----> " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName()
+                   << " to "
+                   << aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetRegion()->GetName()
+                   << std::endl
+                   << " with attributes: " << std::endl
+                   << " Energy: " << aStep->GetTrack()->GetTotalEnergy()
+                   << " Eta: " << aStep->GetTrack()->GetMomentum ().getEta()
+                   << " Pt: " << aStep->GetTrack()->GetMomentum ().perp()
+                   << " and at coordinates: " << std::endl
+                   << " R: " << aStep->GetPostStepPoint()->GetPosition().rho()
+                   << " Z: " << aStep->GetPostStepPoint()->GetPosition().z()
+                   << " Phi: " << aStep->GetPostStepPoint()->GetPosition().phi() );
 
   // Ignore electrons above a certain energy
   //  at some point it might be interesting to see what effect this has on other particles (eg pi0)
@@ -154,9 +146,21 @@ void FastIDKiller::KillParticle(const G4Step* aStep)
     if ( (*tv)[i]->GetPosition().rho() < m_idR &&
          (*tv)[i]->GetPosition().z() < m_idZ &&
          (*tv)[i]->GetPosition().z() > -m_idZ
-       ) continue;
+         ) continue;
     (*tv)[i]->SetTrackStatus(fStopAndKill);
   }
   m_killCount++;
 }
 
+
+StatusCode FastIDKiller::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
+}

@@ -12,19 +12,7 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-static HIPKiller hpk("HIPKiller");
-
-void HIPKiller::BeginOfEventAction(const G4Event*){
-  //      std::cout<<"SB: HIPKiller BeginOfEvent"<<std::endl;
-  ;
-}
-void HIPKiller::EndOfEventAction(const G4Event*){;}
-void HIPKiller::BeginOfRunAction(const G4Run*){
-  //      std::cout<<"SB: HIPKiller BeginOfRun"<<std::endl;
-  ;
-}
-void HIPKiller::EndOfRunAction(const G4Run*){;}
-void HIPKiller::SteppingAction(const G4Step* aStep)
+void HIPKiller::Step(const G4Step* aStep)
 {
   int PDGcode=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
   
@@ -37,4 +25,17 @@ void HIPKiller::SteppingAction(const G4Step* aStep)
       ATH_MSG_WARNING("HIP " << PDGcode << " is being killed: kinetic energy="<< aStep->GetTrack()->GetKineticEnergy()/CLHEP::MeV << "MeV");
     }
   }
+}
+
+
+StatusCode HIPKiller::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+{
+  if ( IUserAction::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IUserAction*>(this);
+    addRef();
+  } else {
+    // Interface is not directly available : try out a base class
+    return UserActionBase::queryInterface(riid, ppvInterface);
+  }
+  return StatusCode::SUCCESS;
 }

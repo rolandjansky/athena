@@ -5,25 +5,26 @@
 #ifndef HitWrapper_H
 #define HitWrapper_H
 
-#include "FadsActions/ActionsBase.h"
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
+
 #include <string>
 
-class HitWrapper: public FADS::ActionsBase , public FADS::UserAction {
+class HitWrapper final: public UserActionBase {
 
   public:
-   HitWrapper(std::string s): FADS::ActionsBase(s),FADS::UserAction(s),m_init(false),m_time(25.) { }
-   void BeginOfEventAction(const G4Event*);
-   void EndOfEventAction(const G4Event*);
-   void BeginOfRunAction(const G4Run*);
-   void EndOfRunAction(const G4Run*);
-   void SteppingAction(const G4Step*);
+  HitWrapper(const std::string& type, const std::string& name, const IInterface* parent);
+
+  virtual void EndOfEvent(const G4Event*) override;
+
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
   private:
-   bool m_init; //!< Have the properties been parsed?
-   double m_time; //!< Time over which to wrap the hits
-   void parseProperties();
 
+  double m_time; //!< Time over which to wrap the hits
+  
+
+  
 };
 
 #endif
