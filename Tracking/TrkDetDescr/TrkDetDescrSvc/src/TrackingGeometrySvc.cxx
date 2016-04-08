@@ -71,7 +71,6 @@ Trk::TrackingGeometrySvc::~TrackingGeometrySvc()
 /** Initialize Service */
 StatusCode Trk::TrackingGeometrySvc::initialize()
 {
-
   if (m_geometryProcessors.retrieve().isFailure()){
       ATH_MSG_FATAL( "Could not retrieve " << m_geometryProcessors );
       return StatusCode::FAILURE;
@@ -88,13 +87,11 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
   std::vector< std::string > tagInfoKeys = m_pDetStore->keys<TagInfo> ();
   std::string tagInfoKey = "";
 
-  if(tagInfoKeys.size()==0)
-    ATH_MSG_WARNING( " No TagInfo keys in DetectorStore ");
-   else {
-     if(tagInfoKeys.size() > 1)
-       ATH_MSG_WARNING( " More than one TagInfo key in the DetectorStore, using the first one " );
-       tagInfoKey = tagInfoKeys[0];
-   }
+  if(tagInfoKeys.size()==0)   ATH_MSG_WARNING( " No TagInfo keys in DetectorStore ");
+  else {
+    if(tagInfoKeys.size() > 1) ATH_MSG_WARNING( " More than one TagInfo key in the DetectorStore, using the first one " );
+    tagInfoKey = tagInfoKeys[0];
+  }
 
   if (!m_callbackStringForced) m_callbackString = tagInfoKey;
         
@@ -102,9 +99,8 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
     // register the Callback
     const DataHandle<TagInfo> tagInfoH;
     if ( (m_pDetStore->regFcn(&ITrackingGeometrySvc::trackingGeometryInit,
-    dynamic_cast<ITrackingGeometrySvc*>(this),tagInfoH,m_callbackString)).isFailure() ){
-        ATH_MSG_WARNING( "Unable to register regFcn callback from DetectorStore" );
-        
+        dynamic_cast<ITrackingGeometrySvc*>(this),tagInfoH,m_callbackString)).isFailure() ){
+      ATH_MSG_WARNING( "Unable to register regFcn callback from DetectorStore" );
     } 
 
     // If GeoModelSvc has been configured to pick up geometry version automatically 
@@ -117,19 +113,18 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
     if (!geoModel->geoInitialized() && 
        (m_pDetStore->regFcn(&IGeoModelSvc::geoInit, geoModel, &ITrackingGeometrySvc::trackingGeometryInit,
                            dynamic_cast<ITrackingGeometrySvc*>(this))).isFailure()){
-        ATH_MSG_WARNING( "Unable to register trackingGeometryInit callback after IGeoModelSvc::geoInit" );
+      ATH_MSG_WARNING( "Unable to register trackingGeometryInit callback after IGeoModelSvc::geoInit" );
     }
   } else {
-      ATH_MSG_INFO( "Building Geometry at initialisaiton time." );
-
-      // call with dummy parameters
-      int par1 = 0;
-      std::list<std::string> par2;
-      // build with no dependency on COOL
-      if (trackingGeometryInit(par1,par2).isFailure()) { 
-         ATH_MSG_FATAL( "Unable to build the TrackingGeometry!" );
-         return StatusCode::FAILURE;
-      }
+    ATH_MSG_INFO( "Building Geometry at initialisation time." );
+    // call with dummy parameters
+    int par1 = 0;
+    std::list<std::string> par2;
+    // build with no dependency on COOL
+    if (trackingGeometryInit(par1,par2).isFailure()) { 
+      ATH_MSG_FATAL( "Unable to build the TrackingGeometry!" );
+      return StatusCode::FAILURE;
+    }
   }
   ATH_MSG_INFO( "initialize() successful! " );
   return StatusCode::SUCCESS;

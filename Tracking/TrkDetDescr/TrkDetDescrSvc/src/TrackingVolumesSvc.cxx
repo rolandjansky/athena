@@ -24,9 +24,9 @@
 #include "EventInfo/TagInfo.h"
 
 /** Constructor **/
-Trk::TrackingVolumesSvc::TrackingVolumesSvc(const std::string& name,ISvcLocator* svc) : 
-    Service(name,svc),
-    m_pDetStore(0),
+Trk::TrackingVolumesSvc::TrackingVolumesSvc(const std::string& a_name,ISvcLocator* svc) : 
+    AthService(a_name,svc),
+    m_pDetStore("DetectorStore",name()),
     m_buildGeometryFromTagInfo(false)
 { 
     m_volumes.reserve(Trk::ITrackingVolumesSvc::NumIdentifiers);
@@ -64,23 +64,10 @@ Trk::TrackingVolumesSvc::~TrackingVolumesSvc()
 /** Initialize Service */
 StatusCode Trk::TrackingVolumesSvc::initialize()
 {
-  MsgStream log(msgSvc(), name());
-
-  // initialization of the base class
-  StatusCode result = Service::initialize();
-  if (result.isFailure()) 
-  {
-    log << MSG::FATAL << "Unable to initialize the service!" << endreq;
-    return result;
-  }
+  ATH_CHECK( AthService::initialize());
 
   // get the DetectorStore
-  result = service("DetectorStore", m_pDetStore );  
-  if (result.isFailure()) 
-  {
-    log << MSG::FATAL << "DetectorStore service not found!" << endreq;
-    return result;
-  }
+  ATH_CHECK( m_pDetStore.retrieve() );
 
   // ---------------------------------------------------------------------------------------------------
 
@@ -88,27 +75,27 @@ StatusCode Trk::TrackingVolumesSvc::initialize()
     // register the Callback
     const DataHandle<TagInfo> tagInfoH;
     std::string key = "ESDtags";
-    result =  m_pDetStore->regFcn(&ITrackingVolumesSvc::trackingVolumesInit,dynamic_cast<ITrackingVolumesSvc*>(this),tagInfoH,key);
+    ATH_CHECK( m_pDetStore->regFcn(&ITrackingVolumesSvc::trackingVolumesInit,dynamic_cast<ITrackingVolumesSvc*>(this),tagInfoH,key) );
   } else {
 
-      log << MSG::INFO << "Building Geometry at initialisation time." << endreq;
+      ATH_MSG_INFO ( "Building Geometry at initialisation time."  );
 
       // call with dummy parameters
       int par1 = 0;
       std::list<std::string> par2;
  
       // build with no dependency on COOL
-      result = trackingVolumesInit(par1,par2);
+      StatusCode result = trackingVolumesInit(par1,par2);
       if (result.isFailure())
       { 
-         log << MSG::FATAL << "Unable to build the TrackingVolume!" << endreq;
+         ATH_MSG_FATAL ( "Unable to build the TrackingVolume!"  );
          return result;
       }
   }
 
-  log << MSG::INFO << "initialize() successful! " << endreq;
+  ATH_MSG_INFO ( "initialize() successful! "  );
 
-  return result;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -117,15 +104,13 @@ StatusCode Trk::TrackingVolumesSvc::trackingVolumesInit(IOVSVC_CALLBACK_ARGS)
 
   StatusCode result = StatusCode::SUCCESS;
 
-  MsgStream log(msgSvc(), name());
-   
   for (unsigned int id=0 ; id!=ITrackingVolumesSvc::NumIdentifiers; id++){
     // create Volume.   
       result = m_pDetStore->record(m_volumes[id], m_volumeNames[id]);
       if (result.isFailure()){
-        log << MSG::WARNING << "Couldn't write Volume "<<m_volumeNames[id]<<" to DetectorStore." << endreq;
+        ATH_MSG_WARNING ( "Couldn't write Volume "<<m_volumeNames[id]<<" to DetectorStore."  );
       } else
-        log << MSG::INFO << "initialize() successful: TrackingVolume '" << m_volumeNames[id] << "' built and written to DetectorStore." << endreq;
+        ATH_MSG_INFO ( "initialize() successful: TrackingVolume '" << m_volumeNames[id] << "' built and written to DetectorStore."  );
 
     }
 
@@ -135,8 +120,7 @@ StatusCode Trk::TrackingVolumesSvc::trackingVolumesInit(IOVSVC_CALLBACK_ARGS)
 /** Finalize Service */
 StatusCode Trk::TrackingVolumesSvc::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize() successful." << endreq;
+  ATH_MSG_INFO ( "finalize() successful."  );
   return StatusCode::SUCCESS;
 }
 
