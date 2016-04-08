@@ -20,7 +20,7 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
 
     if (log.level() <= MSG::DEBUG) {
         log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::persToTrans - entering "
-            << endmsg;
+            << endreq;
     }
 
     IOVPayloadContainer::payloadVec& payloadVec = transObj->m_payloadVec;
@@ -70,7 +70,7 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
                         << "IOVPayloadContainerCnv_p1::persToTrans attribute index bigger than array size " 
                         << iattr << " " << persObj->m_attrIndexes.size() << " last index "
                         << entry.m_lastIndex
-                        << endmsg;
+                        << endreq;
                     return;
                 }
 
@@ -100,7 +100,7 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
                             << " attr size " << persObj->m_attrType.size() 
                             << " last index " << entry.m_lastIndex 
                             << " Most likely unfilled attribute list. Skipping to the next attrlist entry."
-                            << endmsg;
+                            << endreq;
                         indexesOK = false;
 
                     }
@@ -142,14 +142,14 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
 //             log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::persToTrans - 3 "
 //                 << "start/stop " << entry.m_range.m_start << " "
 //                 << entry.m_range.m_stop << " attrList " << attrStr.str()
-//                 << endmsg;
+//                 << endreq;
 //             log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::persToTrans - 3 "
 //                 << "attrList size " << attrList.size()
-//                 << endmsg;
+//                 << endreq;
 //             for (unsigned int i = 0; i < attrList.size(); ++i) {
 //                 log << MSG::DEBUG << attrList[i].specification().name() << " " 
 //                     << attrList[i].specification().typeName() << " " 
-//                     << endmsg;
+//                     << endreq;
 //             }
             
 
@@ -212,7 +212,7 @@ IOVPayloadContainerCnv_p1::transToPers(const IOVPayloadContainer* transObj,
 
     if (log.level() <= MSG::DEBUG) {
         log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::transToPers "
-            << endmsg;
+            << endreq;
     }
     
 
@@ -226,7 +226,7 @@ IOVPayloadContainerCnv_p1::transToPers(const IOVPayloadContainer* transObj,
     if (!persObj->m_attrName.size()) {
         if (log.level() <= MSG::DEBUG) {
             log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::transToPers - empty attr list spec "
-                << endmsg;
+                << endreq;
         }
         return;
     }
@@ -309,7 +309,7 @@ IOVPayloadContainerCnv_p1::transToPers(const IOVPayloadContainer* transObj,
                     m_attributeTypeMap.find(typeName);
                 if (attIt == m_attributeTypeMap.end()) {
                     log << MSG::ERROR << "IOVPayloadContainerCnv_p1::transToPers - cannot find attibute type in map - name "
-                        << typeName << endmsg;
+                        << typeName << endreq;
                     return;
                 }
                 unsigned int itype = attIt->second;
@@ -318,7 +318,7 @@ IOVPayloadContainerCnv_p1::transToPers(const IOVPayloadContainer* transObj,
                 attIt = m_attrNameMap.find(name);
                 if (attIt == m_attrNameMap.end()) {
                     log << MSG::ERROR << "IOVPayloadContainerCnv_p1::transToPers - cannot find attibute name in map - name "
-                        << name << endmsg;
+                        << name << endreq;
                     return;
                 }
                 unsigned int iname = attIt->second;
@@ -342,7 +342,7 @@ IOVPayloadContainerCnv_p1::fillPersAttrSpec(const IOVPayloadContainer* transObj,
 
     if (log.level() <= MSG::DEBUG) {
         log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::fillPersAttrSpec IOVPayloadContainer size "
-            << transObj->size() << endmsg;
+            << transObj->size() << endreq;
     }
     
     // Clear name list from previous conversion
@@ -393,7 +393,7 @@ IOVPayloadContainerCnv_p1::fillPersAttrSpec(const IOVPayloadContainer* transObj,
 
     if (log.level() <= MSG::DEBUG) {
         log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::fillPersAttrSpec number of attribute names " 
-            << names.size() << endmsg;
+            << names.size() << endreq;
     }
 }
 
@@ -536,7 +536,7 @@ IOVPayloadContainerCnv_p1::fillAttributeData(unsigned int attrName,
         case IOVPayloadContainer_p1::ATTR_BLOB:                
             log << MSG::ERROR 
                 << "IOVPayloadContainerCnv_p1::fillAttributeData - cannot currently treat BLOB type " 
-                << endmsg;
+                << endreq;
             return;
         case IOVPayloadContainer_p1::ATTR_DATE:                
             persObj->m_attrIndexes.push_back(
@@ -611,7 +611,7 @@ IOVPayloadContainerCnv_p1::fillAttributeData(const IOVPayloadContainer_p1* persO
         case IOVPayloadContainer_p1::ATTR_BLOB:                
             log << MSG::ERROR 
                 << "IOVPayloadContainerCnv_p1::fillAttributeData - cannot currently treat BLOB type " 
-                << endmsg;
+                << endreq;
             return;
         case IOVPayloadContainer_p1::ATTR_DATE:
           {
