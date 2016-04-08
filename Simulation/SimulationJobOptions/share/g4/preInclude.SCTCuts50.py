@@ -8,17 +8,10 @@
 #
 #########################################################
 
-from G4AtlasApps import PyG4Atlas, AtlasG4Eng
 atlasG4log.info("G4 SCT Config: Setting SCT cut")
 
-def sctcuts_setup():
-    ## Get both the main region and silicon region
-    sct = AtlasG4Eng.G4Eng.Dict_DetFacility['SCT:SCT']
-    sctr = sct.Dict_Regions['SCT']
-    ## Stuff everything into the 'sensitive region'
-    sctr.add_Volumes('SCT::SCT')
-    ## Set cut for the new region
-    sctr.Dict_Cuts = {'e-' : 0.050, 'gamma' : 0.050, 'e+' : 0.050}
-
-from G4AtlasApps.SimFlags import simFlags
-simFlags.InitFunctions.add_function("preInitG4", sctcuts_setup)
+from AthenaCommon.CfgGetter import getPublicTool
+sctRegionTool = getPublicTool('SCTPhysicsRegionTool')
+sctRegionTool.ElectronCut = 0.05
+sctRegionTool.PositronCut = 0.05
+sctRegionTool.GammaCut = 0.05
