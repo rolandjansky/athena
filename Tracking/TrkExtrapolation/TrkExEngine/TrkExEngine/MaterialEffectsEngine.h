@@ -13,7 +13,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 // Trk
 #include "TrkExInterfaces/IMaterialEffectsEngine.h"
-#include "TrkExEngine/ExtrapolationMacros.h"
+#include "TrkExInterfaces/ExtrapolationMacros.h"
 #include "TrkExUtils/ExtrapolationCell.h"
 #include "TrkExUtils/MaterialInteraction.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
@@ -56,9 +56,9 @@ namespace Trk {
                                                MaterialUpdateStage matupstage=fullUpdate) const;
 
       /** neutral extrapolation - only for Fatras, dummy implementation here */
-      virtual ExtrapolationCode handleMaterial(ExCellNeutral&,
-                                               PropDirection,
-                                               MaterialUpdateStage) const {return Trk::ExtrapolationCode::InProgress; }
+      virtual ExtrapolationCode handleMaterial(ExCellNeutral& ecNeutral,
+                                               PropDirection dir=alongMomentum,
+                                               MaterialUpdateStage matupstage=fullUpdate) const;
       
     protected:
       /** charged extrapolation */
@@ -69,7 +69,9 @@ namespace Trk {
         
       MaterialInteraction                          m_interactionFormulae;     //!< the formulas concentrated
       ParticleMasses                               m_particleMasses;          //!< struct of Particle masses   
-        
+      bool                                         m_eLossCorrection;         //!< apply the energy loss correction
+      bool                                         m_eLossMpv;                //!< apply the energy loss correction as most probable value
+      bool                                         m_mscCorrection;           //!< apply the multiple (coulomb) scattering correction
 
   };
       

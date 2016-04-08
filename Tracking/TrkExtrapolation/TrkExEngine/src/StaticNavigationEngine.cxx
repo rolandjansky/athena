@@ -38,27 +38,26 @@ Trk::StaticNavigationEngine::~StaticNavigationEngine()
 // the interface method initialize
 StatusCode Trk::StaticNavigationEngine::initialize()
 {
-    EX_MSG_INFO( "init", "initialize()" );
     
     if (m_propagationEngine.retrieve().isFailure()){
-        EX_MSG_FATAL( "init", "failed to retrieve propagation engine '"<< m_propagationEngine << "'. Aborting." );
+        EX_MSG_FATAL("", "initialize", "", "failed to retrieve propagation engine '"<< m_propagationEngine << "'. Aborting." );
         return StatusCode::FAILURE;
     } else 
-        EX_MSG_INFO( "init", "successfully retrieved '" << m_propagationEngine << "'." );
+        EX_MSG_DEBUG("", "initialize", "", "successfully retrieved '" << m_propagationEngine << "'." );
     
     if (m_materialEffectsEngine.retrieve().isFailure()){
-        EX_MSG_FATAL( "init", "failed to retrieve material effect engine '"<< m_materialEffectsEngine << "'. Aborting." );
+        EX_MSG_FATAL("", "initialize", "", "failed to retrieve material effect engine '"<< m_materialEffectsEngine << "'. Aborting." );
         return StatusCode::FAILURE;
     } else 
-        EX_MSG_INFO( "init", "successfully retrieved '" << m_materialEffectsEngine << "'." );
-    
+        EX_MSG_DEBUG("", "initialize", "", "successfully retrieved '" << m_materialEffectsEngine << "'." );
+    EX_MSG_DEBUG("", "initialize", "", "successful" );
     return StatusCode::SUCCESS;
 }    
 
 // the interface method finalize
 StatusCode Trk::StaticNavigationEngine::finalize()
 {    
-    ATH_MSG_INFO( "finalize() successful" );    
+    EX_MSG_DEBUG("", "finalize", "", "successful" );    
     return StatusCode::SUCCESS;
 }
 
@@ -73,8 +72,8 @@ Trk::ExtrapolationCode Trk::StaticNavigationEngine::resolveBoundary(Trk::ExCellN
 StatusCode Trk::StaticNavigationEngine::updateTrackingGeometry() const {
     // retrieve the TrackingGeometry from the detector store 
     if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()){
-        EX_MSG_FATAL( "tgeo", "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
-        EX_MSG_FATAL( "tgeo", "  - probably the chosen layout is not supported / no cool tag exists. "                     );
+        EX_MSG_FATAL( "", "updateGeo", "", "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
+        EX_MSG_FATAL( "", "updateGeo", "", "  - probably the chosen layout is not supported / no cool tag exists. "                     );
         return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
