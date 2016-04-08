@@ -1,9 +1,7 @@
 package TriggerMatchingTool
 author Lukas Heinrich <lukas.heinrich@cern.ch>
-author Will Buttinger <will@cern.ch>
 
 use  AtlasPolicy                AtlasPolicy-*
-
 
 
 public
@@ -20,7 +18,7 @@ use FourMomUtils        FourMomUtils-*          Event
 use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
 
 #uncomment the next line to use ROOT libraries in your package
-use AtlasROOT AtlasROOT-* External
+#use AtlasROOT AtlasROOT-* External
 
 #use xAODEventInfo xAODEventInfo-* Event/xAOD
 

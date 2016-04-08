@@ -9,6 +9,7 @@
 namespace Trig {
 
 MatchingImplementation::MatchingImplementation(MatchingTool& mt, double threshold) : asg::AsgMessaging("MatchingImplementation"), m_tool(mt), m_threshold(threshold) {
+  msg().setLevel(MSG::DEBUG);
   m_strategies[Trig::MatchingStrategy::MinimalSum] = std::unique_ptr<IAssociationStrategy>(new MinimalSumAssociation());
 }
 
@@ -37,30 +38,17 @@ bool MatchingImplementation::matchDistanceMatrix(const std::vector<std::vector<d
 
   ATH_MSG_DEBUG("matching a " << nrows << "x" << ncols << "matrix now");
 
-
   auto MSG_MATRIX = MSG::DEBUG;
   if(msgLvl(MSG_MATRIX)){
-    msg() << MSG_MATRIX << "===========" << endmsg;
+    msg() << MSG_MATRIX << "===========" << endreq;
     for(auto& row : matrix){
       msg() << MSG_MATRIX << "|";
       for(auto distance : row){ 
 	msg() << MSG_MATRIX << distance << " , ";
       }
-      msg() << MSG_MATRIX << "|" << endmsg;
+      msg() << MSG_MATRIX << "|" << endreq;
     }
-    msg() << MSG_MATRIX << "===========" << endmsg;
-  }
-  
-  
-  //require that every row contains an entry that is smaller than threshold, otherwise matching will obviously fail 
-  for(auto& row : matrix) {
-    bool rowOk=false;
-    for(auto distance : row) {
-      if( distance < m_threshold ) { rowOk = true; break; }
-    }
-    if(!rowOk) {
-      ATH_MSG_DEBUG("row of matrix does not contain any distance below threshold. Return false"); return false;
-    }
+    msg() << MSG_MATRIX << "===========" << endreq;
   }
 
   auto association_map = m_strategies[strategy]->associate(matrix);

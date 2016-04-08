@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthAnalysisBaseComps
                           Event/FourMomUtils )
 
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -28,16 +27,16 @@ atlas_add_library( TriggerMatchingToolLib
                    PUBLIC_HEADERS TriggerMatchingTool
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools xAODBase GaudiKernel TrigNavStructure TrigDecisionToolLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib FourMomUtils )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthAnalysisBaseComps FourMomUtils )
 
 atlas_add_component( TriggerMatchingTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODBase GaudiKernel TrigDecisionToolLib TrigNavStructure AthAnalysisBaseCompsLib FourMomUtils TriggerMatchingToolLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODBase GaudiKernel TrigDecisionToolLib TrigNavStructure AthAnalysisBaseComps FourMomUtils TriggerMatchingToolLib )
 
 atlas_add_dictionary( TriggerMatchingToolDict
                       TriggerMatchingTool/TriggerMatchingToolDict.h
                       TriggerMatchingTool/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODBase GaudiKernel TrigDecisionToolLib TrigNavStructure AthAnalysisBaseCompsLib FourMomUtils TriggerMatchingToolLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODBase GaudiKernel TrigDecisionToolLib TrigNavStructure AthAnalysisBaseComps FourMomUtils TriggerMatchingToolLib )
 
