@@ -4,7 +4,6 @@
 
 #include "GaudiKernel/ToolFactory.h"
 #include "RpcCalibTools/RpcExtrapolationTool.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -15,7 +14,6 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "GaudiKernel/StatusCode.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h" 
 
 static const InterfaceID IID_IRpcExtrapolationTool("RpcExtrapolationTool", 1, 0);
@@ -26,7 +24,7 @@ const InterfaceID& RpcExtrapolationTool::interfaceID( ) {
 
 RpcExtrapolationTool::RpcExtrapolationTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AlgTool(type,name,parent),
+  :  AthAlgTool(type,name,parent),
      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
      m_propagator("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
      m_navigator("Trk::Navigator/MuonNavigator"),
@@ -48,83 +46,22 @@ RpcExtrapolationTool::~RpcExtrapolationTool() {
 
 StatusCode RpcExtrapolationTool::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()" << endreq;
-
-   StatusCode sc;
-  
-  // Event store service
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      return  sc;
-    }
-
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure())   {
-    log << MSG::ERROR << "Can't locate the DetectorStore" << endreq; 
-    return sc;
-  }
+  ATH_MSG_DEBUG( "in initialize()" );
 
     // Retrieve the MuonDetectorManager
-  sc = detStore->retrieve(m_muonMgr);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR 
-	  << "Can't retrieve MuonDetectorManager from detector store" << endreq;
-      return sc;
-    }
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
   // Get the Navigation AlgTools
-  if ( m_navigator.retrieve().isFailure() ) {
-    log << MSG::FATAL << "Failed to retrieve tool " << m_navigator << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Retrieved tool " << m_navigator << endreq;
-  }
+  ATH_CHECK( m_navigator.retrieve() );
 
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "Can't retrieve RpcIdHelper" << endreq;
-      return sc;
-    }
+  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
 
   // get extrapolator
-  sc = m_extrapolator.retrieve();
-  if (sc.isFailure()) {
-    log<<MSG::FATAL<<"Could not find extrapolator tool. Exiting."
-       << endreq;
-    return 0;
-  } else {
-    log << MSG::INFO << "Extrapolator tool booked " << endreq;
-  }
+  ATH_CHECK( m_extrapolator.retrieve() );
 
-  sc = m_idHelperTool.retrieve();
-  if (sc.isSuccess()){
-    log<<MSG::INFO << "Retrieved " << m_idHelperTool << endreq;
-  }else{
-    log<<MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
-    return sc;
-  }
+  ATH_CHECK( m_idHelperTool.retrieve() );
   
-  sc = m_holesTool.retrieve();
-  if( sc.isSuccess() ){
-    log<<MSG::INFO << "Retrieved " << m_holesTool << endreq;
-  }else{
-    log<<MSG::FATAL<<"Could not get " << m_holesTool <<endreq; 
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_holesTool.retrieve() );
 
   return StatusCode::SUCCESS;  
 
@@ -132,16 +69,13 @@ StatusCode RpcExtrapolationTool::initialize(){
 
 StatusCode RpcExtrapolationTool::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in finalize()" << endreq;
+  ATH_MSG_INFO( "in finalize()" );
 
   return StatusCode::SUCCESS;
 }
 
 void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator theTrack, std::vector<RpcExtrapolationResults> &theResult){
 
-  MsgStream log(msgSvc(), name());
-  
   // keep track here of intersected panels, so we don't double-count them
 
   std::map<Identifier,RpcExtrapolationResults> panels;
@@ -205,14 +139,14 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	      
 	    } else {
 	      
-	      log<<MSG::WARNING<<  "Found TWO HOLES on the same layer. don't know what to do... ignoring the second"<<endreq;
+	      ATH_MSG_WARNING( "Found TWO HOLES on the same layer. don't know what to do... ignoring the second" );
 	    }
 	    
 	  }
 	  
 	} else {
 
-	  log<<MSG::WARNING<<  "Hole has no associated detEl, trying to recover"<<endreq;
+	  ATH_MSG_WARNING( "Hole has no associated detEl, trying to recover" );
 	  
 	  Amg::Vector3D pos=par->position();
 
@@ -245,7 +179,7 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 		panels.insert(std::map<Identifier,RpcExtrapolationResults>::value_type(panelEtaID, thisResult) );
 		
 	      } else {
-		log<<MSG::WARNING<<  "Found TWO HOLES on the same layer. don't know what to do... ignoring the second"<<endreq;
+		ATH_MSG_WARNING( "Found TWO HOLES on the same layer. don't know what to do... ignoring the second" );
 
 	      }
 
@@ -263,7 +197,7 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 		panels.insert(std::map<Identifier,RpcExtrapolationResults>::value_type(panelPhiID, thisResult) );
 		
 	      } else {
-		log<<MSG::WARNING<<  "Found TWO HOLES on the same layer. don't know what to do... ignoring the second"<<endreq;
+		ATH_MSG_WARNING( "Found TWO HOLES on the same layer. don't know what to do... ignoring the second" );
 		
 	      }
 	      
@@ -274,10 +208,10 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	  
 	} 
 	  
-      } else log<<MSG::WARNING<<  "TSOS has no parameter"<<endreq;     
+      } else ATH_MSG_WARNING( "TSOS has no parameter" );     
     }
     
-  }  else log<<MSG::WARNING<<  "Hole finding returns null pointer"<<endreq;     
+  }  else ATH_MSG_WARNING( "Hole finding returns null pointer" );     
   
   // now loop over measurements
   
@@ -301,7 +235,7 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	
 	const Trk::RIO_OnTrack* hit = dynamic_cast<const Trk::RIO_OnTrack*> ((*iter)->measurementOnTrack());
 	if  ( hit == NULL) {
-	  log<<MSG::WARNING<< "The measurementOnTrack is not a RIO_OnTrack ... skipping" <<endreq;
+	  ATH_MSG_WARNING( "The measurementOnTrack is not a RIO_OnTrack ... skipping" );
 	  continue;
 	}
 	const Identifier idHit = hit->identify();
@@ -336,7 +270,7 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 
 	    
 	  } //close the control is an RPC hit
-	} else 	log<<MSG::WARNING<<  "TSOS has no parameter"<<endreq;
+	} else 	ATH_MSG_WARNING( "TSOS has no parameter" );
 	
       }    
       

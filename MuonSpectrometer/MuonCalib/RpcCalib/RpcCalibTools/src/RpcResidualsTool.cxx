@@ -5,7 +5,6 @@
 #include "GaudiKernel/ToolFactory.h"
 #include "RpcCalibTools/RpcExtrapolationTool.h"
 #include "RpcCalibTools/RpcResidualsTool.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -16,7 +15,6 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "GaudiKernel/StatusCode.h"
 
 static const InterfaceID IID_IRpcResidualsTool("RpcResidualsTool", 1, 0);
 
@@ -26,7 +24,7 @@ const InterfaceID& RpcResidualsTool::interfaceID( ) {
 
 RpcResidualsTool::RpcResidualsTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AlgTool(type,name,parent),
+  :  AthAlgTool(type,name,parent),
      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareProperty("ClusterCollection",m_clusCollection="rpcClusters");
@@ -42,66 +40,21 @@ RpcResidualsTool::~RpcResidualsTool() {
 
 StatusCode RpcResidualsTool::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()" << endreq;
-
-   StatusCode sc;
-  
-  // Event store service
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      return  sc;
-    }
+  ATH_MSG_DEBUG( "in initialize()" );
 
   // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure())   {
-    log << MSG::ERROR << "Can't locate the DetectorStore" << endreq; 
-    return sc;
-  }
+  ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
     // Retrieve the MuonDetectorManager
-  sc = detStore->retrieve(m_muonMgr);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR 
-	  << "Can't retrieve MuonDetectorManager from detector store" << endreq;
-      return sc;
-    }
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
   // get extrapolation tool
 
-  sc = toolSvc()->retrieveTool("RpcExtrapolationTool",m_rpcExtrapolTool);
-  if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Can't get handle on the rpc extrapolation tool" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( toolSvc()->retrieveTool("RpcExtrapolationTool",m_rpcExtrapolTool) );
 
+  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
 
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "Can't retrieve RpcIdHelper" << endreq;
-      return sc;
-    }
-
-  sc = m_idHelperTool.retrieve();
-  if (sc.isSuccess()){
-    log<<MSG::INFO << "Retrieved " << m_idHelperTool << endreq;
-  }else{
-    log<<MSG::FATAL<<"Could not get " << m_idHelperTool <<endreq; 
-    return sc;
-  }
+  ATH_CHECK( m_idHelperTool.retrieve() );
   
   return StatusCode::SUCCESS;  
 
@@ -109,16 +62,12 @@ StatusCode RpcResidualsTool::initialize(){
 
 StatusCode RpcResidualsTool::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in finalize()" << endreq;
+  ATH_MSG_INFO( "in finalize()" );
 
   return StatusCode::SUCCESS;
 }
 
 void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack, std::vector<RpcResiduals> &theResult){
-  MsgStream log(msgSvc(), name());
-
-  StatusCode sc;
 
   // assume the result vector has been cleaned before passing it to us
 
@@ -132,7 +81,7 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
   
 //   if (extrapolations.size()%2){
 
-//     log << MSG::WARNING << "Odd number of extrapolations" << endreq;
+//     ATH_MSG_WARNING( "Odd number of extrapolations" );
     
 //     for (int i=0; i<extrapolations.size(); ++i){
       
@@ -148,9 +97,9 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
 
 //       if (!found) {
 
-// 	log << MSG::WARNING << "ID " << extrapolations[i].id<<" name " <<m_rpcIdHelper->stationName(extrapolations[i].id)<< " sec "<<m_rpcIdHelper->stationPhi(extrapolations[i].id)*2+m_rpcIdHelper->stationName(extrapolations[i].id)%2-1<< " eta "<<m_rpcIdHelper->stationEta(extrapolations[i].id)<<" dZ " <<m_rpcIdHelper->doubletZ(extrapolations[i].id)<<" dPhi " <<m_rpcIdHelper->doubletPhi(extrapolations[i].id)<< " r "<<m_rpcIdHelper->doubletR(extrapolations[i].id)<< " gg "<<m_rpcIdHelper->gasGap(extrapolations[i].id)<< " mp "<<m_rpcIdHelper->measuresPhi(extrapolations[i].id)<<" strip "<<m_rpcIdHelper->strip(extrapolations[i].id)<< " found, but "<<endreq;
+// 	ATH_MSG_WARNING( "ID " << extrapolations[i].id<<" name " <<m_rpcIdHelper->stationName(extrapolations[i].id)<< " sec "<<m_rpcIdHelper->stationPhi(extrapolations[i].id)*2+m_rpcIdHelper->stationName(extrapolations[i].id)%2-1<< " eta "<<m_rpcIdHelper->stationEta(extrapolations[i].id)<<" dZ " <<m_rpcIdHelper->doubletZ(extrapolations[i].id)<<" dPhi " <<m_rpcIdHelper->doubletPhi(extrapolations[i].id)<< " r "<<m_rpcIdHelper->doubletR(extrapolations[i].id)<< " gg "<<m_rpcIdHelper->gasGap(extrapolations[i].id)<< " mp "<<m_rpcIdHelper->measuresPhi(extrapolations[i].id)<<" strip "<<m_rpcIdHelper->strip(extrapolations[i].id)<< " found, but ");
 
-// 	log << MSG::WARNING << "ID " << idTwinView<<" name " <<m_rpcIdHelper->stationName(idTwinView)<< " sec "<<m_rpcIdHelper->stationPhi(idTwinView)*2+m_rpcIdHelper->stationName(idTwinView)%2-1<< " eta "<<m_rpcIdHelper->stationEta(idTwinView)<<" dZ " <<m_rpcIdHelper->doubletZ(idTwinView)<<" dPhi " <<m_rpcIdHelper->doubletPhi(idTwinView)<< " r "<<m_rpcIdHelper->doubletR(idTwinView)<< " gg "<<m_rpcIdHelper->gasGap(idTwinView)<< " mp "<<m_rpcIdHelper->measuresPhi(idTwinView)<<" strip "<<m_rpcIdHelper->strip(idTwinView)<<" missing"<<endreq;
+// 	ATH_MSG_WARNING( "ID " << idTwinView<<" name " <<m_rpcIdHelper->stationName(idTwinView)<< " sec "<<m_rpcIdHelper->stationPhi(idTwinView)*2+m_rpcIdHelper->stationName(idTwinView)%2-1<< " eta "<<m_rpcIdHelper->stationEta(idTwinView)<<" dZ " <<m_rpcIdHelper->doubletZ(idTwinView)<<" dPhi " <<m_rpcIdHelper->doubletPhi(idTwinView)<< " r "<<m_rpcIdHelper->doubletR(idTwinView)<< " gg "<<m_rpcIdHelper->gasGap(idTwinView)<< " mp "<<m_rpcIdHelper->measuresPhi(idTwinView)<<" strip "<<m_rpcIdHelper->strip(idTwinView)<<" missing");
 	
 //       }
       
@@ -161,12 +110,11 @@ void RpcResidualsTool::getRpcResiduals(TrackCollection::const_iterator theTrack,
   
   // get cluster container
   const Muon::RpcPrepDataContainer* rpc_container;
-  sc = (*m_activeStore)->retrieve(rpc_container,m_clusCollection);
+  StatusCode sc = (*m_activeStore)->retrieve(rpc_container,m_clusCollection);
   if (sc.isFailure()) {
-    log << MSG::WARNING << " Cannot retrieve RpcPrepDataContainer " << endreq;
+    ATH_MSG_WARNING( " Cannot retrieve RpcPrepDataContainer " );
     return;
   }
-  
   
   std::set<Identifier> panels;
 
