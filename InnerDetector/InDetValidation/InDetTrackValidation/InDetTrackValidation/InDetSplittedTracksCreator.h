@@ -48,6 +48,10 @@ private:
     bool                                   m_makeTRTStandaloneTracks;
     /** flag for using si only tracks **/
     bool                                   m_makeSiOnlyTracks;
+    /** flag to accept the upper segment **/
+    bool                                   m_takeUpperSegment;
+    /** flag to accept the lower segment **/
+    bool                                   m_takeLowerSegment;
     /** instances of IInDet */
     ToolHandle< InDet::IInDetTrackSplitterTool >  m_trackSplitterTool;
 
