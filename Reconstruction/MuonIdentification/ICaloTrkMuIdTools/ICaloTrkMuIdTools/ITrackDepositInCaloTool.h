@@ -51,7 +51,7 @@ class ITrackDepositInCaloTool: virtual public IAlgTool
     */
     virtual std::vector<DepositInCalo> getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont = nullptr) const = 0;
     
-    virtual std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* ccc = nullptr) const = 0;
+    virtual std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp) const = 0;
     
     virtual StatusCode getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo, std::vector<Amg::Vector3D>& extrapolations) const = 0;
     /**
