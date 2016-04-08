@@ -75,7 +75,6 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
     m_roadmaker   ("InDet::SiDetElementsRoadMaker_xk"    ),
-    m_seedmaker(0),
     m_proptool("Trk::RungeKuttaPropagator/InDetPropagator"),
     m_updatorTool("Trk::KalmanUpdator_xk/InDetPatternUpdator"),
     m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk")
