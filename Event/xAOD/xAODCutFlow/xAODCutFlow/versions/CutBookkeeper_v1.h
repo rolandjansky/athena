@@ -20,13 +20,6 @@
 
 namespace xAOD {
 
-  // Helper function
-  namespace Utils {
-    /// Function creating a hash out of a "key name"
-    unsigned int hash( const std::string& key );
-  }
-
-
   /// Description of the class that is used to keep track of event counts.
   ///
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
@@ -39,7 +32,7 @@ namespace xAOD {
   public:
 
     /// Enumeration of the logic of a cut
-    enum CutLogic : unsigned int {
+    enum CutLogic {
       UNKNOWN            = 0,
       ALLEVENTSPROCESSED = 1,
       ALLEVENTSWRITTEN   = 2,

@@ -30,22 +30,22 @@ namespace HASH_NS = std::tr1;
 namespace HASH_NS = std;
 #endif // C++
 
+namespace {
 
+   unsigned int UtilsHash( const std::string& name ) {
+      // The helper object:
+      static HASH_NS::hash< std::string > helper;
+      // Let the helper do the work:
+      return helper( name );
+   }
+
+} // private namespace
 
 namespace xAOD {
 
   //typedef ElementLink< CutBookkeeperContainer_v1>  CutBookkeeperLink_t;
   typedef ElementLink< CutBookkeeperContainer >    CutBookkeeperLink_t;
   typedef std::vector< xAOD::CutBookkeeperLink_t > CutBookkeeperLinks_t;
-
-
-  unsigned int Utils::hash( const std::string& name ) {
-    // The helper object:
-    static HASH_NS::hash< std::string > helper;
-    // Let the helper do the work:
-    return helper( name );
-  }
-
 
 
   // ======================================================================
@@ -166,10 +166,10 @@ namespace xAOD {
 
   void CutBookkeeper_v1::setName(const std::string& name) {
     nameAcc( *this ) = name;
-    this->setNameIdentifier( Utils::hash( name ) );
-    this->setUniqueIdentifier( Utils::hash( name
-                                            + this->inputStream()
-                                            + static_cast<std::ostringstream*>( &(std::ostringstream() << this->cycle()) )->str() ) );
+    this->setNameIdentifier( ::UtilsHash( name ) );
+    std::ostringstream str;
+    str << name << inputStream() << cycle();
+    this->setUniqueIdentifier( ::UtilsHash( str.str() ) );
     return;
   }
 
@@ -215,9 +215,9 @@ namespace xAOD {
   void CutBookkeeper_v1::setCycle(int cycle) {
     static SG::AuxElement::Accessor< int > cycleAcc( "cycle" );
     cycleAcc(*this) = cycle;
-    this->setUniqueIdentifier( Utils::hash( this->name()
-                                            + this->inputStream()
-                                            + static_cast<std::ostringstream*>( &(std::ostringstream() << cycle) )->str() ) );
+    std::ostringstream str;
+    str << name() << inputStream() << cycle;
+    this->setUniqueIdentifier( ::UtilsHash( str.str() ) );
     return;
   }
 
@@ -230,9 +230,9 @@ namespace xAOD {
 
   void CutBookkeeper_v1::setInputStream(const std::string& inputstream) {
     inputStreamAcc(*this) = inputstream;
-    this->setUniqueIdentifier( Utils::hash( this->name()
-                                            + inputstream
-                                            + static_cast<std::ostringstream*>( &(std::ostringstream() << this->cycle()) )->str() ) );
+    std::ostringstream str;
+    str << name() << inputstream << cycle();
+    this->setUniqueIdentifier( ::UtilsHash( str.str() ) );
     return;
   }
 
