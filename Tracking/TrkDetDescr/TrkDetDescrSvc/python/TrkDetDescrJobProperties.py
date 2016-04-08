@@ -61,7 +61,7 @@ class MaterialVersion(JobProperty) :
     """ Material Steering """
     statusOn     = True
     allowedTypes = ['int']
-    StoredValue = 21
+    StoredValue = 20
 
 class MaterialSubVersion(JobProperty) :          
     """ Material Steering """
