@@ -60,8 +60,17 @@ namespace ISF {
     /** handle for incident service */
     void handle(const Incident& inc);
 
+    /** Check if given particle passes the EntryLayer filters */
+    virtual bool passesFilters( const ISFParticle& particle);
+
+    /** Identify the corresponding entry layer for the given particle (may return 
+        ISF::fUnsetEntryLayere if particle is not on an entry layer surface) */
+    virtual ISF::EntryLayer identifyEntryLayer( const ISFParticle& particle);
+
     /** Add the given particle to the corresponding Entry/Exit layer if applicable */
-    virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle &particle, ISF::EntryLayer entryLayer);
+    virtual ISF::EntryLayer registerParticle( const ISF::ISFParticle &particle,
+                                              ISF::EntryLayer entryLayer);
+ 
 
   private:
     /** used to setup a TrackRecordCollection on storegate */
