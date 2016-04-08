@@ -3,7 +3,7 @@
 */
 
 #ifndef FullModelHadronicProcess_h
-#define FullModelHadronicProcess_h 1
+#define FullModelHadronicProcess_h 
 
 #include "globals.hh"
 #include "G4VDiscreteProcess.hh"

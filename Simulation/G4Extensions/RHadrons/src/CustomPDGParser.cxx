@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RHadrons/CustomPDGParser.h"
+#include "CustomPDGParser.h"
 #include <cstdlib>
 
 /*CustomPDGParser::CustomPDGParser(int pdgCode) : m_pdgCode(pdgCode)

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RHadrons/RHadronPythiaDecayer.h"
+#include "RHadronPythiaDecayer.h"
 #include "G4Track.hh"
 #include "G4DynamicParticle.hh"
 #include "CLHEP/Vector/LorentzVector.h"

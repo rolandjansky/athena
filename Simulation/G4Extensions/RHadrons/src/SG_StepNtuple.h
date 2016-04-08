@@ -5,19 +5,24 @@
 #ifndef SG_StepNtuple_H
 #define SG_StepNtuple_H
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
 #include <string>
 #include "GaudiKernel/NTuple.h"
 #include <vector>
 #include <set>
-class SG_StepNtuple: public FADS::UserAction {
+
+class SG_StepNtuple final: public UserActionBase {
+
 public:
-  SG_StepNtuple(std::string s): FADS::UserAction(s), nevents(0), rhid(0) {}
-  void BeginOfEventAction(const G4Event*);
-  void EndOfEventAction(const G4Event*);
-  void BeginOfRunAction(const G4Run*);
-  void EndOfRunAction(const G4Run*);
-  void SteppingAction(const G4Step*);
+  SG_StepNtuple(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent), nevents(0), rhid(0) {}
+  virtual void BeginOfEvent(const G4Event*)  override;
+  virtual void EndOfEvent(const G4Event*) override;
+  virtual void Step(const G4Step*) override;
+    virtual StatusCode initialize() override;
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
+
 private:
 
   bool isSUSYParticle(const int id) const;

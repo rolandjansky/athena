@@ -11,9 +11,9 @@
 #include <map>
 #include <set>
 
-#include "RHadrons/CustomPDGParser.h"
-#include "RHadrons/CustomParticle.h"
-#include "RHadrons/CustomParticleFactory.h"
+#include "CustomPDGParser.h"
+#include "CustomParticle.h"
+#include "CustomParticleFactory.h"
 #include "G4DecayTable.hh"
 #include "G4PhaseSpaceDecayChannel.hh"
 
