@@ -1,0 +1,30 @@
+This document describes how to create plugins for the
+athenaMT script framework.
+
+1 - Create a script named plugin_pluginname;
+
+2 - If it needs to allow the user to customize it.
+    A rcathenaMT_pluginname must be present as a
+    dot file in the user's home directory;
+
+3 - The script should set the LD_PRELOAD environment
+    variable just before performing the intended
+    operation;
+
+4 - The plugin must be available from the same directory
+    as the athenaMT script.
+
+
+
+Example:
+
+If you wish to create a plugin called xpto, then the
+script would be called plugin_xpto. And in case of
+needing to read configuration options, the file would
+be called .rcathenaMT_xpto.
+
+Just look at the plugin_valgrid for a real example of
+a plugin with all the options.
+
+--
+Paulo Pinto <Paulo.Pinto@cern.ch>
