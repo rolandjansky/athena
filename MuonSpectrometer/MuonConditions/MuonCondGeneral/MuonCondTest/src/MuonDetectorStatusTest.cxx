@@ -7,7 +7,10 @@
 
 
 MuonDetectorStatusTest::MuonDetectorStatusTest(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator)
+  AthAlgorithm(name,pSvcLocator),
+  m_muonDetectorStatusDbSvc(NULL),
+  m_log(NULL),
+  m_chronoSvc(NULL)
 { 
 //  m_muonDetectorStatusDbSvc=0; 
 }

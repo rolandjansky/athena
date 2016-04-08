@@ -7,7 +7,10 @@
 
 
 MDT_DCSStatusTest::MDT_DCSStatusTest(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator)
+  AthAlgorithm(name,pSvcLocator),
+  m_mdt_DCSConditionsSvc(NULL),
+  m_log(NULL),
+  m_chronoSvc(NULL)
 { 
 }
 

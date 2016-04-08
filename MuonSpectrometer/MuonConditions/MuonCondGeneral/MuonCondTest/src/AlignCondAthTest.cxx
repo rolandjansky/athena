@@ -17,7 +17,7 @@
 
 
 AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator){
+  AthAlgorithm(name, pSvcLocator){
    p_MuonAlignmentDbSvc              = 0; 
 
 }

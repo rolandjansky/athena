@@ -9,9 +9,10 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "MuonCondSvc/MuonDetectorStatusDbSvc.h"
 
-class MuonDetectorStatusTest : public Algorithm {
+class MuonDetectorStatusTest : public AthAlgorithm {
 
  public:
 

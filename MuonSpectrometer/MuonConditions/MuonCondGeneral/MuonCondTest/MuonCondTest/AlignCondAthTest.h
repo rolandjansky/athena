@@ -8,11 +8,11 @@
 #define ALIGNCONDATHTEST
 
 #include "GaudiKernel/Algorithm.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "MuonCondSvc/MuonAlignmentDbSvc.h"
 /////////////////////////////////////////////////////////////////////////////
 
-class AlignCondAthTest:public Algorithm {
+class AlignCondAthTest:public AthAlgorithm {
 public:
   AlignCondAthTest (const std::string& name, ISvcLocator* pSvcLocator);
 

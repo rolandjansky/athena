@@ -5,7 +5,7 @@
 #ifndef MUONCONDTEST_MDT_DCSSTATUSTEST_H
 #define MUONCONDTEST_MDT_DCSSTATUSTEST_H
 
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -13,7 +13,7 @@
 
 
 class IMDT_DCSConditionsSvc;
-class MDT_DCSStatusTest : public Algorithm {
+class MDT_DCSStatusTest : public AthAlgorithm {
 
  public:
 

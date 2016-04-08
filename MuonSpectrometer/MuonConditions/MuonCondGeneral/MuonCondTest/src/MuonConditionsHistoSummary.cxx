@@ -19,7 +19,13 @@ MuonConditionsHistoSummary::MuonConditionsHistoSummary(
                          AthAlgorithm( name, pSvcLocator ),
 			 m_pSummarySvc("MDTCondSummarySvc", name),
 			 m_rSummarySvc("RPCCondSummarySvc", name),
-			 m_tSummarySvc("TGCCondSummarySvc", name){
+			 m_tSummarySvc("TGCCondSummarySvc", name),
+			 m_thistSvc(NULL),
+			 m_t_deadstations(NULL),
+			 m_t_deadmultilayer(NULL),
+			 m_t_deadtube(NULL),
+			 m_t_panelid(NULL),
+			 m_t_stripid(NULL) {
 			
 }
 
