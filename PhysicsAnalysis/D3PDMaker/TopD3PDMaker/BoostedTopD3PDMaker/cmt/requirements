@@ -1,0 +1,22 @@
+package BoostedTopD3PDMaker
+
+public
+use AtlasPolicy         AtlasPolicy-* 
+use D3PDMakerUtils      D3PDMakerUtils-*        PhysicsAnalysis/D3PDMaker
+use EventKernel         EventKernel-*           Event
+use GaudiInterface      GaudiInterface-*        External
+
+private
+use AthenaKernel        AthenaKernel-*          Control
+use egammaEvent         egammaEvent-*           Reconstruction/egamma
+use egammaInterfaces	egammaInterfaces-*	Reconstruction/egamma
+use muonEvent		muonEvent-*		Reconstruction/MuonIdentification
+use IsolationTool       IsolationTool-*         Reconstruction/RecoTools
+use ITrackToVertex      ITrackToVertex-*        Reconstruction/RecoTools
+use Particle            Particle-*              Reconstruction
+use AthenaKernel        AthenaKernel-*          Control
+	
+library BoostedTopD3PDMaker *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
