@@ -44,7 +44,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/Atlas2012GeomSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/Atlas2012GeomSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_Atlas2012GeomSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -87,7 +87,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/TTbarSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/TTbarSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_TTbarSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -127,17 +127,17 @@
                 <testidentifier>TTbarSimTiming_DCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube_TTbarSimTiming.xml</argvalue>
+                  <argvalue>20.7.X/dcube_TTbarSimTiming.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/TTbarSimTiming.timing_histos.root</argvalue>
+                  <argvalue>20.7.X/TTbarSimTiming.timing_histos.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>timing_histos.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/timing_histos.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/TTbarSimTiming.timing_histos.root/timing_histos.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
 
@@ -170,7 +170,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/QgspBertChipsTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/QgspBertChipsTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_QgspBertChipsTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -215,7 +215,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/NeutronCutTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/NeutronCutTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_NeutronCutTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -258,7 +258,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/QgsBicTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/QgsBicTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_QgsBicTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -301,7 +301,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/HeavyIonSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/HeavyIonSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_HeavyIonSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -344,7 +344,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CavernBg.EVNT.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CavernBg.EVNT.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.EVNT.pool.root_CavernBg.EVNT.pool.root.diffPool</keepFilePattern>
               </test>
@@ -406,7 +406,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CavernBg.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CavernBg.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_CavernBg.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -450,7 +450,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/FrozenShowerFCalOnly.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/FrozenShowerFCalOnly.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_FrozenShowerFCalOnly.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -493,7 +493,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CosmicSimTR.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CosmicSimTR.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_CosmicSimTR.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -536,7 +536,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/LucidSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/LucidSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_LucidSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -580,7 +580,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AFPSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/AFPSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_AFPSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -623,7 +623,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/ALFASimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/ALFASimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_ALFASimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -633,17 +633,17 @@
                 <testidentifier>ALFASimTestDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-ALFASimTest.xml</argvalue>
+                  <argvalue>20.7.X/dcube-ALFASimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/ALFASimTest.truth.root</argvalue>
+                  <argvalue>20.7.X/ALFASimTest.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/ALFASimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/ALFASimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
             </jobTransform>
@@ -685,7 +685,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/ZDCSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/ZDCSimTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_ZDCSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -695,17 +695,17 @@
                 <testidentifier>ZDCSimTestDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-ZDCSimTest.xml</argvalue>
+                  <argvalue>20.7.X/dcube-ZDCSimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/ZDCSimTest.truth.root</argvalue>
+                  <argvalue>20.7.X/ZDCSimTest.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/ZDCSimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/ZDCSimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
             </jobTransform>
@@ -724,7 +724,7 @@
                 <testidentifier>ZDCSimTest_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-ZDCSimTest.xml</argvalue>
+                  <argvalue>20.7.X/dcube-ZDCSimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -767,17 +767,17 @@
                 <testidentifier>AtlasG4_muonsDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-AtlasG4_muons.xml</argvalue>
+                  <argvalue>20.7.X/dcube-AtlasG4_muons.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/AtlasG4_muons.truth.root</argvalue>
+                  <argvalue>20.7.X/AtlasG4_muons.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/AtlasG4_muons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/AtlasG4_muons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
             </jobTransform>
@@ -796,7 +796,7 @@
                   <chaindatasetName>test.HITS.pool.root</chaindatasetName>
                   <dataset_info>
                     <dc2 />
-                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AtlasG4_muons.HITS.pool.root</datasetName>
+                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/AtlasG4_muons.HITS.pool.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <test>
@@ -805,7 +805,7 @@
                   <testidentifier>AtlasG4_muons_noevgenDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>20.3.X/dcube-AtlasG4_muons_noevgen.xml</argvalue>
+                    <argvalue>20.7.X/dcube-AtlasG4_muons_noevgen.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -850,7 +850,7 @@
                   <testidentifier>AtlasG4_muons_RegDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>20.3.X/dcube-AtlasG4_muons.xml</argvalue>
+                    <argvalue>20.7.X/dcube-AtlasG4_muons.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -894,17 +894,17 @@
                 <testidentifier>AtlasG4_pionsDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-AtlasG4_pions.xml</argvalue>
+                  <argvalue>20.7.X/dcube-AtlasG4_pions.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/AtlasG4_pions.truth.root</argvalue>
+                  <argvalue>20.7.X/AtlasG4_pions.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/AtlasG4_pions.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/AtlasG4_pions.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
             </jobTransform>
@@ -923,7 +923,7 @@
                 <testidentifier>AtlasG4_pions_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-AtlasG4_pions.xml</argvalue>
+                  <argvalue>20.7.X/dcube-AtlasG4_pions.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -969,7 +969,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AtlasG4_minbias.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/AtlasG4_minbias.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_AtlasG4_minbias.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -979,17 +979,17 @@
                 <testidentifier>AtlasG4_minbiasDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-AtlasG4_minbias.xml</argvalue>
+                  <argvalue>20.7.X/dcube-AtlasG4_minbias.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/AtlasG4_minbias.truth.root</argvalue>
+                  <argvalue>20.7.X/AtlasG4_minbias.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/AtlasG4_minbias.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/AtlasG4_minbias.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
             </jobTransform>
@@ -1008,7 +1008,7 @@
                 <testidentifier>AtlasG4_minbias_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-AtlasG4_minbias.xml</argvalue>
+                  <argvalue>20.7.X/dcube-AtlasG4_minbias.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -1051,17 +1051,17 @@
                 <testidentifier>AtlasG4_electronsDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-AtlasG4_electrons.xml</argvalue>
+                  <argvalue>20.7.X/dcube-AtlasG4_electrons.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/AtlasG4_electrons.truth.root</argvalue>
+                  <argvalue>20.7.X/AtlasG4_electrons.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/AtlasG4_electrons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/AtlasG4_electrons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
 
@@ -1082,7 +1082,7 @@
                   <chaindatasetName>test.HITS.pool.root</chaindatasetName>
                   <dataset_info>
                     <dc2 />
-                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AtlasG4_electrons.HITS.pool.root</datasetName>
+                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/AtlasG4_electrons.HITS.pool.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <test>
@@ -1091,7 +1091,7 @@
                   <testidentifier>AtlasG4_electrons_noevgenDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>20.3.X/dcube-AtlasG4_electrons_noevgen.xml</argvalue>
+                    <argvalue>20.7.X/dcube-AtlasG4_electrons_noevgen.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -1136,7 +1136,7 @@
                   <testidentifier>AtlasG4_electrons_RegDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>20.3.X/dcube-AtlasG4_electrons.xml</argvalue>
+                    <argvalue>20.7.X/dcube-AtlasG4_electrons.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -1180,17 +1180,17 @@
                 <testidentifier>WriteCalHitsTestDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-WriteCalHitsTest.xml</argvalue>
+                  <argvalue>20.7.X/dcube-WriteCalHitsTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>20.3.X/WriteCalHitsTest.truth.root</argvalue>
+                  <argvalue>20.7.X/WriteCalHitsTest.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-20.3.X/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.7.X/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
               <test position="2">
@@ -1203,7 +1203,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/WriteCalHitsTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/WriteCalHitsTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_WriteCalHitsTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -1223,7 +1223,7 @@
                 <testidentifier>WriteCalHitsTest_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>20.3.X/dcube-WriteCalHitsTest.xml</argvalue>
+                  <argvalue>20.7.X/dcube-WriteCalHitsTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -1366,7 +1366,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CosmicSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CosmicSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_CosmicSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -1380,7 +1380,7 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CosmicSim.TR.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CosmicSim.TR.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.TR.pool.root_CosmicSim.TR.pool.root.diffPool</keepFilePattern>
               </test>
