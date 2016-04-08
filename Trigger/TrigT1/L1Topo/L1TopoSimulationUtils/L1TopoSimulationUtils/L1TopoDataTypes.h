@@ -15,6 +15,21 @@
 #ifndef MAXBITS 
 #define MAXBITS 32
 #endif 
+
+
+namespace {
+/// Return a bit mask with the lower @a n bits set.
+template <class T>
+inline
+T ones (unsigned int n)
+{
+  if (n >= sizeof(T) * 8)
+    return ~static_cast<T>(0);
+  return (static_cast<T>(1) << n) - 1;
+}
+}
+
+
 namespace TSU {
 
     typedef unsigned int T;
@@ -63,7 +78,7 @@ namespace TSU {
        }
 
        operator int(){
-          return ((1<<(PREC-F))-1)&((m_tvalue>>F));
+           return ones<T>(PREC-F)&((m_tvalue>>F));
        }
 
        T value() const {
@@ -72,7 +87,7 @@ namespace TSU {
     
        T abs() const {
           T mask = m_tvalue >> (PREC-1); 
-          T res = ((mask ^ m_tvalue) - mask) & ((1<<PREC) - 1);
+          T res = ((mask ^ m_tvalue) - mask) & ones<T>(PREC);
           return res;
        }
 
@@ -80,7 +95,7 @@ namespace TSU {
        T complement() const {
           T res=0;
           T v = m_tvalue;
-          for(auto j=0;j<PREC;++j){
+          for(unsigned j=0;j<PREC;++j){
              res += v & (1 << j) ? 0 : (1 << j);
           }
           res += 1;
@@ -165,7 +180,7 @@ namespace TSU {
           // Get integer part
           res += (m_tvalue>>F)&((1<<(PREC-F))-1) ? float((m_tvalue>>F)&((1<<(PREC-F))-1)) : 0;
           // Do the fractional part
-          for(auto j=0;j<F;++j){
+          for(unsigned j=0;j<F;++j){
             res += (m_tvalue & (1 << (F-1-j))) ? 1./(2<<(j)) : 0;
           }
           return res;
