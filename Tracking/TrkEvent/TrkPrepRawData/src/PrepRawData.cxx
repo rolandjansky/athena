@@ -157,14 +157,10 @@ namespace Trk{
         stream << "Identifier = ("<<this->identify().getString()<<"), ";
 
         stream << "Local Position = (";
-        if ( &(this->localPosition() )!=0 )
-        {
-          stream<< Amg::toString(this->localPosition())<<"), ";
-        } else {
-          stream<<"NULL!), ";
-        }
+        stream<< Amg::toString(this->localPosition())<<"), ";
+
         stream << "Local Covariance = (";
-        if ( &(this->localCovariance() )!=0 )
+        if ( this->m_localCovariance !=0 )
         {
           stream<<Amg::toString(this->localCovariance())<<"), ";
         } else {
@@ -187,14 +183,10 @@ namespace Trk{
         stream << "PrepRawData object"<<std::endl;
         stream << "Identifier " << m_clusId << std::endl;
         stream << "Local Position = (";
-        if ( &(this->localPosition() )!=0 )
-        {
-          stream<<Amg::toString(this->localPosition())<<"), ";
-        } else {
-          stream<<"NULL!), ";
-        }
+
+        stream<<Amg::toString(this->localPosition())<<"), ";
         stream << "Local Covariance = (";
-        if ( &(this->localCovariance() )!=0 )
+        if ( this->m_localCovariance !=0 )
         {
           stream<<Amg::toString(this->localCovariance())<<"), ";
         } else {
