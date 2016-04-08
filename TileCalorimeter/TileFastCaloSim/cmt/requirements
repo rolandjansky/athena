@@ -17,7 +17,7 @@ use CxxUtils               CxxUtils-*               Control
 use EventContainers        EventContainers-*        Event
 
 use CaloEvent              CaloEvent-*              Calorimeter
-use ISF_Event              ISF_Event-*              Simulation/ISF/ISF_Core
+use ISF_FastCaloSimEvent   ISF_FastCaloSimEvent-*   Simulation/ISF/ISF_FastCaloSim
 use TileConditions         TileConditions-*         TileCalorimeter
 use TileGeoG4SD            TileGeoG4SD-*            TileCalorimeter/TileG4
 

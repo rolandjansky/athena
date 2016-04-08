@@ -41,7 +41,7 @@
 #include "TileGeoG4SD/TileGeoG4SD.hh"
 
 // ISF_FCS_Parametrization includes
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 
 //****************************************************************************
