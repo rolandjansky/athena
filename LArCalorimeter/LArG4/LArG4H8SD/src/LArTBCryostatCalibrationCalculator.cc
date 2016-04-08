@@ -11,7 +11,7 @@
 #undef DEBUG_HITS
 //#define DEBUG_HITS
 
-#include "LArG4H8SD/LArTBCryostatCalibrationCalculator.h"
+#include "LArTBCryostatCalibrationCalculator.h"
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/VCalibrationCalculator.h"
@@ -102,7 +102,7 @@ G4bool LArTBCryostatCalibrationCalculator::Process( const G4Step* a_step,
     G4ThreeVector midinLocal = (startPointinLocal+endPointinLocal)*0.5;
     G4double xZpos   = midinLocal.x();
     G4double yZpos   = midinLocal.y();
-    G4double zZpos   = midinLocal.z();
+    //G4double zZpos   = midinLocal.z();
 #ifdef DEBUG_HITS
     std::cout << " LArTBCryostatCalibrationCalculator x,y,z       " <<
       startPoint.x() << " " << startPoint.y() << " " << startPoint.z() << std::endl;
