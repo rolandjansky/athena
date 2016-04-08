@@ -22,14 +22,16 @@ namespace Muon {
   MuonPatternCombination::MuonPatternCombination( const Trk::TrackParameters* parameter, 
 						  const std::vector< MuonPatternChamberIntersect >& chamberData ) :
     m_parameter( parameter ),
-    m_chamberData( chamberData )
+    m_chamberData( chamberData ),
+    m_roadType(0)
   {
 
   }
   
   MuonPatternCombination::MuonPatternCombination( const MuonPatternCombination& pat ) :
     m_parameter( pat.m_parameter ? pat.m_parameter->clone() : 0 ),
-    m_chamberData( pat.m_chamberData )
+    m_chamberData( pat.m_chamberData ),
+    m_roadType(0)
   {
     
   }
