@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 750298 2016-05-27 13:03:48Z krasznaa $
 ################################################################################
 # Package: TrigDecisionInterface
 ################################################################################
@@ -7,13 +6,9 @@
 atlas_subdir( TrigDecisionInterface )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools )
+atlas_depends_on_subdirs( PUBLIC
+                          GaudiKernel )
 
-# Define an interface library for the header(s):
-atlas_add_library( TrigDecisionInterface
-   TrigDecisionInterface/*.h
-   INTERFACE
-   PUBLIC_HEADERS TrigDecisionInterface
-   LINK_LIBRARIES AsgTools )
+# Install files from the package:
+atlas_install_headers( TrigDecisionInterface )
+
