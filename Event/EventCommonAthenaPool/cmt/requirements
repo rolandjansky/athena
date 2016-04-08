@@ -1,0 +1,39 @@
+package EventCommonAthenaPool
+
+author  Sebastien Binet <binet@cern.ch>
+
+## For Athena policies: it has to be the first use statement
+use AtlasPolicy          AtlasPolicy-* 
+
+use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
+
+private
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
+use  DataModelAthenaPool        DataModelAthenaPool-*           Control
+use  EventCommonTPCnv           EventCommonTPCnv-*              Event
+use  GaudiInterface             GaudiInterface-*                External
+use  NavFourMom                 NavFourMom-*                    Event
+use  EventKernel                EventKernel-*                   Event
+use  StoreGate                  StoreGate-*                     Control
+end_private
+
+
+
+branches src doc share
+
+#
+# List of containers for which we want to generate an AthenaPool converter
+#
+macro        evtCmnAthPool_poolcnv ""
+macro_append evtCmnAthPool_poolcnv "-s=${EventKernel_root}/EventKernel "
+macro_append evtCmnAthPool_poolcnv " INavigable4Momentum.h "
+macro_append evtCmnAthPool_poolcnv "-s=${NavFourMom_root}/NavFourMom "
+macro_append evtCmnAthPool_poolcnv " INav4MomLinkContainer.h "
+macro_append evtCmnAthPool_poolcnv " IParticleLinkContainer.h "
+macro_append evtCmnAthPool_poolcnv " I4MomentumContainer.h "
+macro_append evtCmnAthPool_poolcnv " INavigable4MomentumCollection.h "
+macro_append evtCmnAthPool_poolcnv " IParticleContainer.h "
+macro_append evtCmnAthPool_poolcnv " INav4MomAssocs.h "
+
+apply_pattern poolcnv files=$(evtCmnAthPool_poolcnv)
+
