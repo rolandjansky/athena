@@ -125,14 +125,28 @@ StatusCode PDFReweightTool::initialize() {
 	//initialize PDF error sets.
 	int  oldset=1;	//do not change the number
 	char pdf_set_name[500];
-	strcpy(pdf_set_name, m_OrigPDFSetName.c_str());
+               
+	if (sizeof(m_OrigPDFSetName) < 500) (strcpy(pdf_set_name, m_OrigPDFSetName.c_str()));
+	else {
+             msg(MSG::ERROR)
+             << "OigPDFSetName is too long"
+             << endreq;
+  	}
+
 	initpdfsetbynamem_(oldset, pdf_set_name, strlen(pdf_set_name));
 	msg(MSG::INFO) << " PDF set "<<m_OrigPDFSetName<<" has been initialized"<< endreq;
 
 	if(m_PDFSetName != "")	{	
 		int newset=2;	//do not change the number
 		char new_pdf_set_name[500];
-		strcpy(new_pdf_set_name, m_PDFSetName.c_str());
+		if (sizeof(m_PDFSetName) < 500) {
+		      strcpy(new_pdf_set_name, m_PDFSetName.c_str());}
+		else
+		   {
+                    msg(MSG::ERROR)
+                    << "PDFSetName is too long"
+                    << endreq;}
+
 		initpdfsetbynamem_(newset, new_pdf_set_name, strlen(new_pdf_set_name));
 		msg(MSG::INFO) << " PDF set "<<m_PDFSetName<<" has been initialized"<< endreq;
 	}
