@@ -1,0 +1,669 @@
+Thu Nov 20 22:11:21 CET 2008
+Preloading tcmalloc.so
+Py:ConfigurableDb    INFO Read module info for 3826 configurables from 10 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO including file "../share/aodtoaod_base.py"
+Py:AthenaSealSvcConf WARNING AthenaSealSvc.AthenaSealSvcConf has been retired !
+Py:AthenaSealSvcConf WARNING Please use 'AthenaSealSvc' from the AthenaServices package
+Py:AthenaSealSvcConf WARNING ex: 
+Py:AthenaSealSvcConf WARNING  from AthenaCommon import CfgMgr
+Py:AthenaSealSvcConf WARNING  svcMgr += CfgMgr.AthenaSealSvc()
+Py:Athena            INFO including file "RecExCond/AllDet_detDescr.py"
+Py:Athena            INFO including file "RecExCond/RecExCommon_DetFlags.py"
+Py:Athena            INFO including file "RecExCond/RecExCommon_GlobalFlags.py"
+Py:JobPropertyContainer::    INFO The JobProperty JobProperties.Global.DetGeo has been set to atlas
+Py:JobPropertyContainer::    INFO The JobProperty JobProperties.Global.DataSource has been set to geant4
+Py:JobPropertyContainer::    INFO The JobProperty JobProperties.Global.InputFormat has been set to pool
+Py:JobPropertyContainer::    INFO The JobProperty JobProperties.Global.Luminosity has been set to zero
+Py:MuonRec           INFO Auto-loading container Muonboy from module MuonRecExample.MuonboyFlags
+Py:MuonRec           INFO Auto-loading container Moore from module MuonRecExample.MooreFlags
+Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
+Py:Athena            INFO including file "DetDescrDictionary/DetDescrDictionaryDict_joboptions.py"
+EventInfoMgtInit: Got release version  AtlasOffline-rel_3
+Py:loadCondDBSetup    INFO Setting up conditions DB access to instance OFLP200
+Py:Athena            INFO including file "TileConditions/TileConditions_jobOptions.py"
+Py:TileInfoConfigurator    INFO Adding TileCablingSvc to ServiceMgr
+Py:TileInfoConfigurator    INFO Adding default TileBadChanTool to ToolSvc
+Py:TileInfoConfigurator    INFO Adding default TileCondToolOfc to ToolSvc
+Py:TileInfoConfigurator    INFO Adding default TileCondToolEmscale to ToolSvc
+Py:TileInfoConfigurator    INFO Adding default TileCondToolNoiseSample to ToolSvc
+Py:TileInfoConfigurator    INFO Adding default TileCondToolTiming to ToolSvc
+Py:TileInfoConfigurator    INFO Adding default TileCondToolPulseShape to ToolSvc
+Py:TileConditions_jobOptions.py WARNING Old geometry tag detected ATLAS-CSC-01-02-00 - will not use COOL DB for TileCal calibration
+Py:TileConditions_jobOptions.py    INFO Adjusting TileInfo for 9 samples
+Py:TileConditions_jobOptions.py    INFO Reading TileCal bad channel list from TileNoBad.oflBch
+Py:Athena            INFO including file "CaloIdCnv/CaloIdCnv_joboptions.py"
+Py:Athena            INFO including file "CaloConditions/CaloConditions_jobOptions.py"
+Py:Athena            INFO including file "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py"
+Py:LArTTCellMap_ATLAS_jobOptions.py    INFO mddv=ATLAS-CSC-01-02-00
+Py:LArTTCellMap_ATLAS_jobOptions.py    INFO LArTTCellMap configuration: LArIdMapFix=1 
+Py:Athena            INFO including file "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py"
+Py:Athena            INFO including file "TileIdCnv/TileIdCnv_jobOptions.py"
+Py:Athena            INFO including file "LArDetDescr/LArDetDescr_joboptions.py"
+now initializing the LAr readout geometry : standard Atlas flavour
+Py:Athena            INFO including file "LArIdCnv/LArIdCnv_joboptions.py"
+Py:Athena            INFO including file "LArTools/LArTools_jobOptions.py"
+Py:Athena            INFO including file "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py"
+Py:Athena            INFO including file "LArCondAthenaPool/LArCondAthenaPool_joboptions.py"
+Py:Athena            INFO including file "LArRawConditions/LArRawConditionsDict_joboptions.py"
+Py:JobPropertyContainer::    INFO  setting folder /LAR/ElecCalibMC with tag LARElecCalibMC-DC3-B-IdFix1
+Py:Athena            INFO including file "LArConditionsCommon/LArIdMap_MC_jobOptions.py"
+Py:Athena            INFO including file "AthenaPoolCnvSvc/AthenaPool_jobOptions.py"
+Py:Athena            INFO including file "LArCondAthenaPool/LArCondAthenaPool_joboptions.py"
+Py:Athena            INFO including file "LArRawConditions/LArRawConditionsDict_joboptions.py"
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/OnOffIdAtlas with tag OnOffIdAtlas-002
+Py:JobPropertyContainer::    INFO  setting folder /LAR/Identifier/FebRodAtlas with tag FebRodAtlas-005
+Py:Athena            INFO including file "InDetBeamSpotService/BeamCondSvc.py"
+Py:Athena            INFO including file "AmdcAth/AmdcAth_jobOptions.py"
+Py:Athena            INFO including file "BFieldAth/BFieldAth_jobOptions.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.14 $
+                                          running on lxplus209.cern.ch on Thu Nov 20 22:11:24 2008
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : AthenaServices
+ApplicationMgr       INFO Application Manager Configured successfully
+ApplicationMgr       INFO Updating ROOT::Reflex::PluginService::SetDebug(level) to level=0
+StatusCodeSvc        INFO initialize
+WARNING: $POOL_CATALOG is not defined
+using default `xmlcatalog_file:PoolFileCatalog.xml'
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root Success Root file version:51400
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root Success Root file version:51400
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+CoralApplication Info Create a cool::CoralApplication...
+CoralApplication Info Create a new own CORAL connection service
+CoralApplication Info Create the COOL database service
+RalDatabaseSvc Info Instantiate the RalDatabaseSvc
+CoralApplication Info Create a cool::CoralApplication... DONE
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_INDET/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IRelationalService: CORAL/Services/RelationalService
+PluginManager Info PluginManager creating CORAL/Services/RelationalService component
+PluginManager Info PluginMaager needs to load CORAL/Services/RelationalService component
+PluginManager Info PluginManager loaded RelationalService library
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "coral" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "frontier" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "mysql" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "oracle" with native implementation
+CORAL/Services/RelationalService Info Found plugin for RDBMS technology "sqlite" with native implementation
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "coral" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "frontier" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "mysql" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "oracle" is native
+CORAL/Services/RelationalService Info Default implementation for RDBMS technology "sqlite" is native
+CORAL/Services/ConnectionService Info Loading default plugin for coral::ILookupService: CORAL/Services/XMLLookupService
+PluginManager Info PluginManager creating CORAL/Services/XMLLookupService component
+PluginManager Info PluginMaager needs to load CORAL/Services/XMLLookupService component
+PluginManager Info PluginManager loaded XMLLookupService library
+Data source lookup using /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/XML/AtlasAuthentication/dblookup.xml file
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+PluginManager Info PluginManager creating CORAL/RelationalPlugins/sqlite component
+PluginManager Info PluginMaager needs to load CORAL/RelationalPlugins/sqlite component
+PluginManager Info PluginManager loaded SQLiteAccess library
+PluginManager Info PluginManager creating CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginMaager needs to load CORAL/RelationalPlugins/oracle component
+PluginManager Info PluginManager loaded OracleAccess library
+CORAL/Services/ConnectionService Info Loading default plugin for coral::IAuthenticationService: CORAL/Services/XMLAuthenticationService
+PluginManager Info PluginManager creating CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginMaager needs to load CORAL/Services/XMLAuthenticationService component
+PluginManager Info PluginManager loaded XMLAuthenticationService library
+CORAL/Services/XMLAuthenticationService Info Authentication using /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_3/InstallArea/XML/AtlasAuthentication/authentication.xml file
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info  Connection to service "ATLAS_COOLPROD" established. Id=d0dc2d10-b747-11dd-bfee-000423d67746
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=d0dc2d10-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_INDET/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.1.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_TRT/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=d0dc2d10-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_TRT/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.0.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_LAR/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=d0dc2d10-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_LAR/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.0.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_CALO/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=d0dc2d10-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_CALO/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.0.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_GLOBAL/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=d0dc2d10-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_GLOBAL/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.0.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLOFL_DCS/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=d0dc2d10-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLOFL_DCS/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.2.2 will be opened using CURRENT client release number 2.6.0
+RelationalDatabase Info Delete the RalDatabase for 'COOLOFL_DCS/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLOFL_DCS/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_CALO/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_CALO/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_GLOBAL/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_GLOBAL/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_INDET/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_INDET/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_LAR/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_LAR/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_TRT/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_TRT/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/geomDB is not writable" )
+CORAL/Services/ConnectionService Info  Connection to service "atlas_dd" established. Id=d24b4c62-b747-11dd-bfee-000423d67746
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_dd" started for user "atlasdd_reader". Connection Id=d24b4c62-b747-11dd-bfee-000423d67746
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/geomDB is not writable" )
+CORAL/Services/ConnectionService Info  Connection to service "atlas_dd" established. Id=d2ab1020-b747-11dd-bfee-000423d67746
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_dd" started for user "atlasdd_reader". Connection Id=d2ab1020-b747-11dd-bfee-000423d67746
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+SCT_ID               INFO Initialize from dictionary
+MSG::DEBUG (Re)initialize
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MSG::DEBUG decode index and bit fields for each level: 
+MSG::DEBUG indet    decode 1 vals 2,4,5,7,10,11,12 mask/zero mask/shift/bits/offset 7   1fffffff 29 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 mode  enumerated  
+MSG::DEBUG sct      decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffff 27 2  3  indexes                     mode  both_bounded  
+MSG::DEBUG bec      decode 1 vals -2,0,2          mask/zero mask/shift/bits/offset 3   f9ffffff 25 2  5  indexes 0 0 1 0 2           mode  enumerated  
+MSG::DEBUG lay_disk decode 0 vals 0:8             mask/zero mask/shift/bits/offset f   fe1fffff 21 4  7  indexes                     mode  both_bounded  
+MSG::DEBUG phi_mod  decode 0 vals 0:55            mask/zero mask/shift/bits/offset 3f  ffe07fff 15 6  11 indexes                     mode  both_bounded  
+MSG::DEBUG eta_mod  decode 1 vals -6:6            mask/zero mask/shift/bits/offset f   ffff87ff 11 4  17 indexes                     mode  both_bounded  
+MSG::DEBUG side     decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffbff 10 1  21 indexes                     mode  both_bounded  
+MSG::DEBUG strip    decode 0 vals 0:767           mask/zero mask/shift/bits/offset 3ff fffffc00 0  10 22 indexes                     mode  both_bounded  
+MSG::DEBUG SCT_ID::initialize_from_dict Set barrel field values: 0
+MSG::DEBUG SCT_ID::initialize_from_dict Found field values: SCT 2
+MSG::DEBUG SCT_ID::init_neighbors 
+MSG::INFO SCT_ID::initialize_from_dict 
+MSG::DEBUG  Wafer range -> 2/2/0/0/0:31/-6:-1/0:1 | 2/2/0/1/0:39/-6:-1/0:1 | 2/2/0/2/0:47/-6:-1/0:1 | 2/2/0/3/0:55/-6:-1/0:1 | 2/2/0/0/0:31/1:6/0:1 | 2/2/0/1/0:39/1:6/0:1 | 2/2/0/2/0:47/1:6/0:1 | 2/2/0/3/0:55/1:6/0:1 | 2/2/-2,2/0:8/0:51/0/0:1 | 2/2/-2,2/0/0:39/1/0:1 | 2/2/-2,2/1:5/0:39/1:2/0:1 | 2/2/-2,2/6:7/0:39/1/0:1
+MSG::DEBUG Strip range -> 2/2/0/0/0:31/-6:-1/0:1/0:767 | 2/2/0/1/0:39/-6:-1/0:1/0:767 | 2/2/0/2/0:47/-6:-1/0:1/0:767 | 2/2/0/3/0:55/-6:-1/0:1/0:767 | 2/2/0/0/0:31/1:6/0:1/0:767 | 2/2/0/1/0:39/1:6/0:1/0:767 | 2/2/0/2/0:47/1:6/0:1/0:767 | 2/2/0/3/0:55/1:6/0:1/0:767 | 2/2/-2,2/0:8/0:51/0/0:1/0:767 | 2/2/-2,2/0/0:39/1/0:1/0:767 | 2/2/-2,2/1:5/0:39/1:2/0:1/0:767 | 2/2/-2,2/6:7/0:39/1/0:1/0:767
+INFO Initialize from dictionary cout 0
+ DEBUG (Re)initialize
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ DEBUG decode index and bit fields for each level: 
+ DEBUG indet     decode 1 vals 2,4,5,7,10,11,12 mask/zero mask/shift/bits/offset 7   1fffffff 29 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 mode  enumerated  
+ DEBUG trt       decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   e7ffffff 27 2  3  indexes                     mode  both_bounded  
+ DEBUG bec       decode 1 vals -2,-1,1,2       mask/zero mask/shift/bits/offset 3   f9ffffff 25 2  5  indexes 0 1 0 2 3           mode  enumerated  
+ DEBUG phi_mod   decode 0 vals 0:31            mask/zero mask/shift/bits/offset 1f  fe0fffff 20 5  7  indexes                     mode  both_bounded  
+ DEBUG lay_wheel decode 0 vals 0:17            mask/zero mask/shift/bits/offset 1f  fff07fff 15 5  12 indexes                     mode  both_bounded  
+ DEBUG str_lay   decode 0 vals 0:29            mask/zero mask/shift/bits/offset 1f  ffff83ff 10 5  17 indexes                     mode  both_bounded  
+ DEBUG straw     decode 0 vals 0:28            mask/zero mask/shift/bits/offset 1f  fffffc1f 5  5  22 indexes                     mode  both_bounded  
+ DEBUG  TRT_ID::initialize_from_dict Set barrel field values: -1,1
+ DEBUG  TRT_ID::initialize_from_dict Found field values: InDet/TRT 2/3
+ DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13
+ DEBUG TRT_ID::init_hashes  module hash max 1088
+ DEBUG TRT_ID::init_hashes  straw layer hash max 14912
+ DEBUG TRT_ID::init_hashes  straw hash max 350848
+ DEBUG  TRT_ID::initialize_from_dict 
+ DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13
+ DEBUG Straw layer range -> 2/3/-1,1/0:31/0/0 | 2/3/-1,1/0:31/0/1:4 | 2/3/-1,1/0:31/0/5:9 | 2/3/-1,1/0:31/0/10:14 | 2/3/-1,1/0:31/0/15:17 | 2/3/-1,1/0:31/0/18 | 2/3/-1,1/0:31/1/0 | 2/3/-1,1/0:31/1/1:5 | 2/3/-1,1/0:31/1/6:10 | 2/3/-1,1/0:31/1/11:15 | 2/3/-1,1/0:31/1/16:20 | 2/3/-1,1/0:31/1/21:22 | 2/3/-1,1/0:31/1/23 | 2/3/-1,1/0:31/2/0 | 2/3/-1,1/0:31/2/1:4 | 2/3/-1,1/0:31/2/5:9 | 2/3/-1,1/0:31/2/10:14 | 2/3/-1,1/0:31/2/15:19 | 2/3/-1,1/0:31/2/20:24 | 2/3/-1,1/0:31/2/25:28 | 2/3/-1,1/0:31/2/29 | 2/3/-2,2/0:31/0:5/0:15 | 2/3/-2,2/0:31/6:13/0:7
+ DEBUG Straw range -> 2/3/-1,1/0:31/0/0/0:14 | 2/3/-1,1/0:31/0/1:4/0:15 | 2/3/-1,1/0:31/0/5:9/0:16 | 2/3/-1,1/0:31/0/10:14/0:17 | 2/3/-1,1/0:31/0/15:17/0:18 | 2/3/-1,1/0:31/0/18/0:17 | 2/3/-1,1/0:31/1/0/0:18 | 2/3/-1,1/0:31/1/1:5/0:19 | 2/3/-1,1/0:31/1/6:10/0:20 | 2/3/-1,1/0:31/1/11:15/0:21 | 2/3/-1,1/0:31/1/16:20/0:22 | 2/3/-1,1/0:31/1/21:22/0:23 | 2/3/-1,1/0:31/1/23/0:22 | 2/3/-1,1/0:31/2/0/0:22 | 2/3/-1,1/0:31/2/1:4/0:23 | 2/3/-1,1/0:31/2/5:9/0:24 | 2/3/-1,1/0:31/2/10:14/0:25 | 2/3/-1,1/0:31/2/15:19/0:26 | 2/3/-1,1/0:31/2/20:24/0:27 | 2/3/-1,1/0:31/2/25:28/0:28 | 2/3/-1,1/0:31/2/29/0:27 | 2/3/-2,2/0:31/0:5/0:15/0:23 | 2/3/-2,2/0:31/6:13/0:7/0:23
+ExpHall Parameters defined
+in RALEmb :   Atlas version ATLAS-CSC-01-02-00
+              LAr   version 
+       LAr version LAr-Misaligned-DistMat-00
+Barrel Parameters defined
+Emec Parameters defined
+HEC Parameters defined
+
+---- EMEC THIN absorber characteristics: ----
+  Thickness pb,fe,gl,[mm]=1.69 0.4 0.2
+  Fraction  pb,fe,gl     =0.846212,0.138877,0.0149112
+  Total mass, Thickness  =1.41479e+20 ,2.29
+  Thinabs Density        =9.9881
+
+Sagging in geometry 0
+idat 0 Rhocen/Phice/Delta/deltay/deltax/etatrans 1500.02 0.106187 46.2025 0 0 0.79988
+idat 1 Rhocen/Phice/Delta/deltay/deltax/etatrans 1521 0.569751 45.0574 0 0 0.79893
+idat 2 Rhocen/Phice/Delta/deltay/deltax/etatrans 1559.66 -0.573092 43.3446 0 0 0.79729
+idat 3 Rhocen/Phice/Delta/deltay/deltax/etatrans 1597.2 0.576518 42.4478 0 0 0.79615
+idat 4 Rhocen/Phice/Delta/deltay/deltax/etatrans 1634.57 -0.579943 40.9436 0 0 0.79532
+idat 5 Rhocen/Phice/Delta/deltay/deltax/etatrans 1671.02 0.582296 40.2251 0 0 0.79493
+idat 6 Rhocen/Phice/Delta/deltay/deltax/etatrans 1707.43 -0.585638 38.8752 0 0 0.79473
+idat 7 Rhocen/Phice/Delta/deltay/deltax/etatrans 1743.07 0.588207 38.2915 0 0 0.79483
+idat 8 Rhocen/Phice/Delta/deltay/deltax/etatrans 1778.76 -0.590596 37.0608 0 0 0.79519
+idat 9 Rhocen/Phice/Delta/deltay/deltax/etatrans 1813.75 0.59285 36.5831 0 0 0.79576
+idat 10 Rhocen/Phice/Delta/deltay/deltax/etatrans 1848.87 -0.595587 35.4475 0 0 0.79655
+idat 11 Rhocen/Phice/Delta/deltay/deltax/etatrans 1883.36 0.59744 35.0556 0 0 0.79747
+idat 12 Rhocen/Phice/Delta/deltay/deltax/etatrans 1918.02 -0.599714 33.9977 0 0 0.79856
+idat 13 Rhocen/Phice/Delta/deltay/deltax/etatrans 1952.1 0.601911 33.6767 0 0 0.7999
+idat 14 Rhocen/Phice/Delta/deltay/deltax/etatrans 1970.48 0.0811661 90 0 0 0.80067
+Getting primary numbers for ATLAS, ATLAS-CSC-01-02-00
+InnerWheel,z(0)=0 rmin=302.306 rmax=610.38
+           z(1)=514 rmin=344.279 rmax=695.336
+OuterWheel,z(0)=0 rmin=613.38 rmax=1999.87
+           z(1)=63.1752 rmin=623.822 rmax=2034
+           z(2)=514 rmin=698.336 rmax=2034
+ *** EMECSupportConstruction: contract,contract_e=0.997 0.996388
+ *** EMECSupportConstruction: Barrett thickness: inner,outer, electrode[mm]=2.7916 2.28313 0.274007
+InnerWheel,z(0)=0 rmin=302.306 rmax=610.38
+           z(1)=514 rmin=344.279 rmax=695.336
+OuterWheel,z(0)=0 rmin=613.38 rmax=1999.87
+           z(1)=63.1752 rmin=623.822 rmax=2034
+           z(2)=514 rmin=698.336 rmax=2034
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+3MYSQL singleton created from scratch at location <0xd345120
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MuonIdHelper::init_neighbors 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MuonIdHelper::init_neighbors 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MuonIdHelper::init_neighbors 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MuonIdHelper::init_neighbors 
+DBREADER redefining dy of the cutout from 0.0010 to 0.0000
+DBREADER redefining dy of the cutout from 0.0010 to 0.0000
+DBREADER redefining dy of the cutout from 0.0010 to 0.0000
+DBREADER redefining dy of the cutout from 0.0010 to 0.0000
+DBREADER redefining dy of the cutout from 0.0010 to 0.0000
+DBREADER redefining dy of the cutout from 0.0010 to 0.0000
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:geomDB/geomDB_sqlite": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/geomDB is not writable" )
+CORAL/Services/ConnectionService Info  Connection to service "atlas_dd" established. Id=dfafce46-b747-11dd-bfee-000423d67746
+CORAL/Services/ConnectionService Info New session on connection to service "atlas_dd" started for user "atlasdd_reader". Connection Id=dfafce46-b747-11dd-bfee-000423d67746
+ToolSvc.TileBad...   INFO Creating TileCondProxyFile(ToolSvc.TileBadChanTool.TileCondProxyFile_OflBch) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileNoBad.oflBch"
+ToolSvc.TileBad...   INFO Creating TileCondProxyFile(ToolSvc.TileBadChanTool.TileCondProxyFile_OnlBch) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.onlBch"
+ToolSvc.TileBad...   INFO TileBadChanTool::recache() has been triggered by: 'ASCII files' 
+ToolSvc.TileBad...   INFO No TileBchStatus::isBad() definition found in DB, using defaults
+ToolSvc.TileBad...   INFO No TileBchStatus::isNoisy() definition found in DB, using defaults
+ToolSvc.TileBad...   INFO TileBchStatus::isBad() is defined by: ADC masked (unspecified); ADC dead; Stuck bit; Data corruption; Very large HF noise; No data; Wrong DSP configuration; Channel masked (unspecified); No PMT connected; No HV; Wrong HV; Ignored in DSP; 
+ToolSvc.TileBad...   INFO TileBchStatus::isNoisy() is defined by: Large HF noise; Correlated noise; Large LF noise; 
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCisLin) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.cisFitLin"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCisNln) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.cisFitNln"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasLin) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.lasLin"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflLasNln) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.lasNln"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflCes) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.ces"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolEmscale.TileCondProxyFile_OflEms) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.ems"
+ToolSvc.TileCon...   INFO Loading of online calibration folders not requested, since OnlCacheUnit=Invalid
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolNoiseSample.TileCondProxyFile_NoiseSample) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.ped"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolTiming.TileCondProxyFile_ModOffset) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.tdlas"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolTiming.TileCondProxyFile_AdcOffset) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.tclas"
+ToolSvc.TileCon...   INFO Creating TileCondProxyFile(ToolSvc.TileCondToolTiming.TileCondProxyFile_CellFiber) for ASCII file name: "/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasConditions/rel_3/InstallArea/share/TileDefault.tcfib"
+ToolSvc.TileCon...   INFO TileCondToolTiming::recache() has been triggered by: 'ASCII files' 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-36-15
+HistogramPersis...WARNING Histograms saving not required.
+AthenaEventLoopMgrWARNING Histograms saving not required.
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+AthenaEventLoopMgr   INFO   ===>>>  start of run 5200    <<<===
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_INDET/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info  Connection to service "ATLAS_COOLPROD" established. Id=e0b16cc8-b747-11dd-bfee-000423d67746
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=e0b16cc8-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_INDET/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.1.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_TRT/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=e0b16cc8-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_TRT/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.0.0 will be opened using CURRENT client release number 2.6.0
+RalSessionMgr Info Instantiate a R/O RalSessionMgr for 'COOLONL_LAR/OFLP200'
+RalSessionMgr Info Connect to the database server
+CORAL/Services/ConnectionService Info Re-ordering replicas using installed algorithm.
+CORAL/Services/ConnectionService Warning Failure while attempting to connect to "sqlite_file:sqlite200/ALLP200.db": CORAL/RelationalPlugins/sqlite ( CORAL : "Connection::connect" from "/afs/cern.ch/atlas/maxidisk/d18/gemmeren/testarea/rel_3/AtlasTest/DatabaseTest/AthenaPoolDataModelTest/run/sqlite200 is not writable" )
+CORAL/Services/ConnectionService Info New session on connection to service "ATLAS_COOLPROD" started for user "ATLAS_COOL_READER_U". Connection Id=e0b16cc8-b747-11dd-bfee-000423d67746
+RalSessionMgr Info Start a read-only transaction active for the duration of the database connection
+RelationalDatabase Info Instantiate a R/O RalDatabase for 'COOLONL_LAR/OFLP200'
+RelationalDatabase Warning Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.0.0 will be opened using CURRENT client release number 2.6.0
+PoolXMLFileCatalog Info FileID 14138A63-183C-DB11-9249-00132046AB63 is not in the catalog
+XMLFileCatalog Info empty physical filename found
+PoolXMLFileCatalog Info PFname  is not in the xml file
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 14138A63-183C-DB11-9249-00132046AB63
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0027.pool.root
+/afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0027.pool.root Success Root file version:51000
+PoolXMLFileCatalog Info FileID 9CD5F769-7DFF-DA11-9E2E-000CF1DA62DD is not in the catalog
+XMLFileCatalog Info empty physical filename found
+PoolXMLFileCatalog Info PFname  is not in the xml file
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 9CD5F769-7DFF-DA11-9E2E-000CF1DA62DD
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0021.pool.root
+/afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0021.pool.root Success Root file version:51000
+PoolXMLFileCatalog Info FileID E01BD448-BF95-DB11-983E-0015C5098AA3 is not in the catalog
+XMLFileCatalog Info empty physical filename found
+PoolXMLFileCatalog Info PFname  is not in the xml file
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] E01BD448-BF95-DB11-983E-0015C5098AA3
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0058.pool.root
+/afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0058.pool.root Success Root file version:51304
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 0 events processed so far  <<<===
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 5C6832B2-97B2-DD11-A1DA-000423D664CE
+Domain[ROOT_All] Info                           AODout.pool.root
+AODout.pool.root Success Root file version:51800
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeader_p3 [EC1318F0-8E28-45F8-9A2D-2597C1CC87A6]
+XMLFileCatalog Info There were no updates in the catalog
+PoolXMLFileCatalog Info Read-only filesystem
+PoolXMLFileCatalog Info Read-only filesystem
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 1 events processed so far  <<<===
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_INDET/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_INDET/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_LAR/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_LAR/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+RelationalDatabase Info Delete the RalDatabase for 'COOLONL_TRT/OFLP200'
+RalSessionMgr Info Delete the RalSessionMgr for 'COOLONL_TRT/OFLP200'
+RalSessionMgr Info Commit the read-only transaction active for the duration of the database connection
+RalSessionMgr Info Disconnect from the database server
+/afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0058.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] E01BD448-BF95-DB11-983E-0015C5098AA3
+/afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0021.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 9CD5F769-7DFF-DA11-9E2E-000CF1DA62DD
+/afs/cern.ch/atlas/conditions/poolcond/vol0/oflcond.000002.conditions.simul.pool.v0000/oflcond.000002.conditions.simul.pool.v0000._0027.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 14138A63-183C-DB11-9249-00132046AB63
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 5 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.30.5/AOD-13.0.30.5-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.40.5/AOD-13.0.40.5-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.40.5/AOD-13.0.40.5-1.pool.root Success Root file version:51400
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.40.5/AOD-13.0.40.5-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 8 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 9 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 10 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-13.0.40.5/AOD-13.0.40.5-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.0.0.1/AOD-14.0.0.1-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.0.0.1/AOD-14.0.0.1-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.0.0.1/AOD-14.0.0.1-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 10 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 11 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 12 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 13 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 14 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 15 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.0.0.1/AOD-14.0.0.1-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.1.0.4/AOD-14.1.0.4-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.1.0.4/AOD-14.1.0.4-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.1.0.4/AOD-14.1.0.4-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 15 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 16 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 17 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 18 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 19 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 20 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.1.0.4/AOD-14.1.0.4-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.0.2/AOD-14.2.0.2-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.0.2/AOD-14.2.0.2-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.0.2/AOD-14.2.0.2-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 20 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 21 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 22 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 23 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 24 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 25 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.0.2/AOD-14.2.0.2-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.10.1/AOD-14.2.10.1-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.10.1/AOD-14.2.10.1-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.10.1/AOD-14.2.10.1-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 25 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 26 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 26 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 27 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 27 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 28 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 28 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 29 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 29 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 30 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.10.1/AOD-14.2.10.1-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.20.3/AOD-14.2.20.3-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.20.3/AOD-14.2.20.3-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.20.3/AOD-14.2.20.3-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 30 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 31 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 31 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 32 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 32 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 33 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 33 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 34 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 34 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 35 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.20.3/AOD-14.2.20.3-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.21.2/AOD-14.2.21.2-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.21.2/AOD-14.2.21.2-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.21.2/AOD-14.2.21.2-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 35 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 36 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 36 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 37 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 37 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 38 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 38 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 39 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 39 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 40 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.21.2/AOD-14.2.21.2-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0EA125E3-1E8B-DD11-B75B-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.22/AOD-14.2.22-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.22/AOD-14.2.22-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.22/AOD-14.2.22-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 40 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 41 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 41 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 42 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 42 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 43 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 43 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 44 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 44 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 45 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.22/AOD-14.2.22-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 8AAE3211-5095-DD11-903D-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.23/AOD-14.2.23-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.23/AOD-14.2.23-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.23/AOD-14.2.23-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 45 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 46 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 46 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 47 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 47 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 48 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 48 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 49 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 49 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 50 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.23/AOD-14.2.23-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 8AAE3211-5095-DD11-903D-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.24/AOD-14.2.24-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.24/AOD-14.2.24-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.24/AOD-14.2.24-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 50 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 51 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 51 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 52 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 52 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 53 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 53 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 54 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 54 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 55 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.2.24/AOD-14.2.24-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
+Domain[ROOT_All] Info                           /afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.4.0/AOD-14.4.0-1.pool.root
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.4.0/AOD-14.4.0-1.pool.root Success Root file version:51800
+ImplicitCollection Info Opened the implicit collection with connection string "PFN:/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.4.0/AOD-14.4.0-1.pool.root"
+ImplicitCollection Info and a name "POOLContainer_DataHeader"
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1388, run #5200 55 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1388, run #5200 56 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1390, run #5200 56 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1390, run #5200 57 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1391, run #5200 57 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1391, run #5200 58 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1392, run #5200 58 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1392, run #5200 59 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1394, run #5200 59 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1394, run #5200 60 events processed so far  <<<===
+/afs/cern.ch/atlas/maxidisk/d33/referencefiles/aod/AOD-14.4.0/AOD-14.4.0-1.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] AE38AD8D-0090-DD11-9EFF-000423D6460E
+AthenaEventLoopMgr   INFO No more events in event selection 
+AODout.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 5C6832B2-97B2-DD11-A1DA-000423D664CE
+Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
+XMLFileCatalog Info There were no updates in the catalog
+PoolXMLFileCatalog Info XercesC termination number 0
+StatusCodeSvc        INFO initialize
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully
+Py:Athena            INFO leaving with code 0: "successful run"
+CoralApplication Info Delete the COOL CoralApplication...
+CoralApplication Info Delete the COOL database service
+RalDatabaseSvc Info Delete the RalDatabaseSvc...
+RalDatabaseSvc Info Purge the connection pool
+RalDatabaseSvc Info Reset the ICS pointer
+RalDatabaseSvc Info Delete the RalDatabaseSvc... DONE
+CoralApplication Info Delete the CORAL connection service
+CoralApplication Info Delete the COOL CoralApplication... DONE

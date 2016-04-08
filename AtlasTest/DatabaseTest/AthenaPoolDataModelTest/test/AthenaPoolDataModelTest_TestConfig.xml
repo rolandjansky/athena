@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn>
+   <TEST name="AthenaPoolDataModelTest" type="makecheck" suite="Examples">
+      <timelimit>60</timelimit>
+      <author>Gerhard Brandt, Peter Van Gemmeren</author>
+      <mailto>gbrandt@cern.ch</mailto>
+      <mailto>Peter.van.Gemmeren@cern.ch</mailto>
+      <!--mailto>R.D.Schaffer@cern.ch</mailto-->
+      <expectations>
+         <errorMessage>FATAL some jobs do not report successful run</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
+
+</unifiedTestConfiguration>
