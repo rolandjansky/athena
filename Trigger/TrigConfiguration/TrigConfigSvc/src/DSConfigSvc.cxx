@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 727973 2016-03-06 17:34:17Z stelzer $
+// $Id: DSConfigSvc.cxx 731942 2016-03-23 16:19:00Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -798,7 +798,7 @@ TrigConf::DSConfigSvc::loadMenuFromDB( uint32_t smk, uint32_t l1psk, uint32_t hl
             m_hltFrame.thePrescaleSetCollection().set_prescale_key_to_load( hltpsk );
 
             try {
-               bool loadSuccess = dynamic_cast<TrigConf::StorageMgr*>(m_storageMgr)->hltPrescaleSetCollectionLoader().load( m_hltFrame.thePrescaleSetCollection(), 0, 0 );
+               bool loadSuccess = dynamic_cast<TrigConf::StorageMgr*>(m_storageMgr)->hltPrescaleSetCollectionLoader().load( m_hltFrame.thePrescaleSetCollection(), 0, "" );
 
                if( ! loadSuccess ) {
                   ATH_MSG_ERROR("Could not load HLT prescale set from DB");
