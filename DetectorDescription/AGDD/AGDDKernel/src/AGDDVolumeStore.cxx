@@ -41,15 +41,10 @@ AGDDVolumeStore* AGDDVolumeStore::GetVolumeStore()
 
 void AGDDVolumeStore::Clean()
 {
-	AGDDVolumeMap::iterator volumeIt;
-	for (volumeIt=this->begin();volumeIt!=this->end();volumeIt++)
+	for (auto volumeIt : *this)
 	{
-		AGDDDetector* testP=dynamic_cast<AGDDDetector*>((*volumeIt).second);
-		if (testP)
-		{
-			std::cout<<"++++++++++++++++ detector ----> "<<testP->GetName()<<std::endl;
-		}
-		else delete (*volumeIt).second;
+		if (!(volumeIt.second->IsSensitiveVolume()))
+			delete (volumeIt.second);
 	}
 	this->clear();
 }
