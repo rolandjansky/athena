@@ -11,6 +11,7 @@ use GaudiInterface  GaudiInterface-*     External
 use CLIDSvc         CLIDSvc-*            Control
 use Identifier      Identifier-*         DetectorDescription
 use AtlasCLHEP      AtlasCLHEP-*         External
+use AtlasBoost      AtlasBoost-*         External
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
 apply_pattern installed_library
