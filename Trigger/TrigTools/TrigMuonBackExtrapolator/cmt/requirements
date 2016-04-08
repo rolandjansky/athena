@@ -9,6 +9,7 @@ use  GaudiInterface           GaudiInterface-*                External
 use  TrigInDetEvent           TrigInDetEvent-*                Trigger/TrigEvent
 use  TrigMuonEvent            TrigMuonEvent-*                 Trigger/TrigEvent
 use  xAODTrigMuon             xAODTrigMuon-*                  Event/xAOD
+use  AthenaBaseComps          AthenaBaseComps-*               Control
 
 library TrigMuonBackExtrapolator *.cxx components/*.cxx
 

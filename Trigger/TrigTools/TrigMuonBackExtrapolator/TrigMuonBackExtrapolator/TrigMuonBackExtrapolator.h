@@ -6,12 +6,12 @@
 #define TRIGMUONBACKEXTRAPOLATOR_H
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 
 
 
-class TrigMuonBackExtrapolator: public AlgTool, 
+class TrigMuonBackExtrapolator: public AthAlgTool, 
                                 virtual public ITrigMuonBackExtrapolator
 {
     public:

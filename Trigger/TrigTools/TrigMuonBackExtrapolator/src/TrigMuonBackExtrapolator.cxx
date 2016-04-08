@@ -4,8 +4,6 @@
 
 #include <iostream>
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "TrigMuonBackExtrapolator/TrigMuonBackExtrapolator.h"
 #include "TrigMuonBackExtrapolator/BackExtrapolator.h"
 
@@ -13,7 +11,7 @@
 TrigMuonBackExtrapolator::TrigMuonBackExtrapolator(const std::string& t, 
 						   const std::string& n,
 						   const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_aligned(true),
   m_dataset(false)
 {
@@ -35,20 +33,18 @@ TrigMuonBackExtrapolator::~TrigMuonBackExtrapolator()
 StatusCode
 TrigMuonBackExtrapolator::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "Initializing the MuonBackExtrapolator" << endreq;
-  
-  StatusCode sc = AlgTool::initialize();
-
-  return sc;
+  msg(MSG::INFO) << "Initializing the MuonBackExtrapolator" << endreq;
+  ATH_CHECK( AthAlgTool::initialize() );
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode
 TrigMuonBackExtrapolator::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); 
-  return sc;
+  msg(MSG::INFO) << "Finalizing the MuonBackExtrapolator" << endreq;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -560,8 +556,7 @@ void
 TrigMuonBackExtrapolator::init_LUT()
 {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "TrigMuonBackExtrapolator LUT loaded" << endreq;
+  msg(MSG::INFO) << "TrigMuonBackExtrapolator LUT loaded" << endreq;
 
 //Barrel
 data_Barrel_Param[0][0][0] = -0.344175;   data_Barrel_Param[0][0][1] = -0.007004; 
