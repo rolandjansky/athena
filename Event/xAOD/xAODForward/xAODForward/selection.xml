@@ -1,19 +1,71 @@
-<!-- $Id: selection.xml 693858 2015-09-09 10:30:15Z krasznaa $ -->
+<!-- $Id: selection.xml 708124 2015-11-16 13:24:22Z steinber $ -->
 <lcgdict>
 
   <!-- V1 dictionaries: -->
+
+  <!-- ALFA -->
   <class name="xAOD::ALFAData_v1" />
   <class name="xAOD::ALFADataContainer_v1"
          id="8D245B28-F246-42D7-BD85-054A757D2A13" />
   <class name="xAOD::ALFADataAuxContainer_v1"
          id="7D575485-A862-404F-85D0-D66BFB39D680" />
 
+  <!-- ZDC -->
+  <class name="xAOD::ZdcModule_v1" />
+  <class name="xAOD::ZdcModuleContainer_v1"
+         id="C99119A0-E3AB-457F-85E7-EF0B44A3F5EB" />
+  <class name="xAOD::ZdcModuleAuxContainer_v1"
+         id="72D723CD-1C67-49D2-9C70-5EE14C3B26A6" />
+
+  <!-- MBTSModules -->
+  <class name="xAOD::MBTSModule_v1" />
+  <class name="xAOD::MBTSModuleContainer_v1"
+         id="661BBB15-2F8C-41FD-A1A8-F075C328DB5A" />
+  <class name="xAOD::MBTSModuleAuxContainer_v1"
+         id="9D3409D5-8503-4994-BE9B-41F412D4E5A1" />
+       
+  <!-- ForwardEventInfo -->
+  <class name="xAOD::ForwardEventInfo_v1" />
+  <class name="xAOD::ForwardEventInfoContainer_v1" 
+         id="AAB8E87D-FEFB-481F-BA4C-AB35852A8026" />
+  <class name="xAOD::ForwardEventInfoAuxContainer_v1"
+         id="1795DED0-A289-4173-9BA9-E8A28D7FB2BE" />
+
   <!-- Smart pointers to the V1 types: -->
+  <!-- ALFA -->
   <class name="DataLink<xAOD::ALFADataContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::ALFADataContainer_v1> >" />
 
   <class name="ElementLink<xAOD::ALFADataContainer_v1>" />
   <class name="std::vector<ElementLink<xAOD::ALFADataContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::ALFADataContainer_v1> > >" />
+
+  <!-- ZDC -->
+  <class name="DataLink<xAOD::ZdcModuleContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::ZdcModuleContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::ZdcModuleContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::ZdcModuleContainer_v1> > >" />
+
+  <class name="ElementLink<xAOD::TriggerTowerContainer_v2 >" />
+  <class name="std::vector<ElementLink<xAOD::TriggerTowerContainer_v2> >" />
+  <class name="std::vector< std::vector<short> >" />
+
+ <!-- MBTSModules -->
+  <class name="DataLink<xAOD::MBTSModuleContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::MBTSModuleContainer_v1> >" />
+ 
+  <class name="ElementLink<xAOD::MBTSModuleContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::MBTSModuleContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::MBTSModuleContainer_v1> > >" />
+
+ <!-- ForwardEventInfo -->
+  <class name="DataLink<xAOD::ForwardEventInfoContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::ForwardEventInfoContainer_v1> >" />
+     
+  <class name="ElementLink<xAOD::ForwardEventInfoContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::ForwardEventInfoContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::ForwardEventInfoContainer_v1> > >" />
 
 </lcgdict>
