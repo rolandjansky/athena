@@ -1164,6 +1164,10 @@ void RDBMaterialManager::buildSpecialMaterials()
   GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
   ether->add(ethElement,1.);
   addMaterial("special",ether);
+  // "Alternative" assembly material
+  GeoMaterial* hu = new GeoMaterial("HyperUranium",0.0);	
+  hu->add(ethElement,1.);
+  addMaterial("special",hu);
 }
 
 void RDBMaterialManager::buildSpecialMaterials() const
@@ -1175,4 +1179,8 @@ void RDBMaterialManager::buildSpecialMaterials() const
   GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
   ether->add(ethElement,1.);
   addMaterial("special",ether);
+  // "Alternative" assembly material
+  GeoMaterial* hu = new GeoMaterial("HyperUranium",0.0);	
+  hu->add(ethElement,1.);
+  addMaterial("special",hu);
 }

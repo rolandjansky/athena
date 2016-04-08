@@ -72,6 +72,7 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
     m_useTagInfo(true),
     m_useCaloAlign(false),
     m_statisticsToFile(false),
+    m_supportedGeometry(0),
     m_ignoreTagSupport(false)
 {
   declareProperty( "DetectorTools",               m_detectorTools);
@@ -93,6 +94,7 @@ GeoModelSvc::GeoModelSvc(const std::string& name,ISvcLocator* svc)
   declareProperty( "IgnoreTagDifference",         m_ignoreTagDifference);
   declareProperty( "UseTagInfo",                  m_useTagInfo);
   declareProperty( "StatisticsToFile",            m_statisticsToFile);
+  declareProperty( "SupportedGeometry",           m_supportedGeometry);
   declareProperty( "IgnoreTagSupport",            m_ignoreTagSupport);
 }
 
@@ -110,6 +112,11 @@ GeoModelSvc::~GeoModelSvc()
 StatusCode
 GeoModelSvc::initialize()
 {
+  if(m_supportedGeometry==0) {
+    ATH_MSG_FATAL("The Supported Geometry flag was not set in Job Options! Exiting ...");
+    return StatusCode::FAILURE;
+  }
+
   StatusCode result = service("DetectorStore", m_pDetStore );  
   if (result.isFailure()) 
   {
@@ -526,8 +533,10 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 	}
       }
       else if(supportedSpec.type()==typeid(int)) {
-	if(atlasTagDetails["SUPPORTED"].data<int>()<1) {
-	  ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion << " is OBSOLETE and can NOT be supported any more! *** ***");
+	if(atlasTagDetails["SUPPORTED"].data<int>()<m_supportedGeometry) {
+	  ATH_MSG_FATAL(" *** *** ATLAS layout " << m_AtlasVersion 
+			<< " is OBSOLETE in rel " << m_supportedGeometry 
+			<< " and can NOT be supported any more! *** ***");
 	  return StatusCode::FAILURE;
 	}
       }
