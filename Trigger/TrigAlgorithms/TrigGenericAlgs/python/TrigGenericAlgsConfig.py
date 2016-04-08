@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigGenericAlgs.TrigGenericAlgsConf import OverlapRemoval, MergeTopoStarts
+from TrigGenericAlgs.TrigGenericAlgsConf import OverlapRemoval, MergeTopoStarts, L1CorrelationAlgo
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
 class OverlapRemovalConfig(OverlapRemoval):
@@ -22,3 +22,11 @@ class MergeTopoStartsConfig(MergeTopoStarts):
         self.AthenaMonTools = [monitoring]
     
 
+class L1CorrelationAlgoConfig(L1CorrelationAlgo):
+    def __init__(self, name="L1CorrelationAlgoDefault", **kwargs):
+        super(L1CorrelationAlgoConfig , self ).__init__(name)
+
+        from TrigGenericAlgs.TrigGenericAlgsMonitoring import L1CorrelationAlgoMonitoring
+
+        validationMon = L1CorrelationAlgoMonitoring()
+        self.AthenaMonTools = [ validationMon ]
