@@ -39,6 +39,7 @@ AthService(svcName,sl),
     //    declareProperty("OldCablingSvc", m_oldCablingSvc);
     declareProperty("TagInfoManager", m_tagInfoMgr);
     declareProperty("ForcedUse", m_forceUse);
+    declareProperty("doCalStreamInit",m_doCalStreamInit=false);
 }
 
 MuonMDT_CablingSvc::~MuonMDT_CablingSvc()
@@ -150,7 +151,19 @@ StatusCode MuonMDT_CablingSvc::initialize()
 	<< endreq;
       return sc;
     }
-    
+
+    // This is the special initialization needed to run on the calibration stream
+    // No use of the callback but initialize the map at service initialization 
+    // Activated only when running on the calibration stream
+    if ( m_doCalStreamInit ) {
+      msg(MSG::INFO) << "Initializing the MDT calibration map to read the calibration stream" << endreq;
+      sc = initMappingModelNoCallback();
+      if ( sc.isFailure() ) {
+	msg(MSG::ERROR) << "Could not initialize the MDT cabling service for the calibration stream" << endreq;
+	return StatusCode::FAILURE;
+      }
+    }
+
     return sc;
 }
 
@@ -402,6 +415,48 @@ StatusCode MuonMDT_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   if(!m_useOldCabling) {
     
+    StatusCode sc = m_dbTool->loadParameters(I, keys);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR)<<"Reading Cabling maps from COOL failed; try to read from file"<<endreq;
+      return StatusCode::FAILURE;
+    }
+  
+    // retrieve the map from the detector store
+    
+    sc = m_detStore->retrieve(m_cablingMap);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "Can't retrieve the cabling map from the detector store" << endreq;
+      return false;
+    }
+    else {
+      msg(MSG::DEBUG) << "Retrieved map from the detector store" << endreq;
+    }
+  
+  }
+  else {
+    msg(MSG::INFO) << "Using the old cabling, no callback" << endreq;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+// initalize the map without using the callback
+StatusCode MuonMDT_CablingSvc::initMappingModelNoCallback() const
+{
+
+  msg(MSG::INFO) << "initMappingModel has been called" << endreq;
+  msg(MSG::INFO) << "ToolHandle in initMappingModel - <" << m_dbTool << ">" << endreq;
+  
+  if(!m_useOldCabling) {
+    
+    std::list<std::string> keys;
+    keys.push_back("/MDT/CABLING/MAP_SCHEMA");
+    keys.push_back("/MDT/CABLING/MEZZANINE_SCHEMA");
+    
+    int I=0;
+
     StatusCode sc = m_dbTool->loadParameters(I, keys);
     if (sc.isFailure()) {
       msg(MSG::ERROR)<<"Reading Cabling maps from COOL failed; try to read from file"<<endreq;

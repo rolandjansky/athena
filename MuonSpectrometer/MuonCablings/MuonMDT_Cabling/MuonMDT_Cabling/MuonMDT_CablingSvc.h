@@ -23,6 +23,9 @@ class ITagInfoMgr;
 
 class IdentifierHash;
 
+#include <list>
+#include <string>
+
 static const InterfaceID IID_IMuonMDT_CablingSvc("MuonMDT_CablingSvc", 1, 0);
 
 
@@ -54,6 +57,9 @@ class MuonMDT_CablingSvc : public AthService
 
   // IOV service callback
   StatusCode initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys));
+
+  // IOV service callback
+  StatusCode initMappingModelNoCallback() const;
 
   //  MuonMDT_CablingMap* getCablingMap() {return m_cablingMap;}
   DataHandle<MuonMDT_CablingMap> getCablingMap();
@@ -124,6 +130,10 @@ class MuonMDT_CablingSvc : public AthService
 
   /** flag to indicate the first access to the map (to be fixed) */
   bool m_firstAccess;
+
+  // this flag is by default false, to be set to true only to read MDT calibration stream
+  bool m_doCalStreamInit;
+
 
   /** pointer to the old cabling service: added for backwards compatibility to read
       old simulated data */

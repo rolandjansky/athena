@@ -15,17 +15,17 @@
  *
  ***********************************************/
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // old cabling service
 //#include "MDTcabling/IMDTcablingSvc.h"
 
 
-class MdtTestCabling : public Algorithm {
+class MdtTestCabling : public AthAlgorithm {
 
  public:
 
@@ -38,10 +38,7 @@ class MdtTestCabling : public Algorithm {
 
  private:
 
-  MuonMDT_CablingSvc* m_cablingSvc;
-  MsgStream* m_log;
-
-  //  IMDTcablingSvc* m_oldCablingSvc;
+  ServiceHandle<MuonMDT_CablingSvc> m_cablingSvc;
 
   const MdtIdHelper* m_mdtIdHelper;
 
@@ -53,7 +50,7 @@ class MdtTestCabling : public Algorithm {
   bool testMap();
 
   // the chrono service
-  IChronoStatSvc* m_chronoSvc;
+  ServiceHandle<IChronoStatSvc> m_chronoSvc;
 
   std::string m_chrono1;
   std::string m_chrono2;
