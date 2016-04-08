@@ -33,26 +33,28 @@
 
 //// parameters ////
 #define NIBLSTAVES 0
-#define MINENTRIES 35
-#define MINENTRIESINBIN 11
-#define MINGOODPOINTS 8  
+#define MINENTRIES 36
+#define MINENTRIESINBIN 12
+#define MINGOODPOINTS 8
 #define FITTYPE 3
 #define RUNNUMBEREXTRACTIONMODE 0
 #define RMSFACTOR 1.5  // factor used in the residuals Gaussian fit to limit the range (in units of RMS)
 
 const bool FULLOUTPUT= false;
 const bool USEPLANARONLY = true;
-bool LUMIBLOCKANALYSIS = false;
-const int REBINFACTOR = 100; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
+bool LUMIBLOCKANALYSIS = true;
+const int REBINFACTOR = 100; // 100; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
 const bool WRITETEXTOUTPUT = true;
-const TString me_trackCollection("AlignTracks_all");
+//const TString me_trackCollection("AlignTracks_all");
 //const TString me_trackCollection("InDetTrackParticles_AlignSel");
+//const TString me_trackCollection("ExtendedTracks_alignSelection");
+const TString me_trackCollection("ExtendedTracks_all");
 
 const double z_fix = 366.5; // Stave fixing screw position [mm]
 float xmax = 0.3;
 float xmin = -xmax;
 
-const double me_bowingRangeInPlots = 10.; //in microns
+const double me_bowingRangeInPlots = 36.; //in microns
 
 const float me_systUncertaintyBowing = 0.255; // systematic uncertainty on the bowing measurements (in microns)
 
@@ -77,11 +79,14 @@ std::vector<TH1F*> me_h_bowingMagnitudePerLB[NIBLSTAVES+1];
 TH2F*  me_h_bowingMagnitudePerStaveAndLB;
 TH1F*  me_h_bowingBaseLineEvolution[NIBLSTAVES+1];
 
+TH1F* me_h_deltaBxPerStave;
+
 std::vector<TH1F*>  me_h_bowingMagnitudePerStave; 
 std::vector<TH1F*>  me_h_bowingBaseLinePerStave; 
 
 //// prototypes ////
 void          ME_clear (); 
+void          ME_computeDeltaBx (int);
 void          ME_conditioningStaveSummaryHisto ();
 int           ME_extractRunNumber (int);
 void          ME_finalize ();
@@ -90,11 +95,13 @@ bool          ME_fitResidualsDistribution (TH1F*, int);
 TH3F*         ME_get3DHistoResidualsVsEtaAndLB (int, int);
 TH1F*         ME_getHistoResidualsVsEtaAtLB (TH3F*, int, int, int, int);
 TH1F*         ME_getIBLMeanResPerRing (TH3F*, int, int);
-void          ME_getMonitoringFileList (); 
+void          ME_getMonitoringFileList ();
+TH3F*         ME_getIBLResiduals3DHisto (int); 
 void          ME_goodbye ();
 void          ME_init ();
 void          ME_loop ();
 void          ME_performLumiBlockAnalysis (int);
+void          ME_plotDeltaBx ();
 void          ME_plotEvolutionHistos ();
 void          ME_plotHistosPerStave ();
 void          ME_prepareEvolutionHistos ();

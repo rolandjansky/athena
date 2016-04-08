@@ -125,7 +125,7 @@ def drawAllCorr(detector):
             hname = 'All_%s_corrections_%d' % (name,det)
             htitle = 'All %s Corrections_%d' % (name,det)
             AllCorrections[det][name] = TH1F(hname,htitle, detector[det].nModules(),0,detector[det].nModules())
-            if name is 'Tx' or name is 'Ty' or name is 'Tz':
+            if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
                 AllCorrections[det][name].SetYTitle("mm")
             else:
                 AllCorrections[det][name].SetYTitle("mrad")
@@ -258,7 +258,7 @@ def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whic
             if (len(labelList)>iter): # use label given by user
                 hCorrectionsEvol[dof].GetXaxis().SetBinLabel(iter+1,labelList[iter])
         # label Y axis
-        if name is 'Tx' or name is 'Ty' or name is 'Tz':
+        if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
             hCorrectionsEvol[dof].SetYTitle("mm")
         else:
             hCorrectionsEvol[dof].SetYTitle("mrad")
@@ -358,7 +358,7 @@ def drawCorrVsHits(detector):
             hCorrVsHits[det][name].SetTitle(htitle)
             hCorrVsHits[det][name].GetXaxis().SetTitle("Hits per module")
             hCorrVsHits[det][name].GetYaxis().SetTitle(name)
-            if name is 'Tx' or name is 'Ty' or name is 'Tz':
+            if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
                 hCorrVsHits[det][name].GetYaxis().SetTitle(name+" (mm)")
             else:
                 hCorrVsHits[det][name].GetYaxis().SetTitle(name+" (mrad)")
@@ -397,7 +397,7 @@ def drawPixBarrelCorrDistributions(detector):
                 hPixBarrelCorrDistributions[d][name] = TH1F(hname,htitle,50,-0.02,0.02)
             else:
                 hPixBarrelCorrDistributions[d][name] = TH1F(hname,htitle,50,-0.25,0.25)
-            if name is 'Tx' or name is 'Ty' or name is 'Tz':
+            if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
                 hPixBarrelCorrDistributions[d][name].GetXaxis().SetTitle(name+" (mm)")
             else:
                 hPixBarrelCorrDistributions[d][name].GetXaxis().SetTitle(name+" (mrad)")    
@@ -437,7 +437,7 @@ def drawSctBarrelCorrDistributions(detector):
                 hSctBarrelCorrDistributions[d][name] = TH1F(hname,htitle,50,-0.1,0.1)
             else:
                 hSctBarrelCorrDistributions[d][name] = TH1F(hname,htitle,50,-0.25,0.25)
-            if name is 'Tx' or name is 'Ty' or name is 'Tz':
+            if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
                 hSctBarrelCorrDistributions[d][name].GetXaxis().SetTitle(name+" (mm)")
             else:
                 hSctBarrelCorrDistributions[d][name].GetXaxis().SetTitle(name+" (mrad)")    
@@ -502,7 +502,7 @@ def drawL3CorrVsHits(detector,det,bec):
             hCorrVsHits[d][name].SetTitle(htitle)
             hCorrVsHits[d][name].GetXaxis().SetTitle("Hits per module")
             hCorrVsHits[d][name].GetYaxis().SetTitle(name)
-            if name is 'Tx' or name is 'Ty' or name is 'Tz':
+            if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
                 hCorrVsHits[d][name].GetYaxis().SetTitle(name+" (mm)")
             else:
                 hCorrVsHits[d][name].GetYaxis().SetTitle(name+" (mrad)")
@@ -546,7 +546,7 @@ def drawStavePlots(detector,det):
                 hname = 'Stave_%s_L%d_Phi%d_%s_corrections' % (detname,lay,phi,name)
                 htitle = 'Stave %s L%d Phi%d %s Corrections' % (detname,lay,phi,name)
                 hStaveCorrections[name] = TH1F(hname,htitle, len(stavemodules),0,len(stavemodules))
-                if name is 'Tx' or name is 'Ty' or name is 'Tz':
+                if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
                     hStaveCorrections[name].SetYTitle("mm")
                 else:
                     hStaveCorrections[name].SetYTitle("mrad")

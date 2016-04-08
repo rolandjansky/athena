@@ -9,8 +9,8 @@
 #include <sstream>
 #include <math.h>
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+//#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -439,6 +439,7 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
 
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/HitEfficiencies";
   MonGroup al_mon ( this, outputDirName, run );
+  MonGroup al_mon_ls ( this, outputDirName, lowStat );
   
   
 
@@ -531,13 +532,13 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     //book efficiencie by layers 
     m_measurements_eff_vs_layer_barrel = new TProfile("measurements_eff_vs_layer_barrel","measurements per possible hit vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
     for (int i=1; i<=12;i++) m_measurements_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]); 
-    RegisterHisto(al_mon,m_measurements_eff_vs_layer_barrel) ;  
+    RegisterHisto(al_mon_ls,m_measurements_eff_vs_layer_barrel) ;  
     m_measurements_eff_vs_layer_eca = new TProfile("measurements_eff_vs_layer_eca","measurements per possible hit vs. layer in the eca",21,-0.5,20.5, 0., 1.); 
     for (int i=2; i<=nx;i++) m_measurements_eff_vs_layer_eca->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-    RegisterHisto(al_mon,m_measurements_eff_vs_layer_eca) ; 
+    RegisterHisto(al_mon_ls,m_measurements_eff_vs_layer_eca) ; 
     m_measurements_eff_vs_layer_ecc = new TProfile("measurements_eff_vs_layer_ecc","measurements per possible hit vs. layer in the ecc",21,-0.5,20.5, 0., 1.);
     for (int i=2; i<=nx;i++) m_measurements_eff_vs_layer_ecc->GetXaxis()->SetBinLabel(i-1,siliconLayers[i-1]);    
-    RegisterHisto(al_mon,m_measurements_eff_vs_layer_ecc) ;  
+    RegisterHisto(al_mon_ls,m_measurements_eff_vs_layer_ecc) ;  
 
     m_outliers_eff_vs_layer_barrel = new TProfile("outliers_eff_vs_layer_barrel","outliers per possible hit vs. layer in the barrel",12,-0.5,11.5, 0., 1.); 
     for (int i=1; i<=12;i++) m_outliers_eff_vs_layer_barrel->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);    
@@ -670,7 +671,7 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
     makePIXEndCapsHistograms(al_mon);
     makeSCTBarrelHistograms(al_mon);
     makeSCTEndCapsHistograms(al_mon);
-    makeTRTHistograms(al_mon);
+    makeTRTHistograms(al_mon, al_mon_ls);
 
     m_histosBooked++;
   }
@@ -804,12 +805,12 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
   m_events++;
 
 
-  const DataHandle<EventInfo> eventInfo;
+  const DataHandle<xAOD::EventInfo> eventInfo;
   if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
     msg(MSG::ERROR) << "Cannot get event info." << endreq;
     return StatusCode::FAILURE;
   }
-  unsigned int LumiBlock = eventInfo->event_ID()->lumi_block();
+  unsigned int LumiBlock = eventInfo->lumiBlock();
   
   if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
     if(m_events == 1) {if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;}
@@ -1559,8 +1560,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 }
 
 void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+      h_eff->Reset("ICE");
+  }
+
   int Nbins;
   Nbins = h_num->GetNbinsX();
+
   for (int bin=0; bin!=Nbins; ++bin) {
     int Npass = int(h_num->GetBinContent(bin+1));
     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
@@ -1576,6 +1582,10 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* 
 }
 
 void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TProfile* h_eff) {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+      h_eff->Reset("ICE");
+  }
+
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in makeEffHisto  " << endreq;
   int Nbins;
   Nbins = h_num->GetNbinsX();
@@ -1609,6 +1619,10 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TPro
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+      h_eff->Reset("ICE");
+  }
+
   int Nbins;
   Nbins = h_num->GetNbinsX();
   for (int bin=0; bin!=Nbins; ++bin) {
@@ -1627,6 +1641,10 @@ void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TP
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+      h_eff->Reset("ICE");
+  }
+
   int Nbins;
   int NbinsY;
   Nbins = h_num->GetNbinsX();
@@ -1650,6 +1668,10 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff) {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+      h_eff->Reset("ICE");
+  }
+
   int Nbins = h_num->GetNbinsX();
   int NbinsY = h_num->GetNbinsY();
   float NSeenHits, NExpected;
@@ -1678,6 +1700,10 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_ef
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
+  if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
+      h_eff->Reset("ICE");
+  }
+
   int Nbins = h_num->GetNbinsX();
   int NbinsY = h_num->GetNbinsY();
   float NSeenHits, NExpected;
@@ -1725,8 +1751,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
   }
   if( endOfLumiBlock ) {
   }
-  if( endOfRun ) {
-    
+  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) {
     // -----------------------------------------------------------------------
     //
     // normalize: divide measurement / outliers / holes by number of possible hits
@@ -2303,13 +2328,13 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 
 }
 
-void IDAlignMonEfficiencies::makeTRTHistograms(MonGroup& al_mon){
+void IDAlignMonEfficiencies::makeTRTHistograms(MonGroup& al_mon, MonGroup& al_mon_ls){
 
   //Make the Barrel histograms
-  makeTRTBarrelHistograms(al_mon);
+  makeTRTBarrelHistograms(al_mon, al_mon_ls);
 
   //Make the Endcap histograms
-  makeTRTEndcapHistograms(al_mon);
+  makeTRTEndcapHistograms(al_mon, al_mon_ls);
 
 }
 
@@ -2795,7 +2820,7 @@ void IDAlignMonEfficiencies::makeSCTEndCapsHistograms(MonGroup& al_mon){
 
 
   
-void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon){
+void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon, MonGroup& al_mon_ls){
     
   /** Barrel plots
    //==================== */
@@ -2814,7 +2839,7 @@ void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon){
     RegisterHisto(al_mon,m_trt_b_hist->hits_vs_phiSector[lay]) ;  
 
     m_trt_b_hist->hits_eff_vs_phiSector[lay] = MakeProfile("hits_eff_vs_phiSector_trt_b"+intToString(lay),"Ratio Hits to total measurements vrs phi sector for TRT Barrel layer "+intToString(lay),32,0,32, 0., 1.,"Phi Sector","Ratio of Hits to Total Measurements");
-    RegisterHisto(al_mon,m_trt_b_hist->hits_eff_vs_phiSector[lay],"Fraction of Precision Hits") ;  
+    RegisterHisto(al_mon_ls,m_trt_b_hist->hits_eff_vs_phiSector[lay],"Fraction of Precision Hits") ;  
 
     /** tube hits in the barrel modules */
     m_trt_b_hist->tubeHits_vs_phiSector[lay] = MakeHist("tubeHits_vs_phiSector_trt_b"+intToString(lay),"Tube Hits vrs phi sector for TRT Barrel layer "+intToString(lay),32,0,32, "Phi Sector","Number of Tube Hits");
@@ -2859,7 +2884,7 @@ void IDAlignMonEfficiencies::makeTRTBarrelHistograms(MonGroup& al_mon){
   return;
 }
     
-void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon){
+void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon, MonGroup& al_mon_ls){
   
   /** EndCap */
   std::string endcapName[2] = {"Endcap_A","Endcap_C"};
@@ -2881,7 +2906,7 @@ void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon){
     RegisterHisto(al_mon,m_trt_ec_hist->hits_vs_ring[endcap]);
     
     m_trt_ec_hist->hits_eff_vs_ring[endcap] = MakeProfile("hits_eff_vs_ring_trt_ec_"+endcapName[endcap],"Ratio of hits to total measurements vs Ring for "+endcapName[endcap] ,40,0,40, 0., 1.,"Endcap Ring","Ratio of Hits to Total Measurements");
-    RegisterHisto(al_mon,m_trt_ec_hist->hits_eff_vs_ring[endcap],"Fraction of Precision Hits");  
+    RegisterHisto(al_mon_ls,m_trt_ec_hist->hits_eff_vs_ring[endcap],"Fraction of Precision Hits");  
     
     /** tube hits vs ring */
     m_trt_ec_hist->tubeHits_vs_ring[endcap] = MakeHist("tubeHits_vs_ring_trt_ec_"+endcapName[endcap],"tube Hits vs Ring for "+endcapName[endcap],40,0,40,"Endcap Ring","Tube Hits");

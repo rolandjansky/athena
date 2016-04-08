@@ -88,9 +88,9 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   void makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff);
   void makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff);
 
-  void makeTRTHistograms(MonGroup& al_monitoring);
-  void makeTRTBarrelHistograms(MonGroup& al_mon);
-  void makeTRTEndcapHistograms(MonGroup& al_mon);
+  void makeTRTHistograms(MonGroup& al_monitoring,MonGroup& al_monitoring_ls);
+  void makeTRTBarrelHistograms(MonGroup& al_mon, MonGroup& al_mon_ls);
+  void makeTRTEndcapHistograms(MonGroup& al_mon, MonGroup& al_mon_ls);
   void makePIXBarrelHistograms(MonGroup& al_mon);
   void makePIXEndCapsHistograms(MonGroup& al_mon);
   void makeSCTBarrelHistograms(MonGroup& al_mon);
