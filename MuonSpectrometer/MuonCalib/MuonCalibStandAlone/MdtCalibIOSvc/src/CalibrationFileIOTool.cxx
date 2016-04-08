@@ -248,7 +248,7 @@ inline bool  CalibrationFileIOTool :: interpret_chamber_name(const std::string &
 	station=std::string(cutout, 0, uscore_pos);
 //get eta ,phi and multilayer
 	std::string cutout2(cutout, uscore_pos+1);
-	int count_items(sscanf(cutout2.c_str(), "%d_%d_%d", &phi, &eta, &ml));
+	int count_items(sscanf(cutout2.c_str(), "%80d_%80d_%80d", &phi, &eta, &ml));
 	if(count_items<2) return false;
 	if(count_items!=3) ml=0;
 	return true;	
