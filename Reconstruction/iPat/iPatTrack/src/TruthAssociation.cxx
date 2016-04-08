@@ -11,31 +11,12 @@
 //<doc><file>	$Id: TruthAssociation.cxx,v 1.7 2004-07-16 22:22:14 pop Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
+#include <iomanip>
+#include <iostream>
 #include "iPatTrack/TruthAssociation.h"
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 TruthAssociation::~TruthAssociation (void)
 {}
-
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 void
 TruthAssociation::print (void) const
