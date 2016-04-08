@@ -673,7 +673,7 @@ namespace InDet
 	
 
 	//m_TrtToolsSuccess ==false;
-	if ( m_TrtToolsSuccess) dEdx =  m_TRTdEdxTool->dEdx((&track), !m_mcswitch, true, true, true);
+	if ( m_TrtToolsSuccess) dEdx =  m_TRTdEdxTool->dEdx((&track), !m_mcswitch, true, true);
 	else 	dEdx =  -999.0;
       }
       else{
