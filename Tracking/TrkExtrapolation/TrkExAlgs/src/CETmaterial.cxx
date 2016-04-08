@@ -62,6 +62,7 @@ Trk::CETmaterial::CETmaterial(const std::string& name, ISvcLocator* pSvcLocator)
   m_th(0.),
   m_ph(0.),
   m_id(0),
+  m_matSaved(0.),
   m_next(0),
   m_err(0),
   m_outerBoundary(0),
@@ -106,6 +107,7 @@ Trk::CETmaterial::~CETmaterial()
 {
   delete m_gaussDist;
   delete m_flatDist;
+  delete m_err;
 }
 
 
@@ -193,7 +195,8 @@ StatusCode Trk::CETmaterial::execute()
     //double theta = m_minTheta +  m_flatDist->shoot()*(m_maxTheta-m_minTheta);
     double theta = m_minTheta + (m_maxTheta-m_minTheta)/m_numScan*it;
     double p = m_minP + (m_maxP-m_minP)/m_numScan *it;
-    Trk::Perigee initialPerigee(0., z0, phi, theta, m_charge/p, Amg::Vector3D(0.,0.,0.));
+    Trk::PerigeeSurface surface( Amg::Vector3D(0.,0.,0.));
+    Trk::Perigee initialPerigee(0., z0, phi, theta, m_charge/p, surface);
     // cosmics!
     //Trk::GlobalPosition pos(0.,0.,z0);
     //Trk::GlobalDirection mom(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
@@ -331,7 +334,6 @@ StatusCode Trk::CETmaterial::execute()
           if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
             if (material[i]->materialEffectsOnTrack()) matc += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
-          if (!nextPar) ATH_MSG_ERROR( "error matrix lost! " );
           //else ATH_MSG_INFO( "par && cov matrix:" << nextPar->parameters()[Trk::locY] << "," << mdest->localErrorMatrix().error(Trk::locY) );
           else ATH_MSG_INFO( "mat & error:" << theta << "," << phi << "," << matc << ","
                   << Amg::error(nextPar->covariance()->inverse().eval(),Trk::theta) << ","
@@ -458,7 +460,12 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
     m_id = id;
     m_matSaved = mat;
     delete m_next; m_next=nextPar->clone();
-    delete m_err;  if (mdest) *m_err = mdest->covariance()->inverse().eval();
+    delete m_err;
+    m_err=nullptr;
+    if (mdest) {
+        m_err=new Amg::MatrixX;
+	*m_err = mdest->covariance()->inverse().eval();
+    }
     return;
   }
 
@@ -481,7 +488,13 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
     m_id = id;
     m_matSaved = mat;
     delete m_next; m_next=nextPar->clone();
-    delete m_err;  if (mdest) *m_err = mdest->covariance()->inverse().eval();
+    delete m_err; 
+    m_err=nullptr; 
+   
+    if (mdest) {
+        m_err=new Amg::MatrixX;
+	*m_err = mdest->covariance()->inverse().eval();
+    }
     return;
   }
 
@@ -492,7 +505,12 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
     m_id = id;
     m_matSaved = mat;
     delete m_next; m_next=nextPar->clone();
-    delete m_err;  if (mdest) *m_err = mdest->covariance()->inverse().eval();
+    delete m_err;
+    m_err=nullptr; 
+    if (mdest) {
+        m_err=new Amg::MatrixX;
+	*m_err = mdest->covariance()->inverse().eval();
+    }
   }
   return;
 }

@@ -49,7 +49,25 @@ Trk::ExtrapolationValidation::ExtrapolationValidation(const std::string& name, I
   m_minP(0.5*Gaudi::Units::GeV),                      
   m_maxP(100.*Gaudi::Units::GeV),
   m_particleType(2),
+  m_parameters(0),
+  m_parameterLoc1{},    //!< start local 1 
+  m_parameterLoc2{},    //!< start local 2 
+  m_parameterPhi{},     //!< start phi 
+  m_parameterTheta{},   //!< start theta
+  m_parameterEta{},     //!< start eta
+  m_parameterQoverP{},  //!< start qOverP
+  m_covarianceLoc1{},    //!< start local 1 
+  m_covarianceLoc2{},    //!< start local 2 
+  m_covariancePhi{},     //!< start phi 
+  m_covarianceTheta{},   //!< start theta
+  m_covarianceQoverP{},  //!< start qOverP
+  m_covarianceDeterminant{},  //!< start qOverP
   m_destinationSurfaceType(0),
+  m_startX{},      //!< startX
+  m_startY{},      //!< startX
+  m_startR{},      //!< startX
+  m_startZ{},      //!< startX
+  m_startP{},      //!< startP
   m_estimationX(0.),
   m_estimationY(0.),
   m_estimationR(0.),
@@ -103,10 +121,7 @@ StatusCode Trk::ExtrapolationValidation::initialize()
   ATH_MSG_INFO( " initialize()" );
 
    // Get Extrapolator from ToolService   
-   if (m_extrapolator.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Could not retrieve Tool " << m_extrapolator << ". Exiting.");
-        return StatusCode::FAILURE;
-   }
+   ATH_CHECK( m_extrapolator.retrieve());
   
    // create the new Tree
    m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
