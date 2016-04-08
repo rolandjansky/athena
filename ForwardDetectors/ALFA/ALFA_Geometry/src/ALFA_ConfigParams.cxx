@@ -50,7 +50,7 @@ int ALFA_ConfigParams::Init(const char *szFile, const char *szSection)
 	
 	//read section
 	memset(szsec,0,sizeof(szsec));
-	if(szSection) strncpy(szsec,szSection,sizeof(szsec));
+	if(szSection) strncpy(szsec,szSection,sizeof(szsec)-1);
 	//strlwr(szsec);
 	m_strSection=szsec;
 
@@ -89,7 +89,7 @@ const char* ALFA_ConfigParams::GetParameter(const char *szKey) const
 	
 	char szbuff[256];
 	memset(szbuff,0,sizeof(szbuff));
-	if(szKey) strncpy(szbuff,szKey,sizeof(szbuff));
+	if(szKey) strncpy(szbuff,szKey,sizeof(szbuff)-1);
 	//strlwr(szbuff);
 	
 	MAPSTR2STR::const_iterator iter;
@@ -105,7 +105,7 @@ bool ALFA_ConfigParams::IsKey(const char *szKey) const
 
 	char szbuff[256];
 	memset(szbuff,0,sizeof(szbuff));
-	if(szKey) strncpy(szbuff,szKey,sizeof(szbuff));
+	if(szKey) strncpy(szbuff,szKey,sizeof(szbuff)-1);
 	//strlwr(szbuff);
 	
 	MAPSTR2STR::const_iterator iter;

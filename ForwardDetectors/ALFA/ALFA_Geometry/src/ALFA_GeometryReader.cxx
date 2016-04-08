@@ -697,7 +697,8 @@ bool ALFA_GeometryReader::Initialize(const PGEOMETRYCONFIGURATION pConfig, eFibe
 			LogStream<<MSG::INFO<<"Metrology type:"<<pConfig->eRPMetrologyGeoType<<endreq;
 			LogStream<<MSG::INFO<<"Metrology source:"<<pConfig->strRPMetrologyConnString<<endreq;
 
-			if(pConfig->bShiftToX97Pos){
+			if(pConfig->bShiftToX97Pos)
+			{
 				m_ASPosParams[EASN_B7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_B7L1].ASTransformInATLAS;
 				m_ASPosParams[EASN_A7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7L1].ASTransformInATLAS;
 				m_ASPosParams[EASN_A7R1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7R1].ASTransformInATLAS;
@@ -1343,7 +1344,8 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	char szSource[64];
 	char *pch;
 	
-	if(szDataSource) strncpy(szSource, szDataSource, sizeof(szSource));
+	memset(szSource,0,sizeof(szSource));
+	if(szDataSource) strncpy(szSource, szDataSource, sizeof(szSource)-1);
 	pch = strtok(szSource,":");
 	while (pch != NULL)
 	{
@@ -2618,7 +2620,7 @@ bool ALFA_GeometryReader::ParseArrayOfValues(const char* szvalue, std::vector<do
 
 	vecValues.clear();
 	memset(szbuff,0,sizeof(szbuff));
-	if(szvalue) strncpy(szbuff,szvalue,sizeof(szbuff));
+	if(szvalue) strncpy(szbuff,szvalue,sizeof(szbuff)-1);
 
 	ppos1=szbuff;
 	ppos2=strchr(ppos1,',');
