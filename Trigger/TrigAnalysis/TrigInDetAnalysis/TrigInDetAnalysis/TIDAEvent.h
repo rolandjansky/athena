@@ -1,13 +1,13 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    TrackEvent.h        
+//   @file    TIDAEvent.h        
 //
 //            Basic event class to contain a vector of
 //            chains for trigger analysis                   
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrackEvent.h, v0.0   Mon  1 Feb 2010 11:43:51 GMT sutt $
+//   $Id: TIDAEvent.h, v0.0   Mon  1 Feb 2010 11:43:51 GMT sutt $
 
 
 #ifndef __TRACKEVENT_H
@@ -17,8 +17,8 @@
 #include <vector>
 #include <string>
 
-#include "TrigInDetAnalysis/TrackChain.h"
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAChain.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 //#include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
 
 
@@ -26,13 +26,15 @@
 
 
 
-class TrackEvent : public TObject {
+namespace TIDA { 
+
+class Event : public TObject {
 
 public:
 
-  TrackEvent();
+  Event();
 
-  virtual ~TrackEvent();
+  virtual ~Event();
 
   /// accessors
   void run_number(unsigned  r)    { m_run_number     = r; }  
@@ -53,7 +55,7 @@ public:
   double mu() const { return m_mu; } /// vertex multiplicity ?   
 
   /// NB all these could be avoided simply be inheriting 
-  ///    from and std::vector<TrackChain> rather than 
+  ///    from and std::vector<TIDA::Chain> rather than 
   ///    a member variable 
 
   /// number of chains added to this event
@@ -61,16 +63,16 @@ public:
 
   /// methods to add and access chains 
   void addChain(const std::string& chainname) { 
-     m_chains.push_back(TrackChain(chainname));
+     m_chains.push_back(TIDA::Chain(chainname));
   }
 
-  void addVertex(const TrackVertex& v) { 
+  void addVertex(const TIDA::Vertex& v) { 
      m_vertices.push_back(v);
   }
 
 
-  const std::vector<TrackChain>& chains() const { return m_chains; };
-  std::vector<TrackChain>&       chains()       { return m_chains; };
+  const std::vector<TIDA::Chain>& chains() const { return m_chains; };
+  std::vector<TIDA::Chain>&       chains()       { return m_chains; };
   
   //void setTruthMap(TrigInDetTrackTruthMap truthmap) {
   //	m_truthmap = truthmap;
@@ -80,16 +82,24 @@ public:
   void clear() { m_chains.clear(); m_vertices.clear(); } 
  
   /// get the last chain from the vector 
-  TrackChain& back() { return m_chains.back(); }
+  TIDA::Chain& back() { return m_chains.back(); }
   
   // iterators
-  std::vector<TrackChain>::iterator begin() { return m_chains.begin(); }
-  std::vector<TrackChain>::iterator end()   { return m_chains.end(); }
+  std::vector<TIDA::Chain>::iterator begin() { return m_chains.begin(); }
+  std::vector<TIDA::Chain>::iterator end()   { return m_chains.end(); }
+
+  std::vector<TIDA::Chain>::const_iterator begin() const { return m_chains.begin(); }
+  std::vector<TIDA::Chain>::const_iterator end()   const { return m_chains.end(); }
   
   /// vector operator
-  TrackChain& operator[](int i) { return m_chains.at(i); }
+  TIDA::Chain& operator[](int i) { return m_chains.at(i); }
 
-  const std::vector<TrackVertex> vertices() const { return m_vertices; }
+  const std::vector<TIDA::Vertex> vertices() const { return m_vertices; }
+
+  std::vector<std::string> chainnames() const;
+
+  void erase( const std::string& name );
+
 
 private:
  
@@ -102,16 +112,17 @@ private:
   double   m_mu;  /// vertex multiplicity ?   
 
   /// trigger chain information
-  std::vector<TrackChain> m_chains;
+  std::vector<TIDA::Chain> m_chains;
 
-  std::vector<TrackVertex> m_vertices;
+  std::vector<TIDA::Vertex> m_vertices;
   
-  ClassDef(TrackEvent,3)
+  ClassDef(TIDA::Event,3)
 
 };
 
+}
 
-inline std::ostream& operator<<( std::ostream& s, const TrackEvent& t ) { 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Event& t ) { 
   s << "Event run: " << t.run_number() 
     << "\tevent: "   << t.event_number() 
     << "\tlb: "      << t.lumi_block() 

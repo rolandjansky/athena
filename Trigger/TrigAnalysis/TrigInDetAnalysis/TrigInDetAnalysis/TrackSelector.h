@@ -24,7 +24,7 @@ public:
 
   // add a track, do the selection while adding?
   // or later with a method which loops through them all? 
-  virtual bool addTrack(TrigInDetAnalysis::Track* t, bool (*f)(const TrigInDetAnalysis::Track*)=0 ) {
+  virtual bool addTrack(TIDA::Track* t, bool (*f)(const TIDA::Track*)=0 ) {
     //std::cout << "addtrack()  before f: t  " << *t << " " << size() << "\t f  " << f << std::endl;
     if ( f==0 ) { 
       if ( mselector && mselector->select(t) )  { mtracks.push_back(t);/*std::cout << "addtrack() after filter: t: " << *t << " f: " << f << "   " << size() << std::endl;*/ return true; }
@@ -37,16 +37,16 @@ public:
     return false;
   }
 
-  virtual void addTracks(std::vector<TrigInDetAnalysis::Track*>& t, bool (*f)(const TrigInDetAnalysis::Track*)=0 ) {
+  virtual void addTracks(std::vector<TIDA::Track*>& t, bool (*f)(const TIDA::Track*)=0 ) {
     for ( unsigned i=0 ; i<t.size() ; i++ ){ addTrack( t[i], f ); /*std::cout << "addtrack() no filter called " << t[i] << " " << size() << std::endl;*/}
   }  
   
   // get the selected tracks   
-  const std::vector<TrigInDetAnalysis::Track*>& tracks() const { return mtracks; }
+  const std::vector<TIDA::Track*>& tracks() const { return mtracks; }
   
-  std::vector<TrigInDetAnalysis::Track*> tracks(  /*TrigInDetAnalysis::*/TrackFilter* selector ) const {
+  std::vector<TIDA::Track*> tracks(  /*TrigInDetAnalysis::*/TrackFilter* selector ) const {
     if ( selector==0 ) return mtracks; 
-    std::vector<TrigInDetAnalysis::Track*> t;
+    std::vector<TIDA::Track*> t;
     for ( int i=mtracks.size() ; i-- ; ) if ( selector->select(mtracks[i]) ) t.push_back(mtracks[i]);
     return t;
   }
@@ -62,12 +62,12 @@ protected:
 
   // can be used to delete tracks if they are not added to the selector to avoid memory 
   // leaks if the TrackSelector is managing the tracks itself. 
-  virtual void cleanup(TrigInDetAnalysis::Track* ) { } 
-  // virtual void cleanup(TrigInDetAnalysis::Track* t) { delete t; } 
+  virtual void cleanup(TIDA::Track* ) { } 
+  // virtual void cleanup(TIDA::Track* t) { delete t; } 
   
 protected:
   
-  std::vector<TrigInDetAnalysis::Track*> mtracks;
+  std::vector<TIDA::Track*> mtracks;
  
   // selection function
   // static bool (*mselector)(const /*TrigInDetAnalysis::*/Track*);

@@ -1,13 +1,13 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    TrackRoi.h        
+//   @file    TIDARoi.h        
 //
 //            Roi class, contains RoiDescriptor and also a 
 //            vector of Tracks       
 // 
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrackRoi.h, v0.0   Mon  1 Feb 2010 11:34:52 GMT sutt $
+//   $Id: TIDARoi.h, v0.0   Mon  1 Feb 2010 11:34:52 GMT sutt $
 
 
 #ifndef __TRACKROI_H
@@ -21,18 +21,19 @@
 
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 #include "TrigInDetAnalysis/Track.h"
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TrackTrigObject.h"
 
+namespace TIDA { 
 
-class TrackRoi : public TObject {
+class Roi : public TObject {
 
 public:
 
-  TrackRoi();
-  TrackRoi(const TIDARoiDescriptor& roi); 
+  Roi();
+  Roi(const TIDARoiDescriptor& roi); 
 
-  virtual ~TrackRoi();
+  virtual ~Roi();
 
 
   /// access the roi information 
@@ -40,20 +41,20 @@ public:
   TIDARoiDescriptor&       roi()       { return m_roi; } 
 
   /// accessors for the track vector
-  void addTracks( const std::vector<TrigInDetAnalysis::Track>& tracks) { 
+  void addTracks( const std::vector<TIDA::Track>& tracks) { 
     m_tracks = tracks;
   }
 
-  void addTracks( const std::vector<TrigInDetAnalysis::Track*>& trackp);
+  void addTracks( const std::vector<TIDA::Track*>& trackp);
 
-  const std::vector<TrigInDetAnalysis::Track>& tracks() const { return m_tracks; }
-  std::vector<TrigInDetAnalysis::Track>        tracks()       { return m_tracks; }
+  const std::vector<TIDA::Track>& tracks() const { return m_tracks; }
+  std::vector<TIDA::Track>        tracks()       { return m_tracks; }
 
  /// access the vertices 
-  const std::vector<TrackVertex>& vertices() const { return m_vertices; }
-  std::vector<TrackVertex>        vertices()       { return m_vertices; }
-  void addVertex( const TrackVertex& v)            {  m_vertices.push_back(v); }
-  void addVertices( const std::vector<TrackVertex>& v) { m_vertices = v; }
+  const std::vector<TIDA::Vertex>& vertices() const { return m_vertices; }
+  std::vector<TIDA::Vertex>        vertices()       { return m_vertices; }
+  void addVertex( const TIDA::Vertex& v)            {  m_vertices.push_back(v); }
+  void addVertices( const std::vector<TIDA::Vertex>& v) { m_vertices = v; }
 
   /// access the generic objects 
   const std::vector<TrackTrigObject>& objects() const { return m_objects; }
@@ -78,21 +79,21 @@ private:
 
   TIDARoiDescriptor        m_roi; /// roi parameters
 
-  std::vector<TrigInDetAnalysis::Track>  m_tracks;   /// tracks in this roi
-  std::vector<TrackVertex>               m_vertices; /// vertices
+  std::vector<TIDA::Track>  m_tracks;   /// tracks in this roi
+  std::vector<TIDA::Vertex>               m_vertices; /// vertices
 
 
   std::vector<double>                    m_user;    /// user vector
   std::vector<TrackTrigObject>           m_objects; /// objects
 
-  ClassDef(TrackRoi,2) 
+  ClassDef(TIDA::Roi,2) 
 
 };
 
-//}
+}
 
 
-inline std::ostream& operator<<( std::ostream& s, const TrackRoi& r ) { 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Roi& r ) { 
   s << "\tRoi " << r.roi();
   for ( unsigned i=0 ; i<r.tracks().size() ; i++ )   s << "\n\t\t\t" << r.tracks()[i];
   for ( unsigned i=0 ; i<r.user().size() ; i++ )     s << "\n\t\t\t" << r.user()[i];

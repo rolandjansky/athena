@@ -26,7 +26,7 @@ public:
   TrackTrigObject(double eta, double phi, double pt, double z0, 
 		  int type, unsigned long id=0);
 
-  TrackTrigObject(const TrigInDetAnalysis::Track& t, 
+  TrackTrigObject(const TIDA::Track& t, 
 		  int type, unsigned long id=0);
 
   virtual ~TrackTrigObject() { } 

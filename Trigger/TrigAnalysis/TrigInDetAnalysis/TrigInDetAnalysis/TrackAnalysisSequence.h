@@ -20,7 +20,7 @@
 // #include "GaudiKernel/IToolSvc.h"
 // #include "TrigDecisionTool/TrigDecisionTool.h"
 
-using namespace TrigInDetAnalysis;
+using namespace TIDA;
 
 #include "TrigInDetAnalysis/TrackSelector.h"
 #include "TrigInDetAnalysis/TrackAssociator.h"

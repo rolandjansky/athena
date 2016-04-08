@@ -1,15 +1,15 @@
 #ifdef __MAKECINT__
-#pragma link C++ class TrackVertex+;
-#pragma link C++ class TrackRoi+;
-#pragma link C++ class TrackChain+;
-#pragma link C++ class TrackVertex+;
-#pragma link C++ class TrackEvent+;
+#pragma link C++ namespace TIDA;
+#pragma link C++ class TIDA::Vertex+;
+#pragma link C++ class TIDA::Roi+;
+#pragma link C++ class TIDA::Chain+;
+#pragma link C++ class TIDA::Vertex+;
+#pragma link C++ class TIDA::Event+;
 #pragma link C++ class TIDARoiDescriptor+;
 #pragma link C++ class TIDARoiParameters+;
 #pragma link C++ class TFileString+;
 #pragma link C++ class TrackTrigObject+;
-#pragma link C++ namespace TrigInDetAnalysis;
-#pragma link C++ class TrigInDetAnalysis::Track+;
+#pragma link C++ class TIDA::Track+;
 #pragma link C++ nestedclasses;
 #pragma link C++ nestedtypedef;
 #endif

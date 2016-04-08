@@ -19,7 +19,7 @@ m_eta(eta), m_phi(phi), m_pt(pt), m_z0(z0), m_type(type), m_id(id)
 { }
 
 
-TrackTrigObject::TrackTrigObject(const TrigInDetAnalysis::Track& t, 
+TrackTrigObject::TrackTrigObject(const TIDA::Track& t, 
 				 int type, unsigned long id) :
   m_eta(t.eta()), m_phi(t.phi()), m_pt(t.pT()), m_z0(t.z0()), m_type(type), m_id(id)
 { }

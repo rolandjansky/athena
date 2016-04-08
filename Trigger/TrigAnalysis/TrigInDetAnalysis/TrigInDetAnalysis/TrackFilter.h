@@ -29,8 +29,8 @@ public:
   virtual ~TrackFilter() { } 
 
   //  virtual bool select( const /*TrigInDetAnalysis::*/Track* t ) = 0;
-  virtual bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r=0 ) = 0; 
-  //  virtual bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r=0 ) { return select( t ); }
+  virtual bool select( const TIDA::Track* t, const TIDARoiDescriptor* r=0 ) = 0; 
+  //  virtual bool select( const TIDA::Track* t, const TIDARoiDescriptor* r=0 ) { return select( t ); }
 
 };
 
