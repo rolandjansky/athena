@@ -138,16 +138,16 @@ namespace Trk
     return v0;
   }
 
-  double V0Tools::invariantMass(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMass(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return invariantMass(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMass(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+
+
+  double V0Tools::invariantMass(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     double px = 0., py = 0., pz = 0., e = 0.;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -166,16 +166,14 @@ namespace Trk
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassError(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassError(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return invariantMassError(vxCandidate,masses);
   }
  
-  double V0Tools::invariantMassError(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassError(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -201,16 +199,14 @@ namespace Trk
     return error;
   }
  
-  double V0Tools::massErrorV0Fitter(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::massErrorV0Fitter(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return massErrorV0Fitter(vxCandidate,masses);
   }
 
-  double V0Tools::massErrorV0Fitter(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::massErrorV0Fitter(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -218,6 +214,7 @@ namespace Trk
       return -999999.;
     }
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    if (fullCov == 0) return -999999.;
     unsigned int ndim = fullCov->rows();
     double E=0., Px=0., Py=0., Pz=0.; 
     std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
@@ -267,16 +264,13 @@ namespace Trk
     return massErr;
   }
  
-  double V0Tools::massErrorVKalVrt(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
-
+    std::vector<double> masses = {posTrackMass, negTrackMass};
     return massErrorVKalVrt(vxCandidate,masses);
   }
 
-  double V0Tools::massErrorVKalVrt(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::massErrorVKalVrt(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -288,7 +282,8 @@ namespace Trk
     xAOD::TrackParticle::FourMom_t totalMom;
     Amg::MatrixX tmpDeriv(3,3); tmpDeriv.setZero();
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-  
+    if (fullCov == 0) return -999999.;
+ 
     double phi=0.,theta=0.,invP=0.;
     for( unsigned int it=0; it<NTrk; it++){
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
@@ -343,16 +338,14 @@ namespace Trk
     return (err>0.) ? sqrt(err) : 0.;
   }
 
-  double V0Tools::massErrorVxCandidate(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::massErrorVxCandidate(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return massErrorVxCandidate(vxCandidate,masses);
   }
  
-  double V0Tools::massErrorVxCandidate(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::massErrorVxCandidate(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -418,16 +411,14 @@ namespace Trk
     return massErr;
   }
 
-  double V0Tools::invariantMassProbability(xAOD::Vertex * vxCandidate, double V0Mass, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassProbability(const xAOD::Vertex * vxCandidate, double V0Mass, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass , negTrackMass};
 
     return invariantMassProbability(vxCandidate,V0Mass,masses);
   }
  
-  double V0Tools::invariantMassProbability(xAOD::Vertex * vxCandidate, double V0Mass, std::vector<double> masses) const
+  double V0Tools::invariantMassProbability(const xAOD::Vertex * vxCandidate, double V0Mass, const std::vector<double> &masses) const
   {
     double mass = invariantMass(vxCandidate, masses);
     double massErr = invariantMassError(vxCandidate, masses);
@@ -469,7 +460,7 @@ namespace Trk
     }
   }
 
-  Amg::Vector3D V0Tools::trackMomentum(xAOD::Vertex * vxCandidate, unsigned int trkIndex) const
+  Amg::Vector3D V0Tools::trackMomentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex) const
   {
     double px = 0., py = 0., pz = 0.;
     const Trk::TrackParameters* aPerigee = vxCandidate->vxTrackAtVertex()[trkIndex].perigeeAtVertex();
@@ -480,7 +471,7 @@ namespace Trk
     return mom;
   }
 
-  Amg::Vector3D V0Tools::positiveTrackMomentum(xAOD::Vertex * vxCandidate) const
+  Amg::Vector3D V0Tools::positiveTrackMomentum(const xAOD::Vertex * vxCandidate) const
   {
     Amg::Vector3D mom;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -492,7 +483,7 @@ namespace Trk
     return mom;
   }
 
-  Amg::Vector3D V0Tools::negativeTrackMomentum(xAOD::Vertex * vxCandidate) const
+  Amg::Vector3D V0Tools::negativeTrackMomentum(const xAOD::Vertex * vxCandidate) const
   {
     Amg::Vector3D mom;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -504,7 +495,7 @@ namespace Trk
     return mom;
   }
 
-  Amg::Vector3D V0Tools::V0Momentum(xAOD::Vertex * vxCandidate) const
+  Amg::Vector3D V0Tools::V0Momentum(const xAOD::Vertex * vxCandidate) const
   {
     double px = 0., py = 0., pz = 0.;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -518,7 +509,7 @@ namespace Trk
     return mom;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::track4Momentum(xAOD::Vertex * vxCandidate, unsigned int trkIndex, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::track4Momentum(const xAOD::Vertex * vxCandidate, unsigned int trkIndex, double mass) const
   {
     Amg::Vector3D mom = trackMomentum(vxCandidate, trkIndex);
     xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
@@ -528,7 +519,7 @@ namespace Trk
     return lorentz;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::positiveTrack4Momentum(xAOD::Vertex * vxCandidate, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::positiveTrack4Momentum(const xAOD::Vertex * vxCandidate, double mass) const
   {
     Amg::Vector3D mom = positiveTrackMomentum(vxCandidate);
     xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
@@ -538,7 +529,7 @@ namespace Trk
     return lorentz;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::negativeTrack4Momentum(xAOD::Vertex * vxCandidate, double mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::negativeTrack4Momentum(const xAOD::Vertex * vxCandidate, double mass) const
   {
     Amg::Vector3D mom = negativeTrackMomentum(vxCandidate);
     xAOD::TrackParticle::FourMom_t lorentz(0,0,0,0);
@@ -548,7 +539,7 @@ namespace Trk
     return lorentz;
   }
 
-  xAOD::TrackParticle::FourMom_t V0Tools::V04Momentum(xAOD::Vertex * vxCandidate, double V0Mass) const
+  xAOD::TrackParticle::FourMom_t V0Tools::V04Momentum(const xAOD::Vertex * vxCandidate, double V0Mass) const
   {
     Amg::Vector3D mom = V0Momentum(vxCandidate);
     double tmp = V0Mass*V0Mass + mom.x()*mom.x() + mom.y()*mom.y() + mom.z()*mom.z();
@@ -558,17 +549,17 @@ namespace Trk
     return lorentz;
   }
 
-  float V0Tools::ndof(xAOD::Vertex * vxCandidate) const
+  float V0Tools::ndof(const xAOD::Vertex * vxCandidate) const
   {
     return vxCandidate->numberDoF();
   }
 
-  float V0Tools::chisq(xAOD::Vertex * vxCandidate) const
+  float V0Tools::chisq(const xAOD::Vertex * vxCandidate) const
   {
     return vxCandidate->chiSquared();
   }
 
-  double V0Tools::vertexProbability(xAOD::Vertex * vxCandidate) const
+  double V0Tools::vertexProbability(const xAOD::Vertex * vxCandidate) const
   {
     float dof = ndof(vxCandidate);
     if (dof > 0.) {
@@ -588,23 +579,23 @@ namespace Trk
 
   }
 
-  Amg::Vector3D V0Tools::vtx(xAOD::Vertex * vxCandidate) const
+  Amg::Vector3D V0Tools::vtx(const xAOD::Vertex * vxCandidate) const
   {
     Amg::Vector3D vertex(vxCandidate->position().x(),vxCandidate->position().y(),vxCandidate->position().z());
     return vertex;
   }
 
-  double V0Tools::rxy(xAOD::Vertex * vxCandidate) const
+  double V0Tools::rxy(const xAOD::Vertex * vxCandidate) const
   {
     return vxCandidate->position().perp();
   }
 
-  double V0Tools::rxy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::rxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     return (vxCandidate->position() - vertex->position()).perp();
   }
 
-  double V0Tools::rxy(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::rxy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
   {
     return (vxCandidate->position() - vertex).perp();
   }
@@ -623,7 +614,7 @@ namespace Trk
     return rxyVar;
   }
 
-  double V0Tools::rxyError(xAOD::Vertex * vxCandidate) const
+  double V0Tools::rxyError(const xAOD::Vertex * vxCandidate) const
   {
     const Amg::MatrixX& cov = vxCandidate->covariancePosition();
     double dx = vxCandidate->position().x();
@@ -633,32 +624,34 @@ namespace Trk
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::rxyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::rxyError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
-    const Amg::MatrixX& cov = vxCandidate->covariancePosition() + vertex->covariancePosition();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
+    const Amg::MatrixX cov = vxCandidate->covariancePosition() + vertex->covariancePosition(); 
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
     double rxyVar = rxy_var(dx,dy,cov);
     if (rxyVar <= 0.) ATH_MSG_DEBUG("rxyError: negative sqrt rxyVar " << rxyVar);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::rxyError(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::rxyError(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
   {
     const Amg::MatrixX& cov = vxCandidate->covariancePosition();
-    double dx = (vxCandidate->position() - vertex).x();
-    double dy = (vxCandidate->position() - vertex).y();
+    auto vert = vxCandidate->position() - vertex;
+    double dx = vert.x();
+    double dy = vert.y();
     double rxyVar = rxy_var(dx,dy,cov);
     if (rxyVar <= 0.) ATH_MSG_DEBUG("rxyError: negative sqrt rxyVar " << rxyVar);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
-  double V0Tools::pT(xAOD::Vertex * vxCandidate) const
+  double V0Tools::pT (const xAOD::Vertex * vxCandidate) const
   {
     return V0Momentum(vxCandidate).perp();
   }
 
-  double V0Tools::pTError(xAOD::Vertex * vxCandidate) const
+  double V0Tools::pTError(const xAOD::Vertex * vxCandidate) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero(); // no full covariance
@@ -708,8 +701,11 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov == 0) ndim = 5*NTrk+3;
-    if (fullCov != 0) ndim = fullCov->rows();
+    if (fullCov == 0) {
+      ndim = 5*NTrk+3;
+    } else {
+      ndim = fullCov->rows();
+    }
 
     Amg::MatrixX PtErrSq(1,1);
     double PtErrsq = 0.;
@@ -743,7 +739,7 @@ namespace Trk
     return (PtErrsq>0.) ? sqrt(PtErrsq) : 0.;
   }
 
-  Amg::Vector3D V0Tools::pca(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  Amg::Vector3D V0Tools::pca(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     assert(vxCandidate!=0);
     if(0 == vxCandidate) {
@@ -758,13 +754,14 @@ namespace Trk
     return sv - P*pdr/p2;
   }
 
-  double V0Tools::separation(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::separation(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     const Amg::MatrixX& cov = (vxCandidate->covariancePosition() + vertex->covariancePosition()).inverse().eval();
     Amg::Vector3D D_vec; D_vec.setZero();
-    D_vec(0) = (vxCandidate->position() - vertex->position()).x();
-    D_vec(1) = (vxCandidate->position() - vertex->position()).y();
-    D_vec(2) = (vxCandidate->position() - vertex->position()).z();
+    auto vert = vxCandidate->position() - vertex->position();
+    D_vec(0) = vert.x();
+    D_vec(1) = vert.y();
+    D_vec(2) = vert.z();
     Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
     double sepVarsq = sepVarsqMat(0,0); 
     if (sepVarsq <= 0.) ATH_MSG_DEBUG("separation: negative sqrt sepVarsq " << sepVarsq);
@@ -772,13 +769,14 @@ namespace Trk
     return sepVar;
   }
 
-  double V0Tools::separation(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::separation(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
   {
     const Amg::SymMatrixX& cov = vxCandidate->covariancePosition().inverse().eval();
     Amg::Vector3D D_vec; D_vec.setZero();
-    D_vec(0) = (vxCandidate->position() - vertex).x();
-    D_vec(1) = (vxCandidate->position() - vertex).y();
-    D_vec(2) = (vxCandidate->position() - vertex).z();
+    auto vert = vxCandidate->position() - vertex;
+    D_vec(0) = vert.x();
+    D_vec(1) = vert.y();
+    D_vec(2) = vert.z();
     Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
     double sepVarsq = sepVarsqMat(0,0);
     if (sepVarsq <= 0.) ATH_MSG_DEBUG("separation: negative sqrt sepVarsq " << sepVarsq);
@@ -786,7 +784,7 @@ namespace Trk
     return sepVar;
   }
 
-  double V0Tools::a0xy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::a0xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     double cosineTheta_xy = cosTheta_xy(vxCandidate,vertex);
     double sinTheta_xy = ((1.-cosineTheta_xy*cosineTheta_xy)>0.) ? sqrt((1.-cosineTheta_xy*cosineTheta_xy)) : 0.;
@@ -794,7 +792,7 @@ namespace Trk
     //return (vtx(vxCandidate)-vertex->position()).perp() * sqrt(1.-cosineTheta_xy*cosineTheta_xy);
   }
 
-  double V0Tools::a0z(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::a0z(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     Amg::Vector3D pv = vertex->position();
     Amg::Vector3D ca_point = pca(vxCandidate,vertex);
@@ -802,7 +800,7 @@ namespace Trk
     return a0_vec.z();
   }
 
-  double V0Tools::a0(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::a0(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     double cosineTheta = cosTheta(vxCandidate,vertex);
     double sinTheta = ((1.-cosineTheta*cosineTheta)>0.) ? sqrt((1.-cosineTheta*cosineTheta)) : 0.;
@@ -810,12 +808,13 @@ namespace Trk
     //return (vtx(vxCandidate)-vertex->position()).mag() * sqrt(1.-cosineTheta*cosineTheta);
   }
 
-  double V0Tools::a0zError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::a0zError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
-    double dz = (vxCandidate->position() - vertex->position()).z();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
+    double dz = vert.z();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
@@ -940,17 +939,18 @@ namespace Trk
     return a0Err;
   }
 
-  double V0Tools::a0xyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::a0xyError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     return a0Error(vxCandidate, vertex, false);
   }
 
-  double V0Tools::a0Error(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, bool in3D) const
+  double V0Tools::a0Error(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, bool in3D) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
-    double dz = (vxCandidate->position() - vertex->position()).z();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
+    double dz = vert.z();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
@@ -1081,18 +1081,21 @@ namespace Trk
     return a0Err;
   }
 
-  double V0Tools::lxy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::lxy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
-    double dxy = (V0Momentum(vxCandidate).x()*dx + V0Momentum(vxCandidate).y()*dy)/V0Momentum(vxCandidate).perp();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
+    Amg::Vector3D mom = V0Momentum(vxCandidate);
+    double dxy = (mom.x()*dx + mom.y()*dy)/mom.perp();
     return dxy;
   }
 
-  double V0Tools::lxyError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::lxyError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0.; 
@@ -1209,16 +1212,14 @@ namespace Trk
     return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
   }
 
-  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
+  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return tau(vxCandidate,vertex,masses);
   }
 
-  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
+  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -1233,16 +1234,14 @@ namespace Trk
     return CONST*M*LXY/PT;
   }
 
-  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const
+  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return tau(vxCandidate,vertex,masses,massV0);
   }
 
-  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses, double massV0) const
+  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses, double massV0) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -1259,7 +1258,7 @@ namespace Trk
     return Tau + deltaTau;
   }
 
-  double V0Tools::tau(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double M) const
+  double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) const
   {
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
@@ -1268,17 +1267,15 @@ namespace Trk
     return CONST*M*LXY/PT;
   }
 
-  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
+  double V0Tools::tauError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return tauError(vxCandidate,vertex,masses);
   }
 
-  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
+  double V0Tools::tauError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1289,8 +1286,9 @@ namespace Trk
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
@@ -1423,16 +1421,14 @@ namespace Trk
     return CONST*tauErr;
   }
 
-  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const
+  double V0Tools::tauError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass, double massV0) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return tauError(vxCandidate,vertex,masses,massV0);
   }
 
-  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses, double ) const
+  double V0Tools::tauError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses, double ) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -1447,14 +1443,15 @@ namespace Trk
     return error;
   }
 
-  double V0Tools::tauError(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double M) const
+  double V0Tools::tauError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
+    auto vecsub = vxCandidate->position() - vertex->position();
+    double dx = vecsub.x();
+    double dy = vecsub.y();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
     double Px=0., Py=0.; 
@@ -1574,7 +1571,7 @@ namespace Trk
     return CONST*tauErr;
   }
 
-  double V0Tools::thetaStar(xAOD::Vertex * vxCandidate, double mass1, double mass2) const
+  double V0Tools::thetaStar(const xAOD::Vertex * vxCandidate, double mass1, double mass2) const
   {
     double theta = 0.;
     xAOD::TrackParticle::FourMom_t V1 = positiveTrack4Momentum(vxCandidate, mass1);
@@ -1590,7 +1587,7 @@ namespace Trk
     return theta;
   }
 
-  double V0Tools::cosThetaStar(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::cosThetaStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     xAOD::TrackParticle::FourMom_t PosMom = positiveTrack4Momentum(vxCandidate, posTrackMass);
     xAOD::TrackParticle::FourMom_t NegMom = negativeTrack4Momentum(vxCandidate, negTrackMass);
@@ -1614,7 +1611,7 @@ namespace Trk
   }
 
   //double V0Tools::phiStar(xAOD::Vertex * vxCandidate) const
-  double V0Tools::phiStar(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::phiStar(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
     xAOD::TrackParticle::FourMom_t V_pos = positiveTrack4Momentum(vxCandidate,posTrackMass);
     xAOD::TrackParticle::FourMom_t V_neg = negativeTrack4Momentum(vxCandidate,negTrackMass);
@@ -1641,33 +1638,41 @@ namespace Trk
     return phiStar;
   }
 
-  double V0Tools::cosTheta(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::cosTheta(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
   {
-    return (V0Momentum(vxCandidate).dot((vtx(vxCandidate)-vertex)))/
-           (V0Momentum(vxCandidate).mag()*(vtx(vxCandidate)-vertex).mag());
+    auto mom = V0Momentum(vxCandidate);
+    auto vtx1 = vtx(vxCandidate);
+    vtx1 -= vertex;
+    return (mom.dot(vtx1))/(mom.mag()*(vtx1).mag());
   }
 
-  double V0Tools::cosTheta(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::cosTheta(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
-    return (V0Momentum(vxCandidate).dot((vtx(vxCandidate)-vertex->position())))/
-           (V0Momentum(vxCandidate).mag()*(vtx(vxCandidate)-vertex->position()).mag());
+    auto mom = V0Momentum(vxCandidate);
+    auto vtx1 = vtx(vxCandidate);
+    vtx1 -= vertex->position();
+    return (mom.dot((vtx1)))/(mom.mag()*(vtx1).mag());
   }
 
-  double V0Tools::cosTheta_xy(xAOD::Vertex * vxCandidate, Amg::Vector3D& vertex) const
+  double V0Tools::cosTheta_xy(const xAOD::Vertex * vxCandidate, const Amg::Vector3D& vertex) const
   {
-    return (V0Momentum(vxCandidate).x()*(vtx(vxCandidate)-vertex).x()+
-            V0Momentum(vxCandidate).y()*(vtx(vxCandidate)-vertex).y())/
-           (pT(vxCandidate)*(vtx(vxCandidate)-vertex).perp());
+    auto mom = V0Momentum(vxCandidate);
+    auto vtx1 = vtx(vxCandidate);
+    vtx1 -= vertex;
+    double pT = mom.perp();
+    return (mom.x()*vtx1.x()+mom.y()*vtx1.y())/(pT*vtx1.perp());
   }
 
-  double V0Tools::cosTheta_xy(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex) const
+  double V0Tools::cosTheta_xy(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
-    return (V0Momentum(vxCandidate).x()*(vtx(vxCandidate)-vertex->position()).x()+
-            V0Momentum(vxCandidate).y()*(vtx(vxCandidate)-vertex->position()).y())/
-           (pT(vxCandidate)*(vtx(vxCandidate)-vertex->position()).perp());
+    auto mom = V0Momentum(vxCandidate);
+    auto vtx1 = vtx(vxCandidate);
+    vtx1 -= vertex->position();
+    double pT = mom.perp();
+    return (mom.x()*vtx1.x()+mom.y()*vtx1.y())/(pT*vtx1.perp());
   }
 
-  float V0Tools::charge(xAOD::Vertex * vxCandidate) const
+  float V0Tools::charge(const xAOD::Vertex * vxCandidate) const
   {
     float ch = 0.;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1681,12 +1686,12 @@ namespace Trk
     return ch;
   }
 
-  const xAOD::TrackParticle* V0Tools::origTrack(xAOD::Vertex * vxCandidate, int trkIndex) const
+  const xAOD::TrackParticle* V0Tools::origTrack(const xAOD::Vertex * vxCandidate, int trkIndex) const
   {
     return vxCandidate->trackParticle(trkIndex);
   }
 
-  const xAOD::TrackParticle* V0Tools::positiveOrigTrack(xAOD::Vertex * vxCandidate) const
+  const xAOD::TrackParticle* V0Tools::positiveOrigTrack(const xAOD::Vertex * vxCandidate) const
   {
     const xAOD::TrackParticle* origTrk(0);
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1697,7 +1702,7 @@ namespace Trk
     return origTrk;
   }
 
-  const xAOD::TrackParticle* V0Tools::negativeOrigTrack(xAOD::Vertex * vxCandidate) const
+  const xAOD::TrackParticle* V0Tools::negativeOrigTrack(const xAOD::Vertex * vxCandidate) const
   {
     const xAOD::TrackParticle* origTrk(0);
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1949,16 +1954,13 @@ namespace Trk
   }
   */  
 
-  double V0Tools::invariantMassBeforeFitIP(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassBeforeFitIP(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
-
+    std::vector<double> masses = {posTrackMass, negTrackMass};
     return invariantMassBeforeFitIP(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassBeforeFitIP(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassBeforeFitIP(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     double px = 0., py = 0., pz = 0., e = 0.;
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -1980,16 +1982,13 @@ namespace Trk
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
-
+    std::vector<double> masses = {posTrackMass, negTrackMass};
     return invariantMassBeforeFit(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassBeforeFit(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     Trk::PerigeeSurface perigeeSurface(vxCandidate->position());
     double px = 0., py = 0., pz = 0., e = 0.;
@@ -2015,16 +2014,13 @@ namespace Trk
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, const Amg::Vector3D& vertex) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
-
+    std::vector<double> masses = {posTrackMass, negTrackMass};
     return invariantMassBeforeFit(vxCandidate,masses,vertex);
   }
 
-  double V0Tools::invariantMassBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassBeforeFit(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses, const Amg::Vector3D& vertex) const
   {
     Trk::PerigeeSurface perigeeSurface(vertex);
     double px = 0., py = 0., pz = 0., e = 0.;
@@ -2050,16 +2046,14 @@ namespace Trk
     return (msq>0.) ? sqrt(msq) : 0.;
   }
 
-  double V0Tools::invariantMassErrorBeforeFitIP(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassErrorBeforeFitIP(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return invariantMassErrorBeforeFitIP(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassErrorBeforeFitIP(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassErrorBeforeFitIP(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -2122,16 +2116,14 @@ namespace Trk
     return massErr;
   }
 
-  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
+  double V0Tools::invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return invariantMassErrorBeforeFit(vxCandidate,masses);
   }
 
-  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses) const
+  double V0Tools::invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -2142,16 +2134,14 @@ namespace Trk
     return invariantMassErrorBeforeFit(vxCandidate,masses,vertex);
   }
  
-  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass, const Amg::Vector3D& vertex) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return invariantMassErrorBeforeFit(vxCandidate,masses,vertex);
   }
 
-  double V0Tools::invariantMassErrorBeforeFit(xAOD::Vertex * vxCandidate, std::vector<double> masses, Amg::Vector3D& vertex) const
+  double V0Tools::invariantMassErrorBeforeFit(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses, const Amg::Vector3D& vertex) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (masses.size() != NTrk) {
@@ -2219,16 +2209,14 @@ namespace Trk
     return massErr;
   }
 
-  double V0Tools::massTauCov(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
+  double V0Tools::massTauCov(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
   {
-    std::vector<double> masses;
-    masses.push_back(posTrackMass);
-    masses.push_back(negTrackMass);
+    std::vector<double> masses = {posTrackMass, negTrackMass};
 
     return massTauCov(vxCandidate,vertex,masses);
   }
 
-  double V0Tools::massTauCov(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
+  double V0Tools::massTauCov(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double>  &masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
@@ -2239,8 +2227,9 @@ namespace Trk
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
@@ -2375,7 +2364,7 @@ namespace Trk
     return V0_err(0,1);
   }
 
-  Amg::MatrixX V0Tools::tauMassCovariance(xAOD::Vertex * vxCandidate, xAOD::Vertex* vertex, std::vector<double> masses) const
+  Amg::MatrixX V0Tools::tauMassCovariance(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
     Amg::MatrixX V0_err;
@@ -2387,8 +2376,9 @@ namespace Trk
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
     double PT = V0Momentum(vxCandidate).perp();
-    double dx = (vxCandidate->position() - vertex->position()).x();
-    double dy = (vxCandidate->position() - vertex->position()).y();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
@@ -2522,11 +2512,10 @@ namespace Trk
     return V0_err;
   }
 
-  Amg::MatrixX * V0Tools::convertCovMatrix(xAOD::Vertex * vxCandidate) const
+  Amg::MatrixX * V0Tools::convertCovMatrix(const xAOD::Vertex * vxCandidate) const
   {
     unsigned int NTrk = vxCandidate->nTrackParticles();
-    std::vector<float> matrix;
-    matrix = vxCandidate->covariance();
+    std::vector<float> matrix = vxCandidate->covariance();
 
     int ndim = 0;
 
