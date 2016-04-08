@@ -37,6 +37,13 @@ TileTTL1::TileTTL1( const Identifier& id,
 
 
 TileTTL1::TileTTL1( const Identifier& id,
+                    std::vector<float>&& digits ) :
+  m_ID (id),
+  m_TTL1digits (std::move(digits))
+  { }
+
+
+TileTTL1::TileTTL1( const Identifier& id,
 		    const std::vector<double>& digits ) :
   m_ID (id)
  {

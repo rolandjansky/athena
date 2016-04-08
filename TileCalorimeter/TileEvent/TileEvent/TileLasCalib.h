@@ -18,9 +18,7 @@ class TileLasCalib {
  public:
   
    TileLasCalib() 
-     : HG(1)
-     , LG(0)
-     , m_mean_LG(-99.)
+     : m_mean_LG(-99.)
      , m_sigma_LG(-99.)
      , m_mean_HG(-99.)
      , m_sigma_HG(-99.)
@@ -98,14 +96,14 @@ class TileLasCalib {
     bool isSet(int gain) const{
       if(gain == LG) return m_isSet_LG;
       if(gain == HG) return m_isSet_HG;
-      if(gain != LG && gain != HG) return false;
+      //if(gain != LG && gain != HG) return false;
       return false;
     } // isSet
     
   private:
     
-    int HG;
-    int LG;
+    static const int HG = 1;
+    static const int LG = 0;
     double m_mean_LG;
     double m_sigma_LG;
     double m_mean_HG;
