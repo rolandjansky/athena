@@ -2,6 +2,7 @@ package PyJobTransformsMisc
 
 author Chun Lik Tan (Alvin)
 
+use AtlasPolicy AtlasPolicy-*
 use PyJobTransformsCore PyJobTransformsCore-* Tools
 use AtlasROOT   AtlasROOT-*   External -no_auto_imports
 
