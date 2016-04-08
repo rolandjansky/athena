@@ -108,8 +108,11 @@ void InDet::InDetFixedWindowTrackTimeTool::beginRun()
 	    rtShift += rtRelation->drifttime(0.);
 	  }
       }
+   
+    if(countAverageT0)//CID 13692
     m_averageT0 /= ( double(countAverageT0) );
     double averageT0 = m_averageT0;
+    if(countAverageT0)//CID 13693
     rtShift /= ( double(countAverageT0) );
 
     m_averageT0 -= 20.; // shift so that the range is about the same as before

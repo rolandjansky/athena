@@ -24,7 +24,7 @@ namespace InDet
   */
 
   class ITRT_TrackTimingTool : virtual public IAlgTool,
-                                         Trk::ITrackTimingTool {
+                               virtual public Trk::ITrackTimingTool {
   public:
     static const InterfaceID& interfaceID( );
 
