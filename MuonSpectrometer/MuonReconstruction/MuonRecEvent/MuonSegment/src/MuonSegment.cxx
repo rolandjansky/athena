@@ -149,7 +149,7 @@ void MuonSegment::recalculateCache(){
 
 void MuonSegment::copyMeasurementsToROTs() const
 {
-  if (! &containedMeasurements() ) return;
+  if (! hasContainedMeasurements() ) return;
 //  std::cout<<"copyMeasurementsToROTs :"<<this<<" with measurements: "<<containedMeasurements().size()<<std::endl;
   m_cachedRots = new std::vector<const Trk::RIO_OnTrack*>;
   m_cachedRots->reserve(containedMeasurements().size());
