@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEmTauRoI.h 707787 2015-11-13 15:09:29Z fwinkl $
+// $Id: RecEmTauRoI.h 731387 2016-03-21 14:33:03Z fwinkl $
 /***************************************************************************
                          RecEmTauRoI.h  -  description
                             -------------------
@@ -57,10 +57,6 @@ namespace LVL1 {
       // destructor
       ~RecEmTauRoI();
 
-      // no copy or assignment allowed
-      RecEmTauRoI(RecEmTauRoI const&) = delete;
-      RecEmTauRoI& operator=(RecEmTauRoI const&) = delete;
-     
       /** returns roi word*/
       virtual unsigned int roiWord() const;
 
