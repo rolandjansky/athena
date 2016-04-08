@@ -1,0 +1,12 @@
+package InDetAlignmentMonitoringRTT
+
+author Tobias Golling <Tobias.Golling@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use TestPolicy  TestPolicy-*
+
+# RTT requirement lines
+macro InDetAlignmentMonitoringRTT_TestConfiguration "../test/InDetAlignmentMonitoringRTT_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/InDetAlignmentMonitoringRTT_TestConfiguration.xml"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern validate_xml

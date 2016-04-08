@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+<dcube_client_config>
+	<!--
+  DCubeClient configuration file 'McAtNloZmumu_perfect_IDAlignMon_4K_config_NEW.xml'
+  converted from old configuration file 'McAtNloZmumu_perfect_IDAlignMon_4K_config.xml'
+  using dcubeConvert.py script
+  on Tue, 11 Aug 2009 15:55:47 CEST -->
+	<dcube branch="*" cmtconfig="*" install="*" jobId="*" project="*">
+		<reference path="/afs/cern.ch/atlas/project/RTT/Results/reference/offline/InnerDetector/InDetValidation/InDetAlignmentMonitoringRTT/McAtNloZmumu_perfect_IDAlignMon_4K.root"/>
+		<ref_desc>
+			PUT YOUR TEST DESCRIPTION HERE
+		</ref_desc>
+		<test_desc>
+			PUT YOUR MONITORED FILE DESCRIPTION HERE
+		</test_desc>
+		<plimit fail="0.7" warn="0.9"/>
+		<TDirectory name="/">
+			<TDirectory name="IDAlignMon">
+				<TDirectory name="ExtendedTracks_NoTriggerSelection">
+					<TDirectory name="GenericTracks">
+						<hist1D name="Nhits_per_event" tests="chi2" type="TH1F"/>
+						<hist1D name="Nhits_per_track" tests="chi2" type="TH1F"/>
+						<hist1D name="Npixhits_per_track" tests="chi2" type="TH1F"/>
+						<hist1D name="Nscthits_per_track" tests="chi2" type="TH1F"/>
+						<hist1D name="Ntrthits_per_track" tests="chi2" type="TH1F"/>
+						<hist1D name="Zmumu" tests="chi2" type="TH1F"/>
+						<hist1D name="ZpT_n" tests="chi2" type="TH1F"/>
+						<hist1D name="ZpT_p" tests="chi2" type="TH1F"/>
+						<hist1D name="chi2oDoF" tests="chi2" type="TH1F"/>
+						<hist1D name="d0" tests="chi2" type="TH1F"/>
+						<hist1D name="eta" tests="chi2" type="TH1F"/>
+						<hist1D name="ntracks" tests="chi2" type="TH1F"/>
+						<hist1D name="pT" tests="chi2" type="TH1F"/>
+						<hist1D name="pT_n" tests="chi2" type="TH1F"/>
+						<hist1D name="pT_p" tests="chi2" type="TH1F"/>
+						<hist1D name="phi" tests="chi2" type="TH1F"/>
+						<hist1D name="z0" tests="chi2" type="TH1F"/>
+						<hist1D name="z0sintheta" tests="chi2" type="TH1F"/>
+					</TDirectory>
+					<TDirectory name="HitEfficiencies">
+						<hist1D name="holes_vs_layer_barrel" tests="chi2" type="TH1F"/>
+						<hist1D name="holes_vs_layer_eca" tests="chi2" type="TH1F"/>
+						<hist1D name="holes_vs_layer_ecc" tests="chi2" type="TH1F"/>
+						<hist1D name="outliers_vs_wheel_trt_ea" tests="chi2" type="TH1F"/>
+						<hist1D name="outliers_vs_wheel_trt_ec" tests="chi2" type="TH1F"/>
+						<hist1D name="totHits_vs_StrawLay_trt_b" tests="chi2" type="TH1F"/>
+						<hist1D name="totHits_vs_phiSector_trt_ea" tests="chi2" type="TH1F"/>
+						<hist1D name="totHits_vs_phiSector_trt_ec" tests="chi2" type="TH1F"/>
+						<hist1D name="totHits_vs_wheel_trt_ea" tests="chi2" type="TH1F"/>
+						<hist1D name="totHits_vs_wheel_trt_ec" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_StrawLayer_trt_b" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_phiSector_trt_b0" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_phiSector_trt_b1" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_phiSector_trt_b2" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_phiSector_trt_ea" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_phiSector_trt_ec" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_wheel_trt_ea" tests="chi2" type="TH1F"/>
+						<hist1D name="tubeHits_vs_wheel_trt_ec" tests="chi2" type="TH1F"/>
+					</TDirectory>
+					<TDirectory name="Residuals">
+						<hist1D name="si_b_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="si_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="pix_b0_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="pix_b0_residualy" tests="chi2" type="TH1F"/>
+						<hist1D name="pix_b1_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="pix_b1_residualy" tests="chi2" type="TH1F"/>
+						<hist1D name="pix_b2_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="pix_b2_residualy" tests="chi2" type="TH1F"/>
+						<hist1D name="sct_b0_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="sct_b1_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="sct_b2_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="sct_b3_residualx" tests="chi2" type="TH1F"/>
+						<hist1D name="trt_b_residualR" tests="chi2" type="TH1F"/>
+						<hist1D name="trt_ea_residualR" tests="chi2" type="TH1F"/>
+						<hist1D name="trt_ec_residualR" tests="chi2" type="TH1F"/>
+					</TDirectory>
+				</TDirectory>
+			</TDirectory>
+		</TDirectory>
+	</dcube>
+</dcube_client_config>

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+<atn/>
+<kv/>
+<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+  <rttContactPerson>Tobias Golling</rttContactPerson>
+  <mailto>Tobias.Golling@cern.ch</mailto>
+	<refRelease>13.0.30</refRelease>
+
+   <jobList>       
+
+      <classification>
+         <displayClass>OfflineValidation</displayClass>
+         <displayProcess>Reco</displayProcess>
+         <displayComponent>Det-InDet</displayComponent>
+      </classification>
+
+      <athena userJobId="IDAlignZmumuJob">
+         <doc>McAtNloZmumu, perfect geometry</doc> 
+         <commandLineFlags>AlignmentGlobalTag="OFLCOND-SDR-BS7T-05-14";EventMax=5000</commandLineFlags>
+         <options>IDRec_IDAlignMonRTT_jobOptions.py</options>
+         <package>InnerDetector/InDetValidation/InDetAlignmentMonitoringRTT</package>
+         <group>IDAlignMonRTT</group>
+         <queue>medium</queue>
+         <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000002.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000003.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000004.pool.root.1</dataset>
+         <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000005.pool.root.1</dataset>
+      </athena>
+
+    </jobList>
+    
+    <jobGroups>
+      
+      <jobGroup name="AthenaIDAlignMonRTT" parent="Athena"> 
+	<keepFilePattern>*.root</keepFilePattern>
+	<test>
+	  <modulename>RttLibraryTools</modulename>
+	  <testname>DCubeRunner</testname>
+	  <arg>
+	    <argname>DCubeCfg</argname>
+	    <argvalue>McAtNloZmumu_perfect_IDAlignMon_4K_config.xml</argvalue>
+	  </arg>
+	  <arg> 
+	    <argname>DCubeRef</argname>
+	    <argvalue>McAtNloZmumu_perfect_IDAlignMon_4K.root</argvalue>
+	  </arg>
+	  <arg>
+	    <argname>DCubeMon</argname>
+	    <argvalue>monitoring.root</argvalue>
+	  </arg>
+	</test>
+      </jobGroup>
+      
+    </jobGroups>
+
+</rtt>
+</unifiedTestConfiguration>
