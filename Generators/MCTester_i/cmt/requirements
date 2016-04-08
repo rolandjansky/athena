@@ -7,7 +7,6 @@ use ExternalPolicy 	ExternalPolicy-* 	External
 
 use AthenaBaseComps     AthenaBaseComps-*      Control
 use GaudiInterface 	GaudiInterface-* 	External
-#use AtlasPOOL           AtlasPOOL-*         	External
 
 use MCTester		MCTester-*		External
 
@@ -15,7 +14,12 @@ private
 use AtlasHepMC          AtlasHepMC-*            External
 use EventInfo           EventInfo-*             Event
 use GeneratorObjects    GeneratorObjects-*      Generators
-use StoreGate        StoreGate-*           Control
+use StoreGate           StoreGate-*             Control
+use AtlasROOT           AtlasROOT-*             External
+
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTMathLibs
+
 end_private
 
 library MCTester_i *.cxx -s=components *.cxx
