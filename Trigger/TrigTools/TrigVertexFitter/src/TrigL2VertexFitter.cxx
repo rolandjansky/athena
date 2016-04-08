@@ -44,23 +44,15 @@ TrigL2VertexFitter::TrigL2VertexFitter(const std::string& t,
 
 StatusCode TrigL2VertexFitter::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  ATH_CHECK( AthAlgTool::initialize() );
+  ATH_CHECK( m_vertexingTool.retrieve() );
+  ATH_MSG_INFO( "TrigVertexingTool retrieved" );
 
-  MsgStream athenaLog(msgSvc(), name());
-
-  sc = m_vertexingTool.retrieve();
-  if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Unable to locate " <<m_vertexingTool<<endreq;
-    return sc;
-  } 
-  else athenaLog << MSG::INFO << "TrigVertexingTool retrieved"<< endreq;
-
-  athenaLog << MSG::INFO << "Number of iterations is set to " << m_numIter << endreq; 
-  ITrigTimerSvc* timerSvc;
-  StatusCode scTime = service( "TrigTimerSvc", timerSvc);
-  if(scTime.isFailure()) 
-    {
-      athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+  ATH_MSG_INFO( "Number of iterations is set to " << m_numIter  );
+  ServiceHandle<ITrigTimerSvc> timerSvc ("TrigTimerSvc", name());
+  if( timerSvc.retrieve().isFailure() )
+  {
+      ATH_MSG_INFO( "Unable to locate Service TrigTimerSvc "  );
       m_timers = false;
     } 
   else m_timers = true;  
@@ -74,14 +66,14 @@ StatusCode TrigL2VertexFitter::initialize()
       m_timer[5] = timerSvc->addItem("TL2VChi2C");
       m_timer[6] = timerSvc->addItem("TL2VUpdC");
     }
-  athenaLog << MSG::INFO << "TrigL2VertexFitter constructed "<< endreq;
-  return sc;
+  ATH_MSG_INFO( "TrigL2VertexFitter constructed " );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigL2VertexFitter::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); 
-  return sc;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 TrigL2VertexFitter::~TrigL2VertexFitter()
@@ -94,31 +86,25 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
   int i,iter;
   bool fitFailed=false;
 
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   if(m_timers) m_timer[0]->start();
 
-  if (outputLevel <= MSG::DEBUG) 
-    {
-      athenaLog<<MSG::DEBUG<<"vertex has "<<pV->m_getTracks()->size()<<" tracks"<<endreq;
-    }
+  ATH_MSG_DEBUG("vertex has "<<pV->m_getTracks()->size()<<" tracks" );
 
   if(pV->m_getTracks()->size()<2)
     {
-      athenaLog<<MSG::WARNING<<"vertex has less than 2 tracks - fit failed"<<endreq;
+      ATH_MSG_WARNING("vertex has less than 2 tracks - fit failed" );
       if(m_timers) m_timer[0]->stop();
       return StatusCode::FAILURE;
     }
 
   std::list<TrigVertexFitInputTrack*>::iterator it,it1,it2;
 
-  if (outputLevel <= MSG::VERBOSE) 
+  if (msgLvl(MSG::VERBOSE) )
     {
-      athenaLog<<MSG::VERBOSE<<"Track list:"<<endreq;
+      ATH_MSG_VERBOSE("Track list:" );
       for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
 	{
-	  athenaLog<<MSG::VERBOSE<<(*it);
+	  ATH_MSG_VERBOSE((*it) );
 	}
     }
 
@@ -131,18 +117,18 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 
   if(dist<-1.0)
     {
-      athenaLog<<MSG::DEBUG<<"FindClosestApproach failed - fit failed"<<endreq;
+      ATH_MSG_DEBUG("FindClosestApproach failed - fit failed" );
       if(m_timers) m_timer[0]->stop();
       return StatusCode::FAILURE;
     }
 
-  if (outputLevel <= MSG::DEBUG) 
+  if (msgLvl( MSG::DEBUG))
     {
       if ((*it1)->m_getTrigTrack() && (*it2)->m_getTrigTrack()) {
-        athenaLog<<MSG::DEBUG<<"Track 1 AlgId="<<(*it1)->m_getTrigTrack()->algorithmId()<<endreq;
-        athenaLog<<MSG::DEBUG<<"Track 2 AlgId="<<(*it2)->m_getTrigTrack()->algorithmId()<<endreq;
+        ATH_MSG_DEBUG("Track 1 AlgId="<<(*it1)->m_getTrigTrack()->algorithmId() );
+        ATH_MSG_DEBUG("Track 2 AlgId="<<(*it2)->m_getTrigTrack()->algorithmId() );
       }
-      athenaLog<<MSG::DEBUG<<"Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2]<<endreq;
+      ATH_MSG_DEBUG("Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2] );
     }
 
   if(m_timers) m_timer[2]->start();
@@ -174,10 +160,7 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 	double dchi2=(*it)->m_getChi2Distance(pV);
 	if(m_timers) m_timer[3]->pause();
 
-	if (outputLevel <= MSG::VERBOSE) 
-	  {
-	    athenaLog<<MSG::VERBOSE<<"Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2<<endreq;
-	  }
+        ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
 	if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	  {
 	    fitFailed=true;
@@ -188,11 +171,7 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 	if(m_timers) m_timer[4]->resume();
 	(*it)->m_updateVertex(pV);
 	if(m_timers) m_timer[4]->pause();
-	if (outputLevel <= MSG::VERBOSE) 
-	  {
-	    athenaLog<<MSG::VERBOSE<<"Updated vertex"<<endreq;
-	    athenaLog<<pV;
-	  }
+        ATH_MSG_VERBOSE("Updated vertex" << pV);
       }
     if(fitFailed) break;
   }
@@ -214,29 +193,24 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
   int i,iter;
   bool fitFailed=false;
 
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
   if(m_timers) m_timer[0]->start();
-  if (outputLevel <= MSG::DEBUG) 
-    {
-      athenaLog<<MSG::DEBUG<<"vertex has "<<pV->m_getTracks()->size()<<" tracks"<<endreq;
-    }
+  ATH_MSG_DEBUG("vertex has "<<pV->m_getTracks()->size()<<" tracks" );
 
   if(pV->m_getTracks()->size()<2)
     {
-      athenaLog<<MSG::WARNING<<"vertex has less than 2 tracks - fit failed"<<endreq;
+      ATH_MSG_WARNING("vertex has less than 2 tracks - fit failed" );
       if(m_timers) m_timer[0]->stop();
       return StatusCode::FAILURE;
     }
 
   std::list<TrigVertexFitInputTrack*>::iterator it,it1,it2;
 
-  if (outputLevel <= MSG::VERBOSE) 
+  if (msgLvl(MSG::VERBOSE))
     {
-      athenaLog<<MSG::VERBOSE<<"Track list:"<<endreq;
+      ATH_MSG_VERBOSE("Track list:" );
       for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
 	{
-	  athenaLog<<MSG::VERBOSE<<(*it);
+	  ATH_MSG_VERBOSE((*it) );
 	}
     }
 
@@ -249,15 +223,12 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
 
   if(dist<-1.0)
     {
-      athenaLog<<MSG::DEBUG<<"vertex has 2 identical tracks - fit failed"<<endreq;
+      ATH_MSG_DEBUG("vertex has 2 identical tracks - fit failed" );
       if(m_timers) m_timer[0]->stop();
       return StatusCode::FAILURE;
     }
 
-  if (outputLevel <= MSG::DEBUG) 
-    {
-      athenaLog<<MSG::DEBUG<<"Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2]<<endreq;
-    }
+  ATH_MSG_DEBUG("Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2] );
   if(m_timers) m_timer[2]->start();
   pV->m_prepareForFit();
   for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
@@ -285,10 +256,7 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
 	  m_timer[3]->resume();
 	  double dchi2=(*it)->m_getChi2Distance(pV);
 	  m_timer[3]->pause();
-	  if (outputLevel <= MSG::VERBOSE) 
-	    {
-	      athenaLog<<MSG::VERBOSE<<"Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2<<endreq;
-	    }
+          ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	    {
 	      fitFailed=true;
@@ -299,11 +267,7 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
 	  if(m_timers) m_timer[4]->resume();
 	  (*it)->m_updateVertex(pV);
 	  if(m_timers) m_timer[4]->pause();
-	  if (outputLevel <= MSG::VERBOSE) 
-	    {
-	      athenaLog<<MSG::VERBOSE<<"Updated vertex"<<endreq;
-	      athenaLog<<pV;
-	    }
+          ATH_MSG_VERBOSE("Updated vertex" << pV);
 	}
       if(fitFailed) break;
       for(std::list<TrigVertexFitConstraint*>::iterator itC=pV->m_getConstraints()->begin();
@@ -312,10 +276,7 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
 	  if(m_timers) m_timer[5]->resume();
 	  double dchi2=(*itC)->m_getChi2Distance(pV);
 	  if(m_timers) m_timer[5]->pause();
-	  if (outputLevel <= MSG::VERBOSE) 
-	    {
-	      athenaLog<<MSG::VERBOSE<<"Constraint "<<(*itC)->m_getValue()<<" dchi2="<<dchi2<<endreq;
-	    }
+          ATH_MSG_VERBOSE("Constraint "<<(*itC)->m_getValue()<<" dchi2="<<dchi2 );
 	  if((dchi2<0.0)||std::isnan(dchi2))
 	    {
 	      fitFailed=true;
@@ -326,11 +287,7 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
 	  if(m_timers) m_timer[6]->resume();
 	  (*itC)->m_updateVertex(pV);
 	  if(m_timers) m_timer[6]->pause();
-	  if (outputLevel <= MSG::VERBOSE) 
-	    {
-	      athenaLog<<MSG::VERBOSE<<"Updated vertex"<<endreq;
-	      athenaLog<<pV;
-	    }
+          ATH_MSG_VERBOSE("Updated vertex" << pV);
 	}
       if(fitFailed) break;
     }

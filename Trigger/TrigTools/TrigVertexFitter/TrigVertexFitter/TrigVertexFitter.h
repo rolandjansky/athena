@@ -41,12 +41,12 @@ public:
       m_eta[0]=eta[0];m_eta[1]=eta[1];
     }
   ~bdTrack(){};
-  double m_measCov(int i, int j) { return m_C[i][j];}
-  double m_paramCov(int i, int j) { return m_V[i][j];}
-  double m_measurements(int i) {return m_eta[i];}
-  double m_params(int i) {return m_par[i];}
-  double m_lambda(int i) {return m_L[i];}
-  const TrigInDetTrack* m_getTrack() {return m_pTrack;}
+  double measCov(int i, int j) { return m_C[i][j];}
+  double paramCov(int i, int j) { return m_V[i][j];}
+  double measurements(int i) {return m_eta[i];}
+  double params(int i) {return m_par[i];}
+  double lambda(int i) {return m_L[i];}
+  const TrigInDetTrack* getTrack() {return m_pTrack;}
  private:
   double m_C[2][2];
   double m_V[3][3];
@@ -69,12 +69,12 @@ class TrigVertexFitter: public AthAlgTool, virtual public ITrigVertexFitter
   virtual TrigVertex* fit(TrackInVertexList*,std::vector<TrigVtx::TrigParticleName>);
 
 private:
-  bdTrack* m_biDiagonalization(const TrigInDetTrack*);
-  void m_calculateInvariantMass(TrigVertex*, std::vector<TrigVtx::TrigParticleName>&);
-  void m_showCov(int);
-  void m_showVec(int);
-  bool m_checkTracks(TrackInVertexList*);
-  bool m_initFit(TrackInVertexList*);
+  bdTrack* biDiagonalization(const TrigInDetTrack*);
+  void calculateInvariantMass(TrigVertex*, std::vector<TrigVtx::TrigParticleName>&);
+  void showCov(int);
+  void showVec(int);
+  bool checkTracks(TrackInVertexList*);
+  bool initFit(TrackInVertexList*);
   int m_numIter;
   double* m_Rk;
   double* m_Gk;
