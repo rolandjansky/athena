@@ -85,6 +85,7 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
     }
     inFile.close();
     m_nb_regions = (int)m_eta_min.size();
+    std::cout << std::endl << m_nb_regions << std::endl << std::endl;
     if(doMacroRegionsFlag){//In case I want macroRegions, I need to define the criteria here
 	m_doMacroRegions =true;
 	switch(doMacroRegionsFlag){
@@ -104,6 +105,10 @@ Regions::Regions(string inRegionFile, int doMacroRegionsFlag){
 	    if(verb) cout<<"using fabs(eta)"<<endl;
 	    m_useAbsEta = true; 
 	    m_doMacroRegions =false; //not really using macroRegions
+	    break;
+	case 5: 
+	    if(verb) cout<<"using sectors!"<<endl;
+	    m_useSectors(); break;
 	    break;
 	default:
 	    cerr<<"ERROR: doMacroRegionFlag="<<doMacroRegionsFlag<<" not defined!"<<endl<<endl;
@@ -221,6 +226,54 @@ void Regions::m_collectMacroRegionsSL(){
 
 //Collects all the Large and Small sectors if they belong to the same eta bin
 void Regions::m_collectMacroRegionsSL_UpDn(){
+    double etaMin = -999., etaMax = -999., deltaEta = -999.;
+    int macroRegionIdx = 0;
+    for(int k=0; k < m_nb_regions; ++k){
+	if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ){
+	    //Build a new macroRegion
+	    etaMin = m_eta_min[k];	etaMax = m_eta_max[k];
+	    deltaEta = fabs(m_eta_max[k] - m_eta_min[k]);
+	    //One of the following is true
+	    string macroRegName = m_names[k].substr(0, m_names[k].find("EL"));
+	    macroRegName = macroRegName.substr(0, m_names[k].find("BL"));
+	    macroRegName = macroRegName.substr(0, m_names[k].find("ES"));
+	    macroRegName = macroRegName.substr(0, m_names[k].find("BS"));
+	    m_macroRegionName.push_back(macroRegName+"LargeDn");
+	    m_macroRegionName.push_back(macroRegName+"SmallDn");
+	    m_macroRegionName.push_back(macroRegName+"LargeUp");
+	    m_macroRegionName.push_back(macroRegName+"SmallUp");
+	    //insert 4 time the innerEta, for Large and Small sectors times Up and Dn
+	    for(int i=0; i<4; ++i){		    
+		if( etaMin >= 0. ) m_macroRegionInnerEta.push_back(etaMin);
+		else 	       m_macroRegionInnerEta.push_back(etaMax);
+		m_macroRegionDeltaEta.push_back(deltaEta);
+	    }
+	    macroRegionIdx+=4;
+	    if(verb) cout<<"k="<<k<<": etaMin="<<etaMin<<"; etaMax="<<etaMax
+			      <<"; m_macroRegionName.size()="<<m_macroRegionName.size()
+			      <<"; macroRegionIdx"<<macroRegionIdx<<"; m_macroRegionInnerEta["<<macroRegionIdx<<"]="
+			      <<m_macroRegionInnerEta[macroRegionIdx]<<endl;
+	}
+	if( m_names[k].find("EL") != string::npos || m_names[k].find("BL") != string::npos){//Large sectors
+	    if(m_names[k].find("11") != string::npos || m_names[k].find("13") != string::npos || 
+	       m_names[k].find("15") != string::npos ) {
+		m_macroRegionIdxMap[k] = macroRegionIdx-4;//Down Large sectors (within 10 to 16)
+	    } else {
+		m_macroRegionIdxMap[k] = macroRegionIdx-2; //Up, large sectors
+	    }
+	}
+	if( m_names[k].find("ES") != string::npos || m_names[k].find("BS") != string::npos){//Small sectors
+	    if(m_names[k].find("10") != string::npos || m_names[k].find("12") != string::npos || 
+	       m_names[k].find("14") != string::npos || m_names[k].find("16") != string::npos ) {
+		m_macroRegionIdxMap[k] = macroRegionIdx-3; //Down Small sectors (from 10 to 16). Should I remove 10 and 16? ++++++
+	    } else {
+		m_macroRegionIdxMap[k] = macroRegionIdx-1; ; //Up, Small sectors
+	    }	    
+	}
+    }
+}
+
+void Regions::m_useSectors(){
     double etaMin = -999., etaMax = -999., deltaEta = -999.;
     int macroRegionIdx = 0;
     for(int k=0; k < m_nb_regions; ++k){

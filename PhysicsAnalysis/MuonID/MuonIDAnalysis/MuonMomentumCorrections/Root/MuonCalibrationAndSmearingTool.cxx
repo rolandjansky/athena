@@ -13,22 +13,55 @@
 
 namespace CP {
 
-MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::string& name ) : asg::AsgTool( name ) {
+MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::string& name ) :
+  asg::AsgTool( name ),
 
-  declareProperty( "Year", m_year = "Data12" );
+  m_smearDeltaMS( 0. ), m_smearDeltaID( 0. ), m_smearDeltaCB( 0. ),
+  m_Tsmear( 0 ), m_Tdet( 0 ), m_Tdata( 0 ), m_Trel( 0 ), m_Talgo( 0 ), m_detRegion( 0 ),
+
+  m_useNsigmaForICombine( 0. ),
+
+  m_ptms( 0. ), m_ptid( 0. ), m_ptcb( 0. ), m_eta( 0. ), m_phi( 0. ), 
+  m_weightMS( 0. ), m_weightID( 0. ),
+  m_g0( 0. ), m_g1( 0. ), m_g2( 0. ), m_g3( 0. ), m_g4( 0. ), m_charge( 0. ),
+
+  m_loadNames( false ), m_nb_regions( 0. ), m_doMacroRegions( false ) {
+
+  declareProperty( "Year", m_year = "Data15" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
-  declareProperty( "Release", m_release = "Rel17.2Sum13" );
+  declareProperty( "Release", m_release = "PreRecs2015_08_06" );
+  declareProperty( "ToroidOff", m_toroidOff = false );
+  declareProperty( "FilesPath", m_FilesPath = "" );
 
   m_currentParameters = NULL; 
-  m_scaleRegion = NULL; 
+  m_scaleRegion = -1; 
+
+  m_useExternalSeed = false;
 
 }
 
 MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) : 
   asg::AsgTool( tool.name() + "Copy" ),
+  m_useExternalSeed( tool.m_useExternalSeed ),
+
+  m_smearDeltaMS( tool.m_smearDeltaMS ),
+  m_smearDeltaID( tool.m_smearDeltaID ),
+  m_smearDeltaCB( tool.m_smearDeltaCB ),
+  m_Tsmear( tool.m_Tsmear ),
+  m_Tdet( tool.m_Tdet ),
+  m_Tdata( tool.m_Tdata ),
+  m_Trel( tool.m_Trel ),
+  m_Talgo( tool.m_Talgo ),
+  m_detRegion( tool.m_detRegion ),
+
   m_useNsigmaForICombine( tool.m_useNsigmaForICombine ),
 
+  m_ptms( tool.m_ptms ),
+  m_ptid( tool.m_ptid ),
+  m_ptcb( tool.m_ptcb ),
+  m_eta( tool.m_eta ),
+  m_phi( tool.m_phi ),
   m_scale_ID( tool.m_scale_ID ),
   m_enLoss_MS( tool.m_enLoss_MS ),
   m_scale_MS( tool.m_scale_MS ),
@@ -87,6 +120,15 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_MC_p1_MS( tool.m_MC_p1_MS ),
   m_MC_p2_MS( tool.m_MC_p2_MS ),
 
+  m_weightMS( tool.m_weightMS ),
+  m_weightID( tool.m_weightID ),
+  m_g0( tool.m_g0 ),
+  m_g1( tool.m_g1 ),
+  m_g2( tool.m_g2 ),
+  m_g3( tool.m_g3 ),
+  m_g4( tool.m_g4 ),
+  m_charge( tool.m_charge ),
+
   m_names( tool.m_names ),
   m_loadNames( tool.m_loadNames ),
   m_nb_regions( tool.m_nb_regions ),
@@ -100,13 +142,17 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_MacroRegionName( tool.m_MacroRegionName ),
   m_MacroRegionInnerEta( tool.m_MacroRegionInnerEta ),
 
+  m_scaleRegion( tool.m_scaleRegion ),
+
   m_Parameters( tool.m_Parameters ),
   m_currentParameters( NULL ) {
 
-  declareProperty( "Year", m_year = "Data12" );
+  declareProperty( "Year", m_year = "Data15" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
-  declareProperty( "Release", m_release = "Rel17.2Sum13" );
+  declareProperty( "Release", m_release = "PreRecs2015_08_06" );
+  declareProperty( "ToroidOff", m_toroidOff = false );
+  declareProperty( "FilesPath", m_FilesPath = "" );
 
 }
 
@@ -127,25 +173,38 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
   
   std::string regionsPath;
   int regionMode = 0; // simple Eta Bins
-  if ( m_Trel <= MCAST::Release::Rel17 ) {
-    regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/Regions.dat" );
-  }
-  else if ( m_Trel == MCAST::Release::Rel17_2_Repro ) {
-    regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsRepro.dat" );
-  }
-  else if ( m_Trel == MCAST::Release::Rel17_2_Sum13 ) {
-    regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsPhi18.dat" );
-    regionMode = 2;//MS: 48Bins L/S split plus 11_15 and Feet in the BARREL. ID has values from 16 eta bins
-    m_useNsigmaForICombine = 0;
+  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  if ( m_FilesPath == "" ) {
+    if ( m_Trel <= MCAST::Release::Rel17 ) {
+      regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/Regions.dat" );
+    }
+    else if ( m_Trel == MCAST::Release::Rel17_2_Repro ) {
+      regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsRepro.dat" );
+    }
+    else if ( m_Trel == MCAST::Release::Rel17_2_Sum13 ) {
+      regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsPhi18.dat" );
+      regionMode = 2;//MS: 48Bins L/S split plus 11_15 and Feet in the BARREL. ID has values from 16 eta bins
+      m_useNsigmaForICombine = 0;
+    }
+    else if ( m_Trel >= MCAST::Release::PreRec ) {
+      regionsPath = PathResolverFindCalibFile( "MuonMomentumCorrections/RegionsPhi18.dat" );
+      regionMode = 1; 
+      m_useNsigmaForICombine = 0;
+    }
+    else {
+      ATH_MSG_ERROR( "Unknown release" );
+      return StatusCode::FAILURE;
+    }
   }
   else {
-    ATH_MSG_ERROR( "Unknown release" );
-    return StatusCode::FAILURE;
+    regionsPath = m_FilesPath + "RegionsPhi18.dat";
+    regionMode = 1; 
+    m_useNsigmaForICombine = 0;
   }
   ATH_MSG_DEBUG( "Checking Initialization - Regions file: " << regionsPath );
 
   if( Regions( regionsPath, regionMode ) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-
+  
   if( FillValues() == StatusCode::FAILURE ) return StatusCode::FAILURE;
 
   if( !applySystematicVariation( SystematicSet() ) ) {
@@ -161,28 +220,72 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
 
 CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu ) {
 
-  const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
-  const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.muonSpectrometerTrackParticleLink();
-  
-  //::: Set muon information
-  m_ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
-  m_ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
-  m_ptcb = mu.pt() / 1000.;
+  ATH_MSG_VERBOSE( "Muon Type = " << mu.muonType() << " ( 0: Combined, 1: StandAlone, 2: SegmentTagged, 3: CaloTagged )" );
+  ATH_MSG_VERBOSE( "Muon Author = " << mu.author() );
+
+  //::: Set pt ID:
+  ATH_MSG_VERBOSE( "Retrieving ElementLink to ID TrackParticle..." );
+  ATH_MSG_VERBOSE( "Setting Pt  [ID]: if no track available, set to 0..." );
+  ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"inDetTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "inDetTrackParticleLink" ) );
+  ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() == NULL ) = " << ( mu.inDetTrackParticleLink() == NULL ) );
+  ATH_MSG_VERBOSE( "mu.inDetTrackParticleLink() = " << mu.inDetTrackParticleLink() );
+  ATH_MSG_VERBOSE( "( mu.inDetTrackParticleLink() ).isValid() = " << ( mu.inDetTrackParticleLink() ).isValid() );
+  if( ( mu.inDetTrackParticleLink() ).isValid() ) {
+    const ElementLink< xAOD::TrackParticleContainer >& id_track = mu.inDetTrackParticleLink();
+    m_ptid = ( !id_track ) ? 0. : ( *id_track )->pt() / 1000.;
+  }
+  else m_ptid = 0.;
+
+  //::: Set pt MS:
+  ATH_MSG_VERBOSE( "Retrieving ElementLink to MS TrackParticle..." );
+  ATH_MSG_VERBOSE( "Setting Pt  [MS]: if no track available, set to 0..." );
+  ATH_MSG_VERBOSE( "mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( \"extrapolatedMuonSpectrometerTrackParticleLink\" ) = " << mu.isAvailable< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" ) );
+  //ElementLink< xAOD::TrackParticleContainer > track = mu.auxdata< ElementLink< xAOD::TrackParticleContainer > >( "extrapolatedMuonSpectrometerTrackParticleLink" );
+  //ATH_MSG_VERBOSE( "track = " << track );
+  //ATH_MSG_VERBOSE( "( *track )->pt() = " << ( *track )->pt() );
+  ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() == NULL ) = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() == NULL ) );
+  ATH_MSG_VERBOSE( "mu.extrapolatedMuonSpectrometerTrackParticleLink() = " << mu.extrapolatedMuonSpectrometerTrackParticleLink() );
+  ATH_MSG_VERBOSE( "( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() = " << ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() );
+  if( ( mu.extrapolatedMuonSpectrometerTrackParticleLink() ).isValid() ) {
+    const ElementLink< xAOD::TrackParticleContainer >& ms_track = mu.extrapolatedMuonSpectrometerTrackParticleLink();
+    m_ptms = ( !ms_track ) ? 0. : ( *ms_track )->pt() / 1000.;
+  }
+  else m_ptms = 0.;
+
+  //::: Set remaining muon information:
+  //::: Check if muon has been already corrected! If so, take original pt...
+  ATH_MSG_VERBOSE( "Setting Pt  [CB]..." );
+  if( mu.isAvailable< float >( "OriginalMuonPt" ) ) {
+    m_ptcb = mu.auxdata< float >( "OriginalMuonPt" ) / 1000.;
+  }
+  else {
+    m_ptcb = mu.pt() / 1000.;
+    mu.auxdata< float >( "OriginalMuonPt" ) = mu.pt();
+  }
+  ATH_MSG_VERBOSE( "Setting Eta [CB]..." );
   m_eta = mu.eta();
+  ATH_MSG_VERBOSE( "Setting Phi [CB]..." );
   m_phi = mu.phi();
 
   //::: Retrieve the event information:
   const xAOD::EventInfo* evtInfo = 0;
+  ATH_MSG_VERBOSE( "Retrieving EventInfo from the EventStore..." );
   if( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() ) {
     ATH_MSG_ERROR( "No EventInfo object could be retrieved" );
     ATH_MSG_ERROR( "Random number generation not configured correctly, impossible to determine if dealing with data or MC" );
     return CorrectionCode::Error;
   }
-  ATH_MSG_DEBUG( "Checking Simulation flag: " << evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) );
+  ATH_MSG_VERBOSE( "Checking Simulation flag: " << evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) );
 
   if( !evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
     mu.auxdata< float >( "InnerDetectorPt" ) = m_ptid * 1000.;
-    mu.auxdata< float >( "MuonSpectrometerPt" ) = m_ptms * 1000.;
+    if( m_toroidOff ) {
+      mu.auxdata< float >( "MuonSpectrometerPt" ) = 0.;
+      mu.setP4( m_ptid * 1000., m_eta, m_phi );
+    }
+    else {
+      mu.auxdata< float >( "MuonSpectrometerPt" ) = m_ptms * 1000.;
+    }
     return CorrectionCode::Ok;
   }
 
@@ -192,15 +295,19 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_ID: " << m_ptid * 1000. );
   ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_MS: " << m_ptms * 1000. );
   ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_CB: " << m_ptcb * 1000. );
-  ATH_MSG_DEBUG( "Checking Input Muon Info -    Eta: " << m_eta );
-  ATH_MSG_DEBUG( "Checking Input Muon Info -    Phi: " << m_phi );
-  ATH_MSG_DEBUG( "Checking Input Muon Info - Charge: " << ( ( m_charge > 0 ) ? "+" : "-" ) );
+  ATH_MSG_VERBOSE( "Checking Input Muon Info -    Eta: " << m_eta );
+  ATH_MSG_VERBOSE( "Checking Input Muon Info -    Phi: " << m_phi );
+  ATH_MSG_VERBOSE( "Checking Input Muon Info - Sector: " << mu.auxdata< unsigned char >( "primarySector" ) );
+  ATH_MSG_VERBOSE( "Checking Input Muon Info - Charge: " << ( ( m_charge > 0 ) ? "+" : "-" ) );
+  ATH_MSG_DEBUG( "Checking Input Muon Info -  Pt_CB - Pt_ID: " << ( m_ptcb - m_ptid ) * 1000. );
 
-  //::: Get Event Number:
-  const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
-  //::: Construct a seed for the random number generator:
-  const UInt_t seed = 10000 * mu.phi() + eventNumber;
-  gRandom->SetSeed( seed );
+  if( !m_useExternalSeed ) {
+    //::: Get Event Number:
+    const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
+    //::: Construct a seed for the random number generator:
+    const UInt_t seed = 1 + abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
+    m_random3.SetSeed( seed );
+  }
 
   m_smearDeltaMS = 0.;
   m_smearDeltaID = 0.;
@@ -227,16 +334,16 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   
   //::: Getting scale region
   m_scaleRegion = GetScaleRegion( mu );
-  m_g0 = gRandom->Gaus( 0, 1 );
-  m_g1 = gRandom->Gaus( 0, 1 );
-  m_g2 = gRandom->Gaus( 0, 1 );
-  m_g3 = gRandom->Gaus( 0, 1 );
-  m_g4 = gRandom->Gaus( 0, 1 );
-  ATH_MSG_DEBUG( "Checking Random Values - g_0: " << m_g0 ); 
-  ATH_MSG_DEBUG( "Checking Random Values - g_1: " << m_g1 ); 
-  ATH_MSG_DEBUG( "Checking Random Values - g_2: " << m_g2 ); 
-  ATH_MSG_DEBUG( "Checking Random Values - g_3: " << m_g3 ); 
-  ATH_MSG_DEBUG( "Checking Random Values - g_4: " << m_g4 ); 
+  m_g0 = m_random3.Gaus( 0, 1 );
+  m_g1 = m_random3.Gaus( 0, 1 );
+  m_g2 = m_random3.Gaus( 0, 1 );
+  m_g3 = m_random3.Gaus( 0, 1 );
+  m_g4 = m_random3.Gaus( 0, 1 );
+  ATH_MSG_VERBOSE( "Checking Random Values - g_0: " << m_g0 ); 
+  ATH_MSG_VERBOSE( "Checking Random Values - g_1: " << m_g1 ); 
+  ATH_MSG_VERBOSE( "Checking Random Values - g_2: " << m_g2 ); 
+  ATH_MSG_VERBOSE( "Checking Random Values - g_3: " << m_g3 ); 
+  ATH_MSG_VERBOSE( "Checking Random Values - g_4: " << m_g4 ); 
 
   //::: Getting smearing values 
   //::: MS
@@ -266,22 +373,33 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     ATH_MSG_ERROR( "Invalid value for m_currentParameters->SmearTypeID" );
   }
   CalcCBWeights( mu );
-  ATH_MSG_DEBUG( "Checking Smearing - smearDeltaID: " << m_smearDeltaID );
-  ATH_MSG_DEBUG( "Checking Smearing - smearDeltaMS: " << m_smearDeltaMS );
-  ATH_MSG_DEBUG( "Checking Weights - weightID: " << m_weightID );
-  ATH_MSG_DEBUG( "Checking Weights - weightMS: " << m_weightMS );
+  ATH_MSG_VERBOSE( "Checking Smearing - smearDeltaID: " << m_smearDeltaID );
+  ATH_MSG_VERBOSE( "Checking Smearing - smearDeltaMS: " << m_smearDeltaMS );
+  ATH_MSG_DEBUG( "Checking Weights - weightID: " << m_weightID << " - fabs( weightID - 1 ): " << fabs( m_weightID - 1 ) );
+  ATH_MSG_DEBUG( "Checking Weights - weightMS: " << m_weightMS << " - fabs( weightMS - 1 ): " << fabs( m_weightMS - 1 ) );
   m_smearDeltaCB = m_smearDeltaID * m_weightID + m_smearDeltaMS * m_weightMS;
 
   //::: Calibrate the pt of the muon:
-  double res_cbPt = 1000. * CalculatePt( MCAST::DetectorType::CB, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
   double res_idPt = 1000. * CalculatePt( MCAST::DetectorType::ID, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
   double res_msPt = 1000. * CalculatePt( MCAST::DetectorType::MS, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
-  mu.setP4( res_cbPt, m_eta, m_phi );
+  double res_cbPt = 1000. * CalculatePt( MCAST::DetectorType::CB, m_smearDeltaID, m_smearDeltaMS, m_currentParameters->Scale );
+  //::: Override combined momentum for special cases
+  if( fabs( m_weightID - 1 ) < EPSILON ) res_cbPt = res_idPt; 
+  if( fabs( m_weightMS - 1 ) < EPSILON ) res_cbPt = res_msPt; 
+  //::: Using ToroidOff flag
   mu.auxdata< float >( "InnerDetectorPt" ) = res_idPt;
-  mu.auxdata< float >( "MuonSpectrometerPt" ) = res_msPt;
+  if( m_toroidOff ) {
+    mu.auxdata< float >( "MuonSpectrometerPt" ) = 0.;
+    mu.setP4( res_idPt, m_eta, m_phi );
+  }
+  else {
+    mu.auxdata< float >( "MuonSpectrometerPt" ) = res_msPt;
+    mu.setP4( res_cbPt, m_eta, m_phi );
+  }
   ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_ID: " << res_idPt );
   ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_MS: " << res_msPt );
   ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_CB: " << res_cbPt );
+  ATH_MSG_DEBUG( "Checking Output Muon Info - Pt_CB - Pt_ID: " << res_cbPt - res_idPt );
 
   //::: Return gracefully:
   return CorrectionCode::Ok;
@@ -294,10 +412,13 @@ CorrectionCode MuonCalibrationAndSmearingTool::correctedCopy( const xAOD::Muon& 
   if( output ) ATH_MSG_WARNING( "Non-null pointer received. " "There's a possible memory leak!" );
 
   //::: Create a new object:
+  ATH_MSG_VERBOSE( "Going to create new xAOD::Muon..." );
   output = new xAOD::Muon();
+  ATH_MSG_VERBOSE( "Calling makePrivateStore..." );
   output->makePrivateStore( input );
 
   //::: Use the other function to modify this object:
+  ATH_MSG_VERBOSE( "Calling applyCorrection..." );
   return applyCorrection( *output );
 }
 
@@ -428,6 +549,9 @@ StatusCode MuonCalibrationAndSmearingTool::SetData( std::string data ) {
   else if( data == "Data12" ) {
     m_Tdata = MCAST::DataType::Data12;
   }
+  else if( data == "Data15" ) {
+    m_Tdata = MCAST::DataType::Data15;
+  }
   else {
     ATH_MSG_ERROR( "Unrecognized value for SetData" );
     return StatusCode::FAILURE;
@@ -490,6 +614,15 @@ StatusCode MuonCalibrationAndSmearingTool::SetRelease( std::string rel ) {
   else if( rel == "Rel17.2Sum13" ) {
     m_Trel = MCAST::Release::Rel17_2_Sum13;
   }
+  else if( rel == "PreRecs" ) {
+    m_Trel = MCAST::Release::PreRec;
+  }
+  else if( rel == "PreRecs2015_06_22" ) {
+    m_Trel = MCAST::Release::PreRec_2015_06_22;
+  }
+  else if( rel == "PreRecs2015_08_06" ) {
+    m_Trel = MCAST::Release::PreRec_2015_08_06;
+  }
   else {
     ATH_MSG_ERROR( "Unrecognized value for SetRelease" );
     return StatusCode::FAILURE;
@@ -498,7 +631,8 @@ StatusCode MuonCalibrationAndSmearingTool::SetRelease( std::string rel ) {
 
 }
 
-double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, const double S1, const double S2, double S, const double S_enLoss ) const {
+//double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, const double S1, const double S2, double S, const double S_enLoss ) const {
+double MuonCalibrationAndSmearingTool::ScaleApply( const double pt, double S, const double S_enLoss ) const {
 
 
   //::: Sanity checks:
@@ -516,7 +650,7 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
 
   double scaleID = 0., enLossCorrMS = 0., scaleMS = 0., scaleCB = 0.;//initialize all to 0
   //::: These are alternative scale corrections (KPKM,KC,K,C) they are != 0. if Tscale != SCALE_DEFAULT.
-  double s1_ID = 0., s2_ID = 0., s1_MS = 0., s2_MS = 0., s1_CB = 0., s2_CB = 0.;//Description of these is in ApplyScale
+  //double s1_ID = 0., s2_ID = 0., s1_MS = 0., s2_MS = 0., s1_CB = 0., s2_CB = 0.;//Description of these is in ApplyScale
 
   if( fabs( scaleVar ) != 1. && scaleVar != 0. ) ATH_MSG_ERROR( "Unpredicted scale variation of Delta "<<scaleVar<<" sigmas!" );
 
@@ -555,12 +689,13 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
   }
   else {
     if( m_ptms ) scaleCB = ( scaleID * m_weightID + ( scaleMS + enLossCorrMS / m_ptms ) * m_weightMS );
-    else         scaleCB = ( scaleID * m_weightID );
+    else         scaleCB = scaleID; // was scaleID * m_weightID
   }
   
   double tmpDelta = 1.;
   double outPtID = m_ptid, outPtMS = m_ptms, outPtCB = m_ptcb;
   if( DetType == MCAST::DetectorType::ID ) {
+    ATH_MSG_VERBOSE( "Checking s1_ID = " << scaleID );
     ATH_MSG_VERBOSE( "Double-Checking outPtID = " << outPtID << " at first..." );
     if( outPtID == 0. ) return outPtID;
     //Load the ID scale and smearing that you will use
@@ -574,7 +709,8 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtID = outPtID * tmpDelta;
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtID = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtID / tmpDelta;
     }
-    outPtID = ScaleApply( fabs( outPtID ), s1_ID, s2_ID, scaleID );
+    //outPtID = ScaleApply( fabs( outPtID ), s1_ID, s2_ID, scaleID );
+    outPtID = ScaleApply( fabs( outPtID ), scaleID );
     if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtID = outPtID * tmpDelta;
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtID = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtID / tmpDelta;
@@ -582,6 +718,8 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
     return outPtID;
   }
   if( DetType == MCAST::DetectorType::MS ) {
+    ATH_MSG_VERBOSE( "Checking s0_MS = " << enLossCorrMS );
+    ATH_MSG_VERBOSE( "Checking s1_MS = " << scaleMS );
     ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at first..." );
     if( outPtMS == 0. ) return outPtMS;
     //Load the MS scale and smearing that you will use
@@ -597,7 +735,8 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtMS = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtMS / tmpDelta;
     }
     ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at second..." );
-    outPtMS = ScaleApply( fabs( outPtMS ), s1_MS, s2_MS, scaleMS, enLossCorrMS );
+    //outPtMS = ScaleApply( fabs( outPtMS ), s1_MS, s2_MS, scaleMS, enLossCorrMS );
+    outPtMS = ScaleApply( fabs( outPtMS ), scaleMS, enLossCorrMS );
     ATH_MSG_VERBOSE( "Double-Checking outPtMS = " << outPtMS << " at third..." );
     if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtMS = outPtMS * tmpDelta;
@@ -620,7 +759,8 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
     }
-    outPtCB = ScaleApply( fabs( outPtCB ), s1_CB, s2_CB, scaleCB );
+    //outPtCB = ScaleApply( fabs( outPtCB ), s1_CB, s2_CB, scaleCB );
+    outPtCB = ScaleApply( fabs( outPtCB ), scaleCB );
     if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
@@ -639,8 +779,23 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   std::ifstream InValues;
 
   //::: Retrieving scale corrections!
-  std::string scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Scale_values_" + m_algo + "_" + m_release + ".dat" );
-  if( m_year == "Data11" && m_Trel >= MCAST::Release::Rel17_2_Sum13 ) scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Data11_Scale_values_" + m_algo + "_" + m_release + ".dat" );
+  std::string scale_val;
+  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  if ( m_FilesPath == "" ) {
+    if( m_Trel >= MCAST::Release::PreRec ) {
+      scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
+    }
+    else if( m_year == "Data11" && m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
+      scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Data11_Scale_values_" + m_algo + "_" + m_release + ".dat" );
+    }
+    else {
+      scale_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Scale_values_" + m_algo + "_" + m_release + ".dat" );
+    }
+  }
+  else {
+    scale_val = m_FilesPath + "Scale_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+  }
+  //if ( m_Trel >= MCAST::Release::PreRec ) scale_val = "Scales_Test.dat";
   ATH_MSG_DEBUG( "Checking Files - Scales: " << scale_val );
 
   InValues.open( scale_val.c_str() );
@@ -700,7 +855,20 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   InValues.clear();
  
   //::: Retrieving data values
-  std::string data_val  = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_year + "_values_" + m_algo + "_" + m_release + ".dat" );
+  std::string data_val;
+  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  if ( m_FilesPath == "" ) {
+    if( m_Trel >= MCAST::Release::PreRec ) {
+      data_val = PathResolverFindCalibFile( "MuonMomentumCorrections/Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat" );
+    }
+    else {
+      data_val = PathResolverFindCalibFile( "MuonMomentumCorrections/" + m_year + "_values_" + m_algo + "_" + m_release + ".dat" ); 
+    }
+  }
+  else {
+    data_val = m_FilesPath + "Smearing_" + m_algo + "_" + m_year + "_" + m_release + ".dat";
+  }
+  //if ( m_Trel >= MCAST::Release::Test ) data_val = "Smearings_Test.dat";
   ATH_MSG_DEBUG( "Checking Files - Data: " << data_val );
 
   InValues.open( data_val.c_str() );
@@ -792,7 +960,19 @@ StatusCode MuonCalibrationAndSmearingTool::FillValues() {
   InValues.clear();
 
   //::: Retrieving MC values
-  std::string mc_val    = PathResolverFindCalibFile( "MuonMomentumCorrections/MC_values_" + m_algo + "_" + m_release + ".dat" );
+  std::string mc_val;
+  //::: Check if FilesPath defined: if so override other configurations (advanced user setting, for debugging within MCP)
+  if ( m_FilesPath == "" ) {
+    if ( m_Trel >= MCAST::Release::PreRec ) {
+      mc_val = PathResolverFindCalibFile( "MuonMomentumCorrections/MC_values_" + m_algo + "_Rel17.2Sum13.dat" );
+    }
+    else {
+      mc_val = PathResolverFindCalibFile( "MuonMomentumCorrections/MC_values_" + m_algo + "_" + m_release + ".dat" );
+    }
+  }
+  else {
+    mc_val = m_FilesPath + "MC_values_" + m_algo + "_Rel17.2Sum13.dat";
+  }
   ATH_MSG_DEBUG( "Checking Files - MC: " << mc_val );
   
   InValues.open( mc_val.c_str() );
@@ -850,6 +1030,7 @@ int MuonCalibrationAndSmearingTool::GetScaleRegion( xAOD::Muon& mu ) {
 double MuonCalibrationAndSmearingTool::GetSmearing( int DetType, xAOD::Muon& mu ) {
 
   bool useTan2 = true;
+  if ( m_Trel >= MCAST::Release::PreRec ) useTan2 = false; 
   if ( m_detRegion < 0 || m_detRegion >= m_nb_regions ) return 0; //++++++ HOW TO IMPROVE THIS CHECK?!
   double smear = 0.;
   if ( DetType == MCAST::DetectorType::MS ) {
@@ -867,6 +1048,7 @@ double MuonCalibrationAndSmearingTool::GetSmearing( int DetType, xAOD::Muon& mu 
       return smear;
     }
     else {
+      ATH_MSG_VERBOSE( "Using p1ID = " << m_p1_ID[m_detRegion] << " and p2ID = " << m_p2_ID[m_detRegion] );
       smear = m_p1_ID[m_detRegion]*m_g3 + m_p2_ID[m_detRegion]*m_g4*m_ptid;
       return smear;
     }
@@ -1135,6 +1317,10 @@ StatusCode MuonCalibrationAndSmearingTool::Regions( std::string inRegionFile, in
       //Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
       CollectMacroRegionsSL_UpDn();
       break;
+    case 4:
+      //Collects all the Large and Small, Up and Down sectors if they belong to the same eta bin
+      CollectSectors();
+      break;
     default:
       ATH_MSG_ERROR( "doMacroRegionFlag=" << doMacroRegionsFlag << " not defined!" );
       return StatusCode::FAILURE;
@@ -1146,6 +1332,7 @@ StatusCode MuonCalibrationAndSmearingTool::Regions( std::string inRegionFile, in
 
 int MuonCalibrationAndSmearingTool::GetRegion( const double eta, const double phi ) const {
 
+  ATH_MSG_DEBUG( "eta,phi = " << eta << "," << phi );
   int ret_k =-1;
   for( int k=0; k < m_nb_regions; ++k ) {
     if( eta>=m_eta_min[k] && eta<m_eta_max[k] ) {
@@ -1167,7 +1354,10 @@ int MuonCalibrationAndSmearingTool::GetRegion( const double eta, const double ph
     ATH_MSG_INFO( "Region corresponding to Eta=" << eta << ", Phi=" << phi << " NOT FOUND!" );
     return -1;
   }
-  if( m_doMacroRegions ) return m_MacroRegionIdxMap.find( ret_k )->second;
+  if( m_doMacroRegions ) {
+    ATH_MSG_DEBUG( "INDEX = " << m_MacroRegionIdxMap.find( ret_k )->second );
+    return m_MacroRegionIdxMap.find( ret_k )->second;
+  }
   return ret_k;
 
 }
@@ -1246,6 +1436,54 @@ void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL() {
 }
 
 //Collects all the Large and Small sectors if they belong to the same eta bin
+void MuonCalibrationAndSmearingTool::CollectSectors() {
+
+  double etaMin = -999., etaMax = -999.;
+  int macroRegionIdx = 0;
+  for( int k=0; k < m_nb_regions; ++k ) {
+    if( etaMin != m_eta_min[k] || etaMax !=m_eta_max[k] ) {
+      //Build a new macroRegion
+      etaMin = m_eta_min[k];
+      etaMax = m_eta_max[k];
+      //One of the following is true
+      std::string macroRegName = m_names[k].substr( 0, m_names[k].find( "EL" ) );
+      macroRegName = macroRegName.substr( 0, m_names[k].find( "BL" ) );
+      macroRegName = macroRegName.substr( 0, m_names[k].find( "ES" ) );
+      macroRegName = macroRegName.substr( 0, m_names[k].find( "BS" ) );
+      m_MacroRegionName.push_back( macroRegName+"LargeDn" );
+      m_MacroRegionName.push_back( macroRegName+"SmallDn" );
+      m_MacroRegionName.push_back( macroRegName+"LargeUp" );
+      m_MacroRegionName.push_back( macroRegName+"SmallUp" );
+      //insert 4 time the innerEta, for Large and Small sectors times Up and Dn
+      for( int i=0; i<4; ++i ) {
+        if( etaMin >= 0. ) m_MacroRegionInnerEta.push_back( etaMin );
+        else         m_MacroRegionInnerEta.push_back( etaMax );
+      }
+      macroRegionIdx+=4;
+    }
+    if( m_names[k].find( "EL" ) != std::string::npos || m_names[k].find( "BL" ) != std::string::npos ) { //Large sectors
+      if( m_names[k].find( "11" ) != std::string::npos || m_names[k].find( "13" ) != std::string::npos ||
+          m_names[k].find( "15" ) != std::string::npos ) {
+        m_MacroRegionIdxMap[k] = macroRegionIdx-4;//Down Large sectors (within 10 to 16)
+      }
+      else {
+        m_MacroRegionIdxMap[k] = macroRegionIdx-2; //Up, large sectors
+      }
+    }
+    if( m_names[k].find( "ES" ) != std::string::npos || m_names[k].find( "BS" ) != std::string::npos ) { //Small sectors
+      if( m_names[k].find( "10" ) != std::string::npos || m_names[k].find( "12" ) != std::string::npos ||
+          m_names[k].find( "14" ) != std::string::npos || m_names[k].find( "16" ) != std::string::npos ) {
+        m_MacroRegionIdxMap[k] = macroRegionIdx-3; //Down Small sectors (from 10 to 16). Should I remove 10 and 16? ++++++
+      }
+      else {
+        m_MacroRegionIdxMap[k] = macroRegionIdx-1; ; //Up, Small sectors
+      }
+    }
+  }
+  return;
+
+}
+
 void MuonCalibrationAndSmearingTool::CollectMacroRegionsSL_UpDn() {
 
   double etaMin = -999., etaMax = -999.;
