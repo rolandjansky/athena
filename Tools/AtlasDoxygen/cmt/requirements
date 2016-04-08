@@ -22,7 +22,8 @@ use LCG_Configuration *
 path_remove DOTFONTPATH "" Linux&Doxygen "AtlasDoxygen"
 path_prepend DOTFONTPATH "" Linux&Doxygen "$(AtlasDoxygen_root)/fonts/ttf"
 
-macro AtlasDoxygen_native_version "" Doxygen "$(doxygen_config_version)"
+# Must be specified for default tag, similar to AtlasDoxygen_export_paths, for kit building
+macro AtlasDoxygen_native_version "$(doxygen_config_version)"
 path_remove PATH "" Doxygen "/doxygen/"
 path_prepend PATH "" Doxygen "$(LCG_external)/doxygen/$(AtlasDoxygen_native_version)/$(LCG_system)/bin"
 
@@ -90,3 +91,4 @@ macro DOXYGEN_JAVADOC_AUTOBRIEF "" Doxygen "YES"
 action doxygen "python ${AtlasDoxygen_root}/cmt/doxygen.py  $(cmt_args)"
 
 
+macro AtlasDoxygen_export_paths "$(LCG_external)/doxygen/$(doxygen_config_version)/$(LCG_system)/bin"

@@ -412,7 +412,8 @@ def filter_doxyfile (doxygen_input, doxygen_html_output, tagfiles, package_tagfi
     f = open (DoxygenRoot + '/cmt/Doxyfile')
     lines = f.readlines ()
     f.close ()
-    g = open ('Doxyfile', 'w')
+    g = open ('Doxyfile', 'w')  
+    package = package_tagfile.split('/')[-1].split('.')[0]
     # print "Going over Doxyfile lines:"
     for line in lines:
         w = string.split (line)
@@ -425,6 +426,10 @@ def filter_doxyfile (doxygen_input, doxygen_html_output, tagfiles, package_tagfi
                 line = 'TAGFILES = ' + ' '.join(tagfiles) + '\n'
             elif w[0] == 'GENERATE_TAGFILE':
                 line = 'GENERATE_TAGFILE = ' + package_tagfile + '\n'
+            elif w[0] == 'EXTERNAL_SEARCH_ID':
+                line = 'EXTERNAL_SEARCH_ID = ' + package + '\n'
+            elif w[0] == 'EXTRA_SEARCH_MAPPINGS':
+                line = 'EXTRA_SEARCH_MAPPINGS = ' + package + '=' + '../../' + package + '/html\n'
             elif (w[0] == 'GENERATE_HTML'):
                 if package_tagfile=='':
                   # Only generate HTML in the second pass, where we DON'T make a tag file
