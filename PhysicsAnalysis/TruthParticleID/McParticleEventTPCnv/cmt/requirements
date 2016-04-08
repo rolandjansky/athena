@@ -13,8 +13,6 @@ use DataModelAthenaPool DataModelAthenaPool-*		Control
 
 use AthenaPoolCnvSvc	AthenaPoolCnvSvc-*		Database/AthenaPOOL
 
-use GeneratorObjects	GeneratorObjects-*		Generators
-
 use McParticleEvent	McParticleEvent-*		PhysicsAnalysis/TruthParticleID
 
 private
@@ -22,6 +20,7 @@ use AtlasHepMC		AtlasHepMC-*			External
 use StoreGate		StoreGate-*			Control
 use AthenaKernel    AthenaKernel-*          Control
 use McParticleKernel	McParticleKernel-*		PhysicsAnalysis/TruthParticleID
+use GeneratorObjects	GeneratorObjects-*		Generators
 end_private
 
 branches McParticleEventTPCnv src

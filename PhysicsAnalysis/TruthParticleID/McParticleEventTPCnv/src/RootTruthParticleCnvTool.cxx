@@ -34,6 +34,13 @@ static const boost::array<int, 100> qcharge = {
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//         Implementation of the ITruthParticleCnvTool function(s)
+//
+
+StatusCode RootTruthParticleCnvTool::execute() { abort(); }
+
 StatusCode
 RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
                                   const unsigned int genEventIndex,
@@ -130,6 +137,8 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
   return StatusCode::SUCCESS;
 }
 
+//
+////////////////////////////////////////////////////////////////////////////////
 
 double RootTruthParticleCnvTool::chargeFromPdgId (int pdgId) const
 {
@@ -172,48 +181,77 @@ double RootTruthParticleCnvTool::chargeFromPdgId (int pdgId) const
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//              Implementation of the IInterface function(s)
 
-StatusCode RootTruthParticleCnvTool::queryInterface(const InterfaceID&,
-                                                    void** ){abort();}
-unsigned long RootTruthParticleCnvTool::addRef(){abort();}
-unsigned long RootTruthParticleCnvTool::release(){abort();}
-StatusCode RootTruthParticleCnvTool::setProperty( const Property& ){abort();}
+StatusCode RootTruthParticleCnvTool::queryInterface( const InterfaceID&,
+                                                     void** ) { abort(); }
+unsigned long RootTruthParticleCnvTool::addRef() { abort(); }
+unsigned long RootTruthParticleCnvTool::release() { abort(); }
+unsigned long RootTruthParticleCnvTool::refCount() const { abort(); }
 
-StatusCode RootTruthParticleCnvTool::setProperty(const std::string&){abort();}
-StatusCode RootTruthParticleCnvTool::setProperty( const std::string&, const std::string& ){abort();}
-StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const{abort();}
-const Property& RootTruthParticleCnvTool::getProperty( const std::string&) const{abort();}
-StatusCode RootTruthParticleCnvTool::getProperty( const std::string&, std::string& ) const{abort();}
-const std::vector<Property*>& RootTruthParticleCnvTool::getProperties( ) const{abort();}
-bool RootTruthParticleCnvTool::hasProperty(const std::string&) const {abort();}
+//
+////////////////////////////////////////////////////////////////////////////////
 
-const std::string&  RootTruthParticleCnvTool::type() const{abort();}
-const IInterface*   RootTruthParticleCnvTool::parent() const{abort();}
+////////////////////////////////////////////////////////////////////////////////
+//
+//               Implementation of the IProperty function(s)
+//
 
-StatusCode RootTruthParticleCnvTool::configure(){abort();}
-StatusCode RootTruthParticleCnvTool::initialize(){abort();}
-StatusCode RootTruthParticleCnvTool::sysInitialize(){abort();}
-StatusCode RootTruthParticleCnvTool::reinitialize(){abort();}
-StatusCode RootTruthParticleCnvTool::sysReinitialize(){abort();}
-StatusCode RootTruthParticleCnvTool::start(){abort();}
-StatusCode RootTruthParticleCnvTool::sysStart(){abort();}
-StatusCode RootTruthParticleCnvTool::restart(){abort();}
-StatusCode RootTruthParticleCnvTool::sysRestart(){abort();}
-StatusCode RootTruthParticleCnvTool::stop(){abort();}
-StatusCode RootTruthParticleCnvTool::sysStop(){abort();}
-StatusCode RootTruthParticleCnvTool::finalize(){abort();}
-StatusCode RootTruthParticleCnvTool::sysFinalize(){abort();}
-StatusCode RootTruthParticleCnvTool::terminate(){abort();}
-unsigned long RootTruthParticleCnvTool::refCount() const{abort();}
+StatusCode RootTruthParticleCnvTool::setProperty( const Property& ) { abort(); }
+StatusCode RootTruthParticleCnvTool::setProperty( const std::string& ) {
+   abort(); }
+StatusCode RootTruthParticleCnvTool::setProperty( const std::string&,
+                                                  const std::string& ) {
+   abort(); }
+StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const { abort(); }
+const Property&
+RootTruthParticleCnvTool::getProperty( const std::string& ) const{ abort(); }
+StatusCode RootTruthParticleCnvTool::getProperty( const std::string&,
+                                                  std::string& ) const {
+   abort(); }
+const std::vector< Property* >&
+RootTruthParticleCnvTool::getProperties() const { abort(); }
+bool RootTruthParticleCnvTool::hasProperty( const std::string& ) const {
+   abort(); }
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//               Implementation of the IAlgTool function(s)
+//
+
+const std::string& RootTruthParticleCnvTool::type() const { abort(); }
+const IInterface* RootTruthParticleCnvTool::parent() const { abort(); }
+StatusCode RootTruthParticleCnvTool::configure() { abort(); }
+StatusCode RootTruthParticleCnvTool::initialize() { abort(); }
+StatusCode RootTruthParticleCnvTool::sysInitialize() { abort(); }
+StatusCode RootTruthParticleCnvTool::reinitialize() { abort(); }
+StatusCode RootTruthParticleCnvTool::sysReinitialize() { abort(); }
+StatusCode RootTruthParticleCnvTool::start() { abort(); }
+StatusCode RootTruthParticleCnvTool::sysStart() { abort(); }
+StatusCode RootTruthParticleCnvTool::restart() { abort(); }
+StatusCode RootTruthParticleCnvTool::sysRestart() { abort(); }
+StatusCode RootTruthParticleCnvTool::stop() { abort(); }
+StatusCode RootTruthParticleCnvTool::sysStop() { abort(); }
+StatusCode RootTruthParticleCnvTool::finalize() { abort(); }
+StatusCode RootTruthParticleCnvTool::sysFinalize() { abort(); }
+StatusCode RootTruthParticleCnvTool::terminate() { abort(); }
+Gaudi::StateMachine::State RootTruthParticleCnvTool::FSMState() const {
+   abort(); }
+
+//
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//              Implementation of the INamedInterface function(s)
+//
+
 const std::string& RootTruthParticleCnvTool::name() const{abort();}
-StatusCode RootTruthParticleCnvTool::execute() {abort();}
-#ifdef GAUDIKERNEL_STATEMACHINE_H_
-Gaudi::StateMachine::State RootTruthParticleCnvTool::FSMState() const{abort();}
-#endif
 
-#ifdef ATHENAHIVE
-const DataObjIDColl & 
-RootTruthParticleCnvTool::inputDataObjs() const { abort(); }
-const DataObjIDColl & 
-RootTruthParticleCnvTool::outputDataObjs() const { abort(); }
-#endif
+//
+////////////////////////////////////////////////////////////////////////////////
