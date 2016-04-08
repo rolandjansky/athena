@@ -7,6 +7,7 @@
 
 #include<vector>
 #include "GaudiKernel/IAlgTool.h"
+#include "TrkTrack/TrackCollection.h"
 
 class TrigVertex;
 class TrigInDetTrackCollection;
@@ -22,6 +23,8 @@ class ITrigPrimaryVertexFitter: virtual public IAlgTool
   }
   virtual TrigVertex* fit(const TrigInDetTrackCollection*, double z=0.0) = 0;
   virtual TrigVertex* fit(const TrigInDetTrackCollection*, std::vector<double>&, double z=0.0) = 0;
+  virtual TrigVertex* fit(const TrackCollection*, TrackCollection&, double z=0.0) = 0;
+  virtual TrigVertex* fit(const TrackCollection*, std::vector<double>&, double z=0.0) = 0;
 };
 
 #endif
