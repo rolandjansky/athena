@@ -25,8 +25,7 @@
 AssocBuilderTool::AssocBuilderTool( const std::string& type, 
 				    const std::string& name, 
 				    const IInterface* parent ) : 
-  AlgTool       ( type, name,   parent ),
-  m_msg         ( msgSvc(),       name ),
+  AthAlgTool    ( type, name,   parent ),
   m_overlapTools( this )
 {
   //
@@ -48,25 +47,15 @@ AssocBuilderTool::AssocBuilderTool( const std::string& type,
 ///////////////
 AssocBuilderTool::~AssocBuilderTool()
 { 
-  m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" );
 }
 
 // Athena Algorithm's Hooks
 ////////////////////////////
 StatusCode AssocBuilderTool::initialize()
 {
-  m_msg << MSG::INFO 
-      << "Initializing " << name() << "..." 
-      << endreq;
-
-  if ( !m_overlapTools.retrieve().isSuccess() ) {
-    m_msg << MSG::ERROR
-	  << "Could not retrieve array of OverlapTools ["
-	  << m_overlapTools << "] !!"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_INFO( "Initializing " << name() << "..."  );
+  ATH_CHECK( m_overlapTools.retrieve() );
   return StatusCode::SUCCESS;
 }
 /////////////////////////////////////////////////////////////////// 
@@ -78,9 +67,7 @@ AssocBuilderTool::buildAssocs( const ElementLink<INavigable4MomentumCollection>&
 			       INav4MomAssocs& mapOfAssociations ) const
 {
   if ( !objLink.isValid() ) {
-    m_msg << MSG::WARNING
-	  << "InValid ElementLink<INav4MomColl> !!"
-	  << endreq;
+    ATH_MSG_WARNING( "InValid ElementLink<INav4MomColl> !!" );
     return StatusCode::RECOVERABLE;
   }
   typedef IOverlapTools_t::const_iterator CstIter_t;

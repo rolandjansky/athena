@@ -51,7 +51,8 @@
 AssociationAlgorithm::AssociationAlgorithm( const std::string& name,
                                             ISvcLocator* pSvcLocator ) :
   AthAlgorithm ( name, pSvcLocator ),
-  m_assoTools(this)
+  m_assoTools(this),
+  m_nEventsProcessed(0)
 {
   declareProperty("inputCollection",                m_matchFromCollKey = "", "Input collection to match from" );
 
