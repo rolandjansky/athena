@@ -40,7 +40,7 @@ class TrackTools: public AthAlgTool, virtual public ITrackTools{
         double getPathInsideCell(const TRACK *track, const CaloCell *cell);
         int retrieveIndex(int sampling, float eta);
 
-        bool trackIsolation( xAOD::TrackIsolation& result, const xAOD::TrackParticle &tp, const std::vector<Iso::IsolationType>& cones )
+        bool trackIsolation( xAOD::TrackIsolation& result, const xAOD::TrackParticle &tp, const std::vector<xAOD::Iso::IsolationType>& cones )
         {
           if(!m_trackIsolationTool.empty()) {
             xAOD::TrackCorrection corrlist;

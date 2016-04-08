@@ -1,4 +1,5 @@
-package TileD3PDMaker author Marco van Woerden <mvanwoer@cern.ch>
+package TileD3PDMaker 
+author Marco van Woerden <mvanwoer@cern.ch>
 
 use AtlasPolicy                AtlasPolicy-*
 use AtlasAnalysisRunTime       AtlasAnalysisRunTime-*
