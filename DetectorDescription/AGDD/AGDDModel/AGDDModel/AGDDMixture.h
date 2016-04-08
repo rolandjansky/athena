@@ -18,12 +18,12 @@ public:
 	AGDDMixture(std::string,double);
 	void AddMaterial(std::string);
 	void Fraction(double);
-	int NComponents() {return theMaterials.size();}
-	AGDDSimpleMaterial* Material(int i) {return theMaterials[i];}
-	double Composition(int i) {return theComposition[i];}
+	int NComponents() {return m_theMaterials.size();}
+	AGDDSimpleMaterial* Material(int i) {return m_theMaterials[i];}
+	double Composition(int i) {return m_theComposition[i];}
 private:
-	std::vector<AGDDSimpleMaterial*> theMaterials;
-	std::vector<double> theComposition;
+	std::vector<AGDDSimpleMaterial*> m_theMaterials;
+	std::vector<double> m_theComposition;
 };
 
 #endif

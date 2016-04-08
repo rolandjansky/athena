@@ -11,27 +11,27 @@ class AGDDElement {
 	friend std::ostream& operator <<(std::ostream&, const AGDDElement &);
 public:
 	AGDDElement(std::string n, std::string s, int z, double a):
-		_name(n),_symbol(s),_z(z),_a(a),_created(false),theElement(0)
+		m_name(n),m_symbol(s),m_z(z),m_a(a),m_created(false),m_theElement(0)
 	{
 		RegisterToStore(this);
 	}
 	void RegisterToStore(AGDDElement*);
 	std::string GetName() const ;
 	std::string GetSymbol() const ;
-	int GetZ() const {return _z;}
-	double GetA() const {return _a;}
-	void Created(bool b) {_created=b;}
-	bool Extant() {return _created;}
-	void* GetElement() {return theElement;}
-	void SetElement(void* el) {theElement=el;}
+	int GetZ() const {return m_z;}
+	double GetA() const {return m_a;}
+	void Created(bool b) {m_created=b;}
+	bool Extant() {return m_created;}
+	void* GetElement() {return m_theElement;}
+	void SetElement(void* el) {m_theElement=el;}
 private:
-	std::string _name;
-	std::string _symbol;
-	int _z;
-	double _a;
-	bool _created;
+	std::string m_name;
+	std::string m_symbol;
+	int m_z;
+	double m_a;
+	bool m_created;
 	
-	void* theElement;
+	void* m_theElement;
 };
 
 #endif

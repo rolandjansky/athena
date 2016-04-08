@@ -10,19 +10,19 @@
 
 std::ostream& operator <<(std::ostream& os, const AGDDMaterial &obj)
 {
-	os<<"- Material "<<obj._name<<" type-Material density="<<obj._density<<
-		" Z="<<obj._z<<" A="<<obj._a<<std::endl;
+	os<<"- Material "<<obj.m_name<<" type-Material density="<<obj.m_density<<
+		" Z="<<obj.m_z<<" A="<<obj.m_a<<std::endl;
 	return os;
 }
 
 AGDDMaterial::AGDDMaterial(std::string n,AGDDElement* e, double d):
-	AGDDSimpleMaterial(n,d),_z(e->GetZ()),_a(e->GetA()),_element(e),_created(false)
+	AGDDSimpleMaterial(n,d),m_z(e->GetZ()),m_a(e->GetA()),m_element(e),m_created(false)
 {
-	mType=Material;
+	m_mType=Material;
 }
 
 AGDDMaterial::AGDDMaterial(std::string n,int z, double a,double d):
-	AGDDSimpleMaterial(n,d),_z(z),_a(a),_element(0),_created(false)
+	AGDDSimpleMaterial(n,d),m_z(z),m_a(a),m_element(0),m_created(false)
 {
-	mType=Material;
+	m_mType=Material;
 }

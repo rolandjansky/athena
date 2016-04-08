@@ -8,10 +8,10 @@
 
 #include <iostream>
 
-AGDDMaterialStore::AGDDMaterialStore():nrOfMaterials(0),nrOfElements(0)
+AGDDMaterialStore::AGDDMaterialStore():m_nrOfMaterials(0),m_nrOfElements(0)
 {
-	theMaterials.clear();
-	theElements.clear();
+	m_theMaterials.clear();
+	m_theElements.clear();
 }
 
 AGDDMaterialStore* AGDDMaterialStore::GetMaterialStore()
@@ -21,32 +21,32 @@ AGDDMaterialStore* AGDDMaterialStore::GetMaterialStore()
 }
 void AGDDMaterialStore::RegisterElement(AGDDElement *el)
 {
-	if (theElements.find(el->GetName()) != theElements.end())
+	if (m_theElements.find(el->GetName()) != m_theElements.end())
 	{
 		std::cout<<"Element "<<el->GetName()<<" already defined:skipping"<<std::endl;
 	}
 	else
 	{
-		nrOfElements++;
-		theElements[el->GetName()]=el;
+		m_nrOfElements++;
+		m_theElements[el->GetName()]=el;
 	}
 }
 void AGDDMaterialStore::RegisterMaterial(AGDDSimpleMaterial *mat)
 {
-	if (theMaterials.find(mat->GetName()) != theMaterials.end())
+	if (m_theMaterials.find(mat->GetName()) != m_theMaterials.end())
 	{
 		std::cout<<"Material "<<mat->GetName()<<" already defined:skipping"<<std::endl;
 	}
 	else
 	{
-		nrOfMaterials++;
-		theMaterials[mat->GetName()]=mat;
+		m_nrOfMaterials++;
+		m_theMaterials[mat->GetName()]=mat;
 	}
 }
 AGDDSimpleMaterial* AGDDMaterialStore::GetMaterial(std::string mat)
 {
-	if (theMaterials.find(mat) != theMaterials.end())
-		return theMaterials[mat];
+	if (m_theMaterials.find(mat) != m_theMaterials.end())
+		return m_theMaterials[mat];
 	else
 	{
 		std::cout<<" Material "<<mat<<" not found!"<<std::endl;
@@ -55,8 +55,8 @@ AGDDSimpleMaterial* AGDDMaterialStore::GetMaterial(std::string mat)
 }
 AGDDElement* AGDDMaterialStore::GetElement(std::string el)
 {
-	if (theElements.find(el) != theElements.end())
-		return theElements[el];
+	if (m_theElements.find(el) != m_theElements.end())
+		return m_theElements[el];
 	else
 	{
 		std::cout<<" Element "<<el<<" not found!"<<std::endl;
@@ -70,7 +70,7 @@ void AGDDMaterialStore::PrintElementNames()
 			std::endl<<"-----> ";
 	AGDDElementMap::const_iterator it;
 	int i=0;
-	for (it=theElements.begin();it!=theElements.end();it++)
+	for (it=m_theElements.begin();it!=m_theElements.end();it++)
 	{
 		i++;
 		if (!(i%5)) std::cout<<std::endl<<"-----> ";
@@ -84,7 +84,7 @@ void AGDDMaterialStore::PrintMaterialNames()
 			std::endl<<"-----> ";
 	AGDDMaterialMap::const_iterator it;
 	int i=0;
-	for (it=theMaterials.begin();it!=theMaterials.end();it++)
+	for (it=m_theMaterials.begin();it!=m_theMaterials.end();it++)
 	{
 		i++;
 		if (!(i%5)) std::cout<<std::endl<<"-----> ";
@@ -94,16 +94,16 @@ void AGDDMaterialStore::PrintMaterialNames()
 
 void AGDDMaterialStore::PrintElement(std::string n)
 {
-	if (theElements.find(n)!=theElements.end())
-		std::cout<<*(theElements[n]);
+	if (m_theElements.find(n)!=m_theElements.end())
+		std::cout<<*(m_theElements[n]);
 	else
 		std::cout<<"Element "<<n<<" not found!"<<std::endl;
 }
 
 void AGDDMaterialStore::PrintMaterial(std::string n)
 {
-	if (theMaterials.find(n)!=theMaterials.end())
-		std::cout<<*(theMaterials[n]);
+	if (m_theMaterials.find(n)!=m_theMaterials.end())
+		std::cout<<*(m_theMaterials[n]);
 	else
 		std::cout<<"Material "<<n<<" not found!"<<std::endl;
 }

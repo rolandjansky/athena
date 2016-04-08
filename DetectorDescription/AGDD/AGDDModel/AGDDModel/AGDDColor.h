@@ -9,18 +9,18 @@
 
 class AGDDColor {
 public:
-	AGDDColor(std::string n,double a,double b,double c):name(n),red(a),green(b),blue(c) 
+	AGDDColor(std::string n,double a,double b,double c):m_name(n),m_red(a),m_green(b),m_blue(c) 
 	{
 		RegisterToStore();
 	}
-	double Red() {return red;}
-	double Green() {return green;}
-	double Blue() {return blue;}
-	std::string GetName() {return name;}
+	double Red() {return m_red;}
+	double Green() {return m_green;}
+	double Blue() {return m_blue;}
+	std::string GetName() {return m_name;}
 private:
-	std::string name;
+	std::string m_name;
 	void RegisterToStore();
-	double red,green,blue;
+	double m_red,m_green,m_blue;
 };
 
 #endif

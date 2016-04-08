@@ -14,20 +14,20 @@
 
 class AGDDSnake: public AGDDVolume {
 public:
-	AGDDSnake(std::string s):AGDDVolume(s),_radius(0) {}
+	AGDDSnake(std::string s):AGDDVolume(s),m_radius(0) {}
 	void SetPoint(CLHEP::Hep3Vector p)
 	{
-		_points.push_back(p);
+		m_points.push_back(p);
 	}
-	int NrOfPoints() {return _points.size();}
-	double Radius() {return _radius;}
-	void Radius(double d) {_radius=d;}
-	CLHEP::Hep3Vector GetPoint(int i) {return _points[i];}
+	int NrOfPoints() {return m_points.size();}
+	double Radius() {return m_radius;}
+	void Radius(double d) {m_radius=d;}
+	CLHEP::Hep3Vector GetPoint(int i) {return m_points[i];}
 	void CreateVolume();
 	void CreateSolid();
 private:
-	double _radius;
-	std::vector<CLHEP::Hep3Vector> _points;
+	double m_radius;
+	std::vector<CLHEP::Hep3Vector> m_points;
 };
 
 #endif

@@ -18,12 +18,12 @@ public:
 	AGDDMolecule(std::string,double);
 	void AddElement(std::string);
 	void NAtoms(int);
-	int NComponents() {return theElements.size();}
-	AGDDElement* Element(int i) {return theElements[i];}
-	int Composition(int i) {return theComposition[i];}
+	int NComponents() {return m_theElements.size();}
+	AGDDElement* Element(int i) {return m_theElements[i];}
+	int Composition(int i) {return m_theComposition[i];}
 private:
-	std::vector<AGDDElement*> theElements;
-	std::vector<int> theComposition;
+	std::vector<AGDDElement*> m_theElements;
+	std::vector<int> m_theComposition;
 };
 
 #endif
