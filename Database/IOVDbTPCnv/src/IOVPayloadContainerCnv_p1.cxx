@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "IOVDbDataModel/IOVPayloadContainer.h"
-#undef private
-#undef protected
-
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "IOVDbTPCnv/IOVPayloadContainerCnv_p1.h"
 #include "IOVDbTPCnv/IOVPayloadContainer_p1.h"
@@ -27,9 +22,11 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
         log << MSG::DEBUG << "IOVPayloadContainerCnv_p1::persToTrans - entering "
             << endreq;
     }
+
+    IOVPayloadContainer::payloadVec& payloadVec = transObj->m_payloadVec;
     
     // Make sure transient container is empty - may be reused
-    transObj->m_payloadVec.clear();
+    payloadVec.clear();
 
     // fill map from type name to int
     if (m_attributeTypes.size() == 0)fillAttributeTypeMap();
@@ -42,18 +39,14 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
     bool isEarlyVersion = persObj->m_attrType.size() > 0;
 
     // Loop over persistent attribute list collections
-    typedef std::vector<IOVPayloadContainer_p1::CondAttrListCollection_p1>::const_iterator attrCollIt;
-    
-    attrCollIt it   = persObj->m_payloadVec.begin();
-    attrCollIt last = persObj->m_payloadVec.end();
-    transObj->m_payloadVec.reserve(persObj->m_payloadVec.size());
-    for (; it != last; ++it) {
-        const IOVPayloadContainer_p1::CondAttrListCollection_p1& persColl = *it;
-
+    payloadVec.reserve(persObj->m_payloadVec.size());
+    for (const IOVPayloadContainer_p1::CondAttrListCollection_p1& persColl : 
+           persObj->m_payloadVec)
+    {
         CondAttrListCollection* transColl = new CondAttrListCollection(persColl.m_hasRunLumiBlockTime);
 
         // Add to transient payload container
-        transObj->m_payloadVec.push_back(transColl);
+        payloadVec.push_back(transColl);
         
         // Loop over attribute lists
         typedef std::vector<IOVPayloadContainer_p1::CondAttrListEntry_p1>::const_iterator attrListIt_t;
