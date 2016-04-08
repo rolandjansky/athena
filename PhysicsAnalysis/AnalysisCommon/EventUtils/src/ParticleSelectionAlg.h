@@ -68,6 +68,9 @@ private:
   /// This internal method will realize if a user sets the 'OutputContainerType' property
   void setupOutputContainerType( Property& /*prop*/ );
 
+  /// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
+  void setupWriteSplitOutputContainer( Property& /*prop*/ );
+
   /// This internal method will realize if a user sets the 'OutputContainerOwnershipPolicy' property
   void setupOutputContainerOwnPolicy( Property& /*prop*/ );
 
@@ -108,6 +111,13 @@ private:
 
   /// This boolean is true if the user sets the 'OutputContainerType' property
   bool m_setOutCollType;
+
+
+  /// Decide if we want to write a fully-split AuxContainer such that we can remove any variables
+  BooleanProperty m_writeSplitAux;
+
+  /// This boolean is true if the user sets the 'WriteSplitOutputContainer' property
+  bool m_setWriteSplitAux;
 
 
   /// Defines the ownership policy of the output container
@@ -162,6 +172,12 @@ inline void ParticleSelectionAlg::setupOutputContainer( Property& /*prop*/ ) {
 /// This internal method will realize if a user sets the 'OutputContainerType' property
 inline void ParticleSelectionAlg::setupOutputContainerType( Property& /*prop*/ ) {
   m_setOutCollType = true;
+  return;
+}
+
+/// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
+inline void ParticleSelectionAlg::setupWriteSplitOutputContainer( Property& /*prop*/ ) {
+  m_setWriteSplitAux = true;
   return;
 }
 

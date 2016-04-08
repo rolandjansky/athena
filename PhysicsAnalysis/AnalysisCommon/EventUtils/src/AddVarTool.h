@@ -18,10 +18,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#endif
 
 // Forward declarations
 namespace ExpressionParsing {
@@ -78,10 +75,7 @@ private:
   ///////////////////////////////////////////////////////////////////
 private:
   /// The trigger decision tool
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
   ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-#endif
 
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;
@@ -104,7 +98,7 @@ private:
   mutable int m_varTypeIndex;
 
   /// An internal integer to keep track of the type of the input container
-  mutable int m_inContIdx;
+  //mutable int m_inContIdx;
 
   /// Internal event counter
   mutable unsigned long m_nEventsProcessed;

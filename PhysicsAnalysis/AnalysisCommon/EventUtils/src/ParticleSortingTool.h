@@ -82,6 +82,9 @@ private:
   /// The method to compare the particle's rapidity
   bool compareRapidity( const xAOD::IParticle* partA, const xAOD::IParticle* partB ) const;
 
+  /// The method to compare an auxdata member of the particle
+  bool compareAuxData( const xAOD::IParticle* partA, const xAOD::IParticle* partB ) const;
+
   /// Method to compare two doubles
   inline bool compareDouble( double a, double b ) const;
 
@@ -94,14 +97,14 @@ private:
   /// Input container name
   StringProperty m_inCollKey;
 
-  /// Output collection name (deep copies of the original ones)
+  /// The name of the output container (with SG::VIEW_ELEMENTS) with the sorted copy of input objects
   StringProperty m_outCollKey;
 
   /// Define by what parameter to sort (default: 'pt')
   StringProperty m_sortVar;
 
-  /// Define if the container should be sorted in a decending order (default=true)
-  BooleanProperty m_sortDecending;
+  /// Define if the container should be sorted in a descending order (default=true)
+  BooleanProperty m_sortDescending;
 
 
   /// Internal container type identifier

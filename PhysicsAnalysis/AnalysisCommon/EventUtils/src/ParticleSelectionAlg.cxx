@@ -38,6 +38,9 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
   m_setOutCollKey(false),
   m_outCollType(""),
   m_setOutCollType(false),
+  m_writeSplitAux(false),
+  m_setWriteSplitAux(false),
+  m_outOwnPolicyName("OWN_ELEMENTS"),
   m_setOwnPolicy(false),
   m_outLinkCollKey(""),
   m_setOutLinkCollKey(false),
@@ -59,6 +62,10 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
   declareProperty("OutputContainerType", m_outCollType="",
                   "The type of the output container, e.g., 'xAOD::JetContainer'" );
   m_outCollType.declareUpdateHandler( &ParticleSelectionAlg::setupOutputContainerType, this );
+
+  declareProperty("WriteSplitOutputContainer", m_writeSplitAux=false,
+                  "Decide if we want to write a fully-split AuxContainer such that we can remove any variables" );
+  m_writeSplitAux.declareUpdateHandler( &ParticleSelectionAlg::setupWriteSplitOutputContainer, this );
 
   declareProperty("OutputContainerOwnershipPolicy", m_outOwnPolicyName="OWN_ELEMENTS",
                   "Defines the ownership policy of the output container (default: 'OWN_ELEMENTS'; also allowed: 'VIEW_ELEMENTS')" );
@@ -94,6 +101,8 @@ StatusCode ParticleSelectionAlg::initialize()
   ATH_MSG_DEBUG ( " using = " << m_inCollKey );
   ATH_MSG_DEBUG ( " using = " << m_outCollKey );
   ATH_MSG_DEBUG ( " using = " << m_outCollType );
+  ATH_MSG_DEBUG ( " using = " << m_writeSplitAux );
+  ATH_MSG_DEBUG ( " using = " << m_outOwnPolicyName );
   ATH_MSG_DEBUG ( " using = " << m_outLinkCollKey );
   ATH_MSG_DEBUG ( " using = " << m_selection );
 
@@ -128,6 +137,11 @@ StatusCode ParticleSelectionAlg::initialize()
     ATH_MSG_DEBUG( "Setting property" << m_outCollType
                    << " of private tool with name: '" << fullToolName << "'" );
     ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_outCollType) );
+  }
+  if (m_setWriteSplitAux) {
+    ATH_MSG_DEBUG( "Setting property" << m_writeSplitAux
+                   << " of private tool with name: '" << fullToolName << "'" );
+    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_writeSplitAux) );
   }
   if (m_setOwnPolicy) {
     ATH_MSG_DEBUG( "Setting property" << m_outOwnPolicyName

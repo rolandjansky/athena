@@ -17,11 +17,11 @@ use  EventInfo                  EventInfo-*                     Event
 use  ExpressionEvaluation       ExpressionEvaluation-*          PhysicsAnalysis/CommonTools
 use  GaudiInterface             GaudiInterface-*                External
 use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
-#use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
-use_unless pkg=TrigDecisionTool tag=ManaCore ver=* root=Trigger/TrigAnalysis
+use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
 use  xAODBTagging               xAODBTagging-*                  Event/xAOD
 use  xAODBase                   xAODBase-*                      Event/xAOD
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
+use  xAODCore                   xAODCore-*                      Event/xAOD
 use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  xAODJet                    xAODJet-*                       Event/xAOD

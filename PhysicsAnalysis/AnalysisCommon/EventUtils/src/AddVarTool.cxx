@@ -22,12 +22,8 @@
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/StackElement.h"
-
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
-#endif // XAOD_ANALYSIS
 
 // EDM includes
 #include "AthContainers/AuxElement.h"
@@ -52,14 +48,12 @@ AddVarTool::AddVarTool( const std::string& type,
                         const std::string& name,
                         const IInterface* parent ) :
   ::AthAlgTool  ( type, name, parent ),
-#ifndef XAOD_ANALYSIS
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-#endif
   m_parser(0),
   m_inCollKey(""),
   m_selection(""),
   m_varTypeIndex(-1),
-  m_inContIdx(-1),
+  //m_inContIdx(-1),
   m_nEventsProcessed(0)
 {
   declareInterface< DerivationFramework::IAugmentationTool >(this);
@@ -113,9 +107,7 @@ StatusCode AddVarTool::initialize()
 
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-#ifndef XAOD_ANALYSIS
   proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-#endif
   proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
   proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 

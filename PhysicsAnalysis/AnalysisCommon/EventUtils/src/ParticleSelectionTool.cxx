@@ -23,16 +23,13 @@
 #include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/StackElement.h"
-
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
-#endif
 
 
 // EDM includes
 #include "AthLinks/ElementLink.h"
+#include "xAODCore/AuxContainerBase.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODParticleEvent/IParticleLink.h"
@@ -86,13 +83,12 @@ ParticleSelectionTool::ParticleSelectionTool( const std::string& type,
                                               const std::string& name,
                                               const IInterface* parent ) :
   ::AthAlgTool  ( type, name, parent ),
-#ifndef XAOD_ANALYSIS
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-#endif
   m_parser(0),
   m_inCollKey(""),
   m_outCollKey(""),
   m_outCollType(""),
+  m_writeSplitAux(false),
   m_outLinkCollKey(""),
   m_selection(""),
   m_contID(0),
@@ -107,6 +103,9 @@ ParticleSelectionTool::ParticleSelectionTool( const std::string& type,
 
   declareProperty("OutputContainerType", m_outCollType="",
                   "The type of the output container, e.g., 'xAOD::JetContainer'" );
+
+  declareProperty("WriteSplitOutputContainer", m_writeSplitAux=false,
+                  "Decide if we want to write a fully-split AuxContainer such that we can remove any variables" );
 
   declareProperty("OutputContainerOwnershipPolicy", m_outOwnPolicyName="OWN_ELEMENTS",
                   "Defines the ownership policy of the output container (default: 'OWN_ELEMENTS'; also allowed: 'VIEW_ELEMENTS')" );
@@ -135,6 +134,7 @@ StatusCode ParticleSelectionTool::initialize()
   ATH_MSG_DEBUG ( " using = " << m_inCollKey );
   ATH_MSG_DEBUG ( " using = " << m_outCollKey );
   ATH_MSG_DEBUG ( " using = " << m_outCollType );
+  ATH_MSG_DEBUG ( " using = " << m_writeSplitAux );
   ATH_MSG_DEBUG ( " using = " << m_outOwnPolicyName );
   ATH_MSG_DEBUG ( " using = " << m_outLinkCollKey );
   ATH_MSG_DEBUG ( " using = " << m_selection );
@@ -142,9 +142,7 @@ StatusCode ParticleSelectionTool::initialize()
 
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-#ifndef XAOD_ANALYSIS
   proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
-#endif
   proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
   proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 
@@ -355,9 +353,16 @@ ParticleSelectionTool::prepareContainers( const xAOD::IParticleLinkContainer*& i
         OUTCONTAINERNAME = new CONTAINERTYPE( m_outOwnPolicy );                                  \
         ATH_CHECK( evtStore()->record ( OUTCONTAINERNAME, m_outCollKey.value() ) );              \
         if ( m_outOwnPolicy == SG::OWN_ELEMENTS ) {                                              \
-          AUXCONTAINERTYPE* outAuxContainer = new AUXCONTAINERTYPE();                            \
-          ATH_CHECK( evtStore()->record( outAuxContainer, m_outCollKey.value() + "Aux." ) );     \
-          OUTCONTAINERNAME->setStore( outAuxContainer );                                         \
+          if ( m_writeSplitAux.value() ) {                                                       \
+            xAOD::AuxContainerBase* outAuxContainer = new xAOD::AuxContainerBase();              \
+            ATH_CHECK( evtStore()->record( outAuxContainer, m_outCollKey.value() + "Aux." ) );   \
+            OUTCONTAINERNAME->setStore( outAuxContainer );                                       \
+          }                                                                                      \
+          else {                                                                                 \
+            AUXCONTAINERTYPE* outAuxContainer = new AUXCONTAINERTYPE();                          \
+            ATH_CHECK( evtStore()->record( outAuxContainer, m_outCollKey.value() + "Aux." ) );   \
+            OUTCONTAINERNAME->setStore( outAuxContainer );                                       \
+          }                                                                                      \
         }                                                                                        \
         m_contID=CONTID;                                                                         \
         ATH_MSG_DEBUG( "Recorded "#CONTAINERTYPE" with key: " << m_outCollKey.value()            \

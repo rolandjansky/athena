@@ -17,10 +17,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#endif
 
 // Forward declarations
 namespace ExpressionParsing {
@@ -44,7 +41,7 @@ class CutTool
 
   /// Constructor with parameters:
   CutTool( const std::string& type,
-    	     const std::string& name,
+           const std::string& name,
            const IInterface* parent );
 
   /// Destructor:
@@ -67,10 +64,7 @@ class CutTool
   ///////////////////////////////////////////////////////////////////
  private:
   /// The trigger decision tool
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
   ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-#endif
 
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;
@@ -81,7 +75,7 @@ class CutTool
 
 
   /// Internal event counter
-  mutable unsigned long m_nEventsProcessed;
+  //mutable unsigned long m_nEventsProcessed;
 
 
 };

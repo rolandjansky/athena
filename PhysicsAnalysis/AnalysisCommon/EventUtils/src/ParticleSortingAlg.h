@@ -69,7 +69,7 @@ private:
   void setupSortVar( Property& /*prop*/ );
 
   /// This internal method will realize if a user sets the 'SortDeceding' property
-  void setupSortDecending( Property& /*prop*/ );
+  void setupSortDescending( Property& /*prop*/ );
 
 
 
@@ -91,7 +91,7 @@ private:
   bool m_setInCollKey;
 
 
-  /// Output collection name (deep copies of the original ones)
+  /// The name of the output container (with SG::VIEW_ELEMENTS) with the sorted copy of input objects
   StringProperty m_outCollKey;
 
   /// This boolean is true if the user sets the 'OutputContainer' property
@@ -105,11 +105,11 @@ private:
   bool m_setSortVar;
 
 
-  /// Define if the container should be sorted in a decending order (default=true)
-  BooleanProperty m_sortDecending;
+  /// Define if the container should be sorted in a descending order (default=true)
+  BooleanProperty m_sortDescending;
 
-  /// This boolean is true if the user sets the 'SortDecending' property
-  bool m_setSortDecending;
+  /// This boolean is true if the user sets the 'SortDescending' property
+  bool m_setSortDescending;
 
 
   /// Internal event counter
@@ -143,9 +143,9 @@ inline void ParticleSortingAlg::setupSortVar( Property& /*prop*/ )
 }
 
 /// This internal method will realize if a user sets the 'SortDeceding' property
-inline void ParticleSortingAlg::setupSortDecending( Property& /*prop*/ )
+inline void ParticleSortingAlg::setupSortDescending( Property& /*prop*/ )
 {
-  m_setSortDecending = true;
+  m_setSortDescending = true;
   return;
 }
 

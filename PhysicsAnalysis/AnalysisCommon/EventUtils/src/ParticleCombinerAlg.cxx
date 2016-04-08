@@ -45,12 +45,15 @@ ParticleCombinerAlg::ParticleCombinerAlg(const std::string& name,
   m_tool("ParticleCombinerTool/ParticleCombinerTool", this),
   m_inCollKeyList(),
   m_setInCollKeyList(false),
-  m_outCollKey(""),
-  m_setOutCollKey(false),
   m_metName(""),
   m_setMetName(false),
+  m_outCollKey(""),
+  m_setOutCollKey(false),
+  m_writeSplitAux(false),
+  m_setWriteSplitAux(false),
   m_pdgId(0),
   m_setPdgId(false),
+  m_setSort(false),
   m_nEventsProcessed(0)
 {
   declareProperty("JobOptionsSvc", m_jos, "The JobOptionService instance.");
@@ -65,6 +68,10 @@ ParticleCombinerAlg::ParticleCombinerAlg(const std::string& name,
 
   declareProperty("OutputContainer",    m_outCollKey="",   "The name of the output container" );
   m_outCollKey.declareUpdateHandler( &ParticleCombinerAlg::setupOutputContainer, this );
+
+  declareProperty("WriteSplitOutputContainer", m_writeSplitAux=false,
+                  "Decide if we want to write a fully-split AuxContainer such that we can remove any variables" );
+  m_writeSplitAux.declareUpdateHandler( &ParticleCombinerAlg::setupWriteSplitOutputContainer, this );
 
   declareProperty("SetPdgId",           m_pdgId=0,         "PDG ID of the new output xAOD::CompositeParticle" );
   m_pdgId.declareUpdateHandler( &ParticleCombinerAlg::setupSetPdgId, this );
@@ -97,13 +104,14 @@ StatusCode ParticleCombinerAlg::initialize()
   ATH_MSG_DEBUG ( "==> initialize " << name() << "..." );
 
   // Print out the used configuration
-  ATH_MSG_DEBUG ( " using JobOptionsSvc        = " << m_jos );
-  ATH_MSG_DEBUG ( " using ParticleCombinerTool = " << m_tool );
-  ATH_MSG_DEBUG ( " using InputContainerList   = " << m_inCollKeyList );
-  ATH_MSG_DEBUG ( " using MissingETObjectName  = " << m_metName );
-  ATH_MSG_DEBUG ( " using OutputContainer      = " << m_outCollKey );
-  ATH_MSG_DEBUG ( " using SetPdgId             = " << m_pdgId );
-  ATH_MSG_DEBUG ( " using SortConstituents     = " << m_sortConstit );
+  ATH_MSG_DEBUG ( " using = " << m_jos );
+  ATH_MSG_DEBUG ( " using = " << m_tool );
+  ATH_MSG_DEBUG ( " using = " << m_inCollKeyList );
+  ATH_MSG_DEBUG ( " using = " << m_metName );
+  ATH_MSG_DEBUG ( " using = " << m_outCollKey );
+  ATH_MSG_DEBUG ( " using = " << m_writeSplitAux );
+  ATH_MSG_DEBUG ( " using = " << m_pdgId );
+  ATH_MSG_DEBUG ( " using = " << m_sortConstit );
 
 
   // Initialize the counters to zero
@@ -136,6 +144,11 @@ StatusCode ParticleCombinerAlg::initialize()
     ATH_MSG_DEBUG( "Setting property" << m_outCollKey
                    << " of private tool with name: '" << fullToolName << "'" );
     ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_outCollKey) );
+  }
+  if (m_setWriteSplitAux) {
+    ATH_MSG_DEBUG( "Setting property" << m_writeSplitAux
+                   << " of private tool with name: '" << fullToolName << "'" );
+    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_writeSplitAux) );
   }
   if (m_setPdgId) {
     ATH_MSG_DEBUG( "Setting property" << m_pdgId

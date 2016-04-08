@@ -58,15 +58,6 @@ class CutAlg
 private:
   // The update handlers
 
-  /// This internal method will realize if a user sets the 'InputContainer' property
-  void setupInputContainer( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'OutputContainer' property
-  void setupOutputContainer( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'OutputLinkContainer' property
-  void setupOutputLinkContainer( Property& /*prop*/ );
-
   /// This internal method will realize if a user sets the 'Cut' property
   void setupCut( Property& /*prop*/ );
 
@@ -81,26 +72,6 @@ private:
 
   /// The ToolHandle to the SkimmingTool
   ToolHandle<DerivationFramework::ISkimmingTool> m_skimTool;
-
-  /// Input container name
-  StringProperty m_inCollKey;
-
-  /// This boolean is true if the user sets the 'InputContainer' property
-  bool m_setInCollKey;
-
-
-  /// Output collection name (deep copies of the original ones)
-  StringProperty m_outCollKey;
-
-  /// This boolean is true if the user sets the 'OutputContainer' property
-  bool m_setOutCollKey;
-
-
-  /// Output link collection name (ElementLinks to selected IParticles)
-  StringProperty m_outLinkCollKey;
-
-  /// This boolean is true if the user sets the 'OutputLinkContainer' property
-  bool m_setOutLinkCollKey;
 
 
   /// The cut string
@@ -123,24 +94,6 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-
-/// This internal method will realize if a user sets the 'InputContainer' property
-inline void CutAlg::setupInputContainer( Property& /*prop*/ ) {
-  m_setInCollKey = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'OutputContainer' property
-inline void CutAlg::setupOutputContainer( Property& /*prop*/ ) {
-  m_setOutCollKey = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'OutputLinkContainer' property
-inline void CutAlg::setupOutputLinkContainer( Property& /*prop*/ ) {
-  m_setOutLinkCollKey = true;
-  return;
-}
 
 /// This internal method will realize if a user sets the 'Cut' property
 inline void CutAlg::setupCut( Property& /*prop*/ ) {

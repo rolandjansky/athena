@@ -117,11 +117,14 @@ private:
   /// List of input collection names
   StringArrayProperty m_inCollKeyList;
 
+  /// The name of the missing ET object, e.g., "Final"
+  StringProperty m_metName;
+
   /// Output collection name (the composite particles)
   StringProperty m_outCollKey;
 
-  /// The name of the missing ET object, e.g., "Final"
-  StringProperty m_metName;
+  /// Decide if we want to write a fully-split AuxContainer such that we can remove any variables
+  BooleanProperty m_writeSplitAux;
 
   /// The PDG_ID of the CompositeParticle
   IntegerProperty m_pdgId;

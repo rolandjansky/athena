@@ -46,7 +46,7 @@ ParticleSortingTool::ParticleSortingTool( const std::string& type,
   m_inCollKey(""),
   m_outCollKey(""),
   m_sortVar("pt"),
-  m_sortDecending(true),
+  m_sortDescending(true),
   m_contID(0),
   m_sortID(0),
   m_nEventsProcessed(0)
@@ -56,13 +56,13 @@ ParticleSortingTool::ParticleSortingTool( const std::string& type,
   declareProperty("InputContainer",  m_inCollKey="",   "Input container name" );
 
   declareProperty("OutputContainer", m_outCollKey="",
-                  "The name of the output container with the sorted deep copy of input objects" );
+                  "The name of the output container (with SG::VIEW_ELEMENTS) with the sorted copy of input objects" );
 
   declareProperty("SortVariable",    m_sortVar="pt",
                   "Define by what parameter to sort (default: 'pt'; allowed: 'pt', 'eta', 'phi', 'm', 'e', 'rapidity')" );
 
-  declareProperty("SortDecending",   m_sortDecending=true,
-                  "Define if the container should be sorted in a decending order (default=true)" );
+  declareProperty("SortDescending",   m_sortDescending=true,
+                  "Define if the container should be sorted in a descending order (default=true)" );
 }
 
 
@@ -96,12 +96,12 @@ StatusCode ParticleSortingTool::initialize()
   else if ( m_sortVar.value() == "e" )        { m_sortID = 5; }
   else if ( m_sortVar.value() == "rapidity" ) { m_sortID = 6; }
   else {
-    ATH_MSG_ERROR("Didn't find a valid value for 'SortVariable'."
-                  << " Allowed values are: 'pt', 'eta', 'phi', 'm', 'e', 'rapidity'");
-    return StatusCode::FAILURE;
+    ATH_MSG_INFO("Didn't find a valid value for SortVariable=" << m_sortVar.value() << "."
+                 << " Assuming it's an auxdata member");
+    m_sortID = 7;
   }
-  if ( m_sortDecending.value() ) { m_sortID *= -1; }
-
+  if ( m_sortDescending.value() ) { m_sortID *= -1; }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -216,6 +216,11 @@ StatusCode ParticleSortingTool::doSort( xAOD::IParticleContainer* cont ) const
                   return this->compareRapidity(a,b);
                 } );
   }
+  else if ( abs(m_sortID) == 7 ) {
+    cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
+                  return this->compareAuxData(a,b);
+                } );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -271,5 +276,13 @@ bool ParticleSortingTool::compareRapidity( const xAOD::IParticle* partA,
 {
   const double a = partA->rapidity();
   const double b = partB->rapidity();
+  return this->compareDouble(a,b);
+}
+
+bool ParticleSortingTool::compareAuxData( const xAOD::IParticle* partA,
+                                       const xAOD::IParticle* partB ) const
+{
+  const double a = partA->auxdata<float>( this->m_sortVar.value() );
+  const double b = partB->auxdata<float>( this->m_sortVar.value() );
   return this->compareDouble(a,b);
 }

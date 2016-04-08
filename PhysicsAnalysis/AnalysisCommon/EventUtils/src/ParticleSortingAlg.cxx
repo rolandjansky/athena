@@ -38,8 +38,8 @@ ParticleSortingAlg::ParticleSortingAlg( const std::string& name,
   m_setOutCollKey(false),
   m_sortVar("pt"),
   m_setSortVar(false),
-  m_sortDecending(true),
-  m_setSortDecending(false),
+  m_sortDescending(true),
+  m_setSortDescending(false),
   m_nEventsProcessed(0)
 {
   declareProperty("JobOptionsSvc",   m_jos, "The JobOptionService instance.");
@@ -50,16 +50,16 @@ ParticleSortingAlg::ParticleSortingAlg( const std::string& name,
   m_inCollKey.declareUpdateHandler( &ParticleSortingAlg::setupInputContainer, this );
 
   declareProperty("OutputContainer", m_outCollKey="",
-                  "The name of the output container with the sorted deep copy of input objects" );
+                  "The name of the output container (with SG::VIEW_ELEMENTS) with the sorted copy of input objects" );
   m_outCollKey.declareUpdateHandler( &ParticleSortingAlg::setupOutputContainer, this );
 
   declareProperty("SortVariable",    m_sortVar="pt",
                   "Define by what parameter to sort (default: 'pt'; allowed: 'pt', 'eta', 'phi', 'm', 'e', 'rapidity')" );
   m_sortVar.declareUpdateHandler( &ParticleSortingAlg::setupSortVar, this );
 
-  declareProperty("SortDecending",   m_sortDecending=true,
-                  "Define if the container should be sorted in a decending order (default=true)" );
-  m_sortDecending.declareUpdateHandler( &ParticleSortingAlg::setupSortDecending, this );
+  declareProperty("SortDescending",   m_sortDescending=true,
+                  "Define if the container should be sorted in a descending order (default=true)" );
+  m_sortDescending.declareUpdateHandler( &ParticleSortingAlg::setupSortDescending, this );
 }
 
 
@@ -83,7 +83,7 @@ StatusCode ParticleSortingAlg::initialize()
   ATH_MSG_DEBUG ( " using = " << m_inCollKey );
   ATH_MSG_DEBUG ( " using = " << m_outCollKey );
   ATH_MSG_DEBUG ( " using = " << m_sortVar );
-  ATH_MSG_DEBUG ( " using = " << m_sortDecending );
+  ATH_MSG_DEBUG ( " using = " << m_sortDescending );
 
 
   // Initialize the counters to zero
@@ -117,10 +117,10 @@ StatusCode ParticleSortingAlg::initialize()
                    << " of private tool with name: '" << fullToolName << "'" );
     ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_sortVar) );
   }
-  if (m_setSortDecending) {
-    ATH_MSG_DEBUG( "Setting property" << m_sortDecending
+  if (m_setSortDescending) {
+    ATH_MSG_DEBUG( "Setting property" << m_sortDescending
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_sortDecending) );
+    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_sortDescending) );
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 

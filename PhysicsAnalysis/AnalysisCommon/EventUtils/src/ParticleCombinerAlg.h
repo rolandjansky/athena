@@ -79,6 +79,9 @@ private:
   /// This internal method will realize if a user sets the 'OutputContainer' property
   void setupOutputContainer( Property& /*prop*/ );
 
+  /// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
+  void setupWriteSplitOutputContainer( Property& /*prop*/ );
+
   /// This internal method will realize if a user sets the 'SetPdgId' property
   void setupSetPdgId( Property& /*prop*/ );
 
@@ -102,6 +105,13 @@ private:
   bool m_setInCollKeyList;
 
 
+  /// The name of the missing ET object, e.g., "Final"
+  StringProperty m_metName;
+
+  /// This boolean is true if the user sets the 'MissingETObject' property
+  bool m_setMetName;
+
+
   /// Output collection name (the composite particles)
   StringProperty m_outCollKey;
 
@@ -109,11 +119,11 @@ private:
   bool m_setOutCollKey;
 
 
-  /// The name of the missing ET object, e.g., "Final"
-  StringProperty m_metName;
+  /// Decide if we want to write a fully-split AuxContainer such that we can remove any variables
+  BooleanProperty m_writeSplitAux;
 
-  /// This boolean is true if the user sets the 'MissingETObject' property
-  bool m_setMetName;
+  /// This boolean is true if the user sets the 'WriteSplitOutputContainer' property
+  bool m_setWriteSplitAux;
 
 
   /// The PDG_ID of the CompositeParticle
@@ -155,6 +165,12 @@ inline void ParticleCombinerAlg::setupMissingETObject( Property& /*prop*/ ) {
 /// This internal method will realize if a user sets the 'OutputContainer' property
 inline void ParticleCombinerAlg::setupOutputContainer( Property& /*prop*/ ) {
   m_setOutCollKey = true;
+  return;
+}
+
+/// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
+inline void ParticleCombinerAlg::setupWriteSplitOutputContainer( Property& /*prop*/ ) {
+  m_setWriteSplitAux = true;
   return;
 }
 

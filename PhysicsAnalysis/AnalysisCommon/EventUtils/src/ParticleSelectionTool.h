@@ -18,10 +18,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#endif
 
 // EDM includes
 #include "AthContainers/OwnershipPolicy.h"
@@ -93,10 +90,7 @@ private:
   ///////////////////////////////////////////////////////////////////
 private:
   /// The trigger decision tool
-// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
   ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-#endif
 
   /// The expression parser
   ExpressionParsing::ExpressionParser *m_parser;
@@ -110,6 +104,9 @@ private:
 
   /// The type of the output container, e.g., 'xAOD::JetContainer'
   StringProperty m_outCollType;
+
+  /// Decide if we want to write a fully-split AuxContainer such that we can remove any variables
+  BooleanProperty m_writeSplitAux;
 
   /// Defines the ownership policy of the output container
   /// (default: 'OWN_ELEMENTS'; also allowed: 'VIEW_ELEMENTS')"

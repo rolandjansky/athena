@@ -74,8 +74,9 @@ ParticleCombinerTool::ParticleCombinerTool(const std::string& type,
                                            const IInterface* parent ) :
   AthAlgTool( type, name, parent ),
   m_inCollKeyList(),
-  m_outCollKey(""),
   m_metName(""),
+  m_outCollKey(""),
+  m_writeSplitAux(false),
   m_pdgId(0),
   m_nEventsProcessed(0),
   m_anIPartLinkList(),
@@ -91,8 +92,12 @@ ParticleCombinerTool::ParticleCombinerTool(const std::string& type,
 
   declareProperty("InputContainerList", m_inCollKeyList,   "List of input collection keys" );
   declareProperty("MissingETObject",    m_metName="Final", "The name of the xAOD::MissingET object (default: 'Final'" );
+
   declareProperty("OutputContainer",    m_outCollKey="DefaultCompositeParticleContainer",
                   "The name of the output container (default: 'DefaultCompositeParticleContainer')" );
+  declareProperty("WriteSplitOutputContainer", m_writeSplitAux=false,
+                  "Decide if we want to write a fully-split AuxContainer such that we can remove any variables" );
+
   declareProperty("SetPdgId",           m_pdgId=0,         "PDG ID of the new output xAOD::CompositeParticle" );
   declareProperty("SortConstituents",   m_sortConstit=false, "If true: sort the constituents in decending pt order" );
 
@@ -134,6 +139,7 @@ StatusCode ParticleCombinerTool::initialize()
   ATH_MSG_DEBUG ( " using = " << m_inCollKeyList );
   ATH_MSG_DEBUG ( " using = " << m_metName );
   ATH_MSG_DEBUG ( " using = " << m_outCollKey );
+  ATH_MSG_DEBUG ( " using = " << m_writeSplitAux );
   ATH_MSG_DEBUG ( " using = " << m_pdgId );
   ATH_MSG_DEBUG ( " using = " << m_sortConstit );
 
@@ -316,9 +322,16 @@ StatusCode ParticleCombinerTool::addBranches() const
   //-----------------------------------------
   xAOD::CompositeParticleContainer* outContainer = new xAOD::CompositeParticleContainer( SG::OWN_ELEMENTS );
   ATH_CHECK( evtStore()->record ( outContainer, m_outCollKey.value() ) );
-  xAOD::CompositeParticleAuxContainer* compPartAuxCont = new xAOD::CompositeParticleAuxContainer();
-  ATH_CHECK( evtStore()->record( compPartAuxCont, m_outCollKey.value() + "Aux." ) );
-  outContainer->setStore( compPartAuxCont );
+  if ( m_writeSplitAux.value() ) {
+    xAOD::AuxContainerBase* outAuxContainer = new xAOD::AuxContainerBase();
+    ATH_CHECK( evtStore()->record( outAuxContainer, m_outCollKey.value() + "Aux." ) );
+    outContainer->setStore( outAuxContainer );
+  }
+  else {
+    xAOD::CompositeParticleAuxContainer* compPartAuxCont = new xAOD::CompositeParticleAuxContainer();
+    ATH_CHECK( evtStore()->record( compPartAuxCont, m_outCollKey.value() + "Aux." ) );
+    outContainer->setStore( compPartAuxCont );
+  }
   ATH_MSG_DEBUG( "Recorded xAOD composite particles with key: " << m_outCollKey.value() );
 
 
@@ -542,7 +555,7 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
     compPart->makePrivateStore();
     for ( const xAOD::IParticleLink& aParticleLink  :  anIPartLinkList ) {
       chargeSum += this->getCharge( aParticleLink, hasCharge );
-      compPart->addConstituent( aParticleLink );
+      compPart->addPart( aParticleLink );
     }
     // Add also the missing ET object to the composite particle, if we have one
     if (metObject) {
@@ -564,7 +577,7 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
       // Add this composite particle to the output container
       // if it passes all the selections
       //--------------------------------------------------------------
-      bool passAll = true;
+//      bool passAll = true;
 
       // // charge selection
       // if ( passAll ) {
@@ -592,12 +605,14 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
 
 
       // Write out the composite particles if all cuts are passed
-      if ( passAll ) {
+      // AK: Commented the conditional statements until "passAll" is actually
+      //     used here. To silence a Coverity warning.
+//      if ( passAll ) {
         outContainer->push_back( compPart );
-      }
-      else {
-        delete compPart;
-      }
+//      }
+//      else {
+//        delete compPart;
+//      }
     }
     else {
       // Output message
@@ -692,20 +707,20 @@ bool ParticleCombinerTool::compositeParticleAlreadyFound( xAOD::CompositeParticl
   bool foundIdentical = false;
 
   // Count the number of constituents of the test particle
-  std::size_t nConstituentsTest = compPart->nConstituents();
+  std::size_t nConstituentsTest = compPart->nParts();
 
   // Get the first input container and loop over it
   for ( const xAOD::CompositeParticle* contCompPart : *compContainer ) {
     // Check if an identical composite particle is already found
     if ( !foundIdentical ) {
       // Count the number of constituents of the reference particle
-      std::size_t nConstituentsReference = contCompPart->nConstituents();
+      std::size_t nConstituentsReference = contCompPart->nParts();
 
       // Check that both have the same number of constituents
       if ( nConstituentsTest==nConstituentsReference ) {
         // Loop over all constituents of the composite particle to be tested
         bool allConstituentsSame = true;
-        for ( const xAOD::IParticleLink& constitLink : compPart->constituentLinks() ) {
+        for ( const xAOD::IParticleLink& constitLink : compPart->partLinks() ) {
           if ( allConstituentsSame && contCompPart->contains(constitLink) ) {
             allConstituentsSame = true;
           }
@@ -780,11 +795,12 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
     return shareSameConstituents( part1, compPart2 );
   }
   // Both are composite candidates
-  else if ( compPart1 && compPart2 ) {
+  // AK: By this time only one options remains: That both of them are composite
+  //     particles. So it's not necessary to do any more checks. This silences
+  //     a Covery warning.
+  else {
     return shareSameConstituents( compPart1, compPart2 );
   }
-
-  return false;
 }
 
 
@@ -801,9 +817,9 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
   bool isConstituent = false;
 
   // Loop over all constituents of the composite particle to be tested
-  const std::size_t nConstit = compPart2->nConstituents();
+  const std::size_t nConstit = compPart2->nParts();
   for( std::size_t i=0; i<nConstit; ++i ) {
-    const xAOD::IParticle* part2 = compPart2->constituent(i);
+    const xAOD::IParticle* part2 = compPart2->part(i);
 
     // Check if this constituent itself is a composite particle
     const xAOD::CompositeParticle* constitCP =
@@ -837,17 +853,17 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::CompositeParticle*
   bool isConstituent = false;
 
   // Loop over all constituents of the composite particle to be tested
-  const std::size_t nConstit1 = compPart1->nConstituents();
-  const std::size_t nConstit2 = compPart2->nConstituents();
+  const std::size_t nConstit1 = compPart1->nParts();
+  const std::size_t nConstit2 = compPart2->nParts();
   for( std::size_t i=0; i<nConstit1; ++i ) {
-    const xAOD::IParticle* part1 = compPart1->constituent(i);
+    const xAOD::IParticle* part1 = compPart1->part(i);
 
     // Check if this constituent itself is a composite particle
     const xAOD::CompositeParticle* constitCP1 =
       dynamic_cast<const xAOD::CompositeParticle*> (part1) ;
 
     for( std::size_t j=0; i<nConstit2; ++j ) {
-      const xAOD::IParticle* part2 = compPart2->constituent(j);
+      const xAOD::IParticle* part2 = compPart2->part(j);
 
       // Check if this constituent itself is a composite particle
       const xAOD::CompositeParticle* constitCP2 =
