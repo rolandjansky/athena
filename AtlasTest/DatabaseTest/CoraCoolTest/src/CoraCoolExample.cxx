@@ -80,7 +80,7 @@ CoraCoolExample::CoraCoolExample(const std::string& dbstring,
   m_foldername.clear();
   if (nfolder<2) {
     m_foldername.push_back(folder);
-  } else {
+  } else if (nfolder<1000) {
     std::cout << "Defining multiple folders" << std::endl;
     for (int i=1;i<=nfolder;++i) {
       std::ostringstream o;
@@ -88,6 +88,8 @@ CoraCoolExample::CoraCoolExample(const std::string& dbstring,
       std::cout << "Foldername " << o.str() << std::endl;
       m_foldername.push_back(o.str());
     }
+  } else {
+    std::cout << "Attempt to define too many folders " << std::endl;
   }
   //  parse options
   m_read=(options.find('r')!=std::string::npos);
