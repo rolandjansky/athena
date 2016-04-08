@@ -36,39 +36,56 @@ svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
 #--------------------------------------------------------------
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
-fullItemList+=["DMTest::CVec_v1#cvec"]
-fullItemList+=["DMTest::CAuxContainer_v1#cvecAux."]
-fullItemList+=["DMTest::GVec_v1#gvec"]
-fullItemList+=["DMTest::GAuxContainer_v1#gvecAux."]
-fullItemList+=["DMTest::CVec_v1#ctrig"]
-fullItemList+=["DMTest::CTrigAuxContainer_v1#ctrigAux."]
-fullItemList+=["DMTest::C_v1#cinfo"]
-fullItemList+=["DMTest::CInfoAuxContainer_v1#cinfoAux."]
+fullItemList+=["DMTest::CVec#cvec"]
+fullItemList+=["DMTest::CAuxContainer#cvecAux."]
+fullItemList+=["DMTest::CVecWithData#cvecWD"]
+fullItemList+=["DMTest::CView#cview"]
+fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]
+fullItemList+=["DMTest::GVec#gvec"]
+fullItemList+=["DMTest::GAuxContainer#gvecAux."]
+fullItemList+=["DMTest::CVec#ctrig"]
+fullItemList+=["DMTest::CTrigAuxContainer#ctrigAux."]
+fullItemList+=["DMTest::C#cinfo"]
+fullItemList+=["DMTest::CInfoAuxContainer#cinfoAux."]
+fullItemList+=["DMTest::HVec#hvec"]
+fullItemList+=["DMTest::HAuxContainer#hvecAux."]
+fullItemList+=["DMTest::HView#hview"]
 
-fullItemList+=["DMTest::CVec_v1#copy_cvec"]
-fullItemList+=["DMTest::CAuxContainer_v1#copy_cvecAux."]
-fullItemList+=["DMTest::GVec_v1#copy_gvec"]
-fullItemList+=["DMTest::GAuxContainer_v1#copy_gvecAux."]
-fullItemList+=["DMTest::CVec_v1#copy_ctrig"]
-fullItemList+=["DMTest::CTrigAuxContainer_v1#copy_ctrigAux."]
-fullItemList+=["DMTest::C_v1#copy_cinfo"]
-fullItemList+=["DMTest::CInfoAuxContainer_v1#copy_cinfoAux."]
+fullItemList+=["DMTest::CVec#copy_cvec"]
+fullItemList+=["DMTest::CAuxContainer#copy_cvecAux."]
+fullItemList+=["DMTest::CVecWithData#copy_cvecWD"]
+fullItemList+=["DMTest::CView#copy_cview"]
+fullItemList+=["DMTest::CAuxContainer#copy_cvecWDAux."]
+fullItemList+=["DMTest::GVec#copy_gvec"]
+fullItemList+=["DMTest::GAuxContainer#copy_gvecAux."]
+fullItemList+=["DMTest::CVec#copy_ctrig"]
+fullItemList+=["DMTest::CTrigAuxContainer#copy_ctrigAux."]
+fullItemList+=["DMTest::C#copy_cinfo"]
+fullItemList+=["DMTest::CInfoAuxContainer#copy_cinfoAux."]
+fullItemList+=["DMTest::HVec#copy_hvec"]
+fullItemList+=["DMTest::HAuxContainer#copy_hvecAux."]
+fullItemList+=["DMTest::HView#copy_hview"]
 
-fullItemList+=["DMTest::CVec_v1#scopy_cvec"]
+fullItemList+=["DMTest::CVec#scopy_cvec"]
 fullItemList+=["xAOD::ShallowAuxContainer#scopy_cvecAux."]
-fullItemList+=["DMTest::CVec_v1#scopy_ctrig"]
+fullItemList+=["DMTest::CVecWithData#scopy_cvecWD"]
+fullItemList+=["xAOD::ShallowAuxContainer#scopy_cvecWDAux."]
+fullItemList+=["DMTest::CVec#scopy_ctrig"]
 fullItemList+=["xAOD::ShallowAuxContainer#scopy_ctrigAux."]
-fullItemList+=["DMTest::C_v1#scopy_cinfo"]
+fullItemList+=["DMTest::C#scopy_cinfo"]
 fullItemList+=["xAOD::ShallowAuxContainer#scopy_cinfoAux."]
+fullItemList+=["DMTest::HVec#scopy_hvec"]
+fullItemList+=["xAOD::ShallowAuxContainer#scopy_hvecAux."]
 
-# from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
-# fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
-#                                     ['DataVector<DMTest::C_v1>',
-#                                      'DMTest::CAuxContainer_v1',
-#                                      'DMTest::CTrigAuxContainer_v1',
-#                                      'DMTest::C_v1',
-#                                      'DMTest::CInfoAuxContainer_v1'])
-# ServiceMgr += fmtsvc
+from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
+fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
+                                    ['DataVector<DMTest::C_v1>',
+                                     'DMTest::CAuxContainer_v1',
+                                     'DMTest::CVecWithData_v1',
+                                     'DMTest::CTrigAuxContainer_v1',
+                                     'DMTest::C_v1',
+                                     'DMTest::CInfoAuxContainer_v1'])
+ServiceMgr += fmtsvc
 
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
@@ -108,7 +125,7 @@ topSequence += DMTest__xAODTestDecor ('AuxDataTestDecor1_scopy',
 
 # Stream's output file
 Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata2.root',asAlg=True)
-#Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat_v1#EventFormat')
+Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
 Stream1.ItemList   += fullItemList # List of DO's to write out
@@ -127,7 +144,7 @@ topSequence += DMTest__xAODTestDecor ('AuxDataTestDecor2_scopy',
                                       Offset = 600)
 # Stream's output file
 Stream2_Augmented = MSMgr.NewPoolStream ('Stream2','xaoddata2b.root',asAlg=True)
-#Stream2_Augmented.AddMetaDataItem ('xAOD::EventFormat_v1#EventFormat')
+Stream2_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream2 = Stream2_Augmented.GetEventStream()
 Stream2.WritingTool.SubLevelBranchName = '<key>'
 Stream2.ItemList   += fullItemList # List of DO's to write out

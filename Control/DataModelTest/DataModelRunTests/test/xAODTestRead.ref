@@ -1,66 +1,40 @@
-Wed Nov 26 20:39:32 CET 2014
+Tue Jan 12 10:24:19 EST 2016
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-?] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "/home/sss/atlas/dvtest/../share/xAODTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 191 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 235 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
+Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 # setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v999r999)
-                                          running on karma on Wed Nov 26 20:39:32 2014
+                                          running on karma on Tue Jan 12 10:24:24 2016
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0
-ApplicationMgr       INFO Successfully loaded modules : DataModelTestDataReadCnvPoolCnv
-ApplicationMgr       INFO Successfully loaded modules : DataModelTestDataRead
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 StatusCodeSvc        INFO initialize
-xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-00
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 2973 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3175 CLIDRegistry entries for module ALL
+ChronoStatSvc        INFO  Number of skipped events for MemStat-1
+CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-00
 StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-00-00-00
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 InputMetaDataStore   INFO Initializing InputMetaDataStore - package version StoreGate-00-00-00
 MetaDataStore        INFO Initializing MetaDataStore - package version StoreGate-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-AthenaRootStrea...   INFO POOL/ROOT class loader initialized
-AthenaRootStrea...   INFO 9 ROOT streamers declared
-AthenaRootStrea...   INFO   - Streamer name:CLHEPVec3dStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepVector3D added converter for checksum = 358881035
-AthenaRootStrea...   INFO Adopted streamer for class HepVector3D
-AthenaRootStrea...   INFO   - Streamer name:CLHEPPoint3dStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepPoint3D added converter for checksum = 1634550480
-AthenaRootStrea...   INFO Adopted streamer for class HepPoint3D
-AthenaRootStrea...   INFO   - Streamer name:CLHEPRotationStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepRotation added converter for checksum = 4141898558
-AthenaRootStrea...   INFO Adopted streamer for class HepRotation
-AthenaRootStrea...   INFO   - Streamer name:CLHEPGenMatrixStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepGenMatrix added converter for checksum = 21721098
-AthenaRootStrea...   INFO Adopted streamer for class HepGenMatrix
-AthenaRootStrea...   INFO   - Streamer name:CLHEPMatrixStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepMatrix added converter for checksum = 3811046672
-AthenaRootStrea...   INFO Adopted streamer for class HepMatrix
-AthenaRootStrea...   INFO   - Streamer name:CLHEPLorVecStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepLorentzVector added converter for checksum = 3077056266
-AthenaRootStrea...   INFO Adopted streamer for class HepLorentzVector
-AthenaRootStrea...   INFO   - Streamer name:CLHEPTransform3DStreamer
-AthenaRootStrea...   INFO ROOT Streamer for HepTransform3D added converter for checksum = 520750269
-AthenaRootStrea...   INFO Adopted streamer for class HepTransform3D
-AthenaRootStrea...   INFO   - Streamer name:CLHEP3VectorStreamer
-AthenaRootStrea...   INFO ROOT Streamer for Hep3Vector added converter for checksum = 760000369
-AthenaRootStrea...   INFO Adopted streamer for class Hep3Vector
-AthenaRootStrea...   INFO   - Streamer name:CLHEPBasicVectorStreamer
-AthenaRootStrea...   INFO ROOT Streamer for BasicVector3D added converter for checksum = 2681080162
-AthenaRootStrea...   INFO Adopted streamer for class BasicVector3D
-ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
@@ -77,30 +51,24 @@ EventSelector        INFO Initializing EventSelector - package version EventSele
 TagMetaDataStore     INFO Initializing TagMetaDataStore - package version StoreGate-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 06C6DD3F-9286-6D46-8E25-1A2EB3D8F7EA
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0FA30257-7BD7-6F40-B001-80225D8E4B3F
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Success xaoddata.root File version:53413
+RootDatabase.open Success xaoddata.root File version:60412
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
-AthDictLoaderSvc     INFO in initialize...
-AthDictLoaderSvc     INFO acquired Dso-registry
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq            INFO Member list: DMTest::xAODTestRead/xAODTestRead, DMTest::xAODTestDecor/AuxDataTestDecor1, DMTest::xAODTestShallowCopy/xAODTestShallowCopy, DMTest::xAODTestDecor/AuxDataTestDecor1_scopy, AthenaOutputStream/Stream1, DMTest::xAODTestClearDecor/xAODTestClearDecor, DMTest::xAODTestClearDecor/xAODTestClearDecor_scopy, DMTest::xAODTestDecor/xAODTestDecor2, DMTest::xAODTestDecor/AuxDataTestDecor2_scopy, AthenaOutputStream/Stream2
-ClassIDSvc           INFO  getRegistryEntries: read 1410 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1474 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-ItemListSvc          INFO ItemListSvc initialize
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 247 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
@@ -125,15 +93,15 @@ InputMetaDataStore   INFO Start InputMetaDataStore
 MetaDataStore        INFO Start MetaDataStore
 TagMetaDataStore     INFO Start TagMetaDataStore
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 06C6DD3F-9286-6D46-8E25-1A2EB3D8F7EA
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0FA30257-7BD7-6F40-B001-80225D8E4B3F
 Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 06C6DD3F-9286-6D46-8E25-1A2EB3D8F7EA
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 0FA30257-7BD7-6F40-B001-80225D8E4B3F
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Success xaoddata.root File version:53413
+RootDatabase.open Success xaoddata.root File version:60412
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 StoreGateSvc         INFO Start StoreGateSvc
@@ -206,20 +174,30 @@ gvec aux items: anInt
  anInt 708
  anInt 709
  anInt 710
-ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 69 CLIDRegistry entries for module ALL
+cvecWD 1001: 201 202 203 204 205 206 207 208 209 210
+cview: 110 109 108 107 106 105 104 103 102 101
+hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 413.5 414.5 415.5 416.5 417.5 418.5 419.5 420.5
+hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 408.5 407.5 406.5 405.5 404.5 403.5 402.5 401.5
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 298C9FA0-DC57-AE42-A2E4-A197D7A84A71
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 3948CEFF-DBA8-1A4F-A827-4B46A23E556F
 Domain[ROOT_All] Info                           xaoddata2.root
-RootDatabase.open Success xaoddata2.root File version:53413
+RootDatabase.open Success xaoddata2.root File version:60412
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataVector<DMTest::H_v2> [CD6C3074-425B-4C08-AF1C-43D7E8C84288]
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DMTest::HAuxContainer_v2 [2BDBFB04-C1C2-4B14-A977-3A61B8054700]
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info vector<ElementLink<DataVector<DMTest::H_v2> > > [802ED4CE-124D-4E5D-9C1E-47CE6297B453]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info xAOD::ShallowAuxInfo [BE505E75-8760-4F39-9331-689CB5443DB1]
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info xAOD::ShallowAuxContainer [C63C39D7-9501-49DC-B1B0-6AD98B1AEEFA]
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] EE9C9C53-8492-2841-92F2-CCC1B660D6C7
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 8DBE3F2E-3FDB-6C4B-B66E-B256C134AED9
 Domain[ROOT_All] Info                           xaoddata2b.root
-RootDatabase.open Success xaoddata2b.root File version:53413
-ClassIDSvc           INFO  getRegistryEntries: read 9 CLIDRegistry entries for module ALL
+RootDatabase.open Success xaoddata2b.root File version:60412
+ClassIDSvc           INFO  getRegistryEntries: read 13 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 2
@@ -286,6 +264,10 @@ gvec aux items: anInt
  anInt 1408
  anInt 1409
  anInt 1410
+cvecWD 1002: 401 402 403 404 405 406 407 408 409 410
+cview: 210 209 208 207 206 205 204 203 202 201
+hvec: 801.5 802.5 803.5 804.5 805.5 806.5 807.5 808.5 809.5 810.5 811.5 812.5 813.5 814.5 815.5 816.5 817.5 818.5 819.5 820.5
+hview: 820.5 819.5 818.5 817.5 816.5 815.5 814.5 813.5 812.5 811.5 810.5 809.5 808.5 807.5 806.5 805.5 804.5 803.5 802.5 801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 3
@@ -352,6 +334,10 @@ gvec aux items: anInt
  anInt 2108
  anInt 2109
  anInt 2110
+cvecWD 1003: 601 602 603 604 605 606 607 608 609 610
+cview: 310 309 308 307 306 305 304 303 302 301
+hvec: 1201.5 1202.5 1203.5 1204.5 1205.5 1206.5 1207.5 1208.5 1209.5 1210.5 1211.5 1212.5 1213.5 1214.5 1215.5 1216.5 1217.5 1218.5 1219.5 1220.5
+hview: 1220.5 1219.5 1218.5 1217.5 1216.5 1215.5 1214.5 1213.5 1212.5 1211.5 1210.5 1209.5 1208.5 1207.5 1206.5 1205.5 1204.5 1203.5 1202.5 1201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
 4
@@ -418,6 +404,10 @@ gvec aux items: anInt
  anInt 2808
  anInt 2809
  anInt 2810
+cvecWD 1004: 801 802 803 804 805 806 807 808 809 810
+cview: 410 409 408 407 406 405 404 403 402 401
+hvec: 1601.5 1602.5 1603.5 1604.5 1605.5 1606.5 1607.5 1608.5 1609.5 1610.5 1611.5 1612.5 1613.5 1614.5 1615.5 1616.5 1617.5 1618.5 1619.5 1620.5
+hview: 1620.5 1619.5 1618.5 1617.5 1616.5 1615.5 1614.5 1613.5 1612.5 1611.5 1610.5 1609.5 1608.5 1607.5 1606.5 1605.5 1604.5 1603.5 1602.5 1601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 5
@@ -484,6 +474,10 @@ gvec aux items: anInt
  anInt 3508
  anInt 3509
  anInt 3510
+cvecWD 1005: 1001 1002 1003 1004 1005 1006 1007 1008 1009 1010
+cview: 510 509 508 507 506 505 504 503 502 501
+hvec: 2001.5 2002.5 2003.5 2004.5 2005.5 2006.5 2007.5 2008.5 2009.5 2010.5 2011.5 2012.5 2013.5 2014.5 2015.5 2016.5 2017.5 2018.5 2019.5 2020.5
+hview: 2020.5 2019.5 2018.5 2017.5 2016.5 2015.5 2014.5 2013.5 2012.5 2011.5 2010.5 2009.5 2008.5 2007.5 2006.5 2005.5 2004.5 2003.5 2002.5 2001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
 6
@@ -550,6 +544,10 @@ gvec aux items: anInt
  anInt 4208
  anInt 4209
  anInt 4210
+cvecWD 1006: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
+cview: 610 609 608 607 606 605 604 603 602 601
+hvec: 2401.5 2402.5 2403.5 2404.5 2405.5 2406.5 2407.5 2408.5 2409.5 2410.5 2411.5 2412.5 2413.5 2414.5 2415.5 2416.5 2417.5 2418.5 2419.5 2420.5
+hview: 2420.5 2419.5 2418.5 2417.5 2416.5 2415.5 2414.5 2413.5 2412.5 2411.5 2410.5 2409.5 2408.5 2407.5 2406.5 2405.5 2404.5 2403.5 2402.5 2401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
 7
@@ -616,6 +614,10 @@ gvec aux items: anInt
  anInt 4908
  anInt 4909
  anInt 4910
+cvecWD 1007: 1401 1402 1403 1404 1405 1406 1407 1408 1409 1410
+cview: 710 709 708 707 706 705 704 703 702 701
+hvec: 2801.5 2802.5 2803.5 2804.5 2805.5 2806.5 2807.5 2808.5 2809.5 2810.5 2811.5 2812.5 2813.5 2814.5 2815.5 2816.5 2817.5 2818.5 2819.5 2820.5
+hview: 2820.5 2819.5 2818.5 2817.5 2816.5 2815.5 2814.5 2813.5 2812.5 2811.5 2810.5 2809.5 2808.5 2807.5 2806.5 2805.5 2804.5 2803.5 2802.5 2801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
 8
@@ -682,6 +684,10 @@ gvec aux items: anInt
  anInt 5608
  anInt 5609
  anInt 5610
+cvecWD 1008: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
+cview: 810 809 808 807 806 805 804 803 802 801
+hvec: 3201.5 3202.5 3203.5 3204.5 3205.5 3206.5 3207.5 3208.5 3209.5 3210.5 3211.5 3212.5 3213.5 3214.5 3215.5 3216.5 3217.5 3218.5 3219.5 3220.5
+hview: 3220.5 3219.5 3218.5 3217.5 3216.5 3215.5 3214.5 3213.5 3212.5 3211.5 3210.5 3209.5 3208.5 3207.5 3206.5 3205.5 3204.5 3203.5 3202.5 3201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 9
@@ -748,6 +754,10 @@ gvec aux items: anInt
  anInt 6308
  anInt 6309
  anInt 6310
+cvecWD 1009: 1801 1802 1803 1804 1805 1806 1807 1808 1809 1810
+cview: 910 909 908 907 906 905 904 903 902 901
+hvec: 3601.5 3602.5 3603.5 3604.5 3605.5 3606.5 3607.5 3608.5 3609.5 3610.5 3611.5 3612.5 3613.5 3614.5 3615.5 3616.5 3617.5 3618.5 3619.5 3620.5
+hview: 3620.5 3619.5 3618.5 3617.5 3616.5 3615.5 3614.5 3613.5 3612.5 3611.5 3610.5 3609.5 3608.5 3607.5 3606.5 3605.5 3604.5 3603.5 3602.5 3601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
 10
@@ -814,6 +824,10 @@ gvec aux items: anInt
  anInt 7008
  anInt 7009
  anInt 7010
+cvecWD 1010: 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+cview: 1010 1009 1008 1007 1006 1005 1004 1003 1002 1001
+hvec: 4001.5 4002.5 4003.5 4004.5 4005.5 4006.5 4007.5 4008.5 4009.5 4010.5 4011.5 4012.5 4013.5 4014.5 4015.5 4016.5 4017.5 4018.5 4019.5 4020.5
+hview: 4020.5 4019.5 4018.5 4017.5 4016.5 4015.5 4014.5 4013.5 4012.5 4011.5 4010.5 4009.5 4008.5 4007.5 4006.5 4005.5 4004.5 4003.5 4002.5 4001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
 11
@@ -880,6 +894,10 @@ gvec aux items: anInt
  anInt 7708
  anInt 7709
  anInt 7710
+cvecWD 1011: 2201 2202 2203 2204 2205 2206 2207 2208 2209 2210
+cview: 1110 1109 1108 1107 1106 1105 1104 1103 1102 1101
+hvec: 4401.5 4402.5 4403.5 4404.5 4405.5 4406.5 4407.5 4408.5 4409.5 4410.5 4411.5 4412.5 4413.5 4414.5 4415.5 4416.5 4417.5 4418.5 4419.5 4420.5
+hview: 4420.5 4419.5 4418.5 4417.5 4416.5 4415.5 4414.5 4413.5 4412.5 4411.5 4410.5 4409.5 4408.5 4407.5 4406.5 4405.5 4404.5 4403.5 4402.5 4401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
 12
@@ -946,6 +964,10 @@ gvec aux items: anInt
  anInt 8408
  anInt 8409
  anInt 8410
+cvecWD 1012: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
+cview: 1210 1209 1208 1207 1206 1205 1204 1203 1202 1201
+hvec: 4801.5 4802.5 4803.5 4804.5 4805.5 4806.5 4807.5 4808.5 4809.5 4810.5 4811.5 4812.5 4813.5 4814.5 4815.5 4816.5 4817.5 4818.5 4819.5 4820.5
+hview: 4820.5 4819.5 4818.5 4817.5 4816.5 4815.5 4814.5 4813.5 4812.5 4811.5 4810.5 4809.5 4808.5 4807.5 4806.5 4805.5 4804.5 4803.5 4802.5 4801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 13
@@ -1012,6 +1034,10 @@ gvec aux items: anInt
  anInt 9108
  anInt 9109
  anInt 9110
+cvecWD 1013: 2601 2602 2603 2604 2605 2606 2607 2608 2609 2610
+cview: 1310 1309 1308 1307 1306 1305 1304 1303 1302 1301
+hvec: 5201.5 5202.5 5203.5 5204.5 5205.5 5206.5 5207.5 5208.5 5209.5 5210.5 5211.5 5212.5 5213.5 5214.5 5215.5 5216.5 5217.5 5218.5 5219.5 5220.5
+hview: 5220.5 5219.5 5218.5 5217.5 5216.5 5215.5 5214.5 5213.5 5212.5 5211.5 5210.5 5209.5 5208.5 5207.5 5206.5 5205.5 5204.5 5203.5 5202.5 5201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
 14
@@ -1078,6 +1104,10 @@ gvec aux items: anInt
  anInt 9808
  anInt 9809
  anInt 9810
+cvecWD 1014: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
+cview: 1410 1409 1408 1407 1406 1405 1404 1403 1402 1401
+hvec: 5601.5 5602.5 5603.5 5604.5 5605.5 5606.5 5607.5 5608.5 5609.5 5610.5 5611.5 5612.5 5613.5 5614.5 5615.5 5616.5 5617.5 5618.5 5619.5 5620.5
+hview: 5620.5 5619.5 5618.5 5617.5 5616.5 5615.5 5614.5 5613.5 5612.5 5611.5 5610.5 5609.5 5608.5 5607.5 5606.5 5605.5 5604.5 5603.5 5602.5 5601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
 15
@@ -1144,6 +1174,10 @@ gvec aux items: anInt
  anInt 10508
  anInt 10509
  anInt 10510
+cvecWD 1015: 3001 3002 3003 3004 3005 3006 3007 3008 3009 3010
+cview: 1510 1509 1508 1507 1506 1505 1504 1503 1502 1501
+hvec: 6001.5 6002.5 6003.5 6004.5 6005.5 6006.5 6007.5 6008.5 6009.5 6010.5 6011.5 6012.5 6013.5 6014.5 6015.5 6016.5 6017.5 6018.5 6019.5 6020.5
+hview: 6020.5 6019.5 6018.5 6017.5 6016.5 6015.5 6014.5 6013.5 6012.5 6011.5 6010.5 6009.5 6008.5 6007.5 6006.5 6005.5 6004.5 6003.5 6002.5 6001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
 16
@@ -1210,6 +1244,10 @@ gvec aux items: anInt
  anInt 11208
  anInt 11209
  anInt 11210
+cvecWD 1016: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
+cview: 1610 1609 1608 1607 1606 1605 1604 1603 1602 1601
+hvec: 6401.5 6402.5 6403.5 6404.5 6405.5 6406.5 6407.5 6408.5 6409.5 6410.5 6411.5 6412.5 6413.5 6414.5 6415.5 6416.5 6417.5 6418.5 6419.5 6420.5
+hview: 6420.5 6419.5 6418.5 6417.5 6416.5 6415.5 6414.5 6413.5 6412.5 6411.5 6410.5 6409.5 6408.5 6407.5 6406.5 6405.5 6404.5 6403.5 6402.5 6401.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 17
@@ -1276,6 +1314,10 @@ gvec aux items: anInt
  anInt 11908
  anInt 11909
  anInt 11910
+cvecWD 1017: 3401 3402 3403 3404 3405 3406 3407 3408 3409 3410
+cview: 1710 1709 1708 1707 1706 1705 1704 1703 1702 1701
+hvec: 6801.5 6802.5 6803.5 6804.5 6805.5 6806.5 6807.5 6808.5 6809.5 6810.5 6811.5 6812.5 6813.5 6814.5 6815.5 6816.5 6817.5 6818.5 6819.5 6820.5
+hview: 6820.5 6819.5 6818.5 6817.5 6816.5 6815.5 6814.5 6813.5 6812.5 6811.5 6810.5 6809.5 6808.5 6807.5 6806.5 6805.5 6804.5 6803.5 6802.5 6801.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
 18
@@ -1342,6 +1384,10 @@ gvec aux items: anInt
  anInt 12608
  anInt 12609
  anInt 12610
+cvecWD 1018: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
+cview: 1810 1809 1808 1807 1806 1805 1804 1803 1802 1801
+hvec: 7201.5 7202.5 7203.5 7204.5 7205.5 7206.5 7207.5 7208.5 7209.5 7210.5 7211.5 7212.5 7213.5 7214.5 7215.5 7216.5 7217.5 7218.5 7219.5 7220.5
+hview: 7220.5 7219.5 7218.5 7217.5 7216.5 7215.5 7214.5 7213.5 7212.5 7211.5 7210.5 7209.5 7208.5 7207.5 7206.5 7205.5 7204.5 7203.5 7202.5 7201.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
 19
@@ -1408,6 +1454,10 @@ gvec aux items: anInt
  anInt 13308
  anInt 13309
  anInt 13310
+cvecWD 1019: 3801 3802 3803 3804 3805 3806 3807 3808 3809 3810
+cview: 1910 1909 1908 1907 1906 1905 1904 1903 1902 1901
+hvec: 7601.5 7602.5 7603.5 7604.5 7605.5 7606.5 7607.5 7608.5 7609.5 7610.5 7611.5 7612.5 7613.5 7614.5 7615.5 7616.5 7617.5 7618.5 7619.5 7620.5
+hview: 7620.5 7619.5 7618.5 7617.5 7616.5 7615.5 7614.5 7613.5 7612.5 7611.5 7610.5 7609.5 7608.5 7607.5 7606.5 7605.5 7604.5 7603.5 7602.5 7601.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 20
@@ -1474,20 +1524,24 @@ gvec aux items: anInt
  anInt 14008
  anInt 14009
  anInt 14010
+cvecWD 1020: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
+cview: 2010 2009 2008 2007 2006 2005 2004 2003 2002 2001
+hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
+hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 DetectorStore        INFO Stop DetectorStore
 StoreGateSvc         INFO Stop StoreGateSvc
 StoreGateSvc         INFO stop: setting service priority to 101 so that event stores get finalized and cleared before other stores
-ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
 Stream2              INFO Records written: 21
 TagMetaDataStore     INFO Stop TagMetaDataStore
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 06C6DD3F-9286-6D46-8E25-1A2EB3D8F7EA
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 0FA30257-7BD7-6F40-B001-80225D8E4B3F
 xaoddata2.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 298C9FA0-DC57-AE42-A2E4-A197D7A84A71
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3948CEFF-DBA8-1A4F-A827-4B46A23E556F
 xaoddata2b.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] EE9C9C53-8492-2841-92F2-CCC1B660D6C7
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 8DBE3F2E-3FDB-6C4B-B66E-B256C134AED9
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 MetaDataStore        INFO Stop MetaDataStore
 InputMetaDataStore   INFO Stop InputMetaDataStore
@@ -1498,51 +1552,6 @@ AthRegSeq            INFO Finalizing AthRegSeq...
 AthMasterSeq         INFO Finalizing AthMasterSeq...
 StoreGateSvc         INFO Finalizing StoreGateSvc - package version StoreGate-00-00-00
 DetectorStore        INFO Finalizing DetectorStore - package version StoreGate-00-00-00
-ItemListSvc          INFO -- OUTPUT STREAM ITEM OVERLAP SUMMARY --
-ItemListSvc          INFO STREAM Stream1 has (21) items
-ItemListSvc          INFO  --> Overlap with Stream2 (20) items
-ItemListSvc          INFO  ----> item: DMTest::CAuxContainer_v1_copy_cvecAux.
-ItemListSvc          INFO  ----> item: DMTest::CAuxContainer_v1_cvecAux.
-ItemListSvc          INFO  ----> item: DMTest::CInfoAuxContainer_v1_cinfoAux.
-ItemListSvc          INFO  ----> item: DMTest::CInfoAuxContainer_v1_copy_cinfoAux.
-ItemListSvc          INFO  ----> item: DMTest::CTrigAuxContainer_v1_copy_ctrigAux.
-ItemListSvc          INFO  ----> item: DMTest::CTrigAuxContainer_v1_ctrigAux.
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_copy_ctrig
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_copy_cvec
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_ctrig
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_cvec
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_scopy_ctrig
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_scopy_cvec
-ItemListSvc          INFO  ----> item: DMTest::C_v1_cinfo
-ItemListSvc          INFO  ----> item: DMTest::C_v1_copy_cinfo
-ItemListSvc          INFO  ----> item: DMTest::C_v1_scopy_cinfo
-ItemListSvc          INFO  ----> item: EventInfo_McEventInfo
-ItemListSvc          INFO  ----> item: xAOD::EventFormat_v1_EventFormat
-ItemListSvc          INFO  ----> item: xAOD::ShallowAuxContainer_scopy_cinfoAux.
-ItemListSvc          INFO  ----> item: xAOD::ShallowAuxContainer_scopy_ctrigAux.
-ItemListSvc          INFO  ----> item: xAOD::ShallowAuxContainer_scopy_cvecAux.
-ItemListSvc          INFO STREAM Stream2 has (21) items
-ItemListSvc          INFO  --> Overlap with Stream1 (20) items
-ItemListSvc          INFO  ----> item: DMTest::CAuxContainer_v1_copy_cvecAux.
-ItemListSvc          INFO  ----> item: DMTest::CAuxContainer_v1_cvecAux.
-ItemListSvc          INFO  ----> item: DMTest::CInfoAuxContainer_v1_cinfoAux.
-ItemListSvc          INFO  ----> item: DMTest::CInfoAuxContainer_v1_copy_cinfoAux.
-ItemListSvc          INFO  ----> item: DMTest::CTrigAuxContainer_v1_copy_ctrigAux.
-ItemListSvc          INFO  ----> item: DMTest::CTrigAuxContainer_v1_ctrigAux.
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_copy_ctrig
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_copy_cvec
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_ctrig
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_cvec
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_scopy_ctrig
-ItemListSvc          INFO  ----> item: DMTest::CVec_v1_scopy_cvec
-ItemListSvc          INFO  ----> item: DMTest::C_v1_cinfo
-ItemListSvc          INFO  ----> item: DMTest::C_v1_copy_cinfo
-ItemListSvc          INFO  ----> item: DMTest::C_v1_scopy_cinfo
-ItemListSvc          INFO  ----> item: EventInfo_McEventInfo
-ItemListSvc          INFO  ----> item: xAOD::EventFormat_v1_EventFormat
-ItemListSvc          INFO  ----> item: xAOD::ShallowAuxContainer_scopy_cinfoAux.
-ItemListSvc          INFO  ----> item: xAOD::ShallowAuxContainer_scopy_ctrigAux.
-ItemListSvc          INFO  ----> item: xAOD::ShallowAuxContainer_scopy_cvecAux.
 DecisionSvc          INFO -- OUTPUT STREAM EVENT OVERLAP SUMMARY --
 DecisionSvc          INFO List of registered 2 Streams: Stream1 Stream2 
 DecisionSvc          INFO Finalized successfully.

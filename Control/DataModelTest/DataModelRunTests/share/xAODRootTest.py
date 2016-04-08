@@ -78,8 +78,18 @@ def dump_auxdata (x, exclude=[], f = sys.stdout):
 
 
 def dump_c (c, f=sys.stdout):
+    if hasattr(c, '__deref__'):
+        c = c.__deref__()
     print ('  anInt1: %d; aFloat: %.1f; ' % (c.anInt(), c.aFloat()), end='')
     dump_auxdata (c, exclude = ['anInt1', 'aFloat'])
+    print ('')
+    return
+
+
+def dump_h (h, f=sys.stdout):
+    if hasattr(h, '__deref__'):
+        h = h.__deref__()
+    dump_auxdata (h)
     print ('')
     return
 
@@ -101,14 +111,24 @@ def copy_vec (event, obj, key):
     copy_aux = obj.getConstStore().__class__()
     copy.setNonConstStore (copy_aux)
     for i in range(obj.size()):
-        elt = obj[i].__class__()
+        elt_orig = obj[i]
+        if elt_orig.__class__.__name__.startswith ('DataModel_detail::ElementProxy<'):
+            elt_orig = elt_orig.__follow__()
+        elt = elt_orig.__class__()
         copy.push_back(elt)
         ROOT.SetOwnership (elt, False)
-        elt.__assign__ (obj[i])
+        elt.__assign__ (elt_orig)
     CHECK (event.record (copy, key))
     CHECK (event.record (copy_aux, key + 'Aux.'))
     ROOT.SetOwnership (copy, False)
     ROOT.SetOwnership (copy_aux, False)
+    return
+
+
+def copy_view (event, obj, key):
+    copy = obj.__class__(obj)
+    CHECK (event.record (copy, key))
+    ROOT.SetOwnership (copy, False)
     return
 
 
@@ -133,6 +153,26 @@ class xAODTestRead:
         for c in ctrig:
             dump_c (c)
 
+        vec = getattr (tree, self.readPrefix + 'cvecWD')
+        print (self.readPrefix + 'cvecWD' + ' ', vec.meta1)
+        for c in vec:
+            dump_c (c)
+
+        vec = getattr (tree, self.readPrefix + 'cview')
+        print (self.readPrefix + 'cview')
+        for c in vec:
+            dump_c (c)
+
+        print (self.readPrefix + 'hvec')
+        vec = getattr (tree, self.readPrefix + 'hvec')
+        for h in vec:
+            dump_h (h)
+
+        #vec = getattr (tree, self.readPrefix + 'hview')
+        #print (self.readPrefix + 'hview')
+        #for h in vec:
+        #    dump_h (h)
+
         return
     
 
@@ -146,6 +186,10 @@ class xAODTestCopy:
         CHECK (event.copy (self.readPrefix + 'cvec'))
         CHECK (event.copy (self.readPrefix + 'cinfo'))
         CHECK (event.copy (self.readPrefix + 'ctrig'))
+        CHECK (event.copy (self.readPrefix + 'cvecWD'))
+        CHECK (event.copy (self.readPrefix + 'cview'))
+        CHECK (event.copy (self.readPrefix + 'hvec'))
+        #CHECK (event.copy (self.readPrefix + 'hview'))
 
         if self.writePrefix != None:
             cinfo = getattr (tree, self.readPrefix + 'cinfo')
@@ -156,6 +200,18 @@ class xAODTestCopy:
 
             ctrig = getattr (tree, self.readPrefix + 'ctrig')
             copy_vec (event, ctrig, self.writePrefix + 'ctrig')
+
+            cvecwd = getattr (tree, self.readPrefix + 'cvecWD')
+            copy_vec (event, cvecwd, self.writePrefix + 'cvecWD')
+
+            cview = getattr (tree, self.readPrefix + 'cview')
+            copy_view (event, cview, self.writePrefix + 'cview')
+            
+            hvec = getattr (tree, self.readPrefix + 'hvec')
+            copy_vec (event, hvec, self.writePrefix + 'hvec')
+
+            #hview = getattr (tree, self.readPrefix + 'hview')
+            #copy_view (event, hview, self.writePrefix + 'hview')
             
         return
 

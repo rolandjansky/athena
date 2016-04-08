@@ -130,4 +130,3 @@ document athenarun_launcher xAODTestReadARA_t -group=check \
     athenarun_out="' >& xAODTestReadARA_t.log'" \
     athenarun_post="'../test/post_check.sh xAODTestReadARA_t '"
 macro_append xAODTestReadARA_t_dependencies " xAODTestRead3_test "
-

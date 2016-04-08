@@ -37,28 +37,41 @@ svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
 #--------------------------------------------------------------
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
-fullItemList+=["DMTest::CVec_v1#cvec"]
-fullItemList+=["DMTest::CAuxContainer_v1#cvecAux."]
-fullItemList+=["DMTest::CVec_v1#ctrig"]
-fullItemList+=["DMTest::CTrigAuxContainer_v1#ctrigAux."]
-fullItemList+=["DMTest::C_v1#cinfo"]
-fullItemList+=["DMTest::CInfoAuxContainer_v1#cinfoAux."]
+fullItemList+=["DMTest::CVec#cvec"]
+fullItemList+=["DMTest::CAuxContainer#cvecAux."]
+fullItemList+=["DMTest::CVecWithData#cvecWD"]
+fullItemList+=["DMTest::CView#cview"]
+fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]
+fullItemList+=["DMTest::CVec#ctrig"]
+fullItemList+=["DMTest::CTrigAuxContainer#ctrigAux."]
+fullItemList+=["DMTest::C#cinfo"]
+fullItemList+=["DMTest::CInfoAuxContainer#cinfoAux."]
+fullItemList+=["DMTest::HVec#hvec"]
+fullItemList+=["DMTest::HAuxContainer#hvecAux."]
+fullItemList+=["DMTest::HView#hview"]
 
-fullItemList+=["DMTest::CVec_v1#copy_cvec"]
-fullItemList+=["DMTest::CAuxContainer_v1#copy_cvecAux."]
-fullItemList+=["DMTest::CVec_v1#copy_ctrig"]
-fullItemList+=["DMTest::CTrigAuxContainer_v1#copy_ctrigAux."]
-fullItemList+=["DMTest::C_v1#copy_cinfo"]
-fullItemList+=["DMTest::CInfoAuxContainer_v1#copy_cinfoAux."]
+fullItemList+=["DMTest::CVec#copy_cvec"]
+fullItemList+=["DMTest::CAuxContainer#copy_cvecAux."]
+fullItemList+=["DMTest::CVecWithData#copy_cvecWD"]
+fullItemList+=["DMTest::CView#copy_cview"]
+fullItemList+=["DMTest::CAuxContainer#copy_cvecWDAux."]
+fullItemList+=["DMTest::CVec#copy_ctrig"]
+fullItemList+=["DMTest::CTrigAuxContainer#copy_ctrigAux."]
+fullItemList+=["DMTest::C#copy_cinfo"]
+fullItemList+=["DMTest::CInfoAuxContainer#copy_cinfoAux."]
+fullItemList+=["DMTest::HVec#copy_hvec"]
+fullItemList+=["DMTest::HAuxContainer#copy_hvecAux."]
+fullItemList+=["DMTest::HView#copy_hview"]
 
-# from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
-# fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
-#                                     ['DataVector<DMTest::C_v1>',
-#                                      'DMTest::CAuxContainer_v1',
-#                                      'DMTest::CTrigAuxContainer_v1',
-#                                      'DMTest::C_v1',
-#                                      'DMTest::CInfoAuxContainer_v1'])
-# ServiceMgr += fmtsvc
+from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
+fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
+                                    ['DataVector<DMTest::C_v1>',
+                                     'DMTest::CVecWithData_v1',
+                                     'DMTest::CAuxContainer_v1',
+                                     'DMTest::CTrigAuxContainer_v1',
+                                     'DMTest::C_v1',
+                                     'DMTest::CInfoAuxContainer_v1'])
+ServiceMgr += fmtsvc
 
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
@@ -87,7 +100,7 @@ ROOT.DMTest.setConverterLibrary ('libDataModelTestDataReadCnvPoolCnv.so')
 # Stream's output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata3.root',asAlg=True)
-#Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat_v1#EventFormat')
+Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
 # List of DO's to write out

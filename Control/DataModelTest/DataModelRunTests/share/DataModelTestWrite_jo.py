@@ -46,8 +46,8 @@ topSequence += DMTest__DMTestWrite ("DMTestWrite")
 # Note: can't autoload these.
 import ROOT
 import cppyy
-cppyy.loadDictionary("libDataModelTestDataWriteDict")
 cppyy.loadDictionary("libDataModelTestDataCommonDict")
+cppyy.loadDictionary("libDataModelTestDataWriteDict")
 ROOT.DMTest.B
 ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
 
