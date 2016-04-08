@@ -1,3 +1,4 @@
+
 <IdDictionary name="MuonSpectrometer" version="S.02">
 
   <field name="stationName" >
@@ -13,6 +14,7 @@
     <label name="BOF" value="9" />
     <label name="BOG" value="10" />
     <label name="BME" value="53" />
+    <label name="BMG" value="54" />
     <label name="EIL" value="13" />
     <label name="EEL" value="14" />
     <label name="EES" value="15" />
@@ -32,7 +34,6 @@
     <label name="CSS" value="50" />
     <label name="CSL" value="51" />
     <label name="BIM" value="52" />
-    <label name="BMG" value="54" />
     <label name="MMS" value="55" />
     <label name="MML" value="56" />
     <label name="STS" value="57" />
@@ -1431,36 +1432,47 @@
     <range field="tube" minvalue="1" maxvalue="72" />
   </region>
 
-   <!-- BMG mdt -->
-   <region group="mdt">
-     <range field="stationName" value="BMG" />
-     <range field="stationEta" values="-1 1" />
-     <range field="stationPhi" values="6 7" />
-     <range field="technology" value="MDT" />
-     <range field="multiLayer" minvalue="1" maxvalue="2" />
-     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-     <range field="tube" minvalue="1" maxvalue="54" />
-   </region>
- 
-   <region group="mdt">
-     <range field="stationName" value="BMG" />
-     <range field="stationEta" values="-2 2" />
-     <range field="stationPhi" values="6 7" />
-     <range field="technology" value="MDT" />
-     <range field="multiLayer" minvalue="1" maxvalue="2" />
-     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-     <range field="tube" minvalue="1" maxvalue="54" />
-   </region>
- 
-   <region group="mdt">
-     <range field="stationName" value="BMG" />
-     <range field="stationEta" values="-3 3" />
-     <range field="stationPhi" values="6 7" />
-     <range field="technology" value="MDT" />
-     <range field="multiLayer" minvalue="1" maxvalue="2" />
-     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-     <range field="tube" minvalue="1" maxvalue="54" />
-   </region>
+  <!-- BMG mdt dummy implementation-->
+  <region group="mdt">
+    <range field="stationName" value="BMG" />
+    <range field="stationEta" value="0" />
+    <range field="stationPhi" values="6 7" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="BMG" />
+    <range field="stationEta" values="-1 1" />
+    <range field="stationPhi" values="6 7" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="BMG" />
+    <range field="stationEta" values="-2 2" />
+    <range field="stationPhi" values="6 7" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
+  <region group="mdt">
+    <range field="stationName" value="BMG" />
+    <range field="stationEta" values="-3 3" />
+    <range field="stationPhi" values="6 7" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="56" />
+  </region>
+
 
      <!--  CSC  -->
 
