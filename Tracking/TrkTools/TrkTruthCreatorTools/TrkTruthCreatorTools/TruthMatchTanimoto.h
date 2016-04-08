@@ -38,7 +38,7 @@ namespace Trk {
      * 
      * See also IDetailedTrackTruthSimilarity::trackTruthSimilarity() 
      */
-    virtual double trackTruthSimilarity(const DetailedTrackTruth& dtt) const;
+    virtual double trackTruthSimilarity(const DetailedTrackTruth& dtt);
   };
   
 } // end namespace Trk
