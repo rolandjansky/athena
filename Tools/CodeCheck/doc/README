@@ -1,0 +1,122 @@
+package CodeCheck
+
+author Albrand Solveig <albrand@isn.in2p3.fr>
+##########################################################################
+Version 01-00-02
+# added undocumented option -Zall
+Version 01-01-00
+# added the rulechecker tool (10 december 2002)
+Version 01-00-01
+# changed codewizard config file name from .psrc to psrc
+Version 01-00-00 
+## Limited Check of Atlas C++ coding rules using CodeWizard from Parasoft.
+###############################################
+# See the following page for complete details
+http://atlas.web.cern.ch/Atlas/GROUPS/SOFTWARE/OO/Development/qa/Tools/
+# Pre-Conditions:
+Your code should compile without error. (but see below)
+# rulechecker is a code verifier. It is not yet complete, but it is tailored for
+Atlas coding rules.
+# codewizard is a code verifier. It tests a different set of rules, but
+currently cannot cope with part of the Boost Library which is used by Storegate
+
+# Execution (from the ..../cmt directory of your package):
+codewizard : 
+
+ gmake codewizard
+ 
+ Note that codewizard has been configured NOT to call the compiler after its
+ own execution
+ 
+rulechecker:
+
+ gmake rulechecker
+ 
+# Output :
+codewizard : (one file per package)
+ The file is called $(CODECHECK_OUTPUT_DIRECTORY)/$(version).cwrpt
+ e.g. LArBookkeeping-00-00-05.cwrpt.
+ 
+ rulechecker: (one file per cxx source file)
+ $(CODECHECK_OUTPUT_DIRECTORY)/$(name).viol
+ 
+ By default the output goes into ../CodeCheck/[codewizard|rulechecker]. 
+ You can override this
+ (see web page referenced above)
+
+#######################################################
+More details on codewizard
+#######################################################
+ This package is called CodeCheck.
+ It was originally for the now obsolete "CodeCheck" tool
+ Version 01-00-00 installs a limited version of "codewizard" from Parasoft.
+
+In the  ../rules directory
+
+ 
+ in ../rules are the definition of the rules to be applied by codewizard
+ (1)	The "user defined rules" *.rule. These are specific Atlas rules.
+ (2)	And a textfile which lists the user defined rules which will be applied
+ (3)	There should be at least a file called by default ".psrc" which is the configuration for codewizard.
+
+
+ The configuration file ../rules/.psrc should contain :
+ (1)
+	The definition of the default output file - which is be overruled by an option
+	on the above line " -Zoi "report_file filename""	
+ 	
+ (2) The enumeration of codewizard built-in rules which we want to use. 22 of
+ the Atlas rules are concerned.
+ (3) The definition of other rules that codewizard will include
+	(optional rules and home-made rules)
+    i.e. gives the name of the text file containing the list
+
+
+#####################################################
+	
+ The lxplus path is  "/pttools/CodeWizard/codewizard/lib.linux2"
+ 
+ codewizard must be installed on the host machine 
+ and the execution called in the make file fragment is
+ 
+ ${CODECHECK}/codewizard
+#############################################################
+The paths  to find the tool:
+ If you are running on lxplus there is no problem.
+Codewizard is installed. Otherwise you must install it, and override the
+following macros.
+####################################################
+macro CODECHECK_TOP ""\
+	CERN "/pttools/CodeWizard/codewizard"
+	
+macro ARCH ""\
+	Linux "linux2"
+# not done for SOLARIS	
+	
+	
+macro CODECHECK "${CODECHECK_TOP}/bin.${ARCH}"
+
+
+NOTE:
+Code parsers are not perfect, and their output should be taken merely as a useful
+guide.
+################################
+#
+14/03/02 - added option -Zall
+It turns out that the codewizard parser can sometimes spot things incorrect code
+that the compiler has passed. By default, codewizard does not tell you when it
+does this, it just produces no output.
+The option -Zall will tell you that there is a parsing problem, which may
+indicate an obscure error in the C++ code.
+##############################################
+################################################
+More details on rulechecker
+rulechecker is installed in the common LCG dist area at CERN.
+/afs/cern.ch/sw/lcg/contrib/rulechecker
+This directory also contains the complete userGuide.
+For installing at other sites please consult Solveig Albrand.
+The web site referenced above contains the list of Atlas Rules currently
+checked.
+Some parsing problems remain.
+####################################
+

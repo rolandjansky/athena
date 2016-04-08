@@ -1,0 +1,105 @@
+# psrcdump -v -a 
+# the above line will test the configuration "seen" by codewizard
+# Uncomment the following line if you do NOT want the compiler to be called
+# after analysis
+  codewizard.analyze_only on
+
+# by default the compiler called is g++ on LINUX
+# but the following line will override this
+#codewizard.compiler_cpp C++_COMPILERNAME
+# CodeWizard will add the flags if necessary.
+#codewizard.compiler_flags flags
+
+# the file for output
+# overridden in the CodeCheck requirements file
+codewizard.report_file codewizard.rpt
+
+# set the following to "off" to append to the output file
+# You need to do this when you run codewizard on a complete package
+# otherwise you get only the results for the last file checked
+codewizard.report_overwrite off
+
+# insra is the codewizard gui
+#codewizard.report_file insra
+
+# suppress all the codewizard rules by default
+ codewizard.suppress all
+
+# Then add back just the ones we want
+# Atlas defined rules
+# First say we want the user defined rules
+ codewizard.unsuppress item user-*
+# Then tell codewizard where they are 
+# Give a text file which contains a list of rules
+# namingRules.txt has 11 rules defined with RuleWizard
+# which correspond to 5 of the Atlas coding rules
+# the rules themselves must be files in the same directory as the list file
+# For CMT use this is defined in the CMT requirements file
+# codewizard.rulesdirlist namingRules.txt  
+#
+# Now we just select the 21 rules which are
+# built in to code wizard and which correspond to Atlas rules
+#
+# Atlas CF2
+codewizard.unsuppress item ucs35
+# Atlas CF5
+codewizard.unsuppress item ucs36
+# Atlas CL5
+codewizard.unsuppress item ecpp-13
+# Atlas CL6
+codewizard.unsuppress item ecpp-31
+# Atlas CL8
+codewizard.unsuppress item ecpp-11
+# Atlas CL9
+codewizard.unsuppress item ecpp-17
+# Atlas CC2
+codewizard.unsuppress item mecpp-2
+# Atlas CC3
+codewizard.unsuppress item ucs06
+# Atlas CI3
+codewizard.unsuppress item ecpp-22
+# Atlas CI4
+codewizard.unsuppress item ecpp-15
+# Atlas CI7
+codewizard.unsuppress item ucs18
+# Atlas CN1
+codewizard.unsuppress item ecpp-05
+# Atlas CB1
+codewizard.unsuppress item ecpp-20
+# Atlas CB2
+codewizard.unsuppress item ecpp-14
+# Atlas CB4
+codewizard.unsuppress item mecpp-24
+# Atlas CB5
+codewizard.unsuppress item ucs26
+# Atlas CA1
+codewizard.unsuppress item ecpp-03
+# Atlas CA2
+codewizard.unsuppress item ecpp-02
+# Atlas CA3
+codewizard.unsuppress item ucs22
+# Atlas CP7
+codewizard.unsuppress item ucs27
+# Atlas SG1
+codewizard.unsuppress item ucs08
+
+# There are a lot of paths that we don't need to look at
+#
+ codewizard.suppress_file /usr/local/gcc-alt-2.95.2/*
+ codewizard.suppress_file /afs/cern.ch/atlas/offline/*
+# codewizard.suppress_file /afs/cern.ch/atlas/software/dist/*
+ codewizard.suppress_file /afs/cern.ch/sw/lhcxx/*
+#
+# And some files that can be ignored
+codewizard.file_ignore *_load.cxx
+codewizard.file_ignore *_entries.cxx
+#
+# This option gets over a problem in the g++ treatment of std namespace
+codewizard.CompilerDeficient CanIgnoreStd
+
+ 
+
+
+
+
+
