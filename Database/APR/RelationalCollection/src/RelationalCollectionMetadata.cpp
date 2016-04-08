@@ -108,7 +108,7 @@ namespace pool {
       {
          if( !m_metadataTable )
             return 0; 
-	 std::auto_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
+	 std::unique_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
          query->setCondition( RelationalCollectionBindVariables::whereClauseForMetadata(), m_whereDataForMetadata );
 	 query->limitReturnedRows( 1, 0 );
 	 query->addToOutputList( "count(*)");
@@ -129,7 +129,7 @@ namespace pool {
 	 map<string,bool>::iterator  ki= m_keyInfo.find( key );
 	 if( ki != m_keyInfo.end() )
 	    return ki->second;
-         std::auto_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
+         std::unique_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
          m_whereDataForMetadataKey[1].data<std::string>() = key;
 	 query->addToOutputList( RelationalCollectionNames::collectionNameColumn() );	 
          query->setCondition( RelationalCollectionBindVariables::whereClauseForMetadataKey(), m_whereDataForMetadataKey );
@@ -146,7 +146,7 @@ namespace pool {
       {
          if( !m_metadataTable )
             return 0; 
-         std::auto_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
+         std::unique_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
          m_whereDataForMetadataKey[1].data<std::string>() = key;
          query->setCondition( RelationalCollectionBindVariables::whereClauseForMetadataKey(), m_whereDataForMetadataKey );
          query->limitReturnedRows( 1, 0 );
@@ -314,7 +314,7 @@ namespace pool {
       {
          if( !m_metadataTable )
             return end();
-	 std::auto_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
+	 std::unique_ptr<coral::IQuery> query( m_metadataTable->newQuery() );
 
 	 coral::AttributeList        output;
 	 output.extend( "key", "string");

@@ -48,7 +48,7 @@ void
 TestDriver::write()
 {
    cout << "Creationg CollectionService" << endl;
-   auto_ptr<pool::CollectionService> serviceHandle( new pool::CollectionService() );
+   unique_ptr<pool::CollectionService> serviceHandle( new pool::CollectionService() );
    
    cout << "Creating a collection description object" << endl;
    
@@ -118,7 +118,7 @@ TestDriver::write()
 void
 TestDriver::update()
 {
-   auto_ptr<pool::CollectionService> serviceHandle( new pool::CollectionService );
+   unique_ptr<pool::CollectionService> serviceHandle( new pool::CollectionService );
 
   // Create a collection description object.
   cout << "Getting handle to existing collection" << endl;
