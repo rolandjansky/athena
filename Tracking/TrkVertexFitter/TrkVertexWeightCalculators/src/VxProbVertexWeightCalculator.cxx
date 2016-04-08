@@ -17,44 +17,18 @@
  
    StatusCode VxProbVertexWeightCalculator::initialize()
    {
-     StatusCode sc = AthAlgTool::initialize();
-  
-     //initializing the AlgTool itself
-     if(sc.isFailure())
-     {
-       msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
-       return StatusCode::FAILURE;
-     }
-     
-     if (!service("THistSvc",m_iTHistSvc , true).isSuccess()) 
-     {
-       msg(MSG::ERROR)<< "Unable to locate THistSvc" << endreq;
-       return StatusCode::FAILURE;
-     }
-     sc = m_iTHistSvc->regHist(m_HistoFileLocation); 
-     
-     if (sc.isFailure())
-     {
-       
-       msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
-       return StatusCode::FAILURE;
-     }
-    
-     sc = m_iTHistSvc->getHist(m_HistoFileLocation,m_hMinBiasPt );
-     if (sc.isFailure()) 
-     {
-       msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
-       return StatusCode::FAILURE;
-     }
-    
-     msg(MSG::ERROR) <<"Initialization successfull"<<endreq;
+     ATH_CHECK( AthAlgTool::initialize());
+     ATH_CHECK(service("THistSvc",m_iTHistSvc , true));
+     ATH_CHECK( m_iTHistSvc->regHist(m_HistoFileLocation)); 
+     ATH_CHECK( m_iTHistSvc->getHist(m_HistoFileLocation,m_hMinBiasPt ));
+     ATH_MSG_DEBUG("Initialization successful");
      return StatusCode::SUCCESS;
   }//end of initialize method
  
  
   StatusCode VxProbVertexWeightCalculator::finalize()
   {
-    msg(MSG::ERROR) << "Finalize successful" << endreq;
+    ATH_MSG_VERBOSE( "Finalize successful");
     return StatusCode::SUCCESS;
   }
  
@@ -77,12 +51,10 @@
      const std::vector<Trk::VxTrackAtVertex*>* tracks = vertex.vxTrackAtVertex();
      std::vector<Trk::VxTrackAtVertex*>::const_iterator begintracks=tracks->begin();
      std::vector<Trk::VxTrackAtVertex*>::const_iterator endtracks=tracks->end();
-
      double P0 = 1.;
-     bool pTtooBig = false;
+     //bool pTtooBig = false; //coverity defect 13650
      
-     for(std::vector<Trk::VxTrackAtVertex*>::const_iterator i = begintracks; i!=endtracks; i++) {
-       
+     for(std::vector<Trk::VxTrackAtVertex*>::const_iterator i = begintracks; i!=endtracks; ++i) {
        const Trk::TrackParameters* perigee(0);
        if ((*i)->perigeeAtVertex()!=0) 
        {
@@ -99,8 +71,7 @@
        if (myHisto == 0)
        {
          msg(MSG::ERROR) << "VxProbHisto is an empty pointer!!!" << endreq;
-         return 0;
-         
+         return 0; //is this a suitable error return value (sroe)?
        }
        
        double IntPt = (myHisto->Integral(myHisto->FindBin(p_T),myHisto->GetNbinsX() + 1)
@@ -108,29 +79,22 @@
        //if (IntPt == 0)
        //      pTtooBig=true;
        // --- Markus Elsing: fake high pt tracks, limit the integral
-       if (IntPt < 0.0001)
-	 IntPt = 0.0001;
+       if (IntPt < 0.0001) IntPt = 0.0001;
          
        P0 = P0 *IntPt;
      }
-
      double VxProb = 0.;
-    
-     if (tracks->size()>0)
+     const int numberOfTracks(tracks->size());
+     if (numberOfTracks != 0)
      {
-        
-       if (pTtooBig)
-           VxProb = 1e99;
-       else
+       for (int j(0); j < numberOfTracks; ++j)
        {
-         for (int j = 0; j < (int)tracks->size(); j++)
-         {
-           VxProb = VxProb + (TMath::Power(-TMath::Log(P0),j)/TMath::Factorial(j));
-         }
-         VxProb = -TMath::Log(VxProb*P0);
-         
+         /** @todo Given that you are looping from zero, the 'Power' and 'Factorial'
+          * could be speeded up by using a simple multiplication on each loop (sroe)
+          **/
+         VxProb = VxProb + (TMath::Power(-TMath::Log(P0),j)/TMath::Factorial(j));
        }
-       
+       VxProb = -TMath::Log(VxProb*P0);
      }
      return  VxProb;
    }
@@ -139,47 +103,35 @@
    double  VxProbVertexWeightCalculator::estimateSignalCompatibility(const xAOD::Vertex& vertex) 
    {
      double P0 = 1.;
-     bool pTtooBig = false;
-
-    for(const auto& elTrackParticle : vertex.trackParticleLinks()) {
-      
+     //bool pTtooBig = false;
+     for(const auto& elTrackParticle : vertex.trackParticleLinks()) {
       if (not elTrackParticle.isValid()) {
-	ATH_MSG_WARNING("No valid link to tracks in xAOD::Vertex object. Skipping track for signal compatibility (may be serious).");
-	continue;
+	      ATH_MSG_WARNING("No valid link to tracks in xAOD::Vertex object. Skipping track for signal compatibility (may be serious).");
+	      continue;
       }
-
       const Trk::Perigee& perigee = (*elTrackParticle.cptr())->perigeeParameters();
-     
       double p_T = std::fabs(1./perigee.parameters()[Trk::qOverP])*sin(perigee.parameters()[Trk::theta])/1000.;
-       
       TH1F* myHisto = dynamic_cast<TH1F*>(m_hMinBiasPt);
-
       if (myHisto == 0)	{
-	ATH_MSG_WARNING("VxProbHisto is an empty pointer. Signal compatibility failed and returning 0.0");
-         return 0;         
+	      ATH_MSG_WARNING("VxProbHisto is an empty pointer. Signal compatibility failed and returning 0.0");
+        return 0;         
       }
-       
       double IntPt = (myHisto->Integral(myHisto->FindBin(p_T),myHisto->GetNbinsX() + 1)
 		      + myHisto->Integral(myHisto->FindBin(p_T)+1,myHisto->GetNbinsX() + 1))/2.;
       // --- Markus Elsing: fake high pt tracks, limit the integral
-      if (IntPt < 0.0001)
-	IntPt = 0.0001;
-         
+      if (IntPt < 0.0001) IntPt = 0.0001;
       P0 = P0 *IntPt;
     }
-
     double VxProb = 0.;
-    
-    int sizeOfTPColl = vertex.trackParticleLinks().size();
+    const int sizeOfTPColl = vertex.trackParticleLinks().size();
     if (sizeOfTPColl > 0) {        
-      if (pTtooBig)
-	VxProb = 1e99;
-      else {
-	for (int j = 0; j < sizeOfTPColl; j++) {
-	  VxProb = VxProb + (TMath::Power(-TMath::Log(P0),j)/TMath::Factorial(j));
-	}
-	VxProb = -TMath::Log(VxProb*P0);        
-      }       
+	    for (int j = 0; j < sizeOfTPColl; ++j) {
+	      /** @todo Given that you are looping from zero, the 'Power' and 'Factorial'
+          * could be speeded up by using a simple multiplication on each loop (sroe)
+          **/
+	      VxProb = VxProb + (TMath::Power(-TMath::Log(P0),j)/TMath::Factorial(j));
+	    }
+	    VxProb = -TMath::Log(VxProb*P0);        
     }
     return  VxProb;
    }
