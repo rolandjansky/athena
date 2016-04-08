@@ -154,8 +154,7 @@ RootIOStore::~RootIOStore() {
 RootIOStore::RootIOStore(TTree * tree):
 _tree(tree),
 internalTable(NULL),
-internalTuple(NULL),
-nAttributes{}
+internalTuple(NULL)
 {
   TObjArray *bArray = tree->GetListOfLeaves();
   TObjArrayIter next(bArray);

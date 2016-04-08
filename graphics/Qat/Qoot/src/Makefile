@@ -9,7 +9,7 @@ MYOFILES             =  $(patsubst %.cpp, %.o, $(MYCPPFILES))
 DSOFILES             =  $(patsubst %.cpp, $(targetdir)/IODriver/%.so, $(MYCPPFILES))
 
 
-override CXXFLAGS  +=  -g -O0 -fPIC -I/usr/include/root -I../..   
+override CXXFLAGS  +=  -g -O0 -fPIC -I../..   -I$(prefix)/include  -I$(rootsys)/include/ 
 
 %.cpp.%.o:
 	$(CXX) -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS)
@@ -20,7 +20,7 @@ $(targetdir)/IODriver/libQoot.so : RootDriver.o
 	mkdir -p $(targetdir)/IODriver
 	mkdir -p $(targetdir)/IODriver/`dirname $<`
 	cp $< $(targetdir)/IODriver/`dirname $<`
-	g++ --shared   $< -L$(prefix)/lib -lQatDataAnalysis   -lHist -lMatrix -lTree -lRIO -lNet -lMathCore -lCore -lCint -o $@
+	g++ --shared   $< -L$(prefix)/lib -L$(rootsys)/lib -lQatDataAnalysis   -lHist -lMatrix -lTree -lRIO -lNet -lMathCore -lCore -lCint -o $@
 	rm -f $(targetdir)/IODriver/$<
 
 
