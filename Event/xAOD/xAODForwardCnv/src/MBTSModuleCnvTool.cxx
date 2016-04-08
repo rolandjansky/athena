@@ -55,8 +55,9 @@ namespace xAODMaker {
       xmbtsmod->setEta((*itr)->eta());
       xmbtsmod->setPhi((*itr)->phi());
       xmbtsmod->setTime((*itr)->time());
-      xmbtsmod->setMbtsQuality((*itr)->quality());
-
+      //xmbtsmod->setMbtsQuality((*itr)->quality()); // original
+      xmbtsmod->setMbtsQuality ( ((*itr)->provenance()<<16 ) | (*itr)->quality());  //fix
+      ATH_MSG_DEBUG( "MBTS: quality=" << (*itr)->quality() << " provenance=" << (*itr)->provenance() << " mbtsQuality=" << xmbtsmod->mbtsQuality()  );
       const TileTBID*  tileid = 0;
       CHECK( detStore() -> retrieve(tileid) );
       Identifier id = (*itr)->ID();
