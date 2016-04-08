@@ -4,9 +4,9 @@
 
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
 #include "TrigTRT_TrackExtensionTool/TrigMagneticFieldTool.h"
@@ -20,7 +20,7 @@ const InterfaceID& TrigMagneticFieldTool::interfaceID() {
 TrigMagneticFieldTool::TrigMagneticFieldTool( const std::string& type, 
 					    const std::string& name, 
 					    const IInterface* parent )
-  : AlgTool(type, name, parent), 
+  : AthAlgTool(type, name, parent), 
     m_MagFieldSvc("AtlasFieldSvc",this->name()) {
 
   declareInterface< TrigMagneticFieldTool>( this );
@@ -28,31 +28,23 @@ TrigMagneticFieldTool::TrigMagneticFieldTool( const std::string& type,
 }
 
 StatusCode TrigMagneticFieldTool::initialize()  {
-  MsgStream log(msgSvc(), name());
 
-  log << MSG::INFO << name() << " in initialize" << endreq;
+  ATH_MSG_INFO(" in initialize");
 
-  StoreGateSvc* detStore; 
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) 
-    { 
-      log << MSG::ERROR << name() <<" failed to get detStore" << endreq;
-      return sc;
-    }
 
-      log << MSG::INFO <<"Using Athena magnetic field service"<<endreq;
-      sc = m_MagFieldSvc.retrieve();
-      if(sc.isFailure()) 
-	{
-	  log << MSG::ERROR << "Unable to retrieve Athena MagFieldService" << endreq;
-	  return StatusCode::FAILURE;
-	}
+  ATH_MSG_INFO("Using Athena magnetic field service");
+  StatusCode sc = m_MagFieldSvc.retrieve();
+  if(sc.isFailure()) 
+  {
+    ATH_MSG_ERROR("Unable to retrieve Athena MagFieldService");
+    return StatusCode::FAILURE;
+  }
   return sc;
 }
 
 StatusCode TrigMagneticFieldTool::finalize() 
 {
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 

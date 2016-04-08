@@ -20,8 +20,6 @@
 
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IssueSeverity.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 //#include "RegionSelector/RegSelSvc.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
@@ -60,7 +58,7 @@
 
 TrigTRT_CombinedExtensionTool::TrigTRT_CombinedExtensionTool(const std::string& t, 
 				 const std::string& n, const IInterface*  p ): 
-  AlgTool(t,n,p), 
+  AthAlgTool(t,n,p), 
   m_recalibrate(false),
   m_momentumThreshold(10000.0),
   m_regionSelector("RegSelSvc",this->name()),
@@ -94,21 +92,8 @@ TrigTRT_CombinedExtensionTool::TrigTRT_CombinedExtensionTool(const std::string& 
 
 StatusCode TrigTRT_CombinedExtensionTool::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
-
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) { 
-    athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-    return StatusCode::FAILURE; 
-  }
 
   sc = m_regionSelector.retrieve();
   if(sc.isFailure()) 
@@ -117,7 +102,7 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
       return sc;
     }
 
-  if (m_detStore->retrieve(m_trtId, "TRT_ID").isFailure()) {
+  if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
      athenaLog << MSG::FATAL << "Could not get TRT ID helper" << endreq;
      return StatusCode::FAILURE;
   }
@@ -222,7 +207,7 @@ StatusCode TrigTRT_CombinedExtensionTool::initialize()
 
 StatusCode TrigTRT_CombinedExtensionTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -1026,7 +1011,7 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
   // 3. Retrieve IDC
 
   const InDet::TRT_DriftCircleContainer* trtContainer;
-  StatusCode sc=m_StoreGate->retrieve(trtContainer,m_trtDataProvider->trtContainerName());
+  StatusCode sc=evtStore()->retrieve(trtContainer,m_trtDataProvider->trtContainerName());
   if(sc.isFailure())
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
