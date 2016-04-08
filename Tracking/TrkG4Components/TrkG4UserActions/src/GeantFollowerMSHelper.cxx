@@ -317,7 +317,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         // construct the intial parameters
         m_parameterCacheMS = new Trk::CurvilinearParameters(npos, nmom, charge);
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
-        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);;
+        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
         covMatrix->setZero();
         m_parameterCacheMSCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
         ATH_MSG_DEBUG( "m_crossedMuonEntry x " << m_parameterCacheMS->position().x() << " y " << m_parameterCacheMS->position().y() << " z " << m_parameterCacheMS->position().z() );
@@ -382,6 +382,9 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 
         ATH_MSG_DEBUG( " Extrapolation OK ");
     }
+    
+    //sroe: coverity 31530
+    m_trk_status[m_g4_steps] = trkParameters ? 1 : 0;
 
     if(!trkParameters) {
       delete eloss;
@@ -389,7 +392,6 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
       delete g4Parameters;
       return;
     } 
-    m_trk_status[m_g4_steps] = trkParameters ? 1 : 0;
 // 
 // Max radius 13400 maxZ 26050
 //
@@ -519,7 +521,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     bool muonSystem = false;
     bool calorimeter = false;
 
-    if(matvec->size()>0) { 
+    if(!matvec->empty()) { 
       if(m_crossedMuonEntry&&!m_exitLayer) calorimeter = true;
       if(m_crossedMuonEntry&&m_exitLayer)  muonSystem = true;
     }
@@ -571,7 +573,8 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     double x0 = 0.;
 
     int mmat = 0;
-    if (matvec && !matvec->empty()&& matvec->size()>0){    
+    //sroe: coverity 31541; matvec cannot be null here
+    if (!(matvec->empty())){    
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = matvec->begin();
         std::vector<const Trk::TrackStateOnSurface*>::const_iterator it_end = matvec->end();
         for ( ; it != it_end; ++it ) {
@@ -601,7 +604,9 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //                    if(m_trk_status[m_g4_steps] == 1000) ATH_MSG_DEBUG ( " mmat " << mmat << " eLoss->deltaE() "  << eLoss->deltaE() );
                   } 
              } 
-             const Trk::ScatteringAngles* scatAng = (matEfs)->scatteringAngles();
+             //sroe: coverity 31532
+             const Trk::ScatteringAngles* scatAng = (matEfs)?( (matEfs)->scatteringAngles() ): (nullptr);
+             
              if(scatAng) {
                 sigmaTheta = scatAng->sigmaDeltaTheta();
                 sigmaPhi = scatAng->sigmaDeltaPhi();

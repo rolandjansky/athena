@@ -132,14 +132,6 @@ ServiceMgr.AtRanluxGenSvc.Seeds = [ "SINGLE " + str(myRandomSeed1) + ' ' + str(m
 
 #AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('AtlasRK4')
 
-## Add an action
-def geantino_action():
-    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    GeantFollowing = PyG4Atlas.UserAction('TrkG4UserActions','GeantFollower', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantFollowing)
-
-SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
-
 # suppress the enormous amount of MC output
 from TruthExamples.TruthExamplesConf import DumpMC
 DumpMC.VerboseOutput = False
@@ -150,7 +142,7 @@ from AthenaCommon.AppMgr import ToolSvc
 # Estrapolator setup
 include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc 
+AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
 
 #--------------------------------------------------------------
 # Assign the TrackingGeometry to the Algorithm
@@ -160,7 +152,7 @@ AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
 from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialInspector
 LayerMaterialInspector = Trk__LayerMaterialInspector(name= 'LayerMaterialInspector')
 LayerMaterialInspector.OutputLevel = INFO
-from AthenaCommon.AppMgr import ToolSvc 
+from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += LayerMaterialInspector
 
 # the tracking volume displayer
@@ -200,7 +192,7 @@ ToolSvc += TestSTEP_Propagator
 
 TestPorpagators += [TestSTEP_Propagator]
 
-# UPDATOR DEFAULTS -----------------------------------------------------------------------------------------       
+# UPDATOR DEFAULTS -----------------------------------------------------------------------------------------
 
 TestUpdators    = []
 
@@ -219,7 +211,7 @@ TestMaterialEffectsUpdatorLandau.MultipleScattering   = False
 ToolSvc += TestMaterialEffectsUpdatorLandau
 
 TestUpdators    += [ TestMaterialEffectsUpdatorLandau ]
-              
+
 # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 TestNavigator = Trk__Navigator(name = 'TestNavigator')
@@ -243,7 +235,7 @@ TestSubUpdators    += [ TestMaterialEffectsUpdatorLandau.name() ]
 # default for MS is (STEP,Mat)
 TestSubPropagators += [ TestSTEP_Propagator.name() ]
 TestSubUpdators    += [ TestMaterialEffectsUpdator.name() ]
-# ----------------------------------------------------------------------------------------------------------          
+# ----------------------------------------------------------------------------------------------------------
 
 # call the base class constructor
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
@@ -255,15 +247,6 @@ TestExtrapolator = Trk__Extrapolator('TextExtrapolator',\
                            SubMEUpdators = TestSubUpdators,\
                            DoCaloDynamic = False)
 ToolSvc += TestExtrapolator
-
-# Helper setup
-from TrkG4UserActions.TrkG4UserActionsConf import Trk__GeantFollowerHelper
-GeantFollowerHelper = Trk__GeantFollowerHelper(name="GeantFollower")
-GeantFollowerHelper.Extrapolator             = TestExtrapolator
-GeantFollowerHelper.ExtrapolateDirectly      = True     
-GeantFollowerHelper.ExtrapolateIncrementally = True
-ToolSvc += GeantFollowerHelper
-
 
 ############### The output collection #######################
 
@@ -285,5 +268,10 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='GeantFollowing.root' TYPE='ROOT' 
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+
+from AthenaCommon.CfgGetter import getPublicTool
+ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("GeantFollower")]
+ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("GeantFollower")]
+ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("GeantFollower")]
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------

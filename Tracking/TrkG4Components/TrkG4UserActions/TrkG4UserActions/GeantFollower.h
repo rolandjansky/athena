@@ -9,7 +9,7 @@
 #ifndef GeantFollower_H
 #define GeantFollower_H
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <vector>
@@ -20,31 +20,30 @@
 */
 
 namespace Trk {
-    class IGeantFollowerHelper;
+  class IGeantFollowerHelper;
 }
 
 class StoreGateSvc;
 
-class GeantFollower: public FADS::UserAction {
+class GeantFollower final: public UserActionBase {
 
-  public:
-    /** Standard FADS UsesAction */
-    GeantFollower(std::string s);
+ public:
+  /** Standard UserAction Constructor*/
+  GeantFollower(const std::string& type, const std::string& name, const IInterface* parent);
 
-    /** All G4 interface methods */
-    void BeginOfEventAction(const G4Event*);
-    void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
-    void SteppingAction(const G4Step*);
-    
-  private:
-    std::string                               m_name;
-    ToolHandle<Trk::IGeantFollowerHelper>     m_helper;
-    mutable const Trk::IGeantFollowerHelper*  m_helperPointer;
-    
+  /** All G4 interface methods */
+  virtual void BeginOfEvent(const G4Event*) override;
+  virtual void EndOfEvent(const G4Event*) override;
+  virtual void Step(const G4Step*) override;
+
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+  virtual StatusCode initialize() override;
+
+ private:
+  ToolHandle<Trk::IGeantFollowerHelper>     m_helper;
+  mutable const Trk::IGeantFollowerHelper*  m_helperPointer;
+
 
 };
 
 #endif
-

@@ -9,10 +9,10 @@
 #ifndef GeantFollowerMS_H
 #define GeantFollowerMS_H
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"                                                                         
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h" 
+#include "GaudiKernel/ServiceHandle.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include <string>
 #include <vector>
 
@@ -22,38 +22,37 @@
 */
 
 namespace Trk {
-    class IGeantFollowerMSHelper;
-    class TrackingGeometry;
+  class IGeantFollowerMSHelper;
+  class TrackingGeometry;
 }
 
 class StoreGateSvc;
 
-class GeantFollowerMS: public FADS::UserAction {
+class GeantFollowerMS final: public UserActionBase {
 
-  public:
-    /** Standard FADS UsesAction */
-    GeantFollowerMS(std::string s);
+public:
+  /** Standard UserAction Constructor*/
+  GeantFollowerMS(const std::string& type, const std::string& name, const IInterface* parent);
 
-    /** All G4 interface methods */
-    void BeginOfEventAction(const G4Event*);
-    void EndOfEventAction(const G4Event*);
-    void BeginOfRunAction(const G4Run*);
-    void EndOfRunAction(const G4Run*);
-    void SteppingAction(const G4Step*);
-    
-  private:
-    std::string                               m_name;
-    ToolHandle<Trk::IGeantFollowerMSHelper>     m_helper;
-    mutable const Trk::IGeantFollowerMSHelper*  m_helperPointer;
+  /** All G4 interface methods */
+  virtual void BeginOfEvent(const G4Event*) override;
+  virtual void EndOfEvent(const G4Event*) override;
+  virtual void Step(const G4Step*) override;
 
-                                                                                                                
-    /** tracking geometry */                                                                                   
-    mutable const Trk::TrackingGeometry*                         m_trackingGeometry;                           
-    ServiceHandle<Trk::ITrackingGeometrySvc>                     m_trackingGeometrySvc;                   
-    std::string                                                  m_trackingGeometryName;                       
-    
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+  virtual StatusCode initialize() override;
+
+private:
+  ToolHandle<Trk::IGeantFollowerMSHelper>     m_helper;
+  mutable const Trk::IGeantFollowerMSHelper*  m_helperPointer;
+
+
+  /** tracking geometry */
+  mutable const Trk::TrackingGeometry*                         m_trackingGeometry;
+  ServiceHandle<Trk::ITrackingGeometrySvc>                     m_trackingGeometrySvc;
+  std::string                                                  m_trackingGeometryName;
+
 
 };
 
 #endif
-
