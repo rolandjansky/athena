@@ -29,14 +29,12 @@ public:
 	class const_iterator 
 	{
 	public:
-		const_iterator() {} 
-		const_iterator& operator = ( const const_iterator & it ) 
-			{ m_dcc = it.m_dcc; 
-			  m_digit_it = it.m_digit_it;
-			  m_dc_it = it.m_dc_it;
-			  m_dc = it.m_dc; 
-                          return *this; 
-                        }
+                const_iterator() 
+                  : m_dcc(nullptr),
+                    m_dc_it(),
+                    m_dc(nullptr),
+                    m_digit_it()
+                {}
 
 		const_iterator& operator ++ () // pre increment
 			{ ++m_digit_it; 
