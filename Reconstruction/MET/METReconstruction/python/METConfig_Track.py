@@ -12,6 +12,7 @@ cfg_trk = METConfig('Track',[BuildConfig('SoftTrk','Track')],
 
 cfg_trk.refiners['TrackFilter'].DoLepRecovery=True
 cfg_trk.refiners['TrackFilter'].DoVxSep=True
+cfg_trk.refiners['TrackFilter'].DoEoverPSel=True
 # Old input names
 #cfg_trk.refiners['TrackFilter'].InputClusterKey="CaloCalTopoCluster"
 #cfg_trk.refiners['TrackFilter'].InputElectronKey="ElectronCollection"
