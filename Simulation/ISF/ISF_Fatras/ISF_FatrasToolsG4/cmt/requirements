@@ -44,9 +44,6 @@ use ISF_Interfaces           ISF_Interfaces-*           Simulation/ISF/ISF_Core
 use BarcodeInterfaces        BarcodeInterfaces-*        Simulation/Barcode
 use ISF_Geant4Tools          ISF_Geant4Tools-*          Simulation/ISF/ISF_Geant4
 
-########## FADS ######################################################
-use FadsPhysics              FadsPhysics-*              Simulation/G4Sim/FADS/
-
 ########## SUSY particles ######################################################
 ## does not link at the moment (04/02/2008)
 #use Sleptons                 Sleptons-*                 Simulation/G4Extensions
