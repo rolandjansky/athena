@@ -21,18 +21,18 @@ class RawInfoSummaryForTag
  public:
 
   RawInfoSummaryForTag() :  
-     TrackLead1_d0(-99), TrackLead1_z0(-99), TrackLead1_phi0(-99), TrackLead1_theta(-99), TrackLead1_qoverp(-99),
-     TrackLead2_d0(-99), TrackLead2_z0(-99), TrackLead2_phi0(-99), TrackLead2_theta(-99), TrackLead2_qoverp(-99),
-     CellEnergySum(-99), CellEnergySumEMB(-99), CellEnergySumEMEC(-99), CellEnergySumHEC(-99), CellEnergySumFCAL(-99), CellEnergySumTile(-99), ClusterEnergySum(-99),
-     TopoClEt1(-99), TopoClEta1(-99), TopoClPhi1(-99),
-     CellMET(-99), CellMETPhi(-99),
-    MBTStimeDiff(-99), LArECtimeDiff(-99), MBTStimeAvg(-99), LArECtimeAvg(-99), TrtEventPhase(-99),
-     PixelTracks(-99), SCTTracks(-99), TRTTracks(-99),
-     MooreSegments(-99), ConvertedMBoySegments(-99),
-    MooreTracks(-99), ConvertedMBoyTracks(-99),
-     NumberOfInnerConvertedMBoySegments(-99), HitsOfBestInnerConvertedMBoySegments(-99),NumberOfInnerMooreSegments(-99), HitsOfBestInnerMooreSegments(-99),
-     NsctSPs(-99), NpixSPs(-99), NtrtDCs(-99), NtrtHtDCs(-99), nMDTHits(-99), nRPCHits(-99), nTGCHits(-99), nCSCHits(-99), BCMHit(-99),
-    MBTSword(0)
+     m_TrackLead1_d0(-99), m_TrackLead1_z0(-99), m_TrackLead1_phi0(-99), m_TrackLead1_theta(-99), m_TrackLead1_qoverp(-99),
+     m_TrackLead2_d0(-99), m_TrackLead2_z0(-99), m_TrackLead2_phi0(-99), m_TrackLead2_theta(-99), m_TrackLead2_qoverp(-99),
+     m_CellEnergySum(-99), m_CellEnergySumEMB(-99), m_CellEnergySumEMEC(-99), m_CellEnergySumHEC(-99), m_CellEnergySumFCAL(-99), m_CellEnergySumTile(-99), m_ClusterEnergySum(-99),
+     m_TopoClEt1(-99), m_TopoClEta1(-99), m_TopoClPhi1(-99),
+     m_CellMET(-99), m_CellMETPhi(-99),
+    m_MBTStimeDiff(-99), m_LArECtimeDiff(-99), m_MBTStimeAvg(-99), m_LArECtimeAvg(-99), m_TrtEventPhase(-99),
+     m_PixelTracks(-99), m_SCTTracks(-99), m_TRTTracks(-99),
+     m_MooreSegments(-99), m_ConvertedMBoySegments(-99),
+    m_MooreTracks(-99), m_ConvertedMBoyTracks(-99),
+     m_NumberOfInnerConvertedMBoySegments(-99), m_HitsOfBestInnerConvertedMBoySegments(-99),m_NumberOfInnerMooreSegments(-99), m_HitsOfBestInnerMooreSegments(-99),
+     m_NsctSPs(-99), m_NpixSPs(-99), m_NtrtDCs(-99), m_NtrtHtDCs(-99), m_nMDTHits(-99), m_nRPCHits(-99), m_nTGCHits(-99), m_nCSCHits(-99), m_BCMHit(-99),
+    m_MBTSword(0)
 {};
   ~RawInfoSummaryForTag(){};
 
@@ -165,27 +165,25 @@ class RawInfoSummaryForTag
  private:
 
   /* floats */
-  float TrackLead1_d0;
+  float m_TrackLead1_d0;
     //, 
-  float TrackLead1_z0, TrackLead1_phi0, TrackLead1_theta, TrackLead1_qoverp;  
-  float TrackLead2_d0, TrackLead2_z0, TrackLead2_phi0, TrackLead2_theta, TrackLead2_qoverp; 
-  float CellEnergySum, CellEnergySumEMB, CellEnergySumEMEC, CellEnergySumHEC, CellEnergySumFCAL, CellEnergySumTile, ClusterEnergySum;
-  float TopoClEt1, TopoClEta1, TopoClPhi1;   
-  float CellMET, CellMETPhi;
-  float MBTStimeDiff, LArECtimeDiff,MBTStimeAvg, LArECtimeAvg;
-  float TrtEventPhase;
+  float m_TrackLead1_z0, m_TrackLead1_phi0, m_TrackLead1_theta, m_TrackLead1_qoverp;  
+  float m_TrackLead2_d0, m_TrackLead2_z0, m_TrackLead2_phi0, m_TrackLead2_theta, m_TrackLead2_qoverp; 
+  float m_CellEnergySum, m_CellEnergySumEMB, m_CellEnergySumEMEC, m_CellEnergySumHEC, m_CellEnergySumFCAL, m_CellEnergySumTile, m_ClusterEnergySum;
+  float m_TopoClEt1, m_TopoClEta1, m_TopoClPhi1;   
+  float m_CellMET, m_CellMETPhi;
+  float m_MBTStimeDiff, m_LArECtimeDiff,m_MBTStimeAvg, m_LArECtimeAvg;
+  float m_TrtEventPhase;
   /* ints */
-  int PixelTracks, SCTTracks, TRTTracks;
-  int MooreSegments, ConvertedMBoySegments; 
-  int MooreTracks, ConvertedMBoyTracks;
-  int NumberOfInnerConvertedMBoySegments, HitsOfBestInnerConvertedMBoySegments,NumberOfInnerMooreSegments, HitsOfBestInnerMooreSegments;
-  int NsctSPs, NpixSPs, NtrtDCs, NtrtHtDCs, nMDTHits, nRPCHits, nTGCHits, nCSCHits, BCMHit;
-  unsigned int MBTSword;
+  int m_PixelTracks, m_SCTTracks, m_TRTTracks;
+  int m_MooreSegments, m_ConvertedMBoySegments; 
+  int m_MooreTracks, m_ConvertedMBoyTracks;
+  int m_NumberOfInnerConvertedMBoySegments, m_HitsOfBestInnerConvertedMBoySegments,m_NumberOfInnerMooreSegments, m_HitsOfBestInnerMooreSegments;
+  int m_NsctSPs, m_NpixSPs, m_NtrtDCs, m_NtrtHtDCs, m_nMDTHits, m_nRPCHits, m_nTGCHits, m_nCSCHits, m_BCMHit;
+  unsigned int m_MBTSword;
 
 };
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 // ostream operator
 inline std::ostream &operator<<(std::ostream &stream, RawInfoSummaryForTag& o)
@@ -255,130 +253,130 @@ inline std::ostream &operator<<(std::ostream &stream, RawInfoSummaryForTag& o)
 }
 
 // setters..
-inline void RawInfoSummaryForTag::setTrackLead1_d0(float a){ TrackLead1_d0=a;}
-inline void RawInfoSummaryForTag::setTrackLead1_z0(float a){ TrackLead1_z0=a;}
-inline void RawInfoSummaryForTag::setTrackLead1_phi0(float a){ TrackLead1_phi0=a;}
-inline void RawInfoSummaryForTag::setTrackLead1_theta(float a){ TrackLead1_theta=a;}
-inline void RawInfoSummaryForTag::setTrackLead1_qoverp(float a){ TrackLead1_qoverp=a;}
+inline void RawInfoSummaryForTag::setTrackLead1_d0(float a){ m_TrackLead1_d0=a;}
+inline void RawInfoSummaryForTag::setTrackLead1_z0(float a){ m_TrackLead1_z0=a;}
+inline void RawInfoSummaryForTag::setTrackLead1_phi0(float a){ m_TrackLead1_phi0=a;}
+inline void RawInfoSummaryForTag::setTrackLead1_theta(float a){ m_TrackLead1_theta=a;}
+inline void RawInfoSummaryForTag::setTrackLead1_qoverp(float a){ m_TrackLead1_qoverp=a;}
 
-inline void RawInfoSummaryForTag::setTrackLead2_d0(float a){ TrackLead2_d0=a;}
-inline void RawInfoSummaryForTag::setTrackLead2_z0(float a){ TrackLead2_z0=a;}
-inline void RawInfoSummaryForTag::setTrackLead2_phi0(float a){ TrackLead2_phi0=a;}
-inline void RawInfoSummaryForTag::setTrackLead2_theta(float a){ TrackLead2_theta=a;}
-inline void RawInfoSummaryForTag::setTrackLead2_qoverp(float a){ TrackLead2_qoverp=a;}
+inline void RawInfoSummaryForTag::setTrackLead2_d0(float a){ m_TrackLead2_d0=a;}
+inline void RawInfoSummaryForTag::setTrackLead2_z0(float a){ m_TrackLead2_z0=a;}
+inline void RawInfoSummaryForTag::setTrackLead2_phi0(float a){ m_TrackLead2_phi0=a;}
+inline void RawInfoSummaryForTag::setTrackLead2_theta(float a){ m_TrackLead2_theta=a;}
+inline void RawInfoSummaryForTag::setTrackLead2_qoverp(float a){ m_TrackLead2_qoverp=a;}
 
-inline void RawInfoSummaryForTag::setCellEnergySum(float a){ CellEnergySum=a;}
-inline void RawInfoSummaryForTag::setCellEnergySumEMB(float a){ CellEnergySumEMB=a;}
-inline void RawInfoSummaryForTag::setCellEnergySumEMEC(float a){ CellEnergySumEMEC=a;}
-inline void RawInfoSummaryForTag::setCellEnergySumHEC(float a){ CellEnergySumHEC=a;}
-inline void RawInfoSummaryForTag::setCellEnergySumFCAL(float a){ CellEnergySumFCAL=a;}
-inline void RawInfoSummaryForTag::setCellEnergySumTile(float a){ CellEnergySumTile=a;}
-inline void RawInfoSummaryForTag::setClusterEnergySum(float a){ ClusterEnergySum=a;}
+inline void RawInfoSummaryForTag::setCellEnergySum(float a){ m_CellEnergySum=a;}
+inline void RawInfoSummaryForTag::setCellEnergySumEMB(float a){ m_CellEnergySumEMB=a;}
+inline void RawInfoSummaryForTag::setCellEnergySumEMEC(float a){ m_CellEnergySumEMEC=a;}
+inline void RawInfoSummaryForTag::setCellEnergySumHEC(float a){ m_CellEnergySumHEC=a;}
+inline void RawInfoSummaryForTag::setCellEnergySumFCAL(float a){ m_CellEnergySumFCAL=a;}
+inline void RawInfoSummaryForTag::setCellEnergySumTile(float a){ m_CellEnergySumTile=a;}
+inline void RawInfoSummaryForTag::setClusterEnergySum(float a){ m_ClusterEnergySum=a;}
 
-inline void RawInfoSummaryForTag::setTopoClEt1 (float f) { TopoClEt1  = f;}
-inline void RawInfoSummaryForTag::setTopoClEta1(float f) { TopoClEta1 = f;}
-inline void RawInfoSummaryForTag::setTopoClPhi1(float f) { TopoClPhi1 = f;}
+inline void RawInfoSummaryForTag::setTopoClEt1 (float f) { m_TopoClEt1  = f;}
+inline void RawInfoSummaryForTag::setTopoClEta1(float f) { m_TopoClEta1 = f;}
+inline void RawInfoSummaryForTag::setTopoClPhi1(float f) { m_TopoClPhi1 = f;}
 
-inline void RawInfoSummaryForTag::setCellMET(float a){ CellMET=a;}
-inline void RawInfoSummaryForTag::setCellMETPhi(float a){ CellMETPhi=a;}
+inline void RawInfoSummaryForTag::setCellMET(float a){ m_CellMET=a;}
+inline void RawInfoSummaryForTag::setCellMETPhi(float a){ m_CellMETPhi=a;}
 
-inline void RawInfoSummaryForTag::setMBTStimeDiff(float a){ MBTStimeDiff=a;}
-inline void RawInfoSummaryForTag::setLArECtimeDiff(float a){ LArECtimeDiff=a;}
-inline void RawInfoSummaryForTag::setMBTStimeAvg(float a){ MBTStimeAvg=a;}
-inline void RawInfoSummaryForTag::setLArECtimeAvg(float a){ LArECtimeAvg=a;}
-
-
-inline void RawInfoSummaryForTag::setTrtEventPhase(float a){ TrtEventPhase=a;}
-
-inline void RawInfoSummaryForTag::setPixelTracks(int a){ PixelTracks=a;}
-inline void RawInfoSummaryForTag::setSCTTracks(int a){ SCTTracks=a;}
-inline void RawInfoSummaryForTag::setTRTTracks(int a){ TRTTracks=a;}
+inline void RawInfoSummaryForTag::setMBTStimeDiff(float a){ m_MBTStimeDiff=a;}
+inline void RawInfoSummaryForTag::setLArECtimeDiff(float a){ m_LArECtimeDiff=a;}
+inline void RawInfoSummaryForTag::setMBTStimeAvg(float a){ m_MBTStimeAvg=a;}
+inline void RawInfoSummaryForTag::setLArECtimeAvg(float a){ m_LArECtimeAvg=a;}
 
 
-inline void RawInfoSummaryForTag::setMooreSegments(int a){ MooreSegments=a;}
-inline void RawInfoSummaryForTag::setConvertedMBoySegments(int a){ ConvertedMBoySegments=a;}
-inline void RawInfoSummaryForTag::setNumberOfInnerConvertedMBoySegments(int a){ NumberOfInnerConvertedMBoySegments=a;}
-inline void RawInfoSummaryForTag::setHitsOfBestInnerConvertedMBoySegments(int a){ HitsOfBestInnerConvertedMBoySegments=a;}
-inline void RawInfoSummaryForTag::setNumberOfInnerMooreSegments(int a){ NumberOfInnerMooreSegments=a;}
-inline void RawInfoSummaryForTag::setHitsOfBestInnerMooreSegments(int a){ HitsOfBestInnerMooreSegments=a;}
+inline void RawInfoSummaryForTag::setTrtEventPhase(float a){ m_TrtEventPhase=a;}
 
-inline void RawInfoSummaryForTag::setMooreTracks(int a){ MooreTracks=a;}
-inline void RawInfoSummaryForTag::setConvertedMBoyTracks(int a){ ConvertedMBoyTracks=a;}
+inline void RawInfoSummaryForTag::setPixelTracks(int a){ m_PixelTracks=a;}
+inline void RawInfoSummaryForTag::setSCTTracks(int a){ m_SCTTracks=a;}
+inline void RawInfoSummaryForTag::setTRTTracks(int a){ m_TRTTracks=a;}
 
-inline void RawInfoSummaryForTag::setNsctSPs(int a){ NsctSPs=a;}
-inline void RawInfoSummaryForTag::setNpixSPs(int a){ NpixSPs=a;}
-inline void RawInfoSummaryForTag::setNtrtDCs(int a){ NtrtDCs=a;}
-inline void RawInfoSummaryForTag::setNtrtHtDCs(int a){ NtrtHtDCs=a;}
-inline void RawInfoSummaryForTag::setnMDTHits(int a){ nMDTHits=a;}
-inline void RawInfoSummaryForTag::setnRPCHits(int a){ nRPCHits=a;}
-inline void RawInfoSummaryForTag::setnTGCHits(int a){ nTGCHits=a;}
-inline void RawInfoSummaryForTag::setnCSCHits(int a){ nCSCHits=a;}
-inline void RawInfoSummaryForTag::setBCMHit(int a){ BCMHit=a;}
 
-inline void RawInfoSummaryForTag::setMBTSword(unsigned int a){ MBTSword=a;}
+inline void RawInfoSummaryForTag::setMooreSegments(int a){ m_MooreSegments=a;}
+inline void RawInfoSummaryForTag::setConvertedMBoySegments(int a){ m_ConvertedMBoySegments=a;}
+inline void RawInfoSummaryForTag::setNumberOfInnerConvertedMBoySegments(int a){ m_NumberOfInnerConvertedMBoySegments=a;}
+inline void RawInfoSummaryForTag::setHitsOfBestInnerConvertedMBoySegments(int a){ m_HitsOfBestInnerConvertedMBoySegments=a;}
+inline void RawInfoSummaryForTag::setNumberOfInnerMooreSegments(int a){ m_NumberOfInnerMooreSegments=a;}
+inline void RawInfoSummaryForTag::setHitsOfBestInnerMooreSegments(int a){ m_HitsOfBestInnerMooreSegments=a;}
+
+inline void RawInfoSummaryForTag::setMooreTracks(int a){ m_MooreTracks=a;}
+inline void RawInfoSummaryForTag::setConvertedMBoyTracks(int a){ m_ConvertedMBoyTracks=a;}
+
+inline void RawInfoSummaryForTag::setNsctSPs(int a){ m_NsctSPs=a;}
+inline void RawInfoSummaryForTag::setNpixSPs(int a){ m_NpixSPs=a;}
+inline void RawInfoSummaryForTag::setNtrtDCs(int a){ m_NtrtDCs=a;}
+inline void RawInfoSummaryForTag::setNtrtHtDCs(int a){ m_NtrtHtDCs=a;}
+inline void RawInfoSummaryForTag::setnMDTHits(int a){ m_nMDTHits=a;}
+inline void RawInfoSummaryForTag::setnRPCHits(int a){ m_nRPCHits=a;}
+inline void RawInfoSummaryForTag::setnTGCHits(int a){ m_nTGCHits=a;}
+inline void RawInfoSummaryForTag::setnCSCHits(int a){ m_nCSCHits=a;}
+inline void RawInfoSummaryForTag::setBCMHit(int a){ m_BCMHit=a;}
+
+inline void RawInfoSummaryForTag::setMBTSword(unsigned int a){ m_MBTSword=a;}
 
 /////
 // getters...
 
-inline float RawInfoSummaryForTag::getTrackLead1_d0() const {return TrackLead1_d0;}
-inline float RawInfoSummaryForTag::getTrackLead1_z0() const {return TrackLead1_z0;}
-inline float RawInfoSummaryForTag::getTrackLead1_phi0() const {return TrackLead1_phi0;}
-inline float RawInfoSummaryForTag::getTrackLead1_theta() const {return TrackLead1_theta;}
-inline float RawInfoSummaryForTag::getTrackLead1_qoverp() const {return TrackLead1_qoverp;}
+inline float RawInfoSummaryForTag::getTrackLead1_d0() const {return m_TrackLead1_d0;}
+inline float RawInfoSummaryForTag::getTrackLead1_z0() const {return m_TrackLead1_z0;}
+inline float RawInfoSummaryForTag::getTrackLead1_phi0() const {return m_TrackLead1_phi0;}
+inline float RawInfoSummaryForTag::getTrackLead1_theta() const {return m_TrackLead1_theta;}
+inline float RawInfoSummaryForTag::getTrackLead1_qoverp() const {return m_TrackLead1_qoverp;}
 
-inline float RawInfoSummaryForTag::getTrackLead2_d0() const {return TrackLead2_d0;}
-inline float RawInfoSummaryForTag::getTrackLead2_z0() const {return TrackLead2_z0;}
-inline float RawInfoSummaryForTag::getTrackLead2_phi0() const {return TrackLead2_phi0;}
-inline float RawInfoSummaryForTag::getTrackLead2_theta() const {return TrackLead2_theta;}
-inline float RawInfoSummaryForTag::getTrackLead2_qoverp() const {return TrackLead2_qoverp;}
+inline float RawInfoSummaryForTag::getTrackLead2_d0() const {return m_TrackLead2_d0;}
+inline float RawInfoSummaryForTag::getTrackLead2_z0() const {return m_TrackLead2_z0;}
+inline float RawInfoSummaryForTag::getTrackLead2_phi0() const {return m_TrackLead2_phi0;}
+inline float RawInfoSummaryForTag::getTrackLead2_theta() const {return m_TrackLead2_theta;}
+inline float RawInfoSummaryForTag::getTrackLead2_qoverp() const {return m_TrackLead2_qoverp;}
 
-inline float RawInfoSummaryForTag::getCellEnergySum() const {return CellEnergySum;}
-inline float RawInfoSummaryForTag::getCellEnergySumEMB() const {return CellEnergySumEMB;}
-inline float RawInfoSummaryForTag::getCellEnergySumEMEC() const {return CellEnergySumEMEC;}
-inline float RawInfoSummaryForTag::getCellEnergySumHEC() const {return CellEnergySumHEC;}
-inline float RawInfoSummaryForTag::getCellEnergySumFCAL() const {return CellEnergySumFCAL;}
-inline float RawInfoSummaryForTag::getCellEnergySumTile() const {return CellEnergySumTile;}
-inline float RawInfoSummaryForTag::getClusterEnergySum() const {return ClusterEnergySum;}
+inline float RawInfoSummaryForTag::getCellEnergySum() const {return m_CellEnergySum;}
+inline float RawInfoSummaryForTag::getCellEnergySumEMB() const {return m_CellEnergySumEMB;}
+inline float RawInfoSummaryForTag::getCellEnergySumEMEC() const {return m_CellEnergySumEMEC;}
+inline float RawInfoSummaryForTag::getCellEnergySumHEC() const {return m_CellEnergySumHEC;}
+inline float RawInfoSummaryForTag::getCellEnergySumFCAL() const {return m_CellEnergySumFCAL;}
+inline float RawInfoSummaryForTag::getCellEnergySumTile() const {return m_CellEnergySumTile;}
+inline float RawInfoSummaryForTag::getClusterEnergySum() const {return m_ClusterEnergySum;}
 
-inline float RawInfoSummaryForTag::getTopoClEt1() const {return TopoClEt1;}
-inline float RawInfoSummaryForTag::getTopoClEta1() const {return TopoClEta1;}
-inline float RawInfoSummaryForTag::getTopoClPhi1() const {return TopoClPhi1;}
+inline float RawInfoSummaryForTag::getTopoClEt1() const {return m_TopoClEt1;}
+inline float RawInfoSummaryForTag::getTopoClEta1() const {return m_TopoClEta1;}
+inline float RawInfoSummaryForTag::getTopoClPhi1() const {return m_TopoClPhi1;}
 
-inline float RawInfoSummaryForTag::getCellMET() const {return CellMET;}
-inline float RawInfoSummaryForTag::getCellMETPhi() const {return CellMETPhi;}
+inline float RawInfoSummaryForTag::getCellMET() const {return m_CellMET;}
+inline float RawInfoSummaryForTag::getCellMETPhi() const {return m_CellMETPhi;}
 
-inline float RawInfoSummaryForTag::getMBTStimeDiff() const {return MBTStimeDiff;}
-inline float RawInfoSummaryForTag::getLArECtimeDiff() const {return LArECtimeDiff;}
-inline float RawInfoSummaryForTag::getMBTStimeAvg() const {return MBTStimeAvg;}
-inline float RawInfoSummaryForTag::getLArECtimeAvg() const {return LArECtimeAvg;}
+inline float RawInfoSummaryForTag::getMBTStimeDiff() const {return m_MBTStimeDiff;}
+inline float RawInfoSummaryForTag::getLArECtimeDiff() const {return m_LArECtimeDiff;}
+inline float RawInfoSummaryForTag::getMBTStimeAvg() const {return m_MBTStimeAvg;}
+inline float RawInfoSummaryForTag::getLArECtimeAvg() const {return m_LArECtimeAvg;}
 
-inline float RawInfoSummaryForTag::getTrtEventPhase() const {return TrtEventPhase;}
+inline float RawInfoSummaryForTag::getTrtEventPhase() const {return m_TrtEventPhase;}
 
-inline int RawInfoSummaryForTag::getPixelTracks() const {return PixelTracks;}
-inline int RawInfoSummaryForTag::getSCTTracks() const {return SCTTracks;}
-inline int RawInfoSummaryForTag::getTRTTracks() const {return TRTTracks;}
+inline int RawInfoSummaryForTag::getPixelTracks() const {return m_PixelTracks;}
+inline int RawInfoSummaryForTag::getSCTTracks() const {return m_SCTTracks;}
+inline int RawInfoSummaryForTag::getTRTTracks() const {return m_TRTTracks;}
 
-inline int RawInfoSummaryForTag::getMooreSegments() const {return MooreSegments;}
-inline int RawInfoSummaryForTag::getConvertedMBoySegments() const {return ConvertedMBoySegments;}
-inline int RawInfoSummaryForTag::getNumberOfInnerConvertedMBoySegments() const {return NumberOfInnerConvertedMBoySegments;}
-inline int RawInfoSummaryForTag::getHitsOfBestInnerConvertedMBoySegments() const {return HitsOfBestInnerConvertedMBoySegments;}
-inline int RawInfoSummaryForTag::getNumberOfInnerMooreSegments() const {return NumberOfInnerMooreSegments;}
-inline int RawInfoSummaryForTag::getHitsOfBestInnerMooreSegments() const {return HitsOfBestInnerMooreSegments;}
+inline int RawInfoSummaryForTag::getMooreSegments() const {return m_MooreSegments;}
+inline int RawInfoSummaryForTag::getConvertedMBoySegments() const {return m_ConvertedMBoySegments;}
+inline int RawInfoSummaryForTag::getNumberOfInnerConvertedMBoySegments() const {return m_NumberOfInnerConvertedMBoySegments;}
+inline int RawInfoSummaryForTag::getHitsOfBestInnerConvertedMBoySegments() const {return m_HitsOfBestInnerConvertedMBoySegments;}
+inline int RawInfoSummaryForTag::getNumberOfInnerMooreSegments() const {return m_NumberOfInnerMooreSegments;}
+inline int RawInfoSummaryForTag::getHitsOfBestInnerMooreSegments() const {return m_HitsOfBestInnerMooreSegments;}
 
-inline int RawInfoSummaryForTag::getMooreTracks() const {return MooreTracks;}
-inline int RawInfoSummaryForTag::getConvertedMBoyTracks() const {return ConvertedMBoyTracks;}
+inline int RawInfoSummaryForTag::getMooreTracks() const {return m_MooreTracks;}
+inline int RawInfoSummaryForTag::getConvertedMBoyTracks() const {return m_ConvertedMBoyTracks;}
 
-inline int RawInfoSummaryForTag::getNsctSPs() const {return NsctSPs;}
-inline int RawInfoSummaryForTag::getNpixSPs() const {return NpixSPs;}
-inline int RawInfoSummaryForTag::getNtrtDCs() const {return NtrtDCs;}
-inline int RawInfoSummaryForTag::getNtrtHtDCs() const {return NtrtHtDCs;}
-inline int RawInfoSummaryForTag::getnMDTHits() const {return nMDTHits;}
-inline int RawInfoSummaryForTag::getnRPCHits() const {return nRPCHits;}
-inline int RawInfoSummaryForTag::getnTGCHits() const {return nTGCHits;}
-inline int RawInfoSummaryForTag::getnCSCHits() const {return nCSCHits;}
-inline int RawInfoSummaryForTag::getBCMHit() const {return BCMHit;}
+inline int RawInfoSummaryForTag::getNsctSPs() const {return m_NsctSPs;}
+inline int RawInfoSummaryForTag::getNpixSPs() const {return m_NpixSPs;}
+inline int RawInfoSummaryForTag::getNtrtDCs() const {return m_NtrtDCs;}
+inline int RawInfoSummaryForTag::getNtrtHtDCs() const {return m_NtrtHtDCs;}
+inline int RawInfoSummaryForTag::getnMDTHits() const {return m_nMDTHits;}
+inline int RawInfoSummaryForTag::getnRPCHits() const {return m_nRPCHits;}
+inline int RawInfoSummaryForTag::getnTGCHits() const {return m_nTGCHits;}
+inline int RawInfoSummaryForTag::getnCSCHits() const {return m_nCSCHits;}
+inline int RawInfoSummaryForTag::getBCMHit() const {return m_BCMHit;}
 
-inline unsigned int RawInfoSummaryForTag::getMBTSword() const {return MBTSword;}
+inline unsigned int RawInfoSummaryForTag::getMBTSword() const {return m_MBTSword;}
 
 
 # include "CLIDSvc/CLASS_DEF.h"
