@@ -12,12 +12,11 @@
 #define LUMIBLOCKCOLLECTIONCNV__H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "LumiBlockTPCnv/LumiBlockCollection_p1.h"
 #include "LumiBlockData/LumiBlockCollection.h"
-#include "LumiBlockTPCnv/LumiBlockCollectionCnv_p1.h"
+#include "LumiBlockTPCnv/LumiBlockCollectionCnv_p2.h"
 
 // the latest persistent representation type of LumiBlockCollection
-typedef  LumiBlockCollection_p1  LumiBlockCollection_PERS;
+typedef  LumiBlockCollection_p2  LumiBlockCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<LumiBlockCollection, LumiBlockCollection_PERS >  LumiBlockCollectionCnvBase;
 
 class LumiBlockCollectionCnv : public LumiBlockCollectionCnvBase 
@@ -31,7 +30,7 @@ class LumiBlockCollectionCnv : public LumiBlockCollectionCnvBase
   //  virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter; }
 
  private:
-  LumiBlockCollectionCnv_p1   m_TPConverter;
+  LumiBlockCollectionCnv_p2   m_TPConverter;
 };
 
 #endif  // LUMIBLOCKCOLLECTIONCNV__H
