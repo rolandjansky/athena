@@ -702,7 +702,7 @@ inline int MuonFixedId::stationStringToFixedStationNumber(const std::string stat
   if(station == "BMF" ) return 9;
   if(station == "BOF" ) return 10;
   if(station == "BOG" ) return 11;
-  if(station == "BOH" ) return 12;
+  if(station == "BME" ) return 12;
   if(station == "BIM" ) return 13;
   if(station == "EIC" ) return 14;
   if(station == "EIL" ) return 15;
@@ -725,6 +725,7 @@ inline int MuonFixedId::stationStringToFixedStationNumber(const std::string stat
   if(station == "T4E" ) return 32;
   if(station == "CSS" ) return 33;
   if(station == "CSL" ) return 34;
+  if(station == "BMG" ) return 35;
   if(station == "XXX" ) return -1;
   return -1;
 }
@@ -742,7 +743,7 @@ inline std::string MuonFixedId::stationNumberToFixedStationString(const int stat
   if(station ==  9 ) return "BMF" ;
   if(station == 10 ) return "BOF" ;
   if(station == 11 ) return "BOG" ;
-  if(station == 12 ) return "BOH" ;
+  if(station == 12 ) return "BME" ;
   if(station == 13 ) return "BIM" ;
   if(station == 14 ) return "EIC" ;
   if(station == 15 ) return "EIL" ;
@@ -765,6 +766,7 @@ inline std::string MuonFixedId::stationNumberToFixedStationString(const int stat
   if(station == 32 ) return "T4E" ;
   if(station == 33 ) return "CSS" ;
   if(station == 34 ) return "CSL" ;
+  if(station == 35 ) return "BMG" ;
   else return "XXX" ;
 }
 
