@@ -1,0 +1,24 @@
+package MadGraph_i
+
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+author Sanjay Padhi <Sanjay.Padhi@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+#use GeneratorModules GeneratorModules-* Generators
+
+private
+use Pythia           Pythia-*           External
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the allowUndefined tag
+private
+apply_tag allowUndefined
+end_private
+
+public
+library MadGraph_i *.cxx *.F
+apply_pattern installed_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_runtime_extras extras="events.lhe"

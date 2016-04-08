@@ -1,0 +1,16 @@
+!...Fix (0) or event-based (1) PS scale
+      PSSCALE=1
+
+!... for exclusive samples =1
+      IEXCFILE=1
+
+!... shower kT option:
+!.. use only with MSTP(81)>20 and put Qcut = xqcut
+      showerkt=.true.
+
+!...QCUT for matching using the kt measure cutoff
+!   put Qcut=xqcut (in ME generation) if showerkt=.true.
+!   otherwise, use Qcut > xqcut (default value: qcut=max(xqcut*1.2,xqcut+5) )
+      QCUT = 15.
+
+ 
