@@ -24,8 +24,6 @@ TrackRecordFilter::TrackRecordFilter(const std::string& name,
   declareProperty("threshold",m_cutOff=100.*CLHEP::MeV);
 }
 
-
-
 StatusCode TrackRecordFilter::initialize() {
   //FIXME Old syntax
   // Get the Particle Properties Service
@@ -46,14 +44,10 @@ StatusCode TrackRecordFilter::execute() {
   // Get message service
   ATH_MSG_DEBUG ( "TrackRecordFilter::execute()" );
 
-
   // retrieve the collection
   const TrackRecordCollection* trackCollection(0);
   if (evtStore()->contains<TrackRecordCollection>(m_inputName)) {
-    if (StatusCode::SUCCESS != evtStore()->retrieve(trackCollection, m_inputName) ) {
-      ATH_MSG_ERROR ( "Could not retrieve TrackRecord collection!" );
-      return StatusCode::SUCCESS;
-    }
+    CHECK( evtStore()->retrieve(trackCollection, m_inputName) );
   }
   else {
     ATH_MSG_DEBUG ( "Could not find TrackRecord collection" );
@@ -63,38 +57,31 @@ StatusCode TrackRecordFilter::execute() {
 
   // create and record a new collection
   TrackRecordCollection* filterCollection = new TrackRecordCollection();
-  if (StatusCode::SUCCESS != evtStore()->record(filterCollection, m_outputName) ) {
-    ATH_MSG_ERROR ( "can not record collection!" );
-    return StatusCode::SUCCESS;
-  }
+  CHECK( evtStore()->record(filterCollection, m_outputName) );
 
   // iterate over the collection
-  for (TrackRecordCollection::const_iterator trkit=trackCollection->begin(); trkit != trackCollection->end() ; ++trkit) {
-    int pdgId((*trkit)->GetPDGCode());
-    ATH_MSG_VERBOSE ( "Track found with pdg id= " << (*trkit)->GetPDGCode() << " with energy "<< (*trkit)->GetEnergy() );
+  for (auto trkit : *trackCollection) {
+    int pdgId(trkit.GetPDGCode());
+    ATH_MSG_VERBOSE ( "Track found with pdg id= " << trkit.GetPDGCode() << " with energy "<< trkit.GetEnergy() );
 
     if(pdgId) { //Geant makes particle with pdgid=0...
       // get rid of neutral particles
       const HepPDT::ParticleData* particle =
         m_pParticleTable->particle(HepPDT::ParticleID(abs(pdgId)));
       if(particle){
-        if(fabs(particle->charge() ) >0.5 && (*trkit)->GetEnergy() > m_cutOff)
-          filterCollection->push_back(new TrackRecord(**trkit));
+        if(fabs(particle->charge() ) >0.5 && trkit.GetEnergy() > m_cutOff)
+          filterCollection->push_back(TrackRecord(trkit));
       }
     }
   }
 
   //lock the collection
-  if (evtStore()->setConst(filterCollection).isFailure())  {
-    ATH_MSG_FATAL ( "Cannot set collection to const" );
-    return StatusCode::FAILURE;
-  }
+  CHECK( evtStore()->setConst(filterCollection) );
 
   ATH_MSG_DEBUG ( "There are " << filterCollection->size() << "that satisfy the filter " );
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrackRecordFilter::finalize() {
-
   return StatusCode::SUCCESS;
 }
