@@ -3,12 +3,9 @@
 */
 
 #include "TrigExPartialEB/MTCalibPeb.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/Parsers.h"
 #include "AthenaKernel/Timeout.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigSteeringEvent/HLTResult.h"
@@ -18,25 +15,26 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
+std::string MTCalibPeb::s_dataScoutingResultName = "DataScouting_";
+
 MTCalibPeb::MTCalibPeb(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), 
-  m_storeGateSvc( "StoreGateSvc", name ),
-  m_robDataProviderSvc( "ROBDataProviderSvc", name ),
-  m_max_chain_counter(0)
+   AthAlgorithm(name, pSvcLocator), 
+   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
+   m_max_chain_counter(0)
 {
-  // Declare the properties
-  declareProperty("RetrieveLvl1",          m_retrieveLvl1=false);
-  declareProperty("RetrieveROBs",          m_retrieveROBs=false);
-  declareProperty("HLTInstance",           m_hltInstance="HLT");
-  declareProperty("HLTResultName",         m_hltResultName="HLTResult");
-  declareProperty("ROBDataMonitorCollectionSGName", m_ROBDataMonitorCollection_SG_Name="ROBDataMonitorCollection","Name of cost monitoring collection in SG");
-  declareProperty("RobId",                 m_mapRobIdsProperty);
-  declareProperty("TimeBetweenRobRet",     m_timeBetweenRobRetMicroSec=0);
-  declareProperty("ConfiguredStreamTags",  m_listStreamTags);
-  declareProperty("ConfiguredChainNumbers",m_configuredChainNumbers);
-  declareProperty("RandomAcceptRate"      ,m_acceptRate=-1.);
-  declareProperty("BurnTime"              ,m_burnTimeMicroSec=0);
-  declareProperty("NumberOfBurnCycles"    ,m_burnTimeCycles=1);
+   // Declare the properties
+   declareProperty("RetrieveLvl1",          m_retrieveLvl1=false);
+   declareProperty("RetrieveROBs",          m_retrieveROBs=false);
+   declareProperty("HLTInstance",           m_hltInstance="HLT");
+   declareProperty("HLTResultName",         m_hltResultName="HLTResult");
+   declareProperty("ROBDataMonitorCollectionSGName", m_ROBDataMonitorCollection_SG_Name="ROBDataMonitorCollection","Name of cost monitoring collection in SG");
+   declareProperty("RobId",                 m_mapRobIdsProperty);
+   declareProperty("TimeBetweenRobRet",     m_timeBetweenRobRetMicroSec=0);
+   declareProperty("ConfiguredStreamTags",  m_listStreamTags);
+   declareProperty("ConfiguredChainNumbers",m_configuredChainNumbers);
+   declareProperty("RandomAcceptRate"      ,m_acceptRate=-1.);
+   declareProperty("BurnTime"              ,m_burnTimeMicroSec=0);
+   declareProperty("NumberOfBurnCycles"    ,m_burnTimeCycles=1);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -44,39 +42,38 @@ MTCalibPeb::MTCalibPeb(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode MTCalibPeb::initialize(){
 
   // Part 1: Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO("initialize()");
 
 #ifdef ATLAS_GAUDI_V21
   SmartIF<IService> tmp_msgSvc(msgSvc());
   if(tmp_msgSvc.isValid()) {
-    log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-        << tmp_msgSvc->name() << endreq;
+    ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
+        << tmp_msgSvc->name());
   }
 #else
   Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
   if(tmp_msgSvc != 0) {
-    log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-        << tmp_msgSvc->name() << endreq;
+    ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
+        << tmp_msgSvc->name());
   }
 #endif
 
   // Print out the property values
-  log << MSG::INFO << " HLT Instance                       = " << m_hltInstance << endreq;
-  log << MSG::INFO << " HLT Result name                    = " << m_hltResultName << endreq;
+  ATH_MSG_INFO(" HLT Instance                       = " << m_hltInstance);
+  ATH_MSG_INFO(" HLT Result name                    = " << m_hltResultName);
   m_hltResultSGKey = m_hltResultName.value() + "_" + m_hltInstance.value();
-  log << MSG::INFO << " HLT Result SG key                  = " << m_hltResultSGKey << endreq;
-  log << MSG::INFO << " SG key for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endreq;
-  log << MSG::INFO << " RetrieveLvl1                       = " << m_retrieveLvl1 << endreq;
-  log << MSG::INFO << " RetrieveROBs                       = " << m_retrieveROBs << endreq;
-  log << MSG::INFO << " Time between ROB retrievals [usec] = " << m_timeBetweenRobRetMicroSec << endreq;
-  log << MSG::INFO << " List of ROBs for retieval: Number of retrievals = " << m_mapRobIdsProperty.value().size() <<  endreq;
+  ATH_MSG_INFO(" HLT Result SG key                  = " << m_hltResultSGKey);
+  ATH_MSG_INFO(" SG key for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name);
+  ATH_MSG_INFO(" RetrieveLvl1                       = " << m_retrieveLvl1);
+  ATH_MSG_INFO(" RetrieveROBs                       = " << m_retrieveROBs);
+  ATH_MSG_INFO(" Time between ROB retrievals [usec] = " << m_timeBetweenRobRetMicroSec);
+  ATH_MSG_INFO(" List of ROBs for retieval: Number of retrievals = " << m_mapRobIdsProperty.value().size());
   for (MapStringVector_t::const_iterator it_map = m_mapRobIdsProperty.value().begin(); it_map != m_mapRobIdsProperty.value().end();++it_map) {
-    log << MSG::INFO << " Label = " << it_map->first << " Number of ROBs = " << (it_map->second).size() << endreq;
+    ATH_MSG_INFO(" Label = " << it_map->first << " Number of ROBs = " << (it_map->second).size());
     std::string retr;
     for (std::vector<int>::const_iterator it_vec = (it_map->second).begin(); it_vec != (it_map->second).end(); ++it_vec) {
       if (*it_vec < 0 ) {
-	log << MSG::DEBUG << "         ROB = 0x" << MSG::hex << *it_vec << MSG::dec << " -> invalid ROB Id. Ignored." << endreq;
+	ATH_MSG_DEBUG("         ROB = 0x" << MSG::hex << *it_vec << MSG::dec << " -> invalid ROB Id. Ignored.");
       } else {  
 	if ( (it_map->first).find(":ADD:") != std::string::npos ) {
 	  retr = std::string(" -> on prefetching list ");
@@ -88,18 +85,18 @@ StatusCode MTCalibPeb::initialize(){
 	  retr = std::string(" -> build event ");
 	  m_mapRobIds[it_map->first].push_back(*it_vec);
 	}
-	log << MSG::DEBUG << "         ROB = 0x" << MSG::hex << *it_vec << MSG::dec << retr << endreq;
+	ATH_MSG_DEBUG("         ROB = 0x" << MSG::hex << *it_vec << MSG::dec << retr);
       }
     }
   }
 
-  log << MSG::INFO << " Stream Tags List                   = " << m_listStreamTags << endreq;
+  ATH_MSG_INFO(" Stream Tags List                   = " << m_listStreamTags);
   if (m_listStreamTags.value().size() > 0) {
     m_configuredStreamTags.reserve( m_listStreamTags.value().size() );
     std::vector< std::vector<std::string> >::const_iterator it = m_listStreamTags.value().begin();
     while (it != m_listStreamTags.value().end()) {
       if ( (*it).size() < 3 ) {
-	log << MSG::WARNING << " Invalid StreamTag specified:" << (*it)[0] << " Provide at least (name, type, obeys_LB)" << endreq;
+	ATH_MSG_WARNING(" Invalid StreamTag specified:" << (*it)[0] << " Provide at least (name, type, obeys_LB)");
       }
       if ( (*it).size() == 3 ) {
 	m_configuredStreamTags.push_back(TriggerInfo::StreamTag( (*it)[0], (*it)[1], ( (*it)[2] == "true" ) )) ;
@@ -119,10 +116,10 @@ StatusCode MTCalibPeb::initialize(){
       ++it;
     }
   }
-  log << MSG::INFO << " Configured StreamTags " << endreq; 
-  log << MSG::INFO << " ---------------------" << printStreamTags(m_configuredStreamTags) << endreq;
+  ATH_MSG_INFO(" Configured StreamTags "); 
+  ATH_MSG_INFO(" ---------------------" << printStreamTags(m_configuredStreamTags));
 
-  log << MSG::INFO << " Chain numbers                      = " << m_configuredChainNumbers << endreq;
+  ATH_MSG_INFO(" Chain numbers                      = " << m_configuredChainNumbers);
   m_max_chain_counter = 0;
   if (m_configuredChainNumbers.value().size() > 0) {
     Uint32Array_t::const_iterator it = m_configuredChainNumbers.value().begin();
@@ -132,31 +129,21 @@ StatusCode MTCalibPeb::initialize(){
     }
   }
 
-  log << MSG::INFO << " Max. chain number                  = " << m_max_chain_counter << endreq;
-  log << MSG::INFO << " Random accept rate                 = " << m_acceptRate << endreq;
-  log << MSG::INFO << " Burn time [usec]                   = " << m_burnTimeMicroSec << endreq;
-  log << MSG::INFO << " Number of Burn time Cycles         = " << m_burnTimeCycles << endreq;
+  ATH_MSG_INFO(" Max. chain number                  = " << m_max_chain_counter);
+  ATH_MSG_INFO(" Random accept rate                 = " << m_acceptRate);
+  ATH_MSG_INFO(" Burn time [usec]                   = " << m_burnTimeMicroSec);
+  ATH_MSG_INFO(" Number of Burn time Cycles         = " << m_burnTimeCycles);
 
-  // Part 3: Locate the StoreGateSvc
-  StatusCode sc =  m_storeGateSvc.retrieve();
+  // Part 3: Locate the ROBDataProviderSvc
+  StatusCode sc = m_robDataProviderSvc.retrieve();
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return sc;
-  } else {
-    log << MSG::INFO << " Algorithm = " << name() << " is connected to StoreGate Service          = "
-        << m_storeGateSvc->name() << endreq;
-  }
-
-  // Part 4: Locate the ROBDataProviderSvc
-  sc = m_robDataProviderSvc.retrieve();
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not find ROBDataProviderSvc" << endreq;
+    ATH_MSG_ERROR("Could not find ROBDataProviderSvc");
     return sc;
   } else {
     IService* svc = dynamic_cast<IService*>(&*m_robDataProviderSvc);
     if(svc != 0 ) {
-      log << MSG::INFO << " Algorithm = " << name() << " is connected to ROBDataProviderSvc Service = "
-	  << svc->name() << endreq;
+      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to ROBDataProviderSvc Service = "
+	  << svc->name());
     }
   }
 
@@ -168,11 +155,11 @@ StatusCode MTCalibPeb::initialize(){
     m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
 #endif
     if (m_hltROBDataProviderSvc.isValid()) {
-      log << MSG::INFO << " A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
-		  << endreq;
+      ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
+		 );
     } else {
-      log << MSG::INFO << " No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
-		  << endreq;
+      ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
+		 );
     }
   }
 
@@ -183,222 +170,243 @@ StatusCode MTCalibPeb::initialize(){
 
 StatusCode MTCalibPeb::execute() {
 
-  // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "execute()" << endreq;
+   // Get the messaging service, print where you are
+   ATH_MSG_DEBUG("execute()");
 
-  log << MSG::DEBUG << " StoreGate structure: Begin execute " << name() << "\n"
-      << m_storeGateSvc->dump() << endreq;
+   ATH_MSG_DEBUG(" StoreGate structure: Begin execute " << name() << "\n"
+       << evtStore()->dump());
 
-  uint32_t lvl1ID(0);
+   uint32_t lvl1ID(0);
+   uint64_t globalEventNumber(0);
 
-  // get EventInfo
-  const EventInfo* p_EventInfo(0);
-  StatusCode sc = m_storeGateSvc->retrieve(p_EventInfo);
-  if(sc.isFailure()){
-    log << MSG::FATAL << "Can't get EventInfo object for update of the StreamTag and TriggerInfo" << endreq;
-    return sc;
-  }
-
-  lvl1ID = p_EventInfo->event_ID()->event_number();
-
-  // Get the Lvl1 Id from the RoIBResult
-  const DataHandle<ROIB::RoIBResult> dobj;
-  if (m_retrieveLvl1) {
-    sc = m_storeGateSvc->retrieve(dobj,"RoIBResult") ;
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Could not find Lvl1Result" << endreq;
+   // get EventInfo
+   const EventInfo* p_EventInfo(0);
+   StatusCode sc = evtStore()->retrieve(p_EventInfo);
+   if(sc.isFailure()){
+      ATH_MSG_FATAL("Can't get EventInfo object for update of the StreamTag and TriggerInfo");
       return sc;
-    } else {
-      log << MSG::INFO << " ---> Lvl1Result ID " << dobj->cTPResult().header().L1ID() 
-	  << " (From EventInfo = " << lvl1ID << " )"
-	  << endreq;
-    }
-  }
+   }
 
-  // Get the ROBs
-  if (m_retrieveROBs) {
-    // preload and retrieve ROBs
-    for (MapStringUint32Array_t::const_iterator it_map = m_mapRobIds.begin(); it_map != m_mapRobIds.end(); ++it_map) {
-      // check for time out
+   lvl1ID = p_EventInfo->event_ID()->event_number();
+   globalEventNumber = p_EventInfo->event_ID()->event_number();
+
+   // Get the Lvl1 Id from the RoIBResult
+   const DataHandle<ROIB::RoIBResult> dobj;
+   if (m_retrieveLvl1) {
+      sc = evtStore()->retrieve(dobj,"RoIBResult") ;
+      if ( sc.isFailure() ) {
+         ATH_MSG_ERROR("Could not find Lvl1Result");
+         return sc;
+      } else {
+         ATH_MSG_DEBUG(" ---> Lvl1Result ID " << dobj->cTPResult().header().L1ID() 
+             << " (From EventInfo = " << lvl1ID << " )"
+            );
+      }
+   }
+
+   // Get the ROBs
+   if (m_retrieveROBs) {
+      // preload and retrieve ROBs
+      for (MapStringUint32Array_t::const_iterator it_map = m_mapRobIds.begin(); it_map != m_mapRobIds.end(); ++it_map) {
+         // check for time out
+         if (Athena::Timeout::instance().reached()) {
+            ATH_MSG_INFO(" Time out reached in ROB retrieval loop.");
+            break;
+         }
+
+         ATH_MSG_DEBUG(" ===> ROB preloading/retrieval: Label = " << it_map->first << " <=== ");
+         // preload ROBs in memory
+         if ( (it_map->first).find(":ADD:") != std::string::npos ) {
+            m_robDataProviderSvc->addROBData(it_map->second, name()+"-ADD");
+         }
+
+
+         // retrieve ROBs
+         if ( (it_map->first).find(":GET:") != std::string::npos ) {
+            std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
+            m_robDataProviderSvc->getROBData(it_map->second, robFragments, name()+"-GET") ;
+            ATH_MSG_DEBUG(" ---> number of ROBs retrieved " << robFragments.size());
+            std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it = robFragments.begin();
+            ATH_MSG_DEBUG(" ---> List of ROBs found: ");                                   
+            while (it != robFragments.end()) {
+               ATH_MSG_DEBUG(" ---> ROB ID = 0x" << MSG::hex << (*it)->source_id() << MSG::dec
+                   << " ROD ID = 0x" << MSG::hex << (*it)->rod_source_id() << MSG::dec 
+                   << " Level-1 ID = " << (*it)->rod_lvl1_id());
+               ++it;
+            }
+         }
+
+         // do event building / get ROBs for complete event
+         if ( (it_map->first).find(":COL:") != std::string::npos ) {
+            int n_rbs(0);	
+            if (m_hltROBDataProviderSvc.isValid()) {
+               n_rbs = m_hltROBDataProviderSvc->collectCompleteEventData(name()+"-COL");
+               ATH_MSG_DEBUG(" ---> Caller name for collectCompleteEventData = " 
+                   << m_hltROBDataProviderSvc->getCallerName());
+            }
+            ATH_MSG_DEBUG(" ---> number of ROBs retrieved " << n_rbs);
+         }
+
+         // burn some time between ROB retrievals
+         // m_cpu_burner.burn(m_timeBetweenRobRetMicroSec);
+         usleep(randomCPUBurn(m_timeBetweenRobRetMicroSec));
+      }
+   }
+
+   // get the HLT result
+   HLT::HLTResult* pHltResult(0);
+   if ( !(evtStore()->transientContains<HLT::HLTResult>(m_hltResultSGKey)) ) {
+      pHltResult = new HLT::HLTResult() ;
+      if (pHltResult) {
+         // Record it in StoreGate (object can be modified)
+         sc = evtStore()->record(pHltResult, m_hltResultSGKey, true);
+         if( !sc.isSuccess() ) {
+            ATH_MSG_ERROR("Error declaring L2 Result object in SG");
+         }
+      } else {
+         ATH_MSG_ERROR("Error creating L2 Result object. Pointer = 0x" << MSG::hex << pHltResult);
+      }
+   } else {
+      sc = evtStore()->retrieve(pHltResult,m_hltResultSGKey) ;
+      if ( sc.isFailure() ) {
+         ATH_MSG_ERROR("Error retrieving L2 Result object. Pointer = 0x" << MSG::hex << pHltResult);
+      }
+   }
+
+   // burn cpu time
+   for (unsigned int itr=0; itr != (unsigned int) (m_burnTimeCycles.value()); ++itr) {
       if (Athena::Timeout::instance().reached()) {
-	log << MSG::INFO << " Time out reached in ROB retrieval loop." << endreq;
-	break;
+         ATH_MSG_INFO(" Time out reached:CPU burn Loop # = " << itr);
+         break;
       }
+      unsigned int burntime = randomCPUBurn(m_burnTimeMicroSec);
+      ATH_MSG_VERBOSE(" CPU burn Loop # = " << itr << " Burn time [micro sec] = " << burntime);
+      usleep(burntime);
+   }
 
-      log << MSG::INFO << " ===> ROB preloading/retrieval: Label = " << it_map->first << " <=== " << endreq;
-      // preload ROBs in memory
-      if ( (it_map->first).find(":ADD:") != std::string::npos ) {
-	m_robDataProviderSvc->addROBData(it_map->second, name()+"-ADD");
-      }
-
-
-      // retrieve ROBs
-      if ( (it_map->first).find(":GET:") != std::string::npos ) {
-	std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
-	m_robDataProviderSvc->getROBData(it_map->second, robFragments, name()+"-GET") ;
-	log << MSG::INFO << " ---> number of ROBs retrieved " << robFragments.size() << endreq;
-	std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it = robFragments.begin();
-	log << MSG::INFO << " ---> List of ROBs found: " << endreq;                                   
-	while (it != robFragments.end()) {
-	  log << MSG::INFO << " ---> ROB ID = 0x" << MSG::hex << (*it)->source_id() << MSG::dec
-	      << " ROD ID = 0x" << MSG::hex << (*it)->rod_source_id() << MSG::dec 
-	      << " Level-1 ID = " << (*it)->rod_lvl1_id() << endreq;
-	  ++it;
-	}
-      }
-
-      // do event building / get ROBs for complete event
-      if ( (it_map->first).find(":COL:") != std::string::npos ) {
-	int n_rbs(0);	
-	if (m_hltROBDataProviderSvc.isValid()) {
-	  n_rbs = m_hltROBDataProviderSvc->collectCompleteEventData(name()+"-COL");
-	  log << MSG::INFO << " ---> Caller name for collectCompleteEventData = " 
-	      << m_hltROBDataProviderSvc->getCallerName() << endreq;
-	}
-	log << MSG::INFO << " ---> number of ROBs retrieved " << n_rbs << endreq;
-      }
-
-      // burn some time between ROB retrievals
-      // m_cpu_burner.burn(m_timeBetweenRobRetMicroSec);
-      usleep(randomCPUBurn(m_timeBetweenRobRetMicroSec));
-    }
-  }
-
-  // get the HLT result
-  HLT::HLTResult* pHltResult(0);
-  if ( !(m_storeGateSvc->transientContains<HLT::HLTResult>(m_hltResultSGKey)) ) {
-    pHltResult = new HLT::HLTResult() ;
-    if (pHltResult) {
-      // Record it in StoreGate (object can be modified)
-      sc = m_storeGateSvc->record(pHltResult, m_hltResultSGKey, true);
-      if( !sc.isSuccess() ) {
-	log << MSG::ERROR << "Error declaring L2 Result object in SG" << endreq;
-      }
-    } else {
-      log << MSG::ERROR << "Error creating L2 Result object. Pointer = 0x" << MSG::hex << pHltResult << endreq;
-    }
-  } else {
-    sc = m_storeGateSvc->retrieve(pHltResult,m_hltResultSGKey) ;
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR << "Error retrieving L2 Result object. Pointer = 0x" << MSG::hex << pHltResult << endreq;
-    }
-  }
-
-  // burn cpu time
-  for (unsigned int itr=0; itr != (unsigned int) (m_burnTimeCycles.value()); ++itr) {
-    if (Athena::Timeout::instance().reached()) {
-      log << MSG::INFO << " Time out reached:CPU burn Loop # = " << itr << endreq;
-      break;
-    }
-    unsigned int burntime = randomCPUBurn(m_burnTimeMicroSec);
-    log << MSG::VERBOSE << " CPU burn Loop # = " << itr
-	<< " Burn time [micro sec] = " << burntime << endreq;
-    usleep(burntime);
-  }
-
-  // decide if to accept the event
-  if (pHltResult) {
-    pHltResult->setHLTStatus( 0 ) ;   
-    pHltResult->setLvl1Id( lvl1ID );   
-    pHltResult->setAccepted( randomAccept(m_acceptRate) );
-    pHltResult->setPassThrough( false );
-    if (m_hltInstance.value() == "L2") {
-      pHltResult->setHLTLevel( HLT::L2 );
-    } else if (m_hltInstance.value() == "EF") {
-      pHltResult->setHLTLevel( HLT::EF );
-    } else {
-      pHltResult->setHLTLevel( HLT::HLT );
-    }
-    pHltResult->setCreatedOutsideHLT( false );
-
-    if ( pHltResult->isAccepted() ) {
-      // set the stream tag
-      StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
-      for (StreamTagVector_t::const_iterator it = m_configuredStreamTags.begin();
-	   it != m_configuredStreamTags.end(); ++it) {
-	vecStreamTags.push_back( (*it) );
-      }
-      p_EventInfo->trigger_info()->setStreamTags(vecStreamTags);
-
-      // set trigger info words
-      unsigned int origSize(0);
+   // decide if to accept the event
+   if (pHltResult) {
+      pHltResult->setHLTStatus( 0 ) ;   
+      pHltResult->setLvl1Id( lvl1ID );   
+      pHltResult->setAccepted( randomAccept(m_acceptRate) );
+      pHltResult->setPassThrough( false );
       if (m_hltInstance.value() == "L2") {
-	origSize = (p_EventInfo->trigger_info()->level2TriggerInfo()).size();
+         pHltResult->setHLTLevel( HLT::L2 );
+      } else if (m_hltInstance.value() == "EF") {
+         pHltResult->setHLTLevel( HLT::EF );
       } else {
-	origSize = (p_EventInfo->trigger_info()->eventFilterInfo()).size();
+         pHltResult->setHLTLevel( HLT::HLT );
       }
+      pHltResult->setCreatedOutsideHLT( false );
 
-      unsigned int infoSize = int(std::floor( m_max_chain_counter/(sizeof(uint32_t)*8) + 1. ));
-      Uint32Array_t vecTriggerTypeBits( std::max(infoSize, origSize) ) ;
+      if ( pHltResult->isAccepted() ) {
+	 // set the map with the module ID
+	 std::map<unsigned int, std::set<std::pair<CLID, std::string> > > map_modid_clid_name; 
 
-      // copy old trigger words
-      for (unsigned int index=0; index != origSize; ++index) {
-	if (m_hltInstance.value() == "L2") {
-	  vecTriggerTypeBits[index] = (p_EventInfo->trigger_info()->level2TriggerInfo())[index];
-	} else {
-	  vecTriggerTypeBits[index] = (p_EventInfo->trigger_info()->eventFilterInfo())[index];
-	}
+	 // create a dummy cut vector for DS
+         std::vector<unsigned int>& cuts_DSonly = pHltResult->getNavigationResultCuts_DSonly();
+	 cuts_DSonly.push_back(0);
+	 cuts_DSonly.push_back(0);
+
+         // set the stream tag and module id of HLT result
+         StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
+         for (StreamTagVector_t::const_iterator it = m_configuredStreamTags.begin();
+              it != m_configuredStreamTags.end(); ++it) {
+            vecStreamTags.push_back( (*it) );
+
+	    // check for DataScouting stream tags and add their ID to the map
+	    if ( (((*it).name()).substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) && ((*it).type() == "calibration" ) ) {
+		unsigned module_id = atoi( (((*it).name()).substr(s_dataScoutingResultName.length(),2)).c_str() ) ;
+		map_modid_clid_name[module_id]=std::set<std::pair<CLID, std::string> >();
+	    } else {
+	      map_modid_clid_name[0]=std::set<std::pair<CLID, std::string> >();
+	    }
+         }
+
+	 // update the internal HLT result map
+	 pHltResult->setScoutingMap(map_modid_clid_name);
+
+	 // set the StreamTags 
+         p_EventInfo->trigger_info()->setStreamTags(vecStreamTags);
+
+         // set trigger info words
+         unsigned int origSize(0);
+         if (m_hltInstance.value() == "L2") {
+            origSize = (p_EventInfo->trigger_info()->level2TriggerInfo()).size();
+         } else {
+            origSize = (p_EventInfo->trigger_info()->eventFilterInfo()).size();
+         }
+
+         unsigned int infoSize = int(std::floor( m_max_chain_counter/(sizeof(uint32_t)*8) + 1. ));
+         Uint32Array_t vecTriggerTypeBits( std::max(infoSize, origSize) ) ;
+
+         // copy old trigger words
+         for (unsigned int index=0; index != origSize; ++index) {
+            if (m_hltInstance.value() == "L2") {
+               vecTriggerTypeBits[index] = (p_EventInfo->trigger_info()->level2TriggerInfo())[index];
+            } else {
+               vecTriggerTypeBits[index] = (p_EventInfo->trigger_info()->eventFilterInfo())[index];
+            }
+         }
+
+         for (Uint32Array_t::const_iterator it = m_configuredChainNumbers.value().begin(); 
+              it != m_configuredChainNumbers.value().end(); ++it) { 
+            setTriggerTypeBit( (*it), vecTriggerTypeBits); 
+         }
+
+         if (m_hltInstance.value() == "L2") {
+            p_EventInfo->trigger_info()->setLevel2TriggerInfo(vecTriggerTypeBits);
+         } else {
+            p_EventInfo->trigger_info()->setEventFilterInfo(vecTriggerTypeBits);
+         }
+      } // end pHltResult->isAccepted()
+   }
+
+   ATH_MSG_DEBUG(" +-------------------+ ");
+   ATH_MSG_DEBUG(" | Updated EventInfo | Level-1 ID = " << lvl1ID << ", Global Event ID = " << globalEventNumber);
+   ATH_MSG_DEBUG(" +-------------------+ ");
+   ATH_MSG_DEBUG(" Complete EventID   = " << *(p_EventInfo->event_ID()));
+   ATH_MSG_DEBUG("        EventType   = " << ((p_EventInfo->event_type())->typeToString()));
+   ATH_MSG_DEBUG("      TriggerInfo   = " << *(p_EventInfo->trigger_info()));
+
+   ATH_MSG_DEBUG(" Dump of extended StreamTags ");
+   ATH_MSG_DEBUG(" --------------------------- " 
+       << printStreamTags(p_EventInfo->trigger_info()->streamTags())
+      );
+
+   std::vector<uint32_t> rawResult;
+   bool serializeOk(false);
+   if (pHltResult)  serializeOk = pHltResult->serialize(rawResult);
+   ATH_MSG_DEBUG(" HLT Result payload: serializeOk = " << serializeOk); 
+   unsigned int index(0);
+   for (std::vector<uint32_t>::const_iterator it=rawResult.begin();it != rawResult.end(); ++it) {
+      ATH_MSG_DEBUG(" data[" << std::setw(3) << index << "]" 
+          << " 0x" << std::setw(8) << MSG::hex << *it << MSG::dec << std::setw(12) << *it) ;
+      index++;
+   }
+
+   ATH_MSG_DEBUG(" StoreGate structure: End execute " << name() << "\n"
+       << evtStore()->dump());
+
+   // Print ROB monitoring
+   ROBDataMonitorCollection* p_robMonCollection(0);
+   if ( evtStore()->transientContains<ROBDataMonitorCollection>(m_ROBDataMonitorCollection_SG_Name.value()) ) {
+      if ( evtStore()->retrieve(p_robMonCollection).isFailure() ) {
+         ATH_MSG_WARNING(" Retrieval of ROB Monitoring collection from StoreGate failed.");
+         p_robMonCollection = 0;
       }
+   }
 
-      for (Uint32Array_t::const_iterator it = m_configuredChainNumbers.value().begin(); 
-	   it != m_configuredChainNumbers.value().end(); ++it) { 
-	setTriggerTypeBit( (*it), vecTriggerTypeBits); 
+   if ( p_robMonCollection ) {
+      for (ROBDataMonitorCollection::iterator it=p_robMonCollection->begin();
+           it!=p_robMonCollection->end();++it) {
+         std::ostringstream ost;
+         ost << " --> ROB Mon Struct: " << (**it)  ;
+         ATH_MSG_DEBUG(ost.str());
       }
+   }
 
-      if (m_hltInstance.value() == "L2") {
-	p_EventInfo->trigger_info()->setLevel2TriggerInfo(vecTriggerTypeBits);
-      } else {
-	p_EventInfo->trigger_info()->setEventFilterInfo(vecTriggerTypeBits);
-      }
-    } // end pHltResult->isAccepted()
-  }
-
-  log << MSG::DEBUG << " +-------------------+ " << endreq;
-  log << MSG::DEBUG << " | Updated EventInfo | Level-1 ID = " << lvl1ID << endreq;
-  log << MSG::DEBUG << " +-------------------+ " << endreq;
-  log << MSG::DEBUG << " Complete EventID   = " << *(p_EventInfo->event_ID()) << endreq;
-  log << MSG::DEBUG << "        EventType   = " << ((p_EventInfo->event_type())->typeToString()) << endreq;
-  log << MSG::DEBUG << "      TriggerInfo   = " << *(p_EventInfo->trigger_info()) << endreq;
-
-  log << MSG::DEBUG << " Dump of extended StreamTags " << endreq;
-  log << MSG::DEBUG << " --------------------------- " 
-      << printStreamTags(p_EventInfo->trigger_info()->streamTags())
-      << endreq;
-
-  std::vector<uint32_t> rawResult;
-  bool serializeOk(false);
-  if (pHltResult)  serializeOk = pHltResult->serialize(rawResult);
-  log << MSG::DEBUG << " HLT Result payload: serializeOk = " << serializeOk << endreq; 
-  unsigned int index(0);
-  for (std::vector<uint32_t>::const_iterator it=rawResult.begin();it != rawResult.end(); ++it) {
-    log << MSG::DEBUG << " data[" << std::setw(3) << index << "]" 
-	<< " 0x" << std::setw(8) << MSG::hex << *it << MSG::dec << std::setw(12) << *it << endreq ;
-    index++;
-  }
-
-  log << MSG::DEBUG << " StoreGate structure: End execute " << name() << "\n"
-      << m_storeGateSvc->dump() << endreq;
-
-  // Print ROB monitoring
-  ROBDataMonitorCollection* p_robMonCollection(0);
-  if ( m_storeGateSvc->transientContains<ROBDataMonitorCollection>(m_ROBDataMonitorCollection_SG_Name.value()) ) {
-    if ( m_storeGateSvc->retrieve(p_robMonCollection).isFailure() ) {
-      log << MSG::WARNING << " Retrieval of ROB Monitoring collection from StoreGate failed." << endreq;
-      p_robMonCollection = 0;
-    }
-  }
-
-  if ( p_robMonCollection ) {
-    for (ROBDataMonitorCollection::iterator it=p_robMonCollection->begin();
-	 it!=p_robMonCollection->end();++it) {
-      std::ostringstream ost;
-      ost << " --> ROB Mon Struct: " << (**it)  ;
-      log << MSG::DEBUG << ost.str() << endreq;
-    }
-  }
-
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -406,14 +414,13 @@ StatusCode MTCalibPeb::execute() {
 StatusCode MTCalibPeb::finalize() {
 
   // Part 1: Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
-
+   ATH_MSG_INFO("finalize()");
+   
 #ifdef ATLAS_GAUDI_V21
-  m_hltROBDataProviderSvc.reset();
+   m_hltROBDataProviderSvc.reset();
 #endif
 
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
