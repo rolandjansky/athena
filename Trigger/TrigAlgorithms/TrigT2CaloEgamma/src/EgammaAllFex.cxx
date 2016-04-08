@@ -61,10 +61,7 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   double totalEnergyEM = 0;
   CaloSampling::CaloSample samp;
 
-#ifndef NDEBUG
-  if ( msg().level() <= MSG::DEBUG ) 
-	  msg() << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
-#endif
+  ATH_MSG_DEBUG( "in execute(TrigEMCluster&)" );
 
 	// Time to access RegionSelector
 
@@ -169,7 +166,6 @@ StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   rtrigEmCluster.setEta(etaL1);
   rtrigEmCluster.setPhi(phiL1);
   rtrigEmCluster.setNCells(ncells);
-  rtrigEmCluster.setEt ( rtrigEmCluster.energy()/cosh(etaL1) );
         
   // Finished save EMShowerMinimal time
   if (!m_timersvc.empty()) m_timer[4]->stop();      

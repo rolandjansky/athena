@@ -33,5 +33,5 @@ DECLARE_FACTORY_ENTRIES(TrigT2CaloEgamma) {
     DECLARE_TOOL( EgammaEmEnFex );
     DECLARE_TOOL( EgammaHadEnFex );
     DECLARE_TOOL( RingerFex );
-    //DECLARE_TOOL( T2CaloEgammaMon );
+//    DECLARE_TOOL( T2CaloEgammaMon );
 }

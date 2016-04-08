@@ -23,10 +23,6 @@
 
 #include "IRegionSelector/IRoiDescriptor.h"
 
-//#include <iostream>
-using namespace std;
-
-
 EgammaSamp2Fex::EgammaSamp2Fex(const std::string & type, const std::string & name, 
                    const IInterface* parent): IAlgToolCalo(type, name, parent)
 		   {
@@ -51,10 +47,7 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	// reset error
 	m_error=0x0;
 
-#ifndef NDEBUG
-  if ( msg().level() <= MSG::DEBUG ) 
-	  msg() << MSG::INFO << "in execute(TrigEMCluster&)" << endreq;
-#endif
+        ATH_MSG_DEBUG( "in execute(TrigEMCluster&)" );
 
 	// Time to access RegionSelector
 	if (!m_timersvc.empty()) m_timer[1]->start();      
@@ -116,11 +109,11 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // LVL1 positions
   float etaL1=rtrigEmCluster.eta();
   float phiL1=rtrigEmCluster.phi();
+  
   const LArEM_ID*   emID  = m_larMgr->getEM_ID();
   const LArCell* larcell;
   const LArCell* seedCell = NULL;
   const LArCell* hotCell = NULL;
-  
   for(m_it = m_iBegin;m_it != m_iEnd; ++m_it) {
       larcell=(*m_it);
       if (larcell->energy() > seedEnergy) { // Hottest cell seach
@@ -472,8 +465,9 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // calculate cluster width
 
   if ( energy35Lay2 > 0. ){ 
-    clusterWidth35 = (weightEta2/energy35Lay2) -
-      (weightEta/energy35Lay2)*(weightEta/energy35Lay2);
+    const double inv_energy35Lay2 = 1. / energy35Lay2;
+    clusterWidth35 = (weightEta2*inv_energy35Lay2) -
+      (weightEta*inv_energy35Lay2)*(weightEta*inv_energy35Lay2);
     clusterWidth35 > 0.? clusterWidth35 = sqrt(clusterWidth35) :
       clusterWidth35 = 99.;				
   } else {
@@ -501,21 +495,21 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   rtrigEmCluster.setRawPhi(energyPhi);
   rtrigEmCluster.setNCells(ncells);
         
-	// Finished save EMShowerMinimal time
-	if (!m_timersvc.empty()) m_timer[4]->stop();      
-
+  // Finished save EMShowerMinimal time
+  if (!m_timersvc.empty()) m_timer[4]->stop();      
 
 #ifndef NDEBUG
   // This will internaly define normal, narrow and large clusters
- if ( msg().level() <= MSG::DEBUG ) {
-  if ( m_geometryTool->EtaPhiRange(0,2,energyEta, energyPhi))
-        msg() << MSG::ERROR << "problems with EtaPhiRange" << endreq;
-        msg() << MSG::DEBUG << "totalEnergy" << totalEnergy << endreq;
-	PrintCluster(totalEnergy,0,2, CaloSampling::EMB2,CaloSampling::EME2);
- }
+  if ( msgLvl(MSG::DEBUG) ) {
+    if ( m_geometryTool->EtaPhiRange(0,2,energyEta, energyPhi))
+      ATH_MSG_ERROR( "problems with EtaPhiRange" );
+    ATH_MSG_DEBUG( "totalEnergy" << totalEnergy );
+    PrintCluster(totalEnergy,0,2, CaloSampling::EMB2,CaloSampling::EME2);
+  }
 #endif
-	// Time total AlgTool time 
-	if (!m_timersvc.empty()) m_timer[0]->stop();      
+
+  // Time total AlgTool time 
+  if (!m_timersvc.empty()) m_timer[0]->stop();      
 
   return StatusCode::SUCCESS;
 }

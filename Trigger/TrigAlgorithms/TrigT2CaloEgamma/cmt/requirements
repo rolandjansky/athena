@@ -8,21 +8,18 @@ author Xin Wu <Xin.Wu@cern.ch>
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*             External
 
-use LArRawUtils         LArRawUtils-*                LArCalorimeter
-use LArRecEvent         LArRecEvent-*                LArCalorimeter
-use Identifier          Identifier-*                 DetectorDescription
-use CaloIdentifier      CaloIdentifier-*             Calorimeter
+#use LArRawUtils         LArRawUtils-*                LArCalorimeter
+#use LArRecEvent         LArRecEvent-*                LArCalorimeter
+#use Identifier          Identifier-*                 DetectorDescription
+
+
 use CaloEvent           CaloEvent-*                  Calorimeter
 use CaloGeoHelpers      CaloGeoHelpers-*             Calorimeter
 use xAODTrigCalo        xAODTrigCalo-*               Event/xAOD
 use xAODTrigRinger      xAODTrigRinger-*             Event/xAOD
 use TrigT2CaloCommon    TrigT2CaloCommon-*           Trigger/TrigAlgorithms
-use TrigT2CaloCalibration  TrigT2CaloCalibration-*   Trigger/TrigTools
- 
-use TrigT1Interfaces    TrigT1Interfaces-*           Trigger/TrigT1
-use TrigInterfaces      TrigInterfaces-*             Trigger/TrigSteer
+#use TrigInterfaces     TrigInterfaces-*             Trigger/TrigSteer
 use TrigSteeringEvent   TrigSteeringEvent-*          Trigger/TrigEvent
-use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
 use egammaInterfaces	  egammaInterfaces-*	         Reconstruction/egamma
 use DataModel           DataModel-*                  Control
 use CLIDSvc             CLIDSvc-*                    Control
@@ -31,7 +28,11 @@ use CLIDSvc             CLIDSvc-*                    Control
 private
 use IRegionSelector     IRegionSelector-*            DetectorDescription
 use AthLinks            AthLinks-*                   Control
-
+use TrigT1Interfaces    TrigT1Interfaces-*           Trigger/TrigT1
+use CaloIdentifier      CaloIdentifier-*             Calorimeter
+use TrigT2CaloCalibration  TrigT2CaloCalibration-*   Trigger/TrigTools
+use TrigTimeAlgs        TrigTimeAlgs-*               Trigger/TrigTools
+use CaloDetDescr    CaloDetDescr-*   Calorimeter 
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_runtime
