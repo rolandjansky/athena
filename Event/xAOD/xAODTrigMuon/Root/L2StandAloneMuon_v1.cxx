@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.cxx 674051 2015-06-10 13:39:04Z mishitsu $
+// $Id: L2StandAloneMuon_v1.cxx 706292 2015-11-06 05:33:24Z ssnyder $
 
 // System include(s):
 #include <iostream>
@@ -344,19 +344,38 @@ namespace xAOD {
                                          roiNumber, setRoiNumber )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
                                          roiThreshold, setRoiThreshold )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
-                                         roiEta, setRoiEta )
-   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
-                                         roiPhi, setRoiPhi )
+   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
+   //                                      roiEta, setRoiEta )
+   //AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, uint32_t,
+   //                                      roiPhi, setRoiPhi )
+   uint32_t L2StandAloneMuon_v1::roiEta() const {
+      static Accessor< uint32_t > acc( "roiEtaUint" );
+      return acc( *this );                 
+   }                                       
+   void L2StandAloneMuon_v1::setRoiEta( uint32_t value ) {         
+      static Accessor< uint32_t > acc( "roiEtaUint" );
+      acc( *this ) = value;                
+      return;                              
+   }
+   uint32_t L2StandAloneMuon_v1::roiPhi() const {                 
+      static Accessor< uint32_t > acc( "roiPhiUint" );
+      return acc( *this );                 
+   }                                       
+   void L2StandAloneMuon_v1::setRoiPhi( uint32_t value ) {         
+      static Accessor< uint32_t > acc( "roiPhiUint" );
+      acc( *this ) = value;                
+      return;                              
+   }
+
    ///
    /////////////////////////////////////////////////////////////////////////////
 
    /////////////////////////////////////////////////////////////////////////////
    /// Set and get pT from different algorithms
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
-                                         ptBarelRadius, setPtBarelRadius )
+                                         ptBarrelRadius, setPtBarrelRadius )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
-                                         ptBarelSagitta, setPtBarelSagitta )
+                                         ptBarrelSagitta, setPtBarrelSagitta )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
                                          ptEndcapAlpha, setPtEndcapAlpha )
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( L2StandAloneMuon_v1, float,
@@ -1146,7 +1165,7 @@ namespace xAOD {
    static SG::AuxElement::Accessor< std::vector< float > >    tmprAcc( "tgcMidPhiHitR" );
    static SG::AuxElement::Accessor< std::vector< float > >    tmpzAcc( "tgcMidPhiHitZ" );
    static SG::AuxElement::Accessor< std::vector< float > >    tmpwAcc( "tgcMidPhiHitWidth" );
-   static SG::AuxElement::Accessor< std::vector< uint32_t > > tmpiAcc( "tgcMidPhiHitInEeg" );
+   static SG::AuxElement::Accessor< std::vector< uint32_t > > tmpiAcc( "tgcMidPhiHitInSeg" );
 
    /// Object for accessing the MDT tube variables
    static SG::AuxElement::Accessor< std::vector< uint32_t > > mdtonAcc( "mdtHitOnlineId" );
@@ -1606,7 +1625,7 @@ namespace xAOD {
    AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v1, std::vector< float >,    tgcMidPhiHitR)
    AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v1, std::vector< float >,    tgcMidPhiHitZ)
    AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v1, std::vector< float >,    tgcMidPhiHitWidth)
-   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v1, std::vector< uint32_t >, tgcMidPhiHitInEeg)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v1, std::vector< uint32_t >, tgcMidPhiHitInSeg)
 
    /// Set TGC hits
    void L2StandAloneMuon_v1::setTgcInnRhoHit( float phi, float r, float z, float width, uint32_t in_seg ) {

@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuonAuxContainer_v1.h 661304 2015-04-18 04:31:23Z mishitsu $
-#ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
-#define XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
+// $Id: L2StandAloneMuonAuxContainer_v2.h 661304 2015-04-18 04:31:23Z mishitsu $
+#ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V2_H
+#define XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V2_H
 
 // System include(s):
 extern "C" {
@@ -29,11 +29,11 @@ namespace xAOD {
    /// $Revsision$
    /// $Date: 2015-04-18 06:31:23 +0200 (Sat, 18 Apr 2015) $
    ///
-   class L2StandAloneMuonAuxContainer_v1 : public AuxContainerBase {
+   class L2StandAloneMuonAuxContainer_v2 : public AuxContainerBase {
 
    public:
       /// Default constructor
-      L2StandAloneMuonAuxContainer_v1();
+      L2StandAloneMuonAuxContainer_v2();
 
    private:
       /// @name 4-momentum variables
@@ -62,10 +62,6 @@ namespace xAOD {
       std::vector< float >    endcapAlpha;
       std::vector< float >    endcapBeta;
       std::vector< float >    endcapRadius;
-      /// Slope and intercept at inner
-      std::vector< float >    slopeInner;
-      std::vector< float >    interceptInner;
-      std::vector< float >    deltaR;
 
       /// eta, phi as input to LUT
       std::vector< float >    etaMap;
@@ -77,6 +73,9 @@ namespace xAOD {
       std::vector< int >      isRpcFailure;
       /// Error of pt, eta and phi
       std::vector< float >    deltaPt;
+      std::vector< float >    deltaPtParm1;
+      std::vector< float >    deltaPtParm2;
+      std::vector< float >    deltaPtParm3;
       std::vector< float >    deltaEta;
       std::vector< float >    deltaPhi;
 
@@ -105,15 +104,17 @@ namespace xAOD {
       std::vector< uint32_t > roiSector;
       std::vector< uint32_t > roiNumber;
       std::vector< uint32_t > roiThreshold;
-      std::vector< uint32_t > roiEta;
-      std::vector< uint32_t > roiPhi;
+      std::vector< float >    roiEta;
+      std::vector< float >    roiPhi;
 
       /// pT from different algorithms
+      std::vector< float >  tgcPt;
       std::vector< float >  ptBarrelRadius;
       std::vector< float >  ptBarrelSagitta;
       std::vector< float >  ptEndcapAlpha;
       std::vector< float >  ptEndcapBeta;
       std::vector< float >  ptEndcapRadius;
+      std::vector< float >  ptCSC;
 
       /// Road information
       /// Chamber type
@@ -144,8 +145,6 @@ namespace xAOD {
       std::vector< std::vector< float > > etaMaxOverlap;
 
       /// TGC fit results
-      std::vector< float >  tgcPt;
-
       std::vector< float >  tgcInnEta;
       std::vector< float >  tgcInnPhi;
       std::vector< float >  tgcInnR;
@@ -172,101 +171,83 @@ namespace xAOD {
       std::vector< long >   tgcMidPhiN;
 
       /// RPC fit results
-      std::vector< float >  rpc1x;
-      std::vector< float >  rpc1y;
-      std::vector< float >  rpc1z;
+      std::vector< float >  rpcFitInnPhi;
+      std::vector< float >  rpcFitInnSlope;
+      std::vector< float >  rpcFitInnOffset;
 
-      std::vector< float >  rpc2x;
-      std::vector< float >  rpc2y;
-      std::vector< float >  rpc2z;
+      std::vector< float >  rpcFitMidPhi;
+      std::vector< float >  rpcFitMidSlope;
+      std::vector< float >  rpcFitMidOffset;
 
-      std::vector< float >  rpc3x;
-      std::vector< float >  rpc3y;
-      std::vector< float >  rpc3z;
+      std::vector< float >  rpcFitOutPhi;
+      std::vector< float >  rpcFitOutSlope;
+      std::vector< float >  rpcFitOutOffset;
 
       /// Size of hit strages
-      std::vector< int >      extensionCapacity;
-      std::vector< int >      robCapacity;
-      std::vector< int >      csmCapacity;
-      std::vector< int >      lvl1EmuCapacity;
       std::vector< int >      rpcHitsCapacity;
       std::vector< int >      tgcHitsCapacity;
       std::vector< int >      mdtHitsCapacity;
-
-      /// Extensions
-      std::vector< std::vector< uint32_t > > extension0;
-      std::vector< std::vector< uint32_t > > extension1;
-      std::vector< std::vector< uint32_t > > extension2;
-      std::vector< std::vector< uint32_t > > extension3;
-      std::vector< std::vector< uint32_t > > extension4;
-      std::vector< std::vector< uint32_t > > extension5;
-      std::vector< std::vector< uint32_t > > extension6;
-      std::vector< std::vector< uint32_t > > extension7;
-      std::vector< std::vector< uint32_t > > extension8;
-      std::vector< std::vector< uint32_t > > extension9;
-
-      /// Level 1 emulation info
-      std::vector< std::vector< uint32_t > > lvl1Emulation;    
-
-      /// ROB info
-      std::vector< std::vector< uint32_t > > robId;
-      std::vector< std::vector< uint32_t > > removedRobId;
-
-      /// CSM info
-      std::vector< std::vector< uint32_t > > csmId;
-      std::vector< std::vector< uint32_t > > csmSize;
-      std::vector< std::vector< uint32_t > > csmError;
-      std::vector< std::vector< uint32_t > > removedCsmId;
+      std::vector< int >      cscHitsCapacity;
 
       /// RPC pad hits
-      std::vector< std::vector< uint32_t > > padHitOnlineId;
-      std::vector< std::vector< uint32_t > > padHitCode;
-      std::vector< std::vector< float > > padHitX;
-      std::vector< std::vector< float > > padHitY;
-      std::vector< std::vector< float > > padHitZ;
-      std::vector< std::vector< float > > padHitR;
-      std::vector< std::vector< float > > padHitP;
+      std::vector< std::vector< uint32_t > > rpcHitLayer;
+      std::vector< std::vector< uint32_t > > rpcHitMeasuresPhi;
+      std::vector< std::vector< float > >    rpcHitX;
+      std::vector< std::vector< float > >    rpcHitY;
+      std::vector< std::vector< float > >    rpcHitZ;
+      std::vector< std::vector< float > >    rpcHitTime;
+      std::vector< std::vector< float > >    rpcHitDistToEtaReadout;
+      std::vector< std::vector< float > >    rpcHitDistToPhiReadout;
+      std::vector< std::vector< std::string > > rpcHitStationName;
 
       /// TGC hits
-      std::vector< std::vector< float > >    tgcInnRhoHitPhi;
-      std::vector< std::vector< float > >    tgcInnRhoHitR;
-      std::vector< std::vector< float > >    tgcInnRhoHitZ;
-      std::vector< std::vector< float > >    tgcInnRhoHitWidth;
-      std::vector< std::vector< uint32_t > > tgcInnRhoHitInSeg;
-      std::vector< std::vector< float > >    tgcInnPhiHitPhi;
-      std::vector< std::vector< float > >    tgcInnPhiHitR;
-      std::vector< std::vector< float > >    tgcInnPhiHitZ;
-      std::vector< std::vector< float > >    tgcInnPhiHitWidth;
-      std::vector< std::vector< uint32_t > > tgcInnPhiHitInSeg;
-      std::vector< std::vector< float > >    tgcMidRhoHitPhi;
-      std::vector< std::vector< float > >    tgcMidRhoHitR;
-      std::vector< std::vector< float > >    tgcMidRhoHitZ;
-      std::vector< std::vector< float > >    tgcMidRhoHitWidth;
-      std::vector< std::vector< uint32_t > > tgcMidRhoHitInSeg;
-      std::vector< std::vector< float > >    tgcMidPhiHitPhi;
-      std::vector< std::vector< float > >    tgcMidPhiHitR;
-      std::vector< std::vector< float > >    tgcMidPhiHitZ;
-      std::vector< std::vector< float > >    tgcMidPhiHitWidth;
-      std::vector< std::vector< uint32_t > > tgcMidPhiHitInSeg;
+      std::vector< std::vector< float > >    tgcHitEta;
+      std::vector< std::vector< float > >    tgcHitPhi;
+      std::vector< std::vector< float > >    tgcHitR;
+      std::vector< std::vector< float > >    tgcHitZ;
+      std::vector< std::vector< float > >    tgcHitWidth;
+      std::vector< std::vector< int > >      tgcHitStationNum;
+      std::vector< std::vector< bool > >     tgcHitIsStrip;
+      std::vector< std::vector< int > >      tgcHitBCTag;
+      std::vector< std::vector< bool > >     tgcHitInRoad;
 
       /// MDT hits
       std::vector< std::vector< uint32_t > > mdtHitOnlineId;
-      std::vector< std::vector< uint32_t > > mdtHitOfflineId;
-      std::vector< std::vector< uint32_t > > mdtHitChamber;
-      std::vector< std::vector< float > > mdtHitR;
-      std::vector< std::vector< float > > mdtHitZ;
-      std::vector< std::vector< float > > mdtHitResidual;
-      std::vector< std::vector< float > > mdtHitTime;
-      std::vector< std::vector< float > > mdtHitSpace;
-      std::vector< std::vector< float > > mdtHitSigma;
+      std::vector< std::vector< int > >      mdtHitIsOutlier;
+      std::vector< std::vector< int > >      mdtHitChamberId;
+      std::vector< std::vector< float > >    mdtHitR;
+      std::vector< std::vector< float > >    mdtHitZ;
+      std::vector< std::vector< float > >    mdtHitPhi;
+      std::vector< std::vector< float > >    mdtHitResidual;
+      std::vector< std::vector< float > >    mdtHitTime;
+      std::vector< std::vector< float > >    mdtHitSpace;
+      std::vector< std::vector< float > >    mdtHitSigma;
+
+      /// CSC hits
+      std::vector< std::vector< int > >      cscHitIsOutlier;
+      std::vector< std::vector< int > >      cscHitChamberId;
+      std::vector< std::vector< uint32_t > > cscHitStationName;
+      std::vector< std::vector< int > >      cscHitStationEta;
+      std::vector< std::vector< int > >      cscHitStationPhi;
+      std::vector< std::vector< int > >      cscHitChamberLayer;
+      std::vector< std::vector< int > >      cscHitWireLayer;
+      std::vector< std::vector< int > >      cscHitMeasuresPhi;
+      std::vector< std::vector< int > >      cscHitStrip;
+      std::vector< std::vector< float > >    cscHitEta;
+      std::vector< std::vector< float > >    cscHitPhi;
+      std::vector< std::vector< float > >    cscHitR;
+      std::vector< std::vector< float > >    cscHitZ;
+      std::vector< std::vector< int > >      cscHitCharge;
+      std::vector< std::vector< float > >    cscHitTime;
+      std::vector< std::vector< float > >    cscHitResidual;
 
       /// @}
 
-   }; // class L2StandAloneMuonAuxContainer_v1
+   }; // class L2StandAloneMuonAuxContainer_v2
 
 } // namespace xAOD
 
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::L2StandAloneMuonAuxContainer_v1, xAOD::AuxContainerBase );
+SG_BASE( xAOD::L2StandAloneMuonAuxContainer_v2, xAOD::AuxContainerBase );
 
-#endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V1_H
+#endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUONAUXCONTAINER_V2_H

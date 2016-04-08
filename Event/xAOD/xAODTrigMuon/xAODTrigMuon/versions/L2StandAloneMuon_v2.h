@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2StandAloneMuon_v1.h 661304 2015-04-18 04:31:23Z mishitsu $
-#ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V1_H
-#define XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V1_H
+// $Id: L2StandAloneMuon_v2.h 661304 2015-04-18 04:31:23Z mishitsu $
+#ifndef XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V2_H
+#define XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V2_H
 
 // System include(s):
 extern "C" {
@@ -30,11 +30,11 @@ namespace xAOD {
    /// $Revision: 661304 $
    /// $Date: 2015-04-18 06:31:23 +0200 (Sat, 18 Apr 2015) $
    ///
-   class L2StandAloneMuon_v1 : public IParticle {
+   class L2StandAloneMuon_v2 : public IParticle {
 
    public:
       /// Constructor
-      L2StandAloneMuon_v1();
+      L2StandAloneMuon_v2();
 
       /// @name Functions implementing the xAOD::IParticle interface
       /// @{
@@ -148,21 +148,6 @@ namespace xAOD {
       /// Set the fitted radius of the muon in the endcap
       void    setEndcapRadius( float value );
 
-      /// Get the slope at inner
-      float   slopeInner() const;
-      /// Set the slope at endcap
-      void    setSlopeInner( float value );
-
-      /// Get the intercept at inner
-      float   interceptInner() const;
-      /// Set the intercept at endcap
-      void    setInterceptInner( float value );
-
-      /// Get deltaR
-      float   deltaR() const;
-      /// Set deltaR
-      void    setDeltaR( float value );
-
       /// Get eta used to refer pT LUT
       float   etaMap() const;
       /// Set eta used to refer pT LUT
@@ -198,6 +183,16 @@ namespace xAOD {
       /// Set error of pT
       void    setDeltaPt( float value );
 
+      /// Get and set parameter sets for delta pT calculation
+      float   deltaPtParm1() const;
+      void    setDeltaPtParm1( float value );
+
+      float   deltaPtParm2() const;
+      void    setDeltaPtParm2( float value );
+
+      float   deltaPtParm3() const;
+      void    setDeltaPtParm3( float value );
+      
       /// Get error of eta
       float   deltaEta() const;
       /// Set error of eta
@@ -279,14 +274,17 @@ namespace xAOD {
       void     setRoiThreshold( uint32_t value );
 
       /// Get and set RoI eta
-      uint32_t roiEta() const;
-      void     setRoiEta( uint32_t value );
+      float    roiEta() const;
+      void     setRoiEta( float value );
 
       /// Get and set RoI phi
-      uint32_t roiPhi() const;
-      void     setRoiPhi( uint32_t value );
+      float    roiPhi() const;
+      void     setRoiPhi( float value );
 
       /// Set and get pT from different algorithms
+      float tgcPt() const;
+      void  setTgcPt( float value );
+
       float ptBarrelRadius() const;
       void  setPtBarrelRadius( float value );
 
@@ -301,6 +299,9 @@ namespace xAOD {
 
       float ptEndcapRadius() const;
       void  setPtEndcapRadius( float value );
+
+      float ptCSC() const;
+      void  setPtCSC( float value );
 
       /// Get the muon road information
       /// Chamber type
@@ -329,8 +330,6 @@ namespace xAOD {
       void  setRegionEta( int station, int sector, float min, float max );
 
       /// Get the results of TGC fit
-      float tgcPt() const;
-
       float tgcInnEta() const;
       float tgcInnPhi() const;
       float tgcInnR() const;
@@ -357,8 +356,6 @@ namespace xAOD {
       long  tgcMidPhiN() const;
 
       /// Set the results of TGC fit
-      void setTgcPt( float value );
-
       void setTgcInn( float eta, float phi, float r, float z ); 
       void setTgcInnF( float rhoStd, long rhoN, float phiStd, long phiN ); 
       void setTgcMid1( float eta, float phi, float r, float z ); 
@@ -366,36 +363,24 @@ namespace xAOD {
       void setTgcMidF( float rhoChi2, long rhoN, float phiChi2, long phiN ); 
 
       /// Get the results of RPC fit
-      float rpc1x() const;
-      float rpc1y() const;
-      float rpc1z() const;
+      float rpcFitInnPhi() const;
+      float rpcFitInnSlope() const;
+      float rpcFitInnOffset() const;
 
-      float rpc2x() const;
-      float rpc2y() const;
-      float rpc2z() const;
+      float rpcFitMidPhi() const;
+      float rpcFitMidSlope() const;
+      float rpcFitMidOffset() const;
 
-      float rpc3x() const;
-      float rpc3y() const;
-      float rpc3z() const;
+      float rpcFitOutPhi() const;
+      float rpcFitOutSlope() const;
+      float rpcFitOutOffset() const;
 
       /// Set the results of RPC fit
-      void setRpc1( float x, float y, float z );
-      void setRpc2( float x, float y, float z );
-      void setRpc3( float x, float y, float z );
+      void setRpcFitInn( float phi, float slope, float offset ); 
+      void setRpcFitMid( float phi, float slope, float offset ); 
+      void setRpcFitOut( float phi, float slope, float offset ); 
 
       /// Get and set maximum size of storages to be reserved
-      int      extensionCapacity() const;
-      void     setExtensionCapacity( int value );
-
-      int      robCapacity() const;
-      void     setRobCapacity( int value );
-
-      int      csmCapacity() const;
-      void     setCsmCapacity( int value );
-
-      int      lvl1EmuCapacity() const;
-      void     setLvl1EmuCapacity( int value );
-
       int      rpcHitsCapacity() const;
       void     setRpcHitsCapacity( int value );
 
@@ -405,108 +390,78 @@ namespace xAOD {
       int      mdtHitsCapacity() const;
       void     setMdtHitsCapacity( int value );
 
-      void     setCapacities( int ext, int rob, int csm, int lvl1, int rpc, int tgc, int mdt );
+      int      cscHitsCapacity() const;
+      void     setCscHitsCapacity( int value );
 
-      /// Get extenstion
-      const std::vector< uint32_t >& extension0() const;
-      const std::vector< uint32_t >& extension1() const;
-      const std::vector< uint32_t >& extension2() const;
-      const std::vector< uint32_t >& extension3() const;
-      const std::vector< uint32_t >& extension4() const;
-      const std::vector< uint32_t >& extension5() const;
-      const std::vector< uint32_t >& extension6() const;
-      const std::vector< uint32_t >& extension7() const;
-      const std::vector< uint32_t >& extension8() const;
-      const std::vector< uint32_t >& extension9() const;
-      /// Set extenstion
-      void setExtension0( uint32_t value );
-      void setExtension1( uint32_t value );
-      void setExtension2( uint32_t value );
-      void setExtension3( uint32_t value );
-      void setExtension4( uint32_t value );
-      void setExtension5( uint32_t value );
-      void setExtension6( uint32_t value );
-      void setExtension7( uint32_t value );
-      void setExtension8( uint32_t value );
-      void setExtension9( uint32_t value );
+      void     setCapacities( int rpc, int tgc, int mdt, int csc );
 
-      /// Level 1 emulation info
-      const std::vector< uint32_t >& lvl1Emulation() const;    
-      void setEtaPivot(uint32_t ly0, uint32_t ly1 );
-      void setEtaLow( uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11 );
-      void setEtaHigh( uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11 );
-      void setPhiPivot (uint32_t ly0, uint32_t ly1 );
-      void setPhiLow( uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11 );
-      void setPhiHigh( uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11 );
-
-      /// ROB info
-      const std::vector< uint32_t >& robId() const;
-      const std::vector< uint32_t >& removedRobId() const;
-      void setRequestedRob( uint32_t rob );
-      void setRemovedRob( uint32_t rob );
-
-      /// CSM info
-      const std::vector< uint32_t >& csmId() const;
-      const std::vector< uint32_t >& csmSize() const;
-      const std::vector< uint32_t >& csmError() const;
-      const std::vector< uint32_t >& removedCsmId() const;
-      void setConvertedCsm( uint32_t csm, uint32_t sz );
-      void setCsmError( uint32_t err );
-      void setRemovedCsm( uint32_t csm );
-
-      /// Get RPC pad hits
-      const std::vector< uint32_t >& padHitOnlineId() const;
-      const std::vector< uint32_t >& padHitCode() const;
-      const std::vector< float >&    padHitX() const;
-      const std::vector< float >&    padHitY() const;
-      const std::vector< float >&    padHitZ() const;
-      const std::vector< float >&    padHitR() const;
-      const std::vector< float >&    padHitP() const;
-      /// Set RPC pad hits
-      void setPadHit(uint32_t onlineId, uint32_t code, float x, float y, float z,
-                     float r, float p);
+      /// Get RPC hits
+      const std::vector< uint32_t >& rpcHitLayer() const;
+      const std::vector< uint32_t >& rpcHitMeasuresPhi() const;
+      const std::vector< float >&    rpcHitX() const;
+      const std::vector< float >&    rpcHitY() const;
+      const std::vector< float >&    rpcHitZ() const;
+      const std::vector< float >&    rpcHitTime() const;
+      const std::vector< float >&    rpcHitDistToEtaReadout() const;
+      const std::vector< float >&    rpcHitDistToPhiReadout() const;
+      const std::vector< std::string >& rpcHitStationName() const;
+      /// Set RPC hits
+      void setRpcHit(uint32_t layer,  uint32_t measuresPhi, float x, float y, float z,
+                     float time, float distEta, float distPhi, std::string stationName );
 
       /// Get TGC hits
-      const std::vector< float >&    tgcInnRhoHitPhi() const;
-      const std::vector< float >&    tgcInnRhoHitR() const;
-      const std::vector< float >&    tgcInnRhoHitZ() const;
-      const std::vector< float >&    tgcInnRhoHitWidth() const;
-      const std::vector< uint32_t >& tgcInnRhoHitInSeg() const;
-      const std::vector< float >&    tgcInnPhiHitPhi() const;
-      const std::vector< float >&    tgcInnPhiHitR() const;
-      const std::vector< float >&    tgcInnPhiHitZ() const;
-      const std::vector< float >&    tgcInnPhiHitWidth() const;
-      const std::vector< uint32_t >& tgcInnPhiHitInSeg() const;
-      const std::vector< float >&    tgcMidRhoHitPhi() const;
-      const std::vector< float >&    tgcMidRhoHitR() const;
-      const std::vector< float >&    tgcMidRhoHitZ() const;
-      const std::vector< float >&    tgcMidRhoHitWidth() const;
-      const std::vector< uint32_t >& tgcMidRhoHitInSeg() const;
-      const std::vector< float >&    tgcMidPhiHitPhi() const;
-      const std::vector< float >&    tgcMidPhiHitR() const;
-      const std::vector< float >&    tgcMidPhiHitZ() const;
-      const std::vector< float >&    tgcMidPhiHitWidth() const;
-      const std::vector< uint32_t >& tgcMidPhiHitInSeg() const;
+      const std::vector< float >& tgcHitEta() const;
+      const std::vector< float >& tgcHitPhi() const;
+      const std::vector< float >& tgcHitR() const;
+      const std::vector< float >& tgcHitZ() const;
+      const std::vector< float >& tgcHitWidth() const;
+      const std::vector< int >&   tgcHitStationNum() const;
+      const std::vector< bool >&  tgcHitIsStrip() const;
+      const std::vector< int >&   tgcHitBCTag() const;
+      const std::vector< bool >&  tgcHitInRoad() const;
       /// Set TGC hits
-      void setTgcInnRhoHit( float phi, float r, float z, float width, uint32_t in_seg );
-      void setTgcInnPhiHit( float phi, float r, float z, float width, uint32_t in_seg );
-      void setTgcMidRhoHit( float phi, float r, float z, float width, uint32_t in_seg );
-      void setTgcMidPhiHit( float phi, float r, float z, float width, uint32_t in_seg );
+      void setTgcHit(float eta, float phi, float r, float z, float width,
+                     int stationNum, bool isStrip, int bcTag, bool inRoad);
 
       /// Get the online ID, offline ID, R, Z, redidual, time, space and sigma of each MDT tube
       uint32_t     nMdtHits() const;
       uint32_t     mdtHitOnlineId( unsigned int tube ) const;
-      uint32_t     mdtHitOfflineId( unsigned int tube ) const;
-      uint32_t     mdtHitChamber( unsigned int tube ) const;
+      int          mdtHitOfflineId( unsigned int tube ) const;
+      int          mdtHitIsOutlier( unsigned int tube ) const;
+      int          mdtHitChamber( unsigned int tube ) const;
       float        mdtHitR( unsigned int tube ) const;
       float        mdtHitZ( unsigned int tube ) const;
+      float        mdtHitPhi( unsigned int tube ) const;
       float        mdtHitResidual( unsigned int tube ) const;
       float        mdtHitTime( unsigned int tube ) const;
       float        mdtHitSpace( unsigned int tube ) const;
       float        mdtHitSigma( unsigned int tube ) const;
       /// Set the properties of each MDT tube
-      void         setMdtHit( uint32_t onlineId, uint32_t offlineId, int chamber, float r, float z, 
+      void         setMdtHit( uint32_t onlineId, int isOutier, int chamber, float r, float z, float phi,
                               float residual, float time, float space, float sigma );
+     
+      /// Get CSC hits
+      uint32_t     nCscHits() const;
+      int          cscHitIsOutlier( unsigned int tube ) const;
+      int          cscHitChamber( unsigned int tube ) const;
+      uint32_t     cscHitStationName( unsigned int tube ) const;
+      int          cscHitStationEta( unsigned int tube ) const;
+      int          cscHitStationPhi( unsigned int tube ) const;
+      int          cscHitChamberLayer( unsigned int tube ) const;
+      int          cscHitWireLayer( unsigned int tube ) const;
+      int          cscHitMeasuresPhi( unsigned int tube ) const;
+      int          cscHitStrip( unsigned int tube ) const;
+      float        cscHitEta( unsigned int tube ) const;
+      float        cscHitPhi( unsigned int tube ) const;
+      float        cscHitR( unsigned int tube ) const;
+      float        cscHitZ( unsigned int tube ) const;
+      int          cscHitCharge( unsigned int tube ) const;
+      float        cscHitTime( unsigned int tube ) const;
+      float        cscHitResidual( unsigned int tube ) const;
+      /// Set the properties of each CSC tube
+      void         setCscHit( int isOutlier, int chamber, uint32_t stationName,
+                              int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi, int strip,
+                              float eta, float phi, float r, float z, int charge, float time, float residual );
      
       /// @}
 
@@ -516,12 +471,12 @@ namespace xAOD {
       /// Cached state of the internal 4-momentum object
       mutable bool m_p4Cached;
 
-   }; // class L2StandAloneMuon_v1
+   }; // class L2StandAloneMuon_v2
 
 } // namespace xAOD
 
 /// Operator for printing the contents of a LVL2 muon
 std::ostream& operator<< ( std::ostream& out,
-                           const xAOD::L2StandAloneMuon_v1& mu );
+                           const xAOD::L2StandAloneMuon_v2& mu );
 
-#endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V1_H
+#endif // XAODTRIGMUON_VERSIONS_L2STANDALONEMUON_V2_H
