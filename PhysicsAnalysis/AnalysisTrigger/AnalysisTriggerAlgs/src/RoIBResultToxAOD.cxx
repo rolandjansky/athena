@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.cxx 784984 2016-11-18 05:53:57Z ssnyder $
+// $Id: RoIBResultToxAOD.cxx 679933 2015-07-02 21:37:29Z watsona $
 
 // STL include(s):
 #include <algorithm>
@@ -417,7 +417,7 @@ StatusCode RoIBResultToxAOD::addEmTauRoI( const ROIB::RoIBResult* result ) {
    // Tool to reconstruct EM/tau cluster & isolation sums
    //   - need to form tower map for RoI reconstruction
    const DataVector< xAOD::CPMTower >* storedTTs;
-   xAOD::CPMTowerMap_t cpmtowers;
+   std::map< int, xAOD::CPMTower* > cpmtowers;
    if( m_retrievedEmTauTool ) {
       if( evtStore()->contains< xAOD::CPMTowerContainer >( m_CPMTowerLocation ) ) {
          StatusCode sc = evtStore()->retrieve( storedTTs, m_CPMTowerLocation );
@@ -682,6 +682,8 @@ StatusCode RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result ) {
          }
          // EnergySum ROI
          else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 ) {
+            // Temporary kludge: ignore truncated eta range ET RoI
+            if ( (roIWord & 0x4000000) != 0) continue;
             
             // Extract information and fill EnergySumRoI
             uint32_t roiWord0 = roIWord;
