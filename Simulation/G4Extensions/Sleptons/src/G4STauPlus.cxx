@@ -2,34 +2,56 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "Sleptons/G4STauPlus.hh"
+#include "G4STauPlus.hh"
 // ######################################################################
 // ###                         STauPlus                              ###
 // ######################################################################
 
-G4STauPlus* G4STauPlus::theInstance = Definition();
 
-G4STauPlus* G4STauPlus::Definition()
+G4STauPlus* G4STauPlus::theInstance = NULL;
+
+G4STauPlus* G4STauPlus::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
-  if (theInstance !=0) return theInstance;
 
-//    Arguments for constructor are as follows
-//               name             mass          width         charge
-//             2*spin           parity  C-conjugation
-//          2*Isospin       2*Isospin3       G-parity
-//               type    lepton number  baryon number   PDG encoding
-//             stable         lifetime    decay table
-//             shortlived      subType    anti_encoding
+  if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
+    {
+      G4ExceptionDescription description;
+      description << "Trying to redefine the G4STau Plus properties after it has been constructed is not allowed";
+      G4Exception("G4STauPlus", "FailedRedefinition", FatalException, description);
+      abort();
+  }
 
-  G4ParticleDefinition* anInstance = new G4ParticleDefinition(
-       "s_tau_plus_1",       100.*CLHEP::GeV,       0.0*CLHEP::MeV,    +1.*CLHEP::eplus, 
-		    0,               0,             0,          
-		    0,               0,             0,             
-	    "slepton",               1,             0,      -1000015,
-                 true,            -1.0,          NULL,
-                false,      "STauPlus");
+  if (theInstance != 0)
+    {
+      return theInstance;
+    }
 
-  theInstance = reinterpret_cast<G4STauPlus*>(anInstance);
-  return theInstance;
+
+  //    Arguments for constructor are as follows
+  //               name             mass          width         charge
+  //             2*spin           parity  C-conjugation
+  //          2*Isospin       2*Isospin3       G-parity
+  //               type    lepton number  baryon number   PDG encoding
+  //             stable         lifetime    decay table
+  //             shortlived      subType    anti_encoding
+  if (mass >= 0) {
+
+    G4ParticleDefinition* anInstance =
+      new G4ParticleDefinition("s_tau_plus_1",     mass,    width,    charge,
+                               0,                  0,               0,
+                               0,                  0,               0,
+                               "slepton",   1,               0,          PDG,
+                               stable,               lifetime,            NULL,
+                               shortlived,              "STauPlus");
+
+    theInstance = reinterpret_cast<G4STauPlus*>(anInstance);
+    return theInstance;
+  }
+  else
+    {
+      G4ExceptionDescription description;
+      description << "Trying to create a particle with default constructor is not allowed";
+      G4Exception("G4STauPlus", "DefaultConstructorCalled", FatalException, description);
+      abort();
+    }
 }
