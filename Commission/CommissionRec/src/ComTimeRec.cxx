@@ -78,16 +78,16 @@ StatusCode ComTimeRec::execute()
 
     // Use the Timed Track Record of the muon entering the cavern.
 
-    // const TimedTrackRecordCollection* coll;
-    const TrackRecordCollection *coll(NULL);
-    if(evtStore()->contains<TrackRecordCollection>(m_TTRKey) ){
-      ATH_MSG_ERROR( " can not retrieve TTR with key " << m_TTRKey );
+    if(!evtStore()->contains<TrackRecordCollection>(m_TTRKey) ){
+      ATH_MSG_ERROR( " can not retrieve TrackRecordCollection with key " << m_TTRKey );
       // Put default ComTime into SG for.
       ComTime *theComTime = new ComTime();
       CHECK( evtStore()->record(theComTime, m_comTimeKey) );
       return StatusCode::SUCCESS;
     }
-
+    // const TimedTrackRecordCollection* coll;
+    const TrackRecordCollection *coll(NULL);
+    CHECK( evtStore()->retrieve(coll, m_TTRKey) );
     int    nMuons           = 0;
     double earliestMuonTime = -1.;
     // TimedTrackRecord* earliestMuon=NULL;
