@@ -597,7 +597,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::fillLists()
 
       // Use 4 lower bits (Mask ==  ((2^4 -1) == 15)) for isLYR
       // the upper 28 bits for isBRL (including sign)
-      DD = (isBRL << 4) + (isLYR & 15);
+      DD = ((isBRL+3) << 4) + (isLYR & 15);
 
       rf_Sorted[f].push_back(std::make_pair((*r),DD)); 
       if(!rf_map[f]++) rf_index[m_nrf++] = f;
@@ -875,7 +875,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 	}   
 	double Z = zSP[i];
 	long geoi = geo_info[i];
-	int isBU = geoi >> 4;
+	int isBU = (geoi >> 4)-3;
 	int eleU = geoi & 15;
     
 	for (long j = i + 1; j < (long)spcount; j++) {
@@ -883,7 +883,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 	  double Zb = zSP[j];
 	  double Rb = rk[j];
 	  long geoj = geo_info[j];
-	  int isBB = geoj >> 4;
+	  int isBB = (geoj >> 4)-3;
 	  int eleB = geoj & 15;
 	  // // // // // // // // // // // // // // // // // // // // // //
 	
