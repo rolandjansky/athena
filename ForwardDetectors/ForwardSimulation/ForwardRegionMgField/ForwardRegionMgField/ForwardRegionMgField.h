@@ -102,7 +102,7 @@ private:
 
     void InitMagData();
 
-    std::string name;
+    std::string m_name;
     std::vector<std::vector<std::string> > m_magnets;
 
     // array for storing magnets data
@@ -116,13 +116,13 @@ private:
     //std::string m_twissFileB1, m_twissFileB2;
 
     //mapfile parameters
-    static const int rowsMQXA = 97;
-    static const int colsMQXA = 97;
-    static const int rowsMQXB = 89;
-    static const int colsMQXB = 89;
+    static const int s_rowsMQXA = 97;
+    static const int s_colsMQXA = 97;
+    static const int s_rowsMQXB = 89;
+    static const int s_colsMQXB = 89;
 
-    double magIndMQXA[rowsMQXA][colsMQXA][2];
-    double magIndMQXB[rowsMQXB][colsMQXB][2];
+    double m_magIndMQXA[s_rowsMQXA][s_colsMQXA][2];
+    double m_magIndMQXB[s_rowsMQXB][s_colsMQXB][2];
 
     // Load data from file into 2D array of strings
     std::vector<std::vector<std::string> > loadDataFile(const char * fileName, int cols);

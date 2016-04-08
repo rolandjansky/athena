@@ -47,7 +47,13 @@ static ForwardRegionMgField q4vkickB("Q4VKickB",ForwardRegionMgField::Q4VKickB);
 static ForwardRegionMgField q5hkick("Q5HKick",ForwardRegionMgField::Q5HKick);
 static ForwardRegionMgField q6vkick("Q6VKick",ForwardRegionMgField::Q6VKick);
 
-ForwardRegionMgField::ForwardRegionMgField(std::string n,int m):FADS::MagneticFieldMap(n),m_magnet(m),name(n),m_magDataType(0),m_properties("ForwardRegionProperties")
+ForwardRegionMgField::ForwardRegionMgField(std::string n,int m)
+  : FADS::MagneticFieldMap(n),
+    m_magnet(m),
+    m_refCounter(0),
+    m_name(n),
+    m_magDataType(0),
+    m_properties("ForwardRegionProperties")
 {
     MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::ForwardRegionMgField()");
 
@@ -68,12 +74,12 @@ ForwardRegionMgField::ForwardRegionMgField(std::string n,int m):FADS::MagneticFi
         LogStream << MSG::DEBUG <<  "Field map MQXA loaded" << endreq;
 
         // initialize magnetic induction mesh
-        for(int j=0; j < colsMQXA; j++)
+        for(int j=0; j < s_colsMQXA; j++)
         {
-            for(int i=0; i < rowsMQXA; i++)
+            for(int i=0; i < s_rowsMQXA; i++)
             {
-                magIndMQXA[i][j][0] = atof(loadedDataFile[i+j*colsMQXA][4].c_str());
-                magIndMQXA[i][j][1] = atof(loadedDataFile[i+j*colsMQXA][5].c_str());
+                m_magIndMQXA[i][j][0] = atof(loadedDataFile[i+j*s_colsMQXA][4].c_str());
+                m_magIndMQXA[i][j][1] = atof(loadedDataFile[i+j*s_colsMQXA][5].c_str());
             }
         }
     }
@@ -87,12 +93,12 @@ ForwardRegionMgField::ForwardRegionMgField(std::string n,int m):FADS::MagneticFi
         LogStream << MSG::DEBUG <<  "Field map MQXB loaded" << endreq;
 
         // initialize magnetic induction mesh
-        for(int j=0; j < colsMQXB; j++)
+        for(int j=0; j < s_colsMQXB; j++)
         {
-            for(int i=0; i < rowsMQXB; i++)
+            for(int i=0; i < s_rowsMQXB; i++)
             {
-                magIndMQXB[i][j][0] = atof(loadedDataFileB[i+j*colsMQXB][4].c_str());
-                magIndMQXB[i][j][1] = atof(loadedDataFileB[i+j*colsMQXB][5].c_str());
+                m_magIndMQXB[i][j][0] = atof(loadedDataFileB[i+j*s_colsMQXB][4].c_str());
+                m_magIndMQXB[i][j][1] = atof(loadedDataFileB[i+j*s_colsMQXB][5].c_str());
             }
         }
     }
@@ -103,9 +109,9 @@ void ForwardRegionMgField::Initialize()
 {
     MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::Initialize()");
 
-    LogStream << MSG::INFO << "Postponing magnet strengths initialization of " << name << " till the begin of run" << endreq;
+    LogStream << MSG::INFO << "Postponing magnet strengths initialization of " << m_name << " till the begin of run" << endreq;
 
-    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name);
+    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", m_name);
     if (incidentSvc.retrieve().isFailure()) {
         LogStream << MSG::FATAL << "Unable to retrieve the IncidentSvc" << endreq;
         return;
@@ -149,10 +155,10 @@ void ForwardRegionMgField::InitMagData()
 {
     MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionMgField::InitMagData()");
 
-    LogStream << MSG::INFO << "Initializing " << name << " magnetic field" << endreq;
+    LogStream << MSG::INFO << "Initializing " << m_name << " magnetic field" << endreq;
 
     if(m_properties.retrieve().isFailure()){
-        LogStream << MSG::ERROR << name << ": Failed to load properties" << endreq;
+        LogStream << MSG::ERROR << m_name << ": Failed to load properties" << endreq;
         return;
     }
 
@@ -161,7 +167,7 @@ void ForwardRegionMgField::InitMagData()
     if(m_Config.twissFileB1 == "" || m_Config.twissFileB2 == "" || m_Config.momentum == 0){
         m_magDataType = 0;
 
-        LogStream << MSG::INFO << name << ": Using magnets.dat as the field settings source" << endreq;
+        LogStream << MSG::INFO << m_name << ": Using magnets.dat as the field settings source" << endreq;
 
         char * fileMagnets = (char *)"magnets.dat";
         m_magnets = loadDataFile(fileMagnets,5);
@@ -170,7 +176,7 @@ void ForwardRegionMgField::InitMagData()
     {
         m_magDataType = 1;
 
-        LogStream << MSG::INFO << name << ": Using twiss files (" << m_Config.twissFileB1 << ", " << m_Config.twissFileB2 << ") as the field settings source" << endreq;
+        LogStream << MSG::INFO << m_name << ": Using twiss files (" << m_Config.twissFileB1 << ", " << m_Config.twissFileB2 << ") as the field settings source" << endreq;
 
         std::string headerB1;
         std::string headerB2;
@@ -186,7 +192,7 @@ void ForwardRegionMgField::InitMagData()
 
         //writeOutTwiss(loadedTwissFileB1,1,headerB1);
         //writeOutTwiss(loadedTwissFileB2,2,headerB2);
-        LogStream << MSG::INFO << name << " field initialized." << endreq;
+        LogStream << MSG::INFO << m_name << " field initialized." << endreq;
     }
 }
 
@@ -271,7 +277,7 @@ void ForwardRegionMgField::getMagnetTransformParams(int beam, int magnet, G4Thre
         rotZ = m_Config.fQ1RotZ[beam-1];
         break;
     case Q2:
-        if(abs(Point[2]) < 38*CLHEP::m){
+      if(std::abs(Point[2]) < 38*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ2aStart[(beam-1)*3],m_Config.pointQ2aStart[(beam-1)*3+1],m_Config.pointQ2aStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ2aEnd[(beam-1)*3],m_Config.pointQ2aEnd[(beam-1)*3+1],m_Config.pointQ2aEnd[(beam-1)*3+2]);
             rotZ = m_Config.fQ2aRotZ[beam-1];
@@ -304,7 +310,7 @@ void ForwardRegionMgField::getMagnetTransformParams(int beam, int magnet, G4Thre
         rotZ = m_Config.fQ6RotZ[beam-1];
         break;
     case Q7:
-        if(abs(Point[2]) < 263.5*CLHEP::m){
+        if(std::abs(Point[2]) < 263.5*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ7aStart[(beam-1)*3],m_Config.pointQ7aStart[(beam-1)*3+1],m_Config.pointQ7aStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ7aEnd[(beam-1)*3],m_Config.pointQ7aEnd[(beam-1)*3+1],m_Config.pointQ7aEnd[(beam-1)*3+2]);
             rotZ = m_Config.fQ7aRotZ[beam-1];
@@ -317,30 +323,30 @@ void ForwardRegionMgField::getMagnetTransformParams(int beam, int magnet, G4Thre
         }
         break;
     case D1:
-        if(abs(Point[2]) < 63.5*CLHEP::m){
+        if(std::abs(Point[2]) < 63.5*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointD1aStart[(beam-1)*3],m_Config.pointD1aStart[(beam-1)*3+1],m_Config.pointD1aStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD1aEnd[(beam-1)*3],m_Config.pointD1aEnd[(beam-1)*3+1],m_Config.pointD1aEnd[(beam-1)*3+2]);
             rotZ = m_Config.fD1aRotZ[beam-1];
         }
-        else if(abs(Point[2]) < 67.5*CLHEP::m){
+        else if(std::abs(Point[2]) < 67.5*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointD1bStart[(beam-1)*3],m_Config.pointD1bStart[(beam-1)*3+1],m_Config.pointD1bStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD1bEnd[(beam-1)*3],m_Config.pointD1bEnd[(beam-1)*3+1],m_Config.pointD1bEnd[(beam-1)*3+2]);
             rotZ = m_Config.fD1bRotZ[beam-1];
         }
 
-        else if(abs(Point[2]) < 72*CLHEP::m){
+        else if(std::abs(Point[2]) < 72*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointD1cStart[(beam-1)*3],m_Config.pointD1cStart[(beam-1)*3+1],m_Config.pointD1cStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD1cEnd[(beam-1)*3],m_Config.pointD1cEnd[(beam-1)*3+1],m_Config.pointD1cEnd[(beam-1)*3+2]);
             rotZ = m_Config.fD1cRotZ[beam-1];
         }
 
-        else if(abs(Point[2]) < 76*CLHEP::m){
+        else if(std::abs(Point[2]) < 76*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointD1dStart[(beam-1)*3],m_Config.pointD1dStart[(beam-1)*3+1],m_Config.pointD1dStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD1dEnd[(beam-1)*3],m_Config.pointD1dEnd[(beam-1)*3+1],m_Config.pointD1dEnd[(beam-1)*3+2]);
             rotZ = m_Config.fD1dRotZ[beam-1];
         }
 
-        else if(abs(Point[2]) < 80.5*CLHEP::m){
+        else if(std::abs(Point[2]) < 80.5*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointD1eStart[(beam-1)*3],m_Config.pointD1eStart[(beam-1)*3+1],m_Config.pointD1eStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD1eEnd[(beam-1)*3],m_Config.pointD1eEnd[(beam-1)*3+1],m_Config.pointD1eEnd[(beam-1)*3+2]);
             rotZ = m_Config.fD1eRotZ[beam-1];
@@ -470,23 +476,23 @@ G4ThreeVector ForwardRegionMgField::getMagInd(G4ThreeVector Point, int q, int be
         x = Point[0] - xOffMQX;
         y = Point[1] - yOffMQX;
 
-        xstep = (maxMQXA - minMQXA)/(rowsMQXA-1);
-        ystep = (maxMQXA - minMQXA)/(colsMQXA-1);
+        xstep = (maxMQXA - minMQXA)/(s_rowsMQXA-1);
+        ystep = (maxMQXA - minMQXA)/(s_colsMQXA-1);
 
 
-        i2 = ceil(x/xstep)+ceil(rowsMQXA/2);
-        j2 = ceil(y/ystep)+ceil(colsMQXA/2);
+        i2 = ceil(x/xstep)+ceil(s_rowsMQXA/2.);
+        j2 = ceil(y/ystep)+ceil(s_colsMQXA/2.);
         i1 = i2 - 1;
         j1 = j2 - 1;
-        x2 = (i2-ceil(rowsMQXA/2))*xstep;
-        y2 = (j2-ceil(colsMQXA/2))*ystep;
+        x2 = (i2-ceil(s_rowsMQXA/2.))*xstep;
+        y2 = (j2-ceil(s_colsMQXA/2.))*ystep;
         x1 = x2 - xstep;
         y1 = y2 - ystep;
 
         if(x < maxMQXA && x > minMQXA && y < maxMQXA && y > minMQXA) // field in MQXA
         {
-            B[0] = (magIndMQXA[i1][j1][0]*(x2-x)*(y2-y) + magIndMQXA[i2][j1][0]*(x-x1)*(y2-y) + magIndMQXA[i1][j2][0]*(x2-x)*(y-y1) + magIndMQXA[i2][j2][0]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
-            B[1] = (magIndMQXA[i1][j1][1]*(x2-x)*(y2-y) + magIndMQXA[i2][j1][1]*(x-x1)*(y2-y) + magIndMQXA[i1][j2][1]*(x2-x)*(y-y1) + magIndMQXA[i2][j2][1]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
+            B[0] = (m_magIndMQXA[i1][j1][0]*(x2-x)*(y2-y) + m_magIndMQXA[i2][j1][0]*(x-x1)*(y2-y) + m_magIndMQXA[i1][j2][0]*(x2-x)*(y-y1) + m_magIndMQXA[i2][j2][0]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
+            B[1] = (m_magIndMQXA[i1][j1][1]*(x2-x)*(y2-y) + m_magIndMQXA[i2][j1][1]*(x-x1)*(y2-y) + m_magIndMQXA[i1][j2][1]*(x2-x)*(y-y1) + m_magIndMQXA[i2][j2][1]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
             B[0] = B[0]*pow(-1.0,beam)*(gradMQX/224.29);
             B[1] = B[1]*pow(-1.0,beam)*(gradMQX/224.29);
         }
@@ -496,22 +502,22 @@ G4ThreeVector ForwardRegionMgField::getMagInd(G4ThreeVector Point, int q, int be
         x = Point[0] - xOffMQX;
         y = Point[1] - yOffMQX;
 
-        xstep = (maxMQXB - minMQXB)/(rowsMQXB-1);
-        ystep = (maxMQXB - minMQXB)/(colsMQXB-1);
+        xstep = (maxMQXB - minMQXB)/(s_rowsMQXB-1);
+        ystep = (maxMQXB - minMQXB)/(s_colsMQXB-1);
 
-        i2 = ceil(x/xstep)+ceil(rowsMQXB/2);
-        j2 = ceil(y/ystep)+ceil(colsMQXB/2);
+        i2 = ceil(x/xstep)+ceil(s_rowsMQXB/2);
+        j2 = ceil(y/ystep)+ceil(s_colsMQXB/2);
         i1 = i2 - 1;
         j1 = j2 - 1;
-        x2 = (i2-ceil(rowsMQXB/2))*xstep;
-        y2 = (j2-ceil(colsMQXB/2))*ystep;
+        x2 = (i2-ceil(s_rowsMQXB/2))*xstep;
+        y2 = (j2-ceil(s_colsMQXB/2))*ystep;
         x1 = x2 - xstep;
         y1 = y2 - ystep;
 
         if(x < maxMQXB && x > minMQXB && y < maxMQXB && y > minMQXB) // field in MQXB
         {
-            B[0] = (magIndMQXB[i1][j1][0]*(x2-x)*(y2-y) + magIndMQXB[i2][j1][0]*(x-x1)*(y2-y) + magIndMQXB[i1][j2][0]*(x2-x)*(y-y1) + magIndMQXB[i2][j2][0]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
-            B[1] = (magIndMQXB[i1][j1][1]*(x2-x)*(y2-y) + magIndMQXB[i2][j1][1]*(x-x1)*(y2-y) + magIndMQXB[i1][j2][1]*(x2-x)*(y-y1) + magIndMQXB[i2][j2][1]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
+            B[0] = (m_magIndMQXB[i1][j1][0]*(x2-x)*(y2-y) + m_magIndMQXB[i2][j1][0]*(x-x1)*(y2-y) + m_magIndMQXB[i1][j2][0]*(x2-x)*(y-y1) + m_magIndMQXB[i2][j2][0]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
+            B[1] = (m_magIndMQXB[i1][j1][1]*(x2-x)*(y2-y) + m_magIndMQXB[i2][j1][1]*(x-x1)*(y2-y) + m_magIndMQXB[i1][j2][1]*(x2-x)*(y-y1) + m_magIndMQXB[i2][j2][1]*(x-x1)*(y-y1))/xstep/ystep*CLHEP::tesla;
             B[0] = B[0]*pow(-1.0,beam)*(gradMQX/216.1787104);
             B[1] = B[1]*pow(-1.0,beam)*(gradMQX/216.1787104);
         }
@@ -632,7 +638,7 @@ void ForwardRegionMgField::writeOutTwiss(std::vector<std::vector<std::string> > 
     G4ThreeVector Point;
 
     if(!file)
-        LogStream << MSG::ERROR << "Unable to write to " << fileName << endreq;
+      LogStream << MSG::ERROR << "Unable to write to " << fileName.str() << endreq;
 
     if(file.is_open())
     {
