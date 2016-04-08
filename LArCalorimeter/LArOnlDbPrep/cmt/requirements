@@ -17,6 +17,7 @@ library LArOnlDbPrep *.cxx components/*.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_scripts files="*.sh"
 ##############################################
 
 private

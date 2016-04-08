@@ -14,7 +14,7 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DetDescrVersion.set_Value_and_Lock('ATLAS-GEO-20-00-01')
 globalflags.DetGeo.set_Value_and_Lock('commis')
 globalflags.Luminosity.set_Value_and_Lock('zero')
-globalflags.DatabaseInstance.set_Value_and_Lock('COMP200')#"CONDBR2")
+globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn()
@@ -28,7 +28,7 @@ DetFlags.digitize.all_setOff()
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
-svcMgr.IOVDbSvc.GlobalTag = "COMCOND-ES1PA-006-02"
+svcMgr.IOVDbSvc.GlobalTag = "CONDBR2-BLKPA-2015-05"
 
 #Get identifier mapping (needed by LArConditionsContainer)
 include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")
@@ -51,12 +51,28 @@ fileName=ModeType+tag
 setName="-".join(tag.split("-")[1:])
 
 from CaloTools.CaloNoiseFlags import jobproperties
-jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
+#jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(1.45*30/8)
+jobproperties.CaloNoiseFlags.FixedLuminosity.set_Value_and_Lock(-1.)
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 theCaloNoiseTool.OutputLevel=INFO
+theCaloNoiseTool.RescaleForHV=False
 ToolSvc+=theCaloNoiseTool
+
+from CaloRec.CaloCellFlags import jobproperties
+jobproperties.CaloCellFlags.doLArHVCorr = False
+
+conddb.addOverride("/CALO/Ofl/Noise/PileUpNoiseLumi","CALOOflNoisePileUpNoiseLumi-RUN2-UPD1-00")
+if 'pileupsqlite' in dir():
+   conddb.addMarkup("/CALO/Ofl/Noise/PileUpNoiseLumi","<db>sqlite://;schema="+pileupsqlite+";dbname=CONDBR2</db>")
+if 'noisesqlite' in dir():
+   if 'noisetag' in dir():
+      conddb.addMarkup("/LAR/NoiseOfl/CellNoise","<db>sqlite://;schema="+noisesqlite+";dbname=CONDBR2</db><tag>"+noisetag+"</tag>")
+   else:   
+      conddb.addMarkup("/LAR/NoiseOfl/CellNoise","<db>sqlite://;schema="+noisesqlite+";dbname=CONDBR2</db>")
+if 'RunSince' not in dir():
+   RunSince=0
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArBadChannelMasker=LArBadChannelMasker("LArBadChannelMasker")
@@ -120,7 +136,7 @@ if fill:
     theOutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","LArDSPthresholdTemplates.pool.root",
                                                OutputList,OutputTagList,WriteIOV)
     
-    #theOutputConditionsAlg.Run1=1000
+    theOutputConditionsAlg.Run1=RunSince
 
 
     from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
@@ -149,4 +165,7 @@ print svcMgr.PoolSvc
 svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=DSPThresholdTemplates.db;dbname=CONDBR2"
 
 svcMgr.DetectorStore.Dump=True
-svcMgr.EventSelector.RunNumber=0xFFFFFF
+if 'RunNumber' in dir():
+   svcMgr.EventSelector.RunNumber=RunNumber
+else:
+   svcMgr.EventSelector.RunNumber=0xFFFFFF
