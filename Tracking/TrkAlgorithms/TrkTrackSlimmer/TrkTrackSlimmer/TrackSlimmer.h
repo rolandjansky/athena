@@ -12,9 +12,11 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkTrack/TrackCollection.h"
-#include "StoreGate/ReadHandleKeyArray.h"
 
+#include <string>
+
+class AtlasDetectorID;
+class Identifier;
 
 namespace Trk 
 {
@@ -38,11 +40,11 @@ namespace Trk
       ~TrackSlimmer();
       
       /** standard Athena-Algorithm method */
-      StatusCode          initialize() override;
+      StatusCode          initialize();
       /** standard Athena-Algorithm method */
-      StatusCode          execute() override;
+      StatusCode          execute();
       /** standard Athena-Algorithm method */
-      StatusCode          finalize() override;
+      StatusCode          finalize();
       
     private:
       
@@ -50,16 +52,16 @@ namespace Trk
       // int/double/bool  m_propertyName;
       ToolHandle<ITrackSlimmingTool>        m_slimTool;
       
+      std::vector<std::string>              m_trackLocation;
+      
+      std::vector<std::string>              m_slimmedTracksLocation;
       
       double                                m_ptCut;
-      SG::ReadHandleKeyArray <TrackCollection> m_trackLocation;
-      SG::WriteHandleKeyArray<TrackCollection> m_slimmedTracks;
-
+      
       unsigned int m_numSlimmedTracks;
       unsigned int m_numOriginalTracks;      
-
-      bool m_setPersistificationHints;
-  }; 
+      
+    }; 
 } // end of namespace
 
 #endif 
