@@ -44,6 +44,9 @@ namespace InDet {
        
        /** Interface method */
        virtual InDet::TRT_DriftCircleCollection* convert(int,const InDetRawDataCollection<TRT_RDORawData>*, const bool  m_CTBBadChannels) = 0;               
+       /** test validity gate for corrected drift times */
+       virtual bool passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const =0;
+
        
   };
       
