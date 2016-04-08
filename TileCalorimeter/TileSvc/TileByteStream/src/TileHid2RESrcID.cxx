@@ -5,14 +5,9 @@
 #include <iostream>
 #include <cassert>
 
-#define protected public
-#define private public
 #include "TileByteStream/TileROD_Decoder.h" 
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileCellBuilder.h"
-#undef protected
-#undef private
-
 #include "TileByteStream/TileHid2RESrcID.h" 
 #include "TileIdentifier/TileHWID.h"
 #include "TileIdentifier/TileTBFrag.h"
@@ -305,9 +300,9 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     int unit = flags5 >> 14;
 
     if (nDataFrag[0]+nDataFrag[1]==0) {
-      rodDecoder->m_useFrag0 = false;
-      rodDecoder->m_useFrag1 = false;
-      rodDecoder->m_useFrag5Raw = true;
+      rodDecoder->setUseFrag0 (false);
+      rodDecoder->setUseFrag1 (false);
+      rodDecoder->setUseFrag5Raw (true);
       log << MSG::INFO << "Setting TileROD_Decoder->useFrag5Raw to true, unit is " << unit << endreq;
       std::vector<int>::const_iterator itr=fragIDs.begin();
       std::vector<int>::const_iterator end=fragIDs.end();
@@ -319,8 +314,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     }
 
     if (nDataFrag[2]+nDataFrag[3]+nDataFrag[4]==0) {
-      rodDecoder->m_useFrag4 = false;
-      rodDecoder->m_useFrag5Reco = true;
+      rodDecoder->setUseFrag4 (false);
+      rodDecoder->setUseFrag5Reco (true);
       log << MSG::INFO << "Setting TileROD_Decoder->useFrag5Reco to true, unit is " << unit << endreq;
     }
     if (toolSvc->releaseTool(rodDecoder).isFailure()) 
@@ -359,10 +354,15 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
       return;
     }
 
+    const Property& rawChannelCnt_prop = cellBuilder->getProperty ("TileRawChannelContainer");
+    const Property& dspRawChannelContainer_prop = cellBuilder->getProperty ("TileDSPRawChannelContainer");
+    const PropertyWithValue<bool>& mergeChannels_prop =
+      dynamic_cast<const PropertyWithValue<bool>&> (cellBuilder->getProperty ("mergeChannels"));
+
     // Get any RawChannel Builder
     if (debug)
       log << MSG::DEBUG << " looking for TileRawChannelBuilder tool which provides container with name " 
-          << cellBuilder->m_rawChannelContainer << endreq;
+          << rawChannelCnt_prop.toString() << endreq;
     TileRawChannelBuilder* channelBuilder=0;
     std::string toolType[6] = { "TileRawChannelBuilderOpt2Filter", "TileRawChannelBuilderOptFilter",
                                 "TileRawChannelBuilderFitFilter", "TileRawChannelBuilderFitFilterCool", 
@@ -379,8 +379,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
             log << MSG::DEBUG << " full name " << toolName[j] << " - using " << name << endreq;
           if (toolSvc->retrieveTool(name,channelBuilder).isSuccess()) {
             if (debug)
-              log << MSG::DEBUG << " it provides " << channelBuilder->m_TileRawChannelContainerID << endreq;
-            if (cellBuilder->m_rawChannelContainer == channelBuilder->m_TileRawChannelContainerID) {
+              log << MSG::DEBUG << " it provides " << channelBuilder->getTileRawChannelContainerID() << endreq;
+            if (rawChannelCnt_prop.toString() == channelBuilder->getTileRawChannelContainerID()) {
               break;
             } else {
               if (toolSvc->releaseTool(channelBuilder).isFailure()) 
@@ -394,14 +394,17 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     }
 
     if (do_merge) { // frag1 in the data - should merge offline and dsp reco
-      if (cellBuilder->m_rawChannelContainer != cellBuilder->m_dspRawChannelContainer &&
-          !cellBuilder->m_mergeChannels) {
+      if (rawChannelCnt_prop.toString() != dspRawChannelContainer_prop.toString() &&
+          !mergeChannels_prop.value()) {
         if (nDataFrag[1] > 0) 
           log << MSG::INFO << "TileHid2RESrcID: only frag1 digi found, changing properties for TileCellBuilder";
         else 
           log << MSG::INFO << "TileHid2RESrcID: no TileCal digits found, but still changing properties for TileCellBuilder";
         log << " mergeChannels=True" << endreq;
-        cellBuilder->m_mergeChannels=true;
+        sc=cellBuilder->setProperty ("mergeChannels", true);
+        if (sc.isFailure()) {
+          log << MSG::ERROR << "Failed to set mergeChannels property in TileCellBuilder" << endreq;
+        }
         if (channelBuilder && cellBuilder->m_noiseFilterTools.size() != channelBuilder->m_noiseFilterTools.size()) {
           log << MSG::INFO << " and number of NoiseFilterTools from " 
               << cellBuilder->m_noiseFilterTools.size() << " to " << channelBuilder->m_noiseFilterTools.size() 
@@ -419,11 +422,14 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
       }
     } else { // neither frag0 nor frag1 in the data 
       // make sure that we read raw channels from BS, because offline reco will not work without digits anyhow
-      if (cellBuilder->m_rawChannelContainer != cellBuilder->m_dspRawChannelContainer) {
+      if (rawChannelCnt_prop.toString() != dspRawChannelContainer_prop.toString()) {
         log << MSG::INFO << "TileHid2RESrcID: no digi frags found, changing properties for TileCellBuilder";
-        log << " TileRawChannelContainer='" << cellBuilder->m_dspRawChannelContainer 
-            << "' instead of '" << cellBuilder->m_rawChannelContainer << "'";
-        cellBuilder->m_rawChannelContainer = cellBuilder->m_dspRawChannelContainer;
+        log << " TileRawChannelContainer='" << dspRawChannelContainer_prop.toString() 
+            << "' instead of '" << rawChannelCnt_prop.toString() << "'";
+        sc=cellBuilder->setProperty ("TileRawChannelContainer",dspRawChannelContainer_prop.toString());
+        if (sc.isFailure()) {
+          log << MSG::ERROR << "Failed to set TileRawChannelContainer property in TileCellBuilder" << endreq;
+        }
         flags = (flags>>8) & 0x3; // this is number of iterations
         if (flags == 0) { // no iterations - assume best phase was used, just need amplitude correction
           log << " and correctAmplitude=True";

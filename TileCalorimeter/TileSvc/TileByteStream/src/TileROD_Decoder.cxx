@@ -2,12 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// small hack to enable datapool usage
-#define private public
-#define protected public
 #include "TileEvent/TileCell.h"
-#undef private
-#undef protected
 
 #include <algorithm>
 #include <iomanip>
@@ -103,8 +98,8 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
 
 void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
   m_ampMinThresh = ampMinThresh;
-  m_ampMinThresh_pC = m_ampMinThresh * 12.5 / 1023.;
-  m_ampMinThresh_MeV = m_ampMinThresh * 12.5 / 1023. / 1.05 * 1000.;
+  m_ampMinThresh_pC = m_ampMinThresh * (12.5 / 1023.);
+  m_ampMinThresh_MeV = m_ampMinThresh * (12.5 / 1023. / 1.05 * 1000.);
 }
 
 /** destructor
@@ -1859,9 +1854,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsPed_diode1 = *pData & 0xFFFF;
   meanPed_diode1 = (*pData >> 16) & 0xFFFF;
   
-  MeanPed_diode1 = static_cast<double>(meanPed_diode1) / 10;
+  MeanPed_diode1 = static_cast<double>(meanPed_diode1) * 0.1;
   
-  RmsPed_diode1 = static_cast<double>(rmsPed_diode1) / 100;
+  RmsPed_diode1 = static_cast<double>(rmsPed_diode1) * 0.01;
   
   ++pData;
   
@@ -1874,9 +1869,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsPed_diode2 = *pData & 0xFFFF;
   meanPed_diode2 = (*pData >> 16) & 0xFFFF;
   
-  MeanPed_diode2 = static_cast<double>(meanPed_diode2) / 10;
+  MeanPed_diode2 = static_cast<double>(meanPed_diode2) * 0.1;
   
-  RmsPed_diode2 = static_cast<double>(rmsPed_diode2) / 100;
+  RmsPed_diode2 = static_cast<double>(rmsPed_diode2) * 0.01;
   
   ++pData;
   
@@ -1889,9 +1884,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsPed_diode3 = *pData & 0xFFFF;
   meanPed_diode3 = (*pData >> 16) & 0xFFFF;
   
-  MeanPed_diode3 = static_cast<double>(meanPed_diode3) / 10;
+  MeanPed_diode3 = static_cast<double>(meanPed_diode3) * 0.1;
   
-  RmsPed_diode3 = static_cast<double>(rmsPed_diode3) / 100;
+  RmsPed_diode3 = static_cast<double>(rmsPed_diode3) * 0.01;
   
   ++pData;
   
@@ -1904,9 +1899,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsPed_diode4 = *pData & 0xFFFF;
   meanPed_diode4 = (*pData >> 16) & 0xFFFF;
   
-  MeanPed_diode4 = static_cast<double>(meanPed_diode4) / 10;
+  MeanPed_diode4 = static_cast<double>(meanPed_diode4) * 0.1;
   
-  RmsPed_diode4 = static_cast<double>(rmsPed_diode4) / 100;
+  RmsPed_diode4 = static_cast<double>(rmsPed_diode4) * 0.01;
   
   ++pData;
   
@@ -1919,9 +1914,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsPed_pmt1 = *pData & 0xFFFF;
   meanPed_pmt1 = (*pData >> 16) & 0xFFFF;
   
-  MeanPed_pmt1 = static_cast<double>(meanPed_pmt1) / 10;
+  MeanPed_pmt1 = static_cast<double>(meanPed_pmt1) * 0.1;
   
-  RmsPed_pmt1 = static_cast<double>(rmsPed_pmt1) / 100;
+  RmsPed_pmt1 = static_cast<double>(rmsPed_pmt1) * 0.01;
   
   ++pData;
   
@@ -1934,9 +1929,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsPed_pmt2 = *pData & 0xFFFF;
   meanPed_pmt2 = (*pData >> 16) & 0xFFFF;
   
-  MeanPed_pmt2 = static_cast<double>(meanPed_pmt2) / 10;
+  MeanPed_pmt2 = static_cast<double>(meanPed_pmt2) * 0.1;
   
-  RmsPed_pmt2 = static_cast<double>(rmsPed_pmt2) / 100;
+  RmsPed_pmt2 = static_cast<double>(rmsPed_pmt2) * 0.01;
   
   ++pData;
   
@@ -1956,9 +1951,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsAlpha_diode1 = *pData & 0xFFFF;
   meanAlpha_diode1 = (*pData >> 16) & 0xFFFF;
   
-  MeanAlpha_diode1 = static_cast<double>(meanAlpha_diode1) / 10;
+  MeanAlpha_diode1 = static_cast<double>(meanAlpha_diode1) * 0.1;
   
-  RmsAlpha_diode1 = static_cast<double>(rmsAlpha_diode1) / 100;
+  RmsAlpha_diode1 = static_cast<double>(rmsAlpha_diode1) * 0.01;
   
   ++pData;
   
@@ -1971,9 +1966,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsAlpha_diode2 = *pData & 0xFFFF;
   meanAlpha_diode2 = (*pData >> 16) & 0xFFFF;
   
-  MeanAlpha_diode2 = static_cast<float>(meanAlpha_diode2) / 10;
+  MeanAlpha_diode2 = static_cast<float>(meanAlpha_diode2) * 0.1;
   
-  RmsAlpha_diode2 = static_cast<float>(rmsAlpha_diode2) / 100;
+  RmsAlpha_diode2 = static_cast<float>(rmsAlpha_diode2) * 0.01;
   
   ++pData;
   
@@ -1988,9 +1983,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsAlpha_diode3 = *pData & 0xFFFF;
   meanAlpha_diode3 = (*pData >> 16) & 0xFFFF;
   
-  MeanAlpha_diode3 = static_cast<double>(meanAlpha_diode3) / 10;
+  MeanAlpha_diode3 = static_cast<double>(meanAlpha_diode3) * 0.1;
   
-  RmsAlpha_diode3 = static_cast<double>(rmsAlpha_diode3) / 100;
+  RmsAlpha_diode3 = static_cast<double>(rmsAlpha_diode3) * 0.01;
   
   ++pData;
   
@@ -2003,9 +1998,9 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   rmsAlpha_diode4 = *pData & 0xFFFF;
   meanAlpha_diode4 = (*pData >> 16) & 0xFFFF;
   
-  MeanAlpha_diode4 = static_cast<double>(meanAlpha_diode4) / 10;
+  MeanAlpha_diode4 = static_cast<double>(meanAlpha_diode4) * 0.1;
   
-  RmsAlpha_diode4 = static_cast<double>(rmsAlpha_diode4) / 100;
+  RmsAlpha_diode4 = static_cast<double>(rmsAlpha_diode4) * 0.01;
   
   ++pData;
   
@@ -2091,7 +2086,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   diodeTemp = *pData & 0xFFF;
   seconds1 = (*pData >> 12) & 0xFFFFF;
   
-  DiodeTemp = static_cast<double>(diodeTemp) / 10;
+  DiodeTemp = static_cast<double>(diodeTemp) * 0.1;
   
   ++pData;
   
@@ -2103,7 +2098,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   boxTemp = *pData & 0xFFF;
   seconds2 = (*pData >> 12) & 0xFFFFF;
   
-  BoxTemp = static_cast<double>(boxTemp) / 10;
+  BoxTemp = static_cast<double>(boxTemp) * 0.1;
   
   ++pData;
   
@@ -2115,7 +2110,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   hum = *pData & 0xFFF;
   seconds3 = (*pData >> 12) & 0xFFFFF;
   
-  Hum = static_cast<double>(hum) / 10;
+  Hum = static_cast<double>(hum) * 0.1;
   
   ++pData;
   
@@ -2127,7 +2122,7 @@ void TileROD_Decoder::unpack_frag16(uint32_t version, const uint32_t* p,
   gasFlow = *pData & 0xFFF;
   seconds4 = (*pData >> 12) & 0xFFFFF;
   
-  GasFlow = static_cast<double>(gasFlow) / 10;
+  GasFlow = static_cast<double>(gasFlow) * 0.1;
   
   ++pData;
   
@@ -2228,7 +2223,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
     ++word;
   }
   // TDC word immediately after ADC words
-  // aa aa bb bb    aaaa = TDC N°1    bbbb = TDC N°0
+  // aa aa bb bb    aaaa = TDC N1    bbbb = TDC N0
   int TDC0 = (*word) & 0xFFFF;
   int TDC1 = (*word) >> 16;
   
@@ -2768,12 +2763,12 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
 void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container & v) {
   uint32_t size = data_size(rob);
   const uint32_t * p = get_data(rob);
-  const uint32_t m_ROB_to_decode = ((*p) & 0xFFFF); // Multiply by two
-  const uint32_t m_virtualROBJump = ((*p) >> 16) >> 2; // Divide by four (four drawer-1ROB)
-  if (size < m_ROB_to_decode * m_virtualROBJump + 1) {
+  const uint32_t ROB_to_decode = ((*p) & 0xFFFF); // Multiply by two
+  const uint32_t virtualROBJump = ((*p) >> 16) >> 2; // Divide by four (four drawer-1ROB)
+  if (size < ROB_to_decode * virtualROBJump + 1) {
     ATH_MSG_ERROR( "Declared size =" << size
-                  << "; m_virtualROBJump=" << m_virtualROBJump
-                  << "; m_ROB_to_decode=" << m_ROB_to_decode );
+                  << "; virtualROBJump=" << virtualROBJump
+                  << "; ROB_to_decode=" << ROB_to_decode );
     return;
   }
   p++; // Jump first word
@@ -2782,8 +2777,8 @@ void TileROD_Decoder::fillCollectionL2ROS(const ROBData * rob, TileL2Container &
   uint32_t idAndType;
   int frag, hash, unit;
   
-  for (size_t irob = 0; irob < m_ROB_to_decode; ++irob) {
-    for (size_t drawInRob = 0; drawInRob < m_virtualROBJump; ++drawInRob) {
+  for (size_t irob = 0; irob < ROB_to_decode; ++irob) {
+    for (size_t drawInRob = 0; drawInRob < virtualROBJump; ++drawInRob) {
       
       idAndType = *(p++);
       frag = idAndType & 0xFFF;
@@ -3235,7 +3230,7 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
       pCell->addEnergy(0., 1-m_Rw2Pmt[sec][5], 1);
     }
     
-    if (m_MBTS != NULL) {
+    if (m_MBTS != NULL && MBTS_chan >= 0) {
       unsigned int idx = m_mapMBTS[frag_id];
       if (idx < (*m_MBTS).size()) { // MBTS present (always last channel)
         TileCell* pCell = (*m_MBTS)[idx];
@@ -3919,10 +3914,10 @@ StatusCode TileROD_Decoder::convertTMDBDecision(const RawEvent* re, TileMuonRece
 
     //eformat::helper::SourceIdentifier id = eformat::helper::SourceIdentifier(robFrag.source_id());
     uint32_t sourceid = robFrag.source_id();
-    uint32_t modid = sourceid>>16;
+    uint32_t modid = sourceid >> 16;
     //msg(MSG::VERBOSE) <<MSG::hex<<" sourceId: 0x"<< robFrag.source_id() <<MSG::dec<< endmsg;
 
-    if ( (modid==0x51 || modid==0x52 || modid==0x53 || modid==0x54) && sourceid&0xf00 ) {
+    if ((modid == 0x51 || modid == 0x52 || modid == 0x53 || modid == 0x54) && (sourceid & 0xf00)) {
       fillContainer_TileMuRcv_Decision(&robFrag, *tileMuRcv);
     }
   }
@@ -3951,43 +3946,53 @@ void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileM
   std::vector<const uint32_t *> pFragTmdb;
   m_sizeOverhead = 3;
 
-  ATH_MSG_DEBUG( " Trying DECODER over source ID: " <<MSG::hex<< " 0x" << sourceid <<MSG::dec<< " full fragment size " << size );
+  ATH_MSG_DEBUG( " Trying DECODER over source ID: " << MSG::hex
+                << " 0x" << sourceid << MSG::dec
+                << " full fragment size " << size );
 
   while ( wc < size ) { // iterator over all words in a ROD
     // first word is the start of the tile subfragment in v3format it is 0xff1234ff
     if ((*p) == 0xff1234ff)  b_sof=true;
 
-    ATH_MSG_DEBUG( " start of sub-fragment word : " <<MSG::hex<< (*p) <<MSG::dec<< " false/true : " << b_sof );
+    ATH_MSG_DEBUG( " start of sub-fragment word : " << MSG::hex << (*p) << MSG::dec << " false/true : " << b_sof );
 
     if (b_sof) {
       // second word is frag size
-      sfrag_size    = *(p+1);
+      sfrag_size = *(p + 1);
       // third word is frag version [31-16] and type [15-0]
-      sfrag_version = *(p+2) & 0xFFFF;
-      sfrag_type    = *(p+2) >> 16;
-      b_sof=false;
+      sfrag_version = *(p + 2) & 0xFFFF;
+      sfrag_type = *(p + 2) >> 16;
+      b_sof = false;
     }
     // for tmdb we will start to have three sub-fragments ordered as 0x40 0x41 0x42
     // we investigate if there are any of type 0x40,0x41 before going on 0x42
     // like this the loop is faster since we can access the size of this two sub-fragments
-    if (sfrag_type==0x40) {
-      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION="<<sfrag_version<<" TYPE="<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND! Keep on looking for 0x42.");
+    if (sfrag_type == 0x40) {
+      ATH_MSG_DEBUG( MSG::hex << " DECODER sub-fragment VERSION=" << sfrag_version
+                    << " TYPE=" << sfrag_type << MSG::dec
+                    << " SIZE=" << sfrag_size
+                    << " FOUND! Keep on looking for 0x42.");
       offset = sfrag_size;
       wc += offset;
-      p  += offset;
-    } else if (sfrag_type==0x41) {
-      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION="<<sfrag_version<<" TYPE="<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND! Keep on looking for 0x42.");
+      p += offset;
+    } else if (sfrag_type == 0x41) {
+      ATH_MSG_DEBUG( MSG::hex << " DECODER sub-fragment VERSION=" << sfrag_version
+                    << " TYPE=" << sfrag_type << MSG::dec
+                    <<" SIZE=" << sfrag_size
+                    << " FOUND! Keep on looking for 0x42.");
       offset = sfrag_size;
       wc += offset;
-      p  += offset;
-    } else if (sfrag_type==0x42) {
+      p += offset;
+    } else if (sfrag_type == 0x42) {
       b_deciTmdb = true;
-      ATH_MSG_DEBUG(MSG::hex<<" DECODER sub-fragment VERSION="<<sfrag_version<<" TYPE="<<sfrag_type<<MSG::dec<<" SIZE="<<sfrag_size<<" FOUND!" );
-      wc+=size-wc;
-      p+=3;
+      ATH_MSG_DEBUG( MSG::hex << " DECODER sub-fragment VERSION=" << sfrag_version
+                    << " TYPE=" << sfrag_type << MSG::dec
+                    << " SIZE=" <<sfrag_size << " FOUND!");
+      wc += size - wc;
+      p += 3;
     } else {
-     ++p ;
-     ++wc;
+      ++p;
+      ++wc;
     }
   }
   // the TMDB result    0x42
@@ -3997,17 +4002,18 @@ void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileM
 return;
 }
 
-void TileROD_Decoder::unpack_frag40( uint32_t collid, uint32_t version, const uint32_t* p, int datasize, TileDigitsCollection &coll ){
+void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uint32_t* p, int datasize,
+    TileDigitsCollection &coll) {
 
-  int ros=(collid>>8);
-  int drawer=collid&0xff;
-  HWIdentifier drawerID = m_tileHWID->drawer_id(ros,drawer);
+  int ros = (collid >> 8);
+  int drawer = collid & 0xff;
+  HWIdentifier drawerID = m_tileHWID->drawer_id(ros, drawer);
   int nsamp = 7; // assume fixed number of samples for the moment
-  int nmod = (ros>2)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
+  int nmod = (ros > 2) ? 8 : 4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
   int nchan = 4 * datasize / nmod / nsamp; // factor 4 because in one 32-bit word we have 4 samples
 
-  int nsamp1 = nsamp-1;
-  
+  int nsamp1 = nsamp - 1;
+
   std::vector<float> digits(nsamp);
 
   // Each 32 bit word is made of four 8-bit words each a ADC of a sample like
@@ -4018,13 +4024,13 @@ void TileROD_Decoder::unpack_frag40( uint32_t collid, uint32_t version, const ui
   // Note that order of samples is inversed with respect to time line, 
   // i.e. first sample from data should go to the last sample in TileDigits vector
 
-  int wpos=(collid%nmod)*nchan; // location of first sample for given channel in given module
-  int jump = nchan*nmod; // distance between samples for one channel in number of bytes
+  int wpos = (collid % nmod) * nchan; // location of first sample for given channel in given module
+  int jump = nchan * nmod; // distance between samples for one channel in number of bytes
   const unsigned char * adc = reinterpret_cast<const unsigned char *>(p);
 
-  for (int i=0; i<nchan; ++i) {
-    for (int j=0; j<nsamp; ++j) {
-      digits[nsamp1-j] = adc[wpos+jump*j];
+  for (int i = 0; i < nchan; ++i) {
+    for (int j = 0; j < nsamp; ++j) {
+      digits[nsamp1 - j] = adc[wpos + jump * j];
     }
     ++wpos;
     HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
@@ -4033,21 +4039,23 @@ void TileROD_Decoder::unpack_frag40( uint32_t collid, uint32_t version, const ui
   }
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "TileROD_Decoder::unpack_frag40  frag: 0x"
-                    <<MSG::hex<<collid<<MSG::dec<<" version: "<<version << endreq;
-    int pos=coll.size()-nchan;
-    const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R "," xxx "};
-    for (int i=0;i<nchan;++i) {
-      const std::vector<float> & sample = coll.at(pos+i)->samples();
+    msg(MSG::DEBUG) << "TileROD_Decoder::unpack_frag40  frag: 0x" << MSG::hex << collid << MSG::dec
+                    << " version: " << version << endmsg;
+
+    int pos = coll.size() - nchan;
+    const char * strchannel[5] = { " d5L ", " d5R ", " d6L ", " d6R ", " xxx " };
+    for (int i = 0; i < nchan; ++i) {
+      const std::vector<float> & sample = coll.at(pos + i)->samples();
       std::stringstream ss;
       for (const auto & val : sample) {
-        ss<<std::setw(5)<<int(val);
+        ss << std::setw(5) << int(val);
       }
-      msg(MSG::DEBUG) << " ros:" << ros << " drawer:" << drawer <<" ch:" << i
-                      << strchannel[std::min(i,4)] << ss.str() << endreq;
+      msg(MSG::DEBUG) << " ros:" << ros
+                      << " drawer:" << drawer
+                      << " ch:" << i << strchannel[std::min(i, 4)] << ss.str() << endmsg;
     }
   }
-  
+
   return;
 }
 
@@ -4061,7 +4069,7 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
   int nmod = (ros>2)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
   int nchan = datasize / nmod;
 
-  int wpos=(collid%nmod)*nchan;
+  int wpos = (collid % nmod) * nchan;
 
   if (version == 0) {
 
@@ -4075,10 +4083,10 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
     // Each 4 words respect a module. 
 
     const int32_t * pp = reinterpret_cast<const int32_t *>(p);
-    pp+=wpos;
-    for (int i=0; i<nchan; ++i) {
+    pp += wpos;
+    for (int i = 0; i < nchan; ++i) {
       HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
-      TileRawChannel *rctmp = new TileRawChannel(adcID,(*pp)*calFactorADC2MeV,0.,0.);
+      TileRawChannel *rctmp = new TileRawChannel(adcID, (*pp) * calFactorADC2MeV, 0., 0.);
       coll.push_back(rctmp);
       ++pp;
     }
@@ -4092,27 +4100,29 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
     //
     // Each 2 words respect a module. 
       
-    nchan*=2; // change number of channels calculated before assuming 16 bits for channel
+    nchan *= 2; // change number of channels calculated before assuming 16 bits for channel
     const int16_t * pp = reinterpret_cast<const int16_t *>(p);
-    pp+=wpos;
-    for (int i=0; i<nchan; ++i) {
+    pp += wpos;
+    for (int i = 0; i < nchan; ++i) {
       HWIdentifier adcID = m_tileHWID->adc_id(drawerID, i, TileID::LOWGAIN);
-      TileRawChannel *rctmp = new TileRawChannel(adcID,(*pp)*calFactorADC2MeV,0.,0.);
+      TileRawChannel *rctmp = new TileRawChannel(adcID, (*pp) * calFactorADC2MeV, 0., 0.);
       coll.push_back(rctmp);
       ++pp;
     }
   }
   
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag41  frag: 0x"
-                    <<MSG::hex<<collid<<MSG::dec<<" version: "<<version << endreq;
-    int nbits=(version==0)?32:16;
-    msg(MSG::DEBUG) << " position of " << nbits << "-bit word inside sub-fragment 0x41: " << wpos << endreq;
-    int pos=coll.size()-nchan;
-    const char * strchannel[5] = {" d5L "," d5R "," d6L "," d6R "," xxx "};
-    for (int i=0;i<nchan;++i) {
-        msg(MSG::DEBUG) << " ros:" << ros << " drawer:" << drawer <<" ch:" << i
-                        << strchannel[std::min(i,4)] << coll.at(pos+i)->amplitude() << endreq;
+    msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag41  frag: 0x" << MSG::hex << collid << MSG::dec
+                    << " version: " << version << endmsg;
+
+    int nbits = (version == 0) ? 32 : 16;
+    msg(MSG::DEBUG) << " position of " << nbits << "-bit word inside sub-fragment 0x41: " << wpos << endmsg;
+    int pos = coll.size() - nchan;
+    const char * strchannel[5] = { " d5L ", " d5R ", " d6L ", " d6R ", " xxx " };
+    for (int i = 0; i < nchan; ++i) {
+      msg(MSG::DEBUG) << " ros:" << ros
+                      << " drawer:" << drawer
+                      << " ch:" << i << strchannel[std::min(i, 4)] << coll.at(pos + i)->amplitude() << endmsg;
     }
   }
 
@@ -4139,33 +4149,45 @@ void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const 
   // bit-1        .
   // bit-0 -> result.at(3)
 
-  int drawer = ((sourceid & 0xf0000) >> 8) | ((sourceid & 0x0000f) << 3);
-  uint32_t word = (datasize>1) ? (p[1]<<20) | ((p[0]>>8) & 0xff000) | ((p[0]>>4) & 0xfff) : 0 ;
-  std::vector<bool> result(4);
+  int nbit,nmod;
+  uint32_t word;
+  int drawer = (sourceid & 0xf0000) >> 8; // get ROS number from source ID
+  if (drawer<0x300) { // barrel
+    nbit = 4;
+    nmod = 4;
+    drawer |= ((sourceid & 0x0000f) << 2);
+    word = (datasize > 0) ? p[0] : 0; // just use first word, although expect all zeros for the moment
+  } else {
+    nbit = 4;
+    nmod = 8;
+    drawer |= ((sourceid & 0x0000f) << 3);
+    word = (datasize > 1) ? (p[1] << 20) | ((p[0] >> 8) & 0xff000) | ((p[0] >> 4) & 0xfff) : 0;
+  }
 
-  for (int j=0; j<8; ++j) { // loop over 8 modules
-    for (int k=0; k<4; ++k) { // loop over 4 bits of one module
-      result[3-k] = ((word&1) != 0);
+  std::vector<bool> result(nbit);
+  for (int j = 0; j < nmod; ++j) { // loop over modules
+    for (int k = nbit-1; k >= 0; --k) { // loop over bits of one module in inversed order
+      result[k] = ((word & 1) != 0);
       word >>= 1;
     }
 
-    TileMuonReceiverObj * obj = new TileMuonReceiverObj(drawer,result);
+    TileMuonReceiverObj * obj = new TileMuonReceiverObj(drawer, result);
     v.push_back(obj);
 
     ++drawer;
   }
   
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag42  source ID: 0x"
-                    <<MSG::hex<<sourceid<<MSG::dec<<" version: "<<version << endreq;
-    for (size_t j=v.size()-8; j<v.size(); ++j) {
+    msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag42  source ID: 0x" << MSG::hex << sourceid << MSG::dec
+                    << " version: " << version << endmsg;
+
+    for (size_t j = v.size() - nmod; j < v.size(); ++j) {
       const std::vector<bool> & r = v[j]->GetDecision();
       std::stringstream ss;
       for (const auto & val : r) {
-        ss<<std::setw(2)<<val;
+        ss << std::setw(2) << val;
       }
-      msg(MSG::DEBUG) << MSG::hex<<"0x"<<v[j]->GetID() <<MSG::dec
-                      << ss.str() << endreq;
+      msg(MSG::DEBUG) << MSG::hex << "0x" << v[j]->GetID() << MSG::dec << ss.str() << endmsg;
     }
   }
 
