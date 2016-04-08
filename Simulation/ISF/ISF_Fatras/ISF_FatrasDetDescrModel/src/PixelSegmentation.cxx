@@ -60,8 +60,8 @@ namespace iFatras {
     double halfLengthY = (m_pitchY*m_NcellY)/2.;
     
     // Check that we are in the bounds 
-    if ( (abs(localPos[Trk::locX]) > halfLengthX) || 
-	 (abs(localPos[Trk::locY]) > halfLengthY) ) {
+    if ( (std::abs(localPos[Trk::locX]) > halfLengthX) || 
+	 (std::abs(localPos[Trk::locY]) > halfLengthY) ) {
       entryXY = std::pair< int,  int> (0, 0);
       return false;
     }

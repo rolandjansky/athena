@@ -17,6 +17,8 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/DiscTrapezoidalBounds.h"
+#include "TrkSurfaces/DiscBounds.h"
 #include "TrkGeometry/MaterialLayer.h"
 
 #include "ISF_FatrasDetDescrModel/PixelSegmentation.h"
@@ -34,31 +36,38 @@ namespace iFatras{
   //Constructor with parameters:
   PlanarDetElement::PlanarDetElement( const Identifier &id, 
 				      const IdentifierHash & idHash,
+				      const Amg::Vector3D & centerOnModule,
 				      const Amg::Transform3D & transf,
 				      const Trk::LayerMaterialProperties & layerMaterial,
 				      const double thickness,
 				      const double lengthY,
 				      const double lengthXmin,
 				      const double lengthXmax,
+				      const double rMin,
+				      const double rMax,
 				      const double pitchX, 
 				      const double pitchY,
+				      const double stereo,
 				      const bool isPixel,
 				      const bool isBarrel,
 				      const bool isOuterMost,
+				      const bool useTrapezoidal,
 				      const bool debug) :
     TrkDetElementBase(0),
     m_id(id),
     m_idHash(idHash),
     m_transform(transf), // set the base class transform (tracking transform)
     m_center(m_transform.translation()),
+    m_centerOnModule(centerOnModule),
     m_normal(m_transform.rotation().col(Trk::z)), // an expression of the i-th column of *this. Note that the numbering starts at 0.
-    m_surface(*this),
+    m_surface(0),
     m_lengthY(lengthY),
     m_lengthXmin(lengthXmin),
     m_lengthXmax(lengthXmax),
     m_pitchX(pitchX),
     m_pitchY(pitchY),
     m_thickness(thickness),
+    m_stereo(stereo),
     m_isOuterMost(isOuterMost),
     m_debug(debug),
     m_backSide(0),
@@ -69,10 +78,10 @@ namespace iFatras{
     m_prevPhi(0),
     m_isPixel(isPixel),
     m_isBarrel(isBarrel)
-{
-    
-    if (lengthXmax == 0.0){
-      
+  {
+    double avephi = 0.;
+    if (lengthXmax == 0.0 || lengthXmax == lengthXmin){
+      m_surface = new Trk::PlaneSurface(*this);
       Trk::RectangleBounds* rbounds = new Trk::RectangleBounds(lengthXmin/2., lengthY/2.);
       m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(rbounds, true);
       m_shape = InDetDD::Box;
@@ -80,15 +89,32 @@ namespace iFatras{
 	std::cout << "DEBUG: Created Rectangle bounds " << std::endl;
       }
     } else {
-    
-      Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(lengthXmin/2., lengthXmax/2., lengthY/2.);
-      m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(tbounds, true);
-      m_shape = InDetDD::Trapezoid;
-      if (m_debug){
-	std::cout << "DEBUG: Created Trapezoid bounds " << std::endl;
-      }
-    }
+      if (useTrapezoidal) {
+	m_surface = new Trk::PlaneSurface(*this);
+	Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(lengthXmin/2., lengthXmax/2., lengthY/2.);
+	m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(tbounds, true);
+	m_shape = InDetDD::Trapezoid;
+	if (m_debug)
+	  std::cout << "DEBUG: Created Trapezoid bounds " << std::endl;
+      } else {
+	m_surface = new Trk::DiscSurface(*this);
 
+	avephi = stereo + m_centerOnModule.phi();
+
+	Trk::DiscTrapezoidalBounds* dtbounds = new Trk::DiscTrapezoidalBounds(lengthXmin/2., lengthXmax/2., rMin, rMax, avephi, stereo);
+	
+	m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(dtbounds, true);
+	m_shape = InDetDD::Other;
+	if (m_debug){
+	  std::cout << "DEBUG: Using Parameters =  " << lengthXmin/2. << ", " << lengthXmax/2. << ", " << rMin << ", "<< rMax << ", "<< avephi << ", " << stereo << std::endl;
+	  std::cout << "DEBUG: Created DiscTrapezoidal bounds " << std::endl;
+	  std::cout << "Surface = " << *m_surface << std::endl;
+	  std::cout << "Center = " << m_center << std::endl;
+	  std::cout << "Bounds = " << *dtbounds << std::endl;
+	}
+      }
+    }  
+    
     // get the tracking rotation
     Amg::RotationMatrix3D trackingRotation(m_transform.rotation());
     
@@ -97,11 +123,11 @@ namespace iFatras{
     hitRotation.col(Trk::x) = trackingRotation.col(Trk::z);
     hitRotation.col(Trk::y) = trackingRotation.col(Trk::x);
     hitRotation.col(Trk::z) = trackingRotation.col(Trk::y);
-
+    
     // and finally the transform
     m_hitTransform = Amg::Transform3D(hitRotation, m_transform.translation());
     m_hitTransformCLHEP = Amg::EigenTransformToCLHEP(m_hitTransform);
-
+    
     if (m_debug){
       std::cout << "DEBUG: PlanarDetElement constructor:" << std::endl;
       std::cout << "DEBUG: Identifier = " << m_id << std::endl;
@@ -113,20 +139,46 @@ namespace iFatras{
     if (!m_id.is_valid()) throw std::runtime_error("PlanarDetElement: Invalid identifier");
     
     if (!m_idHash.is_valid()) throw std::runtime_error("PlanarDetElement: Unable to set IdentifierHash");
-
+    
     const Trk::MaterialLayer* materialLayer = new Trk::MaterialLayer(m_surface, layerMaterial);
-    m_surface.setMaterialLayer(*materialLayer);
-
+    m_surface->setMaterialLayer(*materialLayer);
+    
     if (isPixel)
       m_segmentation = dynamic_cast<PixelSegmentation*> (new PixelSegmentation(m_lengthXmin, m_lengthY, m_pitchX, m_pitchY));
-    else
-      m_segmentation = dynamic_cast<SCT_Segmentation*> (new SCT_Segmentation(m_lengthXmin, m_lengthY, m_lengthXmax, m_pitchX));
-    
-}
-
+    else {
+      if (m_lengthXmax == 0.) m_segmentation = dynamic_cast<SCT_Segmentation*> (new SCT_Segmentation(m_lengthXmin, m_lengthXmax, m_lengthY, m_pitchX));
+      else {
+	m_segmentation = useTrapezoidal ? 
+	  dynamic_cast<SCT_Segmentation*> (new SCT_Segmentation(m_lengthXmin, m_lengthXmax, m_lengthY, m_pitchX)) :
+	  dynamic_cast<SCT_Segmentation*> (new SCT_Segmentation(m_lengthXmin, m_lengthXmax, rMin, rMax, m_pitchX, avephi));
+      }      
+    }    
+  }
+  
   // Destructor:
   PlanarDetElement::~PlanarDetElement()
-  {}
+  {
+    delete m_surface;
+  }
+
+  const Trk::Surface& PlanarDetElement::surface() const
+  {
+    if (!m_surface) m_surface = new Trk::PlaneSurface(*this);
+    return *m_surface;
+  }
+
+  const std::vector<const Trk::Surface*>& PlanarDetElement::surfaces() const  { 
+    if (!m_surfaces.size()){ 
+      // get this surface 
+      m_surfaces.push_back(&surface()); 
+      // get the other side surface 
+      if (otherSide()){ 
+	m_surfaces.push_back(&(otherSide()->surface())); 
+      } 
+    } 
+    // return the surfaces 
+    return m_surfaces; 
+  }   
   
   bool PlanarDetElement::cellOfPosition(const Amg::Vector2D &localPos, std::pair<int, int>& entryXY) const {
     return m_segmentation->cellOfPosition(localPos, entryXY);
