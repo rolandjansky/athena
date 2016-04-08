@@ -44,7 +44,7 @@ class LArG4H62004InactiveSDTool : public LArG4SDTool
   std::vector<std::string> m_fcal2Volumes;
 
   /// Am I running with particle ID calibration hits?
-  bool m_particleId;
+  //bool m_particleId;
     
 };
 

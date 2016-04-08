@@ -32,7 +32,7 @@ class LArGeoH62004SteppingAction final: public UserActionBase
     std::vector<int> m_tracks;
     const LArGeoTB2004Options *m_largeoTB2004Options;
     bool m_ownOptions;
-    float yTable;
+    float m_yTable;
 };
 
 #endif

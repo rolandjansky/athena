@@ -74,7 +74,7 @@ StatusCode LArTBH6BeamInfo::execute()
    dVect v_ey;
 
 // loop hit containers
-   for (const auto &it : m_hitcoll) {
+   for (auto &it : m_hitcoll) {
 
       ATH_MSG_INFO (" hit container: "<< it->Name() <<" size: "<<it->size() );
 
@@ -206,11 +206,11 @@ bool LArTBH6BeamInfo::fitVect(const dVect &vec, const dVect &vec_z, const dVect 
   // (section 15.3) - but clearly it could be done
 
   int i;
-  double m_s = 0;
-  double m_su = 0;
-  double m_sww = 0;
-  double m_sw = 0;
-  double m_suw = 0;
+  double s = 0;
+  double su = 0;
+  double sww = 0;
+  double sw = 0;
+  double suw = 0;
 
   int hitNum = vec.size();
   for(i = 0; i < hitNum; ++i){
@@ -219,21 +219,22 @@ bool LArTBH6BeamInfo::fitVect(const dVect &vec, const dVect &vec_z, const dVect 
     ATH_MSG_DEBUG ( "Position in Z: " << vec_z[i] );
     ATH_MSG_DEBUG ( "Error in X: " << vec_e[i] );
 
-    m_s += 1 / (vec_e[i]*vec_e[i]);
-    m_su += vec[i] / (vec_e[i]*vec_e[i]);
-    m_sww += vec_z[i]*vec_z[i] / (vec_e[i]*vec_e[i]);
-    m_sw += vec_z[i] / (vec_e[i]*vec_e[i]);
-    m_suw += vec[i]*vec_z[i] / (vec_e[i]*vec_e[i]);
+    s += 1 / (vec_e[i]*vec_e[i]);
+    su += vec[i] / (vec_e[i]*vec_e[i]);
+    sww += vec_z[i]*vec_z[i] / (vec_e[i]*vec_e[i]);
+    sw += vec_z[i] / (vec_e[i]*vec_e[i]);
+    suw += vec[i]*vec_z[i] / (vec_e[i]*vec_e[i]);
   }
 
-  double denum = (m_s*m_sww-m_sw*m_sw);
-  if(denum == 0){
-    ATH_MSG_ERROR ( " Invalid denumerator" );
+  const double denom = (s*sww-sw*sw);
+  if(denom == 0){
+    ATH_MSG_ERROR ( " Invalid denominator" );
     return false;
   }
 
-  a1 = (m_su*m_sww - m_sw*m_suw)/ denum;
-  a2 = (m_s*m_suw - m_su*m_sw)/ denum;
+  const double inv_denom = 1. / denom;
+  a1 = (su*sww - sw*suw) * inv_denom;
+  a2 = (s*suw - su*sw) * inv_denom;
   ATH_MSG_DEBUG ( "Fit results:" << " intercept = " << a1 << " and slope = " << a2 );
 
   // Fill residual

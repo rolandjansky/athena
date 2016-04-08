@@ -27,7 +27,7 @@ LArG4H6COLDTCMod0ChannelMap::LArG4H6COLDTCMod0ChannelMap(G4double rMin,
   , m_nPhiBins(nPhis)
 {
   // find # phi bins
-  G4double deltaPhi = m_nPhiBins > 0 && phiMax > phiMin
+  const G4double deltaPhi = m_nPhiBins > 0 && phiMax > phiMin
     ? ( phiMax - phiMin ) / 2.
     : 0;
 #ifdef DEBUG_ME
@@ -38,7 +38,8 @@ LArG4H6COLDTCMod0ChannelMap::LArG4H6COLDTCMod0ChannelMap(G4double rMin,
   G4double r = deltaPhi > 0 
     ? rMin
     : rMax;
-  for ( ; r < rMax ; r = sqrt( 2 * area / deltaPhi + r * r ) )
+  const G4double delta = 2 * area / deltaPhi;
+  for ( ; r < rMax ; r = sqrt( delta + r * r ) )
     {
 //       std::cout<<r<<std::endl;
       m_rBins.push_back(r);

@@ -15,6 +15,7 @@ int LArGeoH62004EventAction::m_evnum=0;
 
 LArGeoH62004EventAction::LArGeoH62004EventAction(const std::string& type, const std::string& name, const IInterface* parent)
   : UserActionBase(type,name,parent)
+  , m_largeoTB2004Options (nullptr)
   , m_ev("TBEventInfo")
 {
   ATH_MSG_DEBUG ("LArGeoH62004EventAction::LArGeoH62004EventAction constructor");
