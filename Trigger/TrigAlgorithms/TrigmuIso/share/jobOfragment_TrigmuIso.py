@@ -8,8 +8,6 @@ theApp.ExtSvc += [ "TrigTimeSvc" ]
 # Algorithm
 theApp.Dlls += [ "TrigmuIso" ]
 
-include( "TrigT2CaloCommon/jobOfragment_TrigT2CaloCommon.py" )
-
 #muIso_Muon_L2 = Algorithm( "muIso_Muon_L2" );
 #muIso_Muon_L2.EtaWidth=0.35
 #muIso_Muon_L2.PhiWidth=0.35
