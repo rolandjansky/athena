@@ -65,9 +65,9 @@ namespace JiveXML {
       thrNumber.push_back(DataType( itMU->getThrNumber()));
 
       // prevent empty threshold name list
-      std::string m_thrName = itMU->getThrName();
-      if (m_thrName ==""){ m_thrName = "empty"; };
-      thrName.push_back(DataType( m_thrName ));
+      std::string str_thrName = itMU->getThrName();
+      if (str_thrName ==""){ str_thrName = "empty"; };
+      thrName.push_back(DataType( str_thrName ));
       thrValue.push_back(DataType( itMU->getThrValue()));
 
       // 'energy' used, as all other ROIs have it
