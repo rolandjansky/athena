@@ -46,7 +46,7 @@ using namespace TruthHelper;
 typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
 
 CheckFlow_New_Minbias::CheckFlow_New_Minbias(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
   //Declare the algorithm's properties
   declareProperty("McEventKey",     m_key="FLOW_EVENT");
@@ -69,24 +69,22 @@ CheckFlow_New_Minbias::CheckFlow_New_Minbias(const std::string& name, ISvcLocato
 }
 
 
-
-
-
 StatusCode CheckFlow_New_Minbias::initialize(){
   StatusCode result = StatusCode::SUCCESS;
-  MsgStream msglog(messageService(), name());
-  msglog << MSG::INFO << ">>> CheckFlow_New_Minbias from Initialize" << endreq;
+
+  msg(MSG::INFO) << ">>> CheckFlow_New_Minbias from Initialize" << endreq;
 
   StatusCode sc = service("StoreGateSvc", m_sgSvc);
   if (sc.isFailure()) {
-    msglog << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
+    msg(MSG::ERROR) << "Could not find StoreGateSvc" << endreq;
     return sc;
   }
 
 
+
   ITHistSvc *rootHistSvc;
   if (!service("THistSvc", rootHistSvc, true).isSuccess()) {
-    msglog << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -108,7 +106,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       sprintf(name1,"Truth Psi_{%d} distribution;%dPsi_{%d} Truth;events",ihar+1,ihar+1,ihar+1);
       hist_Psi_n_true  [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
       if ( rootHistSvc->regHist(histPath+hist_Psi_n_true[ihar][ib_imp]->GetName(),hist_Psi_n_true[ihar][ib_imp]).isFailure() ){
-        msglog << MSG::WARNING << "Can't book "<< histPath+hist_Psi_n_true[ihar][ib_imp]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_true[ihar][ib_imp]->GetName() << endreq;
       }
       hist_Psi_n_true[ihar][ib_imp]->GetXaxis()->CenterTitle();
       hist_Psi_n_true[ihar][ib_imp]->GetYaxis()->CenterTitle();
@@ -117,7 +115,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       sprintf(name1,"Reconstructed Psi_{%d} distribution;%dPsi_{%d} Reco;events",ihar+1,ihar+1,ihar+1);
       hist_Psi_n_reco  [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
       if ( rootHistSvc->regHist(histPath+hist_Psi_n_reco[ihar][ib_imp]->GetName(),hist_Psi_n_reco[ihar][ib_imp]).isFailure() ){
-        msglog << MSG::WARNING << "Can't book "<< histPath+hist_Psi_n_reco[ihar][ib_imp]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_reco[ihar][ib_imp]->GetName() << endreq;
       }
       hist_Psi_n_reco[ihar][ib_imp]->GetXaxis()->CenterTitle();
       hist_Psi_n_reco[ihar][ib_imp]->GetYaxis()->CenterTitle();
@@ -131,7 +129,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"true Psi_{%d} -Psi_{%d};%dPsi_{%d} -%dPsi_{%d} ;events",ihar+1,ihar2+1,ihar+1,ihar+1,ihar2+1,ihar2+1);
         hist_psi_corr_true  [ihar_i][ib_imp]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
         if ( rootHistSvc->regHist(histPath+hist_psi_corr_true[ihar_i][ib_imp]->GetName(),hist_psi_corr_true[ihar_i][ib_imp]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+hist_psi_corr_true[ihar_i][ib_imp]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+hist_psi_corr_true[ihar_i][ib_imp]->GetName() << endreq;
         }
         hist_psi_corr_true[ihar_i][ib_imp]->GetXaxis()->CenterTitle();
         hist_psi_corr_true[ihar_i][ib_imp]->GetYaxis()->CenterTitle();
@@ -141,7 +139,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"reco Psi_{%d} -Psi_{%d};%dPsi_{%d} -%dPsi_{%d} ;events",ihar+1,ihar2+1,ihar+1,ihar+1,ihar2+1,ihar2+1);
         hist_psi_corr_reco  [ihar_i][ib_imp]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
         if ( rootHistSvc->regHist(histPath+hist_psi_corr_reco[ihar_i][ib_imp]->GetName(),hist_psi_corr_reco[ihar_i][ib_imp]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+hist_psi_corr_reco[ihar_i][ib_imp]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+hist_psi_corr_reco[ihar_i][ib_imp]->GetName() << endreq;
         }
         hist_psi_corr_reco[ihar_i][ib_imp]->GetXaxis()->CenterTitle();
         hist_psi_corr_reco[ihar_i][ib_imp]->GetYaxis()->CenterTitle();
@@ -156,7 +154,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       sprintf(name1,"v%d;v%d;events",ihar+1,ihar+1);
       hist_vn_ebe   [ihar][ib_imp]=new TH1D (name,name1,1000,-0.5,0.5);
       if ( rootHistSvc->regHist(histPath+hist_vn_ebe[ihar][ib_imp]->GetName(),hist_vn_ebe[ihar][ib_imp]).isFailure() ){
-        msglog << MSG::WARNING << "Can't book "<< histPath+hist_vn_ebe[ihar][ib_imp]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+hist_vn_ebe[ihar][ib_imp]->GetName() << endreq;
       }
       hist_vn_ebe[ihar][ib_imp]->GetXaxis()->CenterTitle();
       hist_vn_ebe[ihar][ib_imp]->GetYaxis()->CenterTitle();
@@ -165,7 +163,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       sprintf(name1,"%d#Delta#Psi;%d(#Psi_{reco}-#Psi_{Truth});events",ihar+1,ihar+1);
       hist_Psi_n_ebe [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
       if ( rootHistSvc->regHist(histPath+hist_Psi_n_ebe[ihar][ib_imp]->GetName(),hist_Psi_n_ebe[ihar][ib_imp]).isFailure() ){
-        msglog << MSG::WARNING << "Can't book "<< histPath+hist_Psi_n_ebe[ihar][ib_imp]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_ebe[ihar][ib_imp]->GetName() << endreq;
       }
       hist_Psi_n_ebe[ihar][ib_imp]->GetXaxis()->CenterTitle();
       hist_Psi_n_ebe[ihar][ib_imp]->GetYaxis()->CenterTitle();
@@ -174,7 +172,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       sprintf(name1,"%d#Delta#Psi (pT weighted);%d(#Psi_{reco}-#Psi_{Truth});events",ihar+1,ihar+1);
       hist_Psi_n_ebe_pt [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
       if ( rootHistSvc->regHist(histPath+hist_Psi_n_ebe_pt[ihar][ib_imp]->GetName(),hist_Psi_n_ebe_pt[ihar][ib_imp]).isFailure() ){
-        msglog << MSG::WARNING << "Can't book "<< histPath+hist_Psi_n_ebe_pt[ihar][ib_imp]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_ebe_pt[ihar][ib_imp]->GetName() << endreq;
       }
       hist_Psi_n_ebe_pt[ihar][ib_imp]->GetXaxis()->CenterTitle();
       hist_Psi_n_ebe_pt[ihar][ib_imp]->GetYaxis()->CenterTitle();
@@ -190,7 +188,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"v%d vs pT (eta%d);pT;v%d",ihar+1,ieta,ihar+1);
         profile_pt_dep [ihar][ib_imp][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
         if ( rootHistSvc->regHist(histPath+profile_pt_dep[ihar][ib_imp][ieta]->GetName(),profile_pt_dep[ihar][ib_imp][ieta]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_pt_dep[ihar][ib_imp][ieta]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_pt_dep[ihar][ib_imp][ieta]->GetName() << endreq;
         }
         profile_pt_dep [ihar][ib_imp][ieta]->GetXaxis()->CenterTitle();
         profile_pt_dep [ihar][ib_imp][ieta]->GetYaxis()->CenterTitle();
@@ -201,7 +199,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"v%d vs #eta; (ipt%d)#eta;v%d",ihar+1,ipt,ihar+1);
         profile_eta_dep [ihar][ib_imp][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
         if ( rootHistSvc->regHist(histPath+profile_eta_dep[ihar][ib_imp][ipt]->GetName(),profile_eta_dep[ihar][ib_imp][ipt]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_eta_dep[ihar][ib_imp][ipt]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_eta_dep[ihar][ib_imp][ipt]->GetName() << endreq;
         }
         profile_eta_dep [ihar][ib_imp][ipt]->GetXaxis()->CenterTitle();
         profile_eta_dep [ihar][ib_imp][ipt]->GetYaxis()->CenterTitle();
@@ -213,7 +211,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"v%d vs pT (eta%d);pT;v%d",ihar+1,ieta,ihar+1);
         profile_pt_dep_reco [ihar][ib_imp][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
         if ( rootHistSvc->regHist(histPath+profile_pt_dep_reco[ihar][ib_imp][ieta]->GetName(),profile_pt_dep_reco[ihar][ib_imp][ieta]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_pt_dep_reco[ihar][ib_imp][ieta]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_pt_dep_reco[ihar][ib_imp][ieta]->GetName() << endreq;
         }
         profile_pt_dep_reco [ihar][ib_imp][ieta]->GetXaxis()->CenterTitle();
         profile_pt_dep_reco [ihar][ib_imp][ieta]->GetYaxis()->CenterTitle();
@@ -225,7 +223,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"v%d vs #eta (pt%d);#eta;v%d",ihar+1,ipt,ihar+1);
         profile_eta_dep_reco [ihar][ib_imp][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
         if ( rootHistSvc->regHist(histPath+profile_eta_dep_reco[ihar][ib_imp][ipt]->GetName(),profile_eta_dep_reco[ihar][ib_imp][ipt]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_eta_dep_reco[ihar][ib_imp][ipt]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_eta_dep_reco[ihar][ib_imp][ipt]->GetName() << endreq;
         }
         profile_eta_dep_reco [ihar][ib_imp][ipt]->GetXaxis()->CenterTitle();
         profile_eta_dep_reco [ihar][ib_imp][ipt]->GetYaxis()->CenterTitle();
@@ -240,7 +238,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"v%d vs cent ;cent;v%d",ihar+1,ihar+1);
         profile_b_dep [ihar][ipt][ieta]=new TProfile (name,name1,n_b_bins,-0.5,n_b_bins-0.5);
         if ( rootHistSvc->regHist(histPath+profile_b_dep[ihar][ipt][ieta]->GetName(),profile_b_dep[ihar][ipt][ieta]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_b_dep[ihar][ipt][ieta]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_b_dep[ihar][ipt][ieta]->GetName() << endreq;
         }
         profile_b_dep [ihar][ipt][ieta]->GetXaxis()->CenterTitle();
         profile_b_dep [ihar][ipt][ieta]->GetYaxis()->CenterTitle();
@@ -249,7 +247,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
         sprintf(name1,"v%d vs cent ;cent;v%d",ihar+1,ihar+1);
         profile_b_dep_reco [ihar][ipt][ieta]=new TProfile (name,name1,n_b_bins,-0.5,n_b_bins-0.5);
         if ( rootHistSvc->regHist(histPath+profile_b_dep_reco[ihar][ipt][ieta]->GetName(),profile_b_dep_reco[ihar][ipt][ieta]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_b_dep_reco[ihar][ipt][ieta]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_b_dep_reco[ihar][ipt][ieta]->GetName() << endreq;
         }
         profile_b_dep_reco [ihar][ipt][ieta]->GetXaxis()->CenterTitle();
         profile_b_dep_reco [ihar][ipt][ieta]->GetYaxis()->CenterTitle();
@@ -259,7 +257,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
     sprintf(name,"profile_resolution_%d",ihar+1);
     profile_resolution[ihar]=new TProfile(name,"vn resolution;n;resolution",n_b_bins,-0.5,n_b_bins-0.5);
     if(rootHistSvc->regHist(histPath+profile_resolution[ihar]->GetName(),profile_resolution[ihar]).isFailure() ){
-          msglog << MSG::WARNING << "Can't book "<< histPath+profile_resolution[ihar]->GetName() << endreq;
+          msg(MSG::WARNING) << "Can't book "<< histPath+profile_resolution[ihar]->GetName() << endreq;
     }
 
   }
@@ -267,7 +265,7 @@ StatusCode CheckFlow_New_Minbias::initialize(){
 
 
 
-  msglog << MSG::DEBUG << "Histograms have been booked " << endreq;
+  msg(MSG::DEBUG) << "Histograms have been booked " << endreq;
   m_tesIO = new GenAccessIO();
   return result;
 }
@@ -275,8 +273,8 @@ StatusCode CheckFlow_New_Minbias::initialize(){
 
 
 StatusCode CheckFlow_New_Minbias::execute() {
-  MsgStream msglog(messageService(), name());
-  msglog << MSG::INFO << ">>> CheckFlow_New_Minbias from execute" << endreq;
+
+  msg(MSG::INFO) << ">>> CheckFlow_New_Minbias from execute" << endreq;
   const float pt_binvals[]={0.0,0.25,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,6.0,8.0,12.0,16.0,20.0,30.0,40.0};
   const float b_bin_vals[]={0.0,3.4955,4.9315,6.0375,6.9695,7.7895,8.5335,9.2135,9.8515,10.4485,11.0175,11.554,12.070,12.560,13.033,13.492,13.944,14.409,14.929,15.6425};
   const float eta_bin_max = 4.0; 
@@ -284,7 +282,8 @@ StatusCode CheckFlow_New_Minbias::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-    msglog << MSG::ERROR << "Could not retrieve Hijing_event_params"<< endreq;
+//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
+    msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"<< endreq;
     return StatusCode::FAILURE;
   }
 
@@ -292,7 +291,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
   float Psi_n[6],Psi_n_reco[6];
   float Psi_n_reco_pos[6],Psi_n_reco_neg[6]; 
   for(int ihar=0;ihar<6;ihar++){Psi_n[ihar]=hijing_pars->get_psi(ihar+1);}
-  msglog << MSG::INFO<<"SOUMYA  "<<hijing_pars->get_psi(1)<<"   "<<hijing_pars->get_psi(2)<<"  "<<hijing_pars->get_psi(3)
+  msg(MSG::INFO)<<"SOUMYA  "<<hijing_pars->get_psi(1)<<"   "<<hijing_pars->get_psi(2)<<"  "<<hijing_pars->get_psi(3)
                                   <<hijing_pars->get_psi(4)<<"   "<<hijing_pars->get_psi(5)<<"  "<<hijing_pars->get_psi(6)<<"    "<<b  << endreq;
 
 
@@ -325,7 +324,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
     double pt     = (*pitr)->momentum().perp();
     double rapid  = (*pitr)->momentum().pseudoRapidity();
     double phi    = (*pitr)->momentum().phi();
-    msglog << MSG::DEBUG
+    msg(MSG::DEBUG)
 	   << " PID = " << pid << " Status = " << p_stat
 	   << " Eta = " << rapid << "  Phi = " << phi<< endreq;
     
@@ -455,8 +454,8 @@ StatusCode CheckFlow_New_Minbias::execute() {
 }
 
 StatusCode CheckFlow_New_Minbias::finalize() {
-  MsgStream msglog(messageService(), name());
-  msglog << MSG::INFO << ">>> CheckFlow_New from finalize" << endreq;
+
+  msg(MSG::INFO) << ">>> CheckFlow_New from finalize" << endreq;
 /*
   for(int ihar=0;ihar<6;ihar++){
     for(int ib_imp=0;ib_imp<n_b_bins;ib_imp++){
