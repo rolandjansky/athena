@@ -41,10 +41,16 @@ SiliconDetectorBuilder::detector(const InDetDD::SiDetectorElement& element)
     }
     else
     {
+	double rzDeadRegionMax	= 0.;
+	double rzDeadRegionMin	= 0.;
 	const InDetDD::SCT_ModuleSideDesign* design =
 	    dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&element.design());
- 	double rzDeadRegionMax	= design->deadAreaUpperBoundary();
-	double rzDeadRegionMin	= design->deadAreaLowerBoundary();
+	if (design)
+	{
+	    rzDeadRegionMax	= design->deadAreaUpperBoundary();
+	    rzDeadRegionMin	= design->deadAreaLowerBoundary();
+	}
+	
 	// fixed (Tom) for the combined Test Beam with "End Cap modules in Barrel"
 	if (dynamic_cast<const InDetDD::SCT_BarrelModuleSideDesign*>(&element.design()))
 	{

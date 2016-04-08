@@ -24,6 +24,9 @@ SiliconDetector::SiliconDetector(const InDetDD::SiDetectorElement&	element,
 	m_identifierHash	(static_cast<int>(element.identifyHash())),
 	m_parent		(0),
 	m_sigmaAlignment	(false),
+	m_sigmaAlignmentR	(0.),
+	m_sigmaAlignmentRPhi	(0.),
+	m_sigmaAlignmentZ	(0.),
 	m_straddlesInPhi	(false)
 {
     // cache phi for ring creation
