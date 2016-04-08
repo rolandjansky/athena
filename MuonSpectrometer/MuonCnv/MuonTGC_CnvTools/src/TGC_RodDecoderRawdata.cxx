@@ -345,7 +345,7 @@ void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 		fromBS32(bs[iBs], hptinner);
 
 		if(hptinner.sector & 4){
-                  TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
+                  TgcRawData* raw = new TgcRawData(bcTag(hptinner.bcBitmap),
                                                    rdo.subDetectorId(),
                                                    rdo.rodId(),
                                                    rdo.l1Id(),

@@ -181,6 +181,8 @@ namespace Muon
       StatusCode decodeTrackletEIFI(const TgcRdo::const_iterator& itD);
       /** Decode RDO's of HiPt */
       StatusCode decodeHiPt(const TgcRdo::const_iterator& itD);
+      /** Decode RDO's of Inner */
+      StatusCode decodeInner(const TgcRdo::const_iterator& itD);
       /** Decode RDO's of SectorLogic */
       StatusCode decodeSL(const TgcRdo::const_iterator& itD, const TgcRdo* rdoColl);
       
