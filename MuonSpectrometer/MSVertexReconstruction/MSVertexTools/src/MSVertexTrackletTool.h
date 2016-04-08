@@ -37,7 +37,7 @@ namespace Muon {
     //tool handles & private data members
 
     const MdtIdHelper* m_mdtIdHelper;
-    static const MdtIdHelper* mdtCompareIdHelper;
+    static const MdtIdHelper* s_mdtCompareIdHelper;
 
     std::string m_TPContainer;
     float m_SeedResidual;
@@ -51,12 +51,12 @@ namespace Muon {
 
     bool m_tightTrackletRequirement;
 
-    int nMDT;
-    float PI;
-    float k_BIL;
-    float k_BML;
-    float k_BMS;
-    float k_BOL;
+    int m_nMDT;
+    float m_PI;
+    float m_BIL;
+    float m_BML;
+    float m_BMS;
+    float m_BOL;
 
 
   public:
