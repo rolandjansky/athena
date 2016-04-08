@@ -3,6 +3,7 @@ package MuonReadoutGeometry
 author Dennis Wright     <dwright@slac.stanford.edu>
 
 use AtlasPolicy          AtlasPolicy-*
+use AthenaBaseComps      AthenaBaseComps-*      Control
 use AthenaKernel         AthenaKernel-*         Control
 use GaudiInterface       GaudiInterface-*       External
 use MuonIdHelpers        MuonIdHelpers-*        MuonSpectrometer

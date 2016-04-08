@@ -24,7 +24,7 @@ MuonDetectorElement::MuonDetectorElement(GeoVFullPhysVol* pv,
   m_muon_mgr = mgr;
   m_id = id;
   m_idhash = idHash;
-  _nREinDetectorElement = 0;
+  m_nREinDetectorElement = 0;
 }
 
 

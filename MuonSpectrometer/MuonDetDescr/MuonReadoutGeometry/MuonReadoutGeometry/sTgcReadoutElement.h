@@ -133,7 +133,7 @@ namespace MuonGM {
     void setIdentifier(Identifier id);
     
     /** set methods only to be used by MuonGeoModel */
-    void setChamberLayer(int ml) {_ml=ml;}
+    void setChamberLayer(int ml) {m_ml=ml;}
 
   private:
 
@@ -146,7 +146,7 @@ namespace MuonGM {
     std::vector<int> m_nPads;
     int m_nlayers;
     
-    int _ml;  
+    int m_ml;  
 
     // surface dimensions
     std::vector<double> m_halfX;
@@ -154,7 +154,7 @@ namespace MuonGM {
     std::vector<double> m_maxHalfY;
 
     // transforms (RE->layer)
-    Amg::Transform3D _Xlg[4];
+    Amg::Transform3D m_Xlg[4];
   };
 
   inline int sTgcReadoutElement::surfaceHash( const Identifier& id ) const {
@@ -268,7 +268,7 @@ namespace MuonGM {
   inline bool sTgcReadoutElement::padPosition( const Identifier& id, Amg::Vector2D& pos ) const {
 
     const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) return -1;
+    if( !design ) return false;
     
     int padEta = manager()->stgcIdHelper()->padEta(id);
     int padPhi = manager()->stgcIdHelper()->padPhi(id);

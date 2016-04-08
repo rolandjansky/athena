@@ -19,38 +19,38 @@ namespace MuonGM {
 
 RpcReadoutSet::RpcReadoutSet(const MuonDetectorManager* mgr, Identifier id)
 {
-  _mgr = mgr;
-  _helper = _mgr->rpcIdHelper();
-  Identifier idp = _helper->parentID(id);
+  m_mgr = mgr;
+  m_helper = m_mgr->rpcIdHelper();
+  Identifier idp = m_helper->parentID(id);
   // std::cerr << "RpcReadoutSet::RpcReadoutSet constructed from id " 
-  //           <<_helper->show_to_string(id) << std::endl;
+  //           <<m_helper->show_to_string(id) << std::endl;
   // std::cerr << "RpcReadoutSet::RpcReadoutSet parent id " 
-  //           << _helper->show_to_string(idp) << std::endl;
-  if (!_helper->is_rpc(idp)) _id = id;
+  //           << m_helper->show_to_string(idp) << std::endl;
+  if (!m_helper->is_rpc(idp)) m_id = id;
   else {
-    _id = idp;
+    m_id = idp;
     //std::cerr<<"RpcReadoutSet::RpcReadoutSet *** id redefined to be a module id "
-    //         <<_helper->show_to_string(_id)<<std::endl;
+    //         <<m_helper->show_to_string(m_id)<<std::endl;
   }
 }
 
 void RpcReadoutSet::setMgr(const MuonDetectorManager* mgr)
 {
   //std::cerr<<"RpcReadoutSet::setMgr anything wrong here ??? "<<std::endl;
-  _mgr = mgr;
+  m_mgr = mgr;
   //std::cerr<<"RpcReadoutSet::setMgr done"<<std::endl;
-  _helper = _mgr->rpcIdHelper();
+  m_helper = m_mgr->rpcIdHelper();
   //std::cerr<<"RpcReadoutSet::setMgr done"<<std::endl;
 }
 
 void RpcReadoutSet::setId(Identifier id)
 {
   //std::cerr<<"RpcReadoutSet::setId anything wrong here ??? "<<std::endl;
-  Identifier idp = _helper->parentID(id);
-  if (!_helper->is_rpc(idp)) _id = id;
+  Identifier idp = m_helper->parentID(id);
+  if (!m_helper->is_rpc(idp)) m_id = id;
   else {
-      _id = idp;
-      //std::cout<<"Redefined the id to be a module id "<<_helper->show_to_string(_id);
+      m_id = idp;
+      //std::cout<<"Redefined the id to be a module id "<<m_helper->show_to_string(m_id);
   }
   //std::cerr<<"RpcReadoutSet::setId done"<<std::endl;
 }
@@ -59,13 +59,13 @@ unsigned int RpcReadoutSet::NreadoutElements() const
 {
   int nre = 0;
   //    for (int dbz = 1; dbz< 4; ++dbz)
-  //     std::cerr<<" dbzmax, dbphimax = "<<_helper->doubletZMax(_id)<<" "
-  //              <<_helper->doubletPhiMax(_id)<<std::endl;
-  for (int dbz = 1; dbz<=_helper->doubletZMax(_id); ++dbz) {
+  //     std::cerr<<" dbzmax, dbphimax = "<<m_helper->doubletZMax(m_id)<<" "
+  //              <<m_helper->doubletPhiMax(m_id)<<std::endl;
+  for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz) {
     const RpcReadoutElement* rpcold = NULL;
-    for (int dbp = 1; dbp<=_helper->doubletPhiMax(_id) ; ++dbp) {
-      Identifier chid =  _helper->channelID(_id, dbz, dbp, 1, 0, 1);
-      const RpcReadoutElement* rpc = _mgr->getRpcReadoutElement(chid);
+    for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id) ; ++dbp) {
+      Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+      const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
       //std::cerr<<" iz, ip "<<dbz<<" "<<dbp<<"  pointer "<<rpc<<std::endl;
       if (rpc != NULL) {
         if (dbp == 2 && rpc != rpcold ) {                    
@@ -87,11 +87,11 @@ unsigned int RpcReadoutSet::NreadoutElements() const
 unsigned int RpcReadoutSet::NdoubletZ() const
 {
     int ndbz = 0;
-    for (int dbz = 1; dbz<=_helper->doubletZMax(_id); ++dbz) 
+    for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz) 
     {
         int dbp = 1;
-        Identifier chid =  _helper->channelID(_id, dbz, dbp, 1, 0, 1);
-        const RpcReadoutElement* rpc = _mgr->getRpcReadoutElement(chid);
+        Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+        const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
         if (rpc != NULL) ++ndbz;
     }
     return ndbz;
@@ -100,14 +100,14 @@ unsigned int RpcReadoutSet::NdoubletZ() const
 unsigned int RpcReadoutSet::NsegmentedDoubletZ() const
 {
     int nc = 0;
-    for (int dbz = 1; dbz<=_helper->doubletZMax(_id); ++dbz) 
+    for (int dbz = 1; dbz<=m_helper->doubletZMax(m_id); ++dbz) 
     {
         int nre = 0;
         const RpcReadoutElement* rpcold = NULL;
-        for (int dbp = 1; dbp<=_helper->doubletPhiMax(_id); ++dbp)
+        for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id); ++dbp)
         {
-            Identifier chid =  _helper->channelID(_id, dbz, dbp, 1, 0, 1);
-            const RpcReadoutElement* rpc = _mgr->getRpcReadoutElement(chid);
+            Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+            const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
             if (rpc != NULL) {
                 if (dbp == 2 && rpc != rpcold )
                 {                    
@@ -132,10 +132,10 @@ unsigned int RpcReadoutSet::NPhimodules(int dbz) const
 {
     int nre = 0;
     const RpcReadoutElement* rpcold = NULL;
-    for (int dbp = 1; dbp<=_helper->doubletPhiMax(_id); ++dbp)
+    for (int dbp = 1; dbp<=m_helper->doubletPhiMax(m_id); ++dbp)
     {
-        Identifier chid =  _helper->channelID(_id, dbz, dbp, 1, 0, 1);
-        const RpcReadoutElement* rpc = _mgr->getRpcReadoutElement(chid);
+        Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
+        const RpcReadoutElement* rpc = m_mgr->getRpcReadoutElement(chid);
         if (rpc != NULL) 
         {
             if (dbp == 2 && rpc != rpcold )
@@ -158,12 +158,12 @@ unsigned int RpcReadoutSet::NPhimodules(int dbz) const
 
 const RpcReadoutElement* RpcReadoutSet::readoutElement(Identifier id) const
 {
-  return _mgr->getRpcReadoutElement(id);
+  return m_mgr->getRpcReadoutElement(id);
 }
 
 const RpcReadoutElement* RpcReadoutSet::readoutElement(int dbz, int dbp) const
 {
-  Identifier chid =  _helper->channelID(_id, dbz, dbp, 1, 0, 1);
+  Identifier chid =  m_helper->channelID(m_id, dbz, dbp, 1, 0, 1);
   return readoutElement(chid);
 }
 

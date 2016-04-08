@@ -45,77 +45,89 @@ MuonDetectorManager::MuonDetectorManager() {
       for (unsigned int k=0; k<NRpcStatPhi; k++)
         for (unsigned int l=0; l<NDoubletR; l++)
           for (unsigned int h=0; h<NDoubletZ; h++)
-              _rpcArray[i][j][k][l][h] = NULL;
+              m_rpcArray[i][j][k][l][h] = NULL;
   for (unsigned int i=0; i<NMdtStatType; i++)
     for (unsigned int j=0; j<NMdtStatEta; j++)
       for (unsigned int k=0; k<NMdtStatPhi; k++)
         for (unsigned int l=0; l<NMdtMultilayer; l++)
-                   _mdtArray[i][j][k][l] = NULL;
+                   m_mdtArray[i][j][k][l] = NULL;
   for (unsigned int i=0; i<NCscStatType; i++)
     for (unsigned int j=0; j<NCscStatEta; j++)
       for (unsigned int k=0; k<NCscStatPhi; k++)
         for (unsigned int l=0; l<NCscChamberLayer; l++)
-                   _cscArray[i][j][k][l] = NULL;
+                   m_cscArray[i][j][k][l] = NULL;
   for (unsigned int i=0; i<NTgcStatType; i++)
     for (unsigned int j=0; j<NTgcStatEta; j++)
       for (unsigned int k=0; k<NTgcStatPhi; k++)
-                 _tgcArray[i][j][k] = NULL;
+                 m_tgcArray[i][j][k] = NULL;
 
   for (unsigned int i=0; i<NsTgStatType; i++)
     for (unsigned int j=0; j<NsTgStatEta; j++)
       for (unsigned int k=0; k<NsTgStatPhi; k++)
         for (unsigned int l=0; l<NsTgChamberLayer; l++)
-	  _stgArray[i][j][k][l] = NULL;
+	  m_stgArray[i][j][k][l] = NULL;
 
   for (unsigned int i=0; i<NMMcStatType; i++)
     for (unsigned int j=0; j<NMMcStatEta; j++)
       for (unsigned int k=0; k<NMMcStatPhi; k++)
         for (unsigned int l=0; l<NMMcChamberLayer; l++)
-	  _mmcArray[i][j][k][l] = NULL;
+	  m_mmcArray[i][j][k][l] = NULL;
 
 
   for (unsigned int i=0; i<MdtRElMaxHash; ++i)
-      _mdtArrayByHash[i] = NULL;
+      m_mdtArrayByHash[i] = NULL;
   for (unsigned int i=0; i<CscRElMaxHash; ++i)
-      _cscArrayByHash[i] = NULL;
+      m_cscArrayByHash[i] = NULL;
   for (unsigned int i=0; i<RpcRElMaxHash; ++i)
-      _rpcArrayByHash[i] = NULL;
+      m_rpcArrayByHash[i] = NULL;
   for (unsigned int i=0; i<TgcRElMaxHash; ++i)
-      _tgcArrayByHash[i] = NULL;
+      m_tgcArrayByHash[i] = NULL;
 
      for (unsigned int i=0; i<TgcDetElMaxHash; ++i)
-         _tgcDEArray[i] = NULL;
+         m_tgcDEArray[i] = NULL;
   for (unsigned int i=0; i<MdtDetElMaxHash; ++i)
-      _mdtDEArray[i] = NULL;
+      m_mdtDEArray[i] = NULL;
    for (unsigned int i=0; i<CscDetElMaxHash; ++i)
-        _cscDEArray[i] = NULL;
+        m_cscDEArray[i] = NULL;
      for (unsigned int i=0; i<RpcDetElMaxHash; ++i)
-        _rpcDEArray[i] = NULL;
+        m_rpcDEArray[i] = NULL;
 
-  n_mdtDE = n_cscDE = n_tgcDE = n_rpcDE = 0;
-  n_mdtRE = n_cscRE = n_tgcRE = n_rpcRE = 0;
+  m_n_mdtDE = m_n_cscDE = m_n_tgcDE = m_n_rpcDE = 0;
+  m_n_mdtRE = m_n_cscRE = m_n_tgcRE = m_n_rpcRE = 0;
   m_aLineContainer = 0;
   m_bLineContainer = 0;
-  m_cscALineContainer =0;
+  m_cscALineContainer = 0;
+  m_AsBuiltParamsMap = 0;
   setName("Muon");
 
   m_cachingFlag      = 1;
   m_cacheFillingFlag = 1;
+  m_minimalgeo = 0;
+  m_includeCutouts = 0;
+  m_includeCutoutsBog = 0;
   m_controlAlines = 111111;
   m_applyMdtDeformations  = 0;
   m_applyMdtAsBuiltParams = 0;
+  m_useCscIntAlign = false;
   m_controlCscIlines = 111111;
   m_useCscIlinesFromGM = true;
     
-  //!< init here the pointer to the message svc 
+  m_mdtIdHelper = nullptr;
+  m_cscIdHelper = nullptr;
+  m_rpcIdHelper = nullptr;
+  m_tgcIdHelper = nullptr;
+  m_stgcIdHelper = nullptr;
+  m_mmIdHelper = nullptr;
+
+    //!< init here the pointer to the message svc 
   m_msgSvc = Athena::getMessageSvc();  
 }
 
 MuonDetectorManager::~MuonDetectorManager() {
 
 
-  for (unsigned int p=0;p<_envelope.size();++p) {
-      _envelope[p]->unref();
+  for (unsigned int p=0;p<m_envelope.size();++p) {
+      m_envelope[p]->unref();
   }
 
 
@@ -124,46 +136,46 @@ MuonDetectorManager::~MuonDetectorManager() {
       for (unsigned int k=0; k<NRpcStatPhi; ++k)
         for (unsigned int l=0; l<NDoubletR; ++l)
           for (unsigned int h=0; h<NDoubletZ; ++h) {
-            delete _rpcArray[i][j][k][l][h]; _rpcArray[i][j][k][l][h] = 0;
+            delete m_rpcArray[i][j][k][l][h]; m_rpcArray[i][j][k][l][h] = 0;
           }
   for (unsigned int i=0; i<NMdtStatType; ++i)
     for (unsigned int j=0; j<NMdtStatEta; ++j)
       for (unsigned int k=0; k<NMdtStatPhi; ++k)
         for (unsigned int l=0; l<NMdtMultilayer; ++l) {
-          delete _mdtArray[i][j][k][l]; _mdtArray[i][j][k][l] = 0;
+          delete m_mdtArray[i][j][k][l]; m_mdtArray[i][j][k][l] = 0;
         }
   for (unsigned int i=0; i<NTgcStatType; ++i)
     for (unsigned int j=0; j<NTgcStatEta; ++j)
       for (unsigned int k=0; k<NTgcStatPhi; ++k) {
-        delete _tgcArray[i][j][k]; _tgcArray[i][j][k] = 0;
+        delete m_tgcArray[i][j][k]; m_tgcArray[i][j][k] = 0;
       }
   for (unsigned int i=0; i<NCscStatType; ++i)
     for (unsigned int j=0; j<NCscStatEta; ++j)
       for (unsigned int k=0; k<NCscStatPhi; ++k)
         for (unsigned int l=0; l<NCscChamberLayer; ++l) {
-          delete _cscArray[i][j][k][l]; _cscArray[i][j][k][l] = 0;
+          delete m_cscArray[i][j][k][l]; m_cscArray[i][j][k][l] = 0;
         }
 
   for (unsigned int i=0; i<MdtDetElMaxHash; ++i) {
-    if (_mdtDEArray[i]) delete _mdtDEArray[i]; _mdtDEArray[i] = 0;
+    if (m_mdtDEArray[i]) delete m_mdtDEArray[i]; m_mdtDEArray[i] = 0;
   }
   for (unsigned int i=0; i<RpcDetElMaxHash; ++i) {
-    if (_rpcDEArray[i]) delete _rpcDEArray[i]; _rpcDEArray[i] = 0;
+    if (m_rpcDEArray[i]) delete m_rpcDEArray[i]; m_rpcDEArray[i] = 0;
   }
   for (unsigned int i=0; i<CscDetElMaxHash; ++i) {
-    if (_cscDEArray[i]) delete _cscDEArray[i]; _cscDEArray[i] = 0;
+    if (m_cscDEArray[i]) delete m_cscDEArray[i]; m_cscDEArray[i] = 0;
   }
   for (unsigned int i=0; i<TgcDetElMaxHash; ++i) {
-    if (_tgcDEArray[i]) delete _tgcDEArray[i]; _tgcDEArray[i] = 0;
+    if (m_tgcDEArray[i]) delete m_tgcDEArray[i]; m_tgcDEArray[i] = 0;
   }
   for (std::map< std::string, MuonStation * >::iterator i =
-           _MuonStationMap.begin(); i != _MuonStationMap.end(); ++i)
+           m_MuonStationMap.begin(); i != m_MuonStationMap.end(); ++i)
   {
     delete i->second; i->second = 0;
   }
 
-  for (std::vector<TgcReadoutParams*>::iterator i=_TgcReadoutParamsVec.begin();
-         i!=_TgcReadoutParamsVec.end();++i)
+  for (std::vector<TgcReadoutParams*>::iterator i=m_TgcReadoutParamsVec.begin();
+         i!=m_TgcReadoutParamsVec.end();++i)
   {
     delete (*i); *i = 0;
   }  
@@ -175,6 +187,14 @@ MuonDetectorManager::~MuonDetectorManager() {
 	delete elem.second; elem.second = 0;
       }
     delete m_cscALineContainer; m_cscALineContainer = 0;
+  }
+
+  if (0 != m_AsBuiltParamsMap) {
+    for (auto elem: *m_AsBuiltParamsMap )
+      {
+	delete elem.second; elem.second = 0;
+      }
+    delete m_AsBuiltParamsMap; m_AsBuiltParamsMap = 0;
   }
 
   if (0 != m_aLineContainer)
@@ -247,7 +267,7 @@ void MuonDetectorManager::clearMdtCache() const
       for (unsigned int j=0; j<NMdtStatEta; ++j)
         for (unsigned int k=0; k<NMdtStatPhi; ++k)
           for (unsigned int l=0; l<NMdtMultilayer; ++l) {
-              if (_mdtArray[i][j][k][l]) _mdtArray[i][j][k][l]->clearCache();
+              if (m_mdtArray[i][j][k][l]) m_mdtArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearRpcCache() const
@@ -257,7 +277,7 @@ void MuonDetectorManager::clearRpcCache() const
         for (unsigned int k=0; k<NRpcStatPhi; ++k)
           for (unsigned int l=0; l<NDoubletR; ++l)
             for (unsigned int h=0; h<NDoubletZ; ++h) {
-              if( _rpcArray[i][j][k][l][h] ) _rpcArray[i][j][k][l][h]->clearCache() ;
+              if( m_rpcArray[i][j][k][l][h] ) m_rpcArray[i][j][k][l][h]->clearCache() ;
             }
 }   
 void MuonDetectorManager::clearTgcCache() const
@@ -265,7 +285,7 @@ void MuonDetectorManager::clearTgcCache() const
     for (unsigned int i=0; i<NTgcStatType; ++i)
       for (unsigned int j=0; j<NTgcStatEta; ++j)
         for (unsigned int k=0; k<NTgcStatPhi; ++k) {
-          if ( _tgcArray[i][j][k] ) _tgcArray[i][j][k]->clearCache();
+          if ( m_tgcArray[i][j][k] ) m_tgcArray[i][j][k]->clearCache();
         }
 }   
 void MuonDetectorManager::clearCscCache() const
@@ -275,7 +295,7 @@ void MuonDetectorManager::clearCscCache() const
       for (unsigned int j=0; j<NCscStatEta; ++j)
         for (unsigned int k=0; k<NCscStatPhi; ++k)
           for (unsigned int l=0; l<NCscChamberLayer; ++l) {
-            if( _cscArray[i][j][k][l] ) _cscArray[i][j][k][l]->clearCache();
+            if( m_cscArray[i][j][k][l] ) m_cscArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearMMCache() const
@@ -285,7 +305,7 @@ void MuonDetectorManager::clearMMCache() const
       for (unsigned int j=0; j<NMMcStatEta; ++j)
         for (unsigned int k=0; k<NMMcStatPhi; ++k)
           for (unsigned int l=0; l<NMMcChamberLayer; ++l) {
-              if (_mmcArray[i][j][k][l]) _mmcArray[i][j][k][l]->clearCache();
+              if (m_mmcArray[i][j][k][l]) m_mmcArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::clearsTgcCache() const
@@ -295,7 +315,7 @@ void MuonDetectorManager::clearsTgcCache() const
       for (unsigned int j=0; j<NsTgStatEta; ++j)
         for (unsigned int k=0; k<NsTgStatPhi; ++k)
           for (unsigned int l=0; l<NsTgChamberLayer; ++l) {
-              if (_stgArray[i][j][k][l]) _stgArray[i][j][k][l]->clearCache();
+              if (m_stgArray[i][j][k][l]) m_stgArray[i][j][k][l]->clearCache();
           }
 }   
 void MuonDetectorManager::fillMMCache() const
@@ -305,7 +325,7 @@ void MuonDetectorManager::fillMMCache() const
       for (unsigned int j=0; j<NMMcStatEta; ++j)
         for (unsigned int k=0; k<NMMcStatPhi; ++k)
           for (unsigned int l=0; l<NMMcChamberLayer; ++l) {
-              if (_mmcArray[i][j][k][l]) _mmcArray[i][j][k][l]->fillCache();
+              if (m_mmcArray[i][j][k][l]) m_mmcArray[i][j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillsTgcCache() const
@@ -315,7 +335,7 @@ void MuonDetectorManager::fillsTgcCache() const
       for (unsigned int j=0; j<NsTgStatEta; ++j)
         for (unsigned int k=0; k<NsTgStatPhi; ++k)
           for (unsigned int l=0; l<NsTgChamberLayer; ++l) {
-              if (_stgArray[i][j][k][l]) _stgArray[i][j][k][l]->fillCache();
+              if (m_stgArray[i][j][k][l]) m_stgArray[i][j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillCache() const
@@ -333,7 +353,7 @@ void MuonDetectorManager::fillMdtCache() const
       for (unsigned int j=0; j<NMdtStatEta; ++j)
         for (unsigned int k=0; k<NMdtStatPhi; ++k)
           for (unsigned int l=0; l<NMdtMultilayer; ++l) {
-              if (_mdtArray[i][j][k][l]) _mdtArray[i][j][k][l]->fillCache();
+              if (m_mdtArray[i][j][k][l]) m_mdtArray[i][j][k][l]->fillCache();
           }
 }   
 void MuonDetectorManager::fillRpcCache() const
@@ -343,7 +363,7 @@ void MuonDetectorManager::fillRpcCache() const
         for (unsigned int k=0; k<NRpcStatPhi; ++k)
           for (unsigned int l=0; l<NDoubletR; ++l)
             for (unsigned int h=0; h<NDoubletZ; ++h) {
-              if( _rpcArray[i][j][k][l][h] ) _rpcArray[i][j][k][l][h]->fillCache() ;
+              if( m_rpcArray[i][j][k][l][h] ) m_rpcArray[i][j][k][l][h]->fillCache() ;
             }
 }   
 void MuonDetectorManager::fillTgcCache() const
@@ -351,7 +371,7 @@ void MuonDetectorManager::fillTgcCache() const
     for (unsigned int i=0; i<NTgcStatType; ++i)
       for (unsigned int j=0; j<NTgcStatEta; ++j)
         for (unsigned int k=0; k<NTgcStatPhi; ++k) {
-          if ( _tgcArray[i][j][k] ) _tgcArray[i][j][k]->fillCache();
+          if ( m_tgcArray[i][j][k] ) m_tgcArray[i][j][k]->fillCache();
         }
 }   
 void MuonDetectorManager::fillCscCache() const
@@ -361,29 +381,29 @@ void MuonDetectorManager::fillCscCache() const
       for (unsigned int j=0; j<NCscStatEta; ++j)
         for (unsigned int k=0; k<NCscStatPhi; ++k)
           for (unsigned int l=0; l<NCscChamberLayer; ++l) {
-            if( _cscArray[i][j][k][l] ) _cscArray[i][j][k][l]->fillCache();
+            if( m_cscArray[i][j][k][l] ) m_cscArray[i][j][k][l]->fillCache();
           }
 }   
     
 unsigned int MuonDetectorManager::getNumTreeTops() const {
-    return _envelope.size();
+    return m_envelope.size();
 }
 
 PVConstLink MuonDetectorManager::getTreeTop(unsigned int i) const{
-    return _envelope[i];
+    return m_envelope[i];
 }
   
 
 void MuonDetectorManager::addTreeTop( PVLink pV) {
     pV->ref();
-    _envelope.push_back(pV);
+    m_envelope.push_back(pV);
 }
 
 void MuonDetectorManager::addMuonStation (MuonStation* mst)
 {
     std::string key = muonStationKey(mst->getStationType(), mst->getEtaIndex(), mst->getPhiIndex());
     //std::cerr<<" adding MuonStation with key "<<key<<std::endl;
-    _MuonStationMap[key] = mst;
+    m_MuonStationMap[key] = mst;
     //std::cerr<<" pointer to a MuonStation saved in the map "<<mst<<std::endl;
 }
 
@@ -409,8 +429,8 @@ MuonDetectorManager::getMuonStation(std::string stName, int stEtaIndex, int stPh
     std::string key = muonStationKey(stName, stEtaIndex, stPhiIndex);
 
     //std::cerr<<"MuonManager:: retrieving MuonStation with key "<<key<<std::endl;
-    std::map< std::string, MuonStation *>::const_iterator it = _MuonStationMap.find(key);
-    if ( it != _MuonStationMap.end()) return (*it).second;
+    std::map< std::string, MuonStation *>::const_iterator it = m_MuonStationMap.find(key);
+    if ( it != m_MuonStationMap.end()) return (*it).second;
     else return NULL;
 }
 
@@ -452,18 +472,18 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
     }
     else
     {
-	if (_rpcArrayByHash[Idhash]!=0) 
+	if (m_rpcArrayByHash[Idhash]!=0) 
 	{
 	    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	    log<<MSG::ERROR<<"Trying to add RpcReadoutElement with detector-element-hash id "
 	       <<(unsigned int)Idhash<<" id = "<<m_rpcIdHelper->show_to_string(id)
 	       <<" at location already taken by "
-	       <<m_rpcIdHelper->show_to_string(_rpcArrayByHash[Idhash]->identify())
+	       <<m_rpcIdHelper->show_to_string(m_rpcArrayByHash[Idhash]->identify())
 	       <<endreq;
 	    throw;
 	    return;
 	}
-	_rpcArrayByHash[Idhash] = x;
+	m_rpcArrayByHash[Idhash] = x;
     }
     
     int stname_indexId = m_rpcIdHelper->stationName(id);
@@ -547,12 +567,12 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
     IdentifierHash idh = x->collectionHash();
     if (idh< RpcDetElMaxHash) 
     {
-	if ( !(_rpcDEArray[idh]) )
+	if ( !(m_rpcDEArray[idh]) )
 	{
-	    _rpcDEArray[idh] = new RpcDetectorElement(0, this, m_rpcIdHelper->elementID(id), idh);
-	    n_rpcDE++;
+	    m_rpcDEArray[idh] = new RpcDetectorElement(0, this, m_rpcIdHelper->elementID(id), idh);
+	    m_n_rpcDE++;
 	}
-	_rpcDEArray[idh]->addRpcReadoutElement(x, dbz_index);
+	m_rpcDEArray[idh]->addRpcReadoutElement(x, dbz_index);
     }
     else
     {
@@ -565,7 +585,7 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
     }
 
 
-  if (_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index] != NULL)
+  if (m_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index] != NULL)
   {
       std::cerr<<"addRpcReadoutElement - this place is taken ["
                <<stname_index<<"]["
@@ -574,15 +594,15 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
                <<dbr_index<<   "]["
                <<dbz_index<<   "] current id is "<<m_rpcIdHelper->show_to_string(id)<<" stored id "
                <<m_rpcIdHelper->show_to_string(
-                   _rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index]->identify()
+                   m_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index]->identify()
                    )<<std::endl;
       return;
   }
-  _rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index] = x;
+  m_rpcArray[stname_index][steta_index][stphi_index][dbr_index][dbz_index] = x;
   //std::cerr<<"\n Manager adding RpcReadoutElement with id "<<m_rpcIdHelper->show_to_string(id)
   //         <<" at "<<stname_index<<" "<<steta_index<<" "<<stphi_index<<" "<<dbr_index<<" "<<dbz_index<<std::endl;
-  n_rpcRE++;
-  //std::cerr<<"Manager n_rpcRE = "<<n_rpcRE<<std::endl;
+  m_n_rpcRE++;
+  //std::cerr<<"Manager m_n_rpcRE = "<<m_n_rpcRE<<std::endl;
 
 }
 
@@ -679,7 +699,7 @@ const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields   (int i
       throw;
   }
     
-  return _mmcArray[stname_index][steta_index][stphi_index][ml_index];
+  return m_mmcArray[stname_index][steta_index][stphi_index][ml_index];
 }
 void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutElement* x,  int iStname, int iStEta, int iStPhi, int imL)
 {
@@ -717,13 +737,13 @@ void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutEle
       throw;
   }
     
-  //  _mdtArray[stName][stEta+8][stPhi+8][ml] = x;
+  //  m_mdtArray[stName][stEta+8][stPhi+8][ml] = x;
   std::cout<<" ... using internal indices  ["
 	   <<stname_index<<"]["
 	   <<steta_index<< "]["
 	   <<stphi_index<< "]["
 	   <<ml_index<<    "]"<<std::endl;
-  if (_mmcArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
+  if (m_mmcArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
     {
       std::cerr<<"addMMRaedoutElement - this place is taken ["
                <<stname_index<<"]["
@@ -733,9 +753,9 @@ void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutEle
       return;
     }
 
-  _mmcArray[stname_index][steta_index][stphi_index][ml_index] = x;
+  m_mmcArray[stname_index][steta_index][stphi_index][ml_index] = x;
   
-  n_mmcRE++;
+  m_n_mmcRE++;
   
 }
 void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (const sTgcReadoutElement* x,  int iStname, int iStEta, int iStPhi, int imL)
@@ -780,7 +800,7 @@ void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (const sTgcReadou
 	   <<steta_index<< "]["
 	   <<stphi_index<< "]["
 	   <<ml_index<<    "]"<<std::endl;
-  if (_stgArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
+  if (m_stgArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
     {
       std::cerr<<"addsTgcReadoutElement - this place is taken ["
                <<stname_index<<"]["
@@ -790,9 +810,9 @@ void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (const sTgcReadou
       return;
     }
 
-  _stgArray[stname_index][steta_index][stphi_index][ml_index] = x;
+  m_stgArray[stname_index][steta_index][stphi_index][ml_index] = x;
   
-  n_stgRE++;
+  m_n_stgRE++;
   
 }
 const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields   (int iStname, int iStEta, int iStPhi, int imL) const
@@ -829,7 +849,7 @@ const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields   (i
                <<ml_index<<" 0-" <<NsTgChamberLayer-1<<std::endl;
       throw;
   }    
-  return _stgArray[stname_index][steta_index][stphi_index][ml_index];
+  return m_stgArray[stname_index][steta_index][stphi_index][ml_index];
 }
 
 void MuonDetectorManager::addMMReadoutElement (const MMReadoutElement* x, Identifier id)
@@ -896,30 +916,30 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
     }
     else
     {
-	if (_mdtArrayByHash[Idhash]!=0) 
+	if (m_mdtArrayByHash[Idhash]!=0) 
 	{
 	    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	    log<<MSG::ERROR<<"Trying to add MdtReadoutElement with detector-element-hash id "
 	       <<(unsigned int)Idhash<<" id = "<<m_mdtIdHelper->show_to_string(id)
 	       <<" at location already taken by "
-	       <<m_mdtIdHelper->show_to_string(_mdtArrayByHash[Idhash]->identify())
+	       <<m_mdtIdHelper->show_to_string(m_mdtArrayByHash[Idhash]->identify())
 	       <<endreq;
 	    throw;
 	    return;
 	}
-	_mdtArrayByHash[Idhash] = x;
+	m_mdtArrayByHash[Idhash] = x;
     }
     //add here the MdtDetectorElement and/or add this readoutElement to the DetectorElement
     //use already known data-collection hash 
     IdentifierHash idh = x->collectionHash();
     if (idh< MdtDetElMaxHash) 
     {
-	if ( !(_mdtDEArray[idh]) )
+	if ( !(m_mdtDEArray[idh]) )
 	{
-	    _mdtDEArray[idh] = new MdtDetectorElement(0, this, m_mdtIdHelper->elementID(id), idh);
-	    n_mdtDE++;
+	    m_mdtDEArray[idh] = new MdtDetectorElement(0, this, m_mdtIdHelper->elementID(id), idh);
+	    m_n_mdtDE++;
 	}
-	_mdtDEArray[idh]->addMdtReadoutElement(x, ml);
+	m_mdtDEArray[idh]->addMdtReadoutElement(x, ml);
     }
     else
     {
@@ -983,20 +1003,20 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
       throw;
   }
     
-  //  _mdtArray[stName][stEta+8][stPhi+8][ml] = x;
-  if (_mdtArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
+  //  m_mdtArray[stName][stEta+8][stPhi+8][ml] = x;
+  if (m_mdtArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
       std::cerr<<"addMdtReadoutElement - this place is taken ["
                <<stname_index<<"]["
                <<steta_index<< "]["
                <<stphi_index<< "]["
                <<ml_index<<    "] current id is "<<m_mdtIdHelper->show_to_string(id)<<" stored id "
-               <<m_mdtIdHelper->show_to_string(_mdtArray[stname_index][steta_index][stphi_index][ml_index]->identify())
+               <<m_mdtIdHelper->show_to_string(m_mdtArray[stname_index][steta_index][stphi_index][ml_index]->identify())
                <<std::endl;
 //   std::cerr<<"Manager adding MdtReadoutElement with id "<<m_mdtIdHelper->show_to_string(id)
 //            <<" at "<<stname_index<<" "<<steta_index<<" "<<stphi_index<<" "<<ml_index<<std::endl;
-  _mdtArray[stname_index][steta_index][stphi_index][ml_index] = x;
+  m_mdtArray[stname_index][steta_index][stphi_index][ml_index] = x;
   
-  n_mdtRE++;
+  m_n_mdtRE++;
 }
 
 const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(Identifier id) const
@@ -1044,29 +1064,29 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
     }	
     else
     {
-	if (_cscArrayByHash[Idhash]!=0) 
+	if (m_cscArrayByHash[Idhash]!=0) 
 	{
 	    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	    log<<MSG::ERROR<<"Trying to add CscReadoutElement with detector-element-hash id "
 	       <<(unsigned int)Idhash<<" id = "<<m_cscIdHelper->show_to_string(id)
 	       <<" at location already taken by "
-	       <<m_cscIdHelper->show_to_string(_cscArrayByHash[Idhash]->identify())
+	       <<m_cscIdHelper->show_to_string(m_cscArrayByHash[Idhash]->identify())
 	       <<endreq;
 	    throw;
 	}
-	_cscArrayByHash[Idhash] = x;
+	m_cscArrayByHash[Idhash] = x;
     }
 
     //add here the CscDetectorElement and/or add this readoutElement to the DetectorElement
     IdentifierHash idh = x->collectionHash(); 
     if ( idh< CscDetElMaxHash ) 
     {
-	if ( !(_cscDEArray[idh]) )
+	if ( !(m_cscDEArray[idh]) )
 	{
-	    _cscDEArray[idh] = new CscDetectorElement(0, this, m_cscIdHelper->elementID(id), idh);
-	    n_cscDE++;
+	    m_cscDEArray[idh] = new CscDetectorElement(0, this, m_cscIdHelper->elementID(id), idh);
+	    m_n_cscDE++;
 	}
-	_cscDEArray[idh]->setReadoutElement(x);
+	m_cscDEArray[idh]->setReadoutElement(x);
     }
     else
     {
@@ -1114,21 +1134,21 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
         throw;
     }
     
-    //  _cscArray[stName][stEta+8][stPhi+8][ml] = x;
-    if (_cscArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
+    //  m_cscArray[stName][stEta+8][stPhi+8][ml] = x;
+    if (m_cscArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
         std::cerr<<"addCscReadoutElement - this place is taken ["
                  <<stname_index<<"]["
                  <<steta_index<< "]["
                  <<stphi_index<< "]["
                  <<ml_index<<    "] current id is "<<m_cscIdHelper->show_to_string(id)<<" stored id "
-                 <<m_cscIdHelper->show_to_string(_cscArray[stname_index][steta_index][stphi_index][ml_index]->identify())
+                 <<m_cscIdHelper->show_to_string(m_cscArray[stname_index][steta_index][stphi_index][ml_index]->identify())
                  <<std::endl;
-    _cscArray[stname_index][steta_index][stphi_index][ml_index] = x;
+    m_cscArray[stname_index][steta_index][stphi_index][ml_index] = x;
 //     std::cerr<<"Registered csc r.e. at location ["
 //              <<stname_index<<"]["<<steta_index<<"]["<<stphi_index<<"]["<<ml_index<<"]"<<std::endl;
 //    std::cerr<<"Manager adding CscReadoutElement with id "<<m_cscIdHelper->show_to_string(id)
 //             <<" at "<<stname_index<<" "<<steta_index<<" "<<stphi_index<<" "<<ml_index<<std::endl;
-    n_cscRE++;
+    m_n_cscRE++;
 
 }
 
@@ -1178,17 +1198,17 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
     else
     {
       //MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
-      if (_tgcArrayByHash[Idhash]!=0) 
+      if (m_tgcArrayByHash[Idhash]!=0) 
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	    log<<MSG::ERROR<<"Trying to add TgcReadoutElement with detector-element-hash id "
 	       <<(unsigned int)Idhash<<" id = "<<m_tgcIdHelper->show_to_string(id)
 	       <<" at location already taken by "
-	       <<m_tgcIdHelper->show_to_string(_tgcArrayByHash[Idhash]->identify())
+	       <<m_tgcIdHelper->show_to_string(m_tgcArrayByHash[Idhash]->identify())
 	       <<endreq;
 	    throw;
 	}
-	_tgcArrayByHash[Idhash] = x;
+	m_tgcArrayByHash[Idhash] = x;
 	//log<<MSG::DEBUG<<"Adding TgcReadoutElement at loc. detector-element-hash id "<<(unsigned int)Idhash<<" for ext id = "<<m_tgcIdHelper->show_to_string(id)<<endreq;
     }
 
@@ -1196,12 +1216,12 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
     IdentifierHash idh = x->collectionHash();
     if (idh< TgcDetElMaxHash) 
     {
-	if ( !(_tgcDEArray[idh]) )
+	if ( !(m_tgcDEArray[idh]) )
 	{
-	    _tgcDEArray[idh] = new TgcDetectorElement(0, this, m_tgcIdHelper->elementID(id), idh);
-	    n_tgcDE++;
+	    m_tgcDEArray[idh] = new TgcDetectorElement(0, this, m_tgcIdHelper->elementID(id), idh);
+	    m_n_tgcDE++;
 	}
-	_tgcDEArray[idh]->setReadoutElement(x);
+	m_tgcDEArray[idh]->setReadoutElement(x);
     }
     else
     {
@@ -1237,19 +1257,19 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
                  <<stphi_index<<" 0-"<<NTgcStatPhi-1<<std::endl;
         throw;
     }
-    if (_tgcArray[stname_index][steta_index][stphi_index] != NULL)
+    if (m_tgcArray[stname_index][steta_index][stphi_index] != NULL)
         std::cerr<<"addTgcReadoutElement - this place is taken ]"
                  <<stname_index<<"]["
                  <<steta_index<< "]["
                  <<stphi_index<< "] current id is "<<m_tgcIdHelper->show_to_string(id)<<" stored id "
-                 <<m_tgcIdHelper->show_to_string(_tgcArray[stname_index][steta_index][stphi_index]->identify())
+                 <<m_tgcIdHelper->show_to_string(m_tgcArray[stname_index][steta_index][stphi_index]->identify())
                  <<std::endl;
-    _tgcArray[stname_index][steta_index][stphi_index] = x;
+    m_tgcArray[stname_index][steta_index][stphi_index] = x;
 //     std::cerr<<"Registered tgc r.e. at location ["
 //              <<stname_index<<"]["<<steta_index<<"]["<<stphi_index<<"]"<<std::endl;
 //    std::cerr<<"Manager adding TgcReadoutElement with id "<<m_tgcIdHelper->show_to_string(id)
 //             <<" at "<<stname_index<<" "<<steta_index<<" "<<stphi_index<<std::endl;
-  n_tgcRE++;
+  m_n_tgcRE++;
 }
 
 const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement (Identifier id) const
@@ -1341,7 +1361,7 @@ const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(int i1, int i
       throw;
   }    
 
-    return _mdtArray[i1][i2][i3][i4];
+    return m_mdtArray[i1][i2][i3][i4];
 }
 
 const CscReadoutElement* MuonDetectorManager::getCscRElement_fromIdFields(int i1,
@@ -1385,7 +1405,7 @@ const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(int i1, int i
       throw;
   }    
 
-    return _cscArray[i1][i2][i3][i4];
+    return m_cscArray[i1][i2][i3][i4];
 }
 const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1,
                                                                           int i2,
@@ -1487,7 +1507,7 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
       return 0;
       //throw;
   }
-    return _rpcArray[i1][i2][i3][i4][i5];
+    return m_rpcArray[i1][i2][i3][i4][i5];
 }
 const TgcReadoutElement* MuonDetectorManager::getTgcRElement_fromIdFields(int i1,
                                                                           int i2,
@@ -1523,7 +1543,7 @@ const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(int i1, int i
         throw;
     }
 //     std::cout<<" getting the array component ..."<<std::endl;
-    return _tgcArray[i1][i2][i3];
+    return m_tgcArray[i1][i2][i3];
 }
 
 void
@@ -1537,8 +1557,8 @@ MuonDetectorManager::initABlineContainers() const
        <<(uintptr_t)m_aLineContainer<<"> and <"<<(uintptr_t)m_bLineContainer<<">"<<endreq;
 
     // loop over stations to fill the A-line map at start-up
-    for (std::map< std::string, MuonStation * >::const_iterator ist=_MuonStationMap.begin();
-         ist!=_MuonStationMap.end(); ++ist)
+    for (std::map< std::string, MuonStation * >::const_iterator ist=m_MuonStationMap.begin();
+         ist!=m_MuonStationMap.end(); ++ist)
     {
         MuonStation * ms = (*ist).second;
         int jff = ms->getPhiIndex();
@@ -1596,11 +1616,11 @@ MuonDetectorManager::initABlineContainers() const
 
 
 StatusCode
-MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) const
+MuonDetectorManager::updateAlignment(const ALineMapContainer *  alineData) const
 {
 #ifdef TESTBLINES
   {
-    for (std::map< std::string, MuonStation *>::const_iterator it(_MuonStationMap.begin()), end(_MuonStationMap.end());
+    for (std::map< std::string, MuonStation *>::const_iterator it(m_MuonStationMap.begin()), end(m_MuonStationMap.end());
 	it!=end; ++it) {
       MuonStation* station = it->second;
       station->setDelta_fromAline( 0., 0., 0., 0., 0., 0.); //double tras, double traz, double trat, double rots, double rotz, double rott
@@ -1618,27 +1638,27 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
 #endif
     //    IMessageSvc* m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateAlignment");
-    //log<<MSG::INFO<<"In updateAlignment()  --- pointer to the container is <"<<m_alineData<<">"<<endreq;
+    //log<<MSG::INFO<<"In updateAlignment()  --- pointer to the container is <"<<alineData<<">"<<endreq;
     //log<<MSG::INFO<<"In updateAlignment()  --- pointer to the container (casted to int) <"
-    //<<(int)m_alineData<<">"<<endreq;
-    if (m_alineData == NULL)
+    //<<(int)alineData<<">"<<endreq;
+    if (alineData == NULL)
     {
 	log<<MSG::WARNING<<"Undefined pointer to temporary A-line container - nothing to do here"<<endreq;
 	return StatusCode::SUCCESS;
     }
-    if (m_alineData->size()==0)
+    if (alineData->size()==0)
     {
 	log<<MSG::WARNING<<"Empty temporary A-line container - nothing to do here"<<endreq;
 	return StatusCode::SUCCESS;
     }
-    else log<<MSG::INFO<<"temporary A-line container with size = "<<m_alineData->size()<<endreq;
+    else log<<MSG::INFO<<"temporary A-line container with size = "<<alineData->size()<<endreq;
     
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciALineMap cialine = m_alineData->begin();//ALineMapBegin();
+    ciALineMap cialine = alineData->begin();//ALineMapBegin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; cialine != m_alineData->end(); cialine++)
+    for (; cialine != alineData->end(); cialine++)
     {
         nLines++;
 	//std::cout<<"Aline n. "<<nLines<<std::endl;
@@ -1795,11 +1815,11 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
 }
 
 StatusCode
-MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) const
+MuonDetectorManager::updateDeformations(const BLineMapContainer * blineData) const
 {
 #ifdef TESTBLINES
   {
-    for (std::map< std::string, MuonStation *>::const_iterator it(_MuonStationMap.begin()), end(_MuonStationMap.end());
+    for (std::map< std::string, MuonStation *>::const_iterator it(m_MuonStationMap.begin()), end(m_MuonStationMap.end());
 	it!=end; ++it) {
       MuonStation* station = it->second;
       station->clearBLineCache();
@@ -1819,24 +1839,24 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) c
       return StatusCode::SUCCESS;
     }
 
-    if (m_blineData == NULL)
+    if (blineData == NULL)
     {
 	log<<MSG::WARNING<<"Undefined pointer to temporary B-line container - nothing to do here"<<endreq;
 	return StatusCode::SUCCESS;
     }
-    if (m_blineData->size()==0)
+    if (blineData->size()==0)
     {
 	log<<MSG::WARNING<<"Empty temporary B-line container - nothing to do here"<<endreq;
 	return StatusCode::SUCCESS;
     }
-    else log<<MSG::INFO<<"temporary B-line container with size = "<<m_blineData->size()<<endreq;
+    else log<<MSG::INFO<<"temporary B-line container with size = "<<blineData->size()<<endreq;
     
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciBLineMap cibline = m_blineData->begin();
+    ciBLineMap cibline = blineData->begin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; cibline != m_blineData->end(); cibline++)
+    for (; cibline != blineData->end(); cibline++)
     {
         nLines++;
         Identifier BLineId = (*cibline).first;
@@ -1961,7 +1981,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) c
 
 void MuonDetectorManager::storeTgcReadoutParams(TgcReadoutParams* x)
 {
-    _TgcReadoutParamsVec.push_back(x);
+    m_TgcReadoutParamsVec.push_back(x);
 }
 
 StatusCode MuonDetectorManager::initCSCInternalAlignmentMap() const
@@ -1973,8 +1993,8 @@ StatusCode MuonDetectorManager::initCSCInternalAlignmentMap() const
       log<<MSG::INFO<<"Init of CSC I-Lines will be done via Conditions DB"<<endreq;
       m_cscALineContainer = new CscInternalAlignmentMapContainer;
 
-      for (std::map< std::string, MuonStation * >::const_iterator ist=_MuonStationMap.begin();
-           ist!=_MuonStationMap.end(); ++ist)
+      for (std::map< std::string, MuonStation * >::const_iterator ist=m_MuonStationMap.begin();
+           ist!=m_MuonStationMap.end(); ++ist)
       {
           MuonStation * ms = (*ist).second;
           std::string stType = ms->getStationType();
@@ -2016,27 +2036,27 @@ StatusCode MuonDetectorManager::initCSCInternalAlignmentMap() const
   return StatusCode::SUCCESS;
 }
 StatusCode
-MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* m_ilineData) const
+MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* ilineData) const
 {
     MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateCSCInternalAlignment");
-    if (m_ilineData == NULL)
+    if (ilineData == NULL)
     {
 	log<<MSG::WARNING<<"Undefined pointer to temporary CSC I-line container - nothing to do here"<<endreq;
 	return StatusCode::SUCCESS;
     }
-    if (m_ilineData->size()==0)
+    if (ilineData->size()==0)
     {
 	log<<MSG::WARNING<<"Empty temporary CSC I-line container - nothing to do here"<<endreq;
 	return StatusCode::SUCCESS;
     }
-    else log<<MSG::INFO<<"temporary CSC I-line container with size = "<<m_ilineData->size()<<endreq;
+    else log<<MSG::INFO<<"temporary CSC I-line container with size = "<<ilineData->size()<<endreq;
     
 
     // loop over the container of the updates passed by the MuonAlignmentDbTool
-    ciCscInternalAlignmentMap ciiline = m_ilineData->begin();
+    ciCscInternalAlignmentMap ciiline = ilineData->begin();
     unsigned int nLines = 0;
     unsigned int nUpdates = 0;
-    for (; ciiline != m_ilineData->end(); ciiline++)
+    for (; ciiline != ilineData->end(); ciiline++)
     {
         nLines++;
 	//std::cout<<"Aline n. "<<nLines<<std::endl;
@@ -2127,6 +2147,88 @@ MuonDetectorManager::updateCSCInternalAlignmentMap(const CscInternalAlignmentMap
     
     return StatusCode::SUCCESS;
 }
+StatusCode
+MuonDetectorManager::updateAsBuiltParams(const MdtAsBuiltMapContainer* asbuiltData) const
+{
+    MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateAsBuiltParams");
+    if (asbuiltData == NULL)
+    {
+	log<<MSG::WARNING<<"Undefined pointer to temporary As-Built container - nothing to do here"<<endreq;
+	return StatusCode::SUCCESS;
+    }
+    if (asbuiltData->size()==0)
+    {
+	log<<MSG::WARNING<<"Empty temporary As-Built container - nothing to do here"<<endreq;
+	return StatusCode::SUCCESS;
+    }
+    else log<<MSG::INFO<<"temporary As-Built container with size = "<<asbuiltData->size()<<endreq;
+
+    if (!m_AsBuiltParamsMap) {
+      log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endreq; 
+      m_AsBuiltParamsMap = new MdtAsBuiltMapContainer();
+    }
+
+    // loop over the container of the updates passed by the MuonAlignmentDbTool
+    ciMdtAsBuiltMap ciasbuilt = asbuiltData->begin();
+    unsigned int nLines = 0;
+    unsigned int nUpdates = 0;
+    for (; ciasbuilt != asbuiltData->end(); ciasbuilt++)
+    {
+        nLines++;
+	  //std::cout<<"Aline n. "<<nLines<<std::endl;
+        Identifier AsBuiltId = (*ciasbuilt).first;
+        MdtAsBuiltPar* AsBuiltPar = (*ciasbuilt).second;
+        std::string stType = "";
+        int jff = 0;
+        int jzz = 0;
+        int job = 0;
+        AsBuiltPar->getAmdbId(stType, jff, jzz, job);
+        if (!AsBuiltPar->isNew())
+        {            
+            if (log.level()<=MSG::DEBUG)
+               log<<MSG::DEBUG <<"MdtAsBuiltPar with AmdbId "
+               <<stType<<" "<<jzz<<" "<<jff<<" "<<job
+               <<" is not new *** skipping"<<endreq;
+            continue;
+        } else {
+
+          ciMdtAsBuiltMap ci = MdtAsBuiltMapBegin();
+          if((ci = MdtAsBuiltContainer()->find(AsBuiltId)) != MdtAsBuiltMapEnd())
+          {
+            if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
+                                             <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
+            MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
+            MdtAsBuiltContainer()->erase(AsBuiltId);
+            delete oldAsBuilt; oldAsBuilt=0;
+          } else {
+            if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
+                    <<stType<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(AsBuiltId)<< endreq;
+          }
+          MdtAsBuiltContainer()->insert(std::make_pair(AsBuiltId,AsBuiltPar));
+        }
+        if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG <<"MdtAsBuiltPar with AmdbId "
+                 <<stType<<" "<<jzz<<" "<<jff<<" "<<job<<" is new ID = "<<m_mdtIdHelper->show_to_string(AsBuiltId)<<endreq;
+
+        MuonStation* thisStation = getMuonStation(stType, jzz, jff);
+        if (thisStation) {
+            if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting as-built parameters for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<endreq;
+            thisStation->clearBLineCache();
+            thisStation->setMdtAsBuiltParams(AsBuiltPar);
+            if (cacheFillingFlag()) thisStation->fillBLineCache();
+            nUpdates++;
+        } else {
+            log<<MSG::WARNING <<"MdtAsBuiltPar with AmdbId "<<stType<<" "<<jzz<<" "<<jff<<" "<<job 
+               <<" *** No MuonStation found \n PLEASE CHECK FOR possible MISMATCHES between alignment constants from COOL and Geometry Layout in use"<<endreq;
+          continue;
+        }
+
+    }
+    log<<MSG::INFO<<"# of MDT As-Built read from the MdtAsBuiltMapContainer in StoreGate is "<<nLines<<endreq;
+    log<<MSG::INFO<<"# of deltaTransforms updated according to As-Built                  is "<<nUpdates<<endreq;
+    log<<MSG::INFO<<"# of entries in the MdtAsBuilt historical container                 is "<<MdtAsBuiltContainer()->size()<<endreq;
+    
+    return StatusCode::SUCCESS;
+}
 void MuonDetectorManager::storeCscInternalAlignmentParams(CscInternalAlignmentPar* x)
 {
 
@@ -2154,5 +2256,58 @@ void MuonDetectorManager::storeCscInternalAlignmentParams(CscInternalAlignmentPa
   }
 }
 
+void MuonDetectorManager::storeMdtAsBuiltParams(MdtAsBuiltPar* params) {
+  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+
+  if (!m_AsBuiltParamsMap) {
+    log << MSG::INFO << "Creating the Mdt AsBuilt paramerter map" << endreq; 
+    m_AsBuiltParamsMap = new MdtAsBuiltMapContainer;
+  }
+
+  std::string stName="XXX";
+  int jff = 0;
+  int jzz = 0;
+  int job = 0;
+  params->getAmdbId(stName, jff, jzz, job);
+  Identifier id = mdtIdHelper()->elementID(stName, jzz, jff);
+  if (!id.is_valid()) {
+    log << MSG::ERROR << "Invalid MDT identifiers: sta=" << stName << " eta=" << jzz << " phi=" << jff << endreq;
+    return;
+  }
+
+  ciMdtAsBuiltMap ci = MdtAsBuiltMapBegin();
+  if((ci = MdtAsBuiltContainer()->find(id)) != MdtAsBuiltMapEnd())
+  {
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "Updating extisting entry in AsBuilt container for Station "
+						 <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff << endreq;
+    MdtAsBuiltPar* oldAsBuilt =  (*ci).second;
+    MdtAsBuiltContainer()->erase(id);
+    delete oldAsBuilt; oldAsBuilt=0;
+  } else {
+    if (log.level()<=MSG::DEBUG) log << MSG::DEBUG<< "New entry in AsBuilt container for Station "
+                    <<stName<<" at Jzz/Jff "<<jzz<<"/"<< jff<<" --- in the container with key "<< m_mdtIdHelper->show_to_string(id)<< endreq;
+  }
+  MdtAsBuiltContainer()->insert(std::make_pair(id,params));
+
+  return;
+}
+
+MdtAsBuiltPar* MuonDetectorManager::getMdtAsBuiltParams(Identifier id) {
+  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
+  if (!MdtAsBuiltContainer()) {
+    log << MSG::DEBUG << "No Mdt AsBuilt parameter container available" << endreq;
+    return 0;
+  }
+  iMdtAsBuiltMap iter = MdtAsBuiltContainer()->find(id);
+  if (iter == MdtAsBuiltContainer()->end()) {
+    log << MSG::DEBUG << "No Mdt AsBuilt parameters for station " << id.getString() 
+      << " sta=" << mdtIdHelper()->stationNameString(mdtIdHelper()->stationName(id))
+      << " eta=" << mdtIdHelper()->stationEta(id)
+      << " phi=" << mdtIdHelper()->stationPhi(id)
+      << endreq;
+    return 0;
+  }
+  return iter->second;
+}
 
 } // namespace MuonGM

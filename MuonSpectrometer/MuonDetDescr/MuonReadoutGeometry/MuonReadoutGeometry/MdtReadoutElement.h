@@ -194,17 +194,14 @@ public:
 private:
 
     double getTubeLengthForCaching(int tubeLayer, int tube) const;
+    double getNominalTubeLengthWoCutouts(int tubeLayer, int tube) const;
+    Amg::Vector3D localNominalTubePosWoCutouts(int tubelayer, int tube) const;
 
     Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
 	double, double, double, double, double, double, double, double,
 	double, double, double, const Amg::Vector3D fixedPoint) const;
     Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
-    Amg::Vector3D positionOnDeformedChamber(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
-					    double, double, double, double, double, double, double, double,
-                                            double, double, double, const Amg::Vector3D fixedPoint) const;
-    Amg::Vector3D positionOnDeformedChamber(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
-    Amg::Vector3D afterAsBuiltParamsInAmdbFrame(const Amg::Vector3D& locAMDBPos, int multilayer, int tubelayer, int tube) const;
-    Amg::Vector3D  afterAsBuiltParamsInAmdbFrameEIEM(const Amg::Vector3D& locAMDBPos, int multilayer, int tubelayer, int tube) const;
+    void wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const;
 
     // methods used only by friend class MdtAlignModule to shift chambers
     void shiftTube(const Identifier& id) const;
@@ -228,7 +225,7 @@ private:
     double m_firstwire_y[maxnlayers];
     double m_innerRadius;
     double m_tubeWallThickness;
-    mutable int _zsignRO_tubeFrame; // comes from AMDB CRO location in the station
+    mutable int m_zsignRO_tubeFrame; // comes from AMDB CRO location in the station
 
     mutable std::vector<Amg::Transform3D*> * m_deformTransfs;
     mutable BLinePar* m_BLinePar;
