@@ -11,6 +11,9 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #endif // ROOTCORE
 
+#ifndef XAOD_ANALYSIS
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#endif
 
 namespace Trig {
     TrigEgammaMatchingTool::TrigEgammaMatchingTool( const std::string& name )
@@ -117,17 +120,20 @@ namespace Trig {
     /*! Calls match with a FeatureContainer for a given triggerfor HLT only 
      * Note does not use DeactiviateTEs */ 
     bool TrigEgammaMatchingTool::matchHLT(const xAOD::Egamma *eg,const std::string trigger){
-
+        ATH_MSG_DEBUG("matchHLT");
         Trig::FeatureContainer fc = m_trigDecTool->features(trigger);
+        ATH_MSG_DEBUG("FeatureContainer");
         double deltaR=0.; 
-        if(eg->type()==xAOD::Type::Electron){
-            const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (eg);
+        if(xAOD::EgammaHelpers::isElectron(eg)){
+            ATH_MSG_DEBUG("Electron");
+            //const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (eg);
 #ifdef XAOD_ANALYSIS
             const auto vec = fc.containerFeature<xAOD::ElectronContainer>("egamma_Electrons");
 #else
             const auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons");
 #endif // XAOD_ANALYSIS
-            for(auto feat : vec){
+            ATH_MSG_DEBUG("Container Feature");
+            for(const auto feat : vec){
                 const xAOD::ElectronContainer *cont = feat.cptr();
                 if(cont == NULL) {
                     ATH_MSG_DEBUG("Electron container from TE NULL");
@@ -138,24 +144,21 @@ namespace Trig {
                         ATH_MSG_WARNING("Electron from TE NULL");
                         continue;
                     }
-                    if(el->trackParticle() && elOff->trackParticle())
-                        deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi()); 
-                    else
-                        deltaR = dR(elOff->eta(),elOff->phi(), el->eta(),el->phi());
+                    deltaR = dR(eg->eta(),eg->phi(), el->eta(),el->phi());
                     if(deltaR < m_dR){
                         return true;
                     }
                 }
             }
         }
-        else if(eg->type()==xAOD::Type::Photon){
+        else if(xAOD::EgammaHelpers::isPhoton(eg)){
             const xAOD::Photon* phOff =static_cast<const xAOD::Photon*> (eg);
 #ifdef XAOD_ANALYSIS
             const auto vec = fc.containerFeature<xAOD::PhotonContainer>("egamma_Photons");
 #else
             const auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons");
 #endif // XAOD_ANALYSIS
-            for(auto feat : vec){
+            for(const auto feat : vec){
                 const xAOD::PhotonContainer *cont = feat.cptr();
                 if(cont == NULL) {
                     ATH_MSG_DEBUG("Photon Container from TE NULL");
@@ -166,10 +169,7 @@ namespace Trig {
                         ATH_MSG_DEBUG("Photon from TE NULL");
                         continue;
                     }
-                    if(ph->caloCluster() && phOff->caloCluster())
-                        deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi()); 
-                    else
-                        deltaR = dR(phOff->eta(),phOff->phi(), ph->eta(),ph->phi());
+                    deltaR = dR(phOff->eta(),phOff->phi(), ph->eta(),ph->phi());
                     if(deltaR < m_dR){
                         return true;
                     }
@@ -204,7 +204,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("Photon from TE NULL");
                     continue;
                 }
-                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi()); 
+                deltaR = dR(eg->eta(),eg->phi(), ph->eta(),ph->phi());
                 if(deltaR < m_dR){
                     finalFC = (feat.te());
                     return true;
@@ -239,7 +239,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("Electron from TE NULL");
                     continue;
                 }
-                deltaR = dR(eg->trackParticle()->eta(),eg->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi()); 
+                deltaR = dR(eg->eta(),eg->phi(), el->eta(),el->phi());
                 if(deltaR < m_dR){
                     finalFC = (feat.te());
                     return true;
@@ -273,12 +273,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("CaloCluster from TE NULL");
                     continue;
                 }
-                if(eg->type()==xAOD::Type::Electron){
-                    const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-                    deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), clus->eta(),clus->phi());
-                }
-                else if (eg->type()==xAOD::Type::Photon)
-                    deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), clus->eta(),clus->phi());
+                deltaR = dR(eg->eta(),eg->phi(), clus->eta(),clus->phi());
                 if(deltaR < m_dR){
                     finalFC = (feat.te());
                     return true;
@@ -313,7 +308,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("TrigElectron from TE NULL");
                     continue;
                 }
-                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l2->eta(),l2->phi()); 
+                deltaR = dR(eg->eta(),eg->phi(), l2->eta(),l2->phi()); 
                 if(deltaR < m_dR){
                     finalFC = (feat.te());
                     return true;
@@ -346,7 +341,7 @@ namespace Trig {
                     ATH_MSG_DEBUG("TrigElectron from TE NULL");
                     continue;
                 }
-                deltaR = dR(eg->trackParticle()->eta(),eg->trackParticle()->phi(), l2->eta(),l2->phi()); 
+                deltaR = dR(eg->eta(),eg->phi(), l2->eta(),l2->phi()); 
                 if(deltaR < m_dR){
                     finalFC = (feat.te());
                     return true;
@@ -375,12 +370,7 @@ namespace Trig {
             }
             ATH_MSG_DEBUG("TrigEMCluster << " << em->et() );
             double deltaR=0.;
-            if(eg->type()==xAOD::Type::Electron){
-                const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-                deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), em->eta(),em->phi());
-            }
-            else if (eg->type()==xAOD::Type::Photon)
-                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), em->eta(),em->phi());
+            deltaR = dR(eg->eta(),eg->phi(), em->eta(),em->phi());
             if(deltaR < m_dR){
                 finalFC = (feat.te());
                 return true;
@@ -408,12 +398,7 @@ namespace Trig {
                 ATH_MSG_DEBUG("EMTauRoI from TE NULL");
                 return false;
             }
-            if(eg->type()==xAOD::Type::Electron){
-                const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-                deltaR = dR(el->trackParticle()->eta(),el->trackParticle()->phi(), l1->eta(),l1->phi());
-            }
-            else if (eg->type()==xAOD::Type::Photon)
-                deltaR = dR(eg->caloCluster()->eta(),eg->caloCluster()->phi(), l1->eta(),l1->phi());
+            deltaR = dR(eg->eta(),eg->phi(), l1->eta(),l1->phi());
 
             if(deltaR < m_dRL1){
                 finalFC = (itEmTau.te());
@@ -465,20 +450,20 @@ namespace Trig {
         finalFC=NULL;
 
         ATH_MSG_DEBUG("Match objec with trigger " << trigger);
-        if(eg->type()==xAOD::Type::Electron){
+        if(xAOD::EgammaHelpers::isElectron(eg)){
             const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
             if( matchHLTElectron(el,trigger,finalFC) ) return true;
         }
-        else if(eg->type()==xAOD::Type::Photon){
+        else if(xAOD::EgammaHelpers::isPhoton(eg)){
             const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (eg);
             if( matchHLTPhoton(ph,trigger,finalFC) ) return true;
         }
         if( matchHLTCalo(eg,trigger,finalFC) ) return true;
-        if(eg->type()==xAOD::Type::Electron){
+        if(xAOD::EgammaHelpers::isElectron(eg)){
             const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
             if( matchL2Electron(el,trigger,finalFC) ) return true;
         }
-        else if(eg->type()==xAOD::Type::Photon){
+        else if(xAOD::EgammaHelpers::isPhoton(eg)){
             const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (eg);
             //if( matchL2Photon(ph,fc,trigger,finalFC) ) return true;
             if( matchL2Photon(ph,trigger,finalFC) ) return true;
@@ -495,13 +480,13 @@ namespace Trig {
         bool passed = false;
         if( match(eg,trigger,finalFC) ){
             if( finalFC == NULL) return false;
-            if(eg->type()==xAOD::Type::Electron){
+            if(xAOD::EgammaHelpers::isElectron(eg)){
                 if ( (m_trigDecTool->ancestor<xAOD::ElectronContainer>(finalFC)).te() != NULL){
                     if( (m_trigDecTool->ancestor<xAOD::ElectronContainer>(finalFC)).te()->getActiveState())
                         passed = true;
                 }
             }
-            else if(eg->type()==xAOD::Type::Photon){
+            else if(xAOD::EgammaHelpers::isPhoton(eg)){
                 if ( (m_trigDecTool->ancestor<xAOD::PhotonContainer>(finalFC)).te() != NULL){
                     if( (m_trigDecTool->ancestor<xAOD::PhotonContainer>(finalFC)).te()->getActiveState())
                         passed = true;
