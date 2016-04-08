@@ -1,0 +1,10 @@
+ 8                               ! Process code
+ 7000.                           ! CM energy
+172.50  1.45  4.80   115.0       ! mt, Gt, mb, MH
+ 1.000   0.000   0.000   0.000   ! Re VL, Re VR, Re gL, Re gR (lep)
+   0.0   0.000   0.000   0.000   ! Clqp, Im VR, Im gL, Im gR (lep)
+ 1.000   0.000   0.000   0.000   ! Re VL, Re VR, Re gL, Re gR (had)
+   0.0   0.000   0.000   0.000   ! Cqqp, Im VR, Im gL, Im gR (had)
+    1                            ! Initial random seed
+ 4220982                         ! unweighted events
+0.543321E+02   0.426792E-02      ! tt cross section and error

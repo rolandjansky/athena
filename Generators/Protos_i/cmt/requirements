@@ -1,0 +1,24 @@
+package Protos_i
+author Georgios Stavropoulos <George.Stavropoulos@cern.ch>
+
+public
+use AtlasPolicy AtlasPolicy-*
+
+private
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the notAsNeeded tag
+private
+apply_tag notAsNeeded
+end_private
+
+public
+library Protos_i *.cxx *.F
+
+apply_pattern installed_library
+
+apply_pattern declare_runtime extras="*.events *.dat"
+apply_pattern declare_joboptions files="*.txt *.py"
