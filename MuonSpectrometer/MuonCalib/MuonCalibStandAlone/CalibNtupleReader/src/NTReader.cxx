@@ -233,7 +233,11 @@ namespace MuonCalib{
   MuonCalibMdtTruthHit*   NTReader::getMdtTruth( int i_truth ){
     MuonFixedId id( mdtTruth_id[i_truth] );
 		    
-    MuonCalibMdtTruthHit* hit = new MuonCalibMdtTruthHit( id, mdtTruth_barCode[i_truth], mdtTruth_driftRadius[i_truth], mdtTruth_posAlongTube[i_truth]);
+    MuonCalibMdtTruthHit* hit = new MuonCalibMdtTruthHit();
+    hit->setIdentifier(id);
+    hit->setBarCode(mdtTruth_barCode[i_truth]);
+    hit->setDriftRadius(mdtTruth_driftRadius[i_truth]);
+    hit->setPositionAlongTube(mdtTruth_posAlongTube[i_truth]);
     return hit;
   }
 
