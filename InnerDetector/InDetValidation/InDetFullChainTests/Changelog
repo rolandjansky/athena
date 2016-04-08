@@ -1,0 +1,18 @@
+2016-02-01 alibrari 
+	* fix InDetFullChainTests_TestConfiguration.xml
+	* tagged as InDetFullChainTest-00-00-04
+
+2014-09-01 Nick Styles
+	* Go back to validated R1 geo tag
+	* Add first version of R2 tests
+	* tagged as InDetFullChainTest-00-00-03
+
+2014-08-25 Nick Styles
+	* Initial tag, with just R1 test
+	* (R2 and Upgrade to be added once running successfully in Nightlies)
+	* Tagged as InDetFullChainTests-00-00-01
+
+2014-08-25 Nick Styles
+	* Adding missing pre/postcheck and comparison scripts
+	* Tagged as InDetFullChainTests-00-00-02
+
