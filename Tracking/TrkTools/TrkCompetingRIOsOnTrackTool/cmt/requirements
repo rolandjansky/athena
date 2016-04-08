@@ -9,6 +9,9 @@ use AthenaBaseComps         AthenaBaseComps-*           Control
 use TrkParameters           TrkParameters-*             Tracking/TrkEvent
 use TrkToolInterfaces       TrkToolInterfaces-*         Tracking/TrkTools
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Gpad Graf)"
+
 library TrkCompetingRIOsOnTrackTool *.cxx components/*.cxx
 apply_pattern component_library	
 
