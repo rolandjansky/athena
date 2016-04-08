@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/AthContainers
+                          Control/DataModel
                           GaudiKernel
                           TestPolicy )
 
@@ -22,7 +22,7 @@ atlas_add_component( UserDataExamples
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( UserDataExamples )
