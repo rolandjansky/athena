@@ -71,7 +71,7 @@ class TileTBDump: public AthAlgorithm {
 
   private:
 
-    int StatFrag5[200];
+    int m_statFrag5[200];
 
     ServiceHandle<IROBDataProviderSvc> m_RobSvc;
 
