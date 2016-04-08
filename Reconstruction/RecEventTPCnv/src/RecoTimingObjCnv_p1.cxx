@@ -16,7 +16,7 @@ void RecoTimingObjCnv_p1::persToTrans( const RecoTimingObj_p1* pers,
 				       MsgStream& msg ) 
 {
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[start]"  << endmsg;
+    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[start]"  << endreq;
   trans->m_readFromFile=true;
   trans->m_isTimings=pers->m_isTimings;
 
@@ -25,7 +25,7 @@ void RecoTimingObjCnv_p1::persToTrans( const RecoTimingObj_p1* pers,
   for( unsigned int i(0); i<pers->timings.size(); ++i )
     trans->push_back( pers->timings[i] );
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[end]"  << endmsg;
+    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[end]"  << endreq;
   return;
 }
 
@@ -34,7 +34,7 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
 				       MsgStream& msg ) 
 {
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[start]"    << endmsg;
+    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[start]"    << endreq;
   if ( trans->m_readFromFile )
     pers->timings.reserve(trans->size());
   else
@@ -50,7 +50,7 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
     {
       pers->timings.push_back( (*trans)[i] );
       if (msg.level() <= MSG::DEBUG)
-	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[" << i << "] : " << (*trans)[i] << endmsg;
+	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[" << i << "] : " << (*trans)[i] << endreq;
     }
   if ( ! trans->m_readFromFile && trans->size() > 0 )
     {
@@ -83,7 +83,7 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
 	  unsigned long a2(-1);
 	  FILE *proc = fopen("/proc/self/statm","r");
 	  if (proc) {
-	    fscanf(proc, "%80lu %80lu %80lu", &a0, &a1, &a2);
+	    fscanf(proc, "%lu %lu %lu", &a0, &a1, &a2);
             fclose(proc);
           }
 	  f0=float(a0*m_pagesize)-f0;
@@ -97,9 +97,9 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
 	  pers->timings.push_back( f2 );
 	}
       if (msg.level() <= MSG::DEBUG)
-	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end] : " << f0 << endmsg;
+	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end] : " << f0 << endreq;
     }
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end]"    << endmsg;
+    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end]"    << endreq;
   return;
 }
