@@ -1,5 +1,5 @@
 package Rivet_i
-  
+
 author James Monk <jmonk@cern.ch>
 author Andy Buckley <andy.buckley@cern.ch>
 
@@ -7,7 +7,7 @@ use AtlasPolicy       AtlasPolicy-*
 use GaudiInterface    GaudiInterface-*    External
 use AthenaBaseComps   AthenaBaseComps-*   Control
 use Rivet             Rivet-*             External
-   
+
 private
 use GeneratorObjects  GeneratorObjects-*  Generators
 use AthenaKernel      AthenaKernel-*      Control
@@ -33,4 +33,3 @@ end_private
 ## Athena stuff
 apply_pattern named_dual_use_library library="Rivet_i" files="*.cxx"
 apply_pattern declare_joboptions files="*.py"
-
