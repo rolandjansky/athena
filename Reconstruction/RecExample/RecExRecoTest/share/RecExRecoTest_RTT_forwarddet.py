@@ -14,10 +14,6 @@ rec.doInDet=False
 rec.doMuon=False
 rec.doCalo=False
 
-# If Calo/tracking is off, this needs to be off too.
-from IsolationAlgs.IsoGetter import isoGetter
-isoGetter (disable=True)
-
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
