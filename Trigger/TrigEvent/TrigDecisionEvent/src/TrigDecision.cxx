@@ -67,6 +67,23 @@ TrigDecision::TrigDecision( const LVL1CTP::Lvl1Result& l1Result,
   m_hlt_result_ptr(0) { }
 
 
+TrigDecision::TrigDecision( const LVL1CTP::Lvl1Result& l1Result,
+                            const DataLink<HLT::HLTResult>& l2Result,
+                            const DataLink<HLT::HLTResult>& efResult,
+                            uint32_t masterKey,
+                            char bgCode)
+  : m_configMasterKey (masterKey),
+    m_bgCode(bgCode),
+    m_l1_result (l1Result),
+    m_l2_result (l2Result),
+    m_ef_result (efResult),
+    m_l2_result_ptr(nullptr),
+    m_ef_result_ptr(nullptr),
+    m_hlt_result_ptr(nullptr)
+{
+}
+
+
 TrigDecision::~TrigDecision()
 {
   //  resetCache();

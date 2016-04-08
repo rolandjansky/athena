@@ -34,7 +34,10 @@
 #include <stdint.h>
 
 
+
 namespace TrigDec {
+  class TrigDecisionCnv_p1;
+
   /**
    * @brief The TrigDecision is an object which merges trigger informations from various levels.
    *
@@ -55,21 +58,31 @@ namespace TrigDec {
                   const HLT::HLTResult& HltResult,                 
 		      uint32_t masterKey = 0 ); 
 
+    TrigDecision( const LVL1CTP::Lvl1Result& l1Result,
+                  const DataLink<HLT::HLTResult>& l2Result,
+                  const DataLink<HLT::HLTResult>& efResult,
+                  uint32_t masterKey = 0,
+                  char bgCode = 0);
+
     virtual ~TrigDecision();
 
 
     uint32_t masterKey() const { return m_configMasterKey; }
     char     BGCode()    const { return m_bgCode; }
 
-    const LVL1CTP::Lvl1Result& getL1Result() const { return m_l1_result; }
-    const HLT::HLTResult&      getL2Result() const;
-    const HLT::HLTResult&      getEFResult() const;
-    const HLT::HLTResult&      getHLTResult() const;
+    const LVL1CTP::Lvl1Result&   getL1Result() const { return m_l1_result; }
+    const HLT::HLTResult&        getL2Result() const;
+    const DataLink<HLT::HLTResult>& getL2ResultLink() const { return m_l2_result; }
+    const HLT::HLTResult&        getEFResult() const;
+    const DataLink<HLT::HLTResult>& getEFResultLink() const { return m_ef_result; }
+    const HLT::HLTResult&        getHLTResult() const;
+    const DataLink<HLT::HLTResult>& getHLTResultLink() const { return m_hlt_result; }
 
     friend class TrigDecisionTool;
     friend class TrigDecisionMaker;
 
   private:
+    friend class TrigDecisionCnv_p1;
 
     uint32_t m_configMasterKey;
     char     m_bgCode;
