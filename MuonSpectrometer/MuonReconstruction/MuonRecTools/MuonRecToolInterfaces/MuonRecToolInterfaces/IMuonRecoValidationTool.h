@@ -16,14 +16,17 @@
 #include "xAODTracking/TrackParticle.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerHough/MuonLayerHough.h"
+#include "MuonCombinedEvent/CandidateSummary.h"
 
 namespace Trk {
   class PrepRawData;
+  class Track;
 }
 
 namespace Muon {
   
   class MuonSegment;
+  class MuonCandidate;
 
   /** Interface ID*/  
   static const InterfaceID IID_IMuonRecoValidationTool("Muon::IMuonRecoValidationTool", 1, 0);
@@ -54,6 +57,13 @@ namespace Muon {
     /** add a new time measurement */
     virtual bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Identifier& id,
                                      const Amg::Vector3D& gpos, float time, float errorTime ) = 0;
+
+    /** add new MuonCandidate */
+    virtual bool addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
+                                   const Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) = 0;
+
+    /** add StauHits to ntuple */
+    virtual bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits ) = 0;
 
   };
 
