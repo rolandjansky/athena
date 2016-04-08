@@ -11,7 +11,7 @@
 #include <set>
 
 #include "D3PDMakerUtils/ObjectMetadata.h"
-#include "../../../src/RootObjectMetadata.h"
+#include "src/RootObjectMetadata.h"
 
 namespace D3PDMakerReaderDict {
   struct tmp {

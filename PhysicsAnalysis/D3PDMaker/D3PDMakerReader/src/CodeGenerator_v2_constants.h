@@ -4,14 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $
+// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $
 #ifndef D3PDMAKERREADER_ROOTREADERD3PD_V2_CONSTANTS_H
 #define D3PDMAKERREADER_ROOTREADERD3PD_V2_CONSTANTS_H
 
 static const char* VARHANDLE_HEADER_NAME = "VarHandle.h";
 static const char* VARHANDLE_HEADER = 
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARHANDLE_H\n"
    "#define D3PDREADER_VARHANDLE_H\n\n"
    "// ROOT include(s):\n"
@@ -29,8 +29,8 @@ static const char* VARHANDLE_HEADER =
    "    *         This class is used to keep a list of all the VarHandle members of\n"
    "    *         a D3PDObject class. It makes some operations much easier.\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class VarHandleBase {\n\n"
    "   protected:\n"
@@ -107,8 +107,8 @@ static const char* VARHANDLE_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   template< typename Type >\n"
    "   class VarHandle : public VarHandleBase {\n\n"
@@ -148,8 +148,8 @@ static const char* VARHANDLE_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   template< typename Type >\n"
    "   class VarHandle< Type* > : public VarHandleBase {\n\n"
@@ -190,7 +190,7 @@ static const char* VARHANDLE_HEADER =
 static const char* VARHANDLE_IMPL_NAME = "VarHandle.icc";
 static const char* VARHANDLE_IMPL =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARHANDLE_ICC\n"
    "#define D3PDREADER_VARHANDLE_ICC\n\n"
    "// System include(s):\n"
@@ -401,7 +401,7 @@ static const char* VARHANDLE_IMPL =
 
 static const char* VARHANDLE_CXX_NAME = "VarHandle.cxx";
 static const char* VARHANDLE_CXX =
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// ROOT include(s):\n"
    "#include <TError.h>\n\n"
    "// Local include(s):\n"
@@ -631,7 +631,7 @@ static const char* VARHANDLE_CXX =
 static const char* VARPROXY_HEADER_NAME = "VarProxy.h";
 static const char* VARPROXY_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARPROXY_H\n"
    "#define D3PDREADER_VARPROXY_H\n\n"
    "// STL include(s):\n"
@@ -647,8 +647,8 @@ static const char* VARPROXY_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class VarProxyBase {\n\n"
    "   public:\n"
@@ -665,8 +665,8 @@ static const char* VARPROXY_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   template< typename Type >\n"
    "   class VarProxy : public VarProxyBase {\n\n"
@@ -702,7 +702,7 @@ static const char* VARPROXY_HEADER =
 static const char* VARPROXY_IMPL_NAME = "VarProxy.icc";
 static const char* VARPROXY_IMPL =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_VARPROXY_ICC\n"
    "#define D3PDREADER_VARPROXY_ICC\n\n"
    "// ROOT include(s):\n"
@@ -755,7 +755,7 @@ static const char* VARPROXY_IMPL =
 static const char* D3PDOBJECTBASE_HEADER_NAME = "D3PDObjectBase.h";
 static const char* D3PDOBJECTBASE_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_D3PDOBJECTBASE_H\n"
    "#define D3PDREADER_D3PDOBJECTBASE_H\n\n"
    "// ROOT include(s):\n"
@@ -775,8 +775,8 @@ static const char* D3PDOBJECTBASE_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class D3PDObjectBase : public ::TNamed {\n\n"
    "   public:\n"
@@ -805,7 +805,7 @@ static const char* D3PDOBJECTBASE_HEADER =
 static const char* D3PDREADSTATS_HEADER_NAME = "D3PDReadStats.h";
 static const char* D3PDREADSTATS_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_D3PDREADSTATS_H\n"
    "#define D3PDREADER_D3PDREADSTATS_H\n\n"
    "// STL include(s):\n"
@@ -829,8 +829,8 @@ static const char* D3PDREADSTATS_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class VariableStats : public ::TNamed {\n\n"
    "   public:\n"
@@ -883,8 +883,8 @@ static const char* D3PDREADSTATS_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class D3PDReadStats : public ::TNamed {\n\n"
    "   public:\n"
@@ -996,7 +996,7 @@ static const char* D3PDREADSTATS_HEADER =
 
 static const char* D3PDREADSTATS_CXX_NAME = "D3PDReadStats.cxx";
 static const char* D3PDREADSTATS_CXX =
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// System include(s):\n"
    "#include <cstring>\n"
    "#include <functional>\n"
@@ -1079,8 +1079,8 @@ static const char* D3PDREADSTATS_CXX =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class SelectByEntries :\n"
    "      public std::unary_function< const D3PDReader::VariableStats&,\n"
@@ -1121,8 +1121,8 @@ static const char* D3PDREADSTATS_CXX =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class SelectByBytes :\n"
    "      public std::unary_function< const D3PDReader::VariableStats&,\n"
@@ -1848,7 +1848,7 @@ static const char* D3PDREADSTATS_CXX =
    "            SizeToString( fCacheSize ).Data() );\n"
    "      Info( \"Print\", \"  Total number of bytes read            : %s\",\n"
    "            SizeToString( fBytesRead ).Data() );\n"
-   "      Info( \"Print\", \"  Total number of bytes used            : %s (%lg%%)\",\n"
+   "      Info( \"Print\", \"  Total number of bytes used            : %s (%g%%)\",\n"
    "            SizeToString( bytesUsed ).Data(),\n"
    "            ( ( ::Double_t ) bytesUsed /\n"
    "              ( ::Double_t ) fBytesRead * 100.0 ) );\n"
@@ -1902,7 +1902,7 @@ static const char* D3PDREADSTATS_CXX =
 static const char* D3PDPERFSTATS_HEADER_NAME = "D3PDPerfStats.h";
 static const char* D3PDPERFSTATS_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_D3PDPERFSTATS_H\n"
    "#define D3PDREADER_D3PDPERFSTATS_H\n\n"
    "// ROOT include(s):\n"
@@ -1920,8 +1920,8 @@ static const char* D3PDPERFSTATS_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class D3PDPerfStats : public ::TVirtualPerfStats {\n\n"
    "   public:\n"
@@ -1949,8 +1949,13 @@ static const char* D3PDPERFSTATS_HEADER =
    "                              const char *filename, ::Bool_t isStart );\n"
    "      virtual void FileOpenEvent( ::TFile *file, const char *filename, ::Double_t start );\n"
    "      virtual void FileReadEvent( ::TFile *file, ::Int_t len, ::Double_t start );\n"
+   "#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )\n"
    "      virtual void FileUnzipEvent( ::TFile *file, ::Long64_t pos, ::Double_t start, ::Int_t complen,\n"
    "                                   ::Int_t objlen );\n"
+   "#else\n"
+   "      virtual void UnzipEvent( ::TObject* tree, ::Long64_t pos, ::Double_t start,\n"
+   "                               ::Int_t complen, ::Int_t objlen );\n"
+   "#endif // ROOT 6\n"
    "      virtual void RateEvent( ::Double_t proctime, ::Double_t deltatime,\n"
    "                              ::Long64_t eventsprocessed, ::Long64_t bytesRead );\n"
    "      virtual void SetBytesRead( ::Long64_t num );\n"
@@ -1984,7 +1989,7 @@ static const char* D3PDPERFSTATS_HEADER =
 
 static const char* D3PDPERFSTATS_CXX_NAME = "D3PDPerfStats.cxx";
 static const char* D3PDPERFSTATS_CXX =
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// ROOT include(s):\n"
    "#include <TTree.h>\n"
    "#include <TChain.h>\n"
@@ -2156,6 +2161,7 @@ static const char* D3PDPERFSTATS_CXX =
    "      }\n\n"
    "      return;\n"
    "   }\n\n"
+   "#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )\n"
    "   void D3PDPerfStats::FileUnzipEvent( ::TFile* file, ::Long64_t pos, ::Double_t start,\n"
    "                                       ::Int_t complen, ::Int_t objlen ) {\n\n"
    "      // Do the calculation without delay:\n"
@@ -2173,7 +2179,13 @@ static const char* D3PDPERFSTATS_CXX =
    "      }\n"
    "#endif // ROOT_VERSION...\n\n"
    "      return;\n"
-   "   }\n\n"
+   "   }\n"
+   "#else\n"
+   "   void D3PDPerfStats::UnzipEvent( ::TObject*, ::Long64_t, ::Double_t, ::Int_t,\n"
+   "                                   ::Int_t ) {\n\n"
+   "      return;\n"
+   "   }\n"
+   "#endif // ROOT 6\n\n"
    "   void D3PDPerfStats::RateEvent( ::Double_t proctime, ::Double_t deltatime,\n"
    "                                  ::Long64_t eventsprocessed, ::Long64_t bytesRead ) {\n\n"
    "      // Forward the call if possible:\n"
@@ -2259,7 +2271,7 @@ static const char* D3PDPERFSTATS_CXX =
 static const char* UTILS_HEADER_NAME = "Utils.h";
 static const char* UTILS_HEADER =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_UTILS_H\n"
    "#define D3PDREADER_UTILS_H\n\n"
    "// ROOT include(s):\n"
@@ -2276,7 +2288,7 @@ static const char* UTILS_HEADER =
 
 static const char* UTILS_CXX_NAME = "Utils.cxx";
 static const char* UTILS_CXX =
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// STL include(s):\n"
    "#include <cmath>\n\n"
    "// Local include(s):\n"
@@ -2295,8 +2307,8 @@ static const char* UTILS_CXX =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   struct TimeStruct {\n"
    "      ::Int_t miliseconds; ///< Elapsed milisecods\n"
@@ -2385,13 +2397,13 @@ static const char* UTILS_CXX =
    "    */\n"
    "   ::TString SizeToString( ::Long64_t bytes ) {\n\n"
    "      if( ::fabs( bytes ) > 1e12 ) {\n"
-   "         return ::TString::Format( \"%lg TB\", bytes * 1e-12 );\n"
+   "         return ::TString::Format( \"%g TB\", bytes * 1e-12 );\n"
    "      } else if( ::fabs( bytes ) > 1e9 ) {\n"
-   "         return ::TString::Format( \"%lg GB\", bytes * 1e-9 );\n"
+   "         return ::TString::Format( \"%g GB\", bytes * 1e-9 );\n"
    "      } else if( ::fabs( bytes ) > 1e6 ) {\n"
-   "         return ::TString::Format( \"%lg MB\", bytes * 1e-6 );\n"
+   "         return ::TString::Format( \"%g MB\", bytes * 1e-6 );\n"
    "      } else if( ::fabs( bytes ) > 1e3 ) {\n"
-   "         return ::TString::Format( \"%lg kB\", bytes * 1e-3 );\n"
+   "         return ::TString::Format( \"%g kB\", bytes * 1e-3 );\n"
    "      } else {\n"
    "         return ::TString::Format( \"%lli bytes\", bytes );\n"
    "      }\n"
@@ -2402,15 +2414,15 @@ static const char* UTILS_CXX =
    "    */\n"
    "   ::TString SpeedToString( ::Double_t bytespersec ) {\n\n"
    "      if( ::fabs( bytespersec ) > 1e12 ) {\n"
-   "         return ::TString::Format( \"%lg TB/s\", bytespersec * 1e-12 );\n"
+   "         return ::TString::Format( \"%g TB/s\", bytespersec * 1e-12 );\n"
    "      } else if( ::fabs( bytespersec ) > 1e9 ) {\n"
-   "         return ::TString::Format( \"%lg GB/s\", bytespersec * 1e-9 );\n"
+   "         return ::TString::Format( \"%g GB/s\", bytespersec * 1e-9 );\n"
    "      } else if( ::fabs( bytespersec ) > 1e6 ) {\n"
-   "         return ::TString::Format( \"%lg MB/s\", bytespersec * 1e-6 );\n"
+   "         return ::TString::Format( \"%g MB/s\", bytespersec * 1e-6 );\n"
    "      } else if( ::fabs( bytespersec ) > 1e3 ) {\n"
-   "         return ::TString::Format( \"%lg kB/s\", bytespersec * 1e-3 );\n"
+   "         return ::TString::Format( \"%g kB/s\", bytespersec * 1e-3 );\n"
    "      } else {\n"
-   "         return ::TString::Format( \"%lg B/s\", bytespersec );\n"
+   "         return ::TString::Format( \"%g B/s\", bytespersec );\n"
    "      }\n"
    "   }\n\n"
    "} // namespace D3PDReader";
@@ -2418,7 +2430,7 @@ static const char* UTILS_CXX =
 static const char* USERD3PDOBJECT_HEADER_NAME = "UserD3PDObject.h";
 static const char* USERD3PDOBJECT_HEADER =
    "// Dear emacs, this is -*- c++ -*--\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_UserD3PDObject_H\n"
    "#define D3PDREADER_UserD3PDObject_H\n\n"
    "// STL include(s):\n"
@@ -2452,8 +2464,8 @@ static const char* USERD3PDOBJECT_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class UserD3PDObjectElement : public ::TNamed {\n\n"
    "      friend class UserD3PDObject;\n\n"
@@ -2497,8 +2509,8 @@ static const char* USERD3PDOBJECT_HEADER =
    "    *\n"
    "    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>\n"
    "    *\n"
-   "    * $Revision: 539451 $\n"
-   "    * $Date: 2013-03-01 09:33:45 +0100 (Fri, 01 Mar 2013) $\n"
+   "    * $Revision: 600807 $\n"
+   "    * $Date: 2014-06-08 17:26:51 +0200 (Sun, 08 Jun 2014) $\n"
    "    */\n"
    "   class UserD3PDObject : public D3PDObjectBase {\n\n"
    "   public:\n"
@@ -2569,7 +2581,7 @@ static const char* USERD3PDOBJECT_HEADER =
 static const char* USERD3PDOBJECT_IMPL_NAME = "UserD3PDObject.icc";
 static const char* USERD3PDOBJECT_IMPL =
    "// Dear emacs, this is -*- c++ -*-\n"
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n"
    "#ifndef D3PDREADER_UserD3PDObject_ICC\n"
    "#define D3PDREADER_UserD3PDObject_ICC\n\n"
    "namespace D3PDReader {\n\n"
@@ -2793,7 +2805,7 @@ static const char* USERD3PDOBJECT_IMPL =
 
 static const char* USERD3PDOBJECT_CXX_NAME = "UserD3PDObject.cxx";
 static const char* USERD3PDOBJECT_CXX =
-   "// $Id: CodeGenerator_v2_constants.h 539451 2013-03-01 08:33:45Z krasznaa $\n\n"
+   "// $Id: CodeGenerator_v2_constants.h 600807 2014-06-08 15:26:51Z krasznaa $\n\n"
    "// ROOT include(s):\n"
    "#include <TPRegexp.h>\n\n"
    "// Local include(s):\n"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# $Id: d3pdReaderLibraryMaker.py 516965 2012-09-10 11:26:09Z krasznaa $
+# $Id: d3pdReaderLibraryMaker.py 600807 2014-06-08 15:26:51Z krasznaa $
 #
 # This script can be used to generate the LinkDef.h and Makefile for compiling some
 # D3PDReader source files into a standalone (shared and static) library.
@@ -76,7 +76,7 @@ makefile_template = \
     "SHLIBFILE = lib$(LIBRARY).$(DllSuf)\n" \
     "LIBFILE   = lib$(LIBRARY).a\n\n" \
     "# Additional command line options:\n" \
-    "CXXFLAGS += -Wall -O2 -DCOLLECT_D3PD_READING_STATISTICS\n\n" \
+    "CXXFLAGS += -Wall -DCOLLECT_D3PD_READING_STATISTICS\n\n" \
     "# List of all header and source files to build:\n" \
     "HLIST   = %s\n" \
     "CPPLIST = %s\n\n" \
@@ -143,7 +143,7 @@ def main():
     desc = "This script can be used to generate a LinkDef.h header and a Makefile " \
            "to compile some D3PDReader source files into a standalone (shared and " \
            "static) library."
-    vers = "$Revision: 516965 $"
+    vers = "$Revision: 600807 $"
     parser = optparse.OptionParser( description = desc,
                                     version = vers,
                                     usage = "%prog [options] <source files>" )
@@ -178,7 +178,7 @@ def main():
     # Print some welcome message:
     logger.info( "***********************************************************" )
     logger.info( "*                D3PDReader Library Maker" )
-    logger.info( "* Version: $Revision: 516965 $" )
+    logger.info( "* Version: $Revision: 600807 $" )
     logger.info( "*" )
     logger.info( "* Output level: " + str( options.verbosity ) )
     logger.info( "* Output directory: " + options.output )

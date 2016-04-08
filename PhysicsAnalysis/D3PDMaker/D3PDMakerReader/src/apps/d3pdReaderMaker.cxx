@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: d3pdReaderMaker.cxx 516932 2012-09-10 09:29:08Z krasznaa $
+// $Id: d3pdReaderMaker.cxx 634769 2014-12-09 15:23:59Z mnowak $
 
 // STL include(s):
 #include <iostream>
@@ -23,7 +23,13 @@
 #include <TBranchElement.h>
 #include <TLeaf.h>
 #include <TError.h>
-#include <Cintex/Cintex.h>
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#  include <Cintex/Cintex.h>
+#  define CINTEX_ENABLE   ROOT::Cintex::Cintex::Enable();
+#else
+#  define CINTEX_ENABLE
+#endif
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/StatusCode.h"
@@ -91,7 +97,7 @@ namespace po = boost::program_options;
 int main( int argc, char* argv[] ) {
 
    // As a first thing, let's enable Cintex:
-   ROOT::Cintex::Cintex::Enable();
+   CINTEX_ENABLE
    // Let's disable the ROOT warnings:
    gErrorIgnoreLevel = kError;
 

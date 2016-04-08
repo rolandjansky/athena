@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Helpers.py 543909 2013-04-08 14:43:54Z krasznaa $
+# $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $
 #
 # This module collects some functions used by the helper scripts of
 # the package.
@@ -187,8 +187,9 @@ def writeLinkDefFile( filename, classnames, headers = [] ):
 
     # Write the file's header:
     linkdef.write( "// Dear emacs, this is -*- c++ -*-\n" )
-    linkdef.write( "// $Id: Helpers.py 543909 2013-04-08 14:43:54Z krasznaa $\n" );
-    linkdef.write( "#ifdef __CINT__\n\n" )
+    linkdef.write( "// $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n" );
+    linkdef.write( "#ifndef D3PDREADER_LINKDEF_H\n" )
+    linkdef.write( "#define D3PDREADER_LINKDEF_H\n\n" )
 
     # Write the required includes:
     for header in headers:
@@ -196,7 +197,8 @@ def writeLinkDefFile( filename, classnames, headers = [] ):
         pass
 
     # Write the rest of the constant part:
-    linkdef.write( "\n#pragma link off all globals;\n" )
+    linkdef.write( "\n#ifdef __CINT__\n\n" )
+    linkdef.write( "#pragma link off all globals;\n" )
     linkdef.write( "#pragma link off all classes;\n" )
     linkdef.write( "#pragma link off all functions;\n\n" )
     linkdef.write( "#pragma link C++ nestedclass;\n\n" )
@@ -207,6 +209,7 @@ def writeLinkDefFile( filename, classnames, headers = [] ):
         pass
 
     # Write which template functions to generate a dictionary for:
+    linkdef.write( "\n" )
     linkdef.write( "// You can disable the remaining lines if you don't\n" )
     linkdef.write( "// plan to use the library in CINT or PyROOT.\n" )
     functions = [ "D3PDReader::UserD3PDObject::DeclareVariable<bool>",
@@ -258,6 +261,7 @@ def writeLinkDefFile( filename, classnames, headers = [] ):
     # Close the file:
     linkdef.write( "\n" )
     linkdef.write( "#endif // __CINT__\n" )
+    linkdef.write( "#endif // D3PDREADER_LINKDEF_H\n" )
     linkdef.close()
 
     # Signal that the function was successful:
@@ -300,7 +304,7 @@ def makeRootCorePackageSkeleton( directory, name ):
 
     # Create the RootCore Makefile:
     makefile = open( directory + "/" + name + "/cmt/Makefile.RootCore", "w" )
-    makefile.write( "# $Id: Helpers.py 543909 2013-04-08 14:43:54Z krasznaa $\n\n" )
+    makefile.write( "# $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n\n" )
     makefile.write( "PACKAGE          = %s\n" % name )
     makefile.write( "PACKAGE_PRELOAD  = Tree\n" )
     makefile.write( "# Add the option -DACTIVATE_BRANCHES if your analysis framework\n" )
@@ -309,7 +313,9 @@ def makeRootCorePackageSkeleton( directory, name ):
     makefile.write( "# of performance...\n" )
     makefile.write( "PACKAGE_CXXFLAGS = -DCOLLECT_D3PD_READING_STATISTICS\n" )
     makefile.write( "PACKAGE_LDFLAGS  =\n" )
-    makefile.write( "PACKAGE_DEP      =\n\n" )
+    makefile.write( "PACKAGE_DEP      =\n" )
+    makefile.write( "PACKAGE_PEDANTIC = 1\n" )
+    makefile.write( "PACKAGE_NOOPT    = dict\n\n" )
     makefile.write( "include $(ROOTCOREDIR)/Makefile-common\n" )
     makefile.close()
 
@@ -365,7 +371,7 @@ def makeSFramePackageSkeleton( directory, name ):
 
     # Create the SFrame Makefile:
     makefile = open( directory + "/" + name + "/Makefile", "w" )
-    makefile.write( "# $Id: Helpers.py 543909 2013-04-08 14:43:54Z krasznaa $\n\n" )
+    makefile.write( "# $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n\n" )
     makefile.write( "# Package information\n" )
     makefile.write( "LIBRARY = %s\n" % name )
     makefile.write( "OBJDIR  = obj\n" )
@@ -380,7 +386,7 @@ def makeSFramePackageSkeleton( directory, name ):
 
     # Create the PROOF related files:
     setup = open( directory + "/" + name + "/proof/SETUP.C", "w" )
-    setup.write( "// $Id: Helpers.py 543909 2013-04-08 14:43:54Z krasznaa $\n\n" )
+    setup.write( "// $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n\n" )
     setup.write( "int SETUP() {\n\n" )
     setup.write( "   if( gSystem->Load( \"libTree\" ) == -1 ) return -1;\n" )
     setup.write( "   if( gSystem->Load( \"lib%s\" ) == -1 ) return -1;\n\n" % name )
@@ -389,7 +395,7 @@ def makeSFramePackageSkeleton( directory, name ):
     setup.close()
     # Notice that BUILD.sh has to be executable:
     build = open( directory + "/" + name + "/proof/BUILD.sh", "w" )
-    build.write( "# $Id: Helpers.py 543909 2013-04-08 14:43:54Z krasznaa $\n\n" )
+    build.write( "# $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n\n" )
     build.write( "if [ \"$1\" = \"clean\" ]; then\n" )
     build.write( "   make distclean\n" )
     build.write( "   exit 0\n" )
