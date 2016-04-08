@@ -6,7 +6,7 @@
 #include <cstring>
 #include <cstdio>
 
-const std::map<std::string,int> CoWTools::CoWRecordStats::vmFlags={
+const std::map<std::string,int> CoWTools::CoWRecordStats::s_vmFlags={
   {"rd",0x00000001},
   {"wr",0x00000002},
   {"ex",0x00000004},
@@ -51,13 +51,13 @@ void CoWTools::CoWRecordStats::parseRecord(std::istream &in){
       len++;
       while(len<(int)line.size()){
 	//std::cerr<<"substr="<<line.substr(len,2)<<std::endl;
-	val|=CoWTools::CoWRecordStats::vmFlags.at(line.substr(len,2));
+	val|=CoWTools::CoWRecordStats::s_vmFlags.at(line.substr(len,2));
 	len+=3;
       }
     }else{
       sscanf(line.c_str()+len,"%8lu",&val);
     }
-    vals[pos]=val;
+    m_vals[pos]=val;
     pos++;
   }
 }
@@ -68,7 +68,7 @@ namespace CoWTools{
     if(m.m_summary){
       char buff[2048];
       snprintf(buff,2048,"VMem= %8lld, RSS= %8lld, PSS= %8lld, Shared= %8lld, Private= %8lld, Swap= %8lld Anon= %8lld",
-	       m.vals[0],m.vals[1],m.vals[2],m.vals[3]+m.vals[4],m.vals[5]+m.vals[6],m.vals[10],m.vals[8]);
+	       m.m_vals[0],m.m_vals[1],m.m_vals[2],m.m_vals[3]+m.m_vals[4],m.m_vals[5]+m.m_vals[6],m.m_vals[10],m.m_vals[8]);
       out<<buff;
     }else{
       char buff[4000];
@@ -87,20 +87,20 @@ namespace CoWTools{
 	       "KernelPageSize: %8lld kB\n" \
 	       "MMUPageSize:    %8lld kB\n" \
 	       "Locked:         %8lld kB\n", 
-	       m.vals[0],
-	       m.vals[1],
-	       m.vals[2],
-	       m.vals[3],
-	       m.vals[4],
-	       m.vals[5],
-	       m.vals[6],
-	       m.vals[7],
-	       m.vals[8],
-	       m.vals[9],
-	       m.vals[10],
-	       m.vals[11],
-	       m.vals[12],
-	       m.vals[13]);
+	       m.m_vals[0],
+	       m.m_vals[1],
+	       m.m_vals[2],
+	       m.m_vals[3],
+	       m.m_vals[4],
+	       m.m_vals[5],
+	       m.m_vals[6],
+	       m.m_vals[7],
+	       m.m_vals[8],
+	       m.m_vals[9],
+	       m.m_vals[10],
+	       m.m_vals[11],
+	       m.m_vals[12],
+	       m.m_vals[13]);
       out<<buff;
     }
     return out;

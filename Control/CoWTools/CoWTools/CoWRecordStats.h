@@ -34,35 +34,35 @@ namespace CoWTools{
 
     inline CoWRecordStats& operator+=(const CoWRecordStats& rhs){
       for(int i=0;i<11;i++){
-	vals[i]+=rhs.vals[i];
+	m_vals[i]+=rhs.m_vals[i];
       }
-      vals[13]+=rhs.vals[13];
+      m_vals[13]+=rhs.m_vals[13];
       //needed only for very detailed
-      //vals[14]|=rhs.vals[14];
+      //m_vals[14]|=rhs.m_vals[14];
       return *this;
     }
 
     inline CoWRecordStats& operator-=(const CoWRecordStats& rhs){
       for(int i=0;i<11;i++){
-	vals[i]-=rhs.vals[i];
+	m_vals[i]-=rhs.m_vals[i];
       }
-      vals[13]-=rhs.vals[13];
+      m_vals[13]-=rhs.m_vals[13];
       //needed only for very detailed
-      //vals[14]|=rhs.vals[14];
+      //m_vals[14]|=rhs.m_vals[14];
       return *this;
     }
     
     inline CoWRecordStats operator-()const{
       CoWRecordStats m(m_summary);
       for(int i=0;i<11;i++){
-	m.vals[i]=-vals[i];
+	m.m_vals[i]=-m_vals[i];
       }
-      m.vals[11]=vals[11];
-      m.vals[12]=vals[12];
-      m.vals[13]=-vals[13];
-      m.vals[14]=vals[14];
+      m.m_vals[11]=m_vals[11];
+      m.m_vals[12]=m_vals[12];
+      m.m_vals[13]=-m_vals[13];
+      m.m_vals[14]=m_vals[14];
       //needed only for very detailed
-      //vals[14]|=rhs.vals[14];
+      //m_vals[14]|=rhs.m_vals[14];
       return m;
     }
     friend CoWRecordStats operator+(const CoWRecordStats& lhs, const CoWRecordStats& rhs){
@@ -73,34 +73,34 @@ namespace CoWTools{
     }
     explicit operator bool() const {
       for(int i=0;i<11;i++){
-	if(vals[i])return true;
+	if(m_vals[i])return true;
       }
       return false;
     }
     friend bool operator<(const CoWRecordStats& a,const CoWRecordStats &b){
-      if((a.vals[5]+a.vals[6])<(b.vals[5]+b.vals[6])){
+      if((a.m_vals[5]+a.m_vals[6])<(b.m_vals[5]+b.m_vals[6])){
 	return true;
-      }else if((a.vals[5]+a.vals[6])==(b.vals[5]+b.vals[6])){
-	if((a.vals[3]+a.vals[4])<(b.vals[3]+b.vals[4])){
+      }else if((a.m_vals[5]+a.m_vals[6])==(b.m_vals[5]+b.m_vals[6])){
+	if((a.m_vals[3]+a.m_vals[4])<(b.m_vals[3]+b.m_vals[4])){
 	  return true;
-	}else if((a.vals[3]+a.vals[4])==(b.vals[3]+b.vals[4])){
-	  return (a.vals[1]<b.vals[1]);
+	}else if((a.m_vals[3]+a.m_vals[4])==(b.m_vals[3]+b.m_vals[4])){
+	  return (a.m_vals[1]<b.m_vals[1]);
 	}
 	return false;
       }
       return false;
     }
     void parseRecord(std::istream &in);
-    long long *  getValueArray(){return vals;}
-    const long long *  getValueArray() const {return vals;}
+    long long *  getValueArray(){return m_vals;}
+    const long long *  getValueArray() const {return m_vals;}
   private:
-    long long vals[20]={0,0,0,0,0,
-			0,0,0,0,0,
-			0,0,0,0,0,
-			0,0,0,0,0};
+    long long m_vals[20]={0,0,0,0,0,
+                          0,0,0,0,0,
+                          0,0,0,0,0,
+                          0,0,0,0,0};
 
     bool m_summary;
-    static const std::map<std::string,int> vmFlags;
+    static const std::map<std::string,int> s_vmFlags;
     friend std::ostream & operator<<(std::ostream &, const CoWTools::CoWRecordStats &m);
   };
 
