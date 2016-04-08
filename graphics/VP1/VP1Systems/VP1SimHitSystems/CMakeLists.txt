@@ -1,0 +1,37 @@
+################################################################################
+# Package: VP1SimHitSystems
+################################################################################
+
+# Declare the package name:
+atlas_subdir( VP1SimHitSystems )
+
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PUBLIC
+                          Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrModel
+                          graphics/VP1/VP1Base
+                          PRIVATE
+                          Control/StoreGate
+                          DetectorDescription/GeoModel/GeoAdaptors
+                          DetectorDescription/GeoPrimitives
+                          ForwardDetectors/ForwardSimulation/ForwardRegion_SimEv
+                          InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetSimEvent
+                          MuonSpectrometer/MuonSimEvent
+                          graphics/VP1/VP1Utils )
+
+# External dependencies:
+find_package( Coin3D )
+find_package( Eigen )
+find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
+
+include_directories( /usr/X11R6/include )
+
+# Component(s) in the package:
+atlas_add_library( VP1SimHitSystems
+                   src/*.c*
+                   PUBLIC_HEADERS VP1SimHitSystems
+                   INCLUDE_DIRS ${QT4_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                   LINK_LIBRARIES ISF_FatrasDetDescrModel VP1Base ${QT4_LIBRARIES} GL StoreGateLib SGtests
+                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${EIGEN_LIBRARIES} GeoAdaptors GeoPrimitives ForwardRegion_SimEv InDetIdentifier InDetSimEvent MuonSimEvent VP1Utils )
+
