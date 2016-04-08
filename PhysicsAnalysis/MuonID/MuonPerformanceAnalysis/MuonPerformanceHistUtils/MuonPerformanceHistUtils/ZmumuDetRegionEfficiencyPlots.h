@@ -9,7 +9,7 @@
 #include "MuonPerformanceHistUtils/MuonTPEfficiencyPlotBase.h"
 
 #include "MuonPerformanceHistUtils/Probe.h"
-#include "MuonEfficiencyCorrections/DetRegionBinning.h"
+#include "MuonPerformanceHistUtils/EtaPhiBinning.h"
 
 ///  This class provides the fine eta-phi binned efficiencies that are used for the reconstruction efficiency scale factors.
 
@@ -27,7 +27,7 @@ class ZmumuDetRegionEfficiencyPlots: public MuonTPEfficiencyPlotBase {
   TH1* detregions;
   TH1* detregions_A;
   TH1* detregions_C;
-  DetRegionBinning m_etaphi;
+  EtaPhiBinning m_etaphi;
 
 };
 
