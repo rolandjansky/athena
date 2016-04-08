@@ -5,7 +5,7 @@
 #include "cmdline.h"
 #include "LumiCalc/LumiCalculator.h"
 #include "LumiCalc/CoolQuery.h"
-#include "LumiCalc/LumiBlockCollectionConverter.h"
+#include "LumiCalc/LumiBlockRangeContainerConverter.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "GoodRunsLists/TGoodRunsList.h"
 #include "GoodRunsLists/TGRLCollection.h"

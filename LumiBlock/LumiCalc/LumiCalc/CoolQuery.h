@@ -29,8 +29,12 @@
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
 
-// LumiBlock includes
+// Need this to keep other packages from failing, should be fixed properly
 #include "LumiBlockData/LumiBlockCollection.h"
+
+// LumiBlock includes
+#include "xAODLuminosity/LumiBlockRangeContainer.h"
+#include "xAODLuminosity/LumiBlockRangeAuxContainer.h"
 #include "AthenaKernel/IOVRange.h"
 #include "AthenaKernel/IOVTime.h"
 
@@ -240,7 +244,7 @@ class CoolQuery{
   // set the "central" IOV range to this time (presumable this comes from some LumiBlockCollection's IOVRange
   // but one in general can create one such object via e.g.:
   //
-  // LumiBlockCollection * iovc = new LumiBlockCollection();
+  //  * iovc = new LumiBlockCollection();
   // iovc->push_back(new IOVRange(IOVTime(runnumber, LBstart), IOVTime(runnumber,LBend)));
   // LumiBlockCollection::const_iterator i = iovc->begin();
   //  

@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LUMICALCULATOR_H
-#define LUMICACLULATOR_H
+#ifndef LUMICALC_LUMICALCULATOR_H
+#define LUMICALC_LUMICALCULATOR_H
 
 
 #include "LumiCalc/CoolQuery.h"
-#include "LumiCalc/LumiBlockCollectionConverter.h"
+#include "LumiCalc/LumiBlockRangeContainerConverter.h"
 #include <vector>
 #include "TH1F.h"
 #include "TTree.h"
@@ -35,7 +35,7 @@ class LumiCalculator{
   void UseLumiMethod(const std::string& method);// i.e. COOL Folder channel
   void UseLumiChannel(int chan);
   void UseLiveTrigger(bool live, std::string& livetrigger);
-  void IntegrateLumi(const LumiBlockCollection * iovc, const std::string& triggerchain);
+  void IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, const std::string& triggerchain);
   void SetCollName(const std::string& lbcollname);
   void setTree(TTree * tree = 0);
 
@@ -245,4 +245,4 @@ class LumiCalculator{
 };
 
 
-#endif //> LUMICALCULATOR_H
+#endif //> LUMICALC_LUMICALCULATOR_H
