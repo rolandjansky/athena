@@ -238,8 +238,6 @@ namespace InDet{
     if (m_bsErrorSvc.retrieve().isFailure()){
       ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } else {
-      ATH_MSG_INFO ("Retrieved service " << m_bsErrorSvc);
     }
  
     if (m_checkBadModules){
@@ -323,7 +321,7 @@ namespace InDet{
 
     //handling of decoding problems
     StatusCode scdec = StatusCode::SUCCESS;
-
+    m_bsErrorSvc->resetCounts();
 
     // Get RoiDescriptor
     const TrigRoiDescriptor* roi;
@@ -395,10 +393,10 @@ namespace InDet{
 
       if (n_err_total){
 	for (size_t idx = 0; idx<size_t(SCT_ByteStreamErrors::NUM_ERROR_TYPES); idx++){
-	  m_SctBSErr.push_back(bsErrors[idx]);
-	  if (bsErrors[idx]){
-	    ATH_MSG_DEBUG(" " << idx << ":" << bsErrors[idx]);
-	  }
+	  //	  m_SctBSErr.push_back(bsErrors[idx]);
+	  if (bsErrors[idx])
+	    m_SctBSErr.push_back(idx);
+	  ATH_MSG_DEBUG(" " << bsErrors[idx]);
 	}
 	ATH_MSG_DEBUG( "" );
       }
