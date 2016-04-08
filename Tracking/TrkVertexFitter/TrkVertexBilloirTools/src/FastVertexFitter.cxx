@@ -35,8 +35,8 @@ namespace
 {
 	struct BilloirTrack
 	{
-		BilloirTrack() : DtWD() {};
-		virtual ~BilloirTrack() {};
+		BilloirTrack() : originalPerigee(nullptr),chi2{} { DtWD.setZero(); DtWDx.setZero(); xpVec.setZero();}
+		virtual ~BilloirTrack() {}
 		const Trk::TrackParameters * originalPerigee;
 		AmgMatrix(3,3) DtWD;
 		Amg::Vector3D DtWDx;
@@ -46,8 +46,8 @@ namespace
 
 	struct BilloirVertex
 	{
-		BilloirVertex() {};
-		virtual ~BilloirVertex() {};
+		BilloirVertex() : chi2{},ndf{} { DtWD_Sum.setZero(); DtWDx_Sum.setZero();}
+		virtual ~BilloirVertex() {}
 		AmgMatrix(3,3) DtWD_Sum;
 		Amg::Vector3D DtWDx_Sum;
 		double chi2;
@@ -364,9 +364,11 @@ namespace Trk
 			{
 				/* Store the vertex */
 				chi2 = chi2New;
-				const AmgMatrix(3,3) * newCovarianceMatrix = &cov_delta_V_mat ;
-				const AmgMatrix(3,3) newErrorMatrix = newCovarianceMatrix->inverse().eval();
-				fittedVertex = RecVertex ( linPoint.position(), newErrorMatrix, ndf, chi2 );
+//				const AmgMatrix(3,3) * newCovarianceMatrix = &cov_delta_V_mat ;
+//				const AmgMatrix(3,3) newErrorMatrix = newCovarianceMatrix->inverse().eval();
+//				fittedVertex = RecVertex ( linPoint.position(), newErrorMatrix, ndf, chi2 );
+                                // The cov_delta_V_mat does not need to be inverted.  -katy 2/3/16
+				fittedVertex = RecVertex ( linPoint.position(), cov_delta_V_mat, ndf, chi2 );
 
 				/* new go through vector and delete entries */
 				for ( std::vector<Trk::VxTrackAtVertex*>::const_iterator itr = tracksAtVertex.begin();
