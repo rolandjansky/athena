@@ -54,7 +54,7 @@ StatusCode SCT_SensorsSvc::queryInterface(const InterfaceID& riid, void** ppvInt
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void SCT_SensorsSvc::getSensorsData(std::vector<std::string> & userVector){ 
+void SCT_SensorsSvc::getSensorsData(std::vector<std::string> & /*userVector*/){ 
 
   //for (unsigned int i(0);i!=m_sensorsValues.size();++i){
   //userVector.push_back(m_sensorsValues[i]); 
