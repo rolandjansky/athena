@@ -14,7 +14,7 @@
 #include "HepMC/GenVertex.h"
 
 // Helper function
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 
 // For finding that file
 #include "PathResolver/PathResolver.h"

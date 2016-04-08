@@ -29,7 +29,6 @@ namespace HepMC {
   class GenParticle;
 }
 class IPartPropSvc;
-class PileUpMergeSvc;
 class McEventCollection;
 
 namespace ISF {
@@ -88,7 +87,6 @@ namespace ISF {
       GenParticleFilters                    m_genParticleFilters;       //!< HepMC::GenParticle filter
 
       ServiceHandle<Barcode::IBarcodeSvc>   m_barcodeSvc;               //!< the ISF barcode service
-      ServiceHandle<PileUpMergeSvc>         m_pMergeSvc;
 
       mutable int     m_largestBc;
       mutable int     m_uniqueBc;
@@ -97,6 +95,8 @@ namespace ISF {
       mutable int     m_current_event_index;
       mutable int     m_current_bcid;
       mutable double  m_bunch_spacing;
+
+      bool m_doHardScatter;
   };
 
 }
