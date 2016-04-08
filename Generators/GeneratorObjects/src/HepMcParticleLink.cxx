@@ -19,10 +19,10 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-const std::string HepMcParticleLink::s_DEFAULTKEY("TruthEvent");
-const std::string HepMcParticleLink::s_DC2DEFAULTKEY("G4Truth");
-const std::string HepMcParticleLink::s_AODKEY("GEN_AOD");
-std::string HepMcParticleLink::s_HOSTKEY;
+const std::string HepMcParticleLink::DEFAULTKEY("TruthEvent");
+const std::string HepMcParticleLink::DC2DEFAULTKEY("G4Truth");
+const std::string HepMcParticleLink::AODKEY("GEN_AOD");
+std::string HepMcParticleLink::HOSTKEY;
 
 namespace {
   MsgStream& mlog() {
@@ -53,13 +53,13 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
     }
     CLID clid = ClassID_traits<McEventCollection>::ID();
     const McEventCollection* pEvtColl(0);
-    if(s_HOSTKEY.empty() ) {
+    if(HOSTKEY.empty() ) {
       if (!find_hostkey()) return 0;
     }
-    SG::DataProxy* proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
+    SG::DataProxy* proxy = m_ptrs.m_dict->proxy (clid, HOSTKEY);
     if (!proxy) {
       if (!find_hostkey()) return 0;
-      proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
+      proxy = m_ptrs.m_dict->proxy (clid, HOSTKEY);
     }
     if (proxy && 
 	(0 != (pEvtColl = SG::DataProxy_cast<McEventCollection> (proxy)))) {
@@ -72,10 +72,10 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
       } else {
 	mlog() << MSG::WARNING 
 	       << "cptr: Mc Truth not stored for event " << eventIndex() 
-	       << endmsg;
+	       << endreq;
       }
     } else {
-      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endmsg;
+      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endreq;
     }
   }
 
@@ -100,30 +100,30 @@ bool HepMcParticleLink::find_hostkey() const
   static unsigned short msgCount(0);
   assert (!m_have_particle);
   CLID clid = ClassID_traits<McEventCollection>::ID();
-  s_HOSTKEY.clear();
-  if (m_ptrs.m_dict->proxy (clid, s_DEFAULTKEY))
-    s_HOSTKEY=s_DEFAULTKEY;
-  else if (m_ptrs.m_dict->proxy (clid, s_DC2DEFAULTKEY))
-    s_HOSTKEY=s_DC2DEFAULTKEY;
-  else if (m_ptrs.m_dict->proxy (clid, s_AODKEY))
-    s_HOSTKEY=s_AODKEY;
-  if (!s_HOSTKEY.empty()) {
-    mlog() << MSG::INFO << "find_hostkey: Using " << s_HOSTKEY
-        <<" as McEventCollection key for this job " << endmsg;
+  HOSTKEY.clear();
+  if (m_ptrs.m_dict->proxy (clid, DEFAULTKEY))
+    HOSTKEY=DEFAULTKEY;
+  else if (m_ptrs.m_dict->proxy (clid, DC2DEFAULTKEY))
+    HOSTKEY=DC2DEFAULTKEY;
+  else if (m_ptrs.m_dict->proxy (clid, AODKEY))
+    HOSTKEY=AODKEY;
+  if (!HOSTKEY.empty()) {
+    mlog() << MSG::INFO << "find_hostkey: Using " << HOSTKEY
+        <<" as McEventCollection key for this job " << endreq;
     return true;
   }
   if (msgCount<CPTRMAXMSGCOUNT) {
     mlog() << MSG::WARNING << "find_hostkey: No Valid MC event Collection found "
-	   <<   endmsg;
+	   <<   endreq;
     ++msgCount;
   } else if (msgCount==CPTRMAXMSGCOUNT) {
     mlog() << MSG::WARNING <<"find_hostkey: suppressing further messages about valid MC event Collection. Use \n"
 	   << "  msgSvc.setVerbose += [HepMcParticleLink]\n"
-	   << "to see all messages" << endmsg;
+	   << "to see all messages" << endreq;
     ++msgCount;
   } else {
     mlog() << MSG::VERBOSE << "find_hostkey: No Valid MC event Collection found "
-	   << endmsg;
+	   << endreq;
   }
   return false;
 }

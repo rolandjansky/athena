@@ -94,9 +94,9 @@ public:
   };
   //@}
   
-  static const std::string s_DEFAULTKEY;
-  static const std::string s_DC2DEFAULTKEY;
-  static const std::string s_AODKEY;
+  static const std::string DEFAULTKEY;
+  static const std::string DC2DEFAULTKEY;
+  static const std::string AODKEY;
 
   bool isValid() const { return (0 != cptr()); }
   const HepMC::GenParticle* cptr() const;
@@ -144,9 +144,7 @@ public:
 
 
  private:
-  friend class HepMcParticleLinkCnv_p1;
-
-  static std::string s_HOSTKEY;
+  static std::string HOSTKEY;
 
   // We need to remember the default data source when we're constructed.
   // But once we have the particle pointer, we don't need it any more.

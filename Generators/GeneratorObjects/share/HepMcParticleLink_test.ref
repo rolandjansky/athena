@@ -1,0 +1,27 @@
+*** GenParticleLink_test starts ***
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/HepMcParticleLink_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Generators/GeneratorObjects/run/../share/HepMcParticleLink_test.txt)
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/HepMcParticleLink_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v1r3p4)
+                                          running on lxplus403.cern.ch on Mon Apr 29 22:58:06 2013
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-39-03
+ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-07
+ClassIDSvc           INFO  getRegistryEntries: read 139 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 139 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-03
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-39-03
+Testing HepMcParticleLink streamer Event index 0, Barcode 10005 --- Event index 1, Barcode 10005
+HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 
+*** GenParticleLink_test OK ***
