@@ -13,13 +13,13 @@
 // <fill me in>
 
 #include <string>
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
 
 class EventInfo;
 
-class TBCondRunParTool: public AlgTool {
+class TBCondRunParTool: public AthAlgTool {
  public:
   TBCondRunParTool(const std::string& type, const std::string& name,
 		   const IInterface* parent);
@@ -61,9 +61,6 @@ class TBCondRunParTool: public AlgTool {
   bool extractCool(const int run);
   bool extractCoolTest(std::string folder, int run) const;
 
-  mutable MsgStream m_log;
-  StoreGateSvc* p_storeGate;
-  StoreGateSvc* p_detstore;
   const DataHandle<EventInfo> m_eventinfo;
   int m_crun;
   int m_cevent;

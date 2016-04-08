@@ -10,6 +10,7 @@ use AtlasPolicy			 AtlasPolicy-*
 
 use GaudiInterface      GaudiInterface-*        External
 use StoreGate           StoreGate-*             Control
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
 use EventInfo           EventInfo-*             Event

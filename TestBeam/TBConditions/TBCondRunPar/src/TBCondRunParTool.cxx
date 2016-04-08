@@ -20,8 +20,8 @@ static const InterfaceID
 
 TBCondRunParTool::TBCondRunParTool(const std::string& type,
          const std::string&name, const IInterface* parent)
-  : AlgTool(type,name,parent), m_log(msgSvc(),name),
-    p_storeGate(0),p_detstore(0),m_crun(-1),m_cevent(-1),m_runpfolder("")
+  : AthAlgTool(type,name,parent), 
+    m_crun(-1),m_cevent(-1),m_runpfolder("")
 {
   declareInterface<TBCondRunParTool>(this);
   declareProperty("RunParamFolder",m_runpfolder);
@@ -35,27 +35,16 @@ const InterfaceID& TBCondRunParTool::interfaceID()
 
 StatusCode TBCondRunParTool::initialize()
 {
-  m_log << MSG::INFO << "In initialize of TBCondRunParTool" << endreq;
-  m_log << MSG::INFO << 
+  ATH_MSG_INFO ( "In initialize of TBCondRunParTool" );
+  ATH_MSG_INFO ( 
     "RunParams will be read from folder: " << m_runpfolder << 
-    " in COOL database" << endreq;
+    " in COOL database" );
   // check StoreGate service available
-  StatusCode sc = service("StoreGateSvc", p_storeGate);
-  if (sc.isFailure())
-  {
-      m_log << MSG::FATAL << "StoreGate service not found" << endreq;
-      return StatusCode::FAILURE;
-  }
-  // get detector store
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq; 
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
 StatusCode TBCondRunParTool::finalize() {
-  m_log << MSG::DEBUG << "Finalize called" << endreq;
+  ATH_MSG_DEBUG ( "Finalize called" );
   return StatusCode::SUCCESS;
 }
 
@@ -63,15 +52,14 @@ bool TBCondRunParTool::checkcache() {
   // find the current run and event - check if data structure may have changed
   int run=0,event=0;
   bool update=false;
-  if (StatusCode::SUCCESS==p_storeGate->retrieve(m_eventinfo)) {
+  if (StatusCode::SUCCESS==evtStore()->retrieve(m_eventinfo)) {
     run=m_eventinfo->event_ID()->run_number();
     event=m_eventinfo->event_ID()->event_number();
   } else {
-    m_log << MSG::ERROR << "Could not retrieve run/event" << endreq;
+    ATH_MSG_ERROR ( "Could not retrieve run/event" );
   }
   if (run!=m_crun || event!=m_cevent) {
-    m_log << MSG::DEBUG << "Retrieve new data for run/event " << run << "/"
-	  << event << endreq;
+    ATH_MSG_DEBUG ( "Retrieve new data for run/event " << run << "/" << event );
     m_crun=run;
     m_cevent=event;
     // access the database and update cached values
@@ -98,11 +86,11 @@ StatusCode TBCondRunParTool::getTable(const std::string table,const int /*irow*/
   nrow=0;
   names.clear();
   rows.clear();
-  m_log << MSG::DEBUG << "getTable: " << table << endreq;
+  ATH_MSG_DEBUG ( "getTable: " << table );
   bool iret = extractCoolTest(std::string("/TILE/DCS/TILE_LV_62/BEAM"), 0);
   // get number of columns and rows
   if(!iret) 
-     m_log << MSG::DEBUG << "extractCoolTest: /TILE/DCS/TILE_LV_62/BEAM failed !" << endreq;
+    ATH_MSG_DEBUG ( "extractCoolTest: /TILE/DCS/TILE_LV_62/BEAM failed !" );
   return StatusCode::SUCCESS;
 }		 
 
@@ -111,13 +99,12 @@ StatusCode TBCondRunParTool::extractVal(
    const std::string name,int& ival) const {
   StatusCode found=StatusCode::FAILURE;
   for (unsigned int icol=0;icol<names.size();++icol) {
-      m_log << MSG::DEBUG << "Check " << icol << " " << names[icol]
-	    << rows[icol] << endreq;
-      if (names[icol]==name) {
-        ival=atoi(rows[icol].c_str());
-	found=StatusCode::SUCCESS;
-	break;
-      }
+    ATH_MSG_DEBUG ( "Check " << icol << " " << names[icol] << rows[icol] );
+    if (names[icol]==name) {
+      ival=atoi(rows[icol].c_str());
+      found=StatusCode::SUCCESS;
+      break;
+    }
   }
   return found;
 }
@@ -127,13 +114,12 @@ StatusCode TBCondRunParTool::extractVal(
    const std::string name,float& fval) const {
   StatusCode found=StatusCode::FAILURE;
   for (unsigned int icol=0;icol<names.size();++icol) {
-      m_log << MSG::DEBUG << "Check " << icol << " " << names[icol]
-	    << rows[icol] << endreq;
-      if (names[icol]==name) {
-        fval=atof(rows[icol].c_str());
-	found=StatusCode::SUCCESS;
-	break;
-      }
+    ATH_MSG_DEBUG ( "Check " << icol << " " << names[icol] << rows[icol] );
+    if (names[icol]==name) {
+      fval=atof(rows[icol].c_str());
+      found=StatusCode::SUCCESS;
+      break;
+    }
   }
   return found;
 }
@@ -143,13 +129,12 @@ StatusCode TBCondRunParTool::extractVal(
    const std::string name,std::string& sval) const {
   StatusCode found=StatusCode::FAILURE;
   for (unsigned int icol=0;icol<names.size();++icol) {
-      m_log << MSG::DEBUG << "Check " << icol << " " << names[icol]
-	    << rows[icol] << endreq;
-      if (names[icol]==name) {
-        sval=rows[icol];
-	found=StatusCode::SUCCESS;
-	break;
-      }
+    ATH_MSG_DEBUG ( "Check " << icol << " " << names[icol] << rows[icol] );
+    if (names[icol]==name) {
+      sval=rows[icol];
+      found=StatusCode::SUCCESS;
+      break;
+    }
   }
   return found;
 }
@@ -157,14 +142,13 @@ StatusCode TBCondRunParTool::extractVal(
 void TBCondRunParTool::printTable(const std::vector<std::string> names,
 				  const std::vector<std::string> rows) const {
   for (unsigned int icol=0;icol<names.size();++icol) 
-    m_log << MSG::INFO << "Column: " << icol <<  " " << names[icol] 
-	  << rows[icol] << endreq;
+    ATH_MSG_INFO ( "Column: " << icol <<  " " << names[icol] << rows[icol] );
 }
 
 StatusCode TBCondRunParTool::getVal(const std::string folder, const unsigned int chnum, float& fval){
       StatusCode found=StatusCode::FAILURE;
       const CondAttrListCollection* atrlist=0;
-      if (StatusCode::SUCCESS==p_detstore->retrieve(atrlist,folder)) {
+      if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,folder)) {
          CondAttrListCollection::const_iterator it   = atrlist->begin();
          CondAttrListCollection::const_iterator last = atrlist->end();
          for (; it != last; ++it) {
@@ -172,14 +156,13 @@ StatusCode TBCondRunParTool::getVal(const std::string folder, const unsigned int
 //                   std::cout << "chan, attr: " << (*it).first << " / "<<(*it).second.toOutputStream(std::cout)<< std::endl;
                    fval =  (*it).second[0].data<float>();
                    found = StatusCode::SUCCESS;
-                   m_log << MSG::DEBUG << "chnum: "<<chnum<<" chan, attr: " << (*it).first <<" fval: "<<fval<<endreq;
+                   ATH_MSG_DEBUG ( "chnum: "<<chnum<<" chan, attr: " << (*it).first <<" fval: "<<fval);
                    break;
                 }
          }
       }
 
       return found;
-
 }
 
 
@@ -188,7 +171,7 @@ bool TBCondRunParTool::extractCool(const int run) {
   bool update=true;
   const AthenaAttributeList* atrlist=0;
   std::string table=m_runpfolder+"/RunParams.RunParams";
-  if (StatusCode::SUCCESS==p_detstore->retrieve(atrlist,table)) {
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,table)) {
     // std::ostringstream atrs;
     // atrlist->print(atrs);
     // m_log << "Attribute list contents: " << atrs.str() << endreq;
@@ -204,13 +187,12 @@ bool TBCondRunParTool::extractCool(const int run) {
     std::ostringstream timeSOR;
     timeSOR << ldata;
     m_time_SOR=timeSOR.str();
-    m_log << MSG::DEBUG <<"run_number: "<<m_run_number<<" m_beam_energy: "<<m_beam_energy<<endreq;
+    ATH_MSG_DEBUG ("run_number: "<<m_run_number<<" m_beam_energy: "<<m_beam_energy);
     // check consistency
     m_status=0;
     if (m_run_number!=run) m_status=1;
   } else {
-    m_log << MSG::ERROR << "Cannot retrieve AttributeList for " << table <<
-      endreq;
+    ATH_MSG_ERROR ( "Cannot retrieve AttributeList for " << table );
     m_status=1;
   }
   return update;
@@ -219,9 +201,9 @@ bool TBCondRunParTool::extractCool(const int run) {
 bool TBCondRunParTool::extractCoolTest(const std::string folder, const int /*run*/) const{
   bool update=true;
   const CondAttrListCollection* atrlist=0;
-  if (StatusCode::SUCCESS==p_detstore->retrieve(atrlist,folder)) {
+  if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,folder)) {
 //   std::ostringstream atrs;
-   m_log << MSG::DEBUG << "Attribute list contents: " <<endreq;
+    ATH_MSG_DEBUG ( "Attribute list contents: " );
    atrlist->dump();
   }
   return update;
