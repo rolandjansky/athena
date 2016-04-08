@@ -121,6 +121,26 @@ namespace Muon {
       return (*this);
   }
 
+  CompetingMuonClustersOnTrack& CompetingMuonClustersOnTrack::operator=(CompetingMuonClustersOnTrack&& compROT) {
+      if (this!=&compROT) {
+        Trk::CompetingRIOsOnTrack::operator=(std::move(compROT));
+
+        clearChildRotVector();
+        delete m_containedChildRots;
+        m_containedChildRots = compROT.m_containedChildRots;
+        compROT.m_containedChildRots = nullptr;
+
+        delete m_globalPosition;
+        m_globalPosition = compROT.m_globalPosition;
+        compROT.m_globalPosition = nullptr;
+
+        delete m_associatedSurface;
+        m_associatedSurface = compROT.m_associatedSurface;
+        compROT.m_associatedSurface = nullptr;
+      }
+      return (*this);
+  }
+
   CompetingMuonClustersOnTrack::~CompetingMuonClustersOnTrack() {
     delete m_globalPosition;
     clearChildRotVector();
@@ -131,9 +151,10 @@ namespace Muon {
   }
 
   void CompetingMuonClustersOnTrack::clearChildRotVector() {
-    std::vector<const MuonClusterOnTrack*>::const_iterator rotIter = m_containedChildRots->begin();
-    for (; rotIter!=m_containedChildRots->end(); ++rotIter)
-      delete (*rotIter);
+    if (m_containedChildRots) {
+      for (const MuonClusterOnTrack* cl : *m_containedChildRots)
+        delete cl;
+    }
   }
 
   MsgStream& CompetingMuonClustersOnTrack::dump( MsgStream& out ) const {

@@ -24,6 +24,9 @@ private
 use GaudiInterface          GaudiInterface-*             External
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 
+apply_pattern lcgdict dict=MuonCompetingRIOsOnTrack selectionfile=selection.xml headerfiles="../MuonCompetingRIOsOnTrack/MuonCompetingRIOsOnTrackDict.h"
+
 #macro DOXYGEN_IMAGE_PATH "../doc/images"
 macro DOXYGEN_INLINE_INHERITED_MEMB "YES"
+
 
