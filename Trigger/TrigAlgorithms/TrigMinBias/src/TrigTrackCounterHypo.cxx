@@ -22,6 +22,8 @@ m_log(msgSvc(), name) {
   // Monitoring
   declareMonitoredVariable("NTrksHypo", m_ntrksHypo);
   declareMonitoredVariable("NTrksSelected", m_ntrksSelected);
+
+  m_trigTrackCounts = 0;
 }
 
 //---------------------------------------------------------------------------------
