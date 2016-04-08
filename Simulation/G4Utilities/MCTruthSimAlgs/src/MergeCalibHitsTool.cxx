@@ -58,10 +58,10 @@ StatusCode MergeCalibHitsTool::prepareEvent(unsigned int nInputEvents) {
 }
 
 StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
-                                                PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
+                                                            SubEventIterator bSubEvents,
+                                                            SubEventIterator eSubEvents)
+{
+  SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
     // MergeCalibHitsTool should only write out the hits from the signal event.
     if(!m_firstSubEvent) {
@@ -69,7 +69,7 @@ StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
       break;
     }
 
-    if( iEvt->type()==PileUpTimeEventIndex::Signal ) {
+    if( iEvt->type()==xAOD::EventInfo_v1::PileUpType::Signal ) {
       ATH_MSG_DEBUG ( " Found the Signal event! " );
     }
     else {
@@ -77,7 +77,7 @@ StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
       ++iEvt;
       continue;
     }
-    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
     // loop over containers
     for (unsigned int iHitContainer=0;iHitContainer<m_CalibrationHitContainer.size();++iHitContainer) {
       ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process CalibrationHit container " << m_CalibrationHitContainer[iHitContainer] );

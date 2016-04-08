@@ -27,13 +27,16 @@ StatusCode MergeHijingParsTool::prepareEvent(unsigned int nInputEvents) {
   m_firstSubEvent=true;
   return StatusCode::SUCCESS;
 }
+
 StatusCode MergeHijingParsTool::processBunchXing(int bunchXing,
-                                                 PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                 PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+                                                SubEventIterator bSubEvents,
+                                                SubEventIterator eSubEvents)
+{
+  ATH_MSG_VERBOSE ( "processBunchXing()" );
   //We are only interested in the HijingEventParams for the original event
   if(m_firstSubEvent && bunchXing==0) {
     if (bSubEvents != eSubEvents) {
-      StoreGateSvc& seStore(*bSubEvents->pSubEvtSG);
+      StoreGateSvc& seStore(*bSubEvents->ptr()->evtStore());
       const HijingEventParams *hijing_pars(0);
       if (seStore.retrieve(hijing_pars, m_key.value()).isSuccess()) {
 
