@@ -1,0 +1,35 @@
+package RecExCommission
+
+author Rob McPherson <Robert.McPherson@cern.ch>
+author Walter Lampl
+author Jamie Boyd
+
+branches run
+use AtlasPolicy		AtlasPolicy-01-* 
+# use AthenaCommon        AthenaCommon-*    Control
+# use AthenaRunTime       AthenaRunTime-* Control
+use AtlasReconstructionRunTime AtlasReconstructionRunTime-*
+
+use TestPolicy          TestPolicy-*
+
+# #for root tuple
+# use RootHistCnv         v*    
+# use AtlasROOT           AtlasROOT-*        External  
+# 
+# use RDBAccessSvc RDBAccessSvc-* Database/AthenaPOOL
+
+#---------------------------------------------------------------------
+# use ByteStreamCnvSvc  ByteStreamCnvSvc-*  Event
+# use AthenaMonitoring         AthenaMonitoring-*         Control
+
+#---------------------------------------------------------------------
+# The following commands aid in the establishment of the run-time environment
+# and should not be modified.
+   
+# apply_pattern install_runtime method=-symlink
+# apply_pattern install_xmls
+
+apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern declare_python_modules files="*.py"
+apply_pattern get_files data="PDGTABLE.MeV"
+apply_pattern declare_scripts files="RecExCommissionData_links.sh RecExCommission_links.sh RecExCommissionData_links.csh"
