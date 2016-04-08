@@ -72,6 +72,12 @@ private:
   /// events have beams of the sort that the analysis was written to expect.
   bool m_ignorebeams;
 
+  /// @brief Whether to avoid the finalize() Rivet step
+  ///
+  /// Default is false: analyses will finalize event loop histograms with normalizations,
+  /// scalings, divisions, etc. This may be useful for run combining iy yodamerge is not working.
+  bool m_skipfinalize;
+
   /// @brief Will we convert Rivet's internal histo format into a ROOT histo for streaming with THistSvc?
   ///
   /// The default is yes
