@@ -2,7 +2,7 @@
 // @algName@.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "@packageName@/@algName@.h"
+#include "@algName@.h"
 
 //================ Constructor =================================================
 
@@ -10,8 +10,7 @@
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n)
+  AthAlgTool(t,n,p)
 {
   declareInterface<I@algName@>(this);
 
@@ -31,10 +30,9 @@ StatusCode @nameSpace@::@algName@::initialize()
 {
   
   StatusCode sc = AlgTool::initialize();
-  m_log.setLevel(outputLevel());
   if (sc.isFailure()) return sc;
 
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  ATH_MSG_INFO ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 

@@ -5,8 +5,7 @@
 #ifndef @CppKey@_H
 #define @CppKey@_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "@packageName@/I@algName@.h"
 
 class AtlasDetectorID;
@@ -26,7 +25,7 @@ namespace @nameSpace@
       @author  @authorName@ <@authorMail@>
   */  
 
-  class @algName@ : virtual public I@algName@, public AlgTool
+  class @algName@ : virtual public I@algName@, public AthAlgTool
     {
     public:
       @algName@(const std::string&,const std::string&,const IInterface*);
@@ -41,10 +40,6 @@ namespace @nameSpace@
       
     private:
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
-
       /** member variables for algorithm properties: */
       // int/double/bool  m_propertyName;
       

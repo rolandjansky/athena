@@ -5,9 +5,8 @@ author @authorName@ <@authorMail@>
 public
 
 use AtlasPolicy AtlasPolicy-* 
-use StoreGate StoreGate-* Control
+use AthenaBaseComps     AthenaBaseComps-*        Control
 
-apply_pattern declare_joboptions files="*.py"
 apply_pattern component_library
 library @packageName@ *.cxx components/*.cxx
 

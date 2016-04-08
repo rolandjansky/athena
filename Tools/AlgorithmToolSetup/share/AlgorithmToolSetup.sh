@@ -158,9 +158,11 @@ authorName=""
 while [ "$authorName" == "" ]
 do 
   echo
-  echo "  o--------------------------o"
-  echo "  | Please enter YOUR NAME:  |"
-  echo "  o--------------------------o"
+  echo "  o----------------------------o"
+  echo "  | Please enter YOUR NAME:    |"
+  echo "  | (not as mail address, that |"
+  echo "  |  will be the next question)|"
+  echo "  o----------------------------o"
   echo
   read authorName
 done
@@ -185,7 +187,6 @@ then
     mkdir -p $targetDir/src
     mkdir -p $targetDir/src/components
     mkdir -p $targetDir/cmt
-    mkdir -p $targetDir/share
     mkdir -p $targetDir/doc
 fi
 #
@@ -200,11 +201,11 @@ else
   type="alg"
 fi
 cp $srcDir/source_$type.templ $targetDir/src/$algName.cxx
-cp $srcDir/header_$type.templ $targetDir/$packageName/$algName.h
+cp $srcDir/header_$type.templ $targetDir/src/$algName.h
 if [ $isInsert -eq 0 ] 
 then
   cp $srcDir/requirements.templ $targetDir/cmt/requirements
-  cp $srcDir/version.templ $targetDir/cmt/version
+  cp $srcDir/version.templ $targetDir/cmt/version.cmt
   cp $srcDir/mainpage.templ $targetDir/doc/mainpage.h
   cp $srcDir/entries_$type.templ $targetDir/src/components/${packageName}_entries.cxx
   cp $srcDir/load.templ $targetDir/src/components/${packageName}_load.cxx
@@ -221,7 +222,7 @@ fi
 #
 cppKey=`echo "${nameSpace}${algName}" | tr "[:lower:]" "[:upper:]"` 
 today=`date +%F`
-fileList="$targetDir/src/$algName.cxx $targetDir/$packageName/$algName.h  $targetDir/ChangeLog"
+fileList="$targetDir/src/$algName.cxx $targetDir/src/$algName.h  $targetDir/ChangeLog"
 if [ $isInsert -eq 0 ] 
 then
   fileList="$fileList $targetDir/cmt/requirements $targetDir/cmt/version.cmt  $targetDir/doc/mainpage.h $targetDir/src/components/${packageName}_entries.cxx $targetDir/src/components/${packageName}_load.cxx"

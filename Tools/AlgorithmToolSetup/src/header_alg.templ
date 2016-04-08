@@ -6,13 +6,11 @@
 #define @CppKey@_H
 
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 class AtlasDetectorID;
 class Identifier;
-class StoreGateSvc;
 
 namespace @nameSpace@ 
 {
@@ -28,7 +26,7 @@ namespace @nameSpace@
       @author  @authorName@ <@authorMail@>
   */  
 
-  class @algName@ : public Algorithm
+  class @algName@ : public AthAlgorithm
     {
     public:
 
@@ -46,12 +44,6 @@ namespace @nameSpace@
 
     private:
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
-      /** class member version of retrieving StoreGate */
-      StoreGateSvc*  m_sgSvc;
-
       /** member variables for algorithm properties: */
       // int/double/bool  m_propertyName;
       
