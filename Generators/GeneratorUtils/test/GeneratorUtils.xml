@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<atn>
+  <TEST name="StringParseTest" type="makecheck" suite="Generators-Core">
+    <package>Generators/GeneratorUtils</package>
+    <timelimit>5</timelimit>
+    <author>Andy Buckley</author>
+    <mailto>atlas-generators-software@cern.ch</mailto>
+    <expectations>
+      <returnValue>0</returnValue>
+    </expectations>
+  </TEST>
+</atn>
