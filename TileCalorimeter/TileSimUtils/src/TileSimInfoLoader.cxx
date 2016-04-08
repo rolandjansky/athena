@@ -21,7 +21,7 @@
 
 
 TileSimInfoLoader::TileSimInfoLoader(const std::string& name, ISvcLocator* pSvcLocator)
-  : Service(name, pSvcLocator)
+  : AthService(name, pSvcLocator)
   , m_detStore(0)
   , m_tileSimInfo(0)
   , m_deltaTHit(4)
@@ -55,41 +55,24 @@ TileSimInfoLoader::~TileSimInfoLoader()
 
 StatusCode TileSimInfoLoader::initialize() {
 
-  StatusCode sc = Service::initialize();
-  if (sc.isFailure())   return sc;
-
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO << "Initializing " << name() << endreq ;
-
-  sc = service("DetectorStore",m_detStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to get pointer to Detector Store Service" << endreq;
-    return sc;
-  }
+  ATH_MSG_INFO ( "Initializing " << name() );
+  ATH_CHECK( AthService::initialize() );
+  ATH_CHECK(  service("DetectorStore",m_detStore) );
 
 
   TileG4SimOptions* info = new TileG4SimOptions();
   m_tileSimInfo = info ;
 
-  sc = m_detStore->record(info,info->whoami());
+  StatusCode sc = m_detStore->record(info,info->whoami());
 
   if (sc.isFailure()) {
-    log << MSG::ERROR 
-        << "Failed to register new TileG4SimOptions in the detector store." 
-        << endreq;
+    ATH_MSG_ERROR
+      ( "Failed to register new TileG4SimOptions in the detector store." );
     delete info;
 
     //retrieve TileSimInfo from detector store.
-    sc = m_detStore->retrieve(m_tileSimInfo);
-    if (sc.isFailure()) {
-      log << MSG::FATAL
-          << "Unable to get pointer to TileG4SimOptions - SOMETHING IS WRONG!!!"
-          << endreq;
-      return sc;
-    } else {
-      log << MSG::ERROR << "Updating existing TileG4SimOptions" << endreq;
-    }
+    ATH_CHECK( m_detStore->retrieve(m_tileSimInfo) );
+    ATH_MSG_ERROR ( "Updating existing TileG4SimOptions" );
   }
 
   //Change TileG4SimOptions by the values from jobOptions
@@ -102,7 +85,7 @@ StatusCode TileSimInfoLoader::initialize() {
   m_tileSimInfo->SetDoTileRow(m_doTileRow);
   m_tileSimInfo->SetDoTOFCorrection(m_doTOFCorrection);
   
-  log << MSG::INFO << (std::string)(*m_tileSimInfo) << endreq;
+  ATH_MSG_INFO ( (std::string)(*m_tileSimInfo) );
 
   //log << MSG::INFO << "Locking TileG4SimOptions in StoreGate" << endreq;
   //StatusCode sc = m_storeGate->setConst(m_tileSimInfo);
@@ -112,9 +95,7 @@ StatusCode TileSimInfoLoader::initialize() {
 
 
 StatusCode TileSimInfoLoader::finalize() {
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "TileSimInfoLoader::finalize()" << endreq;
-
+  ATH_MSG_INFO ( "TileSimInfoLoader::finalize()" );
   return Service::finalize();
 }
 

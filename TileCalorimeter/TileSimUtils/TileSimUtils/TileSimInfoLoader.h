@@ -14,7 +14,7 @@
 #define TILESIMINFOLOADER_H
 
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 
 #include <string>
 #include <vector>
@@ -34,7 +34,7 @@ static const InterfaceID IID_TileSimInfoLoader("TileSimInfoLoader", 1 , 0);
 *       to G4 simulation of TileCal via jobOptions 
 */
 
-class TileSimInfoLoader : public Service  
+class TileSimInfoLoader : public AthService  
 {
  public:
 
