@@ -79,7 +79,7 @@ class muComb : public HLT::FexAlgo
 		 double&, double&, double&, double&, double&, int&);
 
   int    g4Match(const xAOD::L2StandAloneMuon* feature,
-                 double, double, double, double,
+                 double, double, double, double, double, double, double,
 		 double&, double&, double&, double&, double&, int&);
 
  private:
