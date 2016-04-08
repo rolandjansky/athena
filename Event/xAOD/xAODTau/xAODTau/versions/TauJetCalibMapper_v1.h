@@ -42,6 +42,9 @@ struct TauJetCalibTypeMapper_v1 {
      case TauJetParameters::PanTauCellBased:
        stringName = "PanTauCellBased";
        return true;              
+     case TauJetParameters::TrigCaloOnly:
+       stringName = "TrigCaloOnly";
+       return true;
      }//switch
      return false;
    }//getValue

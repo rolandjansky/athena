@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v2.h 665021 2015-05-05 15:52:38Z janus $
+// $Id: TauJet_v2.h 699667 2015-10-09 12:39:03Z bburghgr $
 #ifndef XAODTAU_VERSIONS_TAUJET_V2_H
 #define XAODTAU_VERSIONS_TAUJET_V2_H
 
@@ -109,6 +109,11 @@ namespace xAOD {
     double etaPanTauCellBased() const;
     double phiPanTauCellBased() const;
     double mPanTauCellBased() const;
+
+    double ptTrigCaloOnly() const;
+    double etaTrigCaloOnly() const;
+    double phiTrigCaloOnly() const;
+    double mTrigCaloOnly() const;
 
     /// The type of the object as a simple enumeration
     virtual Type::ObjectType type() const;

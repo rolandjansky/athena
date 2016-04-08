@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v2.cxx 631921 2014-11-28 16:11:59Z janus $
+// $Id: TauJet_v2.cxx 699667 2015-10-09 12:39:03Z bburghgr $
 
 
 // System include(s):
@@ -86,6 +86,12 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mPanTauCellBased)
 
+  //primitive setters and getters for HLT 4-vector
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptTrigCaloOnly)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaTrigCaloOnly)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiTrigCaloOnly)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mTrigCaloOnly)
+
 
   double TauJet_v2::e() const {
     // Check if we need to reset the cached object:
@@ -149,6 +155,9 @@ namespace xAOD {
 	break;
       case TauJetParameters::PanTauCellBased:
 	m_p4.SetPtEtaPhiM( ptPanTauCellBased(), etaPanTauCellBased(), phiPanTauCellBased(), mPanTauCellBased());
+	break;
+      case TauJetParameters::TrigCaloOnly:
+	m_p4.SetPtEtaPhiM( ptTrigCaloOnly(), etaTrigCaloOnly(), phiTrigCaloOnly(), mTrigCaloOnly());
 	break;
       default:
 	m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());

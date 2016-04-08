@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauxAODHelpers.h 604646 2014-07-02 15:32:07Z janus $
+// $Id: TauxAODHelpers.h 699770 2015-10-09 16:29:20Z griffith $
 #ifndef XAOD_TAUXAODHELPERS_H
 #define XAOD_TAUXAODHELPERS_H
 
@@ -29,5 +29,7 @@ namespace xAOD {
   }// TauHelpers
 
 } // namespace xAOD
+
+#include "xAODTau/TauxAODHelpers.icc"
   
 #endif // XAOD_TAUXAODHELPERS_H

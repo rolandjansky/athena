@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 688432 2015-08-10 14:15:53Z lhauswal $
+// $Id: TauDefs.h 704731 2015-10-30 00:14:34Z griffith $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -210,9 +210,9 @@ namespace TauJetParameters
       stripWidth2,
       /// Get number of strips
       nStrip,
-      /// Get calibrated EM transverse energy
+      /// Get calibrated EM transverse energy (DEPRECATED since r19)
       etEMCalib,
-      /// Get calibrated hadronic transverse energy
+      /// Get calibrated hadronic transverse energy (DEPRECATED since r19)
       etHadCalib,
       /// Get eta of TauJet calculated from calorimeter
       seedCalo_eta,
@@ -334,10 +334,11 @@ namespace TauJetParameters
         IntermediateAxis=2,
         TauEnergyScale=3,
         TauEtaCalib=4,
-	PanTauEFlowRecProto=5,  //4-vector by using eflowRec pfos in seed
-	PanTauEFlowRec=6,   //4-vector by adjusting eflowRec pfos using decay mode
-	PanTauCellBasedProto=7, //4-vector by using CellBased pfos in seed
-	PanTauCellBased=8  //4-vector by adjusting CellBased pfos using decay mode
+        PanTauEFlowRecProto=5,  //4-vector by using eflowRec pfos in seed
+        PanTauEFlowRec=6,   //4-vector by adjusting eflowRec pfos using decay mode
+        PanTauCellBasedProto=7, //4-vector by using CellBased pfos in seed
+        PanTauCellBased=8,  //4-vector by adjusting CellBased pfos using decay mode
+        TrigCaloOnly=9
     };
 
 
