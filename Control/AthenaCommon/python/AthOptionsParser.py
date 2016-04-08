@@ -4,7 +4,7 @@
 # @purpose the central module to parse command line options of athena.py
 # @date December 2009
 
-__version__ = "$Revision: 708288 $"
+__version__ = "$Revision: 721711 $"
 __doc__ = "a module to parse command line options for athena.py"
 __author__ = "Sebastien Binet"
 
@@ -25,7 +25,7 @@ _userlongopts = [
     "loglevel=", "showincludes", "trace=", "check-properties",
     "version", "preconfig=",
     "leak-check=", "leak-check-execute", "delete-check=", "heapmon",
-    "perfmon", "pmon=", "repeat-evts=",
+    "perfmon", "pmon=", "repeat-evts=", "profile-python=",
     "enable-ers-hdlr=",
     "keep-configuration","drop-configuration", "drop-and-reload", "config-only=",
     "dump-configuration=",
@@ -61,6 +61,7 @@ Accepted command line options:
      --delete-check=<stage>           ...  perform double delete checking.
                                            This disables the use of tcmalloc.
      --heapmon                        ...  enable heap fragmentation profiling tool, HeapMon 
+     --profile-python=<file>.pkl|txt  ...  profile python code, dump in <file>.pkl|txt
  -c, --command                        ...  one-liner, runs before any scripts
  -h, --help                           ...  print this help message
  -l, --loglevel <level>               ...  logging level (ALL, VERBOSE, DEBUG,
@@ -142,6 +143,7 @@ def parse(chk_tcmalloc=True):
     opts.do_leak_chk = False     # default is not to do any leak checking
     opts.memchk_mode = ''        # no mode selected by default 
     opts.do_heap_mon = False     # default is not to do any heap monitoring
+    opts.profile_python = None   # set to file name to collect and dump python profile
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
     opts.threads = 0             # enable Hive if >= 1
     opts.debug_worker = False    # pause AthenaMP worker after bootstrap until SIGUSR1 received
@@ -306,6 +308,14 @@ def parse(chk_tcmalloc=True):
         elif opt in ("--heapmon",):
             opts.do_heap_mon = True
             
+        elif opt in ("--profile-python",):
+            pos = arg.rfind('.')
+            if pos < 0 or (arg[pos+1:] != "txt" and arg[pos+1:] != "pkl"):
+               print "no recognizable profile output requested (%s): assuming txt" % arg
+               opts.profile_python = arg + ".txt"
+            else:
+               opts.profile_python = arg
+
         elif opt in ("--perfmon", "--pmon"):
             allowed = _allowed_values['pmon']
             if not arg:
@@ -386,7 +396,7 @@ def parse(chk_tcmalloc=True):
 
     # Unconditionally set this environment (see JIRA ATEAM-241)
     # This behavior can be controlled by a flag, if needed
-    os.environ['LIBC_FATAL_STDERR_']='1'        
+    os.environ['LIBC_FATAL_STDERR_']='1'
 
     # overwrite nprovs if ATHENA_PROC_NUMBER is set
     envNProcs = os.getenv('ATHENA_PROC_NUMBER')

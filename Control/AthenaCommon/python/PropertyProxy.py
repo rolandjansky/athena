@@ -51,14 +51,12 @@ def _isCompatible( tp, value ):
  # compatibility check that relies on conversion (which will always fail
  # for configurables) is acceptable.
 
-   errmsg = "received an instance of %s, but %s expected" % (type(value),tp)
-
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)
-      raise ValueError( errmsg )
+      raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
    elif ( tp == int or tp == long ) and type(value) == float:
     # special case, insist on strict match for integer types
-      raise ValueError( errmsg )
+      raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
    else:
     # all other types: accept if conversion allowed
       try:
@@ -72,7 +70,7 @@ def _isCompatible( tp, value ):
             raise ValueError( "received non-convertible type %s, but builtin type expected" % type(value) )
          else:
           # this is a complete miss and the error message will be clear
-            raise ValueError( errmsg )
+            raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
 
    return value         # in case of e.g. classes with __int__, __iter__, etc. implemented
 
