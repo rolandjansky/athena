@@ -11,6 +11,7 @@ namespace Muon {
     
     // clear entries
     for( auto entry : intBlocks ) entry.first.get()->clear();
+    for( auto entry : unsignedIntBlocks ) entry.first.get()->clear();
     for( auto entry : floatBlocks ) entry.first.get()->clear();
     for( auto entry : subBlocks )   entry.first->clear();
 
@@ -22,12 +23,26 @@ namespace Muon {
     //for( auto entry : floatBlocks ) delete entry.first.get();
   }
 
+ 
 
   void MuonValidationBlockBase::init( std::string prefix, TTree* tree, bool write ) {
-    for( auto entry : intBlocks ) {
+    
+
+     for( auto entry : intBlocks ) {
+       if( tree ){
+         if( write ){
+           entry.first.get() = new std::vector<int>();
+           tree->Branch( (prefix + entry.second).c_str(),           entry.first.get());
+         }else{
+           tree->SetBranchAddress( (prefix + entry.second).c_str(), &entry.first.get());
+         }
+       }
+     }
+
+    for( auto entry : unsignedIntBlocks ) {
       if( tree ){
         if( write ){
-          entry.first.get() = new std::vector<int>();
+          entry.first.get() = new std::vector<unsigned int>();
           tree->Branch( (prefix + entry.second).c_str(),           entry.first.get());
         }else{
           tree->SetBranchAddress( (prefix + entry.second).c_str(), &entry.first.get());
@@ -65,6 +80,7 @@ namespace Muon {
     addBlock(&track,"");
     addBlock(&truth,"");
     addBlock(type,"type");
+    addBlock(stage,"stage");
     addBlock(gasgapId,"gasgapId");
     addBlock(r,"r");
     addBlock(z,"z");
@@ -101,6 +117,7 @@ namespace Muon {
   MuonValidationTruthBlock::MuonValidationTruthBlock() {
     addBlock(pdg,"pdg");
     addBlock(barcode,"barcode");
+    addBlock(beta,"beta");
   }
 
   MuonValidationSegmentBlock::MuonValidationSegmentBlock() {
@@ -141,12 +158,25 @@ namespace Muon {
     addBlock(&residuals,"");
   }
 
+  MuonValidationCandidateBlock::MuonValidationCandidateBlock() {
+    addBlock(ntimes,"ntimes");
+    addBlock(chi2ndof,"chi2ndof");
+    addBlock(beta,"beta");
+    addBlock(nseg,"nseg");
+    addBlock(nprec,"nprec");
+    addBlock(ntrigPhi,"ntrigPhi");
+    addBlock(ntrigEta,"ntrigEta");
+    addBlock(stage,"stage");
+    addBlock(&track,"");
+  }
+
   MuonInsideOutValidationNtuple::MuonInsideOutValidationNtuple() {
     addBlock(&trackParticleBlock,"trk_");
     addBlock(&segmentBlock,"seg_");
     addBlock(&houghBlock,"hou_");
     addBlock(&hitBlock,"hit_");
     addBlock(&timeBlock,"time_");
+    addBlock(&candidateBlock,"candidate_");
   }
 
 }
