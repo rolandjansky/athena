@@ -4,11 +4,14 @@ author Simon George
 
 public
 use AtlasPolicy                AtlasPolicy-*                   
+
 private
 use AthenaBaseComps            AthenaBaseComps-*       Control
 use GaudiInterface             GaudiInterface-*        External
 use TrigT1Result               TrigT1Result-*          Trigger/TrigT1
-use L1TopoRDO	     		L1TopoRDO-*		Trigger/TrigT1/L1Topo
+use L1TopoRDO	     	       L1TopoRDO-*	       Trigger/TrigT1/L1Topo
+use L1TopoConfig               L1TopoConfig-*          Trigger/TrigT1/L1Topo
+use TrigConfInterfaces         TrigConfInterfaces-*    Trigger/TrigConfiguration
 end_private
 
 library L1TopoMonitoring *.cxx components/*.cxx

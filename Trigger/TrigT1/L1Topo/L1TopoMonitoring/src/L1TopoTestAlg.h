@@ -6,6 +6,12 @@
 #define L1TOPOMONITORING_L1TOPOTESTALG_H 1
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+
+namespace TrigConf {
+  class IL1TopoConfigSvc;
+}
+
 class L1TopoTestAlg: public AthAlgorithm {
  public:
   L1TopoTestAlg(const std::string& name, ISvcLocator* pSvcLocator );
@@ -13,7 +19,7 @@ class L1TopoTestAlg: public AthAlgorithm {
   StatusCode execute();
   StatusCode finalize();
  private:
-  int m_blah;
+  ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;
 };
 
 #endif // L1TOPOMONITORING_L1TOPOTESTALG_H
