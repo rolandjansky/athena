@@ -5,7 +5,7 @@
 #include "TGCcablingInterface/TGCIdBase.h"
 
 
-TGCIdBase::TGCIdBase (TGCIdBase::IdType vtype=NoIdType) : 
+TGCIdBase::TGCIdBase (TGCIdBase::IdType vtype) : 
                                                channelType(NoChannelIdType), 
                                                side(NoSideType),
                                                module(NoModuleType),

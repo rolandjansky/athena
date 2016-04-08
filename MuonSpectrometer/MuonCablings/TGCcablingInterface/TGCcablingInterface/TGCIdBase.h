@@ -37,7 +37,7 @@ public:
 		      MaxChannelIdType};
  
   // Constructor & Destructor
-  TGCIdBase (IdType vtype);
+  TGCIdBase (IdType vtype=NoIdType);
   virtual ~TGCIdBase (void);
   
  
