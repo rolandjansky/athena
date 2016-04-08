@@ -3,21 +3,16 @@ package McParticleEventAthenaPool
 author Sebastien Binet <binet@cern.ch>
 
 use AtlasPolicy          	AtlasPolicy-*
-
 use GaudiInterface       	GaudiInterface-*        	External
-use AtlasHepMC			AtlasHepMC-*			External
-
-use StoreGate			StoreGate-*			Control
-use DataModelAthenaPool		DataModelAthenaPool-*		Control
-
 use AthenaPoolUtilities  	AthenaPoolUtilities-*   	Database/AthenaPOOL
+
+private
+use StoreGate			StoreGate-*			Control
 use AthenaPoolCnvSvc     	AthenaPoolCnvSvc-*      	Database/AthenaPOOL
-
-use GeneratorObjects		GeneratorObjects-*		Generators
-
 use McParticleEvent        	McParticleEvent-*         	PhysicsAnalysis/TruthParticleID
 use McParticleKernel        	McParticleKernel-*         	PhysicsAnalysis/TruthParticleID
 use McParticleEventTPCnv       	McParticleEventTPCnv-*         	PhysicsAnalysis/TruthParticleID
+end_private
 
 branches src share
 
