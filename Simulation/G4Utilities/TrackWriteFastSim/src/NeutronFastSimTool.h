@@ -26,6 +26,8 @@ protected:
   virtual G4VFastSimulationModel* makeFastSimModel() override final;
 private:
   ToolHandle<ISensitiveDetector> m_trackFastSimSDTool;
+  double m_etaCut; ///!< Eta cut for primaries
+  double m_timeCut; ///!< Time cut for neutrons
 };
 
 #endif // TRACKWRITEFASTSIM_NeutronFastSimTool_h
