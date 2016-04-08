@@ -42,20 +42,26 @@ class MmDigit : public MuonDigit {
 
   /** Full constructor --- From Identifier and time */ 
  
-  MmDigit(const Identifier& id, std::vector<float> stripResponseTime, std::vector<int> stripResponsePosition, std::vector<float> stripResponseCharge, 
-                                std::vector<float> chipResponseTime, std::vector<int> chipResponsePosition, std::vector<float> chipResponseCharge,
-                                int stripForTrigger, float stripTimeForTrigger);
+  MmDigit(const Identifier& id,
+          const std::vector<float>& stripResponseTime,
+          const std::vector<int>& stripResponsePosition,
+          const std::vector<float>& stripResponseCharge, 
+          const std::vector<float>& chipResponseTime,
+          const std::vector<int>& chipResponsePosition,
+          const std::vector<float>& chipResponseCharge,
+          int stripForTrigger,
+          float stripTimeForTrigger);
 
   // Is this a valid digit?
   bool is_valid(const MmIdHelper * mmHelper) const;
   
    /** strip response info */
   /** return the time */
-  const std::vector<float> stripResponseTime() const { return m_stripResponseTime; }
+  const std::vector<float>& stripResponseTime() const { return m_stripResponseTime; }
   /** Return the strip position */
-  const std::vector<int> stripResponsePosition() const { return m_stripResponsePosition; }
+  const std::vector<int>& stripResponsePosition() const { return m_stripResponsePosition; }
   /** Return the charge */
-  const std::vector<float> stripResponseCharge() const { return m_stripResponseCharge; }
+  const std::vector<float>& stripResponseCharge() const { return m_stripResponseCharge; }
   /** Return the stripForTrigger */
   int stripForTrigger() const { return m_stripForTrigger; }
   /** Return the charge */
@@ -63,11 +69,11 @@ class MmDigit : public MuonDigit {
 
    /** chip response info */
   /** return the time */
-  const std::vector<float> chipResponseTime() const { return m_chipResponseTime; }
+  const std::vector<float>& chipResponseTime() const { return m_chipResponseTime; }
   /** Return the strip position */
-  const std::vector<int> chipResponsePosition() const { return m_chipResponsePosition; }
+  const std::vector<int>& chipResponsePosition() const { return m_chipResponsePosition; }
   /** Return the charge */
-  const std::vector<float> chipResponseCharge() const { return m_chipResponseCharge; }
+  const std::vector<float>& chipResponseCharge() const { return m_chipResponseCharge; }
 
 
 
