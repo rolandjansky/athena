@@ -16,6 +16,7 @@ class RawInfoSummaryForTag_p1
 {
 public:
   RawInfoSummaryForTag_p1()
+    : MBTStimeAvg(-99), LArECtimeAvg(-99)
   {
      // NOTE: If you add new data members to this class, they need to be initialized here
      // so they have a defined value when reading old data
