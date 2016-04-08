@@ -20,7 +20,7 @@
 
 #include "TrigInDetAnalysis/TrackAssociator.h"
 #include "TrigInDetAnalysis/Track.h"
-// #include "Resplot/Directory.h"
+#include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
 
@@ -43,8 +43,8 @@ public:
   /// standard operation interface 
   virtual void initialise() = 0;
  
-  virtual void execute( const std::vector<TrigInDetAnalysis::Track*>& tracks1,
-			const std::vector<TrigInDetAnalysis::Track*>& tracks2,
+  virtual void execute( const std::vector<TIDA::Track*>& tracks1,
+			const std::vector<TIDA::Track*>& tracks2,
 			TrackAssociator* matcher ) = 0;
   
   virtual void finalise() = 0;
@@ -62,9 +62,10 @@ public:
   std::map<std::string, TH1*>::const_iterator end()   const { return m_histos.end(); }
 
   /// set the beamline positions
-  void  setBeamRef( double x, double y ) {  m_xBeamReference = x;  m_yBeamReference = y; } 
-  void setBeamTest( double x, double y ) {  m_xBeamTest = x;  m_yBeamTest = y; } 
+  void  setBeamRef( double x, double y, double z=0 ) {  m_xBeamReference = x;  m_yBeamReference = y; m_zBeamReference = z; } 
+  void setBeamTest( double x, double y, double z=0 ) {  m_xBeamTest      = x;       m_yBeamTest = y;      m_zBeamTest = z; }
 
+  TIDA::FeatureStore& store() { return m_store; }
 
 protected:
  
@@ -80,10 +81,14 @@ protected:
   /// reference sample 
   double m_xBeamReference;
   double m_yBeamReference;
+  double m_zBeamReference;
 
   /// test sample
   double m_xBeamTest;
   double m_yBeamTest;
+  double m_zBeamTest;
+
+  TIDA::FeatureStore m_store;
 
 };
 

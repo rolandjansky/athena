@@ -1,12 +1,12 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    TrackVertex.h        
+//   @file    TIDAVertex.h        
 //
 //                   
 //  
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrackVertex.h, v0.0   Thu 22 Apr 2010 15:32:23 BST sutt $
+//   $Id: TIDAVertex.h, v0.0   Thu 22 Apr 2010 15:32:23 BST sutt $
 
 
 #ifndef __TRACKVERTEX_H
@@ -17,13 +17,15 @@
 #include "TObject.h"
 
 
-class TrackVertex : public TObject {
+namespace TIDA { 
+
+class Vertex : public TObject {
 
 public:
 
-  TrackVertex(double  x=0, double  y=0, double  z=0,
-	      double dx=0, double dy=0, double dz=0, 
-	      int Ntracks=0, double c2=0, int dof=0 ) { 
+  Vertex(double  x=0, double  y=0, double  z=0,
+	 double dx=0, double dy=0, double dz=0, 
+	 int Ntracks=0, double c2=0, int dof=0 ) { 
     m_x[0] = x;
     m_x[1] = y;
     m_x[2] = z;
@@ -37,7 +39,7 @@ public:
     m_ndof = dof;
   } 
 
-  TrackVertex(const TrackVertex& v) : TObject(v) { 
+  Vertex(const TIDA::Vertex& v) : TObject(v) { 
     for ( int i=3 ; i-- ; ) m_x[i]  = v.m_x[i];
     for ( int i=3 ; i-- ; ) m_dx[i] = v.m_dx[i];
     m_Ntracks=v.m_Ntracks;
@@ -46,13 +48,21 @@ public:
   }
 
 
-  virtual ~TrackVertex();
+  virtual ~Vertex();
 
   const double* position() const { return m_x; }
   double*       position()       { return m_x; }
 
+  double x() const { return m_x[0]; }
+  double y() const { return m_x[1]; }
+  double z() const { return m_x[2]; }
+
   const double* error() const { return m_dx; }
   double*       error()       { return m_dx; }
+
+  double dx() const { return m_dx[0]; }
+  double dy() const { return m_dx[1]; }
+  double dz() const { return m_dx[2]; }
 
   int Ntracks() const  { return m_Ntracks; }
 
@@ -69,13 +79,14 @@ private:
   double m_chi2;
   int    m_ndof;
 
-  ClassDef(TrackVertex,2)
+  ClassDef(TIDA::Vertex,2)
 
 };
 
 
+}
 
-inline std::ostream& operator<<( std::ostream& s, const TrackVertex& _t ) { 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Vertex& _t ) { 
   return s <<  "[ x=" << _t.position()[0]  << " +- " << _t.error()[0]
 	   <<  "\ty=" << _t.position()[1]  << " +- " << _t.error()[1]
 	   <<  "\tz=" << _t.position()[2]  << " +- " << _t.error()[2]

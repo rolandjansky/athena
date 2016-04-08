@@ -19,8 +19,8 @@
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
 //
-namespace TrigInDetAnalysis {
-  class Track;
+namespace TIDA { 
+class Track;
 }
 
 class TIDARoiDescriptor;
@@ -32,7 +32,7 @@ public:
 
   Filter_AcceptAll() { } 
 
-  bool select(const TrigInDetAnalysis::Track* /*t*/, const TIDARoiDescriptor* /*r=0*/ ) { return true; }
+  bool select(const TIDA::Track* /*t*/, const TIDARoiDescriptor* /*r=0*/ ) { return true; }
 
 };
 

@@ -1,8 +1,8 @@
 // emacs: this is -*- c++ -*-
 /** @file Track.h */
 
-#ifndef TRIGINDETANALYSIS_TRACK_H
-#define TRIGINDETANALYSIS_TRACK_H
+#ifndef TIDA_TRACK_H
+#define TIDA_TRACK_H
 
 #include <iostream>
 #include <iomanip>
@@ -12,14 +12,15 @@
 
 #include "TObject.h"
 
-namespace TrigInDetAnalysis {
+namespace TIDA {
   
+
 class Track  : public TObject {
     
 public:
     
   Track();
-  Track(double  eta, double  phi, double  z0, double  a0, double  pT, double chi2,
+  Track(double  eta, double  phi, double  z0, double  a0, double  pT, double chi2, double dof,
 	double deta, double dphi, double dz0, double da0, double dpT, 
 	int bLayerHits=0, int pixelHits=0, int sctHits=0, int siHits=0,
 	int strawHits=0,  int trHits=0, 
@@ -41,6 +42,7 @@ public:
   double pT()  const { return m_pT; }
 
   double chi2() const {return m_chi2;}
+  double dof()  const {return m_dof;}
   
   double deta() const {return m_deta;}
   double dphi() const {return m_dphi;}
@@ -48,14 +50,24 @@ public:
   double da0()  const {return m_da0;}
   double dpT()  const {return m_dpT;}  
 
-  int pixelHits()  const  { return m_pixelHits; }
-  bool expectBL()  const  { return m_expectBL; }
-  int sctHits()    const  { return m_sctHits; }
-  int siHits()     const  { return m_siHits; }
-  int bLayerHits() const  { return m_bLayerHits; }
+  int  pixelHits()  const  { return m_pixelHits%1000; }
+  bool expectBL()   const  { return m_expectBL; }
+  int  sctHits()    const  { return m_sctHits%1000; }
+  int  siHits()     const  { return m_siHits%1000; }
+  int  bLayerHits() const  { return m_bLayerHits%1000; }
 
-  int strawHits()  const {return m_strawHits;}
-  int trHits()     const {return m_trHits;}  
+  int strawHits()  const {return m_strawHits%1000;}
+  int trHits()     const {return m_trHits%1000;}  
+
+
+  int  pixelHoles()  const  { return m_pixelHits/1000; }
+  int  sctHoles()    const  { return m_sctHits/1000; }
+  int  siHoles()     const  { return m_siHits/1000; }
+  int  bLayerHoles() const  { return m_bLayerHits/1000; }
+
+  int strawHoles()  const {return m_strawHits/1000;}
+  int trHoles()     const {return m_trHits/1000;}  
+
 
   unsigned hitPattern()   const { return m_hitPattern; } 
   unsigned multiPattern() const { return m_multiPattern; } 
@@ -100,9 +112,13 @@ protected:
   
   // Track parameters
   double m_eta,  m_phi,  m_z0,  m_a0,  m_pT,  m_chi2;
+  double m_dof; 
   double m_deta, m_dphi, m_dz0, m_da0, m_dpT;
 
-  // Track hits
+  /// Track hits and holes - encoded as 
+  /// 1000*nholes + nhits the relevant %1000 or /1000
+  /// should be performed by the relevant accessor to 
+  /// return either the number of hits or holes
   int m_bLayerHits, m_pixelHits, m_sctHits, m_siHits;
   int m_strawHits, m_trHits;
   
@@ -124,7 +140,7 @@ protected:
   /// identifier
   unsigned long m_id;
 
-  ClassDef(TrigInDetAnalysis::Track,5);
+  ClassDef(TIDA::Track,6);
 
 };
   
@@ -139,7 +155,7 @@ inline std::string hextobin(const unsigned& h, int nbits=32) {
 }
 
   
-inline std::ostream& operator<<( std::ostream& s, const TrigInDetAnalysis::Track& t) { 
+inline std::ostream& operator<<( std::ostream& s, const TIDA::Track& t) { 
     return s<< "[ " 
 	    << "\teta=" << t.eta()
 	    << "\tphi=" << t.phi()
@@ -148,11 +164,12 @@ inline std::ostream& operator<<( std::ostream& s, const TrigInDetAnalysis::Track
       //  << "\tpT="  << t.pT() 
 	    << "\td0="  << t.a0() 
 	    << "\thp=0x" << std::hex << t.hitPattern() << std::dec << "  "
-      	    << "\thpb="  << hextobin(t.hitPattern(),20)
+      // << "\thpb="  << hextobin(t.hitPattern(),20)
+	    << "\tchi2=" << t.chi2() << "/" << t.dof()  
 	    << "\talgo=" << t.author()
 	    << "\tid=0x" << std::hex << t.id() << std::dec
 	    << "\t] ";
 }
 
 
-#endif // TRIGINDETANALYSIS_TRACK_H
+#endif // TIDA_TRACK_H
