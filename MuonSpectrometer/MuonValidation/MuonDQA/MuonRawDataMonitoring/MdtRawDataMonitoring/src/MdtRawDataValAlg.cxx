@@ -379,8 +379,8 @@ StatusCode MdtRawDataValAlg::bookHistogramsRecurrent( /*bool isNewEventsBlock, b
       m_hardware_name_list.insert(hardware_name);
       chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (mdthitsperchamber_InnerMiddleOuterLumi[chamber->GetBarrelEndcapEnum()]));
       chamber->SetMDTHitsPerChamber_IMO_Bin(dynamic_cast<TH2F*> (mdthitsperchamber_InnerMiddleOuter_HighOcc[chamber->GetBarrelEndcapEnum()]));
-      chamber->SetMDTHitsPerML_byLayer_Bins(dynamic_cast<TH2F*> (mdthitspermultilayerLumi[chamber->GetRegionEnum()][chamber->GetLayerEnum()]),
-          dynamic_cast<TH2F*> (mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
+      chamber->SetMDTHitsPerML_byLayer_Bins(dynamic_cast<TH2F*> (mdthitspermultilayerLumi[chamber->GetRegionEnum()][chamber->GetLayerEnum()])
+          ,dynamic_cast<TH2F*> (mdthitsperML_byLayer[ (chamber->GetLayerEnum() < 3 ? chamber->GetLayerEnum() : 0) ]));
       if(m_doChamberHists){
         sc = bookMDTHistograms(chamber, *itr); 
       }
@@ -952,49 +952,49 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
   //////////////////////////////////////////////////////////////////////////////////////   
   if(m_do_mdttdc) 
     sc = bookMDTHisto_chambers(chamber->mdttdc, hardware_name + "_MDT_Station_TDC", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdc trigger type RPC ML1 ADC Cut
   //////////////////////////////////////////////////////////////////////////////////////   
   if(m_do_mdttdccut_RPCtrig_ML1) 
     sc = bookMDTHisto_chambers(chamber->mdttdccut_RPCtrig_ML1, hardware_name + "_MDT_Station_TDC_ADCCut_RPCtrig_ML1", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdc trigger type TGC ML1
   //////////////////////////////////////////////////////////////////////////////////////   
   if(m_do_mdttdccut_TGCtrig_ML1) 
     sc = bookMDTHisto_chambers(chamber->mdttdccut_TGCtrig_ML1, hardware_name + "_MDT_Station_TDC_ADCCut_TGCtrig_ML1", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdc trigger type RPC ML2 ADC Cut
   //////////////////////////////////////////////////////////////////////////////////////   
   if(m_do_mdttdccut_RPCtrig_ML2) 
     sc = bookMDTHisto_chambers(chamber->mdttdccut_RPCtrig_ML2, hardware_name + "_MDT_Station_TDC_ADCCut_RPCtrig_ML2", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdc trigger type TGC ML2
   //////////////////////////////////////////////////////////////////////////////////////   
   if(m_do_mdttdccut_TGCtrig_ML2) 
     sc = bookMDTHisto_chambers(chamber->mdttdccut_TGCtrig_ML2, hardware_name + "_MDT_Station_TDC_ADCCut_TGCtrig_ML2", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdccut ML1
   ////////////////////////////////////////////////////////////////////////////////////// 
   if(m_do_mdttdccut_ML1) 
     sc = bookMDTHisto_chambers(chamber->mdttdccut_ML1, hardware_name + "_MDT_Station_TDC_ML1_ADCCut", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
 
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt tdccut ML2
   ////////////////////////////////////////////////////////////////////////////////////// 
   if(m_do_mdttdccut_ML2) 
     sc = bookMDTHisto_chambers(chamber->mdttdccut_ML2, hardware_name + "_MDT_Station_TDC_ML2_ADCCut", "[nsec]", "Number of Entries",
-        80, 0, 1400., *mongroup_chambers_expert);
+        120, 0, 2000., *mongroup_chambers_expert);
   ////////////////////////////////////////////////////////////////////////////////////// 
   //histo path for mdt adc on segment ML1
   ////////////////////////////////////////////////////////////////////////////////////// 
@@ -1067,7 +1067,7 @@ StatusCode MdtRawDataValAlg::bookMDTHistograms( MDTChamber* chamber, Identifier 
     //histo path for mdt tdcadc 
     if(m_do_mdttdcadc) 
       sc = bookMDTHisto_chambers_2D(chamber->mdttdcadc, hardware_name + "_MDT_Station_TDCADC", "[nsec]", "[adc counts]",
-          80, 0, 1400., 40. ,0., 400., *mongroup_chambers_expert);
+          120, 0, 2000., 40. ,0., 400., *mongroup_chambers_expert);
 
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for mdt drift radius vs drift time
@@ -1102,21 +1102,21 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
   if( (newLowStatInterval && !m_isOnline) || (m_isOnline && newRun) ){
     //Book tdc adccut per region per lowStat
     sc = bookMDTHisto_overview(overalltdccut_segm_PR_Lumi[enumBarrelA], "MDTTDC_segm_Summary_ADCCut_BA", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_brA_shiftLumi);
+        120, 0., 2000.,mg->mongroup_brA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccut_segm_PR_Lumi[enumBarrelC], "MDTTDC_segm_Summary_ADCCut_BC", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_brC_shiftLumi);
+        120, 0., 2000.,mg->mongroup_brC_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccut_segm_PR_Lumi[enumEndCapA], "MDTTDC_segm_Summary_ADCCut_EA", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_ecA_shiftLumi);
+        120, 0., 2000.,mg->mongroup_ecA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccut_segm_PR_Lumi[enumEndCapC], "MDTTDC_segm_Summary_ADCCut_EC", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_ecC_shiftLumi);
+        120, 0., 2000.,mg->mongroup_ecC_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi[enumBarrelA], "MDTTDC_Summary_ADCCut_BA", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_brA_shiftLumi);
+        120, 0., 2000.,mg->mongroup_brA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi[enumBarrelC], "MDTTDC_Summary_ADCCut_BC", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_brC_shiftLumi);
+        120, 0., 2000.,mg->mongroup_brC_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi[enumEndCapA], "MDTTDC_Summary_ADCCut_EA", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_ecA_shiftLumi);
+        120, 0., 2000.,mg->mongroup_ecA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi[enumEndCapC], "MDTTDC_Summary_ADCCut_EC", "[nsec]", "Number of Entries",
-        80, 0., 1400.,mg->mongroup_ecC_shiftLumi);
+        120, 0., 2000.,mg->mongroup_ecC_shiftLumi);
     
     //Book adc adccut per region on & off segment
     sc = bookMDTHisto_overview(overalladc_segm_PR_Lumi[enumBarrelA], "MDTADC_segm_Summary_BA", "[adc counts]", "Number of Entries",
@@ -1146,30 +1146,30 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
 
     //TriggerAware TDC
     sc = bookMDTHisto_overview(overalltdccutPRLumi_RPCtrig[enumBarrelA], "MDTTDC_Summary_ADCCut_BA_RPC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_brA_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_brA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_RPCtrig[enumBarrelC], "MDTTDC_Summary_ADCCut_BC_RPC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_brC_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_brC_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_RPCtrig[enumEndCapA], "MDTTDC_Summary_ADCCut_EA_RPC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_ecA_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_ecA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_RPCtrig[enumEndCapC], "MDTTDC_Summary_ADCCut_EC_RPC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_ecC_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_ecC_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_TGCtrig[enumBarrelA], "MDTTDC_Summary_ADCCut_BA_TGC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_brA_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_brA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_TGCtrig[enumBarrelC], "MDTTDC_Summary_ADCCut_BC_TGC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_brC_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_brC_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_TGCtrig[enumEndCapA], "MDTTDC_Summary_ADCCut_EA_TGC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_ecA_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_ecA_shiftLumi);
     sc = bookMDTHisto_overview(overalltdccutPRLumi_TGCtrig[enumEndCapC], "MDTTDC_Summary_ADCCut_EC_TGC", "[nsec]", 
-        "Number of Entries", 80, 0., 1400.,mg->mongroup_ecC_shiftLumi);
+        "Number of Entries", 120, 0., 2000.,mg->mongroup_ecC_shiftLumi);
 
     //Book tdcadc per region per lowStat
-    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumBarrelA], "Overall_TDCADC_spectrum_BA", "[nsec]", "[adc counts]", 80, 0, 1400.,
+    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumBarrelA], "Overall_TDCADC_spectrum_BA", "[nsec]", "[adc counts]", 120, 0, 2000.,
         40. ,0., 400., mg->mongroup_brA_shiftLumi);        
-    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumBarrelC], "Overall_TDCADC_spectrum_BC", "[nsec]", "[adc counts]", 80, 0, 1400.,
+    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumBarrelC], "Overall_TDCADC_spectrum_BC", "[nsec]", "[adc counts]", 120, 0, 2000.,
         40. ,0., 400., mg->mongroup_brC_shiftLumi);        
-    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumEndCapA], "Overall_TDCADC_spectrum_EA", "[nsec]", "[adc counts]", 80, 0, 1400.,
+    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumEndCapA], "Overall_TDCADC_spectrum_EA", "[nsec]", "[adc counts]", 120, 0, 2000.,
         40. ,0., 400., mg->mongroup_ecA_shiftLumi);        
-    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumEndCapC], "Overall_TDCADC_spectrum_EC", "[nsec]", "[adc counts]", 80, 0, 1400.,
+    sc = bookMDTHisto_overview_2D(overalltdcadcPRLumi[enumEndCapC], "Overall_TDCADC_spectrum_EC", "[nsec]", "[adc counts]", 120, 0, 2000.,
         40. ,0., 400., mg->mongroup_ecC_shiftLumi);        
 
     
@@ -1320,30 +1320,30 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
                                     100, 0., 400.,mg->mongroup_ecA_shift);
         sc = bookMDTHisto_overview(overalladcPR_HighOcc[enumEndCapC], "MDTADC_NoiseBursts_EC", "[adc counts]", "Number of Entries",
                                     100, 0., 400.,mg->mongroup_ecC_shift);
-        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumBarrelA], "Overall_TDCADC_spectrum_BA_NoiseBursts", "[nsec]", "[adc counts]", 80, 0, 1400.,
+        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumBarrelA], "Overall_TDCADC_spectrum_BA_NoiseBursts", "[nsec]", "[adc counts]", 120, 0, 2000.,
             40, 0., 400., mg->mongroup_brA_shift);        
-        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumBarrelC], "Overall_TDCADC_spectrum_BC_NoiseBursts", "[nsec]", "[adc counts]", 80, 0, 1400.,
+        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumBarrelC], "Overall_TDCADC_spectrum_BC_NoiseBursts", "[nsec]", "[adc counts]", 120, 0, 2000.,
             40, 0., 400., mg->mongroup_brC_shift);        
-        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumEndCapA], "Overall_TDCADC_spectrum_EA_NoiseBursts", "[nsec]", "[adc counts]", 80, 0, 1400.,
+        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumEndCapA], "Overall_TDCADC_spectrum_EA_NoiseBursts", "[nsec]", "[adc counts]", 120, 0, 2000.,
             40, 0., 400., mg->mongroup_ecA_shift);        
-        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumEndCapC], "Overall_TDCADC_spectrum_EC_NoiseBursts", "[nsec]", "[adc counts]", 80, 0, 1400.,
+        sc = bookMDTHisto_overview_2D(overalltdcadcPR_HighOcc[enumEndCapC], "Overall_TDCADC_spectrum_EC_NoiseBursts", "[nsec]", "[adc counts]", 120, 0, 2000.,
             40, 0., 400., mg->mongroup_ecC_shift);       
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc[enumBarrelA], "MDTTDC_NoiseBursts_BA", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_brA_shift);
+            120, 0., 2000.,mg->mongroup_brA_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc[enumBarrelC], "MDTTDC_NoiseBursts_BC", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_brC_shift);
+            120, 0., 2000.,mg->mongroup_brC_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc[enumEndCapA], "MDTTDC_NoiseBursts_EA", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_ecA_shift);
+            120, 0., 2000.,mg->mongroup_ecA_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc[enumEndCapC], "MDTTDC_NoiseBursts_EC", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_ecC_shift);
+            120, 0., 2000.,mg->mongroup_ecC_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc_ADCCut[enumBarrelA], "MDTTDC_NoiseBursts_ADCCut_BA", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_brA_shift);
+            120, 0., 2000.,mg->mongroup_brA_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc_ADCCut[enumBarrelC], "MDTTDC_NoiseBursts_ADCCut_BC", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_brC_shift);
+            120, 0., 2000.,mg->mongroup_brC_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc_ADCCut[enumEndCapA], "MDTTDC_NoiseBursts_ADCCut_EA", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_ecA_shift);
+            120, 0., 2000.,mg->mongroup_ecA_shift);
         sc = bookMDTHisto_overview(overalltdcPR_HighOcc_ADCCut[enumEndCapC], "MDTTDC_NoiseBursts_ADCCut_EC", "[nsec]", "Number of Entries",
-            80, 0., 1400.,mg->mongroup_ecC_shift);
+            120, 0., 2000.,mg->mongroup_ecC_shift);
         /////////////////////////////////////////////////
         // Book occupancy as function of lumiblock
         /////////////////////////////////////////////////
@@ -1479,13 +1479,13 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           mdttdccut_sector[iecap][ilayer][iPhi] = 0;
           if(m_do_mdttdccut_sector){
             if(iecap==0) sc=bookMDTHisto_overview(mdttdccut_sector[iecap][ilayer][iPhi], m_title_MDTTDCSummary.c_str(),
-                "[nsec]", "number of entries", 80, 0, 1400, mg->mongroup_brA_tdc_expert);
+                "[nsec]", "number of entries", 120, 0, 2000., mg->mongroup_brA_tdc_expert);
             if(iecap==1) sc=bookMDTHisto_overview(mdttdccut_sector[iecap][ilayer][iPhi], m_title_MDTTDCSummary.c_str(),
-                "[nsec]", "number of entries", 80, 0, 1400, mg->mongroup_brC_tdc_expert);
+                "[nsec]", "number of entries", 120, 0, 2000., mg->mongroup_brC_tdc_expert);
             if(iecap==2) sc=bookMDTHisto_overview(mdttdccut_sector[iecap][ilayer][iPhi], m_title_MDTTDCSummary.c_str(),
-                "[nsec]", "number of entries", 80, 0, 1400, mg->mongroup_ecA_tdc_expert);
+                "[nsec]", "number of entries", 120, 0, 2000., mg->mongroup_ecA_tdc_expert);
             if(iecap==3) sc=bookMDTHisto_overview(mdttdccut_sector[iecap][ilayer][iPhi], m_title_MDTTDCSummary.c_str(),
-                "[nsec]", "number of entries", 80, 0, 1400, mg->mongroup_ecC_tdc_expert);
+                "[nsec]", "number of entries", 120, 0, 2000., mg->mongroup_ecC_tdc_expert);
           }
 
           if(sc.isFailure()) { 
@@ -1513,13 +1513,13 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdccut spectrum
     sc = bookMDTHisto_overview(overalltdccutLumi, "Overall_TDC_ADCCut_spectrum", "[nsec]", "Number of Entries",
-        80, 0., 1400., mg->mongroup_overview_shiftLumi);
+        120, 0., 2000., mg->mongroup_overview_shiftLumi);
 
     
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdccut spectrum (along segms)
     sc = bookMDTHisto_overview(overalltdccut_segm_Lumi, "Overall_TDC_onSegm_ADCCut_spectrum", "[nsec]", "Number of Entries", 
-        80, 0., 1400., mg->mongroup_overview_shiftLumi);
+        120, 0., 2000., mg->mongroup_overview_shiftLumi);
 
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall adc spectrum (along segms)
@@ -1561,18 +1561,18 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
         "Number of Events", 200, 0., 800., mg->mongroup_overview_shiftLumi);
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdc vs adc spectrum 
-    sc = bookMDTHisto_overview_2D(overalltdcadcLumi, "Overall_TDCADC_spectrum", "[nsec]", "[adc counts]", 80, 0, 1400.,
+    sc = bookMDTHisto_overview_2D(overalltdcadcLumi, "Overall_TDCADC_spectrum", "[nsec]", "[adc counts]", 120, 0, 2000.,
         40. ,0., 400., mg->mongroup_overview_shiftLumi);  
 
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdccut RPCtrig spectrum 
     sc = bookMDTHisto_overview(overalltdccut_RPCtrig, "Overall_TDC_ADCCut_RPCtrig_spectrum", "[nsec]", "Number of Entries",
-        80, 0., 1400., mg->mongroup_overview_shiftLumi);
+        120, 0., 2000., mg->mongroup_overview_shiftLumi);
 
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for overall tdccut TGCtrig spectrum 
     sc = bookMDTHisto_overview(overalltdccut_TGCtrig, "Overall_TDC_ADCCut_TGCtrig_spectrum", "[nsec]", "Number of Entries",
-        80, 0., 1400., mg->mongroup_overview_shiftLumi);
+        120, 0., 2000., mg->mongroup_overview_shiftLumi);
 
 
   }
@@ -1598,14 +1598,14 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
 	    ////////////////////////////////////////////////////////////////////////////////////// 
 	    //histo path for overall tdccut spectrum
 	    sc = bookMDTHisto_overview(overalltdcHighOcc, "Overall_TDC_spectrum_NoiseBursts", "[nsec]", "Number of Entries",
-	        80, 0., 1400., mg->mongroup_overview_shift);
+	        120, 0., 2000., mg->mongroup_overview_shift);
 	    ////////////////////////////////////////////////////////////////////////////////////// 
 	    //histo path for overall adc spectrum
 	    sc = bookMDTHisto_overview(overalladc_HighOcc, "Overall_ADC_spectrum_NoiseBursts", "[adc counts]", "Number of Entries", 
 	        100, 0., 400., mg->mongroup_overview_shift);
 	    ////////////////////////////////////////////////////////////////////////////////////// 
 	    //histo path for overall tdc vs adc spectrum 
-	    sc = bookMDTHisto_overview_2D(overalltdcadcHighOcc, "Overall_TDCADC_spectrum_NoiseBursts", "[nsec]", "[adc counts]", 80, 0, 1400.,
+	    sc = bookMDTHisto_overview_2D(overalltdcadcHighOcc, "Overall_TDCADC_spectrum_NoiseBursts", "[nsec]", "[adc counts]", 120, 0, 2000.,
 	       40. ,0., 400., mg->mongroup_overview_shift);  
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for Number_of_MDTs_with_hits_per_event 
@@ -1792,8 +1792,8 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     mdthitsperchamber_InnerMiddleOuterLumi[ibarrel]->SetEntries(mdthitsperchamber_InnerMiddleOuterLumi[ibarrel]->GetEntries()+1);
     
     mdthitspermultilayerLumi[iregion][ilayer]->AddBinContent(chamber->GetMDTHitsPerML_Bin(mlayer_n), 1. );
-    mdthitspermultilayerLumi[iregion][ilayer]->SetEntries(mdthitspermultilayerLumi[iregion][ilayer]->GetEntries()+1);
-
+    mdthitspermultilayerLumi[iregion][ilayer]->SetEntries(mdthitspermultilayerLumi[iregion][ilayer]->GetEntries()+1); 
+    
     //We put the "extras" on the inner histogram to avoid creating separate histogram.
     mdthitsperML_byLayer[(ilayer < 3 ? ilayer : enumInner)]->AddBinContent(chamber->GetMDTHitsPerML_byLayer_Bin(mlayer_n), 1.) ;
     mdthitsperML_byLayer[(ilayer < 3 ? ilayer : enumInner)]->SetEntries(mdthitsperML_byLayer[(ilayer < 3 ? ilayer : enumInner)]->GetEntries()+1) ;
@@ -1974,12 +1974,17 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
             }
           }
           int m_mdtMultLayer = m_mdtIdHelper->multilayer(tmpid);
-          if(chamber->mdtadc_onSegm_ML1 && m_mdtMultLayer == 1){
+          //chamber->mdtadc_onSegm->Fill(mrot->prepRawData()->adc());
+  	  if(chamber->mdtadc_onSegm_ML1 && m_mdtMultLayer == 1){
         	  chamber->mdtadc_onSegm_ML1->Fill(mrot->prepRawData()->adc()); 
-          }
+          	  //sumADC_ML1 += mrot->prepRawData()->adc();
+	  	 // numHits_ML1++;
+	  }
           if(chamber->mdtadc_onSegm_ML2&& m_mdtMultLayer == 2){
         	  chamber->mdtadc_onSegm_ML2->Fill(mrot->prepRawData()->adc());       	  
-          }
+     		 // sumADC_ML2 += mrot->prepRawData()->adc();
+		 // numHits_ML2++;
+ 	     }
         }
         // This information needs to be stored fully for each segment (for calculations below), so deal with these duplicates later
         // (otherwise we may not check a traversed ML for a differently pointing overlapping segment, for example)
