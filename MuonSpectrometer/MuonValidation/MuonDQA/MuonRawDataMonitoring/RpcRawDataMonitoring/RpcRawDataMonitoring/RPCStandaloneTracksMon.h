@@ -116,6 +116,14 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   
   ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiSvc;
   ServiceHandle< LVL1::RecMuonRoiSvc > m_tgcRoiSvc;
+  ToolHandle<Trig::TrigDecisionTool>   m_trigDec  ;
+  
+  StringProperty  m_triggerChainGroupRegExp   ;
+  StringProperty  m_triggerChainGroupRegNot   ;
+  BooleanProperty m_selectTriggerChainGroup   ;
+  BooleanProperty m_deselectTriggerChainGroup ;
+  const Trig::ChainGroup*      m_chainGroupSelect ;  
+  const Trig::ChainGroup*      m_chainGroupVeto ;  
   
   StatusCode RPC_ROI_Mapping();
   
@@ -264,6 +272,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   std::vector<TH1F*> hRPCPhiEtaCoinThr       ;
   std::vector<TH1F*> hRPCPadThr              ;
   std::vector<TH1F*> hRPCMuctpiThr           ;
+  std::vector<TH1F*> hRPCPhiEtaCoinThr_eff   ;
+  std::vector<TH1F*> hRPCPadThr_eff          ;
+  std::vector<TH1F*> hRPCMuctpiThr_eff       ;
    
   std::vector<double> etaminpad   ;
   std::vector<double> etamaxpad   ;
@@ -532,7 +543,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   double  irpc_clus_time     ;   
   double  irpc_clus_posx     ;   
   double  irpc_clus_posy     ;   
-  double  irpc_clus_posz     ;   
+  double  irpc_clus_posz     ;    
+  double  irpc_clus_poseta   ;   
+  double  irpc_clus_posphi   ;   
    
   int     irpc_clus_stationII  ;
   int     irpc_clus_etaII      ;    
@@ -546,7 +559,9 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   double  irpc_clus_timeII     ;   
   double  irpc_clus_posxII     ;   
   double  irpc_clus_posyII     ;   
-  double  irpc_clus_poszII     ;  
+  double  irpc_clus_poszII     ;     
+  double  irpc_clus_posetaII   ;   
+  double  irpc_clus_posphiII   ;
 
   int strip                 ; 
   
@@ -599,6 +614,8 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   std::vector<double> Rpc_x_3D      	;
   std::vector<double> Rpc_y_3D      	;
   std::vector<double> Rpc_z_3D      	;
+  std::vector<double> Rpc_eta_3D      	;
+  std::vector<double> Rpc_phi_3D      	;
   std::vector<double> Rpc_t_3D      	;
   std::vector<Identifier> Rpc_id_eta_3D ;
   std::vector<Identifier> Rpc_id_phi_3D ;
