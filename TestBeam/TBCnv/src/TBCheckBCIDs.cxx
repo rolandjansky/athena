@@ -19,7 +19,7 @@
 TBCheckBCIDs::TBCheckBCIDs(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_count(0),
-    m_ByteStreamEventAccess(0),
+    //m_ByteStreamEventAccess(0),
     m_rdpSvc(0),
     m_ntuplePtr(0)
 {

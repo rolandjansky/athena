@@ -38,7 +38,7 @@ class TBCheckBCIDs : public AthAlgorithm
  private:
   int m_count;
   //StoreGateSvc *m_storeGateSvc;
-  ByteStreamCnvSvc* m_ByteStreamEventAccess;
+  //ByteStreamCnvSvc* m_ByteStreamEventAccess;
   IROBDataProviderSvc *m_rdpSvc;
 
   template <class T>
