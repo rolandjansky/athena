@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 #define MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 
@@ -60,7 +59,7 @@ class MuonMDT_CablingSvc : public AthService
   StatusCode initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys));
 
   // IOV service callback
-  StatusCode initMappingModelNoCallback();
+  StatusCode initMappingModelNoCallback() const;
 
   //  MuonMDT_CablingMap* getCablingMap() {return m_cablingMap;}
   DataHandle<MuonMDT_CablingMap> getCablingMap();
