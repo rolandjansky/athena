@@ -14,7 +14,6 @@
 #include "TrigStorageDefinitions/TrigTopoEvent.h"
 #include "TrigStorageDefinitions/TrigCaloEvent.h"
 #include "TrigStorageDefinitions/TrigCombinedEvent.h"
-#include "TrigStorageDefinitions/TrigCosmicEvent.h"
 #include "TrigStorageDefinitions/TrigMonitoringEvent.h"
 #include "TrigStorageDefinitions/TrigBphysicsEvent.h"
 
@@ -29,7 +28,6 @@ TYPEMAPCLASS(TrigBphysicsEvent)
 TYPEMAPCLASS(TrigMonitoringEvent)
 TYPEMAPCLASS(TrigTopoEvent)
 TYPEMAPCLASS(TrigCombinedEvent)
-TYPEMAPCLASS(TrigCosmicEvent)
 TYPEMAPCLASS(TrigCaloEvent)
 TYPEMAPCLASS(TrigParticle)
 TYPEMAPCLASS(TrigMissingEtEvent)
@@ -43,7 +41,6 @@ typedef  HLT::TypeInformation::newlist
 ::add<class_TrigBphysicsEvent>    ::go
 ::add<class_TrigMonitoringEvent>  ::go
 ::add<class_TrigCombinedEvent>    ::go
-::add<class_TrigCosmicEvent>      ::go
 ::add<class_TrigCaloEvent>        ::go
 ::add<class_TrigTopoEvent>        ::go
 ::add<class_TrigParticle>         ::go
