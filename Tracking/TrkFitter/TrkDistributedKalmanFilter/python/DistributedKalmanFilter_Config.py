@@ -12,12 +12,17 @@ class ConfiguredDistributedKalmanFilter(Trk__DistributedKalmanFilter):
             myExtrapolator = Trk__Extrapolator()
             ToolSvc += myExtrapolator
             self.ExtrapolatorTool = myExtrapolator
+        else :
+            self.ExtrapolatorTool = ExtrapTool
         
         if ROTCreator is None :
             from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
             myRIO_OnTrackCreator = Trk__RIO_OnTrackCreator(name = 'RotCreator', Mode='indet')
             ToolSvc += myRIO_OnTrackCreator
             self.ROTcreator = myRIO_OnTrackCreator
+        else :
+           self.ROTcreator = ROTCreator
+    
     
     def msgStreamLevel(self, level):
         self.OutputLevel = level
