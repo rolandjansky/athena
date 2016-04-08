@@ -4,4 +4,4 @@
 
 #include "AGDDKernel/AGDDBuilder.h"
 
-AGDDBuilder* AGDDBuilder::theBuilder=0;
+AGDDBuilder* AGDDBuilder::s_theBuilder=0;

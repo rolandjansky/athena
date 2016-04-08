@@ -19,29 +19,29 @@ public:
 	void AddVolume(AGDDVolume*);
 	AGDDVolume* GetVolume(std::string);
 	void Register();
-	void Name(std::string n) {name=n;}
-	void Version(std::string n) {version=n;}
-	void Author(std::string n) {author=n;}
-	void Date(std::string n) {date=n;}
-	void TopVolume(std::string n) {topVolume=n;}
-	std::string Name() {return name;}
-	std::string Version() {return version;}
-	std::string Author() {return author;}
-	std::string Date() {return date;}
-	std::string TopVolume() {return topVolume;}
-	bool IsToBeBuilt() {return toBeBuilt;}
-	volumeIterator VolumeBegin() {return theVolumes.begin();}
-	volumeIterator VolumeEnd() {return theVolumes.end();}
+	void Name(std::string n) {m_name=n;}
+	void Version(std::string n) {m_version=n;}
+	void Author(std::string n) {m_author=n;}
+	void Date(std::string n) {m_date=n;}
+	void TopVolume(std::string n) {m_topVolume=n;}
+	std::string Name() {return m_name;}
+	std::string Version() {return m_version;}
+	std::string Author() {return m_author;}
+	std::string Date() {return m_date;}
+	std::string TopVolume() {return m_topVolume;}
+	bool IsToBeBuilt() {return m_toBeBuilt;}
+	volumeIterator VolumeBegin() {return m_theVolumes.begin();}
+	volumeIterator VolumeEnd() {return m_theVolumes.end();}
 	void Print();
 private:
-	std::string name;
-	std::string version;
-	std::string author;
-	std::string date;
-	std::string topVolume;
-        bool toBeBuilt;
+	std::string m_name;
+	std::string m_version;
+	std::string m_author;
+	std::string m_date;
+	std::string m_topVolume;
+        bool m_toBeBuilt;
 
-	volumeList theVolumes;
+	volumeList m_theVolumes;
 };
 
 #endif
