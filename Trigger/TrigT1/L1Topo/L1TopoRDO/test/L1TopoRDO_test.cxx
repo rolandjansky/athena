@@ -33,8 +33,8 @@ void test1()
   assert(h.payload_crc() == 0);
   assert(h.fpga() == 1);
   assert(h.last_block() == 0);
-  assert(h.bcn_sign() == 1);
-  assert(h.bcn_offset() == 1);
+  assert(h.bcn_sign() == 0);
+  assert(h.bcn_offset() == 3);
 }
 
 // check encoding of header word via example
@@ -46,10 +46,10 @@ void test2()
   uint32_t payload_crc(0x00);
   uint32_t fpga(1); 
   uint32_t last_block(1);
-  uint32_t bcn_sign(0);
-  uint32_t bcn_offset(2);
+  uint32_t bcn_sign(1);
+  uint32_t bcn_offset(1);
   L1Topo::Header h(version, active_fibres, payload_crc, fpga, last_block, bcn_sign, bcn_offset);
-  uint32_t word(0xc0420034); // the header block that matches the above values 
+  uint32_t word(0xc0420039); // the header block that matches the above values 
   std::cout << "L1Topo::Header encoded word " << L1Topo::formatHex8(h.word()) << std::endl;
   std::cout << "L1Topo::Header     ref word " << L1Topo::formatHex8(word) << std::endl;
   assert (h.word() == word);
@@ -99,13 +99,54 @@ void test5()
 void test6()
 {
   std::cout << "** test6: L1Topo::L1TopoTOB decoding **\n";
-  uint32_t ctp_signal(0x84);
+  uint32_t ctp_signal(0x4);
   uint32_t overflow_bits(0x80);
   uint32_t trigger_bits(0xff);
   L1Topo::L1TopoTOB c(ctp_signal, overflow_bits, trigger_bits);
   uint32_t word(0x840080ff);
   assert (c.word() == word);
 }
+// check L1TopoTOB error bits
+void test6a()
+{
+  std::cout << "** test6: L1Topo::L1TopoTOB decoding **\n";
+  uint32_t ctp_signal(0x4);
+  uint32_t overflow_bits(0x80);
+  uint32_t trigger_bits(0xff);
+
+  std::cout << std::hex << std::showbase << "test params: ctp_signal " << ctp_signal << " overflow_bits " << overflow_bits << " trigger_bits " << trigger_bits << std::dec << std::noshowbase << std::endl;
+  // try different patterns and check they are encoded and decoded correctly
+  for (uint32_t pattern=0; pattern<=0x1f; ++pattern){
+    std::cout << "  test pattern: CRC error_bits " << std::bitset<5>(pattern) << std::noboolalpha << std::endl;
+    L1Topo::L1TopoTOB c(ctp_signal, overflow_bits, trigger_bits, pattern);
+    assert (L1Topo::blockType(c.word()) == L1Topo::BlockTypes::L1TOPO_TOB);
+    std::cout << "test TOB from pattern: " << c << std::endl;
+    assert (c.crc_EM()     == ((pattern>>0) & 0x1));
+    assert (c.crc_Tau()    == ((pattern>>1) & 0x1));
+    assert (c.crc_Muon()   == ((pattern>>2) & 0x1));
+    assert (c.crc_Jet()    == ((pattern>>3) & 0x1));
+    assert (c.crc_Energy() == ((pattern>>4) & 0x1));
+    assert (c.error_bits() == pattern);
+    // merge pattern with word
+    uint32_t word( 0x840080ff | (pattern << 16));
+    std::cout << std::hex << std::showbase <<  " test word: " << word << std::dec << std::noshowbase << std::endl;
+    assert (c.word() == word);
+    L1Topo::L1TopoTOB d(word);
+    std::cout << "test TOB from word: " << d << std::endl;
+    assert (L1Topo::blockType(d.word()) == L1Topo::BlockTypes::L1TOPO_TOB);
+    assert (d.ctp_signal()==ctp_signal);
+    assert (d.overflow_bits()==overflow_bits);
+    assert (d.trigger_bits()==trigger_bits);
+    assert (c.error_bits() == d.error_bits() );
+    assert (c.crc_EM()     == d.crc_EM()     );
+    assert (c.crc_Tau()    == d.crc_Tau()    );
+    assert (c.crc_Muon()   == d.crc_Muon()   );
+    assert (c.crc_Jet()    == d.crc_Jet()    );
+    assert (c.crc_Energy() == d.crc_Energy() );
+  }
+
+}
+
 
 // check round trip decoding othen encoding of example L1TopoTOB word
 void test7()
@@ -130,11 +171,11 @@ void test8()
   assert(c2.index()==1);
   assert(c2.clock()==0);
   assert(c2.fpga()==0);
-  L1Topo::L1TopoTOB c3(0x84000000); 
+  L1Topo::L1TopoTOB c3(0x88000000); 
   assert(c3.index()==0);
   assert(c3.clock()==0);
   assert(c3.fpga()==1);
-  L1Topo::L1TopoTOB c4(0x87000000); 
+  L1Topo::L1TopoTOB c4(0x8b000000); 
   assert(c4.index()==1);
   assert(c4.clock()==1);
   assert(c4.fpga()==1);
@@ -149,10 +190,10 @@ void test9()
 	0x81000201,
 	0x82000330, 
 	0x83000402, 
-	0x84000510, 
-	0x850006f6, 
-	0x860007b0, 
-	0x87000800
+	0x88000510, 
+	0x890006f6, 
+	0x8a0007b0, 
+	0x8b000800
 	});
   L1TopoRDO rdo1;
   std::vector<uint32_t> data2({
@@ -160,10 +201,10 @@ void test9()
 	0x810020ab,
 	0x82003002, 
 	0x83004028, 
-	0x84005000, 
-	0x85006083, 
-	0x86007045, 
-	0x87008079
+	0x88005000, 
+	0x89006083, 
+	0x8a007045, 
+	0x8b008079
 	});
   L1TopoRDO rdo2;
   rdo1.setDataWords(data1);
@@ -173,11 +214,11 @@ void test9()
   std::cout << rdo1 << rdo2;
   // construct reference value - complicated by 128 bit length
   std::pair< std::bitset<128>, std::bitset<128> > test, ref;
-  uint64_t ref1=0x00b0f61002300100;
-  uint64_t ref2=0x794583002802abd1;
+  uint64_t ref1=0x55148b0000090a00;
+  uint64_t ref2=0x6a8720224cc55109;
   ref.first  = std::bitset<128>(ref1) | (std::bitset<128>(ref2) << 64);
-  uint64_t ref3=0x0807060504030201;
-  uint64_t ref4=0x8070605040302010;
+  uint64_t ref3=0x0094003b0024000b;
+  uint64_t ref4=0x94003b0024000b00;
   ref.second = std::bitset<128>(ref3) | (std::bitset<128>(ref4) << 64);
   // compute bitset using helper function and compare to expected result
   L1TopoRDOCollection colRDOs;
@@ -284,7 +325,7 @@ void test14()
   std::cout << c << std::endl;
   assert (c.module()==1 && c.link()==0 && c.isDAQ());
 
-  L1Topo::ModuleID d(0x00910091); // build warning due to implicit truncation to 16 bits
+  L1Topo::ModuleID d(0x00910091); // expect build warning due to implicit truncation to 16 bits
   std::cout << d << std::endl;
   assert (d.module()==1 && d.link()==1 && d.isROI());
 
@@ -332,6 +373,7 @@ int main()
   test4();
   test5();
   test6();
+  test6a();
   test7();
   test8();
   test9();
