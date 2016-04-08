@@ -175,20 +175,20 @@ const I4MomentumError* P4PxPyPzEBase::errors() const
 
 void P4PxPyPzEBase::set4Mom(const I4Momentum &  )
 { 
-  std::cout << "FATAL ERROR dummy P4PxPyPzEBase::set4Mom called " << std::cout ;
+  std::cout << "FATAL ERROR dummy P4PxPyPzEBase::set4Mom called " << std::endl ;
   std::abort();
 }
 
 void P4PxPyPzEBase::set4Mom(const I4Momentum * const  )
 { 
-  std::cout << "FATAL ERROR dummy P4PxPyPzEBase::set4Mom called " << std::cout ;
+  std::cout << "FATAL ERROR dummy P4PxPyPzEBase::set4Mom called " << std::endl ;
   std::abort();
 
 }
 
 void P4PxPyPzEBase::set4Mom(const CLHEP::HepLorentzVector & )
 {
-  std::cout << "FATAL ERROR dummy P4PxPyPzEBase::set4Mom called " << std::cout ;
+  std::cout << "FATAL ERROR dummy P4PxPyPzEBase::set4Mom called " << std::endl ;
   std::abort();
 }
 
