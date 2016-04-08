@@ -43,7 +43,7 @@ namespace xAODMaker {
   StatusCode JetCnvTool::convert( const JetCollection* aodCont,
                                   xAOD::JetContainer* xaodCont,
                                   DataLink<xAOD::IParticleContainer> xaodConstitCont,
-                                  bool constitSearch) const
+                                  bool constitSearch) 
   {
      
 

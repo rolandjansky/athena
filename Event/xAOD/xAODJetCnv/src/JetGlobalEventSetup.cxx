@@ -27,7 +27,7 @@
  StatusCode JetGlobalEventSetup::initialize()
  {
    
-   msg(MSG::INFO) << "initialize()" << endmsg;
+   msg(MSG::INFO) << "initialize()" << endreq;
  
    // Get handle on IncidentSvc
    ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", name());
@@ -47,7 +47,7 @@
  {
 
    if (inc.type()=="StoreCleared") {
-     ATH_MSG(DEBUG) << " got store cleared event" << endmsg;
+     ATH_MSG(DEBUG) << " got store cleared event" << endreq;
      const StoreClearedIncident* sci
        = dynamic_cast<const StoreClearedIncident*> (&inc);
      if (sci && sci->store() == &*evtStore()) {
