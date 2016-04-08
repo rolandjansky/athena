@@ -16,31 +16,26 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include <string>
 
 class HitRdoOverlayExample : public AthAlgorithm {
 
- public:
+public:
 
-   HitRdoOverlayExample(const std::string& name, ISvcLocator* pSvcLocator);
-   ~HitRdoOverlayExample();
+  HitRdoOverlayExample(const std::string& name, ISvcLocator* pSvcLocator);
+  ~HitRdoOverlayExample();
 
-   StatusCode initialize();
-   StatusCode finalize();
-   StatusCode execute();
+  StatusCode initialize();
+  StatusCode finalize();
+  StatusCode execute();
 
- private:
+private:
 
-   /// a handle of PileUpMergwSvc
-   PileUpMergeSvc* p_mergeSvc;
+  /// a handle of PileUpMergwSvc
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
 
-   /// get a handle on the Hist/TTree registration service
-   ITHistSvc * m_thistSvc;
-
-   int m_nevt;
+  int m_nevt;
 };
 
 #endif // OVERLAY_EXAMPLE_HITRDOOVERLAY_H
-

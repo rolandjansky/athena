@@ -20,8 +20,10 @@
 //Constructor
 
 HitRdoOverlayExample::HitRdoOverlayExample(const std::string& name, ISvcLocator* pSvcLocator):
-
-  AthAlgorithm(name,pSvcLocator){
+  AthAlgorithm(name,pSvcLocator),
+  m_mergeSvc("PileUpMergeSvc", name),
+  m_nevt(0)
+{
 
 }
 
@@ -36,23 +38,10 @@ HitRdoOverlayExample::~HitRdoOverlayExample()
 
 StatusCode HitRdoOverlayExample::initialize()
 {
-
-
   ATH_MSG_DEBUG ("HitRdoOverlayExample initialize()" );
 
-
-  if (!(service("PileUpMergeSvc", p_mergeSvc)).isSuccess() ||
-
-      0 == p_mergeSvc) {
-
-    ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
-
-    return StatusCode::FAILURE;
-
-  }
-
+  CHECK(m_mergeSvc.retrieve().isSuccess());
   m_nevt=0;
-
   return StatusCode::SUCCESS;
 
 }
@@ -102,7 +91,7 @@ StatusCode HitRdoOverlayExample::execute()
 
       TimedHitContList hitContList;
 
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
+      if (!(m_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer]
 
                                             ,hitContList).isSuccess()) && hitContList.size()==0) {
 
@@ -166,7 +155,7 @@ StatusCode HitRdoOverlayExample::execute()
 
   TimedDigitContList digitContList;
 
-  if ( p_mergeSvc->retrieveSubEvtsData("LArDigitContainer_MC",digitContList).isFailure() ) {
+  if ( m_mergeSvc->retrieveSubEvtsData("LArDigitContainer_MC",digitContList).isFailure() ) {
     ATH_MSG_WARNING ( " cannot retrieve digit container " );
   }
   else
