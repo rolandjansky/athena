@@ -179,7 +179,6 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
        
        TBBPCCont::const_iterator it_bpc   = bpcCont->begin();
        TBBPCCont::const_iterator last_bpc   = bpcCont->end();
-       counter = 0;
    
        for(;it_bpc != last_bpc; it_bpc++){
        

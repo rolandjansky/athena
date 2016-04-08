@@ -51,20 +51,20 @@ class TBTriggerPatternUnitMonTool: public MonitorToolBase
   bool m_monitor_triggpat;
 
   bool m_fake_detector;
-  bool m_testTool;
+  //bool m_testTool;
   bool m_isBooked;
 
   // Trigger pattern histos
   IHistogram1D* m_histo_triggpat1;
   IHistogram2D* m_histo_triggpat2;
 
-  IHistogramSvc* m_testhist;
+  //IHistogramSvc* m_testhist;
 
   std::vector<unsigned int> m_triggflag;
 
   // Histos ranges
-  float m_posmax,m_posmin;
-  int m_posbin;
+  //float m_posmax,m_posmin;
+  //int m_posbin;
 
   
 };

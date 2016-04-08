@@ -57,8 +57,8 @@ class TBTrackingMonTool: public MonitorToolBase
   IHistogram1D* m_histo_track_Ucryo;
   IHistogram1D* m_histo_track_Vcryo;
   IHistogram1D* m_histo_track_Wcryo;    
-  IHistogram1D** m_histo_track_Residualu;
-  IHistogram1D** m_histo_track_Residualv; 
+  //IHistogram1D** m_histo_track_Residualu;
+  //IHistogram1D** m_histo_track_Residualv; 
 
   // Histos ranges
   float m_posMax,m_posMin;

@@ -66,7 +66,7 @@ class TBScintillatorMonTool: public MonitorToolBase
   IHistogram1D** m_histo_scint_time;
 
 
-  IHistogramSvc* m_testhist;
+  //IHistogramSvc* m_testhist;
 
   int m_scintnum;
   bool m_bookatfirstevent;

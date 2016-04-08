@@ -64,9 +64,9 @@ class TBBPCAlignmentMonTool: public MonitorToolBase
   bool m_monitor_bpccalib;  
   bool m_isBooked;
 
-  float x2, y2;
-  float x3, y3;
-  int counter;
+  //float x2, y2;
+  //float x3, y3;
+  //int counter;
 
   //chi2s
   float m_chi2x;

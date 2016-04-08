@@ -78,9 +78,9 @@ class TBBPCMonTool: public MonitorToolBase
 
 
 
-  IHistogramSvc* m_testhist;
+  //IHistogramSvc* m_testhist;
 
-  int m_bpcnum,m_scintnum;
+  int m_bpcnum;
   bool m_bookatfirstevent;
   
   // Histos ranges
