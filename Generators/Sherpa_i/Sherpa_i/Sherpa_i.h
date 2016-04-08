@@ -24,7 +24,7 @@ public:
   StatusCode genInitialize();
   StatusCode callGenerator();
   StatusCode genFinalize();
-  StatusCode fillEvt(HepMC::GenEvent* evt);
+  StatusCode fillEvt(GenEvent* evt);
   void getParameters(int &argc, char** &argv);
 
 protected:
@@ -34,7 +34,6 @@ protected:
   std::string m_path;
   std::vector<std::string> m_params;
   double m_xsscale;
-  std::string m_scalevarref;
 };
 
 
