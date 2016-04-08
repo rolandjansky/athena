@@ -177,8 +177,6 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
 //   }
 
   // create truth-association maps for TrigInDetTracks and record to StoreGate
-  TrigInDetTrackTruthMap* trk_truth_map = new TrigInDetTrackTruthMap();
-
   if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Recording truth map to StoreGate with key " 
              << m_trackTruthMapKey << endreq;
 
@@ -188,10 +186,12 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
     return StatusCode::SUCCESS;
   }
   
+  TrigInDetTrackTruthMap* trk_truth_map = new TrigInDetTrackTruthMap();
   // declare StatusCode here instead so it is always checked
   StatusCode sc = evtStore()->record(trk_truth_map, m_trackTruthMapKey);
   if (sc.isFailure()) {
     if (msgLvl(MSG::ERROR)) msg() << MSG::ERROR << "Failed recording truth map to StoreGate!" << endreq;
+    delete trk_truth_map;
     return StatusCode::SUCCESS;
   }
       

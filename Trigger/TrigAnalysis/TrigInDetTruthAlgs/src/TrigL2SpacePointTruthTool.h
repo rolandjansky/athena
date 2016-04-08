@@ -6,9 +6,7 @@
 #define __TRIGL2SPACEPOINTTRUTHTOOL_H__
 
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h" 
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
 #include <vector>
@@ -26,10 +24,10 @@ class PixelID;
 class KineHepMcmap;
 class GenParticle;
 
-class TrigL2SpacePointTruthTool : virtual public ITrigL2SpacePointTruthTool, public AlgTool {
+class TrigL2SpacePointTruthTool : virtual public ITrigL2SpacePointTruthTool, public AthAlgTool {
  public:
       
-  // standard AlgTool methods
+  // standard AthAlgTool methods
   TrigL2SpacePointTruthTool(const std::string&,const std::string&,const IInterface*);
   virtual ~TrigL2SpacePointTruthTool();
 		
@@ -41,8 +39,6 @@ class TrigL2SpacePointTruthTool : virtual public ITrigL2SpacePointTruthTool, pub
   //  virtual void getBarCodes(const TrigSiSpacePoint*, std::vector<int>&, std::vector<float>&);
   // virtual int  getBarCode(const TrigSiSpacePoint*);
  private:
-
-  StoreGateSvc*        m_storeGate;
 
   /** SDO maps for */
   std::string m_pixel_SDO_Map; //!< Pixel

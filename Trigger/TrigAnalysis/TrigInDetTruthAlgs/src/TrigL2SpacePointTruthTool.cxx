@@ -16,9 +16,6 @@
 
 #include <cmath>
 #include <iostream>
-#include "StoreGate/StoreGateSvc.h" 
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 
@@ -38,7 +35,7 @@
 
 TrigL2SpacePointTruthTool::TrigL2SpacePointTruthTool(const std::string& t, 
 					     const std::string& n,
-					     const IInterface*  p ): AlgTool(t,n,p)
+					     const IInterface*  p ): AthAlgTool(t,n,p)
 {
   declareInterface< ITrigL2SpacePointTruthTool >( this );
   declareProperty("PixelSDO_MapName", m_pixel_SDO_Map = "PixelSDO_Map");
@@ -48,38 +45,24 @@ TrigL2SpacePointTruthTool::TrigL2SpacePointTruthTool(const std::string& t,
 StatusCode TrigL2SpacePointTruthTool::initialize()
 {
   StatusCode sc = AlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
 
-  athenaLog << MSG::INFO <<"In initialize..."<<endreq; 
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-    return StatusCode::FAILURE; 
-  }
+  ATH_MSG_INFO("In initialize..."); 
 
  // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_PIXid, "PixelID").isFailure()) { 
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
-     return StatusCode::FAILURE;  
+  if (detStore()->retrieve(m_PIXid, "PixelID").isFailure()) { 
+     ATH_MSG_FATAL("Could not get Pixel ID helper");
+     return StatusCode::FAILURE;
   }
-  if (detStore->retrieve(m_SCTid, "SCT_ID").isFailure()) {  
-     athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+  if (detStore()->retrieve(m_SCTid, "SCT_ID").isFailure()) {  
+     ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
 
   //   Get StoreGate service
   //
-  sc = service( "StoreGateSvc", m_storeGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
 
-  athenaLog << MSG::INFO << "TrigL2SpacePointTruthTool constructed "<< endreq;
+  ATH_MSG_INFO("TrigL2SpacePointTruthTool constructed ");
   return sc;
 }
 
@@ -96,9 +79,6 @@ TrigL2SpacePointTruthTool::~TrigL2SpacePointTruthTool()
 
 void TrigL2SpacePointTruthTool::getBarCodes(std::vector<TrigSiSpacePoint*>& vsp, std::vector<int>& vBar) {
 
-  // MsgStream athenaLog(msgSvc(), name());
-  // int outputLevel = msgSvc()->outputLevel( name() );
-  
   vBar.clear();
   if(!GetTruthMaps()) {
     for(std::vector<TrigSiSpacePoint*>::const_iterator it  = vsp.begin();it!=vsp.end();++it) {
@@ -140,9 +120,6 @@ void TrigL2SpacePointTruthTool::getBarCodes(std::vector<TrigSiSpacePoint*>& vsp,
 
 void TrigL2SpacePointTruthTool::getBarCodes(std::vector<TrigSiSpacePointBase>& vsp, std::vector<int>& vBar) {
 
-  // MsgStream athenaLog(msgSvc(), name());
-  // int outputLevel = msgSvc()->outputLevel( name() );
-  
   vBar.clear();
   if(!GetTruthMaps()) {
     for(std::vector<TrigSiSpacePointBase>::const_iterator it  = vsp.begin();it!=vsp.end();++it) {
@@ -184,27 +161,21 @@ void TrigL2SpacePointTruthTool::getBarCodes(std::vector<TrigSiSpacePointBase>& v
 
 void TrigL2SpacePointTruthTool::SCT_ClusterTruth(const Trk::PrepRawData* pSCTclus,std::vector<HepMcParticleLink>& pl) {
   
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   if(pSCTclus==NULL) return;
 
-  if (outputLevel==MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << "SCTspTruth() : cluster-id: " 
-	      << m_SCTid->print_to_string((*pSCTclus).identify()) << endreq;
+  ATH_MSG_DEBUG("SCTspTruth() : cluster-id: " << m_SCTid->print_to_string((*pSCTclus).identify()));
     
   // get list of Raw Data Objects identifiers in cluster
   const std::vector<Identifier> clusRDOids = pSCTclus->rdoList();
     
-  if (outputLevel==MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << "SCTspTruth() : cluster has " << clusRDOids.size() << " RDO identifiers" << endreq; 
+  ATH_MSG_DEBUG("SCTspTruth() : cluster has " << clusRDOids.size() << " RDO identifiers"); 
     
   std::vector<Identifier>::const_iterator rdoIter=clusRDOids.begin();
   std::vector<Identifier>::const_iterator lastRDO=clusRDOids.end();
     
   // loop over RDO identifiers and get collection of InDetSimData
   for (int iRDO=0; rdoIter != lastRDO; ++rdoIter, ++iRDO) {
-    if (outputLevel==MSG::DEBUG) athenaLog << MSG::DEBUG << "SCTspTruth() : Doing RDO nr " << iRDO << endreq; 
+    ATH_MSG_DEBUG("SCTspTruth() : Doing RDO nr " << iRDO); 
     
     // find InDetSimData object corresponding to this RDO from the
     // SCT InDetSimDataCollection map; a InDetSimData is basically a 
@@ -214,9 +185,7 @@ void TrigL2SpacePointTruthTool::SCT_ClusterTruth(const Trk::PrepRawData* pSCTclu
     
     // check if the InDetSimData corresponding to the RDO was found
     if (clusSimData == m_id2SimDataMapSCT->end()) {
-      if (outputLevel==MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "SCTspTruth() : Cannot find simulation info for "
-		  <<  m_SCTid->print_to_string(*rdoIter) << endreq;
+      ATH_MSG_DEBUG("SCTspTruth() : Cannot find simulation info for " <<  m_SCTid->print_to_string(*rdoIter));
       continue;
     } else {
       // add all GenParticles which contributed to this cluster into vector
@@ -227,21 +196,14 @@ void TrigL2SpacePointTruthTool::SCT_ClusterTruth(const Trk::PrepRawData* pSCTclu
 
 void TrigL2SpacePointTruthTool::PIX_ClusterTruth(const Trk::PrepRawData* pPIXclus,std::vector<HepMcParticleLink>& pl) {
   
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );// check against NULL  
-  
   if (!pPIXclus) return;
     
-  if (outputLevel==MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << "PIXspTruth() : cluster-id: " 
-	      << m_PIXid->print_to_string((*pPIXclus).identify()) << endreq;
+    ATH_MSG_DEBUG("PIXspTruth() : cluster-id: " << m_PIXid->print_to_string((*pPIXclus).identify()));
     
   // get list of Raw Data Objects identifiers in cluster
   const std::vector<Identifier> clusRDOids = pPIXclus->rdoList(); 
     
-  if (outputLevel==MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << "PIXspTruth() : cluster has " 
-	      << clusRDOids.size() << " RDO identifiers" << endreq; 
+  ATH_MSG_DEBUG("PIXspTruth() : cluster has " << clusRDOids.size() << " RDO identifiers"); 
     
   std::vector<Identifier>::const_iterator rdoIter = clusRDOids.begin();
   std::vector<Identifier>::const_iterator lastRDO = clusRDOids.end();
@@ -249,18 +211,13 @@ void TrigL2SpacePointTruthTool::PIX_ClusterTruth(const Trk::PrepRawData* pPIXclu
   // loop over RDO identifiers and get collection of InDetSimData
   for (int iRDO=0; rdoIter != lastRDO; ++rdoIter, ++iRDO) {
       
-    if (outputLevel==MSG::DEBUG) 
-      athenaLog << MSG::DEBUG << "PIXspTruth() : Doing RDO nr " << iRDO << endreq; 
+    ATH_MSG_DEBUG("PIXspTruth() : Doing RDO nr " << iRDO); 
     
     if ( ! (*rdoIter).is_valid() ) {
-      if (outputLevel==MSG::DEBUG) 
-	athenaLog << MSG::WARNING <<
-	  "Invalid identifier from pixel SP->rdoList() !!" << endreq;
+	ATH_MSG_WARNING("Invalid identifier from pixel SP->rdoList() !!");
       continue;
     } else {
-      if (outputLevel==MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "Pixel identifier: "
-		  << m_PIXid->print_to_string(*rdoIter) << endreq;
+	ATH_MSG_DEBUG("Pixel identifier: " << m_PIXid->print_to_string(*rdoIter));
     }
 
     // find InDetSimData object corresponding to this RDO from the
@@ -271,9 +228,8 @@ void TrigL2SpacePointTruthTool::PIX_ClusterTruth(const Trk::PrepRawData* pPIXclu
       
     if (clusSimData == m_id2SimDataMapPIX->end()) {
       // we didn't find the ID in the map - check if it is a ganged pixel
-      if (outputLevel==MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "PIXspTruth() : Cannot find simulation info for " 
-		  << m_PIXid->print_to_string(*rdoIter) <<" : looking for ganged pixel" << endreq;
+      ATH_MSG_DEBUG("PIXspTruth() : Cannot find simulation info for " 
+		  << m_PIXid->print_to_string(*rdoIter) <<" : looking for ganged pixel");
       
       const unsigned int phi_index = m_PIXid->phi_index(*rdoIter);
       unsigned int ganged_phi_index=0;
@@ -299,16 +255,14 @@ void TrigL2SpacePointTruthTool::PIX_ClusterTruth(const Trk::PrepRawData* pPIXclu
 						       ganged_phi_index, 
 						       m_PIXid->eta_index(*rdoIter));
     
-        if (outputLevel==MSG::DEBUG) athenaLog << MSG::DEBUG << "PIXspTruth() : ganged to pixel " 
-					       <<  m_PIXid->print_to_string(new_rdoID) << endreq;
+        ATH_MSG_DEBUG("PIXspTruth() : ganged to pixel " <<  m_PIXid->print_to_string(new_rdoID));
 
         clusSimData = m_id2SimDataMapPIX->find(new_rdoID);
       }
       if(clusSimData == m_id2SimDataMapPIX->end() )  {
         // check again, in case ganged pixel is also not in map
-        if (outputLevel==MSG::DEBUG) 
-	  athenaLog << MSG::DEBUG << "SCTspTruth() : Cannot find simulation info for " 
-		    <<  m_PIXid->print_to_string(*rdoIter) << endreq;
+        ATH_MSG_DEBUG("SCTspTruth() : Cannot find simulation info for " 
+  		    <<  m_PIXid->print_to_string(*rdoIter));
         continue;
       }
     }
@@ -360,14 +314,11 @@ void TrigL2SpacePointTruthTool::updatePLvector(std::vector<HepMcParticleLink>& p
 					       InDetSimDataCollection::const_iterator& simData)
 {
 
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   // get the vector of deposits for each GenParticle from the InDetSimData 
   const std::vector< std::pair<HepMcParticleLink,float> >& simDeposits = ((*simData).second).getdeposits();
   
-  if (outputLevel==MSG::DEBUG) athenaLog << MSG::DEBUG << "updatePLvector() : RDO has " 
-               << simDeposits.size() << " deposits" << endreq; 
+  ATH_MSG_DEBUG("updatePLvector() : RDO has " 
+               << simDeposits.size() << " deposits"); 
   
   // loop over the deposits and get info from HepMcParticleLinks
   std::vector< std::pair<HepMcParticleLink,float> >::const_iterator depIter = simDeposits.begin();
@@ -375,16 +326,15 @@ void TrigL2SpacePointTruthTool::updatePLvector(std::vector<HepMcParticleLink>& p
   
   for (int iDep=0 ; depIter != lastDep; ++depIter, ++iDep) {
       
-    if (outputLevel==MSG::DEBUG) athenaLog << MSG::DEBUG << "updatePLvector() : Doing deposit " 
-           << iDep << endreq; 
+    ATH_MSG_DEBUG("updatePLvector() : Doing deposit " << iDep); 
       
     // get the HepMcParticleLink from the Deposit particle link and check it's ok
     HepMcParticleLink partLink =  (*depIter).first;
 
-    if (outputLevel==MSG::DEBUG) athenaLog << MSG::DEBUG << "updatePLvector() : Deposit " << iDep 
+    ATH_MSG_DEBUG("updatePLvector() : Deposit " << iDep 
            << ": kine " << partLink.barcode() 
            << ", event index " << partLink.eventIndex() 
-           << ", energy deposit " << (*depIter).second << endreq; 
+           << ", energy deposit " << (*depIter).second); 
     
     if (partLink.isValid()) {
         
@@ -400,9 +350,8 @@ void TrigL2SpacePointTruthTool::updatePLvector(std::vector<HepMcParticleLink>& p
       }
       if (putGPinVec) {
         pl.push_back(partLink);
-        if (outputLevel==MSG::DEBUG) athenaLog << MSG::DEBUG 
-               << "updatePLvector() : Added particle to vector: " 
-               << pl.size() << " matches so far" << endreq;
+        ATH_MSG_DEBUG("updatePLvector() : Added particle to vector: " 
+               << pl.size() << " matches so far");
       }
     }
   }
@@ -411,38 +360,32 @@ void TrigL2SpacePointTruthTool::updatePLvector(std::vector<HepMcParticleLink>& p
 
 bool TrigL2SpacePointTruthTool::GetTruthMaps() {
 
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   m_havePIXmap=false;
   m_haveSCTmap=false;
 
-   if (m_storeGate->contains<InDetSimDataCollection>(m_pixel_SDO_Map)) {
+   if (evtStore()->contains<InDetSimDataCollection>(m_pixel_SDO_Map)) {
      // retrieve Pixel SDO map for this event
-     StatusCode sc = m_storeGate->retrieve(m_id2SimDataMapPIX, m_pixel_SDO_Map);
+     StatusCode sc = evtStore()->retrieve(m_id2SimDataMapPIX, m_pixel_SDO_Map);
      if (sc.isFailure()) {
-        if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "GetTruthMaps() : Could not retrieve " 
-						 << m_pixel_SDO_Map << "!" << endreq;
+        ATH_MSG_DEBUG("GetTruthMaps() : Could not retrieve " << m_pixel_SDO_Map << "!");
      } else {
        m_havePIXmap=true;
      }
    } else {
-     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "GetTruthMaps() : Could not retrieve " 
-					      << m_pixel_SDO_Map << "!" << endreq;
+     ATH_MSG_DEBUG("GetTruthMaps() : Could not retrieve " 
+					      << m_pixel_SDO_Map << "!");
    }
   
-   if (m_storeGate->contains<InDetSimDataCollection>(m_SCT_SDO_Map)) {
+   if (evtStore()->contains<InDetSimDataCollection>(m_SCT_SDO_Map)) {
      // retrieve SCT SDO map for this event
-     StatusCode sc = m_storeGate->retrieve(m_id2SimDataMapSCT, m_SCT_SDO_Map);
+     StatusCode sc = evtStore()->retrieve(m_id2SimDataMapSCT, m_SCT_SDO_Map);
      if (sc.isFailure()) {
-       if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "GetTruthMaps() : Could not retrieve " 
-						<< m_SCT_SDO_Map << "!" << endreq;
+       ATH_MSG_DEBUG("GetTruthMaps() : Could not retrieve " << m_SCT_SDO_Map << "!");
      } else {
        m_haveSCTmap=true;
      }
    } else {
-     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "GetTruthMaps() : Could not retrieve " 
-					      << m_SCT_SDO_Map << "!" << endreq;
+     ATH_MSG_DEBUG("GetTruthMaps() : Could not retrieve " << m_SCT_SDO_Map << "!");
    }
    
    return (m_havePIXmap && m_haveSCTmap);

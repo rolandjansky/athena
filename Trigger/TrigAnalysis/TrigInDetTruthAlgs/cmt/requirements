@@ -9,7 +9,6 @@ use TrigInDetEvent          TrigInDetEvent-*       Trigger/TrigEvent
 private
 use AthenaBaseComps         AthenaBaseComps-*      Control
 use GaudiInterface          GaudiInterface-*       External
-use StoreGate		    StoreGate-*		   Control
 use AtlasHepMC              AtlasHepMC-*           External
 use GenzModuleEvent         GenzModuleEvent-*      Generators
 
@@ -33,19 +32,3 @@ apply_pattern declare_joboptions files="jobOfragment*.py"
 # declare python module (configurables)
 apply_pattern declare_python_modules files="__init__.py TrigInDetTruthAlgsConfig.py"
 
-
-#use AtlasCLHEP              AtlasCLHEP-00-*        External 
-#use DataModel               DataModel-*            Control
-#use CLIDSvc                 CLIDSvc-00-*           Control 
-#use Identifier              Identifier-00-*        DetectorDescription
-#use InDetPrepRawData        InDetPrepRawData-*     InnerDetector/InDetRecEvent
-#use TrkPrepRawData          TrkPrepRawData-*       Tracking/TrkEvent
-#use StoreGate               StoreGate-*            Control
-# ---> to add truth association:RG 20/1/06 
-#use AtlasDetDescr           AtlasDetDescr-00-*     DetectorDescription
-#use InDetReadoutGeometry    InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-#use GeneratorObjects        GeneratorObjects-01-*  Generators
-# <--- 
-#apply_pattern installed_library
-#apply_pattern dual_use_library files=*.cxx 
-#apply_pattern declare_runtime
