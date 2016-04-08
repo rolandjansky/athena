@@ -8,28 +8,6 @@
 #include "QatDataAnalysis/IODriver.h"
 
 
-inline std::string getDriver(std::string driverName) {
-  // Rules:
-  if (driverName!="") {
-    return driverName;
-  }
-  else {
-    char *dn=getenv("QAT_IO_DRIVER");
-    if (dn) {
-      return std::string(dn);
-    }
-    else {
-      char *cmt=getenv("CMTPATH");
-      if (cmt) {
-	return "RootDriver";
-      }
-      else {
-	return "HDF5Driver";
-      }
-    }
-  }
-}
-
 
 
 class HIOZeroToOne::Clockwork {
@@ -38,9 +16,9 @@ public:
   const IODriver *driver;
 };
 
-HIOZeroToOne::HIOZeroToOne(const std::string & driver):output(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a driver. Possible installation problem");
+HIOZeroToOne::HIOZeroToOne():output(NULL), verbose(false), c(new Clockwork) {
+  c->driver = c->loader.ioDriver("RootDriver");
+  if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
 HIOZeroToOne::~HIOZeroToOne() {
@@ -86,9 +64,9 @@ public:
   const IODriver *driver;
 };
 
-HIOOneToOne::HIOOneToOne(const std::string & driver):input(NULL),output(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a driver. Possible installation problem");
+HIOOneToOne::HIOOneToOne():input(NULL),output(NULL), verbose(false), c(new Clockwork) {
+  c->driver = c->loader.ioDriver("RootDriver");
+  if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
 HIOOneToOne::~HIOOneToOne() {
@@ -152,8 +130,8 @@ public:
   const IODriver *driver;
 };
 
-HIOOneToZero::HIOOneToZero(const std::string & driver):input(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
+HIOOneToZero::HIOOneToZero():input(NULL), verbose(false), c(new Clockwork) {
+  c->driver = c->loader.ioDriver("RootDriver");
   if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
@@ -199,8 +177,8 @@ public:
   const IODriver *driver;
 };
 
-HIONToOne::HIONToOne(const std::string & driver):output(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
+HIONToOne::HIONToOne():output(NULL), verbose(false), c(new Clockwork) {
+  c->driver = c->loader.ioDriver("RootDriver");
   if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
@@ -256,8 +234,8 @@ public:
   const IODriver *driver;
 };
 
-HIONToZero::HIONToZero(const std::string & driver):verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
+HIONToZero::HIONToZero():verbose(false), c(new Clockwork) {
+  c->driver = c->loader.ioDriver("RootDriver");
   if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
@@ -353,11 +331,12 @@ void NumericInput::optParse(int & argc, char ** & argv) {
     std::string thisArg(argv[i]);
     if (thisArg.find("=")!=thisArg.npos) {
       if (!c->modParameter(thisArg)) {
-	      throw std::runtime_error("Cannot modify parameter "+ thisArg);
-      } else {
-	      std::copy(argv+i+1, argv+argc, argv+i);
-	      argc -= 1;
-	      i    -= 1;
+	throw std::runtime_error("Cannot modify parameter "+ thisArg);
+      }
+      else {
+	std::copy(argv+i+1, argv+argc, argv+i);
+	argc -= 1;
+	i    -= 1;
       }
     }
   }
@@ -373,13 +352,14 @@ void NumericInput::declare(const std::string & name, const std::string & doc, do
 }
 
 double NumericInput::getByName  (const std::string & name) const {
+  
   for (unsigned int i=0;i<c->inputData.size();i++) {
     std::string trimmedVar= (c->inputData[i].name.substr(0,c->inputData[i].name.find(' ')));
     if (trimmedVar==name) {
       return c->inputData[i].value;
     }
   }
-  //something wrong if you reached here
   throw std::runtime_error("Cannot parse parameter " + name);
+  return 0;
 }
 
