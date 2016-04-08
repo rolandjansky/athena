@@ -14,6 +14,7 @@ use  GaudiInterface             GaudiInterface-*                External
 use  BarcodeInterfaces          BarcodeInterfaces-*             Simulation/Barcode
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
+use  TestTools                  TestTools-*                     AtlasTest 
 end_public
 
 private
@@ -22,6 +23,8 @@ public
 
 library ISF_Event *.cxx
 apply_pattern installed_library
+
+apply_pattern UnitTest_run unit_test=ISFParticle
 
 private
 # un-comment the flags below to enable full debugging information in this package
