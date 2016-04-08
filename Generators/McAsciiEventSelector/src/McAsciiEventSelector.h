@@ -17,8 +17,8 @@
 #include <utility> // for std::pair
 
 // Gaudi includes
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/Service.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -28,7 +28,7 @@ class ISvcLocator;
 class McAsciiCnvSvc;
 
 class McAsciiEventSelector : virtual public IEvtSelector,
-			     virtual public Service
+			     virtual public AthService
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -79,9 +79,6 @@ class McAsciiEventSelector : virtual public IEvtSelector,
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  mutable MsgStream m_msg;
 
   /// Pointer to the converter service
   McAsciiCnvSvc* m_asciiCnvSvc;

@@ -41,8 +41,8 @@
 
 McAsciiEventSelector::McAsciiEventSelector( const std::string& name,
 					    ISvcLocator* svcLoc ) :
-  Service( name,    svcLoc ),
-  m_msg  ( msgSvc(),  name )
+  AthService( name,    svcLoc ),
+  m_asciiCnvSvc (nullptr)
 {
   declareProperty( "InputCollections", 
 		   m_asciiFileNames,
@@ -82,84 +82,51 @@ McAsciiEventSelector::~McAsciiEventSelector()
 
 StatusCode McAsciiEventSelector::initialize()
 {
-  // configure our MsgStream
-  m_msg.setLevel( m_outputLevel.value() );
+  ATH_MSG_INFO( "Enter McAsciiEventSelector initialization..." );
 
-  m_msg << MSG::INFO << "Enter McAsciiEventSelector initialization..."
-	<< endreq;
-
-  if ( !Service::initialize().isSuccess() ) {
-    m_msg << MSG::ERROR
-	  << "Unable to initialize base class ::Service !!"
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( AthService::initialize() );
   setProperties().ignore();
 
   const std::size_t nbrAsciiFiles = m_asciiFileNames.value().size();
   if ( nbrAsciiFiles <= 0 ) {
-    m_msg << MSG::ERROR
-	  << "You need to give at least 1 input file !!" << endreq
-	  << "(Got [" << nbrAsciiFiles << "] file instead !)"
-	  << endreq;
+    ATH_MSG_ERROR( "You need to give at least 1 input file !!"
+                   << "(Got [" << nbrAsciiFiles << "] file instead !)" );
     return StatusCode::FAILURE;
   } else {
-    m_msg << MSG::INFO
-	  << "Selector configured to read [" << nbrAsciiFiles << "] file(s)..."
-	  << endreq;
+    ATH_MSG_INFO( "Selector configured to read [" << nbrAsciiFiles << "] file(s)..." );
   }
 
   m_asciiFiles.resize( nbrAsciiFiles );
   for ( std::size_t i = 0; i != nbrAsciiFiles; ++i ) {
     const std::string& asciiFileName = m_asciiFileNames.value()[i];
     const std::size_t evtMax = McAsciiFileHelper::evtMax( asciiFileName,
-							  m_msg );
-    m_msg << MSG::DEBUG << " [" << i << "] : " 
-	  << asciiFileName
-	  << " => #evts = " << evtMax
-	  << endreq;
+							  msg() );
+    ATH_MSG_DEBUG( " [" << i << "] : " 
+                   << asciiFileName
+                   << " => #evts = " << evtMax );
     m_asciiFiles[i] = std::make_pair( asciiFileName, evtMax );
   }
   m_curEvtNbr = 0;
   m_curFile   = m_asciiFiles.begin();
 
-  // retrieve the McAsciiCnvSvc
-  const bool createIf = true;
   IConversionSvc* cnvSvc = 0;
-  if ( !service("McAsciiCnvSvc", cnvSvc, createIf).isSuccess() ||
-       0 == cnvSvc ) {
-    m_msg << MSG::ERROR
-	  << "Could not retrieve McAsciiCnvSvc !!" 
-	  << endreq;
+  ATH_CHECK( service("McAsciiCnvSvc", cnvSvc, true) );
+  m_asciiCnvSvc = dynamic_cast<McAsciiCnvSvc*>( cnvSvc );
+  if ( 0 == m_asciiCnvSvc ) {
+    ATH_MSG_ERROR( "Could not dyn-cast to McAsciiCnvSvc !!" );
     return StatusCode::FAILURE;
-  } else {
-    m_asciiCnvSvc = dynamic_cast<McAsciiCnvSvc*>( cnvSvc );
-    if ( 0 == m_asciiCnvSvc ) {
-      m_msg << MSG::ERROR
-	    << "Could not dyn-cast to McAsciiCnvSvc !!"
-	    << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      // configure the converter
-      m_asciiCnvSvc->setInputFile( m_curFile->first );
-    }
   }
+  
+  m_asciiCnvSvc->setInputFile( m_curFile->first );
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode McAsciiEventSelector::stop()     {
-  m_msg << MSG::INFO << "Stop..." << endreq;
+  ATH_MSG_INFO( "Stop..."  );
 
-  const bool createIf = true;
-  IIncidentSvc* incSvc = 0;
-  if ( !service("IncidentSvc", incSvc, createIf).isSuccess() ||
-       0 == incSvc ) {
-    m_msg << MSG::ERROR
-	  << "Could not retrieve IncidentSvc "
-	  << endreq;
-    return StatusCode::FAILURE;
-  }
+  ServiceHandle<IIncidentSvc> incSvc ("IncidentSvc", name());
+  ATH_CHECK( incSvc.retrieve() );
   Incident lastInputIncident(name(), "LastInput");
   incSvc->fireIncident(lastInputIncident);
 
@@ -168,7 +135,7 @@ StatusCode McAsciiEventSelector::stop()     {
 
 StatusCode McAsciiEventSelector::finalize()
 {
-  m_msg << MSG::INFO << "Finalize..." << endreq;
+  ATH_MSG_INFO( "Finalize..."  );
   return StatusCode::SUCCESS;
 }
 
@@ -185,7 +152,7 @@ McAsciiEventSelector::queryInterface( const InterfaceID& riid,
     *ppvInterface = dynamic_cast<IEvtSelector*>(this);
   } else {
     // Interface is not directly available : try out a base class
-    return Service::queryInterface(riid, ppvInterface);
+    return AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;
@@ -197,15 +164,12 @@ McAsciiEventSelector::queryInterface( const InterfaceID& riid,
 
 StatusCode McAsciiEventSelector::next( Context& ctx ) const
 {
-  m_msg << MSG::DEBUG << "............. Next Event ............."
-	<< endreq;
+  ATH_MSG_DEBUG( "............. Next Event ............." );
 
   McAsciiContext* asciiCtx = dynamic_cast<McAsciiContext*>(&ctx);
 
   if ( 0 == asciiCtx ) {
-    m_msg << MSG::ERROR
-	  << "Could not dyn-cast to McAsciiContext !!"
-	  << endreq;
+    ATH_MSG_ERROR( "Could not dyn-cast to McAsciiContext !!" );
     return StatusCode::FAILURE;
   }
 
@@ -216,13 +180,11 @@ StatusCode McAsciiEventSelector::next( Context& ctx ) const
     // go to next file ?
     ++m_curFile;
     if ( m_curFile == m_asciiFiles.end() ) {
-      m_msg << MSG::INFO << "EventSelector: End of input" << endreq;
+      ATH_MSG_INFO( "EventSelector: End of input"  );
       return StatusCode::FAILURE;
     } else {
-      m_msg << MSG::DEBUG 
-	    << "switching to next input ASCII file [" 
-	    << m_curFile->first << "]..."
-	    << endreq;
+      ATH_MSG_DEBUG( "switching to next input ASCII file [" 
+                     << m_curFile->first << "]..." );
       m_curEvtNbr = 0;
       m_asciiCnvSvc->setInputFile( m_curFile->first );
     }
@@ -253,8 +215,7 @@ McAsciiEventSelector::previous( Context& ctx ) const
   McAsciiContext* asciiCtx = dynamic_cast<McAsciiContext*>(&ctx);
 
   if ( 0 == asciiCtx ) {
-    m_msg << MSG::ERROR << "Could not dyn-cast to McAsciiContext !!" 
-	  << endreq;
+    ATH_MSG_ERROR( "Could not dyn-cast to McAsciiContext !!"  );
     return StatusCode::FAILURE;
   }
 
@@ -281,9 +242,7 @@ McAsciiEventSelector::previous( Context& ctx, int jump ) const
 StatusCode
 McAsciiEventSelector::last( Context& /*ctxt*/ ) const
 {
-  m_msg << MSG::ERROR 
-	<< "............. Last Event Not Implemented ............." 
-	<< endreq;
+  ATH_MSG_ERROR( "............. Last Event Not Implemented ............."  );
   return StatusCode::FAILURE;
 }
 
@@ -294,8 +253,7 @@ McAsciiEventSelector::rewind( Context& ctx ) const
   McAsciiContext* asciiCtx = dynamic_cast<McAsciiContext*>(&ctx);
 
   if ( 0 == asciiCtx ) {
-    m_msg << MSG::ERROR << "Could not dyn-cast to McAsciiContext !!" 
-	  << endreq;
+    ATH_MSG_ERROR( "Could not dyn-cast to McAsciiContext !!"  );
     return StatusCode::FAILURE;
   }
 
@@ -326,8 +284,7 @@ McAsciiEventSelector::createAddress( const Context& refCtx,
   const McAsciiContext* asciiCtx = dynamic_cast<const McAsciiContext*>(&refCtx);
 
   if ( 0 == asciiCtx ) {
-    m_msg << MSG::ERROR << "Could not dyn-cast to a McAsciiContext !!" 
-	  << endreq;
+    ATH_MSG_ERROR( "Could not dyn-cast to a McAsciiContext !!"  );
     return StatusCode::FAILURE;
   }
 
@@ -342,9 +299,7 @@ McAsciiEventSelector::createAddress( const Context& refCtx,
 StatusCode
 McAsciiEventSelector::releaseContext( Context*& /*refCtxt*/ ) const
 {
-  m_msg << MSG::ERROR 
-	<< "............. releaseContext Not Implemented ............." 
-	<< endreq;
+  ATH_MSG_ERROR( "............. releaseContext Not Implemented ............." );
 
   return StatusCode::FAILURE;
 }
@@ -352,9 +307,7 @@ McAsciiEventSelector::releaseContext( Context*& /*refCtxt*/ ) const
 StatusCode
 McAsciiEventSelector::resetCriteria( const std::string&, Context& ) const 
 {
-  m_msg << MSG::ERROR 
-	<< "............. resetCriteria Not Implemented ............." 
-	<< endreq;
+  ATH_MSG_ERROR( "............. resetCriteria Not Implemented ............." );
 
   return StatusCode::FAILURE;
 }
