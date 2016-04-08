@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE FADS SYSTEM "field.dtd">
+
+<FADS>
+
+<ConstantField 
+        Bx="0.0" 
+        By="0.0"
+        Bz="2.0"/>
+
+</FADS>
