@@ -1,9 +1,7 @@
 <lcgdict>
 
-  <class name="std::pair<int, float>" />
   <class name="std::pair<unsigned int, unsigned int>" />
   <class name="std::pair<std::string, unsigned int>" />
-  <class name="std::pair<std::string, double>" />
   <class name="std::pair<std::string, std::vector<int> >"/>
   <class name="std::pair<std::string, std::vector<double> >"/>
   
