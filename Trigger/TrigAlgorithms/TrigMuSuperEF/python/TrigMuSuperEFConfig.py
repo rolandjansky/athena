@@ -68,10 +68,10 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
                 monTools.append( TrigMuonEFCombinerToolMonitoring() )
                 monTools.append( TrigMuonEFCombinerToolValidationMonitoring() )
 
+        from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
+        self.StauCreatorTool = getPublicToolClone("TMEF_StauCreatorTool","TMEF_MuonCreatorTool",BuildStauContainer=True)
         # only add TrigMuGirl monitoring if it is run
         if doTrigMuGirl:
-            from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
-            self.StauCreatorTool = getPublicToolClone("TMEF_StauCreatorTool","TMEF_MuonCreatorTool",BuildStauContainer=True)
             self.MuGirlTool = getPublicTool("TrigMuGirlTagTool")
             #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
             #montool = TrigMuGirlToolMonitoring()
