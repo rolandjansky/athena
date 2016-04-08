@@ -34,7 +34,7 @@ class ParticleGun(EvgenAlg):
 
     def initialize(self):
         """
-        Pass the AtRndmGenSvc seed to Python's random module (or fall back to a fixed value for reproducibility).
+        Pass the AtRndmGenSvc seed to Python's random module, or use a fixed value set via pg.randomSeed.
         """
         seed = None
         ## Use self.randomSeed directly, or if it's None find a seed string from the ATLAS random number service
@@ -57,6 +57,7 @@ class ParticleGun(EvgenAlg):
             random.seed(seed)
             return StatusCode.Success
         else:
+            self.msg.error("ParticleGun: randomSeed property not set, and no %s random number service found" % self.randomSvcName)
             return StatusCode.Failure
 
 
