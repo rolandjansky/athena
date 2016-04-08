@@ -320,6 +320,7 @@ namespace Trk {
           /** fill or attach material, jacobian, step length 
               - material is just a pointer copy */
           void addMaterial(double sfactor, const MaterialProperties* mprop=nullptr);
+	  void addMaterial(double step, const Material* mat=nullptr);
           
           /** fill or attach material, jacobian, step length 
               - material is just a pointer copy */
@@ -506,6 +507,20 @@ namespace Trk {
            materialL0 += sfactor * mprop->thicknessInL0();
 	   zOaTrX     += mprop->zOverAtimesRho()* sfactor * mprop->thicknessInX0();
 	   zX         += mprop->averageZ()* sfactor * mprop->thicknessInX0();
+       }
+    }
+    
+    template <class T>  void ExtrapolationCell<T>::addMaterial(double step,
+                                                               const Material* mat)
+    {  
+    
+       // fill the material if there
+       if (mat && step>0.){
+           // the overal material
+           materialX0 += step/mat->X0;
+           materialL0 += step/mat->L0;
+	   zOaTrX     += mat->zOverAtimesRho()* step/mat->X0;
+	   zX         += mat->averageZ()* step/mat->X0;
        }
     }
     
