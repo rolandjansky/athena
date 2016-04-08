@@ -30,7 +30,7 @@ public:
 	TrigMuonEFInfoTrack_p1() {}
 	virtual ~TrigMuonEFInfoTrack_p1(){}
 
-private:
+        //private:
 	unsigned short int m_muonType;
 	TPObjRef m_spectrometerTrack;
 	TPObjRef m_extrapolatedTrack;

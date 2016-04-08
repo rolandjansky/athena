@@ -26,7 +26,7 @@ class TrigMuonEFIsolation_p2 {
   
   virtual ~TrigMuonEFIsolation_p2() {}
 
- private:
+  //private:
 
   // float m_sumTrkPtCone02;
   // float m_sumTrkPtCone03;

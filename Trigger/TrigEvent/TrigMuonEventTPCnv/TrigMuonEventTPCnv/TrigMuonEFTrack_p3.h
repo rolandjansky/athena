@@ -31,7 +31,7 @@ public:
 	TrigMuonEFTrack_p3() {}
 	virtual ~TrigMuonEFTrack_p3(){}
 
-private:
+        //private:
 	double m_charge;
 	double m_d0;
 	double m_z0;

@@ -26,7 +26,7 @@ public:
 	TrigMuonEFTrack_p6(){}
 	virtual ~TrigMuonEFTrack_p6(){}
 
-private:
+        //private:
     
     // float m_charge;
     // float m_d0;

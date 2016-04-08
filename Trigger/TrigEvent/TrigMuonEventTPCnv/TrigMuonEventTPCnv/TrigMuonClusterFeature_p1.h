@@ -28,7 +28,7 @@ class TrigMuonClusterFeature_p1 {
   TrigMuonClusterFeature_p1() {}
   virtual ~TrigMuonClusterFeature_p1(){}
 
- private:
+  //private:
 
   float m_eta;
   float m_phi;

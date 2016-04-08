@@ -28,7 +28,7 @@ class IsoMuonFeature_p2 {
   IsoMuonFeature_p2() : m_NTracksCone(0), m_RoiIdMu(0) {}
   ~IsoMuonFeature_p2(){}
 
- private:
+  //private:
 
   float m_allTheFloats[11];
   //  float m_EtInnerConeEC;

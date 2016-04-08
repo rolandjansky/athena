@@ -30,7 +30,7 @@ class TrigMuonEFInfo_p1
   TrigMuonEFInfo_p1() {}
   virtual ~TrigMuonEFInfo_p1(){}
 
- private:
+  //private:
   unsigned short int m_roi;
 
   TPObjRef m_spectrometerTrack;

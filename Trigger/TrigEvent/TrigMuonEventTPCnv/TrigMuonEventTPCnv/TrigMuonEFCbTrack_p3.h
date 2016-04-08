@@ -30,7 +30,7 @@ public:
 	TrigMuonEFCbTrack_p3() {}
 	virtual ~TrigMuonEFCbTrack_p3(){}
 
-private:
+        //private:
 	double m_matchChi2;
 	unsigned short int m_nIdSctHits;
 	unsigned short int m_nIdPixelHits;

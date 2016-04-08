@@ -30,7 +30,7 @@ class TrigMuonEFTrack_p1
   TrigMuonEFTrack_p1() {}
   virtual ~TrigMuonEFTrack_p1(){}
   
- private:
+  //private:
   double m_charge;
 
   TPObjRef m_P4IPtCotThPhiM;

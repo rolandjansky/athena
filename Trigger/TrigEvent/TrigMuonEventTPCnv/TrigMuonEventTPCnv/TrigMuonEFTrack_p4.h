@@ -31,7 +31,7 @@ public:
 	TrigMuonEFTrack_p4() {}
 	virtual ~TrigMuonEFTrack_p4(){}
 
-private:
+        //private:
 	float m_charge;
 	float m_d0;
 	float m_z0;

@@ -28,7 +28,7 @@ class IsoMuonFeature_p3 {
   IsoMuonFeature_p3() : m_flag(0), m_RoiIdMu(0) {}
   ~IsoMuonFeature_p3(){}
 
- private:
+  //private:
 
   float m_allTheFloats[14];
   int   m_flag;

@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFCbTrack_p3.h"
-#undef private
-#undef protected
-
 #include "TrigMuonEventTPCnv/TrigMuonEFCbTrackCnv_p3.h"
 
 
@@ -18,10 +13,10 @@ void TrigMuonEFCbTrackCnv_p3::persToTrans(const TrigMuonEFCbTrack_p3* persObj,
 {
   log << MSG::DEBUG << "TrigMuonEFCbTrackCnv_p3::persToTrans called " << endreq;
 
-  transObj->m_matchChi2    = persObj->m_matchChi2;
-  transObj->m_nIdSctHits   = persObj->m_nIdSctHits;
-  transObj->m_nIdPixelHits = persObj->m_nIdPixelHits;
-  transObj->m_nTrtHits     = persObj->m_nTrtHits;
+  transObj->setMatchChi2    (persObj->m_matchChi2);
+  transObj->setNIdSctHits   (persObj->m_nIdSctHits);
+  transObj->setNIdPixelHits (persObj->m_nIdPixelHits);
+  transObj->setNTrtHits     (persObj->m_nTrtHits);
 
    fillTransFromPStore( &m_TrigMuonEFTrackCnv, persObj->m_TrigMuonEFTrack, transObj, log );
 }

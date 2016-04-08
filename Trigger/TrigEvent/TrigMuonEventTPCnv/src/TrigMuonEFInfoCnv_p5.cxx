@@ -2,57 +2,43 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMuonEvent/TrigMuonEFInfo.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfo_p5.h"
-#undef private
-#undef protected
-
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoCnv_p5.h"
 
 
 void TrigMuonEFInfoCnv_p5::persToTrans(const TrigMuonEFInfo_p5* persObj, TrigMuonEFInfo* transObj, MsgStream &log) {
     // std::cout << "TrigMuonEFInfoCnv_p5::persToTrans called " << std::endl;
 
-    transObj->m_roi               = persObj->m_allTheInts[0];
-    transObj->m_nSegments         = persObj->m_allTheInts[1];
-    transObj->m_nMdtHits          = persObj->m_allTheInts[2];
-    transObj->m_nRpcHits          = persObj->m_allTheInts[3];
-    transObj->m_nTgcHits          = persObj->m_allTheInts[4];
-    transObj->m_nCscHits          = persObj->m_allTheInts[5];
-    
-	transObj->m_etaPreviousLevel  = persObj->m_etaPreviousLevel;
-	transObj->m_phiPreviousLevel  = persObj->m_phiPreviousLevel;
+  // track container
+  std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks
+    (createTransFromPStore( &m_trackContainerCnv, persObj->m_trackContainer, log));
 
-    // 
-    // // legacy to be compatible - probably not needed !
-    // delete transObj->m_spectrometerTrack;
-    // transObj->m_spectrometerTrack = createTransFromPStore( &m_trackCnv, persObj->m_spectrometerTrack, log);
-    // delete transObj->m_extrapolatedTrack;
-    // transObj->m_extrapolatedTrack = createTransFromPStore( &m_trackCnv, persObj->m_extrapolatedTrack, log);
-    // delete transObj->m_combinedTrack;
-    // transObj->m_combinedTrack     = createTransFromPStore( &m_cbTrackCnv, persObj->m_combinedTrack, log);
+  *transObj = TrigMuonEFInfo (persObj->m_allTheInts[0],
+                              std::move (tracks));
+  transObj->setNSegments (persObj->m_allTheInts[1]);
+  transObj->setNMdtHits (persObj->m_allTheInts[2]);
+  transObj->setNRpcHits (persObj->m_allTheInts[3]);
+  transObj->setNTgcHits (persObj->m_allTheInts[4]);
+  transObj->setNCscHits (persObj->m_allTheInts[5]);
 
-	// track container
-	delete transObj->m_trackContainer;
-	transObj->m_trackContainer = createTransFromPStore( &m_trackContainerCnv, persObj->m_trackContainer, log);
-
+  transObj->setEtaPreviousLevel (persObj->m_etaPreviousLevel);
+  transObj->setPhiPreviousLevel (persObj->m_phiPreviousLevel);
 }
 
 
 void TrigMuonEFInfoCnv_p5::transToPers(const TrigMuonEFInfo* transObj, TrigMuonEFInfo_p5* persObj, MsgStream &log) {
     // std::cout << "TrigMuonEFInfoCnv_p3::transToPers called " << std::endl;
 
-	persObj->m_allTheInts[0]    = transObj->m_roi;
-	persObj->m_allTheInts[1]    = transObj->m_nSegments;
-	persObj->m_allTheInts[2]    = transObj->m_nMdtHits;
-	persObj->m_allTheInts[3]    = transObj->m_nRpcHits;
-	persObj->m_allTheInts[4]    = transObj->m_nTgcHits;
-	persObj->m_allTheInts[5]    = transObj->m_nCscHits;
+        persObj->m_allTheInts[0]    = transObj->RoINum();
+	persObj->m_allTheInts[1]    = transObj->NSegments();
+	persObj->m_allTheInts[2]    = transObj->NMdtHits();
+	persObj->m_allTheInts[3]    = transObj->NRpcHits();
+	persObj->m_allTheInts[4]    = transObj->NTgcHits();
+	persObj->m_allTheInts[5]    = transObj->NCscHits();
 	
-	persObj->m_etaPreviousLevel  = transObj->m_etaPreviousLevel;
-	persObj->m_phiPreviousLevel  = transObj->m_phiPreviousLevel;
+	persObj->m_etaPreviousLevel  = transObj->EtaPreviousLevel();
+	persObj->m_phiPreviousLevel  = transObj->PhiPreviousLevel();
 
 	// check for legacy
     // if (transObj->hasLegacyTrack()) {
@@ -78,7 +64,7 @@ void TrigMuonEFInfoCnv_p5::transToPers(const TrigMuonEFInfo* transObj, TrigMuonE
     //  delete tmpTrkCont;
     // }
     // else {
-		persObj->m_trackContainer    = toPersistent( &m_trackContainerCnv, transObj->m_trackContainer, log);
+        persObj->m_trackContainer    = toPersistent( &m_trackContainerCnv, transObj->TrackContainer(), log);
     // }
 
 }
