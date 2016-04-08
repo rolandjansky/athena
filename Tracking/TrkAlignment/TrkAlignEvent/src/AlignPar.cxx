@@ -37,6 +37,9 @@ namespace Trk {
       case AlignModule::RotX   :  return "RotX";
       case AlignModule::RotY   :  return "RotY";
       case AlignModule::RotZ   :  return "RotZ";
+      case AlignModule::BowX   :  return "BowX";
+      case AlignModule::BowY   :  return "BowY";
+      case AlignModule::BowZ   :  return "BowZ";
       default:
         std::ostringstream stm;
         stm << "ParType" << paramType();
