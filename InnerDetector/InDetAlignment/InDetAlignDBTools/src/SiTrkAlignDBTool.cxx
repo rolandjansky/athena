@@ -41,9 +41,11 @@ SiTrkAlignDBTool::SiTrkAlignDBTool(const std::string & type, const std::string &
    , m_writeSQLFile(true)
    , m_SQLiteTag("test_tag")
    , m_outputAlignFile("OutputSiAlignment.txt")
+   , m_outIBLDistFile("OutputIBLDist.txt")
    , m_writeTextFile(true)
    , m_writeOldConstants(false)
    , m_oldAlignFile("OldSiAlignment.txt")
+   , m_oldIBLDistFile("OldIBLDist.txt")
    , m_updateConstants(true)
    , m_IDAlignDBTool("InDetAlignDBTool")
    , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
@@ -59,15 +61,18 @@ SiTrkAlignDBTool::SiTrkAlignDBTool(const std::string & type, const std::string &
    , m_doSCT(false)
    , m_writeAsL3(false)
    , m_writeAsL2(false)
+   , m_writeAsL16(false)
 {
   declareInterface<ITrkAlignDBTool>(this);
 
   declareProperty("WriteSQLFile",      m_writeSQLFile);
   declareProperty("SQLiteTag",         m_SQLiteTag);
   declareProperty("OutputTextFile",    m_outputAlignFile);
+  declareProperty("OutputIBLDistFile", m_outIBLDistFile);
   declareProperty("WriteTextFile",     m_writeTextFile);
   declareProperty("WriteOldConstants", m_writeOldConstants);
   declareProperty("OldAlignFile",      m_oldAlignFile);
+  declareProperty("OldIBLDistFile",    m_oldIBLDistFile);
   declareProperty("UpdateConstants",   m_updateConstants);
   declareProperty("WriteAsL3",         m_writeAsL3);
 
@@ -172,7 +177,7 @@ StatusCode SiTrkAlignDBTool::initialize() {
       ATH_MSG_DEBUG("Retrieved Pixel Endcap alignment level: "<<m_pixelAlignLevelEndcaps);
       ATH_MSG_DEBUG("Retrieved DBM alignment configuration: "<<m_pixelaAlignDBM);
       
-		if(m_pixelAlignLevel == 1)
+      if(m_pixelAlignLevel == 1)
         ATH_MSG_INFO(" Requested update of Level "<<m_pixelAlignLevel<<" alignment constants for Pixel");
       else {
         ATH_MSG_INFO(" Requested update of Level "<<m_pixelAlignLevelBarrel<<" alignment constants for Pixel Barrel");
@@ -232,6 +237,9 @@ StatusCode SiTrkAlignDBTool::initialize() {
   if (m_writeAsL3)
     ATH_MSG_INFO(" Storing as level 3 constants.");
 
+  if (m_writeAsL16)
+    ATH_MSG_INFO(" Storing IBLDist as level 16 constants in separate DB");
+
   if(!m_doPixel && !m_doSCT && !m_doSi) {
     msg(MSG::FATAL)<<" No geometry manager available or alignment level not given."<<endreq;
     msg(MSG::FATAL)<<" DB not updated."<<endreq;
@@ -270,6 +278,12 @@ bool SiTrkAlignDBTool::checkPixelLevel()
     return true;
   }
   
+  if(!m_pixelaAlignDBM && m_pixelAlignLevel==16){// the new IBL bowing level                   
+    m_writeAsL16 = true; 
+    // We need some fix here with respect to current CL implementation! There bowing is updated at L3!! (this would currently do both..)
+    return true;
+  }
+
   if (m_writeAsL3)
     return true;
 
@@ -373,6 +387,7 @@ void SiTrkAlignDBTool::writeAlignPar()
   if(m_writeOldConstants) {
     ATH_MSG_INFO("Writing old Silicon alignment constants to file "<<m_oldAlignFile);
     m_IDAlignDBTool->writeFile(false, m_oldAlignFile);
+    m_IDAlignDBTool->writeIBLDistFile(m_oldIBLDistFile);
   }
 
   // now update the DB
@@ -382,6 +397,7 @@ void SiTrkAlignDBTool::writeAlignPar()
   if(m_writeTextFile) {
     ATH_MSG_INFO("Writing Silicon alignment constants to file "<<m_outputAlignFile);
     m_IDAlignDBTool->writeFile(false, m_outputAlignFile);
+    m_IDAlignDBTool->writeIBLDistFile(m_outIBLDistFile);
   }
 
   return;
@@ -459,24 +475,20 @@ void SiTrkAlignDBTool::updateDB()
     double apRotY = fullAlignPars->at(Trk::AlignModule::RotY)->par();
     double apRotZ = fullAlignPars->at(Trk::AlignModule::RotZ)->par();
     
-    // Need to add something here for the bowing!!!
-    double apBowX = fullAlignPars->at(Trk::AlignModule::BowX)->par();
+    // Need to make sure not to call SCT modules - only defined for PIX 
+    double apBowX = 0;
+    // This should be sufficient as bowing-DoF is only enabled for IBL
+    if(m_idHelper->is_pixel(modID) && m_pixHelper->is_barrel(modID) ){
+      apBowX = fullAlignPars->at(Trk::AlignModule::BowX)->par();
     
-    //tx ~ bowX (y^2/y_0^2 - 1) (ignoring that that local x does not quite equal stave x when you have a bowing)  
-    //rz ~ atan( 2 bowX y/y_^2 ) 
-    
-    
-    //construct the alignment transform
-//    CLHEP::HepRotation rotation = CLHEP::HepRotationX( apRotX ) * CLHEP::HepRotationY( apRotY ) * CLHEP::HepRotationZ( apRotZ );
-//    CLHEP::Hep3Vector translation( apTraX, apTraY, apTraZ );
-//    // produce artificial transform for testing DBM as long as there is no tracking ready
-//    CLHEP::Hep3Vector translation_t( 0.05, 0.06, -0.01 );
-//    CLHEP::HepRotation rotation_t = CLHEP::HepRotationX( -0.1 ) * CLHEP::HepRotationY( 0.1 ) * CLHEP::HepRotationZ( 0.05 );
-//    
-//    // !!! needs fixing as soon as DBM tracking is implemented !!!
-//    Amg::Transform3D transform;
-//    if(!m_pixelaAlignDBM) transform = Amg::Transform3D(rotation,translation);
-//    else transform = Amg::Transform3D(rotation_t,translation_t);
+      // The last check ensures that it also updates for L11 in case bowing DoF is enables.
+      if(m_pixelAlignLevelBarrel==16 || m_writeAsL16 || apBowX!=0){     
+	updateAsL16(module,apBowX);  
+	// Can we get a baseline as well? include here in case it is possible!
+	// Allow other DoF to be updated as well!
+	// Initial CL (Oct. 2016) update at L3 --> commented for now
+      }
+    }
     
     Amg::Translation3D translation( apTraX, apTraY, apTraZ );
     Amg::Transform3D transform = translation * Amg::RotationMatrix3D::Identity();
@@ -528,7 +540,7 @@ void SiTrkAlignDBTool::updateDB()
     ATH_MSG_DEBUG("We are having level: "<<level);
 
     if (m_writeAsL3) {
-      updateAsL3(module,transform);
+      updateAsL3(module,transform,apBowX);
       continue;
     }
 
@@ -576,7 +588,7 @@ void SiTrkAlignDBTool::updateDB()
       default:
         // otherwise we split the AlignModule into level 3 modules
         ATH_MSG_DEBUG("We are doing this one");
-        updateAsL3(module,transform);
+        updateAsL3(module,transform,apBowX);
         continue;
     }
 
@@ -651,7 +663,7 @@ void SiTrkAlignDBTool::updateSiL0asL1(Identifier idL0, const Amg::Transform3D & 
 }
 
 //_________________________________________________________________________________________
-void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Transform3D & transform)
+void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Transform3D & transform, double apBowX)
 {
   ATH_MSG_INFO("Updating constants for module "<<module->name()<<" as level 3 constants");
 
@@ -661,7 +673,7 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
   // transform from global frame to align frame
   Amg::Transform3D globaltoalign = module->globalFrameToAlignFrame();
 
-  // same code applies to both Pixel and SCT
+  // same code pplies to both Pixel and SCT
   for (unsigned int idet=0; idet<2; idet++) {
 
     Trk::AlignModule::DetectorType det = idet ? Trk::AlignModule::SCT : Trk::AlignModule::Pixel;
@@ -702,22 +714,37 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
       // this should work for both Pixel and SCT
       // module transform is the transform between the db frame and global frame
       Amg::Transform3D dbtoglobal = sielem->moduleTransform();
-//      ATH_MSG_DEBUG("DB to Global");
-//      printTransform(dbtoglobal);
+      //      ATH_MSG_DEBUG("DB to Global");
+      //      printTransform(dbtoglobal);
 
-//      ATH_MSG_DEBUG("Global to Align");
-//      printTransform(globaltoalign);
+      //      ATH_MSG_DEBUG("Global to Align");
+      //      printTransform(globaltoalign);
 
       // from DB frame to alignment frame transform
       Amg::Transform3D dbtoalign = globaltoalign * dbtoglobal;
-//      ATH_MSG_DEBUG("DB to Align");
-//      printTransform(dbtoalign);
+      //      ATH_MSG_DEBUG("DB to Align");
+      //      printTransform(dbtoalign);
 
       ATH_MSG_DEBUG("Alignment transform");
       printTransform(transform);
 
       // alignment transform in DB frame
-      Amg::Transform3D dbtransform = dbtoalign.inverse() * transform * dbtoalign;
+      Amg::Transform3D dbtransform = dbtoalign.inverse() * transform * dbtoalign; 
+
+      // This should work as Bowing is in DB frame, i.e. local module frame
+      // This implementation is need in the CL as of Oct2015; 
+      // For now, just comment for offline
+      /**
+      if (apBowX!=0){
+	double z = sielem->center()[2];        
+	const double  y0y0  = 366.5*366.5;
+	//ATH_MSG_DEBUG("Z position : "<< z);
+	double bowx = apBowX * ( z*z - y0y0 ) / y0y0;
+	// This is in the module frame, as bowing corrections are directly L3
+	Amg::Translation3D translation_bow(bowx , 0, 0 );
+	dbtransform *= translation_bow;
+	}
+      **/
       ATH_MSG_DEBUG("DB transform");
       printTransform(dbtransform);
 
@@ -727,9 +754,7 @@ void SiTrkAlignDBTool::updateAsL3(const Trk::AlignModule * module, const Amg::Tr
         if( !(m_IDAlignDBTool->setTrans(elemID, level, dbtransform)) )
           msg(MSG::ERROR)<<"Error setting level "<<level<<" constants for element "<<elemID<<" in module "<<module->name()<<endreq;
       }
-
     } // end loop over detElements
-
     ATH_MSG_DEBUG("-----------------------------------------------------");
   } // end loop over Pixel and SCT
 }
@@ -804,10 +829,53 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
   } // end loop over detElements
 }
   
-  
-  
-  
-  
+
+//_________________________________________________________________________________________                                                                                    
+void SiTrkAlignDBTool::updateAsL16(const Trk::AlignModule * module, double bowx)
+{
+  ATH_MSG_INFO("Updating constants for module "<<module->name()<<" as level 16 IBLDist constants (new)");
+
+  Trk::AlignModule::DetectorType det = Trk::AlignModule::Pixel;
+  const std::vector<const Trk::TrkDetElementBase *> * elements = module->detElementCollection(det);
+
+  if( !elements ) {
+    ATH_MSG_FATAL("no elements of type "<<det);
+  }
+
+  ATH_MSG_DEBUG("looping over "<<elements->size()<<" elements");
+  std::vector<int> stave_phis; // where we store the unique identifiers we want to update                                                                                
+  std::vector<const Trk::TrkDetElementBase*>::const_iterator ielem     = elements->begin();
+  std::vector<const Trk::TrkDetElementBase*>::const_iterator ielem_end = elements->end();
+  for ( ; ielem != ielem_end; ++ielem) {
+    const InDetDD::SiDetectorElement * sielem = dynamic_cast<const InDetDD::SiDetectorElement *>(*ielem);
+    if (!sielem) {
+      ATH_MSG_WARNING("Should be Silicon detector element but is not. Skipping.");
+      continue;
+    }
+
+    Identifier elemID = sielem->identify();
+    const int this_stave_phi = m_pixHelper->phi_module( elemID );
+
+    ATH_MSG_DEBUG("module ID: "<<m_idHelper->show_to_string(elemID,0,'/'));
+    ATH_MSG_DEBUG("phi identifier: "<<m_pixHelper->phi_module( elemID )) ;    
+
+    std::vector<int>::const_iterator ix = find(stave_phis.begin(),stave_phis.end(),this_stave_phi); // check whether it is unique
+    if (ix==stave_phis.end()) {
+      stave_phis.push_back(this_stave_phi);
+
+      // tweak applies the transform onto already existing transform in the DB                                              
+      if( !(m_IDAlignDBTool->tweakIBLDist(this_stave_phi,bowx)) ) {
+	msg(MSG::ERROR)<<"Error tweaking IBLDist DB for stave "<<this_stave_phi<<endreq;
+      }
+    }
+    else {
+      ATH_MSG_DEBUG("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,0,'/')<<" --> not unique");
+    }
+    
+  } // end loop over detElements                                                                                                                                                 
+}
+
+    
 //_________________________________________________________________________________________
   void SiTrkAlignDBTool::printTransform(const Amg::Transform3D & tr) const
   {
