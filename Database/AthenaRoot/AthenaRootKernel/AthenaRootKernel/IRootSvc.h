@@ -12,40 +12,29 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
+// fwk includes
+#include "GaudiKernel/IInterface.h"
+
+#include "DataModelRoot/RootType.h"
+
 // stl includes
 #include <typeinfo>
 #include <string>
 
-// fwk includes
-#include "GaudiKernel/IInterface.h"
-#include "AthenaRootKernel/IIoSvc.h"
-#include "DataModelRoot/RootType.h"
-
 // fwd declares
-class TClass;
+class Token;
+class Placement;
 namespace Athena { class RootConnection; }
 
 /** @class IRootSvc
  *  @brief This class provides the interface to the ROOT software.
  **/
-class IRootSvc : virtual public IInterface
-{
-
+class IRootSvc : virtual public IInterface {
 public:
-
   virtual ~IRootSvc();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public typedefs: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public members: 
-  /////////////////////////////////////////////////////////////////// 
-
   /// Retrieve interface ID
-  static const InterfaceID& interfaceID() 
-  { 
+  static const InterfaceID& interfaceID() {
     static const InterfaceID s_iid("IRootSvc", 1, 0);
     return s_iid;
   }
@@ -54,53 +43,35 @@ public:
   /// Load the type (dictionary) from Root.
   virtual RootType getType(const std::type_info& type) const = 0;
 
-  /// Create an object of a given `RootType`.
-  virtual void* createObject(const RootType type) const = 0;
+  /// Read object from Root.
+  virtual void* readObject(const Token& token, void*& pObj) = 0;
 
   /// Write object of a given class to Root.
-  virtual unsigned long writeObject(const std::string& placement,
-                            const RootType type,
-                            const void* pObj) = 0;
+  virtual const Token* writeObject(const Placement& placement, const RootType& type, const void* pObj) = 0;
+
+  /// Create an object of a given `RootType`.
+  virtual void* createObject(const RootType& type) const = 0;
 
   /// Destruct a given object of type `RootType`.
-  virtual void destructObject(RootType type, void* pObj) const = 0;
-  
+  virtual void destructObject(const RootType& type, void* pObj) const = 0;
+
   ///@}
 
-  ///@{ CINT-based interface
-  /// Load the class (dictionary) from Root.
-  virtual TClass* getClass(const std::type_info& type) const = 0;
+  /// Open the file `fname` with open mode `mode`
+  virtual StatusCode open(const std::string& fname, const std::string& mode) = 0;
 
-  /// Create an object of a given TClass.
-  virtual void* createObject(const TClass* classDesc) const = 0;
-
-  /// Write object of a given class to Root.
-  virtual unsigned long writeObject(const std::string& placement,
-                                    const TClass* classDesc,
-                                    const void* pObj) = 0;
-
-  /// Destructor a given object of TClass.
-  virtual void destructObject(TClass* classDesc, void* pObj) const = 0;
-  
-  ///@}
-
-  /// open the file `fname` with open mode `mode`
-  /// @returns the file descriptor or -1 if failure
-  virtual IIoSvc::Fd open(const std::string& fname,
-                          IIoSvc::IoType mode) = 0;
-
-  /// Connect the file descriptor `fd` to the service.
-  virtual StatusCode connect(IIoSvc::Fd fd) = 0;
-  
-  /// get the RootConnection associated with file descriptor `fd`
-  /// @returns NULL if no such file is known to this service
-  virtual Athena::RootConnection* connection(IIoSvc::Fd fd) = 0;
+  /// Connect the file `fname` to the service.
+  virtual StatusCode connect(const std::string& fname) = 0;
 
   /// Commit data and flush buffer.
   virtual StatusCode commitOutput() = 0;
-  
-  /// Disconnect the file from the service.
-  virtual StatusCode disconnect(IIoSvc::Fd fd) = 0;
+
+  /// Disconnect the file `fname` from the service.
+  virtual StatusCode disconnect(const std::string& fname) = 0;
+
+  /// Get the RootConnection associated with file `fname`
+  /// @returns NULL if no such file is known to this service
+  virtual Athena::RootConnection* connection(const std::string& fname) = 0;
 };
 
 #endif /* !ATHENAROOTKERNEL_IROOTSVC_H */
