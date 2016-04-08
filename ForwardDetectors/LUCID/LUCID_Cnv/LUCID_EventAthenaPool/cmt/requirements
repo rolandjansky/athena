@@ -15,9 +15,7 @@ use LUCID_SimEvent              LUCID_SimEvent-*                ForwardDetectors
 
 apply_pattern declare_joboptions files="*.txt *.py"
 
-macro converters "-s=${LUCID_SimEvent_root}/LUCID_SimEvent LUCID_SimHitCollection.h  -s=${LUCID_RawEvent_root}/LUCID_RawEvent LUCID_DigitContainer.h  -s=${LUCID_RawEvent_root}/LUCID_RawEvent LUCID_RawDataContainer.h"
-
-apply_pattern poolcnv files=${converters}
+apply_pattern poolcnv files="-s=$(LUCID_SimEvent_root)/LUCID_SimEvent LUCID_SimHitCollection.h  -s=$(LUCID_RawEvent_root)/LUCID_RawEvent LUCID_DigitContainer.h  -s=$(LUCID_RawEvent_root)/LUCID_RawEvent LUCID_RawDataContainer.h"
 
 macro_append LUCID_EventAthenaPoolPoolCnv_shlibflags "$(LUCID_EventAthenaPool_dict_linkopts)" 
 
