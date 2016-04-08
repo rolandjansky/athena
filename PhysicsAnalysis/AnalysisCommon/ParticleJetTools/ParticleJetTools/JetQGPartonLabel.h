@@ -2,11 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//Dear emacs, this is -*-c++-*-
-
 ///////////////////////////////////////////////////////////////////
-// JetQuarkLabel.h
-//   Header file for class JetQuarkLabel
+// JetQGPartonLabel.h
+//   Header file for class JetQGPartonLabel
 ///////////////////////////////////////////////////////////////////
 /**
  * <b>Purpose:</b> label jets with b or c quarks.<br>
@@ -15,30 +13,26 @@
  * <b>Created:</b> 2005/02/25 <br>
  */
 
-#ifndef PARTICLEJETTOOLS_JETQUARKLABEL_H
-#define PARTICLEJETTOOLS_JETQUARKLABEL_H
+#ifndef PARTICLEJETTOOLS_JETQGPARTONLABEL_H
+#define PARTICLEJETTOOLS_JETQGPARTONLABEL_H
 
 #include "AsgTools/AsgTool.h"
 #include "ParticleJetTools/IJetTruthMatching.h"
-#include "EventPrimitives/EventPrimitives.h"
 #include <string>
 #include <map>
-#include "xAODJet/Jet.h"
-#include "xAODTruth/TruthEventContainer.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
 
-//class McEventCollection;
+class McEventCollection;
 class Jet;
 
 namespace Analysis
 {
 
-class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
-    ASG_TOOL_CLASS(JetQuarkLabel, IJetTruthMatching)
+class JetQGPartonLabel : public asg::AsgTool, virtual public IJetTruthMatching {
+
+    ASG_TOOL_CLASS(JetQGPartonLabel, IJetTruthMatching)
     public:
-        JetQuarkLabel(const std::string& name);
-        virtual ~JetQuarkLabel();
+        JetQGPartonLabel(const std::string& name);
+        virtual ~JetQGPartonLabel();
         StatusCode initialize();
         StatusCode finalize();
 
@@ -48,7 +42,7 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
          * longer a job option.
          */
 
-        virtual bool matchJet(const xAOD::Jet& myJet);
+        virtual bool matchJet(const Jet& myJet);
 
         virtual void m_printParameterSettings();
 
@@ -61,15 +55,9 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
         int pdgCode() const;
 
         /** Return the predefined name to label the jets passing the matching: */
-        inline const int& jetLabel() const { return m_jetLabel; }
+        inline const std::string& jetLabel() const { return m_jetLabel; }
 
-        /** Return the min distance to quarks: */
-        double deltaRMinTo(const std::string&) const;
-        inline const std::map<std::string, double>& distanceToQuarks() const { return m_distanceToQuarks; }
-
-        /** Return the B decay vertex position: */
-        inline const Eigen::Vector3d& BDecVtx() const { return m_BDecVtx; }
-        int Bpdg() const { return m_Bpdg; }
+        double deltaRToParton() const;
 
         /** Get the number of MC Events in the McEventCollection: */
         inline int NEventInCollection() const { return m_NEventInCollection; }
@@ -82,22 +70,25 @@ class JetQuarkLabel : public asg::AsgTool, virtual public IJetTruthMatching {
         double m_ptCut;     //!< pT cut for partons
         bool   m_noDoc;
         short  m_inTime;
-        bool m_testJet(const xAOD::Jet&, const xAOD::TruthEventContainer*);
-        int m_jetLabel; //!< label to use for matching jets
-        std::map<std::string, double> m_distanceToQuarks; //!< keep track of distances to quarks
-        Eigen::Vector3d m_BDecVtx; //!< positon of the lowest lying B hadron vertex decay
         int    m_pdg;       //!< pdg code of the parton/baryon the jet has been matched to (which was closest)
         int    m_barcode;   //!< barcode of the matched parton (to be able to find the parton in the McEventColl)
-        int m_Bpdg;
+        bool m_testJet(const Jet&, const McEventCollection*);
+        std::string m_jetLabel; //!< label to use for matching jets
         int m_NEventInCollection;
+
+        double m_maxEnergy;
+        double m_matchPdgId;
+        double m_matchBarcode;
+        double m_matchDeltaR;
+
 };
 
 /** Return barcode */
-inline int JetQuarkLabel::barcode()  const { return m_barcode; }
+inline int JetQGPartonLabel::barcode()  const { return m_barcode; }
 
 /** Return pdg to match */
-inline int JetQuarkLabel::pdgCode()  const { return m_pdg; }
+inline int JetQGPartonLabel::pdgCode()  const { return m_pdg; }
 
 }
-#endif // TRUTHMATCHTOOLS_JETQUARKLABEL_H
+#endif // TRUTHMATCHTOOLS_JETQGPARTONLABEL_H
 
