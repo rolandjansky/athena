@@ -433,10 +433,17 @@ StatusCode AthenaPoolOutputStreamTool::streamObjects(const DataObjectVec& dataOb
       }
       for (std::vector<DataHeaderElement>::const_iterator thisToken = m_dataHeader->begin(),
 		      endToken = m_dataHeader->end(); thisToken != endToken; thisToken++) {
-         if (iter->second.find(thisToken->getPrimaryClassID()) != iter->second.end()) {
-            satDataHeader->insert(*thisToken);
-         } else if (thisToken->getPrimaryClassID() == ClassID_traits<DataHeader>::ID()) {
+         if (thisToken->getPrimaryClassID() == ClassID_traits<DataHeader>::ID()) {
             satDataHeader->insertProvenance(*thisToken);
+         } else {
+            std::set<CLID> symLinks = thisToken->getClassIDs();
+            for (std::set<CLID>::const_iterator symIter = symLinks.begin(),
+		            symIterEnd = symLinks.end(); symIter != symIterEnd; symIter++) {
+               if (iter->second.find(*symIter) != iter->second.end()) {
+                  satDataHeader->insert(*thisToken);
+                  break;
+               }
+            }
          }
       }
       DataObject* satDataHeaderObj = m_store->accessData(ClassID_traits<DataHeader>::ID(), iter->first);
@@ -492,8 +499,11 @@ StatusCode AthenaPoolOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenF
 		  //see https://its.cern.ch/jira/browse/ATLASG-59 for the solution
                   std::string typeName;
                   if( m_clidSvc->getTypeNameOfID(clid,typeName).isFailure() && it->getKey().find("Aux.") == std::string::npos) {
-                     ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid );
-                     continue;
+		    if(m_skippedItems.find(it->getKey()) == m_skippedItems.end()) {
+		      ATH_MSG_WARNING("Skipping " << it->getKey() << " with unknown clid " << clid << " . Further warnings for this item are suppressed" ); 
+		      m_skippedItems.insert(it->getKey()); 
+		    }
+                    continue;
                   }
                   ATH_MSG_DEBUG("Adding " << typeName << "#" << it->getKey() << " (clid " << clid << ") to itemlist");
                   const std::string keyName = it->getKey();
