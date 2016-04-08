@@ -384,7 +384,19 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     // 
     // Get L1 RoiDescriptor
     const TrigRoiDescriptor* roiL1Descriptor = 0;
-    /*HLT::ErrorCode tmpStatus =*/ getFeature( inputTE, roiL1Descriptor, "initialRoI" );
+    HLT::ErrorCode tmpStatus = getFeature( inputTE, roiL1Descriptor, "initialRoI" );
+
+    if(tmpStatus == HLT::OK && roiDescriptor){
+      if(msgLvl() <= MSG::DEBUG) {        
+	msg() << MSG::DEBUG  << " RoI id " << roiL1Descriptor->roiId() 
+	      << " LVL1 id " << roiL1Descriptor->l1Id() 
+	      << *roiL1Descriptor << endreq;
+      }
+    } else {
+      msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
+      return HLT::ERROR;
+    }
+
 
     //Fill monitored variables
     const TrigTauClusterDetails* clusterDetails = ptrigTauCluster->clusterDetails();
