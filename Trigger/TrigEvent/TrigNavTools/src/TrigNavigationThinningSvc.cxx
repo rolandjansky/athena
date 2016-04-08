@@ -110,21 +110,9 @@ void TrigNavigationThinningSvc::handle( const Incident& incident )  {
 
 
 
-  ///@{ @c IProxyDict interface
-  /// get proxy for a given data object address in memory,
-  /// but performs a deep search among all possible 'symlinked' containers
-SG::DataProxy* TrigNavigationThinningSvc::deep_proxy(const void* const pTransient) const   { 
-  return m_workerThinning->deep_proxy(pTransient);
-}
-
   /// get proxy for a given data object address in memory
 SG::DataProxy* TrigNavigationThinningSvc::proxy( const void* const pTransient ) const   { 
   return m_workerThinning->proxy(pTransient); 
-}
-
-  /// get default proxy with given id. Returns 0 to flag failure
-SG::DataProxy* TrigNavigationThinningSvc::proxy( const CLID& id ) const  { 
-  return m_workerThinning->proxy(id); 
 }
 
 /// get proxy with given id and key. Returns 0 to flag failure
@@ -147,5 +135,86 @@ std::vector<const SG::DataProxy*> TrigNavigationThinningSvc::proxies() const  {
 /// Add a new proxy to the store.
 StatusCode TrigNavigationThinningSvc::addToStore (CLID id, SG::DataProxy* proxy)  {
   return m_workerThinning->addToStore(id, proxy);
+}
+
+/// Record an object in the store.
+SG::DataProxy*
+TrigNavigationThinningSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                                         const std::string& key,
+                                         bool allowMods,
+                                         bool returnExisting)
+{
+  return m_workerThinning->recordObject (std::move(obj), key,
+                                         allowMods, returnExisting);
+}
+
+
+/// Inform HIVE that an object has been updated.
+StatusCode
+TrigNavigationThinningSvc::updatedObject (CLID id, const std::string& key)
+{
+  return m_workerThinning->updatedObject (id, key);
+}
+
+
+/**
+ * @brief Find the key for a string/CLID pair.
+ * @param str The string to look up.
+ * @param clid The CLID associated with the string.
+ * @return A key identifying the string.
+ *         A given string will always return the same key.
+ *         Will abort in case of a hash collision!
+ */
+SG::sgkey_t
+TrigNavigationThinningSvc::stringToKey (const std::string& str, CLID clid)
+{
+  return m_workerThinning->stringToKey (str, clid);
+}
+
+/**
+ * @brief Find the string corresponding to a given key.
+ * @param key The key to look up.
+ * @return Pointer to the string found, or null.
+ *         We can find keys as long as the corresponding string
+ *         was given to either @c stringToKey() or @c registerKey().
+ */
+const std::string*
+TrigNavigationThinningSvc::keyToString (SG::sgkey_t key) const
+{
+  return m_workerThinning->keyToString (key);
+}
+
+/**
+ * @brief Find the string and CLID corresponding to a given key.
+ * @param key The key to look up.
+ * @param clid[out] The found CLID.
+ * @return Pointer to the string found, or null.
+ *         We can find keys as long as the corresponding string
+ *         was given to either @c stringToKey() or @c registerKey().
+ */
+const std::string*
+TrigNavigationThinningSvc::keyToString (SG::sgkey_t key,
+                                        CLID& clid) const
+{
+  return m_workerThinning->keyToString (key, clid);
+}
+
+/**
+ * @brief Remember an additional mapping from key to string/CLID.
+ * @param key The key to enter.
+ * @param str The string to enter.
+ * @param clid The CLID associated with the string.
+ * @return True if successful; false if the @c key already
+ *         corresponds to a different string.
+ *
+ * This registers an additional mapping from a key to a string;
+ * it can be found later through @c lookup() on the string.
+ * Logs an error if @c key already corresponds to a different string.
+ */
+void TrigNavigationThinningSvc::registerKey (SG::sgkey_t key,
+                                             const std::string& str,
+                                             CLID clid)
+{
+  return m_workerThinning->registerKey (key, str, clid);
 }
 
