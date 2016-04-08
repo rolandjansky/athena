@@ -98,7 +98,7 @@ StatusCode LArRampValidationAlg::preLoop() {
 	  if (fabs(singleRamp[DACIndex].TimeMax) > m_rawrampTimeTolerance){ 
 	    msg().setf(std::ios::fixed,std::ios::floatfield); 
 	    msg().precision(2);
-	    msg() << m_myMsgLvl << "Deviating! " << channelDescription((*cont_it)->channelID(),(*cont_it)->gain()) << " DeltaT=" << singleRamp[DACIndex].TimeMax << " DAC = " << singleRamp[DACIndex].DAC << endmsg;
+	    msg() << m_myMsgLvl << "Deviating! " << channelDescription((*cont_it)->channelID(),(*cont_it)->gain()) << " DeltaT=" << singleRamp[DACIndex].TimeMax << " DAC = " << singleRamp[DACIndex].DAC << endreq;
 	  }
 	  break; //Stop loop after testing the m_rawrampTimeDAC DAC point
 	}
@@ -177,11 +177,11 @@ bool LArRampValidationAlg::validateChannel(const LArCondObj& ref, const LArCondO
       devMsg << "Deviating! " << channelDescription(chid,gain) << " Ramp: " << val.m_vRamp[1] << " (" << ref.m_vRamp[1] << ", ";
       devMsg.precision(2);
       devMsg << 100*(val.m_vRamp[1]-ref.m_vRamp[1])/ref.m_vRamp[1] << "%)";
-      msg() << this->m_myMsgLvl << devMsg.str() << endmsg;
+      msg() << this->m_myMsgLvl << devMsg.str() << endreq;
       ATH_MSG_DEBUG ( "Ramp Tolerance: " << tolerance ) ;
     }
     else if ( m_nFailedValidation==m_maxmessages)
-      msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endmsg;
+      msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
     
     return false;
   } 
@@ -213,7 +213,7 @@ bool LArRampValidationAlg::febSummary() {
       msg().precision(3);
       msg().setf(std::ios::fixed,std::ios::floatfield); 
       msg() << m_myMsgLvl << "Deviating! " << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average Ramp: " 
-            << dataPerFeb.rampVal << " (reference: " << dataPerFeb.rampRef << ")" << endmsg;
+            << dataPerFeb.rampVal << " (reference: " << dataPerFeb.rampRef << ")" << endreq;
       ATH_MSG_DEBUG ( "Ramp FEB average tolerance: " << tolerance ) ;
       ++nBadFebs;
     }
@@ -242,7 +242,7 @@ bool LArRampValidationAlg::febSummary() {
 	     << " pos_neg " <<  dataPerSector.pos_neg 
 	     << " region " << dataPerSector.region
 	     << " layer " << dataPerSector.layer 
-	     << " eta " << dataPerSector.eta << endmsg;  
+	     << " eta " << dataPerSector.eta << endreq;  
   }
   */
 }
@@ -292,7 +292,7 @@ bool LArRampValidationAlg::deviateFromAvg(const LArCondObj& val, const HWIdentif
     }else{
       float ratio = val.m_vRamp[1]/dataPerSector.rampVal;      
       if ( ratio > 2.){
-	msg() << m_myMsgLvl << "!!! Deviating Sector channel =  " <<channelDescription(chid,dataPerSector.gain) << "Ramp: " << val.m_vRamp[1] << " (Average Sector Ramp: " << dataPerSector.rampRef << ")" << endmsg;
+	msg() << m_myMsgLvl << "!!! Deviating Sector channel =  " <<channelDescription(chid,dataPerSector.gain) << "Ramp: " << val.m_vRamp[1] << " (Average Sector Ramp: " << dataPerSector.rampRef << ")" << endreq;
 	return false;
       }
     }

@@ -25,7 +25,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/CaloGain.h"
