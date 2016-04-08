@@ -299,37 +299,37 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	  unsigned fieldY(7); //std::string fieldY("LARFCALELECTRODES_DATA.Y");
 	  unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
-          IRDBQuery* _query(0);
+          IRDBQuery* query(0);
           if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
           if (!geoModel)  throw std::runtime_error("Error, no geoModel");
           DecodeVersionKey larVersionKey(geoModel, "LAr");
-          _query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
-          if(!_query) {
-            _query = rdbAccess->getQuery("LArFCalElectrodes", "LArFCalElectrodes-00");
-            if(!_query)
+          query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
+          if(!query) {
+            query = rdbAccess->getQuery("LArFCalElectrodes", "LArFCalElectrodes-00");
+            if(!query)
               throw std::runtime_error("Error getting Session and Query pointers");
           }
-          _query->execute();
-          if(_query->size()==0)
+          query->execute();
+          if(query->size()==0)
             throw std::runtime_error("Error, unable to fetch fcal electrodes from the database!");
 
 
-	  while(_query->next()) {
+	  while(query->next()) {
 
-	    if(myGroup!=_query->data<int>(fieldModNumber)) continue;
+	    if(myGroup!=query->data<int>(fieldModNumber)) continue;
 
 //	    std::string thisTileStr=row["LARFCALELECTRODES_DATA.TILENAME"].data<std::string>();
-	    int    thisTubeI=_query->data<int>(fieldI);
-	    int    thisTubeJ= _query->data<int>(fieldJ);
-	    int    thisTubeID = _query->data<int>(fieldId);
+	    int    thisTubeI=query->data<int>(fieldI);
+	    int    thisTubeJ= query->data<int>(fieldJ);
+	    int    thisTubeID = query->data<int>(fieldId);
 	    int    thisTubeMod = myGroup;
-	    double thisTubeX= _query->data<double>(fieldX);
-	    double thisTubeY= _query->data<double>(fieldY);
+	    double thisTubeX= query->data<double>(fieldX);
+	    double thisTubeY= query->data<double>(fieldY);
 //	    std::string thisHVft=row["LARFCALELECTRODES_DATA.HVFEEDTHROUGHID"].data<std::string>();
 	    
-	    cmap->add_tube(_query->data<std::string>(fieldTileName), 
+	    cmap->add_tube(query->data<std::string>(fieldTileName), 
 			   thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY, 
-			   _query->data<std::string>(fieldHvFt));/// Gabe: New add_tube
+			   query->data<std::string>(fieldHvFt));/// Gabe: New add_tube
 	    
 	    if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	    if(m_fullGeo) {	      
@@ -340,9 +340,9 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	  }
 
 	  m_absPhysical1 = modPhysical;
-         if(_query) {
-           _query->finalize();
-           delete _query;
+         if(query) {
+           query->finalize();
+           delete query;
          }
 
       } 
@@ -443,37 +443,37 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	unsigned fieldY(7); //std::string fieldY("LARFCALELECTRODES_DATA.Y");
 	unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
-        IRDBQuery* _query(0);
+        IRDBQuery* query(0);
         if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
         if (!geoModel)  throw std::runtime_error("Error, no geoModel");
         DecodeVersionKey larVersionKey(geoModel, "LAr"); 
-        _query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
-        if(!_query) {
-          _query = rdbAccess->getQuery("LArFCalElectrodes", "LArFCalElectrodes-00");
-          if(!_query)
+        query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
+        if(!query) {
+          query = rdbAccess->getQuery("LArFCalElectrodes", "LArFCalElectrodes-00");
+          if(!query)
             throw std::runtime_error("Error getting Session and Query pointers");
         }
-        _query->execute();
-        if(_query->size()==0)
+        query->execute();
+        if(query->size()==0)
           throw std::runtime_error("Error, unable to fetch fcal electrodes from the database!");
 
-        while(_query->next()) {
+        while(query->next()) {
 
-          if(myGroup!=_query->data<int>(fieldModNumber)) continue;
+          if(myGroup!=query->data<int>(fieldModNumber)) continue;
 
 
 //	    std::string thisTileStr=row["LARFCALELECTRODES_DATA.TILENAME"].data<std::string>();
-	    int    thisTubeI=_query->data<int>(fieldI);
-	    int    thisTubeJ= _query->data<int>(fieldJ);
-	    int    thisTubeID = _query->data<int>(fieldId);
+	    int    thisTubeI=query->data<int>(fieldI);
+	    int    thisTubeJ= query->data<int>(fieldJ);
+	    int    thisTubeID = query->data<int>(fieldId);
 	    int    thisTubeMod = myGroup;
-	    double thisTubeX= _query->data<double>(fieldX);
-	    double thisTubeY= _query->data<double>(fieldY);
+	    double thisTubeX= query->data<double>(fieldX);
+	    double thisTubeY= query->data<double>(fieldY);
 //	    std::string thisHVft=row["LARFCALELECTRODES_DATA.HVFEEDTHROUGHID"].data<std::string>();
 	    
-	    cmap->add_tube(_query->data<std::string>(fieldTileName), 
+	    cmap->add_tube(query->data<std::string>(fieldTileName), 
 			   thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY, 
-			   _query->data<std::string>(fieldHvFt));/// Gabe: New add_tube
+			   query->data<std::string>(fieldHvFt));/// Gabe: New add_tube
 	    
 	    if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	    if(m_fullGeo) {	      
@@ -484,9 +484,9 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	}
 
 	m_absPhysical2 = modPhysical;
-        if(_query) {
-           _query->finalize();
-           delete _query;
+        if(query) {
+           query->finalize();
+           delete query;
         }
 
       }
@@ -616,36 +616,36 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	unsigned fieldY(7); //std::string fieldY("LARFCALELECTRODES_DATA.Y");
 	unsigned fieldHvFt(8); //std::string fieldHvFt("LARFCALELECTRODES_DATA.HVFEEDTHROUGHID");
 
-        IRDBQuery* _query(0);
+        IRDBQuery* query(0);
         if (!rdbAccess)  throw std::runtime_error("Error, no rdbAccess");
         if (!geoModel)  throw std::runtime_error("Error, no geoModel");
         DecodeVersionKey larVersionKey(geoModel, "LAr"); 
-        _query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
-        if(!_query) {
-          _query = rdbAccess->getQuery("LArFCalElectrodes", "LArFCalElectrodes-00");
-          if(!_query)
+        query = rdbAccess->getQuery("LArFCalElectrodes", larVersionKey.tag(),larVersionKey.node());
+        if(!query) {
+          query = rdbAccess->getQuery("LArFCalElectrodes", "LArFCalElectrodes-00");
+          if(!query)
             throw std::runtime_error("Error getting Session and Query pointers");
         }
-        _query->execute();
-        if(_query->size()==0)
+        query->execute();
+        if(query->size()==0)
           throw std::runtime_error("Error, unable to fetch fcal electrodes from the database!");
 
-        while(_query->next()) {
+        while(query->next()) {
 
-          if(myGroup!=_query->data<int>(fieldModNumber)) continue;
+          if(myGroup!=query->data<int>(fieldModNumber)) continue;
 
 //	    std::string thisTileStr=row["LARFCALELECTRODES_DATA.TILENAME"].data<std::string>();
-	    int    thisTubeI=_query->data<int>(fieldI);
-	    int    thisTubeJ= _query->data<int>(fieldJ);
-	    int    thisTubeID = _query->data<int>(fieldId);
+	    int    thisTubeI=query->data<int>(fieldI);
+	    int    thisTubeJ= query->data<int>(fieldJ);
+	    int    thisTubeID = query->data<int>(fieldId);
 	    int    thisTubeMod = myGroup;
-	    double thisTubeX= _query->data<double>(fieldX);
-	    double thisTubeY= _query->data<double>(fieldY);
+	    double thisTubeX= query->data<double>(fieldX);
+	    double thisTubeY= query->data<double>(fieldY);
 //	    std::string thisHVft=row["LARFCALELECTRODES_DATA.HVFEEDTHROUGHID"].data<std::string>();
 	    
-	    cmap->add_tube(_query->data<std::string>(fieldTileName), 
+	    cmap->add_tube(query->data<std::string>(fieldTileName), 
 			   thisTubeMod, thisTubeID, thisTubeI,thisTubeJ, thisTubeX, thisTubeY, 
-			   _query->data<std::string>(fieldHvFt));/// Gabe: New add_tube
+			   query->data<std::string>(fieldHvFt));/// Gabe: New add_tube
 	    
 	    if (m_VisLimit != -1 && (counter++ > m_VisLimit)) continue;
 	    if(m_fullGeo) {	      
@@ -656,9 +656,9 @@ GeoVFullPhysVol* LArGeo::FCALConstruction::GetEnvelope(bool bPos)
 	}
 
 	m_absPhysical3 = modPhysical;
-        if(_query) {
-           _query->finalize();
-           delete _query;
+        if(query) {
+           query->finalize();
+           delete query;
         }
 
       }
