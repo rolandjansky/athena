@@ -13,7 +13,7 @@ namespace xAOD {
 }
 
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrigMissingET, 76717345, 1 )
 
 #endif

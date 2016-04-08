@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMissingETAuxContainer_v1.h 631405 2014-11-26 21:52:57Z gwatts $
+// $Id: TrigMissingETAuxContainer_v1.h 631541 2014-11-27 14:52:35Z gwatts $
 #ifndef xAODTrigMissingET_TrigMissingETAUXCONTAINTER_V1_H
 #define xAODTrigMissingET_TrigMissingETAUXCONTAINTER_V1_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
   ///
   /// @author Gordon Watts <gwatts@uw.edu>
   ///
-  /// $Revision: 631405 $
-  /// $Date: 2014-11-26 22:52:57 +0100 (Wed, 26 Nov 2014) $
+  /// $Revision: 631541 $
+  /// $Date: 2014-11-27 15:52:35 +0100 (Thu, 27 Nov 2014) $
   ///
   class TrigMissingETAuxContainer_v1 : public AuxContainerBase {
 
@@ -69,7 +69,7 @@ namespace xAOD {
 
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE(   xAOD::TrigMissingETAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif
