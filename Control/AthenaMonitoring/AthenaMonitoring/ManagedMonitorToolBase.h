@@ -329,7 +329,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       template <class T>
       class MgmtParams {
           public:
-              inline MgmtParams(T* templateHist, MonGroup group)
+              inline MgmtParams(T* templateHist, const MonGroup& group)
                  : m_templateHist(templateHist), m_group(group) { }
 
               T* m_templateHist;
@@ -812,30 +812,51 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
-       * Variable allowing clients to determine when to book new and process old histograms;
+       * Flag functions allowing clients to determine when to book new and process old histograms;
        * values are updated by fillHists() based on counting lumiBlocks,
        * and are correctly set when fillHistograms(),
        * bookHistograms() and procHistograms() are called.
        */
 
-      bool newLowStatInterval, newMedStatInterval, newHigStatInterval;
-      bool newLowStat, newLumiBlock, newRun;
-      bool newEventsBlock;
+      bool newLowStatIntervalFlag() const { return m_newLowStatInterval; }
+      bool newMedStatIntervalFlag() const { return m_newMedStatInterval; }
+      bool newHigStatIntervalFlag() const { return m_newHigStatInterval; }
+      bool newLowStatFlag() const { return m_newLowStat; }
+      bool newLumiBlockFlag() const { return m_newLumiBlock; }
+      bool newRunFlag() const { return m_newRun; }
+      bool newEventsBlockFlag() const { return m_newEventsBlock; }
+      bool endOfEventsBlockFlag() const { return m_endOfEventsBlock; }
+      bool endOfLowStatFlag() const { return m_endOfLowStat; }
+      bool endOfLumiBlockFlag() const { return m_endOfLumiBlock; }
+      bool endOfRunFlag() const { return m_endOfRun; }
 
-      bool endOfEventsBlock, endOfLowStat, endOfLumiBlock, endOfRun;
+public:
+      // Old-style access via variables.
+      // Make these public to avoid triggering naming convention warnings.
+#ifdef ManagedMonitorToolBase_CXX
+#define MMTB_DEPRECATED(v) bool v
+#else
+#define MMTB_DEPRECATED(v) bool v __attribute__((deprecated("Use " #v "Flag() instead")))
+#endif
+      MMTB_DEPRECATED(newLowStatInterval);
+      MMTB_DEPRECATED(newMedStatInterval);
+      MMTB_DEPRECATED(newHigStatInterval);
+      MMTB_DEPRECATED(newLowStat);
+      MMTB_DEPRECATED(newLumiBlock);
+      MMTB_DEPRECATED(newRun);
+      MMTB_DEPRECATED(newEventsBlock);
+      MMTB_DEPRECATED(endOfEventsBlock);
+      MMTB_DEPRECATED(endOfLowStat);
+      MMTB_DEPRECATED(endOfLumiBlock);
+      MMTB_DEPRECATED(endOfRun);
 
-      bool newLowStatIntervalFlag() const { return newLowStatInterval; }
-      bool newMedStatIntervalFlag() const { return newMedStatInterval; }
-      bool newHigStatIntervalFlag() const { return newHigStatInterval; }
-      bool newLowStatFlag() const { return newLowStat; }
-      bool newLumiBlockFlag() const { return newLumiBlock; }
-      bool newRunFlag() const { return newRun; }
-      bool newEventsBlockFlag() const { return newEventsBlock; }
-      bool endOfEventsBlockFlag() const { return endOfEventsBlock; }
-      bool endOfLowStatFlag() const { return endOfLowStat; }
-      bool endOfLumiBlockFlag() const { return endOfLumiBlock; }
-      bool endOfRunFlag() const { return endOfRun; }
+private:
+      bool m_newLowStatInterval, m_newMedStatInterval, m_newHigStatInterval;
+      bool m_newLowStat, m_newLumiBlock, m_newRun;
+      bool m_newEventsBlock;
+      bool m_endOfEventsBlock, m_endOfLowStat, m_endOfLumiBlock, m_endOfRun;
 
+protected:
       typedef std::map<std::string,OutputMetadata*> MDMap_t;
       MDMap_t m_metadataMap;
 

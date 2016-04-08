@@ -259,53 +259,17 @@ if DQMonFlags.doStreamAwareMon:
    # So set them as false by default. Turn them on as needed
    LArMonFlags.doLArRODMonTool=False            # savannah bug report #83390
    LArMonFlags.doLArRawMonitorSignal=False
-   LArMonFlags.doLArRawChannelMon=False
-   LArMonFlags.doLArCollisionTimeMon=False
-   LArMonFlags.doLArAffectedRegions=False
-   LArMonFlags.doLArHVCorrectionMonTool=False
-   LArMonFlags.doLArCoverage=False
-   doCaloCellVecMon=False
-
-   # The following are ON except for certain streams
-   LArMonFlags.doLArDigitMon=True
-   LArMonFlags.doLArNoisyROMon=True
 
    # All monitoring turned on for express stream (except LArRawChannelMon)
    # HIP runs will use the express settings for MinBias, MinBiasOverlay, HardProbes, bulk, and UPC
-   if (rec.triggerStream()=='express' or rec.triggerStream()=='Main' or
+   if (rec.triggerStream()=='express' or 
        (rec.doHIP() and rec.triggerStream() in ['MinBias', 'MinBiasOverlay', 'HardProbes', 'bulk', 'UPC'])):
-      LArMonFlags.doLArCollisionTimeMon=True
-      LArMonFlags.doLArAffectedRegions=True
-      LArMonFlags.doLArHVCorrectionMonTool=True
-      LArMonFlags.doLArCoverage=True
+      LArMonFlags.doLArRawChannelMon=False
       LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
-      if (rec.triggerStream()=='express'):
-         doCaloCellVecMon=True
 
    elif (rec.triggerStream()=='CosmicCalo'):
-      LArMonFlags.doLArRawChannelMon=True
       LArMonFlags.doLArRawMonitorSignal=True
-      LArMonFlags.doLArAffectedRegions=True
-      LArMonFlags.doLArHVCorrectionMonTool=True
-      LArMonFlags.doLArCoverage=True
-      LArMonFlags.doLArDigitMon=False
-      doCaloCellVecMon=True
       HLTMonFlags.doBjet=False
-      HLTMonFlags.doEgamma=False
-      HLTMonFlags.doTau=False
-      HLTMonFlags.doJet=False
-      HLTMonFlags.doCalo=False
-      HLTMonFlags.doMuon=False
-      DQMonFlags.doTauMon=False
-      DQMonFlags.doPixelMon=False
-      DQMonFlags.doMuonRawMon=False
-      DQMonFlags.doMuonTrackMon=False
-      DQMonFlags.doMuonAlignMon=False
-      DQMonFlags.doMuonCombinedMon=False
-      DQMonFlags.doMuonSegmentMon=False
-      DQMonFlags.doMuonPhysicsMon=False
-      DQMonFlags.doMuonTrkPhysMon=False
-      DQMonFlags.doTRTMon=False
       DQMonFlags.doJetTagMon=False
    elif (rec.triggerStream()=='JetTauEtmiss'):
       DQMonFlags.doEgammaMon=False
@@ -370,10 +334,16 @@ if DQMonFlags.doStreamAwareMon:
       DQMonFlags.doMuonPhysicsMon=False
       DQMonFlags.doCaloMon=False
       DQMonFlags.doJetTagMon=False
+      LArMonFlags.doLArRawChannelMon=False
+      LArMonFlags.doLArCollisionTimeMon=False
+      LArMonFlags.doLArAffectedRegions=False
       #LArMonFlags.doLArFEBMon=False
-      #LArMonFlags.doLArDigitMon=False
-      #LArMonFlags.doLArNoisyROMon=False
+      LArMonFlags.doLArHVCorrectionMonTool=False
+      LArMonFlags.doLArCoverage=False
+      LArMonFlags.doLArDigitMon=False
+      LArMonFlags.doLArNoisyROMon=False
    elif (rec.triggerStream()=='ZeroBias'):
+      DQMonFlags.doEgammaMon=False
       DQMonFlags.doTauMon=False
       HLTMonFlags.doBjet=False
       HLTMonFlags.doEgamma=False
@@ -391,34 +361,19 @@ if DQMonFlags.doStreamAwareMon:
       DQMonFlags.doMuonTrkPhysMon=False
       DQMonFlags.doTRTMon=False
       DQMonFlags.doJetTagMon=False
-      #LArMonFlags.doLArRawChannelMon=False
-      #LArMonFlags.doLArCollisionTimeMon=False
-      #LArMonFlags.doLArAffectedRegions=False
+      LArMonFlags.doLArRawChannelMon=False
+      LArMonFlags.doLArCollisionTimeMon=False
+      LArMonFlags.doLArAffectedRegions=False
       #LArMonFlags.doLArFEBMon=False
-      #LArMonFlags.doLArHVCorrectionMonTool=False
-      #LArMonFlags.doLArCoverage=False
-      #LArMonFlags.doLArDigitMon=False
-      #LArMonFlags.doLArNoisyROMon=False
-      #LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
-
-   elif (rec.triggerStream()=='L1Calo'):
-      HLTMonFlags.doBjet=False
-      HLTMonFlags.doMuon=False
-      DQMonFlags.doPixelMon=False
-      DQMonFlags.doMuonRawMon=False
-      DQMonFlags.doMuonTrackMon=False
-      DQMonFlags.doMuonAlignMon=False
-      DQMonFlags.doMuonCombinedMon=False
-      DQMonFlags.doMuonSegmentMon=False
-      DQMonFlags.doMuonPhysicsMon=False
-      DQMonFlags.doMuonTrkPhysMon=False
-      DQMonFlags.doTRTMon=False
-      DQMonFlags.doJetTagMon=False
+      LArMonFlags.doLArHVCorrectionMonTool=False
+      LArMonFlags.doLArCoverage=False
+      LArMonFlags.doLArDigitMon=False
+      LArMonFlags.doLArNoisyROMon=False
+      LArMonFlags.doLArRODMonTool=True          # savannah bug report #83390
 
    # Default stream-aware settings for unspecified streams
    # Only run a select few set of tools
    else:
-      #LArMonFlags.doLArRawChannelMon=False
       DQMonFlags.doEgammaMon=False
       DQMonFlags.doJetMon=False
       DQMonFlags.doMissingEtMon=False
@@ -437,12 +392,8 @@ if DQMonFlags.doStreamAwareMon:
 else:
    local_logger.info("Stream-Aware monitoring is turned OFF")
 
-# If data type is '*comm' disable ATLAS Ready filter by default
-if (rec.projectName.get_Value().endswith('_comm') and 
-    not DQMonFlags.disableAtlasReadyFilter()
-    ):
-   local_logger.info("This is a commissioning project tag, will attempt to disable ATLAS Ready filter for monitoring tools. To really enable it, use DQMonFlags.disableAtlasReadyFilter.set_Value_and_Lock(False).")
-   DQMonFlags.disableAtlasReadyFilter=True
+# disabled until further notice 20140401 - PUEO
+# DQMonFlags.doMuonRawMon=False
 
 DQMonFlags.lock_JobProperties()
 DQMonFlags.print_JobProperties()

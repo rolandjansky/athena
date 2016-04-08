@@ -234,7 +234,7 @@ class doStreamAwareMon(JobProperty):
     """ Switch for stream-aware monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 list+=[doStreamAwareMon]
 
 class monType(JobProperty):

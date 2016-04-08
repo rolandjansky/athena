@@ -1,5 +1,3 @@
-include.block('AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py')
-
 # Set up the ATLAS Ready filter tool
 from AthenaCommon.Logging import logging
 

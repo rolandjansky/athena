@@ -4,7 +4,7 @@
 # $Id: DataQualitySteering_jobOptions.py,v 1.15 2009-05-05 08:20:08 sschaetz Exp $
 # ********************************************************************************
 
-# disable TRTEleMon until further notice
+# disable InDetPerformanceMonitoring, JetMonitoring until further notice 
 # - PUEO 20140401
 TRTELEMON=False
 
@@ -255,9 +255,9 @@ if DQMonFlags.doMonitoring():
       # monitoring tool
       if hasattr(tool, 'FilterTools'):
          # if express: use ATLAS Ready filter
-         local_logger.debug('Setting up filters for tool %s', tool)
+         local_logger.warning('Processing for tool %s', tool)
          if rec.triggerStream()=='express':
-            local_logger.info('Stream is express and we will add ready tool for %s', tool)
+            local_logger.warning('Stream is express and we will add ready tool')
             tool.FilterTools += [monAtlasReadyFilterTool]
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():

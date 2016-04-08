@@ -398,11 +398,14 @@ initialize()
             msg(MSG::DEBUG) << "      * \"ManualDataTypeSetup\" = " << m_d->m_manualDataTypeSetupProp << endreq;
         }
 
+#if 0  // The two branches of the conditional are identical.
         if( m_d->m_manualDataTypeSetupProp ) {
             Imp::s_dataTypeStr = m_d->m_dataTypeProp;
             Imp::s_dataType = dataTypeStringToEnum( m_d->m_dataTypeProp );
         }
-        else {
+        else
+#endif
+        {
             Imp::s_dataTypeStr = m_d->m_dataTypeProp;
             Imp::s_dataType = dataTypeStringToEnum( m_d->m_dataTypeProp );
         }

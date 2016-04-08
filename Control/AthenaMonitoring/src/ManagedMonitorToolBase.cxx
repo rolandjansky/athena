@@ -802,10 +802,16 @@ fillHists()
    bool isNewEventsBlock = ( m_procNEventsProp > 0  && ((m_nEvents % m_procNEventsProp) == 1) && m_haveClearedLastEventBlock );
    if (isNewEventsBlock) m_haveClearedLastEventBlock = false;
 
+   m_newLowStat = false;
+   m_newLumiBlock = false;
+   m_newRun = false;
    newLowStat = false;
    newLumiBlock = false;
    newRun = false;
 
+   m_newLowStatInterval = false;
+   m_newMedStatInterval = false;
+   m_newHigStatInterval = false;
    newLowStatInterval = false;
    newMedStatInterval = false;
    newHigStatInterval = false;
@@ -813,17 +819,21 @@ fillHists()
    m_useTrigger = ( (m_triggerChainProp != "" || m_triggerGroupProp != "")  && (!m_trigDecTool.empty()) );
 
    if( m_manager != 0 ) {
-      newLumiBlock = ( m_lastLumiBlock != m_manager->lumiBlockNumber() );
-      newRun = ( m_lastRun != m_manager->runNumber() );
+      m_newLumiBlock = ( m_lastLumiBlock != m_manager->lumiBlockNumber() );
+      m_newRun = ( m_lastRun != m_manager->runNumber() );
+      newLumiBlock = m_newLumiBlock;
+      newRun = m_newRun;
 
-      if(newRun) {
-         newLumiBlock = true;
+      if(m_newRun) {
+         m_newLumiBlock = true;
+         newLumiBlock = m_newLumiBlock;
          isNewEventsBlock = true;
       }
 
-      newEventsBlock = isNewEventsBlock;
+      m_newEventsBlock = isNewEventsBlock;
+      newEventsBlock = m_newEventsBlock;
 
-      if( newLumiBlock ) {
+      if( m_newLumiBlock ) {
          // check if a new LB interval has started
          // lowest lumiBlockNumber() is 1
          // m_lastLowStatInterval is -1 initially
@@ -836,9 +846,12 @@ fillHists()
             msg(MSG::WARNING) << "zero LBs requested for interval" << endreq;
          }
          else {
-            if( ((currentLB-1)/LBsLowStat) != m_lastLowStatInterval ) newLowStatInterval = true;
-            if( ((currentLB-1)/LBsMedStat) != m_lastMedStatInterval ) newMedStatInterval = true;
-            if( ((currentLB-1)/LBsHigStat) != m_lastHigStatInterval ) newHigStatInterval = true;
+            if( ((currentLB-1)/LBsLowStat) != m_lastLowStatInterval ) m_newLowStatInterval = true;
+            if( ((currentLB-1)/LBsMedStat) != m_lastMedStatInterval ) m_newMedStatInterval = true;
+            if( ((currentLB-1)/LBsHigStat) != m_lastHigStatInterval ) m_newHigStatInterval = true;
+            newLowStatInterval = m_newLowStatInterval;
+            newMedStatInterval = m_newHigStatInterval;
+            newHigStatInterval = m_newHigStatInterval;
          }
       }
 
@@ -858,15 +871,20 @@ fillHists()
 
    // Set end of LowStat, LumiBlock and Run variables
    // These are needed to be used in procHistograms().
-   endOfEventsBlock = newEventsBlock;
-   endOfLowStat = newLowStatInterval;
-   endOfLumiBlock = newLumiBlock;
-   endOfRun = newRun;
+   m_endOfEventsBlock = m_newEventsBlock;
+   m_endOfLowStat = m_newLowStatInterval;
+   m_endOfLumiBlock = m_newLumiBlock;
+   m_endOfRun = m_newRun;
+   endOfEventsBlock = m_newEventsBlock;
+   endOfLowStat = m_newLowStatInterval;
+   endOfLumiBlock = m_newLumiBlock;
+   endOfRun = m_newRun;
 
-   // just duplicates newLowStatInterval
-   newLowStat = newLowStatInterval; 
+   // just duplicates m_newLowStatInterval
+   m_newLowStat = m_newLowStatInterval; 
+   newLowStat = m_newLowStatInterval; 
 
-   if( newEventsBlock || newLumiBlock || newRun ) {
+   if( m_newEventsBlock || m_newLumiBlock || m_newRun ) {
 
       // Process histograms from the previous lumiBlock/run
       if( m_nEvents != 1 ) {
@@ -883,10 +901,10 @@ fillHists()
           m_bookHistogramsInitial = true;
       } else {
           std::vector<Interval_t> intervals_to_process;
-          if (newEventsBlock) intervals_to_process.push_back(eventsBlock);
-          if (newLumiBlock) intervals_to_process.push_back(lumiBlock);
-          if (newLowStatInterval) intervals_to_process.push_back(lowStat);
-          if (newRun) intervals_to_process.push_back(run);
+          if (m_newEventsBlock) intervals_to_process.push_back(eventsBlock);
+          if (m_newLumiBlock) intervals_to_process.push_back(lumiBlock);
+          if (m_newLowStatInterval) intervals_to_process.push_back(lowStat);
+          if (m_newRun) intervals_to_process.push_back(run);
           for (const auto interval: intervals_to_process) {
             sc1 = regManagedHistograms(m_templateHistograms[interval]);     
             sc1 = regManagedGraphs(m_templateGraphs[interval]);
@@ -928,21 +946,21 @@ fillHists()
    } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
 
    ++m_nEventsIgnoreTrigger;
-   if( newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
+   if( m_newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
       ++m_nLumiBlocks;
    }
    if( m_manager != 0 ) {
       m_lastRun = m_manager->runNumber();
-      if( newLumiBlock ) {
+      if( m_newLumiBlock ) {
          m_lastLumiBlock = m_manager->lumiBlockNumber();
 
          int LBsLowStat = m_manager->getLBsLowStat();
          int LBsMedStat = m_manager->getLBsMedStat();
          int LBsHigStat = m_manager->getLBsHigStat();
          if( LBsLowStat*LBsMedStat*LBsHigStat > 0) {
-            if( newLowStatInterval ) m_lastLowStatInterval = (m_lastLumiBlock-1)/LBsLowStat;
-            if( newMedStatInterval ) m_lastMedStatInterval = (m_lastLumiBlock-1)/LBsMedStat;
-            if( newHigStatInterval ) m_lastHigStatInterval = (m_lastLumiBlock-1)/LBsHigStat;
+            if( m_newLowStatInterval ) m_lastLowStatInterval = (m_lastLumiBlock-1)/LBsLowStat;
+            if( m_newMedStatInterval ) m_lastMedStatInterval = (m_lastLumiBlock-1)/LBsMedStat;
+            if( m_newHigStatInterval ) m_lastHigStatInterval = (m_lastLumiBlock-1)/LBsHigStat;
          }
       }
    }
@@ -1052,20 +1070,13 @@ THistSvc_deReg_fixTGraph( TFile* file, TGraph* theGraph, std::string& directoryN
     // The current method fixes this problem by removing the TGraph object manually
     // after THistSvc->deReg(TGraph* obj) is called.
 
-    // Saves and restor gFile and gDirectory
+    // Saves and restores gFile and gDirectory
     GlobalDirectoryRestore restore;
 
     // This check is true when TGraph object is removed successfully
     bool graphRemoved = false;
 
-    // If no file, use gROOT instead
-    if (file != 0) {
-      file->cd("/");
-    } else {
-      ATH_MSG_DEBUG("THistSvc_deReg_fixTGraph: could not recover the output file. Using gROOT as TDirectory!");
-      gROOT->cd();
-    }
-
+    file->cd("/");
     TDirectory* dir = file->GetDirectory(directoryName.c_str());
     if (dir != 0) {
         dir->cd();
@@ -1239,14 +1250,17 @@ finalHists()
 
      // Set end flags for the LowStat, LumiBlock and Run variables.
      // This is needed to be used in the procHistograms method below.
+     m_endOfEventsBlock = true;
+     m_endOfLowStat = true;
+     m_endOfLumiBlock = true;
+     m_endOfRun = true;
      endOfEventsBlock = true;
      endOfLowStat = true;
      endOfLumiBlock = true;
      endOfRun = true;
 
      StatusCode sc = procHistograms();
-
-/*
+     
      StatusCode sc1( StatusCode::SUCCESS );
      sc1.setChecked();
 
@@ -1260,7 +1274,7 @@ finalHists()
        //sc1 = regManagedLWHistograms(m_templateLWHistograms[interval], false, true);
        sc1.setChecked();
      }
-*/
+#endif
 
      m_d->benchPostProcHistograms();
      return sc;
@@ -1290,9 +1304,9 @@ StatusCode
 ManagedMonitorToolBase::
 bookHistogramsRecurrent( )
 {
-   if( newEventsBlock ) { }
-   if( newLumiBlock ) { }
-   if( newRun ) { }
+   if( m_newEventsBlock ) { }
+   if( m_newLumiBlock ) { }
+   if( m_newRun ) { }
 
    return StatusCode::SUCCESS;
 }
@@ -1318,10 +1332,10 @@ StatusCode
 ManagedMonitorToolBase::
 procHistograms( )
 {
-   if( endOfEventsBlock ) { }
-   if( endOfLowStat ) { }
-   if( endOfLumiBlock ) { }
-   if( endOfRun) { }
+   if( m_endOfEventsBlock ) { }
+   if( m_endOfLowStat ) { }
+   if( m_endOfLumiBlock ) { }
+   if( m_endOfRun) { }
 
    return StatusCode::SUCCESS;
 }
@@ -1434,9 +1448,6 @@ StatusCode ManagedMonitorToolBase::regHist( LWHist* h, const MonGroup& group )
 	       //return StatusCode::SUCCESS; 
 	   }
    }
-
-    if (!h)
-        return StatusCode::FAILURE;
 
     //FIXME: Code copied more or less verbatim from above. Collect most code (espc. for streamname) in common helpers!!
     std::string hName = h->GetName();
@@ -1785,7 +1796,7 @@ lbAverageInteractionsPerCrossing()
         ATH_MSG_DEBUG("Warning: lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Instantaneous number of interactions, i.e. mu
@@ -1805,7 +1816,7 @@ lbInteractionsPerCrossing()
         ATH_MSG_DEBUG("Warning: lbInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1)
@@ -1820,7 +1831,7 @@ lbAverageLuminosity()
         ATH_MSG_DEBUG("Warning: lbAverageLuminosity() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Instantaneous luminosity
@@ -1835,7 +1846,7 @@ lbLuminosityPerBCID()
         ATH_MSG_DEBUG("Warning: lbLuminosityPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 
@@ -1854,7 +1865,7 @@ lbAverageLivefraction()
         ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Live Fraction per Bunch Crossing ID
@@ -1872,7 +1883,7 @@ livefractionPerBCID()
         ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 // Average Integrated Luminosity Live Fraction
@@ -1887,7 +1898,7 @@ lbLumiWeight()
         ATH_MSG_DEBUG("Warning: lbLumiWeight() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 
@@ -1903,7 +1914,7 @@ lbDuration()
         ATH_MSG_DEBUG("Warning: lbDuration() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
         return -1.0;
     }
-    return -0.0;
+    // not reached
 }
 
 
