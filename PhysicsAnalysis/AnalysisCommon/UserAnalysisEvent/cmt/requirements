@@ -2,7 +2,7 @@ package UserAnalysisEvent
 
 author Ketevi A. Assamagan <ketevi@bnl.gov>
 
-use AtlasPolicy         AtlasPolicy-01-*
+use AtlasPolicy                 AtlasPolicy-*
 
 use AtlasROOT			AtlasROOT-*			External
 
