@@ -14,6 +14,7 @@
 //
 #include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include <climits>
 
 McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator)
@@ -184,6 +185,7 @@ StatusCode McEventCollectionFilter::ReduceMCEvenetCollection(){
   HepMC::GenParticle* genPart=new HepMC::GenParticle();
   genPart->set_pdg_id(m_PileupPartPDGID); //Geantino
   genPart->set_status(1); //!< set decay status
+  genPart->suggest_barcode( std::numeric_limits<int32_t>::max() );
 
   HepMC::GenVertex* genVertex=new HepMC::GenVertex();
   genVertex->add_particle_out(genPart);
