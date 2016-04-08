@@ -103,7 +103,7 @@ StatusCode ISF::VertexPositionFromFile::readVertexPosFile()
 
     // if read-in was successful
     if (r>0) {
-      ATH_MSG_DEBUG( "Read "<<r<<" vertex position values from file: "<<vrun
+      ATH_MSG_VERBOSE( "Read "<<r<<" vertex position values from file: "<<vrun
                        <<"/"<<vevent<<" "<<vx<<","<<vy<<","<<vz);
 
       // get the corresponding (#run,#event) entry in the m_vertexPositionMap
@@ -114,7 +114,7 @@ StatusCode ISF::VertexPositionFromFile::readVertexPosFile()
       if ( curCoordinates.size()!=0){
         ATH_MSG_WARNING( "Already position information for run/event "<<vrun<<"/"<<vevent
                          << ", size=" << curCoordinates.size() );
-      }
+      } else {curCoordinates.resize(3);}
 
       // store the (x,y,z) coordinates in the vertexPositionMap:
       curCoordinates[0] = vx;
@@ -122,7 +122,7 @@ StatusCode ISF::VertexPositionFromFile::readVertexPosFile()
       curCoordinates[2] = vz;
       // use this trick to only allocate the amount of memory
       // actually used by curXYZ
-      curCoordinates.swap( curCoordinates);
+      //curCoordinates.swap( curCoordinates);
 
       ++numReadIn;
     }
@@ -226,11 +226,13 @@ CLHEP::HepLorentzVector *ISF::VertexPositionFromFile::generate()
     eventNumber = curEventID->event_number();
   }
 
-  ATH_MSG_VERBOSE("Got run/event: "<<runNumber<<"/"<<eventNumber);
+  ATH_MSG_DEBUG("Got run/event: "<<runNumber<<"/"<<eventNumber);
 
   // read the (x,y,z) coordinates for the current (run,event)
   RunEventPair curRunEvtPair(runNumber, eventNumber);
   XYZCoordinates &updatedVertexPosition = m_vertexPositionMap[curRunEvtPair];
+
+  ATH_MSG_DEBUG("Got vertex offset: "<<updatedVertexPosition[0]<<" "<<updatedVertexPosition[1]<<" "<<updatedVertexPosition[2]);
 
   // no (x,y,z) coordinates given for the current (run,event) numbers
   if (updatedVertexPosition.size()!=3){

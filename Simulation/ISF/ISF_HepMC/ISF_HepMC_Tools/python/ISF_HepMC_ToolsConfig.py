@@ -46,8 +46,13 @@ def getLongBeamspotVertexPositioner(name="ISF_LongBeamspotVertexPositioner", **k
 
 def getGenEventVertexPositioner(name="ISF_GenEventVertexPositioner", **kwargs):
     # GenEventVertexPositioner
-    kwargs.setdefault("VertexShifters"          , [ 'ISF_VertexBeamCondPositioner' ])
-
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    if ISF_Flags.VertexPositionFromFile():
+        kwargs.setdefault("VertexShifters"          , [ 'ISF_VertexPositionFromFile' ])
+    else:
+        # TODO At this point there should be the option of using the
+        # ISF_LongBeamspotVertexPositioner too.
+        kwargs.setdefault("VertexShifters"          , [ 'ISF_VertexBeamCondPositioner' ])
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenEventVertexPositioner
     return ISF__GenEventVertexPositioner(name, **kwargs)
 
