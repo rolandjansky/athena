@@ -26,8 +26,8 @@ namespace ZeeValidation{
     // Reco only information
     std::string m_sParticleType;
     
-   //nLevels = 5 (Loose, Medium, Tight, OQ, MatchedEl, MatchedElPh, True)
-    static const int nLevels = 7;
+   //nLevels = 10 (Loose, Medium, Tight, LHLoose, LHMedium, LHTight, OQ, MatchedEl, MatchedElPh, True)
+    static const int nLevels = 10;
     static const std::string cLevelLabel[nLevels];
 
     TH1* h_electron_pt[nLevels];
@@ -42,6 +42,8 @@ namespace ZeeValidation{
     TProfile* h_e_cluster_response_vs_e;  
     TProfile* h_e_response_vs_eta;
     TProfile* h_e_cluster_response_vs_eta; 
+    TProfile* h_e_response_vs_phi;
+    TProfile* h_e_cluster_response_vs_phi; 
 
     TH1* h_dr_electron;
     TH1* h_dphi_electron;

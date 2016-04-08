@@ -14,6 +14,7 @@ namespace ZeeValidation{
     h_fwd_e_response_vs_e(NULL),
     h_fwd_e_response_vs_eta(NULL),
     h_fwd_e_response_vs_abseta(NULL),
+    h_fwd_e_response_vs_phi(NULL),
     h_fwd_dr_electron(NULL),
     h_fwd_dphi_electron(NULL),
     h_fwd_deta_electron(NULL)
@@ -59,6 +60,7 @@ namespace ZeeValidation{
     h_fwd_e_response_vs_e           = BookTProfile("EnergyResponseVsEnergy", "Energy response vs energy; E^{true}; E^{reco}-E^{true}/E^{true}", 25, 0., 1000);
     h_fwd_e_response_vs_eta         = BookTProfile("EnergyResponseVsEta", "Energy response vs #eta; #eta; E^{reco}-E^{true}/E^{true}", 50, -5., 5.);
     h_fwd_e_response_vs_abseta      = BookTProfile("EnergyResponseVsAbsEta", "Energy response vs |#eta|; |#eta|; E^{reco}-E^{true}/E^{true}", 50, 2.5, 5.);
+    h_fwd_e_response_vs_phi         = BookTProfile("EnergyResponseVsPhi", "Energy response vs #varphi; #varphi; E^{reco}-E^{true}/E^{true}", 30, -TMath::Pi(), TMath::Pi());
  
     h_fwd_dr_electron     = Book1D("DeltaRFwdElectron", "#DeltaR(truth particle, electron); #DeltaR; Events", 30, 0., 0.2);
     h_fwd_dphi_electron   = Book1D("DeltaPhiFwdElectron", "#Delta #phi(truth particle, electron); #Delta #phi; Events", 20, -0.06, 0.06);
@@ -68,7 +70,7 @@ namespace ZeeValidation{
   //-------------------------------------------------
   void TrueFwdElectronsPlots::fill(const xAOD::IParticle* part, int level){
 
-    h_true_fwd_electron_pt[level]     -> Fill(part -> pt()/GeV);
+    h_true_fwd_electron_pt[level]     -> Fill(part -> pt()*(1./GeV));
     h_true_fwd_electron_eta[level]    -> Fill(part -> eta());
     h_true_fwd_electron_abseta[level] -> Fill(TMath::Abs(part -> eta()));
     h_true_fwd_electron_phi[level]    -> Fill(part -> phi());
@@ -77,9 +79,10 @@ namespace ZeeValidation{
   //-------------------------------------------------
   void TrueFwdElectronsPlots::fillResponse(const xAOD::IParticle* part, const xAOD::Electron* electron) {
     
-    h_fwd_e_response_vs_e -> Fill( part -> e()/GeV, (electron -> e() - part -> e())/part -> e() );
+    h_fwd_e_response_vs_e -> Fill( part -> e()*(1./GeV), (electron -> e() - part -> e())/part -> e() );
     h_fwd_e_response_vs_eta -> Fill( part -> eta(), (electron -> e() - part -> e())/part -> e() );   
     h_fwd_e_response_vs_abseta -> Fill( TMath::Abs(part -> eta()), (electron -> e() - part -> e())/part -> e() );   
+    h_fwd_e_response_vs_phi -> Fill( part -> phi(), (electron -> e() - part -> e())/part -> e() ); 
 
     h_fwd_dr_electron -> Fill( part -> p4().DeltaR(electron -> p4()));
     h_fwd_dphi_electron -> Fill( part -> p4().DeltaPhi(electron -> p4()));

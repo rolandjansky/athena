@@ -18,16 +18,17 @@ namespace ZeeValidation{
     h_track_n(NULL), 
     h_pv_x(NULL), h_pv_y(NULL), h_pv_z(NULL), 
     h_f1(NULL), h_f3(NULL), h_f1core(NULL), h_f3core(NULL), 
-    h_e233(NULL), h_e237(NULL), h_e277(NULL), h_reta37(NULL), 
+    h_e233(NULL), h_e237(NULL), h_e277(NULL), h_reta(NULL), h_rphi(NULL),
     h_weta1(NULL), h_weta2(NULL), h_wtots1(NULL), 
     h_ethad(NULL), h_ethad1(NULL),
     h_fethad(NULL), h_fethad1(NULL), 
     h_e2tsts1(NULL), h_fracs1(NULL), 
     h_emins1(NULL), h_emaxs1(NULL), 
     h_demm1(NULL), h_iso(NULL), 
-    h_zvertex(NULL), h_errz(NULL), h_etap(NULL), 
+    h_eratio(NULL), 
     h_deta1(NULL), h_deta2(NULL), 
     h_dphi1(NULL), h_dphi2(NULL), 
+    h_dphires2(NULL), 
     h_etcone20(NULL), h_etcone30(NULL), h_etcone40(NULL), 
     h_fetcone20(NULL), h_fetcone30(NULL), h_fetcone40(NULL), 
     h_ptcone20(NULL), h_ptcone30(NULL), h_ptcone40(NULL), 
@@ -36,7 +37,8 @@ namespace ZeeValidation{
     h_n_trt_hits_high(NULL), h_r_trt_hits(NULL),
     h_n_blayer_hits_outliers(NULL), h_n_pixel_hits_outliers(NULL), 
     h_n_si_hits_outliers(NULL), h_n_trt_hits_outliers(NULL), 
-    h_n_trt_hits_high_outliers(NULL), h_r_trt_hits_outliers(NULL)
+    h_n_trt_hits_high_outliers(NULL), h_r_trt_hits_outliers(NULL), 
+    h_d0(NULL), h_sigmad0(NULL), h_eoverp(NULL), h_eoverpq(NULL)
   {
     for (int i = 0; i < nLevels; i++) {
       h_electron_pt[i] = NULL;
@@ -55,22 +57,25 @@ namespace ZeeValidation{
     "OQ", 
     "Loose",
     "Medium",
-    "Tight"
+    "Tight",
+    "LHLoose",
+    "LHMedium",
+    "LHTight"
   };    
   //-------------------------------------------------
   void ReconElectronsPlots::initializePlots(){
     TH1::SetDefaultSumw2(kTRUE);    
 
-    h_electron_n  = Book1D("NElectrons", "Number of Electrons; n ;Events", 20, 0., 20);
-    h_photon_n = Book1D("NPhotons", "Number of Photons; n ;Events", 20, 0., 20);
+    h_electron_n      = Book1D("NElectrons", "Number of Electrons; n ;Events", 20, 0., 20);
+    h_photon_n        = Book1D("NPhotons", "Number of Photons; n ;Events", 20, 0., 20);
     h_electron_author = Book1D("Author", "author of " + m_sParticleType +";author;Events ", 10 , 0.0, 10.0);
-    h_nvtx = Book1D("Nvtx", "Nvtx distribution;n_{vtx};Events ", 30, 0, 30);
-    h_mu = Book1D("Mu", "<#mu> distribution;<mu>;Events", 40, 0, 40);
-    h_bcid = Book1D("BCID", "BCID distribution;BCID;Events", 3500, 0, 3500);
-    h_track_n = Book1D("NTracks", "#Tracks on primary vtx;N_{tracks};Events", 80, 0, 200);
-    h_pv_x = Book1D("Pv_x", "Primary Vertex X Position;x_{vtx};Events", 100, -.5, .5);
-    h_pv_y = Book1D("Pv_y", "Primary Vertex Y Position;y_{vtx};Events", 100, -1.5, 1.5);
-    h_pv_z = Book1D("Pv_z", "Primary Vertex Z Position;z_{vtx};Events", 100, -250, 250);
+    h_nvtx            = Book1D("Nvtx", "Nvtx distribution;n_{vtx};Events ", 30, 0, 30);
+    h_mu              = Book1D("Mu", "<#mu> distribution;<mu>;Events", 40, 0, 40);
+    h_bcid            = Book1D("BCID", "BCID distribution;BCID;Events", 3500, 0, 3500);
+    h_track_n         = Book1D("NTracks", "#Tracks on primary vtx;N_{tracks};Events", 80, 0, 200);
+    h_pv_x            = Book1D("Pv_x", "Primary Vertex X Position;x_{vtx};Events", 100, -.5, .5);
+    h_pv_y            = Book1D("Pv_y", "Primary Vertex Y Position;y_{vtx};Events", 100, -1.5, 1.5);
+    h_pv_z            = Book1D("Pv_z", "Primary Vertex Z Position;z_{vtx};Events", 100, -250, 250);
 
     for (int i = 0; i < nLevels; i++) {
       h_electron_pt[i]  = Book1D("Pt" + cLevelLabel[i], "P_{T} of "+ m_sParticleType + "; E_{T} (GeV);Events", 60, 20., 140.);
@@ -85,15 +90,16 @@ namespace ZeeValidation{
     }
 
    //showerShapeValue
-   h_f1 = Book1D("F1", "E_{1}/E (f1); E_{1}/E (f1); Events", 50, 0., 1.); //+
-   h_f3 = Book1D("F3", "E_{3}/E (f3); E_{3}/E (f3); Events", 50, 0., .1); //+
+   h_f1     = Book1D("F1", "E_{1}/E (f1); E_{1}/E (f1); Events", 50, 0., 1.); //+
+   h_f3     = Book1D("F3", "E_{3}/E (f3); E_{3}/E (f3); Events", 50, 0., .1); //+
    h_f1core = Book1D("F1Core", "E_{1}(3x1)/E (f1core); E_{1}(3x1)/E (f1core); Events", 50, 0., 1.); //+
    h_f3core = Book1D("F3Core", "E_{3}(3x3)/E (f3core); E_{3}(3x3)/E (f3core); Events", 50, 0., .1); //+
 
    h_e233 = Book1D("E233", "E_{2}(3x3)/GeV; E_{2}(3x3)/GeV; Events", 100, 0., 500.);
    h_e237 = Book1D("E237", "E_{2}(3x7)/GeV; E_{2}(3x7)/GeV; Events", 100, 0., 500.);
    h_e277 = Book1D("E277", "E_{2}(7x7)/GeV; E_{2}(7x7)/GeV; Events", 100, 0., 500.);
-   h_reta37 = Book1D("REta37", "R_{#eta}(37) (E_{2}(3x7)/E_{2}(7x7));R_{#eta}(37); Events", 50, 0.7, 1.);
+   h_reta = Book1D("REta", "R_{#eta} (E_{2}(3x7)/E_{2}(7x7));R_{#eta}; Events", 50, 0.5, 1.);
+   h_rphi = Book1D("RPhi", "R_{#phi} (E_{2}(3x3)/E_{2}(3x7));R_{#phi}; Events", 50, 0.5, 1.);
 
    h_weta1   = Book1D("WEta1", "w_{#eta 1} (weta1, shower width); w_{#eta 1}; Events", 70, 0.2, .9);
    h_weta2   = Book1D("WEta2", "w_{#eta 2} (weta2, lateral width); w_{#eta 2}; Events", 100, 0.005, .02);
@@ -109,29 +115,27 @@ namespace ZeeValidation{
    h_emins1  = Book1D("Emins1", "E_{1}^{min}/GeV (E^{min} betw. maximum); E_{1}^{min}/GeV; Events", 100, 0., 3.);
    h_emaxs1  = Book1D("Emaxs1", "E_{1}^{max}/GeV; E_{1}^{max}/GeV; Events", 100, 0., 3.);
    h_demm1   = Book1D("dEmm1", "#Delta E^{sep}_{1}/GeV (2^{nd} max. separation); #Delta E^{sep}_{1}/GeV; Events", 50, 0., 1.);
-   h_iso = Book1D("Iso", "1 - E(3x3)/E(3x7)(iso); 1 - E(3x3)/E(3x7); Events", 100, 0., 1.);
-   h_zvertex = Book1D("ZVertex", "z_{vtx}/mm (pointing cluster); z_{vtx}/mm; Events", 100, -1000., 1000.);
-   h_errz = Book1D("Errz", "#Delta z_{vtx}/mm (pointing cluster); #Delta z_{vtx}/mm; Events", 100, 0., 10.);
-   h_etap = Book1D("Etap", "#eta_{clus} (pointing cluster); #eta_{clus}; Events", 100, -5., 5.);
+   h_iso     = Book1D("Iso", "1 - E(3x3)/E(3x7)(iso); 1 - E(3x3)/E(3x7); Events", 100, 0., 1.);
+   h_eratio  = Book1D("Eratio", "(E_{1}^{max}/GeV - E_{1}^{max2}/GeV )/(E_{1}^{max}/GeV + E_{1}^{max2}/GeV ); E_{ratio}; Events", 50, 0., 1.);
 
    //TrackCaloMatchType
-
    h_deta1 = Book1D("dEta1", "#Delta #eta_{1} Cluster-Track; #Delta #eta_{1}; Events", 100, -.05, .05);
    h_deta2 = Book1D("dEta2", "#Delta #eta_{2} Cluster-Track; #Delta #eta_{2}; Events", 100, -.05, .05);
    h_dphi1 = Book1D("dPhi1", "#Delta #phi_{1} Cluster-Track; #Delta #phi_{1}; Events", 100, -.05, .05);
    h_dphi2 = Book1D("dPhi2", "#Delta #phi_{2} Cluster-Track; #Delta #phi_{2}; Events", 100, -.05, .05);
+   h_dphires2 = Book1D("dPhiRes2", "#Delta #phi_{2} Cluster-Track (Rescaled); #Delta #phi_{2} (rescaled); Events", 100, -.05, .05);
                 
    //isolationValue
-   h_etcone20 = Book1D("EtCone20", "E_{T}^{cone20}/GeV; E_{T}^{cone20}/GeV; Events", 120, -4., 20.);
-   h_etcone30 = Book1D("EtCone30", "E_{T}^{cone30}/GeV; E_{T}^{cone30}/GeV; Events", 120, -4., 20.);
-   h_etcone40 = Book1D("EtCone40", "E_{T}^{cone40}/GeV; E_{T}^{cone40}/GeV; Events", 120, -4., 20.);
+   h_etcone20  = Book1D("EtCone20", "E_{T}^{cone20}/GeV; E_{T}^{cone20}/GeV; Events", 120, -4., 20.);
+   h_etcone30  = Book1D("EtCone30", "E_{T}^{cone30}/GeV; E_{T}^{cone30}/GeV; Events", 120, -4., 20.);
+   h_etcone40  = Book1D("EtCone40", "E_{T}^{cone40}/GeV; E_{T}^{cone40}/GeV; Events", 120, -4., 20.);
    h_fetcone20 = Book1D("FracEtCone20", "E_{T}^{cone20}/E_{T}; E_{T}^{cone20}/E_{T}; Events", 120, -.1, .5);
    h_fetcone30 = Book1D("FracEtCone30", "E_{T}^{cone30}/E_{T}; E_{T}^{cone30}/E_{T}; Events", 120, -.1, .5);
    h_fetcone40 = Book1D("FracEtCone40", "E_{T}^{cone40}/E_{T}; E_{T}^{cone40}/E_{T}; Events", 120, -.1, .5);
 
-   h_ptcone20 = Book1D("Ptcone20", "p_{T}^{cone20}/GeV; p_{T}^{cone20}/GeV; Events", 100, 0., 20.);
-   h_ptcone30 = Book1D("Ptcone30", "p_{T}^{cone30}/GeV; p_{T}^{cone30}/GeV; Events", 100, 0., 20.);
-   h_ptcone40 = Book1D("Ptcone40", "p_{T}^{cone40}/GeV; p_{T}^{cone40}/GeV; Events", 100, 0., 20.);
+   h_ptcone20 = Book1D("Ptcone20", "p_{T}^{cone20}/GeV; p_{T}^{cone20}/GeV; Events", 80, 0., 20.);
+   h_ptcone30 = Book1D("Ptcone30", "p_{T}^{cone30}/GeV; p_{T}^{cone30}/GeV; Events", 80, 0., 20.);
+   h_ptcone40 = Book1D("Ptcone40", "p_{T}^{cone40}/GeV; p_{T}^{cone40}/GeV; Events", 80, 0., 20.);
 
    //RetrieveHitInfo
    h_n_blayer_hits   = Book1D("NBlayerHits", "N^{hits}_{BLayer}; N^{hits}; Events", 10, 0., 10.);
@@ -148,6 +152,11 @@ namespace ZeeValidation{
    h_n_trt_hits_high_outliers = Book1D("NTRTHitsHighThresholdOutliers", "N^{hits}_{TRT} High Threshold incl. Outliers; N^{hits}; Events", 50, 0., 50.);
    h_r_trt_hits_outliers      = Book1D("RTRTHitsOutliers", "N^{hits}_{TRT,HT} / N^{hits}_{TRT} incl. Outliers; N^{hits}; Events", 50, 0., 1.);
  
+   h_d0 = Book1D("TrackD0", "Track d0; d0; Events", 20, -1., 1.);
+   h_sigmad0 = Book1D("TrackSigmaD0", "Track #sigma_{d0}; #sigma_{d0}; Events", 20, 0., 0.1);
+   h_eoverp = Book1D("EoverP", "E/p; E/p; Events", 50, 0., 10.);
+   h_eoverpq = Book1D("EoverPQ", "E/p * q; E/p * q; Events", 50, -5., 5.);
+
   }
   //------------------------------------------------- 
   void ReconElectronsPlots::fill(const xAOD::EventInfo* eventInfo, const xAOD::VertexContainer* vertices){
@@ -173,62 +182,73 @@ namespace ZeeValidation{
   }
  //-------------------------------------------------
   void ReconElectronsPlots::fillinAcc(const xAOD::Electron* electron, int level){
-    h_electron_pt[level] -> Fill(electron -> pt()/GeV);
+    h_electron_pt[level] -> Fill(electron -> pt()*(1./GeV));
     h_electron_phi[level] -> Fill(electron -> phi());
   }
  //-------------------------------------------------
   void ReconElectronsPlots::fillShowerShape(const xAOD::Electron* electron){
 
-    float f1(0), f3(0), f1core(0), f3core(0), fracs1(0), emaxs1(0),  weta1(0), weta2(0), wtots1(0), r33over37allcalo(0), zvertex(0), errz(0), etap(0);
+    float f1(0), f3(0), f1core(0), f3core(0), fracs1(0), emaxs1(0),  weta1(0), weta2(0), wtots1(0), r33over37allcalo(0), eratio(0);
 
     if (electron -> showerShapeValue(f1,     xAOD::EgammaParameters::f1))          h_f1 -> Fill(f1);
     if (electron -> showerShapeValue(f1core, xAOD::EgammaParameters::f1core))      h_f1core -> Fill(f1core);   
     if (electron -> showerShapeValue(f3,     xAOD::EgammaParameters::f3))          h_f3 -> Fill(f3);   
     if (electron -> showerShapeValue(f3core, xAOD::EgammaParameters::f3core))      h_f3core -> Fill(f3core);   
-    if (electron -> showerShapeValue(emaxs1, xAOD::EgammaParameters::emaxs1))      h_emaxs1 -> Fill(emaxs1/GeV);
+    if (electron -> showerShapeValue(emaxs1, xAOD::EgammaParameters::emaxs1))      h_emaxs1 -> Fill(emaxs1*(1./GeV));
     if (electron -> showerShapeValue(fracs1, xAOD::EgammaParameters::fracs1))      h_fracs1 -> Fill(fracs1);    
     if (electron -> showerShapeValue(weta1,  xAOD::EgammaParameters::weta1))       h_weta1 -> Fill(weta1);   
     if (electron -> showerShapeValue(weta2,  xAOD::EgammaParameters::weta2))       h_weta2 -> Fill(weta2);    
     if (electron -> showerShapeValue(wtots1, xAOD::EgammaParameters::wtots1))      h_wtots1 -> Fill(wtots1); 
-    if (electron -> showerShapeValue(zvertex, xAOD::EgammaParameters::zvertex))    h_zvertex -> Fill(zvertex); 
-    if (electron -> showerShapeValue(errz,    xAOD::EgammaParameters::errz))       h_errz -> Fill(errz);  
-    if (electron -> showerShapeValue(etap,    xAOD::EgammaParameters::etap))       h_etap -> Fill(etap); 
     if (electron -> showerShapeValue(r33over37allcalo, xAOD::EgammaParameters::r33over37allcalo))     h_iso -> Fill(r33over37allcalo); 
     
+    if (electron -> showerShapeValue(eratio,    xAOD::EgammaParameters::Eratio))   h_eratio -> Fill(eratio);
     float  e2tsts1(0), emins1(0);
     if (electron -> showerShapeValue(e2tsts1, xAOD::EgammaParameters::e2tsts1) &&
 	electron->showerShapeValue(emins1, xAOD::EgammaParameters::emins1)){
-      h_e2tsts1 -> Fill(e2tsts1/GeV);
-      h_emins1 -> Fill(emins1/GeV);
-      h_demm1 -> Fill((e2tsts1 - emins1)/GeV);
+      h_e2tsts1 -> Fill(e2tsts1*(1./GeV));
+      h_emins1 -> Fill(emins1*(1./GeV));
+      h_demm1 -> Fill((e2tsts1 - emins1)*(1./GeV));
     }   
-    float e233(0), e237(0), e277(0);
+    float e233(0), e237(0), e277(0), reta(0), rphi(0);
     if ( electron -> showerShapeValue(e233, xAOD::EgammaParameters::e233) && 
 	 electron -> showerShapeValue(e237, xAOD::EgammaParameters::e237) && 
-	 electron -> showerShapeValue(e277, xAOD::EgammaParameters::e277) ){
-      h_e233 -> Fill(e233/GeV);
-      h_e237 -> Fill(e237/GeV);
-      h_e277 -> Fill(e277/GeV);
-      h_reta37 -> Fill(e237/e277);
+	 electron -> showerShapeValue(e277, xAOD::EgammaParameters::e277) &&
+	 electron -> showerShapeValue(reta, xAOD::EgammaParameters::Reta) &&
+	 electron -> showerShapeValue(rphi, xAOD::EgammaParameters::Rphi)){
+      h_e233 -> Fill(e233*(1./GeV));
+      h_e237 -> Fill(e237*(1./GeV));
+      h_e277 -> Fill(e277*(1./GeV));
+      h_reta -> Fill(reta);
+      h_rphi -> Fill(rphi);
     }
     float  ethad(0), ethad1(0);
     if ( electron -> showerShapeValue(ethad, xAOD::EgammaParameters::ethad) &&
 	 electron -> showerShapeValue(ethad1, xAOD::EgammaParameters::ethad1) ){
-      h_ethad -> Fill(ethad/GeV);
-      h_ethad1 -> Fill(ethad1/GeV);      
+      h_ethad -> Fill(ethad*(1./GeV));
+      h_ethad1 -> Fill(ethad1*(1./GeV));      
       h_fethad -> Fill(ethad/electron -> pt());
       h_fethad1 -> Fill(ethad1/electron -> pt());
     }
  
   }
  //-------------------------------------------------
-  void ReconElectronsPlots::fillTrackCaloMatch(const xAOD::Electron* electron){
+  void ReconElectronsPlots::fillTrackCaloMatch(const xAOD::Electron* electron, const xAOD::TrackParticle* track){
 
-    float deta1(0), deta2(0), dphi1(0), dphi2(0);
+    float deta1(0), deta2(0), dphi1(0), dphi2(0), dphires2(0);
     if ( electron -> trackCaloMatchValue(deta1, xAOD::EgammaParameters::deltaEta1 ))      h_deta1 -> Fill(deta1);
     if ( electron -> trackCaloMatchValue(deta2, xAOD::EgammaParameters::deltaEta2 ))      h_deta2 -> Fill(deta2);
     if ( electron -> trackCaloMatchValue(dphi1, xAOD::EgammaParameters::deltaPhi1 ))      h_dphi1 -> Fill(dphi1);
     if ( electron -> trackCaloMatchValue(dphi2, xAOD::EgammaParameters::deltaPhi2 ))      h_dphi2 -> Fill(dphi2);
+    if ( electron -> trackCaloMatchValue(dphires2, xAOD::EgammaParameters::deltaPhiRescaled2 ))      h_dphires2 -> Fill(dphires2);
+
+    h_d0 -> Fill(track -> d0());
+    float sigmad0 = -99.;
+    float vard0 = track -> definingParametersCovMatrix()(0, 0);
+    if (vard0 > 0) sigmad0 = sqrtf(vard0);
+    h_sigmad0 -> Fill(sigmad0);
+   
+    h_eoverp -> Fill(electron -> e() * TMath::Abs(track -> qOverP()));
+    h_eoverpq -> Fill(electron -> e() * track -> qOverP());
 
   }
   //-------------------------------------------------
@@ -237,20 +257,20 @@ namespace ZeeValidation{
     float etcone20(0), etcone30(0), etcone40(0), ptcone20(0), ptcone30(0), ptcone40(0);
  
     if ( electron->isolationValue(etcone20, xAOD::Iso::etcone20) ){
-      h_etcone20 -> Fill(etcone20/GeV);
+      h_etcone20 -> Fill(etcone20*(1./GeV));
       h_fetcone20 -> Fill(etcone20/electron -> pt());
     }
     if ( electron->isolationValue(etcone30, xAOD::Iso::etcone30) ){
-      h_etcone30 -> Fill(etcone30/GeV);
+      h_etcone30 -> Fill(etcone30*(1./GeV));
       h_fetcone30 -> Fill(etcone30/electron -> pt());
     }
     if ( electron->isolationValue(etcone40, xAOD::Iso::etcone40) ){
-      h_etcone40 -> Fill(etcone40/GeV);
+      h_etcone40 -> Fill(etcone40*(1./GeV));
       h_fetcone40 -> Fill(etcone40/electron -> pt());
   }
-  if ( electron->isolationValue(ptcone20, xAOD::Iso::ptcone20) )	 h_ptcone20 -> Fill(ptcone20/GeV);
-  if ( electron->isolationValue(ptcone30, xAOD::Iso::ptcone30) )	 h_ptcone30 -> Fill(ptcone30/GeV);
-  if ( electron->isolationValue(ptcone40, xAOD::Iso::ptcone40) )	 h_ptcone40 -> Fill(ptcone40/GeV);
+  if ( electron->isolationValue(ptcone20, xAOD::Iso::ptcone20) )	 h_ptcone20 -> Fill(ptcone20*(1./GeV));
+  if ( electron->isolationValue(ptcone30, xAOD::Iso::ptcone30) )	 h_ptcone30 -> Fill(ptcone30*(1./GeV));
+  if ( electron->isolationValue(ptcone40, xAOD::Iso::ptcone40) )	 h_ptcone40 -> Fill(ptcone40*(1./GeV));
 
 }
  //-------------------------------------------------
@@ -286,10 +306,9 @@ namespace ZeeValidation{
       double rtrto = (trth + trto) > 0 ? ((double) (trthigho + trthighh)/(trth + trto) ) : 0.;
       h_r_trt_hits_outliers -> Fill(rtrto);
     }
-
+ 
   }
  //-------------------------------------------------
-
   void ReconElectronsPlots::finalizePlots() {
 
     for (int i = 0; i < nLevels-1; i++) {

@@ -52,7 +52,7 @@ namespace ZeeValidation{
     for (int i = 0; i < nLevels; i++) {
 
       h_z_mass[i] = Book1D("ZMass"+ cLevelLabel[i], "Mass of Z; Mass (GeV) ;Events", 50, 66., 116.);
-      h_z_pt[i] = Book1D("ZPt"+ cLevelLabel[i], "P_{T} of Z; P_{T} ;Events", 600, 0., 120.);
+      h_z_pt[i] = Book1D("ZPt"+ cLevelLabel[i], "P_{T} of Z; P_{T} ;Events", 60, 0., 120.);
       h_z_y[i] = Book1D("ZY"+ cLevelLabel[i], "#eta of Z; #eta ;Events", 100, -5., 5.);
 
       h_dr_electrons[i] = Book1D("DRElectrons"+ cLevelLabel[i], " #DeltaR(electrons) ;Events", 50, 0., 6.);
@@ -74,8 +74,8 @@ namespace ZeeValidation{
   }
 
   void ZeePlots::fillZPlots(TLorentzVector& z, int level){
-    h_z_mass[level] -> Fill(z.M()/GeV);
-    h_z_pt[level] -> Fill(z.Pt()/GeV);
+    h_z_mass[level] -> Fill(z.M()*(1./GeV));
+    h_z_pt[level] -> Fill(z.Pt()*(1./GeV));
     h_z_y[level] -> Fill(z.Rapidity());
   }
 
@@ -83,20 +83,20 @@ namespace ZeeValidation{
    
     h_dr_electrons[level] -> Fill( elec1.DeltaR(elec2) );
 
-    h_ptclust_electron1[level] -> Fill( cluster1.Perp()/GeV );
-    h_ptclust_electron2[level] -> Fill( cluster2.Perp()/GeV );
+    h_ptclust_electron1[level] -> Fill( cluster1.Perp()*(1./GeV) );
+    h_ptclust_electron2[level] -> Fill( cluster2.Perp()*(1./GeV) );
 
     h_etaclust_electron1[level] -> Fill( cluster1.Rapidity() );
     h_etaclust_electron2[level] -> Fill( cluster2.Rapidity() );
 
-    h_ptclust_electrons[level] -> Fill( cluster1.Perp()/GeV );
-    h_ptclust_electrons[level] -> Fill( cluster2.Perp()/GeV );
+    h_ptclust_electrons[level] -> Fill( cluster1.Perp()*(1./GeV) );
+    h_ptclust_electrons[level] -> Fill( cluster2.Perp()*(1./GeV) );
 
     h_etaclust_electrons[level] -> Fill( cluster1.Rapidity() );
     h_etaclust_electrons[level] -> Fill( cluster2.Rapidity() );
 
-    h_pt_electrons[level] -> Fill( elec1.Perp()/GeV );
-    h_pt_electrons[level] -> Fill( elec2.Perp()/GeV );
+    h_pt_electrons[level] -> Fill( elec1.Perp()*(1./GeV) );
+    h_pt_electrons[level] -> Fill( elec2.Perp()*(1./GeV) );
 
     h_eta_electrons[level] -> Fill( elec1.Rapidity() );
     h_eta_electrons[level] -> Fill( elec2.Rapidity() );

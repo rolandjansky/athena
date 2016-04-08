@@ -52,16 +52,16 @@ namespace ZeeValidation{
   }
   
   void FWDZeePlots::fillZPlots(TLorentzVector& z, int level){
-    h_z_mass[level] -> Fill(z.M()/GeV);
-    h_z_pt[level] -> Fill(z.Pt()/GeV);
+    h_z_mass[level] -> Fill(z.M()*(1./GeV));
+    h_z_pt[level] -> Fill(z.Pt()*(1./GeV));
     h_z_y[level] -> Fill(z.Rapidity());
   }
 
   void FWDZeePlots::fillElPlots(TLorentzVector& elec1, TLorentzVector& elec2, int level){
     h_dr_electrons[level] -> Fill( elec1.DeltaR(elec2) );
 
-    h_pt_central_electron[level] -> Fill( elec1.Perp()/GeV  );
-    h_pt_fwd_electron[level] -> Fill( elec2.Perp()/GeV  );
+    h_pt_central_electron[level] -> Fill( elec1.Perp()*(1./GeV)  );
+    h_pt_fwd_electron[level] -> Fill( elec2.Perp()*(1./GeV)  );
 
     h_eta_central_electron[level] -> Fill( elec1.Rapidity() );
     h_eta_fwd_electron[level] -> Fill( elec2.Rapidity() );

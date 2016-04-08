@@ -23,14 +23,14 @@ namespace ZeeValidation{
     void fill(const xAOD::EventInfo* eventInfo, const xAOD::VertexContainer* vertices);
     
     void fillShowerShape(const xAOD::Electron* electron);
-    void fillTrackCaloMatch(const xAOD::Electron* electron);
+    void fillTrackCaloMatch(const xAOD::Electron* electron, const xAOD::TrackParticle* track);
     void fillIsolation(const xAOD::Electron* electron);
     void fillHitInfo(const xAOD::Electron* electron);
 
     void makeEfficiencyPlot(TH1* hDenom, TH1* hNom, TProfile* hEff);
     
-    //nLevels = 5 (Loose, Medium, Tight, OQ, Reco)
-    static const int nLevels = 5;
+    //nLevels = 5 (LHLoose, LHMedium, LHTight, Loose, Medium, Tight, OQ, Reco)
+    static const int nLevels = 8;
     static const std::string cLevelLabel[nLevels];
 
     // Reco only information
@@ -62,7 +62,8 @@ namespace ZeeValidation{
     TH1* h_e233;
     TH1* h_e237;
     TH1* h_e277;
-    TH1* h_reta37;
+    TH1* h_reta;
+    TH1* h_rphi; 
     TH1* h_weta1;
     TH1* h_weta2;
     TH1* h_wtots1;
@@ -76,14 +77,13 @@ namespace ZeeValidation{
     TH1* h_emaxs1;
     TH1* h_demm1;
     TH1* h_iso;
-    TH1* h_zvertex;
-    TH1* h_errz;
-    TH1* h_etap;
+    TH1* h_eratio;
 
     TH1* h_deta1;
     TH1* h_deta2;
     TH1* h_dphi1;
     TH1* h_dphi2;    
+    TH1* h_dphires2;   
            
     TH1* h_etcone20;
     TH1* h_etcone30;
@@ -101,12 +101,18 @@ namespace ZeeValidation{
     TH1* h_n_trt_hits;
     TH1* h_n_trt_hits_high;
     TH1* h_r_trt_hits;
+ 
     TH1* h_n_blayer_hits_outliers;
     TH1* h_n_pixel_hits_outliers;
     TH1* h_n_si_hits_outliers;
     TH1* h_n_trt_hits_outliers;
     TH1* h_n_trt_hits_high_outliers;
     TH1* h_r_trt_hits_outliers;
+ 
+    TH1* h_d0;
+    TH1* h_sigmad0;
+    TH1* h_eoverp;
+    TH1* h_eoverpq;
 
   private:
         

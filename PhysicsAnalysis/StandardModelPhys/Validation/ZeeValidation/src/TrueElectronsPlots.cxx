@@ -15,6 +15,8 @@ namespace ZeeValidation{
     h_e_cluster_response_vs_e(NULL),  
     h_e_response_vs_eta(NULL),
     h_e_cluster_response_vs_eta(NULL) ,
+    h_e_response_vs_phi(NULL),
+    h_e_cluster_response_vs_phi(NULL) ,
     h_dr_electron(NULL),
     h_dphi_electron(NULL),
     h_deta_electron(NULL),
@@ -39,7 +41,10 @@ namespace ZeeValidation{
     "OQ",
     "Loose",
     "Medium",
-    "Tight"
+    "Tight",
+    "LHLoose",
+    "LHMedium",
+    "LHTight"
   }; 
   //------------------------------------------------- 
   void TrueElectronsPlots::initializePlots(){
@@ -59,9 +64,11 @@ namespace ZeeValidation{
     }
 
     h_e_response_vs_e              = BookTProfile("EnergyResponseVsEnergy", "Energy response vs energy; E^{true}; E^{reco}-E^{true}/E^{true}", 20, 0., 200);
-    h_e_response_vs_eta            = BookTProfile("EnergyResponseVsEta", "Energy response vs #eta; #eta; E^{reco}-E^{true}/E^{true}", 30, -3., 3.);  
+    h_e_response_vs_eta            = BookTProfile("EnergyResponseVsEta", "Energy response vs #eta; #eta; E^{reco}-E^{true}/E^{true}", 30, -3., 3.); 
+    h_e_response_vs_phi            = BookTProfile("EnergyResponseVsPhi", "Energy response vs #varphi; #varphi; E^{reco}-E^{true}/E^{true}", 30, -TMath::Pi(), TMath::Pi());  
     h_e_cluster_response_vs_e      = BookTProfile("EnergyClusterResponseVsEnergy", "Energy of cluster response vs energy; E^{true}; E^{reco}-E^{true}/E^{true}", 20, 0., 200);
     h_e_cluster_response_vs_eta    = BookTProfile("EnergyClusterResponseVsEta", "Energy of cluster response vs #eta; #eta; E^{reco}-E^{true}/E^{true}", 30, -3., 3.);  
+    h_e_cluster_response_vs_phi    = BookTProfile("EnergyClusterResponseVsPhi", "Energy of cluster response vs #varphi; #varphi; E^{reco}-E^{true}/E^{true}", 30, -TMath::Pi(), TMath::Pi());  
   
     h_dr_electron     = Book1D("DeltaRElectron", "#DeltaR(truth particle, electron); #DeltaR; Events", 30, 0., 0.2);
     h_dphi_electron   = Book1D("DeltaPhiElectron", "#Delta #phi(truth particle, electron); #Delta #phi; Events", 20, -0.01, 0.01);
@@ -76,15 +83,16 @@ namespace ZeeValidation{
   }
   //-------------------------------------------------
   void TrueElectronsPlots::fillinAcc(const xAOD::IParticle* part, int level){
-    h_electron_pt[level] -> Fill(part -> pt()/GeV);
+    h_electron_pt[level] -> Fill(part -> pt()*(1./GeV));
     h_electron_phi[level] -> Fill(part -> phi());
   }
 
   //-------------------------------------------------
   void TrueElectronsPlots::fillResponse(const xAOD::IParticle* part, const xAOD::Electron* electron) {
     
-    h_e_response_vs_e -> Fill( part -> e()/GeV, (electron -> e() - part -> e())/part -> e() );
+    h_e_response_vs_e -> Fill( part -> e()*(1./GeV), (electron -> e() - part -> e())/part -> e() );
     h_e_response_vs_eta -> Fill( part -> eta(), (electron -> e() - part -> e())/part -> e() );   
+    h_e_response_vs_phi -> Fill( part -> phi(), (electron -> e() - part -> e())/part -> e() );   
  
     h_dr_electron   -> Fill( part -> p4().DeltaR(electron -> p4()));
     h_dphi_electron -> Fill( part -> p4().DeltaPhi(electron -> p4()));
@@ -94,8 +102,9 @@ namespace ZeeValidation{
   //-------------------------------------------------
   void TrueElectronsPlots::fillResponseCluster(const xAOD::IParticle* part, const xAOD::CaloCluster* cluster) {
     
-    h_e_cluster_response_vs_e -> Fill( part -> e()/GeV, (cluster -> e() - part -> e())/part -> e() );  
+    h_e_cluster_response_vs_e -> Fill( part -> e()*(1./GeV), (cluster -> e() - part -> e())/part -> e() );  
     h_e_cluster_response_vs_eta -> Fill( part -> eta(), (cluster -> e() - part -> e())/part -> e() );    
+    h_e_cluster_response_vs_phi -> Fill( part -> phi(), (cluster -> e() - part -> e())/part -> e() );  
   
   }
   //-------------------------------------------------

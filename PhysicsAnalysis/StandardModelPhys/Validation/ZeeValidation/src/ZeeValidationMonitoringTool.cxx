@@ -144,7 +144,7 @@ namespace ZeeValidation {
       
       //select electrons which passed author and pT cut
       if (!( electron -> author(xAOD::EgammaParameters::AuthorElectron) )) continue; 
-      if ( electron -> pt()/GeV < m_PtCentCut ) continue;
+      if ( electron -> pt()*(1./GeV) < m_PtCentCut ) continue;
       nrecel++;
 
       bool inAcceptance = (TMath::Abs(electron -> eta()) > m_EtaCrackHighCut || TMath::Abs(electron -> eta()) < m_EtaCrackLowCut) && TMath::Abs(electron -> eta()) < m_EtaCentCut;
@@ -152,10 +152,13 @@ namespace ZeeValidation {
       if (inAcceptance)
 	m_ReconElectronsPlots.fill(eventInfo, vertices);
       
-      bool loose = false, medium = false, tight = false, oq = false;
+      bool loose = false, medium = false, tight = false, lhloose = false, lhmedium = false, lhtight = false,  oq = false;
       electron -> passSelection(loose, "Loose"); 
       electron -> passSelection(medium, "Medium");
       electron -> passSelection(tight, "Tight");
+      electron -> passSelection(lhloose, "LHLoose"); 
+      electron -> passSelection(lhmedium, "LHMedium");
+      electron -> passSelection(lhtight, "LHTight");
       if ( electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
 
       //fill if passed author & pT cuts
@@ -186,6 +189,25 @@ namespace ZeeValidation {
 	if (inAcceptance)
 	  m_ReconElectronsPlots.fillinAcc(electron, 4);
       }
+
+
+      if (oq && lhloose){ //fill if passed OQ and Loose++ cuts
+	m_ReconElectronsPlots.fill(electron, 5);
+	if (inAcceptance)
+	  m_ReconElectronsPlots.fillinAcc(electron, 5);
+      }
+
+      if (oq && lhmedium){ //fill if passed OQ and Medium++ cuts
+	m_ReconElectronsPlots.fill(electron, 6);
+	if (inAcceptance)
+	  m_ReconElectronsPlots.fillinAcc(electron, 6);
+      }
+
+      if (oq && lhtight){ //fill if passed OQ and Tight++ cuts
+	m_ReconElectronsPlots.fill(electron, 7);
+	if (inAcceptance)
+	  m_ReconElectronsPlots.fillinAcc(electron, 7);
+      }
       //shower shape variables
 
       m_ReconElectronsPlots.fillShowerShape( electron );
@@ -194,7 +216,7 @@ namespace ZeeValidation {
       const xAOD::TrackParticle* track  = electron -> trackParticle();
       if (track){
 	m_ReconElectronsPlots.fillHitInfo( electron );
-	m_ReconElectronsPlots.fillTrackCaloMatch( electron );
+	m_ReconElectronsPlots.fillTrackCaloMatch( electron, track );
       }
 
     }
@@ -209,7 +231,7 @@ namespace ZeeValidation {
 
       //select truth particle which passed pT, eta cuts and have pid=11
       if ( TMath::Abs(truth_part -> pdgId()) != 11 || truth_part -> status() != 1  || truth_part -> barcode() > 100000 ) continue;
-      if ( truth_part -> pt()/GeV < m_PtCentCut ) continue;
+      if ( truth_part -> pt()*(1./GeV) < m_PtCentCut ) continue;
       if (TMath::Abs(truth_part -> eta()) > m_EtaCentCut ) continue;
 
       bool inAcceptance = TMath::Abs(truth_part -> eta()) > m_EtaCrackHighCut || TMath::Abs(truth_part -> eta()) < m_EtaCrackLowCut;
@@ -230,10 +252,13 @@ namespace ZeeValidation {
 	  m_TrueElectronsPlots.fillinAcc(truth_part, 2);
 	}
 
-	bool loose = false, medium = false, tight = false, oq = false;
+	bool loose = false, medium = false, tight = false, lhloose = false, lhmedium = false, lhtight = false, oq = false;
 	matched_electron -> passSelection(loose, "Loose"); 
 	matched_electron -> passSelection(medium, "Medium");
 	matched_electron -> passSelection(tight, "Tight");
+	matched_electron -> passSelection(lhloose, "LHLoose"); 
+	matched_electron -> passSelection(lhmedium, "LHMedium");
+	matched_electron -> passSelection(lhtight, "LHTight");
 	if ( matched_electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
     
 	if (oq) //fill if passed OQ cuts
@@ -244,6 +269,12 @@ namespace ZeeValidation {
 	  m_TrueElectronsPlots.fill(truth_part, 5);
 	if (oq && tight ) //fill if passed OQ and Tight++ cuts
 	  m_TrueElectronsPlots.fill(truth_part, 6);
+	if (oq && lhloose) //fill if passed OQ and LHLoose++ cuts
+	  m_TrueElectronsPlots.fill(truth_part, 7);
+	if (oq && lhmedium ) //fill if passed OQ and LHMedium++ cuts
+	  m_TrueElectronsPlots.fill(truth_part, 8);
+	if (oq && lhtight ) //fill if passed OQ and LHTight++ cuts
+	  m_TrueElectronsPlots.fill(truth_part, 9);
 
 	if (inAcceptance){ 
 	  if (oq)
@@ -254,6 +285,12 @@ namespace ZeeValidation {
 	    m_TrueElectronsPlots.fillinAcc(truth_part, 5);
 	  if (oq && tight )
 	    m_TrueElectronsPlots.fillinAcc(truth_part, 6);
+	  if (oq && lhloose)
+	    m_TrueElectronsPlots.fillinAcc(truth_part, 7);
+	  if (oq && lhmedium )
+	    m_TrueElectronsPlots.fillinAcc(truth_part, 8);
+	  if (oq && lhtight )
+	    m_TrueElectronsPlots.fillinAcc(truth_part, 9);
 	}
 	
 	//fill plots for electron energy response
@@ -281,7 +318,7 @@ namespace ZeeValidation {
 
       //select truth particle which passed fwd pT, eta cuts and have pid=11
       if ( TMath::Abs(truth_part -> pdgId()) != 11 || truth_part -> status() != 1  || truth_part -> barcode() > 100000 ) continue;
-      if ( truth_part -> pt()/GeV < m_PtFwdCut ) continue;
+      if ( truth_part -> pt()*(1./GeV) < m_PtFwdCut ) continue;
       if (TMath::Abs( truth_part -> eta() ) < m_EtaLowFwdCut || TMath::Abs(  truth_part -> eta() ) > m_EtaHighFwdCut ) continue;
 
       //fill plots with all truth particles passed fwd cuts
@@ -318,7 +355,7 @@ namespace ZeeValidation {
 
       if (!( electron -> author(xAOD::EgammaParameters::AuthorElectron) )) continue; 
       if (!( electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) )) continue;
-      if ( electron -> pt()/GeV < m_PtCentCut ) continue;
+      if ( electron -> pt()*(1./GeV) < m_PtCentCut ) continue;
 
       bool medium = false; 
       electron -> passSelection(medium, "Medium");
@@ -342,7 +379,7 @@ namespace ZeeValidation {
       for (auto electron : *electrons){
 
 	if (!( electron -> author(xAOD::EgammaParameters::AuthorElectron) )) continue; 
-	if ( electron -> pt()/GeV < m_PtCentCut ) continue;
+	if ( electron -> pt()*(1./GeV) < m_PtCentCut ) continue;
 
 	bool medium = false; 
 	electron -> passSelection(medium, "Medium");
@@ -370,7 +407,7 @@ namespace ZeeValidation {
 
 	if (!( electron -> author(xAOD::EgammaParameters::AuthorElectron) )) continue; 
 	//to avoid double counting
-	if ( electron -> pt()/GeV >= m_PtCentCut ) continue;
+	if ( electron -> pt()*(1./GeV) >= m_PtCentCut ) continue;
 
 	if (nel == 0) {
 	  z_el[0] = electron;
@@ -447,14 +484,14 @@ namespace ZeeValidation {
       if ( medium1 && medium2 ) bothMedium = true;
       if ( tight1 && tight2 ) bothTight = true;
    
-      if (elclus4v[0].Perp()/GeV < m_PtCentCut || !inAcceptance[0]) z_passed_cuts = false;	
-      if (elclus4v[1].Perp()/GeV < m_PtCentCut || !inAcceptance[1]) z_passed_cuts = false;
+      if (elclus4v[0].Perp()*(1./GeV) < m_PtCentCut || !inAcceptance[0]) z_passed_cuts = false;	
+      if (elclus4v[1].Perp()*(1./GeV) < m_PtCentCut || !inAcceptance[1]) z_passed_cuts = false;
      
       if (z_passed_cuts){
        	m_ZeePlots.fillGenPlots(nel);
       }
 
-      if (z.M()/GeV < m_MeeLowCut || z.M()/GeV > m_MeeHighCut) z_passed_cuts = false;
+      if (z.M()*(1./GeV) < m_MeeLowCut || z.M()*(1./GeV) > m_MeeHighCut) z_passed_cuts = false;
       if (z_el[0] -> charge() + z_el[1] -> charge() != 0) OS = false;
  
       //10 plot levels: Reco OS, OQ OS, Loose OS, Medium OS, Tight OS, Reco SS, OQ SS, Loose SS, Medium SS, Tight SS
@@ -517,7 +554,7 @@ namespace ZeeValidation {
       //
       if (!( electron -> author(xAOD::EgammaParameters::AuthorElectron) )) continue; 
       if (!( electron -> isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON) )) continue;
-      if ( electron -> pt()/GeV < m_PtCentCut ) continue;
+      if ( electron -> pt()*(1./GeV) < m_PtCentCut ) continue;
 
       bool medium = false; 
       electron -> passSelection(medium, "Medium");
@@ -535,7 +572,7 @@ namespace ZeeValidation {
       for (auto fwd_electron : *fwd_electrons){ //first loop: collect fwd Tight++ electrons passed pT cut
 
 	if (!( fwd_electron -> author(xAOD::EgammaParameters::AuthorFwdElectron) )) continue; 
-	if ( fwd_electron -> pt()/GeV < m_PtFwdCut ) continue;
+	if ( fwd_electron -> pt()*(1./GeV) < m_PtFwdCut ) continue;
 
 	bool tight = false; 
 	fwd_electron -> passSelection(tight, "Tight");
@@ -553,7 +590,7 @@ namespace ZeeValidation {
 	for (auto fwd_electron : *fwd_electrons){
 
 	  if (!( fwd_electron -> author(xAOD::EgammaParameters::AuthorFwdElectron) )) continue; 
-	  if ( fwd_electron -> pt()/GeV < m_PtFwdCut ) continue;
+	  if ( fwd_electron -> pt()*(1./GeV) < m_PtFwdCut ) continue;
 
 	  bool loose = false; 
 	  fwd_electron -> passSelection(loose, "Loose");
@@ -617,9 +654,9 @@ namespace ZeeValidation {
 
 	bool zfwd_passed_cuts = true;
 	if ( !(tight_cent && ptcone40_value < 2000.)) zfwd_passed_cuts = false;
-	if (zfwd.M()/GeV < m_MeeLowCut|| zfwd.M()/GeV >= m_MeeHighCut) zfwd_passed_cuts = false;
-	if (elfwd4v[0].Perp()/GeV < m_PtCentCut || !inAcceptance[0]) zfwd_passed_cuts = false;
-	if (elfwd4v[1].Perp()/GeV < m_PtFwdCut || !inAcceptance[1]) zfwd_passed_cuts = false;
+	if (zfwd.M()*(1./GeV) < m_MeeLowCut|| zfwd.M()*(1./GeV) >= m_MeeHighCut) zfwd_passed_cuts = false;
+	if (elfwd4v[0].Perp()*(1./GeV) < m_PtCentCut || !inAcceptance[0]) zfwd_passed_cuts = false;
+	if (elfwd4v[1].Perp()*(1./GeV) < m_PtFwdCut || !inAcceptance[1]) zfwd_passed_cuts = false;
 
 	if(zfwd_passed_cuts){ //fill plots if Z passed selection: mass cut, central electron Tight++, each electron passed corresponding pT cut and is out of crack regions
 	  m_FWDZeePlots.fillZPlots(zfwd, 0);
