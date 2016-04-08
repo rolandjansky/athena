@@ -13,9 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
-                          Event/xAOD/xAODTracking
-                          DetectorDescription/GeoPrimitives )
+                          Tracking/TrkEvent/VxVertex )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -25,7 +23,7 @@ atlas_add_library( VxMultiVertex
                    src/*.cxx
                    PUBLIC_HEADERS VxMultiVertex
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools TrkParameters TrkParticleBase TrkTrack VxVertex xAODTracking
+                   LINK_LIBRARIES DataModel SGTools TrkParameters TrkParticleBase TrkTrack VxVertex
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( VxMultiVertexDict

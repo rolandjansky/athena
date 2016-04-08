@@ -15,27 +15,17 @@
  *             
  *  begin December 2006
  *  @authors: Kirill Prokofiev (University of Sheffield) Kirill.Prokofiev@cern.ch
- *
- * -----------------------------------------------------
- *  changes:
- *
- *  David Shope <david.richard.shope@cern.ch> (2016-04-19)
- *
- *  constraintVertex     now uses xAOD::Vertex  instead of Trk::RecVertex
- *  seedVertex           now uses Amg::Vector3D instead of Trk::Vertex
- *  linearizationVertex  now uses Amg::Vector3D instead of Trk::Vertex
  */
 
 #include "VxVertex/Vertex.h"
 #include <vector>
 
-#include "xAODTracking/Vertex.h"
-// for use of Amg
-#include "GeoPrimitives/GeoPrimitives.h"
-
 namespace Trk
 {
 
+ class Vertex;
+ class RecVertex;
+ 
  class MvfFitInfo
  {
    public:
@@ -49,9 +39,9 @@ namespace Trk
  * Constructor taking pointers to constraint vertex,
  * seed vertex and linearization point 
  */   
-     MvfFitInfo(xAOD::Vertex* constraintVertex,
-                Amg::Vector3D* seedVertex,
-                Amg::Vector3D* linearizationVertex);
+     MvfFitInfo(Trk::RecVertex* constraintVertex,
+                Trk::Vertex* seedVertex,
+                Trk::Vertex* linearizationVertex);
     
      virtual ~MvfFitInfo();
 /**
@@ -63,89 +53,89 @@ namespace Trk
 /**
  * Const access to the constraint vertex
  */   
-     const xAOD::Vertex* constraintVertex(void) const;
+     const Trk::RecVertex* constraintVertex(void) const;
 
 /**
  * Unconst access to the constraint vertex
  */      
-     xAOD::Vertex* constraintVertex(void);
+     Trk::RecVertex* constraintVertex(void);
     
 /**
  * Constraint vertex set method
  */       
-     void setConstraintVertex(xAOD::Vertex*);
+     void setConstraintVertex(Trk::RecVertex*);
       
 /**
  * Const access to the seed vertex
  */       
-     const Amg::Vector3D* seedVertex(void) const;
+     const Trk::Vertex* seedVertex(void) const;
 
 /**
  * Unconst access to the seed vertex
  */     
-     Amg::Vector3D* seedVertex(void);
+     Trk::Vertex* seedVertex(void);
           
 /**
  * Seed vertex set method
  */       
-     void setSeedVertex(Amg::Vector3D*);
+     void setSeedVertex(Trk::Vertex*);
 
 /**
  * Const access to the linearization point
  */
-     const Amg::Vector3D* linearizationVertex(void) const;
+     const Trk::Vertex* linearizationVertex(void) const;
   
 /**
  * Unconst access to the linearization point
  */         
-     Amg::Vector3D* linearizationVertex(void);
+     Trk::Vertex* linearizationVertex(void);
      
 /**
  * Linearization point set method
  */       
-     void setLinearizationVertex(Amg::Vector3D*);
+     void setLinearizationVertex(Trk::Vertex*);
     
    private:
    
-     xAOD::Vertex* m_constraintVertex;
-     Amg::Vector3D* m_seedVertex;
-     Amg::Vector3D* m_linearizationVertex;
+     Trk::RecVertex* m_constraintVertex;
+     Trk::Vertex* m_seedVertex;
+     Trk::Vertex* m_linearizationVertex;
  
  }; //end of class definitions
 
 
-  inline void MvfFitInfo::setConstraintVertex(xAOD::Vertex* constraintVertex)
+  inline void MvfFitInfo::setConstraintVertex(Trk::RecVertex* constraintVertex)
   {
     m_constraintVertex=constraintVertex;
   }
 
 
-  inline const xAOD::Vertex* MvfFitInfo::constraintVertex(void) const
+  inline const Trk::RecVertex* MvfFitInfo::constraintVertex(void) const
   {
     return m_constraintVertex;
   }
 
-  inline xAOD::Vertex* MvfFitInfo::constraintVertex(void)
+  inline Trk::RecVertex* MvfFitInfo::constraintVertex(void)
   {
     return m_constraintVertex;
   }
 
-  inline const Amg::Vector3D* MvfFitInfo::seedVertex(void) const
+  inline const Trk::Vertex* MvfFitInfo::seedVertex(void) const
   {
     return m_seedVertex;
   }
 
-  inline Amg::Vector3D* MvfFitInfo::seedVertex(void)
+  inline Trk::Vertex* MvfFitInfo::seedVertex(void)
   {
     return m_seedVertex;
   }
 
-  inline const Amg::Vector3D* MvfFitInfo::linearizationVertex(void) const
+  inline const Trk::Vertex* MvfFitInfo::linearizationVertex(void) const
   {
     return m_linearizationVertex;
   }
 
-  inline Amg::Vector3D* MvfFitInfo::linearizationVertex(void)
+  inline Trk::Vertex* MvfFitInfo::linearizationVertex(void)
   {
     return m_linearizationVertex;
   }

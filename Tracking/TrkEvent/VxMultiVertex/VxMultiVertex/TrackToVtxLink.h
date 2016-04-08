@@ -7,8 +7,6 @@
 
 #include "DataModel/ElementLink.h"
 
-#include "xAODTracking/Vertex.h"
-
 /**
  *   @class Trk::TrackToVtxLink.h  
  *			  
@@ -18,18 +16,13 @@
  *
  *   begin   : 24-05-2006
  *   @authors Giacinto Piacquadio (Freiburg University) giacinto.piacquadio@physik.uni-freiburg.de
- *
- * -------------------------------------------------------
- * Changes:
- *
- * David Shope <david.richard.shope@cern.ch> (2016-04-19)
- *
- * Vertex objects stored using this class are now xAOD::Vertex (from Trk::VxCandidate)
  */
 
 
 namespace Trk
 {
+
+  class VxCandidate;
 
   class TrackToVtxLink {
 
@@ -58,33 +51,33 @@ namespace Trk
 /**
  * Constructor with also pointer to vertexes
  */
-    TrackToVtxLink(std::vector<xAOD::Vertex*>* ptrToVertices);
+    TrackToVtxLink(std::vector<VxCandidate*>* ptrToVertexes);
 
  /**
   * Const access to the vertex list
   */ 
-    const std::vector<xAOD::Vertex*>* vertices(void) const;
+    const std::vector<VxCandidate*>* vertexes(void) const;
     
 /**   
  * Unconst access to the vertex list
  */    
-    std::vector<xAOD::Vertex*>* vertices(void);
+    std::vector<VxCandidate*>* vertexes(void);
        
   private:
 
    /**
     * Infos about vertexes which the track can be referred to
     */
-    std::vector<xAOD::Vertex*>* m_vertices;
+    std::vector<VxCandidate*>* m_vertexes;
     
   };
   
-  inline const std::vector<xAOD::Vertex*>* TrackToVtxLink::vertices(void) const {
-    return m_vertices;
+  inline const std::vector<VxCandidate*>* TrackToVtxLink::vertexes(void) const {
+    return m_vertexes;
   }
 
-  inline std::vector<xAOD::Vertex*>*  TrackToVtxLink::vertices(void) {
-    return m_vertices;
+  inline std::vector<VxCandidate*>*  TrackToVtxLink::vertexes(void) {
+    return m_vertexes;
   }
 
   

@@ -53,9 +53,9 @@ namespace Trk
    * Constructors with additional information:
    * constraint vertex, seed vertex, linearization point 
    */		
-    MVFVxCandidate(xAOD::Vertex* constraintVertex,
-		   Amg::Vector3D* seedVertex,
-		   Amg::Vector3D* linearizationVertex,
+    MVFVxCandidate(Trk::RecVertex* constraintVertex,
+		   Trk::Vertex* seedVertex,
+		   Trk::Vertex* linearizationVertex,
 		   const Trk::RecVertex& recVertex,
 		   std::vector<Trk::VxTrackAtVertex*>& vxTrackAtVertex);
 
@@ -63,9 +63,9 @@ namespace Trk
    * Constructors with additional information:
    * constraint vertex, seed vertex, linearization point 
    */	
-    MVFVxCandidate(xAOD::Vertex* constraintVertex,
-		   Amg::Vector3D* seedVertex,
-		   Amg::Vector3D* linearizationVertex);
+    MVFVxCandidate(Trk::RecVertex* constraintVertex,
+		   Trk::Vertex* seedVertex,
+		   Trk::Vertex* linearizationVertex);
 
  /**
   * Copy-constructor

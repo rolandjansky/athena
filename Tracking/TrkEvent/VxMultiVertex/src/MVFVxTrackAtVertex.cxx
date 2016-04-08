@@ -126,7 +126,7 @@ namespace Trk {
   }
   
     MsgStream& MVFVxTrackAtVertex::dump(MsgStream& sl) const {
-    sl << "Printing Trk::MVFVxTrackAtVertex:" << endmsg;
+    sl << "Printing Trk::MVFVxTrackAtVertex:" << endreq;
     // for now just print base class
     VxTrackAtVertex::dump(sl);
     return sl;
