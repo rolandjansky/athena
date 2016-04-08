@@ -2,14 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingET_p3.h"
-#undef private
-#undef protected
-
-
 #include "TrigMissingEtEvent/TrigMissingEtComponent.h"
 
 
@@ -24,21 +18,10 @@ void TrigMissingETCnv_p3::persToTrans(const TrigMissingET_p3* persObj,
 {
    log << MSG::DEBUG << "TrigMissingETCnv_p3::persToTrans called " << endreq;
 
-   // basic info
-   transObj->m_ex        = persObj->m_allTheFloats[0] ; 
-   transObj->m_ey        = persObj->m_allTheFloats[1] ;
-   transObj->m_ez        = persObj->m_allTheFloats[2] ;
-   transObj->m_sum_et	 = persObj->m_allTheFloats[3] ;
-   transObj->m_sum_e 	 = persObj->m_allTheFloats[4] ;
-
-   transObj->m_flag  	 = persObj->m_flag     ;
-   transObj->m_roiWord   = persObj->m_roiWord  ; 
-
    // auxiliary info
-   transObj->m_compVec.clear();
-
+   std::vector<TrigMissingEtComponent> compVec;
    if (persObj->m_comp_number > 0) {
-     transObj->m_compVec.reserve( persObj->m_comp_number );
+     compVec.reserve( persObj->m_comp_number );
 
      for (unsigned int i=0; i<persObj->m_comp_number; ++i) {
        TrigMissingEtComponent c;
@@ -55,9 +38,21 @@ void TrigMissingETCnv_p3::persToTrans(const TrigMissingET_p3* persObj,
        c.setSumOfSigns(   persObj->m_c_sumOfSigns[i]   );
        c.setUsedChannels( persObj->m_c_usedChannels[i] );
 
-       transObj->m_compVec.push_back( c );
+       compVec.push_back( c );
      }
    }
+
+   *transObj = TrigMissingET (std::move (compVec));
+
+   // basic info
+   transObj->setEx        (persObj->m_allTheFloats[0]); 
+   transObj->setEy        (persObj->m_allTheFloats[1]);
+   transObj->setEz        (persObj->m_allTheFloats[2]);
+   transObj->setSumEt	  (persObj->m_allTheFloats[3]);
+   transObj->setSumE 	  (persObj->m_allTheFloats[4]);
+
+   transObj->setFlag  	  (persObj->m_flag);
+   transObj->set_RoIword  (persObj->m_roiWord);
 }
 
 
@@ -68,14 +63,14 @@ void TrigMissingETCnv_p3::transToPers(const TrigMissingET* transObj,
    log << MSG::DEBUG << "TrigMissingETCnv_p3::transToPers called " << endreq;
 
    // basic info
-   persObj->m_allTheFloats[0] = transObj->m_ex      ; 
-   persObj->m_allTheFloats[1] = transObj->m_ey      ;
-   persObj->m_allTheFloats[2] = transObj->m_ez      ;
-   persObj->m_allTheFloats[3] =  transObj->m_sum_et ;
-   persObj->m_allTheFloats[4] = transObj->m_sum_e   ;
+   persObj->m_allTheFloats[0] = transObj->ex(); 
+   persObj->m_allTheFloats[1] = transObj->ey();
+   persObj->m_allTheFloats[2] = transObj->ez();
+   persObj->m_allTheFloats[3] = transObj->sumEt();
+   persObj->m_allTheFloats[4] = transObj->sumE();
 
-   persObj->m_flag  	= transObj->m_flag     ;
-   persObj->m_roiWord   = transObj->m_roiWord  ; 
+   persObj->m_flag  	= transObj->getFlag();
+   persObj->m_roiWord   = transObj->RoIword();
 
    // auxiliary info
    persObj->m_comp_number=0;
@@ -106,19 +101,17 @@ void TrigMissingETCnv_p3::transToPers(const TrigMissingET* transObj,
      persObj->m_c_usedChannels.reserve(N);
 
      for (unsigned int i=0; i<N; ++i) {
-       TrigMissingEtComponent c = transObj->m_compVec[i];
-
-       persObj->m_c_name.push_back(         c.name()         );
-       persObj->m_c_status.push_back(       c.status()       );
-       persObj->m_c_ex.push_back(           c.ex()           );
-       persObj->m_c_ey.push_back(           c.ey()           );
-       persObj->m_c_ez.push_back(           c.ez()           );
-       persObj->m_c_sumEt.push_back(        c.sumEt()        );
-       persObj->m_c_sumE.push_back(         c.sumE()         );
-       persObj->m_c_calib0.push_back(       c.calib0()       );
-       persObj->m_c_calib1.push_back(       c.calib1()       );
-       persObj->m_c_sumOfSigns.push_back(   c.sumOfSigns()   );
-       persObj->m_c_usedChannels.push_back( c.usedChannels() );
+       persObj->m_c_name.push_back(         transObj->getNameOfComponent(i) );
+       persObj->m_c_status.push_back(       transObj->getStatus(i) );
+       persObj->m_c_ex.push_back(           transObj->getExComponent(i) );
+       persObj->m_c_ey.push_back(           transObj->getEyComponent(i) );
+       persObj->m_c_ez.push_back(           transObj->getEzComponent(i) );
+       persObj->m_c_sumEt.push_back(        transObj->getSumEtComponent(i) );
+       persObj->m_c_sumE.push_back(         transObj->getSumEComponent(i) );
+       persObj->m_c_calib0.push_back(       transObj->getComponentCalib0(i) );
+       persObj->m_c_calib1.push_back(       transObj->getComponentCalib1(i) );
+       persObj->m_c_sumOfSigns.push_back(   transObj->getSumOfSigns(i) );
+       persObj->m_c_usedChannels.push_back( transObj->getUsedChannels(i) );
      }
    }
 }
