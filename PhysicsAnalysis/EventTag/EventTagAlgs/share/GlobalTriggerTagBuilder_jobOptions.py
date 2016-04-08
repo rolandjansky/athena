@@ -10,7 +10,7 @@ GlobalTriggerTagBuilder   = GlobalTriggerTagBuilder(
      name                 = "GlobalTriggerTagBuilder",
      GlobalTriggerTagTool = GlobalTriggerTagTool,
      AttributeList        = EventTagGlobal.AttributeList,
-     MaxNumber            = [48, 32, 32],
+     MaxNumber            = [48, 256, 32], # first is L1 (TBP, TAP, TAV), second is HLT, last parameter is not used anylonger
      CheckAttribute       = False)
 
 topSequence += GlobalTriggerTagBuilder
