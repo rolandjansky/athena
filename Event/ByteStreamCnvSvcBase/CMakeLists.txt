@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS eformat eformat_write )
+find_package( tdaq-common )
 
 # Component(s) in the package:
 atlas_add_library( ByteStreamCnvSvcBaseLib
