@@ -7,13 +7,6 @@
 #include <cmath>
 #include <iostream>
 
-//Default constructor
-PhiSlice::PhiSlice()
-{
-	//cerr << "Default constructor not accepted for PhiSlice" << endl;
-	//exit(1);
-}
-
 //Constructor with input parameters
 PhiSlice::PhiSlice( int SliceIndex, 
 		    double ZBinWidth,  double InversePhiBinWidth,

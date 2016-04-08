@@ -38,7 +38,6 @@ IDScanZFinder::IDScanZFinder( const std::string& type, const std::string& name, 
   declareProperty( "PhiBinSize",         m_phiBinSize       = 0.2   );
   declareProperty( "UseOnlyPixels",      m_pixOnly          = false );
   declareProperty( "MinZBinSize",        m_minZBinSize      = 0.2   );
-  declareProperty( "MaxZ",               m_ZFinder_MaxZ     = 200.*millimeter   );
   declareProperty( "nFirstLayers",       m_nFirstLayers     = 3     );
   declareProperty( "ZBinSizeEtaCoeff",   m_zBinSizeEtaCoeff = 0.1   );
   declareProperty( "DPhiDEta",           m_dphideta         = -0.02 );
@@ -132,7 +131,6 @@ StatusCode IDScanZFinder::initialize()
   athenaLog << MSG::INFO << "IDScanZFinder::PhiBinSize     set to   "    << m_phiBinSize       << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::# of peaks to consider: "    << m_numberOfPeaks    << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::z bin size              "    << m_minZBinSize      << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::max z                   "    << m_ZFinder_MaxZ     << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::eta coeff               "    << m_zBinSizeEtaCoeff << endreq;
   
   athenaLog << MSG::INFO << "IDScanZFinder::m_nFirstLayers     = " << m_nFirstLayers     << endreq;
@@ -141,7 +139,6 @@ StatusCode IDScanZFinder::initialize()
   athenaLog << MSG::INFO << "IDScanZFinder::m_dphideta         = " << m_dphideta         << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::m_neighborMultiplier = " << m_neighborMultiplier << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::m_minZBinSize      = " << m_minZBinSize      << endreq;
-  athenaLog << MSG::INFO << "IDScanZFinder::m_ZFinder_MaxZ     = " << m_ZFinder_MaxZ     << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::m_zBinSizeEtaCoeff = " << m_zBinSizeEtaCoeff << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::m_chargeAware      = " << m_chargeAware      << endreq;
   athenaLog << MSG::INFO << "IDScanZFinder::m_zHistoPerPhi     = " << m_zHistoPerPhi     << endreq;
