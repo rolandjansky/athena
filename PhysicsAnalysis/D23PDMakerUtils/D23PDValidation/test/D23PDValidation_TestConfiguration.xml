@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+	<rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+
+		<rttContactPerson>Junji Tojo </rttContactPerson>
+		<mailto>Junji.Tojo@cern.ch</mailto>
+		<refRelease>13.0.20</refRelease>
+
+		<jobList>
+
+			<classification>
+				<displayClass>OfflineValidation</displayClass>
+				<displayProcess>Reco</displayProcess>
+				<displayComponent>Athena-Core</displayComponent>
+			</classification>
+
+			<!--
+			NTUP_TRIGBJET
+
+NTUP_JETMETEMCL
+
+NTUP_TAUMEDIUM
+NTUP_TAUSMALL
+NTUP_BTAGD3PD
+
+NTUP_SMBKGE
+
+NTUP_SMWENU
+NTUP_SMZEE
+NTUP_SMDYEE
+NTUP_SMWENUJJ
+NTUP_SMBKGMU
+
+NTUP_SMWMUNU
+NTUP_SMZMUMU
+NTUP_SMDYMUMU
+NTUP_SMWMUNUJJ
+NTUP_SMDILEP
+NTUP_SMTRILEP
+NTUP_PHOTON
+NTUP_SMQCD
+NTUP_TOP
+NTUP_TOPVAL
+NTUP_TOPEL
+NTUP_TOPMU
+NTUP_TOPJET
+NTUP_TOPEJET
+NTUP_TRUTH (only on MC)
+
+NTUP_SUSY
+NTUP_SUSYSKIM
+NTUP_SUSY01LEP
+NTUP_SUSY23LEP
+
+NTUP_SUSYLEPTAU
+
+NTUP_SUSYRAZOR
+
+NTUP_SUSYTAG
+
+NTUP_HSG2
+NTUP_HSG5WH
+NTUP_HSG5ZHLL
+NTUP_HSG5ZHMET
+
+NTUP_HSG5GAMZ
+NTUP_HSG5ZBB
+
+NTUP_TOPBOOST
+NTUP_ZPRIMEEE 
+-->
+
+
+<jobTransform userJobId="dpd_validation-EGAMMA-only">
+	<doc>dpd_validation-EGAMMA-only</doc>
+	<jobTransformJobName>dpd_validation-EGAMMA-only</jobTransformJobName>
+	<jobTransformCmd>
+		Reco_trf.py inputAODFile=AOD.pool.root autoConfiguration=everything --ignoreerrors=True outputNTUP_EGAMMAFile=NTUP_EGAMMA.root 
+	</jobTransformCmd>
+	<group>RecTrf</group>
+	<queue>medium</queue>
+</jobTransform>
+
+<jobTransform userJobId="dpd_validation-JETMET-only">
+	<doc>dpd_validation-JETMET-only</doc>
+	<jobTransformJobName>dpd_validation-JETMET-only</jobTransformJobName>
+	<jobTransformCmd>
+		Reco_trf.py inputAODFile=AOD.pool.root autoConfiguration=everything --ignoreerrors=True outputNTUP_JETMETFile=NTUP_JETMET.root 
+	</jobTransformCmd>
+	<group>RecTrf</group>
+	<queue>medium</queue>
+</jobTransform>
+
+<jobTransform userJobId="dpd_validation-SMWZ-only">
+	<doc>dpd_validation-SMWZ-only</doc>
+	<jobTransformJobName>dpd_validation-SMWZ-only</jobTransformJobName>
+	<jobTransformCmd>
+		Reco_trf.py inputAODFile=AOD.pool.root autoConfiguration=everything --ignoreerrors=True outputNTUP_SMWZFile=NTUP_SMWZ.root 
+	</jobTransformCmd>
+	<group>RecTrf</group>
+	<queue>medium</queue>
+</jobTransform>
+
+</jobList>
+
+<jobGroups>
+
+	<jobGroup name="RecTrf" parent="Transform">
+		<keepFilePattern>*.root</keepFilePattern>
+		<!-- <keepFilePattern>*.pmon.gz</keepFilePattern> -->
+		<keepFilePattern>*.log</keepFilePattern>
+		<!-- <keepFilePattern>logExtract.txt</keepFilePattern> -->
+		<!-- <keepFilePattern>SGAud*.out</keepFilePattern> -->
+		<keepFilePattern>*.txt</keepFilePattern>
+		<!-- <keepFilePattern>*.bz2</keepFilePattern> -->
+
+		<auxFilePattern>slurpRecoRTTTests.pl</auxFilePattern>
+
+		<action position="1" runInAtlasEnv="yes">
+			<modulename>PostProcessRecoRTTTests</modulename>
+			<testname>PostProcessRecoRTTTests</testname>
+		</action>
+
+	</jobGroup>   
+</jobGroups>
+
+</rtt>
+
+</unifiedTestConfiguration>
