@@ -20,7 +20,8 @@ namespace MuonGM {
     AthAlgorithm(name,pSvcLocator),
     //m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_tree(0),
-    m_nevents(0)
+    m_nevents(0),
+    m_detMgr(NULL)
   {
     declareProperty("NtupleFileName",       m_ntupleFileName = "MuonGMNtuple");
     declareProperty("NtupleDirectoryName",  m_ntupleDirName  = "MuonGM");

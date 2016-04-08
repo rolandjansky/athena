@@ -57,7 +57,7 @@ typedef std::istringstream mystream;
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 MuonGMCheckCorners::MuonGMCheckCorners(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm               ( name, pSvcLocator ),
+  : AthAlgorithm               ( name, pSvcLocator ),
     p_EventStore            ( 0 ),
     p_ActiveStore           ( 0 ),
     p_MuonMgr		    ( 0 ),

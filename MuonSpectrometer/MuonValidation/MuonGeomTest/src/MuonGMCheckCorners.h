@@ -19,7 +19,7 @@
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -43,7 +43,7 @@ using namespace MuonGM;
  
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
-class MuonGMCheckCorners: public Algorithm
+class MuonGMCheckCorners: public AthAlgorithm
 {
  public:
     
