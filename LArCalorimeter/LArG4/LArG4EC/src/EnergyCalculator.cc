@@ -192,22 +192,25 @@ static inline G4double DistanceToEtaLine(const G4ThreeVector &p, G4double eta) {
 
 
 // ****************************************************************************
-G4bool EnergyCalculator::Process(const G4Step* step){
+G4bool EnergyCalculator::Process(const G4Step* step, std::vector<LArHitData>& hdata){
 // ****************************************************************************
 
-  return (this->*Process_type)(step);
+  // make sure hdata is reset
+  hdata.resize(1); 
+  return (this->*Process_type)(step, hdata);
 }
 // ****************************************************************************
 
 // ****************************************************************************
 G4bool EnergyCalculator::FindIdentifier(
         const G4Step* step,
+        std::vector<LArHitData>& hdata,
 	G4ThreeVector &startPointLocal,
 	G4ThreeVector &endPointLocal
 	){
 // ****************************************************************************
 
-  return (this->*FindIdentifier_type) (step,startPointLocal,endPointLocal);
+  return (this->*FindIdentifier_type) (step,hdata,startPointLocal,endPointLocal);
 }
 // ****************************************************************************
 
@@ -221,11 +224,11 @@ EnergyCalculator::~EnergyCalculator() {
 }
 
 // ****************************************************************************
-G4bool EnergyCalculator::Process_Default(const G4Step* step)
+G4bool EnergyCalculator::Process_Default(const G4Step* step, std::vector<LArHitData>& hdata)
 // ****************************************************************************
 {
 	G4ThreeVector startPointinLocal, endPointinLocal;
-	if(!FindIdentifier_Default(step, startPointinLocal, endPointinLocal)){
+	if(!FindIdentifier_Default(step, hdata, startPointinLocal, endPointinLocal)){
 		return false;
 	}
 
@@ -238,15 +241,15 @@ G4bool EnergyCalculator::Process_Default(const G4Step* step)
 		E = (*birksLaw)(E, wholeStepLengthCm,efield);
 	}
 
-	m_energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
+	hdata[0].energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
 	return true;
 }
 
 // ****************************************************************************
-G4bool EnergyCalculator::Process_Barrett(const G4Step* step){
+G4bool EnergyCalculator::Process_Barrett(const G4Step* step, std::vector<LArHitData>& hdata){
 // ****************************************************************************
 	G4ThreeVector startPointinLocal, endPointinLocal;
-	if(!FindIdentifier_Barrett(step, startPointinLocal, endPointinLocal)){
+	if(!FindIdentifier_Barrett(step, hdata, startPointinLocal, endPointinLocal)){
 	                                        //cell id is not found
 	  if(!lwc()->GetisBarretteCalib()) return false; // ==> normal calculator return false
 	  else{ // if Calibration Calculator for Barrett:
@@ -258,7 +261,7 @@ G4bool EnergyCalculator::Process_Barrett(const G4Step* step){
 	        // DM identifier for Barrett is defined
 	        // by the EmecSupportCalibrationCalculator.( In general it is
 	        // activated  by the atlas_calo.py)
-	       const G4bool status=FindDMIdentifier_Barrett(step);
+	       const G4bool status=FindDMIdentifier_Barrett(step, hdata);
 	       if(!status)
 	         std::cout<<" WARNING!!EnergyCalculator::Process_Barrett:"
 			  << " DM identifier not found????"
@@ -277,7 +280,7 @@ G4bool EnergyCalculator::Process_Barrett(const G4Step* step){
 		E = (*birksLaw)(E, wholeStepLengthCm,efield);
 	}
 
-	m_energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
+	hdata[0].energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
 	return true;
 }
 // ****************************************************************************
@@ -348,10 +351,10 @@ EnergyCalculator::EnergyCalculator(
 
 	(*m_msg) << MSG::DEBUG << "StoreGate interface is ready" << endreq;
 
-	m_identifier = LArG4Identifier();
+	//m_identifier = LArG4Identifier();
 	m_compartment = 0;
-	m_time = 0.;
-	m_energy = 0.;
+	//m_time = 0.;
+	//m_energy = 0.;
 	m_isInTime = false;
 
 	m_OOTcut = globalOptions->OutOfTimeCut();
@@ -1217,6 +1220,7 @@ static const geometry_t geometry[] =
 // ****************************************************************************
 G4bool EnergyCalculator::FindIdentifier_Default(
 	const G4Step* step,
+        std::vector<LArHitData>& hdata,
 	G4ThreeVector &startPointLocal,
 	G4ThreeVector &endPointLocal
 )  // need to make const. return m_identifier, not modify
@@ -1643,8 +1647,8 @@ G4bool EnergyCalculator::FindIdentifier_Default(
      validhit=false;
    }
 
-   m_identifier.clear();
-   m_identifier << 4 // LArCalorimeter
+   hdata[0].id.clear();
+   hdata[0].id  << 4 // LArCalorimeter
 		<< 1 // LArEM
 		<< atlasside
 		<< sampling
@@ -1654,8 +1658,8 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
    G4double timeOfFlight = (pre_step_point->GetGlobalTime() +
 			    post_step_point->GetGlobalTime()) * 0.5;
-   m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
-   if (m_time > m_OOTcut) m_isInTime = false;
+   hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+   if (hdata[0].time > m_OOTcut) m_isInTime = false;
    else m_isInTime = true;
 
    return validhit;
@@ -2187,6 +2191,7 @@ G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step) const{
 // ****************************************************************************
 G4bool EnergyCalculator::FindIdentifier_Barrett(
 	const G4Step* step,
+        std::vector<LArHitData>& hdata,
 	G4ThreeVector &startPointLocal,
 	G4ThreeVector &endPointLocal
 	){
@@ -2382,8 +2387,8 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 	  validhit=false;
         }
 
-        m_identifier.clear();
-        m_identifier << 4 // LArCalorimeter
+        hdata[0].id.clear();
+        hdata[0].id  << 4 // LArCalorimeter
                      << 1 // LArEM
                      << atlasside
                      << sampling
@@ -2394,21 +2399,21 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
         G4double timeOfFlight = 0.5 *
 	  ( pre_step_point->GetGlobalTime() +
 	    post_step_point->GetGlobalTime()    );
-        m_time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
-        if (m_time > m_OOTcut) m_isInTime = false;
+        hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+        if (hdata[0].time > m_OOTcut) m_isInTime = false;
         else m_isInTime = true;
 
         return validhit;
 }
 // ****************************************************************************
-G4bool EnergyCalculator::FindDMIdentifier_Barrett(const G4Step* step){
+G4bool EnergyCalculator::FindDMIdentifier_Barrett(const G4Step* step, std::vector<LArHitData>& hdata){
 // ****************************************************************************
 
   G4bool validid = false;
-  m_identifier = LArG4Identifier();
+  hdata[0].id = LArG4Identifier();
 
   validid      = m_supportCalculator->Process(step,LArG4::VCalibrationCalculator::kOnlyID);
-  m_identifier = m_supportCalculator->identifier();
+  hdata[0].id = m_supportCalculator->identifier();
 
   return validid;
 }

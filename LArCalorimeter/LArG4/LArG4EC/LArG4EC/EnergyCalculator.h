@@ -26,8 +26,8 @@
 #include <string>
 #include <stdexcept>
 
-#include "LArG4Code/LArVCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "LArG4Code/LArVCalculator.h"
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
@@ -53,21 +53,27 @@ class EnergyCalculator : public LArVCalculator
 	virtual G4float OOTcut() const { return m_OOTcut; }
 	virtual void SetOutOfTimeCut(G4double c) { m_OOTcut = c; }
 
-	virtual G4bool Process(const G4Step*);
-	virtual G4bool FindIdentifier(const G4Step *, G4ThreeVector &,
-								  G4ThreeVector &);
+	virtual G4bool Process(const G4Step* a_step){return Process(a_step, m_hdata);}
+        virtual G4bool Process(const G4Step*, std::vector<LArHitData>&);
+
+	virtual G4bool FindIdentifier(const G4Step *, std::vector<LArHitData>&,
+                                      G4ThreeVector &, G4ThreeVector &);
+
 	virtual const LArG4Identifier& identifier(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
-		return m_identifier;
+                if(m_hdata.size()<1) throw std::range_error("No hit yet");
+		return m_hdata[0].id;
 	}
 
 	virtual G4double time(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
-		return m_time;
+                if(m_hdata.size()<1) throw std::range_error("No hit yet");
+		return m_hdata[0].time;
 	}
 	virtual G4double energy(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
-		return m_energy;
+                if(m_hdata.size()<1) throw std::range_error("No hit yet");
+		return m_hdata[0].energy;
 	}
 	virtual G4bool isInTime(int i = 0) const {
 		if(i != 0) throw std::range_error("Multiple hits not yet implemented");
@@ -81,9 +87,11 @@ class EnergyCalculator : public LArVCalculator
   private:
 
   // The results of the Process calculation:
-	LArG4Identifier m_identifier;
-	G4double m_time;
-	G4double m_energy;
+	//LArG4Identifier m_identifier;
+	//G4double m_time;
+	//G4double m_energy;
+        std::vector<LArHitData> m_hdata;
+
 	G4bool   m_isInTime;
 	G4int    m_compartment;
 
@@ -111,20 +119,21 @@ class EnergyCalculator : public LArVCalculator
 
   private:
 
-	G4bool (EnergyCalculator::*Process_type) (const G4Step*);
+	G4bool (EnergyCalculator::*Process_type) (const G4Step*, std::vector<LArHitData>&);
 	G4bool (EnergyCalculator::*FindIdentifier_type) (
                                                           const G4Step *,
+                                                          std::vector<LArHitData>&,
                                                           G4ThreeVector &,
                                                           G4ThreeVector &);
 	G4double (EnergyCalculator::*GetHV_Value_type) (const G4ThreeVector &p) const;
 	G4double (EnergyCalculator::*GetGapSize_type) (const G4ThreeVector &p) const;
 	G4double (EnergyCalculator::*distance_to_the_nearest_electrode_type) (const G4ThreeVector &p) const;
 
-	G4bool Process_Default(const G4Step*);
-	G4bool Process_Barrett(const G4Step*);
-	G4bool FindIdentifier_Default(const G4Step *, G4ThreeVector &, G4ThreeVector &);
-	G4bool FindIdentifier_Barrett(const G4Step *, G4ThreeVector &, G4ThreeVector &);
-	G4bool FindDMIdentifier_Barrett(const G4Step* step);
+	G4bool Process_Default(const G4Step*, std::vector<LArHitData>&);
+	G4bool Process_Barrett(const G4Step*, std::vector<LArHitData>&);
+	G4bool FindIdentifier_Default(const G4Step *, std::vector<LArHitData>&, G4ThreeVector &, G4ThreeVector &);
+	G4bool FindIdentifier_Barrett(const G4Step *, std::vector<LArHitData>&, G4ThreeVector &, G4ThreeVector &);
+	G4bool FindDMIdentifier_Barrett(const G4Step* step, std::vector<LArHitData>&);
 	G4bool GetCompartment_Barrett(G4ThreeVector,G4double,G4double,G4double,
 				       G4int &, G4int &) const;
 	G4double GetHV_Value_Default(const G4ThreeVector& p) const { return GetHV_Value(p);}
