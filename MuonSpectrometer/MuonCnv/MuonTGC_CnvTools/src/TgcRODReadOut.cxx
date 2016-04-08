@@ -39,36 +39,36 @@ Muon::TgcRODReadOut::~TgcRODReadOut()
   if(!sc.isFailure()) {
     MsgStream vlog(msgSvc, "Muon::TgcRODReadOut");  
     if(m_failedSetRdo) {
-      vlog << MSG::WARNING << "setRdo failed " << m_failedSetRdo << " times" << endmsg;
+      vlog << MSG::WARNING << "setRdo failed " << m_failedSetRdo << " times" << endreq;
     } 
     for(unsigned int rodId=0; rodId<NROD+1; rodId++) {
       if(m_failedDecodeRodToRdo[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : decodeRodToRdo faied " 
-	     << m_failedDecodeRodToRdo[rodId] << " times" << endmsg;
+	     << m_failedDecodeRodToRdo[rodId] << " times" << endreq;
       }
       if(m_failedDecodeRodToRdo[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : decodeRodToRdo faied " 
-	     << m_failedDecodeRodToRdo[rodId] << " times" << endmsg;
+	     << m_failedDecodeRodToRdo[rodId] << " times" << endreq;
       }
       if(m_failedHeaderSizeRawData[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : Header or SizeRawData was strange " 
-	     << m_failedHeaderSizeRawData[rodId] << " times" << endmsg;
+	     << m_failedHeaderSizeRawData[rodId] << " times" << endreq;
       }
       if(m_failedSetSbLoc[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : setSbLoc failed " 
-	     << m_failedSetSbLoc[rodId] << " times" << endmsg;
+	     << m_failedSetSbLoc[rodId] << " times" << endreq;
       }
       if(m_failedSetType[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : setType failed "
-             << m_failedSetType[rodId] << " times" << endmsg;
+             << m_failedSetType[rodId] << " times" << endreq;
       }
       if(m_failedGetSLBIDfromRxID[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : getSLBIDfromRxID failed "
-             << m_failedGetSLBIDfromRxID[rodId] << " times" << endmsg;
+             << m_failedGetSLBIDfromRxID[rodId] << " times" << endreq;
       }
       if(m_failedGetReadoutIDfromSLBID[rodId]) {
 	vlog << MSG::WARNING << "rodId=" << rodId << " : getReadoutIDfromSLBID failed " 
-	     << m_failedGetReadoutIDfromSLBID[rodId] << " times" << endmsg;
+	     << m_failedGetReadoutIDfromSLBID[rodId] << " times" << endreq;
       }
     }    
   }
@@ -104,7 +104,7 @@ StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs,
     if(t_debug || !m_failedSetRdo) {
       (*m_log) << (!m_failedSetRdo ? MSG::WARNING : MSG::DEBUG)
 	       << " Can't set tgcRdo pointer correctly: Skip decoding of remaining hits of this event..." 
-	       << endmsg;
+	       << endreq;
     } 
     m_failedSetRdo++;
 
@@ -132,10 +132,10 @@ StatusCode Muon::TgcRODReadOut::byteStream2Rdo(const ByteStream& bs,
 	       << "rodId = " << rodId
 	       << "l1Id = " << l1Id
 	       << "bcId = " << bcId
-	       << endmsg;    
+	       << endreq;    
       (*m_log) << (!m_failedDecodeRodToRdo[tmpRodId] ? MSG::WARNING : MSG::DEBUG)
 	       << "Corrupted data, Skip decoding of remaining hits of this event..."
-	       << endmsg;
+	       << endreq;
     }
     m_failedDecodeRodToRdo[tmpRodId]++;
 
@@ -164,7 +164,7 @@ StatusCode Muon::TgcRODReadOut::check(const ByteStream& bs,
   // set collection
   if(!newRdo || !setRdo(newRdo)){
     (*m_log) << MSG::WARNING << " Can't set tgcRdo pointer correctly: Skip decoding of remaining hits of this event..." 
-	     << endmsg;
+	     << endreq;
     if(newRdo){
       delete newRdo; newRdo = 0;
     } 
@@ -187,16 +187,16 @@ StatusCode Muon::TgcRODReadOut::check(const ByteStream& bs,
 	     << "rodId = " << rodId
 	     << "l1Id = " << l1Id
 	     << "bcId = " << bcId
-	     << endmsg;
+	     << endreq;
     (*m_log) << MSG::WARNING << "Corrupted data, Skip decoding of remaining hits of this event..."
-	     << endmsg;
+	     << endreq;
     delete newRdo; newRdo = 0;
     return StatusCode::SUCCESS;
   }
   
   // compare 
   if(!compare(&tgcRdo, newRdo)){
-    (*m_log) << MSG::WARNING << "Can't compare TgcRdos: Skip decoding of remaining hits of this event..."<<endmsg;
+    (*m_log) << MSG::WARNING << "Can't compare TgcRdos: Skip decoding of remaining hits of this event..."<<endreq;
     delete newRdo; newRdo = 0;
     return StatusCode::SUCCESS;
   }
@@ -214,11 +214,11 @@ StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
   bool t_debug = (m_log ? m_log->level() <= MSG::DEBUG : false);
 
   if(t_debug) {
-    (*m_log) << MSG::DEBUG << "TgcRODReadOut::compare" << endmsg;
+    (*m_log) << MSG::DEBUG << "TgcRODReadOut::compare" << endreq;
     (*m_log) << MSG::DEBUG 
 	     << " rdo->size()=" << rdo->size() 
 	     << " newRdo->size()=" << newRdo->size()
-	     << endmsg;
+	     << endreq;
   }
 
   size_t n_data = newRdo->size();
@@ -226,7 +226,7 @@ StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
   std::vector<bool> check(o_data, false);
 
   if(t_debug) {
-    (*m_log) << MSG::DEBUG << "Unmatched in RawData format" << endmsg;
+    (*m_log) << MSG::DEBUG << "Unmatched in RawData format" << endreq;
   }
   for(size_t ib=0; ib<n_data; ib++){
     TgcRawData* nraw = (*newRdo)[ib];
@@ -241,13 +241,13 @@ StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
     }
     if(!matched) {
       if(t_debug) {
-	(*m_log) << MSG::DEBUG << (*nraw) << endmsg;
+	(*m_log) << MSG::DEBUG << (*nraw) << endreq;
       }
     }
   }
 
   if(t_debug) {
-    (*m_log) << MSG::DEBUG << "Unmatched in Readout format" << endmsg;
+    (*m_log) << MSG::DEBUG << "Unmatched in Readout format" << endreq;
   }
   for(size_t ic=0; ic<o_data; ic++){
     if(check[ic]) continue;
@@ -262,7 +262,7 @@ StatusCode Muon::TgcRODReadOut::compare(TgcRdo* rdo, TgcRdo* newRdo)
     }
     if(!matched) {
       if(t_debug) {
-	(*m_log) << MSG::DEBUG << (*oraw) << endmsg;
+	(*m_log) << MSG::DEBUG << (*oraw) << endreq;
       }
     }
   }
@@ -403,14 +403,14 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 	       << "Corrupted data, Skip decoding of this ROD data" 
 	       << " TgcRODReadout : ROD ID= " << rodId 
 	       << " RawData Size= " << sizeRawData
-	       << endmsg;
+	       << endreq;
       (*m_log) << (!m_failedHeaderSizeRawData[tmpRodId] ? MSG::WARNING : MSG::DEBUG)
 	       << "ReadOut Hit Size= " << sizeReadOutFormatHit 
 	       << " ReadOut Tracklet= " << sizeReadOutFormatTracklet 
 	       << " ReadOut SL= " << sizeSectorLogicWord 
 	       << " vDataIndex = " << vDataIndex
 	       << " HipT = " << sizeHipTWord 
-	       << endmsg;
+	       << endreq;
     }
     m_failedHeaderSizeRawData[tmpRodId]++;
 
@@ -424,7 +424,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 	     << "  ReadOut Hit Size= " << sizeReadOutFormatHit 
 	     << "  ReadOut Tracklet= " << sizeReadOutFormatTracklet 
 	     << "  ReadOut SL= " << sizeSectorLogicWord 
-	     << endmsg;
+	     << endreq;
   }
 
   uint32_t firstRawDataIndex=vDataIndex;
@@ -450,7 +450,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
       (*m_log) << MSG::DEBUG 
 	       << "Tgc BS Raw:" << vDataIndex 
 	       << ":  " << std::hex << vData[vDataIndex] 
-	       << endmsg;
+	       << endreq;
     }
 
     // header check
@@ -470,7 +470,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 	  (*m_log) << MSG::WARNING 
 		   << "Rec Type " << rec_type << " is not supproted " 
 		   << " Skip decoding of remaining hits of this event..."
-		   << endmsg;
+		   << endreq;
 	}
 	return StatusCode::SUCCESS;
      }
@@ -514,7 +514,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 		  << " slbId:" << slbId 
 		  << "   l1Id, bcId (SLB):" << fe_l1Id << ", " << fe_bcId
 		  << "   l1Id, bcId (ROD):" << l1Id << ", " << bcId
-		  << endmsg;
+		  << endreq;
        }
      }
       b_error = 0;
@@ -555,10 +555,10 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 		     << " :sswId=" << sswId
 		     << " :slbAddress= " << slbId
 		     << " : rxId= " << rxId
-		     << endmsg;
+		     << endreq;
 	    (*m_log) << (!m_failedSetSbLoc[tmpRodId] ? MSG::WARNING : MSG::DEBUG)
 		     << "Corrupted data, Skip decoding of remaining hits of this event..."
-		     << endmsg;
+		     << endreq;
 	  }
 	  m_failedSetSbLoc[tmpRodId]++;
 	  delete slb; slb = 0;
@@ -574,10 +574,10 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 		     << " :rodId=" << rodId
 		     << " :sswId=" << sswId
 		     << " :slbAddress= " << slbId
-		     << endmsg;
+		     << endreq;
 	    (*m_log) << (!m_failedSetType[tmpRodId] ? MSG::WARNING : MSG::DEBUG)
 		     << "Corrupted data, Skip decoding of remaining hits of this event..."
-		     << endmsg;
+		     << endreq;
           }
 	  m_failedSetType[tmpRodId]++;
 	  delete slb; slb = 0;
@@ -593,7 +593,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 		   << " : sswId=" << sswId
 		   << " : slbAddress= " << slbId
 		   << " : rxId= "<< rxId
-		   << endmsg;
+		   << endreq;
 	}
       }
 
@@ -638,7 +638,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
 		   << "TgcRODReadout : Error Report "  
 		   << " : error id =" << error_id
 		   << " : context =" << error_context
-		   << endmsg;
+		   << endreq;
 	}
       }
       break;
@@ -658,13 +658,13 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
     for(; vDataIndex < firstROHitIndex+sizeReadOutFormatHit; ++vDataIndex){
       (*m_log) << MSG::DEBUG 
 	       << "Tgc BS Readout HIT:" << vDataIndex 
-	       << ":  " << std::hex  << vData[vDataIndex] << endmsg;
+	       << ":  " << std::hex  << vData[vDataIndex] << endreq;
     }
     uint32_t firstROTrackletIndex=vDataIndex;
     for(; vDataIndex < firstROTrackletIndex+sizeReadOutFormatTracklet; ++vDataIndex){
       (*m_log) << MSG::DEBUG 
 	       << "Tgc BS Readout HIT:" << vDataIndex 
-	       << ":  " << std::hex  << vData[vDataIndex] << endmsg;
+	       << ":  " << std::hex  << vData[vDataIndex] << endreq;
     }
   }
 
@@ -687,7 +687,7 @@ StatusCode Muon::TgcRODReadOut::decodeRodToRdo(const ByteStream& vData,
   if(t_debug) {
     (*m_log) << MSG::DEBUG
 	     << n_vCh << "words of were recorded in TgcRdo container" 
-	     << endmsg;
+	     << endreq;
   } 
 
   return StatusCode::SUCCESS;
@@ -705,7 +705,7 @@ StatusCode Muon::TgcRODReadOut::decodeHeader(const ByteStream& vData)
   if(vData[vDataIndex] != ROD_START) {
     if(t_debug) {
       (*m_log) << MSG::DEBUG 
-	       << "ROD Start of header marker not found" << endmsg;
+	       << "ROD Start of header marker not found" << endreq;
     }
   }
   ++vDataIndex;
@@ -715,7 +715,7 @@ StatusCode Muon::TgcRODReadOut::decodeHeader(const ByteStream& vData)
     if(t_debug) {
       (*m_log) << MSG::DEBUG 
 	       << "ROD header size doesn't match " << vData[vDataIndex] 
-	       << endmsg;
+	       << endreq;
     }
   }
   ++vDataIndex;
@@ -749,7 +749,7 @@ StatusCode Muon::TgcRODReadOut::decodeHeader(const ByteStream& vData)
   // set attributes
   if(!setRodAttributes(subDetectorId,rodId,l1Id,bcId,triggerType)){
     if(t_debug) {
-      (*m_log) << MSG::DEBUG << "Can't set ROD Attributes: Skip decoding of remaining hits of this event..." << endmsg;
+      (*m_log) << MSG::DEBUG << "Can't set ROD Attributes: Skip decoding of remaining hits of this event..." << endreq;
     }
     return StatusCode::SUCCESS;
   }
@@ -808,32 +808,32 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
     const ITGCcablingServerSvc* TgcCabGet = 0;
     StatusCode sc = svcLocator->service("TGCcablingServerSvc", TgcCabGet);
     if(sc.isFailure()){
-      if(m_log) (*m_log) << MSG::ERROR << " Can't get TGCcablingServerSvc " << endmsg;
+      if(m_log) (*m_log) << MSG::ERROR << " Can't get TGCcablingServerSvc " << endreq;
       return false;
     }
     
     // check if TGCcablingServer is properly initialized
     if (!TgcCabGet->isConfigured()) {
-      if(m_log) (*m_log) << MSG::ERROR << " TGCcablingServer not initialized!" << endmsg;
+      if(m_log) (*m_log) << MSG::ERROR << " TGCcablingServer not initialized!" << endreq;
       return false; 
     }
     
     // get Cabling Service
     sc = TgcCabGet->giveCabling(m_cabling);
     if(sc.isFailure()){
-      if(m_log) (*m_log) << MSG::ERROR << " Can't get ITGCcablingSvc from TGCcablingServerSvc" << endmsg;
+      if(m_log) (*m_log) << MSG::ERROR << " Can't get ITGCcablingSvc from TGCcablingServerSvc" << endreq;
       return false; 
     }
     int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
     m_cabling->getReadoutIDRanges(maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
     bool isAtlas = (maxRodId==12);
     if(isAtlas) {
-      if(m_log) (*m_log) << MSG::INFO << m_cabling->name() << " is OK" << endmsg ;
+      if(m_log) (*m_log) << MSG::INFO << m_cabling->name() << " is OK" << endreq ;
     } else {
       if(m_log) { 
 	(*m_log) << MSG::ERROR 
 		 << "TGCcablingSvc(octant segmentation) can not be used for TgcRODReadOut" 
-		 << endmsg ;
+		 << endreq ;
       }
       return false;
     }
@@ -872,7 +872,7 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
 		  << " :rodId=" <<rodId
 		  << " :sswId="<<sswId
 		  << " :rxId= "<<rxId
-		  << endmsg;
+		  << endreq;
       }
     }
     m_failedGetSLBIDfromRxID[tmpRodId]++;
@@ -898,7 +898,7 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
 		<< " :rodId=" <<rodId
 		<< " :sswId="<<sswId
 		<< " :rxId= "<<rxId
-		<< endmsg;
+		<< endreq;
     }
     m_failedGetReadoutIDfromSLBID[tmpRodId]++;
     
@@ -917,11 +917,11 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
 		  << " wrong getSLBAddress  :"
 		  <<" :sswId = "<<sswId
 		  <<" :rxId = " <<rxId  << ":sbLoc = " << sbLoc 
-		  << endmsg;	 
+		  << endreq;	 
 	(*m_log)  <<  MSG::DEBUG     
 		  <<" :slbAddress = " << slb->getSlbId() 
 		  <<" expected value = " << slbaddress_ret
-		  << endmsg;
+		  << endreq;
       }
     } 
   }

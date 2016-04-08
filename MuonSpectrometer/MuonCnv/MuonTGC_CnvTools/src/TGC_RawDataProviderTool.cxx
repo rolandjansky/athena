@@ -29,9 +29,8 @@ Muon::TGC_RawDataProviderTool::TGC_RawDataProviderTool(
   AthAlgTool(t, n, p),
   m_muonMgr(0),
   m_decoder("Muon__TGC_RodDecoderReadout"),
-  //m_rdoContainer(0),
+  m_rdoContainer(0),
   m_rdoContainerKey("TGCRDO"), 
-  m_activeStore(0),
   m_cabling(0),
   m_robDataProvider("ROBDataProviderSvc",n) 
 {
@@ -55,7 +54,7 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
 
   sc = service("ActiveStoreSvc", m_activeStore);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endmsg;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endreq;
     return sc;
   }
 

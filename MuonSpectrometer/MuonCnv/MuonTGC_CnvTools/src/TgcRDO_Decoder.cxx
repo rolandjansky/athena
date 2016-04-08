@@ -148,7 +148,7 @@ StatusCode Muon::TgcRDO_Decoder::getCabling() const {
   const ITGCcablingServerSvc* TgcCabGet = 0;
   StatusCode sc = service("TGCcablingServerSvc", TgcCabGet);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endreq;
     return sc;
   }
   
@@ -159,7 +159,7 @@ StatusCode Muon::TgcRDO_Decoder::getCabling() const {
   
   sc = TgcCabGet->giveCabling(m_cabling);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endreq;
     m_cabling = 0;
     return sc;
   } else {

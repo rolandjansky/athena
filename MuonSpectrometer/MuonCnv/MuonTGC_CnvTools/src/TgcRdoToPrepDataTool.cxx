@@ -777,7 +777,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHits(const TgcRdo::const_iterator& 
 	  << " slb=" << (*itD)->slbId()
 	  << " bitpos=" << (*itD)->bitpos() 
 	  << " orFlag=" << orFlag 
-	  << endmsg;
+	  << endreq;
       }
       continue;
     }
@@ -1847,6 +1847,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeSL(const TgcRdo::const_iterator& it
   ATH_MSG_DEBUG("coincollection->push_back done (for SL)");
 
   m_nSLPRDs++; // Count the number of output SL PRDs.
+  
   return StatusCode::SUCCESS;
 }
 
@@ -3446,7 +3447,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::getCabling() {
   const ITGCcablingServerSvc* TgcCabGet = 0;
   StatusCode sc = service("TGCcablingServerSvc", TgcCabGet, true);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endreq;
     return sc;
   }
   
@@ -3457,7 +3458,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::getCabling() {
   
   sc = TgcCabGet->giveCabling(m_tgcCabling);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endreq;
     m_tgcCabling = 0;
     return sc;
   } else {

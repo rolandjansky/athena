@@ -18,15 +18,13 @@
 #include "eformat/SourceIdentifier.h"
 
 using eformat::helper::SourceIdentifier;
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 //================ Constructor =================================================
 
 Muon::TGC_RodDecoderRawdata::TGC_RodDecoderRawdata(const std::string& t,
 						   const std::string& n,
 						   const IInterface*  p) :
-  AthAlgTool(t, n, p),
-  m_tgcRODReadOut(0)
+  AthAlgTool(t, n, p)
 {
   declareInterface<ITGC_RodDecoder>(this);
 

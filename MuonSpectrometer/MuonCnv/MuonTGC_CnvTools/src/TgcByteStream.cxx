@@ -22,7 +22,7 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
   bool p_debug = (log.level() <= MSG::DEBUG);
 
   if(p_debug) {
-    log << MSG::DEBUG << "TgcByteStream::rdo2ByteStream" << endmsg;
+    log << MSG::DEBUG << "TgcByteStream::rdo2ByteStream" << endreq;
   }
   
   ByteStream headerBS, statusBS, countersBS, dataBS, footerBS;
@@ -32,11 +32,14 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
   TGC_BYTESTREAM_LOCALSTATUS ls;
   
   if(p_debug) {
-    log << MSG::DEBUG << "Encoding " << rdo->size() << " elements" << endmsg;
+    log << MSG::DEBUG << "Encoding " << rdo->size() << " elements" << endreq;
   }
 
-  for (const TgcRawData* raw : *rdo)
+  TgcRdo::const_iterator it   = rdo->begin();
+  TgcRdo::const_iterator it_e = rdo->end();
+  for(; it != it_e; it++)
     {
+      TgcRawData* raw = *it;
       switch(raw->type())
         {
         case TgcRawData::TYPE_HIT:
@@ -174,7 +177,7 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
           }
           break;
         default:
-          log << MSG::ERROR << "Invalid type " << raw->typeName() << endmsg;
+          log << MSG::ERROR << "Invalid type " << raw->typeName() << endreq;
           break;
         }
     }
@@ -197,7 +200,7 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
   bs.insert(bs.end(), dataBS.begin(),     dataBS.end());
   
   if(p_debug) {
-    log << MSG::DEBUG << "TgcByteStream::rdo2ByteStream done" << endmsg;
+    log << MSG::DEBUG << "TgcByteStream::rdo2ByteStream done" << endreq;
   }
 }
 
@@ -214,7 +217,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
   if(rdo.identify() != TgcRdo::calculateOnlineId(sid.side, sid.rodid))
     {
       if(p_debug) {
-	log << MSG::DEBUG << "Error: input TgcRdo id does not match bytestream id" << endmsg;
+	log << MSG::DEBUG << "Error: input TgcRdo id does not match bytestream id" << endreq;
       }
       return;
     }
@@ -248,13 +251,13 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	    if(p_debug) {
 	      log << MSG::DEBUG 
 		  << "fragment" << counters[iCnt].id << " " 
-		  << counters[iCnt].count << "words" << endmsg;
+		  << counters[iCnt].count << "words" << endreq;
 	    }
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		if(p_debug) {
 		  log << MSG::DEBUG 
-		      << "WORD" << iFrag << ":" << MSG::hex << bs[iBs] << endmsg;
+		      << "WORD" << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
 		iBs++;
 	      }
@@ -266,13 +269,13 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	    if(p_debug) {
 	      log << MSG::DEBUG << "fragment" 
 		  << counters[iCnt].id << " " << counters[iCnt].count
-		  << "words" << endmsg;
+		  << "words" << endreq;
 	    }
 	    TGC_BYTESTREAM_READOUTHIT roh;
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		if(p_debug) {
-		  log << MSG::DEBUG <<"WORD" << iFrag << ":" << MSG::hex << bs[iBs] << endmsg;
+		  log << MSG::DEBUG <<"WORD" << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
 		fromBS32(bs[iBs++], roh);
 		  
@@ -284,7 +287,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 		     << " roh.ldbId:" <<roh.ldbId
 		     << " roh.sbId:" <<roh.sbId
 		     << " rdo.l1Id():"<<rdo.l1Id()
-		     << " rdo.bcId():"<<rdo.bcId()<<endmsg;
+		     << " rdo.bcId():"<<rdo.bcId()<<endreq;
 		} 
 		  
 		uint16_t slbId = roh.sbId;
@@ -334,7 +337,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	    if(p_debug) {
 	      log << MSG::DEBUG << "fragment"
 		  << counters[iCnt].id << " " << counters[iCnt].count 
-		  << "words" << endmsg;
+		  << "words" << endreq;
 	    }
 	    TGC_BYTESTREAM_READOUTTRIPLETSTRIP rostrip;
 	    TGC_BYTESTREAM_READOUTTRACKLET rotrk;
@@ -342,7 +345,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	      {
 		if(p_debug) {
 		  log<< MSG::DEBUG << "WORD"
-		     << iFrag << ":" << MSG::hex << bs[iBs] << endmsg;
+		     << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
 		fromBS32(bs[iBs], rostrip);
 		
@@ -402,7 +405,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	    if(p_debug) {
 	      log << MSG::DEBUG << "fragment"
 		  << counters[iCnt].id << " " << counters[iCnt].count 
-		  << "words" << endmsg;
+		  << "words" << endreq;
 	    }
 	    TGC_BYTESTREAM_HIPT       hpt;
 	    TGC_BYTESTREAM_HIPT_INNER hptinner;
@@ -410,7 +413,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	      {
 		if(p_debug) {
 		  log << MSG::DEBUG << "WORD"
-		      << iFrag << ":" << MSG::hex << bs[iBs] << endmsg;
+		      << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
 		fromBS32(bs[iBs], hptinner);
 		if(hptinner.sector & 4){
@@ -458,14 +461,14 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	    if(p_debug) {
 	      log << MSG::DEBUG << "fragment"
 		  << counters[iCnt].id << " " << counters[iCnt].count 
-		  << "words" << endmsg;
+		  << "words" << endreq;
 	    }
 	    TGC_BYTESTREAM_SL sl;
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		if(p_debug) {
 		  log << MSG::DEBUG << "WORD"
-		      << iFrag << ":" << MSG::hex << bs[iBs] << endmsg;
+		      << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
 		fromBS32(bs[iBs++], sl);
 		
@@ -491,7 +494,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 	  if(p_debug) {
 	    log << MSG::DEBUG 
 		<< "Error: TgcByteStream::byteStream2Rdo Unsupported fragment type " 
-		<< counters[iCnt].id << endmsg;
+		<< counters[iCnt].id << endreq;
 	  }
 	  break;
         }
@@ -499,7 +502,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
   
   if(p_debug) {
     log << MSG::DEBUG << "Decoded " << MSG::dec << rdo.size() 
-        << " elements" << endmsg;
-    log << MSG::DEBUG << "TgcByteStream::byteStream2Rdo done" << endmsg;
+        << " elements" << endreq;
+    log << MSG::DEBUG << "TgcByteStream::byteStream2Rdo done" << endreq;
   }
 }
