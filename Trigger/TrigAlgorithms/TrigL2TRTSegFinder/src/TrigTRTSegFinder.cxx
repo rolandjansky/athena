@@ -73,7 +73,7 @@ TrigTRTSegFinder::TrigTRTSegFinder(const std::string& name,ISvcLocator* pSvcLoca
 HLT::ErrorCode TrigTRTSegFinder::hltInitialize()
 {
   if (msgLvl() <= MSG::DEBUG){
-    msg() << MSG::DEBUG << " in Initialize" << endmsg;
+    msg() << MSG::DEBUG << " in Initialize" << endreq;
   }
   m_ntracks = 0;
 
@@ -85,27 +85,27 @@ HLT::ErrorCode TrigTRTSegFinder::hltInitialize()
 
   sc = m_segmentsmaker.retrieve();
   if( sc.isFailure() ) {
-    msg()<<MSG::FATAL<<"Could not get TRT_TrackSegmentsMaker tool "<<m_segmentsmaker<<endmsg;
+    msg()<<MSG::FATAL<<"Could not get TRT_TrackSegmentsMaker tool "<<m_segmentsmaker<<endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
   sc = m_trackextension.retrieve();
   if( sc.isFailure() ) {
-    msg()<<MSG::FATAL<<"Could not get TRT_TrackExtension tool "<<m_trackextension<<endmsg;
+    msg()<<MSG::FATAL<<"Could not get TRT_TrackExtension tool "<<m_trackextension<<endreq;
     return HLT::BAD_JOB_SETUP;
   }
   
   // Get output print level
   if ( msgLvl() <= MSG::DEBUG ) {
     m_nprint = 0; 
-    msg() << MSG::DEBUG << (*this) << endmsg;
+    msg() << MSG::DEBUG << (*this) << endreq;
   }
   
   // Get the region selector Service
   //sc = service("RegSelSvc", m_pRegionSelector);
 
   if(m_pRegionSelector.retrieve().isFailure()){                                 
-    msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service" << endmsg; 
+    msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service" << endreq; 
     return HLT::OK;
   }
 
@@ -116,25 +116,25 @@ HLT::ErrorCode TrigTRTSegFinder::hltInitialize()
   sc = m_proptool.retrieve();
   
   if(sc.isFailure() || !m_proptool) {
-    msg() << MSG::FATAL << "Could not get Propagator Tool " << m_proptool << endmsg;
+    msg() << MSG::FATAL << "Could not get Propagator Tool " << m_proptool << endreq;
     return HLT::BAD_JOB_SETUP;
   }
   
   // Get tool for magnetic field service
   
   if (m_magFieldSvc.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve Tool " << m_magFieldSvc << ". Exiting."<<endmsg;
+        msg(MSG::FATAL) << "Could not retrieve Tool " << m_magFieldSvc << ". Exiting."<<endreq;
         return StatusCode::FAILURE;
   }
   // Build MagneticFieldProperties 
   m_magFieldProperties = new Trk::MagneticFieldProperties();
   if(!m_magFieldProperties) {
-    msg() << MSG::FATAL << "Could not build Trk::MagneticFieldProperties" << endmsg; 
+    msg() << MSG::FATAL << "Could not build Trk::MagneticFieldProperties" << endreq; 
     return HLT::BAD_JOB_SETUP; 
   }
 
   if (m_trtDCtool.retrieve().isFailure()){
-    msg() << MSG::FATAL << "Could not get TrigTRT_DriftCircleProviderTool tool" << endmsg;
+    msg() << MSG::FATAL << "Could not get TrigTRT_DriftCircleProviderTool tool" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -149,7 +149,7 @@ HLT::ErrorCode TrigTRTSegFinder::hltInitialize()
   // Get ROBDataProvider
   if (m_robDataProvider.retrieve().isFailure()){
     //if ( StatusCode::SUCCESS != service("ROBDataProviderSvc", m_robDataProvider ) ) {
-    msg() << MSG::ERROR << " Can't get ROBDataProviderSvc " << endmsg;
+    msg() << MSG::ERROR << " Can't get ROBDataProviderSvc " << endreq;
     return HLT::BAD_JOB_SETUP;
   }
   
@@ -163,8 +163,8 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
   if( timerSvc() ) m_totalTimer->start();
   
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " inputTE->getId(): " <<  inputTE->getId() << endmsg;
-    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endmsg;
+    msg() << MSG::DEBUG << " inputTE->getId(): " <<  inputTE->getId() << endreq;
+    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
   }
   
   m_recoTracks = NULL;
@@ -178,9 +178,9 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
     if (msgLvl() <= MSG::DEBUG) 
       msg() << MSG::DEBUG << " REGTEST RoI id " << pEmTauRoI->roiId()
 	    << " located at phi = " <<  pEmTauRoI->phi()
-	    << ", eta = " << pEmTauRoI->eta() << endmsg;
+	    << ", eta = " << pEmTauRoI->eta() << endreq;
   } else {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " <<endmsg;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " <<endreq;
     if( timerSvc() ) m_totalTimer->stop();
     return stat;
   }
@@ -198,13 +198,13 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
   }  
   
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << listTrtIds.size() << " REGTEST: TRT Dets in region" << endmsg;
+    msg() << MSG::DEBUG << listTrtIds.size() << " REGTEST: TRT Dets in region" << endreq;
 
     if (msgLvl() <= MSG::VERBOSE) {
-      msg() << MSG::VERBOSE <<"  List of TRT Layers Ids: "<<endmsg;
+      msg() << MSG::VERBOSE <<"  List of TRT Layers Ids: "<<endreq;
       for (unsigned int i=0; i<listTrtIds.size(); i++ ) {
 	msg() << MSG::VERBOSE <<" "<<listTrtIds[i];                    }
-      msg() << MSG::VERBOSE <<endmsg;
+      msg() << MSG::VERBOSE <<endreq;
     }  
   }
   
@@ -219,14 +219,14 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
 
   if (sc.isRecoverable() ){
     if (msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Errors filling DrftCircle Collections: Recovering "<<endmsg;
+      msg() << MSG::DEBUG << "Errors filling DrftCircle Collections: Recovering "<<endreq;
     }
     m_dataErrors.push_back(1);//"recoverable" bin
     const std::vector<int>* errVect = m_trtDCtool->fillTRT_DataErrors();
     std::copy(errVect->begin(),errVect->end(),std::back_inserter(m_trtDataErrors));
   }
   else if ( sc.isFailure() ) {
-    msg() << MSG::WARNING << "Stopped filling DriftCircle Collections: Failing " << endmsg;
+    msg() << MSG::WARNING << "Stopped filling DriftCircle Collections: Failing " << endreq;
     m_dataErrors.push_back(0);//"Failure" bin
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::CORRUPTED_ROD);
   }
@@ -253,7 +253,7 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
   m_segmentsmaker->endEvent();
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST: Found " << m_nsegments << " TRT segments" << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: Found " << m_nsegments << " TRT segments" << endreq;
   }
 
   if( timerSvc() ) {
@@ -279,7 +279,7 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
 
 
   if ( status != HLT::OK ){
-    msg() << MSG::ERROR << "Could not write history of TE!!!" << endmsg;
+    msg() << MSG::ERROR << "Could not write history of TE!!!" << endreq;
     return status;
   }
  
@@ -288,8 +288,8 @@ HLT::ErrorCode TrigTRTSegFinder::hltExecute(const HLT::TriggerElement* inputTE,
   // Print common event information
   //
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST: Stored " << m_recoTracks->size() << " tracks in SG." << endmsg;
-    //msg() << MSG::DEBUG << "Track collection " << key << endmsg; 
+    msg() << MSG::DEBUG << "REGTEST: Stored " << m_recoTracks->size() << " tracks in SG." << endreq;
+    //msg() << MSG::DEBUG << "Track collection " << key << endreq; 
     m_nprint = 1;
   }
 
@@ -335,8 +335,7 @@ std::ostream& operator <<
 MsgStream& TrigTRTSegFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
+  if(m_nprint)  return dumpevent(out); return dumptools(out);
 }
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
@@ -447,7 +446,7 @@ void TrigTRTSegFinder::ConvertTRT(const Trk::SegmentCollection& bColl)
     }
     else {
       if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "trackPars is not valid!!!"<<endmsg;
+	msg() << MSG::DEBUG << "trackPars is not valid!!!"<<endreq;
       }
     }
   
@@ -457,7 +456,7 @@ void TrigTRTSegFinder::ConvertTRT(const Trk::SegmentCollection& bColl)
     if( fabs(pTVert) < m_pTmin ) 
       {
 	if (msgLvl() <= MSG::DEBUG) 
-	  msg() << MSG::DEBUG << "pT= " << pTVert << " is too low - skipping TrigInDetTrack formation " << endmsg; 
+	  msg() << MSG::DEBUG << "pT= " << pTVert << " is too low - skipping TrigInDetTrack formation " << endreq; 
 	continue;//do not create track if pT is too low
       }
    
@@ -497,11 +496,11 @@ void TrigTRTSegFinder::ConvertTRT(const Trk::SegmentCollection& bColl)
      
     if (msgLvl() <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "REGTEST / TRT track: pT= " << pTVert << " phi0= " << phiVert 
-	    << " z0= " << zVert <<" a0= "<<a0Vert<< " eta= " << theta <<  endmsg;
+	    << " z0= " << zVert <<" a0= "<<a0Vert<< " eta= " << theta <<  endreq;
 
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "REGTEST / nHits= " << nHits << " nStraw= " << nStraw
-	    << " nTR= " << nTR << " nTime= " << nTime << endmsg;
+	    << " nTR= " << nTR << " nTime= " << nTime << endreq;
     
     m_recoTracks->push_back(track);
     
