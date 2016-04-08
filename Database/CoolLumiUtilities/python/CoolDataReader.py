@@ -100,24 +100,46 @@ class CoolDataReader:
         # Create the channel list
         if len(self.channelIdList) == 0:
             channels = cool.ChannelSelection.all()
-            
+            self.readChannelList(channels)
+
         else:
             # Build the channel list here
             self.channelIdList.sort()  # Must be sorted!
 
-            channels = None
-            firstChan = True
-            
-            for channelId in self.channelIdList:
-                if firstChan:
-                    firstChan = False
-                    channels = cool.ChannelSelection(channelId)
-                else:
-                    channels.addChannel(channelId)
+            # Must read channels 50 at a time due to COOL limit...
+            ichan = 0
+            while (ichan < len(self.channelIdList)) :
 
-        if self.verbose:
-            print 'CoolDataReader.readData() - browsing', self.iovstart, self.iovend, 'with channel', channels, 'and tag', self.tag
+                jchan = 0
+                channels = None
+                firstChan = True
             
+                for channelId in self.channelIdList[ichan:]:
+                    jchan += 1
+                    if firstChan:
+                        firstChan = False
+                        channels = cool.ChannelSelection(channelId)
+                    else:
+                        channels.addChannel(channelId)
+                    if jchan == 50: break 
+
+                # Remeber how many we have read for next time
+                if self.verbose:
+                    print 'CoolDataReader.readData() - loaded %d channels from %d' % (jchan, ichan)
+                ichan += jchan
+
+                if self.verbose:
+                    print 'CoolDataReader.readData() - browsing', self.iovstart, self.iovend, 'with channel', channels, 'and tag', self.tag
+
+                self.readChannelList(channels)
+
+            # End of loop building channel list and reading
+
+        # End of if statement reading data
+        return self.data
+
+    def readChannelList(self, channels):
+
         # Open iterator over our defined IOV range
         try:
             itr = self.folder.browseObjects(self.iovstart, self.iovend, channels, self.tag)
@@ -146,10 +168,10 @@ class CoolDataReader:
                 
         while itr.goToNext():
             obj = itr.currentRef()
+            # print obj.payload()
             self.data.append(obj.clone())
             
         itr.close()
-        return self.data
 
 
         
