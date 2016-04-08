@@ -5,20 +5,16 @@
 #ifndef MuonSegmentCleaner_MuonPhiHitSelector_H
 #define MuonSegmentCleaner_MuonPhiHitSelector_H
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonHitSelector.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h" 
 #include "GaudiKernel/ToolHandle.h"
 
-class StoreGate;
-
 class RpcIdHelper;
 class MdtIdHelper;
 class CscIdHelper;
 class TgcIdHelper;
-class StoreGateSvc;
 class Identifier;
 
 namespace MuonGM {
@@ -31,7 +27,7 @@ namespace Trk {
 }
 
 
-class MuonPhiHitSelector : public AlgTool, virtual public Muon::IMuonHitSelector
+class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelector
 {
  public: 
   /** constructor */
@@ -55,7 +51,6 @@ class MuonPhiHitSelector : public AlgTool, virtual public Muon::IMuonHitSelector
 
  private:
 
-  StoreGateSvc*       m_storeGate;                //!< Pointer to storegate
   const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to detector manager
 
   const RpcIdHelper*                  m_rpcIdHelper; //!< Pointer to RPC id helper

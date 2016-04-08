@@ -35,11 +35,9 @@
 #include "TrkPrepRawData/PrepRawData.h"
 //#include "TrkParameters/Perigee.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/sincos.h"
 
-MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string& name,const IInterface* parent):AlgTool(type,name,parent),m_competingRIOsOnTrackTool ("Muon::MuonCompetingClustersOnTrackCreator/MuonCompetingClustersOnTrackCreator"),m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),m_phi(0)
+MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string& name,const IInterface* parent):AthAlgTool(type,name,parent),m_competingRIOsOnTrackTool ("Muon::MuonCompetingClustersOnTrackCreator/MuonCompetingClustersOnTrackCreator"),m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),m_phi(0)
 				      //,m_cosmics(false),m_debug(false),m_summary(false) 
 {
   declareInterface<IMuonHitSelector>(this);
@@ -67,59 +65,24 @@ MuonPhiHitSelector::~MuonPhiHitSelector()
 
 StatusCode MuonPhiHitSelector::initialize()
 {
-  MsgStream log(msgSvc(),name());
-
-  log << MSG::VERBOSE << " MuonPhiHitSelector::Initializing " << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " StoreGate service not found " << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_MSG_VERBOSE(" MuonPhiHitSelector::Initializing ");
  
-  sc = m_competingRIOsOnTrackTool.retrieve();
-  if(sc.isFailure())
-    {
-      log<<MSG::FATAL<<"Could not get MuonCompetingClustersOnTrackCreator  " << endreq;
-      return sc;
-    }
-  else
-    {
-      log<<MSG::VERBOSE <<" found  MuonCompetingClustersOnTrackCreator " << endreq;
-    }
+  ATH_CHECK( m_competingRIOsOnTrackTool.retrieve() );
 
+  ATH_CHECK( m_clusterCreator.retrieve() );
 
-
-  sc = m_clusterCreator.retrieve();
-  if(sc.isFailure())
-    {
-      log<<MSG::FATAL<<"Could not get MuonClusterOnTrackCreator "<<endreq; 
-      return sc;
-    }
-  else
-    {
-      log << MSG::VERBOSE << "found Service MuonClusterOnTrackCreator " << endreq;
-    }
-
-  StoreGateSvc* detStore=0;
-  sc = serviceLocator()->service("DetectorStore", detStore);
-
-  if ( sc.isSuccess() ) {
-    sc = detStore->retrieve( m_detMgr );
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endreq;
-    } else {
-      m_mdtIdHelper = m_detMgr->mdtIdHelper();
-      m_cscIdHelper = m_detMgr->cscIdHelper();
-      m_rpcIdHelper = m_detMgr->rpcIdHelper();
-      m_tgcIdHelper = m_detMgr->tgcIdHelper();
-      log << MSG::INFO << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endreq;
-    }
+  StatusCode sc = detStore()->retrieve( m_detMgr );
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
   } else {
-    log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endreq;
+    m_mdtIdHelper = m_detMgr->mdtIdHelper();
+    m_cscIdHelper = m_detMgr->cscIdHelper();
+    m_rpcIdHelper = m_detMgr->rpcIdHelper();
+    m_tgcIdHelper = m_detMgr->tgcIdHelper();
+    ATH_MSG_INFO(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
   }
 
-  log << MSG::VERBOSE << "End of Initializing" << endreq;
+  ATH_MSG_VERBOSE("End of Initializing");
 
   return StatusCode::SUCCESS;
 }
@@ -138,8 +101,7 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
   std::vector<const Trk::MeasurementBase*>* selectedHits = new std::vector<const Trk::MeasurementBase*>() ;
   std::vector<const Trk::MeasurementBase*>* selectedClusters = new std::vector<const Trk::MeasurementBase*>() ;
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::VERBOSE << " Executing MuonPhiHitSelectorTool select_rio " << endreq;
+  ATH_MSG_VERBOSE(" Executing MuonPhiHitSelectorTool select_rio ");
 
   m_phi =0.; 
   int nhits = associatedHits.size() + unassociatedHits.size();
@@ -171,7 +133,7 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
     if (m_rpcIdHelper->is_rpc(id) ) {
       //      const Muon::RpcClusterOnTrack* crot = dynamic_cast<const Muon::RpcClusterOnTrack*>(*it);
       //      if( !crot ) { 
-      //	log << MSG::WARNING << "This is not a RpcClusterOnTrack!!! " << endreq;
+      //	ATH_MSG_WARNING("This is not a RpcClusterOnTrack!!! ");
       //	continue;
       //      }
       //      gHitPos = crot->globalPosition();
@@ -182,7 +144,7 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
     else if (m_tgcIdHelper->is_tgc(id)) {
       //      const Muon::TgcClusterOnTrack* crot = dynamic_cast<const Muon::TgcClusterOnTrack*>(*it);
       //      if( !crot ){
-      //	log << MSG::WARNING << "This is not a TgcClusterOnTrack!!! " << endreq;
+      //	ATH_MSG_WARNING("This is not a TgcClusterOnTrack!!! ");
       //	continue;
       //      }
       //      gHitPos = crot->globalPosition();
@@ -192,7 +154,7 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
     else if (m_cscIdHelper->is_csc(id)) {
       //      const Muon::CscClusterOnTrack* crot = dynamic_cast<const Muon::CscClusterOnTrack*>(*it);
       //      if( !crot ){
-      //	log << MSG::WARNING << "This is not a CscClusterOnTrack!!! " << endreq;
+      //	ATH_MSG_WARNING("This is not a CscClusterOnTrack!!! ");
       //	continue;
       //      }
       //      gHitPos = crot->globalPosition();

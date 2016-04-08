@@ -35,10 +35,7 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
-MuonSegmentAmbiCleaner::MuonSegmentAmbiCleaner(const std::string& type,const std::string& name,const IInterface* parent):AlgTool(type,name,parent)
+MuonSegmentAmbiCleaner::MuonSegmentAmbiCleaner(const std::string& type,const std::string& name,const IInterface* parent):AthAlgTool(type,name,parent)
 {
   declareInterface<IMuonSegmentCleaner>(this);
 
@@ -56,35 +53,23 @@ MuonSegmentAmbiCleaner::~MuonSegmentAmbiCleaner()
 
 StatusCode MuonSegmentAmbiCleaner::initialize()
 {
-  MsgStream log(msgSvc(),name());
 
-  log << MSG::VERBOSE << " MuonSegmentiAmbiCleaner::Initializing " << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " StoreGate service not found " << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  StoreGateSvc* detStore=0;
-  sc = serviceLocator()->service("DetectorStore", detStore);
- 
-  if ( sc.isSuccess() ) {
-    sc = detStore->retrieve( m_detMgr );
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR << " Cannot retrieve MuonDetDescrMgr " << endreq;
-    } else {
-      m_mdtIdHelper = m_detMgr->mdtIdHelper();
-      m_cscIdHelper = m_detMgr->cscIdHelper();    
-      m_rpcIdHelper = m_detMgr->rpcIdHelper();
-      m_tgcIdHelper = m_detMgr->tgcIdHelper();
-      log << MSG::INFO << " Retrieved IdHelpers: (mdt, csc, rpc and tgc) " << endreq;
-    }
+  ATH_MSG_VERBOSE(" MuonSegmentiAmbiCleaner::Initializing ");
+
+  StatusCode sc = detStore()->retrieve( m_detMgr );
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
   } else {
-    log << MSG::ERROR << " MuonDetDescrMgr not found in DetectorStore " << endreq;
+    m_mdtIdHelper = m_detMgr->mdtIdHelper();
+    m_cscIdHelper = m_detMgr->cscIdHelper();
+    m_rpcIdHelper = m_detMgr->rpcIdHelper();
+    m_tgcIdHelper = m_detMgr->tgcIdHelper();
+    ATH_MSG_INFO(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
   }
 
-  log << MSG::VERBOSE << "End of Initializing" << endreq;  
-  return StatusCode::SUCCESS; 
+
+  ATH_MSG_VERBOSE("End of Initializing");
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MuonSegmentAmbiCleaner::finalize()
@@ -94,11 +79,9 @@ StatusCode MuonSegmentAmbiCleaner::finalize()
 
 const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment* segment)const
 {
-  MsgStream log(msgSvc(),name());
+  ATH_MSG_VERBOSE(" Executing MuonSegmentAmbiCleanerTools ");
 
-  log << MSG::VERBOSE << " Executing MuonSegmentAmbiCleanerTools " << endreq;
-
-  //  unsigned int nRots = segment->numberOfContainedROTs(); 
+  //  unsigned int nRots = segment->numberOfContainedROTs();
 
   DataVector<const Trk::MeasurementBase>* meas_keep = new DataVector<const Trk::MeasurementBase>();
 
@@ -222,7 +205,7 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
       det_phi[nphi] = 1; 
       const Muon::RpcClusterOnTrack* rrot = dynamic_cast<const Muon::RpcClusterOnTrack*>(rot);
       if( !rrot ){
-	log << MSG::WARNING << "This is not a  RpcClusterOnTrack!!! " << endreq;
+	ATH_MSG_WARNING("This is not a  RpcClusterOnTrack!!! ");
 	continue;
       }
       const Muon::RpcPrepData* rprd = rrot->prepRawData();
@@ -249,7 +232,7 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
       
       const Muon::TgcClusterOnTrack* rrot = dynamic_cast<const Muon::TgcClusterOnTrack*>(rot);
       if( !rrot ){
-	log << MSG::WARNING << "This is not a  TgcClusterOnTrack!!! " << endreq;
+	ATH_MSG_WARNING("This is not a  TgcClusterOnTrack!!! ");
 	continue;
       }
       const Muon::TgcPrepData* rprd = rrot->prepRawData();

@@ -5,17 +5,13 @@
 #ifndef MuonSegmentCleaner_MuonSegmentAmbiCleaner_H
 #define MuonSegmentCleaner_MuonSegmentAmbiCleaner_H
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentCleaner.h"
-
-class StoreGate;
 
 class RpcIdHelper;
 class MdtIdHelper;
 class CscIdHelper;
 class TgcIdHelper;
-class StoreGateSvc;
 class Identifier;
 
 namespace Muon {
@@ -30,7 +26,7 @@ namespace Trk {
   class PrepRawData;
 }
 
-class MuonSegmentAmbiCleaner : public AlgTool, virtual public Muon::IMuonSegmentCleaner
+class MuonSegmentAmbiCleaner : public AthAlgTool, virtual public Muon::IMuonSegmentCleaner
 {
  public: 
   /** constructor */
@@ -51,7 +47,6 @@ class MuonSegmentAmbiCleaner : public AlgTool, virtual public Muon::IMuonSegment
 
  private:
 
-  StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
   const MuonGM::MuonDetectorManager*  m_detMgr;   //!< Pointer to the detector manager
 
   const RpcIdHelper*                  m_rpcIdHelper; //!< Pointer to RPC id helper
