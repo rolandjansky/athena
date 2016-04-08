@@ -37,7 +37,7 @@ namespace InDet
       HLT::ErrorCode hltFinalize();
 
       void resetStatistics(); 
-      void analyzeResults(VxContainer*); 
+      void analyzeResults(xAOD::VertexContainer*); 
  
     protected: 
       int m_nTracks;

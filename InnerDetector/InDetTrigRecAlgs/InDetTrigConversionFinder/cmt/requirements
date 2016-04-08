@@ -16,6 +16,7 @@ private
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
 use Particle               Particle-*               Reconstruction
+use xAODTracking           xAODTracking-*           Event/xAOD
 
 #linkage of TrigStorage
 use TrigParticle        TrigParticle-*          Trigger/TrigEvent

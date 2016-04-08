@@ -17,6 +17,10 @@
 #include "Particle/TrackParticleContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
 namespace InDet
 {//
   TrigConversionFinder::TrigConversionFinder(const std::string& n, ISvcLocator* pSvcLoc) 
@@ -84,7 +88,7 @@ namespace InDet
     int outputLevel = msgLvl();
 
     m_events_processed++;
-    VxContainer* InDetTrigConversionContainer ( 0 );
+    xAOD::VertexContainer* InDetTrigConversionContainer (0);
 	
     if(outputLevel <= MSG::DEBUG)
       msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
@@ -95,8 +99,8 @@ namespace InDet
     // input track collection.
     //----------------------------------------------------------------------
     
-    const Rec::TrackParticleContainer* TPC(0);
-    
+    const xAOD::TrackParticleContainer* TPC(0);
+
     if ( HLT::OK != getFeature(outputTE, TPC) ) {
       msg() << MSG::ERROR << " Input track particle collection could not be found " << endreq;
       
@@ -123,7 +127,10 @@ namespace InDet
 #endif
      
       // Find conversions
-      InDetTrigConversionContainer = m_VertexFinderTool->findVertex ( TPC );
+      // virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles) = 0;
+      std::pair <xAOD::VertexContainer*, xAOD::VertexAuxContainer*> foo;
+      foo = m_VertexFinderTool->findVertex(TPC);
+      InDetTrigConversionContainer = foo.first;
       //delete tpBaseColl;
     }
       
@@ -150,22 +157,22 @@ namespace InDet
     return HLT::OK;
   }
 
-  void TrigConversionFinder::analyzeResults(VxContainer* convContainer) {
+  void TrigConversionFinder::analyzeResults(xAOD::VertexContainer* convContainer) {
     MsgStream log(msgSvc(), name());
     
-    VxContainer::const_iterator fz,fze = convContainer->end();
+    xAOD::VertexContainer::const_iterator fz,fze = convContainer->end();
     for ( fz = convContainer->begin(); fz!=fze; ++fz){
       
-      if ((*fz)->vxTrackAtVertex()) {
-	int numTracksPerVertex = (*fz)->vxTrackAtVertex()->size();
+      if ((*fz)->vxTrackAtVertexAvailable()) {
+	int numTracksPerVertex = (*fz)->vxTrackAtVertex().size();
 	if  (numTracksPerVertex == 2) m_Double_Conversions++;
 	else                          m_Single_Conversions++;
 	
 	bool isTrt1 = false; bool isSi1 = false; bool isTrt2 = false; bool isSi2 = false; 
-	std::vector<Trk::VxTrackAtVertex*> * trkAtVtx = (*fz)->vxTrackAtVertex();
-	for (unsigned int i = 0; i < trkAtVtx->size() ; ++i) {
+	std::vector<Trk::VxTrackAtVertex> trkAtVtx = (*fz)->vxTrackAtVertex();
+	for (unsigned int i = 0; i < trkAtVtx.size() ; ++i) {
 	  
-	  const Trk::ITrackLink * trLink =(*(trkAtVtx))[i]->trackOrParticleLink();
+	  const Trk::ITrackLink * trLink = trkAtVtx[i].trackOrParticleLink();
 	  const Trk::TrackParticleBase* tempTrk(0);
 	  if(0!= trLink){
 	    const Trk::LinkToTrackParticleBase * linkToTrackPB = dynamic_cast<const Trk::LinkToTrackParticleBase *>(trLink); 
