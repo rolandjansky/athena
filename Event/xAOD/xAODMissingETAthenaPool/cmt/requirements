@@ -21,6 +21,7 @@ use AthenaPoolCnvSvc    AthenaPoolCnvSvc-*    Database/AthenaPOOL
 # EDM package(s):
 use xAODMissingET       xAODMissingET-*       Event/xAOD
 use AthContainers	AthContainers-*	      Control
+use AthenaKernel        AthenaKernel-*        Control
 
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::MissingETContainer \
