@@ -1,0 +1,320 @@
+Event index 0
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent True
+   Other_StreamDESDM_EGAMMA_AcceptEvent False
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 1
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent True
+   Other_StreamDESDM_EGAMMA_AcceptEvent False
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 2
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent True
+   Other_StreamDESDM_EGAMMA_AcceptEvent False
+   Other_StreamDESD_SGLEL_AcceptEvent True
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 3
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent False
+   Other_StreamDESDM_EGAMMA_AcceptEvent True
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 4
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent False
+   Other_StreamDESDM_EGAMMA_AcceptEvent True
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 5
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent False
+   Other_StreamDESDM_EGAMMA_AcceptEvent False
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent True
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 6
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent True
+   Other_StreamDESDM_EGAMMA_AcceptEvent True
+   Other_StreamDESD_SGLEL_AcceptEvent True
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 7
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent True
+   Other_StreamDESDM_EGAMMA_AcceptEvent False
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 8
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent True
+   Other_StreamDESDM_EGAMMA_AcceptEvent False
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
+Event index 9
+--> InputMetaDataStore/IncompleteEventBookkeepers
+--> InputMetaDataStore/EventBookkeepers
+   EGammaStream_TagElectronFilter N/A Virtual unkwn unkwn 4 4.0 0
+   EGammaStream_ProbeForwardElectronFilter N/A Virtual unkwn unkwn 3 3.0 0
+   EGammaStream_ProbeElectronFilter N/A Virtual unkwn unkwn 10 10.0 0
+   StreamDESDM_EGAMMA_AcceptEvent EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi or EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi or EGammaStream_TagAndProbeElectronPrescaleFilter Virtual StreamDESDM_EGAMMA Accept 4 4.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e4_etcut_Jpsi EF_e5_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e9_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e9_etcut_Jpsi EF_e5_tight1_e9_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e5_tight1_e14_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e5_tight1_e14_etcut_Jpsi EF_e5_tight1_e14_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e9_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e9_tight1_e4_etcut_Jpsi EF_e9_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_e14_tight1_e4_etcut_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_e14_tight1_e4_etcut_Jpsi EF_e14_tight1_e4_etcut_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_JpsiTriggerPrescaleFilter_EF_2e5_tight1_Jpsi Prescale 1/1 if Accept Algs: 'EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi ' Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+       EGammaStream_JpsiTriggerFilter_EF_2e5_tight1_Jpsi EF_2e5_tight1_Jpsi Virtual StreamDESDM_EGAMMA unkwn 0 0.0 0 
+     EGammaStream_TagAndProbeElectronPrescaleFilter Prescale 1/1 if Accept Algs: 'EGammaStream_TagAndProbeElectronFilter or EGammaStream_TagAndProbeForwardElectronFilter ' Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 4 4.0 0 
+       EGammaStream_TagAndProbeForwardElectronFilter N/A Virtual StreamDESDM_EGAMMA unkwn 1 1.0 0
+--> StreamESD_SkimDecisionsContainer
+   Other_StreamDESDM_TRACK_AcceptEvent True
+   Other_StreamDESD_MBIAS_AcceptEvent False
+   Other_StreamDESDM_EGAMMA_AcceptEvent True
+   Other_StreamDESD_SGLEL_AcceptEvent False
+   Other_StreamDESDM_CALJET_AcceptEvent False
+   Other_StreamDESD_DESD_SGLMU_AcceptEvent True
+   Other_StreamDESD_PHOJET_AcceptEvent False
+
+
