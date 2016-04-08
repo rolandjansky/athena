@@ -1,0 +1,21 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// This file is used to describe the common variables used by
+// TrigCaloClusterAuxContainer_v1 and TrigEMClusterAuxContainer_v1. It's not a
+// standalone header! It only becomes meaningful C++ code when a
+// proper definition of TRIGCALOCLUSTER_AUX_VARIABLE(...) is available.
+//
+// There are no header guards protecting the file against multiple
+// inclusion, as in some cases it may need to be included multiple
+// times. (For instance when one piece of code ends up using both
+// TrigCaloClusterAuxContainer and TrigEMClusterAuxContainer at the same time.)
+//
+
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< float >, rawEnergy );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< std::vector< float > >, rawEnergySample );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< float >, rawEt );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< float >, rawEta );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< float >, rawPhi );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< long >, RoIword );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< int >, nCells );
+TRIGCALOCLUSTER_AUX_VARIABLE( std::vector< unsigned int >, clusterQuality );
