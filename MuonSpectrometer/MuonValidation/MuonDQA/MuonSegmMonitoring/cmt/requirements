@@ -9,44 +9,46 @@ branches src cmt doc
 branches run
 
 use AtlasPolicy AtlasPolicy-*
-
-use AtlasROOT AtlasROOT-* External
-
-# Athena Control Dependencies 
-use     AthenaBaseComps     	AthenaBaseComps-*       	Control
- 
-# Athena Monitoring Dependencies 
-use     AthenaMonitoring        AthenaMonitoring-*              Control
+private
 use 	GaudiInterface 		GaudiInterface-* 		External
 
-# MuonSpectrometer dependencies
-use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
-use     MuonDQAUtils            MuonDQAUtils-*                  MuonSpectrometer/MuonValidation/MuonDQA
-use	MuonSegment		MuonSegment-*	         	MuonSpectrometer/MuonReconstruction/MuonRecEvent
+# use AtlasROOT AtlasROOT-* External
+
+# # Athena Control Dependencies 
+# use     AthenaBaseComps     	AthenaBaseComps-*       	Control
  
-# EDM dependencies
-use     TrkParameters           TrkParameters-*                 Tracking/TrkEvent
-use     TrkTrack                TrkTrack-*                      Tracking/TrkEvent
-use     TrkSegment              TrkSegment-*                    Tracking/TrkEvent
+# # Athena Monitoring Dependencies 
+# use     AthenaMonitoring        AthenaMonitoring-*              Control
+# use 	GaudiInterface 		GaudiInterface-* 		External
 
-# Trigger Aware Monitoring (TDT helper)
-use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
+# # MuonSpectrometer dependencies
+# use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
+# use     MuonDQAUtils            MuonDQAUtils-*                  MuonSpectrometer/MuonValidation/MuonDQA
+# use	MuonSegment		MuonSegment-*	         	MuonSpectrometer/MuonReconstruction/MuonRecEvent
+ 
+# # EDM dependencies
+# use     TrkParameters           TrkParameters-*                 Tracking/TrkEvent
+# use     TrkTrack                TrkTrack-*                      Tracking/TrkEvent
+# use     TrkSegment              TrkSegment-*                    Tracking/TrkEvent
 
-private
-use  EventPrimitives            EventPrimitives-*               Event
-use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
-use     MuonRIO_OnTrack         MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent 
-use     MuonPrepRawData         MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use     MuonRecHelperTools      MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
-use     StoreGate               StoreGate-*                     Control
-use     TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
-use     TrkEventPrimitives      TrkEventPrimitives-*            Tracking/TrkEvent
-use     TrkExInterfaces         TrkExInterfaces-*               Tracking/TrkExtrapolation
-use     TrkGeometry             TrkGeometry-*                   Tracking/TrkDetDescr
-use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent 
-use     TrkSurfaces             TrkSurfaces-*                   Tracking/TrkDetDescr
-use     TrkToolInterfaces       TrkToolInterfaces-*             Tracking/TrkTools
-end_private
+# # Trigger Aware Monitoring (TDT helper)
+# use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
+
+# private
+# use  EventPrimitives            EventPrimitives-*               Event
+# use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
+# use     MuonRIO_OnTrack         MuonRIO_OnTrack-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent 
+# use     MuonPrepRawData         MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
+# use     MuonRecHelperTools      MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
+# use     StoreGate               StoreGate-*                     Control
+# use     TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
+# use     TrkEventPrimitives      TrkEventPrimitives-*            Tracking/TrkEvent
+# use     TrkExInterfaces         TrkExInterfaces-*               Tracking/TrkExtrapolation
+# use     TrkGeometry             TrkGeometry-*                   Tracking/TrkDetDescr
+# use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent 
+# use     TrkSurfaces             TrkSurfaces-*                   Tracking/TrkDetDescr
+# use     TrkToolInterfaces       TrkToolInterfaces-*             Tracking/TrkTools
+# end_private
  
 ###### build a component library
 
