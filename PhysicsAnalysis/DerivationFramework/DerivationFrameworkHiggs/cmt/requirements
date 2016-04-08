@@ -1,0 +1,29 @@
+package DerivationFrameworkHiggs
+author James Catmore <james.catmore@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                   AtlasPolicy-*
+use AthenaBaseComps               AthenaBaseComps-*               Control
+use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
+use TrigDecisionTool              TrigDecisionTool-*              Trigger/TrigAnalysis
+use xAODEgamma                    xAODEgamma-*                    Event/xAOD
+use xAODJet                       xAODJet-*                       Event/xAOD
+use xAODMuon                      xAODMuon-*                      Event/xAOD
+
+private
+use AtlasCLHEP                    AtlasCLHEP-*                    External
+use GaudiInterface                GaudiInterface-*                External
+use xAODEventInfo                 xAODEventInfo-*                 Event/xAOD
+use xAODTracking                  xAODTracking-*                  Event/xAOD
+
+#################################################################
+#
+public
+
+## declare the directories CMT should know about
+branches python share src
+
+apply_pattern dual_use_library files= " *.cxx "
+apply_pattern declare_joboptions files=" *.py"
+apply_pattern declare_python_modules files="*.py"
