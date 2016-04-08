@@ -64,7 +64,7 @@ void TGCcablingSvc::getReadoutIDRanges( int& maxRodId,
 StatusCode TGCcablingSvc::initialize (void)
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "for 1/8 sector  initialize" << endmsg;
+  log << MSG::INFO << "for 1/8 sector  initialize" << endreq;
 
   StatusCode sc = Service::initialize();
   if ( sc.isFailure() ) return sc;
@@ -74,78 +74,78 @@ StatusCode TGCcablingSvc::initialize (void)
   sc = serviceLocator()->service("DetectorStore", detStore);
 
   if (sc.isFailure()){
-    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
     return sc;
   }
 
   sc = detStore->retrieve( m_idHelper, "TGCIDHELPER");
   if (sc.isFailure()){
-    log << MSG::FATAL << "Could not get TgcIdHelper !" << endmsg;
+    log << MSG::FATAL << "Could not get TgcIdHelper !" << endreq;
     return sc;
   }
 
   // private databases
   std::string dbASDToPP = PathResolver::find_file (m_databaseASDToPP, "DATAPATH");
-  log << MSG::DEBUG << "found  " << dbASDToPP << endmsg;
+  log << MSG::DEBUG << "found  " << dbASDToPP << endreq;
   std::ifstream inASDToPP;
   if (dbASDToPP != "") {
     inASDToPP.open( dbASDToPP.c_str());
   } else {
     log << MSG::FATAL << "Could not find input file " << m_databaseASDToPP <<
-      endmsg;
+      endreq;
     return StatusCode::FAILURE;
   }
   if (inASDToPP.bad()) {
-    log << MSG::FATAL << "Could not open file " << dbASDToPP << endmsg;
+    log << MSG::FATAL << "Could not open file " << dbASDToPP << endreq;
     return StatusCode::FAILURE;
   }
 
 
 
   std::string dbInPP = PathResolver::find_file (m_databaseInPP, "DATAPATH");
-  log << MSG::DEBUG << "found  " << dbInPP << endmsg;
+  log << MSG::DEBUG << "found  " << dbInPP << endreq;
   std::ifstream inInPP;
   if (dbInPP != "") {
     inInPP.open( dbInPP.c_str());
   } else {
     log << MSG::FATAL << "Could not find input file " << m_databaseInPP <<
-      endmsg;
+      endreq;
     return StatusCode::FAILURE;
   }
   if (inInPP.bad()) {
-    log << MSG::FATAL << "Could not open file " << dbInPP << endmsg;
+    log << MSG::FATAL << "Could not open file " << dbInPP << endreq;
     return StatusCode::FAILURE;
   }
 
 
   std::string dbPPToSL = PathResolver::find_file (m_databasePPToSL, "DATAPATH");
-  log << MSG::DEBUG << "found  " << dbPPToSL << endmsg;
+  log << MSG::DEBUG << "found  " << dbPPToSL << endreq;
   std::ifstream inPPToSL;
   if (dbPPToSL != "") {
     inPPToSL.open( dbPPToSL.c_str());
   } else {
     log << MSG::FATAL << "Could not find input file " << m_databasePPToSL <<
-      endmsg;
+      endreq;
     return StatusCode::FAILURE;
   } 
   if (inPPToSL.bad()) {
-    log << MSG::FATAL << "Could not open file " << dbPPToSL << endmsg;
+    log << MSG::FATAL << "Could not open file " << dbPPToSL << endreq;
     return StatusCode::FAILURE;
   }
 
 
   std::string dbSLBToROD = PathResolver::find_file (m_databaseSLBToROD, "DATAPATH");
-  log << MSG::DEBUG << "found  " << dbSLBToROD << endmsg;
+  log << MSG::DEBUG << "found  " << dbSLBToROD << endreq;
   std::ifstream inSLBToROD;
   if (dbSLBToROD != "") {
     inSLBToROD.open( dbSLBToROD.c_str());
   } else {
     log << MSG::FATAL << "Could not find input file " << m_databaseSLBToROD <<
-      endmsg;
+      endreq;
     return StatusCode::FAILURE;
   }
   if (inSLBToROD.bad()) {
-    log << MSG::FATAL << "Could not open file " << dbSLBToROD << endmsg;
+    log << MSG::FATAL << "Could not open file " << dbSLBToROD << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -529,14 +529,14 @@ bool TGCcablingSvc::getReadoutIDfromOfflineID(const Identifier & offlineID,
 					 channelNumber);
   if (!status) {
     log << MSG::DEBUG 
-        << " Fail to getOnlineIDfromOfflineID " << endmsg;
+        << " Fail to getOnlineIDfromOfflineID " << endreq;
   }
   if(!status) return status; 
   log << MSG::DEBUG
       << " side=" << subsystemNumber << " octant=" << octantNumber 
       << " module=" << moduleNumber << " layer=" << layerNumber
       << " chamber=" << rNumber << " w/s=" << wireOrStrip
-      << " channel=" << channelNumber  << endmsg;
+      << " channel=" << channelNumber  << endreq;
 
 
   // OnlineID -> ReadoutID
@@ -555,27 +555,27 @@ bool TGCcablingSvc::getReadoutIDfromOfflineID(const Identifier & offlineID,
 				    adChannel);
   if (!status) {
     log << MSG::DEBUG
-        << " Fail to getReadoutIDfromOnlineID" << endmsg;
+        << " Fail to getReadoutIDfromOnlineID" << endreq;
     log << MSG::DEBUG
         << " side=" << subsystemNumber << " octant=" << octantNumber 
         << " module=" << moduleNumber << " layer=" << layerNumber
         << " chamber=" << rNumber << " w/s=" << wireOrStrip
         << " channel=" << channelNumber 
-	<< " adjacent=" << adChannel << endmsg;
+	<< " adjacent=" << adChannel << endreq;
   } else {
     log << MSG::DEBUG
-        << " SUCCESS  getReadoutIDfromOnlineID" << endmsg;
+        << " SUCCESS  getReadoutIDfromOnlineID" << endreq;
     log << MSG::DEBUG
         << " side=" << subsystemNumber << " octant=" << octantNumber 
         << " module=" << moduleNumber << " layer=" << layerNumber
         << " chamber=" << rNumber << " w/s=" << wireOrStrip
         << " channel=" << channelNumber 
-	<< " adjacent=" << adChannel << endmsg;
+	<< " adjacent=" << adChannel << endreq;
     log << MSG::DEBUG
         << " subDetectorID" << subDetectorID 
         << " rodID=" << rodID 
         << " sswID=" << sswID
-        << " channelID=" << channelID  <<  endmsg;
+        << " channelID=" << channelID  <<  endreq;
   }
 
   return status;
@@ -912,7 +912,7 @@ bool TGCcablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 					   channelNumber);  
   if (!asdout.isValid()) {
     log << MSG::DEBUG
-        << "getReadoutIDfromOnlineID  Invalid ASDOut" << endmsg;
+        << "getReadoutIDfromOnlineID  Invalid ASDOut" << endreq;
   } 
 
   if(!asdout.isValid()) return false;
@@ -927,7 +927,7 @@ bool TGCcablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 						adChannel);
   if (!status) {
     log << MSG::DEBUG
-        << "getReadoutIDfromASDOut fails" << endmsg;
+        << "getReadoutIDfromASDOut fails" << endreq;
   }
   if(!status) return false;
 
@@ -1161,7 +1161,7 @@ bool TGCcablingSvc::getReadoutIDfromSLBID(const int phi,
         << " region=" << ( (isEndcap)? "Endcap": "Forward")
         << " type=" << moduleType
         << " id=" << id 
-        << "Invalid SLB" << endmsg;
+        << "Invalid SLB" << endreq;
   }
   if (!slb.isValid()) return false;
   
@@ -1169,10 +1169,10 @@ bool TGCcablingSvc::getReadoutIDfromSLBID(const int phi,
   bool status = m_cabling->getReadoutFromSLB(&slb, side, rodID, sswID, slbID);
   if (!status) {
     log << MSG::DEBUG
-        << " FAIL  getReadoutIDfromSLBID" << endmsg;
+        << " FAIL  getReadoutIDfromSLBID" << endreq;
   } else {
     log << MSG::DEBUG
-        << " SUCCESS  getReadoutIDfromSLBID" << endmsg;
+        << " SUCCESS  getReadoutIDfromSLBID" << endreq;
     log << MSG::DEBUG
         << " phi=" << phi
         << " side=" << ( (isAside)? "A": "C") 
@@ -1182,7 +1182,7 @@ bool TGCcablingSvc::getReadoutIDfromSLBID(const int phi,
         << " side" << side 
         << " rodID=" << rodID 
         << " sswID=" << sswID
-        << " slbID=" << slbID  <<  endmsg;
+        << " slbID=" << slbID  <<  endreq;
   } 
   if (!status) return false;
   return true;
