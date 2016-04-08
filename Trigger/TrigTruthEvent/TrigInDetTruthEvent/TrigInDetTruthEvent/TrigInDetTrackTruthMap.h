@@ -24,9 +24,8 @@
 
 #include "CLIDSvc/CLASS_DEF.h"
 
-using std::size_t;
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLinkVector.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -35,7 +34,6 @@ using std::size_t;
 
 #include <iostream>
 
-using namespace std;
 
 class TrigInDetTrackTruthMap {
     
@@ -81,6 +79,8 @@ class TrigInDetTrackTruthMap {
   const TrigInDetTrack* tracki (size_t i) const;
 
  private:
+  friend class TrigInDetTrackTruthMapCnv_p1;
+  friend class TrigInDetTrackTruthMap_old_cnv;
 
   // used to be map for fast lookup, but changed to use ElemLink as key
   //  std::vector< ElementLink< DataVector<TrigInDetTrack> > > m_elink_vec;

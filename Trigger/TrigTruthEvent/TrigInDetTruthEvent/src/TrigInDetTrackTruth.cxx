@@ -52,17 +52,17 @@ int TrigInDetTrackTruth::addMatch(HepMcParticleLink p_tru_part,TrigIDHitStats hi
   }
 
   // to know the best match in total nr.hits 
-  if ( best_match_hits == -1 || 
-       (unsigned int)hits.total() > nrCommonHits(best_match_hits) )
-    best_match_hits = m_true_part_vec.size() - 1;
+  if ( m_best_match_hits == -1 || 
+       (unsigned int)hits.total() > nrCommonHits(m_best_match_hits) )
+    m_best_match_hits = m_true_part_vec.size() - 1;
 
-  if ( best_Si_match_hits == -1 || 
-       (unsigned int)(hits.pixhits() + hits.scthits())> nrCommonSiHits(best_Si_match_hits) )
-    best_Si_match_hits = m_true_part_vec.size() - 1;
+  if ( m_best_Si_match_hits == -1 || 
+       (unsigned int)(hits.pixhits() + hits.scthits())> nrCommonSiHits(m_best_Si_match_hits) )
+    m_best_Si_match_hits = m_true_part_vec.size() - 1;
 
-  if ( best_TRT_match_hits == -1 || 
-       (unsigned int)hits.trthits() > nrCommonTRTHits(best_TRT_match_hits) )
-    best_TRT_match_hits = m_true_part_vec.size() - 1;
+  if ( m_best_TRT_match_hits == -1 || 
+       (unsigned int)hits.trthits() > nrCommonTRTHits(m_best_TRT_match_hits) )
+    m_best_TRT_match_hits = m_true_part_vec.size() - 1;
 
   return indx;
 }
@@ -177,19 +177,19 @@ int TrigInDetTrackTruth::updateFamilyTree()
 /** returns best match according to the number of hits */
 const HepMcParticleLink* TrigInDetTrackTruth::bestMatch() const
 {
-  return &(m_true_part_vec[best_match_hits]);
+  return &(m_true_part_vec[m_best_match_hits]);
 }
 
 /** returns best match according to the number of hits */
 const HepMcParticleLink* TrigInDetTrackTruth::bestSiMatch() const
 {
-  return &(m_true_part_vec[best_Si_match_hits]);
+  return &(m_true_part_vec[m_best_Si_match_hits]);
 }
 
 /** returns best match according to the number of hits */
 const HepMcParticleLink* TrigInDetTrackTruth::bestTRTMatch() const
 {
-  return &(m_true_part_vec[best_TRT_match_hits]);
+  return &(m_true_part_vec[m_best_TRT_match_hits]);
 }
 
 /** returns matching true particle number i */
@@ -224,13 +224,13 @@ unsigned int TrigInDetTrackTruth::nrCommonTRTHits(unsigned int i) const
 /** returns total number of common hits from best match true particle and TrigInDetTrack */
 unsigned int TrigInDetTrackTruth::nrCommonHitsBestSi() const
 {
-  return (m_nr_common_hits[best_Si_match_hits].scthits() + m_nr_common_hits[best_Si_match_hits].pixhits());
+  return (m_nr_common_hits[m_best_Si_match_hits].scthits() + m_nr_common_hits[m_best_Si_match_hits].pixhits());
 }
 
 /** returns total number of common hits from best match true particle and TrigInDetTrack */
 unsigned int TrigInDetTrackTruth::nrCommonHitsBestTRT() const
 {
-  return m_nr_common_hits[best_TRT_match_hits].trthits();
+  return m_nr_common_hits[m_best_TRT_match_hits].trthits();
 }
 
 
@@ -252,7 +252,7 @@ int TrigInDetTrackTruth::motherIndexInChain(unsigned int daughter) const {
 
   if ( m_family_tree.empty() ) return -1;
 
-  std::vector< pair<unsigned int, unsigned int> >::const_iterator it,it_end = m_family_tree.end();
+  std::vector< std::pair<unsigned int, unsigned int> >::const_iterator it,it_end = m_family_tree.end();
 
   for (it = m_family_tree.begin(); it != it_end; ++it) {
     if (daughter == (*it).second) return (int)(*it).first; 
@@ -274,7 +274,7 @@ std::vector<unsigned int> TrigInDetTrackTruth::daughterIndicesInChain(unsigned i
   v_indx.clear();
   if ( m_family_tree.empty() ) return v_indx;
 
-  std::vector< pair<unsigned int, unsigned int> >::const_iterator it,it_end = m_family_tree.end();
+  std::vector< std::pair<unsigned int, unsigned int> >::const_iterator it,it_end = m_family_tree.end();
   unsigned int i=0;
   for (it = m_family_tree.begin(); it != it_end; ++it) {
     if (mother == (*it).first) {
