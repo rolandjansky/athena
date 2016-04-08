@@ -72,15 +72,16 @@ def ROOT6Setup():
              source, line, f, t = traceback.extract_stack( sys._getframe(1) )[-1]
              log.warning( 'PyCintex imported (replace with import cppyy) from: %s:%d'%(source,line) )
           m = oldimporthook(name, globals, locals, fromlist, level)
-          if m and m.__name__== 'ROOT':
+          if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
              log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
              if fromlist:
-                vars = [ '.'.join([name, fl, autoload_var_name]) for fl in fromlist]
+                #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
+                vars = [ '.'.join(['', fl, autoload_var_name]) for fl in fromlist]
              else:
                 vars = [ '.'.join([name, autoload_var_name]) ]
              for v in vars:
-                mm = m
                 try:
+                   mm = m
                    #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
                    for comp in v.split('.')[1:]:
                       mm = getattr(mm, comp)
@@ -198,12 +199,19 @@ def restricted_ldenviron(projects=None, msg=None):
     a context helper to limit ROOT automatic loading of dictionaries
     to a given set of cmt-projects (LCGCMT, AtlasCore, ...)
     """
+
     if projects is None:
         # nothing to do.
         # execute user stuff
         yield
         # end of story
         return
+
+    # Bypass the rest of the function in case CMake is used and not CMT
+    import os
+    if os.environ.get( 'CMTPATH', '' ) == '':
+       yield
+       return
 
     if isinstance(projects, str):
         projects = [p.strip() for p in projects.split() if p.strip() != '']

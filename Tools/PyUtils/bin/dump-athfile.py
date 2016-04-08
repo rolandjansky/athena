@@ -115,6 +115,7 @@ if __name__ == "__main__":
         print fmt % ('run type',       f.infos['run_type'])
         print fmt % ('evt number',     f.infos['evt_number'])
         print fmt % ('evt type',       f.infos['evt_type'])
+        print fmt % ('mc channel #',   f.infos['mc_channel_number'])
         print fmt % ('lumi block',     f.infos['lumi_block'])
         print fmt % ('beam energy',    f.infos['beam_energy'])
         print fmt % ('beam type',      f.infos['beam_type'])
@@ -123,6 +124,22 @@ if __name__ == "__main__":
         print fmt % ('geometry',       f.infos['geometry'])
         print fmt % ('conditions tag', f.infos['conditions_tag'])
         _metadata = f.infos['metadata']
+
+        # ATEAM-162: determine if this is 25ns or 50ns sub-campaign
+        DigitizationParameters = _metadata['/Digitization/Parameters'] if '/Digitization/Parameters' in _metadata.keys() else {}
+        if 'bunchSpacing' in DigitizationParameters.keys() and 'BeamIntensityPattern' in DigitizationParameters.keys() :
+            bunchSlotLength = DigitizationParameters['bunchSpacing']
+            pattern = DigitizationParameters['BeamIntensityPattern']
+            firstBunch = pattern.index(1.0)
+            bunchCountInTwoFirstSlots = pattern[firstBunch:firstBunch+2].count(1.0)
+            if bunchCountInTwoFirstSlots == 1:
+                campaign = '50 ns'
+            elif bunchCountInTwoFirstSlots == 2:
+                campaign = '25 ns'
+            else:
+                campaign = None
+            print fmt % ('bunch spacing',   campaign + ' i.e. ..., ' + str(pattern[firstBunch:firstBunch+4])[1:-1] + ', ...')
+
         _metadata = _metadata.keys() if isinstance(_metadata,dict) else None
         print fmt % ('meta data',      _metadata)
 

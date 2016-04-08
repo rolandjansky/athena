@@ -2,14 +2,14 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkxAOD.py 717322 2016-01-12 11:17:21Z schaffer $
+# $Id: checkxAOD.py 717311 2016-01-12 10:51:45Z schaffer $
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
 # object/container.
 #
 
-__version__ = "$Revision: 717322 $"
+__version__ = "$Revision: 717311 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, " \
     "RD Schaffer R.D.Schaffer@cern.ch"

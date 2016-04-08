@@ -13,7 +13,7 @@
 # @endcode
 #
 
-__version__ = "$Revision: 621253 $"
+__version__ = "$Revision: 724150 $"
 __author__  = "Will Buttinger <will@cern.ch>"
 
 import sys
@@ -56,8 +56,21 @@ if __name__ == "__main__":
         try:
             from PyUtils import AthFile
             print "## checking [%s]..."%fileName
-            metadata = AthFile.fopen(fileName).fileinfos['metadata']
+            fileInfo = AthFile.fopen(fileName).fileinfos
             print "="*91
+            #do the table of extra information
+            print "## Content of AthFile.fopen(%s).fileinfos"%fileName
+            print "="*91
+            exclude_list = ['stream_tags','file_name','tag_info','det_descr_tags', 'evt_number', 'metadata', 'metadata','metadata_items', 'lumi_block','eventdata_items' ]
+            print "%30s%-28s" % ("key", " | value")
+            print "%30s%s%-25s" % ("-"*30, "-+-", "-"*(28-3))
+            for a,b in fileInfo.items():
+               if a in exclude_list: continue
+               print "%30s%s%-25s" % (a, " | ", b) 
+            metadata = fileInfo['metadata']
+            print ""
+            print "="*91
+            print "## IOVMetaData (fileinfos['metadata']):"
             print "%30s%-28s%-10s%-30s" % ("folder", " | key "," | type "," | value")
             print "%30s%s%-25s%s%-7s%s%-30s" % ("-"*30, "-+-", "-"*(28-3),"-+-","-"*(10-3),"-+-","-"*(20))
             for metaFolder,metaObj in metadata.items(): #metaObj may be dict, list (occurs with multi IOV), or none... so far only support dict FIXME

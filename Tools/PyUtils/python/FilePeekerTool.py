@@ -5,7 +5,7 @@
 # @author Alexandre Vaniachine <vaniachine@anl.gov>
 # @date May 2015
 
-__version__= "$Revision: 667927 $"
+__version__= "$Revision: 734431 $"
 __author__ = "Alexandre Vaniachine <vaniachine@anl.gov>"
 __doc__ = "peek into APR files to read in-file metadata"
 
@@ -60,28 +60,40 @@ class FilePeekerTool():
         from AthenaPython.FilePeekerLib import toiter
 
         from PyCool import coral
-        try:
-            getattr(coral.Attribute, 'data<std::basic_string<char> >')
-            #MN: use coral.Attribute.data<std::basic_string<char> >() if defined  (ROOT6)
-            def attr_str_data(attr):
-                return getattr(attr, 'data<std::basic_string<char> >') ()
-            # if not defined, use the old one (ROOT5) 
-        except AttributeError:
-            def attr_str_data(attr):
-                return getattr(attr, 'data<std::string>') ()
+
+        attribute_methods = dir(coral.Attribute)
+        methnames = ['data<std::__cxx11::basic_string<char> >',
+                     'data<std::basic_string<char> >',
+                     'data<std::string>']
+        for m in methnames:
+            if m in attribute_methods:
+                attribute_getdata = m
+                break
+        else:
+            raise Exception("Can't find data method in Attribute")
+        def attr_str_data(attr):
+            return getattr(attr, attribute_getdata) ()
 
         nb = meta.GetEntry( 0 )
 
         esiName= 'Stream'
+        esiTypeName = 'EventStreamInfo'
         for l in meta.GetListOfLeaves():
-            if l.GetTypeName() == 'EventStreamInfo_p3':
+            if l.GetTypeName().startswith(esiTypeName):
+                esiTypeName = l.GetTypeName()
                 esiName = l.GetName()
                 break
+
+        if esiTypeName != 'EventStreamInfo_p3':
+            print >> stdout, "old schema is not supported:", esiTypeName
+            return {}
 
         import cppyy
 
         esic = cppyy.gbl.EventStreamInfoPTCnv_p3()
         esi = getattr (meta, esiName)
+        if esiName.startswith(esiTypeName):
+            esiName = esiName[len(esiTypeName)+1:]
 
         peeked_data = {}
 
@@ -135,7 +147,7 @@ class FilePeekerTool():
             #ddt = _get_detdescr_tags(et)
             #peeked_data['det_descr_tags'] = ddt
 
-            print >> stdout,  'mc_channel_number', et.m_mc_channel_number
+            peeked_data['mc_channel_number'] = [et.m_mc_channel_number]
             peeked_data['evt_number'] = [et.m_mc_event_number]
             #print >> stdout,  'mc_event_number', et.m_mc_event_number
             print >> stdout,  'mc_event_weights.size:', et.m_mc_event_weights.size()
@@ -420,7 +432,8 @@ class FilePeekerTool():
         db['fileinfos'] = self.peeked_data
         db.close()
 
-        if os.path.exists(oname):
+        if os.path.exists(oname) and len(self.peeked_data) > 0:
             return 0, out_pkl_fname
         else:
+            os.remove(oname)
             return 1, out_pkl_fname
