@@ -46,7 +46,6 @@
 #include <sstream>
 #include <iostream>
 #include <istream>
-#include <boost/lexical_cast.hpp>
 
 using std::string;
 using SCT_ConditionsServices::castId;
@@ -272,26 +271,25 @@ SCT_MonitorConditionsSvc::addDefect(const string& defectlist,const int defectBeg
     return createDefectString(defectBeginChannel,defectEndChannel);
   }
   // adding another Defect in DefectList
-  std::ostringstream defect;
-  defect << defectlist << " " << defectBeginChannel;
+  std::string defect= defectlist + " " +std::to_string( defectBeginChannel);
   if (defectBeginChannel==defectEndChannel){
-     defect << " ";
+     defect+= " ";
   } else {
-    defect << "-" << defectEndChannel << " ";
+    defect+= "-" +std::to_string( defectEndChannel) + " ";
   }
-  return defect.str();
+  return defect;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 std::string
 SCT_MonitorConditionsSvc::createDefectString(const int defectBeginChannel,const int defectEndChannel) const{
-  std::ostringstream defect;
-  defect << " " << defectBeginChannel;
+  std::string defect(" ");
+  defect += std::to_string(defectBeginChannel);
   if (defectBeginChannel!=defectEndChannel) {
-    defect << "-" << defectEndChannel;
+    defect += "-" + std::to_string(defectEndChannel);
   }
-  defect << " ";
-  return defect.str();
+  defect += " ";
+  return defect;
 }
 StatusCode 
 SCT_MonitorConditionsSvc::setBasicListValues(coral::AttributeList & attrList0,
@@ -578,11 +576,11 @@ bool SCT_MonitorConditionsSvc::inRange(const int theNumber, const std::string & 
   std::string::size_type p = stringRange.find(s_separator);
   if (p != std::string::npos) { //its a range
     std::string::size_type len1(p++), len2(stringRange.size()-p);
-    int min = boost::lexical_cast<int>(stringRange.substr(0,len1));
-    int max = boost::lexical_cast<int>(stringRange.substr(p,len2));
+    int min = std::stoi(stringRange.substr(0,len1));
+    int max = std::stoi(stringRange.substr(p,len2));
     return inRange(theNumber, min, max);
   } else { //assume its a single number
-    return boost::lexical_cast<int>(stringRange) == theNumber;
+    return std::stoi(stringRange) == theNumber;
   }
 }
 
@@ -613,12 +611,12 @@ SCT_MonitorConditionsSvc::nBlock(const int theNumber, const std::string& stringR
   std::string::size_type p=stringRange.find(s_separator);
   if (p!=std::string::npos){ //its a range
     std::string::size_type len1(p++), len2(stringRange.size()-p);
-    int min=boost::lexical_cast<int>(stringRange.substr(0,len1));
-    int max=boost::lexical_cast<int>(stringRange.substr(p,len2));
+    int min=std::stoi(stringRange.substr(0,len1));
+    int max=std::stoi(stringRange.substr(p,len2));
     if ( inRange(theNumber, min, max) )
       ndefect = max-min+one;
   } else { //assume its a single number
-    if ( boost::lexical_cast<int>(stringRange) == theNumber )
+    if ( std::stoi(stringRange) == theNumber )
       ndefect = 0;
   }
   return ndefect;
@@ -648,8 +646,8 @@ SCT_MonitorConditionsSvc::nBlock(const std::string& stringRange) const{
   std::string::size_type p = stringRange.find(s_separator);
   if (p != std::string::npos){ //its a range
     std::string::size_type len1(p++), len2(stringRange.size()-p);
-    int min=boost::lexical_cast<int>(stringRange.substr(0,len1));
-    int max=boost::lexical_cast<int>(stringRange.substr(p,len2));
+    int min=std::stoi(stringRange.substr(0,len1));
+    int max=std::stoi(stringRange.substr(p,len2));
     ndefect = max-min+one;
   } else { //assume its a single number
     ndefect = one;
@@ -680,10 +678,7 @@ SCT_MonitorConditionsSvc::inRange(const int x, const int min, const int max) con
 }
 // ===========================================================================
 
-int 
-SCT_MonitorConditionsSvc::stringToInt(const std::string& s) const {
-    return atoi(s.c_str());  
-}
+
 
 
 
@@ -864,7 +859,7 @@ SCT_MonitorConditionsSvc::no_module(const Identifier& id) const{
 //////////////////////////////////////////////////////////////////////////////
 
 std::string 
-SCT_MonitorConditionsSvc::badStripsAsString(Identifier moduleId) {
+SCT_MonitorConditionsSvc::badStripsAsString(const Identifier & moduleId) {
    return getList(moduleId);
 }
 
@@ -881,7 +876,7 @@ SCT_MonitorConditionsSvc::badStrips(std::set<Identifier>& strips) {
 }
 
 void 
-SCT_MonitorConditionsSvc::badStrips(Identifier moduleId, std::set<Identifier>& strips) {
+SCT_MonitorConditionsSvc::badStrips(const Identifier & moduleId, std::set<Identifier>& strips) {
   // Set of bad strip Identifers for a given module
   // Get defect string and check it is sensible, i.e. non-empty and contains numbers
   std::string defectStr = getList(moduleId);
@@ -931,22 +926,22 @@ void SCT_MonitorConditionsSvc::expandRange(const std::string& rangeStr, std::set
   if (sepPos != std::string::npos) { 
     // Extract min and max
     std::string::size_type len1(sepPos++), len2(rangeStr.size()-sepPos);
-    int min = boost::lexical_cast<int>(rangeStr.substr(0,len1));
-    int max = boost::lexical_cast<int>(rangeStr.substr(sepPos,len2));
+    int min = std::stoi(rangeStr.substr(0,len1));
+    int max = std::stoi(rangeStr.substr(sepPos,len2));
     // Add all strips in range to list
     while (min != (max+1)) rangeList.insert(min++);
   } else { 
     // Assume single number
-    rangeList.insert(boost::lexical_cast<int>(rangeStr));
+    rangeList.insert(std::stoi(rangeStr));
   }  
 }
 
 //////////////////////////////////////////////////////////////////////////////
-std::string SCT_MonitorConditionsSvc::deadStripsAsString(Identifier moduleId) {
+std::string SCT_MonitorConditionsSvc::deadStripsAsString(const Identifier & moduleId) {
   return getDeadStripList(moduleId);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-std::string SCT_MonitorConditionsSvc::deadChipsAsString(Identifier moduleId) {
+std::string SCT_MonitorConditionsSvc::deadChipsAsString(const Identifier & moduleId) {
   return getDeadChipList(moduleId);
 }

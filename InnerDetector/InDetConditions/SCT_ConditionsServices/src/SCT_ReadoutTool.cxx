@@ -54,14 +54,10 @@ SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &nam
 // Initialize
 StatusCode SCT_ReadoutTool::initialize() {
   ATH_MSG_DEBUG("Initialize SCT_ReadoutTool");
-
   // Retrieve cabling
-  if (m_cablingSvc.retrieve().isFailure()) return msg(MSG::ERROR) << "Can't get the cabling tool." << endreq, StatusCode::FAILURE;
-
+  ATH_CHECK(m_cablingSvc.retrieve());
   // Retrieve SCT helper
-  if (detStore()->retrieve(m_sctId,"SCT_ID").isFailure()) 
-    return  msg(MSG::ERROR) << "Unable to retrieve SCT_ID" << endreq, StatusCode::FAILURE;
-  
+  ATH_CHECK(detStore()->retrieve(m_sctId,"SCT_ID")) ;
   return StatusCode::SUCCESS;
 }
 
@@ -73,7 +69,6 @@ StatusCode SCT_ReadoutTool::finalize() {
 
 void SCT_ReadoutTool::setModuleType(Identifier moduleId) {
   // Set module type as per the ModuleType enum
-
   int bec = m_sctId->barrel_ec(moduleId);
   if (fabs(bec) == 2) {
     m_type = SCT_Parameters::ENDCAP;
@@ -278,17 +273,11 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
 void SCT_ReadoutTool::maskChipsNotInReadout() {
   // Mask chip (is set mask to 0 0 0 0) if not in readout
   // If the readout of a particular link is not sane mask all chips on that link
-
-  std::vector<SCT_Chip*>::iterator chipItr(m_chips.begin());
-  std::vector<SCT_Chip*>::iterator chipEnd(m_chips.end());
-  
-  for (; chipItr != chipEnd; ++chipItr) {
-    if(!isChipReadOut(*(*chipItr))) {
-
-      ATH_MSG_INFO( "Masking chip " <<  (*chipItr)->id() );
-
+  for (const auto & thisChip:m_chips) {
+    if(!isChipReadOut(*thisChip)) {
+      ATH_MSG_DEBUG( "Masking chip " <<  thisChip->id() );
       uint32_t masked = 0;
-      (*chipItr)->initializeMaskFromInts(masked, masked, masked, masked);
+      thisChip->initializeMaskFromInts(masked, masked, masked, masked);
     }
   }
 }
@@ -296,7 +285,6 @@ void SCT_ReadoutTool::maskChipsNotInReadout() {
 bool SCT_ReadoutTool::followReadoutUpstream(int link, const SCT_Chip& chip, int remainingDepth) {
   // Follow the readout upstream (to input side).  Will return true if the readout is sane
   // The "error" cases are only warnings since they possibly only affect one module of the SCT
-
   // Have we gone though all 12 chips -> infinite loop
   if (remainingDepth < 0) {    
     ATH_MSG_WARNING( "Infinite loop detected in readout" );
@@ -320,9 +308,7 @@ bool SCT_ReadoutTool::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 #ifndef NDEBUG
       ATH_MSG_DEBUG( "MasterChip" );
 #endif
-
       // Chip will be set in readout below
-      
     } else if (chip.id() == link*6) {      
       // Link is active but the master position for THAT link does not contain a master 
       // This can happen if everything is readout via other link, therefore the readout is still sane.
@@ -373,7 +359,7 @@ bool SCT_ReadoutTool::isLinkStandard(int link){
 
   std::vector<int>& m_chipsOnThisLink = ((link==0) ? m_chipsOnLink0 : m_chipsOnLink1);
 
-  // Then it must have six ships being readout ...
+  // Then it must have six chips being readout ...
   if (m_chipsOnThisLink.size() != 6) return false;
 
   std::vector<int>::const_iterator linkItr(m_chipsOnThisLink.begin());
