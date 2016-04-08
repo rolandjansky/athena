@@ -3,11 +3,11 @@ from PyKernel import PyKernel
 from PyKernel.PyKernel import plot,plot2,fill,fill2,dumpSG,book,bookProf
 from PyKernel.PyKernel import plotProf,fillProf,unregister,dumpHist,retrieveHist
 
-import PyCintex
-PyCintex.loadDictionary("libPyKernelDict")
+import cppyy
+cppyy.loadDictionary("libPyKernelDict")
 
 # Bind the C++ global namespace to the Python variable g 
-g = PyCintex.Namespace('')
+g = cppyy.gbl
 
 ## temporary hack to 'fix' #58078
 if 0:

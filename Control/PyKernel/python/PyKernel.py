@@ -18,13 +18,13 @@ __docformat__ = "restructuredtext en"
 #"""
 import re
 import types
-import PyCintex
+import cppyy
 import PyKHist
 from math import *
 from AthenaCommon.SystemOfUnits import *
 
 # global name space
-GNS = PyCintex.Namespace('')
+GNS = cppyy.gbl
 
 #"""
 
@@ -119,8 +119,8 @@ def retrieve (aClass, aKey=None):
 
       athena> obj = PyKernel.retrieve(g.MyClass,'mykey')
       athena> obj = PyKernel.retrieve(g.MyClass)  # when only one MyClass obj is in SG
-          where the prefix 'g' is the global namespace provided by PyCintex
-          g = PyCintex.Namespace('')
+          where the prefix 'g' is the global namespace provided by cppyy
+          g = cppyy.gbl
 
     """
     #import workaround
@@ -150,8 +150,8 @@ def retrieveDet (aClass, aKey=None):
     
       athena> obj = PyKernel.retrieveDet(g.MyClass,'mykey')
       athena> obj = PyKernel.retrieveDet(g.MyClass) # when only one MyClass obj is in SG
-          where the prefix 'g' is the global namespace provided by PyCintex
-          g = PyCintex.Namespace('')
+          where the prefix 'g' is the global namespace provided by cppyy
+          g = cppyy.gbl
           
     """
     #import workaround    
