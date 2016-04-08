@@ -11,7 +11,7 @@
 
 
 CaloCalibrationHitContainer_PERS* CaloCalibrationHitContainerCnv::createPersistent(CaloCalibrationHitContainer* transCont) {
-    MsgStream mlog(msgSvc(), "CaloCalibrationHitContainerConverter" );
+    MsgStream mlog(messageService(), "CaloCalibrationHitContainerConverter" );
     CaloCalibrationHitContainerCnv_p3   converter;
     CaloCalibrationHitContainer_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
@@ -19,7 +19,7 @@ CaloCalibrationHitContainer_PERS* CaloCalibrationHitContainerCnv::createPersiste
 
 
 CaloCalibrationHitContainer* CaloCalibrationHitContainerCnv::createTransient() {
-    MsgStream mlog(msgSvc(), "CaloCalibrationHitContainerConverter" );
+    MsgStream mlog(messageService(), "CaloCalibrationHitContainerConverter" );
     CaloCalibrationHitContainerCnv_p1   converter_p1;
     CaloCalibrationHitContainerCnv_p2   converter_p2;
     CaloCalibrationHitContainerCnv_p3   converter_p3;
