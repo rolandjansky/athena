@@ -29,9 +29,7 @@
 
 InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 (const std::string& t,const std::string& n,const IInterface* p)
-  : AthAlgTool(t,n,p)                                                                                   ,
-    m_extrapolator(0),
-    m_propagator(0),
+  : AthAlgTool(t,n,p),
     m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"                      ),
     m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
 {
