@@ -32,16 +32,20 @@ class CombinedMuonFeature : public P4PtEtaPhiMBase,
 public:
    CombinedMuonFeature();
    CombinedMuonFeature(float ptsigned, float sigma_pt,
-                       const ElementLink< MuonFeatureContainer> muFastOutput,
-                       const ElementLink< TrigInDetTrackCollection> IdscanOutput);
+                       const ElementLink< MuonFeatureContainer>& muFastOutput,
+                       const ElementLink< TrigInDetTrackCollection>& IdscanOutput);
 
    CombinedMuonFeature(float ptsigned, float sigma_pt, int fs, int fe, int fm,
-                       const ElementLink< MuonFeatureContainer> muFastOutput,
-                       const ElementLink< TrigInDetTrackCollection> IdscanOutput);
+                       const ElementLink< MuonFeatureContainer>& muFastOutput,
+                       const ElementLink< TrigInDetTrackCollection>& IdscanOutput);
 
    CombinedMuonFeature(float pt, float sigma_pt, float q, int fs, int fe, int fm,
-                       const ElementLink< MuonFeatureContainer> muFastOutput,
-                       const ElementLink< TrigInDetTrackCollection> IdscanOutput);
+                       const ElementLink< MuonFeatureContainer>& muFastOutput,
+                       const ElementLink< TrigInDetTrackCollection>& IdscanOutput);
+
+   CombinedMuonFeature(float pt, float sigma_pt, float q, int flag,
+                       const ElementLink< MuonFeatureContainer>& muFastOutput,
+                       const ElementLink< TrigInDetTrackCollection>& IdscanOutput);
 
    CombinedMuonFeature(const CombinedMuonFeature* muon_feature);
    CombinedMuonFeature(const CombinedMuonFeature& muon_feature);
@@ -53,14 +57,15 @@ public:
    double charge(void)                   const {return fabs(m_charge)>0?m_charge:(m_pt>0?1.0:-1.0);}
    double ptq(void)                      const {return fabs(m_charge)>0?m_pt*m_charge:m_pt;}
    double sigma_pt(void)                 const;
+   double sigma_pt_raw(void)             const { return m_sigma_pt; }
    int    comb_strategy(void)            const;
    int    comb_errorFlag(void)           const;
    int    comb_matchFlag(void)           const;
    int    getFlag(void)  const { return m_flag; }
    const  MuonFeature* muFastTrack(void) const {return m_muFastTrack.isValid() ? *m_muFastTrack : 0;}
    const  TrigInDetTrack* IDTrack(void)  const {return m_IDTrack.isValid() ? *m_IDTrack : 0;}
-   const  ElementLink<MuonFeatureContainer> muFastTrackLink(void) const {return m_muFastTrack;}
-   const  ElementLink<TrigInDetTrackCollection> IDTrackLink(void)  const {return m_IDTrack;}
+   const  ElementLink<MuonFeatureContainer>& muFastTrackLink(void) const {return m_muFastTrack;}
+   const  ElementLink<TrigInDetTrackCollection>& IDTrackLink(void)  const {return m_IDTrack;}
 
    double eta(void) const;
    double phi(void) const;

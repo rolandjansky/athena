@@ -287,6 +287,7 @@ public:
     void setPhiPivot(uint32_t ly0, uint32_t ly1);
     void setPhiLow (uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11);
     void setPhiHigh(uint32_t ly00, uint32_t ly01, uint32_t ly10, uint32_t ly11);
+    void setLvl1Emulation (const std::vector<uint32_t>& v);
     
     void setTgcMid1(float Mid1_eta, float Mid1_phi, float Mid1_r,   float Mid1_z);
     void setTgcMid2(float Mid2_eta, float Mid2_phi, float Mid2_r,   float Mid2_z);
@@ -320,11 +321,25 @@ public:
     void setSt_phi (int tr, int st, float phi);
     void setSt_roads(int tr, int st, float road);
 
+    void setChamber_type_1(const std::vector< std::vector<int> >& v);
+    void setChamber_type_2(const std::vector< std::vector<int> >& v);
+    void setPos(const std::vector< std::vector<int> >& v);
+    void setAw(const std::vector< std::vector<float> >& v);
+    void setBw(const std::vector< std::vector<float> >& v);
+    void setZetaMin(const std::vector< std::vector<float> >& v);
+    void setZetaMax(const std::vector< std::vector<float> >& v);
+    void setRadMin (const std::vector< std::vector<float> >& v);
+    void setRadMax (const std::vector< std::vector<float> >& v);
+    void setEtaMin (const std::vector< std::vector<float> >& v);
+    void setEtaMax (const std::vector< std::vector<float> >& v);
+    void setSt_phi (const std::vector< std::vector<float> >& v);
+    void setSt_roads(const std::vector< std::vector<float> >& v);
+
     void setPadHit(uint32_t onlineId, uint32_t code, float x, float y, float z,
                    float r, float p);
     
     void setTgcMidRhoHit(float phi,float r,float z,float width,uint32_t in_seg);
-    void setTgcMidPhihit(float phi,float r,float z,float width,uint32_t in_seg);
+    void setTgcMidPhiHit(float phi,float r,float z,float width,uint32_t in_seg);
     void setTgcInnRhoHit(float phi,float r,float z,float width,uint32_t in_seg);
     void setTgcInnPhiHit(float phi,float r,float z,float width,uint32_t in_seg);
     
@@ -362,11 +377,29 @@ public:
     void setExtension8(uint32_t);
     void setExtension9(uint32_t);
     
+    void setExtension0(const std::vector<uint32_t>& v);
+    void setExtension1(const std::vector<uint32_t>& v);
+    void setExtension2(const std::vector<uint32_t>& v);
+    void setExtension3(const std::vector<uint32_t>& v);
+    void setExtension4(const std::vector<uint32_t>& v);
+    void setExtension5(const std::vector<uint32_t>& v);
+    void setExtension6(const std::vector<uint32_t>& v);
+    void setExtension7(const std::vector<uint32_t>& v);
+    void setExtension8(const std::vector<uint32_t>& v);
+    void setExtension9(const std::vector<uint32_t>& v);
+    
     void setRequestedRob(uint32_t);
     void setConvertedCsm(uint32_t,uint32_t);
     void setCsmError(uint32_t);
     void setRemovedRob(uint32_t);
     void setRemovedCsm(uint32_t);
+
+    void setRequestedRob(const std::vector<uint32_t>& v);
+    void setConvertedCsm(const std::vector<uint32_t>& v);
+    void setConvertedCsmSize(const std::vector<uint32_t>& v);
+    void setCsmError(const std::vector<uint32_t>& v);
+    void setRemovedRob(const std::vector<uint32_t>& v);
+    void setRemovedCsm(const std::vector<uint32_t>& v);
     
     
 private:

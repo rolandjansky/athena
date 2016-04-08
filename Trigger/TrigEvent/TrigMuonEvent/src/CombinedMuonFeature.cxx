@@ -23,8 +23,8 @@ CombinedMuonFeature::CombinedMuonFeature() : P4PtEtaPhiMBase(), NavigableTermina
 {}
 
 CombinedMuonFeature::CombinedMuonFeature(float ptsign, float sigma_pt,
-                                         const ElementLink< MuonFeatureContainer> muFastOutput,
-                                         const ElementLink< TrigInDetTrackCollection> IdscanOutput): 
+                                         const ElementLink< MuonFeatureContainer>& muFastOutput,
+                                         const ElementLink< TrigInDetTrackCollection>& IdscanOutput): 
    P4PtEtaPhiMBase(),
    NavigableTerminalNode(),
    m_pt(fabs(ptsign)),
@@ -39,8 +39,8 @@ CombinedMuonFeature::CombinedMuonFeature(float ptsign, float sigma_pt,
 }
 
 CombinedMuonFeature::CombinedMuonFeature(float ptsign, float sigma_pt, int fs, int fe, int fm,
-                                         const ElementLink< MuonFeatureContainer> muFastOutput,
-                                         const ElementLink< TrigInDetTrackCollection> IdscanOutput): 
+                                         const ElementLink< MuonFeatureContainer>& muFastOutput,
+                                         const ElementLink< TrigInDetTrackCollection>& IdscanOutput): 
    P4PtEtaPhiMBase(),
    NavigableTerminalNode(),
    m_pt(fabs(ptsign)),
@@ -55,14 +55,28 @@ CombinedMuonFeature::CombinedMuonFeature(float ptsign, float sigma_pt, int fs, i
 }
 
 CombinedMuonFeature::CombinedMuonFeature(float pt, float sigma_pt, float q, int fs, int fe, int fm,
-                                         const ElementLink< MuonFeatureContainer> muFastOutput,
-                                         const ElementLink< TrigInDetTrackCollection> IdscanOutput):
+                                         const ElementLink< MuonFeatureContainer>& muFastOutput,
+                                         const ElementLink< TrigInDetTrackCollection>& IdscanOutput):
    P4PtEtaPhiMBase(),
    NavigableTerminalNode(),
    m_pt(pt),
    m_sigma_pt(sigma_pt),
    m_charge(q),
    m_flag(fs*10000+fe*100+fm),
+   m_muFastTrack(muFastOutput),
+   m_IDTrack(IdscanOutput)
+{}
+
+CombinedMuonFeature::CombinedMuonFeature(float pt, float sigma_pt, float q,
+                                         int flag,
+                                         const ElementLink< MuonFeatureContainer>& muFastOutput,
+                                         const ElementLink< TrigInDetTrackCollection>& IdscanOutput):
+   P4PtEtaPhiMBase(),
+   NavigableTerminalNode(),
+   m_pt(pt),
+   m_sigma_pt(sigma_pt),
+   m_charge(q),
+   m_flag(flag),
    m_muFastTrack(muFastOutput),
    m_IDTrack(IdscanOutput)
 {}

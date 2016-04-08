@@ -43,6 +43,10 @@ public:
 	void setExtrapolatedTrack( TrigMuonEFTrack* track );
 	void setCombinedTrack( TrigMuonEFCbTrack* track );
 
+        void setSpectrometerTrack( std::unique_ptr<TrigMuonEFTrack> track );
+        void setExtrapolatedTrack( std::unique_ptr<TrigMuonEFTrack> track );
+        void setCombinedTrack( std::unique_ptr<TrigMuonEFCbTrack> track );
+
 	TrigMuonEFTrack* SpectrometerTrack() const { return m_spectrometerTrack; }
 	TrigMuonEFTrack* ExtrapolatedTrack() const { return m_extrapolatedTrack; }
 	TrigMuonEFCbTrack* CombinedTrack()   const { return m_combinedTrack; }
@@ -52,9 +56,9 @@ public:
 		return m_muonType;
 	}
 
-	void setMuonType(unsigned short int m_muonType)
+	void setMuonType(unsigned short int muonType)
 	{
-		this->m_muonType = m_muonType;
+		this->m_muonType = muonType;
 	}
 
 private:

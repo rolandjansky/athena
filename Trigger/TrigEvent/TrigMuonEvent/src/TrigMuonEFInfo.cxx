@@ -27,6 +27,48 @@ Apr.2008: An AOD containing RoI index and track parameters for each
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 
+TrigMuonEFInfo::TrigMuonEFInfo( unsigned short int theRoI,
+                                std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks)
+  : m_roi (theRoI),
+    m_nSegments (0),
+    m_nMdtHits (0),
+    m_nRpcHits (0),
+    m_nTgcHits (0),
+    m_nCscHits (0),
+    m_etaPreviousLevel (0),
+    m_phiPreviousLevel (0),
+    m_trackContainer (tracks.release())
+{
+	// these objects have to be created to guard
+	// backward compatibilty for the TPCnv package.
+	// they are not stored.
+	m_spectrometerTrack = new TrigMuonEFTrack();
+	m_extrapolatedTrack = new TrigMuonEFTrack();
+	m_combinedTrack = new TrigMuonEFCbTrack();
+}
+
+
+TrigMuonEFInfo::TrigMuonEFInfo( unsigned short int theRoI,
+                                std::unique_ptr<TrigMuonEFInfoTrackContainer> tracks,
+                                std::unique_ptr<TrigMuonEFTrack> spectrometerTrack,
+                                std::unique_ptr<TrigMuonEFTrack> extrapolatedTrack,
+                                std::unique_ptr<TrigMuonEFCbTrack> combinedTrack)
+  : m_roi (theRoI),
+    m_nSegments (0),
+    m_nMdtHits (0),
+    m_nRpcHits (0),
+    m_nTgcHits (0),
+    m_nCscHits (0),
+    m_etaPreviousLevel (0),
+    m_phiPreviousLevel (0),
+    m_trackContainer (tracks.release()),
+    m_spectrometerTrack (spectrometerTrack.release()),
+    m_extrapolatedTrack (extrapolatedTrack.release()),
+    m_combinedTrack (combinedTrack.release())
+{
+}
+
+
 TrigMuonEFInfo::TrigMuonEFInfo( unsigned short int theRoI )
 {
 
@@ -141,6 +183,28 @@ TrigMuonEFInfo& TrigMuonEFInfo::operator=( const TrigMuonEFInfo& rhs )
 			delete m_combinedTrack;
 			m_combinedTrack = new TrigMuonEFCbTrack( *rhs.m_combinedTrack ); // legacy
 		}
+
+	}
+	return *this;
+}
+
+TrigMuonEFInfo& TrigMuonEFInfo::operator=( TrigMuonEFInfo&& rhs )
+{
+
+	if ( this != &rhs ) {
+		m_roi = rhs.m_roi;
+		m_nSegments = rhs.m_nSegments;
+		m_nMdtHits = rhs.m_nMdtHits;
+		m_nRpcHits = rhs.m_nRpcHits;
+		m_nTgcHits = rhs.m_nTgcHits;
+		m_nCscHits = rhs.m_nCscHits;
+		m_etaPreviousLevel = rhs.m_etaPreviousLevel;
+		m_phiPreviousLevel = rhs.m_phiPreviousLevel;
+
+                std::swap (m_trackContainer, rhs.m_trackContainer);
+                std::swap (m_spectrometerTrack, rhs.m_spectrometerTrack);
+                std::swap (m_extrapolatedTrack, rhs.m_extrapolatedTrack);
+                std::swap (m_combinedTrack, rhs.m_combinedTrack);
 
 	}
 	return *this;
@@ -351,27 +415,23 @@ std::string str ( const TrigMuonEFInfo& d ) {
 	if (d.hasTrack()) {
 
 		// find match in containerB
-		TrigMuonEFInfoTrackContainer::iterator TrkItr = d.TrackContainer()->begin();
+                for (const TrigMuonEFInfoTrack* dd : *d.TrackContainer()) {
+			if (dd) {
 
-		while ( TrkItr != d.TrackContainer()->end() ) {
-			if (*TrkItr) {
-			TrigMuonEFInfoTrack d = *(*TrkItr);
+			ss << "; muon type: " << dd->MuonType();
 
-			ss << "; muon type: " << d.MuonType();
+			if (dd->hasSpectrometerTrack())
+				ss << "; spectrometer track: " << dd->SpectrometerTrack()
+				<< " : " << *(dd->SpectrometerTrack());
 
-			if (d.hasSpectrometerTrack())
-				ss << "; spectrometer track: " << d.SpectrometerTrack()
-				<< " : " << *(d.SpectrometerTrack());
+			if (dd->hasExtrapolatedTrack())
+				ss << "; extrapolated track: " << dd->ExtrapolatedTrack()
+				<< " : " << *(dd->ExtrapolatedTrack());
 
-			if (d.hasExtrapolatedTrack())
-				ss << "; extrapolated track: " << d.ExtrapolatedTrack()
-				<< " : " << *(d.ExtrapolatedTrack());
-
-			if (d.hasCombinedTrack())
-				ss << "; combined track: " << d.CombinedTrack()
-				<< " : " << *(d.CombinedTrack());
+			if (dd->hasCombinedTrack())
+				ss << "; combined track: " << dd->CombinedTrack()
+				<< " : " << *(dd->CombinedTrack());
 			}
-			TrkItr++;
 		}
 	}
 	return ss.str();

@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEVENT_TRIGMUONEFISOLATION_H__
-#define TRIGMUONEVENT_TRIGMUONEFISOLATION_H__
+#ifndef TRIGMUONEVENT_TRIGMUONEFISOLATION_H
+#define TRIGMUONEVENT_TRIGMUONEFISOLATION_H
 /**
  * @class TrigMuonEFIsolation
  *
@@ -72,6 +72,7 @@ class TrigMuonEFIsolation {
 
   /// Access the muon info object we calculated the isolation for
   const TrigMuonEFInfo* getMuonInfo() const;
+  const ElementLink<TrigMuonEFInfoContainer>& getMuonInfoLink() const;
 
 
   /// set sum of track Pt in 0.2 cone

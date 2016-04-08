@@ -47,8 +47,8 @@ class TileTrackMuFeature :  public P4PtEtaPhiMBase,
   TileTrackMuFeature (
 	float PtTR_Trk,
  	float EtaTR_Trk, float PhiTR_Trk, int Typ_IDTrk,
-	const ElementLink< TileMuFeatureContainer> TileMuOutput, 
-	const ElementLink< TrigInDetTrackCollection> IDScanOutput);
+	const ElementLink< TileMuFeatureContainer>& TileMuOutput, 
+	const ElementLink< TrigInDetTrackCollection>& IDScanOutput);
 
   /** Destructor */
   ~TileTrackMuFeature();
@@ -71,8 +71,8 @@ class TileTrackMuFeature :  public P4PtEtaPhiMBase,
   const TileMuFeature*  TileMuOutput(void) const { return *m_TileMuOutput; }
   const TrigInDetTrack* IDScanOutput(void) const { return *m_IDScanOutput; }
 
-  const ElementLink<TileMuFeatureContainer>   TileMuLink(void) const { return m_TileMuOutput; }
-  const ElementLink<TrigInDetTrackCollection> IDScanLink(void) const { return m_IDScanOutput; }
+  const ElementLink<TileMuFeatureContainer>&   TileMuLink(void) const { return m_TileMuOutput; }
+  const ElementLink<TrigInDetTrackCollection>& IDScanLink(void) const { return m_IDScanOutput; }
 
   double pt(void)  const { return m_IDScanOutput ? (*m_IDScanOutput)->param()->pT():-9999.9; }
   double eta(void) const { return m_IDScanOutput ? (*m_IDScanOutput)->param()->eta():-9999.9; }

@@ -67,20 +67,35 @@ TrigMuonEFInfoTrack::~TrigMuonEFInfoTrack()
 
 void TrigMuonEFInfoTrack::setSpectrometerTrack( TrigMuonEFTrack* track )
 {
-	(*m_spectrometerTrack) = (*track);
-	return;
+  *m_spectrometerTrack = *track;
 }
 
 void TrigMuonEFInfoTrack::setExtrapolatedTrack( TrigMuonEFTrack* track )
 {
-	(*m_extrapolatedTrack) = (*track);
-	return;
+  *m_extrapolatedTrack = *track;
 }
 
 void TrigMuonEFInfoTrack::setCombinedTrack( TrigMuonEFCbTrack* track )
 {
-	(*m_combinedTrack) = (*track);
-	return;
+  *m_combinedTrack = *track;
+}
+
+void TrigMuonEFInfoTrack::setSpectrometerTrack( std::unique_ptr<TrigMuonEFTrack> track )
+{
+  delete m_spectrometerTrack;
+  m_spectrometerTrack = track.release();
+}
+
+void TrigMuonEFInfoTrack::setExtrapolatedTrack( std::unique_ptr<TrigMuonEFTrack> track )
+{
+  delete m_extrapolatedTrack;
+  m_extrapolatedTrack = track.release();
+}
+
+void TrigMuonEFInfoTrack::setCombinedTrack( std::unique_ptr<TrigMuonEFCbTrack> track )
+{
+  delete m_combinedTrack;
+  m_combinedTrack = track.release();
 }
 
 bool TrigMuonEFInfoTrack::hasSpectrometerTrack() const {
