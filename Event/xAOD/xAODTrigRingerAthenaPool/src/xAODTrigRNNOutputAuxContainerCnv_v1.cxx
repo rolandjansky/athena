@@ -44,7 +44,8 @@ persToTrans( const xAOD::TrigRNNOutputAuxContainer_v1* oldObj,
    ATH_MSG( "Converting xAOD::TrigRNNOutputAuxContainer_v1 to current version..." );
 
    // Clear the transient object:
-   newObj->resize( 0 );
+   newObj->resize(0);
+   SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
 
    // Set up an interface container on top of the old object:
    xAOD::TrigRNNOutputContainer_v1 oldInt;
@@ -61,7 +62,7 @@ persToTrans( const xAOD::TrigRNNOutputAuxContainer_v1* oldObj,
    newInt.setStore( newObj );
 
    // Convert the objects one by one:
-   for( size_t i = 0; i < newObj->size(); ++i ) {
+   for( size_t i = 0; i < oldInt.size(); ++i ) {
       newInt[ i ]->setRnnDecision( oldInt[ i ]->decision() );
    }
 
