@@ -265,30 +265,21 @@ StatusCode ALFA_PileUpTool::prepareEvent(const unsigned int nInputEvents){
 }
 
 
-
-
 StatusCode ALFA_PileUpTool::processBunchXing(int bunchXing,
-					    PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-					    PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-  
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents) {
   ATH_MSG_DEBUG ( "ALFA_PileUpTool::processBunchXing() " << bunchXing );
+  SubEventIterator iEvt = bSubEvents;
+  for (; iEvt!=eSubEvents; iEvt++) {
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+    //PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()); not used 
+    ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+                    << " bunch crossing : " << bunchXing
+                    << " time offset : " << iEvt->time()
+                    << " event number : " << iEvt->ptr()->eventNumber()
+                    << " run number : " << iEvt->ptr()->runNumber()
+                    );
   
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
- 
-  for (; iEvt!=eSubEvents; ++iEvt) {
-    
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    const EventInfo* pEI = 0;
-   
-    if (seStore.retrieve(pEI).isSuccess()) {
-      
-      ATH_MSG_VERBOSE ( "ALFA_PileUpTool::processBunchXing(): SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-			<< " bunch crossing : " << bunchXing
-			<< " time offset : "    << iEvt->time()
-			<< " event number : "   << pEI->event_ID()->event_number()
-			<< " run number : "     << pEI->event_ID()->run_number()
-			);
-    }
     
     const ALFA_HitCollection* tmpHitColl = 0;
    
