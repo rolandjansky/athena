@@ -42,8 +42,7 @@
 AssociationBaseTool::AssociationBaseTool( const std::string& type, 
                                           const std::string& name,
                                           const IInterface* parent ) :
-  AthAlgTool( type, name, parent ),
-  m_inputIsLinkColl(false)
+  AthAlgTool( type, name, parent )
 {
   // declare interface
   declareInterface<IAssociationTool>( this );
