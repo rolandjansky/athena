@@ -8,7 +8,7 @@ import math
 import ProviderHistoHelpers
 
 # Dictionary to translate from Bogan's names to provider names
-useJetCollections = {"AntiKt4EMTopo": "AntiKt4Topo_EMJES", "AntiKt4LCTopo": "AntiKt4Topo_LCJES"}
+useJetCollections = {"AntiKt4EMTopo": "AntiKt4Topo_EMJES"}
 
 haveUpdatedVersions = ["FlavorResponse",
   "flavorCompGlu",

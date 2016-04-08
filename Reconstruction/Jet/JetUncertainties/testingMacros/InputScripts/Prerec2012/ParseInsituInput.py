@@ -30,10 +30,7 @@ SystematicNameDictionary = {
                             'gammajetstat11'        : 'Gjet_Stat11',
                             'gammajetstat12'        : 'Gjet_Stat12',
                             'gammajetstat13'        : 'Gjet_Stat13',
-                            'gammajetstat14'        : 'Gjet_Stat14',
-                            'gammajetstat15'        : 'Gjet_Stat15',
                             'gammajetsubleadingjet' : 'Gjet_Veto',
-                            'gammajetjvt'	    : 'Gjet_Jvt',
                             'mjbalpha'              : 'MJB_Alpha',
                             'mjbbeta'               : 'MJB_Beta',
                             'mjbmodelling'          : 'MJB_Fragmentation',
@@ -72,10 +69,7 @@ SystematicNameDictionary = {
                             'zjetstat9'             : 'Zjet_Stat9',
                             'zjetstat10'            : 'Zjet_Stat10',
                             'zjetstat11'            : 'Zjet_Stat11',
-                            'zjetstat12'            : 'Zjet_Stat12',
-                            'zjetstat13'            : 'Zjet_Stat13',
-                            'zjetsubleadingjet'     : 'Zjet_Veto',
-                            'zjetjvt'		    : 'Zjet_Jvt',
+                            'zjetsubleadingjet'     : 'Zjet_Veto'
                            }
 
 jetDefDict =    {
@@ -144,20 +138,17 @@ def ReadInSituHistograms(dirName):
             for iBin in xrange(1,histo1D.GetNbinsX()+1):
                 histo1D.SetBinContent(iBin,systValues[iBin-1])
 
-            # Convert to a 2D provider-stlye histo -- WHY WOULD WE DO THAT
-            # STOP DOING THAT IT BREAKS THINGS
-#            histo = ProviderHistoHelpers.ConvertPtHistoToProviderHisto(histo1D,histoName)
-#            histo.SetDirectory(0)
-#            print "Histo is type",type(histo),"whereas input was",histo1D
-#            histos[jetDef][systematicName] = histo
-            histos[jetDef][systematicName] = histo1D
+            # Convert to a 2D provider-stlye histo
+            histo = ProviderHistoHelpers.ConvertPtHistoToProviderHisto(histo1D,histoName)
+            histo.SetDirectory(0)
+            histos[jetDef][systematicName] = histo
 
         # EM has 10 stat parameters, LC has 11
         # So for EM algorithms, make an empty histo for stat 11
-#        if "EM" in jetDef:
-#            systematicName = SystematicNameDictionary['mjbstat11']
-#            histos[jetDef][systematicName] = ProviderHistoHelpers.MakeProviderHisto(systematicName+"_"+jetDef)
-#            histos[jetDef][systematicName].SetDirectory(0)
+        if "EM" in jetDef:
+            systematicName = SystematicNameDictionary['mjbstat11']
+            histos[jetDef][systematicName] = ProviderHistoHelpers.MakeProviderHisto(systematicName+"_"+jetDef)
+            histos[jetDef][systematicName].SetDirectory(0)
 
 
     # Done, return dictionary of histos

@@ -18,17 +18,21 @@ class PunchthroughUncertaintyComponent : public UncertaintyComponent
         PunchthroughUncertaintyComponent(const PunchthroughUncertaintyComponent& toCopy);
         virtual PunchthroughUncertaintyComponent* clone() const;
         virtual ~PunchthroughUncertaintyComponent() {}
+        
+        using UncertaintyComponent::getValidity;
+        using UncertaintyComponent::getUncertainty;
+        using UncertaintyComponent::getValidUncertainty;
 
     protected:
-
-        // Uncertainty/validity retrieval helper methods
-        virtual bool   getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const;
-        virtual double getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        // Uncertainty retrieval helper methods (implementations)
+        virtual bool   getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual double getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual bool   getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
 
     private:
         PunchthroughUncertaintyComponent(const std::string& name = "");
         const bool m_absEta;
-        int getNumSegments(const xAOD::Jet& jet) const;
+        SG::AuxElement::Accessor<int> m_NSegmentAccessor;
 };
 
 } // end jet namespace

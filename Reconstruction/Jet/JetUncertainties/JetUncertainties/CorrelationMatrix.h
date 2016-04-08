@@ -42,7 +42,6 @@ class CorrelationMatrix : public asg::AsgMessaging
         virtual TString getName()   const { return m_name; }
         virtual TH2D*   getMatrix() const { return m_corrMat; }
 
-
     private:
         CorrelationMatrix(const std::string& name = "");
         

@@ -18,12 +18,16 @@ class PtUncertaintyComponent : public UncertaintyComponent
         PtUncertaintyComponent(const PtUncertaintyComponent& toCopy);
         virtual PtUncertaintyComponent* clone() const;
         virtual ~PtUncertaintyComponent() {}
+    
+        using UncertaintyComponent::getValidity;
+        using UncertaintyComponent::getUncertainty;
+        using UncertaintyComponent::getValidUncertainty;
 
     protected:
-
-        // Uncertainty/validity retrieval helper methods
-        virtual bool   getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const;
-        virtual double getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        // Uncertainty retrieval helper methods (implementations)
+        virtual bool   getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual double getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual bool   getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
 
     private:
         PtUncertaintyComponent(const std::string& name = "");

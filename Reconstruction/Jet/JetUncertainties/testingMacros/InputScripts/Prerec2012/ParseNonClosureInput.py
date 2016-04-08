@@ -20,15 +20,12 @@ jetDefDict =    {
                 }
 
 def ReadNonClosureHistograms(dirName,freezepT=False):
-    if dirName.endswith(".root") :
-      files = [dirName]
-
-    elif not dirName.endswith("/") :
-      dirName = dirName + "/"
-      files = sorted(glob.glob(dirName+"*.root"))
-   
+    if not dirName.endswith("/"):
+        dirName = dirName + "/"
+    
     # Run over each file (one per jet definition)
     histos = {}
+    files = sorted(glob.glob(dirName+"*.root"))
     for aFileName in files:
         # Determine the jet definition
         jetDef = ""

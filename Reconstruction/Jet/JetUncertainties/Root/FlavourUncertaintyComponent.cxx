@@ -12,6 +12,9 @@
 namespace jet
 {
 
+const size_t FlavourUncertaintyComponent::BASELINE_RESPONSE_GLUON = 0;
+const size_t FlavourUncertaintyComponent::BASELINE_RESPONSE_QUARK = 1;
+
 //////////////////////////////////////////////////
 //                                              //
 //  Constructor/destructor/initialization       //
@@ -19,15 +22,11 @@ namespace jet
 //////////////////////////////////////////////////
 
 FlavourUncertaintyComponent::FlavourUncertaintyComponent(const std::string& name)
-    : UncertaintyComponent(ComponentHelper(name),0)
+    : UncertaintyComponent(ComponentHelper(name))
     , m_flavourType(FlavourComp::UNKNOWN)
     , m_jetType("")
     , m_analysisFileName("")
     , m_absEta(false)
-    , m_secondUncName("")
-    , m_secondUncHist(NULL)
-    , m_respType(FlavourResp_UNKNOWN)
-    , m_secondRespType(FlavourResp_UNKNOWN)
     , m_BjetAccessor("IsBjet")
     , m_NjetAccessor("Njet")
     , m_gluonFractionHists()
@@ -41,26 +40,22 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
                                                             const TString analysisRootFileName,
                                                             const TString path
                                                             )
-    : UncertaintyComponent(component,component.flavourType == FlavourComp::Composition ? 2 : 1)
+    : UncertaintyComponent(component)
     , m_flavourType(component.flavourType)
     , m_jetType(jetType)
     , m_analysisFileName(analysisRootFileName)
     , m_path(path)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
-    , m_secondUncName(component.uncNames.size()>1 ? component.uncNames.at(1) : "")
-    , m_secondUncHist(NULL)
-    , m_respType(FlavourResp_UNKNOWN)
-    , m_secondRespType(FlavourResp_UNKNOWN)
     , m_BjetAccessor("IsBjet")
     , m_NjetAccessor("Njet")
     , m_gluonFractionHists()
     , m_gluonFractionErrorHists()
 {
-    ATH_MSG_DEBUG("Created FlavourUncertaintyComponent named" << m_uncHistName.Data());
+    ATH_MSG_DEBUG("Created FlavourUncertaintyComponent named" << m_name.Data());
     
     // Ensure that the flavour type and ref values are sensible
     if (m_flavourType == FlavourComp::UNKNOWN)
-        ATH_MSG_FATAL("Flavour type is UNKNOWN: " << m_uncHistName.Data());
+        ATH_MSG_FATAL("Flavour type is UNKNOWN: " << m_name.Data());
 }
 
 FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy)
@@ -70,27 +65,18 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaint
     , m_analysisFileName(toCopy.m_analysisFileName)
     , m_path(toCopy.m_path)
     , m_absEta(toCopy.m_absEta)
-    , m_secondUncName(toCopy.m_secondUncName)
-    , m_secondUncHist(NULL)
-    , m_respType(toCopy.m_respType)
-    , m_secondRespType(toCopy.m_secondRespType)
     , m_BjetAccessor(toCopy.m_BjetAccessor)
     , m_NjetAccessor(toCopy.m_NjetAccessor)
     , m_gluonFractionHists()
     , m_gluonFractionErrorHists()
 {
-    ATH_MSG_DEBUG(Form("Creating copy of FlavourUncertaintyComponent named %s",m_uncHistName.Data()));
+    ATH_MSG_DEBUG(Form("Creating copy of FlavourUncertaintyComponent named %s",m_name.Data()));
     
-    if (toCopy.m_secondUncHist)
-        m_secondUncHist = new UncertaintyHistogram(*toCopy.m_secondUncHist);
-
     for (size_t iHist = 0; iHist < toCopy.m_gluonFractionHists.size(); ++iHist)
-        if (toCopy.m_gluonFractionHists.at(iHist))
-            m_gluonFractionHists.push_back(new UncertaintyHistogram(*toCopy.m_gluonFractionHists.at(iHist)));
+        m_gluonFractionHists.push_back(new UncertaintyHistogram(*toCopy.m_gluonFractionHists.at(iHist)));
 
     for (size_t iHist = 0; iHist < toCopy.m_gluonFractionErrorHists.size(); ++iHist)
-        if (toCopy.m_gluonFractionErrorHists.at(iHist))
-            m_gluonFractionErrorHists.push_back(new UncertaintyHistogram(*toCopy.m_gluonFractionErrorHists.at(iHist)));
+        m_gluonFractionErrorHists.push_back(new UncertaintyHistogram(*toCopy.m_gluonFractionErrorHists.at(iHist)));
 }
 
 FlavourUncertaintyComponent* FlavourUncertaintyComponent::clone() const
@@ -100,8 +86,6 @@ FlavourUncertaintyComponent* FlavourUncertaintyComponent::clone() const
 
 FlavourUncertaintyComponent::~FlavourUncertaintyComponent()
 {
-    JESUNC_SAFE_DELETE(m_secondUncHist);
-
     for (size_t iHisto = 0; iHisto < m_gluonFractionHists.size(); ++iHisto)
     {
         JESUNC_SAFE_DELETE(m_gluonFractionHists.at(iHisto));
@@ -111,61 +95,57 @@ FlavourUncertaintyComponent::~FlavourUncertaintyComponent()
     m_gluonFractionErrorHists.clear();
 }
 
-StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
+StatusCode FlavourUncertaintyComponent::initialize(const std::vector<TString>& histNames, TFile* histFile)
+{
+    std::vector<TString> validHistNames;
+    return initialize(histNames,validHistNames,histFile);
+}
+
+StatusCode FlavourUncertaintyComponent::initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
 {
     // Call the base class first
-    if (UncertaintyComponent::initialize(histFile).isFailure())
+    if (UncertaintyComponent::initialize(histNames,validHistNames,histFile).isFailure())
         return StatusCode::FAILURE;
     
     // Ensure that the number of histograms matches what is expected for Flavour components
-    if (m_flavourType == FlavourComp::Response && m_secondUncName != "")
+    if (m_flavourType == FlavourComp::Response && m_histos.size() != 1)
     {
-        ATH_MSG_ERROR("Expected one histogram for FlavourResponse: " << getName().Data());
+        ATH_MSG_ERROR("Expected one histogram for FlavourResponse: " << m_name.Data());
         return StatusCode::FAILURE;
     }
-    else if (m_flavourType == FlavourComp::Composition && m_secondUncName == "")
+    else if (m_flavourType == FlavourComp::Composition && m_histos.size() != 2)
     {
-        ATH_MSG_ERROR("Expected two histograms for FlavourComposition: " << getName().Data());
+        ATH_MSG_ERROR("Expected two histograms for FlavourComposition: " << m_name.Data());
         return StatusCode::FAILURE;
     }
-    else if (m_flavourType == FlavourComp::bJES && m_secondUncName != "")
+    else if (m_flavourType == FlavourComp::bJES && m_histos.size() != 1)
     {
-        ATH_MSG_ERROR("Expected one histogram for bJES uncertainty: " << getName().Data());
+        ATH_MSG_ERROR("Expected one histogram for bJES uncertainty: " << m_name.Data());
         return StatusCode::FAILURE;
     }
 
-    // Get the flavour response types if applicable
+    // If this is the flavour composition, make sure the histograms are in the expected order (gluon, then quark)
     if (m_flavourType == FlavourComp::Composition)
     {
-        if      ( m_uncHistName.Contains("glu",TString::kIgnoreCase) && (m_secondUncName.Contains("light",TString::kIgnoreCase) || m_secondUncName.Contains("quark",TString::kIgnoreCase)) )
+        const TString name1 = m_histos.at(BASELINE_RESPONSE_GLUON)->getName();
+        const TString name2 = m_histos.at(BASELINE_RESPONSE_QUARK)->getName();
+        if ( name1.Contains("glu",TString::kIgnoreCase) && (name2.Contains("light",TString::kIgnoreCase) || name2.Contains("quark",TString::kIgnoreCase)) )
         {
-            m_respType = FlavourResp_GLUON;
-            m_secondRespType = FlavourResp_QUARK;
+            // Nothing to do - correct order
         }
-        else if ( (m_uncHistName.Contains("light",TString::kIgnoreCase) || m_uncHistName.Contains("quark",TString::kIgnoreCase)) && m_secondUncName.Contains("glu",TString::kIgnoreCase) )
+        else if ( (name1.Contains("light",TString::kIgnoreCase) || name1.Contains("quark",TString::kIgnoreCase)) && name2.Contains("glu",TString::kIgnoreCase) )
         {
-            m_respType = FlavourResp_QUARK;
-            m_secondRespType = FlavourResp_GLUON;
+            // Switch the order
+            UncertaintyHistogram* temp = m_histos[BASELINE_RESPONSE_GLUON];
+            m_histos[BASELINE_RESPONSE_GLUON] = m_histos[BASELINE_RESPONSE_QUARK];
+            m_histos[BASELINE_RESPONSE_QUARK] = temp;
         }
         else
         {
             // Unexpected inputs
-            ATH_MSG_ERROR("Component is FlavourComposition, but histogram names are unexpected (need to discriminate gluon vs quark response histograms): "  << m_uncHistName.Data() << " and " << m_secondUncName.Data());
+            ATH_MSG_ERROR("Component is FlavourComposition, but histogram names are unexpected (need to discriminate gluon vs quark response histograms): "  << name1.Data() << " and " << name2.Data());
             return StatusCode::FAILURE;
         }
-
-    }
-
-    // Create the second histogram if applicable
-    if (m_flavourType == FlavourComp::Composition)
-    {
-        m_secondUncHist = new UncertaintyHistogram(m_secondUncName,m_interpolate);
-        if (!m_secondUncHist)
-        {
-            ATH_MSG_ERROR("Failed to create second uncertainty histogram for component: " << getName().Data());
-            return StatusCode::FAILURE;
-        }
-        if (m_secondUncHist->initialize(histFile).isFailure()) return StatusCode::FAILURE;
     }
 
     // Now read the analysis input histograms if this is not a bJES component
@@ -219,8 +199,8 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
         // If there is only one histogram and it's not an nJets histogram, this is trivial
         if (nJetsMax < 0 && gluonFractionKeys.size() == 1 && gluonFractionErrorKeys.size() == 1)
         {
-            m_gluonFractionHists.push_back(new UncertaintyHistogram(gluonFractionKeys.at(0),m_interpolate));
-            m_gluonFractionErrorHists.push_back(new UncertaintyHistogram(gluonFractionErrorKeys.at(0),m_interpolate));
+            m_gluonFractionHists.push_back(new UncertaintyHistogram(gluonFractionKeys.at(0),"",m_interpolate));
+            m_gluonFractionErrorHists.push_back(new UncertaintyHistogram(gluonFractionErrorKeys.at(0),"",m_interpolate));
         }
         // If there is more than one histogram and they are not nJets histograms, this is a problem
         else if (nJetsMax < 0 && gluonFractionKeys.size() > 1)
@@ -282,30 +262,31 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
 //                                              //
 //////////////////////////////////////////////////
 
-bool FlavourUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
+bool FlavourUncertaintyComponent::getValidity(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    // Currently only one validity histogram exists
-    // Might need to expand in the future
-    
-    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()));
+    // Valid only if all histogram(s) are valid
+    // Histograms to consider varies by flavour type
+    // Start with the standard histograms
+    for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+        if (!m_histos.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()))
+            return false;
 
-//    // Valid only if all histogram(s) are valid
-//    // Histograms to consider varies by flavour type
-//    // Start with the standard histograms
-//    for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
-//        if (!m_histos.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()))
-//            return false;
-//
-//    // Now do analysis histograms
-//    for (size_t iHisto = 0; iHisto < m_gluonFractionHists.size(); ++iHisto)
-//        if (!m_gluonFractionHists.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()) || 
-//            !m_gluonFractionErrorHists.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()) )
-//            return false;
-//    
-//    return true;
+    // Now do analysis histograms
+    for (size_t iHisto = 0; iHisto < m_gluonFractionHists.size(); ++iHisto)
+        if (!m_gluonFractionHists.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()) || 
+            !m_gluonFractionErrorHists.at(iHisto)->getValidity(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta()) )
+            return false;
+    
+    return true;
 }
 
-double FlavourUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
+bool FlavourUncertaintyComponent::getValidity(const UncertaintyHistogram*, const xAOD::Jet&, const xAOD::EventInfo&) const
+{
+    ATH_MSG_ERROR("Blocked - this method doesn't make sense for complicated flavour uncertainties like " << m_name.Data());
+    return false;
+}
+
+double FlavourUncertaintyComponent::getUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
     double unc = JESUNC_ERROR_CODE;
     if (m_flavourType == FlavourComp::Response)
@@ -316,11 +297,31 @@ double FlavourUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, con
         unc = getBJESUncertainty(jet,eInfo);
     else
     {
-        ATH_MSG_ERROR("Unknown flavour type for " << getName().Data());
+        ATH_MSG_ERROR("Unknown flavour type for " << m_name.Data());
         return unc;
     }
     
-    return unc;
+    return m_splitNumber == 0 ? unc : unc*getSplitFactor(m_histos.at(0),jet);
+}
+
+double FlavourUncertaintyComponent::getUncertainty(const UncertaintyHistogram*, const xAOD::Jet&, const xAOD::EventInfo&) const
+{
+    ATH_MSG_ERROR("Blocked - this method doesn't make sense for complicated flavour uncertainties like " << m_name.Data());
+    return JESUNC_ERROR_CODE;
+}
+
+bool FlavourUncertaintyComponent::getValidUncertainty(double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
+{
+    const bool isValid = getValidity(jet,eInfo);
+    if (isValid)
+        unc = getUncertainty(jet,eInfo);
+    return isValid;
+}
+
+bool FlavourUncertaintyComponent::getValidUncertainty(const UncertaintyHistogram*, double&, const xAOD::Jet&, const xAOD::EventInfo&) const
+{
+    ATH_MSG_ERROR("Blocked - this method doesn't make sense for complicated flavour uncertainties like " << m_name.Data());
+    return false;
 }
 
 double FlavourUncertaintyComponent::getFlavourResponseUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
@@ -423,7 +424,7 @@ double FlavourUncertaintyComponent::getBJESUncertainty(const xAOD::Jet& jet, con
     // Ensure this is a b-jet
     if (!isBjet(jet))
         return 0;
-    return m_uncHist->getValue(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
+    return m_histos.at(0)->getUncertainty(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 
@@ -435,53 +436,42 @@ double FlavourUncertaintyComponent::getBJESUncertainty(const xAOD::Jet& jet, con
 
 double FlavourUncertaintyComponent::getGluonFraction(const double pT, const double eta, const int nJets) const
 {
-    return m_gluonFractionHists.at(nJets)->getValue(pT,fabs(eta));
+    return m_gluonFractionHists.at(nJets)->getUncertainty(pT,fabs(eta));
 }
 
 double FlavourUncertaintyComponent::getGluonFractionError(const double pT, const double eta, const int nJets) const
 {
-    return m_gluonFractionErrorHists.at(nJets)->getValue(pT,fabs(eta));
+    return m_gluonFractionErrorHists.at(nJets)->getUncertainty(pT,fabs(eta));
 }
 
 double FlavourUncertaintyComponent::getGluonResponseDifference(const double pT, const double eta) const
 {
     if (m_flavourType != FlavourComp::Response)
     {
-        ATH_MSG_ERROR("This method is only useable for FlavourResponse uncertainties, not " << getName().Data());
+        ATH_MSG_ERROR("This method is only useable for FlavourResponse uncertainties, not " << m_name.Data());
         return JESUNC_ERROR_CODE;
     }
-    return m_uncHist->getValue(pT,eta);
+    return m_histos.at(0)->getUncertainty(pT,eta);
 }
 
 double FlavourUncertaintyComponent::getGluonResponseBaseline(const double pT, const double eta) const
 {
     if (m_flavourType != FlavourComp::Composition)
     {
-        ATH_MSG_ERROR("This method is only useable for FlavourComposition uncertainties, not " << getName().Data());
+        ATH_MSG_ERROR("This method is only useable for FlavourComposition uncertainties, not " << m_name.Data());
         return JESUNC_ERROR_CODE;
     }
-
-    if (m_respType == FlavourResp_GLUON)
-        return m_uncHist->getValue(pT,eta);
-    else if (m_secondRespType == FlavourResp_GLUON)
-        return m_secondUncHist->getValue(pT,eta);
-    ATH_MSG_ERROR("Unexpected flavour response parametrization: " << getName().Data());
-    return JESUNC_ERROR_CODE;
+    return m_histos.at(BASELINE_RESPONSE_GLUON)->getUncertainty(pT,eta);
 }
 
 double FlavourUncertaintyComponent::getQuarkResponseBaseline(const double pT, const double eta) const
 {
     if (m_flavourType != FlavourComp::Composition)
     {
-        ATH_MSG_ERROR("This method is only useable for FlavourComposition uncertainties, not " << getName().Data());
+        ATH_MSG_ERROR("This method is only useable for FlavourComposition uncertainties, not " << m_name.Data());
         return JESUNC_ERROR_CODE;
     }
-    if (m_respType == FlavourResp_QUARK)
-        return m_uncHist->getValue(pT,eta);
-    else if (m_secondRespType == FlavourResp_QUARK)
-        return m_secondUncHist->getValue(pT,eta);
-    ATH_MSG_ERROR("Unexpected flavour response parametrization: " << getName().Data());
-    return JESUNC_ERROR_CODE;
+    return m_histos.at(BASELINE_RESPONSE_QUARK)->getUncertainty(pT,eta);
 }
 
 
@@ -509,7 +499,7 @@ StatusCode FlavourUncertaintyComponent::readNjetsHistograms(std::vector<Uncertai
             ATH_MSG_ERROR(Form("A histo for nJets of %d was already found, blocking double-creation of %s",nJets,histName.Data()));
             return StatusCode::FAILURE;
         }
-        hists[nJets] = new UncertaintyHistogram(histName,m_interpolate);
+        hists[nJets] = new UncertaintyHistogram(histName,"",m_interpolate);
     }
     return StatusCode::SUCCESS;
 }
@@ -547,7 +537,7 @@ StatusCode FlavourUncertaintyComponent::checkNjetsInput(int& nJets) const
     // Watch for missing histograms (users don't need to specify every nJet bin if they don't use them)
     if (!m_gluonFractionHists.at(nJets))
     {
-        ATH_MSG_ERROR(Form("nJets of %d is NULL for %s",nJets,getName().Data()));
+        ATH_MSG_ERROR(Form("nJets of %d is NULL for %s",nJets,m_name.Data()));
         return StatusCode::FAILURE;
     }
 
@@ -556,11 +546,16 @@ StatusCode FlavourUncertaintyComponent::checkNjetsInput(int& nJets) const
 
 bool FlavourUncertaintyComponent::isBjet(const xAOD::Jet& jet) const
 {
+    //bool isBjet = false;
+    //if (!jet.getAttribute<bool>("IsBjet",isBjet) || !isBjet)
+    //    return false;
+    //return true;
+
     // If not specified, assume it's not a b-jet
     if (!m_BjetAccessor.isAvailable(jet)) return false;
 
-    // If it's available, return the value (now a char, so check non-equality with 0)
-    return m_BjetAccessor(jet) != 0;
+    // If it's available, return the value
+    return m_BjetAccessor(jet);
 }
 
 } // end jet namespace

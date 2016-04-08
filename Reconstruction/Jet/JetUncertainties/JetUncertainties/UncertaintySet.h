@@ -5,7 +5,7 @@
 #ifndef JETUNCERTAINTIES_UNCERTAINTYSET_H
 #define JETUNCERTAINTIES_UNCERTAINTYSET_H
 
-#include "JetUncertainties/UncertaintyGroup.h"
+#include "JetUncertainties/UncertaintyComponent.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -28,7 +28,7 @@ class UncertaintySet : virtual public asg::AsgMessaging
         // Constructor/destructor/initialization
         UncertaintySet(const std::string& name = "");
         virtual ~UncertaintySet();
-        virtual StatusCode initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyGroup*>& groups);
+        virtual StatusCode initialize(const CP::SystematicSet& systConfig, const std::vector<UncertaintyComponent*>& components);
         
         virtual std::string getName() const;
         
@@ -48,12 +48,8 @@ class UncertaintySet : virtual public asg::AsgMessaging
         // Private members
         const std::string m_name;
         bool m_isInit;
-        std::vector<UncertaintyGroup*> m_groups;
+        std::vector<UncertaintyComponent*> m_comps;
         std::vector<float> m_shiftWeights;
-
-
-        // Helper methods
-        CompScaleVar::TypeEnum getSingleVar() const;
 
 };
 

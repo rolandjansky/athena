@@ -10,16 +10,15 @@
 namespace jet
 {
 
-bool operator <  (const UncertaintyComponent& componentA, const UncertaintyComponent& componentB)
+bool operator <  (const UncertaintyComponent& compA, const UncertaintyComponent& compB)
 {
-    return componentA.getName() < componentB.getName();
+    return compA.getName() < compB.getName();
 }
 
-bool operator == (const UncertaintyComponent& componentA, const UncertaintyComponent& componentB)
+bool operator == (const UncertaintyComponent& compA, const UncertaintyComponent& compB)
 {
-    return componentA.getName() == componentB.getName();
+    return compA.getName() == compB.getName();
 }
-
 
 //////////////////////////////////////////////////
 //                                              //
@@ -30,98 +29,135 @@ bool operator == (const UncertaintyComponent& componentA, const UncertaintyCompo
 UncertaintyComponent::UncertaintyComponent(const std::string& name)
     : asg::AsgMessaging(name)
     , m_isInit(false)
-    , m_uncHistName("")
-    , m_validHistName("")
+    , m_name(name.c_str())
+    , m_desc("")
+    , m_category(CompCategory::UNKNOWN)
+    , m_corrType(CompCorrelation::UNKNOWN)
     , m_scaleVar(CompScaleVar::UNKNOWN)
     , m_energyScale(1)
     , m_interpolate(true)
+    , m_groupNum(-1)
     , m_splitNumber(0)
-    , m_uncHist(NULL)
-    , m_validHist(NULL)
+    , m_histos()
+    , m_isReducible(false)
 {
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
 
-UncertaintyComponent::UncertaintyComponent(const ComponentHelper& component, const size_t numHist)
+UncertaintyComponent::UncertaintyComponent(const ComponentHelper& component)
     : asg::AsgMessaging(component.name.Data())
     , m_isInit(false)
-    , m_uncHistName(component.uncNames.size()!=0?component.uncNames.at(0):"NONE")
-    , m_validHistName(component.validName)
+    , m_name(component.name)
+    , m_desc(component.desc)
+    , m_category(component.category)
+    , m_corrType(component.correlation)
     , m_scaleVar(component.scaleVar)
     , m_energyScale(component.energyScale)
     , m_interpolate(component.interpolate)
+    , m_groupNum(component.group)
     , m_splitNumber(component.splitNum)
-    , m_uncHist(NULL)
-    , m_validHist(NULL)
+    , m_histos()
+    , m_isReducible(component.reducible)
 {
-    ATH_MSG_DEBUG("Creating UncertaintyComponent named " << m_uncHistName.Data());
-    if (m_uncHistName == "")
-        ATH_MSG_FATAL("Cannot create an UncertaintyComponent with an empty uncHistName");
+    ATH_MSG_DEBUG(Form("Creating UncertaintyComponent named %s",m_name.Data()));
+    if (m_category == CompCategory::UNKNOWN)
+        ATH_MSG_FATAL("UNKNOWN category for UncertaintyComponent named " << m_name.Data());
+    // Acceptible to not exist if it's only one component, check during initialize()
+    //if (m_corrType == CompCorrelation::UNKNOWN)
+    //    ATH_MSG_FATAL(Form("UNKNOWN correlation for UncertaintyComponent named %s",m_name.Data()));
     if (m_scaleVar == CompScaleVar::UNKNOWN)
-        ATH_MSG_FATAL("Cannot create an UncertaintyComponent scaling an UNKNOWN variable");
-    if (numHist != component.uncNames.size())
-        ATH_MSG_FATAL("Expected " << numHist << " uncertainty histograms, but received " << component.uncNames.size() << " : " << m_uncHistName.Data());
+        ATH_MSG_FATAL("UNKNOWN scale variable for UncertaintyComponent named " << m_name.Data());
 }
 
 UncertaintyComponent::UncertaintyComponent(const UncertaintyComponent& toCopy)
-    : asg::AsgMessaging(Form("%s_copy",toCopy.m_uncHistName.Data()))
+    : asg::AsgMessaging(Form("%s_copy",toCopy.m_name.Data()))
     , m_isInit(toCopy.m_isInit)
-    , m_uncHistName(toCopy.m_uncHistName)
-    , m_validHistName(toCopy.m_validHistName)
+    , m_name(toCopy.m_name)
+    , m_desc(toCopy.m_desc)
+    , m_category(toCopy.m_category)
+    , m_corrType(toCopy.m_corrType)
     , m_scaleVar(toCopy.m_scaleVar)
     , m_energyScale(toCopy.m_energyScale)
     , m_interpolate(toCopy.m_interpolate)
+    , m_groupNum(toCopy.m_groupNum)
     , m_splitNumber(toCopy.m_splitNumber)
-    , m_uncHist(NULL)
-    , m_validHist(NULL)
+    , m_histos()
+    , m_isReducible(toCopy.m_isReducible)
 {
-
-    if (toCopy.m_uncHist)
-        m_uncHist = new UncertaintyHistogram(*toCopy.m_uncHist);
-    if (toCopy.m_validHist)
-        m_validHist = new UncertaintyHistogram(*toCopy.m_validHist);
+    for (size_t iHist = 0; iHist < toCopy.m_histos.size(); ++iHist)
+        m_histos.push_back(new UncertaintyHistogram(*toCopy.m_histos.at(iHist)));
 }
 
 UncertaintyComponent::~UncertaintyComponent()
 {
-    ATH_MSG_DEBUG("Deleting UncertaintyComponent named " << getName().Data());
-    JESUNC_SAFE_DELETE(m_uncHist);
-    JESUNC_SAFE_DELETE(m_validHist);
+    ATH_MSG_DEBUG(Form("Deleting UncertaintyComponent named %s",m_name.Data()));
+    for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+        JESUNC_SAFE_DELETE(m_histos.at(iHisto));
+    m_histos.clear();
 }
 
-StatusCode UncertaintyComponent::initialize(TFile* histFile)
+StatusCode UncertaintyComponent::initialize(const std::vector<TString>& histNames, TFile* histFile)
+{
+    std::vector<TString> validHistNames;
+    return initialize(histNames,validHistNames,histFile);
+}
+
+StatusCode UncertaintyComponent::initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile)
 {
     // Prevent double-initialization
     if (m_isInit)
     {
-        ATH_MSG_ERROR("Component is already initialized: " << getName().Data());
+        ATH_MSG_ERROR("Component is already initialized: " << m_name.Data());
         return StatusCode::FAILURE;
     }
-
-    // Create the histograms
-    m_uncHist = new UncertaintyHistogram(m_uncHistName,m_interpolate);
-    if (!m_uncHist)
-    {
-        ATH_MSG_ERROR("Failed to create uncertainty histogram for component: " << getName().Data());
-        return StatusCode::FAILURE;
-    }
-    if (m_validHistName != "")
-    {
-        m_validHist = new UncertaintyHistogram(m_validHistName,false);
-        if (!m_validHist)
-        {
-            ATH_MSG_ERROR("Failed to create validity histogram of name \"" << getValidName().Data() << "\" for component: " << getName().Data());
-            return StatusCode::FAILURE;
-        }
-    }
-
-    // Initialize the histograms
-    if (m_uncHist->initialize(histFile).isFailure())   return StatusCode::FAILURE;
-    if (m_validHist && m_validHist->initialize(histFile).isFailure()) return StatusCode::FAILURE;
-
-    // Print a summary
-    ATH_MSG_DEBUG("Successfully initialized UncertaintyComponent named " << getName().Data());
     
+    // Ensure that the type of component is sensible
+    if (m_category == CompCategory::UNKNOWN)
+    {
+        ATH_MSG_ERROR("Category type is set to UNKNOWN for component: " << m_name.Data());
+        return StatusCode::FAILURE;
+    }
+    //if (m_corrType == CompCorrelation::UNKNOWN)
+    //{
+    //    ATH_MSG_ERROR("Correlation type is set to UNKNOWN for component: " << m_name.Data());
+    //    return StatusCode::FAILURE;
+    //}
+
+    // Ensure there was at least one histogram specified
+    if (histNames.size() < 1)
+    {
+        ATH_MSG_ERROR(Form("No histograms specified for a component (%s)",m_name.Data()));
+        return StatusCode::FAILURE;
+    }
+
+    // If there was more than one histogram, ensure correlation was specified
+    if (histNames.size() > 1 && m_corrType == CompCorrelation::UNKNOWN)
+    {
+        ATH_MSG_ERROR(Form("Specified %zu histograms for a component (%s), but didn't specify their correlation",histNames.size(),m_name.Data()));
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure either no valid histograms were specified OR an equal number of uncertainty and validity
+    if (validHistNames.size() != 0 && validHistNames.size() != histNames.size())
+    {
+        ATH_MSG_ERROR(Form("Specified %zu uncertainty histograms, but a %zu validity histograms (expected either 0 or the same number) for component: %s",histNames.size(),validHistNames.size(),m_name.Data()));
+        return StatusCode::FAILURE;
+    }
+
+    // Add the histograms
+    for (size_t iHisto = 0; iHisto < histNames.size(); ++iHisto)
+    {
+        if (!validHistNames.size())
+            m_histos.push_back(new UncertaintyHistogram(histNames.at(iHisto),"",m_interpolate));
+        else
+            m_histos.push_back(new UncertaintyHistogram(histNames.at(iHisto),validHistNames.at(iHisto),m_interpolate));
+        if (m_histos.back()->initialize(histFile).isFailure())
+            return StatusCode::FAILURE;
+    }
+    
+    // Print a summary
+    ATH_MSG_DEBUG(Form("%s: successfully initialized",m_name.Data()));
+
     m_isInit = true;
     return StatusCode::SUCCESS;
 }
@@ -137,69 +173,109 @@ bool UncertaintyComponent::isAlwaysZero() const
 {
     if (!m_isInit)
     {
-        ATH_MSG_ERROR("Cannot call method before initialization, component: " << getName().Data());
+        ATH_MSG_ERROR("Cannot call method before initialization, component: "<<m_name.Data());
         return false;
     }
 
-    const TH1* histo = m_uncHist->getHisto();
-    if (fabs(histo->GetMinimum()) > 1.e-5 || fabs(histo->GetMaximum()) > 1.e-5)
-        return false;
+    for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+    {
+        const TH1* histo = m_histos.at(iHisto)->getHisto();
+        if (fabs(histo->GetMinimum()) > 1.e-5 || fabs(histo->GetMaximum()) > 1.e-5)
+            return false;
+    }
     return true;
 }
 
 
 //////////////////////////////////////////////////
 //                                              //
-//  Uncertainty/validity retrieval methods      //
+//  Validity and uncertainty retrieval          //
 //                                              //
 //////////////////////////////////////////////////
 
 bool UncertaintyComponent::getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
-    if (!m_isInit)
-    {
-        ATH_MSG_ERROR("Component hasn't been initialized: " << getName().Data());
-        return false;
-    }
-    return getValidityImpl(jet,eInfo);
+    // Valid only if all histogram(s) are valid
+    for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+        if (!getValidity(m_histos.at(iHisto),jet,eInfo))
+            return false;
+    return true;
 }
 
 double UncertaintyComponent::getUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
-    if (!m_isInit)
+    // Simple if it's just one histogram
+    if (m_histos.size() == 1)
+        return getUncertainty(m_histos.at(0),jet,eInfo) * (m_splitNumber == 0 ? 1 : getSplitFactor(m_histos.at(0),jet));
+
+    // Quad sum or linear sum depending on correlation type specified
+    double unc = 0;
+    if (m_corrType == CompCorrelation::Uncorrelated)
     {
-        ATH_MSG_ERROR("Component hasn't been initialized: " << getName().Data());
+        for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+            unc += pow(getUncertainty(m_histos.at(iHisto),jet,eInfo),2);
+        unc = sqrt(unc);
+    }
+    else if (m_corrType == CompCorrelation::Correlated)
+    {
+        for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+            unc += getUncertainty(m_histos.at(iHisto),jet,eInfo);
+    }
+    else
+    {
+        ATH_MSG_ERROR(Form("Unexpected correlation type for %s",m_name.Data()));
         return JESUNC_ERROR_CODE;
     }
-    return getUncertaintyImpl(jet,eInfo)*getSplitFactor(jet);
+
+    return m_splitNumber == 0 ? unc : unc*getSplitFactor(m_histos.at(0),jet);
 }
 
 bool UncertaintyComponent::getValidUncertainty(double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const
 {
-    if (getValidity(jet,eInfo))
+    // Simple if it's just one histogram
+    if (m_histos.size() == 1)
+        return getValidUncertainty(m_histos.at(0),unc,jet,eInfo);
+
+    // Quad sum or linear sum depending on correlation type specified
+    if (m_corrType == CompCorrelation::Uncorrelated)
     {
-        unc = getUncertainty(jet,eInfo);
-        return true;
+        double localUnc = 0;
+        for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+        {
+            double uncVal = 0;
+            if (!getValidUncertainty(m_histos.at(iHisto),uncVal,jet,eInfo))
+                return false;
+            localUnc += pow(uncVal,2);
+        }
+        unc = sqrt(localUnc);
     }
-    return false;
+    else if (m_corrType == CompCorrelation::Correlated)
+    {
+        double localUnc = 0;
+        for (size_t iHisto = 0; iHisto < m_histos.size(); ++iHisto)
+        {
+            double uncVal = 0;
+            if (!getValidUncertainty(m_histos.at(iHisto),uncVal,jet,eInfo))
+                return false;
+            localUnc += uncVal;
+        }
+        unc = localUnc;
+    }
+    else
+    {
+        ATH_MSG_ERROR(Form("Unexpected correlation type for %s",m_name.Data()));
+        return false;
+    }
+    if (m_splitNumber)
+        unc *= getSplitFactor(m_histos.at(0),jet);
+
+    return true;
 }
 
-
-//////////////////////////////////////////////////
-//                                              //
-//  Split factor methods                        //
-//                                              //
-//////////////////////////////////////////////////
-
-double UncertaintyComponent::getSplitFactor(const xAOD::Jet& jet) const
+double UncertaintyComponent::getSplitFactor(const UncertaintyHistogram* uncHisto, const xAOD::Jet& jet) const
 {
-    // Immediate return for the most common case
-    if (!m_splitNumber)
-        return 1;
-
-    // SplitNumber was specified, we have to calculate the factor
     double splitFactor = 1;
-    const TH1* histo = m_uncHist->getHisto();
+    const TH1* histo = uncHisto->getHisto();
 
     if (m_splitNumber == 1 || m_splitNumber == -1)
     {
@@ -287,46 +363,6 @@ double UncertaintyComponent::getSplitFactor(const xAOD::Jet& jet) const
         splitFactor = sqrt(1-splitFactor*splitFactor);
 
     return splitFactor;
-}
-
-
-//////////////////////////////////////////////////
-//                                              //
-//  Helper methods                              //
-//                                              //
-//////////////////////////////////////////////////
-
-bool UncertaintyComponent::getValidBool(const double validity) const
-{
-    if (validity < 1.e-5 && validity > -1.e-5) return false;
-    if (validity < 1+1.e-5 && validity > 1-1.e-5) return true;
-    ATH_MSG_ERROR(Form("Validity value not in expected range: %lf for histogram %s",validity,getValidName().Data()));
-    return false;
-}
-
-double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
-{
-    static SG::AuxElement::ConstAccessor<xAOD::JetFourMom_t> scale(CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
-    // UNKNOWN is just use the assigned scale
-    if (massDef == CompMassDef::UNKNOWN)
-        return jet.m()/jet.pt();
-    
-    // Check if the specified scale is available and return it if so
-    if (scale.isAvailable(jet))
-        return scale(jet).M()/scale(jet).Pt();
-    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
-    if (massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
-        return scaleTAMoment(jet)/jet.pt();
-    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
-    if (massDef == CompMassDef::CaloMass)
-        return jet.m()/jet.pt();
-
-    // Specified scale is not available, error
-    ATH_MSG_ERROR("Failed to retrieve the " << CompMassDef::enumToString(massDef).Data() << " mass from the jet");
-    return JESUNC_ERROR_CODE;
-
 }
 
 } // end jet namespace

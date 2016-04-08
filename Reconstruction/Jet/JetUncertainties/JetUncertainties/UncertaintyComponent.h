@@ -7,7 +7,7 @@
 
 #include "JetUncertainties/UncertaintyEnum.h"
 #include "JetUncertainties/UncertaintyHistogram.h"
-#include "JetUncertainties/ConfigHelper.h"
+#include "JetUncertainties/ComponentHelper.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -25,55 +25,62 @@ class UncertaintyComponent : public asg::AsgMessaging
 {
     public:
         // Constructor/destructor/initialization
-        UncertaintyComponent(const ComponentHelper& component, const size_t numHist = 1);
+        UncertaintyComponent(const ComponentHelper& component);
         UncertaintyComponent(const UncertaintyComponent& toCopy);
         virtual UncertaintyComponent* clone() const = 0;
         virtual ~UncertaintyComponent();
-        virtual StatusCode initialize(TFile* histFile);
-        
-        // Member retrieval methods
-        virtual TString                getName()      const { return m_uncHistName;   }
-        virtual TString                getValidName() const { return m_validHistName; }
-        virtual CompScaleVar::TypeEnum getScaleVar()  const { return m_scaleVar;      }
+        virtual StatusCode initialize(const std::vector<TString>& histNames, TFile* histFile);
+        virtual StatusCode initialize(const std::vector<TString>& histNames, const std::vector<TString>& validHistNames, TFile* histFile);
 
-        // Helpers for special situations
-        virtual bool   isAlwaysZero() const;
-        
-        // Uncertainty/validity retrieval methods
-        virtual bool   getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)                      const;
-        virtual double getUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)                   const;
+        // Information retrieval methods
+        virtual TString                 getName()        const	{ return m_name; }
+        virtual TString                 getDesc()        const	{ return m_desc; }
+        virtual CompCategory::TypeEnum  getCategory()    const	{ return m_category; }
+        virtual CompScaleVar::TypeEnum  getScaleVar()    const	{ return m_scaleVar; }
+        virtual int                     getGroupNum()    const	{ return m_groupNum; }
+        virtual bool 			getIsReducible() const	{ return m_isReducible; } 
+
+        // Methods to check for special situations
+        virtual bool                    isAlwaysZero()  const;
+
+        // Uncertainty retrieval methods (wrappers)
+        virtual bool   getValidity(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        virtual double getUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         virtual bool   getValidUncertainty(double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+
 
     protected:
         // Protected members
-        bool m_isInit;
-        const TString m_uncHistName;
-        const TString m_validHistName;
+        bool  m_isInit;
+        const TString m_name;
+        const TString m_desc;
+        const CompCategory::TypeEnum m_category;
+        const CompCorrelation::TypeEnum m_corrType;
         const CompScaleVar::TypeEnum m_scaleVar;
         const float m_energyScale;
         const bool m_interpolate;
-        const int m_splitNumber;
-        
-        int m_numExpectedHist;
-        UncertaintyHistogram* m_uncHist;
-        UncertaintyHistogram* m_validHist;
+        const int m_groupNum;
+        int m_splitNumber;
+        std::vector<UncertaintyHistogram*> m_histos;
+        const bool m_isReducible; 
 
-        // Methods for derived classes to implement
-        virtual bool   getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const = 0;
-        virtual double getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const = 0;
+        // Uncertainty retrieval helper methods (pure abstract)
+        virtual bool   getValidity(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const = 0;
+        virtual double getUncertainty(const UncertaintyHistogram* histo, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const = 0;
+        virtual bool   getValidUncertainty(const UncertaintyHistogram* histo, double& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const = 0;
 
-        // Helper methods
-        virtual bool getValidBool(const double validity) const;
-        virtual double getSplitFactor(const xAOD::Jet& jet) const;
-        virtual double getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
+
+        // Split factor methods
+        virtual double getSplitFactor(const UncertaintyHistogram* histo, const xAOD::Jet& jet) const;
 
     private:
         UncertaintyComponent(const std::string& name = "");
+        
 };
 
 // Sorting operators
-bool operator <  (const UncertaintyComponent& componentA, const UncertaintyComponent& componentB);
-bool operator == (const UncertaintyComponent& componentA, const UncertaintyComponent& componentB);
+bool operator <  (const UncertaintyComponent& compA, const UncertaintyComponent& compB);
+bool operator == (const UncertaintyComponent& compA, const UncertaintyComponent& compB);
 
 } // end jet namespace
 
