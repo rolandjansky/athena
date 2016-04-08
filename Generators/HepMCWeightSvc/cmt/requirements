@@ -14,8 +14,6 @@ use AthenaBaseComps AthenaBaseComps-* Control
 use IOVDbMetaDataTools IOVDbMetaDataTools-* Database
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use IOVDbDataModel IOVDbDataModel-* Database
-use AtlasBoost AtlasBoost-* External
-use AtlasCORAL AtlasCORAL-* External
 end_private
 
 ## put here your package dependencies...

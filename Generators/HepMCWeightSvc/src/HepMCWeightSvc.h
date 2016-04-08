@@ -58,8 +58,7 @@ private:
 
    ToolHandle<IIOVDbMetaDataTool> m_metaDataTool;
 
-   bool m_weightNamesLoaded=false;
-   bool m_enabled=true;
+   bool m_weightNamesLoaded;
 
 };
 
