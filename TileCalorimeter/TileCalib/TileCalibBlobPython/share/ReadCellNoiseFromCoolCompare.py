@@ -252,7 +252,7 @@ log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 log.info("Initializing folder2 %s with tag2 %s" % (folderPath2, folderTag2))
 
 folder = db.getFolder(folderPath)
-folder2 = db.getFolder(folderPath2)
+folder2 = db2.getFolder(folderPath2)
 
 #=== get the blob for a given tag and iov
 iov = CaloCondTools.iovFromRunLumi( run, lumi )
@@ -341,3 +341,4 @@ for cell in xrange(cellmin,cellmax):
 
 #=== close DB
 db.closeDatabase()
+db2.closeDatabase()
