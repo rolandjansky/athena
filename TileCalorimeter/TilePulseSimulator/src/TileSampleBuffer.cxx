@@ -16,20 +16,20 @@ TileSampleBuffer::TileSampleBuffer()
 TileSampleBuffer::TileSampleBuffer(TArrayD* xValues)
 {
   unsigned int nSamples = xValues->GetSize();
-  _x.resize(nSamples,0.);
-  _y.resize(nSamples,0.);
+  m_x.resize(nSamples,0.);
+  m_y.resize(nSamples,0.);
   for(unsigned int i=0; i<nSamples; ++i){
-    _x[i] = xValues->At(i);
+    m_x[i] = xValues->At(i);
   }
 }
 
 TileSampleBuffer::TileSampleBuffer(unsigned int nSamples, double sampleStart, double stepLength)
 {
-  _x.resize(nSamples,0.);
-  _y.resize(nSamples,0.);
-  _NoiseVector.resize(nSamples,0.);
+  m_x.resize(nSamples,0.);
+  m_y.resize(nSamples,0.);
+  m_noiseVector.resize(nSamples,0.);
   for(unsigned int i=0; i<nSamples; ++i){
-    _x[i] = sampleStart + i*stepLength;
+    m_x[i] = sampleStart + i*stepLength;
   }
 }
 
@@ -41,9 +41,9 @@ unsigned int TileSampleBuffer::getMaxValueIndex()
 {
   unsigned int iMax(0);
   double max(-1e100);
-  for(unsigned int i=0; i<_y.size(); ++i){
-    if(_y[i]>max) {
-      max=_y[i];
+  for(unsigned int i=0; i<m_y.size(); ++i){
+    if(m_y[i]>max) {
+      max=m_y[i];
       iMax = i;
     }
   }
@@ -52,7 +52,7 @@ unsigned int TileSampleBuffer::getMaxValueIndex()
 
 void TileSampleBuffer::print(){
   std::cout << "Content of TileSampleBuffer: " << std::endl;
-  for(unsigned int i=0; i<_y.size(); ++i){
-    std::cout << _x[i] << "\t" << _y[i] << std::endl;
+  for(unsigned int i=0; i<m_y.size(); ++i){
+    std::cout << m_x[i] << "\t" << m_y[i] << std::endl;
   }
 }

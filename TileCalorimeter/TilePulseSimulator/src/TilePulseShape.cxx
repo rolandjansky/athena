@@ -17,9 +17,9 @@
 //_________________________________________________________________________
 TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name)
   : TObject()
-  , _pulseShape(0)
-  , _deformedShape(0)
-  , _deformedSpline(0)
+  , m_pulseShape(0)
+  , m_deformedShape(0)
+  , m_deformedSpline(0)
   , m_log(0)
 {
   m_log = new MsgStream (msgSvc, name);
@@ -28,9 +28,9 @@ TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name)
 //_________________________________________________________________________
 TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, TString fileName)
   : TObject()
-  , _pulseShape(0)
-  , _deformedShape(0)
-  , _deformedSpline(0)
+  , m_pulseShape(0)
+  , m_deformedShape(0)
+  , m_deformedSpline(0)
   , m_log(0)
 {
   m_log = new MsgStream (msgSvc, name);
@@ -40,9 +40,9 @@ TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, TString fi
 //________________________________________________________________________
 TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, std::vector<double> shapevec)
   : TObject()
-  , _pulseShape(0)
-  , _deformedShape(0)
-  , _deformedSpline(0)
+  , m_pulseShape(0)
+  , m_deformedShape(0)
+  , m_deformedSpline(0)
   , m_log(0)
 {
   m_log = new MsgStream (msgSvc, name);
@@ -54,8 +54,8 @@ TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, std::vecto
 TilePulseShape::~TilePulseShape()
 {
   resetDeformation();
-  if(_pulseShape) delete _pulseShape;
-  if(_deformedSpline) delete _deformedSpline;
+  if(m_pulseShape) delete m_pulseShape;
+  if(m_deformedSpline) delete m_deformedSpline;
   if(m_log) delete m_log;
 }
 
@@ -63,9 +63,9 @@ TilePulseShape::~TilePulseShape()
 void TilePulseShape::loadPulseShape(TString fileName)
 {
   resetDeformation();
-  if(_pulseShape) delete _pulseShape;
-  _pulseShape = new TGraph(fileName.Data());
-  if(_pulseShape->IsZombie()) {
+  if(m_pulseShape) delete m_pulseShape;
+  m_pulseShape = new TGraph(fileName.Data());
+  if(m_pulseShape->IsZombie()) {
     (*m_log) << MSG::WARNING << "TilePulseShape: ERROR, could not load pulseshape from file: " << fileName << endreq;
     exit(1);
    } else (*m_log) << MSG::INFO << "Loaded pulseshape from file: " 
@@ -77,10 +77,10 @@ void TilePulseShape::loadPulseShape(TString fileName)
 void TilePulseShape::setPulseShape(std::vector<double> shapevec)
 {
   resetDeformation();
-  if(_pulseShape) delete _pulseShape;
-  _pulseShape = new TGraph(shapevec.size());
+  if(m_pulseShape) delete m_pulseShape;
+  m_pulseShape = new TGraph(shapevec.size());
   for(std::vector<double>::size_type i = 0; i != shapevec.size(); i++) {
-    _pulseShape->SetPoint(i, -75.5+i*0.5, shapevec.at(i));
+    m_pulseShape->SetPoint(i, -75.5+i*0.5, shapevec.at(i));
   }
   resetDeformation();
 }
@@ -88,11 +88,12 @@ void TilePulseShape::setPulseShape(std::vector<double> shapevec)
 
 //
 //_________________________________________________________________________
+// This function gives a pulse shaper for the 3-in-1 FEB
 double TilePulseShape::eval(double x, bool useSpline)
 {
 
   //=== make sure pulseshape is available
-  if(!_deformedShape){
+  if(!m_deformedShape){
     (*m_log) << MSG::WARNING << "TilePulseShape:: ERROR: No pulseshape loaded!" << endreq;
     return 0.;
   }
@@ -101,29 +102,29 @@ double TilePulseShape::eval(double x, bool useSpline)
   //=== index of value smaller or equal to the search value. 
   //=== -> Need to catch boundary values
   double y(0.);
-  int n(_deformedShape->GetN());
-  int idx = TMath::BinarySearch(n,_deformedShape->GetX(),x);
+  int n(m_deformedShape->GetN());
+  int idx = TMath::BinarySearch(n,m_deformedShape->GetX(),x);
   if(idx<0){
     //=== left out of bounds, return leftmost value
 //    y = (_deformedShape->GetY())[0]; 
     y = 0;
-    (*m_log) << MSG::DEBUG << "Left out of bounds. Replacing y = " << (_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endreq;
+    (*m_log) << MSG::DEBUG << "Left out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endreq;
   }
   else if(idx>=n-1){
     //=== right out of bounds, return rightmost value
 //    y = (_deformedShape->GetY())[n-1]; 
     y = 0;
-    (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endreq;
+    (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endreq;
   }
   else{
     //=== linear interpolation
-    double xLo = (_deformedShape->GetX())[idx  ];
-    double xHi = (_deformedShape->GetX())[idx+1];
-    double yLo = (_deformedShape->GetY())[idx  ];
-    double yHi = (_deformedShape->GetY())[idx+1];
+    double xLo = (m_deformedShape->GetX())[idx  ];
+    double xHi = (m_deformedShape->GetX())[idx+1];
+    double yLo = (m_deformedShape->GetY())[idx  ];
+    double yHi = (m_deformedShape->GetY())[idx+1];
     double yLinear = yLo + (yHi-yLo)/(xHi-xLo) * (x-xLo);
     //=== spline interpolation
-    double ySpline = _deformedSpline->Eval(x);
+    double ySpline = m_deformedSpline->Eval(x);
 
     if(useSpline) y = ySpline;
     else          y = yLinear;
@@ -136,12 +137,12 @@ double TilePulseShape::eval(double x, bool useSpline)
 //_______________________________________________________________________
 void TilePulseShape::resetDeformation()
 {
-  if(_deformedShape==_pulseShape) return;
+  if(m_deformedShape==m_pulseShape) return;
   
-  delete _deformedShape;  
-  delete _deformedSpline; 
-  _deformedShape = _pulseShape;
-  _deformedSpline = new TSpline3("deformedSpline",_deformedShape);
+  delete m_deformedShape;  
+  delete m_deformedSpline; 
+  m_deformedShape = m_pulseShape;
+  m_deformedSpline = new TSpline3("deformedSpline",m_deformedShape);
 }
 
 //
@@ -150,22 +151,22 @@ int TilePulseShape::scalePulse(double leftSF, double rightSF)
 {
 
   resetDeformation();
-  if(!_pulseShape) {
+  if(!m_pulseShape) {
     (*m_log) << MSG::WARNING << "Attempted pulse shape scaling before loading pulse shape" << endreq;
     return 1;
    } else {
-    _deformedShape = (TGraph*) _pulseShape->Clone();
+    m_deformedShape = (TGraph*) m_pulseShape->Clone();
   
-    for(int i=0; i<_deformedShape->GetN(); ++i){
+    for(int i=0; i<m_deformedShape->GetN(); ++i){
       double x,y;
-      _deformedShape->GetPoint(i,x,y);
+      m_deformedShape->GetPoint(i,x,y);
       if(x<0.)      x*= leftSF;
       else if(x>0.) x*=rightSF;
-      _deformedShape->SetPoint(i,x,y);
+      m_deformedShape->SetPoint(i,x,y);
     }
 
-    delete _deformedSpline;
-    _deformedSpline = new TSpline3("deformedSpline",_deformedShape);
+    delete m_deformedSpline;
+    m_deformedSpline = new TSpline3("deformedSpline",m_deformedShape);
     return 0;
   }   
 
@@ -175,7 +176,7 @@ int TilePulseShape::scalePulse(double leftSF, double rightSF)
 //_______________________________________________________________________
 TGraph* TilePulseShape::getGraph(double t0, double ped, double amp)
 {
-  TGraph* gr = (TGraph*) _deformedShape->Clone();
+  TGraph* gr = (TGraph*) m_deformedShape->Clone();
   for(int i=0; i<gr->GetN(); i++){
     double x,y;
     gr->GetPoint(i,x,y);
