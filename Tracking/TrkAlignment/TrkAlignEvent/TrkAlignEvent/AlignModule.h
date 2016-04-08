@@ -8,13 +8,14 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 
 
-#include "TrkDetElementBase/TrkDetElementBase.h"
+//#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "Identifier/Identifier.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 
-#include <algorithm>
+//#include <algorithm>
 #include <vector>
+#include <string>
 
 /**
    @file AlignModule.h
@@ -51,8 +52,8 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////
     
     /** enum to keep track of transformation coordinates */
-    enum TransformParameters { TransX=0, TransY, TransZ, RotX, RotY, RotZ, 
-             NTransformPar, MaxNPar=10 } ;
+    enum TransformParameters { TransX=0, TransY, TransZ, RotX, RotY, RotZ, BowX, BowY, BowZ,  
+             NTransformPar, MaxNPar=10 };
         
     enum DetectorType { unidentified=0,Pixel,SCT,TRT,MDT,CSC,RPC,TGC,NDetectorTypes};    
       
@@ -74,6 +75,14 @@ namespace Trk {
     AlignModule(MsgStream* log, 
                 const Amg::Transform3D& globalToAlignXform=Amg::Transform3D::Identity(),
                 const std::string& name="");
+                
+    AlignModule() = delete; // don't allow constructor without IMessageSvc
+    
+    /**forbid copy constructor **/
+    AlignModule(const AlignModule & rhs) = delete;
+    
+    /**forbid assignment **/
+    AlignModule & operator=(const AlignModule & rhs) = delete;
 
     virtual ~AlignModule();
 
@@ -142,7 +151,7 @@ namespace Trk {
                        const TrkDetElementBase* det,
                        const Amg::Transform3D &transform,
                        Identifier id=Identifier());
-
+    
     //
     // methods used for numerical derivatives
     // 
@@ -197,6 +206,15 @@ namespace Trk {
     void shiftSurface(TrkDetElementBase*, Identifier) const {}
     void restoreSurfaces(TrkDetElementBase*) const {}
 
+    /** Calculates Align to Global transform  based on the TrkDetElementBase in the alignmodule **/
+    Amg::Transform3D  calculateAlignModuleToGlobal() const;
+     
+    /** Reset  align module to detector element transforms based on the AlignModuleToGlobal 
+        transform and the global to DetElementTransform **/
+    void resetAlignModuleToDetElementTransforms();
+
+
+
   protected:
 
     std::vector<DetElementCollection*> m_detelements;
@@ -206,12 +224,13 @@ namespace Trk {
     std::vector<std::vector<Amg::Transform3D>* > m_alignModuleToDetElementTransforms;
 
   private:
-    AlignModule(); // don't allow constructor without IMessageSvc
+    
     
     // private variables
     Amg::Transform3D        m_globalToAlignFrameTransform ;   // transform to go from global frame to alignment frame
     Amg::RotationMatrix3D   m_globalToAlignFrameRotation ;    // cache for speed up
     Amg::Vector3D           m_globalToAlignFrameTranslation ;  //actually a vector not a point
+        
     
     // chi2 vs. align parameters
     mutable int      m_nChamberShifts;
@@ -219,7 +238,7 @@ namespace Trk {
     mutable double** m_chi2VAlignParamX;
     mutable double*** m_chi2VAlignParamMeasType;
     
-    std::string m_name;
+    std::string    m_name;
     IdentifierHash m_idHash;
     Identifier     m_identifier;
  

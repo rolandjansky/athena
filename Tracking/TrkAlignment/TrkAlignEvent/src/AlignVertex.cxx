@@ -9,67 +9,109 @@ namespace Trk {
 
   //________________________________________________________________________
   AlignVertex::AlignVertex() 
-    : theMatrix(0)
-    , theVector(0)
-    , theOriginal(0)
-    , theOriginalPosition(0)
-    , theAlignTracks(0)
-    , thePosition(0)
-    , theCovariance(0)
-    , theDerivatives(0)
-    , theQmatrix(0)
-    , theVvector(0)
-    , theConstrained(false)
-    , theType(Unknown)
+    : m_matrix(0)
+    , m_vector(0)
+    , m_original(0)
+    , m_originalPosition(0)
+    , m_alignTracks(0)
+    , m_position(0)
+    , m_covariance(0)
+    , m_derivatives(0)
+    , m_qMatrix(0)
+    , m_vVector(0)
+    , m_constrained(false)
+    , m_type(Unknown)
   {
-    theVector=new Amg::Vector3D(0.,0.,0.); 
-    theMatrix=new AmgSymMatrix(3);
-    theDerivatives=new std::vector<AlignModuleVertexDerivatives >(0);
-    theQmatrix= new AmgSymMatrix(3);
-    theVvector=new Amg::Vector3D(0.,0.,0.); 
-    theNtracks=0;
+    m_vector=new Amg::Vector3D(0.,0.,0.); 
+    m_matrix=new AmgSymMatrix(3);
+    m_derivatives=new std::vector<AlignModuleVertexDerivatives >(0);
+    m_qMatrix= new AmgSymMatrix(3);
+    m_vVector=new Amg::Vector3D(0.,0.,0.); 
+    m_nTracks=0;
   }
+  
+  //copy constructor
+  AlignVertex::AlignVertex(const AlignVertex & rhs) 
+    : m_nTracks(rhs.m_nTracks)
+    , m_matrix(new AmgSymMatrix(3)(*(rhs.m_matrix)))
+    , m_vector(new Amg::Vector3D(*(rhs.m_vector)))
+    , m_original(new xAOD::Vertex(*(rhs.m_original)))
+    , m_originalPosition(new Amg::Vector3D( *(rhs.m_originalPosition )))
+    , m_alignTracks(rhs.m_alignTracks)
+    , m_position(new Amg::Vector3D(*(rhs.m_position)))
+    , m_covariance(new AmgSymMatrix(3) (*(rhs.m_covariance)) )
+    , m_derivatives(new auto(*(rhs.m_derivatives)))
+    , m_qMatrix(new AmgSymMatrix(3) (*(rhs.m_qMatrix)) )
+    , m_vVector(new Amg::Vector3D(*(rhs.m_vVector)))
+    , m_constrained(rhs.m_constrained)
+    , m_type(rhs.m_type)
+  {
+   
+  }
+  
+  //assignment
+  AlignVertex & AlignVertex::operator =(const AlignVertex & rhs) {
+    if (&rhs!=this){
+      m_nTracks = rhs.m_nTracks;
+      delete m_matrix; m_matrix = new AmgSymMatrix(3)(*(rhs.m_matrix));
+      delete m_vector; m_vector = new Amg::Vector3D(*(rhs.m_vector));
+      delete m_original; m_original = new xAOD::Vertex(*(rhs.m_original));
+    	delete m_originalPosition; m_originalPosition = new Amg::Vector3D( *(rhs.m_originalPosition ));
+    	m_alignTracks = rhs.m_alignTracks;
+    	delete m_position; m_position = new Amg::Vector3D(*(rhs.m_position));
+    	delete m_covariance; m_covariance = new AmgSymMatrix(3) (*(rhs.m_covariance));
+      delete m_derivatives; m_derivatives = new auto(*(rhs.m_derivatives));
+      delete m_qMatrix; m_qMatrix = new AmgSymMatrix(3) (*(rhs.m_qMatrix));
+      delete m_vVector; m_vVector = new Amg::Vector3D(*(rhs.m_vVector));
+      m_constrained = rhs.m_constrained;
+      m_type = rhs.m_type;
+  	}
+  	return *this;
+  }
+  
+  
+
 
   //________________________________________________________________________
-  AlignVertex::AlignVertex(const VxCandidate* vertex) 
-    : theMatrix(0)
-    , theVector(0)
-    , theOriginal(vertex)
-    , theOriginalPosition(0)
-    , theAlignTracks(0)
-    , thePosition(0)
-    , theCovariance(0)
-    , theDerivatives(0)
-    , theQmatrix(0)
-    , theVvector(0)
-    , theConstrained(false)
-    , theType(Unknown)
+  AlignVertex::AlignVertex(const xAOD::Vertex* vertex) 
+    : m_matrix(0)
+    , m_vector(0)
+    , m_original(vertex)
+    , m_originalPosition(0)
+    , m_alignTracks(0)
+    , m_position(0)
+    , m_covariance(0)
+    , m_derivatives(0)
+    , m_qMatrix(0)
+    , m_vVector(0)
+    , m_constrained(false)
+    , m_type(Unknown)
   {
-    theVector=new Amg::Vector3D(0.,0.,0.); 
-    theMatrix=new AmgSymMatrix(3);
-    theOriginal = vertex;
-    theOriginalPosition = new Amg::Vector3D( vertex->recVertex().position() );
-    theDerivatives=new std::vector<AlignModuleVertexDerivatives >(0);
-    theQmatrix=new AmgSymMatrix(3);
-    theVvector=new Amg::Vector3D(0.,0.,0.); 
-    theNtracks=0;
+    m_vector=new Amg::Vector3D(0.,0.,0.); 
+    m_matrix=new AmgSymMatrix(3);
+    m_original = vertex;
+    m_originalPosition = new Amg::Vector3D( vertex->position() );
+    m_derivatives=new std::vector<AlignModuleVertexDerivatives >(0);
+    m_qMatrix=new AmgSymMatrix(3);
+    m_vVector=new Amg::Vector3D(0.,0.,0.); 
+    m_nTracks=0;
   }
 
 
   //________________________________________________________________________
   AlignVertex::~AlignVertex()
   {
-    if( theMatrix )           delete theMatrix;
-    if( theVector )           delete theVector;
+    if( m_matrix )           delete m_matrix;
+    if( m_vector )           delete m_vector;
 
-    if( theOriginalPosition ) delete theOriginalPosition;
+    if( m_originalPosition ) delete m_originalPosition;
 
-    if( thePosition )         delete thePosition;
-    if( theCovariance )       delete theCovariance;
-    if( theDerivatives )      delete theDerivatives;
+    if( m_position )         delete m_position;
+    if( m_covariance )       delete m_covariance;
+    if( m_derivatives )      delete m_derivatives;
 
-    if( theQmatrix )          delete theQmatrix;
-    if( theVvector )          delete theVvector;
+    if( m_qMatrix )          delete m_qMatrix;
+    if( m_vVector )          delete m_vVector;
   }
 
   //________________________________________________________________________
@@ -84,21 +126,21 @@ namespace Trk {
       std::cout <<" Suspicious Q determinant:  detQ = "<< Q->determinant() << std::endl;
       return;
     }
-    (*theQmatrix) = (*Q);
-    (*theVvector) = (*V);
-    theConstrained = true;
+    (*m_qMatrix) = (*Q);
+    (*m_vVector) = (*V);
+    m_constrained = true;
   }
 
 
   //________________________________________________________________________
   void AlignVertex::addAlignTrack(AlignTrack* alignTrack) 
   {
-    theAlignTracks.push_back(&alignTrack);
+    m_alignTracks.push_back(&alignTrack);
     alignTrack->setVtx(this);
     alignTrack->setRefitD0(false);
     alignTrack->setRefitZ0(false);
     //    alignTrack->setType(AlignTrack::VertexMember);
-    theNtracks++;
+    m_nTracks++;
   }
 
   //________________________________________________________________________
@@ -108,7 +150,7 @@ namespace Trk {
     std::vector<AlignModuleVertexDerivatives>::iterator derivIt_end = vec->end();
 
     for ( ; derivIt!=derivIt_end ; ++derivIt) {
-      theDerivatives->push_back(*derivIt);
+      m_derivatives->push_back(*derivIt);
     }
 
     return;
@@ -118,25 +160,25 @@ namespace Trk {
   void AlignVertex::fitVertex()
   {
     
-    theType = Unknown;
+    m_type = Unknown;
 
     if( Ntracks() < 2 )   return;    // this is not a good vertex!
 
 
-    if( !theMatrix ) {
+    if( !m_matrix ) {
       std::cout <<"NULL pointer to the matrix! Bailing out..."<< std::endl;
       return;
     }
 
-    Amg::Vector3D  vec = (*theVector);
-    AmgSymMatrix(3)   cov = (*theMatrix);
-    AmgSymMatrix(3)   covcons = (*theMatrix);
+    Amg::Vector3D  vec = (*m_vector);
+    AmgSymMatrix(3)   cov = (*m_matrix);
+    AmgSymMatrix(3)   covcons = (*m_matrix);
 
     AmgSymMatrix(3)  Qinv;
-    if( theConstrained && theQmatrix->determinant() > 1.0e-24 )   {     // just my guess sigma>0.1 micron ???
+    if( m_constrained && m_qMatrix->determinant() > 1.0e-24 )   {     // just my guess sigma>0.1 micron ???
       
       bool invertible;
-      theQmatrix->computeInverseWithCheck(Qinv,invertible);
+      m_qMatrix->computeInverseWithCheck(Qinv,invertible);
   
       if(!invertible) {
         std::cout <<"fitVertex: Q inversion failed. " << std::endl;
@@ -146,8 +188,8 @@ namespace Trk {
   
       Amg::Vector3D vtemp(3, 0);
       
-      vtemp  = *theOriginalPosition;
-      vtemp -= *theVvector;
+      vtemp  = *m_originalPosition;
+      vtemp -= *m_vVector;
  
       covcons += 2.0*Qinv;
       vec     += 2.0*Qinv*vtemp;
@@ -178,15 +220,15 @@ namespace Trk {
     // calculate corrections    (mind the sign!)
     Amg::Vector3D delta(invcovcons * vec);
  
-    if ( !thePosition ) thePosition=new Amg::Vector3D(0.,0.,0.);   
-    *thePosition = *theOriginalPosition;
-    *thePosition -= delta;
+    if ( !m_position ) m_position=new Amg::Vector3D(0.,0.,0.);   
+    *m_position = *m_originalPosition;
+    *m_position -= delta;
     
 
-    if ( !theCovariance ) theCovariance= new AmgSymMatrix(3);   
-    (*theCovariance)=invcov;                       // this one is unconstrained!
+    if ( !m_covariance ) m_covariance= new AmgSymMatrix(3);   
+    (*m_covariance)=invcov;                       // this one is unconstrained!
 
-    theType = Refitted;
+    m_type = Refitted;
 
     return;
   }
@@ -195,8 +237,8 @@ namespace Trk {
   {
     msg<<"dumping AlignVertex:  "<<endreq;
 
-    msg<<" vertex Position:    "<< (*thePosition) << endreq;
-    msg<<" vertex Covariance:  "<< (*theCovariance) << endreq;
+    msg<<" vertex Position:    "<< (*m_position) << endreq;
+    msg<<" vertex Covariance:  "<< (*m_covariance) << endreq;
     msg<< endreq;
 
   }
