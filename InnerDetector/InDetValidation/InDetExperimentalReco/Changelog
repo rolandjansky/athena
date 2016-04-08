@@ -1,0 +1,56 @@
+2015-05-08 Nick Styles
+	* Remove outdated tests
+	* Add test of layer masking
+	* Tagged as InDetExperimentalReco-00-00-14  
+
+2015-03-03 Nick Styles <nicholas.styles -at- cern.ch>
+	* Update test file
+	* Remove material override
+	* Tagged as InDetExperimentalReco-00-00-13
+
+2014-11-23 Nick Styles <nicholas.styles -at- cern.ch>
+	* Update material tag
+	* Tagged asInDetExperimentalReco-00-00-12
+
+2014-08-08 Nick Styles <nicholas.styles -at- cern.ch>
+	* Update conditions tag once again (ATLASRECTS-907)
+	* Tagged asInDetExperimentalReco-00-00-11 
+
+2014-08-01 Nick Styles <nicholas.styles -at- cern.ch>
+	* Update conditions to pick up new Calo tags
+	* Tagged as InDetExperimentalReco-00-00-10
+
+2014-07-22 Nick Styles <nicholas.styles -at- cern.ch>
+	* Force conditions tag to get correct NN histos
+	* Tagged as InDetExperimentalReco-00-00-09
+
+2014-07-22 Nick Styles <nicholas.styles -at- cern.ch>
+	* Updated IBL test file
+	* Tagged as InDetExperimentalReco-00-00-08
+
+2014-06-29 Nick Styles <nicholas.styles -at- cern.ch>
+	* Updated IBL options
+	* Tagged as InDetExperimentalReco-00-00-07
+
+2014-06-10 Nick Styles <nicholas.styles -at- cern.ch>
+	* Fix for mag field init
+	* Tagged as InDetExperimentalReco-00-00-06
+
+2014-05-14 Nick Styles <nicholas.styles -at- cern.ch>
+	* Add new test for IBL reconstruction
+	* Tagged as InDetExperimentalReco-00-00-05
+
+2014-04-02 Nick Styles <nicholas.styles -at- cern.ch>
+	* Remove rel19 clean item list
+	* Tagged as InDetExperimentalReco-00-00-04
+
+2014-03-03 Nick Styles <nicholas.styles -at- cern.ch>
+	* Switched off conversion finding (done where needed in egamma)
+	* Tagged as InDetExperimentalReco-00-00-03
+
+2014-02-19 Nick Styles <nicholas.styles -at- cern.ch>
+        * Updated test file
+	* Tagged as InDetExperimentalReco-00-00-02
+
+2014-02-12 Nick Styles <nicholas.styles -at- cern.ch>
+        * Initial Check In 
