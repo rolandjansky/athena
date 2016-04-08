@@ -362,8 +362,8 @@ HLT::ErrorCode TrigHLTJetHemisphereRec::hltExecute(const HLT::TriggerElement* in
 	if (timerSvc() ) m_totalTimer->stop();
 	if (timerSvc() ) m_hemiFindingTimer->stop();
 
-	ATH_MSG_DEBUG("Algorithm took time: " << m_totalTimer->elapsed() ) ;
-	ATH_MSG_DEBUG("Hemisphere finding took time: " << m_hemiFindingTimer->elapsed() ) ;
+	if (timerSvc() ) ATH_MSG_DEBUG("Algorithm took time: " << m_totalTimer->elapsed() ) ;
+	if (timerSvc() ) ATH_MSG_DEBUG("Hemisphere finding took time: " << m_hemiFindingTimer->elapsed() ) ;
 
 	return hltStatus;
 }
