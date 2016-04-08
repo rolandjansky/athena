@@ -21,7 +21,7 @@
 #include "TrkSegment/TrackSegment.h"
 
 #include "InDetRecToolInterfaces/ITRT_SegmentToTrackTool.h"
-#include "CxxUtils/make_unique.h"
+
 using CLHEP::GeV;
 
 ///////////////////////////////////////////////////////////////////
@@ -32,18 +32,17 @@ InDet::TRT_StandaloneTrackFinder::TRT_StandaloneTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_nprint(0),
-    m_segToTrackTool("InDet::TRT_SegmentToTrackTool"),
-    m_Segments("TRTSegments"),
-    m_finalTracks("TRTStandaloneTracks")
+    m_segToTrackTool("InDet::TRT_SegmentToTrackTool")
 {
-  
+  m_inseglocation      = "TRTSegments"                        ;
+  m_outtracklocation   = "TRTStandaloneTracks"                ;
   m_minNumDriftCircles = 15                                   ;       //Minimum number of drift circles for TRT segment tracks
   m_minPt              = 1.0 * GeV                            ;       //pt cut    
   m_matEffects         = 0                                    ;
   m_resetPRD           = false                                ;       //Reset PRD association tool during sub-detector pattern
 
-  declareProperty("InputSegmentsLocation"      ,m_Segments     ); //Input track collection
-  declareProperty("OutputTracksLocation"       ,m_finalTracks  ); //Output track collection
+  declareProperty("InputSegmentsLocation"      ,m_inseglocation     ); //Input track collection
+  declareProperty("OutputTracksLocation"       ,m_outtracklocation  ); //Output track collection
   declareProperty("MinNumDriftCircles"         ,m_minNumDriftCircles); //Minimum number of drift circles for TRT segment tracks
   declareProperty("MinPt"                      ,m_minPt             ); //Minimum Pt in preselection
   declareProperty("MaterialEffects"            ,m_matEffects        ); //Particle hypothesis during track fitting
@@ -99,7 +98,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 ///////////////////////////////////////////////////////////////////
 StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 {
-  
+  StatusCode sc;
 
   //Counters. See the include file for definitions
   m_nTrtSeg       = 0;
@@ -116,13 +115,13 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 
   ///Retrieve segments from StoreGate
   //
-
-
-  if(!m_Segments.isValid()){
-      ATH_MSG_FATAL ("No segment with name " << m_Segments.name() << " found in StoreGate!");
-      return StatusCode::FAILURE;
+  sc = evtStore()->retrieve(m_Segments,m_inseglocation);
+  if(sc.isFailure()){
+    ATH_MSG_FATAL ("No segment with name " << m_inseglocation << " found in StoreGate!");
+    return sc;
+  }else{
+    ATH_MSG_DEBUG ("Found segments collection " << m_inseglocation << " in StoreGate!");
   }
-
   // statistics...
   m_nTrtSeg = int(m_Segments->size());
   ATH_MSG_DEBUG ("TRT track container size " << m_nTrtSeg);
@@ -217,12 +216,8 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   }
 
   // now resolve tracks
-  ATH_MSG_DEBUG ("Creating track container ");
-  StatusCode sc= m_finalTracks.record(std::unique_ptr<TrackCollection> (m_segToTrackTool->resolveTracks()));
-  if(sc.isFailure() || !m_finalTracks.isValid()){
-      ATH_MSG_WARNING ("Could not save the reconstructed TRT seeded Si tracks!");
-      return StatusCode::FAILURE;      
-  }
+  m_finalTracks = m_segToTrackTool->resolveTracks();
+
   // Update the total counters
   m_nTrtSegTotal       += m_nTrtSeg;
   m_nUsedSegTotal      += m_nUsedSeg;
@@ -233,7 +228,12 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   m_nTrkSegUsedTotal   += m_segToTrackTool->GetnTrkSegUsed();
   m_nTRTTrkTotal       += m_segToTrackTool->GetnTRTTrk();
 
-
+  // store output
+  ATH_MSG_DEBUG ("Saving tracks in container ");
+  sc = evtStore()->record(m_finalTracks,m_outtracklocation,false);
+  if( sc.isFailure() ){
+    ATH_MSG_WARNING ("Could not save the reconstructed TRT seeded Si tracks!");
+  }
   
   // Print common event information
   if(msgLvl(MSG::DEBUG)) {
@@ -270,16 +270,16 @@ MsgStream&  InDet::TRT_StandaloneTrackFinder::dump( MsgStream& out ) const
 
 MsgStream& InDet::TRT_StandaloneTrackFinder::dumptools( MsgStream& out ) const
 {
-  int n = 65-m_Segments.name().size();
+  int n = 65-m_inseglocation.size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_finalTracks.name().size();
+  n     = 65-m_outtracklocation.size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
   out<<std::endl
      <<"|----------------------------------------------------------------------"
      <<"-------------------|"<<std::endl;
-  out<<"| Location of input tracks          | "<<m_Segments.name()       <<s3<<std::endl;
-  out<<"| Location of output tracks         | "<<m_finalTracks.name()    <<s4<<std::endl;
+  out<<"| Location of input tracks          | "<<m_inseglocation       <<s3<<std::endl;
+  out<<"| Location of output tracks         | "<<m_outtracklocation    <<s4<<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|";
   return out;
