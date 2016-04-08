@@ -8,11 +8,7 @@
  * @author Marcin.Nowak@cern.ch
  */
 
-#define private public
-#define protected public
 #include "EventInfo/EventType.h"
-#undef private
-#undef protected
 #include "EventInfoCnv.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
@@ -104,7 +100,7 @@ EventInfo* EventInfoCnv::createTransient() {
         if (ei->trigger_info() && 
             ei->event_type()->mc_event_weight() == 0 &&
             ei->trigger_info()->eventFilterInfo().size()) {
-            ei->event_type()->m_mc_event_weights[0] = ei->trigger_info()->eventFilterInfo().back();
+          ei->event_type()->set_mc_event_weight (ei->trigger_info()->eventFilterInfo().back());
         }
         else {
             // default weight = 1.0
