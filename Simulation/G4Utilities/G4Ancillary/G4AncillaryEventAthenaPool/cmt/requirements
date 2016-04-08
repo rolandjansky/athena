@@ -6,7 +6,6 @@ public
 use AtlasPolicy          AtlasPolicy-*
 use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
 use AtlasSealCLHEP       AtlasSealCLHEP-*        Database
-use GaudiInterface       GaudiInterface-*        External
 
 private
 use G4AncillarySimEvent  G4AncillarySimEvent-*   Simulation/G4Utilities/G4Ancillary
