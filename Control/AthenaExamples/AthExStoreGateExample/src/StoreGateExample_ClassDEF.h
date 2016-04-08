@@ -11,8 +11,8 @@
 #include <vector>
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 #include "MyContObj.h"
 #include "MapStringFloat.h"
 
