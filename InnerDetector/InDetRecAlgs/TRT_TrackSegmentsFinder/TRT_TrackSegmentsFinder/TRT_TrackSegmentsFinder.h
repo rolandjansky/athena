@@ -10,9 +10,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 #include "InDetRecToolInterfaces/ITRT_DetElementsRoadMaker.h" 
-#include "StoreGate/DataHandle.h"
-#include "TrkSegment/SegmentCollection.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+
 namespace InDet {
 
 
@@ -56,10 +54,8 @@ namespace InDet {
       int                                 m_nsegments        ; // Number segments
       int                                 m_nsegmentsTotal   ; // Number segments
       int                                 m_minNumberDCs     ; // Min. number of DriftCircles
-
-      SG::WriteHandle<Trk::SegmentCollection> m_foundSegments; // Name of segments location
-      SG::ReadHandle<CaloClusterROI_Collection> m_calo;        // Calo clusters collection Handle
-      
+      std::string                         m_segmentslocation ; // Name of segments location
+      std::string                 m_inputClusterContainerName; // Calo clusters collection name
       ToolHandle<ITRT_TrackSegmentsMaker> m_segmentsMakerTool; // TRT segments maker
       ToolHandle<ITRT_DetElementsRoadMaker>     m_roadtool   ; // TRT road maker tool
 

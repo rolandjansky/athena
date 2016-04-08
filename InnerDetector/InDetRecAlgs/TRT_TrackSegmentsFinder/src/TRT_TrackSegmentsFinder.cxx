@@ -4,12 +4,10 @@
 
 
 #include "TRT_TrackSegmentsFinder/TRT_TrackSegmentsFinder.h"
-
+#include "TrkSegment/SegmentCollection.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
-
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
-
-#include "CxxUtils/make_unique.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -18,8 +16,6 @@
 InDet::TRT_TrackSegmentsFinder::TRT_TrackSegmentsFinder
 (const std::string& name,ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator)                          ,
-  m_foundSegments("TRTSegments"),
-  m_calo("InDetCaloClusterROIs"),
   m_segmentsMakerTool("InDet::TRT_TrackSegmentsMaker_ATLxk"),
   m_roadtool         ("InDet::TRT_DetElementsRoadMaker_xk")
 {
@@ -30,13 +26,15 @@ InDet::TRT_TrackSegmentsFinder::TRT_TrackSegmentsFinder
   m_nprint            = 0                                ;
   m_nsegments         = 0                                ;
   m_nsegmentsTotal    = 0                                ;
+  m_segmentslocation  = "TRTSegments"                    ;
   m_useCaloSeeds      = false                            ;
+  m_inputClusterContainerName = "InDetCaloClusterROIs"   ;
   m_minNumberDCs     = 9                                 ; 
   declareProperty("SegmentsMakerTool",m_segmentsMakerTool);
-  declareProperty("SegmentsLocation" ,m_foundSegments    );
+  declareProperty("SegmentsLocation" ,m_segmentslocation );
   declareProperty("useCaloSeeds"     ,m_useCaloSeeds     );
   declareProperty("RoadTool"         ,m_roadtool         );
-  declareProperty("InputClusterContainerName",m_calo);
+  declareProperty("InputClusterContainerName",m_inputClusterContainerName);
   declareProperty("MinNumberDriftCircles"    ,m_minNumberDCs);
 }
 
@@ -53,26 +51,26 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   //
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg(MSG::FATAL)<<"Toll service not found !"<<endmsg; return sc;
+    msg(MSG::FATAL)<<"Toll service not found !"<<endreq; return sc;
   }
 
   // Get tool for drift circles seeds maker
   //
   if(m_segmentsMakerTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segmentsMakerTool<< endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segmentsMakerTool<< endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_segmentsMakerTool  << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_segmentsMakerTool  << endreq;
   }
   
   if( m_useCaloSeeds) {
     // Get detector elements road maker tool
     //
     if(m_roadtool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_roadtool <<endmsg;
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_roadtool <<endreq;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endreq;
     }
   } 
 
@@ -81,7 +79,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
   m_nsegmentsTotal = 0;
   return StatusCode::SUCCESS;
@@ -93,13 +91,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
 
 StatusCode InDet::TRT_TrackSegmentsFinder::execute() 
 {
-  StatusCode s = m_foundSegments.record( CxxUtils::make_unique<Trk::SegmentCollection>());
-  
-  if (s.isFailure() || !m_foundSegments.isValid() ) {
-    msg(MSG::ERROR)<<"Could not save TRT segments" <<endmsg;
-    return s;
-  }  
-  
+  Trk::SegmentCollection* foundSegments  = new Trk::SegmentCollection;
   Trk::Segment* segment = 0;
   m_nsegments           = 0;
   
@@ -111,20 +103,21 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
     // Loop through all segments and reconsrtucted segments collection preparation
     //
     while((segment = m_segmentsMakerTool->next())) {
-      ++m_nsegments; m_foundSegments->push_back(segment);
+      ++m_nsegments; foundSegments->push_back(segment);
     }
   }
   else   {
 
     Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
     const Trk::TrackParameters*      par  = 0;
-    
+    const CaloClusterROI_Collection* calo = 0;
     std::vector<IdentifierHash>      vTR;
    
-      
-    if(m_calo.isValid()) {
+    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
+  
+    if(sc == StatusCode::SUCCESS && calo) {
 
-      CaloClusterROI_Collection::const_iterator c = m_calo->begin(), ce = m_calo->end();
+      CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
 
       for(; c!=ce; ++c) {
 	
@@ -152,24 +145,25 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
 	// Loop through all segments and reconsrtucted segments collection preparation
 	//
 	while((segment = m_segmentsMakerTool->next())) {
-	  ++m_nsegments; m_foundSegments->push_back(segment);
+	  ++m_nsegments; foundSegments->push_back(segment);
 	}
       }
-    }else{
-        msg(MSG::WARNING)<<"Could not find TRT segments in container " << m_calo.name() <<endmsg;
-        
     }
   }
   m_segmentsMakerTool->endEvent();
   m_nsegmentsTotal+=m_nsegments; 
 
-
-
+  // Save reconstructed tracks
+  //
+  StatusCode s = evtStore()->record(foundSegments,m_segmentslocation,false);
+  if (s.isFailure() ) {
+    msg(MSG::ERROR)<<"Could not save TRT segments" <<endreq;
+  }
   
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
   return StatusCode::SUCCESS;
 }
@@ -180,7 +174,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
 
 StatusCode InDet::TRT_TrackSegmentsFinder::finalize() 
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -211,8 +205,7 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrackSegmentsFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
+  if(m_nprint)  return dumpevent(out); return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -223,7 +216,7 @@ MsgStream& InDet::TRT_TrackSegmentsFinder::dumptools( MsgStream& out ) const
 {
   int n = 65-m_segmentsMakerTool.type().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-  n     = 65-m_foundSegments.name().size();
+  n     = 65-m_segmentslocation.size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
 
   out<<"|----------------------------------------------------------------"
@@ -231,7 +224,7 @@ MsgStream& InDet::TRT_TrackSegmentsFinder::dumptools( MsgStream& out ) const
      <<std::endl;
   out<<"| Tool for TRT track segments finding             | "<<m_segmentsMakerTool.type()<<s1
      <<std::endl;
-  out<<"| Location of output segments                     | "<<m_foundSegments.name()<<s2
+  out<<"| Location of output segments                     | "<<m_segmentslocation<<s2
      <<std::endl;
   out<<"|----------------------------------------------------------------"
      <<"----------------------------------------------------|"
