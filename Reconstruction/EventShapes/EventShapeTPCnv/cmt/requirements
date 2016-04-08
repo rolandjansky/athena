@@ -5,8 +5,6 @@ author Rolf Seuster  <seuster@cern.ch>
 use AtlasPolicy          AtlasPolicy-*
 
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
-use DataModelAthenaPool  DataModelAthenaPool-*      Control
-use CLIDSvc              CLIDSvc-*                  Control
 
 use EventShapeEvent      EventShapeEvent-*          Reconstruction/EventShapes
 
@@ -20,6 +18,7 @@ apply_pattern installed_library
 # of transient classes
 private
 use AtlasReflex          AtlasReflex-*              External
+use DataModelAthenaPool  DataModelAthenaPool-*      Control
 apply_pattern lcgdict dict=EventShapeTPCnv  \
   selectionfile=selection.xml \
   headerfiles="../EventShapeTPCnv/EventShapeTPCnvDict.h"
