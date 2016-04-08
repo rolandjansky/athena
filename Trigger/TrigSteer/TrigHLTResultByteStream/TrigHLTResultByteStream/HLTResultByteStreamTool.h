@@ -86,8 +86,8 @@ namespace HLT {
 
 inline const InterfaceID& HLT::HLTResultByteStreamTool::interfaceID()
 {
-  static const InterfaceID IID("HLTResultByteStreamTool", 1, 0);
-  return IID;
+  static const InterfaceID _IID("HLTResultByteStreamTool", 1, 0);
+  return _IID;
 }
 
 #endif
