@@ -1,0 +1,18 @@
+package HvGen_i
+
+author Stefano Giagu <Stefano.Giagu@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use Pythia Pythia-* External
+
+private
+#use GeneratorModules GeneratorModules-* Generators
+use GeneratorFortranCommon GeneratorFortranCommon-* Generators
+end_private
+
+library HvGen_i *.cxx *.F
+
+apply_pattern installed_library
+
+apply_pattern declare_runtime_extras extras="inputParHvGen.dat HV.lha.dat"
+apply_pattern declare_joboptions files="*.py"

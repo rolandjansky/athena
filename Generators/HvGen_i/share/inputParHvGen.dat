@@ -1,0 +1,10 @@
+ PMAS(36,1)=  30.! mass of vpizero (as A0)
+ PMAS(36,4)=  10.! lifetime of vpizero in mm (as A0)
+ PMAS(36,2)=  0.000720411133! width of vpizero (as A0)
+ PMAS(36,3)=  0.00720411133! B-W cutoff of vpizero (as A0)
+ PMAS(35,1)=  31.0222222! mass of vpiplus (as H0)
+ PMAS(35,4)=  0.1! lifetime of vpiplus in mm (as H0)
+ PMAS(35,2)=  0.000677304173! width of vpiplus (as H0)
+ PMAS(35,3)=  0.00677304173! B-W cutoff of vpiplus (as H0)
+ MDCY(35,1)= 0! if this is zero, vpiplus (as H0) does not decay
+ Input HV.lha.dat

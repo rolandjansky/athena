@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}   
+\def\topfraction{1.}
+\def\textfraction{0.}           
+\begin{document}
+\title{HvGen\_i: An interface between HiddenValley Generator and Athena\\
+Version in release 13.0.0 and later}
+\author{ Stefano Giagu (Stefano.Giagu@cern.ch) }
+%\today
+
+\maketitle           
+
+This package runs HV generator from within Athena. \\See the example
+in {\bf HvGen\_i/share/jobOptions.HvGenPythia.py } which show how to
+read HV events and hadronize them using Pythia.
+
+Users must first run HV Generator in standalone mode and make a file of events. An athena job
+then takes these events hadronizes them and passes them down the
+Athena event chain. The events must be made with a version of HV generator
+that is compatible.
+Compatible versions can be found in:
+/afs/cern.ch/user/g/giagu/public/HvGen and /afs/cern.ch/atlas/offline/external/hvgen
+
+To hadronize HV generated events with Pythia, you only need to run athena with the jobOptions
+file jobOptions.HvGenPythia.py by typing in the prompt \\
+{\it athena jobOptions.HvGenPythia.py}\\
+
+More infomation about Hidden Valley Models and HV generator here: \\
+/afs/cern.ch/user/g/giagu/public/HvGen/doc \\
+/afs/cern.ch/atlas/offline/external/hvgen/doc and in: \\
+http://www.phys.washington.edu/users/strasslr/hv/hv.htm
+
+\end{document}
