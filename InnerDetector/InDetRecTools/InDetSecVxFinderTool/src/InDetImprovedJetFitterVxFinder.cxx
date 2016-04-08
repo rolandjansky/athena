@@ -491,11 +491,11 @@ namespace InDet
 //      }
 //    }
 
-    xAOD::Vertex xAODprimaryVertex(primaryVertex);
+//    xAOD::Vertex xAODprimaryVertex(primaryVertex);
 
 
     Trk::VxCandidate* signalVertex=0;
-    sc = m_VertexEdmFactory->createVxCandidate(xAODprimaryVertex, signalVertex);
+    sc = m_VertexEdmFactory->createVxCandidate(primaryVertex, signalVertex);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << m_VertexEdmFactory << " fail to createVxCandidate." << endreq;
       return 0;
@@ -592,7 +592,7 @@ namespace InDet
 
       if (msgLvl(MSG::VERBOSE)) msg() <<  "PV position " << primaryVertexRecVertex.position().x() << " " << primaryVertexRecVertex.position().y() << " " << primaryVertexRecVertex.position().z() << endreq;
 
-       const Trk::TrackParameters* myMeasuredPerigee;
+       const Trk::TrackParameters* myMeasuredPerigee=nullptr;
       
       if (trkCastedLinkTPBase)
       {
