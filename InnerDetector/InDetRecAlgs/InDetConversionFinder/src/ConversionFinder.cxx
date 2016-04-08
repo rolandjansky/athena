@@ -51,24 +51,24 @@ namespace InDet
   {
     /* Get the VertexFinderTool */
     if ( m_VertexFinderTool.retrieve().isFailure() ) {
-       msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
+       msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
        return StatusCode::FAILURE;
     } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endmsg;
+       msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endreq;
     }
 
 
     if ( m_doExtrapolation && m_EMExtrapolationTool.retrieve().isFailure() ) {
-       msg(MSG::INFO) << "Failed to retrieve tool " << m_EMExtrapolationTool << endmsg;
+       msg(MSG::INFO) << "Failed to retrieve tool " << m_EMExtrapolationTool << endreq;
        m_doExtrapolation = false;
     } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_EMExtrapolationTool << endmsg;
+       msg(MSG::INFO) << "Retrieved tool " << m_EMExtrapolationTool << endreq;
     }
 
 
     resetStatistics();
 
-    msg(MSG::INFO) << "Initialization successful" << endmsg;
+    msg(MSG::INFO) << "Initialization successful" << endreq;
 
     return StatusCode::SUCCESS;
   }
@@ -76,7 +76,7 @@ namespace InDet
   StatusCode ConversionFinder::finalize()
   {
     if ( msg().level() == MSG::INFO ){
-      msg(MSG::INFO) <<"Summary:  "<<endmsg;
+      msg(MSG::INFO) <<"Summary:  "<<endreq;
       std::cout<< "------------------------------------------------------------"<<std::endl;
       std::cout<< "Processed: " << m_events_processed<< " events " <<std::endl;
       std::cout<< "Stored   : " << m_Gamma_stored<<" Conversions " <<std::endl;
@@ -193,12 +193,10 @@ namespace InDet
         if( trackParticle->summaryValue( temp , xAOD::numberOfSCTHits)   ) ncl += temp; 
         if( trackParticle->summaryValue( temp , xAOD::numberOfTRTHits)   ) ntrt += temp; 
         if(i==0) {
-          if(ncl>0) isSi1 = true;
-          if(ncl==0 && ntrt>0) isTrt1 = true;
+          if(ncl>0) isSi1 = true; if(ncl==0 && ntrt>0) isTrt1 = true;
         }
         if(i==1) {
-          if(ncl>0) isSi2 = true;
-          if(ncl==0 && ntrt>0) isTrt2 = true;
+          if(ncl>0) isSi2 = true; if(ncl==0 && ntrt>0) isTrt2 = true;
         }
 
         //Decide on the type of track combination in vertex
