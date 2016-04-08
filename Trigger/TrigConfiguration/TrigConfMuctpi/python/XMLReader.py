@@ -12,7 +12,7 @@ class TrigXMLElement:
         self.children = element.getchildren()
         self.readchildren()
     def __str__(self):
-        s = "<%s%s>" % (" ".join([self.tag] + ['%s="%s"' % x for x in self.items]), "/" if len(self.children)==0 else "")
+        s = "<%s %s>" % (self.tag, " ".join(['%s="%s"' % x for x in self.items]))
         return s
     def __repr__(self):
         return self.tag
@@ -22,7 +22,7 @@ class TrigXMLElement:
 
     def __getitem__(self,k):
         return dict(self.items)[k]
-    
+
     def strippedText(self):
         return self.element.text.strip()
 
@@ -37,22 +37,15 @@ class TrigXMLElement:
             if len(self._childtagdict[t])==1:
                 self.__dict__['%s'%t] = self._childtagdict[t][0]
 
-
-
 class TrigXMLDocumentReader(object):
     def __init__(self,filename):
         self.filename=filename
         from TrigConfMuctpi.Utils import findFileInXMLPATH
-        self.fullFileName = findFileInXMLPATH(filename)
-        self.read(self.fullFileName)
-
+        self.read(findFileInXMLPATH(filename))
     def read(self,filename):
         self.doc = ET.parse(filename)
         root = TrigXMLElement(self.doc.getroot())
         self.__dict__[root.tag] = root
-
-    def getFileName(self):
-        return self.fullFileName
 
 
 class MioctGeometryXMLReader(TrigXMLDocumentReader):
@@ -70,6 +63,4 @@ class MioctGeometryXMLReader(TrigXMLDocumentReader):
 
 
 if __name__ == "__main__":
-    from PathResolver import PathResolver
-    xmlfile = PathResolver.FindCalibFile("TrigConfMuctpi/TestMioctGeometry_2016_05_30_CS_2600573263.xml")
-    l1menu = L1MenuXMLReader(xmlfile)
+    l1menu = L1MenuXMLReader("TrigConfMuctpi/TestMioctGeometry.xml")
