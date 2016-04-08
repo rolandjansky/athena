@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStore_traits.h 568070 2013-10-31 11:07:18Z krasznaa $
+// $Id: AuxStore_traits.h 644841 2015-02-06 16:30:19Z ssnyder $
 /**
  * @file AthContainersInterfaces/AuxStore_traits.h
  * @author scott snyder <snyder@bnl.gov>, Paolo Calafiura
@@ -70,7 +70,7 @@ namespace SG {
 /**
  * @brief Mark that there's no associated AuxStore class.
  */
-struct NoAuxStore {};
+class NoAuxStore {};
 
 
 /// Default traits values for aux data case.
