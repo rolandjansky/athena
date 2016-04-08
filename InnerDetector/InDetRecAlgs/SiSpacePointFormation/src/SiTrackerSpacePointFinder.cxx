@@ -9,15 +9,6 @@ ATLAS Collaboration
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#ifdef HAVE_NEW_IOSTREAMS
-#include <iostream>
-
-#include <fstream>
-#else
-#include <iostream.h>
-#include <fstream.h>
-#endif
-#include <stdio.h>
 
 #include "SiSpacePointFormation/SiTrackerSpacePointFinder.h"
 #include "SiSpacePointFormation/SiElementPropertiesTable.h"
@@ -71,15 +62,15 @@ SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string&	name,
 	m_yVertex		(0.),
 	m_zVertex		(0.),
 	m_iBeamCondSvc		("BeamCondSvc",name),
-	m_event			(0),
+	m_event			(nullptr),
 	m_numberOfEvents	(0),
 	m_manager(0),
-	m_idHelper		(0),
-	m_idHelperPixel		(0),
-	m_properties		(0),
-	m_SpacePointContainer_SCT	(0),
-	m_SpacePointContainerPixel	(0),
-	m_spacepointoverlapCollection	(0),
+	m_idHelper		(nullptr),
+	m_idHelperPixel		(nullptr),
+	m_properties		(nullptr),
+	m_SpacePointContainer_SCT	(nullptr),
+	m_SpacePointContainerPixel	(nullptr),
+	m_spacepointoverlapCollection	(nullptr),
 	m_SiSpacePointMakerTool		("InDet::SiSpacePointMakerTool")
     {
   //Use the same space point name both for internal use (for graphics) end
@@ -136,135 +127,96 @@ StatusCode SiTrackerSpacePointFinder::initialize()
     }
   
     // create containers (requires the Identifier Helpers)
-    if (m_selectPixels)
-    {
-	if (StatusCode::SUCCESS != detStore()->retrieve(m_idHelperPixel,"PixelID"))
-	{
-	    ATH_MSG_FATAL( "Could not retrieve PixelID " );
-	    return StatusCode::FAILURE;
-	}
-	m_SpacePointContainerPixel = new SpacePointContainer(m_idHelperPixel->wafer_hash_max()); 
-
-	// prevent SG from deleting object:
-	m_SpacePointContainerPixel->addRef(); 
+    if (m_selectPixels){
+	  ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
+	  m_SpacePointContainerPixel = new SpacePointContainer(m_idHelperPixel->wafer_hash_max()); 
+	  // prevent SG from deleting object:
+	  m_SpacePointContainerPixel->addRef(); 
     }
  
-    if (m_selectSCTs)
-    {
-	if (StatusCode::SUCCESS != detStore()->retrieve(m_idHelper,"SCT_ID"))
-	{
-	    ATH_MSG_FATAL( "Could not retrieve SCT_ID " );
-	    return StatusCode::FAILURE;
-	}
-	m_SpacePointContainer_SCT = new SpacePointContainer(m_idHelper->wafer_hash_max()); 
-	m_SpacePointContainer_SCT->addRef();
+    if (m_selectSCTs){
+	  ATH_CHECK(detStore()->retrieve(m_idHelper,"SCT_ID"));
+	  m_SpacePointContainer_SCT = new SpacePointContainer(m_idHelper->wafer_hash_max()); 
+	  m_SpacePointContainer_SCT->addRef();
 	
-	// also need the SCT Manager to get the detectorElementCollection
-	if (detStore()->retrieve(m_manager,"SCT").isFailure())
-	{
-	    ATH_MSG_FATAL( "Cannot retrieve SCT_DetectorManager!" );
-	    return StatusCode::FAILURE;
-	}
-  
-	// Make a table of neighbours and widths of side 1 SCT wafers
-	InDetDD::SiDetectorElementCollection* elements =
-	    const_cast<InDetDD::SiDetectorElementCollection*>
-	    (m_manager->getDetectorElementCollection());
-	m_properties = new SiElementPropertiesTable(*m_idHelper, *elements, m_epsWidth);
+	  // also need the SCT Manager to get the detectorElementCollection
+	  ATH_CHECK(detStore()->retrieve(m_manager,"SCT"));
+	
+	  // Make a table of neighbours and widths of side 1 SCT wafers
+	  InDetDD::SiDetectorElementCollection* elements =const_cast<InDetDD::SiDetectorElementCollection*>(m_manager->getDetectorElementCollection());
+	  m_properties = new SiElementPropertiesTable(*m_idHelper, *elements, m_epsWidth);
     } 
 
-    if (m_SiSpacePointMakerTool.retrieve().isFailure()) {
-	ATH_MSG_FATAL( "Unable to locate SiSpacePointMakerTool " << m_SiSpacePointMakerTool );
-	return StatusCode::FAILURE;
-    } 
-
-    if (!m_overrideBS)
-    {
-	if (m_iBeamCondSvc.retrieve().isFailure()) {
+    ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
+    if (!m_overrideBS){
+	  if (m_iBeamCondSvc.retrieve().isFailure()) {
 	    m_overrideBS = true;
 	    ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. " );
 	    ATH_MSG_WARNING( "Using instead pre-set beam spot at ( " << m_xVertex
 			     <<" , "<< m_yVertex << " , " << m_yVertex<< " ) " );
-	}
+	  }
     }
-
     ATH_MSG_INFO( "SiTrackerSpacePointFinder::initialized for package version " << PACKAGE_VERSION );
-  
     return StatusCode::SUCCESS;
-
 }
 
 //-------------------------------------------------------------------------
 
 StatusCode SiTrackerSpacePointFinder::execute()
 {
-    if (msgLvl(MSG::DEBUG))
-    {
-	ATH_MSG_DEBUG( "SiTrackerSpacePointFinder::execute()" );
-	    
-	// Put out info about event.
-	const DataHandle<xAOD::EventInfo> eventInfo;
-	StatusCode sc = evtStore()->retrieve(eventInfo);
-	if (sc.isFailure())
-	{
+    if (msgLvl(MSG::DEBUG)){
+	  ATH_MSG_DEBUG( "SiTrackerSpacePointFinder::execute()" );
+	  // Put out info about event.
+	  const DataHandle<xAOD::EventInfo> eventInfo;
+	  StatusCode sc = evtStore()->retrieve(eventInfo);
+	  if (sc.isFailure()){
 	    ATH_MSG_ERROR( "Could not get event" );
 	    return StatusCode::RECOVERABLE;
-	}
-	ATH_MSG_DEBUG( "Event number event_" + intString(eventInfo->eventNumber()) );
+	  }
+	  ATH_MSG_DEBUG( "Event number event_" + intString(eventInfo->eventNumber()) );
     }
     ++m_numberOfEvents;
     
-    if (! m_overrideBS)
-    {
+    if (! m_overrideBS){
         m_vertex = m_iBeamCondSvc->beamVtx().position();
-    }
-    else
-    {
+    } else {
       m_vertex = Amg::Vector3D(m_xVertex,m_yVertex,m_zVertex);
     }
 
     // register the IdentifiableContainer into StoreGate
-    if (m_selectPixels)
-    {
-	m_SpacePointContainerPixel->cleanup();
-	StatusCode sc = evtStore()->record(m_SpacePointContainerPixel,m_spacePointsPixelName,false);
-	if (sc.isFailure())
-	{
+    if (m_selectPixels){
+	  m_SpacePointContainerPixel->cleanup();
+	  StatusCode sc = evtStore()->record(m_SpacePointContainerPixel,m_spacePointsPixelName,false);
+	  if (sc.isFailure()){
 	    ATH_MSG_ERROR( "Container '" << m_spacePointsPixelName
 			   << "' could not be recorded in StoreGate !" );
 	    return StatusCode::RECOVERABLE;
-	}
-	ATH_MSG_DEBUG( "Container '" << m_spacePointsPixelName << "' recorded in StoreGate" );
+	  }
+	  ATH_MSG_DEBUG( "Container '" << m_spacePointsPixelName << "' recorded in StoreGate" );
     }
   
-    if (m_selectSCTs)
-    {
-	m_SpacePointContainer_SCT->cleanup();
-	StatusCode sc = evtStore()->record(m_SpacePointContainer_SCT,m_spacePointsSCTName,false);
-	if (sc.isFailure())
-	{
+    if (m_selectSCTs){
+	  m_SpacePointContainer_SCT->cleanup();
+	  StatusCode sc = evtStore()->record(m_SpacePointContainer_SCT,m_spacePointsSCTName,false);
+	  if (sc.isFailure()){
 	    ATH_MSG_ERROR( "Container '" << m_spacePointsSCTName
 			   << "' could not be recorded in StoreGate !" );
 	    return StatusCode::RECOVERABLE;
-	}
-	ATH_MSG_DEBUG( "Container '" << m_spacePointsSCTName << "' recorded in StoreGate" );
+	  }
+	  ATH_MSG_DEBUG( "Container '" << m_spacePointsSCTName << "' recorded in StoreGate" );
     }
 
     // Get hold of IdentifiableContainer holding SCT clusters from TDS
     // ( because we need random access to get the second side).
     // Note there may not be any, but there could still be pixel clusters.
     m_spacepointoverlapCollection = new SpacePointOverlapCollection();
-    if (m_selectSCTs)
-    {
-	// retrieve SCT cluster container
-	StatusCode sc = evtStore()->retrieve(m_Sct_clcontainer, m_SCT_ClustersName);
-	if (sc.isFailure()  || ! m_Sct_clcontainer)
-	{
+    if (m_selectSCTs){
+	  // retrieve SCT cluster container
+	  StatusCode sc = evtStore()->retrieve(m_Sct_clcontainer, m_SCT_ClustersName);
+	  if (sc.isFailure()  || ! m_Sct_clcontainer){
 	    ATH_MSG_ERROR( "SCT Cluster container not found" );
 	    return StatusCode::RECOVERABLE;
-	}
-	else
-	{
+	  } else{
 	    ATH_MSG_DEBUG( "SCT Cluster container found:  " << m_Sct_clcontainer->size() << " collections" );
 	} 
     
@@ -276,45 +228,34 @@ StatusCode SiTrackerSpacePointFinder::execute()
 	SCT_ClusterContainer::const_iterator it     = m_Sct_clcontainer->begin();
 	SCT_ClusterContainer::const_iterator itend  = m_Sct_clcontainer->end();
     
-	for (; it != itend; ++it)
-	{
+	for (; it != itend; ++it){
 	    const SCT_ClusterCollection *colNext=&(**it);
-      
 	    // Create SpacePointCollection
 	    IdentifierHash idHash = colNext->identifyHash(); 
-      
 	    Identifier elementID = colNext->identify();
 	    SpacePointCollection* spacepointCollection = new SpacePointCollection(idHash); 
 	    spacepointCollection->setIdentifier(elementID); 
 
-	    if ( colNext->size() != 0)
-	    { 
-		addSCT_SpacePoints(colNext,spacepointCollection);
-	    }
-	    else
-	    {
-		ATH_MSG_DEBUG( "Empty SCT cluster collection" );
+	    if ( colNext->size() != 0){ 
+		 addSCT_SpacePoints(colNext,spacepointCollection);
+	    } else {
+		  ATH_MSG_DEBUG( "Empty SCT cluster collection" );
 	    }
       
-	    if (spacepointCollection->size() == 0)
-	    {
-		ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
-		// -me- clean up memory
-		delete (spacepointCollection);
-	    }
-	    else
-	    {    
-		sc= m_SpacePointContainer_SCT->addCollection( spacepointCollection,
+	    if (spacepointCollection->size() == 0){
+		  ATH_MSG_VERBOSE( "SiTrackerSpacePointFinder algorithm found no space points" );
+		  // -me- clean up memory
+		  delete (spacepointCollection);
+	    } else {    
+		  sc= m_SpacePointContainer_SCT->addCollection( spacepointCollection,
 							      spacepointCollection->identifyHash() );
-		if (sc.isFailure())
-		{
+		  if (sc.isFailure()){
 		    ATH_MSG_ERROR( "Failed to add SpacePoints to container" );
 		    return StatusCode::RECOVERABLE;
-		}
-		ATH_MSG_VERBOSE( spacepointCollection->size()
-				 << " SpacePoints successfully added to Container !" );
+		  }
+		  ATH_MSG_VERBOSE( spacepointCollection->size()<< " SpacePoints successfully added to Container !" );
 	    }    
-	}
+	  }
     }
   
     if (m_selectPixels)
