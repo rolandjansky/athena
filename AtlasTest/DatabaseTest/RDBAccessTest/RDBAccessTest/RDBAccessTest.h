@@ -14,7 +14,7 @@
 #ifndef RDBACCESSTEST_H
 #define RDBACCESSTEST_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class IRDBRecordset;
 
@@ -25,7 +25,7 @@ class IRDBRecordset;
  * 
  */
 
-class RDBAccessTest:public Algorithm 
+class RDBAccessTest:public AthAlgorithm 
 {
  public:
   /// Standard constructor
@@ -47,7 +47,6 @@ class RDBAccessTest:public Algorithm
 
 private:
   const IRDBRecordset* m_tifg;
-  ISvcLocator* m_locator;
 };
 
 #endif

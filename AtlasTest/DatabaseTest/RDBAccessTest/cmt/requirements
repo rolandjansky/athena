@@ -4,6 +4,7 @@ use AtlasPolicy       AtlasPolicy-*
 use TestPolicy        TestPolicy-*
 use GaudiInterface    GaudiInterface-*    External 
 use MinimalRunTime    MinimalRunTime-*    Control -no_auto_imports
+use AthenaBaseComps   AthenaBaseComps-*   Control
 
 apply_pattern component_library
 library RDBAccessTest *.cxx 
