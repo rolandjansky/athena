@@ -18,10 +18,9 @@
 // CLIDSvc includes (for persistency)
 #include "CLIDSvc/CLASS_DEF.h"
 
-// The IOVRange class
-#include "AthenaKernel/IOVRange.h"
+#include "LumiBlockData/LB_IOVRange.h"
 
-class LumiBlockCollection: public DataVector<IOVRange> 
+class LumiBlockCollection: public DataVector<LB_IOVRange> 
 {
  public:
   // Default Constructor

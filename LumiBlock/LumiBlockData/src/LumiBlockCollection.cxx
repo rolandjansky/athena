@@ -21,21 +21,21 @@
 /// Constructors
 ////////////////
 
-LumiBlockCollection::LumiBlockCollection(): DataVector<IOVRange> (SG::OWN_ELEMENTS) {}
+LumiBlockCollection::LumiBlockCollection(): DataVector<LB_IOVRange> (SG::OWN_ELEMENTS) {}
 
 LumiBlockCollection::LumiBlockCollection( const LumiBlockCollection& rhs ) : 
-   DataVector<IOVRange> (rhs) {}
+   DataVector<LB_IOVRange> (rhs) {}
  
 LumiBlockCollection& LumiBlockCollection::operator=( const LumiBlockCollection& rhs ) 
    {
      if ( this != &rhs ) {
-       DataVector<IOVRange>::operator=(rhs);
+       DataVector<LB_IOVRange>::operator=(rhs);
      }
    return *this;
    }
 
    LumiBlockCollection::LumiBlockCollection( const SG::OwnershipPolicy own ) :
-     DataVector<IOVRange>(own)
+     DataVector<LB_IOVRange>(own)
    {}
 
 /////////////////////////////////////////////////////////////////////
@@ -56,7 +56,10 @@ LumiBlockCollection& LumiBlockCollection::operator=( const LumiBlockCollection& 
            << (*it)->start().run() << "," << (*it)->start().event() 
 	   << "):("
            << (*it)->stop().run() << "," << (*it)->stop().event() 
-     	   << ") ]" << std::endl;
+     	   << ") eventsSeen = " << (*it)->getNumSeen()  
+           << ", eventsExpected = " << (*it)->getNumExpected() 
+           << " ]" 
+           << std::endl;
      }
      return out;
     }
