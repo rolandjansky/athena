@@ -49,6 +49,7 @@ CommonGeometryManagerTool::CommonGeometryManagerTool(const std::string& type,
   : AthAlgTool(type,name,parent)
   , p_muonMgr(0)
   , m_idTool("MuonCalib::IdToFixedIdTool")
+  , m_regionSvc(0)
  {
 
   declareProperty("doModuleSelection", m_doModuleSelection = false );

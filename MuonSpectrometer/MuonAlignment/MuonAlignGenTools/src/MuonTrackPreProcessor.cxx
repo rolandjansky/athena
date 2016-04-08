@@ -7,8 +7,7 @@
 #include "GaudiKernel/PropertyMgr.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
@@ -491,19 +490,14 @@ namespace Muon {
       if (m_pTCorrectTrack) {
 	const DataVector<const Trk::TrackStateOnSurface>* tsos=
 	  origTrack->trackStateOnSurfaces();
-	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos=tsos->begin(); 
-	     iTsos!=tsos->end(); ++iTsos) {
-	  
-	  //if ((*iTsos)->type(Trk::TrackStateOnSurface::Perigee)) {
-	  //ATH_MSG_DEBUG("skipping perigee");
-	  //continue;	
-	  //}
 
-	  ATH_MSG_DEBUG("tsos: "<<**iTsos);
-	  qOverP=(*iTsos)->trackParameters()->parameters()[Trk::qOverP];
+	if ( !(tsos->empty()) ) {
+          const Trk::TrackStateOnSurface* iTsos=tsos->front();
+	  ATH_MSG_DEBUG("tsos: "<<*iTsos);
+	  qOverP=iTsos->trackParameters()->parameters()[Trk::qOverP];
 	  ATH_MSG_DEBUG("qOverP: "<<qOverP<<", 1/qOverP: "<<1./qOverP);
-	  break;
 	}
+
       }
 
       if (msgLvl(MSG::VERBOSE)) {
@@ -675,13 +669,13 @@ namespace Muon {
 
       // get run and event numbers
       ATH_MSG_DEBUG("Retrieving event info.");
-      const EventInfo* eventInfo;
+      const xAOD::EventInfo* eventInfo;
       StatusCode sc = m_storeGate->retrieve(eventInfo);
       if (sc.isFailure()) {
 	ATH_MSG_ERROR("Could not retrieve event info.");
       }
-      m_runNumber = eventInfo->event_ID()->run_number();
-      m_evtNumber = eventInfo->event_ID()->event_number();
+      m_runNumber = eventInfo->runNumber();
+      m_evtNumber = eventInfo->eventNumber();
       
 
       // calculate chi2

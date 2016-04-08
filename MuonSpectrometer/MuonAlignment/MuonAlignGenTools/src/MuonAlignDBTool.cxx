@@ -718,26 +718,30 @@ namespace Muon {
 	  alignMod->detElementCollection(Trk::AlignModule::MDT);
 	if (!detElementColl) 
 	  detElementColl=alignMod->detElementCollection(Trk::AlignModule::CSC);
-	if (!detElementColl) ATH_MSG_WARNING("not MDT or CSC!");
-      
-	unsigned int lastDetIdHash=99999999;
-	for (int i=0;i<(int)detElementColl->size();i++) {
-	  ATH_MSG_DEBUG("idet="<<i<<"/"<<detElementColl->size());
-	  const MuonGM::MuonReadoutElement* muonRE=getMuonRE((*detElementColl)[i]);
-	  if (!muonRE) continue;       
-	  
-	  ATH_MSG_DEBUG("idHash="<<muonRE->identifyHash()<<", last "<<lastDetIdHash);
-	  
-	  if (lastDetIdHash!=muonRE->identifyHash()) {
-	    lastDetIdHash=muonRE->identifyHash();
-	    m_detElemLookup_identifier->push_back(muonRE->identify());
-	    m_detElemLookup_alignMod->push_back(alignMod);
-	    m_detElemLookup_detElem ->push_back(muonRE);	    
-	    m_detElemLookup_stEta   ->push_back(muonRE->getStationEta());
-	    m_detElemLookup_stPhi   ->push_back(muonRE->getStationPhi());
-	    m_detElemLookup_stName  ->push_back(std::string(muonRE->getStationName(),0,3));
-	  }
-	}
+
+	if (!detElementColl) { 
+	   ATH_MSG_WARNING("not MDT or CSC!");
+	} else {
+           unsigned int lastDetIdHash=99999999;
+           for (int i=0;i<(int)detElementColl->size();i++) {
+             ATH_MSG_DEBUG("idet="<<i<<"/"<<detElementColl->size());
+             const MuonGM::MuonReadoutElement* muonRE=getMuonRE((*detElementColl)[i]);
+             if (!muonRE) continue;       
+             
+             ATH_MSG_DEBUG("idHash="<<muonRE->identifyHash()<<", last "<<lastDetIdHash);
+             
+             if (lastDetIdHash!=muonRE->identifyHash()) {
+               lastDetIdHash=muonRE->identifyHash();
+               m_detElemLookup_identifier->push_back(muonRE->identify());
+               m_detElemLookup_alignMod->push_back(alignMod);
+               m_detElemLookup_detElem ->push_back(muonRE);	    
+               m_detElemLookup_stEta   ->push_back(muonRE->getStationEta());
+               m_detElemLookup_stPhi   ->push_back(muonRE->getStationPhi());
+               m_detElemLookup_stName  ->push_back(std::string(muonRE->getStationName(),0,3));
+             }
+           }
+        }
+
       }
       
       ATH_MSG_DEBUG("done");
@@ -752,28 +756,30 @@ namespace Muon {
 	    alignMod->detElementCollection(Trk::AlignModule::MDT);
 	  if (!detElementColl) detElementColl =
 	    alignMod->detElementCollection(Trk::AlignModule::CSC);
-	  if (!detElementColl) ATH_MSG_WARNING("no detElementColl for MDT or CSC");
-	  
-	  unsigned int lastDetIdHash=0;
-	  for (int i=0;i<(int)detElementColl->size();i++) {
-	    const MuonGM::MuonReadoutElement* muonRE=getMuonRE((*detElementColl)[i]);
+	  if (!detElementColl) {
+	    ATH_MSG_WARNING("no detElementColl for MDT or CSC");
+	  } else {
+	    unsigned int lastDetIdHash=0;
+	    for (int i=0;i<(int)detElementColl->size();i++) {
+	      const MuonGM::MuonReadoutElement* muonRE=getMuonRE((*detElementColl)[i]);
 	    
-	    if (!muonRE) continue;
-	    ATH_MSG_DEBUG("idHash="<<muonRE->identifyHash()<<", last "<<lastDetIdHash);
+	      if (!muonRE) continue;
+	      ATH_MSG_DEBUG("idHash="<<muonRE->identifyHash()<<", last "<<lastDetIdHash);
 	    
-	    if (lastDetIdHash!=muonRE->identifyHash()) {
-	      lastDetIdHash=muonRE->identifyHash();
+	      if (lastDetIdHash!=muonRE->identifyHash()) {
+		lastDetIdHash=muonRE->identifyHash();
 	      
-	      // now loop through ALines and get corresponding entry
-	      int ialine(0);
-	      ATH_MSG_DEBUG("have "<< m_alines->size()<<" ALines");
-	      for (ciALineMap cialine = m_alines->begin();
-		   cialine != m_alines->end(); ++cialine,ialine++) {
-		Identifier ALineId = (*cialine).first;
-		if (ALineId == muonRE->identify()) {
-		  m_detElemLookup_alineIndex->push_back(ialine);
-		  ATH_MSG_DEBUG("have ALine");
-		  break;
+		// now loop through ALines and get corresponding entry
+		int ialine(0);
+		ATH_MSG_DEBUG("have "<< m_alines->size()<<" ALines");
+		for (ciALineMap cialine = m_alines->begin();
+		     cialine != m_alines->end(); ++cialine,ialine++) {
+		  Identifier ALineId = (*cialine).first;
+		  if (ALineId == muonRE->identify()) {
+		    m_detElemLookup_alineIndex->push_back(ialine);
+		    ATH_MSG_DEBUG("have ALine");
+		    break;
+		  }
 		}
 	      }
 	    }
@@ -872,22 +878,24 @@ namespace Muon {
      
       const Trk::AlignModule* alignModule=
 	m_alignModuleTool->findAlignModule(detElement,detType);
-      if (!alignModule) ATH_MSG_WARNING("no AlignModule! (detType "<<detType<<", ID: "<<detElement->identify());
-      
-      // get AlignPars for this AlignModule
-      DataVector<Trk::AlignPar>* apVec=m_alignModuleTool->getFullAlignPars(alignModule);	
-      if (apVec) {
-	for (int i=0;i<(int)apVec->size();i++) {
-	  int param=(*apVec)[i]->paramType();
-	  (*apVec)[i]->setInitPar(initPars[param],initErrs[param]);
-	  ATH_MSG_DEBUG("setting initPar "<<initPars[param]<<" to "<<*(*apVec)[i]);
-	}
-	ATH_MSG_DEBUG("pushing back apVec");
-	m_ALineContainerToAlignPar.push_back(apVec);
-      }
-      else {
-	ATH_MSG_DEBUG("pushing back 0");
-	m_ALineContainerToAlignPar.push_back(0);
+      if (!alignModule) {
+         ATH_MSG_WARNING("no AlignModule! (detType "<<detType<<", ID: "<<detElement->identify());
+      } else {
+         // get AlignPars for this AlignModule
+         DataVector<Trk::AlignPar>* apVec=m_alignModuleTool->getFullAlignPars(alignModule);	
+         if (apVec) {
+           for (int i=0;i<(int)apVec->size();i++) {
+             int param=(*apVec)[i]->paramType();
+             (*apVec)[i]->setInitPar(initPars[param],initErrs[param]);
+             ATH_MSG_DEBUG("setting initPar "<<initPars[param]<<" to "<<*(*apVec)[i]);
+           }
+           ATH_MSG_DEBUG("pushing back apVec");
+           m_ALineContainerToAlignPar.push_back(apVec);
+         }
+         else {
+           ATH_MSG_DEBUG("pushing back 0");
+           m_ALineContainerToAlignPar.push_back(0);
+         }
       }
       
       delete [] initPars;      
@@ -1080,29 +1088,33 @@ namespace Muon {
       const Trk::AlignModule* alignModule=
 	m_alignModuleTool->findAlignModule(detElement,Trk::AlignModule::MDT);
       if (!alignModule){ 
-        ATH_MSG_WARNING("no AlignModule for MDT");
-      }
-      m_ALineContainerToMod.push_back(alignModule);
-       
-    
-      DataVector<Trk::AlignPar>* apVec2=m_alignModuleTool->getAlignPars(alignModule);	
-      ATH_MSG_DEBUG("name: " <<  alignModule->name());
-      ATH_MSG_DEBUG("active pars: " << apVec2->size());
 
-      // get AlignPars for this AlignModule
-      DataVector<Trk::AlignPar>* apVec=m_alignModuleTool->getFullAlignPars(alignModule);	
-      if (apVec) {
-	for (int i=0;i<(int)apVec->size();i++) {
-	  int param=(*apVec)[i]->paramType();
-	  (*apVec)[i]->setInitPar(initPars[param],initErrs[param]);
-	  ATH_MSG_DEBUG("setting initPar "<<initPars[param]<<" to "<<*(*apVec)[i]);
-	}
-	ATH_MSG_DEBUG("pushing back apVec");
-	m_ALineContainerToAlignPar.push_back(apVec);
-      }
-      else {
-	ATH_MSG_DEBUG("pushing back 0");
-	m_ALineContainerToAlignPar.push_back(0);
+        ATH_MSG_WARNING("no AlignModule for MDT");
+        m_ALineContainerToMod.push_back(alignModule);
+
+      } else {
+
+         m_ALineContainerToMod.push_back(alignModule);
+    
+         DataVector<Trk::AlignPar>* apVec2=m_alignModuleTool->getAlignPars(alignModule);	
+         ATH_MSG_DEBUG("name: " <<  alignModule->name());
+         ATH_MSG_DEBUG("active pars: " << apVec2->size());
+
+         // get AlignPars for this AlignModule
+         DataVector<Trk::AlignPar>* apVec=m_alignModuleTool->getFullAlignPars(alignModule);	
+         if (apVec) {
+           for (int i=0;i<(int)apVec->size();i++) {
+             int param=(*apVec)[i]->paramType();
+             (*apVec)[i]->setInitPar(initPars[param],initErrs[param]);
+             ATH_MSG_DEBUG("setting initPar "<<initPars[param]<<" to "<<*(*apVec)[i]);
+           }
+           ATH_MSG_DEBUG("pushing back apVec");
+           m_ALineContainerToAlignPar.push_back(apVec);
+         }
+         else {
+           ATH_MSG_DEBUG("pushing back 0");
+           m_ALineContainerToAlignPar.push_back(0);
+         }
       }
       
       delete [] initPars;      

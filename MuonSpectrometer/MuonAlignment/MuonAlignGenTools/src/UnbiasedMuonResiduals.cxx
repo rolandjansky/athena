@@ -20,8 +20,6 @@
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
 #include "muonEvent/MuonContainer.h"
 
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -87,9 +85,6 @@
 
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -221,7 +216,7 @@ namespace Muon {
     declareProperty("MakeTgcOutliers",     m_makeTGCOutliers=true);
     declareProperty("RedoErrorScaling",    m_redoErrorScaling=true);
 
-    m_nSCTHits=m_nTRTHits=m_nCSCHits=m_nMDTHits=m_nRPCHits=m_nTGCHits=0;
+    m_nPixHits=m_nSCTHits=m_nTRTHits=m_nCSCHits=m_nMDTHits=m_nRPCHits=m_nTGCHits=0;
     m_nInnerMDTHits=m_nMiddleMDTHits=m_nOuterMDTHits=m_nTriggerPhiHits=0;
 
     m_author=m_hIndex=m_phiSector=m_isEndcap=m_identifier=m_isCSide=
@@ -231,7 +226,7 @@ namespace Muon {
     m_trackChi2=m_calEnergyLoss=m_calEnergyLossErr=-999.;
     m_materialOnTrack=0.;
     
-    m_deltaPhi=m_deltaTheta=m_dR=m_dZlocal=m_dYlocal=
+    m_deltaPhi=m_deltaTheta=m_dR=m_dXlocal=m_dZlocal=m_dYlocal=
       m_dXlocalAngle=m_dYlocalAngle=-999.;
     
     m_layer=m_stName=m_stPhi=m_stEta=-999;
@@ -772,6 +767,12 @@ namespace Muon {
     // Sort segment by station
     for ( s = segmentCollection->begin(); s != segmentCollection->end(); ++s) {
       Muon::MuonSegment* mSeg               = dynamic_cast<Muon::MuonSegment*> (*s);
+
+      if ( !mSeg ) {
+         ATH_MSG_WARNING("muon segments cannot be retrieved");
+	 continue;
+      }
+
       Identifier id1                        = chamberId( detType, *mSeg );
     
       if ( !id1.is_valid() ) continue;  
@@ -783,24 +784,24 @@ namespace Muon {
       if (p_idHelperTool->isCsc(id1)) ATH_MSG_DEBUG("isTgc: "<<p_idHelperTool->isTgc(id1));
       
       if ( (detType==Trk::AlignModule::MDT && p_idHelperTool->isMdt(id1)) ||
-	   (detType==Trk::AlignModule::CSC && p_idHelperTool->isCsc(id1)) ||
-	   (detType==Trk::AlignModule::RPC && p_idHelperTool->isRpc(id1)) ||
-	   (detType==Trk::AlignModule::TGC && p_idHelperTool->isTgc(id1)) ) {
+           (detType==Trk::AlignModule::CSC && p_idHelperTool->isCsc(id1)) ||
+           (detType==Trk::AlignModule::RPC && p_idHelperTool->isRpc(id1)) ||
+           (detType==Trk::AlignModule::TGC && p_idHelperTool->isTgc(id1)) ) {
       
-	if (chamberIds(detType,*mSeg).size()>1) {
-	  continue;
-	}
+        if (chamberIds(detType,*mSeg).size()>1) {
+          continue;
+        }
       
-	if (!passesChamberSelection(detType,id1,iflag)) continue;
+        if (!passesChamberSelection(detType,id1,iflag)) continue;
 
-	
-	if (muonTES) {
-	  const Analysis::Muon* goodMuon=findMuon(muonTES,mSeg);
-	  if (goodMuon) {
-	    muonInn.push_back( std::make_pair(mSeg,goodMuon) );
-	    continue;
-	  }
-	} 
+        
+        if (muonTES) {
+          const Analysis::Muon* goodMuon=findMuon(muonTES,mSeg);
+          if (goodMuon) {
+            muonInn.push_back( std::make_pair(mSeg,goodMuon) );
+            continue;
+          }
+        } 
       }
     }
 

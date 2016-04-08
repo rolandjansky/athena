@@ -29,7 +29,7 @@ use TrkDetDescrInterfaces   TrkDetDescrInterfaces-*   Tracking/TrkDetDescr
 private
 use AtlasHepMC              AtlasHepMC-*              External
 use StoreGate	            StoreGate-*               Control
-use EventInfo               EventInfo-*               Event
+use xAODEventInfo           xAODEventInfo-*           Event/xAOD
 
 #use Identifier              Identifier-*              DetectorDescription
 use AtlasDetDescr           AtlasDetDescr-*           DetectorDescription
