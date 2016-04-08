@@ -89,6 +89,32 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
     m_rio.setElement(RIO);
 }
 
+Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack( 
+        const ElementLinkToIDC_MDT_Container& RIO, 
+        const Trk::LocalParameters&     locPos, 
+        const Amg::MatrixX&             errDriftRadius, 
+        const Identifier&               id,
+        const MuonGM::MdtReadoutElement* detEl,
+        const double                    driftTime,
+        const Trk::DriftCircleStatus    status,  
+        double                          positionAlongWire, 
+        float                           localAngle,
+        const MuonDriftCircleErrorStrategy& errorStrategy,
+        const Trk::StraightLineSurface* surface) 
+    :
+    RIO_OnTrack( locPos, errDriftRadius, id ), //call base class constructor
+    m_status(status),
+    m_rio(RIO),
+    m_globalPosition(0),
+    m_saggedSurface(surface),
+    m_detEl( detEl ),
+    m_localAngle(localAngle),
+    m_positionAlongWire(positionAlongWire),
+    m_driftTime(driftTime),
+    m_errorStrategy(errorStrategy)
+{
+}
+
 // Destructor:
     Muon::MdtDriftCircleOnTrack::~MdtDriftCircleOnTrack()
     {
@@ -157,6 +183,30 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( const Muon:
     return *this;
 }
     
+Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( Muon::MdtDriftCircleOnTrack&& rot)
+{
+    if ( &rot != this)
+    {
+        Trk::RIO_OnTrack::operator=(std::move(rot));//base class ass. op.
+        delete m_globalPosition;
+        m_globalPosition = rot.m_globalPosition;
+        rot.m_globalPosition = nullptr;
+
+        delete m_saggedSurface;
+        m_saggedSurface = rot.m_saggedSurface;
+        rot.m_saggedSurface = nullptr;
+
+        m_driftTime = rot.m_driftTime;
+        m_status = rot.m_status;
+        m_rio = rot.m_rio;
+        m_detEl = rot.m_detEl;
+        m_localAngle = rot.m_localAngle; 
+        m_positionAlongWire = rot.m_positionAlongWire;
+        m_errorStrategy= std::move(rot.m_errorStrategy);
+    }
+    return *this;
+}
+    
 const Amg::Vector3D& Muon::MdtDriftCircleOnTrack::globalPosition() const
 {
     if (!m_globalPosition){
@@ -201,13 +251,9 @@ MsgStream& Muon::MdtDriftCircleOnTrack::dump( MsgStream&    stream) const
     stream << "DriftTime: "<<m_driftTime<<std::endl;
     stream << "Status: "<<m_status<<std::endl;
     stream << "Global position (x,y,z) = (";
-    if ( &(this->globalPosition() )!=0 ){
-        stream  <<this->globalPosition().x()<<", "
-                <<this->globalPosition().y()<<", "
-                <<this->globalPosition().z()<<")"<<std::endl;
-    } else {
-        stream<<"NULL!), "<<std::endl;
-    }
+    stream  <<this->globalPosition().x()<<", "
+            <<this->globalPosition().y()<<", "
+            <<this->globalPosition().z()<<")"<<std::endl;
 
     if (m_saggedSurface!=0) {
         stream << "Sagged surface: "<<(*m_saggedSurface)<<std::endl;

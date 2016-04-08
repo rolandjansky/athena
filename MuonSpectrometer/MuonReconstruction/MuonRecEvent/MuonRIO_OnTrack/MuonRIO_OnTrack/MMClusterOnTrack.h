@@ -53,6 +53,15 @@ namespace Muon
 		       double positionAlongStrip
 		       );
 
+    // Alternate constructor that doesn't dereference the RIO link.
+    MMClusterOnTrack(
+                     const ElementLinkToIDC_MM_Container& RIO,
+                     const Trk::LocalParameters& locpos,
+                     const Amg::MatrixX& locerr,
+                     const Identifier& id,
+                     const MuonGM::MMReadoutElement* detEl,
+                     double positionAlongStrip);
+
     /** @brief Destructor*/
     virtual ~MMClusterOnTrack();
 
@@ -61,6 +70,7 @@ namespace Muon
 
     /** @brief Returns the MMPrepData - is a TRT_DriftCircle in this scope*/
     virtual const MMPrepData* prepRawData() const;
+    inline const ElementLinkToIDC_MM_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
     virtual const MuonGM::MMReadoutElement* detectorElement() const;
@@ -103,6 +113,11 @@ namespace Muon
   {
     if (m_rio.isValid()) return m_rio.cachedElement(); 
     else return 0;
+  }
+
+  inline const ElementLinkToIDC_MM_Container& MMClusterOnTrack::prepRawDataLink() const
+  {
+    return m_rio;
   }
 
   inline const MuonGM::MMReadoutElement*  MMClusterOnTrack::detectorElement() const

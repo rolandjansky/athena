@@ -14,6 +14,8 @@
 
 typedef ElementLink<Muon::RpcPrepDataContainer> ElementLinkToIDC_RPC_Container;
 
+class RpcClusterOnTrackCnv_p1;
+
 
 namespace MuonGM
 {
@@ -35,6 +37,7 @@ class RpcClusterOnTrack :  public MuonClusterOnTrack
 public:
 
     friend class  Trk::ITrkEventCnvTool;
+    friend class  ::RpcClusterOnTrackCnv_p1;
 
     RpcClusterOnTrack();
     RpcClusterOnTrack(const RpcClusterOnTrack &);
@@ -57,6 +60,16 @@ public:
         float time=0.0
     );
 
+    // Alternate constructor that doesn't dereference the RIO link.
+    RpcClusterOnTrack(
+                      const ElementLinkToIDC_RPC_Container& RIO,
+                      const Trk::LocalParameters& locpos,
+                      const Amg::MatrixX& locerr,
+                      const Identifier& id,
+                      const MuonGM::RpcReadoutElement* detEl,
+                      double positionAlongStrip,
+                      float time);
+
     /** @brief Destructor*/
     virtual ~RpcClusterOnTrack();
 
@@ -65,6 +78,7 @@ public:
 
     /** @brief Returns the RpcPrepData - is a TRT_DriftCircle in this scope*/
     virtual const RpcPrepData* prepRawData() const;
+    const ElementLinkToIDC_RPC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
     virtual const MuonGM::RpcReadoutElement* detectorElement() const;
@@ -113,6 +127,11 @@ inline const RpcPrepData* RpcClusterOnTrack::prepRawData() const
 {
     if (m_rio.isValid()) return m_rio.cachedElement(); 
     else return 0;
+}
+
+inline const ElementLinkToIDC_RPC_Container& RpcClusterOnTrack::prepRawDataLink() const
+{
+  return m_rio;
 }
 
 inline const MuonGM::RpcReadoutElement*  RpcClusterOnTrack::detectorElement() const

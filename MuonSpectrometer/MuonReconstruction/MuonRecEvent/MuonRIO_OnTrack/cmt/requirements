@@ -25,7 +25,7 @@ use GeoPrimitives GeoPrimitives-* DetectorDescription
 # classes to be added to the dictionary, and which fields are
 # transient. It should be put in ../<package> dir and is conventionally called
 # selection.xml.
-#apply_pattern lcgdict dict=MuonRIO_OnTrack selectionfile=selection.xml headerfiles="../MuonRIO_OnTrack/MuonRIO_OnTrackDict.h"
+apply_pattern lcgdict dict=MuonRIO_OnTrack selectionfile=selection.xml headerfiles="../MuonRIO_OnTrack/MuonRIO_OnTrackDict.h"
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
