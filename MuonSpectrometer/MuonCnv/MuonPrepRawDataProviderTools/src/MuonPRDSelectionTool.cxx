@@ -27,7 +27,10 @@ namespace Muon {
     declareInterface<IMuonPRDSelectionTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
+    declareProperty("MdtDriftCircleOnTrackCreator",m_mdtCreator);
+    declareProperty("MuonClusterOnTrackCreator",m_clusterCreator);
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
+    
   }
 
  MuonPRDSelectionTool::~MuonPRDSelectionTool() { }
@@ -143,16 +146,15 @@ namespace Muon {
     return mdtROT;    
   }
 
-
-  const MuonClusterOnTrack* MuonPRDSelectionTool::calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonCluster& clus ) const {
+  const MuonClusterOnTrack* MuonPRDSelectionTool::calibrateAndSelect( const Trk::TrackParameters& pars, const MuonCluster& clus ) const {
     
     // basic info
     const Identifier& id = clus.identify();
     const Trk::Surface& surf = clus.detectorElement()->surface(id);
 
     // calculate intersection
-    const Amg::Vector3D& position  = intersection.trackParameters->position();
-    const Amg::Vector3D& direction = intersection.trackParameters->momentum();
+    const Amg::Vector3D& position  = pars.position();
+    const Amg::Vector3D& direction = pars.momentum();
     Trk::Intersection slIntersection = clus.detectorElement()->surface(id).straightLineIntersection(position,direction,false,false);
     Amg::Vector3D intersect = slIntersection.position;
 
@@ -179,6 +181,10 @@ namespace Muon {
     }
     
     return cluster;    
+  }
+
+  const MuonClusterOnTrack* MuonPRDSelectionTool::calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonCluster& clus ) const {
+    return calibrateAndSelect(*intersection.trackParameters,clus);
   }
 
   Amg::Vector3D MuonPRDSelectionTool::intersectMDT( const MdtPrepData& mdt, const Amg::Vector3D& position, const Amg::Vector3D& direction, bool usePlane ) const {
