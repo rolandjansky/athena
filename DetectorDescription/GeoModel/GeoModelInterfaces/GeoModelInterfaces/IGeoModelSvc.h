@@ -6,7 +6,6 @@
 #define GEOMODELINTERFACES_IGEOMODELSVC_H
 
 // Include Files
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -16,6 +15,17 @@
 class IIncidentListener;
 class Incident;
 class IGeoModelTool;
+
+namespace GeoModel {
+  enum GeoConfig {
+    GEO_RUN1,
+    GEO_RUN2,
+    GEO_RUN3,
+    GEO_RUN4,
+    GEO_ITk,
+    GEO_TESTBEAM
+  };
+}  
 
 class IGeoModelSvc : virtual public IInterface {
 
