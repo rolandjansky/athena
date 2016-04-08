@@ -15,14 +15,14 @@
 #define TRIGT2TAU_T2TAUETAPHIPTTOOL_H
  
 #include "TrigT2Tau/IAlgToolTau.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class TrigTauCluster;
 class TrigTauTracksInfo;
 class TrigTau;
 
 /** Tool which sets Eta, Phi, Pt  of TrigTau candidate */
-class T2TauEtaPhiPtTool: public IAlgToolTau, public AlgTool{
+class T2TauEtaPhiPtTool: public IAlgToolTau, public AthAlgTool{
   public:
   /** constructor */
     T2TauEtaPhiPtTool(const std::string & type, const std::string & name, 

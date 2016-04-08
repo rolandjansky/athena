@@ -15,7 +15,7 @@
 #define TRIGT2TAU_T2TAUMATCHINGTOOL_H
  
 #include "TrigT2Tau/IAlgToolTau.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class TrigTauCluster;
 class TrigTauTracksInfo;
@@ -23,7 +23,7 @@ class TrigTau;
 
 /** Tool which propogates tracks to the calorimeneter surface and calculates 
 number of tracks matched to the cluster*/
-class T2TauMatchingTool: public IAlgToolTau, public AlgTool{
+class T2TauMatchingTool: public IAlgToolTau, public AthAlgTool{
   public:
   /** constructor */
     T2TauMatchingTool(const std::string & type, const std::string & name, 
