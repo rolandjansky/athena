@@ -1,0 +1,39 @@
+package InDetVKalPriVxFinderTool
+author Vadim Kostyukhin <Vadim.Kostyukhin@cern.ch>
+
+
+private
+
+
+use AtlasROOT        AtlasROOT-*       External
+#
+use TrkTrackSummary        TrkTrackSummary-*         Tracking/TrkEvent
+use TrkEventPrimitives     TrkEventPrimitives-*      Tracking/TrkEvent
+use TrkToolInterfaces      TrkToolInterfaces-*       Tracking/TrkTools
+use TrkTrackLink           TrkTrackLink-*            Tracking/TrkEvent 
+
+use InDetBeamSpotService   InDetBeamSpotService-* InnerDetector/InDetConditions 
+use VxVertex               VxVertex-*                Tracking/TrkEvent
+
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*          External
+use AthenaBaseComps        AthenaBaseComps-*         Control
+#
+use TrkTrack               TrkTrack-*                Tracking/TrkEvent
+use TrkParticleBase        TrkParticleBase-*         Tracking/TrkEvent
+use InDetRecToolInterfaces InDetRecToolInterfaces-*  InnerDetector/InDetRecTools
+use TrkParameters          TrkParameters-*           Tracking/TrkEvent
+use TrkVKalVrtFitter       TrkVKalVrtFitter-*        Tracking/TrkVertexFitter
+use xAODTracking           xAODTracking-*            Event/xAOD
+
+library InDetVKalPriVxFinderTool  *.cxx components/*.cxx
+apply_pattern component_library
+
+##apply_pattern dual_use_library files="*.cxx *.F"
+##apply_pattern declare_joboptions files="*.txt *.py"
+apply_pattern declare_python_modules files="*.py"
+
+private
