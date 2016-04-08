@@ -1,0 +1,33 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+//DR #include "IDC_Helper.h"
+#include "Identifier/IdentifierHash.h"
+template< class IDC, class IDHELPER >
+static
+typename IDC::IDENTIFIABLE* 
+Muon::IDC_Helper::getCollection( const Identifier collId,  IDC* idc, const IDHELPER* idHelper, MsgStream& log){
+    IdentifierHash idHash;
+    if (idHelper->get_module_hash( collId, idHash )) {
+        log << MSG::ERROR << "Unable to get CSC hash id from CSC RDO collection " 
+            << " the identifier is "
+            << endreq;
+        collId.show();
+    }
+    
+    typename IDC::IDENTIFIABLE* collection=0;
+    typename IDC::const_iterator collIt = idc->indexFind(idHash);
+    if (collIt==idc->end()) {
+        collection = new typename IDC::IDENTIFIABLE(idHash);
+        collection->setIdentifier(collId);
+        StatusCode status = idc->addCollection(collection, idHash );
+        if (status.isFailure())
+            log << MSG::ERROR << "Couldn't add collection to IDC" << endreq;
+    } else {  
+        collection = const_cast<typename IDC::IDENTIFIABLE*>( &(**collIt) );
+        //cscHashId = collection->identifyHash();
+    }
+    return collection;
+}
+
