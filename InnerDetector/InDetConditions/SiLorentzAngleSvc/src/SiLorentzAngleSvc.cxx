@@ -23,7 +23,7 @@
 
 SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_pixelDefaults(true),
+  m_pixelDefaults(false),
   m_sctDefaults(true),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
@@ -478,6 +478,8 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
   else {
     temperature = m_siConditionsSvc->temperature(elementHash) + 273.15;
     deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash) * CLHEP::volt;
+    if (isIBL && !is3D) deplVoltage = 40. * CLHEP::volt; 
+    if (isIBL &&  is3D) deplVoltage =  10. * CLHEP::volt; 
     biasVoltage = m_siConditionsSvc->biasVoltage(elementHash) * CLHEP::volt;
     ATH_MSG_DEBUG("Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
  }
