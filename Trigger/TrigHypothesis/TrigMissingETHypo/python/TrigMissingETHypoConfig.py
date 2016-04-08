@@ -189,8 +189,6 @@ class EFMetHypoTCXE (EFMissingETHypoBase):
             self.doEMScaleTC = False
         if 'tcem' in name:
             self.doEMScaleTC = True
-        if 'noFW' in name:
-            self.doOnlyCalcCentralMET = True            
         if 'wMu' in name:
             self.doMuonCorrection = True
         if 'noEF' in name:
@@ -241,8 +239,6 @@ class EFMetHypoJetsXE (EFMissingETHypoBase):
         self.forceAccept=False
         self.onlineMonitoring(False)
         self.doEMScaleTC=False 
-        if 'noFW' in name:
-            self.doOnlyCalcCentralMET = True
         if 'wMu' in name:
             self.doMuonCorrection = True
         if 'noEF' in name:
