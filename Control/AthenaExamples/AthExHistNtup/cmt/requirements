@@ -1,0 +1,15 @@
+package AthExHistNtup
+author Paolo Calafiura <Paolo.Calafiura@cern.ch>
+
+use AtlasPolicy        AtlasPolicy-*
+use AtlasROOT 	       AtlasROOT-* 		External
+
+private
+use AthenaBaseComps    AthenaBaseComps-*	Control
+use GaudiInterface     GaudiInterface-* 	External
+use EventInfo 	       EventInfo-* 		Event
+end_private
+
+library AthExHistNtup *.cxx components/*.cxx
+apply_pattern component_library
+apply_pattern declare_joboptions files="HistNtupOptions.txt HistNtupOptions.py"
