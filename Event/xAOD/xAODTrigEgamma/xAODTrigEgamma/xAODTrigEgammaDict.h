@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigEgammaDict.h 634417 2014-12-08 13:31:27Z krasznaa $
+// $Id: xAODTrigEgammaDict.h 690869 2015-08-24 09:22:25Z rwhite $
 #ifndef XAODTRIGEGAMMA_XAODTRIGEGAMMADICT_H
 #define XAODTRIGEGAMMA_XAODTRIGEGAMMADICT_H
 
@@ -30,6 +30,11 @@
 #include "xAODTrigEgamma/versions/TrigElectron_v1.h"
 #include "xAODTrigEgamma/versions/TrigElectronContainer_v1.h"
 #include "xAODTrigEgamma/versions/TrigElectronAuxContainer_v1.h"
+
+#include "xAODTrigEgamma/ElectronTrigAuxContainer.h"
+#include "xAODTrigEgamma/PhotonTrigAuxContainer.h"
+#include "xAODTrigEgamma/versions/ElectronTrigAuxContainer_v1.h"
+#include "xAODTrigEgamma/versions/PhotonTrigAuxContainer_v1.h"
 
 namespace{
    struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGEGAMMA {

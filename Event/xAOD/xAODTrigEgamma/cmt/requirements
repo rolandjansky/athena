@@ -12,10 +12,12 @@ use xAODBase		    xAODBase-*		Event/xAOD
 use AthLinks		    AthLinks-*		Control
 use xAODTrigCalo	    xAODTrigCalo-*	Event/xAOD
 use xAODTracking	    xAODTracking-*	Event/xAOD
+use xAODEgamma              xAODEgamma-*        Event/xAOD
+use xAODCaloEvent           xAODCaloEvent-*     Event/xAOD
 
 library xAODTrigEgamma ../Root/*.cxx
 apply_pattern installed_library
-
+apply_pattern do_genCLIDDB library=xAODTrigEgamma
 
 # Local things
 private
