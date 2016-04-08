@@ -16,6 +16,11 @@ from AthenaCommon.Constants   import INFO
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
+alg = xAODMaker__EventInfoCnvAlg()
+alg.xAODKey = ""
+topSequence += alg
+
 from AthenaPoolTools.AthenaPoolToolsConf import EventCount
 topSequence += EventCount( OutputLevel = INFO,
                            Dump        = True )

@@ -15,9 +15,10 @@
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/DataHeader.h"
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
+//#include "EventInfo/EventType.h"
+//#include "EventInfo/EventID.h"
+//#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 
@@ -88,11 +89,11 @@ void EventCount::handle(const Incident& inc)
 
 StatusCode EventCount::execute() 
 {
-   StatusCode sc = StatusCode::SUCCESS;
    ATH_MSG_DEBUG ( "in execute()" );
 
    // Get the event header, print out event and run number
-   const DataHandle<EventInfo> evt;
+   ATH_MSG_INFO ( evtStore()->dump() );
+   const DataHandle<xAOD::EventInfo> evt;
    ATH_CHECK( evtStore()->retrieve(evt) );
    if (!evt.isValid()) {
       ATH_MSG_FATAL ( "Could not find event" );
@@ -100,43 +101,43 @@ StatusCode EventCount::execute()
    }
    ++m_nev;
    if (m_nev==1) {
-      m_first = evt->event_ID()->event_number(); 
-      m_firstlb= evt->event_ID()->lumi_block();
+      m_first = evt->eventNumber(); 
+      m_firstlb= evt->lumiBlock();
    }
    std::map<std::string,std::set<EventID> >::iterator kit = m_fileEvents.find(m_currentFile);
    if (kit==m_fileEvents.end()) {
      std::set<EventID> ini;
-     ini.insert(*(evt->event_ID()));
+     ini.insert(EventID(evt->runNumber(),evt->eventNumber()));
      m_fileEvents.insert(std::make_pair(m_currentFile,ini));
    }
    else {
-     kit->second.insert(*(evt->event_ID()));
+     kit->second.insert(EventID(evt->runNumber(),evt->eventNumber()));
    }
    // track final event number
-   m_final = evt->event_ID()->event_number();
-   m_finallb= evt->event_ID()->lumi_block();
+   m_final = evt->eventNumber();
+   m_finallb= evt->lumiBlock();
    // keep list of runs
-   if (m_currentRun!=static_cast<int>(evt->event_ID()->run_number())) {
-      m_currentRun =static_cast<int>(evt->event_ID()->run_number());
-      m_runs.push_back(static_cast<int>(evt->event_ID()->run_number()));
+   if (m_currentRun!=static_cast<int>(evt->runNumber())) {
+      m_currentRun =static_cast<int>(evt->runNumber());
+      m_runs.push_back(static_cast<int>(evt->runNumber()));
    }
    // keep list of event types
-   if (evt->event_type()->test(EventType::IS_SIMULATION)) {
+   if (evt->eventType(xAOD::EventInfo::EventType::IS_SIMULATION)) {
       m_types.insert("Simulation");
    }
    else {m_types.insert("Data");}
-   if (evt->event_type()->test(EventType::IS_TESTBEAM)) {
+   if (evt->eventType(xAOD::EventInfo::EventType::IS_TESTBEAM)) {
       m_types.insert("Testbeam");
    }
    else {m_types.insert("Detector");}
-   if (evt->event_type()->test(EventType::IS_CALIBRATION)) {
+   if (evt->eventType(xAOD::EventInfo::EventType::IS_CALIBRATION)) {
       m_types.insert("Calibration");
    }
    else {m_types.insert("Physics");}
 
    // Keep track of streams
-   std::vector<TriggerInfo::StreamTag>::const_iterator STit  = evt->trigger_info()->streamTags().begin();
-   std::vector<TriggerInfo::StreamTag>::const_iterator STend = evt->trigger_info()->streamTags().end();
+   std::vector<xAOD::EventInfo::StreamTag>::const_iterator STit  = evt->streamTags().begin();
+   std::vector<xAOD::EventInfo::StreamTag>::const_iterator STend = evt->streamTags().end();
    while (STit != STend) {
      // check if stream is in list, if not add it, otherwise increment it
      if (m_streams.find(STit->name()) == m_streams.end()) {
@@ -149,8 +150,8 @@ StatusCode EventCount::execute()
    }
    
 
-   ATH_MSG_DEBUG ( "EventInfo event: " << evt->event_ID()->event_number() 
-                   << " run: " << evt->event_ID()->run_number() );
+   ATH_MSG_DEBUG( "EventInfo event: " << evt->eventNumber() 
+                  << " run: " << evt->runNumber() );
    // 
    // Now check what objects are in storegate
    //
