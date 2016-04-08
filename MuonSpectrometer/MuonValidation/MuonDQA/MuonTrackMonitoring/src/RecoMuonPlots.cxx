@@ -75,7 +75,7 @@ void RecoMuonPlots::initializePlots(){
   //m_eff_loose     = Book2D("_Loose_eff",          "Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
   //m_eff_veryloose = Book2D("_Veryloose_eff", "Very Loose Quality Efficiency;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
   if (Detail){
-    m_pt_broad      = Book1D("_pt_broad", "High p_{T} Distribution;p_{T} [GeV]", 140, 100, 1500);
+    m_pt_broad      = Book1D("_pt_broad", "High p_{T} Distribution;p_{T} [GeV]", 70, 100, 1500);
     m_eta_phi_broad = Book2D("_eta_phi_broad", "High p_{T} Muon #eta #phi Distribution;#eta;#phi", xbins, xmin, xmax, ybins, ymin, ymax);
 
     m_eff_nPrec    = Book2D("_eff_nPrec",   "average number of Precision Layers;#eta;#phi",   xbins, xmin, xmax, ybins, ymin, ymax);

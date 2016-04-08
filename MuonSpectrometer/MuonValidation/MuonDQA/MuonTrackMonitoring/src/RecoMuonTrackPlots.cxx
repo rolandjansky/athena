@@ -18,13 +18,13 @@ m_oTrkRecoInfoPlots(this, "/"),
 // m_oResidualPlots_CSC_eta(this, "/CSC/", "eta"),
 // m_oResidualPlots_CSC_phi(this, "/CSC/", "phi"),
 m_pt_broad(NULL),
-m_eta_phi_broad(NULL),
-m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
+m_eta_phi_broad(NULL)
+//m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
 {}
 
 void RecoMuonTrackPlots::initializePlots(){
   //booking histograms
-  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 140, 100, 1500);
+  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 70, 100, 1500);
   m_eta_phi_broad = Book2D("_eta_phi_broad", "High p_{T} Muon #eta #phi Distribution;#eta;#phi", 52, -2.6, 2.6, 64, -3.2, 3.2);
 }
 

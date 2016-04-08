@@ -57,7 +57,7 @@ MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std:
   m_isMC(false)
 {
 
-  m_pullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
+  //m_pullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
 
   declareProperty("UseTriggerVector",     m_useTrigger); 
   declareProperty("MuonTriggerChainName", m_MuonTriggerChainName);
@@ -163,7 +163,7 @@ StatusCode MuonGenericTracksMon::bookHistograms()
 
   		dirpath = m_MuonTriggerChainName + "Muons/" + sources[SOURCE::NONCBMUONS];
   		MonGroup mongroup_mutracks2(this, rootpath + dirpath, run, attr);
-  		m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath));
+  		m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath, false));
   		bookInMongroup(*m_oRecoMuonPlots[1], mongroup_mutracks2, sources[SOURCE::NONCBMUONS], "NonCB").ignore();
   		//book id tracks
   		dirpath = m_MuonTriggerChainName + "TracksID/" + sources[SOURCE::CBMUONS];
@@ -674,26 +674,26 @@ StatusCode MuonGenericTracksMon::setupTools()
   ATH_MSG_DEBUG( "Defined detector service" );
 
 
-  sc = m_pullCalculator.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Can't retrieve " << m_pullCalculator );
-    return sc;
-  }
-  ATH_MSG_DEBUG( " Found the " << m_pullCalculator );
+  // sc = m_pullCalculator.retrieve();
+  // if (sc.isFailure()) {
+  //   ATH_MSG_ERROR( "Can't retrieve " << m_pullCalculator );
+  //   return sc;
+  // }
+  // ATH_MSG_DEBUG( " Found the " << m_pullCalculator );
 
-  sc = m_helperTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_helperTool );
-    return sc;
-  }
-  ATH_MSG_DEBUG( "Retrieved " << m_helperTool );
+  // sc = m_helperTool.retrieve();
+  // if (!sc.isSuccess()){
+  //   ATH_MSG_FATAL( "Could not get " << m_helperTool );
+  //   return sc;
+  // }
+  // ATH_MSG_DEBUG( "Retrieved " << m_helperTool );
  
-  sc = m_muonHitSummaryTool.retrieve();
-  if (!sc.isSuccess()){
-    ATH_MSG_FATAL( "Could not get " << m_muonHitSummaryTool ); 
-    return sc;
-  }
-  ATH_MSG_DEBUG( "Retrieved " << m_muonHitSummaryTool );
+  // sc = m_muonHitSummaryTool.retrieve();
+  // if (!sc.isSuccess()){
+  //   ATH_MSG_FATAL( "Could not get " << m_muonHitSummaryTool ); 
+  //   return sc;
+  // }
+  // ATH_MSG_DEBUG( "Retrieved " << m_muonHitSummaryTool );
  
   sc = m_ZmumuResonanceSelectionTool.retrieve();
   if (!sc.isSuccess()){

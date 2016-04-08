@@ -66,10 +66,24 @@ void RecoLumiPlots::initializePlots()
   else {name = "other";}
 
   //Make sure the 1D hists has the same dimension as the 2D!
-  m_hNSegment_LB = Book2D("nSegment_LB_2D", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 100, 0.5, 101.5);
-  m_hNMuonTrack_LB = Book2D("nMuonTrack_LB_2D", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
-  if (name != "other") m_hNMuon_LB = Book2D("nMuon_LB_2D", "Number of Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
-  if (name == "Z" || name == "J/#psi"){m_hNResonance_LB = Book2D("n" + type + "_LB_2D", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 1600, -0.5, 1599.5, 5, 0.5, 5.5);}
+  if (name == "other"){
+    m_hNSegment_LB = Book2D("nSegment_LB_2D", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 100, 0.5, 101.5);
+    m_hNMuonTrack_LB = Book2D("nMuonTrack_LB_2D", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
+    m_hNSegment_LB_1D = Book1D("nSegment_LB", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
+    m_hNMuonTrack_LB_1D = Book1D("nMuonTrack_LB", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 1600, -0.5, 1599.5);
+  }
+  else if (name == "CBMuons"){
+    m_hNMuon_LB = Book2D("nMuon_LB_2D", "Number of Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
+    m_hNMuon_LB_1D = Book1D("nMuon_LB", "Number of Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5);
+  }
+  else if (name == "NonCBMuons"){
+    m_hNMuon_LB = Book2D("nMuon_LB_2D", "Number of non-CB Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
+    m_hNMuon_LB_1D = Book1D("nMuon_LB", "Number of non-CB Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5);
+  }
+  else if (name == "Z" || name == "J/#psi"){
+    m_hNResonance_LB = Book2D("n" + type + "_LB_2D", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 1600, -0.5, 1599.5, 5, 0.5, 5.5);
+    m_hNResonance_LB_1D = Book1D("n" + type + "_LB", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 1600, -0.5, 1599.5);
+  }
 
   // m_hNSegment_Inst = Book2D("nSegment_Inst_2D", "Number of Muon Segments vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nsegments", 150, -0.5, 10.5, 100, 0.5, 101.5);
   // m_hNMuonTrack_Inst = Book2D("nMuonTrack_Inst_2D", "Number of Muon MS Tracks vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Ntracks", 150, -0.5, 10.5, 21, 0.5, 21.5);
@@ -87,10 +101,6 @@ void RecoLumiPlots::initializePlots()
   // m_hNSegment_LB_EC = Book2D("nSegment_LB_EC_2D", "Number of Muon Segments in Endcap C side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);
 
   //book the 1D hists for webdisplay
-  m_hNSegment_LB_1D = Book1D("nSegment_LB", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
-  m_hNMuonTrack_LB_1D = Book1D("nMuonTrack_LB", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 1600, -0.5, 1599.5);
-  if (name != "other") m_hNMuon_LB_1D = Book1D("nMuon_LB", "Number of Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5);
-  if (name == "Z" || name == "J/#psi"){m_hNResonance_LB_1D = Book1D("n" + type + "_LB", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 1600, -0.5, 1599.5);}
 
   // m_hNSegment_Inst_1D = Book1D("nSegment_Inst", "Number of Muon Segments vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nsegments", 150, -0.5, 10.5);
   // m_hNMuonTrack_Inst_1D = Book1D("nMuonTrack_Inst", "Number of Muon MS Tracks vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Ntracks", 150, -0.5, 10.5);
@@ -142,44 +152,46 @@ void RecoLumiPlots::fill(const xAOD::TrackParticleContainer* MSTracks, int m_cur
 //fill CB muon related plots
 void RecoLumiPlots::fill_CB(const xAOD::MuonContainer* Muons, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb){
 
+
+
   int m_NMuIDco = 0;
-  int m_NTrkIDco = 0;
-  int m_NSegIDco = 0;
-  int m_NsegBA = 0;
-  int m_NsegBC = 0;
-  int m_NsegEA = 0;
-  int m_NsegEC = 0;
+  //int m_NTrkIDco = 0;
+  //int m_NSegIDco = 0;
+  // int m_NsegBA = 0;
+  // int m_NsegBC = 0;
+  // int m_NsegEA = 0;
+  // int m_NsegEC = 0;
 
   for(const auto mu : *Muons) {
     //do a muon quality cut: 0 tight, 1 medium, 2 loss
     if(mu->muonType() == xAOD::Muon::Combined){m_NMuIDco++;}
     //check the muon related segments
-    const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments = mu->muonSegmentLinks();
-    for(const auto Mu_Segment : Mu_Segments){
-      const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
-      if(Mu_seg.isValid()){
-        m_NSegIDco++;
-        const xAOD::MuonSegment* museg = *Mu_seg;
-        if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegBA++;
-        if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegBC++;
-        if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegEA++;
-        if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegEC++;
-      }
-    }
-    //check muon related tracks
-    ElementLink<xAOD::TrackParticleContainer> Mu_MStrack = mu->muonSpectrometerTrackParticleLink();
-    if(Mu_MStrack.isValid()){
-      m_NTrkIDco++;
-    }
+    // const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments = mu->muonSegmentLinks();
+    // for(const auto Mu_Segment : Mu_Segments){
+    //   const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
+    //   if(Mu_seg.isValid()){
+    //     m_NSegIDco++;
+    //     // const xAOD::MuonSegment* museg = *Mu_seg;
+    //     // if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegBA++;
+    //     // if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegBC++;
+    //     // if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegEA++;
+    //     // if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegEC++;
+    //   }
+    // }
+    // //check muon related tracks
+    // ElementLink<xAOD::TrackParticleContainer> Mu_MStrack = mu->muonSpectrometerTrackParticleLink();
+    // if(Mu_MStrack.isValid()){
+    //   m_NTrkIDco++;
+    // }
   }
   //only do this for combined muons
   m_hNMuon_LB->Fill(m_current_lb, m_NMuIDco + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);
   //if (m_inst_lumi_bcid > 0) m_hNMuon_Inst->Fill(m_inst_lumi_bcid, m_NMuIDco);
   //if (m_inst_lumi_lb > 0) m_hNMuon_IntLumi->Fill(m_inst_lumi_lb, m_NMuIDco);
-  m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
+  //m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
   //if (m_inst_lumi_bcid > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_bcid, m_NTrkIDco);
   //if (m_inst_lumi_lb > 0) m_hNMuonTrack_IntLumi->Fill(m_inst_lumi_lb, m_NTrkIDco);
-  m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
+  //m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
   //if (m_inst_lumi_bcid > 0) m_hNSegment_Inst->Fill(m_inst_lumi_bcid, m_NSegIDco);
   //if (m_inst_lumi_lb > 0) m_hNSegment_IntLumi->Fill(m_inst_lumi_lb, m_NSegIDco);
   // m_hNSegment_LB_BA->Fill(m_current_lb, m_NsegBA);
@@ -193,43 +205,43 @@ void RecoLumiPlots::fill_CB(const xAOD::MuonContainer* Muons, int m_current_lb, 
 void RecoLumiPlots::fill_Other(const xAOD::MuonContainer* Muons, int m_current_lb, float m_inst_lumi_bcid, float m_inst_lumi_lb){
 
   int m_NMuIDco = 0;
-  int m_NTrkIDco = 0;
-  int m_NSegIDco = 0;
-  int m_NsegBA = 0;
-  int m_NsegBC = 0;
-  int m_NsegEA = 0;
-  int m_NsegEC = 0;
+  // int m_NTrkIDco = 0;
+  // int m_NSegIDco = 0;
+  // int m_NsegBA = 0;
+  // int m_NsegBC = 0;
+  // int m_NsegEA = 0;
+  // int m_NsegEC = 0;
 
   for(const auto mu : *Muons) {
     //do a muon quality cut: 0 tight, 1 medium, 2 loss
     if(mu->muonType() != xAOD::Muon::Combined){m_NMuIDco++;}
     //check the muon related segments
-    const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments = mu->muonSegmentLinks();
-    for(const auto Mu_Segment : Mu_Segments){
-      const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
-      if(Mu_seg.isValid()){
-        m_NSegIDco++;
-        const xAOD::MuonSegment* museg = *Mu_seg;
-        if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegBA++;
-        if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegBC++;
-        if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegEA++;
-        if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegEC++;
-      }
-    }
-    //check muon related tracks
-    ElementLink<xAOD::TrackParticleContainer> Mu_MStrack = mu->muonSpectrometerTrackParticleLink();
-    if(Mu_MStrack.isValid()){
-      m_NTrkIDco++;
-    }
+    // const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments = mu->muonSegmentLinks();
+    // for(const auto Mu_Segment : Mu_Segments){
+    //   const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
+    //   if(Mu_seg.isValid()){
+    //     m_NSegIDco++;
+    //     // const xAOD::MuonSegment* museg = *Mu_seg;
+    //     // if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegBA++;
+    //     // if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegBC++;
+    //     // if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegEA++;
+    //     // if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegEC++;
+    //   }
+    // }
+    // //check muon related tracks
+    // ElementLink<xAOD::TrackParticleContainer> Mu_MStrack = mu->muonSpectrometerTrackParticleLink();
+    // if(Mu_MStrack.isValid()){
+    //   m_NTrkIDco++;
+    // }
   }
   //only do this for combined muons
   m_hNMuon_LB->Fill(m_current_lb, m_NMuIDco + m_inst_lumi_bcid - m_inst_lumi_bcid + m_inst_lumi_lb - m_inst_lumi_lb);
   // if (m_inst_lumi_bcid > 0) m_hNMuon_Inst->Fill(m_inst_lumi_bcid, m_NMuIDco);
   // if (m_inst_lumi_lb > 0) m_hNMuon_IntLumi->Fill(m_inst_lumi_lb, m_NMuIDco);
-  m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
+  // m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
   // if (m_inst_lumi_bcid > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_bcid, m_NTrkIDco);
   // if (m_inst_lumi_lb > 0) m_hNMuonTrack_IntLumi->Fill(m_inst_lumi_lb, m_NTrkIDco);
-  m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
+  // m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
   // if (m_inst_lumi_bcid > 0) m_hNSegment_Inst->Fill(m_inst_lumi_bcid, m_NSegIDco);
   // if (m_inst_lumi_lb > 0) m_hNSegment_IntLumi->Fill(m_inst_lumi_lb, m_NSegIDco);
   // m_hNSegment_LB_BA->Fill(m_current_lb, m_NsegBA);
@@ -249,60 +261,60 @@ void RecoLumiPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Mu
   //if (m_inst_lumi_lb != 0) m_hNResonance_IntLumi->Fill(m_inst_lumi_lb, m_Nresonance);
 
 
-  int m_NMuIDco = 0;
-  int m_NTrkIDco = 0;
-  int m_NSegIDco = 0;
-  int m_NsegBA = 0;
-  int m_NsegBC = 0;
-  int m_NsegEA = 0;
-  int m_NsegEC = 0;
-  for (auto resonance: resonances)
-  {
+  // int m_NMuIDco = 0;
+  // int m_NTrkIDco = 0;
+  // int m_NSegIDco = 0;
+  // int m_NsegBA = 0;
+  // int m_NsegBC = 0;
+  // int m_NsegEA = 0;
+  // int m_NsegEC = 0;
+  // for (auto resonance: resonances)
+  // {
 
-    if(resonance.first->muonType() == xAOD::Muon::Combined){m_NMuIDco++;}
-    if(resonance.second->muonType() == xAOD::Muon::Combined){m_NMuIDco++;}
-    //do a muon quality cut: 0 tight, 1 medium, 2 loss
-    //check the muon related segments
-    const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments_first = resonance.first->muonSegmentLinks();
-    for(const auto Mu_Segment : Mu_Segments_first){
-      const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
-      if(Mu_seg.isValid()){
-        m_NSegIDco++;
-      }
-    }
-    //check muon related tracks
-    ElementLink<xAOD::TrackParticleContainer> Mu_MStrack_first = resonance.first->muonSpectrometerTrackParticleLink();
-    if(Mu_MStrack_first.isValid()){
-      m_NTrkIDco++;
-    }
-    //do a muon quality cut: 0 tight, 1 medium, 2 loss
-    //check the muon related segments
-    const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments_second = resonance.second->muonSegmentLinks();
-    for(const auto Mu_Segment : Mu_Segments_second){
-      const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
-      if(Mu_seg.isValid()){
-        m_NSegIDco++;
-        const xAOD::MuonSegment* museg = *Mu_seg;
-        if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegBA++;
-        if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegBC++;
-        if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegEA++;
-        if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegEC++;
-      }
-    }
-    //check muon related tracks
-    ElementLink<xAOD::TrackParticleContainer> Mu_MStrack_second= resonance.second->muonSpectrometerTrackParticleLink();
-    if(Mu_MStrack_second.isValid()){
-      m_NTrkIDco++;
-    }
-  }
+  //   if(resonance.first->muonType() == xAOD::Muon::Combined){m_NMuIDco++;}
+  //   if(resonance.second->muonType() == xAOD::Muon::Combined){m_NMuIDco++;}
+  //   //do a muon quality cut: 0 tight, 1 medium, 2 loss
+  //   //check the muon related segments
+  //   const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments_first = resonance.first->muonSegmentLinks();
+  //   for(const auto Mu_Segment : Mu_Segments_first){
+  //     const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
+  //     if(Mu_seg.isValid()){
+  //       m_NSegIDco++;
+  //     }
+  //   }
+  //   //check muon related tracks
+  //   ElementLink<xAOD::TrackParticleContainer> Mu_MStrack_first = resonance.first->muonSpectrometerTrackParticleLink();
+  //   if(Mu_MStrack_first.isValid()){
+  //     m_NTrkIDco++;
+  //   }
+  //   //do a muon quality cut: 0 tight, 1 medium, 2 loss
+  //   //check the muon related segments
+  //   const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments_second = resonance.second->muonSegmentLinks();
+  //   for(const auto Mu_Segment : Mu_Segments_second){
+  //     const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
+  //     if(Mu_seg.isValid()){
+  //       m_NSegIDco++;
+  //       // const xAOD::MuonSegment* museg = *Mu_seg;
+  //       // if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegBA++;
+  //       // if ((museg->chamberIndex() < Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegBC++;
+  //       // if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() > 0)) m_NsegEA++;
+  //       // if ((museg->chamberIndex() >= Muon::MuonStationIndex::BEE) && (museg->z() < 0)) m_NsegEC++;
+  //     }
+  //   }
+  //   //check muon related tracks
+  //   ElementLink<xAOD::TrackParticleContainer> Mu_MStrack_second = resonance.second->muonSpectrometerTrackParticleLink();
+  //   if(Mu_MStrack_second.isValid()){
+  //     m_NTrkIDco++;
+  //   }
+  // }
   //only do this for combined muons
-  m_hNMuon_LB->Fill(m_current_lb, m_NMuIDco);
+  // m_hNMuon_LB->Fill(m_current_lb, m_NMuIDco);
   // if (m_inst_lumi_bcid > 0) m_hNMuon_Inst->Fill(m_inst_lumi_bcid, m_NMuIDco);
   // if (m_inst_lumi_lb > 0) m_hNMuon_IntLumi->Fill(m_inst_lumi_lb, m_NMuIDco);
-  m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
+  // m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
   // if (m_inst_lumi_bcid > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_bcid, m_NTrkIDco);
   // if (m_inst_lumi_lb > 0) m_hNMuonTrack_IntLumi->Fill(m_inst_lumi_lb, m_NTrkIDco);
-  m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
+  // m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
   // if (m_inst_lumi_bcid > 0) m_hNSegment_Inst->Fill(m_inst_lumi_bcid, m_NSegIDco);
   // if (m_inst_lumi_lb > 0) m_hNSegment_IntLumi->Fill(m_inst_lumi_lb, m_NSegIDco);
   // m_hNSegment_LB_BA->Fill(m_current_lb, m_NsegBA);

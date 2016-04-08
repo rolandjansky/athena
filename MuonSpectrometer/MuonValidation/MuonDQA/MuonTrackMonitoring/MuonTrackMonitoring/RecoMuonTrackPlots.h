@@ -48,9 +48,9 @@ class RecoMuonTrackPlots:public PlotBase {
       TH1* m_pt_broad;
       TH2* m_eta_phi_broad;
 
-      ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
-      ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
-      ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+      //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
+      //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
+      //ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
 
       //fill methods
       void fill(const xAOD::Muon& mu, int component);
