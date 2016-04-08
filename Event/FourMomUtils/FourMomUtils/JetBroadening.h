@@ -5,6 +5,9 @@
 #ifndef FOURMOMUTILS_JETBROADENING_H
 #define FOURMOMUTILS_JETBROADENING_H
 
+// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
+
 #include "EventKernel/INavigable4Momentum.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
@@ -21,9 +24,11 @@ namespace FourMomUtils
                      double& wideJetBroadening, double& totalJetBroadening,
                      CLHEP::Hep3Vector thrust, bool useThreeD = false ) {
     return jetBroadening( theParticles->begin(), theParticles->end(),
-			  wideJetBroadening, totalJetBroadening,
-			  thrust, useThreeD );
+        wideJetBroadening, totalJetBroadening,
+        thrust, useThreeD );
   }
 }
+
+#endif
 
 #endif // FOURMOMUTILS_JETBROADENING_H

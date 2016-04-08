@@ -10,11 +10,9 @@ def _installBindings():
     """load the python bindings to FourMomUtils' function, at module import
     """
     import ROOT
-    import PyCintex
-    PyCintex.Cintex.Enable ()
-    ## load the dictionary:
-    PyCintex.loadDictionary('libFourMomUtilsDict')
-    
+    import cppyy
+    cppyy.loadDictionary('libFourMomUtilsDict')
+
     return
 
 # execute at module import

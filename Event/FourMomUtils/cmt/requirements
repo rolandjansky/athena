@@ -5,22 +5,21 @@ author  Sebastien Binet <binet@cern.ch>
 author  Rolf Seuster <seuster@mail.cern.ch>
 
 ## For Athena policies: it has to be the first use statement
-use AtlasPolicy 	AtlasPolicy-*
+use AtlasPolicy   AtlasPolicy-*
 
-# not yet...
-#use AtlasBoost		AtlasBoost-*		External
-
-#use CxxUtils        CxxUtils-*          Control -no_auto_imports
-use CxxUtils        CxxUtils-*          Control 
-use EventKernel		EventKernel-*		Event
-#
-use NavFourMom		NavFourMom-*		Event
-
+use  CxxUtils                   CxxUtils-*                      Control
+use  AthContainers              AthContainers-*                 Control
+use  xAODBase                   xAODBase-*                      Event/xAOD
+use  xAODMissingET              xAODMissingET-*                 Event/xAOD
+# conditional use statements: only used outside AthAnalysisBase
+use_unless  pkg=EventKernel  tag=ManaCore  ver=*  root=Event
+use_unless  pkg=NavFourMom   tag=ManaCore  ver=*  root=Event
 
 
-branches FourMomUtils src doc python
 
-library FourMomUtils *.cxx
+branches FourMomUtils src doc python Root
+
+library FourMomUtils *.cxx ../Root/*.cxx
 
 apply_pattern installed_library
 #apply_pattern declare_joboptions files="*.py"
@@ -31,12 +30,11 @@ apply_pattern declare_python_modules files="*.py"
 #########################
 private
 
-use FourMom		FourMom-*		Event
-use AtlasCLHEP		AtlasCLHEP-*		External
+use_unless  pkg=FourMom      tag=ManaCore  ver=*  root=Event
+use_unless  pkg=AtlasCLHEP   tag=ManaCore  ver=*  root=External
 
 use AtlasReflex      AtlasReflex-*      External -no_auto_imports
 
 apply_pattern lcgdict dict=FourMomUtils selectionfile=selection.xml \
         headerfiles=" ../FourMomUtils/FourMomUtilsDict.h"
 end_private
-

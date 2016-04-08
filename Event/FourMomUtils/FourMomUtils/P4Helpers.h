@@ -4,21 +4,24 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// P4Helpers.h 
+// P4Helpers.h
 // Header file for P4 helper functions
 // Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-#ifndef FOURMOMUTILS_P4HELPERS_H 
-#define FOURMOMUTILS_P4HELPERS_H 
+///////////////////////////////////////////////////////////////////
+#ifndef FOURMOMUTILS_P4HELPERS_H
+#define FOURMOMUTILS_P4HELPERS_H
 
-/** 
+/**
    P4Helpers provides static helper functions for kinematic calculation
 on objects deriving from I4Momentum.
-    
+
    @author David Rousseau rousseau@lal.in2p3.fr
    @author Sebastien Binet binet@cern.ch
    @author Tadashi Maeno
  */
+
+// AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
+#ifndef XAOD_ANALYSIS
 
 
 // STL includes
@@ -65,7 +68,7 @@ namespace P4Helpers
       }
     return dEta;
   }
-  
+
   /// Computes efficiently \Delta{\eta}^2
   inline
   double deltaEtaSq( const I4Momentum& p1, const I4Momentum& p2 )
@@ -107,7 +110,7 @@ namespace P4Helpers
       }
     return dEtaSq;
   }
-  
+
   /// Computes efficiently \Delta{\eta}, pointer args.
   inline
   double deltaEta( const I4Momentum * const p1, const I4Momentum * const p2 )
@@ -119,7 +122,7 @@ namespace P4Helpers
   inline
   double deltaPhi( double phiA, double phiB )
   {
-    return  -remainder( -phiA + phiB, 2*M_PI ); 
+    return  -remainder( -phiA + phiB, 2*M_PI );
   }
 
   /** delta Phi in range [-pi,pi[ from one I4momentum reference */
@@ -155,11 +158,11 @@ namespace P4Helpers
       }
     else
       {
-        dPhi = remainder( -pA.phi() + pB.phi(), 2*M_PI ); 
+        dPhi = remainder( -pA.phi() + pB.phi(), 2*M_PI );
       }
     return dPhi;
   }
-  
+
   /** delta Phi squared in range ([-pi,pi[)^2 from two I4momentum references */
   inline
   double deltaPhiSq( const I4Momentum & pA, const I4Momentum & pB )
@@ -173,19 +176,19 @@ namespace P4Helpers
       }
     else
       {
-        dPhiSq = remainder( -pA.phi() + pB.phi(), 2*M_PI ); 
+        dPhiSq = remainder( -pA.phi() + pB.phi(), 2*M_PI );
         dPhiSq = dPhiSq * dPhiSq;
       }
     return dPhiSq;
   }
-  
+
   /** delta Phi in range [-pi,pi[ from two I4momentum pointers */
-  inline 
+  inline
   double deltaPhi( const I4Momentum * const pA, const I4Momentum * const pB )
   { return deltaPhi( pA->phi(), pB->phi() ); }
 
   /// \Delta{R} from 1 @c I4Momentum
-  inline 
+  inline
   double deltaR( const I4Momentum& p4, double eta, double phi )
   {
     using std::sqrt;
@@ -195,7 +198,7 @@ namespace P4Helpers
   }
 
   /** delta R from two I4momentum reference */
-  inline 
+  inline
   double deltaR( const I4Momentum& pA, const I4Momentum& pB )
   {
     using std::sqrt;
@@ -214,7 +217,7 @@ namespace P4Helpers
   /// @return true if they are
   inline
   bool isInDeltaR( const I4Momentum& p1, const I4Momentum& p2,
-		   double dR )
+       double dR )
   {
     using std::abs;
     using std::sqrt;
@@ -240,13 +243,13 @@ namespace P4Helpers
   /** invariant mass from four I4momentum references */
   inline
   double invMass( const I4Momentum & pA, const I4Momentum & pB,
-		  const I4Momentum & pC, const I4Momentum & pD )
+      const I4Momentum & pC, const I4Momentum & pD )
   { return (pA.hlv()+pB.hlv()+pC.hlv()+pD.hlv()).m(); }
 
   /** invariant mass from four I4momentum pointers */
   inline
   double invMass( const I4Momentum * const pA, const I4Momentum * const pB,
-		  const I4Momentum * const pC, const I4Momentum * const pD )
+      const I4Momentum * const pC, const I4Momentum * const pD )
   { return invMass( *pA, *pB, *pC, *pD ); }
 
   // -------------------------------------------------------------
@@ -257,7 +260,7 @@ namespace P4Helpers
   template<class Iterator_t, class Predicate_t>
   inline
   void sort( Iterator_t itr, Iterator_t itrEnd, Predicate_t p )
-  { 
+  {
     // Koenig's look-up at our rescue: handle correctly DataVector's
     // special sort method. => We inject the std::sort into our namespace
     using std::sort;
@@ -266,9 +269,9 @@ namespace P4Helpers
 
   /// sort a container according to the given predicate
   template<class Container_t, class Predicate_t>
-  inline 
+  inline
   void sort( Container_t& container, Predicate_t p )
-  { 
+  {
     return P4Helpers::sort( container.begin(), container.end(), p );
   }
 
@@ -280,10 +283,10 @@ namespace P4Helpers
   /// @param index [out] index of the closest element
   /// @param deltaR [out] \Delta{R}
   /// @return true if found
-  template <class Container_t> 
+  template <class Container_t>
   inline
-  bool closestDeltaR( const double eta, const double phi, 
-		      Container_t& coll, std::size_t& index, double& deltaR )
+  bool closestDeltaR( const double eta, const double phi,
+          Container_t& coll, std::size_t& index, double& deltaR )
   {
     deltaR = std::numeric_limits<double>::max(); // big value
     bool l_return = false;
@@ -305,12 +308,12 @@ namespace P4Helpers
   /// @param index [out] index of the closest element
   /// @param deltaR [out] \Delta{R}
   /// @return true if found
-  template <class Container_t> 
+  template <class Container_t>
   inline
-  bool closestDeltaR( const I4Momentum& p4, 
-		      Container_t& coll, std::size_t& index, double& deltaR )
+  bool closestDeltaR( const I4Momentum& p4,
+          Container_t& coll, std::size_t& index, double& deltaR )
   {
-    return P4Helpers::closestDeltaR( p4.eta(), p4.phi(), 
+    return P4Helpers::closestDeltaR( p4.eta(), p4.phi(),
                                      coll, index, deltaR );
   }
 
@@ -322,7 +325,7 @@ namespace P4Helpers
   template <class Container_t>
   inline
   bool closestDeltaR( const double eta, const double phi, const double ene,
-                      Container_t& coll, std::size_t& index, 
+                      Container_t& coll, std::size_t& index,
                       double &deltaR, double &deltaE )
   {
     using std::abs;
@@ -354,8 +357,8 @@ namespace P4Helpers
   template <class Container_t>
   inline
   bool closestDeltaR( const I4Momentum& p4,
-		      Container_t& coll, std::size_t& index, 
-		      double &deltaR, double &deltaE )
+          Container_t& coll, std::size_t& index,
+          double &deltaR, double &deltaE )
   {
     return P4Helpers::closestDeltaR( p4.eta(), p4.phi(), p4.e(),
                                      coll, index, deltaR, deltaE );
@@ -364,6 +367,6 @@ namespace P4Helpers
 } //> namespace P4Helpers
 
 
+#endif
 
-
-#endif // FOURMOMUTILS_P4HELPERS_H 
+#endif // FOURMOMUTILS_P4HELPERS_H
