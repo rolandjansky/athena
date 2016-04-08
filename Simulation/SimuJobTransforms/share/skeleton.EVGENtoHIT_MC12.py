@@ -217,10 +217,19 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-## Add G4 alg to alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
-
+# Add G4 alg to alg sequence
+try:
+    # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
+    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+    topSeq += PyG4AtlasAlg()
+except ImportError:
+    try:
+        # the hive version provides PyG4AtlasSvc
+        from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
+        svcMgr += PyG4AtlasSvc()
+    except ImportError:
+        atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
+        
 from PyJobTransforms.trfUtils import releaseIsOlderThan
 if releaseIsOlderThan(17,6):
     ## Random number configuration
@@ -268,8 +277,15 @@ if hasattr(runArgs, "postExec"):
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-   from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-   # add default configurable
-   UAStore.addAction('LooperKiller',['Step'])
+    # configure the non-MT looperkiller
+    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+    # add default configurable
+    UAStore.addAction('LooperKiller',['Step'])
+    # configure the MT looperkiller
+    from G4UserActions import G4UserActionsConfig
+    try:
+        G4UserActionsConfig.addLooperKillerTool()
+    except AttributeError:
+        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
