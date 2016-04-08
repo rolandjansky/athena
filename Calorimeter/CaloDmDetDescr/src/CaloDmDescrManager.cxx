@@ -338,10 +338,10 @@ CaloDmDescrElement* CaloDmDescrManager::build_element(const Identifier& id, cons
   float theta = 2.*atan(exp(-eta));
   float rho, z;
   if(myRegion->m_isBarrel) {
-    rho=myRegion->m_distance/10.;
+    rho=myRegion->m_distance*0.1;
     z=rho/fabs(tan(theta));
   }else{
-    z=myRegion->m_distance/10.;
+    z=myRegion->m_distance*0.1;
     rho=z*fabs(tan(theta));
   }
   // building new element which will containt real eta, phi values for this identifier
@@ -441,7 +441,7 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
       myRegionPos->m_eta_max=etamax;
       myRegionPos->m_deta=deta;
       myRegionPos->m_neta_max=int((etamax-etamin)/deta+0.00001);
-      myRegionPos->m_dphi=M_PI*dphi/3.2;
+      myRegionPos->m_dphi=dphi*(M_PI/3.2);
       myRegionPos->m_nphi_max=int(M_PI*2./myRegionPos->m_dphi+0.00001);
       myRegionPos->m_distance=distance;
       myRegionPos->m_isBarrel=true;
@@ -479,8 +479,6 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
         int shift_reg = m_caloDM_ID->lar_region_hash_max();
         m_DmRegionVector[shift_reg + m_caloDM_ID->tile_region_hash(id_side_neg)] = myRegionNeg;
         m_DmRegionVector[shift_reg + m_caloDM_ID->tile_region_hash(id_side_pos)] = myRegionPos;
-      } else {
-        log << MSG::ERROR << "Wrong subdet " << subdet << endreq;
       }
       // skipping region description
       while(fin.getline(cLine,sizeof(cLine)-1)) {
