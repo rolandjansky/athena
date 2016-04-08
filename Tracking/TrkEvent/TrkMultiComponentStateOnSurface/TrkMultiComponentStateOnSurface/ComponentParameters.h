@@ -31,6 +31,9 @@ class ComponentParameters : public std::pair<const TrackParameters*, double>{
   
   /** Copy constructor */
   ComponentParameters(const ComponentParameters&);
+  
+  /** Default assignment **/
+  ComponentParameters & operator=(const ComponentParameters&) = default;
 
   /** Virtual destructor */
   virtual ~ComponentParameters();

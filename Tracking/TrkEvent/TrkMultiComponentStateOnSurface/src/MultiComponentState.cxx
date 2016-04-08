@@ -33,45 +33,33 @@ Trk::MultiComponentState::MultiComponentState( const Trk::ComponentParameters& c
 
 Trk::MultiComponentState::~MultiComponentState()
 {
-  
   Trk::MultiComponentState::const_iterator component = this->begin();
-
   for ( ; component != this->end(); ++component ) delete component->first;
-  
   this->clear(); 
-
 }
 
 const Trk::MultiComponentState* Trk::MultiComponentState::clone() const
 {
-
   Trk::MultiComponentState* clonedState = new Trk::MultiComponentState();
-
   Trk::MultiComponentState::const_iterator component = this->begin();
-
   for ( ; component != this->end(); ++component ){
     const Trk::TrackParameters* clonedParameters = component->first->clone();
     Trk::ComponentParameters componentParameters( clonedParameters, component->second );
     clonedState->push_back( componentParameters );
   }
-
   return clonedState;
-
 }
+
 
 const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling( double scalingFactor ) const
 {
-
   Trk::MultiComponentState* clonedState = new Trk::MultiComponentState();
-
   Trk::MultiComponentState::const_iterator component = this->begin();
-
   for ( ; component != this->end(); ++component ){
     const Trk::TrackParameters* clonedParameters = (component->first)->clone();
     Trk::ComponentParameters componentParameters( clonedParameters, component->second * scalingFactor );
     clonedState->push_back( componentParameters );
   }
-
   return clonedState;
 
 }
@@ -80,16 +68,10 @@ const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithWeightScaling
 const Trk::MultiComponentState* Trk::MultiComponentState::cloneWithScaledError( double errorScaleLocX,double errorScaleLocY, double errorScalePhi,
                                                                                 double errorScaleTheta,double errorScaleQoverP ) const
 {
-
   Trk::MultiComponentState* stateWithScaledErrors = new Trk::MultiComponentState();
-
-
   Trk::MultiComponentState::const_iterator component = this->begin();
-
   for ( ; component != this->end(); ++component ){
-
     const Trk::TrackParameters* trackParameters = component->first;
-   
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
     if (!originalMatrix) {
       delete stateWithScaledErrors;

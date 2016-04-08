@@ -94,6 +94,9 @@ class MultiComponentStateOnSurface : public TrackStateOnSurface
   /** Copy constructor */
   MultiComponentStateOnSurface( const MultiComponentStateOnSurface& );
 
+  /** Deleted assignment */
+  MultiComponentStateOnSurface & operator=( const MultiComponentStateOnSurface& ) = delete;
+  
   /** Virtual destructor */
   virtual ~MultiComponentStateOnSurface();
 
@@ -103,7 +106,7 @@ class MultiComponentStateOnSurface : public TrackStateOnSurface
   /** Method to return a pointer to the multi-component state */
   const MultiComponentState* components() const;
 
-  /** Mehtod to return the mode of the multi-component state */
+  /** Method to return the mode of the multi-component state */
   double mixtureModeQoverP() const;
     
 private:

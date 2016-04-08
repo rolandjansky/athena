@@ -107,7 +107,8 @@ Trk::MultiComponentStateOnSurface::MultiComponentStateOnSurface( const Trk::Meas
            0,
            0,
            std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>( 1<<(int)TrackStateOnSurface::Measurement) ),  
-           m_multiComponentState(multiComponentState)
+           m_multiComponentState(multiComponentState),
+           m_mixtureModeQoverP(0.)
 {}
 
 
