@@ -45,11 +45,11 @@ LArOnlineIDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(msgSvc(), "LArOnlineIDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endmsg;
+    MsgStream log(messageService(), "LArOnlineIDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endreq;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
 	return sc;
     }
 
@@ -61,8 +61,8 @@ LArOnlineIDDetDescrCnv::initialize()
 StatusCode 
 LArOnlineIDDetDescrCnv::finalize()
 {
-    MsgStream log(msgSvc(), "LArOnlineIDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endmsg;
+    MsgStream log(messageService(), "LArOnlineIDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endreq;
 
     return StatusCode::SUCCESS; 
 }
@@ -73,25 +73,25 @@ StatusCode
 LArOnlineIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(msgSvc(), "LArOnlineIDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a LArOnlineID helper object in the detector store" << endmsg;
+    MsgStream log(messageService(), "LArOnlineIDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a LArOnlineID helper object in the detector store" << endreq;
 
     // Create a new LArOnlineID
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endmsg;
+	log << MSG::DEBUG << "No Helper key " << endreq;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
     }
     
 
@@ -99,7 +99,7 @@ LArOnlineIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -108,25 +108,25 @@ LArOnlineIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const IdDictManager* idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
     }
 
 
     // create the helper
     LArOnlineID* online_id = new LArOnlineID;
     // pass a pointer to IMessageSvc to the helper
-    online_id->setMessageSvc(msgSvc());
+    online_id->setMessageSvc(messageService());
 
     if (idDictMgr->initializeHelper(*online_id)) {
-	log << MSG::ERROR << "Unable to initialize LArOnlineID" << endmsg;
+	log << MSG::ERROR << "Unable to initialize LArOnlineID" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Initialized LArOnlineID. " << endmsg;
+	log << MSG::DEBUG << " Initialized LArOnlineID. " << endreq;
     }
 
     // Pass a pointer to the container to the Persistency service by reference.

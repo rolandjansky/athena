@@ -45,11 +45,11 @@ LArOnline_SuperCellIDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(msgSvc(), "LArOnline_SuperCellIDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endmsg;
+    MsgStream log(messageService(), "LArOnline_SuperCellIDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endreq;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
 	return sc;
     }
 
@@ -61,8 +61,8 @@ LArOnline_SuperCellIDDetDescrCnv::initialize()
 StatusCode 
 LArOnline_SuperCellIDDetDescrCnv::finalize()
 {
-    MsgStream log(msgSvc(), "LArOnline_SuperCellIDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endmsg;
+    MsgStream log(messageService(), "LArOnline_SuperCellIDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endreq;
 
     return StatusCode::SUCCESS; 
 }
@@ -73,25 +73,25 @@ StatusCode
 LArOnline_SuperCellIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(msgSvc(), "LArOnline_SuperCellIDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a LArOnline_SuperCellID helper object in the detector store" << endmsg;
+    MsgStream log(messageService(), "LArOnline_SuperCellIDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a LArOnline_SuperCellID helper object in the detector store" << endreq;
 
     // Create a new LArOnline_SuperCellID
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endmsg;
+	log << MSG::DEBUG << "No Helper key " << endreq;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
     }
     
 
@@ -99,7 +99,7 @@ LArOnline_SuperCellIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& 
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -108,25 +108,25 @@ LArOnline_SuperCellIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& 
     const IdDictManager* idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
     }
 
 
     // create the helper
     LArOnline_SuperCellID* online_id = new LArOnline_SuperCellID;
     // pass a pointer to IMessageSvc to the helper
-    online_id->setMessageSvc(msgSvc());
+    online_id->setMessageSvc(messageService());
 
     if (idDictMgr->initializeHelper(*online_id)) {
-	log << MSG::ERROR << "Unable to initialize LArOnline_SuperCellID" << endmsg;
+	log << MSG::ERROR << "Unable to initialize LArOnline_SuperCellID" << endreq;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Initialized LArOnline_SuperCellID. " << endmsg;
+	log << MSG::DEBUG << " Initialized LArOnline_SuperCellID. " << endreq;
     }
 
     // Pass a pointer to the container to the Persistency service by reference.
