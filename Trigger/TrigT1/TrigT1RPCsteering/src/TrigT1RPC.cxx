@@ -79,6 +79,9 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ( "RXrostructdebug", m_rx_rostruct_debug=0 );
   declareProperty ( "SLrostructdebug", m_sl_rostruct_debug=0 );
 
+  declareProperty ( "firstBC_to_MUCTPI", m_firstBC_to_MUCTPI=-1 );
+  declareProperty ( "lastBC_to_MUCTPI", m_lastBC_to_MUCTPI=1 );
+  
   m_MuonMgr=0;
   m_rpcId=0;
 }
@@ -176,20 +179,23 @@ StatusCode TrigT1RPC::execute() {
       SectorLogic* logic = (*SLit)->give_SectorL();                     //
       int sector     = (*SLit)->sector();                               //
       int subsystem  = (sector > 31)? 1 : 0;                            //
-      int logic_sector  = sector%32;                                    //
-      unsigned int data_word = logic->outputToMuCTPI();                 //
-                                                                        //
-      
-      ATH_MSG_DEBUG(                                               //
-          "Input to MuCTPI: side=" << subsystem                    //
-          << ", SL= " << logic_sector                                 //
-          << ", RoI=" << TriggerRPC::ROI1(data_word)                  //
-          << ", Th=" << TriggerRPC::PT1(data_word)                    //
-          << ", data word " << MSG::hex << data_word                  //
-          << MSG::dec );                                      //
-      
-                                                                        //
-      ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector);//
+      int logic_sector  = sector%32;//
+
+      for (int dbc=m_firstBC_to_MUCTPI; dbc<=m_lastBC_to_MUCTPI; dbc++){
+          
+          unsigned int data_word = logic->outputToMuCTPI(dbc);
+          
+          ATH_MSG_DEBUG(                                               //
+              "Input to MuCTPI: side=" << subsystem                    //
+              << ", SL= " << logic_sector                                 //
+              << ", BC= " << dbc
+              << ", RoI=" << TriggerRPC::ROI1(data_word)                  //
+              << ", Th=" << TriggerRPC::PT1(data_word)                    //
+              << ", data word " << MSG::hex << data_word                  //
+              << MSG::dec );                                      //
+
+          ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector,dbc);
+      }
                                                                         //
       ++SLit;                                                           //
   }                                                                     //
