@@ -45,6 +45,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),
      m_printTable(false),
+     m_noDBM(true),
      m_pixIdMapping("PixelCablingSvc", name),
      m_sctCablingSvc("SCT_CablingSvc",name)
 {
@@ -56,6 +57,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
   declareProperty("OutputFile",  m_roiFileName);
   declareProperty("PrintHashId", m_printHashId);
   declareProperty("PrintTable",  m_printTable);
+  declareProperty("NoDBM",       m_noDBM=true);
 
 }
 
@@ -182,6 +184,9 @@ SiRegionSelectorTable::createTable()
 	const PixelID* pixelId = dynamic_cast<const PixelID*>(element->getIdHelper());
 	if ( pixelId!=0 ) { 
 	  barrelEC  = pixelId->barrel_ec(element->identify());
+
+	  if ( m_noDBM && std::fabs(barrelEC)>3 ) continue; // skip DBM modules
+
 	  layerDisk = pixelId->layer_disk(element->identify());
 	  robId=m_pixIdMapping->getRobID(element->identify());
 	}
@@ -224,6 +229,9 @@ SiRegionSelectorTable::createTable()
 						    << ", rMin = " << rMin/CLHEP::mm << " mm, rMax = " << rMax/CLHEP::mm << " mm"  
 						    << endreq;
 
+
+      //      if   ( manager->isPixel() ) std::cout << "SUTT-DBM " << smod << std::endl;
+
     }
   }
 
@@ -232,11 +240,11 @@ SiRegionSelectorTable::createTable()
   rd->initialise();
 
   // write out new new LUT to a file if need be
-  if ( m_printTable ) { 
+  if ( m_printTable ) {
     if ( manager->isPixel() ) rd->write("NewPixel"+m_roiFileName);
     else                      rd->write("NewSCT"+m_roiFileName);
   }
-  
+
   //  std::string key;
   std::string detName;
 
