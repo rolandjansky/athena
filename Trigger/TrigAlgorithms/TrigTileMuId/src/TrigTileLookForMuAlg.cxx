@@ -9,7 +9,6 @@
 //  
 //---------------------------------------------------------------------------
 
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
@@ -75,8 +74,6 @@ TrigTileLookForMuAlg::~TrigTileLookForMuAlg()
 
 HLT::ErrorCode TrigTileLookForMuAlg::hltInitialize()
 {
-  m_log = new MsgStream (msgSvc(), name());
-
   // Timers
   m_timerTotal = addTimer("Total");
   m_timerLink = addTimer("Link");
@@ -84,32 +81,19 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltInitialize()
   m_timerLoopOnCand = addTimer("LoopOnCand");
   m_timerLoopOnCellCollections = addTimer("LoopOnCellCollections");
 
-  if (service("DetectorStore", m_detStore).isFailure()) {
-    (*m_log) << MSG::ERROR
-             << "Unable to get pointer to DetectorStore Service"
-             << endreq;
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  if ( m_detStore->retrieve(m_tileID).isFailure()) {
-    (*m_log) << MSG::ERROR
-             << "Unable to retrieve TileID helper from DetectorStore"
-	     << endreq;
+  if ( detStore()->retrieve(m_tileID).isFailure()) {
+    ATH_MSG_ERROR("Unable to retrieve TileID helper from DetectorStore");
     return HLT::BAD_JOB_SETUP;
   }
 
   IToolSvc* toolSvc;
   if(service("ToolSvc",toolSvc).isFailure()) {
-    (*m_log) << MSG::ERROR
-	     << "Cannot retrieve IToolSvc. Exiting!"
-	     << endreq;
+    ATH_MSG_ERROR("Cannot retrieve IToolSvc. Exiting!");
     return HLT::TOOL_FAILURE;
   }
 
   if (toolSvc->retrieveTool("TrigDataAccess", m_data).isFailure()) {
-    (*m_log) << MSG::ERROR
-	     << "Cannot retrieve TrigDataAccess"
-	     << endreq;
+    ATH_MSG_ERROR("Cannot retrieve TrigDataAccess");
     return HLT::TOOL_FAILURE;
   }
 
@@ -130,16 +114,10 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltInitialize()
   i=0;
   for (f = -1.55; f<1.6; f += 0.1){
     if ( fabs(f) > (1.05-0.001) && fabs(f) < (1.05+0.001)){ 
-      if(msgLvl() <= MSG::VERBOSE) 
-        (*m_log) << MSG::VERBOSE
-                 << "SKIP for A-11 or A+11 cell! eta=" << f
-		 << endreq;
+      ATH_MSG_VERBOSE("SKIP for A-11 or A+11 cell! eta=" << f);
     } else {
       eta0[i] = f;
-      if(msgLvl() <= MSG::VERBOSE)
-        (*m_log) << MSG::VERBOSE
-		 << "Fill eta0[i]=" << eta0[i] << "[" << i << "]"
-		 << endreq;
+      ATH_MSG_VERBOSE("Fill eta0[i]=" << eta0[i] << "[" << i << "]");
       i++;
     } 
   } 
@@ -147,12 +125,8 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltInitialize()
   deta2 = 0.1;
   deta1 = 0.05;
 
-  if (msgLvl() <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG
-             << "TrigTileLookForMuAlg initialization completed"
-             << endreq;
-  }
-
+  ATH_MSG_DEBUG("TrigTileLookForMuAlg initialization completed");
+  
   return HLT::OK;
 }
 
@@ -163,8 +137,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
   // total execution time 
   if ( timerSvc() ) m_timerTotal->start();
 
-  if (msgLvl() <= MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG << "exec HLTAlgorithm started" << endreq;
+  ATH_MSG_DEBUG("exec HLTAlgorithm started");
 
   m_error=0x0;
 
@@ -217,19 +190,17 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
   // ----------- Try to read RoIs from L1_RPC (by HL, 2008-12-12) -----------//
   if (m_ReadRoIsFromL1) {
 
-    if(msgLvl() <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << "Found " << inputVector.size() << " TE vectors" << endreq;
+    ATH_MSG_DEBUG("Found " << inputVector.size() << " TE vectors");
 
     if ( inputVector.size() != 1 ) {
-      (*m_log) << MSG::WARNING << "inputVector.size()(=" << inputVector.size()
-               << ") != 1, Please check TE from LvL1!!" << endreq;
+      ATH_MSG_WARNING("inputVector.size()(=" << inputVector.size()
+               << ") != 1, Please check TE from LvL1!!" );
     }
 
     int ii=0;
     for (std::vector<HLT::TEVec>::const_iterator it = inputVector.begin();it != inputVector.end(); ++it) {
 
-      if(msgLvl() <= MSG::DEBUG)
-        (*m_log) << MSG::DEBUG << "TE vector " << ii++ << "contains " << (*it).size() << " TEs" << endreq;
+      ATH_MSG_DEBUG("TE vector " << ii++ << "contains " << (*it).size() << " TEs");
 
       for (HLT::TEVec::const_iterator inner_it = (*it).begin();inner_it != (*it).end(); ++inner_it) {
 
@@ -237,18 +208,13 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 
         HLT::ErrorCode sc = getFeature((*inner_it),roiDescriptor, "");
         if (sc != HLT::OK) {
-          (*m_log) << MSG::ERROR
-		   << " Failed to find RoiDescriptor "
-		   << endreq;
+          ATH_MSG_ERROR(" Failed to find RoiDescriptor ");
           return HLT::BAD_JOB_SETUP;
         }
 
-        if(msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG
-		   << " REGTEST: RoI id " << roiDescriptor->roiId()
-                   << " located at phi = " << roiDescriptor->phi()
-                   << ", eta = " << roiDescriptor->eta()
-		   << endreq;
+	ATH_MSG_DEBUG(" REGTEST: RoI id " << roiDescriptor->roiId()
+		 << " located at phi = " << roiDescriptor->phi()
+                 << ", eta = " << roiDescriptor->eta());
 
 	Eta_RoIs[NRoIs] = roiDescriptor->eta();
 	Phi_RoIs[NRoIs] = roiDescriptor->phi();
@@ -279,13 +245,10 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 	  if (now_eta>0) { now_etamin = 0.2;     now_etamax = etamax; }
 	} 
 
-	if(msgLvl() <= MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG
-		   << "For DetROBIDListUint, EtaMin=" << now_etamin
-		   << " EtaMax=" << now_etamax
-		   << " PhiMin=" << now_phimin
-		   << " PhiMax=" << now_phimax
-		   << endreq;
+	ATH_MSG_DEBUG("For DetROBIDListUint, EtaMin=" << now_etamin
+		 << " EtaMax=" << now_etamax
+		 << " PhiMin=" << now_phimin
+		 << " PhiMax=" << now_phimax);
 
 	Eta_MinMax[0][NRoIs] = now_etamin;
 	Eta_MinMax[1][NRoIs] = now_etamax;
@@ -322,18 +285,14 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
     for(unsigned int iR=0; iR!=m_data->TileContSize();++iR) {
 
       if(m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure()){
-        (*m_log) << MSG::FATAL
-                 << "Error LoadCollections"
-		 << endreq;
+        ATH_MSG_FATAL("Error LoadCollections");
         return HLT::TOOL_FAILURE;
       }
       m_error|=m_data->report_error();
       if ( 0x0FFFFFFF & m_error ) m_conversionError++;
       if ( 0xF0000000 & m_error ) m_algorithmError++;
       if( m_error ) {
-        (*m_log) << MSG::DEBUG
-                 << "Monitoring error found"
-		 << endreq;
+        ATH_MSG_DEBUG("Monitoring error found");
 	return StatusCode::SUCCESS;
       }
 
@@ -344,15 +303,12 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 
         const TileCell* nowcell = (*m_itT);
  
-        if(msgLvl() <= MSG::VERBOSE)
-          (*m_log) << MSG::VERBOSE
-		   << "Collection info: ID: " << nowcell->ID()
-		   << "  eta: " << nowcell->eta()
-		   << "  phi: " << nowcell->phi()
-		   << "  module nr: " << m_tileID->module(nowcell->ID())
-		   << "  Energy: " << nowcell->energy()
-		   << "  CellTy: " <<  m_tileID->sample(nowcell->ID())
-		   << endreq;
+	ATH_MSG_VERBOSE("Collection info: ID: " << nowcell->ID()
+		 << "  eta: " << nowcell->eta()
+		 << "  phi: " << nowcell->phi()
+		 << "  module nr: " << m_tileID->module(nowcell->ID())
+		 << "  Energy: " << nowcell->energy()
+		 << "  CellTy: " <<  m_tileID->sample(nowcell->ID()));
 
         // Fill Matrix (to be optimized) 
 
@@ -439,14 +395,11 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 	enedp3[cand]=m2[i][j];
         cquality[cand] = (m2[i][j] < thres2[i] ? 0:1);
 
-        if (msgLvl() <= MSG::VERBOSE)
-	  (*m_log) << MSG::VERBOSE
-	           << " found a muon candidate=  " << cand   
-	           << "i= " << i
-	           << ",j= " << j
-	           << ",ene= " << m2[i][j]
-	           << " thres2= " << thres2[i]
-	           << endreq;
+	ATH_MSG_VERBOSE(" found a muon candidate=  " << cand   
+	         << "i= " << i
+	         << ",j= " << j
+	         << ",ene= " << m2[i][j]
+	         << " thres2= " << thres2[i]);
 
         cand++;
       }
@@ -493,10 +446,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
     found[ci3] = 0;
     j = phc3[ci3];
 
-    if (msgLvl() <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE
-	       << "loop on  muon candidates: ci3,j " << ci3 << ", " << j 
-	       << endreq;
+    ATH_MSG_VERBOSE("loop on  muon candidates: ci3,j " << ci3 << ", " << j);
 
     int ksto2=cell32[6*etc3[ci3]+0];
 
@@ -548,19 +498,15 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 
 	      ntag = ntag+1;
 
-	      if (msgLvl() <= MSG::DEBUG) {
-	        (*m_log) << MSG::DEBUG
-                         << "Muon tagged:  Ntag = " << ntag
-                         << "  Etatag = " << etatr
-                         << "  Phitag = " << phitr
-                         << "  EnergyVec[0] = " << enetr.at(0)
-                         << "  EnergyVec[1] = " << enetr.at(1)
-                         << "  EnergyVec[2] = " << enetr.at(2)
-                         << "  EnergyVec[3] = " << enetr.at(3)
-                         << "  qaulityfactor= " << qf
-                         << endreq;
-              }
-  
+	      ATH_MSG_DEBUG("Muon tagged:  Ntag = " << ntag
+                       << "  Etatag = " << etatr
+		       << "  Phitag = " << phitr
+                       << "  EnergyVec[0] = " << enetr.at(0)
+                       << "  EnergyVec[1] = " << enetr.at(1)
+                       << "  EnergyVec[2] = " << enetr.at(2)
+                       << "  EnergyVec[3] = " << enetr.at(3)
+                       << "  qaulityfactor= " << qf);
+                
 	      // Fill histograms for tight and loose selection
 	      m_allEta.push_back(etatr);
 	      m_allPhi.push_back(phitr);
@@ -591,15 +537,10 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 	      // (2007-07-12, HL) For testing recording TE 
               HLT::ErrorCode HLTStatus=attachFeature(te, muon);
 	      if( HLTStatus != HLT::OK ) {
-	        (*m_log) << MSG::ERROR 
-	                 << "REGTEST Write of TrigTileLookForMu feature into outputTE failed" 
-		         << endreq; 
+	        ATH_MSG_ERROR("REGTEST Write of TrigTileLookForMu feature into outputTE failed"); 
 	        return HLTStatus;
 	      } else {
-	        if(msgLvl() <= MSG::DEBUG) 
-  	          (*m_log) << MSG::DEBUG
-		           << "Write of TrigTileLookForMu feature into outputTE OK!"
-		           << endreq; 
+		ATH_MSG_DEBUG("Write of TrigTileLookForMu feature into outputTE OK!"); 
               }
 
             } // end if QF <= 1
@@ -669,21 +610,15 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
         m_PhiTileMu_wRoI.push_back( Phi_Mus[Id_Mu]);
         m_PhiRoI_wTileMu.push_back( Phi_RoIs[Id_RoI] );
 
-        if(msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG
-		   << "Matched Eta(TileMu)=" << Eta_Mus[Id_Mu]
-		   << " Eta(RoI)=" << Eta_RoIs[Id_RoI]
-		   << " Phi(TileMu)=" << Phi_Mus[Id_Mu]
-		   << " Phi(RoI)=" << Phi_RoIs[Id_RoI]
-		   << " DelR=" << DelRMin
-		   << endreq;
+	ATH_MSG_DEBUG("Matched Eta(TileMu)=" << Eta_Mus[Id_Mu]
+	         << " Eta(RoI)=" << Eta_RoIs[Id_RoI]
+		 << " Phi(TileMu)=" << Phi_Mus[Id_Mu]
+		 << " Phi(RoI)=" << Phi_RoIs[Id_RoI]
+		 << " DelR=" << DelRMin);
 
       } else { // No matching
 
-        if(msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG
-		   << "No Matching between TileMus and RoIs! Something Wrong?"
-		   << endreq;
+	ATH_MSG_DEBUG("No Matching between TileMus and RoIs! Something Wrong?");
 
       }
 
@@ -713,12 +648,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
 
 HLT::ErrorCode TrigTileLookForMuAlg::hltFinalize()
 { 
-  if(msgLvl() <= MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG 
-             << "TrigTileLookForMuAlg finalization completed"
-             << endreq;
-
-  delete m_log;
+  ATH_MSG_DEBUG("TrigTileLookForMuAlg finalization completed");
 
   return HLT::OK;
 }

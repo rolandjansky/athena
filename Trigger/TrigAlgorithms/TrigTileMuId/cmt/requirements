@@ -8,7 +8,7 @@ public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  MagFieldInterfaces         MagFieldInterfaces-*            MagneticField
 use  GaudiInterface             GaudiInterface-*                External
-use  StoreGate                  StoreGate-*                     Control
+use  AthenaBaseComps		AthenaBaseComps-*		Control
 use  TileByteStream             TileByteStream-*                TileCalorimeter/TileSvc
 use  TileEvent                  TileEvent-*                     TileCalorimeter
 use  TrigInDetEvent             TrigInDetEvent-*                Trigger/TrigEvent

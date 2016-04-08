@@ -17,12 +17,11 @@
 #ifndef TRIGTILEMUID_TRIGTILEMUTONTUPLE_H
 #define TRIGTILEMUID_TRIGTILEMUTONTUPLE_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "StoreGate/StoreGateSvc.h"
 #include <string>
 
-class TrigTileMuToNtuple : public Algorithm {
+class TrigTileMuToNtuple : public AthAlgorithm {
 public:
     //Constructor
     TrigTileMuToNtuple(std::string name, ISvcLocator* pSvcLocator);
@@ -50,7 +49,6 @@ private:
 
     std::string m_TileMuContainer;
 
-    StoreGateSvc* m_storeGate;
  };
 
 #endif

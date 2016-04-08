@@ -5,15 +5,14 @@
 //Gaudi Includes
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaMonitoring/MonitorToolBase.h"
 #include "TrigTileMuId/TrigTileMonAlg.h"
 
 TrigTileMonAlg::TrigTileMonAlg(std::string name, ISvcLocator* pSvcLocator)
-    : HLT::FexAlgo(name, pSvcLocator)       
+    : HLT::FexAlgo(name, pSvcLocator),
+      m_tool(NULL)
 {
     
 }
@@ -24,24 +23,31 @@ TrigTileMonAlg::~TrigTileMonAlg()
 
 HLT::ErrorCode TrigTileMonAlg::hltInitialize()
 { 
-    MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "initialize " << endreq;
+    ATH_MSG_INFO("initialize ");
 
     IToolSvc* p_toolSvc;
     if( service("ToolSvc",p_toolSvc).isFailure() ) {
-	log << MSG::FATAL << " Tool Service not found " << endreq;
+        ATH_MSG_FATAL(" Tool Service not found ");
 	return HLT::TOOL_FAILURE;
     }
 
     IAlgTool* tool;
     if(p_toolSvc->retrieveTool( "TrigTileMonTool", "TrigTileMonTool",
 				tool).isFailure()) {
-	log << MSG::FATAL << "Unable to create " << "TrigTileMonTool"
-	    << " AlgTool" << endreq;
+        ATH_MSG_FATAL("Unable to create " << "TrigTileMonTool"
+	    << " AlgTool");
 	return HLT::TOOL_FAILURE;
     }
     m_tool = dynamic_cast<MonitorToolBase*>(tool);
-    m_tool->bookHists(); 
+    
+    if(m_tool == NULL) {
+      ATH_MSG_FATAL("dynamic cast to MonitorToolBase failed for TrigTileMonTool");
+      return HLT::TOOL_FAILURE;
+    }
+    else {
+      m_tool->bookHists(); 
+    }
+    
     return HLT::OK;
 }
 

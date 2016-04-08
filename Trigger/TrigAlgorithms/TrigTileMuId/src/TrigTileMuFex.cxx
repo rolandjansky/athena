@@ -21,7 +21,6 @@
 //
 //*****************************************************************************
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/StatusCode.h"
@@ -46,8 +45,10 @@ class ISvcLocator;
 
 TrigTileMuFex::TrigTileMuFex(const std::string& name, ISvcLocator* pSvcLocator)
     : HLT::FexAlgo(name, pSvcLocator), 
-      m_trackExtrapolator(0),
-      m_MagFieldSvc(0)
+      m_algoId(TrigInDetTrack::NULLID),
+      m_Typ_IDTrk(0),
+      m_trackExtrapolator(NULL),
+      m_MagFieldSvc(NULL)
 {
   // standard configuration
   declareProperty("IDalgo",           m_ID_algo_to_use="IDSCAN");
@@ -95,10 +96,6 @@ TrigTileMuFex::~TrigTileMuFex()
 
 HLT::ErrorCode TrigTileMuFex::hltInitialize()
 {
-  MsgStream log(msgSvc(), name());
-
-  m_pStoreGate = store();
-
   std::string algoId = m_ID_algo_to_use;
 
   if(algoId=="IDCSAN")         m_algoId = TrigInDetTrack::IDSCANID;
@@ -122,15 +119,12 @@ HLT::ErrorCode TrigTileMuFex::hltInitialize()
                                           m_trackExtrapolatorName,
                                           m_trackExtrapolator);
   if ( sc.isFailure() ) {
-    msg() << MSG::FATAL << "Unable to locate TrackExtrapolator tool " << m_trackExtrapolatorName  << endreq;
+    ATH_MSG_FATAL("Unable to locate TrackExtrapolator tool " << m_trackExtrapolatorName);
     return HLT::BAD_JOB_SETUP;
   }
 
   // Here one is supposed to open the file if needed and do the setup ///////
-  if ( msgLvl() <= MSG::DEBUG ) 
-    msg() << MSG::DEBUG
-          << "Initialization completed successfully"
-	  << endreq;
+  ATH_MSG_DEBUG("Initialization completed successfully");
 
   return HLT::OK;  
 }
@@ -152,23 +146,19 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
   m_PhiTrackAll.clear();	
   m_PtTrackAll.clear();
 
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
+  ATH_MSG_DEBUG("outputTE->ID(): " << outputTE->getId());
 
   //========= Extraction of Muon candidates from TileCal =========
   ElementLink<TileMuFeatureContainer> TileMuFeatureEL;
   if ( HLT::OK != getFeatureLink<TileMuFeatureContainer, TileMuFeature>
 				(outputTE, TileMuFeatureEL) )
   {
-    msg() << MSG::ERROR << " getFeatureLink fails to get TileMuFeature "
-                        << endreq;
+    ATH_MSG_ERROR(" getFeatureLink fails to get TileMuFeature ");
     return HLT::ERROR;                                                    
   }                                                                     
   if ( !TileMuFeatureEL.isValid() )                                   
   {                                                                  
-    msg() << MSG::ERROR              
-          <<  " getFeatureLink finds no TileMuFeature (EL invalid)"  
-          << endreq;
+    ATH_MSG_ERROR(" getFeatureLink finds no TileMuFeature (EL invalid)");
     return HLT::NAV_ERROR;  
   }
 
@@ -178,40 +168,30 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
   HLT::ErrorCode status = getFeatures(outputTE, vectorMuon);
 
   if (status == HLT::OK) {
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG  << " Okay to get vectorMuon with size="
-            << vectorMuon.size() << endreq;
+    ATH_MSG_DEBUG(" Okay to get vectorMuon with size=" << vectorMuon.size());
   } else {
-    msg() << MSG::WARNING << " Failed to get vectorMuon " << endreq;
+    ATH_MSG_WARNING(" Failed to get vectorMuon ");
     return status;
   }
 
   if (vectorMuon.size() == 0) {
-    if (msgLvl() <= MSG::DEBUG) {
-       msg() << MSG::DEBUG  << " N of TileMuFeature == 0" << endreq;
-       return HLT::NAV_ERROR;
-    }
+    ATH_MSG_DEBUG(" N of TileMuFeature == 0");
+    return HLT::NAV_ERROR;
   }
 
   const TileMuFeature* muon = vectorMuon.front();
   if (muon == 0) {
-    if (msgLvl() <= MSG::DEBUG) {
-       msg() << MSG::DEBUG  << " TileMuFeature pointer null" << endreq;
-       return HLT::NAV_ERROR;
-    }
+    ATH_MSG_DEBUG(" TileMuFeature pointer null");
+    return HLT::NAV_ERROR;
   }
   */
   const TileMuFeature* muon = *TileMuFeatureEL;
 
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG
-	  << "REGTEST Eta=" << muon->eta()
-          << " Phi=" << muon->phi() 
-	  << " EnergyVec[0] = " << muon->enedep().at(0) 
-          << " EnergyVec[1] = " << muon->enedep().at(1)
-          << " EnergyVec[2] = " << muon->enedep().at(2)
-          << " EnergyVec[3] = " << muon->enedep().at(3)
-	  << endreq;
+  ATH_MSG_DEBUG("REGTEST Eta=" << muon->eta() << " Phi=" << muon->phi() 
+	<< " EnergyVec[0] = " << muon->enedep().at(0) 
+	<< " EnergyVec[1] = " << muon->enedep().at(1)
+	<< " EnergyVec[2] = " << muon->enedep().at(2)
+        << " EnergyVec[3] = " << muon->enedep().at(3));
 
   float eta_tile = muon->eta();
   float phi_tile = muon->phi();
@@ -231,11 +211,9 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
       bool solenoidOn = m_MagFieldSvc->solenoidOn();
       bool toroidOn = m_MagFieldSvc->toroidOn();
  
-      if(msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "=========== Magnetic Field Status ========== " << endreq;
-	msg() << MSG::DEBUG << " ---> Solenoid : " << ((solenoidOn)? "ON" : "OFF") << endreq;
-	msg() << MSG::DEBUG << " ---> Toroid   : " << ((toroidOn)? "ON" : "OFF") << endreq;
-      }
+      ATH_MSG_DEBUG("=========== Magnetic Field Status ========== ");
+      ATH_MSG_DEBUG(" ---> Solenoid : " << ((solenoidOn)? "ON" : "OFF"));
+      ATH_MSG_DEBUG(" ---> Toroid   : " << ((toroidOn)? "ON" : "OFF"));
 
       if (!solenoidOn) do_straight = true;
     }
@@ -249,15 +227,14 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
   std::vector<float> TrueMu_PhiTR;	TrueMu_PhiTR.clear();
 
   if ( m_GetTruthMuon ) {
-    m_pStoreGate = store();                        // retrieve the store
     
     // retrieving the Montecarlo thru from the Storegate
     const DataHandle<McEventCollection> mcCollptr;
     //std::string       key = "GEN_EVENT";
     std::string   key = m_key_for_truth;
     
-    StatusCode cont = m_pStoreGate->contains<McEventCollection>(key);
-    StatusCode retr = m_pStoreGate->retrieve(mcCollptr,key);
+    StatusCode cont = evtStore()->contains<McEventCollection>(key);
+    StatusCode retr = evtStore()->retrieve(mcCollptr,key);
     if( cont.isSuccess() && retr.isSuccess() ) {
       McEventCollection::const_iterator itr;
       for(itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
@@ -286,13 +263,12 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
 	      muPhiTR = muPhi - (1.23053e-04*muCharge + 5.06985e-01/(muPt*muCharge/1000.));
 	    }
 
-            if(msgLvl() <= MSG::DEBUG)
-              msg() << MSG::DEBUG << "REGTEST TruthMuon::"
-                    << " pdg_id()=" << (*Part)->pdg_id()
-                    << " E=" << muEnergy << " Phi=" << muPhi
-                    << " Pt=" << muPt*muCharge << " Eta=" << muEta
-                    << " Barcode=" << (*Part)->barcode()
-                    << " Status=" << (*Part)->status() << endreq;
+	    ATH_MSG_DEBUG("REGTEST TruthMuon::"
+                  << " pdg_id()=" << (*Part)->pdg_id()
+                  << " E=" << muEnergy << " Phi=" << muPhi
+                  << " Pt=" << muPt*muCharge << " Eta=" << muEta
+                  << " Barcode=" << (*Part)->barcode()
+                  << " Status=" << (*Part)->status());
 
             TrueMu_Eta.push_back(muEta);
             TrueMu_Phi.push_back(muPhi); TrueMu_PhiTR.push_back(muPhiTR);
@@ -302,8 +278,7 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
         }
       }
     } else {
-      msg() << MSG::WARNING << "Could not retrieve McEventCollection"
-            << endreq;
+      ATH_MSG_WARNING("Could not retrieve McEventCollection");
     }
   }
     
@@ -319,10 +294,10 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
   bool 	 Get_MatchedTrack = false;
 
   if(status!=HLT::OK) {
-     msg() << MSG::DEBUG << " Failed to get InDetTrackCollections " << endreq;
+    ATH_MSG_DEBUG(" Failed to get InDetTrackCollections ");
   } else {
-     msg() << MSG::DEBUG << " Got " << vectorOfTrackCollections.size()
-           << " InDetTrackCollections, now fill InDet Block " << endreq;
+    ATH_MSG_DEBUG(" Got " << vectorOfTrackCollections.size()
+           << " InDetTrackCollections, now fill InDet Block ");
 
      if (vectorOfTrackCollections.size() > 0) {
 
@@ -353,8 +328,7 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
 
 	   // Check if event timeout was reached
 	   if (Athena::Timeout::instance().reached()) {
-	     if(msgLvl()<=MSG::DEBUG)
-	       msg() << MSG::DEBUG << "Timeout reached. Trk loop, Aborting sequence." << endreq;
+	     ATH_MSG_DEBUG("Timeout reached. Trk loop, Aborting sequence.");
 	     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
 	   }
 
@@ -411,43 +385,40 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
 	       }
 	     }
 	   
-	     if(msgLvl() <= MSG::DEBUG)
-               msg() << MSG::DEBUG
-		     << "REGTEST For all possible Tracks" << m_ID_algo_to_use
-		     << " track with pt=" << pt_idtr
-		     << ", eta=" << eta_id
-                     << ", etaTR=" << etaTR_id
-                     << ", etaTile=" << eta_tile  
-                     << ", phi=" << phi_id
-		     << ", phiTR=" << phiTR_id
-	             << ", phiTile=" << phi_tile 
-		     << ", DelphiTR=" << DelRNow
-		     << " using " << m_Meth_ExtrapTileR
-                     << ", Zid=" << zPos_id
-		     << endreq;
+	     ATH_MSG_DEBUG(
+		      "REGTEST For all possible Tracks" << m_ID_algo_to_use
+		   << " track with pt=" << pt_idtr
+		   << ", eta=" << eta_id
+                   << ", etaTR=" << etaTR_id
+                   << ", etaTile=" << eta_tile  
+                   << ", phi=" << phi_id
+		   << ", phiTR=" << phiTR_id
+	           << ", phiTile=" << phi_tile 
+		   << ", DelphiTR=" << DelRNow
+		   << " using " << m_Meth_ExtrapTileR
+                   << ", Zid=" << zPos_id);
            }  
          }
        }      
 
-       if(msgLvl() <= MSG::DEBUG)
-         msg() << MSG::DEBUG << "REGTEST NTrack=" << NTrack << endreq;
+       ATH_MSG_DEBUG("REGTEST NTrack=" << NTrack);
   
        if ( DelRMin < UpperMax ) {
          m_NTrack = NTrack;
          Get_MatchedTrack = true;
+         if ( SeltheTrackColl ) {
          ElementLink<TrigInDetTrackCollection> pTrack(*SeltheTrackColl,SelTrackIndex );
 	 TileTrkMu = new TileTrackMuFeature(
               Match_pt_idtr,
               Match_etaTR_id, Match_phiTR_id, m_Typ_IDTrk, 
               TileMuFeatureEL, pTrack);
+         }
 
-         if(msgLvl() <= MSG::DEBUG)
-           msg() << MSG::DEBUG
-		 << "REGTEST for final matched Track:" << m_ID_algo_to_use
-		 << " track with pT=" << selTrack->param()->pT()
-	         << " eta=" << selTrack->param()->eta()
-                 << " phi=" << selTrack->param()->phi0() 
-                 << endreq;
+	 ATH_MSG_DEBUG(
+		  "REGTEST for final matched Track:" << m_ID_algo_to_use
+	       << " track with pT=" << selTrack->param()->pT()
+	       << " eta=" << selTrack->param()->eta()
+               << " phi=" << selTrack->param()->phi0());
 
          if ( m_GetTruthMuon ) {
            float DelRMin_TT = UpperMax, DelRNow_TT = UpperMax;
@@ -487,19 +458,17 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
              float DelPt = (selTrack->param()->pT()-TrueMu_Pt.at(iMin))/1000.;
              m_DelPtTruth.push_back(DelPt);
  
-             if(msgLvl() <= MSG::DEBUG)
-               msg() << MSG::DEBUG
-		     << "REGTEST Matching::"
-                     << " [Truth] Pt=" << TrueMu_Pt.at(iMin)
-                     << " Eta=" << TrueMu_Eta.at(iMin)
-                     << " Phi=" << TrueMu_Phi.at(iMin)
-		     << " [Track] Pt=" << selTrack->param()->pT()
-                     << " Eta=" << selTrack->param()->eta()
-                     << " Phi=" << selTrack->param()->phi0()
-		     << " [Comparison] DelEta=" << selTrack->param()->eta() - TrueMu_Eta.at(iMin)
-                     << " DelPhi=" << DelPhi
-		     << " DelPt=" << DelPt
-		     << endreq; 
+	     ATH_MSG_DEBUG(
+		      "REGTEST Matching::"
+                   << " [Truth] Pt=" << TrueMu_Pt.at(iMin)
+                   << " Eta=" << TrueMu_Eta.at(iMin)
+                   << " Phi=" << TrueMu_Phi.at(iMin)
+		   << " [Track] Pt=" << selTrack->param()->pT()
+                   << " Eta=" << selTrack->param()->eta()
+                   << " Phi=" << selTrack->param()->phi0()
+		   << " [Comparison] DelEta=" << selTrack->param()->eta() - TrueMu_Eta.at(iMin)
+                   << " DelPhi=" << DelPhi
+		   << " DelPt=" << DelPt); 
            }
          }  
        }
@@ -514,8 +483,7 @@ HLT::ErrorCode TrigTileMuFex::hltExecute(const HLT::TriggerElement* /*inputTE*/,
     TileTrkMu = new TileTrackMuFeature( -9999.9, -9999.9,  -9999.9, -900,
                                         TileMuFeatureEL,
                                         ElementLink<TrigInDetTrackCollection>());
-    if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST No matched track!" << endreq;
+    ATH_MSG_DEBUG("REGTEST No matched track!");
   }
 
   /*HLT::ErrorCode HLTStatus =*/ attachFeature(outputTE, TileTrkMu); 

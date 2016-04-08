@@ -16,8 +16,6 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/Algorithm.h" 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TileEvent/TileCell.h"
 #include "TileByteStream/TileROD_Decoder.h"
@@ -29,7 +27,6 @@
 #include <string>
 #include <math.h>
 
-class StoreGateSvc;  
 namespace HLT {
   class TriggerElement;
 }
@@ -60,17 +57,11 @@ class TrigTileLookForMuAlg : public HLT::AllTEAlgo{
   /** counter for algorithm error */
   unsigned int m_algorithmError;
 
-  /** Pointer to StoreGateSvc */
-  StoreGateSvc * m_detStore;
-
   /** Pointer to TileID */
   const TileID * m_tileID;
 
   /** Pointer to ITrigDataAccess */
   ITrigDataAccess * m_data;
-
-  /** Pointer to MsgStream */
-  MsgStream * m_log; 
 
   /** Pointer to TrigTimer */
   TrigTimer *m_timerTotal, *m_timerLink, *m_timerCandSearch, *m_timerLoopOnCand, *m_timerLoopOnCellCollections;

@@ -26,14 +26,11 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/Algorithm.h" 
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TileByteStream/TileROD_Decoder.h"
 #include "TileEvent/TileContainer.h"
 
 #include <string>
 
-class StoreGateSvc;  
 namespace HLT {
   class TriggerElement;
 }
@@ -55,11 +52,6 @@ class TrigTileRODMuAlg : public HLT::AllTEAlgo
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& /*input*/, unsigned int output);
 
  private:
-
-  StoreGateSvc* m_storeGate;
-  StoreGateSvc* m_detStore;
-
-  MsgStream * m_log;
 
   IRegSelSvc* m_pRegionSelector;  
 

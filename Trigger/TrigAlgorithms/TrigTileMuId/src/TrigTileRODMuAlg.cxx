@@ -23,7 +23,6 @@
 #include <vector>
 #include <math.h>
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/StatusCode.h"
@@ -90,65 +89,35 @@ TrigTileRODMuAlg::~TrigTileRODMuAlg()
 
 HLT::ErrorCode TrigTileRODMuAlg::hltInitialize()
 {
-  //MsgStream log(msgSvc(), name());
-  m_log = new MsgStream (msgSvc(), name());
-
   m_timerTotal = addTimer("Total");
   m_timerAccess = addTimer("Access");
   m_timerAddRoi = addTimer("AddRoi");
 
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR
-             << "Unable to get pointer to DetectorStore Service"
-	     << endreq;
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  sc = service("StoreGateSvc", m_storeGate);
-  if ( sc.isFailure() ) {
-    (*m_log) << MSG::ERROR
-             << "Unable to get pointer to StoreGate Service"
-	     << endreq;
-    return HLT::BAD_JOB_SETUP;
-  }
-
   // retrieve TileID helper and TileInfo from det store
-  sc = m_detStore->retrieve(m_tileID);
+  StatusCode sc = detStore()->retrieve(m_tileID);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR
-             << "Unable to retrieve TileID helper from DetectorStore"
-	     << endreq;
+    ATH_MSG_ERROR("Unable to retrieve TileID helper from DetectorStore");
     return HLT::BAD_JOB_SETUP;
   }
 
   // get RegionSelector 
   if (service("RegSelSvc", m_pRegionSelector).isFailure()) {
-    (*m_log) << MSG::FATAL
-	     << "Could not find RegionSelector service"
-	     << endreq;
+    ATH_MSG_FATAL("Could not find RegionSelector service");
     return HLT::BAD_JOB_SETUP;
   }
 
   // get ROBDataProvider
   if(service("ROBDataProviderSvc",m_robDataProvider).isFailure()){
-    (*m_log) << MSG::ERROR 
-	     << "Can't get ROBDataProviderSvc"
-	     << endreq;
+    ATH_MSG_ERROR("Can't get ROBDataProviderSvc");
     return HLT::BAD_JOB_SETUP;
   } 
 
   if(toolSvc()->retrieveTool("TileROD_Decoder",m_tiledecoder).isFailure()){
-    (*m_log) << MSG::FATAL
-	     << "Could not find TileRodDecoder"
-	     << endreq;
+    ATH_MSG_FATAL("Could not find TileRodDecoder");
     return HLT::BAD_JOB_SETUP;
   }
 
-  if (msgLvl() <= MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG  
-             << "TrigTileRODMuAlg initialization completed"
-             << endreq;
+  ATH_MSG_DEBUG("TrigTileRODMuAlg initialization completed");
 
   // TileL2Container
   m_container = new TileL2Container();
@@ -178,14 +147,10 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
   // time of data access
   if ( timerSvc() ) m_timerAccess->start();
 
-  //MsgStream log(messageService(), name());
-  if (msgLvl() <= MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "exec HLTAlgorithm started" << endreq;
+  ATH_MSG_DEBUG("exec HLTAlgorithm started");
 
   if (!m_robDataProvider) {
-    (*m_log) << MSG::ERROR 
-	     << " ROBDataProviderSvc not loaded. Can't read ByteStream."
-	     << endreq;
+    ATH_MSG_ERROR(" ROBDataProviderSvc not loaded. Can't read ByteStream.");
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -230,19 +195,19 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
   for(; collItr!=lastColl; ++collItr) (*collItr)->clear();
   // ----------- Try to read RoIs from L1_RPC (by HL, 2008-12-12) -----------//
   if (m_ReadRoIsFromL1) {  
-    if (msgLvl() <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << "Found " << inputVector.size()
-                             << " TE vectors" << endreq;
+
+    ATH_MSG_DEBUG("Found " << inputVector.size()
+		           << " TE vectors");
     if ( inputVector.size() != 1 ) {
-      (*m_log) << MSG::WARNING << "inputVector.size()(=" << inputVector.size()
-               << ") != 1, Please check TE from LvL1!!" << endreq;
+      ATH_MSG_WARNING("inputVector.size()(=" << inputVector.size()
+               << ") != 1, Please check TE from LvL1!!");
     }
 
     int ii=0;
     for (std::vector<HLT::TEVec>::const_iterator it = inputVector.begin();it != inputVector.end(); ++it) {
-      if (msgLvl() <= MSG::DEBUG)
-        (*m_log) << MSG::DEBUG << "TE vector " << ii++ << "contains "
-                 << (*it).size() << " TEs" << endreq;
+
+      ATH_MSG_DEBUG("TE vector " << ii++ << "contains "
+               << (*it).size() << " TEs");
 
       for (HLT::TEVec::const_iterator inner_it = (*it).begin();inner_it != (*it).end(); ++inner_it) {
         const TrigRoiDescriptor* roiDescriptor = 0;
@@ -250,16 +215,15 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
 
 
         if (sc != HLT::OK) {
-          (*m_log) << MSG::ERROR << " Failed to find RoiDescriptor " << endreq;
+          ATH_MSG_ERROR(" Failed to find RoiDescriptor ");
 
           return HLT::BAD_JOB_SETUP;            //
         }
 
-        if (msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG << " REGTEST: RoI id "
-                   << roiDescriptor->roiId()
-                   << " located at   phi = " <<  roiDescriptor->phi()
-                   << ", eta = " << roiDescriptor->eta() << endreq;
+	ATH_MSG_DEBUG(" REGTEST: RoI id "
+                 << roiDescriptor->roiId()
+                 << " located at   phi = " <<  roiDescriptor->phi()
+                 << ", eta = " << roiDescriptor->eta());
 
         //if ( fabs(roiDescriptor->eta()) < 1.7 ) {
           Eta_RoIs[NRoIs] = roiDescriptor->eta();
@@ -294,11 +258,10 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
           //m_pRegionSelector->DetHashIDList(TILE,
           //      now_etamin,now_etamax,now_phimin,now_phimax,&m_listID);
 
-          if (msgLvl() <= MSG::DEBUG)
-            (*m_log) << MSG::DEBUG << "For DetROBIDListUint, EtaMin="
-                     << now_etamin << " EtaMax=" << now_etamax
-                     << " PhiMin=" << now_phimin
-                     << " PhiMax=" << now_phimax << endreq;
+	  ATH_MSG_DEBUG("For DetROBIDListUint, EtaMin="
+                   << now_etamin << " EtaMax=" << now_etamax
+                   << " PhiMin=" << now_phimin
+                   << " PhiMax=" << now_phimax);
 
 	  TrigRoiDescriptor _roi( 0.5*(now_etamin+now_etamax),          now_etamin, now_etamax, 
 				  HLT::phiMean(now_phimin, now_phimax), now_phimin, now_phimax );
@@ -321,32 +284,25 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
     }
   }
 
-  if (msgLvl() <= MSG::VERBOSE)
-    (*m_log) << MSG::VERBOSE
-             << "ROBIDLIST size= " << m_vrobid.size()
-             << endreq;
+  ATH_MSG_VERBOSE("ROBIDLIST size= " << m_vrobid.size());
 
   m_NROBFrags = m_vrobid.size();
   if ( m_vrobid.size() > 60 ) {
-    if (msgLvl() <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG
-               << "Too many access for TileROBFragments!! ROBFrags="
-               << m_vrobid.size() << " NRoIs=" << NRoIs << endreq;
+
+    ATH_MSG_DEBUG("Too many access for TileROBFragments!! ROBFrags="
+             << m_vrobid.size() << " NRoIs=" << NRoIs);
 
     for (unsigned int it = 0; it < m_vrobid.size(); it++) {
-      if (msgLvl() <= MSG::DEBUG)
-        (*m_log) << MSG::DEBUG
-                 << "ROBID nr= " << it << " equal to 0x" << MSG::hex
-                 << m_vrobid[it] << MSG::dec << endreq;
+
+      ATH_MSG_DEBUG("ROBID nr= " << it << " equal to 0x" << MSG::hex
+               << m_vrobid[it] << MSG::dec);
     }
   }
 
 
   /*for (unsigned int it = 0; it < m_vrobid.size(); it++) {
-    if (msgLvl() <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE
-	       << "ROBID nr= " << it << " equal to 0x" << MSG::hex 
-	       << m_vrobid[it] << MSG::dec << endreq;
+    ATH_MSG::VERBOSE("ROBID nr= " << it << " equal to 0x" << MSG::hex 
+	     << m_vrobid[it] << MSG::dec);
   }*/
 
   m_robDataProvider->addROBData(m_vrobid);
@@ -370,16 +326,13 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
       m_robDataProvider->getROBData(m_vid, m_vrob);
 
       if (m_vrob.size() == 0) {
-        if (msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG
-	           << "For ROBID 0x" << MSG::hex << m_vrobid[i] << MSG::dec << " size = 0"
-	           << endreq;
+
+	ATH_MSG_DEBUG("For ROBID 0x" << MSG::hex << m_vrobid[i] << MSG::dec << " size = 0");
 
       }else{
-        if (msgLvl() <= MSG::VERBOSE)
-          (*m_log) << MSG::VERBOSE
-                   << " m_vrob.size()=" << m_vrob.size() 
-	  	   << ", So go to fillCollectionL2" << endreq; 
+
+	ATH_MSG_VERBOSE(" m_vrob.size()=" << m_vrob.size() 
+	  	 << ", So go to fillCollectionL2"); 
         m_tiledecoder->fillCollectionL2(m_vrob[0],*m_container);
       }
     }
@@ -389,10 +342,7 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
 
   }
 
-  if (msgLvl() <= MSG::DEBUG)
-    (*m_log) << MSG::DEBUG
-             << "m_container size= " << m_container->size()
-             << endreq;
+  ATH_MSG_DEBUG("m_container size= " << m_container->size());
 
   
   // stop of time for data access
@@ -457,25 +407,17 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
 	  HLT::ErrorCode HLTStatus = attachFeature(te, muon);
 
 	  if ( HLTStatus != HLT::OK ) {
-	    (*m_log) << MSG::ERROR
-		   << "Write of TrigTileRODMu feature into outputTE failed"
-		   << endreq;
+	    ATH_MSG_ERROR("Write of TrigTileRODMu feature into outputTE failed");
 	    return HLTStatus;
 	  } else {
-	    if (msgLvl() <= MSG::DEBUG)
-	      (*m_log) << MSG::DEBUG
-		     << "Write of TrigTileRODMu feature into outputTE OK!"
-		     << endreq;
+	    ATH_MSG_DEBUG("Write of TrigTileRODMu feature into outputTE OK!");
 	  }
 
-	  if (msgLvl() <= MSG::DEBUG)
-            (*m_log) << MSG::DEBUG
-                   << "Muon tagged:  Ntag = " << ntag
+	  ATH_MSG_DEBUG("Muon tagged:  Ntag = " << ntag
                    << "  Eta = " << eta
                    << "  Phi = " << phi
                    << "  Energy = " << ene.at(3) << " MeV"
-                   << "  Quality factor = " << qf
-                   << endreq;
+                   << "  Quality factor = " << qf);
 
 	  // Fill histograms
 	  m_allEta.push_back(eta);
@@ -494,8 +436,7 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
     }
   }
 
-  if (msgLvl() <= MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG << "NMuons = " << ntag << endreq;
+  ATH_MSG_DEBUG("NMuons = " << ntag);
 
   // Fill histogram
   m_allNMuon = ntag;
@@ -537,17 +478,15 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
         m_PhiTileMu_wRoI.push_back( Phi_Mus[Id_Mu]);
         m_PhiRoI_wTileMu.push_back( Phi_RoIs[Id_RoI] );
             
-        if (msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG << "Matched Eta(TileMu)=" << Eta_Mus[Id_Mu]
-                       << " Eta(RoI)=" << Eta_RoIs[Id_RoI]
-                       << " Phi(TileMu)=" << Phi_Mus[Id_Mu]
-                       << " Phi(RoI)=" << Phi_RoIs[Id_RoI]
-                       << " DelR=" << DelRMin << endreq;
+	ATH_MSG_DEBUG("Matched Eta(TileMu)=" << Eta_Mus[Id_Mu]
+                     << " Eta(RoI)=" << Eta_RoIs[Id_RoI]
+                     << " Phi(TileMu)=" << Phi_Mus[Id_Mu]
+                     << " Phi(RoI)=" << Phi_RoIs[Id_RoI]
+                     << " DelR=" << DelRMin);
        
       } else {
-        if (msgLvl() <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG << "No Matching between TileMus and RoIs!"
-                 << " Something Wrong?" << endreq;
+	ATH_MSG_DEBUG("No Matching between TileMus and RoIs!"
+               << " Something Wrong?");
 
       } 
     } else {
@@ -559,10 +498,8 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
   }
 
   // store the muon tags container on the TDS
-  /*if ( m_storeGate->record(m_container, m_tileTagContainer, false).isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to record the muon tag Container on the TDS"
-	<< endreq;
+  /*if ( evtStore()->record(m_container, m_tileTagContainer, false).isFailure()) {
+    ATH_MSG_ERROR("Unable to record the muon tag Container on the TDS");
     return HLT::BAD_JOB_SETUP;
   }*/
 
@@ -582,15 +519,11 @@ HLT::ErrorCode TrigTileRODMuAlg::hltExecute(std::vector<std::vector<HLT::Trigger
 
 HLT::ErrorCode TrigTileRODMuAlg::hltFinalize()
 {
-  if (msgLvl() <= MSG::DEBUG)
-    (*m_log) << MSG::DEBUG
-             << "TrigTileRODMuAlg finalization completed"
-             << endreq;
+  ATH_MSG_DEBUG("TrigTileRODMuAlg finalization completed");
 
   // clean up memory used
   m_container->clear();
 
-  delete m_log;
   delete m_container;
 
   return HLT::OK;

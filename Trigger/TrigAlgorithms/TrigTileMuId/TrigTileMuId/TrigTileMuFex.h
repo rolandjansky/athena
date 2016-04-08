@@ -37,7 +37,6 @@
 
 
 
-class StoreGateSvc;
 namespace HLT {
   class TriggerElement;
 }
@@ -91,9 +90,6 @@ class TrigTileMuFex : public HLT::FexAlgo
 
   bool m_GetTruthMuon;
   std::string m_key_for_truth;
-
-  /** Pointer to StoreGate */
-  StoreGateSvc* m_pStoreGate;
 
   /** Magnetic field service */ 
   MagField::IMagFieldSvc* m_MagFieldSvc; 

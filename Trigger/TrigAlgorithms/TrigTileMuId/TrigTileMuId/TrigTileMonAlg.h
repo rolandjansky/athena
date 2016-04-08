@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrigInterfaces/FexAlgo.h"
 #include <string>
 
