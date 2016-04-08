@@ -25,3 +25,14 @@ apply_pattern poolcnv files="-s=${MuonSimEvent_root}/MuonSimEvent \
                     GenericMuonSimHitCollection.h"
 
 apply_pattern declare_joboptions files="*.py"
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+
+apply_pattern athenarun_test \
+   name="MuonSimEventTPCnv_HITS" \
+   options="MuonSimEventAthenaPool/MuonSimEventTPCnv_HITS_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh MuonSimEventTPCnv_HITS" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh MuonSimEventTPCnv_HITS"
