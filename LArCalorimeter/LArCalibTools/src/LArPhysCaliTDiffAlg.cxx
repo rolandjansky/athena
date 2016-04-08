@@ -14,6 +14,7 @@ LArPhysCaliTDiffAlg::LArPhysCaliTDiffAlg(const std::string & name, ISvcLocator *
   declareProperty("InputContainer",m_inputContainer="LArPhysCaliTdiffIn");
   declareProperty("OutputContainer",m_outputContainer="LArPhysCaliTdiff");
   declareProperty("FileName",m_fileName); 
+  declareProperty("PerFebMGCorr",m_perFebMG=false); 
   return;
 }
 
@@ -33,23 +34,18 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
   NTuple::Item<float> ntold, ntnew, ntoffset, ntcorr;
   NTuple::Item<long> ntgain;
 
-  m_nt->addItem("gain",ntgain,0,3).ignore();
-  m_nt->addItem("PCDiffOld",ntold,0,200).ignore();
-  m_nt->addItem("PCDiffNew",ntnew,0,200).ignore();
-  //m_nt->addItem("T0",ntT0,0,2000).ignore();
-  m_nt->addItem("offset",ntoffset,0,200).ignore();
-  m_nt->addItem("correction",ntcorr,0,200).ignore();
+  CHECK(m_nt->addItem("gain",ntgain,0,3));
+  CHECK(m_nt->addItem("PCDiffOld",ntold,-200,200));
+  CHECK(m_nt->addItem("PCDiffNew",ntnew,-200,200));
+  if(!m_perFebMG) CHECK(m_nt->addItem("offset",ntoffset,0,200));
+  CHECK(m_nt->addItem("correction",ntcorr,0,200));
 
 
   const LArOnlineID* onlineID=0;
-  if (detStore()->retrieve(onlineID).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retreive online helper" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  CHECK(detStore()->retrieve(onlineID));
 
   std::vector<std::map<HWIdentifier,float> > offsetMap;
-  offsetMap.resize(3);
+  if(m_perFebMG) offsetMap.resize(2); else offsetMap.resize(3);
   std::ifstream rein(m_fileName.c_str(),std::ifstream::in);
   if (!rein.good()) {
     msg(MSG::ERROR) << "Failed to open file " << m_fileName << endreq;
@@ -60,25 +56,28 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
   while (rein.good()) {
     unsigned gain,chidint;
     float offset;
-    rein >> chidint >> gain >> offset;
-    //std::cout << gain << " " << chidint << " " << offset << std::endl;
-    const HWIdentifier fid(chidint);
-    offsetMap[gain][fid]=offset;
+    if(m_perFebMG) {
+       rein >> std::hex>>chidint >>std::dec>> offset;
+       const HWIdentifier fid(chidint);
+       offsetMap[1][fid]=offset;
+       //std::cout <<std::hex<< fid <<std::dec<< " " << offset << std::endl;
+    } else {   
+       rein >> chidint >> gain >> offset;
+       const HWIdentifier fid(chidint);
+       offsetMap[gain][fid]=offset;
+    }
   }
 
   rein.close();
 
-
   const LArPhysCaliTdiffComplete* oldCont=0;
-  if (detStore()->retrieve(oldCont,m_inputContainer).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve LArPhysCaliTdiffComplete with key " << m_inputContainer << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK(detStore()->retrieve(oldCont,m_inputContainer));
   
   LArPhysCaliTdiffComplete* newCont=new LArPhysCaliTdiffComplete();
   newCont->setGroupingType(LArConditionsContainerBase::ExtendedSubDetGrouping);
-  newCont->initialize();
-  if(detStore()->record(newCont,m_outputContainer).isFailure()) {
+  CHECK(newCont->initialize());
+  StatusCode sc=detStore()->record(newCont,m_outputContainer);
+  if(sc!=StatusCode::SUCCESS) {
     msg(MSG::ERROR) << "Failed to register container with key " << m_outputContainer << " to StoreGate" << endreq;
   }
 
@@ -96,18 +95,26 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
       }
       float timediff=td.m_Tdiff;
       ntold=timediff;
-      ntoffset=offsetMap[gain][fid];
-      int refGain=0;
-      if (onlineID->isHECchannel(chid)) 
-	refGain=1; 
-
-      if (gain>refGain) {
-	ntcorr=offsetMap[gain][fid]-offsetMap[refGain][fid];
-	const float correction=offsetMap[gain][fid]-offsetMap[refGain][fid];
-	timediff+=correction;
+      if(m_perFebMG && gain != 1) {// do nothing if we are only correcting MG per FEB
+         newCont->set(chid,gain,timediff);
+         continue;
       }
-      else
-	ntcorr=-999;
+      if(!m_perFebMG) {
+        ntoffset=offsetMap[gain][fid]; 
+        int refGain=0;
+        if (onlineID->isHECchannel(chid)) refGain=1; 
+
+        if (gain>refGain) {
+	   ntcorr=offsetMap[gain][fid]-offsetMap[refGain][fid];
+	   const float correction=offsetMap[gain][fid]-offsetMap[refGain][fid];
+	   timediff+=correction;
+        } else ntcorr=-999;
+      } else {
+         ntcorr=offsetMap[gain][fid];
+         const float correction=offsetMap[gain][fid];
+         timediff+=correction;
+      }
+
       newCont->set(chid,gain,timediff);
       ntnew=timediff;
       fillFromIdentifier(chid);
@@ -115,13 +122,14 @@ StatusCode LArPhysCaliTDiffAlg::execute() {
       ATH_MSG_DEBUG("Gain " << gain << " Ch:" << onlineID->channel_name(chid) << ":" << td.m_Tdiff << " -> " << timediff);
 
 
-      StatusCode sc=ntupleSvc()->writeRecord(m_nt);
+      sc=ntupleSvc()->writeRecord(m_nt);
       if (sc!=StatusCode::SUCCESS) {
 	msg(MSG::ERROR) << "writeRecord failed" << endreq;
 	return StatusCode::FAILURE;
       }
 
     }//end loop over all channels
+    std::cout<<"2"<<std::endl;
   }//end loop over gains
 
 

@@ -24,7 +24,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -48,33 +48,33 @@ class LArAverages2Ntuple : public AthAlgorithm
   const LArEM_ID* m_emId;
   const LArOnlineID* m_onlineHelper;
 
-  ToolHandle<LArCablingService> larCablingSvc;
+  ToolHandle<LArCablingService> m_larCablingSvc;
 
-  std::string ntuplePath;
+  std::string m_ntuplePath;
   std::string m_contKey;
 
   unsigned int  m_Nsamples;
   bool m_keepPulsed;
 
-  int ipass;
+  int m_ipass;
 
-  NTuple::Item<long> region, layer, eta, phi;
-  NTuple::Item<long> pos_neg, barrel_ec, FT, slot, channel;
-  NTuple::Item<long> calibLine;
+  NTuple::Item<long> m_region, m_layer, m_eta, m_phi;
+  NTuple::Item<long> m_pos_neg, m_barrel_ec, m_FT, m_slot, m_channel;
+  NTuple::Item<long> m_calibLine;
   NTuple::Item<long> m_isConnected;
-  NTuple::Item<long> Nsteps;
-  NTuple::Item<long> DAC;
-  NTuple::Item<long> Ntrigger;
-  NTuple::Item<long> delay;
-  NTuple::Item<long> Nsamples;
-  NTuple::Item<long> isPulsed;
+  NTuple::Item<long> m_Nsteps;
+  NTuple::Item<long> m_DAC;
+  NTuple::Item<long> m_Ntrigger;
+  NTuple::Item<long> m_delay;
+  NTuple::Item<long> m_ntNsamples;
+  NTuple::Item<long> m_isPulsed;
   
-  NTuple::Item<unsigned long> StepIndex;  
+  NTuple::Item<unsigned long> m_StepIndex;
   
-  NTuple::Array<long> Sum;
-  NTuple::Array<long> SumSq;
-  NTuple::Array<float> Mean;
-  NTuple::Array<float> RMS;
+  NTuple::Array<long> m_Sum;
+  NTuple::Array<long> m_SumSq;
+  NTuple::Array<float> m_Mean;
+  NTuple::Array<float> m_RMS;
 };
 
 #endif

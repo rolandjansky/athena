@@ -18,7 +18,7 @@
 #include "LArCalibTools/LArCond2NtupleBase.h"
 #include "LArCalibTools/LArParamsProperties.h"
 
-using namespace LArParamsProperties ;
+//using namespace LArParamsProperties ;
 
 class LArParams2Ntuple : public LArCond2NtupleBase
 {

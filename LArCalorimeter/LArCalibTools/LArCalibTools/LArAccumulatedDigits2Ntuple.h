@@ -41,14 +41,14 @@ class LArAccumulatedDigits2Ntuple : public LArCond2NtupleBase
   NTuple::Item<long> calibLine;
   NTuple::Item<long> m_isConnected;
   */
-  NTuple::Item<long> Ntrigger;
-  NTuple::Item<long> IEvent;
-  NTuple::Item<long> Nsamples;
-  NTuple::Array<long>  sum;
-  NTuple::Array<long>  sumsq;
-  NTuple::Item<float>  mean;
-  NTuple::Item<float>  rms;
-  NTuple::Array<float> covr;
+  NTuple::Item<long> m_Ntrigger;
+  NTuple::Item<long> m_IEvent;
+  NTuple::Item<long> m_ntNsamples;
+  NTuple::Array<long>  m_sum;
+  NTuple::Array<long>  m_sumsq;
+  NTuple::Item<float>  m_mean;
+  NTuple::Item<float>  m_rms;
+  NTuple::Array<float> m_covr;
   
 };
 

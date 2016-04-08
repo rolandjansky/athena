@@ -90,8 +90,8 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
   const LArOnlineID* onlineHelper = nullptr;
   ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
   // and cabling service
-  LArCablingService *m_larCablingSvc;
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
+  LArCablingService *larCablingSvc;
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",larCablingSvc) );
   // and helper for FCAL
   const CaloIdManager* caloId_mgr;
   ATH_CHECK( detStore()->retrieve(caloId_mgr, "CaloIdManager") );
@@ -226,7 +226,7 @@ StatusCode LArAutoCorrFromStdNtuple::stop()
           //if(onlineHelper->isFCALchannel(chid)) {
           if(onlineHelper->barrel_ec(chid)==1 && onlineHelper->feedthrough(chid) >= 25 && onlineHelper->feedthrough(chid) < 28 ) {
              ATH_MSG_DEBUG ( "Adding sFCAL channel " << onlineHelper->channel_name(chid) );
-             const int mod=fcal_id->module(m_larCablingSvc->cnvToIdentifier(chid));
+             const int mod=fcal_id->module(larCablingSvc->cnvToIdentifier(chid));
              if(mod<0 || mod > 3) {
                 ATH_MSG_ERROR ( "Wrong FCAL module: " << mod << " ignored !!" );
                 continue;

@@ -54,12 +54,12 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 svcMgr.IOVDbSvc.GlobalTag=LArCalib_Flags.globalFlagDB
 svcMgr.IOVDbSvc.DBInstance=""
 
-InputDBConnectionBadChannel = "COOLONL_LAR/COMP200"
+InputDBConnectionBadChannel = "COOLONL_LAR/CONDBR2"
 BadChannelsFolder="/LAR/BadChannels/BadChannels"
-BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,"-UPD3-00")
+BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,"-RUN2-UPD1-00")
 conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag><dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
-MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,"-UPD3-01")
+MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,"-RUN2-UPD1-01")
 conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag> <dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  

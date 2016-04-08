@@ -7,7 +7,7 @@
 #include "LArCondUtils/LArFEBTempTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/IToolSvc.h"
 
 LArFEBTemp2Ntuple::LArFEBTemp2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): LArCond2NtupleBase(name, pSvcLocator) {

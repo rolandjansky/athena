@@ -10,7 +10,7 @@
 
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class LArOnlineID;

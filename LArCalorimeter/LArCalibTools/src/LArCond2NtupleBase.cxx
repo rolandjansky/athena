@@ -215,6 +215,7 @@ StatusCode LArCond2NtupleBase::initialize() {
     return StatusCode::FAILURE;
   }
 
+  
   if (m_addHash) {
     sc=nt->addItem("channelHash",m_chanHash,0,200000);
     if (sc!=StatusCode::SUCCESS) {
@@ -316,8 +317,8 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  m_layer=NOT_VALID;
  m_eta=NOT_VALID;
  m_phi=NOT_VALID;
- m_oflChanId=NOT_VALID;
- m_oflHash=NOT_VALID;
+ //m_oflChanId=NOT_VALID;
+ //m_oflHash=NOT_VALID;
  if (m_addBC) m_badChanWord=0;
  bool connected=false;
 
@@ -335,7 +336,7 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
        m_phi       = m_emId->phi(id);
        m_layer     = m_emId->sampling(id);
        m_region    = m_emId->region(id);
-       m_detector  = fabs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
+       m_detector  = std::abs(m_emId->barrel_ec(id)) - 1; //0-barrel, 1-EMEC-OW, 2-EMEC-IW
      }
      else if (m_hecId->is_lar_hec(id)) {
        m_eta       = m_hecId->eta(id);

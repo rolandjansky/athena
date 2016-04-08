@@ -3,19 +3,19 @@
 */
 
 // Dear emacs, this is -*-c++-*-
-#ifndef LARPHYSTCALIDIFFALG_H
-#define LARPHYSTCALIDIFFALG_H
+#ifndef LAROFCBINALG_H
+#define LAROFCBINALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArCalibTools/LArCond2NtupleBase.h"
 
-class LArPhysCaliTDiffAlg: public LArCond2NtupleBase {
+class LArOFCBinAlg: public LArCond2NtupleBase {
 
  public:
 
-  LArPhysCaliTDiffAlg(const std::string & name, ISvcLocator * pSvcLocator);
+  LArOFCBinAlg(const std::string & name, ISvcLocator * pSvcLocator);
 
-  virtual ~LArPhysCaliTDiffAlg();
+  virtual ~LArOFCBinAlg();
 
   StatusCode initialize();
   StatusCode execute();// {return StatusCode::SUCCESS;}
@@ -29,6 +29,7 @@ class LArPhysCaliTDiffAlg: public LArCond2NtupleBase {
   std::string m_fileName;
 
   bool m_perFebMG;
+  bool m_perFeb;
 
 
 };

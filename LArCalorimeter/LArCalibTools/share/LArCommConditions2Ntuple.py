@@ -129,7 +129,7 @@ if 'PoolFiles' in dir():
 if 'PoolCat' in dir():
   svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:"+PoolCat]
 
-loadCastorCat=False
+loadCastorCat=True
   
 
 if doObj("PEDESTAL"):
@@ -218,6 +218,12 @@ if doObj("OFC"):
   topSequence+=LArOFC2Ntuple
 
 if (doObj("SHAPE")):
+  from LArCalibTools.LArCalibToolsConf import LArShape2Ntuple
+  LArShape2Ntuple = LArShape2Ntuple("LArShape2Ntuple")
+  if SuperCells:  
+     LArShape2Ntuple.ContainerKey = "LArShapeSC"
+  else:   
+     LArShape2Ntuple.ContainerKey = "LArShape"
   if IsMC: 
     if SuperCells:
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMCSC/Shape"))
@@ -230,8 +236,6 @@ if (doObj("SHAPE")):
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Shape/RTM/"+OFCFolder))
     LArShape2Ntuple.isComplete=True
   pass  
-  from LArCalibTools.LArCalibToolsConf import LArShape2Ntuple
-  LArShape2Ntuple = LArShape2Ntuple("LArShape2Ntuple")
   if SuperCells:  
      LArShape2Ntuple.ContainerKey = "LArShapeSC"
   else:   
@@ -342,13 +346,20 @@ if (doObj("WFPARAMS")):
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/DetCellParams/RTM"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/CaliPulseParams/RTM"))
   conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Tdrift/Computed"))
-  conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/PhysCaliTdiff"))
+  #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/PhysCaliTdiff"))
+  conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFCBin/PhysWaveShifts"))
   from  LArCalibTools.LArCalibToolsConf import LArWFParams2Ntuple
   LArWFParams2Ntuple=LArWFParams2Ntuple("LArWFParams2Ntuple")
   LArWFParams2Ntuple.DumpCaliPulseParams=True
   LArWFParams2Ntuple.DumpDetCellParams=True
-  LArWFParams2Ntuple.DumpPhysCaliTdiff=True
+  LArWFParams2Ntuple.DumpPhysCaliTdiff=False
   LArWFParams2Ntuple.DumpTdrift=True
+  LArWFParams2Ntuple.DumpOFCBin=True
+  LArWFParams2Ntuple.CaliPulseParamsKey="LArCaliPulseParams_RTM"
+  LArWFParams2Ntuple.DetCellParamsKey="LArDetCellParams_RTM"
+  LArWFParams2Ntuple.PhysCaliTDiffKey="LArPhysCaliTdiff"
+  #LArWFParams2Ntuple.OFCBinKey="LArOFCPhase"
+  LArWFParams2Ntuple.OFCBinKey="LArPhysWaveShift"
   #LArWFParams2Ntuple.DetStoreSuffix="_RTM"
   LArWFParams2Ntuple.OffId=OffIdDump
   #LArWFParams2Ntuple.OutputLevel=DEBUG
@@ -367,6 +378,7 @@ if (doObj("NOISE")):
   else:  
     print 'For Cell noise use the CaloNoise2Ntuple algo !'
     import sys; sys.exit(-5)
+  pass
   from LArCalibTools.LArCalibToolsConf import LArNoise2Ntuple
   LArNoise2Ntuple=LArNoise2Ntuple("LArNoise2Ntuple")
   LArNoise2Ntuple.AddFEBTempInfo=False
@@ -393,6 +405,7 @@ if (doObj("FSAMPL")):
   LArfSampl2Ntuple.isSC = SuperCells
   LArfSampl2Ntuple.isFlat = IsFlat  
   LArfSampl2Ntuple.OffId=OffIdDump
+  LArfSampl2Ntuple.AddHash=HashDump
   topSequence+=LArfSampl2Ntuple
 
 
@@ -404,7 +417,8 @@ if doObj("HVSCALE"):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/HVScaleCorr"))
       svcMgr.LArFlatConditionSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
     else:
-      conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/HVScaleCorr"))
+      print 'Only Flat HVSCALE !!!'
+      import sys; sys.exit(-5) 
 
 
   from LArCalibTools.LArCalibToolsConf import LArHVScaleCorr2Ntuple
@@ -440,6 +454,8 @@ if (doObj("PILEUP")):
     #conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Noise"))
     print 'No Flat LArPileup yet !!!'
     import sys; sys.exit(-5) 
+  else:  
+    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/LArPileupAverage"))
   from LArCalibTools.LArCalibToolsConf import LArMinBias2Ntuple
   LArPileup2Ntuple=LArMinBias2Ntuple("LArPileup2Ntuple")
   LArPileup2Ntuple.AddFEBTempInfo=False

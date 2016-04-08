@@ -55,14 +55,15 @@ conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db
 
 #conddb.addFolder("","/LAR/ElecCalibOnl/Pedestal<db>COOLONL_LAR/COMP200</db>")
 
-#intag=join(inputfolder.split("/"),'')+"-"+inputtag
-intag=inputtag
+intag=join(inputfolder.split("/"),'')+"-"+inputtag
+#intag=inputtag
 conddb.addFolder("","/LAR/Configuration/DSPThreshold/Templates<db>COOLONL_LAR/COMP200</db><tag>"+intag+"</tag>")
 
 from LArCalibTools.LArCalibToolsConf import LArCompleteToFlat
 theLArCompleteToFlat=LArCompleteToFlat()
 theLArCompleteToFlat.ForceStop=False
 theLArCompleteToFlat.DSPThresholdsInput="LArDSPThresholds"
+theLArCompleteToFlat.NameOfSet = outputtag
 topSequence+=theLArCompleteToFlat
 
 
@@ -111,6 +112,6 @@ svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=DSP_test.db;dbname=COMP200"
 
 svcMgr.DetectorStore.Dump=True
 svcMgr.StoreGateSvc.Dump = True
-svcMgr.MessageSvc.OutputLevel = DEBUG
+svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.IOVDbSvc.DBInstance=""
 

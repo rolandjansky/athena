@@ -37,49 +37,49 @@ StatusCode LArAccumulatedDigits2Ntuple::initialize()
 
 
 
-  sc=m_nt->addItem("IEvent",IEvent,0,3000);
+  sc=m_nt->addItem("IEvent",m_IEvent,0,3000);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'IEvent' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("Ntrigger",Ntrigger,0,500); 
+  sc=m_nt->addItem("Ntrigger",m_Ntrigger,0,500); 
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'Ntrigger' failed" << endreq;
       return sc;
     }
   
-  sc=m_nt->addItem("Nsamples",Nsamples,0,32);
+  sc=m_nt->addItem("Nsamples",m_ntNsamples,0,32);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'Nsamples' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("sum",m_Nsamples,sum);
+  sc=m_nt->addItem("sum",m_Nsamples,m_sum);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'sum' failed" << endreq;
       return sc;
     }
   
-  sc=m_nt->addItem("sumsq",m_Nsamples,sumsq);
+  sc=m_nt->addItem("sumsq",m_Nsamples,m_sumsq);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'sumsq' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("mean",mean);
+  sc=m_nt->addItem("mean",m_mean);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'mean' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("rms",rms);
+  sc=m_nt->addItem("rms",m_rms);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'rms' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("covr",m_Nsamples-1,covr);
+  sc=m_nt->addItem("covr",m_Nsamples-1,m_covr);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'covr' failed" << endreq;
       return sc;
@@ -103,8 +103,8 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
 
   m_event++;
   
-  const LArAccumulatedDigitContainer* m_accuDigitContainer = NULL;
-  sc=detStore()->retrieve(m_accuDigitContainer,m_contKey);  
+  const LArAccumulatedDigitContainer* accuDigitContainer = NULL;
+  sc=detStore()->retrieve(accuDigitContainer,m_contKey);  
   if (sc!=StatusCode::SUCCESS) {
      msg(MSG::WARNING) << "Unable to retrieve LArAccumulatedDigitContainer with key " << m_contKey << " from DetectorStore. " << endreq;
     } 
@@ -112,27 +112,27 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
      msg(MSG::DEBUG) << "Got LArAccumulatedDigitContainer with key " << m_contKey << endreq;
   
  
- if (m_accuDigitContainer) { 
+ if (accuDigitContainer) { 
    
-   LArAccumulatedDigitContainer::const_iterator it=m_accuDigitContainer->begin();
-   LArAccumulatedDigitContainer::const_iterator it_e=m_accuDigitContainer->end();
+   LArAccumulatedDigitContainer::const_iterator it=accuDigitContainer->begin();
+   LArAccumulatedDigitContainer::const_iterator it_e=accuDigitContainer->end();
 
     if(it == it_e) {
       msg(MSG::DEBUG) << "LArAccumulatedDigitContainer with key=" << m_contKey << " is empty " << endreq;
       return StatusCode::SUCCESS;
     }else{
-      msg(MSG::DEBUG) << "LArAccumulatedDigitContainer with key=" << m_contKey << " has " <<m_accuDigitContainer->size() << " entries" <<endreq;
+      msg(MSG::DEBUG) << "LArAccumulatedDigitContainer with key=" << m_contKey << " has " <<accuDigitContainer->size() << " entries" <<endreq;
     }
 
    unsigned cellCounter=0;
    for (;it!=it_e;it++) {
 
-     IEvent=m_event;
-     Ntrigger = (*it)->nTrigger();
+     m_IEvent=m_event;
+     m_Ntrigger = (*it)->nTrigger();
      unsigned int trueMaxSample = (*it)->nsample();
-     Nsamples = trueMaxSample;
+     m_ntNsamples = trueMaxSample;
 
-     //     std::cout << "trigger = " << Ntrigger << ", samples = "<< Nsamples << std::endl;
+     //     std::cout << "trigger = " << m_Ntrigger << ", samples = "<< m_ntNsamples << std::endl;
 
      if(trueMaxSample>m_Nsamples){
        if(!m_ipass){
@@ -142,18 +142,18 @@ StatusCode LArAccumulatedDigits2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
 
-     mean = (*it)->mean();
-     rms  = (*it)->RMS();
+     m_mean = (*it)->mean();
+     m_rms  = (*it)->RMS();
      const std::vector<uint64_t> sampleSquare = (*it)->sampleSquare();
      const std::vector<uint64_t> sampleSum    = (*it)->sampleSum();
      for(unsigned i=0;i<trueMaxSample;i++) {
-       sumsq[i] = sampleSquare[i];
-       sum[i]   = sampleSum[i];
+       m_sumsq[i] = sampleSquare[i];
+       m_sum[i]   = sampleSum[i];
      }
      std::vector<float> cov;
      (*it)->getCov(cov,m_normalize);
      for(unsigned i=0;i<trueMaxSample-1;i++) {
-       covr[i] = cov[i];
+       m_covr[i] = cov[i];
      }
 
      fillFromIdentifier((*it)->hardwareID());      

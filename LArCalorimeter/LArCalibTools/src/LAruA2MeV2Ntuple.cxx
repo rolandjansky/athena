@@ -8,7 +8,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LAruA2MeV2Ntuple::LAruA2MeV2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): LArCond2NtupleBase(name, pSvcLocator) { 
   declareProperty("uA2MeVKey",m_uA2MeVKey);

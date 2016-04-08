@@ -28,6 +28,7 @@
 #include "LArCalibTools/LArFebTimeOffset2Ntuple.h"
 #include "LArCalibTools/LArGainThresholds2Ntuple.h"
 #include "LArCalibTools/LArPhysCaliTDiffAlg.h"
+#include "LArCalibTools/LArOFCBinAlg.h"
 #include "LArCalibTools/LArDSPThresholds2Ntuple.h"
 #include "LArCalibTools/CaloCondBlob2Ntuple.h"
 #include "LArCalibTools/LArCompleteToFlat.h"
@@ -97,6 +98,7 @@ DECLARE_ALGORITHM_FACTORY( LArFebTimeOffset2Ntuple )
 DECLARE_ALGORITHM_FACTORY(LArGainThresholds2Ntuple)
 DECLARE_ALGORITHM_FACTORY(LArDSPThresholds2Ntuple)
 DECLARE_ALGORITHM_FACTORY( LArPhysCaliTDiffAlg )
+DECLARE_ALGORITHM_FACTORY( LArOFCBinAlg )
 DECLARE_ALGORITHM_FACTORY( CaloCondBlob2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArCompleteToFlat )
 DECLARE_ALGORITHM_FACTORY( LArNoise2Ntuple )
@@ -154,6 +156,7 @@ DECLARE_FACTORY_ENTRIES( LArCalibTools ) {
   DECLARE_ALGORITHM ( LArGainThresholds2Ntuple)  
   DECLARE_ALGORITHM ( LArDSPThresholds2Ntuple)  
   DECLARE_ALGORITHM ( LArPhysCaliTDiffAlg ) 
+  DECLARE_ALGORITHM ( LArOFCBinAlg ) 
   DECLARE_ALGORITHM ( CaloCondBlob2Ntuple ) 
   DECLARE_ALGORITHM ( LArCompleteToFlat )
   DECLARE_ALGORITHM ( LArNoise2Ntuple)

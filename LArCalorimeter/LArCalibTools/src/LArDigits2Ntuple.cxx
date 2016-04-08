@@ -36,25 +36,25 @@ StatusCode LArDigits2Ntuple::initialize()
      return StatusCode::FAILURE;
    }
 
-  sc=m_nt->addItem("IEvent",IEvent);
+  sc=m_nt->addItem("IEvent",m_IEvent);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'IEvent' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("Gain",gain,-1,3);
+  sc=m_nt->addItem("Gain",m_gain,-1,3);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'Gain' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("Nsamples",Nsamples,0,32);
+  sc=m_nt->addItem("Nsamples",m_ntNsamples,0,32);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'Nsamples' failed" << endreq;
       return sc;
     }
 
-  sc=m_nt->addItem("samples",m_Nsamples,samples);
+  sc=m_nt->addItem("samples",m_Nsamples,m_samples);
   if (sc!=StatusCode::SUCCESS) {
       msg(MSG::ERROR) << "addItem 'samples' failed" << endreq;
       return sc;
@@ -86,8 +86,8 @@ StatusCode LArDigits2Ntuple::execute()
       thisevent = eventInfo->event_ID()->event_number();
   }
   
-  const LArDigitContainer* m_DigitContainer = NULL;
-  sc=evtStore()->retrieve(m_DigitContainer,m_contKey);  
+  const LArDigitContainer* DigitContainer = NULL;
+  sc=evtStore()->retrieve(DigitContainer,m_contKey);  
   if (sc!=StatusCode::SUCCESS) {
      msg(MSG::WARNING) << "Unable to retrieve LArDigitContainer with key " << m_contKey << " from DetectorStore. " << endreq;
     } 
@@ -95,28 +95,28 @@ StatusCode LArDigits2Ntuple::execute()
      msg(MSG::DEBUG) << "Got LArDigitContainer with key " << m_contKey << endreq;
   
  
- if (m_DigitContainer) { 
+ if (DigitContainer) { 
    
-   LArDigitContainer::const_iterator it=m_DigitContainer->begin();
-   LArDigitContainer::const_iterator it_e=m_DigitContainer->end();
+   LArDigitContainer::const_iterator it=DigitContainer->begin();
+   LArDigitContainer::const_iterator it_e=DigitContainer->end();
 
     if(it == it_e) {
       msg(MSG::DEBUG) << "LArDigitContainer with key=" << m_contKey << " is empty " << endreq;
       return StatusCode::SUCCESS;
     }else{
-      msg(MSG::DEBUG) << "LArDigitContainer with key=" << m_contKey << " has " <<m_DigitContainer->size() << " entries" <<endreq;
+      msg(MSG::DEBUG) << "LArDigitContainer with key=" << m_contKey << " has " <<DigitContainer->size() << " entries" <<endreq;
     }
 
    unsigned cellCounter=0;
    for (;it!=it_e;it++) {
 
      unsigned int trueMaxSample = (*it)->nsamples();
-     Nsamples = trueMaxSample;
+     m_ntNsamples = trueMaxSample;
 
-     gain=(*it)->gain();
-     if(gain < CaloGain::INVALIDGAIN || gain > CaloGain::LARNGAIN) gain=CaloGain::LARNGAIN;
+     m_gain=(*it)->gain();
+     if(m_gain < CaloGain::INVALIDGAIN || m_gain > CaloGain::LARNGAIN) m_gain=CaloGain::LARNGAIN;
 
-     //     std::cout << "trigger = " << Ntrigger << ", samples = "<< Nsamples << std::endl;
+     //     std::cout << "trigger = " << Ntrigger << ", m_samples = "<< m_ntNsamples << std::endl;
 
      if(trueMaxSample>m_Nsamples){
        if(!m_ipass){
@@ -126,7 +126,7 @@ StatusCode LArDigits2Ntuple::execute()
        trueMaxSample = m_Nsamples;
      }
 
-     IEvent=thisevent;
+     m_IEvent=thisevent;
      fillFromIdentifier((*it)->hardwareID());      
      if(m_FTlist.size() > 0) { // should do a selection
         if(std::find(std::begin(m_FTlist), std::end(m_FTlist), m_FT) == std::end(m_FTlist)) { // is our FT in list ?
@@ -135,7 +135,7 @@ StatusCode LArDigits2Ntuple::execute()
      }
 
      const std::vector<short> sam = (*it)->samples();
-     for(unsigned i=0; i<trueMaxSample;++i) samples[i]=sam[i];
+     for(unsigned i=0; i<trueMaxSample;++i) m_samples[i]=sam[i];
 
      sc=ntupleSvc()->writeRecord(m_nt);
      if (sc!=StatusCode::SUCCESS) {

@@ -12,8 +12,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArRecConditions/ILArBadChanTool.h"
-#include "LArTools/LArCablingService.h"
-#include "LArTools/LArSuperCellCablingTool.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "LArElecCalib/ILArFEBTempTool.h"
 
 class HWIdentifier;
