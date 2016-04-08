@@ -27,15 +27,10 @@ namespace Trk
   {
 
   public:
-
-    /** default constructor */
-    ITrackLink() {}
-
+		///Default 'do nothing' constructors are used
+   
     /** default destructor */
     virtual ~ITrackLink() {}
-
-    /** copy constructor */
-    ITrackLink ( const ITrackLink& ) {}
 
     /** clone methods for copy constructors */
     virtual ITrackLink * clone()  const = 0;
