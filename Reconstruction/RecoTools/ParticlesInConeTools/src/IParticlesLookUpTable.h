@@ -21,7 +21,7 @@ namespace xAOD {
       m_nphiBins(nbins), 
       m_phiBinSize(m_2PI/m_nphiBins),
       m_minPt(minPt),
-      m_phiBinnedLookUpTable(m_nphiBins)
+      m_phiBinnedLookUpTable()
       {} 
 
     /** initialize the look up table with an iParticle container */
