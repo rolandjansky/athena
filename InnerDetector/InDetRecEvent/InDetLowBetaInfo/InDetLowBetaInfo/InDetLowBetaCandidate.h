@@ -48,14 +48,14 @@ namespace InDet{
     /** Output Method for std::ostream, to be overloaded by child classes */
     //virtual std::ostream& dump(std::ostream& sl) const;
 
-    float getTRTCorrBitsOverThreshold();
-    float getTRTTrailingEdge();
-    float getTRTTrailingEdgeError();
-    int   getTRTNLastBits();
-    float getTRTdEdx();
-    float getTRTLikelihoodBeta();
-    float getTRTLikelihoodError();
-    float getTRTHighTbits();
+    float getTRTCorrBitsOverThreshold() const;
+    float getTRTTrailingEdge() const;
+    float getTRTTrailingEdgeError() const;
+    int   getTRTNLastBits() const;
+    float getTRTdEdx() const;
+    float getTRTLikelihoodBeta() const;
+    float getTRTLikelihoodError() const;
+    float getTRTHighTbits() const;
 
   protected:
     float m_TRTCorrBitsOverThreshold;

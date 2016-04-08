@@ -85,38 +85,38 @@ namespace InDet {
   //std::ostream& operator << ( std::ostream& sl, const InDetLowBetaCandidate& sf)
   //	  { return sf.dump(sl); }
 	    
-  float InDetLowBetaCandidate::getTRTCorrBitsOverThreshold()
+  float InDetLowBetaCandidate::getTRTCorrBitsOverThreshold() const
           {	    
 	    return  m_TRTCorrBitsOverThreshold;
 	  }
 
-  float InDetLowBetaCandidate::getTRTTrailingEdge()
+  float InDetLowBetaCandidate::getTRTTrailingEdge() const
 	  {	    
 	    return  m_TRTTrailingEdge;	  
 	  }
   
-  float InDetLowBetaCandidate::getTRTTrailingEdgeError()
+  float InDetLowBetaCandidate::getTRTTrailingEdgeError() const
          {	    
 	    return  m_TRTTrailingEdgeError;	  
 	  }
 
-  int InDetLowBetaCandidate::getTRTNLastBits()
+  int InDetLowBetaCandidate::getTRTNLastBits() const
 	  { 
 	    return  m_TRTNLastBits;	  
 	  }
-  float InDetLowBetaCandidate::getTRTdEdx()
+  float InDetLowBetaCandidate::getTRTdEdx() const
 	  {	    
 	    return  m_TRTdEdx;	  
 	  }
-  float InDetLowBetaCandidate::getTRTLikelihoodBeta()
+  float InDetLowBetaCandidate::getTRTLikelihoodBeta() const
 	  {	    
 	    return  m_TRTLikelihoodBeta;	  
 	  }
-  float InDetLowBetaCandidate::getTRTLikelihoodError()
+  float InDetLowBetaCandidate::getTRTLikelihoodError() const
 	  {	    
 	    return  m_TRTLikelihoodError;	  
 	  } 
-  float InDetLowBetaCandidate::getTRTHighTbits()
+  float InDetLowBetaCandidate::getTRTHighTbits() const
 	  { 
 	    return  m_TRTHighTbits;	  
 	  }
