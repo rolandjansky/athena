@@ -49,12 +49,10 @@ using CLHEP::GeV;
 InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_riocontainer(0),
-  m_geoModel(0),
   m_hitcontainer(0),
   m_rdocontainer(0),
   //       m_inputTrackCollection("Tracks")
   //m_fullNtupleName("/NTUPLES/FILE1/FitterValidation/TrackStatistics"),
-  m_IBLAbsent(true),
   mjo_riocontainername("PixelClusters"),
   mjo_hitcontainername("PixelHits"),
   mjo_rdocontainername("PixelRDOs"),
@@ -66,6 +64,8 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   mjo_NN(false),
   mjo_ToT(false),
   mjo_onTrack(false),
+  m_IBLAbsent(true),
+  m_IBLParameterSvc("IBLParameterSvc",name),
   m_pixelCalib("PixelOfflineCalibSvc",name),
   m_iBeamCondSvc("BeamCondSvc",name),
   m_ntupleFileName("/NTUPLES/FILE1"),
@@ -75,6 +75,7 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_pixelid(0),
   m_nt(0),
   m_nnt(0),
+  m_geoModel(0),
   m_PixClusLocX(0),
   m_PixClusLocY(0),
   m_PixClusLocXcentroid(0),
@@ -177,8 +178,7 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_NN_position_idX(0),
   m_NN_position_idY(0),
   m_NN_theta(0),
-  m_NN_phi(0),
-  m_IBLParameterSvc("IBLParameterSvc",name)
+  m_NN_phi(0)
 {
   declareProperty("PixelClusterContainer", mjo_riocontainername);
   declareProperty("SiHitCollection",    mjo_hitcontainername);
