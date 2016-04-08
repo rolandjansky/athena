@@ -8,13 +8,12 @@ use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigStee
 use  TrigSteering               TrigSteering-*                  Trigger/TrigSteer
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 use  ByteStreamCnvSvcBase       ByteStreamCnvSvcBase-*          Event
-use  TrigConfigSvc              TrigConfigSvc-*                 Trigger/TrigConfiguration
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
 private
 use  EventInfo                  EventInfo-*                     Event
 use  GaudiInterface             GaudiInterface-*                External
 use  PathResolver               PathResolver-*                  Tools
 use  RegionSelector             RegionSelector-*                DetectorDescription
-use  TrigCosmicEvent            TrigCosmicEvent-*               Trigger/TrigEvent
 use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
 end_private
 

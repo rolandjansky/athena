@@ -17,7 +17,7 @@
 
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteering/LvlConverter.h"
-#include "TrigConfigSvc/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 class IRegSelSvc;
 
@@ -60,9 +60,6 @@ protected:
   unsigned int mL1TriggerBit;
 
   // Output object
-
-  // Misc services
-  ServiceHandle<StoreGateSvc> mStoreGate;
 
   // Internal data structures used by this algorithm
 
