@@ -19,13 +19,13 @@ import ROOT
 from PATCore.HelperUtils import GetTool
 
 
-def JetCleaningToolConfig_VeryLoose(theTool) :
-    """
-    This defines the jet cleaning cut values for the very Loose (Looser) operating point
-    """
-    theTool = GetTool(theTool)
-    theTool.CutLevel = 'VeryLooseBad'
-    pass
+#def JetCleaningToolConfig_VeryLoose(theTool) :
+#    """
+#    This defines the jet cleaning cut values for the very Loose (Looser) operating point
+#    """
+#    theTool = GetTool(theTool)
+#    theTool.CutLevel = 'VeryLooseBad'
+#    pass
 
 def JetCleaningToolConfig_Loose(theTool) :
     """
@@ -35,13 +35,13 @@ def JetCleaningToolConfig_Loose(theTool) :
     theTool.CutLevel = 'LooseBad'
     pass
 
-def JetCleaningToolConfig_Medium(theTool) :
-    """
-    This defines the jet cleaning cut values for the Medium operating point.
-    """
-    theTool = GetTool(theTool)
-    theTool.CutLevel = 'MediumBad'
-    pass
+#def JetCleaningToolConfig_Medium(theTool) :
+#    """
+#    This defines the jet cleaning cut values for the Medium operating point.
+#    """
+#    theTool = GetTool(theTool)
+#    theTool.CutLevel = 'MediumBad'
+#    pass
 
 def JetCleaningToolConfig_Tight(theTool) :
     """
