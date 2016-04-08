@@ -90,6 +90,19 @@ caldata::caldata(bool makehist, int nbinst, int nbinsr){
    	treshist  	= NULL;
    	reshist  	= NULL;
    	rthist  	= NULL;
+  	det		= -999;
+  	lay		= -999;
+  	mod		= -999;
+  	brd		= -999;
+  	chp		= -999;
+  	stl		= -999;
+  	stw		= -999;
+  	sid		= -999;
+  	ntres		= -999;
+  	nrt		= -999;
+  	nres		= -999;
+  	t0fittype	= -999;
+  	rtgraph		= NULL;
 
   if (makehist) {
 		if (treshist) delete treshist;
@@ -112,6 +125,15 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   //bool r_binning = binvar==1;
 
   npoints = binvar==0 ? rtHist->GetNbinsX() : rtHist->GetNbinsY() ;
+
+
+  mean 	= -20.0; 
+  t 	= -20.0;
+  d 	= -20.0;
+  et 	= -20.0;
+  ed 	= -20.0;
+  ff	=  NULL ;
+
   
   hslizes = new TH1D*[npoints];
   btype = new bintype[npoints];
@@ -271,6 +293,10 @@ RtGraph::RtGraph(TH2F* rtHist, int binvar, const char* binlabel, bool pflag, TDi
   trgr->SetName("trgraph") ;
 
   dir->cd();
+
+
+
+
 }
 
 
@@ -377,7 +403,54 @@ double rtrel_dines(double *x, double *par) {
 }
 */
 
-Calibrator::Calibrator(){}
+Calibrator::Calibrator(){
+  level		=-10;
+  name		="None"; 
+  rtbinning	="None";
+  minrtstat	=-10;
+  mint0stat	=-10;
+  t0shift	=-100.;
+  mint=-5;
+  maxt=50;
+  nbinst=55;
+
+  minr=0;
+  maxr=2;
+  nbinsr=100;
+
+  mintres=-10;
+  maxtres=10;
+  nbinstres=100;
+
+  minres=-0.6;
+  maxres=0.6;
+  nbinsres=100;
+
+  isdines = false;
+  dort=false;
+  dot0=false;
+  dores=false;
+  nort=false;
+  not0=false;
+  usebref=false;
+  bequiet=false;
+  printlog=false;
+  printt0=false;
+  printrt=false;
+  usep0=false;
+  floatp3=false;
+  selection.insert(-3);
+  useshortstraws=true;
+  ntreshits=0;
+  nreshits=0;
+  nrthits=0;
+  nhits=0;
+
+
+
+
+
+}
 
 Calibrator::Calibrator(int lev, string nme, int mint0, int minrt, string rtr, string rtb, float t0sft){
   level=lev;
@@ -1115,6 +1188,11 @@ int Calibrator::AddHit(string key, databundle d, int* binhist, bool makehist){
     hist->rtflag=false;
     hist->t0flag=false;
     hist->calflag=false;
+
+
+    for (unsigned int i =0; i < 4; i++){
+    	hist->rtpar[i]=-10.0;
+    }
 
     data[key]=*hist; //save the histogram in the map 
 

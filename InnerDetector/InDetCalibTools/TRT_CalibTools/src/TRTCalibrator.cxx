@@ -1001,12 +1001,12 @@ bool TRTCalibrator::calibrate() {
   //caldata startdata(true,64,64);
   startdata.t0=20.0;
   std::map<std::string,TDirectory*> dirmap;
-  TDirectory* trtdir=NULL;
-  TDirectory* detdir=NULL;
-  TDirectory* laydir=NULL;
-  TDirectory* moddir=NULL;
-  TDirectory* brddir=NULL;
-  TDirectory* chpdir=NULL;
+  TDirectory* trtdir=gDirectory;
+  TDirectory* detdir=gDirectory;
+  TDirectory* laydir=gDirectory;
+  TDirectory* moddir=gDirectory;
+  TDirectory* brddir=gDirectory;
+  TDirectory* chpdir=gDirectory;
 
   ofstream rtcalfile(Form("%s_rt.txt",outfile.data()),ios::out);
   ofstream binrtcalfile(Form("%s_binrt.txt",outfile.data()),ios::out);
@@ -1107,12 +1107,12 @@ bool TRTCalibrator::calibrate() {
   }
 
   std::map<std::string,TDirectory*> dirArmap;
-  TDirectory* trtdirAr=NULL;
-  TDirectory* detdirAr=NULL;
-  TDirectory* laydirAr=NULL;
-  TDirectory* moddirAr=NULL;
-  TDirectory* brddirAr=NULL;
-  TDirectory* chpdirAr=NULL;
+  TDirectory* trtdirAr=gDirectory;
+  TDirectory* detdirAr=gDirectory;
+  TDirectory* laydirAr=gDirectory;
+  TDirectory* moddirAr=gDirectory;
+  TDirectory* brddirAr=gDirectory;
+  TDirectory* chpdirAr=gDirectory;
 
   if (m_DoArXenonSep){
 
