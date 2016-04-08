@@ -18,6 +18,7 @@ class TrackParticleTruth {
   TrackParticleTruth();
   TrackParticleTruth(const HepMcParticleLink& particleLink, float probability);
   TrackParticleTruth(const TrackParticleTruth& other);
+  TrackParticleTruth & operator=(const TrackParticleTruth& ) = default;
   virtual ~TrackParticleTruth();
   int barcode() const;
   const HepMcParticleLink& particleLink() const;

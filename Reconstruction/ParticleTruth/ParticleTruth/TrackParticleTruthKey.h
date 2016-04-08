@@ -34,6 +34,9 @@ namespace Rec {
         // Return index of EL
         size_type index() const { return (m_EL.index()); }  
 
+        const ElementLink<TrackParticleContainer>& link() const { return m_EL; }
+
+
     private:
         ElementLink<TrackParticleContainer>  m_EL;
     };
