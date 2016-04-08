@@ -16,12 +16,16 @@
 class SensitiveDetectorMasterTool : public AthAlgTool , public virtual ISensitiveDetectorMasterTool {
  public:
   // Standard constructor and destructor
-  SensitiveDetectorMasterTool(const std::string& type, const std::string& name, const IInterface* parent);
+  SensitiveDetectorMasterTool(const std::string& type, const std::string& name,
+                              const IInterface* parent);
   virtual ~SensitiveDetectorMasterTool() {}
 
   // Gaudi methods
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   static const InterfaceID& interfaceID() { return ISensitiveDetectorMasterTool::interfaceID(); }
+
+  /// Retrieve the SD tools. SD creation is deferred until initializeSDs.
+  StatusCode initialize() override final;
 
   // Base class methods
   StatusCode initializeSDs() override final; ///!< Base class method to initialize all the SDs
