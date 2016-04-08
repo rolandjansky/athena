@@ -171,7 +171,7 @@ class MissingCellListTool
 
 
   double m_rmax;
-  bool m_needSetup;
+  //bool m_needSetup;
   bool m_addBadCells;
   bool m_addCellFromTool;
   unsigned int m_larMaskBit;
