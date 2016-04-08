@@ -25,7 +25,7 @@ MatrixReadOut::MatrixReadOut(Matrix *m, ubit16 FEevent, DataVersion ver)
   FEL1ID  = FEevent;
   CM = m;
   makeFragment();
-  BS = '\0';
+  BS = 0;
 }//end-of-MatrixReadOut::MatrixReadOut
 //----------------------------------------------------------------------------//
 MatrixReadOut::MatrixReadOut(ubit16 FEevent, DataVersion ver) 
@@ -42,8 +42,8 @@ initialize();
 MROS.setInit(); 
 FEevent = FEevent%512;
 FEL1ID  = FEevent;
-CM = '\0';
-BS = '\0';
+CM = 0;
+BS = 0;
 }//end-of-MatrixReadOut::MatrixReadOut
 //----------------------------------------------------------------------------//
 MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
@@ -57,7 +57,7 @@ MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
   m_data_version = ver;
   initialize();
   char field;
-  CM = '\0';
+  CM = 0;
   BS = v;
   //
   numberOfWordsInFrag = numWords;
@@ -128,11 +128,11 @@ FEL1ID      = MROOrig.FEL1ID;
 m_Header    = MROOrig.m_Header;
 m_Footer    = MROOrig.m_Footer;
 m_SubHeader = MROOrig.m_SubHeader;
-m_Body      = '\0';
+m_Body      = 0;
 addressOfWordScanned = 0;
 first8bitsON = MROOrig.first8bitsON;
-m_BodyLast  = '\0';
-m_BodyCurr  = '\0';
+m_BodyLast  = 0;
+m_BodyCurr  = 0;
 numberOfWordsInFrag = MROOrig.numberOfWordsInFrag;
 numberOfWordsInBody = MROOrig.numberOfWordsInBody;
 checkHeaderPos      = MROOrig.checkHeaderPos;
@@ -146,14 +146,14 @@ checkUnkown         = MROOrig.checkUnkown;
 //
 // copy CM hit structure
 //
-CMROData *q = '\0';
-CMROData *r = '\0';
+CMROData *q = 0;
+CMROData *r = 0;
 CMROData *p = MROOrig.m_Body;
 ubit16 cnter=0;
 while(p) {
  q = new CMROData;
  q->hit = p->hit;
- q->next = '\0';
+ q->next = 0;
  if(!cnter) m_Body = q;  else r->next=q;
  cnter++;
  r = q;
@@ -198,9 +198,9 @@ void MatrixReadOut::initialize(){
   m_Header    =  0;
   m_Footer    =  0;
   m_SubHeader =  0;
-  m_Body      ='\0';
-  m_BodyLast  ='\0';
-  m_BodyCurr  ='\0';
+  m_Body      =  0;
+  m_BodyLast  =  0;
+  m_BodyCurr  =  0;
   //
   FEL1ID   = 0;
 //  ROOffset = 1; // use this for comparison with hardware (VHDL) output
@@ -243,11 +243,11 @@ void MatrixReadOut::deleteCMABody() {
     p=p->next;
     delete q;
   }//end-of-while
-  p='\0';
-  q='\0';
-  m_Body     = '\0';
-  m_BodyLast = '\0';
-  m_BodyCurr = '\0';
+  p= 0;
+  q= 0;
+  m_Body     = 0;
+  m_BodyLast = 0;
+  m_BodyCurr = 0;
   numberOfWordsInBody=0;
 }//end-of-deleteCMABody
 //----------------------------------------------------------------------------//
@@ -654,7 +654,7 @@ void MatrixReadOut::makeNewHit(ubit16 newHit) {
   CMROData *p;
   p = new CMROData;
   p->hit=newHit;
-  p->next='\0';
+  p->next= 0;
   if(!m_Body) {
     m_Body = p;
   } else {
@@ -681,7 +681,7 @@ void MatrixReadOut::sortAndMakeNewHit(ubit16 newHit) {
   DISP_DEBUG;
   p          = m_Body;
   previous   = m_Body;
-  //newElement = '\0';
+  //newElement = 0;
   MROS.decodeFragment(newHit,field);
   DISP<<" IELD= "<<field<<endl;
   DISP_DEBUG;

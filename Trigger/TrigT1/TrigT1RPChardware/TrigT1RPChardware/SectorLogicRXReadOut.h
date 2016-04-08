@@ -67,7 +67,7 @@ private:
  SLRXROData *m_BodyLast; // pointer to the last hit recorded
  SLRXROData *m_BodyCurr; // pointer to the current hit scanned
  //*******************************************************//
- uint16_t m_lastHit;
+// uint16_t m_lastHit;
 
 };
 #endif

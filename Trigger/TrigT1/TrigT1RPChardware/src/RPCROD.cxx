@@ -59,8 +59,8 @@ m_Level1ID=0;
 m_BunchCrossingID=0;
 m_Level1TriggerType=0;
 m_DetectorEventType=0;
-m_RXFragment[0]='\0';
-m_RXFragment[1]='\0';
+m_RXFragment[0]= 0;
+m_RXFragment[1]= 0;
 m_NumberOfStatusElements=0;
 m_NumberOfDataElements=0;
 m_StatusBlockPosition=0;
@@ -133,8 +133,8 @@ makeData();
 //----------------------------------------------------------------------------//
 void RPCROD::makeData() {
 RXReadOutStructure RXOS;
-m_RXFragment[0]='\0';
-m_RXFragment[1]='\0';
+m_RXFragment[0]= 0;
+m_RXFragment[1]= 0;
 ubit16 RXID[2]={0,0};
 for(ubit16 i=0; i<numberOfSectors; i++) {
  if(m_RXlist[i]) {
@@ -188,7 +188,7 @@ newRXRO            =1;
 numberOfWordsInRXRO=0;
 numberOfWordsRead  =0;
 endOfRXFragments   =0;
-currentRXRO        ='\0';
+currentRXRO        =0;
 numberOfTrailerWordsScanned=0;
 numberOfStatusWordsScanned=0;
 numberOfDataWordsScanned=0;

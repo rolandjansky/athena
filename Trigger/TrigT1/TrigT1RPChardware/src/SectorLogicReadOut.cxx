@@ -24,10 +24,10 @@ SectorLogicReadOut::SectorLogicReadOut(const SectorLogicReadOut &SLROOrig)
 //
 m_Header = SLROOrig.m_Header;
 m_Footer = SLROOrig.m_Footer;
-m_Body        = '\0';
-m_BodyCounter = '\0';
-m_BodyLast    = '\0';
-m_BodyCurr    = '\0';
+m_Body        = 0;
+m_BodyCounter = 0;
+m_BodyLast    = 0;
+m_BodyCurr    = 0;
 numberOfWordsInFrag = SLROOrig.numberOfWordsInFrag;
 numberOfWordsInBody = SLROOrig.numberOfWordsInBody;
 numberOfWordsInCounters = SLROOrig.numberOfWordsInCounters;
@@ -43,14 +43,14 @@ for( ubit16 i=0; i<numberOfDecodedCounters; i++) {
 //
 // Copy Dynamic structure
 //
-SLROData *q = '\0';
-SLROData *r = '\0';
+SLROData *q = 0;
+SLROData *r = 0;
 SLROData *p = SLROOrig.m_Body;
 ubit16 cnter=0;
 while(p) {
  q = new SLROData;
  q->hit = p->hit;
- q->next = '\0';
+ q->next = 0;
  if(!cnter) {
   m_Body = q;
   if(cnter==(nGates*nLinks)) m_BodyCounter = q;
@@ -79,12 +79,12 @@ void SectorLogicReadOut::deleteSLBody() {
     p=p->next;
     delete q;
   }//end-of-while
-  p='\0';
-  q='\0';
-  m_Body           = '\0';
-  m_BodyLast       = '\0';
-  m_BodyCurr       = '\0';
-  m_BodyCounter    = '\0';
+  p=0;
+  q=0;
+  m_Body           = 0;
+  m_BodyLast       = 0;
+  m_BodyCurr       = 0;
+  m_BodyCounter    = 0;
   numberOfWordsInBody= 0;
 }//end-of-deleteSLBody
 //----------------------------------------------------------------------------//
@@ -97,10 +97,10 @@ void SectorLogicReadOut::initialize() {
   //
   // initialize pointers
   //
-  m_Body         ='\0';
-  m_BodyLast     ='\0';
-  m_BodyCurr     ='\0';
-  m_BodyCounter  ='\0';
+  m_Body         =0;
+  m_BodyLast     =0;
+  m_BodyCurr     =0;
+  m_BodyCounter  =0;
   //
   // initialize check flags
   //
@@ -139,7 +139,7 @@ void SectorLogicReadOut::makeNewHit(ubit16 newHit) {
   SLROData *p;
   p = new SLROData;
   p->hit=newHit;
-  p->next='\0';
+  p->next=0;
   if(!m_Body) {
     m_Body = p;
   } else {
