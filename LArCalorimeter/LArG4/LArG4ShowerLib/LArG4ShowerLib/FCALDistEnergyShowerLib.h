@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef SHOWER_LIB_FCALDIST_ENERGY_SHOWER_LIB_H
 #define SHOWER_LIB_FCALDIST_ENERGY_SHOWER_LIB_H
 
@@ -30,7 +29,7 @@ namespace ShowerLib {
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: FCALDistEnergyShowerLib.h 576158 2013-12-18 16:58:58Z gsedov $
+   * @version \$Id: FCALDistEnergyShowerLib.h 628375 2014-11-14 11:40:53Z jchapman $
    *
    */
 
@@ -39,10 +38,10 @@ namespace ShowerLib {
   public:
 
     //! factory method. create a library from root file. returns NULL if file is invalid.
-	static IShowerLib* readFromROOTFile(TFile* source);
+    static IShowerLib* readFromROOTFile(TFile* source);
 
-	//! factory method. create empty library with the given structure. returns NULL if file is invalid.
-	static IShowerLib* createEmptyLib(const std::string& inputFile);
+    //! factory method. create empty library with the given structure. returns NULL if file is invalid.
+    static IShowerLib* createEmptyLib(const std::string& inputFile);
 
     //! default destructor
     virtual ~FCALDistEnergyShowerLib() {}
@@ -68,7 +67,7 @@ namespace ShowerLib {
 
   private:
 
-    FCALDistEnergyShowerLib() {}
+    FCALDistEnergyShowerLib():m_xrodcent(0.0),m_yrodcent(0.0),m_step(0.0) {}
 
     //! read library from given TTree
     bool read(TTree* source);
@@ -83,7 +82,7 @@ namespace ShowerLib {
     typedef std::map<float,distbin> library;
 
     library libData;
-    
+
     //distance calculator parameters
     double m_xrodcent;
     double m_yrodcent;
