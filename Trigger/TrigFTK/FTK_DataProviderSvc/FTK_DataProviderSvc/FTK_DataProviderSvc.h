@@ -217,7 +217,11 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   bool m_useViewContainers;
   bool m_barrelOnly;
   float m_barrelMaxCotTheta;
-  
+  std::vector<float> m_pixelBarrelPhiOffsets;
+  std::vector<float>  m_pixelBarrelEtaOffsets;
+  std::vector<float>  m_pixelEndCapPhiOffsets;
+  std::vector<float> m_pixelEndCapEtaOffsets;
+
 };
 
 inline bool compareFTK_Clusters (InDet::SiClusterOnTrack* cl1, InDet::SiClusterOnTrack* cl2) {
