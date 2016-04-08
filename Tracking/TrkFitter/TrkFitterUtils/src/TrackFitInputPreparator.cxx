@@ -173,12 +173,11 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       sortedHitSet.push_back(std::make_pair((*it)->measurementOnTrack(), index));
     }
   }
-  Trk::MeasBaseIndexComparisonFunction* MB_IndexCompFunc = new
-    Trk::MeasBaseIndexComparisonFunction(referenceParameters->position(),
-                                         referenceParameters->momentum());
+  Trk::MeasBaseIndexComparisonFunction MB_IndexCompFunc(referenceParameters->position(),
+                                                        referenceParameters->momentum());
   int firstFittableStateIndex = (*std::min_element(sortedHitSet.begin(),
                                                    sortedHitSet.end(),
-                                                   *MB_IndexCompFunc)).second;
+                                                   MB_IndexCompFunc)).second;
   referenceParameters = (*inputTrk.trackStateOnSurfaces())[firstFittableStateIndex]->trackParameters();
   if (referenceParameters == NULL) {
     referenceParameters = doSorting
@@ -196,10 +195,10 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
     for(MeasurementSet::const_iterator itMb    = inputMbs.begin();
         itMb!=inputMbs.end(); ++itMb, ++index)
       sortedHitSet.push_back(std::make_pair((*itMb),index));
-    if ( ! is_sorted( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc ) ) {
+    if ( ! is_sorted( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ) ) {
       worstCaseSorting ?
-      stable_sort( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc ):
-      sort( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc );
+      stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
+      sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
 
       /* FIXME remove std output
       std::cout << "added MBset was not a pure track ext, needed to sort it." << std::endl;
@@ -242,7 +241,6 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       }
     }
   }
-  delete MB_IndexCompFunc;
 
   
   /* if inputs are already sorted or assumed so by convention, trajectory will not
@@ -309,12 +307,11 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       sortedHitSet.push_back(std::make_pair((*it)->measurementOnTrack(), index));
     }
   }
-  Trk::MeasBaseIndexComparisonFunction* MB_IndexCompFunc = new
-    Trk::MeasBaseIndexComparisonFunction(referenceParameters->position(),
-                                         referenceParameters->momentum());
+  Trk::MeasBaseIndexComparisonFunction FindFirstFunc(referenceParameters->position(),
+                                                        referenceParameters->momentum());
   int firstMbIndex = (*std::min_element(sortedHitSet.begin(),
                                         sortedHitSet.end(),
-                                        *MB_IndexCompFunc)).second;
+                                        FindFirstFunc)).second;
   referenceParameters = (firstMbIndex < nInputStates)
     ? (*inputTrk1.trackStateOnSurfaces())[firstMbIndex]->trackParameters()
     : (*inputTrk2.trackStateOnSurfaces())[firstMbIndex]->trackParameters();
@@ -331,13 +328,12 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
     bool worstCaseSorting = // invest n*(logN)**2 sorting time only for lowPt
       fabs((*inputTrk1.trackParameters()->begin())->parameters()[Trk::qOverP]) > 0.002;
 
-    Trk::MeasBaseIndexComparisonFunction* MB_IndexCompFunc = new
-      Trk::MeasBaseIndexComparisonFunction(referenceParameters->position(),
-                                           referenceParameters->momentum());
-    if ( ! is_sorted( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc ) ) {
+    Trk::MeasBaseIndexComparisonFunction MB_IndexCompFunc(referenceParameters->position(),
+                                                          referenceParameters->momentum());
+    if ( ! is_sorted( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ) ) {
       worstCaseSorting ?
-      stable_sort( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc ):
-      sort( sortedHitSet.begin(), sortedHitSet.end(), *MB_IndexCompFunc );
+      stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
+      sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
 
       /* FIXME remove std output
       std::cout << "hits on two tracks are not in proper order, "
@@ -387,7 +383,6 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       }
     }
   }
-  delete MB_IndexCompFunc;
 
   
   /* if inputs are already sorted or assumed so by convention, trajectory will not
