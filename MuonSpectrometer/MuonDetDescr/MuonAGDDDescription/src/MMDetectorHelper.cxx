@@ -17,7 +17,6 @@ MMDetectorHelper::MMDetectorHelper()
 	
 	for ( auto vl_iter: vl)
 	{
-		std::cout<<"detector "<<vl_iter.second->GetName()<<std::endl;
 		MMDetectorDescription* st=dynamic_cast<MMDetectorDescription*>(vl_iter.second);
 		if (st) 
 			MicromegasList[vl_iter.first]=st;
@@ -52,7 +51,6 @@ MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int i
 			char dside=dad[13];
 			if (dside!=side) continue;
 			
-			std::cout<<" Detector Positioner "<<dp->ID.detectorType<<" "<<dp->ID.detectorAddress<<std::endl;
 			mm=dynamic_cast<MMDetectorDescription*>(dp->theDetector);
 		}
 	}
@@ -88,7 +86,6 @@ AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int 
 			char dside=dad[13];
 			if (dside!=side) continue;
 			
-			std::cout<<" Detector Positioner "<<dp->ID.detectorType<<" "<<dp->ID.detectorAddress<<std::endl;
 			mm=dynamic_cast<MMDetectorDescription*>(dp->theDetector);
 		}
 	}

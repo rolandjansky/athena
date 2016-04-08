@@ -15,8 +15,6 @@ sTGCDetectorDescription* sTGCDetectorDescription::current=0;
 sTGCDetectorDescription::sTGCDetectorDescription(std::string s):
     AGDDDetector(s,"sTGC"),_yCutout(0)
 {
-    current=this;
-    Register();
 }
 
 void sTGCDetectorDescription::Register()

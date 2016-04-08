@@ -13,6 +13,14 @@
 
 using MuonGM::MM_Technology;
 
+struct MMReadoutParameters {
+    double stripPitch;
+    double gasThickness;
+    double pcbThickness;
+    std::vector<double> stereoAngel;
+    std::vector<int> readoutSide;
+};
+
 class MMDetectorDescription: public AGDDDetector {
 public:
 	MMDetectorDescription(std::string s);
@@ -26,6 +34,11 @@ public:
 	double Tck()    {return _z;}
 	
 	MM_Technology* GetTechnology();
+
+	MMReadoutParameters roParameters;
+	
+	MMReadoutParameters& GetReadoutParameters() {return roParameters;}
+
 protected:
 	void SetDetectorAddress(AGDDDetectorPositioner*);
 	static MMDetectorDescription* current;

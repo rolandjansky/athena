@@ -40,6 +40,8 @@ struct sTGCReadoutParameters {
     std::vector<int> StripsInBandsLayer4;
     std::vector<int> nWireGroups;
     std::vector<int> firstWireGroup;
+    std::vector<int> leftmostPadColumn;
+    std::vector<int> rightmostPadColumn;
 	
 };
 
