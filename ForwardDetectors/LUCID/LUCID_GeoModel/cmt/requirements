@@ -7,7 +7,7 @@ use GeoModelUtilities 	GeoModelUtilities-*     DetectorDescription/GeoModel
 use CLIDSvc 	   	CLIDSvc-* 		Control
 use GeoModelUtilities   GeoModelUtilities-*	DetectorDescription/GeoModel
 
-include_dirs "$(LUCID_GeoModel_root)/LUCID_GeoModel"
+####include_dirs "$(LUCID_GeoModel_root)/LUCID_GeoModel"
 
 apply_pattern dual_use_library files=*.cxx
 
