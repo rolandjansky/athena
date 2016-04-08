@@ -8,10 +8,12 @@
 #include "eformat/SourceIdentifier.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include <iostream>
+#include <stdlib.h>
 
 std::string HLT::HLTResultByteStreamTool::s_l2ResultName = "HLTResult_L2";
 std::string HLT::HLTResultByteStreamTool::s_efResultName = "HLTResult_EF";
 std::string HLT::HLTResultByteStreamTool::s_hltResultName = "HLTResult_HLT";
+std::string HLT::HLTResultByteStreamTool::s_dataScoutingResultName = "DataScouting_";
 
 eformat::SubDetector HLT::HLTResultByteStreamTool::s_idL2 = eformat::TDAQ_LVL2;
 eformat::SubDetector HLT::HLTResultByteStreamTool::s_idEF = eformat::TDAQ_EVENT_FILTER;  // same as TDAQ_HLT in eformat5
@@ -35,6 +37,7 @@ eformat::SubDetector HLT::HLTResultByteStreamTool::byteStreamLocation(std::strin
 {
   if (objName == s_l2ResultName) return s_idL2;
   if (objName == s_efResultName || objName == s_hltResultName) return s_idEF;
+  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) return s_idEF;
 
   return eformat::OTHER;
 }
@@ -45,6 +48,7 @@ HLT::HLTResultByteStreamTool::eventAssembler(std::string objName)
 {
   if (objName == s_l2ResultName) return &m_feaL2;
   if (objName == s_efResultName || objName == s_hltResultName) return &m_feaEF;
+  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) return &m_feaEF;
 
   return 0;
 }
@@ -67,7 +71,11 @@ StatusCode HLT::HLTResultByteStreamTool::convert( HLTResult* result, RawEventWri
 
   m_fea->clear() ;
 
-  eformat::helper::SourceIdentifier helpID(subDet, 0);
+  uint32_t module_id(0);
+  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) {
+    module_id = atoi( (objName.substr(s_dataScoutingResultName.length(),2)).c_str() ) ;
+  }
+  eformat::helper::SourceIdentifier helpID(subDet, module_id);
   uint32_t rodIdHLTResult = helpID.code();
 
   std::vector<uint32_t>* rod = m_fea->getRodData( rodIdHLTResult );
@@ -101,7 +109,11 @@ StatusCode HLT::HLTResultByteStreamTool::convert(IROBDataProviderSvc& dataProvid
   // unsigned int vector where to store HLT payload
   std::vector<uint32_t> hltContent;
 
-  eformat::helper::SourceIdentifier helpID(byteStreamLocation(objName), 0);
+  uint32_t module_id(0);
+  if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) {
+    module_id = atoi( (objName.substr(s_dataScoutingResultName.length(),2)).c_str() ) ;
+  }
+  eformat::helper::SourceIdentifier helpID(byteStreamLocation(objName), module_id);
   uint32_t robId = helpID.code();
 
   std::vector<uint32_t> vID;
