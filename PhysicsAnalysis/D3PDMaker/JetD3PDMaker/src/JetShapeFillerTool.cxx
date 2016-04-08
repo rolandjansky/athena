@@ -52,6 +52,7 @@ JetShapeFillerTool::JetShapeFillerTool
   declareProperty ("SignalStateNumber", m_sigstate = 0);
   declareProperty ("SignalStatePrefix", m_prefix   = "");
 
+  m_shape = 0;
 }
   
 
