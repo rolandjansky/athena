@@ -147,7 +147,7 @@ SiliconProperties::calcDriftMobility(double electricField, double electricField_
 {
   // Equation from ATL-INDET-2001-004
   return saturationVelocity / electricField_critical / 
-    pow(1. + pow(electricField/electricField_critical, beta), 1./beta);
+    pow(std::abs(1. + pow(std::abs(electricField/electricField_critical), beta)), 1./beta);
 }
   
 double 
