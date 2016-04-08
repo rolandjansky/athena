@@ -45,14 +45,12 @@ namespace Trk {
        /** charged extrapolation */
        virtual ExtrapolationCode extrapolate(ExCellCharged& ecCharged,
                                              const Surface* sf = 0,
-                                             //PropDirection dir=alongMomentum,
                                              BoundaryCheck bcheck = true) const = 0;
 
 
        /** neutral extrapolation */
        virtual ExtrapolationCode extrapolate(ExCellNeutral& ecNeutral,
                                              const Surface* sf = 0,
-                                             //PropDirection dir=alongMomentum,
                                              BoundaryCheck bcheck = true) const = 0;
                                 
                                 
@@ -60,6 +58,7 @@ namespace Trk {
       virtual GeometryType geometryType() const = 0;                            
       
     protected:
+        
       //!< SCREEN output formatting  (SOP) - unify amongst extrapolation engines
       std::string                                         m_sopPrefix;            //!< prefix for screen output
       std::string                                         m_sopPostfix;           //!< prefix for screen output
