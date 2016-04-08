@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ZPrimeMuonSelector.h 480243 2012-02-01 16:37:27Z wanghill $
+// $Id: ZPrimeMuonSelector.h 651267 2015-03-03 16:40:48Z ssnyder $
 /**
  * @file ExoticsD3PDMaker/src/ZPrimeMuonSelector.h
  * @author Hulin Wang<Hulin.Wang@cern.ch>
@@ -47,7 +47,7 @@ private:
   double m_ptMin;
 
   /// Flag to dump the content of StoreGate after each event
-  bool m_dumpStoreGate;
+  //bool m_dumpStoreGate;
 
   /// Internal event counter
   unsigned long m_nEventsProcessed;

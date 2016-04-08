@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ZPrimeElectronSelector.cxx 504912 2012-06-11 13:36:14Z mkaneda $
+// $Id: ZPrimeElectronSelector.cxx 651267 2015-03-03 16:40:48Z ssnyder $
 /**
  * @file ExoticsD3PDMaker/src/ZPrimeElectronSelector.cxx
  * @author Michiru Kaneda <Michiru.Kaneda@cern.ch>
@@ -33,7 +33,7 @@ namespace D3PD {
 ZPrimeElectronSelector::ZPrimeElectronSelector (const std::string& name,
                     ISvcLocator* svcloc)
   : AthFilterAlgorithm (name, svcloc),
-    m_dumpStoreGate(false),
+    //m_dumpStoreGate(false),
     m_nEventsProcessed(0),
     m_nEventsSelected(0),
     m_nElectronBefore(0),

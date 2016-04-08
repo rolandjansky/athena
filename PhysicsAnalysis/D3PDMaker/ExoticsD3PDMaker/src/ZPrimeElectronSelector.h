@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ZPrimeElectronSelector.h 475830 2012-01-10 13:48:45Z mkaneda $
+// $Id: ZPrimeElectronSelector.h 651267 2015-03-03 16:40:48Z ssnyder $
 /**
  * @file ExoticsD3PDMaker/src/ZPrimeElectronSelector.h
  * @author Michiru Kaneda <Michiru.Kaneda@cern.ch>
@@ -47,7 +47,7 @@ private:
   double m_siHitsMin;
 
   /// Flag to dump the content of StoreGate after each event
-  bool m_dumpStoreGate;
+  //bool m_dumpStoreGate;
 
   /// Internal event counter
   unsigned long m_nEventsProcessed;

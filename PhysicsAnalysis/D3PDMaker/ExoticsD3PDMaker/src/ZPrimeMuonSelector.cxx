@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ZPrimeMuonSelector.cxx 500838 2012-05-15 14:23:24Z ssnyder $
+// $Id: ZPrimeMuonSelector.cxx 651267 2015-03-03 16:40:48Z ssnyder $
 /**
  * @file ExoticsD3PDMaker/src/ZPrimeMuonSelector.cxx
  * @author Hulin Wang <Hulin.Wang@cern.ch>
@@ -25,7 +25,7 @@ namespace D3PD {
 ZPrimeMuonSelector::ZPrimeMuonSelector (const std::string& name,
                     ISvcLocator* svcloc)
   : AthFilterAlgorithm (name, svcloc),
-    m_dumpStoreGate(false),
+    //m_dumpStoreGate(false),
     m_nEventsProcessed(0),
     m_nEventsSelected(0),
     m_nStacoBefore(0),
