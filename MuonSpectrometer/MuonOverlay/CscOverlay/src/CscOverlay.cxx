@@ -7,9 +7,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 #include "GeneratorObjects/McEventCollection.h"
@@ -28,6 +25,7 @@ const uint16_t MAX_AMPL = 4095; // 12-bit ADC
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonOverlayBase(name, pSvcLocator),
   m_storeGateTemp("StoreGateSvc/BkgEvent_1_SG", name),
+  m_cscHelper(0),
   m_cscCalibTool( "CscCalibTool", this),
   m_digTool("CscDigitizationTool", this ),
   m_rdoTool2("CscDigitToCscRDOTool2", this ),
@@ -390,7 +388,8 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
           
       /** The new collection goes to m_storeGateData */
 
-      if (forcecopy) main->removeCollection(out_coll->identify());//not normally necessary, since it didn't exist to begin with, but if you wanted to force just plain copying above, you should do this remove, otherwise the add will fail
+      // commeting out following line due to coverity defect 12314; forcecopy is set to false in line 269 and therefore the part is "dead"
+      // if (forcecopy) main->removeCollection(out_coll->identify());//not normally necessary, since it didn't exist to begin with, but if you wanted to force just plain copying above, you should do this remove, otherwise the add will fail
 
       if(main->addCollection(out_coll, out_coll->identify()).isFailure()) {
 	msg << MSG::WARNING << "overlayContainer(): Problem in main->addCollection(Identifier)" << endreq;
