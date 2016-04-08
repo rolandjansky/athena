@@ -25,25 +25,25 @@
 #include <algorithm>
 #include <iostream>
 
-bool RDBMaterialManager::_specialMaterials = false;
+bool RDBMaterialManager::s_specialMaterials = false;
 
 //---------------------------Help find elements in the list-----------------------//
 class NameEquals {                                                                //
 public:                                                                           //
-  NameEquals(const std::string & name):_name(name){}                              //
-  bool operator() (const GeoElement *e) const {return _name==e->getName();}       //
+  NameEquals(const std::string & name):m_name(name){}                              //
+  bool operator() (const GeoElement *e) const {return m_name==e->getName();}       //
 private:                                                                          //
-  std::string _name;                                                              //
+  std::string m_name;                                                              //
 };                                                                                //
 //--------------------------------------------------------------------------------//
 
 //---------------------------Help find elements in the list-----------------------//
 class NumberEquals {                                                              //
 public:                                                                           //
-  NumberEquals(unsigned int number):_number(number){}                             //
-  bool operator() (const GeoElement *e) const {return _number==e->getZ();}        //
+  NumberEquals(unsigned int number):m_number(number){}                             //
+  bool operator() (const GeoElement *e) const {return m_number==e->getZ();}        //
 private:                                                                          //
-  unsigned int _number;                                                           //
+  unsigned int m_number;                                                           //
 };                                                                                //
 //--------------------------------------------------------------------------------//
 
@@ -59,91 +59,71 @@ int CheckElement(std::string &name)
 
 int printElement ( GeoElement* &p_element)
 {
-  std::string _name;
-  std::string _symbol;
-  double      _a;
-  double      _z;
+  std::string name = p_element->getName();
+  std::string symbol = p_element->getSymbol();
+  double a = p_element->getA();
+  double z = p_element->getZ();
 	
-  _name = p_element->getName();
-  _symbol = p_element->getSymbol();
-  _a = p_element->getA();
-  _z = p_element->getZ();
-	
-  std::cout << " ***** CheckElement(): Print the Element:  " << _name << std::endl; 
+  std::cout << " ***** CheckElement(): Print the Element:  " << name << std::endl; 
   std::cout << " ***** The Element: name,		symbol, 	A, 	Z " << std::endl; 
-  std::cout << " *****             "<<_name <<"		"<<_symbol <<"		"<< (_a)/(CLHEP::gram/CLHEP::mole)<<"	"<< _z <<"	"  << std::endl; 
+  std::cout << " *****             "<<name <<"		"<<symbol <<"		"<< a * (CLHEP::mole / CLHEP::gram) <<"	"<< z <<"	"  << std::endl; 
 	
   return 1;
 }
 
 int printElement ( const GeoElement* &p_element)
 {
-  std::string _name;
-  std::string _symbol;
-  double      _a;
-  double      _z;
-		
-  _name = p_element->getName();
-  _symbol = p_element->getSymbol();
-  _a = p_element->getA();
-  _z = p_element->getZ();
+  std::string name = p_element->getName();
+  std::string symbol = p_element->getSymbol();
+  double a = p_element->getA();
+  double z = p_element->getZ();
 	
-  std::cout << " ***** PrintElement(): Print the Element:  " << _name << std::endl; 
+  std::cout << " ***** PrintElement(): Print the Element:  " << name << std::endl; 
   std::cout << " ***** The Element: name,		symbol, 	A, 	Z " << std::endl; 
-  std::cout << " *****             "<<_name <<"		"<<_symbol <<"		"<< (_a)/(CLHEP::gram/CLHEP::mole) <<"	"<< _z <<"	"  << std::endl; 
+  std::cout << " *****             "<<name <<"		"<<symbol <<"		"<< a * (CLHEP::mole / CLHEP::gram) <<"	"<< z <<"	"  << std::endl; 
 	
   return 1;
 }
 
 int printMaterial ( GeoMaterial* &p_material)
 {
-  std::string _name;
-  double _density;
-		
-  _name = p_material->getName();
-  _density = p_material->getDensity()/(CLHEP::gram/CLHEP::cm3);
+  std::string name = p_material->getName();
+  double density = p_material->getDensity() * (CLHEP::cm3 / CLHEP::gram);
 
-  std::cout << " ***** PrintMaterial(): Print the Material:  " << _name << std::endl; 
+  std::cout << " ***** PrintMaterial(): Print the Material:  " << name << std::endl; 
   std::cout << " ***** The Material: name,	density	" << std::endl; 
-  std::cout << " *****              "<< _name <<"		"<<_density <<"		" << std::endl; 	
+  std::cout << " *****              "<< name <<"		"<<density <<"		" << std::endl; 	
 	
   return 1;
 }
 
 int printFullMaterial ( GeoMaterial* &p_material)
 {
-  std::string _name;
-  double _density;
-  int _element_number;
+  std::string name = p_material->getName();
+  double density = p_material->getDensity() * (CLHEP::cm3 / CLHEP::gram);
 	
-  const GeoElement* _tmp_element;
-  double _element_fraction;
-		
-  _name = p_material->getName();
-  _density = p_material->getDensity()/(CLHEP::gram/CLHEP::cm3);
-	
-  std::cout << " ***** PrintFullMaterial(): Print the Material:  " << _name << std::endl; 
+  std::cout << " ***** PrintFullMaterial(): Print the Material:  " << name << std::endl; 
   std::cout << " ***** The Material: name, 	density" << std::endl; 
-  std::cout << " *****              "<< _name <<" 	 "<<_density <<"  " << std::endl; 
+  std::cout << " *****              "<< name <<" 	 "<<density <<"  " << std::endl; 
 	
   p_material->lock();
-  _element_number = p_material->getNumElements();	
+  int element_number = p_material->getNumElements();	
 		
  			
-  if ( _element_number  == 0){
+  if ( element_number  == 0){
     std::cout << " ***** No Elements now in this printMaterial( ) " << std::endl;	
     return 1;
   }
   else {
-    _element_number = p_material->getNumElements();	
+    element_number = p_material->getNumElements();	
 	
-    for(int i =0; i< _element_number;i ++)
+    for(int i =0; i< element_number;i ++)
       {
-	_tmp_element = p_material->getElement(i);
-	_element_fraction = p_material->getFraction(i);
+	const GeoElement* tmp_element = p_material->getElement(i);
+	double element_fraction = p_material->getFraction(i);
 		
-	std::cout<<" ***** ***** Number:  " << i << " Fraction:  " << _element_fraction<< std::endl;
-	printElement( _tmp_element); 
+	std::cout<<" ***** ***** Number:  " << i << " Fraction:  " << element_fraction<< std::endl;
+	printElement( tmp_element); 
       }	
   }
   return 1;
@@ -372,11 +352,11 @@ RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
 RDBMaterialManager::~RDBMaterialManager() {
 	
   // Unreference the materials:
-  std::map< std::string, GeoMaterial * >::iterator m, begin = _materialMap.begin(),end = _materialMap.end();
+  std::map< std::string, GeoMaterial * >::iterator m, begin = m_materialMap.begin(),end = m_materialMap.end();
   for (m=begin;m!=end;m++) (*m).second->unref();	
 	 	
   // Unreference the elements:
-  for (size_t i=0;i<_elementVector.size();i++)   	_elementVector[i]->unref();
+  for (size_t i=0;i<m_elementVector.size();i++)   	m_elementVector[i]->unref();
 	
 }
 
@@ -384,8 +364,8 @@ GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name)
 {
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
 	
-  std::map< std::string, GeoMaterial * >::const_iterator m   = _materialMap.find(std::string(name));
-  std::map< std::string, GeoMaterial * >::const_iterator end = _materialMap.end();
+  std::map< std::string, GeoMaterial * >::const_iterator m   = m_materialMap.find(std::string(name));
+  std::map< std::string, GeoMaterial * >::const_iterator end = m_materialMap.end();
   	
   if (m!=end) {
     if(log.level()==MSG::VERBOSE)
@@ -403,8 +383,8 @@ GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name) con
 {
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
 	
-  std::map< std::string, GeoMaterial * >::const_iterator m   = _materialMap.find(std::string(name));
-  std::map< std::string, GeoMaterial * >::const_iterator end = _materialMap.end();
+  std::map< std::string, GeoMaterial * >::const_iterator m   = m_materialMap.find(std::string(name));
+  std::map< std::string, GeoMaterial * >::const_iterator end = m_materialMap.end();
   if (m!=end) {
     if(log.level()==MSG::VERBOSE)
       log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endreq;	
@@ -423,9 +403,9 @@ GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
 	
   NameEquals matchByName(name);
-  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(),matchByName);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(m_elementVector.begin(), m_elementVector.end(),matchByName);
   	
-  if (e!=_elementVector.end()) {	
+  if (e!=m_elementVector.end()) {	
     if(log.level()==MSG::VERBOSE)
       log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endreq;	
     return *e;
@@ -443,9 +423,9 @@ GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)  c
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
 	
   NameEquals matchByName(name);
-  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(),matchByName);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(m_elementVector.begin(), m_elementVector.end(),matchByName);
   	
-  if (e!=_elementVector.end()) {	
+  if (e!=m_elementVector.end()) {	
     if(log.level()==MSG::VERBOSE)    		
       log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endreq;	
     return *e;
@@ -463,9 +443,9 @@ GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNum
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
 	
   NumberEquals matchByNumber(atomicNumber);
-  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(), matchByNumber);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(m_elementVector.begin(), m_elementVector.end(), matchByNumber);
   	
-  if (e!=_elementVector.end()) {
+  if (e!=m_elementVector.end()) {
     if(log.level()==MSG::VERBOSE)  		
       log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
     return *e;
@@ -482,9 +462,9 @@ GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNum
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
 	
   NumberEquals matchByNumber(atomicNumber);
-  std::vector<GeoElement *>::const_iterator e=std::find_if(_elementVector.begin(), _elementVector.end(), matchByNumber);
+  std::vector<GeoElement *>::const_iterator e=std::find_if(m_elementVector.begin(), m_elementVector.end(), matchByNumber);
   	
-  if (e!=_elementVector.end()) {
+  if (e!=m_elementVector.end()) {
     if(log.level()==MSG::VERBOSE)  		
       log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endreq;
     return *e;
@@ -500,15 +480,15 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
 	
   unsigned int  ind, com_ind;
 	
-  std::string _material_name;
-  std::string _tmp_name;
-  long 	    _material_id = 0;
-  double      _material_density = 0;
+  std::string material_name;
+  std::string tmp_name;
+  long 	    material_id = 0;
+  double      material_density = 0;
 	
 	
-  std::string _component_name;
-  double      _component_fraction;
-  int 	    _component_id;
+  std::string component_name;
+  double      component_fraction;
+  int 	    component_id;
 		
   std::string detector;
   std::string tmp_det;
@@ -517,10 +497,10 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
 	
   std::string matcomponents_table;
 
-  if(!_specialMaterials)
+  if(!s_specialMaterials)
   {
     buildSpecialMaterials();
-    _specialMaterials = true;
+    s_specialMaterials = true;
   }
 	
   GeoMaterial* pmaterial;
@@ -623,24 +603,24 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
   for( ind = 0; ind < tmp_materials->size(); ind++)
     {
       const IRDBRecord* rec = (*tmp_materials)[ind];
-      _tmp_name = detector+"::"+rec->getString("NAME");
+      tmp_name = detector+"::"+rec->getString("NAME");
 		
-      if( name == _tmp_name){
+      if( name == tmp_name){
 
-	_material_name  = rec->getString("NAME");
-	_material_id = rec->getLong(data_id);
-	_material_density = rec->getDouble("DENSITY");
+	material_name  = rec->getString("NAME");
+	material_id = rec->getLong(data_id);
+	material_density = rec->getDouble("DENSITY");
         		
 	if(log.level()<=MSG::DEBUG)
-	  log << MSG::DEBUG  << " ***** Material: name id density: "  << _material_name <<" " << _material_id <<" "<< _material_density << endreq;	
+	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endreq;	
 	break;
       }
     }
 		
   if (ind == tmp_materials->size()) 
       return NULL;
-							
-  pmaterial = new GeoMaterial( _material_name,_material_density * CLHEP::gram/CLHEP::cm3);
+
+  pmaterial = new GeoMaterial( material_name,material_density * (CLHEP::gram / CLHEP::cm3));
 
 
   bool firstComponent = true;
@@ -654,49 +634,51 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
     {
       const IRDBRecord* com_rec = (*tmp_matcomponents)[com_ind];
 		
-      _component_id = com_rec->getLong("MATERIAL_ID");
-      if( _component_id == _material_id)
+      component_id = com_rec->getLong("MATERIAL_ID");
+      if( component_id == material_id)
 	{
-	  _component_name = com_rec->getString("COMPNAME");
-	  _component_fraction = com_rec->getDouble("FRACTION");
+	  component_name = com_rec->getString("COMPNAME");
+	  component_fraction = com_rec->getDouble("FRACTION");
 			
 	  if(firstComponent)
 	  {
 	    firstComponent = false;
-	    if(_component_fraction>=1.)
+	    if(component_fraction>=1.)
 	      calculateFraction = true;
 	  }
 
-	  if( CheckElement( _component_name) == 1)
+	  if( CheckElement( component_name) == 1)
 	    {
-	      p_com_element = getElement(_component_name);
+	      p_com_element = getElement(component_name);
 
 	      if(calculateFraction)
 	      {
-		totalFraction += _component_fraction*p_com_element->getA();
+		totalFraction += component_fraction*p_com_element->getA();
 		elementComponents.push_back(p_com_element);
-		elementFractions.push_back(_component_fraction);
+		elementFractions.push_back(component_fraction);
 	      }
 	      else
-		pmaterial->add( p_com_element, _component_fraction);
+		pmaterial->add( p_com_element, component_fraction);
 										
 	    }
 	  else{
 	    hasSubMaterial = true;
-	    p_com_material = getMaterial(_component_name);
+	    p_com_material = getMaterial(component_name);
 
-	    pmaterial->add(p_com_material, _component_fraction);
+	    pmaterial->add(p_com_material, component_fraction);
 			
 	  }		
 	}
     }    
 
   if(calculateFraction && hasSubMaterial && elementComponents.size()>0)
-    std::cerr << _material_name << " description should be changed. Please indicate the exact fraction for elements\n";
+    std::cerr << material_name << " description should be changed. Please indicate the exact fraction for elements\n";
 
-  if(calculateFraction)
+  if(calculateFraction && !elementComponents.empty()) {
+    const double inv_totalFraction = 1. / totalFraction;
     for(unsigned i=0; i<elementComponents.size(); i++)
-      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA()/totalFraction);
+      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA() * inv_totalFraction);
+  }
 	
   // a table to keep the memory allocation, and easy for delete 
   addMaterial(detector,pmaterial);
@@ -713,15 +695,15 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
 
   unsigned int  ind, com_ind;
 	
-  std::string _material_name;
-  std::string _tmp_name;
-  long 	    _material_id = 0;
-  double      _material_density = 0;
+  std::string material_name;
+  std::string tmp_name;
+  long 	    material_id = 0;
+  double      material_density = 0;
 	
 	
-  std::string _component_name;
-  double      _component_fraction;
-  int 	    _component_id;
+  std::string component_name;
+  double      component_fraction;
+  int 	    component_id;
 		
   std::string detector;
   std::string tmp_det;
@@ -730,10 +712,10 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
 	
   std::string matcomponents_table;
 
-  if(!_specialMaterials)
+  if(!s_specialMaterials)
   {
     buildSpecialMaterials();
-    _specialMaterials = true;
+    s_specialMaterials = true;
   }
 
 	
@@ -836,23 +818,23 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
   for( ind = 0; ind < tmp_materials->size(); ind++)
     {
       const IRDBRecord* rec = (*tmp_materials)[ind];
-      _tmp_name = detector+"::"+rec->getString("NAME");
+      tmp_name = detector+"::"+rec->getString("NAME");
 		
-      if( name == _tmp_name){
-	_material_name  = rec->getString("NAME");
-	_material_id = rec->getLong(data_id);
-	_material_density = rec->getDouble("DENSITY");
+      if( name == tmp_name){
+	material_name  = rec->getString("NAME");
+	material_id = rec->getLong(data_id);
+	material_density = rec->getDouble("DENSITY");
         		
 	if(log.level()<=MSG::DEBUG)
-	  log << MSG::DEBUG  << " ***** Material: name id density: "  << _material_name <<" " << _material_id <<" "<< _material_density << endreq;	
+	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endreq;	
 	break;
       }
     }
 		
   if (ind == tmp_materials->size()) 
       return NULL;
-						
-  pmaterial = new GeoMaterial( _material_name,_material_density * CLHEP::gram/CLHEP::cm3);
+
+  pmaterial = new GeoMaterial( material_name,material_density * (CLHEP::gram / CLHEP::cm3));
 
   bool firstComponent = true;
   bool hasSubMaterial = false;
@@ -865,49 +847,51 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
     {
       const IRDBRecord* com_rec = (*tmp_matcomponents)[com_ind];
 		
-      _component_id = com_rec->getLong("MATERIAL_ID");
-      if( _component_id == _material_id)
+      component_id = com_rec->getLong("MATERIAL_ID");
+      if( component_id == material_id)
 	{
-	  _component_name = com_rec->getString("COMPNAME");
-	  _component_fraction = com_rec->getDouble("FRACTION");
+	  component_name = com_rec->getString("COMPNAME");
+	  component_fraction = com_rec->getDouble("FRACTION");
 			
 	  if(firstComponent)
 	  {
 	    firstComponent = false;
-	    if(_component_fraction>=1.)
+	    if(component_fraction>=1.)
 	      calculateFraction = true;
 	  }
 
-	  if( CheckElement( _component_name) == 1)
+	  if( CheckElement( component_name) == 1)
 	    {
-	      p_com_element = (GeoElement *)(getElement(_component_name));
+	      p_com_element = (GeoElement *)(getElement(component_name));
 
 	      if(calculateFraction)
 	      {
-		totalFraction += _component_fraction*p_com_element->getA();
+		totalFraction += component_fraction*p_com_element->getA();
 		elementComponents.push_back(p_com_element);
-		elementFractions.push_back(_component_fraction);
+		elementFractions.push_back(component_fraction);
 	      }
 	      else
-		pmaterial->add( p_com_element, _component_fraction);
+		pmaterial->add( p_com_element, component_fraction);
 										
 	    }
 	  else{
 	    hasSubMaterial = true;
-	    p_com_material = (GeoMaterial  *)getMaterial(_component_name);
+	    p_com_material = (GeoMaterial  *)getMaterial(component_name);
 
-	    pmaterial->add(p_com_material, _component_fraction);
+	    pmaterial->add(p_com_material, component_fraction);
 			
 	  }		
 	}
     }    
 
   if(calculateFraction && hasSubMaterial && elementComponents.size()>0)
-    std::cerr << _material_name << " description should be changed. Please indicate the exact fraction for elements\n";
+    std::cerr << material_name << " description should be changed. Please indicate the exact fraction for elements\n";
 
-  if(calculateFraction)
+  if(calculateFraction && !elementComponents.empty()) {
+    double inv_totalFraction = 1. / totalFraction;
     for(unsigned i=0; i<elementComponents.size(); i++)
-      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA()/totalFraction);
+      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA() * inv_totalFraction);
+  }
 
   // a table to keep the memory allocation, and easy for delete 
   addMaterial(detector,pmaterial);
@@ -920,12 +904,12 @@ const GeoElement *RDBMaterialManager::getElement(const std::string & name) const
 	
   unsigned int ind;
 
-  std::string _element_name;
-  std::string _element_symbol;
-  std::string _tmp_name;
+  std::string element_name;
+  std::string element_symbol;
+  std::string tmp_name;
 	
-  double      _element_a;
-  double      _element_z;
+  double      element_a;
+  double      element_z;
 	
   GeoElement *pelement;
 
@@ -942,20 +926,20 @@ const GeoElement *RDBMaterialManager::getElement(const std::string & name) const
     {
       const IRDBRecord* rec = (*m_elements)[ind];
 		
-      _tmp_name = rec->getString("NAME");
+      tmp_name = rec->getString("NAME");
 	
-      if( name == _tmp_name)
+      if( name == tmp_name)
 	{ 
-	  _element_name   = rec->getString("NAME");
-	  _element_symbol = rec->getString("SYMBOL");
-	  _element_a = rec->getDouble("A");
-	  _element_z = rec->getDouble("Z");
+	  element_name   = rec->getString("NAME");
+	  element_symbol = rec->getString("SYMBOL");
+	  element_a = rec->getDouble("A");
+	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
-	  _elementVector.push_back( pelement);
+	  m_elementVector.push_back( pelement);
 			
 	  break;
 	}
@@ -971,11 +955,11 @@ const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) cons
 
   unsigned int ind;
 
-  std::string _element_name;
-  std::string _element_symbol;
+  std::string element_name;
+  std::string element_symbol;
 	
-  double      _element_a;
-  double      _element_z;
+  double      element_a;
+  double      element_z;
 	
   GeoElement* pelement(0);
 
@@ -989,16 +973,16 @@ const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) cons
 		
       if(atomicNumber == rec->getDouble("A"))
 	{ 
-	  _element_name   = rec->getString("NAME");
-	  _element_symbol = rec->getString("SYMBOL");
-	  _element_a = rec->getDouble("A");
-	  _element_z = rec->getDouble("Z");
+	  element_name   = rec->getString("NAME");
+	  element_symbol = rec->getString("SYMBOL");
+	  element_a = rec->getDouble("A");
+	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
-	  _elementVector.push_back( pelement);
+	  m_elementVector.push_back( pelement);
 			
 	  break;
 	}
@@ -1013,18 +997,18 @@ GeoElement *RDBMaterialManager::getElement(const std::string & name)  {
 
   unsigned int ind;
 
-  std::string _element_name;
-  std::string _element_symbol;
-  std::string _tmp_name;
+  std::string element_name;
+  std::string element_symbol;
+  std::string tmp_name;
 	
-  double      _element_a;
-  double      _element_z;
+  double      element_a;
+  double      element_z;
 	
   GeoElement *pelement;
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(): " << _element_name  <<endreq;
+    log << MSG::VERBOSE << " ***** getElement(): " << element_name  <<endreq;
 	
   pelement = NULL;
   pelement = searchElementVector( name);
@@ -1035,20 +1019,20 @@ GeoElement *RDBMaterialManager::getElement(const std::string & name)  {
     {
       const IRDBRecord* rec = (*m_elements)[ind];
 		
-      _tmp_name = rec->getString("NAME");
+      tmp_name = rec->getString("NAME");
 	
-      if( name == _tmp_name)
+      if( name == tmp_name)
 	{ 
-	  _element_name   = rec->getString("NAME");
-	  _element_symbol = rec->getString("SYMBOL");
-	  _element_a = rec->getDouble("A");
-	  _element_z = rec->getDouble("Z");
+	  element_name   = rec->getString("NAME");
+	  element_symbol = rec->getString("SYMBOL");
+	  element_a = rec->getDouble("A");
+	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
-	  _elementVector.push_back( pelement);
+	  m_elementVector.push_back( pelement);
 	  break;
 			
 	}
@@ -1063,17 +1047,17 @@ GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
   
   unsigned int ind;
 
-  std::string _element_name;
-  std::string _element_symbol;
+  std::string element_name;
+  std::string element_symbol;
 	
-  double      _element_a;
-  double      _element_z;
+  double      element_a;
+  double      element_z;
 	
   GeoElement* pelement(0);
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(atomicNumber): " << _element_name  <<endreq;	
+    log << MSG::VERBOSE << " ***** getElement(atomicNumber): " << element_name  <<endreq;	
 	
   for(ind = 0; ind < m_elements->size(); ind++)
     {
@@ -1081,16 +1065,16 @@ GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
 		
       if(atomicNumber == rec->getDouble("A"))
 	{ 
-	  _element_name   = rec->getString("NAME");
-	  _element_symbol = rec->getString("SYMBOL");
-	  _element_a = rec->getDouble("A");
-	  _element_z = rec->getDouble("Z");
+	  element_name   = rec->getString("NAME");
+	  element_symbol = rec->getString("SYMBOL");
+	  element_a = rec->getDouble("A");
+	  element_z = rec->getDouble("Z");
                 	
-	  pelement = new GeoElement( _element_name , _element_symbol  ,_element_z , _element_a *CLHEP::gram/CLHEP::mole);
+	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(CLHEP::gram/CLHEP::mole));
 
 	  // a table to keep the memory allocation, and easy for delete 
 	  pelement->ref();
-	  _elementVector.push_back( pelement);
+	  m_elementVector.push_back( pelement);
 			
 	  break;
 	}
@@ -1108,12 +1092,12 @@ void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *mat
 	
   std::string key = space + std::string("::")+ std::string(material->getName());
   // Check whether we already have materials with the same space::name defined
-  if(_materialMap.find(key)!=_materialMap.end())
+  if(m_materialMap.find(key)!=m_materialMap.end())
     log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endreq;
   else {
     material->lock();             
     material->ref();
-    _materialMap[key]=material;
+    m_materialMap[key]=material;
   }
 }
 
@@ -1125,43 +1109,43 @@ void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *mat
 	
   std::string key = space + std::string("::")+ std::string(material->getName());
   // Check whether we already have materials with the same space::name defined
-  if(_materialMap.find(key)!=_materialMap.end())
+  if(m_materialMap.find(key)!=m_materialMap.end())
     log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endreq;
   else {
     material->lock();             
     material->ref();
-    _materialMap[key]=material;
+    m_materialMap[key]=material;
   }
 }
 
 StoredMaterialManager::MaterialMapIterator RDBMaterialManager::begin() const
 {
-  return _materialMap.begin();
+  return m_materialMap.begin();
 }
 
 StoredMaterialManager::MaterialMapIterator RDBMaterialManager::end() const
 {
-  return _materialMap.end();
+  return m_materialMap.end();
 }
 
 size_t RDBMaterialManager::size()
 {
-  return _materialMap.size();
+  return m_materialMap.size();
 }
 
 std::ostream &  RDBMaterialManager::printAll(std::ostream & o) const 
 {
   o << "============Material Manager Element List========================" << std::endl;
   std::vector<GeoElement *>::const_iterator e;
-  for (e=_elementVector.begin();e!= _elementVector.end();e++) 
+  for (e=m_elementVector.begin();e!= m_elementVector.end();e++) 
     {
-      o << (*e)->getSymbol() << '\t' << (*e)->getZ() <<  '\t' << (*e)->getA()/ (CLHEP::gram/CLHEP::mole) << '\t' << (*e)->getName() << std::endl; 
+      o << (*e)->getSymbol() << '\t' << (*e)->getZ() <<  '\t' << (*e)->getA() * (CLHEP::mole / CLHEP::gram) << '\t' << (*e)->getName() << std::endl; 
     }
   std::map<std::string, GeoMaterial *>::const_iterator m;
   	
-  for (m=_materialMap.begin();m!=_materialMap.end();m++) 
+  for (m=m_materialMap.begin();m!=m_materialMap.end();m++) 
     {
-      o << "Material: " << (*m).first <<  " Density " << (*m).second->getDensity()/(CLHEP::gram/CLHEP::cm3) << std::endl;
+      o << "Material: " << (*m).first <<  " Density " << (*m).second->getDensity() * (CLHEP::cm3 / CLHEP::gram)  << std::endl;
       for (size_t i = 0; i< (*m).second->getNumElements();i++) 
 	{
 	  o <<" ***** ***** "<< int ((*m).second->getFraction(i)*100) << "% \t"  << (*m).second->getElement(i)->getName() << std::endl;
@@ -1176,10 +1160,14 @@ void RDBMaterialManager::buildSpecialMaterials()
   // Create special materials
   GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
   ethElement->ref();
-  _elementVector.push_back(ethElement);
+  m_elementVector.push_back(ethElement);
   GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
   ether->add(ethElement,1.);
   addMaterial("special",ether);
+  // "Alternative" assembly material
+  GeoMaterial* hu = new GeoMaterial("HyperUranium",0.0);	
+  hu->add(ethElement,1.);
+  addMaterial("special",hu);
 }
 
 void RDBMaterialManager::buildSpecialMaterials() const
@@ -1187,8 +1175,12 @@ void RDBMaterialManager::buildSpecialMaterials() const
   // Create special materials
   GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
   ethElement->ref();
-  _elementVector.push_back(ethElement);  
+  m_elementVector.push_back(ethElement);  
   GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
   ether->add(ethElement,1.);
   addMaterial("special",ether);
+  // "Alternative" assembly material
+  GeoMaterial* hu = new GeoMaterial("HyperUranium",0.0);	
+  hu->add(ethElement,1.);
+  addMaterial("special",hu);
 }
