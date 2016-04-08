@@ -197,7 +197,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > entrySurf = m_calosurf->entrySurfaces();
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > exitSurf  = m_calosurf->exitSurfaces();
 
-  StoredPhysVol* storedPV ;
+  StoredPhysVol* storedPV = nullptr;
 
   // -> The BARREL Section ---------------------------------------------------------
   ATH_MSG_DEBUG( "Building Barrel ... " );
