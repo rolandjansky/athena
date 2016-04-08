@@ -17,7 +17,7 @@
         
         <TEST name="SharedPoolReader" type="script" suite="athenamp">
             <package_atn>AtlasTest/AthenaMPTest</package_atn>
-	    <options_atn>TRF_ECHO=1 Reco_tf.py '--athenaopts=--nprocs=2' '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1256_s1258_d566_tid464353_00/RDO.464353._000001.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.CollectSubprocessLogs=True' 'jps.AthenaMPFlags.Strategy="SharedReader"'</options_atn>
+	    <options_atn>TRF_ECHO=1 Reco_tf.py '--athenaopts=--nprocs=2' '--inputRDOFile' '/afs/cern.ch/atlas/project/rig/referencefiles/MC/valid1.105200.T1_McAtNlo_Jimmy.digit.RDO.e835_s1256_s1258_d566_tid464353_00/RDO.464353._000001.pool.root.1' '--outputESDFile' 'ESD.pool.root' '--autoConfiguration' 'everything' '--maxEvents=4' '--preExec' 'from AthenaMP.AthenaMPFlags import jobproperties as jps' 'jps.AthenaMPFlags.CollectSubprocessLogs=True' 'jps.AthenaMPFlags.Strategy="SharedReader"' 'rec.doTrigger=False'</options_atn>
             <timelimit>90</timelimit>
             <author> Vakho Tsulaia </author>
             <mailto> tsulaia@cern.ch  </mailto>
