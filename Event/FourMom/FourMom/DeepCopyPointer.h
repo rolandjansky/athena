@@ -28,7 +28,7 @@ public:
   ~DeepCopyPointer() { delete theData;}
 
   DeepCopyPointer& operator=( const DeepCopyPointer& other) {
-    if ( this != &other && theData != other.theData) {
+    if ( theData != other.theData) {
       delete theData;
       if (other.theData) theData = new T( *other); else theData = 0;
     }
