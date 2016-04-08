@@ -22,20 +22,23 @@
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+// Trigger include(s):
+#include "TrigT1CaloEvent/CMMCPHits.h"
+
 // Local include(s):
 #include "TrigT1EventTPCnv/CMMCPHits_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /** T/P convertor for TrigT1Calo CMMCPHits class */
 
-class CMMCPHitsCnv_p1 : public T_AthenaPoolTPCnvBase< CMMCPHits, CMMCPHits_p1 > {
+class CMMCPHitsCnv_p1 : public T_AthenaPoolTPCnvBase< LVL1::CMMCPHits, CMMCPHits_p1 > {
 
 public:
   CMMCPHitsCnv_p1() : m_CMMCPHitsCnv(0) {}
 
-  virtual void persToTrans( const CMMCPHits_p1* persObj, CMMCPHits* transObj, MsgStream &log );
-  virtual void transToPers( const CMMCPHits* transObj, CMMCPHits_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const CMMCPHits_p1* persObj, LVL1::CMMCPHits* transObj, MsgStream &log );
+  virtual void transToPers( const LVL1::CMMCPHits* transObj, CMMCPHits_p1* persObj, MsgStream &log );
 
 protected:
   CMMCPHitsCnv_p1 *m_CMMCPHitsCnv ;

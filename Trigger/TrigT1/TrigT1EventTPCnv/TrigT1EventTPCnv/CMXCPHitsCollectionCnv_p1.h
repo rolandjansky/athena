@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/CMXCPHitsCollection_p1.h"
 #include "TrigT1EventTPCnv/CMXCPHitsCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CMXCPHits and CMXCPHits_p1

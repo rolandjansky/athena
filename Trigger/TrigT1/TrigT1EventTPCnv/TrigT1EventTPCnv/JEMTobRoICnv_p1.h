@@ -14,20 +14,23 @@
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+// Trigger include(s):
+#include "TrigT1CaloEvent/JEMTobRoI.h"
+
 // Local include(s):
 #include "TrigT1EventTPCnv/JEMTobRoI_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /** T/P convertor for TrigT1Calo JEMTobRoI class */
 
-class JEMTobRoICnv_p1 : public T_AthenaPoolTPCnvBase< JEMTobRoI, JEMTobRoI_p1 > {
+class JEMTobRoICnv_p1 : public T_AthenaPoolTPCnvBase< LVL1::JEMTobRoI, JEMTobRoI_p1 > {
 
 public:
   JEMTobRoICnv_p1() : m_JEMTobRoICnv(0) {}
 
-  virtual void persToTrans( const JEMTobRoI_p1* persObj, JEMTobRoI* transObj, MsgStream &log );
-  virtual void transToPers( const JEMTobRoI* transObj, JEMTobRoI_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const JEMTobRoI_p1* persObj, LVL1::JEMTobRoI* transObj, MsgStream &log );
+  virtual void transToPers( const LVL1::JEMTobRoI* transObj, JEMTobRoI_p1* persObj, MsgStream &log );
 
 protected:
   JEMTobRoICnv_p1 *m_JEMTobRoICnv ;

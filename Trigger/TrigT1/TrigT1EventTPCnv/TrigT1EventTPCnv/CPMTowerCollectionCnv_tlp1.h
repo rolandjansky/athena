@@ -7,7 +7,7 @@
 #include "TrigT1EventTPCnv/CPMTowerCollection_tlp1.h"
 #include "TrigT1EventTPCnv/CPMTowerCollectionCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CPMTower and CPMTower_p1

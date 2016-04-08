@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "TrigT1CaloEvent/JetElement.h"
-#undef private
-#undef protected
 
 
 // Gaudi/Athena include(s):
@@ -14,6 +10,8 @@
 
 // Local include(s):
 #include "TrigT1EventTPCnv/JetElementCnv_p1.h"
+
+using namespace LVL1;
 
 /*
 JetElementCnv_p1::JetElementCnv_p1()
@@ -29,15 +27,15 @@ void JetElementCnv_p1::persToTrans( const JetElement_p1* persObj, JetElement* tr
   //
   // Translate the JetElement
   // 
-  transObj->m_eta        = persObj->m_eta;
-  transObj->m_phi        = persObj->m_phi;
-  transObj->m_key        = persObj->m_key;
-  transObj->m_peak       = persObj->m_peak;
-  transObj->m_emEnergy   = persObj->m_emEnergy;
-  transObj->m_hadEnergy  = persObj->m_hadEnergy;
-  transObj->m_em_error   = persObj->m_em_error;
-  transObj->m_had_error  = persObj->m_had_error;
-  transObj->m_link_error = persObj->m_link_error;
+  *transObj = JetElement (persObj->m_phi,
+                          persObj->m_eta,
+                          persObj->m_emEnergy,
+                          persObj->m_hadEnergy,
+                          persObj->m_key,
+                          persObj->m_em_error,
+                          persObj->m_had_error,
+                          persObj->m_link_error,
+                          persObj->m_peak);
   
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converted JetElement from persistent state [OK]" << endreq;
 
@@ -49,15 +47,15 @@ void JetElementCnv_p1::transToPers( const JetElement* transObj, JetElement_p1* p
 
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of JetElement..." << endreq;
 
-  persObj->m_eta        = transObj->m_eta;
-  persObj->m_phi        = transObj->m_phi;
-  persObj->m_key        = transObj->m_key;
-  persObj->m_peak       = transObj->m_peak;
-  persObj->m_emEnergy   = transObj->m_emEnergy;
-  persObj->m_hadEnergy  = transObj->m_hadEnergy;
-  persObj->m_em_error   = transObj->m_em_error;
-  persObj->m_had_error  = transObj->m_had_error;
-  persObj->m_link_error = transObj->m_link_error;
+  persObj->m_eta        = transObj->eta();
+  persObj->m_phi        = transObj->phi();
+  persObj->m_key        = transObj->key();
+  persObj->m_peak       = transObj->peak();
+  persObj->m_emEnergy   = transObj->emEnergyVec();
+  persObj->m_hadEnergy  = transObj->hadEnergyVec();
+  persObj->m_em_error   = transObj->emErrorVec();
+  persObj->m_had_error  = transObj->hadErrorVec();
+  persObj->m_link_error = transObj->linkErrorVec();
 
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Created persistent state of JetElement [OK]" << endreq;
 

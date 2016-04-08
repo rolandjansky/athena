@@ -26,73 +26,37 @@ void RoIBResultCnv_p1::persToTrans( const RoIBResult_p1* persObj, ROIB::RoIBResu
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state..." << endreq;
 
-   /////////////////////////////////////////////////////////////////
-   //                                                             //
-   //                Transfer the MuCTPI information              //
-   //                                                             //
-   /////////////////////////////////////////////////////////////////
-   transObj->m_RoIBResultMuCTPI.m_MuCTPIResultHeader.m_header   = persObj->m_muctpi.m_header;
-   transObj->m_RoIBResultMuCTPI.m_MuCTPIResultTrailer.m_trailer = persObj->m_muctpi.m_trailer;
+   ROIB::MuCTPIResult muc (ROIB::Header (persObj->m_muctpi.m_header),
+                           ROIB::Trailer (persObj->m_muctpi.m_trailer),
+                           std::vector<ROIB::MuCTPIRoI> (persObj->m_muctpi.m_roiWords.begin(),
+                                                         persObj->m_muctpi.m_roiWords.end()));
 
-   transObj->m_RoIBResultMuCTPI.m_MuCTPIResultRoIVec.clear();
-   for( std::vector< uint32_t >::const_iterator it = persObj->m_muctpi.m_roiWords.begin();
-        it != persObj->m_muctpi.m_roiWords.end(); ++it ) {
-      transObj->m_RoIBResultMuCTPI.m_MuCTPIResultRoIVec.push_back( ROIB::MuCTPIRoI( *it ) );
+   ROIB::CTPResult ctp (0,
+                        ROIB::Header (persObj->m_ctp.m_header),
+                        ROIB::Trailer (persObj->m_ctp.m_trailer),
+                        persObj->m_ctp.m_roiWords);
+
+
+   std::vector< ROIB::JetEnergyResult > jetvec;
+   for (const SubSysResult_p1& jeten : persObj->m_jetenergy) {
+      jetvec.emplace_back ( ROIB::Header(jeten.m_header), 
+                            ROIB::Trailer(jeten.m_trailer),
+                            std::vector<ROIB::JetEnergyRoI> (jeten.m_roiWords.begin(),
+                                                             jeten.m_roiWords.end()) );
    }
 
-   /////////////////////////////////////////////////////////////////
-   //                                                             //
-   //                 Transfer the CTP information                //
-   //                                                             //
-   /////////////////////////////////////////////////////////////////
-   transObj->m_RoIBResultCTP.m_CTPResultHeader.m_header   = persObj->m_ctp.m_header;
-   transObj->m_RoIBResultCTP.m_CTPResultTrailer.m_trailer = persObj->m_ctp.m_trailer;
-
-   transObj->m_RoIBResultCTP.m_CTPResultRoIVec.clear();
-   for( std::vector< uint32_t >::const_iterator it = persObj->m_ctp.m_roiWords.begin();
-        it != persObj->m_ctp.m_roiWords.end(); ++it ) {
-      transObj->m_RoIBResultCTP.m_CTPResultRoIVec.push_back( ROIB::CTPRoI( *it ) );
+   std::vector< ROIB::EMTauResult > emtauvec;
+   for (const SubSysResult_p1& emtau : persObj->m_emtau) {
+     emtauvec.emplace_back ( ROIB::Header(emtau.m_header), 
+                             ROIB::Trailer(emtau.m_trailer),
+                             std::vector<ROIB::EMTauRoI> (emtau.m_roiWords.begin(),
+                                                          emtau.m_roiWords.end()) );
    }
 
-   /////////////////////////////////////////////////////////////////
-   //                                                             //
-   //             Transfer the Jet/Energy information             //
-   //                                                             //
-   /////////////////////////////////////////////////////////////////
-   transObj->m_RoIBResultJetEnergy.clear();
-   for( std::vector< SubSysResult_p1 >::const_iterator jeten = persObj->m_jetenergy.begin();
-        jeten != persObj->m_jetenergy.end(); ++jeten ) {
-
-      std::vector< ROIB::JetEnergyRoI > roiwords;
-      for( std::vector< uint32_t >::const_iterator it = jeten->m_roiWords.begin();
-           it != jeten->m_roiWords.end(); ++it ) {
-         roiwords.push_back( ROIB::JetEnergyRoI( *it ) );
-      }
-
-      transObj->m_RoIBResultJetEnergy.push_back( ROIB::JetEnergyResult( ROIB::Header(jeten->m_header), 
-									ROIB::Trailer(jeten->m_trailer),
-                                                                        roiwords ) );
-   }
-
-   /////////////////////////////////////////////////////////////////
-   //                                                             //
-   //               Transfer the EM/Tau information               //
-   //                                                             //
-   /////////////////////////////////////////////////////////////////
-   transObj->m_RoIBResultEMTau.clear();
-   for( std::vector< SubSysResult_p1 >::const_iterator emtau = persObj->m_emtau.begin();
-        emtau != persObj->m_emtau.end(); ++emtau ) {
-
-      std::vector< ROIB::EMTauRoI > roiwords;
-      for( std::vector< uint32_t >::const_iterator it = emtau->m_roiWords.begin();
-           it != emtau->m_roiWords.end(); ++it ) {
-         roiwords.push_back( ROIB::EMTauRoI( *it ) );
-      }
-
-      transObj->m_RoIBResultEMTau.push_back( ROIB::EMTauResult( ROIB::Header(emtau->m_header), 
-								ROIB::Trailer(emtau->m_trailer),
-                                                                roiwords ) );
-   }
+   *transObj = ROIB::RoIBResult (std::move(muc),
+                                 std::move(ctp),
+                                 std::move(jetvec),
+                                 std::move(emtauvec));
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state [OK]" << endreq;
 
@@ -114,30 +78,24 @@ void RoIBResultCnv_p1::transToPers( const ROIB::RoIBResult* transObj, RoIBResult
    //                Transfer the MuCTPI information              //
    //                                                             //
    /////////////////////////////////////////////////////////////////
-   persObj->m_muctpi.m_header  = transObj->m_RoIBResultMuCTPI.m_MuCTPIResultHeader.m_header;
-   persObj->m_muctpi.m_trailer = transObj->m_RoIBResultMuCTPI.m_MuCTPIResultTrailer.m_trailer;
+   persObj->m_muctpi.m_header  = transObj->muCTPIResult().header().header();
+   persObj->m_muctpi.m_trailer = transObj->muCTPIResult().trailer().trailer();
 
    persObj->m_muctpi.m_roiWords.clear();
-   for( std::vector< ROIB::MuCTPIRoI >::const_iterator it =
-           transObj->m_RoIBResultMuCTPI.m_MuCTPIResultRoIVec.begin();
-        it != transObj->m_RoIBResultMuCTPI.m_MuCTPIResultRoIVec.end(); ++it ) {
-      persObj->m_muctpi.m_roiWords.push_back( it->roIWord() );
-   }
+   for (const ROIB::MuCTPIRoI& r : transObj->muCTPIResult().roIVec())
+     persObj->m_muctpi.m_roiWords.push_back( r.roIWord() );
 
    /////////////////////////////////////////////////////////////////
    //                                                             //
    //                 Transfer the CTP information                //
    //                                                             //
    /////////////////////////////////////////////////////////////////
-   persObj->m_ctp.m_header  = transObj->m_RoIBResultCTP.m_CTPResultHeader.m_header;
-   persObj->m_ctp.m_trailer = transObj->m_RoIBResultCTP.m_CTPResultTrailer.m_trailer;
+   persObj->m_ctp.m_header  = transObj->cTPResult().header().header();
+   persObj->m_ctp.m_trailer = transObj->cTPResult().trailer().trailer();
 
    persObj->m_ctp.m_roiWords.clear();
-   for( std::vector< ROIB::CTPRoI >::const_iterator it =
-           transObj->m_RoIBResultCTP.m_CTPResultRoIVec.begin();
-        it != transObj->m_RoIBResultCTP.m_CTPResultRoIVec.end(); ++it ) {
-      persObj->m_ctp.m_roiWords.push_back( it->roIWord() );
-   }
+   for (const ROIB::CTPRoI& r : transObj->cTPResult().roIVec())
+     persObj->m_ctp.m_roiWords.push_back( r.roIWord() );
 
    /////////////////////////////////////////////////////////////////
    //                                                             //
@@ -145,20 +103,14 @@ void RoIBResultCnv_p1::transToPers( const ROIB::RoIBResult* transObj, RoIBResult
    //                                                             //
    /////////////////////////////////////////////////////////////////
    persObj->m_jetenergy.clear();
-   for( std::vector< ROIB::JetEnergyResult >::const_iterator jeten =
-           transObj->m_RoIBResultJetEnergy.begin();
-        jeten != transObj->m_RoIBResultJetEnergy.end(); ++jeten ) {
+   for (const ROIB::JetEnergyResult& jer : transObj->jetEnergyResult()) {
 
       persObj->m_jetenergy.push_back( SubSysResult_p1() );
 
-      persObj->m_jetenergy.back().m_header  = jeten->m_JetEnergyResultHeader.m_header;
-      persObj->m_jetenergy.back().m_trailer = jeten->m_JetEnergyResultTrailer.m_trailer;
-
-      for( std::vector< ROIB::JetEnergyRoI >::const_iterator it =
-              jeten->m_JetEnergyResultRoIVec.begin();
-           it != jeten->m_JetEnergyResultRoIVec.end(); ++it ) {
-         persObj->m_jetenergy.back().m_roiWords.push_back( it->roIWord() );
-      }
+      persObj->m_jetenergy.back().m_header  = jer.header().header();
+      persObj->m_jetenergy.back().m_trailer = jer.trailer().trailer();
+      for (const ROIB::JetEnergyRoI& r : jer.roIVec())
+        persObj->m_jetenergy.back().m_roiWords.push_back( r.roIWord() );
    }
 
    /////////////////////////////////////////////////////////////////
@@ -167,20 +119,14 @@ void RoIBResultCnv_p1::transToPers( const ROIB::RoIBResult* transObj, RoIBResult
    //                                                             //
    /////////////////////////////////////////////////////////////////
    persObj->m_emtau.clear();
-   for( std::vector< ROIB::EMTauResult >::const_iterator emtau =
-           transObj->m_RoIBResultEMTau.begin();
-        emtau != transObj->m_RoIBResultEMTau.end(); ++emtau ) {
+   for (const ROIB::EMTauResult& emtau : transObj->eMTauResult()) {
 
       persObj->m_emtau.push_back( SubSysResult_p1() );
 
-      persObj->m_emtau.back().m_header  = emtau->m_EMTauResultHeader.m_header;
-      persObj->m_emtau.back().m_trailer = emtau->m_EMTauResultTrailer.m_trailer;
-
-      for( std::vector< ROIB::EMTauRoI >::const_iterator it =
-	     emtau->m_EMTauResultRoIVec.begin();
-           it != emtau->m_EMTauResultRoIVec.end(); ++it ) {
-	persObj->m_emtau.back().m_roiWords.push_back( it->roIWord() );
-      }
+      persObj->m_emtau.back().m_header  = emtau.header().header();
+      persObj->m_emtau.back().m_trailer = emtau.trailer().trailer();
+      for (const ROIB::EMTauRoI& r : emtau.roIVec())
+	persObj->m_emtau.back().m_roiWords.push_back( r.roIWord() );
    }
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of ROIB::RoIBResult [OK]" << endreq;

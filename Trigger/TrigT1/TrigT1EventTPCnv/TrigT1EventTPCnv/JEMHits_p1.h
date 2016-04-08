@@ -19,8 +19,6 @@
 #ifndef JEMHits_p1_H
 #define JEMHits_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/JEMHits.h"
   
 /** T/P separation for TrigT1Calo::JEMHits class */
 

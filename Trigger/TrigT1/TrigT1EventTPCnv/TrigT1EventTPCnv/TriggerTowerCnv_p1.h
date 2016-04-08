@@ -4,10 +4,13 @@
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+// Trigger include(s):
+#include "TrigT1CaloEvent/TriggerTower.h"
+
 // Local include(s):
 #include "TrigT1EventTPCnv/TriggerTower_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for TriggerTower and TriggerTower_p1
@@ -17,13 +20,13 @@ using namespace LVL1;
  *          to do the T/P conversion before/after writing/reading the TriggerTower
  *          object.
  */
-class TriggerTowerCnv_p1 : public T_AthenaPoolTPCnvBase< TriggerTower, TriggerTower_p1 > {
+class TriggerTowerCnv_p1 : public T_AthenaPoolTPCnvBase< LVL1::TriggerTower, TriggerTower_p1 > {
 
 public:
   TriggerTowerCnv_p1() : m_TriggerTowerCnv(0) {}
 
-  virtual void persToTrans( const TriggerTower_p1* persObj, TriggerTower* transObj, MsgStream &log );
-  virtual void transToPers( const TriggerTower* transObj, TriggerTower_p1* persObj, MsgStream &log );
+  virtual void persToTrans( const TriggerTower_p1* persObj, LVL1::TriggerTower* transObj, MsgStream &log );
+  virtual void transToPers( const LVL1::TriggerTower* transObj, TriggerTower_p1* persObj, MsgStream &log );
 
 protected:
   TriggerTowerCnv_p1 *m_TriggerTowerCnv ;

@@ -11,8 +11,6 @@
 #ifndef JEMTobRoI_p1_H
 #define JEMTobRoI_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/JEMTobRoI.h"
   
 /** T/P separation for TrigT1Calo::JEMTobRoI class */
 

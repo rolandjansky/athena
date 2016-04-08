@@ -11,7 +11,7 @@
 #include "TrigT1EventTPCnv/CMXJetTobCollection_p1.h"
 #include "TrigT1EventTPCnv/CMXJetTobCnv_p1.h"
 
-using namespace LVL1;
+//using namespace LVL1;
 
 /**
  *   @short T/P converter for CMXJetTob and CMXJetTob_p1

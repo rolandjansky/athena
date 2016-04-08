@@ -20,8 +20,6 @@
 #define CPMTower_P1_H
 
 #include <vector>
-#include "TrigT1CaloEvent/CPMTower.h"
-#include "AthenaPoolUtilities/TPObjRef.h"
 
 // Forward declaration of the convertor
 //class CPMTowerCnv_p1;

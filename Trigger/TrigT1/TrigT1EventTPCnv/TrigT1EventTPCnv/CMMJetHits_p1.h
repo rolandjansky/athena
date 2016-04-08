@@ -19,8 +19,6 @@
 #ifndef CMMJetHits_p1_H
 #define CMMJetHits_p1_H
   
-#include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrigT1CaloEvent/CMMJetHits.h"
   
 /** T/P separation for TrigT1Calo::CMMJetHits class */
 
