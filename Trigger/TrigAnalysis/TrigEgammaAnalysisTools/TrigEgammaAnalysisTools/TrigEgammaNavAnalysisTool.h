@@ -23,7 +23,6 @@ class TrigEgammaNavAnalysisTool : public TrigEgammaNavBaseTool,
     protected:
 
     private:
-
         /*! Method to book histograms for each trigger */
         void bookPerSignature(const std::string);
         /*! Method to book histograms for each MaM category */

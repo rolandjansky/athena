@@ -2,14 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVTPNTUPLE_H
 #define TRIGEGAMMAANALYSISTOOLS_TRIGEGAMMANAVTPNTUPLE_H
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/EgammaEnums.h"
@@ -71,13 +68,6 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     void clear();
 
   private:
-
-    /* Counters */
-    int m_nGoodVtx; 
-    int m_nPileupPrimaryVtx;
-
-    const xAOD::EventInfo *m_eventInfo;
-    const xAOD::TruthParticleContainer *m_truthContainer;
 
      /* Branch variables */
     uint32_t            m_runNumber;
@@ -166,6 +156,7 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     float               m_trig_L2_calo_emaxs1;     
     float               m_trig_L2_calo_e2tsts1;    
     float               m_trig_L2_calo_wstot;      
+    float               m_trig_L2_calo_rnnOutput;      
     std::vector<float> *m_trig_L2_calo_energySample;
     std::vector<float> *m_trig_L2_calo_rings;
     bool                m_trig_L2_calo_accept;     

@@ -59,7 +59,12 @@ def TrigEgammaPhysValMonTool():
             DirectoryPath=basePath+'Ntuple',
             TriggerList=probelist,
             DoOfflineDump=False,
-            ForcePidSelection=False,
+            ForcePidSelection=True,
+            ForceProbeIsolation=False,
+            ForceEtThreshold=True,
+            RemoveCrack=True,
+            #ForceFilterSelection=False,
+            #ElectronFilterType="Tight",
             File="PhysVal",
             OutputLevel=0)
 

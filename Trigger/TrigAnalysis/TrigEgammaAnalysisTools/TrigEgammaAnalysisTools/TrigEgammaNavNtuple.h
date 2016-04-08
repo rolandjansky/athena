@@ -38,7 +38,7 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
 
     /* helper function */ 
     template <class T> void InitBranch(TTree* fChain, std::string branch_name, T* param, bool message = true);
-
+    
     /* Create branches */
     void bookEventBranches( TTree *t );
     void bookElectronBranches( TTree *t );
@@ -76,13 +76,6 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     bool m_doOfflineDump;
     std::string m_offDir;
     
-    const xAOD::EventInfo               *m_eventInfo;
-    const xAOD::TruthParticleContainer  *m_truthContainer;
-
-    /* Counters */
-    int m_nGoodVtx; 
-    int m_nPileupPrimaryVtx;
-
     /* Branch variables */
     uint32_t            m_runNumber;
     unsigned long long  m_eventNumber;
@@ -171,6 +164,7 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     float               m_trig_L2_calo_emaxs1;     
     float               m_trig_L2_calo_e2tsts1;    
     float               m_trig_L2_calo_wstot;      
+    float               m_trig_L2_calo_rnnOutput;      
     std::vector<float> *m_trig_L2_calo_energySample;
     std::vector<float> *m_trig_L2_calo_rings;
     bool                m_trig_L2_calo_accept;     

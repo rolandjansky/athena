@@ -79,11 +79,11 @@ StatusCode TrigEgammaNavTPNtuple::childBook(){
   ///Trees
   addDirectory(m_dir);
   ATH_MSG_DEBUG("Now configuring chains for analysis");
-  std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*");
+  std::vector<std::string> selectElectronChains  = tdt()->getListOfTriggers("HLT_e.*");
   for (int j = 0; j < (int) selectElectronChains.size(); j++) {
     ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
   }
-  std::vector<std::string> selectPhotonChains  = m_trigdec->getListOfTriggers("HLT_g.*");
+  std::vector<std::string> selectPhotonChains  = tdt()->getListOfTriggers("HLT_g.*");
 
   for (int i = 0; i < (int) m_trigInputList.size(); i++) {
     std::string trigname = "HLT_"+m_trigInputList[i];
@@ -124,39 +124,6 @@ StatusCode TrigEgammaNavTPNtuple::childBook(){
 StatusCode TrigEgammaNavTPNtuple::childExecute(){
 
   m_eventCounter++;
-  m_eventInfo = 0;
-
-  if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
-    ATH_MSG_ERROR("Failed to retrieve eventInfo ");
-    return StatusCode::FAILURE;
-  }
-  
-  // pileup calculation
-  m_nGoodVtx = 0; m_nPileupPrimaryVtx = 0;
-  if( m_storeGate->contains<xAOD::VertexContainer>("PrimaryVertices")) {
-     const xAOD::VertexContainer* vxContainer(0);
-     if ( m_storeGate->retrieve(vxContainer, "PrimaryVertices").isFailure() ) {
-       ATH_MSG_DEBUG ("Could not retrieve xAOD::VertexContainer 'PrimaryVertices'.");
-     }else{
-       for(unsigned ivx = 0; ivx < vxContainer->size(); ++ivx){
-         int nTrackParticles = vxContainer->at(ivx)->nTrackParticles();
-         if (nTrackParticles >= 4) m_nGoodVtx++;
-         if ( (nTrackParticles >= 4 && vxContainer->at(ivx)->vertexType() == xAOD::VxType::PriVtx) ||
-            (nTrackParticles >= 2 && vxContainer->at(ivx)->vertexType() == xAOD::VxType::PileUp) )
-           m_nPileupPrimaryVtx++;
-       }// loop over vertex
-     } 
-   }// protection
-
-
-  // Monte Carlo information;
-  m_truthContainer = 0;
-  if(m_storeGate->contains<xAOD::TruthParticleContainer>("egammaTruthParticles")){
-    if(m_storeGate->retrieve(m_truthContainer,"egammaTruthParticles").isFailure()){
-      ATH_MSG_WARNING("Could not retrieve xAOD::TruthParticleContainer 'egammaTruthParticles'");
-    }
-  }// protection
-
   cd(m_dir+"/Counters");
   // Event Wise Selection (independent of the required signatures)
   if ( !TrigEgammaNavTPBaseTool::EventWiseSelection() ) return StatusCode::SUCCESS;
@@ -171,17 +138,16 @@ bool TrigEgammaNavTPNtuple::executeProbesDump(){
 
   // Select TP Pairs
   executeTandP();
-  for(unsigned int ilist = 0; ilist != m_trigList.size(); ++ilist) {
-    std::string trigItem = m_trigList.at(ilist);
 
-    matchObjects(trigItem);
-    
+  for(unsigned int ilist = 0; ilist != m_trigList.size(); ++ilist) {
+    std::string trigItem = m_trigList.at(ilist); 
     cd(m_dir);
     TTree *t = tree( trigItem, m_dir);
     linkEventBranches(t); 
     linkElectronBranches(t); 
     linkTriggerBranches(t); 
     linkMonteCarloBranches(t); 
+    TrigEgammaNavTPBaseTool::matchObjects("HLT_"+trigItem);
 
     for(unsigned int iprobe = 0; iprobe != m_pairObj.size(); ++iprobe){
 
@@ -219,6 +185,16 @@ bool TrigEgammaNavTPNtuple::executeProbesDump(){
           if(!fillTrigCaloRings( emCluster )){
             ATH_MSG_WARNING("Cound not attach the trigCaloRinger information into the tree.");
           }
+
+          /*
+          const xAOD::TrigRNNOutput *rnnOutput=getFeature<xAOD::TrigRNNOutput>(feat);
+          if(rnnOutput){
+            m_trig_L2_calo_rnnOutput = rnnOutput->rnnDecision().at(0);
+            ATH_MSG_DEBUG("RNN output for ringer is: " << m_trig_L2_calo_rnnOutput);
+          }else{
+            ATH_MSG_WARNING("No xAOD::TrigRNNOutput was found");
+          }*/
+
         }///cluster protection
     
     
@@ -244,7 +220,9 @@ bool TrigEgammaNavTPNtuple::executeProbesDump(){
         ATH_MSG_DEBUG("EFCalo: "  << int(m_trig_EF_calo_accept));
         ATH_MSG_DEBUG("EFID: "    << int(m_trig_EF_el_accept));
  
-      }// has TE?
+      }else{
+        ATH_MSG_DEBUG("No TriggerElement for this probe!");
+      }
       ATH_MSG_DEBUG("record probe information into the file.");
       t->Fill();
     }// loop over probes
@@ -426,47 +404,29 @@ bool TrigEgammaNavTPNtuple::fillElectron( const xAOD::Electron *el ){
 
 bool TrigEgammaNavTPNtuple::fillMonteCarlo(const xAOD::Egamma *eg){
 
-  // find MC particle
+  bool Zfound,Wfound = false;
   if(m_truthContainer){
-    TLorentzVector elp; elp.SetPtEtaPhiE(eg->pt(),eg->eta(),eg->phi(),eg->e());
-    for(const auto& mc : *m_truthContainer ){
-      bool Zfound = false;
-      bool Wfound = false;
-      if(mc->isElectron()){
-        size_t nParents = mc->nParents();
-        for(size_t iparent = 0; iparent < nParents; ++iparent){
-          if((mc->parent(iparent))->isZ()){
-            Zfound = true;     
-          }
-          if((mc->parent(iparent))->isW()){
-            Wfound = true;     
-          }
-        }
-      }
-      TLorentzVector mcp;
-      mcp.SetPtEtaPhiE(mc->pt(), mc->eta(), mc->phi(), mc->e() );
-      if(mcp.DeltaR(elp) < 0.07){
-        m_mc_hasMC        = true;
-        m_mc_pt           = mc->pt();
-        m_mc_eta          = mc->eta();
-        m_mc_phi          = mc->phi();
-        m_mc_isTop        = mc->isTop();
-        m_mc_isQuark      = mc->isQuark();
-        m_mc_isParton     = mc->isParton();
-        m_mc_isMeson      = mc->isMeson();
-        m_mc_isTau        = mc->isTau();
-        m_mc_isMuon       = mc->isMuon();
-        m_mc_isPhoton     = mc->isPhoton();
-        m_mc_isElectron   = mc->isElectron();
-        m_mc_hasZMother   = Zfound;
-        m_mc_hasWMother   = Wfound;
-        return true;
-       }// has match
-    }// loop over MC
-  }// has truth?
+    auto mc = matchTruth(m_truthContainer,eg,Zfound, Wfound);
+    if(mc){
+      m_mc_hasMC        = true;
+      m_mc_pt           = mc->pt();
+      m_mc_eta          = mc->eta();
+      m_mc_phi          = mc->phi();
+      m_mc_isTop        = mc->isTop();
+      m_mc_isQuark      = mc->isQuark();
+      m_mc_isParton     = mc->isParton();
+      m_mc_isMeson      = mc->isMeson();
+      m_mc_isTau        = mc->isTau();
+      m_mc_isMuon       = mc->isMuon();
+      m_mc_isPhoton     = mc->isPhoton();
+      m_mc_isElectron   = mc->isElectron();
+      m_mc_hasZMother   = Zfound;
+      m_mc_hasWMother   = Wfound;
+      return true;
+    }//has match
+  }//has truth container
   return false;
 }
-
 
 
 
@@ -529,6 +489,7 @@ void TrigEgammaNavTPNtuple::bookTriggerBranches(TTree *t){
   t->Branch( "trig_L2_calo_e2tsts1",    &m_trig_L2_calo_e2tsts1);
   t->Branch( "trig_L2_calo_wstot",      &m_trig_L2_calo_wstot);
   t->Branch( "trig_L2_calo_energySample",&m_trig_L2_calo_energySample ); 
+  t->Branch( "trig_L2_calo_rnnOutput",  &m_trig_L2_calo_rnnOutput ); 
   t->Branch( "trig_L2_calo_rings",      &m_trig_L2_calo_rings ); 
   t->Branch( "trig_L2_calo_accept",     &m_trig_L2_calo_accept);
   t->Branch( "trig_L2_el_trackAlgID" ,         &m_trig_L2_el_trackAlgID );
@@ -726,6 +687,7 @@ void TrigEgammaNavTPNtuple::linkTriggerBranches( TTree *t ){
   InitBranch(t, "trig_L2_calo_emaxs1",     &m_trig_L2_calo_emaxs1);
   InitBranch(t, "trig_L2_calo_e2tsts1",    &m_trig_L2_calo_e2tsts1);
   InitBranch(t, "trig_L2_calo_wstot",      &m_trig_L2_calo_wstot);
+  InitBranch(t, "trig_L2_calo_rnnOutput",      &m_trig_L2_calo_rnnOutput ); 
   InitBranch(t, "trig_L2_calo_rings",      &m_trig_L2_calo_rings ); 
   InitBranch(t, "trig_L2_calo_energySample",&m_trig_L2_calo_energySample ); 
   InitBranch(t, "trig_L2_calo_accept",     &m_trig_L2_calo_accept);
@@ -850,6 +812,7 @@ void TrigEgammaNavTPNtuple::clear(){
   m_trig_L2_calo_emaxs1   = -1;
   m_trig_L2_calo_e2tsts1  = -1;
   m_trig_L2_calo_wstot    = -1; 
+  m_trig_L2_calo_rnnOutput    = 999; 
 
   m_trig_L1_accept        = false;
   m_trig_L2_calo_accept   = false;
@@ -930,6 +893,5 @@ void TrigEgammaNavTPNtuple::release_space(){
   delete m_trig_L2_el_trkClusDeta ;
   delete m_trig_L2_el_trkClusDphi ;
 }
-
 
 
