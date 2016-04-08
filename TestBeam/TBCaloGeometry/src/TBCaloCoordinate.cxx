@@ -12,7 +12,6 @@
 #include "TBCaloGeometry/TBCaloCoordinate.h"
 
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -53,7 +52,7 @@ const InterfaceID& TBCaloCoordinate::interfaceID( )
 TBCaloCoordinate::TBCaloCoordinate(const std::string& type, 
 				   const std::string& name, 
 				   const IInterface* parent) :
-  AlgTool(type, name, parent),
+  AthAlgTool(type, name, parent),
   m_table_axis_data(0.), m_table_axis_MC(0.),
   m_table_proj_data(0.), m_table_proj_MC(0.),
   m_table_eta(0.), 
@@ -104,28 +103,22 @@ TBCaloCoordinate::TBCaloCoordinate(const std::string& type,
   m_postool=0;
   m_MCmgr=0;
   m_range = new CaloPhiRange;
-  m_msgSvc = 0;
 }
 
 StatusCode
 TBCaloCoordinate::initialize()
 {
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  StatusCode status   = svcLoc->service( "MessageSvc", m_msgSvc );
-  if ( status.isFailure( ) ) return status;
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-    
   float eta = -1.*std::log(tan( (float)
 		       ((m_calo_theta_shift+m_range->twopi()/4.)/2.)));
     
-  log << MSG::DEBUG 
-      << " Numbers used for Calo geometry : "  
+  ATH_MSG_DEBUG 
+    ( " Numbers used for Calo geometry : "  
       << "phi=" << m_calo_phi_shift << " theta="
       << m_calo_theta_shift << " (=> deta=" << eta << ") psi="
       << m_calo_psi_shift << " x,y,z= "
       << m_calo_x_shift << " "
       << m_calo_y_shift << " "
-      << m_calo_z_shift << endreq;
+      << m_calo_z_shift );
     
   // For global Calo position build HepTransforms according to 
   // jobOpt parameters :
@@ -175,8 +168,6 @@ void
 TBCaloCoordinate::ctb_to_local( double& x_ctb, double& y_ctb, double& z_ctb, 
 				double& x_local, double& y_local, double& z_local)
 {
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-
   Vector3D pt_ctb(x_ctb,y_ctb,z_ctb);
   Vector3D pt_local(0.,0.,0.);
 
@@ -230,8 +221,6 @@ TBCaloCoordinate::beam_local_phi()
 void    
 TBCaloCoordinate::read_table_position()
 {   
-  //MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-  
   if ( m_firstevt == 0 ) {
     const EventInfo* eventInfo;
     StatusCode sc = StoreGate::pointer()->retrieve(eventInfo);
@@ -258,8 +247,6 @@ TBCaloCoordinate::read_table_position()
 void    
 TBCaloCoordinate::read_fake_table_position()
 {   
-  //MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-
   if ( m_firstevt == 0 ) m_firstevt = 1;
 
   if ( m_DBRead >= 0 || m_PoolRead >= 0) {
@@ -284,35 +271,28 @@ TBCaloCoordinate::transform_ctb_to_calo()
 void
 TBCaloCoordinate::print_transform(Transform3D& htrans)
 {
-
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-
   RotationMatrix3D junkrot = htrans.rotation();
   double alpha = Eigen::AngleAxisd(junkrot).angle();
   Eigen::Vector3d junkaxis = Eigen::AngleAxisd(junkrot).axis();
 
-  log << MSG::INFO <<  endreq;
+  ATH_MSG_INFO ("");
 
-  log << MSG::INFO << " -> Rotation : axis x,y,z = " << junkaxis[Amg::x]
-	    << " " << junkaxis[Amg::y] << " " << junkaxis[Amg::z]<< endreq; 
-  log << MSG::INFO << "               angle = " << alpha << endreq; 
+  ATH_MSG_INFO ( " -> Rotation : axis x,y,z = " << junkaxis[Amg::x]
+                 << " " << junkaxis[Amg::y] << " " << junkaxis[Amg::z]);
+  ATH_MSG_INFO ( "               angle = " << alpha );
 
   Amg::Vector3D junktransl = htrans.translation();
 
-  log << MSG::INFO << " -> Translation : x,y,z = " << 
-     junktransl[Amg::x] << " " << junktransl[Amg::y] << " " << junktransl[Amg::z]
-	    << endreq; 
+  ATH_MSG_INFO ( " -> Translation : x,y,z = " << 
+                 junktransl[Amg::x] << " " << junktransl[Amg::y] << " " << junktransl[Amg::z] );
 
-  log << MSG::INFO <<  endreq;
+  ATH_MSG_INFO ("");
 
 }
 
 bool
 TBCaloCoordinate:: read_data_position()
 {
-
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-
   // --------  Access to DB tool : will try once, if fails will use the default (user)
   
   if ( m_DBRead == 0 ) {
@@ -331,22 +311,20 @@ TBCaloCoordinate:: read_data_position()
     IToolSvc* p_toolSvc = 0;
     StatusCode sc = service("ToolSvc", p_toolSvc);
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Cannot find ToolSvc ??? " << endreq;
+      ATH_MSG_ERROR ( "Cannot find ToolSvc ??? " );
       m_DBRead = -1;
       return false;
     }
     else {
       sc = p_toolSvc->retrieveTool("TBCaloPosTool", m_postool);
       if(sc.isFailure()) {
-	log << MSG::ERROR 
-	    << "Cannot get Calo table position from DB : keep default"
-	    << endreq;
+	ATH_MSG_ERROR 
+          ( "Cannot get Calo table position from DB : keep default" );
 	m_DBRead = -1;
 	return false;
       }
       else {
-	log << MSG::DEBUG << "Did get Calo table position from DB !"
-	    << endreq;
+	ATH_MSG_DEBUG ( "Did get Calo table position from DB !" );
 	m_DBRead = 1;
       } 
     }   
@@ -360,26 +338,26 @@ TBCaloCoordinate:: read_data_position()
     
     // Protection : if result is crasy, switch to handcoded default
     if ( m_table_eta < 0. || m_table_eta > 1.5 ) {
-      log << MSG::INFO << "    ==> Calorimeter table position read from DB makes no sense, DB updates will be overwitten " << endreq;
-      log << MSG::INFO << "  " << endreq;
+      ATH_MSG_INFO ( "    ==> Calorimeter table position read from DB makes no sense, DB updates will be overwitten " );
+      ATH_MSG_INFO ( "  " );
       m_DBRead = 1;
       return false;
     }
     
     if (m_firstevt == 1 ) {
-      log << MSG::INFO << " --------------------------------------------------------------------- "  << endreq;
-      log << MSG::INFO << "  " << endreq;
-      log << MSG::INFO << " Calorimeter table position is read from DB : for run " << m_runNumber
-	  << " eta is = " << m_table_eta << endreq;
-      log << MSG::INFO << "  " << endreq;
+      ATH_MSG_INFO ( " --------------------------------------------------------------------- "  );
+      ATH_MSG_INFO ( "  " );
+      ATH_MSG_INFO ( " Calorimeter table position is read from DB : for run " << m_runNumber
+                     << " eta is = " << m_table_eta );
+      ATH_MSG_INFO ( "  " );
 
 
-      log << MSG::INFO << "         If it does not match the LAr logbook, inform LAr people        " << endreq;
-      log << MSG::INFO << "  " << endreq;
-      log << MSG::INFO << "  " << endreq;
-      log << MSG::INFO << " Other (unused) table numbers are : theta=" << m_table_theta
-	  << " z=" << m_table_z << " delta=" << m_table_delta << endreq;
-      log << MSG::INFO << " --------------------------------------------------------------------- "  << endreq;
+      ATH_MSG_INFO ( "         If it does not match the LAr logbook, inform LAr people        " );
+      ATH_MSG_INFO ( "  " );
+      ATH_MSG_INFO ( "  " );
+      ATH_MSG_INFO ( " Other (unused) table numbers are : theta=" << m_table_theta
+                     << " z=" << m_table_z << " delta=" << m_table_delta );
+      ATH_MSG_INFO ( " --------------------------------------------------------------------- "  );
       
       m_firstevt = 2;
     }
@@ -403,12 +381,12 @@ TBCaloCoordinate:: read_data_position()
 
   *m_transform_ctb_to_calo = m_transform_calo_to_ctb->inverse();
 
-  log << MSG::DEBUG << "Calculated table position is : " << endreq;
-  log << MSG::DEBUG << "         angle against y axis = " 
-	    << m_table_calc_theta << endreq;
-  log << MSG::DEBUG << "         x shift = " << m_table_calc_x << endreq;
+  ATH_MSG_DEBUG ( "Calculated table position is : " );
+  ATH_MSG_DEBUG ( "         angle against y axis = " 
+                  << m_table_calc_theta );
+  ATH_MSG_DEBUG ( "         x shift = " << m_table_calc_x );
 
-  log << MSG::DEBUG << " Final corresponding  Moovement : " << endreq;
+  ATH_MSG_DEBUG ( " Final corresponding  Moovement : " );
   //print_transform( *m_transform_calo_to_ctb );
 
   return true;
@@ -417,38 +395,20 @@ TBCaloCoordinate:: read_data_position()
 bool
 TBCaloCoordinate:: read_MC_position()
 {
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-
   if (!m_MCmgr) {
-
-      log << MSG::INFO << "Retreiving TBDetDescrManager" << endreq;
+    ATH_MSG_INFO ( "Retreiving TBDetDescrManager" );
 
     // get the manager used for simulation :
 
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    StoreGateSvc* detStore = 0;
-    StatusCode status = svcLoc->service( "DetectorStore", detStore );
-    if ( status.isFailure( ) ) {
-      log << MSG::ERROR
-	  << "Unable to get pointer to DetectorStore Service" << endreq;
-      return false;
-    }
-    
-    status     = detStore->retrieve( m_MCmgr );
-    if ( status.isFailure( ) ) {
-      log << MSG::ERROR << "Could not retreive TBDetDescrManager" << endreq;
-      return false;
-    }
-    else
-      log << MSG::DEBUG << "Did retreive TBDetDescrManager" << endreq;
+    ATH_CHECK( detStore()->retrieve( m_MCmgr ) );
   }
 
-  log << MSG::DEBUG << " found TBDetDescrManager " << endreq;
+  ATH_MSG_DEBUG ( " found TBDetDescrManager " );
 	
   TBElement  LArTileMother = m_MCmgr->getElement(TBElementID::CALO);
   if (LArTileMother.id() == TBElementID::Unknown ) return false;
     
-  log << MSG::DEBUG << " found CALO envelope " << endreq;
+  ATH_MSG_DEBUG ( " found CALO envelope " );
 
   // ------- OK, now do the work :
 
@@ -469,7 +429,7 @@ TBCaloCoordinate:: read_MC_position()
   m_table_eta = -1.*std::log(tan((float) (m_range->twopi()/4. - angle)/2.));
 
   if(m_table_eta<0. || m_table_eta > 1.5) {
-    log << MSG::INFO << " m_table_eta is not in [0,1.5] -> will set it to 0. " << endreq;
+    ATH_MSG_INFO ( " m_table_eta is not in [0,1.5] -> will set it to 0. " );
     m_table_eta = 0.;
   }
 
@@ -487,7 +447,6 @@ TBCaloCoordinate:: read_user_position()
 {
   // This is a fall back solution if numbers are not found anywhere else
   // Note that the hypothesis is that it is DATA
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
 
   // do the work once :
   //if (m_firstevt > 1 ) return;
@@ -514,14 +473,14 @@ TBCaloCoordinate:: read_user_position()
   if ( m_runNumber >= 2102953 && m_runNumber < 2102980 ) m_table_eta = 0.4;
   if ( m_runNumber >= 2102980 ) m_table_eta = 0.3;
 
-  log << MSG::DEBUG << " --------------------------------------------------------------------- "  << endreq;
-  log << MSG::DEBUG << "  " << endreq;
-  log << MSG::DEBUG << " Calorimeter table DCS either OFF of not used, position is hardcoded :  for run " 
-      << m_runNumber << " eta is = " << m_table_eta << endreq;
-  log << MSG::DEBUG << "  " << endreq;
-  log << MSG::DEBUG << "      If it does not match the LAr logbook, inform LAr people        " << endreq;
-  log << MSG::DEBUG << "  " << endreq;
-  log << MSG::DEBUG << " --------------------------------------------------------------------- "  << endreq;
+  ATH_MSG_DEBUG ( " --------------------------------------------------------------------- "  );
+  ATH_MSG_DEBUG ( "  " );
+  ATH_MSG_DEBUG ( " Calorimeter table DCS either OFF of not used, position is hardcoded :  for run " 
+                  << m_runNumber << " eta is = " << m_table_eta );
+  ATH_MSG_DEBUG ( "  " );
+  ATH_MSG_DEBUG ( "      If it does not match the LAr logbook, inform LAr people        " );
+  ATH_MSG_DEBUG ( "  " );
+  ATH_MSG_DEBUG ( " --------------------------------------------------------------------- "  );
 
   m_table_calc_theta= m_range->twopi()/4. - atan(exp(-m_table_eta))*2.;
 
@@ -540,12 +499,12 @@ TBCaloCoordinate:: read_user_position()
 
   *m_transform_ctb_to_calo = m_transform_calo_to_ctb->inverse();
 
-  log << MSG::DEBUG << " Moovement defined by hardcoded numbers : eta was set to " 
-      << m_table_eta<< endreq;
+  ATH_MSG_DEBUG ( " Moovement defined by hardcoded numbers : eta was set to " 
+                  << m_table_eta);
 
-  log << MSG::DEBUG  << "Calculated table position is : " << endreq;
-  log << MSG::DEBUG  << "         angle against y axis = " 
-      << m_table_calc_theta << endreq;
+  ATH_MSG_DEBUG  ( "Calculated table position is : " );
+  ATH_MSG_DEBUG  ( "         angle against y axis = " 
+                   << m_table_calc_theta );
 
   m_firstevt = 2;
 
@@ -557,9 +516,6 @@ TBCaloCoordinate:: read_user_position()
 void
 TBCaloCoordinate:: read_neutral_position()
 {
-
-  MsgStream log(m_msgSvc, "TBCaloCoordinate" );
-
   // do the work once :
   if (m_firstevt > 1 ) return;
 
@@ -574,7 +530,7 @@ TBCaloCoordinate:: read_neutral_position()
 
   m_firstevt = 2;
 
-  log << MSG::DEBUG << " Neutral Moovement : " << endreq;
+  ATH_MSG_DEBUG ( " Neutral Moovement : " );
   //print_transform( *m_transform_calo_to_ctb );
 
 }

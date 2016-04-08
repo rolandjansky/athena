@@ -4,6 +4,7 @@ author Claire Adam <claire.bourdarios@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External 
+use AthenaBaseComps     AthenaBaseComps-*       Control
 use CaloDetDescr        CaloDetDescr-*          Calorimeter
 
 private

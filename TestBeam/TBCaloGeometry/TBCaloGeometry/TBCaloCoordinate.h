@@ -15,7 +15,7 @@
 #define TBCALOGEOMETRY_TBCALOCOORDINATE_H
 
 #include "CaloDetDescr/ICaloCoordinateTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class CaloPhiRange;
 class ITBCaloPosTool;
@@ -65,7 +65,7 @@ read_table_position() before hand.
 
  **/
 
-class TBCaloCoordinate : public AlgTool, virtual public ICaloCoordinateTool
+class TBCaloCoordinate : public AthAlgTool, virtual public ICaloCoordinateTool
 {
 public:
   
@@ -187,15 +187,7 @@ private:
   ITBCaloPosTool* m_postool;
   const TBDetDescrManager* m_MCmgr;
   CaloPhiRange* m_range;
-  IMessageSvc*  m_msgSvc;
-
 };
 
  
 #endif // TBCALOGEOMETRY_TBCALOCOORDINATE_H
-
-
-
-
-
-
