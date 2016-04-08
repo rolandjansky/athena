@@ -634,7 +634,8 @@ void AFP_SIDBasicKalman::FilterTrkCollection()
 					iter2 = m_listResults.erase(iter2);
 					//--iter2;
 				}		
-			}		
+			}	
+			else 	++iter2;
 		}
 	
 	}
