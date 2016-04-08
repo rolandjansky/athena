@@ -42,7 +42,7 @@ PhysValTau::PhysValTau( const std::string& type,
     declareProperty( "TauContainerName", m_TauJetContainerName = "TauRecContainer" ); 
     declareProperty( "TruthParticleContainerName", m_TruthParticleContainerName = "TruthParticle" ); 
     declareProperty( "TauDetailsContainerName", m_TauDetailsContainerName = "TauRecDetailsContainer" ); 
-    declareProperty("isMC",                         m_isMC= false);
+    declareProperty("isMC",                         m_isMC);
     
     // std::cout << "Match tool Core Var Truth Cuts Et " << matchtool.getvisETCut() << " eta " << matchtool.getvisEtaCut() << std::endl;
 }
@@ -113,15 +113,14 @@ StatusCode PhysValTau::fillHistograms()
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve truth container:     
-    const xAOD::TruthParticleContainer* truth = 0;
-    if (m_isMC){
-    truth = evtStore()->retrieve< const xAOD::TruthParticleContainer >( m_TruthParticleContainerName );
+    // if (m_isMC){
+    const xAOD::TruthParticleContainer* truth = evtStore()->retrieve< const xAOD::TruthParticleContainer >( m_TruthParticleContainerName );
     if (!truth) { 
 	ATH_MSG_ERROR ("Couldn't retrieve tau container with key: " << m_TruthParticleContainerName); 
-		return StatusCode::FAILURE;
+	//	return StatusCode::FAILURE; 
     }   
     //  ATH_MSG_DEBUG( "Number of truth: " << truth->size() );      
-    }
+    
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve true hadronic tau container from truth container
     // getHaderonicTruth finds true taus (ID == 15) with correct status and no leptonic decay.
