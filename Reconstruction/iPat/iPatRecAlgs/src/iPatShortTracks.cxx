@@ -30,6 +30,7 @@ iPatShortTracks::iPatShortTracks(const std::string& name, ISvcLocator* pSvcLocat
 	m_minPt			(3.0*Gaudi::Units::GeV),
 	m_shortTracksName    	("iPatShortTracks"),
 	m_tracksName		("iPatTracks"),
+	m_tracks		(0),
 	m_trackCount		(0)
 {
     declareProperty("TrackFitter",	m_trackFitter);

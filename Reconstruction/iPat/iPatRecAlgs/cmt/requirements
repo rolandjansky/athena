@@ -10,7 +10,6 @@ author			Nectarios Benekos <Nectarios.Benekos@cern.ch>
 
 private
 use xAODEventInfo	       xAODEventInfo-*		     Event/xAOD
-use GeneratorObjects	       GeneratorObjects-*	     Generators
 use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
 use InDetPrepRawData	       InDetPrepRawData-*	     InnerDetector/InDetRecEvent
 use TrkExInterfaces	       TrkExInterfaces-*	     Tracking/TrkExtrapolation
@@ -31,13 +30,11 @@ use iPatUtility		       iPatUtility-*                 Reconstruction/iPat
 public
 use AthenaBaseComps	       AthenaBaseComps-*	     Control
 use AtlasPolicy		       AtlasPolicy-*
-use AtlasHepMC		       AtlasHepMC-*		     External
 use GaudiInterface	       GaudiInterface-*		     External
 use iPatRecEvent	       iPatRecEvent-*		     Reconstruction/iPat
 use iPatTrack		       iPatTrack-*		     Reconstruction/iPat
 			       
 library iPatRecAlgs	       iPatRec.cxx		     \
-			       iPatNtuple.cxx		     \
 			       iPatShortTracks.cxx	     \
 			       iPatStatistics.cxx	     \
 			       iPatTrackTruthAssociator.cxx  \

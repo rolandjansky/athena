@@ -86,7 +86,6 @@ private:
     bool					       	m_selectTracks;
     std::vector<int>					m_spacePointsByLayer;
     int							m_spacePointCount;
-    bool					       	m_spacePointSelect;
     std::vector<int>			       		m_trackClusters;
     std::vector<int>					m_trackCount;
     std::vector<int>					m_trackFakes;
