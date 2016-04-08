@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.cxx 641394 2015-01-23 20:07:16Z ssnyder $
+// $Id: EventFormatSvc.cxx 721421 2016-02-02 15:17:05Z krasznaa $
 
 // System include(s):
 #include <fstream>
@@ -29,6 +29,7 @@ namespace xAODMaker {
         m_eventStore( "StoreGateSvc", name ),
         m_metaStore( "MetaDataStore", name ),
         m_incidentSvc( "IncidentSvc", name ),
+        m_warnedCLIDs(),
         m_ef( 0 ), m_firstEvent( true ) {
 
       declareProperty( "ObjectName", m_objectName = "EventFormat" );
@@ -54,6 +55,9 @@ namespace xAODMaker {
 
       // Set up the service to listen to end-of-event incidents:
       m_incidentSvc->addListener( this, IncidentType::EndEvent );
+
+      // Clean up:
+      m_warnedCLIDs.clear();
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -184,11 +188,11 @@ namespace xAODMaker {
          std::string typeName;
          if( m_clidSvc->getTypeInfoNameOfID( ( *itr )->clID(),
                                              typeName ).isFailure() ) {
-#ifndef XAOD_ANALYSIS //will quietly bypass these errors in AthAnalysisBase, because some of the EDM classes are missing
-            REPORT_MESSAGE( MSG::ERROR )
-               << "Couldn't get type name for CLID = "
-               << ( *itr )->clID();
-#endif
+            // Print a warning if this CLID didn't produce a warning yet:
+            if( m_warnedCLIDs.insert( ( *itr )->clID() ).second ) {
+               ATH_MSG_WARNING( "Couldn't get type name for CLID = "
+                                << ( *itr )->clID() );
+            }
             continue;
          }
 
@@ -211,6 +215,13 @@ namespace xAODMaker {
          // Retrieve the hash of this name:
          const uint32_t hash = m_eventStore->stringToKey( branchName,
                                                           ( *itr )->clID() );
+
+         // A ViewVector object is actually saved as a vector of ElementLink.
+         if (typeName.substr (0, 11) == "ViewVector<" &&
+             typeName[typeName.size()-1] == '>')
+         {
+           typeName = "std::vector<ElementLink<" + typeName.substr(11, std::string::npos) + " >";
+         }
 
          // Add the info:
          ef.add( xAOD::EventFormatElement( branchName, typeName, "",
