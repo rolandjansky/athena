@@ -150,6 +150,29 @@ def TrigTauMonitoringTool():
 #		'HLT_tau25_perf_ptonly',
 	]
 
+	tau_topo_chains = [
+		'L1DR-TAU20ITAU12I-J25',
+		'L1DR-TAU20ITAU12I',
+		'L1_TAU20ITAU12I-J25'
+	]
+	
+	tau_topo_support_chains = [
+		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
+		'L1_TAU20IM_2TAU12IM',
+		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12'
+	]
+
+	tau_track_test = [
+		'tau25_perf_track_emulate',
+		'tau25_perf_tracktwo_emulate',
+                'tau25_perf_track_ptmin_emulate',
+                'tau25_perf_tracktwo_ptmin_emulate',
+                'tau25_medium1_track_ptmin_emulate',
+                'tau25_medium1_tracktwo_ptmin_emulate',
+                'tau25_perf_tracktwo_ptmin_no0reject_emulate',
+                'tau25_medium1_tracktwo_ptmin_no0reject_emulate'
+	]
+
 	# get the Level1 Emulation tool from the emulation python config
 	from TrigTauEmulation.TrigTauEmulationConfig import get_level1_emulator
 	Level1Emulator = get_level1_emulator('Level1Emulator', emul_l1_tau)
@@ -171,7 +194,7 @@ def TrigTauMonitoringTool():
 				  histoPathBase		 = "/Trigger/HLT",
 				  monitoring_tau	 = hltmonList.monitoring_tau,
 				  primary_tau		 = [], #full_tau, #[]
-				  prescaled_tau		 = [],
+				  prescaled_tau		 = [], #tau_track_test, #[],
 				  LowestSingleTau 	 = hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
 				  EffOffTauPtCut	 = 20000.,  #MeV
 				  TurnOnCurves           = True,
@@ -185,6 +208,9 @@ def TrigTauMonitoringTool():
 				  L1EmulationTool        = Level1Emulator,
 #				  HltEmulationTool       = HltEmulator,
 				  doTestTracking	 = False,
+				  topo_chains            = tau_topo_chains,
+                                  topo_support_chains    = tau_topo_support_chains,
+				  doTopoValidation	 = False,
 				  L1TriggerCondition  	 = "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]
 				  HLTTriggerCondition 	 = "Physics",
                                   nTrkMax	= -1,

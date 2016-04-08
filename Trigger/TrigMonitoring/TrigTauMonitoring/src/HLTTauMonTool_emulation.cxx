@@ -163,19 +163,19 @@ StatusCode HLTTauMonTool::Emulation(){
  for (auto it: m_emulation_l1_tau) {  
   //if(m_bootstrap && !getTDT()->isPassed("L1_TAU12")) continue;
   bool emulation_decision = m_l1emulationTool->decision(it);
-  ATH_MSG_INFO(it << " emulation : " << emulation_decision);
+  ATH_MSG_DEBUG(it << " emulation : " << emulation_decision);
   setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
   if(emulation_decision) hist("hL1EmulationPassEmul")->Fill(it.c_str(),1.);
   auto chain_group = getTDT()->getChainGroup(it);  
   bool cg_passes_event = chain_group->isPassed();
   //if(getTDT()->isPassedBits(it) & TrigDefs::L1_isPassedBeforePrescale) cg_passes_event = true; 
-  ATH_MSG_INFO(it << " TDT : " <<  cg_passes_event);
+  ATH_MSG_DEBUG(it << " TDT : " <<  cg_passes_event);
   setCurrentMonGroup("HLT/TauMon/Expert/Emulation");
   if(cg_passes_event) hist("hL1EmulationPassTDT")->Fill(it.c_str(),1.);
   //int L1_PSCut = (int) getTDT()->getPrescale(it);
   //float L1_PS = TrigConf::PrescaleSet::getPrescaleFromCut(L1_PSCut);
   if (emulation_decision != cg_passes_event){
-    ATH_MSG_INFO("TDT and emulation decision different, TDT gives : " 
+    ATH_MSG_DEBUG("TDT and emulation decision different, TDT gives : " 
 		 << cg_passes_event 
 		 << " emulation gives : " 
 		 << emulation_decision);
