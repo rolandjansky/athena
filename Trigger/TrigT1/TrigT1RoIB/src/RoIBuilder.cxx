@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBuilder.cxx 588978 2014-03-22 15:36:26Z pottgen $
+// $Id: RoIBuilder.cxx 667020 2015-05-13 20:40:26Z stelzer $
 
 // STL includes:
 #include <iomanip>
@@ -445,7 +445,11 @@ namespace ROIB {
       //
       // Put RoIB RDO object into SG:
       //
-      CHECK( evtStore()->record( roib_rdo_result, m_roibRDOLocation ) );
+      if(evtStore()->contains<RoIBResult>(m_roibRDOLocation)) {
+         CHECK( evtStore()->overwrite( roib_rdo_result, m_roibRDOLocation ) );
+      } else {
+         CHECK( evtStore()->record( roib_rdo_result, m_roibRDOLocation ) );
+      }
 
       //
       // Return happily:
