@@ -45,7 +45,7 @@ namespace Analysis {
     declareProperty("etaMax", m_etaMax = 9999.);
     declareProperty("useTrackSummaryInfo", m_useTrackSummaryInfo = true);
     declareProperty("nHitBLayer", m_nHitBLayer = 1);
-    declareProperty("nHitPix", m_nHitPix = 2);
+    declareProperty("nHitPix", m_nHitPix = 1);
     declareProperty("nHitSct", m_nHitSct = 0);
     declareProperty("nHitSi", m_nHitSi = 7);
     declareProperty("nHitTrt", m_nHitTrt = 0);
