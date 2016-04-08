@@ -1,0 +1,13 @@
+<!-- $Id: selection.xml 683697 2015-07-17 09:12:14Z krasznaa $ -->
+<lcgdict>
+
+  <!-- The file level metadata handler tool: -->
+  <class name="xAODMaker::FileMetaDataTool" >
+    <field name="m_inputKey" transient="true" />
+    <field name="m_outputKey" transient="true" />
+    <field name="m_md" transient="true" />
+    <field name="m_mdAux" transient="true" />
+    <field name="m_beginFileIncidentSeen" transient="true" />
+  </class>
+
+</lcgdict>
