@@ -5,7 +5,7 @@
 
 #ifdef  XAODTRACKING_TRACKPARTICLE_H
 
-bool TrigInDetAnalysis::IsGoodOffline(const xAOD::Electron& elec, const unsigned int selection) { // 0 take all; 1,4 tight; 2,5 medium; 3,6 loose; <4 cut based, >3 likelihood
+bool TIDA::isGoodOffline(const xAOD::Electron& elec, const unsigned int selection) { // 0 take all; 1,4 tight; 2,5 medium; 3,6 loose; <4 cut based, >3 likelihood
   if (selection == 1)
     return elec.passSelection("Tight");
   if (selection == 2)
@@ -23,12 +23,12 @@ bool TrigInDetAnalysis::IsGoodOffline(const xAOD::Electron& elec, const unsigned
   return true; 
 }
 
-bool TrigInDetAnalysis::IsGoodOffline(const xAOD::Muon& /*muon*/ ) { return true; } 
-bool TrigInDetAnalysis::IsGoodOffline(const xAOD::TauJet& /*tau*/, bool /*doThreeProng*/, double /*tauEtCutOffline*/) { return true; }
+bool TIDA::isGoodOffline(const xAOD::Muon& /*muon*/ ) { return true; } 
+bool TIDA::isGoodOffline(const xAOD::TauJet& /*tau*/, bool /*doThreeProng*/, double /*tauEtCutOffline*/) { return true; }
 
 #else
 
-bool TrigInDetAnalysis::IsGoodOffline(const Analysis::Electron& elec) {
+bool TIDA::isGoodOffline(const Analysis::Electron& elec) {
   if ( elec.trackParticle() && elec.isem(egammaPID::ElectronMediumPP)==0 ) {
     //medium++ ID
     if (elec.author() == 1 || elec.author() == 3) {
@@ -40,7 +40,7 @@ bool TrigInDetAnalysis::IsGoodOffline(const Analysis::Electron& elec) {
 }
 
 
-bool TrigInDetAnalysis::IsGoodOffline(const Analysis::Muon& muon) {
+bool TIDA::isGoodOffline(const Analysis::Muon& muon) {
   if (!muon.isLoose()) {
     //Tight muon
     return false;
@@ -95,7 +95,7 @@ bool TrigInDetAnalysis::IsGoodOffline(const Analysis::Muon& muon) {
 
 
 
-bool TrigInDetAnalysis::IsGoodOffline(const Analysis::TauJet& tau, const bool doThreeProng, const double tauEtCutOffline) {
+bool TIDA::isGoodOffline(const Analysis::TauJet& tau, const bool doThreeProng, const double tauEtCutOffline) {
   //  std::cout << "have offline tau" << std::endl;
   bool id_flag = false;
   if (doThreeProng) { 

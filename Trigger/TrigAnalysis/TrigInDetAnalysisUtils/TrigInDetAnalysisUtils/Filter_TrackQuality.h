@@ -22,7 +22,7 @@ class Filter_TrackQuality : public TrackFilter {
  Filter_TrackQuality(double chi2Prob) :
   m_chi2Prob(chi2Prob) { } 
   
-   bool select(const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/) { 
+   bool select(const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/) { 
     // Select track parameters
     int ndof = (t->pixelHits() + float(t->sctHits())/2.)*3 + t->strawHits()*2. - 5;
     double chi2 = t->chi2();

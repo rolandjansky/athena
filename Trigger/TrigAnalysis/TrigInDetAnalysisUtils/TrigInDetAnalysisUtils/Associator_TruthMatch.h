@@ -1,3 +1,4 @@
+// emacs: this is -*- c++ -*-
 
 #ifndef __ASSOCIATOR_TRUTHMATCH_H
 #define __ASSOCIATOR_TRUTHMATCH_H
@@ -26,53 +27,74 @@
 
 
 
-class Associator_TruthMatcher : public Associator_MatcherBase{
+#if 0
+class Associator_TruthMatcher : public Associator_BestMatcher {
 
-  public:
-
-    Associator_TruthMatcher() :
-      Associator_MatcherBase("Truth", 0)
+public:
+  Associator_TruthMatcher() :
+    Associator_MatcherBase( "Truth" )
   { }
 
-    virtual ~Associator_TruthMatcher() { }
-
-    //  virtual void match( const std::vector<TrigInDetAnalysis::Track*>& ref, const std::vector<TrigInDetAnalysis::Track*>& test ) { 
-    //Fill reference tracks in matching step
-    virtual void match(const std::vector<TrigInDetAnalysis::Track*>& refTracks,
-                       const std::vector<TrigInDetAnalysis::Track*>& testTracks){
-      //std::cout<<"refTracks.size() "<<refTracks.size()<<" \t testTracks.size() "<<testTracks.size()<<std::endl;
-      for (unsigned int i = 0; i < refTracks.size(); i++) {
-        //        std::cout<<refTracks[i]->author() <<std::endl;
-        for (unsigned int j = 0; j < testTracks.size(); j++) {
-          if(testTracks[j]->match_barcode()!=-1){
-          //   std::cout << "ref barcode" << refTracks[i]->barcode() << std::endl;
-//             std::cout << "test barcode " << testTracks[j]->match_barcode() << std::endl;
-          }
-
-            if (distance(refTracks[i], testTracks[j]) < 1.) {
-              //              std::cout<<"MATCHED"<<std::endl;
-              mmatched.insert(    track_map::value_type(refTracks[i],testTracks[j]));
-              mrevmatched.insert( track_map::value_type(testTracks[j],refTracks[i]));
-            }
-          }
-        }
+  virtual double distance( TIDA::Track* refTrack, TIDA::Track* testTrack ) {
+    if      (testTrack->match_barcode() == -1)                  return 1;
+    else if (testTrack->match_barcode() == refTrack->barcode()) return 0;
+    else                                                        return 1;
+  }
+  
+};
+#endif
 
 
-      return;
+// class Associator_TruthMatcher : public Associator_MatcherBase{
+class Associator_TruthMatcher : public TrackAssociator {
+  
+public:
+
+  Associator_TruthMatcher() : TrackAssociator("Truth")  { }
+  
+  virtual ~Associator_TruthMatcher() { }
+  
+  //Fill reference tracks in matching step
+  virtual void match( const std::vector<TIDA::Track*>& refTracks, 
+		      const std::vector<TIDA::Track*>& testTracks) {
+
+    //std::cout<<"refTracks.size() "<<refTracks.size()<<" \t testTracks.size() "<<testTracks.size()<<std::endl;
+    
+    for (unsigned int i = 0; i < refTracks.size(); i++) {
+      
+      //        std::cout<<refTracks[i]->author() <<std::endl;
+      
+      for (unsigned int j = 0; j < testTracks.size(); j++) {
+
+	//  if(testTracks[j]->match_barcode()!=-1){
+	//    std::cout << "ref barcode" << refTracks[i]->barcode() << std::endl;
+	//    std::cout << "test barcode " << testTracks[j]->match_barcode() << std::endl;
+	//  }
+	
+	if ( distance( refTracks[i], testTracks[j] ) < 1. ) {
+	  //              std::cout<<"MATCHED"<<std::endl;
+	  mmatched.insert(    map_type::value_type(refTracks[i],testTracks[j]));
+	  mrevmatched.insert( map_type::value_type(testTracks[j],refTracks[i]));
+	}
+      }
     }
-    virtual double distance( TrigInDetAnalysis::Track* refTrack, TrigInDetAnalysis::Track* testTrack ) {
-      if (testTrack->match_barcode() == -1)
-        return 1.;
-      else if (testTrack->match_barcode() == refTrack->barcode())
-        return 0.;
-      else
-        return 1.;
-    }
-
-  private:
+    
+    return;
+  }
+  
+  
+  virtual double distance( TIDA::Track* refTrack, TIDA::Track* testTrack ) {
+      if      (testTrack->match_barcode() == -1)                   return 1;
+      else if (testTrack->match_barcode() == refTrack->barcode())  return 0;
+      else                                                         return 1;
+  }
+  
+private:
 
     double md;
 
 };
+
+
 #endif //  __ASSOCIATOR_TRUTHMATCH_H
                                                         

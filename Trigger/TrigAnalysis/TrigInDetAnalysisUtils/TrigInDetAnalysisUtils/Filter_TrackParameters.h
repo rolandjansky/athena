@@ -13,14 +13,14 @@
 #include "TrigInDetAnalysis/TrackFilter.h"
 
 
-class Filter_TrackParameters : public TrigInDetAnalysis::TrackFilter { 
+class Filter_TrackParameters : public TIDA::TrackFilter { 
   
  public:
   
  Filter_TrackParameters(double etaMax,  double d0Max,  double z0Max,   double  pTMin) :
   m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin) { } 
   
-  bool select(const TrigInDetAnalysis::Track* t, const TrigInDetAnalysis::TIDARoiDescriptor* r=0) { 
+  bool select(const TIDA::Track* t, const TrigInDetAnalysis::TIDARoiDescriptor* r=0) { 
     // Select track parameters
     if (std::fabs(t->eta())>m_etaMax || std::fabs(t->a0())>m_d0Max || std::fabs(t->z0())>m_z0Max || std::fabs(t->pT())<m_pTMin) return false;
     return true;

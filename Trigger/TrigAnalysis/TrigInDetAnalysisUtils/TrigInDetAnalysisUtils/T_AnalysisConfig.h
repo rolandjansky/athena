@@ -23,7 +23,7 @@
 #include "TrigInDetAnalysis/TrackAnalysis.h"
 
 
-#include "TrigInDetAnalysisUtils/RoI.h"
+// #include "TrigInDetAnalysisUtils/RoI.h"
 // #include "TrigInDetAnalysisUtils/Converter.h"
 #include "TrigInDetAnalysisUtils/TrigTrackSelector.h"
 #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
@@ -38,7 +38,7 @@
 class MsgSvc;
 class StoreGateSvc;
 
-class TrackAssociator;
+// class TrackAssociator;
 // class Converter;
 
 // class RoI;
@@ -275,34 +275,6 @@ protected:
 
   virtual void loop() = 0;
 
-  void filterTracks(std::vector< std::vector<TrigInDetAnalysis::Track*> >& tracks, RoI* roi) {
-
-    // Filter tracks
-    // - creates a temporary filtered track vector
-    // - loop is performed over tracks to be filtered, each is filtered with all filters and copied if passes all of them
-    std::vector< std::vector<TrigInDetAnalysis::Track*> > filteredTracks(3);
-    for(unsigned int i=0; i<3; i++) {
-
-      // Loop over tracks to be filtered
-      std::vector<TrigInDetAnalysis::Track*>::iterator track(tracks[i].begin());
-      std::vector<TrigInDetAnalysis::Track*>::iterator trackEnd(tracks[i].end());
-      while ( track!=trackEnd ) {
-
-	// Loop over filters and apply them to current track
-	bool passes=true;
-	for(unsigned int j=0; j<(m_filters[i]).size(); j++) passes = passes && (((m_filters[i])[j])->select(*track, roi->descriptor()));
-
-	// Check if track passes all filters
-	if(passes) filteredTracks[i].push_back(*track);
-
-	track++;
-      }
-
-      // Associate filtered tracks to the RoI
-      roi->tracks(filteredTracks[i], i);
-    }
-  }
-
 
   template<class Collection>
   bool selectTracks( TrigTrackSelector* selector, Trig::FeatureContainer::combination_const_iterator citr,  const std::string& key="" ) {
@@ -418,38 +390,35 @@ protected:
 			     const std::string& containerName = "ElectronAODCollection"
 #                            endif
 			     )  {
-    m_provider->msg(MSG::INFO) << " Offline electrons " << endreq;
+
+    m_provider->msg(MSG::INFO) << " Fetching offline electrons: " << containerName << endreq;
 
     selectorRef.clear();
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-    const xAOD::ElectronContainer* container = 0;
-#else
-    const ElectronContainer* container = 0;
-#endif
+#   ifdef XAODTRACKING_TRACKPARTICLE_H
+    typedef xAOD::ElectronContainer     Container;
+#   else
+    typedef ElectronContainer           Container;
+#   endif
 
-#ifdef XAODTRACKING_TRACKPARTICLE_H
-    if( ! m_provider->evtStore()->template contains<xAOD::ElectronContainer>(containerName) ) {
-#else
-    if( ! m_provider->evtStore()->template contains<ElectronContainer>(containerName) ) {
-#endif
-      m_provider->msg(MSG::WARNING) << "Error No Electron Container " << containerName
-				    << " !" << endreq;
+
+    const Container* container = 0;
+    
+    if( ! m_provider->evtStore()->template contains<Container>(containerName) ) {
+      m_provider->msg(MSG::WARNING) << "Error No Electron Container " << containerName << " !" << endreq;
       return 0;
     }
-
+    
     StatusCode sc=m_provider->evtStore()->retrieve( container, containerName);
     if( sc.isFailure() || !container ) {
-      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName
-				    << " after contains" << endreq;
+      m_provider->msg(MSG::WARNING) << "Error retrieving container: " << containerName << " !" << endreq;
       return 0;
     }
 
-    auto elec = container->begin();
-    auto elec_end = container->end();
+    m_provider->msg(MSG::INFO) << "Event with " <<  container->size() << " Electron object(s) " << endreq;
 
-    m_provider->msg(MSG::INFO) << "Event with " <<  container->size()
-			       << " Electron object(s) " << endreq;
+    auto elec     = container->begin();
+    auto elec_end = container->end();
 
     for( ; elec!=elec_end ; ++elec ){
       //m_provider->msg(MSG::DEBUG) << " Electron "       << (*elec)
@@ -463,7 +432,7 @@ protected:
       //	       << endreq;
 
 
-      if (TrigInDetAnalysis::IsGoodOffline(*(*elec), selection)) selectorRef.selectTrack( (*elec)->trackParticle() );
+      if (TIDA::isGoodOffline(*(*elec), selection)) selectorRef.selectTrack( (*elec)->trackParticle() );
 
     }
 
@@ -489,7 +458,7 @@ protected:
     typedef Analysis::MuonContainer Container;
 #   endif
 
-    m_provider->msg(MSG::INFO) << " Offline muons " << endreq;
+    m_provider->msg(MSG::DEBUG) << " Offline muons (" << containerName << ")" << endreq;
 
     selectorRef.clear();
 
@@ -506,11 +475,11 @@ protected:
       return 0;
     }
 
-
-    auto muon = container->begin();
+    auto muon     = container->begin();
     auto muon_end = container->end();
+
     for( ; muon!=muon_end ; ++muon ){
-      if (TrigInDetAnalysis::IsGoodOffline(*(*muon))) {
+      if (TIDA::isGoodOffline(*(*muon))) {
 #      ifdef XAODTRACKING_TRACKPARTICLE_H
        selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
 #      else
@@ -518,6 +487,8 @@ protected:
 #      endif
       }
     }
+
+    m_provider->msg(MSG::DEBUG) << "found  " << selectorRef.tracks().size() << " muons for " << containerName << endreq;
 
     return selectorRef.tracks().size();
 }
@@ -530,7 +501,7 @@ protected:
 unsigned processTaus(      TrigTrackSelector& selectorRef,
 			   bool doThreeProng = true,
 #                          ifdef XAODTRACKING_TRACKPARTICLE_H
-			   const std::string& containerName = "Taus"
+			   const std::string& containerName = "TauJets"
 #                          else
 			   const std::string& containerName = "TauRecContainer"
 #                          endif
@@ -546,14 +517,11 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
 
   const Container* container = 0;
 
-  std::cout << " in do tau selection " << std::endl;
-
   selectorRef.clear();
 
-  m_provider->msg(MSG::INFO) << " Offline taus " << endreq;
+  m_provider->msg(MSG::DEBUG) << " Offline taus " << containerName << endreq;
 
   if ( !m_provider->evtStore()->template contains<Container>(containerName)) {
-      
     m_provider->msg(MSG::WARNING) << " Offline taus not found" << endreq;
     return 0;
   }
@@ -572,7 +540,7 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
 
   for ( ; tau!=tau_end ; ++tau ) {
 
-    if (TrigInDetAnalysis::IsGoodOffline( *(*tau), doThreeProng, 20000.0 )) {
+    if (TIDA::isGoodOffline( *(*tau), doThreeProng, 20000.0 )) {
 
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
       unsigned N = (*tau)->nTracks();

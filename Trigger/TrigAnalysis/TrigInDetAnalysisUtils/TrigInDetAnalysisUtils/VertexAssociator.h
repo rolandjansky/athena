@@ -1,0 +1,1 @@
+// emacs: this is -*- c++ -*-

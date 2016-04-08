@@ -57,7 +57,7 @@ public:
     if ( mphimax> M_PI ) mphimax-=M_2PI;
   }
 
-  bool select(const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* /*r=0*/ ) { 
+  bool select(const TIDA::Track* t, const TIDARoiDescriptor* /*r=0*/ ) { 
     bool inphi = false;
     if ( mphimin<mphimax ) inphi = ( mphimin<t->phi() && t->phi()<mphimax );
     else                   inphi = ( mphimin<t->phi() || t->phi()<mphimax );

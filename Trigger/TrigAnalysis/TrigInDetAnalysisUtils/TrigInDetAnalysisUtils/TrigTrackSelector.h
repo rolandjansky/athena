@@ -61,14 +61,17 @@
 
 // namspace TrigInDetAnalysis {
 
-// class TrigTrackSelector : public TrigInDetAnalysis::TrackSelector<TrigInDetAnalysis::Track> { 
+// class TrigTrackSelector : public TIDA::TrackSelector<TIDA::Track> { 
 
 class TrigTrackSelector : public TrackSelector { 
 
 public:
 
-  //  TrigTrackSelector( bool (*selector)(const TrigInDetAnalysis::Track*)=NULL ) : TrackSelector(selector) {  } 
+  //  TrigTrackSelector( bool (*selector)(const TIDA::Track*)=NULL ) : TrackSelector(selector) {  } 
   TrigTrackSelector( TrackFilter* selector );
+
+  ~TrigTrackSelector() { clear(); }
+
 
   void setBeamline( double x, double y, double z=0) { xBeam = x; yBeam = y; zBeam=z; }
 
@@ -111,10 +114,10 @@ public:
 
 
   // make a TIDA::Track from a GenParticle 
-  TrigInDetAnalysis::Track* makeTrack( const HepMC::GenParticle* track );
+  TIDA::Track* makeTrack( const HepMC::GenParticle* track );
 
   // make a TIDA::Track from a TruthParticle 
-  TrigInDetAnalysis::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 );
+  TIDA::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 );
 
 
   // add a Trk::Track
