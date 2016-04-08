@@ -1,0 +1,127 @@
+<ui version="4.0" >
+ <class>RawDataSysSettingsDisplayForm</class>
+ <widget class="QWidget" name="RawDataSysSettingsDisplayForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>278</width>
+    <height>203</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <item>
+    <widget class="QGroupBox" name="groupBox_5" >
+     <property name="title" >
+      <string>Draw options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" >
+      <item>
+       <widget class="QCheckBox" name="checkBox_showVolumeOutLines" >
+        <property name="toolTip" >
+         <string>Decorate shapes with lines at the edges (current only certain shapes such as muon chambers are supported)</string>
+        </property>
+        <property name="text" >
+         <string>Show outlines</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="VP1DrawOptionsWidget" native="1" name="widget_drawOptions" />
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout" >
+        <item>
+         <widget class="QCheckBox" name="checkBox_trtHTUseSpecialMat" >
+          <property name="text" >
+           <string>TRT HT colour:</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="VP1MaterialButton" name="matButton_trtht" >
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" >
+        <item>
+         <widget class="QCheckBox" name="checkBox_bcmHighAttUseSpecialMat" >
+          <property name="text" >
+           <string>BCM High attenuation colour:</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="VP1MaterialButton" name="matButton_bcmhighatt" >
+          <property name="text" >
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="spacing" >
+      <number>0</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>1</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_close" >
+       <property name="text" >
+        <string>&amp;Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>VP1DrawOptionsWidget</class>
+   <extends>QWidget</extends>
+   <header>VP1Base/VP1DrawOptionsWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VP1MaterialButton</class>
+   <extends>QPushButton</extends>
+   <header>VP1Base/VP1MaterialButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
