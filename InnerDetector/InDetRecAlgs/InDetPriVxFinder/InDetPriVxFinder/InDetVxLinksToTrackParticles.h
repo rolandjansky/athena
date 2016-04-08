@@ -23,6 +23,9 @@
  *  Kirill Prokofiev, March 2014
  */
 
+namespace Reco {
+  class ITrackToVertex;
+}
 
 namespace InDet
 {
@@ -40,8 +43,11 @@ namespace InDet
   private:
     std::string m_verticesName; //!< Name of the vertex container
     std::string m_tracksName; //!< Name of the track container
+    std::string m_tracksOutName; //!< Optional name to create a shallow copy for the linked and modified track particles.
     
-    
+    ToolHandle<Reco::ITrackToVertex>  m_trackToVertex;
+
+    bool m_copy;
   };//end of class
 }//end of namespace definitions
 #endif

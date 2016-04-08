@@ -16,7 +16,11 @@ use InDetBeamSpotService      InDetBeamSpotService-*       InnerDetector/InDetCo
 use TrkParticleBase    TrkParticleBase-*   Tracking/TrkEvent
 use xAODTracking           xAODTracking-*           Event/xAOD
 use TrkVxEdmCnv		   TrkVxEdmCnv-*	    Tracking/TrkVertexFitter
+use ITrackToVertex         ITrackToVertex-*         Reconstruction/RecoTools
 
+use xAODCore               xAODCore-*               Event/xAOD
+use EventPrimitives        EventPrimitives-*        Event
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 
 public
 library InDetPriVxFinder *.cxx components/*.cxx
