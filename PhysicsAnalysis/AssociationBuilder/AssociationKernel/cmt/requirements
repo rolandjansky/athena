@@ -1,0 +1,18 @@
+package AssociationKernel
+
+author Sebastien Binet <binet@cern.ch>
+
+use  AtlasPolicy                AtlasPolicy-*                   
+
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  DataModel                  DataModel-*                     Control
+use  EventKernel                EventKernel-*                   Event
+use  GaudiInterface             GaudiInterface-*                External
+use  NavFourMom                 NavFourMom-*                    Event
+
+
+branches AssociationKernel src
+
+library AssociationKernel *.cxx
+
+apply_pattern installed_library
