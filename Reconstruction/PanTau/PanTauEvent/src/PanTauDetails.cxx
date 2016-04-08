@@ -15,8 +15,8 @@ std::string PanTau::PanTauDetails::s_className = "PanTauDetails";
 PanTau::PanTauDetails::PanTauDetails()
     :
     Analysis::TauDetails(),
-    m_features(0),
-    m_seed(0),
+    m_features(nullptr),
+    m_seed(nullptr),
     m_Name_InputAlg("InvalidInputAlg"),
     
     m_RecoMode_SubAlg(-5),
@@ -97,7 +97,7 @@ PanTau::PanTauDetails::PanTauDetails(PanTau::PanTauSeed* inputSeed)
 }
 
     
-
+/*
 PanTau::PanTauDetails::PanTauDetails(
         const PanTau::TauSeed       *seed,
         const PanTau::TauFeature    *features
@@ -144,6 +144,8 @@ PanTau::PanTauDetails::PanTauDetails(
     m_CellBased_Combined_DeltaR1stNeutralTo1stCharged(-5)
 {
 }
+*/
+
 
 /** Copy constructor */
 PanTau::PanTauDetails::PanTauDetails(
@@ -193,14 +195,14 @@ PanTau::PanTauDetails::PanTauDetails(
 
 PanTau::PanTauDetails::~PanTauDetails()
 {
-//     if(m_features != 0) delete m_features;
+  if(m_features != 0) delete m_features;
 }
 
 /** Assignment operator */
 PanTau::PanTauDetails& PanTau::PanTauDetails::operator=(const PanTau::PanTauDetails& rhs)
 {
     if (this!=&rhs){
-        delete m_features;
+       if(m_features != 0) delete m_features;
         m_features = (rhs.m_features ? new PanTau::TauFeature(*rhs.m_features) : 0);
         m_seed = rhs.m_seed;
         m_PanTauSeed = rhs.m_PanTauSeed;
