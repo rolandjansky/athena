@@ -9,30 +9,26 @@
 
 namespace MuonCalib {
 
-  class MuonCalibSurface {
-  public:
+  struct MuonCalibSurface {
     virtual ~MuonCalibSurface() {}
     virtual bool inBounds( const Amg::Vector3D& pos, double tolerance = 0. ) const = 0;
   };
 
-  class MuonCalibDisk : public MuonCalibSurface {
-  public:
+  struct MuonCalibDisk : public MuonCalibSurface {
     MuonCalibDisk( double z, double r ) : zPos(z), radius(r) {}
     bool inBounds( const Amg::Vector3D& pos, double tolerance = 0. ) const;
     double zPos;
     double radius;
   };
 
-  class MuonCalibCylinder : public MuonCalibSurface {
-  public:
+  struct MuonCalibCylinder : public MuonCalibSurface {
     MuonCalibCylinder( double r, double l ) : radius(r), lenght(l) {}
     bool inBounds( const Amg::Vector3D& pos, double tolerance = 0.  ) const;
     double radius;
     double lenght;
   };
 
-  class MuonCalibSimpleGeometry {
-  public:
+  struct MuonCalibSimpleGeometry {
     MuonCalibSimpleGeometry();
 
     MuonCalibDisk     endcapInnerDiskASide; 
