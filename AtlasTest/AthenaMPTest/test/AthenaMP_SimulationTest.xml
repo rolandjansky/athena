@@ -4,7 +4,7 @@
 
     <TEST name="G4AtlasMP" type="athena" suite="AthenaMPSim">
       <doc>Tests standard simu job</doc>
-      <options_atn>--nprocs=2 -c "from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.PreCountedEvents=4; jps.AthenaMPFlags.CollectSubprocessLogs=True" G4AtlasApps/jobOptions.G4Atlas.py</options_atn>
+      <options_atn>--nprocs=2 -c "from AthenaMP.AthenaMPFlags import jobproperties as jps; jps.AthenaMPFlags.CollectSubprocessLogs=True" G4AtlasApps/jobOptions.G4Atlas.py</options_atn>
       <timelimit>30</timelimit>
       <author> Vakho Tsulaia </author>
       <mailto> tsulaia@cern.ch</mailto>
