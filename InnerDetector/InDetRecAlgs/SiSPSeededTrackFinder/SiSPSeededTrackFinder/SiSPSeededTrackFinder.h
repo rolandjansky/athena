@@ -12,24 +12,20 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
-#include "TrkSpacePoint/SpacePointContainer.h" 
 
 // For new strategy reconstruction
-#include "TrkTrack/TrackCollection.h"
+//
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/PerigeeSurface.h" 
-#include "StoreGate/DataHandle.h"
 
-//class SpacePointContainer;
 namespace InDet {
 
 // forward declare of these interfaces does not work in opt build
 //   class ISiSpacePointsSeedMaker;
 //   class ISiZvertexMaker;
 //   class ISiTrackMaker; 
-
 
   // Class-algorithm for track finding in Pixels and SCT
   // initiated by space points seeds
@@ -70,7 +66,6 @@ namespace InDet {
       bool                           m_useMBTS            ;
       bool                           m_useNewStrategy     ;
       bool                           m_useZBoundaryFinding;
-      bool                           m_ITKGeometry        ; // Is it ITK geometry
       int                            m_outputlevel        ; // Print level for debug
       int                            m_nprint             ; // Kind of  print    
       int                            m_nseeds             ; // Number seeds
@@ -85,10 +80,10 @@ namespace InDet {
       int                            m_maxPIXsp           ; // Max. number pixels space points
       int                            m_maxSCTsp           ; // Max. number sct    space points
       int                            m_nfreeCut           ; // Min number free clusters
-
-      SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
-      SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
-      SG::WriteHandle<TrackCollection>    m_outputTracks    ;
+      std::string                    m_spacepointsPixelname;
+      std::string                    m_spacepointsSCTname  ;
+      std::string                    m_tracklocationOutput; // Name of output tracks location  
+      std::string                    m_tracklocationInput ; // Name of input  tracks location  
 
       ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker    ;  // Space poins seed     maker
       ToolHandle< ISiZvertexMaker         > m_zvertexmaker  ;  // Space poins z-vertex maker
