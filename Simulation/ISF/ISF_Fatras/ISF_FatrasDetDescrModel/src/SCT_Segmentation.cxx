@@ -48,19 +48,21 @@ namespace iFatras {
     if (m_NcellX * m_pitchX != lengthXmin) 
       m_pitchX += (lengthXmin - float(m_NcellX) * m_pitchX)/float(m_NcellX);
     
-    if (lengthXmax != 0.) {
+    if ( m_lengthXmax == m_lengthXmin )
+      m_lengthXmax = 0.;
+      
+    if (m_lengthXmax != 0.) {
       // It is the x pitch measured at the center of the module
       // --> It changes along Y
-      double lengthXatCenter = (lengthXmax+lengthXmin)/2.;
+      double lengthXatCenter = (m_lengthXmax+m_lengthXmin)/2.;
       m_pitchXatCenter = lengthXatCenter/float(m_NcellX);
     
       // It is the pitch measured in phi 
       // --> This is constant while pitch X changes along Y
-      double tanPhi = (lengthXmax-lengthXmin)/(2.*lengthY);
+      double tanPhi = (m_lengthXmax-m_lengthXmin)/(2.*lengthY);
       m_pitchPhi = atan(tanPhi)/(float(m_NcellX)/2.);
-    }
-    else {
-      m_pitchXatCenter = lengthXmin/float(m_NcellX);
+    } else {
+      m_pitchXatCenter = m_lengthXmin/float(m_NcellX);
       m_pitchPhi = 0.;
     }
   }
@@ -96,22 +98,43 @@ namespace iFatras {
     // for debugging
     // std::cout << "-------------------------------------------" << std::endl;
     // std::cout << "SCT_Segmentation::cellOfPosition starting!" << std::endl;
-    if (!m_discTrapezoidal) {
-      double halfLengthXatHit = phiPitch(localPos)*float(m_NcellX)/2.;
 
-      Amg::Vector2D relativePos = localPos + Amg::Vector2D(halfLengthXatHit, m_lengthY/2.);
-      int strip = (int)floor(relativePos[Trk::locX]/m_pitchX);
+    // std::cout << "SCT_Segmentation::checking all parameters first!!!" << std::endl;
+    
+    // std::cout << "SCT_Segmentation -->  m_pitchX = " << m_pitchX << std::endl;
+    // std::cout << "SCT_Segmentation -->  m_NcellX = " << m_NcellX << std::endl;
+    
+    // std::cout << "SCT_Segmentation -->  m_lengthXmin = " << m_lengthXmin << std::endl;
+    // std::cout << "SCT_Segmentation -->  m_lengthXmax =" << m_lengthXmax << std::endl;
+    // std::cout << "SCT_Segmentation -->  m_lengthY = " << m_lengthY << std::endl;
+    
+    // std::cout << "SCT_Segmentation -->  m_pitchXatCenter = " << m_pitchXatCenter << std::endl;
+    // std::cout << "SCT_Segmentation -->  m_pitchPhi = " << m_pitchPhi << std::endl;
+    
+    // std::cout << "SCT_Segmentation -->  m_discTrapezoidal(false)" << std::endl;
+      
+
+    if (!m_discTrapezoidal) {
+      
+      double pitchXatHit = phiPitch(localPos);
+      double halfLengthXatHit = 0.5*pitchXatHit*float(m_NcellX);
+      Amg::Vector2D relativePos = localPos + Amg::Vector2D(halfLengthXatHit, 0.5*m_lengthY);
+
+      int strip = (int)floor(relativePos[Trk::locX]/pitchXatHit);
       
       entryXY = std::pair< int,  int> (strip, 1);
     
-    // for debugging
-    // std::cout << "checking local position = " << localPos << std::endl;
-    // std::cout << "checking halfLengthXatHit = " << halfLengthXatHit << std::endl;
-    // std::cout << "checking relative position = " << relativePos << std::endl;
-    // std::cout << "returning strip = " << strip << std::endl; 
-    // std::cout << "SCT_Segmentation::cellOfPosition ending!" << std::endl;
-    // std::cout << "-----------------------------------------" << std::endl;
+      // for debugging
+      // std::cout << "checking local position = " << localPos << std::endl;
+      // std::cout << "checking halfLengthXatHit = " << halfLengthXatHit << std::endl;
+      // std::cout << "checking relative position = " << relativePos << std::endl;
+      // std::cout << "returning strip = " << strip << std::endl; 
+      
+      // std::cout << "SCT_Segmentation::cellOfPosition ending!" << std::endl;
+      // std::cout << "-----------------------------------------" << std::endl;
+      
       return true;
+    
     } else {
       double phiPos = localPos[Trk::locPhi] - (m_averagePhi - m_hPhiSec);
       int strip = (int)floor(phiPos/m_pitchPhi);
@@ -143,8 +166,8 @@ namespace iFatras {
       if (m_lengthXmax!=0.) { // this is in mm for the X coordinate
 	using Trk::locX;
 	using Trk::locY;
-	double tanPhi = (m_lengthXmax-m_lengthXmin)/(2.*m_lengthY);
-	double lengthXatHit = 2*(m_lengthY/2.*(m_lengthXmax+m_lengthXmin)/(m_lengthXmax-m_lengthXmin)+localPos[Trk::locY])*tanPhi;
+	double tanPhi = (m_lengthXmax-m_lengthXmin)/m_lengthY;
+	double lengthXatHit = (m_lengthY/2.*(m_lengthXmax+m_lengthXmin)/(m_lengthXmax-m_lengthXmin)+localPos[Trk::locY])*tanPhi;
 	return lengthXatHit/float(m_NcellX);
       } 
       return m_lengthXmin/float(m_NcellX);

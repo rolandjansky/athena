@@ -55,18 +55,18 @@ bool iFatras::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
   if (pElement) {
 
     // get the according id Helper
-    const SCT_ID*  m_sctIdHelper = 0;
-    const PixelID* m_pixIdHelper = 0;
+    const SCT_ID*  sctIdHelper = 0;
+    const PixelID* pixIdHelper = 0;
     
     if (pElement->isPixel()) {
-      if (detStore->retrieve(m_pixIdHelper, "PixelID").isFailure())
+      if (detStore->retrieve(pixIdHelper, "PixelID").isFailure())
 	return false;
     } else {
-      if (detStore->retrieve(m_sctIdHelper, "SCT_ID").isFailure())
+      if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure())
 	return false;
     }
     
-    int etaModule = m_pixIdHelper ? m_pixIdHelper->eta_module(tsf.associatedDetectorElementIdentifier()) : m_sctIdHelper->eta_module(tsf.associatedDetectorElementIdentifier());
+    int etaModule = pixIdHelper ? pixIdHelper->eta_module(tsf.associatedDetectorElementIdentifier()) : sctIdHelper->eta_module(tsf.associatedDetectorElementIdentifier());
 
     // std::cout << "EtaModule = " << etaModule << std::endl;
 
@@ -241,7 +241,7 @@ bool iFatras::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceI
       }
     }
 
-    if (m_debug) dumpSurfaces(m_pixIdHelper, m_sctIdHelper, surfaces);
+    if (m_debug) dumpSurfaces(pixIdHelper, sctIdHelper, surfaces);
   }
 
 

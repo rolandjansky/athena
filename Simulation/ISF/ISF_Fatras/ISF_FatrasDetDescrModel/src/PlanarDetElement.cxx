@@ -80,7 +80,7 @@ namespace iFatras{
     m_isBarrel(isBarrel)
   {
     double avephi = 0.;
-    if (lengthXmax == 0.0){
+    if (lengthXmax == 0.0 || lengthXmax == lengthXmin){
       m_surface = new Trk::PlaneSurface(*this);
       Trk::RectangleBounds* rbounds = new Trk::RectangleBounds(lengthXmin/2., lengthY/2.);
       m_bounds = new Trk::SharedObject<const Trk::SurfaceBounds>(rbounds, true);
@@ -98,17 +98,6 @@ namespace iFatras{
 	  std::cout << "DEBUG: Created Trapezoid bounds " << std::endl;
       } else {
 	m_surface = new Trk::DiscSurface(*this);
-
-	//double Rc = m_center.perp();
-	//double stereo = 0.;
-	//avephi = (m_normal.z()>0) ? m_centerOnModule.phi() : M_PI-m_centerOnModule.phi();
-	
-	// if (Rc != 0.) {
-	//   double rMedium = m_centerOnModule.perp();
-	//   stereo = 2.*asin(Rc/(2.*rMedium));
-	//   //avephi = (m_normal.z()>0) ? (-stereo + m_centerOnModule.phi()) : (-stereo+M_PI-m_centerOnModule.phi());
-	//   avephi = (m_normal.z()>0) ? (-stereo + m_centerOnModule.phi()) : (-stereo+M_PI-m_centerOnModule.phi());
-	// }
 
 	avephi = stereo + m_centerOnModule.phi();
 

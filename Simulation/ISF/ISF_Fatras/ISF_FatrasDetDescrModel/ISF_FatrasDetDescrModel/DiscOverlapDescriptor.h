@@ -89,14 +89,14 @@ namespace iFatras {
   
   inline DiscOverlapDescriptor* DiscOverlapDescriptor::clone() const { return new DiscOverlapDescriptor(); }
 
-  inline void DiscOverlapDescriptor::dumpSurfaces(const PixelID* m_pixIdHelper, const SCT_ID* m_sctIdHelper, std::vector<Trk::SurfaceIntersection>& surfaces) const {
-    std::cout << "Dumping Surfaces for "<< (m_pixIdHelper ? "Pixel " : "SCT ") << "with size = " << surfaces.size() << std::endl;
+  inline void DiscOverlapDescriptor::dumpSurfaces(const PixelID* pixIdHelper, const SCT_ID* sctIdHelper, std::vector<Trk::SurfaceIntersection>& surfaces) const {
+    std::cout << "Dumping Surfaces for "<< (pixIdHelper ? "Pixel " : "SCT ") << "with size = " << surfaces.size() << std::endl;
     for (unsigned int surf = 0; surf < surfaces.size(); surf++) {
       Identifier hitId = ((surfaces.at(surf)).object)->associatedDetectorElementIdentifier(); 
-      if (m_pixIdHelper)
-	std::cout <<  "barrel_ec " << m_pixIdHelper->barrel_ec(hitId) << ", layer_disk " << m_pixIdHelper->layer_disk(hitId) << ", phi_module " << m_pixIdHelper->phi_module(hitId) << ", eta_module " << m_pixIdHelper->eta_module(hitId) << std::endl;
-      else if (m_sctIdHelper)
-	std::cout <<  "barrel_ec " << m_sctIdHelper->barrel_ec(hitId) << ", layer_disk " << m_sctIdHelper->layer_disk(hitId) << ", phi_module " << m_sctIdHelper->phi_module(hitId) << ", eta_module " << m_sctIdHelper->eta_module(hitId) << ", side " << m_sctIdHelper->side(hitId) << std::endl;
+      if (pixIdHelper)
+	std::cout <<  "barrel_ec " << pixIdHelper->barrel_ec(hitId) << ", layer_disk " << pixIdHelper->layer_disk(hitId) << ", phi_module " << pixIdHelper->phi_module(hitId) << ", eta_module " << pixIdHelper->eta_module(hitId) << std::endl;
+      else if (sctIdHelper)
+	std::cout <<  "barrel_ec " << sctIdHelper->barrel_ec(hitId) << ", layer_disk " << sctIdHelper->layer_disk(hitId) << ", phi_module " << sctIdHelper->phi_module(hitId) << ", eta_module " << sctIdHelper->eta_module(hitId) << ", side " << sctIdHelper->side(hitId) << std::endl;
     }
   }
   
