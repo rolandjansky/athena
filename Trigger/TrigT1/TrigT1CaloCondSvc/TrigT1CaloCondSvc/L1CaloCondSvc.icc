@@ -17,341 +17,341 @@
 
 template <typename T>
 StatusCode L1CaloCondSvc::store(const T*& pobj, const std::string& key, const std::string& folder, const std::string& tag) const {
-/*  ======================================================================
-    The object pobj must implement the IL1CaloPersistenceCapable interface
-    ====================================================================== */
+  /*  ======================================================================
+      The object pobj must implement the IL1CaloPersistenceCapable interface
+      ====================================================================== */
 
-    ATH_MSG_VERBOSE( "*** L1CaloCondSvc::store() ***" );
-    ATH_MSG_VERBOSE(key <<" "<< folder <<" "<< tag );
+  ATH_MSG_VERBOSE( "*** L1CaloCondSvc::store() ***" );
+  ATH_MSG_VERBOSE(key <<" "<< folder <<" "<< tag );
 
-	//StatusCode sc;
+  //StatusCode sc;
 
-	// create persitent object (either AthenaAttributeList or CondAttrListCollection) from the transient one
-	// the new object is not registered in the TDS
-        ATH_MSG_VERBOSE( "*** pobj->makePersistent() ***" );
-	DataObject* newConditions = pobj->makePersistent();
+  // create persitent object (either AthenaAttributeList or CondAttrListCollection) from the transient one
+  // the new object is not registered in the TDS
+  ATH_MSG_VERBOSE( "*** pobj->makePersistent() ***" );
+  DataObject* newConditions = pobj->makePersistent();
 
-	// Declare a pointer to point to the final CondAttrListCollection (or AthenaAttributeList)
-	// containing the updated conditions merged with the old ones from COOL
-	DataObject* finalConditions = 0;
+  // Declare a pointer to point to the final CondAttrListCollection (or AthenaAttributeList)
+  // containing the updated conditions merged with the old ones from COOL
+  DataObject* finalConditions = 0;
 
-	// Setting up a new IOV range
-	IOVTime start, end;
+  // Setting up a new IOV range
+  IOVTime start, end;
 
-	if(m_bUseTimeStamp) {
-		start = IOVTime(m_iovBeginTime);
-		end = IOVTime(m_iovEndTime);
-	} else {
-		start = IOVTime(m_iovBeginRun, m_iovBeginLB);
-		end = IOVTime(m_iovEndRun, m_iovEndLB);
-	}
+  if(m_bUseTimeStamp) {
+    start = IOVTime(m_iovBeginTime);
+    end = IOVTime(m_iovEndTime);
+  } else {
+    start = IOVTime(m_iovBeginRun, m_iovBeginLB);
+    end = IOVTime(m_iovEndRun, m_iovEndLB);
+  }
 
-	// range is used later to setup the IOV range of the updated conditions
-	IOVRange range(start, end);
+  // range is used later to setup the IOV range of the updated conditions
+  IOVRange range(start, end);
 
-	ATH_MSG_VERBOSE( "*** get old conditions ***" );
-	if(newConditions) {
+  ATH_MSG_VERBOSE( "*** get old conditions ***" );
+  if(newConditions) {
 
-        std::string conditionType = pobj->conditionType();
-        if(conditionType=="CondAttrListCollection") {
+    std::string conditionType = pobj->conditionType();
+    if(conditionType=="CondAttrListCollection") {
 
-			// cast pobj to a CondAttrListCollection
-            CondAttrListCollection* attrListCollection = dynamic_cast<CondAttrListCollection*>(newConditions);
-	    if (!attrListCollection) {
-                    ATH_MSG_ERROR( "Could not cast to CondAttrListCollection" );
-		    return StatusCode::FAILURE;
-            }
+      // cast pobj to a CondAttrListCollection
+      CondAttrListCollection* attrListCollection = dynamic_cast<CondAttrListCollection*>(newConditions);
+      if (!attrListCollection) {
+        ATH_MSG_ERROR( "Could not cast to CondAttrListCollection" );
+        return StatusCode::FAILURE;
+      }
 
-			if(m_bWriteNewChannels) {
-                                ATH_MSG_VERBOSE( "*** m_bWriteNewChannels TRUE ***" );
+      if(m_bWriteNewChannels) {
+        ATH_MSG_VERBOSE( "*** m_bWriteNewChannels TRUE ***" );
    
-				// New channels can only be written to cool is their AttributeList match exactly the destination folder one
-				// OR if the channels are written to a empty new folder.
-				// In such a case there is no need to do any merging as all attributes in the destination folder are defined.
+        // New channels can only be written to cool is their AttributeList match exactly the destination folder one
+        // OR if the channels are written to a empty new folder.
+        // In such a case there is no need to do any merging as all attributes in the destination folder are defined.
 
-				CondAttrListCollection* newAttrListCollection = new CondAttrListCollection(!m_bUseTimeStamp);
+        CondAttrListCollection* newAttrListCollection = new CondAttrListCollection(!m_bUseTimeStamp);
 
-				CondAttrListCollection::const_iterator it_attrList = attrListCollection->begin();
-				for(;it_attrList!=attrListCollection->end();++it_attrList) {
-					CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
-					CondAttrListCollection::AttributeList attrList = it_attrList->second;
+        CondAttrListCollection::const_iterator it_attrList = attrListCollection->begin();
+        for(;it_attrList!=attrListCollection->end();++it_attrList) {
+          CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
+          CondAttrListCollection::AttributeList attrList = it_attrList->second;
 
-					newAttrListCollection->add(channelNumber, attrList);
-					newAttrListCollection->add(channelNumber, range);
-				}
-
-				//finalConditions = SG::asStorable(newAttrListCollection);
-
-				ATH_CHECK(  m_detStore->record(newAttrListCollection, key) );
-
-			} else {
-
-                               ATH_MSG_VERBOSE( "*** m_bWriteNewChannels FALSE ***" );
-
-				// In this case we are updating a subset of channel attributes from an already filled cool folder
-				// The non-defined attributes information is retrieved from COOL, so All channels that will be updated must already exist
-				// in the source COOL folder
-
-				// Now we retrieve the latest valid CondAttrListCollection (the full folder) from the TES or from COOL (if not already in the TES)
-				const CondAttrListCollection* pConstCOOLCondAttrListCollection = 0;
-				ATH_CHECK( m_detStore->retrieve(pConstCOOLCondAttrListCollection, key) );
-
-				// create a new CondAttrListCollection to merge the new data from attrListCollection with the old ones from pConstCOOLCondAttrListCollection
-				// CondAttrListCollection(false) will use TimeStamp
-				// CondAttrListCollection(true) will use Run/Lumi blocks
-				CondAttrListCollection* mergedAttrListCollection = new CondAttrListCollection(!m_bUseTimeStamp);
-
-				// do the merging
-				// only the channels present in attrListCollection are copied & merged to the new CondAttrListCollection
-				// so non-updated channels will not be recorded to COOL
-
-				CondAttrListCollection::const_iterator it_attrList = attrListCollection->begin();
-				for(;it_attrList!=attrListCollection->end();++it_attrList) {
-					CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
-					CondAttrListCollection::AttributeList attrList = it_attrList->second;
-
-					CondAttrListCollection::const_iterator it_coolAttrList = pConstCOOLCondAttrListCollection->chanAttrListPair(channelNumber);
-					if(it_coolAttrList!=pConstCOOLCondAttrListCollection->end()) {
-						// a corresponding channel is already defined in the COOL folder
-						// the new attributes are merged with the old ones
-						//CondAttrListCollection::AttributeList* coolAttrList = new CondAttrListCollection::AttributeList(it_coolAttrList->second);
-						CondAttrListCollection::AttributeList coolAttrList(it_coolAttrList->second);
-						coolAttrList.merge(attrList);
-
-						mergedAttrListCollection->add(channelNumber, coolAttrList);
-						mergedAttrListCollection->add(channelNumber, range);
-
-					} else {
-						// the current channel does not exist in the COOL folder -> 2 cases
-                                                ATH_MSG_WARNING( "Trying to update channel "<< channelNumber << ", which does not already exist in the COOL folder for the specified IOV (WriteNewChannel is switched off)");
-
-						/*
-						if(m_bWriteNewChannels) {
-							// if ALL the COOL attributes are defined/updated by the transient object we can add this new channel to the new collection to be stored in COOL
-							// (this is the case when populating a new folder from scratch)
-							mergedAttrListCollection->add(channelNumber, attrList);
-							mergedAttrListCollection->add(channelNumber, range);
-						} else {
-							// the transient object only defines/updates a subset of the COOL folder attributes.
-							// (ie we are adding a new channel to an already filled folder)
-							// We don't know how to initialize the other attribute, so this channel is not added to the new collection to be stored in COOL
-							ATH_MSG_WARNING(g to update channel "<< channelNumber << ", which does not already exist in the COOL folder (WriteNewChannel is switched off)");
-						}
-						*/
-					}
-				}
-
-				finalConditions  = SG::asStorable(mergedAttrListCollection);
-
-				//-------------------------------------------
-				// replace the 'old' collection retrieved from COOL by the one updated with new attributes values
-
-				//retrieve the proxy of the CondAttrListCollection retrieved from COOL
-				SG::DataProxy* proxy = m_detStore->proxy(m_detStore->clid(key), key);
-
-				// we reset the proxy to delete the old conditions
-				proxy->reset();
-
-				// we add the new updated conditions to the proxy
-				proxy->setObject(finalConditions);
-
-			}
-/*
-                        ATH_MSG_INFO("====================================================================================================" );
-			it_attrList = mergedAttrListCollection->begin();
-			for(;it_attrList!=mergedAttrListCollection->end();++it_attrList) {
-				CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
-				CondAttrListCollection::AttributeList attrList = it_attrList->second;
-				//log<<MSG::INFO<<"atributeList : "<<attrList.toOutputStream(log)<<endreq;
-				std::cout <<channelNumber<<" "<< attrList.toOutputStream(std::cout) <<std::endl;
-			}
-*/
-
-        } else if(conditionType=="AthenaAttributeList") {
-/*
-            AthenaAttributeList* attributeList = dynamic_cast<AthenaAttributeList*>(newConditions);
-
-			// Now we retrieve the latest valid CondAttrListCollection (the full folder) from the TES or from COOL (if not already in the TES)
-			const AthenaAttributeList* pConstCOOLAthenaAttributeList = 0;
-			ATH_CHECK(  m_detStore->retrieve(pConstCOOLAthenaAttributeList, key) );
-
-			// create a new CondAttrListCollection to merge the new data from attrListCollection with the old ones from pConstCOOLCondAttrListCollection
-			AthenaAttributeList* mergedAthenaAttributeList = new AthenaAttributeList(*pConstCOOLAthenaAttributeList);
-			mergedAthenaAttributeList->merge(*attributeList);
-
-			finalConditions  = SG::asStorable(mergedAthenaAttributeList);
-*/
-
-        } else {
-             ATH_MSG_ERROR( "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" );
-            return StatusCode::FAILURE;
+          newAttrListCollection->add(channelNumber, attrList);
+          newAttrListCollection->add(channelNumber, range);
         }
 
+        //finalConditions = SG::asStorable(newAttrListCollection);
 
+        ATH_CHECK(  m_detStore->record(newAttrListCollection, key) );
 
-		//-------------------------------------------
-		// register attrListCollection to IOVDB
-        if(m_bUseTimeStamp) {
-                ATH_MSG_DEBUG( "use timestamp" );
-        	ATH_CHECK( m_regSvc->registerIOV(pobj->conditionType(), key, folder, tag, m_iovBeginTime, m_iovEndTime) );
-        } else {
-                ATH_MSG_DEBUG( "use run/lumi" );
-        	ATH_CHECK( m_regSvc->registerIOV(pobj->conditionType(), key, folder, tag, m_iovBeginRun, m_iovEndRun, m_iovBeginLB, m_iovEndLB) );
+      } else {
+
+        ATH_MSG_VERBOSE( "*** m_bWriteNewChannels FALSE ***" );
+
+        // In this case we are updating a subset of channel attributes from an already filled cool folder
+        // The non-defined attributes information is retrieved from COOL, so All channels that will be updated must already exist
+        // in the source COOL folder
+
+        // Now we retrieve the latest valid CondAttrListCollection (the full folder) from the TES or from COOL (if not already in the TES)
+        const CondAttrListCollection* pConstCOOLCondAttrListCollection = 0;
+        ATH_CHECK( m_detStore->retrieve(pConstCOOLCondAttrListCollection, key) );
+
+        // create a new CondAttrListCollection to merge the new data from attrListCollection with the old ones from pConstCOOLCondAttrListCollection
+        // CondAttrListCollection(false) will use TimeStamp
+        // CondAttrListCollection(true) will use Run/Lumi blocks
+        CondAttrListCollection* mergedAttrListCollection = new CondAttrListCollection(!m_bUseTimeStamp);
+
+        // do the merging
+        // only the channels present in attrListCollection are copied & merged to the new CondAttrListCollection
+        // so non-updated channels will not be recorded to COOL
+
+        CondAttrListCollection::const_iterator it_attrList = attrListCollection->begin();
+        for(;it_attrList!=attrListCollection->end();++it_attrList) {
+          CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
+          CondAttrListCollection::AttributeList attrList = it_attrList->second;
+
+          CondAttrListCollection::const_iterator it_coolAttrList = pConstCOOLCondAttrListCollection->chanAttrListPair(channelNumber);
+          if(it_coolAttrList!=pConstCOOLCondAttrListCollection->end()) {
+            // a corresponding channel is already defined in the COOL folder
+            // the new attributes are merged with the old ones
+            //CondAttrListCollection::AttributeList* coolAttrList = new CondAttrListCollection::AttributeList(it_coolAttrList->second);
+            CondAttrListCollection::AttributeList coolAttrList(it_coolAttrList->second);
+            coolAttrList.merge(attrList);
+
+            mergedAttrListCollection->add(channelNumber, coolAttrList);
+            mergedAttrListCollection->add(channelNumber, range);
+
+          } else {
+            // the current channel does not exist in the COOL folder -> 2 cases
+            ATH_MSG_WARNING( "Trying to update channel "<< channelNumber << ", which does not already exist in the COOL folder for the specified IOV (WriteNewChannel is switched off)");
+
+            /*
+              if(m_bWriteNewChannels) {
+              // if ALL the COOL attributes are defined/updated by the transient object we can add this new channel to the new collection to be stored in COOL
+              // (this is the case when populating a new folder from scratch)
+              mergedAttrListCollection->add(channelNumber, attrList);
+              mergedAttrListCollection->add(channelNumber, range);
+              } else {
+              // the transient object only defines/updates a subset of the COOL folder attributes.
+              // (ie we are adding a new channel to an already filled folder)
+              // We don't know how to initialize the other attribute, so this channel is not added to the new collection to be stored in COOL
+              ATH_MSG_WARNING(g to update channel "<< channelNumber << ", which does not already exist in the COOL folder (WriteNewChannel is switched off)");
+              }
+            */
+          }
         }
 
+        finalConditions  = SG::asStorable(mergedAttrListCollection);
 
-        ATH_MSG_DEBUG( "Registered "<< pobj->conditionType() <<" to condition DB in folder "<< folder <<" with tag " << tag );
+        //-------------------------------------------
+        // replace the 'old' collection retrieved from COOL by the one updated with new attributes values
+
+        //retrieve the proxy of the CondAttrListCollection retrieved from COOL
+        SG::DataProxy* proxy = m_detStore->proxy(m_detStore->clid(key), key);
+
+        // we reset the proxy to delete the old conditions
+        proxy->reset();
+
+        // we add the new updated conditions to the proxy
+        proxy->setObject(finalConditions);
+
+      }
+      /*
+        ATH_MSG_INFO("====================================================================================================" );
+        it_attrList = mergedAttrListCollection->begin();
+        for(;it_attrList!=mergedAttrListCollection->end();++it_attrList) {
+        CondAttrListCollection::ChanNum channelNumber = it_attrList->first;
+        CondAttrListCollection::AttributeList attrList = it_attrList->second;
+        //log<<MSG::INFO<<"atributeList : "<<attrList.toOutputStream(log)<<endreq;
+        std::cout <<channelNumber<<" "<< attrList.toOutputStream(std::cout) <<std::endl;
+        }
+      */
+
+    } else if(conditionType=="AthenaAttributeList") {
+      /*
+        AthenaAttributeList* attributeList = dynamic_cast<AthenaAttributeList*>(newConditions);
+
+        // Now we retrieve the latest valid CondAttrListCollection (the full folder) from the TES or from COOL (if not already in the TES)
+        const AthenaAttributeList* pConstCOOLAthenaAttributeList = 0;
+        ATH_CHECK(  m_detStore->retrieve(pConstCOOLAthenaAttributeList, key) );
+
+        // create a new CondAttrListCollection to merge the new data from attrListCollection with the old ones from pConstCOOLCondAttrListCollection
+        AthenaAttributeList* mergedAthenaAttributeList = new AthenaAttributeList(*pConstCOOLAthenaAttributeList);
+        mergedAthenaAttributeList->merge(*attributeList);
+
+        finalConditions  = SG::asStorable(mergedAthenaAttributeList);
+      */
 
     } else {
-        ATH_MSG_ERROR( "Could not create persistant collection");
-        return StatusCode::FAILURE;
+      ATH_MSG_ERROR( "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" );
+      return StatusCode::FAILURE;
     }
 
-    return StatusCode::SUCCESS;
+
+
+    //-------------------------------------------
+    // register attrListCollection to IOVDB
+    if(m_bUseTimeStamp) {
+      ATH_MSG_DEBUG( "use timestamp" );
+      ATH_CHECK( m_regSvc->registerIOV(pobj->conditionType(), key, folder, tag, m_iovBeginTime, m_iovEndTime) );
+    } else {
+      ATH_MSG_DEBUG( "use run/lumi" );
+      ATH_CHECK( m_regSvc->registerIOV(pobj->conditionType(), key, folder, tag, m_iovBeginRun, m_iovEndRun, m_iovBeginLB, m_iovEndLB) );
+    }
+
+
+    ATH_MSG_DEBUG( "Registered "<< pobj->conditionType() <<" to condition DB in folder "<< folder <<" with tag " << tag );
+
+  } else {
+    ATH_MSG_ERROR( "Could not create persistant collection");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 template <typename T>
 StatusCode L1CaloCondSvc::retrieve( T*& pobj, const std::string& key /*= ""*/) {
-/*  ======================================================================
-    The object pobj must implement the IL1CaloPersistenceCapable interface
-    ====================================================================== */
+  /*  ======================================================================
+      The object pobj must implement the IL1CaloPersistenceCapable interface
+      ====================================================================== */
   ATH_MSG_VERBOSE( "*** L1CaloCondSvc::retrieve() ***" );
   ATH_MSG_VERBOSE( " -> Key: "<< key );
 
-   if (m_detStore->contains<T>(key)) {
-      ATH_MSG_DEBUG( "Container already existing in DetStore with key:"<< key );
-      ATH_CHECK( m_detStore->retrieve(pobj, key) );
-      return StatusCode::SUCCESS;
-   }
+  if (m_detStore->contains<T>(key)) {
+    ATH_MSG_DEBUG( "Container already existing in DetStore with key:"<< key );
+    ATH_CHECK( m_detStore->retrieve(pobj, key) );
+    return StatusCode::SUCCESS;
+  }
 
-   ATH_MSG_DEBUG( "Container not found in DetStore. Trying to retrieve it from the condition DB.");
+  ATH_MSG_DEBUG( "Container not found in DetStore. Trying to retrieve it from the condition DB.");
    
-   pobj = new T;
-   if(!pobj) {
-      ATH_MSG_ERROR( "Could not create transient container" );
-      return StatusCode::FAILURE;
-      }
+  pobj = new T;
+  if(!pobj) {
+    ATH_MSG_ERROR( "Could not create transient container" );
+    return StatusCode::FAILURE;
+  }
    
-   return this->retrieveImpl(pobj, key);
+  return this->retrieveImpl(pobj, key);
 }
 
-template <typename T, typename FolderType>
-StatusCode L1CaloCondSvc::retrieve(T*& pobj, const std::map<FolderType, std::string>& folderKeyMap, const std::string& key /*= ""*/) {
-/*  ======================================================================
-    The object pobj must implement the IL1CaloPersistenceCapable interface
-    ====================================================================== */
-   ATH_MSG_VERBOSE(  "*** L1CaloCondSvc::retrieve() ***" );
-   ATH_MSG_VERBOSE(  " -> Key: "<< key );
+template <typename T, typename FolderMapping>
+StatusCode L1CaloCondSvc::retrieve(T*& pobj, const FolderMapping& folderKeyMap, const std::string& key /*= ""*/) {
+  /*  ======================================================================
+      The object pobj must implement the IL1CaloPersistenceCapable interface
+      ====================================================================== */
+  ATH_MSG_VERBOSE(  "*** L1CaloCondSvc::retrieve() ***" );
+  ATH_MSG_VERBOSE(  " -> Key: "<< key );
 
-   if (m_detStore->contains<T>(key)) {
-      ATH_MSG_DEBUG(  "Container already existing in DetStore with key:"<< key );
-      ATH_CHECK( m_detStore->retrieve(pobj, key) );
-      return StatusCode::SUCCESS;
-   }
+  if (m_detStore->contains<T>(key)) {
+    ATH_MSG_DEBUG(  "Container already existing in DetStore with key:"<< key );
+    ATH_CHECK( m_detStore->retrieve(pobj, key) );
+    return StatusCode::SUCCESS;
+  }
 
-   ATH_MSG_DEBUG(  "Container not found in DetStore. Trying to retrieve it from the condition DB.");
+  ATH_MSG_DEBUG(  "Container not found in DetStore. Trying to retrieve it from the condition DB.");
    
-   pobj = new T(folderKeyMap);
-   if(!pobj) {
-      ATH_MSG_ERROR( "Could not create transient container" );
-      return StatusCode::FAILURE;
-   }
+  pobj = new T(folderKeyMap);
+  if(!pobj) {
+    ATH_MSG_ERROR( "Could not create transient container" );
+    return StatusCode::FAILURE;
+  }
    
-   return this->retrieveImpl(pobj, key);
+  return this->retrieveImpl(pobj, key);
 }
 
 
 template <typename T>
 StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
-   // common parts of the two public retrieve methods. pobj must be a valid object.
+  // common parts of the two public retrieve methods. pobj must be a valid object.
   ATH_MSG_VERBOSE(  "*** L1CaloCondSvc::retrieveImpl() ***" );
   ATH_MSG_VERBOSE(  " -> Key: "<< key );
 
-   // store objects without key.
-   // contains<T>("") somehow returns false as soon as more than one object is stored
-   // and none of them has key ""
-//    std::string sgKey;
-//    if(key=="") {
-//       //if no key is provided, the default object's key, which should be the COOL folder path, is taken.
-//       //coolKey = pobj->storeGateKey();
-//       sgKey = pobj->coolOutputKey();
-//    } else {
-//       sgKey = key;
-//    }
+  // store objects without key.
+  // contains<T>("") somehow returns false as soon as more than one object is stored
+  // and none of them has key ""
+  //    std::string sgKey;
+  //    if(key=="") {
+  //       //if no key is provided, the default object's key, which should be the COOL folder path, is taken.
+  //       //coolKey = pobj->storeGateKey();
+  //       sgKey = pobj->coolOutputKey();
+  //    } else {
+  //       sgKey = key;
+  //    }
    
-   //sc = this->registerCondition(coolKey, pobj);
-   ATH_CHECK( this->registerCondition(pobj) );
+  //sc = this->registerCondition(coolKey, pobj);
+  ATH_CHECK( this->registerCondition(pobj) );
    
-   //register object to storegate
-   ATH_CHECK( m_detStore->record(pobj, key) );
-   ATH_MSG_DEBUG(  "Stored Container in DetStore, key: "<< key );
-   return StatusCode::SUCCESS;
+  //register object to storegate
+  ATH_CHECK( m_detStore->record(pobj, key) );
+  ATH_MSG_DEBUG(  "Stored Container in DetStore, key: "<< key );
+  return StatusCode::SUCCESS;
 }
 
 template <typename T>
 StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
-        ATH_MSG_DEBUG(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
+  ATH_MSG_DEBUG(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
 
-	if(!pObj) {
-                ATH_MSG_ERROR(  "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" );
-		return StatusCode::FAILURE;
-	}
+  if(!pObj) {
+    ATH_MSG_ERROR(  "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" );
+    return StatusCode::FAILURE;
+  }
 
-	std::string conditionType = pObj->conditionType();
+  std::string conditionType = pObj->conditionType();
 
-	if(conditionType=="CondAttrListCollection") {
+  if(conditionType=="CondAttrListCollection") {
 
-		// we retrieve the keys (ie cool folder paths) needed by the condition object
-		std::vector<std::string> vCoolInputKeys = pObj->coolInputKeys();
+    // we retrieve the keys (ie cool folder paths) needed by the condition object
+    std::vector<std::string> vCoolInputKeys = pObj->coolInputKeys();
 
-		// this list is required to call updateConditions() later on
-		std::list<std::string> lKeys;
+    // this list is required to call updateConditions() later on
+    std::list<std::string> lKeys;
 
-		// loop over the keys to register a callback to L1CaloCondSvc::updateConditions
-		std::vector<std::string>::const_iterator it = vCoolInputKeys.begin();
-		for(;it!=vCoolInputKeys.end();it++) {
-			std::string key = *it;
+    // loop over the keys to register a callback to L1CaloCondSvc::updateConditions
+    std::vector<std::string>::const_iterator it = vCoolInputKeys.begin();
+    for(;it!=vCoolInputKeys.end();it++) {
+      std::string key = *it;
 
-			lKeys.push_back(key);
+      lKeys.push_back(key);
 
-			m_mConditions[key].push_back(pObj);
+      m_mConditions[key].push_back(pObj);
 
-			std::map<std::string, const DataHandle<CondAttrListCollection>* >::const_iterator it_dh = m_mDataHandleAttrListColl.find(key);
-			if(it_dh==m_mDataHandleAttrListColl.end()) {
+      std::map<std::string, const DataHandle<CondAttrListCollection>* >::const_iterator it_dh = m_mDataHandleAttrListColl.find(key);
+      if(it_dh==m_mDataHandleAttrListColl.end()) {
 
-				// creat a new datahandle for the CondAttrListCollection and keep track of it
-				m_mDataHandleAttrListColl[key] = new DataHandle<CondAttrListCollection>();
-				const DataHandle<CondAttrListCollection>& dh = *m_mDataHandleAttrListColl[key];
+        // creat a new datahandle for the CondAttrListCollection and keep track of it
+        m_mDataHandleAttrListColl[key] = new DataHandle<CondAttrListCollection>();
+        const DataHandle<CondAttrListCollection>& dh = *m_mDataHandleAttrListColl[key];
 
-				// set the callback but do not trigger it immediately. updateConditions() is called only once all
-				// the CondAttrListCollection the condition is depending on have been registered
-				ATH_CHECK( m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, false) );
-			}
-		}
+        // set the callback but do not trigger it immediately. updateConditions() is called only once all
+        // the CondAttrListCollection the condition is depending on have been registered
+        ATH_CHECK( m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, false) );
+      }
+    }
 
-		// Now we call updateConditions() to populate pObj
-		int n = lKeys.size();
-		StatusCode scUpdate = this->updateConditions(n, lKeys);
-                if (scUpdate.isFailure()) 
-                  ATH_MSG_WARNING(  "updateConditions failed to populate pObj" );
+    // Now we call updateConditions() to populate pObj
+    int n = lKeys.size();
+    StatusCode scUpdate = this->updateConditions(n, lKeys);
+    if (scUpdate.isFailure()) 
+      ATH_MSG_WARNING(  "updateConditions failed to populate pObj" );
 
-	} else if(conditionType=="AthenaAttributeList"){
-/*
-		m_mConditions[key] = pObj;
-		m_mDataHandleAttrList[key] = new DataHandle<AthenaAttributeList>();
+  } else if(conditionType=="AthenaAttributeList"){
+    /*
+      m_mConditions[key] = pObj;
+      m_mDataHandleAttrList[key] = new DataHandle<AthenaAttributeList>();
 
-		const DataHandle<AthenaAttributeList>& dh = *m_mDataHandleAttrList[key];
-		StatusCode sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
-		if(sc.isFailure()) {
-			log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endreq;
-			return StatusCode::FAILURE;
-		}
-*/
-	} else {
-                ATH_MSG_ERROR(  "Condition type " << conditionType << "not recognized by L1CaloCondSvc" );
-		return StatusCode::FAILURE;
-	}
-	return StatusCode::SUCCESS;
+      const DataHandle<AthenaAttributeList>& dh = *m_mDataHandleAttrList[key];
+      StatusCode sc = m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, true);
+      if(sc.isFailure()) {
+      log << MSG::ERROR << "failed to regFcn datahandle to L1CaloCondSvc::updateConditions()" << endreq;
+      return StatusCode::FAILURE;
+      }
+    */
+  } else {
+    ATH_MSG_ERROR(  "Condition type " << conditionType << "not recognized by L1CaloCondSvc" );
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 
 }
 
