@@ -53,7 +53,7 @@ SkimmingToolHIGG1D1 = DerivationFramework__SkimmingToolHIGG1(
                                  RequireInvariantMass = False,
                                  Triggers = TriggerExp,
                                  IncludeSingleElectronPreselection = True,
-                                 IncludeDoubleElectronPreselection = False,
+                                 IncludeDoubleElectronPreselection = True,
                                  IncludeSingleMuonPreselection = True)
 
 ToolSvc += SkimmingToolHIGG1D1
@@ -73,7 +73,7 @@ HIGG1D1MetTPThinningTool = DerivationFramework__TrackParticleThinning( name     
                                                                        ApplyAnd                = True)
 ToolSvc += HIGG1D1MetTPThinningTool
 print HIGG1D1MetTPThinningTool
-thinningTools.append(HIGG1D1MetTPThinningTool)
+#thinningTools.append(HIGG1D1MetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG1D1JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG1D1JetLCTPThinningTool",
@@ -83,7 +83,7 @@ HIGG1D1JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name
                                                                             ApplyAnd                = True)
 ToolSvc += HIGG1D1JetLCTPThinningTool
 print HIGG1D1JetLCTPThinningTool
-thinningTools.append(HIGG1D1JetLCTPThinningTool)
+#thinningTools.append(HIGG1D1JetLCTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG1D1JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG1D1JetEMTPThinningTool",
@@ -93,7 +93,7 @@ HIGG1D1JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning( name
                                                                             ApplyAnd                = True)
 ToolSvc += HIGG1D1JetEMTPThinningTool
 print HIGG1D1JetEMTPThinningTool
-thinningTools.append(HIGG1D1JetEMTPThinningTool)
+#thinningTools.append(HIGG1D1JetEMTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -103,7 +103,7 @@ HIGG1D1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1MuonTPThinningTool
 print HIGG1D1MuonTPThinningTool
-thinningTools.append(HIGG1D1MuonTPThinningTool)
+#thinningTools.append(HIGG1D1MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -113,7 +113,7 @@ HIGG1D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1ElectronTPThinningTool
 print HIGG1D1ElectronTPThinningTool
-thinningTools.append(HIGG1D1ElectronTPThinningTool)
+#thinningTools.append(HIGG1D1ElectronTPThinningTool)
 
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -123,7 +123,7 @@ HIGG1D1PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1PhotonTPThinningTool
 print HIGG1D1PhotonTPThinningTool
-thinningTools.append(HIGG1D1PhotonTPThinningTool)
+#thinningTools.append(HIGG1D1PhotonTPThinningTool)
 
 # Tracks themselves
 HIGG1D1TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "HIGG1D1TPThinningTool",
@@ -132,9 +132,7 @@ HIGG1D1TPThinningTool = DerivationFramework__TrackParticleThinning( name        
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D1TPThinningTool
 print HIGG1D1TPThinningTool
-thinningTools.append(HIGG1D1TPThinningTool)
-
-
+#thinningTools.append(HIGG1D1TPThinningTool)
 
 # Truth thinning
 truth_cond_1    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
@@ -160,6 +158,24 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG1D1TruthThinningTool)
 print "HIGG1D1.py thinningTools", thinningTools
 
+
+#====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+HIGG1D1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name = "HIGG1D1_MaxCellDecoratorTool",
+                                                                      SGKey_electrons = "Electrons",
+                                                                      SGKey_photons   = "Photons"
+                                                                      )
+ToolSvc += HIGG1D1_MaxCellDecoratorTool
+
+#====================================================================
+# Cell sum decoration tool
+#====================================================================
+
+from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
+HIGG1D1_GainDecoratorTool = GainDecorator()
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -168,9 +184,9 @@ print "HIGG1D1.py thinningTools", thinningTools
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D1Kernel",
                                                                         SkimmingTools = [SkimmingToolHIGG1D1],
+                                                                        AugmentationTools = [HIGG1D1_MaxCellDecoratorTool,HIGG1D1_GainDecoratorTool],
                                                                         ThinningTools = thinningTools
                                                                       )
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -204,16 +220,20 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "egammaTruthParticles"]
+HIGG1D1SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "egammaTruthParticles","CaloCalTopoClusters"]
 
-HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality",
+HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",                                        
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
-                                        "MuonTruthParticles.truthOrigin.truthType"]
+                                        "MuonTruthParticles.truthOrigin.truthType",
+                                        "Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z",
+                                        "Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]
+
+HIGG1D1SlimmingHelper.ExtraVariables.extend( getGainDecorations(HIGG1D1_GainDecoratorTool) )
 
 #addMETOutputs(HIGG1D1SlimmingHelper)
 

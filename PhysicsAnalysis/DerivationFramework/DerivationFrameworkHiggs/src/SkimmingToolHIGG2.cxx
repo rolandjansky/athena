@@ -24,10 +24,7 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
   AthAlgTool(t, n, p),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_ntot(0),
-  m_npass(0),
-  m_DFCommonElectrons_pt(0),
-  m_DFCommonElectrons_eta(0),
-  m_DFCommonElectrons_phi(0)
+  m_npass(0)
 {
   declareInterface<DerivationFramework::ISkimmingTool>(this);
 
@@ -42,6 +39,7 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
   declareProperty("MergedJetContainerKey1", m_mergedJetSGKey[1]="AntiKt10LCTopoJets");
   declareProperty("MergedJetContainerKey2", m_mergedJetSGKey[2]="CamKt12LCTopoJets");
   declareProperty("PhotonContainerKey", m_photonSGKey="Photons");
+  declareProperty("TrackContainerKey", m_trackSGKey="InDetTrackParticles");
 
   declareProperty("NumberOfLeptons", m_nLeptons=2);
   declareProperty("NumberOfElectrons", m_nElectrons=0);
@@ -51,9 +49,12 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
   declareProperty("NumberOfMergedJets1", m_nMergedJets[1]=0);
   declareProperty("NumberOfMergedJets2", m_nMergedJets[2]=0);
   declareProperty("NumberOfPhotons", m_nPhotons=0);
+  declareProperty("NumberOfTracks", m_nTracks=0);
 
   declareProperty("ElectronQuality", m_electronQual="any");
   declareProperty("MuonQuality", m_muonQual="inMS");
+  declareProperty("TightElectronQuality", m_tightElectronQual="DFCommonElectronsLHVeryLoose");
+  declareProperty("TightMuonQuality", m_tightMuonQual="DFCommonGoodMuon");
   declareProperty("JetQuality", m_jetQual="any");
   declareProperty("MergedJetQuality0", m_mergedJetQual[0]="any");
   declareProperty("MergedJetQuality1", m_mergedJetQual[1]="any");
@@ -64,15 +65,20 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
 
   declareProperty("Trigger2L", m_trigger2L=std::vector<std::string>()); 
   declareProperty("TriggerTP", m_triggerTP=std::vector<std::string>()); 
+  declareProperty("Trigger2L2Q", m_trigger2L2Q=std::vector<std::string>()); 
   declareProperty("TriggerJPSI", m_triggerJPSI=std::vector<std::string>()); 
+  declareProperty("TriggerPHI", m_triggerPHI=std::vector<std::string>()); 
 
   declareProperty("ElectronEtCut", m_electronEtCut=10.*CLHEP::GeV); 
   declareProperty("MuonPtCut", m_muonPtCut=10.*CLHEP::GeV); 
+  declareProperty("TightElectronEtCut", m_tightElectronEtCut=15.*CLHEP::GeV); 
+  declareProperty("TightMuonPtCut", m_tightMuonPtCut=15.*CLHEP::GeV); 
   declareProperty("JetPtCut", m_jetPtCut=15.*CLHEP::GeV); 
   declareProperty("MergedJetPtCut0", m_mergedJetPtCut[0]=100.*CLHEP::GeV); 
   declareProperty("MergedJetPtCut1", m_mergedJetPtCut[1]=150.*CLHEP::GeV); 
   declareProperty("MergedJetPtCut2", m_mergedJetPtCut[2]=150.*CLHEP::GeV); 
   declareProperty("PhotonPtCut", m_photonPtCut=15.*CLHEP::GeV); 
+  declareProperty("TrackPtCut", m_trackPtCut=20.*CLHEP::GeV); 
 
   declareProperty("ElectronEtaCut", m_electronEtaCut=9999.); 
   declareProperty("MuonEtaCut", m_muonEtaCut=9999.); 
@@ -88,6 +94,8 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
   declareProperty("InvariantMassJpsiUpCut", m_invariantMassJpsiUpCut=4.3*CLHEP::GeV); 
   declareProperty("InvariantMassUpsilonLowCut", m_invariantMassUpsilonLowCut=8.0*CLHEP::GeV); 
   declareProperty("InvariantMassUpsilonUpCut", m_invariantMassUpsilonUpCut=12.0*CLHEP::GeV); 
+  declareProperty("InvariantMassPhiLowCut", m_invariantMassPhiLowCut=2.*s_MKplus); 
+  declareProperty("InvariantMassPhiUpCut", m_invariantMassPhiUpCut=1.2*CLHEP::GeV); 
 
   declareProperty("LeadingElectronEtCut", m_leadingElectronEtCut=0.*CLHEP::GeV); 
   declareProperty("LeadingMuonPtCut", m_leadingMuonPtCut=0.*CLHEP::GeV); 
@@ -95,8 +103,11 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
   declareProperty("DRElectronJetCut", m_dRElectronJetCut=0.05);   
 
   declareProperty("CheckLArError", m_checkLArError=true);	
-  declareProperty("UseDefaultElectronFourMomentum", m_defaultElectronFourMomentum=false);
-  declareProperty("UseDFCommonElectronFourMomentum", m_DFCommonElectronFourMomentum=true);
+  declareProperty("UseDefaultElectronFourMomentum", m_defaultElectronFourMomentum=true);
+
+  declareProperty("UseDFCommonJetFourMomentum", m_DFCommonJetFourMomentum=true);
+
+  declareProperty("RequireTightLeptons", m_requireTightLeptons=false);
 }
   
 // Destructor
@@ -108,10 +119,10 @@ StatusCode DerivationFramework::SkimmingToolHIGG2::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
 
-  if(m_defaultElectronFourMomentum==true and m_DFCommonElectronFourMomentum==true) {
-    ATH_MSG_FATAL("Wrong setting both m_defaultElectronFourMomentum and m_DFCommonElectronFourMomentum are true.");
-    return StatusCode::FAILURE;
-  }
+  // if(m_defaultElectronFourMomentum==true and m_DFCommonElectronFourMomentum==true) {
+  //   ATH_MSG_FATAL("Wrong setting both m_defaultElectronFourMomentum and m_DFCommonElectronFourMomentum are true.");
+  //   return StatusCode::FAILURE;
+  // }
 
   // trigger decision tool
   if(m_trigDecisionTool.retrieve().isFailure()) {
@@ -138,7 +149,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   StatusCode sc(StatusCode::SUCCESS, true);
 
   // Retrieve EventInfo
-  const xAOD::EventInfo *eventInfo(0);
+  const xAOD::EventInfo *eventInfo(nullptr);
   ATH_CHECK(evtStore()->retrieve(eventInfo)); 
 
   // LAr error check
@@ -150,57 +161,41 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   
   // Electrons
   m_goodElectrons.clear();
-  m_mapElectrons.clear();
+  //  m_mapElectrons.clear();
   if(m_nElectrons>0 or m_nLeptons>0) {
-    const xAOD::ElectronContainer *electrons(0); 
+    const xAOD::ElectronContainer *electrons(nullptr); 
     ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
-    xAOD::ElectronContainer::const_iterator el_itr(electrons->begin());
-    xAOD::ElectronContainer::const_iterator el_end(electrons->end());
-    unsigned int el_i(0);
-    for(; el_itr != el_end; ++el_itr, el_i++) {
-      if(this->checkElectronQuality(*el_itr)) m_goodElectrons.push_back(*el_itr);
-      m_mapElectrons.insert(std::pair<const xAOD::Electron*, unsigned int>(*el_itr, el_i));
+    for(auto el: *electrons) {
+      if(this->checkElectronQuality(el)) m_goodElectrons.push_back(el);
     } 
-
-    if(m_DFCommonElectronFourMomentum) {
-      ATH_CHECK(evtStore()->retrieve(m_DFCommonElectrons_pt,  "DFCommonElectrons_pt"));
-      ATH_CHECK(evtStore()->retrieve(m_DFCommonElectrons_eta, "DFCommonElectrons_eta"));
-      ATH_CHECK(evtStore()->retrieve(m_DFCommonElectrons_phi, "DFCommonElectrons_phi"));
-    }
   }
 
   // Muons
   m_goodMuons.clear();
   if(m_nMuons>0 or m_nLeptons>0) {
-    const xAOD::MuonContainer *muons(0); 
+    const xAOD::MuonContainer *muons(nullptr); 
     ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));
-    xAOD::MuonContainer::const_iterator mu_itr(muons->begin());
-    xAOD::MuonContainer::const_iterator mu_end(muons->end());
-    for(; mu_itr != mu_end; ++mu_itr) {
-      if(this->checkMuonQuality(*mu_itr)) m_goodMuons.push_back(*mu_itr);
+    for(auto mu: *muons) {
+      if(this->checkMuonQuality(mu)) m_goodMuons.push_back(mu);
     } 
   }
 
   // Jets
   m_goodJets.clear();
   if(m_nJets>0) {
-    const xAOD::JetContainer *jets(0); 
+    const xAOD::JetContainer *jets(nullptr); 
     ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
-    xAOD::JetContainer::const_iterator jet_itr(jets->begin());
-    xAOD::JetContainer::const_iterator jet_end(jets->end());
-    for(; jet_itr != jet_end; ++jet_itr) {
-      if(this->checkJetQuality(*jet_itr)) m_goodJets.push_back(*jet_itr);
+    for(auto jet: *jets) {
+      if(this->checkJetQuality(jet)) m_goodJets.push_back(jet);
      }
   }
   for(unsigned int type(0); type<NUMBER_OF_MERGED_JET_TYPES; type++) {
     m_goodMergedJets[type].clear();
     if(m_nMergedJets[type]>0) {
-      const xAOD::JetContainer *jets(0);
+      const xAOD::JetContainer *jets(nullptr);
       ATH_CHECK(evtStore()->retrieve(jets, m_mergedJetSGKey[type]));
-      xAOD::JetContainer::const_iterator jet_itr(jets->begin());
-      xAOD::JetContainer::const_iterator jet_end(jets->end());
-      for(; jet_itr != jet_end; ++jet_itr) {
-	if(this->checkMergedJetQuality(*jet_itr, type)) m_goodMergedJets[type].push_back(*jet_itr);
+      for(auto jet: *jets) {
+	if(this->checkMergedJetQuality(jet, type)) m_goodMergedJets[type].push_back(jet);
       }
     }
   }
@@ -208,12 +203,20 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   // Photons
   m_goodPhotons.clear();
   if(m_nPhotons>0) {
-    const xAOD::PhotonContainer *photons(0); 
+    const xAOD::PhotonContainer *photons(nullptr); 
     ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
-    xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
-    xAOD::PhotonContainer::const_iterator ph_end(photons->end());
-    for(; ph_itr != ph_end; ++ph_itr) {
-      if(this->checkPhotonQuality(*ph_itr)) m_goodPhotons.push_back(*ph_itr);
+    for(auto ph: *photons) {
+      if(this->checkPhotonQuality(ph)) m_goodPhotons.push_back(ph);
+    }
+  }
+
+  // Tracks
+  m_goodTracks.clear();
+  if(m_nTracks>0) {
+    const xAOD::TrackParticleContainer *tracks(nullptr);
+    ATH_CHECK(evtStore()->retrieve(tracks, m_trackSGKey));
+    for(auto trk: *tracks) {
+      if(this->checkTrackQuality(trk)) m_goodTracks.push_back(trk);
     }
   }
 
@@ -227,24 +230,40 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   } else if(m_filterType=="2L2Q") {
     if(this->check2L2Q()) acceptEvent = true;
   } else if(m_filterType=="JPSI") {
-    if(this->checkJPSI()) acceptEvent = true;
+    if(this->checkJPSI() or this->checkPHI()) acceptEvent = true;
   }
 
   if(acceptEvent) m_npass++;
   return acceptEvent; 
 }  
 
-bool DerivationFramework::SkimmingToolHIGG2::checkElectronQuality(const xAOD::Electron *el) const 
+bool DerivationFramework::SkimmingToolHIGG2::checkElectronQuality(const xAOD::Electron *el, const bool isTight) const 
 {
   if(!el) return false;
 
-  if(m_electronQual!="any") {
+  const std::string electronQual(isTight ? m_tightElectronQual : m_electronQual);
+  const double electronEtCut(isTight ? m_tightElectronEtCut : m_electronEtCut);
+
+  if(electronQual!="any") {
     bool value(false);
-    if(!el->passSelection(value, m_electronQual)) {
-      ATH_MSG_WARNING("xAOD::Electron does not have menu of " << m_electronQual);
-      return false;
-    } 
-    if(!value) return false;
+    bool defined(false);
+    if(electronQual=="DFCommonElectronsLHVeryLoose" or
+       electronQual=="DFCommonElectronsLHLoose"     or
+       electronQual=="DFCommonElectronsLHMedium"    or
+       electronQual=="DFCommonElectronsLHTight"     or
+       electronQual=="DFCommonElectronsML") {
+      // Use Derivation Framework variable to pickup possible new correction result
+      // If the same electron likelihood configuration is used in AOD creation and DAOD creation, 
+      // DFCommonElectronsLHLoose and LHLoose are identical.
+      if(el->isAvailable<char>(electronQual)) {
+	defined = true;
+	value = static_cast<bool>(el->auxdata<char>(electronQual));
+      }
+    } else {
+      // Electron menu is defined in http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/egamma/egammaTools/python/EMPIDBuilderBase.py
+      defined = el->passSelection(value, electronQual);
+    }
+    if(not(value and defined)) return false;
   }
 
   const xAOD::TrackParticle *trackParticle(el->trackParticle());
@@ -274,38 +293,48 @@ bool DerivationFramework::SkimmingToolHIGG2::checkElectronQuality(const xAOD::El
   if(fabs(eta)>10.) return false;
   double et(caloCluster->e()/cosh(eta));
 
-  if(et<m_electronEtCut) return false;
+  if(et<electronEtCut) return false;
   if(fabs(eta)>m_electronEtaCut) return false;
 
   return true;
 }
 
-bool DerivationFramework::SkimmingToolHIGG2::checkMuonQuality(const xAOD::Muon *mu) const 
+bool DerivationFramework::SkimmingToolHIGG2::checkMuonQuality(const xAOD::Muon *mu, const bool isTight) const 
 {
   if(!mu) return false;
 
-  if(m_muonQual=="any") {
+  const std::string muonQual(isTight ? m_tightMuonQual : m_muonQual);
+  const double muonPtCut(isTight ? m_tightMuonPtCut : m_muonPtCut);
+
+  if(muonQual=="any") {
     // do nothing
-  } else if(m_muonQual=="combined") {
+  } else if(muonQual=="combined") {
     if(mu->muonType()!=xAOD::Muon::Combined) return false;
-  } else if(m_muonQual=="standalone") {
+  } else if(muonQual=="standalone") {
     if(mu->muonType()!=xAOD::Muon::MuonStandAlone) return false;
-  } else if(m_muonQual=="lowpt") {
+  } else if(muonQual=="lowpt") {
     if(mu->muonType()!=xAOD::Muon::SegmentTagged) return false;
-  } else if(m_muonQual=="combined+lowpt") {
+  } else if(muonQual=="combined+lowpt") {
     if(mu->muonType()!=xAOD::Muon::Combined and mu->muonType()!=xAOD::Muon::SegmentTagged) return false;
-  } else if(m_muonQual=="inMS") {
+  } else if(muonQual=="inMS") {
     if(mu->muonType()==xAOD::Muon::MuonStandAlone and fabs(fabs(mu->eta())-2.6)>0.12) return false;
-  } else if(m_muonQual=="DFCommonGoodMuon") { // Derivation Framework variable
-    if(!mu->isAvailable<int>("DFCommonGoodMuon") or !mu->auxdata<int>("DFCommonGoodMuon")) return false;
+  } else if(muonQual=="DFCommonGoodMuon") { // Derivation Framework variable
+    if(!mu->isAvailable<char>("DFCommonGoodMuon") or !mu->auxdata<char>("DFCommonGoodMuon")) return false;
+  } else if(muonQual=="DFCommonMuonsLoose") { // Derivation Framework variable
+    if(!mu->isAvailable<char>("DFCommonMuonsLoose") or !mu->auxdata<char>("DFCommonMuonsLoose")) return false;
+  } else if(muonQual=="DFCommonMuonsMedium") { // Derivation Framework variable
+    if(!mu->isAvailable<char>("DFCommonMuonsMedium") or !mu->auxdata<char>("DFCommonMuonsMedium")) return false;
+  } else if(muonQual=="DFCommonMuonsTight") { // Derivation Framework variable
+    if(!mu->isAvailable<char>("DFCommonMuonsTight") or !mu->auxdata<char>("DFCommonMuonsTight")) return false;
   } else {
-    ATH_MSG_WARNING("Muon quality " << m_muonQual << "is not defined");
+    ATH_MSG_WARNING("Muon quality " << muonQual << "is not defined");
     return false; 
   }
 
-  if(mu->pt()<m_muonPtCut) return false;
+  if(mu->pt()<muonPtCut) return false;
   if(fabs(mu->eta())>m_muonEtaCut) return false;
-  if(mu->muonType()==xAOD::Muon::CaloTagged and fabs(mu->eta())>m_caloMuonEtaCut) return false;
+  if(muonQual!="DFCommonGoodMuon" and
+     (mu->muonType()==xAOD::Muon::CaloTagged and fabs(mu->eta())>m_caloMuonEtaCut)) return false;
 
   return true;
 }
@@ -318,8 +347,9 @@ bool DerivationFramework::SkimmingToolHIGG2::checkJetQuality(const xAOD::Jet *je
     // do something
   }
 
-  if(jet->pt()<m_jetPtCut) return false;
-  if(fabs(jet->eta())>m_jetEtaCut) return false;
+  TLorentzVector tlv(this->jetFourMomentum(jet));
+  if(tlv.Pt()<m_jetPtCut) return false;
+  if(fabs(tlv.Eta())>m_jetEtaCut) return false;
 
   return true;
 }
@@ -357,6 +387,15 @@ bool DerivationFramework::SkimmingToolHIGG2::checkPhotonQuality(const xAOD::Phot
   return true;
 }
 
+bool DerivationFramework::SkimmingToolHIGG2::checkTrackQuality(const xAOD::TrackParticle *trk) const 
+{
+  if(!trk) return false;
+
+  if(trk->pt()<m_trackPtCut) return false;
+
+  return true;
+}
+
 bool DerivationFramework::SkimmingToolHIGG2::check2L() const 
 {
   if(!(m_nLeptons>0 and m_goodElectrons.size()+m_goodMuons.size()>=m_nLeptons)) return false;
@@ -371,26 +410,32 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L() const
   }
   if(!isTriggerFired) return false; 
 
-  std::vector<TLorentzVector> v_tlv;
-  std::vector<bool> v_isElectron;
+  unsigned int nGoodLeptons(m_goodElectrons.size()+m_goodMuons.size());
+  std::vector<TLorentzVector> v_tlv(nGoodLeptons);
+  std::vector<bool> v_isElectron(nGoodLeptons);
+  std::vector<bool> v_isTight(nGoodLeptons);
   
   for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
     const xAOD::Electron *el(m_goodElectrons.at(el_i));
     TLorentzVector tlv(this->electronFourMomentum(el));
-    v_tlv.push_back(tlv);
-    v_isElectron.push_back(true);
+    v_tlv.at(el_i) = tlv;
+    v_isElectron.at(el_i) = true;
+    v_isTight.at(el_i) = this->checkElectronQuality(el, true);
   }
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
     TLorentzVector tlv(this->muonFourMomentum(mu));
-    v_tlv.push_back(tlv);
-    v_isElectron.push_back(false);
+    unsigned int mu_j(m_goodElectrons.size()+mu_i);
+    v_tlv.at(mu_j) = tlv;
+    v_isElectron.at(mu_j) = false;
+    v_isTight.at(mu_j) = this->checkMuonQuality(mu, true);
   }
   
-  unsigned int nGoodLeptons(v_tlv.size());
   for(unsigned int i0(0); i0<nGoodLeptons; i0++) {
     for(unsigned int i1(i0+1); i1<nGoodLeptons; i1++) {
+      if(m_requireTightLeptons and (not (v_isTight.at(i0) or v_isTight.at(i1)))) continue; 
+
       TLorentzVector tlv_2lep(v_tlv.at(i0) + v_tlv.at(i1));
       // Check two lepton mass
       if(tlv_2lep.M()>m_invariantMassCut) return true;
@@ -405,43 +450,49 @@ bool DerivationFramework::SkimmingToolHIGG2::check4L() const
   if(!(m_nLeptons>0 and m_goodElectrons.size()+m_goodMuons.size()>=m_nLeptons)) return false;
   if(!(m_goodJets.size()>=m_nJets and m_goodPhotons.size()>=m_nPhotons)) return false;
 
-  std::vector<TLorentzVector> v_tlv;
-  std::vector<bool> v_pid;
+  unsigned int nGoodLeptons(m_goodElectrons.size()+m_goodMuons.size());
+  std::vector<TLorentzVector> v_tlv(nGoodLeptons);
+  std::vector<bool> v_pid(nGoodLeptons);
   
   for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
     const xAOD::Electron *el(m_goodElectrons.at(el_i)); 
     TLorentzVector tlv(this->electronFourMomentum(el));
-    v_tlv.push_back(tlv);
+    v_tlv.at(el_i) = tlv;
 
-    bool val(false);
+    bool value(false);
     bool defined(false);
-    if(m_primaryElectronQual4L=="DFCommonElectronsLHLoose"  or
-       m_primaryElectronQual4L=="DFCommonElectronsLHMedium" or
-       m_primaryElectronQual4L=="DFCommonElectronsLHTight"  or
-       m_primaryElectronQual4L=="DFCommonElectronsML") {
+    if(m_primaryElectronQual4L=="") {
+      // In the case of no identification requirement
+      defined = true;
+      value = true;
+    } else if(m_primaryElectronQual4L=="DFCommonElectronsLHVeryLoose" or
+	      m_primaryElectronQual4L=="DFCommonElectronsLHLoose"     or
+	      m_primaryElectronQual4L=="DFCommonElectronsLHMedium"    or
+	      m_primaryElectronQual4L=="DFCommonElectronsLHTight"     or
+	      m_primaryElectronQual4L=="DFCommonElectronsML") {
       // Use Derivation Framework variable to pickup possible new correction result
       // If the same electron likelihood configuration is used in AOD creation and DAOD creation, 
       // DFCommonElectronsLHLoose and LHLoose are identical.
-      if(el->isAvailable<int>(m_primaryElectronQual4L)) {
+      if(el->isAvailable<char>(m_primaryElectronQual4L)) {
 	defined = true;
-	val = static_cast<bool>(el->auxdata<int>(m_primaryElectronQual4L));
+	value = static_cast<bool>(el->auxdata<char>(m_primaryElectronQual4L));
       }
     } else {
       // Electron menu is defined in http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/egamma/egammaTools/python/EMPIDBuilderBase.py
-      defined = el->passSelection(val, m_primaryElectronQual4L);
+      defined = el->passSelection(value, m_primaryElectronQual4L);
     }
 
-    v_pid.push_back(val and defined);
+    v_pid.at(el_i) = (value and defined);
   }
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
     TLorentzVector tlv(this->muonFourMomentum(mu));
-    v_tlv.push_back(tlv);
-    v_pid.push_back(true);
+    unsigned int mu_j(m_goodElectrons.size()+mu_i);
+    v_tlv.at(mu_j) = tlv;
+    v_pid.at(mu_j) = true;
   }
   
-  unsigned int nGoodLeptons(v_tlv.size());
   for(unsigned int i0(0); i0<nGoodLeptons; i0++) {
     for(unsigned int i1(i0+1); i1<nGoodLeptons; i1++) {
       for(unsigned int i2(i1+1); i2<nGoodLeptons; i2++) {
@@ -487,24 +538,25 @@ bool DerivationFramework::SkimmingToolHIGG2::checkTP() const
   }
   if(!isTriggerFired) return false; 
 
-  std::vector<TLorentzVector> v_tlv;
-  std::vector<bool> v_isElectron;
+  unsigned int nGoodLeptons(m_goodElectrons.size()+m_goodMuons.size());
+  std::vector<TLorentzVector> v_tlv(nGoodLeptons);
+  std::vector<bool> v_isElectron(nGoodLeptons);
   
   for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
     const xAOD::Electron *el(m_goodElectrons.at(el_i));
     TLorentzVector tlv(this->electronFourMomentum(el));
-    v_tlv.push_back(tlv);
-    v_isElectron.push_back(true);
+    v_tlv.at(el_i) = tlv;
+    v_isElectron.at(el_i) = true;
   }
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
     TLorentzVector tlv(this->muonFourMomentum(mu));
-    v_tlv.push_back(tlv);
-    v_isElectron.push_back(false);
+    unsigned int mu_j(m_goodElectrons.size()+mu_i);
+    v_tlv.at(mu_j) = tlv;
+    v_isElectron.at(mu_j) = false;
   }
   
-  unsigned int nGoodLeptons(v_tlv.size());
   for(unsigned int i0(0); i0<nGoodLeptons; i0++) {
     for(unsigned int i1(i0+1); i1<nGoodLeptons; i1++) {
       if(v_isElectron.at(i0)!=v_isElectron.at(i1)) continue;
@@ -525,6 +577,15 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
 {
   if(!(m_nLeptons>0 and m_goodElectrons.size()+m_goodMuons.size()>=m_nLeptons)) return false;
 
+  bool isTriggerFired(m_trigger2L2Q.size()==0 or m_skipTriggerRequirement);
+  for(unsigned int i(0); i<m_trigger2L2Q.size(); i++) {
+    if(m_trigDecisionTool->isPassed(m_trigger2L2Q.at(i))) {
+      isTriggerFired = true;
+      break;
+    }
+  }
+  if(!isTriggerFired) return false;
+
   bool checkGoodJets(m_goodJets.size()>=m_nJets and m_nJets>0);
   for(unsigned int type(0); type<NUMBER_OF_MERGED_JET_TYPES; type++) {
     if(m_nMergedJets[type]>0) {
@@ -533,27 +594,32 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
   }
   if(!checkGoodJets) return false;
 
-  std::vector<TLorentzVector> v_tlv;
-  std::vector<bool> v_isElectron;
+  unsigned int nGoodLeptons(m_goodElectrons.size()+m_goodMuons.size());
+  std::vector<TLorentzVector> v_tlv(nGoodLeptons);
+  std::vector<bool> v_isElectron(nGoodLeptons);
+  std::vector<bool> v_isTight(nGoodLeptons);
   
   for(unsigned int el_i(0); el_i<m_goodElectrons.size(); el_i++) {
     const xAOD::Electron *el(m_goodElectrons.at(el_i));
     TLorentzVector tlv(this->electronFourMomentum(el));
-    v_tlv.push_back(tlv);
-    v_isElectron.push_back(true);
+    v_tlv.at(el_i) = tlv;
+    v_isElectron.at(el_i) = true;
+    v_isTight.at(el_i) = this->checkElectronQuality(el, true);
   }
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
     TLorentzVector tlv(this->muonFourMomentum(mu));
-    v_tlv.push_back(tlv);
-    v_isElectron.push_back(false);
+    unsigned int mu_j(m_goodElectrons.size()+mu_i);
+    v_tlv.at(mu_j) = tlv;
+    v_isElectron.at(mu_j) = false;
+    v_isTight.at(mu_j) = this->checkMuonQuality(mu, true);
   }
   
-  unsigned int nGoodLeptons(v_tlv.size());
   for(unsigned int i0(0); i0<nGoodLeptons; i0++) {
     for(unsigned int i1(i0+1); i1<nGoodLeptons; i1++) {
-      if(v_isElectron.at(i0)!=v_isElectron.at(i1)) continue;
+      //      if(v_isElectron.at(i0)!=v_isElectron.at(i1)) continue; // Events with N(e)=1 and N(mu)=1 are kept. 
+      if(m_requireTightLeptons and (not (v_isTight.at(i0) or v_isTight.at(i1)))) continue;
       
       TLorentzVector tlv_2lep(v_tlv.at(i0) + v_tlv.at(i1));
       // Check two lepton mass
@@ -565,11 +631,12 @@ bool DerivationFramework::SkimmingToolHIGG2::check2L2Q() const
 	unsigned int nGoodJets(m_goodJets.size());
 	for(unsigned int j(0); j<nGoodJets; j++) {
 	  const xAOD::Jet *jet(m_goodJets.at(j));
+	  TLorentzVector jet_tlv(this->jetFourMomentum(jet));
 
-	  double dR_0(this->getDeltaR(v_tlv.at(i0).Eta(), v_tlv.at(i0).Phi(), jet->eta(), jet->phi()));
+	  double dR_0(this->getDeltaR(v_tlv.at(i0).Eta(), v_tlv.at(i0).Phi(), jet_tlv.Eta(), jet_tlv.Phi()));
 	  if(dR_0<m_dRElectronJetCut) continue;
 	  
-	  double dR_1(this->getDeltaR(v_tlv.at(i1).Eta(), v_tlv.at(i1).Phi(), jet->eta(), jet->phi()));
+	  double dR_1(this->getDeltaR(v_tlv.at(i1).Eta(), v_tlv.at(i1).Phi(), jet_tlv.Eta(), jet_tlv.Phi()));
 	  if(dR_1<m_dRElectronJetCut) continue;
 	  
 	  nGoodJetsWithDRCut++;
@@ -621,12 +688,12 @@ bool DerivationFramework::SkimmingToolHIGG2::checkJPSI() const
   }
   if(!isTriggerFired) return false; 
 
-  std::vector<TLorentzVector> v_tlv;
+  std::vector<TLorentzVector> v_tlv(m_goodMuons.size());
   
   for(unsigned int mu_i(0); mu_i<m_goodMuons.size(); mu_i++) {
     const xAOD::Muon *mu(m_goodMuons.at(mu_i));
     TLorentzVector tlv(this->muonFourMomentum(mu));
-    v_tlv.push_back(tlv);
+    v_tlv.at(mu_i) = tlv;
   }
   
   unsigned int nGoodLeptons(v_tlv.size());
@@ -646,26 +713,51 @@ bool DerivationFramework::SkimmingToolHIGG2::checkJPSI() const
   return false;
 }
 
+bool DerivationFramework::SkimmingToolHIGG2::checkPHI() const 
+{
+  // Check if there are candidates
+  if(!(m_nTracks>0 and m_goodTracks.size()>=m_nTracks)) return false;
+  if(!(m_goodPhotons.size()>=m_nPhotons)) return false;
+
+  // Check if triggers are OK
+  bool isTriggerFired(m_triggerPHI.size()==0 or m_skipTriggerRequirement);
+  for(unsigned int i(0); i<m_triggerPHI.size(); i++) {
+    if(m_trigDecisionTool->isPassed(m_triggerPHI.at(i))) {
+      isTriggerFired = true;
+      break;
+    }
+  }
+  if(!isTriggerFired) return false; 
+
+  // Get 4-momentum of tracks (=charged kaons)
+  std::vector<TLorentzVector> v_tlv[2];
+  for(unsigned int trk_i(0); trk_i<m_goodTracks.size(); trk_i++) {
+    const xAOD::TrackParticle *trk(m_goodTracks.at(trk_i));
+    TLorentzVector tlv;
+    tlv.SetPtEtaPhiM(trk->pt(), trk->eta(), trk->phi(), s_MKplus); // Kaon is assumed. 
+    v_tlv[trk->charge()>0. ? 0 : 1].push_back(tlv); // 0 is positive, 1 is negative
+  }
+  
+  // Check track pair mass
+  unsigned int nGoodTracks[2];
+  nGoodTracks[0] = v_tlv[0].size();
+  nGoodTracks[1] = v_tlv[1].size();
+  for(unsigned int i0(0); i0<nGoodTracks[0]; i0++) {
+    for(unsigned int i1(0); i1<nGoodTracks[1]; i1++) {
+      TLorentzVector tlv_2trk(v_tlv[0].at(i0) + v_tlv[1].at(i1));
+      if(tlv_2trk.M()<m_invariantMassPhiLowCut or tlv_2trk.M()>m_invariantMassPhiUpCut) continue;
+      return true; // One candidate is found. 
+    }
+  }
+
+  return false; // No candidate is found. 
+}
+
 TLorentzVector DerivationFramework::SkimmingToolHIGG2::electronFourMomentum(const xAOD::Electron *el) const
 {
   TLorentzVector tlv;
   tlv.SetPtEtaPhiE(el->pt(), el->eta(), el->phi(), el->e());
   if(m_defaultElectronFourMomentum) return tlv;
-
-  if(m_DFCommonElectronFourMomentum) {
-    std::map<const xAOD::Electron*, unsigned int>::iterator map_itr(m_mapElectrons.find(el));
-    if(map_itr==m_mapElectrons.end()) {
-      ATH_MSG_WARNING("xAOD::Electron *el is not found in m_mapElectrons");
-      return tlv;
-    }
-
-    unsigned int el_i = map_itr->second;
-    tlv.SetPtEtaPhiM(m_DFCommonElectrons_pt->at(el_i), 
-		     m_DFCommonElectrons_eta->at(el_i),
-		     m_DFCommonElectrons_phi->at(el_i),
-		     el->m());
-    return tlv;
-  }
 
   const xAOD::TrackParticle *trackParticle(el->trackParticle());
   if(!trackParticle) {
@@ -698,6 +790,22 @@ TLorentzVector DerivationFramework::SkimmingToolHIGG2::muonFourMomentum(const xA
   return tlv;
 }
 
+TLorentzVector DerivationFramework::SkimmingToolHIGG2::jetFourMomentum(const xAOD::Jet *jet) const
+{
+  TLorentzVector tlv;
+  if(m_DFCommonJetFourMomentum) {
+    const float& pt =jet->auxdata<float> ("DFCommonJets_Calib_pt");
+    const float& eta=jet->auxdata<float> ("DFCommonJets_Calib_eta");
+    const float& phi=jet->auxdata<float> ("DFCommonJets_Calib_phi");
+    const float& m  =jet->auxdata<float> ("DFCommonJets_Calib_m");
+    tlv.SetPtEtaPhiM(pt, eta, phi, m);
+  }
+  else
+    tlv.SetPtEtaPhiM(jet->pt(), jet->eta(), jet->phi(), jet->m());
+
+  return tlv;
+}
+
 double DerivationFramework::SkimmingToolHIGG2::getDeltaR(const double eta1, const double phi1, const double eta2, const double phi2) const 
 {
   double dEta(eta1 - eta2);
@@ -708,4 +816,5 @@ double DerivationFramework::SkimmingToolHIGG2::getDeltaR(const double eta1, cons
   return dR;
 }
 
-const double DerivationFramework::SkimmingToolHIGG2::s_MZ = 91187.6*CLHEP::MeV; 
+const double DerivationFramework::SkimmingToolHIGG2::s_MZ(91187.6*CLHEP::MeV); 
+const double DerivationFramework::SkimmingToolHIGG2::s_MKplus(493.677*CLHEP::MeV); 

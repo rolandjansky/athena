@@ -1,216 +1,90 @@
 #********************************************************************
-# HIGG4D2.py 
-# reductionConf flag HIGG4D2 in Reco_tf.py   
+# HIGG4D2.py:  reductionConf flag HIGG4D2 in Reco_tf.py
+# Z. Zinonos - zenon@cern.ch
+#
+DAOD_StreamID = 'HIGG4D2'
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
+# running on data or MC
+from AthenaCommon.GlobalFlags import globalflags
+DFisMC = (globalflags.DataSource()=='geant4')
 
-#====================================================================
-# Special jets
-#====================================================================
+if DFisMC:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
 
-from JetRec.JetRecStandard import jtm
-from JetRec.JetRecConf import JetAlgorithm
+print "Hello, my name is {} and I am running on {}".format(DAOD_StreamID, 'MC' if DFisMC else 'Data')
 
-if not "MyJets" in OutputJets:
-    OutputJets["MyJets"] = []
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, algseq=DerivationFrameworkJob)
-    OutputJets["MyJets"].append(OutputJets["LargeR"][OutputJets["LargeR"].index("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")])
-
-
-#====================================================================
-# TAU SELECTOR TOOL 
-#====================================================================
-from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
-HIGG4D2TauMedWrapper = DerivationFramework__TauSelectionWrapper(	name 			= "HIGG4D2TauSelectionWrapper",
-                                                                        #IsTauFlag		= IsTauFlag.JetBDTSigMedium,
-                                                                        IsTauFlag		= 20,
-                                                                        CollectionName		= "TauJets",
-                                                                        StoreGateEntryName	= "HIGG4D2JetBDTSigMedium")
-ToolSvc += HIGG4D2TauMedWrapper
-
-HIGG4D2TauLooseWrapper = DerivationFramework__TauSelectionWrapper(        name                    = "HIGG4D2TauSelectionWrapper",
-                                                                          IsTauFlag               = 19,
-                                                                          CollectionName          = "TauJets",
-                                                                          StoreGateEntryName      = "HIGG4D2JetBDTSigLoose")
-ToolSvc += HIGG4D2TauLooseWrapper
-
-
-#====================================================================
-# DELTA R TOOL 
-#====================================================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__DeltaRTool
-HIGG4D2DeltaRTool = DerivationFramework__DeltaRTool(  name                    = "HIGG4D2DeltaRTool",
-                                                       ContainerName           = "Electrons",
-                                                       SecondContainerName     = "TauJets",
-						       StoreGateEntryName      = "HIGG4D2DeltaR")
-ToolSvc += HIGG4D2DeltaRTool
-
-#====================================================================
-# THINNING TOOLS
-#====================================================================
-
-thinningTools=[]
-
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG4D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG4D2JetTPThinningTool",
-                                                                          ThinningService         = "HIGG4D2ThinningSvc",
-                                                                          JetKey                  = "AntiKt4EMTopoJets",
-                                                                          SelectionString         = "AntiKt4EMTopoJets.pt > 15*GeV",
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                          ApplyAnd                = True)
-ToolSvc += HIGG4D2JetTPThinningTool
-thinningTools.append(HIGG4D2JetTPThinningTool)
-
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG4D2FatJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG4D2FatJetTPThinningTool",
-                                                                             ThinningService         = "HIGG4D2ThinningSvc",
-                                                                             JetKey                  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                             SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 150*GeV",
-                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                             ApplyAnd                = True)
-ToolSvc += HIGG4D2FatJetTPThinningTool
-thinningTools.append(HIGG4D2FatJetTPThinningTool)
-
-
-# Tracks associated with Muons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-HIGG4D2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "HIGG4D2MuonTPThinningTool",
-                                                                           ThinningService         = "HIGG4D2ThinningSvc",
-                                                                           MuonKey                 = "Muons",
-                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG4D2MuonTPThinningTool
-thinningTools.append(HIGG4D2MuonTPThinningTool)
-
-# Tracks associated with Electrons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG4D2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(      name                    = "HIGG4D2ElectronTPThinningTool",
-                                                                                       ThinningService         = "HIGG4D2ThinningSvc",
-                                                                                       SGKey                   = "Electrons",
-                                                                                       InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG4D2ElectronTPThinningTool
-thinningTools.append(HIGG4D2ElectronTPThinningTool)
-
-# Tracks associated with taus
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-HIGG4D2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            	  = "HIGG4D2TauTPThinningTool",
-                                                                          ThinningService 	  = "HIGG4D2ThinningSvc",
-                                                                          TauKey          	  = "TauJets",
-                                                                          SelectionString         = "TauJets.pt > 15*GeV",
-                                                                          ConeSize                = 0.6,
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG4D2TauTPThinningTool
-thinningTools.append(HIGG4D2TauTPThinningTool)
-
-
-# Truth tau/nutau and their ancestors and descendants
-truth_cond_tau = "((abs(TruthParticles.pdgId) == 15 || abs(TruthParticles.pdgId) == 16) &&(TruthParticles.pt > 0.01*GeV) && (TruthParticles.barcode<200000))"
-truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11 && abs(TruthParticles.pdgId) <= 14) && (TruthParticles.pt > 4.0*GeV) && (TruthParticles.status == 1) && (TruthParticles.barcode<200000))"
-truth_cond_comb = "("+truth_cond_lep+"||"+truth_cond_tau+")"
-
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-HIGG4D2TruthTool = DerivationFramework__GenericTruthThinning(name                         = "HIGG4D2TruthTool",
-                                                             ThinningService              = "HIGG4D2ThinningSvc",
-                                                             ParticleSelectionString      = truth_cond_tau,
-                                                             PreserveDescendants          = False,
-                                                             PreserveGeneratorDescendants = True,
-                                                             PreserveAncestors            = False,
-                                                             TauHandling                  = False)
-
-
-HIGG4D2TruthTool2 = DerivationFramework__GenericTruthThinning(name                        = "HIGG4D2TruthTool2",
-                                                             ThinningService              = "HIGG4D2ThinningSvc",
-                                                             ParticleSelectionString      = truth_cond_comb,
-                                                             PreserveDescendants          = False,
-                                                             PreserveGeneratorDescendants = False,
-                                                             PreserveAncestors            = True,
-                                                             TauHandling                  = False)
-
-if globalflags.DataSource()=='geant4':
-    ToolSvc += HIGG4D2TruthTool
-    thinningTools.append(HIGG4D2TruthTool)
-    ToolSvc += HIGG4D2TruthTool2
-    thinningTools.append(HIGG4D2TruthTool2)
-
-#====================================================================
-# SKIMMING TOOL 
-#====================================================================
-
-mu = '(count( (Muons.pt > 24.0*GeV) && Muons.DFCommonGoodMuon ) >= 1)'
-e = '(count((Electrons.pt > 24.0*GeV) && ((Electrons.DFCommonElectronsIsEMMedium)||(Electrons.DFCommonElectronsLHMedium))) >= 1)'
-tau = '(count( (TauJets.pt > 18.0*GeV) && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3)) ) >= 1)'
-etau = '(count(HIGG4D2DeltaR > 0.1) >= 1)'
-muhad = mu+' && '+tau
-ehad = e+' && '+tau+' && '+etau
-
-expression = '('+muhad+') || ('+ehad+')'
-
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-HIGG4D2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG4D2SkimmingTool1",
-                                                                    expression = expression)
-ToolSvc += HIGG4D2SkimmingTool
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
-#=======================================
-
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG4D2Kernel",
-                                                                       ThinningTools = thinningTools,
-                                                                       AugmentationTools = [HIGG4D2TauMedWrapper,HIGG4D2TauLooseWrapper,HIGG4D2DeltaRTool],	
-                                                                       SkimmingTools = [HIGG4D2SkimmingTool]
-                                                                       )
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
+#==============
+# SET UP STREAM
+#==============
 streamName = derivationFlags.WriteDAOD_HIGG4D2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG4D2Stream )
 HIGG4D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG4D2Stream.AcceptAlgs(["HIGG4D2Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="HIGG4D2ThinningSvc", outStreams=[evtStream] )
+HIGG4D2Stream.AcceptAlgs([DAOD_StreamID+"Kernel"])
 
+#============
+# Setup tools
+#============
+# Establish the thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+HIGG4D2ThinningHelper = ThinningHelper( DAOD_StreamID+"ThinningHelper" )
 
-#====================================================================
-# Add the containers to the output stream - slimming done here
-#====================================================================
+#trigger navigation thinning
+import DerivationFrameworkHiggs.HIGG4DxThinning
+HIGG4D2ThinningHelper.TriggerChains = DerivationFrameworkHiggs.HIGG4DxThinning.TriggerChains(DAOD_StreamID)
+HIGG4D2ThinningHelper.AppendToStream( HIGG4D2Stream )
+
+# thinning tools
+thinningTools = DerivationFrameworkHiggs.HIGG4DxThinning.setup(DAOD_StreamID, HIGG4D2ThinningHelper.ThinningSvc(), ToolSvc)
+
+# skimming tools
+import DerivationFrameworkHiggs.HIGG4DxSkimming
+skimmingTools = DerivationFrameworkHiggs.HIGG4DxSkimming.setup(DAOD_StreamID, ToolSvc)
+
+#augmentation tools
+from DerivationFrameworkHiggs.HIGG4DxAugmentation import *
+augmentationTools = DerivationFrameworkHiggs.HIGG4DxAugmentation.setup(DAOD_StreamID, ToolSvc)
+
+#slimming tools
+import DerivationFrameworkHiggs.HIGG4DxSlimming
+
+#slimming helper
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-from DerivationFrameworkHiggs.HIGG4D1ExtraContent import *
+HIGG4D2SlimmingHelper = SlimmingHelper(DAOD_StreamID+"SlimmingHelper")
 
-HIGG4D2SlimmingHelper = SlimmingHelper("HIGG4D2SlimmingHelper")
-HIGG4D2SlimmingHelper.SmartCollections = ["Electrons",
-                                          "Muons",
-                                          "TauJets",
-                                          "MET_Reference_AntiKt4EMTopo",
-                                          "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo",
-                                          "InDetTrackParticles",
-                                          "PrimaryVertices" ]
+# jets and calibration
+import DerivationFrameworkHiggs.HIGG4DxJets
 
-HIGG4D2SlimmingHelper.ExtraVariables = ExtraContentAll
-HIGG4D2SlimmingHelper.AllVariables = ExtraContainersAll 
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM
+#=======================================
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
-if globalflags.DataSource()=='geant4':
-    HIGG4D2SlimmingHelper.ExtraVariables += ExtraContentAllTruth
-    HIGG4D2SlimmingHelper.AllVariables += ExtraContainersTruth
+# Create the private sequence
+HIGG4D2Sequence = CfgMgr.AthSequencer(DAOD_StreamID+"Sequence")
 
-addJetOutputs(HIGG4D2SlimmingHelper,["MyJets"])    
-HIGG4D2SlimmingHelper.AppendContentToStream(HIGG4D2Stream)
-HIGG4D2Stream.AddItem("xAOD::EventShape#*")
-HIGG4D2Stream.AddItem("xAOD::EventShapeAuxInfo#*")
+# augmentation
+HIGG4D2Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommonAugmentationKernel", AugmentationTools = augmentationTools)
 
+# skimming
+HIGG4D2Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
+
+# fat/trimmed jet building (after skimming)
+DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D2Sequence, HIGG4D2SlimmingHelper)
+
+# thinning
+HIGG4D2Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools)
+
+# add the private sequence to the main job
+DerivationFrameworkJob += HIGG4D2Sequence
+
+# slimming - last position
+DerivationFrameworkHiggs.HIGG4DxSlimming.setup(DAOD_StreamID, HIGG4D2Stream, HIGG4D2SlimmingHelper)
 

@@ -3,30 +3,23 @@
 #Content included in addition to the Smart Slimming Content
 
 HIGG2D4ExtraContent=[
-    "Electrons.f3core",
     "egammaClusters.rawE.phi_sampl.calM",
-    "GSFTrackParticles.expectInnermostPixelLayerHit.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers.eProbabilityHT",
+    "GSFTrackParticles.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers",
     "Muons.quality.etcone20.etcone30.etcone40",
-    "CombinedMuonTrackParticles.definingParametersCovMatrix",
-    "ExtrapolatedMuonTrackParticles.definingParametersCovMatrix.numberOfTRTHits.numberOfTRTOutliers.numberOfPixelDeadSensors",
-    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
-    "AntiKt4LCTopoJets.TrackWidthPt500.TrackCount.Jvt.JvtJvfcorr.JvtRpt"] # AntiKt4LCTopoJets.TrackCount is not available (2015-03-25)
+    "ExtrapolatedMuonTrackParticles.numberOfTRTHits.numberOfTRTOutliers",
+    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.GhostTrackCount.TrackWidthPt500",
+    "AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m",
+    "AntiKt4LCTopoJets.TrackWidthPt500.TrackCount.GhostTrackCount"]
 
 HIGG2D4ExtraContentTruth=[
-    "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID",
-    "AntiKt4EMTopoJets.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID"] # AntiKt4EMTopoJets.TruthLabelID is not available (2015-03-25)
+    ]
 
 HIGG2D4ExtraContainers=[
-    "AntiKt10LCTopoJets",
-    "CamKt12LCTopoJets",
-    # "BTagging_AntiKt10LCTopo", # BTagging_AntiKt10LCTopo is not available (2015-04-22)
-    "MuonSegments",
-    "MET_Track"]#,
-    #"METMap_Track"]
+    "BTagging_AntiKt3Track",
+    "BTagging_AntiKt2Track"]
 
 HIGG2D4ExtraContainersTruth=[
     "TruthEvents",
     "TruthParticles",
     "TruthVertices",
-    "AntiKt4TruthJets",
     "MuonTruthParticles"]

@@ -272,9 +272,19 @@ bool DerivationFramework::SkimmingToolHIGG1::PhotonPreselect(const xAOD::Photon 
 
   if (!ph->isGoodOQ(34214)) return false;
 
-  bool val(0);
-  if(!ph->passSelection(val, "Loose") || !val) return false;
+  bool val(false);
+  bool defined(false);
+
+  if(ph->isAvailable<char>("DFCommonPhotonsIsEMLoose")){
+    defined = true;
+    val = static_cast<bool>(ph->auxdata<char>("DFCommonPhotonsIsEMLoose"));
+  }
+  else{
+    defined = ph->passSelection(val, "Loose");
+  }
   
+  if(!defined || !val) return false;
+
   // // veto topo-seeded clusters 
   // uint16_t author = 0;
   // author = ph->author();  
@@ -286,7 +296,7 @@ bool DerivationFramework::SkimmingToolHIGG1::PhotonPreselect(const xAOD::Photon 
 
   if (eta > m_maxEta)             return false;
   if (m_removeCrack && 
-      1.37 <= eta && eta <= 1.56) return false;
+      1.37 <= eta && eta <= 1.52) return false;
   if (caloCluster->e()/cosh(eta) < m_minPhotonPt) return false;
 
   return true;
@@ -465,20 +475,19 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutTwoElectrons() const {
 
   const xAOD::ElectronContainer *electrons(0);
   ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+  xAOD::ElectronContainer::const_iterator el_itr(electrons->begin());
   xAOD::ElectronContainer::const_iterator el_end(electrons->end());
 
+  int nEle(0);
   e_passDoubleElectronPreselect = false;
-
-  for(xAOD::ElectronContainer::const_iterator el_itr_1 = electrons->begin(); el_itr_1 != el_end; ++el_itr_1){
-    if(ElectronPreselect(*el_itr_1)){
-      for(xAOD::ElectronContainer::const_iterator el_itr_2 = el_itr_1 + 1; el_itr_2 != el_end; ++el_itr_2){
-        if(ElectronPreselect(*el_itr_2)){
-          e_passDoubleElectronPreselect = true;
-        }
-      }
-    }
+  
+  for( ; el_itr != el_end; ++el_itr){
+    if(ElectronPreselect(*el_itr))
+      nEle++;
   }
-
+  
+  if(nEle >=2) e_passDoubleElectronPreselect = true;
+  
   if(e_passDoubleElectronPreselect) n_passDoubleElectronPreselect++;
   return e_passDoubleElectronPreselect;
 }
@@ -516,11 +525,24 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneMuon() const {
 bool DerivationFramework::SkimmingToolHIGG1::ElectronPreselect(const xAOD::Electron *el) const {
 
   if (!el) return false;
+
+  bool val(false);
+  bool defined(false);
+  
+  if(el->isAvailable<char>("DFCommonElectronsLHLoose")){
+    defined = true;
+    val = static_cast<bool>(el->auxdata<char>("DFCommonElectronsLHLoose"));
+  }
+  else{
+    defined = el->passSelection(val, "Loose");
+  }    
+  if(!defined || !val) return false;
+
   double eta = fabs(el->eta());
   double pt = el->pt();
 
   if (eta > m_maxEta) return false;
-  if (m_removeCrack && 1.37 <= eta && eta <= 1.56) return false;
+  if (m_removeCrack && 1.37 <= eta && eta <= 1.52) return false;
   if (pt <= m_minElectronPt) return false;
 
   return true;

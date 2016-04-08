@@ -27,6 +27,7 @@ DerivationFramework::SkimmingToolHIGG5VBF::SkimmingToolHIGG5VBF(const std::strin
   
   // for jet multiplicity requirement
   declareProperty("JetContainerKey", m_jetSGKey="AntiKt4EMTopoJets");
+  declareProperty("CalibedJetMomentKey", m_calibedJetMomKey="DFCommonJets_Calib");
   
   // for jet multiplicity
   declareProperty("ReqNAllJets", m_reqNAllJets=false);
@@ -44,18 +45,17 @@ DerivationFramework::SkimmingToolHIGG5VBF::SkimmingToolHIGG5VBF(const std::strin
   declareProperty("Triggers", m_triggers=std::vector<std::string>()); 
   
   // for Mjj requirement ()
-  declareProperty("ReqVBFMjj", m_reqVbfMjj=false);
+  declareProperty("ReqVBFMjj", m_reqVbfMjj=false); // logical "ORed" with ReqPhoton
   declareProperty("MjjCut", m_vbfMjjCut=0.*CLHEP::GeV);
   
   declareProperty("DoDebug", m_debug=false);
 
   // photon requirement (p. rose)
   declareProperty("PhotonContainerKey", m_phSGKey="Photons");
-  declareProperty("ReqPhoton", m_reqPh=false);
+  declareProperty("ReqPhoton", m_reqPh=false); // logical "ORed" with ReqVBFMjj
   declareProperty("PhotonPtCut", m_phPtCut=0.*CLHEP::GeV);
   declareProperty("CentralPhotonEtaCut", m_centralPhEtaCut=2.6);
-
-
+  
 }
 
 // Destructor
@@ -104,26 +104,23 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   m_goodAllJets.clear();
   m_goodCentralJets.clear();
   
-  if(m_nAllJets>0) {
-    const xAOD::JetContainer *jets(0); 
-    ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
-    xAOD::JetContainer::const_iterator jet_itr(jets->begin());
-    xAOD::JetContainer::const_iterator jet_end(jets->end());
-    for(; jet_itr != jet_end; ++jet_itr) {
-      if(this->checkAllJetQuality(*jet_itr)) { m_goodAllJets.push_back(*jet_itr); }
-      if(this->checkCentralJetQuality(*jet_itr)) { m_goodCentralJets.push_back(*jet_itr); }
-    }
+  const xAOD::JetContainer *jets(0); 
+  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
+  xAOD::JetContainer::const_iterator jet_itr(jets->begin());
+  xAOD::JetContainer::const_iterator jet_end(jets->end());
+  for(; jet_itr != jet_end; ++jet_itr) {
+    TLorentzVector jetP4 = getCalibedJets( (*jet_itr) );
+    if(this->checkAllJetQuality(jetP4)) { m_goodAllJets.push_back(jetP4); }
+    if(this->checkCentralJetQuality(jetP4)) { m_goodCentralJets.push_back(jetP4); }
   }
   
   // (2) evaluate maximum Mjj in the event
   double maxM = 0.;
   for(unsigned int jet_i = 0; jet_i<m_goodAllJets.size(); jet_i++) {  
-    const xAOD::Jet* iJet = m_goodAllJets.at(jet_i);
-    const xAOD::IParticle::FourMom_t& iP4 = iJet->p4();
+    const TLorentzVector& iP4 = m_goodAllJets.at(jet_i);
     
     for(unsigned int jet_k=jet_i+1; jet_k<m_goodAllJets.size(); jet_k++) {
-      const xAOD::Jet* kJet = m_goodAllJets.at(jet_k);
-      const xAOD::IParticle::FourMom_t& kP4 = kJet->p4();
+      const TLorentzVector& kP4 = m_goodAllJets.at(jet_k);
       
       const TLorentzVector jjP4 = iP4 + kP4;
       const double jjM = jjP4.M();
@@ -176,23 +173,35 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   return acceptEvent;
 }
   
-bool DerivationFramework::SkimmingToolHIGG5VBF::checkAllJetQuality(const xAOD::Jet *jet) const 
+bool DerivationFramework::SkimmingToolHIGG5VBF::checkAllJetQuality(const TLorentzVector& jet) const 
 {
-  if(!jet) return false;
-  
-  if(jet->pt()<m_allJetPtCut) return false;
-  if(fabs(jet->eta())>m_allJetEtaCut) return false;
+  if(jet.Pt()<m_allJetPtCut) return false;
+  if(fabs(jet.Eta())>m_allJetEtaCut) return false;
   
   return true;
 }
 
-bool DerivationFramework::SkimmingToolHIGG5VBF::checkCentralJetQuality(const xAOD::Jet *jet) const 
+bool DerivationFramework::SkimmingToolHIGG5VBF::checkCentralJetQuality(const TLorentzVector& jet) const 
 {
-  if(!jet) return false;
-  
-  if(jet->pt()<m_centralJetPtCut) return false;
-  if(fabs(jet->eta())>m_centralJetEtaCut) return false;
+  if(jet.Pt()<m_centralJetPtCut) return false;
+  if(fabs(jet.Eta())>m_centralJetEtaCut) return false;
   
   return true;
 }
 
+TLorentzVector 
+DerivationFramework::SkimmingToolHIGG5VBF::getCalibedJets(const xAOD::Jet* jet) const
+{
+  TLorentzVector rc;
+  
+  if(!jet) return rc;
+  
+  const float& pt =jet->auxdata<float> (m_calibedJetMomKey+"_pt");
+  const float& eta=jet->auxdata<float> (m_calibedJetMomKey+"_eta");
+  const float& phi=jet->auxdata<float> (m_calibedJetMomKey+"_phi");
+  const float& m  =jet->auxdata<float> (m_calibedJetMomKey+"_m");
+  
+  rc.SetPtEtaPhiM(pt, eta, phi, m);
+  
+  return rc;
+}

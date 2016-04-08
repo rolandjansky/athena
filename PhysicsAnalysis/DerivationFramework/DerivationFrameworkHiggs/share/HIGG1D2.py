@@ -25,9 +25,9 @@ RecomputeElectronSelectors = True
 #====================================================================
 
 if RecomputeElectronSelectors :
-    requirementEl = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && abs(DFCommonElectrons_eta)<2.5 && (DFCommonElectrons_pt > 9.5*GeV)'
+    requirementEl = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
 else :
-    requirementEl = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && abs(DFCommonElectrons_eta)<2.5 && (DFCommonElectrons_pt > 9.5*GeV)'
+    requirementEl = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
 
 
 requirementMu = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
@@ -94,7 +94,7 @@ HIGG1D2MetTPThinningTool = DerivationFramework__TrackParticleThinning( name     
                                                                        ApplyAnd                = True)
 ToolSvc += HIGG1D2MetTPThinningTool
 print HIGG1D2MetTPThinningTool
-thinningTools.append(HIGG1D2MetTPThinningTool)
+#thinningTools.append(HIGG1D2MetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG1D2JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG1D2JetLCTPThinningTool",
@@ -104,7 +104,7 @@ HIGG1D2JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name
                                                                             ApplyAnd                = True)
 ToolSvc += HIGG1D2JetLCTPThinningTool
 print HIGG1D2JetLCTPThinningTool
-thinningTools.append(HIGG1D2JetLCTPThinningTool)
+#thinningTools.append(HIGG1D2JetLCTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG1D2JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "HIGG1D2JetEMTPThinningTool",
@@ -114,7 +114,7 @@ HIGG1D2JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning( name
                                                                             ApplyAnd                = True)
 ToolSvc += HIGG1D2JetEMTPThinningTool
 print HIGG1D2JetEMTPThinningTool
-thinningTools.append(HIGG1D2JetEMTPThinningTool)
+#thinningTools.append(HIGG1D2JetEMTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -124,7 +124,7 @@ HIGG1D2MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name
                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D2MuonTPThinningTool
 print HIGG1D2MuonTPThinningTool
-thinningTools.append(HIGG1D2MuonTPThinningTool)
+#thinningTools.append(HIGG1D2MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -134,7 +134,7 @@ HIGG1D2ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D2ElectronTPThinningTool
 print HIGG1D2ElectronTPThinningTool
-thinningTools.append(HIGG1D2ElectronTPThinningTool)
+#thinningTools.append(HIGG1D2ElectronTPThinningTool)
 
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -144,7 +144,7 @@ HIGG1D2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D2PhotonTPThinningTool
 print HIGG1D2PhotonTPThinningTool
-thinningTools.append(HIGG1D2PhotonTPThinningTool)
+#thinningTools.append(HIGG1D2PhotonTPThinningTool)
 
 # Tracks themselves
 HIGG1D2TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "HIGG1D2TPThinningTool",
@@ -153,7 +153,7 @@ HIGG1D2TPThinningTool = DerivationFramework__TrackParticleThinning( name        
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += HIGG1D2TPThinningTool
 print HIGG1D2TPThinningTool
-thinningTools.append(HIGG1D2TPThinningTool)
+#thinningTools.append(HIGG1D2TPThinningTool)
 
 
 
@@ -224,9 +224,9 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "egammaTruthParticles"]
+HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","egammaTopoSeededClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "egammaTruthParticles","CaloCalTopoClusters"]
 
-HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality",
+HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
