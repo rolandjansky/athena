@@ -3,20 +3,16 @@
 */
 
 // Converter from DetDescrCondIdentifier_old to 64-bit Identifier 
-// $Id: DetDescrCondIdentifier_old_cnv.cxx 485488 2012-02-28 13:14:06Z schaffer $
+// $Id: DetDescrCondIdentifier_old_cnv.cxx 699569 2015-10-09 04:40:43Z ssnyder $
 
-#define private public
-#define protected public
 #include "Identifier/Identifier.h"
-#undef private
-#undef protected
 #include "DetDescrCondTPCnv/DetDescrCondIdentifier_old_cnv.h"
 
 void DetDescrCondIdentifier_old_cnv::Convert (Identifier* newobj,
                                               const DetDescrCondIdentifier_old* oldobj) 
 {
     Identifier id(oldobj->m_id);
-    newobj->m_id = id.get_compact();
+    *newobj = id;
 //     std::cout << "DetDescrCondIdentifier_old_cnv::Convert old/new " << std::hex 
 //               << oldobj->m_id << "/" << newobj->m_id << std::endl;
 
