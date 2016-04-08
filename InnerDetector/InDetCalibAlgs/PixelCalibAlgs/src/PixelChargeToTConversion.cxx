@@ -7,11 +7,20 @@
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #define private public
+
+#include "PixelGeoModel/IBLParameterSvc.h" 
+#include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelCluster.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 
 PixelChargeToTConversion::PixelChargeToTConversion(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_calibsvc("PixelCalibSvc", name)
+  m_calibsvc("PixelCalibSvc", name),
+  m_IBLParameterSvc("IBLParameterSvc",name),
+  m_overflowIBLToT(0),
+  m_offlineCalibSvc("PixelOfflineCalibSvc", name)
 {
   declareProperty("PixelCalibSvc", m_calibsvc);
 }
@@ -31,6 +40,25 @@ StatusCode PixelChargeToTConversion::initialize(){
     return StatusCode::FAILURE;
   }
   msg(MSG::INFO) << " PixelCalibSvc found " << endreq;
+
+  if ( !m_offlineCalibSvc.empty() ) {
+    StatusCode sc = m_offlineCalibSvc.retrieve();
+    if (sc.isFailure() || !m_offlineCalibSvc ) {
+      ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
+      return StatusCode::RECOVERABLE;
+    }
+    else{
+      ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
+    }
+  }
+
+  if (m_IBLParameterSvc.retrieve().isFailure()) { 
+      ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
+      return StatusCode::FAILURE; 
+  } else  
+      ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
+ 
+  m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
 
   return StatusCode::SUCCESS;
 }
@@ -61,6 +89,20 @@ StatusCode PixelChargeToTConversion::execute(){
       auto theNonConstCluster = const_cast<InDet::PixelCluster*> (theCluster);
       ATH_MSG_DEBUG( "cluster RDOs , size, ToTs, size, Charges, size    "<< RDOs <<"  "<<RDOs.size()<<"  "<< ToTs<<"  " <<ToTs.size()<<"  "<<Charges<<"  "<<Charges.size());
 
+      const InDetDD::SiDetectorElement* element=theCluster->detectorElement();
+      if (element==0) {
+        ATH_MSG_ERROR("Could not get detector element");
+       }
+      const AtlasDetectorID* aid = element->getIdHelper();
+      if (aid==0){
+        ATH_MSG_ERROR("Could not get ATLASDetectorID");
+      }
+      const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
+      if (!pixelIDp){
+        ATH_MSG_ERROR("Could not get PixelID pointer");
+      } 
+      const PixelID& pixelID = *pixelIDp;
+
       int nRDO=RDOs.size(); 
       // convert from Charge -> ToT
       if(ToTs.size()==0 && Charges.size()!=0){
@@ -81,10 +123,20 @@ StatusCode PixelChargeToTConversion::execute(){
           if ( A>0. && (Charge+C)!=0 ) {
             tot = A*(Charge+E)/(Charge+C);
           } else tot=0.;
+	  	  
 	  ATH_MSG_DEBUG( "A   E   C  tot " << A <<"  "<<E <<"  "<<C<<"  "<<tot);
-	  totList.push_back( (int) (tot + 0.1)) ; // Fudge to make sure we round to the correct number
-	  ATH_MSG_DEBUG( "from Charge --> ToT   " << Charge <<"  "<<(int) (tot + 0.1) );
-	  sumToT += (int) (tot + 0.1);
+       
+          int totInt = (int) (tot + 0.1);
+
+          if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
+            int tot0 = totInt;
+	    if ( totInt >= m_overflowIBLToT ) totInt = m_overflowIBLToT;
+            msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << tot0 << " Real ToT = " << totInt << endreq;
+          }
+	  
+	  totList.push_back( totInt ) ; // Fudge to make sure we round to the correct number
+	  ATH_MSG_DEBUG( "from Charge --> ToT   " << Charge <<"  "<< totInt);
+	  sumToT += totInt;
 	}
 	ATH_MSG_DEBUG( "sumToT   " << sumToT);
 	theNonConstCluster->m_totList = totList; 
@@ -95,8 +147,7 @@ StatusCode PixelChargeToTConversion::execute(){
 
   }//loop over collections
 
-
-
+ 
  return StatusCode::SUCCESS;
 }
 
