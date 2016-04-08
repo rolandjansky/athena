@@ -42,7 +42,7 @@ namespace JiveXML {
                 
   //--------------------------------------------------------------------------
 
-  StatusCode CscPrepDataRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode CscPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 

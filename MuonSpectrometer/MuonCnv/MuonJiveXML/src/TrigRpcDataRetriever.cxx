@@ -80,7 +80,7 @@ namespace JiveXML {
 
   //--------------------------------------------------------------------------
 
-  StatusCode TrigRpcDataRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
+  StatusCode TrigRpcDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
