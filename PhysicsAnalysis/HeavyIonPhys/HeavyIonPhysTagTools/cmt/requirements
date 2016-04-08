@@ -7,7 +7,7 @@ use AthenaPoolUtilities	 AthenaPoolUtilities-*      	Database/AthenaPOOL
 use GaudiInterface      GaudiInterface-*       External
 
 
-use StoreGate           StoreGate-*            Control
+use AthenaBaseComps     AthenaBaseComps-*         Control
 
 use TagEvent		TagEvent-*		  PhysicsAnalysis/EventTag
 private

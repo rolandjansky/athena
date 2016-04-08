@@ -16,8 +16,6 @@ Purpose : create a HeavyIonPhysTag - a word to encode ExoticPhys specific inform
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "HeavyIonPhysTagTools/HeavyIonPhysTagTool.h"
 #include "TagEvent/HeavyIonPhysAttributeNames.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
@@ -25,7 +23,8 @@ Purpose : create a HeavyIonPhysTag - a word to encode ExoticPhys specific inform
 /** the constructor */
 HeavyIonPhysTagTool::HeavyIonPhysTagTool (const std::string& type, const 
 std::string& name, const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+    AthAlgTool( type, name, parent )
+{
 
   /** Pt cut on jte - modifiable in job options */
   declareProperty("EtCut",        m_jetPtCut = 15.0*CLHEP::GeV);
@@ -35,16 +34,7 @@ std::string& name, const IInterface* parent) :
 
 /** initialization - called once at the begginning */
 StatusCode HeavyIonPhysTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -52,8 +42,7 @@ StatusCode HeavyIonPhysTagTool::initialize() {
 StatusCode HeavyIonPhysTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                        const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** specifiy the HeavyIonPhys the attributes */
 
@@ -68,8 +57,7 @@ StatusCode HeavyIonPhysTagTool::attributeSpecification(std::map<std::string,Athe
 /** execute - called on every event */
 StatusCode HeavyIonPhysTagTool::execute(TagFragmentCollection& heavyIonTagCol, const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   /** fill the HeavyIonPhys analysis tag */
 
@@ -84,8 +72,7 @@ StatusCode HeavyIonPhysTagTool::execute(TagFragmentCollection& heavyIonTagCol, c
 
 /** finalize - called once at the end */
 StatusCode HeavyIonPhysTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
