@@ -101,7 +101,21 @@ StatusCode Herwigpp::genInitialize() {
   char* env2 = getenv("CMTCONFIG");
   string reposearchpaths;
   if (env1 == 0 || env2 == 0) {
-    ATH_MSG_WARNING("$CMTPATH or $CMTCONFIG variable not set: finding the ThePEG/H++ module directories will be difficult...");
+     // Use everything from $DATAPATH and $LD_LIBRARY_PATH:
+     const char* datapath = getenv( "DATAPATH" );
+     reposearchpaths = datapath;
+     std::vector< std::string > datapaths;
+     boost::split( datapaths, datapath,
+                   boost::is_any_of( std::string( ":" ) ) );
+     for( const std::string& p : datapaths ) {
+        ThePEG::Repository::appendReadDir( p );
+     }
+     const char* ldpath = getenv( "LD_LIBRARY_PATH" );
+     std::vector< std::string > ldpaths;
+     boost::split( ldpaths, ldpath, boost::is_any_of( std::string( ":" ) ) );
+     for( const std::string& p : ldpaths ) {
+        ThePEG::DynamicLoader::appendPath( p );
+     }
   } else {
     vector<string> cmtpaths;
     boost::split(cmtpaths, env1, boost::is_any_of(string(":")));

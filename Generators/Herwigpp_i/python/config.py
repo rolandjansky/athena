@@ -44,9 +44,11 @@ def lo_pdf_cmds(lo_setname):
     """Set LO PDF as requested by arg, defaulting to current production PDF."""
     cmds = pdf_cmds(lo_setname, "LO")
     cmds += "\n"
-    cmds += "## Set PDF explicitly for MPI.\n"
+    cmds += "## Set PDF explicitly for MPI and shower.\n"
     cmds += "set /Herwig/Partons/MPIExtractor:FirstPDF  /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "set /Herwig/Partons/MPIExtractor:SecondPDF /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/AtlasPDFsetLO\n"
+    cmds += "set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "\n"
     return cmds 
 
