@@ -67,9 +67,6 @@ namespace ISF {
 
       /* Dump the stack to the screen */
       virtual StatusCode dump() const = 0;
-
-      /* Update information for already existing ISF particle */
-      virtual void registerParticle( ISFParticle* particle, EntryLayer layer=fUnsetEntryLayer, bool takeOwnership=false) = 0;
   }; 
 }
 
