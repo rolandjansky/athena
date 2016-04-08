@@ -5,7 +5,9 @@
 #ifndef MuonCalib__GeoDraw_h
 #define MuonCalib__GeoDraw_h
 
+
 #include "map"
+
 
 namespace MuonCalib {
 
@@ -13,6 +15,7 @@ class GeoDraw_Data;
 
 class GeoDraw {
  public:
+	
   static void Load(const char *filename);
 	
   static double PosX(unsigned int tube_id);
@@ -31,8 +34,10 @@ class GeoDraw {
   static double GlobalToLocalY(unsigned int id, double x, double y, double z);
   static double GlobalToLocalZ(unsigned int id, double x, double y, double z);
 	
+	
  private:	
   static GeoDraw_Data *s_data;
+  
 };
 
 }  //namespace MuonCalib
