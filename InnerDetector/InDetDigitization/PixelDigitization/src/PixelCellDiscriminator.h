@@ -87,6 +87,7 @@ private:
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   bool m_IBLabsent;
   bool m_doITk;
+  int m_timingTune;
 };
 
 #endif

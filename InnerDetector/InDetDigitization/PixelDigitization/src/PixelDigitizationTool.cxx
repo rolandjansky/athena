@@ -125,24 +125,24 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   
   declareInterface<PixelDigitizationTool>(this);
   declareProperty("PixelNoisyCellGenerator", m_pixelNoisyCellGenerator,   "PixelNoisyCellGenerator");
-  declareProperty("PixelCellDiscriminator",  m_pixelCellDiscriminator,    "PixelCellDiscriminator");
-  declareProperty("PixelChargeSmearer",      m_pixelChargeSmearer,        "PixelChargeSmearer");
+  declareProperty("PixelCellDiscriminator", m_pixelCellDiscriminator,   "PixelCellDiscriminator");
+  declareProperty("PixelChargeSmearer", m_pixelChargeSmearer,   "PixelChargeSmearer");
   declareProperty("PixelDiodeCrossTalkGenerator", m_pixelDiodeCrossTalkGenerator,   "PixelDiodeCrossTalkGenerator");
-  declareProperty("PixelGangedMerger",       m_pixelGangedMerger,         "PixelGangedMerger");
+  declareProperty("PixelGangedMerger", m_pixelGangedMerger,   "PixelGangedMerger");
   declareProperty("PixelRandomDisabledCellGenerator", m_pixelRandomDisabledCellGenerator,   "PixelRandomDisabledCellGenerator");
-  declareProperty("SpecialPixelGenerator",   m_specialPixelGenerator,     "Special pixel generator");
-  declareProperty("SurfaceChargesTool",      m_SurfaceChargesTool,        "Surface charges tool");
+  declareProperty("SpecialPixelGenerator", m_specialPixelGenerator,   "Special pixel generator");
+  declareProperty("SurfaceChargesTool", m_SurfaceChargesTool,   "Surface charges tool");
   declareProperty("PixelCablingSvc",         m_pixelIdMapping,            "Pixel Cabling Service");
-  declareProperty("RndmSvc",                 m_rndmSvc,                   "Random number service used in Pixel Digitization");
-  declareProperty("MergeSvc",                m_mergeSvc,                  "Merge service used in Pixel digitization");
-  declareProperty("TimeSvc",                 m_TimeSvc,                   "Time Svc");
-  declareProperty("CalibSvc",                m_CalibSvc,                  "Calib Svc");
-  declareProperty("OfflineCalibSvc",         m_offlineCalibSvc);
-  declareProperty("InputObjectName",         m_inputObjectName="",        "Input Object name" );
-  declareProperty("CreateNoiseSDO",          m_createNoiseSDO=false,      "Set create noise SDO flag");
+  declareProperty("RndmSvc",		m_rndmSvc,		"Random number service used in Pixel Digitization");
+  declareProperty("MergeSvc",		m_mergeSvc,		"Merge service used in Pixel digitization");
+  declareProperty("TimeSvc", m_TimeSvc, "Time Svc");
+  declareProperty("CalibSvc", m_CalibSvc, "Calib Svc");
+  declareProperty("OfflineCalibSvc",m_offlineCalibSvc);
+  declareProperty("InputObjectName",m_inputObjectName="","Input Object name" );
+  declareProperty("CreateNoiseSDO", m_createNoiseSDO=false, "Set create noise SDO flag");
   m_inputObjectName = "PixelHits";
-  declareProperty("SpecialPixelMapKey",      m_specialPixelMapKey,        "Special Pixel Map Key"); 
-  declareProperty("SpecialPixelMapSvc",      m_specialPixelMapSvc);
+  declareProperty("SpecialPixelMapKey",m_specialPixelMapKey,"Special Pixel Map Key"); 
+  declareProperty("SpecialPixelMapSvc",m_specialPixelMapSvc);
 
   //
   // Get parameter values from jobOptions file
@@ -152,7 +152,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("EventIOV",           m_eventIOV,             "Number of events per IOV");
   declareProperty("IOVFlag",            m_IOVFlag,              "IOV flag - how to simulate the validity period");
   declareProperty("LVL1Latency",        m_maxToT,               "LVL1 latency (max possible ToT)");
-  declareProperty("ToTMinCut",          m_minToT,               "Minimum ToT cut (online cut)");
+  declareProperty("ToTMinCut",          m_minToT,               "Minimum ToT cut (online cut) ");
   declareProperty("ApplyDupli",         m_applyDupli,           "Duplicate low ToT hits");
   declareProperty("LowTOTduplication",  m_maxToTForDupli,       "ToT value below which the hit is duplicated");
   declareProperty("doITk",              m_doITk,                "Phase-II upgrade ITk flag");
@@ -184,7 +184,7 @@ StatusCode PixelDigitizationTool::initialize()
   //  
   // Print parameter values
 
-  // check the input object name
+ // check the input object name
   if (m_inputObjectName=="") {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
     return StatusCode::FAILURE;
@@ -383,15 +383,7 @@ void PixelDigitizationTool::digitizeAllHits() {
           << m_detID->eta_module(chargedDiodes->identify() ) << " - "
           << m_detID->phi_module(chargedDiodes->identify() ) << " - "
           << " processing hit number " << hitcount        
-          );
-
-    //if ( m_detID->barrel_ec(chargedDiodes->identify()) == 0 && m_detID->layer_disk(chargedDiodes->identify()) == 0 ) {
-    //  ATH_MSG_DEBUG ( "in digitize elements with hits in innermost barrel: eta - phi  "
-    //      << m_detID->eta_module(chargedDiodes->identify() ) << " - "
-    //      << m_detID->phi_module(chargedDiodes->identify() ) << " - "
-    //      << " processing hit number " << hitcount
-    //      );
-    //}
+          );  
 
     // Have a flag to check if the module is present or not
     // Generally assume it is:
@@ -449,14 +441,6 @@ void PixelDigitizationTool::digitizeNonHits() {
               << "size: " << m_processedElements.size() 
               );  
         
-        //if ( m_detID->barrel_ec(element->identify()) == 0 && m_detID->layer_disk(element->identify()) == 0 ) {
-        //  ATH_MSG_DEBUG ( "in digitize of untouched elements in innermost barrel: eta - phi  "
-        //      << m_detID->eta_module(element->identify() ) << " - "
-        //      << m_detID->phi_module(element->identify() ) << " - "
-        //      << "size: " << m_processedElements.size()
-        //      );
-        //}
-
         // Have a flag to check if the module is present or not
         // Generally assume it is: 
         //          m_module_status = 0;     // module is present we assume
@@ -1001,8 +985,9 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   int ishift = 0;
   if ( barrel_ec == 0 ) {
     if ( m_doITk ) {
-      // PixRegion = 0, 1, 2, 3 for the first four pixel barrel layers,
-      //             6 for the fifth pixel barrel layer and higher (4 and 5 already taken)
+      // PixRegion = 0, 1, 2, 3 for the first four pixel barrel
+      //             layers, 6 for the fifth pixel barrel layer and
+      //             higher (4 and 5 already taken)
       PixRegion = layer_disk;
       if ( layer_disk >= 4 ) PixRegion = 6;
     }
@@ -1014,7 +999,6 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   }
   if ( barrel_ec == 2 || barrel_ec == -2 ) PixRegion = 4; // 4 for disks
   if ( barrel_ec == 4 || barrel_ec == -4 ) PixRegion = 5; // 5 for DBM
-  ATH_MSG_DEBUG ( "doITk " << m_doITk << ", bec " << barrel_ec << ", layer " << layer_disk << ", PixRegion " << PixRegion );
 
   if ( PixRegion < 0 || (!m_doITk && PixRegion > 5) || PixRegion > 6 ) {
     ATH_MSG_ERROR ( "PixelDigitizationTool::createRDO() collection : " << " bad Barrel/EC or Layer/Disk " );
@@ -1030,12 +1014,10 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   const int maxCol = p_design->columnsPerCircuit();
   std::vector < std::vector < int > > FEI4Map ( maxRow, std::vector < int > ( maxCol) );
   ATH_MSG_DEBUG ( "PixRegion = " << PixRegion << " MaxRow = " << maxRow << " MaxCol = " << maxCol);
-  
-  //
-  
+
   m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);
   ATH_MSG_DEBUG ( " ***** Overflow for IBL = " << m_overflowIBLToT );
-  
+
   if ( m_overflowIBLToT == 14 ) maxFEI4SmallHit = 0;
   if ( m_overflowIBLToT == 15 ) maxFEI4SmallHit = 1;
   if ( m_overflowIBLToT == 16 ) maxFEI4SmallHit = 2;
@@ -1105,12 +1087,10 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
             << flag << "  "
             << PixRegion << " "
             );
-      
       if (getReadoutTech(collection->element()) == FEI3) {
         if ( nToT > m_maxToT.at(PixRegion) ) continue; // skip hits with ToT exceeding LVL1 Latency
         if ( nToT < m_minToT.at(PixRegion) ) continue; // skip hits with ToT less than ToT cut
       }
-
       //       float kToT= m_totparA + m_totparB / ( m_totparC + (*i_chargedDiode).second.charge() ) ;
       //       float kToTs  =  CLHEP::RandGaussZiggurat::shoot( m_rndmEngine, kToT ,  m_totparP1 + m_totparP2 * kToT ) ; 
       //       int nToT  =  static_cast<int>(kToTs) ;
@@ -1470,23 +1450,26 @@ StatusCode PixelDigitizationTool::mergeEvent() {
 //----------------------------------------------------------------------
 // ProcessBunchXing method:
 //----------------------------------------------------------------------
-StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, PileUpEventInfo::SubEvent::const_iterator bSubEvents, PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
-  ATH_MSG_VERBOSE("PixelDigitizationTool::processBunchXing() " << bunchXing); 
+
+StatusCode PixelDigitizationTool::processBunchXing(int bunchXing,
+                                                   SubEventIterator bSubEvents,
+                                                   SubEventIterator eSubEvents) {
+  ATH_MSG_DEBUG("PixelDigitizationTool::processBunchXing() " << bunchXing);
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+  SubEventIterator iEvt = bSubEvents;
   for (; iEvt!=eSubEvents; iEvt++) {
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    const EventInfo* pEI = 0;
-    if (seStore.retrieve(pEI).isSuccess()) {
-      ATH_MSG_DEBUG("SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-                   " bunch crossing : " << bunchXing << " time offset : " << iEvt->time()
-                   << " event number : " << pEI->event_ID()->event_number()
-                   << " run number : " << pEI->event_ID()->run_number());
-    }
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+    ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+                    << " bunch crossing : " << bunchXing
+                    << " time offset : " << iEvt->time()
+                    << " event number : " << iEvt->ptr()->eventNumber()
+                    << " run number : " << iEvt->ptr()->runNumber()
+                    );
+
     const SiHitCollection* seHitColl(0);   
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
       msg(MSG::ERROR) << "SubEvent Pixel SiHitCollection not found in StoreGate " << seStore.name() << endreq;
@@ -1503,9 +1486,9 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, PileUpEventInf
 }
 
 PixelDigitizationTool::ReadoutTech PixelDigitizationTool::getReadoutTech(const InDetDD::SiDetectorElement *module) {
-	if(m_doITk) return RD53;
-        
-        const PixelID* pixelId = static_cast<const PixelID *>(module->getIdHelper());
+        if(m_doITk) return RD53;
+
+	const PixelID* pixelId = static_cast<const PixelID *>(module->getIdHelper());
 	if ((!m_IBLabsent && pixelId->is_blayer(module->identify())) ||
 	    pixelId->barrel_ec(module->identify())==4 ||
 	    pixelId->barrel_ec(module->identify())==-4) return FEI4;

@@ -30,19 +30,21 @@ using namespace InDetDD;
 
 // Constructor with parameters:
 Ibl3DBichselChargeTool::Ibl3DBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-  SubChargesTool(type,name,parent),
-  m_numberOfSteps(50),
-  m_doBichsel(false),
-  m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
-  m_doDeltaRay(false),                 // need validation
-  m_BichselSimTool("BichselSimTool"),
-  m_chargeCollSvc("ChargeCollProbSvc",name)
+				SubChargesTool(type,name,parent),
+				m_numberOfSteps(50),
+        m_doBichsel(false),
+        m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
+        m_doDeltaRay(false),                 // need validation
+        m_doPU(true),
+        m_BichselSimTool("BichselSimTool"),
+				m_chargeCollSvc("ChargeCollProbSvc",name)
 { 
 	declareProperty("ChargeCollProbSvc",m_chargeCollSvc);
 	declareProperty("numberOfSteps",m_numberOfSteps,"Number of steps for Ibl3D module");
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
+  declareProperty("doPU", m_doPU, "whether we apply Bichsel model on PU");
   declareProperty("BichselSimTool", m_BichselSimTool, "tool that implements Bichsel model");
 }
 
@@ -189,10 +191,15 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
       }
 
+      // PU
+      if(!m_doPU){
+        if(phit.eventId() != 0) ParticleType = -1;
+      }
+
     }
   } 
 
-  //bool m_isRealBichsel = false;
+  // bool m_isRealBichsel = false;
   if(ParticleType != -1){ // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ... 
     TLorentzVector genPart_4V;
@@ -229,7 +236,7 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
     }
     else{ // cluster thousands hits to ~20 groups
       trfHitRecord = m_BichselSimTool->ClusterHits(rawHitRecord, nsteps);
-      //m_isRealBichsel = true;
+      // m_isRealBichsel = true;
     }
   }
   else{  // same as old digitization method

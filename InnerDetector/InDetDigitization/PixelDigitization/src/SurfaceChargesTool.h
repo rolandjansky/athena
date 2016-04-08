@@ -41,7 +41,7 @@ class SurfaceChargesTool : public AthAlgTool {
 
 public:
   //Defines the Technology variable type, used for labeling the different tools.  
-  enum Technology {IBL3D,IBLPLANAR,PIXELEC,PIXELBARREL,DBM,RD53};
+  enum Technology {IBL3D,IBLPLANAR,PIXELEC,PIXELBARREL,DBM,RD53};  //FIXME define this in a common location see ATLASSIM-2644
  
   // Constructor:
   SurfaceChargesTool( const std::string& type, const std::string& name,const IInterface* parent);
@@ -80,7 +80,7 @@ private:
   bool m_IBLabsent;
 
   //Phase-II upgrade ITk flag.
-  bool m_doITk; 
+  bool m_doITk;
 
   /** Tool handles for the technology-specific tools for generating 
     * surface charges. 
@@ -94,7 +94,7 @@ private:
   
   /** map connecting Technology to the relevant tool */
   std::map<Technology,SubChargesTool*> TechChargeTools; 
-
+ 
  };
 
 

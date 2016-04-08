@@ -37,6 +37,7 @@ PixelECBichselChargeTool::PixelECBichselChargeTool(const std::string& type, cons
   m_doBichsel(false),
   //m_doBichselMomentumCut(1000.),
   m_doBichselBetaGammaCut(0.1),
+  m_doPU(true),
   m_BichselSimTool("BichselSimTool")
 { 
 	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for PixelEC");
@@ -45,6 +46,7 @@ PixelECBichselChargeTool::PixelECBichselChargeTool(const std::string& type, cons
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
   //declareProperty("doBichselMomentumCut", m_doBichselMomentumCut, "minimum MOMENTUM for particle to be re-simulated through Bichsel Model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
+  declareProperty("doPU", m_doPU, "whether we apply Bichsel model on PU");
   declareProperty("BichselSimTool", m_BichselSimTool, "tool that implements Bichsel model");
 }
 
@@ -166,6 +168,10 @@ StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
       //if(genPart_4V.P()/CLHEP::MeV < m_doBichselMomentumCut) ParticleType = -1;
       if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
+    }
+
+    if(!m_doPU){
+      if(phit.eventId() != 0) ParticleType = -1;
     }
   } 
 

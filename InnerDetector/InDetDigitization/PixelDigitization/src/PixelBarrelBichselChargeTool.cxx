@@ -9,6 +9,10 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
+#ifndef __BICHSEL_TIMER__
+// #define __BICHSEL_TIMER__
+#endif
+
 #include "PixelBarrelBichselChargeTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
@@ -25,8 +29,9 @@
 #include "BichselSimTool.h"
 #include "TLorentzVector.h"
 
-using namespace InDetDD;
+#include <chrono>
 
+using namespace InDetDD;
 
 // Constructor with parameters:
 PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
@@ -38,6 +43,7 @@ PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& ty
   //m_doBichselMomentumCut(1000.),     // need to change to beta-gamma cut
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
+  m_doPU(true),                        
   m_BichselSimTool("BichselSimTool"),
   m_OutputFileName("EnergyDeposition.root"),
   m_doHITPlots(false)
@@ -49,6 +55,7 @@ PixelBarrelBichselChargeTool::PixelBarrelBichselChargeTool(const std::string& ty
   //declareProperty("doBichselMomentumCut", m_doBichselMomentumCut, "minimum MOMENTUM for particle to be re-simulated through Bichsel Model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
+  declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
   declareProperty("BichselSimTool", m_BichselSimTool, "tool that implements Bichsel model");
   declareProperty("OutputFileName", m_OutputFileName, "name of output file for customized study during digitization");
   declareProperty("doHITPlots", m_doHITPlots, "whether we make hit plots");
@@ -91,7 +98,10 @@ StatusCode PixelBarrelBichselChargeTool::initialize() {
   if(m_doHITPlots){
     f_output = new TFile(m_OutputFileName.data(), "RECREATE");
 
+    ATH_MSG_INFO("Initializing diagnosing root file ...");
+
     h_Length = new TH1D("Length", "Length", 500, 0, 1000);
+    h_hitTime = new TH1D("HitTime", "HitTime", 2000, -100, 100);
     h_EnergyDepositionNominal = new TH1D("EnergyDepositionNominal", "EnergyDepositionNominal", 500, 0, 1000);
     h_EnergyDepositionBichsel = new TH1D("EnergyDepositionBichsel", "EnergyDepositionBichsel", 500, 0, 1000);
     h_EnergyDepositionDeltaRay = new TH1D("EnergyDepositionDeltaRay", "EnergyDepositionDeltaRay", 500, 0, 1000);
@@ -131,8 +141,35 @@ StatusCode PixelBarrelBichselChargeTool::initialize() {
     h_dEdxMomentumMap_Nominal["electron"] = new TH2D("Momentum_dEdx_Nominal_electron", "Momentum_dEdx_Nominal_electron", 400, -1, 3, 600, 0, 3000);
     h_dEdxMomentumMap_Nominal["kaon"] = new TH2D("Momentum_dEdx_Nominal_kaon", "Momentum_dEdx_Nominal_kaon", 400, -1, 3, 600, 0, 3000);
     h_dEdxMomentumMap_Nominal["muon"] = new TH2D("Momentum_dEdx_Nominal_muon", "Momentum_dEdx_Nominal_muon", 400, -1, 3, 600, 0, 3000);
+
+    // timers
+    h_timer_execute = new TH1D("timer_execute", "timer_execute", 20000, 0, 20000);
+    h_timer_BichselSim = new TH1D("timer_BichselSim", "timer_BichselSim", 20000, 0, 20000);
+    h_timer_DigiLayer = new TH1D("timer_DigiLayer", "timer_DigiLayer", 20000, 0, 20000);
+    h_timer_diffuse = new TH1D("timer_diffuse", "timer_diffuse", 20000, 0, 20000);
+
+    // hit categories
+    std::vector<std::string> hitCategoryList = {
+      "Total",
+      "DoBichsel",
+      "NoBichsel",
+      "HasMCParticleLink",
+      "UnknwonParticleType",
+      "BelowBetaGammCut",
+      "NoMCParticleLink",
+      "HS-doBichsel",
+      "InTimePU-doBichsel",
+      "HS",
+      "InTimePU",
+    };
+    int nbins = hitCategoryList.size();
+    h_hitCategory = new TH1D("hit_category", "hit_category", nbins, 0, nbins);
+    h_hitCategory->Sumw2();
+    for(unsigned index = 0; index < hitCategoryList.size(); index++){
+      h_hitCategory->GetXaxis()->SetBinLabel(index+1, hitCategoryList[index].data());
+    }
+
   }
-  
 
   ATH_MSG_DEBUG ( "PixelBarrelBichselChargeTool::initialize()");
   return sc ;
@@ -163,6 +200,10 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  SiChargedDiodeCollection& chargedDiodes,
 		  const InDetDD::SiDetectorElement &Module)
 {
+#ifdef __BICHSEL_TIMER__
+  auto timer_execute_start = std::chrono::high_resolution_clock::now();
+#endif
+
   ATH_MSG_DEBUG("Applying PixelBarrel charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
@@ -235,10 +276,21 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
       }
 
+      // In-time PU
+      if(!m_doPU){
+        if(phit.eventId() != 0) ParticleType = -1;
+      }
+
+      // Out-of-time PU
+      // We don't cut on the out-of-time PU, since studies show that the fraction is too small
+
     }
   } 
 
   bool m_isRealBichsel = false;
+#ifdef __BICHSEL_TIMER__
+  auto timer_DigiLayer_start = std::chrono::high_resolution_clock::now();
+#endif
   if(ParticleType != -1){ // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ... 
     TLorentzVector genPart_4V;
@@ -258,7 +310,17 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
     //double iTotalLength = length*1000.;   // mm -> micrometer
 
     // begin simulation
+#ifdef __BICHSEL_TIMER__
+    auto timer_BichselSim_start = std::chrono::high_resolution_clock::now();
+#endif
     std::vector<std::pair<double,double> > rawHitRecord = m_BichselSimTool->BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV) );
+#ifdef __BICHSEL_TIMER__
+    auto timer_BichselSim_end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::micro> timer_BichselSim_elapse = timer_BichselSim_end - timer_BichselSim_start;
+    if(m_doHITPlots){
+     h_timer_BichselSim->Fill( timer_BichselSim_elapse.count() );
+    }
+#endif
 
     // check if returned simulation result makes sense
     if(rawHitRecord.size() == 0){ // deal with rawHitRecord==0 specifically -- no energy deposition
@@ -287,11 +349,48 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
     }
   }
 
+#ifdef __BICHSEL_TIMER__
+  auto timer_DigiLayer_end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::micro> timer_DigiLayer_elapse = timer_DigiLayer_end - timer_DigiLayer_start;
+  if(m_doHITPlots){
+    h_timer_DigiLayer->Fill( timer_DigiLayer_elapse.count() );
+  }
+#endif
+
   // *** Finsih Bichsel *** //
 
   // *** Fill histograms *** //
 
   if(m_doHITPlots){
+    // hit category
+    h_hitCategory->Fill("Total", 1);
+    
+    if(phit.eventId() == 0) h_hitCategory->Fill("HS", 1);
+    else                    h_hitCategory->Fill("InTimePU", 1);
+
+    if(ParticleType != -1){ // do bichsel model eventually
+      h_hitCategory->Fill("DoBichsel", 1);
+
+      if(phit.eventId() == 0) h_hitCategory->Fill("HS-doBichsel", 1);
+      else                    h_hitCategory->Fill("InTimePU-doBichsel", 1);
+    }
+    else{
+      h_hitCategory->Fill("NoBichsel", 1);
+    }
+
+    if(!delta_hit){ // not a delta-ray
+      h_hitCategory->Fill("HasMCParticleLink", 1);
+
+      if(m_BichselSimTool->trfPDG(genPart->pdg_id()) == -1) // unknown particle type
+        h_hitCategory->Fill("UnknwonParticleType", 1);
+      else if(ParticleType == -1) // below beta-gamma threshold
+        h_hitCategory->Fill("BelowBetaGammCut", 1);
+    }
+    else{
+      h_hitCategory->Fill("NoMCParticleLink", 1);
+    }
+
+
     if( (ParticleType != -1) && (!delta_hit) ){  // only primary particles that goes through Bichsel Model
       TLorentzVector genPart_4V;
       genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(), genPart->momentum().phi(), genPart->momentum().m());
@@ -303,6 +402,7 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       }
 
       h_Length->Fill(iTotalLength);    // micrometer
+      h_hitTime->Fill(phit->meanTime());  // hit time around current event Bunch-Xing time in ns
 
       if(iTotalLength > 280.){
         double dEdx_Nominal = phit->energyLoss() * 1000. / (iTotalLength/1000.);
@@ -397,6 +497,9 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   }
 
   // *** Now diffuse charges to surface *** //
+#ifdef __BICHSEL_TIMER__
+  auto timer_diffuse_start = std::chrono::high_resolution_clock::now();
+#endif
 
   for(unsigned int istep = 0; istep < trfHitRecord.size(); istep++){
     std::pair<double,double> iHitRecord = trfHitRecord[istep];
@@ -441,6 +544,22 @@ StatusCode PixelBarrelBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       }
     }									
   }
+
+#ifdef __BICHSEL_TIMER__
+  auto timer_diffuse_end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::micro> timer_diffuse_elapse = timer_diffuse_end - timer_diffuse_start;
+  if(m_doHITPlots){
+    h_timer_diffuse->Fill( timer_diffuse_elapse.count() );
+  }
+#endif
+
+#ifdef __BICHSEL_TIMER__
+  auto timer_execute_end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::micro> timer_execute_elapse = timer_execute_end - timer_execute_start;
+  if(m_doHITPlots){
+    h_timer_execute->Fill( timer_execute_elapse.count() );
+  }
+#endif
 
 	return StatusCode::SUCCESS;
 }

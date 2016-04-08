@@ -116,6 +116,11 @@
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 
+// IAB Note no EventInfo includes. Why?
+#include "xAODEventInfo/EventInfo.h"             // NEW EDM
+#include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
+
+
 class PixelID;
 class SiChargedDiodeCollection;
 class ISiChargedDiodesProcessorTool;
@@ -137,12 +142,12 @@ class IPixelOfflineCalibSvc;
 
 
 namespace CLHEP {
-	class HepRandomEngine;
+        class HepRandomEngine;
 }
 
 namespace InDetDD{
-	class SiDetectorElement;
-	class SiDetectorManager;
+        class SiDetectorElement;
+        class SiDetectorManager;
 }
 
 static const InterfaceID IID_IPixelDigitizationTool ("PixelDigitizationTool",1,0);
@@ -152,21 +157,21 @@ class PixelDigitizationTool : public PileUpToolBase {
 public:
    static const InterfaceID& interfaceID();
 
-   StatusCode prepareEvent(unsigned int);
-   StatusCode mergeEvent();
+   virtual StatusCode prepareEvent(unsigned int) override final;
+   virtual StatusCode mergeEvent() override final;
    /** Constructor with parameters */
    PixelDigitizationTool(const std::string &type,
-		     const std::string &name,
-		     const IInterface *pIID);
+                         const std::string &name,
+                         const IInterface *pIID);
 
-   virtual StatusCode initialize();
-   
-   virtual StatusCode processAllSubEvents();
-   
-   virtual StatusCode finalize();
+    virtual StatusCode initialize() override final;
+
+    virtual StatusCode processAllSubEvents() override final;
+
+   virtual StatusCode finalize() override final;
 
    /** create and store RDO for the given collection */
-   StatusCode createAndStoreRDO(SiChargedDiodeCollection *c);
+   virtual StatusCode createAndStoreRDO(SiChargedDiodeCollection *c);
 
    /** create RDO from given collection - called by createAndStoreRDO */
    PixelRDO_Collection *createRDO(SiChargedDiodeCollection *c);
@@ -196,16 +201,17 @@ public:
    virtual StatusCode specialPixelMapCallBack(IOVSVC_CALLBACK_ARGS);
 
    bool doUpdate() const { return (m_eventCounter==m_eventNextUpdate); }
-   StatusCode processBunchXing(int bunchXing,
-                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                               PileUpEventInfo::SubEvent::const_iterator eSubEvents
-                               );
+
+   virtual StatusCode processBunchXing(int bunchXing,
+                                       SubEventIterator bSubEvents,
+                                       SubEventIterator eSubEvents
+                                       ) override final;
  protected:
-   std::map<unsigned int,std::vector<unsigned int> > m_noisyPixel; 
+   std::map<unsigned int,std::vector<unsigned int> > m_noisyPixel;
    bool digitizeElement(SiChargedDiodeCollection* theColl );
    void applyProcessorTools(SiChargedDiodeCollection* theColl);
    void addSDO(SiChargedDiodeCollection *collection);
-   
+
    //void storeTool(SurfaceChargesTool *p_generator) {m_SurfaceChargesTool = p_generator;}
    void storeTool(ISiChargedDiodesProcessorTool *p_processor) {m_diodesProcsTool.push_back(p_processor);}
 
@@ -215,13 +221,13 @@ public:
 
 
 private:
-   mutable int                    m_overflowIBLToT;                                                                                          
+   mutable int                    m_overflowIBLToT;
    ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
-  
+
    virtual StatusCode createOutputContainers();
    StatusCode getNextEvent();
-   enum ReadoutTech {FEI3,FEI4,RD53};
-   ReadoutTech getReadoutTech(const InDetDD::SiDetectorElement *module);   
+   enum ReadoutTech {FEI3,FEI4,RD53}; //FIXME define this in a common location see ATLASSIM-2644
+   ReadoutTech getReadoutTech(const InDetDD::SiDetectorElement *module);
 
    PixelDigitizationTool();
    PixelDigitizationTool(const PixelDigitizationTool&);
@@ -235,7 +241,7 @@ private:
                  IOVall,    /**< update every event */
                  IOVstep,   /**< update every Nth event */
                  IOVrnd};   /**< update at random intervals */
-  
+
    StatusCode initServices();        /**< get all services */
    StatusCode initTools();           /**< init AlgTools (if any) */
    StatusCode initExtras();          /**< initialize managers etc */
@@ -253,7 +259,7 @@ private:
    void addGangedPixels();
    void addDiscriminator();
    void addRandomDisabled();
-   
+
    std::vector<SiHitCollection*> hitCollPtrs;
 
    std::string               m_managerName;             /**< manager name */
@@ -269,8 +275,8 @@ private:
    std::vector<int>          m_minToT;            /**< ToT cut */
    std::vector<bool>         m_applyDupli;        /**< Apply hit duplication */
    std::vector<int>          m_maxToTForDupli;    /**< Maximum ToT for hit duplication */
-   bool                      m_IBLabsent;
-   bool                      m_doITk;
+   bool                      m_IBLabsent;         /**< No IBL */
+   bool                      m_doITk;             /**< SLHC job */
 
    double                    m_time_y_eq_zero;
    ComTime                  *m_ComTime;
@@ -300,7 +306,7 @@ private:
 
    std::vector<bool> m_processedElements; /**< vector of processed elements - set by digitizeHits() */
 
-   
+
   // std::vector<double>       m_noiseShape;         /**< Noise shape of pixels */
 
 
@@ -316,7 +322,7 @@ private:
    TimedHitCollection<SiHit>			*m_thpcsi;
    ToolHandle<SurfaceChargesTool> m_SurfaceChargesTool;
    // various services/helpers
-   
+
    std::list<ISiChargedDiodesProcessorTool *>	m_diodesProcsTool;
    SiChargedDiodeCollection *chargedDiodes;
    IntegerProperty  m_vetoThisBarcode;
@@ -325,15 +331,15 @@ private:
   //The following are copied over from SiDigitization.h
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
   ServiceHandle <PileUpMergeSvc> m_mergeSvc;
- 
+
   ServiceHandle<CalibSvc> m_CalibSvc;
   ServiceHandle<TimeSvc> m_TimeSvc;
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   CLHEP::HepRandomEngine *m_rndmEngine;
   const AtlasDetectorID* m_atlasID;
   const InDetDD::SiDetectorManager *m_detManager;
 
-  ServiceHandle< ISpecialPixelMapSvc >    m_specialPixelMapSvc; 
+  ServiceHandle< ISpecialPixelMapSvc >    m_specialPixelMapSvc;
   std::string m_specialPixelMapKey;
   const DetectorSpecialPixelMap* m_specialPixelMap;
 
@@ -341,8 +347,8 @@ private:
   unsigned int              m_eventNextUpdate;  /**< next scheduled special pixels map update */
 
   std::string     m_inputObjectName;
-  std::string	  m_outputObjectName;
-  bool		  m_createNoiseSDO;
+  std::string     m_outputObjectName;
+  bool            m_createNoiseSDO;
 
 
 };

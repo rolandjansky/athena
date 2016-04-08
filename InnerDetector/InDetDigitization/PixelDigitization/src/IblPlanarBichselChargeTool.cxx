@@ -37,6 +37,7 @@ IblPlanarBichselChargeTool::IblPlanarBichselChargeTool(const std::string& type, 
   m_doBichsel(false),
   m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
   m_doDeltaRay(false),                 // need validation
+  m_doPU(true),
   m_BichselSimTool("BichselSimTool")
 { 
 	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for IblPlanar");
@@ -45,6 +46,7 @@ IblPlanarBichselChargeTool::IblPlanarBichselChargeTool(const std::string& type, 
   declareProperty("doBichsel", m_doBichsel, "re-do charge deposition following Bichsel model");
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
+  declareProperty("doPU", m_doPU, "wheter we apply Bichsel model on PU");
   declareProperty("BichselSimTool", m_BichselSimTool, "tool that implements Bichsel model");
 }
 
@@ -187,10 +189,14 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
       }
 
+      if(!m_doPU){
+        if(phit.eventId() != 0) ParticleType = -1;
+      }
+
     }
   } 
 
-  bool m_isRealBichsel = false;
+  // bool m_isRealBichsel = false;
   if(ParticleType != -1){ // yes, good to go with Bichsel
     // I don't know why genPart->momentum() goes crazy ... 
     TLorentzVector genPart_4V;
@@ -227,7 +233,7 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
     }
     else{ // cluster thousands hits to ~20 groups
       trfHitRecord = m_BichselSimTool->ClusterHits(rawHitRecord, nsteps);
-      m_isRealBichsel = true;
+      // m_isRealBichsel = true;
     }
   }
   else{  // same as old digitization method
@@ -272,8 +278,8 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
       // Slim Edge for IBL planar sensors:
       // TODO: Access these from somewhere          
-      if(abs(xEtaD) > 20.440)e1_current=0.;
-      if(abs(xEtaD)< 20.440 && abs(xEtaD)> 20.200){
+      if(std::abs(xEtaD) > 20.440)e1_current=0.;
+      if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
         if(xEtaD>0){
           e1_current=e1_current*(68.13-xEtaD*3.333);            
           xEtaD = xEtaD - 0.250;
@@ -282,7 +288,7 @@ StatusCode IblPlanarBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
           xEtaD = xEtaD + 0.250;
         }  
       }
-      if(abs(xEtaD)< 20.200 && abs(xEtaD)> 20.100){
+      if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
         if(xEtaD>0){
           e1_current=e1_current*(41.2-xEtaD*2.);             
           xEtaD = xEtaD - 0.250;

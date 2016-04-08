@@ -19,6 +19,7 @@
 
 #include "PathResolver/PathResolver.h"
 #include <fstream>
+#include <cmath>
 
 using namespace std;
 
@@ -32,6 +33,8 @@ BichselSimTool::BichselSimTool(const std::string& type, const std::string& name,
 	declareInterface< BichselSimTool >( this );
 
   declareProperty("DeltaRayCut", m_DeltaRayCut = 117.);
+  declareProperty("nCols", m_nCols = 1);
+  declareProperty("LoopLimit", m_LoopLimit = 100000);
 }
 
 // Destructor:
@@ -58,6 +61,9 @@ StatusCode BichselSimTool::initialize() {
   // clear data table
   m_BichselData.clear();
 
+  // a notification on m_nCols
+  ATH_MSG_INFO("The number of collision for each sampling is " << m_nCols);
+
   // load data table
   ATH_MSG_INFO("Loading data file");
 
@@ -65,9 +71,7 @@ StatusCode BichselSimTool::initialize() {
   for(int iParticleType = 1; iParticleType <= n_ParticleType; iParticleType++){
     // configure file name
     std::ifstream inputFile;
-    TString inputFileName = "Bichsel_";
-    std::stringstream ss; ss << iParticleType; std::string sParticleType = ss.str();
-    inputFileName = (inputFileName + sParticleType.data() + ".dat");
+    TString inputFileName = TString::Format("Bichsel_%d%s.dat", iParticleType, m_nCols == 1 ? "" : TString::Format("_%dsteps", m_nCols).Data());
 
     std::string FullFileName = PathResolver::find_file(std::string(inputFileName.Data()), "DATAPATH");
     inputFile.open(FullFileName.data());
@@ -168,9 +172,10 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
   // load relevant data
   BichselData iData = m_BichselData[ParticleType-1];
   double BetaGammaLog10 = TMath::Log10(BetaGamma);
+  std::pair<int,int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
 
   // upper bound
-  double IntXUpperBound = GetUpperBound(BetaGammaLog10, iData);
+  double IntXUpperBound = GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
   if(IntXUpperBound <= 0.){
     ATH_MSG_WARNING("Negative IntXUpperBound in BichselSimTool::BichselSim! (-1,-1) will be returned");
     // if(IntXUpperBound == -1.){
@@ -183,34 +188,51 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
   // mean-free path
   double lambda = (1./IntXUpperBound) * 1.E4;   // unit of IntX is cm-1. It needs to be converted to micrometer-1
 
+  // check nan lambda
+  // I dont' know why we get nan lambda this moment ... but anyway ... 
+  if(std::isnan(lambda)){
+    SetFailureFlag(rawHitRecord);
+    return rawHitRecord;
+  }
+
+  // direct those hits with potential too many steps into nominal simulation
+  int LoopLimit = m_LoopLimit;                         // limit assuming 1 collision per sampling
+  if(fabs(1.0*TotalLength/lambda) > LoopLimit){        // m_nCols is cancelled out in the formula
+    SetFailureFlag(rawHitRecord);
+    return rawHitRecord;
+  }
+
   // begin simulation
   int count = 0;
   while(true){
     // infinite loop protection
-    if(count >= 100000){
-      ATH_MSG_WARNING("Potential infinite loop in BichselSim. Exit Loop. A special flag will be returned (-1,-1)");
+    if(count >= (1.0*LoopLimit/m_nCols)){
+      ATH_MSG_WARNING("Potential infinite loop in BichselSim. Exit Loop. A special flag will be returned (-1,-1). The total length is " << TotalLength << ". The lambda is " << lambda << ".");
       SetFailureFlag(rawHitRecord);
       break;
     }
 
     // sample hit position -- exponential distribution
-    double HitPosition = m_RandomGenerator->Exp(lambda);
+    double HitPosition = 0.;
+    for(int iHit = 0; iHit < m_nCols; iHit++) HitPosition += m_RandomGenerator->Exp(lambda);
 
     // termination by hit position
+    // yes, in case m_nCols > 1, we will loose the last m_nCols collisions. So m_nCols cannot be too big
     if(accumLength + HitPosition >= TotalLength)
       break;
 
     // sample single collision
     double TossEnergyLoss = -1.;
-    double TossIntX_record;
+    // double TossIntX_record;
     while(TossEnergyLoss <= 0.){ // we have to do this because sometimes TossEnergyLoss will be negative due to too small TossIntX
       double TossIntX = m_RandomGenerator->Uniform(0., IntXUpperBound);
-      TossEnergyLoss = GetColE(BetaGammaLog10, TMath::Log10(TossIntX), iData);
+      TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
 
-      TossIntX_record = TossIntX;
+      // TossIntX_record = TossIntX;
     }
 
     // check if it is delta-ray -- delta-ray is already taken care of by G4 and treated as an independent hit. Unfortunately, we won't deal with delta-ray using Bichsel's model
+    // as long as m_nCols is not very big, the probability of having >= 2 such a big energy loss in a row is very small. In case there is a delta-ray, it would be so dominant that other energy deposition becomes negligible
     if(TossEnergyLoss > (m_DeltaRayCut*1000.)){
       // ATH_MSG_WARNING("!!! Energy deposition beyond delta-ray cut !!!");
       // std::cout << "+++++++ " << TossEnergyLoss/1000. << " keV " << "+++++++++++" << std::endl; 
@@ -237,7 +259,9 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
 
     // record this hit
     std::pair<double,double> oneHit;
-    oneHit.first = accumLength; oneHit.second = TossEnergyLoss;
+    if(m_nCols == 1)  oneHit.first = accumLength; 
+    else              oneHit.first = (accumLength - 1.0*HitPosition/2);     // as long as m_nCols is small enough (making sure lambda*m_nCols is withint resolution of a pixel), then taking middle point might still be reasonable
+    oneHit.second = TossEnergyLoss;
     rawHitRecord.push_back(oneHit);
 
     count++;
@@ -348,6 +372,22 @@ std::pair<int,int> BichselSimTool::FastSearch(std::vector<double> vec, double it
   return output;
 }
 
+
+std::pair<int,int> BichselSimTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const{
+  std::pair<int,int> indices_BetaGammaLog10;
+  if(BetaGammaLog10 > iData.Array_BetaGammaLog10.back()){ // last one is used because when beta-gamma is very large, energy deposition behavior is very similar
+    indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size()-1;
+    indices_BetaGammaLog10.second = iData.Array_BetaGammaLog10.size()-1;
+  }
+  else{
+    indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
+  }
+
+  return indices_BetaGammaLog10;
+}
+
+
+
 // make sure IntXLog10 is less than the value given by GetUpperBound()
 // Please refer to below which can give more realistive result
 // But don't delete this fraction. Keep it for record
@@ -391,15 +431,15 @@ std::pair<int,int> BichselSimTool::FastSearch(std::vector<double> vec, double it
 // another way to do interpolation -- Fix beta-gamma
 // IMPORTANT!! Use this one. don't use the upper one.
 // This one will give correct dEdx curve
-double BichselSimTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const{
-  std::pair<int,int> indices_BetaGammaLog10;
-  if(BetaGammaLog10 > iData.Array_BetaGammaLog10.back()){ // last one is used because when beta-gamma is very large, energy deposition behavior is very similar
-    indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size()-1;
-    indices_BetaGammaLog10.second = iData.Array_BetaGammaLog10.size()-1;
-  }
-  else{
-    indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
-  }
+double BichselSimTool::GetColE(std::pair<int,int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) const{
+  // std::pair<int,int> indices_BetaGammaLog10;
+  // if(BetaGammaLog10 > iData.Array_BetaGammaLog10.back()){ // last one is used because when beta-gamma is very large, energy deposition behavior is very similar
+  //   indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size()-1;
+  //   indices_BetaGammaLog10.second = iData.Array_BetaGammaLog10.size()-1;
+  // }
+  // else{
+  //   indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
+  // }
 
   if( (indices_BetaGammaLog10.first==-1) && (indices_BetaGammaLog10.second==-1) )
     return -1.;
@@ -429,17 +469,22 @@ double BichselSimTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselD
   return TMath::Power(10., Est);
 }
 
+double BichselSimTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const{
+  std::pair<int,int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
+  return GetColE(indices_BetaGammaLog10, IntXLog10, iData);
+}
+
 // IMPORTANT!! For this one, one should use interpolation, instead of fixed beta-gamma.
 // Otherwise, dE/dx shape will get distorted again.
-double BichselSimTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) const{
-  std::pair<int,int> indices_BetaGammaLog10;
-  if(BetaGammaLog10 > iData.Array_BetaGammaLog10.back()){
-    indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size()-1;
-    indices_BetaGammaLog10.second = iData.Array_BetaGammaLog10.size()-1;
-  }
-  else{
-    indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
-  }
+double BichselSimTool::GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) const{
+  // std::pair<int,int> indices_BetaGammaLog10;
+  // if(BetaGammaLog10 > iData.Array_BetaGammaLog10.back()){
+  //   indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size()-1;
+  //   indices_BetaGammaLog10.second = iData.Array_BetaGammaLog10.size()-1;
+  // }
+  // else{
+  //   indices_BetaGammaLog10 = FastSearch(iData.Array_BetaGammaLog10, BetaGammaLog10);
+  // }
 
   if( (indices_BetaGammaLog10.first==-1) && (indices_BetaGammaLog10.second==-1) ){
     // std::cout << "++++++++++++++" << std::endl;
@@ -459,6 +504,11 @@ double BichselSimTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) 
   double Est = ((BetaGammaLog10_2 - BetaGammaLog10)*Est_1 + (BetaGammaLog10 - BetaGammaLog10_1)*Est_2)/(BetaGammaLog10_2 - BetaGammaLog10_1);
 
   return TMath::Power(10., Est);
+}
+
+double BichselSimTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) const{
+  std::pair<int,int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
+  return GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
 }
 
 // Keep for record

@@ -68,6 +68,7 @@ public:
   bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
   //double m_doBichselMomentumCut;                     // minimum MOMENTUM for particle to be re-simulated through Bichsel Model. Unit in MeV
   double m_doBichselBetaGammaCut;                      // replace momentum cut
+  bool   m_doPU;                                       // whether apply Bichsel model on PU
   ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
  
 private:

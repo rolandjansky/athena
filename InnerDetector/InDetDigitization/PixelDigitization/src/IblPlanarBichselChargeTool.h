@@ -65,6 +65,7 @@ public:
   double m_doBichselBetaGammaCut;                      // Momentum cut on beta-gamma
   bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
                                                        // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
+  bool   m_doPU;                                       // whether we apply Bichsel model on PU
   ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
   
 private:

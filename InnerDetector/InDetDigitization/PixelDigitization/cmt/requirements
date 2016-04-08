@@ -44,7 +44,8 @@ use  StoreGate                StoreGate-*             Control
 use HitManagement	    HitManagement-*	      Simulation
 use  InDetSimData             InDetSimData-*          InnerDetector/InDetRawEvent
 use PileUpTools             PileUpTools-*             Control
-use AtlasROOT			AtlasROOT-*		External
+use xAODEventInfo           xAODEventInfo-*               Event/xAOD 
+use AtlasROOT		    AtlasROOT-*		External
 
 use PixelConditionsTools    PixelConditionsTools-*    InnerDetector/InDetConditions
 

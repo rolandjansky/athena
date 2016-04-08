@@ -127,6 +127,217 @@ int TimeSvc::relativeBunch(const double threshold,
     return BCID;
 }
 
+//====================================================================
+// This is the new parameterization based on the 2015 collision data.
+//====================================================================
+int TimeSvc::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID) const {
+
+  //=================================
+  // 2016.03.29  Soshi.Tsuno@cern.ch
+  //
+  // The time walk effect is directly tuned with timing-data scan in 2015.
+  // 
+  // See reference in the talk,
+  //    http://www.......
+  //
+  // Ideally, it could be parameterized as a function of ToT.
+  // However, the ToT calibration was changed during Run-2. 
+  // Particular example is the b-layer charge calibration. (ToT30@MIP => ToT18@MIP in 2016)
+  // Therefore, the time walk effect needs to be parameterized with more universal value, that is, use charge.
+  // But it is not trivial where is the explicit border between ToT's to those in charge at each module level.
+  // One should expect some charge dispersion.
+  //
+  // Here, we employ the border of the 60% total charge on a certain ToT value, 
+  // which most describes the data timing structure.
+  //
+  // 60% working point tune-2
+  double prob = 0.0;
+  if (barrel_ec==0 && layer_disk==1) {
+    if (abs(moduleID)==0) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9349; }   // corresponds to ToT=4
+      else if (totalCharge.charge()<4150.0) { prob = 0.2520; }   //                ToT=5
+      else if (totalCharge.charge()<4600.0) { prob = 0.0308; }   //                ToT=6
+      else if (totalCharge.charge()<5250.0) { prob = 0.0160; }   //                ToT=7
+      else if (totalCharge.charge()<5850.0) { prob = 0.0104; }   //                ToT=8
+      else if (totalCharge.charge()<6500.0) { prob = 0.0127; }   //                ToT=9
+    }
+    if (abs(moduleID)==1) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9087; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.2845; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.0504; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0198; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0141; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0122; }
+    }
+    if (abs(moduleID)==2) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9060; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.2885; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.0387; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0126; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0116; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0052; }
+    }
+    if (abs(moduleID)==3) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8774; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.3066; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.0449; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0188; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0169; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0096; }
+    }
+    if (abs(moduleID)==4) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8725; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.2962; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.0472; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0188; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0141; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0130; }
+    }
+    if (abs(moduleID)==5) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8731; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.3443; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.0686; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0243; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0139; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0089; }
+    }
+    if (abs(moduleID)==6) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8545; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.2946; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.0524; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0218; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0218; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0191; }
+    }
+  }
+  if (barrel_ec==0 && layer_disk==2) {
+    if (abs(moduleID)==0) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9479; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6051; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.2031; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0735; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0462; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0272; }
+    }
+    if (abs(moduleID)==1) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9736; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6344; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.2439; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1000; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0435; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0335; }
+    }
+    if (abs(moduleID)==2) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9461; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6180; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.1755; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0647; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0476; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0470; }
+    }
+    if (abs(moduleID)==3) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9542; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.5839; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.1899; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0604; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0576; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0285; }
+    }
+    if (abs(moduleID)==4) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9233; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.5712; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.1633; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0796; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0612; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0384; }
+    }
+    if (abs(moduleID)==5) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8994; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.5176; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.1626; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0698; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0416; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0382; }
+    }
+    if (abs(moduleID)==6) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8919; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.5313; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.1585; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.0520; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0318; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0254; }
+    }
+  }
+  if (barrel_ec==0 && layer_disk==3) {
+    if (abs(moduleID)==0) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9182; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6744; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.3174; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1460; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.1001; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0587; }
+    }
+    if (abs(moduleID)==1) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9255; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6995; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.3046; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1449; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0954; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0608; }
+    }
+    if (abs(moduleID)==2) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9419; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.7380; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.3346; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1615; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0726; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0564; }
+    }
+    if (abs(moduleID)==3) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9319; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6747; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.2640; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1018; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0588; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0502; }
+    }
+    if (abs(moduleID)==4) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.9276; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6959; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.2859; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1214; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0776; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0387; }
+    }
+    if (abs(moduleID)==5) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8845; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6270; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.2798; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1209; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0706; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0703; }
+    }
+    if (abs(moduleID)==6) {
+      if      (totalCharge.charge()<4100.0) { prob = 0.8726; }
+      else if (totalCharge.charge()<4150.0) { prob = 0.6358; }
+      else if (totalCharge.charge()<4600.0) { prob = 0.2907; }
+      else if (totalCharge.charge()<5250.0) { prob = 0.1051; }
+      else if (totalCharge.charge()<5850.0) { prob = 0.0646; }
+      else if (totalCharge.charge()<6500.0) { prob = 0.0685; }
+    }
+  }
+
+  double G4Time = getG4Time(totalCharge);
+  double rnd    = CLHEP::RandFlat::shoot(m_rndmEngine,0.0,1.0);    	
+
+  double timeWalk = 0.0;
+  if (rnd<prob) { timeWalk = 25.0; }
+
+  int BCID = static_cast<int>(floor((G4Time+m_timeZero+timeWalk)/m_timePerBCO));
+
+  return BCID;
+}
+
 double TimeSvc::getG4Time(const SiTotalCharge &totalCharge) const
 {
   // If there is one single charge, return its time:

@@ -36,14 +36,16 @@ PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const st
   m_rndmEngine(0),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_IBLabsent(true),
-  m_doITk(false)
+  m_doITk(false),
+  m_timingTune(2015)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
 	declareProperty("CalibSvc",m_CalibSvc);
 	declareProperty("TimeSvc",m_TimeSvc);
-        declareProperty("doITk",m_doITk,"Phase-II upgrade ITk flag");
+  declareProperty("doITk",m_doITk,"Phase-II upgrade ITk flag");
+	declareProperty("TimingTune",m_timingTune,"Version of the timing tune");	
 }
 
 // Destructor:
@@ -108,7 +110,6 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
  
    bool ComputeTW = true;
-   //   such calls to getReadoutTech don't compile
    //if (getReadoutTech(collection.element()) == RD53) ComputeTW = false;
    //if (getReadoutTech(collection.element()) == FEI4) ComputeTW = false;
    //   ... instead for ITk:
@@ -132,38 +133,23 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
     // calculate the threshold:
     //    th0      : mean value
     //    th0 sigma: variation of whatever sample the mean was obtained
-    //    noise    : actually a noise level that logically should be added to the charge
+    //    noise    : actually a noise level that logically should be added to
+    //               the charge <- TODO!
     //
-    double th0     = m_CalibSvc->getCalThreshold(diodeID);
-    double ith0    = m_CalibSvc->getCalIntimeThreshold(diodeID);
-    double thsigma = m_CalibSvc->getCalThresholdSigma(diodeID);
-    double noise   = m_CalibSvc->getCalNoise(diodeID);
-    //ATH_MSG_DEBUG ( "doITk " << doITk << ", Threshold " << th0 << ", IntimeThreshold " << ith0 
-    //             << ", ThresholdSigma " << thsigma << ", Noise " << noise );
+    double th0  = m_CalibSvc->getCalThreshold(diodeID);
+    double ith0 = m_CalibSvc->getCalIntimeThreshold(diodeID);
     // Flers: here I rely on CalibSvc providing correct values for th0, ith0
     // if that's not true, need to figure out if we are in dbm and set
     // th0, ith0, e.g.
     //                      if (dbm) { th0=1200.; ith0=1500.; }
     double threshold = th0 +
-      thsigma * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) +
-      noise * CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      m_CalibSvc->getCalThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) +
+      m_CalibSvc->getCalNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
      
     double intimethreshold  =  (ith0/th0)*threshold;
     // double overdrive        =  intimethreshold - threshold ;
     // compute overcharge for this diode
     double overcharge=(*i_chargedDiode).second.charge()-threshold;
-
-    if (pixelId->barrel_ec(collection.element()->identify()) == 0 
-     && pixelId->layer_disk(collection.element()->identify()) == 0 
-     && pixelId->eta_module(collection.element()->identify()) > 15) {
-      ATH_MSG_DEBUG ( "bec layer eta phi charge:  "
-                  << pixelId->barrel_ec(collection.element()->identify()) << " "
-                  << pixelId->layer_disk(collection.element()->identify()) << " "
-                  << pixelId->eta_module(collection.element()->identify()) << " "
-                  << pixelId->phi_module(collection.element()->identify()) << " "
-                  << (*i_chargedDiode).second.charge() << " ");
-    }
-
     // if the discriminator fires
     if (overcharge>0) {
       // compute the relative bunch number 
@@ -171,9 +157,17 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
       // else (i.e. is a noise hit or ...) assigns a random BC
       int bunch;
       if( (*i_chargedDiode).second.totalCharge().fromTrack()){
-        bunch=m_TimeSvc->relativeBunch(threshold,
-                                       intimethreshold,
-                                       (*i_chargedDiode).second.totalCharge(), ComputeTW);
+        if (m_timingTune==2015) {
+          // Timing tune from 2015 collision data.
+          int bec      = pixelId->barrel_ec(collection.element()->identify());
+          int layerID  = pixelId->layer_disk(collection.element()->identify());
+          int moduleID = pixelId->eta_module(collection.element()->identify());
+          bunch = m_TimeSvc->relativeBunch2015((*i_chargedDiode).second.totalCharge(),bec,layerID,moduleID);
+        }
+        else {
+          // Old tune from 2010 cosmic data.
+          bunch=m_TimeSvc->relativeBunch(threshold, intimethreshold, (*i_chargedDiode).second.totalCharge(), ComputeTW);
+        }
       } else {
         bunch=CLHEP::RandFlat::shootInt(m_rndmEngine,BCN);
       }

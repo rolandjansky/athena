@@ -74,6 +74,7 @@ public:
   double m_doBichselBetaGammaCut;                      // replace momentum cut
   bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
                                                        // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
+  bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
   ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
   std::string m_OutputFileName;                        // name of output file for customized study during digitization
   bool   m_doHITPlots;                                 // validation plots on HIT level
@@ -83,7 +84,9 @@ private:
   PixelBarrelBichselChargeTool();
 
   TFile* f_output;
+  
   TH1D*  h_Length;
+  TH1D*  h_hitTime;
   TH1D*  h_EnergyDepositionBichsel;
   TH1D*  h_EnergyDepositionNominal;
   TH1D*  h_EnergyDepositionDeltaRay;
@@ -98,6 +101,12 @@ private:
   TH1D* h_largestEnergyDeposition;
   TH1D* h_twolargestEnergyDeposition;
 
+  TH1D* h_timer_execute;           // for the whole execute function
+  TH1D* h_timer_BichselSim;        // only for the BichselSim() function
+  TH1D* h_timer_DigiLayer;         // for whole layer's deposition distribution
+  TH1D* h_timer_diffuse;           // for whole layer's diffusion
+
+  TH1D* h_hitCategory;             // distribution of the categories for HITs
 
 void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
 private:

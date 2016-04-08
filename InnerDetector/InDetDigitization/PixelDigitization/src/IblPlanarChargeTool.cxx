@@ -148,8 +148,8 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
 // Slim Edge for IBL planar sensors:
 // TODO: Access these from somewhere          
-          if(abs(xEtaD) > 20.440)e1=0.;
-          if(abs(xEtaD)< 20.440 && abs(xEtaD)> 20.200){
+      if(std::abs(xEtaD) > 20.440)e1=0.;
+          if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
             if(xEtaD>0){
               e1=e1*(68.13-xEtaD*3.333);            
               xEtaD = xEtaD - 0.250;
@@ -158,7 +158,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
               xEtaD = xEtaD + 0.250;
             }  
           }
-          if(abs(xEtaD)< 20.200 && abs(xEtaD)> 20.100){
+      if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
             if(xEtaD>0){
               e1=e1*(41.2-xEtaD*2.);             
               xEtaD = xEtaD - 0.250;
