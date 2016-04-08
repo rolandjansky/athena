@@ -1,3 +1,4 @@
+Py:Athena            INFO executing ROOT6Setup
 Py:MySvc             INFO ==> initializing [MySvc]...
 Py:MySvc             INFO cnt: 0
 Py:alg1              INFO ==> initializing [alg1]...
@@ -8,21 +9,21 @@ Py:alg1_mytool       INFO ==> initializing [alg1_mytool]...
 Py:alg1_mytool       INFO cnt: 0
 Py:alg1              INFO tool:1 'alg1_mytool'
 Py:alg2              INFO ==> initializing [alg2]...
-Py:alg2              INFO eta: 5.0999999999999996
+Py:alg2              INFO eta: 5.1
 Py:alg2              INFO pt:  20000.0
 Py:alg2              INFO px:  10000.0
 Py:alg2_mytool       INFO ==> initializing [alg2_mytool]...
 Py:alg2_mytool       INFO cnt: 0
 Py:alg2              INFO tool:1 'alg2_mytool'
 Py:alg3              INFO ==> initializing [alg3]...
-Py:alg3              INFO eta: 5.0999999999999996
+Py:alg3              INFO eta: 5.1
 Py:alg3              INFO pt:  20000.0
 Py:alg3              INFO px:  10000.0
 Py:alg3_mytool       INFO ==> initializing [alg3_mytool]...
 Py:alg3_mytool       INFO cnt: 0
 Py:alg3              INFO tool:1 'alg3_mytool'
 Py:MyAlg             INFO ==> initializing [MyAlg]...
-Py:MyAlg             INFO eta: 5.2000000000000002
+Py:MyAlg             INFO eta: 5.2
 Py:MyAlg             INFO pt:  40000.0
 Py:MyAlg             INFO px:  20000.0
 Py:MyAlg.mytool      INFO ==> initializing [MyAlg.mytool]...
