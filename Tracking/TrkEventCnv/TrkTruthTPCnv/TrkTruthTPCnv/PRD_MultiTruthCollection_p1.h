@@ -19,7 +19,8 @@
 #include <vector>
 
 namespace Trk {
-  struct PRD_MultiTruthCollection_p1 {
+  class PRD_MultiTruthCollection_p1 {
+  public:
     // the lore is that Root does not split std::pair, so make our own class
     struct Entry {
 // #ifdef __IDENTIFIER_PERS_VARSIZE__
